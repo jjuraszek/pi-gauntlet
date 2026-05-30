@@ -1,5 +1,14 @@
 # Changelog
 
+## v0.4.1 — 2026-05-30
+
+- **using-git-worktrees:** worktrees are now the announced default for skill-driven work (was a blocking consent gate). Canonical home is `<repo>/.worktrees/<branch>`, created if missing, with the gitignore check folded into creation. Dropped the global `~/worktrees/` prompt and the bare `worktrees/` location; `~/.worktrees/<project>/` is used only when there is no enclosing repo. Project setup and baseline examples now prefer `pnpm`/`yarn`.
+- **finishing-a-development-branch:** worktree-cleanup provenance synced to the new paths (`.worktrees/`, `~/.worktrees/<project>/`); removed the stale `worktrees/` and `~/.config/superpowers/worktrees/` entries this fork never creates.
+- **verification-before-completion:** documented default test commands now list `pnpm test`/`yarn test`, matching the `verify-before-ship` extension and README.
+- **test-driven-development:** prerequisite is an active worktree, not just a non-`main` branch.
+- **brainstorming:** First-Feature Oversight and single-source-of-truth guidance made stack-agnostic (removed Rails/Django-specific vocabulary).
+- **dispatching-parallel-agents:** replaced the session-specific narrative with a dense pi-subagents integration reference (parallel mode, fresh context, `worktree: true` isolation, agent choice, output capture).
+
 ## v0.4.0 — 2026-05-30
 
 - **install-agents:** user installs now symlink personas into `getAgentDir()/agents` (`$PI_CODING_AGENT_DIR/agents`, default `~/.pi/agent/agents`) instead of the global `~/.agents/`. This is pi-subagents' profile-scoped user dir, so each pi profile (`agent`, `agent.anthropic`, `agent.bedrock`, …) gets its own personas and stops sharing one global dir. Project installs are unchanged (copy into `<repo>/.pi/agents/`).

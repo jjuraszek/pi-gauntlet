@@ -16,7 +16,7 @@ Write the test first. Watch it fail. Write minimal code to pass.
 **Violating the letter of the rules is violating the spirit of the rules.**
 
 ## Prerequisites
-- Active branch (not main) or user-confirmed intent to work on main
+- Active worktree (not the primary checkout on `main`) — see `/skill:using-git-worktrees`
 - Approved plan or clear task scope
 
 Before starting implementation, call `phase_tracker({ action: "start", phase: "implement" })`.

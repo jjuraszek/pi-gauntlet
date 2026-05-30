@@ -145,7 +145,7 @@ From recurring failure modes:
 
 The `verify-before-ship` extension shipped by pi-superpowers watches `git commit`, `git push`, and `gh pr create`. If you have not run a passing recognised verification command since your last source-file edit in this session, an advisory warning is injected into the tool result. The warning clears automatically after a fresh passing run.
 
-Defaults recognise `make ci`, `make test`, `npm test`, `pytest`, `rspec`, `cargo test`, `go test`. Projects can override (or narrow) the list via `settings.json#piSuperpowers.verifyBeforeShip.testCommands`.
+Defaults recognise `make ci`, `make test`, `npm test`, `pnpm test`, `yarn test`, `pytest`, `rspec`, `cargo test`, `go test`. Projects can override (or narrow) the list via `settings.json#piSuperpowers.verifyBeforeShip.testCommands`.
 
 Before running the verification gate, call `phase_tracker({ action: "start", phase: "verify" })`.
 

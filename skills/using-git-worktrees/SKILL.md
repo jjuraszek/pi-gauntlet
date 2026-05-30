@@ -11,7 +11,7 @@ description: Use when starting feature work that needs isolation from current wo
 
 Git worktrees create isolated workspaces sharing the same repository, allowing work on multiple branches simultaneously without switching.
 
-**Core principle:** Detect existing isolation first → prefer the project's native tool → verify safety → ask before creating.
+**Core principle:** Detect existing isolation first → prefer the project's native tool → default to `<repo>/.worktrees/<branch>`, creating it if missing.
 
 **Announce at start:** "I'm using the using-git-worktrees skill to set up an isolated workspace."
 
@@ -40,17 +40,18 @@ Report with branch state:
 
 **If `GIT_DIR == GIT_COMMON` (or in a submodule):** You are in a normal repo checkout. Proceed to Step 1.
 
-## Step 1 — Get Consent (REQUIRED)
+## Step 1 — Announce, Don't Ask (skill-driven work defaults to a worktree)
 
-Never create a worktree silently. State what you intend and pause:
+For superpowers-driven work — brainstorming, plans, implementation — the worktree is the default, not a question. Announce and proceed:
 
-> "I'd like to create an isolated worktree at `<path>` on branch `<branch>` for this work. OK to proceed, or do you want me to work in the current directory?"
+> "Setting up an isolated worktree at `<path>` on branch `<branch>` for this work."
 
-Common reasons to **not** create a worktree:
-- Single-file edit or trivial change
-- User already set up a workspace
-- Working in a sandbox that doesn't support multiple checkouts
-- User says no
+Pause for explicit consent **only** when one of these holds:
+- A trivial one-off the user named (typo, format run, dependency bump)
+- The user already set up a workspace, or asked to work in place
+- The sandbox can't support multiple checkouts (see Sandbox fallback)
+
+Otherwise create it. The gate is "is this real work?", not "did the user approve this worktree?"
 
 ## Step 1a — Prefer Native Worktree Tools
 
@@ -73,43 +74,45 @@ Only when no native tool exists:
 
 ### 2a. Pick a location
 
-Priority:
-1. `.worktrees/` if it exists (project-local, hidden)
-2. `worktrees/` if it exists
-3. Project config (`grep -i worktree.*director README.md AGENTS.md .pi/settings.json`)
-4. Ask the user: `.worktrees/` (local) or `~/worktrees/<project>/` (global)
+The canonical home is `<repo>/.worktrees/<branch>`. Resolve in this order:
 
-### 2b. Verify isolation safety
+1. **Project override** — a wrapper/script or a `.pi/superpowers-overrides.md` worktree path (`grep -i worktree README.md AGENTS.md .pi/settings.json .pi/superpowers-overrides.md`). Obey it.
+2. **Default** — `<repo>/.worktrees/<branch>`. Create the directory if missing (Step 2b).
+3. **No enclosing repo** — only when there's no repo to anchor `.worktrees/`, fall back to `~/.worktrees/<project>/<branch>`.
 
-**For project-local locations, the directory MUST be gitignored:**
+Don't ask local-vs-global and don't invent other paths — `.worktrees/` is the default.
+
+### 2b. Create — gitignore the home first
+
+`.worktrees/` must be gitignored before a worktree lands inside it. Fold the check into creation:
 
 ```bash
-git check-ignore -q .worktrees 2>/dev/null || echo "NOT IGNORED — add to .gitignore first"
+ROOT=$(git rev-parse --show-toplevel)
+cd "$ROOT"
+if ! git check-ignore -q .worktrees; then
+  echo ".worktrees/" >> .gitignore
+  git add .gitignore && git commit -m "Ignore .worktrees/"
+fi
+git worktree add ".worktrees/$BRANCH_NAME" -b "$BRANCH_NAME"
+cd ".worktrees/$BRANCH_NAME"
 ```
 
-If not ignored: add to `.gitignore`, commit that change, *then* proceed. Never create a project-local worktree under an unignored path.
+For the outside-a-repo `~/.worktrees/<project>/` fallback, no .gitignore check applies.
 
-For `~/worktrees/...` — no .gitignore check needed.
-
-### 2c. Create
+### 2c. Run project setup
 
 ```bash
-project=$(basename "$(git rev-parse --show-toplevel)")
-git worktree add "$LOCATION/$BRANCH_NAME" -b "$BRANCH_NAME"
-cd "$LOCATION/$BRANCH_NAME"
-```
-
-### 2d. Run project setup
-
-```bash
-[ -f package.json ]    && npm install
+if   [ -f pnpm-lock.yaml ]; then pnpm install
+elif [ -f yarn.lock ];      then yarn install
+elif [ -f package.json ];   then npm install
+fi
 [ -f Cargo.toml ]      && cargo build
 [ -f pyproject.toml ]  && uv sync
 [ -f Gemfile ]         && bundle install
 [ -f go.mod ]          && go mod download
 ```
 
-### 2e. Sandbox fallback
+### 2d. Sandbox fallback
 
 If worktree creation fails on permissions (read-only filesystem, container sandbox without write to parent dirs): stop, announce the failure, and continue in the current directory on a feature branch.
 
@@ -118,7 +121,7 @@ If worktree creation fails on permissions (read-only filesystem, container sandb
 ```bash
 # pick the project's test command — see AGENTS.md for the canonical entrypoint
 make ci                    # cross-language convention
-npm test                   # JS / TS
+pnpm test                  # JS / TS (or npm test / yarn test)
 uv run pytest              # Python
 bundle exec rspec          # Ruby
 cargo test                 # Rust
@@ -159,8 +162,8 @@ Re-run tests after rebasing.
 | `GIT_DIR != GIT_COMMON` | Already in worktree — do NOT create another |
 | `git rev-parse --show-superproject-working-tree` returns a path | Submodule — treat as normal repo |
 | Project-native wrapper exists | Use the wrapper (commonly `script/worktree create`) |
-| No native tool, `.worktrees/` exists, ignored | Use it |
-| No native tool, not ignored | Add to `.gitignore`, commit, then create |
+| No native tool | Create `<repo>/.worktrees/<branch>` (gitignore `.worktrees/` first) |
+| No enclosing repo | Fall back to `~/.worktrees/<project>/<branch>` |
 | Detached HEAD | Ask before branching |
 | Sandbox/permission failure | Work in place on a feature branch |
 | Tests fail at baseline | Report + ask |
@@ -169,8 +172,8 @@ Re-run tests after rebasing.
 
 - About to run `git worktree add` from inside a worktree (`GIT_DIR != GIT_COMMON`)
 - About to call `git worktree add` directly when the project ships a wrapper (use the wrapper)
-- Project-local worktree path not gitignored
-- Created worktree without asking the user first
+- Created a `.worktrees/` worktree without gitignoring `.worktrees/` first
+- Placed a worktree outside `.worktrees/` (or the project's configured path) for no reason
 - Tests fail at baseline and you proceed anyway
 
 ## Integration

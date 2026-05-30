@@ -147,37 +147,30 @@ Return: Summary of what you found and what you fixed.
 **Exploratory debugging:** You don't know what's broken yet
 **Shared state:** Agents would interfere (editing same files, using same resources)
 
-## Real Example from Session
+## pi-subagents Integration
 
-**Scenario:** 6 test failures across 3 files after major refactoring
+Parallel dispatch rides on the `subagent` tool (the pi-subagents package). Mechanics that matter here:
 
-**Failures:**
-- agent-tool-abort.test.ts: 3 failures (timing issues)
-- batch-completion-behavior.test.ts: 2 failures (tools not executing)
-- tool-approval-race-conditions.test.ts: 1 failure (execution count = 0)
+- **Parallel mode** — pass a `tasks` array; entries run concurrently. `concurrency` (default 4) caps how many run at once.
+- **Context** — `context: "fresh"` at the top level applies to every task. Mandatory here (see above); without it `worker` forks parent history and you lose isolation.
+- **Filesystem isolation** — `worktree: true` runs each task in its own git worktree so concurrent edits can't collide. Requires clean git state; each task's diff returns separately for you to integrate. Omit it for read-only investigations.
+- **Agent choice** — `worker` is the pi-subagents builtin generalist. Use a persona (`implementer`, `code-reviewer`) when you want its system prompt and tool profile. Persona frontmatter (tools, thinking, context) is fixed; only `model`, `task`, `output`, `reads`, `progress`, `skill` are callable per task.
+- **Output capture** — `output: "<file>"` writes a task's summary to a file instead of inline; add `outputMode: "file-only"` for large results.
 
-**Decision:** Independent domains - abort logic separate from batch completion separate from race conditions
-
-**Dispatch:**
 ```ts
 subagent({
   context: "fresh",
+  worktree: true,        // isolate edits; omit for read-only investigations
+  concurrency: 3,
   tasks: [
-    { agent: "worker", task: "Fix agent-tool-abort.test.ts" },
-    { agent: "worker", task: "Fix batch-completion-behavior.test.ts" },
-    { agent: "worker", task: "Fix tool-approval-race-conditions.test.ts" },
+    { agent: "worker", task: "Fix + explain failures in src/a.test.ts", output: "a.md" },
+    { agent: "worker", task: "Fix + explain failures in src/b.test.ts", output: "b.md" },
+    { agent: "worker", task: "Fix + explain failures in src/c.test.ts", output: "c.md" },
   ],
 })
 ```
 
-**Results:**
-- Agent 1: Replaced timeouts with event-based waiting
-- Agent 2: Fixed event structure bug (threadId in wrong place)
-- Agent 3: Added wait for async tool execution to complete
-
-**Integration:** All fixes independent, no conflicts, full suite green
-
-**Time saved:** 3 problems solved in parallel vs sequentially
+For chains, async runs, intercom coordination, and the full agent roster, read the `pi-subagents` skill — this skill covers only the parallel fan-out case.
 
 ## Verification
 
@@ -186,8 +179,6 @@ After agents return:
 2. **Check for conflicts** - Did agents edit same code?
 3. **Run full suite** - Verify all fixes work together
 4. **Spot check** - Agents can make systematic errors
-
-
 
 ## Project overrides
 

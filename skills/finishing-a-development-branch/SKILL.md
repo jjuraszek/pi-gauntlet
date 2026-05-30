@@ -209,7 +209,7 @@ name="${WORKTREE_PATH##*-}"
 "$MAIN_ROOT/script/worktree" destroy "$name"
 ```
 
-**If worktree path is under `.worktrees/`, `worktrees/`, or `~/.config/superpowers/worktrees/`:** Superpowers created this worktree — we own cleanup.
+**If worktree path is under `.worktrees/` or `~/.worktrees/<project>/`:** Superpowers created this worktree — we own cleanup.
 
 ```bash
 MAIN_ROOT=$(git -C "$(git rev-parse --git-common-dir)/.." rev-parse --show-toplevel)
@@ -253,7 +253,7 @@ git worktree prune  # Self-healing: clean up any stale registrations
 
 **Cleaning up harness-owned worktrees**
 - **Problem:** Removing a worktree the harness created causes phantom state
-- **Fix:** Only clean up worktrees under `.worktrees/`, `worktrees/`, `~/.config/superpowers/worktrees/`, or paths produced by a project-native worktree script
+- **Fix:** Only clean up worktrees under `.worktrees/`, `~/.worktrees/<project>/`, or paths produced by a project-native worktree script
 
 **No confirmation for discard**
 - **Problem:** Accidentally delete work

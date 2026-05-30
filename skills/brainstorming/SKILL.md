@@ -97,7 +97,7 @@ When sketching the design, prefer:
 - **Clear boundaries** — clean interfaces between components, easy to test in isolation.
 - **YAGNI ruthlessly** — every component you add is a component you must maintain.
 - **Match existing patterns** — if a service has a convention, follow it. Reference the service's `AGENTS.md` and neighboring code.
-- **Single source of truth** — point at the schema/contract that owns the data (Postgres `schema.rb`, DuckDB `API_CONTRACT.md`, etc.); don't invent parallel state.
+- **Single source of truth** — point at the schema/contract that owns the data (the migration, type definition, or API contract that defines it); don't invent parallel state.
 - **Explicit error and edge cases** — name them. "Out of scope" is a valid answer, but it has to be stated.
 
 ### 6. Present the design in sections
@@ -119,12 +119,12 @@ When a ticket ID is given, fetch the ticket and treat it as **guidance, not the 
 
 ## First-Feature Oversight (Early Project Stages)
 
-For the **first two features** of a new initiative — new directory under `app/`, new service/concern, new database schema area, or any pattern that will repeat — pause and ask the developer to confirm before proceeding on:
+For the **first two features** of a new initiative — a new top-level module/package, a new long-lived component, a new persistence/schema area, or any pattern that will repeat — pause and ask the developer to confirm before proceeding on:
 
-- Directory structure decisions
-- Naming conventions (models, controllers, routes, CSS classes)
-- New utility/service/concern (location, responsibility)
-- Database schema design (table names, column types, index strategy)
+- Directory and module structure decisions
+- Naming conventions (public types, files, routes, identifiers)
+- New shared abstraction (location, responsibility, boundary)
+- Persistence/schema design (entity names, field types, indexing)
 - Proposed additions to AGENTS.md or doc/ files
 
 If the developer hasn't provided guidance, ask explicitly:
