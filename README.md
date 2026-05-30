@@ -50,7 +50,10 @@ pi install git:github.com/jjuraszek/pi-subagents@<sha-or-tag>
 pi install git:github.com/jjuraszek/pi-superpowers@v0.1.2
 ```
 
-Pi clones the package, runs `npm install --omit=dev`, which triggers the `postinstall` script and symlinks the three agent files into `~/.agents/` (the user-scope discovery path pi-subagents reads from).
+Pi clones the package, runs `npm install --omit=dev`, which triggers the `postinstall` script. Where personas land depends on the install location:
+
+- **User/global install** (package under `<home>/.pi/<profile>/...`): symlinks the three agent files into `~/.agents/` (the user-scope discovery path). This dir is shared across all pi profiles on the machine, so the personas are global.
+- **Project install** (package under `<repo>/.pi/...`): copies the three agent files into `<repo>/.pi/agents/` (the project-scope discovery path). Project scope wins over user scope on name collisions, so each repo's personas are independent of `~/.agents/` and of other repos. The dir is install-managed — gitignore `.pi/agents/`.
 
 ## Install (local development)
 
@@ -100,7 +103,9 @@ Two notes:
 
 ## Subagent personas
 
-The three personas in `agents/` get symlinked into `~/.agents/` on install, so pi-subagents discovers them at user scope. Override precedence is `project > user > builtin`, so you can shadow any of them by dropping `.pi/agents/<name>.md` in your repo.
+On a user/global install the three personas in `agents/` are symlinked into `~/.agents/` (user scope, shared by every pi profile). On a project install they are copied into `<repo>/.pi/agents/` (project scope, isolated per repo). Override precedence is `project > user > builtin`, so a project install always shadows the global personas for that repo, and you can hand-edit or drop your own `.pi/agents/<name>.md` to shadow them further.
+
+Target dir override: set `PI_SUPERPOWERS_AGENT_DIR` to force symlinking into a specific dir (always symlink mode).
 
 If you want to know what's in each persona before using it, see [`agents/`](./agents/). The frontmatter (tools, thinking level, context mode) is documented in [`AGENTS.md`](./AGENTS.md#agents).
 

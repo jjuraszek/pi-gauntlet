@@ -11,7 +11,7 @@ Audit comparing pi-superpowers HEAD against `obra/superpowers@f2cbfbefebbf` (v5.
 | 3 | Bug | `skills/using-git-worktrees/SKILL.md` Step 1a frames native tools abstractly. Upstream proved (TDD: 2/6 → 50/50 compliance) that **explicit tool-name anchors** (`EnterWorktree`, `WorktreeCreate`, `/worktree`, `--worktree`) are load-bearing. |
 | 4 | Bug | `skills/writing-skills/reference/testing-skills-with-subagents.md:15` references `examples/CLAUDE_MD_TESTING.md` which we never ported. Dead link. |
 | 5 | Bug | `README.md:3,31` link to `https://github.com/mariozechner/pi` — 404. Correct repo is `https://github.com/badlogic/pi-mono`. |
-| 6 | Bug | `AGENTS.md:48` verification grep uses `gridstrong\|specific.company.name` — second pattern is a meaningless placeholder. |
+| 6 | Bug | `AGENTS.md:48` verification grep uses `<your-company>\|specific.company.name` — second pattern is a meaningless placeholder. |
 | 7 | Design | Six skills call `plan_tracker.update` to mark "phase complete" but never `init` a phase list. Calls either no-op or mutate an unrelated task list. Two distinct concerns (phase vs task) share one tracker. |
 
 ## Scope
@@ -88,13 +88,13 @@ Replace both occurrences of `https://github.com/mariozechner/pi` (lines 3 and 31
 Replace the verification grep line:
 
 ```bash
-rg -ni "gridstrong|specific.company.name" skills/
+rg -ni "<your-company>|specific.company.name" skills/
 ```
 
 With more useful examples:
 
 ```bash
-rg -ni "gridstrong|jjuraszek|/Users/[^/]+|<your-org-name>" skills/
+rg -ni "<your-company>|jjuraszek|/Users/[^/]+|<your-org-name>" skills/
 ```
 
 And expand the explanation: "Replace the placeholders above with patterns specific to your fork — company names, your username paths, internal service names."

@@ -1,5 +1,9 @@
 # Changelog
 
+## v0.3.0 — 2026-05-30
+
+- **install-agents:** project installs now copy personas into `<repo>/.pi/agents/` (project scope) instead of symlinking into the global `~/.agents/`. Previously every install — user or project — wrote to the shared `~/.agents/` keyed by filename, so personas were effectively global across all pi profiles and the last install to run won the symlink. The installer now detects whether the package lives under `<repo>/.pi/...` (project → copy, install-managed, gitignored) or `<home>/.pi/<profile>/...` (user → symlink into `~/.agents/`, unchanged). Local-path dev installs and `PI_SUPERPOWERS_AGENT_DIR` keep symlink behavior. Project scope wins over user scope on name collisions, so per-repo installs are now independent.
+
 ## v0.2.0 — 2026-05-28
 
 - **writing-plans:** drop `plan-document-reviewer-prompt.md` subagent dispatch from the Self-Review step. Align with obra v5.0.6 — inline self-review only. The dispatch added ~25 min/run with no measured quality gain and contradicted the repo's no-belt-and-suspenders rule.
