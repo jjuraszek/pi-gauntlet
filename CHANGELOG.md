@@ -1,5 +1,11 @@
 # Changelog
 
+## v0.5.0 — 2026-05-31
+
+- **roasting-the-spec:** new skill — an optional, per-preset multi-model spec critique that runs inside `brainstorming` between self-review and the user gate. Each council member runs on a different model (`piSuperpowers.specCouncil.members`), a neutral chair (`spec-council-synthesizer`) consolidates and adjudicates their critiques, the parent proposes dispositions, and the user approves what lands. Off unless configured.
+- **agents:** add `spec-council-member` (adversarial single-model spec critic, `thinking: xhigh`) and `spec-council-synthesizer` (neutral consolidating chair, `thinking: xhigh`). Both are model-free; `roasting-the-spec` injects the model per task. Brings the shipped persona count to five.
+- **brainstorming:** add a one-section hook offering the spec council before the user review gate when configured; unchanged when not.
+
 ## v0.4.1 — 2026-05-30
 
 - **using-git-worktrees:** worktrees are now the announced default for skill-driven work (was a blocking consent gate). Canonical home is `<repo>/.worktrees/<branch>`, created if missing, with the gitignore check folded into creation. Dropped the global `~/worktrees/` prompt and the bare `worktrees/` location; `~/.worktrees/<project>/` is used only when there is no enclosing repo. Project setup and baseline examples now prefer `pnpm`/`yarn`.

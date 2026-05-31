@@ -53,20 +53,22 @@ Replace the placeholders above with patterns specific to your fork — company n
 
 ### Agents
 
-Three agents ship in `agents/`: `implementer`, `code-reviewer`, `spec-reviewer`. Body text becomes the child's system prompt (`systemPromptMode: replace`).
+Five agents ship in `agents/`: `implementer`, `code-reviewer`, `spec-reviewer`, plus `spec-council-member` and `spec-council-synthesizer` (dispatched only by `/skill:roasting-the-spec`, never directly). Body text becomes the child's system prompt (`systemPromptMode: replace`).
 
 Frontmatter knobs are **not overridable** at `subagent()` call time, so pick them carefully:
 
-| Knob | implementer | code-reviewer | spec-reviewer |
-|---|---|---|---|
-| `tools` | `read, write, edit, bash, grep, find, ls` | `read, grep, find, ls, bash` | `read, grep, find, ls, bash` |
-| `thinking` | `medium` | `high` | `high` |
-| `defaultContext` | `fork` | `fresh` | `fresh` |
-| `inheritProjectContext` | `true` | `true` | `true` |
-| `inheritSkills` | `false` | `false` | `false` |
-| `completionGuard` | `true` | `false` | `false` |
+| Knob | implementer | code-reviewer | spec-reviewer | spec-council-member | spec-council-synthesizer |
+|---|---|---|---|---|---|
+| `tools` | `read, write, edit, bash, grep, find, ls` | `read, grep, find, ls, bash` | `read, grep, find, ls, bash` | `read, grep, find, ls, bash` | `read, grep, find, ls, bash` |
+| `thinking` | `medium` | `high` | `high` | `xhigh` | `xhigh` |
+| `defaultContext` | `fork` | `fresh` | `fresh` | `fresh` | `fresh` |
+| `inheritProjectContext` | `true` | `true` | `true` | `true` | `true` |
+| `inheritSkills` | `false` | `false` | `false` | `false` | `false` |
+| `completionGuard` | `true` | `false` | `false` | `false` | `false` |
 
 Rationale: reviewers are read-only and skeptical (fresh context, no edit tools, high thinking budget). Implementer continues the parent's session (fork) but doesn't need to recurse into skill discovery (inheritSkills: false avoids dispatch loops). `inheritProjectContext: true` lets agents adapt to the consumer's `AGENTS.md`.
+
+The two `spec-council-*` agents are the reviewer profile pushed to `thinking: xhigh`; they carry no `model:` — `/skill:roasting-the-spec` injects it per task (members from `piSuperpowers.specCouncil.members`, the chair from `specCouncil.chair`), so no model is baked into the persona.
 
 If you must override at call site, the only callable knobs are `model`, `task`, `output`, `reads`, `progress`, `skill` — frontmatter wins for the rest.
 
@@ -146,7 +148,7 @@ Last sync:
 
 **Material divergence from obra v5.1.0:** upstream deleted their `agents/` directory in v5.1.0, merging `code-reviewer` into the `requesting-code-review` skill as a Task-dispatch template. We keep `agents/` because pi-subagents treats named agents as a first-class dispatch primitive (the `subagent({ agent: "code-reviewer" })` call in skills resolves to our profile, not a prompt template). Don't re-sync that change without considering pi-subagents semantics.
 
-**Skills coverage:** we ship 13 of obra's 14 v5.1.0 skills. The missing one, `using-superpowers`, is a Claude-Code-specific bootstrap skill that forces invocation of the `Skill` tool; pi's discovery model surfaces skill descriptions in the system prompt automatically, so the bootstrap isn't needed.
+**Skills coverage:** we ship 13 of obra's 14 v5.1.0 skills. The missing one, `using-superpowers`, is a Claude-Code-specific bootstrap skill that forces invocation of the `Skill` tool; pi's discovery model surfaces skill descriptions in the system prompt automatically, so the bootstrap isn't needed. `roasting-the-spec` is an original skill with no obra equivalent, so the 13-of-14 count tracks obra-sourced skills only (total shipped skills: 14).
 
 Re-sync workflow: compare a fresh checkout of upstream against `skills/`, port worthwhile changes manually, bump the SHA above with date, note material changes in `CHANGELOG.md`. No subtree, no patch files — keep the divergence small and reviewed.
 

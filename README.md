@@ -6,20 +6,22 @@ Inspired by [obra/superpowers](https://github.com/obra/superpowers) (Claude Code
 
 ## What you get
 
-**13 skills** that activate automatically when pi sees the right kind of task:
+**14 skills** that activate automatically when pi sees the right kind of task:
 
-- **Design & planning** — `brainstorming`, `writing-plans`, `executing-plans`
+- **Design & planning** — `brainstorming`, `writing-plans`, `executing-plans`, `roasting-the-spec`
 - **Implementation** — `test-driven-development`, `subagent-driven-development`, `dispatching-parallel-agents`
 - **Verification** — `verification-before-completion`, `systematic-debugging`
 - **Review** — `requesting-code-review`, `receiving-code-review`
 - **Worktree lifecycle** — `using-git-worktrees`, `finishing-a-development-branch`
 - **Meta** — `writing-skills`
 
-**3 subagent personas** dispatchable via [pi-subagents](https://github.com/jjuraszek/pi-subagents):
+**5 subagent personas** dispatchable via [pi-subagents](https://github.com/jjuraszek/pi-subagents):
 
 - `implementer` — strict RED→GREEN→REFACTOR TDD, completion-guarded.
 - `code-reviewer` — read-only review, Critical/Moderate/Minor severity.
 - `spec-reviewer` — verifies an implementation against its plan/spec, per-requirement table.
+- `spec-council-member` — adversarial single-model spec critic; one per configured council model. Dispatched only by `roasting-the-spec`.
+- `spec-council-synthesizer` — neutral chair that consolidates and adjudicates member critiques. Dispatched only by `roasting-the-spec`.
 
 **3 runtime extensions**:
 
@@ -52,8 +54,8 @@ pi install git:github.com/jjuraszek/pi-superpowers@v0.1.2
 
 Pi clones the package, runs `npm install --omit=dev`, which triggers the `postinstall` script. Where personas land depends on the install location:
 
-- **User install** (package under `<home>/.pi/<profile>/...`): symlinks the three agent files into `getAgentDir()/agents` — i.e. `$PI_CODING_AGENT_DIR/agents`, defaulting to `~/.pi/agent/agents`. This is pi-subagents' profile-scoped user dir, so each pi profile (`agent`, `agent.anthropic`, …) gets its own personas instead of sharing the machine-global `~/.agents/`. Older versions installed into `~/.agents/`; on upgrade the postinstall removes stale `~/.agents/<name>.md` symlinks that point into a pi-superpowers package (which would otherwise shadow the profile-scoped copy) and leaves your own files there alone.
-- **Project install** (package under `<repo>/.pi/...`): copies the three agent files into `<repo>/.pi/agents/` (the project-scope discovery path). Copy, not symlink, so the files stay valid if you commit them; gitignore `.pi/agents/` if you'd rather keep them install-managed. Project scope wins over user scope on name collisions, so each repo's personas are independent of the user dir and of other repos.
+- **User install** (package under `<home>/.pi/<profile>/...`): symlinks the five agent files into `getAgentDir()/agents` — i.e. `$PI_CODING_AGENT_DIR/agents`, defaulting to `~/.pi/agent/agents`. This is pi-subagents' profile-scoped user dir, so each pi profile (`agent`, `agent.anthropic`, …) gets its own personas instead of sharing the machine-global `~/.agents/`. Older versions installed into `~/.agents/`; on upgrade the postinstall removes stale `~/.agents/<name>.md` symlinks that point into a pi-superpowers package (which would otherwise shadow the profile-scoped copy) and leaves your own files there alone.
+- **Project install** (package under `<repo>/.pi/...`): copies the five agent files into `<repo>/.pi/agents/` (the project-scope discovery path). Copy, not symlink, so the files stay valid if you commit them; gitignore `.pi/agents/` if you'd rather keep them install-managed. Project scope wins over user scope on name collisions, so each repo's personas are independent of the user dir and of other repos.
 
 ## Install (local development)
 
@@ -103,11 +105,31 @@ Two notes:
 
 ## Subagent personas
 
-On a user install the three personas in `agents/` are symlinked into `getAgentDir()/agents` (profile-scoped user dir — `$PI_CODING_AGENT_DIR/agents`, default `~/.pi/agent/agents`). On a project install they are copied into `<repo>/.pi/agents/` (project scope, isolated per repo). Override precedence is `project > user > builtin`, so a project install always shadows the user personas for that repo, and you can hand-edit or drop your own `.pi/agents/<name>.md` to shadow them further.
+On a user install the five personas in `agents/` are symlinked into `getAgentDir()/agents` (profile-scoped user dir — `$PI_CODING_AGENT_DIR/agents`, default `~/.pi/agent/agents`). On a project install they are copied into `<repo>/.pi/agents/` (project scope, isolated per repo). Override precedence is `project > user > builtin`, so a project install always shadows the user personas for that repo, and you can hand-edit or drop your own `.pi/agents/<name>.md` to shadow them further.
 
 Target dir override: set `PI_SUPERPOWERS_AGENT_DIR` to force symlinking into a specific dir (leading `~` expanded; always symlink mode).
 
 If you want to know what's in each persona before using it, see [`agents/`](./agents/). The frontmatter (tools, thinking level, context mode) is documented in [`AGENTS.md`](./AGENTS.md#agents).
+
+## Spec council
+
+`/skill:roasting-the-spec` runs an optional multi-model critique of a spec before the brainstorming user-review gate. It is **off unless configured** in the active preset's `settings.json`. Each member runs on a different model (divergent critiques), a neutral chair consolidates and adjudicates, and you approve what gets applied.
+
+```json
+{
+  "piSuperpowers": {
+    "specCouncil": {
+      "members": ["<provider/model>", "<provider/model>", "<provider/model>"],
+      "chair": "<provider/model>"
+    }
+  }
+}
+```
+
+- `members` (required) — roster of `provider/model` strings; council size = array length, one critique per model. Empty or absent → the council is never offered and brainstorming is unchanged.
+- `chair` (optional) — model for the consolidating synthesizer; defaults to the inherited model when omitted.
+
+Rosters are per-preset: each pi profile (`agent`, `agent.anthropic`, `agent.bedrock`, …) reads its own `settings.json`, so list only models that profile's providers can reach. The two personas it dispatches — `spec-council-member` and `spec-council-synthesizer` — are model-free; their model is injected per task from this config.
 
 ## Extensions
 

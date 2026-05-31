@@ -162,9 +162,13 @@ After writing the spec to `<project>/doc/specs/<filename>.md` (per [Filename Con
 
 Fix what self-review surfaces before handing to the user.
 
+## Spec Council (Optional)
+
+After self-review and before the user review gate, if a spec council is configured for the active preset (`piSuperpowers.specCouncil.members` in `$PI_CODING_AGENT_DIR/settings.json`), offer a multi-model critique pass — see `/skill:roasting-the-spec`. If it is not configured, skip silently and proceed to the gate. Approved council edits are applied to the spec and ride in the same worktree commit as the rest of this skill's output.
+
 ## User Review Gate
 
-After self-review, write the spec to disk inside the worktree, commit it on the worktree branch, and stop:
+After self-review (and council review, if configured), commit the spec on the worktree branch and stop:
 
 ```
 Spec written and committed to <project>/doc/specs/<filename>.md (worktree: <path>).
