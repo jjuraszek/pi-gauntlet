@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## v1.0.0 — 2026-05-31
 
 - **writing-plans:** tasks can be grouped into dependency **waves** under `## Wave N` headers; the per-task `Files:` block now doubles as a file-ownership contract (within a wave, task file sets must be pairwise disjoint). Self-review gains a wave-disjointness check; ordering guidance updated for waves.
 - **subagent-driven-development:** new **Parallel-Wave Mode** — independent tasks in a wave run concurrently in isolated worktrees (`worktree: true`), integrated serially via `git apply` behind the same two-stage review, committed per wave. `plan_tracker` wave encoding documented (init-once, wave-prefixed names, multiple concurrent `in_progress`). Dispatching a wave from inside a worktree requires passing the worktree path as the top-level `cwd` so children branch from the right base. Sequential remains the default.
