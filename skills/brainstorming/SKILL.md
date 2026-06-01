@@ -37,16 +37,17 @@ This skill ends with a **written, user-reviewed spec inside a worktree**. Nothin
 
 Create a task for each item and complete them **in order**. The terminal state is the user review gate; after approval the **only** next skill is `/skill:writing-plans`. Do not jump to implementation, and do not silently drop the council offer.
 
-1. **Set up the worktree** — see [Worktree First](#worktree-first)
-2. **Explore project context** — files, docs, recent commits, current behaviour
-3. **Ask clarifying questions** — one at a time
-4. **Propose 2-3 approaches** — with trade-offs and a recommendation
-5. **Present the design** — in sections, get approval after each
-6. **Write the spec** — to `doc/specs/` (see [Filename Convention](#filename-convention))
-7. **Spec self-review** — placeholders, consistency, scope, ambiguity
-8. **Offer the spec council** — required step when one is configured; skip only when unconfigured (see [Spec Council](#spec-council-optional))
-9. **User review gate** — user reviews the committed spec
-10. **Transition** — only after approval, invoke `/skill:writing-plans`
+1. **Start brainstorm tracking** — call `phase_tracker({ action: "start", phase: "brainstorm" })` as the **first action on entry**, before reading code, setting up the worktree, or answering the user. It is idempotent: re-entering while brainstorm is already in-progress is a safe no-op.
+2. **Set up the worktree** — see [Worktree First](#worktree-first)
+3. **Explore project context** — files, docs, recent commits, current behaviour
+4. **Ask clarifying questions** — one at a time
+5. **Propose 2-3 approaches** — with trade-offs and a recommendation
+6. **Present the design** — in sections, get approval after each
+7. **Write the spec** — to `doc/specs/` (see [Filename Convention](#filename-convention))
+8. **Spec self-review** — placeholders, consistency, scope, ambiguity
+9. **Offer the spec council** — required step when one is configured; skip only when unconfigured (see [Spec Council](#spec-council-optional))
+10. **User review gate** — user reviews the committed spec
+11. **Transition** — only after approval, invoke `/skill:writing-plans`
 
 ## Project Routing
 
@@ -64,8 +65,6 @@ If the project's `AGENTS.md` calls out additional reading for a specific area (e
 ## Worktree First
 
 The spec is the **first commit in a dedicated worktree**, not a separate commit on `main`. Before drafting any spec content:
-
-If no phase-tracker state exists (status returns pending across the board), call `phase_tracker({ action: "start", phase: "brainstorm" })` before drafting.
 
 1. Invoke `/skill:using-git-worktrees`. Worktrees live under `.worktrees/` at the repo root, or wherever a project-native worktree script places them.
 2. Switch into the worktree.
@@ -187,7 +186,7 @@ Fix what self-review surfaces before handing to the user.
 
 ## Spec Council (Optional)
 
-After self-review and before the user review gate, check whether a spec council is configured for the active preset (`piSuperpowers.specCouncil.members` in `$PI_CODING_AGENT_DIR/settings.json`). **When one is configured, making the offer is a required checklist step (item 8) — present it explicitly and wait; do not skip ahead to the gate.** Offer a multi-model critique pass — see `/skill:roasting-the-spec`. If no council is configured, skip silently and proceed to the gate. Approved council edits are applied to the spec and ride in the same worktree commit as the rest of this skill's output.
+After self-review and before the user review gate, check whether a spec council is configured for the active preset (`piSuperpowers.specCouncil.members` in `$PI_CODING_AGENT_DIR/settings.json`). **When one is configured, making the offer is a required checklist step (item 9) — present it explicitly and wait; do not skip ahead to the gate.** Offer a multi-model critique pass — see `/skill:roasting-the-spec`. If no council is configured, skip silently and proceed to the gate. Approved council edits are applied to the spec and ride in the same worktree commit as the rest of this skill's output.
 
 ## User Review Gate
 

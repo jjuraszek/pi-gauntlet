@@ -1,5 +1,9 @@
 # Changelog
 
+## v1.0.2 — 2026-06-01
+
+- **brainstorming:** phase tracking now starts unconditionally on skill entry. The `phase_tracker({ action: "start", phase: "brainstorm" })` call was previously gated behind a `status`-probe conditional ("if status returns pending across the board") and buried inside *Worktree First* under the worktree-setup step — the exact step the model defers when a conversational prompt arrives, so a question-heavy entry could answer the user and never start tracking. Hoisted it to **checklist item 1** as the first action on entry (before reading code, worktree setup, or replying), documented its idempotency (re-entry while in-progress is a safe no-op), and removed the status-probe guard. Checklist renumbered (10→11 items); spec-council reference updated to item 9.
+
 ## v1.0.1 — 2026-06-01
 
 - **brainstorming:** harden the anti-jump-to-implementation gate after an implementation-heavy prompt slipped straight past spec/council/plan. HARD CONSTRAINT reframed from a file-write boundary into a behavioral gate — no implementation action until the design is approved, and an imperative request ("test it end-to-end", "run the service") explicitly does not lift it. Drew the research/implementation line: running the system to observe **current** behaviour is allowed research (feeds the spec); building, deploying, or validating the **proposed change** is implementation and waits for the gate. Added an ordered **Checklist** (terminal state = user gate → `/skill:writing-plans`) so steps can't be silently skipped, made the spec-council offer a required checklist item when configured, and added matching Red Flags.
