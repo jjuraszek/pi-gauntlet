@@ -4,6 +4,20 @@ Tests passing proves the code runs. It does **not** prove the code does what was
 asked. This check confronts deliverables (code **and** docs) against the
 requirements.
 
+## Why this is distinct from code review
+
+Work flows `prompt/spec → plan → code/doc`. Each hop is lossy: the plan can
+drop or reinterpret a requirement, and code can drift from the plan. Reviewing
+**plan vs code** (what `/skill:requesting-code-review` does) is *single-step*
+verification — it confirms the last hop, but inherits any drift the plan already
+introduced.
+
+This check is the **closing loop**: confront the final outcome (code + doc)
+against the *origin* (spec + original prompt), skipping the plan. It catches
+requirements lost anywhere in the chain, not just in the last step. Run it even
+when plan-vs-code review passed clean — they measure different things against
+different reference points.
+
 ## Dispatch a fresh reviewer (primary path)
 
 The main session built the thing — it has confirmation bias. Delegate the check
@@ -36,17 +50,20 @@ Spec vs prompt/ticket disagree → **STOP and reconcile**, do not absorb silentl
 
 ## Coverage rule
 
-Default (~90%): **1 ticket = 1 spec = code covering every AC.** "Every AC" =
-explicit acceptance criteria **+** implicit notes in ticket body and comments.
-Ticket and solution must end in sync.
+Default: **1 requirement source = 1 spec = code covering every requirement.**
+The requirement source is whatever sits at the top of the priority table — a
+ticket if there is one, otherwise the spec + original prompt. No ticket is fine;
+spec + prompt is a first-class source, not a degraded one. "Every requirement" =
+explicit acceptance criteria / spec clauses **+** implicit notes (ticket body,
+comments, or inline in the prompt). Source and solution must end in sync.
 
 Multi-spec effort → allowed **only if the spec explicitly says** it covers a
-defined subset and names the deferred ACs. Silent partial coverage = failure.
+defined subset and names the deferred requirements. Silent partial coverage = failure.
 
 ## Checklist
 
 - [ ] Located canonical requirements (spec → prompt → ticket fallback)
-- [ ] Enumerated every requirement: explicit ACs + implicit notes + inline prompt reqs
+- [ ] Enumerated every requirement: explicit ACs / spec clauses + implicit notes + inline prompt reqs
 - [ ] Checked spec ↔ prompt/ticket drift; reconciled any divergence
 - [ ] Each requirement mapped to where it's satisfied (code/doc) + evidence
 - [ ] Multi-spec? Subset declared in spec; deferred ACs noted as out of scope

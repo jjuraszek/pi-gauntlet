@@ -42,14 +42,14 @@ Both packages must be listed in your `.pi/settings.json#packages` array (pi adds
 
 ```bash
 pi install -l git:github.com/jjuraszek/pi-subagents@<sha-or-tag>
-pi install -l git:github.com/jjuraszek/pi-superpowers@v0.1.2
+pi install -l git:github.com/jjuraszek/pi-superpowers@v1.1.1
 ```
 
 **User scope** (all repos under your pi profile):
 
 ```bash
 pi install git:github.com/jjuraszek/pi-subagents@<sha-or-tag>
-pi install git:github.com/jjuraszek/pi-superpowers@v0.1.2
+pi install git:github.com/jjuraszek/pi-superpowers@v1.1.1
 ```
 
 Pi clones the package, runs `npm install --omit=dev`, which triggers the `postinstall` script. Where personas land depends on the install location:

@@ -57,7 +57,7 @@ Skip any step = lying, not verifying
 | Regression test works | Red-green cycle verified | Test passes once |
 | Agent completed | VCS diff shows changes | Agent reports "success" |
 | Requirements met | Line-by-line checklist | Tests passing |
-| Spec delivered | Fresh reviewer audits diff vs spec + prompt (`reference/conformance-check.md`) | Self-review, tests passing |
+| Intent delivered (loop closed) | Fresh reviewer audits code+doc vs origin spec + prompt (`reference/conformance-check.md`) | Plan-vs-code review, tests passing |
 
 ## Rationalization Prevention
 
@@ -111,12 +111,13 @@ The shape of an honest claim is `[Run command] [See: verbatim output] "claim"`. 
 ❌ "Tests pass, phase complete"
 ```
 
-**Spec conformance:**
+**Intent conformance (closing loop):**
 ```
-✅ Dispatch fresh reviewer → audit diff vs spec + prompt → reconcile drift → report gaps
-❌ "Tests pass, so the spec is delivered"
+✅ Dispatch fresh reviewer → audit code+doc vs ORIGIN (spec + prompt, not the plan) → reconcile drift → report gaps
+❌ "Plan-vs-code review passed, so the intent is delivered"
 ```
-Follow `reference/conformance-check.md`.
+Single-step plan-vs-code review inherits drift the plan introduced; this loop
+confronts the outcome against the origin. Follow `reference/conformance-check.md`.
 
 **Agent delegation:**
 ```
