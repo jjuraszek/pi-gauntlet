@@ -1,5 +1,9 @@
 # Changelog
 
+## v1.1.0 — 2026-06-04
+
+- **verification-before-completion:** add a deliverable-vs-spec conformance gate. New `reference/conformance-check.md` instructs the verify phase to confront deliverables (code **and** docs) against the requirements, with a fresh-context reviewer (`code-reviewer`) as the primary path — it reads the spec + verbatim original prompt + diff cold, sidestepping the main session's build-it-then-bless-it bias. Source-of-truth priority: written spec (canonical) → original prompt (inline requirements) → ticket re-fetch as fallback only when no spec exists. Spec↔prompt/ticket drift is a red flag that must be reconciled, not silently absorbed. Default coverage contract is 1 ticket = 1 spec = code satisfying every AC (explicit + implicit notes from body/comments); multi-spec efforts are allowed only when the spec explicitly declares its subset and names deferred ACs. SKILL.md changes are purely additive (one Common Failures row, one Key Patterns block) so obra-sync stays conflict-free; ticket-resolution mechanics stay in the consumer's `superpowers-overrides.md`.
+
 ## v1.0.3 — 2026-06-02
 
 - **roasting-the-spec / spec-council-synthesizer:** stop the chair stalling at synthesis. The member critiques live in a shared temp dir and rode to the chair only via `reads:`, but the synthesizer's prompt told it that it "receives the paths" — which the task never enumerated, so it scanned the tree for `*.md` and hung. The skill now lists the exact `<tmpdir>/member-<i>-<slug>.md` paths in the chair's task text (flagged as already-injected via reads), and the synthesizer persona is instructed not to run find/grep/ls to discover critique files.

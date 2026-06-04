@@ -57,6 +57,7 @@ Skip any step = lying, not verifying
 | Regression test works | Red-green cycle verified | Test passes once |
 | Agent completed | VCS diff shows changes | Agent reports "success" |
 | Requirements met | Line-by-line checklist | Tests passing |
+| Spec delivered | Fresh reviewer audits diff vs spec + prompt (`reference/conformance-check.md`) | Self-review, tests passing |
 
 ## Rationalization Prevention
 
@@ -109,6 +110,13 @@ The shape of an honest claim is `[Run command] [See: verbatim output] "claim"`. 
 ✅ Re-read plan → Create checklist → Verify each → Report gaps or completion
 ❌ "Tests pass, phase complete"
 ```
+
+**Spec conformance:**
+```
+✅ Dispatch fresh reviewer → audit diff vs spec + prompt → reconcile drift → report gaps
+❌ "Tests pass, so the spec is delivered"
+```
+Follow `reference/conformance-check.md`.
 
 **Agent delegation:**
 ```
