@@ -1,5 +1,9 @@
 # Changelog
 
+## v1.1.2 — 2026-06-05
+
+- **executing-plans / subagent-driven-development:** project-specific audit skills now **supplement** rather than **replace** the generic `requesting-code-review`. Both flows run `/skill:requesting-code-review` first (still REQUIRED), then run the project audit skill (e.g. `.agents/skills/self-audit/`) as an optional follow-up that adds project-specific checks/fixes. Previously the hooks said to "prefer that — its rules supersede this baseline" / "follow that instead", which made the project skill a full replacement and forced it to re-implement generic review. Generic review now lives in exactly one place; the project skill stays optional and never becomes mandatory.
+
 ## v1.1.1 — 2026-06-04
 
 - **verification-before-completion:** sharpen the conformance gate added in v1.1.0. (1) Frame it explicitly as the **closing loop** distinct from code review: work flows `prompt/spec → plan → code/doc`, each hop lossy; plan-vs-code review (`requesting-code-review`) is single-step and inherits any drift the plan introduced, whereas this check confronts the outcome against the *origin* (spec + prompt), skipping the plan. Renamed the Common Failures row to `Intent delivered (loop closed)` and its not-sufficient cell to `Plan-vs-code review, tests passing`; Key Patterns block reworded to audit against ORIGIN, not the plan. (2) Make **prompt + spec a first-class requirement source** when no ticket exists — the coverage rule is now "1 requirement source = 1 spec" (ticket if present, otherwise spec + prompt), removing the ticket-mandatory wording. (3) Dropped the unfounded `~90%` precision from the coverage rule.

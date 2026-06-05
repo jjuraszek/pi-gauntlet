@@ -186,7 +186,7 @@ For the fan-out + worktree + patch-integration + conflict mechanics, see `dispat
 ## After All Tasks Complete
 
 1. Dispatch the final reviewer over the full diff (already covered in [The Process](#the-process) step "After all tasks").
-2. **Run an audit pass automatically.** Run `/skill:requesting-code-review` against the worktree's full diff vs `main`, or — if the project ships a project-specific audit skill (e.g., `.agents/skills/self-audit/`) — follow that instead. Address Critical and Moderate findings before handoff. Do not ask the user — just run it.
+2. **Run an audit pass automatically.** Run `/skill:requesting-code-review` against the worktree's full diff vs `main`. Then, if the project ships a project-specific audit skill (e.g., `.agents/skills/self-audit/`), run it as an optional supplement (it adds project-specific checks and fixes, not a replacement). Address Critical and Moderate findings before handoff. Do not ask the user — just run it.
 3. Summarize what was implemented (tasks completed, files changed, test counts, self-audit verdict).
 4. Ask: "All tasks complete and self-audited. Ready for finishing?"
 5. **Wait for user confirmation** before invoking `/skill:finishing-a-development-branch`. The user may want to test manually or adjust scope.

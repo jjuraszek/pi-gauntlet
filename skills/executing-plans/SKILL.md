@@ -54,7 +54,7 @@ Based on feedback:
 
 After all tasks are complete and verified, and **before** invoking the finishing skill, run a self-audit pass. Do not ask the user — just run it.
 
-- **REQUIRED SUB-SKILL:** Run `/skill:requesting-code-review` against the worktree's full diff vs `main`. If the project ships a project-specific audit skill (e.g., `.agents/skills/self-audit/`), prefer that — its rules supersede this baseline.
+- **REQUIRED SUB-SKILL:** Run `/skill:requesting-code-review` against the worktree's full diff vs `main`. Then, if the project ships a project-specific audit skill (e.g., `.agents/skills/self-audit/`), run it as an optional supplement — it adds project-specific checks and fixes on top of this baseline; it does not replace it.
 - Address Critical and Moderate findings in the worktree before proceeding. Minor findings either get fixed or surfaced in the handoff message.
 - The self-audit pass produces additional commits on the worktree branch; they get squashed together with the rest of the work in the finishing step.
 
