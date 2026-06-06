@@ -43,12 +43,16 @@ Read the active preset's settings file at `$PI_CODING_AGENT_DIR/settings.json` a
 Parse it by reading the file (it may contain comments — read it, do not pipe through a strict JSON parser). Then:
 
 - **Absent, empty, or not an array** → treat as unconfigured. Do **not** mention the council. Return to brainstorming's user gate unchanged. If `specCouncil` is present but malformed, emit one warning line and proceed as unconfigured.
-- **Non-empty `members`** → offer the council once:
+- **Non-empty `members`** → offer the council once as a numbered choice (matching the user review gate's style — not free-form `y/n`):
 
-  > Spec council configured (<count> members: <the configured models>). Roast the spec before you review it? (y/n)
+  > Spec council configured (<count> members: <the configured models>). Before your review:
+  > 1. Roast the spec with the council first
+  > 2. Skip the council, go straight to review
 
-  - `n` → skip; return to the user gate.
-  - `y` → run the council.
+  - `1` → run the council.
+  - `2` → skip; return to the user gate.
+
+  Accept the obvious equivalents so a terse reply still routes (`1`/`y`/`yes` → run, `2`/`n`/`no`/`skip` → skip).
 
 ## The council run
 

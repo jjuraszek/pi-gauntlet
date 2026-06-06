@@ -98,15 +98,31 @@ function formatStatus(phases: PhaseMap): string {
 export default function (pi: ExtensionAPI) {
   let phases: PhaseMap = emptyPhases();
 
+  // Derive the implement phase from plan_tracker activity so it advances even
+  // when the execution path (SDD, executing-plans) dispatches the work to
+  // subagents and never invokes the phase-owning skill directly.
+  const applyPlanActivity = (tasks?: { status: string }[]) => {
+    if (!tasks || tasks.length === 0) return;
+    if (phases.implement.status === "pending") {
+      phases = { ...phases, implement: { status: "in_progress" } };
+    }
+    if (phases.implement.status === "in_progress" && tasks.every((t) => t.status === "complete")) {
+      phases = { ...phases, implement: { status: "complete" } };
+    }
+  };
+
   const reconstructState = (ctx: ExtensionContext) => {
     phases = emptyPhases();
     for (const entry of ctx.sessionManager.getBranch()) {
       if (entry.type !== "message") continue;
       const msg = entry.message;
-      if (msg.role !== "toolResult" || msg.toolName !== "phase_tracker") continue;
-      const details = msg.details as PhaseTrackerDetails | undefined;
-      if (details && !details.error) {
-        phases = details.phases;
+      if (msg.role !== "toolResult") continue;
+      if (msg.toolName === "phase_tracker") {
+        const details = msg.details as PhaseTrackerDetails | undefined;
+        if (details && !details.error) phases = details.phases;
+      } else if (msg.toolName === "plan_tracker") {
+        const details = msg.details as { tasks?: { status: string }[]; error?: string } | undefined;
+        if (details && !details.error) applyPlanActivity(details.tasks);
       }
     }
   };
@@ -128,6 +144,15 @@ export default function (pi: ExtensionAPI) {
       updateWidget(ctx);
     });
   }
+
+  pi.on("tool_execution_end", async (event, ctx) => {
+    if (event.toolName !== "plan_tracker" || event.isError) return;
+    const details = (event.result as { details?: { tasks?: { status: string }[]; error?: string } } | undefined)
+      ?.details;
+    if (!details || details.error) return;
+    applyPlanActivity(details.tasks);
+    updateWidget(ctx);
+  });
 
   pi.registerTool({
     name: "phase_tracker",
