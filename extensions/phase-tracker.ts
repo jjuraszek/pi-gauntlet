@@ -104,6 +104,13 @@ export default function (pi: ExtensionAPI) {
   const applyPlanActivity = (tasks?: { status: string }[]) => {
     if (!tasks || tasks.length === 0) return;
     if (phases.implement.status === "pending") {
+      // plan_tracker is a generic task list the model also uses outside the
+      // implement phase (e.g. a brainstorming exploration checklist). Only treat
+      // it as an implement signal when no earlier phase is still active, mirroring
+      // the single-in_progress invariant the manual `start` action enforces.
+      // Otherwise brainstorm/plan and implement would both read as in_progress.
+      const otherActive = PHASES.some((p) => p !== "implement" && phases[p].status === "in_progress");
+      if (otherActive) return;
       phases = { ...phases, implement: { status: "in_progress" } };
     }
     if (phases.implement.status === "in_progress" && tasks.every((t) => t.status === "complete")) {

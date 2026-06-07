@@ -35,7 +35,7 @@ This skill ends with a **written, user-reviewed spec inside a worktree**. Nothin
 
 ## Checklist
 
-Create a task for each item and complete them **in order**. The terminal state is the user review gate; after approval the **only** next skill is `/skill:writing-plans`. Do not jump to implementation, and do not silently drop the council offer.
+Work through the items below **in order**. This is your own checklist to follow, not a `plan_tracker` plan — brainstorming is open-ended exploration, and `plan_tracker` is execution-only (the implement phase). The terminal state is the user review gate; after approval the **only** next skill is `/skill:writing-plans`. Do not jump to implementation, and do not silently drop the council offer.
 
 1. **Start brainstorm tracking** — call `phase_tracker({ action: "start", phase: "brainstorm" })` as the **first action on entry**, before reading code, setting up the worktree, or answering the user. It is idempotent: re-entering while brainstorm is already in-progress is a safe no-op.
 2. **Set up the worktree** — see [Worktree First](#worktree-first)

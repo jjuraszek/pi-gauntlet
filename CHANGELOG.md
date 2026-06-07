@@ -1,5 +1,15 @@
 # Changelog
 
+## v1.1.4 — 2026-06-07
+
+Fix `plan_tracker` leaking into non-execution phases, which produced an impossible phase state in v1.1.3.
+
+Root cause: `plan_tracker` is execution-only by intent, but nothing enforced it. The brainstorming checklist said "Create a task for each item," so the model init'd a 10-item `plan_tracker` plan *during brainstorm* — both misrepresenting open-ended brainstorming as a bounded `(2/10)` process **and** tripping v1.1.3's `implement`-phase auto-derivation, which flipped `implement → in_progress` while `brainstorm` was still active (`→ brainstorm → ○ plan → → implement`, two phases at once, `plan` skipped).
+
+- **plan-tracker:** tool description now scopes the tracker to the implement phase explicitly and forbids brainstorming/research/planning checklists.
+- **brainstorming skill:** the checklist is now framed as an internal list to follow, not a `plan_tracker` plan, with a note that `plan_tracker` is execution-only.
+- **phase-tracker:** defense in depth — the `implement` auto-derivation now honours the single-`in_progress` invariant that manual `start` enforces, activating `implement` from `plan_tracker` activity only when no earlier phase is still `in_progress`. The `in_progress → complete` transition stays unguarded, so the v1.1.3 direct-execution and SDD completion paths (including verify starting before the final task) are unchanged.
+
 ## v1.1.3 — 2026-06-06
 
 - **phase-tracker:** fix the intermittent stall where the workflow finished showing `✓ brainstorm → ✓ plan → ○ implement → ○ verify → ○ ship`. Root cause was routing, not extension logic: execution paths (`subagent-driven-development`, `executing-plans`) dispatch the work to `implementer` subagents and drive `plan_tracker` (task granularity) but never invoke the `phase_tracker`-owning skills, so `implement`/`verify` were orphaned and only advanced if the model spontaneously reconciled at the end. The extension now **derives the `implement` phase from `plan_tracker` activity** (first task → `in_progress`; all tasks `complete` → `complete`), folded into both the live `tool_execution_end` path and `reconstructState` so it survives fork/switch/restore. Guidance-free — it piggybacks on a signal the model already emits reliably across every execution path.
