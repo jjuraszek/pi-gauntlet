@@ -57,6 +57,7 @@ After all tasks are complete and verified, and **before** invoking the finishing
 - **REQUIRED SUB-SKILL:** Run `/skill:requesting-code-review` against the worktree's full diff vs `main`. Then, if the project ships a project-specific audit skill (e.g., `.agents/skills/self-audit/`), run it as an optional supplement — it adds project-specific checks and fixes on top of this baseline; it does not replace it.
 - Address Critical and Moderate findings in the worktree before proceeding. Minor findings either get fixed or surfaced in the handoff message.
 - The self-audit pass produces additional commits on the worktree branch; they get squashed together with the rest of the work in the finishing step.
+- **Close the loop — conformance check.** Per-task verification confronts each slice of intent, and the audit above is plan-vs-code; neither confronts the *assembled* deliverable against the origin. Before proceeding, dispatch a fresh-context `code-reviewer` to confront the whole deliverable (code **and** docs) against the *origin* — the spec **and** the original prompt — per `verification-before-completion/reference/conformance-check.md`. Pass the spec path, the verbatim original prompt, and the full diff vs `main`. Reconcile any drift before finishing (unrecorded divergence = conformance failure, not a completion).
 
 ### Step 6: Complete Development
 

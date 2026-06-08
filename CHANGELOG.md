@@ -1,5 +1,11 @@
 # Changelog
 
+## v1.1.6 — 2026-06-08
+
+Extend the v1.1.5 conformance close-out to `executing-plans` for parity. Its per-task verification already routes through `/skill:verification-before-completion` (so per-slice conformance was covered), but its Step 5 self-audit before finishing was plan-vs-code only — no fresh-reviewer pass confronted the *assembled* deliverable against the origin.
+
+- **executing-plans:** Step 5 now adds the same closing-loop conformance check — dispatch a fresh-context `code-reviewer` against the origin (spec + verbatim prompt + full diff vs `main`) per `verification-before-completion/reference/conformance-check.md`, reconciling drift before finishing. `dispatching-parallel-agents` needs no change; it routes its whole verify gate through `/skill:verification-before-completion`, which already contains the check.
+
 ## v1.1.5 — 2026-06-08
 
 Close the conformance gap on the `subagent-driven-development` (SDD) path. v1.1.3 had SDD run its own inline verify gate (test + plan-vs-code review) and emit `phase_tracker verify` itself, instead of routing through `/skill:verification-before-completion`. But the **closing-loop conformance check** added in v1.1.0 and sharpened in v1.1.1 (`reference/conformance-check.md` — confront the deliverable against the *origin* spec + prompt, not the plan) lives only in `verification-before-completion`, so the SDD path marked `verify ✓` having run exactly the "plan-vs-code review, tests passing" that v1.1.1 declares *not sufficient* for "intent delivered (loop closed)."
