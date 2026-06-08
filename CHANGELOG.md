@@ -1,5 +1,11 @@
 # Changelog
 
+## v1.1.5 — 2026-06-08
+
+Close the conformance gap on the `subagent-driven-development` (SDD) path. v1.1.3 had SDD run its own inline verify gate (test + plan-vs-code review) and emit `phase_tracker verify` itself, instead of routing through `/skill:verification-before-completion`. But the **closing-loop conformance check** added in v1.1.0 and sharpened in v1.1.1 (`reference/conformance-check.md` — confront the deliverable against the *origin* spec + prompt, not the plan) lives only in `verification-before-completion`, so the SDD path marked `verify ✓` having run exactly the "plan-vs-code review, tests passing" that v1.1.1 declares *not sufficient* for "intent delivered (loop closed)."
+
+- **subagent-driven-development:** the *After All Tasks Complete* gate now adds a conformance step between the audit and `phase_tracker complete verify` — dispatch a fresh-context `code-reviewer` against the origin (spec + verbatim prompt + full diff) per `verification-before-completion/reference/conformance-check.md`, reconciling drift before completion. Cites the reference directly rather than routing the whole skill, so SDD keeps `phase_tracker` ownership (no v1.1.3 regression) and avoids importing a direct-execution protocol into an orchestrator. Closing-loop steps renumbered (5→6 items in the gate).
+
 ## v1.1.4 — 2026-06-07
 
 Fix `plan_tracker` leaking into non-execution phases, which produced an impossible phase state in v1.1.3.
