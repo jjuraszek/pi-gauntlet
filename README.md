@@ -135,12 +135,16 @@ Unset → provider default thinking for that model. `conformance-reviewer` and t
 ```json
 {
   "piSuperpowers": {
-    "closureReview": { "model": "<provider/model>" }
+    "closureReview": { "model": "<provider/model>", "enforce": true }
   }
 }
 ```
 
 Frontmatter pins `thinking: xhigh` and `defaultContext: fresh` (the gate always runs cold, with max reasoning) and `thinking` is not call-site overridable, so the config supplies only `model`. If `closureReview.model` is unset the dispatch omits `model:` and the gate inherits the parent's model; if the configured model is unreachable it retries once inherited.
+
+`closureReview.enforce` (default `true`) controls the phase-tracker gate that
+blocks `complete verify` until the conformance-reviewer has run; set `false` to
+disable enforcement for a preset.
 
 If you want to know what's in each persona before using it, see [`agents/`](./agents/). The frontmatter (tools, thinking level, context mode) is documented in [`AGENTS.md`](./AGENTS.md#agents).
 
@@ -175,6 +179,14 @@ A tool, not a hook. Skills call `plan_tracker({ action: "init" | "update" | "sta
 A tool, not a hook. Skills call `phase_tracker({ action: "start" | "complete" | "skip" | "status" | "reset", phase?, reason? })` to track workflow phase progress. A TUI widget shows the five-phase pipeline: `○ brainstorm → ○ plan → ○ implement → ○ verify → ○ ship`. State branches with the session, no config needed. Phases are entered **explicitly** by the phase-owning skills, so outside a superpowers flow the widget stays dormant. The `brainstorming` skill resets both trackers on entry (new flow, clean slate); `implement` auto-completes from `plan-tracker` once a skill has started it.
 
 Distinct from `plan-tracker`: `phase-tracker` answers "what stage of the workflow am I in?"; `plan-tracker` answers "which task within the current stage am I on?"
+
+**Closure-review gate.** `complete verify` is rejected unless a successful
+`conformance-reviewer` dispatch (a `subagent` result whose `results[]` contains
+`agent: "conformance-reviewer"` with `exitCode: 0`) has been observed since the
+last `reset`. Management calls (`action: "list"` etc.) and async dispatches never
+qualify. A user waiver is recorded via `skip` with a reason — there is no `force`
+bypass on `complete`. Disable per preset with
+`settings.json#piSuperpowers.closureReview.enforce: false` (default: enforced).
 
 ### `verify-before-ship`
 

@@ -56,10 +56,13 @@ Based on feedback:
 
 After all tasks are complete and verified, and **before** invoking the finishing skill, run a self-audit pass. Do not ask the user — just run it.
 
+Enter the verify phase first: `phase_tracker({ action: "start", phase: "verify" })`.
+
 - **REQUIRED SUB-SKILL:** Run `/skill:requesting-code-review` against the worktree's full diff vs `main`. Then, if the project ships a project-specific audit skill (e.g., `.agents/skills/self-audit/`), run it as an optional supplement — it adds project-specific checks and fixes on top of this baseline; it does not replace it.
 - Address Critical and Moderate findings in the worktree before proceeding. Minor findings either get fixed or surfaced in the handoff message.
 - The self-audit pass produces additional commits on the worktree branch; they get squashed together with the rest of the work in the finishing step.
 - **Close the loop — conformance check.** Per-task verification confronts each slice of intent, and the audit above is plan-vs-code; neither confronts the *assembled* deliverable against the origin. Before proceeding, dispatch a fresh-context **`conformance-reviewer`** (its own dispatch, separate from the code-quality audit) to confront the whole deliverable (code **and** docs) against the *origin* — the spec **and** the original prompt — per `verification-before-completion/reference/conformance-check.md`. Pass the spec path, the verbatim original prompt, and the full diff vs `main`. On `GAPS`, do not auto-fix or auto-proceed: surface each gap with the reviewer's proposed remediation and let the user decide (fix now / accept + record in spec / rescope), then re-check. Report the verdict as its own **Closure / conformance** section in the Step 3 handoff summary. Unrecorded divergence = conformance failure, not a completion.
+- Once the conformance verdict is in (CONFORMS, or every gap resolved/accepted by the user), close the phase: `phase_tracker({ action: "complete", phase: "verify" })`. The tracker rejects this until a successful `conformance-reviewer` dispatch has been observed — if it rejects, the closing loop hasn't run yet. If the user explicitly waived closure review, record it with `phase_tracker({ action: "skip", phase: "verify", reason: "<user waiver>" })` instead.
 
 ### Step 6: Complete Development
 

@@ -31,6 +31,32 @@ interface PhaseTrackerDetails {
   error?: string;
 }
 
+type Settings = {
+  piSuperpowers?: {
+    closureReview?: {
+      enforce?: boolean;
+    };
+  };
+};
+
+// Qualification per spec "Qualifying dispatch": a successful conformance-reviewer
+// child run in the result details (pi-subagents SingleResult: { agent, exitCode }).
+// Management mode and async dispatches return results: [] and fail this check.
+const qualifiesAsClosureDispatch = (details: unknown): boolean => {
+  const d = details as { results?: { agent?: unknown; exitCode?: unknown }[] } | undefined;
+  if (!d || !Array.isArray(d.results)) return false;
+  return d.results.some((r) => r?.agent === "conformance-reviewer" && r?.exitCode === 0);
+};
+
+const CLOSURE_GATE_ERROR =
+  "Error: cannot complete 'verify': no conformance-reviewer dispatch observed.\n" +
+  "The closing loop is required before verify completes. Either:\n" +
+  '- dispatch subagent({ agent: "conformance-reviewer", ... }) with the spec, the\n' +
+  "  user's verbatim request, and the full diff (model from\n" +
+  "  piSuperpowers.closureReview.model), then complete verify after its verdict, or\n" +
+  "- if the user explicitly waived closure review, record it:\n" +
+  '  phase_tracker({ action: "skip", phase: "verify", reason: "<user waiver>" })';
+
 const PhaseTrackerParams = Type.Object({
   action: StringEnum(["start", "complete", "skip", "status", "reset"] as const, {
     description: "Action to perform",
@@ -97,6 +123,9 @@ function formatStatus(phases: PhaseMap): string {
 
 export default function (pi: ExtensionAPI) {
   let phases: PhaseMap = emptyPhases();
+  let conformanceDispatched = false;
+  const closureEnforced = () =>
+    ((pi.settings ?? {}) as Settings).piSuperpowers?.closureReview?.enforce !== false;
 
   // Auto-complete the implement phase from plan_tracker once every task is done,
   // but only when a skill has explicitly started it (TDD, or the SDD / executing-plans
@@ -113,13 +142,19 @@ export default function (pi: ExtensionAPI) {
 
   const reconstructState = (ctx: ExtensionContext) => {
     phases = emptyPhases();
+    conformanceDispatched = false;
     for (const entry of ctx.sessionManager.getBranch()) {
       if (entry.type !== "message") continue;
       const msg = entry.message;
       if (msg.role !== "toolResult") continue;
       if (msg.toolName === "phase_tracker") {
         const details = msg.details as PhaseTrackerDetails | undefined;
-        if (details && !details.error) phases = details.phases;
+        if (details && !details.error) {
+          phases = details.phases;
+          if (details.action === "reset") conformanceDispatched = false;
+        }
+      } else if (msg.toolName === "subagent") {
+        if (qualifiesAsClosureDispatch(msg.details)) conformanceDispatched = true;
       } else if (msg.toolName === "plan_tracker") {
         const details = msg.details as { tasks?: { status: string }[]; error?: string } | undefined;
         if (details && !details.error) applyPlanActivity(details.tasks);
@@ -144,6 +179,12 @@ export default function (pi: ExtensionAPI) {
       updateWidget(ctx);
     });
   }
+
+  pi.on("tool_result", async (event) => {
+    if (event.toolName !== "subagent") return undefined;
+    if (qualifiesAsClosureDispatch(event.details)) conformanceDispatched = true;
+    return undefined;
+  });
 
   pi.on("tool_execution_end", async (event, ctx) => {
     if (event.toolName !== "plan_tracker" || event.isError) return;
@@ -230,6 +271,16 @@ export default function (pi: ExtensionAPI) {
               } as PhaseTrackerDetails,
             };
           }
+          if (params.phase === "verify" && closureEnforced() && !conformanceDispatched) {
+            return {
+              content: [{ type: "text", text: CLOSURE_GATE_ERROR }],
+              details: {
+                action: "complete",
+                phases: { ...phases },
+                error: "no conformance-reviewer dispatch observed",
+              } as PhaseTrackerDetails,
+            };
+          }
           phases = { ...phases, [params.phase]: { status: "complete" } };
           updateWidget(ctx);
           return {
@@ -276,6 +327,7 @@ export default function (pi: ExtensionAPI) {
 
         case "reset": {
           phases = emptyPhases();
+          conformanceDispatched = false;
           updateWidget(ctx);
           return {
             content: [{ type: "text", text: "Phase tracker reset. All phases pending." }],

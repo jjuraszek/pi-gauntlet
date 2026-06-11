@@ -1,5 +1,14 @@
 # Changelog
 
+## v2.1.0 — 2026-06-11
+
+Enforce the closing loop deterministically. A consumer session completed the verify phase off a code-reviewer verdict alone after a context pruner dropped the skill text mandating the conformance-reviewer dispatch — prompt-level compliance is not enough for the last correctness gate.
+
+- **`phase_tracker complete verify` now rejects** unless a successful `conformance-reviewer` dispatch (child result with `exitCode: 0`) has been observed since the last `reset`. Management-mode calls and async dispatches never qualify. The rejection message instructs: dispatch the reviewer, or record an explicit user waiver via `skip` — no `force` bypass on `complete`.
+- **Config:** `piSuperpowers.closureReview.enforce` (default `true`). Default-on is deliberate: pi-subagents is mandatory for consumers, and opt-in enforcement would let a preset silently re-inherit the observed failure.
+- **`executing-plans` Step 5 wired to the phase tracker.** It dispatched the reviewer but never called `start`/`complete verify`, so the gate could not fire on that path. The mandate is unchanged; the step now enters and closes the phase explicitly.
+- **Docs:** README phase-tracker gate + `closureReview.enforce`; AGENTS.md extension table.
+
 ## v2.0.0 — 2026-06-11
 
 Make the thinking budget a per-preset config knob for the working agents. pi-subagents `agentOverrides` only fill fields the frontmatter left **unset** (`agents.ts` fill semantics), so the previous frontmatter pins silently swallowed any `subagents.agentOverrides.<agent>.thinking` a preset supplied — and made it impossible to run the personas on non-thinking models.
