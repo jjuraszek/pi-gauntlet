@@ -1,5 +1,13 @@
 # Changelog
 
+## v2.2.1 — 2026-06-13
+
+Harden the v2.2.0 lint/critique split against the two runtime-legibility regressions it introduced. The four self-review bullets stay byte-identical to the obra ancestor (re-sync constraint intact); the fixes are anchors around them.
+
+- **Inline-vs-dispatched boundary made explicit at the bullets.** A lead-in above the four `Spec Self-Review` bullets now states that only the first two run inline and that scope + ambiguity are the dispatched critique — a model reading the imperative bullets top-down no longer applies scope/ambiguity edits inline (the exact behavior v2.2.0 set out to remove).
+- **Post-critique placeholder re-scan promoted to a durable anchor.** Previously prose-only (easy to drop under context pruning), it is now checklist item 10 and a Red Flag, so correct behavior no longer depends on reading three sections together.
+- **No bullet text, agent, or extension changes.**
+
 ## v2.2.0 — 2026-06-13
 
 Split brainstorming's spec self-review into an inline lint and an auto-dispatched critique, so the judgment half runs with fresh eyes off the main loop while the mechanical half stays cheap and inline.

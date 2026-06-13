@@ -52,8 +52,9 @@ Work through the items below **in order**. This is your own checklist to follow,
 7. **Write the spec** — to `doc/specs/` (see [Filename Convention](#filename-convention))
 8. **Spec self-review (lint)** — placeholder scan + internal consistency, run inline
 9. **Critique pass (auto-dispatched)** — scope + ambiguity; the spec council via `/skill:roasting-the-spec` when `members` is configured, else a fresh `worker` (see [Spec Council](#spec-council-optional))
-10. **User review gate** — user reviews the committed spec
-11. **Transition** — only after approval, invoke `/skill:writing-plans`
+10. **Re-run placeholder scan** — after the critique pass returns, re-scan for placeholders its edits may have introduced; surface any ambiguity the worker could not safely resolve at the user gate
+11. **User review gate** — user reviews the committed spec
+12. **Transition** — only after approval, invoke `/skill:writing-plans`
 
 ## Project Routing
 
@@ -181,7 +182,7 @@ Spec lives in the project's `doc/specs/` (see [Project Routing](#project-routing
 
 ## Spec Self-Review (Before User Review Gate)
 
-After writing the spec to `<project>/doc/specs/<filename>.md` (per [Filename Convention](#filename-convention)) and before showing it to the user, run a self-review pass:
+After writing the spec to `<project>/doc/specs/<filename>.md` (per [Filename Convention](#filename-convention)) and before showing it to the user, run a self-review pass. **Read all four bullets first, then act:** only the **first two** run here at the main loop (the inline lint); the **last two** (scope + ambiguity) do **not** run inline — they are the dispatched critique pass (checklist item 9). Do not apply scope/ambiguity edits yourself.
 
 - **Placeholder scan.** Any `TODO`, `TBD`, `<fill in>`, `[example]`, `xxx`? Either resolve them or convert to explicit "Open Questions" with names.
 - **Internal consistency.** Does Section 4 contradict Section 2? Are component names and field names consistent throughout?
@@ -249,6 +250,8 @@ phase_tracker({ action: "complete", phase: "brainstorm" })
 - About to run, deploy, or validate the **proposed change** (vs. observing current behaviour) before the user approved the design
 - About to skip the critique pass (council if configured, else fresh worker)
 - Critique dispatch (council or worker) failed to complete and you proceeded to the gate anyway
+- About to reach the user gate without re-running the placeholder scan after the critique returned
+- About to run the scope or ambiguity checks inline yourself instead of dispatching them (those two are the critique pass, not the inline lint)
 - About to skip the self-review pass
 - About to skip the user review gate and jump to `/skill:writing-plans`
 - Spec contains `TODO`, `TBD`, or unnamed components
