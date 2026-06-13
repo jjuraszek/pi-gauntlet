@@ -35,7 +35,7 @@ This skill ends with a **written, user-reviewed spec inside a worktree**. Nothin
 
 ## Checklist
 
-Work through the items below **in order**. This is your own checklist to follow, not a `plan_tracker` plan — brainstorming is open-ended exploration, and `plan_tracker` is execution-only (the implement phase). The terminal state is the user review gate; after approval the **only** next skill is `/skill:writing-plans`. Do not jump to implementation, and do not silently drop the council offer.
+Work through the items below **in order**. This is your own checklist to follow, not a `plan_tracker` plan — brainstorming is open-ended exploration, and `plan_tracker` is execution-only (the implement phase). The terminal state is the user review gate; after approval the **only** next skill is `/skill:writing-plans`. Do not jump to implementation, and do not silently drop the critique pass.
 
 1. **Start brainstorm tracking (fresh epoch)** — as the **first action on entry**, before reading code, setting up the worktree, or answering the user, reset **both** trackers and then start the phase. A new brainstorm is a new flow, so it owns a clean slate — clear any stale phases *and* tasks left in the session by earlier work:
    ```
@@ -50,8 +50,8 @@ Work through the items below **in order**. This is your own checklist to follow,
 5. **Propose 2-3 approaches** — with trade-offs and a recommendation
 6. **Present the design** — in sections, get approval after each
 7. **Write the spec** — to `doc/specs/` (see [Filename Convention](#filename-convention))
-8. **Spec self-review** — placeholders, consistency, scope, ambiguity
-9. **Offer the spec council** — required step when one is configured; skip only when unconfigured (see [Spec Council](#spec-council-optional))
+8. **Spec self-review (lint)** — placeholder scan + internal consistency, run inline
+9. **Critique pass (auto-dispatched)** — scope + ambiguity; the spec council via `/skill:roasting-the-spec` when `members` is configured, else a fresh `worker` (see [Spec Council](#spec-council-optional))
 10. **User review gate** — user reviews the committed spec
 11. **Transition** — only after approval, invoke `/skill:writing-plans`
 
@@ -188,11 +188,28 @@ After writing the spec to `<project>/doc/specs/<filename>.md` (per [Filename Con
 - **Scope check.** Does every paragraph serve the goal? Cut filler. If something is out of scope, say it's out of scope.
 - **Ambiguity check.** Is every "we should…" backed by a concrete decision? Replace "we could probably" with "we will" or "we won't".
 
-Fix what self-review surfaces before handing to the user.
+The first two checks — **placeholder scan** and **internal consistency** — are the inline **lint**: run them here at the main loop and fix what they surface. The last two — **scope** and **ambiguity** — are **not** run inline; they are the **critique pass**, auto-dispatched (per [Spec Council](#spec-council-optional)):
+
+- **Council configured** (`piSuperpowers.specCouncil.members` non-empty) → invoke `/skill:roasting-the-spec`; it runs the critique and proposes dispositions.
+- **Otherwise** → dispatch one fresh `worker` that applies the scope + ambiguity checks and fixes them in place:
+
+  ```
+  subagent({ agent: "worker", context: "fresh", task:
+    "Problem statement: <the problem the spec addresses + the user's stated intent>.\n" +
+    "Read the spec at <abs path to doc/specs/...>. Edit ONLY that file. Apply two checks and\n" +
+    "fix what you find in place: (1) Scope — does every paragraph serve the goal? Cut filler;\n" +
+    "state out-of-scope explicitly. (2) Ambiguity — is every 'we should' a concrete decision?\n" +
+    "Replace 'we could probably' with 'we will'/'we won't'. Return a summary of what you\n" +
+    "changed, and flag any ambiguity you could NOT safely resolve." })
+  ```
+
+  `worker`'s model resolves from `subagents.agentOverrides.worker.model` in `settings.json` (unset → inherits the main loop); the dispatch passes no `model:`.
+
+After the critique pass returns, re-run the placeholder scan to catch anything its edits introduced. If the worker flagged ambiguities it could not safely resolve, surface them in the [User Review Gate](#user-review-gate) message so the user decides — the worker auto-applies fixes but never silently swallows an open question.
 
 ## Spec Council (Optional)
 
-After self-review and before the user review gate, check whether a spec council is configured for the active preset (`piSuperpowers.specCouncil.members` in `$PI_CODING_AGENT_DIR/settings.json`). **When one is configured, making the offer is a required checklist step (item 9) — present it explicitly and wait; do not skip ahead to the gate.** Offer a multi-model critique pass — see `/skill:roasting-the-spec`. If no council is configured, skip silently and proceed to the gate. Approved council edits are applied to the spec and ride in the same worktree commit as the rest of this skill's output.
+After the inline lint and before the user review gate, **brainstorming owns the critique-pass gate**: read `piSuperpowers.specCouncil.members` in `$PI_CODING_AGENT_DIR/settings.json` (it may contain comments — read it, don't strict-parse) and select the path. **When `members` is non-empty, the council *is* the critique pass — invoke `/skill:roasting-the-spec` automatically (no offer, no prompt).** When it is absent or empty, run the fresh-`worker` critique instead (see [Spec Self-Review](#spec-self-review-before-user-review-gate)); if `specCouncil` is present but malformed, emit one warning line and fall back to the worker. Approved council edits (or the worker's in-place fixes) are applied to the spec and ride in the same worktree commit as the rest of this skill's output.
 
 ## User Review Gate
 
@@ -230,7 +247,8 @@ phase_tracker({ action: "complete", phase: "brainstorm" })
 
 - About to write code or start a non-spec edit while this skill is active
 - About to run, deploy, or validate the **proposed change** (vs. observing current behaviour) before the user approved the design
-- About to skip the spec council offer when one is configured
+- About to skip the critique pass (council if configured, else fresh worker)
+- Critique dispatch (council or worker) failed to complete and you proceeded to the gate anyway
 - About to skip the self-review pass
 - About to skip the user review gate and jump to `/skill:writing-plans`
 - Spec contains `TODO`, `TBD`, or unnamed components

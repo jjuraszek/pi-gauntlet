@@ -1,5 +1,16 @@
 # Changelog
 
+## v2.2.0 — 2026-06-13
+
+Split brainstorming's spec self-review into an inline lint and an auto-dispatched critique, so the judgment half runs with fresh eyes off the main loop while the mechanical half stays cheap and inline.
+
+- **`brainstorming` self-review is now two stages.** Placeholder scan + internal consistency stay **inline** at the main loop (the lint). Scope + ambiguity become the **critique pass**, never run inline.
+- **The critique is auto-dispatched, not offered.** When `piSuperpowers.specCouncil.members` is configured, brainstorming auto-invokes `/skill:roasting-the-spec` (the council *is* the critique pass — the prior numbered offer is gone; config = consent). When no council is configured, it dispatches a single fresh `worker` that applies the scope + ambiguity checks and auto-applies fixes in place. The worker surfaces any ambiguity it could not safely resolve to the user gate.
+- **`brainstorming` owns the config gate.** `roasting-the-spec` drops its offer block and is invoked only after brainstorming confirms `members` is non-empty; absent/empty/malformed config never reaches it.
+- **`worker` model is documentation-only.** The dispatch passes no `model:`; it resolves from `subagents.agentOverrides.worker.model` (unset → inherits the main loop). Fresh context isolates the critique regardless; cost offload depends on the consumer's override.
+- **No agent or extension changes.** `spec-reviewer` was explicitly rejected as the wrong persona (its prompt targets implementation-vs-spec compliance, and no code exists at brainstorm time). Scope/recon delegation was considered and dropped (no real gain — brainstorming recon is adaptive and feeds the interactive loop).
+- **Docs:** README spec-council section (auto-dispatch + worker fallback).
+
 ## v2.1.0 — 2026-06-11
 
 Enforce the closing loop deterministically. A consumer session completed the verify phase off a code-reviewer verdict alone after a context pruner dropped the skill text mandating the conformance-reviewer dispatch — prompt-level compliance is not enough for the last correctness gate.

@@ -1,15 +1,15 @@
 ---
 name: roasting-the-spec
-description: Use after writing a spec, when a spec council is configured (piSuperpowers.specCouncil in the active preset's settings), to run an optional multi-model critique before the brainstorming user review gate. N members on different models critique in parallel, a neutral chair consolidates and adjudicates, the parent proposes dispositions, the user approves.
+description: Use after writing a spec, when a spec council is configured (piSuperpowers.specCouncil in the active preset's settings). Auto-dispatched by /skill:brainstorming as the critique pass when members is non-empty (no longer offered). N members on different models critique in parallel, a neutral chair consolidates and adjudicates, the parent proposes dispositions, the user approves.
 ---
 
 # Roasting the Spec (Spec Council)
 
 ## Overview
 
-An optional, multi-model critique pass for a freshly written spec. Each council **member** runs on a different model and critiques the spec independently — different models surface different angles. A neutral **chair** consolidates the critiques and adjudicates disagreements. The parent proposes what to apply; the **user** approves. The council never decides on its own what changes land.
+A multi-model critique pass for a freshly written spec. Each council **member** runs on a different model and critiques the spec independently — different models surface different angles. A neutral **chair** consolidates the critiques and adjudicates disagreements. The parent proposes what to apply; the **user** approves. The council never decides on its own what changes land.
 
-Invoked from `/skill:brainstorming` after the spec self-review and before the user review gate. Runs **only if a council is configured** for the active preset.
+Auto-dispatched from `/skill:brainstorming` as the critique pass, after the inline lint and before the user review gate, **only when a council is configured** (`members` non-empty). brainstorming owns that gate; when no council is configured it runs a single fresh-`worker` critique instead and does not invoke this skill.
 
 ## Hard constraint
 
@@ -40,19 +40,7 @@ Read the active preset's settings file at `$PI_CODING_AGENT_DIR/settings.json` a
 - `members` — array of `provider/model` strings. Council size = array length.
 - `chair` — optional model for the synthesizer; if omitted, the synthesizer inherits the parent's model.
 
-Parse it by reading the file (it may contain comments — read it, do not pipe through a strict JSON parser). Then:
-
-- **Absent, empty, or not an array** → treat as unconfigured. Do **not** mention the council. Return to brainstorming's user gate unchanged. If `specCouncil` is present but malformed, emit one warning line and proceed as unconfigured.
-- **Non-empty `members`** → offer the council once as a numbered choice (matching the user review gate's style — not free-form `y/n`):
-
-  > Spec council configured (<count> members: <the configured models>). Before your review:
-  > 1. Roast the spec with the council first
-  > 2. Skip the council, go straight to review
-
-  - `1` → run the council.
-  - `2` → skip; return to the user gate.
-
-  Accept the obvious equivalents so a terse reply still routes (`1`/`y`/`yes` → run, `2`/`n`/`no`/`skip` → skip).
+brainstorming owns the gate: it parses this config (it may contain comments — read it, do not pipe through a strict JSON parser), emits any malformed-config warning, and decides whether to invoke this skill. This skill is dispatched **only after** brainstorming confirms `members` is non-empty, so it runs the council unconditionally on entry — no offer, no numbered choice. Absent/empty/malformed config never reaches here (brainstorming runs the fresh-`worker` critique instead). A minimal defensive re-parse is fine, but ownership of "should the council run" lives in brainstorming, not here.
 
 ## The council run
 
@@ -122,7 +110,7 @@ Single pass — no automatic re-roast loop. The user can invoke this skill again
 
 ## Red flags — STOP
 
-- Offering the council when `piSuperpowers.specCouncil.members` is absent or empty.
+- Running the council when `piSuperpowers.specCouncil.members` is absent or empty (brainstorming owns the gate and should have used the worker fallback).
 - Reading member critique files yourself instead of routing them through the chair.
 - Writing member files to a relative path (they land in the worktree).
 - Auto-applying findings without the user gate.

@@ -150,7 +150,7 @@ If you want to know what's in each persona before using it, see [`agents/`](./ag
 
 ## Spec council
 
-`/skill:roasting-the-spec` runs an optional multi-model critique of a spec before the brainstorming user-review gate. It is **off unless configured** in the active preset's `settings.json`. Each member runs on a different model (divergent critiques), a neutral chair consolidates and adjudicates, and you approve what gets applied.
+`/skill:roasting-the-spec` runs a multi-model critique of a spec before the brainstorming user-review gate. It is the **critique half** of brainstorming's self-review: when a council is configured in the active preset's `settings.json`, brainstorming **auto-dispatches** it (no prompt); when none is configured, brainstorming runs a single fresh-`worker` critique instead. Each member runs on a different model (divergent critiques), a neutral chair consolidates and adjudicates, and you approve what gets applied.
 
 ```json
 {
@@ -163,7 +163,7 @@ If you want to know what's in each persona before using it, see [`agents/`](./ag
 }
 ```
 
-- `members` (required) — roster of `provider/model` strings; council size = array length, one critique per model. Empty or absent → the council is never offered and brainstorming is unchanged.
+- `members` (required) — roster of `provider/model` strings; council size = array length, one critique per model. Empty or absent → the council never runs; brainstorming falls back to a single fresh-`worker` critique (scope + ambiguity, auto-applied).
 - `chair` (optional) — model for the consolidating synthesizer; defaults to the inherited model when omitted.
 
 Rosters are per-preset: each pi profile (`agent`, `agent.anthropic`, `agent.bedrock`, …) reads its own `settings.json`, so list only models that profile's providers can reach. The two personas it dispatches — `spec-council-member` and `spec-council-synthesizer` — are model-free; their model is injected per task from this config.
