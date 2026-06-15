@@ -3,7 +3,7 @@ name: using-git-worktrees
 description: Use when starting feature work that needs isolation from current workspace or before executing implementation plans - creates isolated git worktrees with smart directory selection and safety verification
 ---
 
-> **Related skills:** Set up **before** `/skill:brainstorming` — the spec is the worktree's first commit, not a separate one on `main`. Execute with `/skill:executing-plans` or `/skill:subagent-driven-development`. Clean up with `/skill:finishing-a-development-branch`.
+> **Related skills:** Set up **before** `/skill:brainstorming` — the spec is the worktree's first commit, not a separate one on `main`. Execute with `/skill:subagent-driven-development`. Clean up with `/skill:finishing-a-development-branch`.
 
 # Using Git Worktrees
 
@@ -180,7 +180,7 @@ Re-run tests after rebasing.
 
 **Called by:**
 - `/skill:brainstorming` — **before** writing the spec; the spec is the worktree's first commit
-- `/skill:executing-plans` and `/skill:subagent-driven-development` — required before any implementation tasks
+- `/skill:subagent-driven-development` — required before any implementation tasks
 - Any skill needing isolated workspace
 
 **Pairs with:**

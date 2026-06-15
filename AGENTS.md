@@ -53,7 +53,7 @@ Replace the placeholders above with patterns specific to your fork — company n
 
 ### Agents
 
-Six agents ship in `agents/`: `implementer`, `code-reviewer`, `spec-reviewer`, and `conformance-reviewer`, plus `spec-council-member` and `spec-council-synthesizer` (dispatched only by `/skill:roasting-the-spec`, never directly). `conformance-reviewer` is the closing-loop intent gate, dispatched by the verify step of `subagent-driven-development` / `executing-plans` / `verification-before-completion` and surfaced before finish in `finishing-a-development-branch`. Body text becomes the child's system prompt (`systemPromptMode: replace`).
+Six agents ship in `agents/`: `implementer`, `code-reviewer`, `spec-reviewer`, and `conformance-reviewer`, plus `spec-council-member` and `spec-council-synthesizer` (dispatched only by `/skill:roasting-the-spec`, never directly). `conformance-reviewer` is the closing-loop intent gate, dispatched by the verify step of `subagent-driven-development` / `verification-before-completion` and surfaced before finish in `finishing-a-development-branch`. Body text becomes the child's system prompt (`systemPromptMode: replace`).
 
 Frontmatter knobs are **not overridable** at `subagent()` call time. Preset-level `subagents.agentOverrides.<agent>` config only **fills fields the frontmatter left unset** (pi-subagents `agents.ts`), so a frontmatter pin kills the config knob. Pick pins carefully:
 
@@ -150,7 +150,7 @@ Last sync:
 
 **Material divergence from obra v5.1.0:** upstream deleted their `agents/` directory in v5.1.0, merging `code-reviewer` into the `requesting-code-review` skill as a Task-dispatch template. We keep `agents/` because pi-subagents treats named agents as a first-class dispatch primitive (the `subagent({ agent: "code-reviewer" })` call in skills resolves to our profile, not a prompt template). Don't re-sync that change without considering pi-subagents semantics.
 
-**Skills coverage:** we ship 13 of obra's 14 v5.1.0 skills. The missing one, `using-superpowers`, is a Claude-Code-specific bootstrap skill that forces invocation of the `Skill` tool; pi's discovery model surfaces skill descriptions in the system prompt automatically, so the bootstrap isn't needed. `roasting-the-spec` is an original skill with no obra equivalent, so the 13-of-14 count tracks obra-sourced skills only (total shipped skills: 14).
+**Skills coverage:** we ship 12 of obra's 14 v5.1.0 skills. Two are not shipped: `using-superpowers` (a Claude-Code-specific bootstrap skill that forces invocation of the `Skill` tool — pi's discovery model surfaces skill descriptions automatically, so the bootstrap isn't needed) and `executing-plans` (shipped through v2.x, deleted in v3.0.0 as unused; its separate-session batch-execution role is subsumed by `subagent-driven-development`). `roasting-the-spec` is an original skill with no obra equivalent, so the 12-of-14 count tracks obra-sourced skills only (total shipped skills: 13).
 
 Re-sync workflow: compare a fresh checkout of upstream against `skills/`, port worthwhile changes manually, bump the SHA above with date, note material changes in `CHANGELOG.md`. No subtree, no patch files — keep the divergence small and reviewed.
 

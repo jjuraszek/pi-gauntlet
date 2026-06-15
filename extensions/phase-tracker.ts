@@ -128,7 +128,7 @@ export default function (pi: ExtensionAPI) {
     ((pi.settings ?? {}) as Settings).piSuperpowers?.closureReview?.enforce !== false;
 
   // Auto-complete the implement phase from plan_tracker once every task is done,
-  // but only when a skill has explicitly started it (TDD, or the SDD / executing-plans
+  // but only when a skill has explicitly started it (TDD, or the SDD
   // execution preamble). The tracker never *fabricates* implement from task activity:
   // outside a superpowers flow (ad-hoc plan_tracker use) no phase is ever started, so
   // the phase widget stays dormant. Phases are entered explicitly by the phase-owning

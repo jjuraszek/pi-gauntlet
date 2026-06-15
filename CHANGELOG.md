@@ -1,5 +1,13 @@
 # Changelog
 
+## v3.0.0 — 2026-06-15
+
+**Breaking:** deletes the `executing-plans` skill. Consumers that invoked it for separate-session batch execution must switch to `subagent-driven-development`.
+
+- **Collapse the plan-handoff gate into a deterministic auto-select-and-proceed seam.** `brainstorming` now auto-proceeds to `writing-plans` on spec approval (no next-step menu); `writing-plans` auto-selects the execution mode from wave structure (any wave ≥2 tasks → parallel-wave, else sequential) and auto-invokes `subagent-driven-development` (no 3-way picker). The four human gates become three: spec approval, in-flight STOPs, end gate. The removed gate was a mechanical lookup that asked the human to decide something with no new information.
+- **Delete `executing-plans`.** Unused in practice; its closing-loop conformance logic was duplicated in `subagent-driven-development`, so deletion removes a divergence tax. No escape hatch or config flag is retained — one opinionated happy path.
+- **Strengthen the wave-grouping contract to parallel-safety.** A multi-task wave now requires disjoint files **and** disjoint shared mutable runtime resources (DB/schema, port, fixture, external service, shared temp path), making the auto-selected parallel mode safe by the planner's grouping rather than a downstream judgment. `subagent-driven-development`'s independence check and Red Flags carry the same contract.
+
 ## v2.2.1 — 2026-06-13
 
 Harden the v2.2.0 lint/critique split against the two runtime-legibility regressions it introduced. The four self-review bullets stay byte-identical to the obra ancestor (re-sync constraint intact); the fixes are anchors around them.

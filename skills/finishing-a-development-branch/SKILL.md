@@ -79,7 +79,7 @@ Or ask: "This branch split from main - is that correct?"
 
 Before presenting finish options, surface the closing-loop conformance result as **its own section** — the user is about to choose how to ship, and they need to see whether the deliverable matches what was *asked*, not just whether tests pass. Tests prove the code runs; conformance proves it does what was requested. Different gates.
 
-- **If the execution flow already closed the loop** (the `conformance-reviewer` ran in the `subagent-driven-development` / `executing-plans` verify gate), restate its verdict here: `CONFORMS`, or the `GAPS` and how each was dispositioned (fixed / accepted-and-recorded-in-spec / rescoped).
+- **If the execution flow already closed the loop** (the `conformance-reviewer` ran in the `subagent-driven-development` verify gate), restate its verdict here: `CONFORMS`, or the `GAPS` and how each was dispositioned (fixed / accepted-and-recorded-in-spec / rescoped).
 - **If no conformance check has run in this flow** (e.g., ad-hoc work that landed without an execution skill), say so plainly and offer to run it now — dispatch a fresh-context `conformance-reviewer` against the origin (spec + verbatim prompt + full diff vs base) per `verification-before-completion/reference/conformance-check.md`. Closing the loop is cheap relative to shipping unverified intent.
 - **Unreconciled gaps are a blocker, not a footnote.** Do not bury them inside the options menu. If any gap is still open, resolve it (or get explicit user acceptance recorded in the spec) before offering Option 1 (squash-merge) or Option 2 (PR).
 

@@ -3,7 +3,7 @@ name: writing-plans
 description: Use when you have a spec or requirements for a multi-step task, before touching code
 ---
 
-> **Related skills:** Did you `/skill:brainstorming` first? Ready to implement? Use `/skill:executing-plans` or `/skill:subagent-driven-development`.
+> **Related skills:** Reached via the auto-chain from `/skill:brainstorming` (not a direct human entry point). On completion this skill auto-invokes `/skill:subagent-driven-development`.
 
 # Writing Plans
 
@@ -34,7 +34,7 @@ If no spec exists, send the work back to `/skill:brainstorming`. Do not invent a
 - Read code and docs: yes
 - Write the plan to the sibling `doc/plans/` of the spec: yes
 - Edit or create any other files: no
-- Start executing the plan: no — that's `/skill:executing-plans` or `/skill:subagent-driven-development`
+- Write implementation code: never inside this skill. After Self-Review + `phase_tracker` complete, auto-invoke `/skill:subagent-driven-development` to execute.
 - Land the plan on `main`: no — the plan commit goes on the worktree branch (same branch as the spec)
 
 ## Scope Check
@@ -75,13 +75,15 @@ If you can't list the files, the spec isn't ready. Send it back to `/skill:brain
 
 ## Wave Grouping
 
-Group tasks into **waves** so the executor can parallelize independent work (see `subagent-driven-development` Parallel-Wave Mode). A wave is a maximal set of tasks that (a) have no ordering dependency on each other and (b) own **pairwise-disjoint files**.
+Group tasks into **waves** so the executor can parallelize independent work (see `subagent-driven-development` Parallel-Wave Mode). A wave is a maximal set of tasks that (a) have no ordering dependency on each other, (b) own **pairwise-disjoint files**, and (c) contend on **no shared mutable runtime resource** (same DB/schema, port, fixture file, external service, shared temp path).
 
 - Tasks nest under `## Wave N — <label>` headers; `### Task N` headers sit inside a wave.
 - A wave with one task is legal (runs sequentially). A pure dependency chain yields one task per wave — no parallelism, which is correct.
 - Each wave after the first states its dependency on prior waves.
 
 **File-ownership contract.** The per-task `**Files:**` block *is* the ownership declaration — no new syntax. Rule: **within a wave, the union of every task's declared paths must be pairwise disjoint.** Globs are allowed for `Modify` when exact paths are unknown, but must not overlap another same-wave task's paths. A task that must touch another's file belongs in a later wave.
+
+**Runtime-resource disjointness.** File-disjoint is necessary but not sufficient: two tasks with disjoint files that both mutate the same DB, bind the same port, or share a fixture are **not** parallel-safe and must land in different waves. The executor auto-selects parallel for *every* multi-task wave, so this grouping is the sole parallel-safety guarantee — there is no selection-time judgment downstream. No new mandatory per-task syntax; when a shared runtime resource is the reason two file-disjoint tasks sit in different waves, record it in an inline note on the later wave.
 
 ```markdown
 ## Wave 1 — Foundations
@@ -114,7 +116,7 @@ Each step is **one action, 2-5 minutes**:
 ```markdown
 # [Feature Name] Implementation Plan
 
-> **REQUIRED SUB-SKILL:** Use the executing-plans (or subagent-driven-development) skill to implement this plan task-by-task.
+> **REQUIRED SUB-SKILL:** Use the subagent-driven-development skill to implement this plan task-by-task.
 
 **Goal:** [one sentence]
 
@@ -198,7 +200,7 @@ After drafting the plan and before announcing it complete, run three checks your
 - **Spec coverage.** Cross-reference the spec's components/decisions/constraints against the plan. Does every spec section map to one or more tasks? If a spec decision has no implementation task, the plan is missing work or the spec was overspecified.
 - **Placeholder scan.** Grep the doc for `TODO`, `TBD`, `xxx`, `[fill in]`, `<example>`, `etc.`, "probably", "something like". Resolve or convert each into an explicit Open Question.
 - **Type / API consistency.** Function signatures and field names that appear in multiple tasks must match exactly. The plan is its own contract — internal contradictions surface as bugs during execution.
-- **Wave disjointness.** For every multi-task wave, confirm the tasks' `Files:` sets are pairwise disjoint. Overlap = mis-grouped wave; split or re-order before handoff.
+- **Wave disjointness.** For every multi-task wave, confirm the tasks' `Files:` sets are pairwise disjoint **and** that no two tasks contend on a shared mutable runtime resource (DB/schema, port, fixture, external service, shared temp path). Either kind of overlap = mis-grouped wave; split or re-order before handoff.
 
 Fix what this review finds before handoff.
 
@@ -220,18 +222,12 @@ After saving the plan, mark the planning phase complete:
 phase_tracker({ action: "complete", phase: "plan" })
 ```
 
-Then offer execution choice:
+Then auto-select the execution mode and proceed — no pause, no picker. The mode is a pure function of the plan's wave structure:
 
-> Plan complete and saved to `<project>/doc/plans/<filename>.md` in the worktree. Execution options:
->
-> 1. **Subagent-Driven, sequential (this session)** — fresh subagent per task with two-stage review. The default.
-> 2. **Subagent-Driven, parallel waves (this session)** — independent tasks in a wave run concurrently in isolated worktrees, integrated serially with the same two-stage review. *(Offer only when the plan has ≥2 tasks in some wave.)*
-> 3. **Separate Session (executing-plans)** — batch execution with human review checkpoints. Better when tasks are tightly coupled or you want more control between batches.
->
-> Which approach?
+- **If any wave contains ≥2 tasks → Parallel-Wave Mode.** The strengthened Wave Grouping contract (files + runtime-resource disjoint) guarantees every multi-task wave is parallel-safe.
+- **Otherwise (pure dependency chain, one task per wave) → Sequential Mode.**
 
-- Subagent-Driven (sequential or parallel waves) → `/skill:subagent-driven-development` in this session.
-- Separate Session → user opens new session in worktree → `/skill:executing-plans`.
+Announce the selected mode in one line (transparency), then auto-invoke `/skill:subagent-driven-development` in this session. Do not wait for confirmation — the spec gate already happened, and the plan is a mechanical derivative. The only pauses from here are in-flight STOPs (`BLOCKED` / `NEEDS_CONTEXT`) and the end gate, both owned by the executor.
 
 ## Red Flags — STOP
 

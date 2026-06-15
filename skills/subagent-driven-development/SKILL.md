@@ -3,7 +3,7 @@ name: subagent-driven-development
 description: Use when executing implementation plans with independent tasks in the current session
 ---
 
-> **Related skills:** Need an isolated workspace? `/skill:using-git-worktrees`. Need a plan first? `/skill:writing-plans`. Done? `/skill:finishing-a-development-branch`.
+> **Related skills:** Need an isolated workspace? `/skill:using-git-worktrees`. Need a plan first? `/skill:writing-plans`. Done? `/skill:finishing-a-development-branch`. Reached via the auto-chain from `/skill:writing-plans` (not a direct human entry point; direct invocation stays possible for recovery, e.g. re-running after a STOP).
 
 # Subagent-Driven Development
 
@@ -40,16 +40,9 @@ Periodic "should I continue?" prompts add latency without adding safety. The pla
 - Approved plan or clear task scope
 - `plan_tracker` initialized with the full task list
 
-## When to Use vs. Executing Plans
+## Sequential vs. Parallel-Wave
 
-| | subagent-driven-development | executing-plans |
-|---|---|---|
-| Session | Same (this one) | Separate Session |
-| Per-task context | Fresh subagent | Same orchestrator session |
-| Best for | Independent tasks | Sequential, tightly-coupled tasks |
-| Pause cadence | None (continuous) | Per task |
-
-subagent-driven-development runs **sequentially by default**; when the plan groups independent tasks into waves, [Parallel-Wave Mode](#parallel-wave-mode) parallelizes the tasks within a wave.
+subagent-driven-development runs **sequentially by default**; when the plan groups independent tasks into waves, [Parallel-Wave Mode](#parallel-wave-mode) parallelizes the tasks within a wave. The mode is auto-selected by `writing-plans` at handoff (≥2 tasks in some wave → parallel; else sequential) — you are not asked to choose.
 
 **Dependent tasks:** include the previous task's implementation summary and relevant file paths in the next subagent's `task`. Track outputs so you can pass them forward.
 
@@ -131,7 +124,7 @@ Prompt templates live alongside this SKILL.md:
 
 ## Parallel-Wave Mode
 
-Chosen at handoff (option 2) when the plan groups tasks into **waves** (see `writing-plans`). Waves run in sequence; within a wave, file-disjoint tasks run concurrently in isolated worktrees, integrated serially behind one test + review gate. The sequential [Process](#the-process) above is the default and the fallback; this mode is the deliberate, worktree-isolated exception to the "no parallel implementers" red flag.
+Auto-selected at handoff by `writing-plans` (any wave with ≥2 tasks) when the plan groups tasks into **waves** (see `writing-plans`). Waves run in sequence; within a wave, tasks that the plan certified file- **and** runtime-resource-disjoint run concurrently in isolated worktrees, integrated serially behind one test + review gate. The sequential [Process](#the-process) above is the default and the fallback; this mode is the deliberate, worktree-isolated exception to the "no parallel implementers" red flag.
 
 **Enter the implement phase first.** Before the first wave, call `phase_tracker({ action: "start", phase: "implement" })` (as in [The Process](#the-process)); `plan_tracker` auto-completes it once every task across all waves is done.
 
@@ -146,7 +139,7 @@ Chosen at handoff (option 2) when the plan groups tasks into **waves** (see `wri
 
 **Per-wave loop:**
 
-1. **Independence check.** Parse the wave's tasks' `Files:` blocks; assert pairwise-disjoint. Overlap → the wave is mis-grouped; run those tasks as sequential single-task waves and note it.
+1. **Independence check.** Parse the wave's tasks' `Files:` blocks; assert pairwise-disjoint (mechanical). Runtime-resource disjointness (DB/schema, port, fixture, external service, shared temp path) is not machine-checkable here — trust the plan's wave grouping, which `writing-plans`' D5 contract guarantees. Either kind of overlap → the wave is mis-grouped; run those tasks as sequential single-task waves and note it.
 2. **Fan out.** One parallel dispatch (shape below): `implementer` per task, `context: "fresh"`, `worktree: true`. Each returns a status + a patch.
 3. **Status + spec review per task.** Parse each `DONE`/`BLOCKED`/etc. (see [Implementer Status](#implementer-status)); spec-review each returned patch against its task (read-only, parallelizable). Re-dispatch incomplete tasks (fresh, `worktree: true`) until `DONE` + spec ✅.
 4. **Integrate.** `git apply` each task's patch sequentially onto HEAD. Apply fails = textual conflict → drop that task, finish the rest, re-run the dropped task sequentially on the updated HEAD.
@@ -206,6 +199,7 @@ For the fan-out + worktree + patch-integration + conflict mechanics, see `dispat
 
 - Writing code yourself instead of dispatching
 - Dispatching parallel implementers on overlapping files, or without `worktree: true` outside Parallel-Wave Mode (wave mode is the sanctioned exception: disjoint files + worktree isolation + serial integration)
+- Parallelizing a wave whose tasks contend on a shared mutable runtime resource (DB/schema, port, fixture, external service, shared temp path) — that wave was mis-grouped; run those tasks as sequential single-task waves
 - Making a subagent read the plan instead of passing task text
 - Starting code-quality review before spec compliance is ✅
 - Moving to next task with either review still showing issues
@@ -224,9 +218,6 @@ For the fan-out + worktree + patch-integration + conflict mechanics, see `dispat
 
 **Subagents follow by default:**
 - TDD — runtime warnings on source-before-test. Implementer agents receive the three-scenario TDD instructions (new feature / modifying tested code / trivial) via agent profile and prompt template.
-
-**Alternative:**
-- `/skill:executing-plans` — use for separate-session execution instead of same-session.
 
 ## Project overrides
 

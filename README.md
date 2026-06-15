@@ -6,9 +6,9 @@ Inspired by [obra/superpowers](https://github.com/obra/superpowers) (Claude Code
 
 ## What you get
 
-**14 skills** that activate automatically when pi sees the right kind of task:
+**13 skills** that activate automatically when pi sees the right kind of task:
 
-- **Design & planning** — `brainstorming`, `writing-plans`, `executing-plans`, `roasting-the-spec`
+- **Design & planning** — `brainstorming`, `writing-plans`, `roasting-the-spec`
 - **Implementation** — `test-driven-development`, `subagent-driven-development`, `dispatching-parallel-agents`
 - **Verification** — `verification-before-completion`, `systematic-debugging`
 - **Review** — `requesting-code-review`, `receiving-code-review`

@@ -91,10 +91,6 @@ You: [Fix progress indicators]
 - Catch issues before they compound
 - Fix before moving to next task
 
-**Executing Plans:**
-- Uses human review between batches — dispatched code review is optional
-- Useful before merge if no review happened during execution
-
 **Ad-Hoc Development:**
 - Review before merge
 - Review when stuck

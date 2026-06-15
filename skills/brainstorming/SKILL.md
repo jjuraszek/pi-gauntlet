@@ -25,7 +25,7 @@ You **may**:
 You may **not**:
 - Write or edit code outside `doc/specs/`
 - Scaffold a project, or take any action that builds, deploys, or validates the **proposed change** — running new/edited code, exercising behaviour that doesn't exist yet, or "testing the fix" before there is one
-- Run implementation skills (`/skill:test-driven-development`, `/skill:executing-plans`, etc.)
+- Run implementation skills (`/skill:test-driven-development`, `/skill:subagent-driven-development`, etc.)
 - Commit the spec directly on `main` in the primary checkout — it must land inside the worktree (see [Worktree First](#worktree-first))
 - Start writing the plan (that's `/skill:writing-plans` — separate phase)
 
@@ -219,14 +219,10 @@ After self-review (and council review, if configured), commit the spec on the wo
 ```
 Spec written and committed to <project>/doc/specs/<filename>.md (worktree: <path>).
 
-Please review. Once you approve, we can:
-1. Use /skill:writing-plans to break it into implementation tasks
-2. Make changes to the spec if anything is off
-
-What's next?
+Please review. Approve to proceed, or tell me what to change in the spec.
 ```
 
-Wait for the user. Don't start implementation, don't open the plan skill, don't land the spec on `main`. The user owns this transition. The spec stays in the worktree; it ships in the same squash commit as the implementation.
+Wait for the user. On a change request, revise and re-present. On approval, proceed immediately to `/skill:writing-plans` with no further prompt — the plan and execution mode are mechanical derivatives, so the only human gate here is spec approval itself. Don't land the spec on `main`; it stays in the worktree and ships in the same squash commit as the implementation.
 
 After approval, mark the brainstorm phase complete:
 
@@ -253,7 +249,7 @@ phase_tracker({ action: "complete", phase: "brainstorm" })
 - About to reach the user gate without re-running the placeholder scan after the critique returned
 - About to run the scope or ambiguity checks inline yourself instead of dispatching them (those two are the critique pass, not the inline lint)
 - About to skip the self-review pass
-- About to skip the user review gate and jump to `/skill:writing-plans`
+- About to proceed to `/skill:writing-plans` before the user has approved the spec (proceeding *after* approval is correct; skipping the gate is the violation)
 - Spec contains `TODO`, `TBD`, or unnamed components
 - Spec spans multiple independent subsystems with no decomposition flag
 - User said "this is just a small change" and you accepted it without applying the [Anti-Pattern](#anti-pattern-too-simple-to-need-a-design) check
