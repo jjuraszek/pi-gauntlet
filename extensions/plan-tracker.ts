@@ -101,7 +101,7 @@ export default function (pi: ExtensionAPI) {
       if (msg.role !== "toolResult" || msg.toolName !== "plan_tracker") continue;
       const details = msg.details as PlanTrackerDetails | undefined;
       if (details && !details.error) {
-        tasks = details.tasks;
+        tasks = details.tasks.map((t) => ({ ...t }));
       }
     }
   };
@@ -140,7 +140,7 @@ export default function (pi: ExtensionAPI) {
               content: [{ type: "text", text: "Error: tasks array required for init" }],
               details: {
                 action: "init",
-                tasks: [...tasks],
+                tasks: tasks.map((t) => ({ ...t })),
                 error: "tasks required",
               } as PlanTrackerDetails,
             };
@@ -154,7 +154,7 @@ export default function (pi: ExtensionAPI) {
                 text: `Plan initialized with ${tasks.length} tasks.\n${formatStatus(tasks)}`,
               },
             ],
-            details: { action: "init", tasks: [...tasks] } as PlanTrackerDetails,
+            details: { action: "init", tasks: tasks.map((t) => ({ ...t })) } as PlanTrackerDetails,
           };
         }
 
@@ -164,7 +164,7 @@ export default function (pi: ExtensionAPI) {
               content: [{ type: "text", text: "Error: index and status required for update" }],
               details: {
                 action: "update",
-                tasks: [...tasks],
+                tasks: tasks.map((t) => ({ ...t })),
                 error: "index and status required",
               } as PlanTrackerDetails,
             };
@@ -189,7 +189,7 @@ export default function (pi: ExtensionAPI) {
               ],
               details: {
                 action: "update",
-                tasks: [...tasks],
+                tasks: tasks.map((t) => ({ ...t })),
                 error: `index ${params.index} out of range`,
               } as PlanTrackerDetails,
             };
@@ -203,14 +203,14 @@ export default function (pi: ExtensionAPI) {
                 text: `Task ${params.index} "${tasks[params.index].name}" → ${params.status}\n${formatStatus(tasks)}`,
               },
             ],
-            details: { action: "update", tasks: [...tasks] } as PlanTrackerDetails,
+            details: { action: "update", tasks: tasks.map((t) => ({ ...t })) } as PlanTrackerDetails,
           };
         }
 
         case "status": {
           return {
             content: [{ type: "text", text: formatStatus(tasks) }],
-            details: { action: "status", tasks: [...tasks] } as PlanTrackerDetails,
+            details: { action: "status", tasks: tasks.map((t) => ({ ...t })) } as PlanTrackerDetails,
           };
         }
 
@@ -234,7 +234,7 @@ export default function (pi: ExtensionAPI) {
             content: [{ type: "text", text: `Unknown action: ${params.action}` }],
             details: {
               action: "status",
-              tasks: [...tasks],
+              tasks: tasks.map((t) => ({ ...t })),
               error: `unknown action`,
             } as PlanTrackerDetails,
           };

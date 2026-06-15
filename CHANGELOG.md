@@ -1,5 +1,13 @@
 # Changelog
 
+## v3.0.1 — 2026-06-15
+
+**Fix:** `plan-tracker` snapshots no longer alias live `Task` objects. The stored `details.tasks` is now a deep copy (`tasks.map((t) => ({ ...t }))`) at every result site, and `reconstructState` clones on read instead of binding the module array to a persisted snapshot.
+
+- **Root cause.** `details: { tasks: [...tasks] }` was a shallow copy: the array was cloned but the `Task` objects were shared by reference. A later `update` mutated `tasks[i].status` in place, retroactively corrupting the already-persisted `details` of every prior result. Two updates in one turn (e.g. mark task N complete + task N+1 in-progress) wrote the *final* state into the earlier snapshot, so the persisted history diverged from the rendered text.
+- **Impact.** Live widget on a clean reload was unaffected (it reads the last result, which is correct). The corruption bit branching/rewind — the feature the file comment advertises ("stored in tool result details for proper branching support") — because reconstructing to a mid-plan point replayed a snapshot that had been mutated to a later state.
+- **No behavior or API change** beyond correct per-step snapshots.
+
 ## v3.0.0 — 2026-06-15
 
 **Breaking:** deletes the `executing-plans` skill. Consumers that invoked it for separate-session batch execution must switch to `subagent-driven-development`.
