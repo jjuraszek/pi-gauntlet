@@ -4,6 +4,26 @@ A workflow library for the [pi coding agent](https://github.com/badlogic/pi-mono
 
 Inspired by [obra/superpowers](https://github.com/obra/superpowers) (Claude Code) and [coctostan/pi-superpowers-plus](https://github.com/coctostan/pi-superpowers-plus). Ported to pi and trimmed to the pieces that survive across projects.
 
+## The workflow
+
+pi-superpowers is **opinionated**: every non-trivial change rides one pipeline, idea to merge. There is no separate "just edit a file and commit" path — the skills gate each other, so the next phase can't open until the current one closes.
+
+```
+brainstorm → plan → implement → verify → ship
+```
+
+1. **`brainstorming`** — every change starts here. Sets up an isolated worktree, explores the codebase, and turns the idea into a written spec under `doc/specs/`. A multi-model critique runs automatically before you read it (`roasting-the-spec` when a council is configured, else one fresh `worker`). **Hard gate:** no implementation code is written until you approve the spec.
+2. **`writing-plans`** — derives an implementation plan from the approved spec, decomposed into atomic, independently-verifiable tasks (grouped into parallel waves when they're file- and resource-disjoint). Auto-chains into execution.
+3. **`subagent-driven-development`** — executes the plan one atomic task at a time, each in a **fresh subagent**, behind a **two-stage review**: spec compliance first (`spec-reviewer`), then code quality (`code-reviewer`). The `implementer` persona is TDD-locked (RED→GREEN→REFACTOR). You orchestrate; you never hand-write the code.
+4. **verify** — after the last task: a whole-diff review (`requesting-code-review`, plus any project-specific `self-audit` supplement), then the `conformance-reviewer` closing-loop gate that confronts the delivered code **and** docs against the *origin* (spec + your verbatim original prompt), not the plan. The phase-tracker **blocks `complete verify`** until a conformance dispatch has run.
+5. **`finishing-a-development-branch`** — squash / PR / keep / discard. This menu is the single human decision gate at the end, mirroring spec approval at the start.
+
+Spec, plan, and implementation all live in the **same worktree** and ship as **one squash commit**.
+
+**Supporting skills** slot in as the pipeline needs them: `using-git-worktrees` (isolation, before the spec), `test-driven-development` (inside every implementer), `dispatching-parallel-agents` (wave fan-out), `systematic-debugging` (when something breaks), `receiving-code-review` (when you get feedback), `writing-skills` (authoring more of these).
+
+**The gates are enforced, not suggested.** Brainstorming refuses to write code before spec approval; the phase-tracker refuses to close verify before the conformance gate runs; `verify-before-ship` warns on any commit/push/PR without a passing test run since your last edit. Reach for a shortcut and a gate stops you — that is the design, not a side effect.
+
 ## What you get
 
 **13 skills** that activate automatically when pi sees the right kind of task:
