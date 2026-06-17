@@ -197,7 +197,7 @@ The first three checks — **placeholder scan**, **internal consistency**, and *
 - **Otherwise** → dispatch one fresh `worker` that applies the scope + ambiguity checks and fixes them in place:
 
   ```
-  subagent({ agent: "worker", context: "fresh", task:
+  subagent({ agent: "worker", context: "fresh", cwd: "<abs worktree path, from git rev-parse --show-toplevel>", task:
     "Problem statement: <the problem the spec addresses + the user's stated intent>.\n" +
     "Read the spec at <abs path to doc/specs/...>. Edit ONLY that file. Apply two checks and\n" +
     "fix what you find in place: (1) Scope — does every paragraph serve the goal? Cut filler;\n" +

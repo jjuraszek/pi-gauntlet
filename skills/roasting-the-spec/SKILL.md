@@ -54,12 +54,15 @@ mktemp -d   # absolute path, e.g. /tmp/tmp.XXXXXX
 
 Dispatch one member per configured model, in parallel, each writing its critique into that dir. Do **not** read these files yourself — they are for the chair.
 
+Capture the worktree path once (`git rev-parse --show-toplevel`, run from inside the worktree) and pass it as `cwd:` on every dispatch below — a child otherwise inherits pi's launch dir (the primary checkout), not the worktree.
+
 ```
 subagent({
   control: { needsAttentionAfterMs: 600000 },
   tasks: members.map((model, i) => ({
     agent: "spec-council-member",
     model,
+    cwd: "<abs worktree path>",
     task: "Problem statement: <the problem the spec addresses, from its Context section and the user's stated intent>.\n" +
           "Read the spec at <abs path to doc/specs/...>. Critique it on your five axes and emit your template.",
     output: "<tmpdir>/member-" + i + "-" + slug(model) + ".md"
@@ -81,6 +84,7 @@ Dispatch the chair once. It reads the member files (not you), the spec, and the 
 subagent({
   agent: "spec-council-synthesizer",
   model: <chair from config, else omit to inherit>,
+  cwd: "<abs worktree path>",
   control: { needsAttentionAfterMs: 600000 },
   reads: [ <the member file paths under the temp dir> ],
   task: "Problem statement: <paste>. Spec: <abs path>.\n" +

@@ -9,6 +9,7 @@
  * Use phase_tracker for "what stage am I in?", plan_tracker for "which task?".
  */
 
+import { execSync } from "node:child_process";
 import { StringEnum } from "@earendil-works/pi-ai";
 import type { ExtensionAPI, ExtensionContext, Theme } from "@earendil-works/pi-coding-agent";
 import { Text } from "@earendil-works/pi-tui";
@@ -36,6 +37,10 @@ type Settings = {
     closureReview?: {
       enforce?: boolean;
     };
+    flowGuards?: {
+      enforce?: boolean;
+      specDirs?: string[];
+    };
   };
 };
 
@@ -56,6 +61,53 @@ const CLOSURE_GATE_ERROR =
   "  piSuperpowers.closureReview.model), then complete verify after its verdict, or\n" +
   "- if the user explicitly waived closure review, record it:\n" +
   '  phase_tracker({ action: "skip", phase: "verify", reason: "<user waiver>" })';
+
+// --- Flow guards (spec 2026-06-17-superpowers-flow-guards) ---
+
+const GUARD_PHASES: Phase[] = ["brainstorm", "plan", "implement"];
+
+// Guard 2 — branch ops in place. `git switch` never targets a file path;
+// `git checkout -b/-B` is explicit branch creation. Bare `git checkout <x>`
+// is excluded (ambiguous with file checkout). `git worktree ...` is exempt.
+const BRANCH_SWITCH = /\bgit\s+switch\b/;
+const BRANCH_CHECKOUT = /\bgit\s+checkout\s+-[bB]\b/;
+const GIT_WORKTREE = /\bgit\s+worktree\b/;
+
+// Guard 3 — bash mutation forms during brainstorm.
+const BASH_REDIRECT = /(?:^|\s)>>?\s*([^\s|&]+)/; // capture the redirect target
+const BASH_TEE = /\btee\b/;
+const BASH_SED_I = /\bsed\s+-i\b/;
+const BASH_GIT_APPLY = /\bgit\s+apply\b/;
+const TEMP_TARGET = /^(\/tmp\/|\/var\/folders\/|\/dev\/)/; // scratch paths are not project mutations
+
+const IMPLEMENT_NUDGE =
+  "\nimplement complete -> next: phase_tracker start verify, run the closing loop, then complete verify";
+const VERIFY_NUDGE =
+  "\nverify complete -> next: invoke /skill:finishing-a-development-branch (ship phase not started)";
+
+const branchWarning = (phase: Phase): string =>
+  `⚠️ Branch switch/creation in place during the ${phase} phase.\n` +
+  "Superpowers flows run in a dedicated worktree, not by switching branches in the\n" +
+  "primary checkout. Create/enter one with /skill:using-git-worktrees, or — if you\n" +
+  "are already inside a worktree — ignore this.";
+
+const brainstormWriteWarning = (specDirs: string[]): string =>
+  "⚠️ Writing outside the spec directory during the brainstorm phase.\n" +
+  `Brainstorming may only edit the spec under ${specDirs.join(", ")}. Implementation\n` +
+  "waits for the spec approval gate. If this edit IS the spec, place it under the spec dir.";
+
+// Contiguous-subsequence match of a configured spec dir against path components.
+const pathInSpecDirs = (rawPath: string, specDirs: string[]): boolean => {
+  const comps = rawPath.split("/").filter((c) => c.length > 0 && c !== ".");
+  return specDirs.some((dir) => {
+    const dcomps = dir.split("/").filter((c) => c.length > 0);
+    if (dcomps.length === 0) return false;
+    for (let i = 0; i + dcomps.length <= comps.length; i++) {
+      if (dcomps.every((dc, j) => comps[i + j] === dc)) return true;
+    }
+    return false;
+  });
+};
 
 const PhaseTrackerParams = Type.Object({
   action: StringEnum(["start", "complete", "skip", "status", "reset"] as const, {
@@ -127,6 +179,40 @@ export default function (pi: ExtensionAPI) {
   const closureEnforced = () =>
     ((pi.settings ?? {}) as Settings).piSuperpowers?.closureReview?.enforce !== false;
 
+  const flowGuardsCfg = () => ((pi.settings ?? {}) as Settings).piSuperpowers?.flowGuards ?? {};
+  const flowGuardsEnforced = () => flowGuardsCfg().enforce !== false;
+  const specDirs = () => flowGuardsCfg().specDirs ?? ["doc/specs"];
+
+  // Warn-once-per-phase ledger; cleared on every phase transition and on reconstruct.
+  const firedGuards = new Map<string, boolean>();
+  // Warnings stashed at tool_call, prepended at tool_result (verify-before-ship pattern).
+  // Relies on tool_result firing for every tool_call; reconstructState clears any stragglers.
+  const pendingGuardWarnings = new Map<string, string>();
+
+  const activeGuardPhase = (): Phase | undefined =>
+    GUARD_PHASES.find((p) => phases[p].status === "in_progress");
+
+  // Guard 2 is active only when pi was launched in the primary checkout, not a
+  // linked worktree. Computed once: a linked worktree has --git-dir != --git-common-dir.
+  // (Inside a submodule the comparison is git-version-dependent and irrelevant here -
+  // superpowers flows do not run inside submodule git internals; whichever way it
+  // resolves, the guard merely staying off in that edge case is harmless.)
+  const inPrimaryCheckout = (() => {
+    try {
+      const gitDir = execSync("git rev-parse --git-dir", {
+        encoding: "utf8",
+        stdio: ["ignore", "pipe", "ignore"],
+      }).trim();
+      const commonDir = execSync("git rev-parse --git-common-dir", {
+        encoding: "utf8",
+        stdio: ["ignore", "pipe", "ignore"],
+      }).trim();
+      return gitDir === commonDir;
+    } catch {
+      return false;
+    }
+  })();
+
   // Auto-complete the implement phase from plan_tracker once every task is done,
   // but only when a skill has explicitly started it (TDD, or the SDD
   // execution preamble). The tracker never *fabricates* implement from task activity:
@@ -137,12 +223,15 @@ export default function (pi: ExtensionAPI) {
     if (!tasks || tasks.length === 0) return;
     if (phases.implement.status === "in_progress" && tasks.every((t) => t.status === "complete")) {
       phases = { ...phases, implement: { status: "complete" } };
+      firedGuards.clear();
     }
   };
 
   const reconstructState = (ctx: ExtensionContext) => {
     phases = emptyPhases();
     conformanceDispatched = false;
+    firedGuards.clear();
+    pendingGuardWarnings.clear();
     for (const entry of ctx.sessionManager.getBranch()) {
       if (entry.type !== "message") continue;
       const msg = entry.message;
@@ -180,9 +269,95 @@ export default function (pi: ExtensionAPI) {
     });
   }
 
+  pi.on("tool_call", async (event) => {
+    if (!flowGuardsEnforced()) return undefined;
+
+    // Guard 3 — write/edit outside the spec dir during brainstorm.
+    if (event.toolName === "write" || event.toolName === "edit") {
+      if (phases.brainstorm.status !== "in_progress" || firedGuards.get("brainstorm-write")) return undefined;
+      const p = (event.input as { path?: unknown } | undefined)?.path;
+      if (typeof p !== "string" || pathInSpecDirs(p, specDirs())) return undefined;
+      firedGuards.set("brainstorm-write", true);
+      pendingGuardWarnings.set(event.toolCallId, brainstormWriteWarning(specDirs()));
+      return undefined;
+    }
+
+    if (event.toolName !== "bash") return undefined;
+    const command = (event.input as { command?: unknown } | undefined)?.command;
+    if (typeof command !== "string" || !command) return undefined;
+
+    const warnings: string[] = [];
+
+    // Guard 2 — branch op in place (primary checkout only, brainstorm/plan/implement).
+    const gphase = activeGuardPhase();
+    if (
+      inPrimaryCheckout &&
+      gphase &&
+      !firedGuards.get("branch") &&
+      !GIT_WORKTREE.test(command) &&
+      (BRANCH_SWITCH.test(command) || BRANCH_CHECKOUT.test(command))
+    ) {
+      firedGuards.set("branch", true);
+      warnings.push(branchWarning(gphase));
+    }
+
+    // Guard 3 — bash mutation outside the spec dir during brainstorm.
+    if (phases.brainstorm.status === "in_progress" && !firedGuards.get("brainstorm-write")) {
+      // Redirect target is cleanly extractable: judge it directly against the spec dirs,
+      // so `cat doc/specs/x.md > src/foo.ts` (writes OUTSIDE the spec dir) still fires
+      // even though the command text mentions the spec dir.
+      const target = command.match(BASH_REDIRECT)?.[1];
+      const redirectOutsideSpec =
+        target !== undefined && !TEMP_TARGET.test(target) && !pathInSpecDirs(target, specDirs());
+      // tee / sed -i / git apply targets are not cleanly extractable; fall back to a
+      // best-effort whole-command spec-dir mention check (accepted heuristic, advisory + warn-once).
+      const otherMutation = BASH_TEE.test(command) || BASH_SED_I.test(command) || BASH_GIT_APPLY.test(command);
+      const otherOutsideSpec = otherMutation && !specDirs().some((d) => command.includes(d));
+      if (redirectOutsideSpec || otherOutsideSpec) {
+        firedGuards.set("brainstorm-write", true);
+        warnings.push(brainstormWriteWarning(specDirs()));
+      }
+    }
+
+    if (warnings.length > 0) pendingGuardWarnings.set(event.toolCallId, warnings.join("\n\n"));
+    return undefined;
+  });
+
   pi.on("tool_result", async (event) => {
-    if (event.toolName !== "subagent") return undefined;
-    if (qualifiesAsClosureDispatch(event.details)) conformanceDispatched = true;
+    if (event.toolName === "subagent") {
+      if (qualifiesAsClosureDispatch(event.details)) conformanceDispatched = true;
+      return undefined;
+    }
+
+    // Guard 1 — nudge when implement auto-completes via plan_tracker (all tasks done).
+    // Relies on the documented hook order: tool_result fires AFTER tool execution finishes
+    // but BEFORE tool_execution_end (pi extensions.md, "tool_result"). applyPlanActivity
+    // flips implement->complete in tool_execution_end, so phases.implement is still
+    // in_progress when this check runs.
+    if (event.toolName === "plan_tracker" && flowGuardsEnforced() && !event.isError) {
+      const details = event.details as { tasks?: { status: string }[]; error?: string } | undefined;
+      const tasks = details?.tasks;
+      if (
+        !details?.error &&
+        tasks &&
+        tasks.length > 0 &&
+        tasks.every((t) => t.status === "complete") &&
+        phases.implement.status === "in_progress" &&
+        phases.verify.status === "pending"
+      ) {
+        return { content: [...event.content, { type: "text" as const, text: IMPLEMENT_NUDGE }] };
+      }
+      return undefined;
+    }
+
+    // Guards 2/3 — prepend the stashed advisory warning to the bash/write/edit result.
+    if (event.toolName === "bash" || event.toolName === "write" || event.toolName === "edit") {
+      const warning = pendingGuardWarnings.get(event.toolCallId);
+      if (!warning) return undefined;
+      pendingGuardWarnings.delete(event.toolCallId);
+      return { content: [{ type: "text" as const, text: warning }, ...event.content] };
+    }
+
     return undefined;
   });
 
@@ -246,6 +421,7 @@ export default function (pi: ExtensionAPI) {
             };
           }
           phases = { ...phases, [params.phase]: { status: "in_progress" } };
+          firedGuards.clear();
           updateWidget(ctx);
           return {
             content: [{ type: "text", text: `Phase "${params.phase}" → in_progress\n${formatStatus(phases)}` }],
@@ -282,9 +458,17 @@ export default function (pi: ExtensionAPI) {
             };
           }
           phases = { ...phases, [params.phase]: { status: "complete" } };
+          firedGuards.clear();
           updateWidget(ctx);
+          let nudge = "";
+          if (flowGuardsEnforced()) {
+            if (params.phase === "implement" && phases.verify.status === "pending") nudge = IMPLEMENT_NUDGE;
+            else if (params.phase === "verify" && phases.ship.status === "pending") nudge = VERIFY_NUDGE;
+          }
           return {
-            content: [{ type: "text", text: `Phase "${params.phase}" → complete\n${formatStatus(phases)}` }],
+            content: [
+              { type: "text", text: `Phase "${params.phase}" → complete\n${formatStatus(phases)}${nudge}` },
+            ],
             details: { action: "complete", phases: { ...phases } } as PhaseTrackerDetails,
           };
         }
@@ -309,6 +493,7 @@ export default function (pi: ExtensionAPI) {
           }
           const reason = params.reason;
           phases = { ...phases, [params.phase]: { status: "skipped", reason } };
+          firedGuards.clear();
           updateWidget(ctx);
           return {
             content: [
@@ -328,6 +513,7 @@ export default function (pi: ExtensionAPI) {
         case "reset": {
           phases = emptyPhases();
           conformanceDispatched = false;
+          firedGuards.clear();
           updateWidget(ctx);
           return {
             content: [{ type: "text", text: "Phase tracker reset. All phases pending." }],

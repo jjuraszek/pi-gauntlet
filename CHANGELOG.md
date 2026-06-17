@@ -1,5 +1,13 @@
 # Changelog
 
+## v3.2.0 — 2026-06-17
+
+Add three advisory flow guards to `phase-tracker`, harden the spec-council personas to read-only bash, and pass explicit `cwd` on council/worker dispatches - mitigating worktree-discipline, finish-handoff, and spec-phase-mutation drift observed in session history, without adding skill-body prose.
+
+- **`phase-tracker` flow guards (advisory, default-on, `piSuperpowers.flowGuards.enforce`).** (1) Finish handoff: `complete implement` / `complete verify` (and the plan-tracker auto-complete) append a next-step nudge toward `start verify` and `/skill:finishing-a-development-branch`. (2) Worktree discipline: in-place `git switch` / `git checkout -b` during brainstorm/plan/implement warns, gated by an init-time primary-checkout-vs-worktree check (`--git-dir` vs `--git-common-dir`), exempting `git worktree` and plain file checkout; warns once per phase. (3) Spec-phase confinement: `write`/`edit` or bash mutation (`>`/`>>`/`tee`/`sed -i`/`git apply`) outside `flowGuards.specDirs` (default `["doc/specs"]`) during brainstorm warns; warns once per brainstorm. All three never block.
+- **Spec-council personas pinned to read-only bash.** `spec-council-member` and `spec-council-synthesizer` bodies now forbid mutating via `bash` (write/redirect/edit/stage/commit/build) - closing the gap where a member "ignores its tools" and mutates through bash. Best-effort: council sessions have no runtime guard.
+- **Explicit `cwd` on council/worker dispatches.** `roasting-the-spec` (member fan-out + chair) and `brainstorming` (fresh-worker critique) now pass `cwd: <worktree>` (from `git rev-parse --show-toplevel`), so subagents stop inheriting pi's primary-checkout launch dir. `subagent-driven-development` already pins `cwd` and is unchanged.
+
 ## v3.1.0 — 2026-06-16
 
 Collapse the redundant end-of-flow gate and make documentation a spec-owned decision, so the chain has one human gate at finish instead of two stacked stops.
