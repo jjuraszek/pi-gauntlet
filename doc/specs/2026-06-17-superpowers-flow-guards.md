@@ -1,5 +1,7 @@
 # Spec: superpowers flow guards (worktree discipline, finish nudge, brainstorm-write confinement)
 
+> **superseded in part** by `doc/specs/2026-06-17-flow-guards-refinements.md`: Guard 1 removed; Guard 2 promoted to a hard block; `bash` removed from council personas. The body below is the historical record.
+
 ## Context
 
 Three recurring flow failures were observed across consumer sessions (gridstrong session history, 2026-06-09..17):

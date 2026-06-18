@@ -69,8 +69,9 @@ const GUARD_PHASES: Phase[] = ["brainstorm", "plan", "implement"];
 // Guard 2 — branch ops in place. `git switch` never targets a file path;
 // `git checkout -b/-B` is explicit branch creation. Bare `git checkout <x>`
 // is excluded (ambiguous with file checkout). `git worktree ...` is exempt.
-const BRANCH_SWITCH = /\bgit\s+switch\b/;
-const BRANCH_CHECKOUT = /\bgit\s+checkout\s+-[bB]\b/;
+const STMT_START = "(?:^|[\\n;&|(])\\s*";
+const BRANCH_SWITCH = new RegExp(STMT_START + "git\\s+switch\\b");
+const BRANCH_CHECKOUT = new RegExp(STMT_START + "git\\s+checkout\\s+-[bB]\\b");
 const GIT_WORKTREE = /\bgit\s+worktree\b/;
 
 // Guard 3 — bash mutation forms during brainstorm.
@@ -79,17 +80,13 @@ const BASH_TEE = /\btee\b/;
 const BASH_SED_I = /\bsed\s+-i\b/;
 const BASH_GIT_APPLY = /\bgit\s+apply\b/;
 const TEMP_TARGET = /^(\/tmp\/|\/var\/folders\/|\/dev\/)/; // scratch paths are not project mutations
+const SCRATCH_MENTION = /\/tmp\/|\/var\/folders\/|\/dev\//;
 
-const IMPLEMENT_NUDGE =
-  "\nimplement complete -> next: phase_tracker start verify, run the closing loop, then complete verify";
-const VERIFY_NUDGE =
-  "\nverify complete -> next: invoke /skill:finishing-a-development-branch (ship phase not started)";
-
-const branchWarning = (phase: Phase): string =>
-  `⚠️ Branch switch/creation in place during the ${phase} phase.\n` +
-  "Superpowers flows run in a dedicated worktree, not by switching branches in the\n" +
-  "primary checkout. Create/enter one with /skill:using-git-worktrees, or — if you\n" +
-  "are already inside a worktree — ignore this.";
+const branchBlockReason = (phase: Phase): string =>
+  `Branch switch/creation in the primary checkout is blocked during the ${phase} phase. ` +
+  "Superpowers flows run in a dedicated worktree (git worktree add ... is allowed here); " +
+  "create/enter one with /skill:using-git-worktrees and run this there. " +
+  "To override, set piSuperpowers.flowGuards.enforce: false.";
 
 const brainstormWriteWarning = (specDirs: string[]): string =>
   "⚠️ Writing outside the spec directory during the brainstorm phase.\n" +
@@ -199,15 +196,14 @@ export default function (pi: ExtensionAPI) {
   // resolves, the guard merely staying off in that edge case is harmless.)
   const inPrimaryCheckout = (() => {
     try {
-      const gitDir = execSync("git rev-parse --git-dir", {
+      const lines = execSync("git rev-parse --git-dir --git-common-dir", {
         encoding: "utf8",
         stdio: ["ignore", "pipe", "ignore"],
-      }).trim();
-      const commonDir = execSync("git rev-parse --git-common-dir", {
-        encoding: "utf8",
-        stdio: ["ignore", "pipe", "ignore"],
-      }).trim();
-      return gitDir === commonDir;
+        timeout: 5000,
+      })
+        .trim()
+        .split("\n");
+      return lines.length === 2 && lines[0] === lines[1];
     } catch {
       return false;
     }
@@ -293,12 +289,10 @@ export default function (pi: ExtensionAPI) {
     if (
       inPrimaryCheckout &&
       gphase &&
-      !firedGuards.get("branch") &&
       !GIT_WORKTREE.test(command) &&
       (BRANCH_SWITCH.test(command) || BRANCH_CHECKOUT.test(command))
     ) {
-      firedGuards.set("branch", true);
-      warnings.push(branchWarning(gphase));
+      return { block: true, reason: branchBlockReason(gphase) };
     }
 
     // Guard 3 — bash mutation outside the spec dir during brainstorm.
@@ -312,7 +306,8 @@ export default function (pi: ExtensionAPI) {
       // tee / sed -i / git apply targets are not cleanly extractable; fall back to a
       // best-effort whole-command spec-dir mention check (accepted heuristic, advisory + warn-once).
       const otherMutation = BASH_TEE.test(command) || BASH_SED_I.test(command) || BASH_GIT_APPLY.test(command);
-      const otherOutsideSpec = otherMutation && !specDirs().some((d) => command.includes(d));
+      const otherOutsideSpec =
+        otherMutation && !specDirs().some((d) => command.includes(d)) && !SCRATCH_MENTION.test(command);
       if (redirectOutsideSpec || otherOutsideSpec) {
         firedGuards.set("brainstorm-write", true);
         warnings.push(brainstormWriteWarning(specDirs()));
@@ -326,27 +321,6 @@ export default function (pi: ExtensionAPI) {
   pi.on("tool_result", async (event) => {
     if (event.toolName === "subagent") {
       if (qualifiesAsClosureDispatch(event.details)) conformanceDispatched = true;
-      return undefined;
-    }
-
-    // Guard 1 — nudge when implement auto-completes via plan_tracker (all tasks done).
-    // Relies on the documented hook order: tool_result fires AFTER tool execution finishes
-    // but BEFORE tool_execution_end (pi extensions.md, "tool_result"). applyPlanActivity
-    // flips implement->complete in tool_execution_end, so phases.implement is still
-    // in_progress when this check runs.
-    if (event.toolName === "plan_tracker" && flowGuardsEnforced() && !event.isError) {
-      const details = event.details as { tasks?: { status: string }[]; error?: string } | undefined;
-      const tasks = details?.tasks;
-      if (
-        !details?.error &&
-        tasks &&
-        tasks.length > 0 &&
-        tasks.every((t) => t.status === "complete") &&
-        phases.implement.status === "in_progress" &&
-        phases.verify.status === "pending"
-      ) {
-        return { content: [...event.content, { type: "text" as const, text: IMPLEMENT_NUDGE }] };
-      }
       return undefined;
     }
 
@@ -460,14 +434,9 @@ export default function (pi: ExtensionAPI) {
           phases = { ...phases, [params.phase]: { status: "complete" } };
           firedGuards.clear();
           updateWidget(ctx);
-          let nudge = "";
-          if (flowGuardsEnforced()) {
-            if (params.phase === "implement" && phases.verify.status === "pending") nudge = IMPLEMENT_NUDGE;
-            else if (params.phase === "verify" && phases.ship.status === "pending") nudge = VERIFY_NUDGE;
-          }
           return {
             content: [
-              { type: "text", text: `Phase "${params.phase}" → complete\n${formatStatus(phases)}${nudge}` },
+              { type: "text", text: `Phase "${params.phase}" → complete\n${formatStatus(phases)}` },
             ],
             details: { action: "complete", phases: { ...phases } } as PhaseTrackerDetails,
           };

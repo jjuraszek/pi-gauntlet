@@ -1,5 +1,16 @@
 # Changelog
 
+## v3.3.0 — 2026-06-18
+
+Refine the v3.2.0 flow guards based on observed behavior: Guard 1 was phantom signal (main-loop implement sessions already ship; the original non-completion count was subagent children, not stalled flows), Guard 2 advisory warning was too weak for branch-switch drift, and two bugs were found in Guards 2 and 3.
+
+- **Removed Guard 1 (finish/verify nudges).** The `complete implement` and `complete verify` next-step nudges are removed. In practice, main-loop implement sessions do ship; the sessions that appeared stalled were subagent children (implementer, reviewer) whose exit is not a flow halt. The nudge text was phantom signal.
+- **Guard 2 promoted to a hard block.** In-place `git switch` / `git checkout -b`/`-B` during `brainstorm`/`plan`/`implement` now blocks the bash call entirely (does not run), rather than warning after the fact. Branch-switch drift was not corrected by an advisory; a hard block is the minimum effective enforcement.
+- **Removed `bash` from both council personas.** `spec-council-member` and `spec-council-synthesizer` frontmatter `tools` no longer includes `bash`. Deterministic tool removal replaces the v3.2.0 best-effort read-only-bash persona clause: static spec-claim checks are covered by `read`/`grep`/`find`/`ls`; critiques are response text so `bash` was never in the output path.
+- **Fixed Guard 2 quoted-substring regex false positive.** The branch-command detection regex was matching quoted substrings (e.g. a commit message containing `git switch`) as a trigger. Fixed to anchor on command position, not substring presence.
+- **Fixed Guard 3 scratch-path exemption on the tee/sed/apply path.** The scratch exemption (`/tmp`, `/var/folders`, `/dev`) was applied only on the redirect (`>`/`>>`) path; `tee`/`sed -i`/`git apply` commands targeting scratch paths still warned. Exemption is now applied uniformly across all Guard 3 bash-mutation forms.
+- **Added execSync timeout to inPrimaryCheckout startup git call.** The `git rev-parse` call that determines primary-vs-worktree at extension init now carries an `execSync` timeout, preventing a hung git process from stalling the extension indefinitely on misconfigured repos.
+
 ## v3.2.0 — 2026-06-17
 
 Add three advisory flow guards to `phase-tracker`, harden the spec-council personas to read-only bash, and pass explicit `cwd` on council/worker dispatches - mitigating worktree-discipline, finish-handoff, and spec-phase-mutation drift observed in session history, without adding skill-body prose.

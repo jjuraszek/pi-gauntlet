@@ -208,24 +208,19 @@ qualify. A user waiver is recorded via `skip` with a reason — there is no `for
 bypass on `complete`. Disable per preset with
 `settings.json#piSuperpowers.closureReview.enforce: false` (default: enforced).
 
-**Flow guards (advisory).** Three non-blocking nudges, on by default, disabled per
+**Flow guards.** Two guards, on by default, disabled per
 preset with `settings.json#piSuperpowers.flowGuards.enforce: false`:
 
-- **Finish handoff.** On `complete implement` (and the auto-complete from
-  `plan-tracker`) the result points you at `start verify`, the closing loop, and `complete verify`; on
-  `complete verify` it points at `/skill:finishing-a-development-branch`.
-- **Worktree discipline.** During `brainstorm`/`plan`/`implement`, an in-place
-  `git switch` / `git checkout -b`/`-B` warns that superpowers flows run in a worktree.
+- **Worktree discipline (blocks).** During `brainstorm`/`plan`/`implement`, an in-place
+  `git switch` / `git checkout -b`/`-B` is blocked — the bash call does not run.
   Active **only when pi was launched in the primary checkout** (not a linked
   worktree); `git worktree ...` and plain `git checkout <file>` never trip it.
-  Warns once per phase.
-- **Spec-phase confinement.** During `brainstorm`, a `write`/`edit` (or a bash
+  Override via `piSuperpowers.flowGuards.enforce: false`.
+- **Spec-phase confinement (advisory).** During `brainstorm`, a `write`/`edit` (or a bash
   mutation: `>`/`>>`/`tee`/`sed -i`/`git apply`) outside the spec dir warns that
   brainstorming may only touch the spec. Spec dirs come from
   `flowGuards.specDirs` (default `["doc/specs"]`). Redirects to scratch paths
   (`/tmp`, `/var/folders`, `/dev`) are exempt. Warns once per brainstorm.
-
-All three are advisory - the tool call still runs.
 
 ### `verify-before-ship`
 
