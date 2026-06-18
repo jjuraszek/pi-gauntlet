@@ -1,5 +1,12 @@
 # Changelog
 
+## v3.3.2 — 2026-06-18
+
+Resolve `piSuperpowers.specCouncil` from two settings files instead of one. A session skipped the council because the agent read the repo-local `.pi/settings.json` (which had no `specCouncil`) as if it were the preset file, fell back to the single-`worker` critique, and reported it as a config problem. The council was correctly configured in `$PI_CODING_AGENT_DIR/settings.json` the whole time.
+
+- **Two-file council resolution with repo precedence** (`brainstorming`, `roasting-the-spec`). Lookup order: (1) `<repo-root>/.pi/settings.json` (worktree root via `git rev-parse --show-toplevel`) — wins if it **defines** `specCouncil`, including an empty `members` as an explicit "no council for this repo"; (2) `$PI_CODING_AGENT_DIR/settings.json` — consulted only when the repo file does not define the key. First file that defines `specCouncil` wins; no cross-file merge.
+- **Explicit anti-footgun note.** Both skills now warn to expand `$PI_CODING_AGENT_DIR` and never substitute a hardcoded project path for it — the repo-local `.pi/settings.json` and the preset file are different files. Reading one as the other was the original miss.
+
 ## v3.3.1 — 2026-06-18
 
 Revert the v3.2.0/v3.3.0 removal of `bash` from the spec-council personas. The removal regressed council runs from 363/363 historical synthesis-reach to 0/2.

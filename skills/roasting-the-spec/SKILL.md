@@ -1,6 +1,6 @@
 ---
 name: roasting-the-spec
-description: Use after writing a spec, when a spec council is configured (piSuperpowers.specCouncil in the active preset's settings). Auto-dispatched by /skill:brainstorming as the critique pass when members is non-empty (no longer offered). N members on different models critique in parallel, a neutral chair consolidates and adjudicates, the parent proposes dispositions, the user approves.
+description: Use after writing a spec, when a spec council is configured (piSuperpowers.specCouncil in the repo's .pi/settings.json, else the active preset's settings). Auto-dispatched by /skill:brainstorming as the critique pass when members is non-empty (no longer offered). N members on different models critique in parallel, a neutral chair consolidates and adjudicates, the parent proposes dispositions, the user approves.
 ---
 
 # Roasting the Spec (Spec Council)
@@ -24,7 +24,12 @@ This skill may read anything and edit **only** the spec under `doc/specs/`. It d
 
 ## Configuration and gating
 
-Read the active preset's settings file at `$PI_CODING_AGENT_DIR/settings.json` and look for `piSuperpowers.specCouncil`:
+Resolve `piSuperpowers.specCouncil` from **two** settings files, repo-local first:
+
+1. `<repo-root>/.pi/settings.json` (repo root = `git rev-parse --show-toplevel`, which inside a worktree is the worktree root). **If this file defines `specCouncil`, it wins** — even an empty `members` here is an explicit "no council for this repo".
+2. `$PI_CODING_AGENT_DIR/settings.json` (agent preset) — consulted **only** when the repo file does not define `specCouncil` at all.
+
+The first file that defines the key wins; do not merge member lists across files. Do not hardcode a project path in place of `$PI_CODING_AGENT_DIR` — expand the env var. The resolved config looks like:
 
 ```json
 {
