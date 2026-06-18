@@ -1,5 +1,11 @@
 # Changelog
 
+## v3.3.1 — 2026-06-18
+
+Revert the v3.2.0/v3.3.0 removal of `bash` from the spec-council personas. The removal regressed council runs from 363/363 historical synthesis-reach to 0/2.
+
+- **Restored `bash` on `spec-council-member` and `spec-council-synthesizer`** (`tools: read, grep, find, ls, bash`). `roasting-the-spec` dispatches members with an `output:` path, and pi-subagents injects a `Write your findings to: <path>` instruction into every such task. With no write-capable tool the member was ordered to write a file it could not write: observed failures were 87-byte preamble stubs (glm-5) and stalls (gpt-5.5 at `xhigh`), with critique content lost before the chair saw it. The v3.3.0 rationale ("critiques are response text so `bash` was never in the output path") was empirically false - `bash` IS the output path: members do read-only verification (`grep`/`wc`/`find`) then `cat > <output>`. Forward fix only; the v3.3.0 flow-guard changes are untouched.
+
 ## v3.3.0 — 2026-06-18
 
 Refine the v3.2.0 flow guards based on observed behavior: Guard 1 was phantom signal (main-loop implement sessions already ship; the original non-completion count was subagent children, not stalled flows), Guard 2 advisory warning was too weak for branch-switch drift, and two bugs were found in Guards 2 and 3.

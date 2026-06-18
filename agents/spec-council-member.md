@@ -1,7 +1,7 @@
 ---
 name: spec-council-member
 description: Adversarial single-model spec critic dispatched by the roasting-the-spec skill; assesses whether a spec is sound, complete, and actionable. Not for direct dispatch.
-tools: read, grep, find, ls
+tools: read, grep, find, ls, bash
 thinking: xhigh
 defaultContext: fresh
 inheritProjectContext: true

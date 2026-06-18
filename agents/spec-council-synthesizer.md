@@ -1,7 +1,7 @@
 ---
 name: spec-council-synthesizer
 description: Neutral chair that consolidates and adjudicates spec-council member critiques into a single ranked, conflict-resolved report. Dispatched by the roasting-the-spec skill; not for direct dispatch.
-tools: read, grep, find, ls
+tools: read, grep, find, ls, bash
 thinking: xhigh
 defaultContext: fresh
 inheritProjectContext: true
