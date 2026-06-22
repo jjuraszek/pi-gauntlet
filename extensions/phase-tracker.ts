@@ -62,6 +62,14 @@ const CLOSURE_GATE_ERROR =
   "- if the user explicitly waived closure review, record it:\n" +
   '  phase_tracker({ action: "skip", phase: "verify", reason: "<user waiver>" })';
 
+const SHIP_ADVISORY =
+  "Verify is complete and ship is pending. If the conformance verdict is resolved\n" +
+  "(CONFORMS, or every gap dispositioned and approved), invoke\n" +
+  "/skill:finishing-a-development-branch now - do not add a 'ready to finish?' prompt;\n" +
+  "its squash/PR/keep/discard menu is the human gate. If a requirement decision is\n" +
+  "still open, you should not have completed verify - reopen it and surface the open\n" +
+  "decision instead.";
+
 // --- Flow guards (spec 2026-06-17-superpowers-flow-guards) ---
 
 const GUARD_PHASES: Phase[] = ["brainstorm", "plan", "implement"];
@@ -434,9 +442,11 @@ export default function (pi: ExtensionAPI) {
           phases = { ...phases, [params.phase]: { status: "complete" } };
           firedGuards.clear();
           updateWidget(ctx);
+          const advisory =
+            params.phase === "verify" && phases.ship.status === "pending" ? `\n\n${SHIP_ADVISORY}` : "";
           return {
             content: [
-              { type: "text", text: `Phase "${params.phase}" → complete\n${formatStatus(phases)}` },
+              { type: "text", text: `Phase "${params.phase}" → complete\n${formatStatus(phases)}${advisory}` },
             ],
             details: { action: "complete", phases: { ...phases } } as PhaseTrackerDetails,
           };

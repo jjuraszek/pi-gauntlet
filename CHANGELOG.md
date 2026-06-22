@@ -1,5 +1,12 @@
 # Changelog
 
+## v3.3.3 — 2026-06-22
+
+Re-add a verify->ship advisory to `phase-tracker`, narrower than the Guard 1 nudge removed in v3.3.0. A main-loop flow was observed stalling at the verify->ship boundary: conformance returned CONFORMS, verify completed, then the model stacked a redundant "Want me to proceed to finishing now?" prompt and ended the turn — exactly what `subagent-driven-development` step 5 forbids, but only as advisory prose with nothing enforcing it.
+
+- **Advisory injected on `complete verify` when ship is still pending.** The phase-tracker now appends a nudge to the successful verify-complete result: if the conformance verdict is resolved, invoke `finishing-a-development-branch` immediately without a redundant "ready to finish?" prompt; if a requirement decision is still open, reopen verify and surface it instead.
+- **Keyed on the phase state, not the verdict.** The conformance-gap human decision happens *before* `complete verify` (verify stays `in_progress`), so the advisory — which fires only on `complete verify` + ship pending — cannot clobber that legitimate pause. The extension never parses the conformance verdict (it only sees the dispatch `exitCode`), so the resolved-vs-open classification stays with the model; the advisory is a nudge, not an auto-transition or a block. Distinct from the v3.3.0-removed Guard 1 nudge: that was phantom signal (subagent-child exits mistaken for stalls); this targets a confirmed main-loop stall and is conditional on `ship` still pending.
+
 ## v3.3.2 — 2026-06-18
 
 Resolve `piSuperpowers.specCouncil` from two settings files instead of one. A session skipped the council because the agent read the repo-local `.pi/settings.json` (which had no `specCouncil`) as if it were the preset file, fell back to the single-`worker` critique, and reported it as a config problem. The council was correctly configured in `$PI_CODING_AGENT_DIR/settings.json` the whole time.
