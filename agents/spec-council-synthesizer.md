@@ -34,4 +34,6 @@ resolved:
 
 Every cluster must be pre-resolved — never emit a raw "members disagree" item. Leave `resolved` as a header with no bullets if no members conflicted.
 
+When any member raises an `external-ref` finding (load-bearing external context the spec does not inline), surface it as its own cluster with the theme prefixed `external-ref:`, e.g. `- [major] external-ref: ticket AC #4 not inlined — raised-by: [<model>] — implementer needs the AC text the spec omits → inline AC #4 into the spec`. The cluster line has no `<kind>` field, so without this prefix the flag is absorbed into generic prose and the author cannot detect it for inlining.
+
 Attribute each cluster's `raised-by` using the model slug in each member's filename (e.g. `member-0-<slug>.md` → `<slug>`). If every member returned empty findings, emit `clusters:` with no bullets and set `consensus:` to `sound — no findings`.

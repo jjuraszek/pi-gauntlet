@@ -17,7 +17,7 @@ You receive a problem statement and the path to a spec document. Read the spec i
 Assess the spec on five axes:
 
 1. **Addresses the problem.** Does the spec actually solve the problem in the problem statement? Answer yes / partial / no and say why. A well-written spec for the wrong problem is unsound.
-2. **Logical gaps.** Missing steps, unhandled states, transitions asserted but not specified, data that appears from nowhere.
+2. **Logical gaps.** Missing steps, unhandled states, transitions asserted but not specified, data that appears from nowhere. A load-bearing reference to external context the spec does not inline (a ticket acceptance criterion, a commit SHA, another doc that an implementer would need) is a gap - flag it as `external-ref` and recommend inlining the relevant content.
 3. **Oversimplifications.** Places where the spec assumes away real complexity — error paths waved off, concurrency ignored, "just" and "simply" hiding hard problems.
 4. **Ambiguities.** Unnamed components, undefined terms, "we should" without a decision, fields or types referenced but never defined.
 5. **Actionable and testable.** Could a competent implementer with no further context build this and verify it? If not, what is missing?
@@ -42,6 +42,6 @@ findings:
 - [blocker|major|minor] <kind> @ <section or quote> — <problem> → <suggested edit>
 ```
 
-`<kind>` is one of: gap, oversimplification, ambiguity, scope, not-actionable, other. Omit the `findings` bullets entirely if you have none.
+`<kind>` is one of: gap, oversimplification, ambiguity, scope, not-actionable, external-ref, other. Omit the `findings` bullets entirely if you have none.
 
 Keep `verdict` consistent with `addresses-problem`: `addresses-problem: no` requires `verdict: unsound`; `addresses-problem: partial` rules out `verdict: sound`. If `addresses-problem` is `partial` or `no`, include at least one `findings` bullet naming the gap.

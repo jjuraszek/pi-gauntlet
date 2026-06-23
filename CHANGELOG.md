@@ -1,5 +1,13 @@
 # Changelog
 
+## v3.4.0 - 2026-06-23
+
+Add a spec-only summary at the brainstorming user review gate, and a flag-not-inline external-ref path so specs stay self-contained.
+
+- **New `spec-summarizer` agent** (`agents/spec-summarizer.md`). Fresh context, read-only (`tools: read`), `inheritProjectContext: false` - reads only the spec it is given and returns a tight, decision-layer-first human summary. Dispatched only by `brainstorming` at the existing gate; output is ephemeral (rendered, never committed). Model-free - set `subagents.agentOverrides.spec-summarizer.model` per preset.
+- **`brainstorming` renders the summary at the gate** as part of the existing single human gate (no new gate). New checklist item 11; the gate message leads with the summary.
+- **External-ref path (C).** `spec-council-member` gains an `external-ref` finding kind; `spec-council-synthesizer` surfaces it as an `external-ref:`-prefixed cluster so it survives synthesis; `brainstorming` scans the critique return for the flag and inlines the referenced context (it holds the ticket; the critics do not) before summarizing. The worker fallback path carries the same flag.
+
 ## v3.3.3 — 2026-06-22
 
 Re-add a verify->ship advisory to `phase-tracker`, narrower than the Guard 1 nudge removed in v3.3.0. A main-loop flow was observed stalling at the verify->ship boundary: conformance returned CONFORMS, verify completed, then the model stacked a redundant "Want me to proceed to finishing now?" prompt and ended the turn — exactly what `subagent-driven-development` step 5 forbids, but only as advisory prose with nothing enforcing it.
