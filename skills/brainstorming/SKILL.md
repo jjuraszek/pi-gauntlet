@@ -53,7 +53,7 @@ Work through the items below **in order**. This is your own checklist to follow,
 8. **Spec self-review (lint)** — placeholder scan + internal consistency + documentation named, run inline
 9. **Critique pass (auto-dispatched)** — scope + ambiguity; the spec council via `/skill:roasting-the-spec` when `members` is configured, else a fresh `worker` (see [Spec Council](#spec-council-optional))
 10. **Re-run placeholder scan** — after the critique pass returns, first inline any `external-ref:` flags it raised (see [Spec Self-Review](#spec-self-review-before-user-review-gate)), then re-scan for placeholders its edits may have introduced; surface any ambiguity the worker could not safely resolve at the user gate
-11. **Generate spec summary** — dispatch a fresh, spec-only `spec-summarizer` and fold its output into the gate message (see [User Review Gate](#user-review-gate)); this is part of the existing gate, not a new one
+11. **Generate spec summary** — dispatch a fresh, spec-only `spec-summarizer` and render its returned text **verbatim** at the top of the gate message — do not paraphrase, condense, re-section, or rewrite it (see [User Review Gate](#user-review-gate)); this is part of the existing gate, not a new one
 12. **User review gate** — user reviews the committed spec
 13. **Transition** — only after approval, invoke `/skill:writing-plans`
 
@@ -237,15 +237,19 @@ subagent({ agent: "spec-summarizer", context: "fresh", cwd: "<abs worktree path,
 
 If the dispatch fails, reach the gate anyway with a one-line "summary generation failed" note - the summary is an aid, not a gate.
 
-Render the returned summary first, then the commit confirmation and any critique-pass-unresolved ambiguities or gap-footer entries adjacent to it:
+Render the summarizer's returned text **verbatim** first — paste it as-is, do **not** paraphrase, condense, re-section, drop sections, or merge it with council output. "Fold into the gate" means *place it inside the gate message*, not *rewrite it*. After the verbatim block, append the commit confirmation, then — as their **own** adjacent lines, not edits to the summary — any council outcome, critique-pass-unresolved ambiguities, and every entry from the summarizer's gap/external-context footer (surface **all** of them, not just the top risk):
 
 ```
-<spec-only summary from spec-summarizer>
+<spec-only summary from spec-summarizer — pasted verbatim, unedited>
 
 Spec written and committed to <project>/doc/specs/<filename>.md (worktree: <path>).
 
+<council outcome, if any; unresolved ambiguities; every gap-footer entry from the summary>
+
 Please review. Approve to proceed, or tell me what to change in the spec.
 ```
+
+If you believe the summary needs correcting, do **not** silently rewrite it — re-dispatch the summarizer or note the discrepancy as an adjacent line beneath the verbatim block.
 
 Wait for the user. On a change request, revise and re-present. On approval, proceed immediately to `/skill:writing-plans` with no further prompt — the plan and execution mode are mechanical derivatives, so the only human gate here is spec approval itself. Don't land the spec on `main`; it stays in the worktree and ships in the same squash commit as the implementation.
 
@@ -273,6 +277,7 @@ phase_tracker({ action: "complete", phase: "brainstorm" })
 - Critique dispatch (council or worker) failed to complete and you proceeded to the gate anyway
 - About to reach the user gate without re-running the placeholder scan after the critique returned
 - About to reach the user gate without rendering the spec-only summary (dispatch `spec-summarizer` first; a failed dispatch degrades to a one-line note, it is not silently skipped)
+- About to present a paraphrased, condensed, or re-sectioned version of the summarizer's output instead of pasting its returned text verbatim — rewriting the summary counts as not rendering it
 - About to run the scope or ambiguity checks inline yourself instead of dispatching them (those two are the critique pass, not the inline lint)
 - About to skip the self-review pass
 - About to proceed to `/skill:writing-plans` before the user has approved the spec (proceeding *after* approval is correct; skipping the gate is the violation)

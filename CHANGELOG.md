@@ -1,5 +1,11 @@
 # Changelog
 
+## v3.4.1 - 2026-06-25
+
+Force the brainstorming user review gate to render the `spec-summarizer` output verbatim. A session dispatched the summarizer, received a full structured summary, then presented a self-authored paraphrase at the gate instead - dropping the summarizer's Scope/Outputs/Algorithm/Acceptance sections and three of four gap-footer entries.
+
+- **`brainstorming` gate now pastes the summarizer's returned text verbatim** (`skills/brainstorming/SKILL.md`). Checklist item 11 and the User Review Gate section now forbid paraphrasing, condensing, re-sectioning, or merging the summary with council output; "fold into the gate" is redefined as *place inside the message*, not *rewrite*. Council outcome, unresolved ambiguities, and **every** gap-footer entry are appended as their own adjacent lines. A new Red Flag flags presenting a rewritten summary as equivalent to not rendering it. If the summary looks wrong, re-dispatch or note the discrepancy adjacently - never silently rewrite.
+
 ## v3.4.0 - 2026-06-23
 
 Add a spec-only summary at the brainstorming user review gate, and a flag-not-inline external-ref path so specs stay self-contained.
