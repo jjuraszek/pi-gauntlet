@@ -163,6 +163,8 @@ Unset → provider default thinking for that model. `conformance-reviewer` and t
 
 Frontmatter pins `thinking: xhigh` and `defaultContext: fresh` (the gate always runs cold, with max reasoning) and `thinking` is not call-site overridable, so the config supplies only `model`. If `closureReview.model` is unset the dispatch omits `model:` and the gate inherits the parent's model; if the configured model is unreachable it retries once inherited.
 
+When `closureReview.model` **is** set, the phase-tracker enforces call-site injection: a `subagent` dispatch of `conformance-reviewer` that omits `model:` is **blocked at tool-call time** (before it runs) so the gate can never silently degrade to the parent's builder model. The documented one-retry fallback still works - pass the inherited model *explicitly* and it is allowed; only a bare omission is blocked. Disabling `closureReview.enforce` disables this guard too.
+
 `closureReview.enforce` (default `true`) controls the phase-tracker gate that
 blocks `complete verify` until the conformance-reviewer has run; set `false` to
 disable enforcement for a preset.

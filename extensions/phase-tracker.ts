@@ -36,6 +36,7 @@ type Settings = {
   piSuperpowers?: {
     closureReview?: {
       enforce?: boolean;
+      model?: string;
     };
     flowGuards?: {
       enforce?: boolean;
@@ -95,6 +96,40 @@ const branchBlockReason = (phase: Phase): string =>
   "Superpowers flows run in a dedicated worktree (git worktree add ... is allowed here); " +
   "create/enter one with /skill:using-git-worktrees and run this there. " +
   "To override, set piSuperpowers.flowGuards.enforce: false.";
+
+// Closure-review model guard: when piSuperpowers.closureReview.model is configured,
+// a conformance-reviewer dispatch MUST inject that model call-site. The persona ships
+// model-free, so a bare omission silently inherits the parent session's builder model -
+// defeating the point of an independent closing gate on a different model. Walk the
+// single / tasks / chain / parallel dispatch shapes and report any conformance-reviewer
+// entry that carries no model. An explicit model (even a fallback) is fine; only a bare
+// omission is caught - that preserves the documented "retry once inherited" escape hatch,
+// which the orchestrator takes by passing the inherited model explicitly.
+const conformanceEntriesMissingModel = (input: unknown): boolean => {
+  const entries: { agent?: unknown; model?: unknown }[] = [];
+  const collect = (node: unknown): void => {
+    if (!node || typeof node !== "object") return;
+    const o = node as Record<string, unknown>;
+    if (typeof o.agent === "string") entries.push({ agent: o.agent, model: o.model });
+    for (const key of ["tasks", "chain", "parallel"] as const) {
+      const v = o[key];
+      if (Array.isArray(v)) for (const item of v) collect(item);
+      else if (v && typeof v === "object") collect(v);
+    }
+  };
+  collect(input);
+  return entries.some((e) => e.agent === "conformance-reviewer" && !e.model);
+};
+
+const closureModelBlockReason = (model: string): string =>
+  `Blocked: conformance-reviewer dispatched without a model while ` +
+  `piSuperpowers.closureReview.model is set to "${model}".\n` +
+  `The persona ships model-free, so a bare omission silently inherits this session's ` +
+  `builder model - the closing gate would then run on the same model that built the work, ` +
+  `not the independent one the preset pins. Re-dispatch with model: "${model}" injected ` +
+  `call-site. If that model is unreachable, pass an explicit fallback model (the documented ` +
+  `one-retry escape hatch) - only a bare omission is blocked.\n` +
+  `To disable this gate, set piSuperpowers.closureReview.enforce: false.`;
 
 const brainstormWriteWarning = (specDirs: string[]): string =>
   "⚠️ Writing outside the spec directory during the brainstorm phase.\n" +
@@ -183,6 +218,8 @@ export default function (pi: ExtensionAPI) {
   let conformanceDispatched = false;
   const closureEnforced = () =>
     ((pi.settings ?? {}) as Settings).piSuperpowers?.closureReview?.enforce !== false;
+  const closureReviewModel = () =>
+    ((pi.settings ?? {}) as Settings).piSuperpowers?.closureReview?.model;
 
   const flowGuardsCfg = () => ((pi.settings ?? {}) as Settings).piSuperpowers?.flowGuards ?? {};
   const flowGuardsEnforced = () => flowGuardsCfg().enforce !== false;
@@ -274,6 +311,17 @@ export default function (pi: ExtensionAPI) {
   }
 
   pi.on("tool_call", async (event) => {
+    // Closure-review model guard - independent of flowGuards, gated by closureReview.enforce.
+    if (event.toolName === "subagent" && closureEnforced()) {
+      const model = closureReviewModel();
+      // Only execution-mode dispatches carry a model; management/control modes
+      // (action: list/get/create/update/delete/status/...) execute nothing, so skip them.
+      const hasAction = !!(event.input as { action?: unknown })?.action;
+      if (model && !hasAction && conformanceEntriesMissingModel(event.input)) {
+        return { block: true, reason: closureModelBlockReason(model) };
+      }
+    }
+
     if (!flowGuardsEnforced()) return undefined;
 
     // Guard 3 — write/edit outside the spec dir during brainstorm.

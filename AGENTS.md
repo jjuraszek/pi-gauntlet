@@ -83,7 +83,7 @@ All three extensions ship in `extensions/`:
 | Extension | Configurable | Settings key |
 |---|---|---|
 | `plan-tracker.ts` | No | — |
-| `phase-tracker.ts` | Yes | `settings.json#piSuperpowers.closureReview` (key: `enforce`); `settings.json#piSuperpowers.flowGuards` (keys: `enforce`, `specDirs`) |
+| `phase-tracker.ts` | Yes | `settings.json#piSuperpowers.closureReview` (keys: `enforce`, `model`); `settings.json#piSuperpowers.flowGuards` (keys: `enforce`, `specDirs`) |
 | `verify-before-ship.ts` | Yes | `settings.json#piSuperpowers.verifyBeforeShip` (keys: `testCommands`, `warningReference`) |
 
 Hardcoded project paths or commands in extensions are forbidden. If you add a new configurable behavior, surface it as a `piSuperpowers.<extensionName>` settings key with a sane default and document it in `README.md`.

@@ -1,5 +1,12 @@
 # Changelog
 
+## v3.4.3 - 2026-07-01
+
+Enforce the conformance gate's configured model at dispatch time. `conformance-reviewer` ships model-free and the verify-step skills are instructed to inject `piSuperpowers.closureReview.model` call-site - but nothing checked it. An orchestrator that read the reminder yet omitted `model:` had its closing gate silently inherit the parent session's builder model (e.g. Opus) instead of the pinned independent model, defeating the point of a cold cross-model gate. The failure was invisible: the run succeeded and satisfied the existing "a conformance-reviewer ran" completion guard.
+
+- **New `tool_call` guard in `phase-tracker.ts`.** When `closureReview.model` is set, a `subagent` dispatch of `conformance-reviewer` that omits `model:` is blocked before it runs, with a corrective reason naming the configured model. Walks the single / `tasks` / `chain` / `parallel` dispatch shapes. The documented "retry once inherited" fallback is preserved - an *explicit* model (even the inherited one) passes; only a bare omission is blocked. Gated by the same `closureReview.enforce` toggle (default `true`). Management/control dispatches (`action:` list/get/create/update/delete/status/...) execute nothing and are exempt, so they are never blocked.
+- **Docs synced** (`README.md` conformance-gate section, `AGENTS.md` settings-key table).
+
 ## v3.4.2 - 2026-06-29
 
 Sharpen the `code-reviewer` Simplicity dimension with an over-engineering tag taxonomy borrowed from the ponytail-review skill. Priority #6 was a single vague bullet ("Can the same outcome be reached with less code?") that produced soft, unactionable findings.
