@@ -1,5 +1,14 @@
 # Changelog
 
+## v3.5.0 - 2026-07-02
+
+Turn the conformance gate from a detector into a closer. It found gaps well (50% of measured full-flow sessions got `GAPS`) but closed them badly - no enumerated issue list, no disposition menu, and only 3/29 gapped sessions ever re-audited after a fix. Post-gap handling was ad hoc and one session looped 7 rounds unbounded.
+
+- **Machine-addressable reviewer output** (`agents/conformance-reviewer.md`). Each non-DELIVERED row now emits a structured gap block (`id`/`verdict`/`origin`/`evidence`/`remediation`/`touched-files`/`touched-resources`/`recommended`) plus a `Parallel-safe:` disjointness certification line, so the orchestrator can drive disposition and fix concurrency mechanically. Frontmatter unchanged.
+- **Remediation-loop protocol** (`verification-before-completion/reference/conformance-check.md`). The "When the check finds gaps" section now specifies a numbered disposition menu (apply-all-recommended, with accept/rescope confirmation), isolated fix-wave dispatch reusing `dispatching-parallel-agents` mechanics (fresh context + `worktree: true` + serial integrate + one `code-reviewer` pass + test gate), and a bounded delta re-audit with a regression guard. `subagent-driven-development` Parallel-Wave Mode is deliberately **not** reused - its `phase_tracker({ phase: "implement" })` open errors during the verify phase - so the loop targets the lower-level fan-out primitive and leaves execution machinery untouched.
+- **New `piSuperpowers.closureReview.maxFixRounds`** (default `2`). Caps the fix/re-audit loop; `0` = audit-only. Enforced by protocol prose, not the phase-tracker extension.
+- **Call-site pointers** in `subagent-driven-development` and `finishing-a-development-branch` replace their inline disposition prose; the finishing skill notes fix dispatch is unavailable on non-worktree / detached-HEAD finishes.
+
 ## v3.4.3 - 2026-07-01
 
 Enforce the conformance gate's configured model at dispatch time. `conformance-reviewer` ships model-free and the verify-step skills are instructed to inject `piSuperpowers.closureReview.model` call-site - but nothing checked it. An orchestrator that read the reminder yet omitted `model:` had its closing gate silently inherit the parent session's builder model (e.g. Opus) instead of the pinned independent model, defeating the point of a cold cross-model gate. The failure was invisible: the run succeeded and satisfied the existing "a conformance-reviewer ran" completion guard.

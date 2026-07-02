@@ -156,7 +156,7 @@ Unset → provider default thinking for that model. `conformance-reviewer` and t
 ```json
 {
   "piSuperpowers": {
-    "closureReview": { "model": "<provider/model>", "enforce": true }
+    "closureReview": { "model": "<provider/model>", "enforce": true, "maxFixRounds": 2 }
   }
 }
 ```
@@ -168,6 +168,8 @@ When `closureReview.model` **is** set, the phase-tracker enforces call-site inje
 `closureReview.enforce` (default `true`) controls the phase-tracker gate that
 blocks `complete verify` until the conformance-reviewer has run; set `false` to
 disable enforcement for a preset.
+
+`closureReview.maxFixRounds` (default `2`) caps the conformance **remediation loop**: when a `GAPS` verdict's gaps are dispositioned `fix`, the orchestrator dispatches isolated fix waves and re-audits the delta, up to this many rounds before escalating to the user with the per-gap history. Missing or non-integer -> `2`; `< 0` clamps to `0`; `0` disables fix dispatch (the gap menu offers accept / rescope only). Enforced by the protocol prose in `verification-before-completion/reference/conformance-check.md`, not by the phase-tracker extension.
 
 If you want to know what's in each persona before using it, see [`agents/`](./agents/). The frontmatter (tools, thinking level, context mode) is documented in [`AGENTS.md`](./AGENTS.md#agents).
 

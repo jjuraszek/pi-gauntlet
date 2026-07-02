@@ -44,20 +44,88 @@ Confidence: low | medium | high   (based on how much you could verify from the d
 
 Requirement coverage:
   - [DELIVERED]    R1: <requirement> — origin: <spec §/prompt line> — evidence: file.ts:42
-  - [PARTIAL]      R2: <requirement> — origin: <…> — evidence: file.ts:80 — missing: <what's absent>
-  - [MISSING]      R3: <requirement> — origin: <…> — searched: <where you looked>
-  - [DRIFTED]      R4: delivered <X>, origin asked <Y> — origin: <…> — evidence: file.ts:120
-  - [UNAUTHORIZED] —: <behavior with no origin requirement> — evidence: file.ts:200
+  - [PARTIAL]      G1: <requirement> — origin: <…> — evidence: file.ts:80 — missing: <what's absent>
+  - [MISSING]      G2: <requirement> — origin: <…> — searched: <where you looked>
+  - [DRIFTED]      G3: delivered <X>, origin asked <Y> — origin: <…> — evidence: file.ts:120
+  - [UNAUTHORIZED] G4: <behavior with no origin requirement> — origin: none (scope creep) — evidence: file.ts:200
 
 Origin drift (spec vs prompt/ticket):
   - <disagreement> — recorded in spec? yes/no — <one-line reconciliation note>
   (or: none)
 
 Gaps for user decision (only if verdict = GAPS):
-  - <gap, referencing the row above> — proposed remediation direction (NOT applied): <one line>
+  → emitted as Structured gap blocks (see below), one per non-DELIVERED row — not as free text here.
 ```
 
 Verdict rule: **any** PARTIAL, MISSING, DRIFTED, UNAUTHORIZED row, or any unrecorded origin drift → verdict is `GAPS`. Only an all-`DELIVERED` deliverable with no unreconciled drift is `CONFORMS`.
+
+DELIVERED rows keep an `Rn` id; every non-DELIVERED row gets a durable `Gn` id reused across re-audit rounds.
+
+## Structured gap blocks
+
+After the coverage table, emit one fenced block per non-DELIVERED row so the
+orchestrator can drive the disposition menu mechanically. In a re-audit round
+(see conformance-check.md "When the check finds gaps"), also emit a `DELIVERED`
+block for any gap that closed, reusing its original `Gn` id.
+
+```
+G1:
+  verdict: MISSING
+  origin: spec "Section 3 / Fix dispatch"
+  evidence: absent
+  remediation: implementer task not dispatched for gaps marked fix
+  touched-files: skills/verification-before-completion/reference/conformance-check.md
+  touched-resources: none
+  recommended: fix
+```
+
+Fields:
+
+| Field | Meaning |
+|---|---|
+| (block label) | The block's label is the stable gap ID (`G1`, `G2`, ...), durable across re-audit rounds - not a field line inside the block |
+| `verdict` | `PARTIAL` \| `MISSING` \| `DRIFTED` \| `UNAUTHORIZED` (\| `DELIVERED` in re-audit rounds) |
+| `origin` | Requirement reference; for `UNAUTHORIZED` use the literal `none (scope creep)` |
+| `evidence` | `file:line`, or the literal `absent` |
+| `remediation` | Fix *direction* (not a diff) |
+| `touched-files` | Best estimate of files a fix would modify, comma-separated, or the literal `unknown` |
+| `touched-resources` | Shared runtime resources a fix's verification touches (`DB/schema, port, fixture, external service, shared temp path`), or the literal `none` |
+| `recommended` | Default disposition proposal: `fix` \| `accept` \| `rescope` |
+
+Empty values use the literal tokens `absent` / `none` / `unknown` — never a blank.
+
+### Disjointness certification
+
+After the gap blocks, emit one `Parallel-safe:` line so the orchestrator does not
+re-derive fix concurrency:
+
+```
+Parallel-safe: <group>[; <group>]*
+  <group> = <comma-separated gap-id list> " disjoint"
+          | <gap-id> " conflicts " <gap-id> " (" <reason> ")"
+```
+
+Example:
+
+```
+Parallel-safe: G1,G3 disjoint; G2 conflicts G1 (both touch auth.ts); G4 conflicts G1 (shared test DB)
+```
+
+Any **file OR runtime-resource** overlap forces the conflicting gaps into separate
+serial waves — identical to planned-execution wave grouping. Runtime-resource
+disjointness is not machine-checkable; estimate it as `writing-plans`' Runtime-resource
+disjointness rule does. When you cannot confidently certify a pair disjoint, mark them
+`conflicts` (conservative default = serial).
+
+### `recommended` selection policy
+
+`recommended` is a proposal; you never decide, edit, dispatch, or re-audit.
+
+- Default `fix` for every `PARTIAL` / `MISSING` / `DRIFTED` row.
+- `accept` only for an `UNAUTHORIZED` row whose behavior is harmless, with a one-line
+  rationale in `remediation`.
+- `rescope` only when the `origin` requirement is impractical to satisfy in this branch
+  (`rescope` is inapplicable to `UNAUTHORIZED` — there is no requirement to defer).
 
 ## Rules
 
