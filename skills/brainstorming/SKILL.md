@@ -215,14 +215,7 @@ After the critique pass returns, scan it for load-bearing external references be
 
 ## Spec Council (Optional)
 
-After the inline lint and before the user review gate, **brainstorming owns the critique-pass gate**: resolve `piGauntlet.specCouncil` from **two** settings files, repo-local first, and select the path.
-
-Lookup order (first file that **defines** `specCouncil` wins — do not merge across files):
-
-1. `<repo-root>/.pi/settings.json` — repo root from `git rev-parse --show-toplevel` (the worktree root inside a worktree). A repo that defines `specCouncil` overrides the preset, even with empty `members` (explicit "no council here").
-2. `$PI_CODING_AGENT_DIR/settings.json` — agent preset; consulted only when the repo file does not define `specCouncil`.
-
-Both files may contain comments — read them, don't strict-parse. **Expand `$PI_CODING_AGENT_DIR`; never substitute a hardcoded project path for it** (reading the repo `.pi/settings.json` as if it were the preset file is the classic miss — repo-local and preset are different files). **When `members` is non-empty, the council *is* the critique pass — invoke `/skill:roasting-the-spec` automatically (no offer, no prompt).** When it is absent or empty, run the fresh-`worker` critique instead (see [Spec Self-Review](#spec-self-review-before-user-review-gate)); if `specCouncil` is present but malformed, emit one warning line and fall back to the worker. Approved council edits (or the worker's in-place fixes) are applied to the spec and ride in the same worktree commit as the rest of this skill's output.
+After the inline lint and before the user review gate, **brainstorming owns the critique-pass gate**: resolve `piGauntlet.specCouncil` **repo-local first** — the repo's `.pi/settings.json` overrides the agent preset, **whole-object** (the first file that defines `specCouncil` wins; an empty `members` there is an explicit "no council here"). Full source order and mechanics: `verification-before-completion/reference/settings-precedence.md`. **Expand `$PI_CODING_AGENT_DIR`; never substitute a hardcoded project path for it.** **When `members` is non-empty, the council *is* the critique pass — invoke `/skill:roasting-the-spec` automatically (no offer, no prompt).** When it is absent or empty, run the fresh-`worker` critique instead (see [Spec Self-Review](#spec-self-review-before-user-review-gate)); if `specCouncil` is present but malformed, emit one warning line and fall back to the worker. Approved council edits (or the worker's in-place fixes) are applied to the spec and ride in the same worktree commit as the rest of this skill's output.
 
 ## User Review Gate
 

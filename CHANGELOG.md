@@ -1,5 +1,24 @@
 # Changelog
 
+## v4.1.0 - 2026-07-02
+
+- **`closureReview` now resolves repo-local first.** The verify-step skills
+  (`subagent-driven-development`, `verification-before-completion/reference/conformance-check.md`)
+  resolve `piGauntlet.closureReview.model`/`maxFixRounds` from a repo's
+  `.pi/settings.json` over the agent preset, **whole-object** - matching how the
+  `phase-tracker.ts` guard already reads `pi.settings` (pi replaces the whole
+  `closureReview` block when a repo defines it). Previously they read the preset
+  only, so a repo-local `closureReview.model` was silently ignored and the
+  conformance gate ran on the parent's model.
+- **New shared reference `skills/verification-before-completion/reference/settings-precedence.md`.**
+  States the two-file source order and the whole-object merge rule once; `specCouncil`
+  and `closureReview` both resolve the same way and both point at it. `roasting-the-spec`
+  and `brainstorming` replace their duplicated lookup prose with a pointer.
+- **Closure guard upgraded from presence-check to match-check.** A
+  `conformance-reviewer` dispatch that omits `model:` is still blocked; one whose
+  `model:` differs from the configured `closureReview.model` now gets a non-blocking
+  warning appended to the result. Gated by `closureReview.enforce` as before.
+
 ## v4.0.1 - 2026-07-02
 
 No content change. Smoke-tests the tag-triggered CI publish path (OIDC trusted publishing to npm) added in v4.0.0's release machinery commit.

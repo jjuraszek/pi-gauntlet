@@ -98,19 +98,21 @@ const branchBlockReason = (phase: Phase): string =>
   "To override, set piGauntlet.flowGuards.enforce: false.";
 
 // Closure-review model guard: when piGauntlet.closureReview.model is configured,
-// a conformance-reviewer dispatch MUST inject that model call-site. The persona ships
-// model-free, so a bare omission silently inherits the parent session's builder model -
-// defeating the point of an independent closing gate on a different model. Walk the
-// single / tasks / chain / parallel dispatch shapes and report any conformance-reviewer
-// entry that carries no model. An explicit model (even a fallback) is fine; only a bare
-// omission is caught - that preserves the documented "retry once inherited" escape hatch,
-// which the orchestrator takes by passing the inherited model explicitly.
-const conformanceEntriesMissingModel = (input: unknown): boolean => {
-  const entries: { agent?: unknown; model?: unknown }[] = [];
+// a conformance-reviewer dispatch should inject that model call-site. The persona
+// ships model-free, so a bare omission silently inherits the parent session's
+// builder model - defeating the point of an independent closing gate. Walk the
+// single / tasks / chain / parallel dispatch shapes and collect the model of every
+// conformance-reviewer entry (undefined = absent/empty/non-string). A bare omission
+// is BLOCKED; an explicit model that differs from the configured one is WARNED
+// (non-blocking), preserving the documented retry-with-fallback hatch while
+// surfacing drift.
+const conformanceModels = (input: unknown): (string | undefined)[] => {
+  const models: (string | undefined)[] = [];
+  const norm = (m: unknown) => (typeof m === "string" && m.trim() ? m.trim() : undefined);
   const collect = (node: unknown): void => {
     if (!node || typeof node !== "object") return;
     const o = node as Record<string, unknown>;
-    if (typeof o.agent === "string") entries.push({ agent: o.agent, model: o.model });
+    if (o.agent === "conformance-reviewer") models.push(norm(o.model));
     for (const key of ["tasks", "chain", "parallel"] as const) {
       const v = o[key];
       if (Array.isArray(v)) for (const item of v) collect(item);
@@ -118,18 +120,27 @@ const conformanceEntriesMissingModel = (input: unknown): boolean => {
     }
   };
   collect(input);
-  return entries.some((e) => e.agent === "conformance-reviewer" && !e.model);
+  return models;
 };
 
-const closureModelBlockReason = (model: string): string =>
-  `Blocked: conformance-reviewer dispatched without a model while ` +
-  `piGauntlet.closureReview.model is set to "${model}".\n` +
+const closureModelBlockReason = (model: string, missing: number, total: number): string =>
+  `Blocked: ${missing} of ${total} conformance-reviewer ${total === 1 ? "dispatch" : "entries"} ` +
+  `omitted a model while piGauntlet.closureReview.model is set to "${model}".\n` +
   `The persona ships model-free, so a bare omission silently inherits this session's ` +
   `builder model - the closing gate would then run on the same model that built the work, ` +
-  `not the independent one the preset pins. Re-dispatch with model: "${model}" injected ` +
-  `call-site. If that model is unreachable, pass an explicit fallback model (the documented ` +
-  `one-retry escape hatch) - only a bare omission is blocked.\n` +
+  `not the independent one configured (repo .pi/settings.json, else the preset). Re-dispatch ` +
+  `with model: "${model}" injected call-site on every conformance-reviewer entry. If that ` +
+  `model is unreachable, pass an explicit fallback model (the documented one-retry escape ` +
+  `hatch) - only a bare omission is blocked.\n` +
   `To disable this gate, set piGauntlet.closureReview.enforce: false.`;
+
+const closureModelMismatchWarning = (configured: string, mismatched: string[]): string =>
+  `⚠️ conformance-reviewer dispatched with ${mismatched.length === 1 ? "model" : "models"} ` +
+  `${mismatched.map((m) => `"${m}"`).join(", ")} while ` +
+  `piGauntlet.closureReview.model is set to "${configured}".\n` +
+  `If this is the documented one-retry fallback (the configured model was ` +
+  `unreachable), ignore this. Otherwise the closing gate is running on an ` +
+  `unintended model - re-dispatch with model: "${configured}".`;
 
 const brainstormWriteWarning = (specDirs: string[]): string =>
   "⚠️ Writing outside the spec directory during the brainstorm phase.\n" +
@@ -317,8 +328,19 @@ export default function (pi: ExtensionAPI) {
       // Only execution-mode dispatches carry a model; management/control modes
       // (action: list/get/create/update/delete/status/...) execute nothing, so skip them.
       const hasAction = !!(event.input as { action?: unknown })?.action;
-      if (model && !hasAction && conformanceEntriesMissingModel(event.input)) {
-        return { block: true, reason: closureModelBlockReason(model) };
+      if (model && !hasAction) {
+        const configured = model.trim();
+        const models = conformanceModels(event.input);
+        if (models.length > 0) {
+          const missing = models.filter((m) => m === undefined).length;
+          if (missing > 0) {
+            return { block: true, reason: closureModelBlockReason(configured, missing, models.length) };
+          }
+          const mismatched = [...new Set((models as string[]).filter((m) => m !== configured))];
+          if (mismatched.length > 0) {
+            pendingGuardWarnings.set(event.toolCallId, closureModelMismatchWarning(configured, mismatched));
+          }
+        }
       }
     }
 
@@ -377,6 +399,11 @@ export default function (pi: ExtensionAPI) {
   pi.on("tool_result", async (event) => {
     if (event.toolName === "subagent") {
       if (qualifiesAsClosureDispatch(event.details)) conformanceDispatched = true;
+      const warning = pendingGuardWarnings.get(event.toolCallId);
+      if (warning) {
+        pendingGuardWarnings.delete(event.toolCallId);
+        return { content: [{ type: "text" as const, text: warning }, ...event.content] };
+      }
       return undefined;
     }
 

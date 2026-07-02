@@ -87,7 +87,7 @@ Pi-subagents accepts a per-task `model` override. Use it.
 | Spec review | Default | Reads diff + spec, mechanical comparison |
 | Code-quality review | Most capable | Judgment call on naming, design, complexity |
 | Final reviewer | Most capable | Whole-PR-scope review |
-| Conformance / closure | Most capable | Whole-deliverable-vs-origin intent gate (`conformance-reviewer`; model from `piGauntlet.closureReview.model`, injected call-site) |
+| Conformance / closure | Most capable | Whole-deliverable-vs-origin intent gate (`conformance-reviewer`; model from `piGauntlet.closureReview.model`, resolved repo-first whole-object, injected call-site) |
 
 ```ts
 subagent({
@@ -112,8 +112,8 @@ subagent({ agent: "spec-reviewer", task: "<diff range + spec excerpt + ask: does
 subagent({ agent: "code-reviewer", task: "<diff range + ask: production-ready?>" })
 
 // closing-loop conformance (origin vs deliverable) — its OWN dispatch, never fused with code quality
-// model from piGauntlet.closureReview.model (read $PI_CODING_AGENT_DIR/settings.json); omit to inherit
-subagent({ agent: "conformance-reviewer", model: /* piGauntlet.closureReview.model from config, else omit to inherit */, task: "<spec path + verbatim original prompt + full diff vs main; per conformance-check.md>" })
+// model from piGauntlet.closureReview.model — resolve repo-local .pi/settings.json over the preset, whole-object (see verification-before-completion/reference/settings-precedence.md); omit to inherit
+subagent({ agent: "conformance-reviewer", model: /* piGauntlet.closureReview.model, repo-first per settings-precedence.md, else omit to inherit */, task: "<spec path + verbatim original prompt + full diff vs main; per conformance-check.md>" })
 ```
 
 Prompt templates live alongside this SKILL.md:

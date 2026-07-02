@@ -24,12 +24,7 @@ This skill may read anything and edit **only** the spec under `doc/specs/`. It d
 
 ## Configuration and gating
 
-Resolve `piGauntlet.specCouncil` from **two** settings files, repo-local first:
-
-1. `<repo-root>/.pi/settings.json` (repo root = `git rev-parse --show-toplevel`, which inside a worktree is the worktree root). **If this file defines `specCouncil`, it wins** — even an empty `members` here is an explicit "no council for this repo".
-2. `$PI_CODING_AGENT_DIR/settings.json` (agent preset) — consulted **only** when the repo file does not define `specCouncil` at all.
-
-The first file that defines the key wins; do not merge member lists across files. Do not hardcode a project path in place of `$PI_CODING_AGENT_DIR` — expand the env var. The resolved config looks like:
+Resolve `piGauntlet.specCouncil` **repo-local first** — the repo's `.pi/settings.json` overrides the agent preset, **whole-object** (the first file that defines `specCouncil` wins outright; an empty `members` there is an explicit "no council for this repo"). Full source order, mechanics, and the per-key granularity rule live in `verification-before-completion/reference/settings-precedence.md`. Do not hardcode a path in place of `$PI_CODING_AGENT_DIR` — expand the env var. The resolved config looks like:
 
 ```json
 {

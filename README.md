@@ -162,7 +162,7 @@ Unset → provider default thinking for that model. `conformance-reviewer` and t
 
 ### Conformance gate model
 
-`conformance-reviewer` ships without a `model:` in its frontmatter — like the spec-council personas, its model is supplied per preset so each profile points the last correctness gate at the strongest reasoning model its providers can reach. The verify-step skills read it from `piGauntlet.closureReview.model` and inject it **call-site** on the conformance dispatch (the same mechanism the spec-council chair uses). Add it to each preset's `settings.json`:
+`conformance-reviewer` ships without a `model:` in its frontmatter — like the spec-council personas, its model is supplied per preset so each profile points the last correctness gate at the strongest reasoning model its providers can reach. The verify-step skills resolve `piGauntlet.closureReview.model` **repo-local first** (a repo's `.pi/settings.json` overrides the preset whole-object - defining `closureReview` there replaces the preset's entire block, so set every leaf you need together) and inject it **call-site** on the conformance dispatch (the same mechanism the spec-council chair uses). Add it to each preset's `settings.json` (or a repo's `.pi/settings.json` to override per repo):
 
 ```json
 {
@@ -174,7 +174,7 @@ Unset → provider default thinking for that model. `conformance-reviewer` and t
 
 Frontmatter pins `thinking: xhigh` and `defaultContext: fresh` (the gate always runs cold, with max reasoning) and `thinking` is not call-site overridable, so the config supplies only `model`. If `closureReview.model` is unset the dispatch omits `model:` and the gate inherits the parent's model; if the configured model is unreachable it retries once inherited.
 
-When `closureReview.model` **is** set, the phase-tracker enforces call-site injection: a `subagent` dispatch of `conformance-reviewer` that omits `model:` is **blocked at tool-call time** (before it runs) so the gate can never silently degrade to the parent's builder model. The documented one-retry fallback still works - pass the inherited model *explicitly* and it is allowed; only a bare omission is blocked. Disabling `closureReview.enforce` disables this guard too.
+When `closureReview.model` **is** set, the phase-tracker match-checks call-site injection: a `subagent` dispatch of `conformance-reviewer` that omits `model:` is **blocked at tool-call time** (before it runs) so the gate can never silently degrade to the parent's builder model, and a dispatch whose `model:` **differs** from the configured value gets a non-blocking **warning** appended to the result (drift is surfaced, not blocked). The documented one-retry fallback still works - pass an explicit model and it runs (with a warning if it differs). Disabling `closureReview.enforce` disables this guard too.
 
 `closureReview.enforce` (default `true`) controls the phase-tracker gate that
 blocks `complete verify` until the conformance-reviewer has run; set `false` to
@@ -202,7 +202,7 @@ If you want to know what's in each persona before using it, see [`agents/`](./ag
 - `members` (required) — roster of `provider/model` strings; council size = array length, one critique per model. Empty or absent → the council never runs; brainstorming falls back to a single fresh-`worker` critique (scope + ambiguity, auto-applied).
 - `chair` (optional) — model for the consolidating synthesizer; defaults to the inherited model when omitted.
 
-Rosters are per-preset: each pi profile (`agent`, `agent.anthropic`, `agent.bedrock`, …) reads its own `settings.json`, so list only models that profile's providers can reach. The two personas it dispatches — `spec-council-member` and `spec-council-synthesizer` — are model-free; their model is injected per task from this config.
+Rosters resolve **repo-local first**: a repo's `.pi/settings.json` overrides the preset (whole-object — the first file that defines `specCouncil` wins), otherwise each pi profile (`agent`, `agent.anthropic`, `agent.bedrock`, …) reads its own `settings.json`. List only models the resolving config's providers can reach. The two personas it dispatches — `spec-council-member` and `spec-council-synthesizer` — are model-free; their model is injected per task from this config.
 
 ## Extensions
 
