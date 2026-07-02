@@ -1,5 +1,9 @@
 # Changelog
 
+## v4.0.1 - 2026-07-02
+
+No content change. Smoke-tests the tag-triggered CI publish path (OIDC trusted publishing to npm) added in v4.0.0's release machinery commit.
+
 ## v4.0.0 - 2026-07-02
 
 **Breaking: public identity.** First public npm release. The package is renamed and re-homed for its own identity as a diverged reinterpretation of obra/superpowers (via coctostan/pi-superpowers-plus); see the README `Lineage` section. No skill, agent, or extension *behavior* changes in this release - it is a rename + credits + publish-readiness pass. Consumers must update their `.pi/settings.json` and any override file.
