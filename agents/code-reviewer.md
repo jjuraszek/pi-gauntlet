@@ -40,7 +40,8 @@ Findings:
 Complexity: net -<N> lines   (omit if nothing to cut)
 ```
 
-Severity (aligned with the `self-audit` skill):
+Severity:
+
 - **Critical** — must fix before merge (data loss, security, broken correctness on a common path, broken contract).
 - **Moderate** — should fix; open for discussion (significant but not strictly blocking).
 - **Minor** — nit, style, preference, suggestion.

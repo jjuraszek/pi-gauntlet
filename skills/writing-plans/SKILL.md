@@ -85,6 +85,10 @@ Group tasks into **waves** so the executor can parallelize independent work (see
 
 **Runtime-resource disjointness.** File-disjoint is necessary but not sufficient: two tasks with disjoint files that both mutate the same DB, bind the same port, or share a fixture are **not** parallel-safe and must land in different waves. The executor auto-selects parallel for *every* multi-task wave, so this grouping is the sole parallel-safety guarantee — there is no selection-time judgment downstream. No new mandatory per-task syntax; when a shared runtime resource is the reason two file-disjoint tasks sit in different waves, record it in an inline note on the later wave.
 
+**Doc tasks.** Doc updates are real plan tasks, not an afterthought. Task-local docs (a doc that only describes the file(s) a task already touches) ride with that task. Cross-cutting or index docs (README, `AGENTS.md`, topic guides, taxonomy indexes) sequence into a dedicated trailing doc-only wave — last wave by convention, file-disjoint from every code task so the pairwise-disjoint wave contract holds.
+
+**Doc-wave collision rule.** Amend-over-create (see `brainstorming/reference/documentation-impact.md`) concentrates edits into hub docs like README and `AGENTS.md`. A doc wave with ≥2 tasks auto-selects Parallel-Wave Mode, which requires pairwise-disjoint files — so doc tasks that land on the *same* file merge into one task rather than splitting. A single-task trailing doc wave is the expected shape, not a smell.
+
 ```markdown
 ## Wave 1 — Foundations
 
@@ -189,7 +193,7 @@ Every plan failure mode:
 - ❌ "Similar to Task N" — repeat the code. Implementers (and subagents with fresh context) may read tasks out of order; pointing at a sibling task is not a substitute for showing the code.
 - ❌ References to types, functions, methods, or fields not defined in any task in this plan. If it shows up in Task 5, it must be introduced by Task 1–4 or already exist in the codebase (with a file:line citation).
 - ❌ `[fill in]`, `<example>`, `xxx` markers anywhere in the doc.
-- ❌ "Probably also need to update the docs" — either yes (which doc) or no.
+- ❌ "Probably also need to update the docs" — either yes (which doc) or no. Docs are named plan tasks, sourced from the spec's Documentation impact section (materiality bar in `brainstorming/reference/documentation-impact.md`).
 
 If a decision is genuinely open, put it in an explicit **Open Questions** section at the top and resolve before execution starts.
 
@@ -197,7 +201,7 @@ If a decision is genuinely open, put it in an explicit **Open Questions** sectio
 
 After drafting the plan and before announcing it complete, run three checks yourself. This is a checklist you run yourself — not a subagent dispatch.
 
-- **Spec coverage.** Cross-reference the spec's components/decisions/constraints against the plan. Does every spec section map to one or more tasks? If a spec decision has no implementation task, the plan is missing work or the spec was overspecified.
+- **Spec coverage.** Cross-reference the spec's components/decisions/constraints against the plan. Does every spec section map to one or more tasks? If a spec decision has no implementation task, the plan is missing work or the spec was overspecified. Each Documentation impact entry maps to a plan task (or explicit "none").
 - **Placeholder scan.** Grep the doc for `TODO`, `TBD`, `xxx`, `[fill in]`, `<example>`, `etc.`, "probably", "something like". Resolve or convert each into an explicit Open Question.
 - **Type / API consistency.** Function signatures and field names that appear in multiple tasks must match exactly. The plan is its own contract — internal contradictions surface as bugs during execution.
 - **Wave disjointness.** For every multi-task wave, confirm the tasks' `Files:` sets are pairwise disjoint **and** that no two tasks contend on a shared mutable runtime resource (DB/schema, port, fixture, external service, shared temp path). Either kind of overlap = mis-grouped wave; split or re-order before handoff.

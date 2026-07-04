@@ -78,7 +78,7 @@ The spec is the **first commit in a dedicated worktree**, not a separate commit 
 2. Switch into the worktree.
 3. From there, write the spec, run self-review, commit, hand off.
 
-Spec doc, plan doc, and implementation all live in the same worktree and ship together as a single squash commit (see `/skill:finishing-a-development-branch`).
+Spec doc, plan doc, and implementation are all developed in the same worktree; the squash ships the spec and the implementation, with the ephemeral plan stripped before landing (see `/skill:finishing-a-development-branch`).
 
 **Exception:** trivial one-off edits the user explicitly asks for outside this skill flow (e.g. "fix this typo") do not require a worktree.
 
@@ -140,7 +140,16 @@ Cover at minimum:
 - Data flow (or request flow)
 - Error handling and edge cases
 - Testing approach
-- Documentation impact — name each doc that changes (README, AGENTS.md, CHANGELOG, API contracts, inline docs), or write "none". Doc updates ship in the same commit and are verified against the spec by the conformance gate.
+- Documentation impact — a required `## Documentation impact` section. Cite the materiality bar in `reference/documentation-impact.md` by relative path rather than restating its categories, and reproduce its template block verbatim:
+
+  ```markdown
+  ## Documentation impact
+  - Feature / user-facing docs introduced: <list, or "none">
+  - Materially amended existing docs: <list, or "none">
+  - Derived / memory docs invalidated: <routers / AGENTS.md sections / topic guides / indexes, or "none">
+  ```
+
+  Each entry answers with a doc name, "none", or "deferred: <trigger>". A new standalone `.md` appears only where no existing doc already owns the topic. Project-specific doc taxonomy goes in a `## documentation` block in `.pi/gauntlet-overrides.md` (no new settings key; guidance only). Doc updates ship in the same commit and are verified against the spec by the conformance gate.
 
 Be ready to go back and clarify when something doesn't make sense.
 
@@ -188,7 +197,7 @@ After writing the spec to `<project>/doc/specs/<filename>.md` (per [Filename Con
 
 - **Placeholder scan.** Any `TODO`, `TBD`, `<fill in>`, `[example]`, `xxx`? Either resolve them or convert to explicit "Open Questions" with names.
 - **Internal consistency.** Does Section 4 contradict Section 2? Are component names and field names consistent throughout?
-- **Documentation named.** Does the spec state which docs change (or an explicit "none")?
+- **Documentation named.** Does the spec name all three classes (feature/user-facing introduced; materially amended; derived/memory invalidated), or an explicit "none" for each? Enforce the materiality bar in `reference/documentation-impact.md` without restating it: each listed doc names the category it clears, none is a code-mirror, amend-over-create was applied, and skill/agent bodies are implementation surface, not doc-impact entries here.
 - **Scope check.** Does every paragraph serve the goal? Cut filler. If something is out of scope, say it's out of scope.
 - **Ambiguity check.** Is every "we should…" backed by a concrete decision? Replace "we could probably" with "we will" or "we won't".
 

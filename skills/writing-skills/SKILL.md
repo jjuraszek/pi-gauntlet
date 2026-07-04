@@ -36,10 +36,13 @@ Each skill directory contains:
 SKILL.md              # required entry point
 reference/            # optional progressive-disclosure files
   <topic>.md          # read directly when SKILL.md points at it
-<supporting>.md       # prompt templates, examples
+  examples.md         # read directly when SKILL.md points at it
+<supporting>.md       # prompt templates (dispatch payloads)
 ```
 
 `reference/` is the pi pattern for keeping SKILL.md tight while still shipping deep guidance. See `.pi/skills/test-driven-development/reference/` and `.pi/skills/systematic-debugging/reference/` for working examples.
+
+Prompt templates and other dispatch payloads - files filled in and passed wholesale into a subagent `task` - live as siblings of SKILL.md, not under `reference/`. See `requesting-code-review/code-reviewer.md` and the three `subagent-driven-development/*-prompt.md` files. The decision criterion is destination, not format: a file passed wholesale into a subagent's `task` is a sibling; a file read at a decision point for deep guidance, examples, or rationale is `reference/`. Some older skills (`systematic-debugging`, `test-driven-development`) keep deep-guidance `*.md` files flat as siblings, predating the `reference/` convention (obra/superpowers lineage) - that is descriptive history, not a mandate to move them.
 
 ### Reference Files Bundled With This Skill
 

@@ -42,7 +42,7 @@ Stop. Don't proceed to Step 2.
 
 **If tests pass:** Continue to Step 2.
 
-No documentation prompt here: doc impact is decided at spec time (`/skill:brainstorming` section 6) and has already shipped in the diff by the time you reach finishing.
+No documentation prompt here: Documentation impact is decided at spec time (`/skill:brainstorming` section 6, gated by `brainstorming/reference/documentation-impact.md`) and has already shipped in the diff by the time you reach finishing.
 
 ### Step 2: Detect Environment
 
@@ -154,6 +154,12 @@ git branch -d <feature-branch>
 #### Option 2: Push and Create PR
 
 ```bash
+# Plans are ephemeral - if one was committed on this branch, remove it before the PR diff is opened.
+PLAN_PATH=doc/plans/<plan-file>.md   # or <service>/doc/plans/<plan-file>.md
+if git ls-files --error-unmatch "$PLAN_PATH" >/dev/null 2>&1; then
+  git rm "$PLAN_PATH" && git commit -m "Remove ephemeral plan doc"
+fi
+
 # Push branch
 git push -u origin <feature-branch>
 
@@ -235,12 +241,12 @@ git worktree prune  # Self-healing: clean up any stale registrations
 
 ## Quick Reference
 
-| Option | Merge | Push | Keep Worktree | Cleanup Branch |
-|--------|-------|------|---------------|----------------|
-| 1. Squash-merge locally | yes (squash) | - | - | yes |
-| 2. Create PR | - | yes | yes | - |
-| 3. Keep as-is | - | - | yes | - |
-| 4. Discard | - | - | - | yes (force) |
+| Option | Merge | Push | Keep Worktree | Cleanup Branch | Plan-doc removal |
+|---|---|---|---|---|---|
+| 1. Squash-merge locally | yes (squash) | - | - | yes | yes (unconditional) |
+| 2. Create PR | - | yes | yes | - | yes (guarded, before push) |
+| 3. Keep as-is | - | - | yes | - | - |
+| 4. Discard | - | - | - | yes (force) | - |
 
 ## Common Mistakes
 
@@ -272,7 +278,7 @@ git worktree prune  # Self-healing: clean up any stale registrations
 - **Problem:** Accidentally delete work
 - **Fix:** Require typed "discard" confirmation
 
-**Skipping the plan-doc deletion in Option 1**
+**Skipping the plan-doc deletion in Options 1 and 2 (any path that lands on base)**
 - **Problem:** Plan docs are ephemeral and shouldn't land on `<base-branch>`. Forgetting `git rm doc/plans/<plan-file>.md` ships scaffolding to main.
 - **Fix:** The plan stays in the deleted branch's git history (`git log --all -- doc/plans/...`). Spec stays on `<base-branch>`; plan does not.
 
@@ -295,6 +301,7 @@ phase_tracker({ action: "complete", phase: "ship" })
 - Clean up worktrees you didn't create (provenance check)
 - Run `git worktree remove` from inside the worktree
 - Present finish options while a conformance gap is open and undispositioned
+- Skip the guarded plan-doc removal before push on Option 2 when a plan doc was committed
 
 **Always:**
 - Verify tests before offering options

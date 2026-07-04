@@ -92,6 +92,10 @@ Hardcoded project paths or commands in extensions are forbidden. If you add a ne
 
 ## Development
 
+### Change process mandate
+
+Any non-trivial change to this repo rides the full gauntlet - `/skill:brainstorming -> /skill:writing-plans -> /skill:subagent-driven-development -> verify -> /skill:finishing-a-development-branch` - starting at brainstorming: it sets up the worktree, writes the spec, gates on approval, then auto-chains through the rest. 'Non-trivial' is defined by exclusion: everything except the trivial carve-out (typo / formatting / dependency bump / the release commit itself - version bump plus paired CHANGELOG heading, driven by the release skill). Covered surface: skill bodies, agent personas, extension logic, AGENTS.md / README.md / workflow and release docs, and release machinery (scripts/, .github/workflows/). No direct edits to that surface on `main`. The runtime flow-guards enforce this once a gauntlet run is entered, but they cannot force entry in the first place - hence this prose mandate.
+
 ### Local iteration
 
 ```bash
@@ -100,9 +104,11 @@ pi install -l ~/repos/pi-gauntlet
 cd ~/repos/pi-gauntlet && npm run link-agents   # one-time per machine, symlinks agents/*.md into getAgentDir()/agents (default ~/.pi/agent/agents)
 ```
 
-Edits in `~/repos/pi-gauntlet/skills/` and `~/repos/pi-gauntlet/extensions/` reload on next pi launch. Edits to `agents/*.md` are live via symlinks.
+Edits in `~/repos/pi-gauntlet/skills/` and `~/repos/pi-gauntlet/extensions/` reload on next pi launch. Edits to `agents/*.md` are live via symlinks. During a gauntlet run the worktree created by brainstorming is the install target (`pi install -l <worktree>`), so live-testing skill edits still works before merge.
 
 ### Adding a skill
+
+Implement-phase mechanics run once the pipeline reaches implementation - not a shortcut around brainstorming.
 
 1. Create `skills/<name>/SKILL.md` with YAML frontmatter (`name`, `description`).
 2. Body is generic workflow methodology. No project-specific paths or commands.
@@ -112,12 +118,16 @@ Edits in `~/repos/pi-gauntlet/skills/` and `~/repos/pi-gauntlet/extensions/` rel
 
 ### Modifying an agent
 
+Implement-phase mechanics run once the pipeline reaches implementation - not a shortcut around brainstorming.
+
 1. Edit `agents/<name>.md`.
 2. Re-read the knobs table above before changing frontmatter — most are not call-time overridable.
 3. If the persona diverges materially from pi-cohort builtins, document why in the body.
 4. Commit.
 
 ### Modifying an extension
+
+Implement-phase mechanics run once the pipeline reaches implementation - not a shortcut around brainstorming.
 
 1. Any new tunable must read from `settings.json#piGauntlet.<extensionName>`.
 2. Provide a sane default that works without configuration.

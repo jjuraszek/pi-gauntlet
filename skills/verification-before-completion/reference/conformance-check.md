@@ -2,7 +2,12 @@
 
 Tests passing proves the code runs. It does **not** prove the code does what was
 asked. This check confronts deliverables (code **and** docs) against the
-requirements.
+requirements. Docs named in a spec's "Documentation impact" section - any of
+the three classes (introduced, materially amended, derived/memory invalidated) -
+are origin requirements the same as code: a missing or drifted doc from that
+section is a conformance gap, not a code-review nit. See
+`../../brainstorming/reference/documentation-impact.md` for what that section
+contains and how its entries are scoped.
 
 ## Why this is distinct from code review
 
