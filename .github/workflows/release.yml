@@ -47,7 +47,19 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          awk '/^## /{n++} n==1' CHANGELOG.md > notes.md
+          ver="${GITHUB_REF_NAME#v}"
+          awk -v ver="$ver" '
+            /^## / {
+              if (started) exit
+              h=$0; sub(/^##[ \t]+/, "", h); sub(/^v/, "", h); sub(/^\[/, "", h)
+              if (h ~ ("^" ver "([^0-9.]|$)")) started=1
+            }
+            started
+          ' CHANGELOG.md > notes.md
+          if [ ! -s notes.md ]; then
+            echo "::error::no CHANGELOG section found for $GITHUB_REF_NAME"
+            exit 1
+          fi
           gh release create "$GITHUB_REF_NAME" \
             --title "$GITHUB_REF_NAME" --notes-file notes.md \
             || gh release edit "$GITHUB_REF_NAME" --notes-file notes.md

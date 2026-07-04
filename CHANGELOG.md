@@ -1,5 +1,11 @@
 # Changelog
 
+## v4.2.2 - 2026-07-04
+
+Hardens the `release-notes` job so it is byte-identical across all four pi repos (pi-gauntlet, pi-cohort, pi-condense, pi-quiver).
+
+- **Version-matching CHANGELOG extraction.** The `release-notes` job now selects the section matching the pushed tag rather than the first `##` heading, skips any `## [Unreleased]` block, and fails the job (rather than publishing empty notes) when no section matches. The awk boundary `([^0-9.]|$)` prevents substring collisions (e.g. `3.0.1` vs `3.0.10`). Behaviorally unchanged for pi-gauntlet (its top section is always the released version); required for repos that keep a permanent `[Unreleased]` heading.
+
 ## v4.2.1 - 2026-07-04
 
 Each tagged release now gets GitHub Release notes automatically, sourced from the
