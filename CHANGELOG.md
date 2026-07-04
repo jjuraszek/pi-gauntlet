@@ -1,5 +1,18 @@
 # Changelog
 
+## v4.2.1 - 2026-07-04
+
+Each tagged release now gets GitHub Release notes automatically, sourced from the
+CHANGELOG rather than an LLM or external API.
+
+- **`release.yml` posts release notes.** A new `release-notes` job (`needs: publish`,
+  `contents: write`) extracts the top `CHANGELOG.md` section with `awk` and publishes
+  it as the GitHub Release body via `gh release create` (falling back to `gh release
+  edit`). Deterministic and key-free - the curated summary + key-takeaways bullets
+  already live in the CHANGELOG. Takes effect on the next tag push.
+- **Docs.** `README.md` gains a `## Why` section; `AGENTS.md`'s release-workflow
+  description now covers the notes job.
+
 ## v4.2.0 - 2026-07-04
 
 Documents become first-class origin requirements, the post-execution review stack
