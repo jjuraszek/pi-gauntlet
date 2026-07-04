@@ -1,5 +1,33 @@
 # Changelog
 
+## v4.2.0 - 2026-07-04
+
+Documents become first-class origin requirements, the post-execution review stack
+is deduplicated, and this repo now dogfoods its own workflow (GitHub #1 + folded-in B/C/D/E).
+
+- **Part A - docs as first-class origin.** New shared reference
+  `skills/brainstorming/reference/documentation-impact.md` defines a materiality
+  bar (seven inclusion categories + a litmus test, an anti-flooding exclusion list,
+  and amend-over-create) so only meaningful docs earn a place. `brainstorming` gets
+  a required `## Documentation impact` spec section (three classes: introduced /
+  materially amended / derived-memory invalidated); `writing-plans` turns doc updates
+  into real tasks + a trailing doc-only wave; `conformance-check.md` names spec docs
+  as origin requirements the existing pass already verifies. No new pass or agent.
+- **Part B - review-stack dedup.** `subagent-driven-development`'s post-execution
+  stack collapses from a duplicated whole-diff review to one `requesting-code-review`
+  plus the separate `conformance-reviewer`; the auto-fired project-audit supplement
+  is removed (consumers re-wire via `.pi/gauntlet-overrides.md` or run it manually).
+  `agents/code-reviewer.md` severity and `README.md` are decoupled from the example
+  self-audit skill. Execution-phase per-task/per-wave reviews are untouched.
+- **Part C - ephemeral-plan parity.** `finishing-a-development-branch` now strips the
+  plan doc before the PR push (guarded `git ls-files --error-unmatch`), symmetric with
+  the squash-merge path; the plan never lands on base.
+- **Part D - self-hosting mandate.** `AGENTS.md` mandates the full gauntlet for this
+  repo's own non-trivial changes and reframes the direct-edit recipes as implement-phase
+  mechanics.
+- **Part E - file-placement convention.** `writing-skills` codifies dispatch-payload
+  templates as `SKILL.md` siblings vs deep guidance in `reference/` (destination, not format).
+
 ## v4.1.0 - 2026-07-02
 
 - **`closureReview` now resolves repo-local first.** The verify-step skills
