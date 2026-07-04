@@ -60,7 +60,7 @@ Seven agents ship in `agents/`: `implementer`, `code-reviewer`, `spec-reviewer`,
 Frontmatter knobs are **not overridable** at `subagent()` call time. Preset-level `subagents.agentOverrides.<agent>` config only **fills fields the frontmatter left unset** (pi-cohort `agents.ts`), so a frontmatter pin kills the config knob. Pick pins carefully:
 
 | Knob | implementer | code-reviewer | spec-reviewer | conformance-reviewer | spec-council-member | spec-council-synthesizer | spec-summarizer |
-|---|---|---|---|---|---|---|---|
+| --- | --- | --- | --- | --- | --- | --- | --- |
 | `tools` | `read, write, edit, bash, grep, find, ls` | `read, grep, find, ls, bash` | `read, grep, find, ls, bash` | `read, grep, find, ls, bash` | `read, grep, find, ls, bash` | `read, grep, find, ls, bash` | `read` |
 | `thinking` | — | — | — | `xhigh` | `xhigh` | `xhigh` | — |
 | `defaultContext` | `fork` | `fresh` | `fresh` | `fresh` | `fresh` | `fresh` | `fresh` |
@@ -83,7 +83,7 @@ If you must override at call site, the only callable knobs are `model`, `task`, 
 All three extensions ship in `extensions/`:
 
 | Extension | Configurable | Settings key |
-|---|---|---|
+| --- | --- | --- |
 | `plan-tracker.ts` | No | — |
 | `phase-tracker.ts` | Yes | `settings.json#piGauntlet.closureReview` (keys: `enforce`, `model`); `settings.json#piGauntlet.flowGuards` (keys: `enforce`, `specDirs`) |
 | `verify-before-ship.ts` | Yes | `settings.json#piGauntlet.verifyBeforeShip` (keys: `testCommands`, `warningReference`) |
@@ -151,7 +151,7 @@ bash .agents/skills/release/scripts/release.sh propose   # advisory level from g
 bash .agents/skills/release/scripts/release.sh current   # test + tag + push + verify
 ```
 
-A pushed `v[0-9]+.[0-9]+.[0-9]+` tag fires `.github/workflows/release.yml`, which verifies the tag matches `package.json`, runs `npm test` (`scripts/ci.mjs`, which asserts version == CHANGELOG top), then runs `npm publish --provenance --access public` via **OIDC trusted publishing** (no `NPM_TOKEN` secret). `.github/workflows/test.yml` runs `npm test` on every push + PR. The pi.dev catalog at `https://pi.dev/packages/pi-gauntlet` crawls npm for the `pi-package` keyword on its own cadence - it is a downstream effect of publish, not a target.
+A pushed `v[0-9]+.[0-9]+.[0-9]+` tag fires `.github/workflows/release.yml`, which verifies the tag matches `package.json`, runs `npm test` (`scripts/ci.mjs`, which asserts version == CHANGELOG top), then runs `npm publish --provenance --access public` via **OIDC trusted publishing** (no `NPM_TOKEN` secret). After a successful publish, a `release-notes` job posts the top `CHANGELOG.md` section (the curated summary + key-takeaways bullets) as the GitHub Release body via `gh` - no LLM or API key, only `contents: write`. `.github/workflows/test.yml` runs `npm test` on every push + PR. The pi.dev catalog at `https://pi.dev/packages/pi-gauntlet` crawls npm for the `pi-package` keyword on its own cadence - it is a downstream effect of publish, not a target.
 
 **One-time npm setup:** `pi-gauntlet` must be registered as a **trusted publisher** on npmjs.com (repo `jjuraszek/pi-gauntlet`, workflow `release.yml`) or the publish step fails with 403. This mirrors pi-cohort's tokenless setup under the same account.
 
@@ -164,6 +164,7 @@ pi install -l npm:pi-gauntlet@X.Y.Z
 **Pair with pi-cohort.** pi-gauntlet depends on the [pi-cohort](https://github.com/jjuraszek/pi-cohort) dispatch package (the `subagent()` tool). The two version independently, but **release together whenever dispatch semantics change** — a skill that starts relying on a new pi-cohort dispatch shape must ship alongside the pi-cohort release that provides it, and the README peer-dependency minimum (`pi-cohort >= X.Y.Z`) must be bumped in the same pi-gauntlet release. When only pi-gauntlet-internal content changes (skill prose, agent frontmatter, extension logic that uses existing dispatch shapes), release pi-gauntlet alone.
 
 Semver:
+
 - **minor** — new skill, agent, or extension.
 - **major** — skill/agent rename, breaking config schema change (settings-key rename, package rename), extension API removal.
 
@@ -174,7 +175,7 @@ pi-gauntlet is a diverged reinterpretation of [obra/superpowers](https://github.
 This is no longer tracked as a live fork — there is no active re-sync workflow. The table below is a **historical record** of the upstream revisions pi-gauntlet drew from at extraction time; it is not a sync target.
 
 | Source | SHA | Date | Tag |
-|---|---|---|---|
+| --- | --- | --- | --- |
 | `obra/superpowers` | `f2cbfbefebbf` | 2026-05-04 | v5.1.0 |
 | `coctostan/pi-superpowers-plus` | `661d6cd0575b` | 2026-02-22 | v0.4.1 |
 

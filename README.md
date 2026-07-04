@@ -1,6 +1,16 @@
 # pi-gauntlet
 
-A workflow library for the [pi coding agent](https://github.com/badlogic/pi-mono): opinionated skills, ready-to-use subagent personas, and three runtime extensions.
+A workflow library for the [pi coding agent](https://github.com/badlogic/pi-mono): opinionated skills, ready-to-use subagent personas, and three runtime extensions that turn "run the agent in a loop" into a gated pipeline from idea to merge.
+
+## Why
+
+The agentic loop everyone's excited about - point an agent at a problem, let it iterate until done - is the easy part. A bare loop has nothing to aim at, nothing to stop it shipping the wrong thing, and no check that the output matches the ask. It holds up on narrow tasks and falls apart on everything open-ended.
+
+pi-gauntlet is the scaffolding that makes the loop hold: **brainstorm → plan → implement → verify → ship**, each stage a gate the next one can't open until it closes.
+
+**A gate here is an automated check, not a signature to collect.** Most are machine-enforced - a multi-model spec critique, an adversarial code review, a conformance check that confronts the finished diff against your original ask, and an extension that blocks a commit or push until verification has actually passed. The agent can't wave itself through, and you're not rubber-stamping each step. Human judgment is spent on the two decisions that need it - *what to build* up front and *how to land it* at the end - while the middle (plan → execution, task → task) runs without pausing for you.
+
+The spec and docs it produces get committed to the repo, so the next change starts from ground truth, not a blank slate. The loop is the easy 5%; the gated system around it is the whole job - that's what this is.
 
 A diverged reinterpretation of [obra/superpowers](https://github.com/obra/superpowers) (Claude Code), by way of [coctostan/pi-superpowers-plus](https://github.com/coctostan/pi-superpowers-plus), rebuilt for pi with enforced gates, a spec council, conformance review, and parallel execution waves. See [Lineage](#lineage) for what changed.
 
