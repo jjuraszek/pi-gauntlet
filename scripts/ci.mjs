@@ -71,6 +71,19 @@ if (expectVersion && expectVersion !== pkg.version)
   fail(`tag/version drift: pushed tag v${expectVersion} != package.json ${pkg.version}`);
 else if (expectVersion) ok(`tag matches package.json (${pkg.version})`);
 
+// ---- shared AGENTS core: AGENTS.md region == AGENTS.core.md ----------------
+{
+  const norm = (s) => s.replace(/\r\n/g, "\n").trim();
+  const core = norm(readFileSync(R("AGENTS.core.md"), "utf8"));
+  const agents = readFileSync(R("AGENTS.md"), "utf8");
+  const b = agents.indexOf("<!-- agents-core:begin");
+  const e = agents.indexOf("<!-- agents-core:end");
+  if (b === -1 || e === -1) fail("AGENTS.md: missing agents-core begin/end markers");
+  else if (norm(agents.slice(agents.indexOf("\n", b) + 1, e)) !== core)
+    fail("AGENTS.md shared core drifted from AGENTS.core.md (run: node scripts/check-agents-core.mjs --fix)");
+  else ok("AGENTS.md shared core matches AGENTS.core.md");
+}
+
 // ---- frontmatter on every skill + agent ------------------------------------
 const hasFrontmatter = (file, required) => {
   const txt = readFileSync(file, "utf8");

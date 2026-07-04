@@ -2,40 +2,41 @@
 
 Workflow skills, agent personas, and extensions for the pi coding agent. Generic by design — project-specific content lives in consumer repos via `.pi/gauntlet-overrides.md`.
 
+<!-- agents-core:begin v1 - shared across pi-quiver/pi-cohort/pi-gauntlet/pi-condense. Edit AGENTS.core.md, then: node scripts/check-agents-core.mjs --fix -->
 ## Communication Style
 
-Applies to humans and agents — chat, PR descriptions, issue comments, commit messages.
+Same rules as the parent `~/.pi/agent*/AGENTS.md`. Applies to chat, commit messages, PR/issue comments, code review, and any artifact authored in this repo.
 
-Do **NOT** output:
+- **Human, terse, but sharp and precise.** Applies everywhere: interactive session, issue/PR comments, `.md` files. Terse is not vague - keep it exact.
+- **Suppress process narration.** No intent classification, phase announcements, tool/subagent preamble, status updates, pleasantries. Start with substance.
+- **Output instead:** outcomes, decisions needing input, verification results, blockers.
+- **Bullets over prose. Short paragraphs.** No wall-of-text, no tutorial tone unless asked.
+- **Show an example when it clarifies a complex point** - a small before/after or a concrete ref beats a paragraph. Examples disambiguate, they don't pad.
+- **End on the ask, not a summary.** Diffs/outputs speak for themselves.
+- **Match the recipient's register** in human-facing artifacts (issues, PRs, chat).
+- **Prefer ASCII.** `-` not em/en-dashes, `...` not the ellipsis glyph, straight quotes. Non-ASCII only for a justified visual mark.
 
-- Intent classification ("I detect X intent", "My approach…").
-- Phase/routing announcements before acting.
-- Subagent/tool invocation preamble ("I'll delegate this…", "Let me start by…") — just fire it.
-- Status narration ("I'm working on…", "Now I'll…").
-- Preamble pleasantries.
-- Restating what was just done — the diff speaks for itself.
-
-Output **instead**:
-
-- **Outcomes** — what changed, what was found.
-- **Decisions needing user input** — ambiguities, options.
-- **Verification results** — test/build output, errors.
-- **Blockers** — failures or decisions required to proceed.
-
-Bullets over prose. Short paragraphs. End on the ask, not a summary.
-
-Prefer ASCII. Use `-` not em/en-dashes; `...` not an ellipsis glyph; straight quotes not smart quotes. Reserve non-ASCII for a justified visual mark (status dot, a meaning-carrying arrow). Applies to every output - chat, comments, commits, docs, code. The LLM-readable exception below does NOT exempt it: it is typography, not structure.
-
-LLM-readable artifacts (`AGENTS.md`, `README.md`, `CHANGELOG.md`, skill bodies, agent personas, spec docs) stay structured. Use tables, headings, code blocks, explicit field references. Optimize for unambiguous retrieval.
+LLM-readable artifacts (`AGENTS.md`, `README.md`, `CHANGELOG.md`, skill bodies, agent personas, spec docs, code comments where the *why* is non-obvious) stay structured: tables, headings, explicit field references, code blocks. Optimize for retrieval over readability.
 
 ## Code & Documentation Discipline
 
 - **Code is a liability.** Add only what the task requires. No premature abstractions, no helpers for hypothetical reuse, no fallbacks for branches that can't happen, no commented-out alternatives.
-- **No belt-and-suspenders.** Don't validate, null-check, or guard the same thing at multiple layers — pick one.
+- **Docs are a contract.** Dense, current, no preamble. If a sentence doesn't help a future reader act, cut it - this applies to documentation as much as code.
+- **No belt-and-suspenders.** Don't validate / null-check / guard the same thing at multiple layers - validate at the boundary once.
 - **Delete dead code, don't comment it out.** Branch from the deletion commit if reversibility matters.
-- **Comments only when the *why* is non-obvious.** No docstrings on self-evident params/returns. No banner/separator comments. Don't reference the current task or PR — that belongs in the commit message.
-- **Markdown tables use compact `|---|` separators.** Never padded/aligned columns — column-width changes create huge diffs.
-- **Surface, don't auto-fix.** A bug fix doesn't drag in surrounding cleanup. Mention spotted issues; don't sneak them into the diff.
+- **Comments only when the *why* is non-obvious.** No docstrings on self-evident params/returns. No banner/separator comments. Don't reference the current task or PR - that belongs in the commit message.
+- **Markdown tables use compact `|---|` separators.** Never padded columns.
+- **Surface, don't auto-fix.** A bug fix doesn't drag in surrounding cleanup; mention adjacent issues separately.
+
+## Ticket convention
+
+Every GitHub issue follows **Context -> Problem -> Idea (how to address) -> Acceptance Criteria**, then the idea is **roasted by 2 subagents and the consolidated roast is posted as a comment** before the issue is ready. A roast that kills or shrinks the idea is a success - file only what survives.
+
+## Ground Truth Before Reasoning
+
+Never guess Pi's API, message shapes, config, or values - read the source; the source wins; if it is missing, say so and ask, don't fabricate. The pi runtime is the **`@earendil-works`** namespace (matches the host pi install), not `@mariozechner` - treat its shipped `.d.ts` as API truth. Repo-specific source pointers, if any, follow.
+
+<!-- agents-core:end v1 -->
 
 ## Package conventions
 
@@ -183,9 +184,9 @@ This is no longer tracked as a live fork — there is no active re-sync workflow
 
 **Skills coverage:** we ship 12 of obra's 14 v5.1.0 skills. Two are not shipped: `using-superpowers` (a Claude-Code-specific bootstrap skill that forces invocation of the `Skill` tool — pi's discovery model surfaces skill descriptions automatically, so the bootstrap isn't needed) and `executing-plans` (shipped through v2.x, deleted in v3.0.0 as unused; its separate-session batch-execution role is subsumed by `subagent-driven-development`). `roasting-the-spec` is an original skill with no obra equivalent, so the 12-of-14 count tracks obra-sourced skills only (total shipped skills: 13).
 
-## Ground truth
+## Ground truth pointers
 
-When the source contradicts an assumption, the source wins:
+Repo-specific sources (the principle is in the shared core above):
 
 - Pi runtime: `@earendil-works/pi-coding-agent` docs (`packages.md`, `skills.md`).
 - Agent dispatch: `jjuraszek/pi-cohort` source (`src/agents/agents.ts`) and `skills/pi-cohort/SKILL.md`.
