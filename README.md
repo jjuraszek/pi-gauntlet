@@ -1,6 +1,12 @@
+<p align="center">
+  <img src="https://raw.githubusercontent.com/jjuraszek/pi-gauntlet/main/pi-gauntlet.png" alt="pi-gauntlet" width="180">
+</p>
+
 # pi-gauntlet
 
-A workflow library for the [pi coding agent](https://github.com/badlogic/pi-mono): opinionated skills, ready-to-use subagent personas, and three runtime extensions that turn "run the agent in a loop" into a gated pipeline from idea to merge.
+[![Buy Me A Coffee](https://img.shields.io/badge/Buy%20Me%20A%20Coffee-donate-yellow?logo=buymeacoffee&logoColor=black)](https://buymeacoffee.com/jjurasszek)
+
+A workflow library for the [pi coding agent](https://github.com/earendil-works/pi): opinionated skills, ready-to-use subagent personas, and three runtime extensions that turn "run the agent in a loop" into a gated pipeline from idea to merge.
 
 ## Why
 
@@ -12,7 +18,7 @@ pi-gauntlet is the scaffolding that makes the loop hold: **brainstorm → plan �
 
 The spec and docs it produces get committed to the repo, so the next change starts from ground truth, not a blank slate. The loop is the easy 5%; the gated system around it is the whole job - that's what this is.
 
-A diverged reinterpretation of [obra/superpowers](https://github.com/obra/superpowers) (Claude Code), by way of [coctostan/pi-superpowers-plus](https://github.com/coctostan/pi-superpowers-plus), rebuilt for pi with enforced gates, a spec council, conformance review, and parallel execution waves. See [Lineage](#lineage) for what changed.
+Rebuilt for pi with enforced gates, a spec council, conformance review, and parallel execution waves. Inspired by [obra/superpowers](https://github.com/obra/superpowers) (Claude Code), by way of [coctostan/pi-superpowers-plus](https://github.com/coctostan/pi-superpowers-plus); see [Lineage](#lineage).
 
 ## The workflow
 
@@ -63,7 +69,7 @@ Spec, plan, and implementation are all developed in the **same worktree**. The s
 
 ## Requirements
 
-- [pi-coding-agent](https://github.com/badlogic/pi-mono) ≥ 0.1.0
+- [pi-coding-agent](https://github.com/earendil-works/pi) ≥ 0.1.0
 - [pi-cohort](https://github.com/jjuraszek/pi-cohort) ≥ 1.4.5 — required peer package. Skills that dispatch agents (`requesting-code-review`, `subagent-driven-development`, `dispatching-parallel-agents`, `writing-plans`, `writing-skills`) call `subagent({})`, which is provided by pi-cohort. pi-gauntlet does not vendor the dispatch tool; without pi-cohort those skills have nothing to call.
 
 Both packages must be listed in your `.pi/settings.json#packages` array (pi adds them automatically when you `pi install`). pi-gauntlet and pi-cohort are versioned independently but release together whenever dispatch semantics change — pin compatible versions of both.
@@ -281,7 +287,11 @@ See [`CHANGELOG.md`](./CHANGELOG.md) for what changed in each release. Semver: m
 
 ## Lineage
 
-pi-gauntlet began as a port of [obra/superpowers](https://github.com/obra/superpowers) (MIT, Copyright (c) 2025 Jesse Vincent), by way of [coctostan/pi-superpowers-plus](https://github.com/coctostan/pi-superpowers-plus), and has since diverged into its own thing. It drops upstream's memory/journal system and its sequential-only execution model, and adds a multi-model spec council, a closing-loop conformance-review gate, file- and resource-disjoint parallel execution waves, and enforced phase gates (brainstorm, verify, and ship are guarded at runtime, not merely suggested). The skill methodology still owes its shape to obra's work; the runtime, the gates, and the agent roster are pi-gauntlet's own.
+pi-gauntlet's skill methodology was inspired by [obra/superpowers](https://github.com/obra/superpowers) (MIT, Copyright (c) 2025 Jesse Vincent), by way of [coctostan/pi-superpowers-plus](https://github.com/coctostan/pi-superpowers-plus). The pi runtime integration, enforced phase gates, multi-model spec council, conformance-review gate, and parallel execution waves are pi-gauntlet's own. Thanks to the upstream authors; their copyright is preserved in [`LICENSE`](./LICENSE).
+
+## Support
+
+[Buy me a coffee](https://buymeacoffee.com/jjurasszek) if this saves you time.
 
 ## License
 

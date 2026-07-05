@@ -1,5 +1,15 @@
 # Changelog
 
+## v4.2.3 - 2026-07-05
+
+Branding, funding, and gallery preview. No behavior change.
+
+- **Logo + pi.dev gallery preview.** Repo-root `pi-gauntlet.png` (640x640), shown in the README and wired as `pi.image`.
+- **Buy Me a Coffee funding.** `funding` in `package.json`, `.github/FUNDING.yml`, and a README badge.
+- **`author` field** added to `package.json` (was missing).
+- Added `subagents`, `tdd`, `code-review` keywords.
+- README reframed product-first; obra/superpowers + coctostan attribution kept as credit (copyright preserved in LICENSE).
+
 ## v4.2.2 - 2026-07-04
 
 Hardens the `release-notes` job so it is byte-identical across all four pi repos (pi-gauntlet, pi-cohort, pi-condense, pi-quiver).
