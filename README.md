@@ -232,6 +232,8 @@ A tool, not a hook. Skills call `phase_tracker({ action: "start" | "complete" | 
 
 Distinct from `plan-tracker`: `phase-tracker` answers "what stage of the workflow am I in?"; `plan-tracker` answers "which task within the current stage am I on?"
 
+**`gauntlet_setting` tool.** `phase-tracker` also registers `gauntlet_setting({ key: "specCouncil" | "closureReview" })`, a gauntlet-internal tool through which skills resolve merged `piGauntlet.*` settings (repo `.pi/settings.json` over the agent preset, via pi's own `SettingsManager`). It returns the resolved value as a JSON block in the tool result — `specCouncil` yields the council-vs-worker verdict, `closureReview` yields the conformance-gate `model`/`enforce`/`maxFixRounds`. It introduces no new settings key. Every `piGauntlet.*` read — the skills via this tool, both extensions directly — routes through one shared helper (`extensions/lib/gauntlet-settings*.ts`); no code reads `pi.settings` by hand.
+
 **Closure-review gate.** `complete verify` is rejected unless a successful
 `conformance-reviewer` dispatch (a `subagent` result whose `results[]` contains
 `agent: "conformance-reviewer"` with `exitCode: 0`) has been observed since the

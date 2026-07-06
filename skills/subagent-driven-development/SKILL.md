@@ -86,7 +86,7 @@ Pi-subagents accepts a per-task `model` override. Use it.
 | Hard / novel / large surface | Most capable | New subsystem, complex algorithm, cross-service contract change |
 | Spec review | Default | Reads diff + spec, mechanical comparison |
 | Code-quality review | Most capable | Judgment call on naming, design, complexity |
-| Conformance / closure | Most capable | Whole-deliverable-vs-origin intent gate (`conformance-reviewer`; model from `piGauntlet.closureReview.model`, resolved repo-first whole-object, injected call-site) |
+| Conformance / closure | Most capable | Whole-deliverable-vs-origin intent gate (`conformance-reviewer`; model from `gauntlet_setting({ key: "closureReview" }).model`, injected call-site) |
 
 ```ts
 subagent({
@@ -111,8 +111,9 @@ subagent({ agent: "spec-reviewer", task: "<diff range + spec excerpt + ask: does
 subagent({ agent: "code-reviewer", task: "<diff range + ask: production-ready?>" })
 
 // closing-loop conformance (origin vs deliverable) — its OWN dispatch, never fused with code quality
-// model from piGauntlet.closureReview.model — resolve repo-local .pi/settings.json over the preset, whole-object (see verification-before-completion/reference/settings-precedence.md); omit to inherit
-subagent({ agent: "conformance-reviewer", model: /* piGauntlet.closureReview.model, repo-first per settings-precedence.md, else omit to inherit */, task: "<spec path + verbatim original prompt + full diff vs main; per conformance-check.md>" })
+// model: call gauntlet_setting({ key: "closureReview" }) first; use the returned model (omit model: if undefined to inherit) and maxFixRounds
+// If gauntlet_setting is unavailable, stop and report - never fall back to a manual bash/JSON settings merge.
+subagent({ agent: "conformance-reviewer", model: /* gauntlet_setting({ key: "closureReview" }).model, else omit to inherit */, task: "<spec path + verbatim original prompt + full diff vs main; per conformance-check.md>" })
 ```
 
 Prompt templates live alongside this SKILL.md:
@@ -179,6 +180,7 @@ For the fan-out + worktree + patch-integration + conflict mechanics, see `dispat
 3. **After 2 failed attempts:** STOP. Report failure to the user. The task probably needs redesign.
 
 **NEVER:**
+
 - Write code yourself to "help" or "finish up"
 - Fix the subagent's work inline — that pollutes your context and defeats fresh-subagent isolation
 - Silently skip the failed task
@@ -188,7 +190,7 @@ For the fan-out + worktree + patch-integration + conflict mechanics, see `dispat
 
 0. Call `phase_tracker({ action: "start", phase: "verify" })`. (The `implement` phase was started at execution start and auto-completes from `plan_tracker` once all tasks are done; this flow runs its own verify gate instead of `/skill:verification-before-completion`, so it must mark verify itself.)
 1. **Run the whole-diff code review.** Dispatch `/skill:requesting-code-review` against the worktree's full diff vs `main` (already covered in [The Process](#the-process) step "After all tasks"). Address Critical and Moderate findings before handoff. (Consumers wanting an in-flow project-specific audit re-add it as an explicit step in `.pi/gauntlet-overrides.md`, or run `/self-audit` manually.)
-2. **Close the loop — conformance check.** The review in step 1 is plan-vs-code (single-step); it inherits any requirement the plan already dropped. Before marking verify complete, dispatch a fresh-context **`conformance-reviewer`** — its **own** dispatch, never fused into the step-1 review — to confront the deliverable (code **and** docs) against the *origin* — the spec **and** the original prompt — per `verification-before-completion/reference/conformance-check.md`. Pass the spec path, the verbatim original prompt, and the full diff. On `GAPS`, do not auto-fix or auto-proceed: run the remediation loop in `verification-before-completion/reference/conformance-check.md` "When the check finds gaps" (disposition menu → isolated fix waves → bounded delta re-audit, capped by `piGauntlet.closureReview.maxFixRounds`). Only when the verdict is `CONFORMS` (or every gap is dispositioned) call `phase_tracker({ action: "complete", phase: "verify" })`.
+2. **Close the loop — conformance check.** The review in step 1 is plan-vs-code (single-step); it inherits any requirement the plan already dropped. Before marking verify complete, dispatch a fresh-context **`conformance-reviewer`** — its **own** dispatch, never fused into the step-1 review — to confront the deliverable (code **and** docs) against the *origin* — the spec **and** the original prompt — per `verification-before-completion/reference/conformance-check.md`. Pass the spec path, the verbatim original prompt, and the full diff. On `GAPS`, do not auto-fix or auto-proceed: run the remediation loop in `verification-before-completion/reference/conformance-check.md` "When the check finds gaps" (disposition menu → isolated fix waves → bounded delta re-audit, capped by `gauntlet_setting({ key: "closureReview" }).maxFixRounds`). Only when the verdict is `CONFORMS` (or every gap is dispositioned) call `phase_tracker({ action: "complete", phase: "verify" })`.
 3. Summarize what was implemented (tasks completed, files changed, test counts, code-review verdict). Give the closing loop its **own section** — `Closure / conformance: CONFORMS` (or `GAPS` with each gap and its disposition) — so the user sees intent-fidelity as a first-class line before any finishing decision, not buried in the review verdict.
 4. **Proceed to finishing — no confirmation prompt.** When the verdict is `CONFORMS` (or every gap is dispositioned), invoke `/skill:finishing-a-development-branch` immediately. Its Step 4 menu (squash / PR / keep / discard) is the human gate; a separate "ready to finish?" prompt only stacks a second stop in front of it. Open gaps are already owned by step 2, so nothing is left to decide here. Manual testing is a follow-up after the finishing choice (on `<base-branch>` after a squash-merge, or on the PR branch), never a reason to hold this gate.
 
@@ -208,12 +210,14 @@ For the fan-out + worktree + patch-integration + conflict mechanics, see `dispat
 ## Integration
 
 **Required workflow skills:**
+
 - `/skill:using-git-worktrees` — set up isolation first (small changes can branch in place with user approval)
 - `/skill:writing-plans` — creates the plan this skill executes
 - `/skill:requesting-code-review` — review template for reviewer subagents
 - `/skill:finishing-a-development-branch` — invoked automatically once the conformance verdict is `CONFORMS` (or all gaps dispositioned)
 
 **Subagents follow by default:**
+
 - TDD — runtime warnings on source-before-test. Implementer agents receive the three-scenario TDD instructions (new feature / modifying tested code / trivial) via agent profile and prompt template.
 
 ## Project overrides

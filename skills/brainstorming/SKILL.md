@@ -18,11 +18,13 @@ Identify the target project → set up an isolated worktree → understand curre
 While this skill is active, do **not** take any implementation action until you have presented a design and the user has approved it. This applies to **every** change regardless of perceived simplicity. An implementation-heavy request ("test it end-to-end", "push a request to rabbit", "run the service") does not lift this gate — it just tells you what the spec must cover.
 
 You **may**:
+
 - Read code and docs
 - Run the existing system to observe its **current** behaviour — this is research and feeds the spec (boot a local service, replay a sample request, capture a baseline classification, etc.)
 - Write to the project's `doc/specs/` directory
 
 You may **not**:
+
 - Write or edit code outside `doc/specs/`
 - Scaffold a project, or take any action that builds, deploys, or validates the **proposed change** — running new/edited code, exercising behaviour that doesn't exist yet, or "testing the fix" before there is one
 - Run implementation skills (`/skill:test-driven-development`, `/skill:subagent-driven-development`, etc.)
@@ -38,11 +40,13 @@ This skill ends with a **written, user-reviewed spec inside a worktree**. Nothin
 Work through the items below **in order**. This is your own checklist to follow, not a `plan_tracker` plan — brainstorming is open-ended exploration, and `plan_tracker` is execution-only (the implement phase). The terminal state is the user review gate; after approval the **only** next skill is `/skill:writing-plans`. Do not jump to implementation, and do not silently drop the critique pass.
 
 1. **Start brainstorm tracking (fresh epoch)** — as the **first action on entry**, before reading code, setting up the worktree, or answering the user, reset **both** trackers and then start the phase. A new brainstorm is a new flow, so it owns a clean slate — clear any stale phases *and* tasks left in the session by earlier work:
+
    ```
    phase_tracker({ action: "reset" })   // clears all phases
    plan_tracker({ action: "clear" })    // clears all tasks
    phase_tracker({ action: "start", phase: "brainstorm" })
    ```
+
    Re-entering while a brainstorm is already in progress is safe: mid-brainstorm there are no tasks or later phases to lose, so the reset just re-establishes the same clean slate.
 2. **Set up the worktree** — see [Worktree First](#worktree-first)
 3. **Explore project context** — files, docs, recent commits, current behaviour
@@ -51,7 +55,7 @@ Work through the items below **in order**. This is your own checklist to follow,
 6. **Present the design** — in sections, get approval after each
 7. **Write the spec** — to `doc/specs/` (see [Filename Convention](#filename-convention))
 8. **Spec self-review (lint)** — placeholder scan + internal consistency + documentation named, run inline
-9. **Critique pass (auto-dispatched)** — scope + ambiguity; the spec council via `/skill:roasting-the-spec` when `members` is configured, else a fresh `worker` (see [Spec Council](#spec-council-optional))
+9. **Critique pass (auto-dispatched)** — scope + ambiguity; the spec council via `/skill:roasting-the-spec` when `gauntlet_setting` returns verdict `council`, else a fresh `worker` (see [Spec Council](#spec-council-optional))
 10. **Re-run placeholder scan** — after the critique pass returns, first inline any `external-ref:` flags it raised (see [Spec Self-Review](#spec-self-review-before-user-review-gate)), then re-scan for placeholders its edits may have introduced; surface any ambiguity the worker could not safely resolve at the user gate
 11. **Generate spec summary** — dispatch a fresh, spec-only `spec-summarizer` and render its returned text **verbatim** at the top of the gate message — do not paraphrase, condense, re-section, or rewrite it (see [User Review Gate](#user-review-gate)); this is part of the existing gate, not a new one
 12. **User review gate** — user reviews the committed spec
@@ -64,6 +68,7 @@ Before brainstorming, identify the target project. The match drives the spec dir
 Read the repo's top-level `AGENTS.md` (already in pi's context) and any service-level `AGENTS.md` for the area the user mentioned. If the project documents a routing table mapping subprojects to spec directories and verification commands, follow it. Otherwise rely on the conventions you find.
 
 Detection order:
+
 1. Issue tracker reference (Linear, Jira, GitHub Issues) → infer from labels, description, or mentioned file paths
 2. cwd inside a service / package directory → use that area
 3. Unclear → ask the developer
@@ -135,6 +140,7 @@ When sketching the design, prefer:
 Sections of 200-300 words. Ask after each whether it looks right.
 
 Cover at minimum:
+
 - Architecture overview
 - Components / responsibilities
 - Data flow (or request flow)
@@ -203,7 +209,7 @@ After writing the spec to `<project>/doc/specs/<filename>.md` (per [Filename Con
 
 The first three checks — **placeholder scan**, **internal consistency**, and **documentation named** — are the inline **lint**: run them here at the main loop and fix what they surface. The last two — **scope** and **ambiguity** — are **not** run inline; they are the **critique pass**, auto-dispatched (per [Spec Council](#spec-council-optional)):
 
-- **Council configured** (`piGauntlet.specCouncil.members` non-empty) → invoke `/skill:roasting-the-spec`; it runs the critique and proposes dispositions.
+- **Council** (`gauntlet_setting({ key: "specCouncil" })` returns verdict `council`) → invoke `/skill:roasting-the-spec`; it runs the critique and proposes dispositions.
 - **Otherwise** → dispatch one fresh `worker` that applies the scope + ambiguity checks and fixes them in place:
 
   ```
@@ -224,7 +230,7 @@ After the critique pass returns, scan it for load-bearing external references be
 
 ## Spec Council (Optional)
 
-After the inline lint and before the user review gate, **brainstorming owns the critique-pass gate**: resolve `piGauntlet.specCouncil` **repo-local first** — the repo's `.pi/settings.json` overrides the agent preset, **whole-object** (the first file that defines `specCouncil` wins; an empty `members` there is an explicit "no council here"). Full source order and mechanics: `verification-before-completion/reference/settings-precedence.md`. **Expand `$PI_CODING_AGENT_DIR`; never substitute a hardcoded project path for it.** **When `members` is non-empty, the council *is* the critique pass — invoke `/skill:roasting-the-spec` automatically (no offer, no prompt).** When it is absent or empty, run the fresh-`worker` critique instead (see [Spec Self-Review](#spec-self-review-before-user-review-gate)); if `specCouncil` is present but malformed, emit one warning line and fall back to the worker. Approved council edits (or the worker's in-place fixes) are applied to the spec and ride in the same worktree commit as the rest of this skill's output.
+After the inline lint and before the user review gate, **brainstorming owns the critique-pass gate**. Resolve the council with `gauntlet_setting({ key: "specCouncil" })` - the tool returns the merged (repo-over-preset) value as `{ verdict, members, chair, malformed, warning, errors }`. **Do not** hand-roll a settings read. When `verdict` is `"council"`, the council *is* the critique pass - invoke `/skill:roasting-the-spec` automatically (no offer, no prompt), passing `members`/`chair`. When `verdict` is `"worker"`, run the fresh-`worker` critique instead (see [Spec Self-Review](#spec-self-review-before-user-review-gate)). If `malformed` is true or `errors` is non-empty, emit the `warning`/error as one line, then branch strictly on `verdict` - `malformed` can accompany *either* verdict (e.g. a bad `chair` with valid `members` still returns `council`), so never infer the worker path from `malformed` alone. If `gauntlet_setting` is unavailable, stop and report - never fall back to a manual bash/JSON settings merge. Approved council edits (or the worker's in-place fixes) ride in the same worktree commit. The conceptual precedence rule lives in `verification-before-completion/reference/settings-precedence.md`.
 
 ## User Review Gate
 

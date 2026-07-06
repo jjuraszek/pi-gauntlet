@@ -1,6 +1,6 @@
 ---
 name: roasting-the-spec
-description: Use after writing a spec, when a spec council is configured (piGauntlet.specCouncil in the repo's .pi/settings.json, else the active preset's settings). Auto-dispatched by /skill:brainstorming as the critique pass when members is non-empty (no longer offered). N members on different models critique in parallel, a neutral chair consolidates and adjudicates, the parent proposes dispositions, the user approves.
+description: Use after writing a spec, when a spec council is configured (the resolved piGauntlet.specCouncil council, via the gauntlet_setting tool, repo settings over the preset). Auto-dispatched by /skill:brainstorming as the critique pass when members is non-empty (no longer offered). N members on different models critique in parallel, a neutral chair consolidates and adjudicates, the parent proposes dispositions, the user approves.
 ---
 
 # Roasting the Spec (Spec Council)
@@ -24,7 +24,7 @@ This skill may read anything and edit **only** the spec under `doc/specs/`. It d
 
 ## Configuration and gating
 
-Resolve `piGauntlet.specCouncil` **repo-local first** — the repo's `.pi/settings.json` overrides the agent preset, **whole-object** (the first file that defines `specCouncil` wins outright; an empty `members` there is an explicit "no council for this repo"). Full source order, mechanics, and the per-key granularity rule live in `verification-before-completion/reference/settings-precedence.md`. Do not hardcode a path in place of `$PI_CODING_AGENT_DIR` — expand the env var. The resolved config looks like:
+The caller (`/skill:brainstorming`) already resolved the council via `gauntlet_setting({ key: "specCouncil" })` and dispatched this skill only when `verdict` was `"council"`, passing the resolved `members` and `chair`. This skill therefore receives `members`/`chair` from that resolved value and does **not** read settings files itself. The resolved config looks like:
 
 ```json
 {
@@ -40,7 +40,7 @@ Resolve `piGauntlet.specCouncil` **repo-local first** — the repo's `.pi/settin
 - `members` — array of `provider/model` strings. Council size = array length.
 - `chair` — optional model for the synthesizer; if omitted, the synthesizer inherits the parent's model.
 
-brainstorming owns the gate: it parses this config (it may contain comments — read it, do not pipe through a strict JSON parser), emits any malformed-config warning, and decides whether to invoke this skill. This skill is dispatched **only after** brainstorming confirms `members` is non-empty, so it runs the council unconditionally on entry — no offer, no numbered choice. Absent/empty/malformed config never reaches here (brainstorming runs the fresh-`worker` critique instead). A minimal defensive re-parse is fine, but ownership of "should the council run" lives in brainstorming, not here.
+brainstorming owns the gate: it resolves this config via `gauntlet_setting`, emits any malformed-config warning, and decides whether to invoke this skill. This skill is dispatched **only after** brainstorming confirms `verdict` is `council`, so it runs the council unconditionally on entry — no offer, no numbered choice. Absent/empty/malformed config never reaches here (brainstorming runs the fresh-`worker` critique instead). Ownership of "should the council run" lives in brainstorming, not here.
 
 ## The council run
 

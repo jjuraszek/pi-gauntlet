@@ -24,6 +24,8 @@
  */
 
 import type { ExtensionAPI } from "@earendil-works/pi-coding-agent";
+import { resolveVerifyBeforeShip, settingsErrorWarning } from "./lib/gauntlet-settings.ts";
+import { loadGauntletSettings } from "./lib/gauntlet-settings-loader.ts";
 
 // Default verification entrypoints. Override via settings.
 const DEFAULT_TEST_COMMANDS = [
@@ -38,17 +40,9 @@ const DEFAULT_TEST_COMMANDS = [
 ];
 
 const SHIP_CMD = /\b(git\s+commit|git\s+push|gh\s+pr\s+create)\b/;
+
 const SOURCE_EXT = /\.(ts|tsx|js|jsx|py|rb|go|rs|java|swift|kt)$/;
 const TEST_PATH = /(^|\/)(tests?|__tests__)\/|\.(test|spec)\.|_test\.(py|go|rb)$/;
-
-type Settings = {
-  piGauntlet?: {
-    verifyBeforeShip?: {
-      testCommands?: string[];
-      warningReference?: string;
-    };
-  };
-};
 
 const isSourceWrite = (filePath: string | undefined): boolean => {
   if (!filePath) return false;
@@ -72,12 +66,6 @@ const formatWarning = (command: string, testCommands: string[], reference: strin
 };
 
 export default function (pi: ExtensionAPI) {
-  const settings = (pi.settings ?? {}) as Settings;
-  const cfg = settings.piGauntlet?.verifyBeforeShip ?? {};
-  const testCommands = cfg.testCommands ?? DEFAULT_TEST_COMMANDS;
-  const testRegex = buildTestCmdRegex(testCommands);
-  const reference = cfg.warningReference;
-
   let verified = false;
   let pendingTestCallId: string | null = null;
   const pendingShipWarnings = new Map<string, string>();
@@ -92,7 +80,7 @@ export default function (pi: ExtensionAPI) {
     return typeof input?.path === "string" ? input.path : undefined;
   };
 
-  pi.on("tool_call", async (event) => {
+  pi.on("tool_call", async (event, ctx) => {
     if (event.toolName === "write" || event.toolName === "edit") {
       if (isSourceWrite(getPath(event))) verified = false;
       return undefined;
@@ -102,13 +90,32 @@ export default function (pi: ExtensionAPI) {
     const command = getCommand(event);
     if (!command) return undefined;
 
+    const addShipWarning = (id: string, text: string) => {
+      const prior = pendingShipWarnings.get(id);
+      pendingShipWarnings.set(id, prior ? prior + "\n\n" + text : text);
+    };
+
+    const { gauntlet, errors } = loadGauntletSettings(ctx.cwd);
+    const { testCommands, warningReference } = resolveVerifyBeforeShip(gauntlet, DEFAULT_TEST_COMMANDS);
+    const settingsWarned = errors.length > 0 ? settingsErrorWarning(errors) : undefined;
+    let settingsErrShown = false;
+    const testRegex = buildTestCmdRegex(testCommands);
+
     if (testRegex.test(command)) {
       pendingTestCallId = event.toolCallId;
+      if (settingsWarned && !settingsErrShown) {
+        addShipWarning(event.toolCallId, settingsWarned);
+        settingsErrShown = true;
+      }
       return undefined;
     }
 
     if (SHIP_CMD.test(command) && !verified) {
-      pendingShipWarnings.set(event.toolCallId, formatWarning(command, testCommands, reference));
+      if (settingsWarned && !settingsErrShown) {
+        addShipWarning(event.toolCallId, settingsWarned);
+        settingsErrShown = true;
+      }
+      addShipWarning(event.toolCallId, formatWarning(command, testCommands, warningReference));
     }
     return undefined;
   });

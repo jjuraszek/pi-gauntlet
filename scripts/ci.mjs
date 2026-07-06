@@ -127,19 +127,40 @@ if (hits.length) fail("stale rename tokens found:\n    " + hits.join("\n    "));
 else ok("no stale rename tokens in skills/extensions/agents/bin");
 
 // ---- extension syntax (type-stripped parse) --------------------------------
-for (const f of readdirSync(R("extensions")).filter((f) => f.endsWith(".ts"))) {
+for (const f of walk(R("extensions")).filter((f) => f.endsWith(".ts"))) {
   try {
-    execFileSync(process.execPath, ["--experimental-strip-types", "--check", R(`extensions/${f}`)], { stdio: "pipe" });
+    execFileSync(process.execPath, ["--experimental-strip-types", "--check", f], { stdio: "pipe" });
   } catch (e) {
-    fail(`extensions/${f}: syntax error\n    ${String(e.stderr || e).split("\n").slice(0, 3).join("\n    ")}`);
+    fail(`${f.replace(root + "/", "")}: syntax error\n    ${String(e.stderr || e).split("\n").slice(0, 3).join("\n    ")}`);
   }
 }
-ok("extensions parse clean");
+ok("extensions parse clean (incl. lib/)");
+
+// ---- resolver unit tests ---------------------------------------------------
+try {
+  execFileSync(process.execPath, ["--test", R("extensions/lib/gauntlet-settings.test.ts")], { stdio: "pipe" });
+  ok("resolver unit tests pass");
+} catch (e) {
+  fail(`resolver unit tests failed:\n    ${String(e.stdout || e.stderr || e).split("\n").slice(0, 20).join("\n    ")}`);
+}
+
+// ---- no ad-hoc settings reads ----------------------------------------------
+{
+  const offenders = walk(R("extensions"))
+    .filter((f) => f.endsWith(".ts"))
+    .filter((f) => readFileSync(f, "utf8").includes("pi.settings"))
+    .map((f) => f.replace(root + "/", ""));
+  if (offenders.length) fail("pi.settings read found (route through the gauntlet-settings helper):\n    " + offenders.join("\n    "));
+  else ok("no pi.settings reads in extensions");
+}
 
 // ---- npm pack contents -----------------------------------------------------
 try {
   const out = execFileSync("npm", ["pack", "--dry-run", "--json"], { cwd: root, encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] });
   const packed = JSON.parse(out)[0].files.map((f) => f.path);
+  for (const need of ["extensions/lib/gauntlet-settings.ts", "extensions/lib/gauntlet-settings-loader.ts"]) {
+    if (!packed.includes(need)) fail(`npm pack: ${need} missing from tarball (extension would fail to load at runtime)`);
+  }
   if (!packed.some((f) => f.startsWith("agents/"))) fail("npm pack: no agents/ in tarball");
   if (!packed.some((f) => f.startsWith("bin/"))) fail("npm pack: no bin/ in tarball");
   if (packed.some((f) => f.startsWith("doc/"))) fail("npm pack: doc/ leaked into tarball");

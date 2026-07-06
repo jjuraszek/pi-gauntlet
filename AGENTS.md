@@ -89,6 +89,8 @@ All three extensions ship in `extensions/`:
 | `phase-tracker.ts` | Yes | `settings.json#piGauntlet.closureReview` (keys: `enforce`, `model`); `settings.json#piGauntlet.flowGuards` (keys: `enforce`, `specDirs`) |
 | `verify-before-ship.ts` | Yes | `settings.json#piGauntlet.verifyBeforeShip` (keys: `testCommands`, `warningReference`) |
 
+`phase-tracker.ts` also hosts the `gauntlet_setting` tool (keys `specCouncil`, `closureReview`), through which skills resolve merged `piGauntlet.*` settings. All `piGauntlet.*` reads — skills via that tool, both extensions directly — route through the shared helper `extensions/lib/gauntlet-settings*.ts` (pure resolvers + a `SettingsManager`-backed loader); no extension reads `pi.settings` (which does not exist on `ExtensionAPI` and is enforced empty by `scripts/ci.mjs`).
+
 Hardcoded project paths or commands in extensions are forbidden. If you add a new configurable behavior, surface it as a `piGauntlet.<extensionName>` settings key with a sane default and document it in `README.md`.
 
 ## Development

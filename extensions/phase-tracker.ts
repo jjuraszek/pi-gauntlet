@@ -14,6 +14,13 @@ import { StringEnum } from "@earendil-works/pi-ai";
 import type { ExtensionAPI, ExtensionContext, Theme } from "@earendil-works/pi-coding-agent";
 import { Text } from "@earendil-works/pi-tui";
 import { type Static, Type } from "@sinclair/typebox";
+import {
+  resolveClosureReview,
+  resolveFlowGuards,
+  resolveSpecCouncil,
+  settingsErrorWarning,
+} from "./lib/gauntlet-settings.ts";
+import { loadGauntletSettings } from "./lib/gauntlet-settings-loader.ts";
 
 const PHASES = ["brainstorm", "plan", "implement", "verify", "ship"] as const;
 type Phase = (typeof PHASES)[number];
@@ -31,19 +38,6 @@ interface PhaseTrackerDetails {
   phases: PhaseMap;
   error?: string;
 }
-
-type Settings = {
-  piGauntlet?: {
-    closureReview?: {
-      enforce?: boolean;
-      model?: string;
-    };
-    flowGuards?: {
-      enforce?: boolean;
-      specDirs?: string[];
-    };
-  };
-};
 
 // Qualification per spec "Qualifying dispatch": a successful conformance-reviewer
 // child run in the result details (pi-cohort SingleResult: { agent, exitCode }).
@@ -227,14 +221,6 @@ function formatStatus(phases: PhaseMap): string {
 export default function (pi: ExtensionAPI) {
   let phases: PhaseMap = emptyPhases();
   let conformanceDispatched = false;
-  const closureEnforced = () =>
-    ((pi.settings ?? {}) as Settings).piGauntlet?.closureReview?.enforce !== false;
-  const closureReviewModel = () =>
-    ((pi.settings ?? {}) as Settings).piGauntlet?.closureReview?.model;
-
-  const flowGuardsCfg = () => ((pi.settings ?? {}) as Settings).piGauntlet?.flowGuards ?? {};
-  const flowGuardsEnforced = () => flowGuardsCfg().enforce !== false;
-  const specDirs = () => flowGuardsCfg().specDirs ?? ["doc/specs"];
 
   // Warn-once-per-phase ledger; cleared on every phase transition and on reconstruct.
   const firedGuards = new Map<string, boolean>();
@@ -321,7 +307,25 @@ export default function (pi: ExtensionAPI) {
     });
   }
 
-  pi.on("tool_call", async (event) => {
+  pi.on("tool_call", async (event, ctx) => {
+    // D3.b: one fresh settings read per event, lazily, only if a guard needs it.
+    const addGuardWarning = (id: string, text: string) => {
+      const prior = pendingGuardWarnings.get(id);
+      pendingGuardWarnings.set(id, prior ? prior + "\n\n" + text : text);
+    };
+    let gauntletCache: ReturnType<typeof loadGauntletSettings> | undefined;
+    const g = () => {
+      if (!gauntletCache) {
+        gauntletCache = loadGauntletSettings(ctx.cwd);
+        if (gauntletCache.errors.length > 0) addGuardWarning(event.toolCallId, settingsErrorWarning(gauntletCache.errors));
+      }
+      return gauntletCache.gauntlet;
+    };
+    const closureEnforced = () => resolveClosureReview(g()).enforce;
+    const closureReviewModel = () => resolveClosureReview(g()).model;
+    const flowGuardsEnforced = () => resolveFlowGuards(g()).enforce;
+    const specDirs = () => resolveFlowGuards(g()).specDirs;
+
     // Closure-review model guard - independent of flowGuards, gated by closureReview.enforce.
     if (event.toolName === "subagent" && closureEnforced()) {
       const model = closureReviewModel();
@@ -338,11 +342,20 @@ export default function (pi: ExtensionAPI) {
           }
           const mismatched = [...new Set((models as string[]).filter((m) => m !== configured))];
           if (mismatched.length > 0) {
-            pendingGuardWarnings.set(event.toolCallId, closureModelMismatchWarning(configured, mismatched));
+            addGuardWarning(event.toolCallId, closureModelMismatchWarning(configured, mismatched));
           }
         }
       }
     }
+
+    // Flow guards apply only to write/edit/bash while a guard phase is active.
+    // Cheap in-memory gate BEFORE any settings load: phase state is in-memory, so an
+    // event no guard inspects (any read-only tool, or any tool in a dormant session)
+    // returns here without touching disk. Only genuinely guardable events pay for g().
+    const brainstormActive = phases.brainstorm.status === "in_progress";
+    const guardableWrite = (event.toolName === "write" || event.toolName === "edit") && brainstormActive;
+    const guardableBash = event.toolName === "bash" && activeGuardPhase() !== undefined;
+    if (!guardableWrite && !guardableBash) return undefined;
 
     if (!flowGuardsEnforced()) return undefined;
 
@@ -352,7 +365,7 @@ export default function (pi: ExtensionAPI) {
       const p = (event.input as { path?: unknown } | undefined)?.path;
       if (typeof p !== "string" || pathInSpecDirs(p, specDirs())) return undefined;
       firedGuards.set("brainstorm-write", true);
-      pendingGuardWarnings.set(event.toolCallId, brainstormWriteWarning(specDirs()));
+      addGuardWarning(event.toolCallId, brainstormWriteWarning(specDirs()));
       return undefined;
     }
 
@@ -392,7 +405,7 @@ export default function (pi: ExtensionAPI) {
       }
     }
 
-    if (warnings.length > 0) pendingGuardWarnings.set(event.toolCallId, warnings.join("\n\n"));
+    if (warnings.length > 0) addGuardWarning(event.toolCallId, warnings.join("\n\n"));
     return undefined;
   });
 
@@ -425,6 +438,34 @@ export default function (pi: ExtensionAPI) {
     if (!details || details.error) return;
     applyPlanActivity(details.tasks);
     updateWidget(ctx);
+  });
+
+  const GauntletSettingParams = Type.Object({
+    key: StringEnum(["specCouncil", "closureReview"] as const, {
+      description: "Which gauntlet setting to resolve (merged repo-over-preset).",
+    }),
+  });
+
+  pi.registerTool({
+    name: "gauntlet_setting",
+    label: "Gauntlet Setting",
+    description:
+      "Gauntlet-internal, invoked by skills: resolve a merged piGauntlet.* setting " +
+      "(repo .pi/settings.json over the agent preset). Returns the resolved value as a " +
+      "JSON block in the result content - specCouncil yields the council-vs-worker verdict, " +
+      "closureReview yields the conformance-gate model/enforce/maxFixRounds. Not for ad-hoc use.",
+    parameters: GauntletSettingParams,
+    async execute(_toolCallId, params, _signal, _onUpdate, ctx) {
+      const { gauntlet, errors } = loadGauntletSettings(ctx.cwd);
+      const payload =
+        params.key === "specCouncil"
+          ? { key: "specCouncil" as const, ...resolveSpecCouncil(gauntlet), errors }
+          : { key: "closureReview" as const, ...resolveClosureReview(gauntlet), errors };
+      return {
+        content: [{ type: "text", text: "```json\n" + JSON.stringify(payload, null, 2) + "\n```" }],
+        details: payload,
+      };
+    },
   });
 
   pi.registerTool({
@@ -504,7 +545,11 @@ export default function (pi: ExtensionAPI) {
               } as PhaseTrackerDetails,
             };
           }
-          if (params.phase === "verify" && closureEnforced() && !conformanceDispatched) {
+          if (
+            params.phase === "verify" &&
+            resolveClosureReview(loadGauntletSettings(ctx.cwd).gauntlet).enforce &&
+            !conformanceDispatched
+          ) {
             return {
               content: [{ type: "text", text: CLOSURE_GATE_ERROR }],
               details: {
