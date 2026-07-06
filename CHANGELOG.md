@@ -1,6 +1,6 @@
 # Changelog
 
-## [Unreleased]
+## v4.3.1 - 2026-07-06
 
 Fix spec-summary pruning at the brainstorming user-review gate. The gate's
 `spec-summarizer` dispatch now writes to a temp file via `outputMode: "file-only"`
@@ -17,6 +17,15 @@ instead of being pruned to a paraphrase before render.
   final text for it), dodging the documented stub/stall failure on weaker models.
   Adds a length-proportionality directive so summaries scale with spec size.
 - **`AGENTS.md`:** `outputMode` added to the call-site-overridable knobs list.
+
+Restore the per-task spec gate in `subagent-driven-development` Parallel-Wave mode.
+Wave-mode step 3 reviewed spec compliance inline instead of dispatching the
+`spec-reviewer` agent (sequential mode already dispatched it), silently collapsing
+the gate.
+
+- **`subagent-driven-development` wave step 3:** fan out one `spec-reviewer` per
+  accepted patch (fresh context, `cwd` worktree, diff-based); pin the two-stage
+  line to "dispatched spec-reviewer - not inline"; add a Red Flag.
 
 ## v4.3.0 - 2026-07-06
 
