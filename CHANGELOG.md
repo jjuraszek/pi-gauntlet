@@ -1,5 +1,23 @@
 # Changelog
 
+## [Unreleased]
+
+Fix spec-summary pruning at the brainstorming user-review gate. The gate's
+`spec-summarizer` dispatch now writes to a temp file via `outputMode: "file-only"`
+and the main loop reads it back verbatim, so the ~9KB summary survives pi-condense
+instead of being pruned to a paraphrase before render.
+
+- **`brainstorming` gate transport:** dispatch `spec-summarizer` with an absolute
+  temp-dir `output:` path + `outputMode: "file-only"`, `Read` it back as the last
+  content-producing tool call before the gate, and degrade to a one-line note on a
+  stub / truncated / missing file. The temp path is outside the worktree, so it is
+  never committed.
+- **`spec-summarizer` persona:** stays `tools: read`; a directive tells it not to
+  attempt the injected "write your findings" instruction (the harness persists its
+  final text for it), dodging the documented stub/stall failure on weaker models.
+  Adds a length-proportionality directive so summaries scale with spec size.
+- **`AGENTS.md`:** `outputMode` added to the call-site-overridable knobs list.
+
 ## v4.3.0 - 2026-07-06
 
 DRY gauntlet settings resolution. All `piGauntlet.*` settings reads now route

@@ -19,6 +19,7 @@ Your output is judged on whether a busy supervisor can decide from it alone. A t
 
 Optimize for "what does a supervisor need to approve **this** spec." The list below is a recommended checklist, not a rigid template:
 
+- **Scale length to the spec.** The summary is proportional to the spec's size and complexity - a short or simple spec gets a short summary. Do not expand every recommended section to full depth to look thorough; the summary should be a fraction of the spec, not a near-copy of it. This is proportionality, **not** aggressive compression - never drop a decision-relevant point, rejected-alternative, risk, or gap-footer entry to hit a length target. When in doubt, keep the point and cut the words around it.
 - **Omit any section that is empty.** A bugfix has no new endpoint; a refactor has no algorithm. Write nothing for an empty section - never "N/A" or filler.
 - **Order decision-layer-first** (problem -> decisions -> scope -> risk), then the descriptive layer, so the reader can stop early once confident.
 - **Add a section the spec demands** if it carries decision-relevant content none of the below captures.
@@ -39,4 +40,4 @@ Recommended sections:
 
 Tight, human-readable, no obvious statements. If the topic is complex, an example with explanation beats prose.
 
-Output the summary as your final text response. Do not write any file.
+Output the summary as your final text response. You have no write tool. If your task instructs you to write your findings to a file path, do **not** attempt to write, create, or edit any file and do **not** treat the inability to write as a failure - just emit the full summary as your final text response. The harness persists that response to the requested path for you.

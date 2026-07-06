@@ -57,7 +57,7 @@ Work through the items below **in order**. This is your own checklist to follow,
 8. **Spec self-review (lint)** — placeholder scan + internal consistency + documentation named, run inline
 9. **Critique pass (auto-dispatched)** — scope + ambiguity; the spec council via `/skill:roasting-the-spec` when `gauntlet_setting` returns verdict `council`, else a fresh `worker` (see [Spec Council](#spec-council-optional))
 10. **Re-run placeholder scan** — after the critique pass returns, first inline any `external-ref:` flags it raised (see [Spec Self-Review](#spec-self-review-before-user-review-gate)), then re-scan for placeholders its edits may have introduced; surface any ambiguity the worker could not safely resolve at the user gate
-11. **Generate spec summary** — dispatch a fresh, spec-only `spec-summarizer` and render its returned text **verbatim** at the top of the gate message — do not paraphrase, condense, re-section, or rewrite it (see [User Review Gate](#user-review-gate)); this is part of the existing gate, not a new one
+11. **Generate spec summary** — dispatch a fresh, spec-only `spec-summarizer` writing to an absolute temp-dir path via `outputMode: "file-only"`, then `Read` that file back as the **last content-producing** tool call before composing the gate and render its contents **verbatim** at the top of the gate message — do not paraphrase, condense, re-section, or rewrite it (see [User Review Gate](#user-review-gate)); this is part of the existing gate, not a new one
 12. **User review gate** — user reviews the committed spec
 13. **Transition** — only after approval, invoke `/skill:writing-plans`
 
@@ -236,19 +236,33 @@ After the inline lint and before the user review gate, **brainstorming owns the 
 
 After self-review (and council review, if configured) and after inlining any external-ref flags, dispatch the spec-only summarizer, then commit the spec on the worktree branch and stop. This is the **same** single human gate - the summary is folded into it, not a new gate.
 
-Dispatch the summarizer on a fresh context, reading only the spec (no `output:` path - capture the return inline; no `model:` - it inherits the main loop unless a preset sets `subagents.agentOverrides.spec-summarizer.model`):
+Mint an absolute temp path outside the worktree (so it is never committed), then dispatch the summarizer on a fresh context, reading only the spec, writing to that path via file-only output (no `model:` - it inherits the main loop unless a preset sets `subagents.agentOverrides.spec-summarizer.model`):
+
+```bash
+SUMMARY_PATH=$(mktemp "${TMPDIR:-/tmp}/gauntlet-spec-summary.XXXXXX")   # absolute, portable across GNU/BSD mktemp
+```
 
 ```
-subagent({ agent: "spec-summarizer", context: "fresh", cwd: "<abs worktree path, from git rev-parse --show-toplevel>", task:
+subagent({ agent: "spec-summarizer", context: "fresh", cwd: "<abs worktree path, from git rev-parse --show-toplevel>",
+  output: "<SUMMARY_PATH>", outputMode: "file-only", task:
   "Summarize the spec at <abs path to doc/specs/...> for the user review gate. Read ONLY that file." })
 ```
 
-If the dispatch fails, reach the gate anyway with a one-line "summary generation failed" note - the summary is an aid, not a gate.
+`<SUMMARY_PATH>` above is a placeholder in the dispatch object; it means substitute the value of the shell variable `$SUMMARY_PATH` set above. The steps below use `$SUMMARY_PATH` (the shell form) once the value is in hand.
 
-Render the summarizer's returned text **verbatim** first — paste it as-is, do **not** paraphrase, condense, re-section, drop sections, or merge it with council output. "Fold into the gate" means *place it inside the gate message*, not *rewrite it*. After the verbatim block, append the commit confirmation, then — as their **own** adjacent lines, not edits to the summary — any council outcome, critique-pass-unresolved ambiguities, and every entry from the summarizer's gap/external-context footer (surface **all** of them, not just the top risk):
+Then commit the spec — this commit is **unconditional**: the summary is only a gate aid, so a degraded or missing summary never blocks it. Evaluate the summary in two stages (the **Degrade path** referenced in each is defined just below):
+
+1. **From the dispatch tool result, before the `Read`.** If the result is **not** an `"Output saved to: <path> (<N> KB, <M> lines)"` reference (e.g. an exit-0 save error returns the full inline output plus an "Output file error" line — the prunable shape, no file to read), or the reference reports under ~500 bytes, or a size grossly disproportionate to the spec (under ~2% of its byte size), or over ~45 KB (the `Read` truncates at 50KB / 2000 lines, so a larger file cannot render whole) — skip the `Read` and take the degrade path. Use the reference's reported figures; do not re-derive them.
+2. **The `Read` itself, as the last content-producing tool call before composing the gate.** `Read` `$SUMMARY_PATH` and paste its contents verbatim at the top of the gate. If the `Read` fails, returns 0 bytes, or reports truncation — take the degrade path. The `Read` must be last: pi-condense does not protect a `/tmp` read, so any turn boundary between the `Read` and the render lets the ~9KB read result be pruned, reproducing the bug.
+
+**Degrade path** — reach the gate with a one-line "summary generation failed" note; never paraphrase from the file-only reference, never render a stub as the canonical summary.
+
+Either way — summary rendered or degraded — then `rm "$SUMMARY_PATH"` (unconditional cleanup; harmless if the file was never created, since it lives outside the worktree under the OS temp dir).
+
+Render the temp file's contents **verbatim** first — paste it as-is, do **not** paraphrase, condense, re-section, drop sections, or merge it with council output. "Fold into the gate" means *place it inside the gate message*, not *rewrite it*. After the verbatim block, append the commit confirmation, then — as their **own** adjacent lines, not edits to the summary — any council outcome, critique-pass-unresolved ambiguities, and every entry from the summarizer's gap/external-context footer (surface **all** of them, not just the top risk):
 
 ```
-<spec-only summary from spec-summarizer — pasted verbatim, unedited>
+<spec-only summary read back from the temp file — pasted verbatim, unedited>
 
 Spec written and committed to <project>/doc/specs/<filename>.md (worktree: <path>).
 
@@ -259,7 +273,7 @@ Please review. Approve to proceed, or tell me what to change in the spec.
 
 If you believe the summary needs correcting, do **not** silently rewrite it — re-dispatch the summarizer or note the discrepancy as an adjacent line beneath the verbatim block.
 
-Wait for the user. On a change request, revise and re-present. On approval, proceed immediately to `/skill:writing-plans` with no further prompt — the plan and execution mode are mechanical derivatives, so the only human gate here is spec approval itself. Don't land the spec on `main`; it stays in the worktree and ships in the same squash commit as the implementation.
+Wait for the user. On a change request, revise the spec and re-present — mint a **fresh** temp path for the re-dispatched summarizer (never reuse a prior round's path, so stale content can never be mistaken for the new summary). On approval, proceed immediately to `/skill:writing-plans` with no further prompt — the plan and execution mode are mechanical derivatives, so the only human gate here is spec approval itself. Don't land the spec on `main`; it stays in the worktree and ships in the same squash commit as the implementation.
 
 After approval, mark the brainstorm phase complete:
 
@@ -284,7 +298,8 @@ phase_tracker({ action: "complete", phase: "brainstorm" })
 - About to skip the critique pass (council if configured, else fresh worker)
 - Critique dispatch (council or worker) failed to complete and you proceeded to the gate anyway
 - About to reach the user gate without re-running the placeholder scan after the critique returned
-- About to reach the user gate without rendering the spec-only summary (dispatch `spec-summarizer` first; a failed dispatch degrades to a one-line note, it is not silently skipped)
+- About to reach the user gate without rendering the spec-only summary (dispatch `spec-summarizer` to a temp file first; a failed/stub/truncated read degrades to a one-line note, it is not silently skipped)
+- About to compose the gate message when the summary `Read` was not the last content-producing tool call before it (a following `rm` of the temp file is fine) — a turn boundary between the `Read` and the render lets pi-condense prune the ~9KB read result, reproducing the original bug
 - About to present a paraphrased, condensed, or re-sectioned version of the summarizer's output instead of pasting its returned text verbatim — rewriting the summary counts as not rendering it
 - About to run the scope or ambiguity checks inline yourself instead of dispatching them (those two are the critique pass, not the inline lint)
 - About to skip the self-review pass
