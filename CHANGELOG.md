@@ -1,5 +1,29 @@
 # Changelog
 
+## v4.3.0 - 2026-07-06
+
+DRY gauntlet settings resolution. All `piGauntlet.*` settings reads now route
+through one shared resolver (`extensions/lib/gauntlet-settings.ts`), consumed by
+a new `gauntlet_setting` tool (for skills) and by the extensions directly.
+
+- **New `gauntlet_setting` tool** (registered by `phase-tracker`, gauntlet-internal):
+  returns the resolved `specCouncil` or `closureReview` value from pi's merged
+  settings. Five skill call sites (`brainstorming`, `roasting-the-spec`,
+  `subagent-driven-development`, `conformance-check`, `settings-precedence`)
+  replace their hand-rolled two-file bash/prose merge with this tool. This fixes
+  an observed failure where the repo-only read fell back to the fresh `worker`
+  critique and silently skipped a configured spec council.
+- **Behavior change (latent-bug fix):** extensions previously read `pi.settings`,
+  which does not exist on the extension API - so every `closureReview`,
+  `flowGuards`, and `verifyBeforeShip` config read was dead (always `{}`) and
+  consumer overrides were silently ignored. These settings now take effect for
+  the first time. Most visible: `closureReview.model` now actually pins the
+  conformance-gate model (and the phase-tracker guard can block a mismatched
+  dispatch). If you set any of these keys expecting the prior no-op, review them.
+- `scripts/ci.mjs` now type-checks `extensions/lib/`, runs the resolver unit
+  tests, asserts the lib files are packed, and enforces a no-`pi.settings`
+  invariant.
+
 ## v4.2.3 - 2026-07-05
 
 Branding, funding, and gallery preview. No behavior change.
