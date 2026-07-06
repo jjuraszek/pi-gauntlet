@@ -141,13 +141,13 @@ Auto-selected at handoff by `writing-plans` (any wave with ≥2 tasks) when the 
 
 1. **Independence check.** Parse the wave's tasks' `Files:` blocks; assert pairwise-disjoint (mechanical). Runtime-resource disjointness (DB/schema, port, fixture, external service, shared temp path) is not machine-checkable here — trust the plan's wave grouping, which `writing-plans`' D5 contract guarantees. Either kind of overlap → the wave is mis-grouped; run those tasks as sequential single-task waves and note it.
 2. **Fan out.** One parallel dispatch (shape below): `implementer` per task, `context: "fresh"`, `worktree: true`. Each returns a status + a patch.
-3. **Status + spec review per task.** Parse each `DONE`/`BLOCKED`/etc. (see [Implementer Status](#implementer-status)); spec-review each returned patch against its task (read-only, parallelizable). Re-dispatch incomplete tasks (fresh, `worktree: true`) until `DONE` + spec ✅.
+3. **Status + spec review per task.** Parse each `DONE`/`BLOCKED`/etc. (see [Implementer Status](#implementer-status)) **first**. Then **dispatch a `spec-reviewer` per accepted patch** (`DONE`, or a `DONE_WITH_CONCERNS` you proceeded with) in one parallel fan-out — `context: "fresh"`, `cwd: <this worktree>`, **no `worktree` flag** (read-only) — each passed its task text, the returned **patch diff**, and the absolute spec path. Review is **diff-based**: the diff's hunks carry `file:line`, and test execution is not the reviewer's job here (the wave test gate in step 5 runs the suite). Inline verdicts are fine at normal wave sizes; large waves use `output:` + `outputMode: "file-only"` to keep verdicts out of your context. **Re-dispatch by cause:** `BLOCKED`/`NEEDS_CONTEXT` per the [Implementer Status](#implementer-status) matrix; a **spec gap** re-dispatches the implementer (fresh, `worktree: true`) carrying the prior patch + the reviewer's findings, the new patch superseding the old at step 4. Loop until accepted + spec ✅.
 4. **Integrate.** `git apply` each task's patch sequentially onto HEAD. Apply fails = textual conflict → drop that task, finish the rest, re-run the dropped task sequentially on the updated HEAD.
 5. **Test gate.** Run the suite on the integrated tree. Failure = semantic conflict or bug → re-run the offending task sequentially, else fix per [When a Subagent Fails](#when-a-subagent-fails).
 6. **Quality review.** Code-quality review on the integrated wave diff; loop fixes to ✅.
 7. **Commit the wave.** Leaves a clean tree; the next wave's children branch from this commit and so see the integrated work.
 
-**Two-stage review is preserved:** spec review per task (pre-integration), quality review per wave (post-integration). Both gates required before the wave commits.
+**Two-stage review is preserved:** spec review per task (pre-integration, dispatched `spec-reviewer` — not inline), quality review per wave (post-integration). Both gates required before the wave commits.
 
 **Dependent context across waves:** wave N+1 tasks branch from a HEAD containing wave N, so they see the code; still forward wave N's task summaries into wave N+1 prompts.
 
@@ -203,6 +203,7 @@ For the fan-out + worktree + patch-integration + conflict mechanics, see `dispat
 - Starting code-quality review before spec compliance is ✅
 - Moving to next task with either review still showing issues
 - Letting implementer self-review replace external review (both needed)
+- Spec-reviewing wave patches inline instead of dispatching `spec-reviewer` per patch — sequential mode's step 3 dispatches it; wave mode must too
 - Pausing to "check in" between tasks (continuous execution rule)
 - Skipping the `Implementer Status` parse — treating every response as DONE
 - Starting on main without explicit user consent
