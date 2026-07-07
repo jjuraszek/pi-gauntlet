@@ -6,77 +6,94 @@
 
 [![Buy Me A Coffee](https://img.shields.io/badge/Buy%20Me%20A%20Coffee-donate-yellow?logo=buymeacoffee&logoColor=black)](https://buymeacoffee.com/jjurasszek)
 
-A workflow library for the [pi coding agent](https://github.com/earendil-works/pi): opinionated skills, ready-to-use subagent personas, and three runtime extensions that turn "run the agent in a loop" into a gated pipeline from idea to merge.
+The gated workflow for the [pi coding agent](https://github.com/earendil-works/pi): brainstorm, plan, implement, verify, ship - each stage a gate the next can't open until it closes.
 
-## Why
+## The problem
 
-The agentic loop everyone's excited about - point an agent at a problem, let it iterate until done - is the easy part. A bare loop has nothing to aim at, nothing to stop it shipping the wrong thing, and no check that the output matches the ask. It holds up on narrow tasks and falls apart on everything open-ended.
+Point an agent at a task and let it loop until done - that's the easy 5%. A bare loop has nothing to aim at, nothing to stop it shipping the wrong thing, and no check that the final output matches what you actually asked for. It holds up on a narrow, well-specified task and drifts on anything open-ended: the agent reinterprets the ask as it goes, nobody catches it until review, and by then the diff is large enough that review is theater too.
 
-pi-gauntlet is the scaffolding that makes the loop hold: **brainstorm → plan → implement → verify → ship**, each stage a gate the next one can't open until it closes.
+That's not a model problem. Cursor, Claude Code, Codex, Devin all run some version of the same loop, and all of them drift the same way on long tasks - because nothing in the loop confronts the output against the *original* intent.
 
-**A gate here is an automated check, not a signature to collect.** Most are machine-enforced - a multi-model spec critique, an adversarial code review, a conformance check that confronts the finished diff against your original ask, and an extension that blocks a commit or push until verification has actually passed. The agent can't wave itself through, and you're not rubber-stamping each step. Human judgment is spent on the two decisions that need it - *what to build* up front and *how to land it* at the end - while the middle (plan → execution, task → task) runs without pausing for you.
+## Why pi-gauntlet exists
 
-The spec and docs it produces get committed to the repo, so the next change starts from ground truth, not a blank slate. The loop is the easy 5%; the gated system around it is the whole job - that's what this is.
+pi-gauntlet is the scaffolding that makes the loop hold: **brainstorm → plan → implement → verify → ship**. Gates between phases are automated checks, not signatures to collect - a multi-model spec critique, an adversarial code review, and a closing conformance check that confronts the finished diff **and docs** against your **original verbatim prompt**, not the plan that got derived from it. The agent can't wave itself through a gate, and you're not rubber-stamping each step by hand.
 
-Rebuilt for pi with enforced gates, a spec council, conformance review, and parallel execution waves. Inspired by [obra/superpowers](https://github.com/obra/superpowers) (Claude Code), by way of [coctostan/pi-superpowers-plus](https://github.com/coctostan/pi-superpowers-plus); see [Lineage](#lineage).
+Human judgment is spent on the two decisions that need it - *what to build*, up front, and *how to land it*, at the end. The middle runs without pausing for you. The spec and docs get committed to the repo, so the next change starts from ground truth, not a blank slate.
 
-## The workflow
+## Part of the pi agent toolkit
 
-pi-gauntlet is **opinionated**: every non-trivial change rides one pipeline, idea to merge. There is no separate "just edit a file and commit" path — the skills gate each other, so the next phase can't open until the current one closes.
+Four independent extensions for the [pi coding agent](https://github.com/earendil-works/pi), each owning one concern of running agents seriously:
 
+- [pi-quiver](https://github.com/jjuraszek/pi-quiver) - capabilities (ground-truth ingestion: fetch, doc conversion, session tools)
+- [pi-cohort](https://github.com/jjuraszek/pi-cohort) - coordination (delegate to focused child agents)
+- [pi-condense](https://github.com/jjuraszek/pi-condense) - context economy (prune context, keep it recoverable)
+- **pi-gauntlet - process (this repo: the gated brainstorm→ship workflow)**
+
+pi-gauntlet's only hard dependency is pi-cohort - every gate that dispatches a reviewer or an implementer does it through pi-cohort's `subagent()`. pi-condense is not required, but a long gated run generates a lot of tool output; pruning it as you go is what keeps that run affordable.
+
+## What a run looks like
+
+Concretely, one change through the gauntlet:
+
+1. You describe the change. **`brainstorming`** sets up an isolated worktree, explores the codebase, and turns your description into a written spec. A multi-model critique runs on it automatically. **You read and approve the spec - human gate 1.** No implementation code exists yet.
+2. **`writing-plans`** decomposes the approved spec into atomic, independently-verifiable tasks, grouped into parallel waves where they don't touch the same files.
+3. **`subagent-driven-development`** executes the plan one task at a time, each in a fresh subagent, behind spec-compliance review then code-quality review. TDD-locked: red, green, refactor.
+4. **verify**: a whole-diff code review, then the **conformance gate** - a subagent reads the finished code and docs against your *original words* from step 1, not the plan, and reports per-requirement: delivered, partial, missing, drifted, or unauthorized. This gate is machine-blocked from being skipped.
+5. **`finishing-a-development-branch`**: squash, PR, keep, or discard. **Human gate 2** - the only other decision you make.
+
+```mermaid
+flowchart LR
+    R([request]) --> B[brainstorm<br/>+ spec]
+    B --> G1{{human gate 1:<br/>approve spec}}
+    G1 --> P[plan]
+    P --> I[implement<br/>waves + reviews]
+    I --> V[verify]
+    V --> M{{machine gate:<br/>conformance vs<br/>original words}}
+    M --> S[ship]
+    S --> G2{{human gate 2:<br/>merge / PR / discard}}
+    G2 --> D([done])
 ```
-brainstorm → plan → implement → verify → ship
-```
 
-1. **`brainstorming`** — every change starts here. Sets up an isolated worktree, explores the codebase, and turns the idea into a written spec under `doc/specs/`. A multi-model critique runs automatically before you read it (`roasting-the-spec` when a council is configured, else one fresh `worker`). **Hard gate:** no implementation code is written until you approve the spec.
-2. **`writing-plans`** — derives an implementation plan from the approved spec, decomposed into atomic, independently-verifiable tasks (grouped into parallel waves when they're file- and resource-disjoint). Auto-chains into execution.
-3. **`subagent-driven-development`** — executes the plan one atomic task at a time, each in a **fresh subagent**, behind a **two-stage review**: spec compliance first (`spec-reviewer`), then code quality (`code-reviewer`). The `implementer` persona is TDD-locked (RED→GREEN→REFACTOR). You orchestrate; you never hand-write the code.
-4. **verify** — after the last task: a whole-diff review (`requesting-code-review`), then the `conformance-reviewer` closing-loop gate that confronts the delivered code **and** docs against the *origin* (spec + your verbatim original prompt), not the plan. The phase-tracker **blocks `complete verify`** until a conformance dispatch has run, and on a successful `complete verify` (ship still pending) injects an advisory to invoke `finishing-a-development-branch` immediately without a redundant "ready to finish?" prompt - or to reopen verify if a requirement decision is still open.
-5. **`finishing-a-development-branch`** — squash / PR / keep / discard. This menu is the single human decision gate at the end, mirroring spec approval at the start.
+<!-- TODO GIF: a real gauntlet run end to end -->
 
-Spec, plan, and implementation are all developed in the **same worktree**. The squash commit ships spec and implementation; the plan is ephemeral and is stripped before any landing path.
+Everything between gate 1 and gate 2 - task breakdown, implementation, both review passes - runs without you in the loop. That's the mechanism. What follows is the machinery behind it.
 
-**Supporting skills** slot in as the pipeline needs them: `using-git-worktrees` (isolation, before the spec), `test-driven-development` (inside every implementer), `dispatching-parallel-agents` (wave fan-out), `systematic-debugging` (when something breaks), `receiving-code-review` (when you get feedback), `writing-skills` (authoring more of these).
+## Architecture
 
-**The gates are enforced, not suggested.** Brainstorming refuses to write code before spec approval; the phase-tracker refuses to close verify before the conformance gate runs; `verify-before-ship` warns on any commit/push/PR without a passing test run since your last edit. Reach for a shortcut and a gate stops you — that is the design, not a side effect.
+pi-gauntlet ships three kinds of pieces, layered on top of pi-cohort's dispatch:
 
-## What you get
+- **13 skills** - the workflow logic. They activate automatically when pi sees the matching kind of task, and each one gates the next: `brainstorming`, `writing-plans`, `roasting-the-spec`, `test-driven-development`, `subagent-driven-development`, `dispatching-parallel-agents`, `verification-before-completion`, `systematic-debugging`, `requesting-code-review`, `receiving-code-review`, `using-git-worktrees`, `finishing-a-development-branch`, `writing-skills`.
+- **7 subagent personas** - the specialized child agents the skills dispatch via pi-cohort: `implementer`, `code-reviewer`, `spec-reviewer`, `conformance-reviewer`, `spec-summarizer`, `spec-council-member`, `spec-council-synthesizer`. See [doc/personas.md](./doc/personas.md) for what each one does and why its permissions are scoped the way they are.
+- **3 runtime extensions** - the enforcement layer. `plan-tracker` and `phase-tracker` are tools skills call to track progress (with a TUI widget); `verify-before-ship` is a hook that warns if you commit/push without a passing test run since your last edit. See [doc/configuration.md](./doc/configuration.md) for the settings each one reads.
 
-**13 skills** that activate automatically when pi sees the right kind of task:
+pi-gauntlet is **opinionated**: every non-trivial change rides this one pipeline. There's no separate "just edit a file and commit" path - the skills gate each other, so the phase-tracker extension mechanically blocks a phase from closing before its gate runs. Reach for a shortcut and a gate stops you; that's the design, not friction.
 
-- **Design & planning** — `brainstorming`, `writing-plans`, `roasting-the-spec`
-- **Implementation** — `test-driven-development`, `subagent-driven-development`, `dispatching-parallel-agents`
-- **Verification** — `verification-before-completion`, `systematic-debugging`
-- **Review** — `requesting-code-review`, `receiving-code-review`
-- **Worktree lifecycle** — `using-git-worktrees`, `finishing-a-development-branch`
-- **Meta** — `writing-skills`
+## Key concepts
 
-**7 subagent personas** dispatchable via [pi-cohort](https://github.com/jjuraszek/pi-cohort):
+| Term | Meaning |
+| --- | --- |
+| Gate | A machine-enforced checkpoint between phases (e.g. `complete verify` is blocked until conformance review has run). Not a suggestion. |
+| Spec council | Multi-model critique of the spec before you see it (`roasting-the-spec`); falls back to a single-model critique if no council is configured. |
+| Conformance gate | The closing check: does the delivered code + docs match your *original prompt*, not the derived plan? Per-requirement verdict, no auto-fix. |
+| Wave | A batch of plan tasks that don't touch the same files, dispatched to implementers in parallel. |
+| Overrides file | `.pi/gauntlet-overrides.md` - where you put project-specific detail the generic skills don't know (CI command, worktree wrapper, routing rules). |
 
-- `implementer` — strict RED→GREEN→REFACTOR TDD, completion-guarded.
-- `code-reviewer` — read-only review, Critical/Moderate/Minor severity.
-- `spec-reviewer` — verifies an implementation against its plan/spec, per-requirement table.
-- `conformance-reviewer` — closing-loop intent gate; confronts the delivered code+docs against the *origin* (spec + verbatim prompt), skipping the plan, and emits a per-requirement coverage verdict. Read-only; proposes remediation, never fixes or decides. Ships model-free — pin its model per preset (see [Conformance gate](#conformance-gate-model)).
-- `spec-summarizer` - produces a tight, spec-only human summary for the brainstorming user review gate. Fresh context, read-only (`tools: read`), reads only the spec it is given; output is ephemeral (rendered at the gate, never committed). Dispatched only by `brainstorming`; not for direct dispatch. Ships model-free - set `subagents.agentOverrides.spec-summarizer.model` per preset to override (unset -> inherits the main loop).
-- `spec-council-member` — adversarial single-model spec critic; one per configured council model. Dispatched only by `roasting-the-spec`.
-- `spec-council-synthesizer` — neutral chair that consolidates and adjudicates member critiques. Dispatched only by `roasting-the-spec`.
+## When to use / when NOT to use
 
-**3 runtime extensions**:
+**Use it** for any change with more than one moving part: a feature, a refactor across files, anything where "what did we actually agree to build" matters by the time it's done.
 
-- `plan-tracker` — persistent task list with a TUI widget. Use the `plan_tracker` tool from skills.
-- `phase-tracker` — tracks workflow phase (brainstorm → plan → implement → verify → ship) with a TUI widget. Use the `phase_tracker` tool from skills. Distinct from `plan-tracker` which tracks per-task progress within the implement phase.
-- `verify-before-ship` — advisory warning if you run `git commit` / `git push` / `gh pr create` without passing tests since your last source edit.
+**Don't use it** for a one-line fix, a typo, or a throwaway spike you're going to discard. The gates have real overhead - a spec, a plan, a conformance check - and that overhead isn't worth paying for a change trivial enough to just make.
 
 ## Requirements
 
 - [pi-coding-agent](https://github.com/earendil-works/pi) ≥ 0.1.0
-- [pi-cohort](https://github.com/jjuraszek/pi-cohort) ≥ 1.4.5 — required peer package. Skills that dispatch agents (`requesting-code-review`, `subagent-driven-development`, `dispatching-parallel-agents`, `writing-plans`, `writing-skills`) call `subagent({})`, which is provided by pi-cohort. pi-gauntlet does not vendor the dispatch tool; without pi-cohort those skills have nothing to call.
+- [pi-cohort](https://github.com/jjuraszek/pi-cohort) ≥ 1.4.5 - required peer package. Skills that dispatch agents (`requesting-code-review`, `subagent-driven-development`, `dispatching-parallel-agents`, `writing-plans`, `writing-skills`) call `subagent({})`, which pi-cohort provides. pi-gauntlet does not vendor the dispatch tool; without pi-cohort those skills have nothing to call.
 
-Both packages must be listed in your `.pi/settings.json#packages` array (pi adds them automatically when you `pi install`). pi-gauntlet and pi-cohort are versioned independently but release together whenever dispatch semantics change — pin compatible versions of both.
+Both packages must be listed in your `.pi/settings.json#packages` array (pi adds them automatically when you `pi install`). pi-gauntlet and pi-cohort are versioned independently but release together whenever dispatch semantics change - pin compatible versions of both.
 
 ## Install
 
-**Project scope** (recommended — committable via the repo's `.pi/settings.json`; `-l` writes to project settings):
+**Project scope** (recommended - committable via the repo's `.pi/settings.json`; `-l` writes to project settings):
 
 ```bash
 pi install -l npm:pi-cohort
@@ -90,45 +107,19 @@ pi install npm:pi-cohort
 pi install npm:pi-gauntlet
 ```
 
-Pin an exact release with `npm:pi-gauntlet@X.Y.Z`. Pi clones the package, runs `npm install --omit=dev`, which triggers the `postinstall` script. Where personas land depends on the install location:
+Pin an exact release with `npm:pi-gauntlet@X.Y.Z`. See [doc/install-internals.md](./doc/install-internals.md) for what the postinstall step actually does (symlink vs copy, `PI_GAUNTLET_AGENT_DIR`, upgrading from the pre-rename package).
 
-- **User install** (package under `<home>/.pi/<profile>/...`): symlinks the seven agent files into `getAgentDir()/agents` — i.e. `$PI_CODING_AGENT_DIR/agents`, defaulting to `~/.pi/agent/agents`. This is pi-cohort's profile-scoped user dir, so each pi profile (`agent`, `agent.anthropic`, …) gets its own personas instead of sharing the machine-global `~/.agents/`. Earlier releases installed into the machine-global `~/.agents/`; on upgrade the postinstall removes stale `~/.agents/<name>.md` symlinks that point into a pi-gauntlet package (which would otherwise shadow the profile-scoped copy) and leaves your own files there alone.
-- **Project install** (package under `<repo>/.pi/...`): copies the seven agent files into `<repo>/.pi/agents/` (the project-scope discovery path). Copy, not symlink, so the files stay valid if you commit them; gitignore `.pi/agents/` if you'd rather keep them install-managed. Project scope wins over user scope on name collisions, so each repo's personas are independent of the user dir and of other repos.
-
-## Upgrading from v3.x
-
-v4.0.0 is the first public release and is a **breaking rename** (no behavior change). If you ran the package under its old identity:
-
-- Reinstall under the new name: `pi install -l npm:pi-gauntlet` (was `@jjuraszek/pi-superpowers`).
-- Rename settings namespace `piSuperpowers.*` -> `piGauntlet.*` in every preset's `settings.json` (a preset still on the old key silently gets defaults).
-- Rename your override file `.pi/superpowers-overrides.md` -> `.pi/gauntlet-overrides.md`.
-- Rename the env override `PI_SUPERPOWERS_AGENT_DIR` -> `PI_GAUNTLET_AGENT_DIR` if you set it.
-
-See [CHANGELOG.md](CHANGELOG.md) for the full v4.0.0 entry.
-
-## Install (local development)
+For local development against a checkout instead of npm:
 
 ```bash
 git clone git@github.com:jjuraszek/pi-gauntlet.git ~/repos/pi-gauntlet
-cd ~/path/to/your/repo
-pi install -l ~/repos/pi-gauntlet
-# Local-path installs skip `npm install`; run the symlink step manually:
-cd ~/repos/pi-gauntlet && npm run link-agents
+cd ~/path/to/your/repo && pi install -l ~/repos/pi-gauntlet
+cd ~/repos/pi-gauntlet && npm run link-agents   # local-path installs skip npm install; run this once
 ```
-
-After that, edits in `~/repos/pi-gauntlet/` are picked up on next pi launch.
 
 ## Project-specific overrides
 
-The skills shipped here are generic on purpose — they describe *how* to TDD, brainstorm, debug, request review, etc., without naming your services, your CI command, or your worktree wrapper. When you need that level of detail, drop a file at:
-
-```
-.pi/gauntlet-overrides.md
-```
-
-…in your repo. The skills read it at runtime and merge sections that match the skill's name or topic.
-
-### Example `.pi/gauntlet-overrides.md`
+The skills shipped here are generic on purpose - they describe *how* to TDD, brainstorm, debug, request review, etc., without naming your services, your CI command, or your worktree wrapper. When you need that level of detail, drop a file at `.pi/gauntlet-overrides.md` in your repo. The skills read it at runtime and merge sections that match the skill's name or topic:
 
 ```markdown
 ## verification-before-completion
@@ -140,152 +131,21 @@ the gate — it skips integration tests.
 
 Use the project's wrapper: `script/worktree create <name>`. It provisions an isolated
 database and copies `.env.local`. Never call `git worktree add` directly.
-
-## brainstorming
-
-Project routing: dashboard work → `dashboard/AGENTS.md`. Compliance work → `compliance/AGENTS.md`.
-Spec docs land in `doc/specs/`, plans in `doc/plans/`, both sibling to each other.
 ```
 
-Two notes:
+Section headers should match skill names (`## verification-before-completion`) or skill topics (`## worktrees`, `## routing`). The override file is read by the skill instructions at runtime, not by the pi runtime itself, so adding a section only matters once the matching skill is active.
 
-- The override file is read by the **skill instructions** at runtime — not by the pi runtime itself. So adding a section here doesn't load anything; the skill that's currently active reads the file and pulls in the matching section.
-- Section headers should match skill names (`## verification-before-completion`) or skill topics (`## worktrees`, `## routing`). Skills look for both.
+## Configuring the gates
 
-## Subagent personas
+The conformance gate's model, the spec council's roster, and the phase-tracker's flow guards are all configured per pi preset (or per repo, via `.pi/settings.json`). See [doc/configuration.md](./doc/configuration.md) for every setting, its default, and how repo-local config overrides a preset.
 
-On a user install the seven personas in `agents/` are symlinked into `getAgentDir()/agents` (profile-scoped user dir — `$PI_CODING_AGENT_DIR/agents`, default `~/.pi/agent/agents`). On a project install they are copied into `<repo>/.pi/agents/` (project scope, isolated per repo). Override precedence is `project > user > builtin`, so a project install always shadows the user personas for that repo, and you can hand-edit or drop your own `.pi/agents/<name>.md` to shadow them further.
+## Relationship to the other repos
 
-Target dir override: set `PI_GAUNTLET_AGENT_DIR` to force symlinking into a specific dir (leading `~` expanded; always symlink mode).
+pi-gauntlet is the process layer: it enforces the workflow, but every reviewer and implementer it dispatches runs through [pi-cohort](https://github.com/jjuraszek/pi-cohort)'s `subagent()` - that's a hard dependency, not an integration you can skip. [pi-condense](https://github.com/jjuraszek/pi-condense) is optional but keeps a long gated run's context (and cost) from growing unbounded across all those dispatches. [pi-quiver](https://github.com/jjuraszek/pi-quiver) is complementary - if a brainstorm or implementation step needs to pull in a real doc or web page, that's what ingests it safely.
 
-### Thinking budgets
+## Roadmap
 
-`implementer`, `code-reviewer`, and `spec-reviewer` ship without `thinking:` in their frontmatter — pi-cohort `agentOverrides` only fill frontmatter-unset fields, so leaving it unset makes the budget a per-preset config knob. Set it in each preset's `settings.json` (use `false` on non-thinking models → provider default):
-
-```json
-{
-  "subagents": {
-    "agentOverrides": {
-      "implementer": { "thinking": "medium" },
-      "code-reviewer": { "thinking": "high" },
-      "spec-reviewer": { "thinking": "medium" }
-    }
-  }
-}
-```
-
-Unset → provider default thinking for that model. `conformance-reviewer` and the two `spec-council-*` personas stay frontmatter-pinned at `xhigh` and are not configurable — the gate and the council must run at max budget even when they inherit the session's model.
-
-### Conformance gate model
-
-`conformance-reviewer` ships without a `model:` in its frontmatter — like the spec-council personas, its model is supplied per preset so each profile points the last correctness gate at the strongest reasoning model its providers can reach. The verify-step skills resolve `piGauntlet.closureReview.model` **repo-local first** (a repo's `.pi/settings.json` overrides the preset whole-object - defining `closureReview` there replaces the preset's entire block, so set every leaf you need together) and inject it **call-site** on the conformance dispatch (the same mechanism the spec-council chair uses). Add it to each preset's `settings.json` (or a repo's `.pi/settings.json` to override per repo):
-
-```json
-{
-  "piGauntlet": {
-    "closureReview": { "model": "<provider/model>", "enforce": true, "maxFixRounds": 2 }
-  }
-}
-```
-
-Frontmatter pins `thinking: xhigh` and `defaultContext: fresh` (the gate always runs cold, with max reasoning) and `thinking` is not call-site overridable, so the config supplies only `model`. If `closureReview.model` is unset the dispatch omits `model:` and the gate inherits the parent's model; if the configured model is unreachable it retries once inherited.
-
-When `closureReview.model` **is** set, the phase-tracker match-checks call-site injection: a `subagent` dispatch of `conformance-reviewer` that omits `model:` is **blocked at tool-call time** (before it runs) so the gate can never silently degrade to the parent's builder model, and a dispatch whose `model:` **differs** from the configured value gets a non-blocking **warning** appended to the result (drift is surfaced, not blocked). The documented one-retry fallback still works - pass an explicit model and it runs (with a warning if it differs). Disabling `closureReview.enforce` disables this guard too.
-
-`closureReview.enforce` (default `true`) controls the phase-tracker gate that
-blocks `complete verify` until the conformance-reviewer has run; set `false` to
-disable enforcement for a preset.
-
-`closureReview.maxFixRounds` (default `2`) caps the conformance **remediation loop**: when a `GAPS` verdict's gaps are dispositioned `fix`, the orchestrator dispatches isolated fix waves and re-audits the delta, up to this many rounds before escalating to the user with the per-gap history. Missing or non-integer -> `2`; `< 0` clamps to `0`; `0` disables fix dispatch (the gap menu offers accept / rescope only). Enforced by the protocol prose in `verification-before-completion/reference/conformance-check.md`, not by the phase-tracker extension.
-
-If you want to know what's in each persona before using it, see [`agents/`](./agents/). The frontmatter (tools, thinking level, context mode) is documented in [`AGENTS.md`](./AGENTS.md#agents).
-
-## Spec council
-
-`/skill:roasting-the-spec` runs a multi-model critique of a spec before the brainstorming user-review gate. It is the **critique half** of brainstorming's self-review: when a council is configured in the active preset's `settings.json`, brainstorming **auto-dispatches** it (no prompt); when none is configured, brainstorming runs a single fresh-`worker` critique instead. Each member runs on a different model (divergent critiques), a neutral chair consolidates and adjudicates, and you approve what gets applied.
-
-```json
-{
-  "piGauntlet": {
-    "specCouncil": {
-      "members": ["<provider/model>", "<provider/model>", "<provider/model>"],
-      "chair": "<provider/model>"
-    }
-  }
-}
-```
-
-- `members` (required) — roster of `provider/model` strings; council size = array length, one critique per model. Empty or absent → the council never runs; brainstorming falls back to a single fresh-`worker` critique (scope + ambiguity, auto-applied).
-- `chair` (optional) — model for the consolidating synthesizer; defaults to the inherited model when omitted.
-
-Rosters resolve **repo-local first**: a repo's `.pi/settings.json` overrides the preset (whole-object — the first file that defines `specCouncil` wins), otherwise each pi profile (`agent`, `agent.anthropic`, `agent.bedrock`, …) reads its own `settings.json`. List only models the resolving config's providers can reach. The two personas it dispatches — `spec-council-member` and `spec-council-synthesizer` — are model-free; their model is injected per task from this config.
-
-## Extensions
-
-### `plan-tracker`
-
-A tool, not a hook. Skills call `plan_tracker({ action: "init" | "update" | "status" | "clear", ... })` to manage a task list; a TUI widget above the editor shows progress (✓/→/○). State branches with the session, no config needed.
-
-### `phase-tracker`
-
-A tool, not a hook. Skills call `phase_tracker({ action: "start" | "complete" | "skip" | "status" | "reset", phase?, reason? })` to track workflow phase progress. A TUI widget shows the five-phase pipeline: `○ brainstorm → ○ plan → ○ implement → ○ verify → ○ ship`. State branches with the session, no config needed. Phases are entered **explicitly** by the phase-owning skills, so outside a gauntlet flow the widget stays dormant. The `brainstorming` skill resets both trackers on entry (new flow, clean slate); `implement` auto-completes from `plan-tracker` once a skill has started it.
-
-Distinct from `plan-tracker`: `phase-tracker` answers "what stage of the workflow am I in?"; `plan-tracker` answers "which task within the current stage am I on?"
-
-**`gauntlet_setting` tool.** `phase-tracker` also registers `gauntlet_setting({ key: "specCouncil" | "closureReview" })`, a gauntlet-internal tool through which skills resolve merged `piGauntlet.*` settings (repo `.pi/settings.json` over the agent preset, via pi's own `SettingsManager`). It returns the resolved value as a JSON block in the tool result — `specCouncil` yields the council-vs-worker verdict, `closureReview` yields the conformance-gate `model`/`enforce`/`maxFixRounds`. It introduces no new settings key. Every `piGauntlet.*` read — the skills via this tool, both extensions directly — routes through one shared helper (`extensions/lib/gauntlet-settings*.ts`); no code reads `pi.settings` by hand.
-
-**Closure-review gate.** `complete verify` is rejected unless a successful
-`conformance-reviewer` dispatch (a `subagent` result whose `results[]` contains
-`agent: "conformance-reviewer"` with `exitCode: 0`) has been observed since the
-last `reset`. Management calls (`action: "list"` etc.) and async dispatches never
-qualify. A user waiver is recorded via `skip` with a reason — there is no `force`
-bypass on `complete`. Disable per preset with
-`settings.json#piGauntlet.closureReview.enforce: false` (default: enforced).
-
-**Flow guards.** Two guards, on by default, disabled per
-preset with `settings.json#piGauntlet.flowGuards.enforce: false`:
-
-- **Worktree discipline (blocks).** During `brainstorm`/`plan`/`implement`, an in-place
-  `git switch` / `git checkout -b`/`-B` is blocked — the bash call does not run.
-  Active **only when pi was launched in the primary checkout** (not a linked
-  worktree); `git worktree ...` and plain `git checkout <file>` never trip it.
-  Override via `piGauntlet.flowGuards.enforce: false`.
-- **Spec-phase confinement (advisory).** During `brainstorm`, a `write`/`edit` (or a bash
-  mutation: `>`/`>>`/`tee`/`sed -i`/`git apply`) outside the spec dir warns that
-  brainstorming may only touch the spec. Spec dirs come from
-  `flowGuards.specDirs` (default `["doc/specs"]`). Redirects to scratch paths
-  (`/tmp`, `/var/folders`, `/dev`) are exempt. Warns once per brainstorm.
-
-### `verify-before-ship`
-
-A hook on `git commit` / `git push` / `gh pr create`. If you haven't run a passing test command since your last source-file write in this session, an advisory warning is injected into the tool result. The warning clears automatically after a passing test run.
-
-Default test-command regex matches: `make ci`, `make test`, `npm test`, `pnpm test`, `yarn test`, `pytest`, `rspec`, `cargo test`, `go test`.
-
-Override in `.pi/settings.json`:
-
-```json
-{
-  "piGauntlet": {
-    "verifyBeforeShip": {
-      "testCommands": ["make ci", "bundle exec rspec"],
-      "warningReference": "doc/testing.md"
-    }
-  }
-}
-```
-
-`testCommands` entries are regex fragments (anchored with `\b` automatically). `warningReference` is a doc path appended to the warning text — useful for pointing engineers at your testing conventions.
-
-## Versioning
-
-Bump explicitly:
-
-```bash
-pi install -l npm:pi-gauntlet@X.Y.Z
-```
-
-See [`CHANGELOG.md`](./CHANGELOG.md) for what changed in each release. Semver: minor for new skill/agent/extension, major for renames or breaking config changes. pi-gauntlet and its dispatch peer [pi-cohort](https://github.com/jjuraszek/pi-cohort) version independently but ship together whenever dispatch semantics change; pin compatible versions of both.
+Nothing committed beyond what's shipped. Changes land via [CHANGELOG.md](./CHANGELOG.md).
 
 ## Lineage
 
