@@ -5,7 +5,7 @@ Workflow skills, agent personas, and extensions for the pi coding agent. Generic
 <!-- agents-core:begin v1 - shared across pi-quiver/pi-cohort/pi-gauntlet/pi-condense. Edit AGENTS.core.md, then: node scripts/check-agents-core.mjs --fix -->
 ## Communication Style
 
-Same rules as the parent `~/.pi/agent*/AGENTS.md`. Applies to chat, commit messages, PR/issue comments, code review, and any artifact authored in this repo.
+Applies to chat, commit messages, PR/issue comments, code review, and any artifact authored in this repo.
 
 - **Human, terse, but sharp and precise.** Applies everywhere: interactive session, issue/PR comments, `.md` files. Terse is not vague - keep it exact.
 - **Suppress process narration.** No intent classification, phase announcements, tool/subagent preamble, status updates, pleasantries. Start with substance.
