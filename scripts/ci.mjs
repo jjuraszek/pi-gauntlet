@@ -138,7 +138,11 @@ ok("extensions parse clean (incl. lib/)");
 
 // ---- resolver unit tests ---------------------------------------------------
 try {
-  execFileSync(process.execPath, ["--test", R("extensions/lib/gauntlet-settings.test.ts")], { stdio: "pipe" });
+  execFileSync(
+    process.execPath,
+    ["--test", R("extensions/lib/gauntlet-settings.test.ts"), R("extensions/lib/phase-tracker-helpers.test.ts")],
+    { stdio: "pipe" },
+  );
   ok("resolver unit tests pass");
 } catch (e) {
   fail(`resolver unit tests failed:\n    ${String(e.stdout || e.stderr || e).split("\n").slice(0, 20).join("\n    ")}`);

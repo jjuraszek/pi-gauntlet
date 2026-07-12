@@ -49,8 +49,12 @@ Work through the items below **in order**. This is your own checklist to follow,
 
    Re-entering while a brainstorm is already in progress is safe: mid-brainstorm there are no tasks or later phases to lose, so the reset just re-establishes the same clean slate.
 2. **Set up the worktree** — see [Worktree First](#worktree-first)
-3. **Explore project context** — files, docs, recent commits, current behaviour
-4. **Ask clarifying questions** — one at a time
+3. **Gather context** — follow `gatherer.md` (same directory): set substep `gather`,
+   dispatch the builders, assemble the context draft at the spec path, clear the
+   substep. Unconditional, foreground, no user interaction — the next thing the user
+   sees is a questionary question. This produces the draft; the step below consumes it.
+4. **Understand the idea against the draft** — `Read` the draft, verify load-bearing
+   claims against real code, ask questions one at a time, append citable findings
 5. **Propose 2-3 approaches** — with trade-offs and a recommendation
 6. **Present the design** — in sections, get approval after each
 7. **Write the spec** — to `doc/specs/` (see [Filename Convention](#filename-convention))
@@ -112,12 +116,26 @@ Don't try to design a multi-subsystem monolith in one spec doc.
 
 ### 3. Understand the idea
 
-- Check the current project state first: files, docs, recent commits, neighboring services.
-- **Check if the codebase or ecosystem already solves this** before designing from scratch. Grep, read existing AGENTS.md, look at `doc/` and `doc/specs/`.
-- Ask questions **one at a time** to refine the idea.
-- Prefer multiple-choice questions; open-ended is fine when needed.
-- One question per message. If a topic needs more exploration, split into multiple turns.
-- Focus on: purpose, constraints, success criteria, who/what it touches.
+The gather step (see `gatherer.md`) has already assembled a context draft at the spec
+path.
+
+- `Read` the draft **unconditionally before composing question one**. The on-disk
+  copy is canonical — this one rule defeats both a turn-boundary prune after assembly
+  and a session restart.
+- The draft is a **helper, not a fence**: judgment still drives exploration. Verify
+  load-bearing claims (schemas, contracts, the code being changed) against real code
+  via targeted reads (`read_symbol`-grade, not scout's paraphrase) before designing
+  against them.
+- **Check if the codebase or ecosystem already solves this** — the draft's recon
+  section starts that answer; confirm it before designing from scratch.
+- Ask questions **one at a time** to refine the idea. Prefer multiple-choice; one
+  question per message. Focus on: purpose, constraints, success criteria, who/what
+  it touches.
+- **Append bar:** append to the draft's `## Appended during questionary` only
+  findings the spec will cite — schema shapes, hard constraints, ticket-vs-code
+  contradictions, user answers that changed scope. Not a log of every grep.
+  (Appending uses `edit`; the `edit` prohibition in the spec-writing step applies
+  only there.)
 
 ### 4. Explore approaches
 
@@ -197,7 +215,24 @@ Spec lives in the project's `doc/specs/` (see [Project Routing](#project-routing
 
 `<topic>` is a short kebab-case slug (3–6 words). Do **not** append `-design` or any other suffix.
 
+The slug is minted **once, at gather time**, from the initial prompt; the spec-writing
+overwrite reuses the path. If the questionary invalidated the slug, rename at
+spec-writing: write the spec at the new path **and delete the old draft file**
+(nothing was committed, so this is free).
+
 ## Spec Self-Review (Before User Review Gate)
+
+Spec-writing replaces the context draft, in this exact order:
+
+1. `Read` the draft in full — **immediately before** the overwrite. Without this, a
+   pruned questionary plus a full-replacement `write` destroys the only copy of the
+   gathered context at the moment it feeds the spec.
+2. Write the spec with the `write` tool (**full replacement**) at the spec path.
+   Using `edit` at this step is a red flag.
+3. **Immediately after the write**, confirm line 1 of the file is no longer
+   `# CONTEXT DRAFT - NOT A SPEC - fully replaced at spec-writing` — before
+   dispatching lint, critique, council, or summarizer. The phase-tracker commit
+   guard is a backstop, not the primary check.
 
 After writing the spec to `<project>/doc/specs/<filename>.md` (per [Filename Convention](#filename-convention)) and before showing it to the user, run a self-review pass. **Read all five bullets first, then act:** only the **first three** run here at the main loop (the inline lint); the **last two** (scope + ambiguity) do **not** run inline — they are the dispatched critique pass (checklist item 9). Do not apply scope/ambiguity edits yourself.
 
@@ -294,6 +329,10 @@ phase_tracker({ action: "complete", phase: "brainstorm" })
 ## Red Flags — STOP
 
 - About to write code or start a non-spec edit while this skill is active
+- About to dispatch lint, critique, council, or summarizer while the spec file's line 1 is still the context-draft marker
+- About to run the spec-writing overwrite without re-reading the draft in the same turn
+- About to use `edit` instead of `write` for the spec-writing overwrite
+- About to insert a human gate, announcement, or question between gather dispatch and questionary question one
 - About to run, deploy, or validate the **proposed change** (vs. observing current behaviour) before the user approved the design
 - About to skip the critique pass (council if configured, else fresh worker)
 - Critique dispatch (council or worker) failed to complete and you proceeded to the gate anyway

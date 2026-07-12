@@ -50,7 +50,7 @@ A tool, not a hook. Skills call `plan_tracker({ action: "init" | "update" | "sta
 
 ### `phase-tracker`
 
-A tool, not a hook. Skills call `phase_tracker({ action: "start" | "complete" | "skip" | "status" | "reset", phase?, reason? })` to track workflow phase progress. A TUI widget shows the five-phase pipeline: `○ brainstorm → ○ plan → ○ implement → ○ verify → ○ ship`. State branches with the session, no config needed. Phases are entered **explicitly** by the phase-owning skills, so outside a gauntlet flow the widget stays dormant. The `brainstorming` skill resets both trackers on entry (new flow, clean slate); `implement` auto-completes from `plan-tracker` once a skill has started it.
+A tool, not a hook. Skills call `phase_tracker({ action: "start" | "complete" | "skip" | "status" | "reset" | "substep", phase?, reason?, substep? })` to track workflow phase progress. A TUI widget shows the five-phase pipeline: `○ brainstorm → ○ plan → ○ implement → ○ verify → ○ ship`. State branches with the session, no config needed. Phases are entered **explicitly** by the phase-owning skills, so outside a gauntlet flow the widget stays dormant. The `brainstorming` skill resets both trackers on entry (new flow, clean slate); `implement` auto-completes from `plan-tracker` once a skill has started it. The `substep` action sets a substep label on an `in_progress` phase (widget shows e.g. `brainstorm(gather)`); `substep: null` or omitted clears it. Cleared automatically by `complete`, `skip`, and `reset`. Errors when the target phase is not `in_progress`. Used by the brainstorming gather step.
 
 Distinct from `plan-tracker`: `phase-tracker` answers "what stage of the workflow am I in?"; `plan-tracker` answers "which task within the current stage am I on?"
 
@@ -58,10 +58,11 @@ Distinct from `plan-tracker`: `phase-tracker` answers "what stage of the workflo
 
 **Closure-review gate.** `complete verify` is rejected unless a successful `conformance-reviewer` dispatch (a `subagent` result whose `results[]` contains `agent: "conformance-reviewer"` with `exitCode: 0`) has been observed since the last `reset`. Management calls (`action: "list"` etc.) and async dispatches never qualify. A user waiver is recorded via `skip` with a reason — there is no `force` bypass on `complete`. Disable per preset with `settings.json#piGauntlet.closureReview.enforce: false` (default: enforced).
 
-**Flow guards.** Two guards, on by default, disabled per preset with `settings.json#piGauntlet.flowGuards.enforce: false`:
+**Flow guards.** Three guards, on by default, disabled per preset with `settings.json#piGauntlet.flowGuards.enforce: false`:
 
 - **Worktree discipline (blocks).** During `brainstorm`/`plan`/`implement`, an in-place `git switch` / `git checkout -b`/`-B` is blocked — the bash call does not run. Active **only when pi was launched in the primary checkout** (not a linked worktree); `git worktree ...` and plain `git checkout <file>` never trip it. Override via `piGauntlet.flowGuards.enforce: false`.
 - **Spec-phase confinement (advisory).** During `brainstorm`, a `write`/`edit` (or a bash mutation: `>`/`>>`/`tee`/`sed -i`/`git apply`) outside the spec dir warns that brainstorming may only touch the spec. Spec dirs come from `flowGuards.specDirs` (default `["doc/specs"]`). Redirects to scratch paths (`/tmp`, `/var/folders`, `/dev`) are exempt. Warns once per brainstorm.
+- **Marker commit guard (brainstorm phase).** A `git commit` (including `git -C <path> commit` and `cd <path> && git commit` forms) is **blocked** while any file under `flowGuards.specDirs` still begins with the context-draft marker line (`# CONTEXT DRAFT - NOT A SPEC - fully replaced at spec-writing`). Line-1 match only — specs quoting the marker in the body do not trigger it. Skipped entirely when `piGauntlet.flowGuards.enforce` is `false`.
 
 ### `verify-before-ship`
 

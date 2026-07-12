@@ -10,6 +10,8 @@
  */
 
 import { execSync } from "node:child_process";
+import { readdirSync, readFileSync } from "node:fs";
+import { join } from "node:path";
 import { StringEnum } from "@earendil-works/pi-ai";
 import type { ExtensionAPI, ExtensionContext, Theme } from "@earendil-works/pi-coding-agent";
 import { Text } from "@earendil-works/pi-tui";
@@ -21,6 +23,16 @@ import {
   settingsErrorWarning,
 } from "./lib/gauntlet-settings.ts";
 import { loadGauntletSettings } from "./lib/gauntlet-settings-loader.ts";
+import {
+  checkSubstep,
+  findMarkerFile,
+  markerBlockReason,
+  parseGitCommit,
+  phaseLabel,
+  resolveRepoDir,
+  STMT_START,
+  transitionPhaseState,
+} from "./lib/phase-tracker-helpers.ts";
 
 const PHASES = ["brainstorm", "plan", "implement", "verify", "ship"] as const;
 type Phase = (typeof PHASES)[number];
@@ -29,12 +41,13 @@ type PhaseStatus = "pending" | "in_progress" | "complete" | "skipped";
 interface PhaseState {
   status: PhaseStatus;
   reason?: string;
+  substep?: string;
 }
 
 type PhaseMap = Record<Phase, PhaseState>;
 
 interface PhaseTrackerDetails {
-  action: "start" | "complete" | "skip" | "status" | "reset";
+  action: "start" | "complete" | "skip" | "status" | "reset" | "substep";
   phases: PhaseMap;
   error?: string;
 }
@@ -72,7 +85,6 @@ const GUARD_PHASES: Phase[] = ["brainstorm", "plan", "implement"];
 // Guard 2 — branch ops in place. `git switch` never targets a file path;
 // `git checkout -b/-B` is explicit branch creation. Bare `git checkout <x>`
 // is excluded (ambiguous with file checkout). `git worktree ...` is exempt.
-const STMT_START = "(?:^|[\\n;&|(])\\s*";
 const BRANCH_SWITCH = new RegExp(STMT_START + "git\\s+switch\\b");
 const BRANCH_CHECKOUT = new RegExp(STMT_START + "git\\s+checkout\\s+-[bB]\\b");
 const GIT_WORKTREE = /\bgit\s+worktree\b/;
@@ -155,7 +167,7 @@ const pathInSpecDirs = (rawPath: string, specDirs: string[]): boolean => {
 };
 
 const PhaseTrackerParams = Type.Object({
-  action: StringEnum(["start", "complete", "skip", "status", "reset"] as const, {
+  action: StringEnum(["start", "complete", "skip", "status", "reset", "substep"] as const, {
     description: "Action to perform",
   }),
   phase: Type.Optional(
@@ -171,6 +183,11 @@ const PhaseTrackerParams = Type.Object({
   force: Type.Optional(
     Type.Boolean({
       description: "Reset and re-start a phase that is already complete or skipped (rare; default false)",
+    }),
+  ),
+  substep: Type.Optional(
+    Type.Union([Type.String(), Type.Null()], {
+      description: "Substep label for action=substep on an in_progress phase; null or omitted clears it",
     }),
   ),
 });
@@ -201,7 +218,8 @@ function hasActivity(phases: PhaseMap): boolean {
 function formatWidget(phases: PhaseMap, theme: Theme): string {
   const parts = PHASES.map((p) => {
     const icon = phaseIcon(phases[p].status, theme);
-    const name = phases[p].status === "skipped" ? theme.fg("dim", p) : p;
+    const labeled = phaseLabel(p, phases[p].status === "in_progress" ? phases[p].substep : undefined);
+    const name = phases[p].status === "skipped" ? theme.fg("dim", labeled) : labeled;
     return `${icon} ${name}`;
   });
   return `${theme.fg("muted", "Phases:")} ${parts.join(theme.fg("dim", " → "))}`;
@@ -213,7 +231,7 @@ function formatStatus(phases: PhaseMap): string {
     const s = phases[p];
     const icon = s.status === "complete" ? "✓" : s.status === "in_progress" ? "→" : s.status === "skipped" ? "⊘" : "○";
     const suffix = s.reason ? ` (${s.reason})` : "";
-    lines.push(`  ${icon} ${p}${suffix}`);
+    lines.push(`  ${icon} ${phaseLabel(p, s.status === "in_progress" ? s.substep : undefined)}${suffix}`);
   }
   return lines.join("\n");
 }
@@ -386,6 +404,41 @@ export default function (pi: ExtensionAPI) {
       return { block: true, reason: branchBlockReason(gphase) };
     }
 
+    // Marker commit guard — the context draft (brainstorming gather step) must be
+    // overwritten by the real spec before any commit lands. Backstop to the skill's
+    // own post-write check. Blocked, like Guard 2; skipped entirely when
+    // flowGuards.enforce is false (checked above).
+    // gating contract: markerGuardApplies (see helpers) - enforce checked once above
+    // (flowGuardsEnforced()); re-checking it here would be belt-and-suspenders.
+    if (phases.brainstorm.status === "in_progress") {
+      const commit = parseGitCommit(command);
+      if (commit) {
+        const repoDir = resolveRepoDir(commit, ctx.cwd);
+        const listFiles = (dir: string): string[] => {
+          const walk = (d: string): string[] => {
+            return readdirSync(d, { withFileTypes: true }).flatMap((e) => {
+              const p = join(d, e.name);
+              return e.isDirectory() ? walk(p) : e.isFile() ? [p] : [];
+            });
+          };
+          try {
+            return walk(dir);
+          } catch {
+            return [];
+          }
+        };
+        const readFirstLine = (file: string): string | undefined => {
+          try {
+            return readFileSync(file, "utf8").split("\n", 1)[0];
+          } catch {
+            return undefined;
+          }
+        };
+        const hit = findMarkerFile(repoDir, specDirs(), listFiles, readFirstLine);
+        if (hit) return { block: true, reason: markerBlockReason(hit) };
+      }
+    }
+
     // Guard 3 — bash mutation outside the spec dir during brainstorm.
     if (phases.brainstorm.status === "in_progress" && !firedGuards.get("brainstorm-write")) {
       // Redirect target is cleanly extractable: judge it directly against the spec dirs,
@@ -474,7 +527,7 @@ export default function (pi: ExtensionAPI) {
     description:
       "Track workflow phase progress (brainstorm → plan → implement → verify → ship). " +
       "Actions: start (mark phase in_progress), complete (mark phase complete), " +
-      "skip (mark phase skipped with reason), status (show all phases), reset (clear all phases).",
+      "skip (mark phase skipped with reason), status (show all phases), reset (clear all phases), substep (set/clear a substep label on an in_progress phase).",
     parameters: PhaseTrackerParams,
 
     async execute(_toolCallId, params, _signal, _onUpdate, ctx) {
@@ -518,7 +571,7 @@ export default function (pi: ExtensionAPI) {
               } as PhaseTrackerDetails,
             };
           }
-          phases = { ...phases, [params.phase]: { status: "in_progress" } };
+          phases = { ...phases, [params.phase]: transitionPhaseState("in_progress") as PhaseState };
           firedGuards.clear();
           updateWidget(ctx);
           return {
@@ -559,7 +612,7 @@ export default function (pi: ExtensionAPI) {
               } as PhaseTrackerDetails,
             };
           }
-          phases = { ...phases, [params.phase]: { status: "complete" } };
+          phases = { ...phases, [params.phase]: transitionPhaseState("complete") as PhaseState };
           firedGuards.clear();
           updateWidget(ctx);
           const advisory =
@@ -591,7 +644,7 @@ export default function (pi: ExtensionAPI) {
             };
           }
           const reason = params.reason;
-          phases = { ...phases, [params.phase]: { status: "skipped", reason } };
+          phases = { ...phases, [params.phase]: transitionPhaseState("skipped", reason) as PhaseState };
           firedGuards.clear();
           updateWidget(ctx);
           return {
@@ -599,6 +652,33 @@ export default function (pi: ExtensionAPI) {
               { type: "text", text: `Phase "${params.phase}" → skipped (${reason})\n${formatStatus(phases)}` },
             ],
             details: { action: "skip", phases: { ...phases } } as PhaseTrackerDetails,
+          };
+        }
+
+        case "substep": {
+          if (!params.phase) {
+            return {
+              content: [{ type: "text", text: "Error: phase required for substep" }],
+              details: { action: "substep", phases: { ...phases }, error: "phase required" } as PhaseTrackerDetails,
+            };
+          }
+          const check = checkSubstep(phases[params.phase].status);
+          if (!check.ok) {
+            return {
+              content: [{ type: "text", text: `Error: phase "${params.phase}": ${check.error}` }],
+              details: { action: "substep", phases: { ...phases }, error: check.error } as PhaseTrackerDetails,
+            };
+          }
+          const entry: PhaseState = { status: "in_progress" };
+          if (typeof params.substep === "string" && params.substep.trim()) entry.substep = params.substep.trim();
+          phases = { ...phases, [params.phase]: entry };
+          updateWidget(ctx);
+          const label = entry.substep
+            ? `Phase "${params.phase}" substep → ${entry.substep}`
+            : `Phase "${params.phase}" substep cleared`;
+          return {
+            content: [{ type: "text", text: `${label}\n${formatStatus(phases)}` }],
+            details: { action: "substep", phases: { ...phases } } as PhaseTrackerDetails,
           };
         }
 
@@ -610,7 +690,9 @@ export default function (pi: ExtensionAPI) {
         }
 
         case "reset": {
-          phases = emptyPhases();
+          phases = Object.fromEntries(
+            PHASES.map((p) => [p, transitionPhaseState("pending")]),
+          ) as PhaseMap;
           conformanceDispatched = false;
           firedGuards.clear();
           updateWidget(ctx);
@@ -667,6 +749,11 @@ export default function (pi: ExtensionAPI) {
           );
         case "skip":
           return new Text(theme.fg("dim", "⊘ ") + theme.fg("muted", "phase skipped"), 0, 0);
+        case "substep": {
+          const active = PHASES.find((ph) => p[ph].status === "in_progress");
+          const label = active ? phaseLabel(active, p[active].substep) : "";
+          return new Text(theme.fg("warning", "→ ") + theme.fg("muted", label), 0, 0);
+        }
         case "status": {
           let text = theme.fg("muted", "Phases:");
           for (const ph of PHASES) {
