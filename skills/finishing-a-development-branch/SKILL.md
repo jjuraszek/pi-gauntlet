@@ -70,23 +70,60 @@ git merge-base HEAD main 2>/dev/null || git merge-base HEAD master 2>/dev/null
 
 Or ask: "This branch split from main - is that correct?"
 
-### Step 3.5: Surface Closure / Conformance Status
+### Step 3.5: Closure / Conformance Disposition Gate
 
-Before presenting finish options, surface the closing-loop conformance result as **its own section** — the user is about to choose how to ship, and they need to see whether the deliverable matches what was *asked*, not just whether tests pass. Tests prove the code runs; conformance proves it does what was requested. Different gates.
+This is an **enforced per-gap disposition gate**, not a surface-only notice. The user is about to choose how to ship; every carried-open gap must get an explicit disposition here, before Step 4's menu. Tests prove the code runs; conformance proves it does what was requested — different gates.
 
-- **If the execution flow already closed the loop** (the `conformance-reviewer` ran in the `subagent-driven-development` verify gate), restate its verdict here: `CONFORMS`, or the `GAPS` and how each was dispositioned (fixed / accepted-and-recorded-in-spec / rescoped). If any gap is still open, drive it through the remediation loop in `verification-before-completion/reference/conformance-check.md` "When the check finds gaps"; on a normal-repo (`GIT_DIR == GIT_COMMON`) or detached-HEAD finish there is no worktree to dispatch fix waves into, so that menu offers accept / rescope / manual fix-in-place only.
-- **If no conformance check has run in this flow** (e.g., ad-hoc work that landed without an execution skill), say so plainly and offer to run it now — dispatch a fresh-context `conformance-reviewer` against the origin (spec + verbatim prompt + full diff vs base) per `verification-before-completion/reference/conformance-check.md`. Closing the loop is cheap relative to shipping unverified intent.
-- **Unreconciled gaps are a blocker, not a footnote.** Do not bury them inside the options menu. If any gap is still open, resolve it (or get explicit user acceptance recorded in the spec) before offering Option 1 (squash-merge) or Option 2 (PR).
+**If no conformance check has run in this flow** (e.g., ad-hoc work that landed without an execution skill): say so, then dispatch a fresh-context `conformance-reviewer` against the origin (spec + verbatim prompt + full diff vs base) per `verification-before-completion/reference/conformance-check.md`. Closing the loop is cheap relative to shipping unverified intent. Then proceed below with its verdict.
 
-Present it as a distinct line the user reads before choosing:
+**If verdict is `CONFORMS`** (no carried-open gaps): report `Closure / conformance: CONFORMS`. If the run auto-applied any fixes, also surface the flat `auto-applied fix commits: <Gn: SHA>, ...` index from the `## Closure / conformance` block with a one-line revert offer (see "Revert semantics") — a gap that auto-converged to `CONFORMS` mid-verify has no per-gap line above, so this index is the only place its fix commit stays revertable. No per-gap menu. Continue to Step 4.
+
+**If gaps were carried open:** read the `## Closure / conformance` block from the verify completion summary (schema and field names defined once in `verification-before-completion/reference/conformance-check.md` — do not re-derive them here). For each `Gn` line, render it verbatim and offer this ordered menu — the human must pick one entry per gap before Step 4:
+
+```
+G<n>: <verdict> — recommended: <fix|accept|rescope> — touched-files: <paths>
+  round history: R1 ..., R2 ...
+
+D1. Apply now: accept-into-spec — fold a dated decision into the spec now (main session edits the spec directly, never a subagent)
+D2. Apply now: rescope-into-spec — same, recorded as reduced/changed scope
+D3. Apply now: fix-now — run the fix loop now (worktree finish paths only, see below)
+D4. Custom disposition — e.g. capture as a follow-up ticket per this project's issue-tracker convention (see `.pi/gauntlet-overrides.md`)
+D5. Revert an auto-applied change for this gap (see "Revert semantics" below)
+
+Which option for G<n>?
+```
+
+Also surface the flat `auto-applied fix commits: <Gn: SHA>, ...` index from the same block — this is the revert candidate list for D5, covering every `conformance fix Gn` commit this run (open and already-closed gaps alike).
+
+**`fix-now` loop scope (worktree finish paths only):**
+
+1. Commit any `accept-into-spec` / `rescope-into-spec` edits picked in this gate **before** dispatching — a dirty tree rejects `worktree: true`, and the re-audit must read the amended spec.
+2. Run the **full** loop from `verification-before-completion/reference/conformance-check.md` "Fix loop" (implementer → integrate → test → `code-reviewer` → re-audit). Do not re-describe the loop steps here — that file is the single source.
+3. Re-run Step 1's test verification on the result.
+4. Re-enter this step (3.5) with the re-audited `## Closure / conformance` block before re-presenting ship options.
+
+**Non-worktree precondition (unchanged):** on a normal-repo finish (`GIT_DIR == GIT_COMMON`) or detached HEAD there is no worktree to dispatch fix waves into — the menu above offers D1, D2, D4, and D5 (manual fix-in-place substitutes for D3) but never dispatches `fix-now`.
+
+No auto-proceed: every carried-open gap needs an explicit answer from the list above before Step 4 renders. Once all gaps are dispositioned, report the final state as a distinct line:
 
 ```
 Closure / conformance: CONFORMS
-  (or: GAPS — <n> open)
-  - <gap> → proposed remediation: <one line>   [if any open]
+  (or: GAPS — <n> dispositioned: G1 accept-into-spec, G2 fix-now → CONFORMS, ...)
 ```
 
 Then continue to Step 4.
+
+### Revert semantics
+
+Three tiers, increasing cost — name the tier when a revert is requested:
+
+| Tier | What's reverted | Cost | Mechanics |
+|---|---|---|---|
+| Cheap | Council edit, reverted at the `brainstorming` gate | Spec isn't yet plan- or code-bearing | Revise spec, re-present |
+| Light | Conformance fix, reverted at finish | Gap re-opens for a fresh disposition | Revert the `conformance fix Gn` commit(s), re-audit |
+| Heavy | Council edit, reverted at finish | Rewrites the already-ratified contract that drove the plan and code | Amend spec → re-approve → regenerate affected plan/code → re-run verify before ship |
+
+A **heavy** revert is not a menu toggle — say so explicitly to the user before proceeding, and do not present it as equivalent-effort to the light tier. The council audit that lets the human identify revert candidates lives in the `brainstorming` spec commit message body (not a committed spec section).
 
 ### Step 4: Present Options
 
@@ -300,7 +337,7 @@ phase_tracker({ action: "complete", phase: "ship" })
 - Remove a worktree before confirming merge success
 - Clean up worktrees you didn't create (provenance check)
 - Run `git worktree remove` from inside the worktree
-- Present finish options while a conformance gap is open and undispositioned
+- Auto-proceed past an undispositioned carried-open gap
 - Skip the guarded plan-doc removal before push on Option 2 when a plan doc was committed
 
 **Always:**

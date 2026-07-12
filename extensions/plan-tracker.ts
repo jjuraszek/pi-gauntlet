@@ -129,7 +129,7 @@ export default function (pi: ExtensionAPI) {
     name: "plan_tracker",
     label: "Plan Tracker",
     description:
-      "Track progress while EXECUTING an implementation plan — the implement phase only. Actions: init (set task list), update (change task status), status (show current state), clear (remove plan). Do NOT use for brainstorming, research, or planning checklists: those phases are open-ended and a bounded task list misrepresents them as a fixed N-step process.",
+      "Track progress while EXECUTING an implementation plan (the implement phase) or a verify-phase conformance fix wave. Actions: init (set task list), update (change task status), status (show current state), clear (remove plan). Do NOT use for brainstorming, research, or planning checklists: those phases are open-ended and a bounded task list misrepresents them as a fixed N-step process.",
     parameters: PlanTrackerParams,
 
     async execute(_toolCallId, params, _signal, _onUpdate, ctx) {

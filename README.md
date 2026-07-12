@@ -38,7 +38,7 @@ Concretely, one change through the gauntlet:
 1. You describe the change. **`brainstorming`** sets up an isolated worktree, explores the codebase, and turns your description into a written spec. A multi-model critique runs on it automatically. **You read and approve the spec - human gate 1.** No implementation code exists yet.
 2. **`writing-plans`** decomposes the approved spec into atomic, independently-verifiable tasks, grouped into parallel waves where they don't touch the same files.
 3. **`subagent-driven-development`** executes the plan one task at a time, each in a fresh subagent, behind spec-compliance review then code-quality review. TDD-locked: red, green, refactor.
-4. **verify**: a whole-diff code review, then the **conformance gate** - a subagent reads the finished code and docs against your *original words* from step 1, not the plan, and reports per-requirement: delivered, partial, missing, drifted, or unauthorized. This gate is machine-blocked from being skipped.
+4. **verify**: a whole-diff code review, then the **conformance gate** - a subagent reads the finished code and docs against your *original words* from step 1, not the plan, and reports per-requirement: delivered, partial, missing, drifted, or unauthorized. This gate is machine-blocked from being skipped. Requirement-restoring gaps (code drifted from the approved spec) auto-close through an isolated fix-and-re-audit loop with no prompt; only decisions that would *rewrite* your approved spec - accept, rescope, or removing unrequested code - are deferred to the finishing gate for your call.
 5. **`finishing-a-development-branch`**: squash, PR, keep, or discard. **Human gate 2** - the only other decision you make.
 
 ```mermaid
@@ -74,7 +74,7 @@ pi-gauntlet is **opinionated**: every non-trivial change rides this one pipeline
 | --- | --- |
 | Gate | A machine-enforced checkpoint between phases (e.g. `complete verify` is blocked until conformance review has run). Not a suggestion. |
 | Spec council | Multi-model critique of the spec before you see it (`roasting-the-spec`); falls back to a single-model critique if no council is configured. |
-| Conformance gate | The closing check: does the delivered code + docs match your *original prompt*, not the derived plan? Per-requirement verdict, no auto-fix. |
+| Conformance gate | The closing check: does the delivered code + docs match your *original prompt*, not the derived plan? Per-requirement verdict; auto-fixes requirement-restoring gaps, defers spec-rewriting decisions (accept/rescope/unauthorized) to the finishing gate. |
 | Wave | A batch of plan tasks that don't touch the same files, dispatched to implementers in parallel. |
 | Overrides file | `.pi/gauntlet-overrides.md` - where you put project-specific detail the generic skills don't know (CI command, worktree wrapper, routing rules). |
 

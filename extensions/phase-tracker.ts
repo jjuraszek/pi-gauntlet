@@ -71,12 +71,12 @@ const CLOSURE_GATE_ERROR =
   '  phase_tracker({ action: "skip", phase: "verify", reason: "<user waiver>" })';
 
 const SHIP_ADVISORY =
-  "Verify is complete and ship is pending. If the conformance verdict is resolved\n" +
-  "(CONFORMS, or every gap dispositioned and approved), invoke\n" +
-  "/skill:finishing-a-development-branch now - do not add a 'ready to finish?' prompt;\n" +
-  "its squash/PR/keep/discard menu is the human gate. If a requirement decision is\n" +
-  "still open, you should not have completed verify - reopen it and surface the open\n" +
-  "decision instead.";
+  "Verify is complete and ship is pending. Verify may complete when the conformance\n" +
+  "verdict is CONFORMS, or every gap is either fixed or carried open as a deferred\n" +
+  "accept/rescope/unauthorized decision. Invoke /skill:finishing-a-development-branch\n" +
+  "now - do not add a 'ready to finish?' prompt; its disposition + squash/PR/keep/discard\n" +
+  "menu is the human gate that resolves any carried-open decision. Only reopen verify if\n" +
+  "a `fix` gap was left unresolved (neither fixed nor deferred).";
 
 // --- Flow guards (spec 2026-06-17-gauntlet-flow-guards) ---
 

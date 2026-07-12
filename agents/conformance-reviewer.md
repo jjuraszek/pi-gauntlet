@@ -64,7 +64,7 @@ DELIVERED rows keep an `Rn` id; every non-DELIVERED row gets a durable `Gn` id r
 ## Structured gap blocks
 
 After the coverage table, emit one fenced block per non-DELIVERED row so the
-orchestrator can drive the disposition menu mechanically. In a re-audit round
+orchestrator can partition and dispose of them mechanically. In a re-audit round
 (see conformance-check.md "When the check finds gaps"), also emit a `DELIVERED`
 block for any gap that closed, reusing its original `Gn` id.
 
@@ -122,15 +122,15 @@ disjointness rule does. When you cannot confidently certify a pair disjoint, mar
 `recommended` is a proposal; you never decide, edit, dispatch, or re-audit.
 
 - Default `fix` for every `PARTIAL` / `MISSING` / `DRIFTED` row.
-- `accept` only for an `UNAUTHORIZED` row whose behavior is harmless, with a one-line
-  rationale in `remediation`.
+- For every `UNAUTHORIZED` row: harmless → `accept` with a one-line rationale in
+  `remediation`; otherwise → `fix` (= remove the unrequested code).
 - `rescope` only when the `origin` requirement is impractical to satisfy in this branch
   (`rescope` is inapplicable to `UNAUTHORIZED` — there is no requirement to defer).
 
 ## Rules
 
 - **Read-only. Never edit.** You audit; you do not fix.
-- **Propose, do not dispose.** For each gap you may suggest a one-line remediation *direction*, but you do **not** decide whether to apply it, defer it, or accept it — that is the user's call, surfaced by the orchestrator. Never present a fix as a decision made.
+- **Propose, do not dispose.** For each gap you may suggest a one-line remediation *direction*, but you do **not** decide the disposition - the orchestrator auto-applies `fix` gaps and defers `accept`/`rescope`/`UNAUTHORIZED` to the user at the finish gate. Never present a fix as a decision you made.
 - **Evidence or it didn't happen.** Cite a real `file:line` for every DELIVERED/PARTIAL. If you cannot, downgrade the row to MISSING.
 - **Spec is canonical; the prompt catches what the spec dropped; the ticket is fallback only** when no spec exists.
 - **Do not absorb origin drift silently** — flag every spec↔prompt/ticket disagreement.

@@ -1,13 +1,13 @@
 ---
 name: roasting-the-spec
-description: Use after writing a spec, when a spec council is configured (the resolved piGauntlet.specCouncil council, via the gauntlet_setting tool, repo settings over the preset). Auto-dispatched by /skill:brainstorming as the critique pass when members is non-empty (no longer offered). N members on different models critique in parallel, a neutral chair consolidates and adjudicates, the parent proposes dispositions, the user approves.
+description: Use after writing a spec, when a spec council is configured (the resolved piGauntlet.specCouncil council, via the gauntlet_setting tool, repo settings over the preset). Auto-dispatched by /skill:brainstorming as the critique pass when members is non-empty (no longer offered). N members on different models critique in parallel, a neutral chair consolidates and adjudicates, the parent applies its own dispositions and returns an audit for the user to ratify at brainstorming's gate.
 ---
 
 # Roasting the Spec (Spec Council)
 
 ## Overview
 
-A multi-model critique pass for a freshly written spec. Each council **member** runs on a different model and critiques the spec independently — different models surface different angles. A neutral **chair** consolidates the critiques and adjudicates disagreements. The parent proposes what to apply; the **user** approves. The council never decides on its own what changes land.
+A multi-model critique pass for a freshly written spec. Each council **member** runs on a different model and critiques the spec independently — different models surface different angles. A neutral **chair** consolidates the critiques and adjudicates disagreements. The parent decides what to apply and applies it before returning; the **user** ratifies (or reverts) the result at brainstorming's single gate. The council never decides on its own what changes land.
 
 Auto-dispatched from `/skill:brainstorming` as the critique pass, after the inline lint and before the user review gate, **only when a council is configured** (`members` non-empty). brainstorming owns that gate; when no council is configured it runs a single fresh-`worker` critique instead and does not invoke this skill.
 
@@ -19,8 +19,8 @@ This skill may read anything and edit **only** the spec under `doc/specs/`. It d
 
 - **Members** — independent witnesses. One per configured model, fresh context, read-only.
 - **Chair** — judge of the testimony. Fresh context (never saw the spec authored); consolidates and resolves member-vs-member conflicts. Final say on conflicts; no say on what gets applied.
-- **Parent (you)** — advocate. Proposes apply / defer / reject per finding on scope grounds. Cannot suppress findings.
-- **User** — jury. Approves what actually lands, at the existing review gate.
+- **Parent (you)** — advocate, and now also executor. You decide apply / defer / reject per finding on scope grounds, then apply the apply-set yourself (you hold the `edit`/`write` tools; this was always the main-loop model's job, just moved earlier). Cannot suppress findings — every finding lands in the audit as applied, deferred, or rejected.
+- **User** — sole jury. Ratifies (or reverts) the finished spec at brainstorming's one gate — after the apply, not before.
 
 ## Configuration and gating
 
@@ -100,32 +100,41 @@ List the exact member paths in the task text. The `reads:` array injects their c
 
 If the configured `chair` model is unreachable, retry once with the inherited model.
 
-### 3 — Propose dispositions
+### 3 — Decide and apply
 
-For each cluster in the chair's report, decide and state one of:
+For each cluster in the chair's report, decide one of:
 
-- **apply** — with the concrete edit you will make.
-- **defer** — out of scope for this spec; name where it belongs.
-- **reject** — with a one-line reason.
+- **apply** — make the concrete edit to the spec under `doc/specs/` now.
+- **defer** — out of scope for this spec; name where it belongs. Do not edit the spec.
+- **reject** — one-line reason. Do not edit the spec.
 
-You are the advocate here, not the judge — propose, do not unilaterally apply.
+Also inline any `external-ref:` cluster you have context for (e.g. a ticket fetched during brainstorming) as part of the apply-set — this is your call, same as any other cluster.
 
-### 4 — User gate
+You are the advocate — decide on scope grounds — and, unlike a dispatched subagent, also the executor: you hold `edit`/`write` tools directly, so apply the edit yourself instead of proposing it for someone else to make. Do this **before** returning to brainstorming.
 
-Fold the chair's clusters, its `resolved` audit notes, and your proposed dispositions into brainstorming's user review gate. Let the user approve or adjust.
+### 4 — Emit the audit
 
-### 5 — Apply and clean up
+Return a structured audit, gate-only (not a committed spec section) — three labelled lists:
 
-Apply the approved edits to the spec under `doc/specs/`. Re-run brainstorming's placeholder scan. Remove the temp dir (`rm -rf` the `mktemp -d` path). Then continue with brainstorming's normal commit. Nothing council-related (member files) is ever staged.
+- `Applied:` — cluster -> the concrete edit made.
+- `Deferred:` — cluster -> where it belongs.
+- `Rejected:` — cluster -> one-line reason.
 
-Single pass — no automatic re-roast loop. The user can invoke this skill again after edits for another round.
+Hand this audit to brainstorming along with the now-final spec. brainstorming writes it into the **spec commit message body** (git-native, readable pre-squash) so it survives for finish-time revert visibility, then shows it to the user alongside the final spec at its one review gate. The user can revert any applied edit there — that gate, not this skill, is where ratification happens.
+
+### 5 — Clean up
+
+Re-run brainstorming's placeholder scan over the applied result. Remove the temp dir (`rm -rf` the `mktemp -d` path). Nothing council-related (member files) is ever staged.
+
+Single pass — no automatic re-roast loop. The user can invoke this skill again after the gate for another round.
 
 ## Red flags — STOP
 
 - Running the council when `piGauntlet.specCouncil.members` is absent or empty (brainstorming owns the gate and should have used the worker fallback).
 - Reading member critique files yourself instead of routing them through the chair.
 - Writing member files to a relative path (they land in the worktree).
-- Auto-applying findings without the user gate.
+- Applying edits without surfacing the audit at brainstorming's gate — apply-before-the-gate is correct; apply-without-the-gate is not.
+- Suppressing a finding instead of routing it to applied, deferred, or rejected in the audit.
 - Surfacing member-vs-member disagreements to the user instead of letting the chair adjudicate.
 - Editing anything other than the spec under `doc/specs/`.
 

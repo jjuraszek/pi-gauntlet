@@ -89,131 +89,144 @@ The reviewer **proposes, it does not dispose.** It emits structured gap blocks
 the verify gate) drives disposition, fixes, and re-audit. The reviewer never edits,
 dispatches, or re-audits itself.
 
-### CONFORMS
+### Disposition — verdict-then-`recommended` partition, no menu
 
-Record the verdict in the completion summary's closure section and proceed.
+Render the enumerated gap list — each as `Gn [VERDICT] origin — remediation
+(recommended: fix|accept|rescope)` — then partition and act, in this exact order.
+No prompt, no menu: this partition is deterministic and exhaustive.
 
-### GAPS — disposition menu
+1. **Verdict `CONFORMS`** (no gaps) → record the verdict in the completion
+   summary's closure section and proceed. No loop.
+2. **Any gap is `UNAUTHORIZED`** → that gap **always** defers to the finish gate,
+   regardless of its `recommended` value. Never auto-remove or auto-accept
+   unrequested code here.
+3. **Every remaining `PARTIAL`/`MISSING`/`DRIFTED` gap**:
+   - `recommended: fix` → auto-run the fix loop below — **unless `maxFixRounds:
+     0`**, in which case carry the gap **OPEN** (see the fix loop's
+     `maxFixRounds: 0` note).
+   - `recommended: accept` or `recommended: rescope` → carry the gap **OPEN**,
+     deferred to the finish gate. Do not apply a spec edit here — the finish
+     gate owns disposition of deferred gaps.
 
-Do **not** auto-proceed and do **not** auto-fix. Render the enumerated gap list —
-each as `Gn [VERDICT] origin — remediation (recommended: fix|accept|rescope)` — then
-a numbered prompt (a chat turn cannot express a bare keystroke):
+So the fast path (all gaps `recommended: fix`, none `UNAUTHORIZED`, cap > 0)
+therefore auto-runs the fix loop with no menu, stop, or confirmation; any other
+mix carries the `accept`/`rescope`/`UNAUTHORIZED` gaps OPEN while the `fix` gaps
+run. Record every gap's outcome (`CONFORMS`-closed or carried OPEN) in the
+`## Closure / conformance` block (schema below).
+
+**Re-partition after every re-audit.** A re-audit can introduce `Gn+1` or flip a
+carried gap's `recommended`. Re-run steps 1-3 above over the **full current
+open-gap set** each time the reviewer returns a report — never reuse a stale
+partition from an earlier round.
+
+### Fix loop — SDD Parallel-Wave mirror, per round
+
+Mirrors `subagent-driven-development` Parallel-Wave Mode and reuses its
+`plan_tracker` progress surface. Runs entirely inside the gate — it invokes
+**no** `phase_tracker` calls (`phase_tracker({ phase: "implement" })` errors
+while verify is `in_progress`) and does **not** enter SDD's phase machinery.
+Only the fan-out/integrate/review shape and `plan_tracker` are reused.
+
+**Precondition — worktree required.** The loop needs a worktree HEAD to branch
+fixes from. On the ad-hoc `finishing-a-development-branch` paths that run in a
+normal repo (`GIT_DIR == GIT_COMMON`) or detached HEAD, there is no such HEAD:
+skip this loop, carry every `fix` gap OPEN, and resolve manually at finish
+(`accept`/`rescope`/manual fix-in-place only).
+
+Per round:
+
+1. **`plan_tracker` init** with the round's gaps as tasks. Wave-prefix tasks
+   when the reviewer's `Parallel-safe:` line marks a `conflicts` pair (file OR
+   `touched-resources` overlap) — that pair runs in separate serial waves;
+   `disjoint` gaps share one wave. Lifecycle per gap: `pending` →
+   `in_progress` → `complete`. This re-init **replaces** the implement phase's
+   completed task list in the singleton widget — state-safe, since
+   `phase-tracker.ts` `applyPlanActivity` only auto-completes `implement`
+   while it is `in_progress`; the widget now shows fix-wave progress during
+   verify.
+2. **Per gap** (task → `in_progress`): dispatch `implementer` (fresh context,
+   `worktree: true`, `cwd` = the conformance worktree, `touched-files` from the
+   gap block as an explicit ownership boundary) → dispatch `spec-reviewer` on
+   the gap-block reference contract below → task → `complete`.
+3. **Integrate** serially via `git apply` onto the worktree HEAD, one gap's
+   patch at a time. Failure handling is inherited verbatim from
+   `dispatching-parallel-agents` "Review and Integrate": textual conflict →
+   re-run one agent sequentially with the other's integrated changes as
+   context; semantic conflict (applies clean, suite fails) → re-run the
+   offending task sequentially on integrated HEAD; a failed agent → integrate
+   the successes, then retry the failure with fresh context including the
+   integrated changes. A `BLOCKED`/`NEEDS_CONTEXT` return surfaces to the user.
+4. **Test gate** on the integrated tree, using the project's canonical test
+   command. A failure re-enters the failure-handling rules above.
+5. **`code-reviewer` once** on the round's cumulative fix delta (not per gap).
+6. **Re-audit**: re-dispatch `conformance-reviewer` over the fixes **plus** the
+   regression guard (any prior-`DELIVERED` requirement whose `evidence` file
+   the fix diff touched). Pass the full prior conformance report (every row,
+   including DELIVERED rows and their `evidence` `file:line`) and the round's
+   fix diff. Inject `model:` call-site per `gauntlet_setting({ key:
+   "closureReview" }).model` — same mechanism as the initial audit; omit
+   `model:` when it is `undefined` to inherit the parent's model. The
+   phase-tracker closure guard blocks a dispatch that omits `model:` when
+   `closureReview.model` is set, and warns (non-blocking) on one whose model
+   differs.
+7. **Converge or continue**: verdict `CONFORMS` → record it, done. Open gaps
+   within the cap → re-partition (per the rule above) and start the next
+   round. Cap (`gauntlet_setting({ key: "closureReview" }).maxFixRounds`,
+   default `2`, floors negatives at `0`, coerces non-integers to `2`) reached
+   with an open `fix` gap → **escalate to the human** with the per-gap
+   round-by-round verdict trail. Escalation is the sole non-completing
+   terminal state — no silent re-loop, no auto-ship.
+
+Commit each per-gap fix with the message **`conformance fix Gn`** (durable,
+`git log`-readable pre-squash) so the finish gate and any revert can identify
+auto-applied fixes.
+
+**`maxFixRounds: 0`**: skip this loop entirely. Every `recommended: fix` gap
+becomes carried OPEN to the finish gate instead of auto-running — the user
+opted out of auto-fix, so treat `fix` gaps like any other deferred gap. This
+differs from a cap > 0 that is *exhausted*: that case escalates mid-verify
+because the loop tried and could not converge.
+
+### `spec-reviewer` gap-block reference contract
+
+Per-gap `spec-reviewer` in step 2 above is a **pre-integration mechanical
+check**, distinct from the round-level re-audit in step 6 (which still
+references the *origin* — spec + original prompt — unchanged). Frame the
+per-gap dispatch against the **gap block**, not a plan task:
+
+- **Requirement** = the gap's `origin` + `remediation` (what must be true
+  after the fix).
+- **Closure proof** = the patch satisfies that requirement within the gap's
+  `touched-files` — nothing missing, nothing extra.
+- **Output** = `spec-reviewer`'s normal MATCH/DRIFT verdict, referenced to the
+  gap block instead of a plan task.
+
+This is a task-framing contract in the dispatch, not a new persona.
+
+## Closure / conformance
+
+Emit this block in the verify completion summary. It is the durable handoff
+`finishing-a-development-branch` Step 3.5 consumes — parseable even if session
+context was pruned. Verify completes when every gap is either fixed
+(`CONFORMS`) or carried OPEN as a deferred `accept`/`rescope`/`UNAUTHORIZED`
+gap; escalation (cap reached with an open `fix` gap) is the one
+non-completing terminal state.
+
+For each carried-open gap:
 
 ```
-[1] apply all recommended dispositions
-[2] review per-gap (override fix/accept/rescope before applying)
+Gn: <verdict> — recommended: <fix|accept|rescope> — touched-files: <paths>
+  round history: R1 <verdict/action>, R2 <verdict/action>, ...
 ```
 
-`[1]` applies each gap's `recommended` disposition, **except** any gap whose
-`recommended` is `accept` or `rescope`: list those and require an explicit confirming
-reply before their spec edits land (accept/rescope rewrite the origin — never on the
-unconfirmed fast path). `[2]` prompts a per-gap override, then applies.
-
-Disposition semantics:
-
-- `fix` — dispatch a remediation unit (below), then re-audit. For an `UNAUTHORIZED`
-  gap, "fix" = **remove** the unrequested code.
-- `accept` — the **main session** (not a subagent) folds the deviation into the spec as
-  a dated decision (template below). For `UNAUTHORIZED`, accept = keep the behavior,
-  document it as intended.
-- `rescope` — the main session records the requirement in the spec as an explicit
-  out-of-scope / deferred item, dated.
-
-Dated-decision template (append to the spec's decisions/deviations section):
+Then a single flat revert index of **every** `conformance fix Gn` commit the fix
+loop produced this run — including gaps that later converged to `CONFORMS`
+(a closed gap has no block above, so its commit lives only here) — since the
+finish gate's revert option needs them all:
 
 ```
-- YYYY-MM-DD accept|rescope Gn: <requirement/behavior> — <one-line rationale> (conformance gate)
+auto-applied fix commits: <Gn: SHA>, <Gm: SHA>, ... (revertable)
 ```
-
-**Commit accept/rescope spec edits BEFORE any fix wave dispatches:** pi-cohort
-rejects a dirty tree on a `worktree: true` dispatch, and the re-audit must read the
-amended spec. If a round has only accept/rescope and no `fix`, the edits land, the
-verdict is recorded, and no re-audit runs.
-
-### Fix dispatch — reuse dispatching-parallel-agents mechanics
-
-Fixes reuse the `dispatching-parallel-agents` fan-out primitive. Invoke **no**
-`phase_tracker` / `plan_tracker` calls and do **not** enter `subagent-driven-development`
-Parallel-Wave Mode (that mode opens with `phase_tracker({ phase: "implement" })`, which
-errors while the verify phase is `in_progress`, and needs a plan the fix loop lacks).
-
-**Precondition — worktree required.** Fix-via-dispatch needs a worktree HEAD to branch
-from. On the ad-hoc `finishing-a-development-branch` paths that run in a normal repo
-(`GIT_DIR == GIT_COMMON`) or detached HEAD, there is no such HEAD: the menu offers
-`accept` / `rescope` and **manual fix-in-place** only; unresolved gaps route to escalation.
-The loop below applies only when the gate already runs inside a worktree.
-
-**Wave grouping** comes from the reviewer's `Parallel-safe:` line: `disjoint` gaps form
-one parallel wave; any `conflicts` pair splits into separate serial waves. A pair conflicts
-on **file OR runtime-resource** overlap - two gaps whose fixes touch disjoint files but whose
-verification shares a `touched-resources` entry (DB/schema, port, fixture, external service,
-shared temp path) are **not** parallel-safe and run in separate serial waves, identical to
-planned-execution wave grouping. This is why the reviewer certifies both axes.
-
-**Dispatch shape** (mirrors `dispatching-parallel-agents`):
-
-```ts
-subagent({
-  context: "fresh",
-  worktree: true,
-  cwd: "<abs worktree path, from git rev-parse --show-toplevel>",
-  tasks: [
-    { agent: "implementer",
-      task: "Close conformance gap G1. Origin requirement: <origin>. What's missing: " +
-            "<remediation>. Satisfy the requirement; do not expand scope. " +
-            "Ownership boundary — modify only: <touched-files>." },
-    // one task per disjoint gap in this wave
-  ],
-})
-```
-
-- Unit = `implementer`, fresh context, `worktree: true`, `cwd` = the conformance
-  worktree. Pass `touched-files` as an explicit ownership boundary.
-- **Integrate** serially via `git apply` back onto the worktree HEAD — the fix ships in
-  the same worktree and rides `finishing-a-development-branch`'s squash. No new merge machinery.
-- **Failure handling is inherited verbatim** from `dispatching-parallel-agents`
-  "Review and Integrate": textual conflict → re-run one agent sequentially with the
-  other's integrated changes as context; semantic conflict (applies clean, suite fails)
-  → re-run the offending task sequentially on integrated HEAD; a failed agent → integrate
-  the successes, then retry the failure with fresh context including the integrated changes.
-  A `BLOCKED` / `NEEDS_CONTEXT` return surfaces to the user.
-- **`code-reviewer` over the integrated fix delta, once per round** (not per gap) — gap
-  fixes land after the branch's final code review, so review the round's cumulative diff.
-- **`spec-reviewer` is excluded** — plan-vs-code is the wrong reference point; the re-audit
-  checks fixes against the origin.
-- **Test gate** on the integrated tree after the round's waves apply, using the project's
-  canonical test command. A failure re-enters the failure-handling rules above.
-
-One round = dispatch waves → serial integrate → `code-reviewer` on round delta → test
-gate → re-audit.
-
-### Delta re-audit + cap
-
-Re-dispatch `conformance-reviewer` for a delta-scoped re-audit. Pass:
-
-- the **full prior conformance report** — every row including DELIVERED rows and their
-  `evidence` `file:line` (needed for the regression guard), not just gap IDs;
-- the **fix diff** for the round.
-
-The reviewer (not the orchestrator) computes the regression intersection: it re-verifies
-the gaps marked `fix` this round **plus** any previously-DELIVERED requirement whose
-`evidence` file appears in the fix diff. It reuses `G1..Gn`, marking each `DELIVERED`,
-still-open with its prior verdict, or introducing `Gn+1`.
-
-- The re-audit dispatch carries the **same call-site `model:` injection** as the initial
-  audit (when `piGauntlet.closureReview.model` is set, the phase-tracker closure guard
-  blocks a `conformance-reviewer` dispatch that omits `model:`, and warns — non-blocking —
-  on one whose model differs from the configured value).
-- New or still-open gaps within the cap re-enter the menu above.
-- **Cap: `gauntlet_setting({ key: "closureReview" }).maxFixRounds`** (the tool applies the
-  default `2`, floors negatives at `0`, and coerces non-integers to `2`). `0` = audit-only:
-  `GAPS` renders an accept/rescope-only menu and any unresolved gap escalates instead of
-  dispatching a fix.
-- **On non-convergence** (cap reached with open gaps): **escalate to human** with the
-  per-gap round-by-round verdict trail. No silent re-loop, no auto-ship.
-
-No completion claim stands over a gap that is neither fixed, accepted, nor rescoped.
-"Surface, don't auto-fix": the orchestrator presents options, the user decides.
 
 ## Checklist
 

@@ -59,10 +59,10 @@ Work through the items below **in order**. This is your own checklist to follow,
 6. **Present the design** — in sections, get approval after each
 7. **Write the spec** — to `doc/specs/` (see [Filename Convention](#filename-convention))
 8. **Spec self-review (lint)** — placeholder scan + internal consistency + documentation named, run inline
-9. **Critique pass (auto-dispatched)** — scope + ambiguity; the spec council via `/skill:roasting-the-spec` when `gauntlet_setting` returns verdict `council`, else a fresh `worker` (see [Spec Council](#spec-council-optional))
-10. **Re-run placeholder scan** — after the critique pass returns, first inline any `external-ref:` flags it raised (see [Spec Self-Review](#spec-self-review-before-user-review-gate)), then re-scan for placeholders its edits may have introduced; surface any ambiguity the worker could not safely resolve at the user gate
-11. **Generate spec summary** — dispatch a fresh, spec-only `spec-summarizer` writing to an absolute temp-dir path via `outputMode: "file-only"`, then `Read` that file back as the **last content-producing** tool call before composing the gate and render its contents **verbatim** at the top of the gate message — do not paraphrase, condense, re-section, or rewrite it (see [User Review Gate](#user-review-gate)); this is part of the existing gate, not a new one
-12. **User review gate** — user reviews the committed spec
+9. **Critique pass (auto-dispatched)** — scope + ambiguity; the spec council via `/skill:roasting-the-spec` when `gauntlet_setting` returns verdict `council` (it applies its apply-set, including any external-ref inlining, to the spec before returning — see [Spec Council](#spec-council-optional)), else a fresh `worker` that applies its own fixes in place
+10. **Re-run placeholder scan** — after the critique pass returns, re-scan the **applied** spec for placeholders its edits may have introduced; surface any ambiguity the critique could not safely resolve at the user gate
+11. **Generate spec summary** — dispatch a fresh, spec-only `spec-summarizer` over the **final (post-apply)** spec, writing to an absolute temp-dir path via `outputMode: "file-only"`, then `Read` that file back as the **last content-producing** tool call before composing the gate and render its contents **verbatim** at the top of the gate message — do not paraphrase, condense, re-section, or rewrite it (see [User Review Gate](#user-review-gate)); this is part of the existing gate, not a new one
+12. **User review gate** — user reviews the applied spec's verbatim summary plus the council audit (Applied/Deferred/Rejected), with a revert valve for any applied council edit
 13. **Transition** — only after approval, invoke `/skill:writing-plans`
 
 ## Project Routing
@@ -244,7 +244,7 @@ After writing the spec to `<project>/doc/specs/<filename>.md` (per [Filename Con
 
 The first three checks — **placeholder scan**, **internal consistency**, and **documentation named** — are the inline **lint**: run them here at the main loop and fix what they surface. The last two — **scope** and **ambiguity** — are **not** run inline; they are the **critique pass**, auto-dispatched (per [Spec Council](#spec-council-optional)):
 
-- **Council** (`gauntlet_setting({ key: "specCouncil" })` returns verdict `council`) → invoke `/skill:roasting-the-spec`; it runs the critique and proposes dispositions.
+- **Council** (`gauntlet_setting({ key: "specCouncil" })` returns verdict `council`) → invoke `/skill:roasting-the-spec`; it runs the critique, derives dispositions, and **applies the apply-set to the spec** (including inlining any `external-ref:` cluster it has context for) **before returning** — see that skill for apply mechanics. It returns a structured audit: `Applied:` / `Deferred:` / `Rejected:`.
 - **Otherwise** → dispatch one fresh `worker` that applies the scope + ambiguity checks and fixes them in place:
 
   ```
@@ -253,23 +253,24 @@ The first three checks — **placeholder scan**, **internal consistency**, and *
     "Read the spec at <abs path to doc/specs/...>. Edit ONLY that file. Apply two checks and\n" +
     "fix what you find in place: (1) Scope — does every paragraph serve the goal? Cut filler;\n" +
     "state out-of-scope explicitly. (2) Ambiguity — is every 'we should' a concrete decision?\n" +
-    "Replace 'we could probably' with 'we will'/'we won't'. Also flag (do NOT fetch) any\n" +
-    "load-bearing external reference (ticket AC, commit SHA, doc) the spec relies on but does\n" +
-    "not inline, and recommend inlining it. Return a summary of what you changed, and flag any\n" +
-    "ambiguity you could NOT safely resolve." })
+    "Replace 'we could probably' with 'we will'/'we won't'. Also inline any load-bearing\n" +
+    "external reference (ticket AC, commit SHA, doc) already given to you in the problem\n" +
+    "statement above; if the spec relies on one not provided here, flag it (do NOT fetch) in\n" +
+    "your summary. Return a summary of what you changed, and flag any ambiguity you could NOT\n" +
+    "safely resolve." })
   ```
 
   `worker`'s model resolves from `subagents.agentOverrides.worker.model` in `settings.json` (unset → inherits the main loop); the dispatch passes no `model:`.
 
-After the critique pass returns, scan it for load-bearing external references before re-running the placeholder scan: in the council path, look for chair clusters whose theme is prefixed `external-ref:`; in the worker path, look for the worker's external-ref flag. For each, inline the referenced content you have context for (e.g. the ticket fetched during brainstorming) via the normal disposition/edit path - you hold the ticket, the critics do not. Then re-run the placeholder scan to catch anything the edits introduced. If the worker flagged ambiguities it could not safely resolve, surface them in the [User Review Gate](#user-review-gate) message so the user decides - the worker auto-applies fixes but never silently swallows an open question.
+Both paths apply their fixes **before returning** — the council auto-applies inside `/skill:roasting-the-spec`, the worker edits the spec file directly. After the critique pass returns, re-run the placeholder scan over the **applied** spec to catch anything the edits introduced. If the worker flagged ambiguities it could not safely resolve, surface them in the [User Review Gate](#user-review-gate) message so the user decides - the worker auto-applies fixes but never silently swallows an open question.
 
 ## Spec Council (Optional)
 
-After the inline lint and before the user review gate, **brainstorming owns the critique-pass gate**. Resolve the council with `gauntlet_setting({ key: "specCouncil" })` - the tool returns the merged (repo-over-preset) value as `{ verdict, members, chair, malformed, warning, errors }`. **Do not** hand-roll a settings read. When `verdict` is `"council"`, the council *is* the critique pass - invoke `/skill:roasting-the-spec` automatically (no offer, no prompt), passing `members`/`chair`. When `verdict` is `"worker"`, run the fresh-`worker` critique instead (see [Spec Self-Review](#spec-self-review-before-user-review-gate)). If `malformed` is true or `errors` is non-empty, emit the `warning`/error as one line, then branch strictly on `verdict` - `malformed` can accompany *either* verdict (e.g. a bad `chair` with valid `members` still returns `council`), so never infer the worker path from `malformed` alone. If `gauntlet_setting` is unavailable, stop and report - never fall back to a manual bash/JSON settings merge. Approved council edits (or the worker's in-place fixes) ride in the same worktree commit. The conceptual precedence rule lives in `verification-before-completion/reference/settings-precedence.md`.
+After the inline lint and before the user review gate, **brainstorming owns the critique-pass gate**; council **apply mechanics** live in `/skill:roasting-the-spec` (single source of truth - link, don't restate). Resolve the council with `gauntlet_setting({ key: "specCouncil" })` - the tool returns the merged (repo-over-preset) value as `{ verdict, members, chair, malformed, warning, errors }`. **Do not** hand-roll a settings read. When `verdict` is `"council"`, the council *is* the critique pass - invoke `/skill:roasting-the-spec` automatically (no offer, no prompt), passing `members`/`chair`; it applies its apply-set and returns the audit (Applied/Deferred/Rejected). When `verdict` is `"worker"`, run the fresh-`worker` critique instead (see [Spec Self-Review](#spec-self-review-before-user-review-gate)). If `malformed` is true or `errors` is non-empty, emit the `warning`/error as one line, then branch strictly on `verdict` - `malformed` can accompany *either* verdict (e.g. a bad `chair` with valid `members` still returns `council`), so never infer the worker path from `malformed` alone. If `gauntlet_setting` is unavailable, stop and report - never fall back to a manual bash/JSON settings merge. The already-applied council edits (or the worker's in-place fixes) ride in the same worktree commit. The conceptual precedence rule lives in `verification-before-completion/reference/settings-precedence.md`.
 
 ## User Review Gate
 
-After self-review (and council review, if configured) and after inlining any external-ref flags, dispatch the spec-only summarizer, then commit the spec on the worktree branch and stop. This is the **same** single human gate - the summary is folded into it, not a new gate.
+After self-review and the critique pass (council or worker, both already applied to the spec - see [Spec Council](#spec-council-optional)), dispatch the spec-only summarizer over the **applied** spec, then commit the spec on the worktree branch and stop. This is the **same** single human gate - the summary is folded into it, not a new gate.
 
 Mint an absolute temp path outside the worktree (so it is never committed), then dispatch the summarizer on a fresh context, reading only the spec, writing to that path via file-only output (no `model:` - it inherits the main loop unless a preset sets `subagents.agentOverrides.spec-summarizer.model`):
 
@@ -285,7 +286,7 @@ subagent({ agent: "spec-summarizer", context: "fresh", cwd: "<abs worktree path,
 
 `<SUMMARY_PATH>` above is a placeholder in the dispatch object; it means substitute the value of the shell variable `$SUMMARY_PATH` set above. The steps below use `$SUMMARY_PATH` (the shell form) once the value is in hand.
 
-Then commit the spec — this commit is **unconditional**: the summary is only a gate aid, so a degraded or missing summary never blocks it. Evaluate the summary in two stages (the **Degrade path** referenced in each is defined just below):
+Then commit the spec — this commit is **unconditional**: the summary is only a gate aid, so a degraded or missing summary never blocks it. If the council path ran, include its audit (`Applied:` / `Deferred:` / `Rejected:`, verbatim from `/skill:roasting-the-spec`'s return) in the **commit message body** - this is the durable, non-contractual record a finish-time revert reads back; the audit is never a committed spec section. Evaluate the summary in two stages (the **Degrade path** referenced in each is defined just below):
 
 1. **From the dispatch tool result, before the `Read`.** If the result is **not** an `"Output saved to: <path> (<N> KB, <M> lines)"` reference (e.g. an exit-0 save error returns the full inline output plus an "Output file error" line — the prunable shape, no file to read), or the reference reports under ~500 bytes, or a size grossly disproportionate to the spec (under ~2% of its byte size), or over ~45 KB (the `Read` truncates at 50KB / 2000 lines, so a larger file cannot render whole) — skip the `Read` and take the degrade path. Use the reference's reported figures; do not re-derive them.
 2. **The `Read` itself, as the last content-producing tool call before composing the gate.** `Read` `$SUMMARY_PATH` and paste its contents verbatim at the top of the gate. If the `Read` fails, returns 0 bytes, or reports truncation — take the degrade path. The `Read` must be last: pi-condense does not protect a `/tmp` read, so any turn boundary between the `Read` and the render lets the ~9KB read result be pruned, reproducing the bug.
@@ -294,21 +295,28 @@ Then commit the spec — this commit is **unconditional**: the summary is only a
 
 Either way — summary rendered or degraded — then `rm "$SUMMARY_PATH"` (unconditional cleanup; harmless if the file was never created, since it lives outside the worktree under the OS temp dir).
 
-Render the temp file's contents **verbatim** first — paste it as-is, do **not** paraphrase, condense, re-section, drop sections, or merge it with council output. "Fold into the gate" means *place it inside the gate message*, not *rewrite it*. After the verbatim block, append the commit confirmation, then — as their **own** adjacent lines, not edits to the summary — any council outcome, critique-pass-unresolved ambiguities, and every entry from the summarizer's gap/external-context footer (surface **all** of them, not just the top risk):
+Render the temp file's contents **verbatim** first — paste it as-is, do **not** paraphrase, condense, re-section, drop sections, or merge it with the council audit. "Fold into the gate" means *place it inside the gate message*, not *rewrite it*. This summary is of the **final (post-apply)** spec, since both critique paths already applied before this dispatch. After the verbatim block, append the commit confirmation, then — as their **own** adjacent lines, not edits to the summary — the council audit (if the council path ran: `Applied:` / `Deferred:` / `Rejected:`, one line each), critique-pass-unresolved ambiguities, and every entry from the summarizer's gap/external-context footer (surface **all** of them, not just the top risk):
 
 ```
 <spec-only summary read back from the temp file — pasted verbatim, unedited>
 
 Spec written and committed to <project>/doc/specs/<filename>.md (worktree: <path>).
 
-<council outcome, if any; unresolved ambiguities; every gap-footer entry from the summary>
+Applied: <cluster -> edit>, ...
+Deferred: <cluster -> where it belongs>, ...
+Rejected: <cluster -> one-line reason>, ...
+(omit the three lines above when the worker path ran, not the council)
 
-Please review. Approve to proceed, or tell me what to change in the spec.
+<unresolved ambiguities; every gap-footer entry from the summary>
+
+Please review. Approve to proceed, tell me what to change in the spec, or say "revert applied council edit <X>" to undo a specific applied edit.
 ```
 
 If you believe the summary needs correcting, do **not** silently rewrite it — re-dispatch the summarizer or note the discrepancy as an adjacent line beneath the verbatim block.
 
-Wait for the user. On a change request, revise the spec and re-present — mint a **fresh** temp path for the re-dispatched summarizer (never reuse a prior round's path, so stale content can never be mistaken for the new summary). On approval, proceed immediately to `/skill:writing-plans` with no further prompt — the plan and execution mode are mechanical derivatives, so the only human gate here is spec approval itself. Don't land the spec on `main`; it stays in the worktree and ships in the same squash commit as the implementation.
+**Revert valve.** "Revert applied council edit X" is a normal change request: revise the spec to undo edit X, re-dispatch the summarizer with a **fresh** temp path (per the re-dispatch rule below), and re-present the gate. This is cheap here - the spec is not yet plan- or code-bearing.
+
+Wait for the user. On a change request (including a revert), revise the spec and re-present — mint a **fresh** temp path for the re-dispatched summarizer (never reuse a prior round's path, so stale content can never be mistaken for the new summary). On approval, proceed immediately to `/skill:writing-plans` with no further prompt — the plan and execution mode are mechanical derivatives, so the only human gate here is spec approval itself. Don't land the spec on `main`; it stays in the worktree and ships in the same squash commit as the implementation.
 
 After approval, mark the brainstorm phase complete:
 
