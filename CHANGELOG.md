@@ -1,5 +1,42 @@
 # Changelog
 
+## v4.4.0 - 2026-07-12
+
+Add an unconditional parallel context-gather step to `/skill:brainstorming`. Step 3's
+inline exploration (raw whole-file reads polluting the main session, pruned by
+pi-condense right before spec-writing, serialized for no reason) is replaced by a
+recon fan-out whose output persists on disk as a context draft at the spec path,
+fully overwritten by the real spec at spec-writing.
+
+- **`brainstorming/gatherer.md` (new):** the gather procedure - one parallel-tasks
+  `subagent` call: `scout` always, `context-builder` only when the request carries
+  external refs (URL, tracker ID with a fetch path, GitHub issue ref). Outputs land
+  in a temp dir; the main loop assembles them into a draft headed by a line-1
+  marker (`# CONTEXT DRAFT - NOT A SPEC - fully replaced at spec-writing`) with
+  `## Codebase recon` / `## External context` / `## Appended during questionary`
+  sections. Builder failure degrades to a noted thin draft, never blocks, never
+  surfaces at gather time. Foreground, no user interaction - the first thing the
+  operator sees after gather is questionary question one.
+- **`brainstorming/SKILL.md`:** checklist gains the gather step; step 3 rewritten
+  around the draft (unconditional `Read` before question one; helper-not-fence -
+  load-bearing claims still verified against real code; append bar for citable
+  findings); spec-writing gains a 3-step overwrite discipline (re-read draft
+  immediately before, `write`-tool full replacement, line-1 marker-gone check
+  before any downstream dispatch); slug minted once at gather, rename-with-delete
+  at spec-writing; 4 new Red Flags.
+- **`phase-tracker.ts`:** new `substep` action - `phase_tracker({ action: "substep",
+  phase, substep })` labels an `in_progress` phase in the widget
+  (`brainstorm(gather)`), `null`/omitted clears, any transition drops it. New
+  marker commit guard between the branch-op block and the mutation warning: during
+  brainstorm, `git commit` (incl. `git -C` / `cd X &&` forms) is blocked while any
+  file under `flowGuards.specDirs` still begins with the marker line; skipped
+  entirely when `piGauntlet.flowGuards.enforce` is `false`.
+- **`extensions/lib/phase-tracker-helpers.ts` (new):** pure, injected-fs logic for
+  the above (commit-form parsing, repo-dir resolution, line-1 marker scan, substep
+  transition contract) with 17 `node --test` cases registered in `scripts/ci.mjs`.
+- **`doc/configuration.md`:** documents the `substep` action and the third flow
+  guard.
+
 ## v4.3.1 - 2026-07-06
 
 Fix spec-summary pruning at the brainstorming user-review gate. The gate's
