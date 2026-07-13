@@ -1,5 +1,34 @@
 # Changelog
 
+## v4.4.1 - 2026-07-13
+
+Gates ratify, not ceremony: two gauntlet gates now auto-apply mechanical/drafting
+changes and stop the human only for a load-bearing decision, not ritual confirmation.
+
+- **Conformance gate (`verification-before-completion/reference/conformance-check.md`,
+  `subagent-driven-development`, `verification-before-completion`):** GAPS handling is
+  a deterministic verdict-then-`recommended` partition, no menu. `fix` gaps auto-close
+  through an isolated SDD-mirror fix loop (per-gap `implementer` + `spec-reviewer` on a
+  gap-block contract, `plan_tracker` fix-wave progress, per-round `code-reviewer`, delta
+  re-audit with regression guard, `maxFixRounds` cap -> escalate). `accept`/`rescope`/
+  `UNAUTHORIZED` gaps carry OPEN to the finishing gate. New `## Closure / conformance`
+  handoff schema + `conformance fix Gn` commit convention.
+- **Spec council (`roasting-the-spec`, `brainstorming`):** the main-loop model applies
+  the chair's apply-set before the single brainstorming review gate; a gate-only
+  Applied/Deferred/Rejected audit is recorded in the spec commit body. The verbatim
+  summary now reflects the final post-apply spec on both worker and council paths;
+  checklist item 10 reduced to a re-scan; revert valve at the gate.
+- **`finishing-a-development-branch` Step 3.5:** enforced per-gap disposition gate
+  (accept-into-spec / rescope-into-spec / fix-now / custom disposition / revert) with
+  three-tier revert semantics.
+- **`agents/conformance-reviewer.md`:** deterministic `UNAUTHORIZED` recommendation
+  (harmless -> accept, else fix).
+- **Extensions (`phase-tracker.ts`, `plan-tracker.ts`):** `SHIP_ADVISORY` and the
+  `plan_tracker` tool description reworded to allow carried-open deferred gaps and
+  verify-phase fix waves (description strings only, no logic change).
+- **`README.md`:** conformance gate auto-fixes requirement-restoring gaps, defers
+  spec-rewriting decisions to the finishing gate.
+
 ## v4.4.0 - 2026-07-12
 
 Add an unconditional parallel context-gather step to `/skill:brainstorming`. Step 3's
