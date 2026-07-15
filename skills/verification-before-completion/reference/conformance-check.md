@@ -101,17 +101,18 @@ No prompt, no menu: this partition is deterministic and exhaustive.
    regardless of its `recommended` value. Never auto-remove or auto-accept
    unrequested code here.
 3. **Every remaining `PARTIAL`/`MISSING`/`DRIFTED` gap**:
-   - `recommended: fix` → auto-run the fix loop below — **unless `maxFixRounds:
-     0`**, in which case carry the gap **OPEN** (see the fix loop's
-     `maxFixRounds: 0` note).
+   - `recommended: fix` → auto-run the fix loop below — **unless a declared
+     fix-loop precondition is unavailable** (`maxFixRounds: 0`, or no eligible
+     named-branch worktree), in which case carry the gap **OPEN** (see the fix
+     loop's precondition and `maxFixRounds: 0` notes).
    - `recommended: accept` or `recommended: rescope` → carry the gap **OPEN**,
      deferred to the finish gate. Do not apply a spec edit here — the finish
      gate owns disposition of deferred gaps.
 
-So the fast path (all gaps `recommended: fix`, none `UNAUTHORIZED`, cap > 0)
-therefore auto-runs the fix loop with no menu, stop, or confirmation; any other
-mix carries the `accept`/`rescope`/`UNAUTHORIZED` gaps OPEN while the `fix` gaps
-run. Record every gap's outcome (`CONFORMS`-closed or carried OPEN) in the
+So the fast path (all gaps `recommended: fix`, none `UNAUTHORIZED`, cap > 0,
+eligible named-branch worktree) therefore auto-runs the fix loop with no menu,
+stop, or confirmation; any other mix carries the
+`accept`/`rescope`/`UNAUTHORIZED` gaps OPEN while the `fix` gaps run. Record every gap's outcome (`CONFORMS`-closed or carried OPEN) in the
 `## Closure / conformance` block (schema below).
 
 **Re-partition after every re-audit.** A re-audit can introduce `Gn+1` or flip a
@@ -130,8 +131,10 @@ Only the fan-out/integrate/review shape and `plan_tracker` are reused.
 **Precondition — worktree required.** The loop needs a worktree HEAD to branch
 fixes from. On the ad-hoc `finishing-a-development-branch` paths that run in a
 normal repo (`GIT_DIR == GIT_COMMON`) or detached HEAD, there is no such HEAD:
-skip this loop, carry every `fix` gap OPEN, and resolve manually at finish
-(`accept`/`rescope`/manual fix-in-place only).
+skip this loop, carry every `fix` gap OPEN, and resolve it at finish via the
+canonical Disposition catalog and availability table below. `fix-now` is
+unavailable there; any other disposition is offered only when its table
+prerequisites hold.
 
 Per round:
 
@@ -203,30 +206,261 @@ per-gap dispatch against the **gap block**, not a plan task:
 
 This is a task-framing contract in the dispatch, not a new persona.
 
+## Concern decomposition
+
+The main verification orchestrator — **not** `conformance-reviewer` — decomposes
+each carried-open gap into concerns when it writes the completion summary. A
+**gap** is the reviewer's overall finding; a **concern** (`Gn/Cn`) is one
+consequence within it that could reasonably receive a *different* disposition.
+Observations that necessarily move together stay one concern.
+
+The orchestrator reasons from:
+
+- The final reviewer coverage row and structured gap block.
+- The origin spec and original prompt already supplied to verification.
+- Session-observed blockers, prerequisite checks, and fix-loop outcomes.
+- The round history and current touched-file/resource ownership.
+
+Per gap, apply these rules **in order**:
+
+1. Extract atomic unmet clauses and remediation actions from `origin`,
+   `evidence`, and `remediation`. Add a session-observed blocker **only** when a
+   tool result or fix-loop outcome established it.
+2. **Split** two points when either could be fixed, accepted, rescoped, or
+   followed up without imposing the same disposition on the other.
+3. **Keep together** when one action is meaningful only with the other, or no
+   different disposition could be executed independently.
+4. Map **every** unmet clause, remediation action, and established blocker to at
+   least one concern. Do **not** add a requirement absent from the origin or
+   prompt — invent nothing.
+5. Order concerns by first appearance in the origin/remediation and assign
+   `C1`, `C2`, and so on (source order).
+
+A valid decomposition has no omitted source point, no invented requirement or
+evidence, and a concern-scoped remediation plus ownership estimate for every
+`fix-now` candidate. Shared evidence may appear in multiple concerns. When the
+source cannot support a safe split, the fallback is **one indivisible `Gn/C1`**
+concern carrying the complete gap and the known blocker; decomposition never
+blocks on obtaining richer prose from the unchanged reviewer.
+
+Field derivation is explicit: `title` and `unresolved` summarize the unmet
+clause; `origin` narrows the gap `origin` to this concern's specific clause
+without inventing a new requirement; `remediation` states the concern-scoped
+remediation action drawn from the gap `remediation`; `impact` states the
+consequence already implied by the origin requirement; `evidence` copies
+reviewer evidence plus verified session observations;
+`touched-files`/`touched-resources` narrow the gap ownership where supported,
+otherwise `unknown`/`none`. For an `UNAUTHORIZED` concern there is no origin
+requirement to narrow: keep `origin: none (scope creep)` verbatim — never invent
+an origin clause; derive `unresolved` from the reviewer's `evidence`/`remediation`
+as a plain description of the unrequested behavior; and derive `impact` from the
+consequence of retaining, removing, or ratifying that behavior, not from an origin
+requirement. These per-concern fields persist the exact contract
+the concern-scoped fix projection consumes after pruning. **`evidence: absent`
+is an unmet-delivery fact, not
+an external blocker** — never relabel missing implementation evidence as a
+blocker. A malformed structured reviewer gap block — missing its stable `Gn`
+label or any required field (`verdict`, `origin`, `evidence`, `remediation`,
+`touched-files`, `touched-resources`, `recommended`) — triggers a **fresh
+audit**; a complete structured reviewer gap block does not — the orchestrator
+decomposes it or emits the indivisible fallback.
+
+## Disposition catalog and availability
+
+Each concern lists **every** supported disposition, its concrete effect, and
+current availability. This table is the single availability contract, referenced
+by both this verify gate and `finishing-a-development-branch`:
+
+|Disposition|Ordinary gap effect|`UNAUTHORIZED` effect|Available when|
+|---|---|---|---|
+|`fix-now`|Complete missing implementation or validation.|Remove the unrequested code or behavior.|Named-branch worktree; `maxFixRounds > 0`; concern ownership is known; every required local/external resource is accessible.|
+|`accept-into-spec`|Ratify intentional implemented behavior when the written contract is stale.|Ratify the unrequested behavior as approved scope.|A writable spec exists and there is concrete behavior to ratify.|
+|`rescope-into-spec`|Explicitly remove or defer the origin requirement from this workflow.|Unavailable: scope creep has no origin requirement to defer.|The verdict is not `UNAUTHORIZED` and a writable spec exists.|
+|`follow-up`|Keep the concern valid but transfer it to separately owned work.|Transfer a separately valid decision or removal task.|The concern can stand alone and the project defines an executable issue-tracker convention. Without one, mark unavailable and direct the user to `custom` to name another durable owner.|
+|`custom`|Execute another user-defined disposition after its effect is clarified.|Same.|Always visible; executable only after the user supplies a concrete effect. It is never an automatic recommendation.|
+
+A failed condition leaves the disposition visible and names the exact missing
+prerequisite. `touched-files: unknown` makes `fix-now` unavailable until
+ownership is established. A normal checkout (`GIT_DIR == GIT_COMMON`) or detached
+HEAD cannot dispatch the isolated fix loop at all - it has no named-branch
+worktree to branch fixes from - so `fix-now` stays unavailable there regardless
+of ownership; resolve those concerns manually at finish. `maxFixRounds: 0`
+(audit-only) likewise leaves `fix-now` visible but unavailable — the user
+configured no auto-fix loop, and finish-time selection never bypasses or resets
+that cap; a concrete `custom`/manual-fix disposition remains possible. `UNAUTHORIZED` cards
+replace the primary question with
+`Should this unrequested behavior become part of the current workflow?`, so
+removal and ratification are not presented as missing-feature choices.
+
+Reviewer tokens map to executable concern recommendations:
+
+- `fix` maps to `fix-now`; for `UNAUTHORIZED`, that means removal.
+- `accept` maps to `accept-into-spec`; for `UNAUTHORIZED`, that means ratification.
+- `rescope` maps to `rescope-into-spec` and is invalid for `UNAUTHORIZED`.
+- `follow-up` may replace an unavailable `fix-now`/`rescope-into-spec` **only**
+  when the concern remains valid, has separate ownership, and the issue-tracker
+  action is executable.
+
+The orchestrator may choose another named disposition only when current evidence
+supports its stated effect. If no named executable disposition is available, the
+concern serializes `recommended: none` - the durable state for "no named
+executable choice exists" - and its `rationale` must name the exact missing
+prerequisites plus the concrete custom effect still required. `custom` is never
+auto-recommended, so `none` never silently resolves to `custom`.
+
+A concern with `recommended: none` is excluded from the recommended set. Before
+any exhaustive `Apply recommended set`, the finish gate asks for a targeted
+custom approval that supplies a concrete effect for that one concern (finishing
+owns the exact reply syntax - a per-item `custom(...)` decision - not an `apply
+recommended` variant). That reply approves only that concrete custom effect for
+that concern. Validate and normalize it immediately: if the effect is ambiguous or
+unexecutable, clarify and keep the concern open; if executable, record it as a
+**pending approved custom decision** and remove that concern from the still-open
+inventory used to build the recommended set. If other open concerns remain,
+render the exhaustive recommended set for them and visibly carry the pending
+approved custom decision through the existing action-order and freshness
+barriers; `apply recommended` approves only the remaining recommendations. If no
+other concerns remain, execute the approved custom directly through the existing
+mechanics. The final disposition record keeps this concern as a `custom` result;
+never relabel it as a model recommendation.
+
+**Never recommend an unavailable disposition or an unexecutable `custom`
+placeholder.**
+
+`revert` is a separate action, not a generic concern disposition. The commit
+index stays gap-granular (`conformance fix Gn`). A listed gap-level commit makes
+revert visible on every concern card under that gap, with an explicit warning
+that the **entire gap commit** is reverted. Existing light-revert semantics
+remain: revert the indexed commit, re-audit, and return to the decision gate
+only if a concern remains open.
+
 ## Closure / conformance
 
 Emit this block in the verify completion summary. It is the durable handoff
 `finishing-a-development-branch` Step 3.5 consumes — parseable even if session
 context was pruned. Verify completes when every gap is either fixed
-(`CONFORMS`) or carried OPEN as a deferred `accept`/`rescope`/`UNAUTHORIZED`
-gap; escalation (cap reached with an open `fix` gap) is the one
-non-completing terminal state.
+(`CONFORMS`) or carried OPEN as a deferred gap - `accept`/`rescope`/`UNAUTHORIZED`,
+or a `recommended: fix` gap carried open because a declared fix-loop precondition
+was unavailable so the loop never started (`maxFixRounds: 0`, or no eligible
+named-branch worktree - normal checkout / detached HEAD). Escalation - a started
+positive-cap loop that exhausted its rounds or blocked/failed with an open `fix`
+gap - is the one non-completing terminal state; the precondition-unavailable
+carried-open `fix` state is valid closure inventory, not escalation.
 
-For each carried-open gap:
+### Handoff sentinel and freshness anchor - every handoff
 
+Every `## Closure / conformance` block - a `CONFORMS` no-card handoff and a
+carried-open GAPS handoff alike - **opens with a two-line sentinel** that lets
+the finish gate re-verify freshness after context pruning, with no session
+history:
+
+```text
+status: CONFORMS (0 open)      # or: status: GAPS (N open)
+audited-base: <full HEAD SHA at audit time>
 ```
-Gn: <verdict> — recommended: <fix|accept|rescope> — touched-files: <paths>
+
+`N` = count of open concerns (decision units), matching the number of emitted
+concern cards. Record `audited-base` as the full 40-char HEAD SHA at audit time;
+never abbreviate. This block is the **single source** for the freshness rule;
+`finishing-a-development-branch` links here rather than restating it.
+
+**Freshness rule.** The audit-input rule requires deliverables committed before
+auditing, so `audited-base` captures the audited state; freshness compares that
+commit to the **current working tree**, not to HEAD (a commit-to-commit diff
+misses staged/unstaged edits when HEAD has not moved). Run two cheap commands:
+
+```bash
+ROOT=$(git rev-parse --show-toplevel)
+git -C "$ROOT" diff --stat <audited-base> -- .          # tracked changes since the audited commit (staged + unstaged)
+git -C "$ROOT" status --porcelain --untracked-files=all # new/untracked deliverables
+```
+
+Any output from either command, any doubt, a missing/mismatched sentinel, or any
+closure block not opening with the two-line sentinel above (e.g. a legacy
+`Gn: PARTIAL - recommended: ...` row) triggers a fresh audit - never infer
+`CONFORMS` from the absence of cards. This is a lightweight freshness check (two
+git commands, no hashing or identity fields).
+
+**Sentinel validation.** `status: CONFORMS` requires `N = 0` and **no** emitted
+concern cards; `status: GAPS` requires `N > 0` exactly matching the emitted card
+count (`Gn/Cn` blocks), not merely gap headers. A mismatch is stale -> re-audit.
+
+**Audit-time input rule.** Stage or commit untracked deliverables before
+auditing, since `git diff <base> -- .` omits untracked files from the reviewer
+payload.
+
+For each carried-open gap, emit a durable gap header plus one card per concern
+(decomposition and derivation rules above). In rendered cards, recommendation
+lists, clarification lists, and final disposition records, every user-facing
+identifier carries both its ID **and** title; bare `Gn`/`Cn` or grouped
+identifier lists without titles are prohibited. The only exceptions are the
+machine/interaction tokens the grammar requires: bare `Gn/Cn` inside typed
+response tokens, the literal `conformance fix Gn` commit/action identifiers, and
+the flat `auto-applied fix commits` index below. The surrounding prompt or list
+must map each token to its titled concern or gap before asking for input.
+
+```text
+G1 - Source-image validation is incomplete
+  verdict: PARTIAL
+  origin: <requirement source and clause>
+  evidence: <current file:line or observed state>
+  blocker: <specific blocker, or none>
+  touched-files: <paths or unknown>
+  touched-resources: <resources or none>
   round history: R1 <verdict/action>, R2 <verdict/action>, ...
+
+  G1/C1 - End-to-end OCR output has not been validated
+    unresolved: <plain statement of the concern>
+    impact: <why it matters to the current workflow>
+    origin: <requirement source and clause, narrowed from the gap origin; or none (scope creep) for UNAUTHORIZED>
+    remediation: <concern-scoped remediation action>
+    evidence: <concern-specific evidence or blocker>
+    touched-files: <concern-scoped paths, narrowed from the gap; or unknown>
+    touched-resources: <concern-scoped resources, narrowed from the gap; or none>
+    available dispositions:
+      fix-now: <effect and availability>
+      accept-into-spec: <effect and availability>
+      rescope-into-spec: <effect and availability>
+      follow-up: <effect and availability>
+      custom: <effect and availability>
+    recommended: <available named disposition, or none>
+    rationale: <why this is the best current choice; for none, the missing prerequisites and the concrete custom effect required>
 ```
+
+All concerns in a gap must be represented.
 
 Then a single flat revert index of **every** `conformance fix Gn` commit the fix
 loop produced this run — including gaps that later converged to `CONFORMS`
-(a closed gap has no block above, so its commit lives only here) — since the
+(a closed gap has no card above, so its commit lives only here) — since the
 finish gate's revert option needs them all:
 
 ```
 auto-applied fix commits: <Gn: SHA>, <Gm: SHA>, ... (revertable)
 ```
+
+## Concern-scoped fix projection
+
+When the finish gate selects `fix-now` on some concerns of a gap, the fix loop
+above runs against a **projected** contract, not the original whole-gap block.
+For each parent gap with selected `fix-now` concerns, project only those
+concerns into one gap-scoped fix contract:
+
+- The parent gap ID.
+- The selected concern IDs and titles.
+- Their origin clauses, concern remediations, and evidence.
+- The **union** of the selected concerns' touched files/resources (ownership
+  boundary).
+
+Rescoped, accepted, and followed-up sibling concerns are **excluded** from the
+projection. The `implementer` and the pre-integration `spec-reviewer` receive
+this projected contract in place of the original whole-gap block.
+
+The projected task runs the existing full loop above: it retains the gap-level
+`conformance fix Gn` commit name, reruns the project's tests, runs
+`code-reviewer`, re-audits against the amended spec, and reenters the gate only
+if concerns remain. Gap-level revert stays available through the flat commit
+index. The gate records the final result by concern ID and title before showing
+branch integration options.
 
 ## Checklist
 

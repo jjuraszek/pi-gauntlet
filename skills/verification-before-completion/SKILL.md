@@ -57,7 +57,7 @@ Skip any step = lying, not verifying
 | Regression test works | Red-green cycle verified | Test passes once |
 | Agent completed | VCS diff shows changes | Agent reports "success" |
 | Requirements met | Line-by-line checklist | Tests passing |
-| Intent delivered (loop closed) | Fresh reviewer audits code+doc vs origin spec + prompt; verify completes when every gap is `CONFORMS` or carried-open as a deferred `accept`/`rescope`/`UNAUTHORIZED` gap - the sole non-completing terminal state is escalation (cap reached with an unresolved `fix` gap). Partition, fix loop, and `## Closure / conformance` schema: `reference/conformance-check.md` | Plan-vs-code review, tests passing |
+| Intent delivered (loop closed) | Fresh reviewer audits code+doc vs origin spec + prompt; verify completes only on a current `CONFORMS` result or a current durable carried-open closure inventory permitted by `reference/conformance-check.md` (including declared-precondition-unavailable `recommended: fix` gaps). A started positive-cap fix loop that blocks, fails, or exhausts rounds with an open `fix` gap is escalation, not completion. | Plan-vs-code review, tests passing |
 
 ## Rationalization Prevention
 
