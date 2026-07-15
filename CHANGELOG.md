@@ -1,5 +1,29 @@
 # Changelog
 
+## v4.4.2 - 2026-07-15
+
+Condense the finish-time conformance disposition gate to a dense, human-readable
+decision list - the corrective second pass over v4.4.1's disposition work, which
+delivered the right behavior but bloated the render and the freshness protocol.
+
+- **Finish gate (`finishing-a-development-branch`):** carried-open conformance
+  findings now render as a dense one-line-per-decision list - each line carries a
+  plain-language title, the unresolved point, its question, and an inline recommended
+  choice - with a two-option reply (`1` = every recommendation; `2:` =
+  recommended-except comma-separated `<handle>=<choice>` overrides). Replaces the
+  terse `Gn` tokens and the flat D1-D5 per-gap menu. Single-concern gaps show no
+  `/Cn` symbol; `UNAUTHORIZED` items note availability deviations inline; the
+  zero-gap path still goes straight to branch options with no sign-off.
+- **Freshness (`verification-before-completion/reference/conformance-check.md`,
+  `finishing-a-development-branch`, `subagent-driven-development`):** the four-field
+  audit-identity/hash protocol (duplicated across three files) collapses to a
+  `status`/`audited-base` sentinel plus a two-command working-tree drift check;
+  any change or doubt re-audits. The durable `## Closure / conformance` handoff
+  header drops `audited-spec-path`/`audited-diff-hash`/`audited-spec-hash`.
+- **De-duplication:** the disposition-availability table, the `UNAUTHORIZED`
+  question, the `recommended: none` preflight, and the fix loop now live only in
+  `conformance-check.md`; the finish gate and SDD consume them by link.
+
 ## v4.4.1 - 2026-07-13
 
 Gates ratify, not ceremony: two gauntlet gates now auto-apply mechanical/drafting
