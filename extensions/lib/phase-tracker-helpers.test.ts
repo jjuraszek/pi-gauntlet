@@ -3,6 +3,10 @@ import assert from "node:assert/strict";
 import {
   CONTEXT_DRAFT_MARKER,
   checkSubstep,
+  closureGateBlocks,
+  closureModelGuardApplies,
+  flowGuardApplies,
+  nextGauntletEntered,
   phaseLabel,
   parseGitCommit,
   resolveRepoDir,
@@ -117,4 +121,49 @@ test("markerGuardApplies: gated by flowGuards.enforce and brainstorm in_progress
   assert.equal(markerGuardApplies(false, "in_progress"), false);
   assert.equal(markerGuardApplies(true, "in_progress"), true);
   assert.equal(markerGuardApplies(true, "pending"), false);
+});
+
+test("nextGauntletEntered: arms only when a start makes brainstorm in_progress", () => {
+  assert.equal(nextGauntletEntered(false, "start", "in_progress"), true);
+  assert.equal(nextGauntletEntered(true, "start", "in_progress"), true); // re-arm idempotent
+});
+
+test("nextGauntletEntered: reset always disarms", () => {
+  assert.equal(nextGauntletEntered(true, "reset", "pending"), false);
+  assert.equal(nextGauntletEntered(true, "reset", "in_progress"), false);
+  assert.equal(nextGauntletEntered(false, "reset", "pending"), false);
+});
+
+test("nextGauntletEntered: marker survives downstream actions", () => {
+  assert.equal(nextGauntletEntered(true, "start", "complete"), true); // start plan/implement (brainstorm already complete)
+  assert.equal(nextGauntletEntered(true, "complete", "complete"), true);
+  assert.equal(nextGauntletEntered(true, "substep", "in_progress"), true);
+});
+
+test("nextGauntletEntered: a non-brainstorm start never arms a dormant flow", () => {
+  assert.equal(nextGauntletEntered(false, "start", "complete"), false); // cold start verify/implement
+  assert.equal(nextGauntletEntered(false, "start", "skipped"), false);
+  assert.equal(nextGauntletEntered(false, "complete", "pending"), false);
+});
+
+test("closureGateBlocks: blocks only for verify + entered + enforce + not-yet-dispatched", () => {
+  assert.equal(closureGateBlocks("verify", true, true, false), true);
+  assert.equal(closureGateBlocks("verify", false, true, false), false); // incident: not entered -> no block
+  assert.equal(closureGateBlocks("verify", true, true, true), false); // already dispatched
+  assert.equal(closureGateBlocks("verify", true, false, false), false); // enforce off
+  assert.equal(closureGateBlocks("plan", true, true, false), false); // wrong phase
+});
+
+test("flowGuardApplies: requires both an active guard phase and an entered flow", () => {
+  assert.equal(flowGuardApplies(true, true), true);
+  assert.equal(flowGuardApplies(true, false), false); // not entered
+  assert.equal(flowGuardApplies(false, true), false); // phase not active
+  assert.equal(flowGuardApplies(false, false), false);
+});
+
+test("closureModelGuardApplies: requires both an entered flow and closure enforcement", () => {
+  assert.equal(closureModelGuardApplies(true, true), true);
+  assert.equal(closureModelGuardApplies(false, true), false); // not entered -> dormant
+  assert.equal(closureModelGuardApplies(true, false), false); // enforce off
+  assert.equal(closureModelGuardApplies(false, false), false);
 });

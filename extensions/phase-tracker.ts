@@ -26,7 +26,9 @@ import { loadGauntletSettings } from "./lib/gauntlet-settings-loader.ts";
 import {
   checkSubstep,
   findMarkerFile,
+  flowGuardApplies,
   markerBlockReason,
+  nextGauntletEntered,
   parseGitCommit,
   phaseLabel,
   resolveRepoDir,
@@ -239,6 +241,7 @@ function formatStatus(phases: PhaseMap): string {
 export default function (pi: ExtensionAPI) {
   let phases: PhaseMap = emptyPhases();
   let conformanceDispatched = false;
+  let gauntletEntered = false;
 
   // Warn-once-per-phase ledger; cleared on every phase transition and on reconstruct.
   const firedGuards = new Map<string, boolean>();
@@ -286,6 +289,7 @@ export default function (pi: ExtensionAPI) {
   const reconstructState = (ctx: ExtensionContext) => {
     phases = emptyPhases();
     conformanceDispatched = false;
+    gauntletEntered = false;
     firedGuards.clear();
     pendingGuardWarnings.clear();
     for (const entry of ctx.sessionManager.getBranch()) {
@@ -296,6 +300,7 @@ export default function (pi: ExtensionAPI) {
         const details = msg.details as PhaseTrackerDetails | undefined;
         if (details && !details.error) {
           phases = details.phases;
+          gauntletEntered = nextGauntletEntered(gauntletEntered, details.action, details.phases.brainstorm.status);
           if (details.action === "reset") conformanceDispatched = false;
         }
       } else if (msg.toolName === "subagent") {
@@ -345,7 +350,11 @@ export default function (pi: ExtensionAPI) {
     const specDirs = () => resolveFlowGuards(g()).specDirs;
 
     // Closure-review model guard - independent of flowGuards, gated by closureReview.enforce.
-    if (event.toolName === "subagent" && closureEnforced()) {
+    // gating contract: closureModelGuardApplies (see helpers). Marker-first: gauntletEntered
+    // short-circuits before closureEnforced()'s settings load, so an ad-hoc (out-of-flow)
+    // subagent dispatch never loads settings or leaks a settingsErrorWarning onto its result.
+    // Inline-matched (not called) so closureEnforced() stays a lazy second conjunct.
+    if (event.toolName === "subagent" && gauntletEntered && closureEnforced()) {
       const model = closureReviewModel();
       // Only execution-mode dispatches carry a model; management/control modes
       // (action: list/get/create/update/delete/status/...) execute nothing, so skip them.
@@ -371,8 +380,10 @@ export default function (pi: ExtensionAPI) {
     // event no guard inspects (any read-only tool, or any tool in a dormant session)
     // returns here without touching disk. Only genuinely guardable events pay for g().
     const brainstormActive = phases.brainstorm.status === "in_progress";
-    const guardableWrite = (event.toolName === "write" || event.toolName === "edit") && brainstormActive;
-    const guardableBash = event.toolName === "bash" && activeGuardPhase() !== undefined;
+    const guardableWrite =
+      (event.toolName === "write" || event.toolName === "edit") && flowGuardApplies(brainstormActive, gauntletEntered);
+    const guardableBash =
+      event.toolName === "bash" && flowGuardApplies(activeGuardPhase() !== undefined, gauntletEntered);
     if (!guardableWrite && !guardableBash) return undefined;
 
     if (!flowGuardsEnforced()) return undefined;
@@ -527,7 +538,8 @@ export default function (pi: ExtensionAPI) {
     description:
       "Track workflow phase progress (brainstorm → plan → implement → verify → ship). " +
       "Actions: start (mark phase in_progress), complete (mark phase complete), " +
-      "skip (mark phase skipped with reason), status (show all phases), reset (clear all phases), substep (set/clear a substep label on an in_progress phase).",
+      "skip (mark phase skipped with reason), status (show all phases), reset (clear all phases), substep (set/clear a substep label on an in_progress phase). " +
+      "Drives gauntlet-flow enforcement entered via brainstorming; the closure gate, closure-model guard, and flow guards arm only when brainstorming started the flow. Ad-hoc start verify/start implement calls do not arm the gates. Not for ad-hoc use.",
     parameters: PhaseTrackerParams,
 
     async execute(_toolCallId, params, _signal, _onUpdate, ctx) {
@@ -572,6 +584,7 @@ export default function (pi: ExtensionAPI) {
             };
           }
           phases = { ...phases, [params.phase]: transitionPhaseState("in_progress") as PhaseState };
+          gauntletEntered = nextGauntletEntered(gauntletEntered, "start", phases.brainstorm.status);
           firedGuards.clear();
           updateWidget(ctx);
           return {
@@ -598,8 +611,12 @@ export default function (pi: ExtensionAPI) {
               } as PhaseTrackerDetails,
             };
           }
+          // gating contract: closureGateBlocks (see helpers). gauntletEntered is the leading
+          // conjunct so a cold-session `complete verify` (the #2 incident) neither blocks nor
+          // loads settings; the remaining conjuncts match closureGateBlocks exactly.
           if (
             params.phase === "verify" &&
+            gauntletEntered &&
             resolveClosureReview(loadGauntletSettings(ctx.cwd).gauntlet).enforce &&
             !conformanceDispatched
           ) {
@@ -694,6 +711,7 @@ export default function (pi: ExtensionAPI) {
             PHASES.map((p) => [p, transitionPhaseState("pending")]),
           ) as PhaseMap;
           conformanceDispatched = false;
+          gauntletEntered = nextGauntletEntered(gauntletEntered, "reset", phases.brainstorm.status);
           firedGuards.clear();
           updateWidget(ctx);
           return {

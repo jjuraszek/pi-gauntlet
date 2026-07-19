@@ -168,10 +168,10 @@ Per round:
    including DELIVERED rows and their `evidence` `file:line`) and the round's
    fix diff. Inject `model:` call-site per `gauntlet_setting({ key:
    "closureReview" }).model` — same mechanism as the initial audit; omit
-   `model:` when it is `undefined` to inherit the parent's model. The
-   phase-tracker closure guard blocks a dispatch that omits `model:` when
-   `closureReview.model` is set, and warns (non-blocking) on one whose model
-   differs.
+   `model:` when it is `undefined` to inherit the parent's model. Inside a
+   brainstorming-entered flow, the phase-tracker closure guard blocks a dispatch
+   that omits `model:` when `closureReview.model` is set, and warns (non-blocking)
+   on one whose model differs.
 7. **Converge or continue**: verdict `CONFORMS` → record it, done. Open gaps
    within the cap → re-partition (per the rule above) and start the next
    round. Cap (`gauntlet_setting({ key: "closureReview" }).maxFixRounds`,

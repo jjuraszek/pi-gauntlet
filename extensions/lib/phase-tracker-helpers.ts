@@ -90,6 +90,46 @@ export function markerGuardApplies(flowGuardsEnforced: boolean, brainstormStatus
   return flowGuardsEnforced && brainstormStatus === "in_progress";
 }
 
+// Flow-entry marker (spec 2026-07-19-sole-gauntlet-entry-point). The gauntlet is
+// opt-in: enforcement is dormant unless brainstorming started this flow. A `start`
+// that leaves brainstorm in_progress is the unique arming signal (exactly one phase
+// is in_progress at a time; the start target is not stored but is inferable). `reset`
+// disarms; every other action preserves the running marker so it survives brainstorm
+// -> plan -> implement -> verify. brainstormStatus is the phase status AFTER the action.
+export function nextGauntletEntered(prev: boolean, action: string, brainstormStatus: string): boolean {
+  if (action === "reset") return false;
+  if (action === "start" && brainstormStatus === "in_progress") return true;
+  return prev;
+}
+
+// Closure completion-gate decision. Marker-first: a non-entered flow never blocks
+// `complete verify`. Executable contract for the extension's inlined check (same
+// define-and-test-but-inline pattern as markerGuardApplies).
+export function closureGateBlocks(
+  phase: string,
+  gauntletEntered: boolean,
+  closureEnforced: boolean,
+  conformanceDispatched: boolean,
+): boolean {
+  return phase === "verify" && gauntletEntered && closureEnforced && !conformanceDispatched;
+}
+
+// Closure-model-guard applicability. Marker-first: the extension inlines this with the
+// settings read (closureEnforced()) as a lazy call AFTER gauntletEntered, so a dormant
+// (out-of-flow) session performs no settings I/O. This predicate is the tested contract
+// for that inlined check (same define-test-and-inline pattern as markerGuardApplies /
+// closureGateBlocks); it takes the already-resolved booleans, never triggering the read.
+export function closureModelGuardApplies(gauntletEntered: boolean, closureEnforced: boolean): boolean {
+  return gauntletEntered && closureEnforced;
+}
+
+// Flow-guard applicability: a guard fires only when its phase is active AND the flow
+// was entered via brainstorming. Both inputs are in-memory, so the extension calls
+// this directly with no settings-load cost.
+export function flowGuardApplies(phaseActive: boolean, gauntletEntered: boolean): boolean {
+  return phaseActive && gauntletEntered;
+}
+
 export const markerBlockReason = (file: string): string =>
   `Blocked: ${file} still begins with the context-draft marker - the spec-writing ` +
   `overwrite has not happened. Overwrite the draft with the real spec (write tool, ` +
