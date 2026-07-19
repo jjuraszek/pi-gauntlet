@@ -1,5 +1,25 @@
 # Changelog
 
+## v4.4.3 - 2026-07-19
+
+Brainstorming is the sole gauntlet entry point (#2): gate all three phase-tracker
+enforcement surfaces (closure completion gate, closure-model guard, flow guards) on a
+durable `gauntletEntered` marker so the gauntlet is dormant unless brainstorming started
+the flow. A reflexive `phase_tracker start verify` on an ad-hoc one-liner no longer trips
+the closure gate or forces a spurious conformance dispatch.
+
+The marker is derived in `reconstructState` from the session branch (mirroring
+`conformanceDispatched`: reset on reconstruct, threaded through replay, updated in the live
+start/reset handlers via one `nextGauntletEntered` transition), so it survives pi-condense
+pruning and `--session` resume. All three surfaces gate marker-first, so a dormant
+out-of-flow session short-circuits before any settings load; in-flow behavior is unchanged
+(`brainstormActive` implies `gauntletEntered`). New pure helpers `nextGauntletEntered` /
+`closureGateBlocks` / `closureModelGuardApplies` / `flowGuardApplies` are unit-tested; the
+two settings-dependent surfaces inline-match their predicate (the `markerGuardApplies`
+convention) to preserve marker-first laziness. Docs (README, configuration.md, AGENTS.md,
+conformance-check.md, the `phase_tracker` tool description) reworded: enforcement is opt-in
+by brainstorming entry, not ambient.
+
 ## v4.4.2 - 2026-07-15
 
 Condense the finish-time conformance disposition gate to a dense, human-readable
