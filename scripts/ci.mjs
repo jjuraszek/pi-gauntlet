@@ -48,16 +48,41 @@ if (files.length === 0) {
   if (files.includes("agents") && files.includes("bin")) ok("files allowlist ships agents/ + bin/");
 }
 
-// pi manifest globs must resolve to real, non-empty dirs
-for (const [key, arr] of Object.entries({ skills: pkg.pi?.skills, extensions: pkg.pi?.extensions })) {
-  if (!Array.isArray(arr) || arr.length === 0) { fail(`package.json: pi.${key} missing`); continue; }
-  for (const rel of arr) {
+// pi skills resolve from a non-empty directory
+const skillEntries = pkg.pi?.skills;
+if (!Array.isArray(skillEntries) || skillEntries.length === 0) {
+  fail("package.json: pi.skills missing");
+} else {
+  for (const rel of skillEntries) {
     const dir = R(rel.replace(/^\.\//, ""));
-    if (!existsSync(dir) || !statSync(dir).isDirectory()) fail(`package.json: pi.${key} points at missing dir ${rel}`);
-    else if (readdirSync(dir).length === 0) fail(`package.json: pi.${key} dir ${rel} is empty`);
+    if (!existsSync(dir) || !statSync(dir).isDirectory()) fail(`package.json: pi.skills points at missing dir ${rel}`);
+    else if (readdirSync(dir).length === 0) fail(`package.json: pi.skills dir ${rel} is empty`);
   }
 }
-ok("pi manifest globs resolve");
+
+// Extension entrypoints are explicit so Pi never auto-discovers tests or helpers.
+const expectedExtensions = [
+  "./extensions/phase-tracker.ts",
+  "./extensions/plan-tracker.ts",
+  "./extensions/verify-before-ship.ts",
+];
+const extensionEntries = pkg.pi?.extensions;
+if (!Array.isArray(extensionEntries) || extensionEntries.length === 0) {
+  fail("package.json: pi.extensions missing");
+} else {
+  const actual = [...extensionEntries].sort();
+  const expected = [...expectedExtensions].sort();
+  if (JSON.stringify(actual) !== JSON.stringify(expected)) {
+    fail(`package.json: pi.extensions must be exactly ${expectedExtensions.join(", ")} (got ${extensionEntries.join(", ")})`);
+  }
+  for (const rel of extensionEntries) {
+    const file = R(rel.replace(/^\.\//, ""));
+    if (!/\.(ts|js)$/.test(rel) || !existsSync(file) || !statSync(file).isFile()) {
+      fail(`package.json: pi.extensions points at invalid extension file ${rel}`);
+    }
+  }
+}
+ok("pi manifest resources resolve");
 
 // ---- version consistency: package.json == CHANGELOG top ==------------------
 const changelog = readFileSync(R("CHANGELOG.md"), "utf8");

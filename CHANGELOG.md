@@ -1,5 +1,13 @@
 # Changelog
 
+## v4.5.1 - 2026-07-30
+
+Fix the v4.5.0 package startup regression that exposed the new top-level
+`extensions/phase-tracker.test.ts` file to Pi's directory-wide extension discovery.
+`package.json#pi.extensions` now names only the three runtime factory files, and the
+release validator enforces that exact entrypoint set so tests and helpers cannot be
+loaded as extensions again.
+
 ## v4.5.0 - 2026-07-30
 
 Recover stalled automatic handoffs without weakening gauntlet gates (#3). The existing
