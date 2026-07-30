@@ -1,5 +1,21 @@
 # Changelog
 
+## v4.5.0 - 2026-07-30
+
+Recover stalled automatic handoffs without weakening gauntlet gates (#3). The existing
+phase-tracker now sends one branch-local, fire-and-forget continuation nudge when an
+`agent_settled` event leaves either `plan -> implement` or `verify -> ship` pending. The
+handler requires brainstorming entry, no active phase, a non-aborted stop, an exact
+recognized edge, an unspent ancestry-local attempt, and a final idle check. Recovery
+messages persist their edge in custom-message details, so repeated settlements and session
+reconstruction do not re-trigger the same unchanged handoff.
+
+The implementation remains deliberately narrow: no transition engine, retry loop, timer,
+settings key, phase mutation, or older-host fallback. Prompt wording now reinforces both
+automatic handoffs, while specification approval and the final branch disposition remain
+human gates. Pure classifier tests and real extension event tests cover edge selection,
+persistence, abort/idleness guards, competing-handler ordering, and one-shot behavior.
+
 ## v4.4.3 - 2026-07-19
 
 Brainstorming is the sole gauntlet entry point (#2): gate all three phase-tracker
