@@ -22,6 +22,7 @@ You **may**:
 - Read code and docs
 - Run the existing system to observe its **current** behaviour — this is research and feeds the spec (boot a local service, replay a sample request, capture a baseline classification, etc.)
 - Write to the project's `doc/specs/` directory
+- `edit` a predecessor spec in the project's spec directory to add a supersession banner (see [Marking superseded specs](#marking-superseded-specs)) — the `edit` prohibition at spec-writing binds the spec being written, not a predecessor file
 
 You may **not**:
 
@@ -57,7 +58,7 @@ Work through the items below **in order**. This is your own checklist to follow,
    claims against real code, ask questions one at a time, append citable findings
 5. **Propose 2-3 approaches** — with trade-offs and a recommendation
 6. **Present the design** — in sections, get approval after each
-7. **Write the spec** — to `doc/specs/` (see [Filename Convention](#filename-convention))
+7. **Write the spec** — to `doc/specs/` (see [Filename Convention](#filename-convention)); then mark any known superseded predecessor(s) per [Marking superseded specs](#marking-superseded-specs), at the exact-order position defined in [Spec Self-Review](#spec-self-review-before-user-review-gate)
 8. **Spec self-review (lint)** — placeholder scan + internal consistency + documentation named, run inline
 9. **Critique pass (auto-dispatched)** — scope + ambiguity; the spec council via `/skill:roasting-the-spec` when `gauntlet_setting` returns verdict `council` (it applies its apply-set, including any external-ref inlining, to the spec before returning — see [Spec Council](#spec-council-optional)), else a fresh `worker` that applies its own fixes in place
 10. **Re-run placeholder scan** — after the critique pass returns, re-scan the **applied** spec for placeholders its edits may have introduced; surface any ambiguity the critique could not safely resolve at the user gate
@@ -130,7 +131,9 @@ path.
   section starts that answer; confirm it before designing from scratch.
 - Ask questions **one at a time** to refine the idea. Prefer multiple-choice; one
   question per message. Focus on: purpose, constraints, success criteria, who/what
-  it touches.
+  it touches. Ask once whether the design replaces a prior spec, fully or in part,
+  so the supersession event is captured before spec-writing (see
+  [Marking superseded specs](#marking-superseded-specs)).
 - **Append bar:** append to the draft's `## Appended during questionary` only
   findings the spec will cite — schema shapes, hard constraints, ticket-vs-code
   contradictions, user answers that changed scope. Not a log of every grep.
@@ -220,6 +223,25 @@ overwrite reuses the path. If the questionary invalidated the slug, rename at
 spec-writing: write the spec at the new path **and delete the old draft file**
 (nothing was committed, so this is free).
 
+## Marking superseded specs
+
+When the new spec replaces a prior spec — fully or in part — and you **already know which one** (from the questionary, the draft, or the request), mark the predecessor. Never search, sweep, or audit the spec corpus for candidates: marking is event-driven authorial knowledge only.
+
+- `edit` the predecessor spec (in the project's spec directory, per [Project Routing](#project-routing)) to insert, after its title line and a blank line, one banner line per successor:
+
+  ```markdown
+  > **Superseded by:** [<repo-relative path to successor>](<href relative to THIS file>) - <scope>
+  ```
+
+- The visible label is the successor's repo-relative path; the href is computed relative to the predecessor's own directory (Markdown resolves links from the containing file). Same directory: `[doc/specs/B.md](./B.md)`.
+- `<scope>` is `fully`, or the named superseded section(s), e.g. `- "Settings resolution" section only`.
+- Banners are **append-only**: add below any existing supersession lines, formatted or free-form prose. One old spec may accumulate banners from multiple successors. No migration, no dedup.
+- **No transitive rewrite**: if A points at B and B is later superseded by C, A keeps pointing at B; the reader hops.
+- **Mark, never delete.** Delete/archive policy is consumer territory via overrides.
+- **Coverage limits**: unmarked does NOT mean current (code drift, abandoned designs, and partial ships produce no successor spec); marked does NOT mean dead (partial supersession leaves live sections).
+- Predecessor in a **different service's spec directory**: out of scope — record it in the new spec's Open Questions instead of editing outside the write grant.
+- **Override contract**: `.pi/gauntlet-overrides.md` may replace the banner *syntax*; placement, append-only, no-transitive-rewrite, and mark-never-delete stay fixed. A syntax override entry must itself state the scout-citation guidance for its format (the shipped `gatherer.md` guidance names only the default banner).
+
 ## Spec Self-Review (Before User Review Gate)
 
 Spec-writing replaces the context draft, in this exact order:
@@ -233,11 +255,15 @@ Spec-writing replaces the context draft, in this exact order:
    `# CONTEXT DRAFT - NOT A SPEC - fully replaced at spec-writing` — before
    dispatching lint, critique, council, or summarizer. The phase-tracker commit
    guard is a backstop, not the primary check.
+4. **After the line-1 check and before the inline lint**, `edit` any known
+   predecessor spec to insert its supersession banner (see
+   [Marking superseded specs](#marking-superseded-specs)). This position is fixed:
+   the banner is written after any slug rename, so it always cites the final path.
 
 After writing the spec to `<project>/doc/specs/<filename>.md` (per [Filename Convention](#filename-convention)) and before showing it to the user, run a self-review pass. **Read all five bullets first, then act:** only the **first three** run here at the main loop (the inline lint); the **last two** (scope + ambiguity) do **not** run inline — they are the dispatched critique pass (checklist item 9). Do not apply scope/ambiguity edits yourself.
 
 - **Placeholder scan.** Any `TODO`, `TBD`, `<fill in>`, `[example]`, `xxx`? Either resolve them or convert to explicit "Open Questions" with names.
-- **Internal consistency.** Does Section 4 contradict Section 2? Are component names and field names consistent throughout?
+- **Internal consistency.** Does Section 4 contradict Section 2? Are component names and field names consistent throughout? If the spec replaces a prior design, confirm the predecessor carries the supersession banner and its href resolves to this spec's final filename.
 - **Documentation named.** Does the spec name all three classes (feature/user-facing introduced; materially amended; derived/memory invalidated), or an explicit "none" for each? Enforce the materiality bar in `reference/documentation-impact.md` without restating it: each listed doc names the category it clears, none is a code-mirror, amend-over-create was applied, and skill/agent bodies are implementation surface, not doc-impact entries here.
 - **Scope check.** Does every paragraph serve the goal? Cut filler. If something is out of scope, say it's out of scope.
 - **Ambiguity check.** Is every "we should…" backed by a concrete decision? Replace "we could probably" with "we will" or "we won't".
@@ -286,7 +312,7 @@ subagent({ agent: "spec-summarizer", context: "fresh", cwd: "<abs worktree path,
 
 `<SUMMARY_PATH>` above is a placeholder in the dispatch object; it means substitute the value of the shell variable `$SUMMARY_PATH` set above. The steps below use `$SUMMARY_PATH` (the shell form) once the value is in hand.
 
-Then commit the spec — this commit is **unconditional**: the summary is only a gate aid, so a degraded or missing summary never blocks it. If the council path ran, include its audit (`Applied:` / `Deferred:` / `Rejected:`, verbatim from `/skill:roasting-the-spec`'s return) in the **commit message body** - this is the durable, non-contractual record a finish-time revert reads back; the audit is never a committed spec section. Evaluate the summary in two stages (the **Degrade path** referenced in each is defined just below):
+Then commit the spec — staging any predecessor spec edited per [Marking superseded specs](#marking-superseded-specs) alongside it; a change request at the gate that renames, materially revises, or drops the spec also reconciles the predecessor's banner before recommitting. This commit is **unconditional**: the summary is only a gate aid, so a degraded or missing summary never blocks it. If the council path ran, include its audit (`Applied:` / `Deferred:` / `Rejected:`, verbatim from `/skill:roasting-the-spec`'s return) in the **commit message body** - this is the durable, non-contractual record a finish-time revert reads back; the audit is never a committed spec section. Evaluate the summary in two stages (the **Degrade path** referenced in each is defined just below):
 
 1. **From the dispatch tool result, before the `Read`.** If the result is **not** an `"Output saved to: <path> (<N> KB, <M> lines)"` reference (e.g. an exit-0 save error returns the full inline output plus an "Output file error" line — the prunable shape, no file to read), or the reference reports under ~500 bytes, or a size grossly disproportionate to the spec (under ~2% of its byte size), or over ~45 KB (the `Read` truncates at 50KB / 2000 lines, so a larger file cannot render whole) — skip the `Read` and take the degrade path. Use the reference's reported figures; do not re-derive them.
 2. **The `Read` itself, as the last content-producing tool call before composing the gate.** `Read` `$SUMMARY_PATH` and paste its contents verbatim at the top of the gate. If the `Read` fails, returns 0 bytes, or reports truncation — take the degrade path. The `Read` must be last: pi-condense does not protect a `/tmp` read, so any turn boundary between the `Read` and the render lets the ~9KB read result be pruned, reproducing the bug.
@@ -351,6 +377,7 @@ phase_tracker({ action: "complete", phase: "brainstorm" })
 - About to run the scope or ambiguity checks inline yourself instead of dispatching them (those two are the critique pass, not the inline lint)
 - About to skip the self-review pass
 - About to proceed to `/skill:writing-plans` before the user has approved the spec (proceeding *after* approval is correct; skipping the gate is the violation)
+- About to finish spec-writing for a replacement design without marking the known predecessor (see [Marking superseded specs](#marking-superseded-specs))
 - Spec contains `TODO`, `TBD`, or unnamed components
 - Spec spans multiple independent subsystems with no decomposition flag
 - User said "this is just a small change" and you accepted it without applying the [Anti-Pattern](#anti-pattern-too-simple-to-need-a-design) check

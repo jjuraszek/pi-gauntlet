@@ -1,5 +1,15 @@
 # Changelog
 
+## [Unreleased]
+
+Default supersession marking (#4). When a new spec replaces a known predecessor,
+brainstorming's spec-writing step edits the old spec to add a
+`> **Superseded by:** [<path>](<href>) - <scope>` banner under its title —
+append-only, mark-never-delete, no transitive rewrite, no corpus sweep. The scout
+task template in gatherer.md follows such banners during context gathering. Syntax
+is overridable via `.pi/gauntlet-overrides.md`; placement and retention semantics
+are fixed. No new settings key.
+
 ## v4.5.1 - 2026-07-30
 
 Fix the v4.5.0 package startup regression that exposed the new top-level

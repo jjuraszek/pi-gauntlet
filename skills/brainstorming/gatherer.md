@@ -41,7 +41,11 @@ Scout (always dispatched):
 > Map the territory this change touches: relevant files with line ranges, existing
 > patterns and conventions the change must match, test conventions, integration
 > points, and whether the codebase or ecosystem already solves any of this. Cite
-> exact paths and line ranges. End with an "Open questions that matter for the spec"
+> exact paths and line ranges. If a spec you cite carries a supersession marker
+> (default: a `> **Superseded by:**` banner; the project's overrides may define
+> another format), follow the successor for the superseded scope and cite it
+> instead; cite the old spec only for its unsuperseded sections. End with an
+> "Open questions that matter for the spec"
 > section. Compact handoff, not a dump.
 
 Context-builder (conditional):
