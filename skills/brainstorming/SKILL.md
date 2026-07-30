@@ -61,7 +61,7 @@ Work through the items below **in order**. This is your own checklist to follow,
 7. **Write the spec** — to `doc/specs/` (see [Filename Convention](#filename-convention)); then mark any known superseded predecessor(s) per [Marking superseded specs](#marking-superseded-specs), at the exact-order position defined in [Spec Self-Review](#spec-self-review-before-user-review-gate)
 8. **Spec self-review (lint)** — placeholder scan + internal consistency + documentation named, run inline
 9. **Critique pass (auto-dispatched)** — scope + ambiguity; the spec council via `/skill:roasting-the-spec` when `gauntlet_setting` returns verdict `council` (it applies its apply-set, including any external-ref inlining, to the spec before returning — see [Spec Council](#spec-council-optional)), else a fresh `worker` that applies its own fixes in place
-10. **Re-run placeholder scan** — after the critique pass returns, re-scan the **applied** spec for placeholders its edits may have introduced; surface any ambiguity the critique could not safely resolve at the user gate
+10. **Re-run placeholder scan** — after the critique pass returns, re-scan the **applied** spec for placeholders its edits may have introduced; if a predecessor banner exists, confirm its `<scope>` still matches the applied spec (critique edits can change what is superseded); surface any ambiguity the critique could not safely resolve at the user gate
 11. **Generate spec summary** — dispatch a fresh, spec-only `spec-summarizer` over the **final (post-apply)** spec, writing to an absolute temp-dir path via `outputMode: "file-only"`, then `Read` that file back as the **last content-producing** tool call before composing the gate and render its contents **verbatim** at the top of the gate message — do not paraphrase, condense, re-section, or rewrite it (see [User Review Gate](#user-review-gate)); this is part of the existing gate, not a new one
 12. **User review gate** — user reviews the applied spec's verbatim summary plus the council audit (Applied/Deferred/Rejected), with a revert valve for any applied council edit
 13. **Transition** — only after approval, invoke `/skill:writing-plans`
@@ -234,7 +234,7 @@ When the new spec replaces a prior spec — fully or in part — and you **alrea
   ```
 
 - The visible label is the successor's repo-relative path; the href is computed relative to the predecessor's own directory (Markdown resolves links from the containing file). Same directory: `[doc/specs/B.md](./B.md)`.
-- `<scope>` is `fully`, or the named superseded section(s), e.g. `- "Settings resolution" section only`.
+- `<scope>` is the value after the ` - ` separator: `fully`, or the named superseded section(s), e.g. `"Settings resolution" section only`. The scope value itself carries no leading dash — the template above already supplies the separator.
 - Banners are **append-only**: add below any existing supersession lines, formatted or free-form prose. One old spec may accumulate banners from multiple successors. No migration, no dedup.
 - **No transitive rewrite**: if A points at B and B is later superseded by C, A keeps pointing at B; the reader hops.
 - **Mark, never delete.** Delete/archive policy is consumer territory via overrides.
@@ -288,7 +288,7 @@ The first three checks — **placeholder scan**, **internal consistency**, and *
 
   `worker`'s model resolves from `subagents.agentOverrides.worker.model` in `settings.json` (unset → inherits the main loop); the dispatch passes no `model:`.
 
-Both paths apply their fixes **before returning** — the council auto-applies inside `/skill:roasting-the-spec`, the worker edits the spec file directly. After the critique pass returns, re-run the placeholder scan over the **applied** spec to catch anything the edits introduced. If the worker flagged ambiguities it could not safely resolve, surface them in the [User Review Gate](#user-review-gate) message so the user decides - the worker auto-applies fixes but never silently swallows an open question.
+Both paths apply their fixes **before returning** — the council auto-applies inside `/skill:roasting-the-spec`, the worker edits the spec file directly. After the critique pass returns, re-run the placeholder scan over the **applied** spec to catch anything the edits introduced, and — if a predecessor banner was written — confirm its `<scope>` still matches the applied spec, reconciling the banner if critique edits changed what is superseded. If the worker flagged ambiguities it could not safely resolve, surface them in the [User Review Gate](#user-review-gate) message so the user decides - the worker auto-applies fixes but never silently swallows an open question.
 
 ## Spec Council (Optional)
 
