@@ -140,7 +140,14 @@ ok("extensions parse clean (incl. lib/)");
 try {
   execFileSync(
     process.execPath,
-    ["--test", R("extensions/lib/gauntlet-settings.test.ts"), R("extensions/lib/phase-tracker-helpers.test.ts")],
+    [
+      "--experimental-loader",
+      R("extensions/test-support/pi-stubs.mjs"),
+      "--test",
+      R("extensions/lib/gauntlet-settings.test.ts"),
+      R("extensions/lib/phase-tracker-helpers.test.ts"),
+      R("extensions/phase-tracker.test.ts"),
+    ],
     { stdio: "pipe" },
   );
   ok("resolver unit tests pass");

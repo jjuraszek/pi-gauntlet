@@ -30,7 +30,8 @@ You are the **orchestrator**. You read the plan, dispatch, review the review, de
 - A subagent returns `NEEDS_CONTEXT` or `BLOCKED` (see [Implementer Status](#implementer-status))
 - A reviewer finds issues the implementer cannot resolve in two attempts
 - A ⚠️ workflow warning fires
-- You hit the end of the plan (then stop and report — see [After All Tasks](#after-all-tasks-complete))
+
+Reaching the end of the plan is not a pause: continue through verification and invoke `/skill:finishing-a-development-branch` as defined in [After All Tasks](#after-all-tasks-complete).
 
 Periodic "should I continue?" prompts add latency without adding safety. The plan is the contract; execute it.
 

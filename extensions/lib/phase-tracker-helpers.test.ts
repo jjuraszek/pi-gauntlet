@@ -14,7 +14,50 @@ import {
   markerBlockReason,
   transitionPhaseState,
   markerGuardApplies,
+  recoverableEdge,
+  type RecoveryPhaseMap,
+  type RecoveryPhaseStatus,
 } from "./phase-tracker-helpers.ts";
+
+const recoveryPhases = (
+  overrides: Partial<Record<keyof RecoveryPhaseMap, RecoveryPhaseStatus>> = {},
+): RecoveryPhaseMap =>
+  Object.fromEntries(
+    (["brainstorm", "plan", "implement", "verify", "ship"] as const).map((phase) => [
+      phase,
+      { status: overrides[phase] ?? "pending" },
+    ]),
+  ) as RecoveryPhaseMap;
+
+test("recoverableEdge: recognizes only the two authorized edges", () => {
+  assert.equal(recoverableEdge(recoveryPhases({ plan: "complete" })), "plan-implement");
+  assert.equal(recoverableEdge(recoveryPhases({ verify: "complete" })), "verify-ship");
+});
+
+test("recoverableEdge: rejects any active phase", () => {
+  for (const phase of ["brainstorm", "plan", "implement", "verify", "ship"] as const) {
+    const recoverable: Partial<Record<keyof RecoveryPhaseMap, RecoveryPhaseStatus>> = phase === "verify" || phase === "ship" ? { plan: "complete" } : { verify: "complete" };
+    assert.equal(recoverableEdge(recoveryPhases(recoverable)), phase === "verify" || phase === "ship" ? "plan-implement" : "verify-ship");
+    assert.equal(recoverableEdge(recoveryPhases({ ...recoverable, [phase]: "in_progress" })), undefined);
+  }
+});
+
+test("recoverableEdge: rejects invalid source and destination states", () => {
+  for (const status of ["pending", "in_progress", "skipped"] as const) {
+    assert.equal(recoverableEdge(recoveryPhases({ plan: status })), undefined);
+    assert.equal(recoverableEdge(recoveryPhases({ verify: status })), undefined);
+  }
+  for (const status of ["in_progress", "complete", "skipped"] as const) {
+    assert.equal(recoverableEdge(recoveryPhases({ plan: "complete", implement: status })), undefined);
+    assert.equal(recoverableEdge(recoveryPhases({ verify: "complete", ship: status })), undefined);
+  }
+});
+
+test("recoverableEdge: rejects unrelated and ambiguous phase maps", () => {
+  assert.equal(recoverableEdge(recoveryPhases()), undefined);
+  assert.equal(recoverableEdge(recoveryPhases({ brainstorm: "complete", implement: "complete" })), undefined);
+  assert.equal(recoverableEdge(recoveryPhases({ plan: "complete", verify: "complete" })), undefined);
+});
 
 test("checkSubstep: in_progress -> ok", () => {
   assert.deepEqual(checkSubstep("in_progress"), { ok: true });

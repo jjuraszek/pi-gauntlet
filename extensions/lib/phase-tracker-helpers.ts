@@ -10,6 +10,21 @@ export const CONTEXT_DRAFT_MARKER = "# CONTEXT DRAFT - NOT A SPEC - fully replac
 
 export type SubstepCheck = { ok: true } | { ok: false; error: string };
 
+export type RecoveryEdge = "plan-implement" | "verify-ship";
+export type RecoveryPhaseStatus = "pending" | "in_progress" | "complete" | "skipped";
+export type RecoveryPhaseMap = Record<
+  "brainstorm" | "plan" | "implement" | "verify" | "ship",
+  { status: RecoveryPhaseStatus }
+>;
+
+export function recoverableEdge(phases: RecoveryPhaseMap): RecoveryEdge | undefined {
+  if (Object.values(phases).some((phase) => phase.status === "in_progress")) return undefined;
+  const planImplement = phases.plan.status === "complete" && phases.implement.status === "pending";
+  const verifyShip = phases.verify.status === "complete" && phases.ship.status === "pending";
+  if (planImplement === verifyShip) return undefined;
+  return planImplement ? "plan-implement" : "verify-ship";
+}
+
 export function checkSubstep(phaseStatus: string): SubstepCheck {
   if (phaseStatus === "in_progress") return { ok: true };
   return { ok: false, error: `substep requires an in_progress phase (status is ${phaseStatus})` };

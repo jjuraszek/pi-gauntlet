@@ -31,9 +31,11 @@ import {
   nextGauntletEntered,
   parseGitCommit,
   phaseLabel,
+  recoverableEdge,
   resolveRepoDir,
   STMT_START,
   transitionPhaseState,
+  type RecoveryEdge,
 } from "./lib/phase-tracker-helpers.ts";
 
 const PHASES = ["brainstorm", "plan", "implement", "verify", "ship"] as const;
@@ -79,6 +81,18 @@ const SHIP_ADVISORY =
   "now - do not add a 'ready to finish?' prompt; its disposition + squash/PR/keep/discard\n" +
   "menu is the human gate that resolves any carried-open decision. Only reopen verify if\n" +
   "a `fix` gap was left unresolved (neither fixed nor deferred).";
+
+const RECOVERY_CUSTOM_TYPE = "pi-gauntlet-transition-recovery";
+const RECOVERY_MESSAGES: Record<RecoveryEdge, string> = {
+  "plan-implement": "Continue the approved workflow now. Invoke /skill:subagent-driven-development.",
+  "verify-ship": "Continue the approved workflow now. Invoke /skill:finishing-a-development-branch.",
+};
+
+const recoveryEdgeFromDetails = (details: unknown): RecoveryEdge | undefined => {
+  if (!details || typeof details !== "object") return undefined;
+  const edge = (details as { piGauntletRecoveryEdge?: unknown }).piGauntletRecoveryEdge;
+  return edge === "plan-implement" || edge === "verify-ship" ? edge : undefined;
+};
 
 // --- Flow guards (spec 2026-06-17-gauntlet-flow-guards) ---
 
@@ -242,6 +256,7 @@ export default function (pi: ExtensionAPI) {
   let phases: PhaseMap = emptyPhases();
   let conformanceDispatched = false;
   let gauntletEntered = false;
+  const attemptedRecoveryEdges = new Set<RecoveryEdge>();
 
   // Warn-once-per-phase ledger; cleared on every phase transition and on reconstruct.
   const firedGuards = new Map<string, boolean>();
@@ -286,13 +301,29 @@ export default function (pi: ExtensionAPI) {
     }
   };
 
+  const branchLatestAssistantStopReason = (ctx: ExtensionContext): string | undefined => {
+    let stopReason: string | undefined;
+    for (const entry of ctx.sessionManager.getBranch()) {
+      if (entry.type === "message" && entry.message.role === "assistant") stopReason = entry.message.stopReason;
+    }
+    return stopReason;
+  };
+
   const reconstructState = (ctx: ExtensionContext) => {
     phases = emptyPhases();
     conformanceDispatched = false;
     gauntletEntered = false;
+    attemptedRecoveryEdges.clear();
     firedGuards.clear();
     pendingGuardWarnings.clear();
     for (const entry of ctx.sessionManager.getBranch()) {
+      if (entry.type === "custom_message") {
+        if (entry.customType === RECOVERY_CUSTOM_TYPE) {
+          const edge = recoveryEdgeFromDetails(entry.details);
+          if (edge) attemptedRecoveryEdges.add(edge);
+        }
+        continue;
+      }
       if (entry.type !== "message") continue;
       const msg = entry.message;
       if (msg.role !== "toolResult") continue;
@@ -329,6 +360,23 @@ export default function (pi: ExtensionAPI) {
       updateWidget(ctx);
     });
   }
+
+  pi.on("agent_settled", (_event, ctx) => {
+    const latestAssistantStopReason = branchLatestAssistantStopReason(ctx);
+    if (!gauntletEntered || latestAssistantStopReason === "aborted") return;
+    const edge = recoverableEdge(phases);
+    if (!edge || attemptedRecoveryEdges.has(edge) || !ctx.isIdle()) return;
+    attemptedRecoveryEdges.add(edge);
+    pi.sendMessage(
+      {
+        customType: RECOVERY_CUSTOM_TYPE,
+        content: RECOVERY_MESSAGES[edge],
+        display: true,
+        details: { piGauntletRecoveryEdge: edge },
+      },
+      { triggerTurn: true },
+    );
+  });
 
   pi.on("tool_call", async (event, ctx) => {
     // D3.b: one fresh settings read per event, lazily, only if a guard needs it.
