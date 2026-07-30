@@ -1,6 +1,6 @@
 # Changelog
 
-## [Unreleased]
+## v4.6.0 - 2026-07-30
 
 Default supersession marking (#4). When a new spec replaces a known predecessor,
 brainstorming's spec-writing step edits the old spec to add a
