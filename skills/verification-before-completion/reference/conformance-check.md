@@ -103,8 +103,11 @@ No prompt, no menu: this partition is deterministic and exhaustive.
 3. **Every remaining `PARTIAL`/`MISSING`/`DRIFTED` gap**:
    - `recommended: fix` → auto-run the fix loop below — **unless a declared
      fix-loop precondition is unavailable** (`maxFixRounds: 0`, or no eligible
-     named-branch worktree), in which case carry the gap **OPEN** (see the fix
-     loop's precondition and `maxFixRounds: 0` notes).
+     named-branch worktree), in which case carry the gap **OPEN** and defer it
+     to the finish gate. This is the authoritative statement of the
+     precondition-unavailable carry-OPEN rule; the fix-loop precondition, the
+     `maxFixRounds: 0` note, the availability table, and the closure section
+     below all reference it.
    - `recommended: accept` or `recommended: rescope` → carry the gap **OPEN**,
      deferred to the finish gate. Do not apply a spec edit here — the finish
      gate owns disposition of deferred gaps.
@@ -131,7 +134,8 @@ Only the fan-out/integrate/review shape and `plan_tracker` are reused.
 **Precondition — worktree required.** The loop needs a worktree HEAD to branch
 fixes from. On the ad-hoc `finishing-a-development-branch` paths that run in a
 normal repo (`GIT_DIR == GIT_COMMON`) or detached HEAD, there is no such HEAD:
-skip this loop, carry every `fix` gap OPEN, and resolve it at finish via the
+skip this loop and carry every `fix` gap OPEN per the precondition-unavailable
+carry-OPEN rule in the partition step above, resolving it at finish via the
 canonical Disposition catalog and availability table below. `fix-now` is
 unavailable there; any other disposition is offered only when its table
 prerequisites hold.
@@ -184,11 +188,13 @@ Commit each per-gap fix with the message **`conformance fix Gn`** (durable,
 `git log`-readable pre-squash) so the finish gate and any revert can identify
 auto-applied fixes.
 
-**`maxFixRounds: 0`**: skip this loop entirely. Every `recommended: fix` gap
-becomes carried OPEN to the finish gate instead of auto-running — the user
-opted out of auto-fix, so treat `fix` gaps like any other deferred gap. This
-differs from a cap > 0 that is *exhausted*: that case escalates mid-verify
-because the loop tried and could not converge.
+**`maxFixRounds: 0`**: skip this loop entirely; every `recommended: fix` gap is
+carried OPEN to the finish gate per the precondition-unavailable
+carry-OPEN rule in the partition step above. The load-bearing distinction here
+is opted-out vs. exhausted: `maxFixRounds: 0` means the user opted out of
+auto-fix, so treat `fix` gaps like any other deferred gap — unlike a cap > 0
+that is *exhausted*, which escalates mid-verify because the loop tried and
+could not converge.
 
 ### `spec-reviewer` gap-block reference contract
 
@@ -284,7 +290,9 @@ prerequisite. `touched-files: unknown` makes `fix-now` unavailable until
 ownership is established. A normal checkout (`GIT_DIR == GIT_COMMON`) or detached
 HEAD cannot dispatch the isolated fix loop at all - it has no named-branch
 worktree to branch fixes from - so `fix-now` stays unavailable there regardless
-of ownership; resolve those concerns manually at finish. `maxFixRounds: 0`
+of ownership; those `fix` gaps are carried OPEN per the precondition-unavailable
+carry-OPEN rule in the partition step above and resolved manually at finish.
+`maxFixRounds: 0`
 (audit-only) likewise leaves `fix-now` visible but unavailable — the user
 configured no auto-fix loop, and finish-time selection never bypasses or resets
 that cap; a concrete `custom`/manual-fix disposition remains possible. `UNAUTHORIZED` cards
@@ -340,9 +348,8 @@ Emit this block in the verify completion summary. It is the durable handoff
 `finishing-a-development-branch` Step 3.5 consumes — parseable even if session
 context was pruned. Verify completes when every gap is either fixed
 (`CONFORMS`) or carried OPEN as a deferred gap - `accept`/`rescope`/`UNAUTHORIZED`,
-or a `recommended: fix` gap carried open because a declared fix-loop precondition
-was unavailable so the loop never started (`maxFixRounds: 0`, or no eligible
-named-branch worktree - normal checkout / detached HEAD). Escalation - a started
+or a `recommended: fix` gap carried OPEN per the precondition-unavailable
+carry-OPEN rule in the partition step above (the loop never started). Escalation - a started
 positive-cap loop that exhausted its rounds or blocked/failed with an open `fix`
 gap - is the one non-completing terminal state; the precondition-unavailable
 carried-open `fix` state is valid closure inventory, not escalation.
