@@ -1,5 +1,17 @@
 # Changelog
 
+## v4.6.1 - 2026-08-04
+
+Lazy-load the conformance disposition protocol (#5). The carried-open disposition
+grammar (dense render, response grammar, execute order) moves out of
+`finishing-a-development-branch/SKILL.md` Step 3.5 into a new GAPS-only
+`reference/disposition-protocol.md`, so the common CONFORMS fast path no longer
+pays that grammar's token cost. The human decision menu and the CONFORMS/summary
+render stay inline. Byte-for-byte relocation, behavior unchanged. Also
+single-sources the `maxFixRounds: 0` / precondition-unavailable carry-OPEN rule
+in `conformance-check.md` (one authoritative statement plus four
+back-references), retaining every distinct contract.
+
 ## v4.6.0 - 2026-07-30
 
 Default supersession marking (#4). When a new spec replaces a known predecessor,
