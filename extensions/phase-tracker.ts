@@ -561,11 +561,7 @@ export default function (pi: ExtensionAPI) {
   pi.registerTool({
     name: "gauntlet_setting",
     label: "Gauntlet Setting",
-    description:
-      "Gauntlet-internal, invoked by skills: resolve a merged piGauntlet.* setting " +
-      "(repo .pi/settings.json over the agent preset). Returns the resolved value as a " +
-      "JSON block in the result content - specCouncil yields the council-vs-worker verdict, " +
-      "closureReview yields the conformance-gate model/enforce/maxFixRounds. Not for ad-hoc use.",
+    description: "Resolve merged piGauntlet.* settings (repo over preset); for skill use only.",
     parameters: GauntletSettingParams,
     async execute(_toolCallId, params, _signal, _onUpdate, ctx) {
       const { gauntlet, errors } = loadGauntletSettings(ctx.cwd);
@@ -584,10 +580,8 @@ export default function (pi: ExtensionAPI) {
     name: "phase_tracker",
     label: "Phase Tracker",
     description:
-      "Track workflow phase progress (brainstorm → plan → implement → verify → ship). " +
-      "Actions: start (mark phase in_progress), complete (mark phase complete), " +
-      "skip (mark phase skipped with reason), status (show all phases), reset (clear all phases), substep (set/clear a substep label on an in_progress phase). " +
-      "Drives gauntlet-flow enforcement entered via brainstorming; the closure gate, closure-model guard, and flow guards arm only when brainstorming started the flow. Ad-hoc start verify/start implement calls do not arm the gates. Not for ad-hoc use.",
+      "Track workflow phase progress (brainstorm → plan → implement → verify → ship); " +
+      "ad-hoc calls do not arm gates. Not for ad-hoc use.",
     parameters: PhaseTrackerParams,
 
     async execute(_toolCallId, params, _signal, _onUpdate, ctx) {
