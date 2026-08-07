@@ -1,6 +1,24 @@
 import assert from "node:assert/strict";
-import { test } from "node:test";
+import { after, test } from "node:test";
+import { mkdtempSync, mkdirSync, writeFileSync, rmSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 import registerPhaseTracker from "./phase-tracker.ts";
+
+const tempDirs: string[] = [];
+after(() => {
+  for (const dir of tempDirs) rmSync(dir, { recursive: true, force: true });
+});
+
+const tempCwd = (settings?: unknown) => {
+  const dir = mkdtempSync(join(tmpdir(), "phase-tracker-test-"));
+  tempDirs.push(dir);
+  if (settings !== undefined) {
+    mkdirSync(join(dir, ".pi"), { recursive: true });
+    writeFileSync(join(dir, ".pi", "settings.json"), JSON.stringify(settings));
+  }
+  return dir;
+};
 
 const PHASES = ["brainstorm", "plan", "implement", "verify", "ship"] as const;
 type Phase = (typeof PHASES)[number];
@@ -25,13 +43,20 @@ const enteredBranch = (state: Record<Phase, { status: Status }>, extra: unknown[
   ...extra,
 ];
 
-function harness(options: { branch?: unknown[]; idle?: boolean; beforeSettled?: (setIdle: (idle: boolean) => void) => void; sendThrows?: boolean } = {}) {
+const resumedBranch = (rest: Partial<Record<Phase, Status>>) => [
+  phaseResult("start", phases({ brainstorm: "in_progress" })),
+  phaseResult("skip", phases({ brainstorm: "skipped" })),
+  phaseResult("start", phases({ brainstorm: "skipped", plan: "in_progress" })),
+  phaseResult("complete", phases({ brainstorm: "skipped", ...rest })),
+];
+
+function harness(options: { cwd?: string; branch?: unknown[]; idle?: boolean; beforeSettled?: (setIdle: (idle: boolean) => void) => void; sendThrows?: boolean } = {}) {
   const handlers = new Map<string, ((event: unknown, ctx: unknown) => unknown)[]>();
   const tools: { name: string; execute: (...args: any[]) => unknown }[] = [];
   const sent: { message: any; options: any }[] = [];
   let idle = options.idle ?? true;
   const ctx = {
-    cwd: process.cwd(),
+    cwd: options.cwd ?? tempCwd(),
     hasUI: false,
     isIdle: () => idle,
     sessionManager: { getBranch: () => options.branch ?? [] },
@@ -55,7 +80,12 @@ function harness(options: { branch?: unknown[]; idle?: boolean; beforeSettled?: 
   const emit = async (event: string) => {
     for (const handler of handlers.get(event) ?? []) await handler({ type: event }, ctx);
   };
-  return { emit, sent, tools, setIdle: (next: boolean) => (idle = next) };
+  const emitEvent = async (name: string, event: unknown) => {
+    const results: unknown[] = [];
+    for (const handler of handlers.get(name) ?? []) results.push(await handler(event, ctx));
+    return results;
+  };
+  return { emit, emitEvent, sent, tools, ctx, setIdle: (next: boolean) => (idle = next) };
 }
 
 const settle = async (h: ReturnType<typeof harness>) => {
@@ -156,4 +186,104 @@ test("a throwing send spends the in-memory edge", async () => {
   await assert.rejects(h.emit("agent_settled"), /send failed/);
   await h.emit("agent_settled");
   assert.equal(h.sent.length, 1);
+});
+
+const writeCall = (id: string, path: string) => ({ toolName: "write", toolCallId: id, input: { path } });
+const writeResult = (id: string) => ({ toolName: "write", toolCallId: id, content: [{ type: "text", text: "ok" }] });
+
+test("implement-write guard: warns once on parent write outside exempt dirs, exempt paths silent", async () => {
+  const priorDepth = process.env.PI_SUBAGENT_DEPTH;
+  delete process.env.PI_SUBAGENT_DEPTH; // isolate from an ambient subagent depth in the test-runner's own process
+  try {
+    const h = harness({ cwd: tempCwd(), branch: resumedBranch({ plan: "complete", implement: "in_progress" }) });
+    await h.emit("session_start");
+    await h.emitEvent("tool_call", writeCall("t1", "doc/specs/x.md"));
+    assert.equal((await h.emitEvent("tool_result", writeResult("t1")))[0], undefined); // spec dir exempt
+    await h.emitEvent("tool_call", writeCall("t2", "doc/plans/x.md"));
+    assert.equal((await h.emitEvent("tool_result", writeResult("t2")))[0], undefined); // plans dir exempt
+    await h.emitEvent("tool_call", writeCall("t3", "src/x.ts"));
+    const warned = (await h.emitEvent("tool_result", writeResult("t3")))[0] as { content: { text: string }[] };
+    assert.match(warned.content[0].text, /implement/);
+    assert.match(warned.content[0].text, /subagent-driven-development/);
+    assert.match(warned.content[0].text, /merge-conflict/);
+    await h.emitEvent("tool_call", writeCall("t4", "src/y.ts"));
+    assert.equal((await h.emitEvent("tool_result", writeResult("t4")))[0], undefined); // warn-once
+  } finally {
+    if (priorDepth !== undefined) process.env.PI_SUBAGENT_DEPTH = priorDepth;
+  }
+});
+
+test("implement-write guard: fires in the armed post-plan gap (plan complete, implement pending)", async () => {
+  const priorDepth = process.env.PI_SUBAGENT_DEPTH;
+  delete process.env.PI_SUBAGENT_DEPTH;
+  try {
+    const h = harness({ cwd: tempCwd(), branch: resumedBranch({ plan: "complete" }) });
+    await h.emit("session_start");
+    await h.emitEvent("tool_call", writeCall("t1", "src/x.ts"));
+    const warned = (await h.emitEvent("tool_result", writeResult("t1")))[0] as { content: { text: string }[] };
+    assert.match(warned.content[0].text, /implement/);
+  } finally {
+    if (priorDepth !== undefined) process.env.PI_SUBAGENT_DEPTH = priorDepth;
+  }
+});
+
+test("implement-write guard: silent when unarmed, when enforce is false, and in subagent children", async () => {
+  const cold = harness({ cwd: tempCwd(), branch: [phaseResult("complete", phases({ plan: "complete", implement: "in_progress" }))] });
+  await cold.emit("session_start");
+  await cold.emitEvent("tool_call", writeCall("t1", "src/x.ts"));
+  assert.equal((await cold.emitEvent("tool_result", writeResult("t1")))[0], undefined);
+
+  const off = harness({
+    cwd: tempCwd({ piGauntlet: { flowGuards: { enforce: false } } }),
+    branch: resumedBranch({ plan: "complete", implement: "in_progress" }),
+  });
+  await off.emit("session_start");
+  await off.emitEvent("tool_call", writeCall("t1", "src/x.ts"));
+  assert.equal((await off.emitEvent("tool_result", writeResult("t1")))[0], undefined);
+
+  const priorDepth = process.env.PI_SUBAGENT_DEPTH;
+  process.env.PI_SUBAGENT_DEPTH = "1";
+  try {
+    const child = harness({ cwd: tempCwd(), branch: resumedBranch({ plan: "complete", implement: "in_progress" }) });
+    await child.emit("session_start");
+    await child.emitEvent("tool_call", writeCall("t1", "src/x.ts"));
+    assert.equal((await child.emitEvent("tool_result", writeResult("t1")))[0], undefined);
+  } finally {
+    if (priorDepth === undefined) delete process.env.PI_SUBAGENT_DEPTH;
+    else process.env.PI_SUBAGENT_DEPTH = priorDepth;
+  }
+});
+
+test("brainstorm write guard is unchanged by the implement guard", async () => {
+  const priorDepth = process.env.PI_SUBAGENT_DEPTH;
+  delete process.env.PI_SUBAGENT_DEPTH;
+  try {
+    const h = harness({ cwd: tempCwd(), branch: [phaseResult("start", phases({ brainstorm: "in_progress" }))] });
+    await h.emit("session_start");
+    await h.emitEvent("tool_call", writeCall("t1", "src/x.ts"));
+    const warned = (await h.emitEvent("tool_result", writeResult("t1")))[0] as { content: { text: string }[] };
+    assert.match(warned.content[0].text, /brainstorm/);
+  } finally {
+    if (priorDepth !== undefined) process.env.PI_SUBAGENT_DEPTH = priorDepth;
+  }
+});
+
+test("resumed session: plan-implement recovery edge fires (AC 3)", async () => {
+  const h = harness({ cwd: tempCwd(), branch: [...resumedBranch({ plan: "complete" }), assistant()] });
+  await settle(h);
+  assert.equal(h.sent.length, 1);
+  assert.deepEqual(h.sent[0].message.details, { piGauntletRecoveryEdge: "plan-implement" });
+});
+
+test("resumed session: closure gate blocks complete verify without a conformance dispatch (AC 3)", async () => {
+  const h = harness({
+    cwd: tempCwd(),
+    branch: resumedBranch({ plan: "complete", implement: "complete", verify: "in_progress" }),
+  });
+  await h.emit("session_start");
+  const tool = h.tools.find((t) => t.name === "phase_tracker")!;
+  const res = (await tool.execute("t1", { action: "complete", phase: "verify" }, undefined, undefined, h.ctx)) as {
+    details: { error?: string };
+  };
+  assert.equal(res.details.error, "no conformance-reviewer dispatch observed");
 });

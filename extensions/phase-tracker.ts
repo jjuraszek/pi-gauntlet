@@ -27,6 +27,8 @@ import {
   checkSubstep,
   findMarkerFile,
   flowGuardApplies,
+  implementExemptDirs,
+  implementWriteGuardApplies,
   markerBlockReason,
   nextGauntletEntered,
   parseGitCommit,
@@ -169,6 +171,12 @@ const brainstormWriteWarning = (specDirs: string[]): string =>
   `Brainstorming may only edit the spec under ${specDirs.join(", ")}. Implementation\n` +
   "waits for the spec approval gate. If this edit IS the spec, place it under the spec dir.";
 
+const implementWriteWarning = (): string =>
+  "⚠️ Parent write during the implement phase.\n" +
+  "During implement the main loop orchestrates; subagents write the code - dispatch\n" +
+  "this via /skill:subagent-driven-development instead of editing directly.\n" +
+  "If this edit is merge-conflict resolution between parallel waves, proceed.";
+
 // Contiguous-subsequence match of a configured spec dir against path components.
 const pathInSpecDirs = (rawPath: string, specDirs: string[]): boolean => {
   const comps = rawPath.split("/").filter((c) => c.length > 0 && c !== ".");
@@ -272,6 +280,11 @@ export default function (pi: ExtensionAPI) {
   // (Inside a submodule the comparison is git-version-dependent and irrelevant here -
   // gauntlet flows do not run inside submodule git internals; whichever way it
   // resolves, the guard merely staying off in that edge case is harmless.)
+  // pi-cohort sets PI_SUBAGENT_DEPTH >= 1 in every spawned child (getSubagentDepthEnv).
+  // Implementer forks replay the parent's phase state; without this gate every
+  // implementer's first write would trip a spurious advisory.
+  const isSubagentChild = Number(process.env.PI_SUBAGENT_DEPTH ?? "0") > 0;
+
   const inPrimaryCheckout = (() => {
     try {
       const lines = execSync("git rev-parse --git-dir --git-common-dir", {
@@ -429,7 +442,9 @@ export default function (pi: ExtensionAPI) {
     // returns here without touching disk. Only genuinely guardable events pay for g().
     const brainstormActive = phases.brainstorm.status === "in_progress";
     const guardableWrite =
-      (event.toolName === "write" || event.toolName === "edit") && flowGuardApplies(brainstormActive, gauntletEntered);
+      (event.toolName === "write" || event.toolName === "edit") &&
+      (flowGuardApplies(brainstormActive, gauntletEntered) ||
+        implementWriteGuardApplies(phases.plan.status, phases.implement.status, gauntletEntered, isSubagentChild));
     const guardableBash =
       event.toolName === "bash" && flowGuardApplies(activeGuardPhase() !== undefined, gauntletEntered);
     if (!guardableWrite && !guardableBash) return undefined;
@@ -437,12 +452,21 @@ export default function (pi: ExtensionAPI) {
     if (!flowGuardsEnforced()) return undefined;
 
     // Guard 3 — write/edit outside the spec dir during brainstorm.
+    // Guard 4 — parent write/edit in the armed implement window (spec
+    // 2026-08-07-resume-spec-in-hand): advisory, warn-once, plans dir also exempt.
     if (event.toolName === "write" || event.toolName === "edit") {
-      if (phases.brainstorm.status !== "in_progress" || firedGuards.get("brainstorm-write")) return undefined;
       const p = (event.input as { path?: unknown } | undefined)?.path;
-      if (typeof p !== "string" || pathInSpecDirs(p, specDirs())) return undefined;
-      firedGuards.set("brainstorm-write", true);
-      addGuardWarning(event.toolCallId, brainstormWriteWarning(specDirs()));
+      if (phases.brainstorm.status === "in_progress") {
+        if (firedGuards.get("brainstorm-write")) return undefined;
+        if (typeof p !== "string" || pathInSpecDirs(p, specDirs())) return undefined;
+        firedGuards.set("brainstorm-write", true);
+        addGuardWarning(event.toolCallId, brainstormWriteWarning(specDirs()));
+        return undefined;
+      }
+      if (firedGuards.get("implement-write")) return undefined;
+      if (typeof p !== "string" || pathInSpecDirs(p, implementExemptDirs(specDirs()))) return undefined;
+      firedGuards.set("implement-write", true);
+      addGuardWarning(event.toolCallId, implementWriteWarning());
       return undefined;
     }
 

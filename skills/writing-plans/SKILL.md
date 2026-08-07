@@ -3,7 +3,7 @@ name: writing-plans
 description: Use when you have a spec or requirements for a multi-step task, before touching code
 ---
 
-> **Related skills:** Reached via the auto-chain from `/skill:brainstorming` (not a direct human entry point). On completion this skill auto-invokes `/skill:subagent-driven-development`.
+> **Related skills:** Reached via the auto-chain from `/skill:brainstorming`, or via the spec-in-hand handoff path (see "Resuming with a spec in hand" below) — otherwise not a direct human entry point. On completion this skill auto-invokes `/skill:subagent-driven-development`.
 
 # Writing Plans
 
@@ -15,9 +15,9 @@ DRY. YAGNI. TDD. Frequent commits.
 
 **Announce at start:** "I'm using the writing-plans skill to create the implementation plan."
 
-Before drafting the plan, call `phase_tracker({ action: "start", phase: "plan" })`.
+Before drafting the plan, call `phase_tracker({ action: "start", phase: "plan" })` (if resuming with a spec in hand, see "Resuming with a spec in hand" below first -- its arming sequence already performs this call).
 
-**Input:** an approved spec in `<project>/doc/specs/<filename>.md` (produced by `/skill:brainstorming`).
+**Input:** an approved spec in `<project>/doc/specs/<filename>.md` — produced by `/skill:brainstorming` in this session, or handed off from another session (see "Resuming with a spec in hand").
 
 **Save plans to:** the sibling `doc/plans/` directory next to the spec. The plan filename matches the spec filename exactly — same date, same Linear ID (if any), same topic slug, no `-design` suffix.
 
@@ -28,6 +28,36 @@ Before drafting the plan, call `phase_tracker({ action: "start", phase: "plan" }
 | `<service>/doc/specs/<name>.md` | `<service>/doc/plans/<name>.md` |
 
 If no spec exists, send the work back to `/skill:brainstorming`. Do not invent a plan without a spec.
+
+## Resuming with a spec in hand
+
+A handoff path, not a shortcut: use it when an **approved spec arrives from another session** (a handoff doc, a fresh top-level session resuming ratified work). New work still enters via `/skill:brainstorming`. The trigger is **phase-tracker state, not handoff prose** — it works even when the handoff doc says nothing about arming. On invocation, check `phase_tracker({ action: "status" })` and branch on the brainstorm phase:
+
+| brainstorm status | meaning | action |
+|---|---|---|
+| `in_progress` or `complete` | auto-chain from brainstorming | normal flow below, unchanged |
+| `pending`, no other phase `in_progress` | fresh resume | arm, then plan (this section) |
+| `skipped` | already resumed in this session | do **not** re-run the sequence (`start` errors on a skipped phase without `force`); verify plan state and continue |
+| `pending`, another phase `in_progress` | not a fresh resume (`start brainstorm` would error) | stop and ask the user; do not arm |
+
+On a fresh resume:
+
+1. **Verify the spec exists** at the given path. Missing → stop and ask; never arm on a missing spec.
+2. **Confirm approval.** Any unambiguous assertion in the prompt, handoff doc, or user message ("Brainstorming is complete", "spec approved" — examples, not an allowlist) counts. No assertion → ask once; on "no", route to `/skill:brainstorming`.
+3. **Worktree.** If not already in an isolated worktree, set one up per `/skill:using-git-worktrees` and commit the spec there (the spec must live in the worktree, same as the brainstorm path).
+4. **Arm the flow** — run exactly:
+
+   ```
+   phase_tracker({ action: "start", phase: "brainstorm" })
+   phase_tracker({ action: "skip", phase: "brainstorm", reason: "resume: approved spec at <path>" })
+   phase_tracker({ action: "start", phase: "plan" })
+   ```
+
+   This is the existing arming mechanism, not new mechanics: the `start` arms `gauntletEntered`, `skip` preserves it, session replay reconstructs it, `reset` disarms. The sequence already performed this skill's own `start plan` call — **do not** issue a second one (a repeat `start` on the in_progress phase is a no-op reset that re-clears the warn-once guard ledger).
+
+Then continue with the normal flow below (Scope Check onward).
+
+**Writing a handoff doc** (from the producing session): name `/skill:writing-plans` as the entry point — never a phase past planning, since this gesture only arms through `start plan` — give the spec's path, and assert its approval status.
 
 ## Boundaries
 

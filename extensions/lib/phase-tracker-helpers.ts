@@ -145,6 +145,39 @@ export function flowGuardApplies(phaseActive: boolean, gauntletEntered: boolean)
   return phaseActive && gauntletEntered;
 }
 
+// Implement-write guard window (spec 2026-08-07-resume-spec-in-hand). Fires while
+// implement runs, or in the armed post-plan gap (plan complete, implement not yet
+// started) - the incident window where neither recoverableEdge (needs an idle
+// session) nor an implement-scoped check could fire. Marker-first like every other
+// surface; the enforce + path + fired conjuncts stay at the call site (settings and
+// ledger live there). isSubagentChild: implementer forks inherit extensions and
+// replay the parent's phase state, so without it every implementer's first write
+// would trip a spurious advisory.
+export function implementWriteGuardApplies(
+  planStatus: string,
+  implementStatus: string,
+  gauntletEntered: boolean,
+  isSubagentChild: boolean,
+): boolean {
+  const windowOpen =
+    implementStatus === "in_progress" || (planStatus === "complete" && implementStatus === "pending");
+  return windowOpen && gauntletEntered && !isSubagentChild;
+}
+
+// Exempt dirs for the implement-write guard: the configured spec dirs plus each
+// one's sibling `plans` dir (doc/specs -> doc/plans; plans live there per
+// writing-plans) - a routine parent plan-doc update must not burn the one-shot warning.
+export function implementExemptDirs(specDirs: string[]): string[] {
+  const dirs = new Set<string>();
+  for (const dir of specDirs) {
+    const parts = dir.split("/").filter((c) => c.length > 0);
+    if (parts.length === 0) continue;
+    dirs.add(parts.join("/"));
+    dirs.add([...parts.slice(0, -1), "plans"].join("/"));
+  }
+  return [...dirs];
+}
+
 export const markerBlockReason = (file: string): string =>
   `Blocked: ${file} still begins with the context-draft marker - the spec-writing ` +
   `overwrite has not happened. Overwrite the draft with the real spec (write tool, ` +

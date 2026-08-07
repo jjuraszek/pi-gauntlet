@@ -6,6 +6,8 @@ import {
   closureGateBlocks,
   closureModelGuardApplies,
   flowGuardApplies,
+  implementWriteGuardApplies,
+  implementExemptDirs,
   nextGauntletEntered,
   phaseLabel,
   parseGitCommit,
@@ -209,4 +211,30 @@ test("closureModelGuardApplies: requires both an entered flow and closure enforc
   assert.equal(closureModelGuardApplies(false, true), false); // not entered -> dormant
   assert.equal(closureModelGuardApplies(true, false), false); // enforce off
   assert.equal(closureModelGuardApplies(false, false), false);
+});
+
+test("implementWriteGuardApplies: window is implement in_progress or plan-complete/implement-pending", () => {
+  assert.equal(implementWriteGuardApplies("complete", "in_progress", true, false), true);
+  assert.equal(implementWriteGuardApplies("complete", "pending", true, false), true); // armed post-plan gap (incident window)
+  assert.equal(implementWriteGuardApplies("skipped", "in_progress", true, false), true); // window is implement itself
+  assert.equal(implementWriteGuardApplies("in_progress", "pending", true, false), false); // still planning
+  assert.equal(implementWriteGuardApplies("skipped", "pending", true, false), false); // plan skipped: accepted residual gap (spec Edge cases)
+  assert.equal(implementWriteGuardApplies("complete", "complete", true, false), false); // implement done
+});
+
+test("implementWriteGuardApplies: requires an armed flow and a parent process", () => {
+  assert.equal(implementWriteGuardApplies("complete", "in_progress", false, false), false); // unarmed
+  assert.equal(implementWriteGuardApplies("complete", "in_progress", true, true), false); // subagent child
+});
+
+test("implementExemptDirs: adds each spec dir's sibling plans dir, deduped", () => {
+  assert.deepEqual(implementExemptDirs(["doc/specs"]), ["doc/specs", "doc/plans"]);
+  assert.deepEqual(implementExemptDirs(["specs"]), ["specs", "plans"]);
+  assert.deepEqual(implementExemptDirs(["doc/specs/"]), ["doc/specs", "doc/plans"]);
+  assert.deepEqual(implementExemptDirs(["a/plans"]), ["a/plans"]); // already a plans dir: Set dedups
+  assert.deepEqual(implementExemptDirs(["doc/specs", "svc/doc/specs"]), ["doc/specs", "doc/plans", "svc/doc/specs", "svc/doc/plans"]);
+});
+
+test("nextGauntletEntered: skip preserves the marker (resume gesture)", () => {
+  assert.equal(nextGauntletEntered(true, "skip", "skipped"), true);
 });

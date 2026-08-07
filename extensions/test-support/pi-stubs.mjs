@@ -1,10 +1,17 @@
 const sources = {
   "@earendil-works/pi-ai": `export const StringEnum = (values, options = {}) => ({ values, ...options });`,
+  // Reads only the repo (project) settings layer - guard tests exercise repo-local
+  // settings via tempCwd()'s .pi/settings.json; there is no preset layer to stub.
   "@earendil-works/pi-coding-agent": `
+    import { readFileSync } from "node:fs";
     export class SettingsManager {
-      static create() { return new SettingsManager(); }
+      static create(cwd) { return new SettingsManager(cwd); }
+      constructor(cwd) { this.cwd = cwd; }
       getGlobalSettings() { return {}; }
-      getProjectSettings() { return {}; }
+      getProjectSettings() {
+        try { return JSON.parse(readFileSync(this.cwd + "/.pi/settings.json", "utf8")); }
+        catch { return {}; }
+      }
       drainErrors() { return []; }
     }
     export const getAgentDir = () => "/tmp/pi-gauntlet-test-agent";

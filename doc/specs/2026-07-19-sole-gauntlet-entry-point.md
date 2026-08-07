@@ -1,5 +1,7 @@
 # Brainstorming as the sole gauntlet entry point
 
+> **Superseded by:** [doc/specs/2026-08-07-resume-spec-in-hand.md](./2026-08-07-resume-spec-in-hand.md) - sole-arming claim only (a documented resume gesture is a second arming path); marker-first enforcement, fail-open dormancy, and reset semantics remain live
+
 **Issue:** jjuraszek/pi-gauntlet#2
 **Status:** spec (awaiting approval)
 
