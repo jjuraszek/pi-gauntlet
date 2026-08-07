@@ -1,5 +1,15 @@
 # Changelog
 
+## v4.6.2 - 2026-08-07
+
+Trim the always-shipped tool descriptions of the gauntlet-internal tools to
+one-liners: `gauntlet_setting` -> "Resolve merged piGauntlet.* settings (repo
+over preset); for skill use only.", `phase_tracker` -> phase arrow + "ad-hoc
+calls do not arm gates. Not for ad-hoc use." Every call site is a skill body
+already in context, so the cut prose was pure duplication (~120-200
+tokens/request). Parameter schemas/descriptions and `plan_tracker` (whose long
+description deters ambient TODO-list misuse) are untouched.
+
 ## v4.6.1 - 2026-08-04
 
 Lazy-load the conformance disposition protocol (#5). The carried-open disposition
