@@ -1,5 +1,30 @@
 # Changelog
 
+## v4.7.0 - 2026-08-07
+
+Sanction the spec-in-hand resume gesture and guard the implement phase (#6).
+Sessions that start with an approved spec from a handoff doc previously ran
+fully unarmed - the observed incident implemented an entire plan inline in the
+main loop with every enforcement surface dormant.
+
+- `writing-plans` gains a "Resuming with a spec in hand" subsection: a
+  state-detected handoff entry (branch on `phase_tracker status`) that verifies
+  the spec, confirms approval, sets up the worktree, and arms `gauntletEntered`
+  via the existing `start brainstorm -> skip brainstorm -> start plan`
+  sequence, plus guidance for writing handoff docs. Prose only - no new skill,
+  no new tracker action.
+- Fourth flow guard in `phase-tracker`: a warn-once advisory on parent
+  `write`/`edit` in the armed implement window (`implement` in progress, or
+  `plan` complete with `implement` still pending), exempting
+  `flowGuards.specDirs` plus each spec dir's sibling `plans` dir. Advisory,
+  never blocks (merge-conflict resolution between parallel waves proceeds past
+  it); subagent children (`PI_SUBAGENT_DEPTH` >= 1) never trip it; disabled
+  with the other guards via `flowGuards.enforce: false`. No new settings key.
+- Regression coverage: resumed-session replay arming, recovery edge, and
+  closure gate; test stub `SettingsManager` now reads the repo settings layer.
+- The 2026-07-19 sole-entry-point spec carries a supersession banner scoped to
+  its sole-arming claim.
+
 ## v4.6.2 - 2026-08-07
 
 Trim the always-shipped tool descriptions of the gauntlet-internal tools to
