@@ -1,5 +1,13 @@
 # Changelog
 
+## v4.8.1 - 2026-08-12
+
+Fix-loop escalation now tracks convergence, not just round count (#7).
+
+- `subagent-driven-development`: new `## Fix-Loop Rounds` section - the reviewer, not the orchestrator, judges fix-loop trajectory. On every re-review the prior report is passed verbatim under a fixed marker and the reviewer ends with `TRAJECTORY: CONVERGING | DIVERGING | STAGNANT`; the orchestrator pattern-matches that line only. One extra fix round is granted at review 3 iff the verdict is `CONVERGING` with no Critical remaining (spec loop: `CONVERGING` alone); `STAGNANT` escalates immediately, even before the ordinary budget is spent; a missing/malformed line never grants. Escalation reports name reviews run, the final verdict, and whether the convergence exception fired. Applies uniformly to the spec-compliance and code-quality loops in sequential and wave modes; `When a Subagent Fails` and the conformance fix loop are unchanged.
+- Both SDD reviewer prompt templates gain a `## Re-review: trajectory verdict` block with pick-first verdict precedence (STAGNANT > DIVERGING > CONVERGING) - any new finding makes the round DIVERGING even when the count fell.
+- Validated on a small model (RED: old prose reproduced the rubber-stamp escalation and continued past stagnation; GREEN: 6/6 scenarios correct against the new section).
+
 ## v4.8.0 - 2026-08-12
 
 - `writing-plans`: mandatory plan-time recon (fixed one-variable scout template writing a draft to the plan path); plan header `**Verification:**` command set (tests + style + format, header-only); per-task format-and-lint step; scoped-test and header-only-entrypoint Self-Review checks.
