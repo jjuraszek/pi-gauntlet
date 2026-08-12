@@ -183,7 +183,7 @@ If a skill leans on pi capabilities, name them explicitly:
 |---|---|
 | Plan/phase persistence | `plan_tracker` tool (provided by the `pi-gauntlet` package's `plan-tracker` extension) |
 | Progressive disclosure | Direct `read` of `reference/<topic>.md` paths named inline in SKILL.md |
-| Runtime enforcement | `verify-before-ship` extension from `pi-gauntlet` (advisory warning before `git commit` / `git push` / `gh pr create` when no canonical verification command has succeeded since the last source edit) |
+| Runtime enforcement | `verify-before-ship` extension from `pi-gauntlet` (advisory warning before `git push` / `gh pr create` when no canonical verification command has succeeded since the last source edit) |
 | Subagent dispatch | `subagent` tool from `pi-cohort`; baseline subagents from `pi-gauntlet` are `implementer`, `code-reviewer`, `spec-reviewer`, `conformance-reviewer`. Consumer repos can add project-specific subagents under `.pi/agents/`. |
 
 Don't invent capabilities. Don't reference Claude Code's `Task` tool, OpenCode hooks, or Codex `spawn_agent` unless the skill is explicitly for that harness.

@@ -1,5 +1,14 @@
 # Changelog
 
+## v4.8.0 - 2026-08-12
+
+- `writing-plans`: mandatory plan-time recon (fixed one-variable scout template writing a draft to the plan path); plan header `**Verification:**` command set (tests + style + format, header-only); per-task format-and-lint step; scoped-test and header-only-entrypoint Self-Review checks.
+- `subagent-driven-development`: wave test gate runs the wave's declared commands only; SR-per-task + CR-per-wave stated as a commit precondition with a doc-only (SR-only) exemption; full verification set runs once at verify before the conformance dispatch; new Red Flags (SR+CR fusion; full run during implement).
+- `phase-tracker`: advisory review-cadence flow guard - implement-phase parent commits warn when the last implementer postdates both reviewers. Presence-only, never blocks, honors `flowGuards.enforce`.
+- **Behavior change** - `verify-before-ship` no longer watches `git commit` (still watches `git push` / `gh pr create`): local wave commits are not ship events, and warning on them trained per-wave full-CI runs.
+- `verification-before-completion`: evidence-proportionality rule (scoped commands prove scoped claims; the full entrypoint proves phase completion, once at verify).
+- `implementer`: REFACTOR runs task-declared tests, not "the full relevant test suite".
+
 ## v4.7.0 - 2026-08-07
 
 Sanction the spec-in-hand resume gesture and guard the implement phase (#6).

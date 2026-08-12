@@ -1,8 +1,9 @@
 /**
  * Verify-before-ship extension
  *
- * Single-session verification gate for shipping commands (git commit / git push /
- * gh pr create). Tracks whether a recognised verification command has succeeded
+ * Single-session verification gate for shipping commands (git push / gh pr create).
+ * Local commits are not ship events; commit-time review-cadence advisories live in
+ * phase-tracker. Tracks whether a recognised verification command has succeeded
  * since the last source-file write; injects an advisory warning into the tool
  * result of any ship command when verification is stale.
  *
@@ -39,7 +40,7 @@ const DEFAULT_TEST_COMMANDS = [
   "go\\s+test",
 ];
 
-const SHIP_CMD = /\b(git\s+commit|git\s+push|gh\s+pr\s+create)\b/;
+const SHIP_CMD = /\b(git\s+push|gh\s+pr\s+create)\b/;
 
 const SOURCE_EXT = /\.(ts|tsx|js|jsx|py|rb|go|rs|java|swift|kt)$/;
 const TEST_PATH = /(^|\/)(tests?|__tests__)\/|\.(test|spec)\.|_test\.(py|go|rb)$/;

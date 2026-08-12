@@ -36,7 +36,7 @@ If you haven't run the verification command in this message, you cannot claim it
 BEFORE claiming any status or expressing satisfaction:
 
 1. IDENTIFY: What command proves this claim?
-2. RUN: Execute the FULL command (fresh, complete)
+2. RUN: Execute the full command for the claim from step 1 (fresh, complete, unabridged)
 3. READ: Full output, check exit code, count failures
 4. VERIFY: Does output confirm the claim?
    - If NO: State actual status with evidence
@@ -45,6 +45,8 @@ BEFORE claiming any status or expressing satisfaction:
 
 Skip any step = lying, not verifying
 ```
+
+Evidence is proportionate to the claim: a task or wave claim is proven by the commands the plan declares for it — a scoped run is **complete** evidence for a scoped claim. Phase-completion and ship claims require the project's full verification entrypoint (tests + style + format), run once at verify before the conformance gate.
 
 ## Common Failures
 
@@ -69,7 +71,7 @@ Skip any step = lying, not verifying
 | "Linter passed" | Linter ≠ compiler |
 | "Agent said success" | Verify independently |
 | "I'm tired" | Exhaustion ≠ excuse |
-| "Partial check is enough" | Partial proves nothing |
+| "Partial check is enough" | Partial = less than the claim requires; scoped-for-scoped is complete |
 | "Different words so rule doesn't apply" | Spirit over letter |
 
 ## Red Flags - STOP
@@ -152,7 +154,7 @@ From recurring failure modes:
 
 ## Enforcement
 
-The `verify-before-ship` extension shipped by pi-gauntlet watches `git commit`, `git push`, and `gh pr create`. If you have not run a passing recognised verification command since your last source-file edit in this session, an advisory warning is injected into the tool result. The warning clears automatically after a fresh passing run.
+The `verify-before-ship` extension shipped by pi-gauntlet watches `git push` and `gh pr create`. If you have not run a passing recognised verification command since your last source-file edit in this session, an advisory warning is injected into the tool result. The warning clears automatically after a fresh passing run.
 
 Defaults recognise `make ci`, `make test`, `npm test`, `pnpm test`, `yarn test`, `pytest`, `rspec`, `cargo test`, `go test`. Projects can override (or narrow) the list via `settings.json#piGauntlet.verifyBeforeShip.testCommands`.
 

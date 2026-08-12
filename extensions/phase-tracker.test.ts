@@ -287,3 +287,192 @@ test("resumed session: closure gate blocks complete verify without a conformance
   };
   assert.equal(res.details.error, "no conformance-reviewer dispatch observed");
 });
+
+const subagentResult = (agents: string[]) => ({
+  type: "message",
+  message: {
+    role: "toolResult",
+    toolName: "subagent",
+    details: { results: agents.map((agent) => ({ agent, exitCode: 0 })) },
+  },
+});
+
+const implementBranch = (extra: unknown[] = []) => [
+  phaseResult("start", phases({ brainstorm: "in_progress" })),
+  phaseResult("complete", phases({ brainstorm: "complete" })),
+  phaseResult("start", phases({ brainstorm: "complete", plan: "in_progress" })),
+  phaseResult("complete", phases({ brainstorm: "complete", plan: "complete" })),
+  phaseResult("start", phases({ brainstorm: "complete", plan: "complete", implement: "in_progress" })),
+  ...extra,
+];
+
+const commitCall = (id: string) => ({
+  toolName: "bash",
+  toolCallId: id,
+  input: { command: "git commit -m 'integrate wave'" },
+});
+const commitResult = (id: string) => ({
+  toolName: "bash",
+  toolCallId: id,
+  isError: false,
+  content: [{ type: "text", text: "ok" }],
+});
+
+test("implement-phase commit with implementer newer than both reviewers warns", async () => {
+  const priorDepth = process.env.PI_SUBAGENT_DEPTH;
+  delete process.env.PI_SUBAGENT_DEPTH; // isolate from an ambient subagent depth in the test-runner's own process
+  try {
+    const h = harness({ branch: implementBranch([subagentResult(["implementer"])]) });
+    await h.emit("session_start");
+    await h.emitEvent("tool_call", commitCall("c1"));
+    const warned = (await h.emitEvent("tool_result", commitResult("c1")))[0] as { content: { text: string }[] };
+    assert.match(warned.content[0].text, /no spec-reviewer or code-reviewer observed/);
+  } finally {
+    if (priorDepth !== undefined) process.env.PI_SUBAGENT_DEPTH = priorDepth;
+  }
+});
+
+test("cadence guard silent in subagent children", async () => {
+  const priorDepth = process.env.PI_SUBAGENT_DEPTH;
+  process.env.PI_SUBAGENT_DEPTH = "1";
+  try {
+    const branch = implementBranch([subagentResult(["implementer"])]);
+    const h = harness({ branch });
+    await h.emit("session_start");
+    await h.emitEvent("tool_call", commitCall("c1"));
+    assert.equal((await h.emitEvent("tool_result", commitResult("c1")))[0], undefined);
+  } finally {
+    if (priorDepth === undefined) delete process.env.PI_SUBAGENT_DEPTH;
+    else process.env.PI_SUBAGENT_DEPTH = priorDepth;
+  }
+});
+
+test("fresh SR and CR after the implementer keep the commit silent", async () => {
+  const priorDepth = process.env.PI_SUBAGENT_DEPTH;
+  delete process.env.PI_SUBAGENT_DEPTH;
+  try {
+    const h = harness({
+      branch: implementBranch([
+        subagentResult(["implementer"]),
+        subagentResult(["spec-reviewer"]),
+        subagentResult(["code-reviewer"]),
+      ]),
+    });
+    await h.emit("session_start");
+    await h.emitEvent("tool_call", commitCall("c1"));
+    assert.equal((await h.emitEvent("tool_result", commitResult("c1")))[0], undefined);
+  } finally {
+    if (priorDepth !== undefined) process.env.PI_SUBAGENT_DEPTH = priorDepth;
+  }
+});
+
+test("AND-logic: fresh SR with stale CR stays silent (doc-only wave shape)", async () => {
+  const priorDepth = process.env.PI_SUBAGENT_DEPTH;
+  delete process.env.PI_SUBAGENT_DEPTH;
+  try {
+    const h = harness({
+      branch: implementBranch([subagentResult(["implementer"]), subagentResult(["spec-reviewer"])]),
+    });
+    await h.emit("session_start");
+    await h.emitEvent("tool_call", commitCall("c1"));
+    assert.equal((await h.emitEvent("tool_result", commitResult("c1")))[0], undefined);
+  } finally {
+    if (priorDepth !== undefined) process.env.PI_SUBAGENT_DEPTH = priorDepth;
+  }
+});
+
+test("fused implementer+reviewer results in one dispatch stay silent", async () => {
+  const priorDepth = process.env.PI_SUBAGENT_DEPTH;
+  delete process.env.PI_SUBAGENT_DEPTH;
+  try {
+    const h = harness({
+      branch: implementBranch([subagentResult(["implementer", "spec-reviewer", "code-reviewer"])]),
+    });
+    await h.emit("session_start");
+    await h.emitEvent("tool_call", commitCall("c1"));
+    assert.equal((await h.emitEvent("tool_result", commitResult("c1")))[0], undefined);
+  } finally {
+    if (priorDepth !== undefined) process.env.PI_SUBAGENT_DEPTH = priorDepth;
+  }
+});
+
+test("no implementer observed: commit stays silent", async () => {
+  const priorDepth = process.env.PI_SUBAGENT_DEPTH;
+  delete process.env.PI_SUBAGENT_DEPTH;
+  try {
+    const h = harness({ branch: implementBranch() });
+    await h.emit("session_start");
+    await h.emitEvent("tool_call", commitCall("c1"));
+    assert.equal((await h.emitEvent("tool_result", commitResult("c1")))[0], undefined);
+  } finally {
+    if (priorDepth !== undefined) process.env.PI_SUBAGENT_DEPTH = priorDepth;
+  }
+});
+
+test("guard silent outside implement and when flowGuards.enforce is false", async () => {
+  const priorDepth = process.env.PI_SUBAGENT_DEPTH;
+  delete process.env.PI_SUBAGENT_DEPTH;
+  try {
+    const planOnly = harness({
+      branch: [
+        phaseResult("start", phases({ brainstorm: "in_progress" })),
+        phaseResult("complete", phases({ brainstorm: "complete" })),
+        phaseResult("start", phases({ brainstorm: "complete", plan: "in_progress" })),
+        subagentResult(["implementer"]),
+      ],
+    });
+    await planOnly.emit("session_start");
+    await planOnly.emitEvent("tool_call", commitCall("c1"));
+    assert.equal((await planOnly.emitEvent("tool_result", commitResult("c1")))[0], undefined);
+
+    const off = harness({
+      cwd: tempCwd({ piGauntlet: { flowGuards: { enforce: false } } }),
+      branch: implementBranch([subagentResult(["implementer"])]),
+    });
+    await off.emit("session_start");
+    await off.emitEvent("tool_call", commitCall("c1"));
+    assert.equal((await off.emitEvent("tool_result", commitResult("c1")))[0], undefined);
+  } finally {
+    if (priorDepth !== undefined) process.env.PI_SUBAGENT_DEPTH = priorDepth;
+  }
+});
+
+test("live tool_result observation updates the ledger", async () => {
+  const priorDepth = process.env.PI_SUBAGENT_DEPTH;
+  delete process.env.PI_SUBAGENT_DEPTH;
+  try {
+    const h = harness({ branch: implementBranch([subagentResult(["implementer"])]) });
+    await h.emit("session_start");
+    await h.emitEvent("tool_result", {
+      toolName: "subagent",
+      toolCallId: "s1",
+      content: [],
+      details: { results: [{ agent: "spec-reviewer", exitCode: 0 }, { agent: "code-reviewer", exitCode: 0 }] },
+    });
+    await h.emitEvent("tool_call", commitCall("c1"));
+    assert.equal((await h.emitEvent("tool_result", commitResult("c1")))[0], undefined);
+  } finally {
+    if (priorDepth !== undefined) process.env.PI_SUBAGENT_DEPTH = priorDepth;
+  }
+});
+
+test("second implementer after reviews re-arms the warning", async () => {
+  const priorDepth = process.env.PI_SUBAGENT_DEPTH;
+  delete process.env.PI_SUBAGENT_DEPTH;
+  try {
+    const h = harness({
+      branch: implementBranch([
+        subagentResult(["implementer"]),
+        subagentResult(["spec-reviewer"]),
+        subagentResult(["code-reviewer"]),
+        subagentResult(["implementer"]),
+      ]),
+    });
+    await h.emit("session_start");
+    await h.emitEvent("tool_call", commitCall("c1"));
+    const warned = (await h.emitEvent("tool_result", commitResult("c1")))[0] as { content: { text: string }[] };
+    assert.match(warned.content[0].text, /no spec-reviewer or code-reviewer observed/);
+  } finally {
+    if (priorDepth !== undefined) process.env.PI_SUBAGENT_DEPTH = priorDepth;
+  }
+});

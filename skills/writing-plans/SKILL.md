@@ -55,7 +55,7 @@ On a fresh resume:
 
    This is the existing arming mechanism, not new mechanics: the `start` arms `gauntletEntered`, `skip` preserves it, session replay reconstructs it, `reset` disarms. The sequence already performed this skill's own `start plan` call — **do not** issue a second one (a repeat `start` on the in_progress phase is a no-op reset that re-clears the warn-once guard ledger).
 
-Then continue with the normal flow below (Scope Check onward).
+Then continue with the normal flow below (Scope Check onward, including Recon).
 
 **Writing a handoff doc** (from the producing session): name `/skill:writing-plans` as the entry point — never a phase past planning, since this gesture only arms through `start plan` — give the spec's path, and assert its approval status.
 
@@ -79,6 +79,26 @@ If yes, decompose into separate plans and call it out:
 > "The spec covers A and B. I'd split into two plans, executed in order. OK?"
 
 A single plan should land in one PR worth of work. Multi-PR sequences get separate plans.
+
+## Recon (mandatory)
+
+Before mapping files, dispatch a scout to build the implementation map. Foreground, no announcement, no user interaction. The task template below is fixed — fill exactly **one** variable, the absolute spec path; compose nothing else:
+
+```
+subagent({ agent: "scout", context: "fresh", cwd: "<abs worktree path>",
+  phase: "plan-recon", output: "<abs plan path — same filename as the spec, per the table above>",
+  task: <the fixed template below, with the spec path filled> })
+```
+
+> Recon for implementation planning. Read the approved spec at `<abs spec path>` - it is the single source of truth for what is being built. Also read the repo's `AGENTS.md` and, if present, `.pi/gauntlet-overrides.md` for conventions. Build an implementation map for the spec: exact file paths to create/modify/delete; existing call sites and tests with line ranges; conventions and patterns the plan must match; the project's test runner and the exact scoped-invocation form for running individual test files (derived from the repo's Makefile/bin/config and the overrides file); the style/lint and auto-format commands in both scoped per-file form and repo-wide form (same sources); separately, the full-suite verification entrypoint and whether it bundles style/format checks. Flag any spec claim that contradicts the code. Read-only recon: do not edit any file except writing your report to your output path. Start your report with the line `# CONTEXT DRAFT - NOT A PLAN - fully replaced at plan-writing` verbatim. End with an "Open questions that matter for the plan" section. Compact handoff, not a dump.
+
+Consumption:
+
+- `Read` the draft at the plan path before mapping files — the on-disk copy is canonical (prune-proof, restart-proof).
+- The draft is a helper, not a fence: verify load-bearing claims against real code before planning against them.
+- Plan-writing is a **full-replacement `write`** at the same path. Re-read the draft in the same turn immediately before the overwrite. After the write, confirm line 1 is no longer the draft marker before self-review and handoff.
+- **Degradation:** the scout failed when its task errored or the output file is missing or empty. Proceed from your own reads with a one-line note; never block. If the file is absent, no marker check applies at the overwrite.
+- **Re-entry:** re-dispatching recon overwrites whatever the plan path holds — including a committed prior plan (recoverable from git history) or an uncommitted one (destroyed). Re-planning is a deliberate overwrite.
 
 ## File Structure
 
@@ -113,6 +133,8 @@ Group tasks into **waves** so the executor can parallelize independent work (see
 
 **File-ownership contract.** The per-task `**Files:**` block *is* the ownership declaration — no new syntax. Rule: **within a wave, the union of every task's declared paths must be pairwise disjoint.** Globs are allowed for `Modify` when exact paths are unknown, but must not overlap another same-wave task's paths. A task that must touch another's file belongs in a later wave.
 
+**Test-command contract.** Every code-touching wave declares at least one scoped test command across its tasks' steps. A wave with zero test commands is legal only when every task's `Files:` block is documentation-only (the trailing doc-only wave below).
+
 **Runtime-resource disjointness.** File-disjoint is necessary but not sufficient: two tasks with disjoint files that both mutate the same DB, bind the same port, or share a fixture are **not** parallel-safe and must land in different waves. The executor auto-selects parallel for *every* multi-task wave, so this grouping is the sole parallel-safety guarantee — there is no selection-time judgment downstream. No new mandatory per-task syntax; when a shared runtime resource is the reason two file-disjoint tasks sit in different waves, record it in an inline note on the later wave.
 
 **Doc tasks.** Doc updates are real plan tasks, not an afterthought. Task-local docs (a doc that only describes the file(s) a task already touches) ride with that task. Cross-cutting or index docs (README, `AGENTS.md`, topic guides, taxonomy indexes) sequence into a dedicated trailing doc-only wave — last wave by convention, file-disjoint from every code task so the pairwise-disjoint wave contract holds.
@@ -143,6 +165,7 @@ Each step is **one action, 2-5 minutes**:
 - "Run it, confirm it fails" — step
 - "Implement minimal code to pass" — step
 - "Run tests, confirm green" — step
+- "Format & lint the task's files" — step
 - "Commit" — step
 
 ## Plan Document Header
@@ -160,10 +183,14 @@ Each step is **one action, 2-5 minutes**:
 
 **Spec:** `<project>/doc/specs/<same-filename-as-this-plan>.md`
 
+**Verification:** `<full verification command set — tests + style + format; a single bundling entrypoint, or the listed individual commands; from the recon report / project overrides>`
+
 **Linear:** `E-XXXX` (omit if no ticket)
 
 ---
 ```
+
+The `**Verification:**` line is the **only** place the full verification entrypoint may appear — never in any task or wave step. The verify phase reads it from the plan instead of re-deriving it; execution runs scoped commands only.
 
 ## Task Structure
 
@@ -204,13 +231,20 @@ Each task uses `- [ ]` checkbox steps so execution tools (and humans) can track 
   Run: `uv run pytest tests/path/test.py::test_name -v`
   Expected: PASS
 
-- [ ] **Step 5: Commit**
+- [ ] **Step 5: Format & lint the task's files**
+
+  Run: `<scoped fmt/lint command from recon> exact/path/to/file.py tests/exact/path/to/test.py`
+  Expected: no diff after re-run / 0 offenses
+
+- [ ] **Step 6: Commit**
 
   ```bash
   git add tests/path/test.py src/path/file.py
   git commit -m "<imperative subject> (ref E-XXXX)"
   ```
 ```
+
+Every code task carries this step (red -> green -> fmt/lint -> commit). Doc-only tasks omit it unless the project formats Markdown.
 
 ## No Placeholders
 
@@ -235,6 +269,8 @@ After drafting the plan and before announcing it complete, run three checks your
 - **Placeholder scan.** Grep the doc for `TODO`, `TBD`, `xxx`, `[fill in]`, `<example>`, `etc.`, "probably", "something like". Resolve or convert each into an explicit Open Question.
 - **Type / API consistency.** Function signatures and field names that appear in multiple tasks must match exactly. The plan is its own contract — internal contradictions surface as bugs during execution.
 - **Wave disjointness.** For every multi-task wave, confirm the tasks' `Files:` sets are pairwise disjoint **and** that no two tasks contend on a shared mutable runtime resource (DB/schema, port, fixture, external service, shared temp path). Either kind of overlap = mis-grouped wave; split or re-order before handoff.
+- **Scoped-test coverage.** Every code-touching wave declares at least one scoped test command; only doc-only waves may have none.
+- **Header-only entrypoint.** The full verification entrypoint appears only in the plan header's `**Verification:**` line. Grep the task body for the header's command string — expect zero hits.
 
 Fix what this review finds before handoff.
 
