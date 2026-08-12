@@ -62,6 +62,32 @@ Dispatch a subagent with this prompt:
 
     **Verify by reading code, not by trusting report.**
 
+    ## Re-review: trajectory verdict
+
+    If your task contains a "Previous review report (re-review trigger)" section
+    and you found issues, end your report with exactly one line:
+
+    TRAJECTORY: CONVERGING (<n_prev> -> <n_now>)
+    TRAJECTORY: DIVERGING
+    TRAJECTORY: STAGNANT (repeat of: <finding>)
+
+    Pick the first label that applies, in this order:
+
+    1. STAGNANT: a previous finding survives materially unchanged - name it.
+       (e.g. the same missing requirement flagged last round is still missing)
+    2. DIVERGING: <n_now> >= <n_prev>, or the fix introduced any new finding.
+       (e.g. 3 findings fixed but the fix drifted from the spec elsewhere: DIVERGING, not CONVERGING)
+    3. CONVERGING: otherwise - the count fell, nothing new appeared, and every
+       surviving finding was materially improved.
+
+    <n_prev>/<n_now> are finding counts.
+
+    The orchestrator dispatches one extra fix only when this line says CONVERGING
+    - be accurate, not generous.
+
+    If you found no issues, report success as usual and omit this line.
+    First reviews (no previous-report section) omit this line.
+
     Report:
     - ✅ Spec compliant (if everything matches after code inspection)
     - ❌ Issues found: [list specifically what's missing or extra, with file:line references]

@@ -28,7 +28,7 @@ You are the **orchestrator**. You read the plan, dispatch, review the review, de
 **Do not pause to check in with the user between tasks.** The plan is already approved. Pause only when:
 
 - A subagent returns `NEEDS_CONTEXT` or `BLOCKED` (see [Implementer Status](#implementer-status))
-- A reviewer finds issues the implementer cannot resolve in two attempts
+- A fix loop escalates per [Fix-Loop Rounds](#fix-loop-rounds) (stagnation, or budget exhausted without convergence)
 - A ⚠️ workflow warning fires
 
 Reaching the end of the plan is not a pause: continue through verification and invoke `/skill:finishing-a-development-branch` as defined in [After All Tasks](#after-all-tasks-complete).
@@ -56,12 +56,35 @@ For each task in `plan_tracker`:
 1. **Dispatch implementer.** Pass the full task text + scene-setting context. Don't make the subagent re-read the plan.
 2. **Handle implementer status** (see below).
 3. **Dispatch spec reviewer.** Verify the diff matches the spec — nothing missing, nothing extra.
-4. If spec reviewer finds gaps → re-dispatch implementer to fix → re-review. Loop until ✅.
+4. If spec reviewer finds gaps → re-dispatch implementer to fix → re-review. Loop until ✅, within [Fix-Loop Rounds](#fix-loop-rounds).
 5. **Dispatch code-quality reviewer.** Only after spec is ✅. Skip for doc-only tasks (every file in the task's `Files:` block documentation-only) — SR-only, same exemption as doc-only waves.
-6. If quality reviewer finds issues → re-dispatch implementer → re-review. Loop until ✅.
+6. If quality reviewer finds issues → re-dispatch implementer → re-review. Loop until ✅, within [Fix-Loop Rounds](#fix-loop-rounds).
 7. Mark task complete in `plan_tracker`.
 
 After all tasks: run the whole-diff code review (`requesting-code-review`). Then [After All Tasks](#after-all-tasks-complete).
+
+## Fix-Loop Rounds
+
+One rule governs both review loops - spec-compliance and code-quality - in sequential and parallel-wave modes alike.
+
+**Re-review dispatch rule:** every re-review task includes the complete prior review report verbatim under the marker `## Previous review report (re-review trigger)`, plus the trajectory block from the reviewer's prompt template. The marker's presence is what obligates the reviewer to emit the `TRAJECTORY:` line. You never select, summarize, or diff findings yourself - pattern-match the sentinel line only.
+
+**The sequence.** Each review that finds issues is a decision point: read the `TRAJECTORY:` line before dispatching anything (review 1 has no line - on issues, dispatch fix 1). Any clean review ends the loop.
+
+1. **Review 1** (first review - no sentinel). Issues -> dispatch fix 1.
+2. **Review 2** (re-review). Issues -> if `STAGNANT`, escalate now - no fix 2. Otherwise dispatch fix 2.
+3. **Review 3** (re-review). Issues -> if the line reads `CONVERGING` and does not contain `max severity Critical` (spec reviews: `CONVERGING` alone), run the convergence exception: dispatch fix 3, then review 4. Any other outcome - `STAGNANT`, `DIVERGING`, a missing or malformed line, `max severity Critical` - escalate. Do not re-dispatch just to obtain the line.
+4. **Review 4** (re-review, only after the exception). Issues -> escalate, whatever the verdict. The exception fires at most once per loop; verdicts never chain into a second grant.
+
+Every dispatched fix is verified by a re-review before escalation or task progression - the loop only ever exits on a clean review or an escalation.
+
+**Escalation report:** report reviews run per loop and the final `TRAJECTORY` verdict - report `TRAJECTORY: MISSING` if the line was absent, or quote the raw line if malformed. If the exception ran, say so explicitly: `fix 3 was the convergence exception (CONVERGING, no Critical)`.
+
+**Worked examples:**
+
+- Review-2 verdict `TRAJECTORY: STAGNANT (repeat of: unchecked error path in parser)` -> escalate now, before fix 2 - earlier than the ordinary budget.
+- Review-3 verdict `TRAJECTORY: CONVERGING (3 -> 1, max severity Moderate)` -> dispatch fix 3; if review 4 still finds issues, escalate with the exception named in the report.
+- Review-3 verdict `TRAJECTORY: CONVERGING (3 -> 2, max severity Critical)` or `TRAJECTORY: DIVERGING` or no `TRAJECTORY:` line -> escalate.
 
 ## Implementer Status
 
@@ -142,10 +165,10 @@ Auto-selected at handoff by `writing-plans` (any wave with ≥2 tasks) when the 
 
 1. **Independence check.** Parse the wave's tasks' `Files:` blocks; assert pairwise-disjoint (mechanical). Runtime-resource disjointness (DB/schema, port, fixture, external service, shared temp path) is not machine-checkable here — trust the plan's wave grouping, which `writing-plans`' D5 contract guarantees. Either kind of overlap → the wave is mis-grouped; run those tasks as sequential single-task waves and note it.
 2. **Fan out.** One parallel dispatch (shape below): `implementer` per task, `context: "fresh"`, `worktree: true`. Each returns a status + a patch.
-3. **Status + spec review per task.** Parse each `DONE`/`BLOCKED`/etc. (see [Implementer Status](#implementer-status)) **first**. Then **dispatch a `spec-reviewer` per accepted patch** (`DONE`, or a `DONE_WITH_CONCERNS` you proceeded with) in one parallel fan-out — `context: "fresh"`, `cwd: <this worktree>`, **no `worktree` flag** (read-only) — each passed its task text, the returned **patch diff**, and the absolute spec path. Review is **diff-based**: the diff's hunks carry `file:line`, and test execution is not the reviewer's job here (the wave test gate in step 5 runs the wave's declared test commands). Inline verdicts are fine at normal wave sizes; large waves use `output:` + `outputMode: "file-only"` to keep verdicts out of your context. **Re-dispatch by cause:** `BLOCKED`/`NEEDS_CONTEXT` per the [Implementer Status](#implementer-status) matrix; a **spec gap** re-dispatches the implementer (fresh, `worktree: true`) carrying the prior patch + the reviewer's findings, the new patch superseding the old at step 4. Loop until accepted + spec ✅.
+3. **Status + spec review per task.** Parse each `DONE`/`BLOCKED`/etc. (see [Implementer Status](#implementer-status)) **first**. Then **dispatch a `spec-reviewer` per accepted patch** (`DONE`, or a `DONE_WITH_CONCERNS` you proceeded with) in one parallel fan-out — `context: "fresh"`, `cwd: <this worktree>`, **no `worktree` flag** (read-only) — each passed its task text, the returned **patch diff**, and the absolute spec path. Review is **diff-based**: the diff's hunks carry `file:line`, and test execution is not the reviewer's job here (the wave test gate in step 5 runs the wave's declared test commands). Inline verdicts are fine at normal wave sizes; large waves use `output:` + `outputMode: "file-only"` to keep verdicts out of your context. **Re-dispatch by cause:** `BLOCKED`/`NEEDS_CONTEXT` per the [Implementer Status](#implementer-status) matrix; a **spec gap** re-dispatches the implementer (fresh, `worktree: true`) carrying the prior patch + the reviewer's findings, the new patch superseding the old at step 4. Loop until accepted + spec ✅, within [Fix-Loop Rounds](#fix-loop-rounds), same as sequential.
 4. **Integrate.** `git apply` each task's patch sequentially onto HEAD. Apply fails = textual conflict → drop that task, finish the rest, re-run the dropped task sequentially on the updated HEAD.
 5. **Test gate.** Run the union of the wave's tasks' declared test commands on the integrated tree — the full verification set is the verify phase's job, run once. Failure = semantic conflict or bug → re-run the offending task sequentially, else fix per [When a Subagent Fails](#when-a-subagent-fails).
-6. **Quality review.** Code-quality review on the integrated wave diff; loop fixes to ✅. Skip for doc-only waves (SR-only per the commit precondition below).
+6. **Quality review.** Code-quality review on the integrated wave diff; loop fixes to ✅ within [Fix-Loop Rounds](#fix-loop-rounds), same as sequential. Skip for doc-only waves (SR-only per the commit precondition below).
 7. **Commit the wave.** Leaves a clean tree; the next wave's children branch from this commit and so see the integrated work.
 
 **Two-stage review is preserved:** spec review per task (pre-integration, dispatched `spec-reviewer` — not inline), quality review per wave (post-integration). A wave commit requires one spec-review verdict per accepted task, plus one code-review verdict on the integrated diff for waves that touch code. A doc-only wave (every task's `Files:` block documentation-only, per `writing-plans`' Wave Grouping) is SR-only — the CR gate does not apply.
@@ -204,6 +227,8 @@ For the fan-out + worktree + patch-integration + conflict mechanics, see `dispat
 - Making a subagent read the plan instead of passing task text
 - Starting code-quality review before spec compliance is ✅
 - Moving to next task with either review still showing issues
+- Dispatching fix 3 without a reviewer-emitted qualifying `CONVERGING` verdict at review 3
+- Continuing past a `STAGNANT` verdict instead of escalating
 - Letting implementer self-review replace external review (both needed)
 - Spec-reviewing wave patches inline instead of dispatching `spec-reviewer` per patch — sequential mode's step 3 dispatches it; wave mode must too
 - Pausing to "check in" between tasks (continuous execution rule)
