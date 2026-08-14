@@ -1,5 +1,14 @@
 # Changelog
 
+## v4.8.2 - 2026-08-14
+
+Tracker-neutral skill wording - Linear is an example, not the canonical vocabulary.
+
+- `brainstorming`: `## Linear Ticket Handling` renamed to `## Ticket Handling` (consumer overrides matching by name/topic keep working - the substring survives); filename convention now `With ticket: YYYY-MM-DD-<ticket-id>-<topic>.md` with `<ticket-id>` defined as a filename-safe slug of the tracker reference (Linear keys verbatim, e.g. `gh-123` for GitHub issue `#123`); plan headers and commit messages use the tracker's native reference form.
+- `writing-plans`: plan header field `**Linear:** E-XXXX` -> `**Ticket:** <ticket-id>`; "same Linear ID" -> "same ticket ID"; commit example `(ref E-XXXX)` -> `(ref <ticket-id>)`.
+- `finishing-a-development-branch`: squash-commit example `(ref E-XXXX)` -> `(ref <ticket-id>)`.
+- AGENTS core: no-new-machinery rule added to the shared Code & Documentation Discipline section.
+
 ## v4.8.1 - 2026-08-12
 
 Fix-loop escalation now tracks convergence, not just round count (#7).
