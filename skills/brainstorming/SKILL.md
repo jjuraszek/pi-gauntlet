@@ -180,7 +180,7 @@ Cover at minimum:
 
 Be ready to go back and clarify when something doesn't make sense.
 
-## Linear Ticket Handling
+## Ticket Handling
 
 When a ticket ID is given, fetch the ticket and treat it as **guidance, not the sole source of truth**. Propose changes to scope, approach, or acceptance criteria when they don't align with the codebase. Surface deviations in the spec doc.
 
@@ -213,8 +213,8 @@ If the change truly is mechanical and contained (rename, formatter run, dependen
 
 Spec lives in the project's `doc/specs/` (see [Project Routing](#project-routing)) with one of:
 
-- With Linear ticket: `YYYY-MM-DD-E-12345-<topic>.md`
-- Without Linear ticket: `YYYY-MM-DD-<topic>.md`
+- With ticket: `YYYY-MM-DD-<ticket-id>-<topic>.md` — `<ticket-id>` is a filename-safe slug of the tracker reference (e.g. `E-12345` for Linear, used verbatim; `gh-123` for GitHub issue `#123`). Plan headers and commit messages use the tracker's native reference form, not the filename slug.
+- Without ticket: `YYYY-MM-DD-<topic>.md`
 
 `<topic>` is a short kebab-case slug (3–6 words). Do **not** append `-design` or any other suffix.
 

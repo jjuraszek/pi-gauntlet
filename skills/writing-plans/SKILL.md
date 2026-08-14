@@ -19,7 +19,7 @@ Before drafting the plan, call `phase_tracker({ action: "start", phase: "plan" }
 
 **Input:** an approved spec in `<project>/doc/specs/<filename>.md` — produced by `/skill:brainstorming` in this session, or handed off from another session (see "Resuming with a spec in hand").
 
-**Save plans to:** the sibling `doc/plans/` directory next to the spec. The plan filename matches the spec filename exactly — same date, same Linear ID (if any), same topic slug, no `-design` suffix.
+**Save plans to:** the sibling `doc/plans/` directory next to the spec. The plan filename matches the spec filename exactly — same date, same ticket ID (if any), same topic slug, no `-design` suffix.
 
 | Spec path | Plan path |
 |---|---|
@@ -185,7 +185,7 @@ Each step is **one action, 2-5 minutes**:
 
 **Verification:** `<full verification command set — tests + style + format; a single bundling entrypoint, or the listed individual commands; from the recon report / project overrides>`
 
-**Linear:** `E-XXXX` (omit if no ticket)
+**Ticket:** `<ticket-id>` (omit if none)
 
 ---
 ```
@@ -240,7 +240,7 @@ Each task uses `- [ ]` checkbox steps so execution tools (and humans) can track 
 
   ```bash
   git add tests/path/test.py src/path/file.py
-  git commit -m "<imperative subject> (ref E-XXXX)"
+  git commit -m "<imperative subject> (ref <ticket-id>)"
   ```
 ```
 

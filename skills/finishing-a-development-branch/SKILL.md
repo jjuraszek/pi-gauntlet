@@ -178,7 +178,7 @@ git merge --squash <feature-branch>
 git rm doc/plans/<plan-file>.md   # or <service>/doc/plans/<plan-file>.md
 
 # Single commit covering spec + code + review fixes.
-git commit -m "<imperative summary> (ref E-XXXX)"
+git commit -m "<imperative summary> (ref <ticket-id>)"
 
 # Verify tests on merged result
 <Step 1 command for the service(s) touched>
