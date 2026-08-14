@@ -142,19 +142,21 @@ prerequisites hold.
 
 Per round:
 
-1. **`plan_tracker` init** with the round's gaps as tasks. Wave-prefix tasks
-   when the reviewer's `Parallel-safe:` line marks a `conflicts` pair (file OR
-   `touched-resources` overlap) — that pair runs in separate serial waves;
-   `disjoint` gaps share one wave. Lifecycle per gap: `pending` →
-   `in_progress` → `complete`. This re-init **replaces** the implement phase's
-   completed task list in the singleton widget — state-safe, since
-   `phase-tracker.ts` `applyPlanActivity` only auto-completes `implement`
-   while it is `in_progress`; the widget now shows fix-wave progress during
+1. **`plan_tracker` add** — append the round's gaps as tasks (`Gn: <gap origin
+   clause verbatim, truncated>`; carry the gap's requirement text mechanically,
+   no orchestrator-authored summaries); never `init`, which would wipe the
+   implement phase's completed task list. Lifecycle per gap: `pending` →
+   `in_progress` → `complete`. The widget now shows fix-wave progress during
    verify.
-2. **Per gap** (task → `in_progress`): dispatch `implementer` (fresh context,
-   `worktree: true`, `cwd` = the conformance worktree, `touched-files` from the
-   gap block as an explicit ownership boundary) → dispatch `spec-reviewer` on
-   the gap-block reference contract below → task → `complete`.
+2. **Fix dispatch** — per `dispatching-parallel-agents` "Fix fan-out": a `disjoint`
+   group of ≥ 2 gaps (per the report's `Parallel-safe:` line) fixes in one parallel
+   dispatch — one `implementer` per gap (fresh context, `worktree: true`, `cwd` =
+   the conformance worktree, task = the gap block verbatim with `touched-files` as
+   the ownership boundary); `conflicts` pairs serialize. Gaps outside any ≥ 2-ID
+   `disjoint` group run sequentially as before. Then dispatch `spec-reviewer` per
+   gap on the gap-block reference contract below. Task lifecycle: mark `in_progress` at
+   dispatch; `complete` is deferred until the gap's patch is successfully
+   integrated in step 3 below.
 3. **Integrate** serially via `git apply` onto the worktree HEAD, one gap's
    patch at a time. Failure handling is inherited verbatim from
    `dispatching-parallel-agents` "Review and Integrate": textual conflict →

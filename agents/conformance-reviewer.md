@@ -99,6 +99,8 @@ Empty values use the literal tokens `absent` / `none` / `unknown` — never a bl
 After the gap blocks, emit one `Parallel-safe:` line so the orchestrator does not
 re-derive fix concurrency:
 
+<!-- grammar identical to skills/subagent-driven-development/spec-reviewer-prompt.md and skills/requesting-code-review/code-reviewer.md (modulo G vs F id prefix) — change them together or not at all; writing-plans' plan-time Parallel-safe: line is a deliberately different free-text form, do NOT unify -->
+
 ```
 Parallel-safe: <group>[; <group>]*
   <group> = <comma-separated gap-id list> " disjoint"
@@ -112,9 +114,7 @@ Parallel-safe: G1,G3 disjoint; G2 conflicts G1 (both touch auth.ts); G4 conflict
 ```
 
 Any **file OR runtime-resource** overlap forces the conflicting gaps into separate
-serial waves — identical to planned-execution wave grouping. Runtime-resource
-disjointness is not machine-checkable; estimate it as `writing-plans`' Runtime-resource
-disjointness rule does. When you cannot confidently certify a pair disjoint, mark them
+serial waves — identical to planned-execution wave grouping. Runtime-resource disjointness is not machine-checkable; estimate it over: DB/schema, port, fixture, external service, shared temp path. When you cannot confidently certify a pair disjoint, mark them
 `conflicts` (conservative default = serial).
 
 ### `recommended` selection policy

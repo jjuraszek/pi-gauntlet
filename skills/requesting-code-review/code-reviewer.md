@@ -21,7 +21,7 @@ You are reviewing code changes for production readiness.
 
 Before writing the report:
 
-- **Not everything is Critical.** Reserve Critical for bugs, data loss, security, broken functionality. A missing helper method is Important. A naming preference is Minor.
+- **Not everything is Critical.** Reserve Critical for bugs, data loss, security, broken functionality. A missing helper method is Moderate. A naming preference is Minor.
 - **Lead with strengths.** Accurate praise earns the implementer's trust on the critique that follows. Generic praise ("good code") undermines it.
 - **If you wouldn't block a PR over it, it's not Critical.** Be honest with yourself about severity before assigning it.
 - **Plan deviations get their own treatment.** If the implementation diverged from the spec/plan — added scope, removed scope, changed an interface — call it out under a dedicated "Plan Deviations" heading, not buried in Critical or Minor.
@@ -90,17 +90,20 @@ git diff {BASE_SHA}..{HEAD_SHA}
 #### Critical (Must Fix)
 [Bugs, security issues, data loss risks, broken functionality]
 
-#### Important (Should Fix)
+#### Moderate (Should Fix)
 [Architecture problems, missing features, poor error handling, test gaps]
 
 #### Minor (Nice to Have)
 [Code style, optimization opportunities, documentation improvements]
 
 **For each issue:**
+- `Fn` label - globally unique, numbered across the whole report (no restart per severity section)
 - File:line reference
 - What's wrong
 - Why it matters
 - How to fix (if not obvious)
+- `touched-files:` - files a fix would edit (not just the evidence location), comma-separated, or the literal `none`
+- `touched-resources:` - shared runtime resources a fix or its verification touches (DB/schema, port, fixture, external service, shared temp path), or the literal `none`
 
 ### Recommendations
 [Improvements for code quality, architecture, or process]
@@ -110,6 +113,27 @@ git diff {BASE_SHA}..{HEAD_SHA}
 **Ready to merge?** [Yes/No/With fixes]
 
 **Reasoning:** [Technical assessment in 1-2 sentences]
+
+### Fix-concurrency certification
+
+On any issue-bearing review, end the report with one partition line over the
+`Fn` IDs assigned above:
+
+<!-- grammar identical to agents/conformance-reviewer.md (modulo G vs F id prefix) — change them together or not at all; writing-plans' plan-time Parallel-safe: line is a deliberately different free-text form, do NOT unify -->
+
+```
+Parallel-safe: <group>[; <group>]*
+  <group> = <comma-separated finding-id list> " disjoint"
+          | <finding-id> " conflicts " <finding-id> " (" <reason> ")"
+```
+
+Example: `Parallel-safe: F1,F3 disjoint; F2 conflicts F1 (both touch auth.ts)`
+
+IDs inside a `disjoint` list are mutually parallel-safe (their fixes can run
+concurrently). Any file OR runtime-resource overlap between two findings' fixes
+forces `conflicts`. Runtime-resource disjointness is estimated over: DB/schema,
+port, fixture, external service, shared temp path. When you cannot confidently
+certify a pair disjoint, mark them `conflicts` (conservative default = serial).
 
 ## Critical Rules
 
@@ -137,22 +161,28 @@ git diff {BASE_SHA}..{HEAD_SHA}
 
 ### Issues
 
-#### Important
-1. **Missing help text in CLI wrapper**
+#### Moderate
+F1. **Missing help text in CLI wrapper**
    - File: index-conversations:1-31
    - Issue: No --help flag, users won't discover --concurrency
    - Fix: Add --help case with usage examples
+   - touched-files: index-conversations.ts
+   - touched-resources: none
 
-2. **Date validation missing**
+F2. **Date validation missing**
    - File: search.ts:25-27
    - Issue: Invalid dates silently return no results
    - Fix: Validate ISO format, throw error with example
+   - touched-files: search.ts
+   - touched-resources: none
 
 #### Minor
-1. **Progress indicators**
+F3. **Progress indicators**
    - File: indexer.ts:130
    - Issue: No "X of Y" counter for long operations
    - Impact: Users don't know how long to wait
+   - touched-files: indexer.ts
+   - touched-resources: none
 
 ### Recommendations
 - Add progress reporting for user experience
@@ -162,5 +192,7 @@ git diff {BASE_SHA}..{HEAD_SHA}
 
 **Ready to merge: With fixes**
 
-**Reasoning:** Core implementation is solid with good architecture and tests. Important issues (help text, date validation) are easily fixed and don't affect core functionality.
+**Reasoning:** Core implementation is solid with good architecture and tests. Moderate issues (help text, date validation) are easily fixed and don't affect core functionality.
+
+Parallel-safe: F1,F2,F3 disjoint
 ```

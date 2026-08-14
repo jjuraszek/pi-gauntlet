@@ -19,18 +19,18 @@ interface Task {
 }
 
 interface PlanTrackerDetails {
-  action: "init" | "update" | "status" | "clear";
+  action: "init" | "add" | "update" | "status" | "clear";
   tasks: Task[];
   error?: string;
 }
 
 const PlanTrackerParams = Type.Object({
-  action: StringEnum(["init", "update", "status", "clear"] as const, {
+  action: StringEnum(["init", "add", "update", "status", "clear"] as const, {
     description: "Action to perform",
   }),
   tasks: Type.Optional(
     Type.Array(Type.String(), {
-      description: "Task names (for init)",
+      description: "Task names (for init and add)",
     }),
   ),
   index: Type.Optional(
@@ -129,7 +129,7 @@ export default function (pi: ExtensionAPI) {
     name: "plan_tracker",
     label: "Plan Tracker",
     description:
-      "Track progress while EXECUTING an implementation plan (the implement phase) or a verify-phase conformance fix wave. Actions: init (set task list), update (change task status), status (show current state), clear (remove plan). Do NOT use for brainstorming, research, or planning checklists: those phases are open-ended and a bounded task list misrepresents them as a fixed N-step process.",
+      "Track progress while EXECUTING an implementation plan (the implement phase) or a verify-phase conformance fix wave. Actions: init (set task list), add (append tasks as pending; existing statuses preserved), update (change task status), status (show current state), clear (remove plan). Do NOT use for brainstorming, research, or planning checklists: those phases are open-ended and a bounded task list misrepresents them as a fixed N-step process.",
     parameters: PlanTrackerParams,
 
     async execute(_toolCallId, params, _signal, _onUpdate, ctx) {
@@ -155,6 +155,30 @@ export default function (pi: ExtensionAPI) {
               },
             ],
             details: { action: "init", tasks: tasks.map((t) => ({ ...t })) } as PlanTrackerDetails,
+          };
+        }
+
+        case "add": {
+          if (!params.tasks || params.tasks.length === 0) {
+            return {
+              content: [{ type: "text", text: "Error: tasks array required for add" }],
+              details: {
+                action: "add",
+                tasks: tasks.map((t) => ({ ...t })),
+                error: "tasks required",
+              } as PlanTrackerDetails,
+            };
+          }
+          tasks.push(...params.tasks.map((name) => ({ name, status: "pending" as TaskStatus })));
+          updateWidget(ctx);
+          return {
+            content: [
+              {
+                type: "text",
+                text: `Added ${params.tasks.length} tasks (${tasks.length} total).\n${formatStatus(tasks)}`,
+              },
+            ],
+            details: { action: "add", tasks: tasks.map((t) => ({ ...t })) } as PlanTrackerDetails,
           };
         }
 
@@ -248,7 +272,7 @@ export default function (pi: ExtensionAPI) {
         text += ` ${theme.fg("accent", `[${args.index}]`)}`;
         if (args.status) text += ` → ${theme.fg("dim", args.status)}`;
       }
-      if (args.action === "init" && args.tasks) {
+      if ((args.action === "init" || args.action === "add") && args.tasks) {
         text += ` ${theme.fg("dim", `(${args.tasks.length} tasks)`)}`;
       }
       return new Text(text, 0, 0);
@@ -270,6 +294,12 @@ export default function (pi: ExtensionAPI) {
         case "init":
           return new Text(
             theme.fg("success", "✓ ") + theme.fg("muted", `Plan initialized with ${taskList.length} tasks`),
+            0,
+            0,
+          );
+        case "add":
+          return new Text(
+            theme.fg("success", "✓ ") + theme.fg("muted", `Added tasks (${taskList.length} total)`),
             0,
             0,
           );

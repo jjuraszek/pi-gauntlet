@@ -52,9 +52,11 @@ subagent({ agent: "code-reviewer", task: "... filled template ..." })
 
 **3. Act on feedback:**
 - Fix Critical issues immediately
-- Fix Important issues before proceeding
+- Fix Moderate issues before proceeding
 - Note Minor issues for later
 - Push back if reviewer is wrong (with reasoning)
+
+**Fix rounds.** Critical and Moderate findings trigger a fix round; when dispatched from an orchestrating skill, fixes go to `implementer` subagents (per the orchestrator's no-self-coding rule), fanned out per `dispatching-parallel-agents` "Fix fan-out" when the review's `Parallel-safe:` line certifies a `disjoint` group of ≥ 2 findings. After integration and the project's test command, re-dispatch the reviewer once on the integrated delta. If Critical or Moderate findings remain, run one more fix round and one more re-review; still failing → escalate to the user. Minor findings never trigger the fan-out.
 
 ## Example
 
@@ -76,7 +78,7 @@ HEAD_SHA=$(git rev-parse HEAD)
 [Subagent returns]:
   Strengths: Clean architecture, real tests
   Issues:
-    Important: Missing progress indicators
+    Moderate: Missing progress indicators
     Minor: Magic number (100) for reporting interval
   Assessment: Ready to proceed
 
@@ -100,7 +102,7 @@ You: [Fix progress indicators]
 **Never:**
 - Skip review because "it's simple"
 - Ignore Critical issues
-- Proceed with unfixed Important issues
+- Proceed with unfixed Moderate issues
 - Argue with valid technical feedback
 
 **If reviewer wrong:**

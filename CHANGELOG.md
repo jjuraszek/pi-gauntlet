@@ -1,5 +1,14 @@
 # Changelog
 
+## [Unreleased]
+
+Review fix rounds parallelize when the reviewer certifies disjoint findings.
+
+- `plan_tracker`: new `add` action - appends tasks as `pending`, preserving existing statuses; fix sub-waves extend the tracker instead of re-initializing it (conformance fix rounds no longer wipe the implement phase's completed task list).
+- `dispatching-parallel-agents`: new "Fix fan-out" section - reviewer-certified `disjoint` finding groups fix in one parallel wave (one implementer per finding, verbatim finding blocks, serial integration, one re-review); silent sequential degradation when no certificate is present.
+- Reviewer contracts (`spec-reviewer-prompt`, `code-reviewer` template + persona, `conformance-reviewer`): global finding IDs (`F<n>`/`G<n>`), per-finding `touched-files`/`touched-resources`, and a shared `Parallel-safe:` partition grammar (drift-guarded copies across templates and personas).
+- `subagent-driven-development`, `requesting-code-review`, `verification-before-completion/conformance-check`: fix loops reference the shared fan-out rule; `requesting-code-review` gains a minimal fix loop (2 rounds, then escalate); severity vocabulary unified on Critical/Moderate/Minor.
+
 ## v4.8.2 - 2026-08-14
 
 Tracker-neutral skill wording - Linear is an example, not the canonical vocabulary.

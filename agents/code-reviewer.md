@@ -32,12 +32,15 @@ Verdict: SHIP | FIX_FIRST | REJECT
 Confidence: low | medium | high   (based on how much you could verify locally)
 
 Findings:
-  - [Critical] path/to/file.ts:42 — one-sentence problem
+  - [Critical] F1: path/to/file.ts:42 — one-sentence problem
         Fix: one or two sentences.
-  - [Moderate] ...
-  - [Minor] [shrink] path/to/file.ts:30 — manual loop builds dict; `dict(zip(keys, values))`, 1 line.
+        touched-files: path/to/file.ts
+        touched-resources: none
+  - [Moderate] F2: ...
+  - [Minor] F3: [shrink] path/to/file.ts:30 — manual loop builds dict; `dict(zip(keys, values))`, 1 line.
 
 Complexity: net -<N> lines   (omit if nothing to cut)
+Parallel-safe: F1,F3 disjoint; F2 conflicts F1 (both touch auth.ts)
 ```
 
 Severity:
@@ -45,5 +48,28 @@ Severity:
 - **Critical** — must fix before merge (data loss, security, broken correctness on a common path, broken contract).
 - **Moderate** — should fix; open for discussion (significant but not strictly blocking).
 - **Minor** — nit, style, preference, suggestion.
+
+Label every finding with a globally unique `F1..Fn` ID (no restart per severity),
+and a `touched-files:`/`touched-resources:` pair (files/resources a fix would
+touch, or the literal `none`). On any issue-bearing review end the findings
+with one partition line over the `Fn` IDs assigned above; when a task requires
+a trailing `TRAJECTORY:` verdict (re-review), that verdict follows it as the
+true final line:
+
+<!-- grammar identical to skills/requesting-code-review/code-reviewer.md — change them together or not at all; writing-plans' plan-time Parallel-safe: line is a deliberately different free-text form, do NOT unify -->
+
+```
+Parallel-safe: <group>[; <group>]*
+  <group> = <comma-separated finding-id list> " disjoint"
+          | <finding-id> " conflicts " <finding-id> " (" <reason> ")"
+```
+
+Example: `Parallel-safe: F1,F3 disjoint; F2 conflicts F1 (both touch auth.ts)`
+
+IDs inside a `disjoint` list are mutually parallel-safe (their fixes can run
+concurrently). Any file OR runtime-resource overlap between two findings' fixes
+forces `conflicts`. Runtime-resource disjointness is estimated over: DB/schema,
+port, fixture, external service, shared temp path. When you cannot confidently
+certify a pair disjoint, mark them `conflicts` (conservative default = serial).
 
 If you ran verification commands, quote them and their output verbatim under a `Verification:` section. If you did not, say so.

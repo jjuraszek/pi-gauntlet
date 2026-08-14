@@ -171,6 +171,7 @@ try {
       "--test",
       R("extensions/lib/gauntlet-settings.test.ts"),
       R("extensions/lib/phase-tracker-helpers.test.ts"),
+      R("extensions/plan-tracker.test.ts"),
       R("extensions/phase-tracker.test.ts"),
       R("extensions/verify-before-ship.test.ts"),
     ],

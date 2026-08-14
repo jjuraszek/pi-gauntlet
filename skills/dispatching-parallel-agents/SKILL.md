@@ -104,6 +104,20 @@ When agents return:
 
 **If some agents failed:** Integrate successful agents first (commit their work). Then retry the failed agent with fresh context that includes the integrated changes.
 
+## Fix fan-out
+
+Fix rounds in review loops reuse the fan-out mechanics above, keyed off the reviewer's partition certificate — the orchestrator never partitions findings itself.
+
+Reviewers certify fix concurrency with a `Parallel-safe:` line (see the reviewer's report contract). The fan-out trigger is a `disjoint` group naming **≥ 2 finding IDs**: that group IS the parallel wave — dispatch **one `implementer` per finding ID in the group** (`context: "fresh"`, `worktree: true`, `cwd` = the current worktree; task = that finding's block **verbatim**, including its `touched-files` line as the ownership boundary). A finding named in any `conflicts` pair runs sequentially after every finding it names has integrated (chained `conflicts` define a partial order; remaining serial findings run in the line's order). Findings outside any ≥ 2-ID `disjoint` group run sequentially. Fan out per review line only — never merge or co-schedule groups from different `Parallel-safe:` lines; run those fan-outs serially.
+
+**Precondition:** a clean committed HEAD containing the code under review. When the reviewed change is an unintegrated patch (a wave-mode per-patch spec review), each fix task branches from the wave's base HEAD and carries the prior patch verbatim in its task text — the consuming loop's existing re-dispatch protocol. When the tree is dirty (e.g. post-integration, before the wave commit), the fan-out is unavailable: fix sequentially in place.
+
+**Degradation:** missing, malformed, or ID-less `Parallel-safe:` line, or no `disjoint` group with ≥ 2 IDs → fully sequential fixes. Degradation is silent — it costs parallelism, never correctness.
+
+**After the fix wave:** integrate patches serially per "Review and Integrate" above (mis-partition is self-healing: integrate the successes, re-run the conflicting finding sequentially on integrated HEAD); run the consuming loop's scoped test gate on the integrated tree; then one re-review of the integrated fix delta, per the consuming loop's own rules. The fan-out counts as one fix round against the consuming loop's budget — it grants no extra rounds.
+
+**Progress:** `plan_tracker({ action: "add" })` one task per fixed finding, named mechanically — `"<prefix>fix F<n>: <finding's first line verbatim>"`, where `<prefix>` is `"W<k>-"` inside an execution wave and empty elsewhere. Fix tasks always extend the tracker, never re-init. Mark `in_progress` at dispatch, `complete` at integration.
+
 ## Agent Prompt Structure
 
 Good agent prompts are:

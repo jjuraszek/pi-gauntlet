@@ -30,6 +30,8 @@ const sources = {
       Boolean: schema,
       Union: schema,
       Null: schema,
+      Array: schema,
+      Integer: schema,
     };
   `,
 };

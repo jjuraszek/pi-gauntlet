@@ -24,6 +24,8 @@ Dispatch a subagent with the code-reviewer template:
 
 **Code reviewer returns:** Strengths, Issues (Critical/Moderate/Minor), Assessment
 
+Emit finding IDs and the `Parallel-safe:` line per that contract.
+
 ## Re-review: trajectory verdict
 
 Include the following in the reviewer's task text on every re-review, after
@@ -31,7 +33,8 @@ the prior review report pasted verbatim under a
 `## Previous review report (re-review trigger)` heading:
 
 If your task contains a "Previous review report (re-review trigger)" section
-and you found issues, end your report with exactly one line:
+and you found issues, append exactly one more line after `Parallel-safe:` — this
+line, not `Parallel-safe:`, is the true final line of the report:
 
 TRAJECTORY: CONVERGING (<n_prev> -> <n_now>, max severity <X>)
 TRAJECTORY: DIVERGING

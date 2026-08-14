@@ -62,10 +62,38 @@ Dispatch a subagent with this prompt:
 
     **Verify by reading code, not by trusting report.**
 
+    ### Finding IDs and fix-concurrency certification
+
+    Label every finding with a globally unique ID `F1..Fn`, numbered across the whole
+    report (no restart per severity section). Each finding carries:
+
+    - `touched-files:` — files a fix would edit (not just the evidence location), comma-separated, or the literal `none`
+    - `touched-resources:` — shared runtime resources a fix or its verification touches (DB/schema, port, fixture, external service, shared temp path), or the literal `none`
+
+    On any issue-bearing review, end the findings with one partition line (this is the
+    final line of the report unless a re-review trajectory verdict is also required — see below):
+
+    <!-- grammar identical to agents/conformance-reviewer.md (modulo G vs F id prefix) — change them together or not at all; writing-plans' plan-time Parallel-safe: line is a deliberately different free-text form, do NOT unify -->
+
+    ```
+    Parallel-safe: <group>[; <group>]*
+      <group> = <comma-separated finding-id list> " disjoint"
+              | <finding-id> " conflicts " <finding-id> " (" <reason> ")"
+    ```
+
+    Example: `Parallel-safe: F1,F3 disjoint; F2 conflicts F1 (both touch auth.ts)`
+
+    IDs inside a `disjoint` list are mutually parallel-safe (their fixes can run
+    concurrently). Any file OR runtime-resource overlap between two findings' fixes
+    forces `conflicts`. Runtime-resource disjointness is estimated over: DB/schema,
+    port, fixture, external service, shared temp path. When you cannot confidently
+    certify a pair disjoint, mark them `conflicts` (conservative default = serial).
+
     ## Re-review: trajectory verdict
 
     If your task contains a "Previous review report (re-review trigger)" section
-    and you found issues, end your report with exactly one line:
+    and you found issues, append exactly one more line after `Parallel-safe:` — this
+    line, not `Parallel-safe:`, is the true final line of the report:
 
     TRAJECTORY: CONVERGING (<n_prev> -> <n_now>)
     TRAJECTORY: DIVERGING
