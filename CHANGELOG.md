@@ -1,6 +1,6 @@
 # Changelog
 
-## [Unreleased]
+## v4.9.0 - 2026-08-14
 
 Review fix rounds parallelize when the reviewer certifies disjoint findings.
 
