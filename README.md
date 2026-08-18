@@ -41,6 +41,7 @@ Concretely, one change through the gauntlet:
 3. **`subagent-driven-development`** executes the plan one task at a time, each in a fresh subagent, behind spec-compliance review then code-quality review. TDD-locked: red, green, refactor.
 4. **verify**: a whole-diff code review, then the **conformance gate** - a subagent reads the finished code and docs against your *original words* from step 1, not the plan, and reports per-requirement: delivered, partial, missing, drifted, or unauthorized. Inside a brainstorming-entered flow this gate is machine-blocked from being skipped. Compatible executable recommendations auto-run through an isolated fix-and-re-audit loop with no prompt; anything still open surfaces as a dense list - one line per decision, plain-language, with its recommended choice inline. Reply `1` to take every recommendation, or `2:` with per-item overrides; a current `CONFORMS` / no-concerns result goes straight to the branch options with no extra conformance sign-off.
 5. **`finishing-a-development-branch`**: squash, PR, keep, or discard. Once a PR exists, run `/skill:gatekeep-pr <pr>` to verify it against its issue before merging. **Human gate 2** - the only other decision you make.
+6. *(Optional)* Once the merge lands, `/skill:check-delivery <ref>` can prove delivery - default-branch landing, delivery target, per-AC evidence - before the tracker status advances. Explicit invocation only, no auto-chain: deploys commonly lag merges by minutes to hours, so an auto-run would routinely check too early.
 
 Only the machine-owned `plan -> implement` and `verify -> ship` handoffs receive a branch-local one-shot nudge after an unexpected settled stop; it is fire-and-forget, does not bypass either human gate, and older Pi hosts without `agent_settled` retain existing behavior.
 
@@ -57,6 +58,7 @@ flowchart LR
     M --> S[ship]
     S --> G2{{human gate 2:<br/>merge / PR / discard}}
     G2 --> D([done])
+    D -.optional.-> CD["/skill:check-delivery"]
 ```
 
 <!-- TODO GIF: a real gauntlet run end to end -->
@@ -67,7 +69,7 @@ Everything between gate 1 and gate 2 - task breakdown, implementation, both revi
 
 pi-gauntlet ships three kinds of pieces, layered on top of pi-cohort's dispatch:
 
-- **15 skills** - the workflow logic. Thirteen activate automatically when pi sees the matching kind of task, and each one gates the next: `brainstorming`, `writing-plans`, `roasting-the-spec`, `test-driven-development`, `subagent-driven-development`, `dispatching-parallel-agents`, `verification-before-completion`, `systematic-debugging`, `requesting-code-review`, `receiving-code-review`, `using-git-worktrees`, `finishing-a-development-branch`, `writing-skills`. The fourteenth, `shape-ticket`, is explicit-invocation-only (`disable-model-invocation: true`): create or repair one tracker issue per run against a Context/Problem/Idea/Acceptance-Criteria template, gated by an AC integrity check, a cheap council roast, and a single human-confirmed write. Run it with `/skill:shape-ticket`. The fifteenth, `gatekeep-pr`, is also explicit-invocation-only: consent-gated pre-merge verification of a PR against its issue - read-only gathering, running the project's verification command, a rubric-based review, then a deterministic authorship-aware menu; nothing mutates (fixes, pushes, reviews, merges) until you pick a row. Run it with `/skill:gatekeep-pr <pr>`.
+- **16 skills** - the workflow logic. Thirteen activate automatically when pi sees the matching kind of task, and each one gates the next: `brainstorming`, `writing-plans`, `roasting-the-spec`, `test-driven-development`, `subagent-driven-development`, `dispatching-parallel-agents`, `verification-before-completion`, `systematic-debugging`, `requesting-code-review`, `receiving-code-review`, `using-git-worktrees`, `finishing-a-development-branch`, `writing-skills`. Three more are explicit-invocation-only (`disable-model-invocation: true`): `shape-ticket` creates or repairs one tracker issue per run against a Context/Problem/Idea/Acceptance-Criteria template, gated by an AC integrity check, a cheap council roast, and a single human-confirmed write - run it with `/skill:shape-ticket`. `gatekeep-pr` is consent-gated pre-merge verification of a PR against its issue - read-only gathering, running the project's verification command, a rubric-based review, then a deterministic authorship-aware menu; nothing mutates (fixes, pushes, reviews, merges) until you pick a row - run it with `/skill:gatekeep-pr <pr>`. `check-delivery` is a post-merge detective control: proves an issue actually shipped (default-branch landing, delivery target, per-AC evidence) before its tracker status advances; it never writes a terminal status - run it with `/skill:check-delivery <ref>`.
 - **7 subagent personas** - the specialized child agents the skills dispatch via pi-cohort: `implementer`, `code-reviewer`, `spec-reviewer`, `conformance-reviewer`, `spec-summarizer`, `spec-council-member`, `spec-council-synthesizer`. See [doc/personas.md](./doc/personas.md) for what each one does and why its permissions are scoped the way they are.
 - **3 runtime extensions** - the enforcement layer. `plan-tracker` and `phase-tracker` are tools skills call to track progress (with a TUI widget); `verify-before-ship` is a hook that warns if you push or open a PR without a passing test run since your last edit; a phase-tracker flow guard reminds on implement-phase commits missing spec/code review. See [doc/configuration.md](./doc/configuration.md) for the settings each one reads.
 
@@ -153,6 +155,27 @@ Use the `jira` CLI (authenticated via `jira login`), not `gh` or `linearis`.
 - search (dup/reversal check): `jira issue search --jql "project = ABC AND text ~ '<query>'"`
 - create: `jira issue create --project ABC --type Task --summary "<title>" --description "<body>"`
 - update: `jira issue edit ABC-123 --summary "<title>" --description "<body>"`
+```
+
+**`## Delivery` section:** `check-delivery` resolves its overrides through the same discovery ladder. Defaults are pessimistic where it matters: an unset `target state` keeps the write comment-only; unset `deploy watch`/`delivery target` skip stage 2 (reported, never silently passed); `browser evidence` defaults to never. The remaining slots have working defaults shown below:
+
+| Slot | Meaning | Default (unset) |
+|---|---|---|
+| `target state` | Non-terminal tracker state to advance to on success | none - comment only |
+| `deploy watch` | Workflow/command to await before the target check | none |
+| `delivery target` | URL / health endpoint / registry query / command + success predicate reflecting the shipped SHA (`<sha>` substituted) | none - stage 2 skipped, reported |
+| `timeout` | Upper bound on stage 2 (watch + target check) | 10 minutes when stage 2 runs at all |
+| `browser evidence` | When/how to capture UI evidence (requires a browser tool) | never |
+| `ref convention` | How commits/PRs reference tickets (e.g. `(ref ABC-123)`) | tracker-native forms (`#N`, `Fixes #N`, bare `ABC-123`) |
+| `AC location` | Where ACs live if not the ticket body | ticket body |
+
+```markdown
+## Delivery
+- target state: Ready
+- deploy watch: gh run watch --workflow deploy.yml (run for <sha>)
+- delivery target: curl -fsS https://staging.example.com/version | grep <sha>
+- timeout: 15m
+- ref convention: (ref ABC-123)
 ```
 
 ## REVIEW.md convention

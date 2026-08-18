@@ -333,6 +333,8 @@ Once the chosen option (Options 1, 2, or 3 — not Discard) is executed successf
 phase_tracker({ action: "complete", phase: "ship" })
 ```
 
+Once the merge (and any deploy) has landed, `/skill:check-delivery <ticket-ref>` is the explicit follow-up that proves delivery before the ticket's status advances - not run automatically here.
+
 ## Red Flags
 
 **Never:**

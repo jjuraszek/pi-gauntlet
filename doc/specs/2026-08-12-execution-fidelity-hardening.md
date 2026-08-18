@@ -4,9 +4,9 @@
 
 **Evidence (session traces):**
 
-- Plan-time scout improvised: gridstrong session `2026-08-12T10-47-56` dispatched an unprescribed scout at plan start (L1967) with a main-loop-composed prompt. Useful behavior, but non-deterministic - nothing in `writing-plans` or consumer overrides mandates it.
+- Plan-time scout improvised: a consumer repo session `2026-08-12T10-47-56` dispatched an unprescribed scout at plan start (L1967) with a main-loop-composed prompt. Useful behavior, but non-deterministic - nothing in `writing-plans` or consumer overrides mandates it.
 - Review cadence violated: pi-condense session `2026-08-12T11-44-13` integrated a batch without spec-review or code-review; the user had to force remediation (user messages L524, L547, L561, L571). Existing SDD text (SKILL.md:151 "Both gates required before the wave commits", Red Flags :198-210) was defeated by prose alone.
-- Full suite per wave: gridstrong E-2770 session ran `mise x -- script/ci` + `make ci` during implement (implement started L360; verify never started); E-1686 sessions ran `script/ci` 3-4x with 35-minute timeouts. Implementer children ran scoped `bin/rspec spec/...` correctly throughout - the failure is orchestrator-level. Drivers: SDD:147 "Run the suite on the integrated tree" (unscoped), VBC's "FULL command" / "Partial proves nothing" wording, and `verify-before-ship` warning on every `git commit` while consumer overrides narrow recognised commands to full-CI entrypoints.
+- Full suite per wave: consumer-repo E-2770 session ran `mise x -- script/ci` + `make ci` during implement (implement started L360; verify never started); E-1686 sessions ran `script/ci` 3-4x with 35-minute timeouts. Implementer children ran scoped `bin/rspec spec/...` correctly throughout - the failure is orchestrator-level. Drivers: SDD:147 "Run the suite on the integrated tree" (unscoped), VBC's "FULL command" / "Partial proves nothing" wording, and `verify-before-ship` warning on every `git commit` while consumer overrides narrow recognised commands to full-CI entrypoints.
 
 ## Scope
 
@@ -18,7 +18,7 @@ Three changes in one release (minor):
 
 **Out of scope:**
 
-- Consumer-side `.pi/gauntlet-overrides.md` edits (gridstrong's Verification-column clarification runs in a separate session; a prompt was handed to the user during brainstorming). The skill-side tiering is self-sufficient against sparse consumer tables.
+- Consumer-side `.pi/gauntlet-overrides.md` edits (a consumer repo's Verification-column clarification runs in a separate session; a prompt was handed to the user during brainstorming). The skill-side tiering is self-sufficient against sparse consumer tables.
 - Mechanical CR-after-SR *ordering* enforcement (prose Red Flag only; guard checks presence, not order).
 - A durable review-verdict data model (tracker fields, output-file ledgers). The guard observes dispatch completion only.
 - `skills/test-driven-development/SKILL.md` changes. Its "all other tests still pass" GREEN language is implementer-child guidance; children already behave correctly.
@@ -154,7 +154,7 @@ No new settings keys, no new agents, no pi-cohort contract changes. Semver: **mi
 - `npm test` (`scripts/ci.mjs`) validates repo structure and version/CHANGELOG pairing.
 - Guard logic: unit coverage in the existing `extensions/phase-tracker.test.ts` / `extensions/lib/phase-tracker-helpers.test.ts` pattern - ledger updates on observed dispatch results, warning emission on implement-phase commit with stale SR/CR, silence when `flowGuards.enforce` is off, silence outside implement, replay reconstruction.
 - `verify-before-ship.ts`: **new** `extensions/verify-before-ship.test.ts` (none exists today - `scripts/ci.mjs`'s explicit list has no entry for it), registered in `scripts/ci.mjs`: commit no longer warns; push/PR warn until a recognised command passes, then clear.
-- Skill/agent prose: the repo's shipped grep, run as `rg -ni "<your-company>|jjuraszek|/Users/[^/]+|<your-org-name>|gridstrong" skills/` (per AGENTS.md; expected zero matches), plus the placeholder scan terms (`TODO|TBD|xxx|fill in`).
+- Skill/agent prose: the repo's shipped grep, run as `rg -ni "<your-company>|jjuraszek|/Users/[^/]+|<your-org-name>|<consumer>" skills/` (per AGENTS.md; expected zero matches), plus the placeholder scan terms (`TODO|TBD|xxx|fill in`).
 
 ## Documentation impact
 

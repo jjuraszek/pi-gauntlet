@@ -13,7 +13,7 @@ Prose-only; no behavior, config, or dispatch-shape change. Three files.
 ### `skills/brainstorming/SKILL.md`
 
 1. Heading (line 183): `## Linear Ticket Handling` -> `## Ticket Handling`.
-   - Constraint: the new heading MUST retain "Ticket Handling" as a substring. The matching mechanism is the skill's own "Project overrides" contract (`skills/brainstorming/SKILL.md:385`: overrides sections apply "by name match, by topic ..., or by workflow convention"). Known consumer relying on it - `gridstrong/.pi/gauntlet-overrides.md:51`:
+   - Constraint: the new heading MUST retain "Ticket Handling" as a substring. The matching mechanism is the skill's own "Project overrides" contract (`skills/brainstorming/SKILL.md:385`: overrides sections apply "by name match, by topic ..., or by workflow convention"). Known consumer relying on it - `<consumer>/.pi/gauntlet-overrides.md:51`:
 
      ```markdown
      ## Linear Ticket Handling
@@ -49,7 +49,7 @@ Prose-only; no behavior, config, or dispatch-shape change. Three files.
 - All `.pi/gauntlet-overrides.md` delegation points (`disposition-protocol.md`, `conformance-check.md`, agent personas) - already generic.
 - Runtime names `plan_tracker`/`phase_tracker` and the math sense of "linear" in `test-driven-development/reference/examples.md:57` - not issue-tracker prose.
 - No new overrides pointer for filename/header conventions - the standard "Project overrides" block already delegates this (YAGNI).
-- No consumer-repo edits: gridstrong's overrides need no change (verified; see heading constraint above).
+- No consumer-repo edits: the consumer repo's overrides need no change (verified; see heading constraint above).
 
 ## Verification
 

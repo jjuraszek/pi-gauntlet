@@ -11,7 +11,7 @@
 
 The two modes use different verbs for the same gate. Sequential says **"Dispatch spec reviewer"**; wave says **"spec-review each returned patch"**. The wave verb reads as "do it yourself inline", so the orchestrator never dispatches the `spec-reviewer` agent - the per-task spec gate silently collapses into the orchestrator's own context. This wording delta is the primary, spec-internal evidence; it needs no external log to verify.
 
-Session-log color (last 5 days, illustrative): a full wave run `gridstrong 2026-07-06T06-59` dispatched `implementer` x84, `conformance-reviewer` x7, `code-reviewer` x4, and **`spec-reviewer` x0**; across the window `spec-reviewer` fires at ~1/3 the `code-reviewer` rate, collapsing on wave-heavy days.
+Session-log color (last 5 days, illustrative): a full wave run `<consumer> 2026-07-06T06-59` dispatched `implementer` x84, `conformance-reviewer` x7, `code-reviewer` x4, and **`spec-reviewer` x0**; across the window `spec-reviewer` fires at ~1/3 the `code-reviewer` rate, collapsing on wave-heavy days.
 
 `code-reviewer` degrades less because it has a dispatch path that survives wave mode: the whole-PR review at "After All Tasks" step 1, which explicitly routes through `/skill:requesting-code-review` (this is why `code-reviewer` still fired x4 above). Per-task spec review has no such fallback.
 

@@ -10,7 +10,7 @@ repo-over-preset merge in prose + bash at every call site. The algorithm is
 duplicated across several skill sites plus a canonical doc, and the LLM executes
 it, so it is only as reliable as the model following every step.
 
-Observed failure (session `2026-07-06T06-59-26-915Z_019f3639-...` in gridstrong):
+Observed failure (session `2026-07-06T06-59-26-915Z_019f3639-...` in a consumer repo):
 the agent resolved `specCouncil` by reading **only** the repo `.pi/settings.json`
 through a strict `python3 json.load`, got `ABSENT`, and fell back to the
 poor-man's `worker` critique - never reading `$PI_CODING_AGENT_DIR/settings.json`,

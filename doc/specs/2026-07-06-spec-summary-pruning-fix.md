@@ -6,7 +6,7 @@
 
 That inline return is the bug. A spec summary is ~9KB of text carried in a single subagent tool result. At the turn boundary, pi-condense compresses that large tool result **before** the main loop gets to render it, so the gate shows a pruned paraphrase, not the verbatim summary - defeating the entire point of the `spec-summarizer` (a faithful spec-only projection).
 
-Evidence: session `2026-07-06T06-59-26-915Z_019f3639-8443-7337-9859-c434d4bd7d30.jsonl` (gridstrong). Concrete facts from that trace, inlined so this spec is self-contained:
+Evidence: session `2026-07-06T06-59-26-915Z_019f3639-8443-7337-9859-c434d4bd7d30.jsonl` (a consumer repo). Concrete facts from that trace, inlined so this spec is self-contained:
 
 - The `spec-summarizer` was dispatched inline; its ~9KB summary rode back in one subagent tool result and was condensed to a pruner-summary stub before the main loop's render turn - the gate would have shown the paraphrase.
 - The operator re-dispatched the same agent with `output: <abs temp path>` + `outputMode: "file-only"`. The harness persisted the child's final text to that path (**9451 bytes** written despite the agent being `tools: read`), the tool result was the compact `"Output saved to: ..."` reference, and a subsequent `Read` rendered the full summary verbatim.

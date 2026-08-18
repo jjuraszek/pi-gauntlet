@@ -14,7 +14,7 @@ shapes extracted from `subagent` tool calls) confirms:
 - **Fix loops are serial - the dominant cost.** Every review round that finds issues
   dispatches exactly one fix implementer, even when findings span disjoint files.
   Worst observed: consecutive single-dispatch impl/CR chains of 23, 12, 11, 9, 7
-  (gridstrong 2026-08-12). The whole-diff CR's fix handling has no parallel contract
+  (a consumer repo, 2026-08-12). The whole-diff CR's fix handling has no parallel contract
   at all.
 - **SR fan-out occasionally degrades** (sequential single SRs after a wave; SR +
   re-dispatch not co-scheduled) - real but secondary; the existing wave contract
@@ -282,9 +282,9 @@ None.
 
 ## Evidence appendix (session-log analysis)
 
-- Serial fix chains: gridstrong 2026-08-12T10-47 runs of 7, 7, 23, 11, 7, 7
+- Serial fix chains: a consumer repo, 2026-08-12T10-47 runs of 7, 7, 23, 11, 7, 7
   consecutive single impl/CR dispatches; 2026-08-12T09-18 runs of 11, 9, 12, 6.
-- SR degradation: gridstrong 2026-08-12T09-18 (2 parallel SRs then 2 sequential
+- SR degradation: a consumer repo, 2026-08-12T09-18 (2 parallel SRs then 2 sequential
   singles); 2026-08-09T17-48 dispatch #6 (one SR while the other task's re-dispatch
   ran serially after).
 - Conformance: both `P2:impl -> S1:conf` and serial `S1:impl -> S1:conf` chains
