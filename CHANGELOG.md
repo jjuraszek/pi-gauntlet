@@ -1,6 +1,6 @@
 # Changelog
 
-## [Unreleased]
+## v4.11.0 - 2026-08-18
 
 - New skill: `gatekeep-pr` - consent-gated pre-merge PR verification: read-only three-role brief, `REVIEW.md` rubric convention with a shipped baseline, deterministic authorship-aware consent menu, thin-wrapper contract.
 - `plan_tracker`: additive `failed` task status (terminal-negative `✗`), excluded from the complete count.
