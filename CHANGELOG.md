@@ -1,5 +1,11 @@
 # Changelog
 
+## v4.12.0 - 2026-08-18
+
+- New skill: `check-delivery` - explicit-only post-merge detective control: proves an issue actually shipped (SHA-bound squash-aware default-branch landing, optional deploy-watch + delivery-target check, per-AC evidence with a 6-verdict table and reviewer script) before its tracker status advances; never writes a terminal state; single human-gated batched write with `Delivered: <sha>` marker idempotency; generic across `gh`/`linearis` with a 7-slot `## Delivery` overrides contract so consumer closeout prompts reduce to an overrides block plus a one-line wrapper.
+- README: run narrative, flowchart node, and `## Delivery` overrides documentation; `finishing-a-development-branch` gains a one-line post-merge pointer.
+- Historical spec docs: consumer-name occurrences replaced with neutral references.
+
 ## v4.11.0 - 2026-08-18
 
 - New skill: `gatekeep-pr` - consent-gated pre-merge PR verification: read-only three-role brief, `REVIEW.md` rubric convention with a shipped baseline, deterministic authorship-aware consent menu, thin-wrapper contract.
