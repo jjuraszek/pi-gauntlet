@@ -46,7 +46,7 @@ Rosters resolve **repo-local first**: a repo's `.pi/settings.json` overrides the
 
 ### `plan-tracker`
 
-A tool, not a hook. Skills call `plan_tracker({ action: "init" | "add" | "update" | "status" | "clear", ... })` to manage a task list; a TUI widget above the editor shows progress (✓/→/○). State branches with the session, no config needed. `add` appends tasks as pending, preserving existing task statuses - fix sub-waves use it to extend the list without re-initializing.
+A tool, not a hook. Skills call `plan_tracker({ action: "init" | "add" | "update" | "status" | "clear", ... })` to manage a task list; a TUI widget above the editor shows progress (✓/→/○). State branches with the session, no config needed. `add` appends tasks as pending, preserving existing task statuses - fix sub-waves use it to extend the list without re-initializing. Statuses: `pending ○ / in_progress → / complete ✓ / failed ✗` (failed renders in error color). `failed` is terminal-negative: the task ran and did not pass; excluded from the complete count; never selected as the current task in the widget. Additive - no settings key, no migration; existing serialized sessions unaffected.
 
 ### `phase-tracker`
 

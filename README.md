@@ -40,7 +40,7 @@ Concretely, one change through the gauntlet:
 2. **`writing-plans`** decomposes the approved spec into atomic, independently-verifiable tasks, grouped into parallel waves where they don't touch the same files.
 3. **`subagent-driven-development`** executes the plan one task at a time, each in a fresh subagent, behind spec-compliance review then code-quality review. TDD-locked: red, green, refactor.
 4. **verify**: a whole-diff code review, then the **conformance gate** - a subagent reads the finished code and docs against your *original words* from step 1, not the plan, and reports per-requirement: delivered, partial, missing, drifted, or unauthorized. Inside a brainstorming-entered flow this gate is machine-blocked from being skipped. Compatible executable recommendations auto-run through an isolated fix-and-re-audit loop with no prompt; anything still open surfaces as a dense list - one line per decision, plain-language, with its recommended choice inline. Reply `1` to take every recommendation, or `2:` with per-item overrides; a current `CONFORMS` / no-concerns result goes straight to the branch options with no extra conformance sign-off.
-5. **`finishing-a-development-branch`**: squash, PR, keep, or discard. **Human gate 2** - the only other decision you make.
+5. **`finishing-a-development-branch`**: squash, PR, keep, or discard. Once a PR exists, run `/skill:gatekeep-pr <pr>` to verify it against its issue before merging. **Human gate 2** - the only other decision you make.
 
 Only the machine-owned `plan -> implement` and `verify -> ship` handoffs receive a branch-local one-shot nudge after an unexpected settled stop; it is fire-and-forget, does not bypass either human gate, and older Pi hosts without `agent_settled` retain existing behavior.
 
@@ -67,7 +67,7 @@ Everything between gate 1 and gate 2 - task breakdown, implementation, both revi
 
 pi-gauntlet ships three kinds of pieces, layered on top of pi-cohort's dispatch:
 
-- **14 skills** - the workflow logic. Thirteen activate automatically when pi sees the matching kind of task, and each one gates the next: `brainstorming`, `writing-plans`, `roasting-the-spec`, `test-driven-development`, `subagent-driven-development`, `dispatching-parallel-agents`, `verification-before-completion`, `systematic-debugging`, `requesting-code-review`, `receiving-code-review`, `using-git-worktrees`, `finishing-a-development-branch`, `writing-skills`. The fourteenth, `shape-ticket`, is explicit-invocation-only (`disable-model-invocation: true`): create or repair one tracker issue per run against a Context/Problem/Idea/Acceptance-Criteria template, gated by an AC integrity check, a cheap council roast, and a single human-confirmed write. Run it with `/skill:shape-ticket`.
+- **15 skills** - the workflow logic. Thirteen activate automatically when pi sees the matching kind of task, and each one gates the next: `brainstorming`, `writing-plans`, `roasting-the-spec`, `test-driven-development`, `subagent-driven-development`, `dispatching-parallel-agents`, `verification-before-completion`, `systematic-debugging`, `requesting-code-review`, `receiving-code-review`, `using-git-worktrees`, `finishing-a-development-branch`, `writing-skills`. The fourteenth, `shape-ticket`, is explicit-invocation-only (`disable-model-invocation: true`): create or repair one tracker issue per run against a Context/Problem/Idea/Acceptance-Criteria template, gated by an AC integrity check, a cheap council roast, and a single human-confirmed write. Run it with `/skill:shape-ticket`. The fifteenth, `gatekeep-pr`, is also explicit-invocation-only: consent-gated pre-merge verification of a PR against its issue - read-only gathering, running the project's verification command, a rubric-based review, then a deterministic authorship-aware menu; nothing mutates (fixes, pushes, reviews, merges) until you pick a row. Run it with `/skill:gatekeep-pr <pr>`.
 - **7 subagent personas** - the specialized child agents the skills dispatch via pi-cohort: `implementer`, `code-reviewer`, `spec-reviewer`, `conformance-reviewer`, `spec-summarizer`, `spec-council-member`, `spec-council-synthesizer`. See [doc/personas.md](./doc/personas.md) for what each one does and why its permissions are scoped the way they are.
 - **3 runtime extensions** - the enforcement layer. `plan-tracker` and `phase-tracker` are tools skills call to track progress (with a TUI widget); `verify-before-ship` is a hook that warns if you push or open a PR without a passing test run since your last edit; a phase-tracker flow guard reminds on implement-phase commits missing spec/code review. See [doc/configuration.md](./doc/configuration.md) for the settings each one reads.
 
@@ -154,6 +154,70 @@ Use the `jira` CLI (authenticated via `jira login`), not `gh` or `linearis`.
 - create: `jira issue create --project ABC --type Task --summary "<title>" --description "<body>"`
 - update: `jira issue edit ABC-123 --summary "<title>" --description "<body>"`
 ```
+
+## REVIEW.md convention
+
+`/skill:gatekeep-pr` (the pre-merge gate) reads an optional root-level `REVIEW.md` -
+discovered at the repo root only, read from the PR's base (never the PR's own head,
+so a PR can't weaken the rubric that gates it). It's a plain data file, not agent
+instructions: a rubric other tooling can read too. The skill is fully functional with
+no `REVIEW.md` present - it falls back to the shipped baseline rubric
+(`skills/gatekeep-pr/review-baseline.md`).
+
+**Overlay precedence**, first match wins on any conflict:
+
+1. Repo root `REVIEW.md` - always wins over everything below it.
+2. Shipped `skills/gatekeep-pr/review-baseline.md` - the generic default rubric.
+3. Reviewer-persona defaults.
+
+A `REVIEW.md` entry that names a baseline concern (e.g. a severity mapping) replaces
+it; everything it doesn't name stays baseline. Severities it introduces but doesn't
+map to blocking/non-blocking are treated as **blocking** (fail-safe), noted in the
+gate's output.
+
+`REVIEW.md` is a diff over the baseline, not a full rewrite. Starter template:
+
+```markdown
+# REVIEW.md
+
+Severity mapping: Critical and Moderate findings block merge; Minor is a
+non-blocking follow-up. Migration-safety findings also block merge.
+
+Project checks (in addition to the baseline):
+- Schema migrations are additive and reversible - no destructive column drops
+  without a documented backfill/rollback plan.
+- New background jobs declare an explicit retry/backoff policy - unbounded
+  retries block merge.
+
+Everything else follows the shipped baseline rubric.
+```
+
+## Thin-wrapper contract
+
+A consumer repo that wants its own trigger phrases for the pre-merge gate (e.g. "gate
+ this PR", "ready to merge?") adds a wrapper skill that carries **zero data** - only a
+name, its trigger phrases, and an instruction to follow `/skill:gatekeep-pr`. All
+customization lives in two places, never in the wrapper itself:
+
+- **`REVIEW.md`** - the review rubric (see above).
+- **The gauntlet overrides file, `## PR gate` section** - everything operational:
+
+```markdown
+## PR gate
+- verification command: <command>            # required unless documented elsewhere
+- timeout minutes: 15                        # optional; default 15
+- requires credentials: false                # optional; true => skill reports "not run" as missing evidence
+- worktree wrapper: <command>                # optional
+- issue fetch: <command with <ref> placeholder>   # optional, replaces gh issue view
+- merge policy: squash | merge-commit        # optional
+```
+
+An existing `## verification-before-completion` overrides section is an accepted
+equivalent source for the verification command only; all other PR-gate keys
+still live under `## PR gate`.
+
+Anything a wrapper skill contains beyond trigger phrases is misplaced - move it to
+`REVIEW.md` or the overrides file instead.
 
 ## Configuring the gates
 

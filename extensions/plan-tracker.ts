@@ -11,7 +11,7 @@ import type { ExtensionAPI, ExtensionContext, Theme } from "@earendil-works/pi-c
 import { Text } from "@earendil-works/pi-tui";
 import { type Static, Type } from "@sinclair/typebox";
 
-type TaskStatus = "pending" | "in_progress" | "complete";
+type TaskStatus = "pending" | "in_progress" | "complete" | "failed";
 
 interface Task {
   name: string;
@@ -40,8 +40,8 @@ const PlanTrackerParams = Type.Object({
     }),
   ),
   status: Type.Optional(
-    StringEnum(["pending", "in_progress", "complete"] as const, {
-      description: "New status (for update)",
+    StringEnum(["pending", "in_progress", "complete", "failed"] as const, {
+      description: "New status (for update); failed is terminal-negative (ran and did not pass)",
     }),
   ),
 });
@@ -59,6 +59,8 @@ function formatWidget(tasks: Task[], theme: Theme): string {
           return theme.fg("success", "✓");
         case "in_progress":
           return theme.fg("warning", "→");
+        case "failed":
+          return theme.fg("error", "✗");
         default:
           return theme.fg("dim", "○");
       }
@@ -78,13 +80,16 @@ function formatStatus(tasks: Task[]): string {
   const complete = tasks.filter((t) => t.status === "complete").length;
   const inProgress = tasks.filter((t) => t.status === "in_progress").length;
   const pending = tasks.filter((t) => t.status === "pending").length;
+  const failed = tasks.filter((t) => t.status === "failed").length;
 
   const lines: string[] = [];
-  lines.push(`Plan: ${complete}/${tasks.length} complete (${inProgress} in progress, ${pending} pending)`);
+  lines.push(
+    `Plan: ${complete}/${tasks.length} complete (${inProgress} in progress, ${pending} pending, ${failed} failed)`,
+  );
   lines.push("");
   for (let i = 0; i < tasks.length; i++) {
     const t = tasks[i];
-    const icon = t.status === "complete" ? "✓" : t.status === "in_progress" ? "→" : "○";
+    const icon = t.status === "complete" ? "✓" : t.status === "in_progress" ? "→" : t.status === "failed" ? "✗" : "○";
     lines.push(`  ${icon} [${i}] ${t.name}`);
   }
   return lines.join("\n");
@@ -129,7 +134,7 @@ export default function (pi: ExtensionAPI) {
     name: "plan_tracker",
     label: "Plan Tracker",
     description:
-      "Track progress while EXECUTING an implementation plan (the implement phase) or a verify-phase conformance fix wave. Actions: init (set task list), add (append tasks as pending; existing statuses preserved), update (change task status), status (show current state), clear (remove plan). Do NOT use for brainstorming, research, or planning checklists: those phases are open-ended and a bounded task list misrepresents them as a fixed N-step process.",
+      "Track progress while EXECUTING an implementation plan (the implement phase), a verify-phase conformance fix wave, or another bounded gate checklist (e.g. pre-merge PR verification). Statuses: pending, in_progress, complete, failed (terminal-negative: the task ran and did not pass; never counted complete). Actions: init (set task list), add (append tasks as pending; existing statuses preserved), update (change task status), status (show current state), clear (remove plan). Do NOT use for brainstorming, research, or planning checklists: those phases are open-ended and a bounded task list misrepresents them as a fixed N-step process.",
     parameters: PlanTrackerParams,
 
     async execute(_toolCallId, params, _signal, _onUpdate, ctx) {
@@ -305,8 +310,11 @@ export default function (pi: ExtensionAPI) {
           );
         case "update": {
           const complete = taskList.filter((t) => t.status === "complete").length;
+          const failed = taskList.filter((t) => t.status === "failed").length;
+          const suffix = failed > 0 ? `, ${failed} failed` : "";
           return new Text(
-            theme.fg("success", "✓ ") + theme.fg("muted", `Updated (${complete}/${taskList.length} complete)`),
+            theme.fg("success", "✓ ") +
+              theme.fg("muted", `Updated (${complete}/${taskList.length} complete${suffix})`),
             0,
             0,
           );
@@ -316,14 +324,18 @@ export default function (pi: ExtensionAPI) {
             return new Text(theme.fg("dim", "No plan active"), 0, 0);
           }
           const complete = taskList.filter((t) => t.status === "complete").length;
-          let text = theme.fg("muted", `${complete}/${taskList.length} complete`);
+          const failed = taskList.filter((t) => t.status === "failed").length;
+          const suffix = failed > 0 ? `, ${failed} failed` : "";
+          let text = theme.fg("muted", `${complete}/${taskList.length} complete${suffix}`);
           for (const t of taskList) {
             const icon =
               t.status === "complete"
                 ? theme.fg("success", "✓")
                 : t.status === "in_progress"
                   ? theme.fg("warning", "→")
-                  : theme.fg("dim", "○");
+                  : t.status === "failed"
+                    ? theme.fg("error", "✗")
+                    : theme.fg("dim", "○");
             text += `\n${icon} ${theme.fg("muted", t.name)}`;
           }
           return new Text(text, 0, 0);
