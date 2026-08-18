@@ -1,5 +1,14 @@
 # Changelog
 
+## v4.10.0 - 2026-08-18
+
+New skill: `shape-ticket` - the tracker-facing entry stage ahead of brainstorming.
+
+- `shape-ticket` (user-invoked only, `disable-model-invocation: true`): creates or repairs exactly one tracker issue per run - Context/Problem/Idea/AC template, AC integrity gate (wishful/tautological hard stops, unspecified/external-input parking, deploy-window relocation, discovery-ticket conversion), vertical-only split rule, metadata audit, evidence gate, cheap council roast (`:low` model-suffix over the xhigh pin; worker fallback; failure never blocks), and a single human-gated batched write with post-approval re-fetch. Zero-config on `gh`/`linearis`; other trackers via the overrides `## Issue tracker` section.
+- Overrides discovery ladder: the gauntlet overrides file is now found at `.pi/gauntlet-overrides.md` -> `<repo root>/gauntlet-overrides.md` -> `<repo root>/doc/gauntlet-overrides.md` (first found wins) - migrated across all skills' "Project overrides" blocks and inline references (Claude Code prep for #11).
+- Shared AGENTS core v2: the "Ticket convention" section now points at `/skill:shape-ticket` (roast applied to the ticket body pre-write; no roast comments); propagated to pi-quiver, pi-cohort, pi-condense.
+- `spec-council-member`/`spec-council-synthesizer` gain shape-ticket as a second sanctioned dispatcher (docs).
+
 ## v4.9.0 - 2026-08-14
 
 Review fix rounds parallelize when the reviewer certifies disjoint findings.
