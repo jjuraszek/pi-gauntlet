@@ -60,7 +60,7 @@ Self-checking in the main session is the fallback when delegation isn't possible
 | 2 | Original prompt | Catches inline requirements never folded into the spec. |
 | 3 | Re-fetch the ticket | **Fallback only**, when no spec exists. Skip when a spec exists — the live ticket may have drifted. |
 
-Project's issue-tracker skill (for the fallback) is named in `.pi/gauntlet-overrides.md`.
+Project's issue-tracker skill (for the fallback) is named in the gauntlet overrides file (see Project overrides in `verification-before-completion/SKILL.md`).
 
 ## Drift = red flag
 

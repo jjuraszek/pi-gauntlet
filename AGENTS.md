@@ -1,8 +1,8 @@
 # pi-gauntlet
 
-Workflow skills, agent personas, and extensions for the pi coding agent. Generic by design — project-specific content lives in consumer repos via `.pi/gauntlet-overrides.md`.
+Workflow skills, agent personas, and extensions for the pi coding agent. Generic by design — project-specific content lives in consumer repos via the gauntlet overrides file (`.pi/gauntlet-overrides.md`, or `gauntlet-overrides.md` / `doc/gauntlet-overrides.md` at the repo root; first found wins).
 
-<!-- agents-core:begin v1 - shared across pi-quiver/pi-cohort/pi-gauntlet/pi-condense. Edit AGENTS.core.md, then: node scripts/check-agents-core.mjs --fix -->
+<!-- agents-core:begin v2 - shared across pi-quiver/pi-cohort/pi-gauntlet/pi-condense. Edit AGENTS.core.md, then: node scripts/check-agents-core.mjs --fix -->
 ## Communication Style
 
 Applies to chat, commit messages, PR/issue comments, code review, and any artifact authored in this repo.
@@ -31,13 +31,13 @@ LLM-readable artifacts (`AGENTS.md`, `README.md`, `CHANGELOG.md`, skill bodies, 
 
 ## Ticket convention
 
-Every GitHub issue follows **Context -> Problem -> Idea (how to address) -> Acceptance Criteria**, then the idea is **roasted by 2 subagents and the consolidated roast is posted as a comment** before the issue is ready. A roast that kills or shrinks the idea is a success - file only what survives.
+Creating a ticket or repairing its title/body/metadata happens only via `/skill:shape-ticket` (pi-gauntlet >= the release that ships it) - it enforces the Context -> Problem -> Idea -> Acceptance Criteria template, an AC integrity gate, and a cheap council roast applied to the body before the single human-gated write (no roast comments). Status transitions and comments are exempt - plain tracker CLI.
 
 ## Ground Truth Before Reasoning
 
 Never guess Pi's API, message shapes, config, or values - read the source; the source wins; if it is missing, say so and ask, don't fabricate. The pi runtime is the **`@earendil-works`** namespace (matches the host pi install), not `@mariozechner` - treat its shipped `.d.ts` as API truth. Repo-specific source pointers, if any, follow.
 
-<!-- agents-core:end v1 -->
+<!-- agents-core:end v2 -->
 
 ## Part of one platform (cross-repo synergy)
 
@@ -55,19 +55,19 @@ When editing docs here, if a claim belongs to a sibling's concern (dispatch sema
 
 Skills in `skills/*/SKILL.md` are reusable across any pi consumer. Project-specific content (service names, file paths, verification commands, routing tables) is **forbidden** in skill bodies.
 
-Every skill ends with a "Project overrides" block pointing to `.pi/gauntlet-overrides.md`. Consumers add project-specific content there; skills read it at runtime.
+Every skill ends with a "Project overrides" block pointing to the gauntlet overrides file (`.pi/gauntlet-overrides.md`, or `gauntlet-overrides.md` / `doc/gauntlet-overrides.md` at the repo root; first found wins). Consumers add project-specific content there; skills read it at runtime.
 
 Before committing skill edits, run:
 
 ```bash
-rg -ni "<your-company>|jjuraszek|/Users/[^/]+|<your-org-name>|gridstrong" skills/
+rg -ni "<your-company>|jjuraszek|/Users/[^/]+|<your-org-name>|<forbidden-project>" skills/
 ```
 
 Replace the placeholders above with patterns specific to your fork — company names, your username paths, internal service names. Expected: zero matches. Linear/Jira/`script/worktree`-style references are OK as **examples** but never as canonical paths.
 
 ### Agents
 
-Seven agents ship in `agents/`: `implementer`, `code-reviewer`, `spec-reviewer`, and `conformance-reviewer`, plus `spec-council-member` and `spec-council-synthesizer` (dispatched only by `/skill:roasting-the-spec`, never directly), and `spec-summarizer` (dispatched only by `/skill:brainstorming`'s gate step, never directly). `conformance-reviewer` is the closing-loop intent gate, dispatched by the verify step of `subagent-driven-development` / `verification-before-completion` and surfaced before finish in `finishing-a-development-branch`. Body text becomes the child's system prompt (`systemPromptMode: replace`).
+Seven agents ship in `agents/`: `implementer`, `code-reviewer`, `spec-reviewer`, and `conformance-reviewer`, plus `spec-council-member` and `spec-council-synthesizer` (dispatched only by `/skill:roasting-the-spec` or `/skill:shape-ticket`, never directly - `shape-ticket` dispatches them at `:low` thinking for ticket roasts), and `spec-summarizer` (dispatched only by `/skill:brainstorming`'s gate step, never directly). `conformance-reviewer` is the closing-loop intent gate, dispatched by the verify step of `subagent-driven-development` / `verification-before-completion` and surfaced before finish in `finishing-a-development-branch`. Body text becomes the child's system prompt (`systemPromptMode: replace`).
 
 Frontmatter knobs are **not overridable** at `subagent()` call time. Preset-level `subagents.agentOverrides.<agent>` config only **fills fields the frontmatter left unset** (pi-cohort `agents.ts`), so a frontmatter pin kills the config knob. Pick pins carefully:
 
@@ -126,7 +126,7 @@ Implement-phase mechanics run once the pipeline reaches implementation - not a s
 
 1. Create `skills/<name>/SKILL.md` with YAML frontmatter (`name`, `description`).
 2. Body is generic workflow methodology. No project-specific paths or commands.
-3. Append the standard "Project overrides" block at the end (copy from any existing skill).
+3. Append the standard "Project overrides" block at the end, using the 3-location overrides discovery ladder (`.pi/gauntlet-overrides.md` -> `<repo root>/gauntlet-overrides.md` -> `<repo root>/doc/gauntlet-overrides.md`, first found wins) - copy from any existing skill.
 4. Verify with the grep above.
 5. Commit.
 
@@ -195,7 +195,7 @@ This is no longer tracked as a live fork — there is no active re-sync workflow
 
 **Material divergence from obra v5.1.0:** upstream deleted their `agents/` directory in v5.1.0, merging `code-reviewer` into the `requesting-code-review` skill as a Task-dispatch template. We keep `agents/` because pi-cohort treats named agents as a first-class dispatch primitive (the `subagent({ agent: "code-reviewer" })` call in skills resolves to our profile, not a prompt template).
 
-**Skills coverage:** we ship 12 of obra's 14 v5.1.0 skills. Two are not shipped: `using-superpowers` (a Claude-Code-specific bootstrap skill that forces invocation of the `Skill` tool — pi's discovery model surfaces skill descriptions automatically, so the bootstrap isn't needed) and `executing-plans` (shipped through v2.x, deleted in v3.0.0 as unused; its separate-session batch-execution role is subsumed by `subagent-driven-development`). `roasting-the-spec` is an original skill with no obra equivalent, so the 12-of-14 count tracks obra-sourced skills only (total shipped skills: 13).
+**Skills coverage:** we ship 12 of obra's 14 v5.1.0 skills. Two are not shipped: `using-superpowers` (a Claude-Code-specific bootstrap skill that forces invocation of the `Skill` tool — pi's discovery model surfaces skill descriptions automatically, so the bootstrap isn't needed) and `executing-plans` (shipped through v2.x, deleted in v3.0.0 as unused; its separate-session batch-execution role is subsumed by `subagent-driven-development`). `roasting-the-spec` and `shape-ticket` are original skills with no obra equivalent, so the 12-of-14 count tracks obra-sourced skills only (total shipped skills: 14).
 
 ## Ground truth pointers
 

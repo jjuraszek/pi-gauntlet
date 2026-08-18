@@ -130,5 +130,6 @@ Keep this list in sync with the skills that cite this doc:
 ## Project-specific taxonomy
 
 This doc is generic. Project-specific doc taxonomy (which docs a given
-project treats as canonical for which topic) lives in a project's
-`.pi/gauntlet-overrides.md`, in a `## documentation` section - not here.
+project treats as canonical for which topic) lives in the gauntlet
+overrides file (see Project overrides in `brainstorming/SKILL.md`), in a
+`## documentation` section - not here.

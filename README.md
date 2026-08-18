@@ -35,6 +35,7 @@ pi-gauntlet's only hard dependency is pi-cohort - every gate that dispatches a r
 
 Concretely, one change through the gauntlet:
 
+0. *(Optional)* Before there's even a spec, `/skill:shape-ticket` can create or repair a single tracker issue - shaping a raw ask into a Context/Problem/Idea/Acceptance Criteria ticket, gated by an AC integrity check, a cheap council roast, and one human-confirmed write. It's a tool, not a phase: no worktree, no plan/phase tracker, runs from any repo state. It never activates on its own (`disable-model-invocation: true`) - invoke it explicitly.
 1. You describe the change. **`brainstorming`** sets up an isolated worktree, explores the codebase, and turns your description into a written spec. A multi-model critique runs on it automatically. If the spec replaces a known prior spec, brainstorming marks the predecessor with a `> **Superseded by:**` banner under its title (default format, syntax overridable via `.pi/gauntlet-overrides.md`; event-driven only — gauntlet never sweeps historical specs). **You read and approve the spec - human gate 1.** No implementation code exists yet.
 2. **`writing-plans`** decomposes the approved spec into atomic, independently-verifiable tasks, grouped into parallel waves where they don't touch the same files.
 3. **`subagent-driven-development`** executes the plan one task at a time, each in a fresh subagent, behind spec-compliance review then code-quality review. TDD-locked: red, green, refactor.
@@ -45,7 +46,9 @@ Only the machine-owned `plan -> implement` and `verify -> ship` handoffs receive
 
 ```mermaid
 flowchart LR
+    T["shape-ticket<br/>(optional, explicit)"]
     R([request]) --> B[brainstorm<br/>+ spec]
+    T -.-> R
     B --> G1{{human gate 1:<br/>approve spec}}
     G1 --> P[plan]
     P --> I[implement<br/>waves + reviews]
@@ -64,7 +67,7 @@ Everything between gate 1 and gate 2 - task breakdown, implementation, both revi
 
 pi-gauntlet ships three kinds of pieces, layered on top of pi-cohort's dispatch:
 
-- **13 skills** - the workflow logic. They activate automatically when pi sees the matching kind of task, and each one gates the next: `brainstorming`, `writing-plans`, `roasting-the-spec`, `test-driven-development`, `subagent-driven-development`, `dispatching-parallel-agents`, `verification-before-completion`, `systematic-debugging`, `requesting-code-review`, `receiving-code-review`, `using-git-worktrees`, `finishing-a-development-branch`, `writing-skills`.
+- **14 skills** - the workflow logic. Thirteen activate automatically when pi sees the matching kind of task, and each one gates the next: `brainstorming`, `writing-plans`, `roasting-the-spec`, `test-driven-development`, `subagent-driven-development`, `dispatching-parallel-agents`, `verification-before-completion`, `systematic-debugging`, `requesting-code-review`, `receiving-code-review`, `using-git-worktrees`, `finishing-a-development-branch`, `writing-skills`. The fourteenth, `shape-ticket`, is explicit-invocation-only (`disable-model-invocation: true`): create or repair one tracker issue per run against a Context/Problem/Idea/Acceptance-Criteria template, gated by an AC integrity check, a cheap council roast, and a single human-confirmed write. Run it with `/skill:shape-ticket`.
 - **7 subagent personas** - the specialized child agents the skills dispatch via pi-cohort: `implementer`, `code-reviewer`, `spec-reviewer`, `conformance-reviewer`, `spec-summarizer`, `spec-council-member`, `spec-council-synthesizer`. See [doc/personas.md](./doc/personas.md) for what each one does and why its permissions are scoped the way they are.
 - **3 runtime extensions** - the enforcement layer. `plan-tracker` and `phase-tracker` are tools skills call to track progress (with a TUI widget); `verify-before-ship` is a hook that warns if you push or open a PR without a passing test run since your last edit; a phase-tracker flow guard reminds on implement-phase commits missing spec/code review. See [doc/configuration.md](./doc/configuration.md) for the settings each one reads.
 
@@ -89,7 +92,7 @@ pi-gauntlet is **opinionated**: every non-trivial change is *meant* to ride this
 ## Requirements
 
 - [pi-coding-agent](https://github.com/earendil-works/pi) ≥ 0.1.0
-- [pi-cohort](https://github.com/jjuraszek/pi-cohort) ≥ 1.4.5 - required peer package. Skills that dispatch agents (`requesting-code-review`, `subagent-driven-development`, `dispatching-parallel-agents`, `writing-plans`, `writing-skills`) call `subagent({})`, which pi-cohort provides. pi-gauntlet does not vendor the dispatch tool; without pi-cohort those skills have nothing to call.
+- [pi-cohort](https://github.com/jjuraszek/pi-cohort) ≥ 1.4.5 - required peer package. Skills that dispatch agents (`requesting-code-review`, `subagent-driven-development`, `dispatching-parallel-agents`, `writing-plans`, `writing-skills`, `shape-ticket`, `roasting-the-spec`) call `subagent({})`, which pi-cohort provides. pi-gauntlet does not vendor the dispatch tool; without pi-cohort those skills have nothing to call.
 
 Both packages must be listed in your `.pi/settings.json#packages` array (pi adds them automatically when you `pi install`). pi-gauntlet and pi-cohort are versioned independently but release together whenever dispatch semantics change - pin compatible versions of both.
 
@@ -136,6 +139,21 @@ database and copies `.env.local`. Never call `git worktree add` directly.
 ```
 
 Section headers should match skill names (`## verification-before-completion`) or skill topics (`## worktrees`, `## routing`). The override file is read by the skill instructions at runtime, not by the pi runtime itself, so adding a section only matters once the matching skill is active.
+
+**Discovery ladder:** skills check three locations, in order, and use the first one found - never merged: `.pi/gauntlet-overrides.md`, then `<repo root>/gauntlet-overrides.md`, then `<repo root>/doc/gauntlet-overrides.md` (`<repo root>` = `git rev-parse --show-toplevel`, or the current directory outside a repo). Pick one location per repo.
+
+**`## Issue tracker` section:** `shape-ticket` resolves tracker access through a capability ladder, and this is its first rung - it overrides the zero-config `gh` (GitHub) / `linearis` (Linear) defaults for any other tracker. Name the CLI's read, search, create, and update commands explicitly. For a Jira CLI, for example:
+
+```markdown
+## Issue tracker
+
+Use the `jira` CLI (authenticated via `jira login`), not `gh` or `linearis`.
+
+- read (full, incl. comments): `jira issue view ABC-123 --comments`
+- search (dup/reversal check): `jira issue search --jql "project = ABC AND text ~ '<query>'"`
+- create: `jira issue create --project ABC --type Task --summary "<title>" --description "<body>"`
+- update: `jira issue edit ABC-123 --summary "<title>" --description "<body>"`
+```
 
 ## Configuring the gates
 

@@ -176,7 +176,7 @@ Cover at minimum:
   - Derived / memory docs invalidated: <routers / AGENTS.md sections / topic guides / indexes, or "none">
   ```
 
-  Each entry answers with a doc name, "none", or "deferred: <trigger>". A new standalone `.md` appears only where no existing doc already owns the topic. Project-specific doc taxonomy goes in a `## documentation` block in `.pi/gauntlet-overrides.md` (no new settings key; guidance only). Doc updates ship in the same commit and are verified against the spec by the conformance gate.
+  Each entry answers with a doc name, "none", or "deferred: <trigger>". A new standalone `.md` appears only where no existing doc already owns the topic. Project-specific doc taxonomy goes in a `## documentation` block in the gauntlet overrides file (see Project overrides) (no new settings key; guidance only). Doc updates ship in the same commit and are verified against the spec by the conformance gate.
 
 Be ready to go back and clarify when something doesn't make sense.
 
@@ -240,7 +240,7 @@ When the new spec replaces a prior spec — fully or in part — and you **alrea
 - **Mark, never delete.** Delete/archive policy is consumer territory via overrides.
 - **Coverage limits**: unmarked does NOT mean current (code drift, abandoned designs, and partial ships produce no successor spec); marked does NOT mean dead (partial supersession leaves live sections).
 - Predecessor in a **different service's spec directory**: out of scope — record it in the new spec's Open Questions instead of editing outside the write grant.
-- **Override contract**: `.pi/gauntlet-overrides.md` may replace the banner *syntax*; placement, append-only, no-transitive-rewrite, and mark-never-delete stay fixed. A syntax override entry must itself state the scout-citation guidance for its format (the shipped `gatherer.md` guidance names only the default banner).
+- **Override contract**: the gauntlet overrides file (see Project overrides) may replace the banner *syntax*; placement, append-only, no-transitive-rewrite, and mark-never-delete stay fixed. A syntax override entry must itself state the scout-citation guidance for its format (the shipped `gatherer.md` guidance names only the default banner).
 
 ## Spec Self-Review (Before User Review Gate)
 
@@ -384,4 +384,4 @@ phase_tracker({ action: "complete", phase: "brainstorm" })
 
 ## Project overrides
 
-If `.pi/gauntlet-overrides.md` exists, read it. Any sections relevant to this skill — by name match, by topic (routing, verification, worktrees, etc.), or by workflow convention — override or extend the instructions above. Project-local `AGENTS.md` is already in context — check it for project-specific routing tables, service paths, and verification commands.
+If a gauntlet overrides file exists - checked in order: `.pi/gauntlet-overrides.md`, `<repo root>/gauntlet-overrides.md`, `<repo root>/doc/gauntlet-overrides.md`; first found wins - read it. Any sections relevant to this skill — by name match, by topic (routing, verification, worktrees, etc.), or by workflow convention — override or extend the instructions above. Project-local `AGENTS.md` is already in context — check it for project-specific routing tables, service paths, and verification commands.

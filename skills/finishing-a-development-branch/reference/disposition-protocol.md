@@ -38,7 +38,7 @@ Take **no** disposition action before the reply. Then, once, in order:
 3. **Re-audit if step 2 changed the spec**; regenerate the inventory and re-render if it changed. Project `fix-now` only from the refreshed inventory.
 4. **fix-now + code-changing custom:** project the selected concerns per gap into the reference's concern-scoped fix contract (excluding accepted/rescoped/followed-up siblings); run the reference "Fix loop" (unchanged - do not re-describe it). A code-changing `custom` runs the project's tests + `code-reviewer` on its delta before proceeding. Re-run Step 1's canonical tests.
 5. **Re-audit after all state-changing work;** obtain fresh decisions **only if** the refreshed inventory differs from the approved one, else proceed.
-6. **follow-up** from the current inventory: create the item via the project's issue-tracker convention (`.pi/gauntlet-overrides.md`), record the ticket ID/URL; on failure keep the concern open.
+6. **follow-up** from the current inventory: create the item via the project's issue-tracker convention (the gauntlet overrides file, see Project overrides in `finishing-a-development-branch/SKILL.md`), record the ticket ID/URL; on failure keep the concern open.
 7. **Non-state-changing custom:** execute and record the result.
 8. **revert** (`revert conformance fix Gn`): light-revert the indexed commit, re-run Step 1's canonical tests; on failure stop; on pass re-audit and regenerate.
 9. Re-enter Step 3.5 with the re-audited block if any concern remains open.

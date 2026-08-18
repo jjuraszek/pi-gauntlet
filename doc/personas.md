@@ -7,8 +7,8 @@ Deep reference for the 7 personas in [`agents/`](../agents/), dispatched via [pi
 - `spec-reviewer` — verifies an implementation against its plan/spec, per-requirement table.
 - `conformance-reviewer` — closing-loop intent gate; confronts the delivered code+docs against the *origin* (spec + verbatim prompt), skipping the plan, and emits a per-requirement coverage verdict. Read-only; proposes remediation, never fixes or decides. Ships model-free — pin its model per preset (see [Configuration: conformance gate model](./configuration.md#conformance-gate-model)).
 - `spec-summarizer` - produces a tight, spec-only human summary for the brainstorming user review gate. Fresh context, read-only (`tools: read`), reads only the spec it is given; output is ephemeral (rendered at the gate, never committed). Dispatched only by `brainstorming`; not for direct dispatch. Ships model-free - set `subagents.agentOverrides.spec-summarizer.model` per preset to override (unset -> inherits the main loop).
-- `spec-council-member` — adversarial single-model spec critic; one per configured council model. Dispatched only by `roasting-the-spec`.
-- `spec-council-synthesizer` — neutral chair that consolidates and adjudicates member critiques. Dispatched only by `roasting-the-spec`.
+- `spec-council-member` — adversarial single-model spec critic; one per configured council model. Dispatched only by `roasting-the-spec` and `shape-ticket` (the latter at `:low` thinking via a model-suffix override, for ticket roasts).
+- `spec-council-synthesizer` — neutral chair that consolidates and adjudicates member critiques. Dispatched only by `roasting-the-spec` and `shape-ticket` (the latter at `:low` thinking via a model-suffix override, for ticket roasts).
 
 ## Where personas land
 
@@ -32,6 +32,6 @@ Target dir override: set `PI_GAUNTLET_AGENT_DIR` to force symlinking into a spec
 }
 ```
 
-Unset → provider default thinking for that model. `conformance-reviewer` and the two `spec-council-*` personas stay frontmatter-pinned at `xhigh` and are not configurable — the gate and the council must run at max budget even when they inherit the session's model.
+Unset → provider default thinking for that model. `conformance-reviewer` and the two `spec-council-*` personas stay frontmatter-pinned at `xhigh` and preset-level `agentOverrides` cannot unset that pin — the gate and the council run at max budget even when they inherit the session's model. A call-site model-string thinking suffix is a separate override path and does bypass the pin: `shape-ticket` dispatches the council members/synthesizer at `:low` this way for cheap ticket roasts (see above).
 
 For the full frontmatter-knobs table (`tools`, `thinking`, `defaultContext`, `inheritProjectContext`, `inheritSkills`, `completionGuard` per persona) and the rationale behind each pin, see [AGENTS.md#agents](../AGENTS.md#agents).

@@ -76,7 +76,7 @@ Only when no native tool exists:
 
 The canonical home is `<repo>/.worktrees/<branch>`. Resolve in this order:
 
-1. **Project override** — a wrapper/script or a `.pi/gauntlet-overrides.md` worktree path (`grep -i worktree README.md AGENTS.md .pi/settings.json .pi/gauntlet-overrides.md`). Obey it.
+1. **Project override** — a wrapper/script or a gauntlet overrides worktree path (see Project overrides) (`grep -i worktree README.md AGENTS.md .pi/settings.json .pi/gauntlet-overrides.md gauntlet-overrides.md doc/gauntlet-overrides.md`). Obey it.
 2. **Default** — `<repo>/.worktrees/<branch>`. Create the directory if missing (Step 2b).
 3. **No enclosing repo** — only when there's no repo to anchor `.worktrees/`, fall back to `~/.worktrees/<project>/<branch>`.
 
@@ -190,4 +190,4 @@ Re-run tests after rebasing.
 
 ## Project overrides
 
-If `.pi/gauntlet-overrides.md` exists, read it. Any sections relevant to this skill — by name match, by topic (routing, verification, worktrees, etc.), or by workflow convention — override or extend the instructions above. Project-local `AGENTS.md` is already in context — check it for project-specific routing tables, service paths, and verification commands.
+If a gauntlet overrides file exists - checked in order: `.pi/gauntlet-overrides.md`, `<repo root>/gauntlet-overrides.md`, `<repo root>/doc/gauntlet-overrides.md`; first found wins - read it. Any sections relevant to this skill — by name match, by topic (routing, verification, worktrees, etc.), or by workflow convention — override or extend the instructions above. Project-local `AGENTS.md` is already in context — check it for project-specific routing tables, service paths, and verification commands.
