@@ -69,16 +69,16 @@ Then continue with the normal flow below (Scope Check onward, including Recon).
 
 ## Scope Check
 
-Before writing the plan, check the spec one more time for hidden subsystem boundaries:
+Before writing the plan, check the spec one more time:
 
-- Does this touch 2+ independent services / contracts / schemas?
-- Are there phases where intermediate state needs to be deployable?
+- Does an intermediate state need to be **independently deployable**, under a deploy topology documented in the gauntlet overrides file's `## Deployment` section? Fail closed: undocumented or monolithic topology -> no deployment-driven split.
+- Is there a **review-risk isolation** reason to land part separately (e.g. a large mechanical rename apart from the behavior change that motivated it)?
 
 If yes, decompose into separate plans and call it out:
 
 > "The spec covers A and B. I'd split into two plans, executed in order. OK?"
 
-A single plan should land in one PR worth of work. Multi-PR sequences get separate plans.
+Otherwise one plan. Service, contract, or schema count is not a split signal - one concern routinely spans several. The concern test itself lives in `../shape-ticket/reference/split-axes.md` (resolve the path against this skill's own directory) and was applied upstream at spec time; plans do not re-litigate it. A single plan should land in one PR worth of work.
 
 ## Recon (mandatory)
 

@@ -158,6 +158,14 @@ Use the `jira` CLI (authenticated via `jira login`), not `gh` or `linearis`.
 - post comment (Reporter note only): `jira issue comment ABC-123 --body "<text>"`
 ```
 
+**`## Deployment` section:** `shape-ticket` (split rule), `writing-plans` (scope check), and `brainstorming` (scope check) read deploy topology from this section: what ships together, what ships independently, and the mechanism. It is a fact to look up, never to infer - when the section is absent, or when it documents a monolithic topology (like the example below), the "separable release timing" split axis is unavailable and splits fail closed to one artifact.
+
+```markdown
+## Deployment
+
+One deploy workflow ships the whole system at once - nothing ships independently.
+```
+
 **`## Delivery` section:** `check-delivery` resolves its overrides through the same discovery ladder. Defaults are pessimistic where it matters: an unset `target state` keeps the write comment-only; unset `deploy watch`/`delivery target` skip stage 2 (reported, never silently passed); `browser evidence` defaults to never. `check-delivery` is single-ticket by design - sweep/reconciliation passes over many tickets stay consumer territory, invoking the skill once per ticket. The remaining slots have working defaults shown below:
 
 | Slot | Meaning | Default (unset) |

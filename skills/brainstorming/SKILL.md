@@ -109,11 +109,17 @@ Require one of: finish prior work, stash, or explicit "continue here". If the to
 
 ### 2. Scope check
 
-If the request spans multiple independent subsystems (e.g., "build a new ingestion pipeline and a new admin UI and a new auth flow"), stop and flag it:
+One spec is the default. If the request looks like multiple independent concerns (e.g., "CSV import for operators, plus a partner-facing status API" - different actors, different problem statements), test each candidate slice against `../shape-ticket/reference/split-axes.md` (identity test, outcome test, closed axis list, release-timing precondition). A multi-spec offer renders the three-line justification per proposed spec - root cause / outcome / axis:
 
-> "This looks like 2-3 independent specs to me — A, B, C. Should we brainstorm each separately, or is there a tight coupling I'm missing?"
+    root cause: <the precipitating failure or missing capability this slice remedies>
+    outcome: <what a user observes once it ships>
+    axis: <one item from the closed list>
 
-Don't try to design a multi-subsystem monolith in one spec doc.
+a slice failing any part -> one spec, and the failed split is not offered:
+
+> "This looks like 2 independent specs to me - A (axis: <axis>), B (axis: <axis>). Should we brainstorm each separately, or is there a tight coupling I'm missing?"
+
+Never split on service, package, repo, layer, or team boundaries - a single feature, bug, or improvement routinely cuts through many layers, and one spec covers it. A genuinely multi-concern request designed as one spec is still wrong; decompose it, but only along a passing axis.
 
 ### 3. Understand the idea
 
@@ -379,7 +385,7 @@ phase_tracker({ action: "complete", phase: "brainstorm" })
 - About to proceed to `/skill:writing-plans` before the user has approved the spec (proceeding *after* approval is correct; skipping the gate is the violation)
 - About to finish spec-writing for a replacement design without marking the known predecessor (see [Marking superseded specs](#marking-superseded-specs))
 - Spec contains `TODO`, `TBD`, or unnamed components
-- Spec spans multiple independent subsystems with no decomposition flag
+- About to offer a multi-spec split that fails the split test in `../shape-ticket/reference/split-axes.md`, or without its three-line justification per spec
 - User said "this is just a small change" and you accepted it without applying the [Anti-Pattern](#anti-pattern-too-simple-to-need-a-design) check
 
 ## Project overrides
