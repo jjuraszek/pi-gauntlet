@@ -1,5 +1,11 @@
 # Changelog
 
+## v4.12.1 - 2026-08-19
+
+- `check-delivery`: two new `## Delivery` overrides slots - `synthesized AC gaps: block|soft` (default `soft`; `block` runs synthesized ACs through the same verdict matrix as authored ones, so an unexplained gap blocks) and `descope edits: strikethrough` (default none; on gate approval, ratified `proposed descope` AC lines are struck in the ticket body with an evidence-drafted reason, write order body -> comment -> status, surgical patch against the re-fetched body, whole-write manual degradation when no edit-body verb resolves). Single-ticket scope boundary recorded in the skill: sweep/reconciliation passes stay consumer territory.
+- `shape-ticket`: the batched write may include one optional gated Reporter-note comment per approved issue (overflow of demoted Idea material; verbatim at the same single confirmation gate; missing post-comment verb degrades to manual posting, never silently dropped). Roast dispatch failure now retries once with fresh artifacts; a second failure is surfaced inline at the gate (`roast unavailable (dispatch failed twice: <reason>)`) instead of a silent note.
+- README: both skills' contracts synced (slot docs, five-verb custom-tracker contract incl. `post comment`).
+
 ## v4.12.0 - 2026-08-18
 
 - New skill: `check-delivery` - explicit-only post-merge detective control: proves an issue actually shipped (SHA-bound squash-aware default-branch landing, optional deploy-watch + delivery-target check, per-AC evidence with a 6-verdict table and reviewer script) before its tracker status advances; never writes a terminal state; single human-gated batched write with `Delivered: <sha>` marker idempotency; generic across `gh`/`linearis` with a 7-slot `## Delivery` overrides contract so consumer closeout prompts reduce to an overrides block plus a one-line wrapper.
