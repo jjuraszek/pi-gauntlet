@@ -15,14 +15,16 @@ disable-model-invocation: true
 | Comments amend/contradict the body's ACs | pause for operator resolution, then proceed - never silently pick a reading |
 | Zero ACs after extraction and synthesis | STOP - "cannot verify a ticket that asserts nothing" |
 | Genuine open deliverable PR found | STOP - "work still in flight" |
-| Same shipped SHA already recorded (marker + target state reached) | "already recorded" - no write |
+| Same shipped SHA already recorded (marker + target state reached) | "already recorded" - no write (body-only descope repair excepted - see stage 0) |
 | Deliverable set ambiguous, or not on default branch | STOP - abort, no write |
 | Delivery target configured but unreachable / times out / can't bind to the SHA | STOP - abort, no write |
 | Any AC verdict is `unexplained gap` | Failure path - no delivery write; findings comment offered, gated |
 | All ACs clear (incl. proposals, non-observable, unverified-no-target) | One confirmation gate, then one batched write |
 | No delivery target configured | Stage 2 reported skipped - never silently passed |
 | No target state configured | Comment only - never guesses a workflow state |
-| Missing write capability | Full verification + both write halves emitted for manual execution |
+| Missing write capability | Full verification + every write half that exists this run emitted for manual execution |
+| Unmet synthesized AC | Non-blocking proposal under `synthesized AC gaps: soft` (default); same verdict matrix as authored ACs under `block` |
+| Ratified `proposed descope` + `descope edits: strikethrough` | Body edit joins the batched write: body -> comment -> status |
 
 ## Overview
 
@@ -52,6 +54,17 @@ Explicit invocation only (`/skill:check-delivery <ticket-ref>`), read-only
 against the repository (no builds, no branch/tag/worktree mutation) plus at
 most one batched tracker write, runs from wherever invoked, no worktree.
 
+## Scope boundary
+
+Single-ticket by design: the pipeline's depth (repo-identity preflight,
+stage-1 landed-commit resolution, per-AC evidence binding, one human gate
+with pre-write re-fetch) does not loop soundly - N tickets means N gates,
+or a batch gate that dilutes per-ticket consent. Sweep passes (bucketing
+open tickets, orphan scans for merged-but-unreferenced work) are
+portfolio triage - a different control, inherently project-flavored - and
+stay consumer territory. A consumer sweep may invoke this skill per
+ticket as its verification step.
+
 ## Hard constraint
 
 Input is exactly one tracker ref (`ABC-123`, `#N`, `owner/repo#N`, or a
@@ -77,10 +90,14 @@ Resolved in order:
 4. Ask the user.
 
 Missing **read** capability = STOP. Missing **write** capability degrades
-gracefully: run the full verification, then emit **both halves** of the
-batched write for manual execution - the evidence-comment text, and, when a
-target state is configured, the exact status-advance command - reporting the
-advance as not performed.
+gracefully on ordinary runs: run the full verification, then emit every
+write half that exists this run for manual execution - the
+evidence-comment text, and, when a target state is configured, the exact
+status-advance command - reporting the advance as not performed. When
+`descope edits` is active and the approval ratifies a `proposed descope`
+but no edit-body verb resolves, the **whole** batched write degrades to
+manual instead: body edit, evidence comment, and status advance (when
+configured) all emitted for manual execution, none auto-posted.
 
 **Zero-config verb table** (overrides replace it):
 
@@ -89,6 +106,7 @@ advance as not performed.
 | read issue + comments | `gh issue view <n> --json title,body,comments` | `linearis issues read <id> --with-comments` |
 | post comment | `gh issue comment <n> --body ...` | `linearis issues discuss <id> --body ...` |
 | update state | override-defined only (never invented labels/columns) | `linearis issues update <id> --status <name>` |
+| edit body (only `descope edits`) | `gh issue edit <n> --body ...` | `linearis issues update <id> --description ...` |
 
 ## Verification pipeline
 
@@ -107,9 +125,14 @@ current tracker status first: if it is already in a terminal/done state,
 report that and stop cleanly - no write; a terminal ticket is never
 downgraded to the configured non-terminal target state. Extract ACs
 from the AC section; if none exists, synthesize candidate ACs from the body,
-label them synthesized, and **cap their blocking power** - a synthesized AC
-never produces a blocking `unexplained gap`; unmet ones surface as
-non-blocking proposals at the gate. If a comment amends or contradicts a
+label them synthesized. Their blocking power follows the `synthesized AC
+gaps` slot: under `soft` (the default) a synthesized AC never produces a
+blocking `unexplained gap` - unmet ones surface as non-blocking proposals
+at the gate; under `block` the cap is removed - synthesized ACs run the
+same stage 3 verdict matrix as authored ACs, so an unmet one with no
+sanctioned explanation is a blocking `unexplained gap` (`allowed gap` and
+`proposed descope` remain available outcomes exactly as for authored ACs).
+If a comment amends or contradicts a
 body AC, surface the conflict to the operator and get an explicit
 resolution before proceeding - never silently pick a reading. If
 extraction and synthesis together yield zero candidate ACs, STOP:
@@ -121,6 +144,13 @@ configured) was already reached -> report "already recorded" and stop
 cleanly - success, no write. If the marker exists but the target state
 was not reached, skip the duplicate comment but still offer the status
 write (comment-landed/status-failed repair, per Idempotency below).
+Exception when `descope edits: strikethrough` is configured: if a prior
+run's evidence comment records a `proposed descope` whose matching AC line
+in the body is still unstruck, the run is **not** "already recorded" - it
+short-circuits to a gated body-only repair: the strike is presented at the
+confirmation gate, resolving only the shipped SHA already recorded in the
+marker (no fresh stage 1-3 re-verification); on approval, only the body
+edit executes - no duplicate comment, no status advance.
 
 **Stage 1 - Merge landed.** One ordered algorithm, not a toolbox:
 
@@ -212,7 +242,10 @@ explicit yes-gate as the success path. Never posted unprompted.
 All-clear path -> **one confirmation gate**: present the shipped SHA,
 deliverable set, stage results (including any skip), the per-AC verdict
 table with evidence, the reviewer script, and the exact write about to
-happen. On approval, one batched write:
+happen. On approval, one batched write. The numbered steps below are the
+ordinary-run shape; when a ratified descope strike is in play, the
+body-edit half precedes step 1 - see the `descope edits` paragraph below
+for its mechanics, not repeated here:
 
 1. **Evidence comment** - marker line `Delivered: <sha>` as the first line,
    the deliverable set (PR links), stage 2 outcome (or "skipped: no
@@ -224,13 +257,53 @@ happen. On approval, one batched write:
    state, never invents a label.
 
 Comment first, status last, so a partial failure leaves evidence without a
-misleading state. Before writing, re-fetch the ticket: if ACs or status
-changed since gather, re-present the delta instead of writing. Declining
-the gate = no write, report stays in-session.
+misleading state - this is the stated order for ordinary runs. Before
+writing, re-fetch the ticket: if ACs or status changed since gather,
+re-present the delta instead of writing. Declining the gate = no write,
+report stays in-session.
+
+When `descope edits: strikethrough` is configured and the approval
+ratifies one or more `proposed descope` ACs, the batched write gains a
+body-edit half, ordered **body edit -> evidence comment -> status
+advance** - a partial failure never leaves a status advanced against a
+body still advertising a descoped AC. A failed body-edit half aborts the
+remaining halves outright: the comment and status advance do not run. Any
+partial failure reports exactly which halves landed and which did not.
+The edit strikes exactly the ratified AC lines and nothing else: the AC's
+list item is preserved, its text struck, and a one-line reason appended -
+`- [ ] ~~<AC text>~~ - descoped: <one-line reason>`. The checkbox is
+rendered exactly as found (`- [x]` stays `- [x]`, `- [ ]` stays `- [ ]`) -
+the edit never flips checked state. The reason is one sentence drafted
+from the verdict's evidence, never invented.
+
+Strike-target identity: the target is the AC-section list item whose
+normalized text equals the verdict's AC text - normalize by stripping the
+list marker and checkbox, collapsing internal whitespace, and comparing
+the remaining text case-insensitively. When `AC location` is not
+the ticket body, or no unique matching list item exists (synthesized,
+prose, duplicate, or multi-line ACs), the strike is skipped for that AC,
+reported as skipped at the gate, and the evidence comment carries the
+descope record alone. A line already containing `~~` and `- descoped:`
+counts as struck and is skipped.
+
+Both zero-config edit verbs replace the whole body, so the strike is
+applied as a surgical patch against the freshly re-fetched body at write
+time - never by replaying the gather-time snapshot. If the target lines
+moved or changed, re-present the delta instead of writing.
+
+The exact before/after of the struck lines is presented at the same
+single confirmation gate as the comment and status - one approval covers
+all halves, including every proposed strike; there is no per-strike
+subset selection, so objecting to one strike declines the whole gate this
+round. Descope edits occur only on the all-clear batched write - the
+failure path writes no body edit.
 
 ## Idempotency and concurrency
 
-Append-only, at-least-once. Same shipped SHA already marked -> skip the
+Append-only, at-least-once for comments - a comment is never edited once
+posted. The ratified-descope body strike is the one sanctioned in-place
+body edit; it does not change this comment guarantee. Same shipped SHA
+already marked -> skip the
 duplicate comment, but still offer the status write if the configured
 target state was not reached on the prior run (comment-landed /
 status-failed repair). A newer shipped SHA -> a fresh comment, never an
@@ -252,6 +325,8 @@ the newer SHA.
 | `browser evidence` | When/how to capture UI evidence (requires a browser tool) | never |
 | `ref convention` | How commits/PRs reference tickets (e.g. `(ref ABC-123)`) | tracker-native forms (`#N`, `Fixes #N`, bare `ABC-123`) |
 | `AC location` | Where ACs live if not the ticket body | ticket body |
+| `synthesized AC gaps` | `block` or `soft` - whether an unmet synthesized AC produces a blocking `unexplained gap` or a non-blocking proposal | `soft` |
+| `descope edits` | `strikethrough` - on gate approval, strike ratified `proposed descope` AC lines in the ticket body | none - no body edits ever |
 
 Worked example:
 
@@ -270,6 +345,11 @@ contract: a consumer's closeout prompt reduces to a `## Delivery` block plus
 a one-line wrapper invoking this skill. Worktree cleanup is out of scope -
 that belongs to `finishing-a-development-branch`.
 
+Malformed slot values fail safe, with one warning per invocation naming the
+bad value: `synthesized AC gaps` treats anything other than `block`/`soft`
+as `soft`; `descope edits` treats anything other than `strikethrough` as
+unset (no body edits).
+
 ## Rationalization table
 
 | Excuse | Reality |
@@ -280,6 +360,7 @@ that belongs to `finishing-a-development-branch`.
 | "No target configured, so delivery passed" | Unconfigured is a reported **skip**, never a silent pass |
 | "The ticket says done in a comment" | Ticket narrative is not evidence; only SHA-pinned code or target observations count |
 | "Just move it to Done, the human can reopen" | Never a terminal status - acceptance is the human's move, not this skill's |
+| "The AC was only synthesized, so the gap can't block" | Under `synthesized AC gaps: block`, a synthesized AC runs the same verdict matrix as an authored one - an unexplained gap blocks |
 
 ## Red flags - STOP
 
@@ -298,6 +379,9 @@ that belongs to `finishing-a-development-branch`.
 - Silently picking a reading when a comment amends or contradicts a body AC
 - Continuing verification with zero candidate ACs
 - Advancing past a genuine open deliverable PR
+- Striking an AC line the gate approval did not ratify as `proposed descope`
+- Applying a body edit by replaying the gather-time snapshot instead of
+  patching the re-fetched body
 
 ## Project overrides
 

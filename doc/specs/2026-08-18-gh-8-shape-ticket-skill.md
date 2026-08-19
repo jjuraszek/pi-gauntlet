@@ -1,5 +1,7 @@
 # shape-ticket: actionability pass over a single tracker issue (gh-8)
 
+> **Superseded by:** [doc/specs/2026-08-18-check-delivery-consumer-feedback.md](./2026-08-18-check-delivery-consumer-feedback.md) - roast-failure handling and the "never a tracker comment" clause only
+
 Resolves [jjuraszek/pi-gauntlet#8](https://github.com/jjuraszek/pi-gauntlet/issues/8). The finishing squash commit carries `Closes #8`.
 
 ## Context

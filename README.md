@@ -35,7 +35,7 @@ pi-gauntlet's only hard dependency is pi-cohort - every gate that dispatches a r
 
 Concretely, one change through the gauntlet:
 
-0. *(Optional)* Before there's even a spec, `/skill:shape-ticket` can create or repair a single tracker issue - shaping a raw ask into a Context/Problem/Idea/Acceptance Criteria ticket, gated by an AC integrity check, a cheap council roast, and one human-confirmed write. It's a tool, not a phase: no worktree, no plan/phase tracker, runs from any repo state. It never activates on its own (`disable-model-invocation: true`) - invoke it explicitly.
+0. *(Optional)* Before there's even a spec, `/skill:shape-ticket` can create or repair a single tracker issue - shaping a raw ask into a Context/Problem/Idea/Acceptance Criteria ticket, gated by an AC integrity check, a cheap council roast, and one human-confirmed write that may include one optional gated Reporter-note comment. A failed roast is retried once, then surfaced inline at the gate if it fails again. It's a tool, not a phase: no worktree, no plan/phase tracker, runs from any repo state. It never activates on its own (`disable-model-invocation: true`) - invoke it explicitly.
 1. You describe the change. **`brainstorming`** sets up an isolated worktree, explores the codebase, and turns your description into a written spec. A multi-model critique runs on it automatically. If the spec replaces a known prior spec, brainstorming marks the predecessor with a `> **Superseded by:**` banner under its title (default format, syntax overridable via `.pi/gauntlet-overrides.md`; event-driven only — gauntlet never sweeps historical specs). **You read and approve the spec - human gate 1.** No implementation code exists yet.
 2. **`writing-plans`** decomposes the approved spec into atomic, independently-verifiable tasks, grouped into parallel waves where they don't touch the same files.
 3. **`subagent-driven-development`** executes the plan one task at a time, each in a fresh subagent, behind spec-compliance review then code-quality review. TDD-locked: red, green, refactor.
@@ -144,7 +144,7 @@ Section headers should match skill names (`## verification-before-completion`) o
 
 **Discovery ladder:** skills check three locations, in order, and use the first one found - never merged: `.pi/gauntlet-overrides.md`, then `<repo root>/gauntlet-overrides.md`, then `<repo root>/doc/gauntlet-overrides.md` (`<repo root>` = `git rev-parse --show-toplevel`, or the current directory outside a repo). Pick one location per repo.
 
-**`## Issue tracker` section:** `shape-ticket` resolves tracker access through a capability ladder, and this is its first rung - it overrides the zero-config `gh` (GitHub) / `linearis` (Linear) defaults for any other tracker. Name the CLI's read, search, create, and update commands explicitly. For a Jira CLI, for example:
+**`## Issue tracker` section:** `shape-ticket` resolves tracker access through a capability ladder, and this is its first rung - it overrides the zero-config `gh` (GitHub) / `linearis` (Linear) defaults for any other tracker. Name the CLI's read, search, create, update, and post comment commands explicitly. For a Jira CLI, for example:
 
 ```markdown
 ## Issue tracker
@@ -155,9 +155,10 @@ Use the `jira` CLI (authenticated via `jira login`), not `gh` or `linearis`.
 - search (dup/reversal check): `jira issue search --jql "project = ABC AND text ~ '<query>'"`
 - create: `jira issue create --project ABC --type Task --summary "<title>" --description "<body>"`
 - update: `jira issue edit ABC-123 --summary "<title>" --description "<body>"`
+- post comment (Reporter note only): `jira issue comment ABC-123 --body "<text>"`
 ```
 
-**`## Delivery` section:** `check-delivery` resolves its overrides through the same discovery ladder. Defaults are pessimistic where it matters: an unset `target state` keeps the write comment-only; unset `deploy watch`/`delivery target` skip stage 2 (reported, never silently passed); `browser evidence` defaults to never. The remaining slots have working defaults shown below:
+**`## Delivery` section:** `check-delivery` resolves its overrides through the same discovery ladder. Defaults are pessimistic where it matters: an unset `target state` keeps the write comment-only; unset `deploy watch`/`delivery target` skip stage 2 (reported, never silently passed); `browser evidence` defaults to never. `check-delivery` is single-ticket by design - sweep/reconciliation passes over many tickets stay consumer territory, invoking the skill once per ticket. The remaining slots have working defaults shown below:
 
 | Slot | Meaning | Default (unset) |
 |---|---|---|
@@ -168,6 +169,17 @@ Use the `jira` CLI (authenticated via `jira login`), not `gh` or `linearis`.
 | `browser evidence` | When/how to capture UI evidence (requires a browser tool) | never |
 | `ref convention` | How commits/PRs reference tickets (e.g. `(ref ABC-123)`) | tracker-native forms (`#N`, `Fixes #N`, bare `ABC-123`) |
 | `AC location` | Where ACs live if not the ticket body | ticket body |
+| `synthesized AC gaps` | `block` or `soft` - whether an unmet synthesized AC produces a blocking `unexplained gap` or a non-blocking proposal | `soft` |
+| `descope edits` | `strikethrough` - on gate approval, strike ratified `proposed descope` AC lines in the ticket body | none - no body edits ever |
+
+Malformed slot values fail safe, with one warning per invocation naming the
+bad value: `synthesized AC gaps` treats anything other than `block`/`soft`
+as `soft`; `descope edits` treats anything other than `strikethrough` as
+unset (no body edits). `descope edits` also requires a resolved edit-body
+write verb: when the slot is active and the approval ratifies a `proposed
+descope` but no edit-body verb resolves, the whole batched write (body
+edit, evidence comment, status advance) degrades to manual - none
+auto-posted.
 
 ```markdown
 ## Delivery
@@ -176,6 +188,8 @@ Use the `jira` CLI (authenticated via `jira login`), not `gh` or `linearis`.
 - delivery target: curl -fsS https://staging.example.com/version | grep <sha>
 - timeout: 15m
 - ref convention: (ref ABC-123)
+- synthesized AC gaps: block
+- descope edits: strikethrough
 ```
 
 ## REVIEW.md convention
