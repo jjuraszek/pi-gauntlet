@@ -1,5 +1,13 @@
 # Changelog
 
+## v4.12.2 - 2026-08-19
+
+- New `skills/shape-ticket/reference/split-axes.md`: the shared split test for tickets and specs - identity test (same precipitating failure / mooted outcome = one concern), user-observable outcome test, closed axis list with pass/fail examples, Never-axis list (fix location, service/repo/layer/team, "keep tickets small"), discovery-conversion exemption, fail-closed release-timing precondition gated on a documented `## Deployment` overrides section.
+- `shape-ticket`: split rule rewritten around that test - one ticket is the default; each proposed slice carries a three-line justification block (root cause / outcome / axis) at the gate; roast brief gains a split-soundness axis with a `split-axis:` finding marker the parent scans from member files directly (the chair cannot clear it; merge auto-applied, pre-merge bodies kept for gate resurrection); two-tier sticky human override (deterministic failures need evidence, member-flag withdrawals resurrect on a plain yes). "Vertical/horizontal" vocabulary retired.
+- `brainstorming`: scope check defaults to one spec; a multi-spec offer must render the three-line justification per spec and pass the shared test; failing splits are never offered.
+- `writing-plans`: scope check splits on documented deploy topology (fail closed) or review-risk isolation - never service/contract/schema count.
+- README: new `## Deployment` gauntlet-overrides section documented (deploy topology is a looked-up fact, never inferred; absent or monolithic topology disables the release-timing split axis).
+
 ## v4.12.1 - 2026-08-19
 
 - `check-delivery`: two new `## Delivery` overrides slots - `synthesized AC gaps: block|soft` (default `soft`; `block` runs synthesized ACs through the same verdict matrix as authored ones, so an unexplained gap blocks) and `descope edits: strikethrough` (default none; on gate approval, ratified `proposed descope` AC lines are struck in the ticket body with an evidence-drafted reason, write order body -> comment -> status, surgical patch against the re-fetched body, whole-write manual degradation when no edit-body verb resolves). Single-ticket scope boundary recorded in the skill: sweep/reconciliation passes stay consumer territory.
