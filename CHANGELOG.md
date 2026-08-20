@@ -1,5 +1,11 @@
 # Changelog
 
+## v4.13.0 - 2026-08-20
+
+- Claude Code plugin marketplace (gh-11): new `.claude-plugin/marketplace.json` exposes exactly three tracker-facing skills (`shape-ticket`, `gatekeep-pr`, `check-delivery`) to Claude Code in place - plugin `gauntlet`, marketplace `pi-gauntlet`, consumer setting `"enabledPlugins": {"gauntlet@pi-gauntlet": true}`. Exclusivity rests on `source: "./"` + `strict: false` + specific subdir paths; `"agents": []` suppresses the default `agents/` scan so pi personas never register as CC agents. Zero skill-body edits; the directory is excluded from the npm tarball and never read by pi.
+- `scripts/ci.mjs`: new marketplace guard - identity pins (`gauntlet`@`pi-gauntlet`), source/strict/agents assertions, scan-leak entry ban, allowlist path + frontmatter existence checks, bundle-local `.md` reference integrity for allowlisted skills, and a negative npm-pack assertion for `.claude-plugin/`.
+- README: new "Use from Claude Code" section - consumer settings snippet, register/install/enable distinction, `CLAUDE.md` symlink advice, folder-trust gotcha, and an 11-step smoke-test cookbook.
+
 ## v4.12.2 - 2026-08-19
 
 - New `skills/shape-ticket/reference/split-axes.md`: the shared split test for tickets and specs - identity test (same precipitating failure / mooted outcome = one concern), user-observable outcome test, closed axis list with pass/fail examples, Never-axis list (fix location, service/repo/layer/team, "keep tickets small"), discovery-conversion exemption, fail-closed release-timing precondition gated on a documented `## Deployment` overrides section.
