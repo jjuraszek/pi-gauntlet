@@ -165,10 +165,18 @@ verification command may write to the tree while the Reviewer reads it):
   claim is a blocking finding. An `unverifiable-pre-merge` claim used as merge proof
   (appears in the PR body's evidence/result/test-plan content) is blocking; stated as
   an explicit post-merge observation instead, it is a non-blocking follow-up.
-- **Required CI checks:** a failing or pending **required** status
-  check withholds merge from every pre-composed course until the user explicitly
-  dispositions it - flaky (proceed via the custom row) or real (it blocks). Non-required
-  checks are informational, listed in Evidence only.
+- **Required CI checks:** a failing **required** status check withholds merge from
+  every pre-composed course until the user explicitly dispositions it - flaky
+  (proceed via the custom row) or real (it blocks); it mints a `P#`. A **pending**
+  required check (still running - the normal case, not a defect) is **wait-until-
+  green, not dispositionable**: it mints no `P#`, is never flaky/real-dispositioned,
+  and the withhold auto-lifts the moment it turns green - or, if it instead fails,
+  converts into an undispositioned failing check with its own `P#` at that point.
+  While pending, the report notes it under Evidence and every merge course simply
+  does not render (a pending-only PR is not a blocking verdict - findings groups can
+  all read "None" - the recommended course falls to `stop` or `review-comment`,
+  never a merge course, until it resolves). Non-required checks are informational,
+  listed in Evidence only.
 - **Doc drift:** when the review finds committed doc drift as a **blocking** finding,
   the orchestrator applies the doc fixes itself, in the provisioned worktree (created
   or reused), as part of assessment - real edits, uncommitted, worktree-local. The
@@ -208,8 +216,8 @@ issue is linked, committed doc drift, anything the merged rubric maps to blockin
 
 **Merge preconditions** (all must hold): gate green with every blocking finding fixed,
 not deferred; `mergeable == MERGEABLE` (`UNKNOWN` after the one post-provision
-re-poll withholds merge, same as `CONFLICTING`); no undispositioned failing required
-check; evidence pasted with clean provenance; worktree clean and synced with the remote
+re-poll withholds merge, same as `CONFLICTING`); no undispositioned failing or
+pending required check; evidence pasted with clean provenance; worktree clean and synced with the remote
 head (fixes pushed first); explicit selection with a head compare-and-swap that
 passes. A merge selection while any precondition fails is refused, naming the failing
 precondition, and the menu re-renders - never a dead end, never a silent merge. Merge
@@ -229,13 +237,16 @@ are never bundled into one selection.
 | any | draft PR | assessment rows only; merge and approve rows absent until ready-for-review |
 | any | merged / closed | report-only; no mutation rows |
 
-Plus always: a final **custom row** composing the full action vocabulary (apply code
-fixes / push doc fixes / post review / reply to thread / merge / tracker comment when
-a tracker tool resolved). Rows GitHub would refuse (branch protection, missing
-permissions, `viewerPermission` too low) are listed as unavailable with the reason.
-Approving your own PR is not offered. Nothing executes until explicit selection.
+The consent table above remains the single oracle for what may be offered; the
+Decision rendering section defines how its rows render as actions and numbered
+courses. Rows GitHub would refuse (branch protection, missing permissions,
+`viewerPermission` too low) are listed as unavailable with the reason. Approving
+your own PR is not offered. Nothing executes until explicit selection.
 
 ## Output
+
+The rendered report is terse by design: deciding factor, evidence lines, ID'd
+findings, menu. No restating diffs, no narration, no recap prose.
 
 ```markdown
 ## Outcome
@@ -245,21 +256,171 @@ Approving your own PR is not offered. Nothing executes until explicit selection.
 <verbatim command + raw_tail per run; claims checked; CI rollup with required-check disposition>
 
 ## Findings (blocking)
-<file:line, defect, fix>
+Blocking findings (P#):
+  P1. **<source_ref>** - <defect>. Fix: <concrete change> | Action: <disposition/what unblocks>. [code | test | spec | security | performance | quality]
+Requirement/doc drift (linked issue, committed doc drift, or spec conflict):
+  L1. <doc-drift | spec-conflict | outdated-AC | missing-behavior> -> <action>
+
+## Comment-thread replies (existing discussion - verdict-neutral)
+  C1. <thread ref> -> <drafted reply>  (already-addressed | reasonable | judgment-call)
 
 ## Non-blocking follow-ups
-<list, or "None">
+  F1. **<source_ref>** - <action>. Owner: <pr-author | tracker | human>
 
 ## Decision
-<the menu>
+<action vocabulary + numbered courses - see Decision rendering>
 
 ## Drafted fixes / review
-<the exact payload to be applied or posted>
+<payloads, each keyed by its finding ID>
 ```
 
-Empty lists say "None". For code fixes, "Drafted fixes / review" holds the concrete
-edit per finding; for reviews, the full body - one summary sentence, then numbered
-file:line findings, ending on the fix.
+**ID rules:**
+
+- `<source_ref>` is a `file:line` where one exists, else the disputed thing (a
+  quoted PR-body claim, a failing gate command, a required check name).
+- **Precedence:** Phase 4 and the merged rubric decide blocking vs. follow-up (the
+  severity translation, AC coverage, claims, and required-check rules above); this
+  section only chooses **which namespace** (`P#` / `L#` / `F#`) renders that
+  decision. Category tags and the triage bar below never override an upstream
+  blocking classification - a Phase-4 Moderate is always blocking (`P#` or `L#`
+  per Total mapping), never demoted to `F#` by tag or by judgment call.
+- **Total mapping:** every blocking element of the Verdict maps to a `P#` or `L#` -
+  a blocking verdict with "None" in both groups is a rendering bug. Concretely:
+  failed gate -> `P#` `[test]` referencing the gate command; contradicted or
+  merge-proof-unverifiable material claim -> `P#` `[spec]` referencing the claim;
+  scope creep with a linked issue -> `L#` `spec-conflict`; committed doc drift ->
+  `L#` `doc-drift`; `partial` AC coverage -> `L#` `outdated-AC`; `missing` AC
+  coverage -> `L#` `missing-behavior`. `L#` covers exactly the drift the Verdict
+  already blocks on (committed doc drift, AC coverage, spec conflict); it widens
+  nothing. Code-level spec bugs (the diff contradicts the spec) are `P#` `[spec]`;
+  requirement/doc mismatches (the spec or docs are stale relative to intent) are
+  `L#`.
+- **Required checks close by disposition, not by fix:** an undispositioned failing
+  required check is `P#` `[test]` referencing the check name; it is never a target
+  of a worktree `fix`. The user's Phase-4 disposition annotates the same ID rather
+  than closing it outright: dispositioned **flaky** -> annotate
+  `(dispositioned: flaky)`; this annotation excepts the `P#` from the unfixed-blocker
+  set - it no longer counts against "every `P#` blocks" or the merge precondition
+  "every blocking finding fixed", and the merge path is Phase 4's explicit flaky
+  disposition via the custom row. Dispositioned **real** -> annotate
+  `(dispositioned: real)` and the `P#` keeps blocking until the check is green.
+- **Severity is decided at triage, not by the category tag:** a finding lands in
+  `P#` only when it must be fixed before merge (correctness, security, material
+  performance trap, a convention the repo enforces); improvements that don't
+  change merge correctness are `F#`, whatever their category. `[quality]` on a
+  `P#` is a category, never a downgrade - every `P#` blocks. This triage bar governs
+  findings the orchestrator originates itself; it never re-triages a classification
+  Phase 4 already made (see Precedence above).
+- `C#` replies are verdict-neutral drafts: they never block and never gate merge;
+  nothing posts until selected.
+- `F#` items carry an owner so follow-ups don't evaporate; when no tracker tool
+  resolved, the report itself is their durable home.
+- **IDs are append-only for the run's lifetime:** minted at first assessment,
+  never renumbered, never reused. A resolved finding keeps its ID annotated
+  `(fixed in <sha>)`; later rounds continue each namespace's sequence.
+- Empty groups say "None".
+
+"Drafted fixes / review" holds, per finding ID, the concrete edit (for `fix`), the
+reviewed doc-drift edit (for `push-docs`, keyed to its `L#`), or the reply text
+(for `reply`) - each keyed to its finding ID, one selection mapping 1:1 to its
+payload. A posted review body is not itself a finding: it is composed at post time
+from the ID'd `P#`/`L#` findings being addressed - one summary sentence, then the
+numbered findings, ending on the fix or asked action - and occupies its own
+non-finding slot of this section.
+
+## Decision rendering
+
+`## Decision` has two parts: the action vocabulary, then the numbered courses.
+
+**Action vocabulary** (bare verbs; availability constraints inline):
+
+```markdown
+Actions (compose freely in the custom row):
+  fix <P#s|all>    apply blocking fixes in worktree, re-run gate, push  (in-repo PRs only)
+  push-docs        push already-applied doc-drift edits                 (only when uncommitted
+                                                                        reviewed doc edits exist
+                                                                        in the worktree)
+  merge-squash | merge-commit                                          (preconditions per Verdict;
+                                                                        never bundled with a push)
+  request-changes | review-comment | approve                           (approve: never own PR)
+  reply <C#s>      post drafted thread replies
+  tracker <act>    tracker action                                      (only when a tracker tool resolved)
+  stop             leave the PR as-is / report-only exit
+```
+
+A `+ tracker <act>` suffix is available on any mutation course when a tracker tool
+resolved.
+
+**Selection grammar:** ID sets accept `all`, ranges (`P1-P4`), comma lists
+(`P1,P3`), and exclusions (`all but P2`).
+
+**Numbered courses** - a normative rendering of the consent table (never a second
+offer source): per author x state cell, exactly one `[recommended]` course first,
+the custom row always last. Courses are **atomic across pushes**: no course,
+pre-composed or custom, bundles a push-producing action (`fix`, `push-docs`) with
+`merge-*`; after a fix wave the menu re-renders with merge as row 1.
+
+| Author | State | Courses (first = `[recommended]`) |
+|---|---|---|
+| you | clean / follow-ups only | 1. merge-squash; 2. merge-commit; 3. stop; 4. review-comment (post no-blockers note) |
+| you | blocking | 1. fix (worktree-fixable P#s only - `all` covers only those) [+ push-docs when uncommitted doc edits exist]; 2. push-docs (alone, when doc edits exist); 3. stop; 4. review-comment (post findings). When no P# is worktree-fixable (blocking is required-check-only or L#-only), course 1 (fix) is not rendered: push-docs becomes first when doc edits exist, else stop is first |
+| you | blocking, post-fix re-render (gate green, preconditions hold) | 1. merge-squash; 2. merge-commit; 3. stop; 4. review-comment |
+| someone else | clean / follow-ups only | 1. approve; 2. merge-squash (offered-unrecommended); 3. review-comment (no-blockers note) |
+| someone else | blocking | 1. request-changes; 2. fix all (courtesy, their branch - omitted when nothing is worktree-fixable); 3. reply <C#s> (omitted when the `C#` group is None); 4. review-comment |
+| bot author | any | someone-else's rows for the same state; review actions recommended |
+| any | draft | 1. request-changes / review-comment / reply <C#s> (omit the reply course when the `C#` group is None) / stop - `[recommended]` follows the same authorship rule as the non-draft cells, **except** on your own draft PR `request-changes` is never recommended (you cannot request changes on your own PR any more than you can approve it); the fallback recommendation there is `review-comment` when findings exist, else `stop`. Custom present but cannot compose `merge-*`/`approve`/`fix`/`push-docs` until ready-for-review |
+| any | merged / closed | 1. stop; report-only, no other mutation courses at all; Custom present but cannot compose `merge-*`/`approve`/`fix`/`push-docs`/`request-changes`/`review-comment`/`reply`/`tracker` - nothing remains actionable |
+
+**Fork overlay:** the consent-table fork row renders as an overlay on the authorship
+cells (push/merge/fix absent; approve also dropped when the viewer authored the PR) -
+it is not a distinct authorship cell. It overlays whichever authorship row above
+applies (you vs. someone else), removing `fix`, `push-docs`, and `merge-*` (never
+available on a fork). When you authored the fork PR, `approve` is
+also dropped (never offered on your own PR) - fork|you|clean renders
+`review-comment`/`stop` only; fork|you|blocking renders
+`request-changes`/`review-comment`/`stop` (the someone-else courtesy fix-on-their-
+branch course is also absent, since it is your own PR). A fork PR authored by someone
+else uses the someone-else cells above with `fix`/`push-docs`/`merge-*` removed.
+
+**Required-check gate on merge courses:** an undispositioned failing **or pending**
+required check withholds every pre-composed course containing `merge-*` (per the
+Verdict merge preconditions) - none render, whatever the author/state cell says. A
+pending check mints no `P#` and is wait-until-green, not dispositionable (see Phase
+4); a failing one mints a `P#` and takes a disposition. A **flaky** disposition does
+not restore merge to a pre-composed course; merge proceeds only via the custom row
+naming the disposition explicitly. A **real** disposition, or an unresolved pending
+check, keeps every merge course withheld until the check is green - a pending-only
+render is not itself a blocking verdict (findings groups may all read "None"); the
+recommended course falls to `stop` or `review-comment` in the meantime. This never
+falls through to the clean cell's recommended `merge-squash` - a required-check
+failure or pend means the PR is not in the clean state to begin with.
+
+Rows a cell offers but GitHub would refuse (branch protection, missing permission)
+render listed-but-unavailable with the reason. Zero mutation courses is a legal
+render (merged/closed) - the menu still appears, carrying findings and `stop`.
+
+Example render (golden fixture 1 - own PR, blocking findings including committed doc
+drift, so uncommitted reviewed doc edits exist):
+
+```markdown
+Pick one:
+  1. fix all (P1-P10) + push-docs   [recommended]
+  2. push-docs (docs only, hold code fixes)
+  3. stop (leave as-is)
+  4. review-comment (post findings, act later)
+  5. Custom - compose: e.g. "fix P1-P8,P10 + push-docs" or "reply C1 + tracker comment"
+```
+
+Golden fixture 2 - the post-fix re-render after course 1's gate re-run passes:
+
+```markdown
+Pick one:
+  1. merge-squash   [recommended]
+  2. merge-commit
+  3. stop (leave as-is)
+  4. review-comment
+  5. Custom
+```
 
 ## Post-selection loop
 
@@ -267,22 +428,83 @@ The menu is a state machine, not a one-shot report:
 
 1. **Compare-and-swap before every external write:** re-fetch `headRefOid`, `state`,
    `mergeable`. Any change since assessment invalidates the current state - re-sync
-   the worktree, re-run Phase 3, re-render the menu.
-2. Execute only the selected row: code fixes -> commit on the PR branch (subject
-   names the fix), re-run the gate, push. Doc fixes -> stage + commit (subject names
-   what is documented), re-run the gate, push. Reviews and comments -> `gh pr review`
-   / `gh api`, non-interactive, with the drafted body.
-3. After any mutation that can change readiness (fix pushed, docs pushed, PR head
-   moved), re-run Verify + Review on the synced worktree and re-render `## Outcome`,
-   `## Evidence`, `## Findings`, and the menu.
+   the worktree, re-run Phase 3, re-render the menu. **Exception:** a course's own
+   push updates the assessed head to the pushed SHA as part of that course's
+   execution - this self-inflicted head move does not invalidate the course; the
+   next CAS check runs against the new head on the next external write.
+2. Execute only the selected course. **Fix wave** (`fix <set>`): first filter the
+   selected set to worktree-fixable `P#`s - drop any `P#` closed by disposition
+   (an undispositioned required-check failure is never a `fix` target; a **flaky**
+   disposition already excepts it) - and route file-less `P#`s (a claim or a gate
+   command as `source_ref`, no draft touching a file) to run inline/sequentially,
+   never as part of a parallel file-batch.
+
+   For the remaining worktree-fixable set, batch by the **union of files each
+   finding's drafted edit in `## Drafted fixes / review` touches** (fallback to
+   the `source_ref` file only when a finding has no draft) - findings whose
+   drafts share a file share a batch.
+
+   **Child contract (same for 1 batch or many):** children are `implementer`
+   dispatches - `subagent({ agent: "implementer", context: "fresh", cwd: <PR
+   worktree> })`, matching Inline-first execution's persona-naming style; this is
+   the pi-cohort optimization path, inline is always valid per that section. The
+   orchestrator owns commit, gate, and push - never a child. Every dispatched
+   child gets `cwd` = the PR worktree, **`worktree: true` forbidden** (a separate
+   isolated worktree breaks the shared-tree contract - see Inline-first
+   execution); is **edit-only, no git commands, no verification runs**; and its
+   task is that batch's `P#` lines **plus the drafted edit already keyed to each
+   ID** in `## Drafted fixes / review` - the child applies the consented payload,
+   it does not re-solve the finding. Below the cutoff (<= 2 worktree-fixable findings), the orchestrator
+   applies inline instead of dispatching - the no-cohort path stays available at
+   any batch count per Inline-first execution. Above the cutoff, when more than
+   one batch results, dispatch the batches' children **in parallel**, all under
+   the same contract.
+
+   Once every dispatched/inline batch returns, the orchestrator commits the golden
+   course as one local commit set - the code fixes plus any already-applied
+   reviewed doc edits selected alongside them (one commit, or one per batch
+   sequentially; subjects name the fixes) - then re-runs the gate **once**. **On
+   green**, push **once**; gate and push are per-wave invariants, never per-fix or
+   per-batch. **On red**, do not push: leave the commit(s) local, re-render with
+   the unresolved `P#`s still open, and warn that unpushed fix commits sit in the
+   worktree exactly like unpushed doc edits (see Teardown). Doc fixes (`push-docs`
+   alone) follow the same green-gate-then-push rule: stage + commit (subject names
+   what is documented), re-run the gate, push only on green. Reviews, replies, and
+   tracker actions -> `gh pr review` / `gh api` / the tracker tool, non-interactive,
+   with the drafted payload for the selected IDs.
+3. After any mutation that can change readiness (fix wave pushed, docs pushed, PR
+   head moved), re-run the claim-check and Review on the synced worktree: claims
+   are re-checked against the new head and findings are re-rendered, but the
+   verification command itself is **not** re-executed here - step 2's gate run
+   already was the wave's one and only execution of it. Re-render the report:
+   each selected `P#`/`L#` confirmed resolved is annotated `(fixed in <sha>)`
+   under its original ID; unresolved ones stay open unchanged; new findings
+   continue the sequence. Merge, if now available, renders as row 1.
 4. Loop until the user selects merge or an explicit stop/no-action row.
 
 **Teardown:** merge success -> tear down the worktree, whether it was reused or
 created (the sync precondition guarantees no local-only work is stranded, and the
 branch is gone remotely). A non-merge stop: offer teardown of a **created** worktree
 (never autonomous; warn if unpushed doc edits would be discarded); a **reused**
-worktree is left as found - if unpushed doc edits remain in it, say so explicitly and
-let the user choose leave-or-discard.
+worktree is left as found - if unpushed doc edits **or unpushed fix commits from a
+red-gate hold** remain in it, say so explicitly and let the user choose
+leave-or-discard.
+
+## Output done-check
+
+Before posting or committing any externally persisted payload - review bodies,
+thread replies, commit subjects, tracker comments - re-read it against:
+
+- ASCII only: `-`, `...`, straight quotes.
+- No headings or template scaffolding on payloads under ~150 words - bullets and
+  prose carry short content.
+- Review findings are file:line-specific where one exists, else keyed to the
+  finding's `source_ref`, and end on the fix or asked action, not a recap.
+- Empty sections say "None"; never invent content to fill a section.
+
+The check governs external payloads only - the skill's own rendered report keeps
+its fixed headings regardless of length. Project rules extend this list via the
+overrides file - see Project overrides.
 
 ## Red flags - STOP
 
@@ -293,7 +515,27 @@ let the user choose leave-or-discard.
 - Merging around an undispositioned blocking finding or required-check failure
 - Reading configuration (rubric, verification command, or ladder sources) from the
   PR's head instead of the base branch's merge-base
+- Renumbering or reusing a finding ID between menu rounds
+- Presenting findings without IDs, a blocking verdict with no `P#`/`L#`, or a
+  `## Decision` rendered without its action vocabulary
+- Treating `[quality]` or `[performance]` as a downgrade signal on a `P#` - only
+  an explicit Phase-4 flaky disposition excepts a required-check `P#` from the
+  unfixed-blocker set, never a category tag
+- A course (pre-composed or custom) bundling a push-producing action with
+  `merge-*`
+- A pre-composed course, or a custom row, composing an action the overlay or the
+  cell lists as unavailable
+- Batching a file-less `P#` (a claim or a gate command as `source_ref`, no draft touching a file)
+  into a parallel dispatch - a claim `P#` with a drafted file edit is
+  worktree-fixable and may batch - dispatching parallel implementers over
+  batches that share a file, or letting a fix-wave child run git commands or a
+  verification pass in the shared worktree, or dispatching a fix-wave child with
+  `worktree: true`
+- A second execution of the verification command, a second push, or pushing fix
+  commits after a red gate, within one fix wave - re-running Verify/Review to
+  re-confirm claims and annotate IDs (step 3) is not a second gate execution
+- Posting or committing an external payload without the output done-check
 
 ## Project overrides
 
-If a gauntlet overrides file exists - checked in order: `.pi/gauntlet-overrides.md`, `<repo root>/gauntlet-overrides.md`, `<repo root>/doc/gauntlet-overrides.md`; first found wins - read it. Any sections relevant to this skill - by name match, by topic (routing, verification, worktrees, etc.), or by workflow convention - override or extend the instructions above. Project-local `AGENTS.md` is already in context - check it for project-specific routing tables, service paths, and verification commands.
+If a gauntlet overrides file exists - checked in order: `.pi/gauntlet-overrides.md`, `<repo root>/gauntlet-overrides.md`, `<repo root>/doc/gauntlet-overrides.md`; first found wins - read it. Any sections relevant to this skill - by name match, by topic (routing, verification, worktrees, etc.), or by workflow convention - override or extend the instructions above. Project-local `AGENTS.md` is already in context - check it for project-specific routing tables, service paths, and verification commands. A `## comms style` section in the overrides file extends the output done-check with project rules.
