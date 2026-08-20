@@ -1,6 +1,6 @@
 # Changelog
 
-## [Unreleased]
+## v4.13.1 - 2026-08-20
 
 - `gatekeep-pr`: dense output protocol - stable append-only finding IDs (`P#` blocking fixes, `L#` requirement/doc drift, `C#` verdict-neutral thread replies, `F#` owned follow-ups), bare-verb action vocabulary with selection grammar (`all`, ranges, exclusions), normative per-cell course table (one `[recommended]`, custom last, push and merge never bundled), fix-wave execution (file-disjoint batches, parallel edit-only implementers, one gate/re-review/push per wave), output done-check for external payloads with a `## comms style` overrides hook.
 
