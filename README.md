@@ -124,6 +124,109 @@ cd ~/path/to/your/repo && pi install -l ~/repos/pi-gauntlet
 cd ~/repos/pi-gauntlet && npm run link-agents   # local-path installs skip npm install; run this once
 ```
 
+## Use from Claude Code
+
+Three skills are exposed to Claude Code via the plugin marketplace at
+`.claude-plugin/marketplace.json`: **shape-ticket**, **gatekeep-pr**, and
+**check-delivery**. They are harness-portable by design - every pi-specific
+mechanic they touch (`plan_tracker`, `gauntlet_setting`, `subagent()`) carries
+an inline fallback, so they run on Claude Code's native facilities. This is the
+supported set. Not exposed, in two classes: (a) genuinely pi-bound surface -
+the full gated pipeline (brainstorming -> writing-plans ->
+subagent-driven-development -> verify -> finish), the spec council, the
+conformance gate, flow guards, verify-before-ship, and all `piGauntlet.*`
+settings, which depend on pi extensions; (b) runtime-neutral skills
+(e.g. `systematic-debugging`, `receiving-code-review`, `using-git-worktrees`) that
+are simply out of scope for this channel, not incompatible - re-adding one is a
+one-line allowlist append. For Claude-Code-native equivalents of the
+methodology skills, see [obra/superpowers](https://github.com/obra/superpowers).
+
+### Setup
+
+Add to your repo's `.claude/settings.json`:
+
+```json
+{
+  "extraKnownMarketplaces": {
+    "pi-gauntlet": {
+      "source": { "source": "github", "repo": "jjuraszek/pi-gauntlet" }
+    }
+  },
+  "enabledPlugins": { "gauntlet@pi-gauntlet": true }
+}
+```
+
+Add `"ref": "vX.Y.Z"` to the source object to pin a tag; the default tracks the
+default branch. Claude Code merges settings entries whole (no field-level
+merge), so teams layering managed settings must carry the full objects.
+
+Registration, installation, and enablement are distinct steps in Claude Code:
+`extraKnownMarketplaces` registers the marketplace, `enabledPlugins` records
+enablement intent. If a fresh machine shows the plugin as known but not
+installed, run `/plugin install gauntlet@pi-gauntlet` once. Alternative path
+without touching settings.json: `/plugin marketplace add jjuraszek/pi-gauntlet`,
+then install.
+
+Invocation: `/gauntlet:shape-ticket` (or bare `/shape-ticket` when unambiguous).
+
+Project instructions: Claude Code reads `CLAUDE.md`, pi reads `AGENTS.md` - a
+symlink keeps one source of truth: `ln -s AGENTS.md CLAUDE.md`. The gauntlet
+overrides ladder (`.pi/gauntlet-overrides.md` -> `gauntlet-overrides.md` ->
+`doc/gauntlet-overrides.md`) works unchanged on Claude Code - it is a plain
+file read.
+
+**Trust gotcha:** the marketplace auto-activates only after you trust *that
+exact repo folder* in interactive Claude Code. Trusting a parent folder,
+`claude -p`, or SDK runs in untrusted folders silently skip
+`extraKnownMarketplaces` with no error.
+
+### Smoke test
+
+1. Create a scratch repo and add the marketplace config:
+
+       mkdir -p /tmp/cc-smoke/.claude && cd /tmp/cc-smoke && git init
+       cat > .claude/settings.json <<'EOF'
+       {
+         "extraKnownMarketplaces": {
+           "pi-gauntlet": {
+             "source": { "source": "github", "repo": "jjuraszek/pi-gauntlet" }
+           }
+         },
+         "enabledPlugins": { "gauntlet@pi-gauntlet": true }
+       }
+       EOF
+
+2. Start Claude Code interactively in that directory: `claude`
+3. When prompted, trust the folder (this exact folder - trust is what activates
+   the marketplace; there is no separate marketplace prompt).
+4. Run `/plugin` and confirm: marketplace `pi-gauntlet` is listed, plugin
+   `gauntlet` is enabled. If it shows as known but not installed, run
+   `/plugin install gauntlet@pi-gauntlet` and re-check.
+5. Confirm exactly three skills are registered under the plugin (via the
+   `/plugin` details view): shape-ticket, gatekeep-pr, check-delivery.
+6. Invoke `/gauntlet:shape-ticket` with a deliberately two-concern ask (e.g.
+   "shape a ticket: CSV import for operators, plus a partner-facing status
+   API") so the skill deterministically consults its
+   `reference/split-axes.md` before proposing a split. Expected: skill
+   activates, reads the reference file, reaches its tracker capability ladder
+   without erroring on missing pi tools. Stop at the first human gate; write
+   nothing to any tracker.
+7. Invoke `/gauntlet:gatekeep-pr` in the scratch repo (which has no PR).
+   Expected: the skill activates and stops at its configuration/verification
+   ladder reporting nothing to gate - no error about missing pi tools, no
+   mutation.
+8. Invoke `/gauntlet:check-delivery` with no deliverable reference. Expected:
+   the skill activates and asks for / reports a missing deliverable set - a
+   reported skip, not a pass, and no pi-tool error.
+9. Negative check: type `/gauntlet:brainstorming`. Expected: no such skill -
+   the allowlist excluded it.
+10. Optional validator pass: `claude plugin validate .` from a checkout of
+    pi-gauntlet (strict mode if available). Expected: no schema errors.
+11. Agent check: type `@gauntlet:` in the mention typeahead (or open the
+    plugin's details). Expected: the plugin registers no agents - `"agents": []`
+    in the marketplace entry suppresses the default `agents/` scan of the
+    repo's pi personas.
+
 ## Project-specific overrides
 
 The skills shipped here are generic on purpose - they describe *how* to TDD, brainstorm, debug, request review, etc., without naming your services, your CI command, or your worktree wrapper. When you need that level of detail, drop a file at `.pi/gauntlet-overrides.md` in your repo. The skills read it at runtime and merge sections that match the skill's name or topic:

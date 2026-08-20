@@ -192,6 +192,88 @@ try {
   else ok("no pi.settings reads in extensions");
 }
 
+// ---- Claude Code marketplace (.claude-plugin/) -------------------------------
+// Guards the gh-11 allowlist: entries must be specific existing skill dirs with
+// valid SKILL.md (existence-checked, not count-hardcoded); scan-leak paths
+// (".", "./", "./skills", "./skills/") are banned; exclusivity rests on
+// source:"./" + strict:false.
+{
+  const mpErrorsBefore = errors.length;
+  const mpPath = R(".claude-plugin/marketplace.json");
+  if (!existsSync(mpPath)) {
+    fail(".claude-plugin/marketplace.json missing");
+  } else {
+    let mp = null;
+    let parsed = false;
+    try {
+      mp = JSON.parse(readFileSync(mpPath, "utf8"));
+      parsed = true;
+    } catch (e) {
+      fail(`.claude-plugin/marketplace.json: invalid JSON (${e.message})`);
+    }
+    if (parsed && (mp === null || typeof mp !== "object" || Array.isArray(mp))) {
+      fail("marketplace.json: must be a JSON object");
+      mp = null;
+    }
+    if (mp) {
+      if (mp.name !== "pi-gauntlet") fail(`marketplace.json: name must be "pi-gauntlet" (got ${JSON.stringify(mp.name)})`);
+      if (!mp.owner || !mp.owner.name) fail("marketplace.json: missing owner.name");
+      if (!mp.description) fail("marketplace.json: missing description");
+      const plugins = Array.isArray(mp.plugins) ? mp.plugins : [];
+      if (plugins.length !== 1) fail(`marketplace.json: expected exactly 1 plugin, got ${plugins.length}`);
+      const plugin = plugins[0] || {};
+      if (plugin.name !== "gauntlet") fail(`marketplace.json: plugin name must be "gauntlet" (got ${JSON.stringify(plugin.name)})`);
+      if (plugin.source !== "./") fail(`marketplace.json: plugin source must be "./" (got ${JSON.stringify(plugin.source)})`);
+      if (plugin.strict !== false) fail("marketplace.json: plugin strict must be false");
+      if (!Array.isArray(plugin.agents) || plugin.agents.length !== 0) fail("marketplace.json: plugin agents must be [] (suppresses the default agents/ scan - pi personas are not CC plugin agents)");
+      const mpSkills = Array.isArray(plugin.skills) ? plugin.skills : [];
+      if (mpSkills.length === 0) fail("marketplace.json: plugin skills must be a non-empty array");
+      // These entries re-enable Claude Code's full scan and would leak all skills.
+      const scanLeaks = new Set([".", "./", "./skills", "./skills/"]);
+      const skillDirs = [];
+      for (const entry of mpSkills) {
+        if (scanLeaks.has(entry)) {
+          fail(`marketplace.json: skills entry "${entry}" would re-enable the full scan (allowlist must name specific skill dirs)`);
+          continue;
+        }
+        const dir = R(entry.replace(/^\.\//, ""));
+        if (!existsSync(dir) || !statSync(dir).isDirectory()) {
+          fail(`marketplace.json: skills path ${entry} is not a directory`);
+          continue;
+        }
+        const skillFile = join(dir, "SKILL.md");
+        if (!existsSync(skillFile)) {
+          fail(`marketplace.json: ${entry} has no SKILL.md`);
+          continue;
+        }
+        const err = hasFrontmatter(skillFile, ["name", "description"]);
+        if (err) fail(`marketplace.json: ${entry}/SKILL.md: ${err}`);
+        else skillDirs.push(dir);
+      }
+      // Bundle-local reference integrity: every .md path a bundled file mentions
+      // must resolve against that file's own directory. Excluded: consumer-repo
+      // placeholders that intentionally don't exist here.
+      const refExcludedBasenames = new Set(["REVIEW.md", "AGENTS.md", "CLAUDE.md", "SKILL.md", "gauntlet-overrides.md"]);
+      const brokenRefs = [];
+      for (const dir of skillDirs) {
+        for (const file of walk(dir).filter((f) => f.endsWith(".md"))) {
+          const txt = readFileSync(file, "utf8");
+          for (const m of txt.matchAll(/[A-Za-z0-9_.][A-Za-z0-9_./-]*\.md\b/g)) {
+            const ref = m[0].replace(/^\.\//, "");
+            const base = ref.split("/").at(-1);
+            if (refExcludedBasenames.has(base)) continue;
+            if (!existsSync(join(dirname(file), ref))) brokenRefs.push(`${file.replace(root + "/", "")}: "${ref}"`);
+          }
+        }
+      }
+      if (brokenRefs.length) fail("marketplace.json: broken bundle-local .md refs:\n    " + brokenRefs.join("\n    "));
+      if (errors.length === mpErrorsBefore) {
+        ok(`marketplace allowlist valid (${mpSkills.length} skills), bundle refs resolve`);
+      }
+    }
+  }
+}
+
 // ---- npm pack contents -----------------------------------------------------
 try {
   const out = execFileSync("npm", ["pack", "--dry-run", "--json"], { cwd: root, encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] });
@@ -202,6 +284,7 @@ try {
   if (!packed.some((f) => f.startsWith("agents/"))) fail("npm pack: no agents/ in tarball");
   if (!packed.some((f) => f.startsWith("bin/"))) fail("npm pack: no bin/ in tarball");
   if (packed.some((f) => f.startsWith("doc/"))) fail("npm pack: doc/ leaked into tarball");
+  if (packed.some((f) => f.startsWith(".claude-plugin/"))) fail("npm pack: .claude-plugin/ leaked into tarball (Claude Code marketplace is source-only)");
   ok(`npm pack: ${packed.length} files, agents/ + bin/ present, no doc/ leak`);
 } catch (e) {
   fail(`npm pack failed: ${String(e.stderr || e).split("\n")[0]}`);

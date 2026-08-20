@@ -104,6 +104,10 @@ All three extensions ship in `extensions/`:
 
 Hardcoded project paths or commands in extensions are forbidden. If you add a new configurable behavior, surface it as a `piGauntlet.<extensionName>` settings key with a sane default and document it in `README.md`.
 
+### Claude Code marketplace
+
+`.claude-plugin/marketplace.json` exposes exactly three skills (`shape-ticket`, `gatekeep-pr`, `check-delivery`) to Claude Code via a plugin allowlist (plugin `gauntlet`, marketplace `pi-gauntlet`) - in place, no copies. Exclusivity rests on `source: "./"` + `strict: false` + specific subdirectory paths; `scripts/ci.mjs` asserts the load-bearing subset (identity pins `gauntlet`@`pi-gauntlet`, source/strict, empty `agents`, allowlist paths + frontmatter, bundle-local `.md` reference integrity, npm-pack exclusion). The directory is Claude-Code-only surface: excluded from the npm tarball by the `files` allowlist, never read by pi. Consumer setup lives in README "Use from Claude Code". Widening the allowlist is a one-line array append - but only for skills whose bodies carry harness fallbacks; pi-bound skills (trackers, `gauntlet_setting`, pi-cohort dispatch) stay unexposed.
+
 ## Development
 
 ### Change process mandate
