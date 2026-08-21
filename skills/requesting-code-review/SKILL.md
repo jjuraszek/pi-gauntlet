@@ -49,6 +49,7 @@ subagent({ agent: "code-reviewer", task: "... filled template ..." })
 - `{BASE_SHA}` - Starting commit
 - `{HEAD_SHA}` - Ending commit
 - `{DESCRIPTION}` - Brief summary
+- `{SCOPED_TEST_COMMANDS}` - the scoped verification commands the reviewer may run, or `none`
 
 **3. Act on feedback:**
 - Fix Critical issues immediately
@@ -73,6 +74,7 @@ HEAD_SHA=$(git rev-parse HEAD)
   PLAN_OR_REQUIREMENTS: Task 2 from doc/plans/deployment-plan.md
   BASE_SHA: a7981ec
   HEAD_SHA: 3df7661
+  SCOPED_TEST_COMMANDS: none (whole-branch review; orchestrator gate owns execution)
   DESCRIPTION: Added verifyIndex() and repairIndex() with 4 issue types
 
 [Subagent returns]:

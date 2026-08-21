@@ -38,6 +38,8 @@ Dispatch a subagent with this prompt:
 
     - **Read code and compare to spec: yes**
     - **Edit, create, or delete any files: NO**
+    - **Run tests, linters, or type-checkers: NO.** Never run tests, linters, or type-checkers. Your evidence is the diff and the files you read.
+    - **Code-quality opinions (naming, design, complexity, test aesthetics, style): NO.** Those belong to code-reviewer. Report only spec-vs-implementation deltas.
     - You are a reviewer. Your output is a written report listing what matches and what doesn't.
     - If you find issues, describe them — do NOT fix them.
 

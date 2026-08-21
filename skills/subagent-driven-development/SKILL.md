@@ -53,11 +53,11 @@ Before the first task, enter the implement phase: `phase_tracker({ action: "star
 
 For each task in `plan_tracker`:
 
-1. **Dispatch implementer.** Pass the full task text + scene-setting context. Don't make the subagent re-read the plan.
+1. **Dispatch implementer.** Pass the full task text + scene-setting context + the task's plan-declared test commands as `SCOPED_TEST_COMMANDS` (or `none`). Don't make the subagent re-read the plan.
 2. **Handle implementer status** (see below).
 3. **Dispatch spec reviewer.** Verify the diff matches the spec — nothing missing, nothing extra.
 4. If spec reviewer finds gaps → re-dispatch implementer to fix → re-review. Loop until ✅, within [Fix-Loop Rounds](#fix-loop-rounds).
-5. **Dispatch code-quality reviewer.** Only after spec is ✅. Skip for doc-only tasks (every file in the task's `Files:` block documentation-only) — SR-only, same exemption as doc-only waves.
+5. **Dispatch code-quality reviewer.** Only after spec is ✅. Skip for doc-only tasks (every file in the task's `Files:` block documentation-only) — SR-only, same exemption as doc-only waves. Pass `SCOPED_TEST_COMMANDS` = the task's plan-declared commands.
 6. If quality reviewer finds issues → re-dispatch implementer → re-review. Loop until ✅, within [Fix-Loop Rounds](#fix-loop-rounds).
 7. Mark task complete in `plan_tracker`.
 
@@ -70,6 +70,8 @@ One rule governs both review loops - spec-compliance and code-quality - in seque
 **Re-review dispatch rule:** every re-review task includes the complete prior review report verbatim under the marker `## Previous review report (re-review trigger)`, plus the trajectory block from the reviewer's prompt template. The marker's presence is what obligates the reviewer to emit the `TRAJECTORY:` line. You never select, summarize, or diff findings yourself - pattern-match the sentinel line only.
 
 **Fix fan-out.** When the triggering review's `Parallel-safe:` line certifies a `disjoint` group of ≥ 2 findings, dispatch that fix round per `dispatching-parallel-agents` "Fix fan-out"; the fan-out counts as **one** fix against this budget, its scoped test gate is the consuming task/wave's plan-declared commands, and one re-review of the integrated delta follows.
+
+Every fix re-dispatch (implementer) and code-review re-review carries the consuming task/wave's `SCOPED_TEST_COMMANDS`; spec-reviewer re-reviews carry none - SR never executes.
 
 **The sequence.** Each review that finds issues is a decision point: read the `TRAJECTORY:` line before dispatching anything (review 1 has no line - on issues, dispatch fix 1). Any clean review ends the loop.
 
@@ -128,13 +130,13 @@ When in doubt, default. Don't downgrade reviewers — false negatives are expens
 
 ```ts
 // implementer
-subagent({ agent: "implementer", task: "<task text + context + status protocol>" })
+subagent({ agent: "implementer", task: "<task text + context + SCOPED_TEST_COMMANDS + status protocol>" })
 
 // spec compliance
 subagent({ agent: "spec-reviewer", task: "<diff range + spec excerpt + ask: does this match?>" })
 
 // code quality
-subagent({ agent: "code-reviewer", task: "<diff range + ask: production-ready?>" })
+subagent({ agent: "code-reviewer", task: "<diff range + SCOPED_TEST_COMMANDS (task commands; wave: union; whole-diff: none) + ask: production-ready?>" })
 
 // closing-loop conformance (origin vs deliverable) — its OWN dispatch, never fused with code quality
 // model: call gauntlet_setting({ key: "closureReview" }) first; use the returned model (omit model: if undefined to inherit) and maxFixRounds
@@ -167,10 +169,10 @@ Auto-selected at handoff by `writing-plans` (any wave with ≥2 tasks) when the 
 
 1. **Independence check.** Parse the wave's tasks' `Files:` blocks; assert pairwise-disjoint (mechanical). Runtime-resource disjointness (DB/schema, port, fixture, external service, shared temp path) is not machine-checkable here — trust the plan's wave grouping, which `writing-plans`' D5 contract guarantees. Either kind of overlap → the wave is mis-grouped; run those tasks as sequential single-task waves and note it.
 2. **Fan out.** One parallel dispatch (shape below): `implementer` per task, `context: "fresh"`, `worktree: true`. Each returns a status + a patch.
-3. **Status + spec review per task.** Parse each `DONE`/`BLOCKED`/etc. (see [Implementer Status](#implementer-status)) **first**. Then **dispatch a `spec-reviewer` per accepted patch** (`DONE`, or a `DONE_WITH_CONCERNS` you proceeded with) in one parallel fan-out — `context: "fresh"`, `cwd: <this worktree>`, **no `worktree` flag** (read-only) — each passed its task text, the returned **patch diff**, and the absolute spec path. Review is **diff-based**: the diff's hunks carry `file:line`, and test execution is not the reviewer's job here (the wave test gate in step 5 runs the wave's declared test commands). Inline verdicts are fine at normal wave sizes; large waves use `output:` + `outputMode: "file-only"` to keep verdicts out of your context. **Re-dispatch by cause:** `BLOCKED`/`NEEDS_CONTEXT` per the [Implementer Status](#implementer-status) matrix; a **spec gap** re-dispatches the implementer (fresh, `worktree: true`) carrying the prior patch + the reviewer's findings, the new patch superseding the old at step 4. Loop until accepted + spec ✅, within [Fix-Loop Rounds](#fix-loop-rounds), same as sequential.
+3. **Status + spec review per task.** Parse each `DONE`/`BLOCKED`/etc. (see [Implementer Status](#implementer-status)) **first**. Then **dispatch a `spec-reviewer` per accepted patch** (`DONE`, or a `DONE_WITH_CONCERNS` you proceeded with) in one parallel fan-out — `context: "fresh"`, `cwd: <this worktree>`, **no `worktree` flag** (read-only) — each passed its task text, the returned **patch diff**, and the absolute spec path. Review is **diff-based**: the diff's hunks carry `file:line`, and test execution is never the reviewer's job - in either mode (persona rule; the wave test gate in step 5 runs the wave's declared test commands). Inline verdicts are fine at normal wave sizes; large waves use `output:` + `outputMode: "file-only"` to keep verdicts out of your context. **Re-dispatch by cause:** `BLOCKED`/`NEEDS_CONTEXT` per the [Implementer Status](#implementer-status) matrix; a **spec gap** re-dispatches the implementer (fresh, `worktree: true`) carrying the prior patch + the reviewer's findings, the new patch superseding the old at step 4. Loop until accepted + spec ✅, within [Fix-Loop Rounds](#fix-loop-rounds), same as sequential.
 4. **Integrate.** `git apply` each task's patch sequentially onto HEAD. Apply fails = textual conflict → drop that task, finish the rest, re-run the dropped task sequentially on the updated HEAD.
 5. **Test gate.** Run the union of the wave's tasks' declared test commands on the integrated tree — the full verification set is the verify phase's job, run once. Failure = semantic conflict or bug → re-run the offending task sequentially, else fix per [When a Subagent Fails](#when-a-subagent-fails).
-6. **Quality review.** Code-quality review on the integrated wave diff; loop fixes to ✅ within [Fix-Loop Rounds](#fix-loop-rounds), same as sequential. Skip for doc-only waves (SR-only per the commit precondition below).
+6. **Quality review.** CR binds to the wave: exactly one **initial** code-review dispatch per code-touching wave, over the integrated wave diff - never per task within a wave, never batched across waves. Subsequent dispatches within the wave are re-reviews triggered only by findings, per Fix-Loop Rounds. Pass `SCOPED_TEST_COMMANDS` = the union of the wave's tasks' declared commands. Code-quality review on the integrated wave diff; loop fixes to ✅ within [Fix-Loop Rounds](#fix-loop-rounds), same as sequential. Skip for doc-only waves (SR-only per the commit precondition below).
 7. **Commit the wave.** Leaves a clean tree; the next wave's children branch from this commit and so see the integrated work.
 
 **Two-stage review is preserved:** spec review per task (pre-integration, dispatched `spec-reviewer` — not inline), quality review per wave (post-integration). A wave commit requires one spec-review verdict per accepted task, plus one code-review verdict on the integrated diff for waves that touch code. A doc-only wave (every task's `Files:` block documentation-only, per `writing-plans`' Wave Grouping) is SR-only — the CR gate does not apply.
@@ -189,8 +191,8 @@ subagent({
   concurrency: 4,        // default; cap = wave size
   tasks: [
     // do NOT set per-task cwd under worktree:true — it must equal the top-level cwd or the run errors
-    { agent: "implementer", task: "<task text + owned files + status protocol>", output: "wave1-task1.md" },
-    { agent: "implementer", task: "<task text + owned files + status protocol>", output: "wave1-task2.md" },
+    { agent: "implementer", task: "<task text + owned files + SCOPED_TEST_COMMANDS + status protocol>", output: "wave1-task1.md" },
+    { agent: "implementer", task: "<task text + owned files + SCOPED_TEST_COMMANDS + status protocol>", output: "wave1-task2.md" },
   ],
 })
 ```
@@ -215,7 +217,7 @@ For the fan-out + worktree + patch-integration + conflict mechanics, see `dispat
 ## After All Tasks Complete
 
 0. Call `phase_tracker({ action: "start", phase: "verify" })`. (The `implement` phase was started at execution start and auto-completes from `plan_tracker` once all tasks are done; this flow runs its own verify gate instead of `/skill:verification-before-completion`, so it must mark verify itself.)
-1. **Run the whole-diff code review.** Dispatch `/skill:requesting-code-review` against the worktree's full diff vs `main` (already covered in [The Process](#the-process) step "After all tasks"). Address Critical and Moderate findings before handoff. (Consumers wanting an in-flow project-specific audit re-add it as an explicit step in the gauntlet overrides file (see Project overrides), or run `/self-audit` manually.)
+1. **Run the whole-diff code review.** Dispatch `/skill:requesting-code-review` against the worktree's full diff vs `main` (already covered in [The Process](#the-process) step "After all tasks"). Address Critical and Moderate findings before handoff. (Consumers wanting an in-flow project-specific audit re-add it as an explicit step in the gauntlet overrides file (see Project overrides), or run `/self-audit` manually.) Pass `SCOPED_TEST_COMMANDS: none` - the verify phase's full run (step 2) is the orchestrator's.
 2. **Run the full verification set — once.** Read the plan header's `**Verification:**` line and run it: tests + style + format (a single bundling entrypoint, or the listed individual commands). Green output is the fresh evidence verify requires; this is the only full run before conformance — task and wave gates ran scoped commands only. After conformance fix rounds land, re-run the set before re-dispatching the gate.
 3. **Close the loop — conformance check.** The review in step 1 is plan-vs-code (single-step); it inherits any requirement the plan already dropped. Before marking verify complete, dispatch a fresh-context **`conformance-reviewer`** — its **own** dispatch, never fused into the step-1 review — to confront the deliverable (code **and** docs) against the *origin* — the spec **and** the original prompt — per `verification-before-completion/reference/conformance-check.md`. Pass the spec path, the verbatim original prompt, and the full diff. Follow that reference for the partition rule, concern decomposition, and fix-loop mechanics; do not reimplement them here. The fix loop may drive `plan_tracker` to surface fix-wave progress (task naming and lifecycle per conformance-check.md's fix loop / the Fix fan-out Progress rule); it never calls `phase_tracker`. Call `phase_tracker({ action: "complete", phase: "verify" })` only when the reference says the handoff is durably complete: either a current `CONFORMS` result, or a current `## Closure / conformance` inventory whose carried-open concerns all come from valid deferred gaps, including `recommended: fix` gaps carried open because a declared precondition made the fix loop unavailable (`maxFixRounds: 0`, or no eligible named-branch worktree). A started positive-cap fix loop that blocks, fails, or exhausts its rounds with an open `fix` gap is escalation, not completion; on escalation, do not complete verify, stop and report.
 4. Summarize what was implemented (tasks completed, files changed, test counts, code-review verdict). Emit the `## Closure / conformance` block exactly as defined in `verification-before-completion/reference/conformance-check.md`: it must open with the two-line sentinel (`status: CONFORMS (0 open)` or `status: GAPS (N open)`, then `audited-base: <full HEAD SHA>`), then carry the exact durable concern schema by reference with no renamed or reformatted fields. `finishing-a-development-branch` Step 3.5 consumes that block verbatim.
@@ -238,6 +240,8 @@ For the fan-out + worktree + patch-integration + conflict mechanics, see `dispat
 - Starting on main without explicit user consent
 - Dispatching `code-reviewer` before every one of the wave's spec-review verdicts has landed (including fusing SR+CR into one parallel call)
 - Dispatching fixes sequentially on a clean HEAD despite a ≥ 2-ID `disjoint` group in the review's `Parallel-safe:` line
+- Dispatching `code-reviewer` per task inside a wave (CR binds to the integrated wave diff)
+- Dispatching an implementer or code-reviewer without a `SCOPED_TEST_COMMANDS` value (commands or `none`)
 - About to run the full verification entrypoint during the implement phase — task and wave gates run scoped, plan-declared commands only; the full set belongs to verify
 
 ## Integration

@@ -128,7 +128,8 @@ If you can't list the files, the spec isn't ready. Send it back to `/skill:brain
 Group tasks into **waves** so the executor can parallelize independent work (see `subagent-driven-development` Parallel-Wave Mode). A wave is a maximal set of tasks that (a) have no ordering dependency on each other, (b) own **pairwise-disjoint files**, and (c) contend on **no shared mutable runtime resource** (same DB/schema, port, fixture file, external service, shared temp path).
 
 - Tasks nest under `## Wave N — <label>` headers; `### Task N` headers sit inside a wave.
-- A wave with one task is legal (runs sequentially). A pure dependency chain yields one task per wave — no parallelism, which is correct.
+- Group independent tasks into the same wave by default. A wave with one task is legal **only with a named-blocker justification**: a body line directly under the `## Wave N — <label>` header, `Solo: <reason>`, where the reason names the blocking task/wave, the contended runtime resource, or `lone remaining task` (reserved for the genuinely final unmatched task; doc-only trailing waves qualify). Category-only justifications ("dependency" with no named task) do not satisfy the rule.
+- A pure dependency chain yields one task per wave — no parallelism, which is correct; each such wave carries its `Solo:` line naming the prior-wave dependency.
 - Each wave after the first states its dependency on prior waves.
 
 **File-ownership contract.** The per-task `**Files:**` block *is* the ownership declaration — no new syntax. Rule: **within a wave, the union of every task's declared paths must be pairwise disjoint.** Globs are allowed for `Modify` when exact paths are unknown, but must not overlap another same-wave task's paths. A task that must touch another's file belongs in a later wave.
@@ -151,6 +152,8 @@ Parallel-safe: Tasks 1–3 own disjoint files (see each task's Files block).
 ### Task 3: ...
 
 ## Wave 2 — Wire-up
+
+Solo: Task 4 depends on Wave 1 Task 1's API (named-blocker justification).
 
 Depends on Wave 1: Task 4 consumes the API introduced by Task 1.
 
@@ -269,6 +272,7 @@ After drafting the plan and before announcing it complete, run three checks your
 - **Placeholder scan.** Grep the doc for `TODO`, `TBD`, `xxx`, `[fill in]`, `<example>`, `etc.`, "probably", "something like". Resolve or convert each into an explicit Open Question.
 - **Type / API consistency.** Function signatures and field names that appear in multiple tasks must match exactly. The plan is its own contract — internal contradictions surface as bugs during execution.
 - **Wave disjointness.** For every multi-task wave, confirm the tasks' `Files:` sets are pairwise disjoint **and** that no two tasks contend on a shared mutable runtime resource (DB/schema, port, fixture, external service, shared temp path). Either kind of overlap = mis-grouped wave; split or re-order before handoff.
+- **Solo-wave justification.** Every single-task wave carries a `Solo:` line naming its specific blocker. A solo wave without one is mis-grouped or under-justified — merge it or justify it before handoff.
 - **Scoped-test coverage.** Every code-touching wave declares at least one scoped test command; only doc-only waves may have none.
 - **Header-only entrypoint.** The full verification entrypoint appears only in the plan header's `**Verification:**` line. Grep the task body for the header's command string — expect zero hits.
 

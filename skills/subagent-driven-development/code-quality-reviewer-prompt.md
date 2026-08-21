@@ -14,6 +14,7 @@ Dispatch a subagent with the code-reviewer template:
   PLAN_OR_REQUIREMENTS: Task N from [plan-file]
   BASE_SHA: [commit before task]
   HEAD_SHA: [current commit]
+  SCOPED_TEST_COMMANDS: [the consuming task's plan-declared commands; wave reviews: the union of the wave's tasks' declared commands; `none` for the whole-diff verify-phase review]
 ```
 
 **In addition to standard code quality concerns, the reviewer should check:**

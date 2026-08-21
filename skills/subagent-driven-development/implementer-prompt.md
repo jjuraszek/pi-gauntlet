@@ -31,12 +31,18 @@ Dispatch a subagent with this prompt:
     Once you're clear on requirements:
     1. Implement exactly what the task specifies
     2. Write tests (following TDD — failing test first for production code)
-    3. Verify implementation works
+    3. Verify with the commands under SCOPED_TEST_COMMANDS (if `none`, state that)
     4. Commit your work
     5. Self-review (see below)
     6. Report back
 
     Work from: [directory]
+
+    SCOPED_TEST_COMMANDS: [the task's plan-declared test commands, verbatim | none]
+
+    Run ONLY these commands for verification. Never run a repo-wide suite,
+    linter, or type-checker. If the value is `none`, run nothing and say so
+    in your report.
 
     **While you work:** If you encounter something unexpected or unclear, **ask questions**.
     It's always OK to pause and clarify. Don't guess or make assumptions.

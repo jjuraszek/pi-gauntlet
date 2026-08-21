@@ -76,8 +76,9 @@ Default: **1 requirement source = 1 spec = code covering every requirement.**
 The requirement source is whatever sits at the top of the priority table — a
 ticket if there is one, otherwise the spec + original prompt. No ticket is fine;
 spec + prompt is a first-class source, not a degraded one. "Every requirement" =
-explicit acceptance criteria / spec clauses **+** implicit notes (ticket body,
-comments, or inline in the prompt). Source and solution must end in sync.
+explicit acceptance criteria / spec clauses **+** quotable notes (written
+sentences in the ticket body, comments, or inline in the prompt - quotable
+verbatim, never derived inferences). Source and solution must end in sync.
 
 Multi-spec effort → allowed **only if the spec explicitly says** it covers a
 defined subset and names the deferred requirements. Silent partial coverage = failure.
@@ -152,7 +153,9 @@ Per round:
    group of ≥ 2 gaps (per the report's `Parallel-safe:` line) fixes in one parallel
    dispatch — one `implementer` per gap (fresh context, `worktree: true`, `cwd` =
    the conformance worktree, task = the gap block verbatim with `touched-files` as
-   the ownership boundary); `conflicts` pairs serialize. Gaps outside any ≥ 2-ID
+   the ownership boundary). The dispatch adds `SCOPED_TEST_COMMANDS` to the gap
+   block: the gap-relevant plan-declared commands, or `none` (the round's test
+   gate owns execution). `conflicts` pairs serialize. Gaps outside any ≥ 2-ID
    `disjoint` group run sequentially as before. Then dispatch `spec-reviewer` per
    gap on the gap-block reference contract below. Task lifecycle: mark `in_progress` at
    dispatch; `complete` is deferred until the gap's patch is successfully
@@ -167,7 +170,7 @@ Per round:
    integrated changes. A `BLOCKED`/`NEEDS_CONTEXT` return surfaces to the user.
 4. **Test gate** on the integrated tree, using the project's canonical test
    command. A failure re-enters the failure-handling rules above.
-5. **`code-reviewer` once** on the round's cumulative fix delta (not per gap).
+5. **`code-reviewer` once** on the round's cumulative fix delta (not per gap), with `SCOPED_TEST_COMMANDS` = the round's gap-relevant commands, or `none` (the round's test gate owns execution).
 6. **Re-audit**: re-dispatch `conformance-reviewer` over the fixes **plus** the
    regression guard (any prior-`DELIVERED` requirement whose `evidence` file
    the fix diff touched). Pass the full prior conformance report (every row,
@@ -269,7 +272,9 @@ is an unmet-delivery fact, not
 an external blocker** — never relabel missing implementation evidence as a
 blocker. A malformed structured reviewer gap block — missing its stable `Gn`
 label or any required field (`verdict`, `origin`, `evidence`, `remediation`,
-`touched-files`, `touched-resources`, `recommended`) — triggers a **fresh
+`touched-files`, `touched-resources`, `recommended`) — or, for any non-`UNAUTHORIZED`
+gap (including re-audit blocks), an `origin` lacking a locator or a nonempty
+quoted fragment — triggers a **fresh
 audit**; a complete structured reviewer gap block does not — the orchestrator
 decomposes it or emits the indivisible fallback.
 
@@ -411,7 +416,7 @@ must map each token to its titled concern or gap before asking for input.
 ```text
 G1 - Source-image validation is incomplete
   verdict: PARTIAL
-  origin: <requirement source and clause>
+  origin: <requirement source and clause> - "<quoted clause>"
   evidence: <current file:line or observed state>
   blocker: <specific blocker, or none>
   touched-files: <paths or unknown>
@@ -421,7 +426,7 @@ G1 - Source-image validation is incomplete
   G1/C1 - End-to-end OCR output has not been validated
     unresolved: <plain statement of the concern>
     impact: <why it matters to the current workflow>
-    origin: <requirement source and clause, narrowed from the gap origin; or none (scope creep) for UNAUTHORIZED>
+    origin: <requirement source and clause, narrowed from the gap origin> - "<quoted clause>"; or none (scope creep) for UNAUTHORIZED
     remediation: <concern-scoped remediation action>
     evidence: <concern-specific evidence or blocker>
     touched-files: <concern-scoped paths, narrowed from the gap; or unknown>
@@ -474,7 +479,8 @@ branch integration options.
 ## Checklist
 
 - [ ] Located canonical requirements (spec → prompt → ticket fallback)
-- [ ] Enumerated every requirement: explicit ACs / spec clauses + implicit notes + inline prompt reqs
+- [ ] Enumerated every requirement: explicit ACs / spec clauses + quotable notes + inline prompt reqs (verbatim-quotable only)
+- [ ] Every non-UNAUTHORIZED gap's origin carries locator + verbatim quote
 - [ ] Checked spec ↔ prompt/ticket drift; reconciled any divergence
 - [ ] Each requirement mapped to where it's satisfied (code/doc) + evidence
 - [ ] Multi-spec? Subset declared in spec; deferred ACs noted as out of scope

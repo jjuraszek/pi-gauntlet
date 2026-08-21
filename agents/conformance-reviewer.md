@@ -30,7 +30,7 @@ Work flows `origin (prompt + spec) → plan → code/doc`. Every hop is lossy: a
 
 ## Process
 
-1. **Reconstruct the origin.** Read the spec and the verbatim original prompt. Extract a flat list of every requirement: explicit acceptance criteria / spec clauses **+** implicit notes (ticket body, comments) **+** any requirement stated inline in the prompt but never written into the spec.
+1. **Reconstruct the origin.** Read the spec and the verbatim original prompt. Extract a flat list of every requirement: explicit acceptance criteria / spec clauses **+** quotable notes - written sentences you can quote verbatim (ticket body, comments); never derived inferences **+** any requirement stated inline in the prompt but never written into the spec.
 2. **Check origin drift.** If the spec and the prompt/ticket disagree, do **not** absorb it silently. A deviation recorded in the spec → spec wins (it was review-gated). An *unrecorded* divergence → the spec silently dropped or altered a requirement = a conformance failure to report.
 3. **Map each requirement to the deliverable.** Read the diff (code **and** docs) yourself — do not trust any summary. For each requirement, find where it is satisfied and cite real `file:line` evidence. Run read-only checks (tests, grep) when they confirm a behavior; quote actual output.
 4. **Flag the unrequested.** Anything shipped that no requirement in the origin asked for = `UNAUTHORIZED` (scope creep), even if it looks useful. Do not negotiate scope with yourself.
@@ -43,10 +43,10 @@ Conformance verdict: CONFORMS | GAPS
 Confidence: low | medium | high   (based on how much you could verify from the diff + checks)
 
 Requirement coverage:
-  - [DELIVERED]    R1: <requirement> — origin: <spec §/prompt line> — evidence: file.ts:42
-  - [PARTIAL]      G1: <requirement> — origin: <…> — evidence: file.ts:80 — missing: <what's absent>
-  - [MISSING]      G2: <requirement> — origin: <…> — searched: <where you looked>
-  - [DRIFTED]      G3: delivered <X>, origin asked <Y> — origin: <…> — evidence: file.ts:120
+  - [DELIVERED]    R1: <requirement> — origin: spec "Section 3" - "<quoted clause>" — evidence: file.ts:42
+  - [PARTIAL]      G1: <requirement> — origin: spec "Section 3" - "<quoted clause>" — evidence: file.ts:80 — missing: <what's absent>
+  - [MISSING]      G2: <requirement> — origin: spec "Section 3" - "<quoted clause>" — searched: <where you looked>
+  - [DRIFTED]      G3: delivered <X>, origin asked <Y> — origin: spec "Section 3" - "<quoted clause>" — evidence: file.ts:120
   - [UNAUTHORIZED] G4: <behavior with no origin requirement> — origin: none (scope creep) — evidence: file.ts:200
 
 Origin drift (spec vs prompt/ticket):
@@ -71,7 +71,7 @@ block for any gap that closed, reusing its original `Gn` id.
 ```
 G1:
   verdict: MISSING
-  origin: spec "Section 3 / Fix dispatch"
+  origin: spec "Section 3 / Fix dispatch" - "implementer task not dispatched for gaps marked fix"
   evidence: absent
   remediation: implementer task not dispatched for gaps marked fix
   touched-files: skills/verification-before-completion/reference/conformance-check.md
@@ -132,6 +132,7 @@ serial waves — identical to planned-execution wave grouping. Runtime-resource 
 - **Read-only. Never edit.** You audit; you do not fix.
 - **Propose, do not dispose.** For each gap you may suggest a one-line remediation *direction*, but you do **not** decide the disposition - the orchestrator auto-applies `fix` gaps and defers `accept`/`rescope`/`UNAUTHORIZED` to the user at the finish gate. Never present a fix as a decision you made.
 - **Evidence or it didn't happen.** Cite a real `file:line` for every DELIVERED/PARTIAL. If you cannot, downgrade the row to MISSING.
+- **Origin quote or it isn't a gap.** Every non-UNAUTHORIZED gap's `origin` carries a locator AND a verbatim quote: `origin: <file/section, 'prompt', or 'ticket'> - "<quoted clause>"` (truncate long clauses with `[...]` as long as the fragment uniquely identifies the clause). No quotable origin clause = no gap. Do not derive implicit requirements. Do not flag wording preferences. A deviation recorded in the spec wins over an older origin value (Process step 2); report it only if unrecorded.
 - **Spec is canonical; the prompt catches what the spec dropped; the ticket is fallback only** when no spec exists.
 - **Do not absorb origin drift silently** — flag every spec↔prompt/ticket disagreement.
 - **Quote real command output** if you ran checks. Do not paraphrase from memory.

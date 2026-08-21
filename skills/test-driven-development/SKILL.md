@@ -117,11 +117,11 @@ Don't add features, refactor other code, or "improve" beyond what the test requi
 
 Run the test. Confirm:
 - New test passes
-- All other tests still pass
+- The task's scoped commands pass (full-suite verification belongs to the verify phase)
 - Output is pristine (no errors, no warnings)
 
 **Test fails?** Fix code, not test.
-**Other tests fail?** Fix now — don't move on with broken tests.
+**Scoped commands fail?** Fix now — don't move on with broken tests.
 
 ### REFACTOR — Clean Up
 
@@ -176,7 +176,7 @@ Before marking work complete:
 - [ ] Watched each test fail before implementing
 - [ ] Each test failed for expected reason (feature missing, not typo)
 - [ ] Wrote minimal code to pass each test
-- [ ] All tests pass
+- [ ] The task's scoped commands pass (full suite belongs to the verify phase)
 - [ ] Output pristine (no errors, warnings)
 - [ ] Tests use real code (mocks only if unavoidable)
 - [ ] Edge cases and errors covered

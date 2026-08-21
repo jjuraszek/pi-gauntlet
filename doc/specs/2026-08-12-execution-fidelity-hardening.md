@@ -1,5 +1,7 @@
 # Execution Fidelity Hardening
 
+> **Superseded by:** [doc/specs/2026-08-21-execution-latency-review-scoping.md](./2026-08-21-execution-latency-review-scoping.md) - the TDD out-of-scope decision only ("`skills/test-driven-development/SKILL.md` changes ... out of scope")
+
 **Goal:** Close three gaps where the execution pipeline improvises against (or violates) written skill contracts: plan-time recon is uncodified, the SR/CR review cadence is prose-only and was violated in practice, and test-scope wording drives full-CI runs per wave instead of once at verify.
 
 **Evidence (session traces):**
