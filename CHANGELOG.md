@@ -1,5 +1,9 @@
 # Changelog
 
+## v4.13.2 - 2026-08-21
+
+- Review scoping and wave density (execution-latency pass): `spec-reviewer` never executes tests/linters/type-checkers and excludes code-quality opinions (CR's gate); `implementer`/`code-reviewer` run only dispatch-supplied `SCOPED_TEST_COMMANDS` (threaded through every SDD dispatch point, prompt templates, `requesting-code-review`, and the conformance fix loop; TDD skill gates tasks on scoped commands, full suite at verify); `writing-plans` defaults to dense waves - single-task waves require a named-blocker `Solo:` line; SDD binds exactly one initial code review per code-touching wave; `conformance-reviewer` gaps require an origin locator + verbatim quote (quotable notes only, malformed origin triggers a fresh audit; `UNAUTHORIZED` unchanged).
+
 ## v4.13.1 - 2026-08-20
 
 - `gatekeep-pr`: dense output protocol - stable append-only finding IDs (`P#` blocking fixes, `L#` requirement/doc drift, `C#` verdict-neutral thread replies, `F#` owned follow-ups), bare-verb action vocabulary with selection grammar (`all`, ranges, exclusions), normative per-cell course table (one `[recommended]`, custom last, push and merge never bundled), fix-wave execution (file-disjoint batches, parallel edit-only implementers, one gate/re-review/push per wave), output done-check for external payloads with a `## comms style` overrides hook.
