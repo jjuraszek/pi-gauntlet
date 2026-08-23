@@ -318,7 +318,7 @@ subagent({ agent: "spec-summarizer", context: "fresh", cwd: "<abs worktree path,
 
 `<SUMMARY_PATH>` above is a placeholder in the dispatch object; it means substitute the value of the shell variable `$SUMMARY_PATH` set above. The steps below use `$SUMMARY_PATH` (the shell form) once the value is in hand.
 
-Then commit the spec — staging any predecessor spec edited per [Marking superseded specs](#marking-superseded-specs) alongside it; a change request at the gate that renames, materially revises, or drops the spec also reconciles the predecessor's banner before recommitting. This commit is **unconditional**: the summary is only a gate aid, so a degraded or missing summary never blocks it. If the council path ran, include its audit (`Applied:` / `Deferred:` / `Rejected:`, verbatim from `/skill:roasting-the-spec`'s return) in the **commit message body** - this is the durable, non-contractual record a finish-time revert reads back; the audit is never a committed spec section. Evaluate the summary in two stages (the **Degrade path** referenced in each is defined just below):
+Then commit the spec — staging any predecessor spec edited per [Marking superseded specs](#marking-superseded-specs) alongside it; a change request at the gate that renames, materially revises, or drops the spec also reconciles the predecessor's banner before recommitting. This commit is **unconditional**: the summary is only a gate aid, so a degraded or missing summary never blocks it. If the council path ran, include its audit (`Coverage:` when present, then `Applied:` / `Deferred:` / `Rejected:`, verbatim from `/skill:roasting-the-spec`'s return) in the **commit message body** - this is the durable, non-contractual record a finish-time revert reads back; the audit is never a committed spec section. Evaluate the summary in two stages (the **Degrade path** referenced in each is defined just below):
 
 1. **From the dispatch tool result, before the `Read`.** If the result is **not** an `"Output saved to: <path> (<N> KB, <M> lines)"` reference (e.g. an exit-0 save error returns the full inline output plus an "Output file error" line — the prunable shape, no file to read), or the reference reports under ~500 bytes, or a size grossly disproportionate to the spec (under ~2% of its byte size), or over ~45 KB (the `Read` truncates at 50KB / 2000 lines, so a larger file cannot render whole) — skip the `Read` and take the degrade path. Use the reference's reported figures; do not re-derive them.
 2. **The `Read` itself, as the last content-producing tool call before composing the gate.** `Read` `$SUMMARY_PATH` and paste its contents verbatim at the top of the gate. If the `Read` fails, returns 0 bytes, or reports truncation — take the degrade path. The `Read` must be last: pi-condense does not protect a `/tmp` read, so any turn boundary between the `Read` and the render lets the ~9KB read result be pruned, reproducing the bug.
@@ -327,17 +327,18 @@ Then commit the spec — staging any predecessor spec edited per [Marking supers
 
 Either way — summary rendered or degraded — then `rm "$SUMMARY_PATH"` (unconditional cleanup; harmless if the file was never created, since it lives outside the worktree under the OS temp dir).
 
-Render the temp file's contents **verbatim** first — paste it as-is, do **not** paraphrase, condense, re-section, drop sections, or merge it with the council audit. "Fold into the gate" means *place it inside the gate message*, not *rewrite it*. This summary is of the **final (post-apply)** spec, since both critique paths already applied before this dispatch. After the verbatim block, append the commit confirmation, then — as their **own** adjacent lines, not edits to the summary — the council audit (if the council path ran: `Applied:` / `Deferred:` / `Rejected:`, one line each), critique-pass-unresolved ambiguities, and every entry from the summarizer's gap/external-context footer (surface **all** of them, not just the top risk):
+Render the temp file's contents **verbatim** first — paste it as-is, do **not** paraphrase, condense, re-section, drop sections, or merge it with the council audit. "Fold into the gate" means *place it inside the gate message*, not *rewrite it*. This summary is of the **final (post-apply)** spec, since both critique paths already applied before this dispatch. After the verbatim block, append the commit confirmation, then — as their **own** adjacent lines, not edits to the summary — the council audit (if the council path ran: `Coverage:` when present - omitted at full coverage - then `Applied:` / `Deferred:` / `Rejected:`, one line each), critique-pass-unresolved ambiguities, and every entry from the summarizer's gap/external-context footer (surface **all** of them, not just the top risk):
 
 ```
 <spec-only summary read back from the temp file — pasted verbatim, unedited>
 
 Spec written and committed to <project>/doc/specs/<filename>.md (worktree: <path>).
 
+Coverage: <N> of <M> members reported; <slug>: <reason> (line present only when coverage was partial)
 Applied: <cluster -> edit>, ...
 Deferred: <cluster -> where it belongs>, ...
 Rejected: <cluster -> one-line reason>, ...
-(omit the three lines above when the worker path ran, not the council)
+(omit the audit lines above when the worker path ran, not the council)
 
 <unresolved ambiguities; every gap-footer entry from the summary>
 

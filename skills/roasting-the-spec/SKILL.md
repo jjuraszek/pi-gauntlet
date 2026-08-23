@@ -52,29 +52,33 @@ Create an absolute temp dir outside the worktree so member files are never track
 mktemp -d   # absolute path, e.g. /tmp/tmp.XXXXXX
 ```
 
-Dispatch one member per configured model, in parallel, each writing its critique into that dir. Do **not** read these files yourself — they are for the chair.
+Dispatch one member per configured model, in parallel, each writing its critique into that dir. Do **not** read these files' findings content yourself — they are for the chair. The only permitted parent access is the mechanical structural probe below (existence plus header regex, no content ingestion, no adjudication).
 
 Capture the worktree path once (`git rev-parse --show-toplevel`, run from inside the worktree) and pass it as `cwd:` on every dispatch below — a child otherwise inherits pi's launch dir (the primary checkout), not the worktree.
 
 ```
 subagent({
-  control: { needsAttentionAfterMs: 600000 },
+  control: { needsAttentionAfterMs: 300000, inFlightSilenceCeilingMs: 300000, inFlightSilenceKillMs: 600000 },
   tasks: members.map((model, i) => ({
     agent: "spec-council-member",
     model,
     cwd: "<abs worktree path>",
     task: "Problem statement: <the problem the spec addresses, from its Context section and the user's stated intent>.\n" +
-          "Read the spec at <abs path to doc/specs/...>. Critique it on your five axes and emit your template.",
+          "Read the spec at <abs path to doc/specs/...>. Verify its load-bearing claims against the codebase, bounded per your verification-hygiene rules (rg, explicit paths, timeout 30). Critique it on your five axes and emit your template.",
     output: "<tmpdir>/member-" + i + "-" + slug(model) + ".md"
   }))
 })
 ```
 
-`control` is a **run-level** field: it must sit beside `tasks`, not inside the `members.map(...)` task objects (the per-task schema has no `control` field and would silently drop it). The 10-minute `needsAttentionAfterMs` suppresses false-positive "no observed activity" idle notices — members do one long, tool-less reasoning turn that crosses the 60s default with zero activity events — while still letting a genuinely wedged run surface eventually.
+`control` is a **run-level** field: it must sit beside `tasks`, not inside the `members.map(...)` task objects (the per-task schema has no `control` field and would silently drop it). The three fields together set an effective silence-kill of max(600s, 300+300) = 600s - a genuinely wedged member (e.g. stuck in one unbounded scan) is killed at 10 minutes instead of pi-cohort's 30-minute default. Record all three fields verbatim: the kill is computed as max(inFlightSilenceKillMs, inFlightSilenceCeilingMs + needsAttentionAfterMs), so leaving a field to its default lets a future pi-cohort default change silently stretch it. The 5-minute needsAttentionAfterMs reintroduces idle notices on long healthy xhigh turns - those are notices, not kills, and are acceptable.
 
 `slug(model)` = the model string with `/` and any other non-alphanumeric character replaced by `-` (so `provider/model` → `provider-model`); the chair recovers this slug from each filename for `raised-by` attribution. Relative `output:` paths in parallel mode resolve against the worktree and would get committed — always use the absolute temp dir.
 
-If a member fails (e.g. its model is unreachable in this preset), skip it and continue as long as at least one member succeeded. If **all** members fail, abort the council, say so, and return to the user gate.
+**Usable-critique test (mechanical structural probe).** After the fanout returns - success or failure of the tool call itself - probe the expected output paths on disk; judge by files, not by the tool result's failed/succeeded labels (a killed member may have written a usable critique first). A member file is usable iff it is non-empty AND contains both a `^verdict:\s*(sound|needs-work|unsound)` line and an `^addresses-problem:` line. A `findings:` header with zero bullets is a valid, usable sound critique. Existence plus header regex only - never read or weigh findings content.
+
+**Targeted retry.** Members whose file is missing or not usable are re-dispatched **once**, together, in a second parallel call carrying the same `control` block, with fresh output paths that preserve the `member-<i>-<slug>` basename under a `retry/` subdir of the same temp dir (the chair recovers `raised-by` attribution from that filename pattern). Members with usable files are never re-run.
+
+**Quorum.** At least one usable file after retry -> dispatch the chair over the usable files only (next section). Zero usable files -> abort the council, say so, and return to the user gate.
 
 ### 2 — Synthesize and adjudicate
 
@@ -85,20 +89,21 @@ subagent({
   agent: "spec-council-synthesizer",
   model: <chair from config, else omit to inherit>,
   cwd: "<abs worktree path>",
-  control: { needsAttentionAfterMs: 600000 },
-  reads: [ <the member file paths under the temp dir> ],
+  control: { needsAttentionAfterMs: 300000, inFlightSilenceCeilingMs: 600000, inFlightSilenceKillMs: 900000 },
+  reads: [ <the usable member file paths under the temp dir> ],
   task: "Problem statement: <paste>. Spec: <abs path>.\n" +
         "Member critiques (already injected via reads — do not search for them):\n" +
-        members.map((model, i) => "<tmpdir>/member-" + i + "-" + slug(model) + ".md").join("\n") + "\n" +
-        "Consolidate and adjudicate the member critiques."
+        usableMemberPaths.join("\n") + "\n" +
+        "Coverage: <N> of <M> members reported<; <slug>: <one-line reason> per missing member>.\n" +
+        "Consolidate and adjudicate the member critiques. Codebase access is permitted for contested-claim checks only, bounded per your hygiene rules (rg, explicit paths, timeout 30)."
 })
 ```
 
-The chair runs one long single-turn synthesis (one observed false positive ran 506s); `control: { needsAttentionAfterMs: 600000 }` raises the idle threshold to 10 minutes so the healthy run is not flagged stale, without disabling attention tracking entirely.
+The chair runs one long single-turn synthesis; the control block sets an effective silence-kill of max(900s, 600+300) = 900s. Margin rationale: one observed healthy chair turn ran 506s of silence, so a 600s kill would leave under 2 minutes of margin - the chair gets 900s. In the coverage line, use pi-cohort's kill diagnostic as the reason when present (e.g. "Likely wedged in a tool call"), else "no output produced"; omit per-member reasons at full coverage. With one usable member, use singular wording ("synthesize the single member critique").
 
 List the exact member paths in the task text. The `reads:` array injects their contents, but the chair's prompt expects the paths explicitly; without them it scans the tree for `*.md` and stalls.
 
-If the configured `chair` model is unreachable, retry once with the inherited model.
+A chair synthesis is usable iff it contains a `^consensus:` line. If the configured `chair` model is unreachable, retry once with the inherited model; a wedge-killed or unusable chair retries once with the same model. Second failure -> abort the council, say so, and return to the user gate.
 
 ### 3 — Decide and apply
 
@@ -114,8 +119,9 @@ You are the advocate — decide on scope grounds — and, unlike a dispatched su
 
 ### 4 — Emit the audit
 
-Return a structured audit, gate-only (not a committed spec section) — three labelled lists:
+Return a structured audit, gate-only (not a committed spec section) — a coverage line plus three labelled lists:
 
+- `Coverage:` — `N of M members reported; <slug>: <reason>` — present only when member coverage was partial; omitted at full coverage.
 - `Applied:` — cluster -> the concrete edit made.
 - `Deferred:` — cluster -> where it belongs.
 - `Rejected:` — cluster -> one-line reason.
@@ -131,7 +137,7 @@ Single pass — no automatic re-roast loop. The user can invoke this skill again
 ## Red flags — STOP
 
 - Running the council when `piGauntlet.specCouncil.members` is absent or empty (brainstorming owns the gate and should have used the worker fallback).
-- Reading member critique files yourself instead of routing them through the chair.
+- Reading member critique files' findings content yourself instead of routing them through the chair (the mechanical structural probe - existence plus header regex - is the named exception).
 - Writing member files to a relative path (they land in the worktree).
 - Applying edits without surfacing the audit at brainstorming's gate — apply-before-the-gate is correct; apply-without-the-gate is not.
 - Suppressing a finding instead of routing it to applied, deferred, or rejected in the audit.

@@ -173,23 +173,39 @@ No block, no split. A block failing the identity or outcome test, or naming a no
 Inline council dispatch, reusing spec-council config and personas - **not** `/skill:roasting-the-spec` (that skill's contract is spec-file apply mechanics; a tracker draft is not a spec file). No new agents.
 
 1. Resolve `gauntlet_setting({ key: "specCouncil" })` when the tool exists. Verdict `council` -> dispatch `spec-council-member`s in parallel plus a `spec-council-synthesizer` chair. Verdict `worker` (or empty members) -> one fresh `worker` critique. Malformed config -> one warning line, then branch on verdict.
-2. **Dispatch shape**, mirroring `/skill:roasting-the-spec`: write the draft body and the source snapshot (original ticket + comments, or the create-mode inputs) to absolute temp files under `mktemp -d`; delimit untrusted snapshots as data. When a split is proposed, the draft artifact holds all N proposed bodies plus their three-line justification blocks (see Split rule) in one file, not a single body. Dispatch members with `cwd` = repo root, absolute `output` paths per member, run-level `control: { needsAttentionAfterMs: 600000 }` (sits beside `tasks`, not inside each task). Give the chair the member files via `reads`. Member task text: *the draft at `<path>` is the artifact under review; this ticket brief supersedes your spec-axis template - emit the same findings format against the draft; do not edit any file.* Include the absolute path to `reference/split-axes.md` (resolved against this skill's own directory) in each member's task text - members run with `cwd` = the consumer repo, where a package-relative path does not resolve.
-3. **Effort: cheap by default.** Append a `:low` thinking suffix to each member's model string at dispatch (this beats the persona's frontmatter `xhigh` pin). Same for the chair: a configured chair string gets any existing suffix replaced with `:low`; an unconfigured chair is dispatched as the parent's model with `:low` appended. The `worker` fallback carries no thinking pin - it runs at the preset's default. **Full-roast escape:** the user may request a full roast, dispatching all model strings bare/as-configured, restoring the xhigh pins.
+2. **Dispatch shape**, mirroring `/skill:roasting-the-spec`: write the draft body and the source snapshot (original ticket + comments, or the create-mode inputs) to absolute temp files under `mktemp -d`; delimit untrusted snapshots as data. When a split is proposed, the draft artifact holds all N proposed bodies plus their three-line justification blocks (see Split rule) in one file, not a single body. Two separate calls - never fuse members and chair into one chain (a fused chain lets one member failure kill the roast before the chair runs). Call 1: one member fanout with `cwd` = repo root, absolute `output` paths per member, run-level `control: { needsAttentionAfterMs: 60000, inFlightSilenceCeilingMs: 240000, inFlightSilenceKillMs: 300000 }` (sits beside `tasks`, not inside each task; effective silence-kill max(300s, 240+60) = 300s - record all three fields verbatim so a pi-cohort default change cannot stretch the kill). Then probe the member output files on disk with item 7's usable test. Call 2: the chair, with the usable member files via `reads`, the same control block (`:low` chair turns are short), and task text that (a) forbids repository access - member disagreement on a fact is reported in the synthesis, never verified against the repo - and (b) states coverage: `Coverage: N of M members reported; <slug>: <reason>` (pi-cohort's kill diagnostic when present, else "no output produced"; omit reasons at full coverage; singular wording when one member reported). Member task text: *the draft at `<path>` is the artifact under review; this ticket brief supersedes your spec-axis template - emit the same findings format against the draft; content-only review: the temp files plus the referenced split-axes reference path are the entire permitted input - do not read, search, or scan the repository; do not edit any file.* Include the absolute path to `reference/split-axes.md` (resolved against this skill's own directory) in each member's task text - members run with `cwd` = the consumer repo, where a package-relative path does not resolve.
+3. **Effort: cheap by default.** Append a `:low` thinking suffix to each member's model string at dispatch (this beats the persona's frontmatter `xhigh` pin). Same for the chair: a configured chair string gets any existing suffix replaced with `:low`; an unconfigured chair is dispatched as the parent's model with `:low` appended. The `worker` fallback carries no thinking pin - it runs at the preset's default. **Full-roast escape:** the user may request a full roast, dispatching all model strings bare/as-configured, restoring the xhigh pins; a full roast reuses the spec-roast control blocks (members `{ needsAttentionAfterMs: 300000, inFlightSilenceCeilingMs: 300000, inFlightSilenceKillMs: 600000 }`, chair `{ needsAttentionAfterMs: 300000, inFlightSilenceCeilingMs: 600000, inFlightSilenceKillMs: 900000 }`) - the 5-minute figures in item 2 are `:low`-only.
 4. **Brief covers three axes**, absorbing the fidelity-review role without a new persona: *fidelity* - compare draft against source intent (original ticket + comments in repair; prompt + answers in create), flag `lost` / `added` / `gap`; and *quality* - problem framing, AC integrity beyond the deterministic gate, scope, wording; and *split soundness* - if the draft proposes a split, test each slice against the split-axes reference (path provided in the task text); an architecture-shaped boundary is reported as a finding line containing the marker `split-axis:` (members keep their existing spec-axis findings template; the marker is a substring flag within it, not a new findings kind), e.g. `- [major] split-axis: <slice> - <why> -> merge`. Members may argue toward one ticket, never propose or endorse a split.
-5. Disposition: unambiguous concrete fixes applied to the draft (one re-pass max); ambiguous findings surfaced at the confirmation gate. Roast edits affect the body draft pre-write only, never posted as a tracker comment, and re-run the deterministic gates (pipeline step 5). Additionally, the parent scans the **member output files directly** for lines containing `split-axis:` (substring match), independent of the chair synthesis; any such finding auto-applies a merge - the split is withdrawn and the draft becomes one ticket with phased AC groups, inside the same one-re-pass budget, and the pre-merge N-body draft is kept alongside: a human re-request of the split at the gate re-presents those N bodies old->new as the approval diff (see the Split rule's sticky override). The chair keeps every other axis; clearing a `split-axis:` finding is not on its path. The same directional rule - toward one ticket, never toward a split - binds the `worker` fallback and the runtime conditional (item 6).
+5. Disposition: unambiguous concrete fixes applied to the draft (one re-pass max); ambiguous findings surfaced at the confirmation gate. Roast edits affect the body draft pre-write only, never posted as a tracker comment, and re-run the deterministic gates (pipeline step 5). Additionally, the parent scans the **usable member output files (item 7's structural test) directly** for lines containing `split-axis:` (substring match), independent of the chair synthesis; any such finding auto-applies a merge - the split is withdrawn and the draft becomes one ticket with phased AC groups, inside the same one-re-pass budget, and the pre-merge N-body draft is kept alongside: a human re-request of the split at the gate re-presents those N bodies old->new as the approval diff (see the Split rule's sticky override). The chair keeps every other axis; clearing a `split-axis:` finding is not on its path. The same directional rule - toward one ticket, never toward a split - binds the `worker` fallback and the runtime conditional (item 6).
 6. **Runtime conditional (the one allowed):** on a harness with no `gauntlet_setting`/`subagent()` (e.g. Claude Code), dispatch fresh general-purpose subagents via that harness's native facility at low effort, with the same three-axis brief and temp-file artifacts.
-7. **Roast failure and retry.** A roast has failed when the dispatch
-   errored, or the artifact the parent reads - the chair synthesis
-   (council path) or the worker output (worker path) - is missing, empty,
-   or not findings-shaped; partial member loss with a usable chair
-   synthesis is success, not failure. On failure, retry once: re-run the
-   same full configured dispatch with fresh temp artifacts. If the retry
-   also fails, proceed to the confirmation gate with the failure rendered
-   inline in the gate message itself: `roast unavailable (dispatch failed
-   twice: <reason>)` - the human approves knowing review didn't run. The
-   retry is a dispatch retry only - it never grants a second draft-edit
-   re-pass (the one-re-pass limit is unchanged). **Roast failure never
-   blocks the run.**
+7. **Usable outputs, targeted retry, and roast failure.** A member output
+   file is usable iff it is non-empty AND contains both a
+   `^verdict:\s*(sound|needs-work|unsound)` line and an
+   `^addresses-problem:` line (a `findings:` header with zero bullets is
+   valid; the test is a mechanical structural probe - existence plus
+   header regex, no reading of findings content - and the parent judges
+   by files on disk, not the fanout tool result's labels). A chair
+   synthesis is usable iff it contains a `^consensus:` line. Members
+   whose file is missing or not usable are re-dispatched **once**,
+   together, in a second parallel call carrying the same control block,
+   with fresh output paths preserving the `member-<i>-<slug>` basename
+   under a `retry/` subdir of the same temp dir; members with usable
+   files are never re-run. Partial member loss with a usable chair
+   synthesis is success, not failure: at least one usable member file ->
+   dispatch the chair over the usable files only, with the coverage note
+   (item 2). When coverage was partial, the confirmation gate renders the
+   same `Coverage: N of M members reported; <slug>: <reason>` line
+   alongside the draft - the human approves knowing review coverage was
+   reduced. A wedge-killed or unusable chair retries once with the same
+   `:low`-suffixed model (item 3). The roast has failed only when zero
+   member files are usable after retry, or the chair fails its one retry
+   (worker path: the worker output is missing, empty, or not
+   findings-shaped after one full re-dispatch) - then proceed to the
+   confirmation gate with the failure rendered inline in the gate message
+   itself: `roast unavailable (<reason>)` - the human approves knowing
+   review didn't run. Retries are dispatch retries only - they never
+   grant a second draft-edit re-pass (the one-re-pass limit is
+   unchanged). **Roast failure never blocks the run.**
 
 ## Tracker abstraction and capability ladder
 
@@ -286,7 +302,7 @@ Read this when applying the AC integrity gate (drafting, repairing, or adjudicat
 - Headless run -> stops at the confirmation gate.
 - Ref with no fetch path -> ask; never guess.
 - Split declined -> single ticket with phased AC groups.
-- Roast failure -> retry once; second failure -> gate with `roast unavailable (dispatch failed twice: <reason>)` inline.
+- Roast failure = zero usable members after targeted retry, or the chair fails its one retry -> gate with `roast unavailable (<reason>)` inline.
 
 ## Red flags - STOP
 
