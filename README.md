@@ -35,7 +35,7 @@ pi-gauntlet's only hard dependency is pi-cohort - every gate that dispatches a r
 
 Concretely, one change through the gauntlet:
 
-0. *(Optional)* Before there's even a spec, `/skill:shape-ticket` can create or repair a single tracker issue - shaping a raw ask into a Context/Problem/Idea/Acceptance Criteria ticket, gated by an AC integrity check, a cheap council roast, and one human-confirmed write that may include one optional gated Reporter-note comment. A failed roast is retried once, then surfaced inline at the gate if it fails again. It's a tool, not a phase: no worktree, no plan/phase tracker, runs from any repo state. It never activates on its own (`disable-model-invocation: true`) - invoke it explicitly.
+0. *(Optional)* Before there's even a spec, `/skill:shape-ticket` can create or repair a single tracker issue - shaping a raw ask into a Context/Problem/Idea/Acceptance Criteria ticket, gated by an AC integrity check, a cheap council roast, and one human-confirmed write that may include one optional gated Reporter-note comment. A failed roast is retried once, then surfaced inline at the gate if it fails again. It's a tool, not a phase: no worktree, no plan/phase tracker, runs from any repo state. It never activates on its own (`disable-model-invocation: true`) - invoke it explicitly. Similarly, `/skill:chase-bug` triages a raw bug report into an evidenced verdict - and can hand off to shape-ticket or brainstorming - before any spec exists.
 1. You describe the change. **`brainstorming`** sets up an isolated worktree, explores the codebase, and turns your description into a written spec. A multi-model critique runs on it automatically. If the spec replaces a known prior spec, brainstorming marks the predecessor with a `> **Superseded by:**` banner under its title (default format, syntax overridable via `.pi/gauntlet-overrides.md`; event-driven only — gauntlet never sweeps historical specs). **You read and approve the spec - human gate 1.** No implementation code exists yet.
 2. **`writing-plans`** decomposes the approved spec into atomic, independently-verifiable tasks, grouped into parallel waves where they don't touch the same files.
 3. **`subagent-driven-development`** executes the plan one task at a time, each in a fresh subagent, behind spec-compliance review then code-quality review. TDD-locked: red, green, refactor.
@@ -69,7 +69,7 @@ Everything between gate 1 and gate 2 - task breakdown, implementation, both revi
 
 pi-gauntlet ships three kinds of pieces, layered on top of pi-cohort's dispatch:
 
-- **16 skills** - the workflow logic. Thirteen activate automatically when pi sees the matching kind of task, and each one gates the next: `brainstorming`, `writing-plans`, `roasting-the-spec`, `test-driven-development`, `subagent-driven-development`, `dispatching-parallel-agents`, `verification-before-completion`, `systematic-debugging`, `requesting-code-review`, `receiving-code-review`, `using-git-worktrees`, `finishing-a-development-branch`, `writing-skills`. Three more are explicit-invocation-only (`disable-model-invocation: true`): `shape-ticket` creates or repairs one tracker issue per run against a Context/Problem/Idea/Acceptance-Criteria template, gated by an AC integrity check, a cheap council roast, and a single human-confirmed write - run it with `/skill:shape-ticket`. `gatekeep-pr` is consent-gated pre-merge verification of a PR against its issue - read-only gathering, running the project's verification command, a rubric-based review, then a deterministic authorship-aware menu with stable finding IDs (P#/L#/C#/F#) and numbered pre-composed courses (fixes execute as a single parallel-safe wave: one gate run, one re-review, one push); nothing mutates (fixes, pushes, reviews, merges) until you pick a row - run it with `/skill:gatekeep-pr <pr>`. `check-delivery` is a post-merge detective control: proves an issue actually shipped (default-branch landing, delivery target, per-AC evidence) before its tracker status advances; it never writes a terminal status - run it with `/skill:check-delivery <ref>`.
+- **16 skills** - the workflow logic. Twelve activate automatically when pi sees the matching kind of task, and each one gates the next: `brainstorming`, `writing-plans`, `roasting-the-spec`, `test-driven-development`, `subagent-driven-development`, `dispatching-parallel-agents`, `verification-before-completion`, `requesting-code-review`, `receiving-code-review`, `using-git-worktrees`, `finishing-a-development-branch`, `writing-skills`. Four more are explicit-invocation-only (`disable-model-invocation: true`): `shape-ticket` creates or repairs one tracker issue per run against a Context/Problem/Idea/Acceptance-Criteria template, gated by an AC integrity check, a cheap council roast, and a single human-confirmed write - run it with `/skill:shape-ticket`. `gatekeep-pr` is consent-gated pre-merge verification of a PR against its issue - read-only gathering, running the project's verification command, a rubric-based review, then a deterministic authorship-aware menu with stable finding IDs (P#/L#/C#/F#) and numbered pre-composed courses (fixes execute as a single parallel-safe wave: one gate run, one re-review, one push); nothing mutates (fixes, pushes, reviews, merges) until you pick a row - run it with `/skill:gatekeep-pr <pr>`. `check-delivery` is a post-merge detective control: proves an issue actually shipped (default-branch landing, delivery target, per-AC evidence) before its tracker status advances; it never writes a terminal status - run it with `/skill:check-delivery <ref>`. `chase-bug` is human-only bug triage: read-only root-cause discovery to an evidenced verdict menu (real bug -> ticket/brainstorm/respond; five negative verdicts), then a gated response to the reporter - it never fixes during triage - run it with `/skill:chase-bug`.
 - **7 subagent personas** - the specialized child agents the skills dispatch via pi-cohort: `implementer`, `code-reviewer`, `spec-reviewer`, `conformance-reviewer`, `spec-summarizer`, `spec-council-member`, `spec-council-synthesizer`. See [doc/personas.md](./doc/personas.md) for what each one does and why its permissions are scoped the way they are.
 - **3 runtime extensions** - the enforcement layer. `plan-tracker` and `phase-tracker` are tools skills call to track progress (with a TUI widget); `verify-before-ship` is a hook that warns if you push or open a PR without a passing test run since your last edit; a phase-tracker flow guard reminds on implement-phase commits missing spec/code review. See [doc/configuration.md](./doc/configuration.md) for the settings each one reads.
 
@@ -126,9 +126,9 @@ cd ~/repos/pi-gauntlet && npm run link-agents   # local-path installs skip npm i
 
 ## Use from Claude Code
 
-Three skills are exposed to Claude Code via the plugin marketplace at
-`.claude-plugin/marketplace.json`: **shape-ticket**, **gatekeep-pr**, and
-**check-delivery**. They are harness-portable by design - every pi-specific
+Four skills are exposed to Claude Code via the plugin marketplace at
+`.claude-plugin/marketplace.json`: **shape-ticket**, **gatekeep-pr**,
+**check-delivery**, and **chase-bug**. They are harness-portable by design - every pi-specific
 mechanic they touch (`plan_tracker`, `gauntlet_setting`, `subagent()`) carries
 an inline fallback, so they run on Claude Code's native facilities. This is the
 supported set. Not exposed, in two classes: (a) genuinely pi-bound surface -
@@ -136,7 +136,7 @@ the full gated pipeline (brainstorming -> writing-plans ->
 subagent-driven-development -> verify -> finish), the spec council, the
 conformance gate, flow guards, verify-before-ship, and all `piGauntlet.*`
 settings, which depend on pi extensions; (b) runtime-neutral skills
-(e.g. `systematic-debugging`, `receiving-code-review`, `using-git-worktrees`) that
+(e.g. `receiving-code-review`, `using-git-worktrees`) that
 are simply out of scope for this channel, not incompatible - re-adding one is a
 one-line allowlist append. For Claude-Code-native equivalents of the
 methodology skills, see [obra/superpowers](https://github.com/obra/superpowers).
@@ -202,8 +202,8 @@ exact repo folder* in interactive Claude Code. Trusting a parent folder,
 4. Run `/plugin` and confirm: marketplace `pi-gauntlet` is listed, plugin
    `gauntlet` is enabled. If it shows as known but not installed, run
    `/plugin install gauntlet@pi-gauntlet` and re-check.
-5. Confirm exactly three skills are registered under the plugin (via the
-   `/plugin` details view): shape-ticket, gatekeep-pr, check-delivery.
+5. Confirm exactly four skills are registered under the plugin (via the
+   `/plugin` details view): shape-ticket, gatekeep-pr, check-delivery, chase-bug.
 6. Invoke `/gauntlet:shape-ticket` with a deliberately two-concern ask (e.g.
    "shape a ticket: CSV import for operators, plus a partner-facing status
    API") so the skill deterministically consults its

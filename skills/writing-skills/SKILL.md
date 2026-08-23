@@ -40,9 +40,9 @@ reference/            # optional progressive-disclosure files
 <supporting>.md       # prompt templates (dispatch payloads)
 ```
 
-`reference/` is the pi pattern for keeping SKILL.md tight while still shipping deep guidance. See `.pi/skills/test-driven-development/reference/` and `.pi/skills/systematic-debugging/reference/` for working examples.
+`reference/` is the pi pattern for keeping SKILL.md tight while still shipping deep guidance. See `.pi/skills/test-driven-development/reference/` for a working example.
 
-Prompt templates and other dispatch payloads - files filled in and passed wholesale into a subagent `task` - live as siblings of SKILL.md, not under `reference/`. See `requesting-code-review/code-reviewer.md` and the three `subagent-driven-development/*-prompt.md` files. The decision criterion is destination, not format: a file passed wholesale into a subagent's `task` is a sibling; a file read at a decision point for deep guidance, examples, or rationale is `reference/`. Some older skills (`systematic-debugging`, `test-driven-development`) keep deep-guidance `*.md` files flat as siblings, predating the `reference/` convention (obra/superpowers lineage) - that is descriptive history, not a mandate to move them.
+Prompt templates and other dispatch payloads - files filled in and passed wholesale into a subagent `task` - live as siblings of SKILL.md, not under `reference/`. See `requesting-code-review/code-reviewer.md` and the three `subagent-driven-development/*-prompt.md` files. The decision criterion is destination, not format: a file passed wholesale into a subagent's `task` is a sibling; a file read at a decision point for deep guidance, examples, or rationale is `reference/`. Some older skills (`test-driven-development`) keep deep-guidance `*.md` files flat as siblings, predating the `reference/` convention (obra/superpowers lineage) - that is descriptive history, not a mandate to move them.
 
 ### Reference Files Bundled With This Skill
 
@@ -151,7 +151,7 @@ description: Use when implementing any feature or bugfix, before writing impleme
 Use skill name with explicit requirement markers. **Never** force-load with `@` syntax — that burns context before the file is needed.
 
 - ✅ `**REQUIRED SUB-SKILL:** Use /skill:test-driven-development`
-- ✅ `**REQUIRED BACKGROUND:** You MUST understand /skill:systematic-debugging`
+- ✅ `**REQUIRED BACKGROUND:** You MUST understand /skill:verification-before-completion`
 - ✅ `> **Related skills:** Pair with /skill:verification-before-completion`
 - ❌ `@.pi/skills/test-driven-development/SKILL.md`
 

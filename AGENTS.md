@@ -39,6 +39,10 @@ Never guess Pi's API, message shapes, config, or values - read the source; the s
 
 <!-- agents-core:end v2 -->
 
+## Gold rule: gated writes to human channels
+
+Any agent-initiated write to a human-readable channel (tracker comment, Slack, chat reply on behalf of the user) is gated behind explicit confirmation on the exact text. Known adjacent gap, deliberately out of scope: finishing-a-development-branch Option 2 composes a PR title/body without a separate exact-text confirmation - PR creation is not a reporter-facing reply, and the issue's out-of-scope forbids flow-skill edits; noted here so the rule is not read as a claim about existing skills.
+
 ## Part of one platform (cross-repo synergy)
 
 This repo is one of four sibling pi extensions - **pi-quiver** (capabilities), **pi-cohort** (coordination), **pi-condense** (context economy), **pi-gauntlet** (process, this repo) - that compose into one governed agent workflow. They ship and version independently, but documentation is deliberately cross-referential: a concept is explained in its owning repo and *linked* from the others, never duplicated.
@@ -106,7 +110,7 @@ Hardcoded project paths or commands in extensions are forbidden. If you add a ne
 
 ### Claude Code marketplace
 
-`.claude-plugin/marketplace.json` exposes exactly three skills (`shape-ticket`, `gatekeep-pr`, `check-delivery`) to Claude Code via a plugin allowlist (plugin `gauntlet`, marketplace `pi-gauntlet`) - in place, no copies. Exclusivity rests on `source: "./"` + `strict: false` + specific subdirectory paths; `scripts/ci.mjs` asserts the load-bearing subset (identity pins `gauntlet`@`pi-gauntlet`, source/strict, empty `agents`, allowlist paths + frontmatter, bundle-local `.md` reference integrity, npm-pack exclusion). The directory is Claude-Code-only surface: excluded from the npm tarball by the `files` allowlist, never read by pi. Consumer setup lives in README "Use from Claude Code". Widening the allowlist is a one-line array append - but only for skills whose bodies carry harness fallbacks; pi-bound skills (trackers, `gauntlet_setting`, pi-cohort dispatch) stay unexposed.
+`.claude-plugin/marketplace.json` exposes exactly four skills (`shape-ticket`, `gatekeep-pr`, `check-delivery`, `chase-bug`) to Claude Code via a plugin allowlist (plugin `gauntlet`, marketplace `pi-gauntlet`) - in place, no copies. Exclusivity rests on `source: "./"` + `strict: false` + specific subdirectory paths; `scripts/ci.mjs` asserts the load-bearing subset (identity pins `gauntlet`@`pi-gauntlet`, source/strict, empty `agents`, allowlist paths + frontmatter, bundle-local `.md` reference integrity, npm-pack exclusion). The directory is Claude-Code-only surface: excluded from the npm tarball by the `files` allowlist, never read by pi. Consumer setup lives in README "Use from Claude Code". Widening the allowlist is a one-line array append - but only for skills whose bodies carry harness fallbacks; pi-bound skills (trackers, `gauntlet_setting`, pi-cohort dispatch) stay unexposed.
 
 ## Development
 
@@ -199,7 +203,7 @@ This is no longer tracked as a live fork — there is no active re-sync workflow
 
 **Material divergence from obra v5.1.0:** upstream deleted their `agents/` directory in v5.1.0, merging `code-reviewer` into the `requesting-code-review` skill as a Task-dispatch template. We keep `agents/` because pi-cohort treats named agents as a first-class dispatch primitive (the `subagent({ agent: "code-reviewer" })` call in skills resolves to our profile, not a prompt template).
 
-**Skills coverage:** we ship 12 of obra's 14 v5.1.0 skills. Two are not shipped: `using-superpowers` (a Claude-Code-specific bootstrap skill that forces invocation of the `Skill` tool — pi's discovery model surfaces skill descriptions automatically, so the bootstrap isn't needed) and `executing-plans` (shipped through v2.x, deleted in v3.0.0 as unused; its separate-session batch-execution role is subsumed by `subagent-driven-development`). `roasting-the-spec`, `shape-ticket`, `gatekeep-pr`, and `check-delivery` are original skills with no obra equivalent, so the 12-of-14 count tracks obra-sourced skills only (total shipped skills: 16).
+**Skills coverage:** we ship 11 of obra's 14 v5.1.0 skills. Three are not shipped: `using-superpowers` (a Claude-Code-specific bootstrap skill that forces invocation of the `Skill` tool — pi's discovery model surfaces skill descriptions automatically, so the bootstrap isn't needed), `executing-plans` (shipped through v2.x, deleted in v3.0.0 as unused; its separate-session batch-execution role is subsumed by `subagent-driven-development`), and the obra-derived debugging skill (shipped through v4.x, deleted in v5.0.0, replaced by the original `chase-bug` triage skill). `roasting-the-spec`, `shape-ticket`, `gatekeep-pr`, `check-delivery`, and `chase-bug` are original skills with no obra equivalent, so the 11-of-14 count tracks obra-sourced skills only (total shipped skills: 16).
 
 ## Ground truth pointers
 

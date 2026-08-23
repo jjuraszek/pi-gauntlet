@@ -3,7 +3,7 @@ name: dispatching-parallel-agents
 description: Use when facing 2+ independent tasks that can be worked on without shared state or sequential dependencies
 ---
 
-> **Related skills:** Debug each problem with `/skill:systematic-debugging`. Verify all fixes with `/skill:verification-before-completion`.
+> **Related skills:** Verify all fixes with `/skill:verification-before-completion`.
 
 # Dispatching Parallel Agents
 
