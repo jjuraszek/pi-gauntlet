@@ -1,5 +1,11 @@
 # Changelog
 
+## v5.0.0 - 2026-08-23
+
+- **Breaking:** `skills/systematic-debugging/` removed (7 files) with active references cleaned (`dispatching-parallel-agents`, `writing-skills`, README); historical `doc/specs/**` and CHANGELOG references retained. Consumers referencing `/skill:systematic-debugging` must migrate to `/skill:chase-bug` for triage.
+- New skill `chase-bug` (explicit-invocation-only): human-driven bug triage - origin intake, prior-report search (open + closed, own resolution ladder), three-phase read-only root-cause discovery with a run-falsification evidence bar, an evidenced verdict menu (real bug: file ticket / brainstorm now / respond-only, exactly one `[recommended]`; five negative verdicts with named citation sources), then a gated response-to-origin (exact `send it` confirmation). Baseline-relative zero-mutation invariant (`git status --porcelain --untracked-files=no` at invocation / pre-menu / end); origin text fenced as untrusted data; exactly two human gates. Exposed via the Claude Code marketplace (4-skill allowlist).
+- AGENTS.md gold rule: agent-initiated writes to human-readable channels are gated on exact-text confirmation; obra coverage 12-of-14 -> 11-of-14 (total stays 16).
+
 ## v4.13.2 - 2026-08-21
 
 - Review scoping and wave density (execution-latency pass): `spec-reviewer` never executes tests/linters/type-checkers and excludes code-quality opinions (CR's gate); `implementer`/`code-reviewer` run only dispatch-supplied `SCOPED_TEST_COMMANDS` (threaded through every SDD dispatch point, prompt templates, `requesting-code-review`, and the conformance fix loop; TDD skill gates tasks on scoped commands, full suite at verify); `writing-plans` defaults to dense waves - single-task waves require a named-blocker `Solo:` line; SDD binds exactly one initial code review per code-touching wave; `conformance-reviewer` gaps require an origin locator + verbatim quote (quotable notes only, malformed origin triggers a fresh audit; `UNAUTHORIZED` unchanged).
