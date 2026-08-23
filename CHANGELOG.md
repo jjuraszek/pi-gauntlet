@@ -1,6 +1,6 @@
 # Changelog
 
-## [Unreleased]
+## v5.0.1 - 2026-08-23
 
 - Council roast hardening: verification scope moves from the `spec-council-member` persona to dispatch task text (ticket roasts are content-only; spec roasts verify bounded - `rg`, explicit paths, `timeout`); persona gains a read-only invariant; explicit silence-kill control blocks (shape-ticket 5 min, spec-roast members 10 min, chair 15 min); shape-ticket mandates two-call dispatch (member fanout, then chair over usable files); mechanical usable-critique probe (`verdict:`/`addresses-problem:` headers, `consensus:` for the chair); targeted single retry of failed members only; quorum salvage (>= 1 usable critique -> chair runs with a `Coverage:` note, rendered to the user at brainstorming's gate and at shape-ticket's confirmation gate when coverage was partial). Spec: `doc/specs/2026-08-23-council-roast-hardening.md`.
 
