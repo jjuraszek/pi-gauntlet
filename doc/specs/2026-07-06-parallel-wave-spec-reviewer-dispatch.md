@@ -1,5 +1,7 @@
 # Parallel-Wave Mode: dispatch `spec-reviewer` per patch
 
+> **Superseded by:** [doc/specs/2026-08-23-gh-13-plan-fidelity-anchors.md](./2026-08-23-gh-13-plan-fidelity-anchors.md) - SR contract scope only
+
 ## Context
 
 `subagent-driven-development` runs two execution modes. Both promise a **two-stage review** per the skill's own line: *"spec review per task (pre-integration), quality review per wave (post-integration)."*

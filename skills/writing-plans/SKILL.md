@@ -204,6 +204,8 @@ Each task uses `- [ ]` checkbox steps so execution tools (and humans) can track 
 
 **TDD scenario:** [New feature — full TDD cycle | Modifying tested code — run existing tests first | Trivial change — use judgment]
 
+**Spec:** doc/specs/<file>.md § "<heading>" L<start>-L<end>
+
 **Files:**
 - Create: `exact/path/to/file.py`
 - Modify: `exact/path/to/existing.py:123-145`
@@ -249,6 +251,27 @@ Each task uses `- [ ]` checkbox steps so execution tools (and humans) can track 
 
 Every code task carries this step (red -> green -> fmt/lint -> commit). Doc-only tasks omit it unless the project formats Markdown.
 
+**Anchor rules.** The task's `**Spec:**` line cites the plan header's spec path; multiple anchors sit comma-separated on one line (`§ "A" L10-L18, § "C" L40-L44`). Checks key on the `§` marker, so the header's path-only `**Spec:**` line is never matched. Anchors are captured once against the gated spec at plan-writing time — the spec is frozen once planning starts. A task with no anchorable requirement (pure-mechanics chore) omits the `**Spec:**` line entirely (never `**Spec:** none`) and carries a mechanical-task row in `## Spec coverage` — silence is never valid.
+
+## Spec Coverage Table
+
+Every plan ends with a `## Spec coverage` section — authored last, placed after all Task sections (owner IDs do not exist earlier). Build it extraction-first: walk the spec top to bottom and write one row per normative requirement **before** assigning owners — every Design imperative (Add/Remove/Keep/Replace-style directives, not any fixed lexical form), every Edge-cases rule, every Acceptance criterion, every Out-of-scope entry, and every non-none Documentation-impact entry. Then assign owners. Two row kinds:
+
+```markdown
+## Spec coverage
+
+| anchor | requirement (short) | owner |
+|---|---|---|
+| § "Design" L34-L37 | anchor line in task template | Task 2 |
+| § "Edge cases" L120 | stale anchor = blocking SR finding | Task 4, Task 5 |
+| § "Out of scope" L131 | fix-round anchoring | waived: out of scope per spec |
+| - | mechanical: release commit | Task 7 |
+```
+
+- **Requirement rows:** anchor + short requirement + owner = task-ID list, or `waived: <reason>` **only when the spec itself marks the item out of scope**. A waiver on an in-scope normative requirement is a Self-Review failure — there is no human plan-review gate to catch it downstream.
+- **Mechanical-task rows:** anchor `-`, requirement `mechanical: <short>`, owner = the task ID. One such row per anchor-less task.
+- The table is plan-authoring-time only — never passed to implementer or reviewer dispatches.
+
 ## No Placeholders
 
 Every plan failure mode:
@@ -257,6 +280,7 @@ Every plan failure mode:
 - ❌ `# Implement the rest of the function` — incomplete code is invalid code.
 - ❌ "Add tests for edge cases" — name the edge cases.
 - ❌ "Wire it up to the existing system" — give file paths and call sites.
+- ❌ "timeout/gtimeout ladder" when the spec fixes the literal `timeout 30` — never paraphrase an exact-string requirement (setting keys, error messages, banner/format strings, command names and invocations, API shapes); transcribe it as a backtick-quoted spec literal: `timeout 30`. Spec-side backtick spans containing `<placeholder>` segments are templates the plan instantiates, not exact-string requirements — exempt from quote integrity.
 - ❌ "Similar to Task N" — repeat the code. Implementers (and subagents with fresh context) may read tasks out of order; pointing at a sibling task is not a substitute for showing the code.
 - ❌ References to types, functions, methods, or fields not defined in any task in this plan. If it shows up in Task 5, it must be introduced by Task 1–4 or already exist in the codebase (with a file:line citation).
 - ❌ `[fill in]`, `<example>`, `xxx` markers anywhere in the doc.
@@ -266,9 +290,12 @@ If a decision is genuinely open, put it in an explicit **Open Questions** sectio
 
 ## Self-Review (Before Handoff)
 
-After drafting the plan and before announcing it complete, run three checks yourself. This is a checklist you run yourself — not a subagent dispatch.
+After drafting the plan and before announcing it complete, run these checks yourself. This is a checklist you run yourself — not a subagent dispatch.
 
-- **Spec coverage.** Cross-reference the spec's components/decisions/constraints against the plan. Does every spec section map to one or more tasks? If a spec decision has no implementation task, the plan is missing work or the spec was overspecified. Each Documentation impact entry maps to a plan task (or explicit "none").
+- **Table closure (three legs).** Every `## Spec coverage` row's owner is a task-ID list, a spec-authorized `waived: <reason>`, or a mechanical-task row; every `### Task N` heading appears in >=1 row; every requirement row's anchor is contained in the anchor set of each listed owner task's `**Spec:**` line. Zero orphans, zero waived in-scope normative rows, zero row-vs-owner anchor mismatches. Each Documentation impact entry maps to a plan task (or explicit "none").
+- **Quote integrity (spec -> task).** For every non-waived requirement row, extract each backtick-quoted literal inside the row's anchored spec lines (strip the backticks; skip `<placeholder>` template spans) and `grep -F` it against the owning task's body — zero misses. Planner-authored backticks elsewhere in tasks are never scanned; the input set is spec-side literals only.
+- **Anchor resolution.** For every task-level anchor (a `**Spec:**` line carrying `§`; the plan header's path line is exempt), the quoted heading text matches an ATX heading in the spec file and `L<start>-L<end>` is in-bounds, non-empty, and lies within that heading's section — zero unresolved anchors. Verify with `grep -n '^#'` plus a scoped `sed -n`. Ignore `#`-lines inside fenced code blocks when locating headings and section boundaries - a fenced markdown example is not a heading.
+- **Paths exist.** Every `Modify:` path in `Files:` blocks passes `test -f` after stripping any trailing `:line[-line]` suffix; a `Modify:` glob must expand to >=1 match; `Create:` and `Test:` paths are exempt unless the `Test:` path is also listed under `Modify:`. Zero missing.
 - **Placeholder scan.** Grep the doc for `TODO`, `TBD`, `xxx`, `[fill in]`, `<example>`, `etc.`, "probably", "something like". Resolve or convert each into an explicit Open Question.
 - **Type / API consistency.** Function signatures and field names that appear in multiple tasks must match exactly. The plan is its own contract — internal contradictions surface as bugs during execution.
 - **Wave disjointness.** For every multi-task wave, confirm the tasks' `Files:` sets are pairwise disjoint **and** that no two tasks contend on a shared mutable runtime resource (DB/schema, port, fixture, external service, shared temp path). Either kind of overlap = mis-grouped wave; split or re-order before handoff.

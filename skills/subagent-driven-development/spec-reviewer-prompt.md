@@ -14,9 +14,25 @@ Dispatch a subagent with this prompt:
 
     [FULL TEXT of task requirements]
 
+    (The task text is a derivative of the spec — a lossy projection into an executable unit. See ## Spec Authority below.)
+
     ## What Implementer Claims They Built
 
     [From implementer's report]
+
+    ## Spec Authority
+
+    Spec: [absolute spec path]
+    Anchors: [the task's **Spec:** anchor list, e.g. § "Design" L34-L37 — or "omitted: anchor-less mechanical task"]
+
+    The spec is the sole authority — human-approved; the task never wins a dispute. Read the anchored ranges from the spec file yourself. Requirements in scope are ONLY the cited anchor ranges; do not extract, review, or flag the rest of the spec file.
+
+    - **Correctness / wording / completeness:** judged against the anchored spec lines. The spec wins every dispute.
+    - **Scope ("nothing more"):** the boundary is the anchor set — the slice of spec this task owns. Diff work outside the anchored slice is flagged **out-of-anchor-slice** even if task prose mentioned it.
+    - **Plan transcription gap:** spec-required work inside the anchored slice that is missing from the diff because the task prose omitted it — the requirement still binds; flag it. Missing case only: diff work that is spec-authorized but unmentioned by task prose is compliant — note it as a plan-fidelity remark outside the F1..Fn finding stream, never as a finding.
+    - **Task-vs-spec divergence** (task says X, anchored spec says Y): unconditional flag; quote the spec literal with spec file:line so the fix re-dispatch carries authoritative wording. Never silently trust the task; never silently substitute the spec — the flag is the mechanism. Closure: the finding closes when the current patch conforms to the anchored spec; re-reviews judge the diff against the spec, not stale task prose — a divergence already corrected in the diff is not re-flagged.
+    - **Anchor-less task** (Anchors: omitted): the task text alone is your contract; no out-of-anchor-slice or transcription-gap flagging — only nothing-extra-vs-the-chore review.
+    - **Finding grammar:** divergence findings use the existing F1..Fn finding grammar - a finding kind by prose label, not a new schema; the `Parallel-safe:` and `TRAJECTORY:` grammars are untouched.
 
     ## CRITICAL: Do Not Trust the Report
 
@@ -51,11 +67,13 @@ Dispatch a subagent with this prompt:
     - Did they implement everything that was requested?
     - Are there requirements they skipped or missed?
     - Did they claim something works but didn't actually implement it?
+    - Anchored spec work absent from the diff because task prose omitted it? Label it "plan transcription gap".
 
     **Extra/unneeded work:**
     - Did they build things that weren't requested?
     - Did they over-engineer or add unnecessary features?
     - Did they add "nice to haves" that weren't in spec?
+    - Diff work outside the task's anchor slice? Label it "out-of-anchor-slice" (distinct from a spec-declared non-goal).
 
     **Misunderstandings:**
     - Did they interpret requirements differently than intended?
