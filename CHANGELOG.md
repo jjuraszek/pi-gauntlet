@@ -1,5 +1,9 @@
 # Changelog
 
+## v5.0.2 - 2026-08-24
+
+- Plan fidelity (gh-13): `writing-plans` task template gains a required spec-anchor line (`**Spec:** <path> § "<heading>" L<start>-L<end>`), a verbatim-quote rule for exact-string requirements, an extraction-first `## Spec coverage` table, and four mechanical self-review checks (quote integrity spec->task, anchor resolution, three-leg table closure, paths exist). `subagent-driven-development` spec-reviewer contract becomes spec+task: dispatches pass the spec path + the task's anchors in both modes and the Dispatch sketch, the spec wins every dispute, task-vs-spec divergence is unconditionally flagged with the spec literal, and `spec-reviewer-prompt.md` gains a `## Spec Authority` section plus `plan transcription gap` / `out-of-anchor-slice` finding labels. Spec: `doc/specs/2026-08-23-gh-13-plan-fidelity-anchors.md` (partially supersedes `doc/specs/2026-07-06-parallel-wave-spec-reviewer-dispatch.md`, SR contract scope only).
+
 ## v5.0.1 - 2026-08-23
 
 - Council roast hardening: verification scope moves from the `spec-council-member` persona to dispatch task text (ticket roasts are content-only; spec roasts verify bounded - `rg`, explicit paths, `timeout`); persona gains a read-only invariant; explicit silence-kill control blocks (shape-ticket 5 min, spec-roast members 10 min, chair 15 min); shape-ticket mandates two-call dispatch (member fanout, then chair over usable files); mechanical usable-critique probe (`verdict:`/`addresses-problem:` headers, `consensus:` for the chair); targeted single retry of failed members only; quorum salvage (>= 1 usable critique -> chair runs with a `Coverage:` note, rendered to the user at brainstorming's gate and at shape-ticket's confirmation gate when coverage was partial). Spec: `doc/specs/2026-08-23-council-roast-hardening.md`.
