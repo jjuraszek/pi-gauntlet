@@ -57,7 +57,7 @@ invent ACs.
 provisioning, so it never re-polls; the orchestrator re-polls once after
 provisioning the worktree (see SKILL.md Phase 2) and treats a still-`UNKNOWN`
 result as not merge-ready. Bot author noted
-(`author_is_bot`). Capture each status check's `isRequired` where exposed.
+(`author_is_bot`). Capture each status check's `isRequired` where exposed (digest field: `required`).
 
 **Gather digest output schema (normative):**
 
@@ -65,7 +65,7 @@ result as not merge-ready. Bot author noted
 - pr: { number, title, body, author, author_is_bot, state, isDraft, headRefName, baseRefName,
         isCrossRepository, mergeable, headRefOid, files, additions, deletions, reviewDecision }
 - viewer: { login, is_author, permission }
-- status_checks: [ { name, status, conclusion, required } ]   # informational except required-failing
+- status_checks: [ { name, status, conclusion, required, url } ]   # evidence semantics: Section B Evidence resolution
 - comments: { inline[], top_level[], review_threads[]? }
 - issue: { ref, title, body, acceptance_criteria[], comments[] } | null
 - worktree_discovery: { expected_path, exists, branch, dirty, ahead, behind }
@@ -73,17 +73,56 @@ result as not merge-ready. Bot author noted
 ```
 
 `viewer_is_author` lives at `viewer.is_author` in the digest, computed as
-`viewer.login == pr.author.login`. `status_checks` splits `required` vs
-non-required per entry - only a failing or pending required check withholds
-merge (see the orchestrator's required-check rule in SKILL.md Phase 4);
-non-required checks are informational.
+`viewer.login == pr.author.login`. Each `status_checks` entry's `url` is the CheckRun `detailsUrl` / StatusContext
+`targetUrl` already present in the fetched payload; when the payload omits it,
+downstream CI claims record `url: unavailable` - absence never disqualifies the
+check. GraphQL enums are case-folded; a StatusContext's `state` is its
+conclusion, with `ERROR` blocking and `PENDING` pending. Missing `required` is
+treated as non-required. `ci checks:` matches check name, workflow name, or
+status context, trimmed, case-insensitive. What checks mean for verification evidence is owned by
+Section B's Evidence resolution table; what they mean for merge is owned by the
+orchestrator's required-check rule (SKILL.md Phase 4) - two independent
+consumers of the same data.
 
 ## Section B - Verifier
 
-Runs the resolved verification command inside the provisioned worktree, then
-claim-checks the PR body against what actually ran. Report only - do not
+Resolves the verification evidence per the table below - green exact-head CI is
+the default evidence; the resolved verification command runs inside the
+provisioned worktree only when the table selects a fallback or opt-out row -
+then claim-checks the PR body. Report only - do not
 edit, fix, or commit anything; you are running a gate and claim-checking,
 not implementing.
+
+**Evidence resolution (normative).** The single rule for whether the local
+command runs. Inputs come from Section A's existing `gh pr view` call - no
+second fetch.
+
+- **Resolved check set** = checks named by `ci checks:` if configured, else all
+  checks on the assessed `headRefOid`.
+- **Conclusion semantics**: `success` satisfies; `failure`/`timed_out`/
+  `action_required`/`error` block; `neutral`/`skipped`/`cancelled`/`stale`/
+  `startup_failure` are inert; a check with `status != completed` is pending; a
+  completed check with a missing/unreadable conclusion cannot satisfy
+  (fail-safe).
+
+Row precedence is top-down: the first matching row wins.
+
+| Path | Trigger | Action | Evidence recorded |
+|---|---|---|---|
+| Opt-out | `local verification: always` in `## PR gate` | Run local command unconditionally; a Failed-CI block below still applies independently | Local, as today |
+| Failed CI | Any blocking conclusion in resolved set | Blocks: mints a `P#` (any resolved-set failure, required or not). A green local run never overrides it. Only an explicit human CI-infrastructure-broken disposition triggers the fallback run; merge stays withheld until the fallback produces green evidence | The disposition; plus the fallback run's result only when CI-infrastructure-broken triggered one |
+| CI-sufficient | >=1 `success` in resolved set | Skip local run | CI claim: check name(s), conclusion, assessed SHA, run URL |
+| Pending | Zero `success` and >=1 pending check in resolved set | Evidence decision waits until the set reaches a completed conclusion - never a fallback trigger, never an evidence-less merge; merge is withheld as missing evidence until the table re-resolves | n/a (waiting) |
+| Fallback | No checks on assessed head, or zero `success` with none pending (all inert / fail-safe) | Run local command (protocol below, unchanged) | Local command + raw tail, existing provenance rules |
+| Stale head | Head advances since evidence was resolved (e.g. a fix-wave push); fires across runs - a single gather is same-head by construction | All prior evidence (CI or local) is stale; re-resolve this table for the new head before merge is offered | Fresh evidence for the new head |
+
+CI-sufficient predicate, stated once (the rows implement exactly this): **>=1
+completed `success`, zero blocking conclusions, no opt-out.** Pending checks are
+excluded from the predicate - they neither satisfy nor veto it. The evidence
+decision ("run local?") and the merge decision ("can this merge?") are separate
+consumers of the same `status_checks` data: a green non-required check satisfies
+evidence even while a pending required check blocks merge under the existing
+wait rule. The only evidence-path wait is the Pending row's zero-success case.
 
 **Safety contract:**
 
@@ -95,7 +134,9 @@ not implementing.
   non-interactive.
 - If the resolved config states `requires credentials: true`, do not run
   the command; report "verification requires credentials, not run" as
-  missing evidence instead of prompting for secrets.
+  missing evidence instead of prompting for secrets; this arises only when
+  the table selected a fallback or opt-out row - a CI-sufficient resolution
+  needs no credentials.
 - Capture full output to a `log_path` inside the (disposable) worktree, under a
   gitignored path (e.g. `.worktrees/pr-<N>/.gatekeep-logs/`) so it never counts as a
   tracked change; keep only the last ~100 lines verbatim in the digest as `raw_tail`.
@@ -103,19 +144,27 @@ not implementing.
 **Verifier output schema (normative):**
 
 ```text
-- worktree_root: <absolute path>
-- head_sha:      <git rev-parse HEAD at run time>
-- runs: [ { run_cwd, command (verbatim), exit_code, result: pass|fail|not run,
-            raw_tail: <last ~100 lines of combined stdout+stderr, verbatim, fenced>,
-            log_path: <file inside the worktree holding the full captured output> } ]
-- claims: [ { claim, disposition: matched|contradicted|unverifiable-pre-merge, evidence } ]
+- source: ci | local
+- source: ci ->
+    head_sha: <the assessed headRefOid>
+    checks:   [ { name, conclusion, url } ]      # url: unavailable when the payload omits it
+    (no command, no raw_tail - nothing ran locally)
+- source: local ->
+    worktree_root: <absolute path>
+    head_sha:      <git rev-parse HEAD at run time>
+    runs: [ { run_cwd, command (verbatim), exit_code, result: pass|fail|not run,
+              raw_tail: <last ~100 lines of combined stdout+stderr, verbatim, fenced>,
+              log_path: <file inside the worktree holding the full captured output> } ]
+- claims: [ { claim, disposition: matched|contradicted|unverifiable-pre-merge, evidence } ]   # both sources
 ```
 
-`raw_tail` is captured output, not authored prose; anything written in your
+Local provenance and raw-tail rules bind only to source: local. `raw_tail` is captured output, not authored prose; anything written in your
 own words is labeled `summary` and must never be pasted in place of
 `raw_tail`.
 
-**Material-claim check.** After the run, claim-check the PR body -
+**Material-claim check.** Always runs, on both sources - on the CI path,
+dispositions are judged against the recorded CI evidence and the diff; on the
+local path, against the run and the diff. Claim-check the PR body -
 **material claims only** (test/verification/behavior assertions: "added
 X", "tests cover Y", "fixed Z"), not qualitative prose. Disposition each
 claim as one of:
@@ -130,7 +179,7 @@ proof* (it appears in the PR body's evidence/result/test-plan content) is
 blocking; the same claim stated as an explicit post-merge observation is
 non-blocking follow-up only.
 
-After the run, the orchestrator asserts tracked-only cleanliness
+After a local run (`source: local` only), the orchestrator asserts tracked-only cleanliness
 (`git status --porcelain --untracked-files=no` empty, equivalently
 `git diff --quiet && git diff --cached --quiet`; HEAD unmoved); untracked gate
 artifacts - including `log_path` itself, provided it sits under a gitignored path
@@ -171,9 +220,12 @@ blocking/follow-up happens later, at integration.
   judges against stated intent only, never inventing ACs; scope-creep findings
   do not apply.
 - No resolvable verification command (ladder exhausted, user asked, user
-  declines): the gate runs without local verification evidence; record
-  `result: not run` in the Verifier output. Missing evidence blocks merge
-  the same as a failed gate - the PR is not merge-ready.
+  declines) **when the Evidence resolution table selected a fallback or opt-out
+  row**: the gate runs without local verification evidence; record
+  `result: not run` in the Verifier output. Missing evidence blocks merge the
+  same as a failed gate - the PR is not merge-ready. A table-sanctioned CI skip
+  (`source: ci`) is evidence, never missing evidence, and needs no command at
+  all.
 - Linked-issue fetch fails (tracker unreachable, bad ref): proceed judging
   against the PR's stated intent, mark `issue: null` in the digest plus a
   truncation/availability note explaining why, and never invent ACs; AC

@@ -1,5 +1,7 @@
 # gatekeep-pr: consent-gated pre-merge verification of a PR against its issue
 
+> **Superseded by:** [doc/specs/2026-09-06-gh-14-gatekeep-ci-evidence-default.md](./2026-09-06-gh-14-gatekeep-ci-evidence-default.md) - verification-evidence rules only (Phase 3 unconditional local run replaced by CI-first evidence resolution; Phase 4 P# scope and disposition menu extended)
+
 Ticket: [jjuraszek/pi-gauntlet#9](https://github.com/jjuraszek/pi-gauntlet/issues/9)
 Related: #10 (shares the plan-tracker `failed` prerequisite), #11 (downstream Claude Code constraint), #8 (shape-ticket precedent, shipped v4.10.0).
 

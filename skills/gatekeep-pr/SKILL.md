@@ -9,8 +9,9 @@ argument-hint: "<pr> [issue-ref]  (e.g. 123, or 123 gh-45)"
 
 Verify, don't trust. A PR description is a claim, not proof: over-claimed coverage,
 hallucinated references, and "tests pass" that were never rerun are the normal case,
-not the exception - especially on generated code. This skill gathers evidence, runs
-the project's own verification command, reviews the diff against a rubric, and
+not the exception - especially on generated code. This skill gathers evidence, accepts green CI on the exact assessed head as
+verification evidence (running the project's own verification command only as
+the fallback), reviews the diff against a rubric, and
 presents a deterministic, authorship-aware menu. Authorship sets which row carries
 `[recommended]`; it never changes which rows are offered.
 
@@ -40,7 +41,7 @@ a wrapper skill:
    baseline and reviewer-persona defaults on any conflict.
 2. **Gauntlet overrides file** (3-location discovery, first found wins): the
    `## PR gate` section (verification command, `timeout minutes`, `requires credentials`, issue
-   fetch, worktree wrapper, merge policy). An existing `## verification-before-completion`
+   fetch, worktree wrapper, merge policy, `local verification`, `ci checks`). An existing `## verification-before-completion`
    section is an accepted equivalent source for the verification command.
 3. **Repo documentation** - an explicitly documented command or tool (e.g. `AGENTS.md`'s
    canonical test entrypoint, a documented worktree wrapper, a documented tracker CLI,
@@ -56,6 +57,8 @@ which is required unless documented elsewhere):
 - verification command: <command>            # required unless documented elsewhere
 - timeout minutes: 15                        # optional; default 15
 - requires credentials: false                # optional; true => skill reports "not run" as missing evidence
+- local verification: always                 # optional; default (absent) = CI-first; "always" forces the local run even when exact-head CI is green
+- ci checks: <comma-separated check names>   # optional; narrows which checks count as evidence; absent = all checks on the assessed head
 - worktree wrapper: <command>                # optional
 - issue fetch: <command with <ref> placeholder>   # optional, replaces gh issue view
 - merge policy: squash | merge-commit        # optional
@@ -81,7 +84,7 @@ configuration.
 ## Progress tracking
 
 Use `plan_tracker`, never `phase_tracker`. Init with the stage names: `gather`,
-`provision worktree`, `run verification`, `claim-check`, `review`, `consent menu`.
+`provision worktree`, `resolve evidence`, `claim-check`, `review`, `consent menu`.
 Append one task per material claim as the Verifier enumerates them. A passing stage or
 a matched claim -> `complete`. A failed stage or a contradicted claim -> `failed`
 (shown crossed, error color) and stays failed while the skill stops at the menu -
@@ -124,14 +127,15 @@ merge-ready and surfaced (see the merge preconditions below).
 **Phase 3 - Verify, then Review** (sequential, same worktree - deliberate: the
 verification command may write to the tree while the Reviewer reads it):
 
-- Run verification-brief.md Section B: the resolved verification command under its
-  safety contract - self-contained and non-interactive (no prompts; run under a
+- Run verification-brief.md Section B: resolve the verification evidence per its
+  Evidence resolution table (green exact-head CI is the default evidence); run
+  the resolved verification command only when the table selects a fallback or
+  opt-out row, under its safety contract - self-contained and non-interactive (no prompts; run under a
   non-interactive environment), bounded by a timeout (default 15 minutes, `timeout
   minutes` override) via the first available mechanism: the harness's own bash
   timeout parameter, else the `timeout`/`gtimeout` CLI when installed, else a
   background-and-kill fallback - then material-claim checking against the PR body.
-  After the run,
-  the orchestrator asserts tracked-only cleanliness (`git status --porcelain
+  After a local run, the orchestrator asserts tracked-only cleanliness (`git status --porcelain
   --untracked-files=no` empty, equivalently `git diff --quiet && git diff --cached
   --quiet`; HEAD unmoved) - untracked gate artifacts, including the Verifier's
   `log_path`, are expected and do not fail this check as long as `log_path` sits
@@ -147,11 +151,16 @@ verification command may write to the tree while the Reviewer reads it):
 - **Provenance:** `worktree_root` matches the provisioned path, every `run_cwd` is
   inside it, `head_sha` matches the digest's `headRefOid`. On mismatch, re-fetch the
   PR head once and re-sync + re-run Phase 3 if it advanced; a second mismatch, or any
-  path mismatch, is treated as missing evidence - not merge-ready. The claim stated in
-  output is precisely "reproduced locally under the project's documented verification
-  command" - nothing stronger; never worded to imply a deployed, staging, or CI
-  environment.
-- **Evidence:** paste each run's `command` and `raw_tail` verbatim, fenced - never
+  path mismatch, is treated as missing evidence - not merge-ready. The claim stated in output names its source. Local path: precisely "reproduced
+  locally under the project's documented verification command" - nothing
+  stronger; never worded to imply a deployed, staging, or CI environment.
+  CI path (`source: ci`): precisely
+  `verified by CI: <check name(s)> succeeded on <sha> (run <url>)`
+  - never phrased as local reproduction, never implying the local command ran;
+  `<sha>` is the assessed `headRefOid`, `<url>` degrades to `unavailable` when
+  absent. Provenance checks on `worktree_root`/`run_cwd` bind only to the local
+  path.
+- **Evidence:** On the CI path, list each satisfying check's name, conclusion, assessed SHA, and run URL - there is no command or raw_tail to paste. On the local path, paste each run's `command` and `raw_tail` verbatim, fenced - never
   paraphrased. Any authored summary is labeled as a summary and never substitutes for
   `raw_tail`.
 - **Severity translation:** Critical -> blocking, Moderate -> blocking, Minor ->
@@ -165,18 +174,25 @@ verification command may write to the tree while the Reviewer reads it):
   claim is a blocking finding. An `unverifiable-pre-merge` claim used as merge proof
   (appears in the PR body's evidence/result/test-plan content) is blocking; stated as
   an explicit post-merge observation instead, it is a non-blocking follow-up.
-- **Required CI checks:** a failing **required** status check withholds merge from
-  every pre-composed course until the user explicitly dispositions it - flaky
-  (proceed via the custom row) or real (it blocks); it mints a `P#`. A **pending**
-  required check (still running - the normal case, not a defect) is **wait-until-
-  green, not dispositionable**: it mints no `P#`, is never flaky/real-dispositioned,
-  and the withhold auto-lifts the moment it turns green - or, if it instead fails,
-  converts into an undispositioned failing check with its own `P#` at that point.
-  While pending, the report notes it under Evidence and every merge course simply
-  does not render (a pending-only PR is not a blocking verdict - findings groups can
+- **CI checks:** any blocking conclusion in the resolved check set (required or
+  not - see the brief's Evidence resolution table) withholds merge from every
+  pre-composed course until the user explicitly dispositions it, and mints a
+  `P#`. Three dispositions: **flaky** (proceed via the custom row), **real** (it
+  blocks until green), **CI-infrastructure-broken** (the checks themselves are
+  untrustworthy: triggers the fallback local run, and merge stays withheld until
+  that fallback produces green evidence). A **pending** required check (still
+  running - the normal case, not a defect) is **wait-until-green, not
+  dispositionable**: it mints no `P#`, is never dispositioned, and the withhold
+  auto-lifts the moment it turns green - or, if it instead fails, converts into
+  an undispositioned failing check with its own `P#` at that point. While
+  pending, the report notes it under Evidence and every merge course simply does
+  not render (a pending-only PR is not a blocking verdict - findings groups can
   all read "None" - the recommended course falls to `stop` or `review-comment`,
-  never a merge course, until it resolves). Non-required checks are informational,
-  listed in Evidence only.
+  never a merge course, until it resolves). The evidence decision is
+  independent: a green check elsewhere in the resolved set still satisfies
+  verification evidence while a pending required check withholds merge. The
+  CI-sufficient path changes no consent surface: still read-only, no auto-merge,
+  no posting, no menu change beyond the third disposition.
 - **Doc drift:** when the review finds committed doc drift as a **blocking** finding,
   the orchestrator applies the doc fixes itself, in the provisioned worktree (created
   or reused), as part of assessment - real edits, uncommitted, worktree-local. The
@@ -215,9 +231,9 @@ issue is linked, committed doc drift, anything the merged rubric maps to blockin
 **follow-ups only** (never gate merge), or **clean**.
 
 **Merge preconditions** (all must hold): gate green with every blocking finding fixed,
-not deferred; `mergeable == MERGEABLE` (`UNKNOWN` after the one post-provision
-re-poll withholds merge, same as `CONFLICTING`); no undispositioned failing or
-pending required check; evidence pasted with clean provenance; worktree clean and synced with the remote
+not deferred; verification evidence present per the brief's Evidence resolution table (a CI claim or a green local run - a table-sanctioned CI skip is evidence, not missing "not run" evidence; result: not run blocks only when the table required a fallback run that didn't happen); `mergeable == MERGEABLE` (`UNKNOWN` after the one post-provision
+re-poll withholds merge, same as `CONFLICTING`); no undispositioned failing check in
+the resolved set, no pending required check; evidence pasted with clean provenance; worktree clean and synced with the remote
 head (fixes pushed first); explicit selection with a head compare-and-swap that
 passes. A merge selection while any precondition fails is refused, naming the failing
 precondition, and the menu re-renders - never a dead end, never a silent merge. Merge
@@ -253,7 +269,7 @@ findings, menu. No restating diffs, no narration, no recap prose.
 <one line + the deciding factor>
 
 ## Evidence
-<verbatim command + raw_tail per run; claims checked; CI rollup with required-check disposition>
+<CI path: satisfying check name(s)/conclusion/sha/url; local path: verbatim command + raw_tail per run; claims checked; resolved-set check dispositions>
 
 ## Findings (blocking)
 Blocking findings (P#):
@@ -295,8 +311,8 @@ Requirement/doc drift (linked issue, committed doc drift, or spec conflict):
   nothing. Code-level spec bugs (the diff contradicts the spec) are `P#` `[spec]`;
   requirement/doc mismatches (the spec or docs are stale relative to intent) are
   `L#`.
-- **Required checks close by disposition, not by fix:** an undispositioned failing
-  required check is `P#` `[test]` referencing the check name; it is never a target
+- **Failing checks close by disposition, not by fix:** an undispositioned failing check in the resolved set
+  is `P#` `[test]` referencing the check name; it is never a target
   of a worktree `fix`. The user's Phase-4 disposition annotates the same ID rather
   than closing it outright: dispositioned **flaky** -> annotate
   `(dispositioned: flaky)`; this annotation excepts the `P#` from the unfixed-blocker
@@ -304,6 +320,9 @@ Requirement/doc drift (linked issue, committed doc drift, or spec conflict):
   "every blocking finding fixed", and the merge path is Phase 4's explicit flaky
   disposition via the custom row. Dispositioned **real** -> annotate
   `(dispositioned: real)` and the `P#` keeps blocking until the check is green.
+  Dispositioned **CI-infrastructure-broken** -> annotate
+  `(dispositioned: ci-infrastructure-broken)`; the fallback local run executes,
+  and the `P#` keeps blocking until that fallback is green.
 - **Severity is decided at triage, not by the category tag:** a finding lands in
   `P#` only when it must be fixed before merge (correctness, security, material
   performance trap, a convention the repo enforces); improvements that don't
@@ -363,7 +382,7 @@ pre-composed or custom, bundles a push-producing action (`fix`, `push-docs`) wit
 | Author | State | Courses (first = `[recommended]`) |
 |---|---|---|
 | you | clean / follow-ups only | 1. merge-squash; 2. merge-commit; 3. stop; 4. review-comment (post no-blockers note) |
-| you | blocking | 1. fix (worktree-fixable P#s only - `all` covers only those) [+ push-docs when uncommitted doc edits exist]; 2. push-docs (alone, when doc edits exist); 3. stop; 4. review-comment (post findings). When no P# is worktree-fixable (blocking is required-check-only or L#-only), course 1 (fix) is not rendered: push-docs becomes first when doc edits exist, else stop is first |
+| you | blocking | 1. fix (worktree-fixable P#s only - `all` covers only those) [+ push-docs when uncommitted doc edits exist]; 2. push-docs (alone, when doc edits exist); 3. stop; 4. review-comment (post findings). When no P# is worktree-fixable (blocking is failing-check-only or L#-only), course 1 (fix) is not rendered: push-docs becomes first when doc edits exist, else stop is first |
 | you | blocking, post-fix re-render (gate green, preconditions hold) | 1. merge-squash; 2. merge-commit; 3. stop; 4. review-comment |
 | someone else | clean / follow-ups only | 1. approve; 2. merge-squash (offered-unrecommended); 3. review-comment (no-blockers note) |
 | someone else | blocking | 1. request-changes; 2. fix all (courtesy, their branch - omitted when nothing is worktree-fixable); 3. reply <C#s> (omitted when the `C#` group is None); 4. review-comment |
@@ -382,18 +401,18 @@ also dropped (never offered on your own PR) - fork|you|clean renders
 branch course is also absent, since it is your own PR). A fork PR authored by someone
 else uses the someone-else cells above with `fix`/`push-docs`/`merge-*` removed.
 
-**Required-check gate on merge courses:** an undispositioned failing **or pending**
-required check withholds every pre-composed course containing `merge-*` (per the
+**CI-check gate on merge courses:** an undispositioned failing check in the resolved
+set, or a pending **required** check, withholds every pre-composed course containing `merge-*` (per the
 Verdict merge preconditions) - none render, whatever the author/state cell says. A
 pending check mints no `P#` and is wait-until-green, not dispositionable (see Phase
-4); a failing one mints a `P#` and takes a disposition. A **flaky** disposition does
+4); a failing one mints a `P#` and takes a disposition (flaky / real / CI-infrastructure-broken). A **flaky** disposition does
 not restore merge to a pre-composed course; merge proceeds only via the custom row
 naming the disposition explicitly. A **real** disposition, or an unresolved pending
-check, keeps every merge course withheld until the check is green - a pending-only
+check, keeps every merge course withheld until the check is green; a **CI-infrastructure-broken** disposition keeps them withheld until the triggered fallback run is green - a pending-only
 render is not itself a blocking verdict (findings groups may all read "None"); the
 recommended course falls to `stop` or `review-comment` in the meantime. This never
-falls through to the clean cell's recommended `merge-squash` - a required-check
-failure or pend means the PR is not in the clean state to begin with.
+falls through to the clean cell's recommended `merge-squash` - a failing resolved-set
+check or a pending required check means the PR is not in the clean state to begin with.
 
 Rows a cell offers but GitHub would refuse (branch protection, missing permission)
 render listed-but-unavailable with the reason. Zero mutation courses is a legal
@@ -434,7 +453,7 @@ The menu is a state machine, not a one-shot report:
    next CAS check runs against the new head on the next external write.
 2. Execute only the selected course. **Fix wave** (`fix <set>`): first filter the
    selected set to worktree-fixable `P#`s - drop any `P#` closed by disposition
-   (an undispositioned required-check failure is never a `fix` target; a **flaky**
+   (an undispositioned failing-check `P#` is never a `fix` target; a **flaky**
    disposition already excepts it) - and route file-less `P#`s (a claim or a gate
    command as `source_ref`, no draft touching a file) to run inline/sequentially,
    never as part of a parallel file-batch.
@@ -463,7 +482,7 @@ The menu is a state machine, not a one-shot report:
    Once every dispatched/inline batch returns, the orchestrator commits the golden
    course as one local commit set - the code fixes plus any already-applied
    reviewed doc edits selected alongside them (one commit, or one per batch
-   sequentially; subjects name the fixes) - then re-runs the gate **once**. **On
+   sequentially; subjects name the fixes) - then re-resolves the evidence for the new head **once** (the brief's stale-head row: prior evidence is stale; the local command executes only on a fallback/opt-out resolution). **On
    green**, push **once**; gate and push are per-wave invariants, never per-fix or
    per-batch. **On red**, do not push: leave the commit(s) local, re-render with
    the unresolved `P#`s still open, and warn that unpushed fix commits sit in the
@@ -474,9 +493,9 @@ The menu is a state machine, not a one-shot report:
    with the drafted payload for the selected IDs.
 3. After any mutation that can change readiness (fix wave pushed, docs pushed, PR
    head moved), re-run the claim-check and Review on the synced worktree: claims
-   are re-checked against the new head and findings are re-rendered, but the
-   verification command itself is **not** re-executed here - step 2's gate run
-   already was the wave's one and only execution of it. Re-render the report:
+   are re-checked against the new head and findings are re-rendered, but
+   the verification command itself is **not** re-executed here - step 2's evidence re-resolution
+   already was the wave's one and only gate pass. Re-render the report:
    each selected `P#`/`L#` confirmed resolved is annotated `(fixed in <sha>)`
    under its original ID; unresolved ones stay open unchanged; new findings
    continue the sequence. Merge, if now available, renders as row 1.
@@ -512,14 +531,14 @@ overrides file - see Project overrides.
 - Any mutation (fix, push, review, merge) without an explicit menu selection
 - Pasting paraphrased evidence instead of verbatim `raw_tail`
 - A provenance mismatch (worktree, `run_cwd`, or `head_sha`) noticed and ignored
-- Merging around an undispositioned blocking finding or required-check failure
+- Merging around an undispositioned blocking finding or failing-check `P#`
 - Reading configuration (rubric, verification command, or ladder sources) from the
   PR's head instead of the base branch's merge-base
 - Renumbering or reusing a finding ID between menu rounds
 - Presenting findings without IDs, a blocking verdict with no `P#`/`L#`, or a
   `## Decision` rendered without its action vocabulary
 - Treating `[quality]` or `[performance]` as a downgrade signal on a `P#` - only
-  an explicit Phase-4 flaky disposition excepts a required-check `P#` from the
+  an explicit Phase-4 flaky disposition excepts a failing-check `P#` from the
   unfixed-blocker set, never a category tag
 - A course (pre-composed or custom) bundling a push-producing action with
   `merge-*`
