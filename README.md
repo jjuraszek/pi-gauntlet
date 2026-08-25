@@ -10,9 +10,9 @@ The gated workflow for the [pi coding agent](https://github.com/earendil-works/p
 
 ## The problem
 
-Point an agent at a task and let it loop until done - that's the easy 5%. A bare loop has nothing to aim at, nothing to stop it shipping the wrong thing, and no check that the final output matches what you actually asked for. It holds up on a narrow, well-specified task and drifts on anything open-ended: the agent reinterprets the ask as it goes, nobody catches it until review, and by then the diff is large enough that review is theater too.
+Point an agent at a task and let it loop until done - that's the easy 5%. LLMs are more a compressed library with a sampler on top than an independent mind: they produce fluent analysis faster than humans can audit it, and humans can't efficiently unravel that flood of output from the authenticity of a sound idea. So the agent quietly drifts from what you asked, and by the time you look, the diff is too big to honestly review.
 
-That's not a model problem. Cursor, Claude Code, Codex, Devin all run some version of the same loop, and all of them drift the same way on long tasks - because nothing in the loop confronts the output against the *original* intent.
+It *is* a model problem - one-shotting an idea makes a great demo, not a product. But no better model fixes it on its own: Cursor, Claude Code, and Codex all drift the same way on long tasks, because nothing in a bare loop confronts output against *original* intent, and a model cannot audit itself - the same blind spot that wrote the bug will happily approve it. A weak generator needs a strong harness - because fluency is not correctness.
 
 ## Why pi-gauntlet exists
 
