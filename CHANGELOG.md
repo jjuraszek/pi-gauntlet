@@ -1,5 +1,9 @@
 # Changelog
 
+## v5.0.3 - 2026-08-25
+
+- gatekeep-pr defaults to green exact-head CI evidence (gh-14): normative six-path "Evidence resolution" table at the top of verification-brief.md Section B (opt-out / failed-CI / CI-sufficient / pending / fallback / stale-head, top-down); the local verification command runs only on fallback/opt-out rows; source-discriminated Verifier output (`source: ci|local`) with the exact CI claim form `verified by CI: <check name(s)> succeeded on <sha> (run <url>)`; any blocking conclusion in the resolved set mints a `P#` with a third disposition `CI-infrastructure-broken` that triggers the fallback run; two new `## PR gate` keys `local verification: always` and `ci checks:`. Spec: `doc/specs/2026-09-06-gh-14-gatekeep-ci-evidence-default.md` (partially supersedes `doc/specs/2026-08-18-gh-9-gatekeep-pr-skill.md`, verification-evidence scope only).
+
 ## v5.0.2 - 2026-08-24
 
 - Plan fidelity (gh-13): `writing-plans` task template gains a required spec-anchor line (`**Spec:** <path> § "<heading>" L<start>-L<end>`), a verbatim-quote rule for exact-string requirements, an extraction-first `## Spec coverage` table, and four mechanical self-review checks (quote integrity spec->task, anchor resolution, three-leg table closure, paths exist). `subagent-driven-development` spec-reviewer contract becomes spec+task: dispatches pass the spec path + the task's anchors in both modes and the Dispatch sketch, the spec wins every dispute, task-vs-spec divergence is unconditionally flagged with the spec literal, and `spec-reviewer-prompt.md` gains a `## Spec Authority` section plus `plan transcription gap` / `out-of-anchor-slice` finding labels. Spec: `doc/specs/2026-08-23-gh-13-plan-fidelity-anchors.md` (partially supersedes `doc/specs/2026-07-06-parallel-wave-spec-reviewer-dispatch.md`, SR contract scope only).
