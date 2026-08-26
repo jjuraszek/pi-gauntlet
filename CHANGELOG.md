@@ -1,5 +1,12 @@
 # Changelog
 
+## v5.0.4 - 2026-08-26
+
+- `spec-reviewer` (persona + dispatch template, lockstep): decomposes its anchored spec lines into atomic clauses with one verdict row per clause (`Per-clause status:`, `C-n`); plan/task code snippets declared non-authoritative for review (a diff matching a snippet never proves compliance); reads every diff-touched file in full, not just hunks, reporting any file it could not exhaust.
+- `subagent-driven-development`: reviewer framing reworded to match (change-satisfies-spec, whole-file reads); dispatch shape unchanged.
+- `writing-plans`: extraction re-walk ("every normative clause has a row"), a code-vs-anchor sanity Self-Review bullet, and a one-line declaration of plan code's review-time standing.
+- README: reworked "The problem" section.
+
 ## v5.0.3 - 2026-08-25
 
 - gatekeep-pr defaults to green exact-head CI evidence (gh-14): normative six-path "Evidence resolution" table at the top of verification-brief.md Section B (opt-out / failed-CI / CI-sufficient / pending / fallback / stale-head, top-down); the local verification command runs only on fallback/opt-out rows; source-discriminated Verifier output (`source: ci|local`) with the exact CI claim form `verified by CI: <check name(s)> succeeded on <sha> (run <url>)`; any blocking conclusion in the resolved set mints a `P#` with a third disposition `CI-infrastructure-broken` that triggers the fallback run; two new `## PR gate` keys `local verification: always` and `ci checks:`. Spec: `doc/specs/2026-09-06-gh-14-gatekeep-ci-evidence-default.md` (partially supersedes `doc/specs/2026-08-18-gh-9-gatekeep-pr-skill.md`, verification-evidence scope only).
