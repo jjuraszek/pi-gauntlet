@@ -1,5 +1,9 @@
 # Changelog
 
+## v5.0.5 - 2026-08-26
+
+- chase-bug: the reporter-facing response draft is now conditional on an **addressable** origin. Intake records a response target (GitHub issue / tracker ticket origins have one; Slack paste / free text do not - `none`), settable mid-chase by an explicit ask ("comment on gh-14"); gate 2 (`send it`) exists only where a push will happen (no write path -> ungated copy-paste block; no target -> no draft at all); unaddressable origins end in a rendered four-field verdict summary, menus reworded accordingly (`Finish with rendered summary`), gate count relaxed to "at most two chase-bug-owned human gates". Spec: `doc/specs/2026-08-26-chase-bug-conditional-response-draft.md` (partially supersedes `doc/specs/2026-08-23-gh-12-chase-bug-triage-skill.md`, response-gate scope only).
+
 ## v5.0.4 - 2026-08-26
 
 - `spec-reviewer` (persona + dispatch template, lockstep): decomposes its anchored spec lines into atomic clauses with one verdict row per clause (`Per-clause status:`, `C-n`); plan/task code snippets declared non-authoritative for review (a diff matching a snippet never proves compliance); reads every diff-touched file in full, not just hunks, reporting any file it could not exhaust.
