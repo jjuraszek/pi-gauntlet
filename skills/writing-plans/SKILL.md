@@ -255,7 +255,7 @@ Every code task carries this step (red -> green -> fmt/lint -> commit). Doc-only
 
 ## Spec Coverage Table
 
-Every plan ends with a `## Spec coverage` section — authored last, placed after all Task sections (owner IDs do not exist earlier). Build it extraction-first: walk the spec top to bottom and write one row per normative requirement **before** assigning owners — every Design imperative (Add/Remove/Keep/Replace-style directives, not any fixed lexical form), every Edge-cases rule, every Acceptance criterion, every Out-of-scope entry, and every non-none Documentation-impact entry. Then assign owners. Two row kinds:
+Every plan ends with a `## Spec coverage` section — authored last, placed after all Task sections (owner IDs do not exist earlier). Build it extraction-first: walk the spec top to bottom and write one row per normative requirement **before** assigning owners — every Design imperative (Add/Remove/Keep/Replace-style directives, not any fixed lexical form), every Edge-cases rule, every Acceptance criterion, every Out-of-scope entry, and every non-none Documentation-impact entry. Then assign owners, then re-walk the spec once: every normative clause has a row. Two row kinds:
 
 ```markdown
 ## Spec coverage
@@ -293,6 +293,7 @@ If a decision is genuinely open, put it in an explicit **Open Questions** sectio
 After drafting the plan and before announcing it complete, run these checks yourself. This is a checklist you run yourself — not a subagent dispatch.
 
 - **Table closure (three legs).** Every `## Spec coverage` row's owner is a task-ID list, a spec-authorized `waived: <reason>`, or a mechanical-task row; every `### Task N` heading appears in >=1 row; every requirement row's anchor is contained in the anchor set of each listed owner task's `**Spec:**` line. Zero orphans, zero waived in-scope normative rows, zero row-vs-owner anchor mismatches. Each Documentation impact entry maps to a plan task (or explicit "none").
+- **Code-vs-anchor sanity.** For each non-waived requirement row, re-read the anchored spec lines and confirm the owner tasks' bodies do what they say - mechanism present, not just the quoted literal. Fix the task, don't annotate.
 - **Quote integrity (spec -> task).** For every non-waived requirement row, extract each backtick-quoted literal inside the row's anchored spec lines (strip the backticks; skip `<placeholder>` template spans) and `grep -F` it against the owning task's body — zero misses. Planner-authored backticks elsewhere in tasks are never scanned; the input set is spec-side literals only.
 - **Anchor resolution.** For every task-level anchor (a `**Spec:**` line carrying `§`; the plan header's path line is exempt), the quoted heading text matches an ATX heading in the spec file and `L<start>-L<end>` is in-bounds, non-empty, and lies within that heading's section — zero unresolved anchors. Verify with `grep -n '^#'` plus a scoped `sed -n`. Ignore `#`-lines inside fenced code blocks when locating headings and section boundaries - a fenced markdown example is not a heading.
 - **Paths exist.** Every `Modify:` path in `Files:` blocks passes `test -f` after stripping any trailing `:line[-line]` suffix; a `Modify:` glob must expand to >=1 match; `Create:` and `Test:` paths are exempt unless the `Test:` path is also listed under `Modify:`. Zero missing.
@@ -309,6 +310,7 @@ Fix what this review finds before handoff.
 
 - Exact file paths always
 - Complete code in plan (not "add validation")
+- Plan code is guidance for the implementer, not review authority - reviewers judge the diff against the spec, never against plan snippets
 - Exact commands with expected output
 - Reference relevant skills
 - DRY, YAGNI, TDD, frequent commits

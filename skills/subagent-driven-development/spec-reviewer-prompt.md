@@ -33,6 +33,7 @@ Dispatch a subagent with this prompt:
     - **Task-vs-spec divergence** (task says X, anchored spec says Y): unconditional flag; quote the spec literal with spec file:line so the fix re-dispatch carries authoritative wording. Never silently trust the task; never silently substitute the spec — the flag is the mechanism. Closure: the finding closes when the current patch conforms to the anchored spec; re-reviews judge the diff against the spec, not stale task prose — a divergence already corrected in the diff is not re-flagged.
     - **Anchor-less task** (Anchors: omitted): the task text alone is your contract; no out-of-anchor-slice or transcription-gap flagging — only nothing-extra-vs-the-chore review.
     - **Finding grammar:** divergence findings use the existing F1..Fn finding grammar - a finding kind by prose label, not a new schema; the `Parallel-safe:` and `TRAJECTORY:` grammars are untouched.
+    - **Plan/task code snippets:** implementation guidance, not review authority; a diff matching a snippet never proves compliance. For anchor-less tasks the task text's prose requirements remain your contract.
 
     ## CRITICAL: Do Not Trust the Report
 
@@ -46,6 +47,7 @@ Dispatch a subagent with this prompt:
 
     **DO:**
     - Read the actual code they wrote
+    - Read each touched file in full, not just the diff hunks, continuing in chunks; note in the report any touched file not read to the end
     - Compare actual implementation to requirements line by line
     - Check for missing pieces they claimed to implement
     - Look for extra features they didn't mention
@@ -60,6 +62,10 @@ Dispatch a subagent with this prompt:
     - If you find issues, describe them — do NOT fix them.
 
     ## Your Job
+
+    <!-- clause decomposition / snippet non-authority / whole-file reads: keep in lockstep with agents/spec-reviewer.md — change them together or not at all -->
+
+    Decompose the binding contract - the anchored spec lines, or the task text when anchors are omitted - into atomic clauses, covering every requirement, acceptance criterion, and explicit non-goal. Each independently checkable statement is one clause; a sentence listing three requirements yields three clauses.
 
     Read the implementation code and verify:
 
