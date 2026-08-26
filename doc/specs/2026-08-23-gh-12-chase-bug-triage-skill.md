@@ -1,5 +1,7 @@
 # chase-bug: human-only bug-triage skill (gh-12)
 
+> **Superseded by:** [doc/specs/2026-08-26-chase-bug-conditional-response-draft.md](./2026-08-26-chase-bug-conditional-response-draft.md) - section 6 response-to-origin design, the "exactly two human gates" decision, and appendix AC 7's "offered for every terminal verdict" clause only
+
 Origin: GitHub issue jjuraszek/pi-gauntlet#12 (OPEN, no comments). This spec is the
 issue's ACs made concrete against the codebase, plus questionary decisions.
 
