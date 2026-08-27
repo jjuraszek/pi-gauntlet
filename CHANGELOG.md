@@ -1,5 +1,9 @@
 # Changelog
 
+## v5.0.6 - 2026-08-27
+
+- using-git-worktrees: worktree creation never runs tests. Step 3 ("Verify Clean Baseline", full test suite) is replaced by "Verify Clean Base": a bare `git status --porcelain` check on the source checkout (untracked counts as dirty), run pre-creation on fresh paths; dirty -> report verbatim + ask, never test, never auto-stash. Report-only provenance note when branching off a non-default branch; Step 4 reports `Base: <ref> (clean)` instead of a test result; Step 2b's gitignore commit is pathspec-limited so proceed-with-dirt never absorbs staged changes. Rebase-time re-testing in "Keeping a Worktree Current" is unchanged. Fixes #16. Spec: `doc/specs/2026-08-27-gh-16-worktree-creation-no-tests.md`.
+
 ## v5.0.5 - 2026-08-26
 
 - chase-bug: the reporter-facing response draft is now conditional on an **addressable** origin. Intake records a response target (GitHub issue / tracker ticket origins have one; Slack paste / free text do not - `none`), settable mid-chase by an explicit ask ("comment on gh-14"); gate 2 (`send it`) exists only where a push will happen (no write path -> ungated copy-paste block; no target -> no draft at all); unaddressable origins end in a rendered four-field verdict summary, menus reworded accordingly (`Finish with rendered summary`), gate count relaxed to "at most two chase-bug-owned human gates". Spec: `doc/specs/2026-08-26-chase-bug-conditional-response-draft.md` (partially supersedes `doc/specs/2026-08-23-gh-12-chase-bug-triage-skill.md`, response-gate scope only).
