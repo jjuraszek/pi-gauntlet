@@ -32,7 +32,7 @@ BRANCH=$(git branch --show-current)
 git rev-parse --show-superproject-working-tree 2>/dev/null
 ```
 
-**If `GIT_DIR != GIT_COMMON` (and not a submodule):** You are already in a linked worktree. Skip to Step 3 (Verify Clean Baseline). Do NOT create another worktree.
+**If `GIT_DIR != GIT_COMMON` (and not a submodule):** You are already in a linked worktree. Skip to Step 3 (Verify Clean Base). Do NOT create another worktree.
 
 Report with branch state:
 - On a branch: "Already in isolated workspace at `<path>` on branch `<name>`."
@@ -55,7 +55,7 @@ Otherwise create it. The gate is "is this real work?", not "did the user approve
 
 ## Step 1a — Prefer Native Worktree Tools
 
-Do you already have a way to create a worktree? It might be a tool with a name like `EnterWorktree`, `WorktreeCreate`, a `/worktree` command, or a `--worktree` flag. If you do, use it and skip to Step 3.
+Do you already have a way to create a worktree? It might be a tool with a name like `EnterWorktree`, `WorktreeCreate`, a `/worktree` command, or a `--worktree` flag. If you do, run the Step 3 clean-base check in the source checkout *before* invoking it, then use it and skip to Step 3.
 
 Native tools handle directory placement, branch creation, and cleanup automatically. Using `git worktree add` when you have a native tool creates phantom state your harness can't see or manage.
 
@@ -84,14 +84,14 @@ Don't ask local-vs-global and don't invent other paths — `.worktrees/` is the 
 
 ### 2b. Create — gitignore the home first
 
-`.worktrees/` must be gitignored before a worktree lands inside it. Fold the check into creation:
+Run the Step 3 clean-base check in the source checkout *before* this sequence. `.worktrees/` must be gitignored before a worktree lands inside it. Fold the check into creation:
 
 ```bash
 ROOT=$(git rev-parse --show-toplevel)
 cd "$ROOT"
 if ! git check-ignore -q .worktrees; then
   echo ".worktrees/" >> .gitignore
-  git add .gitignore && git commit -m "Ignore .worktrees/"
+  git add .gitignore && git commit -m "Ignore .worktrees/" -- .gitignore
 fi
 git worktree add ".worktrees/$BRANCH_NAME" -b "$BRANCH_NAME"
 cd ".worktrees/$BRANCH_NAME"
@@ -116,29 +116,31 @@ fi
 
 If worktree creation fails on permissions (read-only filesystem, container sandbox without write to parent dirs): stop, announce the failure, and continue in the current directory on a feature branch.
 
-## Step 3 — Verify Clean Baseline
+## Step 3 — Verify Clean Base
 
-```bash
-# pick the project's test command — see AGENTS.md for the canonical entrypoint
-make ci                    # cross-language convention
-pnpm test                  # JS / TS (or npm test / yarn test)
-uv run pytest              # Python
-bundle exec rspec          # Ruby
-cargo test                 # Rust
-go test ./...              # Go
-```
+The check: bare `git status --porcelain` — untracked files count as dirty. Never `--untracked-files=no` / `-uno`. Empty output means clean only when the command exits 0; a nonzero exit is an error to surface — stop; never treat a failed check as "clean".
 
-- Tests pass → report ready.
-- Tests fail → report failures, ask whether to proceed or investigate. Don't assume pre-existing breakage is fine.
+**When and where it runs:**
+
+- **Fresh creation (Steps 1a/2):** in the source checkout, **before** invoking the wrapper (Step 1a) or the `git worktree add` sequence (Step 2b) — pre-creation, the current directory *is* the source checkout, so no `$ROOT` plumbing or `git worktree list` derivation is needed. Those steps point here; this section defines the check.
+- **Already in a worktree (Step 0):** the same check against the current worktree, on arrival at this step.
+
+**Clean** → proceed (create the worktree if not yet created, then Step 4).
+
+**Dirty** → report the porcelain output verbatim and ask whether to clean up first (stash/commit) or proceed. Never run tests as a fallback; never auto-stash or auto-clean. On fresh paths the ask is about base hygiene — a user who *meant* the dirt to be part of the base commits it, and creation proceeds from the new HEAD. On the Step 0 path the ask is "continue working in a dirty workspace?" — the dirt is already in the workspace, not merely beside it.
+
+**Provenance note (report-only, never a gate).** Fresh-creation paths only — never Step 0 (an already-linked worktree was branched in some earlier invocation; there is no "created from" to compare this run). Resolve the default branch as `git symbolic-ref --short refs/remotes/origin/HEAD` with the leading `origin/` stripped; compare that short name to the source checkout's `git branch --show-current`. If they differ and the user did not name a base in the request, append one declarative line to the Step 4 report: `Note: branching from <ref>, not <default>.` — execution continues, no confirmation is awaited. If resolution fails (no remote, no `origin/HEAD`), skip the note silently. No other default-branch machinery.
 
 ## Step 4 — Report Location
 
 ```
 Worktree ready at <full-path>
 Branch: <branch-name>
-Baseline: <test-result>
+Base: <ref> (clean)
 Ready to implement <feature>
 ```
+
+When the user chose to proceed past a dirty source, the base line is `Base: <ref> (dirty - proceeded after ask)` instead. When the provenance check fired (fresh paths only), append its `Note: branching from <ref>, not <default>.` line after the base line. `<ref>` per path: fresh creation — the branch/commit the worktree was created from (the user-requested base when one was given); Step 0 — the current branch/HEAD of the existing worktree, with no provenance line.
 
 ## Detached HEAD
 
@@ -166,7 +168,7 @@ Re-run tests after rebasing.
 | No enclosing repo | Fall back to `~/.worktrees/<project>/<branch>` |
 | Detached HEAD | Ask before branching |
 | Sandbox/permission failure | Work in place on a feature branch |
-| Tests fail at baseline | Report + ask |
+| Source checkout dirty | Report + ask |
 
 ## Red Flags — STOP
 
@@ -174,7 +176,8 @@ Re-run tests after rebasing.
 - About to call `git worktree add` directly when the project ships a wrapper (use the wrapper)
 - Created a `.worktrees/` worktree without gitignoring `.worktrees/` first
 - Placed a worktree outside `.worktrees/` (or the project's configured path) for no reason
-- Tests fail at baseline and you proceed anyway
+- Source checkout dirty and you proceed without asking
+- About to run a test suite during worktree creation
 
 ## Integration
 
