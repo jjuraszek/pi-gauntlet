@@ -1,6 +1,6 @@
 # Changelog
 
-## [Unreleased]
+## v5.0.8 - 2026-08-31
 
 - shape-ticket: ticket bodies must be self-contained - new wording contract in `skills/shape-ticket/reference/ticket-wording.md` (repo-stranger reader, strip-test, plain-words lead + example per asserted failure, jargon defined, references demoted to deletable parenthetical pointers, big chunks linkable with a summary line - no spiderman tickets). Wired into the draft step, every roast brief (members, worker fallback, runtime conditional; fidelity exempts contract-driven unpacking from `added`), and the repair-mode no-op check (a violating body is non-conforming and gets a proposed rewrite). Generic repo density norms can no longer override ticket prose; only an explicit ticket-wording overrides section can. Fixes #18. Spec: `doc/specs/2026-08-31-gh-18-self-contained-ticket-wording.md`.
 
