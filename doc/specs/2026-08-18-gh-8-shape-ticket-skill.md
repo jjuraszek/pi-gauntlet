@@ -2,6 +2,7 @@
 
 > **Superseded by:** [doc/specs/2026-08-18-check-delivery-consumer-feedback.md](./2026-08-18-check-delivery-consumer-feedback.md) - roast-failure handling and the "never a tracker comment" clause only
 > **Superseded by:** [doc/specs/2026-08-19-split-axis-guard.md](./2026-08-19-split-axis-guard.md) - "Split rule" section and the roast brief/disposition axes only (vertical-slice hard rule replaced by the shared split-axis test; a third member axis with a non-adjudicable split veto added)
+> **Superseded by:** [doc/specs/2026-08-31-gh-18-self-contained-ticket-wording.md](./2026-08-31-gh-18-self-contained-ticket-wording.md) - "Ticket wording" defaults only (comms-style override opener narrowed; headline rule gated on the self-containment test)
 
 Resolves [jjuraszek/pi-gauntlet#8](https://github.com/jjuraszek/pi-gauntlet/issues/8). The finishing squash commit carries `Closes #8`.
 

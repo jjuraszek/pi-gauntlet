@@ -1,5 +1,9 @@
 # Changelog
 
+## [Unreleased]
+
+- shape-ticket: ticket bodies must be self-contained - new wording contract in `skills/shape-ticket/reference/ticket-wording.md` (repo-stranger reader, strip-test, plain-words lead + example per asserted failure, jargon defined, references demoted to deletable parenthetical pointers, big chunks linkable with a summary line - no spiderman tickets). Wired into the draft step, every roast brief (members, worker fallback, runtime conditional; fidelity exempts contract-driven unpacking from `added`), and the repair-mode no-op check (a violating body is non-conforming and gets a proposed rewrite). Generic repo density norms can no longer override ticket prose; only an explicit ticket-wording overrides section can. Fixes #18. Spec: `doc/specs/2026-08-31-gh-18-self-contained-ticket-wording.md`.
+
 ## v5.0.7 - 2026-08-31
 
 - `subagent-driven-development`: the after-all-tasks whole-diff code review and the full verification set now run **concurrently by default** (async review dispatch + foreground verification in the same turn), gated by a fail-closed write-destination classifier over the plan's `**Verification:**` commands - a set that rewrites tracked files (write-mode formatters, autofixers, codegen, migrations) degrades to today's serial order with a one-line notice, never a prompt (gh-21).
