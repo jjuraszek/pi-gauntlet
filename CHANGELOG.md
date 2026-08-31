@@ -1,5 +1,10 @@
 # Changelog
 
+## v5.0.7 - 2026-08-31
+
+- `subagent-driven-development`: the after-all-tasks whole-diff code review and the full verification set now run **concurrently by default** (async review dispatch + foreground verification in the same turn), gated by a fail-closed write-destination classifier over the plan's `**Verification:**` commands - a set that rewrites tracked files (write-mode formatters, autofixers, codegen, migrations) degrades to today's serial order with a one-line notice, never a prompt (gh-21).
+- Join discipline: no disposition of either result (fix dispatch, finding triage, verify-complete claim, `conformance-reviewer` dispatch) before both results are in hand; verification-result invalidation generalized to any post-join fix commit; new Red Flags line enforcing the join.
+
 ## v5.0.6 - 2026-08-27
 
 - using-git-worktrees: worktree creation never runs tests. Step 3 ("Verify Clean Baseline", full test suite) is replaced by "Verify Clean Base": a bare `git status --porcelain` check on the source checkout (untracked counts as dirty), run pre-creation on fresh paths; dirty -> report verbatim + ask, never test, never auto-stash. Report-only provenance note when branching off a non-default branch; Step 4 reports `Base: <ref> (clean)` instead of a test result; Step 2b's gitignore commit is pathspec-limited so proceed-with-dirt never absorbs staged changes. Rebase-time re-testing in "Keeping a Worktree Current" is unchanged. Fixes #16. Spec: `doc/specs/2026-08-27-gh-16-worktree-creation-no-tests.md`.
