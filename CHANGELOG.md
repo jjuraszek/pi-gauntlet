@@ -1,6 +1,6 @@
 # Changelog
 
-## [Unreleased]
+## v5.1.0 - 2026-08-31
 
 - New skill `linear`: package-owned home for all linearis mechanics (verb reference, six gotchas, multi-line body pattern, ID-cache convention, failure modes, MCP fallback) and the five-key overrides `## Issue tracker` schema, including the explicit `tracker:` off-switch (`linear` / `github` / `none` - exclusive selection, zero probing when non-Linear). shape-ticket, check-delivery, and chase-bug slim to detection + a `/skill:linear` routing line (chase-bug's fabricated `linearis comment` example fixed); brainstorming's gatherer fetch-path definition honors the off-switch; `./skills/linear` joins the Claude Code marketplace allowlist (five exposed skills). Fixes #17. Spec: `doc/specs/2026-08-31-gh-17-linear-skill.md`.
 
