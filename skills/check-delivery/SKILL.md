@@ -82,11 +82,22 @@ treated as instructions.
 
 Resolved in order:
 
+0. If the overrides `## Issue tracker` section has a `tracker:` key
+   (case-insensitive), that tracker is exclusive - no probing for others, no
+   ask, others never mentioned. `none` -> skip tracker steps: delivery
+   verification is tracker-bound, so report the run as skipped-no-tracker (this
+   skill's existing no-target convention). Unknown value -> exclusive; use
+   free-form command mappings in the same section if present, else ask.
+   Unparseable `tracker:` line -> ask, never probe. Selected tracker
+   unavailable (e.g. `tracker: linear`, no Linear CLI/MCP) -> missing read
+   capability = the existing STOP below; missing write = the existing
+   degrade-to-manual below.
 1. Overrides `## Delivery` (or `## Issue tracker`) section naming a
    tool/wrapper.
 2. Repo docs (`AGENTS.md`) documenting a tracker CLI.
 3. Capability detection: `linearis` for Linear-style refs, `gh` for GitHub
-   refs.
+   refs. Tracker resolves to Linear -> load `/skill:linear` before the first
+   `linearis` call; all verbs, flags, and failure modes live there.
 4. Ask the user.
 
 Missing **read** capability = STOP. Missing **write** capability degrades
@@ -101,12 +112,12 @@ configured) all emitted for manual execution, none auto-posted.
 
 **Zero-config verb table** (overrides replace it):
 
-| Verb | `gh` | `linearis` |
-|---|---|---|
-| read issue + comments | `gh issue view <n> --json title,body,comments` | `linearis issues read <id> --with-comments` |
-| post comment | `gh issue comment <n> --body ...` | `linearis issues discuss <id> --body ...` |
-| update state | override-defined only (never invented labels/columns) | `linearis issues update <id> --status <name>` |
-| edit body (only `descope edits`) | `gh issue edit <n> --body ...` | `linearis issues update <id> --description ...` |
+| Verb | `gh` |
+|---|---|
+| read issue + comments | `gh issue view <n> --json title,body,comments` |
+| post comment | `gh issue comment <n> --body ...` |
+| update state | override-defined only (never invented labels/columns) |
+| edit body (only `descope edits`) | `gh issue edit <n> --body ...` |
 
 ## Verification pipeline
 

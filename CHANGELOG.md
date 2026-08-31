@@ -1,5 +1,9 @@
 # Changelog
 
+## [Unreleased]
+
+- New skill `linear`: package-owned home for all linearis mechanics (verb reference, six gotchas, multi-line body pattern, ID-cache convention, failure modes, MCP fallback) and the five-key overrides `## Issue tracker` schema, including the explicit `tracker:` off-switch (`linear` / `github` / `none` - exclusive selection, zero probing when non-Linear). shape-ticket, check-delivery, and chase-bug slim to detection + a `/skill:linear` routing line (chase-bug's fabricated `linearis comment` example fixed); brainstorming's gatherer fetch-path definition honors the off-switch; `./skills/linear` joins the Claude Code marketplace allowlist (five exposed skills). Fixes #17. Spec: `doc/specs/2026-08-31-gh-17-linear-skill.md`.
+
 ## v5.0.8 - 2026-08-31
 
 - shape-ticket: ticket bodies must be self-contained - new wording contract in `skills/shape-ticket/reference/ticket-wording.md` (repo-stranger reader, strip-test, plain-words lead + example per asserted failure, jargon defined, references demoted to deletable parenthetical pointers, big chunks linkable with a summary line - no spiderman tickets). Wired into the draft step, every roast brief (members, worker fallback, runtime conditional; fidelity exempts contract-driven unpacking from `added`), and the repair-mode no-op check (a violating body is non-conforming and gets a proposed rewrite). Generic repo density norms can no longer override ticket prose; only an explicit ticket-wording overrides section can. Fixes #18. Spec: `doc/specs/2026-08-31-gh-18-self-contained-ticket-wording.md`.

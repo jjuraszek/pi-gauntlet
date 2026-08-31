@@ -69,7 +69,7 @@ Everything between gate 1 and gate 2 - task breakdown, implementation, both revi
 
 pi-gauntlet ships three kinds of pieces, layered on top of pi-cohort's dispatch:
 
-- **16 skills** - the workflow logic. Twelve activate automatically when pi sees the matching kind of task, and each one gates the next: `brainstorming`, `writing-plans`, `roasting-the-spec`, `test-driven-development`, `subagent-driven-development`, `dispatching-parallel-agents`, `verification-before-completion`, `requesting-code-review`, `receiving-code-review`, `using-git-worktrees`, `finishing-a-development-branch`, `writing-skills`. Four more are explicit-invocation-only (`disable-model-invocation: true`): `shape-ticket` creates or repairs one tracker issue per run against a Context/Problem/Idea/Acceptance-Criteria template, gated by an AC integrity check, a cheap council roast, and a single human-confirmed write - run it with `/skill:shape-ticket`. `gatekeep-pr` is consent-gated pre-merge verification of a PR against its issue - read-only gathering, verification evidence resolved CI-first (green checks on the exact assessed head count as evidence; the project's verification command runs only as fallback), a rubric-based review, then a deterministic authorship-aware menu with stable finding IDs (P#/L#/C#/F#) and numbered pre-composed courses (fixes execute as a single parallel-safe wave: one gate run, one re-review, one push); nothing mutates (fixes, pushes, reviews, merges) until you pick a row - run it with `/skill:gatekeep-pr <pr>`. `check-delivery` is a post-merge detective control: proves an issue actually shipped (default-branch landing, delivery target, per-AC evidence) before its tracker status advances; it never writes a terminal status - run it with `/skill:check-delivery <ref>`. `chase-bug` is human-only bug triage: read-only root-cause discovery to an evidenced verdict menu (real bug -> ticket/brainstorm/respond; five negative verdicts), then a gated response to the reporter for addressable origins (GitHub issue / tracker ticket) and a rendered verdict summary otherwise - it never fixes during triage - run it with `/skill:chase-bug`.
+- **17 skills** - the workflow logic. Thirteen activate automatically when pi sees the matching kind of task, and each one gates the next: `brainstorming`, `writing-plans`, `roasting-the-spec`, `test-driven-development`, `subagent-driven-development`, `dispatching-parallel-agents`, `verification-before-completion`, `requesting-code-review`, `receiving-code-review`, `using-git-worktrees`, `finishing-a-development-branch`, `writing-skills`, `linear` (reads/searches/comments on/manages Linear tickets via the `linearis` CLI; owns all linearis mechanics and the `## Issue tracker` overrides schema; tracker-facing skills route to it). Four more are explicit-invocation-only (`disable-model-invocation: true`): `shape-ticket` creates or repairs one tracker issue per run against a Context/Problem/Idea/Acceptance-Criteria template, gated by an AC integrity check, a cheap council roast, and a single human-confirmed write - run it with `/skill:shape-ticket`. `gatekeep-pr` is consent-gated pre-merge verification of a PR against its issue - read-only gathering, verification evidence resolved CI-first (green checks on the exact assessed head count as evidence; the project's verification command runs only as fallback), a rubric-based review, then a deterministic authorship-aware menu with stable finding IDs (P#/L#/C#/F#) and numbered pre-composed courses (fixes execute as a single parallel-safe wave: one gate run, one re-review, one push); nothing mutates (fixes, pushes, reviews, merges) until you pick a row - run it with `/skill:gatekeep-pr <pr>`. `check-delivery` is a post-merge detective control: proves an issue actually shipped (default-branch landing, delivery target, per-AC evidence) before its tracker status advances; it never writes a terminal status - run it with `/skill:check-delivery <ref>`. `chase-bug` is human-only bug triage: read-only root-cause discovery to an evidenced verdict menu (real bug -> ticket/brainstorm/respond; five negative verdicts), then a gated response to the reporter for addressable origins (GitHub issue / tracker ticket) and a rendered verdict summary otherwise - it never fixes during triage - run it with `/skill:chase-bug`.
 - **7 subagent personas** - the specialized child agents the skills dispatch via pi-cohort: `implementer`, `code-reviewer`, `spec-reviewer`, `conformance-reviewer`, `spec-summarizer`, `spec-council-member`, `spec-council-synthesizer`. See [doc/personas.md](./doc/personas.md) for what each one does and why its permissions are scoped the way they are.
 - **3 runtime extensions** - the enforcement layer. `plan-tracker` and `phase-tracker` are tools skills call to track progress (with a TUI widget); `verify-before-ship` is a hook that warns if you push or open a PR without a passing test run since your last edit; a phase-tracker flow guard reminds on implement-phase commits missing spec/code review. See [doc/configuration.md](./doc/configuration.md) for the settings each one reads.
 
@@ -126,9 +126,9 @@ cd ~/repos/pi-gauntlet && npm run link-agents   # local-path installs skip npm i
 
 ## Use from Claude Code
 
-Four skills are exposed to Claude Code via the plugin marketplace at
+Five skills are exposed to Claude Code via the plugin marketplace at
 `.claude-plugin/marketplace.json`: **shape-ticket**, **gatekeep-pr**,
-**check-delivery**, and **chase-bug**. They are harness-portable by design - every pi-specific
+**check-delivery**, **chase-bug**, and **linear**. They are harness-portable by design - every pi-specific
 mechanic they touch (`plan_tracker`, `gauntlet_setting`, `subagent()`) carries
 an inline fallback, so they run on Claude Code's native facilities. This is the
 supported set. Not exposed, in two classes: (a) genuinely pi-bound surface -
@@ -202,8 +202,9 @@ exact repo folder* in interactive Claude Code. Trusting a parent folder,
 4. Run `/plugin` and confirm: marketplace `pi-gauntlet` is listed, plugin
    `gauntlet` is enabled. If it shows as known but not installed, run
    `/plugin install gauntlet@pi-gauntlet` and re-check.
-5. Confirm exactly four skills are registered under the plugin (via the
-   `/plugin` details view): shape-ticket, gatekeep-pr, check-delivery, chase-bug.
+5. Confirm exactly five skills are registered under the plugin (via the
+   `/plugin` details view): shape-ticket, gatekeep-pr, check-delivery, chase-bug,
+   linear.
 6. Invoke `/gauntlet:shape-ticket` with a deliberately two-concern ask (e.g.
    "shape a ticket: CSV import for operators, plus a partner-facing status
    API") so the skill deterministically consults its
@@ -260,6 +261,20 @@ Use the `jira` CLI (authenticated via `jira login`), not `gh` or `linearis`.
 - update: `jira issue edit ABC-123 --summary "<title>" --description "<body>"`
 - post comment (Reporter note only): `jira issue comment ABC-123 --body "<text>"`
 ```
+
+**`linear` setup:** mandatory - `linearis` installed and authenticated (or a Linear
+MCP server as a fallback when `linearis` is unavailable). Optional - the five
+`## Issue tracker` override keys (`tracker`, `workspace urlKey`, `default team`,
+`self`, `id cache`); the full schema is documented once, in
+[skills/linear/SKILL.md](./skills/linear/SKILL.md) - not restated here. Off switch:
+set `tracker: github` or `tracker: none` in `## Issue tracker` to disable Linear
+entirely - no `linearis` probing, no prompts.
+
+**Coexistence:** the five `## Issue tracker` keys compose with the free-form
+command-mapping convention above, they don't replace it. `tracker:` adds exclusive
+tracker selection; free-form verb mappings keep working both without a `tracker:`
+key (ladder rung 1, as today) and as the mechanics source when `tracker:` names an
+unknown value.
 
 **`## Deployment` section:** `shape-ticket` (split rule), `writing-plans` (scope check), and `brainstorming` (scope check) read deploy topology from this section: what ships together, what ships independently, and the mechanism. It is a fact to look up, never to infer - when the section is absent, or when it documents a monolithic topology (like the example below), the "separable release timing" split axis is unavailable and splits fail closed to one artifact.
 

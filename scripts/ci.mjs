@@ -253,7 +253,7 @@ try {
       // Bundle-local reference integrity: every .md path a bundled file mentions
       // must resolve against that file's own directory. Excluded: consumer-repo
       // placeholders that intentionally don't exist here.
-      const refExcludedBasenames = new Set(["REVIEW.md", "AGENTS.md", "CLAUDE.md", "SKILL.md", "gauntlet-overrides.md"]);
+      const refExcludedBasenames = new Set(["REVIEW.md", "AGENTS.md", "CLAUDE.md", "SKILL.md", "gauntlet-overrides.md", "linear.md"]);
       const brokenRefs = [];
       for (const dir of skillDirs) {
         for (const file of walk(dir).filter((f) => f.endsWith(".md"))) {

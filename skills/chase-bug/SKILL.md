@@ -89,6 +89,12 @@ Search both **open and closed** issues for the same symptom before deep
 discovery. This has its own resolution ladder, separate from the response-channel
 ladder in step 5 (the reply destination and the search target can differ):
 
+0. If the overrides `## Issue tracker` section has a `tracker:` key
+   (case-insensitive), that tracker is exclusive - no probing for others, no
+   ask, others never mentioned. `tracker: none` -> prior-report search declared
+   **not completed** (the existing rung-4 convention). Unknown value ->
+   exclusive; use free-form command mappings in the same section if present,
+   else ask. Unparseable `tracker:` line -> ask, never probe.
 1. `## Issue tracker` section in the gauntlet overrides file, if present.
 2. Repo tracker convention documented in `AGENTS.md` / `README`.
 3. Detected CLI (e.g. `gh` for a GitHub-origin repo, or another tracker tool/CLI
@@ -246,18 +252,26 @@ Slack.
 
 **Channel resolution**, in order:
 
+0. If the overrides `## Issue tracker` section has a `tracker:` key
+   (case-insensitive), that tracker is exclusive - no probing for others, no
+   ask, others never mentioned. `tracker: none` -> response channel degrades to
+   manual copy-paste. Unknown value -> exclusive; use free-form command
+   mappings in the same section if present, else ask. Unparseable `tracker:`
+   line -> ask, never probe.
 1. `## Response channels` section in the gauntlet overrides file - either an
    `origin-type: command` entry or `manual` to force copy-paste, e.g.:
 
    ```markdown
    ## Response channels
    - github-issue: gh issue comment <n> --body-file <draft>
-   - linear-ticket: linearis comment <id> <draft>
+   - linear-ticket: linearis issues discuss <id> --body <draft> (mechanics: /skill:linear)
    - slack-paste: manual
    ```
 
 2. Default ladder: GitHub issue origin + `gh` available -> `gh issue comment`;
-   tracker ticket origin + a tool/CLI for it -> comment via that tool; Slack
+   tracker resolves to Linear -> load `/skill:linear` before the first
+   `linearis` call; all verbs, flags, and failure modes live there; tracker
+   ticket origin + a tool/CLI for it -> comment via that tool; Slack
    paste, free text, or no write path available -> render the response as a
    copy-paste block.
 

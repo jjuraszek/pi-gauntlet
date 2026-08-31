@@ -68,7 +68,10 @@ contains any of:
 
 - an `http(s)://` URL;
 - a tracker-style ID matching `[A-Z][A-Z0-9]+-\d+` (Linear/Jira form) **when a fetch
-  path exists** (a tracker tool/MCP, or a URL pattern in the gauntlet overrides file, see Project overrides);
+  path exists** (a tracker tool/MCP, or a URL pattern in the gauntlet overrides file,
+  see Project overrides). A tracker excluded by an overrides `## Issue tracker`
+  `tracker:` key has no fetch path regardless of installed tools; its IDs are listed
+  as unfetched refs;
 - a GitHub-style ref `owner/repo#N`, or a bare `#N` when the repo's tracker is
   GitHub Issues.
 
