@@ -183,7 +183,11 @@ Parallel dispatch rides on the `subagent` tool (the pi-cohort package). Mechanic
 - **Filesystem isolation** — `worktree: true` runs each task in its own git worktree so concurrent edits can't collide. Requires clean git state; each task's diff returns separately for you to integrate. Omit it for read-only investigations.
 - **Worktree base / `cwd`** — under `worktree: true` the base commit is `HEAD` resolved from the **top-level `cwd`**, which defaults to the orchestrator's process cwd. When you orchestrate from inside a git worktree, pass that worktree's absolute path as the top-level `cwd`, or children branch from the wrong checkout. Don't set per-task `cwd` with `worktree: true` — it must equal the shared cwd or the run errors.
 - **Agent choice** — `worker` is the pi-cohort builtin generalist. Use a persona (`implementer`, `code-reviewer`) when you want its system prompt and tool profile. Persona frontmatter (tools, thinking, context) is fixed; only `model`, `task`, `output`, `reads`, `progress`, `skill` are callable per task.
-- **Output capture** — `output: "<file>"` writes a task's summary to a file instead of inline; add `outputMode: "file-only"` for large results.
+- **Output capture** - `output: "<file>"` writes a task's summary to a file instead of inline; add `outputMode: "file-only"` for large results. When a batch uses `worktree: true`, each `output:` path must be absolute and outside every isolated checkout; a relative report is captured as helper work and then deleted with the checkout. In a non-isolated batch, a relative report lands in the shared working tree and risks being committed or overwritten by a later task.
+
+```bash
+REPORT_DIR=$(mktemp -d)
+```
 
 ```ts
 subagent({
@@ -191,9 +195,9 @@ subagent({
   worktree: true,        // isolate edits; omit for read-only investigations
   concurrency: 3,
   tasks: [
-    { agent: "worker", task: "Fix + explain failures in src/a.test.ts", output: "a.md" },
-    { agent: "worker", task: "Fix + explain failures in src/b.test.ts", output: "b.md" },
-    { agent: "worker", task: "Fix + explain failures in src/c.test.ts", output: "c.md" },
+    { agent: "worker", task: "Fix + explain failures in src/a.test.ts", output: "<REPORT_DIR>/a.md" },
+    { agent: "worker", task: "Fix + explain failures in src/b.test.ts", output: "<REPORT_DIR>/b.md" },
+    { agent: "worker", task: "Fix + explain failures in src/c.test.ts", output: "<REPORT_DIR>/c.md" },
   ],
 })
 ```

@@ -185,6 +185,10 @@ Auto-selected at handoff by `writing-plans` (any wave with ≥2 tasks) when the 
 
 **Set `cwd` to your worktree — resilience-critical.** This whole workflow runs *inside* a worktree, but the `subagent` tool resolves the worktree base from the **top-level `cwd`**, which defaults to the orchestrator's process cwd — the *primary* checkout (usually `main`), not the worktree. Omit `cwd` and `worktree: true` branches every child from the primary checkout's HEAD: the children never see your spec, plan, or prior-wave commits, and integration runs against the wrong baseline. Pass the worktree's absolute path as the top-level `cwd`. Do **not** set per-task `cwd` under `worktree: true` — pi-cohort requires it to equal the shared cwd and errors otherwise. (Clean-tree is enforced here too — `resolveRepoState` rejects a dirty tree — which is why each wave commits before the next.)
 
+```bash
+REPORT_DIR=$(mktemp -d)
+```
+
 ```ts
 subagent({
   context: "fresh",
@@ -193,8 +197,8 @@ subagent({
   concurrency: 4,        // default; cap = wave size
   tasks: [
     // do NOT set per-task cwd under worktree:true — it must equal the top-level cwd or the run errors
-    { agent: "implementer", task: "<task text + owned files + SCOPED_TEST_COMMANDS + status protocol>", output: "wave1-task1.md" },
-    { agent: "implementer", task: "<task text + owned files + SCOPED_TEST_COMMANDS + status protocol>", output: "wave1-task2.md" },
+    { agent: "implementer", task: "<task text + owned files + SCOPED_TEST_COMMANDS + status protocol>", output: "<REPORT_DIR>/wave1-task1.md" },
+    { agent: "implementer", task: "<task text + owned files + SCOPED_TEST_COMMANDS + status protocol>", output: "<REPORT_DIR>/wave1-task2.md" },
   ],
 })
 ```
