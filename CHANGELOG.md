@@ -1,5 +1,9 @@
 # Changelog
 
+## v5.2.1 - 2026-09-01
+
+- `linear` skill: seven `linearis` invocations corrected against the installed CLI (2026.7.0) - the nonexistent `issues comment-edit` becomes `issues edit <comment>`, `reply` takes a root discussion thread ID, `edit-reply` takes `<reply>`, `files upload` takes `<file>` (two occurrences), `attachments create`'s issue positional is optional, and gotcha (e) now documents two distinct relation flag sets (`relations add` has no `--blocked-by`). Setup is **preferred, not required**: a missing or unauthenticated `linearis` degrades and reports instead of blocking the run (MCP stays the fallback for a missing binary only). Drift resistance added in place - a once-per-session `linearis issues usage` consult for the issue-domain rows, a visible verified-against stamp under the quick-reference table, and one narrow parser-shape row in the failure table. Fixes #22. Spec: `doc/specs/2026-09-01-gh-22-linear-cli-verification.md`.
+
 ## v5.2.0 - 2026-08-31
 
 - **`plan_check` deterministic plan checker (new tool).** `phase-tracker` now registers `plan_check({ planPath })`, running 8 mechanical plan-vs-spec checks (table closure, quote integrity, anchor resolution, path existence, placeholder scan, wave file-disjointness, solo-line presence, header-only entrypoint) from a pi-free library at `extensions/lib/plan-check.ts`. Fail-closed: it never throws, and findings are returned for the main model to fix autonomously.
