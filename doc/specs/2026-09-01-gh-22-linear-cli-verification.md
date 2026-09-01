@@ -112,9 +112,13 @@ precondition for the session. One rule, stated identically here and in the edge-
 **MCP is the fallback for a missing binary only** (`command -v linearis` fails), unchanged from
 today. An installed-but-unauthenticated `linearis` reports the auth failure and continues
 degraded - it does not silently reroute to MCP, because the user's fix is to re-auth. Neither
-path hard-stops the agent; Linear functionality is crippled, the run is not blocked. When `linearis` is present and authenticated, run `linearis issues usage` **once per
+path hard-stops the agent; Linear functionality is crippled, the run is not blocked. When `linearis` is present, run `linearis issues usage` **once per
 session** before the first issue operation and treat its output as ground truth over the
-section 3 table.
+section 3 table. Authentication is not a precondition for the sweep: `usage` prints local
+help and makes no API call (verified with `LINEAR_API_TOKEN` unset), so an
+installed-but-unauthenticated CLI still gets its issue-domain rows verified - gating the
+sweep on auth would skip the cheap staleness check exactly when the agent is already
+degraded.
 
 Ordering guard: the sweep sits **inside** the branch that already probes, strictly after the
 preamble gauntlet-overrides check (the unnumbered block before section 1). `tracker: github | none | <unknown>` still means zero
@@ -146,9 +150,8 @@ Cost: one extra local CLI call per session, on the Linear path only.
 | Case | Behavior |
 |---|---|
 | `linearis` absent | Existing MCP fallback; no sweep; no hard stop. |
-| `linearis` present, `auth status` fails | Report, continue degraded; no sweep, and no MCP reroute (MCP covers a missing binary only - see section 1). |
+| `linearis` present, `auth status` fails | Report, continue degraded; no MCP reroute (MCP covers a missing binary only - see section 1). The sweep still runs - `usage` needs no auth. |
 | `issues usage` errors or returns nothing | Note once that the table is unverified this session; continue with the table. |
-| MCP path in use | Sweep skipped - `usage` is a CLI concept the MCP server does not expose. |
 | Overrides set a non-Linear `tracker:` | Skill stops at the preamble override check; sweep never reached. |
 | Drift found mid-session | Follow `--help`, complete the operation, report which row is stale. Never edit the skill file to "fix" it during a run. |
 

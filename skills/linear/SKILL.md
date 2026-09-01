@@ -38,15 +38,16 @@ No `linearis` and no MCP: report inability, never fabricate. MCP is the fallback
 **missing binary only** (`command -v linearis` fails); an installed-but-unauthenticated
 `linearis` re-auths rather than rerouting to MCP.
 
-**Session sweep.** When `linearis` is present and authenticated, run
-`linearis issues usage` once per session, before the first issue operation, and treat
-its output as ground truth for the **issue-domain rows** of the section 3 table (Read,
-Search, List, Create, Update, Discuss, Reply, Edit). Non-issue domains such as labels,
-teams, users, cycles, projects, attachments, files are outside this call's coverage and
-fall to the section 8 backstop, same as any row the sweep didn't run or couldn't reach.
-If the call errors, returns nothing, or the MCP path is in use, note once that the
-issue-domain rows are unverified this session and continue. The sweep lives inside this
-branch only - strictly after the override check above - so
+**Session sweep.** When `linearis` is present, run `linearis issues usage` once per
+session, before the first issue operation, and treat its output as ground truth for the
+**issue-domain rows** of the section 3 table (Read, Search, List, Create, Update,
+Discuss, Reply, Edit). Non-issue domains such as labels, teams, users, cycles, projects,
+attachments, files are outside this call's coverage and fall to the section 8 backstop,
+same as any row the sweep didn't run or couldn't reach. Authentication is not required -
+`usage` prints local help and makes no API call, so the sweep still runs on an
+installed-but-unauthenticated CLI. If the call errors or returns nothing, note once that
+the issue-domain rows are unverified this session and continue. The sweep lives inside
+the present-binary branch only - strictly after the override check above - so
 `tracker: github | none | <unknown>` still means zero probing.
 
 Optional: each `## Issue tracker` override key below, with its degradation.
