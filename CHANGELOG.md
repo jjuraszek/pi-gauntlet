@@ -1,5 +1,12 @@
 # Changelog
 
+## v5.2.0 - 2026-08-31
+
+- **`plan_check` deterministic plan checker (new tool).** `phase-tracker` now registers `plan_check({ planPath })`, running 8 mechanical plan-vs-spec checks (table closure, quote integrity, anchor resolution, path existence, placeholder scan, wave file-disjointness, solo-line presence, header-only entrypoint) from a pi-free library at `extensions/lib/plan-check.ts`. Fail-closed: it never throws, and findings are returned for the main model to fix autonomously.
+- **Implement-start gate (enforcing by default).** Inside a gauntlet flow, `phase_tracker({ action: "start", phase: "implement" })` is rejected unless a passing `plan_check` stamp exists and both the plan and spec files still match their stamped content hashes. Sixth flow guard, block-only, no new settings key - disable with `piGauntlet.flowGuards.enforce: false`. Outside a flow, `plan_check` acts as a plain linter.
+- **`writing-plans` Self-Review** is now one deterministic-checker bullet plus seven judgment bullets; the mechanical checks are no longer LLM-attested.
+- **`Parallel-safe:` structural probe.** The three consumer skills (`dispatching-parallel-agents`, `requesting-code-review`, `subagent-driven-development`) replace silent degradation with an explicit probe -> one reviewer re-ask -> explicit sequential fallback, with the `<group>` production now defined at the canonical consumer. Prose-only; the five pinned producer grammar copies are untouched. Fixes #19. Spec: `doc/specs/2026-08-31-gh-19-deterministic-plan-checker.md`.
+
 ## v5.1.0 - 2026-08-31
 
 - New skill `linear`: package-owned home for all linearis mechanics (verb reference, six gotchas, multi-line body pattern, ID-cache convention, failure modes, MCP fallback) and the five-key overrides `## Issue tracker` schema, including the explicit `tracker:` off-switch (`linear` / `github` / `none` - exclusive selection, zero probing when non-Linear). shape-ticket, check-delivery, and chase-bug slim to detection + a `/skill:linear` routing line (chase-bug's fabricated `linearis comment` example fixed); brainstorming's gatherer fetch-path definition honors the off-switch; `./skills/linear` joins the Claude Code marketplace allowlist (five exposed skills). Fixes #17. Spec: `doc/specs/2026-08-31-gh-17-linear-skill.md`.
