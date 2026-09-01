@@ -262,8 +262,9 @@ Use the `jira` CLI (authenticated via `jira login`), not `gh` or `linearis`.
 - post comment (Reporter note only): `jira issue comment ABC-123 --body "<text>"`
 ```
 
-**`linear` setup:** mandatory - `linearis` installed and authenticated (or a Linear
-MCP server as a fallback when `linearis` is unavailable). Optional - the five
+**`linear` setup:** preferred, not required - `linearis` installed and authenticated
+(or a Linear MCP server as a fallback when `linearis` is missing). Without either, the
+skill reports the gap and continues; it never blocks the run. Optional - the five
 `## Issue tracker` override keys (`tracker`, `workspace urlKey`, `default team`,
 `self`, `id cache`); the full schema is documented once, in
 [skills/linear/SKILL.md](./skills/linear/SKILL.md) - not restated here. Off switch:

@@ -21,8 +21,10 @@ this skill alters re-gates.
 
 ## 1. Setup
 
-Mandatory: `linearis` on PATH and authenticated (`linearis auth status`). Token
-resolution order: `--api-token`, `LINEAR_API_TOKEN`, `~/.linearis/token`.
+Preferred: `linearis` on PATH and authenticated (`linearis auth status`). Token
+resolution order: `--api-token`, `LINEAR_API_TOKEN`, `~/.linearis/token`. This is a
+preference, not a precondition - a missing or unauthenticated CLI degrades Linear
+functionality and is reported, never blocks the run.
 
 > **No `linearis` installed?** If `command -v linearis` fails, fall back to a
 > **Linear MCP server** when the harness has one configured - its tools cover the
@@ -32,7 +34,20 @@ resolution order: `--api-token`, `LINEAR_API_TOKEN`, `~/.linearis/token`.
 > examples below are then guidance for the equivalent MCP call, not literal
 > shell. pi-gauntlet ships no MCP setup; MCP is opportunistic.
 
-No `linearis` and no MCP: report inability, never fabricate.
+No `linearis` and no MCP: report inability, never fabricate. MCP is the fallback for a
+**missing binary only** (`command -v linearis` fails); an installed-but-unauthenticated
+`linearis` re-auths rather than rerouting to MCP.
+
+**Session sweep.** When `linearis` is present and authenticated, run
+`linearis issues usage` once per session, before the first issue operation, and treat
+its output as ground truth for the **issue-domain rows** of the section 3 table (Read,
+Search, List, Create, Update, Discuss, Reply, Edit). Non-issue domains such as labels,
+teams, users, cycles, projects, attachments, files are outside this call's coverage and
+fall to the section 8 backstop, same as any row the sweep didn't run or couldn't reach.
+If the call errors, returns nothing, or the MCP path is in use, note once that the
+issue-domain rows are unverified this session and continue. The sweep lives inside this
+branch only - strictly after the override check above - so
+`tracker: github | none | <unknown>` still means zero probing.
 
 Optional: each `## Issue tracker` override key below, with its degradation.
 
@@ -87,14 +102,18 @@ treated as absent.
 | Create | `linearis issues create "<title>" --team <default team> [--parent-ticket <id>] --status <status>` | Title is positional (no `--title`); `--team` required; `--parent-ticket` for sub-issues; state an explicit `--status` rather than relying on the default. |
 | Update | `linearis issues update <id> --status <status> --assignee <who> --labels <labels> --due-date <date> [relation flags]` | See gotcha (e) for relation flags. |
 | Discuss | `linearis issues discuss <id> --body "<text>"` | Starts a new top-level comment thread. |
-| Reply | `linearis issues reply <id> --body "<text>"` | Root comments only - see gotcha (b). |
-| Edit | `linearis issues comment-edit <id> --body "<text>"` / `linearis issues edit-reply <id> --body "<text>"` | Full rewrite, no history - see gotcha (a). |
+| Reply | `linearis issues reply <thread> --body "<text>"` | `<thread>` is a root discussion thread ID, not an issue ID - see gotcha (b). |
+| Edit | `linearis issues edit <comment> --body "<text>"` / `linearis issues edit-reply <reply> --body "<text>"` | Full rewrite, no history - see gotcha (a). |
 | Labels, teams, users, cycles | `linearis labels list`, `linearis teams list`, `linearis users list`, `linearis cycles list` | Use to resolve names to IDs; see id-cache convention. |
-| Attachments | `linearis attachments create <id> --url <url>` | Link-only, no inline render - see gotcha (d). |
-| Upload | `linearis files upload <path>` | Returns an `assetUrl` for inline embedding - see gotcha (d). |
+| Attachments | `linearis attachments create [<issue>] --url <url>` | Positional is optional (`--issue <issue>` alias); link-only, no inline render - see gotcha (d). |
+| Upload | `linearis files upload <file>` | Returns an `assetUrl` for inline embedding - see gotcha (d). |
 
 Workspace values above (`<default team>`, `<who>`, etc.) are placeholders bound to
 the override keys in section 2 - never a real urlKey, team prefix, or email.
+
+Snapshot verified against `linearis 2026.7.0` (2026-09-01). The installed CLI's
+`usage`/`--help` is ground truth; when they disagree, follow the CLI and tell the user
+this table is stale.
 
 ## 4. Gotchas
 
@@ -102,28 +121,31 @@ a. **Comment edit is a rewrite, no visible history.** To amend rather than repla
    fetch the old body and pass `OLD + "\n\n" + ADDITION`; surface the overwrite diff
    to the user before pushing.
 
-b. **`reply` targets must be root comments** (`parentId: null`). A non-root target
-   fails with a misleading validation error. To respond in-thread, resolve the
-   thread's root via `discussions`/`--with-comment-threads` and `reply` to that
-   root, or start a new `discuss` thread instead. `edit-reply` is NOT a reply
-   fallback - it rewrites an existing reply. Use it only for an explicitly
-   requested edit of the caller's own reply, behind the rewrite-confirmation rule
-   in (a).
+b. **`reply` targets must be root discussion threads.** `--help`: "`<thread>` must be a
+   root discussion thread ID." A non-root target fails with a misleading validation
+   error. To respond in-thread, resolve the thread's root via
+   `discussions`/`--with-comment-threads` and `reply` to that root, or start a new
+   `discuss` thread instead. `edit-reply` is NOT a reply fallback - it rewrites an
+   existing reply. Use it only for an explicitly requested edit of the caller's own
+   reply, behind the rewrite-confirmation rule in (a).
 
 c. **`@ABC-123` never resolves via the CLI/API.** Use the full issue URL
    `https://linear.app/<workspace urlKey>/issue/<id>`, which unfurls to a native
    badge and records a relation. A literal `@ID` in a body stays literal text.
 
-d. **Images go inline, links don't render.** `linearis files upload <path>` ->
+d. **Images go inline, links don't render.** `linearis files upload <file>` ->
    `![alt](<assetUrl>)` in the body embeds the image. `attachments create` only
    links a URL and renders no image. Asset URLs returned by a `read` are
    short-lived signed JWTs - re-upload for a fresh one, never re-paste an old one.
 
-e. **Relation flags are single-value.** `--blocks`, `--blocked-by`, `--relates-to`,
-   `--duplicate-of` on `create`/`update` keep only the last value if repeated in one
-   call. For multiple relations in one call, use
-   `linearis issues relations add <id>` with its comma-separated flags; otherwise
-   issue separate `update` calls.
+e. **Two different relation flag sets.** On `create`/`update`: `--blocks`,
+   `--blocked-by`, `--relates-to`, `--duplicate-of`, `--similar-to`, plus
+   `--remove-relation` on `update`. These are single-value - repeating one in a single
+   call keeps only the last value (observed behavior, not stated by `--help`). On
+   `linearis issues relations add <issue>` the set is smaller and comma-separated:
+   `--blocks`, `--related`, `--duplicate`, `--similar` - there is **no** `--blocked-by`,
+   so express that direction by inverting the relation or using `update`. For multiple
+   relations in one call use `relations add`; otherwise issue separate `update` calls.
 
 f. **`create`'s title is positional.** There is no `--title` flag.
 
@@ -173,9 +195,16 @@ Safety rules, in addition to the write gate above:
 | Missing `--team` error on create | `--team` is required | Supply `--team <default team>`. |
 | Search returns nothing unexpected | Search is case-sensitive | Retry with matching case. |
 | Cannot edit a comment | Comment belongs to another user | Reply instead of editing. |
-| Reply validation error | Target is not a root comment | See gotcha (b). |
+| Reply validation error | Target is not a root discussion thread | See gotcha (b). |
 | `@ID` shows as literal text | `@ABC-123` mentions don't resolve | Use the full issue URL (gotcha c). |
 | Read is slow | Big ticket with many comments/attachments | Drop `--with-*` flags not needed. |
+| Parser-shape failure on a documented invocation: unknown command/option, unexpected argument | Section 3's snapshot may have drifted from the installed CLI | Re-read that subcommand's `--help`; report the row stale **only if** help actually contradicts it, then follow help |
+
+The last row's trigger is deliberately narrow. Data, auth, status-name, and root-thread
+validation errors have their own rows above and are **not** drift - routing them to "the
+skill is stale" would misdiagnose ordinary failures. This row is the reactive path for
+when the section 1 session sweep didn't run, couldn't run, or doesn't cover the failing
+subcommand (any row outside the `issues` domain).
 
 ## 9. Discovery pointers
 
