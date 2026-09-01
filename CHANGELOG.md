@@ -1,5 +1,9 @@
 # Changelog
 
+## v5.2.2 - 2026-09-01
+
+- `linear` skill: the once-per-session `linearis issues usage` sweep no longer requires authentication. `usage` prints local help and makes no API call, so gating it on `auth status` skipped the cheap staleness check exactly when the agent was already degraded; it now runs whenever the binary is present. Also drops a dead "or the MCP path is in use" skip clause - the sweep sits inside the present-binary branch, and MCP is the fallback only when the binary is missing. Prose only, no code or config surface. Follow-up to #22; spec `doc/specs/2026-09-01-gh-22-linear-cli-verification.md` amended to match.
+
 ## v5.2.1 - 2026-09-01
 
 - `linear` skill: seven `linearis` invocations corrected against the installed CLI (2026.7.0) - the nonexistent `issues comment-edit` becomes `issues edit <comment>`, `reply` takes a root discussion thread ID, `edit-reply` takes `<reply>`, `files upload` takes `<file>` (two occurrences), `attachments create`'s issue positional is optional, and gotcha (e) now documents two distinct relation flag sets (`relations add` has no `--blocked-by`). Setup is **preferred, not required**: a missing or unauthenticated `linearis` degrades and reports instead of blocking the run (MCP stays the fallback for a missing binary only). Drift resistance added in place - a once-per-session `linearis issues usage` consult for the issue-domain rows, a visible verified-against stamp under the quick-reference table, and one narrow parser-shape row in the failure table. Fixes #22. Spec: `doc/specs/2026-09-01-gh-22-linear-cli-verification.md`.
