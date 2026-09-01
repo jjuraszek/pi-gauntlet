@@ -243,7 +243,7 @@ For the fan-out + worktree + patch-integration + conflict mechanics, see `dispat
 - Skipping the `Implementer Status` parse — treating every response as DONE
 - Starting on main without explicit user consent
 - Dispatching `code-reviewer` before every one of the wave's spec-review verdicts has landed (including fusing SR+CR into one parallel call)
-- Dispatching fixes sequentially on a clean HEAD despite a ≥ 2-ID `disjoint` group in the review's `Parallel-safe:` line
+- Dispatching fixes sequentially on a clean HEAD despite a certified (probe-passing, per dispatching-parallel-agents § Fix fan-out) ≥ 2-ID `disjoint` group in the review's `Parallel-safe:` line
 - Dispatching `code-reviewer` per task inside a wave (CR binds to the integrated wave diff)
 - Dispatching an implementer or code-reviewer without a `SCOPED_TEST_COMMANDS` value (commands or `none`)
 - About to run the full verification entrypoint during the implement phase — task and wave gates run scoped, plan-declared commands only; the full set belongs to verify

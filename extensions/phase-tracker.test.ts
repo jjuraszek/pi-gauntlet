@@ -1,8 +1,9 @@
 import assert from "node:assert/strict";
 import { after, test } from "node:test";
-import { mkdtempSync, mkdirSync, writeFileSync, rmSync } from "node:fs";
+import { mkdtempSync, mkdirSync, writeFileSync, rmSync, readFileSync } from "node:fs";
+import { createHash } from "node:crypto";
 import { tmpdir } from "node:os";
-import { join } from "node:path";
+import { isAbsolute, join } from "node:path";
 import registerPhaseTracker from "./phase-tracker.ts";
 
 const tempDirs: string[] = [];
@@ -475,4 +476,470 @@ test("second implementer after reviews re-arms the warning", async () => {
   } finally {
     if (priorDepth !== undefined) process.env.PI_SUBAGENT_DEPTH = priorDepth;
   }
+});
+
+// --- plan_check tool + hash stamp + replay + implement-start gate (gh-19) ---
+
+const sha256Hex = (bytes: Buffer) => createHash("sha256").update(bytes).digest("hex");
+
+const FIXTURE_SPEC = [
+  "# Fixture Spec",
+  "",
+  "## Design",
+  "Line A.",
+  "This part defines `helperFn()` config.",
+  "Another line here.",
+].join("\n");
+
+const FIXTURE_PLAN = `# Fixture Plan
+
+**Spec:** \`spec.md\`
+
+**Verification:** npm test
+
+---
+
+## Wave 1 - Two parallel tasks
+
+### Task 1: Implement helper
+
+**Spec:** spec.md § "Design" L4-L6
+
+**Files:**
+- Create: lib/task1.ts
+- Modify: file-a.ts
+
+This task implements helperFn() for parsing.
+
+### Task 2: Implement naming
+
+**Spec:** spec.md § "Design" L4-L4
+
+**Files:**
+- Create: lib/task2.ts
+- Modify: file-b.ts
+
+This task handles naming details.
+
+## Spec coverage
+
+| anchor | requirement | owner |
+|---|---|---|
+| § "Design" L4-L6 | parser grammar basics | Task 1 |
+| § "Design" L4-L4 | helper naming | Task 2 |
+`;
+
+function writePlanFixture(
+  dir: string,
+  opts: { mutatePlan?: (t: string) => string; mutateSpec?: (t: string) => string } = {},
+) {
+  const planText = opts.mutatePlan ? opts.mutatePlan(FIXTURE_PLAN) : FIXTURE_PLAN;
+  const specText = opts.mutateSpec ? opts.mutateSpec(FIXTURE_SPEC) : FIXTURE_SPEC;
+  const planPath = join(dir, "plan.md");
+  const specPath = join(dir, "spec.md");
+  writeFileSync(planPath, planText);
+  writeFileSync(specPath, specText);
+  writeFileSync(join(dir, "file-a.ts"), "// a\n");
+  writeFileSync(join(dir, "file-b.ts"), "// b\n");
+  return { planPath, specPath, planText, specText };
+}
+
+const readyForImplementBranch = implementBranch().slice(0, 4);
+
+const planCheckResult = (details: unknown) => ({
+  type: "message",
+  message: { role: "toolResult", toolName: "plan_check", details },
+});
+
+test("plan_check is registered", () => {
+  const h = harness();
+  assert.ok(h.tools.some((t) => t.name === "plan_check"));
+});
+
+test("plan_check pass: text, details, and stamp arming when a flow is entered", async () => {
+  const dir = tempCwd();
+  const { planPath, specPath, planText, specText } = writePlanFixture(dir);
+  const h = harness({ cwd: dir, branch: readyForImplementBranch });
+  await h.emit("session_start");
+  const tool = h.tools.find((t) => t.name === "plan_check")!;
+  const res = (await tool.execute("t1", { planPath }, undefined, undefined, h.ctx)) as {
+    content: { text: string }[];
+    details: { status: string; planPath: string; planSha256: string; specPath: string; specSha256: string };
+  };
+  assert.match(res.content[0].text, /^PASS/);
+  assert.equal(res.details.status, "pass");
+  assert.equal(res.details.planPath, planPath);
+  assert.equal(res.details.specPath, specPath);
+  assert.equal(res.details.planSha256, sha256Hex(readFileSync(planPath)));
+  assert.equal(res.details.specSha256, sha256Hex(readFileSync(specPath)));
+  assert.ok(isAbsolute(res.details.planPath));
+  assert.ok(isAbsolute(res.details.specPath));
+
+  // stamp armed: implement-start now succeeds.
+  const phaseTool = h.tools.find((t) => t.name === "phase_tracker")!;
+  const start = (await phaseTool.execute("t2", { action: "start", phase: "implement" }, undefined, undefined, h.ctx)) as {
+    details: { error?: string; phases: { implement: { status: string } } };
+  };
+  assert.equal(start.details.error, undefined);
+  assert.equal(start.details.phases.implement.status, "in_progress");
+  void planText;
+  void specText;
+});
+
+test("plan_check pass outside a flow: no stamp, plain-linter text", async () => {
+  const dir = tempCwd();
+  const { planPath } = writePlanFixture(dir);
+  const h = harness({ cwd: dir });
+  await h.emit("session_start");
+  const tool = h.tools.find((t) => t.name === "plan_check")!;
+  const res = (await tool.execute("t1", { planPath }, undefined, undefined, h.ctx)) as { content: { text: string }[] };
+  assert.match(res.content[0].text, /^PASS \(no flow to stamp\)/);
+});
+
+test("plan_check fail: mutated plan body, no error key, clears stamp", async () => {
+  const dir = tempCwd();
+  const { planPath } = writePlanFixture(dir, {
+    mutatePlan: (t) => t.replace("implements helperFn() for parsing.", "implements the helper for parsing."),
+  });
+  const h = harness({ cwd: dir, branch: readyForImplementBranch });
+  await h.emit("session_start");
+  const tool = h.tools.find((t) => t.name === "plan_check")!;
+  const res = (await tool.execute("t1", { planPath }, undefined, undefined, h.ctx)) as {
+    content: { text: string }[];
+    details: { status: string; error?: string };
+  };
+  assert.match(res.content[0].text, /^FAIL/);
+  assert.equal(res.details.status, "fail");
+  assert.equal("error" in res.details, false);
+
+  const phaseTool = h.tools.find((t) => t.name === "phase_tracker")!;
+  const start = (await phaseTool.execute("t2", { action: "start", phase: "implement" }, undefined, undefined, h.ctx)) as {
+    details: { error?: string };
+  };
+  assert.match(start.details.error ?? "", /plan_check/);
+});
+
+test("plan_check fail: unresolvable spec path", async () => {
+  const dir = tempCwd();
+  const { planPath } = writePlanFixture(dir, {
+    mutatePlan: (t) => t.replace("**Spec:** `spec.md`", "**Spec:** `missing-spec.md`"),
+  });
+  const h = harness({ cwd: dir, branch: readyForImplementBranch });
+  await h.emit("session_start");
+  const tool = h.tools.find((t) => t.name === "plan_check")!;
+  const res = (await tool.execute("t1", { planPath }, undefined, undefined, h.ctx)) as {
+    content: { text: string }[];
+    details: { status: string; findings?: { check: string }[]; error?: string };
+  };
+  assert.match(res.content[0].text, /^FAIL/);
+  assert.equal(res.details.status, "fail");
+  assert.equal("error" in res.details, false);
+  assert.ok(res.details.findings?.some((f) => f.check === "input"));
+
+  const phaseTool = h.tools.find((t) => t.name === "phase_tracker")!;
+  const start = (await phaseTool.execute("t2", { action: "start", phase: "implement" }, undefined, undefined, h.ctx)) as {
+    details: { error?: string };
+  };
+  assert.match(start.details.error ?? "", /plan_check/);
+});
+
+test("plan_check fail: header **Spec:** extraction is confined to the header (a path-only-looking line below the separator does not count)", async () => {
+  const dir = tempCwd();
+  const { planPath } = writePlanFixture(dir, {
+    mutatePlan: (t) =>
+      t
+        .replace("**Spec:** `spec.md`\n\n", "")
+        .replace(
+          "## Wave 1 - Two parallel tasks",
+          "## Wave 1 - Two parallel tasks\n\n**Spec:** `not-the-header-spec.md`\n",
+        ),
+  });
+  const h = harness({ cwd: dir, branch: readyForImplementBranch });
+  await h.emit("session_start");
+  const tool = h.tools.find((t) => t.name === "plan_check")!;
+  const res = (await tool.execute("t1", { planPath }, undefined, undefined, h.ctx)) as {
+    content: { text: string }[];
+    details: { status: string; findings?: { check: string; reason: string }[] };
+  };
+  assert.match(res.content[0].text, /^FAIL/);
+  assert.equal(res.details.status, "fail");
+  assert.ok(
+    res.details.findings?.some((f) => f.reason.includes("no path-only **Spec:** header line found in plan")),
+    `expected the missing-header-spec finding, got: ${JSON.stringify(res.details.findings)}`,
+  );
+});
+
+test("plan_check fail: plan header has no path-only **Spec:** line at all", async () => {
+  const dir = tempCwd();
+  const { planPath } = writePlanFixture(dir, {
+    mutatePlan: (t) => t.replace("**Spec:** `spec.md`\n\n", ""),
+  });
+  const h = harness({ cwd: dir, branch: readyForImplementBranch });
+  await h.emit("session_start");
+  const tool = h.tools.find((t) => t.name === "plan_check")!;
+  const res = (await tool.execute("t1", { planPath }, undefined, undefined, h.ctx)) as {
+    content: { text: string }[];
+    details: { status: string; findings?: { check: string }[] };
+  };
+  assert.match(res.content[0].text, /^FAIL/);
+  assert.equal(res.details.status, "fail");
+  assert.ok(res.details.findings?.some((f) => f.check === "input"));
+
+  const phaseTool = h.tools.find((t) => t.name === "phase_tracker")!;
+  const start = (await phaseTool.execute("t2", { action: "start", phase: "implement" }, undefined, undefined, h.ctx)) as {
+    details: { error?: string };
+  };
+  assert.match(start.details.error ?? "", /plan_check/);
+});
+
+test("implement-start gate: rejects with no stamp, names plan_check remedy", async () => {
+  const h = harness({ branch: readyForImplementBranch });
+  await h.emit("session_start");
+  const tool = h.tools.find((t) => t.name === "phase_tracker")!;
+  const res = (await tool.execute("t1", { action: "start", phase: "implement" }, undefined, undefined, h.ctx)) as {
+    content: { text: string }[];
+    details: { error?: string };
+  };
+  assert.match(res.content[0].text, /plan_check/);
+  assert.ok(res.details.error);
+});
+
+test("implement-start gate: stale plan bytes rejected, names the stale file", async () => {
+  const dir = tempCwd();
+  const { planPath } = writePlanFixture(dir);
+  const h = harness({ cwd: dir, branch: readyForImplementBranch });
+  await h.emit("session_start");
+  const planCheck = h.tools.find((t) => t.name === "plan_check")!;
+  await planCheck.execute("t1", { planPath }, undefined, undefined, h.ctx);
+  writeFileSync(planPath, readFileSync(planPath, "utf8") + "\nx");
+  const phaseTool = h.tools.find((t) => t.name === "phase_tracker")!;
+  const res = (await phaseTool.execute("t2", { action: "start", phase: "implement" }, undefined, undefined, h.ctx)) as {
+    details: { error?: string };
+  };
+  assert.match(res.details.error ?? "", /stale/);
+  assert.match(res.details.error ?? "", new RegExp(planPath.replace(/[/.]/g, "\\$&")));
+});
+
+test("implement-start gate: stale spec bytes rejected, names the stale file", async () => {
+  const dir = tempCwd();
+  const { planPath, specPath } = writePlanFixture(dir);
+  const h = harness({ cwd: dir, branch: readyForImplementBranch });
+  await h.emit("session_start");
+  const planCheck = h.tools.find((t) => t.name === "plan_check")!;
+  await planCheck.execute("t1", { planPath }, undefined, undefined, h.ctx);
+  writeFileSync(specPath, readFileSync(specPath, "utf8") + "\nx");
+  const phaseTool = h.tools.find((t) => t.name === "phase_tracker")!;
+  const res = (await phaseTool.execute("t2", { action: "start", phase: "implement" }, undefined, undefined, h.ctx)) as {
+    details: { error?: string };
+  };
+  assert.match(res.details.error ?? "", /stale/);
+  assert.match(res.details.error ?? "", new RegExp(specPath.replace(/[/.]/g, "\\$&")));
+});
+
+test("implement-start gate: missing stamped file rejected, names the missing path", async () => {
+  const dir = tempCwd();
+  const { planPath } = writePlanFixture(dir);
+  const h = harness({ cwd: dir, branch: readyForImplementBranch });
+  await h.emit("session_start");
+  const planCheck = h.tools.find((t) => t.name === "plan_check")!;
+  await planCheck.execute("t1", { planPath }, undefined, undefined, h.ctx);
+  rmSync(planPath);
+  const phaseTool = h.tools.find((t) => t.name === "phase_tracker")!;
+  const res = (await phaseTool.execute("t2", { action: "start", phase: "implement" }, undefined, undefined, h.ctx)) as {
+    details: { error?: string };
+  };
+  assert.match(res.details.error ?? "", /missing/);
+  assert.match(res.details.error ?? "", new RegExp(planPath.replace(/[/.]/g, "\\$&")));
+});
+
+test("implement-start gate: enforce false skips the gate entirely", async () => {
+  const dir = tempCwd({ piGauntlet: { flowGuards: { enforce: false } } });
+  const h = harness({ cwd: dir, branch: readyForImplementBranch });
+  await h.emit("session_start");
+  const phaseTool = h.tools.find((t) => t.name === "phase_tracker")!;
+  const res = (await phaseTool.execute("t1", { action: "start", phase: "implement" }, undefined, undefined, h.ctx)) as {
+    details: { error?: string; phases: { implement: { status: string } } };
+  };
+  assert.equal(res.details.error, undefined);
+  assert.equal(res.details.phases.implement.status, "in_progress");
+});
+
+test("replay: a passing plan_check result restores the stamp without re-running the tool", async () => {
+  const dir = tempCwd();
+  const { planPath, specPath } = writePlanFixture(dir);
+  const passDetails = {
+    status: "pass",
+    planPath,
+    planSha256: sha256Hex(readFileSync(planPath)),
+    specPath,
+    specSha256: sha256Hex(readFileSync(specPath)),
+  };
+  const h = harness({ cwd: dir, branch: [...readyForImplementBranch, planCheckResult(passDetails)] });
+  await h.emit("session_start");
+  const phaseTool = h.tools.find((t) => t.name === "phase_tracker")!;
+  const res = (await phaseTool.execute("t1", { action: "start", phase: "implement" }, undefined, undefined, h.ctx)) as {
+    details: { error?: string; phases: { implement: { status: string } } };
+  };
+  assert.equal(res.details.error, undefined);
+  assert.equal(res.details.phases.implement.status, "in_progress");
+});
+
+test("replay: pass then fail clears the stamp", async () => {
+  const dir = tempCwd();
+  const { planPath, specPath } = writePlanFixture(dir);
+  const passDetails = {
+    status: "pass",
+    planPath,
+    planSha256: sha256Hex(readFileSync(planPath)),
+    specPath,
+    specSha256: sha256Hex(readFileSync(specPath)),
+  };
+  const failDetails = { status: "fail", planPath };
+  const h = harness({
+    cwd: dir,
+    branch: [...readyForImplementBranch, planCheckResult(passDetails), planCheckResult(failDetails)],
+  });
+  await h.emit("session_start");
+  const phaseTool = h.tools.find((t) => t.name === "phase_tracker")!;
+  const res = (await phaseTool.execute("t1", { action: "start", phase: "implement" }, undefined, undefined, h.ctx)) as {
+    details: { error?: string };
+  };
+  assert.match(res.details.error ?? "", /plan_check/);
+});
+
+test("replay: a plan_check pass observed before any flow entry does not arm the stamp, and a live walk with no live plan_check is rejected", async () => {
+  const dir = tempCwd();
+  const { planPath, specPath } = writePlanFixture(dir);
+  const passDetails = {
+    status: "pass",
+    planPath,
+    planSha256: sha256Hex(readFileSync(planPath)),
+    specPath,
+    specSha256: sha256Hex(readFileSync(specPath)),
+  };
+  // plan_check pass happens with gauntletEntered still false: no phase_tracker
+  // history precedes it in the branch.
+  const h = harness({ cwd: dir, branch: [planCheckResult(passDetails)] });
+  await h.emit("session_start");
+  const phaseTool = h.tools.find((t) => t.name === "phase_tracker")!;
+  await phaseTool.execute("t1", { action: "start", phase: "brainstorm" }, undefined, undefined, h.ctx);
+  await phaseTool.execute("t2", { action: "complete", phase: "brainstorm" }, undefined, undefined, h.ctx);
+  await phaseTool.execute("t3", { action: "start", phase: "plan" }, undefined, undefined, h.ctx);
+  await phaseTool.execute("t4", { action: "complete", phase: "plan" }, undefined, undefined, h.ctx);
+  const res = (await phaseTool.execute("t5", { action: "start", phase: "implement" }, undefined, undefined, h.ctx)) as {
+    details: { error?: string };
+  };
+  assert.match(res.details.error ?? "", /plan_check/);
+});
+
+test("replay: a phase_tracker reset clears the stamp", async () => {
+  const dir = tempCwd();
+  const { planPath, specPath } = writePlanFixture(dir);
+  const passDetails = {
+    status: "pass",
+    planPath,
+    planSha256: sha256Hex(readFileSync(planPath)),
+    specPath,
+    specSha256: sha256Hex(readFileSync(specPath)),
+  };
+  const h = harness({
+    cwd: dir,
+    branch: [
+      ...readyForImplementBranch,
+      planCheckResult(passDetails),
+      phaseResult("reset", phases()),
+      ...readyForImplementBranch,
+    ],
+  });
+  await h.emit("session_start");
+  const phaseTool = h.tools.find((t) => t.name === "phase_tracker")!;
+  const res = (await phaseTool.execute("t1", { action: "start", phase: "implement" }, undefined, undefined, h.ctx)) as {
+    details: { error?: string };
+  };
+  assert.match(res.details.error ?? "", /plan_check/);
+});
+
+test("replay via session_fork: a passing plan_check result restores the stamp without re-running the tool", async () => {
+  const dir = tempCwd();
+  const { planPath, specPath } = writePlanFixture(dir);
+  const passDetails = {
+    status: "pass",
+    planPath,
+    planSha256: sha256Hex(readFileSync(planPath)),
+    specPath,
+    specSha256: sha256Hex(readFileSync(specPath)),
+  };
+  const h = harness({ cwd: dir, branch: [...readyForImplementBranch, planCheckResult(passDetails)] });
+  // The child fork inherits the parent's branch; phase-tracker must rebuild
+  // phases/gauntletEntered/the stamp from replay on session_fork exactly as it
+  // does on session_start. Without that rebuild, gauntletEntered would stay
+  // false (its un-replayed default) and the implement-start gate below would
+  // be skipped entirely rather than genuinely satisfied - the plan.status
+  // assertion is what tells the two apart (a skipped gate leaves plan pending).
+  await h.emit("session_fork");
+  const phaseTool = h.tools.find((t) => t.name === "phase_tracker")!;
+  const res = (await phaseTool.execute("t1", { action: "start", phase: "implement" }, undefined, undefined, h.ctx)) as {
+    details: { error?: string; phases: { plan: { status: string }; implement: { status: string } } };
+  };
+  assert.equal(res.details.error, undefined);
+  assert.equal(res.details.phases.plan.status, "complete");
+  assert.equal(res.details.phases.implement.status, "in_progress");
+});
+
+test("replay via session_tree: a passing plan_check result restores the stamp without re-running the tool", async () => {
+  const dir = tempCwd();
+  const { planPath, specPath } = writePlanFixture(dir);
+  const passDetails = {
+    status: "pass",
+    planPath,
+    planSha256: sha256Hex(readFileSync(planPath)),
+    specPath,
+    specSha256: sha256Hex(readFileSync(specPath)),
+  };
+  const h = harness({ cwd: dir, branch: [...readyForImplementBranch, planCheckResult(passDetails)] });
+  // Fork/tree sessions follow the same branch-replay semantics as fork/switch:
+  // phase-tracker must rebuild phases/gauntletEntered/the stamp from replay on
+  // session_tree exactly as it does on the other three events. Without that
+  // rebuild, gauntletEntered would stay false (its un-replayed default) and
+  // the implement-start gate below would be skipped entirely rather than
+  // genuinely satisfied - the plan.status assertion is what tells the two
+  // apart (a skipped gate leaves plan pending).
+  await h.emit("session_tree");
+  const phaseTool = h.tools.find((t) => t.name === "phase_tracker")!;
+  const res = (await phaseTool.execute("t1", { action: "start", phase: "implement" }, undefined, undefined, h.ctx)) as {
+    details: { error?: string; phases: { plan: { status: string }; implement: { status: string } } };
+  };
+  assert.equal(res.details.error, undefined);
+  assert.equal(res.details.phases.plan.status, "complete");
+  assert.equal(res.details.phases.implement.status, "in_progress");
+});
+
+test("replay via session_switch: pass then fail clears the stamp, rebuilt from replay rather than a live run", async () => {
+  const dir = tempCwd();
+  const { planPath, specPath } = writePlanFixture(dir);
+  const passDetails = {
+    status: "pass",
+    planPath,
+    planSha256: sha256Hex(readFileSync(planPath)),
+    specPath,
+    specSha256: sha256Hex(readFileSync(specPath)),
+  };
+  const failDetails = { status: "fail", planPath };
+  const h = harness({
+    cwd: dir,
+    branch: [...readyForImplementBranch, planCheckResult(passDetails), planCheckResult(failDetails)],
+  });
+  // session_switch must rebuild gauntletEntered (true, from the replayed
+  // readyForImplementBranch entries) and the stamp (armed by the pass, then
+  // cleared by the fail) purely from replay - no plan_check tool call happens
+  // in this test. If the rebuild didn't run, gauntletEntered would stay false
+  // and the implement-start gate would be skipped (no error) instead of
+  // rejecting for a stale/missing stamp, so this assertion distinguishes the
+  // two.
+  await h.emit("session_switch");
+  const phaseTool = h.tools.find((t) => t.name === "phase_tracker")!;
+  const res = (await phaseTool.execute("t1", { action: "start", phase: "implement" }, undefined, undefined, h.ctx)) as {
+    details: { error?: string };
+  };
+  assert.match(res.details.error ?? "", /plan_check/);
 });

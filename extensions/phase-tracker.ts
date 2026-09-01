@@ -10,8 +10,8 @@
  */
 
 import { execSync } from "node:child_process";
-import { readdirSync, readFileSync } from "node:fs";
-import { join } from "node:path";
+import { existsSync, globSync, readdirSync, readFileSync, readFileSync as readFileBytes } from "node:fs";
+import { isAbsolute, join, resolve } from "node:path";
 import { StringEnum } from "@earendil-works/pi-ai";
 import type { ExtensionAPI, ExtensionContext, Theme } from "@earendil-works/pi-coding-agent";
 import { Text } from "@earendil-works/pi-tui";
@@ -23,6 +23,7 @@ import {
   settingsErrorWarning,
 } from "./lib/gauntlet-settings.ts";
 import { loadGauntletSettings } from "./lib/gauntlet-settings-loader.ts";
+import { checkPlan, sha256, type FsPort, type PlanCheckFinding } from "./lib/plan-check.ts";
 import {
   checkSubstep,
   findMarkerFile,
@@ -56,6 +57,22 @@ interface PhaseTrackerDetails {
   action: "start" | "complete" | "skip" | "status" | "reset" | "substep";
   phases: PhaseMap;
   error?: string;
+}
+
+interface PlanCheckStamp {
+  planPath: string; // absolute
+  planSha256: string;
+  specPath: string; // absolute
+  specSha256: string;
+}
+
+interface PlanCheckDetails {
+  status: "pass" | "fail";
+  planPath: string;
+  planSha256?: string;
+  specPath?: string;
+  specSha256?: string;
+  findings?: PlanCheckFinding[];
 }
 
 // Qualification per spec "Qualifying dispatch": a successful conformance-reviewer
@@ -288,6 +305,7 @@ export default function (pi: ExtensionAPI) {
   let phases: PhaseMap = emptyPhases();
   let conformanceDispatched = false;
   let gauntletEntered = false;
+  let planCheckStamp: PlanCheckStamp | undefined;
   const attemptedRecoveryEdges = new Set<RecoveryEdge>();
 
   let cadenceSeq = 0;
@@ -363,6 +381,7 @@ export default function (pi: ExtensionAPI) {
     phases = emptyPhases();
     conformanceDispatched = false;
     gauntletEntered = false;
+    planCheckStamp = undefined;
     attemptedRecoveryEdges.clear();
     firedGuards.clear();
     pendingGuardWarnings.clear();
@@ -386,7 +405,17 @@ export default function (pi: ExtensionAPI) {
         if (details && !details.error) {
           phases = details.phases;
           gauntletEntered = nextGauntletEntered(gauntletEntered, details.action, details.phases.brainstorm.status);
-          if (details.action === "reset") conformanceDispatched = false;
+          if (details.action === "reset") {
+            conformanceDispatched = false;
+            planCheckStamp = undefined;
+          }
+        }
+      } else if (msg.toolName === "plan_check") {
+        const d = msg.details as PlanCheckDetails | undefined;
+        if (gauntletEntered && d?.status === "pass" && d.planPath && d.planSha256 && d.specPath && d.specSha256) {
+          planCheckStamp = { planPath: d.planPath, planSha256: d.planSha256, specPath: d.specPath, specSha256: d.specSha256 };
+        } else if (d?.status === "fail") {
+          planCheckStamp = undefined;
         }
       } else if (msg.toolName === "subagent") {
         if (qualifiesAsClosureDispatch(msg.details)) conformanceDispatched = true;
@@ -657,6 +686,87 @@ export default function (pi: ExtensionAPI) {
     },
   });
 
+  const PlanCheckParams = Type.Object({
+    planPath: Type.String({ description: "Path to the implementation plan (absolute, or relative to cwd)" }),
+  });
+
+  pi.registerTool({
+    name: "plan_check",
+    label: "Plan Check",
+    description:
+      "Deterministically verify an implementation plan against its spec (8 mechanical checks); " +
+      "a pass stamps the plan for implement-start.",
+    parameters: PlanCheckParams,
+    async execute(_toolCallId, params, _signal, _onUpdate, ctx) {
+      const fail = (findings: PlanCheckFinding[], planAbs: string) => {
+        planCheckStamp = undefined;
+        const lines = findings.map((f) => `${f.check} @ line ${f.line}: ${f.reason}\n  ${f.text}`);
+        return {
+          content: [{ type: "text" as const, text: `FAIL (${findings.length} findings)\n${lines.join("\n")}` }],
+          details: { status: "fail", planPath: planAbs, findings } as PlanCheckDetails,
+        };
+      };
+      const planAbs = isAbsolute(params.planPath) ? params.planPath : resolve(ctx.cwd, params.planPath);
+      try {
+        let planBytes: Buffer;
+        try {
+          planBytes = readFileBytes(planAbs);
+        } catch {
+          return fail([{ check: "input", line: 0, text: "", reason: `plan file unreadable at ${planAbs}` }], planAbs);
+        }
+        const planText = planBytes.toString("utf8");
+        const planLines = planText.split("\n");
+        const planSeparatorIdx = planLines.findIndex((l) => l.trim() === "---");
+        const planHeaderLines = planSeparatorIdx === -1 ? planLines : planLines.slice(0, planSeparatorIdx);
+        const specLine = planHeaderLines.find((l) => /^\*\*Spec:\*\*/.test(l) && !l.includes("\u00a7"));
+        const specPathRaw = specLine
+          ?.replace(/^\*\*Spec:\*\*/, "")
+          .trim()
+          .replace(/^`|`$/g, "");
+        if (!specPathRaw) {
+          return fail(
+            [{ check: "input", line: 0, text: "", reason: "no path-only **Spec:** header line found in plan" }],
+            planAbs,
+          );
+        }
+        const specAbs = isAbsolute(specPathRaw) ? specPathRaw : resolve(ctx.cwd, specPathRaw);
+        let specBytes: Buffer;
+        try {
+          specBytes = readFileBytes(specAbs);
+        } catch {
+          return fail([{ check: "input", line: 0, text: "", reason: `spec file unreadable at ${specAbs}` }], planAbs);
+        }
+        const specText = specBytes.toString("utf8");
+        const port: FsPort = {
+          exists: (p) => existsSync(resolve(ctx.cwd, p)),
+          glob: (pattern) => globSync(pattern, { cwd: ctx.cwd }),
+        };
+        const findings = checkPlan(planText, specText, port);
+        if (findings.length > 0) return fail(findings, planAbs);
+
+        const planSha256 = sha256(planBytes);
+        const specSha256 = sha256(specBytes);
+        const details: PlanCheckDetails = {
+          status: "pass",
+          planPath: planAbs,
+          planSha256,
+          specPath: specAbs,
+          specSha256,
+        };
+        if (gauntletEntered) {
+          planCheckStamp = { planPath: planAbs, planSha256, specPath: specAbs, specSha256 };
+          return {
+            content: [{ type: "text" as const, text: "PASS \u2014 plan verified and stamped for implement-start" }],
+            details,
+          };
+        }
+        return { content: [{ type: "text" as const, text: "PASS (no flow to stamp)" }], details };
+      } catch (err) {
+        return fail([{ check: "internal", line: 0, text: "", reason: String(err) }], planAbs);
+      }
+    },
+  });
+
   pi.registerTool({
     name: "phase_tracker",
     label: "Phase Tracker",
@@ -705,6 +815,35 @@ export default function (pi: ExtensionAPI) {
                 error: `${blocked} already in_progress`,
               } as PhaseTrackerDetails,
             };
+          }
+          if (
+            params.phase === "implement" &&
+            gauntletEntered &&
+            resolveFlowGuards(loadGauntletSettings(ctx.cwd).gauntlet).enforce
+          ) {
+            const reject = (text: string) => ({
+              content: [{ type: "text" as const, text: `Error: ${text}` }],
+              details: { action: "start", phases: { ...phases }, error: text } as PhaseTrackerDetails,
+            });
+            if (!planCheckStamp) {
+              return reject(
+                'plan not verified - run plan_check({ planPath: "<plan path>" }) and fix findings before starting implementation',
+              );
+            }
+            for (const [file, expected] of [
+              [planCheckStamp.planPath, planCheckStamp.planSha256],
+              [planCheckStamp.specPath, planCheckStamp.specSha256],
+            ] as const) {
+              let bytes: Buffer;
+              try {
+                bytes = readFileBytes(file);
+              } catch {
+                return reject(`plan-check stamp file missing at ${file} - re-run plan_check on the current plan path`);
+              }
+              if (sha256(bytes) !== expected) {
+                return reject(`plan-check stamp is stale: ${file} changed since the last pass - re-run plan_check and retry`);
+              }
+            }
           }
           phases = { ...phases, [params.phase]: transitionPhaseState("in_progress") as PhaseState };
           gauntletEntered = nextGauntletEntered(gauntletEntered, "start", phases.brainstorm.status);

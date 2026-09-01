@@ -112,7 +112,14 @@ Reviewers certify fix concurrency with a `Parallel-safe:` line (see the reviewer
 
 **Precondition:** a clean committed HEAD containing the code under review. When the reviewed change is an unintegrated patch (a wave-mode per-patch spec review), each fix task branches from the wave's base HEAD and carries the prior patch verbatim in its task text — the consuming loop's existing re-dispatch protocol. When the tree is dirty (e.g. post-integration, before the wave commit), the fan-out is unavailable: fix sequentially in place.
 
-**Degradation:** missing, malformed, or ID-less `Parallel-safe:` line, or no `disjoint` group with ≥ 2 IDs → fully sequential fixes. Degradation is silent — it costs parallelism, never correctness.
+Grammar (identical across producers, modulo id prefix — `F` for code/spec reviewers, `G` for conformance-reviewer):
+
+```text
+<group> = <comma-separated id list> " disjoint"
+        | <id> " conflicts " <id> " (" <reason> ")"
+```
+
+**Structural probe:** when the report carries >= 2 actionable finding IDs (Critical/Moderate findings for code-reviewer; PARTIAL/MISSING/scope-creep findings for spec-reviewer; non-DELIVERED gaps for conformance-reviewer), validate the certificate before the fan-out decision: the review must contain **exactly one** line matching `^Parallel-safe: ` whose remainder parses as `<group>[; <group>]*` (grammar above). Zero matching lines, an unparseable remainder, or **any second** `Parallel-safe:` line (identical or not) = malformed -> re-ask the reviewer **once**, quoting the expected grammar, before any disposition or fan-out decision. Still malformed after the re-ask -> fully sequential fixes with an explicit one-line degradation notice in the orchestrator's visible output — never silent. A probe-passing line with no >= 2-ID `disjoint` group is **valid**: sequential fixes, no re-ask, no notice (the certificate says "serial", not a malformation). Fewer than 2 actionable IDs -> skip the probe (nothing to fan out). Reviewer errors (no report at all) are out of scope here — report-shape validation, not report-existence; existing dispatch-failure handling applies.
 
 **After the fix wave:** integrate patches serially per "Review and Integrate" above (mis-partition is self-healing: integrate the successes, re-run the conflicting finding sequentially on integrated HEAD); run the consuming loop's scoped test gate on the integrated tree; then one re-review of the integrated fix delta, per the consuming loop's own rules. The fan-out counts as one fix round against the consuming loop's budget — it grants no extra rounds.
 
