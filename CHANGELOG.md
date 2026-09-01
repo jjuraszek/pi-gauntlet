@@ -1,5 +1,9 @@
 # Changelog
 
+## v5.2.3 - 2026-09-01
+
+- Isolated `subagent` dispatch examples now mint an OS-temp report directory and use absolute `output:` paths, preventing reports from being captured in and deleted with throwaway worktrees. The parallel-dispatch Output capture guidance now distinguishes that isolated failure mode from non-isolated shared-working-tree commit/overwrite risk. Fixes #23. Spec: `doc/specs/2026-09-01-gh-23-absolute-report-paths.md`.
+
 ## v5.2.2 - 2026-09-01
 
 - `linear` skill: the once-per-session `linearis issues usage` sweep no longer requires authentication. `usage` prints local help and makes no API call, so gating it on `auth status` skipped the cheap staleness check exactly when the agent was already degraded; it now runs whenever the binary is present. Also drops a dead "or the MCP path is in use" skip clause - the sweep sits inside the present-binary branch, and MCP is the fallback only when the binary is missing. Prose only, no code or config surface. Follow-up to #22; spec `doc/specs/2026-09-01-gh-22-linear-cli-verification.md` amended to match.
