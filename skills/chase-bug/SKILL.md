@@ -1,6 +1,6 @@
 ---
 name: chase-bug
-description: Use when a human hands you a bug report to triage - a Slack paste, tracker ticket, GitHub issue, or described symptom - and the goal is an evidenced verdict (real bug, not-a-bug, cannot reproduce, already fixed or reported), not a fix.
+description: Use when a human hands you a bug report to triage - a Slack paste, tracker ticket, GitHub issue, or described symptom - and the goal is an evidenced verdict (real bug, not-a-bug, cannot reproduce, already fixed or reported); triage itself never fixes - a real-bug verdict may hand off to a bounded hotfix after the menu.
 disable-model-invocation: true
 ---
 
@@ -8,13 +8,16 @@ disable-model-invocation: true
 
 ## Overview
 
-Triage a bug report to an evidenced verdict, never a fix.
+Triage a bug report to an evidenced verdict. Triage never
+fixes; a real-bug verdict may hand off to a bounded hotfix (hotfix.md) after
+the menu.
 
 ## Boundaries
 
 - Reads: anything - code, history, tracker, origin text.
 - Writes: `$TMPDIR` scratch only (repro captures, notes), plus at most one gated push to the
-  origin's response channel at the very end.
+  origin's response channel at the very end; after a valid hotfix pick: the hotfix
+  worktree and one default-branch squash commit, per hotfix.md.
 - Does NOT: touch tracked files; touch tracker state (never closes, relabels, or
   reassigns an existing issue).
 - The zero-mutation invariant below mechanically enforces tracked-file immutability
@@ -25,7 +28,8 @@ Triage a bug report to an evidenced verdict, never a fix.
 
 ## Hard constraint
 
-**No verdict without evidenced root cause; no fix, ever.** (write surface: see
+**No verdict without evidenced root cause; no fix during
+triage. After a valid hotfix pick, writes follow hotfix.md.** (write surface: see
 Boundaries; enforcement: see the zero-mutation invariant below.)
 
 The invariant is baseline-relative, checked at three points. Never revert
@@ -41,17 +45,24 @@ pre-existing work - only ever revert damage this skill caused.
    rendering the summary). Re-run the same command and confirm it still matches
    the baseline.
 
+**Handoff check** (hotfix row only). Immediately before handing off to
+`hotfix.md`, run the same command on the primary checkout and require it to
+match the baseline. Checkpoint 3 still runs at skill end, on the primary
+checkout: a landed squash
+commit and a restored branch leave tracked porcelain clean, so the invariant
+holds literally on both exits.
+
 ## When to Use
 
 - A human pastes a bug report (Slack message, tracker ticket, GitHub issue, plain
   description of broken behavior) and wants to know whether it is real.
 - The ask is "is this a bug" / "can we reproduce this" / "what's causing this",
   not "fix this".
+- An evidenced, urgent "fix this" request also enters
+  here - triage stops at the menu, where the hotfix row is offered.
 
 ## When NOT to Use
 
-- The report already has an evidenced root cause and the ask is to implement a
-  fix - exit into `/skill:brainstorming` directly.
 - The item is an already-shaped ticket ready for implementation, not a report
   needing triage.
 
@@ -153,33 +164,64 @@ Render **only the matching action set** - never merge real-bug and negative-verd
 menus into one list. The human may **overrule the verdict in prose** - that is a
 change request, not a menu row.
 
-**Real bug** - three actions (all rendered unless noted), exactly one tagged
-`[recommended]`:
+**Real bug** - four actions (all rendered unless noted), exactly one tagged
+`[recommended]`. Untracked origin:
 
 ```
-1. [ ] File a ticket - one /skill:shape-ticket create-mode invocation, seeded
-       with this evidence.
+1. [ ] File a ticket - /skill:shape-ticket, seeded with this evidence.
 2. [ ] Brainstorm now - /skill:brainstorming with this evidence as the seed.
-       Handoff happens AFTER gate 2 (step 5).
+3. [ ] Implement hotfix now - follow hotfix.md; add "as a PR" for a PR.
+4. [ ] Respond to reporter only.
+```
+
+Tracker/GitHub origin (ticket row omitted as today, renumbered):
+
+```
+1. [ ] Brainstorm now - /skill:brainstorming with this evidence as the seed.
+2. [ ] Implement hotfix now - follow hotfix.md; add "as a PR" for a PR.
 3. [ ] Respond to reporter only.
 ```
 
-For unaddressable origins, action 3 reads `Finish with rendered summary`
-instead of "Respond to reporter only", and action 2's handoff happens after
-the rendered summary instead of gate 2. Exactly one rendered action still
-carries `[recommended]`.
+Unaddressable variants adjust the last row's label exactly as today. Exactly
+one `[recommended]` preserved. The eligibility line renders under the menu:
+`eligible` or `not eligible: <predicate>`, from the predicate evaluation below.
 
-If the origin is itself a tracker/GitHub ticket, it's already tracked: omit
-action 1 and renumber the remaining two as 1 (Brainstorm now) and 2 (Respond
-to reporter only). Exactly one rendered action still carries `[recommended]`.
+For unaddressable origins, the last action reads `Finish with rendered summary`
+instead of "Respond to reporter only", and the Brainstorm handoff happens after
+the rendered summary instead of gate 2.
 
-Heuristic for the `[recommended]` tag: pressing (user-facing break, data loss,
-security) or trivially fixable -> recommend brainstorm now; real but deferrable
--> recommend file a ticket; blocked on another party (needs reporter input,
-upstream fix, another team) -> recommend respond-only (rendered as "Finish with
-rendered summary" for unaddressable origins). Root cause found but the
-fix cost is unclear still stays a **real-bug** verdict - state the uncertainty
-plainly in the fault story, do not downgrade the verdict to hedge on cost.
+**Predicates and row availability.** Evaluate the six predicates in
+`hotfix.md` once, here, from the root cause - a prediction of the fix shape
+(read-only judgment). A failed safety invariant (1-3) renders the row as
+`Implement hotfix now - unavailable: <invariant>`: never pickable, never
+`[recommended]`; a pick of it is a change request. Judgment predicates (4-6)
+only steer `[recommended]` and the eligibility line.
+
+Heuristic for the `[recommended]` tag - rows top-down, first match wins:
+
+| Situation | `[recommended]` |
+|---|---|
+| Pressing or trivially fixable, all predicates pass | Hotfix now |
+| Pressing, any predicate fails | Brainstorm now |
+| Trivially fixable, any predicate fails | Brainstorm now |
+| Real but deferrable | File a ticket (tracker-origin: respond-only) |
+| Blocked on another party | Respond-only |
+
+Respond-only renders as "Finish with rendered summary" for unaddressable
+origins. Root cause found but the fix cost is unclear still stays a
+**real-bug** verdict - state the uncertainty plainly in the fault story, do
+not downgrade the verdict to hedge on cost.
+
+**Hotfix handoff.** On a hotfix pick, write the handoff record to
+`$TMPDIR/hotfix-<slug>.md`: `delivery-mode` (`squash`, or `pr` when the pick
+says "as a PR"); the evidence pack (fault story; trigger, observed, and
+expected values from Phase 1; repro command; `file:line`; falsification
+result); `slug` (kebab-case, from the symptom); origin type and response
+target (step 1); the predicate evaluation. Run the handoff check (see the
+zero-mutation invariant), then follow `hotfix.md`, which reads only this
+record. On a hotfix abort, `hotfix.md` runs its baseline re-check and this
+menu re-renders - the same gate, re-fired: with the hotfix row when the abort
+created nothing, without it otherwise.
 
 **Negative verdicts** - exactly five, each with its own named citation source:
 
@@ -236,6 +278,10 @@ any handoff:
   response citing the new ticket link -> gate 2 -> done.
 - Brainstorm now chosen -> draft the response first ("confirmed, investigating
   now - fix to follow") -> gate 2 -> **then** hand off to `/skill:brainstorming`.
+- Hotfix now chosen -> hand off to `hotfix.md` first; on completion, draft the
+  response citing `fixed in <SHA>` or the PR link -> gate 2 (`send it`) -> done.
+  Gate 2 fires once. On abort, `hotfix.md` returns to the step-4 menu; step 5
+  then runs for the new pick, the draft citing the abort reason.
 - Respond-only, or any negative verdict -> draft -> gate 2 -> done.
 
 **Draft template:**
@@ -298,6 +344,9 @@ action renders the verdict as a **summary to the human**, then the skill ends
   link.
 - Brainstorm now chosen -> render the summary -> **then** hand off to
   `/skill:brainstorming`.
+- Hotfix now chosen -> hand off to `hotfix.md`; on completion render the
+  summary citing `fixed in <SHA>` or the PR link -> done. On abort, return to
+  the step-4 menu.
 - Finish with rendered summary chosen -> render the summary -> done.
 
 **Summary template** (same four fields as the draft - the difference is
@@ -319,7 +368,7 @@ rendered is out of skill scope - the skill has ended.
 
 | Verdict | Citation source | Response next-step |
 |---|---|---|
-| Real bug | Falsification test run + passed | Ticket link, fix branch, or ack |
+| Real bug | Falsification test run + passed | Ticket link, squash SHA, fix branch, or ack |
 | `not-a-bug` | Contract satisfied (spec/schema/API doc) | Explain the contract |
 | `intended-behavior` | Decision record (design doc/ADR/commit) | Point to the decision |
 | `cannot-replicate` | Phase 1 repro attempts, missing input named | Ask reporter for missing input; offer discovery ticket |
@@ -337,11 +386,14 @@ falls through to the 404 handler.
 Proof: `curl /widgets/` -> 404 | src/router.ts:88 | expected match, got none
 
 1. [ ] File a ticket - /skill:shape-ticket, seeded with the above.
-2. [x] Brainstorm now - user-facing 404 on a common URL shape. [recommended]
-3. [ ] Respond to reporter only.
+2. [ ] Brainstorm now - /skill:brainstorming with the above as the seed.
+3. [x] Implement hotfix now - follow hotfix.md; add "as a PR" for a PR. [recommended]
+4. [ ] Respond to reporter only.
+
+eligible - all predicates pass
 ```
 
-(The example assumes an addressable origin - action 3's label is the addressable one.)
+(The example assumes an addressable origin - action 4's label is the addressable one.)
 
 **Negative-verdict example** (citation-source contrast):
 
@@ -361,7 +413,7 @@ nested resources" (the decision that made it so).
 
 | Excuse | Reality |
 |---|---|
-| "Trivial fix, faster to just do it" | Fixing during triage is the one thing this skill forbids - hand it to the human at the menu, always |
+| "Trivial fix, faster to just do it" | Fixing during triage is forbidden - the hotfix row after the menu is the sanctioned path |
 | "Root cause is obvious, skip falsification" | Obvious and evidenced are different things - run the test or report it blocked |
 | "Reporter is waiting, skip the gate" | The gate is what makes the response trustworthy - urgency is not a bypass |
 | "I already know there's no prior report" | A guess isn't a search - use the ladder or declare it unreachable |
