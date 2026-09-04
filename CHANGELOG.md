@@ -1,5 +1,9 @@
 # Changelog
 
+## v5.3.0 - 2026-09-04
+
+- `chase-bug`: the real-bug verdict menu gains a fourth row, "Implement hotfix now", for small, evidenced, urgent fixes - a middle ceremony tier between the trivial carve-out and the full gauntlet. It hands off to the new companion `skills/chase-bug/hotfix.md`: dedicated `hotfix/<slug>` worktree, one implementer (TDD), one code review as the last mutation gate, an advisory conformance pass, then an unpushed squash commit on the default branch with guaranteed worktree/branch cleanup (or a PR when the pick says "as a PR"). Three safety invariants (no schema/persistence change, no public-contract change, one-commit rollback) gate the row's availability; three judgment predicates steer `[recommended]`. Triage itself stays read-only; the row is reachable only through the verdict menu. Zero changes to finishing, SDD, verification, extensions, or ci.mjs. Spec: `doc/specs/2026-09-03-chase-bug-hotfix.md`.
+
 ## v5.2.3 - 2026-09-01
 
 - Isolated `subagent` dispatch examples now mint an OS-temp report directory and use absolute `output:` paths, preventing reports from being captured in and deleted with throwaway worktrees. The parallel-dispatch Output capture guidance now distinguishes that isolated failure mode from non-isolated shared-working-tree commit/overwrite risk. Fixes #23. Spec: `doc/specs/2026-09-01-gh-23-absolute-report-paths.md`.
