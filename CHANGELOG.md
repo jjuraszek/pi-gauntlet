@@ -1,5 +1,12 @@
 # Changelog
 
+## v5.3.1 - 2026-09-06
+
+- Task tracking: planning initializes the list once; execution starts and completes existing indices explicitly. Execution retries and fix loops reuse their task; conformance adds only new remediation gaps and reuses their `Gn` indices across rounds.
+- `phase_tracker`: explicit implement/verify completion rejects recorded pending or in-progress tasks under the existing flow guards. Terminal-negative `failed` tasks remain failed; existing escalation rules still apply. Sequential tool execution prevents same-batch tracker updates from being read too early. Requires Pi 0.85.1 or newer; no new settings or tracker schema.
+- Foreground flow dispatch: agent calls explicitly set `async: false`, preserving independent implementation, per-patch SR and council fan-outs. Final order is parent full verification -> whole-diff CR -> conformance; removes async review/test overlap and its classification/polling branches. Pi-cohort's `forceTopLevelAsync` setting is incompatible with this policy.
+- Verification: runtime regressions and real Pi batch ordering pass. Behavioral diagnostics retain observed model-following limits: missed task reopening, an omitted async flag and malformed deferred-gap output. These are documented limits, not claims of infallible tracking or runtime enforcement of foreground dispatch. Spec: `doc/specs/2026-09-06-task-tracking-reliability.md`.
+
 ## v5.3.0 - 2026-09-04
 
 - `chase-bug`: the real-bug verdict menu gains a fourth row, "Implement hotfix now", for small, evidenced, urgent fixes - a middle ceremony tier between the trivial carve-out and the full gauntlet. It hands off to the new companion `skills/chase-bug/hotfix.md`: dedicated `hotfix/<slug>` worktree, one implementer (TDD), one code review as the last mutation gate, an advisory conformance pass, then an unpushed squash commit on the default branch with guaranteed worktree/branch cleanup (or a PR when the pick says "as a PR"). Three safety invariants (no schema/persistence change, no public-contract change, one-commit rollback) gate the row's availability; three judgment predicates steer `[recommended]`. Triage itself stays read-only; the row is reachable only through the verdict menu. Zero changes to finishing, SDD, verification, extensions, or ci.mjs. Spec: `doc/specs/2026-09-03-chase-bug-hotfix.md`.
