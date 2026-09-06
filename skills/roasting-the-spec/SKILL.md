@@ -58,6 +58,7 @@ Capture the worktree path once (`git rev-parse --show-toplevel`, run from inside
 
 ```
 subagent({
+  async: false,
   control: { needsAttentionAfterMs: 300000, inFlightSilenceCeilingMs: 300000, inFlightSilenceKillMs: 600000 },
   tasks: members.map((model, i) => ({
     agent: "spec-council-member",
@@ -76,7 +77,7 @@ subagent({
 
 **Usable-critique test (mechanical structural probe).** After the fanout returns - success or failure of the tool call itself - probe the expected output paths on disk; judge by files, not by the tool result's failed/succeeded labels (a killed member may have written a usable critique first). A member file is usable iff it is non-empty AND contains both a `^verdict:\s*(sound|needs-work|unsound)` line and an `^addresses-problem:` line. A `findings:` header with zero bullets is a valid, usable sound critique. Existence plus header regex only - never read or weigh findings content.
 
-**Targeted retry.** Members whose file is missing or not usable are re-dispatched **once**, together, in a second parallel call carrying the same `control` block, with fresh output paths that preserve the `member-<i>-<slug>` basename under a `retry/` subdir of the same temp dir (the chair recovers `raised-by` attribution from that filename pattern). Members with usable files are never re-run.
+**Targeted retry.** Members whose file is missing or not usable are re-dispatched **once**, together, in a second foreground parallel call carrying `async: false` and the same `control` block, with fresh output paths that preserve the `member-<i>-<slug>` basename under a `retry/` subdir of the same temp dir (the chair recovers `raised-by` attribution from that filename pattern). Await its terminal result. Members with usable files are never re-run.
 
 **Quorum.** At least one usable file after retry -> dispatch the chair over the usable files only (next section). Zero usable files -> abort the council, say so, and return to the user gate.
 
@@ -87,6 +88,7 @@ Dispatch the chair once. It reads the member files (not you), the spec, and the 
 ```
 subagent({
   agent: "spec-council-synthesizer",
+  async: false,
   model: <chair from config, else omit to inherit>,
   cwd: "<abs worktree path>",
   control: { needsAttentionAfterMs: 300000, inFlightSilenceCeilingMs: 600000, inFlightSilenceKillMs: 900000 },
@@ -99,11 +101,11 @@ subagent({
 })
 ```
 
-The chair runs one long single-turn synthesis; the control block sets an effective silence-kill of max(900s, 600+300) = 900s. Margin rationale: one observed healthy chair turn ran 506s of silence, so a 600s kill would leave under 2 minutes of margin - the chair gets 900s. In the coverage line, use pi-cohort's kill diagnostic as the reason when present (e.g. "Likely wedged in a tool call"), else "no output produced"; omit per-member reasons at full coverage. With one usable member, use singular wording ("synthesize the single member critique").
+The chair runs one long foreground single-turn synthesis; await its terminal result before applying findings. The control block sets an effective silence-kill of max(900s, 600+300) = 900s. Margin rationale: one observed healthy chair turn ran 506s of silence, so a 600s kill would leave under 2 minutes of margin - the chair gets 900s. In the coverage line, use pi-cohort's kill diagnostic as the reason when present (e.g. "Likely wedged in a tool call"), else "no output produced"; omit per-member reasons at full coverage. With one usable member, use singular wording ("synthesize the single member critique").
 
 List the exact member paths in the task text. The `reads:` array injects their contents, but the chair's prompt expects the paths explicitly; without them it scans the tree for `*.md` and stalls.
 
-A chair synthesis is usable iff it contains a `^consensus:` line. If the configured `chair` model is unreachable, retry once with the inherited model; a wedge-killed or unusable chair retries once with the same model. Second failure -> abort the council, say so, and return to the user gate.
+A chair synthesis is usable iff it contains a `^consensus:` line. If the configured `chair` model is unreachable, retry once with the inherited model; a wedge-killed or unusable chair retries once with the same model. Each retry remains foreground with top-level `async: false` and is awaited to a terminal result. Second failure -> abort the council, say so, and return to the user gate.
 
 ### 3 — Decide and apply
 

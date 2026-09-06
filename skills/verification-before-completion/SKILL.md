@@ -160,7 +160,7 @@ Defaults recognise `make ci`, `make test`, `npm test`, `pnpm test`, `yarn test`,
 
 Before running the verification gate, call `phase_tracker({ action: "start", phase: "verify" })`.
 
-When all verification passes, mark the verify phase complete:
+When all verification passes, finish and await the required `plan_tracker` updates before marking verify complete. Reconcile accepted work on its existing indices; never clear or reinitialize to obtain closure. In a direct verification path, complete only after those updates have actually returned.
 
 ```
 phase_tracker({ action: "complete", phase: "verify" })

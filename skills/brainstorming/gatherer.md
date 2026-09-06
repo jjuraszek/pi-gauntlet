@@ -12,12 +12,14 @@ Mint a temp dir outside the worktree (never committed):
 GATHER_DIR=$(mktemp -d)
 ```
 
-Set the substep, then dispatch one parallel-tasks `subagent` call (foreground — no
-`async:`; no `model:` — pi-cohort `agentOverrides` owns builder models):
+Set the substep, then dispatch one foreground parallel-tasks `subagent` call (`async: false`; no
+`model:` — pi-cohort `agentOverrides` owns builder models). Preserve the parallel batch and await
+its terminal result before assembling the draft:
 
 ```
 phase_tracker({ action: "substep", phase: "brainstorm", substep: "gather" })
 subagent({
+  async: false,
   tasks: [
     { agent: "scout", cwd: "<abs worktree path>", phase: "context-gather",
       output: "<GATHER_DIR>/scout.md",

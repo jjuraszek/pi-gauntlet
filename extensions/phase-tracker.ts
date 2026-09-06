@@ -774,6 +774,7 @@ export default function (pi: ExtensionAPI) {
       "Track workflow phase progress (brainstorm → plan → implement → verify → ship); " +
       "ad-hoc calls do not arm gates. Not for ad-hoc use.",
     parameters: PhaseTrackerParams,
+    executionMode: "sequential",
 
     async execute(_toolCallId, params, _signal, _onUpdate, ctx) {
       switch (params.action) {
@@ -890,6 +891,43 @@ export default function (pi: ExtensionAPI) {
                 error: "no conformance-reviewer dispatch observed",
               } as PhaseTrackerDetails,
             };
+          }
+          if (
+            gauntletEntered &&
+            (params.phase === "implement" || params.phase === "verify") &&
+            resolveFlowGuards(loadGauntletSettings(ctx.cwd).gauntlet).enforce
+          ) {
+            let tasks: { name: string; status: string }[] = [];
+            for (const entry of [...ctx.sessionManager.getBranch()].reverse()) {
+              if (
+                entry.type !== "message" ||
+                entry.message.role !== "toolResult" ||
+                entry.message.toolName !== "plan_tracker" ||
+                entry.message.isError
+              ) {
+                continue;
+              }
+              const details = entry.message.details as { tasks?: { name: string; status: string }[]; error?: string } | undefined;
+              if (!details || details.error || !details.tasks) continue;
+              tasks = details.tasks;
+              break;
+            }
+            const unfinished = tasks.flatMap((task, index) =>
+              task.status === "pending" || task.status === "in_progress"
+                ? [`${index}: ${task.name} (${task.status})`]
+                : [],
+            );
+            if (unfinished.length) {
+              return {
+                content: [
+                  {
+                    type: "text",
+                    text: `Cannot complete ${params.phase}: unfinished tasks:\n${unfinished.join("\n")}\nReconcile these same indices against acceptance evidence, update them and retry.`,
+                  },
+                ],
+                details: { action: "complete", phases: { ...phases }, error: "unfinished tasks" } as PhaseTrackerDetails,
+              };
+            }
           }
           phases = { ...phases, [params.phase]: transitionPhaseState("complete") as PhaseState };
           firedGuards.clear();

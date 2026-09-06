@@ -13,6 +13,8 @@ Execute a plan by dispatching a **fresh subagent per task**, with two-stage revi
 
 If a tool result contains a ⚠️ workflow warning, stop immediately and address it before continuing.
 
+Gauntlet execution dispatches are foreground: set top-level `async: false` on every implementation, review, conformance, retry, and prose-described dispatch. Preserve parallel `tasks` batches and chain groups. `forceTopLevelAsync` is incompatible; an unexpected async handle means stop and report, never poll or relaunch. See [pi-cohort dispatch configuration](https://github.com/jjuraszek/pi-cohort/blob/main/doc/configuration.md).
+
 ## Why Subagents
 
 Your context window holds the full plan, prior decisions, and conversation history. Each subagent gets a fresh window with only the current task's text and context.
@@ -39,7 +41,7 @@ Periodic "should I continue?" prompts add latency without adding safety. The pla
 
 - Running inside a dedicated worktree (the same one the spec and plan were authored in). If you're on `main` in the primary checkout, stop and invoke `/skill:using-git-worktrees` first — implementation never lands directly on `main`.
 - Approved plan or clear task scope
-- `plan_tracker` initialized with the full task list
+- `plan_tracker` list initialized at writing-plans handoff with the full wave-ordered task list. Consume and preserve it on continuation; only direct recovery with no tracker initializes the full plan list once, before dispatch, and never over an existing list.
 
 ## Sequential vs. Parallel-Wave
 
@@ -53,17 +55,17 @@ Before the first task, enter the implement phase: `phase_tracker({ action: "star
 
 For each task in `plan_tracker`:
 
-1. **Dispatch implementer.** Pass the full task text + scene-setting context + the task's plan-declared test commands as `SCOPED_TEST_COMMANDS` (or `none`). Don't make the subagent re-read the plan.
+1. **Start, then dispatch implementer.** Mark the task's existing `plan_tracker` index `in_progress` before dispatch. Pass the full task text + scene-setting context + the task's plan-declared test commands as `SCOPED_TEST_COMMANDS` (or `none`). Don't make the subagent re-read the plan.
 2. **Handle implementer status** (see below).
 3. **Dispatch spec reviewer.** Pass the task text, the patch diff, the absolute spec path, and the task's `**Spec:**` anchors — SR reads the anchored ranges from the spec file itself; never inline spec excerpts. The spec wins every dispute; the authority hierarchy and finding labels live in `./spec-reviewer-prompt.md`. Anchor-less tasks (no `**Spec:**` line): task text alone is the contract. Verify the change satisfies the anchored spec — nothing missing, nothing extra.
 4. If spec reviewer finds gaps → re-dispatch implementer to fix → re-review. Loop until ✅, within [Fix-Loop Rounds](#fix-loop-rounds).
 5. **Dispatch code-quality reviewer.** Only after spec is ✅. Skip for doc-only tasks (every file in the task's `Files:` block documentation-only) — SR-only, same exemption as doc-only waves. Pass `SCOPED_TEST_COMMANDS` = the task's plan-declared commands.
 6. If quality reviewer finds issues → re-dispatch implementer → re-review. Loop until ✅, within [Fix-Loop Rounds](#fix-loop-rounds).
-7. Mark task complete in `plan_tracker`.
+7. After its existing reviews accept the work (and its required commit point), mark that same task index `complete` in `plan_tracker`. A subagent exit or green tests alone are not acceptance.
 
 The spec is frozen at plan time and the orchestrator is its only writer during execution; if you do edit it mid-run, re-run writing-plans' anchor-resolution check before the next wave. An SR unable to read the spec at a cited anchor (missing file, unresolvable heading/range) returns a blocking finding — the contract is spec+task or stop, never a silent fallback to task-only review.
 
-After all tasks: proceed to [After All Tasks](#after-all-tasks-complete) - it owns the whole-diff code review dispatch and the full verification run (concurrent when the verification set classifies safe).
+After all tasks: proceed to [After All Tasks](#after-all-tasks-complete) - it owns parent full verification, then whole-diff code review, then conformance.
 
 ## Fix-Loop Rounds
 
@@ -121,6 +123,7 @@ Pi-subagents accepts a per-task `model` override. Use it.
 ```ts
 subagent({
   agent: "implementer",
+  async: false,
   task: "...",
   model: "anthropic/claude-haiku-4"   // cheap tier
 })
@@ -132,18 +135,18 @@ When in doubt, default. Don't downgrade reviewers — false negatives are expens
 
 ```ts
 // implementer
-subagent({ agent: "implementer", task: "<task text + context + SCOPED_TEST_COMMANDS + status protocol>" })
+subagent({ agent: "implementer", async: false, task: "<task text + context + SCOPED_TEST_COMMANDS + status protocol>" })
 
 // spec compliance
-subagent({ agent: "spec-reviewer", task: "<task text + patch diff + absolute spec path + task's Spec: anchors>" })
+subagent({ agent: "spec-reviewer", async: false, task: "<task text + patch diff + absolute spec path + task's Spec: anchors>" })
 
 // code quality
-subagent({ agent: "code-reviewer", task: "<diff range + SCOPED_TEST_COMMANDS (task commands; wave: union; whole-diff: none) + ask: production-ready?>" })
+subagent({ agent: "code-reviewer", async: false, task: "<diff range + SCOPED_TEST_COMMANDS (task commands; wave: union; whole-diff: none) + ask: production-ready?>" })
 
 // closing-loop conformance (origin vs deliverable) — its OWN dispatch, never fused with code quality
 // model: call gauntlet_setting({ key: "closureReview" }) first; use the returned model (omit model: if undefined to inherit) and maxFixRounds
 // If gauntlet_setting is unavailable, stop and report - never fall back to a manual bash/JSON settings merge.
-subagent({ agent: "conformance-reviewer", model: /* gauntlet_setting({ key: "closureReview" }).model, else omit to inherit */, task: "<spec path + verbatim original prompt + full diff vs main; per conformance-check.md>" })
+subagent({ agent: "conformance-reviewer", async: false, model: /* gauntlet_setting({ key: "closureReview" }).model, else omit to inherit */, task: "<spec path + verbatim original prompt + full diff vs main; per conformance-check.md>" })
 ```
 
 Prompt templates live alongside this SKILL.md:
@@ -160,22 +163,22 @@ Auto-selected at handoff by `writing-plans` (any wave with ≥2 tasks) when the 
 
 **Progress tracking (`plan_tracker`).** `plan_tracker` is a flat list with no native group concept, so waves are *encoded*, not modeled:
 
-- **Init once, wave-ordered:** `init` with every task across all waves in wave order, each name prefixed with its wave (`"W1: <title>"`, `"W2: <title>"`, …). Indices are positional and stable; never re-init mid-run (it drops statuses).
-- **Wave fan-out → `in_progress`:** mark every task index in the wave `in_progress`. Multiple simultaneous `in_progress` entries is expected (sequential mode has one).
-- **Wave commit → `complete`:** after the wave's gate passes and it commits, mark all that wave's indices `complete`. `complete` = durably committed, so a task in conflict-fallback stays `in_progress` until its wave commits.
+- **Consume, preserve, recover only if absent:** consume the wave-ordered list initialized at writing-plans handoff; indices are positional and stable, so never re-init on continuation or mid-run. Only direct recovery with no tracker initializes the full plan list once before dispatch.
+- **Wave fan-out → `in_progress`:** unconditionally mark every task index in the wave `in_progress` before dispatch. Multiple simultaneous entries are expected (sequential mode has one).
+- **Wave commit → `complete`:** after the wave's gate passes and it commits, unconditionally mark all those same indices `complete`. `complete` = durably committed, so a task in conflict fallback stays `in_progress` until its wave commits.
 - **Lifecycle per task:** `pending → in_progress (wave fan-out) → complete (wave commit)`.
 - **Widget caveat (known, deliberately unfixed).** The persistent `plan_tracker` widget's icon strip (`○ → ✓`) and `(c/total)` count reflect every task, but its trailing *name* shows only the **first** `in_progress` task. In parallel mode the icon strip and the `status` action are the full in-flight view; a richer multi-task widget is a separate extension change, out of scope (YAGNI).
-- **Sequential mode is unchanged:** init the full list, one `in_progress` at a time; wave prefixes are harmless if present.
+- **Sequential mode:** consume the same existing full list, one `in_progress` index at a time; wave prefixes are harmless.
 
 **Per-wave loop:**
 
 1. **Independence check.** Parse the wave's tasks' `Files:` blocks; assert pairwise-disjoint (mechanical). Runtime-resource disjointness (DB/schema, port, fixture, external service, shared temp path) is not machine-checkable here — trust the plan's wave grouping, which `writing-plans`' D5 contract guarantees. Either kind of overlap → the wave is mis-grouped; run those tasks as sequential single-task waves and note it.
-2. **Fan out.** One parallel dispatch (shape below): `implementer` per task, `context: "fresh"`, `worktree: true`. Each returns a status + a patch.
+2. **Start, then fan out.** Mark every wave index `in_progress` before one parallel foreground dispatch (shape below): `implementer` per task, `context: "fresh"`, `worktree: true`. Each returns a status + a patch.
 3. **Status + spec review per task.** Parse each `DONE`/`BLOCKED`/etc. (see [Implementer Status](#implementer-status)) **first**. Then **dispatch a `spec-reviewer` per accepted patch** (`DONE`, or a `DONE_WITH_CONCERNS` you proceeded with) in one parallel fan-out — `context: "fresh"`, `cwd: <this worktree>`, **no `worktree` flag** (read-only) — each passed its task text, the returned **patch diff**, the absolute spec path, and the task's `**Spec:**` anchors — SR reads the anchored ranges itself (never inline excerpts; authority hierarchy in `./spec-reviewer-prompt.md`; anchor-less tasks are task-text-only). Review starts from the diff (its hunks carry `file:line`) and reads each touched file in full, and test execution is never the reviewer's job - in either mode (persona rule; the wave test gate in step 5 runs the wave's declared test commands). Inline verdicts are fine at normal wave sizes; large waves use `output:` + `outputMode: "file-only"` to keep verdicts out of your context. **Re-dispatch by cause:** `BLOCKED`/`NEEDS_CONTEXT` per the [Implementer Status](#implementer-status) matrix; a **spec gap** re-dispatches the implementer (fresh, `worktree: true`) carrying the prior patch + the reviewer's findings, the new patch superseding the old at step 4. Loop until accepted + spec ✅, within [Fix-Loop Rounds](#fix-loop-rounds), same as sequential.
 4. **Integrate.** `git apply` each task's patch sequentially onto HEAD. Apply fails = textual conflict → drop that task, finish the rest, re-run the dropped task sequentially on the updated HEAD.
 5. **Test gate.** Run the union of the wave's tasks' declared test commands on the integrated tree — the full verification set is the verify phase's job, run once. Failure = semantic conflict or bug → re-run the offending task sequentially, else fix per [When a Subagent Fails](#when-a-subagent-fails).
 6. **Quality review.** CR binds to the wave: exactly one **initial** code-review dispatch per code-touching wave, over the integrated wave diff - never per task within a wave, never batched across waves. Subsequent dispatches within the wave are re-reviews triggered only by findings, per Fix-Loop Rounds. Pass `SCOPED_TEST_COMMANDS` = the union of the wave's tasks' declared commands. Code-quality review on the integrated wave diff; loop fixes to ✅ within [Fix-Loop Rounds](#fix-loop-rounds), same as sequential. Skip for doc-only waves (SR-only per the commit precondition below).
-7. **Commit the wave.** Leaves a clean tree; the next wave's children branch from this commit and so see the integrated work.
+7. **Commit and complete the wave.** After the gate passes and the wave commits, mark all of its existing indices `complete`. Leaves a clean tree; the next wave's children branch from this commit and so see the integrated work.
 
 **Two-stage review is preserved:** spec review per task (pre-integration, dispatched `spec-reviewer` — not inline), quality review per wave (post-integration). A wave commit requires one spec-review verdict per accepted task, plus one code-review verdict on the integrated diff for waves that touch code. A doc-only wave (every task's `Files:` block documentation-only, per `writing-plans`' Wave Grouping) is SR-only — the CR gate does not apply.
 
@@ -192,6 +195,7 @@ REPORT_DIR=$(mktemp -d)
 ```ts
 subagent({
   context: "fresh",
+  async: false,
   cwd: "/abs/path/to/this/worktree",  // REQUIRED: the worktree you're in, else children branch from main
   worktree: true,        // each task in its own git worktree, branched from cwd's HEAD
   concurrency: 4,        // default; cap = wave size
@@ -223,11 +227,9 @@ For the fan-out + worktree + patch-integration + conflict mechanics, see `dispat
 ## After All Tasks Complete
 
 0. Call `phase_tracker({ action: "start", phase: "verify" })`. (The `implement` phase was started at execution start and auto-completes from `plan_tracker` once all tasks are done; this flow runs its own verify gate instead of `/skill:verification-before-completion`, so it must mark verify itself.)
-1. **Classify, then dispatch both audits.** Classify the plan header's `**Verification:**` commands once per verify entry (post-fix re-runs are serial by nature — no re-classification): **unsafe** = anything that can rewrite tracked files — write-mode formatters (`--write`, `-w`), autofixers (`--fix`, `-u` snapshot updates), codegen, migrations regenerating checked-in artifacts; **safe** = commands that write only untracked/ignored paths — test runners, check-mode linters/formatters (`--check`, `--diff`), type checkers, builds only when their outputs are untracked; wrappers (`script/verify`, `package.json` aliases, `Makefile` targets) — read one level in, safe iff every invoked command classifies safe; deeper nesting or an undeterminable write destination → unsafe. The rule is the write destination; examples are illustrative, not authoritative. Unclear → serial. Orchestrator judgment, not config — no settings key, never a prompt.
-   - **Safe → concurrent (default).** Dispatch the whole-diff review per `/skill:requesting-code-review` against the worktree's full diff vs `main`, passing `SCOPED_TEST_COMMANDS: none` (the full run below is the orchestrator's): `subagent({ agent: "code-reviewer", context: "fresh", async: true, cwd: <worktree>, output: <absolute non-colliding $TMPDIR path>, task: <review template> })` — capture the returned run id; never a relative `output:` path (it lands untracked in the worktree). In the same turn, run the full `**Verification:**` set foreground in your own bash: tests + style + format (a single bundling entrypoint, or the listed individual commands). This is the only full run before conformance — task and wave gates ran scoped commands only.
-   - **Unsafe/unclear → serial.** Same two audits, review first (a plain synchronous dispatch), then the verification set, with one declarative notice naming the offender — e.g. `Serial review->verify: 'npm run fmt' writes tracked files.` Only the start order changes; step 2's join invariant is identical.
-2. **Join, then disposition.** Never busy-wait: after verification returns, check the review at most once via `subagent({ action: "status", id: <run id> })`; if still running, end the turn with no disposition — pi delivers the async completion, and the review output file is read only after terminal completion. If the async dispatch errored or the child died, re-dispatch the review serially (the verification result is already in hand). **No disposition of either result — no fix dispatch, no finding triage, no verify-complete claim, no `conformance-reviewer` dispatch — before both results are in hand and any fix-triggered re-run is green.** Post-join, address Critical and Moderate findings before handoff. Verification failed, review clean → dispatch fixes, then re-run the full set before any subsequent gate. Both audits dirty → strictly ordered, never merged: the review's certified `Parallel-safe:` fan-out first (when present, else sequential fixes), then the remaining verification failures sequentially, then one re-review and one full verification re-run — verification failures never join a `Parallel-safe:` group (they carry no finding IDs and no disjointness certification, and `dispatching-parallel-agents` forbids orchestrator-invented partitions). Both audits bind to the committed HEAD: any post-join fix commit — review-derived or conformance-derived — invalidates the verification result; re-run the full set before re-dispatching any gate. (Consumers wanting an in-flow project-specific audit re-add it via the gauntlet overrides file (see Project overrides), or run `/self-audit` manually.)
-3. **Close the loop — conformance check.** The review in step 1 is plan-vs-code (single-step); it inherits any requirement the plan already dropped. Before marking verify complete, dispatch a fresh-context **`conformance-reviewer`** — its **own** dispatch, never fused into the step-1 review — to confront the deliverable (code **and** docs) against the *origin* — the spec **and** the original prompt — per `verification-before-completion/reference/conformance-check.md`. Pass the spec path, the verbatim original prompt, and the full diff. Follow that reference for the partition rule, concern decomposition, and fix-loop mechanics; do not reimplement them here. The fix loop may drive `plan_tracker` to surface fix-wave progress (task naming and lifecycle per conformance-check.md's fix loop / the Fix fan-out Progress rule); it never calls `phase_tracker`. Call `phase_tracker({ action: "complete", phase: "verify" })` only when the reference says the handoff is durably complete: either a current `CONFORMS` result, or a current `## Closure / conformance` inventory whose carried-open concerns all come from valid deferred gaps, including `recommended: fix` gaps carried open because a declared precondition made the fix loop unavailable (`maxFixRounds: 0`, or no eligible named-branch worktree). A started positive-cap fix loop that blocks, fails, or exhausts its rounds with an open `fix` gap is escalation, not completion; on escalation, do not complete verify, stop and report.
+1. **Parent full verification.** Run the complete plan-header `**Verification:**` command set foreground: tests plus every declared lint, type, format, and build check. A failure must be repaired and the full set rerun successfully before the next step. Before dispatching a verification repair, reopen (`in_progress`) every existing plan-task index whose `Files:` ownership includes its touched files; leave unowned cross-cutting repair work in the verification report. Those indices stay `in_progress` through the successful full rerun **and** step 2's whole-diff review accepting the repair — that acceptance is their completion point, not the passing rerun. Commit any verification-produced tracked changes; use the resulting `HEAD_SHA` in the review task and include the commands/results in its existing `DESCRIPTION`.
+2. **Whole-diff code review.** Only after passing full verification, dispatch one foreground whole-diff `code-reviewer` per `/skill:requesting-code-review` against that committed HEAD, with `SCOPED_TEST_COMMANDS: none`; the reviewer does not repeat the full suite. Address Critical and Moderate findings. Before dispatching a review repair, reopen (`in_progress`) every existing plan-task index whose `Files:` ownership includes its touched files; leave unowned cross-cutting repair work in the review report. Mark each reopened index `complete` only once the repair is re-verified and the re-review accepts it — this is the same completion point step 1's reopened indices wait for, not an extra gate, and the gate order stays full verification -> whole-diff CR -> conformance. Any repair invalidates prior full verification, so rerun the full set successfully before the next gate.
+3. **Close the loop — conformance check.** The review in step 2 is plan-vs-code (single-step); it inherits any requirement the plan already dropped. Before marking verify complete, dispatch a fresh-context **`conformance-reviewer`** — its **own** dispatch, never fused into the step-2 review — to confront the deliverable (code **and** docs) against the *origin* — the spec **and** the original prompt — per `verification-before-completion/reference/conformance-check.md`. Pass the spec path, the verbatim original prompt, and the full diff. Follow that reference for the partition rule, concern decomposition, and fix-loop mechanics; do not reimplement them here. The fix loop reuses durable `Gn` gap indices as defined in conformance-check.md; it never calls `phase_tracker`. Call `phase_tracker({ action: "complete", phase: "verify" })` only when the reference says the handoff is durably complete: either a current `CONFORMS` result, or a current `## Closure / conformance` inventory whose carried-open concerns all come from valid deferred gaps, including `recommended: fix` gaps carried open because a declared precondition made the fix loop unavailable (`maxFixRounds: 0`, or no eligible named-branch worktree). A started positive-cap fix loop that blocks, fails, or exhausts its rounds with an open `fix` gap is escalation, not completion; on escalation, do not complete verify, stop and report.
 4. Summarize what was implemented (tasks completed, files changed, test counts, code-review verdict). Emit the `## Closure / conformance` block exactly as defined in `verification-before-completion/reference/conformance-check.md`: it must open with the two-line sentinel (`status: CONFORMS (0 open)` or `status: GAPS (N open)`, then `audited-base: <full HEAD SHA>`), then carry the exact durable concern schema by reference with no renamed or reformatted fields. `finishing-a-development-branch` Step 3.5 consumes that block verbatim.
 5. **Proceed to finishing — no confirmation prompt.** Once verify is complete per step 3's criterion, invoke `/skill:finishing-a-development-branch` immediately. Its Step 4 menu (squash / PR / keep / discard) is the human gate; a separate "ready to finish?" prompt only stacks a second stop in front of it. Carried-open concerns are resolved there per concern via the `## Closure / conformance` block from step 4. Manual testing is a follow-up after the finishing choice (on `<base-branch>` after a squash-merge, or on the PR branch), never a reason to hold this gate.
 
@@ -251,7 +253,9 @@ For the fan-out + worktree + patch-integration + conflict mechanics, see `dispat
 - Dispatching `code-reviewer` per task inside a wave (CR binds to the integrated wave diff)
 - Dispatching an implementer or code-reviewer without a `SCOPED_TEST_COMMANDS` value (commands or `none`)
 - About to run the full verification entrypoint during the implement phase — task and wave gates run scoped, plan-declared commands only; the full set belongs to verify
-- Dispositioning either after-all-tasks audit — fix dispatch, finding triage, verify-complete claim, or `conformance-reviewer` dispatch — before both the whole-diff review and the full verification run have completed
+- Dispatching a verification or review repair before reopening (`in_progress`) the plan-task indices that own its touched files, or completing them on the passing rerun instead of on the accepting whole-diff review
+- Dispatching whole-diff CR before parent full verification passes, or conformance before the foreground CR result and any invalidating repair re-verification/re-review are accepted
+- Polling, joining, or relaunching an unexpectedly asynchronous gauntlet dispatch instead of stopping and reporting
 
 ## Integration
 

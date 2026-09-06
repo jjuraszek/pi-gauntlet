@@ -56,11 +56,12 @@ function harness(options: { cwd?: string; branch?: unknown[]; idle?: boolean; be
   const tools: { name: string; execute: (...args: any[]) => unknown }[] = [];
   const sent: { message: any; options: any }[] = [];
   let idle = options.idle ?? true;
+  let branch = options.branch ?? [];
   const ctx = {
     cwd: options.cwd ?? tempCwd(),
     hasUI: false,
     isIdle: () => idle,
-    sessionManager: { getBranch: () => options.branch ?? [] },
+    sessionManager: { getBranch: () => branch },
   };
   const pi = {
     on(event: string, handler: (event: unknown, context: unknown) => unknown) {
@@ -68,7 +69,7 @@ function harness(options: { cwd?: string; branch?: unknown[]; idle?: boolean; be
       registered.push(handler);
       handlers.set(event, registered);
     },
-    registerTool(tool: { name: string; execute: (...args: any[]) => unknown }) {
+    registerTool(tool: { name: string; executionMode?: string; execute: (...args: any[]) => unknown }) {
       tools.push(tool);
     },
     sendMessage(message: unknown, sendOptions: unknown) {
@@ -86,7 +87,7 @@ function harness(options: { cwd?: string; branch?: unknown[]; idle?: boolean; be
     for (const handler of handlers.get(name) ?? []) results.push(await handler(event, ctx));
     return results;
   };
-  return { emit, emitEvent, sent, tools, ctx, setIdle: (next: boolean) => (idle = next) };
+  return { emit, emitEvent, sent, tools, ctx, setIdle: (next: boolean) => (idle = next), setBranch: (next: unknown[]) => (branch = next) };
 }
 
 const settle = async (h: ReturnType<typeof harness>) => {
@@ -287,6 +288,163 @@ test("resumed session: closure gate blocks complete verify without a conformance
     details: { error?: string };
   };
   assert.equal(res.details.error, "no conformance-reviewer dispatch observed");
+});
+
+const taskSnapshot = (tasks: { name: string; status: string }[], isError = false) => ({
+  type: "message",
+  message: { role: "toolResult", toolName: "plan_tracker", isError, details: { tasks } },
+});
+
+const completePhase = async (h: ReturnType<typeof harness>, phase: "implement" | "verify") => {
+  const tool = h.tools.find((t) => t.name === "phase_tracker")!;
+  return (await tool.execute("complete", { action: "complete", phase }, undefined, undefined, h.ctx)) as {
+    content: { text: string }[];
+    details: { error?: string; phases: Record<Phase, { status: string }> };
+  };
+};
+
+test("phase_tracker registration requests sequential execution", () => {
+  const h = harness();
+  assert.equal(h.tools.find((t) => t.name === "phase_tracker")!.executionMode, "sequential");
+});
+
+test("all-complete plan activity auto-completes an active implement phase", async () => {
+  const h = harness({ branch: implementBranch() });
+  await h.emit("session_start");
+  await h.emitEvent("tool_execution_end", {
+    toolName: "plan_tracker",
+    isError: false,
+    result: { details: { tasks: [{ status: "complete" }, { status: "complete" }] } },
+  });
+  const tool = h.tools.find((t) => t.name === "phase_tracker")!;
+  const status = (await tool.execute("t1", { action: "status" }, undefined, undefined, h.ctx)) as {
+    details: { phases: { implement: { status: string } } };
+  };
+  assert.equal(status.details.phases.implement.status, "complete");
+});
+
+test("cold implement and verify completions ignore unfinished snapshots", async () => {
+  for (const phase of ["implement", "verify"] as const) {
+    const h = harness({
+      branch: [
+        phaseResult("start", phases({ [phase]: "in_progress" })),
+        taskSnapshot([{ name: "standalone task", status: "pending" }]),
+      ],
+    });
+    await h.emit("session_start");
+    const completed = await completePhase(h, phase);
+    assert.equal(completed.details.error, undefined, phase);
+    assert.equal(completed.details.phases[phase].status, "complete", phase);
+  }
+});
+
+test("completion backstop rejects unfinished snapshot indices, preserves state, and permits same-index retry", async () => {
+  const branch: unknown[] = [
+    ...resumedBranch({ plan: "complete", implement: "complete", verify: "in_progress" }),
+    subagentResult(["conformance-reviewer"]),
+    taskSnapshot([
+      { name: "T1 implementation", status: "complete" },
+      { name: "G1 conformance", status: "pending" },
+      { name: "G2 conformance", status: "in_progress" },
+    ]),
+  ];
+  const h = harness({ branch });
+  await h.emit("session_start");
+  const rejected = await completePhase(h, "verify");
+  assert.equal(rejected.details.error, "unfinished tasks");
+  assert.equal(rejected.details.phases.verify.status, "in_progress");
+  assert.match(rejected.content[0].text, /1: G1 conformance \(pending\)/);
+  assert.match(rejected.content[0].text, /2: G2 conformance \(in_progress\)/);
+
+  branch.push(taskSnapshot([
+    { name: "T1 implementation", status: "complete" },
+    { name: "G1 conformance", status: "complete" },
+    { name: "G2 conformance", status: "complete" },
+  ]));
+  const completed = await completePhase(h, "verify");
+  assert.equal(completed.details.error, undefined);
+  assert.equal(completed.details.phases.verify.status, "complete");
+});
+
+test("completion backstop uses the latest successful current-branch snapshot", async () => {
+  const branch: unknown[] = [
+    ...resumedBranch({ plan: "complete", implement: "in_progress" }),
+    taskSnapshot([{ name: "old", status: "pending" }]),
+    taskSnapshot([{ name: "errored", status: "pending" }], true),
+  ];
+  const h = harness({ branch });
+  await h.emit("session_start");
+  const rejected = await completePhase(h, "implement");
+  assert.equal(rejected.details.error, "unfinished tasks");
+  assert.match(rejected.content[0].text, /0: old \(pending\)/);
+
+  branch.push(taskSnapshot([])); // clear/init supersedes the old snapshot
+  assert.equal((await completePhase(h, "implement")).details.phases.implement.status, "complete");
+
+  const resetOnlyBranch: unknown[] = [
+    ...resumedBranch({ plan: "complete", implement: "in_progress" }),
+    taskSnapshot([{ name: "retained through reset", status: "in_progress" }]),
+    phaseResult("reset", phases()),
+    ...resumedBranch({ plan: "complete", implement: "in_progress" }),
+  ];
+  const resetOnly = harness({ branch: resetOnlyBranch });
+  await resetOnly.emit("session_start");
+  assert.equal((await completePhase(resetOnly, "implement")).details.error, "unfinished tasks");
+  resetOnlyBranch.push(taskSnapshot([{ name: "retained through reset", status: "complete" }]));
+  assert.equal((await completePhase(resetOnly, "implement")).details.phases.implement.status, "complete");
+});
+
+test("completion backstop preserves exclusions and closure-error precedence", async () => {
+  const unfinished = taskSnapshot([{ name: "failed", status: "failed" }]);
+  const explicitImplement = harness({ branch: [...resumedBranch({ plan: "complete", implement: "in_progress" }), unfinished] });
+  await explicitImplement.emit("session_start");
+  assert.equal((await completePhase(explicitImplement, "implement")).details.phases.implement.status, "complete");
+
+  const closureFirst = harness({
+    branch: [...resumedBranch({ plan: "complete", implement: "complete", verify: "in_progress" }), taskSnapshot([{ name: "T1", status: "pending" }])],
+  });
+  await closureFirst.emit("session_start");
+  assert.equal((await completePhase(closureFirst, "verify")).details.error, "no conformance-reviewer dispatch observed");
+
+  const disabled = harness({
+    cwd: tempCwd({ piGauntlet: { flowGuards: { enforce: false } } }),
+    branch: [...resumedBranch({ plan: "complete", implement: "in_progress" }), taskSnapshot([{ name: "T1", status: "pending" }])],
+  });
+  await disabled.emit("session_start");
+  assert.equal((await completePhase(disabled, "implement")).details.phases.implement.status, "complete");
+
+  const adHoc = harness({ branch: [taskSnapshot([{ name: "T1", status: "pending" }])] });
+  await adHoc.emit("session_start");
+  const tool = adHoc.tools.find((t) => t.name === "phase_tracker")!;
+  assert.equal((await tool.execute("x", { action: "complete", phase: "plan" }, undefined, undefined, adHoc.ctx)).details.error, undefined);
+});
+
+test("completion backstop leaves no/empty snapshots and skip alone, and uses the switched branch", async () => {
+  const noSnapshot = harness({ branch: resumedBranch({ plan: "complete", implement: "in_progress" }) });
+  await noSnapshot.emit("session_start");
+  assert.equal((await completePhase(noSnapshot, "implement")).details.phases.implement.status, "complete");
+
+  const skipped = harness({
+    branch: [...resumedBranch({ plan: "complete", implement: "in_progress" }), taskSnapshot([{ name: "T1", status: "pending" }])],
+  });
+  await skipped.emit("session_start");
+  const skipTool = skipped.tools.find((t) => t.name === "phase_tracker")!;
+  assert.equal((await skipTool.execute("skip", { action: "skip", phase: "implement", reason: "waived" }, undefined, undefined, skipped.ctx)).details.error, undefined);
+
+  const switched = harness({
+    branch: [...resumedBranch({ plan: "complete", implement: "in_progress" }), taskSnapshot([{ name: "off branch", status: "pending" }])],
+  });
+  await switched.emit("session_start");
+  switched.setBranch([...resumedBranch({ plan: "complete", implement: "in_progress" }), taskSnapshot([{ name: "active", status: "complete" }])]);
+  await switched.emit("session_switch");
+  assert.equal((await completePhase(switched, "implement")).details.phases.implement.status, "complete");
+
+  const closureOff = harness({
+    cwd: tempCwd({ piGauntlet: { closureReview: { enforce: false } } }),
+    branch: [...resumedBranch({ plan: "complete", implement: "complete", verify: "in_progress" }), taskSnapshot([{ name: "T1", status: "pending" }])],
+  });
+  await closureOff.emit("session_start");
+  assert.equal((await completePhase(closureOff, "verify")).details.error, "unfinished tasks");
 });
 
 const subagentResult = (agents: string[]) => ({

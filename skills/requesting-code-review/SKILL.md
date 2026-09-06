@@ -37,10 +37,10 @@ Fill the template at `code-reviewer.md` in this skill directory, then dispatch a
 
 **How to dispatch:**
 
-Use the `subagent` tool with the code-reviewer template filled in:
+Use the `subagent` tool with the code-reviewer template filled in. This foreground dispatch must return a terminal result before acting on review feedback:
 
 ```ts
-subagent({ agent: "code-reviewer", task: "... filled template ..." })
+subagent({ agent: "code-reviewer", async: false, task: "... filled template ..." })
 ```
 
 **Placeholders:**
@@ -57,7 +57,7 @@ subagent({ agent: "code-reviewer", task: "... filled template ..." })
 - Note Minor issues for later
 - Push back if reviewer is wrong (with reasoning)
 
-**Fix rounds.** Critical and Moderate findings trigger a fix round; when dispatched from an orchestrating skill, fixes go to `implementer` subagents (per the orchestrator's no-self-coding rule), fanned out per `dispatching-parallel-agents` "Fix fan-out" when the review's `Parallel-safe:` line certifies a `disjoint` group of ≥ 2 findings. Before fanning out, validate the review's `Parallel-safe:` line with the structural probe in `dispatching-parallel-agents` § Fix fan-out (exactly-one-line grammar check, one re-ask, then explicit sequential fallback). After integration and the project's test command, re-dispatch the reviewer once on the integrated delta. If Critical or Moderate findings remain, run one more fix round and one more re-review; still failing → escalate to the user. Minor findings never trigger the fan-out.
+**Fix rounds.** Critical and Moderate findings trigger a fix round; when dispatched from an orchestrating skill, fixes go to `implementer` subagents (per the orchestrator's no-self-coding rule), fanned out per `dispatching-parallel-agents` "Fix fan-out" when the review's `Parallel-safe:` line certifies a `disjoint` group of ≥ 2 findings. Before fanning out, validate the review's `Parallel-safe:` line with the structural probe in `dispatching-parallel-agents` § Fix fan-out (exactly-one-line grammar check, one re-ask, then explicit sequential fallback). After integration and the project's test command, re-dispatch the reviewer once on the integrated delta in the foreground with top-level `async: false`; await its terminal result. If Critical or Moderate findings remain, run one more fix round and one more foreground re-review; still failing → escalate to the user. Minor findings never trigger the fan-out.
 
 ## Example
 

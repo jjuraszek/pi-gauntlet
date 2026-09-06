@@ -15,6 +15,8 @@ When you have multiple **independent tasks** — unrelated test failures, or imp
 
 This skill is the **mechanic home** for parallel fan-out: fresh-context isolation, `worktree: true` filesystem isolation, and serial patch integration. `subagent-driven-development`'s Parallel-Wave Mode builds its per-wave dispatch on this skill — debugging is the worked example below, but the mechanics are identical for implementation tasks.
 
+Gauntlet flow callers dispatch foreground: explicitly set top-level `async: false`, including retries and prose-described dispatches. `forceTopLevelAsync` is incompatible; if an async handle is returned anyway, stop and report rather than polling or relaunching. See [pi-cohort dispatch configuration](https://github.com/jjuraszek/pi-cohort/blob/main/doc/configuration.md).
+
 **Why parallel subagents:** each agent gets a fresh context window with only its problem domain. No cross-contamination between investigations, smaller diffs, faster wall-clock time. You stay the orchestrator — you read the summaries, resolve any file overlap, and run the integrated tests.
 
 **Fresh context is not the default.** Some packaged subagents (including `worker`) fork the parent context unless you opt out. Always pass `context: "fresh"` on every task entry — if it's missing, you're getting forked agents and losing the isolation that makes parallel dispatch worth doing in the first place.
@@ -78,6 +80,7 @@ Use the `subagent` tool in parallel mode, with explicit fresh context per task:
 ```ts
 subagent({
   context: "fresh",
+  async: false,
   tasks: [
     { agent: "worker", task: "Fix agent-tool-abort.test.ts failures" },
     { agent: "worker", task: "Fix batch-completion-behavior.test.ts failures" },
@@ -123,7 +126,7 @@ Grammar (identical across producers, modulo id prefix — `F` for code/spec revi
 
 **After the fix wave:** integrate patches serially per "Review and Integrate" above (mis-partition is self-healing: integrate the successes, re-run the conflicting finding sequentially on integrated HEAD); run the consuming loop's scoped test gate on the integrated tree; then one re-review of the integrated fix delta, per the consuming loop's own rules. The fan-out counts as one fix round against the consuming loop's budget — it grants no extra rounds.
 
-**Progress:** `plan_tracker({ action: "add" })` one task per fixed finding, named mechanically — `"<prefix>fix F<n>: <finding's first line verbatim>"`, where `<prefix>` is `"W<k>-"` inside an execution wave and empty elsewhere. Fix tasks always extend the tracker, never re-init. Mark `in_progress` at dispatch, `complete` at integration.
+**Progress:** In a gauntlet flow, fix work reuses the consuming task/wave index (or durable `Gn:` gap index) and preserves it through retries, fan-out, tests, and re-review; do not append a fix task or replace an active flow list. Mark the existing index `in_progress` before dispatch and `complete` only after its consuming acceptance point. For standalone non-flow consumers with no owning task, preserve the generic append behavior: `plan_tracker({ action: "add" })` one task per fixed finding, named mechanically — `"<prefix>fix F<n>: <finding's first line verbatim>"`; mark it `in_progress` at dispatch and `complete` at integration.
 
 ## Agent Prompt Structure
 
@@ -192,6 +195,7 @@ REPORT_DIR=$(mktemp -d)
 ```ts
 subagent({
   context: "fresh",
+  async: false,
   worktree: true,        // isolate edits; omit for read-only investigations
   concurrency: 3,
   tasks: [

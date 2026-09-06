@@ -36,6 +36,12 @@ The line: exercising the system **as it is today** is research; exercising the *
 
 This skill ends with a **written, user-reviewed spec inside a worktree**. Nothing else.
 
+## Foreground dispatch policy
+
+Flow-owned execution dispatches run in the foreground: set top-level `async: false` on gather, critique, council, summary, implementation, review, conformance, and retry calls. `forceTopLevelAsync` must remain unset or false; it is incompatible with this flow. See [pi-cohort dispatch configuration](https://github.com/jjuraszek/pi-cohort/blob/main/doc/configuration.md). If a dispatch returns an async handle despite `async: false`, stop and report the configuration error: do not poll it, relaunch work, or advance the flow. An intercom-detached child is likewise incomplete work; use the existing coordination path and never accept or duplicate it.
+
+Foreground does not serialize independent work: preserve existing isolated parallel `tasks` batches and await their terminal results before acceptance or tracker/phase advancement.
+
 ## Checklist
 
 Work through the items below **in order**. This is your own checklist to follow, not a `plan_tracker` plan — brainstorming is open-ended exploration, and `plan_tracker` is execution-only (the implement phase). The terminal state is the user review gate; after approval the **only** next skill is `/skill:writing-plans`. Do not jump to implementation, and do not silently drop the critique pass.
@@ -280,7 +286,7 @@ The first three checks — **placeholder scan**, **internal consistency**, and *
 - **Otherwise** → dispatch one fresh `worker` that applies the scope + ambiguity checks and fixes them in place:
 
   ```
-  subagent({ agent: "worker", context: "fresh", cwd: "<abs worktree path, from git rev-parse --show-toplevel>", task:
+  subagent({ agent: "worker", context: "fresh", async: false, cwd: "<abs worktree path, from git rev-parse --show-toplevel>", task:
     "Problem statement: <the problem the spec addresses + the user's stated intent>.\n" +
     "Read the spec at <abs path to doc/specs/...>. Edit ONLY that file. Apply two checks and\n" +
     "fix what you find in place: (1) Scope — does every paragraph serve the goal? Cut filler;\n" +
@@ -311,7 +317,7 @@ SUMMARY_PATH=$(mktemp "${TMPDIR:-/tmp}/gauntlet-spec-summary.XXXXXX")   # absolu
 ```
 
 ```
-subagent({ agent: "spec-summarizer", context: "fresh", cwd: "<abs worktree path, from git rev-parse --show-toplevel>",
+subagent({ agent: "spec-summarizer", context: "fresh", async: false, cwd: "<abs worktree path, from git rev-parse --show-toplevel>",
   output: "<SUMMARY_PATH>", outputMode: "file-only", task:
   "Summarize the spec at <abs path to doc/specs/...> for the user review gate. Read ONLY that file." })
 ```

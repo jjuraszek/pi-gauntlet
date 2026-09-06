@@ -219,7 +219,7 @@ Otherwise → not TDD
 
 No exceptions without your human partner's permission.
 
-When the TDD implementation cycle is complete (all tests green, code committed), mark the implement phase complete:
+When the TDD implementation cycle is complete (all tests green, code committed), mark the implement phase complete only for a direct, standalone task. In an orchestrated gauntlet task or review loop, green tests and a commit do not accept the parent task or complete its phase: the parent retains tracker and phase ownership through its required reviews.
 
 ```
 phase_tracker({ action: "complete", phase: "implement" })

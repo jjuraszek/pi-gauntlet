@@ -85,7 +85,7 @@ Otherwise one plan. Service, contract, or schema count is not a split signal - o
 Before mapping files, dispatch a scout to build the implementation map. Foreground, no announcement, no user interaction. The task template below is fixed — fill exactly **one** variable, the absolute spec path; compose nothing else:
 
 ```
-subagent({ agent: "scout", context: "fresh", cwd: "<abs worktree path>",
+subagent({ agent: "scout", context: "fresh", async: false, cwd: "<abs worktree path>",
   phase: "plan-recon", output: "<abs plan path — same filename as the spec, per the table above>",
   task: <the fixed template below, with the spec path filled> })
 ```
@@ -316,10 +316,11 @@ Fix what this review finds before handoff.
 
 ## Execution Handoff
 
-After saving the plan, mark the planning phase complete:
+After saving the plan, mark the planning phase complete, then initialize `plan_tracker` once with every plan task in wave order. Name each entry `W<k>: <title>` using its containing wave and task title. This is the execution list: do not initialize it again on continuation.
 
 ```
 phase_tracker({ action: "complete", phase: "plan" })
+plan_tracker({ action: "init", tasks: ["W1: <title>", "W1: <title>", "W2: <title>"] })
 ```
 
 Then auto-select the execution mode and proceed — no pause, no picker. The mode is a pure function of the plan's wave structure:

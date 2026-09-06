@@ -130,7 +130,7 @@ Mirrors `subagent-driven-development` Parallel-Wave Mode and reuses its
 `plan_tracker` progress surface. Runs entirely inside the gate — it invokes
 **no** `phase_tracker` calls (`phase_tracker({ phase: "implement" })` errors
 while verify is `in_progress`) and does **not** enter SDD's phase machinery.
-Only the fan-out/integrate/review shape and `plan_tracker` are reused.
+Only the fan-out/integrate/review shape and `plan_tracker` are reused. Every execution dispatch is foreground with top-level `async: false`, including retries and prose-described dispatches; an unexpected async handle is a configuration failure: stop and report, never poll or relaunch. `forceTopLevelAsync` is incompatible; see [pi-cohort dispatch configuration](https://github.com/jjuraszek/pi-cohort/blob/main/doc/configuration.md).
 
 **Precondition — worktree required.** The loop needs a worktree HEAD to branch
 fixes from. On the ad-hoc `finishing-a-development-branch` paths that run in a
@@ -143,23 +143,16 @@ prerequisites hold.
 
 Per round:
 
-1. **`plan_tracker` add** — append the round's gaps as tasks (`Gn: <gap origin
-   clause verbatim, truncated>`; carry the gap's requirement text mechanically,
-   no orchestrator-authored summaries); never `init`, which would wipe the
-   implement phase's completed task list. Lifecycle per gap: `pending` →
-   `in_progress` → `complete`. The widget now shows fix-wave progress during
-   verify.
+1. **Synchronize gap tasks** — append only a genuinely new gap that is entering remediation, named `Gn: <gap origin clause verbatim, truncated>`; never `init`. Find existing gaps by their exact `Gn:` prefix and reuse that index even if origin wording changes. Carried-OPEN inventory-only gaps add nothing. Before dispatch, mark every remediated gap's existing index `in_progress`; a re-audit needing more work reopens that same `Gn` index. The lifecycle traces `[T1,T2]`, then `[T1,T2,G1]`, then `[T1,T2,G1,G2]`; no test-retry or review-round wrapper task.
 2. **Fix dispatch** — per `dispatching-parallel-agents` "Fix fan-out": a `disjoint`
    group of ≥ 2 gaps (per the report's `Parallel-safe:` line) fixes in one parallel
-   dispatch — one `implementer` per gap (fresh context, `worktree: true`, `cwd` =
-   the conformance worktree, task = the gap block verbatim with `touched-files` as
-   the ownership boundary). The dispatch adds `SCOPED_TEST_COMMANDS` to the gap
-   block: the gap-relevant plan-declared commands, or `none` (the round's test
-   gate owns execution). `conflicts` pairs serialize. Gaps outside any ≥ 2-ID
-   `disjoint` group run sequentially as before. Then dispatch `spec-reviewer` per
-   gap on the gap-block reference contract below. Task lifecycle: mark `in_progress` at
-   dispatch; `complete` is deferred until the gap's patch is successfully
-   integrated in step 3 below.
+   foreground dispatch — one `implementer` per gap (fresh context, `async: false`,
+   `worktree: true`, `cwd` = the conformance worktree, task = the gap block verbatim
+   with `touched-files` as the ownership boundary). The dispatch adds `SCOPED_TEST_COMMANDS`
+   to the gap block: the gap-relevant plan-declared commands, or `none` (the round's
+   test gate owns execution). `conflicts` pairs serialize. Gaps outside any ≥ 2-ID
+   `disjoint` group run sequentially as before. Then dispatch foreground `spec-reviewer`
+   per gap on the gap-block reference contract below.
 3. **Integrate** serially via `git apply` onto the worktree HEAD, one gap's
    patch at a time. Failure handling is inherited verbatim from
    `dispatching-parallel-agents` "Review and Integrate": textual conflict →
@@ -168,10 +161,9 @@ Per round:
    offending task sequentially on integrated HEAD; a failed agent → integrate
    the successes, then retry the failure with fresh context including the
    integrated changes. A `BLOCKED`/`NEEDS_CONTEXT` return surfaces to the user.
-4. **Test gate** on the integrated tree, using the project's canonical test
-   command. A failure re-enters the failure-handling rules above.
-5. **`code-reviewer` once** on the round's cumulative fix delta (not per gap), with `SCOPED_TEST_COMMANDS` = the round's gap-relevant commands, or `none` (the round's test gate owns execution).
-6. **Re-audit**: re-dispatch `conformance-reviewer` over the fixes **plus** the
+4. **Test gate** on the integrated tree. In a plan flow, run the full plan-header `Verification` set once here; on an ad-hoc no-plan path, use the project's canonical test command. A failure re-enters the failure-handling rules above.
+5. **Round CR and completion** — run `code-reviewer` once on the round's cumulative fix delta (not per gap), foreground with `async: false` and `SCOPED_TEST_COMMANDS` = the round's gap-relevant commands, or `none` (the round's test gate owns execution). After integration, tests, and this CR accept the work, explicitly mark every remediated gap's same `Gn` index `complete`, before re-audit.
+6. **Re-audit**: foreground re-dispatch `conformance-reviewer` with `async: false` over the fixes **plus** the
    regression guard (any prior-`DELIVERED` requirement whose `evidence` file
    the fix diff touched). Pass the full prior conformance report (every row,
    including DELIVERED rows and their `evidence` `file:line`) and the round's
