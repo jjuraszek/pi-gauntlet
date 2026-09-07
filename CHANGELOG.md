@@ -1,5 +1,9 @@
 # Changelog
 
+## v5.3.2 - 2026-09-06
+
+- Plan coverage: `## Spec coverage` rows accept the exact owner `Verification` for requirements the plan header's `**Verification:**` command proves. `table-closure` closes such rows (mechanical row, unparseable anchor, or literal-free anchor -> finding; never counted as task coverage); `quote-integrity` resolves their literals by verbatim containment in the backtick-stripped header. Orphan-owner reason now names `Verification`; anchor-parseability is checked once per row. `header-entrypoint` unchanged. `writing-plans` documents the owner form with a scoped-tests / final-suite example. Spec: `doc/specs/2026-09-06-gh-24-final-verification-ownership.md` (closes #24).
+
 ## v5.3.1 - 2026-09-06
 
 - Task tracking: planning initializes the list once; execution starts and completes existing indices explicitly. Execution retries and fix loops reuse their task; conformance adds only new remediation gaps and reuses their `Gn` indices across rounds.
