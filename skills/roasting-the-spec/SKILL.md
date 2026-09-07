@@ -65,17 +65,20 @@ subagent({
     model,
     cwd: "<abs worktree path>",
     task: "Problem statement: <the problem the spec addresses, from its Context section and the user's stated intent>.\n" +
+          "Human input (verbatim; off-limits for over-spec):\n```\n<original prompt>\n<ticket AC snapshot, if any>\n<questionary answers that changed scope>\n```\n" +
           "Read the spec at <abs path to doc/specs/...>. Verify its load-bearing claims against the codebase, bounded per your verification-hygiene rules (rg, explicit paths, timeout 30). Critique it on your five axes and emit your template.",
     output: "<tmpdir>/member-" + i + "-" + slug(model) + ".md"
   }))
 })
 ```
 
+The `Human input (verbatim; off-limits for over-spec)` block is supplied by the caller (brainstorming passes the original prompt, any ticket AC snapshot, and the questionary answers that changed scope; shape-ticket passes the raw ask). It is the only source members and the chair may quote for the over-spec predicate's leg 2; without it members correctly emit `lean: nothing to cut`.
+
 `control` is a **run-level** field: it must sit beside `tasks`, not inside the `members.map(...)` task objects (the per-task schema has no `control` field and would silently drop it). The three fields together set an effective silence-kill of max(600s, 300+300) = 600s - a genuinely wedged member (e.g. stuck in one unbounded scan) is killed at 10 minutes instead of pi-cohort's 30-minute default. Record all three fields verbatim: the kill is computed as max(inFlightSilenceKillMs, inFlightSilenceCeilingMs + needsAttentionAfterMs), so leaving a field to its default lets a future pi-cohort default change silently stretch it. The 5-minute needsAttentionAfterMs reintroduces idle notices on long healthy xhigh turns - those are notices, not kills, and are acceptable.
 
 `slug(model)` = the model string with `/` and any other non-alphanumeric character replaced by `-` (so `provider/model` → `provider-model`); the chair recovers this slug from each filename for `raised-by` attribution. Relative `output:` paths in parallel mode resolve against the worktree and would get committed — always use the absolute temp dir.
 
-**Usable-critique test (mechanical structural probe).** After the fanout returns - success or failure of the tool call itself - probe the expected output paths on disk; judge by files, not by the tool result's failed/succeeded labels (a killed member may have written a usable critique first). A member file is usable iff it is non-empty AND contains both a `^verdict:\s*(sound|needs-work|unsound)` line and an `^addresses-problem:` line. A `findings:` header with zero bullets is a valid, usable sound critique. Existence plus header regex only - never read or weigh findings content.
+**Usable-critique test (mechanical structural probe).** After the fanout returns - success or failure of the tool call itself - probe the expected output paths on disk; judge by files, not by the tool result's failed/succeeded labels (a killed member may have written a usable critique first). A member file is usable iff it is non-empty AND contains a `^verdict:\s*(sound|needs-work|unsound)` line, an `^addresses-problem:` line, and a `^lean:` line. A `findings:` header with zero bullets is a valid, usable sound critique. Existence plus header regex only - never read or weigh findings content.
 
 **Targeted retry.** Members whose file is missing or not usable are re-dispatched **once**, together, in a second foreground parallel call carrying `async: false` and the same `control` block, with fresh output paths that preserve the `member-<i>-<slug>` basename under a `retry/` subdir of the same temp dir (the chair recovers `raised-by` attribution from that filename pattern). Await its terminal result. Members with usable files are never re-run.
 
@@ -94,6 +97,7 @@ subagent({
   control: { needsAttentionAfterMs: 300000, inFlightSilenceCeilingMs: 600000, inFlightSilenceKillMs: 900000 },
   reads: [ <the usable member file paths under the temp dir> ],
   task: "Problem statement: <paste>. Spec: <abs path>.\n" +
+        "Human input (verbatim; off-limits for over-spec):\n```\n<the same block passed to members>\n```\n" +
         "Member critiques (already injected via reads — do not search for them):\n" +
         usableMemberPaths.join("\n") + "\n" +
         "Coverage: <N> of <M> members reported<; <slug>: <one-line reason> per missing member>.\n" +
@@ -105,7 +109,7 @@ The chair runs one long foreground single-turn synthesis; await its terminal res
 
 List the exact member paths in the task text. The `reads:` array injects their contents, but the chair's prompt expects the paths explicitly; without them it scans the tree for `*.md` and stalls.
 
-A chair synthesis is usable iff it contains a `^consensus:` line. If the configured `chair` model is unreachable, retry once with the inherited model; a wedge-killed or unusable chair retries once with the same model. Each retry remains foreground with top-level `async: false` and is awaited to a terminal result. Second failure -> abort the council, say so, and return to the user gate.
+A chair synthesis is usable iff it contains a `^consensus:` line and a `^lean:` line. If the configured `chair` model is unreachable, retry once with the inherited model; a wedge-killed or unusable chair retries once with the same model. Each retry remains foreground with top-level `async: false` and is awaited to a terminal result. Second failure -> abort the council, say so, and return to the user gate.
 
 ### 3 — Decide and apply
 
@@ -116,6 +120,8 @@ For each cluster in the chair's report, decide one of:
 - **reject** — one-line reason. Do not edit the spec.
 
 Also inline any `external-ref:` cluster you have context for (e.g. a ticket fetched during brainstorming) as part of the apply-set — this is your call, same as any other cluster.
+
+An `over-spec:` cluster decided **apply** is executed as deletion or shrink of the quoted clause **and** any acceptance-criteria or testing-approach line that exists only for it. Its audit line reads `Applied: over-spec: <clause> -> cut (was adds: M files / N tests / K ACs)` or `Applied: over-spec: <clause> -> shrunk to <replacement> (was adds: ...)`, so the gate shows what was removed. `defer`/`reject` are unchanged.
 
 You are the advocate — decide on scope grounds — and, unlike a dispatched subagent, also the executor: you hold `edit`/`write` tools directly, so apply the edit yourself instead of proposing it for someone else to make. Do this **before** returning to brainstorming.
 

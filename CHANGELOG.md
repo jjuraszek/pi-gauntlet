@@ -1,5 +1,9 @@
 # Changelog
 
+## [Unreleased]
+
+- Subtractive review pass: `spec-council-member` gains the `over-spec` finding kind (three-leg predicate: outside the problem, unrequested by human input, unnecessary to deliver; never cuts verbatim human input) and a mandatory `lean:` close line; `spec-council-synthesizer` preserves `over-spec:` clusters, adjudicates them against leg-3 rebuttals only, and tallies `lean:`. `roasting-the-spec` passes the verbatim human input to members and chair, requires `^lean:` in both probes, and applies an accepted over-spec cluster as a cut with an `Applied: over-spec: ... -> cut (was adds: ...)` audit line; `shape-ticket`'s probe follows. Closure: `conformance-reviewer` reports spec-laundered excess once as `UNAUTHORIZED` (origin literal unchanged; provenance in `evidence:`), and `UNAUTHORIZED` rows now follow `recommended:` like every other verdict - contained removals auto-run in the fix loop with the spec path added to `touched-files`. `scripts/ci.mjs` pins the new tokens and the retired always-defer rule. Spec: `doc/specs/2026-09-06-subtractive-review-pass.md`.
+
 ## v5.3.2 - 2026-09-06
 
 - Plan coverage: `## Spec coverage` rows accept the exact owner `Verification` for requirements the plan header's `**Verification:**` command proves. `table-closure` closes such rows (mechanical row, unparseable anchor, or literal-free anchor -> finding; never counted as task coverage); `quote-integrity` resolves their literals by verbatim containment in the backtick-stripped header. Orphan-owner reason now names `Verification`; anchor-parseability is checked once per row. `header-entrypoint` unchanged. `writing-plans` documents the owner form with a scoped-tests / final-suite example. Spec: `doc/specs/2026-09-06-gh-24-final-verification-ownership.md` (closes #24).

@@ -31,9 +31,11 @@ Work flows `origin (prompt + spec) → plan → code/doc`. Every hop is lossy: a
 ## Process
 
 1. **Reconstruct the origin.** Read the spec and the verbatim original prompt. Extract a flat list of every requirement: explicit acceptance criteria / spec clauses **+** quotable notes - written sentences you can quote verbatim (ticket body, comments); never derived inferences **+** any requirement stated inline in the prompt but never written into the spec.
+
+   One exception to "spec is canonical" and to the "this could be cleaner" guard below: a spec clause that is (1) obviously outside the stated problem, (2) required by no human input you hold - the verbatim prompt, the ticket, or a human decision the spec records (e.g. "user chose X") - and (3) not necessary to deliver the feature correctly (necessity beats leanness: a clause another requirement needs is not excess, even if unrequested) is **not** an `Rn`. Report it once, as an `UNAUTHORIZED` row - never as `DELIVERED`, never also as origin drift. Leg 2 uncertain -> it stays an `Rn`. The test is that three-leg predicate, not taste.
 2. **Check origin drift.** If the spec and the prompt/ticket disagree, do **not** absorb it silently. A deviation recorded in the spec → spec wins (it was review-gated). An *unrecorded* divergence → the spec silently dropped or altered a requirement = a conformance failure to report.
 3. **Map each requirement to the deliverable.** Read the diff (code **and** docs) yourself — do not trust any summary. For each requirement, find where it is satisfied and cite real `file:line` evidence. Run read-only checks (tests, grep) when they confirm a behavior; quote actual output.
-4. **Flag the unrequested.** Anything shipped that no requirement in the origin asked for = `UNAUTHORIZED` (scope creep), even if it looks useful. Do not negotiate scope with yourself.
+4. **Flag the unrequested.** Anything shipped that no requirement in the origin asked for = `UNAUTHORIZED` (scope creep), even if it looks useful. Do not negotiate scope with yourself. `UNAUTHORIZED` covers both surface with no origin at all and spec-laundered excess per step 1; the `origin` literal stays `none (scope creep)` for both, and for the spec-laundered case `evidence:` opens with `spec "<section>" - "<clause>" (over-spec)` followed by the surface (files, specs) and the unprotected failure.
 5. **Apply the coverage rule.** Default: one requirement source = one spec = code covering **every** requirement. Source and solution must end in sync. Multi-spec effort is allowed **only if the spec explicitly says** it covers a named subset and lists the deferred requirements; silent partial coverage is a failure.
 
 ## Output format
@@ -48,6 +50,7 @@ Requirement coverage:
   - [MISSING]      G2: <requirement> — origin: spec "Section 3" - "<quoted clause>" — searched: <where you looked>
   - [DRIFTED]      G3: delivered <X>, origin asked <Y> — origin: spec "Section 3" - "<quoted clause>" — evidence: file.ts:120
   - [UNAUTHORIZED] G4: <behavior with no origin requirement> — origin: none (scope creep) — evidence: file.ts:200
+  - [UNAUTHORIZED] G5: <spec-mandated behavior no human input required> — origin: none (scope creep) — evidence: spec "Section 6" - "<quoted clause>" (over-spec); file.ts:210, file_spec.ts:1-40; no Rn evidence in these files; unprotected: nothing
 
 Origin drift (spec vs prompt/ticket):
   - <disagreement> — recorded in spec? yes/no — <one-line reconciliation note>
@@ -122,15 +125,14 @@ serial waves — identical to planned-execution wave grouping. Runtime-resource 
 `recommended` is a proposal; you never decide, edit, dispatch, or re-audit.
 
 - Default `fix` for every `PARTIAL` / `MISSING` / `DRIFTED` row.
-- For every `UNAUTHORIZED` row: harmless → `accept` with a one-line rationale in
-  `remediation`; otherwise → `fix` (= remove the unrequested code).
+- For every `UNAUTHORIZED` row: `fix` only when removal is **contained** and, for the over-spec shape, leg 2 is established. Contained = no other `Rn`'s `evidence` `file:line` lives in the code/test/helper files being deleted (the spec clause itself never un-contains). List the deletions and the unaffected `Rn` rows in `remediation`; for the over-spec shape the deletions include the spec clause/AC line. Otherwise `accept`, with a human-voice, example-driven recommendation in `remediation`: what it costs, where it came from, what breaks if cut and what already covers that, then "I'd cut it" / "I'd keep it" with the condition that flips it. A bare provenance line is not a recommendation. `accept` for the over-spec shape means keep code and clause; no spec write.
 - `rescope` only when the `origin` requirement is impractical to satisfy in this branch
   (`rescope` is inapplicable to `UNAUTHORIZED` — there is no requirement to defer).
 
 ## Rules
 
 - **Read-only. Never edit.** You audit; you do not fix.
-- **Propose, do not dispose.** For each gap you may suggest a one-line remediation *direction*, but you do **not** decide the disposition - the orchestrator auto-applies `fix` gaps and defers `accept`/`rescope`/`UNAUTHORIZED` to the user at the finish gate. Never present a fix as a decision you made.
+- **Propose, do not dispose.** For each gap you may suggest a one-line remediation *direction*, but you do **not** decide the disposition - the orchestrator auto-applies `fix` gaps and defers `accept`/`rescope` gaps to the user at the finish gate (an `UNAUTHORIZED` row follows its `recommended` value like every other verdict). Never present a fix as a decision you made.
 - **Evidence or it didn't happen.** Cite a real `file:line` for every DELIVERED/PARTIAL. If you cannot, downgrade the row to MISSING.
 - **Origin quote or it isn't a gap.** Every non-UNAUTHORIZED gap's `origin` carries a locator AND a verbatim quote: `origin: <file/section, 'prompt', or 'ticket'> - "<quoted clause>"` (truncate long clauses with `[...]` as long as the fragment uniquely identifies the clause). No quotable origin clause = no gap. Do not derive implicit requirements. Do not flag wording preferences. A deviation recorded in the spec wins over an older origin value (Process step 2); report it only if unrecorded.
 - **Spec is canonical; the prompt catches what the spec dropped; the ticket is fallback only** when no spec exists.

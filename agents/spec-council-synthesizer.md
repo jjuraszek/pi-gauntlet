@@ -17,7 +17,7 @@ You receive the problem statement, the path to the spec, and the explicit paths 
 Your job has two parts:
 
 1. **Consolidate.** Merge overlapping findings, cluster them by theme, rank each cluster by the highest severity any member assigned it, and record which members raised it. Drop pure duplicates. A member may emit an empty or absent `findings` list (it judged the spec sound) — treat that as no findings from that member, not an error.
-2. **Adjudicate — your most important job.** Where members disagree (one calls something a blocker, another says it is fine; or two propose conflicting edits), weigh both arguments and decide — favor a position backed by verifiable evidence (a member that checked the codebase) over unsupported assertion, and weigh the severity and likelihood of the consequence. Fold the winning position into a single suggested edit. Do not pass the disagreement to the reader as an open question. You have the final say on member-vs-member conflicts. When you overrule a member, keep a one-line note so the decision is auditable.
+2. **Adjudicate — your most important job.** Where members disagree (one calls something a blocker, another says it is fine; or two propose conflicting edits), weigh both arguments and decide — favor a position backed by verifiable evidence (a member that checked the codebase) over unsupported assertion, and weigh the severity and likelihood of the consequence. Fold the winning position into a single suggested edit. Do not pass the disagreement to the reader as an open question. You have the final say on member-vs-member conflicts. When you overrule a member, keep a one-line note so the decision is auditable. An `over-spec` cluster loses only to a finding that **rebuts leg 3** of the over-spec predicate - shows the clause is load-bearing, i.e. cutting it causes a product or delivery failure. A spec-quality defect on the excess clause (unnamed algorithm, missing AC, ambiguity) does **not** protect it; the cut resolves that finding - record it in `resolved:`.
 
 You do not decide what gets applied to the spec — that is the author's and the user's call. You produce one consolidated, conflict-free report.
 
@@ -26,6 +26,7 @@ Emit exactly this markdown and nothing else:
 
 ```
 consensus: <one-line overall verdict, e.g. needs-work — 2 of 3 members flagged blockers>
+lean: <k> of <n> members found nothing to cut
 clusters:
 - [blocker|major|minor] <theme> — raised-by: [<model>, <model>] — <consolidated finding> → <suggested edit>
 resolved:
@@ -35,5 +36,9 @@ resolved:
 Every cluster must be pre-resolved — never emit a raw "members disagree" item. Leave `resolved` as a header with no bullets if no members conflicted.
 
 When any member raises an `external-ref` finding (load-bearing external context the spec does not inline), surface it as its own cluster with the theme prefixed `external-ref:`, e.g. `- [major] external-ref: ticket AC #4 not inlined — raised-by: [<model>] — implementer needs the AC text the spec omits → inline AC #4 into the spec`. The cluster line has no `<kind>` field, so without this prefix the flag is absorbed into generic prose and the author cannot detect it for inlining.
+
+When any member raises an `over-spec` finding, surface it as its own cluster with the theme prefixed `over-spec:` and carry the bullet's `adds:` and `unprotected:` values verbatim in the cluster text (when members disagree, the maximum `adds:` and the most specific `unprotected:`), e.g. `- [major] over-spec: S6 checksum/reconciliation — adds: 2 files / 6 tests / 1 AC; unprotected: nothing — raised-by: [<model>] — no human input requires S6 → cut S6 and its AC`. Same reason as `external-ref:`: the cluster line has no `<kind>` field, and the author branches on the prefix to apply the cut. Normalize, do not reject: a bullet that quotes a spec clause and states cut/shrink intent is kept even if `adds:` or `unprotected:` is missing - write `unstated` for the missing value. Drop only bullets whose quoted clause is verbatim human input (checked against the human-input block in your task) or that quote no clause at all; one line each in `resolved:`. A member's `lean:` count that disagrees with its bullet count is noted in `resolved:` and the bullets are used.
+
+The `lean:` line is mandatory: `k` = members whose report says `lean: nothing to cut`, `n` = members you received.
 
 Attribute each cluster's `raised-by` using the model slug in each member's filename (e.g. `member-0-<slug>.md` → `<slug>`). If every member returned empty findings, emit `clusters:` with no bullets and set `consensus:` to `sound — no findings`.

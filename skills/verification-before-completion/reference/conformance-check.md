@@ -98,10 +98,8 @@ No prompt, no menu: this partition is deterministic and exhaustive.
 
 1. **Verdict `CONFORMS`** (no gaps) → record the verdict in the completion
    summary's closure section and proceed. No loop.
-2. **Any gap is `UNAUTHORIZED`** → that gap **always** defers to the finish gate,
-   regardless of its `recommended` value. Never auto-remove or auto-accept
-   unrequested code here.
-3. **Every remaining `PARTIAL`/`MISSING`/`DRIFTED` gap**:
+2. **Every gap** (`PARTIAL`/`MISSING`/`DRIFTED`/`UNAUTHORIZED` alike - an
+   `UNAUTHORIZED` gap follows its `recommended` value like any other):
    - `recommended: fix` → auto-run the fix loop below — **unless a declared
      fix-loop precondition is unavailable** (`maxFixRounds: 0`, or no eligible
      named-branch worktree), in which case carry the gap **OPEN** and defer it
@@ -113,14 +111,14 @@ No prompt, no menu: this partition is deterministic and exhaustive.
      deferred to the finish gate. Do not apply a spec edit here — the finish
      gate owns disposition of deferred gaps.
 
-So the fast path (all gaps `recommended: fix`, none `UNAUTHORIZED`, cap > 0,
+So the fast path (all gaps `recommended: fix`, cap > 0,
 eligible named-branch worktree) therefore auto-runs the fix loop with no menu,
 stop, or confirmation; any other mix carries the
-`accept`/`rescope`/`UNAUTHORIZED` gaps OPEN while the `fix` gaps run. Record every gap's outcome (`CONFORMS`-closed or carried OPEN) in the
+`accept`/`rescope` gaps OPEN while the `fix` gaps run. Record every gap's outcome (`CONFORMS`-closed or carried OPEN) in the
 `## Closure / conformance` block (schema below).
 
 **Re-partition after every re-audit.** A re-audit can introduce `Gn+1` or flip a
-carried gap's `recommended`. Re-run steps 1-3 above over the **full current
+carried gap's `recommended`. Re-run steps 1-2 above over the **full current
 open-gap set** each time the reviewer returns a report — never reuse a stale
 partition from an earlier round.
 
@@ -148,7 +146,10 @@ Per round:
    group of ≥ 2 gaps (per the report's `Parallel-safe:` line) fixes in one parallel
    foreground dispatch — one `implementer` per gap (fresh context, `async: false`,
    `worktree: true`, `cwd` = the conformance worktree, task = the gap block verbatim
-   with `touched-files` as the ownership boundary). The dispatch adds `SCOPED_TEST_COMMANDS`
+   with `touched-files` as the ownership boundary). For an `UNAUTHORIZED` `fix` gap
+   whose `evidence` opens with the over-spec provenance (`spec "<section>" - "<clause>" (over-spec)`), the orchestrator adds the spec path to that gap's `touched-files` before dispatch,
+   so the implementer deletes the surface **and** the clause/AC line in the same
+   fix commit; the re-audit then has no `Rn` for it and no `MISSING` echo. The dispatch adds `SCOPED_TEST_COMMANDS`
    to the gap block: the gap-relevant plan-declared commands, or `none` (the round's
    test gate owns execution). `conflicts` pairs serialize. Gaps outside any ≥ 2-ID
    `disjoint` group run sequentially as before. Then dispatch foreground `spec-reviewer`
@@ -346,7 +347,7 @@ only if a concern remains open.
 Emit this block in the verify completion summary. It is the durable handoff
 `finishing-a-development-branch` Step 3.5 consumes — parseable even if session
 context was pruned. Verify completes when every gap is either fixed
-(`CONFORMS`) or carried OPEN as a deferred gap - `accept`/`rescope`/`UNAUTHORIZED`,
+(`CONFORMS`) or carried OPEN as a deferred gap - `accept`/`rescope`,
 or a `recommended: fix` gap carried OPEN per the precondition-unavailable
 carry-OPEN rule in the partition step above (the loop never started). Escalation - a started
 positive-cap loop that exhausted its rounds or blocked/failed with an open `fix`

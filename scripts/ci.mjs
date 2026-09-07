@@ -151,6 +151,40 @@ for (const base of scanDirs) {
 if (hits.length) fail("stale rename tokens found:\n    " + hits.join("\n    "));
 else ok("no stale rename tokens in skills/extensions/agents/bin");
 
+// ---- subtractive review pass (over-spec kind + closure removal) -------------
+const subtractiveErrorsBefore = errors.length;
+const txt = (p) => readFileSync(R(p), "utf8");
+const tokenChecks = [
+  // present
+  ["agents/spec-council-member.md", "over-spec", true],
+  ["agents/spec-council-member.md", "\nlean: nothing to cut | <N> over-spec findings above\n", true],
+  ["agents/spec-council-synthesizer.md", "over-spec:", true],
+  ["agents/spec-council-synthesizer.md", "\nlean: <k> of <n> members found nothing to cut\n", true],
+  ["skills/roasting-the-spec/SKILL.md", "Human input (verbatim", true],
+  ["skills/shape-ticket/SKILL.md", "`^lean:` line", true],
+  ["agents/conformance-reviewer.md", "(over-spec)", true],
+  // absent (retired rules)
+  ["skills/verification-before-completion/reference/conformance-check.md", "always** defers to the finish gate", false],
+  ["skills/verification-before-completion/reference/conformance-check.md", "`accept`/`rescope`/`UNAUTHORIZED`", false],
+  ["agents/conformance-reviewer.md", "`accept`/`rescope`/`UNAUTHORIZED`", false],
+  ["agents/conformance-reviewer.md", "harmless \u2192 `accept`", false],
+  // unchanged surface (must still be present)
+  ["skills/verification-before-completion/reference/conformance-check.md", "keep `origin: none (scope creep)` verbatim", true],
+  ["skills/verification-before-completion/reference/conformance-check.md", "Unavailable: scope creep has no origin requirement to defer", true],
+  ["agents/conformance-reviewer.md", "use the literal `none (scope creep)`", true],
+];
+for (const [file, tok, want] of tokenChecks) {
+  const has = txt(file).includes(tok);
+  if (has !== want) fail(`${file}: token "${tok.trim()}" ${want ? "missing" : "must be absent"}`);
+}
+// both probes in roasting-the-spec name ^lean:
+const roastProbeHits = (txt("skills/roasting-the-spec/SKILL.md").match(/`\^lean:` line/g) || []).length;
+if (roastProbeHits < 2) fail(`skills/roasting-the-spec/SKILL.md: expected ^lean: in both member and chair probes, found ${roastProbeHits}`);
+// touched-files + over-spec in the same paragraph of conformance-check.md
+const ccParas = txt("skills/verification-before-completion/reference/conformance-check.md").split(/\n\s*\n/);
+if (!ccParas.some((p) => p.includes("touched-files") && p.includes("over-spec"))) fail("conformance-check.md: no paragraph carries both `touched-files` and `over-spec`");
+if (errors.length === subtractiveErrorsBefore) ok("subtractive review pass tokens present/absent as specified");
+
 // ---- extension syntax (type-stripped parse) --------------------------------
 for (const f of walk(R("extensions")).filter((f) => f.endsWith(".ts"))) {
   try {
