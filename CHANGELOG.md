@@ -1,5 +1,9 @@
 # Changelog
 
+## v5.3.4 - 2026-09-07
+
+- `spec-council-member`, `spec-council-synthesizer`, `conformance-reviewer`: the `over-spec` rules rewritten as short numbered imperatives so smaller council/closure models follow them; no semantic change (verified by an independent parity review).
+
 ## v5.3.3 - 2026-09-07
 
 - Subtractive review pass: `spec-council-member` gains the `over-spec` finding kind (three-leg predicate: outside the problem, unrequested by human input, unnecessary to deliver; never cuts verbatim human input) and a mandatory `lean:` close line; `spec-council-synthesizer` preserves `over-spec:` clusters, adjudicates them against leg-3 rebuttals only, and tallies `lean:`. `roasting-the-spec` passes the verbatim human input to members and chair, requires `^lean:` in both probes, and applies an accepted over-spec cluster as a cut with an `Applied: over-spec: ... -> cut (was adds: ...)` audit line; `shape-ticket`'s probe follows. Closure: `conformance-reviewer` reports spec-laundered excess once as `UNAUTHORIZED` (origin literal unchanged; provenance in `evidence:`), and `UNAUTHORIZED` rows now follow `recommended:` like every other verdict - contained removals auto-run in the fix loop with the spec path added to `touched-files`. `scripts/ci.mjs` pins the new tokens and the retired always-defer rule. Spec: `doc/specs/2026-09-06-subtractive-review-pass.md`.
