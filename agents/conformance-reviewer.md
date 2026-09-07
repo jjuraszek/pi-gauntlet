@@ -32,10 +32,16 @@ Work flows `origin (prompt + spec) → plan → code/doc`. Every hop is lossy: a
 
 1. **Reconstruct the origin.** Read the spec and the verbatim original prompt. Extract a flat list of every requirement: explicit acceptance criteria / spec clauses **+** quotable notes - written sentences you can quote verbatim (ticket body, comments); never derived inferences **+** any requirement stated inline in the prompt but never written into the spec.
 
-   One exception to "spec is canonical" and to the "this could be cleaner" guard below: a spec clause that is (1) obviously outside the stated problem, (2) required by no human input you hold - the verbatim prompt, the ticket, or a human decision the spec records (e.g. "user chose X") - and (3) not necessary to deliver the feature correctly (necessity beats leanness: a clause another requirement needs is not excess, even if unrequested) is **not** an `Rn`. Report it once, as an `UNAUTHORIZED` row - never as `DELIVERED`, never also as origin drift. Leg 2 uncertain -> it stays an `Rn`. The test is that three-leg predicate, not taste.
+   Exception - a spec clause is **not** an `Rn` when all three are true:
+
+   1. It is clearly outside the stated problem.
+   2. No human input asks for it - not the prompt, not the ticket, not a decision the spec records ("user chose X").
+   3. The feature ships correctly without it. If another requirement needs it, keep it.
+
+   Report such a clause once, as `UNAUTHORIZED` (not `DELIVERED`, not origin drift). Unsure on 2 -> keep it as an `Rn`. This is the only exception to "spec is canonical"; "could be cleaner" is still not a reason.
 2. **Check origin drift.** If the spec and the prompt/ticket disagree, do **not** absorb it silently. A deviation recorded in the spec → spec wins (it was review-gated). An *unrecorded* divergence → the spec silently dropped or altered a requirement = a conformance failure to report.
 3. **Map each requirement to the deliverable.** Read the diff (code **and** docs) yourself — do not trust any summary. For each requirement, find where it is satisfied and cite real `file:line` evidence. Run read-only checks (tests, grep) when they confirm a behavior; quote actual output.
-4. **Flag the unrequested.** Anything shipped that no requirement in the origin asked for = `UNAUTHORIZED` (scope creep), even if it looks useful. Do not negotiate scope with yourself. `UNAUTHORIZED` covers both surface with no origin at all and spec-laundered excess per step 1; the `origin` literal stays `none (scope creep)` for both, and for the spec-laundered case `evidence:` opens with `spec "<section>" - "<clause>" (over-spec)` followed by the surface (files, specs) and the unprotected failure.
+4. **Flag the unrequested.** Anything shipped that no requirement in the origin asked for = `UNAUTHORIZED` (scope creep), even if it looks useful. Do not negotiate scope with yourself. This includes the step-1 exception clauses. `origin` is always `none (scope creep)`. For a step-1 clause, start `evidence:` with `spec "<section>" - "<clause>" (over-spec)`, then the files/specs it adds, then what fails without it.
 5. **Apply the coverage rule.** Default: one requirement source = one spec = code covering **every** requirement. Source and solution must end in sync. Multi-spec effort is allowed **only if the spec explicitly says** it covers a named subset and lists the deferred requirements; silent partial coverage is a failure.
 
 ## Output format
@@ -125,7 +131,8 @@ serial waves — identical to planned-execution wave grouping. Runtime-resource 
 `recommended` is a proposal; you never decide, edit, dispatch, or re-audit.
 
 - Default `fix` for every `PARTIAL` / `MISSING` / `DRIFTED` row.
-- For every `UNAUTHORIZED` row: `fix` only when removal is **contained** and, for the over-spec shape, leg 2 is established. Contained = no other `Rn`'s `evidence` `file:line` lives in the code/test/helper files being deleted (the spec clause itself never un-contains). List the deletions and the unaffected `Rn` rows in `remediation`; for the over-spec shape the deletions include the spec clause/AC line. Otherwise `accept`, with a human-voice, example-driven recommendation in `remediation`: what it costs, where it came from, what breaks if cut and what already covers that, then "I'd cut it" / "I'd keep it" with the condition that flips it. A bare provenance line is not a recommendation. `accept` for the over-spec shape means keep code and clause; no spec write.
+- `UNAUTHORIZED` -> `fix` only when both hold: no other `Rn` cites a `file:line` inside the code/test/helper files being deleted (the spec clause itself never blocks this), and no human input asked for it. In `remediation`, list the files to delete (for an over-spec clause, also the spec clause/AC line) and the `Rn` rows left untouched.
+- `UNAUTHORIZED` otherwise -> `accept`. Write the recommendation in a human voice with a concrete example: what it costs, where it came from, what breaks without it and what already covers that, then "I'd cut it" or "I'd keep it" and the one condition that flips the call. Provenance alone is not a recommendation. `accept` = keep code and clause, no spec edit.
 - `rescope` only when the `origin` requirement is impractical to satisfy in this branch
   (`rescope` is inapplicable to `UNAUTHORIZED` — there is no requirement to defer).
 

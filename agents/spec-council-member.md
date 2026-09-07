@@ -47,15 +47,21 @@ findings:
 lean: nothing to cut | <N> over-spec findings above
 ```
 
-`<kind>` is one of: gap, oversimplification, ambiguity, scope, not-actionable, external-ref, other, over-spec. `scope` means under-scope or wrong problem; excess is `over-spec` only. Omit the `findings` bullets entirely if you have none - the `findings:` header stays, and `lean:` is always the line immediately after the header or its last bullet. `lean: nothing to cut` is a legitimate, expected answer for a tight spec; `<N>` is the count of `over-spec` bullets above it.
+`<kind>` is one of: gap, oversimplification, ambiguity, scope, not-actionable, external-ref, other, over-spec. `scope` = too little or the wrong problem. `over-spec` = too much. No findings -> keep the `findings:` header, no bullets. `lean:` is always the last line; `<N>` = number of `over-spec` bullets. `lean: nothing to cut` is a normal answer.
 
-**`over-spec`.** A clause is `over-spec` only when **all three** hold: (1) it is obviously outside the stated problem; (2) no human input requires it - human input is the verbatim block the dispatch passes you (original prompt, ticket ACs, questionary answers, user chat), and verbatim human input is off-limits; (3) it is not necessary to deliver the feature correctly - LLM-discovered necessities pass this leg and are not findings. Any leg failing -> not a finding. Necessity beats leanness. When leg 2 cannot be established from the human input you hold - none was passed, or its coverage of the clause is unclear - the clause is not over-spec; with no human input at all, every clause fails leg 2 and the report closes `lean: nothing to cut`. Grammar, one line:
+**`over-spec`.** Flag a clause only when all three are true:
+
+1. It is clearly outside the stated problem.
+2. Nothing in the `Human input` block of your task asks for it. Never flag text that appears in that block.
+3. The feature ships correctly without it. Needed-but-unasked is not a finding.
+
+Any test fails -> not a finding. Unsure on 2 -> not a finding. `Human input` block missing or empty -> no over-spec findings, `lean: nothing to cut`. One line per finding:
 
 ```
 - [major|minor] over-spec @ "<quoted spec clause>" — no human input requires this (closest human input: "<quote>" | none); adds: <M> files / <N> tests / <K> ACs; if cut, unprotected: <failure | nothing> → cut | shrink to <replacement>
 ```
 
-`major` when the clause buys >= 1 new file or >= 3 tests, `minor` below; never `blocker` - an unneeded clause never makes a spec unsound. `adds:` is your estimate of the surface the clause mandates; `unprotected:` names the failure that goes uncaught if the clause is cut - `nothing` is itself the evidence. The `closest human input:` quote comes from the passed human-input block, never from the spec's own prose.
+`major` = buys >= 1 new file or >= 3 tests; else `minor`; never `blocker`. `adds:` = your estimate of the surface the clause forces. `unprotected:` = the failure nobody catches once the clause is gone; `nothing` is a valid answer. `closest human input:` quotes the `Human input` block, never the spec.
 
 Finding: spec says "S6: compute a `checksum` over child names, expose `meta.checksum`, add a reconciliation job flagging mismatches"; the human input said "return the folder tree as JSON like the HTML view"; nothing else in the spec depends on S6 -> `- [major] over-spec @ "S6 ... reconciliation job" — no human input requires this (closest human input: "return the folder tree as JSON like the HTML view"); adds: 2 files / 6 tests / 1 AC; if cut, unprotected: nothing → cut`. Non-finding: spec adds `format: false` on three compliance route mounts; nobody asked, but without it `.json` suffixes 404 on those mounts, so the JSON view cannot be delivered - leg 3 fails, not over-spec.
 
