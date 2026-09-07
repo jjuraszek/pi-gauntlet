@@ -69,6 +69,7 @@ interface CoverageRow {
   isWaived: boolean;
   ownerTasks: number[];
   ownerMalformed: boolean;
+  isVerification: boolean;
   anchor: Anchor | undefined;
 }
 
@@ -270,6 +271,7 @@ function parsePlan(planText: string): ParsedPlan {
       let isWaived = false;
       let ownerTasks: number[] = [];
       let ownerMalformed = false;
+      const isVerification = ownerCell === "Verification";
       if (waivedMatch) {
         if (waivedMatch[1].trim().length === 0) {
           ownerMalformed = true;
@@ -278,7 +280,7 @@ function parsePlan(planText: string): ParsedPlan {
         }
       } else if (isTaskList) {
         ownerTasks = [...ownerCell.matchAll(/Task (\d+)/g)].map((mm) => Number(mm[1]));
-      } else {
+      } else if (!isVerification) {
         ownerMalformed = true;
       }
       let anchor: Anchor | undefined;
@@ -296,6 +298,7 @@ function parsePlan(planText: string): ParsedPlan {
         isWaived,
         ownerTasks,
         ownerMalformed,
+        isVerification,
         anchor,
       });
       p++;
@@ -380,7 +383,7 @@ function computeRequiredLiteralsPerTask(parsed: ParsedPlan, specLines: string[])
   return map;
 }
 
-function checkTableClosure(parsed: ParsedPlan): PlanCheckFinding[] {
+function checkTableClosure(parsed: ParsedPlan, specLines: string[]): PlanCheckFinding[] {
   const findings: PlanCheckFinding[] = [];
   if (!parsed.coverageTableFound) {
     findings.push({ check: "table-closure", line: 0, text: "", reason: "no '## Spec coverage' table found" });
@@ -396,11 +399,40 @@ function checkTableClosure(parsed: ParsedPlan): PlanCheckFinding[] {
         check: "table-closure",
         line: row.line,
         text: row.text,
-        reason: "owner cell is not a 'Task <n>' list or 'waived: <reason>'",
+        reason: "owner cell is not a 'Task <n>' list, 'Verification', or 'waived: <reason>'",
+      });
+      continue;
+    }
+    if (row.isVerification && row.isMechanical) {
+      findings.push({
+        check: "table-closure",
+        line: row.line,
+        text: row.text,
+        reason: "mechanical row owner must be a Task <n>",
       });
       continue;
     }
     if (row.isWaived) continue;
+    const anchorUnparseable = !row.isMechanical && !row.anchor;
+    if (anchorUnparseable) {
+      findings.push({
+        check: "table-closure",
+        line: row.line,
+        text: row.text,
+        reason: 'requirement row anchor is not a parseable § "heading" L<n>-L<n> anchor',
+      });
+    }
+    if (row.isVerification) {
+      if (!anchorUnparseable && requiredLiteralsForRow(row, specLines).length === 0) {
+        findings.push({
+          check: "table-closure",
+          line: row.line,
+          text: row.text,
+          reason: "Verification row has no backtick literal to check against the header",
+        });
+      }
+      continue;
+    }
     for (const n of row.ownerTasks) {
       coveredTasks.add(n);
       if (row.isMechanical) mechanicalCoveredTasks.add(n);
@@ -414,16 +446,7 @@ function checkTableClosure(parsed: ParsedPlan): PlanCheckFinding[] {
         });
         continue;
       }
-      if (row.isMechanical) continue;
-      if (!row.anchor) {
-        findings.push({
-          check: "table-closure",
-          line: row.line,
-          text: row.text,
-          reason: 'requirement row anchor is not a parseable \u00a7 "heading" L<n>-L<n> anchor',
-        });
-        continue;
-      }
+      if (row.isMechanical || anchorUnparseable) continue;
       const contained = task.anchors.some(
         (a) => a.heading === row.anchor!.heading && a.start === row.anchor!.start && a.end === row.anchor!.end,
       );
@@ -465,10 +488,24 @@ function checkQuoteIntegrity(parsed: ParsedPlan, specLines: string[]): PlanCheck
   const findings: PlanCheckFinding[] = [];
   if (!parsed.coverageTableFound) return findings;
   const taskByNumber = new Map(parsed.tasks.map((t) => [t.number, t]));
+  const headerText = (parsed.header.verificationText ?? "").replaceAll("`", "");
   for (const row of parsed.coverageRows) {
     if (row.ownerMalformed || row.isWaived || row.isMechanical) continue;
     const literals = requiredLiteralsForRow(row, specLines);
     if (literals.length === 0) continue;
+    if (row.isVerification) {
+      for (const lit of literals) {
+        if (!headerText.includes(lit)) {
+          findings.push({
+            check: "quote-integrity",
+            line: row.line,
+            text: row.text,
+            reason: `verification header does not contain the required verbatim literal \`${lit}\``,
+          });
+        }
+      }
+      continue;
+    }
     for (const n of row.ownerTasks) {
       const task = taskByNumber.get(n);
       if (!task) continue;
@@ -805,7 +842,7 @@ export function checkPlan(planText: string, specText: string, fs: FsPort): PlanC
     }
 
     const specLines = specText.split("\n");
-    findings.push(...checkTableClosure(parsed));
+    findings.push(...checkTableClosure(parsed, specLines));
     findings.push(...checkQuoteIntegrity(parsed, specLines));
     findings.push(...checkAnchorResolution(parsed, specLines));
     findings.push(...checkPathsExist(parsed, fs));

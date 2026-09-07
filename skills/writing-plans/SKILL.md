@@ -264,11 +264,14 @@ Every plan ends with a `## Spec coverage` section — authored last, placed afte
 |---|---|---|
 | § "Design" L34-L37 | anchor line in task template | Task 2 |
 | § "Edge cases" L120 | stale anchor = blocking SR finding | Task 4, Task 5 |
+| § "Testing" L84 | checker fixtures: `node --test extensions/lib/plan-check.test.ts` | Task 3 |
+| § "Acceptance" L88 | full suite passes: `npm test` | Verification |
 | § "Out of scope" L131 | fix-round anchoring | waived: out of scope per spec |
 | - | mechanical: release commit | Task 7 |
 ```
 
-- **Requirement rows:** anchor + short requirement + owner = task-ID list, or `waived: <reason>` **only when the spec itself marks the item out of scope**. A waiver on an in-scope normative requirement is a Self-Review failure — there is no human plan-review gate to catch it downstream.
+- **Requirement rows:** anchor + short requirement + owner = task-ID list, or `Verification`, or `waived: <reason>` **only when the spec itself marks the item out of scope**. A waiver on an in-scope normative requirement is a Self-Review failure — there is no human plan-review gate to catch it downstream.
+- **`Verification` owner:** use for a requirement the header `**Verification:**` command proves. Write the exact string `Verification`, alone. Quote only literals contained in that header. Anchor the single requirement line. Keep scoped commands task-owned.
 - **Mechanical-task rows:** anchor `-`, requirement `mechanical: <short>`, owner = the task ID. One such row per anchor-less task.
 - The table is plan-authoring-time only — never passed to implementer or reviewer dispatches.
 
@@ -293,12 +296,13 @@ If a decision is genuinely open, put it in an explicit **Open Questions** sectio
 After drafting the plan and before announcing it complete, run the deterministic checker, then the judgment checks yourself — not a subagent dispatch.
 
 - **Deterministic checker.** Run `plan_check({ planPath })` on the saved plan. Assess and fix every finding yourself (no human involvement), then re-run until it passes — a pass writes the execution stamp that implement-start verifies mechanically. If the same finding survives 3 fix rounds, convert it to an explicit Open Question and stop (the pre-existing Open-Questions halt, resolved by the human in-session — not a new gate). The checker covers table closure, quote integrity, anchor resolution, path existence, placeholder scan, wave file-disjointness, solo-line presence, and header-only entrypoint.
-- **Code-vs-anchor sanity.** For each non-waived requirement row, re-read the anchored spec lines and confirm the owner tasks' bodies do what they say - mechanism present, not just the quoted literal. Fix the task, don't annotate.
+- **Code-vs-anchor sanity.** For each task-owned requirement row, re-read the anchored spec lines and confirm the owner tasks' bodies do what they say - mechanism present, not just the quoted literal. For each `Verification` row, confirm the header command exercises the anchored requirement. Fix the task, don't annotate.
 - **Type / API consistency.** Function signatures and field names that appear in multiple tasks must match exactly. The plan is its own contract — internal contradictions surface as bugs during execution.
 - **Scoped-test coverage.** Every code-touching wave declares at least one scoped test command; only doc-only waves may have none.
 - **Runtime-resource disjointness.** For every multi-task wave, confirm no two tasks contend on a shared mutable runtime resource (DB/schema, port, fixture, external service, shared temp path) — `Files:` overlap is checked mechanically, resource contention is not. Contention = mis-grouped wave; split or re-order before handoff.
 - **Solo-reason validity.** Every single-task wave's `Solo:` line (presence is checked mechanically) must name its specific blocker — the blocking task/wave, the contended resource, or `lone remaining task`. Category-only justifications are under-justified; merge or justify before handoff.
 - **Waiver authorization.** Every `waived: <reason>` owner in `## Spec coverage` is authorized by the spec itself marking the item out of scope. A waiver on an in-scope normative requirement is a Self-Review failure — there is no human plan-review gate to catch it downstream.
+- **Verification-ownership authorization.** `Verification` on a requirement no header command exercises is a Self-Review failure.
 - **Documentation-impact mapping.** Each Documentation impact entry maps to a plan task (or explicit "none").
 
 Fix what this review finds before handoff.

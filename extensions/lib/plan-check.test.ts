@@ -16,6 +16,9 @@ const SPEC_TEXT = [
   "", // 11
   "## Other", // 12
   "Stuff.", // 13
+  "", // 14
+  "## Acceptance", // 15
+  "Full suite passes: `npm run fixture-verify`.", // 16
 ].join("\n");
 
 const VALID_PLAN = `# Fixture Plan
@@ -70,6 +73,7 @@ The literal TODO is intentionally documented here per spec quote-integrity requi
 | § "Testing" L9-L9 | banned token literal handling | Task 3 |
 | - | mechanical: wire test into CI | Task 2 |
 | § "Other" L12-L13 | out of scope thing | waived: out of scope per spec |
+| § "Acceptance" L16 | full suite passes | Verification |
 `;
 
 function alwaysTruePort(): FsPort {
@@ -157,7 +161,7 @@ test("check 1 owner-cell grammar: trailing junk after a Task <n> list is malform
   assert.ok(
     tc.some(
       (f) =>
-        f.reason.includes("owner cell is not a 'Task <n>' list or 'waived: <reason>'") &&
+        f.reason.includes("owner cell is not a 'Task <n>' list, 'Verification', or 'waived: <reason>'") &&
         f.text.includes("Task 1 (see note)"),
     ),
     `expected an owner-cell malformed finding, got: ${JSON.stringify(tc)}`,
@@ -165,7 +169,7 @@ test("check 1 owner-cell grammar: trailing junk after a Task <n> list is malform
   assert.ok(
     tc.some(
       (f) =>
-        f.reason.includes("owner cell is not a 'Task <n>' list or 'waived: <reason>'") &&
+        f.reason.includes("owner cell is not a 'Task <n>' list, 'Verification', or 'waived: <reason>'") &&
         f.line === lineOf(mutated, '| § "Design" L4-L6 | parser grammar basics | Task 1 (see note) |'),
     ),
     `expected the owner-cell malformed finding's line to point at the offending row, got: ${JSON.stringify(tc)}`,
@@ -180,17 +184,171 @@ test("check 1 owner-cell grammar: empty waiver reason is malformed, not accepted
   const findings = checkPlan(mutated, SPEC_TEXT, alwaysTruePort());
   const tc = findingsFor(findings, "table-closure");
   assert.ok(
-    tc.some((f) => f.reason.includes("owner cell is not a 'Task <n>' list or 'waived: <reason>'")),
+    tc.some((f) => f.reason.includes("owner cell is not a 'Task <n>' list, 'Verification', or 'waived: <reason>'")),
     `expected an owner-cell malformed finding for empty waiver reason, got: ${JSON.stringify(tc)}`,
   );
   assert.ok(
     tc.some(
       (f) =>
-        f.reason.includes("owner cell is not a 'Task <n>' list or 'waived: <reason>'") &&
+        f.reason.includes("owner cell is not a 'Task <n>' list, 'Verification', or 'waived: <reason>'") &&
         f.line === lineOf(mutated, '| § "Other" L12-L13 | out of scope thing | waived: |'),
     ),
     `expected the owner-cell malformed finding's line to point at the offending row, got: ${JSON.stringify(tc)}`,
   );
+});
+
+const VERIFICATION_ROW = '| § "Acceptance" L16 | full suite passes | Verification |';
+
+function withRow(plan: string, row: string): string {
+  return plan.replace(
+    '| § "Other" L12-L13 | out of scope thing | waived: out of scope per spec |',
+    `| § "Other" L12-L13 | out of scope thing | waived: out of scope per spec |\n${row}`,
+  );
+}
+
+for (const owner of ["verification", "Verify", "VERIFICATION", "Task 1, Verification"]) {
+  test(`Verification owner: '${owner}' is a malformed owner -> table-closure`, () => {
+    const row = `| § "Acceptance" L16 | full suite passes | ${owner} |`;
+    const findings = checkPlan(withRow(VALID_PLAN, row), SPEC_TEXT, alwaysTruePort());
+    const tc = findingsFor(findings, "table-closure");
+    assert.ok(
+      tc.some(
+        (f) =>
+          f.reason === "owner cell is not a 'Task <n>' list, 'Verification', or 'waived: <reason>'" &&
+          f.text === row,
+      ),
+      `expected orphan-owner finding for ${owner}, got: ${JSON.stringify(tc)}`,
+    );
+  });
+}
+
+test("Verification owner: unparseable anchor ('-') -> table-closure parseability reason", () => {
+  const row = "| - | full suite passes | Verification |";
+  const findings = checkPlan(withRow(VALID_PLAN, row), SPEC_TEXT, alwaysTruePort());
+  const tc = findingsFor(findings, "table-closure");
+  assert.ok(
+    tc.some(
+      (f) =>
+        f.reason === 'requirement row anchor is not a parseable § "heading" L<n>-L<n> anchor' && f.text === row,
+    ),
+    `expected parseability finding, got: ${JSON.stringify(tc)}`,
+  );
+});
+
+test("Verification owner: anchored lines without a backtick literal -> table-closure", () => {
+  const row = '| § "Other" L13 | stuff | Verification |';
+  const findings = checkPlan(withRow(VALID_PLAN, row), SPEC_TEXT, alwaysTruePort());
+  const tc = findingsFor(findings, "table-closure");
+  assert.ok(
+    tc.some(
+      (f) => f.reason === "Verification row has no backtick literal to check against the header" && f.text === row,
+    ),
+    `expected no-literal finding, got: ${JSON.stringify(tc)}`,
+  );
+});
+
+test("Verification owner: mechanical row -> table-closure", () => {
+  const row = "| - | mechanical: run the suite | Verification |";
+  const findings = checkPlan(withRow(VALID_PLAN, row), SPEC_TEXT, alwaysTruePort());
+  const tc = findingsFor(findings, "table-closure");
+  assert.ok(
+    tc.some((f) => f.reason === "mechanical row owner must be a Task <n>" && f.text === row),
+    `expected mechanical-owner finding, got: ${JSON.stringify(tc)}`,
+  );
+});
+
+test("table-closure: multi-owner row with unparseable anchor yields one parseability finding", () => {
+  const row = "| L999 | naming details | Task 1, Task 2 |";
+  const findings = checkPlan(withRow(VALID_PLAN, row), SPEC_TEXT, alwaysTruePort());
+  const parseability = findingsFor(findings, "table-closure").filter(
+    (f) => f.text === row && f.reason.includes("not a parseable"),
+  );
+  assert.equal(parseability.length, 1);
+});
+
+test("Verification owner: does not satisfy a task's coverage requirement", () => {
+  const mutated = withRow(VALID_PLAN, VERIFICATION_ROW).replace(
+    '| § "Testing" L9-L9 | banned token literal handling | Task 3 |\n',
+    "",
+  );
+  const findings = checkPlan(mutated, SPEC_TEXT, alwaysTruePort());
+  assert.ok(
+    findingsFor(findings, "table-closure").some((f) =>
+      f.reason.includes("Task 3 does not appear as an owner"),
+    ),
+  );
+});
+
+test("Verification quote-integrity: literal missing from header -> quote-integrity on the row", () => {
+  const mutated = VALID_PLAN.replace("**Verification:** npm run fixture-verify", "**Verification:** npm run other");
+  const findings = checkPlan(mutated, SPEC_TEXT, alwaysTruePort());
+  const qi = findingsFor(findings, "quote-integrity");
+  const row = '| § "Acceptance" L16 | full suite passes | Verification |';
+  assert.ok(
+    qi.some(
+      (f) =>
+        f.reason === "verification header does not contain the required verbatim literal `npm run fixture-verify`" &&
+        f.text === row &&
+        f.line === lineOf(mutated, row),
+    ),
+    `expected header-containment finding, got: ${JSON.stringify(qi)}`,
+  );
+});
+
+test("Verification quote-integrity: multi-command header contains the literal", () => {
+  const mutated = VALID_PLAN.replace(
+    "**Verification:** npm run fixture-verify",
+    "**Verification:** `npm run fixture-verify && npm run lint`",
+  );
+  assert.deepEqual(findingsFor(checkPlan(mutated, SPEC_TEXT, alwaysTruePort()), "quote-integrity"), []);
+});
+
+test("Verification quote-integrity: two-span header contains both literals", () => {
+  const spec = SPEC_TEXT.replace(
+    "Full suite passes: `npm run fixture-verify`.",
+    "Full suite passes: `npm run fixture-verify` and `npm run lint`.",
+  );
+  const mutated = VALID_PLAN.replace(
+    "**Verification:** npm run fixture-verify",
+    "**Verification:** `npm run fixture-verify`, `npm run lint`",
+  );
+  assert.deepEqual(findingsFor(checkPlan(mutated, spec, alwaysTruePort()), "quote-integrity"), []);
+});
+
+test("Verification quote-integrity: missing header -> quote-integrity per literal plus header-entrypoint", () => {
+  const mutated = VALID_PLAN.replace("**Verification:** npm run fixture-verify\n", "");
+  const findings = checkPlan(mutated, SPEC_TEXT, alwaysTruePort());
+  assert.equal(
+    findingsFor(findings, "quote-integrity").filter((f) => f.reason.includes("`npm run fixture-verify`")).length,
+    1,
+  );
+  assert.ok(findingsFor(findings, "header-entrypoint").some((f) => f.reason.includes("missing header")));
+});
+
+test("Verification quote-integrity: task body containing the full header string still fails header-entrypoint", () => {
+  const mutated = VALID_PLAN.replace(
+    "This task handles naming details.",
+    "This task handles naming details. Run npm run fixture-verify here.",
+  );
+  const findings = checkPlan(mutated, SPEC_TEXT, alwaysTruePort());
+  assert.ok(findingsFor(findings, "header-entrypoint").some((f) => f.text.includes("Run npm run fixture-verify here")));
+  assert.deepEqual(findingsFor(findings, "quote-integrity"), []);
+});
+
+test("Verification quote-integrity: task body containing only a sub-command of a multi-command header is not caught by header-entrypoint", () => {
+  const mutated = VALID_PLAN.replace(
+    "**Verification:** npm run fixture-verify",
+    "**Verification:** `npm run fixture-verify && npm run lint`",
+  ).replace("This task handles naming details.", "This task handles naming details. Run npm run fixture-verify here.");
+  const findings = checkPlan(mutated, SPEC_TEXT, alwaysTruePort());
+  assert.deepEqual(findingsFor(findings, "header-entrypoint"), []);
+  assert.deepEqual(findingsFor(findings, "quote-integrity"), []);
+});
+
+test("Verification quote-integrity: task-owned literal check unchanged", () => {
+  const mutated = VALID_PLAN.replace("This task implements helperFn() for parsing.", "This task implements the helper.");
+  const qi = findingsFor(checkPlan(mutated, SPEC_TEXT, alwaysTruePort()), "quote-integrity");
+  assert.ok(qi.some((f) => f.reason.includes("Task 1 body does not contain the required verbatim literal `helperFn()`")));
 });
 
 test("check 3 anchor-resolution: ambiguous heading match (duplicate spec heading)", () => {

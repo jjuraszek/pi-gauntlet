@@ -1,5 +1,7 @@
 # Deterministic plan checker and Parallel-safe probe (gh-19)
 
+> **Superseded by:** [doc/specs/2026-09-06-gh-24-final-verification-ownership.md](./2026-09-06-gh-24-final-verification-ownership.md) - "Plan parser" owner-grammar bullet and check catalog rows `table-closure` and `quote-integrity` only
+
 **Ticket:** jjuraszek/pi-gauntlet#19
 **Predecessor context (not superseded):** `doc/specs/2026-08-23-gh-13-plan-fidelity-anchors.md` introduced the anchor grammar, the `## Spec coverage` table, and the Self-Review check content this spec mechanizes. This spec inlines the grammar it needs and is **authoritative** wherever the two disagree; the gh-13 spec remains history/rationale.
 
