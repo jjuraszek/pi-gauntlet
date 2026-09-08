@@ -163,6 +163,15 @@ const tokenChecks = [
   ["skills/roasting-the-spec/SKILL.md", "Human input (verbatim", true],
   ["skills/shape-ticket/SKILL.md", "`^lean:` line", true],
   ["agents/conformance-reviewer.md", "(over-spec)", true],
+  // #25 SR/CR drift contracts
+  ["skills/subagent-driven-development/spec-reviewer-prompt.md", "A plausible condition is not the specified condition", true],
+  ["agents/spec-reviewer.md", "A plausible condition is not the specified condition", true],
+  ["agents/spec-reviewer.md", "code-condition:", true],
+  ["agents/code-reviewer.md", "`Behaviour-change:` on **every** report", true],
+  ["skills/requesting-code-review/code-reviewer.md", "`Behaviour-change:` on **every** report", true],
+  ["skills/subagent-driven-development/code-quality-reviewer-prompt.md", "`Behaviour-change:` on **every** report", true],
+  ["skills/subagent-driven-development/SKILL.md", "never default to `no`", true],
+  ["skills/writing-plans/SKILL.md", "is never waivable", true],
   // absent (retired rules)
   ["skills/verification-before-completion/reference/conformance-check.md", "always** defers to the finish gate", false],
   ["skills/verification-before-completion/reference/conformance-check.md", "`accept`/`rescope`/`UNAUTHORIZED`", false],

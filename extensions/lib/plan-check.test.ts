@@ -197,6 +197,35 @@ test("check 1 owner-cell grammar: empty waiver reason is malformed, not accepted
   );
 });
 
+const WAIVED_ROW = '| § "Other" L12-L13 | out of scope thing | waived: out of scope per spec |';
+
+test("check 9 waiver-literal: waived row whose requirement names a code literal fails", () => {
+  const row = '| § "Other" L12-L13 | `protectedPaths: []` stays empty | waived: out of scope |';
+  const mutated = VALID_PLAN.replace(WAIVED_ROW, row);
+  const findings = checkPlan(mutated, SPEC_TEXT, alwaysTruePort());
+  const wl = findingsFor(findings, "waiver-literal");
+  assert.equal(wl.length, 1, `expected exactly one waiver-literal finding, got: ${JSON.stringify(wl)}`);
+  assert.equal(wl[0].line, lineOf(mutated, row));
+  assert.equal(wl[0].reason, "waived row names a code literal; waive only requirements that exclude work");
+});
+
+test("check 9 waiver-literal: same requirement owned by a task passes the whole plan", () => {
+  let mutated = VALID_PLAN.replace(WAIVED_ROW, '| § "Other" L12-L13 | `protectedPaths: []` stays empty | Task 1 |');
+  mutated = mutated.replace(
+    '**Spec:** doc/specs/fixture-spec.md § "Design" L4-L6',
+    '**Spec:** doc/specs/fixture-spec.md § "Design" L4-L6, § "Other" L12-L13',
+  );
+  assert.deepEqual(checkPlan(mutated, SPEC_TEXT, alwaysTruePort()), []);
+});
+
+test("check 9 waiver-literal: waived prose requirement without backticks passes the whole plan", () => {
+  const mutated = VALID_PLAN.replace(
+    WAIVED_ROW,
+    '| § "Other" L12-L13 | do not add support for protectedPaths | waived: out of scope per spec |',
+  );
+  assert.deepEqual(checkPlan(mutated, SPEC_TEXT, alwaysTruePort()), []);
+});
+
 const VERIFICATION_ROW = '| § "Acceptance" L16 | full suite passes | Verification |';
 
 function withRow(plan: string, row: string): string {

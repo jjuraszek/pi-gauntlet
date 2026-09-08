@@ -1,5 +1,11 @@
 # Changelog
 
+## [Unreleased]
+
+- `plan_check`: new `waiver-literal` check (9 checks) - a `waived:` coverage row whose requirement names an inline code literal fails; `writing-plans` restates the waiver criterion (out of scope **and** excludes work) and requires cross-cutting requirements to list every deciding task. (#25)
+- `spec-reviewer` (prompt + persona): each value/threshold/trigger clause carries `spec-condition:` / `code-condition:`; a mismatch caps the clause at `PARTIAL` regardless of passing tests. (#25)
+- `code-reviewer` (persona, generic template, SDD prompt): report-level `Behaviour-change: yes | no` sentinel on every report; `subagent-driven-development` routes a `yes` fix round through SR before CR. (#25)
+
 ## v5.3.5 - 2026-09-08
 
 - `linear`: section 3 gains a `Download` row (`linearis files download <url> --output <path>`); section 8 gains a row for the linearis 2026.7.0/2026.8.0 Bearer-prefix bug on personal API keys (a 401 on `files download` while `issues read` works is not an auth problem - do not re-auth; [linearis-oss/linearis#300](https://github.com/linearis-oss/linearis/issues/300)), and the generic 401 row defers to it.

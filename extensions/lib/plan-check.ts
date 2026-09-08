@@ -817,6 +817,21 @@ function checkHeaderEntrypoint(parsed: ParsedPlan): PlanCheckFinding[] {
   return findings;
 }
 
+function checkWaiverLiteral(parsed: ParsedPlan): PlanCheckFinding[] {
+  const findings: PlanCheckFinding[] = [];
+  for (const row of parsed.coverageRows) {
+    if (!row.isWaived) continue;
+    if (!/`[^`]+`/.test(row.requirementCell)) continue;
+    findings.push({
+      check: "waiver-literal",
+      line: row.line,
+      text: row.text,
+      reason: "waived row names a code literal; waive only requirements that exclude work",
+    });
+  }
+  return findings;
+}
+
 export function checkPlan(planText: string, specText: string, fs: FsPort): PlanCheckFinding[] {
   try {
     const parsed = parsePlan(planText);
@@ -851,6 +866,7 @@ export function checkPlan(planText: string, specText: string, fs: FsPort): PlanC
     findings.push(...checkWaveFileDisjointness(parsed, fs));
     findings.push(...checkSoloLine(parsed));
     findings.push(...checkHeaderEntrypoint(parsed));
+    findings.push(...checkWaiverLiteral(parsed));
     return findings;
   } catch (err) {
     const message = String(err instanceof Error ? err.message : err);

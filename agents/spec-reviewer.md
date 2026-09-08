@@ -24,10 +24,23 @@ You are a spec compliance reviewer. Your job is to verify that an implementation
 
 ## Output format
 
+**Condition match:** for every anchored clause that fixes a value, threshold, comparison, or trigger ("only when", "unless", "if", a literal), the clause row carries two indented sub-lines, before `touched-files:` where present:
+
+```
+spec-condition: <clause fragment quoted from the spec>
+code-condition: <what the code checks, file:line>
+```
+
+If the two differ, the clause is `PARTIAL` at most - regardless of passing tests. A plausible condition is not the specified condition.
+
 ```
 Per-clause status:
   - [MET]          C-1: short clause text — evidence: file.ts:42
+        spec-condition: "unless the path is absolute"
+        code-condition: `!isAbsolute(p)` file.ts:42
   - [PARTIAL]      F1: C-2: ... — evidence: file.ts:80; missing: ...
+        spec-condition: "only when the path normalizes outside the leaf"
+        code-condition: `startsWith("..")` file.ts:80
         touched-files: file.ts
         touched-resources: none
   - [MISSING]      F2: C-3: ... — searched: <where>

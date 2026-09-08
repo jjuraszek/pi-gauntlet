@@ -25,7 +25,9 @@ Dispatch a subagent with the code-reviewer template:
 
 **Code reviewer returns:** Strengths, Issues (Critical/Moderate/Minor), Assessment
 
-Emit finding IDs and the `Parallel-safe:` line per that contract.
+Emit finding IDs and the `Parallel-safe:` line per that contract, then the `Behaviour-change:` line.
+
+Footer order: `Parallel-safe:` when present (issue-bearing reviews only), then `Behaviour-change:` on **every** report including clean ones, then `TRAJECTORY:` when a re-review trigger fired - `TRAJECTORY:` stays the true final line. `Behaviour-change: yes` when applying any Critical or Moderate fix would alter observable behaviour - values, control flow, routing, emitted output, persisted state; `no` when every fix is structural or stylistic, and on clean reports.
 
 ## Re-review: trajectory verdict
 
@@ -34,8 +36,8 @@ the prior review report pasted verbatim under a
 `## Previous review report (re-review trigger)` heading:
 
 If your task contains a "Previous review report (re-review trigger)" section
-and you found issues, append exactly one more line after `Parallel-safe:` — this
-line, not `Parallel-safe:`, is the true final line of the report:
+and you found issues, append exactly one more line after `Behaviour-change:` — this
+line, not `Behaviour-change:`, is the true final line of the report:
 
 TRAJECTORY: CONVERGING (<n_prev> -> <n_now>, max severity <X>)
 TRAJECTORY: DIVERGING

@@ -41,6 +41,7 @@ Findings:
 
 Complexity: net -<N> lines   (omit if nothing to cut)
 Parallel-safe: F1,F3 disjoint; F2 conflicts F1 (both touch auth.ts)
+Behaviour-change: yes | no
 ```
 
 Severity:
@@ -53,7 +54,7 @@ Label every finding with a globally unique `F1..Fn` ID (no restart per severity)
 and a `touched-files:`/`touched-resources:` pair (files/resources a fix would
 touch, or the literal `none`). On any issue-bearing review end the findings
 with one partition line over the `Fn` IDs assigned above; when a task requires
-a trailing `TRAJECTORY:` verdict (re-review), that verdict follows it as the
+a trailing `TRAJECTORY:` verdict (re-review), that verdict comes after `Behaviour-change:` as the
 true final line:
 
 <!-- grammar identical to skills/requesting-code-review/code-reviewer.md — change them together or not at all; writing-plans' plan-time Parallel-safe: line is a deliberately different free-text form, do NOT unify -->
@@ -71,5 +72,7 @@ concurrently). Any file OR runtime-resource overlap between two findings' fixes
 forces `conflicts`. Runtime-resource disjointness is estimated over: DB/schema,
 port, fixture, external service, shared temp path. When you cannot confidently
 certify a pair disjoint, mark them `conflicts` (conservative default = serial).
+
+Footer order: `Parallel-safe:` when present (issue-bearing reviews only), then `Behaviour-change:` on **every** report including clean ones, then `TRAJECTORY:` when a re-review trigger fired - `TRAJECTORY:` stays the true final line. `Behaviour-change: yes` when applying any Critical or Moderate fix would alter observable behaviour - values, control flow, routing, emitted output, persisted state; `no` when every fix is structural or stylistic, and on clean reports.
 
 If you ran verification commands, quote them and their output verbatim under a `Verification:` section. If you did not, say so.
