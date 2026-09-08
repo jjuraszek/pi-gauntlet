@@ -108,6 +108,7 @@ treated as absent.
 | Labels, teams, users, cycles | `linearis labels list`, `linearis teams list`, `linearis users list`, `linearis cycles list` | Use to resolve names to IDs; see id-cache convention. |
 | Attachments | `linearis attachments create [<issue>] --url <url>` | Positional is optional (`--issue <issue>` alias); link-only, no inline render - see gotcha (d). |
 | Upload | `linearis files upload <file>` | Returns an `assetUrl` for inline embedding - see gotcha (d). |
+| Download | `linearis files download <url> --output <path>` | `<url>` is an attachment/asset URL from `issues read --with-attachments`; asset URLs are short-lived (gotcha d). A 401 here while `issues read` works is not an auth problem - see section 8. |
 
 Workspace values above (`<default team>`, `<who>`, etc.) are placeholders bound to
 the override keys in section 2 - never a real urlKey, team prefix, or email.
@@ -190,7 +191,8 @@ Safety rules, in addition to the write gate above:
 
 | Symptom | Cause | Fix |
 |---|---|---|
-| 401 | Not authenticated / expired token | `linearis auth status`; re-auth. |
+| 401 | Not authenticated / expired token | `linearis auth status`; re-auth - unless the download row below applies. |
+| 401 on `files download` while `issues read` works | linearis 2026.7.0 and 2026.8.0 prepend `Bearer ` to personal API keys on file downloads ([linearis-oss/linearis#300](https://github.com/linearis-oss/linearis/issues/300)) | Not an auth problem - do not re-auth. Fetch the URL with the bare key, or use a version without the bug once one ships. |
 | Issue not found | Wrong workspace, or issue archived | Confirm workspace; check archived state. |
 | Status not found | Status name doesn't match the team's workflow states | List the team's states before setting one. |
 | Missing `--team` error on create | `--team` is required | Supply `--team <default team>`. |
