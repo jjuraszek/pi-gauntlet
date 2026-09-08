@@ -1,5 +1,9 @@
 # Changelog
 
+## v5.3.5 - 2026-09-08
+
+- `linear`: section 3 gains a `Download` row (`linearis files download <url> --output <path>`); section 8 gains a row for the linearis 2026.7.0/2026.8.0 Bearer-prefix bug on personal API keys (a 401 on `files download` while `issues read` works is not an auth problem - do not re-auth; [linearis-oss/linearis#300](https://github.com/linearis-oss/linearis/issues/300)), and the generic 401 row defers to it.
+
 ## v5.3.4 - 2026-09-07
 
 - `spec-council-member`, `spec-council-synthesizer`, `conformance-reviewer`: the `over-spec` rules rewritten as short numbered imperatives so smaller council/closure models follow them; no semantic change (verified by an independent parity review).
