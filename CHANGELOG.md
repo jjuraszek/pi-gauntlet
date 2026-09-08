@@ -1,6 +1,6 @@
 # Changelog
 
-## [Unreleased]
+## v5.3.6 - 2026-09-08
 
 - `plan_check`: new `waiver-literal` check (9 checks) - a `waived:` coverage row whose requirement names an inline code literal fails; `writing-plans` restates the waiver criterion (out of scope **and** excludes work) and requires cross-cutting requirements to list every deciding task. (#25)
 - `spec-reviewer` (prompt + persona): each value/threshold/trigger clause carries `spec-condition:` / `code-condition:`; a mismatch caps the clause at `PARTIAL` regardless of passing tests. (#25)
