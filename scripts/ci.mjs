@@ -237,6 +237,14 @@ try {
   fail(`resolver unit tests failed:\n    ${String(e.stdout || e.stderr || e).split("\n").slice(0, 20).join("\n    ")}`);
 }
 
+// ---- executable skill examples --------------------------------------------
+try {
+  execFileSync(process.execPath, [R("scripts/linear-download-doc.test.mjs")], { stdio: "pipe" });
+  ok("Linear download recovery example passes offline fixture test");
+} catch (e) {
+  fail(`Linear download recovery example failed:\n    ${String(e.stdout || e.stderr || e).split("\n").slice(0, 20).join("\n    ")}`);
+}
+
 // ---- no ad-hoc settings reads ----------------------------------------------
 {
   const offenders = walk(R("extensions"))

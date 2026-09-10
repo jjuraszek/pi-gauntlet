@@ -24,7 +24,9 @@ this skill alters re-gates.
 Preferred: `linearis` on PATH and authenticated (`linearis auth status`). Token
 resolution order: `--api-token`, `LINEAR_API_TOKEN`, `~/.linearis/token`. This is a
 preference, not a precondition - a missing or unauthenticated CLI degrades Linear
-functionality and is reported, never blocks the run.
+functionality and is reported, never blocks the run. The token file is encrypted
+storage: never use its contents as an HTTP credential or infer the credential type
+from its `v1:` storage-format prefix. Resolve it through linearis instead.
 
 > **No `linearis` installed?** If `command -v linearis` fails, fall back to a
 > **Linear MCP server** when the harness has one configured - its tools cover the
@@ -192,7 +194,7 @@ Safety rules, in addition to the write gate above:
 | Symptom | Cause | Fix |
 |---|---|---|
 | 401 | Not authenticated / expired token | `linearis auth status`; re-auth - unless the download row below applies. |
-| 401 on `files download` while `issues read` works | linearis 2026.7.0 and 2026.8.0 prepend `Bearer ` to personal API keys on file downloads ([linearis-oss/linearis#300](https://github.com/linearis-oss/linearis/issues/300)) | Not an auth problem - do not re-auth. Fetch the URL with the bare key, or use a version without the bug once one ships. |
+| 401 on `files download` while `issues read` works | linearis 2026.7.0 and 2026.8.0 prepend `Bearer ` to personal API keys on file downloads ([linearis-oss/linearis#300](https://github.com/linearis-oss/linearis/issues/300)) | Not an auth problem - do not re-auth. Use the recovery below, or use a version without the bug once one ships. |
 | Issue not found | Wrong workspace, or issue archived | Confirm workspace; check archived state. |
 | Status not found | Status name doesn't match the team's workflow states | List the team's states before setting one. |
 | Missing `--team` error on create | `--team` is required | Supply `--team <default team>`. |
@@ -202,6 +204,45 @@ Safety rules, in addition to the write gate above:
 | `@ID` shows as literal text | `@ABC-123` mentions don't resolve | Use the full issue URL (gotcha c). |
 | Read is slow | Big ticket with many comments/attachments | Drop `--with-*` flags not needed. |
 | Parser-shape failure on a documented invocation: unknown command/option, unexpected argument | Section 3's snapshot may have drifted from the installed CLI | Re-read that subcommand's `--help`; report the row stale **only if** help actually contradicts it, then follow help |
+
+For that download-only 401, this 2026.7.0/2026.8.0 workaround calls linearis's
+version-specific internal `getApiToken` API. Supply the fresh `uploads.linear.app` URL
+from `issues read --with-attachments` and an output path. It rejects other hosts and
+redirects, sends the resolved key without `Bearer`, writes only a non-empty response,
+and never prints or stores the key separately:
+
+<!-- linear-download-recovery:start -->
+```bash
+download_linear_asset() {
+  LINEARIS_BIN="${LINEARIS_BIN:-$(command -v linearis)}" node --input-type=module - "$1" "$2" <<'NODE'
+import { realpathSync, writeFileSync } from "node:fs";
+import { dirname, join } from "node:path";
+import { pathToFileURL } from "node:url";
+
+const [urlText, output] = process.argv.slice(2);
+const url = new URL(urlText);
+if (url.protocol !== "https:" || url.hostname !== "uploads.linear.app")
+  throw new Error("refusing to send a credential outside https://uploads.linear.app");
+const packageRoot = dirname(dirname(realpathSync(process.env.LINEARIS_BIN)));
+const { getApiToken } = await import(pathToFileURL(join(packageRoot, "dist/common/auth.js")));
+const response = await fetch(url, {
+  headers: { Authorization: getApiToken({}) },
+  redirect: "error",
+});
+if (!response.ok) throw new Error(`download failed: HTTP ${response.status}`);
+const bytes = new Uint8Array(await response.arrayBuffer());
+if (bytes.byteLength === 0) throw new Error("download failed: empty response");
+writeFileSync(output, bytes);
+console.log(`downloaded ${bytes.byteLength} bytes to ${output}`);
+NODE
+}
+download_linear_asset 'https://uploads.linear.app/...' '/tmp/attachment'
+```
+<!-- linear-download-recovery:end -->
+
+Do not declare the attachment inaccessible until this recovery used the resolved
+credential; reading `~/.linearis/token` directly does not count. Afterward, confirm the
+reported byte count and inspect the file type before consuming or extracting it.
 
 The last row's trigger is deliberately narrow. Data, auth, status-name, and root-thread
 validation errors have their own rows above and are **not** drift - routing them to "the
