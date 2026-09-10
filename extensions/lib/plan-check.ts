@@ -367,12 +367,20 @@ function requiredLiteralsForRow(row: CoverageRow, specLines: string[]): string[]
   return extractLiterals(text);
 }
 
+function dropHeaderEntrypoint(literals: string[], parsed: ParsedPlan): string[] {
+  const entrypoint = (parsed.header.verificationText ?? "").replaceAll("`", "");
+  if (!entrypoint) return literals;
+  return literals.filter((lit) => lit !== entrypoint);
+}
+
 function computeRequiredLiteralsPerTask(parsed: ParsedPlan, specLines: string[]): Map<number, string[]> {
   const map = new Map<number, string[]>();
   if (!parsed.coverageTableFound) return map;
   for (const row of parsed.coverageRows) {
     if (row.ownerMalformed || row.isWaived || row.isMechanical) continue;
-    const literals = requiredLiteralsForRow(row, specLines);
+    const literals = row.isVerification
+      ? requiredLiteralsForRow(row, specLines)
+      : dropHeaderEntrypoint(requiredLiteralsForRow(row, specLines), parsed);
     if (literals.length === 0) continue;
     for (const n of row.ownerTasks) {
       const arr = map.get(n) ?? [];
@@ -506,11 +514,12 @@ function checkQuoteIntegrity(parsed: ParsedPlan, specLines: string[]): PlanCheck
       }
       continue;
     }
+    const taskLiterals = dropHeaderEntrypoint(literals, parsed);
     for (const n of row.ownerTasks) {
       const task = taskByNumber.get(n);
       if (!task) continue;
       const body = taskBodyText(task, parsed.lines);
-      for (const lit of literals) {
+      for (const lit of taskLiterals) {
         if (!body.includes(lit)) {
           findings.push({
             check: "quote-integrity",

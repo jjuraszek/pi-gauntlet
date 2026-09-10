@@ -290,6 +290,46 @@ test("resumed session: closure gate blocks complete verify without a conformance
   assert.equal(res.details.error, "no conformance-reviewer dispatch observed");
 });
 
+test("restarting implement clears a resumed conformance dispatch latch", async () => {
+  const h = harness({
+    cwd: tempCwd({ piGauntlet: { flowGuards: { enforce: false }, closureReview: { enforce: true } } }),
+    branch: [
+      ...resumedBranch({ plan: "complete", implement: "complete", verify: "complete", ship: "in_progress" }),
+      subagentResult(["conformance-reviewer"]),
+    ],
+  });
+  await h.emit("session_start");
+  const tool = h.tools.find((t) => t.name === "phase_tracker")!;
+  await tool.execute("t1", { action: "skip", phase: "ship", reason: "amendment reopened Task 1" }, undefined, undefined, h.ctx);
+  await tool.execute("t2", { action: "start", phase: "implement", force: true }, undefined, undefined, h.ctx);
+  await tool.execute("t3", { action: "skip", phase: "implement", reason: "amendment implementation tested separately" }, undefined, undefined, h.ctx);
+  await tool.execute("t4", { action: "start", phase: "verify", force: true }, undefined, undefined, h.ctx);
+  const res = (await tool.execute("t5", { action: "complete", phase: "verify" }, undefined, undefined, h.ctx)) as {
+    details: { error?: string };
+  };
+  assert.equal(res.details.error, "no conformance-reviewer dispatch observed");
+});
+
+test("replayed implement restart clears a persisted conformance dispatch latch", async () => {
+  const h = harness({
+    cwd: tempCwd({ piGauntlet: { flowGuards: { enforce: false }, closureReview: { enforce: true } } }),
+    branch: [
+      ...resumedBranch({ plan: "complete", implement: "complete", verify: "complete", ship: "in_progress" }),
+      subagentResult(["conformance-reviewer"]),
+      phaseResult("skip", phases({ brainstorm: "skipped", plan: "complete", implement: "complete", verify: "complete", ship: "skipped" })),
+      phaseResult("start", phases({ brainstorm: "skipped", plan: "complete", implement: "in_progress", verify: "complete", ship: "skipped" })),
+      phaseResult("skip", phases({ brainstorm: "skipped", plan: "complete", implement: "skipped", verify: "complete", ship: "skipped" })),
+      phaseResult("start", phases({ brainstorm: "skipped", plan: "complete", implement: "skipped", verify: "in_progress", ship: "skipped" })),
+    ],
+  });
+  await h.emit("session_start");
+  const tool = h.tools.find((t) => t.name === "phase_tracker")!;
+  const res = (await tool.execute("t1", { action: "complete", phase: "verify" }, undefined, undefined, h.ctx)) as {
+    details: { error?: string };
+  };
+  assert.equal(res.details.error, "no conformance-reviewer dispatch observed");
+});
+
 const taskSnapshot = (tasks: { name: string; status: string }[], isError = false) => ({
   type: "message",
   message: { role: "toolResult", toolName: "plan_tracker", isError, details: { tasks } },

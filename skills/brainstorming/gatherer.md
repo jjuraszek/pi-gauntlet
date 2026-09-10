@@ -46,7 +46,12 @@ Scout (always dispatched):
 > exact paths and line ranges. If a spec you cite carries a supersession marker
 > (default: a `> **Superseded by:**` banner; the project's overrides may define
 > another format), follow the successor for the superseded scope and cite it
-> instead; cite the old spec only for its unsuperseded sections. End with an
+> instead; cite the old spec only for its unsuperseded sections. Predecessor
+> check: list the project's spec directory, read titles and `**Goal:**` lines,
+> open at most five whose topic matches this request, and name any whose design
+> this request replaces or amends with the section(s) affected -
+> `Predecessor: <path>, <scope>` - or `Predecessor: none`. Judge by topic; shared
+> file paths never decide. End with an
 > "Open questions that matter for the spec"
 > section. Compact handoff, not a dump.
 

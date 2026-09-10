@@ -172,6 +172,17 @@ const tokenChecks = [
   ["skills/subagent-driven-development/code-quality-reviewer-prompt.md", "`Behaviour-change:` on **every** report", true],
   ["skills/subagent-driven-development/SKILL.md", "never default to `no`", true],
   ["skills/writing-plans/SKILL.md", "is never waivable", true],
+  // #27 gate removal / amendment path
+  ["skills/brainstorming/SKILL.md", "## Amending an approved spec", true],
+  ["skills/writing-plans/SKILL.md", "#amending-an-approved-spec", true],
+  ["skills/subagent-driven-development/SKILL.md", "#amending-an-approved-spec", true],
+  ["skills/finishing-a-development-branch/SKILL.md", "#amending-an-approved-spec", true],
+  ["skills/brainstorming/SKILL.md", "Ask once whether the design replaces", false],
+  ["skills/brainstorming/SKILL.md", "get approval after each", false],
+  ["skills/brainstorming/SKILL.md", "validate each", false],
+  ["skills/brainstorming/SKILL.md", "Ask after each", false],
+  ["skills/brainstorming/SKILL.md", "200-300-word sections", false],
+  ["skills/writing-plans/SKILL.md", "the spec is frozen once planning starts", false],
   // absent (retired rules)
   ["skills/verification-before-completion/reference/conformance-check.md", "always** defers to the finish gate", false],
   ["skills/verification-before-completion/reference/conformance-check.md", "`accept`/`rescope`/`UNAUTHORIZED`", false],

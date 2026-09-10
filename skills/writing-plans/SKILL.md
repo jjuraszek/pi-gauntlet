@@ -66,6 +66,7 @@ Then continue with the normal flow below (Scope Check onward, including Recon).
 - Edit or create any other files: no
 - Write implementation code: never inside this skill. After Self-Review + `phase_tracker` complete, auto-invoke `/skill:subagent-driven-development` to execute.
 - Land the plan on `main`: no — the plan commit goes on the worktree branch (same branch as the spec)
+- Edit the approved spec: only via brainstorming's [Amending an approved spec](../brainstorming/SKILL.md#amending-an-approved-spec)
 
 ## Scope Check
 
@@ -74,9 +75,7 @@ Before writing the plan, check the spec one more time:
 - Does an intermediate state need to be **independently deployable**, under a deploy topology documented in the gauntlet overrides file's `## Deployment` section? Fail closed: undocumented or monolithic topology -> no deployment-driven split.
 - Is there a **review-risk isolation** reason to land part separately (e.g. a large mechanical rename apart from the behavior change that motivated it)?
 
-If yes, decompose into separate plans and call it out:
-
-> "The spec covers A and B. I'd split into two plans, executed in order. OK?"
+If yes, decompose into separate plans, executed in order, and state the split and its reason in the handoff message. No approval prompt.
 
 Otherwise one plan. Service, contract, or schema count is not a split signal - one concern routinely spans several. The concern test itself lives in `../shape-ticket/reference/split-axes.md` (resolve the path against this skill's own directory) and was applied upstream at spec time; plans do not re-litigate it. A single plan should land in one PR worth of work.
 
@@ -121,7 +120,7 @@ List the files this implementation will create, modify, or delete. Group by comp
 - `src/services/legacy_foo.ts`
 ```
 
-If you can't list the files, the spec isn't ready. Send it back to `/skill:brainstorming`.
+If you can't list the files, the spec isn't ready: amend or redraw per brainstorming's [Amending an approved spec](../brainstorming/SKILL.md#amending-an-approved-spec).
 
 ## Wave Grouping
 
@@ -251,7 +250,7 @@ Each task uses `- [ ]` checkbox steps so execution tools (and humans) can track 
 
 Every code task carries this step (red -> green -> fmt/lint -> commit). Doc-only tasks omit it unless the project formats Markdown.
 
-**Anchor rules.** The task's `**Spec:**` line cites the plan header's spec path; multiple anchors sit comma-separated on one line (`§ "A" L10-L18, § "C" L40-L44`). Checks key on the `§` marker, so the header's path-only `**Spec:**` line is never matched. Anchors are captured once against the gated spec at plan-writing time — the spec is frozen once planning starts. A task with no anchorable requirement (pure-mechanics chore) omits the `**Spec:**` line entirely (never `**Spec:** none`) and carries a mechanical-task row in `## Spec coverage` — silence is never valid.
+**Anchor rules.** The task's `**Spec:**` line cites the plan header's spec path; multiple anchors sit comma-separated on one line (`§ "A" L10-L18, § "C" L40-L44`). Checks key on the `§` marker, so the header's path-only `**Spec:**` line is never matched. Anchors are captured against the gated spec at plan-writing time; a change to the approved spec follows brainstorming's [Amending an approved spec](../brainstorming/SKILL.md#amending-an-approved-spec), executed in place. A task with no anchorable requirement (pure-mechanics chore) omits the `**Spec:**` line entirely (never `**Spec:** none`) and carries a mechanical-task row in `## Spec coverage` — silence is never valid.
 
 ## Spec Coverage Table
 

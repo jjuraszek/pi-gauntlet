@@ -63,7 +63,7 @@ For each task in `plan_tracker`:
 6. If quality reviewer finds issues → re-dispatch implementer → re-review. Loop until ✅, within [Fix-Loop Rounds](#fix-loop-rounds).
 7. After its existing reviews accept the work (and its required commit point), mark that same task index `complete` in `plan_tracker`. A subagent exit or green tests alone are not acceptance.
 
-The spec is frozen at plan time and the orchestrator is its only writer during execution; if you do edit it mid-run, re-run writing-plans' anchor-resolution check before the next wave. An SR unable to read the spec at a cited anchor (missing file, unresolvable heading/range) returns a blocking finding — the contract is spec+task or stop, never a silent fallback to task-only review.
+The orchestrator is the spec's only writer during execution. Amendment trigger: implementer `BLOCKED` citing a spec defect, or a review finding showing the spec (not the code) is wrong -> pause the fix loop, execute brainstorming's [Amending an approved spec](../brainstorming/SKILL.md#amending-an-approved-spec) in place, resume. Code-vs-spec mismatch stays in the SR loop. An SR unable to read the spec at a cited anchor (missing file, unresolvable heading/range) returns a blocking finding — the contract is spec+task or stop, never a silent fallback to task-only review.
 
 After all tasks: proceed to [After All Tasks](#after-all-tasks-complete) - it owns parent full verification, then whole-diff code review, then conformance.
 
@@ -237,27 +237,16 @@ For the fan-out + worktree + patch-integration + conflict mechanics, see `dispat
 
 ## Red Flags — STOP
 
-- Writing code yourself instead of dispatching
-- Dispatching parallel implementers on overlapping files, or without `worktree: true` outside Parallel-Wave Mode (wave mode is the sanctioned exception: disjoint files + worktree isolation + serial integration)
-- Parallelizing a wave whose tasks contend on a shared mutable runtime resource (DB/schema, port, fixture, external service, shared temp path) — that wave was mis-grouped; run those tasks as sequential single-task waves
-- Making a subagent read the plan instead of passing task text
-- Starting code-quality review before spec compliance is ✅
-- Moving to next task with either review still showing issues
-- Dispatching fix 3 without a reviewer-emitted qualifying `CONVERGING` verdict at review 3
-- Continuing past a `STAGNANT` verdict instead of escalating
-- Letting implementer self-review replace external review (both needed)
-- Spec-reviewing wave patches inline instead of dispatching `spec-reviewer` per patch — sequential mode's step 3 dispatches it; wave mode must too
-- Pausing to "check in" between tasks (continuous execution rule)
-- Skipping the `Implementer Status` parse — treating every response as DONE
-- Starting on main without explicit user consent
-- Dispatching `code-reviewer` before every one of the wave's spec-review verdicts has landed (including fusing SR+CR into one parallel call)
-- Dispatching fixes sequentially on a clean HEAD despite a certified (probe-passing, per dispatching-parallel-agents § Fix fan-out) ≥ 2-ID `disjoint` group in the review's `Parallel-safe:` line
-- Dispatching `code-reviewer` per task inside a wave (CR binds to the integrated wave diff)
-- Dispatching an implementer or code-reviewer without a `SCOPED_TEST_COMMANDS` value (commands or `none`)
-- About to run the full verification entrypoint during the implement phase — task and wave gates run scoped, plan-declared commands only; the full set belongs to verify
-- Dispatching a verification or review repair before reopening (`in_progress`) the plan-task indices that own its touched files, or completing them on the passing rerun instead of on the accepting whole-diff review
-- Dispatching whole-diff CR before parent full verification passes, or conformance before the foreground CR result and any invalidating repair re-verification/re-review are accepted
-- Polling, joining, or relaunching an unexpectedly asynchronous gauntlet dispatch instead of stopping and reporting
+- Writing code yourself instead of dispatching.
+- Pausing between tasks for anything other than `NEEDS_CONTEXT`, `BLOCKED`, a fix-loop escalation, a workflow warning, or a spec amendment.
+- Dispatching parallel implementers on overlapping files, on a shared mutable runtime resource, or without `worktree: true`.
+- Making a subagent read the plan, inlining spec excerpts to the spec reviewer, or dispatching without a `SCOPED_TEST_COMMANDS` value.
+- Dispatching `code-reviewer` before every in-scope spec-review verdict is ✅, or per task inside a wave.
+- Moving to the next task with either review still showing issues, or skipping the `Implementer Status` parse.
+- Dispatching fix 3 without a reviewer-emitted `CONVERGING` verdict, or continuing past `STAGNANT` instead of escalating.
+- Running the full verification entrypoint during the implement phase.
+- Dispatching a repair before reopening the plan-task indices that own its files, whole-diff CR before parent verification passes, or conformance before the CR result is accepted.
+- Polling, joining, or relaunching an unexpectedly asynchronous dispatch, or starting on main without explicit user consent.
 
 ## Integration
 

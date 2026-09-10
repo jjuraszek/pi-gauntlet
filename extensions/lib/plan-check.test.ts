@@ -380,6 +380,63 @@ test("Verification quote-integrity: task-owned literal check unchanged", () => {
   assert.ok(qi.some((f) => f.reason.includes("Task 1 body does not contain the required verbatim literal `helperFn()`")));
 });
 
+const ENTRYPOINT_SPEC = [
+  "# Fixture Spec", // 1
+  "", // 2
+  "## Testing", // 3
+  "Run `node --test extensions/lib/plan-check.test.ts`; the full suite is `npm run verify-all`.", // 4
+].join("\n");
+
+const ENTRYPOINT_PLAN = `# Fixture Plan
+
+**Spec:** \`doc/specs/fixture-spec.md\`
+
+**Verification:** \`npm run verify-all\`
+
+---
+
+## Wave 1 — Solo
+
+Solo: lone remaining task
+
+### Task 1: Scoped test
+
+**Spec:** doc/specs/fixture-spec.md § "Testing" L4
+
+**Files:**
+- Modify: extensions/lib/fixture-task1.ts
+
+Run node --test extensions/lib/plan-check.test.ts and confirm green.
+
+## Spec coverage
+
+| anchor | requirement | owner |
+|---|---|---|
+| § "Testing" L4 | scoped test run | Task 1 |
+`;
+
+test("quote-integrity: header entrypoint literal on an anchored line is satisfied by the header, not the task body", () => {
+  const findings = checkPlan(ENTRYPOINT_PLAN, ENTRYPOINT_SPEC, alwaysTruePort());
+  assert.deepEqual(findingsFor(findings, "quote-integrity"), []);
+  assert.deepEqual(findingsFor(findings, "header-entrypoint"), []);
+});
+
+test("quote-integrity: scoped command on the same anchored line is still required in the task body", () => {
+  const mutated = ENTRYPOINT_PLAN.replace(
+    "Run node --test extensions/lib/plan-check.test.ts and confirm green.",
+    "Run the scoped test and confirm green.",
+  );
+  const qi = findingsFor(checkPlan(mutated, ENTRYPOINT_SPEC, alwaysTruePort()), "quote-integrity");
+  assert.equal(qi.length, 1);
+  assert.ok(qi[0].reason.includes("Task 1 body does not contain the required verbatim literal `node --test extensions/lib/plan-check.test.ts`"));
+});
+
+test("placeholder-scan: header entrypoint is not a required literal for the task (parity with quote-integrity)", () => {
+  const findings = checkPlan(ENTRYPOINT_PLAN, ENTRYPOINT_SPEC, alwaysTruePort());
+  assert.deepEqual(findingsFor(findings, "placeholder-scan"), []);
+  assert.deepEqual(findings, []);
+});
+
 test("check 3 anchor-resolution: ambiguous heading match (duplicate spec heading)", () => {
   const dupSpec = SPEC_TEXT.replace('## Testing', '## Design\n\nduplicate section body.\n\n## Testing');
   const findings = checkPlan(VALID_PLAN, dupSpec, alwaysTruePort());

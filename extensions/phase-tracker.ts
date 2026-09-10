@@ -405,6 +405,9 @@ export default function (pi: ExtensionAPI) {
         if (details && !details.error) {
           phases = details.phases;
           gauntletEntered = nextGauntletEntered(gauntletEntered, details.action, details.phases.brainstorm.status);
+          if (details.action === "start" && details.phases.implement.status === "in_progress") {
+            conformanceDispatched = false;
+          }
           if (details.action === "reset") {
             conformanceDispatched = false;
             planCheckStamp = undefined;
@@ -847,6 +850,8 @@ export default function (pi: ExtensionAPI) {
             }
           }
           phases = { ...phases, [params.phase]: transitionPhaseState("in_progress") as PhaseState };
+          // A rewind must not inherit the prior verify's conformance latch.
+          if (params.phase === "implement") conformanceDispatched = false;
           gauntletEntered = nextGauntletEntered(gauntletEntered, "start", phases.brainstorm.status);
           firedGuards.clear();
           updateWidget(ctx);

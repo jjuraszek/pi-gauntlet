@@ -11,7 +11,7 @@ description: "You MUST use this before any creative work - creating features, bu
 
 Help turn ideas into fully formed designs and specs through natural collaborative dialogue.
 
-Identify the target project → set up an isolated worktree → understand current project context → ask questions one at a time → propose 2-3 approaches with trade-offs → present the design in 200-300-word sections, validating each → write spec to disk inside the worktree → user reviews before any implementation.
+Identify the target project → set up an isolated worktree → understand current project context → ask questions one at a time → propose 2-3 approaches with trade-offs → present the design in two rounds → write spec to disk inside the worktree → user reviews before any implementation.
 
 ## HARD CONSTRAINT
 
@@ -63,7 +63,7 @@ Work through the items below **in order**. This is your own checklist to follow,
 4. **Understand the idea against the draft** — `Read` the draft, verify load-bearing
    claims against real code, ask questions one at a time, append citable findings
 5. **Propose 2-3 approaches** — with trade-offs and a recommendation
-6. **Present the design** — in sections, get approval after each
+6. **Present the design** — in two rounds, one approval each
 7. **Write the spec** — to `doc/specs/` (see [Filename Convention](#filename-convention)); then mark any known superseded predecessor(s) per [Marking superseded specs](#marking-superseded-specs), at the exact-order position defined in [Spec Self-Review](#spec-self-review-before-user-review-gate)
 8. **Spec self-review (lint)** — placeholder scan + internal consistency + documentation named, run inline
 9. **Critique pass (auto-dispatched)** — scope + ambiguity; the spec council via `/skill:roasting-the-spec` when `gauntlet_setting` returns verdict `council` (it applies its apply-set, including any external-ref inlining, to the spec before returning — see [Spec Council](#spec-council-optional)), else a fresh `worker` that applies its own fixes in place
@@ -143,9 +143,7 @@ path.
   section starts that answer; confirm it before designing from scratch.
 - Ask questions **one at a time** to refine the idea. Prefer multiple-choice; one
   question per message. Focus on: purpose, constraints, success criteria, who/what
-  it touches. Ask once whether the design replaces a prior spec, fully or in part,
-  so the supersession event is captured before spec-writing (see
-  [Marking superseded specs](#marking-superseded-specs)).
+  it touches.
 - **Append bar:** append to the draft's `## Appended during questionary` only
   findings the spec will cite — schema shapes, hard constraints, ticket-vs-code
   contradictions, user answers that changed scope. Not a log of every grep.
@@ -168,18 +166,14 @@ When sketching the design, prefer:
 - **Single source of truth** — point at the schema/contract that owns the data (the migration, type definition, or API contract that defines it); don't invent parallel state.
 - **Explicit error and edge cases** — name them. "Out of scope" is a valid answer, but it has to be stated.
 
-### 6. Present the design in sections
+### 6. Present the design in two rounds
 
-Sections of 200-300 words. Ask after each whether it looks right.
+Two rounds, one approval each. Target 300-500 words per round. A revisit after feedback stays inside the same approval point.
 
-Cover at minimum:
+- Round 1: architecture overview, components / responsibilities, data flow, and `supersedes <path>, <scope>` when the draft names a predecessor. Ask once. Approval without correction confirms the predecessor.
+- Round 2: error handling and edge cases, testing approach, `## Documentation impact`. Ask once.
 
-- Architecture overview
-- Components / responsibilities
-- Data flow (or request flow)
-- Error handling and edge cases
-- Testing approach
-- Documentation impact — a required `## Documentation impact` section. Cite the materiality bar in `reference/documentation-impact.md` by relative path rather than restating its categories, and reproduce its template block verbatim:
+The `## Documentation impact` section is required. Cite the materiality bar in `reference/documentation-impact.md` by relative path rather than restating its categories, and reproduce its template block verbatim:
 
   ```markdown
   ## Documentation impact
@@ -198,18 +192,7 @@ When a ticket ID is given, fetch the ticket and treat it as **guidance, not the 
 
 ## First-Feature Oversight (Early Project Stages)
 
-For the **first two features** of a new initiative — a new top-level module/package, a new long-lived component, a new persistence/schema area, or any pattern that will repeat — pause and ask the developer to confirm before proceeding on:
-
-- Directory and module structure decisions
-- Naming conventions (public types, files, routes, identifiers)
-- New shared abstraction (location, responsibility, boundary)
-- Persistence/schema design (entity names, field types, indexing)
-- Proposed additions to AGENTS.md or doc/ files
-
-If the developer hasn't provided guidance, ask explicitly:
-> "This is one of the first features in this initiative. Before I proceed, I need your confirmation on: [list specific decisions]."
-
-After the first two features establish patterns, follow those patterns without gating.
+For the **first two features** of a new initiative (a new top-level module/package, long-lived component, persistence/schema area, or any pattern that will repeat), round 1 lists these decisions explicitly so the user can correct them there: directory and module structure; naming conventions (public types, files, routes, identifiers); new shared abstractions (location, responsibility, boundary); persistence/schema design (entity names, field types, indexing); proposed additions to AGENTS.md or doc/ files. No separate confirmation. After the first two features establish patterns, follow them.
 
 ## Anti-Pattern: "Too simple to need a design"
 
@@ -237,7 +220,7 @@ spec-writing: write the spec at the new path **and delete the old draft file**
 
 ## Marking superseded specs
 
-When the new spec replaces a prior spec — fully or in part — and you **already know which one** (from the questionary, the draft, or the request), mark the predecessor. Never search, sweep, or audit the spec corpus for candidates: marking is event-driven authorial knowledge only.
+When the new spec replaces a prior spec — fully or in part — (from the draft's scout recon or the request), mark the predecessor. No mechanical sweep: grep or path-overlap hits never decide supersession.
 
 - `edit` the predecessor spec (in the project's spec directory, per [Project Routing](#project-routing)) to insert, after its title line and a blank line, one banner line per successor:
 
@@ -357,11 +340,25 @@ If you believe the summary needs correcting, do **not** silently rewrite it — 
 
 Wait for the user. On a change request (including a revert), revise the spec and re-present — mint a **fresh** temp path for the re-dispatched summarizer (never reuse a prior round's path, so stale content can never be mistaken for the new summary). On approval, proceed immediately to `/skill:writing-plans` with no further prompt — the plan and execution mode are mechanical derivatives, so the only human gate here is spec approval itself. Don't land the spec on `main`; it stays in the worktree and ships in the same squash commit as the implementation.
 
+Post-approval changes follow [Amending an approved spec](#amending-an-approved-spec).
+
 After approval, mark the brainstorm phase complete:
 
 ```
 phase_tracker({ action: "complete", phase: "brainstorm" })
 ```
+
+## Amending an approved spec
+
+Execute this section in place from any later phase. Do not invoke `/skill:brainstorming` (its entry resets both trackers). Worktree, spec commits, and plan survive.
+
+1. Edit the spec. Show `git --no-pager diff -- <spec path>` and one line of impact (affected plan tasks / waves, or "no plan yet").
+2. Wait for approval. Change request -> revise, re-show.
+3. No plan yet -> commit the spec; continue. Plan exists -> update affected anchors and tasks: `plan_tracker` `add` for new tasks, `update` for changed ones; anchor-changed completed tasks go back to `pending` and re-run the task loop. A removed task is deleted from the plan; then re-`init` the tracker with the remaining tasks in wave order and `update` every already-completed task back to `complete` (the only permitted `init` after handoff; never `clear`). Re-run `plan_check` until it passes, commit spec + plan together; continue. A task reopened while `verify` or `ship` is in progress: `phase_tracker({ action: "skip", phase: "<current>", reason: "amendment reopened Task N" })`, then `phase_tracker({ action: "start", phase: "implement", force: true })`; later phases re-enter with `force: true` and rerun in full.
+
+Redraw test: the diff changes the problem statement, adds or removes a component, or moves a component boundary -> redraw. A change inside one component (a persistence mechanism, a worker's HTTP client, dropping a fallback and its task) -> amend. State the call in the same message as the diff; the user overrides either way.
+
+Redraw: keep the worktree and the approved spec file. `plan_tracker({ action: "clear" })`, `phase_tracker({ action: "reset" })`, `phase_tracker({ action: "start", phase: "brainstorm" })`, delete the plan file, resume at checklist step 4 with the approved spec as the draft (steps 2-3 skipped). Spec-writing overwrites it; the full gate follows.
 
 ## Key Principles
 
@@ -370,30 +367,21 @@ phase_tracker({ action: "complete", phase: "brainstorm" })
 - **YAGNI ruthlessly.**
 - **Design for testability** — clear boundaries enable TDD.
 - **Explore 2-3 approaches** before settling.
-- **Incremental validation** — present in sections, validate each.
+- **Two design rounds** — one approval per round.
 - **Be flexible** — go back and clarify when something doesn't make sense.
 
 ## Red Flags — STOP
 
-- About to write code or start a non-spec edit while this skill is active
-- About to dispatch lint, critique, council, or summarizer while the spec file's line 1 is still the context-draft marker
-- About to run the spec-writing overwrite without re-reading the draft in the same turn
-- About to use `edit` instead of `write` for the spec-writing overwrite
-- About to insert a human gate, announcement, or question between gather dispatch and questionary question one
-- About to run, deploy, or validate the **proposed change** (vs. observing current behaviour) before the user approved the design
-- About to skip the critique pass (council if configured, else fresh worker)
-- Critique dispatch (council or worker) failed to complete and you proceeded to the gate anyway
-- About to reach the user gate without re-running the placeholder scan after the critique returned
-- About to reach the user gate without rendering the spec-only summary (dispatch `spec-summarizer` to a temp file first; a failed/stub/truncated read degrades to a one-line note, it is not silently skipped)
-- About to compose the gate message when the summary `Read` was not the last content-producing tool call before it (a following `rm` of the temp file is fine) — a turn boundary between the `Read` and the render lets pi-condense prune the ~9KB read result, reproducing the original bug
-- About to present a paraphrased, condensed, or re-sectioned version of the summarizer's output instead of pasting its returned text verbatim — rewriting the summary counts as not rendering it
-- About to run the scope or ambiguity checks inline yourself instead of dispatching them (those two are the critique pass, not the inline lint)
-- About to skip the self-review pass
-- About to proceed to `/skill:writing-plans` before the user has approved the spec (proceeding *after* approval is correct; skipping the gate is the violation)
-- About to finish spec-writing for a replacement design without marking the known predecessor (see [Marking superseded specs](#marking-superseded-specs))
-- Spec contains `TODO`, `TBD`, or unnamed components
-- About to offer a multi-spec split that fails the split test in `../shape-ticket/reference/split-axes.md`, or without its three-line justification per spec
-- User said "this is just a small change" and you accepted it without applying the [Anti-Pattern](#anti-pattern-too-simple-to-need-a-design) check
+- Writing or editing anything outside `doc/specs/` while this skill is active.
+- Overwriting the draft without reading it in full in the same turn, or using `edit` for the spec-writing overwrite.
+- Dispatching lint, critique, council, or summarizer while the spec file's line 1 is the context-draft marker.
+- Running the scope or ambiguity checks inline instead of dispatching the critique pass.
+- Reaching the gate after a failed or skipped critique pass, or without re-running the placeholder scan on the applied spec.
+- Composing the gate without the summary `Read` as the last content-producing call, or paraphrasing the summary instead of pasting it verbatim.
+- Inserting a human stop between gather dispatch and questionary question one.
+- Running, deploying, or validating the proposed change before approval.
+- Proceeding to `/skill:writing-plans` before the user approves the spec, or invoking `/skill:brainstorming` to amend an approved spec.
+- Writing a replacement spec without the known predecessor's banner, or offering a multi-spec split that fails `../shape-ticket/reference/split-axes.md`.
 
 ## Project overrides
 

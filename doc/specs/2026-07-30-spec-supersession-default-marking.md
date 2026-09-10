@@ -1,5 +1,7 @@
 # Spec supersession: shipped default marking of predecessor specs
 
+> **Superseded by:** [doc/specs/2026-09-10-gh-27-remove-meaningless-gates.md](./2026-09-10-gh-27-remove-meaningless-gates.md) - "Decision summary" Trigger row only
+
 **Issue:** jjuraszek/pi-gauntlet#4 (post-roast adjudication, with one delta - see [Relation to issue #4](#relation-to-issue-4)).
 **Goal:** backward navigation - a reader who opens a superseded spec sees, at the top of the file, that it is superseded and where the successor lives. Nothing more: no machine-parseable graph, no parser, no CI validation, no currentness catalog.
 
