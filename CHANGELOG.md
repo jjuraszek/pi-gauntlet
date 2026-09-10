@@ -1,5 +1,9 @@
 # Changelog
 
+## v5.5.1 - 2026-09-10
+
+- `linear`: copyable, version-scoped recovery for attachment-download 401s resolves the decrypted credential through linearis instead of reading encrypted token storage. Restricts credential delivery to HTTPS Linear uploads, rejects redirects, and checks downloaded bytes; an offline regression executes the documented example.
+
 ## v5.5.0 - 2026-09-10
 
 - `writing-plans`: every task carries a `**Tests:**` block - scoped commands anchored to the task's `Test:` paths, optional `via:` entry point, or `none: <category>`; the plan grammar `plan_check` enforces moves to `skills/writing-plans/reference/plan-contract.md`. (#28)
