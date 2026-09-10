@@ -42,6 +42,20 @@ When `closureReview.model` **is** set, the phase-tracker match-checks call-site 
 
 Rosters resolve **repo-local first**: a repo's `.pi/settings.json` overrides the preset (whole-object — the first file that defines `specCouncil` wins), otherwise each pi profile (`agent`, `agent.anthropic`, `agent.bedrock`, …) reads its own `settings.json`. List only models the resolving config's providers can reach. The two personas it dispatches — `spec-council-member` and `spec-council-synthesizer` — are model-free; their model is injected per task from this config.
 
+## Escalation loop
+
+When a review fix loop in `subagent-driven-development` reaches its escalate point, one more fix round runs on an explicitly resolved model in a fresh context before the human is stopped. The model is `piGauntlet.escalationLoop.implModel` (`provider/model[:thinking]`); when the block is absent or `implModel` is empty or not a string, the escalated round runs on the **main loop's model and thinking** (suffix always emitted; pi `max` maps to `xhigh`, unset to `off`). Set it only to escalate to a *different* model than the main loop:
+
+```json
+{
+  "piGauntlet": {
+    "escalationLoop": { "implModel": "<provider/model:thinking>" }
+  }
+}
+```
+
+Whole-object precedence applies (repo `.pi/settings.json` replaces the preset block). Skills read it via `gauntlet_setting({ key: "escalationLoop" })`, which returns the already-resolved `implModel`.
+
 ## Extensions
 
 ### `plan-tracker`
@@ -58,7 +72,7 @@ Distinct from `plan-tracker`: `phase-tracker` answers "what stage of the workflo
 
 This backstop is bookkeeping, not proof that work was done: absent or empty tracker state is unaffected, as are cold/ad-hoc sessions, disabled flow guards, and other phases. A phase reset does not clear tracker history; a successful tracker `clear` or `init` supersedes it. The phase-tracker tool is registered with sequential execution so a tracker update and later phase completion in one model message persist in order. This needs Pi 0.85.1 or later; see the [README requirements](../README.md#requirements).
 
-**`gauntlet_setting` tool.** `phase-tracker` also registers `gauntlet_setting({ key: "specCouncil" | "closureReview" })`, a gauntlet-internal tool through which skills resolve merged `piGauntlet.*` settings (repo `.pi/settings.json` over the agent preset, via pi's own `SettingsManager`). It returns the resolved value as a JSON block in the tool result — `specCouncil` yields the council-vs-worker verdict, `closureReview` yields the conformance-gate `model`/`enforce`/`maxFixRounds`. It introduces no new settings key. Every `piGauntlet.*` read — the skills via this tool, both extensions directly — routes through one shared helper (`extensions/lib/gauntlet-settings*.ts`); no code reads `pi.settings` by hand.
+**`gauntlet_setting` tool.** `phase-tracker` also registers `gauntlet_setting({ key: "specCouncil" | "closureReview" | "escalationLoop" })`, a gauntlet-internal tool through which skills resolve merged `piGauntlet.*` settings (repo `.pi/settings.json` over the agent preset, via pi's own `SettingsManager`). It returns the resolved value as a JSON block in the tool result — `specCouncil` yields the council-vs-worker verdict, `closureReview` yields the conformance-gate `model`/`enforce`/`maxFixRounds`, `escalationLoop` yields the resolved escalated-fix `implModel`. It introduces no new settings key. Every `piGauntlet.*` read — the skills via this tool, both extensions directly — routes through one shared helper (`extensions/lib/gauntlet-settings*.ts`); no code reads `pi.settings` by hand.
 
 **`plan_check` tool.** `plan_check({ planPath })` runs 9 deterministic plan-vs-spec checks (table closure, quote integrity, anchor resolution, path existence, placeholder scan, wave file-disjointness, solo-line presence, header-only entrypoint, waiver-literal); a pass stamps the plan+spec content hashes into flow state; findings are returned for the main loop to fix autonomously. Outside a gauntlet flow it acts as a plain linter (no stamp).
 
@@ -100,5 +114,5 @@ Override in `.pi/settings.json`:
 | Extension | Configurable | Settings key |
 | --- | --- | --- |
 | `plan-tracker.ts` | No | — |
-| `phase-tracker.ts` | Yes | `settings.json#piGauntlet.closureReview` (keys: `enforce`, `model`, `maxFixRounds`); `settings.json#piGauntlet.flowGuards` (keys: `enforce`, `specDirs`); `settings.json#piGauntlet.specCouncil` (keys: `members`, `chair`) |
+| `phase-tracker.ts` | Yes | `settings.json#piGauntlet.closureReview` (keys: `enforce`, `model`, `maxFixRounds`); `settings.json#piGauntlet.flowGuards` (keys: `enforce`, `specDirs`); `settings.json#piGauntlet.specCouncil` (keys: `members`, `chair`); `settings.json#piGauntlet.escalationLoop` (keys: `implModel`) |
 | `verify-before-ship.ts` | Yes | `settings.json#piGauntlet.verifyBeforeShip` (keys: `testCommands`, `warningReference`) |

@@ -17,7 +17,9 @@ import type { ExtensionAPI, ExtensionContext, Theme } from "@earendil-works/pi-c
 import { Text } from "@earendil-works/pi-tui";
 import { type Static, Type } from "@sinclair/typebox";
 import {
+  mainLoopModel,
   resolveClosureReview,
+  resolveEscalationLoop,
   resolveFlowGuards,
   resolveSpecCouncil,
   settingsErrorWarning,
@@ -666,7 +668,7 @@ export default function (pi: ExtensionAPI) {
   });
 
   const GauntletSettingParams = Type.Object({
-    key: StringEnum(["specCouncil", "closureReview"] as const, {
+    key: StringEnum(["specCouncil", "closureReview", "escalationLoop"] as const, {
       description: "Which gauntlet setting to resolve (merged repo-over-preset).",
     }),
   });
@@ -681,7 +683,13 @@ export default function (pi: ExtensionAPI) {
       const payload =
         params.key === "specCouncil"
           ? { key: "specCouncil" as const, ...resolveSpecCouncil(gauntlet), errors }
-          : { key: "closureReview" as const, ...resolveClosureReview(gauntlet), errors };
+          : params.key === "closureReview"
+            ? { key: "closureReview" as const, ...resolveClosureReview(gauntlet), errors }
+            : {
+                key: "escalationLoop" as const,
+                ...resolveEscalationLoop(gauntlet, mainLoopModel(ctx.model, ctx.thinkingLevel)),
+                errors,
+              };
       return {
         content: [{ type: "text", text: "```json\n" + JSON.stringify(payload, null, 2) + "\n```" }],
         details: payload,

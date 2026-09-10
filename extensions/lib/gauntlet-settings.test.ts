@@ -4,6 +4,8 @@ import {
   mergeGauntlet,
   resolveSpecCouncil,
   resolveClosureReview,
+  resolveEscalationLoop,
+  mainLoopModel,
   resolveFlowGuards,
   resolveVerifyBeforeShip,
   settingsErrorWarning,
@@ -22,6 +24,41 @@ test("mergeGauntlet: repo key replaces preset key whole-object", () => {
 
 test("mergeGauntlet: undefined layers -> {}", () => {
   assert.deepEqual(mergeGauntlet(undefined, undefined), {});
+});
+
+test("mergeGauntlet: repo escalationLoop replaces preset whole-object", () => {
+  const preset = { escalationLoop: { implModel: "p/preset:high" }, closureReview: { model: "m" } };
+  const repo = { escalationLoop: {} };
+  const merged = mergeGauntlet(preset, repo);
+  assert.deepEqual(merged.escalationLoop, {});
+  assert.deepEqual(merged.closureReview, { model: "m" });
+});
+
+test("escalationLoop: absent/empty/null/non-string -> mainLoop", () => {
+  const main = "p/main:medium";
+  assert.equal(resolveEscalationLoop({}, main).implModel, main);
+  assert.equal(resolveEscalationLoop({ escalationLoop: {} }, main).implModel, main);
+  assert.equal(resolveEscalationLoop({ escalationLoop: { implModel: "" } }, main).implModel, main);
+  assert.equal(resolveEscalationLoop({ escalationLoop: { implModel: null } }, main).implModel, main);
+  assert.equal(resolveEscalationLoop({ escalationLoop: { implModel: 42 } }, main).implModel, main);
+});
+
+test("escalationLoop: non-empty string wins, trimmed; undefined mainLoop passes through", () => {
+  assert.equal(
+    resolveEscalationLoop({ escalationLoop: { implModel: " p/x:high " } }, "p/main:medium").implModel,
+    "p/x:high",
+  );
+  assert.equal(resolveEscalationLoop({}, undefined).implModel, undefined);
+});
+
+test("mainLoopModel: always suffixed; unset -> off, max -> xhigh, recognised pass through", () => {
+  const m = { provider: "p", id: "id" };
+  assert.equal(mainLoopModel(m, undefined), "p/id:off");
+  assert.equal(mainLoopModel(m, "off"), "p/id:off");
+  assert.equal(mainLoopModel(m, "medium"), "p/id:medium");
+  assert.equal(mainLoopModel(m, "xhigh"), "p/id:xhigh");
+  assert.equal(mainLoopModel(m, "max"), "p/id:xhigh");
+  assert.equal(mainLoopModel(undefined, "medium"), undefined);
 });
 
 test("specCouncil: non-empty string array -> council", () => {

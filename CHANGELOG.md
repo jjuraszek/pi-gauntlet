@@ -1,5 +1,9 @@
 # Changelog
 
+## [Unreleased]
+
+- `subagent-driven-development`: a stalled review fix loop runs one escalated fix round (`implementer`, `context: fresh`, model from new `piGauntlet.escalationLoop.implModel`, default main-loop model + thinking) before stopping; the stop is a one-screen problem note (`stop-note.md`) with concrete fix options, replacing the trajectory-log escalation report. `gauntlet_setting` gains the `escalationLoop` key. (#29)
+
 ## v5.3.7 - 2026-09-10
 
 - `brainstorming`: the standalone "does this replace a prior spec" question is gone - the gather scout names candidate predecessor specs and round 1 states them; the design is presented in two rounds (architecture/components/data flow, then errors/testing/docs) with one approval each. (#27)

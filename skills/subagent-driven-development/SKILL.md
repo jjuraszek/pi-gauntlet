@@ -30,7 +30,7 @@ You are the **orchestrator**. You read the plan, dispatch, review the review, de
 **Do not pause to check in with the user between tasks.** The plan is already approved. Pause only when:
 
 - A subagent returns `NEEDS_CONTEXT` or `BLOCKED` (see [Implementer Status](#implementer-status))
-- A fix loop escalates per [Fix-Loop Rounds](#fix-loop-rounds) (stagnation, or budget exhausted without convergence)
+- An escalated round fails (stop note per [Fix-Loop Rounds](#fix-loop-rounds))
 - A ⚠️ workflow warning fires
 
 Reaching the end of the plan is not a pause: continue through verification and invoke `/skill:finishing-a-development-branch` as defined in [After All Tasks](#after-all-tasks-complete).
@@ -88,12 +88,12 @@ Every fix re-dispatch (implementer) and code-review re-review carries the consum
 
 Every dispatched fix is verified by a re-review before escalation or task progression - the loop only ever exits on a clean review or an escalation.
 
-**Escalation report:** report reviews run per loop and the final `TRAJECTORY` verdict - report `TRAJECTORY: MISSING` if the line was absent, or quote the raw line if malformed. If the exception ran, say so explicitly: `fix 3 was the convergence exception (CONVERGING, no Critical)`.
+**Escalate** = one escalated round; stop only on failure. Call `gauntlet_setting({ key: "escalationLoop" })` (unavailable -> stop and report). `implModel` undefined -> stop note. Otherwise re-dispatch that fix - same payload and isolation knobs (`cwd`, `worktree`, `SCOPED_TEST_COMMANDS`, status protocol, prior patch, spec anchors) plus the prior report verbatim - overriding only `model: <implModel>`, `context: "fresh"`, `async: false`; one implementer, no fan-out. Run the normal fix-round review gate (SR then CR on `Behaviour-change: yes`, else the triggering reviewer with the re-review marker). All clean -> proceed; in wave mode the escalated patch supersedes the prior one at integrate. Any review with issues, a non-`DONE` status, or a dispatch error -> stop note per `stop-note.md`; no second dispatch. Once per loop; independent of the convergence exception. No `plan_tracker` write during escalation - the task stays `in_progress` until the human decides.
 
 **Worked examples:**
 
 - Review-2 verdict `TRAJECTORY: STAGNANT (repeat of: unchecked error path in parser)` -> escalate now, before fix 2 - earlier than the ordinary budget.
-- Review-3 verdict `TRAJECTORY: CONVERGING (3 -> 1, max severity Moderate)` -> dispatch fix 3; if review 4 still finds issues, escalate with the exception named in the report.
+- Review-3 verdict `TRAJECTORY: CONVERGING (3 -> 1, max severity Moderate)` -> dispatch fix 3; if review 4 still finds issues, escalate.
 - Review-3 verdict `TRAJECTORY: CONVERGING (3 -> 2, max severity Critical)` or `TRAJECTORY: DIVERGING` or no `TRAJECTORY:` line -> escalate.
 
 ## Implementer Status
@@ -138,6 +138,9 @@ When in doubt, default. Don't downgrade reviewers — false negatives are expens
 ```ts
 // implementer
 subagent({ agent: "implementer", async: false, task: "<task text + context + SCOPED_TEST_COMMANDS + status protocol>" })
+
+// escalated fix round (Fix-Loop Rounds): same fix payload, model from gauntlet_setting({ key: "escalationLoop" }).implModel
+subagent({ agent: "implementer", model: "<implModel>", context: "fresh", async: false, task: "<the just-dispatched fix payload + prior review report verbatim>" })
 
 // spec compliance
 subagent({ agent: "spec-reviewer", async: false, task: "<task text + patch diff + absolute spec path + task's Spec: anchors>" })

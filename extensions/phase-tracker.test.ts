@@ -51,7 +51,7 @@ const resumedBranch = (rest: Partial<Record<Phase, Status>>) => [
   phaseResult("complete", phases({ brainstorm: "skipped", ...rest })),
 ];
 
-function harness(options: { cwd?: string; branch?: unknown[]; idle?: boolean; beforeSettled?: (setIdle: (idle: boolean) => void) => void; sendThrows?: boolean } = {}) {
+function harness(options: { cwd?: string; branch?: unknown[]; idle?: boolean; beforeSettled?: (setIdle: (idle: boolean) => void) => void; sendThrows?: boolean; model?: { provider: string; id: string }; thinkingLevel?: string } = {}) {
   const handlers = new Map<string, ((event: unknown, ctx: unknown) => unknown)[]>();
   const tools: { name: string; execute: (...args: any[]) => unknown }[] = [];
   const sent: { message: any; options: any }[] = [];
@@ -62,6 +62,8 @@ function harness(options: { cwd?: string; branch?: unknown[]; idle?: boolean; be
     hasUI: false,
     isIdle: () => idle,
     sessionManager: { getBranch: () => branch },
+    model: options.model,
+    thinkingLevel: options.thinkingLevel,
   };
   const pi = {
     on(event: string, handler: (event: unknown, context: unknown) => unknown) {
@@ -1140,4 +1142,15 @@ test("replay via session_switch: pass then fail clears the stamp, rebuilt from r
     details: { error?: string };
   };
   assert.match(res.details.error ?? "", /plan_check/);
+});
+
+test("gauntlet_setting escalationLoop: setting absent -> ctx-derived main-loop model; setting wins when set", async () => {
+  const h = harness({ cwd: tempCwd({ piGauntlet: {} }), model: { provider: "p", id: "main" }, thinkingLevel: "medium" });
+  const tool = h.tools.find((t) => t.name === "gauntlet_setting")!;
+  const absent = (await tool.execute("g1", { key: "escalationLoop" }, undefined, undefined, h.ctx)) as { details: { key: string; implModel?: string; errors: string[] } };
+  assert.deepEqual(absent.details, { key: "escalationLoop", implModel: "p/main:medium", errors: [] });
+
+  const set = harness({ cwd: tempCwd({ piGauntlet: { escalationLoop: { implModel: "p/strong:high" } } }), model: { provider: "p", id: "main" }, thinkingLevel: "medium" });
+  const res = (await set.tools.find((t) => t.name === "gauntlet_setting")!.execute("g2", { key: "escalationLoop" }, undefined, undefined, set.ctx)) as { details: { implModel?: string } };
+  assert.equal(res.details.implModel, "p/strong:high");
 });

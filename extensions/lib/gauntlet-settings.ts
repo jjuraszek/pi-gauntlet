@@ -8,6 +8,7 @@ export interface PiGauntlet {
   closureReview?: { enforce?: unknown; model?: unknown; maxFixRounds?: unknown };
   flowGuards?: { enforce?: unknown; specDirs?: unknown };
   verifyBeforeShip?: { testCommands?: unknown; warningReference?: unknown };
+  escalationLoop?: { implModel?: unknown };
 }
 
 // Whole-object second-level merge: each piGauntlet key present in the repo layer
@@ -85,6 +86,29 @@ export function resolveClosureReview(g: PiGauntlet): ClosureReviewResolved {
   const raw = cr?.maxFixRounds;
   const maxFixRounds = typeof raw === "number" && Number.isInteger(raw) ? (raw < 0 ? 0 : raw) : 2;
   return { model, enforce, maxFixRounds };
+}
+
+export interface EscalationLoopResolved {
+  implModel: string | undefined;
+}
+
+export function resolveEscalationLoop(g: PiGauntlet, mainLoop: string | undefined): EscalationLoopResolved {
+  const raw = g.escalationLoop?.implModel;
+  return { implModel: nonEmptyString(raw) ? raw.trim() : mainLoop };
+}
+
+const THINKING_SUFFIXES = new Set(["off", "minimal", "low", "medium", "high", "xhigh"]);
+
+// Always emit a suffix so pi-cohort's applyThinkingSuffix never falls back to the
+// implementer's configured thinking; pi's "max" has no pi-cohort equivalent -> xhigh.
+export function mainLoopModel(
+  model: { provider: string; id: string } | undefined,
+  thinkingLevel: string | undefined,
+): string | undefined {
+  if (!model) return undefined;
+  const level =
+    thinkingLevel === "max" ? "xhigh" : THINKING_SUFFIXES.has(thinkingLevel ?? "") ? thinkingLevel : "off";
+  return `${model.provider}/${model.id}:${level}`;
 }
 
 export interface FlowGuardsResolved {

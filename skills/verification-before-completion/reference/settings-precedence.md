@@ -15,7 +15,7 @@ If the repo file defines a `piGauntlet.<key>` at all, that definition **replaces
 the preset's for that key entirely - the two are never merged leaf-by-leaf. If the
 repo file does not define the key, the preset's value is used unchanged. This is
 exactly pi's own `deepMergeSettings` behaviour: it spreads the second-level keys
-(`specCouncil`, `closureReview`, `flowGuards`, `verifyBeforeShip`) wholesale, and
+(`specCouncil`, `closureReview`, `flowGuards`, `verifyBeforeShip`, `escalationLoop`) wholesale, and
 does not recurse into their leaves.
 
 **Caveat - partial definitions drop siblings.** Because the replace is
