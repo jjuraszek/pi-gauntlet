@@ -1,6 +1,6 @@
 # Changelog
 
-## [Unreleased]
+## v5.4.0 - 2026-09-10
 
 - `subagent-driven-development`: a stalled review fix loop runs one escalated fix round (`implementer`, `context: fresh`, model from new `piGauntlet.escalationLoop.implModel`, default main-loop model + thinking) before stopping; the stop is a one-screen problem note (`stop-note.md`) with concrete fix options, replacing the trajectory-log escalation report. `gauntlet_setting` gains the `escalationLoop` key. (#29)
 
