@@ -1,11 +1,13 @@
 # Changelog
 
-## [Unreleased]
+## v5.3.7 - 2026-09-10
 
 - `brainstorming`: the standalone "does this replace a prior spec" question is gone - the gather scout names candidate predecessor specs and round 1 states them; the design is presented in two rounds (architecture/components/data flow, then errors/testing/docs) with one approval each. (#27)
 - `brainstorming`: new `## Amending an approved spec` section - diff + one-line impact approval, `plan_check` re-stamp, redraw test for large changes; `writing-plans`, `subagent-driven-development`, `finishing-a-development-branch` link to it instead of "frozen spec" wording. (#27)
 - `plan_check`: `quote-integrity` treats a required literal equal to the header entrypoint as satisfied by the header, so a spec line carrying both a scoped command and the full-suite entrypoint no longer forces a spec edit. (#27)
 - `brainstorming`, `subagent-driven-development`: Red Flags lists replaced by exact 10-bullet one-sentence lists. (#27)
+- `phase-tracker`: restarting `implement` clears the conformance-dispatch latch, so a verify re-entered after an amendment rewind reruns the closure gate. (#27)
+- `writing-plans`: plan-split decomposition and `brainstorming` first-feature decisions are stated, not confirmed - no standalone approval prompts. (#27)
 
 ## v5.3.6 - 2026-09-08
 
