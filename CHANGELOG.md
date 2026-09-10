@@ -1,6 +1,6 @@
 # Changelog
 
-## [Unreleased]
+## v5.5.0 - 2026-09-10
 
 - `writing-plans`: every task carries a `**Tests:**` block - scoped commands anchored to the task's `Test:` paths, optional `via:` entry point, or `none: <category>`; the plan grammar `plan_check` enforces moves to `skills/writing-plans/reference/plan-contract.md`. (#28)
 - `plan_check`: new `tests-block` check (block present and well-formed, every command segment names a task `Test:` path, no broadening selectors or `cd`/`sh -c`/`eval`/`$(`, no segment equal to a header `**Verification:**` segment); `header-entrypoint` compares `Run:` payloads by segment, so `npm test` no longer slips past `npm test && npm run lint`; `Test:` entries no longer count as file ownership in `wave-file-disjointness`. (#28)
