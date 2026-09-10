@@ -24,6 +24,7 @@ Dispatch a subagent with this prompt:
 
     Spec: [absolute spec path]
     Anchors: [the task's **Spec:** anchor list, e.g. § "Design" L34-L37 — or "omitted: anchor-less mechanical task"]
+    Task contract: [the task's **Tests:** block verbatim + its `Files:` paths]
 
     The spec is the sole authority — human-approved; the task never wins a dispute. Read the anchored ranges from the spec file yourself. Requirements in scope are ONLY the cited anchor ranges; do not extract, review, or flag the rest of the spec file.
 
@@ -35,6 +36,7 @@ Dispatch a subagent with this prompt:
     - **Finding grammar:** divergence findings use the existing F1..Fn finding grammar - a finding kind by prose label, not a new schema; the `Parallel-safe:` and `TRAJECTORY:` grammars are untouched.
     - **Condition match:** for every anchored clause that fixes a value, threshold, comparison, or trigger ("only when", "unless", "if", a literal), the clause row carries two indented sub-lines, before `touched-files:` where present: `spec-condition: <clause fragment quoted from the spec>` and `code-condition: <what the code checks, file:line>`. If the two differ, the clause is `PARTIAL` at most - regardless of passing tests. A plausible condition is not the specified condition.
     - **Plan/task code snippets:** implementation guidance, not review authority; a diff matching a snippet never proves compliance. For anchor-less tasks the task text's prose requirements remain your contract.
+    - **Task contract (Tests:/via:/Files:):** The task's `**Tests:**` block, `via:`, and its `Files:` paths supplement the anchored spec where it is silent; the anchored spec wins a conflict - report the divergence once, against the plan, never against code corrected to the spec. Findings: a `Create:` path absent from the diff or created elsewhere; a test that does not call the `via:` entry point; a `Tests:` block the diff contradicts. Existing files need no diff touch. You never run the commands.
 
     ## CRITICAL: Do Not Trust the Report
 
@@ -64,7 +66,7 @@ Dispatch a subagent with this prompt:
 
     ## Your Job
 
-    <!-- clause decomposition / snippet non-authority / whole-file reads: keep in lockstep with agents/spec-reviewer.md — change them together or not at all -->
+    <!-- clause decomposition / snippet non-authority / whole-file reads / task-contract supplement: keep in lockstep with agents/spec-reviewer.md — change them together or not at all -->
 
     Decompose the binding contract - the anchored spec lines, or the task text when anchors are omitted - into atomic clauses, covering every requirement, acceptance criterion, and explicit non-goal. Each independently checkable statement is one clause; a sentence listing three requirements yields three clauses.
 

@@ -707,7 +707,12 @@ const FIXTURE_PLAN = `# Fixture Plan
 
 **Files:**
 - Create: lib/task1.ts
+- Create: lib/task1.test.ts
 - Modify: file-a.ts
+- Test: lib/task1.test.ts
+
+**Tests:**
+- \`node --test lib/task1.test.ts\`
 
 This task implements helperFn() for parsing.
 
@@ -717,7 +722,12 @@ This task implements helperFn() for parsing.
 
 **Files:**
 - Create: lib/task2.ts
+- Create: lib/task2.test.ts
 - Modify: file-b.ts
+- Test: lib/task2.test.ts
+
+**Tests:**
+- \`node --test lib/task2.test.ts\`
 
 This task handles naming details.
 

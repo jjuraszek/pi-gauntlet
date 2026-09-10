@@ -705,7 +705,7 @@ export default function (pi: ExtensionAPI) {
     name: "plan_check",
     label: "Plan Check",
     description:
-      "Deterministically verify an implementation plan against its spec (9 mechanical checks); " +
+      "Deterministically verify an implementation plan against its spec (mechanical checks); " +
       "a pass stamps the plan for implement-start.",
     parameters: PlanCheckParams,
     async execute(_toolCallId, params, _signal, _onUpdate, ctx) {

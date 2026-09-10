@@ -38,11 +38,16 @@ Dispatch a subagent with this prompt:
 
     Work from: [directory]
 
-    SCOPED_TEST_COMMANDS: [the task's plan-declared test commands, verbatim | none]
+    SCOPED_TEST_COMMANDS: [the task's Tests: bullets, backticks stripped, verbatim | none]
 
     Run ONLY these commands for verification. Never run a repo-wide suite,
     linter, or type-checker. If the value is `none`, run nothing and say so
     in your report.
+
+    TEST_CONTRACT: [the task's **Tests:** block verbatim (commands, via:, none:) and its Files: Create:/Test: paths]
+
+    Tests call the via: seam directly - not a wrapper, not the internals behind it.
+    Create every Create: path at exactly that path.
 
     **While you work:** If you encounter something unexpected or unclear, **ask questions**.
     It's always OK to pause and clarify. Don't guess or make assumptions.
@@ -109,6 +114,9 @@ Dispatch a subagent with this prompt:
     - **Status:** `DONE` | `DONE_WITH_CONCERNS` | `BLOCKED` | `NEEDS_CONTEXT`
     - What you implemented (or what you attempted, if blocked)
     - What you tested and test results
+    - Test contract: one line per SCOPED_TEST_COMMANDS command - `met` (exit 0; quote the last output line) or `unmet <reason>`;
+      one line per via: - `met <test file:line calling it>` or `unmet <reason>`; `none` when the block is `none:`.
+      Any `unmet` -> `DONE_WITH_CONCERNS`.
     - Files changed
     - Self-review findings (if any)
     - Any issues or concerns

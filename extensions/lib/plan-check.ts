@@ -36,6 +36,12 @@ interface FileEntry {
   path: string;
 }
 
+interface TestsBullet {
+  line: number;
+  text: string;
+  value: string;
+}
+
 interface Task {
   number: number;
   line: number;
@@ -48,6 +54,12 @@ interface Task {
   specAnchorLine: number | undefined;
   anchors: Anchor[];
   anchorParseError: boolean;
+  testsHeadingLine: number | undefined;
+  testsMisplacedLines: number[];
+  tests: TestsBullet[];
+  testsVia: TestsBullet[];
+  testsNone: TestsBullet[];
+  testsMalformed: TestsBullet[];
 }
 
 interface Wave {
@@ -235,6 +247,50 @@ function parsePlan(planText: string): ParsedPlan {
       }
     }
 
+    let testsHeadingLine: number | undefined;
+    const testsMisplacedLines: number[] = [];
+    const tests: TestsBullet[] = [];
+    const testsVia: TestsBullet[] = [];
+    const testsNone: TestsBullet[] = [];
+    const testsMalformed: TestsBullet[] = [];
+
+    let headingIdx = -1;
+    if (filesLine !== undefined) {
+      let lastEntry = filesLine - 1;
+      let p = filesLine;
+      while (p <= bodyEndIdx) {
+        const l = lines[p];
+        if (l.trim() === "") { p++; continue; }
+        if (/^- \w+: /.test(l)) { lastEntry = p; p++; continue; }
+        break;
+      }
+      let q = lastEntry + 1;
+      while (q <= bodyEndIdx && lines[q].trim() === "") q++;
+      if (q <= bodyEndIdx && !mask[q] && lines[q] === "**Tests:**") {
+        headingIdx = q;
+        testsHeadingLine = q + 1;
+      }
+    }
+    for (let k = i; k <= bodyEndIdx; k++) {
+      if (mask[k] || k === headingIdx) continue;
+      if (/^\*\*Tests:\*\*/.test(lines[k])) testsMisplacedLines.push(k + 1);
+    }
+    if (headingIdx !== -1) {
+      for (let p = headingIdx + 1; p <= bodyEndIdx; p++) {
+        const l = lines[p];
+        if (l.trim() === "") continue;
+        if (mask[p] || !l.startsWith("- ") || l.startsWith("- [ ]")) break;
+        const cmd = /^- `([^`]+)`$/.exec(l);
+        const via = /^- via: (\S.*)$/.exec(l);
+        const none = /^- none: (\S.*)$/.exec(l);
+        const bullet = { line: p + 1, text: l, value: (cmd ?? via ?? none)?.[1] ?? "" };
+        if (cmd) tests.push(bullet);
+        else if (via) testsVia.push(bullet);
+        else if (none) testsNone.push(bullet);
+        else testsMalformed.push(bullet);
+      }
+    }
+
     tasks.push({
       number: Number(m[1]),
       line: i + 1,
@@ -247,6 +303,12 @@ function parsePlan(planText: string): ParsedPlan {
       specAnchorLine,
       anchors,
       anchorParseError,
+      testsHeadingLine,
+      testsMisplacedLines,
+      tests,
+      testsVia,
+      testsNone,
+      testsMalformed,
     });
   }
 
@@ -341,6 +403,99 @@ function stripLineSuffix(p: string): string {
 
 function isGlob(p: string): boolean {
   return /[*?{[\]]/.test(p);
+}
+
+function norm(s: string): string {
+  return s.replaceAll("`", "").replace(/\s+/g, " ").trim();
+}
+
+function backtickSpans(s: string): string[] {
+  const out: string[] = [];
+  const re = /`([^`]+)`/g;
+  let m: RegExpExecArray | null;
+  while ((m = re.exec(s))) out.push(m[1]);
+  return out;
+}
+
+function commandSegments(cmd: string): string[] {
+  return norm(cmd).split(/\s*(?:&&|\|\||;|\|)\s*/).map((s) => s.trim()).filter(Boolean);
+}
+
+function headerSegments(parsed: ParsedPlan): string[] {
+  const value = parsed.header.verificationText ?? "";
+  const spans = backtickSpans(value);
+  const parts = spans.length > 0 ? spans : [value];
+  return parts.flatMap((p) => norm(p).split(/\s*(?:&&|\|\||;|,)\s*/)).map((s) => s.trim()).filter(Boolean);
+}
+
+const RUN_RE = /^\s*(- \[ \] )?Run:\s*(.*)$/;
+
+function runPayloadSegments(line: string): string[] | undefined {
+  const m = RUN_RE.exec(line);
+  if (!m) return undefined;
+  const spans = backtickSpans(m[2]);
+  return (spans.length > 0 ? spans : [m[2]]).flatMap(commandSegments);
+}
+
+const UNSUPPORTED_SHELL = ["cd ", "sh -c", "bash -c", "eval ", "$("];
+
+function isBroadening(token: string): boolean {
+  return /[*?[]/.test(token) || token.endsWith("/");
+}
+
+function checkTestsBlock(parsed: ParsedPlan, fs: FsPort): PlanCheckFinding[] {
+  const findings: PlanCheckFinding[] = [];
+  const push = (task: Task, line: number, text: string, reason: string) =>
+    findings.push({ check: "tests-block", line, text, reason: `Task ${task.number}: ${reason}` });
+  const createPaths = new Set(
+    parsed.tasks.flatMap((t) => t.files.filter((f) => f.kind === "create").map((f) => stripLineSuffix(f.path))),
+  );
+  const header = headerSegments(parsed);
+
+  for (const task of parsed.tasks) {
+    const testEntries = task.files.filter((f) => f.kind === "test");
+    const testPaths = testEntries.map((f) => stripLineSuffix(f.path));
+
+    for (const f of testEntries) {
+      const p = stripLineSuffix(f.path);
+      if (!createPaths.has(p) && !fs.exists(p)) push(task, f.line, f.text, `unknown \`Test:\` path "${p}" (neither exists nor is a Create: path of any task)`);
+    }
+
+    if (task.testsMisplacedLines.length > 0) {
+      for (const ln of task.testsMisplacedLines) push(task, ln, parsed.lines[ln - 1], "misplaced block: `**Tests:**` must be the bare line directly after the Files: entries");
+    } else if (task.testsHeadingLine === undefined) {
+      push(task, task.line, task.text, "block missing: no `**Tests:**` directly after the Files: entries");
+    }
+    if (task.testsHeadingLine === undefined) continue;
+
+    const headingText = parsed.lines[task.testsHeadingLine - 1];
+    if (task.tests.length === 0 && task.testsNone.length === 0) push(task, task.testsHeadingLine, headingText, "block empty: no command bullet and no `none:`");
+    for (const b of task.testsMalformed) push(task, b.line, b.text, "malformed bullet: expected `- \\`command\\``, `- via: <seam>`, or `- none: <category>`");
+    if (task.testsNone.length > 1 || (task.testsNone.length > 0 && (task.tests.length > 0 || task.testsVia.length > 0))) {
+      push(task, task.testsNone[0].line, task.testsNone[0].text, "contradictory block: `none:` with a command or `via:`, or more than one `none:`");
+    }
+    if (task.testsNone.length > 0) {
+      for (const f of testEntries) push(task, f.line, f.text, "unused `Test:` path: task declares `none:`");
+    }
+
+    const anchors = testPaths.filter((p) => !isBroadening(p));
+    for (const b of task.tests) {
+      if (UNSUPPORTED_SHELL.some((s) => b.value.includes(s))) {
+        push(task, b.line, b.text, "unsupported shell: `cd `, `sh -c`, `bash -c`, `eval `, `$(` are not allowed");
+        continue;
+      }
+      for (const seg of commandSegments(b.value)) {
+        const tokens = seg.split(" ");
+        const isAnchor = (t: string) => anchors.some((p) => t === p || t.startsWith(p + "::") || t.startsWith(p + "#") || t.startsWith(p + ":"));
+        if (!tokens.some(isAnchor)) push(task, b.line, b.text, `segment not anchored: "${seg}" names no Test: path of this task`);
+        for (const t of tokens) {
+          if (!isAnchor(t) && isBroadening(t)) push(task, b.line, b.text, `broadening selector "${t}" in "${seg}"`);
+        }
+        if (header.includes(seg)) push(task, b.line, b.text, `full-suite command in task: "${seg}" equals a header **Verification:** segment`);
+      }
+    }
+  }
+  return findings;
 }
 
 function taskBodyText(task: Task, lines: string[]): string {
@@ -687,10 +842,14 @@ function checkPlaceholderScan(parsed: ParsedPlan, requiredLiterals: Map<number, 
   return findings;
 }
 
-function fileEntries(task: Task): { path: string; kind: "literal" | "glob" }[] {
+function fileEntries(task: Task): { path: string; kind: "literal" | "glob"; role: "test" | "write" }[] {
   return task.files.map((f) => {
     const p = stripLineSuffix(f.path);
-    return { path: p, kind: (isGlob(p) ? "glob" : "literal") as "literal" | "glob" };
+    return {
+      path: p,
+      kind: (isGlob(p) ? "glob" : "literal") as "literal" | "glob",
+      role: f.kind === "test" ? "test" : "write",
+    };
   });
 }
 
@@ -719,6 +878,7 @@ function checkWaveFileDisjointness(parsed: ParsedPlan, fs: FsPort): PlanCheckFin
         const b = fileEntries(tasks[j]);
         for (const ea of a) {
           for (const eb of b) {
+            if (ea.role === "test" && eb.role === "test") continue;
             let overlap = false;
             let errFinding: PlanCheckFinding | undefined;
             if (ea.kind === "literal" && eb.kind === "literal") {
@@ -798,6 +958,15 @@ function checkHeaderEntrypoint(parsed: ParsedPlan): PlanCheckFinding[] {
   const entrypoint = parsed.header.verificationText.trim();
   if (!entrypoint) return findings;
 
+  const header = headerSegments(parsed);
+  const executable = new Set<number>();
+  for (const task of parsed.tasks) {
+    for (const bullet of [...task.tests, ...task.testsVia, ...task.testsNone, ...task.testsMalformed]) {
+      executable.add(bullet.line);
+    }
+  }
+  const mask = fenceMask(parsed.lines);
+
   const waveBoundaryRe = /^##\s/;
   const inScope = new Set<number>();
   for (const wave of parsed.waves) {
@@ -814,6 +983,21 @@ function checkHeaderEntrypoint(parsed: ParsedPlan): PlanCheckFinding[] {
 
   for (const ln of [...inScope].sort((a, b) => a - b)) {
     const line = parsed.lines[ln - 1];
+    if (executable.has(ln)) continue;
+    const segments = runPayloadSegments(line);
+    if (segments) {
+      if (mask[ln - 1]) continue;
+      const hit = segments.find((segment) => header.includes(segment));
+      if (hit !== undefined) {
+        findings.push({
+          check: "header-entrypoint",
+          line: ln,
+          text: line,
+          reason: `Run: segment "${hit}" equals a header **Verification:** segment (full suite belongs to the verify phase)`,
+        });
+      }
+      continue;
+    }
     if (line.includes(entrypoint)) {
       findings.push({
         check: "header-entrypoint",
@@ -870,6 +1054,7 @@ export function checkPlan(planText: string, specText: string, fs: FsPort): PlanC
     findings.push(...checkQuoteIntegrity(parsed, specLines));
     findings.push(...checkAnchorResolution(parsed, specLines));
     findings.push(...checkPathsExist(parsed, fs));
+    findings.push(...checkTestsBlock(parsed, fs));
     const requiredLiterals = computeRequiredLiteralsPerTask(parsed, specLines);
     findings.push(...checkPlaceholderScan(parsed, requiredLiterals));
     findings.push(...checkWaveFileDisjointness(parsed, fs));

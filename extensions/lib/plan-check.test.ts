@@ -38,6 +38,11 @@ const VALID_PLAN = `# Fixture Plan
 **Files:**
 - Create: extensions/lib/fixture-task1.ts
 - Modify: extensions/lib/fixture-shared.ts
+- Test: extensions/lib/fixture-task1.test.ts
+
+**Tests:**
+- \`node --test extensions/lib/fixture-task1.test.ts\`
+- via: \`helperFn()\`
 
 This task implements helperFn() for parsing.
 
@@ -48,6 +53,10 @@ This task implements helperFn() for parsing.
 **Files:**
 - Create: extensions/lib/fixture-task2.ts
 - Modify: extensions/lib/fixture-other.ts
+- Test: extensions/lib/fixture-task2.test.ts
+
+**Tests:**
+- \`node --test extensions/lib/fixture-task2.test.ts\`
 
 This task handles naming details.
 
@@ -61,6 +70,10 @@ Solo: lone remaining task
 
 **Files:**
 - Modify: extensions/lib/fixture-task3.ts
+- Test: extensions/lib/fixture-task3.test.ts
+
+**Tests:**
+- \`node --test extensions/lib/fixture-task3.test.ts\`
 
 The literal TODO is intentionally documented here per spec quote-integrity requirement.
 
@@ -136,8 +149,8 @@ test("check 1 fail-closed: missing '## Spec coverage' table entirely", () => {
 
 test("check 2 quote-integrity: required verbatim literal missing from owner task body", () => {
   const mutated = VALID_PLAN.replace(
-    "This task implements helperFn() for parsing.",
-    "This task implements the helper for parsing.",
+    "- via: `helperFn()`\n\nThis task implements helperFn() for parsing.",
+    "- via: `parserSeam()`\n\nThis task implements the helper for parsing.",
   );
   const findings = checkPlan(mutated, SPEC_TEXT, alwaysTruePort());
   const qi = findingsFor(findings, "quote-integrity");
@@ -374,8 +387,61 @@ test("Verification quote-integrity: task body containing only a sub-command of a
   assert.deepEqual(findingsFor(findings, "quote-integrity"), []);
 });
 
+const HE = (plan: string) => findingsFor(checkPlan(plan, SPEC_TEXT, alwaysTruePort()), "header-entrypoint");
+const WD = (plan: string) => findingsFor(checkPlan(plan, SPEC_TEXT, alwaysTruePort()), "wave-file-disjointness");
+
+test("header-entrypoint: Run: with backticked payload npm test under header npm test && npm run lint fails (regression for the hole)", () => {
+  const mutated = VALID_PLAN.replace("**Verification:** npm run fixture-verify", "**Verification:** npm test && npm run lint")
+    .replace("This task handles naming details.", "- [ ] **Step 1: verify**\n\n  Run: `npm test`\n  Expected: PASS");
+  assert.ok(HE(mutated).some((f) => f.text.includes("Run: `npm test`")));
+});
+
+test("header-entrypoint: Run: npm test && echo ok fails", () => {
+  const mutated = VALID_PLAN.replace("**Verification:** npm run fixture-verify", "**Verification:** npm test")
+    .replace("This task handles naming details.", "Run: npm test && echo ok");
+  assert.ok(HE(mutated).some((f) => f.text.includes("Run: npm test && echo ok")));
+});
+
+test("header-entrypoint: Run: npm test -- x.test.ts passes under bare and backticked header npm test", () => {
+  for (const header of ["**Verification:** npm test", "**Verification:** `npm test`"]) {
+    const mutated = VALID_PLAN.replace("**Verification:** npm run fixture-verify", header)
+      .replace("This task handles naming details.", "Run: npm test -- x.test.ts");
+    assert.deepEqual(HE(mutated), [], header);
+  }
+});
+
+test("header-entrypoint: Run: line with two backtick spans - both are payload", () => {
+  const mutated = VALID_PLAN.replace("This task handles naming details.", "Run: `echo a` then `npm run fixture-verify`");
+  assert.equal(HE(mutated).length, 1);
+});
+
+test("header-entrypoint: Tests: bullets are judged by tests-block, not here", () => {
+  const mutated = VALID_PLAN.replace(
+    "**Tests:**\n- `node --test extensions/lib/fixture-task2.test.ts`",
+    "**Tests:**\n- `npm run fixture-verify`",
+  );
+  assert.deepEqual(HE(mutated), []);
+  assert.ok(findingsFor(checkPlan(mutated, SPEC_TEXT, alwaysTruePort()), "tests-block").some((f) => f.reason.includes("full-suite command")));
+});
+
+test("wave-file-disjointness: Test/Test allowed; Test vs Modify conflict; Modify/Modify conflict", () => {
+  const shared = "- Test: extensions/lib/fixture-shared.test.ts\n";
+  const testTest = VALID_PLAN.replace("- Test: extensions/lib/fixture-task1.test.ts\n", shared).replace("- Test: extensions/lib/fixture-task2.test.ts\n", shared)
+    .replace("- `node --test extensions/lib/fixture-task1.test.ts`", "- `node --test extensions/lib/fixture-shared.test.ts`")
+    .replace("- `node --test extensions/lib/fixture-task2.test.ts`", "- `node --test extensions/lib/fixture-shared.test.ts`");
+  assert.deepEqual(WD(testTest), []);
+  const testModify = VALID_PLAN.replace("- Test: extensions/lib/fixture-task2.test.ts\n", "- Test: extensions/lib/fixture-shared.ts\n")
+    .replace("- `node --test extensions/lib/fixture-task2.test.ts`", "- `node --test extensions/lib/fixture-shared.ts`");
+  assert.ok(WD(testModify).some((f) => f.reason.includes("fixture-shared.ts")));
+  const modifyModify = VALID_PLAN.replace("- Modify: extensions/lib/fixture-other.ts", "- Modify: extensions/lib/fixture-shared.ts");
+  assert.ok(WD(modifyModify).some((f) => f.reason.includes("fixture-shared.ts")));
+});
+
 test("Verification quote-integrity: task-owned literal check unchanged", () => {
-  const mutated = VALID_PLAN.replace("This task implements helperFn() for parsing.", "This task implements the helper.");
+  const mutated = VALID_PLAN.replace(
+    "- via: `helperFn()`\n\nThis task implements helperFn() for parsing.",
+    "- via: `parserSeam()`\n\nThis task implements the helper.",
+  );
   const qi = findingsFor(checkPlan(mutated, SPEC_TEXT, alwaysTruePort()), "quote-integrity");
   assert.ok(qi.some((f) => f.reason.includes("Task 1 body does not contain the required verbatim literal `helperFn()`")));
 });
@@ -405,6 +471,10 @@ Solo: lone remaining task
 
 **Files:**
 - Modify: extensions/lib/fixture-task1.ts
+- Test: extensions/lib/plan-check.test.ts
+
+**Tests:**
+- \`node --test extensions/lib/plan-check.test.ts\`
 
 Run node --test extensions/lib/plan-check.test.ts and confirm green.
 
@@ -423,8 +493,8 @@ test("quote-integrity: header entrypoint literal on an anchored line is satisfie
 
 test("quote-integrity: scoped command on the same anchored line is still required in the task body", () => {
   const mutated = ENTRYPOINT_PLAN.replace(
-    "Run node --test extensions/lib/plan-check.test.ts and confirm green.",
-    "Run the scoped test and confirm green.",
+    "- Test: extensions/lib/plan-check.test.ts\n\n**Tests:**\n- `node --test extensions/lib/plan-check.test.ts`\n\nRun node --test extensions/lib/plan-check.test.ts and confirm green.",
+    "- Test: extensions/lib/other.test.ts\n\n**Tests:**\n- `node --test extensions/lib/other.test.ts`\n\nRun the scoped test and confirm green.",
   );
   const qi = findingsFor(checkPlan(mutated, ENTRYPOINT_SPEC, alwaysTruePort()), "quote-integrity");
   assert.equal(qi.length, 1);
@@ -522,7 +592,7 @@ test("check 4 fail-closed: invalid glob (port throws)", () => {
 
 test("check 4 fail-closed: task missing **Files:** block", () => {
   const mutated = VALID_PLAN.replace(
-    "**Files:**\n- Modify: extensions/lib/fixture-task3.ts\n\n",
+    "**Files:**\n- Modify: extensions/lib/fixture-task3.ts\n- Test: extensions/lib/fixture-task3.test.ts\n\n**Tests:**\n- `node --test extensions/lib/fixture-task3.test.ts`\n\n",
     "",
   );
   const findings = checkPlan(mutated, SPEC_TEXT, alwaysTruePort());
@@ -627,6 +697,10 @@ Solo: only task in this wave
 
 **Files:**
 - Create: extensions/lib/exemption-task1.ts
+- Test: extensions/lib/exemption-task1.test.ts
+
+**Tests:**
+- \`node --test extensions/lib/exemption-task1.test.ts\`
 
 The literal TODO is intentionally documented here per spec quote-integrity requirement.
 
@@ -672,8 +746,8 @@ test("aggregate: independent mutations across three checks are all reported toge
   let mutated = VALID_PLAN;
   mutated = mutated.replace("Solo: lone remaining task\n\n", "");
   mutated = mutated.replace(
-    "This task implements helperFn() for parsing.",
-    "This task implements the helper for parsing.",
+    "- via: `helperFn()`\n\nThis task implements helperFn() for parsing.",
+    "- via: `parserSeam()`\n\nThis task implements the helper for parsing.",
   );
   mutated = mutated.replace(
     "- Modify: extensions/lib/fixture-other.ts",
@@ -726,4 +800,203 @@ test("sha256 returns lowercase hex of the expected length", () => {
   const digest = sha256(new TextEncoder().encode(""));
   assert.equal(digest.length, 64);
   assert.match(digest, /^[0-9a-f]+$/);
+});
+
+const T2_TESTS = "**Tests:**\n- `node --test extensions/lib/fixture-task2.test.ts`\n";
+const T2_FILES_TEST = "- Test: extensions/lib/fixture-task2.test.ts\n";
+
+function tb(plan: string, spec = SPEC_TEXT, fs: FsPort = alwaysTruePort()): PlanCheckFinding[] {
+  return findingsFor(checkPlan(plan, spec, fs), "tests-block");
+}
+
+test("tests-block: block missing when a task has no **Tests:**", () => {
+  const mutated = VALID_PLAN.replace(T2_TESTS, "");
+  assert.ok(tb(mutated).some((f) => f.reason.includes("block missing") && f.reason.includes("Task 2")));
+});
+
+test("tests-block: block missing when **Files:** is absent", () => {
+  const mutated = VALID_PLAN.replace(
+    "**Files:**\n- Create: extensions/lib/fixture-task2.ts\n- Modify: extensions/lib/fixture-other.ts\n" + T2_FILES_TEST + "\n" + T2_TESTS,
+    "",
+  );
+  const f = tb(mutated);
+  assert.ok(f.some((x) => x.reason.includes("block missing") && x.reason.includes("Task 2")));
+});
+
+test("tests-block: misplaced block (before Files:) fires without block missing", () => {
+  const mutated = VALID_PLAN.replace(
+    "**Files:**\n- Create: extensions/lib/fixture-task2.ts",
+    T2_TESTS + "\n**Files:**\n- Create: extensions/lib/fixture-task2.ts",
+  ).replace("\n" + T2_TESTS + "\nThis task handles naming details.", "\nThis task handles naming details.");
+  const f = tb(mutated);
+  assert.ok(f.some((x) => x.reason.includes("misplaced")));
+  assert.ok(!f.some((x) => x.reason.includes("block missing")));
+});
+
+test("tests-block: duplicated **Tests:** heading is misplaced", () => {
+  const mutated = VALID_PLAN.replace("This task handles naming details.", T2_TESTS + "\nThis task handles naming details.");
+  assert.ok(tb(mutated).some((x) => x.reason.includes("misplaced")));
+});
+
+test("tests-block: text after the heading is misplaced, not missing", () => {
+  const mutated = VALID_PLAN.replace("**Tests:**\n- `node --test extensions/lib/fixture-task2.test.ts`", "**Tests:** see below\n- `node --test extensions/lib/fixture-task2.test.ts`");
+  const f = tb(mutated);
+  assert.ok(f.some((x) => x.reason.includes("misplaced")));
+  assert.ok(!f.some((x) => x.reason.includes("block missing")));
+});
+
+test("tests-block: a Delete: bullet before **Tests:** is legal", () => {
+  const mutated = VALID_PLAN.replace(T2_FILES_TEST, T2_FILES_TEST + "- Delete: extensions/lib/fixture-legacy.ts\n");
+  assert.deepEqual(tb(mutated), []);
+});
+
+test("tests-block: block empty (via: alone)", () => {
+  const mutated = VALID_PLAN.replace(T2_TESTS, "**Tests:**\n- via: `naming()`\n");
+  assert.ok(tb(mutated).some((x) => x.reason.includes("block empty")));
+});
+
+test("tests-block: malformed bullet after a valid one; block continues; a - [ ] step terminates", () => {
+  const mutated = VALID_PLAN.replace(
+    T2_TESTS,
+    T2_TESTS + "- node --test x\n- via: `naming()`\n- [ ] **Step 1: nothing**\n",
+  );
+  const f = tb(mutated);
+  assert.equal(f.filter((x) => x.reason.includes("malformed")).length, 1);
+  assert.ok(!f.some((x) => x.reason.includes("block empty")));
+});
+
+test("tests-block: none: with a command, none: with via:, two none: -> contradictory", () => {
+  for (const block of [
+    "**Tests:**\n- none: docs\n- `node --test extensions/lib/fixture-task2.test.ts`\n",
+    "**Tests:**\n- none: docs\n- via: `naming()`\n",
+    "**Tests:**\n- none: docs\n- none: config\n",
+  ]) {
+    const mutated = VALID_PLAN.replace(T2_TESTS, block);
+    assert.ok(tb(mutated).some((x) => x.reason.includes("contradictory")), block);
+  }
+});
+
+test("tests-block: none: while a Test: path is declared -> unused Test: path", () => {
+  const mutated = VALID_PLAN.replace(T2_TESTS, "**Tests:**\n- none: docs\n");
+  assert.ok(tb(mutated).some((x) => x.reason.includes("unused `Test:` path")));
+});
+
+test("tests-block: none: docs, config with no Test: path is valid", () => {
+  const mutated = VALID_PLAN.replace(T2_FILES_TEST, "").replace(T2_TESTS, "**Tests:**\n- none: docs, config\n");
+  assert.deepEqual(tb(mutated), []);
+});
+
+test("tests-block: via: with commands passes", () => {
+  const mutated = VALID_PLAN.replace(T2_TESTS, T2_TESTS + "- via: `naming()` - the seam\n");
+  assert.deepEqual(tb(mutated), []);
+});
+
+test("tests-block: unknown Test: path unless it exists or another task Create:s it", () => {
+  const fs: FsPort = { exists: () => false, glob: () => [] };
+  assert.ok(tb(VALID_PLAN, SPEC_TEXT, fs).some((x) => x.reason.includes("unknown `Test:` path")));
+  const created = VALID_PLAN.replace(
+    "- Create: extensions/lib/fixture-task1.ts",
+    "- Create: extensions/lib/fixture-task1.ts\n- Create: extensions/lib/fixture-task1.test.ts\n- Create: extensions/lib/fixture-task2.test.ts\n- Create: extensions/lib/fixture-task3.test.ts",
+  );
+  assert.deepEqual(tb(created, SPEC_TEXT, fs), []);
+});
+
+test("tests-block: segment without a Test: token is not anchored", () => {
+  const mutated = VALID_PLAN.replace(T2_TESTS, "**Tests:**\n- `node --test extensions/lib/fixture-task2.test.ts && echo done`\n");
+  assert.ok(tb(mutated).some((x) => x.reason.includes("not anchored")));
+});
+
+test("tests-block: pipe segment equal to a header segment; tee log has no anchor", () => {
+  const mutated = VALID_PLAN.replace("**Verification:** npm run fixture-verify", "**Verification:** npm test")
+    .replace(T2_FILES_TEST, "- Test: x.test.ts\n")
+    .replace(T2_TESTS, "**Tests:**\n- `npm test | tee log && node --test x.test.ts`\n");
+  const f = tb(mutated);
+  assert.ok(f.some((x) => x.reason.includes("full-suite command") && x.reason.includes("npm test")));
+  assert.ok(f.some((x) => x.reason.includes("not anchored") && x.reason.includes("tee log")));
+});
+
+test("tests-block: broadening selectors tests/ and tests/*.py fail; Test: value tests/ never anchors", () => {
+  const dir = VALID_PLAN.replace(T2_TESTS, "**Tests:**\n- `node --test extensions/lib/fixture-task2.test.ts tests/`\n");
+  assert.ok(tb(dir).some((x) => x.reason.includes("broadening")));
+  const glob = VALID_PLAN.replace(T2_TESTS, "**Tests:**\n- `node --test extensions/lib/fixture-task2.test.ts tests/*.py`\n");
+  assert.ok(tb(glob).some((x) => x.reason.includes("broadening")));
+  const dirAnchor = VALID_PLAN.replace(T2_FILES_TEST, "- Test: tests/\n").replace(
+    T2_TESTS,
+    "**Tests:**\n- `node --test tests/`\n",
+  );
+  assert.ok(tb(dirAnchor).some((x) => x.reason.includes("not anchored")));
+});
+
+test("tests-block: unsupported shell (cd, sh -c, bash -c, eval, $( )", () => {
+  for (const cmd of [
+    "cd pkg && pytest tests/a.py",
+    "sh -c 'node --test extensions/lib/fixture-task2.test.ts'",
+    "bash -c 'node --test extensions/lib/fixture-task2.test.ts'",
+    "eval node --test extensions/lib/fixture-task2.test.ts",
+    "node --test $(echo extensions/lib/fixture-task2.test.ts)",
+  ]) {
+    const mutated = VALID_PLAN.replace(T2_TESTS, "**Tests:**\n- `" + cmd + "`\n");
+    assert.ok(tb(mutated).some((x) => x.reason.includes("unsupported shell")), cmd);
+  }
+});
+
+test("tests-block: segment equal to a header segment (bare, &&, comma-listed, trailing prose, a && b)", () => {
+  for (const header of [
+    "**Verification:** npm test",
+    "**Verification:** `npm test`",
+    "**Verification:** npm test && npm run lint",
+    "**Verification:** `npm test`, `npm run lint`",
+    "**Verification:** `npm test` (bundles lint)",
+  ]) {
+    const mutated = VALID_PLAN.replace("**Verification:** npm run fixture-verify", header).replace(
+      T2_TESTS,
+      "**Tests:**\n- `npm run lint`\n- `npm test`\n",
+    );
+    const f = tb(mutated);
+    assert.ok(f.some((x) => x.reason.includes("full-suite command") && x.text === "- `npm test`"), header);
+    if (header.includes("npm run lint")) assert.ok(f.some((x) => x.reason.includes("full-suite command") && x.text.includes("lint")), header);
+  }
+  const ab = VALID_PLAN.replace("**Verification:** npm run fixture-verify", "**Verification:** a && b").replace(T2_TESTS, "**Tests:**\n- `b`\n");
+  assert.ok(tb(ab).some((x) => x.reason.includes("full-suite command")));
+});
+
+test("tests-block: npm test -- x.test.ts passes under header npm test (bare and backticked); the header segment npm test alone fails", () => {
+  for (const header of ["**Verification:** npm test", "**Verification:** `npm test`"]) {
+    const ok = VALID_PLAN.replace("**Verification:** npm run fixture-verify", header)
+      .replace(T2_FILES_TEST, "- Test: x.test.ts\n")
+      .replace(T2_TESTS, "**Tests:**\n- `npm test -- x.test.ts`\n");
+    assert.deepEqual(tb(ok, SPEC_TEXT, alwaysTruePort()), [], header);
+  }
+});
+
+test("tests-block: header segment that is itself scoped is still rejected as a bullet", () => {
+  const mutated = VALID_PLAN.replace("**Verification:** npm run fixture-verify", "**Verification:** node --test x.test.ts && npm run lint")
+    .replace(T2_FILES_TEST, "- Test: x.test.ts\n")
+    .replace(T2_TESTS, "**Tests:**\n- `node --test x.test.ts`\n");
+  assert.ok(tb(mutated).some((x) => x.reason.includes("full-suite command")));
+});
+
+test("tests-block: passing forms - multi-path, ::filter -v, -k name, -- passthrough, line-suffixed Test:", () => {
+  const multi = VALID_PLAN.replace(T2_TESTS, "**Tests:**\n- `node --test extensions/lib/fixture-task2.test.ts extensions/lib/fixture-task1.test.ts`\n")
+    .replace(T2_FILES_TEST, T2_FILES_TEST + "- Test: extensions/lib/fixture-task1.test.ts\n");
+  assert.deepEqual(tb(multi), []);
+  const filt = VALID_PLAN.replace(T2_FILES_TEST, "- Test: tests/a.py\n").replace(T2_TESTS, "**Tests:**\n- `pytest tests/a.py::test_x -v -k name --filter x`\n");
+  assert.deepEqual(tb(filt), []);
+  const passthrough = VALID_PLAN.replace(T2_TESTS, "**Tests:**\n- `npm run fixture-verify -- extensions/lib/fixture-task2.test.ts`\n");
+  assert.deepEqual(tb(passthrough), []);
+  const suffixed = VALID_PLAN.replace(T2_FILES_TEST, "- Test: extensions/lib/fixture-task2.test.ts:10-20\n");
+  assert.deepEqual(tb(suffixed), []);
+});
+
+test("tests-block: no path normalization - ./x and x differ, as in Files:", () => {
+  const mutated = VALID_PLAN.replace(T2_FILES_TEST, "- Test: ./extensions/lib/fixture-task2.test.ts\n");
+  assert.ok(tb(mutated).some((x) => x.reason.includes("not anchored")));
+});
+
+test("tests-block: fenced **Tests:** lines are ignored", () => {
+  const mutated = VALID_PLAN.replace(
+    "This task handles naming details.",
+    "This task handles naming details.\n\n```markdown\n**Tests:**\n- none: docs\n```",
+  );
+  assert.deepEqual(tb(mutated), []);
 });

@@ -1,5 +1,11 @@
 # Changelog
 
+## [Unreleased]
+
+- `writing-plans`: every task carries a `**Tests:**` block - scoped commands anchored to the task's `Test:` paths, optional `via:` entry point, or `none: <category>`; the plan grammar `plan_check` enforces moves to `skills/writing-plans/reference/plan-contract.md`. (#28)
+- `plan_check`: new `tests-block` check (block present and well-formed, every command segment names a task `Test:` path, no broadening selectors or `cd`/`sh -c`/`eval`/`$(`, no segment equal to a header `**Verification:**` segment); `header-entrypoint` compares `Run:` payloads by segment, so `npm test` no longer slips past `npm test && npm run lint`; `Test:` entries no longer count as file ownership in `wave-file-disjointness`. (#28)
+- `subagent-driven-development`, `test-driven-development`, prompts, `spec-reviewer`: `SCOPED_TEST_COMMANDS` comes from the `Tests:` block; implementer reports `met`/`unmet` per command and per `via:`; the spec reviewer treats the task contract as a supplement the anchored spec overrides. (#28)
+
 ## v5.4.0 - 2026-09-10
 
 - `subagent-driven-development`: a stalled review fix loop runs one escalated fix round (`implementer`, `context: fresh`, model from new `piGauntlet.escalationLoop.implModel`, default main-loop model + thinking) before stopping; the stop is a one-screen problem note (`stop-note.md`) with concrete fix options, replacing the trajectory-log escalation report. `gauntlet_setting` gains the `escalationLoop` key. (#29)
