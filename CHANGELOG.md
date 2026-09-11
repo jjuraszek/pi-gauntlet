@@ -1,5 +1,12 @@
 # Changelog
 
+## Unreleased
+
+- `release.sh <level>` promotes the CHANGELOG `## Unreleased` section to `## vX.Y.Z - <date>` and commits it with `package.json` in the single `Release X.Y.Z` commit, so `patch`/`minor`/`major` now work here (the `current`-only path is gone). New CONFIG field `CHANGELOG_HEADING`.
+- Release skill: a user instruction naming the level is the approval - no proposal step or re-confirmation; bundled follow-ups run after `verify`.
+- AGENTS.md rewritten to always-on essentials plus routing; shared core bumped to v3. Persona frontmatter knobs table and pin rationale moved to `doc/personas.md`. Gold rule scoped to agent-initiated writes; a user instruction naming the write is its confirmation.
+- Added `.pi/gauntlet-overrides.md` (`tracker: github`, release path, write-gate carve-out for user-named writes).
+
 ## v5.5.1 - 2026-09-10
 
 - `linear`: copyable, version-scoped recovery for attachment-download 401s resolves the decrypted credential through linearis instead of reading encrypted token storage. Restricts credential delivery to HTTPS Linear uploads, rejects redirects, and checks downloaded bytes; an offline regression executes the documented example.

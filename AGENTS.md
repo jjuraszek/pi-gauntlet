@@ -1,213 +1,94 @@
 # pi-gauntlet
 
-Workflow skills, agent personas, and extensions for the pi coding agent. Generic by design — project-specific content lives in consumer repos via the gauntlet overrides file (`.pi/gauntlet-overrides.md`, or `gauntlet-overrides.md` / `doc/gauntlet-overrides.md` at the repo root; first found wins).
+Workflow skills, agent personas, and extensions for the pi coding agent, published to npm as `pi-gauntlet` (`pi install npm:pi-gauntlet`). Generic by design: project-specific content lives in consumer repos via the gauntlet overrides file (`.pi/gauntlet-overrides.md`, or `gauntlet-overrides.md` / `doc/gauntlet-overrides.md` at the repo root; first found wins).
 
-<!-- agents-core:begin v2 - shared across pi-quiver/pi-cohort/pi-gauntlet/pi-condense. Edit AGENTS.core.md, then: node scripts/check-agents-core.mjs --fix -->
+<!-- agents-core:begin v3 - shared across pi-quiver/pi-cohort/pi-gauntlet/pi-condense. Edit AGENTS.core.md, then: node scripts/check-agents-core.mjs --fix -->
+## Ground Truth Before Reasoning
+
+User instructions outrank skill and AGENTS.md guidance; on conflict, follow the user. Configured gates (design approval, ship verification) still run; a user instruction that already names the gated action satisfies its confirmation.
+
+Never guess Pi's API, message shapes, config, or values - read the source. The pi runtime is the **`@earendil-works`** namespace (matches the host pi install), not `@mariozechner`; its shipped `.d.ts` is API truth. Third-party APIs: never state a signature, config key, flag, or version-specific behavior from memory - verify in current docs (Context7 `resolve-library-id` then `query-docs`). If the source contradicts your assumption, the source wins; if it is missing, say so and ask - do not fabricate. Check the request's premise before acting: if the source contradicts it, say so once with evidence, then follow the user's decision.
+
+The same rule applies to state you set up yourself. Before asserting that a job, publish, CI run, or process is in some state, run the command that shows it in this turn (`gh run view`, `npm view`, `git status`). A summary of what you started is a plan, not an observation.
+
+## Authorization
+
+An instruction that names an action and its parameters is the approval for that action ("release patch", "close #12 with a comment") - do it, then report. Ask only when a parameter is ambiguous or a safety check fails; say what failed, don't fix it silently. Once the design is settled, finish the authorized work before asking - the user approves a concrete result. Reversible, read-only, and already-authorized actions need no permission. Agent-initiated writes to a tracker or to files outside the repo keep their gate.
+
 ## Communication Style
 
-Applies to chat, commit messages, PR/issue comments, code review, and any artifact authored in this repo.
+**North star: sharp, human-readable, example-driven, condense.** Sharp = exact, no hedging (name the file/SHA/value). Human-readable = written like a person, not a report. Example-driven = a small before/after beats a paragraph. Condense = every sentence earns its place. One term per concept: name a thing once, reuse that name. A reply carries its substance inline - never point at tool outputs, finding numbers, or earlier turns the reader didn't see; restate in one sentence.
 
-- **Human, terse, but sharp and precise.** Applies everywhere: interactive session, issue/PR comments, `.md` files. Terse is not vague - keep it exact.
-- **Suppress process narration.** No intent classification, phase announcements, tool/subagent preamble, status updates, pleasantries. Start with substance.
-- **Output instead:** outcomes, decisions needing input, verification results, blockers.
-- **Bullets over prose. Short paragraphs.** No wall-of-text, no tutorial tone unless asked.
-- **Show an example when it clarifies a complex point** - a small before/after or a concrete ref beats a paragraph. Examples disambiguate, they don't pad.
-- **End on the ask, not a summary.** Diffs/outputs speak for themselves.
-- **Match the recipient's register** in human-facing artifacts (issues, PRs, chat).
-- **Prefer ASCII.** `-` not em/en-dashes, `...` not the ellipsis glyph, straight quotes. Non-ASCII only for a justified visual mark.
+| Regime | Surfaces | Format |
+|---|---|---|
+| Human-facing comms | chat, commit messages, PR/issue bodies and comments, review feedback | no scaffolding (no Options/TL;DR templates, no headings on short comments); bullets over prose; end on the ask, not a summary |
+| LLM-readable artifacts | AGENTS.md, README, CHANGELOG, specs, plans, skill/agent/prompt files, non-obvious-why code comments | tables, headings, explicit field references, code blocks; density still binds; optimize for unambiguous retrieval |
 
-LLM-readable artifacts (`AGENTS.md`, `README.md`, `CHANGELOG.md`, skill bodies, agent personas, spec docs, code comments where the *why* is non-obvious) stay structured: tables, headings, explicit field references, code blocks. Optimize for retrieval over readability.
+**Suppress process narration.** No intent classification, phase/routing announcements, tool/subagent preamble, status narration, pleasantries. **Output instead:** outcomes, decisions needing input, verification results, blockers. Start with the substance.
+
+ASCII punctuation everywhere (chat, comments, commits, docs, code): `-` not em-dash, `...` not the ellipsis glyph, straight quotes; non-ASCII only for a justified visual mark. State what you did or will do; don't pad with what you won't do, what stays unchanged, or alternatives nobody asked about. No closing summaries.
 
 ## Code & Documentation Discipline
 
 - **Code is a liability.** Add only what the task requires. No premature abstractions, no helpers for hypothetical reuse, no fallbacks for branches that can't happen, no commented-out alternatives.
 - **No new machinery if not essential.** Reuse an existing field, channel, or code path (plus a small discriminant if needed) over a new sibling construct; new machinery must earn its place by being impossible or misleading to express with what exists.
-- **Docs are a contract.** Dense, current, no preamble. If a sentence doesn't help a future reader act, cut it - this applies to documentation as much as code.
-- **No belt-and-suspenders.** Don't validate / null-check / guard the same thing at multiple layers - validate at the boundary once.
-- **Delete dead code, don't comment it out.** Branch from the deletion commit if reversibility matters.
-- **Comments only when the *why* is non-obvious.** No docstrings on self-evident params/returns. No banner/separator comments. Don't reference the current task or PR - that belongs in the commit message.
-- **Markdown tables use compact `|---|` separators.** Never padded columns.
+- **No belt-and-suspenders.** Validate a thing once, at the boundary that owns it - not at every layer.
+- **Delete dead code, don't comment it out.** When a change supersedes code, remove the old path in the same commit. Branch from the deletion commit if reversibility matters.
+- **Comments are stock, not flow.** Record the durable why, never task context, tickets, or callers. Good: `// output is never empty for a real dispatch`. Bad: `// #12: gate on this so the classifier doesn't no-op`. No docstrings on self-evident params/returns, no banner comments.
 - **Surface, don't auto-fix.** A bug fix doesn't drag in surrounding cleanup; mention adjacent issues separately.
+- **Docs are a current contract, present tense.** No "upcoming"/"pending" in a current-state guide - planned work lives in `doc/specs/`, `doc/plans/`, or the ticket; history lives in `CHANGELOG.md` and commit bodies, never in AGENTS.md or a guide. Doc updates ride with the commit that makes them stale. Editing a doc puts the smallest unit you touch - bullet, row, heading block - in scope: its paths resolve, its commands match the source, its framing is present tense; stale content outside that unit: flag, don't fix.
+- **AGENTS.md is always-on essentials plus routing, not the manual.** Route detail to `doc/` or `README.md` and link it; add an inline pointer only when critical or high-frequency. README and AGENTS.md stay in sync where they overlap.
+- **Markdown tables use compact `|---|` separators.** Never padded columns.
 
 ## Ticket convention
 
-Creating a ticket or repairing its title/body/metadata happens only via `/skill:shape-ticket` (pi-gauntlet >= the release that ships it) - it enforces the Context -> Problem -> Idea -> Acceptance Criteria template, an AC integrity gate, and a cheap council roast applied to the body before the single human-gated write (no roast comments). Status transitions and comments are exempt - plain tracker CLI.
+Creating a ticket or repairing its title/body/metadata happens only via `/skill:shape-ticket` - it enforces the Context -> Problem -> Idea -> Acceptance Criteria template, an AC integrity gate, and a cheap council roast applied to the body before the single human-gated write (no roast comments); a user instruction naming the ticket's body counts as that gate. Status transitions and comments are exempt - plain tracker CLI.
 
-## Ground Truth Before Reasoning
+<!-- agents-core:end v3 -->
 
-Never guess Pi's API, message shapes, config, or values - read the source; the source wins; if it is missing, say so and ask, don't fabricate. The pi runtime is the **`@earendil-works`** namespace (matches the host pi install), not `@mariozechner` - treat its shipped `.d.ts` as API truth. Repo-specific source pointers, if any, follow.
+## Part of one platform
 
-<!-- agents-core:end v2 -->
+One of four sibling pi extensions - **pi-quiver** (capabilities), **pi-cohort** (coordination), **pi-condense** (context economy), **pi-gauntlet** (process). They ship and version independently; a concept is explained in its owning repo and linked from the others, never duplicated.
 
-## Gold rule: gated writes to human channels
+- Only hard code dependency: pi-gauntlet -> pi-cohort (`subagent()`). Every dispatching skill here has nothing to call without pi-cohort installed. Release together whenever dispatch semantics change (`.agents/skills/release/SKILL.md` "Pair with pi-cohort").
+- pi-condense keeps long gated runs' context bounded; pi-quiver supplies `fetch`/`doc_to_md` when a step needs a real source. No code coupling with either.
 
-Any agent-initiated write to a human-readable channel (tracker comment, Slack, chat reply on behalf of the user) is gated behind explicit confirmation on the exact text. Known adjacent gap, deliberately out of scope: finishing-a-development-branch Option 2 composes a PR title/body without a separate exact-text confirmation - PR creation is not a reporter-facing reply, and the issue's out-of-scope forbids flow-skill edits; noted here so the rule is not read as a claim about existing skills.
+A change that alters a cross-repo contract (dispatch shape, settings keys) updates the sibling's docs in the same logical change and lands in both CHANGELOGs.
 
-## Part of one platform (cross-repo synergy)
+## Gated writes to human channels
 
-This repo is one of four sibling pi extensions - **pi-quiver** (capabilities), **pi-cohort** (coordination), **pi-condense** (context economy), **pi-gauntlet** (process, this repo) - that compose into one governed agent workflow. They ship and version independently, but documentation is deliberately cross-referential: a concept is explained in its owning repo and *linked* from the others, never duplicated.
+An **agent-initiated** write to a human-readable channel (tracker comment, Slack, a reply on the user's behalf) is gated on explicit confirmation of the exact text. A user instruction that names the write is that confirmation (core "Authorization"). Finishing-a-development-branch's PR title/body is not reporter-facing and is not gated.
 
-- Only hard code dependency: pi-gauntlet -> pi-cohort (`subagent()`). Every skill in this repo that dispatches an agent has nothing to call without pi-cohort installed.
-- Real runtime coupling: pi-condense emits `cost:external`; pi-cohort aggregates it into `Σ$`. pi-gauntlet doesn't touch this channel directly but benefits from pi-condense keeping long gated runs' context (and cost) bounded.
-- pi-quiver is an independent toolbox; no code coupling, but a brainstorm or implementation step that needs a real doc or web page reaches for it.
+## Package rules
 
-When editing docs here, if a claim belongs to a sibling's concern (dispatch semantics, cost protocol, pruning behavior), link the sibling's doc rather than restating it. When a change alters a cross-repo contract (dispatch shape, cost channel, settings keys), update the sibling's docs in the same logical change and note it in both CHANGELOGs.
+- **Skills stay generic.** No service names, file paths, verification commands, or routing tables in `skills/*/SKILL.md`. Every skill ends with the standard "Project overrides" block (copy from any existing skill). Before committing skill edits: `rg -ni "jjuraszek|/Users/[^/]+" skills/ | rg -v "github.com/jjuraszek/pi-cohort"` - expected zero matches; tracker or `script/worktree`-style references are fine as examples, never as canonical paths.
+- **Personas** in `agents/` are dispatched via pi-cohort; frontmatter is not call-time overridable and a frontmatter pin kills the matching preset `agentOverrides` knob. Read the knobs table before touching frontmatter: [`doc/personas.md`](doc/personas.md#frontmatter-knobs).
+- **Extensions** in `extensions/` read every tunable from `settings.json#piGauntlet.<extensionName>` with a working default, through `extensions/lib/gauntlet-settings*.ts` - never `pi.settings` (`scripts/ci.mjs` enforces). New key -> document in [`doc/configuration.md`](doc/configuration.md).
+- **Claude Code surface** is `.claude-plugin/marketplace.json`: an allowlist of harness-portable skills, excluded from the npm tarball, never read by pi. Widen it only for skills whose bodies carry harness fallbacks.
 
-## Package conventions
+## Change process
 
-### Skills must stay generic
+Any non-trivial change rides the full gauntlet from `/skill:brainstorming` (worktree, spec, approval gate, then auto-chain through plan -> implement -> verify -> finish). Trivial carve-out: typo, formatting, dependency bump, the release commit. Runtime flow guards enforce the pipeline once entered; this rule is what makes entry mandatory. A user instruction that names a direct edit and its target overrides it (core "Authorization").
 
-Skills in `skills/*/SKILL.md` are reusable across any pi consumer. Project-specific content (service names, file paths, verification commands, routing tables) is **forbidden** in skill bodies.
+## Testing
 
-Every skill ends with a "Project overrides" block pointing to the gauntlet overrides file (`.pi/gauntlet-overrides.md`, or `gauntlet-overrides.md` / `doc/gauntlet-overrides.md` at the repo root; first found wins). Consumers add project-specific content there; skills read it at runtime.
+`npm test` runs `scripts/ci.mjs`: AGENTS core block == `AGENTS.core.md`, skill/agent/extension lint, resolver unit tests, `pi.settings` ban, marketplace assertions, `npm pack` contents, and `package.json` version == top `## vX.Y.Z` CHANGELOG heading. CI runs it on every push + PR (`.github/workflows/test.yml`). Local iteration: `pi install -l ~/repos/pi-gauntlet` + `npm run link-agents` ([`doc/install-internals.md`](doc/install-internals.md)).
 
-Before committing skill edits, run:
+## Release
 
-```bash
-rg -ni "<your-company>|jjuraszek|/Users/[^/]+|<your-org-name>|<forbidden-project>" skills/
-```
+`/skill:release` owns the flow: `release.sh <level>` promotes `## Unreleased` in `CHANGELOG.md` to `## vX.Y.Z - <date>`, bumps `package.json`, commits `Release X.Y.Z`, runs `npm test`, tags `vX.Y.Z`, pushes; CI publishes via OIDC. A user instruction naming the level is the approval. Mechanics and safety checks: [`.agents/skills/release/SKILL.md`](.agents/skills/release/SKILL.md).
 
-Replace the placeholders above with patterns specific to your fork — company names, your username paths, internal service names. Expected: zero matches. Linear/Jira/`script/worktree`-style references are OK as **examples** but never as canonical paths.
+## Routing
 
-### Agents
-
-Seven agents ship in `agents/`: `implementer`, `code-reviewer`, `spec-reviewer`, and `conformance-reviewer`, plus `spec-council-member` and `spec-council-synthesizer` (dispatched only by `/skill:roasting-the-spec` or `/skill:shape-ticket`, never directly - `shape-ticket` dispatches them at `:low` thinking for ticket roasts), and `spec-summarizer` (dispatched only by `/skill:brainstorming`'s gate step, never directly). `conformance-reviewer` is the closing-loop intent gate, dispatched by the verify step of `subagent-driven-development` / `verification-before-completion` and surfaced before finish in `finishing-a-development-branch`. Body text becomes the child's system prompt (`systemPromptMode: replace`).
-
-Frontmatter knobs are **not overridable** at `subagent()` call time. Preset-level `subagents.agentOverrides.<agent>` config only **fills fields the frontmatter left unset** (pi-cohort `agents.ts`), so a frontmatter pin kills the config knob. Pick pins carefully:
-
-| Knob | implementer | code-reviewer | spec-reviewer | conformance-reviewer | spec-council-member | spec-council-synthesizer | spec-summarizer |
-| --- | --- | --- | --- | --- | --- | --- | --- |
-| `tools` | `read, write, edit, bash, grep, find, ls` | `read, grep, find, ls, bash` | `read, grep, find, ls, bash` | `read, grep, find, ls, bash` | `read, grep, find, ls, bash` | `read, grep, find, ls, bash` | `read` |
-| `thinking` | — | — | — | `xhigh` | `xhigh` | `xhigh` | — |
-| `defaultContext` | `fork` | `fresh` | `fresh` | `fresh` | `fresh` | `fresh` | `fresh` |
-| `inheritProjectContext` | `true` | `true` | `true` | `true` | `true` | `true` | `false` |
-| `inheritSkills` | `false` | `false` | `false` | `false` | `false` | `false` | `false` |
-| `completionGuard` | `true` | `false` | `false` | `false` | `false` | `false` | `false` |
-
-Rationale: reviewers are read-only and skeptical (fresh context, no edit tools). `thinking` is deliberately **unset** on `implementer`/`code-reviewer`/`spec-reviewer` so each preset supplies it via `subagents.agentOverrides.<agent>.thinking` — consumers on non-thinking models set `false` (→ provider default). Recommended budgets: implementer `medium` (tasks are atomic, plan-driven), code-reviewer `high` (subtle-bug hunting), spec-reviewer `medium` (mechanical spec-vs-code check). `conformance-reviewer` and the council personas stay frontmatter-pinned at `xhigh`: the pin is intentional — the gate often inherits the main session's model (`closureReview.model` unset), and the persona must raise the budget to max regardless of preset config; the council is defined by max-budget critique. Both `spec-council-*` personas keep `bash`: it IS in the output path. `roasting-the-spec` dispatches members with an `output:` path, and pi-cohort injects a `Write your findings to: <path>` instruction into every such task (`single-output.ts` `injectSingleOutputInstruction`, fired per parallel task in `subagent-executor.ts`). Without a write-capable tool the member is ordered to write a file it cannot write: observed failures were 87-byte preamble stubs (glm-5) and stalls (gpt-5.5 at xhigh) - critique content lost before the chair ever saw it. The v3.2.0/v3.3.0 bash removal regressed this from 363/363 historical synthesis-reach to 0/2; v3.3.1 reverts it. (Members write their findings via `cat > <output>`, and the persona pins a read-only invariant - the only write is the findings file. Verification *scope* is dispatch-supplied: the dispatching skill's task text says whether and what to verify, while the persona carries only bounded verification hygiene - `rg`, explicit paths, `timeout`. The earlier "never in the output path" rationale was empirically false.) Implementer continues the parent's session (fork) but doesn't need to recurse into skill discovery (inheritSkills: false avoids dispatch loops). `inheritProjectContext: true` lets agents adapt to the consumer's `AGENTS.md`.
-
-The two `spec-council-*` agents are the reviewer profile pushed to `thinking: xhigh`; they carry no `model:` — `/skill:roasting-the-spec` injects it per task (members from `piGauntlet.specCouncil.members`, the chair from `specCouncil.chair`), so no model is baked into the persona.
-
-`spec-summarizer` is deliberately the narrowest profile: `tools: read` only and `inheritProjectContext: false` so it reads **only** the spec passed to it - a faithful spec-only projection is the feature (a thin summary signals a thin spec). It carries no `model:`/`thinking:`; summarization is not reasoning-heavy, so each preset supplies the model via `subagents.agentOverrides.spec-summarizer.model` (unset -> inherits the main loop), matching `worker`. It is the downstream **beneficiary** of the `external-ref` chain (it does not carry it): `spec-council-member` emits the `external-ref` finding kind, `spec-council-synthesizer` surfaces it as an `external-ref:`-prefixed cluster, and `brainstorming` scans for that prefix and inlines the referenced content before dispatching the summarizer - so by the time the summary runs, the spec is self-contained. The `brainstorming` gate dispatches it with an `output:` temp path + `outputMode: "file-only"` so the ~9KB summary survives pi-condense (a compact file reference is not a pruning target) and is read back verbatim; because `tools: read` cannot satisfy pi-cohort's injected `Write your findings to: <path>` instruction, the persona instead relies on the harness persisting its final text to that path (`persistSingleOutput` in `single-output.ts`) and a directive telling it not to attempt the write - the read-only counterpart to the `spec-council-*` `bash` remedy for the same injected instruction.
-
-`conformance-reviewer` is the reviewer profile (fresh, read-only, skeptical) pushed to `thinking: xhigh` because it is the **last correctness gate** — the closing loop that confronts the assembled deliverable against the *origin* (spec + verbatim prompt), not the plan. Like the council agents it carries **no `model:`**; its model resolves from `piGauntlet.closureReview.model` **repo-local first** (a repo's `.pi/settings.json` overrides the preset whole-object — same as `specCouncil`; see `skills/verification-before-completion/reference/settings-precedence.md`), injected **call-site** by the verify-step skills (the same mechanism the spec-council chair uses); the phase-tracker guard (inside a brainstorming-entered flow) blocks a dispatch that omits `model:` and warns on one that differs from the configured value, so every profile points the gate at the strongest reasoning model its providers can reach (the frontmatter-pinned `thinking: xhigh`/`defaultContext: fresh` are not call-site overridable, so the config supplies only `model`; unset → omit → inherit parent's model). It diverges from `code-reviewer` deliberately: code-reviewer's priorities and output are code-quality (Correctness/Tests/Security/… → severity-ranked bug list), whereas conformance-reviewer's are requirement coverage and intent fidelity (→ per-requirement DELIVERED/PARTIAL/MISSING/DRIFTED/UNAUTHORIZED verdict). `UNAUTHORIZED` also covers spec-laundered excess: a spec clause that no human input required and no other requirement depends on is reclassified at step 1 (not an `Rn`), reported once with the unchanged origin literal `none (scope creep)` and an `evidence:` line opening `spec "<section>" - "<clause>" (over-spec)`; every `UNAUTHORIZED` row follows its `recommended` value (`fix` only when removal is contained), the old always-defer rule is gone. Dispatch it as its **own** call; never fuse it into the whole-PR code review.
-
-If you must override at call site, the only callable knobs are `model`, `task`, `output`, `outputMode`, `reads`, `progress`, `skill` — frontmatter wins for the rest.
-
-### Extensions
-
-All three extensions ship in `extensions/`:
-
-| Extension | Configurable | Settings key |
-| --- | --- | --- |
-| `plan-tracker.ts` | No | — |
-| `phase-tracker.ts` | Yes | `settings.json#piGauntlet.closureReview` (keys: `enforce`, `model`); `settings.json#piGauntlet.flowGuards` (keys: `enforce`, `specDirs`); `settings.json#piGauntlet.escalationLoop` (keys: `implModel`) |
-| `verify-before-ship.ts` | Yes | `settings.json#piGauntlet.verifyBeforeShip` (keys: `testCommands`, `warningReference`) |
-
-`phase-tracker.ts` also hosts the `gauntlet_setting` tool (keys `specCouncil`, `closureReview`, `escalationLoop`), through which skills resolve merged `piGauntlet.*` settings, and the `plan_check` tool (deterministic plan checker; its pass stamp gates implement-start via `flowGuards.enforce`). All `piGauntlet.*` reads — skills via that tool, both extensions directly — route through the shared helper `extensions/lib/gauntlet-settings*.ts` (pure resolvers + a `SettingsManager`-backed loader); no extension reads `pi.settings` (which does not exist on `ExtensionAPI` and is enforced empty by `scripts/ci.mjs`).
-
-Hardcoded project paths or commands in extensions are forbidden. If you add a new configurable behavior, surface it as a `piGauntlet.<extensionName>` settings key with a sane default and document it in `README.md`.
-
-### Claude Code marketplace
-
-`.claude-plugin/marketplace.json` exposes exactly five skills (`shape-ticket`, `gatekeep-pr`, `check-delivery`, `chase-bug`, `linear`) to Claude Code via a plugin allowlist (plugin `gauntlet`, marketplace `pi-gauntlet`) - in place, no copies. Exclusivity rests on `source: "./"` + `strict: false` + specific subdirectory paths; `scripts/ci.mjs` asserts the load-bearing subset (identity pins `gauntlet`@`pi-gauntlet`, source/strict, empty `agents`, allowlist paths + frontmatter, bundle-local `.md` reference integrity, npm-pack exclusion). The directory is Claude-Code-only surface: excluded from the npm tarball by the `files` allowlist, never read by pi. Consumer setup lives in README "Use from Claude Code". Widening the allowlist is a one-line array append - but only for skills whose bodies carry harness fallbacks (`linear`'s CLI/bash body with an MCP fallback paragraph and zero pi-bound tools qualifies); pi-bound skills (trackers, `gauntlet_setting`, pi-cohort dispatch) stay unexposed.
-
-## Development
-
-### Change process mandate
-
-Any non-trivial change to this repo rides the full gauntlet - `/skill:brainstorming -> /skill:writing-plans -> /skill:subagent-driven-development -> verify -> /skill:finishing-a-development-branch` - starting at brainstorming: it sets up the worktree, writes the spec, gates on approval, then auto-chains through the rest. 'Non-trivial' is defined by exclusion: everything except the trivial carve-out (typo / formatting / dependency bump / the release commit itself - version bump plus paired CHANGELOG heading, driven by the release skill). Covered surface: skill bodies, agent personas, extension logic, AGENTS.md / README.md / workflow and release docs, and release machinery (scripts/, .github/workflows/). No direct edits to that surface on `main`. The runtime flow-guards enforce this once a gauntlet run is entered, but they cannot force entry in the first place - hence this prose mandate.
-
-### Local iteration
-
-```bash
-# In a consumer repo:
-pi install -l ~/repos/pi-gauntlet
-cd ~/repos/pi-gauntlet && npm run link-agents   # one-time per machine, symlinks agents/*.md into getAgentDir()/agents (default ~/.pi/agent/agents)
-```
-
-Edits in `~/repos/pi-gauntlet/skills/` and `~/repos/pi-gauntlet/extensions/` reload on next pi launch. Edits to `agents/*.md` are live via symlinks. During a gauntlet run the worktree created by brainstorming is the install target (`pi install -l <worktree>`), so live-testing skill edits still works before merge.
-
-### Adding a skill
-
-Implement-phase mechanics run once the pipeline reaches implementation - not a shortcut around brainstorming.
-
-1. Create `skills/<name>/SKILL.md` with YAML frontmatter (`name`, `description`).
-2. Body is generic workflow methodology. No project-specific paths or commands.
-3. Append the standard "Project overrides" block at the end, using the 3-location overrides discovery ladder (`.pi/gauntlet-overrides.md` -> `<repo root>/gauntlet-overrides.md` -> `<repo root>/doc/gauntlet-overrides.md`, first found wins) - copy from any existing skill.
-4. Verify with the grep above.
-5. Commit.
-
-### Modifying an agent
-
-Implement-phase mechanics run once the pipeline reaches implementation - not a shortcut around brainstorming.
-
-1. Edit `agents/<name>.md`.
-2. Re-read the knobs table above before changing frontmatter — most are not call-time overridable.
-3. If the persona diverges materially from pi-cohort builtins, document why in the body.
-4. Commit.
-
-### Modifying an extension
-
-Implement-phase mechanics run once the pipeline reaches implementation - not a shortcut around brainstorming.
-
-1. Any new tunable must read from `settings.json#piGauntlet.<extensionName>`.
-2. Provide a sane default that works without configuration.
-3. Update `README.md` with the new config key.
-4. Commit.
-
-## Release workflow
-
-pi-gauntlet publishes to npm as `pi-gauntlet` (public, unscoped). The release is **tag-triggered and CI-executed** - never `npm publish` from a laptop.
-
-Use the repo-local **`release` skill** (`.agents/skills/release/SKILL.md`), driven by `.agents/skills/release/scripts/release.sh`: it proposes the semver level, gates on a clean state + `npm test`, pushes the tag after approval, then monitors CI and verifies npm + the pi.dev catalog. The skill lives in `.agents/skills/` (not shipped `skills/`) because releasing *this* repo is project-specific; it is excluded from the npm tarball by the `files` allowlist. The machinery (`release.sh`, `test.yml`, `release.yml`) is intentionally kept near-identical to pi-cohort's; `release.sh` differs only in its CONFIG header (package name, repo slug, former name, test command).
-
-Mechanics:
-
-```bash
-# 1. Bump version in package.json + add the matching `## vX.Y.Z` CHANGELOG.md heading.
-#    package.json version == tag == CHANGELOG top heading (scripts/ci.mjs asserts this).
-git commit -m "Release vX.Y.Z"
-# 2. release.sh current runs npm test (the CI gate), tags, pushes, then verifies.
-bash .agents/skills/release/scripts/release.sh propose   # advisory level from git log
-bash .agents/skills/release/scripts/release.sh current   # test + tag + push + verify
-```
-
-A pushed `v[0-9]+.[0-9]+.[0-9]+` tag fires `.github/workflows/release.yml`, which verifies the tag matches `package.json`, runs `npm test` (`scripts/ci.mjs`, which asserts version == CHANGELOG top), then runs `npm publish --provenance --access public` via **OIDC trusted publishing** (no `NPM_TOKEN` secret). After a successful publish, a `release-notes` job posts the `CHANGELOG.md` section matching the pushed tag (extracted with a version-matching `awk` that skips any `## [Unreleased]` block, failing the job if no section matches) as the GitHub Release body via `gh` - no LLM or API key, only `contents: write`. This job is byte-identical across pi-gauntlet, pi-cohort, pi-condense, and pi-quiver. `.github/workflows/test.yml` runs `npm test` on every push + PR. The pi.dev catalog at `https://pi.dev/packages/pi-gauntlet` crawls npm for the `pi-package` keyword on its own cadence - it is a downstream effect of publish, not a target.
-
-**One-time npm setup:** `pi-gauntlet` must be registered as a **trusted publisher** on npmjs.com (repo `jjuraszek/pi-gauntlet`, workflow `release.yml`) or the publish step fails with 403. This mirrors pi-cohort's tokenless setup under the same account.
-
-Consumers install explicitly:
-
-```bash
-pi install -l npm:pi-gauntlet@X.Y.Z
-```
-
-**Pair with pi-cohort.** pi-gauntlet depends on the [pi-cohort](https://github.com/jjuraszek/pi-cohort) dispatch package (the `subagent()` tool). The two version independently, but **release together whenever dispatch semantics change** — a skill that starts relying on a new pi-cohort dispatch shape must ship alongside the pi-cohort release that provides it, and the README peer-dependency minimum (`pi-cohort >= X.Y.Z`) must be bumped in the same pi-gauntlet release. When only pi-gauntlet-internal content changes (skill prose, agent frontmatter, extension logic that uses existing dispatch shapes), release pi-gauntlet alone.
-
-Semver:
-
-- **minor** — new skill, agent, or extension.
-- **major** — skill/agent rename, breaking config schema change (settings-key rename, package rename), extension API removal.
-
-## Lineage and credits
-
-pi-gauntlet is a diverged reinterpretation of [obra/superpowers](https://github.com/obra/superpowers) (MIT, Copyright (c) 2025 Jesse Vincent), reached by way of [coctostan/pi-superpowers-plus](https://github.com/coctostan/pi-superpowers-plus). The skill methodology owes its shape to that upstream work; the pi runtime integration, the enforced gates, the spec council, conformance review, and the parallel-wave execution model are pi-gauntlet's own. See the README `Lineage` section for the user-facing summary; `LICENSE` preserves obra's copyright notice.
-
-This is no longer tracked as a live fork — there is no active re-sync workflow. The table below is a **historical record** of the upstream revisions pi-gauntlet drew from at extraction time; it is not a sync target.
-
-| Source | SHA | Date | Tag |
-| --- | --- | --- | --- |
-| `obra/superpowers` | `f2cbfbefebbf` | 2026-05-04 | v5.1.0 |
-| `coctostan/pi-superpowers-plus` | `661d6cd0575b` | 2026-02-22 | v0.4.1 |
-
-**Material divergence from obra v5.1.0:** upstream deleted their `agents/` directory in v5.1.0, merging `code-reviewer` into the `requesting-code-review` skill as a Task-dispatch template. We keep `agents/` because pi-cohort treats named agents as a first-class dispatch primitive (the `subagent({ agent: "code-reviewer" })` call in skills resolves to our profile, not a prompt template).
-
-**Skills coverage:** we ship 11 of obra's 14 v5.1.0 skills. Three are not shipped: `using-superpowers` (a Claude-Code-specific bootstrap skill that forces invocation of the `Skill` tool — pi's discovery model surfaces skill descriptions automatically, so the bootstrap isn't needed), `executing-plans` (shipped through v2.x, deleted in v3.0.0 as unused; its separate-session batch-execution role is subsumed by `subagent-driven-development`), and the obra-derived debugging skill (shipped through v4.x, deleted in v5.0.0, replaced by the original `chase-bug` triage skill). `roasting-the-spec`, `shape-ticket`, `gatekeep-pr`, `check-delivery`, `chase-bug`, and `linear` are original skills with no obra equivalent, so the 11-of-14 count tracks obra-sourced skills only (total shipped skills: 17).
-
-## Ground truth pointers
-
-Repo-specific sources (the principle is in the shared core above):
-
-- Pi runtime: `@earendil-works/pi-coding-agent` docs (`packages.md`, `skills.md`).
-- Agent dispatch: `jjuraszek/pi-cohort` source (`src/agents/agents.ts`) and `skills/pi-cohort/SKILL.md`.
+| Want to ... | Read |
+|---|---|
+| Workflow overview, install, Claude Code setup, overrides-file contract, lineage | [`README.md`](README.md) |
+| What changed across versions | [`CHANGELOG.md`](CHANGELOG.md) |
+| Persona roster, frontmatter knobs, thinking budgets, where personas land | [`doc/personas.md`](doc/personas.md) |
+| `piGauntlet.*` settings, `gauntlet_setting` / `plan_check` tools, flow guards | [`doc/configuration.md`](doc/configuration.md) |
+| Symlink vs copy install, local dev install, versioning | [`doc/install-internals.md`](doc/install-internals.md) |
+| pi-gauntlet skill overrides for this repo | [`.pi/gauntlet-overrides.md`](.pi/gauntlet-overrides.md) |
+| Run a release | [`.agents/skills/release/SKILL.md`](.agents/skills/release/SKILL.md) |
+| Pi runtime API | `node_modules/@earendil-works/pi-coding-agent` docs (`packages.md`, `skills.md`) |
+| Agent dispatch semantics | pi-cohort `src/agents/agents.ts`, `skills/pi-cohort/SKILL.md` |
+| Change the shared AGENTS core | edit [`AGENTS.core.md`](AGENTS.core.md), `node scripts/check-agents-core.mjs --fix`, copy both files to the siblings, `--fix` there |
