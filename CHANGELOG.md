@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## v5.5.2 - 2026-09-13
 
 - `release.sh <level>` promotes the CHANGELOG `## Unreleased` section to `## vX.Y.Z - <date>` and commits it with `package.json` in the single `Release X.Y.Z` commit, so `patch`/`minor`/`major` now work here (the `current`-only path is gone). New CONFIG field `CHANGELOG_HEADING`.
 - Release skill: a user instruction naming the level is the approval - no proposal step or re-confirmation; bundled follow-ups run after `verify`.
