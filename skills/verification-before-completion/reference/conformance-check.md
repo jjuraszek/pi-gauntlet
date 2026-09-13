@@ -142,29 +142,24 @@ prerequisites hold.
 Per round:
 
 1. **Synchronize gap tasks** — append only a genuinely new gap that is entering remediation, named `Gn: <gap origin clause verbatim, truncated>`; never `init`. Find existing gaps by their exact `Gn:` prefix and reuse that index even if origin wording changes. Carried-OPEN inventory-only gaps add nothing. Before dispatch, mark every remediated gap's existing index `in_progress`; a re-audit needing more work reopens that same `Gn` index. The lifecycle traces `[T1,T2]`, then `[T1,T2,G1]`, then `[T1,T2,G1,G2]`; no test-retry or review-round wrapper task.
-2. **Fix dispatch** — per `dispatching-parallel-agents` "Fix fan-out": a `disjoint`
-   group of ≥ 2 gaps (per the report's `Parallel-safe:` line) fixes in one parallel
-   foreground dispatch — one `implementer` per gap (fresh context, `async: false`,
-   `worktree: true`, `cwd` = the conformance worktree, task = the gap block verbatim
-   with `touched-files` as the ownership boundary). For an `UNAUTHORIZED` `fix` gap
+2. **Fix wave** — select gaps greedily in `Gn` order: take each `fix` gap unless a gap it `conflicts` with (per the report's `Parallel-safe:` line) is already taken; the certificate's `disjoint` grouping is ignored, and a certificate still malformed after the one re-ask means every gap `conflicts` with every other. Held gaps carry to the next round; the wave is never empty while an eligible `fix` gap exists. Dispatch **one** call - `subagent({ context: "fresh", async: false, tasks: [...] })` - with one `implementer` task per selected gap (`worktree: true`, `cwd` = the conformance worktree, task = the gap block verbatim with `touched-files` as the ownership boundary). A single gap is a one-task `tasks` call; a lone `agent: "implementer"` call never appears in this loop. For an `UNAUTHORIZED` `fix` gap
    whose `evidence` opens with the over-spec provenance (`spec "<section>" - "<clause>" (over-spec)`), the orchestrator adds the spec path to that gap's `touched-files` before dispatch,
    so the implementer deletes the surface **and** the clause/AC line in the same
    fix commit; the re-audit then has no `Rn` for it and no `MISSING` echo. The dispatch adds `SCOPED_TEST_COMMANDS`
-   to the gap block: the gap-relevant plan-declared commands, or `none` (the round's
-   test gate owns execution). `conflicts` pairs serialize. Gaps outside any ≥ 2-ID
-   `disjoint` group run sequentially as before. Then dispatch foreground `spec-reviewer`
-   per gap on the gap-block reference contract below.
+   to the gap block: the gap-relevant plan-declared commands, or `none`; on an ad-hoc no-plan path, the project's canonical test command.
 3. **Integrate** serially via `git apply` onto the worktree HEAD, one gap's
-   patch at a time. Failure handling is inherited verbatim from
+   patch at a time. Commit each per-gap fix with the message **`conformance fix Gn`** (durable,
+   `git log`-readable pre-squash) so the finish gate and any revert can identify
+   auto-applied fixes; a Convergence repair wave commits as one **`conformance fix CR`**.
+   Failure handling is inherited verbatim from
    `dispatching-parallel-agents` "Review and Integrate": textual conflict →
    re-run one agent sequentially with the other's integrated changes as
    context; semantic conflict (applies clean, suite fails) → re-run the
    offending task sequentially on integrated HEAD; a failed agent → integrate
    the successes, then retry the failure with fresh context including the
    integrated changes. A `BLOCKED`/`NEEDS_CONTEXT` return surfaces to the user.
-4. **Test gate** on the integrated tree. In a plan flow, run the full plan-header `Verification` set once here; on an ad-hoc no-plan path, use the project's canonical test command. A failure re-enters the failure-handling rules above.
-5. **Round CR and completion** — run `code-reviewer` once on the round's cumulative fix delta (not per gap), foreground with `async: false` and `SCOPED_TEST_COMMANDS` = the round's gap-relevant commands, or `none` (the round's test gate owns execution). After integration, tests, and this CR accept the work, explicitly mark every remediated gap's same `Gn` index `complete`, before re-audit.
-6. **Re-audit**: foreground re-dispatch `conformance-reviewer` with `async: false` over the fixes **plus** the
+4. **Scoped tests** on the integrated tree: the round's `SCOPED_TEST_COMMANDS` union. A failure re-enters the failure-handling rules above.
+5. **Re-audit**: foreground re-dispatch `conformance-reviewer` with `async: false` over the fixes **plus** the
    regression guard (any prior-`DELIVERED` requirement whose `evidence` file
    the fix diff touched). Pass the full prior conformance report (every row,
    including DELIVERED rows and their `evidence` `file:line`) and the round's
@@ -173,18 +168,23 @@ Per round:
    `model:` when it is `undefined` to inherit the parent's model. Inside a
    brainstorming-entered flow, the phase-tracker closure guard blocks a dispatch
    that omits `model:` when `closureReview.model` is set, and warns (non-blocking)
-   on one whose model differs.
-7. **Converge or continue**: verdict `CONFORMS` → record it, done. Open gaps
+   on one whose model differs. Mark every `Gn` the re-audit reports `DELIVERED`
+   `complete`; open ones stay `in_progress`.
+6. **Converge or continue**: verdict `CONFORMS` → Convergence below. Open gaps
    within the cap → re-partition (per the rule above) and start the next
    round. Cap (`gauntlet_setting({ key: "closureReview" }).maxFixRounds`,
    default `2`, floors negatives at `0`, coerces non-integers to `2`) reached
-   with an open `fix` gap → **escalate to the human** with the per-gap
+   with an open `fix` gap or repair item → **escalate to the human** with the per-gap
    round-by-round verdict trail. Escalation is the sole non-completing
    terminal state — no silent re-loop, no auto-ship.
 
-Commit each per-gap fix with the message **`conformance fix Gn`** (durable,
-`git log`-readable pre-squash) so the finish gate and any revert can identify
-auto-applied fixes.
+**Convergence** — runs after R0 `CONFORMS` and after every `CONFORMS` re-audit. `r0-head` is HEAD when the loop was entered (the R0 dispatch, or the finish-time `fix-now` entry) - the parent of the oldest `conformance fix` commit; `audited-base` stays the last audit's HEAD SHA.
+
+a. Run the full plan-header `Verification` set once (ad-hoc: the project's canonical test command). After R0 `CONFORMS` with no round run, the pre-R0 full run counts.
+b. Dispatch `code-reviewer` directly (foreground, `async: false`, `SCOPED_TEST_COMMANDS: none`) over `git diff <r0-head>..HEAD`; never via `/skill:requesting-code-review`. An empty diff is nothing to review - no dispatch.
+c. Repair items = every failing command from a + every Critical/Moderate finding from b (`Behaviour-change: yes` included; the re-audit is its origin check). None → write the closure block; done. Any at the cap → escalate per step 6 with the test/CR trail. Any under the cap → re-enter step 2 as a one-task `tasks` wave: one `implementer` whose task is every repair item verbatim (ownership boundary = the files in `git diff <r0-head>..HEAD`, the CR findings' `touched-files`, and the files each failing command's output names, `SCOPED_TEST_COMMANDS: none`, no `Gn` tracker task, no gap selection), integrate as one `conformance fix CR`, re-audit, then Convergence again. That wave counts against `maxFixRounds`. Later Convergence CRs keep the same `<r0-head>..HEAD` range.
+
+`conformance fix CR` is not a gap fix: it is absent from the `auto-applied fix commits` index and has no `revert conformance fix Gn` action at the finish gate.
 
 **`maxFixRounds: 0`**: skip this loop entirely; every `recommended: fix` gap is
 carried OPEN to the finish gate per the precondition-unavailable
@@ -193,22 +193,6 @@ is opted-out vs. exhausted: `maxFixRounds: 0` means the user opted out of
 auto-fix, so treat `fix` gaps like any other deferred gap — unlike a cap > 0
 that is *exhausted*, which escalates mid-verify because the loop tried and
 could not converge.
-
-### `spec-reviewer` gap-block reference contract
-
-Per-gap `spec-reviewer` in step 2 above is a **pre-integration mechanical
-check**, distinct from the round-level re-audit in step 6 (which still
-references the *origin* — spec + original prompt — unchanged). Frame the
-per-gap dispatch against the **gap block**, not a plan task:
-
-- **Requirement** = the gap's `origin` + `remediation` (what must be true
-  after the fix).
-- **Closure proof** = the patch satisfies that requirement within the gap's
-  `touched-files` — nothing missing, nothing extra.
-- **Output** = `spec-reviewer`'s normal MATCH/DRIFT verdict, referenced to the
-  gap block instead of a plan task.
-
-This is a task-framing contract in the dispatch, not a new persona.
 
 ## Concern decomposition
 
@@ -459,15 +443,15 @@ concerns into one gap-scoped fix contract:
   boundary).
 
 Rescoped, accepted, and followed-up sibling concerns are **excluded** from the
-projection. The `implementer` and the pre-integration `spec-reviewer` receive
-this projected contract in place of the original whole-gap block.
+projection. The `implementer` receives this projected contract in place of the
+original whole-gap block.
 
-The projected task runs the existing full loop above: it retains the gap-level
-`conformance fix Gn` commit name, reruns the project's tests, runs
-`code-reviewer`, re-audits against the amended spec, and reenters the gate only
-if concerns remain. Gap-level revert stays available through the flat commit
-index. The gate records the final result by concern ID and title before showing
-branch integration options.
+The projected task runs the round and Convergence above with `r0-head` = HEAD at
+this entry: it retains the gap-level `conformance fix Gn` commit name, re-audits
+against the amended spec, and reenters the gate only if concerns remain.
+Gap-level revert stays available through the flat commit index. The gate records
+the final result by concern ID and title before showing branch integration
+options.
 
 ## Checklist
 

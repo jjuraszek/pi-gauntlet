@@ -6,6 +6,7 @@
 - Release skill: a user instruction naming the level is the approval - no proposal step or re-confirmation; bundled follow-ups run after `verify`.
 - AGENTS.md rewritten to always-on essentials plus routing; shared core bumped to v3. Persona frontmatter knobs table and pin rationale moved to `doc/personas.md`. Gold rule scoped to agent-initiated writes; a user instruction naming the write is its confirmation.
 - Added `.pi/gauntlet-overrides.md` (`tracker: github`, release path, write-gate carve-out for user-named writes).
+- `verification-before-completion/reference/conformance-check.md`: the conformance fix round is one parallel `implementer` `tasks` wave (greedy `Gn` selection, `conflicts` partners held) -> `git apply` -> scoped tests -> delta re-audit. Per-gap `spec-reviewer`, per-round `code-reviewer`, and the per-round full test set are gone. New **Convergence** step after every `CONFORMS`: full `Verification` set once, one direct `code-reviewer` over `git diff <r0-head>..HEAD`; repairs re-enter the round as a `conformance fix CR` wave that counts against `maxFixRounds`. Finish grammar, personas, and settings unchanged.
 
 ## v5.5.1 - 2026-09-10
 

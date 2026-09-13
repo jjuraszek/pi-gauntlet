@@ -1,5 +1,7 @@
 # Parallel review fix waves
 
+> **Superseded by:** [doc/specs/2026-09-13-lean-conformance-loop.md](./2026-09-13-lean-conformance-loop.md) - conformance-loop rows of section 3 "Loop accounting" only
+
 Reviewer-partitioned parallel fix dispatch for SR/CR fix loops, the final whole-diff
 code review, and the conformance fix loop - plus a `plan_tracker` `add` action so fix
 sub-waves extend the task list instead of overwriting it.

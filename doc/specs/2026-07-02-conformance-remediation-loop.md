@@ -1,5 +1,7 @@
 # Conformance Remediation Loop
 
+> **Superseded by:** [doc/specs/2026-09-13-lean-conformance-loop.md](./2026-09-13-lean-conformance-loop.md) - section 4 "Bounded re-audit loop" only
+
 ## Problem
 
 The conformance gate (`conformance-reviewer` dispatched by `verification-before-completion` /
