@@ -30,3 +30,16 @@ test("outside any checkout the loader falls back to cwd", () => {
   assert.equal(loaded.root, dir);
   assert.deepEqual(loaded.gauntlet.flowGuards, { enforce: false });
 });
+
+test("settings resolve through the jj fallback in a plain jj workspace (no .git)", () => {
+  const dir = tmp();
+  mkdirSync(join(dir, ".jj", "repo"), { recursive: true }); // primary jj checkout marker
+  mkdirSync(join(dir, ".pi"));
+  mkdirSync(join(dir, "doc"));
+  writeFileSync(join(dir, ".pi", "settings.json"), JSON.stringify({ piGauntlet: { specCouncil: { members: ["p/jj"] } } }));
+  const jjCheckout = () => ({ toplevel: dir, isPrimary: true, via: "jj" as const });
+  const loaded = loadGauntletSettings(join(dir, "doc"), "/tmp/pi-gauntlet-test-agent", jjCheckout);
+  assert.equal(loaded.root, dir);
+  assert.deepEqual(loaded.gauntlet.specCouncil, { members: ["p/jj"] });
+  assert.deepEqual(loaded.errors, []);
+});

@@ -48,6 +48,8 @@
   export interface Deps {
     fs: FsPort;
     git: (args: string[], cwd: string) => Promise<GitResult>;
+    // Optional jj override for tests; production resolves plain jj workspaces via jjSync.
+    jj?: (args: string[], cwd: string) => GitResult | Promise<GitResult>;
     now: () => string;
     settings: (cwd: string) => SettingsSnapshot;
   }
@@ -160,6 +162,7 @@
   export default function (pi: ExtensionAPI, deps: Deps = realDeps) {
     let phases: PhaseMap = emptyPhases();
     let toplevel: string | undefined; // toplevel of the bound record's checkout; undefined until bind
+    let checkoutVia: "git" | "jj" | undefined; // which binary resolved toplevel; undefined until bind
     let boundSpec: string | undefined; // repo-relative
     let record: TelemetryRecord | undefined;
     const predecessorLinks = new Set<string>();
@@ -170,6 +173,7 @@
     let lastCommitted = "";
     let frozen = false;
     let settingsWarned = false;
+    let notGitWarned = false;
     let sessionId = "";
 
     // Per-event settings read; undefined => this event is a no-op.
@@ -182,11 +186,11 @@
 
     // Resolves a tool path (relative to ctx.cwd or absolute) to its owning checkout and
     // checkout-relative key. undefined outside any checkout.
-    const locate = async (ctx: ExtensionContext, p: string): Promise<{ toplevel: string; rel: string } | undefined> => {
+    const locate = async (ctx: ExtensionContext, p: string): Promise<{ toplevel: string; rel: string; via: "git" | "jj" } | undefined> => {
       const candidateAbs = isAbsolute(p) ? p : resolve(ctx.cwd, p);
-      const co = await checkoutOf(candidateAbs, deps.git);
+      const co = await checkoutOf(candidateAbs, deps.git, deps.jj);
       const rel = co ? repoRelativeToolPath(co.toplevel, ctx.cwd, p) : undefined;
-      return co && rel ? { toplevel: co.toplevel, rel } : undefined;
+      return co && rel ? { toplevel: co.toplevel, rel, via: co.via } : undefined;
     };
 
     const live = (): Accumulators => record
@@ -230,6 +234,15 @@
 
     const commitRecord = async () => {
       if (!record || !recordRel || frozen || !toplevel) return;
+      if (checkoutVia === "jj") {
+        // A jj-bound checkout has no .git to commit into; say so once per session instead
+        // of failing `git commit` at every checkpoint.
+        if (!notGitWarned) {
+          notGitWarned = true;
+          warn("record written, not committed: not a git checkout");
+        }
+        return;
+      }
       const text = deps.fs.readFile(abs(recordRel)) ?? "";
       if (text === lastCommitted) return;
       const paths = [recordRel, ...(oldRecordRel ? [oldRecordRel] : [])];
@@ -274,8 +287,9 @@
       return newRecord({ spec: specRel, session: sessionId, now: buffer[0]?.ts ?? deps.now(), runId: randomUUID() });
     };
 
-    const bind = async (specRel: string, snap: SettingsSnapshot, specToplevel: string) => {
+    const bind = async (specRel: string, snap: SettingsSnapshot, specToplevel: string, via: "git" | "jj") => {
       toplevel = specToplevel;
+      checkoutVia = via;
       currentDir = snap.telemetry.dir;
       boundSpec = specRel;
       recordRel = recordPathFor(currentDir, specRel);
@@ -314,6 +328,7 @@
 
     const unbind = () => {
       toplevel = undefined;
+      checkoutVia = undefined;
       boundSpec = undefined;
       record = undefined;
       recordRel = undefined;
@@ -416,7 +431,7 @@
       const candidate = replay.planCheckSpec ?? replay.lastSpecWrite;
       const loc = candidate ? await locate(ctx, candidate) : undefined;
       if (loc && isSpecPath(loc.rel)) {
-        await bind(loc.rel, snap, loc.toplevel);
+        await bind(loc.rel, snap, loc.toplevel, loc.via);
         await flush(false);
       }
     });
@@ -450,7 +465,7 @@
         const pass = d?.status === "pass";
         if (pass && specLoc && (specLoc.rel !== boundSpec || specLoc.toplevel !== toplevel)) {
           if (record) unbind();
-          await bind(specLoc.rel, snap, specLoc.toplevel);
+          await bind(specLoc.rel, snap, specLoc.toplevel, specLoc.via);
         }
         live().gates.plan_rounds += 1;
         pushEvent({ kind: "plan_check", pass, spec, plan });
@@ -498,11 +513,11 @@
     });
 
     // Binding + spec-write bookkeeping; the bound-spec hooks are defined in block 2.
-    const onSpecInteraction = async (tool: "write" | "edit" | "read", loc: { toplevel: string; rel: string }, event: { input: unknown; content: unknown[] }, snap: SettingsSnapshot): Promise<unknown> => {
+    const onSpecInteraction = async (tool: "write" | "edit" | "read", loc: { toplevel: string; rel: string; via: "git" | "jj" }, event: { input: unknown; content: unknown[] }, snap: SettingsSnapshot): Promise<unknown> => {
       const rel = loc.rel;
       if (!boundSpec) {
         if ((tool === "write" || tool === "edit") && isSpecPath(rel)) {
-          await bind(rel, snap, loc.toplevel);
+          await bind(rel, snap, loc.toplevel, loc.via);
           const patch = onBoundSpecWrite(tool, rel, event);
           await flush(true);
           return patch;
@@ -510,7 +525,7 @@
           const spec = planSpecHeader(deps.fs.readFile(join(loc.toplevel, rel)) ?? "");
           const specRel = spec ? repoRelativeToolPath(loc.toplevel, loc.toplevel, spec) : undefined;
           if (specRel && deps.fs.exists(join(loc.toplevel, specRel))) {
-            await bind(specRel, snap, loc.toplevel);
+            await bind(specRel, snap, loc.toplevel, loc.via);
             await flush(true);
           }
         }
@@ -520,7 +535,7 @@
         // Another checkout: a fresh run, never a rename of this record.
         if ((tool === "write" || tool === "edit") && isSpecPath(rel)) {
           unbind();
-          await bind(rel, snap, loc.toplevel);
+          await bind(rel, snap, loc.toplevel, loc.via);
           const patch = onBoundSpecWrite(tool, rel, event);
           await flush(true);
           return patch;

@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- `checkoutOf` falls back to `jj root` when `git rev-parse` fails, so `plan_check`, Guard 2, and telemetry resolve the checkout inside a plain (non-colocated) jj workspace; colocated jj repos still resolve through git first. The settings loader goes through the same resolution via a new sync `checkoutOfSync`, and telemetry records bound to a jj workspace carry a one-time `record written, not committed: not a git checkout` warning instead of a failed `git commit` per checkpoint. (#38)
+
 ## v5.10.2 - 2026-09-18
 
 - The telemetry record is a deliverable: brainstorming, `finishing-a-development-branch`, and `gatekeep-pr` name it beside the spec, and a new shipped `gauntlet-telemetry-salvage` bin restores a record that a plan strip or a fix commit deleted (from the deleting commit's parent, as one `telemetry: ` commit, exit 0 for valid invocations, never pushes). Finishing strips the plan on the feature branch before the Option 1 squash; gatekeep-pr checks at assessment, restores after each fix wave, and restores as the first step of a merge course. CI pins the bin, its test, its tarball imports, and the rule's presence in the three skills.

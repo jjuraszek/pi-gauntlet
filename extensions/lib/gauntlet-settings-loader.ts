@@ -2,7 +2,7 @@
 // ci.mjs unit tests. Only pi-loaded extensions import this file.
 import { SettingsManager, getAgentDir } from "@earendil-works/pi-coding-agent";
 import { mergeGauntlet, type PiGauntlet } from "./gauntlet-settings.ts";
-import { gitSync, parseCheckout } from "./checkout.ts";
+import { checkoutOfSync, type Checkout } from "./checkout.ts";
 
 export interface LoadedGauntlet {
   gauntlet: PiGauntlet;
@@ -12,12 +12,13 @@ export interface LoadedGauntlet {
 }
 
 // Reads the preset (agentDir/settings.json) and repo (<root>/.pi/settings.json) layers
-// via pi's own SettingsManager, where <root> is the git toplevel of cwd - pi launched in a
-// subdirectory or a linked worktree still finds that checkout's file (#37). SettingsManager
+// via pi's own SettingsManager, where <root> is the checkout toplevel of cwd (git, falling
+// back to `jj root` in a plain jj workspace) - pi launched in a subdirectory or a linked
+// worktree still finds that checkout's file (#37). SettingsManager
 // never throws on a bad file - it substitutes {} for that layer and records the error,
 // surfaced here via errors[] so callers can report a degraded read instead of failing silent.
-export function loadGauntletSettings(cwd: string, agentDir: string = getAgentDir()): LoadedGauntlet {
-  const root = parseCheckout(gitSync(["rev-parse", "--path-format=absolute", "--show-toplevel", "--git-dir", "--git-common-dir"], cwd))?.toplevel ?? cwd;
+export function loadGauntletSettings(cwd: string, agentDir: string = getAgentDir(), checkout: (path: string) => Checkout | undefined = checkoutOfSync): LoadedGauntlet {
+  const root = checkout(cwd)?.toplevel ?? cwd;
   const sm = SettingsManager.create(root, agentDir);
   const preset = sm.getGlobalSettings() as { piGauntlet?: Record<string, unknown> };
   const repo = sm.getProjectSettings() as { piGauntlet?: Record<string, unknown> };

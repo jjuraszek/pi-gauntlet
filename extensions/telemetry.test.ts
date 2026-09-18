@@ -20,7 +20,7 @@
 
   type Handler = (event: any, ctx: any) => unknown;
 
-  function harness(o: { branch?: unknown[]; enabled?: boolean; gitFail?: (args: string[], cwd: string) => GitResult | undefined; cwdSub?: string; sessionId?: string; model?: { provider: string; id: string }; thinkingLevel?: string; contextTokens?: number | null; telemetryWarning?: string; telemetryDir?: string } = {}) {
+  function harness(o: { branch?: unknown[]; enabled?: boolean; gitFail?: (args: string[], cwd: string) => GitResult | undefined; jjWorkspace?: boolean; cwdSub?: string; sessionId?: string; model?: { provider: string; id: string }; thinkingLevel?: string; contextTokens?: number | null; telemetryWarning?: string; telemetryDir?: string } = {}) {
     const root = mkdtempSync(join(tmpdir(), "telemetry-test-"));
     tempDirs.push(root);
     mkdirSync(join(root, "doc/specs"), { recursive: true });
@@ -52,6 +52,8 @@
         return { code: 0, stdout: "", stderr: "" };
       },
       settings: () => ({ telemetry: { enabled: o.enabled ?? true, dir: o.telemetryDir ?? ".pi/gauntlet/telemetry", buckets: DEFAULT_TELEMETRY_BUCKETS, warning: o.telemetryWarning }, errors: [], agentOverrides: { implementer: { model: "p/x" } }, versions: { pi: "0.85.1" } }),
+      // A plain jj workspace: `jj root` answers the temp root while git rev-parse fails.
+      ...(o.jjWorkspace ? { jj: async () => ({ code: 0, stdout: root + "\n", stderr: "" }) } : {}),
     };
     let branch = o.branch ?? [];
     const ctx = {
@@ -279,6 +281,25 @@
     await nogit.emit("tool_result", { toolName: "write", toolCallId: "outside", input: { path: outsideSpec }, content: [], isError: false, details: undefined });
     await nogit.writeSpec("doc/specs/a.md");
     assert.deepEqual(nogit.readRecord().events.filter((e) => e.kind === "warning").map((e: any) => e.message), [`spec ${outsideSpec} is outside a git checkout; telemetry not recorded`]);
+  });
+
+  test("jj-bound checkout: record is written, never committed, and the warning fires once", async () => {
+    const h = harness({
+      jjWorkspace: true,
+      gitFail: (args) =>
+        args[0] === "rev-parse" && args.includes("--path-format=absolute")
+          ? { code: 128, stdout: "", stderr: "fatal: not a git repository" }
+          : undefined,
+    });
+    await h.phaseResult("start", P({ brainstorm: "in_progress" }));
+    await h.writeSpec("doc/specs/a.md");
+    await h.phaseResult("complete", P({ brainstorm: "complete" }));
+    const rec = h.readRecord();
+    assert.deepEqual(
+      rec.events.filter((e) => e.kind === "warning").map((e: any) => e.message),
+      ["record written, not committed: not a git checkout"],
+    );
+    assert.equal(h.commits().length, 0);
   });
 
   test("worktree spec from a primary cwd: record keyed under the worktree, committed there (AC 8)", async () => {
