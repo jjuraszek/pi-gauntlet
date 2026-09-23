@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## v5.18.5 - 2026-09-23
 
 - The TDD RED step directs authors to reuse existing setup helpers and consolidate near-identical cases into parametrized or table-driven examples. (#49)
 
