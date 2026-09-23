@@ -75,15 +75,16 @@ result as not merge-ready. Bot author noted
         isCrossRepository, mergeable, headRefOid, files, additions, deletions, reviewDecision }
 - viewer: { login, is_author, permission }
 - status_checks: [ { name, status, conclusion, required, url, workflowName } ]   # evidence semantics: Section B Evidence resolution; workflowName from the CheckRun rollup entry (absent on StatusContext)
-- comments: { inline[ { id, updated_at, user_type, ... } ], top_level[ { id, updated_at, user_type, ... } ], review_threads[]? }   # id/updated_at/user_type from the REST payload; the C# ledger (reference/findings.md ## IDs) diffs on id/updated_at, Section C gates placeholder detection on user_type
+- comments: { inline[ { id, updated_at, user_type, body, ... } ], top_level[ { id, updated_at, user_type, body, ... } ], review_threads[]? }   # retain REST body for source-review deltas; C# identity diffs on id/updated_at, Section C gates placeholder detection on user_type
 - issue: { ref, title, body, acceptance_criteria[], comments[] } | null
 - worktree_discovery: { expected_path, exists, branch, dirty, ahead, behind }
 - truncation_notes: []
 ```
 
-Every entry under `comments.inline[]` and `comments.top_level[]` records `id`,
-`updated_at`, and `user_type` (REST `user.type`) from the payload the
-`--paginate` calls already return.
+Retain `id`, `updated_at`, `body`, and `user_type` (REST `user.type`) in every
+entry under `comments.inline[]` and `comments.top_level[]` from the payload
+the `--paginate` calls already return. Keep body text for the reconciliation
+baseline; do not substitute the drafted reply or triage label.
 `review_threads[]` stays resolution flags only: `C#` identity comes from inline
 and top-level comment ids, so a thread's inline comments are diffed once, as
 inline comments.
@@ -239,7 +240,7 @@ alone when none is (never inventing ACs either way).
 each labeled one of: already-addressed, reasonable, judgment-call - except
 placeholder rows, which carry a state instead of a label. Comment triage never
 mints `P#`/`L#`: a landed reviewer verdict is a labelled `C#`; a concern it
-raises becomes a `P#` only through the Reviewer's own finding on the code.
+raises becomes a `P#` only through source-backed review on the code (`reference/post-selection-loop.md` `### Re-render` step 4 for refetched body deltas).
 
 **Placeholder detection.** A comment - inline or top-level - whose author is
 a GitHub App (digest `user_type == "Bot"`, from REST `user.type`) and whose body's first line starts

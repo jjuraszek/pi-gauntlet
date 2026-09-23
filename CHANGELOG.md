@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Happy-path verification runs command setup, execution, status capture, and summary generation in one self-contained shell call, preventing an unset command in a later call from reporting a false pass. Executable regression tests cover real local producer-consumer delivery, broken-delivery timeouts, exit classification, and worktree residue.
+- `gatekeep-pr` reviews new or changed comment bodies against source before updating merge readiness after a push, after waiting, and immediately before merge. Source-confirmed defects enter the existing blocking findings; a new body delta invalidates prior merge consent, including `anyway`. Timestamp-only edits avoid repeat source review, and polling preserves the unreviewed comment baseline. (#46)
 - Reviewer personas (`code-reviewer`, `spec-reviewer`, `conformance-reviewer`) are the sole owners of their report contracts; the request template and SDD reviewer prompts carry scope payload plus one pointer sentence, and the `Ready to merge?` variant is gone (#47).
 - `code-reviewer` reports gain a `Reasoning:` line after `Verdict:`, three review rules, and a wider `touched-files:` qualifier.
 - Recipient guidance lives in `receiving-code-review` only; the worktree `cwd` dispatch rule lives in `dispatching-parallel-agents` only; `scripts/ci.mjs` drops the two template `Behaviour-change:` pins.

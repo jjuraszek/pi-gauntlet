@@ -94,7 +94,7 @@ the reason: `reviewer still running` or `comments not refreshed`. This is a
 menu-level gate modelled on the `flaky` disposition's custom-row path, never
 a `## Verdict` precondition: `### Merge course` does not refuse the override.
 Only the custom row's `merge-squash anyway` / `merge-commit anyway` executes
-merge in that state, under the normal Merge course rules.
+merge in that state, under the normal Merge course rules. Apply the comment-delta consent and incomplete-review rules in `post-selection-loop.md` `### Compare-and-swap` and `### Re-render`; `anyway` does not bypass an unreviewed delta or a blocking finding.
 
 `wait` is `[recommended]` in cells whose recommended course would otherwise
 be `merge-*` or `approve` (clean / follow-ups only, and the post-fix
@@ -187,7 +187,26 @@ Pick one:
 ```
 
 (b) The run concluded `success`; the reviewer check moved from pending to
-`success` in the refreshed rollup and the comment carries the verdict:
+`success` in the refreshed rollup and the comment carries the verdict. Reconcile C5 against source at the assessed head. For a confirmed retry bug missed by the previous source review, mint source-backed P11 and withhold merge; C5's triage label remains verdict-neutral:
+
+```markdown
+## Findings (blocking)
+Blocking findings (P#):
+  P11. **<source_ref>** - Retry attempts never increment. Fix: increment attempts on failure and throw after the retry limit. | Action: fix P11. [code]
+## Comment-thread replies
+  C1. <thread ref> -> superseded by C3
+  C2. <thread ref> -> superseded by C4
+  C3. <thread ref> -> superseded by C5
+  C4. <thread ref> -> <drafted reply>  (reasonable)
+  C5. <thread ref> -> <drafted reply>  (reasonable)
+Pick one:
+  1. fix P11   [recommended]
+  2. stop
+  3. review-comment
+  4. Custom
+```
+
+When source review instead disproves C5's concern, mint no `P#` and retain the clean menu:
 
 ```markdown
 ## Comment-thread replies
@@ -204,3 +223,5 @@ Pick one:
   4. review-comment
   5. Custom
 ```
+
+Golden fixture 4 - last premerge refetch finds a new human comment after merge consent. Reconcile it against source at the assessed head, abort that merge even when the concern is false, and show the refreshed menu for a new selection. A same-head identical-body timestamp edit mints the next `C#` but causes no repeat source review or test run. A bot placeholder or error header keeps its existing state and does not enter source review.

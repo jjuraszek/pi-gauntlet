@@ -1,5 +1,7 @@
 # gatekeep-pr: refresh and re-triage PR comments after a push, withhold merge while the reviewer bot runs
 
+> **Superseded by:** [doc/specs/2026-09-23-workflow-verification-false-confidence.md](./2026-09-23-workflow-verification-false-confidence.md) - digest body retention, source reconciliation and merge-consent freshness in Refetch step, Merge withhold and wait course, Fixtures, and Verification only.
+
 Ticket: [jjuraszek/pi-gauntlet#46](https://github.com/jjuraszek/pi-gauntlet/issues/46)
 
 Amends: `doc/specs/2026-08-18-gh-9-gatekeep-pr-skill.md` (comment gather/triage and post-selection re-review), `doc/specs/2026-08-20-gatekeep-pr-output-density.md` (section 5a re-review by ID). Both carry a supersession banner scoped to those sections.

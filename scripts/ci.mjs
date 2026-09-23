@@ -411,6 +411,13 @@ try {
 }
 
 try {
+  execFileSync(process.execPath, ["--test", R("scripts/happy-path-run.test.mjs"), R("scripts/gatekeep-comment-reconcile.test.mjs")], { stdio: "pipe" });
+  ok("happy-path shell fixtures and PR comment source contracts pass");
+} catch (e) {
+  fail(`happy-path or PR comment regression checks failed:\n    ${String(e.stdout || e.stderr || e).split("\n").slice(0, 30).join("\n    ")}`);
+}
+
+try {
   execFileSync(process.execPath, [R("scripts/linear-download-doc.test.mjs")], { stdio: "pipe" });
   ok("Linear download recovery example passes offline fixture test");
 } catch (e) {

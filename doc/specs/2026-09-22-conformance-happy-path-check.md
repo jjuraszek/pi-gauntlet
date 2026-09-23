@@ -1,5 +1,7 @@
 # Project-declared happy-path run as conformance evidence
 
+> **Superseded by:** [doc/specs/2026-09-23-workflow-verification-false-confidence.md](./2026-09-23-workflow-verification-false-confidence.md) - D3 execution procedure and Testing runtime coverage only.
+
 **Goal:** Let a project declare end-to-end happy-path commands in its gauntlet overrides file, keyed by the repo paths they cover; the verify phase runs the applicable one once before the conformance audit and hands the transcript to the conformance reviewer as runtime evidence, so integration breaks between services surface before the PR instead of on staging.
 
 ## Problem
