@@ -60,6 +60,8 @@ Implement fresh from tests. Period.
 
 Write one minimal test showing what should happen.
 
+Before writing setup, look for an existing helper, fixture, or factory. Extend a suitable existing one before creating another. Write near-identical cases for the same behavior as one parametrized or table-driven example.
+
 **Requirements:**
 - One behavior per test
 - Clear name describing behavior (if the name contains "and", split it)
