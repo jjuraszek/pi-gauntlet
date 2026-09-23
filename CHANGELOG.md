@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## v5.18.1 - 2026-09-23
 
 - Review dispatch tasks now carry the installed path of `reference/documentation-impact.md` so fresh reviewers do not flag the citation as missing. (#44)
 
