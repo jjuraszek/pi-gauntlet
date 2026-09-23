@@ -28,8 +28,24 @@ conflict); it widens nothing.
 are `P#` `[spec]`; requirement/doc mismatches (the spec or docs are stale
 relative to intent) are `L#`.
 
-`C#` replies are verdict-neutral drafts: they never block and never gate
-merge; nothing posts until selected.
+Labelled `C#` rows are verdict-neutral drafts: they never gate merge, and
+nothing posts until selected. The `pending` state, a queued/in-progress
+reviewer run, and a failed comment refetch withhold pre-composed `merge-*`
+courses at the menu level (`decision-menu.md` `## Pending-reviewer overlay`);
+they are not `## Verdict` preconditions.
+
+**`C#` ledger.** Each `C#` row carries its comment `id` and the `updated_at`
+it was minted against; the post-push diff (`post-selection-loop.md`
+`### Re-render`) runs against this ledger, never against the report text.
+States rendered under a `C#`: a triage label (`already-addressed` /
+`reasonable` / `judgment-call`) with a drafted reply; `superseded by C<new>`;
+`withdrawn`; `pending`; `reviewer failed (<conclusion>)`. Superseded and
+withdrawn rows keep rendering for the rest of the run, so a sticky bot's
+chain reads `C1` (old verdict) `superseded by C3`, `C3 pending`, then
+`C3 superseded by C5`, `C5 <label> -> <reply>`. The last four states carry no
+reply and are not replyable: `reply all` and ranges skip them silently; an
+explicitly named non-replyable `C#` is refused with its state named and the
+menu re-renders; reply courses are omitted when no replyable `C#` exists.
 
 `F#` items carry an owner (pr-author | tracker | human) so follow-ups don't
 evaporate; when no tracker tool resolved, the report itself is their durable
@@ -56,7 +72,17 @@ already made (see Precedence in `## IDs`).
 Any blocking conclusion in the resolved check set (required or not - per
 `../verification-brief.md` Section B, Evidence resolution table) withholds
 merge from every pre-composed course until the user explicitly dispositions
-it, and mints a `P#`.
+it, and mints a `P#` - except the reviewer check. claude-code-action's sticky
+mode runs on `pull_request` events, so its job is also a check run: a failing
+check whose run id (from its `url` / `detailsUrl`) matches a `reviewer failed`
+`C#` row, or whose `workflowName` equals the recorded reviewer `workflowName`
+while that run is `reviewer failed`, is inert when it is the only failing
+check mapping to that run id (two or more failing checks on one run id: none
+inert, each stays a `P#`, fail-safe) - no `P#`, no withhold, one `## Evidence`
+line `reviewer check <name> failed - inert (reviewer failure never withholds)`.
+With no sibling `success` left, evidence resolves to the Fallback row, not
+Failed CI. Reviewer failure never withholds merge; GitHub-enforced
+restrictions still apply.
 
 An undispositioned failing check in the resolved set is `P#` `[test]`
 referencing the check name; it is never a target of a worktree `fix`. Close
@@ -70,6 +96,7 @@ annotates the same ID rather than closing it outright.
 | real | `(dispositioned: real)` | still counts - `P#` keeps blocking | withheld until the check is green | none |
 | CI-infrastructure-broken | `(dispositioned: ci-infrastructure-broken)` | still counts - `P#` keeps blocking; the checks themselves are untrustworthy | withheld until the fallback run is green | triggers the fallback local run, and merge stays withheld until that fallback produces green evidence |
 | pending required check | mints no `P#`, is never dispositioned | not applicable - not dispositionable | withheld; auto-lifts the moment it turns green, or converts to an undispositioned failing check with its own `P#` on failure | none |
+| reviewer check failed (matches a `reviewer failed` `C#`) | mints no `P#`, is never dispositioned | not applicable - inert | not withheld; GitHub-enforced restrictions still apply | none |
 
 A pending required check is wait-until-green, not dispositionable. While
 pending, the report notes it under Evidence.

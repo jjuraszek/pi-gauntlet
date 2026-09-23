@@ -1,5 +1,7 @@
 # gatekeep-pr output density: finding IDs, action vocabulary, pre-composed courses
 
+> **Superseded by:** [doc/specs/2026-09-23-gh-46-gatekeep-post-push-comment-refresh.md](./2026-09-23-gh-46-gatekeep-post-push-comment-refresh.md) - section 5a re-review by ID only (C# lifecycle gains superseded / withdrawn / pending / reviewer-failed states; unchanged comments re-triage under their existing C#)
+
 ## Problem
 
 `skills/gatekeep-pr/SKILL.md` (299 lines) is the genericized successor of gridstrong's

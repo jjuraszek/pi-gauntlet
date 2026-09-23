@@ -142,8 +142,9 @@ Blocking findings (P#):
 Requirement/doc drift (linked issue, committed doc drift, or spec conflict):
   L1. <doc-drift | spec-conflict | outdated-AC | missing-behavior> -> <action>
 
-## Comment-thread replies (existing discussion - verdict-neutral)
+## Comment-thread replies
   C1. <thread ref> -> <drafted reply>  (already-addressed | reasonable | judgment-call)
+  C2. <thread ref> -> <superseded by C<new> | withdrawn | pending <run url> | reviewer failed (<conclusion>) <run url>>
 
 ## Non-blocking follow-ups
   F1. **<source_ref>** - <action>. Owner: <pr-author | tracker | human>
@@ -196,7 +197,7 @@ overrides file - see Project overrides.
 - A `## Decision` rendered without its action vocabulary - owner: `reference/decision-menu.md` `## Actions`
 - Treating `[quality]` or `[performance]` as a downgrade signal on a `P#` - only an explicit Phase-4 flaky disposition excepts a failing-check `P#` from the unfixed-blocker set, never a category tag - owner: `reference/findings.md` `## Triage`
 - A course (pre-composed or custom) bundling a push-producing action with `merge-*` - owner: `reference/decision-menu.md` `## Courses`
-- A pre-composed course, or a custom row, composing an action the overlay or the cell lists as unavailable - owner: `reference/decision-menu.md` `## Fork overlay`
+- A pre-composed course, or a custom row, composing an action the overlay or the cell lists as unavailable - `merge-squash anyway` / `merge-commit anyway` on a reviewer-withheld merge is the sanctioned exception; GitHub-refused rows stay uncomposable - owner: `reference/decision-menu.md` `## Fork overlay`, `## Pending-reviewer overlay`
 - Batching a file-less `P#` (a claim or a gate command as `source_ref`, no draft touching a file) into a parallel dispatch - a claim `P#` with a drafted file edit is worktree-fixable and batches - dispatching parallel implementers over batches that share a file, or letting a fix-wave child run git commands or a verification pass in the shared worktree, or dispatching a fix-wave child with `worktree: true` - owner: `reference/post-selection-loop.md` `### Fix wave`
 - A second execution of the verification command, a second push, or pushing fix commits after a red gate, within one fix wave - re-running Verify/Review to re-confirm claims and annotate IDs is not a second gate execution - owner: `reference/post-selection-loop.md` `### Fix wave`
 - Posting or committing an external payload without the output done-check - owner: `## Output done-check`

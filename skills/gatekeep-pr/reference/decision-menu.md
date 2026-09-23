@@ -14,6 +14,11 @@ Actions (compose freely in the custom row):
   merge-squash | merge-commit                                          (preconditions per Verdict;
                                                                         never bundled with a push,
                                                                         except the telemetry: restore commit)
+  merge-squash anyway | merge-commit anyway                            (custom row only: overrides a
+                                                                        reviewer-withheld merge - the literal
+                                                                        `anyway` accepts the named reason;
+                                                                        GitHub-refused rows stay uncomposable)
+  wait             poll the reviewer run and comment set, then re-render
   request-changes | review-comment | approve                           (approve: never own PR)
   reply <C#s>      post drafted thread replies
   tracker <act>    tracker action                                      (only when a tracker tool resolved)
@@ -45,7 +50,7 @@ This table is the single oracle for what is offered; `## Courses` renders its
 rows as actions and numbered courses. Rows GitHub would refuse (branch protection,
 missing permissions, `viewerPermission` too low) render listed-but-unavailable with
 the reason. Approving your own PR is never offered. Nothing executes until explicit
-selection.
+selection. The fork, pending-reviewer, and CI-check overlays below modify the cell's rows; they are never a second offer source.
 
 ## Courses
 
@@ -53,7 +58,7 @@ A normative rendering of the consent table (never a second offer source): per
 author x state cell, exactly one `[recommended]` course renders first, the custom
 row renders last. Courses are atomic across pushes: no course, pre-composed or
 custom, bundles a push-producing action (`fix`, `push-docs`) with `merge-*`; after
-a fix wave the menu re-renders with merge as row 1.
+a fix wave the menu re-renders with merge as row 1 unless withheld (`reviewer still running` / `comments not refreshed`).
 
 | Author | State | Courses (first = `[recommended]`) |
 |---|---|---|
@@ -61,9 +66,9 @@ a fix wave the menu re-renders with merge as row 1.
 | you | blocking | 1. fix (worktree-fixable P#s only - `all` covers only those) [+ push-docs when uncommitted doc edits exist]; 2. push-docs (alone, when doc edits exist); 3. stop; 4. review-comment (post findings). When no P# is worktree-fixable (blocking is failing-check-only or L#-only), course 1 (fix) does not render: push-docs becomes first when doc edits exist, else stop is first |
 | you | blocking, post-fix re-render (gate green, preconditions hold) | 1. merge-squash; 2. merge-commit; 3. stop; 4. review-comment |
 | someone else | clean / follow-ups only | 1. approve; 2. merge-squash (offered-unrecommended); 3. review-comment (no-blockers note) |
-| someone else | blocking | 1. request-changes; 2. fix all (courtesy, their branch - omitted when nothing is worktree-fixable); 3. reply <C#s> (omitted when the `C#` group is None); 4. review-comment |
+| someone else | blocking | 1. request-changes; 2. fix all (courtesy, their branch - omitted when nothing is worktree-fixable); 3. reply <C#s> (omitted when no replyable `C#` exists - `findings.md` `## IDs`; `reply all` and ranges skip non-replyable rows); 4. review-comment |
 | bot author | any | someone-else's rows for the same state; review actions recommended |
-| any | draft | 1. request-changes / review-comment / reply <C#s> (omit the reply course when the `C#` group is None) / stop - `[recommended]` follows the same authorship rule as the non-draft cells, except on your own draft PR `request-changes` is never recommended (you cannot request changes on your own PR any more than you can approve it); the fallback recommendation there is `review-comment` when findings exist, else `stop`. Custom present but cannot compose `merge-*`/`approve`/`fix`/`push-docs` until ready-for-review |
+| any | draft | 1. request-changes / review-comment / reply <C#s> (omit the reply course when no replyable `C#` exists) / stop - `[recommended]` follows the same authorship rule as the non-draft cells, except on your own draft PR `request-changes` is never recommended (you cannot request changes on your own PR any more than you can approve it); the fallback recommendation there is `review-comment` when findings exist, else `stop`. Custom present but cannot compose `merge-*`/`approve`/`fix`/`push-docs` until ready-for-review |
 | any | merged / closed | 1. stop; report-only, no other mutation courses at all; Custom present but cannot compose `merge-*`/`approve`/`fix`/`push-docs`/`request-changes`/`review-comment`/`reply`/`tracker` - nothing remains actionable |
 
 ## Fork overlay
@@ -78,6 +83,31 @@ renders `request-changes`/`review-comment`/`stop` (the someone-else courtesy
 fix-on-their-branch course is also absent, since it is your own PR). A fork PR
 authored by someone else uses the someone-else cells with `fix`/`push-docs`/
 `merge-*` removed.
+
+## Pending-reviewer overlay
+
+While any `C#` row is `pending`, a reviewer run on the assessed head is
+queued/in progress, or the last comment refetch failed
+(`post-selection-loop.md` `### Re-render`), every pre-composed
+`merge-squash` / `merge-commit` course renders listed-but-unavailable with
+the reason: `reviewer still running` or `comments not refreshed`. This is a
+menu-level gate modelled on the `flaky` disposition's custom-row path, never
+a `## Verdict` precondition: `### Merge course` does not refuse the override.
+Only the custom row's `merge-squash anyway` / `merge-commit anyway` executes
+merge in that state, under the normal Merge course rules.
+
+`wait` is `[recommended]` in cells whose recommended course would otherwise
+be `merge-*` or `approve` (clean / follow-ups only, and the post-fix
+re-render); in blocking cells the existing first course (`fix`,
+`request-changes`) stays recommended and `wait` renders as row 2. Draft and
+merged/closed cells do not offer `wait`. A `reviewer failed (<conclusion>)`
+row changes nothing: the cell renders as it would without it.
+
+The overlay applies on the initial assessment too: a PR gated while the
+reviewer is mid-run withholds pre-composed merge from the first menu.
+
+Precedence: when the CI-check gate below also applies, its rendering wins -
+merge rows are absent and the CI-check gate line names both reasons.
 
 ## CI-check gate
 
@@ -115,9 +145,58 @@ Pick one:
   5. Custom - compose: e.g. "fix P1-P8,P10 + push-docs" or "reply C1 + tracker comment"
 ```
 
-Golden fixture 2 - the post-fix re-render after course 1's gate re-run passes:
+Golden fixture 2 - the post-fix re-render after course 1's gate re-run passes,
+with the sticky reviewer bot mid-run and one independently edited comment:
 
 ```markdown
+## Comment-thread replies
+  C1. <thread ref> -> superseded by C3
+  C2. <thread ref> -> superseded by C4
+  C3. <thread ref> -> pending  https://github.com/<owner>/<repo>/actions/runs/<run-id>
+  C4. <thread ref> -> <drafted reply>  (reasonable)
+
+Pick one:
+  1. wait   [recommended]
+  2. merge-squash   (unavailable: reviewer still running)
+  3. merge-commit   (unavailable: reviewer still running)
+  4. stop (leave as-is)
+  5. review-comment
+  6. Custom - compose: e.g. "merge-squash anyway" or "reply C4"
+```
+
+Golden fixture 3 - the same PR after `wait` completes. (a) The run concluded
+`failure` and the bot rewrote its comment to the error header:
+
+```markdown
+## Evidence
+  reviewer check <name> failed - inert (reviewer failure never withholds)
+
+## Comment-thread replies
+  C1. <thread ref> -> superseded by C3
+  C2. <thread ref> -> superseded by C4
+  C3. <thread ref> -> superseded by C5
+  C4. <thread ref> -> <drafted reply>  (reasonable)
+  C5. <thread ref> -> reviewer failed (error)  https://github.com/<owner>/<repo>/actions/runs/<run-id>
+
+Pick one:
+  1. merge-squash   [recommended]
+  2. merge-commit
+  3. stop (leave as-is)
+  4. review-comment
+  5. Custom
+```
+
+(b) The run concluded `success`; the reviewer check moved from pending to
+`success` in the refreshed rollup and the comment carries the verdict:
+
+```markdown
+## Comment-thread replies
+  C1. <thread ref> -> superseded by C3
+  C2. <thread ref> -> superseded by C4
+  C3. <thread ref> -> superseded by C5
+  C4. <thread ref> -> <drafted reply>  (reasonable)
+  C5. <thread ref> -> <drafted reply>  (judgment-call)
+
 Pick one:
   1. merge-squash   [recommended]
   2. merge-commit

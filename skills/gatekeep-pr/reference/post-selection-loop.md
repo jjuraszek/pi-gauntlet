@@ -6,7 +6,7 @@ Read from SKILL.md `## Act`. Treat the menu as a state machine: execute only the
 
 ### Compare-and-swap
 
-Before every external write, re-fetch `headRefOid`, `state`, and `mergeable`. Any change since assessment invalidates the current state - re-sync the worktree, re-run Phase 3 per `assessment.md` `## Phase 3 - Verify, then review`, and re-render the menu. Exception: a course's own push updates the assessed head to the pushed SHA as part of that course's execution - this self-inflicted head move does not invalidate the course; the next compare-and-swap check runs against the new head on the next external write.
+Before every external write, re-fetch `headRefOid`, `state`, and `mergeable`. Any change since assessment invalidates the current state - re-sync the worktree, re-run Phase 3 per `assessment.md` `## Phase 3 - Verify, then review`, and re-render the menu. Exception: a course's own push updates the assessed head to the pushed SHA as part of that course's execution - this self-inflicted head move does not invalidate the course; the next compare-and-swap check runs against the new head on the next external write. Before a merge executes (plain or `anyway`), also run one comment refetch with placeholder detection and the reviewer-run check (`### Re-render` steps 1-2). A newly `pending` row, a queued/in-progress reviewer run, or a failed refetch (`comments not refreshed (<reason>)`) refuses a plain merge and re-renders; `anyway` proceeds and prints what it overrode.
 
 ### Fix wave
 
@@ -28,7 +28,27 @@ Merge always executes as `gh pr merge --match-head-commit <assessed-sha>`. Push 
 
 ### Re-render
 
-After any mutation that can change readiness (fix wave pushed, docs pushed, PR head moved), re-run the claim-check and Review on the synced worktree: claims are re-checked against the new head and findings are re-rendered, but do not re-execute the verification command here - the fix wave's evidence re-resolution already was the wave's one gate pass. Annotate each selected `P#`/`L#` confirmed resolved as `(fixed in <sha>)` under its original ID; unresolved ones stay open unchanged; new findings continue the sequence. Merge, if now available, renders as row 1.
+After any mutation that can change readiness (fix wave pushed, docs pushed, PR head moved), re-run the claim-check and Review on the synced worktree: claims are re-checked against the new head and findings are re-rendered, but do not re-execute the verification command here - the fix wave's evidence re-resolution already was the wave's one gate pass. Annotate each selected `P#`/`L#` confirmed resolved as `(fixed in <sha>)` under its original ID; unresolved ones stay open unchanged; new findings continue the sequence. Then refetch comments - the last read before the menu renders:
+
+1. Re-run the Section A comment fetches (`../verification-brief.md`: both `--paginate` calls, plus the GraphQL `reviewThreads` query when the initial gather used it), one `gh run view` per placeholder row, and the reviewer-run `gh run list` when a reviewer workflow is known. Read-only.
+2. Diff the fresh set against the `C#` ledger (`findings.md` `## IDs`) by `id` and `updated_at`:
+   - same `id`, same `updated_at` -> unchanged: keep the existing `C#`.
+   - same `id`, different `updated_at` -> edited: mint a new `C#`; the old one renders `superseded by C<new>` with no label and no reply. An `updated_at` change with an identical body (reaction, revert) still counts as edited.
+   - `id` not in the ledger -> new: mint a new `C#`, except ids the gate itself posted via `reply <C#s>` in this run (recorded at post time), which are never minted.
+   - `id` in the ledger, absent from the complete fresh set -> `withdrawn` under its existing `C#`, no label, no reply.
+   - placeholder prefix or error header -> the state from the brief's Section C placeholder table, under the `C#` the edited/new rule assigns.
+3. Section C re-triages the full fresh set against the new head. An unchanged row keeps its `C#`; its drafted reply is kept verbatim only when its label is also unchanged and regenerated when the label moves (for example `reasonable` -> `already-addressed`). Edited and new rows get a fresh label and a regenerated reply; the pre-push label of an edited comment is not shown.
+4. Comment triage never mints `P#`/`L#` (brief Section C). Replace the digest's `comments` with the fresh set so the next iteration diffs against the latest snapshot.
+
+**Refetch failure** (`gh` non-zero, network, pagination incomplete): re-render with the ledger's prior states, add one line `comments not refreshed (<reason>)` to the comment section, and withhold pre-composed merge with that reason. `wait` is the recommended course in refetch-only mode; the custom-row `anyway` override remains available.
+
+Merge, if now available, renders as row 1 unless withheld (`reviewer still running` / `comments not refreshed`).
+
+### Wait course
+
+For a `wait` selection, run a sequence of short bounded calls - never one long bash call. Each iteration: `gh run view -R <repo> <run-id> --json status,conclusion` for every tracked run (placeholder-linked and head-listed); when any row has no parsable URL, or its run is completed while the prefix persists, one comment refetch as well; then sleep 30 s. Check the deadline between iterations: the resolved `timeout minutes` (default 15, the same knob as the local verification run). Stop when every tracked run is completed and no row is in the "completed `success`, prefix persists" state, or the deadline passes.
+
+Then re-fetch `statusCheckRollup`, `headRefOid`, `state`, `mergeable` for the assessed head and re-resolve the brief's Evidence table on the fresh rollup; run the verification command only when the re-resolved table selects the Fallback row and no evidence exists yet for this head (the Pending row never ran it) - otherwise the existing evidence stands: the head is unchanged, so the wave's evidence stays valid and the Stale head row does not fire. Run the refetch (steps 1-4 above) and re-render the comment section, evidence, and menu; no claim-check or Review re-run, because the head did not move. On timeout: rows in the completed-`success`/prefix-persists state become `reviewer failed (stale placeholder)` (brief Section C placeholder table); every other `pending` row stays `pending`, merge stays withheld, `wait` renders as row 1 again, then the cell's courses, then Custom.
 
 ### Teardown
 
