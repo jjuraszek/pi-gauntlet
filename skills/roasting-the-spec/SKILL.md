@@ -44,6 +44,8 @@ brainstorming owns the gate: it resolves this config via `gauntlet_setting`, emi
 
 ## The council run
 
+Resolve `../brainstorming/reference/documentation-impact.md` relative to this loaded skill as one absolute `<DOCUMENTATION_IMPACT_GUIDELINE>` path value. Pass that value in every member and chair task below; do not add it to the spec.
+
 ### 1 — Fan out to members
 
 Create an absolute temp dir outside the worktree so member files are never tracked by git:
@@ -66,7 +68,7 @@ subagent({
     cwd: "<abs worktree path>",
     task: "Problem statement: <the problem the spec addresses, from its Context section and the user's stated intent>.\n" +
           "Human input (verbatim; off-limits for over-spec):\n```\n<original prompt>\n<ticket AC snapshot, if any>\n<questionary answers that changed scope>\n```\n" +
-          "Read the spec at <abs path to doc/specs/...>. Verify its load-bearing claims against the codebase, bounded per your verification-hygiene rules (rg, explicit paths, timeout 30). Critique it on your five axes and emit your template.",
+          "Read the spec at <abs path to doc/specs/...>. The portable citation `reference/documentation-impact.md` in the spec is the pi-gauntlet guideline at <DOCUMENTATION_IMPACT_GUIDELINE>, not a consumer doc; do not flag it as an external reference. Verify the spec's load-bearing claims against the codebase, bounded per your verification-hygiene rules (rg, explicit paths, timeout 30). Critique it on your five axes and emit your template.",
     output: "<tmpdir>/member-" + i + "-" + slug(model) + ".md"
   }))
 })
@@ -80,7 +82,7 @@ The `Human input (verbatim; off-limits for over-spec)` block is supplied by the 
 
 **Usable-critique test (mechanical structural probe).** After the fanout returns - success or failure of the tool call itself - probe the expected output paths on disk; judge by files, not by the tool result's failed/succeeded labels (a killed member may have written a usable critique first). A member file is usable iff it is non-empty AND contains a `^verdict:\s*(sound|needs-work|unsound)` line, an `^addresses-problem:` line, and a `^lean:` line. A `findings:` header with zero bullets is a valid, usable sound critique. Existence plus header regex only - never read or weigh findings content.
 
-**Targeted retry.** Members whose file is missing or not usable are re-dispatched **once**, together, in a second foreground parallel call carrying `async: false` and the same `control` block, with fresh output paths that preserve the `member-<i>-<slug>` basename under a `retry/` subdir of the same temp dir (the chair recovers `raised-by` attribution from that filename pattern). Await its terminal result. Members with usable files are never re-run.
+**Targeted retry.** Members whose file is missing or not usable are re-dispatched **once**, together, in a second foreground parallel call carrying `async: false` and the same `control` block. Reuse the complete initial task verbatim. Use fresh output paths that preserve the `member-<i>-<slug>` basename under a `retry/` subdir of the same temp dir (the chair recovers `raised-by` attribution from that filename pattern). Await its terminal result. Members with usable files are never re-run.
 
 **Quorum.** At least one usable file after retry -> dispatch the chair over the usable files only (next section). Zero usable files -> abort the council, say so, and return to the user gate.
 
@@ -101,6 +103,7 @@ subagent({
         "Member critiques (already injected via reads — do not search for them):\n" +
         usableMemberPaths.join("\n") + "\n" +
         "Coverage: <N> of <M> members reported<; <slug>: <one-line reason> per missing member>.\n" +
+        "The portable citation `reference/documentation-impact.md` in the spec is the pi-gauntlet guideline at <DOCUMENTATION_IMPACT_GUIDELINE>, not a consumer doc; do not flag it as an external reference.\n" +
         "Consolidate and adjudicate the member critiques. Codebase access is permitted for contested-claim checks only, bounded per your hygiene rules (rg, explicit paths, timeout 30)."
 })
 ```
@@ -109,7 +112,7 @@ The chair runs one long foreground single-turn synthesis; await its terminal res
 
 List the exact member paths in the task text. The `reads:` array injects their contents, but the chair's prompt expects the paths explicitly; without them it scans the tree for `*.md` and stalls.
 
-A chair synthesis is usable iff it contains a `^consensus:` line and a `^lean:` line. If the configured `chair` model is unreachable, retry once with the inherited model; a wedge-killed or unusable chair retries once with the same model. Each retry remains foreground with top-level `async: false` and is awaited to a terminal result. Second failure -> abort the council, say so, and return to the user gate.
+A chair synthesis is usable iff it contains a `^consensus:` line and a `^lean:` line. If the configured `chair` model is unreachable, retry once with the inherited model; a wedge-killed or unusable chair retries once with the same model. Each retry remains foreground with top-level `async: false`. Reuse the complete initial task verbatim. Await its terminal result. Second failure -> abort the council, say so, and return to the user gate.
 
 ### 3 — Decide and apply
 

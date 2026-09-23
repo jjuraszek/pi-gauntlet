@@ -181,6 +181,8 @@ The first four are the inline **lint**: run them here and fix what they surface.
 
 ## Spec Council (Optional)
 
+Before dispatching the worker below, resolve `reference/documentation-impact.md` relative to this loaded skill as one absolute `<DOCUMENTATION_IMPACT_GUIDELINE>` path value. Pass that value in the worker task; do not add it to the spec.
+
 After the inline lint and before the user review gate, **brainstorming owns the critique-pass gate**; council **apply mechanics** live in `/skill:roasting-the-spec` (single source of truth - link, don't restate). Resolve the council with `gauntlet_setting({ key: "specCouncil" })` - the tool returns the merged (repo-over-preset) value as `{ verdict, members, chair, malformed, warning, errors }`. **Do not** hand-roll a settings read. When `verdict` is `"council"`, the council *is* the critique pass - invoke `/skill:roasting-the-spec` automatically (no offer, no prompt), passing `members`/`chair`; also pass the verbatim human input (the original prompt, any ticket AC snapshot - the raw rows under the gather draft's `## Ticket acceptance criteria (verbatim)` heading, never the spec's section, which holds the author's dispositions - and the questionary answers that changed scope) - roasting-the-spec forwards it to members and chair as the `Human input (verbatim; off-limits for over-spec)` block; it applies its apply-set and returns the audit (Applied/Deferred/Rejected). When `verdict` is `"worker"`, dispatch the worker below. If `malformed` is true or `errors` is non-empty, emit the `warning`/error as one line, then branch strictly on `verdict` - `malformed` can accompany *either* verdict (e.g. a bad `chair` with valid `members` still returns `council`), so never infer the worker path from `malformed` alone. If `gauntlet_setting` is unavailable, stop and report - never fall back to a manual bash/JSON settings merge. The already-applied council edits (or the worker's in-place fixes) ride in the same worktree commit. The conceptual precedence rule lives in `verification-before-completion/reference/settings-precedence.md`.
 
 When `verdict` is `"worker"`, dispatch one fresh `worker` that applies the scope + ambiguity checks and fixes them in place:
@@ -188,8 +190,9 @@ When `verdict` is `"worker"`, dispatch one fresh `worker` that applies the scope
 ```
 subagent({ agent: "worker", context: "fresh", async: false, cwd: "<abs worktree path, from the using-git-worktrees Step 4 report>", task:
   "Problem statement: <the problem the spec addresses + the user's stated intent>.\n" +
-  "Read the spec at <abs path to doc/specs/...>. Edit ONLY that file. Apply two checks and\n" +
-  "fix what you find in place: (1) Scope — does every paragraph serve the goal? Cut filler;\n" +
+  "Read the spec at <abs path to doc/specs/...>. Edit ONLY that file.\n" +
+  "The portable citation `reference/documentation-impact.md` in the spec is the pi-gauntlet guideline at <DOCUMENTATION_IMPACT_GUIDELINE>, not a consumer doc; do not flag it as an external reference, and preserve it - never remove it as redundant or replace it with the resolved absolute path.\n" +
+  "Apply two checks and fix what you find in place: (1) Scope — does every paragraph serve the goal? Cut filler;\n" +
   "state out-of-scope explicitly. (2) Ambiguity — is every 'we should' a concrete decision?\n" +
   "Replace 'we could probably' with 'we will'/'we won't'. Also inline any load-bearing\n" +
   "external reference (ticket AC, commit SHA, doc) already given to you in the problem\n" +
