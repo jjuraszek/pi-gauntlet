@@ -91,32 +91,7 @@ Dispatch a subagent with this prompt:
 
     **Verify by reading code, not by trusting report.**
 
-    ### Finding IDs and fix-concurrency certification
-
-    Label every finding with a globally unique ID `F1..Fn`, numbered across the whole
-    report (no restart per severity section). Each finding carries:
-
-    - `touched-files:` — files a fix would edit (not just the evidence location), comma-separated, or the literal `none`
-    - `touched-resources:` — shared runtime resources a fix or its verification touches (DB/schema, port, fixture, external service, shared temp path), or the literal `none`
-
-    On any issue-bearing review, end the findings with one partition line (this is the
-    final line of the report unless a re-review trajectory verdict is also required — see below):
-
-    <!-- grammar identical to agents/conformance-reviewer.md (modulo G vs F id prefix) — change them together or not at all; writing-plans' plan-time Parallel-safe: line is a deliberately different free-text form, do NOT unify -->
-
-    ```
-    Parallel-safe: <group>[; <group>]*
-      <group> = <comma-separated finding-id list> " disjoint"
-              | <finding-id> " conflicts " <finding-id> " (" <reason> ")"
-    ```
-
-    Example: `Parallel-safe: F1,F3 disjoint; F2 conflicts F1 (both touch auth.ts)`
-
-    IDs inside a `disjoint` list are mutually parallel-safe (their fixes can run
-    concurrently). Any file OR runtime-resource overlap between two findings' fixes
-    forces `conflicts`. Runtime-resource disjointness is estimated over: DB/schema,
-    port, fixture, external service, shared temp path. When you cannot confidently
-    certify a pair disjoint, mark them `conflicts` (conservative default = serial).
+    Report in the output format `agents/spec-reviewer.md` defines in your system prompt.
 
     ## Re-review: trajectory verdict
 
@@ -144,8 +119,4 @@ Dispatch a subagent with this prompt:
 
     If you found no issues, report success as usual and omit this line.
     First reviews (no previous-report section) omit this line.
-
-    Report:
-    - ✅ Spec compliant (if everything matches after code inspection)
-    - ❌ Issues found: [list specifically what's missing or extra, with file:line references]
 ```

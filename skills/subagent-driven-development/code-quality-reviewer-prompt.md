@@ -23,11 +23,7 @@ Dispatch a subagent with the code-reviewer template:
 - Is the implementation following the file structure from the plan?
 - Did this implementation create new files that are already large, or significantly grow existing files? (Don't flag pre-existing file sizes — focus on what this change contributed.)
 
-**Code reviewer returns:** Strengths, Issues (Critical/Moderate/Minor), Assessment
-
-Emit finding IDs and the `Parallel-safe:` line per that contract, then the `Behaviour-change:` line.
-
-Footer order: `Parallel-safe:` when present (issue-bearing reviews only), then `Behaviour-change:` on **every** report including clean ones, then `TRAJECTORY:` when a re-review trigger fired - `TRAJECTORY:` stays the true final line. `Behaviour-change: yes` when applying any Critical or Moderate fix would alter observable behaviour - values, control flow, routing, emitted output, persisted state; `no` when every fix is structural or stylistic, and on clean reports.
+Read `Verdict:` and the footer lines from the report; `agents/code-reviewer.md` defines its format.
 
 ## Re-review: trajectory verdict
 

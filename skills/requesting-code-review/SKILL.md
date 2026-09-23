@@ -51,42 +51,9 @@ subagent({ agent: "code-reviewer", async: false, task: "... filled template ..."
 - `{DESCRIPTION}` - Brief summary
 - `{SCOPED_TEST_COMMANDS}` - the scoped verification commands the reviewer may run, or `none`
 
-**3. Act on feedback:**
-- Fix Critical issues immediately
-- Fix Moderate issues before proceeding
-- Note Minor issues for later
-- Push back if reviewer is wrong (with reasoning)
-
 **Fix rounds.** Critical and Moderate findings trigger a fix round; when dispatched from an orchestrating skill, fixes go to `implementer` subagents (per the orchestrator's no-self-coding rule), fanned out per `dispatching-parallel-agents` "Fix fan-out" when the review's `Parallel-safe:` line certifies a `disjoint` group of ≥ 2 findings. Before fanning out, validate the review's `Parallel-safe:` line with the structural probe in `dispatching-parallel-agents` § Fix fan-out (exactly-one-line grammar check, one re-ask, then explicit sequential fallback). After integration and the project's test command, re-dispatch the reviewer once on the integrated delta in the foreground with top-level `async: false`; await its terminal result. If Critical or Moderate findings remain, run one more fix round and one more foreground re-review; still failing → escalate to the user. Minor findings never trigger the fan-out.
 
-## Example
-
-```
-[Just completed Task 2: Add verification function]
-
-You: Let me request code review before proceeding.
-
-BASE_SHA=$(git log --oneline | grep "Task 1" | head -1 | awk '{print $1}')
-HEAD_SHA=$(git rev-parse HEAD)
-
-[Dispatch code-reviewer subagent]
-  WHAT_WAS_IMPLEMENTED: Verification and repair functions for conversation index
-  PLAN_OR_REQUIREMENTS: Task 2 from doc/plans/deployment-plan.md
-  BASE_SHA: a7981ec
-  HEAD_SHA: 3df7661
-  SCOPED_TEST_COMMANDS: none (whole-branch review; orchestrator gate owns execution)
-  DESCRIPTION: Added verifyIndex() and repairIndex() with 4 issue types
-
-[Subagent returns]:
-  Strengths: Clean architecture, real tests
-  Issues:
-    Moderate: Missing progress indicators
-    Minor: Magic number (100) for reporting interval
-  Assessment: Ready to proceed
-
-You: [Fix progress indicators]
-[Continue to Task 3]
-```
+Take the recipient stance from `receiving-code-review`: verify each finding, answer a wrong finding with evidence, defer Minor items explicitly.
 
 ## Integration with Workflows
 
@@ -106,11 +73,6 @@ You: [Fix progress indicators]
 - Ignore Critical issues
 - Proceed with unfixed Moderate issues
 - Argue with valid technical feedback
-
-**If reviewer wrong:**
-- Push back with technical reasoning
-- Show code/tests that prove it works
-- Request clarification
 
 See template at: `code-reviewer.md` in this skill directory
 

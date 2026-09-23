@@ -1,5 +1,7 @@
 # code-reviewer verdict is a function of severity
 
+> **Superseded by:** [doc/specs/2026-09-23-gh-47-review-contract-single-owner.md](./2026-09-23-gh-47-review-contract-single-owner.md) - accepted residual "template `Ready to merge` example left untouched" only; severity-to-verdict policy stands
+
 **Goal:** Fix GitHub issue #30. `agents/code-reviewer.md` labels Moderate as "should fix; open for discussion (significant but not strictly blocking)" but never maps severity to a verdict, so a Moderate-only report nondeterministically returns `FIX_FIRST` or `SHIP`. Make the verdict a stated function of severity, matching the policy the orchestrating skills already enforce. Alignment, not a policy change.
 
 ## Problem

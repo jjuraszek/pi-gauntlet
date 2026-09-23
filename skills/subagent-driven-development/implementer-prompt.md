@@ -103,7 +103,7 @@ Dispatch a subagent with this prompt:
 
     **Testing:**
     - Do tests actually verify behavior (not just mock behavior)?
-    - Did I follow TDD — failing test first for production code?
+    - Did I follow TDD (step 2)?
     - Are tests comprehensive?
 
     If you find issues during self-review, fix them now before reporting.

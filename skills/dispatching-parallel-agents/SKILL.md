@@ -1,6 +1,6 @@
 ---
 name: dispatching-parallel-agents
-description: Use when facing 2+ independent tasks that can be worked on without shared state or sequential dependencies
+description: "Use when facing 2+ independent tasks that can be worked on without shared state or sequential dependencies, when fanning out review-finding fixes in parallel, or when checking a reviewer's Parallel-safe: line before doing so"
 ---
 
 > **Related skills:** Verify all fixes with `/skill:verification-before-completion`.

@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+- Reviewer personas (`code-reviewer`, `spec-reviewer`, `conformance-reviewer`) are the sole owners of their report contracts; the request template and SDD reviewer prompts carry scope payload plus one pointer sentence, and the `Ready to merge?` variant is gone (#47).
+- `code-reviewer` reports gain a `Reasoning:` line after `Verdict:`, three review rules, and a wider `touched-files:` qualifier.
+- Recipient guidance lives in `receiving-code-review` only; the worktree `cwd` dispatch rule lives in `dispatching-parallel-agents` only; `scripts/ci.mjs` drops the two template `Behaviour-change:` pins.
+
 ## v5.18.2 - 2026-09-23
 
 - `gatekeep-pr` refetches PR comments after every head move and diffs them against a `C#` ledger by comment `id` and `updated_at` (unchanged rows keep their `C#`; edited rows mint a new one and render the old as `superseded by C<new>`; vanished rows render `withdrawn`). claude-code-action's sticky in-progress placeholder (first line `Claude Code is working`) renders as `pending`, withholds pre-composed `merge-*` courses (`merge-squash anyway` overrides), and a new `wait` course polls the reviewer run for up to `timeout minutes` before re-rendering; a failed reviewer run renders `reviewer failed (<conclusion>)` and its check is inert - it never blocks merge. (#46)

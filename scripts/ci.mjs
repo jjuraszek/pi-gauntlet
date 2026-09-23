@@ -178,8 +178,6 @@ const tokenChecks = [
   ["agents/spec-reviewer.md", "A plausible condition is not the specified condition", true],
   ["agents/spec-reviewer.md", "code-condition:", true],
   ["agents/code-reviewer.md", "`Behaviour-change:` on **every** report", true],
-  ["skills/requesting-code-review/code-reviewer.md", "`Behaviour-change:` on **every** report", true],
-  ["skills/subagent-driven-development/code-quality-reviewer-prompt.md", "`Behaviour-change:` on **every** report", true],
   ["skills/subagent-driven-development/SKILL.md", "never default to `no`", true],
   ["skills/writing-plans/SKILL.md", "is never waivable", true],
   // council provenance / probe-before-apply / standing amend approval
