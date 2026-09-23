@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## v5.18.3 - 2026-09-23
 
 - Happy-path verification runs command setup, execution, status capture, and summary generation in one self-contained shell call, preventing an unset command in a later call from reporting a false pass. Executable regression tests cover real local producer-consumer delivery, broken-delivery timeouts, exit classification, and worktree residue.
 - `gatekeep-pr` reviews new or changed comment bodies against source before updating merge readiness after a push, after waiting, and immediately before merge. Source-confirmed defects enter the existing blocking findings; a new body delta invalidates prior merge consent, including `anyway`. Timestamp-only edits avoid repeat source review, and polling preserves the unreviewed comment baseline. (#46)
