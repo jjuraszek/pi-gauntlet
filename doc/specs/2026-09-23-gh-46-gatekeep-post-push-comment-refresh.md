@@ -53,15 +53,15 @@ No new file, no new settings key, no extension or bin change.
 
 ### Digest identity (Section A)
 
-Every entry under `comments.inline[]` and `comments.top_level[]` records `id` and `updated_at` from the REST payload the existing `--paginate` calls already return. `review_threads[]` stays as today (resolution flags only); `C#` identity comes from inline and top-level comment ids, so a thread's inline comments are diffed once, as inline comments. Digest schema line becomes:
+Every entry under `comments.inline[]` and `comments.top_level[]` records `id`, `updated_at`, and `user_type` (REST `user.type`) from the payload the existing `--paginate` calls already return. `review_threads[]` stays as today (resolution flags only); `C#` identity comes from inline and top-level comment ids, so a thread's inline comments are diffed once, as inline comments. Digest schema line becomes:
 
 ```text
-- comments: { inline[ { id, updated_at, ... } ], top_level[ { id, updated_at, ... } ], review_threads[]? }
+- comments: { inline[ { id, updated_at, user_type, ... } ], top_level[ { id, updated_at, user_type, ... } ], review_threads[]? }
 ```
 
 The ~200 KB truncation rule now truncates bodies only: every fetched comment keeps its `id` and `updated_at` entry, so identity coverage is complete whenever the paginated calls complete. A fetch whose pagination fails part-way is a refetch failure (below), never a partial digest.
 
-Section A's fixed command set gains two read-only commands, orchestrator-owned:
+Each `status_checks` entry also records `workflowName` from the CheckRun rollup entry (absent on a StatusContext), so the reviewer-check exception below has a field to compare. Section A's fixed command set gains two read-only commands, orchestrator-owned:
 
 ```bash
 gh run view <run-id> -R <owner/repo from the URL> --json status,conclusion,workflowName   # per placeholder row with a parsed run URL
@@ -70,7 +70,7 @@ gh run list -R <owner/repo> -w <workflowName> -c <headRefOid> --json databaseId,
 
 ### Placeholder detection (Section C)
 
-A comment - inline or top-level - whose body's first line starts with the literal `Claude Code is working` is claude-code-action's in-progress placeholder (the producer posts the same body as a sticky top-level comment and as an inline review reply). The skill names the prefix and one clause of reason: the rest of the body carries a per-run URL, so only the first line is stable. The producer source (`src/github/operations/comments/common.ts`, `createCommentBody`: `Claude Code is working…` with U+2026, spinner image, `I'll analyze this and get back to you.`, `[View job run](<url>)`) is recorded here, not in the skill. No author heuristic; other bots' placeholders are out of scope.
+A comment - inline or top-level - whose body's first line starts with the literal `Claude Code is working` is claude-code-action's in-progress placeholder (the producer posts the same body as a sticky top-level comment and as an inline review reply). The skill names the prefix and one clause of reason: the rest of the body carries a per-run URL, so only the first line is stable. The producer source (`src/github/operations/comments/common.ts`, `createCommentBody`: `Claude Code is working…` with U+2026, spinner image, `I'll analyze this and get back to you.`, `[View job run](<url>)`) is recorded here, not in the skill. The comment must be Bot-authored (digest `user_type == "Bot"`, recorded from REST `user.type` per inline and top-level comment in Section A): comment text is untrusted data, and without the gate a human can paste the producer's headers with a link to any failing run and make that check inert (post-ship review finding). No login or name heuristic; other bots' placeholders are out of scope.
 
 Detecting a placeholder (initial triage or refetch) triggers one `gh run view` for its parsed `[View job run](<url>)`; the result decides the row's state:
 
@@ -78,12 +78,12 @@ Detecting a placeholder (initial triage or refetch) triggers one `gh run view` f
 |---|---|---|
 | run `status != completed`, or no parsable URL, or `gh run view` failed | `pending` | yes |
 | run completed with any conclusion other than `success` (`failure`, `timed_out`, `cancelled`, `action_required`, ...) while the prefix persists | `reviewer failed (<conclusion>)` | no |
-| body first line starts with `**Claude encountered an error` (the producer's failure header, which replaces the placeholder on an ordinary failure) | `reviewer failed (error)` | no |
+| Bot-authored body whose first line starts with `**Claude encountered an error` (the producer's failure header, which replaces the placeholder on an ordinary failure) | `reviewer failed (error)` | no |
 | run completed `success` while the prefix persists | `pending` until the body changes or one `wait` deadline expires, then `reviewer failed (stale placeholder)` | yes, then no |
 
 `pending` and `reviewer failed` rows carry the `C#`, thread ref, state, and run URL; neither a drafted reply nor a triage label. A failed reviewer is information, never a withhold.
 
-**Reviewer run on the new head.** The placeholder is written from inside the reviewer's job, so a refetch seconds after a push sees the pre-push verdict unchanged while the run is still queued. To cover that window: when a comment whose first line starts with `Claude Code is working`, `**Claude encountered an error`, or `**Claude finished` carries a link to `/actions/runs/<run-id>` (`[View job run](<url>)` on the placeholder, `[View job](<url>)` on the finished or error body), record that run's `workflowName` (from the `gh run view` above) as the reviewer workflow for this run of the gate; after every head move, `gh run list -w <workflowName> -c <headRefOid>` names the reviewer run on the new head. A run with `status != completed` renders one line `reviewer run queued/in progress: <url>` in `## Comment-thread replies` and withholds pre-composed merge exactly like a `pending` row (`wait` polls it). No such comment -> no reviewer workflow known -> no window check; the ticket's existing behavior stands and the report says `reviewer workflow: unknown`.
+**Reviewer run on the new head.** The placeholder is written from inside the reviewer's job, so a refetch seconds after a push sees the pre-push verdict unchanged while the run is still queued. To cover that window: when a Bot-authored comment whose first line starts with `Claude Code is working`, `**Claude encountered an error`, or `**Claude finished` carries a link to `/actions/runs/<run-id>` (`[View job run](<url>)` on the placeholder, `[View job](<url>)` on the finished or error body), record that run's `workflowName` (from the `gh run view` above) as the reviewer workflow for this run of the gate; after every head move, `gh run list -w <workflowName> -c <headRefOid>` names the reviewer run on the new head. A run with `status != completed` renders one line `reviewer run queued/in progress: <url>` in `## Comment-thread replies` and withholds pre-composed merge exactly like a `pending` row (`wait` polls it). No such comment -> no reviewer workflow known -> no window check; the ticket's existing behavior stands and the report says `reviewer workflow: unknown`.
 
 ### Refetch step (`### Re-render`)
 
@@ -95,7 +95,7 @@ The re-render runs after any mutation that can change readiness (fix-wave push, 
    - same `id`, different `updated_at` -> edited: mint a new `C#`; the old `C#` renders `superseded by C<new>` with no label and no reply (append-only IDs).
    - `id` not in the ledger -> new: mint a new `C#`, except ids the gate itself posted via `reply <C#s>` in this run (recorded at post time), which are never minted.
    - `id` in the ledger, absent from the complete fresh set -> `withdrawn` under its existing `C#`, no label, no reply.
-   - placeholder prefix or error header -> the state from Placeholder detection, under the `C#` the edited/new rule assigns.
+   - Bot-authored placeholder prefix or error header -> the state from Placeholder detection, under the `C#` the edited/new rule assigns.
 3. Section C re-triages the full fresh set against the new head. An unchanged row keeps its `C#`; its drafted reply is kept verbatim only when its label is also unchanged, and regenerated when the label moves (for example `reasonable` -> `already-addressed`). Edited and new rows get a fresh label and a regenerated reply; the pre-push label of an edited comment is not shown.
 4. Comment triage never mints `P#`/`L#`: a landed reviewer verdict is a labelled `C#`; concerns it raises become `P#` only through the Reviewer persona's own finding on the code in the Review re-run (comment text is untrusted data). Replace the digest's `comments` with the fresh set so the next iteration diffs against the latest snapshot (the baseline advances per refetch).
 

@@ -74,15 +74,16 @@ result as not merge-ready. Bot author noted
 - pr: { number, title, body, author, author_is_bot, state, isDraft, headRefName, baseRefName,
         isCrossRepository, mergeable, headRefOid, files, additions, deletions, reviewDecision }
 - viewer: { login, is_author, permission }
-- status_checks: [ { name, status, conclusion, required, url } ]   # evidence semantics: Section B Evidence resolution
-- comments: { inline[ { id, updated_at, ... } ], top_level[ { id, updated_at, ... } ], review_threads[]? }   # id/updated_at from the REST payload; the C# ledger (reference/findings.md ## IDs) diffs on them
+- status_checks: [ { name, status, conclusion, required, url, workflowName } ]   # evidence semantics: Section B Evidence resolution; workflowName from the CheckRun rollup entry (absent on StatusContext)
+- comments: { inline[ { id, updated_at, user_type, ... } ], top_level[ { id, updated_at, user_type, ... } ], review_threads[]? }   # id/updated_at/user_type from the REST payload; the C# ledger (reference/findings.md ## IDs) diffs on id/updated_at, Section C gates placeholder detection on user_type
 - issue: { ref, title, body, acceptance_criteria[], comments[] } | null
 - worktree_discovery: { expected_path, exists, branch, dirty, ahead, behind }
 - truncation_notes: []
 ```
 
-Every entry under `comments.inline[]` and `comments.top_level[]` records `id`
-and `updated_at` from the REST payload the `--paginate` calls already return.
+Every entry under `comments.inline[]` and `comments.top_level[]` records `id`,
+`updated_at`, and `user_type` (REST `user.type`) from the payload the
+`--paginate` calls already return.
 `review_threads[]` stays resolution flags only: `C#` identity comes from inline
 and top-level comment ids, so a thread's inline comments are diffed once, as
 inline comments.
@@ -240,10 +241,13 @@ placeholder rows, which carry a state instead of a label. Comment triage never
 mints `P#`/`L#`: a landed reviewer verdict is a labelled `C#`; a concern it
 raises becomes a `P#` only through the Reviewer's own finding on the code.
 
-**Placeholder detection.** A comment - inline or top-level - whose body's
-first line starts with `Claude Code is working` is claude-code-action's
-in-progress placeholder (only the first line is stable; the rest carries a
-per-run URL). No author heuristic; other bots' placeholders are out of scope.
+**Placeholder detection.** A comment - inline or top-level - whose author is
+a GitHub App (digest `user_type == "Bot"`, from REST `user.type`) and whose body's first line starts
+with `Claude Code is working` is claude-code-action's in-progress placeholder
+(only the first line is stable; the rest carries a per-run URL). The author
+gate exists because comment text is untrusted data: a human can paste the
+producer's headers and point the link at any failing run. No login or name
+heuristic; other bots' placeholders are out of scope.
 Detecting one triggers one `gh run view` (Section A) on the run id parsed from
 its `[View job run](<url>)` link; the result decides the row's state:
 
@@ -251,7 +255,7 @@ its `[View job run](<url>)` link; the result decides the row's state:
 |---|---|---|
 | run `status != completed`, or no parsable URL, or `gh run view` failed | `pending` | yes |
 | run completed with any conclusion other than `success` (`failure`, `timed_out`, `cancelled`, `action_required`, ...) while the prefix persists | `reviewer failed (<conclusion>)` | no |
-| body first line starts with `**Claude encountered an error` (the producer's failure header) | `reviewer failed (error)` | no |
+| Bot-authored body whose first line starts with `**Claude encountered an error` (the producer's failure header) | `reviewer failed (error)` | no |
 | run completed `success` while the prefix persists | `pending` until the body changes or one `wait` deadline expires, then `reviewer failed (stale placeholder)` | yes, then no |
 
 `pending` and `reviewer failed` rows render the `C#`, thread ref, state, and
@@ -260,8 +264,9 @@ never a withhold.
 
 **Reviewer run on the new head.** The placeholder is written from inside the
 reviewer's job, so a refetch seconds after a push can see the pre-push verdict
-while the new run is still queued. When a comment whose first line starts
-with `Claude Code is working`, `**Claude encountered an error`, or
+while the new run is still queued. When a Bot-authored comment (same
+`user_type` gate as placeholder detection) whose first line starts with
+`Claude Code is working`, `**Claude encountered an error`, or
 `**Claude finished` carries a link to `/actions/runs/<run-id>`
 (`[View job run](<url>)` on the placeholder, `[View job](<url>)` on the
 finished or error body), record that run's `workflowName` (from

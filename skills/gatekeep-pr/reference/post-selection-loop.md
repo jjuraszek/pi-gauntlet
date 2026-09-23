@@ -36,7 +36,7 @@ After any mutation that can change readiness (fix wave pushed, docs pushed, PR h
    - same `id`, different `updated_at` -> edited: mint a new `C#`; the old one renders `superseded by C<new>` with no label and no reply. An `updated_at` change with an identical body (reaction, revert) still counts as edited.
    - `id` not in the ledger -> new: mint a new `C#`, except ids the gate itself posted via `reply <C#s>` in this run (recorded at post time), which are never minted.
    - `id` in the ledger, absent from the complete fresh set -> `withdrawn` under its existing `C#`, no label, no reply.
-   - placeholder prefix or error header -> the state from the brief's Section C placeholder table, under the `C#` the edited/new rule assigns.
+   - Bot-authored placeholder prefix or error header (brief Section C) -> the state from the brief's Section C placeholder table, under the `C#` the edited/new rule assigns.
 3. Section C re-triages the full fresh set against the new head. An unchanged row keeps its `C#`; its drafted reply is kept verbatim only when its label is also unchanged and regenerated when the label moves (for example `reasonable` -> `already-addressed`). Edited and new rows get a fresh label and a regenerated reply; the pre-push label of an edited comment is not shown.
 4. Comment triage never mints `P#`/`L#` (brief Section C). Replace the digest's `comments` with the fresh set so the next iteration diffs against the latest snapshot.
 
