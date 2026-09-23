@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Changed
+
+- Every skill reads and applies `## conventions` from the selected overrides file whenever present, without relevance filtering; this skill's named section wins on conflict while non-conflicting conventions still apply. (#48)
+
 ## v5.18.3 - 2026-09-23
 
 - Happy-path verification runs command setup, execution, status capture, and summary generation in one self-contained shell call, preventing an unset command in a later call from reporting a false pass. Executable regression tests cover real local producer-consumer delivery, broken-delivery timeouts, exit classification, and worktree residue.

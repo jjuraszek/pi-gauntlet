@@ -1,5 +1,7 @@
 # Self-contained ticket wording for shape-ticket
 
+> **Superseded by:** [doc/specs/2026-09-23-gh-48-conventions-override-section.md](./2026-09-23-gh-48-conventions-override-section.md) - by-topic-relevance rationale in "SKILL.md edits" item 1 only; explicit-ticket-wording restriction unchanged
+
 Ticket: [jjuraszek/pi-gauntlet#18](https://github.com/jjuraszek/pi-gauntlet/issues/18)
 
 ## Problem

@@ -255,7 +255,14 @@ exact repo folder* in interactive Claude Code. Trusting a parent folder,
 
 ## Project-specific overrides
 
-The skills shipped here are generic on purpose - they describe *how* to TDD, brainstorm, debug, request review, etc., without naming your services, your CI command, or your worktree wrapper. When you need that level of detail, drop a file at `.pi/gauntlet-overrides.md` in your repo. The skills read it at runtime and merge sections that match the skill's name or topic:
+The skills shipped here are generic on purpose - they describe *how* to TDD, brainstorm, debug, request review, etc., without naming your services, your CI command, or your worktree wrapper. When you need that level of detail, drop a file at `.pi/gauntlet-overrides.md` in your repo. Every active skill reads and applies `## conventions` whenever present in the selected file, without relevance filtering. Use this heading for repo-wide rules that bind more than one skill:
+
+```markdown
+## conventions
+Keep scratch files outside the repository.
+```
+
+This skill's named section means the section named for the active skill (for example, `## writing-plans`), not another heading it reads by name. This skill's named section wins over conflicting `## conventions` rules; non-conflicting conventions still apply. Other relevant sections can also override or extend skill instructions, as in this skill-specific example:
 
 ```markdown
 ## verification-before-completion
@@ -269,7 +276,7 @@ Use the project's wrapper: `script/worktree create <name>`. It provisions an iso
 database and copies `.env.local`. Never call `git worktree add` directly.
 ```
 
-Section headers should match skill names (`## verification-before-completion`) or skill topics (`## worktrees`, `## routing`). The override file is read by the skill instructions at runtime, not by the pi runtime itself, so adding a section only matters once the matching skill is active.
+Beyond `## conventions` and skill-named sections, headings a skill reads by name are documented in their owning skills; other headings retain topic/workflow-convention matching. The override file is read by skill instructions, not by the Pi runtime itself. Missing or empty `## conventions` adds no rules; a lower-priority file cannot supplement the selected file.
 
 **Discovery ladder:** skills check three locations, in order, and use the first one found - never merged: `.pi/gauntlet-overrides.md`, then `<repo root>/gauntlet-overrides.md`, then `<repo root>/doc/gauntlet-overrides.md` (`<repo root>` = `git rev-parse --show-toplevel`, or the current directory outside a repo). Pick one location per repo.
 
