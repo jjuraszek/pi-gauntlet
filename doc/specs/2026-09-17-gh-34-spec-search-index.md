@@ -1,5 +1,7 @@
 # Spec search index: FTS5 bin plus gatherer query step (#34)
 
+> **Superseded by:** [doc/specs/2026-09-24-gh-52-scout-predecessor-anchors.md](./2026-09-24-gh-52-scout-predecessor-anchors.md) - `files` column semantics (count -> path list) and its test
+
 **Goal:** Give the brainstorming gatherer lexical recall over the whole spec corpus - every `doc/specs/*.md` at the repo root and one service level down - through a `gauntlet-spec-index` CLI backed by `node:sqlite` FTS5 that adds no new npm dependency, so the predecessor check opens the specs whose *bodies* match the request instead of sampling titles and Goal lines. In the same change, shrink `skills/brainstorming/SKILL.md` by moving `## Marking superseded specs` into a reference file.
 
 Ticket: [#34](https://github.com/jjuraszek/pi-gauntlet/issues/34). Consumes the telemetry contract shipped by #33 (read-only). #35 owns telemetry analysis and any index filter flags (boundary recorded in [this #35 comment](https://github.com/jjuraszek/pi-gauntlet/issues/35#issuecomment-5717640754)).

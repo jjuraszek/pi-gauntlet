@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Changed
+
+- `gauntlet-spec-index` prints the recorded modified-file paths that still exist in the repository in its `files` column, `;`-separated, with `missing` marking a telemetry record that has no list; the brainstorming scout renders them as a `Predecessor anchors` section for named predecessors. (#52)
+
 ## v5.18.5 - 2026-09-23
 
 - The TDD RED step directs authors to reuse existing setup helpers and consolidate near-identical cases into parametrized or table-driven examples. (#49)

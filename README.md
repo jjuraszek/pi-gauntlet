@@ -134,7 +134,7 @@ Pin an exact release with `npm:pi-gauntlet@X.Y.Z`. See [doc/install-internals.md
 
 ## Spec search index
 
-`gauntlet-spec-index` provides lexical search across `doc/specs/*.md` at the repository root and one service level down. From a repository worktree, run `node <pi-gauntlet-package>/bin/gauntlet-spec-index.mjs --query "<text>" [--limit N]`; it requires Node >=24.15.0, refreshes its FTS5 index on every query, and prints tab-separated `score`, `path`, `service`, `title`, `status`, `shipped_at`, `files`, and `snippet` columns. The per-worktree cache lives at `.pi/gauntlet/index.sqlite`, and its first creation adds `/.pi/gauntlet/index.sqlite*` to Git's `info/exclude` so the database and SQLite sidecars stay out of `git status`.
+`gauntlet-spec-index` provides lexical search across `doc/specs/*.md` at the repository root and one service level down. From a repository worktree, run `node <pi-gauntlet-package>/bin/gauntlet-spec-index.mjs --query "<text>" [--limit N]`; it requires Node >=24.15.0, refreshes its FTS5 index on every query, and prints tab-separated `score`, `path`, `service`, `title`, `status`, `shipped_at`, `files`, and `snippet` columns. The `files` column is a `;`-separated list of repo-relative paths the spec's shipped change modified and that still exist in the repository, the literal `missing` when the spec's telemetry record has no `derived.modified_files` list, or blank when there is no readable record or no recorded path remains. The per-worktree cache lives at `.pi/gauntlet/index.sqlite`, and its first creation adds `/.pi/gauntlet/index.sqlite*` to Git's `info/exclude` so the database and SQLite sidecars stay out of `git status`.
 
 ## Performance digest
 

@@ -176,7 +176,7 @@ const toMatch = (query) =>
   query.split(/\s+/).filter((t) => t.length >= 2).map((t) => `"${t.replaceAll('"', '""')}"`).join(" OR ");
 
 function telemetry(root, specPath) {
-  const blank = { status: null, shipped_at: null, files: null };
+  const blank = { status: null, shipped_at: null, files: "" };
   const p = join(root, ".pi/gauntlet/telemetry", specPath.replace(/\.md$/, ".yaml"));
   if (!existsSync(p)) return blank;
   let rec;
@@ -186,12 +186,17 @@ function telemetry(root, specPath) {
     process.stderr.write(`gauntlet-spec-index: warning: unreadable telemetry ${p}\n`);
     return blank;
   }
-  if (!rec || typeof rec !== "object") return blank;
+  if (!rec || typeof rec !== "object" || Array.isArray(rec)) return blank;
   const mf = rec.derived?.modified_files;
-  return { status: rec.status ?? null, shipped_at: rec.shipped_at ?? null, files: Array.isArray(mf) ? mf.length : null };
+  const files = Array.isArray(mf)
+    ? mf.filter((f) => typeof f === "string" && existsSync(join(root, f))).join(";")
+    : "missing";
+  return { status: rec.status ?? null, shipped_at: rec.shipped_at ?? null, files };
 }
 
 const cell = (v) => (v === null || v === undefined ? "" : String(v).replace(/\s+/g, " ").trim());
+// Paths keep their spaces; only column and row delimiters are neutralised.
+const filesCell = (v) => v.replace(/[\t\r\n]+/g, " ");
 
 async function main() {
   if (!nodeOk()) die(`gauntlet-spec-index needs Node >=24.15.0 (found ${process.versions.node})`);
@@ -211,7 +216,7 @@ async function main() {
   const out = [HEADER.join("\t")];
   for (const r of rows) {
     const t = telemetry(root, r.path);
-    out.push([r.score.toFixed(3), r.path, r.service, r.title, t.status, t.shipped_at, t.files, r.snippet].map(cell).join("\t"));
+    out.push([...[r.score.toFixed(3), r.path, r.service, r.title, t.status, t.shipped_at].map(cell), filesCell(t.files), cell(r.snippet)].join("\t"));
   }
   process.stdout.write(out.join("\n") + "\n");
   db.close();

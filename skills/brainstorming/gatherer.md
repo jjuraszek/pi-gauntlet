@@ -63,8 +63,23 @@ Scout (always dispatched):
 > handoff. Either way open at
 > most five candidates whose topic matches this request, and name any whose design
 > this request replaces or amends with the section(s) affected - `Predecessor:
-> <path>, <scope>` - or `Predecessor: none`. Judge by topic; shared file paths never
-> decide. End with an
+> <path>, <scope>` - or `Predecessor: none`.
+> Judge by topic; shared file paths never decide.
+> The `files` column of each candidate row is the `;`-separated list of repo-relative
+> paths that predecessor's ship modified and that still exist, or the literal `missing`,
+> or blank; do not recompute it from git or telemetry. After the `Predecessor:` line(s),
+> and only when at least one predecessor is named, render a `Predecessor anchors`
+> section: list every attributed path exactly once, attributed to the first named
+> predecessor in index output order whose cell lists it, with no per-path commentary
+> (bookkeeping paths such as `CHANGELOG.md` are listed like any other); for each named
+> predecessor whose cell is `missing`, write one line
+> `<spec>: modified file list missing for this spec`, where `<spec>` is the path exactly
+> as written in its `Predecessor:` line. A blank cell contributes nothing for that spec;
+> a named predecessor with no index row (reached through a supersession banner, or named
+> from the directory-listing fallback) contributes no path and no `missing` line. When
+> no path and no `missing` line results - including whenever the index was unavailable -
+> omit the section entirely; `Predecessor: none` produces no anchors section. The anchors
+> are a recon hint, never a selection input. End with an
 > "Open questions that matter for the spec"
 > section. Compact handoff, not a dump.
 

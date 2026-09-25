@@ -201,6 +201,10 @@ const tokenChecks = [
   ["skills/brainstorming/gatherer.md", "node <SPEC_INDEX> --query", true],
   ["skills/brainstorming/SKILL.md", "reference/superseding.md", true],
   ["skills/writing-plans/SKILL.md", "the spec is frozen once planning starts", false],
+  // #52 scout predecessor anchors
+  ["skills/brainstorming/gatherer.md", "Predecessor anchors", true],
+  ["skills/brainstorming/gatherer.md", "modified file list missing for this spec", true],
+  ["skills/brainstorming/gatherer.md", "Judge by topic; shared file paths never decide.", true],
   // absent (retired rules)
   ["skills/verification-before-completion/reference/conformance-check.md", "always** defers to the finish gate", false],
   ["skills/verification-before-completion/reference/conformance-check.md", "`accept`/`rescope`/`UNAUTHORIZED`", false],
