@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Added
+
+- The telemetry recorder derives `modified_files` and diff buckets in plain jj workspaces through `jj` (remote trunk or local `main`/`master` as the mainline), with jj-named warnings and an intact record on any jj failure. (#51)
+
 ## v5.18.6 - 2026-09-24
 
 ### Changed

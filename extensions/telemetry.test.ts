@@ -20,7 +20,7 @@
 
   type Handler = (event: any, ctx: any) => unknown;
 
-  function harness(o: { branch?: unknown[]; enabled?: boolean; gitFail?: (args: string[], cwd: string) => GitResult | undefined; jjWorkspace?: boolean; cwdSub?: string; sessionId?: string; model?: { provider: string; id: string }; thinkingLevel?: string; contextTokens?: number | null; telemetryWarning?: string; telemetryDir?: string } = {}) {
+  function harness(o: { branch?: unknown[]; enabled?: boolean; gitFail?: (args: string[], cwd: string) => GitResult | undefined; jjWorkspace?: boolean; jjFail?: (args: string[], cwd: string) => GitResult | undefined; cwdSub?: string; sessionId?: string; model?: { provider: string; id: string }; thinkingLevel?: string; contextTokens?: number | null; telemetryWarning?: string; telemetryDir?: string } = {}) {
     const root = mkdtempSync(join(tmpdir(), "telemetry-test-"));
     tempDirs.push(root);
     mkdirSync(join(root, "doc/specs"), { recursive: true });
@@ -29,6 +29,7 @@
     const handlers = new Map<string, Handler[]>();
     const gitCalls: string[][] = [];
     const gitCwds: string[] = [];
+    const jjCalls: string[][] = [];
     const readFileCalls: string[] = [];
     let clock = Date.parse("2026-09-17T10:00:00Z");
     const deps: Deps = {
@@ -53,7 +54,13 @@
       },
       settings: () => ({ telemetry: { enabled: o.enabled ?? true, dir: o.telemetryDir ?? ".pi/gauntlet/telemetry", buckets: DEFAULT_TELEMETRY_BUCKETS, warning: o.telemetryWarning }, errors: [], agentOverrides: { implementer: { model: "p/x" } }, versions: { pi: "0.85.1" } }),
       // A plain jj workspace: `jj root` answers the temp root while git rev-parse fails.
-      ...(o.jjWorkspace ? { jj: async () => ({ code: 0, stdout: root + "\n", stderr: "" }) } : {}),
+      jj: async (args, cwd) => {
+        jjCalls.push(args);
+        const forced = o.jjFail?.(args, cwd);
+        if (forced) return forced;
+        if (!o.jjWorkspace) return { code: 1, stdout: "", stderr: "jj stub: not a jj workspace" };
+        return shipJj(args, root);
+      },
     };
     let branch = o.branch ?? [];
     const ctx = {
@@ -79,10 +86,38 @@
       await emit("tool_call", { toolName: "write", toolCallId: "w", input: { path: rel, content: body } });
       return emit("tool_result", { toolName: "write", toolCallId: "w", input: { path: rel, content: body }, content: [], isError: false, details: undefined });
     };
-    return { root, handlers, emit, gitCalls, gitCwds, readFileCalls, commits, recordPath, readRecord, phaseResult, writeSpec, setBranch: (b: unknown[]) => (branch = b), ctx };
+    return { root, handlers, emit, gitCalls, gitCwds, jjCalls, readFileCalls, commits, recordPath, readRecord, phaseResult, writeSpec, setBranch: (b: unknown[]) => (branch = b), ctx };
   }
 
   const P = (over: Record<string, string> = {}) => Object.fromEntries(["brainstorm", "plan", "implement", "verify", "ship"].map((p) => [p, { status: over[p] ?? "pending" }]));
+
+  const JJ_PATCH = [
+    "diff --git a/src/a.ts b/src/a.ts",
+    "index 1111111..2222222 100644",
+    "--- a/src/a.ts",
+    "+++ b/src/a.ts",
+    "@@ -1,4 +1,12 @@",
+    ...Array.from({ length: 10 }, (_, i) => `+added ${i}`),
+    "-removed 1",
+    "-removed 2",
+    " context",
+    "diff --git a/test/a.test.ts b/test/a.test.ts",
+    "new file mode 100644",
+    "index 0000000..3333333",
+    "--- /dev/null",
+    "+++ b/test/a.test.ts",
+    "@@ -0,0 +1,5 @@",
+    ...Array.from({ length: 5 }, (_, i) => `+t ${i}`),
+    "",
+  ].join("\n");
+
+  function shipJj(args: string[], root: string): GitResult {
+    if (args[0] === "root") return { code: 0, stdout: root + "\n", stderr: "" };
+    if (args.includes("--count")) return { code: 0, stdout: args.some((a) => a.includes('files(~glob:".pi/gauntlet/telemetry/**")')) ? "2\n" : "3\n", stderr: "" };
+    if (args.includes("log")) return { code: 0, stdout: "jjbase0001\n", stderr: "" };
+    if (args.includes("diff")) return { code: 0, stdout: JJ_PATCH, stderr: "" };
+    return { code: 1, stdout: "", stderr: `jj stub: unexpected call ${args.join(" ")}` };
+  }
 
   test("enabled: false registers handlers that no-op", async () => {
     const h = harness({ enabled: false });
@@ -724,6 +759,100 @@
     const rec = h.readRecord();
     assert.equal(rec.derived.diff, undefined);
     assert.ok(rec.events.some((e) => e.kind === "warning" && /base/.test((e as any).message)));
+  });
+
+  async function boundInJjShip(jjFail?: (args: string[]) => GitResult | undefined) {
+    const h = harness({
+      jjWorkspace: true,
+      jjFail: jjFail ? (args) => jjFail(args) : undefined,
+      gitFail: (args) => (args[0] === "rev-parse" && args.includes("--path-format=absolute") ? { code: 128, stdout: "", stderr: "fatal: not a git repository" } : undefined),
+    });
+    await h.phaseResult("start", P({ brainstorm: "in_progress" }));
+    await h.writeSpec("doc/specs/a.md");
+    await h.phaseResult("complete", P({ brainstorm: "complete" }));
+    await h.phaseResult("start", P({ brainstorm: "complete", plan: "complete", implement: "complete", verify: "complete", ship: "in_progress" }));
+    await h.phaseResult("complete", P({ brainstorm: "complete", plan: "complete", implement: "complete", verify: "complete", ship: "complete" }));
+    return h;
+  }
+
+  const diffWarnings = (h: { readRecord: () => ReturnType<typeof parseRecord> }) =>
+    h.readRecord()!.events.filter((e) => e.kind === "warning").map((e: any) => e.message as string).filter((m) => m.startsWith("diff omitted"));
+
+  const isBaseLog = (args: string[]) => args.includes("log") && !args.includes("--count");
+
+  test("jj ship (AC 1): keep path derives modified_files and diff through jj with pinned output flags", async () => {
+    const h = await boundInJjShip();
+    const rec = h.readRecord();
+    assert.equal(rec.status, "shipped");
+    assert.equal(rec.derived.gates.ship_option, "keep");
+    assert.deepEqual(rec.derived.modified_files, ["src/a.ts", "test/a.test.ts"]);
+    assert.deepEqual(rec.derived.diff, { base: "jjbase0001", commits: 2, buckets: { code: { files: 1, insertions: 10, deletions: 2 }, test: { files: 1, insertions: 5, deletions: 0 } } });
+    assert.deepEqual(diffWarnings(h), []);
+    const diffSteps = h.jjCalls.filter((a) => a[0] !== "root");
+    assert.equal(diffSteps.length, 3);
+    assert.ok(diffSteps.every((a) => a.includes("--color=never")));
+    assert.deepEqual(diffSteps[1].slice(0, 4), ["--color=never", "--config", "diff.git.show-path-prefix=true", "diff"]);
+    assert.ok(diffSteps[0].some((a) => a.includes("fork_point(") && a.includes("~ root() & ::")));
+  });
+
+  test("jj ship (AC 2): empty mainline -> jj-named warning, both derived fields absent, record written", async () => {
+    const h = await boundInJjShip((args) => (isBaseLog(args) ? { code: 0, stdout: "", stderr: "" } : undefined));
+    const rec = h.readRecord();
+    assert.equal(rec.status, "shipped");
+    assert.equal(rec.derived.diff, undefined);
+    assert.equal(rec.derived.modified_files, undefined);
+    assert.deepEqual(diffWarnings(h), ["diff omitted: jj mainline unresolved (trunk() is root(); no main/master bookmark)"]);
+  });
+
+  test("jj ship: jj diff nonzero exit -> first stderr line in the warning", async () => {
+    const h = await boundInJjShip((args) => (args.includes("diff") ? { code: 1, stdout: "", stderr: "Error: Revision `jjbase0001` doesn't exist\nHint: try jj log\n" } : undefined));
+    assert.deepEqual(diffWarnings(h), ["diff omitted: jj diff failed: Error: Revision `jjbase0001` doesn't exist"]);
+    assert.equal(h.readRecord().derived.diff, undefined);
+  });
+
+  test("jj ship: ENOENT-shaped runner result (empty stderr) -> 'unknown error'", async () => {
+    const h = await boundInJjShip((args) => (isBaseLog(args) ? { code: 127, stdout: "", stderr: "" } : undefined));
+    assert.deepEqual(diffWarnings(h), ["diff omitted: jj log failed: unknown error"]);
+    assert.equal(h.readRecord().status, "shipped");
+  });
+
+  test("jj ship: unparseable patch -> warning, neither field set", async () => {
+    const h = await boundInJjShip((args) => (args.includes("diff") ? { code: 0, stdout: "not a patch\n", stderr: "" } : undefined));
+    assert.deepEqual(diffWarnings(h), ["diff omitted: jj diff unparseable"]);
+    const rec = h.readRecord();
+    assert.equal(rec.derived.diff, undefined);
+    assert.equal(rec.derived.modified_files, undefined);
+  });
+
+  test("jj ship: malformed patch header -> warning, neither field set, record shipped", async () => {
+    const h = await boundInJjShip((args) => (args.includes("diff") ? { code: 0, stdout: "diff --git c/x b/x\n", stderr: "" } : undefined));
+    assert.deepEqual(diffWarnings(h), ["diff omitted: jj diff unparseable"]);
+    const rec = h.readRecord();
+    assert.equal(rec.status, "shipped");
+    assert.equal(rec.derived.diff, undefined);
+    assert.equal(rec.derived.modified_files, undefined);
+  });
+
+  test("jj ship: --count failure -> jj log warning, no derived diff", async () => {
+    const h = await boundInJjShip((args) => (args.includes("--count") ? { code: 1, stdout: "", stderr: "Error: invalid revset\nHint: check the mainline\n" } : undefined));
+    assert.deepEqual(diffWarnings(h), ["diff omitted: jj log failed: Error: invalid revset"]);
+    const rec = h.readRecord();
+    assert.equal(rec.status, "shipped");
+    assert.equal(rec.derived.diff, undefined);
+    assert.equal(rec.derived.modified_files, undefined);
+  });
+
+  test("jj ship: unparseable --count -> warning with the raw output", async () => {
+    const h = await boundInJjShip((args) => (args.includes("--count") ? { code: 0, stdout: "abc\n", stderr: "" } : undefined));
+    assert.deepEqual(diffWarnings(h), ["diff omitted: jj log --count unparseable: abc"]);
+    assert.equal(h.readRecord().derived.diff, undefined);
+  });
+
+  test("git ship never calls jj", async () => {
+    const h = await boundInShip();
+    await h.bash("s1", "git push");
+    assert.deepEqual(h.readRecord().derived.modified_files, ["README.md", "extensions/telemetry.test.ts", "extensions/telemetry.ts"]);
+    assert.deepEqual(h.jjCalls, []);
   });
 
   test("guard: write to a shipped spec during brainstorm is blocked before any state change; edit passes; other phases pass", async () => {

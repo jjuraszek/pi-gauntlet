@@ -1,6 +1,7 @@
 # Run telemetry recorder (#33)
 
 > **Superseded by:** [doc/specs/2026-09-17-gh-37-worktree-by-path.md](./2026-09-17-gh-37-worktree-by-path.md) - session-toplevel binding and record commit checkout only
+> **Superseded by:** [doc/specs/2026-09-24-gh-51-jj-telemetry-diff.md](./2026-09-24-gh-51-jj-telemetry-diff.md) - `### Diff (computed at ship attempt)` section, plain jj workspaces only
 
 **Goal:** A pi extension that mechanically records one committed YAML telemetry record per gauntlet run, keyed by spec path, without any skill-body edits - and hosts one narrow hard guard against re-brainstorming into a shipped spec.
 

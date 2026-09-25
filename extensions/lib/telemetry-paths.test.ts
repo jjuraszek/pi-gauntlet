@@ -9,6 +9,7 @@ import {
   matchDiscardStatement,
   matchShipStatement,
   matchTestStatement,
+  parsePatchNumstat,
   parseSpecLinks,
   planSpecHeader,
   recordPathFor,
@@ -93,6 +94,48 @@ test("aggregateNumstat sums per bucket over the given file set; binary rows coun
     code: { files: 3, insertions: 11, deletions: 3 },
     test: { files: 1, insertions: 5, deletions: 0 },
   });
+});
+
+const patch = (...blocks: string[][]) => blocks.map((b) => b.join("\n")).join("\n") + "\n";
+
+test("parsePatchNumstat counts hunk lines and paths with spaces", () => {
+  const p = patch(
+    ["diff --git a/src/a.ts b/src/a.ts", "--- a/src/a.ts", "+++ b/src/a.ts", "@@ -1 +1 @@", "+a", "+b", "-c", "\\ No newline at end of file"],
+    ["diff --git a/sp ace.txt b/sp ace.txt", "--- a/sp ace.txt", "+++ b/sp ace.txt", "@@ -1 +1 @@", "-x", "+y"],
+  );
+  assert.deepEqual(parsePatchNumstat(p), [{ added: 2, removed: 1, path: "src/a.ts" }, { added: 1, removed: 1, path: "sp ace.txt" }]);
+});
+
+test("parsePatchNumstat handles renames and delete/add pairs", () => {
+  assert.deepEqual(parsePatchNumstat(patch(
+    ["diff --git a/old.ts b/new.ts", "rename from old.ts", "rename to new.ts"],
+    ["diff --git a/o2.ts b/n2.ts", "rename from o2.ts", "rename to n2.ts", "--- a/o2.ts", "+++ b/n2.ts", "@@ -1 +1,2 @@", " k", "+extra"],
+    ["diff --git a/gone.ts b/gone.ts", "deleted file mode 100644", "--- a/gone.ts", "+++ /dev/null", "@@ -1 +0,0 @@", "-old"],
+    ["diff --git a/newer.ts b/newer.ts", "new file mode 100644", "--- /dev/null", "+++ b/newer.ts", "@@ -0,0 +1 @@", "+new"],
+  )), [
+    { added: 0, removed: 0, path: "new.ts" }, { added: 1, removed: 0, path: "n2.ts" },
+    { added: 0, removed: 1, path: "gone.ts" }, { added: 1, removed: 0, path: "newer.ts" },
+  ]);
+});
+
+test("parsePatchNumstat handles binary, mode-only and positional hunk headers", () => {
+  assert.deepEqual(parsePatchNumstat(patch(
+    ["diff --git a/dir b/icon.png b/dir b/icon.png", "Binary files a/dir b/icon.png and b/dir b/icon.png differ"],
+    ["diff --git a/run.sh b/run.sh", "old mode 100644", "new mode 100755"],
+    ["diff --git a/image.png b/image.png", "GIT binary patch", "literal 4"],
+    ["diff --git a/test/fm.md b/test/fm.md", "--- a/test/fm.md", "+++ b/test/fm.md", "@@ -1 +1 @@", "----", "++text"],
+  )), [
+    { added: 0, removed: 0, path: "dir b/icon.png" }, { added: 0, removed: 0, path: "run.sh" },
+    { added: 0, removed: 0, path: "image.png" }, { added: 1, removed: 1, path: "test/fm.md" },
+  ]);
+});
+
+test("parsePatchNumstat rejects malformed input and accepts empty patches", () => {
+  assert.deepEqual(parsePatchNumstat(""), []);
+  assert.deepEqual(parsePatchNumstat("  \n\n"), []);
+  assert.equal(parsePatchNumstat("garbage\n"), null);
+  assert.equal(parsePatchNumstat("diff --git a/x b/y\nindex 1..2\n"), null);
+  assert.equal(parsePatchNumstat("diff --git c/x b/x\n"), null);
 });
 
 test("parseSpecLinks reads Supersedes/Fixes banners as paths or markdown links", () => {

@@ -116,6 +116,60 @@ export function aggregateNumstat(numstat: string, files: Set<string>, buckets: [
   return out;
 }
 
+export interface PatchRow {
+  added: number;
+  removed: number;
+  path: string;
+}
+
+function patchBlockPath(headers: string[]): string | undefined {
+  const plus = headers.find((l) => l.startsWith("+++ b/"));
+  if (plus) return plus.slice(6);
+  const renameTo = headers.find((l) => l.startsWith("rename to "));
+  if (renameTo) return renameTo.slice(10);
+  const minus = headers.find((l) => l.startsWith("--- a/"));
+  if (minus && headers.includes("+++ /dev/null")) return minus.slice(6);
+  if (!headers[0].startsWith("diff --git a/")) return undefined;
+  const rest = headers[0].slice("diff --git a/".length);
+  const mid = (rest.length - 3) / 2;
+  if (Number.isInteger(mid) && mid > 0 && rest.slice(mid, mid + 3) === " b/" && rest.slice(0, mid) === rest.slice(mid + 3)) return rest.slice(0, mid);
+  return undefined;
+}
+
+function parsePatchBlock(block: string[]): PatchRow | undefined {
+  const hunk = block.findIndex((l) => l.startsWith("@@"));
+  const headers = hunk < 0 ? block : block.slice(0, hunk);
+  const path = patchBlockPath(headers);
+  if (path === undefined) return undefined;
+  let added = 0;
+  let removed = 0;
+  for (const line of hunk < 0 ? [] : block.slice(hunk)) {
+    if (line.startsWith("+")) added++;
+    else if (line.startsWith("-")) removed++;
+  }
+  return { added, removed, path };
+}
+
+// jj has no numstat: --stat truncates paths and -T exposes no line counts.
+// Headers end at the first @@; subsequent ---- and ++text lines count as content.
+export function parsePatchNumstat(patch: string): PatchRow[] | null {
+  if (!patch.trim()) return [];
+  const lines = patch.split("\n");
+  if (!lines.find((l) => l.trim())!.startsWith("diff --git ")) return null;
+  const blocks: string[][] = [];
+  for (const line of lines) {
+    if (line.startsWith("diff --git ")) blocks.push([line]);
+    else if (blocks.length) blocks[blocks.length - 1].push(line);
+  }
+  const rows: PatchRow[] = [];
+  for (const block of blocks) {
+    const row = parsePatchBlock(block);
+    if (!row) return null;
+    rows.push(row);
+  }
+  return rows;
+}
+
 // ---- spec banners --------------------------------------------------------------
 
 const LINK_BANNER_RE = /^> \*\*(Supersedes|Fixes):\*\*\s*(.+)$/gm;

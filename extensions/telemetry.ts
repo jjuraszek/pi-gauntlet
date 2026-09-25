@@ -18,7 +18,7 @@
   import { checkoutOf } from "./lib/checkout.ts";
   import { CONTEXT_DRAFT_MARKER } from "./lib/phase-tracker-helpers.ts";
   import { sha256 } from "./lib/plan-check.ts";
-  import { SUPERSEDED_BY_RE, aggregateNumstat, isPlanPath, isSpecPath, isSupersededByBanner, matchDiscardStatement, matchShipStatement, matchTestStatement, parseSpecLinks, planSpecHeader, recordPathFor, repoRelativeToolPath, toPosix, truncateCommand } from "./lib/telemetry-paths.ts";
+  import { SUPERSEDED_BY_RE, aggregateNumstat, isPlanPath, isSpecPath, isSupersededByBanner, matchDiscardStatement, matchShipStatement, matchTestStatement, parsePatchNumstat, parseSpecLinks, planSpecHeader, recordPathFor, repoRelativeToolPath, toPosix, truncateCommand } from "./lib/telemetry-paths.ts";
   import { COUNTED_USER_PHASES, REVIEWER_AGENTS, countFindings, countOpenGaps, hasReopen, insertedText, planTotals, textOf, usageToTokens } from "./lib/telemetry-collect.ts";
   import { addTokens, capEvents, compact, currentPhase, derive, diffPhases, emptyAccumulators, emptyPhases, foldAccumulators, implementAutoCompletes, liveShipEvent, newRecord, parseRecord, serializeRecord, type Accumulators, type BaseEvent, type PhaseAcc, type PhaseKey, type PhaseMap, type TelemetryEvent, type TelemetryRecord, type Tokens } from "./lib/telemetry-record.ts";
   import { BASE_REFS, guardReason, modifiedFilesFrom } from "./lib/telemetry-ship.ts";
@@ -48,7 +48,7 @@
   export interface Deps {
     fs: FsPort;
     git: (args: string[], cwd: string) => Promise<GitResult>;
-    // Optional jj override for tests; production resolves plain jj workspaces via jjSync.
+    // jj runner; production uses realJj for both checkout detection and the ship-time diff.
     jj?: (args: string[], cwd: string) => GitResult | Promise<GitResult>;
     now: () => string;
     settings: (cwd: string) => SettingsSnapshot;
@@ -75,6 +75,16 @@
       execFile("git", args, { cwd, timeout: 10_000, encoding: "utf8" }, (err, stdout, stderr) => {
         const code = err ? (typeof (err as { code?: unknown }).code === "number" ? ((err as { code: number }).code) : 1) : 0;
         res({ code, stdout: String(stdout ?? ""), stderr: String(stderr ?? err?.message ?? "") });
+      });
+    });
+
+  // jj diff --git returns full patches; execFile's default buffer is too small.
+  // On ENOENT stderr is empty, so preserve the error message.
+  export const realJj = (args: string[], cwd: string): Promise<GitResult> =>
+    new Promise((res) => {
+      execFile("jj", args, { cwd, timeout: 10_000, encoding: "utf8", maxBuffer: 64 * 1024 * 1024 }, (err, stdout, stderr) => {
+        const code = err ? (typeof (err as { code?: unknown }).code === "number" ? ((err as { code: number }).code) : 1) : 0;
+        res({ code, stdout: String(stdout ?? ""), stderr: String(stderr ?? "").trim() || String(err?.message ?? "") });
       });
     });
 
@@ -115,7 +125,7 @@
     return { telemetry, errors, agentOverrides, versions: realVersions(), testCommands };
   }
 
-  export const realDeps: Deps = { fs: realFs, git: realGit, now: isoNow, settings: realSettings };
+  export const realDeps: Deps = { fs: realFs, git: realGit, jj: realJj, now: isoNow, settings: realSettings };
 
   // ---- replay ------------------------------------------------------------------------
 
@@ -635,6 +645,38 @@
     let pendingShip: { id: string; option: "squash" | "pr" | "discard" } | undefined;
 
     const computeDiff = async (snap: SettingsSnapshot) => {
+      if (checkoutVia === "jj") await computeJjDiff(snap);
+      else await computeGitDiff(snap);
+    };
+
+    const JJ_MAINLINE = "coalesce(trunk() ~ root(), present(main), present(master))";
+
+    const computeJjDiff = async (snap: SettingsSnapshot) => {
+      if (!record || !toplevel) return;
+      const jj = deps.jj ?? realJj;
+      const failed = (sub: string, r: GitResult) => warn(`diff omitted: jj ${sub} failed: ${r.stderr.trim().split("\n")[0] || "unknown error"}`);
+      // Without the ::M guard an empty mainline resolves to @ and counts the full history.
+      const baseR = await jj(["--color=never", "log", "-r", `fork_point(${JJ_MAINLINE} | @) ~ root() & ::${JJ_MAINLINE}`, "--no-graph", "-T", 'commit_id ++ "\\n"'], toplevel);
+      if (baseR.code !== 0) return failed("log", baseR);
+      const base = baseR.stdout.trim().split("\n")[0].trim();
+      if (!base) return warn("diff omitted: jj mainline unresolved (trunk() is root(); no main/master bookmark)");
+      const patch = await jj(["--color=never", "--config", "diff.git.show-path-prefix=true", "diff", "--from", base, "--to", "@", "--git"], toplevel);
+      if (patch.code !== 0) return failed("diff", patch);
+      const rows = parsePatchNumstat(patch.stdout);
+      if (!rows) return warn("diff omitted: jj diff unparseable");
+      const dir = currentDir.replace(/\/+$/, "");
+      // Exclude record-only @ and other telemetry-only revisions from the count.
+      const count = await jj(["--color=never", "log", "-r", `(${base}::@ ~ ${base}) & files(~glob:"${dir}/**")`, "--count"], toplevel);
+      if (count.code !== 0) return failed("log", count);
+      const n = count.stdout.trim();
+      if (!/^\d+$/.test(n)) return warn(`diff omitted: jj log --count unparseable: ${n}`);
+      const files = modifiedFilesFrom(rows.map((r) => r.path).join("\n"), record.spec, currentDir);
+      const numstat = rows.map((r) => `${r.added}\t${r.removed}\t${r.path}`).join("\n");
+      record.derived.modified_files = files;
+      record.derived.diff = { base, commits: Number(n), buckets: aggregateNumstat(numstat, new Set(files), snap.telemetry.buckets) };
+    };
+
+    const computeGitDiff = async (snap: SettingsSnapshot) => {
       if (!record || !toplevel) return;
       let baseRef: string | undefined;
       for (const ref of BASE_REFS) {
