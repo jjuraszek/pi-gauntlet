@@ -12,8 +12,7 @@ Actions (compose freely in the custom row):
                                                                         reviewed doc edits exist
                                                                         in the worktree)
   merge-squash | merge-commit                                          (preconditions per Verdict;
-                                                                        never bundled with a push,
-                                                                        except the telemetry: restore commit)
+                                                                        never bundled with a push)
   merge-squash anyway | merge-commit anyway                            (custom row only: overrides a
                                                                         reviewer-withheld merge - the literal
                                                                         `anyway` accepts the named reason;

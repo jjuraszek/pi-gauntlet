@@ -1,7 +1,4 @@
-// Pure ship-time helpers for the telemetry extension (#33): diff file filter,
-// base-ref candidates, guard block reason.
-
-export const BASE_REFS = ["origin/HEAD", "main", "master"] as const;
+// Pure ship-time helpers for the telemetry extension: diff file filter and guard block reason.
 
 export const guardReason = (spec: string, shippedAt: string, recordRel: string): string =>
   `spec ${spec} shipped at ${shippedAt} (record ${recordRel}). Write a new date-slugged spec that supersedes it instead of reusing this file.`;

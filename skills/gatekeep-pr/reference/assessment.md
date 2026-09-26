@@ -67,19 +67,6 @@ Orchestrator step.
   local reproduction, never implying the local command ran; `<sha>` is the assessed
   `headRefOid`, `<url>` degrades to `unavailable` when absent. Provenance checks on
   `worktree_root`/`run_cwd` bind only to the local path.
-- **Telemetry record:** run
-  `node <bin>/gauntlet-telemetry-salvage.mjs --worktree <provisioned path> --base
-  origin/<baseRefName> --check`. The `--check` flag makes the probe detect-only: it
-  never mutates. `present` / `no telemetry run` / `never written` land in
-  `## Evidence` as one line each. `stripped <path> in <sha>` mints a blocking `P#`
-  (`source_ref`: `gauntlet-telemetry-salvage`) whose drafted fix is "run the salvage
-  without `--check`" - the spec and its telemetry record are deliverables that ship
-  in the squash. On a cell with no push row (fork overlay, report-only states) the
-  same finding is a non-blocking follow-up instead: the record stays recoverable
-  from the PR head ref after merge, and blocking would stop a ship the gate cannot
-  repair. `unfinished <path>` (record still `in_progress` with no ship phase) also
-  lands in `## Evidence` as one line and is non-blocking: pre-landing `in_progress`
-  is normal, and the merge course's salvage run stamps it.
 - **Evidence:** on the CI path, list each satisfying check's name, conclusion,
   assessed SHA, and run URL - there is no command or `raw_tail` to paste. On the
   local path, paste each run's `command` and `raw_tail` verbatim, fenced - never

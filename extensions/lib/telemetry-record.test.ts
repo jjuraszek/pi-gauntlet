@@ -1,11 +1,9 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { STMT_START } from "./phase-tracker-helpers.ts";
 import {
   capEvents, derive, diffPhases, emptyAccumulators, emptyPhases, foldAccumulators, implementAutoCompletes,
   newRecord, parseRecord, serializeRecord, type Accumulators, type TelemetryEvent,
 } from "./telemetry-record.ts";
-import { matchShipStatement } from "./telemetry-paths.ts";
 
 const ev = (over: Partial<TelemetryEvent> & { kind: string }): TelemetryEvent =>
   ({ ts: "2026-09-17T10:00:00Z", session: "s1", phase: "unphased", ...over }) as TelemetryEvent;
@@ -167,7 +165,3 @@ test("parseRecord drops malformed accumulator blocks and fills missing fields", 
   assert.equal(derive(parsed, "2026-09-17T10:01:00Z").amendments, 2);
 });
 
-test("STMT_START-anchored matcher is the one used for ship detection", () => {
-  assert.ok(new RegExp(STMT_START + "git\\s+push").test("cd x && git push"));
-  assert.equal(matchShipStatement('rg "git push"'), undefined);
-});

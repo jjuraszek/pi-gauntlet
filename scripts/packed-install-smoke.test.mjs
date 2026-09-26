@@ -67,16 +67,24 @@ const run = (binRel, args) =>
     encoding: "utf8",
   });
 
-test("salvage: AC-1 literal invocation against a non-git dir does not crash", () => {
-  const r = run("bin/gauntlet-telemetry-salvage.mjs", ["--worktree", emptyDir, "--base", "origin/main"]);
-  assert.equal(r.status, 0, r.stderr);
+test("seal: no-arg invocation prints usage and exits 1 without crashing", () => {
+  const r = run("bin/gauntlet-telemetry-seal.mjs", []);
+  assert.equal(r.status, 1);
+  assert.match(r.stderr, /^usage: gauntlet-telemetry-seal/);
   assert.ok(!r.stderr.includes(CRASH), r.stderr);
 });
 
-test("salvage: detect-only verdict from the fixture repo", () => {
-  const r = run("bin/gauntlet-telemetry-salvage.mjs", ["--worktree", fixture, "--base", "origin/main"]);
+test("seal: non-git dir -> not a git checkout, exit 1", () => {
+  const r = run("bin/gauntlet-telemetry-seal.mjs", ["--worktree", emptyDir, "--option", "squash", "--base", "origin/main"]);
+  assert.equal(r.status, 1);
+  assert.equal(r.stderr.trim(), "not a git checkout");
+  assert.ok(!r.stderr.includes(CRASH), r.stderr);
+});
+
+test("seal: fixture branch with no spec -> no telemetry run", () => {
+  const r = run("bin/gauntlet-telemetry-seal.mjs", ["--worktree", fixture, "--option", "squash", "--base", "origin/main"]);
   assert.equal(r.status, 0, r.stderr);
-  assert.equal(r.stdout.trim(), "no spec on branch");
+  assert.equal(r.stdout.trim(), "no telemetry run");
   assert.ok(!r.stderr.includes(CRASH), r.stderr);
 });
 

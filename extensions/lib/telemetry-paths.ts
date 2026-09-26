@@ -1,19 +1,16 @@
 // Pure helpers for the telemetry extension (#33): record path mapping, pi-cwd
-// path resolution, ship/discard/test command matchers, diff buckets, spec banners.
-//
-// Ship detection runs on a `bash` `tool_call` while `ship` is in progress and matches
-// the first statement against
+// path resolution, ship/test command matchers, diff buckets, spec banners.
+// Ship detection matches the first statement against
 //   STMT_START + git <global flags> (merge --squash | push) | gh pr create
-// and discard against
-//   STMT_START + git <global flags> (worktree remove | branch -D)
-// with STMT_START from phase-tracker-helpers.ts:39.
+// with STMT_START from phase-tracker-helpers.ts.
+//
 // Default bucket globs (DEFAULT_TELEMETRY_BUCKETS): test = **/test/**, **/tests/**,
 // **/__tests__/**, **/*.test.*, **/*.spec.*, **/*_test.*; docs = **/*.md;
 // config = **/*.json, **/*.yaml, **/*.yml, **/*.toml, **/*.lock, **/*-lock.*; else code.
 
 import { isAbsolute, matchesGlob, relative, resolve } from "node:path";
-import { STMT_START } from "./phase-tracker-helpers.ts";
 import { buildTestCmdRegex } from "./gauntlet-settings.ts";
+import { STMT_START } from "./phase-tracker-helpers.ts";
 
 // ---- paths -------------------------------------------------------------------
 
@@ -40,33 +37,23 @@ export const planSpecHeader = (planBody: string): string | undefined => SPEC_HEA
 
 // ---- command matchers ----------------------------------------------------------
 
+const STATEMENT_END = /\n|;|&&|\|\||\|/;
+
+export const truncateCommand = (s: string): string => (s.length > 120 ? s.slice(0, 120) : s);
+export type ShipOption = "squash" | "pr";
+
 // `git <global flags> <subcommand>`: same flags-span grammar as parseGitCommand in
 // phase-tracker-helpers.ts, so `git -C <worktree> push` from the primary checkout counts.
 const GIT_FLAGS = "git\\s+(?:-\\S+(?:\\s+\\S+)?\\s+)*";
 const SHIP_RE = new RegExp(STMT_START + "(" + GIT_FLAGS + "(?:merge\\s+--squash|push)(?=\\s|$)|gh\\s+pr\\s+create)");
-const DISCARD_RE = new RegExp(STMT_START + "(" + GIT_FLAGS + "(?:worktree\\s+remove|branch\\s+-D)(?=\\s|$))");
 const SQUASH_RE = new RegExp("^" + GIT_FLAGS + "merge\\s+--squash");
-const STATEMENT_END = /\n|;|&&|\|\||\|/;
-
-export const truncateCommand = (s: string): string => (s.length > 120 ? s.slice(0, 120) : s);
-
-// The statement that begins at the regex's group-1 match, up to the next separator.
-function statementAt(command: string, re: RegExp): string | undefined {
-  const m = re.exec(command);
-  if (!m) return undefined;
-  const start = m.index + m[0].indexOf(m[1]);
-  return command.slice(start).split(STATEMENT_END)[0].trim();
-}
-
-export type ShipOption = "squash" | "pr";
 
 export function matchShipStatement(command: string): { option: ShipOption; statement: string } | undefined {
-  const statement = statementAt(command, SHIP_RE);
-  if (!statement) return undefined;
+  const m = SHIP_RE.exec(command);
+  if (!m) return undefined;
+  const statement = command.slice(m.index + m[0].indexOf(m[1])).split(STATEMENT_END)[0].trim();
   return { option: SQUASH_RE.test(statement) ? "squash" : "pr", statement };
 }
-
-export const matchDiscardStatement = (command: string): string | undefined => statementAt(command, DISCARD_RE);
 
 // First statement matching one of the resolved verifyBeforeShip.testCommands
 // fragments, using the same \b-anchored construction as verify-before-ship.ts.
@@ -98,22 +85,6 @@ export function numstatPath(raw: string): string {
   const braced = raw.replace(/\{([^{}]*) => ([^{}]*)\}/g, (_m, _a, b: string) => b).replace(/\/\//g, "/");
   const arrow = braced.indexOf(" => ");
   return arrow >= 0 ? braced.slice(arrow + 4) : braced;
-}
-
-export function aggregateNumstat(numstat: string, files: Set<string>, buckets: [string, string[]][]): Record<string, BucketStat> {
-  const out: Record<string, BucketStat> = {};
-  for (const line of numstat.split("\n")) {
-    if (!line.trim()) continue;
-    const [ins, del, ...rest] = line.split("\t");
-    const path = numstatPath(rest.join("\t"));
-    if (!files.has(path)) continue;
-    const bucket = classifyBucket(path, buckets);
-    const stat = (out[bucket] ??= { files: 0, insertions: 0, deletions: 0 });
-    stat.files += 1;
-    stat.insertions += ins === "-" ? 0 : Number(ins) || 0;
-    stat.deletions += del === "-" ? 0 : Number(del) || 0;
-  }
-  return out;
 }
 
 export interface PatchRow {

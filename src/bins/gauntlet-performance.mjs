@@ -48,7 +48,7 @@ function readLayer(file) {
   }
 }
 
-// Same two layers the recorder and salvage read.
+// Same two layers the recorder and the seal bin read.
 function telemetryDirOf(root) {
   const agentDir = process.env.PI_CODING_AGENT_DIR || join(homedir(), ".pi", "agent");
   const preset = readLayer(join(agentDir, "settings.json"));

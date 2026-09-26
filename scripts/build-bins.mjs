@@ -11,7 +11,7 @@ import { buildSync } from "esbuild";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 
-for (const name of ["gauntlet-telemetry-salvage", "gauntlet-performance"]) {
+for (const name of ["gauntlet-telemetry-seal", "gauntlet-performance"]) {
   const outfile = join(root, "bin", `${name}.mjs`);
   buildSync({
     absWorkingDir: root,

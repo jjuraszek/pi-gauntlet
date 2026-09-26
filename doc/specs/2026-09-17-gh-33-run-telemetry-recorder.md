@@ -2,6 +2,7 @@
 
 > **Superseded by:** [doc/specs/2026-09-17-gh-37-worktree-by-path.md](./2026-09-17-gh-37-worktree-by-path.md) - session-toplevel binding and record commit checkout only
 > **Superseded by:** [doc/specs/2026-09-24-gh-51-jj-telemetry-diff.md](./2026-09-24-gh-51-jj-telemetry-diff.md) - `### Diff (computed at ship attempt)` section, plain jj workspaces only
+> **Superseded by:** [doc/specs/2026-09-25-gauntlet-bound-telemetry.md](./2026-09-25-gauntlet-bound-telemetry.md) - `### Binder`, `### Ship`, `### Record store`, `### Flusher`, and `### Diff (computed at ship attempt)` sections (git checkouts): bind requires the gauntlet-entered marker, checkpoint commits and in-extension ship detection are removed, the seal bin stamps and commits once at finish
 
 **Goal:** A pi extension that mechanically records one committed YAML telemetry record per gauntlet run, keyed by spec path, without any skill-body edits - and hosts one narrow hard guard against re-brainstorming into a shipped spec.
 

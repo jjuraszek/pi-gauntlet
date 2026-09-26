@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { BASE_REFS, guardReason, modifiedFilesFrom } from "./telemetry-ship.ts";
+import { guardReason, modifiedFilesFrom } from "./telemetry-ship.ts";
 
 test("guardReason names spec, timestamp and record path", () => {
   assert.equal(
@@ -16,8 +16,4 @@ test("modifiedFilesFrom drops the spec, doc/plans/**, and the telemetry dir; sor
   // Filenames with leading or trailing whitespace must be kept verbatim
   const namesWithWhitespace = " lead.ts\ntrail.ts \nREADME.md\n";
   assert.deepEqual(modifiedFilesFrom(namesWithWhitespace, "doc/specs/a.md", "t/"), [" lead.ts", "README.md", "trail.ts "]);
-});
-
-test("BASE_REFS order is origin/HEAD, main, master", () => {
-  assert.deepEqual(BASE_REFS, ["origin/HEAD", "main", "master"]);
 });

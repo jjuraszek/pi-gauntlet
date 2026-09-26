@@ -40,6 +40,10 @@
         gitCwds.push(cwd);
         const forced = o.gitFail?.(args, cwd);
         if (forced) return forced;
+        if (args[0] === "rev-parse" && args.includes("--git-common-dir") && !args.includes("--show-toplevel")) {
+          const primary = /^(.*\/\.worktrees\/[^/]+)(\/|$)/.test(cwd) ? cwd.replace(/\/\.worktrees\/.*$/, "") : cwd === root || cwd.startsWith(root + "/") ? root : cwd.replace(/\/(?:doc|\.pi)(?:\/.*)?$/, "");
+          return { code: 0, stdout: `${primary}/.git\n`, stderr: "" };
+        }
         if (args[0] === "rev-parse" && args.includes("--path-format=absolute")) {
           const wt = /^(.*\/\.worktrees\/[^/]+)(\/|$)/.exec(cwd)?.[1];
           const primary = cwd === root || cwd.startsWith(root + "/") ? root : cwd.replace(/\/(?:doc|\.pi)(?:\/.*)?$/, "");
@@ -79,14 +83,19 @@
     };
     const recordPath = (spec = "doc/specs/a.md") => join(ctx.cwd, ".pi/gauntlet/telemetry", spec.replace(/\.md$/, ".yaml"));
     const readRecord = (spec?: string) => parseRecord(readFileSync(recordPath(spec), "utf8"))!;
-    const commits = () => gitCalls.filter((a) => a[0] === "commit");
+    const gitWrites = () => gitCalls.filter((a) => a[0] === "add" || a[0] === "commit");
+    const excludeFile = () => join(root, ".git/info/exclude");
+    const bash = async (id: string, command: string, isError = false) => {
+      await emit("tool_call", { toolName: "bash", toolCallId: id, input: { command } });
+      await emit("tool_result", { toolName: "bash", toolCallId: id, input: { command }, content: [], isError, details: undefined });
+    };
     const phaseResult = (action: string, phases: Record<string, unknown>) => emit("tool_result", { toolName: "phase_tracker", toolCallId: "pt", input: {}, content: [], isError: false, details: { action, phases } });
     const writeSpec = async (rel: string, body = "# Spec\n") => {
       writeFileSync(join(root, rel), body);
       await emit("tool_call", { toolName: "write", toolCallId: "w", input: { path: rel, content: body } });
       return emit("tool_result", { toolName: "write", toolCallId: "w", input: { path: rel, content: body }, content: [], isError: false, details: undefined });
     };
-    return { root, handlers, emit, gitCalls, gitCwds, jjCalls, readFileCalls, commits, recordPath, readRecord, phaseResult, writeSpec, setBranch: (b: unknown[]) => (branch = b), ctx };
+    return { root, handlers, emit, gitCalls, gitCwds, jjCalls, readFileCalls, gitWrites, excludeFile, bash, recordPath, readRecord, phaseResult, writeSpec, setBranch: (b: unknown[]) => (branch = b), ctx };
   }
 
   const P = (over: Record<string, string> = {}) => Object.fromEntries(["brainstorm", "plan", "implement", "verify", "ship"].map((p) => [p, { status: over[p] ?? "pending" }]));
@@ -125,7 +134,7 @@
     await h.phaseResult("start", P({ brainstorm: "in_progress" }));
     await h.writeSpec("doc/specs/a.md");
     assert.equal(existsSync(h.recordPath()), false);
-    assert.equal(h.commits().length, 0);
+    assert.equal(h.gitWrites().length, 0);
   });
 
   test("PI_SUBAGENT_DEPTH=1 no-ops every handler", async () => {
@@ -140,7 +149,7 @@
     }
   });
 
-  test("bind on first spec write flushes buffered phase event, mints run_id, commits at checkpoints only", async () => {
+  test("bind on first spec write flushes buffered phase event, mints run_id, writes the exclude line, never stages or commits", async () => {
     const h = harness();
     await h.emit("session_start", { type: "session_start", reason: "startup" });
     await h.phaseResult("start", P({ brainstorm: "in_progress" }));
@@ -159,19 +168,16 @@
     assert.equal((rec.events[0] as any).model, "p/m");
     assert.equal((rec.events[0] as any).thinking, "high");
     assert.equal(rec.derived.spec_writes.brainstorm?.count, 1);
-    const afterBind = h.commits().length;
-    assert.equal(afterBind, 1, "binding flushes the buffered start checkpoint once");
     await h.phaseResult("substep", P({ brainstorm: "in_progress" }));
-    await h.phaseResult("status", P({ brainstorm: "in_progress" }));
-    assert.equal(h.commits().length, afterBind);
     await h.phaseResult("complete", P({ brainstorm: "complete" }));
-    assert.equal(h.commits().length, afterBind + 1);
     const rec2 = h.readRecord();
     assert.equal(rec2.approved_at, rec2.events.at(-1)!.ts);
-    const commit = h.commits().at(-1)!;
-    assert.deepEqual(commit.slice(0, 4), ["commit", "-q", "-m", "telemetry: doc/specs/a.md"]);
-    assert.ok(commit.includes("--") && commit.at(-1)!.endsWith(".pi/gauntlet/telemetry/doc/specs/a.yaml"));
-    assert.ok(h.gitCalls.some((a) => a[0] === "add" && a[1] === "-f"));
+    assert.equal(h.gitWrites().length, 0, "the recorder never runs git add or git commit");
+    assert.equal(readFileSync(h.excludeFile(), "utf8"), ".pi/gauntlet/telemetry/\n");
+    await h.phaseResult("reset", P());
+    await h.phaseResult("start", P({ brainstorm: "in_progress" }));
+    await h.writeSpec("doc/specs/a.md", "# Spec again\n");
+    assert.equal(readFileSync(h.excludeFile(), "utf8"), ".pi/gauntlet/telemetry/\n", "exclude line is written once after rebind");
   });
 
   test("bind derives approved_at from a buffered brainstorm completion", async () => {
@@ -185,19 +191,34 @@
     assert.equal(rec.approved_at, rec.events[1].ts);
   });
 
+  test("armed plan_check and bound shutdown flush the record without git add or commit", async () => {
+    const h = harness();
+    await h.phaseResult("start", P({ brainstorm: "in_progress" }));
+    assert.equal(h.gitWrites().length, 0);
+    await h.writeSpec("doc/specs/a.md");
+    assert.equal(h.gitWrites().length, 0);
+    await h.emit("tool_result", { toolName: "plan_check", toolCallId: "pc", input: {}, content: [], isError: false, details: { status: "pass", specPath: join(h.root, "doc/specs/a.md"), planPath: join(h.root, "doc/plans/a.md") } });
+    assert.equal(h.gitWrites().length, 0);
+    await h.emit("session_shutdown", { type: "session_shutdown", reason: "quit" });
+    assert.equal(h.gitWrites().length, 0);
+    const rec = h.readRecord();
+    assert.deepEqual(Object.keys(rec.accumulators), ["total"]);
+  });
+
   test("session shutdown before binding writes nothing", async () => {
     const h = harness();
     await h.phaseResult("start", P({ brainstorm: "in_progress" }));
     await h.emit("session_shutdown", { type: "session_shutdown", reason: "quit" });
     assert.equal(existsSync(join(h.root, ".pi")), false);
-    assert.equal(h.commits().length, 0);
+    assert.equal(h.gitWrites().length, 0);
   });
 
   test("replayBranch uses the last successful phase snapshot, plan pass, and paired successful spec write", () => {
     const successfulPhases = P({ brainstorm: "complete", plan: "in_progress" });
     const ignoredPhases = P({ brainstorm: "complete", plan: "complete" });
     const replay = replayBranch([
-      { type: "message", message: { role: "toolResult", toolName: "phase_tracker", details: { phases: successfulPhases } } },
+      { type: "message", message: { role: "toolResult", toolName: "phase_tracker", details: { action: "start", phases: P({ brainstorm: "in_progress" }) } } },
+      { type: "message", message: { role: "toolResult", toolName: "phase_tracker", details: { action: "start", phases: successfulPhases } } },
       { type: "message", message: { role: "toolResult", toolName: "phase_tracker", details: { phases: ignoredPhases, error: "failed" } } },
       { type: "message", message: { role: "toolResult", toolName: "plan_check", details: { status: "pass", specPath: "/repo/doc/specs/old.md" } } },
       { type: "message", message: { role: "toolResult", toolName: "plan_check", details: { status: "fail", specPath: "/repo/doc/specs/ignored.md" } } },
@@ -212,8 +233,40 @@
       { type: "message", message: { role: "toolResult", toolName: "write", toolCallId: "w3", isError: true } },
     ]);
     assert.deepEqual(replay.phases, successfulPhases);
+    assert.equal(replay.gauntletEntered, true);
     assert.equal(replay.planCheckSpec, "/repo/doc/specs/a.md");
     assert.equal(replay.lastSpecWrite, "doc/specs/a.md");
+  });
+
+  test("replayBranch: candidates are only taken while armed; reset clears them; edit counts; skip brainstorm resume: binds", () => {
+    const write = (id: string, path: string, tool = "write") => [
+      { type: "message", message: { role: "assistant", content: [{ type: "toolCall", id, name: tool, arguments: { path } }] } },
+      { type: "message", message: { role: "toolResult", toolName: tool, toolCallId: id, isError: false } },
+    ];
+    const unarmed = replayBranch([
+      ...write("w1", "doc/specs/a.md"),
+      { type: "message", message: { role: "toolResult", toolName: "plan_check", details: { status: "pass", specPath: "/repo/doc/specs/a.md" } } },
+    ]);
+    assert.equal(unarmed.gauntletEntered, false);
+    assert.equal(unarmed.lastSpecWrite, undefined);
+    assert.equal(unarmed.planCheckSpec, undefined);
+    const armed = replayBranch([
+      ...write("w0", "doc/specs/before.md"),
+      { type: "message", message: { role: "toolResult", toolName: "phase_tracker", details: { action: "start", phases: P({ brainstorm: "in_progress" }) } } },
+      ...write("w1", "doc/specs/a.md", "edit"),
+    ]);
+    assert.deepEqual([armed.gauntletEntered, armed.lastSpecWrite], [true, "doc/specs/a.md"]);
+    const reset = replayBranch([
+      { type: "message", message: { role: "toolResult", toolName: "phase_tracker", details: { action: "start", phases: P({ brainstorm: "in_progress" }) } } },
+      ...write("w1", "doc/specs/a.md"),
+      { type: "message", message: { role: "toolResult", toolName: "phase_tracker", details: { action: "reset", phases: P() } } },
+    ]);
+    assert.deepEqual([reset.gauntletEntered, reset.lastSpecWrite], [false, undefined]);
+    const resumed = replayBranch([
+      { type: "message", message: { role: "toolResult", toolName: "phase_tracker", details: { action: "start", phases: P({ brainstorm: "in_progress" }) } } },
+      { type: "message", message: { role: "toolResult", toolName: "phase_tracker", details: { action: "skip", phases: { ...P({ brainstorm: "skipped" }), brainstorm: { status: "skipped", reason: "resume: /repo/doc/specs/a.md" } } } } },
+    ]);
+    assert.deepEqual([resumed.gauntletEntered, resumed.lastSpecWrite], [true, "/repo/doc/specs/a.md"]);
   });
 
   test("session_start replay binds from plan_check details with no spec write, extends sessions, preserves run_id", async () => {
@@ -222,7 +275,8 @@
     await first.writeSpec("doc/specs/a.md");
     const runId = first.readRecord().run_id;
     const second = harness({ sessionId: "s2", branch: [
-      { type: "message", message: { role: "toolResult", toolName: "phase_tracker", toolCallId: "1", isError: false, details: { action: "start", phases: P({ brainstorm: "skipped", plan: "in_progress" }) } } },
+      { type: "message", message: { role: "toolResult", toolName: "phase_tracker", toolCallId: "0", isError: false, details: { action: "start", phases: P({ brainstorm: "in_progress" }) } } },
+      { type: "message", message: { role: "toolResult", toolName: "phase_tracker", toolCallId: "1", isError: false, details: { action: "skip", phases: P({ brainstorm: "skipped", plan: "in_progress" }) } } },
       { type: "message", message: { role: "toolResult", toolName: "plan_check", toolCallId: "2", isError: false, details: { status: "pass", planPath: join(first.root, "doc/plans/a.md"), specPath: join(first.root, "doc/specs/a.md"), planSha256: "x", specSha256: "y" } } },
     ] });
     // point the second harness at the first root
@@ -234,7 +288,7 @@
     assert.equal(rec.events.length, 1, "replay emits no duplicate events");
   });
 
-  test("rename at spec-writing: write to a new spec while the bound one is a draft rebinds, moves the record, commits both paths", async () => {
+  test("rename at spec-writing: write to a new spec while the bound one is a draft rebinds and moves the record", async () => {
     const h = harness();
     await h.phaseResult("start", P({ brainstorm: "in_progress" }));
     await h.writeSpec("doc/specs/draft.md", "# CONTEXT DRAFT - NOT A SPEC - fully replaced at spec-writing\n");
@@ -246,8 +300,7 @@
     assert.equal(rec.spec, "doc/specs/final.md");
     assert.ok(rec.events.some((e) => e.kind === "spec_renamed"));
     await h.phaseResult("complete", P({ brainstorm: "complete" }));
-    const commit = h.commits().at(-1)!;
-    assert.ok(commit.some((a) => a.endsWith("draft.yaml")) && commit.some((a) => a.endsWith("final.yaml")));
+    assert.equal(h.gitWrites().length, 0);
   });
 
   test("rename refuses an untracked destination collision and keeps the draft binding", async () => {
@@ -298,16 +351,7 @@
     assert.equal((rec.events[1] as any).action, "reset");
   });
 
-  test("commit failure becomes a warning event and is retried at the next checkpoint; not-a-git-repo skips commits", async () => {
-    let fail = true;
-    const h = harness({ gitFail: (args) => (args[0] === "commit" && fail ? { code: 1, stdout: "", stderr: "fatal: hook rejected\nmore" } : undefined) });
-    await h.phaseResult("start", P({ brainstorm: "in_progress" }));
-    await h.writeSpec("doc/specs/a.md");
-    let rec = h.readRecord();
-    assert.deepEqual(rec.events.filter((e) => e.kind === "warning").map((e: any) => e.message), ["git commit failed: fatal: hook rejected"]);
-    fail = false;
-    await h.phaseResult("complete", P({ brainstorm: "complete" }));
-    assert.equal(h.commits().length, 2);
+  test("a spec outside any checkout warns once bound; nothing is written for it", async () => {
     const outside = mkdtempSync(join(tmpdir(), "telemetry-outside-"));
     tempDirs.push(outside);
     const outsideSpec = join(outside, "doc/specs/outside.md");
@@ -318,7 +362,14 @@
     assert.deepEqual(nogit.readRecord().events.filter((e) => e.kind === "warning").map((e: any) => e.message), [`spec ${outsideSpec} is outside a git checkout; telemetry not recorded`]);
   });
 
-  test("jj-bound checkout: record is written, never committed, and the warning fires once", async () => {
+  test("failed git-common-dir lookup warns in the record", async () => {
+    const h = harness({ gitFail: (args) => args.includes("--git-common-dir") && !args.includes("--show-toplevel") ? { code: 1, stdout: "", stderr: "unsupported flag\nmore detail" } : undefined });
+    await h.phaseResult("start", P({ brainstorm: "in_progress" }));
+    await h.writeSpec("doc/specs/a.md");
+    assert.deepEqual(h.readRecord().events.filter((e) => e.kind === "warning").map((e: any) => e.message), ["exclude skipped: git rev-parse --git-common-dir failed: unsupported flag"]);
+  });
+
+  test("jj-bound checkout: record is written with no warning, no exclude line, and no git add/commit", async () => {
     const h = harness({
       jjWorkspace: true,
       gitFail: (args) =>
@@ -330,14 +381,27 @@
     await h.writeSpec("doc/specs/a.md");
     await h.phaseResult("complete", P({ brainstorm: "complete" }));
     const rec = h.readRecord();
-    assert.deepEqual(
-      rec.events.filter((e) => e.kind === "warning").map((e: any) => e.message),
-      ["record written, not committed: not a git checkout"],
-    );
-    assert.equal(h.commits().length, 0);
+    assert.deepEqual(rec.events.filter((e) => e.kind === "warning"), []);
+    assert.equal(h.gitWrites().length, 0);
+    assert.equal(existsSync(h.excludeFile()), false);
   });
 
-  test("worktree spec from a primary cwd: record keyed under the worktree, committed there (AC 8)", async () => {
+  test("a sealed spec in another checkout leaves the current spec bound", async () => {
+    const h = harness();
+    await h.phaseResult("start", P({ brainstorm: "in_progress" }));
+    await h.writeSpec("doc/specs/a.md");
+    const wt = join(h.root, ".worktrees/x");
+    const sealedPath = join(wt, ".pi/gauntlet/telemetry/doc/specs/b.yaml");
+    mkdirSync(join(wt, ".pi/gauntlet/telemetry/doc/specs"), { recursive: true });
+    writeFileSync(sealedPath, serializeRecord({ ...h.readRecord(), spec: "doc/specs/b.md", status: "shipped", shipped_at: "2026-09-17T18:00:00Z" }));
+    const before = readFileSync(sealedPath, "utf8");
+    await h.emit("tool_result", { toolName: "write", toolCallId: "w", input: { path: join(wt, "doc/specs/b.md"), content: "# B\n" }, content: [], isError: false, details: undefined });
+    await h.phaseResult("complete", P({ brainstorm: "complete" }));
+    assert.ok(h.readRecord().events.some((e) => e.kind === "phase" && e.action === "complete"));
+    assert.equal(readFileSync(sealedPath, "utf8"), before);
+  });
+
+  test("worktree spec from a primary cwd: record keyed under the worktree, exclude written to the common dir (AC 8)", async () => {
     const h = harness();
     await h.emit("session_start", { type: "session_start", reason: "startup" });
     await h.phaseResult("start", P({ brainstorm: "in_progress" }));
@@ -346,10 +410,8 @@
     assert.ok(existsSync(join(wt, ".pi/gauntlet/telemetry/doc/specs/a.yaml")), "record lives under the worktree toplevel");
     assert.equal(existsSync(join(h.root, ".pi/gauntlet")), false, "nothing written under the primary checkout");
     assert.ok(h.gitCwds.every((c) => c === wt || c.startsWith(wt + "/")), "no git call runs in the primary");
-    const commitIdx = h.gitCalls.findIndex((a) => a[0] === "commit");
-    assert.ok(commitIdx >= 0);
-    assert.equal(h.gitCwds[commitIdx], wt);
-    assert.deepEqual(h.gitCalls[commitIdx].slice(-1), [".pi/gauntlet/telemetry/doc/specs/a.yaml"]);
+    assert.equal(h.gitWrites().length, 0);
+    assert.equal(readFileSync(join(h.root, ".git/info/exclude"), "utf8"), ".pi/gauntlet/telemetry/\n", "exclude lands in the primary's common dir");
   });
 
   test("a spec in another checkout is a fresh bind, never a git mv", async () => {
@@ -393,6 +455,7 @@
 
     const h2 = harness({ sessionId: "s2" });
     h2.ctx.cwd = h.root;
+    await h2.phaseResult("start", P({ brainstorm: "in_progress" }));
     await h2.phaseResult("start", P({ brainstorm: "complete", plan: "in_progress" }));
     await h2.writeSpec("doc/specs/a.md");
     rec = h2.readRecord();
@@ -578,16 +641,35 @@
     assert.equal(rec.spec, "doc/specs/a.md");
     await h.writeSpec("doc/specs/a.md", "# A without banners\n");
     assert.deepEqual(h.readRecord().supersedes, ["doc/specs/pred.md"]);
-    // post-ship edit warns and counts
+    // post-ship edit warns without changing the sealed record
+    rec.status = "shipped";
     rec.shipped_at = "2026-09-17T12:00:00Z";
     writeFileSync(h.recordPath(), serializeRecord(rec));
-    const h2 = harness({ sessionId: "s2" });
+    const before = readFileSync(h.recordPath(), "utf8");
+    const h2 = harness();
     h2.ctx.cwd = h.root;
-    await h2.phaseResult("start", P({ brainstorm: "complete", plan: "in_progress" }));
-    const out = await h2.writeSpec("doc/specs/a.md", "# A v5\n");
-    const patched = out.find(Boolean) as { content: { type: string; text: string }[] };
-    assert.match(patched.content[0].text, /spec shipped at 2026-09-17T12:00:00Z; write a follow-up spec that supersedes it/);
-    assert.equal(h2.readRecord().derived.spec_edits_after_ship, 1);
+    await h2.phaseResult("start", P({ brainstorm: "in_progress" }));
+    const [blocked] = await h2.emit("tool_call", { toolName: "write", toolCallId: "w", input: { path: "doc/specs/a.md" } });
+    assert.deepEqual(blocked, { block: true, reason: guardReason("doc/specs/a.md", rec.shipped_at, ".pi/gauntlet/telemetry/doc/specs/a.yaml") });
+    assert.equal(readFileSync(h.recordPath(), "utf8"), before);
+    assert.equal(h.readRecord().derived.spec_edits_after_ship, 0);
+  });
+
+  test("a sealed record is skipped at bind and a later spec starts a fresh run", async () => {
+    const first = harness();
+    await first.phaseResult("start", P({ brainstorm: "in_progress" }));
+    await first.writeSpec("doc/specs/old.md");
+    const sealed = { ...first.readRecord("doc/specs/old.md"), status: "shipped" as const, shipped_at: "2026-09-17T18:00:00Z" };
+    writeFileSync(first.recordPath("doc/specs/old.md"), serializeRecord(sealed));
+    const before = readFileSync(first.recordPath("doc/specs/old.md"), "utf8");
+    const h = harness({ sessionId: "s2" });
+    h.ctx.cwd = first.root;
+    await h.phaseResult("start", P({ brainstorm: "in_progress" }));
+    await h.writeSpec("doc/specs/old.md");
+    assert.equal(readFileSync(first.recordPath("doc/specs/old.md"), "utf8"), before);
+    assert.equal(existsSync(h.excludeFile()), false);
+    await h.writeSpec("doc/specs/new.md");
+    assert.deepEqual(parseRecord(readFileSync(first.recordPath("doc/specs/new.md"), "utf8"))!.sessions, ["s2"]);
   });
 
   test("rehydration drops a body-only supersedes link removed by the new session's first write", async () => {
@@ -596,6 +678,7 @@
 
     const second = harness({ sessionId: "s2" });
     second.ctx.cwd = first.root;
+    await second.phaseResult("start", P({ brainstorm: "in_progress" }));
     await second.phaseResult("start", P({ brainstorm: "complete", plan: "in_progress" }));
     const body = "# A without banners\n";
     writeFileSync(join(first.root, "doc/specs/a.md"), body);
@@ -626,7 +709,8 @@
     await first.writeSpec("doc/specs/a.md", "# A\n\n> **Supersedes:** doc/specs/old.md\n");
 
     const second = harness({ sessionId: "s2", branch: [
-      { type: "message", message: { role: "toolResult", toolName: "phase_tracker", toolCallId: "1", isError: false, details: { action: "start", phases: P({ brainstorm: "complete", plan: "in_progress" }) } } },
+      { type: "message", message: { role: "toolResult", toolName: "phase_tracker", toolCallId: "1", isError: false, details: { action: "start", phases: P({ brainstorm: "in_progress" }) } } },
+      { type: "message", message: { role: "toolResult", toolName: "phase_tracker", details: { action: "start", phases: P({ brainstorm: "complete", plan: "in_progress" }) } } },
       { type: "message", message: { role: "toolResult", toolName: "plan_check", toolCallId: "2", isError: false, details: { status: "pass", planPath: join(first.root, "doc/plans/a.md"), specPath: join(first.root, "doc/specs/a.md"), planSha256: "x", specSha256: "y" } } },
     ] });
     second.ctx.cwd = first.root;
@@ -654,111 +738,133 @@
     assert.deepEqual(h.readRecord().derived.tests, { command: "npm test", result: "pass" });
   });
 
-  const shipGit = (args: string[]): GitResult | undefined => {
-    if (args[0] === "rev-parse" && args.includes("--verify")) return args.includes("origin/HEAD") ? { code: 128, stdout: "", stderr: "" } : { code: 0, stdout: "main\n", stderr: "" };
-    if (args[0] === "merge-base") return { code: 0, stdout: "abc123\n", stderr: "" };
-    if (args[0] === "diff" && args.includes("--name-only")) return { code: 0, stdout: "extensions/telemetry.ts\nextensions/telemetry.test.ts\ndoc/specs/a.md\ndoc/plans/a.md\n.pi/gauntlet/telemetry/doc/specs/a.yaml\nREADME.md\n", stderr: "" };
-    if (args[0] === "diff" && args.includes("--numstat")) return { code: 0, stdout: "100\t5\textensions/telemetry.ts\n40\t0\textensions/telemetry.test.ts\n9\t9\tdoc/specs/a.md\n2\t1\tREADME.md\n", stderr: "" };
-    if (args[0] === "rev-list") return { code: 0, stdout: "9\n", stderr: "" };
-    return undefined;
-  };
-
-  async function boundInShip(gitFail?: (args: string[]) => GitResult | undefined) {
-    const h = harness({ gitFail: (args) => gitFail?.(args) ?? shipGit(args) });
+  async function boundInShip() {
+    const h = harness();
     await h.phaseResult("start", P({ brainstorm: "in_progress" }));
     await h.writeSpec("doc/specs/a.md");
     await h.phaseResult("complete", P({ brainstorm: "complete" }));
     await h.phaseResult("start", P({ brainstorm: "complete", plan: "complete", implement: "complete", verify: "complete", ship: "in_progress" }));
-    const bash = async (id: string, command: string, isError = false) => {
-      const commitsBefore = h.commits().length;
-      const blocked = await h.emit("tool_call", { toolName: "bash", toolCallId: id, input: { command } });
-      const commitsAtCall = h.commits().length;
-      await h.emit("tool_result", { toolName: "bash", toolCallId: id, input: { command }, content: [], isError, details: undefined });
-      return { blocked: blocked.find(Boolean), committedBeforeRun: commitsAtCall > commitsBefore };
-    };
-    return { ...h, bash };
+    return h;
   }
 
-  test("ship attempt: shipped_at + diff flushed and committed before the bash command; git push then gh pr create yields one ship event; frozen afterwards", async () => {
+  test("ship-phase git commands leave the record untouched: no ship event, no shipped_at, no git add/commit, not frozen", async () => {
     const h = await boundInShip();
-    const r = await h.bash("s1", "git push -u origin HEAD");
-    assert.equal(r.committedBeforeRun, true);
-    let rec = h.readRecord();
-    assert.equal(rec.status, "shipped");
-    assert.ok(rec.shipped_at);
-    assert.deepEqual(rec.derived.modified_files, ["README.md", "extensions/telemetry.test.ts", "extensions/telemetry.ts"]);
-    assert.deepEqual(rec.derived.diff, { base: "abc123", commits: 9, buckets: { code: { files: 1, insertions: 100, deletions: 5 }, test: { files: 1, insertions: 40, deletions: 0 }, docs: { files: 1, insertions: 2, deletions: 1 } } });
-    assert.equal(rec.derived.gates.ship_option, "pr");
-    const shipEvents = rec.events.filter((e) => e.kind === "ship") as any[];
-    assert.deepEqual([shipEvents.length, shipEvents[0].option, shipEvents[0].command], [1, "pr", "git push -u origin HEAD"]);
     const before = readFileSync(h.recordPath(), "utf8");
-    const commitsBefore = h.commits().length;
+    await h.bash("s1", "git push -u origin HEAD");
     await h.bash("s2", "gh pr create --fill");
-    await h.phaseResult("complete", P({ brainstorm: "complete", plan: "complete", implement: "complete", verify: "complete", ship: "complete" }));
-    await h.emit("session_shutdown", { type: "session_shutdown", reason: "quit" });
-    assert.equal(readFileSync(h.recordPath(), "utf8"), before, "frozen: no writes after a successful ship");
-    assert.equal(h.commits().length, commitsBefore);
-  });
-
-  test("ship command fails: ship_failed, terminal fields cleared, diff dropped, guard inactive, new attempt allowed", async () => {
-    const h = await boundInShip();
-    await h.bash("s1", "git merge --squash gh-33", true);
-    let rec = h.readRecord();
+    await h.bash("s3", "git merge --squash gh-33");
+    await h.bash("d1", "git worktree remove .worktrees/gh-33 && git branch -D gh-33");
+    assert.equal(readFileSync(h.recordPath(), "utf8"), before);
+    const rec = h.readRecord();
     assert.equal(rec.status, "in_progress");
     assert.equal(rec.shipped_at, undefined);
-    assert.equal(rec.derived.diff, undefined);
-    assert.equal(rec.derived.gates.ship_option, undefined);
-    assert.deepEqual(rec.events.slice(-2).map((e) => e.kind), ["ship", "ship_failed"]);
-    await h.bash("s2", "git merge --squash gh-33");
-    rec = h.readRecord();
-    assert.equal(rec.status, "shipped");
-    assert.equal(rec.derived.gates.ship_option, "squash");
+    assert.equal(rec.events.some((e) => e.kind === "ship"), false);
+    assert.equal(h.gitWrites().length, 0);
+    assert.deepEqual(h.jjCalls, []);
+    await h.phaseResult("complete", P({ brainstorm: "complete", plan: "complete", implement: "complete", verify: "complete", ship: "complete" }));
+    assert.equal(h.readRecord().status, "in_progress", "git keep path no longer stamps; the seal bin owns shipped_at");
   });
 
-  test("discard: abandoned committed on the branch before the command; frozen afterwards", async () => {
+  test("a sealed on-disk record freezes the recorder: shutdown does not overwrite it", async () => {
     const h = await boundInShip();
-    const r = await h.bash("d1", "git worktree remove .worktrees/gh-33 && git branch -D gh-33");
-    assert.equal(r.committedBeforeRun, true);
-    const rec = h.readRecord();
-    assert.equal(rec.status, "abandoned");
-    assert.ok(rec.abandoned_at);
-    assert.equal(rec.shipped_at, undefined);
-    assert.equal((rec.events.at(-1) as any).option, "discard");
+    const sealed = { ...h.readRecord(), status: "shipped" as const, shipped_at: "2026-09-17T18:00:00Z" };
+    writeFileSync(h.recordPath(), serializeRecord(sealed));
     const before = readFileSync(h.recordPath(), "utf8");
+    await h.emit("session_compact", { type: "session_compact", reason: "manual" });
     await h.emit("session_shutdown", { type: "session_shutdown", reason: "quit" });
     assert.equal(readFileSync(h.recordPath(), "utf8"), before);
   });
 
-  test("failed discard does not recreate a removed worktree", async () => {
+  test("a frozen record cannot bind another spec through plan_check or another checkout write", async () => {
     const h = await boundInShip();
-    const command = "git worktree remove .worktrees/gh-33 && git branch -D gh-33";
-    await h.emit("tool_call", { toolName: "bash", toolCallId: "d1", input: { command } });
-    rmSync(h.root, { recursive: true, force: true });
-    await h.emit("tool_result", { toolName: "bash", toolCallId: "d1", input: { command }, content: [], isError: true, details: undefined });
-    assert.equal(existsSync(h.root), false);
-    await h.emit("session_shutdown", { type: "session_shutdown", reason: "quit" });
-    assert.equal(existsSync(h.root), false);
-  });
-
-  test("keep (phase complete ship with no live ship event): shipped_at set and committed, not frozen", async () => {
-    const h = await boundInShip();
-    const commitsBefore = h.commits().length;
-    await h.phaseResult("complete", P({ brainstorm: "complete", plan: "complete", implement: "complete", verify: "complete", ship: "complete" }));
-    const rec = h.readRecord();
-    assert.equal(rec.status, "shipped");
-    assert.equal(rec.derived.gates.ship_option, "keep");
-    assert.equal(h.commits().length, commitsBefore + 1);
+    writeFileSync(h.recordPath(), serializeRecord({ ...h.readRecord(), status: "shipped", shipped_at: "2026-09-17T18:00:00Z" }));
+    const before = readFileSync(h.recordPath());
     await h.emit("session_compact", { type: "session_compact", reason: "manual" });
-    await h.emit("session_shutdown", { type: "session_shutdown", reason: "quit" });
-    assert.equal(h.readRecord().derived.phases.unphased?.compactions, 1, "keep does not freeze");
+    await h.emit("tool_result", { toolName: "plan_check", toolCallId: "pc", input: {}, content: [], isError: false, details: { status: "pass", specPath: join(h.root, "doc/specs/b.md"), planPath: join(h.root, "doc/plans/b.md") } });
+    await h.writeSpec("doc/specs/b.md");
+    await h.writeSpec(".worktrees/x/doc/specs/b.md");
+    assert.equal(existsSync(h.recordPath("doc/specs/b.md")), false);
+    assert.equal(existsSync(join(h.root, ".worktrees/x/.pi/gauntlet/telemetry/doc/specs/b.yaml")), false);
+    assert.deepEqual(readFileSync(h.recordPath()), before);
   });
 
-  test("no base ref: diff omitted with a warning", async () => {
-    const h = await boundInShip((args) => (args[0] === "rev-parse" && args.includes("--verify") ? { code: 128, stdout: "", stderr: "" } : undefined));
-    await h.bash("s1", "git push");
+  test("marker down: spec writes, plan_check passes, and phase events create no file and buffer nothing", async () => {
+    const h = harness();
+    await h.writeSpec("doc/specs/a.md");
+    await h.emit("tool_result", { toolName: "plan_check", toolCallId: "pc", input: {}, content: [], isError: false, details: { status: "pass", specPath: join(h.root, "doc/specs/a.md"), planPath: join(h.root, "doc/plans/a.md") } });
+    await h.emit("tool_result", { toolName: "subagent", toolCallId: "sa", input: {}, content: [{ type: "text", text: "" }], isError: false, details: { results: [{ agent: "worker", exitCode: 0, model: "p/m", usage: { input: 10, output: 5, cacheRead: 0, cacheWrite: 0, cost: 0.1 } }] } });
+    assert.equal(existsSync(join(h.root, ".pi")), false);
+    await h.phaseResult("start", P({ brainstorm: "in_progress" }));
+    await h.writeSpec("doc/specs/a.md");
     const rec = h.readRecord();
-    assert.equal(rec.derived.diff, undefined);
-    assert.ok(rec.events.some((e) => e.kind === "warning" && /base/.test((e as any).message)));
+    assert.deepEqual(rec.events.map((e) => e.kind), ["phase"], "nothing from before arming is charged to the run");
+    assert.deepEqual(rec.derived.personas, {});
+    assert.equal(rec.derived.gates.plan_rounds, 0);
+  });
+
+  test("skip brainstorm with reason resume: <spec> binds to the existing spec and reloads its record", async () => {
+    const first = harness();
+    await first.phaseResult("start", P({ brainstorm: "in_progress" }));
+    await first.writeSpec("doc/specs/a.md");
+    const runId = first.readRecord().run_id;
+    const second = harness({ sessionId: "s2" });
+    second.ctx.cwd = first.root;
+    await second.phaseResult("start", P({ brainstorm: "in_progress" }));
+    await second.phaseResult("skip", { ...P({ brainstorm: "skipped" }), brainstorm: { status: "skipped", reason: `resume: ${join(first.root, "doc/specs/a.md")}` } });
+    const rec = parseRecord(readFileSync(first.recordPath(), "utf8"))!;
+    assert.equal(rec.run_id, runId);
+    assert.deepEqual(rec.sessions, ["s1", "s2"]);
+    assert.equal(rec.approved_at, rec.events.at(-1)!.ts);
+  });
+
+  test("reset then a new spec binds a fresh run with an empty buffer; the old record is untouched", async () => {
+    const h = harness();
+    await h.phaseResult("start", P({ brainstorm: "in_progress" }));
+    await h.writeSpec("doc/specs/a.md");
+    await h.phaseResult("reset", P());
+    const aBefore = readFileSync(h.recordPath("doc/specs/a.md"), "utf8");
+    await h.emit("tool_result", { toolName: "subagent", toolCallId: "sa", input: {}, content: [{ type: "text", text: "" }], isError: false, details: { results: [{ agent: "worker", exitCode: 0, model: "p/m", usage: { input: 10, output: 5, cacheRead: 0, cacheWrite: 0, cost: 0.1 } }] } });
+    await h.phaseResult("start", P({ brainstorm: "in_progress" }));
+    await h.writeSpec("doc/specs/b.md");
+    const b = h.readRecord("doc/specs/b.md");
+    assert.deepEqual(b.events.map((e) => e.kind), ["phase"]);
+    assert.deepEqual(b.derived.personas, {});
+    assert.equal(readFileSync(h.recordPath("doc/specs/a.md"), "utf8"), aBefore);
+  });
+
+  test("session_tree flushes observations and clears abandoned plan tracker state", async () => {
+    const h = await boundInPlan({ contextTokens: 4321 });
+    await h.emit("input", { type: "input", text: "review", source: "interactive" });
+    await h.emit("message_end", { type: "message_end", message: { role: "assistant", usage: usage(10) } });
+    await h.emit("turn_end", { type: "turn_end" });
+    await h.emit("tool_result", { toolName: "plan_tracker", input: {}, details: { action: "update", tasks: [{ status: "complete" }] }, isError: false });
+    h.setBranch([]);
+    await h.emit("session_tree", { type: "session_tree" });
+    const rec = h.readRecord();
+    assert.equal(rec.derived.phases.plan?.user_messages, 1);
+    assert.equal(rec.derived.phases.plan?.tokens?.input, 10);
+    assert.equal(rec.derived.phases.plan?.peak_context, 4321);
+    await h.phaseResult("start", P({ brainstorm: "in_progress" }));
+    await h.writeSpec("doc/specs/b.md");
+    await h.emit("tool_result", { toolName: "plan_tracker", input: {}, details: { action: "update", tasks: [{ status: "in_progress" }] }, isError: false });
+    assert.equal(h.readRecord("doc/specs/b.md").derived.gates.task_reopens, 0);
+  });
+
+  test("session_switch reconstructs marker and binding from the target branch", async () => {
+    const first = harness();
+    await first.phaseResult("start", P({ brainstorm: "in_progress" }));
+    await first.writeSpec("doc/specs/a.md");
+    const h = harness({ sessionId: "s2", branch: [] });
+    h.ctx.cwd = first.root;
+    await h.emit("session_start", { type: "session_start", reason: "startup" });
+    assert.equal(parseRecord(readFileSync(first.recordPath(), "utf8"))!.sessions.includes("s2"), false, "unarmed branch does not bind");
+    h.setBranch([
+      { type: "message", message: { role: "toolResult", toolName: "phase_tracker", toolCallId: "1", isError: false, details: { action: "start", phases: P({ brainstorm: "in_progress" }) } } },
+      { type: "message", message: { role: "assistant", content: [{ type: "toolCall", id: "w1", name: "write", arguments: { path: join(first.root, "doc/specs/a.md") } }] } },
+      { type: "message", message: { role: "toolResult", toolName: "write", toolCallId: "w1", isError: false } },
+    ]);
+    await h.emit("session_switch", { type: "session_switch", reason: "switch" });
+    assert.deepEqual(parseRecord(readFileSync(first.recordPath(), "utf8"))!.sessions, ["s1", "s2"]);
   });
 
   async function boundInJjShip(jjFail?: (args: string[]) => GitResult | undefined) {
@@ -785,6 +891,11 @@
     const rec = h.readRecord();
     assert.equal(rec.status, "shipped");
     assert.equal(rec.derived.gates.ship_option, "keep");
+    const beforeWrite = readFileSync(h.recordPath(), "utf8");
+    const out = await h.writeSpec("doc/specs/a.md");
+    assert.deepEqual(out.filter(Boolean), [{ content: [{ type: "text", text: `⚠️ spec shipped at ${rec.shipped_at}; write a follow-up spec that supersedes it` }] }]);
+    assert.equal(readFileSync(h.recordPath(), "utf8"), beforeWrite);
+    assert.equal(h.readRecord().derived.spec_edits_after_ship, 0);
     assert.deepEqual(rec.derived.modified_files, ["src/a.ts", "test/a.test.ts"]);
     assert.deepEqual(rec.derived.diff, { base: "jjbase0001", commits: 2, buckets: { code: { files: 1, insertions: 10, deletions: 2 }, test: { files: 1, insertions: 5, deletions: 0 } } });
     assert.deepEqual(diffWarnings(h), []);
@@ -793,6 +904,10 @@
     assert.ok(diffSteps.every((a) => a.includes("--color=never")));
     assert.deepEqual(diffSteps[1].slice(0, 4), ["--color=never", "--config", "diff.git.show-path-prefix=true", "diff"]);
     assert.ok(diffSteps[0].some((a) => a.includes("fork_point(") && a.includes("~ root() & ::")));
+    const before = readFileSync(h.recordPath(), "utf8");
+    await h.emit("session_compact", { type: "session_compact", reason: "manual" });
+    await h.emit("session_shutdown", { type: "session_shutdown", reason: "quit" });
+    assert.equal(readFileSync(h.recordPath(), "utf8"), before, "sealed on disk => frozen");
   });
 
   test("jj ship (AC 2): empty mainline -> jj-named warning, both derived fields absent, record written", async () => {
@@ -848,16 +963,9 @@
     assert.equal(h.readRecord().derived.diff, undefined);
   });
 
-  test("git ship never calls jj", async () => {
-    const h = await boundInShip();
-    await h.bash("s1", "git push");
-    assert.deepEqual(h.readRecord().derived.modified_files, ["README.md", "extensions/telemetry.test.ts", "extensions/telemetry.ts"]);
-    assert.deepEqual(h.jjCalls, []);
-  });
-
   test("guard: write to a shipped spec during brainstorm is blocked before any state change; edit passes; other phases pass", async () => {
     const h = await boundInShip();
-    await h.bash("s1", "git push");
+    writeFileSync(h.recordPath(), serializeRecord({ ...h.readRecord(), status: "shipped", shipped_at: "2026-09-17T18:00:00Z" }));
     const before = readFileSync(h.recordPath(), "utf8");
     const h2 = harness();
     h2.ctx.cwd = h.root;

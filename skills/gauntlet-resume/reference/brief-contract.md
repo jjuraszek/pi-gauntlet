@@ -53,7 +53,7 @@ Example appended block (the fence is documentation; the brief carries no fence):
 ## Process state
 
 Phases:
-  ⊘ brainstorm (resume: pasted brief)
+  ⊘ brainstorm (resume: <spec path>)
   ⊘ plan (resume: pasted brief)
   → implement(W2)
   ○ verify
@@ -117,18 +117,22 @@ Facts that fix the order (from the extensions):
 - `plan_tracker init` on an in-progress implement with every task `complete`/`skipped`
   auto-completes implement.
 
-Per-stage call table, keyed by the brief's active phase (`→`). `R` is the reason string
-`resume: <brief file or "pasted brief">`.
+Per-stage call table, keyed by the brief's active phase (`→`). Use
+`R = resume: <brief file or "pasted brief">` for plan/implement/verify skips and
+`S = resume: <spec path>` for brainstorm skips. Resolve `<spec path>` to the absolute
+path of the single `*.md` spec added after base in the worktree under `flowGuards.specDirs`
+(as enumerated in `reconstruction.md`, "Candidates"). Zero specs -> stop; more than
+one -> human picks.
 
 | Active | Calls, in order |
 |---|---|
 | brainstorm | `start brainstorm`; `substep` if the brief shows one |
-| plan | `start brainstorm`; `skip brainstorm R`; `start plan`; `substep` if shown |
-| implement | `start brainstorm`; `skip brainstorm R`; `start plan`; `plan_check({ planPath })`; on FAIL print findings and stop with plan in_progress, no init; on PASS `skip plan R`; `start implement`; `substep` if shown; `plan_tracker init` |
+| plan | `start brainstorm`; `skip brainstorm S`; `start plan`; `substep` if shown |
+| implement | `start brainstorm`; `skip brainstorm S`; `start plan`; `plan_check({ planPath })`; on FAIL print findings and stop with plan in_progress, no init; on PASS `skip plan R`; `start implement`; `substep` if shown; `plan_tracker init` |
 | verify | as implement through `skip plan R`, then `skip implement R`; `start verify`; `substep` if shown; `plan_tracker init` |
 | ship | as verify. Restoration stops at verify in_progress: `complete verify` needs a fresh conformance dispatch and `skip verify` would bypass a real gate. Announce that the closure review re-runs before ship |
 
-`planPath`: the brief carries none. Resolve as reconstruction does
+`planPath` (implement onward): the brief carries none. Resolve as reconstruction does
 (`reconstruction.md`, "Candidates", including its `flowGuards.specDirs` resolution): the
 single plan added after base, paired with `<specDir>/<same basename>` whether that
 spec was added after base or tracked from base (`reconstruction.md` "Candidates");

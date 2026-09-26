@@ -1,9 +1,10 @@
   /**
-   * Telemetry extension (#33): records one committed YAML record per gauntlet run,
-   * keyed by spec path, from pi events alone (no skill cooperation), and blocks
-   * `write` into an already-shipped spec while brainstorm is in progress.
-   * Pure helpers: extensions/lib/telemetry-*.ts. The default export takes a `deps`
-   * seam ({ fs, git, now, settings }) for the harness tests.
+   * Telemetry extension: records one YAML record per gauntlet run, keyed by spec path,
+   * from pi events alone. Binds only after `phase_tracker start brainstorm` armed the
+   * flow, writes the record to disk without ever staging or committing it (the seal bin
+   * commits once at finish), and blocks `write` into an already-shipped spec while
+   * brainstorm is in progress. Pure helpers: extensions/lib/telemetry-*.ts. The default
+   * export takes a `deps` seam ({ fs, git, jj, now, settings }) for the harness tests.
    */
 
   import { execFile } from "node:child_process";
@@ -16,12 +17,13 @@
   import { DEFAULT_TEST_COMMANDS, resolveTelemetry, settingsErrorWarning, type TelemetryResolved } from "./lib/gauntlet-settings.ts";
   import { loadGauntletSettings } from "./lib/gauntlet-settings-loader.ts";
   import { checkoutOf } from "./lib/checkout.ts";
-  import { CONTEXT_DRAFT_MARKER } from "./lib/phase-tracker-helpers.ts";
+  import { CONTEXT_DRAFT_MARKER, nextGauntletEntered } from "./lib/phase-tracker-helpers.ts";
   import { sha256 } from "./lib/plan-check.ts";
-  import { SUPERSEDED_BY_RE, aggregateNumstat, isPlanPath, isSpecPath, isSupersededByBanner, matchDiscardStatement, matchShipStatement, matchTestStatement, parsePatchNumstat, parseSpecLinks, planSpecHeader, recordPathFor, repoRelativeToolPath, toPosix, truncateCommand } from "./lib/telemetry-paths.ts";
+  import { SUPERSEDED_BY_RE, isPlanPath, isSpecPath, isSupersededByBanner, matchTestStatement, parseSpecLinks, planSpecHeader, recordPathFor, repoRelativeToolPath, toPosix, truncateCommand } from "./lib/telemetry-paths.ts";
+  import { computeJjDiff } from "./lib/telemetry-diff.ts";
   import { COUNTED_USER_PHASES, REVIEWER_AGENTS, countFindings, countOpenGaps, hasReopen, insertedText, planTotals, textOf, usageToTokens } from "./lib/telemetry-collect.ts";
   import { addTokens, capEvents, compact, currentPhase, derive, diffPhases, emptyAccumulators, emptyPhases, foldAccumulators, implementAutoCompletes, liveShipEvent, newRecord, parseRecord, serializeRecord, type Accumulators, type BaseEvent, type PhaseAcc, type PhaseKey, type PhaseMap, type TelemetryEvent, type TelemetryRecord, type Tokens } from "./lib/telemetry-record.ts";
-  import { BASE_REFS, guardReason, modifiedFilesFrom } from "./lib/telemetry-ship.ts";
+  import { guardReason } from "./lib/telemetry-ship.ts";
 
   // ---- deps seam -------------------------------------------------------------------
 
@@ -131,15 +133,25 @@
 
   interface ReplayResult {
     phases: PhaseMap;
-    planCheckSpec?: string; // absolute
-    lastSpecWrite?: string; // as passed to the tool
+    gauntletEntered: boolean;
+    planCheckSpec?: string;
+    lastSpecWrite?: string;
   }
 
-  // Walks the session branch like phase-tracker.ts: successful phase_tracker results
-  // set the phase map; plan_check pass specPath and successful spec writes feed binding.
-  // Silent: no events are emitted (each was already flushed when it happened).
+  // gauntlet-resume's reconstruction skips brainstorm with `resume: <spec path>`; the path
+  // is the bind candidate on that route because no spec write follows.
+  const RESUME_REASON_RE = /^resume: (\S+)$/;
+  export function resumeSpecOf(phases: PhaseMap | undefined): string | undefined {
+    const b = phases?.brainstorm;
+    const m = b?.status === "skipped" && typeof b.reason === "string" ? RESUME_REASON_RE.exec(b.reason) : null;
+    return m && isSpecPath(toPosix(m[1])) ? m[1] : undefined;
+  }
+
+  // Walks the session branch like phase-tracker.ts: successful phase_tracker results set
+  // the phase map and the flow-entry marker; bind candidates are taken only while armed
+  // and dropped on reset. Silent: no events are emitted.
   export function replayBranch(entries: Iterable<unknown>): ReplayResult {
-    const out: ReplayResult = { phases: emptyPhases() };
+    const out: ReplayResult = { phases: emptyPhases(), gauntletEntered: false };
     const calls = new Map<string, { name: string; args: unknown }>();
     for (const raw of entries) {
       const entry = raw as { type?: string; message?: { role?: string; content?: unknown; toolName?: string; toolCallId?: string; isError?: boolean; details?: unknown } };
@@ -152,14 +164,22 @@
       }
       if (msg.role !== "toolResult") continue;
       if (msg.toolName === "phase_tracker") {
-        const d = msg.details as { phases?: PhaseMap; error?: string } | undefined;
-        if (d?.phases && !d.error) out.phases = d.phases;
+        const d = msg.details as { action?: string; phases?: PhaseMap; error?: string } | undefined;
+        if (!d?.phases || d.error) continue;
+        out.phases = d.phases;
+        out.gauntletEntered = nextGauntletEntered(out.gauntletEntered, d.action ?? "", d.phases.brainstorm.status);
+        if (d.action === "reset") {
+          out.planCheckSpec = undefined;
+          out.lastSpecWrite = undefined;
+        }
+        const resumed = d.action === "skip" ? resumeSpecOf(d.phases) : undefined;
+        if (out.gauntletEntered && resumed) out.lastSpecWrite = resumed;
       } else if (msg.toolName === "plan_check") {
         const d = msg.details as { status?: string; specPath?: string } | undefined;
-        if (d?.status === "pass" && typeof d.specPath === "string") out.planCheckSpec = d.specPath;
-      } else if (msg.toolName === "write" && !msg.isError && msg.toolCallId) {
+        if (out.gauntletEntered && d?.status === "pass" && typeof d.specPath === "string") out.planCheckSpec = d.specPath;
+      } else if ((msg.toolName === "write" || msg.toolName === "edit") && !msg.isError && msg.toolCallId) {
         const p = (calls.get(msg.toolCallId)?.args as { path?: unknown } | undefined)?.path;
-        if (typeof p === "string" && isSpecPath(toPosix(p))) out.lastSpecWrite = p;
+        if (out.gauntletEntered && typeof p === "string" && isSpecPath(toPosix(p))) out.lastSpecWrite = p;
       }
     }
     return out;
@@ -177,14 +197,13 @@
     let record: TelemetryRecord | undefined;
     const predecessorLinks = new Set<string>();
     let recordRel: string | undefined; // repo-relative record path
-    let oldRecordRel: string | undefined; // pending rename partner for the next commit
     let buffer: TelemetryEvent[] = [];
     let pending: Accumulators = emptyAccumulators();
-    let lastCommitted = "";
     let frozen = false;
+    let gauntletEntered = false;
     let settingsWarned = false;
-    let notGitWarned = false;
     let sessionId = "";
+    let currentDir = "";
 
     // Per-event settings read; undefined => this event is a no-op.
     const enabledSettings = (ctx: ExtensionContext): SettingsSnapshot | undefined => {
@@ -203,9 +222,12 @@
       return co && rel ? { toplevel: co.toplevel, rel, via: co.via } : undefined;
     };
 
+    // Disarmed and unbound: activity outside the gauntlet is never charged to the next run.
     const live = (): Accumulators => record
       ? (record.accumulators[sessionId] ??= emptyAccumulators())
-      : pending;
+      : gauntletEntered ? pending : emptyAccumulators();
+
+    const canBind = (): boolean => gauntletEntered && !frozen && phases.ship.status !== "complete";
 
     const abs = (rel: string): string => join(toplevel!, rel);
     const phaseNow = (): PhaseKey => currentPhase(phases);
@@ -213,16 +235,29 @@
     const pushEvent = (e: Omit<TelemetryEvent, "ts" | "session" | "phase"> & Partial<BaseEvent>): TelemetryEvent => {
       const full = { ts: deps.now(), session: sessionId, phase: phaseNow(), ...e } as TelemetryEvent;
       if (record) record.events.push(full);
-      else buffer.push(full);
+      else if (gauntletEntered) buffer.push(full);
       return full;
     };
 
     const warn = (message: string) => pushEvent({ kind: "warning", message });
 
     // ---- record store ----
+    // The record is the file on disk; nothing here stages or commits. A record the seal bin
+    // already stamped is frozen so a later flush cannot overwrite the seal.
+    const sealedAt = (path: string): boolean => {
+      const text = deps.fs.readFile(path);
+      const parsed = text ? parseRecord(text) : undefined;
+      return !!parsed && parsed.status !== "in_progress";
+    };
+
     const writeRecord = () => {
       if (!record || !recordRel || frozen) return;
       if (!toplevel || !deps.fs.exists(toplevel)) {
+        frozen = true;
+        return;
+      }
+      const target = abs(recordRel);
+      if (sealedAt(target)) {
         frozen = true;
         return;
       }
@@ -232,7 +267,6 @@
         live().events_dropped += capped.dropped;
       }
       record.derived = derive(record, deps.now());
-      const target = abs(recordRel);
       try {
         deps.fs.mkdirp(dirname(target));
         deps.fs.writeFile(target + ".tmp", serializeRecord(record));
@@ -242,42 +276,25 @@
       }
     };
 
-    const commitRecord = async () => {
-      if (!record || !recordRel || frozen || !toplevel) return;
-      if (checkoutVia === "jj") {
-        // A jj-bound checkout has no .git to commit into; say so once per session instead
-        // of failing `git commit` at every checkpoint.
-        if (!notGitWarned) {
-          notGitWarned = true;
-          warn("record written, not committed: not a git checkout");
-        }
-        return;
-      }
-      const text = deps.fs.readFile(abs(recordRel)) ?? "";
-      if (text === lastCommitted) return;
-      const paths = [recordRel, ...(oldRecordRel ? [oldRecordRel] : [])];
-      const add = await deps.git(["add", "-f", "--", ...paths], toplevel!);
-      let commit = add.code === 0 ? await deps.git(["commit", "-q", "-m", `telemetry: ${record.spec}`, "--", ...paths], toplevel!) : add;
-      if (commit.code !== 0 && /index\.lock/.test(commit.stderr)) {
-        await new Promise((r) => setTimeout(r, 200));
-        commit = await deps.git(["commit", "-q", "-m", `telemetry: ${record.spec}`, "--", ...paths], toplevel!);
-      }
-      if (commit.code !== 0) {
-        warn(`git commit failed: ${(commit.stderr.trim().split("\n")[0] || "unknown error")}`);
-        writeRecord();
-        return;
-      }
-      lastCommitted = text;
-    };
+    const flush = writeRecord;
 
-    // Write point = every event / accumulator change on a boundary; checkpoint = also commit.
-    const flush = async (checkpoint: boolean) => {
-      if (!record) return;
-      writeRecord();
-      if (checkpoint) await commitRecord();
+    // Excluded untracked paths are invisible to `git status --porcelain`, skipped by
+    // `git add -A`, and never block `git worktree remove`; the seal stages with `git add -f`.
+    const ensureExcluded = async () => {
+      const common = await deps.git(["rev-parse", "--path-format=absolute", "--git-common-dir"], toplevel!);
+      const commonDir = common.stdout.trim();
+      if (common.code !== 0 || !commonDir) return void warn(`exclude skipped: git rev-parse --git-common-dir failed: ${common.stderr.trim().split("\n")[0]}`);
+      const line = `${currentDir.replace(/\/+$/, "")}/`;
+      const file = join(commonDir, "info", "exclude");
+      const existing = deps.fs.readFile(file) ?? "";
+      if (existing.split("\n").some((l) => l.trim() === line)) return;
+      try {
+        deps.fs.mkdirp(dirname(file));
+        deps.fs.writeFile(file, existing + (existing && !existing.endsWith("\n") ? "\n" : "") + line + "\n");
+      } catch (e) {
+        warn(`exclude write failed: ${String((e as Error).message ?? e).split("\n")[0]}`);
+      }
     };
-
-    let currentDir = "";
 
     const loadOrCreate = (specRel: string): TelemetryRecord => {
       const rel = recordPathFor(currentDir, specRel);
@@ -297,7 +314,10 @@
       return newRecord({ spec: specRel, session: sessionId, now: buffer[0]?.ts ?? deps.now(), runId: randomUUID() });
     };
 
+    const sealedOnDisk = (top: string, rel: string, dir: string): boolean => sealedAt(join(top, recordPathFor(dir, rel)));
+
     const bind = async (specRel: string, snap: SettingsSnapshot, specToplevel: string, via: "git" | "jj") => {
+      if (sealedOnDisk(specToplevel, specRel, snap.telemetry.dir)) return;
       toplevel = specToplevel;
       checkoutVia = via;
       currentDir = snap.telemetry.dir;
@@ -333,6 +353,7 @@
         if (snap.errors.length) warn(settingsErrorWarning(snap.errors));
         if (snap.telemetry.warning) warn(snap.telemetry.warning);
       }
+      if (via === "git") await ensureExcluded();
       refreshLinks();
     };
 
@@ -342,8 +363,6 @@
       boundSpec = undefined;
       record = undefined;
       recordRel = undefined;
-      oldRecordRel = undefined;
-      lastCommitted = "";
       frozen = false;
     };
 
@@ -387,22 +406,22 @@
         return false;
       }
       pushEvent({ kind: "spec_renamed", from: boundSpec!, to: newSpec });
-      oldRecordRel = from;
       boundSpec = newSpec;
       recordRel = to;
       record!.spec = newSpec;
-      lastCommitted = "";
       return true;
     };
 
     // ---- phase mirror ----
     const applyPhaseDetails = async (details: { action?: string; phases?: PhaseMap; error?: string; rounds?: number } | undefined, snap: SettingsSnapshot) => {
       if (!details?.phases || details.error) return;
-      const transitions = diffPhases(phases, details.phases, details.action ?? "");
-      if (details.action === "grant_fix_rounds") {
+      const action = details.action ?? "";
+      gauntletEntered = nextGauntletEntered(gauntletEntered, action, details.phases.brainstorm.status);
+      const transitions = diffPhases(phases, details.phases, action);
+      if (action === "grant_fix_rounds") {
         live().gates.fix_round_grants += 1;
         pushEvent({ kind: "gate", gate: "fix_round_grant", rounds: typeof details.rounds === "number" ? details.rounds : undefined });
-        await flush(false);
+        flush();
       }
       for (const t of transitions) {
         const model = ctxModel();
@@ -415,36 +434,63 @@
         );
         phases = details.phases;
         if (record && t.name === "brainstorm" && (t.action === "complete" || t.action === "skip")) record.approved_at ??= e.ts;
-        if (record && t.name === "ship" && t.action === "complete") await onShipKeep(snap);
-        await flush(true);
-        if (t.action === "reset") unbind();
+        if (record && t.name === "ship" && t.action === "complete" && checkoutVia === "jj") await onShipKeep(snap);
+        flush();
+        if (t.action === "reset") {
+          // Epoch ends: nothing recorded before the next `start brainstorm` belongs to a run.
+          unbind();
+          buffer = [];
+          pending = emptyAccumulators();
+        }
       }
       phases = details.phases;
+      if (action === "skip" && !boundSpec && canBind() && lastCtx) {
+        const resumed = resumeSpecOf(details.phases);
+        const loc = resumed ? await locate(lastCtx, resumed) : undefined;
+        if (loc && isSpecPath(loc.rel)) {
+          await bind(loc.rel, snap, loc.toplevel, loc.via);
+          flush();
+        }
+      }
     };
 
     let lastCtx: ExtensionContext | undefined;
     const ctxModel = (): string | undefined => (lastCtx?.model ? `${lastCtx.model.provider}/${lastCtx.model.id}` : undefined);
     const ctxThinking = (): string | undefined => lastCtx?.thinkingLevel;
 
-    // Keep-branch ship: shipped_at at `phase complete ship`. Defined in block 3.
+    // jj keep-path seal on `phase complete ship`; git checkouts are sealed by the bin. Defined in block 3.
     let onShipKeep: (snap: SettingsSnapshot) => Promise<void>;
 
     // ---- handlers ----
-    pi.on("session_start", async (_event, ctx) => {
+    // Same lifecycle set as phase-tracker.ts: every navigation rebuilds marker, phases, and
+    // binding from the target branch in order.
+    const reconstruct = async (ctx: ExtensionContext) => {
       lastCtx = ctx;
       const snap = enabledSettings(ctx);
       if (!snap) return;
+      flush();
+      unbind();
+      buffer = [];
+      pending = emptyAccumulators();
+      lastPlanTasks = undefined;
+      amendmentOpen = false;
+      pendingTest.clear();
       sessionId = ctx.sessionManager.getSessionId();
       currentDir = snap.telemetry.dir;
       const replay = replayBranch(ctx.sessionManager.getBranch());
       phases = replay.phases;
+      gauntletEntered = replay.gauntletEntered;
+      if (!canBind()) return;
       const candidate = replay.planCheckSpec ?? replay.lastSpecWrite;
       const loc = candidate ? await locate(ctx, candidate) : undefined;
       if (loc && isSpecPath(loc.rel)) {
         await bind(loc.rel, snap, loc.toplevel, loc.via);
-        await flush(false);
+        flush();
       }
-    });
+    };
+    for (const event of ["session_start", "session_switch", "session_fork", "session_tree"] as const) {
+      pi.on(event, async (_event, ctx) => reconstruct(ctx));
+    }
 
     pi.on("session_shutdown", async (_event, ctx) => {
       const snap = enabledSettings(ctx);
@@ -454,7 +500,7 @@
         record.accumulators.total = foldAccumulators(record.accumulators.total ?? emptyAccumulators(), liveBlock);
         delete record.accumulators[sessionId];
       }
-      await flush(true);
+      flush();
     });
 
     pi.on("tool_result", async (event, ctx) => {
@@ -466,6 +512,7 @@
         await applyPhaseDetails(event.details as never, snap);
         return undefined;
       }
+      if (!record && !canBind()) return undefined;
       if (event.toolName === "plan_check" && !event.isError) {
         const d = event.details as { status?: string; specPath?: string; planPath?: string } | undefined;
         const specLoc = d?.specPath ? await locate(ctx, d.specPath) : undefined;
@@ -473,13 +520,13 @@
         const spec = specLoc?.rel;
         const plan = planLoc?.rel;
         const pass = d?.status === "pass";
-        if (pass && specLoc && (specLoc.rel !== boundSpec || specLoc.toplevel !== toplevel)) {
+        if (pass && canBind() && specLoc && (specLoc.rel !== boundSpec || specLoc.toplevel !== toplevel)) {
           if (record) unbind();
           await bind(specLoc.rel, snap, specLoc.toplevel, specLoc.via);
         }
         live().gates.plan_rounds += 1;
         pushEvent({ kind: "plan_check", pass, spec, plan });
-        await flush(pass);
+        flush();
         return undefined;
       }
       if ((event.toolName === "write" || event.toolName === "edit" || event.toolName === "read") && !event.isError) {
@@ -500,21 +547,11 @@
         return undefined;
       }
       if (event.toolName === "bash") {
-        if (pendingShip && pendingShip.id === event.toolCallId) {
-          pendingShip = undefined;
-          if (event.isError) {
-            pushEvent({ kind: "ship_failed" });
-            clearShipState();
-            await flush(false);
-          } else {
-            frozen = true;
-          }
-        }
         const matched = pendingTest.get(event.toolCallId);
         if (matched && record) {
           pendingTest.delete(event.toolCallId);
           record.derived.tests = { command: truncateCommand(matched), result: event.isError ? "fail" : "pass" };
-          await flush(false);
+          flush();
         }
         return undefined;
       }
@@ -528,26 +565,28 @@
       if (!boundSpec) {
         if ((tool === "write" || tool === "edit") && isSpecPath(rel)) {
           await bind(rel, snap, loc.toplevel, loc.via);
+          if (!boundSpec) return undefined;
           const patch = onBoundSpecWrite(tool, rel, event);
-          await flush(true);
+          flush();
           return patch;
         } else if (isPlanPath(rel)) {
           const spec = planSpecHeader(deps.fs.readFile(join(loc.toplevel, rel)) ?? "");
           const specRel = spec ? repoRelativeToolPath(loc.toplevel, loc.toplevel, spec) : undefined;
           if (specRel && deps.fs.exists(join(loc.toplevel, specRel))) {
             await bind(specRel, snap, loc.toplevel, loc.via);
-            await flush(true);
+            flush();
           }
         }
         return undefined;
       }
       if (loc.toplevel !== toplevel) {
         // Another checkout: a fresh run, never a rename of this record.
-        if ((tool === "write" || tool === "edit") && isSpecPath(rel)) {
+        if ((tool === "write" || tool === "edit") && isSpecPath(rel) && canBind() && !sealedOnDisk(loc.toplevel, rel, snap.telemetry.dir)) {
           unbind();
           await bind(rel, snap, loc.toplevel, loc.via);
+          if (!boundSpec) return undefined;
           const patch = onBoundSpecWrite(tool, rel, event);
-          await flush(true);
+          flush();
           return patch;
         }
         return undefined;
@@ -555,17 +594,17 @@
       if (tool === "read") return undefined;
       if (rel === boundSpec) {
         const patch = onBoundSpecWrite(tool, rel, event);
-        await flush(false);
+        flush();
         return patch;
       }
       if (tool === "write" && isSpecPath(rel) && phases.brainstorm.status === "in_progress" && isDraftOrMissing(boundSpec)) {
         if (await rebind(rel)) onBoundSpecWrite(tool, rel, event);
-        await flush(true);
+        flush();
         return undefined;
       }
       if (tool === "edit" && isSpecPath(rel)) {
         onOtherSpecEdit(rel, event);
-        await flush(false);
+        flush();
       }
       return undefined;
     };
@@ -622,7 +661,7 @@
           }
         }
       }
-      await flush(false);
+      flush();
     };
 
     const onPlanTracker = async (details: unknown, snap: SettingsSnapshot) => {
@@ -639,97 +678,20 @@
         await applyPhaseDetails({ action: "complete", phases: next }, snap);
         return;
       }
-      if (record) await flush(false);
+      if (record) flush();
     };
 
-    let pendingShip: { id: string; option: "squash" | "pr" | "discard" } | undefined;
-
-    const computeDiff = async (snap: SettingsSnapshot) => {
-      if (checkoutVia === "jj") await computeJjDiff(snap);
-      else await computeGitDiff(snap);
-    };
-
-    const JJ_MAINLINE = "coalesce(trunk() ~ root(), present(main), present(master))";
-
-    const computeJjDiff = async (snap: SettingsSnapshot) => {
-      if (!record || !toplevel) return;
-      const jj = deps.jj ?? realJj;
-      const failed = (sub: string, r: GitResult) => warn(`diff omitted: jj ${sub} failed: ${r.stderr.trim().split("\n")[0] || "unknown error"}`);
-      // Without the ::M guard an empty mainline resolves to @ and counts the full history.
-      const baseR = await jj(["--color=never", "log", "-r", `fork_point(${JJ_MAINLINE} | @) ~ root() & ::${JJ_MAINLINE}`, "--no-graph", "-T", 'commit_id ++ "\\n"'], toplevel);
-      if (baseR.code !== 0) return failed("log", baseR);
-      const base = baseR.stdout.trim().split("\n")[0].trim();
-      if (!base) return warn("diff omitted: jj mainline unresolved (trunk() is root(); no main/master bookmark)");
-      const patch = await jj(["--color=never", "--config", "diff.git.show-path-prefix=true", "diff", "--from", base, "--to", "@", "--git"], toplevel);
-      if (patch.code !== 0) return failed("diff", patch);
-      const rows = parsePatchNumstat(patch.stdout);
-      if (!rows) return warn("diff omitted: jj diff unparseable");
-      const dir = currentDir.replace(/\/+$/, "");
-      // Exclude record-only @ and other telemetry-only revisions from the count.
-      const count = await jj(["--color=never", "log", "-r", `(${base}::@ ~ ${base}) & files(~glob:"${dir}/**")`, "--count"], toplevel);
-      if (count.code !== 0) return failed("log", count);
-      const n = count.stdout.trim();
-      if (!/^\d+$/.test(n)) return warn(`diff omitted: jj log --count unparseable: ${n}`);
-      const files = modifiedFilesFrom(rows.map((r) => r.path).join("\n"), record.spec, currentDir);
-      const numstat = rows.map((r) => `${r.added}\t${r.removed}\t${r.path}`).join("\n");
-      record.derived.modified_files = files;
-      record.derived.diff = { base, commits: Number(n), buckets: aggregateNumstat(numstat, new Set(files), snap.telemetry.buckets) };
-    };
-
-    const computeGitDiff = async (snap: SettingsSnapshot) => {
-      if (!record || !toplevel) return;
-      let baseRef: string | undefined;
-      for (const ref of BASE_REFS) {
-        if ((await deps.git(["rev-parse", "--verify", "--quiet", ref], toplevel!)).code === 0) {
-          baseRef = ref;
-          break;
-        }
-      }
-      if (!baseRef) {
-        warn("diff omitted: no base ref among origin/HEAD, main, master");
-        return;
-      }
-      const mb = await deps.git(["merge-base", "HEAD", baseRef], toplevel!);
-      if (mb.code !== 0 || !mb.stdout.trim()) {
-        warn(`diff omitted: merge-base failed: ${mb.stderr.trim().split("\n")[0]}`);
-        return;
-      }
-      const base = mb.stdout.trim();
-      const names = await deps.git(["diff", "--name-only", `${base}...HEAD`], toplevel!);
-      const files = modifiedFilesFrom(names.stdout, record.spec, currentDir);
-      const numstat = await deps.git(["diff", "--numstat", `${base}...HEAD`], toplevel!);
-      const count = await deps.git(["rev-list", "--count", "--invert-grep", "--grep=^telemetry: ", `${base}..HEAD`], toplevel!);
-      record.derived.modified_files = files;
-      record.derived.diff = { base, commits: Number(count.stdout.trim()) || 0, buckets: aggregateNumstat(numstat.stdout, new Set(files), snap.telemetry.buckets) };
-    };
-
-    const clearShipState = () => {
-      if (!record) return;
-      record.shipped_at = undefined;
-      record.abandoned_at = undefined;
-      record.status = "in_progress";
-      record.derived.diff = undefined;
-      record.derived.modified_files = undefined;
-    };
-
-    const shipAttempt = async (option: "squash" | "pr" | "keep" | "discard", command: string | undefined, snap: SettingsSnapshot) => {
-      if (!record) return;
-      const ts = deps.now();
-      if (option === "discard") {
-        record.status = "abandoned";
-        record.abandoned_at = ts;
-      } else {
-        record.status = "shipped";
-        record.shipped_at = ts;
-        await computeDiff(snap);
-      }
-      pushEvent({ kind: "ship", option, command: command ? truncateCommand(command) : undefined });
-      await flush(true);
-    };
-
+    // jj only: finishing cannot run in a plain jj workspace, so `phase complete ship` seals
+    // the record in place (jj snapshots the working copy; there is no commit step).
     onShipKeep = async (snap) => {
-      if (!record || liveShipEvent(record.events)) return;
-      await shipAttempt("keep", undefined, snap);
+      if (!record || !toplevel || liveShipEvent(record.events)) return;
+      record.status = "shipped";
+      record.shipped_at = deps.now();
+      const out = await computeJjDiff({ jj: deps.jj ?? realJj, cwd: toplevel, spec: record.spec, dir: currentDir, buckets: snap.telemetry.buckets });
+      if (out.warning) warn(out.warning);
+      record.derived.modified_files = out.modified_files;
+      record.derived.diff = out.diff;
+      pushEvent({ kind: "ship", option: "keep" });
     };
 
     pi.on("tool_call", async (event, ctx) => {
@@ -751,20 +713,6 @@
       }
       if (event.toolName === "bash") {
         const command = String((event.input as { command?: unknown }).command ?? "");
-        if (record && !frozen && phases.ship.status === "in_progress" && !liveShipEvent(record.events)) {
-          const ship = matchShipStatement(command);
-          if (ship) {
-            pendingShip = { id: event.toolCallId, option: ship.option };
-            await shipAttempt(ship.option, ship.statement, snap);
-            return undefined;
-          }
-          const discard = matchDiscardStatement(command);
-          if (discard) {
-            pendingShip = { id: event.toolCallId, option: "discard" };
-            await shipAttempt("discard", discard, snap);
-            return undefined;
-          }
-        }
         if (record && (phases.verify.status === "in_progress" || phases.ship.status === "in_progress")) {
           const statement = matchTestStatement(command, snap.testCommands ?? DEFAULT_TEST_COMMANDS);
           if (statement) pendingTest.set(event.toolCallId, statement);
@@ -804,21 +752,21 @@
       lastCtx = ctx;
       if (!enabledSettings(ctx) || phaseNow() === "unphased") return;
       pushEvent({ kind: "config_change", model: `${event.model.provider}/${event.model.id}` });
-      await flush(false);
+      flush();
     });
 
     pi.on("thinking_level_select", async (event, ctx) => {
       lastCtx = ctx;
       if (!enabledSettings(ctx) || phaseNow() === "unphased") return;
       pushEvent({ kind: "config_change", thinking: String(event.level) });
-      await flush(false);
+      flush();
     });
 
     pi.on("session_compact", async (_event, ctx) => {
       if (!enabledSettings(ctx)) return;
       const acc = phaseAcc();
       acc.compactions = (acc.compactions ?? 0) + 1;
-      await flush(false);
+      flush();
     });
 
     onBoundSpecWrite = (tool, rel, event) => {
@@ -832,7 +780,6 @@
       acc.spec_writes[k] = { count: cur.count + 1, last_sha256: sha256(new TextEncoder().encode(body)) };
       refreshLinks();
       if (record.shipped_at) {
-        acc.spec_edits_after_ship += 1;
         const warning = `⚠️ spec shipped at ${record.shipped_at}; write a follow-up spec that supersedes it`;
         return { content: [{ type: "text" as const, text: warning }, ...(event.content as { type: string }[])] };
       }

@@ -18,7 +18,7 @@ The CLI parses and aggregates; you reason. Never open a telemetry YAML record yo
 
 ## Read the digest
 
-`runs` has one row per record; `shipped*` marks a truncated run (no ship phase recorded - salvage stamped it at landing; its `wall` is `-` and it feeds no aggregate). `by version` groups by pi-gauntlet version: `n` counts every row, `shipped` counts the rows behind the p50/max columns. `grants` is `fix_round_grants` - the fix-round proxy (human-granted extra review rounds); schema 1 has no code-review round count.
+`runs` has one row per record; `shipped*` marks a truncated run (no ship phase recorded - an older salvage stamped it at landing; its `wall` is `-` and it feeds no aggregate). `by version` groups by pi-gauntlet version: `n` counts every row, `shipped` counts the rows behind the p50/max columns. `grants` is `fix_round_grants` - the fix-round proxy (human-granted extra review rounds); schema 1 has no code-review round count.
 
 ## Reply - exactly this, in this order
 

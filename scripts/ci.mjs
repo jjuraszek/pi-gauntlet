@@ -31,7 +31,7 @@ if (pkg.private) fail("package.json: private:true would block publish");
 if (!pkg.license) fail("package.json: missing license field");
 if (pkg.engines?.node !== ">=24.15.0") fail('package.json: engines.node must equal ">=24.15.0"');
 if (pkg.bin?.["gauntlet-spec-index"] !== "bin/gauntlet-spec-index.mjs") fail("package.json: bin.gauntlet-spec-index must point at bin/gauntlet-spec-index.mjs");
-if (pkg.bin?.["gauntlet-telemetry-salvage"] !== "bin/gauntlet-telemetry-salvage.mjs") fail("package.json: bin.gauntlet-telemetry-salvage must point at bin/gauntlet-telemetry-salvage.mjs");
+if (pkg.bin?.["gauntlet-telemetry-seal"] !== "bin/gauntlet-telemetry-seal.mjs") fail("package.json: bin.gauntlet-telemetry-seal must point at bin/gauntlet-telemetry-seal.mjs");
 if (pkg.bin?.["gauntlet-performance"] !== "bin/gauntlet-performance.mjs") fail("package.json: bin.gauntlet-performance must point at bin/gauntlet-performance.mjs");
 const dependencyKeys = Object.keys(pkg.dependencies || {}).sort();
 if (JSON.stringify(dependencyKeys) !== JSON.stringify(["yaml"])) {
@@ -286,24 +286,22 @@ if (!existsSync(R("skills/brainstorming/reference/superseding.md"))) {
 if (!existsSync(R("skills/brainstorming/../../bin/gauntlet-spec-index.mjs"))) {
   fail("gauntlet-spec-index: path from skills/brainstorming does not resolve");
 }
-for (const skill of ["skills/finishing-a-development-branch", "skills/gatekeep-pr"]) {
-  if (!existsSync(R(`${skill}/../../bin/gauntlet-telemetry-salvage.mjs`))) fail(`gauntlet-telemetry-salvage: path from ${skill} does not resolve`);
-}
+if (!existsSync(R("skills/finishing-a-development-branch/../../bin/gauntlet-telemetry-seal.mjs"))) fail("gauntlet-telemetry-seal: path from skills/finishing-a-development-branch does not resolve");
 if (!existsSync(R("skills/gauntlet-performance/../../bin/gauntlet-performance.mjs"))) fail("gauntlet-performance: path from skills/gauntlet-performance does not resolve");
-// Telemetry record is a deliverable: the rule and the salvage call sites cannot be edited away silently.
+// Telemetry record is a deliverable: the rule and the seal call site cannot be edited away silently;
+// gatekeep-pr is about the change and never names the record (spec 2026-09-25-gauntlet-bound-telemetry).
 {
   const worktreeFirst = txt("skills/brainstorming/SKILL.md").split(/^## /m).find((s) => s.startsWith("Worktree First")) ?? "";
   if (!worktreeFirst.includes("telemetry record")) fail("skills/brainstorming/SKILL.md: Worktree First must name the telemetry record as a deliverable");
   const finishing = txt("skills/finishing-a-development-branch/SKILL.md");
-  if (!finishing.includes("gauntlet-telemetry-salvage.mjs")) fail("skills/finishing-a-development-branch/SKILL.md: missing the gauntlet-telemetry-salvage.mjs call");
+  if (!finishing.includes("gauntlet-telemetry-seal.mjs")) fail("skills/finishing-a-development-branch/SKILL.md: missing the gauntlet-telemetry-seal.mjs call");
   for (const opt of ["#### Option 1: Push and Create PR", "#### Option 2: Push and Create Draft PR", "#### Option 3: Squash-merge to base"]) {
     const block = finishing.split(opt)[1]?.split(/^#### /m)[0] ?? "";
     if (!block.includes("telemetry record")) fail(`skills/finishing-a-development-branch/SKILL.md: "${opt}" must name the telemetry record`);
   }
-  const gate = txt("skills/gatekeep-pr/reference/post-selection-loop.md");
-  const postSelection = gate.split(/^## Post-selection loop/m)[1]?.split(/^## /m)[0] ?? "";
-  if (!postSelection.includes("gauntlet-telemetry-salvage.mjs")) fail("skills/gatekeep-pr/reference/post-selection-loop.md: Post-selection loop must call gauntlet-telemetry-salvage.mjs");
-  if (!/never delete[^\n]*telemetry/.test(postSelection)) fail("skills/gatekeep-pr/reference/post-selection-loop.md: Post-selection loop must forbid deleting the telemetry record");
+  for (const f of walk(R("skills/gatekeep-pr")).filter((f) => f.endsWith(".md"))) {
+    if (/telemetry/i.test(readFileSync(f, "utf8"))) fail(`${f.replace(root + "/", "")}: gatekeep-pr must not mention telemetry`);
+  }
 }
 // touched-files + over-spec in the same paragraph of conformance-check.md
 const ccParas = txt("skills/verification-before-completion/reference/conformance-check.md").split(/\n\s*\n/);
@@ -396,7 +394,7 @@ try {
       R("extensions/lib/telemetry-ship.test.ts"),
       R("extensions/telemetry.test.ts"),
       R("bin/gauntlet-spec-index.test.mjs"),
-      R("bin/gauntlet-telemetry-salvage.test.mjs"),
+      R("bin/gauntlet-telemetry-seal.test.mjs"),
       R("bin/gauntlet-performance.test.mjs"),
     ],
     { stdio: "pipe" },
@@ -572,7 +570,7 @@ try {
     "extensions/lib/gauntlet-settings.ts",
     "extensions/lib/gauntlet-settings-loader.ts",
     "bin/gauntlet-spec-index.mjs",
-    "bin/gauntlet-telemetry-salvage.mjs",
+    "bin/gauntlet-telemetry-seal.mjs",
     "bin/gauntlet-performance.mjs",
     "extensions/lib/telemetry-record.ts",
     "extensions/lib/telemetry-paths.ts",
@@ -592,7 +590,7 @@ try {
 }
 
 // ---- bin bundles: no runtime .ts imports, shebang intact (gh-39) -----------
-for (const b of ["bin/gauntlet-telemetry-salvage.mjs", "bin/gauntlet-performance.mjs"]) {
+for (const b of ["bin/gauntlet-telemetry-seal.mjs", "bin/gauntlet-performance.mjs"]) {
   const firstLine = readFileSync(R(b), "utf8").split("\n", 1)[0];
   if (firstLine !== "#!/usr/bin/env node") fail(`${b}: first line must be #!/usr/bin/env node`);
 }

@@ -181,9 +181,11 @@ Rows 1-2 run the Option 1/2 blocks; row 3 runs the Keep block and row 4 the Disc
 
 ### Step 5: Execute Choice
 
-#### Strip the plan, keep the record (Options 1-3)
+#### Strip the plan, seal the record (Options 1-3)
 
-Run this on the feature branch before any landing path. The spec and its telemetry record (`<telemetry.dir>/<spec path with .md -> .yaml>`, default `.pi/gauntlet/telemetry/doc/specs/<spec>.yaml`) are deliverables and ship in the squash; only the plan is stripped. `<bin>` is `<directory of this skill's SKILL.md>/../../bin`, resolved from the skill's `<location>` in the system prompt.
+Run this on the feature branch before any landing path. The spec and its telemetry record (`<telemetry.dir>/<spec path with .md -> .yaml>`, default `.pi/gauntlet/telemetry/doc/specs/<spec>.yaml`) are deliverables and ship in the squash; only the plan is stripped. The record is an untracked, git-excluded file until this step commits it. `<bin>` is `<directory of this skill's SKILL.md>/../../bin`, resolved from the skill's `<location>` in the system prompt.
+
+Read the plan's `**Spec:**` header (repo-relative, backticks stripped) before the strip; that value is `--spec`.
 
 ```bash
 # Plans are ephemeral - if one was committed on this branch, remove it before landing.
@@ -192,15 +194,16 @@ if git -C "$WORKTREE" ls-files --error-unmatch "$PLAN_PATH" >/dev/null 2>&1; the
   git -C "$WORKTREE" rm "$PLAN_PATH" && git -C "$WORKTREE" commit -m "Remove ephemeral plan doc"
 fi
 
-# The telemetry record is a deliverable - restore it if a strip or a stray delete removed it.
-node <bin>/gauntlet-telemetry-salvage.mjs --worktree "$WORKTREE" --base <base-branch>
+# Seal the telemetry record: stamp shipped, compute the diff, commit it once.
+# --option is pr for Options 1-2 and squash for Option 3; --spec is the plan header's **Spec:** value (omit when no plan is known).
+node <bin>/gauntlet-telemetry-seal.mjs --worktree "$WORKTREE" --option <pr|squash> --base <base-branch> --spec <spec path>
 ```
 
-The salvage prints one line per spec on the branch (`present`, `present <path> (marked shipped)`, `restored <path> from <sha>`, `restored <path> from <sha> (marked shipped)`, `no telemetry run`, `never written`, `restore failed <path>: <reason>`) and always exits 0. `(marked shipped)` means the record was still `in_progress` with no ship phase (the recorder lost its binding) and the salvage committed `status: shipped` + `shipped_at` as one `telemetry:` commit; it rides the squash or push like any branch commit. Print its stdout verbatim in the ship completion message. A `restore failed` line is reported, never retried, and never blocks the ship - the record stays recoverable from the branch ref.
+The seal prints one line per record (`sealed <path>`, `already sealed <path>`) or one bare outcome (`no telemetry run`, `telemetry disabled`) and exits 0; print its stdout verbatim in the ship completion message. Any nonzero exit stops the flow before the first landing command, quoting the bin's line: exit 2 (`no record at <path>`, `unparseable record <path>: <reason>`) means this gauntlet run's recorder never armed or its record is corrupt; exit 1 is a usage, environment, or git failure (`seal failed <path>: <reason>` restored the pre-seal bytes). The user decides; never land without the seal.
 
 #### Option 1: Push and Create PR
 
-Run the strip-and-salvage block above first (plan stripped, telemetry record kept), then:
+Run the strip-and-seal block above first (plan stripped, telemetry record sealed), then:
 
 ```bash
 # Push branch
@@ -231,11 +234,11 @@ When the spec's `## Acceptance criteria` has at least one `venue:` or `deferred:
 
 #### Option 2: Push and Create Draft PR
 
-Run the strip-and-salvage block above first (plan stripped, telemetry record kept), then Option 1's push and `gh pr create` commands with `--draft` added. The PR body is unchanged. Do not clean up the worktree.
+Run the strip-and-seal block above first (plan stripped, telemetry record sealed), then Option 1's push and `gh pr create` commands with `--draft` added. The PR body is unchanged. Do not clean up the worktree.
 
 #### Option 3: Squash-merge to base
 
-Run the strip-and-salvage block above first (plan stripped, telemetry record kept), then:
+Run the strip-and-seal block above first (plan stripped, telemetry record sealed), then:
 
 ```bash
 git -C "$PRIMARY" checkout <base-branch>
@@ -245,7 +248,7 @@ git -C "$PRIMARY" commit -m "<imperative summary> (ref <ticket-id>)"
 (cd "$PRIMARY" && <the Step 1 set>)
 ```
 
-The plan was already removed on the branch, so the staged squash tree carries the spec, the telemetry record, and the implementation - never the plan.
+The plan was already removed and the telemetry record sealed on the branch, so the staged squash tree carries the spec, the telemetry record, and the implementation - never the plan.
 
 The post-squash re-verify is not optional - `git merge --squash` can surface conflict-resolution mistakes the worktree-side run couldn't catch.
 
@@ -255,7 +258,7 @@ Cleanup worktree (Step 6), then, if Step 6 removed the worktree, `git -C "$PRIMA
 
 #### Option 4: Keep As-Is
 
-Report: "Keeping branch <name>. Worktree preserved at <path>."
+Report: "Keeping branch <name>. Worktree preserved at <path>." The telemetry record stays untracked and in_progress in the worktree; a later finishing run on this worktree seals it.
 
 **Don't cleanup worktree.**
 
@@ -273,7 +276,7 @@ Type 'discard' to confirm.
 
 Wait for exact confirmation.
 
-If confirmed: Cleanup worktree (Step 6), then, if Step 6 removed the worktree, `git -C "$PRIMARY" branch -D "$FEATURE"`.
+If confirmed: Cleanup worktree (Step 6), then, if Step 6 removed the worktree, `git -C "$PRIMARY" branch -D "$FEATURE"`. The record is git-excluded, so git worktree remove needs no --force; it goes with the worktree.
 
 ### Step 6: Cleanup Workspace
 
@@ -294,7 +297,7 @@ Removal precedes branch deletion in both options; `git branch -d`/`-D` fails whi
 
 ## Quick Reference
 
-| Option | Merge | Push | Keep Worktree | Cleanup Branch | Plan strip + record salvage |
+| Option | Merge | Push | Keep Worktree | Cleanup Branch | Plan strip + record seal |
 |---|---|---|---|---|---|
 | 1. Create PR | - | yes | yes | - | yes (guarded, on the branch before push) |
 | 2. Create draft PR | - | yes | yes | - | yes (guarded, on the branch before push) |
@@ -334,13 +337,13 @@ A host-owned worktree (Step 6 "Otherwise") keeps both the worktree and the branc
 - **Problem:** Accidentally delete work
 - **Fix:** Require typed "discard" confirmation
 
-**Skipping the strip-and-salvage block in Options 1-3 (any path that lands on base)**
+**Skipping the strip-and-seal block in Options 1-3 (any path that lands on base)**
 - **Problem:** Plan docs are ephemeral and shouldn't land on `<base-branch>`; the telemetry record is a deliverable and must. Skipping the block ships the plan, or drops the record the spec index reads.
 - **Fix:** Run the block on `$WORKTREE` before the squash or the push. The plan stays in the branch's git history (`git -C "$PRIMARY" log --all -- doc/plans/...`). Spec and telemetry record stay on `<base-branch>`; plan does not.
 
 **Widening the plan strip to the telemetry record**
 - **Problem:** `.pi/gauntlet/telemetry/**` looks like scaffolding next to the plan and gets deleted in the same commit - main then has no record for the run.
-- **Fix:** Never `git rm` under the telemetry dir. The salvage restores a stripped record, but the deletion should not happen in the first place.
+- **Fix:** Never `git rm` under the telemetry dir. Until the seal the record is untracked and git-excluded, so a plan strip cannot reach it; after the seal it is a committed deliverable.
 
 ## Completion
 
@@ -363,12 +366,12 @@ Once the merge (and any deploy) has landed, `/skill:check-delivery <ticket-ref>`
 - Clean up worktrees you didn't create (provenance check)
 - Run any step without the `<worktree-path>` argument
 - Auto-proceed past an undispositioned carried-open gap
-- Skip the strip-and-salvage block before the Option 3 squash or the Option 1/2 push
+- Skip the strip-and-seal block before the Option 3 squash or the Option 1/2 push
 - Delete the telemetry record (`.pi/gauntlet/telemetry/**` or the configured `telemetry.dir`) on any path
 
 **Always:**
 - Verify, or apply the Step 1 skip rule, before offering options
-- Print the `gauntlet-telemetry-salvage.mjs` output verbatim in the ship completion message
+- Print the `gauntlet-telemetry-seal.mjs` output verbatim in the ship completion message
 - Derive `$PRIMARY` and `$FEATURE` from `<worktree-path>` before presenting the menu
 - Present exactly 5 options (or 4 for detached HEAD)
 - Get typed confirmation for Option 5 (Discard)

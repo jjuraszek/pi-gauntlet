@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Changed
+
+- Telemetry is gauntlet-bound: the recorder binds only after `phase_tracker start brainstorm` armed the flow (a spec written outside the gauntlet gets no record), never stages or commits the record, and hides it through `<git-common-dir>/info/exclude` until `finishing-a-development-branch` seals it. The new `gauntlet-telemetry-seal` bin replaces `gauntlet-telemetry-salvage`: it stamps `shipped`, computes the diff, re-derives, and commits the record once before the PR push or the squash; a nonzero exit stops the landing. `gatekeep-pr` no longer mentions telemetry. Records are no longer marked `abandoned` on discard, and the recorder does not bind to already sealed records on disk; `spec_edits_after_ship` is no longer produced (the field remains declared and old records parse). Plain jj workspaces keep sealing on `phase complete ship`. In-flight branches with a committed record show it as modified until the seal.
+
 ## v5.19.0 - 2026-09-26
 
 ### Added

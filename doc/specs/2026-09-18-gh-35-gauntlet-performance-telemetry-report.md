@@ -1,6 +1,7 @@
 # /gauntlet-performance: telemetry digest CLI + human-only reasoning skill
 
 > **Superseded by:** [doc/specs/2026-09-19-gh-39-installed-bins-ship-js.md](./2026-09-19-gh-39-installed-bins-ship-js.md) - the performance bin implementation and CI pack-check sections only
+> **Superseded by:** [doc/specs/2026-09-25-gauntlet-bound-telemetry.md](./2026-09-25-gauntlet-bound-telemetry.md) - `### bin/gauntlet-telemetry-salvage.mjs change` section only (mark-shipped at landing is replaced by the seal step in finishing)
 
 **Ticket:** #35
 **Goal:** A human runs `/skill:gauntlet-performance` and gets, in a short reply, one example-led recommendation and the cornerstone numbers behind it, computed from the committed run telemetry of the current repo (plus any repos named by path). Landing a branch whose recorder lost its binding still leaves the telemetry record `status: shipped`.
