@@ -1,5 +1,15 @@
 # Changelog
 
+## Unreleased
+
+### Added
+
+- `gauntlet-resume` accepts a spec seed: a one-token `.md` file tracked on main under a configured spec dir. The route (`skills/gauntlet-resume/reference/seed.md`) checks primary session, tracked, and not shipped, derives the branch name from the spec basename minus its date, reuses the worktree registered for that branch or creates it through `/skill:using-git-worktrees`, pins the spec, and continues in reconstruction. Reconstruction pairs a candidate plan with a spec tracked from base; a plan already at base reports `plan predates base; no post-base task evidence`.
+
+### Changed
+
+- `gauntlet-resume` arguments classify by token count then content: a file whose line 1 starts `# Handoff:` is a brief regardless of extension, a `.md` under a spec dir is a seed, an existing git worktree root or bare name is a worktree. "Never creates a worktree" narrows to "never `git worktree add` directly". Supersedes the matching clauses of `doc/specs/2026-09-17-gh-31-gauntlet-resume.md` and `doc/specs/2026-09-20-gh-40-gauntlet-handoff-shared-brief-contract.md`.
+
 ## v5.18.7 - 2026-09-24
 
 ### Added

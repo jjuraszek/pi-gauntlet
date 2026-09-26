@@ -23,6 +23,8 @@ for a base ref before reading any artifact.
 
 ## Candidates
 
+A pinned spec (seed route, `seed.md`) skips this section.
+
 Spec/plan directories: `piGauntlet.flowGuards.specDirs` plus each one's sibling `plans` directory. Resolve with the precedence `doc/configuration.md` documents for every `piGauntlet.*` key: the session cwd's `.pi/settings.json` if it defines `flowGuards`,
 else the active pi profile's `settings.json`, else the default `["doc/specs"]` (sibling
 `doc/plans`). An empty array is the default. `<dirs>` below is that resolved list,
@@ -36,15 +38,17 @@ git -C <worktree> ls-files --others --exclude-standard -- <dirs>
 Candidates are files under those directories added after base, plus untracked files
 there. Paths returned by these commands are relative to `<worktree>`; resolve them to
 absolute paths under `<worktree>` before reading artifacts, showing paths in prompts,
-or calling `plan_check`. A spec and a plan pair by identical basename
-(`<specDir>/<name>.md` <-> `<sibling plans dir>/<name>.md`). The plan commit is the first
+or calling `plan_check`. A candidate plan pairs with
+`<worktree>/<specDir>/<same basename>` whether that spec is a candidate or tracked
+from base; count a base-tracked spec so paired as a spec in the route table below.
+The plan commit is the first
 post-base commit that added the plan file: `git -C <worktree> log --diff-filter=A
 --format=%H --reverse <base>..HEAD -- <plan>`, first line. An uncommitted plan has no
 plan commit; treat every task as `pending`.
 
 | Candidates | Route |
 |---|---|
-| no spec | stop; offer `/skill:brainstorming`; no tracker call |
+| no spec | stop; offer `/skill:brainstorming` or pass the spec: `/skill:gauntlet-resume <specDir>/<name>.md`; no tracker call |
 | more than one spec | the human picks one, then continue below with that spec |
 | one spec, no plan | "Spec without plan" |
 | one spec with plan | "Spec with plan" |
@@ -71,6 +75,9 @@ Show, and ask the human to confirm or edit both in one reply:
    Uncommitted plan (no
    plan commit): skip this query entirely - there is no range to search - and show
    "plan uncommitted; no task evidence" in its place; every task is proposed `pending`.
+   Plan commit lookup empty while `git -C <worktree> cat-file -e <base>:<plan>` exits 0
+   (plan at or before base): skip the log query, show
+   `plan predates base; no post-base task evidence`, every task proposed `pending`.
 2. Uncommitted files: `git -C <worktree> status --porcelain`.
 3. Proposed task statuses: `complete` iff at least one matching commit, else `pending`.
 4. Proposed stage: `implement` if any task is `pending`, else `verify`.

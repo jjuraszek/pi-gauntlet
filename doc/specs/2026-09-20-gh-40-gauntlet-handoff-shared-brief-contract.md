@@ -1,5 +1,7 @@
 # gauntlet-handoff: gauntlet-owned producer of `## Process state`, one brief contract shared with gauntlet-resume
 
+> **Superseded by:** [doc/specs/2026-09-25-resume-spec-seed.md](./2026-09-25-resume-spec-seed.md) - the "`.md` token is a brief-file, never widened to a scan" classification rule only
+
 Ticket: https://github.com/jjuraszek/pi-gauntlet/issues/40
 Cohort counterpart: https://github.com/jjuraszek/pi-cohort/issues/18 (flow-agnostic `handoff` skill with an append seam)
 Supersedes: `doc/specs/2026-09-17-gh-31-gauntlet-resume.md`, sections `### Argument grammar` (zero-argument form) and `### Cohort drift verification` (provenance).

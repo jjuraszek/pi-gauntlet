@@ -130,8 +130,8 @@ Per-stage call table, keyed by the brief's active phase (`→`). `R` is the reas
 
 `planPath`: the brief carries none. Resolve as reconstruction does
 (`reconstruction.md`, "Candidates", including its `flowGuards.specDirs` resolution): the
-single spec/plan pair added after base in the worktree, paired by identical basename
-(`<specDir>/<name>.md` <-> `<sibling plans dir>/<name>.md`, the writing-plans contract);
+single plan added after base, paired with `<specDir>/<same basename>` whether that
+spec was added after base or tracked from base (`reconstruction.md` "Candidates");
 resolve the selected plan to an absolute path under the worktree before `plan_check`.
 Zero pairs -> stop; more than one -> human picks.
 
