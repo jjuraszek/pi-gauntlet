@@ -187,7 +187,7 @@ Rows 1-2 run the Option 1/2 blocks; row 3 runs the Keep block and row 4 the Disc
 
 #### Strip the plan, seal the record (Options 1-3)
 
-Run this on the feature branch before any landing path. The spec and its telemetry record (`<telemetry.dir>/<spec path with .md -> .yaml>`, default `.pi/gauntlet/telemetry/doc/specs/<spec>.yaml`) are deliverables and ship in the squash; only the plan is stripped. The record is an untracked, git-excluded file until this step commits it. `<bin>` is `<directory of this skill's SKILL.md>/../../bin`, resolved from the skill's `<location>` in the system prompt.
+Run this on the feature branch before any landing path. The spec and its telemetry record (`<telemetry.dir>/<spec path with .md -> .yaml>`, default `.pi/gauntlet/telemetry/doc/specs/<spec>.yaml`) are deliverables and ship in the squash; only the plan is stripped. The record is an untracked, git-excluded file until this step commits it (in a plain jj workspace there is no commit; jj snapshots the stamped record into the working-copy change). `<bin>` is `<directory of this skill's SKILL.md>/../../bin`, resolved from the skill's `<location>` in the system prompt.
 
 Read the plan's `**Spec:**` header (repo-relative, backticks stripped) before the strip; pass that value as `--spec`. Resolve the spec dirs with `gauntlet_setting({ key: "flowGuards" })` and use their sibling `plans` dirs for plan paths.
 
@@ -196,14 +196,18 @@ Read the plan's `**Spec:**` header (repo-relative, backticks stripped) before th
 PLAN_PATH=<sibling-plans-dir>/<plan-file>.md   # the sibling plans dir of the spec's dir
 if git -C "$WORKTREE" ls-files --error-unmatch "$PLAN_PATH" >/dev/null 2>&1; then
   git -C "$WORKTREE" rm "$PLAN_PATH" && git -C "$WORKTREE" commit -m "Remove ephemeral plan doc"
+elif [ -f "$WORKTREE/$PLAN_PATH" ] && jj -R "$WORKTREE" root >/dev/null 2>&1; then
+  # Plain jj workspace (no .git): the removal lands in the working-copy change; there is no commit step.
+  jj -R "$WORKTREE" restore --from <base-branch> -- "$PLAN_PATH"
 fi
 
 # Seal the telemetry record: stamp shipped, compute the diff, commit it once.
+# The bin detects a plain jj workspace (no .git) itself: jj diff, no commit step.
 # --option is pr for Options 1-2 and squash for Option 3; --spec is the plan header's **Spec:** value (omit when no plan is known).
 node <bin>/gauntlet-telemetry-seal.mjs --worktree "$WORKTREE" --option <pr|squash> --base <base-branch> --spec <spec path>
 ```
 
-The seal prints one line per record (`sealed <path>`, `already sealed <path>`) or one bare outcome (`no telemetry run`, `telemetry disabled`) and exits 0; print its stdout verbatim in the ship completion message. Any nonzero exit stops the flow before the first landing command, quoting the bin's line: exit 2 (`no record at <path>`, `unparseable record <path>: <reason>`) means this gauntlet run's recorder never armed or its record is corrupt; exit 1 is a usage, environment, or git failure (`seal failed <path>: <reason>` restored the pre-seal bytes). The user decides; never land without the seal.
+The seal prints one line per record (`sealed <path>`, `already sealed <path>`) or one bare outcome (`no telemetry run`, `telemetry disabled`) and exits 0; print its stdout verbatim in the ship completion message. Any nonzero exit stops the flow before the first landing command, quoting the bin's line: exit 2 (`no record at <path>`, `unparseable record <path>: <reason>`) means this gauntlet run's recorder never armed or its record is corrupt; exit 1 is a usage, environment, or git/jj failure (`seal failed <path>: <reason>` restored the pre-seal bytes). The user decides; never land without the seal.
 
 #### Option 1: Push and Create PR
 

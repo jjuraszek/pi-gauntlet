@@ -1,20 +1,18 @@
 #!/usr/bin/env node
 // Seal a gauntlet telemetry record at finish: stamp shipped, compute the ship diff,
 // re-derive, and commit the record once as `telemetry: <spec>`. The recorder never
-// commits; this is the only place the record enters git history.
+// commits; on git this is the only place the record enters git history. A plain jj
+// workspace (no .git) has no commit step: jj snapshots the stamped record into the
+// working copy. All git/jj dispatch lives in extensions/lib/vcs.ts.
 import { existsSync, readdirSync, readFileSync, realpathSync, writeFileSync } from "node:fs";
 import { homedir } from "node:os";
 import { isAbsolute, join, relative } from "node:path";
-import { spawnSync } from "node:child_process";
 import process from "node:process";
 import { mergeGauntlet, planDirsFor, resolveFlowGuards, resolveTelemetry } from "../../extensions/lib/gauntlet-settings.ts";
 import { recordPathFor, repoRelativeToolPath, toPosix } from "../../extensions/lib/telemetry-paths.ts";
-import { computeGitDiff } from "../../extensions/lib/telemetry-diff.ts";
+import { changedNames, commitRecordFile, computeShipDiff, recordSealed, validateBase, vcsFor } from "../../extensions/lib/vcs.ts";
 import { derive, parseRecord, serializeRecord } from "../../extensions/lib/telemetry-record.ts";
 
-const GIT_TIMEOUT_MS = 10_000;
-const COMMIT_TIMEOUT_MS = 30_000;
-const GIT_ENV = { ...process.env, GIT_TERMINAL_PROMPT: "0", GIT_EDITOR: "true" };
 const OPTIONS = new Set(["pr", "squash"]);
 
 const fail = (code, message) => {
@@ -43,17 +41,6 @@ function parseArgs(argv) {
   return opts;
 }
 
-function git(cwd, args, timeout = GIT_TIMEOUT_MS) {
-  const r = spawnSync("git", args, { cwd, encoding: "utf8", env: GIT_ENV, timeout });
-  const timedOut = r.error?.code === "ETIMEDOUT";
-  const stderr = timedOut ? "timed out" : (r.stderr ?? "").trim().split("\n")[0] || r.error?.message || `git exited ${r.status}`;
-  return { ok: !timedOut && r.status === 0, code: timedOut ? 1 : (r.status ?? 1), stdout: (r.stdout ?? "").trim(), stderr };
-}
-const gitRunner = (args, cwd) => {
-  const r = git(cwd, args);
-  return { code: r.code, stdout: r.stdout, stderr: r.stderr };
-};
-
 function readLayer(file) {
   if (!existsSync(file)) return {};
   try {
@@ -64,8 +51,8 @@ function readLayer(file) {
   }
 }
 
-// Resolves piGauntlet.telemetry from the same two layers the recorder reads
-// (gauntlet-settings-loader.ts), without the pi import.
+// Resolves piGauntlet.telemetry and the spec/plan dirs from the same two layers
+// the recorder reads (gauntlet-settings-loader.ts), without the pi import.
 function settings(root) {
   const agentDir = process.env.PI_CODING_AGENT_DIR || join(homedir(), ".pi", "agent");
   const preset = readLayer(join(agentDir, "settings.json"));
@@ -87,41 +74,34 @@ function walkRecords(absDir) {
 
 const isoNow = () => new Date().toISOString().replace(/\.\d{3}Z$/, "Z");
 
-// A shipped record is already sealed when tracked and clean (git ls-files --error-unmatch, git diff --quiet HEAD).
-const trackedAndClean = (root, rec) =>
-  git(root, ["ls-files", "--error-unmatch", "--", rec]).ok && git(root, ["diff", "--quiet", "HEAD", "--", rec]).ok;
-
-async function seal(root, rec, o) {
-  const abs = join(root, rec);
+async function seal(vcs, rec, o) {
+  const abs = join(vcs.root, rec);
   if (!existsSync(abs)) fail(2, `no record at ${rec}`);
   const prior = readFileSync(abs);
   const parsed = parseRecord(prior.toString("utf8"));
   if (!parsed) fail(2, `unparseable record ${rec}: schema 1 with spec and run_id required`);
   if (parsed.status !== "in_progress") {
-    if (parsed.status !== "shipped" || trackedAndClean(root, rec)) return console.log(`already sealed ${rec}`);
+    if (parsed.status !== "shipped" || recordSealed(vcs, rec)) return console.log(`already sealed ${rec}`);
     // A previous seal stamped the file but its commit failed: commit the bytes as they are.
   } else {
     const now = isoNow();
     parsed.status = "shipped";
     parsed.shipped_at = now;
     parsed.events.push({ ts: now, session: parsed.sessions.at(-1) ?? "seal", phase: "ship", kind: "ship", option: o.option });
-    const out = await computeGitDiff({ git: gitRunner, cwd: root, spec: parsed.spec, dir: o.dir, buckets: o.buckets, base: o.base, planDirs: o.planDirs });
+    const out = await computeShipDiff(vcs, { spec: parsed.spec, dir: o.dir, buckets: o.buckets, base: o.base, planDirs: o.planDirs });
     if (out.warning) parsed.events.push({ ts: now, session: parsed.sessions.at(-1) ?? "seal", phase: "ship", kind: "warning", message: out.warning });
     parsed.derived.diff = out.diff;
     parsed.derived.modified_files = out.modified_files;
     parsed.derived = derive(parsed, now); // derive(rec, shipped_at): duration_s and gates.ship_option consistent at seal time
     writeFileSync(abs, serializeRecord(parsed));
   }
-  // Restore the pre-seal bytes on add/commit failure.
-  const rollback = (reason) => {
+  const commit = commitRecordFile(vcs, rec, `telemetry: ${parsed.spec}`);
+  // undefined on jj: the working-copy snapshot persists the stamped record.
+  if (commit && !commit.ok) {
+    // Restore the pre-seal bytes on add/commit failure.
     writeFileSync(abs, prior);
-    git(root, ["reset", "-q", "--", rec]);
-    fail(1, `seal failed ${rec}: ${reason}`);
-  };
-  const add = git(root, ["add", "-f", "--", rec]);
-  if (!add.ok) rollback(add.stderr);
-  const commit = git(root, ["commit", "-q", "-m", `telemetry: ${parsed.spec}`, "--", rec], COMMIT_TIMEOUT_MS);
-  if (!commit.ok) rollback(commit.stderr);
+    fail(1, `seal failed ${rec}: ${commit.stderr}`);
+  }
   console.log(`sealed ${rec}`);
 }
 
@@ -129,12 +109,12 @@ async function main() {
   const opts = parseArgs(process.argv.slice(2));
   const override = opts.dir === undefined ? undefined : resolveTelemetry({ telemetry: { enabled: true, dir: opts.dir } });
   if (override?.warning) usage();
-  const top = existsSync(opts.worktree) ? git(opts.worktree, ["rev-parse", "--show-toplevel"]) : { ok: false };
-  if (!top.ok) fail(1, "not a git checkout");
-  const root = top.stdout;
+  const vcs = existsSync(opts.worktree) ? vcsFor(opts.worktree) : undefined;
+  if (!vcs) fail(1, "not a git or jj checkout");
+  const root = vcs.root;
   let rel;
   if (opts.spec) {
-    // root is git's realpath'd toplevel; an absolute --spec may spell a symlinked prefix.
+    // root is the resolved toplevel; an absolute --spec may spell a symlinked prefix.
     const specAbs = isAbsolute(opts.spec) && existsSync(opts.spec) ? realpathSync(opts.spec) : opts.spec;
     rel = repoRelativeToolPath(root, root, specAbs);
     if (!rel) usage();
@@ -143,11 +123,11 @@ async function main() {
   if (telemetry.warning) process.stderr.write(`warning: ${telemetry.warning}\n`);
   if (!telemetry.enabled) return console.log("telemetry disabled");
   const dir = override?.dir ?? telemetry.dir;
-  if (!git(root, ["rev-parse", "--verify", "-q", `${opts.base}^{commit}`]).ok) fail(1, `no base ref ${opts.base}`);
+  if (!validateBase(vcs, opts.base)) fail(1, `no base ref ${opts.base}`);
   const o = { option: opts.option, base: opts.base, dir, buckets: telemetry.buckets, planDirs };
-  if (opts.spec) return seal(root, recordPathFor(dir, rel), o);
-  const diff = git(root, ["diff", "--no-renames", "--name-only", `${opts.base}...HEAD`]);
-  if (!diff.ok) fail(1, `git diff failed: ${diff.stderr}`);
+  if (opts.spec) return seal(vcs, recordPathFor(dir, rel), o);
+  const diff = changedNames(vcs, opts.base);
+  if (!diff.ok) fail(1, `${vcs.kind} diff failed: ${diff.stderr}`);
   const changed = new Set(diff.stdout.split("\n").filter(Boolean));
   const records = walkRecords(join(root, dir)).filter((abs) => {
     const parsed = parseRecord(readFileSync(abs, "utf8"));
@@ -155,7 +135,7 @@ async function main() {
     return parsed && changed.has(parsed.spec);
   }).map((abs) => toPosix(relative(root, abs))).sort();
   if (records.length === 0) return console.log("no telemetry run");
-  for (const rec of records) await seal(root, rec, o);
+  for (const rec of records) await seal(vcs, rec, o);
 }
 
 await main();

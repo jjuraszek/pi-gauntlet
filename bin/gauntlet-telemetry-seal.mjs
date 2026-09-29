@@ -1,11 +1,10 @@
 #!/usr/bin/env node
 
 // src/bins/gauntlet-telemetry-seal.mjs
-import { existsSync, readdirSync, readFileSync, realpathSync, writeFileSync } from "node:fs";
+import { existsSync as existsSync2, readdirSync, readFileSync, realpathSync, writeFileSync } from "node:fs";
 import { homedir } from "node:os";
-import { isAbsolute as isAbsolute2, join, relative as relative2 } from "node:path";
-import { spawnSync } from "node:child_process";
-import process from "node:process";
+import { isAbsolute as isAbsolute2, join as join2, relative as relative2 } from "node:path";
+import process2 from "node:process";
 
 // extensions/lib/gauntlet-settings.ts
 import path from "node:path";
@@ -87,6 +86,105 @@ function numstatPath(raw) {
   const arrow = braced.indexOf(" => ");
   return arrow >= 0 ? braced.slice(arrow + 4) : braced;
 }
+function patchBlockPath(headers) {
+  const plus = headers.find((l) => l.startsWith("+++ b/"));
+  if (plus) return plus.slice(6);
+  const renameTo = headers.find((l) => l.startsWith("rename to "));
+  if (renameTo) return renameTo.slice(10);
+  const minus = headers.find((l) => l.startsWith("--- a/"));
+  if (minus && headers.includes("+++ /dev/null")) return minus.slice(6);
+  if (!headers[0].startsWith("diff --git a/")) return void 0;
+  const rest = headers[0].slice("diff --git a/".length);
+  const mid = (rest.length - 3) / 2;
+  if (Number.isInteger(mid) && mid > 0 && rest.slice(mid, mid + 3) === " b/" && rest.slice(0, mid) === rest.slice(mid + 3)) return rest.slice(0, mid);
+  return void 0;
+}
+function parsePatchBlock(block) {
+  const hunk = block.findIndex((l) => l.startsWith("@@"));
+  const headers = hunk < 0 ? block : block.slice(0, hunk);
+  const path2 = patchBlockPath(headers);
+  if (path2 === void 0) return void 0;
+  let added = 0;
+  let removed = 0;
+  for (const line of hunk < 0 ? [] : block.slice(hunk)) {
+    if (line.startsWith("+")) added++;
+    else if (line.startsWith("-")) removed++;
+  }
+  return { added, removed, path: path2 };
+}
+function parsePatchNumstat(patch) {
+  if (!patch.trim()) return [];
+  const lines = patch.split("\n");
+  if (!lines.find((l) => l.trim()).startsWith("diff --git ")) return null;
+  const blocks = [];
+  for (const line of lines) {
+    if (line.startsWith("diff --git ")) blocks.push([line]);
+    else if (blocks.length) blocks[blocks.length - 1].push(line);
+  }
+  const rows = [];
+  for (const block of blocks) {
+    const row = parsePatchBlock(block);
+    if (!row) return null;
+    rows.push(row);
+  }
+  return rows;
+}
+
+// extensions/lib/vcs.ts
+import { spawnSync } from "node:child_process";
+
+// extensions/lib/checkout.ts
+import { execFileSync } from "node:child_process";
+import { existsSync, statSync } from "node:fs";
+import { dirname, join } from "node:path";
+var CHECKOUT_ARGS = ["rev-parse", "--path-format=absolute", "--show-toplevel", "--git-dir", "--git-common-dir"];
+function parseCheckout(r) {
+  if (r.code !== 0) return void 0;
+  const lines = r.stdout.trim().split("\n").map((l) => l.trim());
+  if (lines.length < 3 || !lines[0]) return void 0;
+  return { toplevel: lines[0], isPrimary: lines[1] === lines[2] };
+}
+var isDir = (p) => {
+  try {
+    return statSync(p).isDirectory();
+  } catch {
+    return false;
+  }
+};
+function nearestExistingDir(absPath) {
+  let p = absPath;
+  while (!(existsSync(p) && isDir(p))) {
+    const parent = dirname(p);
+    if (parent === p) return p;
+    p = parent;
+  }
+  return p;
+}
+var JJ_ROOT_ARGS = ["root"];
+function parseJjRoot(r) {
+  if (r.code !== 0) return void 0;
+  const toplevel = r.stdout.trim();
+  if (!toplevel) return void 0;
+  return { toplevel, isPrimary: isDir(join(toplevel, ".jj", "repo")) };
+}
+function checkoutOfSync(absPath, git = gitSync, jj = jjSync) {
+  const cwd = nearestExistingDir(absPath);
+  const g = parseCheckout(git(CHECKOUT_ARGS, cwd));
+  if (g) return { ...g, via: "git" };
+  const j = parseJjRoot(jj(JJ_ROOT_ARGS, cwd));
+  return j ? { ...j, via: "jj" } : void 0;
+}
+var commandSync = (bin) => (args, cwd) => {
+  try {
+    const stdout = execFileSync(bin, args, { cwd, encoding: "utf8", stdio: ["ignore", "pipe", "ignore"], timeout: 5e3 });
+    return { code: 0, stdout };
+  } catch (e) {
+    const status = e.status;
+    return { code: typeof status === "number" ? status : 1, stdout: "" };
+  }
+};
+var gitSync = commandSync("git");
+var jjSync = commandSync("jj");
 
 // extensions/lib/telemetry-ship.ts
 function modifiedFilesFrom(nameOnly, spec, dir, planDirs) {
@@ -111,7 +209,28 @@ function aggregateNumstat(numstat, files, buckets) {
   }
   return out;
 }
+var JJ_MAINLINE = "coalesce(trunk() ~ root(), present(main), present(master))";
+var JJ_FORK_POINT = `fork_point(${JJ_MAINLINE} | @) ~ root() & ::${JJ_MAINLINE}`;
 var firstLine = (s) => s.trim().split("\n")[0];
+async function computeJjDiff(o) {
+  const failed = (sub, r) => ({ warning: `diff omitted: jj ${sub} failed: ${firstLine(r.stderr) || "unknown error"}` });
+  const baseR = await o.jj(["--color=never", "log", "-r", JJ_FORK_POINT, "--no-graph", "-T", 'commit_id ++ "\\n"'], o.cwd);
+  if (baseR.code !== 0) return failed("log", baseR);
+  const base = firstLine(baseR.stdout).trim();
+  if (!base) return { warning: "diff omitted: jj mainline unresolved (trunk() is root(); no main/master bookmark)" };
+  const patch = await o.jj(["--color=never", "--config", "diff.git.show-path-prefix=true", "diff", "--from", base, "--to", "@", "--git"], o.cwd);
+  if (patch.code !== 0) return failed("diff", patch);
+  const rows = parsePatchNumstat(patch.stdout);
+  if (!rows) return { warning: "diff omitted: jj diff unparseable" };
+  const dir = o.dir.replace(/\/+$/, "");
+  const count = await o.jj(["--color=never", "log", "-r", `(${base}::@ ~ ${base}) & files(~glob:"${dir}/**")`, "--count"], o.cwd);
+  if (count.code !== 0) return failed("log", count);
+  const n = count.stdout.trim();
+  if (!/^\d+$/.test(n)) return { warning: `diff omitted: jj log --count unparseable: ${n}` };
+  const files = modifiedFilesFrom(rows.map((r) => r.path).join("\n"), o.spec, o.dir, o.planDirs);
+  const numstat = rows.map((r) => `${r.added}	${r.removed}	${r.path}`).join("\n");
+  return { modified_files: files, diff: { base, commits: Number(n), buckets: aggregateNumstat(numstat, new Set(files), o.buckets) } };
+}
 async function computeGitDiff(o) {
   const mb = await o.git(["merge-base", "HEAD", o.base], o.cwd);
   if (mb.code !== 0 || !mb.stdout.trim()) return { warning: `diff omitted: merge-base failed: ${firstLine(mb.stderr)}` };
@@ -121,6 +240,46 @@ async function computeGitDiff(o) {
   const numstat = await o.git(["diff", "--numstat", `${base}...HEAD`], o.cwd);
   const count = await o.git(["rev-list", "--count", "--invert-grep", "--grep=^telemetry: ", `${base}..HEAD`], o.cwd);
   return { modified_files: files, diff: { base, commits: Number(count.stdout.trim()) || 0, buckets: aggregateNumstat(numstat.stdout, new Set(files), o.buckets) } };
+}
+
+// extensions/lib/vcs.ts
+var NO_PROMPT_ENV = { ...process.env, GIT_TERMINAL_PROMPT: "0", GIT_EDITOR: "true" };
+var runBinary = (bin) => (args, cwd, timeoutMs = 1e4) => {
+  const r = spawnSync(bin, args, { cwd, encoding: "utf8", env: NO_PROMPT_ENV, timeout: timeoutMs });
+  const err = r.error;
+  const timedOut = err?.code === "ETIMEDOUT";
+  const stderr = timedOut ? "timed out" : (r.stderr ?? "").trim().split("\n")[0] || err?.message || `${bin} exited ${r.status}`;
+  return { ok: !timedOut && r.status === 0, code: timedOut ? 1 : r.status ?? 1, stdout: (r.stdout ?? "").trim(), stderr };
+};
+function vcsFor(absPath) {
+  const co = checkoutOfSync(absPath);
+  return co && { kind: co.via, root: co.toplevel, run: runBinary(co.via) };
+}
+async function computeShipDiff(vcs, o) {
+  return vcs.kind === "jj" ? computeJjDiff({ jj: vcs.run, cwd: vcs.root, spec: o.spec, dir: o.dir, planDirs: o.planDirs, buckets: o.buckets }) : computeGitDiff({ git: vcs.run, cwd: vcs.root, spec: o.spec, dir: o.dir, planDirs: o.planDirs, buckets: o.buckets, base: o.base });
+}
+function validateBase(vcs, base) {
+  const r = vcs.kind === "jj" ? vcs.run(["--color=never", "log", "-r", base, "--limit", "1", "--no-graph", "-T", 'commit_id ++ "\\n"'], vcs.root) : vcs.run(["rev-parse", "--verify", "-q", `${base}^{commit}`], vcs.root);
+  return r.ok && r.stdout !== "";
+}
+function changedNames(vcs, base) {
+  if (vcs.kind === "git") return vcs.run(["diff", "--no-renames", "--name-only", `${base}...HEAD`], vcs.root);
+  const forkR = vcs.run(["--color=never", "log", "-r", JJ_FORK_POINT, "--no-graph", "-T", 'commit_id ++ "\\n"'], vcs.root);
+  if (!forkR.ok) return forkR;
+  const fork = forkR.stdout.split("\n")[0];
+  if (!fork) return { ok: false, code: 1, stdout: "", stderr: "jj mainline unresolved (trunk() is root(); no main/master bookmark)" };
+  return vcs.run(["--color=never", "diff", "--name-only", "--from", fork, "--to", "@"], vcs.root);
+}
+function recordSealed(vcs, rel) {
+  if (vcs.kind === "jj") return true;
+  return vcs.run(["ls-files", "--error-unmatch", "--", rel], vcs.root).ok && vcs.run(["diff", "--quiet", "HEAD", "--", rel], vcs.root).ok;
+}
+function commitRecordFile(vcs, rel, message) {
+  if (vcs.kind === "jj") return void 0;
+  const add = vcs.run(["add", "-f", "--", rel], vcs.root);
+  const commit = add.ok ? vcs.run(["commit", "-q", "-m", message, "--", rel], vcs.root, 3e4) : add;
+  if (!commit.ok) vcs.run(["reset", "-q", "--", rel], vcs.root);
+  return commit;
 }
 
 // extensions/lib/telemetry-record.ts
@@ -251,13 +410,10 @@ function parseRecord(text) {
 }
 
 // src/bins/gauntlet-telemetry-seal.mjs
-var GIT_TIMEOUT_MS = 1e4;
-var COMMIT_TIMEOUT_MS = 3e4;
-var GIT_ENV = { ...process.env, GIT_TERMINAL_PROMPT: "0", GIT_EDITOR: "true" };
 var OPTIONS = /* @__PURE__ */ new Set(["pr", "squash"]);
 var fail = (code, message) => {
-  process.stderr.write(message + "\n");
-  process.exit(code);
+  process2.stderr.write(message + "\n");
+  process2.exit(code);
 };
 var usage = () => fail(1, "usage: gauntlet-telemetry-seal --worktree <abs path> --option <pr|squash> --base <ref> [--spec <spec path inside the checkout>] [--dir <telemetry dir>]");
 function parseArgs(argv) {
@@ -279,107 +435,92 @@ function parseArgs(argv) {
   if (!opts.worktree || !isAbsolute2(opts.worktree) || !opts.base || !OPTIONS.has(opts.option)) usage();
   return opts;
 }
-function git(cwd, args, timeout = GIT_TIMEOUT_MS) {
-  const r = spawnSync("git", args, { cwd, encoding: "utf8", env: GIT_ENV, timeout });
-  const timedOut = r.error?.code === "ETIMEDOUT";
-  const stderr = timedOut ? "timed out" : (r.stderr ?? "").trim().split("\n")[0] || r.error?.message || `git exited ${r.status}`;
-  return { ok: !timedOut && r.status === 0, code: timedOut ? 1 : r.status ?? 1, stdout: (r.stdout ?? "").trim(), stderr };
-}
-var gitRunner = (args, cwd) => {
-  const r = git(cwd, args);
-  return { code: r.code, stdout: r.stdout, stderr: r.stderr };
-};
 function readLayer(file) {
-  if (!existsSync(file)) return {};
+  if (!existsSync2(file)) return {};
   try {
     return JSON.parse(readFileSync(file, "utf8"));
   } catch (e) {
-    process.stderr.write(`warning: ${file}: ${e.message}; using {} for this layer
+    process2.stderr.write(`warning: ${file}: ${e.message}; using {} for this layer
 `);
     return {};
   }
 }
 function settings(root) {
-  const agentDir = process.env.PI_CODING_AGENT_DIR || join(homedir(), ".pi", "agent");
-  const preset = readLayer(join(agentDir, "settings.json"));
-  const repo = readLayer(join(root, ".pi", "settings.json"));
+  const agentDir = process2.env.PI_CODING_AGENT_DIR || join2(homedir(), ".pi", "agent");
+  const preset = readLayer(join2(agentDir, "settings.json"));
+  const repo = readLayer(join2(root, ".pi", "settings.json"));
   const merged = mergeGauntlet(preset?.piGauntlet, repo?.piGauntlet);
   return { telemetry: resolveTelemetry(merged), planDirs: planDirsFor(resolveFlowGuards(merged).specDirs) };
 }
 function walkRecords(absDir) {
-  if (!existsSync(absDir)) return [];
+  if (!existsSync2(absDir)) return [];
   const out = [];
   for (const e of readdirSync(absDir, { withFileTypes: true })) {
-    const p = join(absDir, e.name);
+    const p = join2(absDir, e.name);
     if (e.isDirectory()) out.push(...walkRecords(p));
     else if (e.isFile() && e.name.endsWith(".yaml")) out.push(p);
   }
   return out;
 }
 var isoNow = () => (/* @__PURE__ */ new Date()).toISOString().replace(/\.\d{3}Z$/, "Z");
-var trackedAndClean = (root, rec) => git(root, ["ls-files", "--error-unmatch", "--", rec]).ok && git(root, ["diff", "--quiet", "HEAD", "--", rec]).ok;
-async function seal(root, rec, o) {
-  const abs = join(root, rec);
-  if (!existsSync(abs)) fail(2, `no record at ${rec}`);
+async function seal(vcs, rec, o) {
+  const abs = join2(vcs.root, rec);
+  if (!existsSync2(abs)) fail(2, `no record at ${rec}`);
   const prior = readFileSync(abs);
   const parsed = parseRecord(prior.toString("utf8"));
   if (!parsed) fail(2, `unparseable record ${rec}: schema 1 with spec and run_id required`);
   if (parsed.status !== "in_progress") {
-    if (parsed.status !== "shipped" || trackedAndClean(root, rec)) return console.log(`already sealed ${rec}`);
+    if (parsed.status !== "shipped" || recordSealed(vcs, rec)) return console.log(`already sealed ${rec}`);
   } else {
     const now = isoNow();
     parsed.status = "shipped";
     parsed.shipped_at = now;
     parsed.events.push({ ts: now, session: parsed.sessions.at(-1) ?? "seal", phase: "ship", kind: "ship", option: o.option });
-    const out = await computeGitDiff({ git: gitRunner, cwd: root, spec: parsed.spec, dir: o.dir, buckets: o.buckets, base: o.base, planDirs: o.planDirs });
+    const out = await computeShipDiff(vcs, { spec: parsed.spec, dir: o.dir, buckets: o.buckets, base: o.base, planDirs: o.planDirs });
     if (out.warning) parsed.events.push({ ts: now, session: parsed.sessions.at(-1) ?? "seal", phase: "ship", kind: "warning", message: out.warning });
     parsed.derived.diff = out.diff;
     parsed.derived.modified_files = out.modified_files;
     parsed.derived = derive(parsed, now);
     writeFileSync(abs, serializeRecord(parsed));
   }
-  const rollback = (reason) => {
+  const commit = commitRecordFile(vcs, rec, `telemetry: ${parsed.spec}`);
+  if (commit && !commit.ok) {
     writeFileSync(abs, prior);
-    git(root, ["reset", "-q", "--", rec]);
-    fail(1, `seal failed ${rec}: ${reason}`);
-  };
-  const add = git(root, ["add", "-f", "--", rec]);
-  if (!add.ok) rollback(add.stderr);
-  const commit = git(root, ["commit", "-q", "-m", `telemetry: ${parsed.spec}`, "--", rec], COMMIT_TIMEOUT_MS);
-  if (!commit.ok) rollback(commit.stderr);
+    fail(1, `seal failed ${rec}: ${commit.stderr}`);
+  }
   console.log(`sealed ${rec}`);
 }
 async function main() {
-  const opts = parseArgs(process.argv.slice(2));
+  const opts = parseArgs(process2.argv.slice(2));
   const override = opts.dir === void 0 ? void 0 : resolveTelemetry({ telemetry: { enabled: true, dir: opts.dir } });
   if (override?.warning) usage();
-  const top = existsSync(opts.worktree) ? git(opts.worktree, ["rev-parse", "--show-toplevel"]) : { ok: false };
-  if (!top.ok) fail(1, "not a git checkout");
-  const root = top.stdout;
+  const vcs = existsSync2(opts.worktree) ? vcsFor(opts.worktree) : void 0;
+  if (!vcs) fail(1, "not a git or jj checkout");
+  const root = vcs.root;
   let rel;
   if (opts.spec) {
-    const specAbs = isAbsolute2(opts.spec) && existsSync(opts.spec) ? realpathSync(opts.spec) : opts.spec;
+    const specAbs = isAbsolute2(opts.spec) && existsSync2(opts.spec) ? realpathSync(opts.spec) : opts.spec;
     rel = repoRelativeToolPath(root, root, specAbs);
     if (!rel) usage();
   }
   const { telemetry, planDirs } = settings(root);
-  if (telemetry.warning) process.stderr.write(`warning: ${telemetry.warning}
+  if (telemetry.warning) process2.stderr.write(`warning: ${telemetry.warning}
 `);
   if (!telemetry.enabled) return console.log("telemetry disabled");
   const dir = override?.dir ?? telemetry.dir;
-  if (!git(root, ["rev-parse", "--verify", "-q", `${opts.base}^{commit}`]).ok) fail(1, `no base ref ${opts.base}`);
+  if (!validateBase(vcs, opts.base)) fail(1, `no base ref ${opts.base}`);
   const o = { option: opts.option, base: opts.base, dir, buckets: telemetry.buckets, planDirs };
-  if (opts.spec) return seal(root, recordPathFor(dir, rel), o);
-  const diff = git(root, ["diff", "--no-renames", "--name-only", `${opts.base}...HEAD`]);
-  if (!diff.ok) fail(1, `git diff failed: ${diff.stderr}`);
+  if (opts.spec) return seal(vcs, recordPathFor(dir, rel), o);
+  const diff = changedNames(vcs, opts.base);
+  if (!diff.ok) fail(1, `${vcs.kind} diff failed: ${diff.stderr}`);
   const changed = new Set(diff.stdout.split("\n").filter(Boolean));
-  const records = walkRecords(join(root, dir)).filter((abs) => {
+  const records = walkRecords(join2(root, dir)).filter((abs) => {
     const parsed = parseRecord(readFileSync(abs, "utf8"));
-    if (!parsed) process.stderr.write(`warning: unparseable record ${toPosix(relative2(root, abs))}
+    if (!parsed) process2.stderr.write(`warning: unparseable record ${toPosix(relative2(root, abs))}
 `);
     return parsed && changed.has(parsed.spec);
   }).map((abs) => toPosix(relative2(root, abs))).sort();
   if (records.length === 0) return console.log("no telemetry run");
-  for (const rec of records) await seal(root, rec, o);
+  for (const rec of records) await seal(vcs, rec, o);
 }
 await main();

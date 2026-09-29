@@ -74,10 +74,10 @@ test("seal: no-arg invocation prints usage and exits 1 without crashing", () => 
   assert.ok(!r.stderr.includes(CRASH), r.stderr);
 });
 
-test("seal: non-git dir -> not a git checkout, exit 1", () => {
+test("seal: non-git dir -> not a git or jj checkout, exit 1", () => {
   const r = run("bin/gauntlet-telemetry-seal.mjs", ["--worktree", emptyDir, "--option", "squash", "--base", "origin/main"]);
   assert.equal(r.status, 1);
-  assert.equal(r.stderr.trim(), "not a git checkout");
+  assert.equal(r.stderr.trim(), "not a git or jj checkout");
   assert.ok(!r.stderr.includes(CRASH), r.stderr);
 });
 
