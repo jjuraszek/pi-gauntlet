@@ -32,6 +32,9 @@ Post-merge **detective control**: proves an issue's work actually shipped -
 landed on the default branch, reached its delivery target, holds against its
 acceptance criteria - before the tracker status advances. It is not a
 quality gate; CI and the gauntlet gates already ran. It verifies **delivery**.
+It takes no input from `/skill:gatekeep-pr`: nothing the pre-merge gate
+rendered is read or trusted here. ACs are re-extracted from the ticket in
+stage 0 and the shipped SHA is re-derived in stage 1.
 
 **Core principle:** every ambiguity resolves toward "stop loudly, write
 nothing." An unreadable ticket, an unresolvable deliverable set, a commit
@@ -373,6 +376,7 @@ unset (no body edits).
 | "The ticket says done in a comment" | Ticket narrative is not evidence; only SHA-pinned code or target observations count |
 | "Just move it to Done, the human can reopen" | Never a terminal status - acceptance is the human's move, not this skill's |
 | "The AC was only synthesized, so the gap can't block" | Under `synthesized AC gaps: block`, a synthesized AC runs the same verdict matrix as an authored one - an unexplained gap blocks |
+| "The PR gate already checked this AC" | The gate judged the mechanism pre-merge; this control observes delivery at the shipped SHA from the ticket's own ACs |
 
 ## Red flags - STOP
 
@@ -394,6 +398,8 @@ unset (no body edits).
 - Striking an AC line the gate approval did not ratify as `proposed descope`
 - Applying a body edit by replaying the gather-time snapshot instead of
   patching the re-fetched body
+- Using a PR body, PR review comment, or pre-merge gate report as the AC list
+  or as AC evidence
 
 ## Project overrides
 

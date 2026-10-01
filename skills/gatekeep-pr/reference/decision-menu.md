@@ -1,226 +1,118 @@
-# gatekeep-pr: decision menu
+# gatekeep-pr: step 6 - menu
 
-Read from SKILL.md `## Decide`. `## Decision` in the report has two parts: the
-action vocabulary, then the numbered courses.
+Read from SKILL.md step 6. Input: the report's verdict and the PR state. Output: the menu appended under the verdict line. Nothing executes until a pick; the pick runs per `post-selection-loop.md`.
 
-## Actions
+## Verbs
 
-```markdown
-Actions (compose freely in the custom row):
-  fix <P#s|all>    apply blocking fixes in worktree, re-run gate, push  (in-repo PRs only)
-  push-docs        push already-applied doc-drift edits                 (only when uncommitted
-                                                                        reviewed doc edits exist
-                                                                        in the worktree)
-  merge-squash | merge-commit                                          (preconditions per Verdict;
-                                                                        never bundled with a push)
-  merge-squash anyway | merge-commit anyway                            (custom row only: overrides a
-                                                                        reviewer-withheld merge - the literal
-                                                                        `anyway` accepts the named reason;
-                                                                        GitHub-refused rows stay uncomposable)
-  wait             poll the reviewer run and comment set, then re-render
-  request-changes | review-comment | approve                           (approve: never own PR)
-  reply <C#s>      post drafted thread replies
-  tracker <act>    tracker action                                      (only when a tracker tool resolved)
-  stop             leave the PR as-is / report-only exit
-```
+`fix`, `push`, `review`, `approve`, `merge`, `merge anyway`, `reply`, `propose ticket change`, `show evidence`, `wait`, `stop`.
 
-A `+ tracker <act>` suffix is available on any mutation course when a tracker tool
-resolved.
+Rows are `<n>. <verb> - <consequence>`; every row, `stop` and `(not available: ...)` rows included, carries its consequence clause. `stop` is always last, before the compose hint. `show evidence` is always offered and never `[recommended]`. A row GitHub would refuse (branch protection, missing permission, `viewerPermission` too low) renders `(not available: <reason>)` and is never `[recommended]`. Exactly one row is `[recommended]`.
 
-Selection grammar: ID sets accept `all`, ranges (`P1-P4`), comma lists
-(`P1,P3`), and exclusions (`all but P2`).
+- `fix` - apply the drafted payloads for the named blockers (default: all open blockers; with no open blockers, the nit payloads) in the provisioned worktree, run the verification pass once at the resulting SHA, push when `push` is available; `fix nits` applies nit payloads only, `fix + nits` blockers and nits; with no drafted payload at all, the human names the change
+- `push` - push local fix commits (renders only when unpushed commits exist)
+- `review` - post the blockers as a GitHub review: request-changes on someone else's PR, a comment on your own
+- `approve` - approve the PR (never your own)
+- `merge` - `gh pr merge --match-head-commit <assessed-sha>` with the resolved `merge policy` (default squash); preconditions per `post-selection-loop.md` `### Merge preconditions`
+- `merge anyway - accept AC<n> as impossible` - merge while an `impossible` row withholds it; lifts exactly that AC's withhold
+- `merge anyway` - merge while the pending-reviewer overlay withholds it; prints what it overrode
+- `reply` - post the drafted replies under `PR comments` (`reply <n>` for one)
+- `propose ticket change` - show the drafted AC text verbatim; post it as a tracker comment on an explicit confirmation reply, via the resolved tracker verb (`gh issue comment`, the overrides' tracker mapping, or `/skill:linear`); re-fetch the ticket first and re-render instead of posting when the AC row text drifted; no write path -> copy-paste block
+- `show evidence` - print the evidence record, claim and AC outcomes, dispositions, drafted payloads and replies (`report.md` `## What stays out`)
+- `wait` - poll the reviewer run, the pending required checks, and the comment set, then re-render
+- `stop` - leave the PR as-is
+
+Compose hint: `Type a number, or compose: "fix 2", "fix nits", "fix + nits", "fix 1 + reply".` A composed line never bundles a push-producing verb (`fix`, `push`) with `merge`. When a failing check withholds `merge`, the hint line also offers `check <name> flaky | real | ci-broken`, which records the disposition on that check (`findings.md` `## Dispositions`): `flaky` lifts the blocker, `real` keeps it until green, `ci-broken` triggers the fallback local run (`ci-broken` records `ci-infrastructure-broken`).
+
+A composed line naming a `(not available: ...)` row is refused by name and the menu re-renders; the two `merge anyway` forms are the only overrides.
 
 ## Consent table
 
-Deterministic - this table is the golden-scenario oracle.
+Authorship moves only `[recommended]`, never which rows are offered. The first row is `[recommended]`; a `(not available: ...)` row is skipped, so the first available row carries it; when every other row is `show evidence`, `stop` is `[recommended]`.
 
-| Author | State | Offered rows (first = `[recommended]`) |
+A `fixable` verdict with zero blockers (a withhold reason) uses the mergeable rows; `merge` renders `(not available: <withhold reason>)` - the overlay's reason when one applies, else the verdict's. On such a withhold, `[recommended]` goes to `wait` under the pending-reviewer or pending-required-check overlay, else to `propose ticket change` while an `impossible` row is `drafted`, else to `stop`.
+
+| Author | Verdict | Rows |
 |---|---|---|
-| you | clean / follow-ups only | merge (squash); merge (merge-commit); do not merge (leave it); post no-blockers comment |
-| you | blocking | apply code fixes (named finding subset): skill edits in worktree, commits, re-runs gate, pushes - then merge re-offered; push applied doc fixes; do not act; post review-comment of findings |
-| someone else | clean / follow-ups only | approve; merge (squash, offered-unrecommended); post no-blockers comment |
-| someone else | blocking | post request-changes review; apply fixes on their branch (courtesy option 2); reply to existing threads; post comment |
-| bot author | any | someone-else's rows for the same state, review actions recommended |
-| fork (any) | any | post review (request-changes / comment / approve per state) - push and merge rows absent |
-| any | draft PR | assessment rows only; merge and approve rows absent until ready-for-review |
-| any | merged / closed | report-only; no mutation rows |
+| you | mergeable | `merge`; `fix`; `reply` (when a drafted reply exists); `show evidence`; `stop` |
+| you | fixable | `fix`; `review`; `reply` (when a drafted reply exists); `show evidence`; `stop` |
+| someone else | mergeable | `approve`; `fix`; `merge`; `reply` (when a drafted reply exists); `show evidence`; `stop` |
+| someone else | fixable | `review`; `fix`; `reply` (when a drafted reply exists); `show evidence`; `stop` |
 
-This table is the single oracle for what is offered; `## Courses` renders its
-rows as actions and numbered courses. Rows GitHub would refuse (branch protection,
-missing permissions, `viewerPermission` too low) render listed-but-unavailable with
-the reason. Approving your own PR is never offered. Nothing executes until explicit
-selection. The fork, pending-reviewer, and CI-check overlays below modify the cell's rows; they are never a second offer source.
+`propose ticket change` joins any row set after the `fix` rows whenever an `impossible` row is `drafted`. `push` joins any row set after `fix` when unpushed fix commits sit in the worktree.
 
-## Courses
+## Overlays
 
-A normative rendering of the consent table (never a second offer source): per
-author x state cell, exactly one `[recommended]` course renders first, the custom
-row renders last. Courses are atomic across pushes: no course, pre-composed or
-custom, bundles a push-producing action (`fix`, `push-docs`) with `merge-*`; after
-a fix wave the menu re-renders with merge as row 1 unless withheld (`reviewer still running` / `comments not refreshed`).
+Overlays modify the consent row; they are never a second offer source. When two apply, the one higher in this table wins the `merge` reason and `[recommended]`.
 
-| Author | State | Courses (first = `[recommended]`) |
+| Overlay | Trigger | Effect |
 |---|---|---|
-| you | clean / follow-ups only | 1. merge-squash; 2. merge-commit; 3. stop; 4. review-comment (post no-blockers note) |
-| you | blocking | 1. fix (worktree-fixable P#s only - `all` covers only those) [+ push-docs when uncommitted doc edits exist]; 2. push-docs (alone, when doc edits exist); 3. stop; 4. review-comment (post findings). When no P# is worktree-fixable (blocking is failing-check-only or L#-only), course 1 (fix) does not render: push-docs becomes first when doc edits exist, else stop is first |
-| you | blocking, post-fix re-render (gate green, preconditions hold) | 1. merge-squash; 2. merge-commit; 3. stop; 4. review-comment |
-| someone else | clean / follow-ups only | 1. approve; 2. merge-squash (offered-unrecommended); 3. review-comment (no-blockers note) |
-| someone else | blocking | 1. request-changes; 2. fix all (courtesy, their branch - omitted when nothing is worktree-fixable); 3. reply <C#s> (omitted when no replyable `C#` exists - `findings.md` `## IDs`; `reply all` and ranges skip non-replyable rows); 4. review-comment |
-| bot author | any | someone-else's rows for the same state; review actions recommended |
-| any | draft | 1. request-changes / review-comment / reply <C#s> (omit the reply course when no replyable `C#` exists) / stop - `[recommended]` follows the same authorship rule as the non-draft cells, except on your own draft PR `request-changes` is never recommended (you cannot request changes on your own PR any more than you can approve it); the fallback recommendation there is `review-comment` when findings exist, else `stop`. Custom present but cannot compose `merge-*`/`approve`/`fix`/`push-docs` until ready-for-review |
-| any | merged / closed | 1. stop; report-only, no other mutation courses at all; Custom present but cannot compose `merge-*`/`approve`/`fix`/`push-docs`/`request-changes`/`review-comment`/`reply`/`tracker` - nothing remains actionable |
-
-## Fork overlay
-
-The consent-table fork row renders as an overlay on the authorship cells
-(push/merge/fix absent; approve also dropped when the viewer authored the PR) - it
-is not a distinct authorship cell. It overlays the applicable authorship cell (you
-or someone else), removing `fix`, `push-docs`, and `merge-*` (never available on a
-fork). When you authored the fork PR, `approve` is also dropped (never offered on
-your own PR) - fork|you|clean renders `review-comment`/`stop` only; fork|you|blocking
-renders `request-changes`/`review-comment`/`stop` (the someone-else courtesy
-fix-on-their-branch course is also absent, since it is your own PR). A fork PR
-authored by someone else uses the someone-else cells with `fix`/`push-docs`/
-`merge-*` removed.
-
-## Pending-reviewer overlay
-
-While any `C#` row is `pending`, a reviewer run on the assessed head is
-queued/in progress, or the last comment refetch failed
-(`post-selection-loop.md` `### Re-render`), every pre-composed
-`merge-squash` / `merge-commit` course renders listed-but-unavailable with
-the reason: `reviewer still running` or `comments not refreshed`. This is a
-menu-level gate modelled on the `flaky` disposition's custom-row path, never
-a `## Verdict` precondition: `### Merge course` does not refuse the override.
-Only the custom row's `merge-squash anyway` / `merge-commit anyway` executes
-merge in that state, under the normal Merge course rules. Apply the comment-delta consent and incomplete-review rules in `post-selection-loop.md` `### Compare-and-swap` and `### Re-render`; `anyway` does not bypass an unreviewed delta or a blocking finding.
-
-`wait` is `[recommended]` in cells whose recommended course would otherwise
-be `merge-*` or `approve` (clean / follow-ups only, and the post-fix
-re-render); in blocking cells the existing first course (`fix`,
-`request-changes`) stays recommended and `wait` renders as row 2. Draft and
-merged/closed cells do not offer `wait`. A `reviewer failed (<conclusion>)`
-row changes nothing: the cell renders as it would without it.
-
-The overlay applies on the initial assessment too: a PR gated while the
-reviewer is mid-run withholds pre-composed merge from the first menu.
-
-Precedence: when the CI-check gate below also applies, its rendering wins -
-merge rows are absent and the CI-check gate line names both reasons.
-
-## CI-check gate
-
-An undispositioned failing check in the resolved set, or a pending required check,
-withholds every pre-composed course containing `merge-*` (merge preconditions per
-SKILL.md `## Verdict`) - none render, whatever the author/state cell says.
-Disposition and pending-check definitions per `findings.md` `## Dispositions`.
-
-| Disposition | Merge courses |
-|---|---|
-| Flaky | Not restored to a pre-composed course; merge proceeds only via the custom row naming the disposition explicitly |
-| Real, or an unresolved pending check | Withheld until the check is green |
-| CI-infrastructure-broken | Withheld until the triggered fallback run is green |
-
-A pending-only render is not itself a blocking verdict (findings groups can all
-read "None"); the recommended course falls to `stop` or `review-comment` in the
-meantime. This never falls through to the clean cell's recommended `merge-squash` -
-a failing resolved-set check or a pending required check means the PR is not in the
-clean state to begin with.
+| merged or closed PR | `state` is not `OPEN` | the report renders; the menu is `show evidence` and `stop` only |
+| draft PR | `isDraft` | `merge` and `approve` render `(not available: draft)` and never carry `[recommended]`; `review` is recommended on someone else's fixable draft and `fix` on their mergeable draft; on your own, `fix` when a blocker exists, else `stop` |
+| CI check | an undispositioned failing check in the resolved set, or a pending required check (`findings.md` `## Dispositions`) | on a failing check, the hint line offers `check <name> flaky \| real \| ci-broken`; `merge` renders `(not available: <check name> failing)`; `flaky` restores `merge` on the next render; `real` and `ci-infrastructure-broken` keep it withheld until green; a pending required check renders one `PR comments` line (`A required check is still pending, so merge waits. (<check name>)`), puts `wait` as row 1 and, when `Blockers` is empty, `[recommended]`, and renders `merge` `(not available: required check pending)`; it mints no disposition hint (not dispositionable) |
+| pending reviewer | a `pending` ledger row, a queued or in-progress reviewer run on the assessed head, or a failed comment refetch (`post-selection-loop.md` `### Re-render`) | puts `wait` as row 1 and, when `Blockers` is empty, `[recommended]`; `merge` renders `(not available: reviewer still running)` or `(not available: comments not refreshed)`; a composed `anyway` (`merge anyway`) overrides only this overlay and does not bypass an unreviewed delta or a blocker; a `reviewer failed (<conclusion>)` row changes nothing |
+| comment source review incomplete | the `### Re-render` step-4 source review of a comment delta did not finish (`post-selection-loop.md`) | one `PR comments` line `The comment source review did not finish, so merge waits. (<reason>)`; `merge` renders `(not available: comment source review incomplete)` with no `anyway` override; `reply` and `review` are dropped (the delta is unreviewed); `fix`, `show evidence`, `stop` stay; `stop` is `[recommended]` |
+| impossible AC | an `impossible` row in `drafted` or `proposed` while every other merge prerequisite holds | `merge` renders `(not available: ticket change pending on AC<n>)`; `merge anyway - accept AC<n> as impossible` renders and lifts exactly that withhold - blockers, an unreviewed delta, pending checks, and GitHub-refused states stay in force |
+| fork PR | `isCrossRepository` | `push` and `merge` render `(not available: fork)`; `fix` stays and applies to the local `pr-<N>` worktree, its consequence clause reading "open a PR from `pr-<N>`, or hand the patch to the author"; `approve` is dropped on your own fork PR |
+| bot author | `author_is_bot` | the someone-else rows |
 
 ## Fixtures
 
-Refused rows render per `## Consent table`. Zero mutation courses is a legal
-render (merged/closed) - the menu still appears, carrying findings and `stop`.
+Fixture 1 - own PR, fixable, one nit, one drafted ticket change, one drafted reply: the menu in `report.md` `## Worked example`.
 
-Example render (golden fixture 1 - own PR, blocking findings including committed
-doc drift, so uncommitted reviewed doc edits exist):
+Fixture 2 - the re-render after fixture 1's `fix` pushed; the reviewer bot is mid-run on the new head:
 
-```markdown
-Pick one:
-  1. fix all (P1-P10) + push-docs   [recommended]
-  2. push-docs (docs only, hold code fixes)
-  3. stop (leave as-is)
-  4. review-comment (post findings, act later)
-  5. Custom - compose: e.g. "fix P1-P8,P10 + push-docs" or "reply C1 + tracker comment"
+```
+Delivers: the reports page exports CSV on demand. The PR covers AC1-2 of gh-45; AC3
+(export completes under 5s on production data) is checked after merge, not here.
+
+Ticket changes:
+- AC4 asks for the customer's credit score in the export, and the vendor API this
+  service reads returns no such field.
+  Proposed wording: "Exports include the customer's risk tier." (drafted; vendor doc api.example.com/v2/customers)
+
+PR comments:
+- maria's comment on the missing CSV header is already addressed, so the drafted reply points her at the fix. (3f2a1c0)
+- The reviewer run is still in progress, so merge waits. (https://github.com/<owner>/<repo>/actions/runs/<run-id>)
+
+Nits:
+- The export pages results with its own loop instead of the shared paging helper, so a paging bug fixed once would need fixing twice. (src/api/export.ts:31, lib/page.ts)
+
+Verdict: fixable - reviewer run in progress
+
+1. wait - poll the reviewer run, then re-render [recommended]
+2. merge - squash onto main (not available: reviewer still running)
+3. fix - apply the nit payload in the worktree, re-run the gate, push
+4. propose ticket change - show the AC4 edit for approval before it posts
+5. reply - post the drafted reply to maria
+6. show evidence - gate output, CI run
+7. stop - leave the PR as-is
+Type a number, or compose: "merge anyway", "fix nits".
 ```
 
-Golden fixture 2 - the post-fix re-render after course 1's gate re-run passes,
-with the sticky reviewer bot mid-run and one independently edited comment:
+Fixture 3 - a different PR: your own, ticket fully covered, no nits, no drafted replies; the reviewer bot's run was the only withhold and `wait` just returned.
 
-```markdown
-## Comment-thread replies
-  C1. <thread ref> -> superseded by C3
-  C2. <thread ref> -> superseded by C4
-  C3. <thread ref> -> pending  https://github.com/<owner>/<repo>/actions/runs/<run-id>
-  C4. <thread ref> -> <drafted reply>  (reasonable)
+(a) The run concluded `failure`: the `PR comments` line disappears, the reviewer check is inert, the verdict is `mergeable - CI green on the assessed head (test)`, and the menu is `merge` [recommended], `fix`, `show evidence`, `stop`.
 
-Pick one:
-  1. wait   [recommended]
-  2. merge-squash   (unavailable: reviewer still running)
-  3. merge-commit   (unavailable: reviewer still running)
-  4. stop (leave as-is)
-  5. review-comment
-  6. Custom - compose: e.g. "merge-squash anyway" or "reply C4"
+(b) The run concluded `success` and the verdict comment raises a retry bug; source review confirms it and mints a blocker:
+
+```
+PR comments:
+- The reviewer bot's retry concern holds up against the source, so the drafted reply confirms it. (src/retry.ts)
+
+Blockers:
+1. Retries never count up, so a failing call retries forever instead of giving up
+   after the limit. (src/retry.ts:41)
+
+Verdict: fixable - 1 blocker
+
+1. fix - apply the blocker in the worktree, re-run the gate, push          [recommended]
+2. review - post the blocker as a comment on your PR
+3. reply - post the drafted reply
+4. show evidence - gate output, CI run, drafted edit
+5. stop - leave the PR as-is
+Type a number, or compose: "fix 1 + reply".
 ```
 
-Golden fixture 3 - the same PR after `wait` completes. (a) The run concluded
-`failure` and the bot rewrote its comment to the error header:
+When source review disproves the comment, no blocker is minted; the mergeable menu renders with `reply` for the drafted reply.
 
-```markdown
-## Evidence
-  reviewer check <name> failed - inert (reviewer failure never withholds)
-
-## Comment-thread replies
-  C1. <thread ref> -> superseded by C3
-  C2. <thread ref> -> superseded by C4
-  C3. <thread ref> -> superseded by C5
-  C4. <thread ref> -> <drafted reply>  (reasonable)
-  C5. <thread ref> -> reviewer failed (error)  https://github.com/<owner>/<repo>/actions/runs/<run-id>
-
-Pick one:
-  1. merge-squash   [recommended]
-  2. merge-commit
-  3. stop (leave as-is)
-  4. review-comment
-  5. Custom
-```
-
-(b) The run concluded `success`; the reviewer check moved from pending to
-`success` in the refreshed rollup and the comment carries the verdict. Reconcile C5 against source at the assessed head. For a confirmed retry bug missed by the previous source review, mint source-backed P11 and withhold merge; C5's triage label remains verdict-neutral:
-
-```markdown
-## Findings (blocking)
-Blocking findings (P#):
-  P11. **<source_ref>** - Retry attempts never increment. Fix: increment attempts on failure and throw after the retry limit. | Action: fix P11. [code]
-## Comment-thread replies
-  C1. <thread ref> -> superseded by C3
-  C2. <thread ref> -> superseded by C4
-  C3. <thread ref> -> superseded by C5
-  C4. <thread ref> -> <drafted reply>  (reasonable)
-  C5. <thread ref> -> <drafted reply>  (reasonable)
-Pick one:
-  1. fix P11   [recommended]
-  2. stop
-  3. review-comment
-  4. Custom
-```
-
-When source review instead disproves C5's concern, mint no `P#` and retain the clean menu:
-
-```markdown
-## Comment-thread replies
-  C1. <thread ref> -> superseded by C3
-  C2. <thread ref> -> superseded by C4
-  C3. <thread ref> -> superseded by C5
-  C4. <thread ref> -> <drafted reply>  (reasonable)
-  C5. <thread ref> -> <drafted reply>  (judgment-call)
-
-Pick one:
-  1. merge-squash   [recommended]
-  2. merge-commit
-  3. stop (leave as-is)
-  4. review-comment
-  5. Custom
-```
-
-Golden fixture 4 - last premerge refetch finds a new human comment after merge consent. Reconcile it against source at the assessed head, abort that merge even when the concern is false, and show the refreshed menu for a new selection. A same-head identical-body timestamp edit mints the next `C#` but causes no repeat source review or test run. A bot placeholder or error header keeps its existing state and does not enter source review.
+Fixture 4 - the pre-merge refetch finds a new human comment after a `merge` pick: the merge aborts even when the concern is false, the comment is reviewed against source, and the menu re-renders for a fresh pick. A same-head identical-body timestamp edit mints a ledger row but triggers no source review or test run.

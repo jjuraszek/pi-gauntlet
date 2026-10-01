@@ -2,6 +2,7 @@
 
 > **Superseded by:** [doc/specs/2026-09-06-gh-14-gatekeep-ci-evidence-default.md](./2026-09-06-gh-14-gatekeep-ci-evidence-default.md) - verification-evidence rules only (Phase 3 unconditional local run replaced by CI-first evidence resolution; Phase 4 P# scope and disposition menu extended)
 > **Superseded by:** [doc/specs/2026-09-23-gh-46-gatekeep-post-push-comment-refresh.md](./2026-09-23-gh-46-gatekeep-post-push-comment-refresh.md) - comment gather/triage and post-selection re-review only (per-comment identity in the digest, post-push comment refetch and re-triage, pending-reviewer merge withhold and wait course, reviewer-check exception in evidence resolution)
+> **Superseded by:** [doc/specs/2026-10-01-gatekeep-pr-capability-gate-compact-report.md](./2026-10-01-gatekeep-pr-capability-gate-compact-report.md) - AC coverage rule, merge-proof claim rule, report template, and follow-up category only
 
 Ticket: [jjuraszek/pi-gauntlet#9](https://github.com/jjuraszek/pi-gauntlet/issues/9)
 Related: #10 (shares the plan-tracker `failed` prerequisite), #11 (downstream Claude Code constraint), #8 (shape-ticket precedent, shipped v4.10.0).

@@ -1,6 +1,7 @@
 # gatekeep-pr output density: finding IDs, action vocabulary, pre-composed courses
 
 > **Superseded by:** [doc/specs/2026-09-23-gh-46-gatekeep-post-push-comment-refresh.md](./2026-09-23-gh-46-gatekeep-post-push-comment-refresh.md) - section 5a re-review by ID only (C# lifecycle gains superseded / withdrawn / pending / reviewer-failed states; unchanged comments re-triage under their existing C#)
+> **Superseded by:** [doc/specs/2026-10-01-gatekeep-pr-capability-gate-compact-report.md](./2026-10-01-gatekeep-pr-capability-gate-compact-report.md) - human-visible finding IDs, action-vocabulary grammar, pre-composed course rendering, and output done-check placement only (the C# ledger stays, internal)
 
 ## Problem
 

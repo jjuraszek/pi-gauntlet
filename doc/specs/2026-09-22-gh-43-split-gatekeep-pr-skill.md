@@ -1,5 +1,7 @@
 # Split gatekeep-pr SKILL.md into a flow-ordered body plus reference files
 
+> **Superseded by:** [doc/specs/2026-10-01-gatekeep-pr-capability-gate-compact-report.md](./2026-10-01-gatekeep-pr-capability-gate-compact-report.md) - file layout and SKILL.md content split only
+
 **Ticket:** jjuraszek/pi-gauntlet#43
 **Date:** 2026-09-22
 **Goal:** `skills/gatekeep-pr/SKILL.md` (589 lines) becomes a flow-ordered body under 500 lines - target 200-250 - with four `reference/` files owning the deep mechanics; every rule in SKILL.md and the four new files keeps exactly one owner, and the skill's runtime behavior is unchanged.

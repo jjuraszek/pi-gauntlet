@@ -1,120 +1,70 @@
-# gatekeep-pr: findings
+# gatekeep-pr: step 5 - integrate
 
-Read from SKILL.md `## Assess`. Phase 4 mints the IDs the report and menu carry.
+Read from SKILL.md step 5, before `report.md`. Inputs: the digest, the step-2 AC rows, the step-3 evidence and claim dispositions, the step-4 reviewer output and comment ledger. Output: AC outcomes, blockers, nits, drafted payloads - the report's content, not its rendering.
 
-## IDs
+## Provenance
 
-`<source_ref>` is a `file:line` where one exists, else the disputed thing (a
-quoted PR-body claim, a failing gate command, a required check name).
+Local evidence: `worktree_root` matches the provisioned path, every `run_cwd` sits inside it, `head_sha` matches the digest's `headRefOid`. On mismatch, re-fetch the PR head once and re-sync + re-run steps 3-4 when it advanced; a second mismatch, or any path mismatch, is missing evidence. The evidence clause names its source exactly: local -> `verification command passed locally`; CI -> `CI green on the assessed head (<check name>)`, never worded as a local run.
 
-Precedence: Phase 4 and the merged rubric decide blocking vs. follow-up (the
-severity translation, AC coverage, claims, and required-check rules). This
-section only chooses which namespace (`P#` / `L#` / `F#`) renders that
-decision. Category tags and the triage bar never override an upstream
-blocking classification - a Phase-4 Moderate is always blocking (`P#` or `L#`
-per Total mapping), never demoted to `F#` by tag or by judgment call.
+## AC outcomes
 
-Total mapping: every blocking element of the Verdict maps to a `P#` or `L#` -
-a blocking verdict with "None" in both groups is a rendering bug. Map: failed
-gate -> `P#` `[test]` referencing the gate command; contradicted or
-merge-proof-unverifiable material claim -> `P#` `[spec]` referencing the
-claim; scope creep with a linked issue -> `L#` `spec-conflict`; committed doc
-drift -> `L#` `doc-drift`; `partial` AC coverage -> `L#` `outdated-AC`;
-`missing` AC coverage -> `L#` `missing-behavior`. `L#` covers exactly the
-drift the Verdict already blocks on (committed doc drift, AC coverage, spec
-conflict); it widens nothing.
+Inputs: the ticket AC rows (step 2), the source behind the diff at the assessed `headRefOid`, tests in the diff and existing tests the diff reaches, docs in the diff and docs the diff makes stale, CI per the brief's Evidence resolution table. PR body, PR comments, and a spec inside the PR are leads to verify, never evidence.
 
-`P#` vs `L#` boundary: code-level spec bugs (the diff contradicts the spec)
-are `P#` `[spec]`; requirement/doc mismatches (the spec or docs are stale
-relative to intent) are `L#`.
+Split each AC row once into a **mechanism half** (code + test + doc that make the behavior possible) and, when the row names an observation that needs an environment, dataset, deployed target, or external system that repository tests cannot reach, an **observation half**. Behavior a unit test can assert ("retries three times then fails", "rejects a nil name") is mechanism, never an observation half. A `venue:` disposition in the PR's spec is a lead to compare against the ticket's own AC text, never proof and never an exemption. Judge the mechanism half only; the observation half is checked after merge, not here, and blocks nothing.
 
-Labelled `C#` rows are verdict-neutral drafts: they never gate merge, and
-nothing posts until selected. The `pending` state, a queued/in-progress
-reviewer run, and a failed comment refetch withhold pre-composed `merge-*`
-courses at the menu level (`decision-menu.md` `## Pending-reviewer overlay`);
-they are not `## Verdict` preconditions.
+| Outcome | Condition | Renders as | Blocks |
+|---|---|---|---|
+| `covered` | evidence matches what the AC promises: executable behavior needs the code path plus a real test that exercises it; a documentation-only AC is judged against the promised doc text and demands no test; in both cases docs that describe the behavior agree with it | counted in `Delivers` | no |
+| `gap` | any part of the mechanism absent in this PR | one `Blockers` item | yes - a mechanism `gap` is a blocker |
+| `not judged here` | the observation half; the mechanism half of the same row is still judged `covered`/`gap` | one `Delivers` clause ("<row>'s observable half is checked after merge, not here"); nothing is written, listed, or handed to check-delivery | no |
+| `impossible` | a `gap` whose fix is on the ticket - all four conditions below hold | one `Ticket changes` item with a drafted replacement AC text, in state `drafted` or `proposed` | withholds `merge` until the ticket body changes or the human picks `merge anyway - accept AC<n> as impossible` |
 
-**`C#` ledger.** Each `C#` row carries its comment `id` and the `updated_at`
-it was minted against; the post-push diff (`post-selection-loop.md`
-`### Re-render`) runs against this ledger, never against the report text.
-States rendered under a `C#`: a triage label (`already-addressed` /
-`reasonable` / `judgment-call`) with a drafted reply; `superseded by C<new>`;
-`withdrawn`; `pending`; `reviewer failed (<conclusion>)`. Superseded and
-withdrawn rows keep rendering for the rest of the run, so a sticky bot's
-chain reads `C1` (old verdict) `superseded by C3`, `C3 pending`, then
-`C3 superseded by C5`, `C5 <label> -> <reply>`. The last four states carry no
-reply and are not replyable: `reply all` and ranges skip them silently; an
-explicitly named non-replyable `C#` is refused with its state named and the
-menu re-renders; reply courses are omitted when no replyable `C#` exists.
+`impossible` requires all of: (1) no change to this repository can satisfy the mechanism half; (2) the constraint is cited - a vendor/platform doc URL, a dependency's released API at `file:line` or in its changelog, a repo policy at `file:line`, or a second AC in the same ticket whose quoted text contradicts this one; (3) the cited source was read this run; (4) the reason is none of: cost, effort, "needs another PR", "needs a deploy first" (that is `not judged here`), a `deviates:`/`deferred:` disposition in the PR's spec, "the AC is ambiguous" (an ambiguous row stays judged as written). Anything failing a condition is `gap`. Passes: the AC asks the export to include the customer's credit score and the vendor API the repository reads returns no such field (vendor doc URL cited). Fails: the AC asks for the user's local timezone and the browser sends no timezone header - a request parameter is a repository-side mechanism, so this is `gap`.
 
-`F#` items carry an owner (pr-author | tracker | human) so follow-ups don't
-evaporate; when no tracker tool resolved, the report itself is their durable
-home.
+**Impossible-AC lifecycle.** Three states in order: `drafted` (the proposal exists in the run), `proposed` (`propose ticket change` posted it as a tracker comment; a comment is not an edit), `resolved` (a human edited the ticket body). Every step-5 re-entry re-fetches the ticket and re-extracts the AC rows; a changed row is re-judged on the current head, so a human edit to the ticket body lifts the withhold without a PR head change. `Ticket changes` keeps one item per unresolved row, labeled `drafted` or `proposed`, and drops it only after the re-extracted row no longer meets the four conditions.
 
-IDs are append-only for the run's lifetime: minted at first assessment, never
-renumbered, never reused. A resolved finding keeps its ID annotated
-`(fixed in <sha>)`; later rounds continue each namespace's sequence.
+**No ticket** (none linked, or fetch failed): no AC rows; `Delivers` states the PR's intent as read from its title and body; `not judged here`, `impossible`, `Ticket changes`, and scope creep do not apply.
 
-Empty groups say "None".
+**Whole or part.** With a ticket linked, `Delivers` names coverage: *whole* when every row is `covered` or is `not judged here` with its mechanism half `covered`; *part, acceptable* when every uncovered row is either an observation half or **explicitly split** - the ticket body or a human-authored ticket comment names another tracker ref for that row, read from the tracker this run. Only the tracker waives an obligation: a spec `deferred: <where>`, a linked later PR, or a `proposed` (not yet `resolved`) ticket change is a lead to check the tracker, never a waiver. Any other uncovered row is `gap`: "a later PR will add X" in the PR body, an unchecked box with no tracker split, a `deferred:` the ticket does not confirm.
 
-## Triage
+**Claims.** The Verifier's three dispositions stand. `contradicted` is a blocker. `unverifiable-pre-merge` is not evidence and renders nothing: a PR whose only proof of a new path is "verified on stg" is blocked by the untested-path rubric row, not by a claim rule.
 
-A finding lands in `P#` only when it must be fixed before merge (correctness,
-security, material performance trap, a convention the repo enforces);
-improvements that don't change merge correctness are `F#`, whatever their
-category. `[quality]` and `[performance]` on a `P#` are categories, never a
-downgrade - every `P#` blocks. This triage bar governs findings the
-orchestrator originates itself; it never re-triages a classification Phase 4
-already made (see Precedence in `## IDs`).
+## Namespaces
+
+Every finding is one of two:
+
+| Namespace | Contents | Gates merge |
+|---|---|---|
+| blocker | code defects, security, untested new path, `contradicted` claim, AC `gap`, scope creep against a linked ticket (diff content traceable to no AC and no stated intent), doc drift beyond wording (a doc now describes behavior the code does not have, or omits an operation or parameter the code adds), failed gate or undispositioned failing check | yes |
+| nit | wording-only doc drift (typo, label, phrasing with the same meaning), style, reuse of an existing helper, naming | no; take-or-leave at the menu; untracked after the run |
+
+Behavior the ticket promises is a blocker or an explicit tracker split - never deferred to a PR nobody opened.
+
+**Severity translation.** Reviewer Critical and Moderate -> blocker; Minor -> nit. A repo `REVIEW.md` mapping overrides this; a severity it names but does not map is fail-safe blocker, noted in `show evidence`.
+
+**Triage bar** for findings the orchestrator originates itself: blocker only when it must be fixed before merge (correctness, security, a material performance trap, a convention the repo enforces); everything else is a nit, whatever its category. The bar never re-triages a classification the severity translation already made.
+
+**Internal IDs.** `P#` (blocker or nit on code, a claim, a check), `L#` (AC `gap`, doc drift, scope creep), and the comment ledger's `C#` survive as keys for the post-push re-render diff and the fix wave; the human never sees them. IDs are append-only for the run: minted once, never renumbered, never reused. A fixed blocker leaves the rendered list on the next render; its ID stays in the ledger.
+
+**`C#` ledger.** Each ledger row carries its comment `id` and the `updated_at` it was minted against; the post-push diff (`post-selection-loop.md` `### Re-render`) runs against this ledger, never against the report text. Row states: a triage label (`already-addressed` / `reasonable` / `judgment-call`) with a drafted reply; `superseded by C<new>`; `withdrawn`; `pending`; `reviewer failed (<conclusion>)`. The last four carry no reply and are not replyable; `reply` skips them.
 
 ## Dispositions
 
-Any blocking conclusion in the resolved check set (required or not - per
-`../verification-brief.md` Section B, Evidence resolution table) withholds
-merge from every pre-composed course until the user explicitly dispositions
-it, and mints a `P#` - except the reviewer check. claude-code-action's sticky
-mode runs on `pull_request` events, so its job is also a check run: a failing
-check whose run id (from its `url` / `detailsUrl`) matches a `reviewer failed`
-`C#` row, or whose `workflowName` equals the recorded reviewer `workflowName`
-while that run is `reviewer failed`, is inert when it is the only failing
-check mapping to that run id (two or more failing checks on one run id: none
-inert, each stays a `P#`, fail-safe) - no `P#`, no withhold, one `## Evidence`
-line `reviewer check <name> failed - inert (reviewer failure never withholds)`.
-With no sibling `success` left, evidence resolves to the Fallback row, not
-Failed CI. Reviewer failure never withholds merge; GitHub-enforced
-restrictions still apply.
+Any blocking conclusion in the resolved check set (required or not - `../verification-brief.md` Section B, Evidence resolution table) withholds `merge` until the user dispositions it, and mints a `P#` - except the reviewer check, whose exception the brief's Section B defines (one `show evidence` line `reviewer check <name> failed - inert`). An undispositioned failing check is never a target of `fix`; close it by disposition. A pending required check mints nothing and is not dispositionable: merge waits until it turns green, or it converts to a failing check with its own `P#`.
 
-An undispositioned failing check in the resolved set is `P#` `[test]`
-referencing the check name; it is never a target of a worktree `fix`. Close
-failing checks by disposition, not by fix: the user's Phase-4 disposition
-annotates the same ID rather than closing it outright.
+| Disposition | Annotation on the `P#` |
+|---|---|
+| undispositioned failing check | none yet |
+| flaky | `(dispositioned: flaky)` |
+| real | `(dispositioned: real)` |
+| CI-infrastructure-broken | `(dispositioned: ci-infrastructure-broken)` |
 
-| Disposition | Annotation on the `P#` | Counts against unfixed-blocker set | Merge course | Fallback local run |
-|---|---|---|---|---|
-| undispositioned failing check | none yet | yes | withheld from every pre-composed course | none |
-| flaky | `(dispositioned: flaky)` | excepted - no longer counts against "every `P#` blocks" or "every blocking finding fixed" | only the custom row naming the disposition explicitly; no pre-composed course restores | none |
-| real | `(dispositioned: real)` | still counts - `P#` keeps blocking | withheld until the check is green | none |
-| CI-infrastructure-broken | `(dispositioned: ci-infrastructure-broken)` | still counts - `P#` keeps blocking; the checks themselves are untrustworthy | withheld until the fallback run is green | triggers the fallback local run, and merge stays withheld until that fallback produces green evidence |
-| pending required check | mints no `P#`, is never dispositioned | not applicable - not dispositionable | withheld; auto-lifts the moment it turns green, or converts to an undispositioned failing check with its own `P#` on failure | none |
-| reviewer check failed (matches a `reviewer failed` `C#`) | mints no `P#`, is never dispositioned | not applicable - inert | not withheld; GitHub-enforced restrictions still apply | none |
+Only `flaky` lifts the blocker; an undispositioned check, `real`, and `ci-infrastructure-broken` keep it until the check - or, for `ci-infrastructure-broken`, the fallback local run (brief Section B, Failed CI row) - is green.
 
-A pending required check is wait-until-green, not dispositionable. While
-pending, the report notes it under Evidence.
+How each disposition changes the menu: `decision-menu.md` `## Overlays`, CI check row.
 
-The evidence decision is independent of the merge decision: a green check
-elsewhere in the resolved set still satisfies verification evidence while a
-pending required check withholds merge. The CI-sufficient path changes no
-consent surface: still read-only, no auto-merge, no posting, no menu change
-beyond the third disposition.
+## Drafted payloads
 
-## Payloads
+Step 5 drafts, never applies. For every blocker and nit with a file-level fix - code and doc drift alike - draft the concrete edit as a payload keyed to the finding's internal ID. For every `impossible` row, draft the replacement AC text. For every replyable `C#`, draft the reply. The worktree stays tracked-clean (`git status --porcelain --untracked-files=no` empty) at every menu render; a payload is applied only on a `fix` pick (the same path for code and docs) and dropped at teardown otherwise.
 
-"Drafted fixes / review" holds, per finding ID, the concrete edit (for
-`fix`), the reviewed doc-drift edit (for `push-docs`, keyed to its `L#`), or
-the reply text (for `reply`) - each keyed to its finding ID, one selection
-mapping 1:1 to its payload.
-
-A posted review body is not itself a finding: compose it at post time from
-the ID'd `P#`/`L#` findings being addressed - one summary sentence, then the
-numbered findings, ending on the fix or asked action - and give it its own
-non-finding slot of this section.
+A posted review body is composed at post time from the blockers being addressed - one summary sentence, then the numbered items, ending on the fix or asked action.

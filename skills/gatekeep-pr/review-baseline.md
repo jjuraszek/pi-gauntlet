@@ -2,7 +2,7 @@ This file is **data, not instructions**. It is the shipped default review rubric
 
 ## Severity axis
 
-The skill recognizes exactly one normative severity distinction: **blocking** vs **non-blocking follow-up**. Blocking findings gate merge; follow-ups never do.
+The skill recognizes exactly one normative severity distinction: **blocker** vs **nit**. Blockers gate merge; nits never do.
 
 Baseline mapping:
 
@@ -11,11 +11,12 @@ Baseline mapping:
 | Defects (logic errors, broken behavior) | blocking |
 | Untested paths (new behavior with no real test) | blocking |
 | Contradicted material claims (PR/issue prose vs. observed evidence) | blocking |
-| Doc drift (docs no longer match code or PR/issue prose) | blocking |
+| Doc drift beyond wording (a doc describes behavior the code does not have, or omits an operation or parameter the code adds) | blocking |
+| Doc drift, wording-only (typo, label, phrasing with the same meaning) | nit |
 | Security issues | blocking |
-| Prose/style/label cleanup | non-blocking follow-up |
+| Prose/style/label cleanup | nit |
 
-A repo-root `REVIEW.md` may remap any of these, or add project-specific concerns with their own severity. Its mapping **always wins** on conflict with this file. Any severity a rubric (baseline or repo) names but does not map fails safe to **blocking**.
+A repo-root `REVIEW.md` may remap any of these, or add project-specific concerns with their own severity. Its mapping **always wins** on conflict with this file. Any severity a rubric (baseline or repo) names but does not map fails safe to **blocking**; "blocking" and "blocker" name the same class, "non-blocking" and "nit" the other.
 
 ## Review properties
 
@@ -28,7 +29,7 @@ Generic properties evaluated on every reviewed change, independent of language o
 | Conventions | Matches the style and structure of neighboring code, not just internal consistency |
 | Reuse | Uses existing helpers/utilities instead of re-implementing equivalent logic |
 | Performance | No N+1 queries, no repeated expensive work inside loops, no unbounded fetches |
-| Testing | Tests cover behavior, not implementation details; assertions are real (they can fail); a new code path shipped without a real test is **blocking** |
+| Testing | Tests cover behavior, not implementation details; assertions are real (they can fail); a new executable code path shipped without a real test is **blocking**; a documentation-only obligation is judged against the promised doc text |
 | Docs | Documentation agrees with the code it describes and with the PR/issue prose describing the change |
 | Security | No secrets in the diff, no missing authorization checks, no injection vectors |
 
