@@ -1,5 +1,15 @@
 # Changelog
 
+## Unreleased
+
+### Changed
+
+- **gatekeep-pr judges mechanism, not delivery.** Each acceptance criterion splits into a mechanism half (code, tests, docs at the assessed head - `covered` or `gap`) and an observation half that is checked after merge, not here, and never blocks. A `gap` is a blocker; `partial`/`missing` AC coverage and the merge-proof claim rule are gone, so a "verified on staging" line in a PR body no longer withholds merge - the untested-path rubric row does. An AC no repository change can satisfy becomes a drafted ticket change (`drafted` -> `proposed` -> `resolved`) that withholds merge until a human edits the ticket or picks `merge anyway - accept AC<n> as impossible`. `/skill:check-delivery` states it takes no input from the gate and re-derives ACs and the shipped SHA itself.
+- **Blocker or nit, nothing else.** The follow-up category, the `F#` namespace, and the owner column are removed. Doc drift beyond wording blocks; wording-only drift and style are nits. Doc fixes are drafted payloads applied only on a `fix` pick - the worktree is clean at every menu render and `push-docs` is gone.
+- **Compact bottom-up report.** Sections render `Delivers` -> `Ticket changes` -> `PR comments` -> `Nits` -> `Blockers` -> one verdict line (`mergeable - <evidence>` | `fixable - <N> blockers` | `fixable - <withhold reason>`) -> menu, so the verdict is what a terminal shows. Items are one or two whole sentences with trailing locators; empty sections are omitted; verbatim output, payloads, and covered ACs print only under `show evidence`.
+- **`fix` on every open-PR menu, whoever authored the PR.** Fork PRs apply it to the local `pr-<N>` worktree with `push` and `merge` `(not available: fork)`; authorship moves only `[recommended]`. Rows are `<n>. <verb> - <consequence>`; composed forms (`fix 2`, `fix nits`, `check <name> flaky | real | ci-broken`) live in the hint line.
+- **Seven-step orchestrator.** `skills/gatekeep-pr/SKILL.md` is 69 lines: step table, wording rules, red flags. Each closed topic has one sibling owner: `reference/assessment.md` (step 2: worktree, config ladder, ticket fetch after the ladder resolves), `reference/findings.md` (step 5 integration), new `reference/report.md`, `reference/decision-menu.md` (two tables: consent and overlays), `reference/post-selection-loop.md` (fix wave, re-render, wait, merge preconditions, done-check, teardown); `verification-brief.md` keeps the three delegate sections. The static oracle `scripts/gatekeep-comment-reconcile.test.mjs` grows from 4 to 12 tests. Consumer `REVIEW.md` files that map Minor to "non-blocking follow-up" now read as nits.
+
 ## v6.2.1 - 2026-10-01
 
 ### Changed
