@@ -21,7 +21,7 @@ Rows are `<n>. <verb> - <consequence>`; every row, `stop` and `(not available: .
 - `wait` - poll the reviewer run, the pending required checks, and the comment set, then re-render
 - `stop` - leave the PR as-is
 
-Compose hint: `Type a number, or compose: "fix 2", "fix nits", "fix + nits", "fix 1 + reply".` A composed line never bundles a push-producing verb (`fix`, `push`) with `merge`. When a failing check withholds `merge`, the hint line also offers `check <name> flaky | real | ci-broken`, which records the disposition on that check (`findings.md` `## Dispositions`): `flaky` lifts the blocker, `real` keeps it until green, `ci-broken` triggers the fallback local run (`ci-broken` records `ci-infrastructure-broken`).
+Compose hint: `Type a number, or compose: "fix 2", "fix nits", "fix + nits", "fix 1 + reply".` The hint lists only compositions whose every verb is a rendered row: no `Nits` section, no `fix nits`; no `reply` row, no `fix 1 + reply`; no composable row, `Type a number.` alone. A composed line never bundles a push-producing verb (`fix`, `push`) with `merge`. When a failing check withholds `merge`, the hint line also offers `check <name> flaky | real | ci-broken`, which records the disposition on that check (`findings.md` `## Dispositions`): `flaky` lifts the blocker, `real` keeps it until green, `ci-broken` triggers the fallback local run (`ci-broken` records `ci-infrastructure-broken`).
 
 A composed line naming a `(not available: ...)` row is refused by name and the menu re-renders; the two `merge anyway` forms are the only overrides.
 

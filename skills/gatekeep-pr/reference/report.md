@@ -9,9 +9,11 @@ Render bottom-up for a terminal: least important first, verdict and menu last. E
 Section order is fixed:
 
 ```
-Delivers: <one or two sentences: what the PR does; with a ticket: "The PR covers the whole <ref>." |
-          "The PR covers AC1-2 of <ref>; AC3's observable half (<what>) is checked after merge, not here." |
-          "The PR covers AC1 of <ref>; AC2 belongs to <split ref>.">
+Delivers: <one sentence: what the PR does. With a ticket, a second sentence built from these clauses in
+          order, each present only when it applies: coverage ("The PR covers the whole <ref>" | "covers
+          AC1-2 of <ref>" | "covers none of <ref>'s ACs"); split ("AC3 belongs to <split ref>");
+          observation ("AC4's observable half (<what>) is checked after merge, not here"); joined with
+          semicolons.>
 
 Ticket changes:          (one item per unresolved `impossible` row)
 - AC<n> asks for <X>, and <cited constraint>. Proposed wording: "<new AC text>". (drafted | proposed <comment url>; <source>)

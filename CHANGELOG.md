@@ -1,5 +1,13 @@
 # Changelog
 
+## Unreleased
+
+### Fixed
+
+- **gatekeep-pr: cross-repo split is explicit.** `reference/findings.md` "Whole or part": a PR in another repository, named in the ticket body or a human ticket comment, waives exactly the rows whose mechanism lives there; a PR named only in this PR's body stays a lead. The `gap` table row carries the same exception. Before, a two-repo ticket produced an unfixable blocker per row owned by the other repo.
+- **gatekeep-pr: one defect, one blocker.** A missing mechanism that surfaces as reviewer finding, AC `gap`, doc drift, and `contradicted` claim at once renders as one blocker with every locator (`reference/findings.md` "Namespaces").
+- **gatekeep-pr: `Delivers` composes.** The coverage, split, and observation clauses are optional and joined with semicolons, so "covers none of the ACs" and "whole + observation half" both render (`reference/report.md`). The compose hint lists only compositions whose verbs are rendered rows (`reference/decision-menu.md`). `## PR gate` `verification command` accepts one command per subproject, resolved by the diff's paths (`reference/assessment.md`).
+
 ## v7.0.0 - 2026-10-01
 
 ### Changed

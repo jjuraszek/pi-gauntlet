@@ -25,7 +25,7 @@ Resolve per concern, first match wins, evaluated unconditionally - never delegat
 
 ```markdown
 ## PR gate
-- verification command: <command>            # required unless documented elsewhere
+- verification command: <command>            # required unless documented elsewhere; one command per subproject ("<dir>: <command>") resolves by the diff's paths, every touched subproject runs
 - timeout minutes: 15                        # optional; default 15
 - requires credentials: false                # optional; true => the gate reports "not run" as missing evidence
 - local verification: always                 # optional; default (absent) = CI-first; "always" forces the local run even when exact-head CI is green
