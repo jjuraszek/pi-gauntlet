@@ -52,14 +52,17 @@ plan commit; treat every task as `pending`.
 
 ## Spec without plan
 
-Ask exactly one question: is this spec approved? Show the spec path (and the brief's
+Ask exactly one question: is this spec approved, or do you select `/skill:brainstorming`
+with this unapproved spec as the draft? Show the spec path (and the brief's
 `## Intent`/`## Decisions` when present).
 
 - Approved: `start brainstorm`; `skip brainstorm resume: <spec path>`; `start plan`;
   continue in writing-plans (its own `start plan` is skipped - plan is already
   in_progress).
-- Not approved: invoke `/skill:brainstorming` with the spec as the draft; arm nothing.
-  using-git-worktrees Step 0 detects the existing worktree and creates none.
+- Selected unapproved-draft brainstorming handoff: invoke [`/skill:brainstorming`](../../brainstorming/SKILL.md) with
+  the spec as the draft; arm nothing. using-git-worktrees Step 0 detects the existing
+  worktree and creates none. A bare "not approved" answer is not consent; wait for
+  explicit handoff selection.
 
 ## Spec with plan
 

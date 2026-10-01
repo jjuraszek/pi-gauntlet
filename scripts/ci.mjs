@@ -185,7 +185,7 @@ const tokenChecks = [
   ["agents/spec-council-member.md", "End every finding with `probed:`", true],
   ["agents/spec-council-synthesizer.md", "grounded|hypothesis:", true],
   ["skills/roasting-the-spec/SKILL.md", "clusters that assert data shape, ordering, or semantics", true],
-  ["skills/brainstorming/SKILL.md", "waives per-diff review", true],
+  ["skills/brainstorming/reference/amendment-surface.md", "waives per-diff review", true],
   // #27 gate removal / amendment path
   ["skills/brainstorming/SKILL.md", "## Amending an approved spec", true],
   ["skills/writing-plans/SKILL.md", "#amending-an-approved-spec", true],
@@ -239,10 +239,10 @@ const tokenChecks = [
   ["agents/spec-council-member.md", "Mode: amendment-review", true],
   ["skills/finishing-a-development-branch/SKILL.md", "Amendments auto-applied", true],
   // #41 ticket ACs carried verbatim into the spec
-  ["skills/brainstorming/SKILL.md", "## Acceptance criteria", true],
-  ["skills/brainstorming/SKILL.md", "**Ticket contract present.**", true],
-  ["skills/brainstorming/SKILL.md", "none - ticket has no acceptance criteria", true],
-  ["skills/brainstorming/SKILL.md", "**Write the section in every spec**, after `## Problem`:", true],
+  ["skills/brainstorming/reference/ticket-acceptance.md", "## Acceptance criteria", true],
+  ["skills/brainstorming/reference/spec-finalization.md", "**Ticket contract present.**", true],
+  ["skills/brainstorming/reference/ticket-acceptance.md", "none - ticket has no acceptance criteria", true],
+  ["skills/brainstorming/reference/ticket-acceptance.md", "**Write the section in every spec**, after `## Problem`:", true],
   ["skills/brainstorming/gatherer.md", "verbatim", true],
   ["skills/brainstorming/gatherer.md", "Ticket acceptance criteria (verbatim)", true],
   ["agents/spec-council-member.md", "deferred:", true],
@@ -417,10 +417,10 @@ try {
 }
 
 try {
-  execFileSync(process.execPath, ["--test", R("scripts/happy-path-run.test.mjs"), R("scripts/gatekeep-comment-reconcile.test.mjs")], { stdio: "pipe" });
-  ok("happy-path shell fixtures and PR comment source contracts pass");
+  execFileSync(process.execPath, ["--test", R("scripts/happy-path-run.test.mjs"), R("scripts/gatekeep-comment-reconcile.test.mjs"), R("scripts/brainstorming-contract.test.mjs")], { stdio: "pipe" });
+  ok("happy-path shell fixtures, PR comment and brainstorming source contracts pass");
 } catch (e) {
-  fail(`happy-path or PR comment regression checks failed:\n    ${String(e.stdout || e.stderr || e).split("\n").slice(0, 30).join("\n    ")}`);
+  fail(`happy-path, PR comment or brainstorming regression checks failed:\n    ${String(e.stdout || e.stderr || e).split("\n").slice(0, 30).join("\n    ")}`);
 }
 
 try {

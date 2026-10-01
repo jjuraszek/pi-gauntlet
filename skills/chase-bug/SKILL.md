@@ -277,7 +277,7 @@ any handoff:
 - File a ticket chosen -> shape-ticket runs its own gate first -> draft the
   response citing the new ticket link -> gate 2 -> done.
 - Brainstorm now chosen -> draft the response first ("confirmed, investigating
-  now - fix to follow") -> gate 2 -> **then** hand off to `/skill:brainstorming`.
+  now - fix to follow") -> gate 2 -> **then** hand off to [`/skill:brainstorming`](../brainstorming/SKILL.md).
 - Hotfix now chosen -> hand off to `hotfix.md` first; on completion, draft the
   response citing `fixed in <SHA>` or the PR link -> gate 2 (`send it`) -> done.
   Gate 2 fires once. On abort, `hotfix.md` returns to the step-4 menu; step 5
@@ -343,7 +343,7 @@ action renders the verdict as a **summary to the human**, then the skill ends
   shape-ticket is cancelled at its gate, render the summary without a ticket
   link.
 - Brainstorm now chosen -> render the summary -> **then** hand off to
-  `/skill:brainstorming`.
+  [`/skill:brainstorming`](../brainstorming/SKILL.md).
 - Hotfix now chosen -> hand off to `hotfix.md`; on completion render the
   summary citing `fixed in <SHA>` or the PR link -> done. On abort, return to
   the step-4 menu.

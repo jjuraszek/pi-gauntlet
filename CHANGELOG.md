@@ -1,5 +1,12 @@
 # Changelog
 
+## Unreleased
+
+### Changed
+
+- **Brainstorming entry is explicit opt-in.** `/skill:brainstorming` is the reliable discovery-and-entry path; explicit prose requesting brainstorming/the gauntlet also supplies consent when the skill is already loaded or an available instruction or route identifies it. Ordinary implementation requests and agent recommendations do not authorize tracker resets or worktree creation. Enforcement starts once opted in, and spec approval still automatically chains into planning and implementation.
+- **Brainstorming instructions are shorter without dropping workflow rules.** Ticket handling and spec finalization now have two required-read reference owners; the main skill keeps entry consent, questionary, and named entry points. Existing ticket dispositions, critique verdict branches, summary degradation, approval, and amend/redraw contracts remain in place.
+
 ## v6.2.0 - 2026-09-30
 
 ### Changed

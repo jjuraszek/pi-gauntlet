@@ -36,8 +36,9 @@ Absolute `output:` paths are mandatory: relative paths in parallel mode resolve
 against the worktree and would get committed.
 
 `<SPEC_INDEX>` is `<directory of this skill's SKILL.md>/../../bin/gauntlet-spec-index.mjs`,
-resolved to an absolute path by the main loop from the skill's `<location>` in the system prompt
-before pasting the task.
+resolved to an absolute path by the main loop from the loaded brainstorming `SKILL.md` path
+in the command's skill envelope or the absolute path used to read it, before pasting the task.
+Use that SKILL.md directory, never `reference/` as the base.
 
 ## Task templates
 

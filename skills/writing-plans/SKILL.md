@@ -28,7 +28,7 @@ Before drafting the plan, check `phase_tracker({ action: "status" })`. If `plan`
 | `doc/specs/2025-05-26-PROJ-1234-foo.md` | `doc/plans/2025-05-26-PROJ-1234-foo.md` |
 | `<service>/doc/specs/<name>.md` | `<service>/doc/plans/<name>.md` |
 
-If no spec exists, send the work back to `/skill:brainstorming`. Do not invent a plan without a spec.
+If no spec exists, recommend `/skill:brainstorming` and await the user's explicit choice before invoking [`/skill:brainstorming`](../brainstorming/SKILL.md). Do not invent a plan without a spec.
 
 ## Boundaries
 

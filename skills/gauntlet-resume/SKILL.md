@@ -101,7 +101,7 @@ checks 2, 4, 5 do not apply.
 |---|---|
 | brief with `## Process state` | process-state restore - `reference/brief-contract.md` "Process-state restore" |
 | brief without process state, `## Skills loaded` names `chase-bug` | hotfix route below, before any artifact reconstruction, no tracker calls |
-| brief without process state, `worktree: no` | invoke `/skill:brainstorming` with `## Intent` as the idea, in the current directory; resume creates no worktree - brainstorming's own Worktree First applies (a plain handoff is a new flow) |
+| brief without process state, `worktree: no` | offer `/skill:brainstorming` with `## Intent` as the idea and wait for explicit selection; then invoke [`/skill:brainstorming`](../brainstorming/SKILL.md) in the current directory; resume creates no worktree - brainstorming's own Worktree First applies (a plain handoff is a new flow) |
 | brief without process state, worktree present | `reference/reconstruction.md`, with `## Intent` and `## Decisions` carried into every confirmation prompt |
 | bare worktree | `reference/reconstruction.md`; prompts state that no brief context is available (never invent Intent/Decisions) |
 | spec seed | `reference/seed.md` |
@@ -120,7 +120,7 @@ owning skill **without** its reset-bearing entry:
 
 | Active after restore | Continue in | Entry point |
 |---|---|---|
-| brainstorm | brainstorming checklist | on-disk state decides the step: draft marker on line 1 of the spec file -> step 4; spec title -> step 8. Never `/skill:brainstorming` entry (it resets both trackers) |
+| brainstorm | [brainstorming checklist](../brainstorming/SKILL.md#checklist) | on-disk state decides the step: draft marker on line 1 of the spec file -> step 4; spec title -> step 8. Never `/skill:brainstorming` entry (it resets both trackers) |
 | plan | writing-plans body | skip its `start plan` call (already in_progress) |
 | implement | subagent-driven-development | re-validate `<task>` first (re-run its `Tests:`), then the task loop from the first non-complete task |
 | verify | verification-before-completion | full conformance gate; nothing carried over |

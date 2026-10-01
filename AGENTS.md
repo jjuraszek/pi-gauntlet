@@ -106,7 +106,7 @@ An **agent-initiated** write to a human-readable channel (tracker comment, Slack
 
 ## Change process
 
-Any non-trivial change rides the full gauntlet from `/skill:brainstorming` (worktree, spec, approval gate, then auto-chain through plan -> implement -> verify -> finish). Trivial carve-out: typo, formatting, dependency bump, the release commit. Runtime flow guards enforce the pipeline once entered; this rule is what makes entry mandatory. A user instruction that names a direct edit and its target overrides it (core "Authorization").
+Recommend the full gauntlet for non-trivial changes, but enter only on explicit user consent: `/skill:brainstorming`, explicit prose requesting brainstorming/the gauntlet when the skill is already loaded or an available instruction or route identifies it, or a human-selected handoff. `/skill:brainstorming` is the reliable discovery-and-entry path. An ordinary implementation request or an agent recommendation is not consent; wait for explicit choice before resetting trackers or creating a worktree. Once opted in, use the worktree, spec, and approval gate, then auto-chain through plan -> implement -> verify -> finish; runtime flow guards enforce that pipeline. Trivial edits (typo, formatting, dependency bump, release commit) need no flow. A user instruction that names a direct edit and its target overrides the workflow recommendation (core "Authorization").
 
 ## Testing
 

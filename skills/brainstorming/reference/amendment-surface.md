@@ -1,6 +1,12 @@
 # Amendment surface
 
-Loaded by `skills/brainstorming/SKILL.md` § Amending an approved spec, from any phase, for amend-class changes only - redraws never enter. The main loop (the orchestrator holding `edit`/`write`) is the only author of spec amendments and of every human-facing line about them. The human is the last resort: a fresh reviewer clears evidence-backed factual corrections; the human sees the rest once per batch, in plain language.
+Load from `skills/brainstorming/SKILL.md` § Amending an approved spec, from any phase, for amend-class changes; at approval, load only [Standing grants](#standing-grants), not the batch procedure. Keep redraws outside this procedure. Only the main loop holding `edit`/`write` authors amendments and human-facing amendment text. Use the human last: a fresh reviewer clears evidence-backed factual corrections; present the rest to the human once per batch plainly.
+
+## Standing grants
+
+Honor a user sentence in this flow that waives per-diff review for later amends (`auto-apply amends`, `approve, auto-apply amends` at the spec gate, `auto-apply amends, stop only for redraws`, `apply spec fixes without asking`, or the same intent in other words). Apply every later amend-class change without review, scope changes included; redraws always stop and the grant never satisfies the spec gate. Start a new brainstorm or a fresh-session resume with no grant; never infer one from history.
+
+Before proceeding to planning, quote a grant given at or before spec approval in the spec commit body via `git -C <abs worktree path> commit --amend --no-edit -q --trailer "Amend-grant: <the sentence>"`, so the worktree history shows when the grant began.
 
 ## 1. Prepare - never apply yet
 
@@ -18,9 +24,9 @@ Collect every amendment pending at this decision point (same spec-review round, 
 | `recommended` | `accept` or `alt-n` |
 | `alternatives` | genuinely different spec edits, zero or more |
 
-The working tree stays at pre-batch HEAD until apply (section 5) - nothing is edited before the reviewer and, where needed, the human have answered. A redraw item stops alone first (`SKILL.md` redraw path); amend items are held and re-batched after it resolves.
+The working tree stays at pre-batch HEAD until apply (section 5) - nothing is edited before the reviewer and, where needed, the human have answered. A redraw item stops alone first (`../SKILL.md` redraw path); amend items are held and re-batched after it resolves.
 
-**Standing grant active** (`v5.10.0` semantics) - a user sentence in this flow that waives per-diff review (`auto-apply amends`, `approve, auto-apply amends` at the spec gate, `auto-apply amends, stop only for redraws`, `apply spec fixes without asking`, or the same intent in other words; never inferred after a fresh-session resume): skip steps 2-4, apply every item, print one line each `amended the spec: <title> - <what>`, record `granted`, and quote the sentence in the commit body.
+**Standing grant active** ([boundaries](#standing-grants)): skip steps 2-4, apply every item, print one line each `amended the spec: <title> - <what>`, record `granted`, and quote the sentence in the commit body.
 
 ## 2. Prefilter - no model call
 
