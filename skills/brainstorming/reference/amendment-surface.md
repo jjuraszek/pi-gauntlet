@@ -1,6 +1,6 @@
 # Amendment surface
 
-Load from `skills/brainstorming/SKILL.md` § Amending an approved spec, from any phase, for amend-class changes; at approval, load only [Standing grants](#standing-grants), not the batch procedure. Keep redraws outside this procedure. Only the main loop holding `edit`/`write` authors amendments and human-facing amendment text. Use the human last: a fresh reviewer clears evidence-backed factual corrections; present the rest to the human once per batch plainly.
+`read` this file (the `read` tool at its absolute path, never a shell command) from `skills/brainstorming/SKILL.md` § Amending an approved spec, from any phase, for amend-class changes; at approval, load only [Standing grants](#standing-grants), not the batch procedure. Keep redraws outside this procedure. Only the main loop holding `edit`/`write` authors amendments and human-facing amendment text. Use the human last: a fresh reviewer clears evidence-backed factual corrections; present the rest to the human once per batch plainly.
 
 ## Standing grants
 
@@ -77,7 +77,7 @@ Fail closed: a dispatch error, an async handle, a silence-kill, or a missing or 
 Render only escalated and prefiltered items; `<N>` counts them. Nothing symbol-dense above the fold; each item's `old -> new` sits under `Details`, after the footer.
 
 ```
-Spec amendments: <N> need your call - from <trigger>; applying as recommended <reopens | adds | removes> <task ids | no tasks>; <phase consequence | no phase change>.
+Spec amendments: <N> need your call - from <trigger>; applying as recommended <reopens | adds | removes> <task ids | no tasks>; no phase change.
 
 * <handle> - <title>: <what>. <why>.
   Example: <before -> after>
@@ -93,7 +93,7 @@ Details
 <handle>: <location> - old: <text> -> new: <text>
 ```
 
-`<trigger>` is the step the main loop is running when the batch forms: `the spec review`, `planning Task <n>`, `Task <n> BLOCKED`, `the verify-phase code review (FIX_FIRST <ids>)`, `the finish-gate council-edit revert`, else `the <phase> phase`; `your request` only for an amend the user raised in prose. The plan clause is the section 5 aftermath as `recommended` would land, over reviewer-cleared plus rendered items, read from the plan file and tracker state - call no `plan_tracker`/`phase_tracker` before the reply: any of `reopens <ids>`, `adds <n> task(s)`, `removes <ids>`, comma-joined (`reopens no tasks` when the plan is untouched), then `; restarts implement, then verify` when a reopen lands in `verify`/`ship`, else `; no phase change`.
+`<trigger>` is the step the main loop is running when the batch forms: `the spec review`, `planning Task <n>`, `Task <n> BLOCKED`, `the verify-phase code review (FIX_FIRST <ids>)`, `the finish-gate council-edit revert`, else `the <phase> phase`; `your request` only for an amend the user raised in prose. The plan clause is the section 5 aftermath as `recommended` would land, over reviewer-cleared plus rendered items, read from the plan file and tracker state - call no `plan_tracker`/`phase_tracker` before the reply: any of `reopens <ids>`, `adds <n> task(s)`, `removes <ids>`, comma-joined (`reopens no tasks` when the plan is untouched), then `; no phase change`.
 
 `Reviewer:` quotes the `<one-line reason>` of the section 3 reply verbatim; the `probed:` half stays in the commit body; a prefiltered item carries `not reviewed - <the rule that prefiltered it>`. `Impact:` restates the design-contract shift from `location` in the reader's words, never quoted spec text, one clause per touched decision, `;`-joined; `(none) -> <new>` for a contract added, `<old> -> (removed)` for a contract removed. `Details` keeps the verbatim `old -> new`.
 
@@ -101,9 +101,11 @@ Details
 
 ## 5. Apply, aftermath, commit
 
+Before the aftermath, `read` this section again; never run it from memory.
+
 Apply accepted items only: reviewer clears, `accept`, `alt-n`, and state-changing `custom`. Print one line per applied item: `amended the spec: <title> - <what>`.
 
-Aftermath, once per batch, only when at least one item applied (nothing applied -> skip to the commit below). No plan yet -> commit the spec; continue. Plan exists -> update affected anchors and tasks: `plan_tracker` `add` for new tasks; anchor-changed completed tasks are reopened as `in_progress` and re-run the task loop (`update` never sets `pending`). A removed task is deleted from the plan; then re-`init` the tracker with `{ name, status }` elements: preserved tasks keep their order and statuses, reopened tasks are `in_progress` in place, every still-`pending` task (including newly added ones, whatever wave label they carry) trails the non-pending ones, removed tasks are the only deletions (the only permitted `init` after handoff; never `clear`). Re-run `plan_check` until it passes, commit spec + plan together; continue. A task reopened while `verify` or `ship` is in progress: `phase_tracker({ action: "skip", phase: "<current>", reason: "amendment reopened Task N" })`, then `phase_tracker({ action: "start", phase: "implement", force: true })`; later phases re-enter with `force: true` and rerun in full.
+Aftermath, once per batch, only when at least one item applied (nothing applied -> skip to the commit below). No plan yet -> commit the spec; continue. Plan exists -> update affected anchors and tasks: `plan_tracker` `add` for new tasks; anchor-changed completed tasks are reopened as `in_progress` and re-run the task loop (`update` never sets `pending`). A removed task is deleted from the plan; then re-`init` the tracker with `{ name, status }` elements: preserved tasks keep their order and statuses, reopened tasks are `in_progress` in place, every still-`pending` task (including newly added ones, whatever wave label they carry) trails the non-pending ones, removed tasks are the only deletions (the only permitted `init` after handoff; never `clear`). Re-run `plan_check` until it passes, commit spec + plan together; continue. A task reopened while `verify` or `ship` is in progress stays in that phase - no `phase_tracker` call. Repair it through the current phase's fix loop and `plan_tracker({ action: "update", index: N, status: "complete" })` it once that repair's review or re-audit accepts; open tasks block `complete verify`, and in `ship` nothing checks them, so close them explicitly.
 
 One commit per batch:
 

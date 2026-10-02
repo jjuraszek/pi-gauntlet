@@ -1814,3 +1814,111 @@ test("grant: accepts MAX_SAFE_INTEGER and current on-disk cap controls whether t
   writeFileSync(join(changed.ctx.cwd, ".pi", "settings.json"), JSON.stringify({ piGauntlet: { closureReview: { maxFixRounds: 1 } } }));
   assert.match((await grant(changed, "g", { rounds: 1, reason: "ok" })).details.error ?? "", /0 used, cap 1/);
 });
+
+const eightTasks = (open: number[]) =>
+  Array.from({ length: 8 }, (_, i) => ({ name: `T${i + 1} task`, status: open.includes(i) ? "in_progress" : "complete" }));
+
+const resultText = async (h: ReturnType<typeof harness>, id: string, isError = false) => {
+  const [res] = (await h.emitEvent("tool_result", waveResult(id, [{ agent: "implementer", exitCode: 0 }], isError))) as (
+    | { content: { text: string }[] }
+    | undefined
+  )[];
+  return res?.content[0]?.text;
+};
+
+test("open-task nudge: verify-phase implementer wave lists mid-list open rows with the closure instruction, before any audit", async () => {
+  const h = harness({ branch: verifyBranch([taskSnapshot(eightTasks([3]))]) });
+  await h.emit("session_start");
+  const text = await resultText(h, "w1");
+  assert.ok(text, "nudge present");
+  assert.match(text, /^Plan tasks still open after this repair wave:\n3: T4 task \(in_progress\)\nOnce this wave's repair is integrated and its re-review or re-audit accepts it, close that task: plan_tracker\(\{ action: "update", index: N, status: "complete" \}\)\. Leave unaccepted repairs in_progress\. A pending row is a task still to run, not to close\. Open tasks block complete verify\.$/);
+  assert.doesNotMatch(text, /0: T1 task/);
+});
+
+// fixRounds is observed through the cap guard: one nudged wave against maxFixRounds 1
+// blocks the next dispatch exactly as an un-nudged wave would.
+test("open-task nudge: fires on every qualifying wave and leaves fix-round counting unchanged", async () => {
+  const h = guardedHarness({ piGauntlet: { closureReview: { enforce: true, maxFixRounds: 1 } } }, [taskSnapshot(eightTasks([0, 3]))]);
+  await h.emit("session_start");
+  assert.equal(await firstCallResult(h, "c1", implementerWave(1)), undefined);
+  assert.match((await resultText(h, "c1")) ?? "", /0: T1 task \(in_progress\)\n3: T4 task \(in_progress\)/);
+  const blocked = await firstCallResult(h, "c2", implementerWave(1));
+  assert.equal(blocked?.block, true, "one wave counted, cap 1 reached");
+  const h2 = guardedHarness({ piGauntlet: { closureReview: { enforce: true } } }, [taskSnapshot(eightTasks([3]))]);
+  await h2.emit("session_start");
+  assert.match((await resultText(h2, "a")) ?? "", /^Plan tasks still open/);
+  assert.match((await resultText(h2, "b")) ?? "", /^Plan tasks still open/);
+});
+
+// The closure-model mismatch warning is stashed at tool_call; it must render first.
+test("open-task nudge: a stashed tool_call warning stays ahead of the nudge on the same result", async () => {
+  const h = harness({
+    cwd: tempCwd({ piGauntlet: { closureReview: { enforce: true, model: "p/configured" } } }),
+    branch: verifyBranch([taskSnapshot(eightTasks([3]))]),
+  });
+  await h.emit("session_start");
+  const call = { tasks: [{ agent: "conformance-reviewer", model: "p/other", task: "audit" }, { agent: "implementer", task: "fix", worktree: true }] };
+  assert.equal(await firstCallResult(h, "m1", call), undefined);
+  const text = (await resultText(h, "m1")) ?? "";
+  const warningAt = text.indexOf("p/other");
+  const nudgeAt = text.indexOf("Plan tasks still open after this repair wave:");
+  assert.ok(warningAt >= 0 && nudgeAt > warningAt, `warning first, nudge second: ${text}`);
+});
+
+test("open-task nudge: silent outside the verify window and without open rows", async () => {
+  const cases: [string, ReturnType<typeof harness>][] = [
+    ["implement in progress", harness({ branch: implementBranch([taskSnapshot(eightTasks([3]))]) })],
+    [
+      "ship in progress",
+      harness({
+        branch: verifyBranch([
+          phaseResult("complete", phases({ brainstorm: "complete", plan: "complete", implement: "complete", verify: "complete" })),
+          phaseResult("start", phases({ brainstorm: "complete", plan: "complete", implement: "complete", verify: "complete", ship: "in_progress" })),
+          taskSnapshot(eightTasks([3])),
+        ]),
+      }),
+    ],
+    ["all tasks complete or skipped", harness({ branch: verifyBranch([taskSnapshot([...eightTasks([]).slice(0, 7), { name: "T8 task", status: "skipped" }])]) })],
+    ["no snapshot on the branch", harness({ branch: verifyBranch() })],
+    ["latest snapshot is a clear", harness({ branch: verifyBranch([taskSnapshot(eightTasks([3])), taskSnapshot([])]) })],
+    ["rejected update is skipped, prior all-complete snapshot used", harness({ branch: verifyBranch([taskSnapshot(eightTasks([])), { type: "message", message: { role: "toolResult", toolName: "plan_tracker", details: { tasks: eightTasks([3]), error: "rejected" } } }]) })],
+    ["flowGuards.enforce: false", harness({ cwd: tempCwd({ piGauntlet: { flowGuards: { enforce: false } } }), branch: verifyBranch([taskSnapshot(eightTasks([3]))]) })],
+    ["async handle results: []", harness({ branch: verifyBranch([taskSnapshot(eightTasks([3]))]) })],
+  ];
+  for (const [label, h] of cases) {
+    await h.emit("session_start");
+    if (label === "async handle results: []") {
+      assert.deepEqual(await h.emitEvent("tool_result", waveResult("x", [])), [undefined], label);
+      continue;
+    }
+    assert.equal(await resultText(h, "x"), undefined, label);
+  }
+});
+
+test("open-task nudge: closureReview.enforce: false does not silence it", async () => {
+  const h = harness({ cwd: tempCwd({ piGauntlet: { closureReview: { enforce: false } } }), branch: verifyBranch([taskSnapshot(eightTasks([3]))]) });
+  await h.emit("session_start");
+  assert.match((await resultText(h, "k")) ?? "", /^Plan tasks still open/);
+});
+
+test("open-task nudge: silent on an isError result, a degraded settings read, and in a subagent child", async () => {
+  const errored = harness({ branch: verifyBranch([taskSnapshot(eightTasks([3]))]) });
+  await errored.emit("session_start");
+  assert.equal(await resultText(errored, "e", true), undefined, "isError result");
+
+  const malformed = tempCwd();
+  mkdirSync(join(malformed, ".pi"), { recursive: true });
+  writeFileSync(join(malformed, ".pi", "settings.json"), "{ not json");
+  const degraded = harness({ cwd: malformed, branch: verifyBranch([taskSnapshot(eightTasks([3]))]) });
+  await degraded.emit("session_start");
+  assert.equal(await resultText(degraded, "d"), undefined, "settings errors");
+
+  process.env.PI_SUBAGENT_DEPTH = "1";
+  try {
+    const child = harness({ branch: verifyBranch([taskSnapshot(eightTasks([3]))]) });
+    await child.emit("session_start");
+    assert.equal(await resultText(child, "c"), undefined, "subagent child");
+  } finally {
+    process.env.PI_SUBAGENT_DEPTH = "0";
+  }
+});

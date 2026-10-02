@@ -1,5 +1,7 @@
 # Remove meaningless human gates; define the post-approval amendment path
 
+> **Superseded by:** [doc/specs/2026-10-02-amendment-aftermath-tracker-drift.md](./2026-10-02-amendment-aftermath-tracker-drift.md) - amendment-path aftermath clause "skip the current phase, then start implement force: true; later phases re-enter with force: true" only
+
 **Issue:** jjuraszek/pi-gauntlet#27 (with two deviations from its AC - see [Relation to issue #27](#relation-to-issue-27)).
 **Goal:** every human stop in the brainstorm -> ship flow is one of: spec approval, ship disposition, the two design rounds, an approved-spec amendment approval, an in-flight `BLOCKED` / `NEEDS_CONTEXT` / reviewer escalation, or a human-channel write. Everything else is model-owned work. One defined path for changing an approved spec.
 

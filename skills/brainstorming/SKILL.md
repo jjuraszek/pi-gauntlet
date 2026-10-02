@@ -146,9 +146,11 @@ Follow [User Review Gate](reference/spec-finalization.md#user-review-gate) for s
 
 Execute in place from any later phase; never invoke `/skill:brainstorming` for it (its entry resets both trackers). Worktree, spec commits, and plan survive.
 
+Every skill resource in this flow (a `SKILL.md` or a `reference/*.md`) is loaded with the `read` tool at its absolute path under `skills/`, never with a shell command - pruning protection keys on `read`'s `path`.
+
 Classify first. Redraw test: the change alters the problem statement, adds or removes a component, or moves a component boundary -> redraw. A change inside one component (a persistence mechanism, a worker's HTTP client, dropping a fallback and its task) -> amend. State the call; the user overrides either way.
 
-Amend -> load `reference/amendment-surface.md` and follow it (unreadable -> stop with a blocking error; never improvise the grammar). Apply its [Standing grants](reference/amendment-surface.md#standing-grants) boundaries.
+Amend -> `read` `reference/amendment-surface.md` and follow it (unreadable -> stop with a blocking error; never improvise the grammar). Apply its [Standing grants](reference/amendment-surface.md#standing-grants) boundaries.
 
 Redraw: keep the worktree and the approved spec file. `plan_tracker({ action: "clear" })`, `phase_tracker({ action: "reset" })`, `phase_tracker({ action: "start", phase: "brainstorm" })`, delete the plan file, resume at checklist step 4 with the approved spec as the draft (steps 2-3 skipped). Spec-writing overwrites it; the full gate follows.
 

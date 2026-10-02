@@ -1,5 +1,7 @@
 # Amend batch card: trigger, reviewer objection, contract shift
 
+> **Superseded by:** [doc/specs/2026-10-02-amendment-aftermath-tracker-drift.md](./2026-10-02-amendment-aftermath-tracker-drift.md) - `restarts implement, then verify` phase consequence only
+
 **Goal:** Make the spec-amendment human batch informative without opening the spec: the header names what raised the batch and what applying does to the run, each item carries the reviewer's verdict verbatim, and `Impact:` states the approved-contract shift in plain words instead of a plan-task list.
 
 Supersedes `doc/specs/2026-09-19-readable-amendment-gates.md` § Tier-2 render (human batch), card fields only; every other section of that spec stands.

@@ -101,6 +101,33 @@ const isImplementerWave = (details: unknown, isError: boolean | undefined): bool
   return d.results.some((r) => r?.agent === "implementer");
 };
 
+type Task = { name: string; status: string };
+
+// Latest successful plan_tracker snapshot on the current branch. Shared by the
+// completion backstop and the open-task nudge so both reason about one state;
+// read from session entries, so context pruning cannot hide it.
+const latestPlanSnapshot = (ctx: ExtensionContext): Task[] => {
+  for (const entry of [...ctx.sessionManager.getBranch()].reverse()) {
+    if (
+      entry.type !== "message" ||
+      entry.message.role !== "toolResult" ||
+      entry.message.toolName !== "plan_tracker" ||
+      entry.message.isError
+    ) {
+      continue;
+    }
+    const details = entry.message.details as { tasks?: Task[]; error?: string } | undefined;
+    if (!details || details.error || !details.tasks) continue;
+    return details.tasks;
+  }
+  return [];
+};
+
+const unfinishedTaskLines = (tasks: Task[]): string[] =>
+  tasks.flatMap((task, index) =>
+    task.status === "pending" || task.status === "in_progress" ? [`${index}: ${task.name} (${task.status})`] : [],
+  );
+
 // Review-cadence guard (spec 2026-08-12-execution-fidelity-hardening): presence-only
 // advisory ledger of the most recent completed implementer / spec-reviewer /
 // code-reviewer dispatch. Agents completing in the SAME dispatch share a sequence
@@ -209,6 +236,13 @@ const loneImplementerBlockReason =
   'Conformance fix loop: dispatch implementers as a one-task tasks wave (tasks: [{ agent: "implementer", worktree: true, ... }]); ' +
   "a lone agent call runs unisolated and produces no worktree diff. " +
   "To disable this gate, set piGauntlet.closureReview.enforce: false.";
+
+// Preview the completion backstop so reopened tasks close at acceptance,
+// not before the repair is integrated and reviewed.
+const openTaskNudge = (rows: string[]): string =>
+  `Plan tasks still open after this repair wave:\n${rows.join("\n")}\n` +
+  'Once this wave\'s repair is integrated and its re-review or re-audit accepts it, close that task: plan_tracker({ action: "update", index: N, status: "complete" }). ' +
+  "Leave unaccepted repairs in_progress. A pending row is a task still to run, not to close. Open tasks block complete verify.";
 
 const fixRoundCapBlockReason = (used: number, cap: number, settingsPath: string): string =>
   `Conformance fix loop: ${used} fix round(s) used against a cap of ${cap} (granted rounds included); ` +
@@ -382,6 +416,10 @@ export default function (pi: ExtensionAPI) {
   // Warnings stashed at tool_call, prepended at tool_result (verify-before-ship pattern).
   // Relies on tool_result firing for every tool_call; reconstructState clears any stragglers.
   const pendingGuardWarnings = new Map<string, string>();
+  const addGuardWarning = (id: string, text: string) => {
+    const prior = pendingGuardWarnings.get(id);
+    pendingGuardWarnings.set(id, prior ? prior + "\n\n" + text : text);
+  };
 
   const activeGuardPhase = (): Phase | undefined =>
     GUARD_PHASES.find((p) => phases[p].status === "in_progress");
@@ -519,10 +557,6 @@ export default function (pi: ExtensionAPI) {
 
   pi.on("tool_call", async (event, ctx) => {
     // D3.b: one fresh settings read per event, lazily, only if a guard needs it.
-    const addGuardWarning = (id: string, text: string) => {
-      const prior = pendingGuardWarnings.get(id);
-      pendingGuardWarnings.set(id, prior ? prior + "\n\n" + text : text);
-    };
     let gauntletCache: ReturnType<typeof loadGauntletSettings> | undefined;
     const g = () => {
       if (!gauntletCache) {
@@ -706,6 +740,18 @@ export default function (pi: ExtensionAPI) {
       observeFixWave(event.details, event.isError, ctx);
       if (qualifiesAsClosureDispatch(event.details)) conformanceDispatched = true;
       observeCadence(event.details);
+      if (
+        !isSubagentChild &&
+        gauntletEntered &&
+        phases.verify.status === "in_progress" &&
+        isImplementerWave(event.details, event.isError)
+      ) {
+        const loaded = loadGauntletSettings(ctx.cwd);
+        if (loaded.errors.length === 0 && resolveFlowGuards(loaded.gauntlet).enforce) {
+          const open = unfinishedTaskLines(latestPlanSnapshot(ctx));
+          if (open.length) addGuardWarning(event.toolCallId, openTaskNudge(open));
+        }
+      }
       const warning = pendingGuardWarnings.get(event.toolCallId);
       if (warning) {
         pendingGuardWarnings.delete(event.toolCallId);
@@ -989,26 +1035,7 @@ export default function (pi: ExtensionAPI) {
             (params.phase === "implement" || params.phase === "verify") &&
             resolveFlowGuards(loadGauntletSettings(ctx.cwd).gauntlet).enforce
           ) {
-            let tasks: { name: string; status: string }[] = [];
-            for (const entry of [...ctx.sessionManager.getBranch()].reverse()) {
-              if (
-                entry.type !== "message" ||
-                entry.message.role !== "toolResult" ||
-                entry.message.toolName !== "plan_tracker" ||
-                entry.message.isError
-              ) {
-                continue;
-              }
-              const details = entry.message.details as { tasks?: { name: string; status: string }[]; error?: string } | undefined;
-              if (!details || details.error || !details.tasks) continue;
-              tasks = details.tasks;
-              break;
-            }
-            const unfinished = tasks.flatMap((task, index) =>
-              task.status === "pending" || task.status === "in_progress"
-                ? [`${index}: ${task.name} (${task.status})`]
-                : [],
-            );
+            const unfinished = unfinishedTaskLines(latestPlanSnapshot(ctx));
             if (unfinished.length) {
               return {
                 content: [

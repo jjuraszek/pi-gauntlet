@@ -6,13 +6,16 @@ const sources = {
     import { readFileSync } from "node:fs";
     export class SettingsManager {
       static create(cwd) { return new SettingsManager(cwd); }
-      constructor(cwd) { this.cwd = cwd; }
+      constructor(cwd) { this.cwd = cwd; this.errors = []; }
       getGlobalSettings() { return {}; }
       getProjectSettings() {
         try { return JSON.parse(readFileSync(this.cwd + "/.pi/settings.json", "utf8")); }
-        catch { return {}; }
+        catch (error) {
+          if (error?.code !== "ENOENT") this.errors.push({ scope: "project", error });
+          return {};
+        }
       }
-      drainErrors() { return []; }
+      drainErrors() { const drained = this.errors; this.errors = []; return drained; }
     }
     export const getAgentDir = () => "/tmp/pi-gauntlet-test-agent";
   `,
