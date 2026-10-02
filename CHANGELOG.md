@@ -4,7 +4,15 @@
 
 ### Added
 
-- `gauntlet-telemetry-seal` seals records in a plain jj workspace (no `.git`): all git/jj dispatch centralizes in a new `extensions/lib/vcs.ts` (`vcsFor` over the shared `checkoutOfSync`), the ship diff comes from `computeJjDiff` (fork-point base against `trunk()`/`main`/`master`, `--to @`), `--base` is validated as a jj revset, and the stamped record is left to jj's working-copy snapshot instead of a `telemetry:` commit. `/skill:finishing-a-development-branch` Step 5 strips the plan with `jj restore --from <base-branch>` there, and a checkout with neither git nor jj now errors `not a git or jj checkout`.
+- `gauntlet-telemetry-seal` seals records in a plain jj workspace (no `.git`): all git/jj dispatch centralizes in a new `extensions/lib/vcs.ts` (`vcsFor` over the shared `checkoutOfSync`), the ship diff comes from `computeJjDiff` (fork-point base against `trunk()`/`main`/`master`, `--to @`), `--base` is validated as a jj revset, and the record is tracked with `jj file track --include-ignored` instead of a `telemetry:` commit, so a gitignored telemetry dir is snapshotted like `git add -f` stages it. The jj runner reads up to 64 MiB of patch output. `/skill:finishing-a-development-branch` Step 5 strips the plan with `jj restore --from <base-branch> -- root:"<plan>"` there (anchored at the workspace root, since jj resolves bare paths against cwd), and a checkout with neither git nor jj now errors `not a git or jj checkout`.
+
+## v7.0.1 - 2026-10-02
+
+### Fixed
+
+- **gatekeep-pr: cross-repo split is explicit.** `reference/findings.md` "Whole or part": a PR in another repository, named in the ticket body or a human ticket comment, waives exactly the rows whose mechanism lives there; a PR named only in this PR's body stays a lead. The `gap` table row carries the same exception. Before, a two-repo ticket produced an unfixable blocker per row owned by the other repo.
+- **gatekeep-pr: one defect, one blocker.** A missing mechanism that surfaces as reviewer finding, AC `gap`, doc drift, and `contradicted` claim at once renders as one blocker with every locator (`reference/findings.md` "Namespaces").
+- **gatekeep-pr: `Delivers` composes.** The coverage, split, and observation clauses are optional and joined with semicolons, so "covers none of the ACs" and "whole + observation half" both render (`reference/report.md`). The compose hint lists only compositions whose verbs are rendered rows (`reference/decision-menu.md`). `## PR gate` `verification command` accepts one command per subproject, resolved by the diff's paths (`reference/assessment.md`).
 
 ## v7.0.0 - 2026-10-01
 

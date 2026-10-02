@@ -15,7 +15,7 @@ Split each AC row once into a **mechanism half** (code + test + doc that make th
 | Outcome | Condition | Renders as | Blocks |
 |---|---|---|---|
 | `covered` | evidence matches what the AC promises: executable behavior needs the code path plus a real test that exercises it; a documentation-only AC is judged against the promised doc text and demands no test; in both cases docs that describe the behavior agree with it | counted in `Delivers` | no |
-| `gap` | any part of the mechanism absent in this PR | one `Blockers` item | yes - a mechanism `gap` is a blocker |
+| `gap` | any part of the mechanism absent in this PR and the row not explicitly split (see Whole or part) | one `Blockers` item | yes - a mechanism `gap` is a blocker |
 | `not judged here` | the observation half; the mechanism half of the same row is still judged `covered`/`gap` | one `Delivers` clause ("<row>'s observable half is checked after merge, not here"); nothing is written, listed, or handed to check-delivery | no |
 | `impossible` | a `gap` whose fix is on the ticket - all four conditions below hold | one `Ticket changes` item with a drafted replacement AC text, in state `drafted` or `proposed` | withholds `merge` until the ticket body changes or the human picks `merge anyway - accept AC<n> as impossible` |
 
@@ -25,7 +25,7 @@ Split each AC row once into a **mechanism half** (code + test + doc that make th
 
 **No ticket** (none linked, or fetch failed): no AC rows; `Delivers` states the PR's intent as read from its title and body; `not judged here`, `impossible`, `Ticket changes`, and scope creep do not apply.
 
-**Whole or part.** With a ticket linked, `Delivers` names coverage: *whole* when every row is `covered` or is `not judged here` with its mechanism half `covered`; *part, acceptable* when every uncovered row is either an observation half or **explicitly split** - the ticket body or a human-authored ticket comment names another tracker ref for that row, read from the tracker this run. Only the tracker waives an obligation: a spec `deferred: <where>`, a linked later PR, or a `proposed` (not yet `resolved`) ticket change is a lead to check the tracker, never a waiver. Any other uncovered row is `gap`: "a later PR will add X" in the PR body, an unchecked box with no tracker split, a `deferred:` the ticket does not confirm.
+**Whole or part.** With a ticket linked, `Delivers` names coverage: *whole* when every row is `covered` or is `not judged here` with its mechanism half `covered`; *part, acceptable* when every uncovered row is either an observation half or **explicitly split** - the ticket body or a human-authored ticket comment, read from the tracker this run, names another tracker ref or a PR in another repository for that row; a cross-repo PR named there waives exactly the rows whose mechanism lives in that repository. Only the tracker waives an obligation: a spec `deferred: <where>`, a later PR in the same repository, a PR named only in this PR's body, or a `proposed` (not yet `resolved`) ticket change is a lead to check the tracker, never a waiver. Any other uncovered row is `gap`: "a later PR will add X" in the PR body, an unchecked box with no tracker split, a `deferred:` the ticket does not confirm.
 
 **Claims.** The Verifier's three dispositions stand. `contradicted` is a blocker. `unverifiable-pre-merge` is not evidence and renders nothing: a PR whose only proof of a new path is "verified on stg" is blocked by the untested-path rubric row, not by a claim rule.
 
@@ -39,6 +39,8 @@ Every finding is one of two:
 | nit | wording-only doc drift (typo, label, phrasing with the same meaning), style, reuse of an existing helper, naming | no; take-or-leave at the menu; untracked after the run |
 
 Behavior the ticket promises is a blocker or an explicit tracker split - never deferred to a PR nobody opened.
+
+**One defect, one blocker.** A missing mechanism surfaces through several rules at once (reviewer finding, AC `gap`, doc drift, `contradicted` claim); render it as one blocker that names the defect and lists every locator, and keep each contributing rule's ID in the ledger.
 
 **Severity translation.** Reviewer Critical and Moderate -> blocker; Minor -> nit. A repo `REVIEW.md` mapping overrides this; a severity it names but does not map is fail-safe blocker, noted in `show evidence`.
 
