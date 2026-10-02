@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Added
+
+- `gauntlet-telemetry-seal` seals records in a plain jj workspace (no `.git`): all git/jj dispatch centralizes in a new `extensions/lib/vcs.ts` (`vcsFor` over the shared `checkoutOfSync`), the ship diff comes from `computeJjDiff` (fork-point base against `trunk()`/`main`/`master`, `--to @`), `--base` is validated as a jj revset, and the record is tracked with `jj file track --include-ignored` instead of a `telemetry:` commit, so a gitignored telemetry dir is snapshotted like `git add -f` stages it. The jj runner reads up to 64 MiB of patch output. `/skill:finishing-a-development-branch` Step 5 strips the plan with `jj restore --from <base-branch> -- root:"<plan>"` there (anchored at the workspace root, since jj resolves bare paths against cwd), and a checkout with neither git nor jj now errors `not a git or jj checkout`.
+
 ## v7.0.1 - 2026-10-02
 
 ### Fixed

@@ -339,7 +339,7 @@ test("usage and environment errors exit 1", (t) => {
   const notGit = mkdtempSync(join(tmpdir(), "gts-nogit-")); cleanup(t, notGit);
   const ng = invoke(["--worktree", notGit, "--option", "squash", "--base", "main"]);
   assert.equal(ng.status, 1);
-  assert.equal(ng.stderr, "not a git checkout");
+  assert.equal(ng.stderr, "not a git or jj checkout");
 });
 
 test("--dir overrides the telemetry dir", (t) => {
@@ -349,4 +349,168 @@ test("--dir overrides the telemetry dir", (t) => {
   assert.equal(r.status, 0, r.stderr);
   assert.deepEqual(r.lines, ["sealed tele/doc/specs/x.yaml"]);
   assert.deepEqual(headFiles(root), ["tele/doc/specs/x.yaml"]);
+});
+
+// --- Plain jj workspace (no .git). git and jj are PATH shims: git always fails
+// rev-parse and only logs; jj answers from a per-test JSON script. CI has no jj.
+const JJ_FORK = "f0a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9";
+// src/a.ts: +10 -2; the spec and the record ride along to prove modified_files filters them out.
+const JJ_PATCH = [
+  "diff --git a/src/a.ts b/src/a.ts",
+  "index 1111111..2222222 100644",
+  "--- a/src/a.ts",
+  "+++ b/src/a.ts",
+  "@@ -1,4 +1,12 @@",
+  ...Array.from({ length: 10 }, (_, i) => `+added ${i}`),
+  "-removed 1",
+  "-removed 2",
+  " context",
+  "diff --git a/doc/specs/x.md b/doc/specs/x.md",
+  "new file mode 100644",
+  "index 0000000..3333333",
+  "--- /dev/null",
+  "+++ b/doc/specs/x.md",
+  "@@ -0,0 +1,5 @@",
+  ...Array.from({ length: 5 }, (_, i) => `+spec ${i}`),
+  "diff --git a/.pi/gauntlet/telemetry/doc/specs/x.yaml b/.pi/gauntlet/telemetry/doc/specs/x.yaml",
+  "new file mode 100644",
+  "index 0000000..4444444",
+  "--- /dev/null",
+  "+++ b/.pi/gauntlet/telemetry/doc/specs/x.yaml",
+  "@@ -0,0 +1,3 @@",
+  "+schema: 1",
+  "+spec: doc/specs/x.md",
+  "+run_id: r-1",
+  "",
+].join("\n");
+const GIT_SHIM = (log) => `#!${process.execPath}
+require("node:fs").appendFileSync(${JSON.stringify(log)}, "git " + process.argv.slice(2).join(" ") + "\\n");
+process.stderr.write("fatal: not a git repository (or any of the parent directories): .git\\n");
+process.exit(128);
+`;
+const JJ_SHIM = (log, scriptPath) => `#!${process.execPath}
+const fs = require("node:fs");
+const a = process.argv.slice(2);
+fs.appendFileSync(${JSON.stringify(log)}, "jj " + a.join(" ") + "\\n");
+const script = JSON.parse(fs.readFileSync(${JSON.stringify(scriptPath)}, "utf8"));
+const s = a.join(" ");
+const send = (r) => { const res = r ?? { code: 1, stderr: "unscripted jj call" }; process.stdout.write(res.stdout ?? ""); process.stderr.write(res.stderr ?? ""); process.exit(res.code ?? 0); };
+if (s === "root") send(script.root);
+if (s.includes("--limit")) send(script.base);
+if (s.includes("--count")) send(script.count);
+if (s.includes("fork_point(")) send(script.fork);
+if (s.includes("--name-only")) send(script.names);
+if (s.startsWith("file track")) send(script.track);
+send(script.patch);
+`;
+const jjWorkspace = (t, script, { recordText = RECORD } = {}) => {
+  const root = mkdtempSync(join(tmpdir(), "gts-jj-"));
+  write(root, SPEC, "# Spec X\n\n**Goal:** g.\n");
+  if (recordText !== undefined) write(root, REC, recordText);
+  const shims = mkdtempSync(join(tmpdir(), "gts-shim-"));
+  const log = join(shims, "calls.log");
+  writeFileSync(log, "");
+  const scriptPath = join(shims, "script.json");
+  writeFileSync(scriptPath, JSON.stringify({ root: { code: 0, stdout: root + "\n" }, ...script }));
+  for (const [name, body] of [["git", GIT_SHIM(log)], ["jj", JJ_SHIM(log, scriptPath)]]) {
+    const p = join(shims, name);
+    writeFileSync(p, body);
+    chmodSync(p, 0o755);
+  }
+  cleanup(t, root, shims);
+  return { root, log, env: { PATH: `${shims}:${process.env.PATH}` } };
+};
+const happyJj = {
+  base: { code: 0, stdout: JJ_FORK + "\n" },
+  fork: { code: 0, stdout: JJ_FORK + "\n" },
+  count: { code: 0, stdout: "2\n" },
+  patch: { code: 0, stdout: JJ_PATCH },
+  track: { code: 0, stdout: "" },
+};
+
+test("jj workspace: record stamped shipped from the jj diff, one git probe, no git writes, file track instead of a commit", (t) => {
+  const { root, log, env } = jjWorkspace(t, happyJj);
+  const r = run(root, ["--spec", SPEC], env);
+  assert.equal(r.status, 0, r.stderr);
+  assert.deepEqual(r.lines, [`sealed ${REC}`]);
+  const rec = record(root);
+  assert.equal(rec.status, "shipped");
+  assert.equal(rec.events.at(-1).kind, "ship");
+  assert.equal(rec.events.at(-1).option, "squash");
+  assert.deepEqual(rec.derived.modified_files, ["src/a.ts"], "spec and telemetry-dir paths filtered");
+  assert.equal(rec.derived.diff.base, JJ_FORK);
+  assert.equal(rec.derived.diff.commits, 2);
+  assert.deepEqual(rec.derived.diff.buckets.code, { files: 1, insertions: 10, deletions: 2 });
+  const calls = readFileSync(log, "utf8").split("\n").filter(Boolean);
+  assert.deepEqual(calls.filter((c) => c.startsWith("git ")).map((c) => c.split(" ")[1]), ["rev-parse"], "git is only the failed checkout probe");
+  assert.ok(calls.some((c) => c === "jj root"));
+  assert.ok(calls.includes(`jj file track --include-ignored -- ${REC}`), "the record is tracked even under a gitignored dir");
+});
+
+test("jj workspace: a failing file track restores the pre-seal bytes and exits 1", (t) => {
+  const { root, env } = jjWorkspace(t, { ...happyJj, track: { code: 1, stderr: "Error: Path is not in the workspace\n" } });
+  const r = run(root, ["--spec", SPEC], env);
+  assert.equal(r.status, 1);
+  assert.equal(r.stderr, `seal failed ${REC}: Error: Path is not in the workspace`);
+  assert.equal(record(root).status, "in_progress");
+});
+
+test("jj workspace with unresolved mainline: warning recorded, diff fields absent, record still sealed", (t) => {
+  const { root, env } = jjWorkspace(t, { ...happyJj, fork: { code: 0, stdout: "" } });
+  const r = run(root, ["--spec", SPEC], env);
+  assert.equal(r.status, 0, r.stderr);
+  assert.deepEqual(r.lines, [`sealed ${REC}`]);
+  const rec = record(root);
+  assert.equal(rec.status, "shipped");
+  assert.ok(!("diff" in rec.derived) && !("modified_files" in rec.derived));
+  assert.equal(rec.events.find((e) => e.kind === "warning")?.message, "diff omitted: jj mainline unresolved (trunk() is root(); no main/master bookmark)");
+});
+
+test("jj diff failure and unparseable patch each seal with a warning and no diff fields", (t) => {
+  const failing = jjWorkspace(t, { ...happyJj, patch: { code: 1, stderr: "fatal: diff exploded\n" } });
+  const r1 = run(failing.root, ["--spec", SPEC], failing.env);
+  assert.equal(r1.status, 0, r1.stderr);
+  let rec = record(failing.root);
+  assert.equal(rec.status, "shipped");
+  assert.ok(!("diff" in rec.derived) && !("modified_files" in rec.derived));
+  assert.equal(rec.events.find((e) => e.kind === "warning")?.message, "diff omitted: jj diff failed: fatal: diff exploded");
+
+  const garbage = jjWorkspace(t, { ...happyJj, patch: { code: 0, stdout: "not a git patch\n" } });
+  const r2 = run(garbage.root, ["--spec", SPEC], garbage.env);
+  assert.equal(r2.status, 0, r2.stderr);
+  rec = record(garbage.root);
+  assert.equal(rec.events.find((e) => e.kind === "warning")?.message, "diff omitted: jj diff unparseable");
+});
+
+test("jj workspace: an unresolvable or empty --base revset fails no base ref, exit 1", (t) => {
+  const unknown = jjWorkspace(t, { ...happyJj, base: { code: 1, stderr: "Error: No such bookmark: nope\n" } });
+  const r1 = invoke(["--worktree", unknown.root, "--option", "squash", "--base", "nope", "--spec", SPEC], unknown.env);
+  assert.equal(r1.status, 1);
+  assert.equal(r1.stderr, "no base ref nope");
+  const empty = jjWorkspace(t, { ...happyJj, base: { code: 0, stdout: "" } });
+  const r2 = invoke(["--worktree", empty.root, "--option", "squash", "--base", "none()"], empty.env);
+  assert.equal(r2.status, 1);
+  assert.equal(r2.stderr, "no base ref none()");
+});
+
+test("jj workspace without --spec discovers records from the jj fork-point diff", (t) => {
+  const found = jjWorkspace(t, { ...happyJj, names: { code: 0, stdout: `${SPEC}\nsrc/a.ts\n` } });
+  const r1 = run(found.root, [], found.env);
+  assert.equal(r1.status, 0, r1.stderr);
+  assert.deepEqual(r1.lines, [`sealed ${REC}`]);
+  assert.ok(readFileSync(found.log, "utf8").includes(`jj --color=never diff --name-only --from ${JJ_FORK} --to @`));
+  const none = jjWorkspace(t, { ...happyJj, names: { code: 0, stdout: "src/a.ts\n" } });
+  const r2 = run(none.root, [], none.env);
+  assert.equal(r2.status, 0, r2.stderr);
+  assert.deepEqual(r2.lines, ["no telemetry run"]);
+});
+
+test("jj workspace: a shipped record is already sealed without any git checks", (t) => {
+  const { root, log, env } = jjWorkspace(t, happyJj, { recordText: SEALED });
+  const r = run(root, ["--spec", SPEC], env);
+  assert.equal(r.status, 0, r.stderr);
+  assert.deepEqual(r.lines, [`already sealed ${REC}`]);
+  assert.equal(record(root).shipped_at, "2026-09-17T18:00:00Z");
+  const calls = readFileSync(log, "utf8").split("\n").filter(Boolean);
+  assert.deepEqual(calls.filter((c) => c.startsWith("git ")).map((c) => c.split(" ")[1]), ["rev-parse"]);
 });

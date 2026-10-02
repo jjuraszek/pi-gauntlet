@@ -25,12 +25,13 @@ export function aggregateNumstat(numstat: string, files: Set<string>, buckets: B
 }
 
 export const JJ_MAINLINE = "coalesce(trunk() ~ root(), present(main), present(master))";
+// Without the ::M guard an empty mainline resolves to @ and counts the full history.
+export const JJ_FORK_POINT = `fork_point(${JJ_MAINLINE} | @) ~ root() & ::${JJ_MAINLINE}`;
 const firstLine = (s: string): string => s.trim().split("\n")[0];
 
 export async function computeJjDiff(o: { jj: Runner; cwd: string; spec: string; dir: string; planDirs: readonly string[]; buckets: Buckets }): Promise<DiffOutcome> {
   const failed = (sub: string, r: RunResult): DiffOutcome => ({ warning: `diff omitted: jj ${sub} failed: ${firstLine(r.stderr) || "unknown error"}` });
-  // Without the ::M guard an empty mainline resolves to @ and counts the full history.
-  const baseR = await o.jj(["--color=never", "log", "-r", `fork_point(${JJ_MAINLINE} | @) ~ root() & ::${JJ_MAINLINE}`, "--no-graph", "-T", 'commit_id ++ "\\n"'], o.cwd);
+  const baseR = await o.jj(["--color=never", "log", "-r", JJ_FORK_POINT, "--no-graph", "-T", 'commit_id ++ "\\n"'], o.cwd);
   if (baseR.code !== 0) return failed("log", baseR);
   const base = firstLine(baseR.stdout).trim();
   if (!base) return { warning: "diff omitted: jj mainline unresolved (trunk() is root(); no main/master bookmark)" };
