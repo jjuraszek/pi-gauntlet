@@ -1,5 +1,13 @@
 # Changelog
 
+## Unreleased
+
+### Fixed
+
+- **Amendment aftermath keeps the phase; reopened tasks close in place.** A spec amendment approved during `verify` or `ship` reopens its plan tasks inside that phase; `amendment-surface.md` no longer prescribes `skip <phase>` + `start implement force: true`, and the batch card's phase slot is the constant `no phase change`. Each reopened task is repaired through the current phase's fix loop and closed with `plan_tracker update ... complete` once its re-review or re-audit accepts. Supersedes the phase-restart clauses of the 2026-09-10 gh-27 spec and the 2026-09-22 batch-card spec.
+- **Skill resources load with `read`, never a shell command.** Brainstorming's amend section states the rule (pi-condense's `**/skills/**/*.md` protection keys on `read`'s `path`, so a `bash sed` load was pruned mid-flow); `amendment-surface.md`, SDD, and finishing name `read` at their amendment entry points, and section 5 re-reads itself before the aftermath.
+- **phase-tracker: open-task nudge after a verify-phase repair wave.** Under `flowGuards.enforce`, every non-error implementer-wave result while `verify` is in progress is prefixed with the latest `plan_tracker` snapshot's `pending`/`in_progress` rows and the `update ... complete` call that closes them. Advisory only - no block, no fix-round or phase change - and it reads session entries, so context pruning cannot hide it. The completion backstop's branch scan is shared with it (`latestPlanSnapshot`/`unfinishedTaskLines`). Documented in `doc/configuration.md`.
+
 ## v7.0.2 - 2026-10-02
 
 ### Added
