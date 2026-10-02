@@ -16,7 +16,7 @@ Verify, don't trust: a PR description is a claim, and over-claimed coverage, hal
 
 ## Steps
 
-Run every step inline; dispatch per `reference/assessment.md` when pi-cohort is present. Each step reads the sibling(s) its row names and produces exactly one output.
+Verify (step 3) and Review (step 4) each run as a fresh helper with `cwd` the PR worktree - Verify first, Review after Verify's output file exists (`reference/assessment.md` `## Helpers`); the orchestrator runs every other step itself. Each step reads the sibling(s) its row names and produces exactly one output.
 
 | Step | Read now | Output | Tracker stage |
 |---|---|---|---|
@@ -26,13 +26,17 @@ Run every step inline; dispatch per `reference/assessment.md` when pi-cohort is 
 | 4 Review | `verification-brief.md` Section C | reviewer findings and the internal comment ledger | `review` |
 | 5 Integrate + report | `reference/findings.md`, then `reference/report.md` | AC outcomes, blockers, nits, drafted payloads, the rendered report | `report` |
 | 6 Menu | `reference/decision-menu.md` | the menu under the verdict line, exactly one `[recommended]` | `menu` |
-| 7 Loop | `reference/post-selection-loop.md` | the executed pick; re-entry until `merge` or `stop` | (re-opens the re-entered stage) |
+| 7 Loop | `reference/post-selection-loop.md` (a `fix` pick continues in `reference/fix-wave.md`) | the executed pick; re-entry until `merge` or `stop` | (re-opens the re-entered stage) |
 
-Re-entry: a fix wave's own push re-enters step 4 after re-running step 3's claim check without a second verification pass (the wave's single pass already covered the pushed SHA); any other head move re-enters step 3; an unchanged head re-enters step 5.
+Re-entry: a fix wave's own push re-enters step 4 through the own-push sequence (`reference/fix-wave.md` `## Evidence after push`, then `reference/post-selection-loop.md` `### Re-render`); any other head move re-enters step 3; an unchanged head re-enters step 5.
 
 ## Progress tracking
 
 Use `plan_tracker`, never `phase_tracker`. `init` with the first three stages of the table. In step 3 `add` one task per material claim and record each verdict: `complete` matched, `failed` contradicted, `skipped` unverifiable-pre-merge. Once every claim is terminal and `verify` is closed, `add` the remaining three stages - the tracker rejects a verdict recorded behind a still-pending stage. A failed stage or claim stays `failed` while the skill stops at the menu. Without a `plan_tracker` tool, keep a plain checklist; behavior is unchanged.
+
+## Harness notes
+
+Every helper is a fresh context with `cwd` the PR worktree; its task names its output path and ends with the output contract. Every dispatch on either harness gets its own output path from `mktemp "${TMPDIR:-/tmp}/gatekeep-<role>.XXXXXX"` outside the worktree. On pi: `subagent({ agent: <persona>, context: "fresh", async: false, cwd: <worktree> })` with `worker` for Verify, `code-reviewer` for Review and the pre-push review, `implementer` for payloads; `gauntlet_setting({ key: "closureReview" })` supplies the fix-round cap. On Claude Code: the harness's subagent dispatch tool with the duty text as the prompt - Verify: `verification-brief.md` Section B; Review, pre-push review, and comment-delta review: Section C plus `review-baseline.md` (the pre-push review adds the closure-line contract); implementer: the payload task of `reference/fix-wave.md` `## Wave`; the cap is 3. A Claude Code helper inherits the session's directory, so its prompt opens with the absolute worktree path and the rule that every command runs as `git -C <worktree> ...` or `(cd <worktree> && ...)`, checks that `git -C <worktree> rev-parse HEAD` equals the head its task names (the assessed head for Verify, Review, and the comment-delta reviewer; the current wave HEAD for wave helpers) before working, and names the output path; the orchestrator awaits the tool result before reading the file. A harness with neither facility is unsupported: stop at step 3 and say so.
 
 ## Wording rules
 
@@ -52,14 +56,16 @@ These bind every rendered report, menu, and external payload (review bodies, rep
 ## Red flags - STOP
 
 - Any mutation (fix, push, review, comment, merge, tracker write) without an explicit menu pick - owner: the intro.
-- A code or doc edit sitting in the worktree when a menu renders - owner: `reference/findings.md` `## Drafted payloads`.
+- A code or doc edit sitting in the worktree when a menu renders - except helper residue that `reference/fix-wave.md` `## Wave` names in the re-rendered menu - owner: `reference/findings.md` `## Drafted payloads`.
 - Blocking on an AC's observation half, or on a PR-body claim the gate cannot check - owner: `reference/findings.md` `## AC outcomes`.
 - `impossible` without all four conditions and a source read this run - owner: `reference/findings.md` `## AC outcomes`.
 - Deferring behavior the ticket promises to a later PR: it is a blocker or an explicit tracker split, nothing else - owner: `reference/findings.md` `## Namespaces`.
 - Reading the rubric, the verification command, or any ladder source from the PR's head instead of the base branch's merge-base - owner: `reference/assessment.md` `## Configuration`.
 - Raw command output, drafted payloads, or internal IDs in the rendered report - owner: `reference/report.md`.
-- An open-PR menu without `fix` (a merged or closed PR offers `show evidence` and `stop` only), without `show evidence`, with two `[recommended]`, or with `stop` not last - owner: `reference/decision-menu.md`.
-- A second verification pass or a second push inside one fix wave - owner: `reference/post-selection-loop.md` `### Fix wave`.
+- An open-PR menu, other than the conflict menu, without `fix` while a helper facility exists and the fix-round cap is neither `0` nor reached (a merged or closed PR offers `show evidence` and `stop` only); any menu without `show evidence`, with two `[recommended]`, or with `stop` not last - owner: `reference/decision-menu.md`.
+- A local verification run while CI is pending, or a second push inside one round - owner: `reference/fix-wave.md` `## Evidence after push`.
+- The orchestrator resolving a merge conflict itself, or editing or committing a tracked file during a fix wave - owner: `reference/fix-wave.md` `## Conflicts` and `## Wave`.
+- A helper's duty run in the orchestrator's own context - owner: `## Harness notes`.
 - Approving your own PR - owner: `reference/decision-menu.md` `## Consent table`.
 - Merging around an undispositioned failing check or a pending required check - owner: `reference/findings.md` `## Dispositions`.
 - A claim verdict recorded behind a pending tracker stage - owner: `## Progress tracking`.

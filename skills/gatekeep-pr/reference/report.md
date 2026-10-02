@@ -36,15 +36,15 @@ Verdict: mergeable - <evidence clause> | fixable - <N> blockers | fixable - <wit
 
 ## Verdict
 
-Two states: `mergeable` or `fixable`. `mergeable` carries the evidence clause from `findings.md` `## Provenance`: `CI green on the assessed head (<check name>)` or `verification command passed locally`. `fixable - <N> blockers` when `Blockers` is non-empty; `fixable - <withhold reason>` when it is empty but a merge prerequisite is unmet: `ticket change pending on AC<n>` (for example `ticket change pending on AC4`), `reviewer run in progress`, `required check pending`, `failed gate` (listed for spec parity; a red gate mints a blocker per `findings.md` `## Namespaces`, so `Blockers` is non-empty), `comments not refreshed`, `comment source review incomplete`, `verification not run` (the command needed credentials or no command resolved, with nothing else blocking), `mergeable unknown`, `merge conflict` (for `mergeable == CONFLICTING`), `verification evidence pending` (brief Section B Pending row: zero `success`, a check still pending).
+Two states: `mergeable` or `fixable`. `mergeable` carries the evidence clause from `findings.md` `## Provenance`: `CI green on the assessed head (<check name>)` or `verification command passed locally`. `fixable - <N> blockers` when `Blockers` is non-empty; `fixable - <withhold reason>` when it is empty but a merge prerequisite is unmet: `ticket change pending on AC<n>` (for example `ticket change pending on AC4`), `reviewer run in progress`, `required check pending`, `failed gate` (listed for spec parity; a red gate mints a blocker per `findings.md` `## Namespaces`, so `Blockers` is non-empty), `comments not refreshed`, `comment source review incomplete`, `verification not run` (the command needed credentials or no command resolved, with nothing else blocking), `mergeable unknown`, `behind base`, `merge conflict` (for `mergeable == CONFLICTING`), `verification evidence pending` (the Pending row: >=1 check pending, none blocking).
 
 `<N> blockers` reads `1 blocker` for one.
 
 ## What stays out
 
-Verbatim command output, CI run URLs and conclusions (the pending-reviewer locator in `PR comments` is the one URL that prints in the report), drafted edits, drafted replies, matched claims, covered ACs, internal IDs, and disposition annotations print only under the `show evidence` pick. A clean run with a linked ticket renders `Delivers`, the verdict line, and the menu - about four lines.
+Verbatim command output stays in its `log_path` file and never prints; `show evidence` prints its `show evidence: <log_path>` line instead. CI run URLs and conclusions (the pending-reviewer locator in `PR comments` is the one URL that prints in the report), drafted edits, drafted replies, matched claims, covered ACs, internal IDs, and disposition annotations print only under the `show evidence` pick. A clean run with a linked ticket renders `Delivers`, the verdict line, and the menu - about four lines.
 
-`show evidence` prints, in this order: the evidence record (CI: each satisfying check's name, conclusion, SHA, run URL; local: each run's command and its captured tail, fenced, labeled as captured output); claim dispositions; AC outcomes per row; check dispositions; drafted payloads keyed by the blocker or nit number they fix; drafted replies keyed by the `PR comments` item they answer.
+`show evidence` prints, in this order: the evidence record (CI: each satisfying check's name, conclusion, SHA, run URL; local: each run's command, `result`, `exit_code`, and one `show evidence: <log_path>` line pointing at its captured output - never the output itself); claim dispositions; AC outcomes per row; check dispositions; drafted payloads keyed by the blocker or nit number they fix; drafted replies keyed by the `PR comments` item they answer.
 
 ## Worked example
 
@@ -74,7 +74,7 @@ Blockers:
 
 Verdict: fixable - 2 blockers
 
-1. fix - apply both blockers in the worktree, re-run the gate, push        [recommended]
+1. fix - apply both blockers in the worktree, review the wave, push        [recommended]
 2. propose ticket change - show the AC4 edit for approval before it posts
 3. review - post the blockers as a comment on your PR
 4. reply - post the drafted reply to maria
@@ -91,7 +91,7 @@ Delivers: the reports page exports CSV on demand. The PR covers the whole gh-45.
 Verdict: mergeable - CI green on the assessed head (test)
 
 1. merge - squash onto main                                               [recommended]
-2. fix - name the change to apply in the worktree, re-run the gate, push
+2. fix - name the change to apply in the worktree, review the wave, push
 3. show evidence - gate output, CI run
 4. stop - leave the PR as-is
 Type a number.

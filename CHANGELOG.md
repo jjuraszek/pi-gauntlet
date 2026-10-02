@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Changed
+
+- **gatekeep-pr: separated contexts, reviewed fix wave, CI polling, permission-derived menus.** Verify and Review run as fresh helpers by default (no inline path; Claude Code uses the harness subagent tool with the duty inlined). A `fix` pick dispatches one fresh implementer per payload with scoped tests only, a fresh reviewer gates every push (`closureReview.maxFixRounds` cap, default 3), the pushed head's checks are polled before any local run, conflicts are checked locally with `git merge-tree`, and menu rows derive from a permission digest (`viewerPermission` via GraphQL, `head_pushable` probe) - unavailable rows are omitted and listed in a `Not offered:` sentence instead of rendering `(not available: ...)`. New `reference/fix-wave.md`; `action_required` runs read as pending with an `approve workflow run` row instead of Failed CI. (#57)
+
 ## v7.0.3 - 2026-10-02
 
 ### Fixed
