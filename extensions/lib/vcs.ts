@@ -13,7 +13,8 @@ export interface Vcs { kind: "git" | "jj"; root: string; run: VcsRun }
 const NO_PROMPT_ENV = { ...process.env, GIT_TERMINAL_PROMPT: "0", GIT_EDITOR: "true" };
 
 const runBinary = (bin: "git" | "jj"): VcsRun => (args, cwd, timeoutMs = 10_000) => {
-  const r = spawnSync(bin, args, { cwd, encoding: "utf8", env: NO_PROMPT_ENV, timeout: timeoutMs });
+  // jj diff --git returns full patches; spawnSync's 1 MiB default buffer truncates them (ENOBUFS).
+  const r = spawnSync(bin, args, { cwd, encoding: "utf8", env: NO_PROMPT_ENV, timeout: timeoutMs, maxBuffer: 64 * 1024 * 1024 });
   const err = r.error as NodeJS.ErrnoException | undefined;
   const timedOut = err?.code === "ETIMEDOUT";
   const stderr = timedOut ? "timed out" : (r.stderr ?? "").trim().split("\n")[0] || err?.message || `${bin} exited ${r.status}`;
@@ -61,9 +62,10 @@ export function recordSealed(vcs: Vcs, rel: string): boolean {
     && vcs.run(["diff", "--quiet", "HEAD", "--", rel], vcs.root).ok;
 }
 
-// Returns undefined on jj: the working-copy snapshot persists the stamped record.
-export function commitRecordFile(vcs: Vcs, rel: string, message: string): VcsResult | undefined {
-  if (vcs.kind === "jj") return undefined;
+// jj has no commit step: `file track --include-ignored` is the `git add -f` equivalent - it
+// snapshots the stamped record into the working-copy change even under a gitignored dir.
+export function commitRecordFile(vcs: Vcs, rel: string, message: string): VcsResult {
+  if (vcs.kind === "jj") return vcs.run(["file", "track", "--include-ignored", "--", rel], vcs.root);
   const add = vcs.run(["add", "-f", "--", rel], vcs.root);
   const commit = add.ok ? vcs.run(["commit", "-q", "-m", message, "--", rel], vcs.root, 30_000) : add;
   // Unstage the -f add so a retry sees the same state.

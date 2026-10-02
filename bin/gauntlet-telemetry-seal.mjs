@@ -245,7 +245,7 @@ async function computeGitDiff(o) {
 // extensions/lib/vcs.ts
 var NO_PROMPT_ENV = { ...process.env, GIT_TERMINAL_PROMPT: "0", GIT_EDITOR: "true" };
 var runBinary = (bin) => (args, cwd, timeoutMs = 1e4) => {
-  const r = spawnSync(bin, args, { cwd, encoding: "utf8", env: NO_PROMPT_ENV, timeout: timeoutMs });
+  const r = spawnSync(bin, args, { cwd, encoding: "utf8", env: NO_PROMPT_ENV, timeout: timeoutMs, maxBuffer: 64 * 1024 * 1024 });
   const err = r.error;
   const timedOut = err?.code === "ETIMEDOUT";
   const stderr = timedOut ? "timed out" : (r.stderr ?? "").trim().split("\n")[0] || err?.message || `${bin} exited ${r.status}`;
@@ -275,7 +275,7 @@ function recordSealed(vcs, rel) {
   return vcs.run(["ls-files", "--error-unmatch", "--", rel], vcs.root).ok && vcs.run(["diff", "--quiet", "HEAD", "--", rel], vcs.root).ok;
 }
 function commitRecordFile(vcs, rel, message) {
-  if (vcs.kind === "jj") return void 0;
+  if (vcs.kind === "jj") return vcs.run(["file", "track", "--include-ignored", "--", rel], vcs.root);
   const add = vcs.run(["add", "-f", "--", rel], vcs.root);
   const commit = add.ok ? vcs.run(["commit", "-q", "-m", message, "--", rel], vcs.root, 3e4) : add;
   if (!commit.ok) vcs.run(["reset", "-q", "--", rel], vcs.root);
@@ -484,7 +484,7 @@ async function seal(vcs, rec, o) {
     writeFileSync(abs, serializeRecord(parsed));
   }
   const commit = commitRecordFile(vcs, rec, `telemetry: ${parsed.spec}`);
-  if (commit && !commit.ok) {
+  if (!commit.ok) {
     writeFileSync(abs, prior);
     fail(1, `seal failed ${rec}: ${commit.stderr}`);
   }

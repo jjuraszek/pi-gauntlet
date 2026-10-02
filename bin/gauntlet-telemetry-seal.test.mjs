@@ -400,6 +400,7 @@ if (s.includes("--limit")) send(script.base);
 if (s.includes("--count")) send(script.count);
 if (s.includes("fork_point(")) send(script.fork);
 if (s.includes("--name-only")) send(script.names);
+if (s.startsWith("file track")) send(script.track);
 send(script.patch);
 `;
 const jjWorkspace = (t, script, { recordText = RECORD } = {}) => {
@@ -424,9 +425,10 @@ const happyJj = {
   fork: { code: 0, stdout: JJ_FORK + "\n" },
   count: { code: 0, stdout: "2\n" },
   patch: { code: 0, stdout: JJ_PATCH },
+  track: { code: 0, stdout: "" },
 };
 
-test("jj workspace: record stamped shipped from the jj diff, one git probe, no git writes, no commit step", (t) => {
+test("jj workspace: record stamped shipped from the jj diff, one git probe, no git writes, file track instead of a commit", (t) => {
   const { root, log, env } = jjWorkspace(t, happyJj);
   const r = run(root, ["--spec", SPEC], env);
   assert.equal(r.status, 0, r.stderr);
@@ -442,6 +444,15 @@ test("jj workspace: record stamped shipped from the jj diff, one git probe, no g
   const calls = readFileSync(log, "utf8").split("\n").filter(Boolean);
   assert.deepEqual(calls.filter((c) => c.startsWith("git ")).map((c) => c.split(" ")[1]), ["rev-parse"], "git is only the failed checkout probe");
   assert.ok(calls.some((c) => c === "jj root"));
+  assert.ok(calls.includes(`jj file track --include-ignored -- ${REC}`), "the record is tracked even under a gitignored dir");
+});
+
+test("jj workspace: a failing file track restores the pre-seal bytes and exits 1", (t) => {
+  const { root, env } = jjWorkspace(t, { ...happyJj, track: { code: 1, stderr: "Error: Path is not in the workspace\n" } });
+  const r = run(root, ["--spec", SPEC], env);
+  assert.equal(r.status, 1);
+  assert.equal(r.stderr, `seal failed ${REC}: Error: Path is not in the workspace`);
+  assert.equal(record(root).status, "in_progress");
 });
 
 test("jj workspace with unresolved mainline: warning recorded, diff fields absent, record still sealed", (t) => {

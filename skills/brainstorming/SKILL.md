@@ -67,7 +67,7 @@ The spec is the first commit in a dedicated worktree, never a separate commit on
 
 Invoke `/skill:using-git-worktrees`; use `.worktrees/` or the project-native location. Carry its `Worktree ready at <full-path>` value: spec path `<full-path>/<spec dir>/<filename>.md`; every dispatch uses that `cwd`; git uses `git -C <full-path>`. Keep the process cwd unchanged.
 
-Spec, plan, and implementation share this worktree. The spec and its telemetry record (`<telemetry.dir>/<spec path with .md -> .yaml>`, default `.pi/gauntlet/telemetry/doc/specs/<spec>.yaml`) are deliverables and ship in the squash; only the plan is stripped. `/skill:finishing-a-development-branch` strips the plan, then seals and commits the record before landing. Explicit trivial one-off edits outside this flow need no worktree.
+Spec, plan, and implementation share this worktree. The spec and its telemetry record (`<telemetry.dir>/<spec path with .md -> .yaml>`, default `.pi/gauntlet/telemetry/doc/specs/<spec>.yaml`) are deliverables and ship in the squash; only the plan is stripped. `/skill:finishing-a-development-branch` strips the plan, then seals the record before landing (a `telemetry:` commit under git; the working-copy snapshot in a plain jj workspace). Explicit trivial one-off edits outside this flow need no worktree.
 
 ## The Process
 

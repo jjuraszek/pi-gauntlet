@@ -198,7 +198,8 @@ if git -C "$WORKTREE" ls-files --error-unmatch "$PLAN_PATH" >/dev/null 2>&1; the
   git -C "$WORKTREE" rm "$PLAN_PATH" && git -C "$WORKTREE" commit -m "Remove ephemeral plan doc"
 elif [ -f "$WORKTREE/$PLAN_PATH" ] && jj -R "$WORKTREE" root >/dev/null 2>&1; then
   # Plain jj workspace (no .git): the removal lands in the working-copy change; there is no commit step.
-  jj -R "$WORKTREE" restore --from <base-branch> -- "$PLAN_PATH"
+  # root: anchors the path at the workspace root - jj resolves bare paths against cwd, not -R.
+  jj -R "$WORKTREE" restore --from <base-branch> -- "root:\"$PLAN_PATH\""
 fi
 
 # Seal the telemetry record: stamp shipped, compute the diff, commit it once.

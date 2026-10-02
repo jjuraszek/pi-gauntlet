@@ -96,9 +96,8 @@ async function seal(vcs, rec, o) {
     writeFileSync(abs, serializeRecord(parsed));
   }
   const commit = commitRecordFile(vcs, rec, `telemetry: ${parsed.spec}`);
-  // undefined on jj: the working-copy snapshot persists the stamped record.
-  if (commit && !commit.ok) {
-    // Restore the pre-seal bytes on add/commit failure.
+  if (!commit.ok) {
+    // Restore the pre-seal bytes on add/commit (jj: file track) failure.
     writeFileSync(abs, prior);
     fail(1, `seal failed ${rec}: ${commit.stderr}`);
   }
