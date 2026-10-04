@@ -110,14 +110,17 @@ Rejected: [<severity>] <cluster> - raised-by: [<slugs>] -> <one-line reason>
 <unresolved ambiguities; every gap-footer entry from the summary>
 New predecessor candidates at spec-writing: <path> (<title>), ... - index rows are a hint; code is the source and an absent row proves nothing.
 
-Please review. Approve to proceed, tell me what to change in the spec, or say "revert applied council edit <X>" to undo a specific applied edit. Reply "auto-apply amends" - every later amend-class change in this flow then applies without review, scope changes included; redraws and the spec gate still stop. "approve, auto-apply amends" does both.
+1 - approve: proceed to planning under the existing amendment review; a fresh reviewer applies evidence-backed factual corrections on its own, and every other spec amendment (scope, acceptance-criteria, or contract edits, and redraws) stops for your review.
+2 - approve, auto-apply amends: every later spec amendment in this flow (corrected facts, paths, verification lines, and scope, acceptance-criteria, or public-contract edits alike) applies without asking; only a redraw (changed problem statement, component added, removed, or re-bounded) still stops for you, and the grant never stands in for a spec approval.
+
+Or tell me what to change in the spec, or say "revert applied council edit <X>" to undo a specific applied edit.
 ```
 
 If you believe the summary needs correcting, do **not** silently rewrite it - re-dispatch the summarizer or note the discrepancy as an adjacent line beneath the verbatim block.
 
 **Revert valve.** "Revert applied council edit X" is a normal change request: revise the spec to undo edit X, re-dispatch the summarizer with a **fresh** temp path (per the re-dispatch rule below), and re-present the gate. This is cheap here - the spec is not yet plan- or code-bearing.
 
-Wait for the user. On a change request (including a revert), revise the spec and re-present - mint a **fresh** temp path for the re-dispatched summarizer (never reuse a prior round's path, so stale content can never be mistaken for the new summary). On approval, proceed immediately to `/skill:writing-plans` with no further prompt; first read [Standing grants](amendment-surface.md#standing-grants) (stop if unreadable) and record any grant. The plan and execution mode are mechanical derivatives, so the only human gate here is spec approval itself. Don't land the spec on `main`; it stays in the worktree and ships in the same squash commit as the implementation.
+Wait for the user. On a change request (including a revert), revise the spec and re-present - mint a **fresh** temp path for the re-dispatched summarizer (never reuse a prior round's path, so stale content can never be mistaken for the new summary). On approval - `1`, `approve`, or equivalent prose approves without a grant; `2`, `approve, auto-apply amends`, or equivalent prose approves and grants - proceed immediately to `/skill:writing-plans` with no further prompt; first read [Standing grants](amendment-surface.md#standing-grants) (stop if unreadable) and record any grant. A reply that mixes approval with a change request ("2 but rename the section") is a change request: revise, re-present, and read the grant only from the reply to the re-presented gate. If the grant's `git commit --amend --trailer` step fails, stop and report; never proceed as granted without the trailer. The plan and execution mode are mechanical derivatives, so the only human gate here is spec approval itself. Don't land the spec on `main`; it stays in the worktree and ships in the same squash commit as the implementation.
 
 Post-approval changes follow [Amending an approved spec](../SKILL.md#amending-an-approved-spec).
 

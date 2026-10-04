@@ -1,6 +1,7 @@
 # Readable, reviewer-filtered amendment gates
 
 > **Superseded by:** [doc/specs/2026-09-22-amend-batch-trigger-reviewer-contract.md](./2026-09-22-amend-batch-trigger-reviewer-contract.md) - "Tier-2 render (human batch)" card fields only
+> **Superseded by:** [doc/specs/2026-10-04-spec-gate-approval-menu.md](./2026-10-04-spec-gate-approval-menu.md) - "Grant offer and matcher" section only
 
 **Goal:** a post-approval spec amendment reaches a human only when a fresh-context reviewer cannot clear it; every amendment a human does see is one plain-language entry in a batched menu with a tiny example, real alternatives when they exist, and one-reply disposition. `skills/brainstorming/SKILL.md` gets shorter, not longer.
 

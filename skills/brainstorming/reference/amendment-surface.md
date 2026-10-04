@@ -4,9 +4,9 @@
 
 ## Standing grants
 
-Honor a user sentence in this flow that waives per-diff review for later amends (`auto-apply amends`, `approve, auto-apply amends` at the spec gate, `auto-apply amends, stop only for redraws`, `apply spec fixes without asking`, or the same intent in other words). Apply every later amend-class change without review, scope changes included; redraws always stop and the grant never satisfies the spec gate. Start a new brainstorm or a fresh-session resume with no grant; never infer one from history.
+Honor a user sentence in this flow that waives per-diff review for later amends (`auto-apply amends`, `approve, auto-apply amends` or a bare `2` at the spec gate, `auto-apply amends, stop only for redraws`, `apply spec fixes without asking`, or the same intent in other words). The digit grants only at the spec gate, and a prose grant after a `1` approval still counts. Apply every later amend-class change without review, scope changes included; redraws always stop and the grant never satisfies the spec gate. Start a new brainstorm or a fresh-session resume with no grant; never infer one from history.
 
-Before proceeding to planning, quote a grant given at or before spec approval in the spec commit body via `git -C <abs worktree path> commit --amend --no-edit -q --trailer "Amend-grant: <the sentence>"`, so the worktree history shows when the grant began.
+Before proceeding to planning, quote a grant given at or before spec approval in the spec commit body via `git -C <abs worktree path> commit --amend --no-edit -q --trailer "Amend-grant: <the sentence>"`, so the worktree history shows when the grant began. When the reply was the digit `2`, `<the sentence>` is the grant description sentence from the gate menu (the text after `2 - approve, auto-apply amends:` in the spec gate template), never the digit; the same substitution applies wherever this file quotes the granting sentence in a commit body.
 
 ## 1. Prepare - never apply yet
 
@@ -87,7 +87,7 @@ Spec amendments: <N> need your call - from <trigger>; applying as recommended <r
   Alternatives: alt-1 <one line>; alt-2 <one line>
 
 Reply: 1 (apply all recommendations) | 2: <handle>=<accept|alt-n|custom(<effect>)>, ...
-Standing grant: reply "auto-apply amends" - every later amend-class change in this flow then applies without review, scope changes included; redraws and the spec gate still stop.
+Standing grant: reply "auto-apply amends" - every later spec amendment in this flow (corrected facts, paths, verification lines, and scope, acceptance-criteria, or public-contract edits alike) applies without asking; only a redraw (changed problem statement, component added, removed, or re-bounded) still stops for you, and the grant never stands in for a spec approval.
 
 Details
 <handle>: <location> - old: <text> -> new: <text>
@@ -97,7 +97,7 @@ Details
 
 `Reviewer:` quotes the `<one-line reason>` of the section 3 reply verbatim; the `probed:` half stays in the commit body; a prefiltered item carries `not reviewed - <the rule that prefiltered it>`. `Impact:` restates the design-contract shift from `location` in the reader's words, never quoted spec text, one clause per touched decision, `;`-joined; `(none) -> <new>` for a contract added, `<old> -> (removed)` for a contract removed. `Details` keeps the verbatim `old -> new`.
 
-`Alternatives:` appears only when genuine ones exist; otherwise the item's choices are exactly `accept` and `custom(...)`. Reply grammar: `1` applies every recommendation; `2:` overrides the named handles, omitted handles keep theirs, a handle at most once; `custom(<effect>)` is free text and may redirect anywhere ("keep the spec, fix the parser"). A redirect away from the spec drops the item (still recorded in the batch commit body as `custom(<effect>)`) and returns the finding to its calling loop. Invalid handle or choice -> reprompt for that item only, keep every valid pick, never reopen the gate. Take no action before the reply.
+`Alternatives:` appears only when genuine ones exist; otherwise the item's choices are exactly `accept` and `custom(...)`. Reply grammar: `1` applies every recommendation; `2:` overrides the named handles, omitted handles keep theirs, a handle at most once; `custom(<effect>)` is free text and may redirect anywhere ("keep the spec, fix the parser"). A redirect away from the spec drops the item (still recorded in the batch commit body as `custom(<effect>)`) and returns the finding to its calling loop. Invalid handle or choice -> reprompt for that item only, keep every valid pick, never reopen the gate; a bare `2` without a colon is an invalid tier-2 reply (reprompt the same way) and never a grant. Take no action before the reply.
 
 ## 5. Apply, aftermath, commit
 
@@ -165,7 +165,7 @@ Spec amendments: 3 need your call - from Task 7 BLOCKED; applying as recommended
   Alternatives: alt-1 replace the number with the `wc -c` result
 
 Reply: 1 (apply all recommendations) | 2: <handle>=<accept|alt-n|custom(<effect>)>, ...
-Standing grant: reply "auto-apply amends" - every later amend-class change in this flow then applies without review, scope changes included; redraws and the spec gate still stop.
+Standing grant: reply "auto-apply amends" - every later spec amendment in this flow (corrected facts, paths, verification lines, and scope, acceptance-criteria, or public-contract edits alike) applies without asking; only a redraw (changed problem statement, component added, removed, or re-bounded) still stops for you, and the grant never stands in for a spec approval.
 
 Details
 scope: Non-goals - old: (none) -> new: the ROP feed is out of scope for this release

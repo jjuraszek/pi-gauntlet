@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Changed
+
+- **brainstorming: numbered approval menu at the spec gate.** The user review gate ends with `1 - approve` and `2 - approve, auto-apply amends`; option 2 carries the one-sentence grant description (every later amend-class change applies unasked, scope and acceptance-criteria edits included; redraws still stop; the grant never substitutes for spec approval). A bare `2` grants only at the spec gate and quotes that sentence in the `Amend-grant:` trailer; inside the tier-2 amendment menu a bare `2` is an invalid reply. The tier-2 `Standing grant:` footer carries the same sentence, and `scripts/ci.mjs` asserts it occurs exactly once in `spec-finalization.md` and twice in `amendment-surface.md`. Grant semantics are unchanged. Supersedes the "Grant offer and matcher" section of the 2026-09-19 readable-amendment-gates spec.
+
 ## v7.1.0 - 2026-10-02
 
 ### Changed

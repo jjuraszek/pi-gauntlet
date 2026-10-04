@@ -262,10 +262,30 @@ const tokenChecks = [
   ["skills/gauntlet-handoff/SKILL.md", "/skill:handoff", true],
   ["skills/gauntlet-handoff/SKILL.md", "node_modules/pi-cohort", false],
   ["skills/gauntlet-handoff/SKILL.md", ".pi/agent", false],
+  // spec-gate approval menu: option 2 is the visible standing grant; the digit grants only at the spec gate
+  ["skills/brainstorming/reference/spec-finalization.md", "2 - approve, auto-apply amends:", true],
+  ["skills/brainstorming/reference/spec-finalization.md", "Approve to proceed", false],
+  ["skills/brainstorming/reference/amendment-surface.md", "`2` at the spec gate", true],
+  ["skills/brainstorming/reference/amendment-surface.md", "without a colon is an invalid", true],
 ];
 for (const [file, tok, want] of tokenChecks) {
   const has = txt(file).includes(tok);
   if (has !== want) fail(`${file}: token "${tok.trim()}" ${want ? "missing" : "must be absent"}`);
+}
+// spec-gate approval menu: the grant description sentence is one display sentence, byte-identical in
+// option 2 of the gate template (1x) and both tier-2 footers (2x); any other count is drift
+{
+  const GRANT_SENTENCE =
+    "every later spec amendment in this flow (corrected facts, paths, verification lines, and scope, acceptance-criteria, or public-contract edits alike) applies without asking; only a redraw (changed problem statement, component added, removed, or re-bounded) still stops for you, and the grant never stands in for a spec approval.";
+  const count = (file) => txt(file).split(GRANT_SENTENCE).length - 1;
+  for (const [file, want] of [
+    ["skills/brainstorming/reference/spec-finalization.md", 1],
+    ["skills/brainstorming/reference/amendment-surface.md", 2],
+  ]) {
+    const n = count(file);
+    if (n !== want) fail(`${file}: grant description sentence occurs ${n}x, expected ${want}x`);
+    else ok(`${file}: grant description sentence ${want}x`);
+  }
 }
 // #36: the first-command toplevel guard must live inside hotfix.md step 4
 {
