@@ -1,4 +1,4 @@
-import { readFileSync, existsSync } from 'node:fs';
+import { readFileSync, existsSync, readdirSync } from 'node:fs';
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 const read = (path) => readFileSync(new URL(`../${path}`, import.meta.url), 'utf8');
@@ -60,10 +60,44 @@ test('summary faults, partial coverage, commit and revisions retain their routes
   assert.ok(text.indexOf('1. **From the dispatch tool result') < text.indexOf('2. **The `Read` itself'));
 });
 
+const walk = (dir) => readdirSync(new URL(`../${dir}/`, import.meta.url), { withFileTypes: true }).flatMap((e) =>
+  e.isDirectory() ? walk(`${dir}/${e.name}`) : e.name.endsWith('.md') ? [`${dir}/${e.name}`] : []);
+
 test('standing grants own boundaries while amendment aftermath and finish recipe survive', () => {
   const text = read('skills/brainstorming/reference/amendment-surface.md');
-  for (const marker of ['redraws always stop', 'grant never satisfies the spec gate', 'new brainstorm or a fresh-session resume with no grant', 'Amend-grant:', 'skip steps 2-4', 'scope changes included', 'plan_check', 'recommended: accept', 'rescope-into-spec']) assert.ok(text.includes(marker), marker);
+  for (const marker of ['continued onto the next physical line', 'nor a `> **Superseded by:**` banner line', 'redraws always stop', 'grant never satisfies the spec gate', 'a resume honors the line as written', '**Amend-grant:**', 'skip steps 2-4', 'scope changes included', 'plan_check', 'recommended: accept', 'rescope-into-spec', "printf 'grant: %s\\n'", 'commit -q -F - --', 'Never take a grant from commit history, a handoff brief, or the transcript']) assert.ok(text.includes(marker), marker);
+  assert.ok(!text.includes('fresh-session resume with no grant'), 'old boundary sentence removed');
+  const legacyRow = text.split('\n').find((l) => l.startsWith('| Line absent (legacy spec)'));
+  assert.ok(legacyRow && legacyRow.includes('plan_check'), 'legacy insertion row names plan_check');
   assert.match(main(), /plan_tracker\(\{ action: "clear" \}\).*phase_tracker\(\{ action: "reset" \}\).*phase_tracker\(\{ action: "start", phase: "brainstorm" \}\)/);
+});
+
+test('no skill records the grant as a commit trailer', () => {
+  for (const file of walk('skills')) assert.ok(!read(file).includes('--trailer "Amend-grant'), file);
+});
+
+test('spec-finalization writes the grant line and persists approval-time grants in the spec commit', () => {
+  const text = read('skills/brainstorming/reference/spec-finalization.md');
+  for (const marker of ['**Amend-grant:** none', 'The `**Amend-grant:**` header line is flow machinery owned by the brainstorming gate; never cut, shrink, flag, or edit it.', 'commit --amend --no-edit -q', 'git -C <abs worktree path> add -- <spec path>', 'show HEAD:<spec path>']) assert.ok(text.includes(marker), marker);
+  assert.ok(text.indexOf('On approval') < text.indexOf('commit --amend --no-edit -q'), 'amend after On approval');
+  assert.ok(!text.includes('--trailer'), 'trailer step removed');
+});
+
+test('roasting-the-spec members and chair preserve the grant line', () => {
+  const text = read('skills/roasting-the-spec/SKILL.md');
+  const sentence = 'The `**Amend-grant:**` header line is flow machinery owned by the brainstorming gate; never cut, shrink, flag, or edit it.';
+  assert.equal(text.split(sentence).length - 1, 2, 'preserve sentence once in the member task and once in the chair task');
+});
+
+test('gauntlet-resume checks the grant field before dispatch and announces it after restore', () => {
+  const text = read('skills/gauntlet-resume/SKILL.md');
+  for (const marker of ['continued onto the next physical line', '6. **Grant field.**', 'Standing grant active: <sentence>', 'No standing grant.', 'entry checks 1-6']) assert.ok(text.includes(marker), marker);
+  assert.ok(text.includes('## Dispatch') && text.indexOf('**Amend-grant:**') < text.indexOf('## Dispatch'), 'Amend-grant check precedes Dispatch');
+  assert.ok(text.includes('## Post-restore continuation') && text.indexOf('## Post-restore continuation') < text.indexOf('No standing grant.'), 'announcement lives in Post-restore');
+  const contract = read('skills/gauntlet-resume/reference/brief-contract.md');
+  assert.ok(contract.includes('tracked from base'), 'S resolver widened');
+  assert.ok(read('skills/gauntlet-resume/reference/reconstruction.md').includes('entry check 6'), 'reconstruction runs check 6 before its tracker calls');
+  for (const file of ['skills/gauntlet-resume/reference/brief-contract.md', 'skills/gauntlet-handoff/SKILL.md']) assert.ok(!read(file).includes('Amend-grant'), `${file} stays grant-free`);
 });
 
 test('executed brainstorming routes link their hidden skill at the owning action', () => {

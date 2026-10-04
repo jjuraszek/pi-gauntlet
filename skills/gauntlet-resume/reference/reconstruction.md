@@ -56,7 +56,7 @@ Ask exactly one question: is this spec approved, or do you select `/skill:brains
 with this unapproved spec as the draft? Show the spec path (and the brief's
 `## Intent`/`## Decisions` when present).
 
-- Approved: `start brainstorm`; `skip brainstorm resume: <spec path>`; `start plan`;
+- Approved: run SKILL.md entry check 6 on `<spec path>` first (a malformed `**Amend-grant:**` line stops here, no tracker call); then `start brainstorm`; `skip brainstorm resume: <spec path>`; `start plan`;
   continue in writing-plans (its own `start plan` is skipped - plan is already
   in_progress).
 - Selected unapproved-draft brainstorming handoff: invoke [`/skill:brainstorming`](../../brainstorming/SKILL.md) with
@@ -93,7 +93,7 @@ edits override proposals; never rewrite confirmed state silently.
 
 After confirmation:
 
-1. `start brainstorm`; `skip brainstorm resume: <spec path>`; `start plan`.
+1. Run SKILL.md entry check 6 on `<spec path>` (a malformed `**Amend-grant:**` line stops here, no tracker call); then `start brainstorm`; `skip brainstorm resume: <spec path>`; `start plan`.
 2. `plan_check` with `planPath` = the plan's absolute path. FAIL -> print the findings, stop with plan
    in_progress, no `init`.
 3. PASS -> `skip plan` with the same `resume:` reason; for stage verify also

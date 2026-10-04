@@ -79,7 +79,7 @@ pi-gauntlet is **opinionated**: it recommends this pipeline for non-trivial chan
 
 ## Handoff and resume
 
-`/skill:gauntlet-handoff` and `/skill:gauntlet-resume` are a pair: cohort's `handoff` skill writes the six flow-agnostic headings, gauntlet-handoff appends `## Process state`, and gauntlet-resume reads the whole brief back. Both gauntlet skills read one grammar file, `skills/gauntlet-resume/reference/brief-contract.md`; the repo validator (`scripts/ci.mjs`) fails if a grammar line appears anywhere else under `skills/`. Requires pi-cohort >= 7.1.0 (the `handoff` skill, [pi-cohort #18](https://github.com/jjuraszek/pi-cohort/issues/18)); on an older pi-cohort, gauntlet-handoff stops before writing.
+`/skill:gauntlet-handoff` and `/skill:gauntlet-resume` are a pair: cohort's `handoff` skill writes the six flow-agnostic headings, gauntlet-handoff appends `## Process state`, and gauntlet-resume reads the whole brief back. Both gauntlet skills read one grammar file, `skills/gauntlet-resume/reference/brief-contract.md`; the repo validator (`scripts/ci.mjs`) fails if a grammar line appears anywhere else under `skills/`. Requires pi-cohort >= 7.1.0 (the `handoff` skill, [pi-cohort #18](https://github.com/jjuraszek/pi-cohort/issues/18)); on an older pi-cohort, gauntlet-handoff stops before writing. A resume also reads the spec's `**Amend-grant:**` header line and prints `Standing grant active: <sentence>` or `No standing grant.` on the line after its closing line; the brief itself carries no grant.
 
 ### Smoke walkthrough (release-gated)
 
@@ -93,6 +93,7 @@ Run by a human against pi-cohort >= 7.1.0, before a pi-gauntlet release claims t
 6. Primary session, idle trackers, spec tracked on main: `/skill:gauntlet-resume doc/specs/<x>.md` creates the worktree and asks the approval question; approval leaves `phase_tracker` at plan in_progress with brainstorm `⊘ (resume: ...)`.
 7. Fresh idle session, same seed: the registered worktree is reused (no creation) and the question repeats. Run once on a consumer whose `## using-git-worktrees` override lays worktrees out as sibling dirs, once on `.worktrees/`.
 8. After writing-plans commits the plan beside the seeded spec: `/skill:gauntlet-handoff` then a fresh `/skill:gauntlet-resume <brief>` restores plan phase; a fresh `/skill:gauntlet-resume <worktree>` reaches "Spec with plan" with task evidence from the plan commit.
+9. Spec approved with `2`, then `/skill:gauntlet-handoff` and a fresh `/skill:gauntlet-resume <brief>`: the closing line is followed by `Standing grant active: <sentence>` and the next amend batch applies without a menu. A spec approved with `1` prints `No standing grant.`; a spec with two `**Amend-grant:**` lines stops before any tracker call, naming both lines.
 
 ## Key concepts
 

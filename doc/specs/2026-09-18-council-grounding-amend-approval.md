@@ -2,6 +2,7 @@
 
 > **Superseded by:** [doc/specs/2026-09-19-readable-amendment-gates.md](./2026-09-19-readable-amendment-gates.md) - "Standing amend approval" presentation scope only (grant safety boundary carried over)
 > **Superseded by:** [doc/specs/2026-10-01-brainstorming-user-entry-boundaries.md](./2026-10-01-brainstorming-user-entry-boundaries.md) - brainstorming dedup ownership/layout only
+> **Superseded by:** [doc/specs/2026-10-04-resume-restores-amend-grant.md](./2026-10-04-resume-restores-amend-grant.md) - fresh-session-resume grant boundary only
 
 **Goal:** a chair-suggested edit that asserts a fact about data is never applied to a spec as fact unless a member or the parent checked it against the data; the user can grant standing approval for amend-class spec changes in chat; `skills/brainstorming/SKILL.md` states each rule once.
 

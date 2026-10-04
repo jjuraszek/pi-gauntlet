@@ -58,14 +58,14 @@ tried at `<primary>/<specDir>/name.md` per resolved spec dir in order, first hit
 `dirname "$(git rev-parse --path-format=absolute --git-common-dir)"` run in the session
 cwd - absolute from any primary subdirectory and from inside a linked worktree
 (`--show-toplevel` would return the linked worktree there). A pasted brief that needs
-an override uses the file form. A brief then runs entry checks 1-5, so a stale or
+an override uses the file form. A brief then runs entry checks 1-6, so a stale or
 foreign-repo brief stops there.
 
 ## Entry checks
 
 In order. All before any tracker mutation; entry check 1 is read-only. A spec
 seed runs check 1 here, then `reference/seed.md`, which runs check 3 itself;
-checks 2, 4, 5 do not apply.
+checks 2, 4, 5 do not apply; check 6 runs on the seed's pinned spec path.
 
 1. **Idle session.** `phase_tracker({ action: "status" })`. Any phase not pending ->
    stop: "session already carries flow state - reset is your call".
@@ -94,6 +94,24 @@ checks 2, 4, 5 do not apply.
    `skills/*/SKILL.md` in this package; `Read` each match's complete file into the
    transcript; list non-matches as skipped. Loaded bodies are context only - no skill's
    entry actions run until Dispatch names one.
+6. **Grant field.** Runs once the route has resolved `<spec path>` - the `S` path that
+   `reference/brief-contract.md` "Process-state restore" resolves for `skip brainstorm`
+   (process-state briefs), the spec reconstruction resolves and the human approves
+   (Spec without plan) or confirms (Spec with plan) (`reference/reconstruction.md`), or
+   the pinned `<full-path>/<rel>` of a spec tracked on `main` (`reference/seed.md`) -
+   and before that route's first tracker call; the path is carried, never re-resolved.
+   Read the spec's header block (between the H1 and the first `##`) through the
+   predicate in
+   [Standing grants](../brainstorming/reference/amendment-surface.md#standing-grants): no
+   `**Amend-grant:**` line -> no grant (legacy spec);
+   exactly one line whose trimmed value is `none` -> no grant;
+   exactly one line whose trimmed value is any other non-empty single-line text ->
+   grant active, the sentence is that value;
+   two or more lines, one line with an empty value, or a value continued onto the next physical line ->
+   malformed, stop, print the offending line(s), no tracker call. Routes that resolve no
+   approved spec (hotfix, `worktree: no`, a brief whose active phase is brainstorm,
+   reconstruction's unapproved-draft brainstorming handoff) skip this check and print
+   no grant line. Resume reports the line; it never writes it.
 
 ## Dispatch
 
@@ -115,7 +133,7 @@ re-derive the record.
 ## Post-restore continuation
 
 After a successful restore, print the closing line from `reference/brief-contract.md`
-(gate history not restored; the task to re-validate), then continue in the stage's
+(gate history not restored; the task to re-validate), then on its own line exactly one of `Standing grant active: <sentence>` or `No standing grant.` from check 6 (nothing when the check was skipped), then continue in the stage's
 owning skill **without** its reset-bearing entry:
 
 | Active after restore | Continue in | Entry point |

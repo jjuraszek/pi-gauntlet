@@ -267,6 +267,12 @@ const tokenChecks = [
   ["skills/brainstorming/reference/spec-finalization.md", "Approve to proceed", false],
   ["skills/brainstorming/reference/amendment-surface.md", "`2` at the spec gate", true],
   ["skills/brainstorming/reference/amendment-surface.md", "without a colon is an invalid", true],
+  // standing grant lives in the spec header, read by gauntlet-resume; the brief grammar stays grant-free
+  ["skills/gauntlet-resume/SKILL.md", "**Amend-grant:**", true],
+  ["skills/gauntlet-resume/SKILL.md", "Standing grant active:", true],
+  ["skills/gauntlet-resume/SKILL.md", "No standing grant.", true],
+  ["skills/gauntlet-handoff/SKILL.md", "Amend-grant", false],
+  ["skills/gauntlet-resume/reference/brief-contract.md", "Amend-grant", false],
 ];
 for (const [file, tok, want] of tokenChecks) {
   const has = txt(file).includes(tok);

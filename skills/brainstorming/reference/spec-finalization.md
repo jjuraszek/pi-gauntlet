@@ -8,7 +8,9 @@ Spec-writing replaces the context draft, in this exact order:
    pruned questionary plus a full-replacement `write` destroys the only copy of the
    gathered context at the moment it feeds the spec.
 2. Write the spec with the `write` tool (**full replacement**) at the spec path.
-   Using `edit` at this step is a red flag.
+   Using `edit` at this step is a red flag. The header block (between the H1 and the
+   first `##`) carries `**Amend-grant:** none` directly below `**Goal:**`; a redraw's
+   rewrite carries `none` too - a redraw is a new approval, with no carry-over.
 3. **Immediately after the write**, confirm line 1 of the file is no longer
    `# CONTEXT DRAFT - NOT A SPEC - fully replaced at spec-writing` - before
    dispatching lint, critique, council, or summarizer. The phase-tracker commit
@@ -35,13 +37,13 @@ Spec-writing replaces the context draft, in this exact order:
 After writing the spec to `<project>/doc/specs/<filename>.md` (per [Filename Convention](../SKILL.md#filename-convention)) and before showing it to the user, run a self-review pass. Read all six bullets first, then act.
 
 - **Placeholder scan.** Any `TODO`, `TBD`, `<fill in>`, `[example]`, `xxx`? Either resolve them or convert to explicit "Open Questions" with names.
-- **Internal consistency.** Does Section 4 contradict Section 2? Are component names and field names consistent throughout? If the spec replaces a prior design, confirm the predecessor carries the supersession banner and its href resolves to this spec's final filename.
+- **Internal consistency.** Does Section 4 contradict Section 2? Does the header block carry `**Amend-grant:**` exactly once with the value `none` (the [predicate](amendment-surface.md#standing-grants))? Are component names and field names consistent throughout? If the spec replaces a prior design, confirm the predecessor carries the supersession banner and its href resolves to this spec's final filename.
 - **Documentation named.** Does the spec name all three classes (feature/user-facing introduced; materially amended; derived/memory invalidated), or an explicit "none" for each? Enforce the materiality bar in `documentation-impact.md` without restating it: each listed doc names the category it clears, none is a code-mirror, amend-over-create was applied, and skill/agent bodies are implementation surface, not doc-impact entries here.
 - **Ticket contract present.** Does `## Acceptance criteria` exist with either verbatim ticket rows plus dispositions or one `none - <reason>` line? Presence is enforced here, at authoring, and nowhere later.
 - **Scope check.** Does every paragraph serve the goal? Cut filler. If something is out of scope, say it's out of scope.
 - **Ambiguity check.** Is every "we should..." backed by a concrete decision? Replace "we could probably" with "we will" or "we won't".
 
-The first four are the inline **lint**: run them here and fix what they surface. The last two are the **critique pass**, dispatched per [Spec Council](#spec-council). After it returns, re-run the placeholder scan over the applied spec; if a predecessor banner exists, confirm its `<scope>` still matches and reconcile it; carry any ambiguity the critique could not resolve to the [User Review Gate](#user-review-gate).
+The first four are the inline **lint**: run them here and fix what they surface. The last two are the **critique pass**, dispatched per [Spec Council](#spec-council). After it returns, re-run the placeholder scan over the applied spec and re-apply the predicate to the header block - if the critique pass removed or altered the `**Amend-grant:**` line, repair it to `none`, exactly once; if a predecessor banner exists, confirm its `<scope>` still matches and reconcile it; carry any ambiguity the critique could not resolve to the [User Review Gate](#user-review-gate).
 
 ## Spec Council
 
@@ -56,6 +58,7 @@ subagent({ agent: "worker", context: "fresh", async: false, cwd: "<abs worktree 
   "Problem statement: <the problem the spec addresses + the user's stated intent>.\n" +
   "Read the spec at <abs path to doc/specs/...>. Edit ONLY that file.\n" +
   "The portable citation `reference/documentation-impact.md` in the spec is the pi-gauntlet guideline at <DOCUMENTATION_IMPACT_GUIDELINE>, not a consumer doc; do not flag it as an external reference, and preserve it - never remove it as redundant or replace it with the resolved absolute path.\n" +
+  "The `**Amend-grant:**` header line is flow machinery owned by the brainstorming gate; never cut, shrink, flag, or edit it.\n" +
   "Apply two checks and fix what you find in place: (1) Scope - does every paragraph serve the goal? Cut filler;\n" +
   "state out-of-scope explicitly. (2) Ambiguity - is every 'we should' a concrete decision?\n" +
   "Replace 'we could probably' with 'we will'/'we won't'. Also inline any load-bearing\n" +
@@ -120,7 +123,7 @@ If you believe the summary needs correcting, do **not** silently rewrite it - re
 
 **Revert valve.** "Revert applied council edit X" is a normal change request: revise the spec to undo edit X, re-dispatch the summarizer with a **fresh** temp path (per the re-dispatch rule below), and re-present the gate. This is cheap here - the spec is not yet plan- or code-bearing.
 
-Wait for the user. On a change request (including a revert), revise the spec and re-present - mint a **fresh** temp path for the re-dispatched summarizer (never reuse a prior round's path, so stale content can never be mistaken for the new summary). On approval - `1`, `approve`, or equivalent prose approves without a grant; `2`, `approve, auto-apply amends`, or equivalent prose approves and grants - proceed immediately to `/skill:writing-plans` with no further prompt; first read [Standing grants](amendment-surface.md#standing-grants) (stop if unreadable) and record any grant. A reply that mixes approval with a change request ("2 but rename the section") is a change request: revise, re-present, and read the grant only from the reply to the re-presented gate. If the grant's `git commit --amend --trailer` step fails, stop and report; never proceed as granted without the trailer. The plan and execution mode are mechanical derivatives, so the only human gate here is spec approval itself. Don't land the spec on `main`; it stays in the worktree and ships in the same squash commit as the implementation.
+Wait for the user. On a change request (including a revert), revise the spec and re-present - mint a **fresh** temp path for the re-dispatched summarizer (never reuse a prior round's path, so stale content can never be mistaken for the new summary). On approval - `1`, `approve`, or equivalent prose approves without a grant; `2`, `approve, auto-apply amends`, or equivalent prose approves and grants - proceed immediately to `/skill:writing-plans` with no further prompt; first read [Standing grants](amendment-surface.md#standing-grants) (stop if unreadable). On a grant (`2`, `approve, auto-apply amends`, or equivalent prose), `edit` the spec's `**Amend-grant:**` value to the granting sentence (the digit `2` becomes the grant description after `2 - approve, auto-apply amends:` above), then `git -C <abs worktree path> add -- <spec path>` and `git -C <abs worktree path> commit --amend --no-edit -q`, so the spec commit carries the line and keeps its council-audit body; then confirm `git -C <abs worktree path> show HEAD:<spec path>` reads "grant active" through the predicate. On a plain approval (`1`, `approve`) the value stays `none` and the commit is untouched. A reply that mixes approval with a change request ("2 but rename the section") is a change request: revise, re-present, and read the grant only from the reply to the re-presented gate. If the amend or the HEAD check fails, stop and report; never proceed as granted. The plan and execution mode are mechanical derivatives, so the only human gate here is spec approval itself. Don't land the spec on `main`; it stays in the worktree and ships in the same squash commit as the implementation.
 
 Post-approval changes follow [Amending an approved spec](../SKILL.md#amending-an-approved-spec).
 

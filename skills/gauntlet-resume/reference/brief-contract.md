@@ -119,10 +119,12 @@ Facts that fix the order (from the extensions):
 
 Per-stage call table, keyed by the brief's active phase (`→`). Use
 `R = resume: <brief file or "pasted brief">` for plan/implement/verify skips and
-`S = resume: <spec path>` for brainstorm skips. Resolve `<spec path>` to the absolute
-path of the single `*.md` spec added after base in the worktree under `flowGuards.specDirs`
-(as enumerated in `reconstruction.md`, "Candidates"). Zero specs -> stop; more than
-one -> human picks.
+`S = resume: <spec path>` for brainstorm skips. Resolve `<spec path>` as
+`reconstruction.md` "Candidates" does, to an absolute path under the worktree: the single
+`*.md` spec added after base under `flowGuards.specDirs`, or a spec tracked from base when
+a plan added after base pairs with it by basename. Zero specs -> stop; more than one ->
+human picks. The consumer carries this path to its entry check 6 and its post-restore
+announcement without re-resolving it.
 
 | Active | Calls, in order |
 |---|---|

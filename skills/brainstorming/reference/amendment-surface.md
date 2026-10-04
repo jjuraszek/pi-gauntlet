@@ -4,9 +4,37 @@
 
 ## Standing grants
 
-Honor a user sentence in this flow that waives per-diff review for later amends (`auto-apply amends`, `approve, auto-apply amends` or a bare `2` at the spec gate, `auto-apply amends, stop only for redraws`, `apply spec fixes without asking`, or the same intent in other words). The digit grants only at the spec gate, and a prose grant after a `1` approval still counts. Apply every later amend-class change without review, scope changes included; redraws always stop and the grant never satisfies the spec gate. Start a new brainstorm or a fresh-session resume with no grant; never infer one from history.
+Honor a user sentence in this flow that waives per-diff review for later amends (`auto-apply amends`, `approve, auto-apply amends` or a bare `2` at the spec gate, `auto-apply amends, stop only for redraws`, `apply spec fixes without asking`, or the same intent in other words). The digit grants only at the spec gate, and a prose grant after a `1` approval still counts. Apply every later amend-class change without review, scope changes included; redraws always stop and the grant never satisfies the spec gate.
 
-Before proceeding to planning, quote a grant given at or before spec approval in the spec commit body via `git -C <abs worktree path> commit --amend --no-edit -q --trailer "Amend-grant: <the sentence>"`, so the worktree history shows when the grant began. When the reply was the digit `2`, `<the sentence>` is the grant description sentence from the gate menu (the text after `2 - approve, auto-apply amends:` in the spec gate template), never the digit; the same substitution applies wherever this file quotes the granting sentence in a commit body.
+A grant is the spec's `**Amend-grant:**` line read through the shared predicate; `none` or a missing line means no grant. A new brainstorm writes `none`; a resume honors the line as written. Never take a grant from commit history, a handoff brief, or the transcript; the one read of a prior commit is the post-revert restore, which reads the pre-revert HEAD's spec line.
+
+**The line.** `**Amend-grant:** none` or `**Amend-grant:** <granting sentence verbatim, one physical line>`, in the header block (the span between the H1 and the first `##`). Writers place it directly below `**Goal:**` when that line exists, otherwise on the first line after the H1, its blank line, and any `> **Superseded by:**` banner lines; readers never depend on the position. When the reply was the digit `2`, the sentence is the grant description from the gate menu (the text after `2 - approve, auto-apply amends:` in `spec-finalization.md`), never the digit. Collapse a prose grant to one physical line before the write: newlines and runs of whitespace become single spaces, wording preserved. The same substitution applies wherever this file quotes the granting sentence in a commit body.
+
+**The predicate.** Every reader (gauntlet-resume at entry, this file at each batch boundary) applies it verbatim over the header block; occurrences below the first `##` never count.
+
+| Header block contains | Reading |
+|---|---|
+| no `**Amend-grant:**` line | no grant (legacy spec; gauntlet-resume reports `No standing grant.`) |
+| exactly one line whose trimmed value is `none` | no grant |
+| exactly one line whose trimmed value is any other non-empty single-line text | grant active; the sentence is that value |
+| two or more lines, one line with an empty value, or a value continued onto the next physical line (any non-blank line directly below the field that is neither a `**Key:**` header line nor a `> **Superseded by:**` banner line) | malformed -> stop, print the offending line(s) |
+
+**Writers.** Spec-writing and the spec gate are owned by `spec-finalization.md`; this file owns the mid-flow changes:
+
+| Event | Edit |
+|---|---|
+| Grant given at a tier-2 footer | `edit` the value to the sentence |
+| Line absent (legacy spec) | insert the line at the writer placement above; when a plan exists, the insertion shifts every heading by one line, so run the section 5 aftermath's anchor repair (`plan_check` until PASS) and commit spec and plan together |
+| Revocation (`revoke auto-apply amends`, `stop auto-applying amends`, or the same intent in other words) | `edit` the value to `none` |
+| Hand-edited line | not an event; the next batch boundary re-reads it and the value found is the current consent |
+
+**Persisting a consent change.** If HEAD's copy of the spec already carries the new value, commit nothing. Otherwise, when the spec file has no other uncommitted change, commit that one file with the message on stdin:
+
+```bash
+printf 'grant: %s\n' "<new value>" | git -C <abs worktree path> commit -q -F - -- <spec path>
+```
+
+When the spec file is mid-batch (uncommitted amend edits), the consent edit rides in that batch's `amend:` commit and the footer acknowledgment says so. Either way, verify `git -C <abs worktree path> show HEAD:<spec path>` satisfies the predicate with the new value; otherwise stop and report. After the line exists, every later change is a same-line value edit; a grant given in a resumed session is an ordinary mid-flow grant.
 
 ## 1. Prepare - never apply yet
 
@@ -26,7 +54,7 @@ Collect every amendment pending at this decision point (same spec-review round, 
 
 The working tree stays at pre-batch HEAD until apply (section 5) - nothing is edited before the reviewer and, where needed, the human have answered. A redraw item stops alone first (`../SKILL.md` redraw path); amend items are held and re-batched after it resolves.
 
-**Standing grant active** ([boundaries](#standing-grants)): skip steps 2-4, apply every item, print one line each `amended the spec: <title> - <what>`, record `granted`, and quote the sentence in the commit body.
+**Standing grant active** ([boundaries](#standing-grants)): at every batch boundary re-read the spec's `**Amend-grant:**` line through the predicate; malformed stops the batch with the offending line(s). Active -> skip steps 2-4, apply every item, print one line each `amended the spec: <title> - <what>`, record `granted`, and quote the line's value in the commit body - the record kind `finishing-a-development-branch` Step 4's digest reads is unchanged.
 
 ## 2. Prefilter - no model call
 
@@ -116,7 +144,7 @@ amend: <N> item(s) - <first title>[, <second title>]
 <the granting sentence, quoted, when a grant applied>
 ```
 
-`amend:` is the subject marker `finishing-a-development-branch` Step 4 greps for its digest; `<what>` is the item's one-sentence what-changes field, so the digest renders `<title> - <what changed>` from the body alone. When no item applied (every item dropped or redirected), nothing changed on disk; the commit still lands, with `git commit --allow-empty`, so the per-item `custom(<effect>)` records stay in the batch body - the digest ignores them because it reads only `auto-apply` and `granted` records. Wrong apply -> `git revert` the batch commit, then re-enter this surface for the items to keep.
+`amend:` is the subject marker `finishing-a-development-branch` Step 4 greps for its digest; `<what>` is the item's one-sentence what-changes field, so the digest renders `<title> - <what changed>` from the body alone. When no item applied (every item dropped or redirected), nothing changed on disk; the commit still lands, with `git commit --allow-empty`, so the per-item `custom(<effect>)` records stay in the batch body - the digest ignores them because it reads only `auto-apply` and `granted` records. Wrong apply -> `git revert` the batch commit; then read the `**Amend-grant:**` line from the pre-revert HEAD (`git -C <abs worktree path> show HEAD^:<spec path>` through the predicate) and, if the working tree's line differs, restore that value and persist it per [Standing grants](#standing-grants) before re-entering this surface for the items to keep - the pre-revert HEAD holds every consent change committed so far, revocations included.
 
 ## Conformance entry
 
