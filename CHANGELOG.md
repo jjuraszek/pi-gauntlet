@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## v7.3.0 - 2026-10-05
 
 - eval/brainstorming/replay: the live-tool replay harness code and verdict tables are committed; private inputs and transcripts are documented as non-committable.
 
