@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Changed
+
+- **brainstorming + gauntlet-resume: the standing amend grant lives in the spec header.** Spec-writing emits `**Amend-grant:** none` under `**Goal:**`; a `2` / `auto-apply amends` reply at the spec gate sets the line to the granting sentence and amends it into the spec commit; mid-flow grants and revocations persist as `grant: <value>` commits (or ride the open `amend:` batch); a post-revert restore reads the pre-revert HEAD's line. Every reader applies one predicate (`none`/missing -> no grant; one other single-line value -> active; two lines, an empty value, or a continued value -> malformed, stop). `/skill:gauntlet-resume` runs it as entry check 6 before the route's first tracker call and prints `Standing grant active: <sentence>` or `No standing grant.` after its closing line; the handoff brief stays grant-free. The `Amend-grant:` commit trailer is gone; council members, chair, and the worker critique leave the line alone. Supersedes the grant-recording / fresh-session-resume boundary of the 2026-09-18, 2026-09-19, and 2026-10-04 approval-menu specs.
+
 ## v7.1.1 - 2026-10-04
 
 ### Changed
