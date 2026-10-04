@@ -55,7 +55,7 @@ test('finalization retains ordered write checks, verdict routing and dispatches'
 
 test('summary faults, partial coverage, commit and revisions retain their routes', () => {
   const text = read('skills/brainstorming/reference/spec-finalization.md');
-  for (const marker of ['This commit is **unconditional**', 'Coverage:', 'Applied:', 'Deferred:', 'Rejected:', 'under ~500 bytes', 'under ~2%', 'over ~45 KB', 'last content-producing tool call', 'returns 0 bytes', 'reports truncation', 'never paraphrase', 'rm "$SUMMARY_PATH"', 'fresh** temp path', 'proceed immediately to `/skill:writing-plans`', 're-dispatch the summarizer or note the discrepancy']) assert.ok(text.includes(marker), marker);
+  for (const marker of ['This commit is **unconditional**', 'Coverage:', 'Applied:', 'Deferred:', 'Rejected:', 'under ~500 bytes', 'over ~45 KB', 'last content-producing tool call', 'returns 0 bytes', 'reports truncation', 'never paraphrase', 'rm "$SUMMARY_PATH"', 'fresh** temp path', 'proceed immediately to `/skill:writing-plans`', 're-dispatch the summarizer or note the discrepancy']) assert.ok(text.includes(marker), marker);
   assert.ok(text.indexOf('Then commit the spec') < text.indexOf('1. **From the dispatch tool result'));
   assert.ok(text.indexOf('1. **From the dispatch tool result') < text.indexOf('2. **The `Read` itself'));
 });
@@ -159,4 +159,10 @@ test('locator and the specifically moved relative resources resolve from their o
     if (heading) assert.ok(readFileSync(targetUrl, 'utf8').includes(`## ${heading}`), heading);
   }
   for (const heading of ['Ticket Handling', 'Spec Self-Review (Before User Review Gate)', 'User Review Gate', 'Amending an approved spec']) assert.ok(main().includes(`## ${heading}`), heading);
+});
+
+test('spec-summarizer emits a capped briefing and never writes a file', () => {
+  const text = read('agents/spec-summarizer.md');
+  for (const marker of ['at most 300 words', 'Missing from the spec', 'do **not** attempt to write']) assert.ok(text.includes(marker), marker);
+  assert.ok(!text.includes('gap footer'), 'gap footer wording removed');
 });

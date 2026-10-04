@@ -1,0 +1,51 @@
+{
+  "sample": "gh-30-reviewer-verdict-severity",
+  "arm": "baseline",
+  "candidate_model": "anthropic/claude-opus-5-5",
+  "reviewers": [
+    "github-copilot/gpt-6-astra",
+    "anthropic-fable/claude-fable-5-1"
+  ],
+  "persona_sha256": "331b4d46184a915389e37587238986b38f05d3f6a50c9291c6737faabb9fc272",
+  "repo_sha": "5a1e2742b62a006b2209d74c42c88d88b67ed3c0",
+  "input_sha256": "4cbc898a29d6422609f1a739451d5bc40bd5dbe4b3067023def1e4d3aad3c422",
+  "text": "# Summary: code-reviewer verdict is a function of severity (GH #30)\n\n> **Status flag:** The spec header says it is **partially superseded** by `2026-09-23-gh-47-review-contract-single-owner.md`. Only the \"accepted residual\" (leaving the `Ready to merge` template example untouched) is superseded. The severity-to-verdict policy still stands. Confirm you are approving the right document.\n\n## Problem + idea\n\nThe `code-reviewer` persona defines Moderate as \"should fix; open for discussion (not strictly blocking).\" It never maps severity to a verdict. As a result, a Moderate-only report can return either `SHIP` or `FIX_FIRST`. Every orchestrating skill (requesting-code-review, subagent-driven-development, chase-bug hotfix, gatekeep-pr, README) already treats Critical and Moderate as blocking. The fix states that mapping inside the persona. It is framed as **alignment, not a policy change**.\n\n## Key decisions\n\n- **Critical or Moderate → `FIX_FIRST`.** Minor-only findings and clean reports → `SHIP`.\n- **Minor is the only declinable severity.** It can be declined without a fix round or re-review.\n- **`REJECT` overrides the severity rule; it is not derived from it.** Its triggers stay undefined.\n- **Style:** imperative statements, no conditional phrasing (user directive).\n- **Rejected alternative:** Critical-only blocking. #30 rejects it as a policy change that would need its own brainstorm.\n\n## Scope\n\n**In:** four edits across two files.\n\n1. **`agents/code-reviewer.md`, new rule paragraph.** Inserted after the fenced report template, before the Severity list: *\"Severity decides SHIP versus FIX_FIRST. A Critical or Moderate finding means FIX_FIRST. Minor-only findings and clean reports mean SHIP. REJECT overrides both: refuse a change that must not land at all.\"*\n2. **Severity rows.**\n   - Moderate becomes \"must fix before merge (significant defect or drift that does not rise to Critical).\"\n   - Minor gains \"; the only severity declinable without a fix round or re-review.\"\n3. **Frontmatter description.** \"Critical blocks merge\" becomes \"Critical and Moderate block merge.\"\n4. **`CHANGELOG.md`.** New `## Unreleased` section with one bullet citing #30.\n\n**Out:**\n- The dispatch template `skills/requesting-code-review/code-reviewer.md` (hard constraint from #30).\n- Other severity definitions.\n- REJECT trigger conditions.\n- Runtime verdict enforcement in `extensions/phase-tracker.ts`.\n- The fix-loop rules from #7 and the escalation loop from #29.\n\n## Risk surface\n\nThe risk is low: prose-only edits to one persona plus the changelog.\n\n- **Persona prompt change.** The persona loads with `systemPromptMode: replace`, so the edited body *is* the child system prompt. Reviewer behavior changes directly.\n- **Report template is byte-unchanged,** including the `Verdict: SHIP | FIX_FIRST | REJECT` line. The spec checked that the dispatch template has no verdict tokens, so nothing else needs syncing.\n- **CHANGELOG / CI.** The spec checked that the CI version regex (`scripts/ci.mjs:89`) matches the first `## vX.Y.Z` heading. A `## Unreleased` section placed above it should pass.\n- **Known inconsistency left in place.** The dispatch template's worked example still ends `Ready to merge: With fixes` and calls Moderate issues \"easily fixed.\" This contradicts the new framing. It is accepted as a residual, and that residual is what gh-47 later superseded.\n\n## Edge cases\n\n| Report contents | Verdict |\n|---|---|\n| Zero findings | SHIP |\n| Moderate only | FIX_FIRST (the target case) |\n| Any mix, change must not land | REJECT (overrides) |\n\n## Acceptance\n\nNo behavioral test exists for persona prose; CI only checks that frontmatter fields are present. The conformance gate is:\n\n- `npm test` passes.\n- `git diff` touches exactly the two files, and the fenced template shows no changes.\n- `rg` checks for each AC:\n  - **AC 1:** the new rule text, the Moderate \"must fix before merge\" text, and the Minor \"only severity declinable\" text are present; \"open for discussion\" is absent.\n  - **AC 2:** the rule covers both halves of the mapping, and the grammar line is unchanged.\n  - **AC 3:** the CHANGELOG bullet with `(#30)` is present.\n  - **Frontmatter:** \"Critical and Moderate block merge\" is present.\n\n## Gap footer\n\n- **GH issue #30.** Its AC 1–3 text, hard constraints, and the rejection of Critical-only blocking are cited but not inlined. The ACs are only paraphrased through the test greps.\n- **The brainstorm that \"confirmed\" the direction.** Not included.\n- **Superseding spec `2026-09-23-gh-47-review-contract-single-owner.md`.** Its content is not included, so how the residual was resolved is unknown here.\n- **Issues #7 (fix-loop convergence) and #29 (escalation loop).** Referenced as untouched, but not described.\n- **Line-number and `rg` claims about other files.** The spec asserts these as verified; they cannot be confirmed from the spec alone.",
+  "words": 665,
+  "backtick_lines": 18,
+  "path_tokens": 5,
+  "facts": {
+    "f1": {
+      "github-copilot/gpt-6-astra": "yes",
+      "anthropic-fable/claude-fable-5-1": "yes"
+    },
+    "f2": {
+      "github-copilot/gpt-6-astra": "yes",
+      "anthropic-fable/claude-fable-5-1": "yes"
+    },
+    "f3": {
+      "github-copilot/gpt-6-astra": "yes",
+      "anthropic-fable/claude-fable-5-1": "yes"
+    },
+    "f4": {
+      "github-copilot/gpt-6-astra": "yes",
+      "anthropic-fable/claude-fable-5-1": "yes"
+    },
+    "f5": {
+      "github-copilot/gpt-6-astra": "yes",
+      "anthropic-fable/claude-fable-5-1": "yes"
+    }
+  },
+  "quality": {
+    "github-copilot/gpt-6-astra": "mixed",
+    "anthropic-fable/claude-fable-5-1": "mixed"
+  },
+  "rationale": {
+    "github-copilot/gpt-6-astra": "The briefing makes the problem, merge policy, and completion criteria decidable without code, but file paths, verification commands, and decision-history caveats slow product-manager reading.",
+    "anthropic-fable/claude-fable-5-1": "The problem, decision, and edge-case table are decidable in plain terms, but file paths, `systemPromptMode`, CI regexes, rg greps, a status-flag preamble, and a gap footer add engineer-only noise a product manager must wade through."
+  },
+  "aggregate": {
+    "kept": 5,
+    "disputed": 0,
+    "lost": 0
+  }
+}

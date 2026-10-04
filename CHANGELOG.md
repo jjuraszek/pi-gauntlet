@@ -1,5 +1,17 @@
 # Changelog
 
+## Unreleased
+
+### Changed
+
+- **spec-summarizer: briefing instead of decision log.** The persona emits a plain-language briefing of at most 300 words, written to about 220: entry paragraph, What changes, Approval risks, Done when, and Missing from the spec when external context is missing. It uses behavior and outcomes instead of code identifiers. The brainstorming gate drops the `under ~2%` degrade check; file-only transport, Read-last rendering, and the absolute size checks stay.
+- **Non-trivial skill, persona, and prompt edits create or extend an eval.** `AGENTS.md` requires samples and must-hold facts designed during brainstorming and a baseline run before the wording changes; existing targets gain a sample exercising the change. Trivial-edit exemptions stay unchanged, and deterministic code stays on `npm test`. `README.md` routes the procedure to `eval/README.md`.
+
+### Added
+
+- **Committed eval convention and spec-summarizer replay set.** `eval/README.md` defines fixed inputs, human-approved facts, independent reviewers with models supplied externally, and recorded baseline/candidate comparisons. `eval/spec-summarizer/` includes eight samples (two anonymized product specs) and first-run results against the persona pinned at `2166283`: 9,497 -> 2,235 words, 327 -> 0 backticked lines, and quality from `mixed` on 15/16 votes to `readable` or `briefing` on 12/16. Two of 47 facts were lost and reviewed; the comparison permits at most two losses across a run and lists each for human review. `eval/` stays outside the npm tarball; model calls are manual.
+- **Deterministic eval checks in CI.** `scripts/ci.mjs` runs `eval/spec-summarizer/run.test.mjs` and an `eval/` hygiene scan without model calls.
+
 ## v7.1.2 - 2026-10-04
 
 ### Changed

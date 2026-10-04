@@ -153,6 +153,12 @@ cd ~/path/to/your/repo
 pi install -l ~/repos/pi-gauntlet
 ```
 
+## Evals
+
+Evals compare prompt wording on fixed inputs against human-approved must-hold facts. A non-trivial edit under `skills/`, `agents/`, or a prompt file creates or extends `eval/<target>/`; design its samples and facts during brainstorming, and run the baseline on current wording before the edit. Existing targets gain a sample exercising the changed behavior. Typo, formatting, dependency bump, and release-commit edits are exempt; deterministic code under `extensions/`, `src/bins/`, and `scripts/` stays on `npm test`.
+
+Run an arm with externally supplied models: `node eval/spec-summarizer/run.mjs run --arm candidate --persona agents/spec-summarizer.md --candidate-model <candidate-id> --reviewers <reviewer-a>,<reviewer-b>`. The [eval convention](eval/README.md) owns the layout, baseline/candidate process, and publication rules; the [spec-summarizer eval](eval/spec-summarizer/README.md) is the worked example with eight samples and committed results. Model calls run manually, never in CI; CI runs deterministic eval tests and hygiene checks. `eval/` is checkout-only and excluded from the npm tarball.
+
 ## Use from Claude Code
 
 Six skills are exposed to Claude Code via the plugin marketplace at

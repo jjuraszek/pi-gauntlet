@@ -1,0 +1,55 @@
+{
+  "sample": "finish-dirty-tree-hotfix",
+  "arm": "candidate",
+  "candidate_model": "anthropic/claude-opus-5-5",
+  "reviewers": [
+    "github-copilot/gpt-6-astra",
+    "anthropic-fable/claude-fable-5-1"
+  ],
+  "persona_sha256": "bd062fd074ef54e28ed0c0a4363b40ea1ff27713cd5abd9dca241cc139faf1c2",
+  "repo_sha": "ade3d1941c9c5a490584260712d2a8172cb4e3a0",
+  "input_sha256": "5649051f219c6ea593ca2ff2094298ef0ea045d06a88d5a6417971ef7763a30c",
+  "text": "# Briefing: finish verification dirty-tree hotfix\n\nWhen someone finishes a development branch, the tooling can skip re-running tests because the last tested commit matches the current one. That check ignores staged, unstaged and untracked edits, so untested changes can be treated as verified. This hotfix allows earlier results to be reused only when the working tree is also clean, apart from telemetry files, and nothing else has been written since. In every other case the tests run again. Once it ships, a branch is never marked verified while unverified edits remain.\n\n**What changes**\n- When any committed, staged, unstaged or untracked change exists outside the telemetry folder, verification reruns.\n- When a staged edit is hidden because only the working copy was restored, verification still reruns.\n- When the tested commit is unknown, a Git check fails, or write history is uncertain, verification reruns. An uncertain history includes a helper process whose writes are unknown.\n- Telemetry-only changes still permit reuse. A custom telemetry folder is excluded exactly, not folders with similar names.\n- Nothing else changes: runtime extensions, configuration, saved verification markers and pull-request gate behavior stay the same.\n\n**Approval risks**\n- This ships as a hotfix release, which is hard to undo once published.\n- The planned before/after comparison in the pull-request gate is still open and is not addressed here.\n\n**Done when**\n- The new regression tests pass while running the real Git checks in scratch repositories.\n- The full repository test suite passes.\n- The unknown-writes scenario still decides to rerun.",
+  "words": 244,
+  "backtick_lines": 0,
+  "path_tokens": 1,
+  "facts": {
+    "f1": {
+      "github-copilot/gpt-6-astra": "yes",
+      "anthropic-fable/claude-fable-5-1": "yes"
+    },
+    "f2": {
+      "github-copilot/gpt-6-astra": "no",
+      "anthropic-fable/claude-fable-5-1": "no"
+    },
+    "f3": {
+      "github-copilot/gpt-6-astra": "yes",
+      "anthropic-fable/claude-fable-5-1": "yes"
+    },
+    "f4": {
+      "github-copilot/gpt-6-astra": "yes",
+      "anthropic-fable/claude-fable-5-1": "yes"
+    },
+    "f5": {
+      "github-copilot/gpt-6-astra": "yes",
+      "anthropic-fable/claude-fable-5-1": "yes"
+    },
+    "f6": {
+      "github-copilot/gpt-6-astra": "yes",
+      "anthropic-fable/claude-fable-5-1": "no"
+    }
+  },
+  "quality": {
+    "github-copilot/gpt-6-astra": "briefing",
+    "anthropic-fable/claude-fable-5-1": "briefing"
+  },
+  "rationale": {
+    "github-copilot/gpt-6-astra": "The first paragraph makes the problem and proposed fix decidable, but the briefing omits the requirement for successful verification of a known clean commit in the current session.",
+    "anthropic-fable/claude-fable-5-1": "The opening paragraph states the problem, the fix, and the outcome in plain terms a PM can decide on, though it omits the same-session precondition and does not tie completion to the hidden-staged-edit case."
+  },
+  "aggregate": {
+    "kept": 4,
+    "disputed": 1,
+    "lost": 1
+  }
+}

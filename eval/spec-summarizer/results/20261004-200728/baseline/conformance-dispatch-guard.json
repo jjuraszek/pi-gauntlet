@@ -1,0 +1,55 @@
+{
+  "sample": "conformance-dispatch-guard",
+  "arm": "baseline",
+  "candidate_model": "anthropic/claude-opus-5-5",
+  "reviewers": [
+    "github-copilot/gpt-6-astra",
+    "anthropic-fable/claude-fable-5-1"
+  ],
+  "persona_sha256": "331b4d46184a915389e37587238986b38f05d3f6a50c9291c6737faabb9fc272",
+  "repo_sha": "5a1e2742b62a006b2209d74c42c88d88b67ed3c0",
+  "input_sha256": "b660c57907b5bcaccd99c9c8731300d79c4542b92c169afb7c93d9c1b8ef9752",
+  "text": "# Summary: Conformance fix-loop dispatch guard\n\n> **Partly superseded.** `2026-09-14-fix-round-human-overrule.md` replaces this spec's cap-block escalation paths: the \"Switch\" decision, the cap-block message text, and the \"documented escapes\" bullet in §4. Approve those parts against the newer spec, not this one.\n\n## Problem + idea\nThe lean conformance loop (5.5.2) says in prose that each fix round is one parallel implementer `tasks` wave, capped at `maxFixRounds`. Nothing enforces this.\n\nThe evidence predates 5.5.2:\n- 66 sessions showed 414 lone `agent: \"implementer\"` dispatches against 32 waves.\n- There is no post-5.5.2 data to measure whether the prose alone works.\n\nThe lone shape is also functionally broken. pi-cohort's single-agent path ignores `worktree`, so it runs unisolated and produces no diff for the loop's `git apply` step.\n\nThe fix adds two runtime blocks in `extensions/phase-tracker.ts` during the verify-phase conformance loop:\n- a **shape block** that rejects a lone implementer;\n- a **cap block** that rejects implementer waves past `maxFixRounds`.\n\nThe default cap rises from 2 to 3.\n\n## Key decisions\n- **Block, not warn**, for both checks. `async: true` is not a bypass.\n- **Guarded window**, all of which must hold:\n  - the gauntlet was entered;\n  - `closureReview.enforce` is on;\n  - `verify` is in progress;\n  - the conformance latch is set (the first audit has been dispatched).\n- **Verify phase only.**\n  - There is no implement-phase guard.\n  - `GUARD_PHASES` is deliberately unchanged, so the bash and branch-switch guards stay unarmed in verify.\n- **Switch:** reuses the existing `closureReview.enforce`. `false` turns off both new checks plus the closure-model gate. No new settings key. *(Superseded.)*\n- **Round counting:**\n  - One round is one non-error `subagent` result containing an implementer entry inside the window.\n  - Rounds are counted at `tool_result`, never at `tool_call`, so blocked calls don't count.\n  - A failed implementer (non-zero exit) still counts as a round.\n- **Reset:**\n  - `fixRounds` resets on `start implement` (including `force`) and on `reset`, the same places the latch resets.\n  - `start verify --force` does **not** reset it, so `skip verify` plus re-entering cannot refill the budget.\n- **No dispatch metadata.**\n  - The spec rejects a `phase:` tag or any pi-cohort contract change.\n  - Phase, latch, and gauntlet state are enough to tell legitimate dispatches apart (see the table in §3.6).\n\n## Scope\n**In:**\n- the two blocks;\n- a `fixRounds` counter with session-replay reconstruction;\n- the default change from 2 to 3;\n- prose updates in two skills and the docs listed below.\n\n**Out:**\n- implement-phase shape guards;\n- dispatch metadata;\n- fixing pi-cohort single-agent isolation;\n- re-measuring the 414:32 ratio;\n- detecting re-audits with no fix in between (the 23-event class), which needs its own block/warn decision;\n- exposing `fixRounds` in `phase_tracker status`.\n\n## Risk surface\n- **Behaviour change for existing users.**\n  - Lone implementers in the verify loop now hard-fail.\n  - The default cap of 3 slightly loosens the old prose budget.\n- **Replay correctness.**\n  - The counter is rebuilt from history using the same predicate as the live increment.\n  - A bug here would mis-enforce the budget on resumed or forked sessions.\n- **`gatekeep-pr` collision.**\n  - `gatekeep-pr` legitimately dispatches lone implementers. It passes because it never enters the gauntlet.\n  - If it runs *inside* a gauntlet session with verify in progress and the latch set, it is blocked. This is accepted: the operator finishes or skips verify first.\n- **Shared code.** The `conformanceModels` walker is generalised into `collectAgents(input, name)`, and the existing model gate now depends on it.\n- **External contracts.** Neither pi-cohort nor the settings schema changes, and `scripts/ci.mjs` probes are unchanged.\n\n## How the guard decides (inside the window, management calls skipped)\n\n| Dispatch | Outcome |\n|---|---|\n| Top-level `agent: \"implementer\"` | Block. The message points to a one-task `tasks` wave with `worktree: true`. |\n| Any implementer in `tasks`/`chain`/`parallel` and `fixRounds >= maxFixRounds` | Block. Message: \"fix round N of M used; escalate to human.\" *(Superseded.)* |\n| Anything else | Pass |\n\n- The checks run before the model-omission check, so they apply whether or not `closureReview.model` is set.\n- A single-step `chain` containing an implementer is not treated as the lone shape, but it is cap-checked and counted.\n- `maxFixRounds: 0` blocks the first wave. This is the documented \"skip remediation\" contract.\n\n## Edge cases\n- A mixed wave (implementer plus other agents) counts as one round.\n- Async results carry `results: []`, so they never increment the counter.\n  - An async wave that gets past the cap check therefore doesn't consume budget.\n  - The spec accepts this as a known blind spot.\n- Refused dispatches (dirty tree, schema error) don't count.\n- Subagent children keep their existing no-op behaviour.\n- A compliant run sees no added gates. A round-1 convergence still stops at round 1.\n\n## Acceptance (tests)\nTests in `phase-tracker.test.ts` cover:\n- **Shape block:** applies with and without `model` and with and without `async`; passes pre-latch, in implement, and in ship.\n- **Dormancy:** a session that called `start verify` cold, without entering the gauntlet, is not guarded.\n- **Cap:** waves 1–3 pass and wave 4 is blocked; `0` and `1` cap behaviour; chain counting.\n- **Counter rules:** blocked calls, errors, empty results, non-implementer waves, and ship-phase waves don't count; a non-zero implementer exit does.\n- **Reset rules:** as listed under Key decisions.\n- **Replay:** two waves in verify reconstruct to 2; the same waves in ship reconstruct to 0.\n- **Switch:** `enforce: false` passes everything.\n\nA settings test asserts the default is 3.\n\n## Docs touched\n- `doc/configuration.md`:\n  - the default changes to 3;\n  - \"enforced by prose, not the extension\" is rewritten to describe the runtime blocks;\n  - the \"Six guards\" list becomes eight.\n- `settings-precedence.md`: default changes to 3.\n- `CHANGELOG.md`: entry under Unreleased.\n- Skill prose: `conformance-check.md` (cap of 3, runtime block, retry as a one-task wave) and `dispatching-parallel-agents/SKILL.md`.\n\n## Gap footer\nThe spec relies on these but does not include them:\n- **`2026-09-14-fix-round-human-overrule.md`** defines the replacement escalation and escape behaviour. It must be read to know the final cap-block semantics.\n- **`2026-09-13-lean-conformance-loop.md`** and **commit 87a3141** define the loop shape being enforced and the original evidence.\n- **pi-cohort 6.1.0 source** (`subagent-executor.ts`, cited line ranges) is the basis for the \"lone shape is unisolated\" claim.\n- **Session logs** under `~/.pi/agent.balanced/sessions/` are the source of the 414/32/23 figures.\n- **The `gatekeep-pr` contract** is cited as forbidding `worktree: true`.\n- **`reference/documentation-impact.md`** sets the materiality bar.\n- **\"The two rules the user asked for\"** refers to the originating request, which is not included.",
+  "words": 972,
+  "backtick_lines": 43,
+  "path_tokens": 14,
+  "facts": {
+    "f1": {
+      "github-copilot/gpt-6-astra": "yes",
+      "anthropic-fable/claude-fable-5-1": "yes"
+    },
+    "f2": {
+      "github-copilot/gpt-6-astra": "yes",
+      "anthropic-fable/claude-fable-5-1": "yes"
+    },
+    "f3": {
+      "github-copilot/gpt-6-astra": "yes",
+      "anthropic-fable/claude-fable-5-1": "yes"
+    },
+    "f4": {
+      "github-copilot/gpt-6-astra": "yes",
+      "anthropic-fable/claude-fable-5-1": "yes"
+    },
+    "f5": {
+      "github-copilot/gpt-6-astra": "yes",
+      "anthropic-fable/claude-fable-5-1": "yes"
+    },
+    "f6": {
+      "github-copilot/gpt-6-astra": "yes",
+      "anthropic-fable/claude-fable-5-1": "yes"
+    }
+  },
+  "quality": {
+    "github-copilot/gpt-6-astra": "mixed",
+    "anthropic-fable/claude-fable-5-1": "mixed"
+  },
+  "rationale": {
+    "github-copilot/gpt-6-astra": "The core change is decidable without code access, but implementation identifiers, test details, and supersession bookkeeping slow down the product-level assessment.",
+    "anthropic-fable/claude-fable-5-1": "The problem, fix, and cap change are decidable from the opening section, but the briefing leans heavily on code identifiers (`tool_result`, `GUARD_PHASES`, `collectAgents`, `fixRounds`) and decision-log detail that a product manager must wade through."
+  },
+  "aggregate": {
+    "kept": 6,
+    "disputed": 0,
+    "lost": 0
+  }
+}

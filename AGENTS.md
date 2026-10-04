@@ -104,9 +104,13 @@ An **agent-initiated** write to a human-readable channel (tracker comment, Slack
 - **Claude Code surface** is `.claude-plugin/marketplace.json`: an allowlist of harness-portable skills, excluded from the npm tarball, never read by pi. Widen it only for skills whose bodies carry harness fallbacks.
 - **Skill, persona, and prompt edits** follow `/skill:forge-skill` `## Authoring rules` (imperative voice, low conditionality, minimal diff, oversized-skill extraction). Skills never name a provider or model; `scripts/model-literal-lint.mjs` enforces it from `scripts/ci.mjs` ([`doc/configuration.md`](doc/configuration.md#dispatch-model-precedence)).
 
+- **Evals** live in `eval/<target>/` per [`eval/README.md`](eval/README.md); `eval/` is outside the tarball; `scripts/ci.mjs` runs its deterministic tests, never a model call.
+
 ## Change process
 
 Recommend the full gauntlet for non-trivial changes, but enter only on explicit user consent: `/skill:brainstorming`, explicit prose requesting brainstorming/the gauntlet when the skill is already loaded or an available instruction or route identifies it, or a human-selected handoff. `/skill:brainstorming` is the reliable discovery-and-entry path. An ordinary implementation request or an agent recommendation is not consent; wait for explicit choice before resetting trackers or creating a worktree. Once opted in, use the worktree, spec, and approval gate, then auto-chain through plan -> implement -> verify -> finish; runtime flow guards enforce that pipeline. Trivial edits (typo, formatting, dependency bump, release commit) need no flow. A user instruction that names a direct edit and its target overrides the workflow recommendation (core "Authorization").
+
+A non-trivial edit under `skills/`, `agents/`, or a prompt file creates or extends `eval/<target>/` per [`eval/README.md`](eval/README.md), adds a sample exercising the changed behavior when the target already exists, and runs the baseline on current wording before the edit; the brainstorm spec names the samples and their must-hold facts, the trivial-edit exemptions above stay unchanged, and `extensions/`, `src/bins/`, and `scripts/` stay on `npm test`.
 
 ## Testing
 
@@ -133,4 +137,5 @@ Bin sources live in `src/bins/`; the shipped `bin/gauntlet-telemetry-seal.mjs`, 
 | Hand off or resume an interrupted flow across sessions | [`skills/gauntlet-handoff/SKILL.md`](skills/gauntlet-handoff/SKILL.md) (human-only producer) and [`skills/gauntlet-resume/SKILL.md`](skills/gauntlet-resume/SKILL.md) (human-only; the sole resume path); grammar in [`skills/gauntlet-resume/reference/brief-contract.md`](skills/gauntlet-resume/reference/brief-contract.md) |
 | Pi runtime API | `node_modules/@earendil-works/pi-coding-agent` docs (`packages.md`, `skills.md`) |
 | Agent dispatch semantics | pi-cohort `src/agents/agents.ts`, `skills/pi-cohort/SKILL.md` |
+| Add or run an eval for a skill or persona | [`eval/README.md`](eval/README.md) |
 | Change the shared AGENTS core | edit [`AGENTS.core.md`](AGENTS.core.md), `node scripts/check-agents-core.mjs --fix`, copy both files to the siblings, `--fix` there |

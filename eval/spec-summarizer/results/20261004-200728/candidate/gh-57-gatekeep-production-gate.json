@@ -1,0 +1,55 @@
+{
+  "sample": "gh-57-gatekeep-production-gate",
+  "arm": "candidate",
+  "candidate_model": "anthropic/claude-opus-5-5",
+  "reviewers": [
+    "github-copilot/gpt-6-astra",
+    "anthropic-fable/claude-fable-5-1"
+  ],
+  "persona_sha256": "bd062fd074ef54e28ed0c0a4363b40ea1ff27713cd5abd9dca241cc139faf1c2",
+  "repo_sha": "ade3d1941c9c5a490584260712d2a8172cb4e3a0",
+  "input_sha256": "df023525ec9fb69701caccfab4154362c40afffbafd0f1fb3e09e0e9eb5b42b6",
+  "text": "**Entry.** Maintainers who run the PR gate skill on a real pull request can have the skill edit files itself and push them to a contributor's fork with no review. In the reported incident it edited seven files and pushed to a fork. The skill also never reads CI after its own push, reports a held CI run as a failure, and offers menu options the user cannot carry out. This spec moves each kind of work into a fresh helper, puts a reviewer before every push, reads CI after the push, and builds menus from the user's actual permissions. The result: the gate is safe to run by default.\n\n**What changes**\n- When the user picks a fix, a fresh helper applies each change and runs only targeted tests; the skill itself never edits files. Leftover changes stop the round.\n- A push happens only after a fresh reviewer finds no Critical or Moderate issue; at the round cap (default 3, zero disables fixing), commits stay unpushed.\n- After a push, the skill waits for CI up to the timeout; a held run counts as pending, and approving it is a user pick.\n- When the branch conflicts with base, a conflict menu replaces the step.\n- Hotfix flow, force-push, and a \"suggest\" option stay out.\n\n**Approval risks**\n- Harnesses without helper support become unsupported; the inline fallback is deleted.\n- The reviewer report and the permission digest change shape, so other parts relying on them must follow.\n- Claude Code checks depend on the user running them manually.\n\n**Done when** The test suite passes. The main skill file stays under 120 lines. Before/after runs on three past PRs show no unexplained verdict change, lost outcome, or unsupported finding. The Claude Code checks are ticked before merge.\n\n**Missing from the spec**\n- The skill-authoring guide's authoring rules and conventions\n- The code reviewer persona's re-review input format",
+  "words": 308,
+  "backtick_lines": 0,
+  "path_tokens": 1,
+  "facts": {
+    "f1": {
+      "github-copilot/gpt-6-astra": "yes",
+      "anthropic-fable/claude-fable-5-1": "yes"
+    },
+    "f2": {
+      "github-copilot/gpt-6-astra": "yes",
+      "anthropic-fable/claude-fable-5-1": "yes"
+    },
+    "f3": {
+      "github-copilot/gpt-6-astra": "yes",
+      "anthropic-fable/claude-fable-5-1": "yes"
+    },
+    "f4": {
+      "github-copilot/gpt-6-astra": "yes",
+      "anthropic-fable/claude-fable-5-1": "yes"
+    },
+    "f5": {
+      "github-copilot/gpt-6-astra": "yes",
+      "anthropic-fable/claude-fable-5-1": "yes"
+    },
+    "f6": {
+      "github-copilot/gpt-6-astra": "no",
+      "anthropic-fable/claude-fable-5-1": "yes"
+    }
+  },
+  "quality": {
+    "github-copilot/gpt-6-astra": "mixed",
+    "anthropic-fable/claude-fable-5-1": "briefing"
+  },
+  "rationale": {
+    "github-copilot/gpt-6-astra": "The safety changes are understandable, but implementation terminology and authoring details distract, and the completion criteria do not establish retention of previously supported blockers.",
+    "anthropic-fable/claude-fable-5-1": "The entry paragraph alone states the incident, the four gaps, the fix, and the result in plain language, and the rest stays readable with only light jargon."
+  },
+  "aggregate": {
+    "kept": 5,
+    "disputed": 1,
+    "lost": 0
+  }
+}

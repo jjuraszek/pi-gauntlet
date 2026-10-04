@@ -1,0 +1,55 @@
+{
+  "sample": "gh-8-shape-ticket-skill",
+  "arm": "candidate",
+  "candidate_model": "anthropic/claude-opus-5-5",
+  "reviewers": [
+    "github-copilot/gpt-6-astra",
+    "anthropic-fable/claude-fable-5-1"
+  ],
+  "persona_sha256": "bd062fd074ef54e28ed0c0a4363b40ea1ff27713cd5abd9dca241cc139faf1c2",
+  "repo_sha": "ade3d1941c9c5a490584260712d2a8172cb4e3a0",
+  "input_sha256": "c6325f056a3a588430c1234c038e4135367ef95158927d9038f9f1017a7f685e",
+  "text": "**Briefing: ticket-shaping tool for tracker issues**\n\nTeams using the pipeline start building from tracker tickets that often prescribe a solution without saying what outcome is wanted, or carry acceptance criteria no one can verify. Every later stage inherits those defects. This spec adds a user-triggered tool that repairs one existing ticket or drafts one new ticket per run. It checks the criteria, the evidence, the metadata and the scope, gets an independent critique, then writes only after a human approves. Teams get tickets a stranger can act on and verify.\n\n**What changes**\n- Every write first shows the old and new versions and needs an explicit yes; an unattended run stops without writing.\n- If the ticket changed during review, the change is shown again for approval.\n- An unmeasurable or self-referential criterion blocks every write in the run; a criterion missing a value parks the ticket.\n- Production-only checks move to a non-blocking follow-up list.\n- A ticket that already conforms gets no write and no critique; proposed fixes become an attributed sketch, never a criterion.\n- Status changes and comments stay with plain tracker tools.\n\n**Approval risks**\n- Pushes changes directly to three sibling repositories' main branches during the run.\n- Changes how all 13 existing skills locate the project overrides file.\n- Leaves the Claude Code critique contract to separate marketplace work, and exact command flags to the implementer.\n\n**Done when**\nThe tool exists and runs only when a user triggers it, with one approval gate. The README is updated and the genericity check finds zero matches. Seven scenario runs and the test suite pass.\n\n**Missing from the spec**\n- Skill-writing guide's scenario-testing protocol and compliance checklist",
+  "words": 270,
+  "backtick_lines": 0,
+  "path_tokens": 0,
+  "facts": {
+    "f1": {
+      "github-copilot/gpt-6-astra": "yes",
+      "anthropic-fable/claude-fable-5-1": "yes"
+    },
+    "f2": {
+      "github-copilot/gpt-6-astra": "no",
+      "anthropic-fable/claude-fable-5-1": "no"
+    },
+    "f3": {
+      "github-copilot/gpt-6-astra": "yes",
+      "anthropic-fable/claude-fable-5-1": "yes"
+    },
+    "f4": {
+      "github-copilot/gpt-6-astra": "yes",
+      "anthropic-fable/claude-fable-5-1": "yes"
+    },
+    "f5": {
+      "github-copilot/gpt-6-astra": "yes",
+      "anthropic-fable/claude-fable-5-1": "yes"
+    },
+    "f6": {
+      "github-copilot/gpt-6-astra": "yes",
+      "anthropic-fable/claude-fable-5-1": "yes"
+    }
+  },
+  "quality": {
+    "github-copilot/gpt-6-astra": "mixed",
+    "anthropic-fable/claude-fable-5-1": "briefing"
+  },
+  "rationale": {
+    "github-copilot/gpt-6-astra": "The briefing explains the user benefit and approval safeguards, but omits tracker neutrality and adds implementation and testing details that slow a product decision.",
+    "anthropic-fable/claude-fable-5-1": "The opening paragraph alone states the problem, the one-ticket-per-run tool, the human approval gate and the benefit in plain language, with later sections adding risks and done criteria without code identifiers; only the tracker-neutral scope is never stated."
+  },
+  "aggregate": {
+    "kept": 5,
+    "disputed": 0,
+    "lost": 1
+  }
+}

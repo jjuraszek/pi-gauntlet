@@ -1,5 +1,7 @@
 # Spec: spec-summary pruning fix at the brainstorming gate
 
+> **Superseded by:** [doc/specs/2026-10-04-spec-summary-briefing.md](./2026-10-04-spec-summary-briefing.md) - the `under ~2%` ratio check in the gate degrade stage only
+
 ## Problem
 
 `brainstorming`'s User Review Gate dispatches `spec-summarizer` and must render its returned text **verbatim** at the top of the gate message. The current dispatch uses an **inline return** (no `output:` path) - a deliberate choice in the 2026-06-23 spec (`doc/specs/2026-06-23-spec-summary-at-gate.md`, Decision 3), made because `spec-summarizer` is `tools: read` and to keep the summary ephemeral.

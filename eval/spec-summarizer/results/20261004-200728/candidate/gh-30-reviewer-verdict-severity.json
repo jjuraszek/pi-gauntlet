@@ -1,0 +1,51 @@
+{
+  "sample": "gh-30-reviewer-verdict-severity",
+  "arm": "candidate",
+  "candidate_model": "anthropic/claude-opus-5-5",
+  "reviewers": [
+    "github-copilot/gpt-6-astra",
+    "anthropic-fable/claude-fable-5-1"
+  ],
+  "persona_sha256": "bd062fd074ef54e28ed0c0a4363b40ea1ff27713cd5abd9dca241cc139faf1c2",
+  "repo_sha": "ade3d1941c9c5a490584260712d2a8172cb4e3a0",
+  "input_sha256": "4cbc898a29d6422609f1a739451d5bc40bd5dbe4b3067023def1e4d3aad3c422",
+  "text": "The code-review assistant's instructions call Moderate findings \"open for discussion\" but never say which severity leads to which verdict. A report with only Moderate findings can therefore come back as either \"ship\" or \"fix first,\" even though every review workflow treats Moderate as blocking. This spec writes the severity-to-verdict rule into the reviewer's own instructions so they match the policy the workflows already enforce. It aligns the instructions with that policy and does not change the policy. Supervisors and workflows get the same verdict for the same findings every time.\n\n**What changes**\n- When a review has any Critical or Moderate finding, the verdict is \"fix first.\"\n- When findings are Minor-only or there are none, the verdict is \"ship.\" Minor is the only severity that can be declined without a fix round or re-review.\n- \"Reject\" overrides both for a change that must not land at all, whatever the findings.\n- Moderate is now described as \"must fix before merge.\" The reviewer's summary says Critical and Moderate block merge, and the changelog gains an unreleased note.\n- Unchanged: the report format, the review workflows, and the existing fix-loop and escalation rules.\n\n**Approval risks**\n- The review-request template's example still says \"ready to merge with fixes\" for Moderate issues. This contradiction is knowingly left in place.\n- The conditions that trigger \"reject\" remain undefined.\n- No behavioral test exists, so only text checks verify the change.\n\n**Done when**\n- Tests pass and only the reviewer instructions and changelog change.\n- The report format is untouched.\n- The new phrases are present and \"open for discussion\" is gone.\n\n**Missing from the spec**\n- Issue 30's full acceptance criteria and scope constraints.",
+  "words": 268,
+  "backtick_lines": 0,
+  "path_tokens": 0,
+  "facts": {
+    "f1": {
+      "github-copilot/gpt-6-astra": "yes",
+      "anthropic-fable/claude-fable-5-1": "yes"
+    },
+    "f2": {
+      "github-copilot/gpt-6-astra": "yes",
+      "anthropic-fable/claude-fable-5-1": "yes"
+    },
+    "f3": {
+      "github-copilot/gpt-6-astra": "yes",
+      "anthropic-fable/claude-fable-5-1": "yes"
+    },
+    "f4": {
+      "github-copilot/gpt-6-astra": "yes",
+      "anthropic-fable/claude-fable-5-1": "yes"
+    },
+    "f5": {
+      "github-copilot/gpt-6-astra": "yes",
+      "anthropic-fable/claude-fable-5-1": "yes"
+    }
+  },
+  "quality": {
+    "github-copilot/gpt-6-astra": "readable",
+    "anthropic-fable/claude-fable-5-1": "briefing"
+  },
+  "rationale": {
+    "github-copilot/gpt-6-astra": "All required facts are conveyed in plain language, but the full decision rules require reading beyond the first paragraph.",
+    "anthropic-fable/claude-fable-5-1": "The opening paragraph states the problem, the fix, and that no policy changes in plain language, and the rest reads cleanly with only quoted verdict names and no identifiers."
+  },
+  "aggregate": {
+    "kept": 5,
+    "disputed": 0,
+    "lost": 0
+  }
+}

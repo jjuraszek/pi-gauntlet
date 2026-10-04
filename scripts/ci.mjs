@@ -158,8 +158,21 @@ for (const base of scanDirs) {
     for (const tok of forbidden) if (txt.includes(tok)) hits.push(`${file.replace(root + "/", "")}: "${tok}"`);
   }
 }
+
 if (hits.length) fail("stale rename tokens found:\n    " + hits.join("\n    "));
 else ok("no stale rename tokens in skills/extensions/agents/bin");
+
+const evalHits = [];
+for (const file of walk(R("eval"))) {
+  readFileSync(file, "utf8").split("\n").forEach((line, i) => {
+    const where = `${file.replace(root + "/", "")}:${i + 1}`;
+    if (/\/Users\/[^/]+/.test(line)) evalHits.push(`${where}: /Users/ path`);
+    const stripped = line.replace(/github\.com\/jjuraszek\//gi, "").replace(/jjuraszek\/pi-gauntlet#\d+/gi, "");
+    if (/jjuraszek/i.test(stripped)) evalHits.push(`${where}: owner handle outside a URL or ticket ref`);
+  });
+}
+if (evalHits.length) fail(`eval/ hygiene:\n    ${evalHits.join("\n    ")}`);
+else ok("eval/ hygiene: no private paths or stray owner handles");
 
 // ---- subtractive review pass (over-spec kind + closure removal) -------------
 const subtractiveErrorsBefore = errors.length;
@@ -443,10 +456,10 @@ try {
 }
 
 try {
-  execFileSync(process.execPath, ["--test", R("scripts/happy-path-run.test.mjs"), R("scripts/gatekeep-comment-reconcile.test.mjs"), R("scripts/brainstorming-contract.test.mjs")], { stdio: "pipe" });
-  ok("happy-path shell fixtures, PR comment and brainstorming source contracts pass");
+  execFileSync(process.execPath, ["--test", R("scripts/happy-path-run.test.mjs"), R("scripts/gatekeep-comment-reconcile.test.mjs"), R("scripts/brainstorming-contract.test.mjs"), R("eval/spec-summarizer/run.test.mjs")], { stdio: "pipe" });
+  ok("happy-path shell fixtures, PR comment, brainstorming source and eval driver contracts pass");
 } catch (e) {
-  fail(`happy-path, PR comment or brainstorming regression checks failed:\n    ${String(e.stdout || e.stderr || e).split("\n").slice(0, 30).join("\n    ")}`);
+  fail(`happy-path, PR comment, brainstorming or eval driver regression checks failed:\n    ${String(e.stdout || e.stderr || e).split("\n").slice(0, 30).join("\n    ")}`);
 }
 
 try {
@@ -612,6 +625,7 @@ try {
   }
   if (!packed.some((f) => f.startsWith("agents/"))) fail("npm pack: no agents/ in tarball");
   if (packed.some((f) => f.startsWith("doc/"))) fail("npm pack: doc/ leaked into tarball");
+  if (packed.some((f) => f.startsWith("eval/"))) fail("npm pack: eval/ leaked into tarball");
   if (packed.some((f) => f.startsWith(".claude-plugin/"))) fail("npm pack: .claude-plugin/ leaked into tarball (Claude Code marketplace is source-only)");
   if (packed.some((f) => f.startsWith("src/"))) fail("npm pack: src/ leaked into tarball (bin sources are not shipped)");
   ok(`npm pack: ${packed.length} files, agents/ + bin/*.mjs and Pi extension helpers present, no doc/ leak`);

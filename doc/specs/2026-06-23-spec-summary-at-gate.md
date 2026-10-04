@@ -1,5 +1,7 @@
 # Spec summary at the user review gate
 
+> **Superseded by:** [doc/specs/2026-10-04-spec-summary-briefing.md](./2026-10-04-spec-summary-briefing.md) - Decisions and "Edit plan > agents/spec-summarizer.md" (summary output format and length shape) only
+
 ## Context
 
 `skills/brainstorming/SKILL.md` ends at a single human gate: the user reviews a
