@@ -102,9 +102,8 @@ An **agent-initiated** write to a human-readable channel (tracker comment, Slack
 - **Personas** in `agents/` are dispatched via pi-cohort; frontmatter is not call-time overridable and a frontmatter pin kills the matching preset `agentOverrides` knob. Read the knobs table before touching frontmatter: [`doc/personas.md`](doc/personas.md#frontmatter-knobs).
 - **Extensions** in `extensions/` read every tunable from `settings.json#piGauntlet.<extensionName>` with a working default, through `extensions/lib/gauntlet-settings*.ts` - never `pi.settings` (`scripts/ci.mjs` enforces). New key -> document in [`doc/configuration.md`](doc/configuration.md).
 - **Claude Code surface** is `.claude-plugin/marketplace.json`: an allowlist of harness-portable skills, excluded from the npm tarball, never read by pi. Widen it only for skills whose bodies carry harness fallbacks.
-- **Skill, persona, and prompt edits** follow `/skill:forge-skill` `## Authoring rules` (imperative voice, low conditionality, minimal diff, oversized-skill extraction). Skills never name a provider or model; `scripts/model-literal-lint.mjs` enforces it from `scripts/ci.mjs` ([`doc/configuration.md`](doc/configuration.md#dispatch-model-precedence)).
-
-- **Evals** live in `eval/<target>/` per [`eval/README.md`](eval/README.md); `eval/` is outside the tarball; `scripts/ci.mjs` runs its deterministic tests, never a model call.
+- **Skill, persona, and prompt edits** follow `/skill:forge-skill` `## Authoring rules` (imperative voice, low conditionality, minimal diff, oversized-skill extraction); a persona edit also follows its `## Persona rules` (whole-prompt body, routing-label description, byte-identical frontmatter unless a knob is named, narrow tools, no skill machinery). Skills never name a provider or model; `scripts/model-literal-lint.mjs` enforces it from `scripts/ci.mjs` ([`doc/configuration.md`](doc/configuration.md#dispatch-model-precedence)).
+- **Evals** live in `eval/<target>/` per [`eval/README.md`](eval/README.md); `eval/` is outside the tarball; `scripts/ci.mjs` runs its deterministic tests, never a model call. A forge-skill rule change moves the affected `eval/forge-skill/sample/*/expected.md` facts in the same commit ([`eval/forge-skill/README.md`](eval/forge-skill/README.md)).
 
 ## Change process
 
@@ -134,6 +133,7 @@ Bin sources live in `src/bins/`; the shipped `bin/gauntlet-telemetry-seal.mjs`, 
 | Symlink vs copy install, local dev install, versioning | [`doc/install-internals.md`](doc/install-internals.md) |
 | pi-gauntlet skill overrides for this repo | [`.pi/gauntlet-overrides.md`](.pi/gauntlet-overrides.md) |
 | Run a release | [`.agents/skills/release/SKILL.md`](.agents/skills/release/SKILL.md) |
+| Measure a forge-skill edit against the eval samples | [`eval/forge-skill/README.md`](eval/forge-skill/README.md) |
 | Hand off or resume an interrupted flow across sessions | [`skills/gauntlet-handoff/SKILL.md`](skills/gauntlet-handoff/SKILL.md) (human-only producer) and [`skills/gauntlet-resume/SKILL.md`](skills/gauntlet-resume/SKILL.md) (human-only; the sole resume path); grammar in [`skills/gauntlet-resume/reference/brief-contract.md`](skills/gauntlet-resume/reference/brief-contract.md) |
 | Pi runtime API | `node_modules/@earendil-works/pi-coding-agent` docs (`packages.md`, `skills.md`) |
 | Agent dispatch semantics | pi-cohort `src/agents/agents.ts`, `skills/pi-cohort/SKILL.md` |

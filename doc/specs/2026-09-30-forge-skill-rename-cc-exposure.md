@@ -1,5 +1,7 @@
 # forge-skill: rename writing-skills, rewrite the body, expose to Claude Code
 
+> **Superseded by:** [doc/specs/2026-10-04-forge-skill-persona-authoring.md](./2026-10-04-forge-skill-persona-authoring.md) - `### SKILL.md contract` body only (gains `## Persona rules`, skill-only markers, persona reload step)
+
 **Goal:** Replace `skills/writing-skills/` with `skills/forge-skill/` - a single rules-first `SKILL.md` of at most 120 lines that serves pi and Claude Code authors alike - expose it in the Claude Code marketplace, and rename every live reference across pi-gauntlet, its three siblings, and gridstrong.
 
 ## Problem

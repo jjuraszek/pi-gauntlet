@@ -159,6 +159,8 @@ Evals compare prompt wording on fixed inputs against human-approved must-hold fa
 
 Run an arm with externally supplied models: `node eval/spec-summarizer/run.mjs run --arm candidate --persona agents/spec-summarizer.md --candidate-model <candidate-id> --reviewers <reviewer-a>,<reviewer-b>`. The [eval convention](eval/README.md) owns the layout, baseline/candidate process, and publication rules; the [spec-summarizer eval](eval/spec-summarizer/README.md) is the worked example with eight samples and committed results. Model calls run manually, never in CI; CI runs deterministic eval tests and hygiene checks. `eval/` is checkout-only and excluded from the npm tarball.
 
+`eval/forge-skill/` measures an edit to `skills/forge-skill/SKILL.md`: `node eval/forge-skill/run.mjs --skill-dir <path> --candidate-model <id> --reviewers <id>,<id>` runs a worker over ten samples (four skill fixtures, six persona fixtures - four from this repo's `agents/` history, two constructed to exercise the persona rules), has two reviewer models vote per must-hold fact, and writes records under `$TMPDIR`; `run.mjs compare <baseline> <candidate>` refuses mismatched inputs and fails on any fact that moved from kept to lost. Models are arguments, never committed. Its samples are `case.md` + `expected.md` and its raw results stay under `$TMPDIR` - the two places it deviates from the convention. Process and sample grammar: [`eval/forge-skill/README.md`](eval/forge-skill/README.md).
+
 ## Use from Claude Code
 
 Six skills are exposed to Claude Code via the plugin marketplace at

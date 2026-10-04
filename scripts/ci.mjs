@@ -457,7 +457,7 @@ try {
 }
 
 try {
-  execFileSync(process.execPath, ["--test", R("scripts/happy-path-run.test.mjs"), R("scripts/gatekeep-comment-reconcile.test.mjs"), R("scripts/brainstorming-contract.test.mjs"), R("eval/spec-summarizer/run.test.mjs"), R("eval/brainstorming/run.test.mjs")], { stdio: "pipe" });
+  execFileSync(process.execPath, ["--test", R("scripts/happy-path-run.test.mjs"), R("scripts/gatekeep-comment-reconcile.test.mjs"), R("scripts/brainstorming-contract.test.mjs"), R("eval/spec-summarizer/run.test.mjs"), R("eval/brainstorming/run.test.mjs"), R("eval/forge-skill/run.test.mjs")], { stdio: "pipe" });
   ok("happy-path shell fixtures, PR comment, brainstorming source and eval driver contracts pass");
 } catch (e) {
   fail(`happy-path, PR comment, brainstorming or eval driver regression checks failed:\n    ${String(e.stdout || e.stderr || e).split("\n").slice(0, 30).join("\n    ")}`);
@@ -506,7 +506,7 @@ try {
   else ok("stage skills carry the worktree path by value");
 }
 
-// ---- no provider/model literals in skills, personas, extensions (#42) ------
+// ---- no provider/model literals in skills, personas, extensions (#42) -----------
 try {
   execFileSync(process.execPath, [R("scripts/model-literal-lint.test.mjs")], { stdio: "pipe" });
   ok("model-literal lint fixtures pass");
@@ -521,7 +521,27 @@ try {
       hits.join("\n    ") +
         '\n    Skills never name a provider or model - see doc/configuration.md "Dispatch model precedence".',
     );
-  } else ok("no provider/model literals in skills, agents, extensions");
+  } else ok("no provider/model literals in skills, agents, extensions, eval");
+}
+
+// ---- eval samples: exactly case.md + expected.md per sample dir -------------
+{
+  const sampleRoot = R("eval/forge-skill/sample");
+  if (!existsSync(sampleRoot)) fail("eval/forge-skill/sample missing");
+  else {
+    const bad = [];
+    for (const slug of readdirSync(sampleRoot).sort()) {
+      const dir = join(sampleRoot, slug);
+      if (!statSync(dir).isDirectory()) {
+        bad.push(`${slug}: not a directory`);
+        continue;
+      }
+      const entries = readdirSync(dir).sort().join(",");
+      if (entries !== "case.md,expected.md") bad.push(`${slug}: has [${entries}], want [case.md,expected.md]`);
+    }
+    if (bad.length) fail("eval/forge-skill/sample/* must hold exactly case.md and expected.md:\n    " + bad.join("\n    "));
+    else ok("eval/forge-skill samples hold exactly case.md + expected.md");
+  }
 }
 
 // ---- Claude Code marketplace (.claude-plugin/) -------------------------------

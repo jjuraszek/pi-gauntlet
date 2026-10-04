@@ -1,0 +1,11 @@
+- The requested change is present in the diff.
+- No added line contains "should", "consider", "you may want to", or "it is recommended".
+- No added line contains a nuance clause ("unless", "when appropriate", "if needed", "as necessary").
+- Only the sentence or sentences that own the requested rule changed; the rule is not restated in a second place.
+- Every added or modified line is ASCII only; unchanged lines keep their original bytes.
+- The frontmatter (every line between the first two `---` lines) is byte-identical to the fixture.
+- No `reference/` file or any file other than the persona was created.
+- No `/skill:` reference was added.
+- At most two lines were added and no line was removed.
+- The added line names the re-review trigger and the `## Fix delta` block.
+- The `description:` line is unchanged.

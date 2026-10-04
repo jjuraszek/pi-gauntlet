@@ -4,6 +4,10 @@
 
 - eval/brainstorming/replay: the live-tool replay harness code and verdict tables are committed; private inputs and transcripts are documented as non-committable.
 
+### Added
+
+- **forge-skill persona rules and eval harness.** `skills/forge-skill/SKILL.md` gains `## Persona rules` (the body is the whole system prompt, `description` is a routing label, frontmatter stays byte-identical unless a knob is named, tools stay as narrow as the job, no `/skill:` or `reference/` machinery, no reload step in pi) and marks its three skill-only authoring rules `Skills only:`. `eval/forge-skill/` is a fact-judged eval driver (worker edit, two reviewers, arithmetic kept/disputed/lost, refusal-guarded `compare`) with ten samples, six of them persona edits (four from `agents/` history, two constructed to exercise the persona rules); it ships outside the package; `scripts/ci.mjs` runs its deterministic driver tests and checks sample shape (exactly `case.md` + `expected.md`). The sample files are `case.md` (fixture files plus the edit request, fenced) and `expected.md`, and raw results stay under `$TMPDIR` - both deliberate deviations from `eval/README.md`, recorded in the spec. Baseline-vs-candidate judgment is recorded in the spec's `## Eval judgment`.
+
 ## v7.2.1 - 2026-10-04
 
 ### Changed
