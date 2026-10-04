@@ -169,6 +169,7 @@ for (const file of walk(R("eval"))) {
     if (/\/Users\/[^/]+/.test(line)) evalHits.push(`${where}: /Users/ path`);
     const stripped = line.replace(/github\.com\/jjuraszek\//gi, "").replace(/jjuraszek\/pi-gauntlet#\d+/gi, "");
     if (/jjuraszek/i.test(stripped)) evalHits.push(`${where}: owner handle outside a URL or ticket ref`);
+    if (file.includes("/eval/brainstorming/") && /gridstrong|customer-ops|gs_core|excavation|\bE-[0-9]{3,}|PRC-[0-9]/i.test(line)) evalHits.push(`${where}: consumer-project token`);
   });
 }
 if (evalHits.length) fail(`eval/ hygiene:\n    ${evalHits.join("\n    ")}`);
@@ -456,7 +457,7 @@ try {
 }
 
 try {
-  execFileSync(process.execPath, ["--test", R("scripts/happy-path-run.test.mjs"), R("scripts/gatekeep-comment-reconcile.test.mjs"), R("scripts/brainstorming-contract.test.mjs"), R("eval/spec-summarizer/run.test.mjs")], { stdio: "pipe" });
+  execFileSync(process.execPath, ["--test", R("scripts/happy-path-run.test.mjs"), R("scripts/gatekeep-comment-reconcile.test.mjs"), R("scripts/brainstorming-contract.test.mjs"), R("eval/spec-summarizer/run.test.mjs"), R("eval/brainstorming/run.test.mjs")], { stdio: "pipe" });
   ok("happy-path shell fixtures, PR comment, brainstorming source and eval driver contracts pass");
 } catch (e) {
   fail(`happy-path, PR comment, brainstorming or eval driver regression checks failed:\n    ${String(e.stdout || e.stderr || e).split("\n").slice(0, 30).join("\n    ")}`);

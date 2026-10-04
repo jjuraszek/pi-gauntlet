@@ -1,0 +1,56 @@
+{
+  "sample": "review-and-apply-containment",
+  "arm": "baseline",
+  "candidate_model": "github-copilot/gpt-6-astra",
+  "thinking": "high",
+  "reviewers": [
+    "github-copilot/kimi-k3",
+    "anthropic-fable/claude-fable-5-1"
+  ],
+  "persona_sha256": "7e00c2bc78a8c73ca5ea1ab281b3cf2d9b06a8f41b54b6688ecae31b7e74932f",
+  "repo_sha": "b75937c30d5457e41d84b58739872c0ff6a351df",
+  "input_sha256": "5b0dc30c96a5909375f260cbb0830f6f644abdc1e38af2190ea74d4ca1853054",
+  "text": "## 1. First message to the user\n\nI’ve read the gathered draft and supplied fixtures. I’m adopting T-3’s recorded decisions: reuse ordinary per-field candidates, keep producer changes and migrations out of scope, preserve validation, and isolate child failures so successful children still apply.\n\nThe fixtures support the producer premise: svc-b already emits `parked: true` and wrapped provenance (`svc-b/point-contract.md`). They also locate the failure boundary in response application, not candidate acceptance: nested children bypass candidate creation, an invalid save aborts processing, and raw responses are retained only on completion (`svc-a/response-consumer.md`). The existing acceptance rescue therefore does not solve this failure (`svc-a/field-review.md`).\n\nOne correction matters before choosing an approach: **blanking only the invalid far endpoint may still leave an invalid row**. Either far endpoint derives linear shape, which requires both endpoints (`svc-a/point-validation.md`). I’ll interpret T-3’s blanking decision as producing a validation-compliant parked baseline, clearing coupled endpoint attributes where necessary and retaining their original wrapped values as ordinary candidates. If no valid baseline can be persisted, that child remains an isolated failure with retained raw detail.\n\nThe fixtures establish the existing review mechanism, but not its implementation hooks or whether it can accept coupled endpoint candidates together. Primary code and tracker details beyond the supplied T-3 record remain unverified; no additional lookups were performed because this exercise excludes tools.\n\n## 2. Approaches message\n\n**I recommend a child-scoped application boundary that reuses ordinary field review.** Retain the raw response before applying children. For each child, prepare a valid row and its pending candidates, then persist them atomically within an independently recoverable boundary. Valid siblings continue when another child fails; retain child-specific failure details and fail the application only when none apply, as T-3 records.\n\nFor already-parked points, this would connect the nested route to ordinary candidate creation rather than changing svc-b. For malformed children, it would blank attributes needed to obtain a valid parked baseline and preserve the displaced wrapped values as candidates with their actual provenance. If validation or required provenance prevents that operation, roll back that child and retain its raw failure detail—never invent provenance or bypass validation. This has the smallest ownership footprint: response application owns containment, persisted rows and field candidates own review state, and the form exposes it.\n\nThe form would visibly distinguish parked rows and show their ordinary pending candidates, retaining the existing confirm and remove semantics from `svc-a/point-form.md`. Coupled endpoint review needs particular care: use an existing grouped-acceptance facility if available, or narrowly extend shared acceptance to validate selected endpoint candidates together. Two individually invalid intermediate saves must not make the parked row impossible to repair.\n\n**A second approach is a separate preparation phase followed by application.** First derive proposed row attributes, candidate payloads, and diagnostics without saving anything; then apply each prepared child with the same isolation guarantees. This provides a particularly testable boundary for endpoint sanitization and provenance handling. Its cost is additional intermediate structure, and preparation cannot replace persistence-time validation. I would choose it if primary-code inspection reveals substantial parsing and validation logic tangled into the consumer.\n\n**A third approach is routing nested children through the existing ordinary application path.** If that path already supports child creation, parked rows, provenance-bearing candidates, and independent failures, extending it could remove the bypass with less duplicated behavior. The risk is changing unrelated processing semantics or forcing a new-child workflow through a path designed for existing rows. The fixtures establish reusable review contracts, not that this broader application path is suitable, so I would not make that dependency the default.\n\nFor the recommended approach, the decisive tests are parked-row visibility, genuine candidate provenance, a malformed child beside a successful sibling, raw retention when every child fails, coupled-endpoint sanitization and acceptance, and unchanged validation and confirm/remove behavior. No separate review entity, producer change, or backfill is needed.",
+  "words": 626,
+  "backtick_lines": 3,
+  "path_tokens": 6,
+  "facts": {
+    "holds": {
+      "github-copilot/kimi-k3": "no",
+      "anthropic-fable/claude-fable-5-1": "yes"
+    },
+    "no-pivot": {
+      "github-copilot/kimi-k3": "yes",
+      "anthropic-fable/claude-fable-5-1": "yes"
+    },
+    "review": {
+      "github-copilot/kimi-k3": "yes",
+      "anthropic-fable/claude-fable-5-1": "yes"
+    },
+    "containment": {
+      "github-copilot/kimi-k3": "yes",
+      "anthropic-fable/claude-fable-5-1": "yes"
+    },
+    "constraints": {
+      "github-copilot/kimi-k3": "no",
+      "anthropic-fable/claude-fable-5-1": "no"
+    },
+    "pattern": {
+      "github-copilot/kimi-k3": "no",
+      "anthropic-fable/claude-fable-5-1": "no"
+    }
+  },
+  "quality": {
+    "github-copilot/kimi-k3": "readable",
+    "anthropic-fable/claude-fable-5-1": "readable"
+  },
+  "rationale": {
+    "github-copilot/kimi-k3": "Approaches keep the svc-a review/containment design with cited fixtures and tradeoffs, but the first message offers a correction rather than an explicit framing-holds statement, rerun-vs-backfill is not explicitly preserved, and no Pattern line cites a fixture file.",
+    "anthropic-fable/claude-fable-5-1": "First message cites what was checked and adopts the framing; approaches keep per-field candidates, containment, and no producer change, but it never mentions rerunning old rows (only 'no backfill') and has no Pattern line, and the length keeps it short of a briefing."
+  },
+  "aggregate": {
+    "kept": 3,
+    "disputed": 1,
+    "lost": 2
+  }
+}

@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Changed
+
+- **brainstorming: challenges the ask instead of hardening it.** The scout's recon carries a `Framing:` finding (the strongest cited case that the request as framed is the wrong change, or `no objection`); the main loop verifies it without skipping premise verification and, with a cited concern and a named alternative, asks one framing question (`A) as framed`, `B) pivot: <alternative> - <reason>`, `C) smaller or none`) before any other question - otherwise it opens with a one-sentence holds-statement naming what was checked. Approaches must differ on a named axis, consider a reuse-only option and one that drops an assumption from the ask, and each ends with a `Pattern:` line cited to a repo location; a repo convention that is itself debt is named and is never the recommendation unless the user or an adopted ticket decision kept the ask as framed. New Red Flag for approaches that skip the framing question or the holds-statement. Spec council unchanged.
+
 ## v7.2.0 - 2026-10-04
 
 ### Changed

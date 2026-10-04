@@ -166,3 +166,40 @@ test('spec-summarizer emits a capped briefing and never writes a file', () => {
   for (const marker of ['at most 300 words', 'Missing from the spec', 'do **not** attempt to write']) assert.ok(text.includes(marker), marker);
   assert.ok(!text.includes('gap footer'), 'gap footer wording removed');
 });
+
+test('gatherer scout template carries the framing finding as evidence, not verdict', () => {
+  const text = read('skills/brainstorming/gatherer.md');
+  const scout = text.slice(text.indexOf('Scout (always dispatched):'), text.indexOf('Context-builder (conditional):'));
+  let left = scout.indexOf('already solves any of this');
+  let right = scout.indexOf('Framing: <the strongest cited case');
+  assert.ok(left > -1 && right > -1 && left < right, 'Framing follows the already-solves clause');
+  left = scout.indexOf('Framing: <the strongest cited case');
+  right = scout.indexOf('Predecessor check:');
+  assert.ok(left > -1 && right > -1 && left < right, 'Framing precedes the predecessor check');
+  for (const marker of ['Framing: no objection - checked <what was read>', 'not a verdict - the main loop decides']) assert.ok(scout.includes(marker), marker);
+});
+
+test('section 3 asks the framing question once, with a named alternative, after the premise correction', () => {
+  const text = main();
+  const section = text.slice(text.indexOf('### 3. Understand the idea'), text.indexOf('### 4. Explore approaches'));
+  const left = section.indexOf('Before approaches, state in chat');
+  const right = section.indexOf('verify the draft\'s `Framing:` line');
+  assert.ok(left > -1 && right > -1 && left < right, 'framing paragraph follows the premise note');
+  for (const marker of ['A) as framed', 'B) pivot:', 'C) smaller or none:', 'The framing holds: checked', 'After any premise correction in the same message, ask the framing question or give the holds-statement', 'at most once per brainstorm', 'Framing: kept', 'Framing: pivoted to <x> - <why>', '## Appended during questionary', 'the count restarts', 'adds to the premise verification above', 'trace every consumer, caller, and data path']) assert.ok(section.includes(marker), marker);
+  assert.match(section, /^Bad: `The ask adds another settings path - should we\? Recommendation: no`$/m);
+  assert.match(section, /^Good: `.*A\) as framed B\) pivot: .* C\) smaller or none: .* Recommendation: B - .*`$/m);
+});
+
+test('section 4 demands distinct, pattern-judged approaches and section 5 refuses to extend debt', () => {
+  const text = main();
+  const four = text.slice(text.indexOf('### 4. Explore approaches'), text.indexOf('### 5. Design for clarity and isolation'));
+  for (const marker of ['(the axis)', 'reuse-only option (no new construct)', 'drops an assumption the ask makes', 'not viable -', 'does not count toward the 2-3', 'Pattern: <what it follows or cuts across, cited to a repo location>', 'sound engineering practice first, then repo rules', 'never recommend an approach that extends it', 'kept the ask as framed', 'the condition that would flip it']) assert.ok(four.includes(marker), marker);
+  const five = text.slice(text.indexOf('### 5. Design for clarity and isolation'), text.indexOf('### 6. Present the design in two rounds'));
+  assert.ok(five.includes('when the convention is the debt, say so and do not extend it'), 'section 5 clause');
+});
+
+test('red flags stop approaches that skip the framing question or the holds-statement', () => {
+  const text = main();
+  assert.match(text, /^- Approaches before the framing question or the holds-statement .*; a holds-statement that names nothing checked \(\[owner\]\(#3-understand-the-idea\)\)\.$/m);
+  assert.ok(text.includes("- Approaches before the premise note states a contradicted claim's correction ([owner](#3-understand-the-idea))."), 'premise red flag retained');
+});

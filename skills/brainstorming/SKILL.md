@@ -100,13 +100,22 @@ Append only citable findings - schemas, hard constraints, contradictions, and sc
 
 Before approaches, state in chat the supported, disproved, corrected, and unverified premises with sources and attempted lookups, in full sentences - no status-keyword lists, no template; if the design depends on no claims, one sentence says so. An unverified claim is not a stop: put it in Open Questions or a stated assumption. If a load-bearing claim is contradicted, the premise note is your next message - even as question one - and states the corrected fact with its source; the design continues on it and the user overrides in reply. Record the corrected fact, and any override, in the draft for `## Problem` or the relevant design decision.
 
+Before question one, verify the draft's `Framing:` line against primary code and add your own recon. This check adds to the premise verification above and never replaces it: trace every consumer, caller, and data path the ask's constraints name before writing the holds-statement or the question, and name those traces in the holds-statement, not only the files read. A framing concern exists when you can state a cited case that the ask is misdiagnosed, wrong-sized, already solved, a band-aid where the root cause is reachable, or cuts across a sound pattern - including a repo convention that is itself the debt - and can name the alternative it implies; an objection without an alternative is a lead to investigate, not a concern. With a concern, question one is the framing question in the questionary format: `A) as framed`, `B) pivot: <named alternative> - <cited reason>`, `C) smaller or none: <what ships, or what happens if nothing ships>`, `Recommendation: <letter> - <why>`; for a band-aid concern, B carries the root-cause alternative. Without a concern, open the first message with one sentence naming what was checked - `The framing holds: checked <x>, <y>` - and continue to the first ordinary question; a scout objection that yielded no alternative is named among the things checked.
+
+After any premise correction in the same message, ask the framing question or give the holds-statement. Ask the framing question at most once per brainstorm, including after pushback; the user's reply is final, and later doubts on the same point go to Open Questions or a `Pattern:` line. Recommend; never pivot without the reply. A ticket-recorded decision on the exact point follows the ticket rule above; an adopted decision records `Framing: kept (ticket <id>)`. A pivot never rewrites AC rows: rows it no longer satisfies take `deviates:` dispositions, and a pivot that changes the topic re-mints the slug.
+
+Record the outcome in the draft under `## Appended during questionary` as `Framing: kept` or `Framing: pivoted to <x> - <why>`; spec-writing carries that line into `## Problem`. On redraw entry (checklist step 4) the count restarts: run this evaluation once against the new draft. On redraw the draft is the approved spec: its `## Problem` `Framing:` line is context, not scout evidence, and the new outcome is recorded directly in `## Problem`. When the scout failed there is no `Framing:` line; the holds-statement or the question still comes from your own recon.
+
+Bad: `The ask adds another settings path - should we? Recommendation: no`
+Good: `The ask adds a second settings path beside the resolver that already owns every setting (settings/resolver.ts:11). A) as framed B) pivot: a key under the existing resolver - one read path, no new boundary C) smaller or none: document the default and ship no setting. Recommendation: B - the owning schema already exists.`
+
 ### 4. Explore approaches
 
-Propose 2-3 approaches with trade-offs; lead with the recommendation and explain it. Use conversational prose unless the user asks for a table.
+Propose 2-3 genuinely distinct approaches and name what separates them (the axis), comparing them on explicit trade-offs. Consider two candidates in every set: the minimal reuse-only option (no new construct) and an option that drops an assumption the ask makes which the framing reply, if any, did not settle; list each when viable, otherwise state in one sentence with evidence why not (`reuse-only: not viable - the only existing path is the one identified as debt`); a non-viable candidate is not an approach and does not count toward the 2-3. End each approach with `Pattern: <what it follows or cuts across, cited to a repo location>` - judge against sound engineering practice first, then repo rules; when the repo's own convention is the debt, say so, and never recommend an approach that extends it - unless the framing reply or an adopted ticket decision kept the ask as framed: then recommend the best as-framed approach and name the debt in its `Pattern:` line. A `Pattern:` line names things like a band-aid over a shared contract, a second settings path beside the owning one, or a layer bypassed for one caller - the judgment comes from the repo and your own engineering knowledge, not a list. Lead with the recommendation and end with the condition that would flip it. Use conversational prose unless the user asks for a table.
 
 ### 5. Design for clarity and isolation
 
-Prefer clear testable boundaries, YAGNI, existing conventions, the owning schema/contract rather than parallel state, and explicit errors and edge cases.
+Prefer clear testable boundaries, YAGNI, existing conventions when they are sound - when the convention is the debt, say so and do not extend it - the owning schema/contract rather than parallel state, and explicit errors and edge cases.
 
 ### 6. Present the design in two rounds
 
@@ -168,6 +177,7 @@ Redraw: keep the worktree and the approved spec file. `plan_tracker({ action: "c
 - Missing predecessor banner; invalid multi-spec split ([owner](#spec-self-review-before-user-review-gate); [owner](#2-scope-check)).
 - Gate reached without the second predecessor pass ([owner](#spec-self-review-before-user-review-gate)).
 - Approaches before the premise note states a contradicted claim's correction ([owner](#3-understand-the-idea)).
+- Approaches before the framing question or the holds-statement (either may follow the premise correction in the same message); a holds-statement that names nothing checked ([owner](#3-understand-the-idea)).
 - Amend without `reference/amendment-surface.md`; waiting after an amend grant; auto-applying a redraw ([owner](#amending-an-approved-spec)).
 
 ## Project overrides

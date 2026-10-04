@@ -1,0 +1,56 @@
+{
+  "sample": "review-and-apply-containment",
+  "arm": "candidate",
+  "candidate_model": "github-copilot/gpt-6-astra",
+  "thinking": "high",
+  "reviewers": [
+    "github-copilot/kimi-k3",
+    "anthropic-fable/claude-fable-5-1"
+  ],
+  "persona_sha256": "089283e50f31cb2c5c915fa5a56e6e722a15714c170d5cd825d8abccc3d14ed0",
+  "repo_sha": "b75937c30d5457e41d84b58739872c0ff6a351df",
+  "input_sha256": "5b0dc30c96a5909375f260cbb0830f6f644abdc1e38af2190ea74d4ca1853054",
+  "text": "## 1. First message to the user\n\nThe framing holds within the supplied fixtures: I checked the producer’s parked/provenance output → nested direct-save → persisted-row candidate path, the separate candidate-acceptance loop, child-save failure → abort → completion-only raw storage, parked-row rendering → confirm/remove, and far-endpoint presence → shape validation.\n\nThe fixtures support reusing ordinary field candidates rather than introducing another review entity (`svc-b/point-contract.md`, `svc-a/field-review.md`). They also rule out fixing this merely by relying on candidate acceptance’s existing rescue: the failing nested application path bypasses that loop (`svc-a/response-consumer.md`).\n\nOne important qualification to “blank invalid attributes” is that blanking just one far endpoint may leave the row invalid. Either remaining endpoint derives a linear shape, which requires both endpoints. Recovery must therefore clear an inconsistent endpoint pair when necessary, while preserving the original wrapped values and their provenance as pending candidates (`svc-a/point-validation.md`, `svc-a/field-review.md`). Validation itself stays unchanged.\n\nI’m adopting T-3’s supplied recorded decisions: ordinary field review, parked recovery with original candidates, no migration, partial application with retained failure detail, and no producer or validation-contract changes. The draft carry-forward is `Framing: kept (ticket T-3)`, together with the endpoint-pair constraint above. No file edits or additional lookups are performed in this no-tools response; executable call sites, persistence APIs, minimum valid parked-row attributes, and any further tracker or ecosystem implementation remain unverified.\n\nOne success criterion remains ambiguous in “fail only when none apply”: **what should happen when every child is recovered into a persisted parked row with its original pending candidates, but no child becomes live?**\n\nA) Complete without application failure, making the need for review visible.  \nB) Mark the application failed, while retaining the parked rows and candidates for review.  \nC) other - name it.\n\nRecommendation: A - the children were durably recovered into the agreed review path; “needs review” should not itself mean application failure.\n\n## 2. Approaches message\n\n**I recommend localized reuse in the downstream response consumer.** The separating axis is how much application orchestration changes: repair the existing route, introduce a small child-application boundary, or replace direct nested application with candidate-first ingestion.\n\nThe supplied recorded answers settle the main scope decisions. They do not explicitly settle the all-parked outcome above, so I use A as a stated assumption rather than another recorded decision.\n\nAll approaches should preserve these invariants:\n\n- Retain the raw response before child application, outside anything rolled back when application fails; associate malformed-child detail with its original payload.\n- Contain expected malformed-child failures at the downstream application boundary—not merely at candidate acceptance.\n- Save each recovered parked row and its required pending candidates atomically. Candidates retain real wrapped provenance; missing provenance cannot be invented.\n- Preserve the two-endpoint validation contract. If no valid parked representation can be persisted, retain that child’s failure detail and continue with other children.\n- Distinguish parked rows in the existing form and expose ordinary field review, retaining confirm/remove behavior (`svc-a/point-form.md`).\n- Fail for child-application outcomes only when no child was durably applied. Do not migrate old rows; rerun processing.\n\n### A) Localized reuse — recommended\n\nKeep orchestration in the existing consumer. Add child-local recovery and transaction handling, connect parked children to ordinary pending candidates, move raw-response retention ahead of application, and distinguish parked rows in the existing form. Add no new service, review entity, or parallel state.\n\nThis is the smallest change and directly reaches the failing path. Its downside is a more substantial consumer method; recovery, candidate creation, and partial-success accounting need focused tests.\n\nPattern: repairs the nested route’s bypass of the owning field-review contract rather than extending that bypass (`svc-a/response-consumer.md`, `svc-a/field-review.md`).\n\n### B) Introduce a narrow child applier\n\nHave the consumer retain the response and iterate children, delegating each child’s normalization, validation, row persistence, and candidate persistence to one small application boundary. Return an explicit applied-or-rejected result with failure detail; leave run-level success accounting with the consumer.\n\nThis makes malformed-input and transaction tests clearer and keeps the consumer’s responsibilities narrow. It adds an abstraction that may be unnecessary if this is genuinely the only caller. The existing candidate schema remains the owner of review state.\n\nPattern: places isolation around the actual failing operation, without broadening or repurposing the already-isolated candidate-acceptance loop (`svc-a/response-consumer.md`, `svc-a/field-review.md`).\n\n### C) Candidate-first ingestion for all nested points\n\nDrop the assumption that grounded nested children should retain their direct-save route. Establish a valid persisted target, stage wrapped fields through ordinary candidates, leave weak values pending, and apply grounded values in validation-coherent groups.\n\nThis creates a more uniform ingestion path, but expands the change to grounded points and requires coordinated application of coupled fields. The excerpts do not establish that the necessary target-creation and grouped-application APIs already exist; this option must provide them without weakening validation.\n\nPattern: removes the direct-save bypass more broadly and uses the owning candidate contract, while respecting endpoint coupling (`svc-a/response-consumer.md`, `svc-a/field-review.md`, `svc-a/point-validation.md`).\n\nI would switch from A to B if primary-code tracing finds multiple callers needing identical recovery or enough transaction complexity to justify a separate boundary. C becomes preferable only if T-3 deliberately expands to unifying grounded ingestion too.",
+  "words": 815,
+  "backtick_lines": 7,
+  "path_tokens": 16,
+  "facts": {
+    "holds": {
+      "github-copilot/kimi-k3": "yes",
+      "anthropic-fable/claude-fable-5-1": "yes"
+    },
+    "no-pivot": {
+      "github-copilot/kimi-k3": "yes",
+      "anthropic-fable/claude-fable-5-1": "yes"
+    },
+    "review": {
+      "github-copilot/kimi-k3": "yes",
+      "anthropic-fable/claude-fable-5-1": "yes"
+    },
+    "containment": {
+      "github-copilot/kimi-k3": "yes",
+      "anthropic-fable/claude-fable-5-1": "yes"
+    },
+    "constraints": {
+      "github-copilot/kimi-k3": "yes",
+      "anthropic-fable/claude-fable-5-1": "yes"
+    },
+    "pattern": {
+      "github-copilot/kimi-k3": "yes",
+      "anthropic-fable/claude-fable-5-1": "yes"
+    }
+  },
+  "quality": {
+    "github-copilot/kimi-k3": "briefing",
+    "anthropic-fable/claude-fable-5-1": "readable"
+  },
+  "rationale": {
+    "github-copilot/kimi-k3": "First message states the framing holds with named checked surfaces and files; approaches keep the svc-a design, reuse ordinary candidates with provenance, preserve containment/validation/no-backfill invariants, and cite fixture files in Pattern lines with a clear evidence-linked recommendation and tradeoffs.",
+    "anthropic-fable/claude-fable-5-1": "States the framing holds with the checked producer, review, and consumer sources, preserves every recorded decision without a producer pivot, and cites fixture files in Pattern lines, but the verbose detail keeps it short of a concise briefing."
+  },
+  "aggregate": {
+    "kept": 6,
+    "disputed": 0,
+    "lost": 0
+  }
+}

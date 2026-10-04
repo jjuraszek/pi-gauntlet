@@ -1,0 +1,56 @@
+{
+  "sample": "latest-run-indicator",
+  "arm": "candidate",
+  "candidate_model": "github-copilot/gpt-6-astra",
+  "thinking": "high",
+  "reviewers": [
+    "github-copilot/kimi-k3",
+    "anthropic-fable/claude-fable-5-1"
+  ],
+  "persona_sha256": "089283e50f31cb2c5c915fa5a56e6e722a15714c170d5cd825d8abccc3d14ed0",
+  "repo_sha": "b75937c30d5457e41d84b58739872c0ff6a351df",
+  "input_sha256": "4ce196ffe6d9801b6e9fa8192211c3260ec1f0b0cbed6aecf465c0f954372338",
+  "text": "## 1. First message to the user\n\nI read the draft and am retaining T-1’s binding outcome: a visible workspace processing date with that same run’s producer revision reachable from the indicator, using persisted data only. The recorded answers also retain all three surfaces.\n\nThe supplied fixtures support the provenance distinction. I traced the workspace’s latest succeeded run to the document card; the `(file, destination)` placement’s latest succeeded run through the shared file-hover renderer; and candidate relationships from the root and its descendants to the root badge’s latest succeeded run (`svc-a/workspace.md`, `svc-a/file-chip.md`). These are different selections: a file must never borrow another placement’s run. Latest succeeded runs use completion date descending, then ID descending (`svc-a/run-store.md`).\n\nThe draft overstates the persistence work still needed: successful completion **already stores svc-a’s release identity on the run**, according to `svc-a/run-store.md`. That is the corrected premise for the redraw’s `## Problem`. Deploying together also does not establish version equivalence: the release tag displays only when svc-a’s revision matches the producer revision. Missing persisted producer versions display “unknown version.” Rendering must not call svc-b (`svc-b/response-contract.md`).\n\nThus, the fixtures describe much of the requested solution already. Historical release-identity coverage and whether executable UI behavior fulfills these descriptions remain unverified: only the supplied fixtures and T-1 summary were available, and I performed no tool lookups as requested.\n\n**What work should remain in scope, given that existing coverage?**\n\nA) **As framed** — proceed with the proposed three-surface provenance and run-persistence implementation, reconciling it with existing functionality.\n\nB) **Pivot: compliance verification and targeted fixes** — retain all three surfaces, but change only demonstrated gaps; the supplied run-store and workspace contracts already describe the persistence and provenance paths.\n\nC) **Smaller or none: assessment only** — document the described coverage and remaining verification gaps, without authorizing implementation.\n\nRecommendation: B - it preserves every recorded product outcome without duplicating provenance selection or persistence that the fixtures already provide.\n\n## 2. Approaches message\n\n**I recommend reuse-only first.** Keeping all three recorded surfaces does not require new provenance state. The two approaches differ in whether existing presentation primitives remain unchanged or gain an explicit interaction for accessing run details. Neither assumes approval to remove a surface.\n\n### 1. Reuse the existing selectors, persistence, and presentation\n\nUse the document card’s workspace-wide latest succeeded run, the file tooltip’s placement-specific run, and the root badge’s latest succeeded run touching the root or descendants. Populate each indicator’s date and version from **one selected run**, rather than selecting those fields independently.\n\nKeep browser-local date-time, quiet styling, spacing, and the shared file-hover renderer. Reuse successful-completion release persistence. Show a release tag only when its revision matches the producer revision; otherwise retain the persisted producer revision, or “unknown version” when absent. Do not backfill historical identity from today’s deployment.\n\nThis is the minimal reuse-only option: no new schema, duplicated item state, synchronization, or presentation construct. Its trade-off is accepting the existing interaction’s capabilities, which still need verification.\n\nAcceptance checks should cover differing placements, a newer descendant contribution, failed-run exclusion, equal completion timestamps, missing versions, and mismatched release identities. If the existing behavior passes, this approach can finish with verification rather than feature changes.\n\nPattern: follows the existing persisted-run ownership and shared hover reuse, without stamping provenance onto files or items (`svc-a/run-store.md`, `svc-a/file-chip.md`, `svc-a/workspace.md`).\n\n### 2. Extend the shared interaction for explicit run-detail access\n\nKeep exactly the same persisted selections and all three surfaces, including the file tooltip. Extend the shared presentation primitive so the date or badge can expose its selected run’s details through keyboard and touch activation, rather than relying on pointer hover alone.\n\nThis drops the assumption that hover is sufficient for revision reachability; it does **not** drop the recorded file-tooltip requirement. The visible date remains, and the detail content shows the same run’s producer revision and eligible release tag.\n\nThe benefit is more explicit, accessible access to provenance. The cost is shared interaction work—focus handling, dismissal, touch behavior, and regression tests—which is unnecessary if the current renderer already supports these needs. It introduces no alternative provenance resolver or storage.\n\nPattern: extends the shared renderer at its owning boundary instead of creating a file-only interaction or a second provenance path (`svc-a/file-chip.md`); persisted-only rendering remains intact (`svc-b/response-contract.md`).\n\nI would switch from the first approach to the second only if verification shows that the existing indicators cannot reliably expose the same run’s revision through the required input modes.",
+  "words": 717,
+  "backtick_lines": 4,
+  "path_tokens": 10,
+  "facts": {
+    "framing": {
+      "github-copilot/kimi-k3": "no",
+      "anthropic-fable/claude-fable-5-1": "no"
+    },
+    "pivot": {
+      "github-copilot/kimi-k3": "yes",
+      "anthropic-fable/claude-fable-5-1": "yes"
+    },
+    "surfaces": {
+      "github-copilot/kimi-k3": "yes",
+      "anthropic-fable/claude-fable-5-1": "yes"
+    },
+    "selection": {
+      "github-copilot/kimi-k3": "yes",
+      "anthropic-fable/claude-fable-5-1": "yes"
+    },
+    "missing": {
+      "github-copilot/kimi-k3": "yes",
+      "anthropic-fable/claude-fable-5-1": "yes"
+    },
+    "release": {
+      "github-copilot/kimi-k3": "yes",
+      "anthropic-fable/claude-fable-5-1": "yes"
+    }
+  },
+  "quality": {
+    "github-copilot/kimi-k3": "readable",
+    "anthropic-fable/claude-fable-5-1": "readable"
+  },
+  "rationale": {
+    "github-copilot/kimi-k3": "The first message never poses the false-provenance/revision-omits-date framing question, but the approaches explicitly preserve run-level release persistence, join-derived provenance without stamping, all three quiet surfaces with same-run date+version per grain, unknown-version handling, no svc-b calls, and match-gated release tags; the holds-statement and scoped options are clear though embedded in substantial implementation detail.",
+    "anthropic-fable/claude-fable-5-1": "Framing asks a scope question (reuse vs. build) rather than questioning false provenance from a workspace-wide revision or a date-less revision badge, but the approaches preserve all surfaces, per-grain same-run selection, unknown-version and no-svc-b rules, release-tag matching, and cite fixture files."
+  },
+  "aggregate": {
+    "kept": 5,
+    "disputed": 0,
+    "lost": 1
+  }
+}
