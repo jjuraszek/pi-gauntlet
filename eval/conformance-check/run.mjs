@@ -235,7 +235,8 @@ function runArm(argv) {
   const out = opts.out ? resolve(opts.out) : mkdtempSync(join(tmpdir(), `eval-${opts.arm}-`));
   mkdirSync(out, { recursive: true });
   const scratch = mkdtempSync(join(tmpdir(), "eval-scratch-"));
-  const repoSha = execFileSync("git", ["rev-parse", "HEAD"], { cwd: HERE, encoding: "utf8" }).trim();
+  let repoSha;
+  try { repoSha = execFileSync("git", ["rev-parse", "HEAD"], { cwd: HERE, encoding: "utf8", stdio: ["ignore", "pipe", "ignore"] }).trim(); } catch { repoSha = "unknown"; } // a checkout without .git (CI tarball) still records
   let failed = false;
   for (const slug of slugs) {
     const base = { sample: slug, arm: opts.arm, candidate_model: opts.candidateModel, thinking: opts.thinking, reviewers, repo_sha: repoSha };
