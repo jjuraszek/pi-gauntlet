@@ -26,11 +26,11 @@ Verify (step 3) and Review (step 4) each run as a fresh helper with `cwd` the PR
 | 2b Sync (only with `--rebase`) | `reference/sync.md` | the PR worktree on the rebased, pushed head with a refreshed digest, or a `sync` record and the unsynced head | `sync` |
 | 3 Verify | `verification-brief.md` Section B | evidence record (CI-first) and one disposition per material claim | `verify` |
 | 4 Review | `verification-brief.md` Section C | reviewer findings and the internal comment ledger | `review` |
-| 5 Integrate + report | `reference/findings.md`, then `reference/report.md` | AC outcomes, blockers, nits, drafted payloads, the rendered report | `report` |
+| 5 Integrate + report | `reference/post-selection-loop.md` `### Pre-menu refresh`, then `reference/findings.md`, then `reference/report.md` | AC outcomes, blockers, nits, drafted payloads, the rendered report | `report` |
 | 6 Menu | `reference/decision-menu.md` | the menu under the verdict line, exactly one `[recommended]` | `menu` |
 | 7 Loop | `reference/post-selection-loop.md` (a `fix` pick continues in `reference/fix-wave.md`) | the executed pick; re-entry until `merge` or `stop` | (re-opens the re-entered stage) |
 
-Re-entry: a fix wave's own push re-enters step 4 through the own-push sequence (`reference/fix-wave.md` `## Evidence after push`, then `reference/post-selection-loop.md` `### Re-render`); any other head move re-enters step 3; an unchanged head re-enters step 5. A loop re-entry never re-runs step 2b; the sync runs once per invocation.
+Re-entry: a fix wave's own push re-enters step 4 through the own-push sequence (`reference/fix-wave.md` `## Evidence after push`, then `reference/post-selection-loop.md` `### Re-render`); any other head move re-enters step 3; an unchanged head re-enters step 5 through `reference/post-selection-loop.md` `### Pre-menu refresh`. A loop re-entry never re-runs step 2b; the sync runs once per invocation.
 
 ## Progress tracking
 
@@ -65,11 +65,13 @@ These bind every rendered report, menu, and external payload (review bodies, rep
 - Reading the rubric, the verification command, or any ladder source from the PR's head instead of the base branch's merge-base - owner: `reference/assessment.md` `## Configuration`.
 - Raw command output, drafted payloads, or internal IDs in the rendered report - owner: `reference/report.md`.
 - An open-PR menu, other than the conflict menu or a `--rebase` terminal stop (`stop` and `show evidence` only, `reference/sync.md`), without `fix` while a helper facility exists and the fix-round cap is neither `0` nor reached (a merged or closed PR offers `show evidence` and `stop` only); any menu without `show evidence`, with two `[recommended]`, or with `stop` not last - owner: `reference/decision-menu.md`.
-- A local verification run while CI is pending, or a second push inside one round - owner: `reference/fix-wave.md` `## Evidence after push`.
+- A local verification run while a binding check is pending, or a second push inside one round - owner: `reference/fix-wave.md` `## Evidence after push`.
 - The orchestrator resolving a merge conflict itself, or editing or committing a tracked file during a fix wave - owner: `reference/fix-wave.md` `## Conflicts` and `## Wave`.
 - A helper's duty run in the orchestrator's own context - owner: `## Harness notes`.
 - Approving your own PR - owner: `reference/decision-menu.md` `## Consent table`.
-- Merging around an undispositioned failing check or a pending required check - owner: `reference/findings.md` `## Dispositions`.
+- Merging around an undispositioned failing check or a binding pending check, or a `BLOCKED`/`UNKNOWN`/`unreadable` merge state - owner: `reference/findings.md` `## Dispositions`.
+- A menu rendered without the pre-menu refresh - owner: `reference/post-selection-loop.md` `### Pre-menu refresh`.
+- Reading `mergeStateStatus` from anything but a `gh pr view` invocation, attributing a `BLOCKED` to a named rule, or treating a non-`BLOCKED` value as a merge verdict - owner: `verification-brief.md` Section A.
 - A claim verdict recorded behind a pending tracker stage - owner: `## Progress tracking`.
 
 ## Project overrides

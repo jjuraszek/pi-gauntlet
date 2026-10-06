@@ -1,0 +1,48 @@
+{
+  "sample": "live-checkrun-pending",
+  "arm": "baseline",
+  "candidate_model": "anthropic-fable/claude-fable-5-1",
+  "thinking": "medium",
+  "reviewers": [
+    "anthropic/claude-opus-5-5",
+    "github-copilot/gpt-6-astra"
+  ],
+  "persona_sha256": "368479190430f332bcc9b548eba1274d815f99f6fd46362b485dfe1f23577e25",
+  "repo_sha": "e1affd6c4c05d368a65fd1c858a786e8017b3e7d",
+  "input_sha256": "9e2db6a893bea76a42cfff475e477d170265f133328b2633dd3ef7c11194b9db",
+  "text": "Evidence resolution (Section B), from the digest alone:\n\n- Resolved check set: no `ci checks:` config, so all three checks on `9c1e4f2`.\n- `test_unit` success, `build_image` success; `e2e` is `in_progress` with no conclusion -> pending. No blocking conclusion. Run 7003 is `waiting`/null, not `action_required`, so no held run; no opt-out.\n- Top-down: Opt-out no, Failed CI no, Held run no, **Pending yes** (CI-sufficient needs zero pending, so it does not match). Result: `source: pending`, `head_sha: 9c1e4f2`, no local run, no claim dispositions yet; a claim-check-only Section B helper runs once the re-resolve reaches CI-sufficient. The step-4 \"claims\" line is reviewer prose, not a Verifier disposition, so it does not satisfy the merge precondition.\n- `merge_state_status: UNSTABLE` is not `BEHIND`, so no `update branch` row. Digest carries `issue: null` even though the title says `ref TW-88`; the report follows the digest (no AC rows), and `show evidence` should say so.\n\n```\nDelivers: the tide-feed client retries once on a 503 before giving up.\n\nVerdict: fixable - verification evidence pending\n\n1. wait - poll the e2e check, then re-render                                 [recommended]\n2. approve - approve tlindqvist's PR\n3. fix - name the change to apply in the worktree, review the wave, push\n4. show evidence - gate output, CI run\n5. stop - leave the PR as-is\nType a number. Not offered: merge (verification evidence pending).\n```",
+  "words": 211,
+  "backtick_lines": 6,
+  "path_tokens": 0,
+  "facts": {
+    "f1": {
+      "anthropic/claude-opus-5-5": "yes",
+      "github-copilot/gpt-6-astra": "yes"
+    },
+    "f2": {
+      "anthropic/claude-opus-5-5": "no",
+      "github-copilot/gpt-6-astra": "yes"
+    },
+    "f3": {
+      "anthropic/claude-opus-5-5": "yes",
+      "github-copilot/gpt-6-astra": "yes"
+    },
+    "f4": {
+      "anthropic/claude-opus-5-5": "yes",
+      "github-copilot/gpt-6-astra": "yes"
+    }
+  },
+  "quality": {
+    "anthropic/claude-opus-5-5": "readable",
+    "github-copilot/gpt-6-astra": "cluttered"
+  },
+  "rationale": {
+    "anthropic/claude-opus-5-5": "The candidate resolves pending from the live e2e check despite the UNSTABLE merge state, puts wait first as recommended, and lists merge only under Not offered, but its reason says just 'verification evidence pending' without naming e2e. The report has one verdict line and stop last, but the Section B preamble lists passing checks and run IDs, so it falls short of crisp.",
+    "github-copilot/gpt-6-astra": "The rendering identifies the live e2e check as pending, recommends wait first, and withholds merge despite UNSTABLE, but prints passing checks, internal IDs, and resolution machinery."
+  },
+  "aggregate": {
+    "kept": 3,
+    "disputed": 1,
+    "lost": 0
+  }
+}

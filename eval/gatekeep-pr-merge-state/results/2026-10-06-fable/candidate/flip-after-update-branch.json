@@ -1,0 +1,52 @@
+{
+  "sample": "flip-after-update-branch",
+  "arm": "candidate",
+  "candidate_model": "anthropic-fable/claude-fable-5-1",
+  "thinking": "medium",
+  "reviewers": [
+    "anthropic/claude-opus-5-5",
+    "github-copilot/gpt-6-astra"
+  ],
+  "persona_sha256": "e20f32e3b687f48fe82012a2d522c7d65bab08972da21b624af5a04df9cf737e",
+  "repo_sha": "c4b292be44091d86ba19e84cbc749097f691f291",
+  "input_sha256": "fcd09ae671f8ed9ba75335ebe6511fe44e1ce898bbcc8ef010641d86ef965296",
+  "text": "**Evidence resolution (first head 9c1e4f2)**\n\nResolved set: all four checks on the head (no `ci checks:`). test_unit success, build_image success, lint skipped (inert), crew-approval `status_context` pending. Binding classification: merge_state_status is `BEHIND` (not BLOCKED/UNKNOWN/unreadable), kind is `status_context` with no run linkage - not binding. Rows top-down: no opt-out, no blocking conclusion, no held run (7001 is completed success, nothing `action_required`), Pending needs a binding pending check - none. CI-sufficient: >=1 success, zero blocking, zero binding pending. No local run.\n\nVerifier: `source: ci`, head_sha 9c1e4f2, checks test_unit/build_image success, lint skipped, crew-approval pending (not binding). Claim \"Tests cover the retry path\" -> matched (test/feed/client.test.ts:12-40). No ticket: no AC rows, no scope-creep rule. Reviewer SHIP, no findings. Merge preconditions: `merge_state_status` is `BEHIND` -> merge withheld, `update branch` renders.\n\n```\nDelivers: the tide-feed client retries once when the feed answers 503.\n\nVerdict: fixable - behind base\n\n1. approve - approve the PR on tlindqvist's behalf\n2. fix - name the change to apply in the worktree, review the wave, push\n3. update branch - merge main into the head, then fast-forward the worktree\n4. show evidence - gate output, CI run\n5. stop - leave the PR as-is                                               [recommended]\nType a number. Not offered: merge (behind base).\n```\n\n`show evidence` would print: CI test_unit success 9c1e4f2 https://github.com/harborline/tidewatch/actions/runs/7001/job/1; build_image success 9c1e4f2 .../7001/job/2; `crew-approval pending - not binding this viewer (merge_state_status BEHIND)`; claim \"Tests cover the retry path\": matched; reviewer workflow: unknown.\n\n**After update branch (head b7d0a91)**\n\nHead moved by the pick -> re-enter step 3. Pre-menu refresh: merge_state_status `UNSTABLE`, run 7101 completed success. Re-resolve: test_unit/build_image success, lint inert, crew-approval `status_context` pending with merge_state_status `UNSTABLE` - not binding. CI-sufficient again; Section B runs claim-check-only (no local run): claim matched against the diff at b7d0a91. Preconditions: mergeable MERGEABLE, merge_state_status not BEHIND/BLOCKED/UNKNOWN, evidence and claim disposition present for the assessed head, no binding pending check, no comments, worktree synced. `reviewDecision REVIEW_REQUIRED` is a locator only; UNSTABLE is not a verdict, it leaves the merge row available and a `gh pr merge` refusal would be reported verbatim.\n\n```\nDelivers: the tide-feed client retries once when the feed answers 503.\n\nVerdict: mergeable - CI green on the assessed head (test_unit, build_image)\n\n1. approve - approve the PR on tlindqvist's behalf                         [recommended]\n2. fix - name the change to apply in the worktree, review the wave, push\n3. merge - squash onto main\n4. show evidence - gate output, CI run\n5. stop - leave the PR as-is\nType a number.\n```\n\n`show evidence` now carries: test_unit and build_image success at b7d0a91 (runs/7101/job/1, /job/2); `crew-approval pending - not binding this viewer (merge_state_status UNSTABLE)`; claim matched; reviewer workflow: unknown.",
+  "words": 412,
+  "backtick_lines": 9,
+  "path_tokens": 9,
+  "facts": {
+    "f1": {
+      "anthropic/claude-opus-5-5": "yes",
+      "github-copilot/gpt-6-astra": "yes"
+    },
+    "f2": {
+      "anthropic/claude-opus-5-5": "yes",
+      "github-copilot/gpt-6-astra": "yes"
+    },
+    "f3": {
+      "anthropic/claude-opus-5-5": "yes",
+      "github-copilot/gpt-6-astra": "yes"
+    },
+    "f4": {
+      "anthropic/claude-opus-5-5": "yes",
+      "github-copilot/gpt-6-astra": "yes"
+    },
+    "f5": {
+      "anthropic/claude-opus-5-5": "yes",
+      "github-copilot/gpt-6-astra": "yes"
+    }
+  },
+  "quality": {
+    "anthropic/claude-opus-5-5": "cluttered",
+    "github-copilot/gpt-6-astra": "cluttered"
+  },
+  "rationale": {
+    "anthropic/claude-opus-5-5": "All five facts are met: the first menu offers update branch and lists merge as not offered because the branch is behind, and the second menu offers merge on CI green at b7d0a91 with crew-approval marked not binding. Each menu has one recommended row and ends with stop. The rendering is still cluttered because it prints internal resolution notes, run IDs and passing checks around the menus.",
+    "github-copilot/gpt-6-astra": "All supplied facts are explicitly satisfied, but the rendering prints internal head/run IDs, passing checks, and extensive evidence-resolution details."
+  },
+  "aggregate": {
+    "kept": 5,
+    "disputed": 0,
+    "lost": 0
+  }
+}

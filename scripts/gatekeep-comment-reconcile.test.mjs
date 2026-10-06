@@ -24,6 +24,7 @@ const baseline = read('../skills/gatekeep-pr/review-baseline.md');
 const delivery = read('../skills/check-delivery/SKILL.md');
 const fixWave = read('../skills/gatekeep-pr/reference/fix-wave.md');
 const assessment = read('../skills/gatekeep-pr/reference/assessment.md');
+const sync = read('../skills/gatekeep-pr/reference/sync.md');
 
 test('assessment.md dispatches Verify and Review as fresh helpers with no inline path', () => {
   assert.ok(!/\binline\b/i.test(assessment), 'no inline path remains');
@@ -45,7 +46,7 @@ test('all comment-refetch entrypoints reconcile source-backed body deltas', () =
   assert.match(rerender, /After every push[^\n]*then run steps 1-5 below/);
   assert.match(rerender, /^4\. Reconcile the body delta/m);
   assert.match(rerender, /^5\.[^\n]*Only after that review completes/m);
-  assert.match(loop, /On (?:completion or )?timeout[^\n]*steps 1-5/i);
+  assert.match(loop, /On (?:completion or )?timeout[^\n]*steps 2-5[^\n]*plus step 1's comment and reviewer-run reads/i);
   assert.match(loop, /body delta[^\n]*digest's `comments`|digest's `comments`[^\n]*body delta/i);
   assert.match(loop, /same-head identical-body[^\n]*no source review/i);
 });
@@ -80,7 +81,7 @@ test('SKILL.md is a short orchestrator carrying none of the retired vocabulary',
   }
   assert.ok(skill.includes('## Harness notes'));
   assert.match(skill, /resolving a merge conflict itself/);
-  assert.match(skill, /A local verification run while CI is pending, or a second push inside one round/);
+  assert.match(skill, /A local verification run while a binding check is pending, or a second push inside one round/);
   assert.ok(!skill.includes('Run every step inline'));
 });
 
@@ -219,4 +220,82 @@ test('fix-wave.md owns the wave: fresh helpers, pre-push review, CI poll, local 
   assert.ok(!fixWave.includes('force-with-lease'));
   assert.ok(!/\binline\b/i.test(fixWave));
   assert.match(fixWave, /No claim re-check and no whole-wave review runs after an own push/);
+});
+
+test('verification-brief.md classifies pending checks as binding from merge_state_status and kind', () => {
+  const sectionA = section(brief, '## Section A - Gatherer', '## Section B - Verifier');
+  assert.match(sectionA, /status_checks: \[ \{ name, kind, status, conclusion, required, url, workflowName \} \]/);
+  assert.match(sectionA, /kind: check_run \| status_context \| unreadable/);
+  assert.match(sectionA, /merge_state_status.*`gh pr view`.*never.*GraphQL/);
+  const sectionB = section(brief, '## Section B - Verifier', '## Section C - Reviewer');
+  assert.match(sectionB, /\*\*Binding classification\*\*/);
+  assert.match(sectionB, /\*\*Binding classification\*\*[^\n]*`kind` is `unreadable`/);
+  assert.match(sectionB, /`BLOCKED`, `UNKNOWN`[^\n]*`unreadable`/);
+  assert.match(sectionB, /status` other than `completed`/);
+  assert.ok(!/binding[^\n]*`queued` or `in_progress`\b(?![^\n]*other than)/.test(sectionB), 'the live-run rule names "other than completed", never the two literals alone');
+  assert.match(sectionB, /\| Pending \| >=1 \*\*binding\*\* pending check/);
+  assert.match(sectionB, /zero \*\*binding\*\* pending checks, no\nopt-out/);
+  assert.match(sectionB, /only not-binding pending checks/);
+  assert.match(sectionB, /or the pre-menu refresh failed[^\n]*every pending check binds/);
+  assert.match(assessment, /--json mergeable,mergeStateStatus/);
+});
+
+test('sync.md re-gather resolves pending checks through the binding rule', () => {
+  assert.match(sync, /a binding check still pending at the limit renders the `verification evidence pending` overlay/);
+});
+
+test('post-selection-loop.md refreshes merge state before every menu and binds the preconditions to it', () => {
+  const refresh = section(loop, '### Pre-menu refresh\n', '### Wait course\n');
+  assert.match(refresh, /gh pr view <N> --json headRefOid,state,mergeable,mergeStateStatus,reviewDecision,statusCheckRollup/);
+  assert.match(refresh, /gh run list -R <owner>\/<repo> -c <headRefOid> --json databaseId,status,conclusion,workflowName,url/);
+  assert.match(refresh, /merge state not refreshed \(<reason>\)/);
+  assert.match(refresh, /never mints `C#` rows/);
+  assert.match(refresh, /classifies every pending check as binding/);
+  const pre = section(loop, '### Merge preconditions\n', '### Compare-and-swap\n');
+  assert.match(pre, /no \*\*binding\*\* pending check/);
+  assert.match(pre, /`merge_state_status` is not `BLOCKED`, `UNKNOWN`, or `unreadable`, and the pre-menu refresh succeeded/);
+  assert.ok(!pre.includes('no pending required check'));
+  assert.match(section(loop, '### Compare-and-swap\n', '### Fix wave\n'), /re-fetch `headRefOid`, `state`, `mergeable`, and `mergeStateStatus`/);
+  assert.match(section(loop, '### Re-render\n', '### Pre-menu refresh\n'), /1\. Run the pre-menu refresh \(`### Pre-menu refresh`\)/);
+  const wait = section(loop, '### Wait course\n', '### Output done-check\n');
+  assert.match(wait, /--json statusCheckRollup,mergeStateStatus/);
+  assert.match(wait, /or the polled `mergeStateStatus` is `BLOCKED`, `UNKNOWN`, or `unreadable`/);
+  assert.match(fixWave, /gh pr view <N> --json headRefOid,statusCheckRollup,mergeStateStatus/);
+  assert.match(fixWave, /binding classification/);
+  assert.match(fixWave, /runs the pre-menu refresh as `post-selection-loop\.md` `### Re-render` step 1/);
+});
+
+test('decision-menu.md resolves the withhold reason once and overlays merge state above evidence pending', () => {
+  const resolver = section(menu, '## Withhold reason resolver\n', '## Overlays\n');
+  assert.match(resolver, /Not offered: merge \(blocked by GitHub\)/);
+  assert.match(resolver, /Not offered: merge \(merge state unknown\)/);
+  assert.match(resolver, /Not offered: merge \(<check name> pending\)/);
+  assert.match(resolver, /`reviewDecision`[^\n]*locator/);
+  assert.match(resolver, /overlays above `merge state`[^\n]*keep their own reasons/);
+  const overlays = section(menu, '## Overlays\n', '## Fixtures\n');
+  const rows = overlays.split('\n').filter((l) => l.startsWith('| ')).map((l) => l.split('|')[1].trim());
+  assert.ok(rows.indexOf('merge state') > rows.indexOf('held run') && rows.indexOf('merge state') < rows.indexOf('verification evidence pending'));
+  assert.match(overlays, /\| merge state \| `merge_state_status` is `BLOCKED`, `UNKNOWN`, or `unreadable`, or the pre-menu refresh failed/);
+  assert.match(overlays, /\| verification evidence pending \|[^\n]*reason 3's text/);
+  assert.ok(!menu.includes('Not offered: merge (verification evidence pending)'));
+  assert.ok(!overlays.includes('pending required check'));
+  assert.match(overlays, /a binding pending check renders one `PR comments` line/);
+  assert.match(overlays, /\| merge state \|[^\n]*`\[recommended\]` goes to `approve` when the consent row renders it/);
+  assert.match(menu, /else to `approve` or `wait` under the merge state overlay/);
+  assert.match(menu, /- `wait` - poll the reviewer run, every \*\*binding\*\* pending check in the resolved set \(required or not\), `mergeStateStatus` while it is `BLOCKED`, `UNKNOWN`, or `unreadable`, and the comment set/);
+  assert.match(findings, /A \*\*binding\*\* pending check/);
+  assert.match(findings, /<name> pending - not binding this viewer \(merge_state_status <value>\)/);
+  assert.ok(!report.includes('required check pending'));
+  assert.ok(!report.includes('A required check is still pending'));
+  assert.match(report, /`binding check pending`, `blocked by GitHub`, `merge state unknown`/);
+});
+
+test('SKILL.md names the pre-menu refresh at step 5 and in the red flags', () => {
+  assert.match(skill, /\| 5 Integrate \+ report \| `reference\/post-selection-loop.md` `### Pre-menu refresh`, then `reference\/findings.md`/);
+  assert.match(skill, /\| 6 Menu \| `reference\/decision-menu.md` \|/);
+  assert.match(skill, /an unchanged head re-enters step 5 through `reference\/post-selection-loop.md` `### Pre-menu refresh`/);
+  assert.match(skill, /or a binding pending check, or a `BLOCKED`\/`UNKNOWN`\/`unreadable` merge state/);
+  assert.match(skill, /A menu rendered without the pre-menu refresh - owner: `reference\/post-selection-loop.md` `### Pre-menu refresh`/);
+  assert.match(skill, /Reading `mergeStateStatus` from anything but a `gh pr view` invocation, attributing a `BLOCKED` to a named rule, or treating a non-`BLOCKED` value as a merge verdict - owner: `verification-brief.md` Section A/);
+  assert.ok(!skill.includes('pending required check'));
 });

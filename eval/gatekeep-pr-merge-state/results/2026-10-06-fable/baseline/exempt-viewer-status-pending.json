@@ -1,0 +1,52 @@
+{
+  "sample": "exempt-viewer-status-pending",
+  "arm": "baseline",
+  "candidate_model": "anthropic-fable/claude-fable-5-1",
+  "thinking": "medium",
+  "reviewers": [
+    "anthropic/claude-opus-5-5",
+    "github-copilot/gpt-6-astra"
+  ],
+  "persona_sha256": "368479190430f332bcc9b548eba1274d815f99f6fd46362b485dfe1f23577e25",
+  "repo_sha": "e1affd6c4c05d368a65fd1c858a786e8017b3e7d",
+  "input_sha256": "d2e4debda4337bbb87ad3548f93c56257d5d5f5188149aa5732521bcb3806779",
+  "text": "## Evidence resolution (Section B, top-down)\n\n- Resolved check set: all four checks on `9c1e4f2` (no `ci checks:` configured).\n- Conclusions: `test_unit` success, `build_image` success, `lint` skipped (inert), `crew-approval` StatusContext `PENDING` -> pending (required).\n- Opt-out: no `local verification: always`. Failed CI: no blocking conclusion. Held run: no `action_required` in the rollup or in `actions_runs` (7001 is completed/success). **Pending: matches** - one pending check, zero blocking; CI-sufficient needs zero pending, so it does not match. No local run fires.\n- Verifier result: `source: pending`, `head_sha: 9c1e4f2`, no command, no claims consumed yet; the step-4 `matched` claim is retained under show evidence and gets its binding disposition from the claim-check-only helper once this head reaches CI-sufficient.\n- `merge_state_status: UNSTABLE` is not `BEHIND`; `update branch` does not render. `mergeable: MERGEABLE`.\n- Overlays: `verification evidence pending` (wins the merge reason and `[recommended]`) and `CI check` (pending required check: one `PR comments` line, no disposition hint). Author is someone else; fixable with zero blockers -> mergeable rows with `merge` omitted, `wait` as row 1. No ticket: `Delivers` is the PR's intent; no AC outcomes, no scope-creep rule. No drafted replies, no nits, no blockers.\n\n## Report\n\n```\nDelivers: the tide-feed client retries once on a 503 instead of failing the fetch outright.\n\nPR comments:\n- A required check is still pending, so merge waits. (crew-approval)\n\nVerdict: fixable - verification evidence pending\n\n1. wait - poll crew-approval and the check set, then re-render               [recommended]\n2. approve - approve tlindqvist's PR\n3. fix - name the change to apply in the worktree, review the wave, push\n4. show evidence - gate output, CI checks on 9c1e4f2, claim disposition\n5. stop - leave the PR as-is\nType a number. Not offered: merge (verification evidence pending).\n```",
+  "words": 269,
+  "backtick_lines": 8,
+  "path_tokens": 1,
+  "facts": {
+    "f1": {
+      "anthropic/claude-opus-5-5": "no",
+      "github-copilot/gpt-6-astra": "no"
+    },
+    "f2": {
+      "anthropic/claude-opus-5-5": "no",
+      "github-copilot/gpt-6-astra": "no"
+    },
+    "f3": {
+      "anthropic/claude-opus-5-5": "no",
+      "github-copilot/gpt-6-astra": "no"
+    },
+    "f4": {
+      "anthropic/claude-opus-5-5": "yes",
+      "github-copilot/gpt-6-astra": "yes"
+    },
+    "f5": {
+      "anthropic/claude-opus-5-5": "yes",
+      "github-copilot/gpt-6-astra": "yes"
+    }
+  },
+  "quality": {
+    "anthropic/claude-opus-5-5": "cluttered",
+    "github-copilot/gpt-6-astra": "cluttered"
+  },
+  "rationale": {
+    "anthropic/claude-opus-5-5": "The candidate resolves the evidence to pending instead of CI-sufficient on 9c1e4f2. It omits merge, puts wait first, and lists the crew-approval status under PR comments. The approve row is present and no sentence claims another developer's approval is required. Quality is cluttered because the rendering includes an internal resolution section with run IDs and passing-check conclusions.",
+    "github-copilot/gpt-6-astra": "The rendering treats crew-approval as blocking, omits merge, and puts wait first; it also prints internal resolution details, IDs, and passing checks."
+  },
+  "aggregate": {
+    "kept": 2,
+    "disputed": 0,
+    "lost": 3
+  }
+}

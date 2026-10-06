@@ -52,7 +52,7 @@ Behavior the ticket promises is a blocker or an explicit tracker split - never d
 
 ## Dispositions
 
-Any blocking conclusion in the resolved check set (required or not - `../verification-brief.md` Section B, Evidence resolution table) withholds `merge` until the user dispositions it, and mints a `P#` - except the reviewer check, whose exception the brief's Section B defines (one `show evidence` line `reviewer check <name> failed - inert`). An undispositioned failing check is never a target of `fix`; close it by disposition. A pending required check mints nothing and is not dispositionable: merge waits until it turns green, or it converts to a failing check with its own `P#`.
+Any blocking conclusion in the resolved check set (required or not - `../verification-brief.md` Section B, Evidence resolution table) withholds `merge` until the user dispositions it, and mints a `P#` - except the reviewer check, whose exception the brief's Section B defines (one `show evidence` line `reviewer check <name> failed - inert`). An undispositioned failing check is never a target of `fix`; close it by disposition. A **binding** pending check (`../verification-brief.md` Section B, binding classification) mints nothing and is not dispositionable: merge waits until it turns green, or `merge_state_status` leaves `BLOCKED`, or it converts to a failing check with its own `P#`. A not-binding pending check withholds nothing, never renders under `PR comments`, and prints under `show evidence` only, as `<name> pending - not binding this viewer (merge_state_status <value>)`; the `required` field stays gathered and no longer withholds on its own.
 
 | Disposition | Annotation on the `P#` |
 |---|---|

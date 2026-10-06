@@ -1,0 +1,52 @@
+{
+  "sample": "exempt-viewer-status-pending",
+  "arm": "candidate",
+  "candidate_model": "anthropic-fable/claude-fable-5-1",
+  "thinking": "medium",
+  "reviewers": [
+    "anthropic/claude-opus-5-5",
+    "github-copilot/gpt-6-astra"
+  ],
+  "persona_sha256": "e20f32e3b687f48fe82012a2d522c7d65bab08972da21b624af5a04df9cf737e",
+  "repo_sha": "c4b292be44091d86ba19e84cbc749097f691f291",
+  "input_sha256": "d2e4debda4337bbb87ad3548f93c56257d5d5f5188149aa5732521bcb3806779",
+  "text": "## Evidence resolution (Section B)\n\nResolved check set: all checks on `9c1e4f2` (no `ci checks:` configured).\n\n- `test_unit` - completed `success` -> satisfies\n- `build_image` - completed `success` -> satisfies\n- `lint` - completed `skipped` -> inert\n- `crew-approval` - `status_context`, state PENDING -> pending; binding classification: `merge_state_status` is `UNSTABLE` (not `BLOCKED`/`UNKNOWN`/`unreadable`), kind is `status_context` (no run linkage) -> **not binding**\n- `actions_runs`: 7001 completed `success`; no `action_required` run -> no held run\n\nRow walk: Opt-out no; Failed CI no (zero blocking); Held run no; Pending no (zero binding pending); **CI-sufficient** (>=1 success, zero blocking, zero binding pending). Local run skipped.\n\nVerifier record: `source: ci`, `head_sha: 9c1e4f2`, checks `test_unit success`, `build_image success` (run https://github.com/harborline/tidewatch/actions/runs/7001). Claim \"Tests cover the retry path\" -> `matched` (test/feed/client.test.ts:12-40).\n\nStep 5: no ticket linked (`issue: null`) -> no AC rows, no `Ticket changes`, no scope creep. Reviewer SHIP with no findings -> no blockers, no nits. No comments -> no ledger rows. Merge preconditions: `mergeable == MERGEABLE`, `merge_state_status` UNSTABLE (not BEHIND/BLOCKED/UNKNOWN/unreadable), no failing or binding pending check, evidence present, every claim dispositioned, worktree clean and synced. `viewer_permission` MAINTAIN, not author -> someone-else mergeable rows.\n\n## Report\n\n```\nDelivers: the tide-feed client retries a fetch once on a 503 instead of failing on the first one.\n\nVerdict: mergeable - CI green on the assessed head (test_unit, build_image)\n\n1. approve - approve the PR                                               [recommended]\n2. fix - name the change to apply in the worktree, review the wave, push\n3. merge - squash onto main\n4. show evidence - gate output, CI run\n5. stop - leave the PR as-is\nType a number.\n```\n\nUnder `show evidence` (prints only on that pick): `test_unit success 9c1e4f2 https://github.com/harborline/tidewatch/actions/runs/7001`; `build_image success 9c1e4f2 https://github.com/harborline/tidewatch/actions/runs/7001`; `crew-approval pending - not binding this viewer (merge_state_status UNSTABLE)`; claim \"Tests cover the retry path\": matched (test/feed/client.test.ts:12-40); `reviewer workflow: unknown`.",
+  "words": 271,
+  "backtick_lines": 11,
+  "path_tokens": 6,
+  "facts": {
+    "f1": {
+      "anthropic/claude-opus-5-5": "yes",
+      "github-copilot/gpt-6-astra": "yes"
+    },
+    "f2": {
+      "anthropic/claude-opus-5-5": "yes",
+      "github-copilot/gpt-6-astra": "yes"
+    },
+    "f3": {
+      "anthropic/claude-opus-5-5": "yes",
+      "github-copilot/gpt-6-astra": "no"
+    },
+    "f4": {
+      "anthropic/claude-opus-5-5": "yes",
+      "github-copilot/gpt-6-astra": "yes"
+    },
+    "f5": {
+      "anthropic/claude-opus-5-5": "yes",
+      "github-copilot/gpt-6-astra": "yes"
+    }
+  },
+  "quality": {
+    "anthropic/claude-opus-5-5": "readable",
+    "github-copilot/gpt-6-astra": "cluttered"
+  },
+  "rationale": {
+    "anthropic/claude-opus-5-5": "The verdict is CI-mergeable on 9c1e4f2. The menu offers approve and merge with no wait row, and crew-approval appears only as not binding (in the requested Section B table and under show evidence), never as a blocker or comment. The report has one verdict line, one recommended row, and stop last, but it is not crisp because it names passing checks and sits beneath verbose internal working (run IDs, row walk).",
+    "github-copilot/gpt-6-astra": "CI resolves green and merge/approve are offered, but passing checks and internal IDs clutter the rendering, and pending approval appears outside show evidence."
+  },
+  "aggregate": {
+    "kept": 4,
+    "disputed": 1,
+    "lost": 0
+  }
+}

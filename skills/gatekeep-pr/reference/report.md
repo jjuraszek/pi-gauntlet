@@ -4,7 +4,7 @@ Read from SKILL.md step 5, after `findings.md`. Input: the integration output. O
 
 ## Order
 
-Render bottom-up for a terminal: least important first, verdict and menu last. Empty sections are omitted - never "None". A failed comment refresh, an incomplete comment source review (`post-selection-loop.md` `### Re-render`), or a pending required check renders its one line under `PR comments` as well.
+Render bottom-up for a terminal: least important first, verdict and menu last. Empty sections are omitted - never "None". A failed comment refresh, an incomplete comment source review (`post-selection-loop.md` `### Re-render`), a blocked or unknown merge state, or a binding pending check renders its one line under `PR comments` as well.
 
 Section order is fixed:
 
@@ -18,10 +18,10 @@ Delivers: <one sentence: what the PR does. With a ticket, a second sentence buil
 Ticket changes:          (one item per unresolved `impossible` row)
 - AC<n> asks for <X>, and <cited constraint>. Proposed wording: "<new AC text>". (drafted | proposed <comment url>; <source>)
 
-PR comments:             (replyable review comments, a pending reviewer run or required check, a failed refresh, or an incomplete source review - see the paragraph above)
+PR comments:             (replyable review comments, a pending reviewer run, a blocked or unknown merge state, a binding pending check, a failed refresh, or an incomplete source review - see the paragraph above)
 - <reviewer>'s comment on <topic> <verdict clause>, so the drafted reply <what it says>. (<locator>)
 - The reviewer run is still in progress, so merge waits. (<run url>)
-- A required check is still pending, so merge waits. (<check name>)
+- <the line from decision-menu.md `## Withhold reason resolver`>
 
 Nits:
 - <1-2 sentences>. (<file:line>)
@@ -40,7 +40,7 @@ The `Sync:` line renders only when `--rebase` was passed, as one whole sentence 
 
 ## Verdict
 
-Two states: `mergeable` or `fixable`. `mergeable` carries the evidence clause from `findings.md` `## Provenance`: `CI green on the assessed head (<check name>)` or `verification command passed locally`. `fixable - <N> blockers` when `Blockers` is non-empty; `fixable - <withhold reason>` when it is empty but a merge prerequisite is unmet: `ticket change pending on AC<n>` (for example `ticket change pending on AC4`), `reviewer run in progress`, `required check pending`, `failed gate` (listed for spec parity; a red gate mints a blocker per `findings.md` `## Namespaces`, so `Blockers` is non-empty), `comments not refreshed`, `comment source review incomplete`, `verification not run` (the command needed credentials or no command resolved, with nothing else blocking), `mergeable unknown`, `behind base`, `merge conflict` (for `mergeable == CONFLICTING`), `verification evidence pending` (the Pending row: >=1 check pending, none blocking).
+Two states: `mergeable` or `fixable`. `mergeable` carries the evidence clause from `findings.md` `## Provenance`: `CI green on the assessed head (<check name>)` or `verification command passed locally`. `fixable - <N> blockers` when `Blockers` is non-empty; `fixable - <withhold reason>` when it is empty but a merge prerequisite is unmet: `ticket change pending on AC<n>` (for example `ticket change pending on AC4`), `reviewer run in progress`, `binding check pending`, `blocked by GitHub`, `merge state unknown`, `failed gate` (listed for spec parity; a red gate mints a blocker per `findings.md` `## Namespaces`, so `Blockers` is non-empty), `comments not refreshed`, `comment source review incomplete`, `verification not run` (the command needed credentials or no command resolved, with nothing else blocking), `mergeable unknown`, `behind base`, `merge conflict` (for `mergeable == CONFLICTING`).
 
 `<N> blockers` reads `1 blocker` for one.
 

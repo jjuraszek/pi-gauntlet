@@ -14,7 +14,7 @@ Record create-vs-reuse; it drives teardown (`post-selection-loop.md` `### Teardo
 
 Then set the digest's `permissions.head_pushable` (`../verification-brief.md` Section A): `git -C <worktree> push --dry-run --no-verify --no-follow-tags <head_url> HEAD:refs/heads/<head_ref>` exit 0 is `true`, a non-zero exit is `false`, when `head_url` is `unreadable`, `head_pushable` is `unreadable` and the probe does not run. The probe records observed authorization; a real push the server rejects (branch protection) is reported as that push's failure.
 
-When the digest reported `mergeable: UNKNOWN`, re-poll once (`gh pr view --json mergeable`). Still `UNKNOWN` is not merge-ready; the loop's merge preconditions treat it like `CONFLICTING`.
+When the digest reported `mergeable: UNKNOWN` or `mergeStateStatus: UNKNOWN`, re-poll once (`gh pr view --json mergeable,mergeStateStatus`) and write both values back to the digest (`mergeStateStatus` also to `permissions.merge_state_status`). Still `UNKNOWN` is not merge-ready: the loop's merge preconditions treat `mergeable: UNKNOWN` like `CONFLICTING`, and `merge_state_status: UNKNOWN` makes every pending check binding (`../verification-brief.md` Section B, binding classification) and withholds `merge` as `merge state unknown`.
 
 ## Configuration
 

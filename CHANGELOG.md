@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- `gatekeep-pr` classifies every pending check as binding or not from GitHub's viewer-relative `mergeStateStatus`, refreshed before every menu (`### Pre-menu refresh`): a pending commit status or review requirement that does not bind the gating actor no longer withholds `merge` or recommends `wait`; a `BLOCKED`, `UNKNOWN`, or unreadable merge state, and a check whose Actions run is still live, still withhold. No new settings or overrides key. New `eval/gatekeep-pr-merge-state/` target with six digest fixtures and a recorded baseline/candidate run.
+
 ## v7.4.0 - 2026-10-06
 
 ### Added

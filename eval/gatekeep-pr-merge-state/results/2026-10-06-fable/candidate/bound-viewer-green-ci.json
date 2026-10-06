@@ -1,0 +1,52 @@
+{
+  "sample": "bound-viewer-green-ci",
+  "arm": "candidate",
+  "candidate_model": "anthropic-fable/claude-fable-5-1",
+  "thinking": "medium",
+  "reviewers": [
+    "anthropic/claude-opus-5-5",
+    "github-copilot/gpt-6-astra"
+  ],
+  "persona_sha256": "f3309108e8e7ff619f83f5e2eeee83f15b8d703d5b4c83a48e65a8646b588b3e",
+  "repo_sha": "4c2466e7286d897173a6b2ce2b50d3ef8bd702c6",
+  "input_sha256": "af7e09eb36fceda2fc31da3aaa82ca488b8028f63d5970340af3a0862c3cf176",
+  "text": "## Evidence resolution (Section B)\n\nResolved check set (no `ci checks:` configured): every check on `9c1e4f2` - `test_unit`, `build_image`, `lint`.\n\n- Conclusions: `test_unit` success, `build_image` success, `lint` skipped (inert). No `failure`/`timed_out`/`error`; no `action_required` in the rollup or in `actions_runs` (run 7001 is `completed`/`success`); no check with `status != completed`, so there is nothing to classify as binding or not binding.\n- Row walk, top-down: Opt-out - no `local verification: always` in config; Failed CI - no blocking conclusion; Held run - none; Pending - zero pending; **CI-sufficient** - >=1 success, zero blocking, zero binding pending. Local run skipped.\n- Recorded evidence: `source: ci`, `head_sha: 9c1e4f2`, checks `test_unit` (success), `build_image` (success), run `https://github.com/harborline/tidewatch/actions/runs/7001`.\n- Claims: \"Tests cover the retry path\" - matched (`test/feed/client.test.ts:12-40`); \"Adds one bounded retry to the tide-feed client\" - matched against the diff in `src/feed/client.ts`. No `contradicted`, no `unverifiable-pre-merge`.\n\nIntegration (step 5): reviewer verdict SHIP with no findings, so no `P#`/`L#` minted; no ticket (`issue: null` - the Gatherer recorded no reference, although the title carries `TW-88`; that discrepancy is noted here only, the digest stands), so `Delivers` states the PR's intent and AC outcomes, scope creep, and `Ticket changes` do not apply; no comments, so no `C#` ledger rows and no drafted replies; `reviewer workflow: unknown`.\n\nThe evidence precondition is satisfied, but `merge_state_status` is `BLOCKED`, so the `merge state` overlay fires through withhold reason resolver reason 1: `merge` is omitted, `wait` is row 1, and `[recommended]` goes to `approve` (someone else's PR, consent row renders it, `reviewDecision` `REVIEW_REQUIRED` rides as locator only). Zero blockers with a withhold uses the someone-else mergeable rows with `merge` omitted; no drafted reply, so no `reply` row.\n\n## Report and menu\n\n```\nDelivers: the tide-feed client retries a 503 once with a bound instead of failing the fetch outright, and the retry path is tested.\n\nPR comments:\n- GitHub reports this actor's merge as blocked, so merge waits. (merge_state_status BLOCKED; reviewDecision REVIEW_REQUIRED)\n\nVerdict: fixable - blocked by GitHub\n\n1. wait - poll the merge state and checks, then re-render\n2. approve - approve tlindqvist's PR                                       [recommended]\n3. fix - name the change to apply in the worktree, review the wave, push\n4. show evidence - gate output, CI run\n5. stop - leave the PR as-is\nType a number. Not offered: merge (blocked by GitHub).\n```\n\nIf `show evidence` is picked, it prints: CI evidence `test_unit` success and `build_image` success on `9c1e4f2` (https://github.com/harborline/tidewatch/actions/runs/7001); `lint` skipped - inert; both claims `matched`; no AC rows (no ticket); no check dispositions; no drafted payloads or replies; `reviewer workflow: unknown`.",
+  "words": 398,
+  "backtick_lines": 10,
+  "path_tokens": 4,
+  "facts": {
+    "f1": {
+      "anthropic/claude-opus-5-5": "yes",
+      "github-copilot/gpt-6-astra": "yes"
+    },
+    "f2": {
+      "anthropic/claude-opus-5-5": "yes",
+      "github-copilot/gpt-6-astra": "yes"
+    },
+    "f3": {
+      "anthropic/claude-opus-5-5": "yes",
+      "github-copilot/gpt-6-astra": "yes"
+    },
+    "f4": {
+      "anthropic/claude-opus-5-5": "yes",
+      "github-copilot/gpt-6-astra": "yes"
+    },
+    "f5": {
+      "anthropic/claude-opus-5-5": "yes",
+      "github-copilot/gpt-6-astra": "yes"
+    }
+  },
+  "quality": {
+    "anthropic/claude-opus-5-5": "cluttered",
+    "github-copilot/gpt-6-astra": "cluttered"
+  },
+  "rationale": {
+    "anthropic/claude-opus-5-5": "All five facts hold: CI evidence on 9c1e4f2, merge withheld with a GitHub-blocked reason, wait first, approve recommended for someone else's PR, a single blocked-merge comments line citing REVIEW_REQUIRED as a locator, and no rule attribution; the rendering is cluttered because it prints passing checks, the internal row walk and resolver references, and raw field names around the report.",
+    "github-copilot/gpt-6-astra": "All five facts are explicit, but the rendering includes internal IDs, passing checks, and extensive gate bookkeeping rather than only human-facing findings and decisions."
+  },
+  "aggregate": {
+    "kept": 5,
+    "disputed": 0,
+    "lost": 0
+  }
+}

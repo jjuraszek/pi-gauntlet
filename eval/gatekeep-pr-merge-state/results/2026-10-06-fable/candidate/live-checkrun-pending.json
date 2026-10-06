@@ -1,0 +1,48 @@
+{
+  "sample": "live-checkrun-pending",
+  "arm": "candidate",
+  "candidate_model": "anthropic-fable/claude-fable-5-1",
+  "thinking": "medium",
+  "reviewers": [
+    "anthropic/claude-opus-5-5",
+    "github-copilot/gpt-6-astra"
+  ],
+  "persona_sha256": "e20f32e3b687f48fe82012a2d522c7d65bab08972da21b624af5a04df9cf737e",
+  "repo_sha": "c4b292be44091d86ba19e84cbc749097f691f291",
+  "input_sha256": "9e2db6a893bea76a42cfff475e477d170265f133328b2633dd3ef7c11194b9db",
+  "text": "## Evidence resolution (Section B)\n\nResolved check set: all checks on `9c1e4f2` (no `ci checks:` configured) - `test_unit` success, `build_image` success, `e2e` pending.\n\nBinding classification of `e2e`: `merge_state_status` is `UNSTABLE` (not `BLOCKED`/`UNKNOWN`/`unreadable`), `kind` is `check_run`, run id parsed from its `detailsUrl` is `7003`, and the matching `actions_runs` entry has `status: waiting` - other than `completed`, so `e2e` is **binding**.\n\nRow walk: Opt-out no (`local verification: always` not configured); Failed CI no (no blocking conclusion); Held run no (no `action_required`); **Pending** matches - one binding pending check, zero blocking, poll window treated as elapsed for this pre-menu state. CI-sufficient does not match (predicate requires zero binding pending). No local run fires.\n\nVerifier output: `source: pending`, `head_sha: 9c1e4f2`, checks as listed; no claims. The step-4 note \"Tests cover the retry path - matched\" is reviewer context only; the Verifier disposition is recorded when the pre-menu refresh moves this head to CI-sufficient and dispatches the claim-check-only helper. Until then the claim has no disposition and `merge` stays withheld on two counts (binding check, undispositioned claim).\n\nStep 5: no ticket (`issue: null`), so no AC rows, no scope creep, no `Ticket changes`. Reviewer SHIP with no findings; no `P#`/`L#`/`C#` minted. Withhold reason resolver: reason 1 no (`UNSTABLE`), reason 2 no, reason 3 yes (`e2e`). Verdict `fixable - binding check pending`. Menu: someone-else mergeable rows with `merge` omitted; verification-evidence-pending overlay puts `wait` as row 1 and `[recommended]` (Blockers empty); no drafted reply, so no `reply` row; `fix` has no drafted payload.\n\n## Report\n\n```\nDelivers: the tide-feed client retries one bounded time on a 503 instead of failing\non the first bad response.\n\nPR comments:\n- A check that binds this actor is still pending, so merge waits. (e2e)\n\nVerdict: fixable - binding check pending\n\n1. wait - poll the e2e check and merge state, then re-render               [recommended]\n2. approve - approve the PR\n3. fix - name the change to apply in the worktree, review the wave, push\n4. show evidence - gate output, CI run\n5. stop - leave the PR as-is\nType a number. Not offered: merge (e2e pending).\n```",
+  "words": 332,
+  "backtick_lines": 7,
+  "path_tokens": 0,
+  "facts": {
+    "f1": {
+      "anthropic/claude-opus-5-5": "yes",
+      "github-copilot/gpt-6-astra": "yes"
+    },
+    "f2": {
+      "anthropic/claude-opus-5-5": "yes",
+      "github-copilot/gpt-6-astra": "yes"
+    },
+    "f3": {
+      "anthropic/claude-opus-5-5": "yes",
+      "github-copilot/gpt-6-astra": "yes"
+    },
+    "f4": {
+      "anthropic/claude-opus-5-5": "yes",
+      "github-copilot/gpt-6-astra": "yes"
+    }
+  },
+  "quality": {
+    "anthropic/claude-opus-5-5": "cluttered",
+    "github-copilot/gpt-6-astra": "cluttered"
+  },
+  "rationale": {
+    "anthropic/claude-opus-5-5": "All four facts hold: the binding check is pending because its run 7003 is still waiting, merge is withheld for e2e pending even though the state is UNSTABLE, and wait is row 1 and recommended. The rendering is cluttered because it prints a Section B dump with run IDs, row-walk internals and passing checks before the clean report and menu.",
+    "github-copilot/gpt-6-astra": "All four facts are explicit, but internal IDs, passing-check results, and extensive gate-resolution bookkeeping clutter the rendering."
+  },
+  "aggregate": {
+    "kept": 4,
+    "disputed": 0,
+    "lost": 0
+  }
+}
