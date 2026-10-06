@@ -1,12 +1,12 @@
 # gatekeep-pr: step 7 - loop
 
-Read from SKILL.md step 7. Execute only the selected pick, then re-enter: a fix wave's own push re-enters step 4 through the own-push sequence (`### Re-render`); any other head move re-enters step 3; an unchanged head re-enters step 5. Loop until `merge` or `stop`. Merge preconditions, the output done-check, and teardown live here; the wave itself lives in `fix-wave.md`.
+Read from SKILL.md step 7. Execute only the selected pick, then re-enter: a fix wave's own push re-enters step 4 through the own-push sequence (`### Re-render`); any other head move re-enters step 3; an unchanged head re-enters step 5. Loop until `stop`. Merge preconditions, the output done-check, and teardown live here; the wave itself lives in `fix-wave.md`.
 
 ### Merge preconditions
 
 All must hold before `merge` executes; a `merge` pick while one fails is refused naming it, and the menu re-renders:
 
-- every blocker fixed and pushed, or dispositioned `flaky` by the user; no `impossible` row in `drafted` or `proposed` unless the pick is `merge anyway - accept AC<n> as impossible`
+- every blocker fixed and pushed, or dispositioned `flaky` by the user
 - verification evidence present for the assessed head per the brief's Evidence resolution table - a CI claim or a green local run; a table-sanctioned CI skip is evidence, and `not run` blocks only when the table required a fallback run that did not happen
 - a disposition for every material claim (`findings.md`); dispositions recorded before an own push carry to the pushed SHA; `source: pending` evidence that never had a claim check withholds `merge`
 - evidence provenance clean (`findings.md` `## Provenance`): `worktree_root`, every `run_cwd`, and `head_sha` match on the local path
@@ -20,7 +20,7 @@ All must hold before `merge` executes; a `merge` pick while one fails is refused
 
 ### Compare-and-swap
 
-Before every external write, re-fetch `headRefOid`, `state`, `mergeable`, and `mergeStateStatus`. A head or state change since assessment invalidates the current state - re-sync the worktree, re-enter step 3, and re-render the menu; a `mergeStateStatus` change alone (head unchanged) invalidates a `merge` or `merge anyway` pick and re-enters step 5 through `### Pre-menu refresh`; `reply`, `review`, `approve`, and `propose ticket change` proceed, and the next menu renders from the refreshed value. Exception: a pick's own push updates the assessed head to the pushed SHA as part of that pick's execution - this self-inflicted head move does not invalidate the pick; the next compare-and-swap runs against the new head on the next external write. Before a merge executes (plain or `anyway`), run the full comment refetch and reconciliation (`### Re-render` steps 1-5), not just placeholder detection. If the head changed, re-enter step 3 instead. A new or changed-body delta since the consent render aborts the selected merge, plain or `anyway`: show the reconciled report and request a fresh pick even when no blocker resulted. A newly `pending` row, a queued/in-progress reviewer run, or a failed refetch (`comments not refreshed (<reason>)`) refuses a plain merge and re-renders; `anyway` overrides only those existing pending/refetch-failure overlays and prints what it overrode, never a new blocker or unreviewed delta.
+Before every external write, re-fetch `headRefOid`, `state`, `mergeable`, and `mergeStateStatus`. A head or state change since assessment invalidates the current state - re-sync the worktree, re-enter step 3, and re-render the menu; a `mergeStateStatus` change alone (head unchanged) invalidates a `merge` or `merge anyway` pick and re-enters step 5 through `### Pre-menu refresh`; `reply`, `review`, and `approve` proceed, and the next menu renders from the refreshed value. Exception: a pick's own push updates the assessed head to the pushed SHA as part of that pick's execution - this self-inflicted head move does not invalidate the pick; the next compare-and-swap runs against the new head on the next external write. Before a merge executes (plain or `anyway`), run the full comment refetch and reconciliation (`### Re-render` steps 1-5), not just placeholder detection. If the head changed, re-enter step 3 instead. A new or changed-body delta since the consent render aborts the selected merge, plain or `anyway`: show the reconciled report and request a fresh pick even when no blocker resulted. A newly `pending` row, a queued/in-progress reviewer run, or a failed refetch (`comments not refreshed (<reason>)`) refuses a plain merge and re-renders; `anyway` overrides only those existing pending/refetch-failure overlays and prints what it overrode, never a new blocker or unreviewed delta.
 
 ### Fix wave
 
@@ -28,11 +28,24 @@ For a `fix` pick, take the drafted payloads (`findings.md` `## Drafted payloads`
 
 Apply per `fix-wave.md`: the local conflict check, one fresh implementer helper per payload with scoped tests only, the pre-push reviewer with its closure lines, the push, and the evidence poll. The orchestrator never edits a tracked file and never commits. When `head_pushable` is false, the wave's commits stay in the local `pr-<N>` worktree: report the branch name and re-enter step 5.
 
-`approve workflow run` and `update branch` execute per `fix-wave.md` (`## Evidence after push`, `## Conflicts`). Execute `review`, `reply`, `approve`, and `propose ticket change` via `gh pr review`, `gh api`, `gh issue comment`, or the resolved tracker tool, non-interactively, with the drafted payload - after the output done-check below.
+`approve workflow run` and `update branch` execute per `fix-wave.md` (`## Evidence after push`, `## Conflicts`). Execute `review`, `reply`, `approve`, `post coverage to ticket`, and `post coverage to PR` via `gh pr review`, `gh api`, `gh issue comment`, `gh pr comment`, or the resolved tracker tool, non-interactively, with the drafted payload - after the output done-check below.
 
 ### Merge course
 
 `merge` executes as `gh pr merge --match-head-commit <assessed-sha>` with the resolved merge policy. Push and merge are never one pick.
+
+After `gh pr merge` returns, read `gh pr view <N> --json state,mergeCommit`. `state: MERGED` -> render the `AC coverage` block once and re-render the menu under the `own merge` overlay (`decision-menu.md`); any other state (a merge queue) -> one `PR comments` line `The merge is queued, so coverage posts wait. (<state>)` and the menu `wait` (re-run the read) / `show evidence` / `stop`. The block, `<sha>` = `mergeCommit.oid`, one row per `scope.rows` entry in row order with its outcome (`covered`, `deferred per spec to <ref>`, `deviates per spec: <why>`, `venue: <env> - <observation>, checked after deploy`); with no rows (`source: pr`, or an empty `scope.rows`) the block has no row lines and `post coverage to ticket` is not offered. With `source: pr` the header line drops `, spec <path>`. An `in-scope` row whose observation half is `not judged here` renders `covered; observable half checked after merge`.
+
+```markdown
+## AC coverage
+Informational - the ticket's rows are unchanged. PR <url>, merged <sha>, spec <path>
+- [ ] <row 1 text verbatim> - covered
+- [ ] <row 3 text verbatim> - deferred per spec to <ref>
+- [ ] <row 2 text verbatim> - deviates per spec: <why>
+- [ ] <row 4 text verbatim> - venue: <env> - <observation>, checked after deploy
+```
+
+A post is one write of that block, verbatim; a post that succeeded cannot be picked again in this run. `/skill:check-delivery` reads a posted block as any other comment, and the block's first line states that it amends nothing.
 
 ### Re-render
 
@@ -63,13 +76,13 @@ Then run `### Pre-menu refresh` (it re-fetches `statusCheckRollup`, `headRefOid`
 
 ### Output done-check
 
-Before posting or committing any external payload - review bodies, replies, commit subjects, tracker comments - re-read it against SKILL.md `## Wording rules` and any `## comms style` rules: ASCII only; no headings or template scaffolding under ~150 words; findings `file:line`-specific where one exists; ends on the fix or asked action, not a recap; never invents content to fill a section.
+Before posting or committing any external payload - review bodies, replies, commit subjects, tracker comments - re-read it against SKILL.md `## Wording rules` and any `## comms style` rules: ASCII only; no headings or template scaffolding under ~150 words; findings `file:line`-specific where one exists; ends on the fix or asked action, not a recap; never invents content to fill a section. The `AC coverage` block is the one exception: it posts verbatim, heading and checkbox rows included.
 
 ### Teardown
 
 | | Created worktree | Reused worktree |
 |---|---|---|
-| Merge success | tear down | tear down (the sync precondition guarantees no local-only work is stranded, and the branch is gone remotely) |
+| Own merge | tear down when the own-merge or merge-queued menu exits on `stop` or after the last post row leaves it | same |
 | Non-merge stop | offer teardown, never autonomous; say when unpushed fix commits would be discarded | leave as found; say so explicitly when unpushed fix commits remain, and let the user choose leave-or-discard |
 
 Drafted payloads that were never applied are dropped with the run; the worktree was never dirtied by them. Delete every helper output file minted this run and every `log_path` they name on every exit.

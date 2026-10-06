@@ -1,0 +1,52 @@
+{
+  "sample": "in-scope-gap",
+  "arm": "baseline",
+  "candidate_model": "github-copilot/gpt-6-astra",
+  "thinking": "high",
+  "reviewers": [
+    "anthropic/claude-opus-5-5",
+    "github-copilot/gpt-6-astra"
+  ],
+  "repo_sha": "77af18febe2171f9a401ac85292477fabf505831",
+  "persona_sha256": "b8b5aef98edfb2d6b0026c98223967207e24801a0cb2f8ce06ff31dc5f397442",
+  "input_sha256": "df9644dc955afca8618de25e390c3f42ce6b656e049b89c25ecec0d02e0d4c7b",
+  "text": "## Closure / conformance\nstatus: GAPS (1 open)\naudited-base: 4c1e8f0a9b2d7c6e5f4a3b2c1d0e9f8a7b6c5d4e\n\nG1 - Export completion audit logging is missing\n  verdict: MISSING\n  origin: spec \"Acceptance criteria / AC5\" - \"Export events appear in the audit log.\"\n  evidence: absent; the final audit found no export event mechanism in src/audit/log.ts or the export handlers. The diff summary confirms no export event hook was added.\n  blocker: none\n  touched-files: src/audit/log.ts\n  touched-resources: none\n  recommended: fix\n  round history: R0 MISSING; carried OPEN because closureReview.maxFixRounds is 0 (audit-only). No fix round ran.\n\n  G1/C1 - Export completion audit logging\n    unresolved: Completed exports do not produce an audit-log event.\n    impact: AC5 remains unmet; export activity is missing from the audit log.\n    origin: spec \"Acceptance criteria / AC5\" - \"Export events appear in the audit log.\"\n    remediation: Record an export event in the audit log when an export completes.\n    evidence: absent, as established by the final reviewer report and diff summary; missing implementation evidence is not an external blocker.\n    touched-files: src/audit/log.ts\n    touched-resources: none\n    available dispositions:\n      fix-now: Record the missing event. Unavailable because maxFixRounds is 0; named-branch worktree eligibility is also unconfirmed.\n      accept-into-spec: Ratify implemented behavior against a stale contract. Unavailable because there is no implemented audit-event behavior to ratify, and a writable spec has not been established.\n      rescope-into-spec: Explicitly defer or remove AC5 from this workflow. Unavailable until a writable spec is established; AC5 currently remains in scope.\n      follow-up: Transfer the missing audit logging to separately owned work. Unavailable because no executable project issue-tracker convention or separate owner is established.\n      custom: Execute a user-defined disposition. Visible, but executable only after a concrete effect is supplied and validated.\n    recommended: none\n    rationale: Auto-fix is disabled, no writable spec is established, and no executable follow-up convention or separate owner is established. There is no audit-event behavior to ratify. A concrete custom effect is required, such as approval to implement the missing audit event manually in place and run the required verification.\n\nauto-applied fix commits: none\n\nwhole-diff minors: not recorded\n\n---\n\nConformance: 1 decision needed before shipping.\nwhole-diff minors: not recorded\n\n* audit - Export completion audit logging: completed exports have no audit-log event. What concrete disposition should be taken? Recommended: none (no named executable choice is established). (fix-now N/A: audit-only; accept N/A: no behavior to ratify; rescope N/A: writable spec unconfirmed; follow-up N/A: tracker convention and separate owner unconfirmed.)\n\nOther options per item: custom.\n\nReply `2: audit=custom(<concrete effect>)`.\n\n**Step 4 cannot be rendered yet:** the carried-open concern requires an explicit, executable disposition before the shipping options appear.",
+  "words": 401,
+  "backtick_lines": 1,
+  "path_tokens": 8,
+  "facts": {
+    "f1": {
+      "anthropic/claude-opus-5-5": "yes",
+      "github-copilot/gpt-6-astra": "yes"
+    },
+    "f2": {
+      "anthropic/claude-opus-5-5": "yes",
+      "github-copilot/gpt-6-astra": "yes"
+    },
+    "f3": {
+      "anthropic/claude-opus-5-5": "yes",
+      "github-copilot/gpt-6-astra": "yes"
+    },
+    "f4": {
+      "anthropic/claude-opus-5-5": "no",
+      "github-copilot/gpt-6-astra": "no"
+    },
+    "f5": {
+      "anthropic/claude-opus-5-5": "yes",
+      "github-copilot/gpt-6-astra": "yes"
+    }
+  },
+  "quality": {
+    "anthropic/claude-opus-5-5": "readable",
+    "github-copilot/gpt-6-astra": "engineer-only"
+  },
+  "rationale": {
+    "anthropic/claude-opus-5-5": "The closure block opens with the GAPS status, prints the informational minors line once in the closure block and once in the Step 3.5 render, and keeps AC5 as a single MISSING decision card with no deferred/deviates line; the operator can see one decision is needed, but no re-audit of AC5 is required before claiming conformance, and the gap's reviewer recommendation of fix sits beside a card recommendation of none.",
+    "github-copilot/gpt-6-astra": "The closure opens with reviewer details rather than the required conformance sentinel, and the fix path does not explicitly require re-auditing AC5 before claiming conformance."
+  },
+  "aggregate": {
+    "kept": 4,
+    "disputed": 0,
+    "lost": 1
+  }
+}

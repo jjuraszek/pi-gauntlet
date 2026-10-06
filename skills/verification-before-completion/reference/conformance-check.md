@@ -353,8 +353,7 @@ carried-open `fix` state is valid closure inventory, not escalation.
 ### Handoff sentinel and freshness anchor - every handoff
 
 Every `## Closure / conformance` block - a `CONFORMS` no-card handoff and a
-carried-open GAPS handoff alike - **opens with a sentinel of two lines (three
-when a happy-path run happened)** that lets
+carried-open GAPS handoff alike - **opens with a sentinel of two lines, plus `happy-path:` when a run happened, plus `Deferred/deviates per spec:` when the spec has such rows** that lets
 the finish gate re-verify freshness after context pruning, with no session
 history:
 
@@ -362,11 +361,12 @@ history:
 status: CONFORMS (0 open)      # or: status: GAPS (N open)
 audited-base: <full HEAD SHA at audit time>
 happy-path: passed | failed - attributed to G<n>,... | failed - unattributable | not run - <reason>
+Deferred/deviates per spec: AC2 deviates: <why>; AC3 deferred to <ref>; AC5 deferred to <ref>
 ```
 
 `N` = count of open concerns (decision units), matching the number of emitted
 concern cards. Record `audited-base` as the full 40-char HEAD SHA at audit time;
-never abbreviate. The `happy-path:` line is present exactly when a happy-path run happened, carrying the value of the reviewer's `Happy path:` output line of the final audit (the text after `Happy path: `; the transcript the final verdict was audited against). It is not a concern card: `N` and the card count ignore it. `finishing-a-development-branch` Step 3.5 renders it as one informational line. This block is the **single source** for the freshness rule;
+never abbreviate. The `happy-path:` line is present exactly when a happy-path run happened, carrying the value of the reviewer's `Happy path:` output line of the final audit (the text after `Happy path: `; the transcript the final verdict was audited against). It is not a concern card: `N` and the card count ignore it. The `Deferred/deviates per spec:` line is present exactly when the spec's `## Acceptance criteria` carries at least one `deferred:` or `deviates:` row, built by the orchestrator from those rows (`AC<n> deferred to <ref>` or `AC<n> deviates: <why>`, `;`-joined, row order); it is informational: `N` and the card count ignore it, it never triggers a re-audit, and those rows never produce a concern card. `finishing-a-development-branch` Step 3.5 renders each of these lines as one informational line. This block is the **single source** for the freshness rule;
 `finishing-a-development-branch` links here rather than restating it.
 
 **Freshness rule.** The audit-input rule requires deliverables committed before
@@ -388,7 +388,7 @@ git commands, no hashing or identity fields).
 
 **Sentinel validation.** `status: CONFORMS` requires `N = 0` and **no** emitted
 concern cards; `status: GAPS` requires `N > 0` exactly matching the emitted card
-count (`Gn/Cn` blocks), not merely gap headers. A mismatch is stale -> re-audit.
+count (`Gn/Cn` blocks), not merely gap headers. A mismatch is stale -> re-audit. The optional `happy-path:` and `Deferred/deviates per spec:` lines are accepted in any order after `audited-base:` and count toward nothing.
 
 **Audit-time input rule.** Stage or commit untracked deliverables before
 auditing, since `git diff <base> -- .` omits untracked files from the reviewer

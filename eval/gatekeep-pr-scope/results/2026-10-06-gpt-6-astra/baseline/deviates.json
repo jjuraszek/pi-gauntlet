@@ -1,0 +1,52 @@
+{
+  "sample": "deviates",
+  "arm": "baseline",
+  "candidate_model": "github-copilot/gpt-6-astra",
+  "thinking": "high",
+  "reviewers": [
+    "anthropic/claude-opus-5-5",
+    "github-copilot/gpt-6-astra"
+  ],
+  "repo_sha": "998132099a7e974b7189617e89589dea32e310fc",
+  "persona_sha256": "2990906f70449769edee59196163508097ababd881916e16bcec07572528e2b2",
+  "input_sha256": "0d3b3bebfbf5a7ff501afb094ceeb08f16b0612a35e7b1f4d1c7731733709b38",
+  "text": "Delivers: The reports page offers CSV downloads with email delivery and audit events. The PR covers AC1 and AC3-5 of acme/widgets#45; AC4's observable half (completion under 5s on production data) is checked after merge, not here.\n\nNits:\n- The export pages results with its own loop instead of the shared paging helper, so paging fixes need to be maintained in two places. (src/api/export.ts:31, lib/page.ts)\n\nBlockers:\n1. The export includes only 12 of the table's 40 columns, so it omits columns the ticket requires. The spec's deviation does not change that requirement. (src/api/export-columns.ts, test/api/export-columns.test.ts, doc/specs/2026-09-30-csv-export.md)\n\nVerdict: fixable - 1 blocker\n\n1. review - post the blocker as a comment on your PR [recommended]\n2. show evidence - show the evidence record and drafted edits\n3. stop - leave the PR as-is\n\nType a number. Not offered: fix (no helper facility is available), merge (column coverage is incomplete).",
+  "words": 141,
+  "backtick_lines": 0,
+  "path_tokens": 6,
+  "facts": {
+    "f1": {
+      "anthropic/claude-opus-5-5": "no",
+      "github-copilot/gpt-6-astra": "no"
+    },
+    "f2": {
+      "anthropic/claude-opus-5-5": "no",
+      "github-copilot/gpt-6-astra": "no"
+    },
+    "f3": {
+      "anthropic/claude-opus-5-5": "no",
+      "github-copilot/gpt-6-astra": "no"
+    },
+    "f4": {
+      "anthropic/claude-opus-5-5": "no",
+      "github-copilot/gpt-6-astra": "no"
+    },
+    "f5": {
+      "anthropic/claude-opus-5-5": "yes",
+      "github-copilot/gpt-6-astra": "yes"
+    }
+  },
+  "quality": {
+    "anthropic/claude-opus-5-5": "readable",
+    "github-copilot/gpt-6-astra": "readable"
+  },
+  "rationale": {
+    "anthropic/claude-opus-5-5": "The candidate is clear and gives a numbered menu that makes no post without a pick, but its Delivers line never names AC2 as a spec deviation, and it mints a blocker for AC2 that sets fixable and drops merge from the menu, even though the spec documents the 12-of-40-column scope.",
+    "github-copilot/gpt-6-astra": "The report has a clear numbered menu but wrongly blocks the spec-authorized row 2 deviation, omits it from Delivers, and withholds merge, while showing no post without a pick."
+  },
+  "aggregate": {
+    "kept": 1,
+    "disputed": 0,
+    "lost": 4
+  }
+}

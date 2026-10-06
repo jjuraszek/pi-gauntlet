@@ -1,0 +1,56 @@
+{
+  "sample": "mixed",
+  "arm": "candidate",
+  "candidate_model": "github-copilot/gpt-6-astra",
+  "thinking": "high",
+  "reviewers": [
+    "anthropic/claude-opus-5-5",
+    "github-copilot/gpt-6-astra"
+  ],
+  "repo_sha": "77af18febe2171f9a401ac85292477fabf505831",
+  "persona_sha256": "e513042e31a34fa893560beb9fbc0c2c7bce17631872d7cb57bd491ed47af924",
+  "input_sha256": "2c8f680fd8a9833aac7bc3dd0976d624d2146c930a5a520f414edc3c466b265a",
+  "text": "## Closure / conformance\n\n```text\nstatus: GAPS (1 open)\naudited-base: 4c1e8f0a9b2d7c6e5f4a3b2c1d0e9f8a7b6c5d4e\nhappy-path: not run - no row configured\nDeferred/deviates per spec: AC2 deviates: the export includes the 12 visible-by-default columns (Design clause 3); AC3 deferred to acme/widgets#46; AC5 deferred to acme/widgets#46\n\nG1 - Five-second export budget remains unmet\n  verdict: PARTIAL\n  origin: spec \"Acceptance criteria / AC4\" - \"The export completes under 5s on production data.\"\n  evidence: src/export/stream.ts:30; test/export/latency.test.ts:20 reports 6.2s on production data\n  blocker: No external blocker reported. closureReview.maxFixRounds=0 disables the automatic fix loop.\n  touched-files: src/export/stream.ts\n  touched-resources: none\n  round history: R0 PARTIAL, reviewer recommended accept; carried OPEN. No fix round ran.\n\n  G1/C1 - Five-second export budget remains unmet\n    unresolved: The production-sized latency fixture takes 6.2s, exceeding the required under-five-second budget.\n    impact: The export does not satisfy the in-scope performance acceptance criterion.\n    origin: spec \"Acceptance criteria / AC4\" - \"The export completes under 5s on production data.\"\n    remediation: Reduce streaming overhead and validate that the export completes under 5s on production data.\n    evidence: src/export/stream.ts:30; test/export/latency.test.ts:20 reports 6.2s\n    touched-files: src/export/stream.ts\n    touched-resources: none\n    available dispositions:\n      fix-now: Optimize streaming and validate the budget. Unavailable: closureReview.maxFixRounds=0; finish-time selection cannot bypass this cap.\n      accept-into-spec: Explicitly ratify the current latency by amending the Goal and AC4; this changes the contract rather than satisfying the existing budget. Not currently executable from the supplied context: no writable spec location is established.\n      rescope-into-spec: Explicitly remove or defer the five-second requirement from this workflow. Not currently executable from the supplied context: no writable spec location is established.\n      follow-up: Transfer the performance work to a separately owned issue. Unavailable: no executable issue-tracker convention is supplied. The existing acme/widgets#46 deferral covers email and audit events, not latency.\n      custom: Always visible; executable only after the user supplies a concrete, executable effect. Manual optimization and validation may be approved through this disposition without invoking the disabled isolated fix loop.\n    recommended: none\n    rationale: Automatic fixing is disabled, and neither a writable spec location nor an executable tracker convention is established. A custom decision must identify a concrete manual correction and validation operation in an accessible checkout, or another executable durable ownership arrangement. Merely accepting the measured 6.2s would not satisfy the unchanged AC4.\n\nauto-applied fix commits: none\nwhole-diff minors: not recorded\n```\n\n## Operator render\n\nConformance: 1 decision needed before shipping.\nhappy-path: not run - no row configured\nDeferred/deviates per spec: AC2 deviates: the export includes the 12 visible-by-default columns (Design clause 3); AC3 deferred to acme/widgets#46; AC5 deferred to acme/widgets#46\nwhole-diff minors: not recorded\n\n* latency - Five-second export budget: the production-sized fixture takes 6.2s against the required under-5s budget. How should this requirement be resolved? Recommended: none (no named executable disposition is established). (fix-now N/A: audit-only; accept/rescope unavailable until a writable spec is established; follow-up N/A: no executable tracker convention.)\n\nOther options per item: fix-now / accept / rescope / follow-up / custom.\n\nFor **latency — Five-second export budget**, supply a concrete custom decision using `2: latency=custom(...)`, naming the operation and where it can be executed.\n\n“Go with recommended” is withheld until this item has an executable decision. Step 4 cannot render yet: the carried-open concern has not received an explicit disposition.",
+  "words": 499,
+  "backtick_lines": 3,
+  "path_tokens": 17,
+  "facts": {
+    "f1": {
+      "anthropic/claude-opus-5-5": "yes",
+      "github-copilot/gpt-6-astra": "yes"
+    },
+    "f2": {
+      "anthropic/claude-opus-5-5": "yes",
+      "github-copilot/gpt-6-astra": "yes"
+    },
+    "f3": {
+      "anthropic/claude-opus-5-5": "yes",
+      "github-copilot/gpt-6-astra": "yes"
+    },
+    "f4": {
+      "anthropic/claude-opus-5-5": "yes",
+      "github-copilot/gpt-6-astra": "no"
+    },
+    "f5": {
+      "anthropic/claude-opus-5-5": "yes",
+      "github-copilot/gpt-6-astra": "yes"
+    },
+    "f6": {
+      "anthropic/claude-opus-5-5": "yes",
+      "github-copilot/gpt-6-astra": "yes"
+    }
+  },
+  "quality": {
+    "anthropic/claude-opus-5-5": "mixed",
+    "github-copilot/gpt-6-astra": "engineer-only"
+  },
+  "rationale": {
+    "anthropic/claude-opus-5-5": "The closure block opens with a 1-open status sentinel, settles rows 2/3/5 on one Deferred/deviates line, and gives a single card that recommends none while naming the missing prerequisites; but the Step 3.5 render marks fix-now, accept, rescope and follow-up unavailable and then lists them all as 'Other options', and it stops with 'Step 4 cannot render yet' instead of ending at Step 4's first line.",
+    "github-copilot/gpt-6-astra": "AC2/3/5 are informational and AC4 is the sole decision with the unavailable fix loop identified, but the conformance sentinel appears only outside the closure block and the operator render omits Step 4's first line."
+  },
+  "aggregate": {
+    "kept": 5,
+    "disputed": 1,
+    "lost": 0
+  }
+}

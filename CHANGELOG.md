@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Changed
+
+- **The spec is the PR gate's scope contract.** `/skill:gatekeep-pr` judges a PR against the spec at its head: `deferred: <ref>` and `deviates: <why>` rows render as settled in `Delivers`, a `deferred:` with no tracker ref, spec path, or URL is a gap, the PR description is the contract when no spec applies, and the live ticket is only cross-checked (one `show evidence` line) - `/skill:check-delivery` still judges it after merge. The impossible-AC lifecycle, `propose ticket change`, and the tracker-only split rule are gone; after your own merge the menu offers `post coverage to ticket` and `post coverage to PR`. The verify-phase sentinel and finishing Step 3.5 carry one informational `Deferred/deviates per spec:` line. New evals `eval/gatekeep-pr-scope/` and `eval/conformance-check/`. (#59) Brainstorming and the spec council now require a `deferred:` row to name a tracker ref, spec path, or URL, and accept a slice that depends on the deferred work.
+
 ## v7.5.0 - 2026-10-06
 
 - `gatekeep-pr` classifies every pending check as binding or not from GitHub's viewer-relative `mergeStateStatus`, refreshed before every menu (`### Pre-menu refresh`): a pending commit status or review requirement that does not bind the gating actor no longer withholds `merge` or recommends `wait`; a `BLOCKED`, `UNKNOWN`, or unreadable merge state, and a check whose Actions run is still live, still withhold. No new settings or overrides key. New `eval/gatekeep-pr-merge-state/` target with six digest fixtures and a recorded baseline/candidate run.

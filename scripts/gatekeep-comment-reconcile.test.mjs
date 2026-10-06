@@ -35,8 +35,6 @@ test('assessment.md dispatches Verify and Review as fresh helpers with no inline
   assert.match(assessment, /push --dry-run --no-verify --no-follow-tags/);
   assert.match(assessment, /dispatched sequentially - never `worktree: true`/);
   assert.match(assessment, /closure-line contract/);
-  assert.match(assessment, /author-bearing read/);
-  assert.match(assessment, /before recording `author: unreadable`/);
 });
 
 // Static source contracts only: these do not execute the skill, a reviewer, or gh.
@@ -90,20 +88,40 @@ test('findings.md owns the mechanism-only AC contract, drafted doc fixes, and th
   assert.match(findings, /observation half[^\n]*blocks nothing|blocks nothing[^\n]*observation half/);
   assert.match(findings, /`gap`[^\n]*is a blocker/);
   assert.match(findings, /applied only on a `fix` pick/);
-  assert.match(findings, /`drafted`[^\n]*`proposed`[^\n]*`resolved`/);
-  assert.match(findings, /ticket body[^\n]*lifts|lifts[^\n]*ticket body/i);
+  assert.ok(findings.includes('deferred per spec'));
+  assert.ok(!findings.includes('Only the tracker waives'));
+  assert.ok(!findings.includes('`impossible`'));
   assert.match(findings, /`id`[^\n]*`updated_at`/);
   assert.match(findings, /^\| nit \|/m);
   assert.ok(!findings.includes('follow-up'));
 });
 
-test('findings.md split rule fails closed on commit references and unreadable authors', () => {
-  assert.match(findings, /a commit SHA, branch name, or deploy note names no PR and never splits a row/);
-  assert.match(findings, /author cannot be read from the tracker is not human-authored/);
+test('assessment.md selects the scope contract from the spec at head with a harness fallback', () => {
+  assert.ok(assessment.includes('## Select the scope contract'));
+  assert.match(assessment, /`doc\/specs` and `docs\/specs`/);
+  assert.match(assessment, /cross_check: matched \| differs/);
+  assert.ok(!assessment.includes('author: unreadable'));
+});
+
+test('verification-brief.md Section C judges against the scope block, not the ticket', () => {
+  const c = section(brief, '## Section C - Reviewer\n', '## Edge cases\n');
+  assert.ok(c.includes('`scope` block'));
+  assert.ok(!c.includes("ticket's actual acceptance criteria"));
+});
+
+test('post-selection-loop.md reads the merge state before offering coverage posts', () => {
+  assert.ok(loop.includes('gh pr view <N> --json state,mergeCommit'));
+  assert.ok(loop.includes('Loop until `stop`.'));
+  assert.ok(!loop.includes('impossible'));
+});
+
+test('conformance-check.md sentinel names the deferred/deviates line', () => {
+  const cc = read('../skills/verification-before-completion/reference/conformance-check.md');
+  assert.ok(cc.includes('Deferred/deviates per spec:'));
 });
 
 test('report.md renders bottom-up and ends on a two-state verdict', () => {
-  const order = ['Delivers', 'Ticket changes', 'PR comments', 'Nits', 'Blockers', 'Verdict:'];
+  const order = ['Delivers', 'PR comments', 'Nits', 'Blockers', 'Verdict:'];
   const orderSection = section(report, '## Order\n');
   const fence = orderSection.match(/```[^\n]*\n([\s\S]*?)\n```/);
   assert.ok(fence, 'Missing fenced report template after ## Order');
@@ -112,13 +130,22 @@ test('report.md renders bottom-up and ends on a two-state verdict', () => {
   assert.deepEqual([...idx].sort((a, b) => a - b), idx, 'sections must appear in bottom-up order');
   assert.match(report, /^Verdict: mergeable - [^\n]*\| fixable - <N> blockers/m);
   assert.ok(!report.includes('not mergeable'));
+  assert.ok(!report.includes('Ticket changes'));
   assert.match(report, /[Ee]mpty sections are omitted/);
   assert.match(report, /show evidence: <log_path>/);
   assert.ok(!report.includes('captured tail'));
 });
 
-test('decision-menu.md offers fix to every author, omits rows the actor cannot run, and bounds the impossible-AC anyway', () => {
-  assert.ok(menu.includes('merge anyway - accept AC'));
+test('decision-menu.md offers fix to every author, omits rows the actor cannot run, and posts coverage only after an own merge', () => {
+  assert.ok(!menu.includes('merge anyway - accept AC'));
+  assert.ok(!menu.includes('propose ticket change'));
+  assert.ok(menu.includes('`post coverage to ticket`') && menu.includes('`post coverage to PR`'));
+  assert.match(menu, /`post coverage to ticket`[^\n]*renders only under the `own merge` overlay/);
+  assert.match(menu, /`post coverage to PR`[^\n]*renders only under the `own merge` overlay/);
+  const overlays = menu.split('\n');
+  const own = overlays.findIndex((l) => l.startsWith('| own merge |'));
+  const merged = overlays.findIndex((l) => l.startsWith('| merged or closed PR |'));
+  assert.ok(own >= 0 && merged >= 0 && own < merged, 'own merge overlay sits above merged or closed PR');
   assert.ok(menu.split('\n').some((l) => l.startsWith('| verification evidence pending |')));
   const consent = section(menu, '## Consent table\n', '\n## ');
   const rows = consent.split('\n').filter((l) => /^\| (you|someone else) \|/.test(l));

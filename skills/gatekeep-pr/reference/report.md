@@ -9,14 +9,12 @@ Render bottom-up for a terminal: least important first, verdict and menu last. E
 Section order is fixed:
 
 ```
-Delivers: <one sentence: what the PR does. With a ticket, a second sentence built from these clauses in
-          order, each present only when it applies: coverage ("The PR covers the whole <ref>" | "covers
-          AC1-2 of <ref>" | "covers none of <ref>'s ACs"); split ("AC3 belongs to <split ref>");
-          observation ("AC4's observable half (<what>) is checked after merge, not here"); joined with
-          semicolons.>
-
-Ticket changes:          (one item per unresolved `impossible` row)
-- AC<n> asks for <X>, and <cited constraint>. Proposed wording: "<new AC text>". (drafted | proposed <comment url>; <source>)
+Delivers: <one sentence: what the PR does. With source: spec, a second sentence built from these clauses in
+          order, each present only when it applies, joined with semicolons: covered rows ("ACs 1, 2, 4";
+          "ACs 1-5" when every row is covered; "no ACs" when none; a row whose mechanism half is covered
+          counts in the covered list and its observation half adds the trailing clause); deferred rows grouped by ref, in row
+          order ("3, 5 deferred per spec to <ref>"); deviating rows ("2 deviates per spec: <why>");
+          observation halves ("4's observable half (<what>) is checked after merge, not here").>
 
 PR comments:             (replyable review comments, a pending reviewer run, a blocked or unknown merge state, a binding pending check, a failed refresh, or an incomplete source review - see the paragraph above)
 - <reviewer>'s comment on <topic> <verdict clause>, so the drafted reply <what it says>. (<locator>)
@@ -40,28 +38,22 @@ The `Sync:` line renders only when `--rebase` was passed, as one whole sentence 
 
 ## Verdict
 
-Two states: `mergeable` or `fixable`. `mergeable` carries the evidence clause from `findings.md` `## Provenance`: `CI green on the assessed head (<check name>)` or `verification command passed locally`. `fixable - <N> blockers` when `Blockers` is non-empty; `fixable - <withhold reason>` when it is empty but a merge prerequisite is unmet: `ticket change pending on AC<n>` (for example `ticket change pending on AC4`), `reviewer run in progress`, `binding check pending`, `blocked by GitHub`, `merge state unknown`, `failed gate` (listed for spec parity; a red gate mints a blocker per `findings.md` `## Namespaces`, so `Blockers` is non-empty), `comments not refreshed`, `comment source review incomplete`, `verification not run` (the command needed credentials or no command resolved, with nothing else blocking), `mergeable unknown`, `behind base`, `merge conflict` (for `mergeable == CONFLICTING`).
+Two states: `mergeable` or `fixable`. `mergeable` carries the evidence clause from `findings.md` `## Provenance`: `CI green on the assessed head (<check name>)` or `verification command passed locally`. `fixable - <N> blockers` when `Blockers` is non-empty; `fixable - <withhold reason>` when it is empty but a merge prerequisite is unmet: `reviewer run in progress`, `binding check pending`, `blocked by GitHub`, `merge state unknown`, `failed gate` (listed for spec parity; a red gate mints a blocker per `findings.md` `## Namespaces`, so `Blockers` is non-empty), `comments not refreshed`, `comment source review incomplete`, `verification not run` (the command needed credentials or no command resolved, with nothing else blocking), `mergeable unknown`, `behind base`, `merge conflict` (for `mergeable == CONFLICTING`).
 
 `<N> blockers` reads `1 blocker` for one.
 
 ## What stays out
 
-Verbatim command output stays in its `log_path` file and never prints; `show evidence` prints its `show evidence: <log_path>` line instead. CI run URLs and conclusions (the pending-reviewer locator in `PR comments` is the one URL that prints in the report), drafted edits, drafted replies, matched claims, covered ACs, internal IDs, and disposition annotations print only under the `show evidence` pick. A clean run with a linked ticket renders `Delivers`, the verdict line, and the menu - about four lines.
+Verbatim command output stays in its `log_path` file and never prints; `show evidence` prints its `show evidence: <log_path>` line instead. CI run URLs and conclusions (the pending-reviewer locator in `PR comments` is the one URL that prints in the report), drafted edits, drafted replies, matched claims, per-row AC outcomes, internal IDs, and disposition annotations print only under the `show evidence` pick. A clean run with a spec renders `Delivers`, the verdict line, and the menu - about four lines.
 
-`show evidence` prints, in this order: the evidence record (CI: each satisfying check's name, conclusion, SHA, run URL; local: each run's command, `result`, `exit_code`, and one `show evidence: <log_path>` line pointing at its captured output - never the output itself); claim dispositions; AC outcomes per row; check dispositions; drafted payloads keyed by the blocker or nit number they fix; drafted replies keyed by the `PR comments` item they answer.
+`show evidence` prints, in this order: the evidence record (CI: each satisfying check's name, conclusion, SHA, run URL; local: each run's command, `result`, `exit_code`, and one `show evidence: <log_path>` line pointing at its captured output - never the output itself); claim dispositions; AC outcomes per row and the `cross-check:` line (`assessment.md` `## Select the scope contract`); check dispositions; drafted payloads keyed by the blocker or nit number they fix; drafted replies keyed by the `PR comments` item they answer.
 
 ## Worked example
 
 Own PR, ticket gh-45:
 
 ```
-Delivers: the reports page exports CSV on demand. The PR covers AC1-2 of gh-45; AC3
-(export completes under 5s on production data) is checked after merge, not here.
-
-Ticket changes:
-- AC4 asks for the customer's credit score in the export, and the vendor API this
-  service reads returns no such field.
-  Proposed wording: "Exports include the customer's risk tier." (drafted; vendor doc api.example.com/v2/customers)
+Delivers: the reports page exports CSV on demand. ACs 1, 2, 4; 3 deferred per spec to acme/widgets#46; 4's observable half (export completes under 5s on production data) is checked after merge, not here.
 
 PR comments:
 - maria's comment on the missing CSV header is already addressed, so the drafted reply points her at the fix. (3f2a1c0)
@@ -79,18 +71,17 @@ Blockers:
 Verdict: fixable - 2 blockers
 
 1. fix - apply both blockers in the worktree, review the wave, push        [recommended]
-2. propose ticket change - show the AC4 edit for approval before it posts
-3. review - post the blockers as a comment on your PR
-4. reply - post the drafted reply to maria
-5. show evidence - gate output, CI run, drafted edits
-6. stop - leave the PR as-is
+2. review - post the blockers as a comment on your PR
+3. reply - post the drafted reply to maria
+4. show evidence - gate output, CI run, drafted edits
+5. stop - leave the PR as-is
 Type a number, or compose: "fix 2", "fix nits", "fix + nits", "fix 1 + reply".
 ```
 
 A clean own PR with ticket gh-45 and CI green:
 
 ```
-Delivers: the reports page exports CSV on demand. The PR covers the whole gh-45.
+Delivers: the reports page exports CSV on demand. ACs 1-5.
 
 Verdict: mergeable - CI green on the assessed head (test)
 

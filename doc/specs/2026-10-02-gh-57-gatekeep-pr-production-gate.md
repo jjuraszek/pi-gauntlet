@@ -1,5 +1,7 @@
 # gatekeep-pr: separated contexts, reviewed fix wave, CI polling, permission-derived menus
 
+> **Superseded by:** [doc/specs/2026-10-06-gh-59-spec-disposition-coverage.md](./2026-10-06-gh-59-spec-disposition-coverage.md) - D8 tracker-only split rule only
+
 **Goal:** Make `/skill:gatekeep-pr` safe to run on a real PR by default - helpers in fresh contexts, no orchestrator edits, a reviewer before every push, CI read after the push, conflict and permission facts owned by the digest - with the smallest text change per ticket row, inside `skills/gatekeep-pr/` only, and with a before/after control run on past PRs so the first-pass report does not regress.
 
 Ticket: jjuraszek/pi-gauntlet#57. Amends (does not supersede) `doc/specs/2026-10-01-gatekeep-pr-capability-gate-compact-report.md` (fix wave, re-entry, menu overlays) and `doc/specs/2026-09-06-gh-14-gatekeep-ci-evidence-default.md` (Evidence resolution table); both stay live for every clause this spec does not name.

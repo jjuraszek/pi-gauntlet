@@ -1,5 +1,7 @@
 # gatekeep-pr: mechanism-only AC gate, compact bottom-up report, explicit fixes
 
+> **Superseded by:** [doc/specs/2026-10-06-gh-59-spec-disposition-coverage.md](./2026-10-06-gh-59-spec-disposition-coverage.md) - D2 ticket-AC scope and impossible-AC lifecycle, D3 scope creep source, D4/D6 `Delivers` and menu rows derived from them
+
 **Goal:** gatekeep-pr judges whether a PR delivers the mechanism each acceptance criterion needs (code, unit tests, docs) and renders a short, terminal-friendly report whose last lines are a two-state verdict and a verb menu; post-merge observation stays with `/skill:check-delivery`, which takes no input from the gate.
 
 Supersedes `doc/specs/2026-08-18-gh-9-gatekeep-pr-skill.md`, scope: AC coverage rule, merge-proof claim rule, report template, follow-up category. Supersedes `doc/specs/2026-09-22-gh-43-split-gatekeep-pr-skill.md`, scope: file layout and SKILL.md content split. Supersedes `doc/specs/2026-08-20-gatekeep-pr-output-density.md`, scope: human-visible finding IDs, action-vocabulary grammar, pre-composed course rendering, and output done-check placement (the `C#` ledger it introduced stays, internal only).
