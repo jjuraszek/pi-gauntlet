@@ -626,6 +626,67 @@
     assert.deepEqual(h.readRecord().derived.council, EXPECTED_COUNCIL);
   });
 
+  const HEREDOC_COMMIT = (body: string) => `git -C /w commit -q -F - -- doc/specs/a.md <<'EOF'\nspec: a\n\n${body}\nEOF`;
+  const ALL_NONE = "Applied: none\nDeferred: none\nRejected: none";
+  const EMPTY_CHAIR = "consensus: sound\nclusters:\nresolved:\n";
+  test("council records the audit from the spec commit heredoc without a chat render", async () => {
+    const h = await boundInBrainstorm();
+    await h.emit("tool_result", memberBatch());
+    await h.emit("tool_result", chairResult());
+    await h.bash("c1", HEREDOC_COMMIT(AUDIT_TEXT));
+    assert.deepEqual(h.readRecord().derived.council, EXPECTED_COUNCIL);
+  });
+  test("council ignores a chat audit after the commit already recorded it", async () => {
+    const h = await boundInBrainstorm();
+    await h.emit("tool_result", memberBatch());
+    await h.emit("tool_result", chairResult());
+    await h.bash("c1", HEREDOC_COMMIT(AUDIT_TEXT));
+    const before = h.readRecord().derived.council;
+    assert.deepEqual(before, EXPECTED_COUNCIL);
+    await h.emit("message_end", assistant(AUDIT_TEXT));
+    assert.deepEqual(h.readRecord().derived.council, before);
+  });
+  test("council ignores a commit outside brainstorm or before a chair result", async () => {
+    const planned = await boundInPlan();
+    await planned.emit("tool_result", memberBatch());
+    await planned.emit("tool_result", chairResult());
+    await planned.bash("c1", HEREDOC_COMMIT(AUDIT_TEXT));
+    assert.equal(planned.readRecord().derived.council, undefined);
+    const early = await boundInBrainstorm();
+    await early.emit("tool_result", memberBatch());
+    await early.bash("c1", HEREDOC_COMMIT(AUDIT_TEXT));
+    assert.equal(early.readRecord().derived.council, undefined);
+  });
+  test("council keeps pending across the grant amend and records a later chat audit", async () => {
+    const h = await boundInBrainstorm();
+    await h.emit("tool_result", memberBatch());
+    await h.emit("tool_result", chairResult());
+    await h.bash("c1", "git -C /w commit --amend --no-edit -q");
+    assert.equal(h.readRecord().derived.council, undefined);
+    await h.emit("message_end", assistant(AUDIT_TEXT));
+    assert.deepEqual(h.readRecord().derived.council, EXPECTED_COUNCIL);
+  });
+  test("council records an all-none audit from the commit against an empty chair", async () => {
+    const h = await boundInBrainstorm();
+    await h.emit("tool_result", memberBatch());
+    await h.emit("tool_result", chairResult(EMPTY_CHAIR));
+    await h.bash("c1", HEREDOC_COMMIT(ALL_NONE));
+    const zeroed = { total: counts(), unique: counts(), applied: counts(), unique_applied: counts(), deferred: counts(), rejected: counts() };
+    assert.deepEqual(h.readRecord().derived.council, {
+      chair: { model: "p/chair:medium", dispatches: 1, clusters: 0, members_reported: 0 },
+      members: { "p/alpha:xhigh": { dispatches: 1, ...zeroed }, "p/beta:high": { dispatches: 2, ...zeroed } },
+    });
+  });
+  test("council ignores a non-git bash command carrying audit text", async () => {
+    const h = await boundInBrainstorm();
+    await h.emit("tool_result", memberBatch());
+    await h.emit("tool_result", chairResult());
+    await h.bash("c1", `printf '%s\\n' "${AUDIT_TEXT.replace(/\n/g, "\\n")}"`);
+    assert.equal(h.readRecord().derived.council, undefined);
+    await h.emit("message_end", assistant(AUDIT_TEXT));
+    assert.deepEqual(h.readRecord().derived.council, EXPECTED_COUNCIL);
+  });
+
   test("subagent results: dispatch events, persona tokens, spec_rounds, reviews, conformance_loops; async results: [] contribute nothing", async () => {
     const h = await boundInPlan();
     await h.emit("tool_result", subagentResult([

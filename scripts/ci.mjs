@@ -457,7 +457,7 @@ try {
 }
 
 try {
-  execFileSync(process.execPath, ["--test", R("scripts/happy-path-run.test.mjs"), R("scripts/gatekeep-comment-reconcile.test.mjs"), R("scripts/brainstorming-contract.test.mjs"), R("eval/spec-summarizer/run.test.mjs"), R("eval/brainstorming/run.test.mjs"), R("eval/forge-skill/run.test.mjs")], { stdio: "pipe" });
+  execFileSync(process.execPath, ["--test", R("scripts/happy-path-run.test.mjs"), R("scripts/gatekeep-comment-reconcile.test.mjs"), R("scripts/brainstorming-contract.test.mjs"), R("eval/spec-summarizer/run.test.mjs"), R("eval/brainstorming/run.test.mjs"), R("eval/spec-gate/run.test.mjs"), R("eval/forge-skill/run.test.mjs")], { stdio: "pipe" });
   ok("happy-path shell fixtures, PR comment, brainstorming source and eval driver contracts pass");
 } catch (e) {
   fail(`happy-path, PR comment, brainstorming or eval driver regression checks failed:\n    ${String(e.stdout || e.stderr || e).split("\n").slice(0, 30).join("\n    ")}`);

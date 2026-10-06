@@ -1,0 +1,52 @@
+{
+  "sample": "row-3-reply",
+  "arm": "candidate",
+  "candidate_model": "github-copilot/gpt-6-astra",
+  "thinking": "high",
+  "reviewers": [
+    "github-copilot/kimi-k3",
+    "anthropic-fable/claude-fable-5-1"
+  ],
+  "persona_sha256": "e5620b1fef0c54444e9ebec98c2c80c1d1b29ec5d18d2501b3232b28dd28e95b",
+  "repo_sha": "757a22964fa1699a42fd85d4d429451d523c96cc",
+  "input_sha256": "8d7322b9e3bfa26aad3f130e53bf7887dfd88b965025dd993d39b388e28a125a",
+  "text": "## Briefing\n\nOrchard coordinators use orchard-billing to collect monthly fees from growers, but a repeated collection request can currently charge the same invoice twice. Coordinators then reconcile receipts by hand while growers wait for a refund, and neither group can tell whether a retry is safe. The proposed change gives each collection request a stable receipt and makes retries return the original outcome instead of collecting again.\n\n**What changes**\n- Coordinators see one receipt for each invoice collection, including retries after an interrupted connection.\n- A pending collection stays visibly pending until its outcome is known; the service does not guess that a timeout means failure.\n- Growers receive a confirmation only after the collection succeeds, with the invoice amount and collection date.\n\n**Approval risks**\n- Existing duplicate charges remain a manual refund task; this change prevents new duplicates rather than rewriting past receipts.\n- The payment partner must preserve request keys across retries. Collection remains paused if that guarantee cannot be confirmed.\n- Receipt retention increases stored billing data, so operators must approve the retention window before rollout.\n\n**Done when**\n- Repeated requests produce one charge and one receipt, including after a service restart.\n- Pending outcomes remain visible, confirmations are sent once, and coordinators can reconcile the rollout's first billing cycle without duplicate charges.\n\nSpec written and committed to orchard-billing/doc/specs/[filename not supplied] (worktree: [path not supplied]).\n\nCouncil: 11 applied, 0 deferred, 0 rejected\nUnresolved ambiguities: none reported in the supplied handoff.\nNew predecessor candidates at spec-writing: not reported — index rows are a hint; code is the source and an absent row proves nothing.\n\n1 - approve: proceed to planning under the existing amendment review; a fresh reviewer applies evidence-backed factual corrections on its own, and every other spec amendment (scope, acceptance-criteria, or contract edits, and redraws) stops for your review.\n2 - approve, auto-apply amends: every later spec amendment in this flow (corrected facts, paths, verification lines, and scope, acceptance-criteria, or public-contract edits alike) applies without asking; only a redraw (changed problem statement, component added, removed, or re-bounded) still stops for you, and the grant never stands in for a spec approval.\n3 - show council dispositions: prints the council audit verbatim, then re-presents this gate. Not an approval.\n\nOr tell me what to change in the spec, or say \"revert applied council edit <X>\" to undo a specific applied edit.\n\n---\n\n### Reply: 3 — show council dispositions\n\nThis is not an approval. With tools disallowed, I cannot perform the required fresh read of the audit from Git HEAD. The **Spec commit** body supplied in your message is reproduced verbatim below; it is not independently verified against HEAD. No spec or commit changes have been made.\n\n```text\nApplied: [blocker] interrupted retry recharges - raised-by: [vendor-a-model-x, vendor-b-model-y] -> reuse the collection key after every interrupted request (grounded: vendor-a-model-x interrupted collection probe)\nApplied: [blocker] uncertain payment outcome - raised-by: [vendor-b-model-y] -> preserve pending outcomes until the payment partner confirms them\nApplied: [major] confirmation precedes receipt - raised-by: [vendor-c-model-z] -> store the receipt before sending a grower confirmation\nApplied: [major] restart loses collection key - raised-by: [vendor-a-model-x] -> keep collection keys through a service restart (grounded: vendor-a-model-x restart probe)\nApplied: [major] changed amount on retry - raised-by: [vendor-b-model-y] -> reject retries that change the invoice amount\nApplied: [major] retry hides original receipt - raised-by: [vendor-c-model-z] -> show coordinators the original receipt on a retry\nApplied: [major] unconfirmed partner guarantee - raised-by: [vendor-a-model-x, vendor-c-model-z] -> require payment partner confirmation before rollout\nApplied: [minor] historical refund scope - raised-by: [vendor-b-model-y] -> state that historical refunds remain manual\nApplied: [minor] retention approval ownership - raised-by: [vendor-c-model-z] -> name the receipt retention approval owner\nApplied: [minor] confirmation lacks date - raised-by: [vendor-a-model-x] -> include the collection date in confirmations\nApplied: [minor] rollout reconciliation gap - raised-by: [vendor-b-model-y, vendor-c-model-z] -> check the first billing cycle for duplicate charges\nDeferred: none\nRejected: none\n```\n\n---\n\n## Briefing\n\nOrchard coordinators use orchard-billing to collect monthly fees from growers, but a repeated collection request can currently charge the same invoice twice. Coordinators then reconcile receipts by hand while growers wait for a refund, and neither group can tell whether a retry is safe. The proposed change gives each collection request a stable receipt and makes retries return the original outcome instead of collecting again.\n\n**What changes**\n- Coordinators see one receipt for each invoice collection, including retries after an interrupted connection.\n- A pending collection stays visibly pending until its outcome is known; the service does not guess that a timeout means failure.\n- Growers receive a confirmation only after the collection succeeds, with the invoice amount and collection date.\n\n**Approval risks**\n- Existing duplicate charges remain a manual refund task; this change prevents new duplicates rather than rewriting past receipts.\n- The payment partner must preserve request keys across retries. Collection remains paused if that guarantee cannot be confirmed.\n- Receipt retention increases stored billing data, so operators must approve the retention window before rollout.\n\n**Done when**\n- Repeated requests produce one charge and one receipt, including after a service restart.\n- Pending outcomes remain visible, confirmations are sent once, and coordinators can reconcile the rollout's first billing cycle without duplicate charges.\n\nSpec written and committed to orchard-billing/doc/specs/[filename not supplied] (worktree: [path not supplied]).\n\nCouncil: 11 applied, 0 deferred, 0 rejected\nUnresolved ambiguities: none reported in the supplied handoff.\nNew predecessor candidates at spec-writing: not reported — index rows are a hint; code is the source and an absent row proves nothing.\n\n1 - approve: proceed to planning under the existing amendment review; a fresh reviewer applies evidence-backed factual corrections on its own, and every other spec amendment (scope, acceptance-criteria, or contract edits, and redraws) stops for your review.\n2 - approve, auto-apply amends: every later spec amendment in this flow (corrected facts, paths, verification lines, and scope, acceptance-criteria, or public-contract edits alike) applies without asking; only a redraw (changed problem statement, component added, removed, or re-bounded) still stops for you, and the grant never stands in for a spec approval.\n3 - show council dispositions: prints the council audit verbatim, then re-presents this gate. Not an approval.\n\nOr tell me what to change in the spec, or say \"revert applied council edit <X>\" to undo a specific applied edit.",
+  "words": 991,
+  "backtick_lines": 2,
+  "path_tokens": 2,
+  "facts": {
+    "f1": {
+      "github-copilot/kimi-k3": "yes",
+      "anthropic-fable/claude-fable-5-1": "yes"
+    },
+    "f2": {
+      "github-copilot/kimi-k3": "yes",
+      "anthropic-fable/claude-fable-5-1": "yes"
+    },
+    "f3": {
+      "github-copilot/kimi-k3": "yes",
+      "anthropic-fable/claude-fable-5-1": "yes"
+    },
+    "f4": {
+      "github-copilot/kimi-k3": "yes",
+      "anthropic-fable/claude-fable-5-1": "yes"
+    },
+    "f5": {
+      "github-copilot/kimi-k3": "yes",
+      "anthropic-fable/claude-fable-5-1": "yes"
+    }
+  },
+  "quality": {
+    "github-copilot/kimi-k3": "briefing",
+    "anthropic-fable/claude-fable-5-1": "briefing"
+  },
+  "rationale": {
+    "github-copilot/kimi-k3": "All 11 Applied plus Deferred/Rejected lines are reprinted verbatim, the gate is re-presented with the verbatim briefing, the 11/0/0 counts line, and three numbered rows, and the reply explicitly records no approval and no spec or commit changes, with the decision clear from the first screen.",
+    "anthropic-fable/claude-fable-5-1": "The audit lines are reprinted verbatim, the reply is explicitly marked as not an approval with no spec or commit changes, and the gate is re-presented with the verbatim briefing, the 11/0/0 counts line, adjacent notes, and three numbered labeled rows."
+  },
+  "aggregate": {
+    "kept": 5,
+    "disputed": 0,
+    "lost": 0
+  }
+}

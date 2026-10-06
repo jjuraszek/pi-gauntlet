@@ -1,5 +1,7 @@
 # Spec summary as a briefing, with a committed persona eval
 
+> **Superseded by:** [doc/specs/2026-10-05-council-gate-digest.md](./2026-10-05-council-gate-digest.md) - "Out of scope" exclusion of the council audit rendering at the gate only
+
 **Goal:** The brainstorming gate summary becomes a fixed-size, plain-language briefing a product manager can approve from, and the persona edit that produces it is checked for lost facts by a committed, re-runnable eval that becomes the convention for every later skill or persona edit.
 
 Supersedes `doc/specs/2026-06-23-spec-summary-at-gate.md`, Decisions and "Edit plan > agents/spec-summarizer.md" (summary output format and length shape). Supersedes `doc/specs/2026-07-06-spec-summary-pruning-fix.md`, the `under ~2%` ratio check in the gate degrade stage only; the file-only transport, the `~500 bytes` floor, the `~45 KB` ceiling, and the Read-last rule stay live there.

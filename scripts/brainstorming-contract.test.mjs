@@ -58,6 +58,10 @@ test('summary faults, partial coverage, commit and revisions retain their routes
   for (const marker of ['This commit is **unconditional**', 'Coverage:', 'Applied:', 'Deferred:', 'Rejected:', 'under ~500 bytes', 'over ~45 KB', 'last content-producing tool call', 'returns 0 bytes', 'reports truncation', 'never paraphrase', 'rm "$SUMMARY_PATH"', 'fresh** temp path', 'proceed immediately to `/skill:writing-plans`', 're-dispatch the summarizer or note the discrepancy']) assert.ok(text.includes(marker), marker);
   assert.ok(text.indexOf('Then commit the spec') < text.indexOf('1. **From the dispatch tool result'));
   assert.ok(text.indexOf('1. **From the dispatch tool result') < text.indexOf('2. **The `Read` itself'));
+  for (const marker of ['Council: <A> applied, <D> deferred, <R> rejected', '3 - show council dispositions', 'add -- <spec path>', "commit -q -F - -- <spec path>", "<<'EOF'", 'git -C <abs worktree path> show -s --format=%b HEAD', 'a reply carrying `3` never grants', '-> reverted at gate', '`-m`, `-F <file>`']) assert.ok(text.includes(marker), marker);
+  const template = text.slice(text.indexOf('<spec-only summary read back'), text.indexOf('Or tell me what to change in the spec'));
+  for (const gone of ['Applied: [<severity>]', 'Deferred: [<severity>]', 'Rejected: [<severity>]', 'Coverage: <N> of <M> members reported;']) assert.ok(!template.includes(gone), `template still carries ${gone}`);
+  assert.ok(template.includes('Council:'));
 });
 
 const walk = (dir) => readdirSync(new URL(`../${dir}/`, import.meta.url), { withFileTypes: true }).flatMap((e) =>

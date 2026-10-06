@@ -1,0 +1,52 @@
+{
+  "sample": "full-council",
+  "arm": "candidate",
+  "candidate_model": "github-copilot/gpt-6-astra",
+  "thinking": "high",
+  "reviewers": [
+    "github-copilot/kimi-k3",
+    "anthropic-fable/claude-fable-5-1"
+  ],
+  "persona_sha256": "e5620b1fef0c54444e9ebec98c2c80c1d1b29ec5d18d2501b3232b28dd28e95b",
+  "repo_sha": "757a22964fa1699a42fd85d4d429451d523c96cc",
+  "input_sha256": "aef729b6713d4cf80ea49e0684ecea4c94db92713154e9f7936672c3add1d0a9",
+  "text": "Orchard coordinators use orchard-billing to collect monthly fees from growers, but a repeated collection request can currently charge the same invoice twice. Coordinators then reconcile receipts by hand while growers wait for a refund, and neither group can tell whether a retry is safe. The proposed change gives each collection request a stable receipt and makes retries return the original outcome instead of collecting again.\n\n**What changes**\n- Coordinators see one receipt for each invoice collection, including retries after an interrupted connection.\n- A pending collection stays visibly pending until its outcome is known; the service does not guess that a timeout means failure.\n- Growers receive a confirmation only after the collection succeeds, with the invoice amount and collection date.\n\n**Approval risks**\n- Existing duplicate charges remain a manual refund task; this change prevents new duplicates rather than rewriting past receipts.\n- The payment partner must preserve request keys across retries. Collection remains paused if that guarantee cannot be confirmed.\n- Receipt retention increases stored billing data, so operators must approve the retention window before rollout.\n\n**Done when**\n- Repeated requests produce one charge and one receipt, including after a service restart.\n- Pending outcomes remain visible, confirmations are sent once, and coordinators can reconcile the rollout's first billing cycle without duplicate charges.\n\nSpec written and committed in orchard-billing; the spec filename and worktree path were not supplied.\n\nCouncil: 11 applied, 0 deferred, 0 rejected\nOutstanding rollout prerequisites: payment-partner confirmation of request-key preservation and operator approval of the receipt-retention window.\nNew predecessor candidates at spec-writing: not supplied - index rows are a hint; code is the source and an absent row proves nothing.\n\n1 - approve: proceed to planning under the existing amendment review; a fresh reviewer applies evidence-backed factual corrections on its own, and every other spec amendment (scope, acceptance-criteria, or contract edits, and redraws) stops for your review.\n2 - approve, auto-apply amends: every later spec amendment in this flow (corrected facts, paths, verification lines, and scope, acceptance-criteria, or public-contract edits alike) applies without asking; only a redraw (changed problem statement, component added, removed, or re-bounded) still stops for you, and the grant never stands in for a spec approval.\n3 - show council dispositions: prints the council audit verbatim, then re-presents this gate. Not an approval.\n\nOr tell me what to change in the spec, or say \"revert applied council edit <X>\" to undo a specific applied edit.\n\n---\n\nYour **1** approves without an amend grant: next I’ll read **Standing grants** (stopping if unreadable), leave `**Amend-grant:** none` and the commit unchanged, mark the brainstorm phase complete, and proceed immediately to `/skill:writing-plans` under the existing amendment review.",
+  "words": 427,
+  "backtick_lines": 1,
+  "path_tokens": 0,
+  "facts": {
+    "f1": {
+      "github-copilot/kimi-k3": "yes",
+      "anthropic-fable/claude-fable-5-1": "yes"
+    },
+    "f2": {
+      "github-copilot/kimi-k3": "yes",
+      "anthropic-fable/claude-fable-5-1": "yes"
+    },
+    "f3": {
+      "github-copilot/kimi-k3": "yes",
+      "anthropic-fable/claude-fable-5-1": "yes"
+    },
+    "f4": {
+      "github-copilot/kimi-k3": "yes",
+      "anthropic-fable/claude-fable-5-1": "yes"
+    },
+    "f5": {
+      "github-copilot/kimi-k3": "yes",
+      "anthropic-fable/claude-fable-5-1": "yes"
+    }
+  },
+  "quality": {
+    "github-copilot/kimi-k3": "briefing",
+    "anthropic-fable/claude-fable-5-1": "briefing"
+  },
+  "rationale": {
+    "github-copilot/kimi-k3": "The candidate reprints the source briefing verbatim, follows it only with the counts line and adjacent notes before a correctly numbered three-row menu, and the reply handling treats '1' as a plain approval without an amend grant.",
+    "anthropic-fable/claude-fable-5-1": "The briefing is reproduced verbatim, the counts line reads 11/0/0 with no per-cluster audit lines before the three numbered menu rows, and the reply treats 1 as plain approval into planning with no amend grant."
+  },
+  "aggregate": {
+    "kept": 5,
+    "disputed": 0,
+    "lost": 0
+  }
+}

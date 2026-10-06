@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Changed
+
+- **Spec gate shows council counts, not the audit.** The brainstorming user review gate renders one `Council: <A> applied, <D> deferred, <R> rejected` line (with `; coverage <N> of <M>` on partial coverage) under the briefing and a third menu row, `3 - show council dispositions`, that prints the audit verbatim from the spec commit body and re-presents the gate without approving. The spec commit is made through a quoted heredoc (`git add -- <spec> && git commit -q -F - <<'EOF'`) so the audit lines are in the command; the `telemetry` extension records council dispositions from that command during brainstorm, with assistant text as the fallback. New `eval/spec-gate/` target (five samples, first run recorded) measures the gate render; `scripts/ci.mjs` runs its driver test.
+
 ## v7.3.0 - 2026-10-05
 
 - eval/brainstorming/replay: the live-tool replay harness code and verdict tables are committed; private inputs and transcripts are documented as non-committable.

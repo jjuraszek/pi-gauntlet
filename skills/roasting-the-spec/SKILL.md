@@ -1,6 +1,6 @@
 ---
 name: roasting-the-spec
-description: Use after writing a spec, when a spec council is configured (the resolved piGauntlet.specCouncil council, via the gauntlet_setting tool, repo settings over the preset). Auto-dispatched by /skill:brainstorming as the critique pass when members is non-empty (no longer offered). N members on different models critique in parallel, a neutral chair consolidates and adjudicates, the parent applies its own dispositions and returns an audit for the user to ratify at brainstorming's gate.
+description: Use after writing a spec, when a spec council is configured (the resolved piGauntlet.specCouncil council, via the gauntlet_setting tool, repo settings over the preset). Auto-dispatched by /skill:brainstorming as the critique pass when members is non-empty (no longer offered). N members on different models critique in parallel, a neutral chair consolidates and adjudicates, the parent applies its own dispositions and returns an audit that brainstorming commits with the spec, counts at its gate, and prints on request.
 ---
 
 # Roasting the Spec (Spec Council)
@@ -126,20 +126,20 @@ For each cluster in the chair's report, decide one of:
 
 Also inline any `external-ref:` cluster you have context for (e.g. a ticket fetched during brainstorming) as part of the apply-set — this is your call, same as any other cluster.
 
-An `over-spec:` cluster decided **apply** is executed as deletion or shrink of the quoted clause **and** any acceptance-criteria or testing-approach line that exists only for it. Its audit line reads `Applied: [<severity>] over-spec: <clause> — raised-by: [<slugs>] -> cut (was adds: M files / N tests / K ACs)` or `Applied: [<severity>] over-spec: <clause> — raised-by: [<slugs>] -> shrunk to <replacement> (was adds: ...)`, so the gate shows what was removed. `defer`/`reject` are unchanged.
+An `over-spec:` cluster decided **apply** is executed as deletion or shrink of the quoted clause **and** any acceptance-criteria or testing-approach line that exists only for it. Its audit line reads `Applied: [<severity>] over-spec: <clause> — raised-by: [<slugs>] -> cut (was adds: M files / N tests / K ACs)` or `Applied: [<severity>] over-spec: <clause> — raised-by: [<slugs>] -> shrunk to <replacement> (was adds: ...)`, so row 3 at brainstorming's gate shows what was removed. `defer`/`reject` are unchanged.
 
 You are the advocate — decide on scope grounds — and, unlike a dispatched subagent, also the executor: you hold `edit`/`write` tools directly, so apply the edit yourself instead of proposing it for someone else to make. Do this **before** returning to brainstorming.
 
 ### 4 — Emit the audit
 
-Return a structured audit, gate-only (not a committed spec section) — a coverage line plus three labelled lists:
+Return a structured audit, for the commit body and row 3 only (not a committed spec section) — a coverage line plus three labelled lists:
 
 - `Coverage:` — `N of M members reported; <slug>: <reason>` — present only when member coverage was partial; omitted at full coverage.
 - `Applied:` — one line per applied cluster: `Applied: [<severity>] <cluster> — raised-by: [<slugs>] -> <edit> (grounded: <member probe>)`, `... -> <edit> (probed: <check> - <result>)` for a confirmed hypothesis, or `... -> open question (<not found | inconclusive: <check> | contradicted: <result>>)`. Copy `[<severity>]` and `raised-by: [...]` verbatim from the cluster line - telemetry joins on them. No applied cluster -> the single line `Applied: none`. The probe rides on the audit line because member files are removed in section 5.
 - `Deferred:` — one line per deferred cluster, same `[<severity>] <cluster> — raised-by: [<slugs>]` prefix, then `-> <where it belongs>`. None -> `Deferred: none`.
 - `Rejected:` — one line per rejected cluster, same prefix, then `-> <one-line reason>`. None -> `Rejected: none`.
 
-Hand this audit to brainstorming along with the now-final spec. brainstorming writes it into the **spec commit message body** (git-native, readable pre-squash) so it survives for finish-time revert visibility, then shows it to the user alongside the final spec at its one review gate. The user can revert any applied edit there — that gate, not this skill, is where ratification happens.
+Hand this audit to brainstorming along with the now-final spec. brainstorming writes it into the **spec commit message body** (git-native, readable pre-squash) so it survives for finish-time revert visibility, shows a `Council:` counts line at its one review gate, and prints the audit verbatim when the user picks row 3. The user can revert any applied edit there - that gate, not this skill, is where ratification happens.
 
 ### 5 — Clean up
 
@@ -152,7 +152,7 @@ Single pass — no automatic re-roast loop. The user can invoke this skill again
 - Running the council when `piGauntlet.specCouncil.members` is absent or empty (brainstorming owns the gate and should have used the worker fallback).
 - Reading member critique files' findings content yourself instead of routing them through the chair (the mechanical structural probe - existence plus header regex - is the named exception).
 - Writing member files to a relative path (they land in the worktree).
-- Applying edits without surfacing the audit at brainstorming's gate — apply-before-the-gate is correct; apply-without-the-gate is not.
+- Applying edits without the `Council:` counts and the row-3 audit at brainstorming's gate - apply-before-the-gate is correct; apply-without-the-gate is not.
 - Suppressing a finding instead of routing it to applied, deferred, or rejected in the audit.
 - Surfacing member-vs-member disagreements to the user instead of letting the chair adjudicate.
 - Editing anything other than the spec under `doc/specs/`.

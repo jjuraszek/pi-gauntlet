@@ -656,11 +656,11 @@
       }
     };
 
-    const onCouncilAudit = (content: unknown) => {
+    const onCouncilAudit = (text: string) => {
       const pending = councilPending;
       const clusters = pending?.chair?.clusters;
       if (!record || !pending?.chair || !clusters) return;
-      const audit = parseAudit(textOf(content));
+      const audit = parseAudit(text);
       if (!audit) return;
       const members = resolveMembers(pending.memberResults);
       const block = members && buildCouncil({ chair: { ...pending.chair, clusters }, members, audit });
@@ -758,6 +758,7 @@
       }
       if (event.toolName === "bash") {
         const command = String((event.input as { command?: unknown }).command ?? "");
+        if (phaseNow() === "brainstorm" && /\bgit\b[^\n]*\bcommit\b/.test(command)) onCouncilAudit(command);
         if (record && (phases.verify.status === "in_progress" || phases.ship.status === "in_progress")) {
           const statement = matchTestStatement(command, snap.testCommands ?? DEFAULT_TEST_COMMANDS);
           if (statement) pendingTest.set(event.toolCallId, statement);
@@ -771,7 +772,7 @@
       const msg = event.message as { role?: string; usage?: unknown; content?: unknown };
       if (msg.role !== "assistant") return;
       addPhaseTokens(usageToTokens(msg.usage));
-      if (phaseNow() === "brainstorm") onCouncilAudit(msg.content);
+      if (phaseNow() === "brainstorm") onCouncilAudit(textOf(msg.content));
     });
 
     pi.on("turn_end", async (_event, ctx) => {

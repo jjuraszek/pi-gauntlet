@@ -88,7 +88,19 @@ subagent({ agent: "spec-summarizer", context: "fresh", async: false, cwd: "<abs 
 
 `<SUMMARY_PATH>` above is a placeholder in the dispatch object; it means substitute the value of the shell variable `$SUMMARY_PATH` set above. The steps below use `$SUMMARY_PATH` (the shell form) once the value is in hand.
 
-Then commit the spec - staging any predecessor spec edited per [Marking superseded specs](superseding.md) alongside it; a change request at the gate that renames, materially revises, or drops the spec also reconciles the predecessor's banner before recommitting. This commit is **unconditional**: the summary is only a gate aid, so a degraded or missing summary never blocks it. If the council path ran, include its audit (`Coverage:` when present, then `Applied:` / `Deferred:` / `Rejected:`, verbatim from `/skill:roasting-the-spec`'s return) in the **commit message body** - this is the durable, non-contractual record a finish-time revert reads back; the audit is never a committed spec section. Evaluate the summary in two stages (the **Degrade path** referenced in each is defined just below):
+Then commit the spec - staging any predecessor spec edited per [Marking superseded specs](superseding.md) alongside it; a change request at the gate that renames, materially revises, or drops the spec also reconciles the predecessor's banner before recommitting. This commit is **unconditional**: the summary is only a gate aid, so a degraded or missing summary never blocks it. Commit with the message on stdin through a quoted heredoc - the only permitted form, so audit lines carrying backticks or `$` land unchanged and each starts a line (telemetry reads them from this command):
+
+```bash
+git -C <abs worktree path> add -- <spec path> [<predecessor path>] && git -C <abs worktree path> commit -q -F - -- <spec path> [<predecessor path>] <<'EOF'
+<subject>
+
+<audit lines, verbatim>
+EOF
+```
+
+If the council path ran, the body is its audit (`Coverage:` when present, then `Applied:` / `Deferred:` / `Rejected:`, verbatim from `/skill:roasting-the-spec`'s return) - the durable, non-contractual record a finish-time revert and row 3 below read back; the audit is never a committed spec section. On the worker path the body is empty. `-m`, `-F <file>`, `printf | ... -F -`, and `$'...'` strings are not used for this commit. The `add` on the same line is required because the spec is untracked at its first commit and `commit -- <path>` rejects an untracked path.
+
+Evaluate the summary in two stages (the **Degrade path** referenced in each is defined just below):
 
 1. **From the dispatch tool result, before the `Read`.** If the result is **not** an `"Output saved to: <path> (<N> KB, <M> lines)"` reference (e.g. an exit-0 save error returns the full inline output plus an "Output file error" line - the prunable shape, no file to read), or the reference reports under ~500 bytes, or over ~45 KB (the `Read` truncates at 50KB / 2000 lines, so a larger file cannot render whole) - skip the `Read` and take the degrade path. Use the reference's reported figures; do not re-derive them.
 2. **The `Read` itself, as the last content-producing tool call before composing the gate.** `Read` `$SUMMARY_PATH` and paste its contents verbatim at the top of the gate. If the `Read` fails, returns 0 bytes, or reports truncation - take the degrade path. The `Read` must be last: pi-condense does not protect a `/tmp` read, so any turn boundary between the `Read` and the render lets the read result be pruned, reproducing the bug.
@@ -97,24 +109,22 @@ Then commit the spec - staging any predecessor spec edited per [Marking supersed
 
 Either way - summary rendered or degraded - then `rm "$SUMMARY_PATH"` (unconditional cleanup; harmless if the file was never created, since it lives outside the worktree under the OS temp dir).
 
-Paste the summary verbatim, unedited in the template below; use adjacent lines for the audit, unresolved ambiguities, and every `Missing from the spec` entry:
+Paste the summary verbatim, unedited in the template below; use adjacent lines for the `Council:` counts, unresolved ambiguities, and every `Missing from the spec` entry; the audit itself is shown only on row 3:
 
 ```
 <spec-only summary read back from the temp file - pasted verbatim, unedited>
 
 Spec written and committed to <project>/doc/specs/<filename>.md (worktree: <path>).
 
-Coverage: <N> of <M> members reported; <slug>: <reason> (line present only when coverage was partial)
-Applied: [<severity>] <cluster> - raised-by: [<slugs>] -> <edit>
-Deferred: [<severity>] <cluster> - raised-by: [<slugs>] -> <where it belongs>
-Rejected: [<severity>] <cluster> - raised-by: [<slugs>] -> <one-line reason>
-(one line per item, exactly as returned by roasting-the-spec - `Applied: none` / `Deferred: none` / `Rejected: none` when a list is empty; omit the audit lines when the worker path ran, not the council)
+Council: <A> applied, <D> deferred, <R> rejected
+(council path only: A, D, R count the non-`none` lines under each label of the returned audit; append `; coverage <N> of <M>` only when the return carried a `Coverage:` line, e.g. `Council: 11 applied, 0 deferred, 0 rejected; coverage 2 of 3`; omit the whole line and row 3 on the worker path or when the council aborted before an audit existed)
 
 <unresolved ambiguities; every `Missing from the spec` entry from the summary>
 New predecessor candidates at spec-writing: <path> (<title>), ... - index rows are a hint; code is the source and an absent row proves nothing.
 
 1 - approve: proceed to planning under the existing amendment review; a fresh reviewer applies evidence-backed factual corrections on its own, and every other spec amendment (scope, acceptance-criteria, or contract edits, and redraws) stops for your review.
 2 - approve, auto-apply amends: every later spec amendment in this flow (corrected facts, paths, verification lines, and scope, acceptance-criteria, or public-contract edits alike) applies without asking; only a redraw (changed problem statement, component added, removed, or re-bounded) still stops for you, and the grant never stands in for a spec approval.
+3 - show council dispositions: prints the council audit verbatim, then re-presents this gate. Not an approval.
 
 Or tell me what to change in the spec, or say "revert applied council edit <X>" to undo a specific applied edit.
 ```
@@ -123,7 +133,7 @@ If you believe the summary needs correcting, do **not** silently rewrite it - re
 
 **Revert valve.** "Revert applied council edit X" is a normal change request: revise the spec to undo edit X, re-dispatch the summarizer with a **fresh** temp path (per the re-dispatch rule below), and re-present the gate. This is cheap here - the spec is not yet plan- or code-bearing.
 
-Wait for the user. On a change request (including a revert), revise the spec and re-present - mint a **fresh** temp path for the re-dispatched summarizer (never reuse a prior round's path, so stale content can never be mistaken for the new summary). On approval - `1`, `approve`, or equivalent prose approves without a grant; `2`, `approve, auto-apply amends`, or equivalent prose approves and grants - proceed immediately to `/skill:writing-plans` with no further prompt; first read [Standing grants](amendment-surface.md#standing-grants) (stop if unreadable). On a grant (`2`, `approve, auto-apply amends`, or equivalent prose), `edit` the spec's `**Amend-grant:**` value to the granting sentence (the digit `2` becomes the grant description after `2 - approve, auto-apply amends:` above), then `git -C <abs worktree path> add -- <spec path>` and `git -C <abs worktree path> commit --amend --no-edit -q`, so the spec commit carries the line and keeps its council-audit body; then confirm `git -C <abs worktree path> show HEAD:<spec path>` reads "grant active" through the predicate. On a plain approval (`1`, `approve`) the value stays `none` and the commit is untouched. A reply that mixes approval with a change request ("2 but rename the section") is a change request: revise, re-present, and read the grant only from the reply to the re-presented gate. If the amend or the HEAD check fails, stop and report; never proceed as granted. The plan and execution mode are mechanical derivatives, so the only human gate here is spec approval itself. Don't land the spec on `main`; it stays in the worktree and ships in the same squash commit as the implementation.
+Wait for the user. On a change request (including a revert), revise the spec and re-present - mint a **fresh** temp path for the re-dispatched summarizer (never reuse a prior round's path, so stale content can never be mistaken for the new summary). On `3` or its label alone: print the audit verbatim from `git -C <abs worktree path> show -s --format=%b HEAD` (never from a held tool result; the body survives the grant's `--amend --no-edit`), then re-present the same gate - the briefing text of the gate message just rendered, reused verbatim (no summarizer re-dispatch, no read of the removed `$SUMMARY_PATH`; if that text is no longer in context, the one-line degrade note takes its place), the `Council:` line, the adjacent lines, the three rows; nothing in the spec or the commit changes. `3` plus a change request is a change request. `3` plus `1`/`2` prints and re-presents, and the approval is read only from a clean `1`/`2` on the re-presented gate - a reply carrying `3` never grants. A gate-round recommit (change request or revert) re-runs the same heredoc commit with the audit as its body, so HEAD always carries it; on a revert of edit X, move X's `Applied:` line to `Rejected:` with `-> reverted at gate` and recompute the `Council:` counts from the revised audit. On approval - `1`, `approve`, or equivalent prose approves without a grant; `2`, `approve, auto-apply amends`, or equivalent prose approves and grants - proceed immediately to `/skill:writing-plans` with no further prompt; first read [Standing grants](amendment-surface.md#standing-grants) (stop if unreadable). On a grant (`2`, `approve, auto-apply amends`, or equivalent prose), `edit` the spec's `**Amend-grant:**` value to the granting sentence (the digit `2` becomes the grant description after `2 - approve, auto-apply amends:` above), then `git -C <abs worktree path> add -- <spec path>` and `git -C <abs worktree path> commit --amend --no-edit -q`, so the spec commit carries the line and keeps its council-audit body; then confirm `git -C <abs worktree path> show HEAD:<spec path>` reads "grant active" through the predicate. On a plain approval (`1`, `approve`) the value stays `none` and the commit is untouched. A reply that mixes approval with a change request ("2 but rename the section") is a change request: revise, re-present, and read the grant only from the reply to the re-presented gate. If the amend or the HEAD check fails, stop and report; never proceed as granted. The plan and execution mode are mechanical derivatives, so the only human gate here is spec approval itself. Don't land the spec on `main`; it stays in the worktree and ships in the same squash commit as the implementation.
 
 Post-approval changes follow [Amending an approved spec](../SKILL.md#amending-an-approved-spec).
 
