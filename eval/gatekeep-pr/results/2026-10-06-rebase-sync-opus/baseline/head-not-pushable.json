@@ -1,0 +1,41 @@
+{
+  "sample": "head-not-pushable",
+  "arm": "baseline",
+  "candidate_model": "anthropic/claude-opus-5-5",
+  "thinking": "medium",
+  "reviewers": [
+    "anthropic-fable/claude-fable-5-1:medium"
+  ],
+  "persona_sha256": "079b996eacfda90c43ec71c8f9e2c88b1552f196a1fbe8368f2343b485433511",
+  "repo_sha": "b5829f5f680adc949a34214aa82731dcdec5673e",
+  "input_sha256": "400b2e9db136af6a0f10effdcabe3b910011d99679356652bf7c24fdd4fa61a3",
+  "text": "# gatekeep-pr: PR 412, from step 2 through the first menu\n\n**Assessed SHA.** Verification and the brief assess the PR's actual head, `7c1e9a2f4b0d6e8a1c3f5b7d9e0a2c4e6f8a0b1c`. The worktree was not rebased.\n\n**How `--rebase` is handled.** A local rebase cannot reach the PR because `head_pushable` is false. A rebased local head would also break `merge --match-head-commit`. So `--rebase` becomes the method on the `update branch` row (`gh pr update-branch 412 --rebase`), and that row runs only when picked.\n\nThe named base is `main` (`baseRefName`). `origin/release/2` plays no part.\n\n## Tracker\n\n- `plan_tracker init`: `gather`, `provision`, `verify`.\n- `gather` and `provision` are marked `complete` (steps 1-2 are done).\n\n## Step 3: Verify\n\n1. **Check the worktree head.** `git -C <abs>/.worktrees/pr-412 rev-parse HEAD` returns `7c1e9a2…`, which matches the assessed head.\n2. **Find the merge-base.** `git -C <abs>/.worktrees/pr-412 merge-base origin/main 7c1e9a2…` gives the base the configuration came from in step 2. The rubric and the verification command are not read from the head.\n3. **Create the output path.** `mktemp \"${TMPDIR:-/tmp}/gatekeep-verify.XXXXXX\"`, outside the worktree.\n4. **Dispatch the Verify helper.** `subagent({ agent: \"worker\", context: \"fresh\", async: false, cwd: \"<scratch>/.worktrees/pr-412\" })`. Its task:\n   - Duty text is `verification-brief.md` Section B.\n   - Confirm `HEAD == 7c1e9a2…` before working.\n   - Gather evidence CI-first. `ci / test` (required) is COMPLETED/SUCCESS on the assessed head (run 9001), so there is no local run.\n   - Use the configuration from the merge-base only.\n   - Give one disposition per material claim.\n   - Write to the mktemp path and end with the output contract.\n5. **Record claim verdicts.** I wait for the result and read the file. Each material claim gets a tracker task, and all are marked `complete` (matched):\n   - totals round half-up (`src/ledger/round.ts`)\n   - tests cover the rounding (`src/ledger/round.test.ts`)\n   - docs describe the rule (`docs/rounding.md`)\n6. **Advance the tracker.** `verify` is closed `complete`. Then `add`: `review`, `report`, `menu`.\n\n## Step 4: Review\n\nReview starts only after Verify's output file exists.\n\n1. **Create the output path.** `mktemp \"${TMPDIR:-/tmp}/gatekeep-review.XXXXXX\"`.\n2. **Dispatch the Review helper.** `subagent({ agent: \"code-reviewer\", context: \"fresh\", async: false, cwd: <same absolute worktree> })`. Its task:\n   - Duty text is `verification-brief.md` Section C.\n   - Confirm `HEAD == 7c1e9a2…`.\n   - Review the diff against the merge-base rubric.\n   - Build the comment ledger for inline comment 501.\n   - Write to the path and end with the output contract.\n3. **Result.** No findings. Comment 501 (\"Prefer bankers rounding here?\") was checked against the source and gh-388's half-up requirement. The concern does not hold, so no blocker is minted and a reply is drafted. `review` is marked `complete`.\n\n## Step 5: Integrate and report\n\n- **AC outcomes.** All ACs of gh-388 are covered, with no observation half pending.\n- **Blockers and nits.** None.\n- **Payloads.** One drafted reply.\n- **Worktree.** Clean.\n- **Merge state.** `merge_state_status: BEHIND`, so `update branch` renders.\n- **Availability.**\n  - `viewer_permission: READ` omits `merge`.\n  - The head-not-pushable overlay omits `push`.\n  - Own PR, so `approve` is excluded.\n- `report` is marked `complete`.\n\n## Step 6: Menu\n\n`menu` is marked `complete`.\n\n```\nDelivers: ledger totals round half-up. The PR covers every AC of gh-388; no AC has a half checked after merge.\n\nSync: the head is 4 commits behind main, so --rebase runs only as the update branch pick (gh pr update-branch 412 --rebase). (origin/main 3f0b8d2)\n\nPR comments:\n- The bankers-rounding suggestion conflicts with gh-388, which asks for half-up, so the drafted reply explains the choice and keeps the rounding as is. (src/ledger/round.ts, comment 501)\n\nVerdict: mergeable - CI green on the assessed head (ci / test)\n\n1. update branch - rebase the head onto main through the forge, then fast-forward the worktree and re-verify [recommended]\n2. fix - a helper applies the change you name to the local worktree branch; open a PR from that branch, or hand the patch to the author\n3. reply - post the drafted reply on comment 501\n4. show evidence - CI run, claim outcomes, drafted reply\n5. stop - leave the PR as-is\nType a number, or compose: \"reply 1\". Not offered: merge (needs WRITE on orchard/ledger), push (needs push to git@git.example.invalid:orchard/ledger.git:feature/ledger-rounding).\n```",
+  "words": 626,
+  "backtick_lines": 30,
+  "path_tokens": 15,
+  "facts": {
+    "f1": {
+      "anthropic-fable/claude-fable-5-1:medium": "no"
+    },
+    "f2": {
+      "anthropic-fable/claude-fable-5-1:medium": "yes"
+    },
+    "f3": {
+      "anthropic-fable/claude-fable-5-1:medium": "yes"
+    },
+    "f4": {
+      "anthropic-fable/claude-fable-5-1:medium": "no"
+    }
+  },
+  "quality": {
+    "anthropic-fable/claude-fable-5-1:medium": "partial"
+  },
+  "rationale": {
+    "anthropic-fable/claude-fable-5-1:medium": "The candidate correctly avoids any local rebase or push but misses the step-2 stop gate on head_pushable: false, instead dispatching Verify and Review helpers and rendering a full menu rather than reporting the non-pushable head as the reason and recording the sync stage as failed."
+  },
+  "aggregate": {
+    "kept": 2,
+    "disputed": 0,
+    "lost": 2
+  }
+}

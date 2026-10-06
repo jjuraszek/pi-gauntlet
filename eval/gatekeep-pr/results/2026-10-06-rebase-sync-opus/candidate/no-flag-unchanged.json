@@ -1,0 +1,41 @@
+{
+  "sample": "no-flag-unchanged",
+  "arm": "candidate",
+  "candidate_model": "anthropic/claude-opus-5-5",
+  "thinking": "medium",
+  "reviewers": [
+    "anthropic-fable/claude-fable-5-1:medium"
+  ],
+  "persona_sha256": "f1dc5fc365115b4a81907768cb60a36f0958e7174486eead2edc0f851e53bdda",
+  "repo_sha": "b5829f5f680adc949a34214aa82731dcdec5673e",
+  "input_sha256": "9e3e25b7d22c774d8c1a18e29d11ebef2def58fe01bc31be67a6dc27f1a824a9",
+  "text": "# gatekeep-pr - PR 412, from the end of step 2 through the first menu\n\n## Invocation and tracker\n\nThe arguments are `412` only. There is no issue ref and no `--rebase`, so:\n\n- The issue ref is gh-388, resolved in step 1 and fetched in step 2.\n- Step 2b (sync) does not run.\n- No extra fetch, rebase, or push happens.\n- No `Sync:` line renders.\n- The 4-commit lag behind `origin/main` is left alone.\n\nThe tracker is already initialized with three stages: `gather`, `provision`, `verify`. There is no `sync` stage. `gather` and `provision` are `complete`.\n\n**Assessed SHA:** `7c1e9a2f4b0d6e8a1c3f5b7d9e0a2c4e6f8a0b1c`. This is the worktree HEAD at `.worktrees/pr-412`, equal to `headRefOid`. Verification and the report both assess this SHA.\n\n## Step 3 - Verify\n\n1. Run `mktemp \"${TMPDIR:-/tmp}/gatekeep-verify.XXXXXX\"` to get the output path, outside the worktree.\n2. Dispatch the helper:\n   - **Call:** `subagent({ agent: \"worker\", context: \"fresh\", async: false, cwd: \".worktrees/pr-412\" })`\n   - **Task:** `verification-brief.md` Section B.\n   - **Rules:** it confirms `git rev-parse HEAD` equals `7c1e9a2` before working. It resolves evidence CI-first and records one disposition per material claim. It runs no local verification while CI has a usable result. It writes only to the named output path and ends with the output contract.\n3. **Result:** `ci / test` (required) is COMPLETED SUCCESS on the assessed head, and Actions run 9001 succeeded. No local run is needed and there is no held run.\n4. Tracker updates:\n   - `add` one task per material claim:\n     - Totals round half-up (src/ledger/round.ts)\n     - Tests cover the rounding (src/ledger/round.test.ts)\n     - Docs describe the rule (docs/rounding.md)\n     - The gh-388 acceptance rows\n   - Mark every claim `complete` (matched), then close `verify` as `complete`.\n   - `add` the remaining stages: `review`, `report`, `menu`.\n\n## Step 4 - Review\n\nThis step starts only after the Verify output file exists.\n\n1. Run `mktemp \"${TMPDIR:-/tmp}/gatekeep-review.XXXXXX\"` to get the output path.\n2. Dispatch the helper:\n   - **Call:** `subagent({ agent: \"code-reviewer\", context: \"fresh\", async: false, cwd: \".worktrees/pr-412\" })`\n   - **Task:** `verification-brief.md` Section C plus `review-baseline.md`.\n   - **Rules:** it confirms HEAD equals `7c1e9a2`. It works read-only. It writes its findings and the comment ledger to the named path, then ends with the output contract.\n3. **Result:** no Critical, Moderate, or nit findings.\n4. **Ledger:** inline comment 501, from a human user, asks \"Prefer bankers rounding here?\". The source and gh-388 specify half-up, so the concern does not hold and no blocker is minted. A reply is drafted that points to the ticket.\n\n## Step 5 - Integrate and report\n\n- AC outcomes: every gh-388 row is covered.\n- Blockers: 0.\n- Nits: 0.\n- Drafted payloads: one reply.\n- Overlays: none apply. The PR is not a draft, has no held run, and has no pending or failing checks. No reviewer run is pending and no AC is impossible.\n- `mergeStateStatus: BEHIND` is checked at the merge preconditions after a `merge` pick, where `update branch` would render. It does not block this first menu.\n- Tracker: `review` and `report` are `complete`.\n\n## Step 6 - Menu\n\nNo sync line renders, because `--rebase` was not passed.\n\n```\nDelivers: ledger totals round half-up. The PR covers every acceptance criterion of\ngh-388; none leaves an observable half to check after merge.\n\nPR comments:\n- The inline question about bankers rounding runs against gh-388, which specifies\n  half-up, so the drafted reply points the reviewer at the ticket. (src/ledger/round.ts)\n\nVerdict: mergeable - CI green on the assessed head (ci / test)\n\n1. merge - squash-merge PR 412 at 7c1e9a2 [recommended]\n2. fix - you name the change; it is applied in the worktree and reviewed before any push\n3. reply - post the drafted reply to the bankers-rounding comment\n4. show evidence - gate output, CI run, drafted reply\n5. stop - leave the PR as-is\nType a number, or compose: \"fix + reply\".\n```\n\nTracker: `menu` is `complete`. Nothing executes until you pick an option.",
+  "words": 596,
+  "backtick_lines": 23,
+  "path_tokens": 11,
+  "facts": {
+    "f1": {
+      "anthropic-fable/claude-fable-5-1:medium": "yes"
+    },
+    "f2": {
+      "anthropic-fable/claude-fable-5-1:medium": "yes"
+    },
+    "f3": {
+      "anthropic-fable/claude-fable-5-1:medium": "yes"
+    },
+    "f4": {
+      "anthropic-fable/claude-fable-5-1:medium": "yes"
+    }
+  },
+  "quality": {
+    "anthropic-fable/claude-fable-5-1:medium": "exact"
+  },
+  "rationale": {
+    "anthropic-fable/claude-fable-5-1:medium": "The candidate skips sync without --rebase, keeps a three-stage tracker, assesses the digest head SHA 7c1e9a2 through named helper dispatches with their rules, performs no forbidden mutation, and renders the verdict and menu in the skill's wording with no Sync line."
+  },
+  "aggregate": {
+    "kept": 4,
+    "disputed": 0,
+    "lost": 0
+  }
+}

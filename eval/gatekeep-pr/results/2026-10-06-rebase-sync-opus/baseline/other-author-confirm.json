@@ -1,0 +1,41 @@
+{
+  "sample": "other-author-confirm",
+  "arm": "baseline",
+  "candidate_model": "anthropic/claude-opus-5-5",
+  "thinking": "medium",
+  "reviewers": [
+    "anthropic-fable/claude-fable-5-1:medium"
+  ],
+  "persona_sha256": "079b996eacfda90c43ec71c8f9e2c88b1552f196a1fbe8368f2343b485433511",
+  "repo_sha": "b5829f5f680adc949a34214aa82731dcdec5673e",
+  "input_sha256": "69aa39e78729d96afd5bce1900a796a05a440af0f056a8fa10d743d2a335e2ac",
+  "text": "# gatekeep-pr - PR #412, from the end of step 2 through the first menu\n\n## 0. Handling `--rebase` before step 3\n\n`--rebase` is not one of the skill's arguments. A rebase plus force-push would rewrite the PR head, and that is a mutation. Nothing mutates before a menu pick, so I do not rebase. I ask the confirmation question once:\n\n> Rebase `feature/ledger-rounding` (4 commits) onto `origin/main` at `3f0b8d2` and force-push to `git@git.example.invalid:orchard/ledger.git:feature/ledger-rounding`? This rewrites the PR head. (yes/no)\n\nThe user answers **no**. The outcome:\n- No rebase, push, or fetch-and-reset runs.\n- The base stays the PR's named base, `main`. `origin/release/2` is not considered.\n- The worktree stays at the PR head.\n\nBefore dispatching any helper, I run two read-only checks:\n- `git -C .worktrees/pr-412 rev-parse HEAD` returns `7c1e9a2f4b0d6e8a1c3f5b7d9e0a2c4e6f8a0b1c`, which equals `headRefOid`.\n- `git -C .worktrees/pr-412 status --porcelain` returns empty, so the worktree is clean.\n\n**Assessed SHA for verification and the brief: `7c1e9a2f4b0d6e8a1c3f5b7d9e0a2c4e6f8a0b1c`.** The PR head is not rebased.\n\n## Tracker\n\nThese stages were initialized at step 1:\n- `plan_tracker init`: `gather`, `provision`, `verify`\n- `gather` and `provision` are complete.\n- `verify` is open now.\n\n## Step 3 - Verify\n\n1. **Output path.** I run `mktemp \"${TMPDIR:-/tmp}/gatekeep-verify.XXXXXX\"`.\n2. **Dispatch.** `subagent({ agent: \"worker\", context: \"fresh\", async: false, cwd: \"<abs>/.worktrees/pr-412\" })`. The task carries these rules:\n   - It runs `verification-brief.md` Section B.\n   - First, it checks that `git rev-parse HEAD` equals `7c1e9a2f…0b1c` and stops on a mismatch.\n   - Evidence is CI-first. The required check `ci / test` concluded SUCCESS on the assessed head, and Actions run 9001 (`ci`) succeeded. So there is no local verification run.\n   - The verification command and rubric come from the merge-base with `origin/main`, never from the PR head.\n   - It gives one disposition per material claim.\n   - It mutates nothing.\n   - It writes to the mktemp path and ends with the output contract.\n3. **Result.** I await the result and read the file. It is clean: CI is green on the assessed head.\n4. **Claim tasks.** I `add` one task per material claim and record each verdict:\n\n   | Claim | Verdict |\n   |---|---|\n   | Ledger totals round half-up (`src/ledger/round.ts`) | `complete` (matched) |\n   | Tests cover the half-up behavior (`src/ledger/round.test.ts`) | `complete` (matched) |\n   | Docs describe the rule (`docs/rounding.md`) | `complete` (matched) |\n\n5. **Stages.** I close `verify`, then `add` `review`, `report`, and `menu`.\n\n## Step 4 - Review\n\nThis step starts only after the Verify output file exists.\n\n1. **Output path.** I run `mktemp \"${TMPDIR:-/tmp}/gatekeep-review.XXXXXX\"`.\n2. **Dispatch.** `subagent({ agent: \"code-reviewer\", context: \"fresh\", async: false, cwd: \"<abs>/.worktrees/pr-412\" })`. The task carries these rules:\n   - It runs `verification-brief.md` Section C against the base-merge-base rubric.\n   - It checks that HEAD equals `7c1e9a2f…0b1c` before working.\n   - It reviews inline comment 501 (\"Prefer bankers rounding here?\") against the source and the gh-388 acceptance criteria.\n   - It builds the internal comment ledger.\n   - It makes no edits.\n   - It writes to its mktemp path and ends with the output contract.\n3. **Result.**\n   - The reviewer finds no blockers and no nits.\n   - Comment 501 is not adopted, because gh-388 asks for half-up and the PR implements exactly that.\n   - A reply is drafted that points the commenter to the ticket's rule.\n4. I close `review`.\n\n## Step 5 - Integrate and report\n\n- Every AC is covered by the mechanism at the assessed head.\n- There are no blockers and no nits.\n- One reply is drafted.\n- The head is 4 commits behind `main`, the rebase was declined, and the PR is still `MERGEABLE`.\n- I close `report`.\n\n## Steps 6-7 - Rendered report and menu\n\n```\nDelivers: ledger totals round half-up. The PR covers every AC of gh-388; none has a\nhalf that is checked after merge.\n\nSync: the head is 4 commits behind main (3f0b8d2); rebase declined, assessed as-is at 7c1e9a2.\n\nPR comments:\n- The suggestion to use bankers rounding conflicts with gh-388, which asks for half-up, so the drafted reply points the commenter to the ticket. (src/ledger/round.ts)\n\nVerdict: mergeable - CI green on the assessed head (ci / test)\n\n1. approve - approve mara-lindqvist's PR                                    [recommended]\n2. fix - you name the change; a fresh helper applies it in the worktree, review, push\n3. merge - squash-merge at 7c1e9a2 after the merge preconditions recheck\n4. reply - post the drafted reply on the rounding comment\n5. show evidence - CI run, claim outcomes, drafted reply\n6. stop - leave the PR as-is\nType a number, or compose: \"reply 1\".\n```\n\nI close `menu` and wait for a pick. The `BEHIND` state reaches the merge preconditions only on a `merge` pick, which then offers `update branch`.",
+  "words": 701,
+  "backtick_lines": 31,
+  "path_tokens": 16,
+  "facts": {
+    "f1": {
+      "anthropic-fable/claude-fable-5-1:medium": "yes"
+    },
+    "f2": {
+      "anthropic-fable/claude-fable-5-1:medium": "no"
+    },
+    "f3": {
+      "anthropic-fable/claude-fable-5-1:medium": "yes"
+    },
+    "f4": {
+      "anthropic-fable/claude-fable-5-1:medium": "yes"
+    }
+  },
+  "quality": {
+    "anthropic-fable/claude-fable-5-1:medium": "partial"
+  },
+  "rationale": {
+    "anthropic-fable/claude-fable-5-1:medium": "The candidate gates the rebase behind a yes/no, honors the decline, verifies the unsynced head and reports a declined Sync line, but its explanation omits the required rewrite consequences (new SHAs, authorship/committer, outdated comments, dismissed approvals) and it wrongly frames --rebase as an unsupported argument."
+  },
+  "aggregate": {
+    "kept": 3,
+    "disputed": 0,
+    "lost": 1
+  }
+}

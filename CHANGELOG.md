@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Added
+
+- **gatekeep-pr `--rebase [base]`.** An opt-in step 2b rebases the PR head onto the fetched base before verification, hands each rebase stop to a fresh implementer, has a fresh reviewer gate every rewritten head, lease-pushes with `--force-with-lease=<head_ref>:<pre_head>`, and verifies the pushed head. Another author's branch asks before the rewrite; a non-pushable head, a missing base, a harness without helpers, or a moved remote head stops the run; without the flag nothing changes. New `eval/gatekeep-pr/` target with seven samples and two recorded runs. (#58)
+
 ## v7.3.2 - 2026-10-06
 
 ### Changed

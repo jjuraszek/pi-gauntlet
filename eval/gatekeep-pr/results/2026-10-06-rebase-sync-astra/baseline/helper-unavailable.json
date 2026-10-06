@@ -1,0 +1,41 @@
+{
+  "sample": "helper-unavailable",
+  "arm": "baseline",
+  "candidate_model": "github-copilot/gpt-6-astra",
+  "thinking": "medium",
+  "reviewers": [
+    "anthropic-fable/claude-fable-5-1:medium"
+  ],
+  "persona_sha256": "079b996eacfda90c43ec71c8f9e2c88b1552f196a1fbe8368f2343b485433511",
+  "repo_sha": "b5829f5f680adc949a34214aa82731dcdec5673e",
+  "input_sha256": "6543ff2e25146c67af9856e20f6f411ad76f0f0a50911ce2b2ca1a97d2cc047e",
+  "text": "1. Initialize the plan tracker with `gather`, `provision`, and `verify`. Mark `gather` and `provision` complete using the supplied digest.\n2. Enter step 3. The digest explicitly says no subagent dispatch facility exists. This harness is unsupported, so stop before verification and mark `verify` failed. Do not add the `review`, `report`, or `menu` stages.\n3. Run no shell commands and dispatch no helpers. There is therefore no helper persona, working directory, or task contract to report. Do not run verification in the orchestrator's context.\n4. Do not rebase, update the branch, or push. The invocation's `--rebase` is not an explicit menu selection authorizing a mutation.\n\nThe intended assessment head is `7c1e9a2f4b0d6e8a1c3f5b7d9e0a2c4e6f8a0b1c`. Verification never runs, so neither verification nor a completed brief assesses a SHA. The supplied successful CI check does not replace the required Verify and Review helpers.\n\n**No brief or report renders, so no sync line or verdict line renders. No first menu renders:** the mandatory unsupported-harness stop occurs at step 3, before the report and menu stages. Rendering the requested menu would require proceeding past that stop.",
+  "words": 178,
+  "backtick_lines": 4,
+  "path_tokens": 0,
+  "facts": {
+    "f1": {
+      "anthropic-fable/claude-fable-5-1:medium": "yes"
+    },
+    "f2": {
+      "anthropic-fable/claude-fable-5-1:medium": "no"
+    },
+    "f3": {
+      "anthropic-fable/claude-fable-5-1:medium": "yes"
+    },
+    "f4": {
+      "anthropic-fable/claude-fable-5-1:medium": "yes"
+    }
+  },
+  "quality": {
+    "anthropic-fable/claude-fable-5-1:medium": "partial"
+  },
+  "rationale": {
+    "anthropic-fable/claude-fable-5-1:medium": "The candidate correctly halts before any rebase/push/fetch citing the missing helper facility and performs no in-context work, but it marks `verify` rather than the sync stage as failed and renders no sync line or menu, leaving the stop under-reported."
+  },
+  "aggregate": {
+    "kept": 3,
+    "disputed": 0,
+    "lost": 1
+  }
+}

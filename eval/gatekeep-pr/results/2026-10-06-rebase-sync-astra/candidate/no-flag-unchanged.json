@@ -1,0 +1,41 @@
+{
+  "sample": "no-flag-unchanged",
+  "arm": "candidate",
+  "candidate_model": "github-copilot/gpt-6-astra",
+  "thinking": "medium",
+  "reviewers": [
+    "anthropic-fable/claude-fable-5-1:medium"
+  ],
+  "persona_sha256": "f1dc5fc365115b4a81907768cb60a36f0958e7174486eead2edc0f851e53bdda",
+  "repo_sha": "b5829f5f680adc949a34214aa82731dcdec5673e",
+  "input_sha256": "9e3e25b7d22c774d8c1a18e29d11ebef2def58fe01bc31be67a6dc27f1a824a9",
+  "text": "## Execution order\n\nThe invocation is `412`, without `--rebase`. Step 2b does not run. Being four commits behind does not authorize a fetch, rebase, push, or branch update.\n\n### 1. Tracker state\n\nThe invocation initializes `gather`, `provision`, and `verify`, in that order. At this handoff, `gather` and `provision` are complete; I start `verify`. There is no `sync` stage.\n\nThe assessed SHA remains:\n\n```text\n7c1e9a2f4b0d6e8a1c3f5b7d9e0a2c4e6f8a0b1c\n```\n\nI retain the configuration already resolved in step 2 from the merge-base, not from the PR head.\n\n### 2. Verify\n\nI read `verification-brief.md` Section B and allocate the helper's output file:\n\n```sh\nmktemp \"${TMPDIR:-/tmp}/gatekeep-verify.XXXXXX\"\n```\n\nI retain the returned path as `VERIFY_OUTPUT`. I add the material claim that ledger totals round half-up under the active `verify` stage.\n\nI dispatch:\n\n```text\npersona: worker\ncontext: fresh\nasync: false\ncwd: <supplied cwd>/.worktrees/pr-412\noutput: VERIFY_OUTPUT\n```\n\nIts task carries these rules:\n\n- Follow `verification-brief.md` Section B and assess the exact SHA above.\n- Use the supplied digest, fetched ticket, extracted acceptance rows, and merge-base-resolved configuration.\n- Resolve evidence CI-first. The completed, successful `ci / test` check supplies verification evidence for this head; do not run local verification.\n- Judge whether the source, tests, and documentation provide the promised mechanism, rather than trusting the PR title or description.\n- Record a disposition for every material claim and separate any post-merge observation from its pre-merge mechanism.\n- Do not edit tracked files or perform forge or tracker writes.\n- End by writing the evidence record and claim dispositions to `VERIFY_OUTPUT`.\n\nI await the helper, then read its output:\n\n```sh\ncat \"$VERIFY_OUTPUT\"\n```\n\nThe clean result matches the half-up rounding claim. I mark that claim complete, then close `verify` as complete.\n\nOnly now do I add `review`, `report`, and `menu` to the tracker.\n\n### 3. Review\n\nI start `review`, read `verification-brief.md` Section C, and allocate a separate output file:\n\n```sh\nmktemp \"${TMPDIR:-/tmp}/gatekeep-review.XXXXXX\"\n```\n\nI retain the returned path as `REVIEW_OUTPUT` and dispatch:\n\n```text\npersona: code-reviewer\ncontext: fresh\nasync: false\ncwd: <supplied cwd>/.worktrees/pr-412\noutput: REVIEW_OUTPUT\n```\n\nIts task carries these rules:\n\n- Follow Section C, using the configured review rubric from the merge-base.\n- Review the exact assessed SHA and read the completed verification evidence.\n- Inspect the implementation, tests, and documentation against the promised half-up behavior.\n- Review the human comment asking about bankers rounding against the source and ticket intent; a requested alternative is not automatically a defect.\n- Produce reviewer findings and the internal comment ledger, including any drafted replies warranted by that review.\n- Remain read-only apart from writing `REVIEW_OUTPUT`; post no review or reply and make no tracked-file changes.\n- End by writing the findings and ledger to `REVIEW_OUTPUT`.\n\nI await the helper, then read its output:\n\n```sh\ncat \"$REVIEW_OUTPUT\"\n```\n\nThe stipulated clean result supplies no blockers or nits. No drafted reply is specified. I close `review` as complete.\n\n### 4. Integrate and render\n\nI start `report`, read `reference/findings.md` followed by `reference/report.md`, and integrate the evidence and review.\n\nThe brief assesses the original SHA, not a rebased or pushed SHA. The successful check does not remove the branch-update prerequisite: the digest still says `BEHIND`.\n\nI execute no additional Git or forge command. In particular, `gh pr update-branch 412` waits for a menu selection.\n\nI close `report`, start `menu`, and apply `reference/decision-menu.md`. `update branch` is available; `merge` is withheld. `fix` remains available because the helper facility exists and the fix-round cap is unused. With no blockers and a branch-update withhold, the zero-blocker withhold rule assigns the recommendation to `stop`.\n\n**No sync line renders.**\n\n## First rendered brief and menu\n\nDelivers: The PR covers half-up rounding of ledger totals through its implementation, tests, and documentation for gh-388. No separate post-merge observation criterion is supplied.\n\nVerdict: fixable - branch update required\n\n1. update branch - update the PR branch and reassess the resulting head\n2. fix - apply a change you name through helpers and review it before pushing\n3. show evidence - display the verification evidence and acceptance outcomes\n4. stop - leave the PR as-is [recommended]\n\nType a number. Not offered: merge (branch is behind main).",
+  "words": 645,
+  "backtick_lines": 32,
+  "path_tokens": 8,
+  "facts": {
+    "f1": {
+      "anthropic-fable/claude-fable-5-1:medium": "yes"
+    },
+    "f2": {
+      "anthropic-fable/claude-fable-5-1:medium": "yes"
+    },
+    "f3": {
+      "anthropic-fable/claude-fable-5-1:medium": "yes"
+    },
+    "f4": {
+      "anthropic-fable/claude-fable-5-1:medium": "yes"
+    }
+  },
+  "quality": {
+    "anthropic-fable/claude-fable-5-1:medium": "faithful"
+  },
+  "rationale": {
+    "anthropic-fable/claude-fable-5-1:medium": "The candidate skips the sync step without --rebase, initializes three stages, verifies the digest head SHA, renders no Sync line, names both dispatches with persona and rules and every command, and mutates nothing forbidden."
+  },
+  "aggregate": {
+    "kept": 4,
+    "disputed": 0,
+    "lost": 0
+  }
+}

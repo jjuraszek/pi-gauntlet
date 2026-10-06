@@ -1,0 +1,41 @@
+{
+  "sample": "red-ci-no-autofix",
+  "arm": "baseline",
+  "candidate_model": "anthropic/claude-opus-5-5",
+  "thinking": "medium",
+  "reviewers": [
+    "anthropic-fable/claude-fable-5-1:medium"
+  ],
+  "persona_sha256": "079b996eacfda90c43ec71c8f9e2c88b1552f196a1fbe8368f2343b485433511",
+  "repo_sha": "b5829f5f680adc949a34214aa82731dcdec5673e",
+  "input_sha256": "a3894b03e7fc8c1136865ce74eaf54a407f62aa50d8357f74439db9d3234339e",
+  "text": "# gatekeep-pr 412: steps 3 through 6\n\n## Before step 3: the `--rebase` argument\n\nThe skill accepts only `<pr> [issue-ref]`, so `--rebase` is not a defined argument. A rebase also moves the head and requires a push, and the skill allows no mutation before a menu pick. I record `--rebase` as a stated intent only:\n\n- Nothing is rebased, force-pushed, or updated before the menu.\n- `update branch` is offered as a menu row instead.\n\nOther inputs I set aside:\n\n- **`origin/release/2`** is not the PR's base. The base is `baseRefName: main`.\n- **The digest's \"after a push\" line** is never reached. No push happens before the first menu.\n\n## Tracker\n\n`plan_tracker init` with three stages: `gather`, `provision`, `verify`. Step 2 has just finished, so I mark `gather` and `provision` complete.\n\n## Commands and helpers\n\n1. **Merge-base.** `git -C .worktrees/pr-412 merge-base origin/main 7c1e9a2f4b0d6e8a1c3f5b7d9e0a2c4e6f8a0b1c`.\n   - The rubric, the verification command, and the ladder sources stay as resolved in step 2 from this merge-base.\n   - Nothing is read from the PR head.\n\n2. **Verify output path.** `mktemp \"${TMPDIR:-/tmp}/gatekeep-verify.XXXXXX\"`, which is outside the worktree.\n\n3. **Step 3, Verify helper.** `subagent({ agent: \"worker\", context: \"fresh\", async: false, cwd: \".worktrees/pr-412\" })`. Its task carries these rules:\n   - Duty is `verification-brief.md` Section B.\n   - The assessed head is `7c1e9a2f4b0d6e8a1c3f5b7d9e0a2c4e6f8a0b1c`. Before any work, check that `git rev-parse HEAD` equals it.\n   - Use CI first. `ci / test` (required) is SUCCESS on the assessed head, so that run is the evidence and no local verification run happens.\n   - Give one disposition per material claim: matched, contradicted, or unverifiable-pre-merge.\n   - Judge the mechanism only. An observation half is never a blocker.\n   - Make no edits, commits, or pushes.\n   - Write to the mktemp path and end with the output contract.\n\n   Per the digest, the helper returns clean. I `add` one tracker task per material claim (rounding mode, tests, docs) and mark each `complete` (matched). Then I close `verify`.\n\n4. **Remaining stages.** `plan_tracker add` for `review`, `report`, and `menu`.\n\n5. **Review output path.** `mktemp \"${TMPDIR:-/tmp}/gatekeep-review.XXXXXX\"`.\n\n6. **Step 4, Review helper.** Dispatched only after the Verify output file exists. `subagent({ agent: \"code-reviewer\", context: \"fresh\", async: false, cwd: \".worktrees/pr-412\" })`. Its task carries these rules:\n   - Duty is `verification-brief.md` Section C plus the merge-base rubric.\n   - Use the same assessed head, with the same HEAD check.\n   - Review comment 501 (\"Prefer bankers rounding here?\") against the source and gh-388.\n   - Build the internal comment ledger.\n   - Make no edits.\n   - Write to the mktemp path and end with the output contract.\n\n   The result is clean: no blockers and no nits. The comment is a design preference that conflicts with the half-up behavior the PR and ticket specify, so the helper drafts a reply.\n\n7. **Step 5, Integrate and report.** I run this myself.\n   - Every AC of gh-388 is covered by the diff.\n   - There are zero blockers.\n   - `merge_state_status: BEHIND` means GitHub refuses the merge until the branch is updated. This is a withhold, so the verdict is `fixable` with zero blockers.\n\n## Assessed SHA\n\nVerification and the brief both assess `7c1e9a2f4b0d6e8a1c3f5b7d9e0a2c4e6f8a0b1c`. This is the pushed head, not a rebased head.\n\n## Rendered report and first menu\n\nThe sync line renders in `PR comments`, directly above the verdict.\n\n```\nDelivers: ledger totals round half-up. The PR covers every AC of gh-388; totals\nobserved on production ledgers are checked after merge, not here.\n\nPR comments:\n- The inline question about banker's rounding conflicts with gh-388, which asks for half-up, so the drafted reply points to the ticket. (src/ledger/round.ts)\n- The branch is 4 commits behind main, so GitHub will not merge it until it is updated. (origin/main 3f0b8d2)\n\nVerdict: fixable - branch 4 commits behind main\n\n1. update branch - bring main into the PR branch, then re-verify the new head\n2. fix - name the change you want, a fresh helper applies it in the worktree, review the wave, push\n3. reply - post the drafted reply to the banker's rounding question\n4. show evidence - CI run, claim outcomes, drafted reply\n5. stop - leave the PR as-is                                                [recommended]\nType a number, or compose: \"fix + reply\". Not offered: merge (branch behind main).\n```\n\n`[recommended]` goes to `stop` because of the withhold rule for a zero-blocker `fixable` verdict. None of the higher-priority cases apply:\n\n- There is no held run.\n- No wait overlay is active.\n- No `impossible` row exists.\n\nNothing has been mutated.",
+  "words": 690,
+  "backtick_lines": 23,
+  "path_tokens": 9,
+  "facts": {
+    "f1": {
+      "anthropic-fable/claude-fable-5-1:medium": "no"
+    },
+    "f2": {
+      "anthropic-fable/claude-fable-5-1:medium": "yes"
+    },
+    "f3": {
+      "anthropic-fable/claude-fable-5-1:medium": "yes"
+    },
+    "f4": {
+      "anthropic-fable/claude-fable-5-1:medium": "yes"
+    }
+  },
+  "quality": {
+    "anthropic-fable/claude-fable-5-1:medium": "partial"
+  },
+  "rationale": {
+    "anthropic-fable/claude-fable-5-1:medium": "The candidate refused the --rebase lease push entirely, so verification never records the failing ci / test check or the queued reviewer run on the pushed head, though it otherwise dispatches Verify and Review in order, avoids an automatic fix helper, renders a fixable verdict with a sync note, and offers a non-recommended fix row."
+  },
+  "aggregate": {
+    "kept": 3,
+    "disputed": 0,
+    "lost": 1
+  }
+}

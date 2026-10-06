@@ -1,0 +1,41 @@
+{
+  "sample": "other-author-confirm",
+  "arm": "candidate",
+  "candidate_model": "anthropic/claude-opus-5-5",
+  "thinking": "medium",
+  "reviewers": [
+    "anthropic-fable/claude-fable-5-1:medium"
+  ],
+  "persona_sha256": "f1dc5fc365115b4a81907768cb60a36f0958e7174486eead2edc0f851e53bdda",
+  "repo_sha": "b5829f5f680adc949a34214aa82731dcdec5673e",
+  "input_sha256": "69aa39e78729d96afd5bce1900a796a05a440af0f056a8fa10d743d2a335e2ac",
+  "text": "# gatekeep-pr 412 --rebase\n\n**Arguments.** PR `412`, no issue ref (step 1 resolved `gh-388`), and `--rebase` with no base token. The base is therefore the digest's `baseRefName`, `main`.\n\n**Tracker.** `plan_tracker init` with four stages: `gather`, `provision`, `sync`, `verify`. `gather` and `provision` are already `complete`, so `sync` is `in_progress`.\n\n## Step 2b: sync\n\n**Preconditions, in order:**\n1. pi has the subagent facility, so a helper facility exists.\n2. `permissions.head_pushable` is `true`.\n3. `git -C .worktrees/pr-412 fetch origin main` succeeds, and `origin/main` exists at `3f0b8d2`.\n4. `git -C .worktrees/pr-412 merge-base --is-ancestor origin/main HEAD` exits 1, so the head is 4 commits behind.\n5. `git -C .worktrees/pr-412 rev-list --merges origin/main..HEAD` prints nothing, so the head has no merge commits.\n\n**Baseline.**\n- `gh pr view 412 --json headRefOid` returns `7c1e9a2f4b0d6e8a1c3f5b7d9e0a2c4e6f8a0b1c`.\n- `git -C .worktrees/pr-412 rev-parse HEAD` returns the same SHA, so `<pre_head>` = `7c1e9a2`.\n\n**Other-author confirmation.**\n- `gh api user --jq .login` returns `tomas-okafor`, which differs from `mara-lindqvist`.\n- Before any rewrite, I printed this explanation: the rebase replays mara's 4 commits under new SHAs. Authorship stays, but the committer becomes this checkout's git identity. Review comments anchored on the old commits may show as outdated. Branch protection may dismiss existing approvals. Then I asked for a yes.\n- The reply was **no**, so the sync is recorded as `sync: declined - other author's branch`.\n- The `sync` stage closes `skipped`.\n- No rebase, implementer, reviewer, or push ran. The fetch in precondition 3 was the only write.\n\n## Step 3: Verify (unsynced head)\n\nVerification and the brief assess **`7c1e9a2f4b0d6e8a1c3f5b7d9e0a2c4e6f8a0b1c`**.\n\n**Dispatch.**\n- `mktemp \"${TMPDIR:-/tmp}/gatekeep-verify.XXXXXX\"` sets the output path.\n- `subagent({ agent: \"worker\", context: \"fresh\", async: false, cwd: \".worktrees/pr-412\" })` runs the Section B duty.\n- The task names the output path and the assessed head `7c1e9a2`.\n- It checks evidence CI-first and records one disposition per material claim.\n- It ends with the output contract.\n\n**Result.**\n- `ci / test` (required) is SUCCESS on the assessed head, and Actions run 9001 succeeded. No local run is needed.\n- `plan_tracker add` creates one task per material claim. Each claim is matched, so each is marked `complete`.\n- `verify` closes `complete`.\n- Then `add review, report, menu`.\n\n## Step 4: Review\n\n**Dispatch.**\n- `mktemp \"${TMPDIR:-/tmp}/gatekeep-review.XXXXXX\"` sets the output path.\n- `subagent({ agent: \"code-reviewer\", context: \"fresh\", async: false, cwd: \".worktrees/pr-412\" })` runs Section C plus the review baseline.\n- The task names the assessed head `7c1e9a2` and the output path.\n- It runs read-only and ends with the output contract.\n\n**Result.**\n- There are no blockers and no nits.\n- Comment 501 (\"Prefer bankers rounding here?\") is reviewed against the source. Half-up is the behavior the PR and `gh-388` ask for, so no blocker is minted and a reply is drafted.\n- `review` closes `complete`.\n\n## Step 5: Integrate and report\n\nThere are no blockers. `mergeStateStatus` is `BEHIND` and `can_update_branch` is true, so the forge refuses the merge. That is a withhold reason, so the verdict is `fixable` with zero blockers. `report` closes `complete`.\n\n## Step 6: Menu\n\n`menu` closes `complete` once the menu renders.\n\n```\nDelivers: ledger totals round half-up. The PR covers the acceptance criteria of gh-388 in\ncode, tests, and docs (src/ledger/round.ts, src/ledger/round.test.ts, docs/rounding.md);\nno observation half is left to check after merge.\n\nPR comments:\n- The question about bankers rounding conflicts with the half-up behavior gh-388 asks for, so the drafted reply explains the choice. (src/ledger/round.ts, comment 501)\n- The branch is 4 commits behind main, so the forge refuses the merge until it is updated. (origin/main 3f0b8d2)\n\nSync: declined - other author's branch\nVerdict: fixable - branch behind main\n\n1. approve - approve mara-lindqvist's PR\n2. fix - no drafted payload exists, so you name the change for an implementer to apply in the worktree, review, and push\n3. update branch - run gh pr update-branch 412, fast-forward the worktree, and re-verify the new head\n4. reply - post the drafted reply on comment 501\n5. show evidence - print the CI run, claim outcomes, and the drafted reply\n6. stop - leave the PR as-is                                                [recommended]\nType a number, or compose: \"fix + reply\". Not offered: merge (branch is behind main).\n```",
+  "words": 644,
+  "backtick_lines": 28,
+  "path_tokens": 14,
+  "facts": {
+    "f1": {
+      "anthropic-fable/claude-fable-5-1:medium": "yes"
+    },
+    "f2": {
+      "anthropic-fable/claude-fable-5-1:medium": "yes"
+    },
+    "f3": {
+      "anthropic-fable/claude-fable-5-1:medium": "yes"
+    },
+    "f4": {
+      "anthropic-fable/claude-fable-5-1:medium": "yes"
+    }
+  },
+  "quality": {
+    "anthropic-fable/claude-fable-5-1:medium": "exact"
+  },
+  "rationale": {
+    "anthropic-fable/claude-fable-5-1:medium": "The candidate fetches only, prints the full other-author explanation before asking, records the declined sync with no rebase or push, verifies the unsynced head, and renders a Sync: declined line and skill-shaped menu."
+  },
+  "aggregate": {
+    "kept": 4,
+    "disputed": 0,
+    "lost": 0
+  }
+}

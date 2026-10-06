@@ -1,0 +1,44 @@
+{
+  "sample": "conflict-free-sync",
+  "arm": "candidate",
+  "candidate_model": "anthropic/claude-opus-5-5",
+  "thinking": "medium",
+  "reviewers": [
+    "anthropic-fable/claude-fable-5-1:medium"
+  ],
+  "persona_sha256": "f1dc5fc365115b4a81907768cb60a36f0958e7174486eead2edc0f851e53bdda",
+  "repo_sha": "b5829f5f680adc949a34214aa82731dcdec5673e",
+  "input_sha256": "fc84d60523ce175a9930e195b2dea4cf310b1e1e32ca29fe414f928df5f708c6",
+  "text": "# gatekeep-pr 412: narration from step 2b through the first menu\n\n**Argument parse:** `412 --rebase release/2` gives PR 412 and base `release/2`. The token after `--rebase` is the base, not an issue ref. The issue ref was omitted, so step 1 resolved it to `gh-388`.\n\n**Tracker:** `plan_tracker init` ran with four stages: `gather, provision, sync, verify`. `gather` and `provision` are `complete`, and `sync` is now open.\n\n## Step 2b: sync (`reference/sync.md`)\n\nEvery git command below runs as `git -C .worktrees/pr-412 ...`.\n\n### Preconditions\n\n1. **Helper facility:** pi has the subagent facility, so the sync can proceed.\n2. **Head pushable:** `permissions.head_pushable` is `true`.\n3. **Base exists:** `git -C .worktrees/pr-412 fetch origin release/2` shows `origin/release/2` at `5a6b7c8`. This fetch is the only write before the rebase.\n4. **Head is behind:** `git -C .worktrees/pr-412 merge-base --is-ancestor origin/release/2 HEAD` exits 1, so the sync is not a no-op.\n5. **No merge commits:** `git -C .worktrees/pr-412 rev-list --merges origin/release/2..HEAD` prints nothing.\n\n### Baseline\n\n- `gh pr view 412 --json headRefOid` returns `7c1e9a2f4b0d6e8a1c3f5b7d9e0a2c4e6f8a0b1c`.\n- `git -C .worktrees/pr-412 rev-parse HEAD` returns the same SHA.\n- The two agree, so `<pre_head>` is `7c1e9a2f...`.\n\n### Other-author confirmation\n\n`gh api user --jq .login` returns `mara-lindqvist`, which matches `pr.author.login`. No confirmation is needed, because `--rebase` alone authorizes a same-author sync.\n\n### Rebase\n\n`git -C .worktrees/pr-412 rebase origin/release/2` exits 0 with no conflict stop. No implementer is dispatched. The rebased head is `<new_head>` (`git -C .worktrees/pr-412 rev-parse HEAD`).\n\n### Review before push\n\n1. `mktemp \"${TMPDIR:-/tmp}/gatekeep-sync-review.XXXXXX\"` creates the output path.\n2. Dispatch: `subagent({ agent: \"code-reviewer\", context: \"fresh\", async: false, cwd: \".worktrees/pr-412\" })`.\n3. The task carries these rules:\n   - Work read-only.\n   - Review subject: \"rebase replay and conflict resolutions\".\n   - Review input: `git range-diff origin/release/2 7c1e9a2f... HEAD`. There is no resolved-files diff, because no stop occurred.\n   - Return the native findings report with no closure lines.\n   - Write to the named output path.\n4. Result: no Critical or Moderate finding.\n\n### Push\n\n`git -C .worktrees/pr-412 push --no-follow-tags --force-with-lease=feature/ledger-rounding:7c1e9a2f4b0d6e8a1c3f5b7d9e0a2c4e6f8a0b1c git@git.example.invalid:orchard/ledger.git HEAD:refs/heads/feature/ledger-rounding`\n\nThe push destination is `head_url`, not `origin`. The lease holds and the push succeeds.\n\n### Re-gather\n\n**Forge reads:** I re-ran the Section A forge reads for PR 412: `gh pr view 412 --json headRefOid,mergeable,mergeStateStatus,reviewDecision,statusCheckRollup,commits,files`, `gh pr diff 412`, the actions-runs read, and inline comments, top-level comments, and reviews. The ticket is not re-read.\n- `headRefOid` is now `<new_head>`.\n- `mergeStateStatus` is still `BEHIND` and `can_update_branch` is `true`. The head now sits on `release/2` but still lacks `origin/main`'s tip `3f0b8d2`, and `main` is the PR's base.\n\n**Configuration:** I re-resolved the configuration ladder at `git -C .worktrees/pr-412 merge-base origin/main HEAD`. The ladder uses `baseRefName` `main` as its trust source, not `release/2`.\n\n**Dropped commits:** `rev-list --count origin/release/2..7c1e9a2` minus `rev-list --count origin/release/2..HEAD` is 4 - 4 = 0.\n\n**Close-out:**\n- The digest's `sync` field is set.\n- `plan_tracker` closes `sync` as `complete`.\n- No CI poll runs here.\n\n## Step 3: verify\n\n**Assessed head:** `<new_head>`, the rebased and pushed SHA. Both verification and the brief assess this SHA, not `7c1e9a2`.\n\n1. `mktemp \"${TMPDIR:-/tmp}/gatekeep-verify.XXXXXX\"` creates the output path.\n2. Dispatch: `subagent({ agent: \"worker\", context: \"fresh\", async: false, cwd: \".worktrees/pr-412\" })`.\n3. The task carries Section B duties and the output contract:\n   - Use CI-first evidence for `<new_head>`.\n   - Poll `ci / test` every 30 s for up to 15 minutes.\n   - Run no local verification while CI is pending.\n   - Give one disposition per material claim.\n4. Result: `ci / test` completes `SUCCESS` on `<new_head>`, so no local run is needed.\n5. Tracker:\n   - `plan_tracker add` added one task per material claim (half-up rounding in `src/ledger/round.ts`, tests in `round.test.ts`, docs in `docs/rounding.md`), and each is marked `complete` (matched).\n   - `verify` is now `complete`.\n   - `plan_tracker add` then added `review, report, menu`.\n\n## Step 4: review\n\n1. `mktemp \"${TMPDIR:-/tmp}/gatekeep-review.XXXXXX\"` creates the output path. This dispatch ran after the Verify output file existed.\n2. Dispatch: `subagent({ agent: \"code-reviewer\", context: \"fresh\", async: false, cwd: \".worktrees/pr-412\" })`.\n3. The task carries Section C plus `review-baseline.md`, with the assessed head `<new_head>` and the output contract.\n4. Result:\n   - No findings.\n   - The comment ledger holds inline comment 501 (\"Prefer bankers rounding here?\").\n   - Checked against the source and gh-388, the suggestion does not hold, because the PR implements the half-up rounding the ticket asks for. A reply is drafted.\n\n## Step 5: integrate and report\n\n- No blockers and no nits.\n- The withhold reason is `mergeStateStatus BEHIND` against `main`.\n\n## Step 6: menu\n\n```\nDelivers: ledger totals round half-up. The PR covers every AC of gh-388; none needs a check after merge.\n\nPR comments:\n- The inline suggestion to use bankers rounding conflicts with gh-388, which asks for half-up, so the drafted reply explains why the code keeps half-up. (src/ledger/round.ts)\n- The branch was rebased onto release/2 but the PR targets main, so it is still behind main and merge waits. (origin/main 3f0b8d2)\n\nSync: rebased 7c1e9a2..<new_head7> onto origin/release/2, 0 commit(s) dropped as already applied\nVerdict: fixable - branch behind main\n\n1. update branch - bring main into the PR head on the forge, then fast-forward the worktree\n2. fix - make a change you name in the worktree, review the wave, push\n3. reply - post the drafted reply on the bankers-rounding comment\n4. show evidence - gate output, CI run, drafted reply\n5. stop - leave the PR as-is                                              [recommended]\nType a number. Not offered: merge (branch behind main).\n```",
+  "words": 833,
+  "backtick_lines": 40,
+  "path_tokens": 38,
+  "facts": {
+    "f1": {
+      "anthropic-fable/claude-fable-5-1:medium": "yes"
+    },
+    "f2": {
+      "anthropic-fable/claude-fable-5-1:medium": "yes"
+    },
+    "f3": {
+      "anthropic-fable/claude-fable-5-1:medium": "yes"
+    },
+    "f4": {
+      "anthropic-fable/claude-fable-5-1:medium": "yes"
+    },
+    "f5": {
+      "anthropic-fable/claude-fable-5-1:medium": "yes"
+    }
+  },
+  "quality": {
+    "anthropic-fable/claude-fable-5-1:medium": "exact"
+  },
+  "rationale": {
+    "anthropic-fable/claude-fable-5-1:medium": "The candidate rebases onto origin/release/2 first, runs a fresh code-reviewer range-diff review before a lease-guarded push to head_url, defers CI to verification, assesses the pushed SHA, and renders a templated Sync line directly before the verdict with a skill-styled menu."
+  },
+  "aggregate": {
+    "kept": 5,
+    "disputed": 0,
+    "lost": 0
+  }
+}

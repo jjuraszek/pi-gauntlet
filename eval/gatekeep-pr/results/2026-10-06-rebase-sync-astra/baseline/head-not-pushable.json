@@ -1,0 +1,41 @@
+{
+  "sample": "head-not-pushable",
+  "arm": "baseline",
+  "candidate_model": "github-copilot/gpt-6-astra",
+  "thinking": "medium",
+  "reviewers": [
+    "anthropic-fable/claude-fable-5-1:medium"
+  ],
+  "persona_sha256": "079b996eacfda90c43ec71c8f9e2c88b1552f196a1fbe8368f2343b485433511",
+  "repo_sha": "b5829f5f680adc949a34214aa82731dcdec5673e",
+  "input_sha256": "400b2e9db136af6a0f10effdcabe3b910011d99679356652bf7c24fdd4fa61a3",
+  "text": "`--rebase` is not a supported argument in the supplied skill, and it is not a menu pick. I do not rebase, update the branch, push, or run post-push verification before the first menu. The assessment stays on `7c1e9a2f4b0d6e8a1c3f5b7d9e0a2c4e6f8a0b1c`.\n\nThe following is the narration, not tool execution. Sibling-document paths are relative to the installed skill directory.\n\n## 1. Resume the tracker\n\nThe tracker was initialized with `gather`, `provision`, and `verify`. Since step 2 has finished, `gather` and `provision` are complete; I do not initialize a second tracker.\n\nI add one verification task for the material claim supplied here: ledger totals round half-up.\n\n## 2. Dispatch Verify\n\nI read Section B:\n\n```sh\nsed -n '/^## Section B/,/^## Section C/p' verification-brief.md\n```\n\nI allocate its output outside the worktree:\n\n```sh\nmktemp \"${TMPDIR:-/tmp}/gatekeep-verify.XXXXXX\"\n```\n\nI retain the returned pathname as `VERIFY_OUTPUT`, then dispatch:\n\n```text\npersona: worker\ncontext: fresh\nasync: false\ncwd: <scratch>/.worktrees/pr-412\n```\n\nIts task carries these rules:\n\n- Assess exactly `7c1e9a2f4b0d6e8a1c3f5b7d9e0a2c4e6f8a0b1c`, using Section B and the configuration already resolved from the merge-base.\n- Verify the material claim and the extracted ticket criteria against the actual source, tests, and documentation, rather than accepting the PR description.\n- Use the successful required `ci / test` result on that head as verification evidence. Do not run a redundant local verification command.\n- Make no edits or external writes.\n- Write exactly one evidence record to `VERIFY_OUTPUT`, including one disposition per material claim and the supporting locators.\n\nI await the helper, then read its output:\n\n```sh\ntest -f \"$VERIFY_OUTPUT\" && cat \"$VERIFY_OUTPUT\"\n```\n\nThe result is clean. I close `verify`, record the half-up claim as `complete`, and then add `review`, `report`, and `menu`. No claim verdict is recorded behind a pending stage.\n\n## 3. Dispatch Review\n\nI read Section C:\n\n```sh\nsed -n '/^## Section C/,$p' verification-brief.md\n```\n\nI allocate a separate output:\n\n```sh\nmktemp \"${TMPDIR:-/tmp}/gatekeep-review.XXXXXX\"\n```\n\nI retain its pathname as `REVIEW_OUTPUT`, then dispatch:\n\n```text\npersona: code-reviewer\ncontext: fresh\nasync: false\ncwd: <scratch>/.worktrees/pr-412\n```\n\nIts task carries these rules:\n\n- Review exactly `7c1e9a2f4b0d6e8a1c3f5b7d9e0a2c4e6f8a0b1c`.\n- Follow Section C, the resolved base-sourced review rubric, and the applicable project conventions.\n- Read `VERIFY_OUTPUT` before reviewing the implementation and its tests and documentation.\n- Review the bankers-rounding comment against the source and promised half-up behavior, and disposition it in the internal comment ledger.\n- Draft any warranted reply without posting it.\n- Make no edits or external writes.\n- Write exactly one findings-and-ledger record to `REVIEW_OUTPUT`.\n\nI await the helper, then read its output:\n\n```sh\ntest -f \"$REVIEW_OUTPUT\" && cat \"$REVIEW_OUTPUT\"\n```\n\nThe review is clean. The bankers-rounding suggestion does not establish a defect in the promised half-up behavior; the drafted reply explains that distinction. I complete `review`.\n\nThere is no implementer dispatch or pre-push review because no fix has been selected.\n\n## 4. Integrate the report\n\nI read, in order:\n\n```sh\ncat reference/findings.md\ncat reference/report.md\n```\n\nI integrate the evidence and comment ledger without treating post-merge observations as blockers. I retain the evidence and drafted reply for `show evidence`; I do not print raw helper output or the reply body in the report.\n\nI confirm the assessed head and clean worktree:\n\n```sh\ngit -C <scratch>/.worktrees/pr-412 rev-parse HEAD\ngit -C <scratch>/.worktrees/pr-412 status --porcelain\n```\n\nThe head remains `7c1e9a2f4b0d6e8a1c3f5b7d9e0a2c4e6f8a0b1c`, and the worktree is clean. That is the SHA both verification and the brief assess, not a hypothetical rebased or updated head.\n\nI complete `report`, then read:\n\n```sh\ncat reference/decision-menu.md\n```\n\nThe actor has no merge or head-push permission. The helper facility and remaining fix rounds make `fix` available. `update branch` is available because the digest explicitly grants that operation, the branch is behind, and there are no unpushed wave commits.\n\nNo sync line renders: no synchronization was performed. I complete `menu` and render the following first menu. Nothing executes after it without a pick.\n\n---\n\nDelivers: This PR implements half-up rounding for ledger totals under gh-388. No separate post-merge observation is specified in the supplied digest.\n\nPR comments:\n- The bankers-rounding suggestion does not identify a defect in the promised half-up behavior, so the drafted reply explains the intended rounding rule. (src/ledger/round.ts, docs/rounding.md)\n\nVerdict: mergeable - CI green on the assessed head (ci / test)\n\n1. fix - apply a change you name locally, then open a PR from that branch, or hand the patch to the author [recommended]\n2. update branch - update the PR branch from its base and reassess the new head\n3. reply - post the drafted response to the bankers-rounding suggestion\n4. show evidence - display the verification record, acceptance outcomes, and drafted reply\n5. stop - leave the PR as-is\n\nType a number. Not offered: push (needs push to git@git.example.invalid:orchard/ledger.git:feature/ledger-rounding), merge (needs WRITE on orchard/ledger).",
+  "words": 739,
+  "backtick_lines": 39,
+  "path_tokens": 14,
+  "facts": {
+    "f1": {
+      "anthropic-fable/claude-fable-5-1:medium": "no"
+    },
+    "f2": {
+      "anthropic-fable/claude-fable-5-1:medium": "yes"
+    },
+    "f3": {
+      "anthropic-fable/claude-fable-5-1:medium": "yes"
+    },
+    "f4": {
+      "anthropic-fable/claude-fable-5-1:medium": "no"
+    }
+  },
+  "quality": {
+    "anthropic-fable/claude-fable-5-1:medium": "off-script"
+  },
+  "rationale": {
+    "anthropic-fable/claude-fable-5-1:medium": "The candidate avoids rebasing and pushing, but it dismisses `--rebase` as unsupported instead of stopping after step 2 with a non-pushable-head report, then dispatches verify and review helpers and renders a full menu rather than recording the sync stage as failed."
+  },
+  "aggregate": {
+    "kept": 2,
+    "disputed": 0,
+    "lost": 2
+  }
+}

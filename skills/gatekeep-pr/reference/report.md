@@ -29,10 +29,14 @@ Nits:
 Blockers:                (numbered; menu picks reference these numbers)
 1. <1-2 sentences: what is wrong, why it matters>. (<file:line> | <check name> | <doc path>)
 
+Sync: <one whole sentence from the digest's sync field; only when --rebase was passed>
+
 Verdict: mergeable - <evidence clause> | fixable - <N> blockers | fixable - <withhold reason>
 
 <menu>
 ```
+
+The `Sync:` line renders only when `--rebase` was passed, as one whole sentence built from the digest's `sync` field (for example `Sync: rebased a1b2c3d..e4f5a6b onto origin/main, one stop resolved in src/parser.ts and src/parser.test.ts.`). SKILL.md wording rule 5 (passing facts only under `show evidence`) does not apply to it: it names the resolved files even when the sync succeeded.
 
 ## Verdict
 

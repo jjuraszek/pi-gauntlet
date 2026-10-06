@@ -1,0 +1,44 @@
+{
+  "sample": "conflict-free-sync",
+  "arm": "baseline",
+  "candidate_model": "anthropic/claude-opus-5-5",
+  "thinking": "medium",
+  "reviewers": [
+    "anthropic-fable/claude-fable-5-1:medium"
+  ],
+  "persona_sha256": "079b996eacfda90c43ec71c8f9e2c88b1552f196a1fbe8368f2343b485433511",
+  "repo_sha": "b5829f5f680adc949a34214aa82731dcdec5673e",
+  "input_sha256": "fc84d60523ce175a9930e195b2dea4cf310b1e1e32ca29fe414f928df5f708c6",
+  "text": "## Narration: step 2 complete through the first menu\n\n**Tracker (state at entry).** At step 1 I ran `plan_tracker init` with three stages: `gather`, `provision`, `verify`. `gather` and `provision` are now `complete`, and `verify` is open.\n\n**Arguments.** The invocation was `412 --rebase release/2`. The PR is 412, and the issue is `gh-388` from the digest. I do not act on `--rebase release/2`, for two reasons:\n- The skill defines no such argument.\n- It asks for a mutation (rebase plus force-push) before any menu pick, onto a branch that is not this PR's base. The base is `main`, not `release/2`.\n\nNothing is rebased, `release/2` is never fetched into the worktree, and the head stays at `7c1e9a2f4b0d6e8a1c3f5b7d9e0a2c4e6f8a0b1c`.\n\n**Assessed SHA.** Verification and the brief both assess `7c1e9a2f4b0d6e8a1c3f5b7d9e0a2c4e6f8a0b1c`. The rubric and the verification command were resolved in step 2 from the merge-base with `origin/main` (`3f0b8d2e...` lineage), not from the head.\n\n### Step 3: Verify\n\n1. `mktemp \"${TMPDIR:-/tmp}/gatekeep-verify.XXXXXX\"` returns the Verify output path, outside the worktree.\n2. I dispatch `subagent({ agent: \"worker\", context: \"fresh\", async: false, cwd: \"<scratch>/.worktrees/pr-412\" })`. Its task carries these rules:\n   - The duty is `verification-brief.md` Section B.\n   - The assessed head is `7c1e9a2f...`. The helper confirms `git rev-parse HEAD` equals it before working.\n   - Evidence is CI-first. `ci / test` (required) is COMPLETED/SUCCESS on the assessed head, and Actions run 9001 is completed/success. That resolves to green, so no local verification run happens.\n   - The verification command comes from the merge-base config only.\n   - The helper gives one disposition per material claim.\n   - The task names the output path and ends with the output contract.\n3. I await the result, then read the output file. It is clean.\n4. I `plan_tracker add` one task per material claim and mark each `complete` (matched):\n   - \"ledger totals round half-up\" (`src/ledger/round.ts`)\n   - \"tests cover the rounding\" (`src/ledger/round.test.ts`)\n   - \"docs describe half-up\" (`docs/rounding.md`)\n5. I close `verify` as `complete`. Then I `plan_tracker add` the stages `review`, `report`, `menu`.\n\n### Step 4: Review (dispatched only after the Verify output file exists)\n\n1. `mktemp \"${TMPDIR:-/tmp}/gatekeep-review.XXXXXX\"` returns the Review output path.\n2. I dispatch `subagent({ agent: \"code-reviewer\", context: \"fresh\", async: false, cwd: \"<scratch>/.worktrees/pr-412\" })`. Its task carries these rules:\n   - The duty is `verification-brief.md` Section C plus `review-baseline.md`.\n   - The assessed head is `7c1e9a2f...`.\n   - The helper reviews inline comment 501 against source.\n   - It returns findings and the internal comment ledger.\n   - The task names the output path and ends with the output contract.\n3. I await the result and read the file. It reports no findings. Comment 501 (\"Prefer bankers rounding here?\") was checked against source and the ticket, which asks for half-up. That yields no blocker and one drafted reply.\n4. `review` is marked `complete`.\n\n### Step 5: Integrate and report\n\n- **Integration result.** There are no blockers and no nits, and every AC row is covered at the mechanism level.\n- **Withhold.** `mergeStateStatus` is `BEHIND`: the head is 4 commits behind `origin/main`, so the forge refuses merge. The verdict is `fixable` with zero blockers, using a withhold reason.\n- **Tracker.** `report` is marked `complete`.\n\n### Step 6: Menu\n\n- **Consent rows.** The author is me and the verdict is effectively mergeable with `merge` withheld. That gives `fix`, `reply`, `show evidence`, `stop`.\n- **`update branch`.** It renders because `can_update_branch` is true and no wave commit exists.\n- **`[recommended]`.** No held-run, pending-evidence, pending-reviewer, pending-check, or impossible-AC overlay applies. Under the withhold rule, `[recommended]` therefore goes to `stop`.\n- **Tracker.** `menu` is marked `complete`.\n\n### Rendered report\n\n```\nDelivers: ledger totals round half-up. The PR covers the ACs of gh-388; how\nproduction totals come out is checked after merge, not here.\n\nPR comments:\n- The branch is 4 commits behind main, so merge waits until it is updated; --rebase release/2 was not applied because release/2 is not this PR's base and the gate rebases nothing before a pick. (origin/main 3f0b8d2)\n- The question about bankers rounding is answered by the ticket asking for half-up, so the drafted reply points to that. (src/ledger/round.ts, gh-388)\n\nVerdict: fixable - branch 4 commits behind main\n\n1. update branch - merge main into the head, then fast-forward the worktree and re-verify\n2. fix - you name the change; a fresh helper applies it in the worktree, the wave is reviewed, then pushed\n3. reply - post the drafted reply on the bankers-rounding comment\n4. show evidence - gate output, CI run, drafted reply\n5. stop - leave the PR as-is                                              [recommended]\nType a number. Not offered: merge (branch behind main).\n```",
+  "words": 708,
+  "backtick_lines": 28,
+  "path_tokens": 20,
+  "facts": {
+    "f1": {
+      "anthropic-fable/claude-fable-5-1:medium": "no"
+    },
+    "f2": {
+      "anthropic-fable/claude-fable-5-1:medium": "no"
+    },
+    "f3": {
+      "anthropic-fable/claude-fable-5-1:medium": "no"
+    },
+    "f4": {
+      "anthropic-fable/claude-fable-5-1:medium": "no"
+    },
+    "f5": {
+      "anthropic-fable/claude-fable-5-1:medium": "no"
+    }
+  },
+  "quality": {
+    "anthropic-fable/claude-fable-5-1:medium": "off-script"
+  },
+  "rationale": {
+    "anthropic-fable/claude-fable-5-1:medium": "The candidate declined the `--rebase release/2` argument outright, so no rebase onto origin/release/2, no post-sync code-reviewer review, no --force-with-lease push, no pushed-SHA assessment, and no `Sync:` line occurred, leaving every required fact unmet and the verdict assessed on the stale head."
+  },
+  "aggregate": {
+    "kept": 0,
+    "disputed": 0,
+    "lost": 5
+  }
+}

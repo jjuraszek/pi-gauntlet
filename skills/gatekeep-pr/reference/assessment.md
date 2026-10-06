@@ -1,6 +1,6 @@
 # gatekeep-pr: step 2 - provision and configure
 
-Read from SKILL.md step 2. Input: the step-1 digest. Output: a provisioned worktree, the resolved configuration, and the ticket's AC rows. This step is the orchestrator's only mutation before the menu.
+Read from SKILL.md step 2. Input: the step-1 digest. Output: a provisioned worktree, the resolved configuration, and the ticket's AC rows. This step is the orchestrator's only mutation before the menu, besides the `--rebase` sync of step 2b (`sync.md`).
 
 ## Provision the worktree
 

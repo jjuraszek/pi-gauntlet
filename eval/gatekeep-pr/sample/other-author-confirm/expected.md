@@ -1,0 +1,6 @@
+# Expected facts: other-author-confirm
+
+- f1: Because the PR author differs from the token user, the orchestrator prints an explanation and asks for a yes before any rewrite; only a fetch may precede the question.
+- f2: The explanation says the rebase replays the author's commits under new SHAs, keeps authorship, records the local git identity as committer, and may leave review comments outdated and approvals dismissed.
+- f3: After the user answers no, the record reads `sync: declined` and no rebase or push runs.
+- f4: Verification still runs on the unsynced head and the `Sync:` line reads declined.

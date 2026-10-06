@@ -1,0 +1,41 @@
+{
+  "sample": "helper-unavailable",
+  "arm": "candidate",
+  "candidate_model": "anthropic/claude-opus-5-5",
+  "thinking": "medium",
+  "reviewers": [
+    "anthropic-fable/claude-fable-5-1:medium"
+  ],
+  "persona_sha256": "f1dc5fc365115b4a81907768cb60a36f0958e7174486eead2edc0f851e53bdda",
+  "repo_sha": "b5829f5f680adc949a34214aa82731dcdec5673e",
+  "input_sha256": "6543ff2e25146c67af9856e20f6f411ad76f0f0a50911ce2b2ca1a97d2cc047e",
+  "text": "# gatekeep-pr 412 --rebase: step 2b\n\n**Arguments.** `412 --rebase` has no token after `--rebase`, so the base is the digest's `baseRefName`, which is `main`. Ref `origin/main` exists at `3f0b8d2`, so the argument passes validation.\n\n**Tracker.** `plan_tracker init` with four stages: `gather, provision, sync, verify`. `--rebase` is present, so `sync` is included. `gather` and `provision` close `complete` because steps 1 and 2 have finished.\n\n**Sync preconditions (`reference/sync.md`, checked in order):**\n\n1. **Helper facility.** The digest says the harness has no subagent dispatch facility of any kind. This is a terminal stop before any write, and precondition 1 is checked before the precondition-3 fetch.\n\n**Commands run:** none. No `git fetch origin main`, no `gh pr view` baseline refresh, no `gh api user` author check, no rebase, and no push.\n\n**Helpers dispatched:** none. No conflict-stop `implementer` and no pre-push `code-reviewer`. The SKILL.md harness notes also call a harness with no helper facility unsupported, and with `--rebase` the run stops at step 2b before any sync write.\n\n**Tracker close.** `sync` closes `failed`. `verify` stays pending, and the remaining three stages are never added. Step 3 does not run.\n\n**SHA assessed:** none.\n- Verification does not run, and Sections B and C are never dispatched.\n- The worktree stays at the unsynced head `7c1e9a2f4b0d6e8a1c3f5b7d9e0a2c4e6f8a0b1c`, which still equals `headRefOid`.\n- The digest's `sync` field is set to `stopped - no helper facility for conflict resolution and review`.\n\n**Sync line and verdict.** No report renders, because steps 3-5 never run. That means no `Delivers`, no verdict line is computed, and no `Sync:` line sits before a `Verdict:`. The terminal stop prints its reason in place of the report:\n\n```\nsync: stopped - no helper facility for conflict resolution and review\n\n1. show evidence - print the digest's head-dependent fields and the sync record\n2. stop - leave the PR as-is                                              [recommended]\nType a number.\n```",
+  "words": 298,
+  "backtick_lines": 11,
+  "path_tokens": 3,
+  "facts": {
+    "f1": {
+      "anthropic-fable/claude-fable-5-1:medium": "yes"
+    },
+    "f2": {
+      "anthropic-fable/claude-fable-5-1:medium": "yes"
+    },
+    "f3": {
+      "anthropic-fable/claude-fable-5-1:medium": "yes"
+    },
+    "f4": {
+      "anthropic-fable/claude-fable-5-1:medium": "yes"
+    }
+  },
+  "quality": {
+    "anthropic-fable/claude-fable-5-1:medium": "faithful"
+  },
+  "rationale": {
+    "anthropic-fable/claude-fable-5-1:medium": "The candidate checks the helper-facility precondition first, runs no fetch/rebase/push, dispatches no helpers, closes sync as failed naming the missing facility, and does no in-context resolution or review, though its hedging about whether a sync line renders leaves the exact wording unconfirmed."
+  },
+  "aggregate": {
+    "kept": 4,
+    "disputed": 0,
+    "lost": 0
+  }
+}

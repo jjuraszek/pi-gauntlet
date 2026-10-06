@@ -70,6 +70,7 @@ provisioning, so it never re-polls; step 2 re-polls once after provisioning (`re
 - issue_ref: <ref> | null
 - issue: null   # shape and fill: step 2, reference/assessment.md ## Fetch the ticket
 - worktree_discovery: { expected_path, exists, branch, dirty, ahead, behind }
+- sync: <record>   # only with --rebase; grammar: reference/sync.md ## Sync record
 - truncation_notes: []
 ```
 
@@ -144,7 +145,7 @@ On the first pass the orchestrator re-runs Section A's fixed `gh pr view` and `g
 | Pending | >=1 pending check, no blocking conclusion, and the poll window (first pass or after a push) elapsed | the `verification evidence pending` overlay renders (`reference/decision-menu.md` `## Overlays`); `wait` polls another `timeout minutes`; never a local run, never an evidence-less merge; when a later re-resolve moves this head to CI-sufficient, the orchestrator dispatches a fresh Section B helper in claim-check-only mode (no local run) so every material claim gets a disposition | n/a (waiting) |
 | CI-sufficient | >=1 `success`, zero blocking, zero pending | Skip local run | CI claim: check name(s), conclusion, assessed SHA, run URL |
 | Fallback | No conclusive check: no checks on the assessed head, or only inert / fail-safe conclusions, after `timeout minutes` | Run local command (protocol below) | Local command + `log_path`; `local run: no conclusive check` |
-| Fix wave | A push by this gate | Poll the pushed head per `reference/fix-wave.md` `## Evidence after push`, then resolve this table on the normalized set | The resolved row's evidence for the pushed SHA |
+| Fix wave | A fix-wave push by this gate (not the step-2b sync push) | Poll the pushed head per `reference/fix-wave.md` `## Evidence after push`, then resolve this table on the normalized set | The resolved row's evidence for the pushed SHA |
 | Stale head | Head advances since evidence was resolved (another actor's push); fires across runs - a single gather is same-head by construction | All prior evidence (CI or local) is stale; re-resolve this table for the new head before merge is offered | Fresh evidence for the new head |
 
 CI-sufficient predicate, stated once (the rows implement exactly this): **>=1

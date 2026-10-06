@@ -1,0 +1,41 @@
+{
+  "sample": "helper-unavailable",
+  "arm": "baseline",
+  "candidate_model": "anthropic/claude-opus-5-5",
+  "thinking": "medium",
+  "reviewers": [
+    "anthropic-fable/claude-fable-5-1:medium"
+  ],
+  "persona_sha256": "079b996eacfda90c43ec71c8f9e2c88b1552f196a1fbe8368f2343b485433511",
+  "repo_sha": "b5829f5f680adc949a34214aa82731dcdec5673e",
+  "input_sha256": "6543ff2e25146c67af9856e20f6f411ad76f0f0a50911ce2b2ca1a97d2cc047e",
+  "text": "# gatekeep-pr 412: stopped at step 3, no menu renders\n\n**No first menu renders, and no verdict or sync line either.** The digest says the harness has no subagent dispatch facility. `SKILL.md` `## Harness notes` covers this case: \"A harness with neither facility is unsupported: stop at step 3 and say so.\" A red flag also forbids running a helper's duty in the orchestrator's own context. Rendering a menu would require a verdict the gate never earned.\n\n## Narration from the end of step 2\n\n1. **Tracker.** I call `plan_tracker init` with the first three stages: `gather`, `provision`, `verify`.\n   - `gather` is marked `complete`.\n   - `provision` is marked `complete`: the worktree `.worktrees/pr-412` is clean, and its HEAD equals the PR head `7c1e9a2f4b0d6e8a1c3f5b7d9e0a2c4e6f8a0b1c`.\n   - I do not `add` the remaining three stages (`review`, `report`, `menu`). That happens only after every claim is terminal and `verify` is closed, and neither happens here.\n\n2. **The `--rebase` argument.** This skill has no `--rebase` argument. Its arguments are the PR number and an optional issue reference only.\n   - A rebase and force-push would be a mutation without a menu pick.\n   - The branch being `BEHIND` is handled by the `update branch` menu row, not by an invocation flag.\n   - So I run no rebase, fetch-and-rebase, or push. The worktree stays at `7c1e9a2f…`.\n\n3. **Step 3 Verify.** Verify must run as a fresh `worker` helper:\n   - Its `cwd` is the worktree.\n   - Its output goes to a `mktemp` path outside the worktree.\n   - It checks that `rev-parse HEAD` equals the assessed head before working.\n   - Every command runs as `git -C <worktree>` or `(cd <worktree> && …)`.\n\n   No dispatch facility exists, so I dispatch no helper and run no commands. In particular, I do not run the verification command myself.\n\n4. **Tracker after the stop.** `verify` is marked `failed` and stays `failed`. No claim tasks are added, because no claims were dispositioned.\n\n## Assessed head\n\nThe SHA that verification and the brief would assess is the PR head `7c1e9a2f4b0d6e8a1c3f5b7d9e0a2c4e6f8a0b1c`, not a rebased head. Verification never ran on it.\n\n## Brief sync line, verdict line, and menu\n\n- **Sync line:** none renders, because the report (step 5) is never reached.\n- **Verdict line:** none renders.\n- **Menu:** none renders.\n\n## Output to the human\n\n> gatekeep-pr stopped at step 3: this harness has no subagent dispatch facility, so Verify and Review cannot run, and the gate is unsupported here. No verification ran and nothing was changed on PR 412. The `--rebase` argument is not part of this skill; the branch is 4 commits behind `main`. Re-run on pi or Claude Code to get a verdict and the menu, which will offer `update branch` for that.",
+  "words": 426,
+  "backtick_lines": 16,
+  "path_tokens": 2,
+  "facts": {
+    "f1": {
+      "anthropic-fable/claude-fable-5-1:medium": "yes"
+    },
+    "f2": {
+      "anthropic-fable/claude-fable-5-1:medium": "yes"
+    },
+    "f3": {
+      "anthropic-fable/claude-fable-5-1:medium": "yes"
+    },
+    "f4": {
+      "anthropic-fable/claude-fable-5-1:medium": "yes"
+    }
+  },
+  "quality": {
+    "anthropic-fable/claude-fable-5-1:medium": "faithful"
+  },
+  "rationale": {
+    "anthropic-fable/claude-fable-5-1:medium": "The candidate stops at step 3 citing the missing dispatch facility, marks verify failed, refuses the unsupported --rebase mutation and any in-context verification or review, and renders no sync line or menu, matching the skill's unsupported-harness path."
+  },
+  "aggregate": {
+    "kept": 4,
+    "disputed": 0,
+    "lost": 0
+  }
+}

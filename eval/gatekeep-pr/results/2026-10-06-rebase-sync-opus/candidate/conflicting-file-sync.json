@@ -1,0 +1,44 @@
+{
+  "sample": "conflicting-file-sync",
+  "arm": "candidate",
+  "candidate_model": "anthropic/claude-opus-5-5",
+  "thinking": "medium",
+  "reviewers": [
+    "anthropic-fable/claude-fable-5-1:medium"
+  ],
+  "persona_sha256": "f1dc5fc365115b4a81907768cb60a36f0958e7174486eead2edc0f851e53bdda",
+  "repo_sha": "b5829f5f680adc949a34214aa82731dcdec5673e",
+  "input_sha256": "0fd6a98a8303731bd1424ec7a3726c8623a6777e076798f57e86def3d3da3f71",
+  "text": "# gatekeep-pr 412 --rebase: narration from step 2b through the first menu\n\n## Arguments and tracker\n\n**Argument parse.** The arguments are `412 --rebase` with no token after `--rebase`. The base is therefore the digest's `baseRefName`, `main`, and the target is `origin/main`. `origin/release/2` plays no part.\n\n**Tracker.** I ran `plan_tracker init` with `gather, provision, sync, verify`. That is four stages because `--rebase` is present. I closed `gather` and `provision` as `complete` after steps 1-2. `sync` is now active.\n\n## Step 2b: sync\n\nEvery git command below runs as `git -C .worktrees/pr-412 ...`.\n\n### Preconditions\n\n1. **Helper facility.** pi's subagent facility is present, so this passes.\n2. **Pushable head.** `permissions.head_pushable` is `true`, so this passes.\n3. **Base exists.** `git fetch origin main` shows `origin/main` at `3f0b8d2`, so this passes.\n4. **Head is behind.** `git merge-base --is-ancestor origin/main HEAD` exits 1 because the head is 4 commits behind. The step proceeds.\n5. **No merge commits.** `git rev-list --merges origin/main..HEAD` prints nothing, so the step proceeds.\n\n### Baseline\n\n- `gh pr view 412 --json headRefOid` returns `7c1e9a2f4b0d6e8a1c3f5b7d9e0a2c4e6f8a0b1c`.\n- `git rev-parse HEAD` returns the same SHA.\n- `<pre_head>` is set to `7c1e9a2f4b0d...`.\n\n### Author check\n\n- `gh api user --jq .login` returns `mara-lindqvist`, which equals `pr.author.login`.\n- This is a same-author PR, so no confirmation is needed. `--rebase` alone authorizes the sync.\n\n### Rebase\n\n- `git rebase origin/main` stops at `b2c3d4e` (\"Round half-up in totals\").\n- `git diff --name-only --diff-filter=U` lists `src/ledger/round.ts`. `src/ledger/round.test.ts` replayed cleanly and is already staged.\n\n### Conflict stop\n\n**Before dispatch, I recorded:**\n- The `git status --porcelain` snapshot.\n- The conflicted list: `[src/ledger/round.ts]`.\n- The output of `git rebase --show-current-patch`.\n\n**Scoped tests.** `SCOPED_TEST_COMMANDS` is the merge-base-resolved verification command in its file-scoped form, followed by `src/ledger/round.test.ts`.\n\n**Dispatch.** I ran `mktemp \"${TMPDIR:-/tmp}/gatekeep-implementer.XXXXXX\"`, then:\n\n```\nsubagent({ agent: \"implementer\", context: \"fresh\", async: false, cwd: \".worktrees/pr-412\" })\n```\n\nThe task carries:\n- the conflicted file list,\n- the stopped commit's patch,\n- the base `origin/main`,\n- `SCOPED_TEST_COMMANDS`,\n- the output path and the output contract,\n- this rule, verbatim: \"resolve every listed file so both sides' intent survives, run exactly the supplied scoped test commands and report each result (or report that none were supplied), `git add` each resolved file, return `done` with the list of files you changed; never run `git rebase --continue`, `git rebase --abort`, `git rebase --skip`, or `git commit`; never edit a file outside the list\".\n\n**Result.** The implementer returned `done` with `[src/ledger/round.ts]` and the scoped test green.\n\n**Continue gates, all passed:**\n- `git diff --name-only --diff-filter=U` is empty.\n- `git diff --quiet -- src/ledger/round.ts` shows the file is fully staged.\n- `git status --porcelain` differs from the snapshot only in `src/ledger/round.ts`.\n\n**Continue.** `GIT_EDITOR=true git rebase --continue` completes. The remaining commits replay cleanly.\n\n### Review before push\n\n**Dispatch.** I ran `mktemp \"${TMPDIR:-/tmp}/gatekeep-code-reviewer.XXXXXX\"`, then:\n\n```\nsubagent({ agent: \"code-reviewer\", context: \"fresh\", async: false, cwd: \".worktrees/pr-412\" })\n```\n\nThe task specifies:\n- read-only access,\n- inputs `git range-diff origin/main 7c1e9a2 HEAD` and `git diff 7c1e9a2 HEAD -- src/ledger/round.ts`,\n- the subject \"rebase replay and conflict resolutions\",\n- a native findings report with no closure lines.\n\n**Result.** The review is clean, with no Critical or Moderate findings.\n\n### Push\n\n```\ngit -C .worktrees/pr-412 push --no-follow-tags --force-with-lease=feature/ledger-rounding:7c1e9a2f4b0d6e8a1c3f5b7d9e0a2c4e6f8a0b1c git@git.example.invalid:orchard/ledger.git HEAD:refs/heads/feature/ledger-rounding\n```\n\n- The push is accepted.\n- `git rev-parse HEAD` gives `<new_head>`, the rebased head.\n\n### Re-gather\n\n**Forge reads.** I re-ran the full step-1 set for PR 412:\n- `headRefOid`, `mergeable`, `mergeStateStatus`, `reviewDecision`,\n- status checks and `actions_runs`,\n- commits, files, and diff,\n- inline and top-level comments, and reviews.\n\nThe ticket reads were not repeated. `headRefOid` now equals `<new_head>`, and the branch is no longer `BEHIND`.\n\n**Configuration.** I re-resolved the ladder at `git merge-base origin/main HEAD`, which is `3f0b8d2`. No CI poll runs here.\n\n**Dropped commits.** 4 minus 4 gives 0 dropped commits.\n\n**Close.** I set the digest `sync` field and closed `sync` as `complete`.\n\n## Step 3: verify\n\n**Dispatch.** I ran `mktemp \"${TMPDIR:-/tmp}/gatekeep-worker.XXXXXX\"`, then:\n\n```\nsubagent({ agent: \"worker\", context: \"fresh\", async: false, cwd: \".worktrees/pr-412\" })\n```\n\nThe task carries the Section B duty, the assessed head `<new_head>`, the output path, and the output contract.\n\n**CI-first evidence.** The worker polls every 30 s for up to 15 min. `ci / test` on `<new_head>` completes `SUCCESS` inside the window, so no local run happens.\n\n**Claims.** I ran `plan_tracker add` with one task per material claim and AC row from gh-388. Each claim is matched and marked `complete`. I then closed `verify` and added `review, report, menu`.\n\n## Step 4: review\n\n**Dispatch.** I ran `mktemp \"${TMPDIR:-/tmp}/gatekeep-code-reviewer.XXXXXX\"`, then:\n\n```\nsubagent({ agent: \"code-reviewer\", context: \"fresh\", async: false, cwd: \".worktrees/pr-412\" })\n```\n\nThe task carries Section C plus `review-baseline.md`, the assessed head `<new_head>`, and the output path.\n\n**Result.** The review finds nothing. Inline comment 501 (\"Prefer bankers rounding here?\") gets a ledger row and is checked against source. It does not hold, because the PR and ticket specify half-up. No blocker is minted and a reply is drafted.\n\n## Step 5: integrate\n\n- There are no blockers and no nits.\n- The drafted reply goes to 501.\n- Verification and the brief assess `<new_head>`, the rebased and pushed head. They do not assess `7c1e9a2`.\n\n## Rendered tail of the report\n\n```\nPR comments:\n- The question on comment 501 asks for bankers rounding, and gh-388 specifies half-up, so the drafted reply explains the choice. (src/ledger/round.ts)\n\nSync: rebased 7c1e9a2..<new_head7> onto origin/main, 1 stop(s) resolved in src/ledger/round.ts, 0 commit(s) dropped as already applied\nVerdict: mergeable - CI green on the assessed head (ci / test)\n\n1. merge - squash-merge PR 412 at the assessed head <new_head7> [recommended]\n2. fix - name a change for a fresh implementer to apply in the worktree, review the wave, push\n3. reply - post the drafted reply to comment 501\n4. show evidence - CI run, claim and AC outcomes, sync record, drafted reply\n5. stop - leave the PR as-is\nType a number, or compose: \"fix + reply\".\n```",
+  "words": 906,
+  "backtick_lines": 54,
+  "path_tokens": 30,
+  "facts": {
+    "f1": {
+      "anthropic-fable/claude-fable-5-1:medium": "yes"
+    },
+    "f2": {
+      "anthropic-fable/claude-fable-5-1:medium": "yes"
+    },
+    "f3": {
+      "anthropic-fable/claude-fable-5-1:medium": "yes"
+    },
+    "f4": {
+      "anthropic-fable/claude-fable-5-1:medium": "yes"
+    },
+    "f5": {
+      "anthropic-fable/claude-fable-5-1:medium": "yes"
+    }
+  },
+  "quality": {
+    "anthropic-fable/claude-fable-5-1:medium": "exact"
+  },
+  "rationale": {
+    "anthropic-fable/claude-fable-5-1:medium": "The narration walks every sync gate in order, dispatches a fresh scoped implementer with the forbidden-command rule and SCOPED_TEST_COMMANDS, continues the rebase itself without editing, reviews with a fresh code-reviewer before a force-with-lease push, and renders the Sync line and menu in the skill's wording."
+  },
+  "aggregate": {
+    "kept": 5,
+    "disputed": 0,
+    "lost": 0
+  }
+}
