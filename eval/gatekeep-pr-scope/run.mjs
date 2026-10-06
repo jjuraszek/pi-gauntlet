@@ -174,7 +174,10 @@ export function renderTable(result) {
 }
 
 function callPi(model, systemPrompt, userMessage, cwd, thinking) {
-  const res = spawnSync("pi", [...PI_FLAGS, "--model", model, ...(thinking ? ["--thinking", thinking] : []), "--system-prompt", systemPrompt, "--", userMessage], { cwd, encoding: "utf8", maxBuffer: 64 * 1024 * 1024, timeout: 15 * 60 * 1000 });
+  // The bundle exceeds Linux's single-argument limit; pi accepts a file path for --system-prompt.
+  const systemPath = join(cwd, "system-prompt.md");
+  writeFileSync(systemPath, systemPrompt);
+  const res = spawnSync("pi", [...PI_FLAGS, "--model", model, ...(thinking ? ["--thinking", thinking] : []), "--system-prompt", systemPath, "--", userMessage], { cwd, encoding: "utf8", maxBuffer: 64 * 1024 * 1024, timeout: 15 * 60 * 1000 });
   if (res.status !== 0) throw new Error(`${res.error?.message ?? `pi exited ${res.status ?? res.signal}` }: ${(res.stderr || "").trim().split("\n").slice(-3).join(" | ")}`);
   const out = (res.stdout || "").trim();
   if (!out) throw new Error("pi returned empty output");

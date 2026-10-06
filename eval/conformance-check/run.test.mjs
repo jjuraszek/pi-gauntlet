@@ -189,7 +189,7 @@ test('bundle+ record hashes the actual system prompt', () => {
   const dir = tmp();
   const capture = join(dir, 'system.txt');
   const pi = join(dir, 'pi');
-  writeFileSync(pi, `#!${process.execPath}\nconst fs = require('node:fs'); fs.writeFileSync(process.env.EVAL_CAPTURE, process.argv[process.argv.indexOf('--system-prompt') + 1]); process.exit(1);\n`);
+  writeFileSync(pi, `#!${process.execPath}\nconst fs = require('node:fs'); fs.writeFileSync(process.env.EVAL_CAPTURE, fs.readFileSync(process.argv[process.argv.indexOf('--system-prompt') + 1], 'utf8')); process.exit(1);\n`);
   chmodSync(pi, 0o755);
   const persona = fileURLToPath(new URL('../../', root));
   const out = join(dir, 'records');
