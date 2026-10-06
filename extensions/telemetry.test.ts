@@ -681,7 +681,7 @@
     const h = await boundInBrainstorm();
     await h.emit("tool_result", memberBatch());
     await h.emit("tool_result", chairResult());
-    await h.bash("c1", `printf '%s\\n' "${AUDIT_TEXT.replace(/\n/g, "\\n")}"`);
+    await h.bash("c1", `cat <<'EOF'\n${AUDIT_TEXT}\nEOF`);
     assert.equal(h.readRecord().derived.council, undefined);
     await h.emit("message_end", assistant(AUDIT_TEXT));
     assert.deepEqual(h.readRecord().derived.council, EXPECTED_COUNCIL);

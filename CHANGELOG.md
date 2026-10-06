@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Changed
+
+- **Telemetry docs and test tightened.** `doc/configuration.md` states that council dispositions are read from any `git ... commit` command's audit lines during brainstorm (not only the heredoc shape), and the non-git telemetry test now uses a multi-line `cat` heredoc so it fails if the `git ... commit` guard is removed.
+
 ## v7.3.1 - 2026-10-06
 
 ### Changed
