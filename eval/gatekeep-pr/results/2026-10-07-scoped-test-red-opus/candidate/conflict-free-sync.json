@@ -1,0 +1,52 @@
+{
+  "sample": "conflict-free-sync",
+  "arm": "candidate",
+  "candidate_model": "anthropic/claude-opus-5-5",
+  "thinking": "medium",
+  "reviewers": [
+    "github-copilot/gpt-6-astra",
+    "anthropic-fable/claude-fable-5-1:medium"
+  ],
+  "persona_sha256": "18a75023c377cead229e1b2101348bc9e15c4ee3f7c59840b06098881883628e",
+  "repo_sha": "97916a219a5d3fb6bbfd977adc1b4426af4c55ba",
+  "input_sha256": "fc84d60523ce175a9930e195b2dea4cf310b1e1e32ca29fe414f928df5f708c6",
+  "text": "# gatekeep-pr 412: step 2b through the first menu\n\n**Invocation parse:** `412 --rebase release/2`\n- PR: 412.\n- Issue ref: none on the command line. Step 1 resolved `gh-388`.\n- Rebase base: `release/2`.\n- `baseRefName` stays `main`. It remains the trust source for configuration.\n\n**Tracker (initialized at the start of the run):**\n`plan_tracker init`: `gather`, `provision`, `sync`, `verify`. `gather` and `provision` are already `complete`.\n\n## Step 2b: Sync\n\n### Preconditions\n\n1. The pi subagent facility is present. Pass.\n2. `permissions.head_pushable` is `true`. Pass.\n3. `git -C .worktrees/pr-412 fetch origin release/2` runs. `origin/release/2` exists at `5a6b7c8d...`. Pass.\n4. `git -C .worktrees/pr-412 merge-base --is-ancestor origin/release/2 HEAD` exits 1, so the head is behind. Proceed.\n5. `git -C .worktrees/pr-412 rev-list --merges origin/release/2..HEAD` prints nothing. Proceed.\n\n### Baseline\n\n- `gh pr view 412 --json headRefOid` returns `7c1e9a2f4b0d6e8a1c3f5b7d9e0a2c4e6f8a0b1c`.\n- `git -C .worktrees/pr-412 rev-parse HEAD` returns `7c1e9a2f...`.\n- The two agree, so `<pre_head>` = `7c1e9a2f4b0d6e8a1c3f5b7d9e0a2c4e6f8a0b1c`.\n\n### Other-author confirmation\n\n- `gh api user --jq .login` returns `mara-lindqvist`, which matches the PR author.\n- No confirmation is needed. `--rebase` alone authorizes the sync.\n\n### Rebase\n\n- `git -C .worktrees/pr-412 rebase origin/release/2` completes with no conflict stop.\n- No implementer is dispatched.\n- The new head is `<new_head>`.\n\n### Review before push\n\nOne fresh `code-reviewer` is dispatched:\n- **Call:** `subagent({ agent: \"code-reviewer\", context: \"fresh\", async: false, cwd: \".worktrees/pr-412\" })`.\n- **Output path:** `mktemp \"${TMPDIR:-/tmp}/gatekeep-sync-review.XXXXXX\"`.\n- **Task rules:**\n  - Read-only.\n  - Review `git -C .worktrees/pr-412 range-diff origin/release/2 7c1e9a2 HEAD`. There is no resolved-files diff because there were no stops.\n  - Return the reviewer's native findings report with the subject \"rebase replay and conflict resolutions\".\n  - No closure lines.\n  - End with the output contract naming the output path.\n- **Result:** clean. No Critical or Moderate finding.\n\n### Push\n\nNo stop reported a failing scoped test, so the push runs:\n\n```\ngit -C .worktrees/pr-412 push --no-follow-tags --force-with-lease=feature/ledger-rounding:7c1e9a2f4b0d6e8a1c3f5b7d9e0a2c4e6f8a0b1c git@git.example.invalid:orchard/ledger.git HEAD:refs/heads/feature/ledger-rounding\n```\n\nThe push succeeds.\n\n### Re-gather\n\n- Re-run the step-1 forge reads with `gh pr view 412 --json headRefOid,mergeable,mergeStateStatus,reviewDecision,statusCheckRollup,commits,files`, plus the diff, the Actions runs, and the comments and reviews reads.\n  - `headRefOid` = `<new_head>`.\n  - `mergeStateStatus` = `BEHIND`. The rebase went onto `release/2`, not `main`.\n  - `can_update_branch` = `true`.\n- The ticket reads are not repeated.\n- Re-select the scope contract on `<new_head>` (`gh-388`).\n- Re-resolve the configuration ladder at `git -C .worktrees/pr-412 merge-base origin/main HEAD`.\n- No CI poll runs here.\n- Set the digest `sync` field.\n- `plan_tracker`: `sync` -> `complete`.\n\n## Step 3: Verify\n\n**Assessed SHA:** `<new_head>`, the rebased and pushed head. The brief assesses this same SHA.\n\nOne fresh `worker` is dispatched:\n- **Call:** `subagent({ agent: \"worker\", context: \"fresh\", async: false, cwd: \".worktrees/pr-412\" })`.\n- **Output path:** `mktemp \"${TMPDIR:-/tmp}/gatekeep-verify.XXXXXX\"`.\n- **Task:** Section B.\n  - CI-first evidence.\n  - Poll checks on `<new_head>` every 30 s for up to 15 min.\n  - One disposition per material claim.\n  - End with the output contract.\n- **Result:**\n  - `ci / test` completes SUCCESS on `<new_head>` within the window.\n  - No local run is needed.\n  - Every material claim matched.\n\n**Tracker:**\n- `plan_tracker add` one task per claim, each `complete`.\n- `verify` -> `complete`.\n- Then `add` `review`, `report`, `menu`.\n\n## Step 4: Review\n\nOne fresh `code-reviewer` is dispatched after the Verify output exists:\n- **Call:** `subagent({ agent: \"code-reviewer\", context: \"fresh\", async: false, cwd: \".worktrees/pr-412\" })`.\n- **Output path:** `mktemp \"${TMPDIR:-/tmp}/gatekeep-review.XXXXXX\"`.\n- **Task:** Section C plus `review-baseline.md`, assessing `<new_head>`.\n- **Result:**\n  - No findings.\n  - Comment 501 (\"Prefer bankers rounding here?\") is checked against source and `gh-388`. Half-up is the specified behavior, so a reply is drafted saying so.\n\n`review` -> `complete`.\n\n## Step 5: Pre-menu refresh and report\n\nThe pre-menu refresh re-reads with `gh pr view 412 --json headRefOid,mergeStateStatus,reviewDecision,statusCheckRollup` and refetches the comments:\n- The head is unchanged.\n- `mergeStateStatus` is `BEHIND`. That is not a withhold reason.\n- No new comments.\n\n`report` -> `complete`, `menu` -> `complete`.\n\n```\nDelivers: ledger totals round half-up as gh-388 asks, with the rounding change, its tests, and the rounding doc covering every row; none is deferred, and no observable half is checked after merge.\n\nPR comments:\n- Your bankers-rounding question is answered by the ticket, which specifies half-up, so the drafted reply says so. (src/ledger/round.ts, comment 501)\n\nSync: rebased 7c1e9a2..<new_head7> onto origin/release/2, 0 commit(s) dropped as already applied\nVerdict: mergeable - CI green on the assessed head (ci / test)\n\n1. merge - squash-merge the PR at the assessed head                          [recommended]\n2. fix - apply a change you name in the worktree, review the wave, push\n3. update branch - merge main into the PR head, then fast-forward the worktree\n4. reply - post the drafted reply on the bankers-rounding comment\n5. show evidence - gate output, CI run, sync record, drafted reply\n6. stop - leave the PR as-is\nType a number, or compose: \"fix 1 + reply\".\n```",
+  "words": 703,
+  "backtick_lines": 50,
+  "path_tokens": 27,
+  "facts": {
+    "f1": {
+      "github-copilot/gpt-6-astra": "yes",
+      "anthropic-fable/claude-fable-5-1:medium": "yes"
+    },
+    "f2": {
+      "github-copilot/gpt-6-astra": "yes",
+      "anthropic-fable/claude-fable-5-1:medium": "yes"
+    },
+    "f3": {
+      "github-copilot/gpt-6-astra": "yes",
+      "anthropic-fable/claude-fable-5-1:medium": "yes"
+    },
+    "f4": {
+      "github-copilot/gpt-6-astra": "yes",
+      "anthropic-fable/claude-fable-5-1:medium": "yes"
+    },
+    "f5": {
+      "github-copilot/gpt-6-astra": "yes",
+      "anthropic-fable/claude-fable-5-1:medium": "yes"
+    }
+  },
+  "quality": {
+    "github-copilot/gpt-6-astra": "partial",
+    "anthropic-fable/claude-fable-5-1:medium": "exact"
+  },
+  "rationale": {
+    "github-copilot/gpt-6-astra": "All five sync facts are stated in order, but several re-gather commands remain unnamed and the post-verification reviewer receives section references rather than stated task rules.",
+    "anthropic-fable/claude-fable-5-1:medium": "The candidate rebases onto origin/release/2 before any verifier, dispatches a named fresh code-reviewer with its range-diff rules before the lease-guarded push to the digest's head_url/head_ref, defers CI polling to the verify worker, assesses the pushed SHA, and renders the Sync line directly before the verdict with skill-style wording in the menu."
+  },
+  "aggregate": {
+    "kept": 5,
+    "disputed": 0,
+    "lost": 0
+  }
+}

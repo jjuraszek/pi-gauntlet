@@ -21,9 +21,9 @@ test('loadPersona concatenates SKILL.md, decision-menu.md and an optional sync.m
   assert.equal(loadPersona(dir), 'skill\n\n---\n\nmenu\n\n---\n\nsync\n');
   assert.throws(() => loadPersona(mkdtempSync(join(tmpdir(), 'empty-'))), /SKILL.md/);
 });
-test('seven frozen samples carry a digest, an arguments line, and unique expected facts', () => {
+test('eight frozen samples carry a digest, an arguments line, and unique expected facts', () => {
   const slugs = readdirSync(new URL('sample/', root)).sort();
-  assert.deepEqual(slugs, ['conflict-free-sync', 'conflicting-file-sync', 'head-not-pushable', 'helper-unavailable', 'no-flag-unchanged', 'other-author-confirm', 'red-ci-no-autofix']);
+  assert.deepEqual(slugs, ['conflict-free-sync', 'conflicting-file-sync', 'head-not-pushable', 'helper-unavailable', 'no-flag-unchanged', 'other-author-confirm', 'red-ci-no-autofix', 'scoped-test-red-sync']);
   for (const slug of slugs) {
     const source = readFileSync(new URL(`sample/${slug}/source.md`, root), 'utf8');
     for (const heading of ['Digest', 'Arguments']) assert.ok(source.includes(`## ${heading}`), `${slug}: ${heading}`);

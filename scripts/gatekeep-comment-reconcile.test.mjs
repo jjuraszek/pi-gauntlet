@@ -238,13 +238,15 @@ test('fix-wave.md owns the wave: fresh helpers, pre-push review, CI poll, local 
   assert.match(fixWave, /else 3; a cap of `0` omits `fix`/);
   assert.match(fixWave, /stops the round: dispatch no further implementer/);
   assert.match(fixWave, /never the resolved `verification command`/);
+  assert.match(fixWave, /for a `P#` carried by a `rebased locally` sync record the failing test file named in that record/);
   assert.match(fixWave, /`<finding id>: resolved`/);
   assert.match(fixWave, /Push only when the report has no Critical or Moderate finding/);
   assert.ok(fixWave.includes('gh api --method POST repos/<base-owner>/<base-repo>/actions/runs/<id>/approve'));
   assert.match(fixWave, /merge-tree --write-tree/);
   assert.match(fixWave, /never shows `update branch`/);
   assert.match(fixWave, /local run: no conclusive check/);
-  assert.ok(!fixWave.includes('force-with-lease'));
+  assert.match(fixWave, /On a `rebased locally` head push only when every carried `P#` has a `resolved` closure line, with `--force-with-lease=<head_ref>:<pre_head>`/);
+  assert.strictEqual((fixWave.match(/force-with-lease/g) || []).length, 1);
   assert.ok(!/\binline\b/i.test(fixWave));
   assert.match(fixWave, /No claim re-check and no whole-wave review runs after an own push/);
 });

@@ -1,0 +1,48 @@
+{
+  "sample": "other-author-confirm",
+  "arm": "baseline",
+  "candidate_model": "anthropic/claude-opus-5-5",
+  "thinking": "medium",
+  "reviewers": [
+    "github-copilot/gpt-6-astra",
+    "anthropic-fable/claude-fable-5-1:medium"
+  ],
+  "persona_sha256": "5e752ec98bb1975c558b314dde017c2b27a35f72017243643904cd4d5cfe31c8",
+  "repo_sha": "a6c16122fb9d457ff457c16475bc25e41d37f7a0",
+  "input_sha256": "69aa39e78729d96afd5bce1900a796a05a440af0f056a8fa10d743d2a335e2ac",
+  "text": "# gatekeep-pr: PR 412, `--rebase` (base `main`)\n\n**Arguments.** `412 --rebase` has no token after `--rebase`, so `<base>` is the digest's `baseRefName`, `main`. No issue ref was given on the command line. Step 1 resolved `gh-388`, and step 2 fetched it and selected the scope.\n\n**Tracker.** `plan_tracker init` with four stages: `gather, provision, sync, verify`. `gather` and `provision` are already `complete`.\n\n## Step 2b - sync\n\nRead `reference/sync.md`.\n\n**Preconditions, in order:**\n\n1. The harness is pi with the subagent facility, so a helper facility exists. Pass.\n2. `permissions.head_pushable` is `true`. Pass.\n3. `git -C .worktrees/pr-412 fetch origin main`: `origin/main` exists at `3f0b8d2`. Pass.\n   - This fetch is the only write before the confirmation.\n4. `git -C .worktrees/pr-412 merge-base --is-ancestor origin/main HEAD` exits 1. The head is 4 commits behind, so this is not a no-op.\n5. `git -C .worktrees/pr-412 rev-list --merges origin/main..HEAD` prints nothing. Pass.\n\n**Baseline:**\n\n- `gh pr view 412 --json headRefOid` returns `7c1e9a2f4b0d6e8a1c3f5b7d9e0a2c4e6f8a0b1c`.\n- `git -C .worktrees/pr-412 rev-parse HEAD` returns the same SHA.\n- They agree, so `<pre_head>` = `7c1e9a2`.\n\n**Other-author confirmation:**\n\n- `gh api user --jq .login` returns `tomas-okafor`, which differs from the author `mara-lindqvist`.\n- I print the explanation:\n  - The rebase replays mara-lindqvist's 4 commits under new SHAs. Authorship stays, and the committer becomes this checkout's git identity.\n  - Inline review comments anchored on the old commits may show as outdated.\n  - Branch protection may dismiss existing approvals.\n- I ask for a yes. The user answers **no**.\n\n**Result:**\n\n- Sync record: `declined - other author's branch`.\n- `plan_tracker`: `sync` is set to `skipped`.\n- No rebase, no helper, no review, and no push ran.\n- Step 3 runs on the unsynced head.\n\n## Step 3 - Verify\n\n- `mktemp \"${TMPDIR:-/tmp}/gatekeep-verify.XXXXXX\"` creates the output path.\n- Dispatch: `subagent({ agent: \"worker\", context: \"fresh\", async: false, cwd: \".worktrees/pr-412\" })`.\n- The task carries:\n  - `verification-brief.md` Section B.\n  - The assessed head `7c1e9a2f4b0d6e8a1c3f5b7d9e0a2c4e6f8a0b1c`.\n  - The output path and the output contract.\n- Evidence is CI-first. Required check `ci / test` concluded `SUCCESS` on the assessed head, and run 9001 `ci` succeeded. No pending, held, or failing check exists, so no local run is needed.\n- `plan_tracker add` one task per material claim: half-up rounding in `round.ts`, its tests, and the `rounding.md` doc. Each is recorded `complete` (matched).\n- `verify` is set to `complete`.\n- `plan_tracker add`: `review, report, menu`.\n\n## Step 4 - Review\n\n- Starts after Verify's output file exists.\n- `mktemp \"${TMPDIR:-/tmp}/gatekeep-review.XXXXXX\"` creates the output path.\n- Dispatch: `subagent({ agent: \"code-reviewer\", context: \"fresh\", async: false, cwd: \".worktrees/pr-412\" })`.\n- The task carries:\n  - Section C plus `review-baseline.md`.\n  - The assessed head `7c1e9a2`.\n  - The inline comment 501 for the comment ledger.\n  - The output path and the output contract.\n- Result: no Critical, Moderate, or nit findings.\n- Comment 501 (\"Prefer bankers rounding here?\") was checked against source and `gh-388`. Half-up is the intended behavior, so the reviewer drafted a reply and minted no blocker.\n- `review` is set to `complete`.\n\n## Step 5 - Integrate and report\n\n**Pre-menu refresh:**\n\n- `gh pr view 412 --json headRefOid,mergeable,mergeStateStatus,reviewDecision,statusCheckRollup` shows the head unchanged at `7c1e9a2` and `mergeStateStatus` still `BEHIND`.\n- A comment refetch shows the set is unchanged.\n\n**What the report draws from:**\n\n- Verification and the brief assess SHA `7c1e9a2f4b0d6e8a1c3f5b7d9e0a2c4e6f8a0b1c`, the unsynced original head.\n- `BEHIND` is not a resolver state (`BLOCKED`/`UNKNOWN`/`unreadable`), so the merge-state overlay does not fire.\n- The forge refuses a merge of a behind branch, so `merge` is withheld and `update branch` renders. `can_update_branch` is true and no wave commits exist.\n- `report` is set to `complete`.\n\n```\nDelivers: ledger totals round half-up, covering the gh-388 rows the spec carries; no row is deferred, and no observable half is left for after merge.\n\nPR comments:\n- The question about bankers rounding is answered by the spec's half-up requirement, so the drafted reply points to it. (comment 501, src/ledger/round.ts)\n\nSync: declined - other author's branch\nVerdict: fixable - branch behind main\n```\n\n## Step 6 - Menu\n\n- `menu` is set to `complete`.\n- This is a zero-blocker withhold with no held-run, merge-state, or pending overlay firing, so `[recommended]` goes to `stop`.\n\n```\n1. approve - approve mara-lindqvist's PR on the assessed head\n2. fix - no drafted payload exists, so you name the change; a helper applies it in the worktree, the wave is reviewed, then pushed\n3. update branch - run gh pr update-branch 412 and fast-forward the worktree, which re-runs verification on the new head\n4. reply - post the drafted reply on comment 501\n5. show evidence - gate output, CI run 9001, claim outcomes, drafted reply\n6. stop - leave the PR as-is                                        [recommended]\nType a number, or compose: \"reply 1\". Not offered: merge (branch behind main).\n```",
+  "words": 716,
+  "backtick_lines": 39,
+  "path_tokens": 15,
+  "facts": {
+    "f1": {
+      "github-copilot/gpt-6-astra": "no",
+      "anthropic-fable/claude-fable-5-1:medium": "yes"
+    },
+    "f2": {
+      "github-copilot/gpt-6-astra": "yes",
+      "anthropic-fable/claude-fable-5-1:medium": "yes"
+    },
+    "f3": {
+      "github-copilot/gpt-6-astra": "yes",
+      "anthropic-fable/claude-fable-5-1:medium": "yes"
+    },
+    "f4": {
+      "github-copilot/gpt-6-astra": "yes",
+      "anthropic-fable/claude-fable-5-1:medium": "yes"
+    }
+  },
+  "quality": {
+    "github-copilot/gpt-6-astra": "partial",
+    "anthropic-fable/claude-fable-5-1:medium": "faithful"
+  },
+  "rationale": {
+    "github-copilot/gpt-6-astra": "The warning, refusal, and unsynced verification are present, but several non-fetch commands precede the confirmation question despite the required ordering.",
+    "anthropic-fable/claude-fable-5-1:medium": "Only the fetch precedes the other-author confirmation, the explanation names new SHAs, kept authorship, committer identity, outdated comments and dismissed approvals, the no answer yields a declined sync with no rebase or push, and verify, review, report and menu run on the unsynced head in order with merge properly withheld."
+  },
+  "aggregate": {
+    "kept": 3,
+    "disputed": 1,
+    "lost": 0
+  }
+}

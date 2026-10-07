@@ -1,0 +1,48 @@
+{
+  "sample": "helper-unavailable",
+  "arm": "candidate",
+  "candidate_model": "anthropic/claude-opus-5-5",
+  "thinking": "medium",
+  "reviewers": [
+    "github-copilot/gpt-6-astra",
+    "anthropic-fable/claude-fable-5-1:medium"
+  ],
+  "persona_sha256": "18a75023c377cead229e1b2101348bc9e15c4ee3f7c59840b06098881883628e",
+  "repo_sha": "97916a219a5d3fb6bbfd977adc1b4426af4c55ba",
+  "input_sha256": "6543ff2e25146c67af9856e20f6f411ad76f0f0a50911ce2b2ca1a97d2cc047e",
+  "text": "# gatekeep-pr 412 --rebase: step 2b sync, stopped before any write\n\n## Setup\n\n- **Arguments:** PR `412`. No issue ref was given on the line; step 1 already resolved `gh-388`. `--rebase` has no following token, so the base is the digest's `baseRefName`, `main`. `release/2` is not used.\n- **Tracker:** `plan_tracker init` ran at the start with four stages because `--rebase` is present: `gather`, `provision`, `sync`, `verify`. `gather` and `provision` are now `complete`, and `sync` is open.\n\n## Step 2b, preconditions in order\n\n1. **Helper facility.** The harness has no subagent dispatch facility of any kind. This is a terminal stop before any write: `sync: stopped - no helper facility for conflict resolution and review`.\n\nThe sync stops at precondition 1, so the remaining preconditions, `## Baseline`, the other-author confirmation, the rebase, the review and the push never run. The PR is Mara's own, so the confirmation would not have applied anyway.\n\n## Commands run\n\nNone:\n- No `git fetch origin main`. Precondition 3's fetch comes after precondition 1, so it never runs.\n- No `gh pr view` baseline refresh.\n- No `git rebase`.\n- No push.\n\n## Helpers dispatched\n\nNone. No `implementer` and no `code-reviewer` ran, because the facility does not exist.\n\n## Tracker update\n\n- `plan_tracker`: `sync` closed `failed`.\n- `verify` stays pending.\n- The remaining stages (review, report, menu, loop) are never added.\n\n## Steps 3 to 5\n\nStep 3 does not run. This is a terminal stop, not the `skipped`/unsynced path, and SKILL.md also makes a harness with no helper facility unsupported at step 3. As a result:\n- No CI is read for verification.\n- No local verification command runs.\n- No brief is produced.\n\n**Assessed SHA:** none. Neither verification nor the brief assesses any SHA. The worktree and remote head stay at `7c1e9a2f4b0d6e8a1c3f5b7d9e0a2c4e6f8a0b1c`, still 4 commits behind `origin/main` (`3f0b8d2`).\n\n**Unused digest facts:** The clean rebase and the post-push green `ci / test` described in the digest never come into play.\n\n## Rendered output\n\nNo report renders, because step 5 never runs. The stop prints its reason in the `Sync:` position, and no `Verdict:` line renders because no verdict was assessed:\n\n```\nSync: stopped - no helper facility for conflict resolution and review\n\n1. show evidence - print the digest's head-dependent fields and the sync record\n2. stop - leave the PR as-is                                        [recommended]\nType a number.\n```",
+  "words": 364,
+  "backtick_lines": 16,
+  "path_tokens": 3,
+  "facts": {
+    "f1": {
+      "github-copilot/gpt-6-astra": "yes",
+      "anthropic-fable/claude-fable-5-1:medium": "yes"
+    },
+    "f2": {
+      "github-copilot/gpt-6-astra": "yes",
+      "anthropic-fable/claude-fable-5-1:medium": "yes"
+    },
+    "f3": {
+      "github-copilot/gpt-6-astra": "yes",
+      "anthropic-fable/claude-fable-5-1:medium": "yes"
+    },
+    "f4": {
+      "github-copilot/gpt-6-astra": "yes",
+      "anthropic-fable/claude-fable-5-1:medium": "yes"
+    }
+  },
+  "quality": {
+    "github-copilot/gpt-6-astra": "faithful",
+    "anthropic-fable/claude-fable-5-1:medium": "faithful"
+  },
+  "rationale": {
+    "github-copilot/gpt-6-astra": "The narration stops at the missing-helper gate before fetch, rebase, or push, records sync as failed, and performs neither helper dispatch nor in-context resolution or review.",
+    "anthropic-fable/claude-fable-5-1:medium": "The candidate halts at the first sync precondition, names the absent helper facility, records sync as failed, runs no fetch/rebase/push or helpers, and renders a sync line plus menu, though I cannot confirm the exact skill wording."
+  },
+  "aggregate": {
+    "kept": 4,
+    "disputed": 0,
+    "lost": 0
+  }
+}

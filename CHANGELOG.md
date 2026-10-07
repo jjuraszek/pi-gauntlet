@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Changed
+
+- **gatekeep-pr `--rebase` sync** - a conflict stop whose helper resolves the listed files but reports a failing scoped test in a cleanly replayed file no longer aborts the rebase: the sync finishes, holds the push (`sync: rebased locally ...`), carries the failing tests as blocker findings, withholds `update branch`/`review`/`merge`/`merge anyway`/`push` until the normal `fix` wave resolves them, then lease-pushes; `stop` restores the pre-rebase head.
+
 ## v7.6.0 - 2026-10-06
 
 ### Changed

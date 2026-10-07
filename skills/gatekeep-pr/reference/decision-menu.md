@@ -8,7 +8,7 @@ Read from SKILL.md step 6. Input: the report's verdict and the PR state. Output:
 
 Rows are `<n>. <verb> - <consequence>`; every row, `stop` included, carries its consequence clause. `stop` is always last, before the compose hint. `show evidence` is always offered and never `[recommended]`. A row the actor cannot execute - by `## Availability` below, or because the forge would refuse it (branch protection, a withhold) - is omitted and named in the compose line's `Not offered:` sentence; it is never `[recommended]`. Exactly one row is `[recommended]`.
 
-- `fix` - apply the drafted payloads for the named blockers (default: all open blockers; with no open blockers, the nit payloads) through fresh implementer helpers in the provisioned worktree, review the wave before any push, push when `push` is available (`fix-wave.md`); `fix nits` applies nit payloads only, `fix + nits` blockers and nits; with no drafted payload at all, the human names the change
+- `fix` - apply the drafted payloads for the named blockers (default: all open blockers; with no open blockers, the nit payloads) through fresh implementer helpers in the provisioned worktree, review the wave before any push, push when `push` is available (`fix-wave.md`); on a `rebased locally` head, lease-push once every carried blocker is resolved (`fix-wave.md` `## Evidence after push`); `fix nits` applies nit payloads only, `fix + nits` blockers and nits; with no drafted payload at all, the human names the change
 - `push` - push local fix commits (renders only when unpushed commits exist)
 - `review` - post the blockers as a GitHub review: request-changes on someone else's PR, a comment on your own
 - `approve` - approve the PR (never your own)
@@ -21,7 +21,7 @@ Rows are `<n>. <verb> - <consequence>`; every row, `stop` included, carries its 
 - `post coverage to PR` - post the same block with `gh pr comment <N> --body-file`; renders only under the `own merge` overlay
 - `show evidence` - print the evidence record, claim and AC outcomes, dispositions, drafted payloads and replies (`report.md` `## What stays out`)
 - `wait` - poll the reviewer run, every **binding** pending check in the resolved set (required or not), `mergeStateStatus` while it is `BLOCKED`, `UNKNOWN`, or `unreadable`, and the comment set, then re-render
-- `stop` - leave the PR as-is
+- `stop` - leave the PR as-is; on a `rebased locally` head run `git reset --hard <pre_head>` before `### Teardown`, discarding the rewrite and any unpushed fix commits, and assert `HEAD == <pre_head>` with a clean tree; a mismatch is the existing hard stop with the error, and the remote stays untouched
 
 Compose hint: `Type a number, or compose: "fix 2", "fix nits", "fix + nits", "fix 1 + reply". Not offered: push (needs push to <head_url>:<head_ref>), merge (needs WRITE on <owner>/<repo>).` The first sentence lists only compositions whose every verb is a rendered row: no `Nits` section, no `fix nits`; no `reply` row, no `fix 1 + reply`; no composable row, `Type a number.` alone. The second sentence names every omitted row as `<verb> (<why it is omitted>)` and is dropped when nothing is omitted. `merge anyway` renders as its own row when `## Availability` allows it, so the rendered-row rule does not apply to it. A composed line never bundles a push-producing verb (`fix`, `push`) with `merge`. When a failing check withholds `merge`, the hint line also offers `check <name> flaky | real | ci-broken`, which records the disposition on that check (`findings.md` `## Dispositions`): `flaky` lifts the blocker, `real` keeps it until green, `ci-broken` triggers the fallback local run (`ci-broken` records `ci-infrastructure-broken`).
 
@@ -39,6 +39,7 @@ Rows derive from the digest's `permissions` block (`../verification-brief.md` Se
 | `merge anyway` | its own overlay's withhold is the only unmet merge prerequisite (`post-selection-loop.md` `### Merge preconditions`) and `viewer_permission` is `WRITE`, `MAINTAIN`, or `ADMIN`; otherwise omitted and named in `Not offered:` |
 | `approve workflow run` | `viewer_permission` is `WRITE`, `MAINTAIN`, or `ADMIN`, and a held run exists on the assessed head |
 | `update branch` | `can_update_branch` is true and no unpushed wave commit exists |
+| `update branch`, `review`, `merge`, `merge anyway`, `push`, `wait` | omitted while the sync record is `rebased locally`, named in `Not offered:` as `(head not pushed)`; the fix wave's lease push is the only write to the PR head |
 | `approve`, `review`, `reply`, `post coverage to ticket`, `post coverage to PR`, `show evidence`, `wait`, `stop` | per the consent table and overlays below |
 
 ## Consent table

@@ -1,5 +1,7 @@
 # gatekeep-pr: optional `--rebase [base]` sync before verification
 
+> **Superseded by:** [doc/specs/2026-10-07-gatekeep-sync-scoped-test-failure.md](./2026-10-07-gatekeep-sync-scoped-test-failure.md) - Design `### reference/sync.md` "Conflict stop" and "Push" clauses and the edge-table row "implementer returns `open`, leaves residue, or unmerged paths remain", for the red-scoped-test case only
+
 **Goal:** `/skill:gatekeep-pr <pr> --rebase [base]` rebases the PR head onto the fetched base, resolves rebase conflicts through a fresh implementer, has a fresh reviewer gate every rewritten head, lease-pushes, and only then verifies - so the first verdict reflects the current base instead of a stale head, while the orchestrator still never edits a tracked file and no push leaves without a review.
 **Amend-grant:** every later spec amendment in this flow (corrected facts, paths, verification lines, and scope, acceptance-criteria, or public-contract edits alike) applies without asking; only a redraw (changed problem statement, component added, removed, or re-bounded) still stops for you, and the grant never stands in for a spec approval.
 **Ticket:** #58

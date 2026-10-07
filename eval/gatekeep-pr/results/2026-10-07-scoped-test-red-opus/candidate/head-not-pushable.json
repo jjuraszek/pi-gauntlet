@@ -1,0 +1,48 @@
+{
+  "sample": "head-not-pushable",
+  "arm": "candidate",
+  "candidate_model": "anthropic/claude-opus-5-5",
+  "thinking": "medium",
+  "reviewers": [
+    "github-copilot/gpt-6-astra",
+    "anthropic-fable/claude-fable-5-1:medium"
+  ],
+  "persona_sha256": "18a75023c377cead229e1b2101348bc9e15c4ee3f7c59840b06098881883628e",
+  "repo_sha": "97916a219a5d3fb6bbfd977adc1b4426af4c55ba",
+  "input_sha256": "400b2e9db136af6a0f10effdcabe3b910011d99679356652bf7c24fdd4fa61a3",
+  "text": "# gatekeep-pr: PR 412, `--rebase`, through the first menu\n\n## Arguments and tracker\n\n`412 --rebase` has no token after `--rebase`, so the sync base is the digest's `baseRefName`, which is `main`. There is no issue-ref argument; `gh-388` was already resolved in step 1.\n\n`plan_tracker init` ran at the start of the invocation with four stages, because `--rebase` is present:\n\n1. `gather` (complete)\n2. `provision` (complete, since step 2 has just finished)\n3. `sync`\n4. `verify`\n\nThe remaining three stages (`review`, `report`, `menu`) are added only after `verify` closes, which does not happen here.\n\n## Step 2b: sync preconditions\n\nI check the preconditions in order. No git or forge command has run yet.\n\n1. **Helper facility:** pi with the subagent facility is present. This passes, and no command runs.\n2. **`permissions.head_pushable`:** it is `false`. `viewer_permission` is `READ`, so this actor cannot push to `git@git.example.invalid:orchard/ledger.git:feature/ledger-rounding`. That holds even though the actor authored the PR and `maintainer_can_modify` is true. This is a terminal stop: no rebase and no push.\n\nBecause the stop comes at precondition 2, nothing after it runs:\n\n- **No fetch:** precondition 3's `git fetch origin main` does not run, so the worktree and remote refs are untouched.\n- **No baseline:** there is no `gh pr view` refresh and no `<pre_head>`.\n- **No confirmation:** the author is the viewer, so the other-author confirmation would not apply anyway.\n- **No helpers:** no implementer or code-reviewer is dispatched.\n- **No CI poll:** the poll never starts.\n\nTracker: `sync` closes as `failed`. Step 3 does not run, so `verify` stays pending, no claim tasks are added, and steps 4 and 5 never run.\n\n## What gets assessed\n\nVerification assesses no SHA. The brief assesses no SHA either: no Verify or Review helper runs and no report is integrated. The PR head stays at `7c1e9a2f4b0d6e8a1c3f5b7d9e0a2c4e6f8a0b1c`, unsynced and 4 commits behind `origin/main`.\n\n## Sync line\n\nNo step-5 report renders, so no `Sync:` line appears before a `Verdict:` line. The terminal stop prints the sync record as its reason:\n\n```\nsync: stopped - head not pushable, so the rebase cannot reach the PR branch. (needs push to git@git.example.invalid:orchard/ledger.git:feature/ledger-rounding; viewer_permission READ)\n```\n\n## Verdict line\n\nNo verdict line renders. A terminal stop runs no assessment, so there is no `mergeable` or `fixable` verdict.\n\n## Menu\n\nPer the terminal-stop menu, only `show evidence` and `stop` are offered. Since the only other row is `show evidence`, `stop` is `[recommended]`.\n\n```\n1. show evidence - print the digest's head-dependent fields and the sync record\n2. stop - leave the PR as-is; the remote and worktree are untouched     [recommended]\nType a number.\n```",
+  "words": 412,
+  "backtick_lines": 20,
+  "path_tokens": 3,
+  "facts": {
+    "f1": {
+      "github-copilot/gpt-6-astra": "yes",
+      "anthropic-fable/claude-fable-5-1:medium": "yes"
+    },
+    "f2": {
+      "github-copilot/gpt-6-astra": "yes",
+      "anthropic-fable/claude-fable-5-1:medium": "yes"
+    },
+    "f3": {
+      "github-copilot/gpt-6-astra": "yes",
+      "anthropic-fable/claude-fable-5-1:medium": "yes"
+    },
+    "f4": {
+      "github-copilot/gpt-6-astra": "yes",
+      "anthropic-fable/claude-fable-5-1:medium": "yes"
+    }
+  },
+  "quality": {
+    "github-copilot/gpt-6-astra": "faithful",
+    "anthropic-fable/claude-fable-5-1:medium": "faithful"
+  },
+  "rationale": {
+    "github-copilot/gpt-6-astra": "The narration stops immediately after step 2 because the head is not pushable, performs no rebase, push, or verification dispatch, and marks sync failed, though exact sync and menu wording is not established.",
+    "anthropic-fable/claude-fable-5-1:medium": "The candidate halts at the head_pushable precondition with a report naming it, runs no rebase, no push, dispatches no helper, and marks sync failed, though the sync-line wording cannot be confirmed against the skill's exact phrasing."
+  },
+  "aggregate": {
+    "kept": 4,
+    "disputed": 0,
+    "lost": 0
+  }
+}

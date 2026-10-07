@@ -23,7 +23,7 @@ Verify (step 3) and Review (step 4) each run as a fresh helper with `cwd` the PR
 |---|---|---|---|
 | 1 Gather | `verification-brief.md` Section A | PR digest: metadata, diff, checks, comments, worktree discovery | `gather` |
 | 2 Provision + configure | `reference/assessment.md` | provisioned worktree; config resolved from the merge-base; ticket fetched; the `scope` block selected (spec rows and `design`, or stated intent) | `provision` |
-| 2b Sync (only with `--rebase`) | `reference/sync.md` | the PR worktree on the rebased, pushed head with a refreshed digest, or a `sync` record and the unsynced head | `sync` |
+| 2b Sync (only with `--rebase`) | `reference/sync.md` | the PR worktree on the rebased, pushed head with a refreshed digest, or a `sync` record and the unsynced head, or a rebased, unpushed head (`rebased locally`, `complete`) | `sync` |
 | 3 Verify | `verification-brief.md` Section B | evidence record (CI-first) and one disposition per material claim | `verify` |
 | 4 Review | `verification-brief.md` Section C | reviewer findings and the internal comment ledger | `review` |
 | 5 Integrate + report | `reference/post-selection-loop.md` `### Pre-menu refresh`, then `reference/findings.md`, then `reference/report.md` | AC outcomes, blockers, nits, drafted payloads, the rendered report | `report` |
@@ -34,7 +34,7 @@ Re-entry: a fix wave's own push re-enters step 4 through the own-push sequence (
 
 ## Progress tracking
 
-Use `plan_tracker`, never `phase_tracker`. `init` with the first three stages of the table, four when `--rebase` is present (`gather, provision, sync, verify, ...`); `reference/sync.md` closes `sync` before step 3 starts - `complete` after a push or a `no-op`, `skipped` when step 3 runs unsynced, `failed` on a terminal stop. In step 3 `add` one task per material claim and record each verdict: `complete` matched, `failed` contradicted, `skipped` unverifiable-pre-merge. Once every claim is terminal and `verify` is closed, `add` the remaining three stages - the tracker rejects a verdict recorded behind a still-pending stage. A failed stage or claim stays `failed` while the skill stops at the menu. Without a `plan_tracker` tool, keep a plain checklist; behavior is unchanged.
+Use `plan_tracker`, never `phase_tracker`. `init` with the first three stages of the table, four when `--rebase` is present (`gather, provision, sync, verify, ...`); `reference/sync.md` closes `sync` before step 3 starts - `complete` after a push, a `no-op`, or a rebased, unpushed head (`rebased locally`), `skipped` when step 3 runs unsynced, `failed` on a terminal stop. In step 3 `add` one task per material claim and record each verdict: `complete` matched, `failed` contradicted, `skipped` unverifiable-pre-merge. Once every claim is terminal and `verify` is closed, `add` the remaining three stages - the tracker rejects a verdict recorded behind a still-pending stage. A failed stage or claim stays `failed` while the skill stops at the menu. Without a `plan_tracker` tool, keep a plain checklist; behavior is unchanged.
 
 ## Harness notes
 

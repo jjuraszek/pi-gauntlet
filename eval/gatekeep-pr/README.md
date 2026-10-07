@@ -2,7 +2,7 @@
 
 Target: `skills/gatekeep-pr/SKILL.md` with `reference/sync.md` and `reference/decision-menu.md`, the step-2b `--rebase [base]` sync. Convention and shared rules: `eval/README.md`; driver shape: `eval/spec-gate/README.md`.
 
-Measure instruction adherence: given a synthetic step-1 digest and an arguments line, the model narrates every command and helper dispatch from the end of step 2 through the first menu. Seven samples: a conflict-free sync onto an explicit base, a conflicting-file sync, red CI after the push (the menu offers `fix`, no automatic fix), a non-pushable head, another author's branch, a harness without helpers, and the same digest without the flag.
+Measure instruction adherence: given a synthetic step-1 digest and an arguments line, the model narrates every command and helper dispatch from the end of step 2 through the first menu. Eight samples: a conflict-free sync onto an explicit base, a conflicting-file sync, red CI after the push (the menu offers `fix`, no automatic fix), a non-pushable head, another author's branch, a harness without helpers, and the same digest without the flag; and a conflicting-file sync whose scoped test fails in the cleanly replayed file (the push is held, the first menu offers `fix`).
 
 ## One run
 
@@ -13,6 +13,14 @@ git show 1048838:skills/gatekeep-pr/SKILL.md > "$TMPDIR/gatekeep-baseline/SKILL.
 git show 1048838:skills/gatekeep-pr/reference/decision-menu.md > "$TMPDIR/gatekeep-baseline/reference/decision-menu.md"
 node eval/gatekeep-pr/run.mjs run --arm baseline --persona "$TMPDIR/gatekeep-baseline" \
   --candidate-model "$EVAL_MODEL" --reviewers "$EVAL_REVIEWERS" --out "$TMPDIR/eval-baseline"
+# baseline for the scoped-test-red-sync change: the pre-edit sync wording from the worktree base commit
+P="$TMPDIR/gatekeep-baseline-7f50027"; mkdir -p "$P/reference"
+git show 7f50027:skills/gatekeep-pr/SKILL.md > "$P/SKILL.md"
+git show 7f50027:skills/gatekeep-pr/reference/decision-menu.md > "$P/reference/decision-menu.md"
+git show 7f50027:skills/gatekeep-pr/reference/sync.md > "$P/reference/sync.md"
+node eval/gatekeep-pr/run.mjs run --arm baseline --persona "$P" \
+  --candidate-model "$EVAL_MODEL" --reviewers "$EVAL_REVIEWERS" --out "$TMPDIR/eval-baseline-7f50027"
+# For this change, compare using "$TMPDIR/eval-baseline-7f50027" in place of "$TMPDIR/eval-baseline".
 # candidate: the worktree skill directory
 node eval/gatekeep-pr/run.mjs run --arm candidate --persona skills/gatekeep-pr \
   --candidate-model "$EVAL_MODEL" --reviewers "$EVAL_REVIEWERS" --out "$TMPDIR/eval-candidate"
@@ -23,7 +31,7 @@ The runner calls `pi -p` from a scratch cwd with no tools, skills, extensions, c
 
 ## Metrics and pass predicate
 
-Same record shape and exit codes as `../spec-gate/README.md`. Quality scale: `off-script`, `partial`, `faithful`, `exact`; readable threshold `faithful`. Length cap: 2000 words (the narration lists every command and dispatch, so it runs longer than a spec-gate briefing). Run-level unanimous-loss tolerance: 0. The baseline skill has no `--rebase`, so on the six flag samples the baseline arm loses facts by construction; those losses are expected and do not gate. `no-flag-unchanged` is the regression guard: the candidate must keep every one of its facts.
+Same record shape and exit codes as `../spec-gate/README.md`. Quality scale: `off-script`, `partial`, `faithful`, `exact`; readable threshold `faithful`. Length cap: 2000 words (the narration lists every command and dispatch, so it runs longer than a spec-gate briefing). Run-level unanimous-loss tolerance: 0. The 1048838 baseline skill has no `--rebase`, so on the seven flag samples the baseline arm loses facts by construction; those losses are expected and do not gate. `no-flag-unchanged` is the regression guard: the candidate must keep every one of its facts.
 
 ## Samples
 
@@ -41,3 +49,4 @@ Each `results/<run-id>/` holds both arms' records and `compare.md`; the first ru
 |---|---|---|
 | `results/2026-10-06-rebase-sync-astra` | the seven `expected.md` files approved by the user before the baseline arm ran | `result: pass`; candidate kept 30/30 facts, baseline 10/30 by construction |
 | `results/2026-10-06-rebase-sync-opus` | same approved facts, second narrator model | `result: pass`; candidate kept 30/30 facts, baseline 15/30 by construction |
+| `results/2026-10-07-scoped-test-red-opus` | the `scoped-test-red-sync` `expected.md` drafted by a fresh-context subagent from `source.md` alone, then approved verbatim by the user before the baseline arm ran; narrator opus 5.5, judges astra and fable 5.1; three untouched-path samples re-run once for judge variance | `result: fail` - quality `faithful` -> `partial` on `conflict-free-sync`, `exact` -> `faithful` on `helper-unavailable` and `no-flag-unchanged` (paths the change never enters; the rationales name menu-wording verbatimness only); 33/35 facts kept, 2 disputed, 0 lost (baseline: 28 kept, 3 disputed, 4 lost; two disputes persist, one resolved); `scoped-test-red-sync` 1/5 -> 5/5, both judges `exact`; accepted by the user as judge variance |

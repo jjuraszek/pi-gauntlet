@@ -1,0 +1,52 @@
+{
+  "sample": "conflicting-file-sync",
+  "arm": "candidate",
+  "candidate_model": "anthropic/claude-opus-5-5",
+  "thinking": "medium",
+  "reviewers": [
+    "github-copilot/gpt-6-astra",
+    "anthropic-fable/claude-fable-5-1:medium"
+  ],
+  "persona_sha256": "18a75023c377cead229e1b2101348bc9e15c4ee3f7c59840b06098881883628e",
+  "repo_sha": "97916a219a5d3fb6bbfd977adc1b4426af4c55ba",
+  "input_sha256": "0fd6a98a8303731bd1424ec7a3726c8623a6777e076798f57e86def3d3da3f71",
+  "text": "# gatekeep-pr 412 --rebase: sync, verify, review, report\n\n## Argument parse\n\n- **PR:** 412.\n- **Issue ref:** none on the line, so the step-1 resolution `gh-388` stands.\n- **Base:** `--rebase` has no token after it, so the base is the digest's `baseRefName`, `main`. `origin/release/2` plays no part.\n\n## Tracker\n\n`plan_tracker init` with four stages, because `--rebase` is present: `gather, provision, sync, verify`. `gather` and `provision` are already `complete`.\n\n## Step 2b: sync (`reference/sync.md`)\n\nEvery git command runs as `git -C .worktrees/pr-412 ...`.\n\n### Preconditions\n\n1. pi has the subagent facility, so the check passes.\n2. `permissions.head_pushable` is `true`, so the check passes.\n3. `git -C .worktrees/pr-412 fetch origin main` shows `origin/main` exists at `3f0b8d2`. This is the only write before any confirmation.\n4. `git -C .worktrees/pr-412 merge-base --is-ancestor origin/main HEAD` exits 1, so the head is behind.\n5. `git -C .worktrees/pr-412 rev-list --merges origin/main..HEAD` prints nothing.\n\n### Baseline\n\n- `gh pr view 412 --json headRefOid` returns `7c1e9a2f4b0d6e8a1c3f5b7d9e0a2c4e6f8a0b1c`.\n- `git -C .worktrees/pr-412 rev-parse HEAD` returns the same SHA, so `<pre_head>` = `7c1e9a2f...0b1c`.\n\n### Other-author confirmation\n\n`gh api user --jq .login` returns `mara-lindqvist`, which equals `pr.author.login`. No confirmation is needed; `--rebase` alone authorizes the sync.\n\n### Rebase\n\n`git -C .worktrees/pr-412 rebase origin/main` exits non-zero at commit `b2c3d4e`. `git -C .worktrees/pr-412 diff --name-only --diff-filter=U` lists `src/ledger/round.ts`, so this is a conflict stop.\n\n### Conflict stop (one stop)\n\nBefore dispatch:\n- Record the snapshot with `git -C .worktrees/pr-412 status --porcelain`. It shows `round.ts` unmerged and `round.test.ts` staged from the clean replay.\n- Record the conflicted list: `src/ledger/round.ts`.\n- Run `git -C .worktrees/pr-412 rebase --show-current-patch` for the stopped commit.\n- Resolve `SCOPED_TEST_COMMANDS`: the verification command from the configuration ladder (resolved at the merge-base in step 2) plus `src/ledger/round.test.ts`, the test file among the stopped commit's changed files.\n- `mktemp \"${TMPDIR:-/tmp}/gatekeep-implementer.XXXXXX\"` provides the output path.\n\n**Dispatch:** `subagent({ agent: \"implementer\", context: \"fresh\", async: false, cwd: \".worktrees/pr-412\" })`.\n\nThe task carries:\n- the conflicted list `src/ledger/round.ts`\n- the stopped commit `b2c3d4e \"Round half-up in totals\"` and its patch\n- the base `origin/main`\n- `SCOPED_TEST_COMMANDS`\n- the output path\n- this rule verbatim: \"resolve every listed file so both sides' intent survives, run exactly the supplied scoped test commands and report each result (or report that none were supplied), `git add` each resolved file, return `done` with the list of files you changed; report every failing scoped test with its file and test names; never run `git rebase --continue`, `git rebase --abort`, `git rebase --skip`, or `git commit`; never edit a file outside the list\"\n\n**Result:** `done`, changed `src/ledger/round.ts`, scoped test green.\n\nChecks before continuing:\n- `git -C .worktrees/pr-412 diff --name-only --diff-filter=U` is empty.\n- `round.ts` is fully staged.\n- `git -C .worktrees/pr-412 status --porcelain` differs from the snapshot only in `round.ts`.\n\n`GIT_EDITOR=true git -C .worktrees/pr-412 rebase --continue` then succeeds. Commits 3 and 4 replay cleanly.\n\n`git -C .worktrees/pr-412 rev-parse HEAD` returns `<new_head>`. The dropped count is `rev-list --count origin/main..7c1e9a2` (4) minus `rev-list --count origin/main..HEAD` (4), which is 0.\n\n### Review before push\n\n`mktemp \"${TMPDIR:-/tmp}/gatekeep-code-reviewer.XXXXXX\"` provides the output path.\n\n**Dispatch:** `subagent({ agent: \"code-reviewer\", context: \"fresh\", async: false, cwd: \".worktrees/pr-412\" })`.\n\nThe task:\n- is read-only\n- covers `git range-diff origin/main 7c1e9a2 HEAD` and `git diff 7c1e9a2 HEAD -- src/ledger/round.ts`\n- names the subject \"rebase replay and conflict resolutions\"\n- asks for the native findings report with no closure lines\n\n**Result:** clean, with no Critical or Moderate findings.\n\n### Push\n\nNo stop reported a failing scoped test, so the sync pushes:\n\n```\ngit -C .worktrees/pr-412 push --no-follow-tags --force-with-lease=feature/ledger-rounding:7c1e9a2f4b0d6e8a1c3f5b7d9e0a2c4e6f8a0b1c git@git.example.invalid:orchard/ledger.git HEAD:refs/heads/feature/ledger-rounding\n```\n\nThe push succeeds.\n\n### Re-gather\n\nThese reads run with no CI poll:\n- Step-1 forge reads: `gh pr view 412 --json headRefOid,mergeable,mergeStateStatus,reviewDecision,statusCheckRollup,commits,files,comments,reviews`, `gh pr diff 412`, the actions-runs read, and inline comments. Ticket reads are not repeated.\n- `headRefOid` now equals `<new_head>`.\n- `assessment.md` `## Select the scope contract` re-runs on `<new_head>`.\n- The configuration ladder re-resolves at `git -C .worktrees/pr-412 merge-base origin/main HEAD`.\n\nThe digest's `sync` field is set to the rebased record. `sync` closes `complete`.\n\n## Step 3: Verify\n\n**Dispatch:** `subagent({ agent: \"worker\", context: \"fresh\", async: false, cwd: \".worktrees/pr-412\" })`.\n\nThe task:\n- carries Section B\n- uses an output path from `mktemp \".../gatekeep-verify.XXXXXX\"`\n- requires checking that `rev-parse HEAD` equals `<new_head>` before working\n\nIt runs a CI-first poll every 30 s for up to 15 min. `ci / test` (required) completes `SUCCESS` on `<new_head>`. There is no local run.\n\nTracker updates:\n- One task is added per material claim, and each is recorded `complete` (matched).\n- `verify` closes `complete`.\n- Then `add` adds `review, report, menu`.\n\n## Step 4: Review\n\n**Dispatch:** `subagent({ agent: \"code-reviewer\", context: \"fresh\", async: false, cwd: \".worktrees/pr-412\" })`.\n\nThe task:\n- carries Section C plus `review-baseline.md`\n- uses an output path from `mktemp \".../gatekeep-review.XXXXXX\"`\n- requires checking that HEAD equals `<new_head>`\n\n**Result:** clean, with no findings. Comment 501 (\"Prefer bankers rounding here?\") is ledgered. It produced no blocker and no drafted reply.\n\n## Step 5: Integrate and report\n\nThe pre-menu refresh re-runs `gh pr view 412 --json headRefOid,mergeStateStatus,mergeable,reviewDecision` and refetches the comment set:\n- `headRefOid` is `<new_head>`, unchanged.\n- `mergeStateStatus` is `CLEAN`, since the head now contains `origin/main`.\n- No new comments appeared.\n\nNothing triggers a withhold.\n\n**Assessed SHA:** verification and the brief both assess `<new_head>`, the pushed rebased head, not `7c1e9a2`.\n\n## Step 6: Report tail and first menu\n\n```\nSync: rebased 7c1e9a2..<new_head7> onto origin/main, 1 stop(s) resolved in src/ledger/round.ts, 0 commit(s) dropped as already applied\nVerdict: mergeable - CI green on the assessed head (ci / test)\n\n1. merge - squash-merge with --match-head-commit <new_head>          [recommended]\n2. fix - apply a change you name in the worktree, review the wave, push\n3. show evidence - gate output, CI run, sync record\n4. stop - leave the PR as-is\nType a number.\n```",
+  "words": 876,
+  "backtick_lines": 57,
+  "path_tokens": 48,
+  "facts": {
+    "f1": {
+      "github-copilot/gpt-6-astra": "yes",
+      "anthropic-fable/claude-fable-5-1:medium": "yes"
+    },
+    "f2": {
+      "github-copilot/gpt-6-astra": "yes",
+      "anthropic-fable/claude-fable-5-1:medium": "yes"
+    },
+    "f3": {
+      "github-copilot/gpt-6-astra": "yes",
+      "anthropic-fable/claude-fable-5-1:medium": "yes"
+    },
+    "f4": {
+      "github-copilot/gpt-6-astra": "yes",
+      "anthropic-fable/claude-fable-5-1:medium": "yes"
+    },
+    "f5": {
+      "github-copilot/gpt-6-astra": "yes",
+      "anthropic-fable/claude-fable-5-1:medium": "yes"
+    }
+  },
+  "quality": {
+    "github-copilot/gpt-6-astra": "faithful",
+    "anthropic-fable/claude-fable-5-1:medium": "exact"
+  },
+  "rationale": {
+    "github-copilot/gpt-6-astra": "The narration follows the required order with a scoped implementer, explicit prohibitions and scoped tests, orchestrator-owned continuation, fresh pre-push review, and the resolved file named in Sync.",
+    "anthropic-fable/claude-fable-5-1:medium": "The candidate runs every sync command and dispatch in order (fresh implementer with the exact file list and forbidden-command rule, orchestrator-run GIT_EDITOR=true rebase --continue, fresh pre-push code-reviewer, lease-guarded push, re-gather, verify, review), attempts nothing the permissions forbid, and emits a templated Sync line and menu naming src/ledger/round.ts."
+  },
+  "aggregate": {
+    "kept": 5,
+    "disputed": 0,
+    "lost": 0
+  }
+}

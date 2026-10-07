@@ -66,6 +66,6 @@ How each disposition changes the menu: `decision-menu.md` `## Overlays`, CI chec
 
 ## Drafted payloads
 
-Step 5 drafts, never applies. For every blocker and nit with a file-level fix - code and doc drift alike - draft the concrete edit as a payload keyed to the finding's internal ID. For every replyable `C#`, draft the reply. The worktree stays tracked-clean (`git status --porcelain --untracked-files=no` empty) at every menu render; a payload is applied only on a `fix` pick (the same path for code and docs) and dropped at teardown otherwise.
+Step 5 drafts, never applies. For every blocker and nit with a file-level fix - code and doc drift alike - draft the concrete edit as a payload keyed to the finding's internal ID. For every replyable `C#`, draft the reply. The worktree stays tracked-clean (`git status --porcelain --untracked-files=no` empty) at every menu render; a payload is applied only on a `fix` pick (the same path for code and docs) and dropped at teardown otherwise. A `P#` carried by a `rebased locally` sync record is drafted like any blocker, from the helper's test output and `git show <stopped commit>`; a `P#` with no draftable edit stays open and `fix` reports it as not fixable. The human sees the draft at the `fix` consent and decides whether code or test expectations change; the implementer never decides it.
 
 A posted review body is composed at post time from the blockers being addressed - one summary sentence, then the numbered items, ending on the fix or asked action.

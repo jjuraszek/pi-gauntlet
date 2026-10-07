@@ -1,0 +1,48 @@
+{
+  "sample": "no-flag-unchanged",
+  "arm": "baseline",
+  "candidate_model": "anthropic/claude-opus-5-5",
+  "thinking": "medium",
+  "reviewers": [
+    "github-copilot/gpt-6-astra",
+    "anthropic-fable/claude-fable-5-1:medium"
+  ],
+  "persona_sha256": "5e752ec98bb1975c558b314dde017c2b27a35f72017243643904cd4d5cfe31c8",
+  "repo_sha": "a6c16122fb9d457ff457c16475bc25e41d37f7a0",
+  "input_sha256": "9e3e25b7d22c774d8c1a18e29d11ebef2def58fe01bc31be67a6dc27f1a824a9",
+  "text": "# gatekeep-pr: PR 412, from the end of step 2 through the first menu\n\nThe invocation is `412` with no `--rebase` and no issue ref. Step 2b does not run, so this run does no fetch, rebase, or push before a menu pick. The sync facts in the digest (base 4 commits behind, `origin/release/2`, a clean rebase) do not apply to this run. The issue ref `gh-388` was resolved in step 1 and fetched in step 2.\n\n## Tracker\n\n- **Init:** `plan_tracker init` with `gather, provision, verify`. There is no `sync` stage because `--rebase` is absent.\n- **Already closed:** `gather` and `provision` are `complete`.\n- **Assessed head:** `7c1e9a2f4b0d6e8a1c3f5b7d9e0a2c4e6f8a0b1c`. This is the digest's `headRefOid`, and the worktree HEAD matches it. Verification and the brief both assess this SHA.\n\n## Step 3: Verify\n\n1. I ran `mktemp \"${TMPDIR:-/tmp}/gatekeep-verify.XXXXXX\"` to get the Verify output path, outside the worktree.\n2. I dispatched the Verify helper:\n   - **Call:** `subagent({ agent: \"worker\", context: \"fresh\", async: false, cwd: \".worktrees/pr-412\" })`\n   - **Duty:** `verification-brief.md` Section B, evidence first from CI.\n   - **Head:** the task names the assessed head `7c1e9a2f…0b1c` and the output path, and ends with the output contract.\n   - **Configuration:** the verification command and rubric come from the merge-base ladder resolved in step 2, never from the PR head.\n3. The evidence resolved from CI on the assessed head:\n   - `ci / test` is required, binding, `COMPLETED`, and `SUCCESS`.\n   - Actions run 9001 (`ci`) is `completed` and `success`.\n   - No check is pending, no run is held, and no local run is needed.\n4. For each material claim in the PR body and each `gh-388` spec row, I ran `plan_tracker add` and recorded the verdict. Every claim came back matched (`complete`): half-up rounding in `src/ledger/round.ts`, tests in `src/ledger/round.test.ts`, and docs in `docs/rounding.md`.\n5. I closed `verify` as `complete`.\n6. I ran `plan_tracker add` for `review, report, menu`.\n\n## Step 4: Review\n\nReview started after the Verify output file existed.\n\n1. I ran `mktemp \"${TMPDIR:-/tmp}/gatekeep-review.XXXXXX\"`.\n2. I dispatched the Review helper:\n   - **Call:** `subagent({ agent: \"code-reviewer\", context: \"fresh\", async: false, cwd: \".worktrees/pr-412\" })`\n   - **Duty:** `verification-brief.md` Section C plus `review-baseline.md`, read-only.\n   - **Head:** the assessed head `7c1e9a2f…0b1c`, with its output path and the output contract.\n3. The result was clean: no Critical, Moderate, or nit findings.\n4. Comment ledger: inline comment 501 from a human user says \"Prefer bankers rounding here?\". I reviewed it against the source and the `gh-388` spec. The spec asks for half-up, and the code delivers half-up, so the comment does not produce a blocker. I drafted a reply pointing to the spec decision.\n5. I closed `review` as `complete`.\n\n## Step 5: Integrate and report\n\n1. Pre-menu refresh:\n   - `gh pr view 412 --json headRefOid,state,isDraft,mergeable,mergeStateStatus,reviewDecision,statusCheckRollup` showed the head unchanged, the PR `OPEN`, `mergeStateStatus` `BEHIND`, and checks green.\n   - `gh api repos/orchard/ledger/pulls/412/comments` and `gh api repos/orchard/ledger/issues/412/comments` found no new comments.\n2. `BEHIND` is not `BLOCKED`, `UNKNOWN`, or unreadable, so no withhold reason fires. I do not treat it as a merge verdict. The `merge` pick's preconditions handle it by offering `update branch`.\n3. Results:\n   - All AC outcomes are covered.\n   - There are no blockers and no nits.\n   - The only drafted payload is the reply.\n4. I closed `report` as `complete`.\n\n## Step 6: Menu\n\nThe consent row is \"you, mergeable\". The rows are:\n\n- `merge` is available because the viewer has `WRITE` and nothing withholds it.\n- `fix` is available because the helper facility exists and the round cap is 3. There is no drafted payload, so the human would name the change.\n- `reply` is available because a drafted reply exists.\n- `show evidence` and `stop` are always offered.\n\n`push` is not rendered because there are no unpushed commits. No row is omitted, so the compose hint has no `Not offered:` sentence. No composition is valid: there are no blockers or nits to number, so the hint is `Type a number.`\n\nI closed `menu` as `complete`.\n\nNo sync line renders because `--rebase` was not passed.\n\n---\n\n```\nDelivers: ledger totals round half-up. All gh-388 spec rows are covered by this PR; none are deferred, and no observable half is left for after merge.\n\nPR comments:\n- The question about bankers rounding conflicts with the spec, which asks for half-up, so the drafted reply points to that decision. (src/ledger/round.ts, comment 501)\n\nVerdict: mergeable - CI green on the assessed head (ci / test)\n\n1. merge - squash-merge PR 412 at 7c1e9a2 after the merge preconditions pass  [recommended]\n2. fix - apply a change you name in the worktree, review the wave, push\n3. reply - post the drafted reply on comment 501\n4. show evidence - gate output, CI run, drafted reply\n5. stop - leave the PR as-is\nType a number.\n```",
+  "words": 749,
+  "backtick_lines": 32,
+  "path_tokens": 12,
+  "facts": {
+    "f1": {
+      "github-copilot/gpt-6-astra": "yes",
+      "anthropic-fable/claude-fable-5-1:medium": "yes"
+    },
+    "f2": {
+      "github-copilot/gpt-6-astra": "yes",
+      "anthropic-fable/claude-fable-5-1:medium": "yes"
+    },
+    "f3": {
+      "github-copilot/gpt-6-astra": "yes",
+      "anthropic-fable/claude-fable-5-1:medium": "yes"
+    },
+    "f4": {
+      "github-copilot/gpt-6-astra": "yes",
+      "anthropic-fable/claude-fable-5-1:medium": "yes"
+    }
+  },
+  "quality": {
+    "github-copilot/gpt-6-astra": "exact",
+    "anthropic-fable/claude-fable-5-1:medium": "faithful"
+  },
+  "rationale": {
+    "github-copilot/gpt-6-astra": "The narration follows the no-rebase path, initializes three stages, verifies the digest head, and presents the ordered verdict and menu without a Sync: line or forbidden mutation.",
+    "anthropic-fable/claude-fable-5-1:medium": "The narration skips sync correctly, initializes a three-stage tracker, verifies and reviews the digest head with named personas and rules, renders no Sync line and no forbidden mutation, though the menu's fix-row wording is slightly inconsistent so I cannot confirm exact skill phrasing."
+  },
+  "aggregate": {
+    "kept": 4,
+    "disputed": 0,
+    "lost": 0
+  }
+}

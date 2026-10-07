@@ -1,0 +1,52 @@
+{
+  "sample": "scoped-test-red-sync",
+  "arm": "baseline",
+  "candidate_model": "anthropic/claude-opus-5-5",
+  "thinking": "medium",
+  "reviewers": [
+    "github-copilot/gpt-6-astra",
+    "anthropic-fable/claude-fable-5-1:medium"
+  ],
+  "persona_sha256": "5e752ec98bb1975c558b314dde017c2b27a35f72017243643904cd4d5cfe31c8",
+  "repo_sha": "a6c16122fb9d457ff457c16475bc25e41d37f7a0",
+  "input_sha256": "047994c9328c6ba35ccd950061c2acce9d1c19d67775d0a91a6ae489c7304da0",
+  "text": "# gatekeep-pr: PR 412, `--rebase` (step 2 just finished)\n\n## Invocation and tracker\n\n**Arguments.** `412 --rebase`. No token follows `--rebase`, so the base is the digest's `baseRefName`, which is `main`. `origin/release/2` plays no part in this run.\n\n**Tracker.** `plan_tracker init` ran with four stages because `--rebase` is present: `gather, provision, sync, verify`. `gather` and `provision` are `complete`, and `sync` opens now.\n\n## Step 2b - sync\n\nAll git commands run as `git -C .worktrees/pr-412 ...`.\n\n**Preconditions**\n\n1. **Helper facility.** pi has the subagent facility, so the sync can proceed.\n2. **Pushable head.** `permissions.head_pushable` is `true`.\n3. **Base ref.** `git -C .worktrees/pr-412 fetch origin main` succeeds, and `origin/main` exists at `3f0b8d2`.\n4. **Head is behind.** `git -C .worktrees/pr-412 merge-base --is-ancestor origin/main HEAD` exits 1, because the head is 4 commits behind.\n5. **No merge commits.** `git -C .worktrees/pr-412 rev-list --merges origin/main..HEAD` prints nothing.\n\n**Baseline**\n\n- `gh pr view 412 --json headRefOid` returns `7c1e9a2f4b0d6e8a1c3f5b7d9e0a2c4e6f8a0b1c`.\n- `git -C .worktrees/pr-412 rev-parse HEAD` returns the same SHA.\n- They agree, so `<pre_head>` = `7c1e9a2`.\n\n**Other-author confirmation**\n\n- `gh api user --jq .login` returns `mara-lindqvist`, which equals `pr.author.login`.\n- This is a same-author PR, so no confirmation is asked and `--rebase` alone authorizes the sync.\n\n**Rebase**\n\n- `git -C .worktrees/pr-412 rebase origin/main` exits non-zero.\n- `git -C .worktrees/pr-412 diff --name-only --diff-filter=U` lists `src/ledger/round.ts`, so this is a conflict stop.\n\n**Conflict stop at b2c3d4e**\n\nBefore dispatch, I record:\n- the snapshot from `git -C .worktrees/pr-412 status --porcelain`, which includes the cleanly replayed and staged `src/ledger/round.test.ts`;\n- the conflicted list: `src/ledger/round.ts`;\n- the stopped commit from `git -C .worktrees/pr-412 rebase --show-current-patch` (b2c3d4e \"Round half-up in totals\").\n\nI resolve `SCOPED_TEST_COMMANDS` myself. The value is the verification command resolved in step 2 from the merge-base ladder, in its documented file-scoped form, followed by `src/ledger/round.test.ts`. That file is the only test file among the stopped commit's changed files.\n\nI create the output path with `mktemp \"${TMPDIR:-/tmp}/gatekeep-implementer.XXXXXX\"`.\n\nI dispatch `subagent({ agent: \"implementer\", context: \"fresh\", async: false, cwd: \".worktrees/pr-412\" })`. The task carries:\n- the conflicted list (`src/ledger/round.ts`);\n- the stopped commit patch;\n- the base (`origin/main` at `3f0b8d2`);\n- `SCOPED_TEST_COMMANDS`;\n- the output path;\n- this rule, verbatim: \"resolve every listed file so both sides' intent survives, run exactly the supplied scoped test commands and report each result (or report that none were supplied), `git add` each resolved file, return `done` with the list of files you changed; never run `git rebase --continue`, `git rebase --abort`, `git rebase --skip`, or `git commit`; never edit a file outside the list\".\n\n**Helper result.**\n- The implementer stages `src/ledger/round.ts`.\n- The scoped test \"totals round half-up at exactly .5\" fails, because the base's new test expects bankers rounding.\n- The implementer returns `open`.\n- `open` is not `done`, so I do not run `--continue`, and the sync takes the failure path. It does not matter that the failing test sits in the cleanly replayed file.\n\n**Failure path**\n\n1. A rebase is in progress, so I run `git -C .worktrees/pr-412 rebase --abort`.\n2. `git -C .worktrees/pr-412 rev-parse HEAD` returns `7c1e9a2…`, which equals `<pre_head>`.\n3. `git -C .worktrees/pr-412 status --porcelain` is clean.\n4. I record `sync: failed - implementer returned open`, and the `sync` stage closes as `skipped`.\n\nWhat does not happen:\n- The range-diff `code-reviewer` is never dispatched, because no rewritten head exists.\n- No push runs.\n- No re-gather runs.\n\n## Step 3 - Verify\n\n**Assessed head.** Verify and the brief assess the unsynced head `7c1e9a2f4b0d6e8a1c3f5b7d9e0a2c4e6f8a0b1c`.\n\n**Dispatch.**\n- Output path: `mktemp \"${TMPDIR:-/tmp}/gatekeep-verify.XXXXXX\"`.\n- Call: `subagent({ agent: \"worker\", context: \"fresh\", async: false, cwd: \".worktrees/pr-412\" })`.\n- Task: Section B of `verification-brief.md`, the assessed head `7c1e9a2…`, the output path, and the output contract.\n\n**Evidence (CI-first).**\n- The required check `ci / test` is `SUCCESS` on the assessed head.\n- Actions run 9001 is `success`.\n- No check is pending and no run is held, so no local run happens.\n\n**Tracker.** One task is added per material claim, and every claim is recorded `complete` (matched). `verify` closes `complete`. Then `review`, `report`, and `menu` are added.\n\n## Step 4 - Review\n\n**Dispatch.** This starts after the Verify output file exists.\n- Output path: `mktemp \"${TMPDIR:-/tmp}/gatekeep-review.XXXXXX\"`.\n- Call: `subagent({ agent: \"code-reviewer\", context: \"fresh\", async: false, cwd: \".worktrees/pr-412\" })`.\n- Task: Section C plus `review-baseline.md`, the assessed head `7c1e9a2…`, the output path, and the output contract.\n\n**Result.**\n- There are no findings.\n- The ledger records inline comment 501 (\"Prefer bankers rounding here?\").\n- No blocker is minted and no reply is drafted.\n\n## Step 5 - Integrate and report\n\n**Pre-menu refresh.**\n- `gh pr view 412 --json headRefOid,mergeable,mergeStateStatus,reviewDecision,statusCheckRollup` shows the head unchanged, `MERGEABLE`, `BEHIND`, and `ci / test` green.\n- The comment refetch shows no delta.\n\n**Merge state.** `BEHIND` is not a withhold reason in the resolver, so `merge` stays available. `update branch` renders only if a `merge` pick meets `BEHIND` at the merge preconditions.\n\n```\nDelivers: ledger totals round half-up, with tests and the rounding doc, covering the spec rows of gh-388; nothing is deferred, and no observable half is checked after merge.\n\nSync: failed - implementer returned open\n\nVerdict: mergeable - CI green on the assessed head (ci / test)\n\n1. merge - squash-merge the PR at 7c1e9a2 [recommended]\n2. fix - you name the change; a fresh implementer applies it in the worktree, the wave is reviewed, then pushed\n3. show evidence - gate output, CI run, sync record\n4. stop - leave the PR as-is\nType a number.\n```",
+  "words": 839,
+  "backtick_lines": 47,
+  "path_tokens": 29,
+  "facts": {
+    "S1": {
+      "github-copilot/gpt-6-astra": "no",
+      "anthropic-fable/claude-fable-5-1:medium": "no"
+    },
+    "S2": {
+      "github-copilot/gpt-6-astra": "no",
+      "anthropic-fable/claude-fable-5-1:medium": "no"
+    },
+    "S3": {
+      "github-copilot/gpt-6-astra": "yes",
+      "anthropic-fable/claude-fable-5-1:medium": "yes"
+    },
+    "S4": {
+      "github-copilot/gpt-6-astra": "no",
+      "anthropic-fable/claude-fable-5-1:medium": "no"
+    },
+    "S5": {
+      "github-copilot/gpt-6-astra": "no",
+      "anthropic-fable/claude-fable-5-1:medium": "no"
+    }
+  },
+  "quality": {
+    "github-copilot/gpt-6-astra": "off-script",
+    "anthropic-fable/claude-fable-5-1:medium": "off-script"
+  },
+  "rationale": {
+    "github-copilot/gpt-6-astra": "The candidate aborts instead of continuing after the out-of-scope test failure, reviews the original rather than rewritten head, and reports failed sync with merge offered instead of the required test-blocker menu.",
+    "anthropic-fable/claude-fable-5-1:medium": "The candidate aborts the rebase on an `open` caused solely by a test failure in the cleanly replayed file instead of running `GIT_EDITOR=true git rebase --continue`, so it never reviews a rewritten head, reports `sync: failed`, and offers `merge` on the stale head rather than a `fix` blocker with `update branch`, `merge`, and `push` withheld."
+  },
+  "aggregate": {
+    "kept": 1,
+    "disputed": 0,
+    "lost": 4
+  }
+}

@@ -1,0 +1,48 @@
+{
+  "sample": "helper-unavailable",
+  "arm": "baseline",
+  "candidate_model": "anthropic/claude-opus-5-5",
+  "thinking": "medium",
+  "reviewers": [
+    "github-copilot/gpt-6-astra",
+    "anthropic-fable/claude-fable-5-1:medium"
+  ],
+  "persona_sha256": "5e752ec98bb1975c558b314dde017c2b27a35f72017243643904cd4d5cfe31c8",
+  "repo_sha": "a6c16122fb9d457ff457c16475bc25e41d37f7a0",
+  "input_sha256": "6543ff2e25146c67af9856e20f6f411ad76f0f0a50911ce2b2ca1a97d2cc047e",
+  "text": "# gatekeep-pr 412 --rebase: step 2b terminal stop\n\n## Arguments\n\n`412 --rebase` has no issue ref and no token after `--rebase`. The base is the digest's `baseRefName`, `main`. The issue ref `gh-388` was already resolved in step 1.\n\n## Tracker\n\n`plan_tracker init` with four stages because `--rebase` is present: `gather`, `provision`, `sync`, `verify`.\n\n- `gather` is `complete`.\n- `provision` is `complete`.\n\n## Step 2b: sync\n\nPreconditions are checked in order.\n\n1. **Helper facility.** The digest says the harness has no subagent dispatch facility of any kind. Without one, conflict stops cannot be resolved and the required review-before-push cannot run. SKILL.md `## Harness notes` says such a harness stops at step 2b before any sync write when `--rebase` was passed. This is a terminal stop: `sync: stopped - no helper facility for conflict resolution and review`.\n\nWhat did not happen, because the stop fired at precondition 1:\n- Preconditions 2-5 were not checked.\n- No `git fetch origin main` ran. That fetch would have come at precondition 3.\n- No `gh pr view 412 --json headRefOid` baseline refresh ran.\n- No rebase ran. No implementer or code-reviewer was dispatched.\n- No lease push and no re-gather ran.\n- The other-author confirmation did not apply, since mara-lindqvist is the author.\n\nTracker update: `sync` is `failed`.\n\n## Commands and helpers\n\n- **Commands run:** none. No git or gh command ran in step 2b, so no write occurred.\n- **Helpers dispatched:** none.\n\n## Step 3 and the brief\n\nStep 3 does not run after a terminal stop. Verification and the brief assess no SHA.\n\n- The worktree stays on the unsynced head `7c1e9a2f4b0d6e8a1c3f5b7d9e0a2c4e6f8a0b1c`, which is 4 commits behind `origin/main`.\n- `verify` stays pending, and steps 4-6 are not added.\n- On this stop, `show evidence` prints the digest's head-dependent fields and the `sync` record.\n\n## Rendered output\n\n```\nSync: stopped - no helper facility for conflict resolution and review\nVerdict: not assessed - sync stopped before verification (no helper facility)\n\n1. show evidence - print the digest's head-dependent fields and the sync record\n2. stop - leave the PR as-is                                        [recommended]\nType a number. Not offered: fix (no helper facility), merge (head not verified).\n```",
+  "words": 333,
+  "backtick_lines": 13,
+  "path_tokens": 2,
+  "facts": {
+    "f1": {
+      "github-copilot/gpt-6-astra": "yes",
+      "anthropic-fable/claude-fable-5-1:medium": "yes"
+    },
+    "f2": {
+      "github-copilot/gpt-6-astra": "yes",
+      "anthropic-fable/claude-fable-5-1:medium": "yes"
+    },
+    "f3": {
+      "github-copilot/gpt-6-astra": "yes",
+      "anthropic-fable/claude-fable-5-1:medium": "yes"
+    },
+    "f4": {
+      "github-copilot/gpt-6-astra": "yes",
+      "anthropic-fable/claude-fable-5-1:medium": "yes"
+    }
+  },
+  "quality": {
+    "github-copilot/gpt-6-astra": "exact",
+    "anthropic-fable/claude-fable-5-1:medium": "exact"
+  },
+  "rationale": {
+    "github-copilot/gpt-6-astra": "The narration stops at the missing-helper gate before fetch, rebase, or push, marks sync failed, dispatches no verification helper, performs no in-context resolution or review, and renders the terminal-stop sync line and menu.",
+    "anthropic-fable/claude-fable-5-1:medium": "The candidate halts at the step 2b helper-facility precondition before any fetch, rebase, or push, records sync as failed, dispatches nothing, reviews nothing itself, and renders the stop sync line and stop/show-evidence menu in the skill's wording."
+  },
+  "aggregate": {
+    "kept": 4,
+    "disputed": 0,
+    "lost": 0
+  }
+}
