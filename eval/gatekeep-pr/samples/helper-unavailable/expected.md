@@ -1,0 +1,4 @@
+- f1: judged: The orchestrator stops before any rebase, push, or fetch because the harness has no helper facility.
+- f2: judged: The stop names the missing helper facility as the reason and records the sync stage as failed.
+- f3: judged: No verification helper is dispatched.
+- f4: judged: The orchestrator does not attempt to resolve or review anything in its own context.

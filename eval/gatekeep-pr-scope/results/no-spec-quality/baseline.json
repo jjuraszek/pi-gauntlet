@@ -1,0 +1,34 @@
+{
+  "sample": "no-spec-quality",
+  "arm": "baseline",
+  "skillSha": "b4bed9fa9a438e61cbf78c4047138111fed6c1d760a9e27030f0641d32b23bde",
+  "inputSha": "07685885dd1bf4163815107a6237249a4cbab1b0f9424509e5522d5bb7669543",
+  "kind": "text",
+  "assembly": "headed",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "Delivers: the reports page exports report data as CSV on demand through a new handler and an Export CSV button, and unknown reports return 404.\n\nBlockers:\n1. The export handler returns any existing report to any caller without checking who owns it, so one user can download another user's report data. No test covers a cross-user request, so nothing would catch this. (src/api/export.ts:14, test/api/export.test.ts)\n\nVerdict: fixable - 1 blocker\n\n1. fix - apply the blocker in the worktree, review the wave, push          [recommended]\n2. review - post the blocker as a comment on your PR\n3. show evidence - gate output, CI run, drafted edit\n4. stop - leave the PR as-is\nType a number, or compose: \"fix 1\".\n",
+      "words": 114,
+      "wallMs": 11513,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "Delivers: the PR adds on-demand CSV downloads from the reports page, including table columns and a 404 response for unknown reports.\n\nPR comments:\n- GitHub has not reported this actor's merge state, so merge waits. (merge state not refreshed (no tool available))\n\nBlockers:\n1. The export handler lets callers download another user's report without an authorization check, exposing report data to unauthorized users. (src/api/export.ts:14)\n\nVerdict: fixable - 1 blocker\n\n1. review - post the blocker as a comment on your PR [recommended]\n2. show evidence - show CI evidence, claim dispositions, and drafted payloads\n3. stop - leave the PR as-is\n\nType a number. Not offered: fix (no helper facility), merge (authorization blocker and merge state unknown).\n",
+      "words": 112,
+      "wallMs": 10757,
+      "mechanical": {}
+    }
+  },
+  "repoSha": "9932ea84fb0c04cbf4e1807b9905241bcfbf4402"
+}

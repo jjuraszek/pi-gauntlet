@@ -1,0 +1,11 @@
+- fact-1: judged: The requested change is present in the diff.
+- fact-2: judged: No added line contains "should", "consider", "you may want to", or "it is recommended".
+- fact-3: judged: No added line contains a nuance clause ("unless", "when appropriate", "if needed", "as necessary").
+- fact-4: judged: Only lines inside the over-spec section (from the `over-spec` lead paragraph through the severity paragraph after the grammar line) changed.
+- fact-5: judged: Every added or modified line is ASCII only; unchanged lines keep their original bytes.
+- fact-6: judged: The frontmatter (every line between the first two `---` lines) is byte-identical to the fixture.
+- fact-7: judged: No `reference/` file or any file other than the persona was created.
+- fact-8: judged: No `/skill:` reference was added.
+- fact-9: judged: "should" and "consider" do not appear in added lines.
+- fact-10: judged: The set of facts the section states is unchanged: three legs, any-leg-fails rule, missing or empty Human input means no over-spec findings and `lean: nothing to cut`, major means at least 1 new file or at least 3 tests, never blocker, `adds:` is the surface estimate, `unprotected:` is the uncaught failure with `nothing` valid, `closest human input:` quotes the Human input block and never the spec.
+- fact-11: judged: The grammar line beginning `- [major|minor] over-spec @` is unchanged.

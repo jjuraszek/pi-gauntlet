@@ -1,0 +1,38 @@
+{
+  "sample": "finish-dirty-tree-hotfix",
+  "arm": "baseline",
+  "skillSha": "87bb75e6feeada94486e7e80476e149a6b8883132660ce5ceb40b5d99e2649fe",
+  "inputSha": "2b0175a6940d4745ff9e0a54be1275358009b6d4bf44dfcaf67d0c7b17270a46",
+  "kind": "text",
+  "assembly": "concat",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "Today, when someone finishes a development branch, the tool can skip re-running tests if the latest commit matches the one that last passed. It skips even when staged, unstaged, or brand-new source files differ. Unverified changes can then ship as \"verified.\" This hotfix allows reuse of an earlier passing run only when the working tree is provably clean apart from telemetry output. In every other case, tests run again. Branch owners get a verification result they can trust.\n\n**What changes**\n\n- When the tree is unchanged, or only the telemetry folder changed, an earlier pass in this session is reused, provided nothing else was written since.\n- When any committed, staged, unstaged, or untracked change exists outside telemetry, verification reruns. This includes a staged edit hidden by restoring the visible file.\n- When the verified commit is unknown, a repository check fails, or write history is uncertain, verification reruns.\n- When a custom telemetry folder is configured, only that folder is ignored, not similarly named neighbors.\n- Runtime extensions, configuration, stored verification markers, and pull-request gate behavior stay as they are.\n\n**Approval risks**\n\n- This replaces the earlier verification-scoping spec's skip rule, which is marked superseded.\n- The spec asks to \"ship and release\" but never describes the release step.\n- The agent judges when write history counts as \"uncertain.\"\n\n**Done when**\n\nNew tests that run the real repository checks in scratch repositories pass, and the full repository test gate passes. A child process with unknown writes still triggers a rerun.\n",
+      "words": 243,
+      "wallMs": 10414,
+      "mechanical": {
+        "m1": "holds"
+      }
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "Developers finishing a branch can currently reuse passing test results even when staged, unstaged, or untracked source changes make those results stale. This hotfix requires both a comparison against the verified commit and a clean status outside telemetry before skipping verification. After shipment, unchanged or telemetry-only work can still reuse results, while changed or uncertain work must be verified again.\n\n## What changes\n- When this session verified a known clean commit, no later non-telemetry writes occurred, and both freshness checks pass, unchanged or telemetry-only work may reuse results.\n- When non-telemetry changes are committed, staged, unstaged, or untracked—even if restoring a file hides a staged edit—verification reruns.\n- When the verified commit, write history, or Git checks are uncertain, verification reruns.\n- When telemetry uses a custom directory, only that directory is excluded.\n- Runtime extensions, configuration, persisted verification markers, and pull-request gates remain unchanged.\n\n## Approval risks\n- The patch changes the reuse decision owned by the existing finishing instructions.\n- A hotfix release is requested, but release steps and publication criteria are unspecified.\n\n## Done when\nScratch-repository regressions and the full test gate pass; unknown child-process writes require verification; release notes and supersession annotation are updated, preserving the original spec body.\n\n## Missing from the spec\nFinishing a development branch: test verification instructions.\n",
+      "words": 205,
+      "wallMs": 15864,
+      "mechanical": {
+        "m1": "holds"
+      }
+    }
+  },
+  "repoSha": "9932ea84fb0c04cbf4e1807b9905241bcfbf4402"
+}

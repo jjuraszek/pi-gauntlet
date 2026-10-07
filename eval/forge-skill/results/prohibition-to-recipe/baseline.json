@@ -1,0 +1,46 @@
+{
+  "sample": "prohibition-to-recipe",
+  "arm": "baseline",
+  "skillSha": "410f3854a441e74b22c6b089dbee7546424846c8d25c9ab1197361d77ab46ec1",
+  "inputSha": "de4f246c9903dd1319b510e2d983a594b55e467d5734120f871f0a5346b31e70",
+  "kind": "edit",
+  "assembly": "n/a",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "diff --git a/SKILL.md b/SKILL.md\nindex 360dcfb..2db9165 100644\n--- a/SKILL.md\n+++ b/SKILL.md\n@@ -18,7 +18,7 @@ Find the answer in the source and state it.\n \n ## Output\n \n-One paragraph. The first sentence is the answer. The second sentence names the source as `path:line`. A third sentence exists only when the source shows a caveat.\n+One paragraph. The first sentence is the answer. The second sentence names the source as `path:line`. A third sentence exists only when the source shows a caveat. The paragraph ends on the source sentence or the caveat sentence.\n \n ## Rules\n \n",
+      "words": 87,
+      "wallMs": 15273,
+      "tree": {
+        "SKILL.md": {
+          "lines": 60,
+          "content": "---\nname: answer-question\ndescription: Use when the user asks a factual question about the codebase and wants a direct answer.\n---\n\n# Answer Question\n\n## Overview\n\nFind the answer in the source and state it.\n\n## Procedure\n\n1. Restate nothing; open the file the question names, or search for the symbol with `rg`.\n2. Read the definition end to end.\n3. Answer in one paragraph: the fact, the file and line it comes from, and the one caveat the source shows.\n4. Stop.\n\n## Output\n\nOne paragraph. The first sentence is the answer. The second sentence names the source as `path:line`. A third sentence exists only when the source shows a caveat. The paragraph ends on the source sentence or the caveat sentence.\n\n## Rules\n\n- Read before answering; never answer from memory.\n- One term per concept.\n- ASCII punctuation.\n\n## Red flags\n\n- An answer with no `path:line`.\n- A paragraph that opens by restating the question.\n\n## Examples\n\n### Configuration default\n\nQuestion: What is the default retry count?\nGood: The default retry count is three. The default is defined at `src/config.ts:18`.\nBad: The retries probably use a typical default.\n\nUse the literal value from the definition, not an estimate.\n\n### Boundary behavior\n\nQuestion: What happens for an empty list?\nGood: An empty list returns zero. The return branch is at `src/count.ts:12`. The branch runs before the filter.\nBad: An empty list causes an error, based on the function name.\n\nCheck the branch before describing its result.\n\n## Edge cases\n\n- Follow an imported constant to its definition.\n- Name the missing definition before asking for another file.\n- Distinguish a test expectation from the implementation's return value.\n\n## Project overrides\n\nIf a gauntlet overrides file exists - checked in order: `.pi/gauntlet-overrides.md`, `<repo root>/gauntlet-overrides.md`, `<repo root>/doc/gauntlet-overrides.md`; first found wins - read it and apply its `## conventions` section.\n"
+        }
+      },
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "diff --git a/SKILL.md b/SKILL.md\nindex 360dcfb..735b906 100644\n--- a/SKILL.md\n+++ b/SKILL.md\n@@ -14,7 +14,7 @@ Find the answer in the source and state it.\n 1. Restate nothing; open the file the question names, or search for the symbol with `rg`.\n 2. Read the definition end to end.\n 3. Answer in one paragraph: the fact, the file and line it comes from, and the one caveat the source shows.\n-4. Stop.\n+4. Stop after the source sentence or the source-supported caveat; do not append a summary sentence.\n \n ## Output\n \n",
+      "words": 83,
+      "wallMs": 19722,
+      "tree": {
+        "SKILL.md": {
+          "lines": 60,
+          "content": "---\nname: answer-question\ndescription: Use when the user asks a factual question about the codebase and wants a direct answer.\n---\n\n# Answer Question\n\n## Overview\n\nFind the answer in the source and state it.\n\n## Procedure\n\n1. Restate nothing; open the file the question names, or search for the symbol with `rg`.\n2. Read the definition end to end.\n3. Answer in one paragraph: the fact, the file and line it comes from, and the one caveat the source shows.\n4. Stop after the source sentence or the source-supported caveat; do not append a summary sentence.\n\n## Output\n\nOne paragraph. The first sentence is the answer. The second sentence names the source as `path:line`. A third sentence exists only when the source shows a caveat.\n\n## Rules\n\n- Read before answering; never answer from memory.\n- One term per concept.\n- ASCII punctuation.\n\n## Red flags\n\n- An answer with no `path:line`.\n- A paragraph that opens by restating the question.\n\n## Examples\n\n### Configuration default\n\nQuestion: What is the default retry count?\nGood: The default retry count is three. The default is defined at `src/config.ts:18`.\nBad: The retries probably use a typical default.\n\nUse the literal value from the definition, not an estimate.\n\n### Boundary behavior\n\nQuestion: What happens for an empty list?\nGood: An empty list returns zero. The return branch is at `src/count.ts:12`. The branch runs before the filter.\nBad: An empty list causes an error, based on the function name.\n\nCheck the branch before describing its result.\n\n## Edge cases\n\n- Follow an imported constant to its definition.\n- Name the missing definition before asking for another file.\n- Distinguish a test expectation from the implementation's return value.\n\n## Project overrides\n\nIf a gauntlet overrides file exists - checked in order: `.pi/gauntlet-overrides.md`, `<repo root>/gauntlet-overrides.md`, `<repo root>/doc/gauntlet-overrides.md`; first found wins - read it and apply its `## conventions` section.\n"
+        }
+      },
+      "mechanical": {}
+    }
+  },
+  "repoSha": "9932ea84fb0c04cbf4e1807b9905241bcfbf4402"
+}

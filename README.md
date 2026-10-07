@@ -155,11 +155,7 @@ pi install -l ~/repos/pi-gauntlet
 
 ## Evals
 
-Evals compare prompt wording on fixed inputs against human-approved must-hold facts. A non-trivial edit under `skills/`, `agents/`, or a prompt file creates or extends `eval/<target>/`; design its samples and facts during brainstorming, and run the baseline on current wording before the edit. Existing targets gain a sample exercising the changed behavior. Typo, formatting, dependency bump, and release-commit edits are exempt; deterministic code under `extensions/`, `src/bins/`, and `scripts/` stays on `npm test`.
-
-Run an arm with externally supplied models: `node eval/spec-summarizer/run.mjs run --arm candidate --persona agents/spec-summarizer.md --candidate-model <candidate-id> --reviewers <reviewer-a>,<reviewer-b>`. The [eval convention](eval/README.md) owns the layout, baseline/candidate process, and publication rules; the [spec-summarizer eval](eval/spec-summarizer/README.md) is the worked example with eight samples and committed results. Model calls run manually, never in CI; CI runs deterministic eval tests and hygiene checks. `eval/` is checkout-only and excluded from the npm tarball.
-
-`eval/forge-skill/` measures an edit to `skills/forge-skill/SKILL.md`: `node eval/forge-skill/run.mjs --skill-dir <path> --candidate-model <id> --reviewers <id>,<id>` runs a worker over ten samples (four skill fixtures, six persona fixtures - four from this repo's `agents/` history, two constructed to exercise the persona rules), has two reviewer models vote per must-hold fact, and writes records under `$TMPDIR`; `run.mjs compare <baseline> <candidate>` refuses mismatched inputs and fails on any fact that moved from kept to lost. Models are arguments, never committed. Its samples are `case.md` + `expected.md` and its raw results stay under `$TMPDIR` - the two places it deviates from the convention. Process and sample grammar: [`eval/forge-skill/README.md`](eval/forge-skill/README.md).
+Run `node eval/run.mjs <target>` to check a wording change on fixed inputs: two frozen replay models produce before/after outputs, and one frozen judge checks must-hold facts against a committed `intent.md`. The [eval process](eval/README.md) explains the single driver, target and sample layout, newest-only records, and anonymization rule. Model calls run manually, never in CI; CI runs deterministic library tests, structural lint, and hygiene checks. `eval/` is checkout-only and excluded from the npm tarball.
 
 ## Use from Claude Code
 

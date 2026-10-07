@@ -11,6 +11,8 @@ import { readFileSync, readdirSync, existsSync, statSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import { execFileSync } from "node:child_process";
+import { scanTree } from "../eval/lib/hygiene.mjs";
+import { lintAll } from "../eval/lib/lint.mjs";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 const R = (p) => join(root, p);
@@ -162,18 +164,17 @@ for (const base of scanDirs) {
 if (hits.length) fail("stale rename tokens found:\n    " + hits.join("\n    "));
 else ok("no stale rename tokens in skills/extensions/agents/bin");
 
-const evalHits = [];
-for (const file of walk(R("eval"))) {
-  readFileSync(file, "utf8").split("\n").forEach((line, i) => {
-    const where = `${file.replace(root + "/", "")}:${i + 1}`;
-    if (/\/Users\/[^/]+/.test(line)) evalHits.push(`${where}: /Users/ path`);
-    const stripped = line.replace(/github\.com\/jjuraszek\//gi, "").replace(/jjuraszek\/pi-gauntlet#\d+/gi, "");
-    if (/jjuraszek/i.test(stripped)) evalHits.push(`${where}: owner handle outside a URL or ticket ref`);
-    if ((file.includes("/eval/brainstorming/") || file.includes("/eval/gatekeep-pr-merge-state/")) && /gridstrong|customer-ops|gs_core|excavation|devs-approval|\bE-[0-9]{3,}|PRC-[0-9]/i.test(line)) evalHits.push(`${where}: consumer-project token`);
-  });
+const denylists = {};
+for (const target of readdirSync(R("eval")).sort()) {
+  const config = R(`eval/${target}/target.json`);
+  if (!existsSync(config)) continue;
+  const { denylist } = JSON.parse(readFileSync(config, "utf8"));
+  if (denylist) denylists[target] = denylist;
 }
+const evalHits = scanTree(R("eval"), { denylists })
+  .map((hit) => `eval/${hit.where}: ${hit.rule}`);
 if (evalHits.length) fail(`eval/ hygiene:\n    ${evalHits.join("\n    ")}`);
-else ok("eval/ hygiene: no private paths or stray owner handles");
+else ok("eval/ hygiene: no private paths, stray owner handles, secrets or denylist tokens");
 
 // ---- subtractive review pass (over-spec kind + closure removal) -------------
 const subtractiveErrorsBefore = errors.length;
@@ -457,10 +458,10 @@ try {
 }
 
 try {
-  execFileSync(process.execPath, ["--test", R("scripts/happy-path-run.test.mjs"), R("scripts/gatekeep-comment-reconcile.test.mjs"), R("scripts/brainstorming-contract.test.mjs"), R("eval/spec-summarizer/run.test.mjs"), R("eval/brainstorming/run.test.mjs"), R("eval/spec-gate/run.test.mjs"), R("eval/forge-skill/run.test.mjs"), R("eval/gatekeep-pr/run.test.mjs"), R("eval/gatekeep-pr-merge-state/run.test.mjs"), R("eval/gatekeep-pr-scope/run.test.mjs"), R("eval/conformance-check/run.test.mjs")], { stdio: "pipe" });
-  ok("happy-path shell fixtures, PR comment, brainstorming source and eval driver contracts pass");
+  execFileSync(process.execPath, ["--test", R("scripts/happy-path-run.test.mjs"), R("scripts/gatekeep-comment-reconcile.test.mjs"), R("scripts/brainstorming-contract.test.mjs"), ...readdirSync(R("eval/lib")).filter((f) => f.endsWith(".test.mjs")).sort().map((f) => R(`eval/lib/${f}`))], { stdio: "pipe" });
+  ok("happy-path shell fixtures, PR comment, brainstorming source and eval lib contracts pass");
 } catch (e) {
-  fail(`happy-path, PR comment, brainstorming or eval driver regression checks failed:\n    ${String(e.stdout || e.stderr || e).split("\n").slice(0, 30).join("\n    ")}`);
+  fail(`happy-path, PR comment, brainstorming or eval lib regression checks failed:\n    ${String(e.stdout || e.stderr || e).split("\n").slice(0, 30).join("\n    ")}`);
 }
 
 try {
@@ -521,27 +522,16 @@ try {
       hits.join("\n    ") +
         '\n    Skills never name a provider or model - see doc/configuration.md "Dispatch model precedence".',
     );
-  } else ok("no provider/model literals in skills, agents, extensions, eval");
+  } else ok("no provider/model literals in skills, agents, extensions");
 }
 
-// ---- eval samples: exactly case.md + expected.md per sample dir -------------
+// ---- eval targets: shared template shape -----------------------------------
 {
-  const sampleRoot = R("eval/forge-skill/sample");
-  if (!existsSync(sampleRoot)) fail("eval/forge-skill/sample missing");
-  else {
-    const bad = [];
-    for (const slug of readdirSync(sampleRoot).sort()) {
-      const dir = join(sampleRoot, slug);
-      if (!statSync(dir).isDirectory()) {
-        bad.push(`${slug}: not a directory`);
-        continue;
-      }
-      const entries = readdirSync(dir).sort().join(",");
-      if (entries !== "case.md,expected.md") bad.push(`${slug}: has [${entries}], want [case.md,expected.md]`);
-    }
-    if (bad.length) fail("eval/forge-skill/sample/* must hold exactly case.md and expected.md:\n    " + bad.join("\n    "));
-    else ok("eval/forge-skill samples hold exactly case.md + expected.md");
-  }
+  const targets = lintAll(R("eval"));
+  const bad = Object.entries(targets).flatMap(([target, errs]) =>
+    errs.map((err) => `eval/${target}: ${err}`));
+  if (bad.length) fail("eval targets do not match the template shape:\n    " + bad.join("\n    "));
+  else ok(`eval targets match the template shape (${Object.keys(targets).length} targets incl. _template)`);
 }
 
 // ---- Claude Code marketplace (.claude-plugin/) -------------------------------

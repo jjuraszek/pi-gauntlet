@@ -1,63 +1,141 @@
 # Evals
 
-An eval is a fixed set of inputs plus human-approved must-hold facts, run against one target (a skill or persona) before and after a wording edit, and scored by independent reviewer models. It answers one question: did the edit lose anything a reader must know, and did it make the output more readable? Model-calling runs happen by hand; `scripts/ci.mjs` runs only each target's deterministic tests and the hygiene scan below. `eval/` is outside `package.json#files` (never in the npm tarball) and outside the directories `scripts/model-literal-lint.mjs` scans; model ids appear here only as command-line arguments, README examples, and recorded results, never as defaults.
+An eval checks change safety on fixed inputs and must-hold facts, not a quality score. Two frozen replay models produce Before and After outputs; one frozen judge reports whether each fact holds in each output. The three model ids and the `medium` thinking level live in `eval/lib/models.mjs`. They are frozen on purpose so only the wording varies.
 
-## Convention
+## Run
 
-| Item | Rule |
+```bash
+node eval/run.mjs <target> [<sample>] [--baseline-only] [--base <ref>]
+```
+
+The default run compares baseline skill text from `git merge-base HEAD origin/main` with the working tree, reuses fresh cells, and judges each pair against `intent.md`. `--base <ref>` selects another baseline commit. `<sample>` selects one sample and writes a report labeled partial, not a target-wide pass. `--baseline-only` seeds or refreshes baseline records without checking intent or judging; fresh baselines require no model call. Commit the records and intent with the change. Models are constants, not CLI options.
+
+A skill file with no version at the baseline refuses the run; use `--base <ref>` to pick a base that has it. Unreadable skill files or unresolved slice headings also refuse with the file and ref.
+
+| Exit | Meaning |
 |---|---|
-| Layout | `eval/README.md` (this convention), `eval/anonymize-prompt.md`, `eval/<target>/{README.md, reviewer-prompt.md, run.mjs, run.test.mjs, sample/<slug>/{source.md, expected.md}, results/<run-id>/}` |
-| `source.md` | the fixed input the target consumes |
-| `expected.md` | must-hold facts (4-6 per sample, each with a stable id), never a golden output. Drafted by a fresh model dispatch that sees only `source.md` (never any candidate output), then edited and approved by the user per sample before the baseline run; the approved list is the oracle. An anonymized sample carries the line `anonymized: true` at the top |
-| `reviewer-prompt.md` | one reviewer's job only: inputs (`source.md`, the `expected.md` facts, one candidate output); emits exactly one fenced JSON object `{ "facts": { "<id>": "yes" or "no" }, "quality": "<label>", "rationale": "<one line>" }` on a labeled ordinal scale of at most five levels. Never mentions other reviewers or the driver |
-| `run.mjs` | two subcommands. `run --arm baseline|candidate --candidate-model <id> --reviewers <id,id> --persona <path> [--out <dir>] [--only <slug>]...` (no committed model default; `--out` defaults to a fresh dir under `$TMPDIR`) renders every sample, scores it with every reviewer, writes one record per sample; `compare <baseline-dir> <candidate-dir>` checks that both dirs cover the same samples with the same `input_sha256` and reviewer set, prints one table, and exits 0 on pass, 1 on fail, 2 on incomplete |
-| Pass predicate | a target names a run-level tolerance for facts rejected by every candidate reviewer, each printed for human review; above that tolerance the run fails. A split answer passes and is reported as disputed. Candidate quality stays at or above baseline for each reviewer and reaches the target's readable threshold for at least one reviewer. Candidate length stays within the target's measured ceiling. A missing or twice-unparsed judgment, a missing arm, or a failed `pi` call makes the run incomplete, never a pass |
-| Baseline | run on the current wording before the edit, from an immutable reference (`git show <pre-edit SHA>:<target file>` into `$TMPDIR`); the record is the comparison target |
-| Leak check | before any model call, every file under `sample/` is matched against a denylist file named by `GAUNTLET_EVAL_DENYLIST`: one case-insensitive regular expression per line, blank lines and `#` lines ignored; an invalid expression aborts before any model call; a hit aborts and prints the file and line number (never the pattern text); an unset variable or missing file prints `leak check: skipped (no denylist)` as the first output line |
-| Hygiene | `scripts/ci.mjs` scans `eval/` and fails on any absolute macOS home-directory path (the `Users` directory followed by an account name) and on the repository owner's GitHub handle unless it is part of a `github.com/<owner>/` URL or a `<owner>/pi-gauntlet#<n>` ticket reference - public issue links and ticket refs in verbatim pi-gauntlet specs are provenance, not leakage. Neither literal appears in this directory, because either would match the scan itself; `node scripts/ci.mjs` is the manual check |
-| Anonymization | a sample from a private repo is rewritten by an LLM into a fictional domain (services, people, product nouns, hostnames) with the committed prompt `eval/anonymize-prompt.md`, then reviewed line by line by a human; only then is `expected.md` drafted and approved, then the baseline runs. The reviewer confirms the review in the commit message |
-| Durable evidence | the first run of every target commits both arms' records under `eval/<target>/results/<run-id>/`; each record carries the candidate text itself, so the before/after is readable without re-running. Later runs stay under `$TMPDIR` unless they become the new baseline |
-| Adding a target | copy the layout, write at least five samples spread across the cases the target handles, get `expected.md` approved first, run the baseline, then edit the target |
+| `0` | Pass: improved or unchanged; baseline-only succeeded |
+| `1` | Regressed, inconclusive, or error |
+| `2` | Refused: invalid CLI, target/sample, structure, hygiene, intent, or baseline ref |
 
-## Result record
+## Layout
 
-Write one JSON file per sample and arm (`baseline` or `candidate`).
+```
+eval/
+  README.md                  the process: what a run does, how to add a target or sample, record schema, hygiene rule
+  run.mjs                    the only driver; CLI: node eval/run.mjs <target> [<sample>] [--baseline-only]
+  judge.md                   the only judge prompt
+  anonymize-prompt.md        anonymization prompt for rewriting private material
+  lib/
+    models.mjs               the three frozen model ids and the thinking level
+    replay.mjs               runs one arm for one sample (text or edit kind)
+    judge.mjs                builds the judge call, parses its JSON block
+    records.mjs              read/write records, freshness decision
+    checks.mjs               mechanical checks: hashes, word cap, mechanical facts
+    hygiene.mjs              the one hygiene definition (patterns, exemptions, scope)
+    intent.mjs               intent.md parsing, stub detection, for: check
+    report.mjs               renders report.md from records
+    lint.mjs                 structural lint: every target matches the template shape
+    *.test.mjs               node:test, no model calls
+  _template/
+    README.md                how to add a target or a sample; restates the anonymization rule
+    target.json              kind, skill files, word cap
+    replay.md                text kind only: instruction prepended to case.md as the user turn
+    intent.md                stub with the two required headings
+    samples/<sample-name>/
+      case.md                the replay input for this sample
+      expected.md            must-hold facts, one per line, each tagged mechanical: or judged:
+      fixture/               kind: edit only; files the worker edits
+  <target>/                  same shape as _template, plus:
+    results/<sample>/baseline.json
+    results/<sample>/candidate.json
+    report.md                newest judge report, overwritten each run
+  brainstorming/replay/      legacy live-replay harness, outside the template and the lint
+```
+
+The CLI also accepts `--base <ref>`. A baseline-only or refused run does not write `report.md`; a comparison overwrites it with only the cells run in that invocation.
+
+## Files per target
+
+Copy `eval/_template/` to `eval/<target>/`; fill order: [`eval/_template/README.md`](_template/README.md). Its table owns the file-by-file instructions. Sample names state the property under test. `text` targets assemble skill files as a system prompt and replay with no tools; `edit` targets materialize whole skill files, run with read/edit/write tools in a scratch fixture checkout, and capture the staged diff plus resulting tree. File order determines the assembly. Heading slices, frontmatter stripping, `replay.md`, and leading `bundle+` lines apply to `kind: text` only. An edit kind's user turn is `/skill:<name> <request>` with the request from `case.md` plus the fixture file list; lint rejects `bundle+` lines for edits. Edit skill files must all sit under the first skill file's directory.
+
+`expected.md` has one stable, unique fact id per line: `- <id>: judged: <sentence>` or `- <id>: mechanical: <check>`. An optional first line is `anonymized: true`; other non-blank lines are errors. Mechanical checks are substring tests `contains "<literal>"` and `lacks "<literal>"`, or JavaScript regex tests `matches /<regex>/<flags>`. They run in code, not in the judge. Empty text or an empty edit diff fails the cell. For text only, `wordCap` limits whitespace-delimited tokens containing a letter or digit.
+
+## Intent
+
+Commit one `intent.md` per target with the wording change:
+
+```markdown
+for: <skillSha of the candidate assembly this intent describes>
+
+## Change
+<one paragraph: what the edit means to alter in the agent's behavior>
+
+## Expected to move
+- <sample>/<fact id>: <holds|fails> -> <holds|fails> - <why>
+```
+
+`for:` is the first non-blank line and binds to the SHA-256 of the candidate's bundle-free assembly: only `target.json`'s `skillFiles`, not any sample's `bundle+` files or a commit SHA. The mismatch refusal prints the current assembly SHA. Sample and fact ids use letters, digits, underscores, or hyphens and must name existing facts. The move list may be empty. Missing files/headings, the template stub, malformed or unknown bullets, and a stale `for:` refuse the run before model calls. `--baseline-only` bypasses intent parsing but still requires the file structurally. Git holds intent history.
+
+## Judge
+
+The question in `eval/judge.md` is: does this output satisfy the fact as written, before and after? The judge sees the case, judged facts, change paragraph, parsed move list, and both outputs; for edits it also sees the fixture before and each resulting tree. It reports `holds` or `fails` for each judged fact plus feedback in exactly one fenced JSON block. Intent does not override observed outcomes. The driver derives labels, including for mechanical facts:
+
+| before -> after | in `Expected to move` with that direction | label |
+|---|---|---|
+| same | - | `held` (both hold) or `pre-existing` (both fail) |
+| moved | yes | `intended change` |
+| holds -> fails | no, or listed with the opposite direction | `regression` |
+| fails -> holds | no | `unexplained change` |
+
+A listed fact that stays the same is `intended but unchanged`, overriding the table's same-outcome row. A fails-to-holds move listed with the opposite direction is also `unexplained change`. Any regression or unexplained change makes the cell `regressed`; otherwise an intended change makes it `improved`, and the rest are `unchanged`. Failed arms or a judge failure after one retry make it `error`. Calls have a 10-minute timeout.
+
+A regressed cell gets one candidate replay and a new judgment; the label stands when it reproduces, otherwise the cell is `inconclusive`. At least one original `regression` or `unexplained change` label must reproduce on the same fact id with the same label; a failed confirmation becomes `error`. Both observations stay in the record, with the second under `judge[model].confirmation`, not in a widened intent. The worse verdict wins across cells: `error > inconclusive > regressed > unchanged > improved`.
+
+## Records
+
+`results/<sample>/{baseline,candidate}.json` holds one record per arm, newest only. The record shape is:
 
 ```json
 {
-  "sample": "<slug>", "arm": "candidate",
-  "candidate_model": "<id>", "reviewers": ["<id>", "<id>"],
-  "persona_sha256": "<hex>", "input_sha256": "<hex of source.md + expected.md + reviewer-prompt.md>", "repo_sha": "<git HEAD>",
-  "text": "<the candidate output, verbatim>",
-  "words": 268, "backtick_lines": 0, "path_tokens": 0,
-  "facts": { "<fact-id>": { "<reviewer>": "yes", "<reviewer>": "no" } },
-  "quality": { "<reviewer>": "<level label>" },
-  "rationale": { "<reviewer>": "<one line>" },
-  "aggregate": { "kept": 5, "disputed": 1, "lost": 0 }
+  "sample": "council-dispatch-after-lint",
+  "arm": "candidate",
+  "kind": "text",
+  "assembly": "concat",
+  "skillSha": "<sha256 of the assembled skill text>",
+  "inputSha": "<sha256 of replay.md + case.md + bundle+ paths + sorted fixture tree>",
+  "repoSha": "<git HEAD>",
+  "models": { "replay": ["anthropic/claude-opus-5-5", "github-copilot/gpt-6.1-sol"], "judge": "anthropic-fable/claude-fable-5-1", "thinking": "medium" },
+  "outputs": {
+    "<replay model>": { "status": "ok" | "error", "error": "<reason or absent>", "text": "...", "tree": { "<path>": { "lines": 0, "content": "..." } }, "words": 0, "wallMs": 0, "mechanical": { "<fact id>": "holds" | "fails" } }
+  },
+  "judge": {
+    "<replay model>": {
+      "factsSha": "<sha256 of expected.md>", "judgePromptSha": "<sha256 of eval/judge.md>", "intentSha": "<sha256 of intent.md>",
+      "baselineOutputSha": "<sha256>", "candidateOutputSha": "<sha256>",
+      "facts": { "<id>": { "before": "holds", "after": "fails", "label": "regression" } },
+      "verdict": "regressed", "feedback": "...", "confirmation": { "text": "...", "facts": {} }
+    }
+  }
 }
 ```
 
-`kept` means `yes` from every reviewer, `lost` means `no` from every reviewer, `disputed` is anything else including `unparsed`. A failed arm writes `{ "sample", "arm", ..., "error": "<reason>" }` instead.
+The alternatives above describe a shape, not literal JSON. Shipped records also carry top-level `thinking`; edit records without an assembly setting use `"assembly": "n/a"`. `tree` exists only for edits. Confirmation includes the replay fields and, on successful judgment, facts and feedback; error judgments may contain only verdict and error. Baseline records have no paired `judge` block.
 
-## Drafting `expected.md`
+Replay reuse requires matching `skillSha` (including sample bundles), `inputSha` (replay instruction, stripped case, bundle paths, sorted fixture paths and contents), `kind`, `assembly`, replay model membership, and `models.thinking`, with `status: ok`. Only stale or failed cells replay. A stored candidate whose skill SHA matches the base assembly is promoted first, in either mode, with its judge block removed; normal freshness checks still apply.
 
-Run the drafting model once per sample with this system prompt and `source.md` as the whole user message; the reply is the draft the user edits and approves:
+Judgment currency requires matching `factsSha`, `judgePromptSha`, `intentSha`, `baselineOutputSha`, and `candidateOutputSha`. Changing facts, judge prompt, or intent rejudges reusable outputs without replaying. Records are written only when changed; `repoSha` updates on that write, not on a no-op run. Scratch paths in outputs are stored as `<scratch>`. The comparison report contains the change, bundle-free `for:` SHA, per-cell outcomes and labels, feedback/errors, and final exit code.
 
-```text
-You read one design document and list the facts a product manager must know before approving it. Output 4 to 6 lines, nothing else, each in the form `- f<n>: <fact>` with n starting at 1. Cover, in this order where the document supports it: who is hurt today and how; what the user observes once it ships; each irreversible or blocking consequence; the completion condition; every dependency on work or decisions outside the document. Write each fact as one plain sentence a reader could mark present or absent in a summary; no file paths, identifiers, or commit references.
-```
+## Hygiene and anonymization
 
-`expected.md` format:
+Anonymize private material or rewrite it as simpler synthetic text before it lands; never include a secret. The shared definition in `eval/lib/hygiene.mjs` checks three predicates: absolute macOS home-directory paths, the repository owner's handle outside `github.com/<owner>/` URLs or `<owner>/<repo>#N` refs, and token-shaped secrets (private-key headers, GitHub tokens, API keys, AWS access keys, and Slack bot tokens). Bare token prefixes do not suffice. A target's optional `denylist` in `target.json` adds case-insensitive regex checks.
 
-```markdown
-# Expected facts: <slug>
+`scanTree` scans every file under `eval/` except `lib/`; it skips the target denylist on `target.json` itself, but still checks the three shared predicates there. The driver refuses on target-file, judge-prompt, or assembled-skill hits before model calls. Output hits fail the cell and store redacted text. `scripts/ci.mjs` runs the same tree scan with every configured target denylist. Use `eval/anonymize-prompt.md` when rewriting source material; anonymization metadata does not exempt a file from scanning.
 
-- f1: <fact>
-- f2: <fact>
-```
+## CI
 
-An anonymized sample puts `anonymized: true` as its first line, before the heading.
+The full suite in `scripts/ci.mjs` runs `eval/lib/*.test.mjs`, structural lint over immediate target directories including `_template`, and the shared hygiene scan. Nested `brainstorming/replay/` is outside structural lint, not outside the tree hygiene scan. CI never calls a model. `eval/` is checkout-only, excluded from the npm tarball and from model-literal lint scope.
 
-## Standing rule
+## Policy
 
-Follow [AGENTS.md Change process](../AGENTS.md#change-process).
+Follow [AGENTS.md, Change process](../AGENTS.md#change-process).

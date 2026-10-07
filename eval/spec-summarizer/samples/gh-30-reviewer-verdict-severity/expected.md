@@ -1,0 +1,6 @@
+- f1: judged: Review users receive inconsistent merge recommendations when a report contains only moderate findings.
+- f2: judged: A critical or moderate finding will always require fixes before merge.
+- f3: judged: Minor-only findings do not block merge.
+- f4: judged: The reviewer can still refuse a change that must not land regardless of finding severity.
+- f5: judged: The change is complete when reviewer recommendations match the blocking policy the workflows already enforce.
+- m1: mechanical: lacks "/Users"

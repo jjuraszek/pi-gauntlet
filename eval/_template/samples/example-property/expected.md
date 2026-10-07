@@ -1,0 +1,2 @@
+- f1: judged: The output names the one thing this sample tests.
+- f2: mechanical: lacks "DRAFT"

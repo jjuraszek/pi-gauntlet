@@ -1,0 +1,38 @@
+{
+  "sample": "asterwind-linear-cutoff-boundaries",
+  "arm": "baseline",
+  "skillSha": "87bb75e6feeada94486e7e80476e149a6b8883132660ce5ceb40b5d99e2649fe",
+  "inputSha": "bde16a3d2838311d6a97c0bcfceb92b98ae71f6cf456c280d6741fca7095ab67",
+  "kind": "text",
+  "assembly": "concat",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "Plant engineers reviewing turbine safeguard curves get wrong answers today when a datasheet states a ride-through limit that ramps across a voltage band. The system can only store single points, so the ramp collapses to one mis-picked point, which skews the drawn curve and the conformance verdict. This spec adds a \"ramp\" boundary shape alongside points, carried from document extraction through storage, evaluation and charting. Once it ships, ramped limits are stored, drawn and judged as true line segments.\n\n**What changes**\n- When a datasheet explicitly states a ramp, extraction records one segment; ramps that are malformed or cross nominal fall back to a single point.\n- A point lying on a ramp with the same action is absorbed. A tighter or different-action point is kept.\n- A ramp fails the grid-code check if it dips below required withstand anywhere in a zone, or touches the continuous band. Charts draw ramps as straight lines.\n- Half-specified ramps are rejected. Explicitly switching a saved ramp to a point clears its far end.\n- Existing points, other boundary types and the existing slope field stay unchanged.\n\n**Approval risks**\n- A database migration backfills every existing boundary and adds hard integrity constraints.\n- The extraction response sent to the console gains new fields, though old consumers stay compatible.\n- Whether the AI actually labels ramps is not tested automatically, only the downstream logic.\n\n**Done when**\nThe AsterWind table yields nine points plus one ramp. Invalid rows are rejected by both model and database. Shape lists match across services. The full import renders the segment.\n\n**Missing from the spec**\n- The GRC-114 ride-through envelope zones and durations.\n- The extraction response contract document being amended.\n",
+      "words": 271,
+      "wallMs": 13178,
+      "mechanical": {
+        "m1": "holds"
+      }
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "Operators assessing turbine safeguards currently get incorrect curves when a source specifies a ramp: one point loses the changing withstand time. This spec carries two-endpoint linear boundaries through extraction, import, storage, charts, and conformance checks. Once shipped, operators see the actual ramp and receive checks covering its whole length, while existing point boundaries retain their behavior.\n\n**What changes**\n- When a source explicitly states a ramp, extraction preserves normalized endpoints; invalid ramps become near-endpoint points, or disappear if that endpoint lacks citation support.\n- When same-axis, direction, and action points lie on a ramp within tolerance, they disappear; off-curve or different-action points remain.\n- When endpoints change, shape follows them; switching an existing boundary to point clears endpoints, while incomplete or equal-magnitude endpoints cannot persist.\n- When evaluating ramps, checks cover every overlapping envelope zone; charts show straight lines, and shared continuous-band edges use real values.\n- Existing point charts, other boundary types, and their slope fields stay unchanged.\n\n**Approval risks**\n- Switching an existing ramp to point deletes its far endpoint, including through candidate acceptance.\n- Live extraction is not automatically verified; deterministic and per-hop tests replace the originally requested live golden test.\n- Shared-value chart handling requires render-owner coordination.\n\n**Done when**\n\nDeterministic tests produce nine points plus one segment; per-hop tests verify transport, import, rendering, full-segment checks, enum parity, persistence safeguards, unit normalization, citations, and unchanged points.\n\n**Missing from the spec**\n- AsterWind revision-four source tables and ramp note.\n- GRC-114 envelope’s actual zones and required durations.\n",
+      "words": 239,
+      "wallMs": 12537,
+      "mechanical": {
+        "m1": "holds"
+      }
+    }
+  },
+  "repoSha": "9932ea84fb0c04cbf4e1807b9905241bcfbf4402"
+}

@@ -1,0 +1,34 @@
+{
+  "sample": "head-not-pushable",
+  "arm": "baseline",
+  "skillSha": "0e8935f654f807c2dc6b2843842ef77b0cc0711f45948a38ce8f4f5f657dd346",
+  "inputSha": "017287db5ef8d7253fddc5f2154a65c51fc6b8e92c79954b24c9f054a1dcdbe2",
+  "kind": "text",
+  "assembly": "concat",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "# gatekeep-pr: PR 412, step 2b (sync) narration\n\n## Argument parse\n\nThe invocation is `412 --rebase`.\n\n- PR is 412.\n- There is no issue-ref token. `gh-388` was already resolved in step 1.\n- No base token follows `--rebase`, so `<base>` is the digest's `baseRefName`, which is `main`. `origin/release/2` plays no part.\n\n## Tracker\n\n`plan_tracker init` gets four stages because `--rebase` is present:\n\n1. `gather`: `complete`\n2. `provision`: `complete`\n3. `sync`: pending\n4. `verify`: pending\n\n## Step 2b preconditions (`reference/sync.md`), checked in order\n\n1. **Helper facility.** pi with `subagent` is present, so this passes. No command runs.\n2. **`permissions.head_pushable`.** The digest reads `false`, so this is a **terminal stop**. It stops here even though the PR is same-repo, `maintainer_can_modify` is true, and you are the author. The actor holds `viewer_permission: READ` and cannot push `feature/ledger-rounding`.\n\nBecause the stop fires at precondition 2, nothing after it runs:\n\n- No `git fetch origin main`. The fetch belongs to precondition 3.\n- No `## Baseline` (`gh pr view 412 --json headRefOid`, `git rev-parse HEAD`).\n- No other-author confirmation. The PR is your own, and the step is never reached.\n- No `git rebase`, no lease push, no `## Re-gather`.\n\n## Commands run and helpers dispatched\n\n- **Commands run:** none.\n- **Helpers dispatched:** none.\n  - No conflict-stop `implementer`.\n  - No sync `code-reviewer`.\n  - No step-3 `worker`.\n  - No step-4 `code-reviewer`.\n\n## Tracker update\n\n- `plan_tracker`: `sync` is set to `failed`.\n- `verify` stays pending. Step 3 never runs, so no claim tasks are added and the remaining three stages are not added.\n- The sync record is `stopped - head not pushable`.\n\n## Assessed SHA\n\nVerification and the brief assess no SHA. Steps 3 to 5 do not run on a `--rebase` terminal stop. The worktree stays on the untouched head `7c1e9a2`, and the remote is untouched.\n\n## Rendered output\n\nThere is no full report, so no `Delivers` and no findings. The stop prints the sync line in its report position, immediately before the verdict line, followed by the terminal-stop menu.\n\n```\nSync: stopped - this checkout cannot push the PR head, so the rebase never started and nothing was assessed. (head_pushable false; git@git.example.invalid:orchard/ledger.git:feature/ledger-rounding)\nVerdict: not assessed - sync stopped before verification (head not pushable)\n\n1. show evidence - print the digest's head-dependent fields and the sync record\n2. stop - leave the PR as-is                                        [recommended]\nType a number.\n```\n\n`stop` is `[recommended]` because the only other row is `show evidence`.\n",
+      "words": 374,
+      "wallMs": 22857,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "1. The tracker is initialized with `gather`, `provision`, `sync`, and `verify`. With step 2 finished, `gather` and `provision` are complete.\n\n2. I enter sync and check its preconditions in order:\n   - The pi helper facility is available.\n   - `permissions.head_pushable` is `false`. This is a terminal stop before any git write.\n\n3. I record `sync: stopped - head not pushable` and close `sync` as `failed`. `verify` remains pending; I do not add the later stages.\n\n**Commands run from here:** none. In particular, I do not fetch `origin/main`, rebase, or push.\n\n**Helpers dispatched:** none. No conflict implementer, sync reviewer, Verify helper, or Review helper runs.\n\n**Assessed SHA:** verification and the review brief assess no SHA because the invocation stops before step 3. The digest and worktree retain `7c1e9a2f4b0d6e8a1c3f5b7d9e0a2c4e6f8a0b1c`. The existing successful check does not establish a gate verdict.\n\nThis terminal stop uses the sync-specific menu, without entering the ordinary integration or pre-menu refresh.\n\nDelivers: Coverage is not assessed because sync stopped before verification and review.\n\nSync: stopped - head not pushable\nVerdict: stopped - head not pushable\n\n1. show evidence - print the digest's head-dependent fields and sync record\n2. stop - leave the PR as-is [recommended]\n\nType a number.\n",
+      "words": 191,
+      "wallMs": 17051,
+      "mechanical": {}
+    }
+  },
+  "repoSha": "9932ea84fb0c04cbf4e1807b9905241bcfbf4402"
+}

@@ -1,0 +1,1 @@
+Resolve Section B's Evidence resolution table from `status_checks`, `actions_runs`, and `permissions.merge_state_status` in this digest, then render the step 5-6 report and menu exactly as the skill text prescribes; no tools, no fetches; the digest is the pre-menu state.

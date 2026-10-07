@@ -1,0 +1,38 @@
+{
+  "sample": "windward-rig-ci-leg",
+  "arm": "baseline",
+  "skillSha": "87bb75e6feeada94486e7e80476e149a6b8883132660ce5ceb40b5d99e2649fe",
+  "inputSha": "80c08a446646e675d530ed7b1b7202d04be801039ed02b454ac1a50d3682a703",
+  "kind": "text",
+  "assembly": "concat",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "# Windward rig CI leg\n\nWindward operators, who are Beacon Code users, are the ones who find rig breakages today. Automated checks run only on Linux, so a Windows-only failure in the hook tooling shipped once, and the Windows batch wrapper has never been run by a test. This spec adds a permanent Windward job to every push and pull request. A Windward regression in the rig then fails the pull request before any operator meets it.\n\n**What changes**\n- Every push and pull request runs the Windward job alongside the existing check, and any failure turns the run red, with no grace period.\n- The job installs the commit hook, verifies the rig through the Windows wrapper, then makes a real commit; if the hook fails to fire, the run fails.\n- A fixed list of rig tests runs on Windward; only platform or optional-tool skips are allowed, never exclusions.\n- If the Windward test list or setup drifts from the Linux check, a test fails on Linux.\n- The full suite, dependency checks and the no-vx fallback stay Linux-only or untested.\n\n**Approval risks**\n- The job blocks from day one, so a Windward runner image change can stop all pull requests until someone fixes it in a follow-up.\n- Whether the job blocks merging depends on a repository setting outside this spec.\n- A legacy test that rejects workflow edits is deleted.\n\n**Done when**\nThe Windward job passes on its pull request, including the hook and wrapper tests, in under five minutes with a warm cache. Removing a listed test breaks the drift check, and Linux shows no new failures.\n",
+      "words": 263,
+      "wallMs": 14338,
+      "mechanical": {
+        "m1": "holds"
+      }
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "Windward operators can receive broken hook tooling because current automated checks never execute their native interpreter paths. This spec adds permanent Windward validation on pushes and pull requests, exercising both the installed commit hook and native interpreter wrapper. Failures make the workflow red immediately; they prevent merging only where required checks are configured. Operators gain ongoing regression coverage instead of relying on a one-off smoke test.\n\n**What changes**\n- On pushes and pull requests, Windward validation runs alongside existing checks, with a 15-minute timeout and no automatic retry or advisory mode.\n- When installation succeeds, native verification must identify the command wrapper, both execution tests must pass, and a real hook-triggering commit must succeed.\n- When listed tests disappear or setup settings diverge, existing-platform validation fails; incompatible contract tests require fixes, not exclusions.\n- On Windward checkouts, command wrappers receive native line endings.\n- Existing full-suite checks, dependency preflight, concurrency, and the untested command-wrapper fallback stay unchanged.\n\n**Approval risks**\n- Required merge-check configuration must be changed outside the repository, unless none exists.\n- A historical workflow-diff prohibition test is deleted; the existing protected-path gate remains responsible for protection.\n- Newly discovered incompatibilities may require production fixes; contract changes require a spec amendment.\n\n**Done when**\n\nExecution checks pass; omission triggers drift detection; Larch reproduces and reports only baseline failures; warm-cache runtime stays under five minutes; merge-gating is verified.\n",
+      "words": 219,
+      "wallMs": 19926,
+      "mechanical": {
+        "m1": "holds"
+      }
+    }
+  },
+  "repoSha": "9932ea84fb0c04cbf4e1807b9905241bcfbf4402"
+}

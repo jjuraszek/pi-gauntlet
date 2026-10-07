@@ -1,0 +1,9 @@
+- fact-1: judged: The requested change is present in the diff.
+- fact-2: judged: No added line contains "should", "consider", "you may want to", or "it is recommended".
+- fact-3: judged: No added line contains a nuance clause ("unless", "when appropriate", "if needed", "as necessary").
+- fact-4: judged: Only the sentence or sentences that own the requested rule changed; the rule is not restated in a second place.
+- fact-5: judged: Every added or modified line is ASCII only.
+- fact-6: judged: After the edit, every SKILL.md is under 500 lines, or a `reference/<topic>.md` was created and a one-line "read ... now" pointer was left at the step that needs it.
+- fact-7: judged: Check 7.41 exists exactly once across all files after the edit.
+- fact-8: judged: Either a new `reference/<topic>.md` holds the extracted section and a one-line "read reference/<topic>.md now" pointer sits at the step that needs it, or SKILL.md is under 500 lines after the edit.
+- fact-9: judged: No section other than the extracted one changed its text.

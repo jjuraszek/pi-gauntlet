@@ -1,5 +1,7 @@
 # forge-skill persona authoring rules with an eval harness
 
+> **Superseded by:** [doc/specs/2026-10-07-gh-50-universal-eval-template.md](./2026-10-07-gh-50-universal-eval-template.md) - "Component 2: `eval/forge-skill/`" and the "Eval judgment" sections only
+
 **Goal:** Make forge-skill's existing claim to own agent persona edits true by adding a `## Persona rules` section derived from how pi-cohort and Claude Code consume a persona file, and prove the edit helps with a committed eval harness (`eval/forge-skill/`) whose before/after judgment is appended to this spec.
 
 **Supersedes:** `doc/specs/2026-09-30-forge-skill-rename-cc-exposure.md`, scope `### SKILL.md contract` body (gains `## Persona rules`, skill-only markers on three authoring rules and the Conventions table, persona branches in edit-procedure steps 4-5; the 120-line cap, the no-`reference/`-dir layout, and every other clause of that spec stay live).

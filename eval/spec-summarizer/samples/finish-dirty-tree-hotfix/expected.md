@@ -1,0 +1,7 @@
+- f1: judged: Developers can currently finish a branch using stale verification despite uncommitted source changes.
+- f2: judged: Reusing verification requires a successful check of a known clean commit in the current session.
+- f3: judged: Any later change outside telemetry requires verification to run again.
+- f4: judged: Telemetry-only changes remain exempt from rerunning verification.
+- f5: judged: Uncertain write history requires verification to run again.
+- f6: judged: The change is complete when a hidden staged edit can no longer bypass verification.
+- m1: mechanical: lacks "/Users"

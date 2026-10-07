@@ -1,0 +1,38 @@
+{
+  "sample": "gh-57-gatekeep-production-gate",
+  "arm": "baseline",
+  "skillSha": "87bb75e6feeada94486e7e80476e149a6b8883132660ce5ceb40b5d99e2649fe",
+  "inputSha": "6909f7656c6dcf411cf58dc14e7e47f89b3b7f20d96dcb6252208f5d071c41cb",
+  "kind": "text",
+  "assembly": "concat",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "Maintainers running the PR gate skill on real pull requests today let the gate edit files itself, push fixes with no reviewer in between, ignore CI after pushing, and offer actions they cannot perform. One incident pushed seven orchestrator-edited files to a contributor's fork. This spec moves verification, review, and fixing into separate fresh helpers, puts a reviewer before every push, reads CI afterward, and builds menus from the actor's real permissions. Once shipped, maintainers can run the gate on any PR without unreviewed pushes or dead-end options.\n\n**What changes**\n- Verification and review run as separate fresh helpers, one after the other; a failed helper stops the step, and harnesses without helpers are unsupported.\n- Fresh implementers apply each fix with targeted tests only, and a fresh reviewer must find nothing critical or moderate before push. At three rounds the commits stay unpushed; a zero setting disables fixing.\n- After a push the gate polls CI; local runs happen only on three named triggers. Approving a held run is always a user pick.\n- Conflicts with the base branch show a conflict menu. Rows the actor cannot execute are omitted and listed as \"not offered.\"\n- Unchanged: the bug-hotfix flow, no force-push, no suggestion-delivery option.\n\n**Approval risks**\n- Claude Code and other helper-less setups lose the inline fallback.\n- The post-push re-review is dropped; only the pre-push reviewer closes findings.\n- Fix-wave and hotfix steps stay duplicated pending a follow-up ticket.\n\n**Done when**\nThe automated test suite passes. Before/after runs on three past PRs show no unexplained verdict change or lost outcome. The user ticks three Claude Code smoke checks before merge.\n\n**Missing from the spec**\n- The skill-authoring guide's authoring rules and conventions\n- The documentation-impact rules document\n",
+      "words": 280,
+      "wallMs": 13435,
+      "mechanical": {
+        "m1": "holds"
+      }
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "PR maintainers risk having fixes edited and pushed without independent review, misleading CI results, and actions their permissions cannot support. This spec separates verification and review into sequential fresh helpers, delegates every fix, and requires review before pushing. Maintainers get reviewed fixes, post-push CI evidence, and permission-aware menus; the orchestrator never edits tracked files. Harnesses without helper support stop rather than fall back inline.\n\n**What changes**\n- When helpers fail or leave unexpected worktree changes, execution stops without orchestrator cleanup.\n- When fixes need review, serious findings block pushing; the default three-round cap preserves unpushed commits, and zero disables fixes.\n- When CI remains pending, users wait or stop; workflow approval requires consent, and local verification has three explicit triggers.\n- When conflicts appear, permission-gated recovery replaces progress; branch updates never discard unpushed commits.\n- When permissions are unreadable, dependent actions disappear; existing inert CI conclusions and unrelated skill behavior remain unchanged.\n\n**Approval risks**\n- Previously recorded claim dispositions carry across an own push without another claim check.\n- Documentation-only fixes may have no scoped test, leaving review as their sole gate.\n- Portability smoke testing depends on the user’s separate session before merge.\n\n**Done when**\n\nTests pass; main instructions stay under 120 lines; three historical comparisons meet regression rules; all three user-run portability smoke checks pass.\n\n**Missing from the spec**\n- Skill authoring rules and conventions\n- Review baseline\n- Documentation impact rules\n",
+      "words": 223,
+      "wallMs": 15486,
+      "mechanical": {
+        "m1": "holds"
+      }
+    }
+  },
+  "repoSha": "1a31dd95592501aa8ec47ac4b9254b94df3333ca"
+}

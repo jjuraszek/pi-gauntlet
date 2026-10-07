@@ -1,0 +1,38 @@
+{
+  "sample": "gh-30-reviewer-verdict-severity",
+  "arm": "baseline",
+  "skillSha": "87bb75e6feeada94486e7e80476e149a6b8883132660ce5ceb40b5d99e2649fe",
+  "inputSha": "01aa31b6ae9d11250397f42d2cb8f5b3db059b24ad959117615b6008eb3f5501",
+  "kind": "text",
+  "assembly": "concat",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "Today a code review whose findings are only Moderate can come back as either \"ship\" or \"fix first,\" depending on how the reviewer reads its own instructions. Every workflow that consumes the review assumes Moderate blocks the merge, so developers get inconsistent verdicts. This spec writes an explicit severity-to-verdict rule into the reviewer's instructions so they match the policy the workflows already enforce. It aligns the reviewer with that policy rather than changing it. Once it ships, the same findings always produce the same verdict, and that verdict matches what the workflows expect.\n\n**What changes**\n- When a review finds any Critical or Moderate issue, the verdict is \"fix first.\"\n- When findings are Minor-only, or there are none, the verdict is \"ship.\"\n- Moderate is now described as must-fix before merge. Minor is the only severity that can be declined without a fix round or re-review.\n- \"Reject\" still overrides both for a change that must never land; when it applies stays undefined. A changelog entry records the change.\n- The reviewer's report format, the orchestrating workflows, and the separate review-request template stay as they are.\n\n**Approval risks**\n- The untouched review-request template still shows a \"ready to merge with fixes\" example that contradicts the new rule. This mismatch is accepted on purpose.\n- No behavioral test exists. Conformance rests only on searching for the expected text.\n\n**Done when**\nThe test suite passes and only the reviewer instructions and changelog change. The report format must be unchanged, the new wording present, and \"open for discussion\" gone.\n\n**Missing from the spec**\n- Issue 30's acceptance criteria, referenced as numbered items but not quoted\n",
+      "words": 265,
+      "wallMs": 12889,
+      "mechanical": {
+        "m1": "holds"
+      }
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "Developers and review coordinators can currently receive approval despite Moderate findings, even though the surrounding workflows require fixes. This spec makes the reviewer’s verdict follow severity: Critical and Moderate findings block merge; Minor-only and clean reviews permit shipping. It aligns reviewer instructions with existing policy rather than changing that policy, giving developers a consistent answer about whether another fix round is required.\n\n**What changes**\n- When any Critical or Moderate finding exists, the reviewer requires fixes before merge.\n- When findings are Minor-only or absent, the reviewer approves shipping; only Minor findings may be declined without fixes or another review.\n- When a change must not land, rejection overrides the severity-based verdict.\n- When this ships, existing review workflows, fix loops, escalation rules, and the report template remain unchanged.\n\n**Approval risks**\n- Verification checks wording, not actual reviewer behavior; no behavioral test or runtime enforcement is added.\n- Rejection triggers remain undefined beyond “must not land.”\n- An unchanged dispatch example retains potentially conflicting “ready to merge with fixes” framing.\n\n**Done when**\n\nTests pass, only reviewer instructions and changelog change, the report template remains identical, and all specified policy, description, and changelog wording checks pass.\n",
+      "words": 188,
+      "wallMs": 10767,
+      "mechanical": {
+        "m1": "holds"
+      }
+    }
+  },
+  "repoSha": "9932ea84fb0c04cbf4e1807b9905241bcfbf4402"
+}

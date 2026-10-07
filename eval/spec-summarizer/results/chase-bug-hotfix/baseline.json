@@ -1,0 +1,38 @@
+{
+  "sample": "chase-bug-hotfix",
+  "arm": "baseline",
+  "skillSha": "87bb75e6feeada94486e7e80476e149a6b8883132660ce5ceb40b5d99e2649fe",
+  "inputSha": "1a823665761e0219daa2daa3bff0dac9b31795210db11a1b41cf340017d82b83",
+  "kind": "text",
+  "assembly": "concat",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "**Briefing: chase-bug hotfix flow**\n\nWhen bug triage confirms a small, urgent, well-evidenced bug, the operator has two poor choices today. Full design ceremony re-asks settled questions, and a ticket delays a minutes-long fix. That pressure tempts people to skip triage discipline. This spec adds an \"implement hotfix now\" option to the triage verdict menu. It runs an isolated, automatic fix, test and review loop and lands one local, unpushed commit, or a PR on request. The operator gets a fast, reviewed fix that one revert undoes, with no new approval gates.\n\n**What changes**\n- When a real bug is confirmed, the menu always shows a hotfix row. It is recommended only when the bug is pressing or trivial and all six eligibility checks pass.\n- When a fix would touch stored data, a public contract, or need more than one revert, the row shows as unavailable and cannot be picked.\n- After a pick, any failed test retry, unfixable gap or rejected review aborts the fix. Anything not yet landed is removed, and the menu returns.\n- When the main branch moves before landing, the flow stops, leaves it untouched, and keeps the reviewed work.\n- Triage itself still never fixes, and there is still no automatic push. The two existing human gates and the sibling skills stay unchanged.\n\n**Approval risks**\n- Landing force-deletes the hotfix workspace and branch. Failed landings hard-reset the main branch, guarded only by a content-equality check.\n- On the restricted marketplace version, independent review falls back to self-review.\n- Some paths are verified from the text only: dependency-replacement ineligibility and PR creation.\n\n**Done when**\nThe four pressure scenarios and the scripted git-failure scenarios behave as specified, and project tests pass. A trial run must land an unpushed commit with no leftover workspace.\n",
+      "words": 289,
+      "wallMs": 18500,
+      "mechanical": {
+        "m1": "holds"
+      }
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "Operators handling small, urgent, evidenced bugs currently must defer the fix or run the full planning ceremony, encouraging shortcuts around triage. This spec adds a bounded hotfix option after a real-bug verdict: an isolated, tested, reviewed fix lands as one unpushed commit by default, or becomes a pull request when explicitly requested. Triage itself still cannot fix anything.\n\n**What changes**\n- When schema, public-contract, or rollback safety fails, hotfix is visible but unavailable; size, dependency, and test judgments guide recommendations.\n- When hotfix is selected, missing setup requirements stop it; failed tests allow one retry, and review must approve the final changes.\n- When landing succeeds, temporary resources are removed; earlier aborts clean owned resources, while landing failures preserve reviewed work, including when the base moves.\n- Unless explicitly requested otherwise, delivery stays unpushed; pull-request delivery preserves the branch and worktree.\n- When using hotfix, existing triage and reporter-send approvals remain unchanged; aborts repeat menu approval.\n\n**Approval risks**\n- Without agent support, the main assistant implements and self-reviews; advisory verification failures otherwise do not block delivery.\n- Abort cleanup forcibly deletes owned work, and failed landing can reset the destination branch.\n- Dependency-replacement behavior and pull-request creation receive text-only checks, not exercised coverage.\n\n**Done when**\nPressure scenarios, state-failure checks, repository tests, and end-to-end squash pass; documentation ships together; dependency replacement and pull-request creation receive text-only checks.\n\n**Missing from the spec**\nProcess-document testing rules and documentation materiality criteria.\nProject test commands and dependency-install instructions.\nImplementer status-report contract and existing reporter-response rules.\n",
+      "words": 242,
+      "wallMs": 18098,
+      "mechanical": {
+        "m1": "holds"
+      }
+    }
+  },
+  "repoSha": "9932ea84fb0c04cbf4e1807b9905241bcfbf4402"
+}

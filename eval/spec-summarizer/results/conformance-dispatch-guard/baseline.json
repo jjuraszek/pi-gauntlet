@@ -1,0 +1,38 @@
+{
+  "sample": "conformance-dispatch-guard",
+  "arm": "baseline",
+  "skillSha": "87bb75e6feeada94486e7e80476e149a6b8883132660ce5ceb40b5d99e2649fe",
+  "inputSha": "7a6eaefdf51c300d1fe697a6381f73053b425fcec854f7445582b918e75b8e18",
+  "kind": "text",
+  "assembly": "concat",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "During the final conformance audit, the AI agent assigns follow-up fixes to single implementers instead of isolated parallel batches. Those single runs work unprotected in the shared workspace and leave no patch to merge back, so the merge step has nothing to apply. The audit-and-fix loop can also run without a limit. The prose rules against both behaviors are not enforced. This spec makes the workflow tracker block both behaviors at runtime. Users get fixes that can always be merged, and the loop goes to a human after a set number of rounds.\n\n**What changes**\n- After the first audit during verification, a lone implementer dispatch is blocked, even when run in the background.\n- Once the fix-round budget is spent, any further implementer batch is blocked and the agent is told to escalate to the human. The default budget rises from 2 to 3, and a budget of 0 blocks the first batch.\n- A round counts only when a batch actually ran and returned results. Restarting implementation or resetting clears the count; re-entering verification alone does not, and resumed sessions keep it.\n- Implementation, shipping, work before the first audit, sessions outside the workflow, and turning enforcement off all stay unguarded.\n\n**Approval risks**\n- The default fix budget changes from 2 to 3 for every user.\n- The only off switch also disables the existing reviewer-model check; there is no separate control.\n- The pull-request gatekeeper tool is blocked if run mid-verification inside a workflow session.\n\n**Done when**\nWith defaults, fix batches pass in rounds 1–3 and are blocked at round 4. A budget of 0 blocks the first batch, and the new default reads 3.\n",
+      "words": 271,
+      "wallMs": 13875,
+      "mechanical": {
+        "m1": "holds"
+      }
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "Operators running conformance repairs can receive unisolated fixes with no patch to integrate, while repeated repair rounds remain unenforced. This spec adds runtime dispatch and budget checks after the first conformance audit, during verification in an entered workflow with enforcement enabled. Operators get blocked lone-worker calls and a default three-round repair budget; reaching the cap requires human escalation.\n\n**What changes**\n- Inside that window, lone implementers are blocked, including asynchronous calls; nested dispatches pass the shape check.\n- At the configured cap, implementer dispatches are blocked; zero blocks the first wave.\n- Non-error results containing implementers consume one round, even when an implementer fails; refused calls and empty results consume none.\n- Resume preserves the budget; restarting implementation or resetting clears it, but forced verification does not.\n- Outside that window, behavior stays unchanged; disabling enforcement also disables the existing model gate.\n\n**Approval risks**\n- Asynchronous waves return empty results and therefore do not consume budget, leaving a cap-enforcement gap.\n- Disabling enforcement removes both new protections and the existing model gate.\n- Restarting implementation or resetting permits another repair budget.\n\n**Done when**\nSpecified guard, counting, reset, replay, and settings tests pass: default waves one–three pass, fourth blocks; replay counts two verification waves but zero shipping waves.\n\n**Missing from the spec**\nDocumentation-impact materiality criteria.\n",
+      "words": 206,
+      "wallMs": 13913,
+      "mechanical": {
+        "m1": "holds"
+      }
+    }
+  },
+  "repoSha": "9932ea84fb0c04cbf4e1807b9905241bcfbf4402"
+}

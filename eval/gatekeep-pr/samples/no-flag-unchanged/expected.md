@@ -1,0 +1,4 @@
+- f1: judged: Without `--rebase` the orchestrator runs no additional fetch, rebase, or push before the menu (the digest is the `conflict-free-sync` one).
+- f2: judged: The tracker is initialized with three stages (gather, provision, verify), not four.
+- f3: judged: Verification runs on the digest's head SHA as the assessed head.
+- f4: judged: No `Sync:` line is rendered before the verdict.

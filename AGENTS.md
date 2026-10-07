@@ -2,7 +2,7 @@
 
 Workflow skills, agent personas, and extensions for the pi coding agent, published to npm as `pi-gauntlet` (`pi install npm:pi-gauntlet`). Generic by design: project-specific content lives in consumer repos via the gauntlet overrides file (`.pi/gauntlet-overrides.md`, or `gauntlet-overrides.md` / `doc/gauntlet-overrides.md` at the repo root; first found wins).
 
-<!-- agents-core:begin v8 - shared across pi-quiver/pi-cohort/pi-gauntlet/pi-condense. Edit AGENTS.core.md, then: node scripts/check-agents-core.mjs --fix -->
+<!-- agents-core:begin v9 - shared across pi-quiver/pi-cohort/pi-gauntlet/pi-condense. Edit AGENTS.core.md, then: node scripts/check-agents-core.mjs --fix -->
 ## Ground Truth Before Reasoning
 
 User instructions outrank skill and AGENTS.md guidance; on conflict, follow the user. Configured gates (design approval, ship verification) still run; a user instruction that already names the gated action satisfies its confirmation.
@@ -10,6 +10,8 @@ User instructions outrank skill and AGENTS.md guidance; on conflict, follow the 
 Never guess Pi's API, message shapes, config, or values - read the source. The pi runtime is the **`@earendil-works`** namespace (matches the host pi install), not `@mariozechner`; its shipped `.d.ts` is API truth. Third-party APIs: never state a signature, config key, flag, or version-specific behavior from memory - verify in current docs (Context7 `resolve-library-id` then `query-docs`). If the source contradicts your assumption, the source wins; if it is missing, say so and ask - do not fabricate. Check the request's premise before acting: if the source contradicts it, say so once with evidence, then follow the user's decision.
 
 The same rule applies to state you set up yourself. Before asserting that a job, publish, CI run, or process is in some state, run the command that shows it in this turn (`gh run view`, `npm view`, `git status`). A summary of what you started is a plan, not an observation.
+
+Tickets, specs, and eval samples carry no private or proprietary data and no secrets. Material that originates in a private repo is anonymized or replaced by simpler synthetic text before it lands; a sample, ticket body, or spec that still names a customer, an internal system, a credential, or a `/Users/<name>` path is not ready to commit.
 
 ## Authorization
 
@@ -81,7 +83,7 @@ The after wins because the first paragraph names the observable behavior a revie
 
 Creating a ticket or repairing its title/body/metadata happens only via `/skill:shape-ticket` - it enforces the Context -> Problem -> Idea -> Acceptance Criteria template, an AC integrity gate, and a cheap council roast applied to the body before the single human-gated write (no roast comments); a user instruction naming the ticket's body counts as that gate. Status transitions and comments are exempt - plain tracker CLI.
 
-<!-- agents-core:end v8 -->
+<!-- agents-core:end v9 -->
 
 ## Part of one platform
 
@@ -103,19 +105,19 @@ An **agent-initiated** write to a human-readable channel (tracker comment, Slack
 - **Extensions** in `extensions/` read every tunable from `settings.json#piGauntlet.<extensionName>` with a working default, through `extensions/lib/gauntlet-settings*.ts` - never `pi.settings` (`scripts/ci.mjs` enforces). New key -> document in [`doc/configuration.md`](doc/configuration.md).
 - **Claude Code surface** is `.claude-plugin/marketplace.json`: an allowlist of harness-portable skills, excluded from the npm tarball, never read by pi. Widen it only for skills whose bodies carry harness fallbacks.
 - **Skill, persona, and prompt edits** follow `/skill:forge-skill` `## Authoring rules` (imperative voice, low conditionality, minimal diff, oversized-skill extraction); a persona edit also follows its `## Persona rules` (whole-prompt body, routing-label description, byte-identical frontmatter unless a knob is named, narrow tools, no skill machinery). Skills never name a provider or model; `scripts/model-literal-lint.mjs` enforces it from `scripts/ci.mjs` ([`doc/configuration.md`](doc/configuration.md#dispatch-model-precedence)).
-- **Evals** live in `eval/<target>/` per [`eval/README.md`](eval/README.md); `eval/` is outside the tarball; `scripts/ci.mjs` runs its deterministic tests, never a model call. A forge-skill rule change moves the affected `eval/forge-skill/sample/*/expected.md` facts in the same commit ([`eval/forge-skill/README.md`](eval/forge-skill/README.md)).
+- **Evals** live in `eval/<target>/` per [`eval/README.md`](eval/README.md); `eval/` is outside the tarball; `scripts/ci.mjs` runs its deterministic tests, never a model call.
 
 ## Change process
 
 Recommend the full gauntlet for non-trivial changes, but enter only on explicit user consent: `/skill:brainstorming`, explicit prose requesting brainstorming/the gauntlet when the skill is already loaded or an available instruction or route identifies it, or a human-selected handoff. `/skill:brainstorming` is the reliable discovery-and-entry path. An ordinary implementation request or an agent recommendation is not consent; wait for explicit choice before resetting trackers or creating a worktree. Once opted in, use the worktree, spec, and approval gate, then auto-chain through plan -> implement -> verify -> finish; runtime flow guards enforce that pipeline. Trivial edits (typo, formatting, dependency bump, release commit) need no flow. A user instruction that names a direct edit and its target overrides the workflow recommendation (core "Authorization").
 
-A non-trivial edit under `skills/`, `agents/`, or a prompt file creates or extends `eval/<target>/` per [`eval/README.md`](eval/README.md), adds a sample exercising the changed behavior when the target already exists, and runs the baseline on current wording before the edit; the brainstorm spec names the samples and their must-hold facts, the trivial-edit exemptions above stay unchanged, and `extensions/`, `src/bins/`, and `scripts/` stay on `npm test`.
+An edit under `skills/`, `agents/`, or a prompt file that changes what the agent does or says to the user creates or extends `eval/<target>/` per [`eval/README.md`](eval/README.md), adds a sample exercising the changed behavior when the target already exists, writes the target's `intent.md`, and runs `node eval/run.mjs <target>` before the finish; the brainstorm spec names the samples and their must-hold facts. Wording that keeps every instruction's meaning (synonyms, punctuation, reflowing, a corrected path) is exempt; the commit body states which of the two the edit is, and the conformance check in `/skill:verification-before-completion` reads that statement and the committed `eval/<target>/report.md`. The trivial-edit exemptions above stay unchanged, and `extensions/`, `src/bins/`, and `scripts/` stay on `npm test`.
 
 ## Testing
 
 Bin sources live in `src/bins/`; the shipped `bin/gauntlet-telemetry-seal.mjs`, `bin/gauntlet-performance.mjs`, and `bin/gauntlet-spec-index.mjs` are committed esbuild bundles. After editing a bin source or anything under `extensions/lib/`, run `npm run build:bins` and commit the regenerated bundles - never hand-edit `bin/*.mjs`. A new bin gets a source in `src/bins/`, an entrypoint in `scripts/build-bins.mjs`, and a `bin` map entry.
 
-`npm test` runs `scripts/ci.mjs`: AGENTS core block == `AGENTS.core.md`, skill/agent/extension lint, stage-skill lint (no `cd`/`--show-toplevel`/'switch into the worktree' in the five stage skills), bin bundle freshness (rebuild + `git status --porcelain -- bin/`), resolver and bin unit tests (incl. `gauntlet-telemetry-seal`, `gauntlet-performance`, and `gauntlet-spec-index`), `pi.settings` ban, provider/model literal ban (`model-literal-lint`), marketplace assertions, `npm pack` contents, packed-install smoke (all three bins from a scratch `node_modules/pi-gauntlet`), and `package.json` version == top `## vX.Y.Z` CHANGELOG heading. CI runs it on every push + PR (`.github/workflows/test.yml`). Local iteration: `pi install -l ~/repos/pi-gauntlet` + `npm run link-agents` ([`doc/install-internals.md`](doc/install-internals.md)).
+`npm test` runs `scripts/ci.mjs`: AGENTS core block == `AGENTS.core.md`, skill/agent/extension lint, stage-skill lint (no `cd`/`--show-toplevel`/'switch into the worktree' in the five stage skills), bin bundle freshness (rebuild + `git status --porcelain -- bin/`), resolver and bin unit tests (incl. `gauntlet-telemetry-seal`, `gauntlet-performance`, and `gauntlet-spec-index`), eval lib unit tests (`eval/lib/*.test.mjs`), eval structural lint against `eval/_template`, eval hygiene scan, `pi.settings` ban, provider/model literal ban (`model-literal-lint`), marketplace assertions, `npm pack` contents, packed-install smoke (all three bins from a scratch `node_modules/pi-gauntlet`), and `package.json` version == top `## vX.Y.Z` CHANGELOG heading. CI runs it on every push + PR (`.github/workflows/test.yml`). Local iteration: `pi install -l ~/repos/pi-gauntlet` + `npm run link-agents` ([`doc/install-internals.md`](doc/install-internals.md)).
 
 ## Release
 
@@ -133,9 +135,8 @@ Bin sources live in `src/bins/`; the shipped `bin/gauntlet-telemetry-seal.mjs`, 
 | Symlink vs copy install, local dev install, versioning | [`doc/install-internals.md`](doc/install-internals.md) |
 | pi-gauntlet skill overrides for this repo | [`.pi/gauntlet-overrides.md`](.pi/gauntlet-overrides.md) |
 | Run a release | [`.agents/skills/release/SKILL.md`](.agents/skills/release/SKILL.md) |
-| Measure a forge-skill edit against the eval samples | [`eval/forge-skill/README.md`](eval/forge-skill/README.md) |
+| Run or add an eval for a skill, persona, or prompt edit | [`eval/README.md`](eval/README.md) |
 | Hand off or resume an interrupted flow across sessions | [`skills/gauntlet-handoff/SKILL.md`](skills/gauntlet-handoff/SKILL.md) (human-only producer) and [`skills/gauntlet-resume/SKILL.md`](skills/gauntlet-resume/SKILL.md) (human-only; the sole resume path); grammar in [`skills/gauntlet-resume/reference/brief-contract.md`](skills/gauntlet-resume/reference/brief-contract.md) |
 | Pi runtime API | `node_modules/@earendil-works/pi-coding-agent` docs (`packages.md`, `skills.md`) |
 | Agent dispatch semantics | pi-cohort `src/agents/agents.ts`, `skills/pi-cohort/SKILL.md` |
-| Add or run an eval for a skill or persona | [`eval/README.md`](eval/README.md) |
 | Change the shared AGENTS core | edit [`AGENTS.core.md`](AGENTS.core.md), `node scripts/check-agents-core.mjs --fix`, copy both files to the siblings, `--fix` there |

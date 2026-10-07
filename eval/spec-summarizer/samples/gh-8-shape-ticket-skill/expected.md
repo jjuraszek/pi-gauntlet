@@ -1,0 +1,7 @@
+- f1: judged: Delivery teams inherit tickets that prescribe solutions without a verifiable outcome.
+- f2: judged: Users gain a tracker-neutral tool for creating or repairing one actionable issue at a time.
+- f3: judged: Every tracker write requires explicit approval of the proposed changes.
+- f4: judged: An unmeasurable improvement claim in the acceptance criteria blocks all writes until it is resolved.
+- f5: judged: An already conforming ticket is left unchanged.
+- f6: judged: If a ticket changes during approval, the revised proposal must be approved again before it is written.
+- m1: mechanical: lacks "/Users"

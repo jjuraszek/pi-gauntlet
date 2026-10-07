@@ -1,6 +1,7 @@
 # Spec summary as a briefing, with a committed persona eval
 
 > **Superseded by:** [doc/specs/2026-10-05-council-gate-digest.md](./2026-10-05-council-gate-digest.md) - "Out of scope" exclusion of the council audit rendering at the gate only
+> **Superseded by:** [doc/specs/2026-10-07-gh-50-universal-eval-template.md](./2026-10-07-gh-50-universal-eval-template.md) - "3. Eval: `eval/README.md` and `eval/spec-summarizer/`" section only
 
 **Goal:** The brainstorming gate summary becomes a fixed-size, plain-language briefing a product manager can approve from, and the persona edit that produces it is checked for lost facts by a committed, re-runnable eval that becomes the convention for every later skill or persona edit.
 

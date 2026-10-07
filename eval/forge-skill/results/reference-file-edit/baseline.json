@@ -1,0 +1,54 @@
+{
+  "sample": "reference-file-edit",
+  "arm": "baseline",
+  "skillSha": "410f3854a441e74b22c6b089dbee7546424846c8d25c9ab1197361d77ab46ec1",
+  "inputSha": "d275666534dc5ba800abda2063b53c07cab1c87495463cc3344c5ca96dc555fc",
+  "kind": "edit",
+  "assembly": "n/a",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "diff --git a/reference/checks.md b/reference/checks.md\nindex 1ea4d08..c486028 100644\n--- a/reference/checks.md\n+++ b/reference/checks.md\n@@ -2,5 +2,5 @@\n \n - tests: run the project's test command; pass when it exits 0.\n - lint: run the project's lint command; pass when it reports zero offenses.\n-- changelog: pass when CHANGELOG.md has a new bullet under `## Unreleased`; you should consider skipping this for docs-only changes if appropriate.\n+- changelog: pass when every path in `git diff main --name-only` ends in `.md`; otherwise pass when CHANGELOG.md has a new bullet under `## Unreleased`.\n - secrets: pass when `git diff main --stat` lists no file under `secrets/`.\n",
+      "words": 89,
+      "wallMs": 11147,
+      "tree": {
+        "SKILL.md": {
+          "lines": 21,
+          "content": "---\nname: pr-checklist\ndescription: Use before opening a pull request to run the project's pre-merge checks.\n---\n\n# PR Checklist\n\n## Overview\n\nRun the checks and report each as pass or fail.\n\n## Procedure\n\n1. Read `reference/checks.md` now.\n2. Run every check it lists, in order.\n3. Report one line per check: `<name>: pass|fail - <evidence>`.\n4. Stop. The reviewer decides.\n\n## Project overrides\n\nIf a gauntlet overrides file exists - checked in order: `.pi/gauntlet-overrides.md`, `<repo root>/gauntlet-overrides.md`, `<repo root>/doc/gauntlet-overrides.md`; first found wins - read it and apply its `## conventions` section.\n"
+        },
+        "reference/checks.md": {
+          "lines": 6,
+          "content": "# Checks\n\n- tests: run the project's test command; pass when it exits 0.\n- lint: run the project's lint command; pass when it reports zero offenses.\n- changelog: pass when every path in `git diff main --name-only` ends in `.md`; otherwise pass when CHANGELOG.md has a new bullet under `## Unreleased`.\n- secrets: pass when `git diff main --stat` lists no file under `secrets/`.\n"
+        }
+      },
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "diff --git a/reference/checks.md b/reference/checks.md\nindex 1ea4d08..b254010 100644\n--- a/reference/checks.md\n+++ b/reference/checks.md\n@@ -2,5 +2,5 @@\n \n - tests: run the project's test command; pass when it exits 0.\n - lint: run the project's lint command; pass when it reports zero offenses.\n-- changelog: pass when CHANGELOG.md has a new bullet under `## Unreleased`; you should consider skipping this for docs-only changes if appropriate.\n+- changelog: mark pass without a bullet when every changed path ends in `.md`; otherwise, require a new bullet in CHANGELOG.md under `## Unreleased` to pass.\n - secrets: pass when `git diff main --stat` lists no file under `secrets/`.\n",
+      "words": 90,
+      "wallMs": 17038,
+      "tree": {
+        "SKILL.md": {
+          "lines": 21,
+          "content": "---\nname: pr-checklist\ndescription: Use before opening a pull request to run the project's pre-merge checks.\n---\n\n# PR Checklist\n\n## Overview\n\nRun the checks and report each as pass or fail.\n\n## Procedure\n\n1. Read `reference/checks.md` now.\n2. Run every check it lists, in order.\n3. Report one line per check: `<name>: pass|fail - <evidence>`.\n4. Stop. The reviewer decides.\n\n## Project overrides\n\nIf a gauntlet overrides file exists - checked in order: `.pi/gauntlet-overrides.md`, `<repo root>/gauntlet-overrides.md`, `<repo root>/doc/gauntlet-overrides.md`; first found wins - read it and apply its `## conventions` section.\n"
+        },
+        "reference/checks.md": {
+          "lines": 6,
+          "content": "# Checks\n\n- tests: run the project's test command; pass when it exits 0.\n- lint: run the project's lint command; pass when it reports zero offenses.\n- changelog: mark pass without a bullet when every changed path ends in `.md`; otherwise, require a new bullet in CHANGELOG.md under `## Unreleased` to pass.\n- secrets: pass when `git diff main --stat` lists no file under `secrets/`.\n"
+        }
+      },
+      "mechanical": {}
+    }
+  },
+  "repoSha": "9932ea84fb0c04cbf4e1807b9905241bcfbf4402"
+}

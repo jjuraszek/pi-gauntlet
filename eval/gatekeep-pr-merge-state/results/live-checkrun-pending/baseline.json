@@ -1,0 +1,34 @@
+{
+  "sample": "live-checkrun-pending",
+  "arm": "baseline",
+  "skillSha": "a152125ee331afcb38cb7fc73eb309af008b0535e314f4c16da60719d67cb96f",
+  "inputSha": "520f4556d165d846c4b9949d2baaf722e48bed7fa14dea1b95de1ef7f41c4714",
+  "kind": "text",
+  "assembly": "concat",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "## Evidence resolution (Section B)\n\n- **Resolved check set:** No `ci checks:` is configured, so the set is all checks on `9c1e4f2`: `test_unit`, `build_image` and `e2e`.\n- **Conclusions:**\n  - `test_unit` and `build_image` are `success`.\n  - `e2e` has `status: in_progress`, so it is pending.\n- **Binding classification of `e2e`:**\n  - `merge_state_status` is `UNSTABLE`, so state alone does not make it binding.\n  - Its kind is `check_run`. The run id parsed from its `detailsUrl` is 7003.\n  - The matching `actions_runs` entry has `status: waiting`, which is not `completed`.\n  - Result: `e2e` is **binding**.\n- **Rows, checked top-down:**\n  - Opt-out: not configured.\n  - Failed CI: no blocking conclusion.\n  - Held run: no `action_required`.\n  - **Pending matches.** There is at least one binding pending check, nothing is blocking, and the poll window has elapsed, since this digest is the pre-menu state.\n- **Verifier output:** `source: pending`, `head_sha: 9c1e4f2`, no local run, no claims.\n  - The PR body claim still needs a Section B disposition.\n  - A claim-check-only helper is dispatched when a later re-resolve reaches CI-sufficient.\n  - Until then, the merge precondition \"source: pending evidence that never had a claim check withholds merge\" also holds.\n- **Scope:** `issue_ref: null` gives `source: pr`, so there are no AC rows and `Delivers` states the PR's intent.\n- **Overlays:**\n  - Firing: `verification evidence pending` and `CI check` (binding pending). The higher one, verification evidence pending, owns the reason through resolver reason 3.\n  - Not firing: `merge state`, because the state is `UNSTABLE`.\n- **Menu basis:** The PR is someone else's and the verdict is `fixable` with zero blockers.\n  - The mergeable rows are used with `merge` omitted.\n  - `wait` is row 1 and `[recommended]`.\n  - `reply` is not rendered because no drafted reply exists.\n  - `push` is not rendered because there are no unpushed commits.\n\n## Report and menu\n\n```\nDelivers: the tide-feed client retries a fetch once when the feed returns 503.\n\nPR comments:\n- A check that binds this actor is still pending, so merge waits. (e2e)\n\nVerdict: fixable - binding check pending\n\n1. wait - poll the e2e check, then re-render                              [recommended]\n2. approve - approve tlindqvist's PR\n3. fix - name the change to apply in the worktree, review the wave, push\n4. show evidence - CI checks on the assessed head, pending e2e run\n5. stop - leave the PR as-is\nType a number. Not offered: merge (e2e pending).\n```\n",
+      "words": 360,
+      "wallMs": 25843,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "Delivers: the tide-feed client retries once after a 503 response.\n\nPR comments:\n- A check that binds this actor is still pending, so merge waits. (e2e)\n\nVerdict: fixable - binding check pending\n\n1. wait - poll the binding e2e check, then re-render [recommended]\n2. approve - approve the PR\n3. show evidence - show the pending verification evidence\n4. stop - leave the PR as-is\n\nType a number. Not offered: fix (no helper facility available), merge (e2e pending).\n",
+      "words": 72,
+      "wallMs": 15140,
+      "mechanical": {}
+    }
+  },
+  "repoSha": "9932ea84fb0c04cbf4e1807b9905241bcfbf4402"
+}

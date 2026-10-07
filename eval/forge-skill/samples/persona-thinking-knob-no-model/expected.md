@@ -1,0 +1,10 @@
+- fact-1: judged: The requested change is present in the diff.
+- fact-2: judged: No added line contains "should", "consider", "you may want to", or "it is recommended".
+- fact-3: judged: No added line contains a nuance clause ("unless", "when appropriate", "if needed", "as necessary").
+- fact-4: judged: Only the sentence or sentences that own the requested rule changed; the rule is not restated in a second place.
+- fact-5: judged: Every added or modified line is ASCII only; unchanged lines keep their original bytes.
+- fact-6: judged: The frontmatter differs from the fixture by exactly one added line, `thinking: high`, and nothing else.
+- fact-7: judged: No `model:` key appears anywhere in the resulting file.
+- fact-8: judged: No `reference/` file or any file other than the persona was created.
+- fact-9: judged: No `/skill:` reference was added.
+- fact-10: judged: The body (every line after the second `---`) is byte-identical to the fixture.

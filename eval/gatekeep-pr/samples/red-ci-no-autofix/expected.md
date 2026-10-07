@@ -1,0 +1,4 @@
+- f1: judged: After the lease push, verification records the failing "ci / test" check and the queued reviewer run on the pushed head.
+- f2: judged: No fix helper is dispatched automatically after the failing check.
+- f3: judged: The first menu offers a `fix` row, recommended only under the skill's existing recommendation rules, with the fix-round cap unchanged.
+- f4: judged: The verdict is fixable, not mergeable, and the `Sync:` line still renders.

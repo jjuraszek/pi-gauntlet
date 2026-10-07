@@ -1,0 +1,715 @@
+schema: 1
+spec: doc/specs/2026-10-07-gh-50-universal-eval-template.md
+run_id: deb597cd-1374-40ad-a64f-5c4f65444449
+branch: gh-50-eval-template
+status: shipped
+created_at: 2026-10-07T07:31:15Z
+sessions:
+  - 01a11534-2070-7491-9209-4c606861f384
+author:
+  name: Jacek Juraszek
+  email: jacek.juraszek@gmail.com
+versions:
+  pi: 1.0.4
+  pi-gauntlet: 7.6.1
+  pi-cohort: 7.1.2
+  pi-quiver: 6.13.0
+  pi-condense: 2.11.3
+agent_overrides:
+  oracle:
+    model: anthropic-fable/claude-fable-5-1
+    thinking: max
+    toolsPrepend:
+      - resolve-library-id
+      - query-docs
+  scout:
+    model: anthropic/claude-sonnet-5-5
+    thinking: medium
+  planner:
+    model: github-copilot/gpt-6.1-sol
+    thinking: xhigh
+    toolsPrepend:
+      - resolve-library-id
+      - query-docs
+  worker:
+    model: github-copilot/gpt-6.1-sol
+    thinking: medium
+    toolsPrepend:
+      - resolve-library-id
+      - query-docs
+  implementer:
+    model: github-copilot/gpt-6.1-sol
+    thinking: low
+    toolsPrepend:
+      - resolve-library-id
+      - query-docs
+  code-reviewer:
+    model: anthropic/claude-opus-5-5
+    thinking: medium
+    toolsPrepend:
+      - resolve-library-id
+      - query-docs
+  spec-reviewer:
+    model: anthropic/claude-opus-5-5
+    thinking: low
+    toolsPrepend:
+      - resolve-library-id
+      - query-docs
+  context-builder:
+    model: github-copilot/gpt-6.1-sol
+    thinking: medium
+    toolsPrepend:
+      - resolve-library-id
+      - query-docs
+  ticket-reviewer:
+    model: github-copilot/gpt-6.1-sol
+    thinking: low
+approved_at: 2026-10-07T08:31:27Z
+shipped_at: 2026-10-07T12:00:37Z
+derived:
+  duration_s: 16162
+  phases:
+    brainstorm: { started_at: 2026-10-07T07:31:15Z, model: anthropic-fable/claude-fable-5-1, thinking: medium, completed_at: 2026-10-07T08:31:27Z, duration_s: 3612, tokens: { input: 261778, output: 167737, cache_read: 8908141, cache_write: 908950, cost: 19.642164700000006 }, peak_context: 149163 }
+    plan: { started_at: 2026-10-07T08:31:31Z, model: anthropic-fable/claude-fable-5-1, thinking: medium, completed_at: 2026-10-07T08:47:21Z, duration_s: 950, tokens: { input: 88, output: 90978, cache_read: 5844658, cache_write: 335316, cost: 9.092874150000002 }, peak_context: 255615 }
+    implement: { started_at: 2026-10-07T08:47:37Z, model: anthropic-fable/claude-fable-5-1, thinking: medium, completed_at: 2026-10-07T11:13:50Z, duration_s: 8773, tokens: { input: 2369, output: 458085, cache_read: 70540268, cache_write: 4642827, cost: 68.66731944999998 }, peak_context: 429342 }
+    verify: { started_at: 2026-10-07T11:13:52Z, model: anthropic-fable/claude-fable-5-1, thinking: medium, completed_at: 2026-10-07T11:58:11Z, duration_s: 2659, tokens: { input: 635, output: 121431, cache_read: 31830713, cache_write: 1755679, cost: 33.20214545 }, peak_context: 491330 }
+    ship: { started_at: 2026-10-07T11:58:26Z, model: anthropic-fable/claude-fable-5-1, thinking: medium }
+    unphased: { tokens: { input: 18, output: 2454, cache_read: 2569903, cache_write: 43625, cost: 1.31066825 }, peak_context: 499615 }
+  personas:
+    scout: { dispatches: 2, models: [ anthropic/claude-sonnet-5-5:medium ], tokens: { input: 36, output: 23648, cache_read: 563244, cache_write: 137533, cost: 0.6930333 } }
+    context-builder: { dispatches: 1, models: [ github-copilot/gpt-6.1-sol:medium ], tokens: { input: 24, output: 6489, cache_read: 127751, cache_write: 31749, cost: 0.1570856 } }
+    spec-council-member: { dispatches: 3, models: [ github-copilot/grok-4.7:high, github-copilot/gpt-6-astra:xhigh, anthropic-fable/claude-fable-5-1:high ], tokens: { input: 261594, output: 79330, cache_read: 4180170, cache_write: 164660, cost: 6.890611 } }
+    spec-council-synthesizer: { dispatches: 1, models: [ github-copilot/gpt-6.1-sol:medium ], tokens: { input: 6, output: 2874, cache_read: 8277, cache_write: 20342, cost: 0.0804347 } }
+    spec-summarizer: { dispatches: 1, models: [ anthropic-fable/claude-fable-5-1:medium ], tokens: { input: 6, output: 2205, cache_read: 10422, cache_write: 22977, cost: 0.40012800000000004 } }
+    implementer: { dispatches: 44, models: [ github-copilot/gpt-6.1-sol:low ], tokens: { input: 1536, output: 141560, cache_read: 8669768, cache_write: 1058950, cost: 4.933023799999999 } }
+    spec-reviewer: { dispatches: 38, models: [ anthropic/claude-opus-5-5:low ], tokens: { input: 332, output: 106168, cache_read: 2094388, cache_write: 724167, cost: 6.1644006000000005 } }
+    code-reviewer: { dispatches: 15, models: [ anthropic/claude-opus-5-5:medium ], tokens: { input: 354, output: 126142, cache_read: 6290140, cache_write: 554017, cost: 6.552369 } }
+    conformance-reviewer: { dispatches: 3, models: [ github-copilot/gpt-6-astra:xhigh ], tokens: { input: 192, output: 51949, cache_read: 2444307, cache_write: 433543, cost: 10.462964499999998 } }
+  reviews:
+    spec-reviewer: { dispatches: 38, nonzero_exit: 0 }
+    code-reviewer: { dispatches: 15, nonzero_exit: 0, findings: { blocker: 3, major: 9, minor: 41 } }
+    conformance-reviewer: { dispatches: 3, nonzero_exit: 0 }
+  conformance_loops: 3
+  conformance_open_gaps: 0
+  gates: { spec_rounds: 1, plan_rounds: 3, fix_round_grants: 0, task_reopens: 5, ship_option: squash }
+  plan: { tasks: 25, complete: 25, failed: 0, skipped: 0 }
+  tests: { command: npm test 2>&1, result: pass }
+  amendments: 1
+  spec_edits_after_ship: 0
+  diff: { base: 24ca5b2b8a63d16c77b0caab866d2f896c2544b3, commits: 34, buckets: { docs: { files: 229, insertions: 675, deletions: 1165 }, config: { files: 179, insertions: 2082, deletions: 5772 }, code: { files: 21, insertions: 726, deletions: 2324 }, test: { files: 18, insertions: 911, deletions: 1977 } } }
+  modified_files:
+    - AGENTS.core.md
+    - AGENTS.md
+    - CHANGELOG.md
+    - README.md
+    - doc/specs/2026-10-04-brainstorming-challenge-note-replay.md
+    - doc/specs/2026-10-04-forge-skill-persona-authoring.md
+    - doc/specs/2026-10-04-spec-summary-briefing.md
+    - eval/README.md
+    - eval/_template/README.md
+    - eval/_template/intent.md
+    - eval/_template/replay.md
+    - eval/_template/samples/example-property/case.md
+    - eval/_template/samples/example-property/expected.md
+    - eval/_template/target.json
+    - eval/brainstorming/README.md
+    - eval/brainstorming/intent.md
+    - eval/brainstorming/replay.md
+    - eval/brainstorming/replay/README.md
+    - eval/brainstorming/results/.gitkeep
+    - eval/brainstorming/results/2026-10-04-astra-high/baseline/explicit-unit-normalization.json
+    - eval/brainstorming/results/2026-10-04-astra-high/baseline/latest-run-indicator.json
+    - eval/brainstorming/results/2026-10-04-astra-high/baseline/review-and-apply-containment.json
+    - eval/brainstorming/results/2026-10-04-astra-high/candidate/explicit-unit-normalization.json
+    - eval/brainstorming/results/2026-10-04-astra-high/candidate/latest-run-indicator.json
+    - eval/brainstorming/results/2026-10-04-astra-high/candidate/review-and-apply-containment.json
+    - eval/brainstorming/results/2026-10-04-astra-high/compare.md
+    - eval/brainstorming/results/explicit-unit-normalization/baseline.json
+    - eval/brainstorming/results/latest-run-indicator/baseline.json
+    - eval/brainstorming/results/review-and-apply-containment/baseline.json
+    - eval/brainstorming/reviewer-prompt.md
+    - eval/brainstorming/run.mjs
+    - eval/brainstorming/run.test.mjs
+    - eval/brainstorming/sample/explicit-unit-normalization/expected.md
+    - eval/brainstorming/sample/latest-run-indicator/expected.md
+    - eval/brainstorming/sample/review-and-apply-containment/expected.md
+    - eval/brainstorming/samples/explicit-unit-normalization/case.md
+    - eval/brainstorming/samples/explicit-unit-normalization/expected.md
+    - eval/brainstorming/samples/latest-run-indicator/case.md
+    - eval/brainstorming/samples/latest-run-indicator/expected.md
+    - eval/brainstorming/samples/review-and-apply-containment/case.md
+    - eval/brainstorming/samples/review-and-apply-containment/expected.md
+    - eval/brainstorming/target.json
+    - eval/conformance-check/README.md
+    - eval/conformance-check/intent.md
+    - eval/conformance-check/replay.md
+    - eval/conformance-check/results/2026-10-06-gpt-6-astra/baseline/deferred-with-ref.json
+    - eval/conformance-check/results/2026-10-06-gpt-6-astra/baseline/deviates.json
+    - eval/conformance-check/results/2026-10-06-gpt-6-astra/baseline/directional-dependency.json
+    - eval/conformance-check/results/2026-10-06-gpt-6-astra/baseline/in-scope-gap.json
+    - eval/conformance-check/results/2026-10-06-gpt-6-astra/baseline/mixed.json
+    - eval/conformance-check/results/2026-10-06-gpt-6-astra/baseline/no-dispositions.json
+    - eval/conformance-check/results/2026-10-06-gpt-6-astra/candidate/deferred-with-ref.json
+    - eval/conformance-check/results/2026-10-06-gpt-6-astra/candidate/deviates.json
+    - eval/conformance-check/results/2026-10-06-gpt-6-astra/candidate/directional-dependency.json
+    - eval/conformance-check/results/2026-10-06-gpt-6-astra/candidate/in-scope-gap.json
+    - eval/conformance-check/results/2026-10-06-gpt-6-astra/candidate/mixed.json
+    - eval/conformance-check/results/2026-10-06-gpt-6-astra/candidate/no-dispositions.json
+    - eval/conformance-check/results/2026-10-06-gpt-6-astra/compare.md
+    - eval/conformance-check/results/deferred-with-ref/baseline.json
+    - eval/conformance-check/results/deviates/baseline.json
+    - eval/conformance-check/results/directional-dependency/baseline.json
+    - eval/conformance-check/results/in-scope-gap/baseline.json
+    - eval/conformance-check/results/mixed/baseline.json
+    - eval/conformance-check/results/no-dispositions/baseline.json
+    - eval/conformance-check/reviewer-prompt.md
+    - eval/conformance-check/run.mjs
+    - eval/conformance-check/run.test.mjs
+    - eval/conformance-check/sample/deferred-with-ref/expected.md
+    - eval/conformance-check/sample/deviates/expected.md
+    - eval/conformance-check/sample/directional-dependency/expected.md
+    - eval/conformance-check/sample/in-scope-gap/expected.md
+    - eval/conformance-check/sample/mixed/expected.md
+    - eval/conformance-check/sample/no-dispositions/expected.md
+    - eval/conformance-check/samples/deferred-with-ref/case.md
+    - eval/conformance-check/samples/deferred-with-ref/expected.md
+    - eval/conformance-check/samples/deviates/case.md
+    - eval/conformance-check/samples/deviates/expected.md
+    - eval/conformance-check/samples/directional-dependency/case.md
+    - eval/conformance-check/samples/directional-dependency/expected.md
+    - eval/conformance-check/samples/in-scope-gap/case.md
+    - eval/conformance-check/samples/in-scope-gap/expected.md
+    - eval/conformance-check/samples/mixed/case.md
+    - eval/conformance-check/samples/mixed/expected.md
+    - eval/conformance-check/samples/no-dispositions/case.md
+    - eval/conformance-check/samples/no-dispositions/expected.md
+    - eval/conformance-check/target.json
+    - eval/forge-skill/README.md
+    - eval/forge-skill/intent.md
+    - eval/forge-skill/replay.md
+    - eval/forge-skill/results/minimal-diff-one-line/baseline.json
+    - eval/forge-skill/results/oversized-skill-extraction/baseline.json
+    - eval/forge-skill/results/persona-contract-change/baseline.json
+    - eval/forge-skill/results/persona-frontmatter-preserved/baseline.json
+    - eval/forge-skill/results/persona-imperative-rewrite/baseline.json
+    - eval/forge-skill/results/persona-inline-not-skill/baseline.json
+    - eval/forge-skill/results/persona-one-line-addition/baseline.json
+    - eval/forge-skill/results/persona-thinking-knob-no-model/baseline.json
+    - eval/forge-skill/results/prohibition-to-recipe/baseline.json
+    - eval/forge-skill/results/reference-file-edit/baseline.json
+    - eval/forge-skill/reviewer-prompt.md
+    - eval/forge-skill/run.mjs
+    - eval/forge-skill/run.test.mjs
+    - eval/forge-skill/sample/minimal-diff-one-line/expected.md
+    - eval/forge-skill/sample/oversized-skill-extraction/expected.md
+    - eval/forge-skill/sample/persona-contract-change/expected.md
+    - eval/forge-skill/sample/persona-frontmatter-preserved/expected.md
+    - eval/forge-skill/sample/persona-imperative-rewrite/expected.md
+    - eval/forge-skill/sample/persona-inline-not-skill/expected.md
+    - eval/forge-skill/sample/persona-one-line-addition/expected.md
+    - eval/forge-skill/sample/persona-thinking-knob-no-model/expected.md
+    - eval/forge-skill/sample/prohibition-to-recipe/expected.md
+    - eval/forge-skill/sample/reference-file-edit/expected.md
+    - eval/forge-skill/samples/minimal-diff-one-line/case.md
+    - eval/forge-skill/samples/minimal-diff-one-line/expected.md
+    - eval/forge-skill/samples/minimal-diff-one-line/fixture/SKILL.md
+    - eval/forge-skill/samples/oversized-skill-extraction/case.md
+    - eval/forge-skill/samples/oversized-skill-extraction/expected.md
+    - eval/forge-skill/samples/oversized-skill-extraction/fixture/SKILL.md
+    - eval/forge-skill/samples/persona-contract-change/case.md
+    - eval/forge-skill/samples/persona-contract-change/expected.md
+    - eval/forge-skill/samples/persona-contract-change/fixture/agents/spec-reviewer.md
+    - eval/forge-skill/samples/persona-frontmatter-preserved/case.md
+    - eval/forge-skill/samples/persona-frontmatter-preserved/expected.md
+    - eval/forge-skill/samples/persona-frontmatter-preserved/fixture/agents/code-reviewer.md
+    - eval/forge-skill/samples/persona-imperative-rewrite/case.md
+    - eval/forge-skill/samples/persona-imperative-rewrite/expected.md
+    - eval/forge-skill/samples/persona-imperative-rewrite/fixture/agents/spec-council-member.md
+    - eval/forge-skill/samples/persona-inline-not-skill/case.md
+    - eval/forge-skill/samples/persona-inline-not-skill/expected.md
+    - eval/forge-skill/samples/persona-inline-not-skill/fixture/agents/spec-council-synthesizer.md
+    - eval/forge-skill/samples/persona-one-line-addition/case.md
+    - eval/forge-skill/samples/persona-one-line-addition/expected.md
+    - eval/forge-skill/samples/persona-one-line-addition/fixture/agents/code-reviewer.md
+    - eval/forge-skill/samples/persona-thinking-knob-no-model/case.md
+    - eval/forge-skill/samples/persona-thinking-knob-no-model/expected.md
+    - eval/forge-skill/samples/persona-thinking-knob-no-model/fixture/agents/spec-summarizer.md
+    - eval/forge-skill/samples/prohibition-to-recipe/case.md
+    - eval/forge-skill/samples/prohibition-to-recipe/expected.md
+    - eval/forge-skill/samples/prohibition-to-recipe/fixture/SKILL.md
+    - eval/forge-skill/samples/reference-file-edit/case.md
+    - eval/forge-skill/samples/reference-file-edit/expected.md
+    - eval/forge-skill/samples/reference-file-edit/fixture/SKILL.md
+    - eval/forge-skill/samples/reference-file-edit/fixture/reference/checks.md
+    - eval/forge-skill/target.json
+    - eval/gatekeep-pr-merge-state/README.md
+    - eval/gatekeep-pr-merge-state/intent.md
+    - eval/gatekeep-pr-merge-state/replay.md
+    - eval/gatekeep-pr-merge-state/results/2026-10-06-fable/baseline/bound-viewer-green-ci.json
+    - eval/gatekeep-pr-merge-state/results/2026-10-06-fable/baseline/exempt-viewer-status-pending.json
+    - eval/gatekeep-pr-merge-state/results/2026-10-06-fable/baseline/flip-after-update-branch.json
+    - eval/gatekeep-pr-merge-state/results/2026-10-06-fable/baseline/live-checkrun-pending.json
+    - eval/gatekeep-pr-merge-state/results/2026-10-06-fable/baseline/same-head-flip.json
+    - eval/gatekeep-pr-merge-state/results/2026-10-06-fable/baseline/unknown-after-repoll.json
+    - eval/gatekeep-pr-merge-state/results/2026-10-06-fable/candidate/bound-viewer-green-ci.json
+    - eval/gatekeep-pr-merge-state/results/2026-10-06-fable/candidate/exempt-viewer-status-pending.json
+    - eval/gatekeep-pr-merge-state/results/2026-10-06-fable/candidate/flip-after-update-branch.json
+    - eval/gatekeep-pr-merge-state/results/2026-10-06-fable/candidate/live-checkrun-pending.json
+    - eval/gatekeep-pr-merge-state/results/2026-10-06-fable/candidate/same-head-flip.json
+    - eval/gatekeep-pr-merge-state/results/2026-10-06-fable/candidate/unknown-after-repoll.json
+    - eval/gatekeep-pr-merge-state/results/2026-10-06-fable/compare.md
+    - eval/gatekeep-pr-merge-state/results/bound-viewer-green-ci/baseline.json
+    - eval/gatekeep-pr-merge-state/results/exempt-viewer-status-pending/baseline.json
+    - eval/gatekeep-pr-merge-state/results/flip-after-update-branch/baseline.json
+    - eval/gatekeep-pr-merge-state/results/live-checkrun-pending/baseline.json
+    - eval/gatekeep-pr-merge-state/results/same-head-flip/baseline.json
+    - eval/gatekeep-pr-merge-state/results/unknown-after-repoll/baseline.json
+    - eval/gatekeep-pr-merge-state/reviewer-prompt.md
+    - eval/gatekeep-pr-merge-state/run.mjs
+    - eval/gatekeep-pr-merge-state/run.test.mjs
+    - eval/gatekeep-pr-merge-state/sample/bound-viewer-green-ci/expected.md
+    - eval/gatekeep-pr-merge-state/sample/exempt-viewer-status-pending/expected.md
+    - eval/gatekeep-pr-merge-state/sample/flip-after-update-branch/expected.md
+    - eval/gatekeep-pr-merge-state/sample/live-checkrun-pending/expected.md
+    - eval/gatekeep-pr-merge-state/sample/same-head-flip/expected.md
+    - eval/gatekeep-pr-merge-state/sample/unknown-after-repoll/expected.md
+    - eval/gatekeep-pr-merge-state/samples/bound-viewer-green-ci/case.md
+    - eval/gatekeep-pr-merge-state/samples/bound-viewer-green-ci/expected.md
+    - eval/gatekeep-pr-merge-state/samples/exempt-viewer-status-pending/case.md
+    - eval/gatekeep-pr-merge-state/samples/exempt-viewer-status-pending/expected.md
+    - eval/gatekeep-pr-merge-state/samples/flip-after-update-branch/case.md
+    - eval/gatekeep-pr-merge-state/samples/flip-after-update-branch/expected.md
+    - eval/gatekeep-pr-merge-state/samples/live-checkrun-pending/case.md
+    - eval/gatekeep-pr-merge-state/samples/live-checkrun-pending/expected.md
+    - eval/gatekeep-pr-merge-state/samples/same-head-flip/case.md
+    - eval/gatekeep-pr-merge-state/samples/same-head-flip/expected.md
+    - eval/gatekeep-pr-merge-state/samples/unknown-after-repoll/case.md
+    - eval/gatekeep-pr-merge-state/samples/unknown-after-repoll/expected.md
+    - eval/gatekeep-pr-merge-state/target.json
+    - eval/gatekeep-pr-scope/README.md
+    - eval/gatekeep-pr-scope/intent.md
+    - eval/gatekeep-pr-scope/replay.md
+    - eval/gatekeep-pr-scope/results/2026-10-06-gpt-6-astra/baseline/deferred-with-ref.json
+    - eval/gatekeep-pr-scope/results/2026-10-06-gpt-6-astra/baseline/deferred-without-ref.json
+    - eval/gatekeep-pr-scope/results/2026-10-06-gpt-6-astra/baseline/deviates.json
+    - eval/gatekeep-pr-scope/results/2026-10-06-gpt-6-astra/baseline/directional-dependency.json
+    - eval/gatekeep-pr-scope/results/2026-10-06-gpt-6-astra/baseline/mixed-coverage.json
+    - eval/gatekeep-pr-scope/results/2026-10-06-gpt-6-astra/baseline/no-spec-quality.json
+    - eval/gatekeep-pr-scope/results/2026-10-06-gpt-6-astra/baseline/post-merge-menu.json
+    - eval/gatekeep-pr-scope/results/2026-10-06-gpt-6-astra/baseline/ticket-drifted.json
+    - eval/gatekeep-pr-scope/results/2026-10-06-gpt-6-astra/candidate/deferred-with-ref.json
+    - eval/gatekeep-pr-scope/results/2026-10-06-gpt-6-astra/candidate/deferred-without-ref.json
+    - eval/gatekeep-pr-scope/results/2026-10-06-gpt-6-astra/candidate/deviates.json
+    - eval/gatekeep-pr-scope/results/2026-10-06-gpt-6-astra/candidate/directional-dependency.json
+    - eval/gatekeep-pr-scope/results/2026-10-06-gpt-6-astra/candidate/mixed-coverage.json
+    - eval/gatekeep-pr-scope/results/2026-10-06-gpt-6-astra/candidate/no-spec-quality.json
+    - eval/gatekeep-pr-scope/results/2026-10-06-gpt-6-astra/candidate/post-merge-menu.json
+    - eval/gatekeep-pr-scope/results/2026-10-06-gpt-6-astra/candidate/ticket-drifted.json
+    - eval/gatekeep-pr-scope/results/2026-10-06-gpt-6-astra/compare.md
+    - eval/gatekeep-pr-scope/results/deferred-with-ref/baseline.json
+    - eval/gatekeep-pr-scope/results/deferred-without-ref/baseline.json
+    - eval/gatekeep-pr-scope/results/deviates/baseline.json
+    - eval/gatekeep-pr-scope/results/directional-dependency/baseline.json
+    - eval/gatekeep-pr-scope/results/mixed-coverage/baseline.json
+    - eval/gatekeep-pr-scope/results/no-spec-quality/baseline.json
+    - eval/gatekeep-pr-scope/results/post-merge-menu/baseline.json
+    - eval/gatekeep-pr-scope/results/ticket-drifted/baseline.json
+    - eval/gatekeep-pr-scope/reviewer-prompt.md
+    - eval/gatekeep-pr-scope/run.mjs
+    - eval/gatekeep-pr-scope/run.test.mjs
+    - eval/gatekeep-pr-scope/sample/deferred-with-ref/expected.md
+    - eval/gatekeep-pr-scope/sample/deferred-without-ref/expected.md
+    - eval/gatekeep-pr-scope/sample/deviates/expected.md
+    - eval/gatekeep-pr-scope/sample/directional-dependency/expected.md
+    - eval/gatekeep-pr-scope/sample/mixed-coverage/expected.md
+    - eval/gatekeep-pr-scope/sample/no-spec-quality/expected.md
+    - eval/gatekeep-pr-scope/sample/post-merge-menu/expected.md
+    - eval/gatekeep-pr-scope/sample/ticket-drifted/expected.md
+    - eval/gatekeep-pr-scope/samples/deferred-with-ref/case.md
+    - eval/gatekeep-pr-scope/samples/deferred-with-ref/expected.md
+    - eval/gatekeep-pr-scope/samples/deferred-without-ref/case.md
+    - eval/gatekeep-pr-scope/samples/deferred-without-ref/expected.md
+    - eval/gatekeep-pr-scope/samples/deviates/case.md
+    - eval/gatekeep-pr-scope/samples/deviates/expected.md
+    - eval/gatekeep-pr-scope/samples/directional-dependency/case.md
+    - eval/gatekeep-pr-scope/samples/directional-dependency/expected.md
+    - eval/gatekeep-pr-scope/samples/mixed-coverage/case.md
+    - eval/gatekeep-pr-scope/samples/mixed-coverage/expected.md
+    - eval/gatekeep-pr-scope/samples/no-spec-quality/case.md
+    - eval/gatekeep-pr-scope/samples/no-spec-quality/expected.md
+    - eval/gatekeep-pr-scope/samples/post-merge-menu/case.md
+    - eval/gatekeep-pr-scope/samples/post-merge-menu/expected.md
+    - eval/gatekeep-pr-scope/samples/ticket-drifted/case.md
+    - eval/gatekeep-pr-scope/samples/ticket-drifted/expected.md
+    - eval/gatekeep-pr-scope/target.json
+    - eval/gatekeep-pr/README.md
+    - eval/gatekeep-pr/intent.md
+    - eval/gatekeep-pr/replay.md
+    - eval/gatekeep-pr/results/2026-10-06-rebase-sync-astra/baseline/conflict-free-sync.json
+    - eval/gatekeep-pr/results/2026-10-06-rebase-sync-astra/baseline/conflicting-file-sync.json
+    - eval/gatekeep-pr/results/2026-10-06-rebase-sync-astra/baseline/head-not-pushable.json
+    - eval/gatekeep-pr/results/2026-10-06-rebase-sync-astra/baseline/helper-unavailable.json
+    - eval/gatekeep-pr/results/2026-10-06-rebase-sync-astra/baseline/no-flag-unchanged.json
+    - eval/gatekeep-pr/results/2026-10-06-rebase-sync-astra/baseline/other-author-confirm.json
+    - eval/gatekeep-pr/results/2026-10-06-rebase-sync-astra/baseline/red-ci-no-autofix.json
+    - eval/gatekeep-pr/results/2026-10-06-rebase-sync-astra/candidate/conflict-free-sync.json
+    - eval/gatekeep-pr/results/2026-10-06-rebase-sync-astra/candidate/conflicting-file-sync.json
+    - eval/gatekeep-pr/results/2026-10-06-rebase-sync-astra/candidate/head-not-pushable.json
+    - eval/gatekeep-pr/results/2026-10-06-rebase-sync-astra/candidate/helper-unavailable.json
+    - eval/gatekeep-pr/results/2026-10-06-rebase-sync-astra/candidate/no-flag-unchanged.json
+    - eval/gatekeep-pr/results/2026-10-06-rebase-sync-astra/candidate/other-author-confirm.json
+    - eval/gatekeep-pr/results/2026-10-06-rebase-sync-astra/candidate/red-ci-no-autofix.json
+    - eval/gatekeep-pr/results/2026-10-06-rebase-sync-astra/compare.md
+    - eval/gatekeep-pr/results/2026-10-06-rebase-sync-opus/baseline/conflict-free-sync.json
+    - eval/gatekeep-pr/results/2026-10-06-rebase-sync-opus/baseline/conflicting-file-sync.json
+    - eval/gatekeep-pr/results/2026-10-06-rebase-sync-opus/baseline/head-not-pushable.json
+    - eval/gatekeep-pr/results/2026-10-06-rebase-sync-opus/baseline/helper-unavailable.json
+    - eval/gatekeep-pr/results/2026-10-06-rebase-sync-opus/baseline/no-flag-unchanged.json
+    - eval/gatekeep-pr/results/2026-10-06-rebase-sync-opus/baseline/other-author-confirm.json
+    - eval/gatekeep-pr/results/2026-10-06-rebase-sync-opus/baseline/red-ci-no-autofix.json
+    - eval/gatekeep-pr/results/2026-10-06-rebase-sync-opus/candidate/conflict-free-sync.json
+    - eval/gatekeep-pr/results/2026-10-06-rebase-sync-opus/candidate/conflicting-file-sync.json
+    - eval/gatekeep-pr/results/2026-10-06-rebase-sync-opus/candidate/head-not-pushable.json
+    - eval/gatekeep-pr/results/2026-10-06-rebase-sync-opus/candidate/helper-unavailable.json
+    - eval/gatekeep-pr/results/2026-10-06-rebase-sync-opus/candidate/no-flag-unchanged.json
+    - eval/gatekeep-pr/results/2026-10-06-rebase-sync-opus/candidate/other-author-confirm.json
+    - eval/gatekeep-pr/results/2026-10-06-rebase-sync-opus/candidate/red-ci-no-autofix.json
+    - eval/gatekeep-pr/results/2026-10-06-rebase-sync-opus/compare.md
+    - eval/gatekeep-pr/results/2026-10-07-scoped-test-red-opus/baseline/conflict-free-sync.json
+    - eval/gatekeep-pr/results/2026-10-07-scoped-test-red-opus/baseline/conflicting-file-sync.json
+    - eval/gatekeep-pr/results/2026-10-07-scoped-test-red-opus/baseline/head-not-pushable.json
+    - eval/gatekeep-pr/results/2026-10-07-scoped-test-red-opus/baseline/helper-unavailable.json
+    - eval/gatekeep-pr/results/2026-10-07-scoped-test-red-opus/baseline/no-flag-unchanged.json
+    - eval/gatekeep-pr/results/2026-10-07-scoped-test-red-opus/baseline/other-author-confirm.json
+    - eval/gatekeep-pr/results/2026-10-07-scoped-test-red-opus/baseline/red-ci-no-autofix.json
+    - eval/gatekeep-pr/results/2026-10-07-scoped-test-red-opus/baseline/scoped-test-red-sync.json
+    - eval/gatekeep-pr/results/2026-10-07-scoped-test-red-opus/candidate/conflict-free-sync.json
+    - eval/gatekeep-pr/results/2026-10-07-scoped-test-red-opus/candidate/conflicting-file-sync.json
+    - eval/gatekeep-pr/results/2026-10-07-scoped-test-red-opus/candidate/head-not-pushable.json
+    - eval/gatekeep-pr/results/2026-10-07-scoped-test-red-opus/candidate/helper-unavailable.json
+    - eval/gatekeep-pr/results/2026-10-07-scoped-test-red-opus/candidate/no-flag-unchanged.json
+    - eval/gatekeep-pr/results/2026-10-07-scoped-test-red-opus/candidate/other-author-confirm.json
+    - eval/gatekeep-pr/results/2026-10-07-scoped-test-red-opus/candidate/red-ci-no-autofix.json
+    - eval/gatekeep-pr/results/2026-10-07-scoped-test-red-opus/candidate/scoped-test-red-sync.json
+    - eval/gatekeep-pr/results/2026-10-07-scoped-test-red-opus/compare.md
+    - eval/gatekeep-pr/results/conflict-free-sync/baseline.json
+    - eval/gatekeep-pr/results/conflicting-file-sync/baseline.json
+    - eval/gatekeep-pr/results/head-not-pushable/baseline.json
+    - eval/gatekeep-pr/results/helper-unavailable/baseline.json
+    - eval/gatekeep-pr/results/no-flag-unchanged/baseline.json
+    - eval/gatekeep-pr/results/other-author-confirm/baseline.json
+    - eval/gatekeep-pr/results/red-ci-no-autofix/baseline.json
+    - eval/gatekeep-pr/results/scoped-test-red-sync/baseline.json
+    - eval/gatekeep-pr/reviewer-prompt.md
+    - eval/gatekeep-pr/run.mjs
+    - eval/gatekeep-pr/run.test.mjs
+    - eval/gatekeep-pr/sample/conflict-free-sync/expected.md
+    - eval/gatekeep-pr/sample/conflicting-file-sync/expected.md
+    - eval/gatekeep-pr/sample/head-not-pushable/expected.md
+    - eval/gatekeep-pr/sample/helper-unavailable/expected.md
+    - eval/gatekeep-pr/sample/no-flag-unchanged/expected.md
+    - eval/gatekeep-pr/sample/other-author-confirm/expected.md
+    - eval/gatekeep-pr/sample/red-ci-no-autofix/expected.md
+    - eval/gatekeep-pr/sample/scoped-test-red-sync/expected.md
+    - eval/gatekeep-pr/samples/conflict-free-sync/case.md
+    - eval/gatekeep-pr/samples/conflict-free-sync/expected.md
+    - eval/gatekeep-pr/samples/conflicting-file-sync/case.md
+    - eval/gatekeep-pr/samples/conflicting-file-sync/expected.md
+    - eval/gatekeep-pr/samples/head-not-pushable/case.md
+    - eval/gatekeep-pr/samples/head-not-pushable/expected.md
+    - eval/gatekeep-pr/samples/helper-unavailable/case.md
+    - eval/gatekeep-pr/samples/helper-unavailable/expected.md
+    - eval/gatekeep-pr/samples/no-flag-unchanged/case.md
+    - eval/gatekeep-pr/samples/no-flag-unchanged/expected.md
+    - eval/gatekeep-pr/samples/other-author-confirm/case.md
+    - eval/gatekeep-pr/samples/other-author-confirm/expected.md
+    - eval/gatekeep-pr/samples/red-ci-no-autofix/case.md
+    - eval/gatekeep-pr/samples/red-ci-no-autofix/expected.md
+    - eval/gatekeep-pr/samples/scoped-test-red-sync/case.md
+    - eval/gatekeep-pr/samples/scoped-test-red-sync/expected.md
+    - eval/gatekeep-pr/target.json
+    - eval/judge.md
+    - eval/lib/checks.mjs
+    - eval/lib/checks.test.mjs
+    - eval/lib/hygiene.mjs
+    - eval/lib/hygiene.test.mjs
+    - eval/lib/intent.mjs
+    - eval/lib/intent.test.mjs
+    - eval/lib/judge.mjs
+    - eval/lib/judge.test.mjs
+    - eval/lib/lint.mjs
+    - eval/lib/lint.test.mjs
+    - eval/lib/models.mjs
+    - eval/lib/models.test.mjs
+    - eval/lib/records.mjs
+    - eval/lib/records.test.mjs
+    - eval/lib/replay.mjs
+    - eval/lib/replay.test.mjs
+    - eval/lib/report.mjs
+    - eval/lib/report.test.mjs
+    - eval/lib/run.test.mjs
+    - eval/run.mjs
+    - eval/spec-gate/README.md
+    - eval/spec-gate/intent.md
+    - eval/spec-gate/replay.md
+    - eval/spec-gate/results/2026-10-05-astra-high/baseline/all-none.json
+    - eval/spec-gate/results/2026-10-05-astra-high/baseline/full-council.json
+    - eval/spec-gate/results/2026-10-05-astra-high/baseline/partial-coverage.json
+    - eval/spec-gate/results/2026-10-05-astra-high/baseline/row-3-reply.json
+    - eval/spec-gate/results/2026-10-05-astra-high/baseline/worker-path.json
+    - eval/spec-gate/results/2026-10-05-astra-high/candidate/all-none.json
+    - eval/spec-gate/results/2026-10-05-astra-high/candidate/full-council.json
+    - eval/spec-gate/results/2026-10-05-astra-high/candidate/partial-coverage.json
+    - eval/spec-gate/results/2026-10-05-astra-high/candidate/row-3-reply.json
+    - eval/spec-gate/results/2026-10-05-astra-high/candidate/worker-path.json
+    - eval/spec-gate/results/2026-10-05-astra-high/compare.md
+    - eval/spec-gate/results/all-none/baseline.json
+    - eval/spec-gate/results/full-council/baseline.json
+    - eval/spec-gate/results/partial-coverage/baseline.json
+    - eval/spec-gate/results/row-3-reply/baseline.json
+    - eval/spec-gate/results/worker-path/baseline.json
+    - eval/spec-gate/reviewer-prompt.md
+    - eval/spec-gate/run.mjs
+    - eval/spec-gate/run.test.mjs
+    - eval/spec-gate/sample/all-none/expected.md
+    - eval/spec-gate/sample/full-council/expected.md
+    - eval/spec-gate/sample/partial-coverage/expected.md
+    - eval/spec-gate/sample/row-3-reply/expected.md
+    - eval/spec-gate/sample/worker-path/expected.md
+    - eval/spec-gate/samples/all-none/case.md
+    - eval/spec-gate/samples/all-none/expected.md
+    - eval/spec-gate/samples/full-council/case.md
+    - eval/spec-gate/samples/full-council/expected.md
+    - eval/spec-gate/samples/partial-coverage/case.md
+    - eval/spec-gate/samples/partial-coverage/expected.md
+    - eval/spec-gate/samples/row-3-reply/case.md
+    - eval/spec-gate/samples/row-3-reply/expected.md
+    - eval/spec-gate/samples/worker-path/case.md
+    - eval/spec-gate/samples/worker-path/expected.md
+    - eval/spec-gate/target.json
+    - eval/spec-summarizer/README.md
+    - eval/spec-summarizer/intent.md
+    - eval/spec-summarizer/replay.md
+    - eval/spec-summarizer/results/20261004-200728/baseline/asterwind-linear-cutoff-boundaries.json
+    - eval/spec-summarizer/results/20261004-200728/baseline/chase-bug-hotfix.json
+    - eval/spec-summarizer/results/20261004-200728/baseline/conformance-dispatch-guard.json
+    - eval/spec-summarizer/results/20261004-200728/baseline/finish-dirty-tree-hotfix.json
+    - eval/spec-summarizer/results/20261004-200728/baseline/gh-30-reviewer-verdict-severity.json
+    - eval/spec-summarizer/results/20261004-200728/baseline/gh-57-gatekeep-production-gate.json
+    - eval/spec-summarizer/results/20261004-200728/baseline/gh-8-shape-ticket-skill.json
+    - eval/spec-summarizer/results/20261004-200728/baseline/windward-rig-ci-leg.json
+    - eval/spec-summarizer/results/20261004-200728/candidate/asterwind-linear-cutoff-boundaries.json
+    - eval/spec-summarizer/results/20261004-200728/candidate/chase-bug-hotfix.json
+    - eval/spec-summarizer/results/20261004-200728/candidate/conformance-dispatch-guard.json
+    - eval/spec-summarizer/results/20261004-200728/candidate/finish-dirty-tree-hotfix.json
+    - eval/spec-summarizer/results/20261004-200728/candidate/gh-30-reviewer-verdict-severity.json
+    - eval/spec-summarizer/results/20261004-200728/candidate/gh-57-gatekeep-production-gate.json
+    - eval/spec-summarizer/results/20261004-200728/candidate/gh-8-shape-ticket-skill.json
+    - eval/spec-summarizer/results/20261004-200728/candidate/windward-rig-ci-leg.json
+    - eval/spec-summarizer/results/20261004-200728/compare.log
+    - eval/spec-summarizer/results/20261004-200728/fidelity.md
+    - eval/spec-summarizer/results/asterwind-linear-cutoff-boundaries/baseline.json
+    - eval/spec-summarizer/results/chase-bug-hotfix/baseline.json
+    - eval/spec-summarizer/results/conformance-dispatch-guard/baseline.json
+    - eval/spec-summarizer/results/finish-dirty-tree-hotfix/baseline.json
+    - eval/spec-summarizer/results/gh-30-reviewer-verdict-severity/baseline.json
+    - eval/spec-summarizer/results/gh-57-gatekeep-production-gate/baseline.json
+    - eval/spec-summarizer/results/gh-8-shape-ticket-skill/baseline.json
+    - eval/spec-summarizer/results/windward-rig-ci-leg/baseline.json
+    - eval/spec-summarizer/reviewer-prompt.md
+    - eval/spec-summarizer/run.mjs
+    - eval/spec-summarizer/run.test.mjs
+    - eval/spec-summarizer/sample/asterwind-linear-cutoff-boundaries/expected.md
+    - eval/spec-summarizer/sample/chase-bug-hotfix/expected.md
+    - eval/spec-summarizer/sample/conformance-dispatch-guard/expected.md
+    - eval/spec-summarizer/sample/finish-dirty-tree-hotfix/expected.md
+    - eval/spec-summarizer/sample/gh-30-reviewer-verdict-severity/expected.md
+    - eval/spec-summarizer/sample/gh-57-gatekeep-production-gate/expected.md
+    - eval/spec-summarizer/sample/gh-8-shape-ticket-skill/expected.md
+    - eval/spec-summarizer/sample/windward-rig-ci-leg/expected.md
+    - eval/spec-summarizer/samples/asterwind-linear-cutoff-boundaries/case.md
+    - eval/spec-summarizer/samples/asterwind-linear-cutoff-boundaries/expected.md
+    - eval/spec-summarizer/samples/chase-bug-hotfix/case.md
+    - eval/spec-summarizer/samples/chase-bug-hotfix/expected.md
+    - eval/spec-summarizer/samples/conformance-dispatch-guard/case.md
+    - eval/spec-summarizer/samples/conformance-dispatch-guard/expected.md
+    - eval/spec-summarizer/samples/finish-dirty-tree-hotfix/case.md
+    - eval/spec-summarizer/samples/finish-dirty-tree-hotfix/expected.md
+    - eval/spec-summarizer/samples/gh-30-reviewer-verdict-severity/case.md
+    - eval/spec-summarizer/samples/gh-30-reviewer-verdict-severity/expected.md
+    - eval/spec-summarizer/samples/gh-57-gatekeep-production-gate/case.md
+    - eval/spec-summarizer/samples/gh-57-gatekeep-production-gate/expected.md
+    - eval/spec-summarizer/samples/gh-8-shape-ticket-skill/case.md
+    - eval/spec-summarizer/samples/gh-8-shape-ticket-skill/expected.md
+    - eval/spec-summarizer/samples/windward-rig-ci-leg/case.md
+    - eval/spec-summarizer/samples/windward-rig-ci-leg/expected.md
+    - eval/spec-summarizer/target.json
+    - scripts/ci.mjs
+  council:
+    chair: { model: github-copilot/gpt-6.1-sol:medium, dispatches: 1, clusters: 20, members_reported: 3 }
+    members:
+      anthropic-fable/claude-fable-5-1:high: { dispatches: 1, total: { blocker: 2, major: 6, minor: 4 }, unique: { blocker: 0, major: 2, minor: 3 }, applied: { blocker: 2, major: 6, minor: 4 }, unique_applied: { blocker: 0, major: 2, minor: 3 }, deferred: { blocker: 0, major: 0, minor: 0 }, rejected: { blocker: 0, major: 0, minor: 0 } }
+      github-copilot/gpt-6-astra:xhigh: { dispatches: 1, total: { blocker: 2, major: 8, minor: 2 }, unique: { blocker: 0, major: 2, minor: 1 }, applied: { blocker: 2, major: 8, minor: 2 }, unique_applied: { blocker: 0, major: 2, minor: 1 }, deferred: { blocker: 0, major: 0, minor: 0 }, rejected: { blocker: 0, major: 0, minor: 0 } }
+      github-copilot/grok-4.7:high: { dispatches: 1, total: { blocker: 2, major: 6, minor: 2 }, unique: { blocker: 0, major: 1, minor: 2 }, applied: { blocker: 2, major: 6, minor: 2 }, unique_applied: { blocker: 0, major: 1, minor: 2 }, deferred: { blocker: 0, major: 0, minor: 0 }, rejected: { blocker: 0, major: 0, minor: 0 } }
+  spec_writes:
+    brainstorm: { count: 9, last_sha256: 4f82f969bd8ff04e66d632873f9c4471ffe53fd433c90f18390e97b554722d9c }
+    plan: { count: 1, last_sha256: 70b8de496b47c88548591e567fc27cf0073285b4efabee358356df35f88eba92 }
+  events_dropped: 0
+accumulators:
+  01a11534-2070-7491-9209-4c606861f384:
+    phases:
+      brainstorm: { tokens: { input: 261778, output: 167737, cache_read: 8908141, cache_write: 908950, cost: 19.642164700000006 }, peak_context: 149163 }
+      unphased: { peak_context: 499615, tokens: { input: 18, output: 2454, cache_read: 2569903, cache_write: 43625, cost: 1.31066825 } }
+      plan: { peak_context: 255615, tokens: { input: 88, output: 90978, cache_read: 5844658, cache_write: 335316, cost: 9.092874150000002 } }
+      implement: { peak_context: 429342, tokens: { input: 2369, output: 458085, cache_read: 70540268, cache_write: 4642827, cost: 68.66731944999998 } }
+      verify: { peak_context: 491330, tokens: { input: 635, output: 121431, cache_read: 31830713, cache_write: 1755679, cost: 33.20214545 } }
+    personas:
+      scout: { dispatches: 2, models: [ anthropic/claude-sonnet-5-5:medium ], tokens: { input: 36, output: 23648, cache_read: 563244, cache_write: 137533, cost: 0.6930333 } }
+      context-builder: { dispatches: 1, models: [ github-copilot/gpt-6.1-sol:medium ], tokens: { input: 24, output: 6489, cache_read: 127751, cache_write: 31749, cost: 0.1570856 } }
+      spec-council-member: { dispatches: 3, models: [ github-copilot/grok-4.7:high, github-copilot/gpt-6-astra:xhigh, anthropic-fable/claude-fable-5-1:high ], tokens: { input: 261594, output: 79330, cache_read: 4180170, cache_write: 164660, cost: 6.890611 } }
+      spec-council-synthesizer: { dispatches: 1, models: [ github-copilot/gpt-6.1-sol:medium ], tokens: { input: 6, output: 2874, cache_read: 8277, cache_write: 20342, cost: 0.0804347 } }
+      spec-summarizer: { dispatches: 1, models: [ anthropic-fable/claude-fable-5-1:medium ], tokens: { input: 6, output: 2205, cache_read: 10422, cache_write: 22977, cost: 0.40012800000000004 } }
+      implementer: { dispatches: 44, models: [ github-copilot/gpt-6.1-sol:low ], tokens: { input: 1536, output: 141560, cache_read: 8669768, cache_write: 1058950, cost: 4.933023799999999 } }
+      spec-reviewer: { dispatches: 38, models: [ anthropic/claude-opus-5-5:low ], tokens: { input: 332, output: 106168, cache_read: 2094388, cache_write: 724167, cost: 6.1644006000000005 } }
+      code-reviewer: { dispatches: 15, models: [ anthropic/claude-opus-5-5:medium ], tokens: { input: 354, output: 126142, cache_read: 6290140, cache_write: 554017, cost: 6.552369 } }
+      conformance-reviewer: { dispatches: 3, models: [ github-copilot/gpt-6-astra:xhigh ], tokens: { input: 192, output: 51949, cache_read: 2444307, cache_write: 433543, cost: 10.462964499999998 } }
+    reviews:
+      spec-reviewer: { dispatches: 38, nonzero_exit: 0 }
+      code-reviewer: { dispatches: 15, nonzero_exit: 0, findings: { blocker: 3, major: 9, minor: 41 } }
+      conformance-reviewer: { dispatches: 3, nonzero_exit: 0 }
+    spec_writes:
+      brainstorm: { count: 9, last_sha256: 4f82f969bd8ff04e66d632873f9c4471ffe53fd433c90f18390e97b554722d9c }
+      plan: { count: 1, last_sha256: 70b8de496b47c88548591e567fc27cf0073285b4efabee358356df35f88eba92 }
+    gates: { spec_rounds: 1, plan_rounds: 3, fix_round_grants: 0, task_reopens: 5 }
+    conformance_loops: 3
+    amendments: 1
+    spec_edits_after_ship: 0
+    events_dropped: 0
+    conformance_open_gaps: 0
+events:
+  - { ts: 2026-10-07T07:31:15Z, session: 01a11534-2070-7491-9209-4c606861f384, phase: unphased, kind: phase, action: start, name: brainstorm, model: anthropic-fable/claude-fable-5-1, thinking: medium }
+  - { ts: 2026-10-07T07:34:55Z, session: 01a11534-2070-7491-9209-4c606861f384, phase: brainstorm, kind: dispatch, agent: scout, model: anthropic/claude-sonnet-5-5:medium }
+  - { ts: 2026-10-07T07:34:55Z, session: 01a11534-2070-7491-9209-4c606861f384, phase: brainstorm, kind: dispatch, agent: context-builder, model: github-copilot/gpt-6.1-sol:medium }
+  - { ts: 2026-10-07T08:21:55Z, session: 01a11534-2070-7491-9209-4c606861f384, phase: brainstorm, kind: dispatch, agent: spec-council-member, model: github-copilot/grok-4.7:high }
+  - { ts: 2026-10-07T08:21:55Z, session: 01a11534-2070-7491-9209-4c606861f384, phase: brainstorm, kind: dispatch, agent: spec-council-member, model: github-copilot/gpt-6-astra:xhigh }
+  - { ts: 2026-10-07T08:21:55Z, session: 01a11534-2070-7491-9209-4c606861f384, phase: brainstorm, kind: dispatch, agent: spec-council-member, model: anthropic-fable/claude-fable-5-1:high }
+  - { ts: 2026-10-07T08:23:27Z, session: 01a11534-2070-7491-9209-4c606861f384, phase: brainstorm, kind: dispatch, agent: spec-council-synthesizer, model: github-copilot/gpt-6.1-sol:medium }
+  - { ts: 2026-10-07T08:26:52Z, session: 01a11534-2070-7491-9209-4c606861f384, phase: brainstorm, kind: dispatch, agent: spec-summarizer, model: anthropic-fable/claude-fable-5-1:medium }
+  - { ts: 2026-10-07T08:31:27Z, session: 01a11534-2070-7491-9209-4c606861f384, phase: brainstorm, kind: phase, action: complete, name: brainstorm }
+  - { ts: 2026-10-07T08:31:31Z, session: 01a11534-2070-7491-9209-4c606861f384, phase: unphased, kind: phase, action: start, name: plan, model: anthropic-fable/claude-fable-5-1, thinking: medium }
+  - { ts: 2026-10-07T08:33:19Z, session: 01a11534-2070-7491-9209-4c606861f384, phase: plan, kind: dispatch, agent: scout, model: anthropic/claude-sonnet-5-5:medium }
+  - { ts: 2026-10-07T08:44:11Z, session: 01a11534-2070-7491-9209-4c606861f384, phase: plan, kind: plan_check, pass: false, plan: doc/plans/2026-10-07-gh-50-universal-eval-template.md }
+  - { ts: 2026-10-07T08:46:39Z, session: 01a11534-2070-7491-9209-4c606861f384, phase: plan, kind: plan_check, pass: false, plan: doc/plans/2026-10-07-gh-50-universal-eval-template.md }
+  - { ts: 2026-10-07T08:47:11Z, session: 01a11534-2070-7491-9209-4c606861f384, phase: plan, kind: plan_check, pass: true, spec: doc/specs/2026-10-07-gh-50-universal-eval-template.md, plan: doc/plans/2026-10-07-gh-50-universal-eval-template.md }
+  - { ts: 2026-10-07T08:47:21Z, session: 01a11534-2070-7491-9209-4c606861f384, phase: plan, kind: phase, action: complete, name: plan }
+  - { ts: 2026-10-07T08:47:37Z, session: 01a11534-2070-7491-9209-4c606861f384, phase: unphased, kind: phase, action: start, name: implement, model: anthropic-fable/claude-fable-5-1, thinking: medium }
+  - { ts: 2026-10-07T08:50:37Z, session: 01a11534-2070-7491-9209-4c606861f384, phase: implement, kind: dispatch, agent: implementer, model: github-copilot/gpt-6.1-sol:low }
+  - { ts: 2026-10-07T08:50:37Z, session: 01a11534-2070-7491-9209-4c606861f384, phase: implement, kind: dispatch, agent: implementer, model: github-copilot/gpt-6.1-sol:low }
+  - { ts: 2026-10-07T08:50:37Z, session: 01a11534-2070-7491-9209-4c606861f384, phase: implement, kind: dispatch, agent: implementer, model: github-copilot/gpt-6.1-sol:low }
+  - { ts: 2026-10-07T08:50:37Z, session: 01a11534-2070-7491-9209-4c606861f384, phase: implement, kind: dispatch, agent: implementer, model: github-copilot/gpt-6.1-sol:low }
+  - { ts: 2026-10-07T08:50:37Z, session: 01a11534-2070-7491-9209-4c606861f384, phase: implement, kind: dispatch, agent: implementer, model: github-copilot/gpt-6.1-sol:low }
+  - { ts: 2026-10-07T08:52:16Z, session: 01a11534-2070-7491-9209-4c606861f384, phase: implement, kind: dispatch, agent: spec-reviewer, model: anthropic/claude-opus-5-5:low }
+  - { ts: 2026-10-07T08:52:16Z, session: 01a11534-2070-7491-9209-4c606861f384, phase: implement, kind: dispatch, agent: spec-reviewer, model: anthropic/claude-opus-5-5:low }
+  - { ts: 2026-10-07T08:52:16Z, session: 01a11534-2070-7491-9209-4c606861f384, phase: implement, kind: dispatch, agent: spec-reviewer, model: anthropic/claude-opus-5-5:low }
+  - { ts: 2026-10-07T08:52:16Z, session: 01a11534-2070-7491-9209-4c606861f384, phase: implement, kind: dispatch, agent: spec-reviewer, model: anthropic/claude-opus-5-5:low }
+  - { ts: 2026-10-07T08:52:16Z, session: 01a11534-2070-7491-9209-4c606861f384, phase: implement, kind: dispatch, agent: spec-reviewer, model: anthropic/claude-opus-5-5:low }
+  - { ts: 2026-10-07T08:53:39Z, session: 01a11534-2070-7491-9209-4c606861f384, phase: implement, kind: dispatch, agent: implementer, model: github-copilot/gpt-6.1-sol:low }
+  - { ts: 2026-10-07T08:54:30Z, session: 01a11534-2070-7491-9209-4c606861f384, phase: implement, kind: dispatch, agent: spec-reviewer, model: anthropic/claude-opus-5-5:low }
+  - { ts: 2026-10-07T08:54:30Z, session: 01a11534-2070-7491-9209-4c606861f384, phase: implement, kind: dispatch, agent: spec-reviewer, model: anthropic/claude-opus-5-5:low }
+  - { ts: 2026-10-07T08:56:49Z, session: 01a11534-2070-7491-9209-4c606861f384, phase: implement, kind: dispatch, agent: code-reviewer, model: anthropic/claude-opus-5-5:medium }
+  - { ts: 2026-10-07T08:58:48Z, session: 01a11534-2070-7491-9209-4c606861f384, phase: implement, kind: dispatch, agent: implementer, model: github-copilot/gpt-6.1-sol:low }
+  - { ts: 2026-10-07T08:59:41Z, session: 01a11534-2070-7491-9209-4c606861f384, phase: implement, kind: dispatch, agent: spec-reviewer, model: anthropic/claude-opus-5-5:low }
+  - { ts: 2026-10-07T09:01:52Z, session: 01a11534-2070-7491-9209-4c606861f384, phase: implement, kind: dispatch, agent: implementer, model: github-copilot/gpt-6.1-sol:low }
+  - { ts: 2026-10-07T09:02:27Z, session: 01a11534-2070-7491-9209-4c606861f384, phase: implement, kind: dispatch, agent: spec-reviewer, model: anthropic/claude-opus-5-5:low }
+  - { ts: 2026-10-07T09:03:19Z, session: 01a11534-2070-7491-9209-4c606861f384, phase: implement, kind: dispatch, agent: code-reviewer, model: anthropic/claude-opus-5-5:medium }
+  - { ts: 2026-10-07T09:05:59Z, session: 01a11534-2070-7491-9209-4c606861f384, phase: implement, kind: dispatch, agent: implementer, model: github-copilot/gpt-6.1-sol:low }
+  - { ts: 2026-10-07T09:05:59Z, session: 01a11534-2070-7491-9209-4c606861f384, phase: implement, kind: dispatch, agent: implementer, model: github-copilot/gpt-6.1-sol:low }
+  - { ts: 2026-10-07T09:05:59Z, session: 01a11534-2070-7491-9209-4c606861f384, phase: implement, kind: dispatch, agent: implementer, model: github-copilot/gpt-6.1-sol:low }
+  - { ts: 2026-10-07T09:05:59Z, session: 01a11534-2070-7491-9209-4c606861f384, phase: implement, kind: dispatch, agent: implementer, model: github-copilot/gpt-6.1-sol:low, exit: 1 }
+  - { ts: 2026-10-07T09:07:30Z, session: 01a11534-2070-7491-9209-4c606861f384, phase: implement, kind: dispatch, agent: implementer, model: github-copilot/gpt-6.1-sol:low }
+  - { ts: 2026-10-07T09:08:55Z, session: 01a11534-2070-7491-9209-4c606861f384, phase: implement, kind: dispatch, agent: spec-reviewer, model: anthropic/claude-opus-5-5:low }
+  - { ts: 2026-10-07T09:08:55Z, session: 01a11534-2070-7491-9209-4c606861f384, phase: implement, kind: dispatch, agent: spec-reviewer, model: anthropic/claude-opus-5-5:low }
+  - { ts: 2026-10-07T09:08:55Z, session: 01a11534-2070-7491-9209-4c606861f384, phase: implement, kind: dispatch, agent: spec-reviewer, model: anthropic/claude-opus-5-5:low }
+  - { ts: 2026-10-07T09:08:55Z, session: 01a11534-2070-7491-9209-4c606861f384, phase: implement, kind: dispatch, agent: spec-reviewer, model: anthropic/claude-opus-5-5:low }
+  - { ts: 2026-10-07T09:10:21Z, session: 01a11534-2070-7491-9209-4c606861f384, phase: implement, kind: dispatch, agent: implementer, model: github-copilot/gpt-6.1-sol:low }
+  - { ts: 2026-10-07T09:11:09Z, session: 01a11534-2070-7491-9209-4c606861f384, phase: implement, kind: dispatch, agent: spec-reviewer, model: anthropic/claude-opus-5-5:low }
+  - { ts: 2026-10-07T09:11:09Z, session: 01a11534-2070-7491-9209-4c606861f384, phase: implement, kind: dispatch, agent: spec-reviewer, model: anthropic/claude-opus-5-5:low }
+  - { ts: 2026-10-07T09:15:46Z, session: 01a11534-2070-7491-9209-4c606861f384, phase: implement, kind: dispatch, agent: code-reviewer, model: anthropic/claude-opus-5-5:medium }
+  - { ts: 2026-10-07T09:18:31Z, session: 01a11534-2070-7491-9209-4c606861f384, phase: implement, kind: dispatch, agent: implementer, model: github-copilot/gpt-6.1-sol:low }
+  - { ts: 2026-10-07T09:19:30Z, session: 01a11534-2070-7491-9209-4c606861f384, phase: implement, kind: dispatch, agent: code-reviewer, model: anthropic/claude-opus-5-5:medium }
+  - { ts: 2026-10-07T09:23:01Z, session: 01a11534-2070-7491-9209-4c606861f384, phase: implement, kind: dispatch, agent: implementer, model: github-copilot/gpt-6.1-sol:low }
+  - { ts: 2026-10-07T09:23:01Z, session: 01a11534-2070-7491-9209-4c606861f384, phase: implement, kind: dispatch, agent: implementer, model: github-copilot/gpt-6.1-sol:low }
+  - { ts: 2026-10-07T09:23:01Z, session: 01a11534-2070-7491-9209-4c606861f384, phase: implement, kind: dispatch, agent: implementer, model: github-copilot/gpt-6.1-sol:low }
+  - { ts: 2026-10-07T09:25:08Z, session: 01a11534-2070-7491-9209-4c606861f384, phase: implement, kind: dispatch, agent: spec-reviewer, model: anthropic/claude-opus-5-5:low }
+  - { ts: 2026-10-07T09:25:08Z, session: 01a11534-2070-7491-9209-4c606861f384, phase: implement, kind: dispatch, agent: spec-reviewer, model: anthropic/claude-opus-5-5:low }
+  - { ts: 2026-10-07T09:25:08Z, session: 01a11534-2070-7491-9209-4c606861f384, phase: implement, kind: dispatch, agent: spec-reviewer, model: anthropic/claude-opus-5-5:low }
+  - { ts: 2026-10-07T09:27:30Z, session: 01a11534-2070-7491-9209-4c606861f384, phase: implement, kind: dispatch, agent: implementer, model: github-copilot/gpt-6.1-sol:low }
+  - { ts: 2026-10-07T09:31:19Z, session: 01a11534-2070-7491-9209-4c606861f384, phase: implement, kind: dispatch, agent: spec-reviewer, model: anthropic/claude-opus-5-5:low }
+  - { ts: 2026-10-07T09:31:56Z, session: 01a11534-2070-7491-9209-4c606861f384, phase: implement, kind: dispatch, agent: spec-reviewer, model: anthropic/claude-opus-5-5:low }
+  - { ts: 2026-10-07T09:33:05Z, session: 01a11534-2070-7491-9209-4c606861f384, phase: implement, kind: dispatch, agent: spec-reviewer, model: anthropic/claude-opus-5-5:low }
+  - { ts: 2026-10-07T09:36:20Z, session: 01a11534-2070-7491-9209-4c606861f384, phase: implement, kind: dispatch, agent: code-reviewer, model: anthropic/claude-opus-5-5:medium }
+  - { ts: 2026-10-07T09:39:19Z, session: 01a11534-2070-7491-9209-4c606861f384, phase: implement, kind: dispatch, agent: implementer, model: github-copilot/gpt-6.1-sol:low }
+  - { ts: 2026-10-07T09:40:31Z, session: 01a11534-2070-7491-9209-4c606861f384, phase: implement, kind: dispatch, agent: spec-reviewer, model: anthropic/claude-opus-5-5:low }
+  - { ts: 2026-10-07T09:42:22Z, session: 01a11534-2070-7491-9209-4c606861f384, phase: implement, kind: dispatch, agent: implementer, model: github-copilot/gpt-6.1-sol:low }
+  - { ts: 2026-10-07T09:43:20Z, session: 01a11534-2070-7491-9209-4c606861f384, phase: implement, kind: dispatch, agent: spec-reviewer, model: anthropic/claude-opus-5-5:low }
+  - { ts: 2026-10-07T09:45:41Z, session: 01a11534-2070-7491-9209-4c606861f384, phase: implement, kind: dispatch, agent: code-reviewer, model: anthropic/claude-opus-5-5:medium }
+  - { ts: 2026-10-07T09:51:17Z, session: 01a11534-2070-7491-9209-4c606861f384, phase: implement, kind: dispatch, agent: implementer, model: github-copilot/gpt-6.1-sol:low }
+  - { ts: 2026-10-07T09:51:17Z, session: 01a11534-2070-7491-9209-4c606861f384, phase: implement, kind: dispatch, agent: implementer, model: github-copilot/gpt-6.1-sol:low }
+  - { ts: 2026-10-07T09:51:17Z, session: 01a11534-2070-7491-9209-4c606861f384, phase: implement, kind: dispatch, agent: implementer, model: github-copilot/gpt-6.1-sol:low }
+  - { ts: 2026-10-07T09:51:17Z, session: 01a11534-2070-7491-9209-4c606861f384, phase: implement, kind: dispatch, agent: implementer, model: github-copilot/gpt-6.1-sol:low }
+  - { ts: 2026-10-07T09:51:17Z, session: 01a11534-2070-7491-9209-4c606861f384, phase: implement, kind: dispatch, agent: implementer, model: github-copilot/gpt-6.1-sol:low }
+  - { ts: 2026-10-07T09:51:17Z, session: 01a11534-2070-7491-9209-4c606861f384, phase: implement, kind: dispatch, agent: implementer, model: github-copilot/gpt-6.1-sol:low }
+  - { ts: 2026-10-07T09:51:17Z, session: 01a11534-2070-7491-9209-4c606861f384, phase: implement, kind: dispatch, agent: implementer, model: github-copilot/gpt-6.1-sol:low }
+  - { ts: 2026-10-07T09:51:17Z, session: 01a11534-2070-7491-9209-4c606861f384, phase: implement, kind: dispatch, agent: implementer, model: github-copilot/gpt-6.1-sol:low }
+  - { ts: 2026-10-07T09:53:18Z, session: 01a11534-2070-7491-9209-4c606861f384, phase: implement, kind: dispatch, agent: implementer, model: github-copilot/gpt-6.1-sol:low }
+  - { ts: 2026-10-07T09:55:42Z, session: 01a11534-2070-7491-9209-4c606861f384, phase: implement, kind: dispatch, agent: spec-reviewer, model: anthropic/claude-opus-5-5:low }
+  - { ts: 2026-10-07T09:55:42Z, session: 01a11534-2070-7491-9209-4c606861f384, phase: implement, kind: dispatch, agent: spec-reviewer, model: anthropic/claude-opus-5-5:low }
+  - { ts: 2026-10-07T09:55:42Z, session: 01a11534-2070-7491-9209-4c606861f384, phase: implement, kind: dispatch, agent: spec-reviewer, model: anthropic/claude-opus-5-5:low }
+  - { ts: 2026-10-07T09:55:42Z, session: 01a11534-2070-7491-9209-4c606861f384, phase: implement, kind: dispatch, agent: spec-reviewer, model: anthropic/claude-opus-5-5:low }
+  - { ts: 2026-10-07T09:55:42Z, session: 01a11534-2070-7491-9209-4c606861f384, phase: implement, kind: dispatch, agent: spec-reviewer, model: anthropic/claude-opus-5-5:low }
+  - { ts: 2026-10-07T09:55:42Z, session: 01a11534-2070-7491-9209-4c606861f384, phase: implement, kind: dispatch, agent: spec-reviewer, model: anthropic/claude-opus-5-5:low }
+  - { ts: 2026-10-07T09:55:42Z, session: 01a11534-2070-7491-9209-4c606861f384, phase: implement, kind: dispatch, agent: spec-reviewer, model: anthropic/claude-opus-5-5:low }
+  - { ts: 2026-10-07T09:55:42Z, session: 01a11534-2070-7491-9209-4c606861f384, phase: implement, kind: dispatch, agent: spec-reviewer, model: anthropic/claude-opus-5-5:low }
+  - { ts: 2026-10-07T10:00:13Z, session: 01a11534-2070-7491-9209-4c606861f384, phase: implement, kind: dispatch, agent: code-reviewer, model: anthropic/claude-opus-5-5:medium }
+  - { ts: 2026-10-07T10:02:55Z, session: 01a11534-2070-7491-9209-4c606861f384, phase: implement, kind: dispatch, agent: implementer, model: github-copilot/gpt-6.1-sol:low }
+  - { ts: 2026-10-07T10:04:01Z, session: 01a11534-2070-7491-9209-4c606861f384, phase: implement, kind: dispatch, agent: code-reviewer, model: anthropic/claude-opus-5-5:medium }
+  - { ts: 2026-10-07T10:05:13Z, session: 01a11534-2070-7491-9209-4c606861f384, phase: implement, kind: dispatch, agent: implementer, model: github-copilot/gpt-6.1-sol:low }
+  - { ts: 2026-10-07T10:05:54Z, session: 01a11534-2070-7491-9209-4c606861f384, phase: implement, kind: dispatch, agent: code-reviewer, model: anthropic/claude-opus-5-5:medium }
+  - { ts: 2026-10-07T10:07:59Z, session: 01a11534-2070-7491-9209-4c606861f384, phase: implement, kind: dispatch, agent: implementer, model: github-copilot/gpt-6.1-sol:low }
+  - { ts: 2026-10-07T10:08:21Z, session: 01a11534-2070-7491-9209-4c606861f384, phase: implement, kind: gate, gate: task_reopen }
+  - { ts: 2026-10-07T10:09:22Z, session: 01a11534-2070-7491-9209-4c606861f384, phase: implement, kind: dispatch, agent: implementer, model: github-copilot/gpt-6.1-sol:low }
+  - { ts: 2026-10-07T10:10:18Z, session: 01a11534-2070-7491-9209-4c606861f384, phase: implement, kind: dispatch, agent: spec-reviewer, model: anthropic/claude-opus-5-5:low }
+  - { ts: 2026-10-07T10:10:18Z, session: 01a11534-2070-7491-9209-4c606861f384, phase: implement, kind: dispatch, agent: spec-reviewer, model: anthropic/claude-opus-5-5:low }
+  - { ts: 2026-10-07T10:11:47Z, session: 01a11534-2070-7491-9209-4c606861f384, phase: implement, kind: dispatch, agent: code-reviewer, model: anthropic/claude-opus-5-5:medium }
+  - { ts: 2026-10-07T10:56:56Z, session: 01a11534-2070-7491-9209-4c606861f384, phase: implement, kind: dispatch, agent: implementer, model: github-copilot/gpt-6.1-sol:low }
+  - { ts: 2026-10-07T11:02:49Z, session: 01a11534-2070-7491-9209-4c606861f384, phase: implement, kind: dispatch, agent: spec-reviewer, model: anthropic/claude-opus-5-5:low }
+  - { ts: 2026-10-07T11:05:52Z, session: 01a11534-2070-7491-9209-4c606861f384, phase: implement, kind: dispatch, agent: code-reviewer, model: anthropic/claude-opus-5-5:medium }
+  - { ts: 2026-10-07T11:07:48Z, session: 01a11534-2070-7491-9209-4c606861f384, phase: implement, kind: dispatch, agent: implementer, model: github-copilot/gpt-6.1-sol:low }
+  - { ts: 2026-10-07T11:09:07Z, session: 01a11534-2070-7491-9209-4c606861f384, phase: implement, kind: dispatch, agent: code-reviewer, model: anthropic/claude-opus-5-5:medium }
+  - { ts: 2026-10-07T11:11:42Z, session: 01a11534-2070-7491-9209-4c606861f384, phase: implement, kind: dispatch, agent: implementer, model: github-copilot/gpt-6.1-sol:low }
+  - { ts: 2026-10-07T11:11:42Z, session: 01a11534-2070-7491-9209-4c606861f384, phase: implement, kind: dispatch, agent: implementer, model: github-copilot/gpt-6.1-sol:low }
+  - { ts: 2026-10-07T11:11:42Z, session: 01a11534-2070-7491-9209-4c606861f384, phase: implement, kind: dispatch, agent: implementer, model: github-copilot/gpt-6.1-sol:low }
+  - { ts: 2026-10-07T11:13:32Z, session: 01a11534-2070-7491-9209-4c606861f384, phase: implement, kind: dispatch, agent: spec-reviewer, model: anthropic/claude-opus-5-5:low }
+  - { ts: 2026-10-07T11:13:32Z, session: 01a11534-2070-7491-9209-4c606861f384, phase: implement, kind: dispatch, agent: spec-reviewer, model: anthropic/claude-opus-5-5:low }
+  - { ts: 2026-10-07T11:13:32Z, session: 01a11534-2070-7491-9209-4c606861f384, phase: implement, kind: dispatch, agent: spec-reviewer, model: anthropic/claude-opus-5-5:low }
+  - { ts: 2026-10-07T11:13:50Z, session: 01a11534-2070-7491-9209-4c606861f384, phase: implement, kind: phase, action: complete, name: implement }
+  - { ts: 2026-10-07T11:13:52Z, session: 01a11534-2070-7491-9209-4c606861f384, phase: unphased, kind: phase, action: start, name: verify, model: anthropic-fable/claude-fable-5-1, thinking: medium }
+  - { ts: 2026-10-07T11:18:07Z, session: 01a11534-2070-7491-9209-4c606861f384, phase: verify, kind: dispatch, agent: code-reviewer, model: anthropic/claude-opus-5-5:medium }
+  - { ts: 2026-10-07T11:18:56Z, session: 01a11534-2070-7491-9209-4c606861f384, phase: verify, kind: gate, gate: task_reopen }
+  - { ts: 2026-10-07T11:18:59Z, session: 01a11534-2070-7491-9209-4c606861f384, phase: verify, kind: gate, gate: task_reopen }
+  - { ts: 2026-10-07T11:19:02Z, session: 01a11534-2070-7491-9209-4c606861f384, phase: verify, kind: gate, gate: task_reopen }
+  - { ts: 2026-10-07T11:19:04Z, session: 01a11534-2070-7491-9209-4c606861f384, phase: verify, kind: gate, gate: task_reopen }
+  - { ts: 2026-10-07T11:22:31Z, session: 01a11534-2070-7491-9209-4c606861f384, phase: verify, kind: dispatch, agent: implementer, model: github-copilot/gpt-6.1-sol:low }
+  - { ts: 2026-10-07T11:23:41Z, session: 01a11534-2070-7491-9209-4c606861f384, phase: verify, kind: dispatch, agent: spec-reviewer, model: anthropic/claude-opus-5-5:low }
+  - { ts: 2026-10-07T11:25:55Z, session: 01a11534-2070-7491-9209-4c606861f384, phase: verify, kind: dispatch, agent: code-reviewer, model: anthropic/claude-opus-5-5:medium }
+  - { ts: 2026-10-07T11:37:49Z, session: 01a11534-2070-7491-9209-4c606861f384, phase: verify, kind: dispatch, agent: conformance-reviewer, model: github-copilot/gpt-6-astra:xhigh }
+  - { ts: 2026-10-07T11:40:21Z, session: 01a11534-2070-7491-9209-4c606861f384, phase: verify, kind: dispatch, agent: implementer, model: github-copilot/gpt-6.1-sol:low }
+  - { ts: 2026-10-07T11:40:21Z, session: 01a11534-2070-7491-9209-4c606861f384, phase: verify, kind: dispatch, agent: implementer, model: github-copilot/gpt-6.1-sol:low }
+  - { ts: 2026-10-07T11:42:24Z, session: 01a11534-2070-7491-9209-4c606861f384, phase: verify, kind: dispatch, agent: implementer, model: github-copilot/gpt-6.1-sol:low }
+  - { ts: 2026-10-07T11:49:03Z, session: 01a11534-2070-7491-9209-4c606861f384, phase: verify, kind: dispatch, agent: conformance-reviewer, model: github-copilot/gpt-6-astra:xhigh }
+  - { ts: 2026-10-07T11:51:06Z, session: 01a11534-2070-7491-9209-4c606861f384, phase: verify, kind: dispatch, agent: implementer, model: github-copilot/gpt-6.1-sol:low }
+  - { ts: 2026-10-07T11:55:59Z, session: 01a11534-2070-7491-9209-4c606861f384, phase: verify, kind: dispatch, agent: conformance-reviewer, model: github-copilot/gpt-6-astra:xhigh }
+  - { ts: 2026-10-07T11:57:41Z, session: 01a11534-2070-7491-9209-4c606861f384, phase: verify, kind: dispatch, agent: code-reviewer, model: anthropic/claude-opus-5-5:medium }
+  - { ts: 2026-10-07T11:58:11Z, session: 01a11534-2070-7491-9209-4c606861f384, phase: verify, kind: phase, action: complete, name: verify }
+  - { ts: 2026-10-07T11:58:26Z, session: 01a11534-2070-7491-9209-4c606861f384, phase: unphased, kind: phase, action: start, name: ship, model: anthropic-fable/claude-fable-5-1, thinking: medium }
+  - { ts: 2026-10-07T12:00:37Z, session: 01a11534-2070-7491-9209-4c606861f384, phase: ship, kind: ship, option: squash }

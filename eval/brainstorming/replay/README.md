@@ -47,4 +47,4 @@ node extract.mjs
 - `runs*/` transcripts and judgments quote consumer code, paths, and ticket ids. Generated `report.md`, `variants.json`, and logs also carry private identifiers or paths.
 - The full experiment notes' rationales quote the same consumer evidence. Only anonymized verdict tables and fact labels are retained in `results.md`.
 
-The anonymized frozen-fixture samples in [../sample/](../sample/) are the public counterpart derived from the same three cases. Re-running the live replay requires access to the consumer repo and its Pi session store, plus configured SDK credentials. Keep private inputs and generated artifacts out of commits.
+The anonymized frozen-fixture samples in [../samples/](../samples/) are the public counterpart derived from the same three cases. Re-running the live replay requires access to the consumer repo and its Pi session store, plus configured SDK credentials. Keep private inputs and generated artifacts out of commits.

@@ -1,9 +1,0 @@
-- The requested change is present in the diff.
-- No added line contains "should", "consider", "you may want to", or "it is recommended".
-- No added line contains a nuance clause ("unless", "when appropriate", "if needed", "as necessary").
-- Only the sentence or sentences that own the requested rule changed; the rule is not restated in a second place.
-- Every added or modified line is ASCII only.
-- After the edit, every SKILL.md is under 500 lines, or a `reference/<topic>.md` was created and a one-line "read ... now" pointer was left at the step that needs it.
-- The diff has exactly two hunks.
-- Step 6 now reads "at most 80 words" and no other step changed.
-- The red flag now reads "A paragraph over 80 words." and no other red flag changed.

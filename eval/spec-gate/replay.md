@@ -1,0 +1,1 @@
+You are at checklist step 12. The summary file has already been read back; the briefing below is its verbatim content. Render the gate message for the critique-pass return below, then handle the user reply exactly as the gate instructs (a reply of 1 or 2 is an approval: say what you do next in one sentence; any other reply is answered in full). Do not use tools.

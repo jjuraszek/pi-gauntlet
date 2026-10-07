@@ -1,0 +1,34 @@
+{
+  "sample": "same-head-flip",
+  "arm": "baseline",
+  "skillSha": "a152125ee331afcb38cb7fc73eb309af008b0535e314f4c16da60719d67cb96f",
+  "inputSha": "4baf0c14815f70004a463b28a8dbbaa43b2180e50032bda36bf2f76ab71b5719",
+  "kind": "text",
+  "assembly": "concat",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "## Evidence resolution, first pass (head `9c1e4f2`)\n\n- **Resolved check set:** all checks on the head, since no `ci checks:` is configured: `test_unit`, `build_image`, `e2e`.\n- **Conclusions:**\n  - `test_unit` is `success`.\n  - `build_image` is `success`.\n  - `e2e` has `status: in_progress`, so it is pending.\n  - No check is blocking and no run is `action_required`, so there is no held run.\n- **Binding classification:** `e2e` is binding. Two triggers apply: `merge_state_status` is `BLOCKED`, and its matched run 7003 is `in_progress`.\n- **Row:** Pending (no Opt-out, Failed CI or Held run match first). The result is `source: pending`, with no local run and no claims.\n- **Overlays:**\n  - `merge state` fires on `BLOCKED`.\n  - `verification evidence pending` fires.\n  - `CI check` fires for the binding pending check.\n  - `merge state` is highest, so it owns the reason and the single `PR comments` line (resolver reason 1).\n  - `[recommended]` goes to `approve`: this is someone else's PR, resolver reason 1 applies, and `reviewDecision` is `REVIEW_REQUIRED`.\n- **Scope:** `issue_ref: null`, so `source: pr` and `Delivers` states the PR's intent only.\n\n```\nDelivers: one bounded retry when the tide-feed fetch gets a 503.\n\nPR comments:\n- GitHub reports this actor's merge as blocked, so merge waits. (merge_state_status BLOCKED; reviewDecision REVIEW_REQUIRED)\n\nVerdict: fixable - blocked by GitHub\n\n1. wait - poll e2e, the merge state, and the comment set, then re-render\n2. approve - approve the PR                                               [recommended]\n3. fix - name the change to apply in the worktree, review the wave, push\n4. show evidence - CI checks on the assessed head so far\n5. stop - leave the PR as-is\nType a number. Not offered: merge (blocked by GitHub).\n```\n\n## Evidence resolution after `wait` and the pre-menu refresh (same head `9c1e4f2`)\n\n- **Refresh result:** the head is unchanged, and `state` and `mergeable` are unchanged. The refresh replaced `merge_state_status` (now `CLEAN`), `reviewDecision` (now `APPROVED`), `status_checks[]` and `actions_runs[]` together.\n- **Re-resolve:** all three checks are completed `success`, with no blocking or pending check. This matches **CI-sufficient**, so `source: ci` and the local run is skipped.\n- **Claim check:**\n  - The move from `source: pending` to CI-sufficient requires a claim-check-only Section B dispatch before rendering.\n  - The supplied disposition is used as that result: \"Tests cover the retry path\" is `matched` (`test/feed/client.test.ts:12-40`).\n  - If that helper had not run, the claim would be undispositioned and `merge` would stay withheld.\n- **Comments:** the Wait-course reconciliation (Re-render steps 2-5) finds an empty comment set. No delta exists and no `C#` rows are minted.\n- **Merge preconditions:** all hold.\n  - No blockers.\n  - CI evidence covers the assessed head.\n  - The claim is dispositioned.\n  - `mergeable` is `MERGEABLE`.\n  - `merge_state_status` is `CLEAN`, which is not `BEHIND`, `BLOCKED` or `UNKNOWN`.\n  - No failing or binding pending check remains.\n  - The worktree is clean and synced.\n  - Compare-and-swap runs at execution.\n- **Overlays:** none fire, so the plain someone-else/mergeable consent rows apply. `[recommended]` goes to the first row.\n\n```\nDelivers: one bounded retry when the tide-feed fetch gets a 503.\n\nVerdict: mergeable - CI green on the assessed head (test_unit, build_image, e2e)\n\n1. approve - approve the PR                                               [recommended]\n2. fix - name the change to apply in the worktree, review the wave, push\n3. merge - squash onto main\n4. show evidence - CI checks, claim disposition\n5. stop - leave the PR as-is\nType a number.\n```\n",
+      "words": 507,
+      "wallMs": 33214,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "Delivers: the tide-feed client adds one bounded retry after a 503 response.\n\nPR comments:\n- GitHub reports this actor's merge as blocked, so merge waits. (merge_state_status BLOCKED; reviewDecision REVIEW_REQUIRED)\n\nVerdict: fixable - blocked by GitHub\n\n1. wait - poll the binding check and GitHub merge state, then re-render\n2. approve - approve the PR [recommended]\n3. fix - name the change to apply in the worktree, review the wave, push\n4. show evidence - gate output, CI checks\n5. stop - leave the PR as-is\n\nType a number. Not offered: merge (blocked by GitHub).\n\n---\n\nDelivers: the tide-feed client adds one bounded retry after a 503 response.\n\nVerdict: mergeable - CI green on the assessed head (test_unit, build_image, e2e)\n\n1. approve - approve the PR [recommended]\n2. fix - name the change to apply in the worktree, review the wave, push\n3. merge - squash onto main\n4. show evidence - gate output, CI checks\n5. stop - leave the PR as-is\n\nType a number.\n",
+      "words": 151,
+      "wallMs": 13045,
+      "mechanical": {}
+    }
+  },
+  "repoSha": "9932ea84fb0c04cbf4e1807b9905241bcfbf4402"
+}

@@ -1,0 +1,11 @@
+- fact-1: judged: The requested change is present in the diff.
+- fact-2: judged: No added line contains "should", "consider", "you may want to", or "it is recommended".
+- fact-3: judged: No added line contains a nuance clause ("unless", "when appropriate", "if needed", "as necessary").
+- fact-4: judged: Only the sentence or sentences that own the requested rule changed; the rule is not restated in a second place.
+- fact-5: judged: Every added or modified line is ASCII only; unchanged lines keep their original bytes.
+- fact-6: judged: The frontmatter (every line between the first two `---` lines) is byte-identical to the fixture.
+- fact-7: judged: No `reference/` file or any file other than the persona was created.
+- fact-8: judged: No `/skill:` reference was added.
+- fact-9: judged: At most two lines were added and no line was removed.
+- fact-10: judged: The added line names the re-review trigger and the `## Fix delta` block.
+- fact-11: judged: The `description:` line is unchanged.

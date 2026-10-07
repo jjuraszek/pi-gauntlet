@@ -1,0 +1,7 @@
+- f1: judged: Pull request gate holders risk pushing fixes that have not received an independent review.
+- f2: judged: The gate will offer only actions the actor has permission to perform.
+- f3: judged: A fix cannot be pushed while an independent reviewer reports a critical or moderate issue.
+- f4: judged: After a push, the gate waits for the automated checks instead of running them locally; a held run stays pending until the user approves it.
+- f5: judged: Approving a held workflow requires an explicit user selection.
+- f6: judged: The change is complete when the first-pass assessment retains the supported blockers found by the previous version.
+- m1: mechanical: lacks "/Users"

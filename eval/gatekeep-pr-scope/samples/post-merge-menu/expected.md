@@ -1,0 +1,4 @@
+- f1: judged: After merge, the menu offers post coverage to ticket and post coverage to PR, with stop recommended.
+- f2: judged: After stop, nothing is posted.
+- f3: judged: No blocker is minted for a row the spec defers.
+- f4: judged: The ticket's rows are not judged beyond the spec's rows.

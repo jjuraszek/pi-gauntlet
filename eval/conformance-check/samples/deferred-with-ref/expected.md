@@ -1,0 +1,5 @@
+- f1: judged: Rows 3 and 5 produce zero decision items.
+- f2: judged: The Deferred/deviates per spec line appears in the closure sentinel and again in the Step 3.5 render, nowhere else.
+- f3: judged: The informational line names rows 3 and 5 as deferred to acme/widgets#46.
+- f4: judged: The deferred rows trigger no fix dispatch or re-audit.
+- f5: judged: The all-delivered in-scope requirements allow the render to reach the first line of Step 4.

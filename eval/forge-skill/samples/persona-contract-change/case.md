@@ -1,0 +1,1 @@
+Drop the HTML comment near the end of the file that says the grammar is identical to skills/subagent-driven-development/spec-reviewer-prompt.md and must change together with it; this persona now owns its report grammar alone. Remove that comment line and the blank line it leaves; change nothing else.

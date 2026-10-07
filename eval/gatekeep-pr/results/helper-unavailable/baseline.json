@@ -1,0 +1,34 @@
+{
+  "sample": "helper-unavailable",
+  "arm": "baseline",
+  "skillSha": "0e8935f654f807c2dc6b2843842ef77b0cc0711f45948a38ce8f4f5f657dd346",
+  "inputSha": "bc8375d56ba5f8c8f0d3bd342fc925fe1078721264f8fad97119e756a5fcc8b9",
+  "kind": "text",
+  "assembly": "concat",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "# gatekeep-pr: PR 412, step 2b (sync) through the first menu\n\n## Invocation\n\n`412 --rebase` names no token after `--rebase`, so `<base>` is the digest's `baseRefName`, `main`. The rebase would target `origin/main`; `origin/release/2` plays no part.\n\n## Tracker\n\nI `init` `plan_tracker` with four stages because `--rebase` is present: `gather, provision, sync, verify`.\n\n- `gather` and `provision` close `complete`, since step 2 has just finished.\n\n## Step 2b: sync preconditions (`reference/sync.md`)\n\nPrecondition 1 asks whether the harness has a helper facility. The digest says it has no subagent dispatch facility of any kind, so this is a terminal stop before any write. Both SKILL.md `## Harness notes` and `reference/sync.md` require that stop at step 2b when `--rebase` was passed.\n\nThat stop means none of the following happen:\n\n- **Commands run:** none.\n  - No `git fetch origin main`, because precondition 3's fetch is never reached.\n  - No `gh pr view 412 --json headRefOid` baseline.\n  - No `git rebase`, no lease push, no `git reset`.\n  - The worktree `.worktrees/pr-412` and the remote branch stay untouched.\n- **Helpers dispatched:** none. With no facility, there is no conflict-stop `implementer` and no sync-review `code-reviewer`. Step 3's Verify (`worker`) and step 4's Review (`code-reviewer`) are also never dispatched.\n- **Tracker:** `sync` closes `failed`. `verify` stays pending and step 3 does not run. The remaining three stages (`review, report, menu`) are never added, and no claim tasks are added.\n\n## Assessed SHA\n\nNo SHA is assessed. Verification and the brief never run because the terminal stop happens before step 3. The PR head stays at the unsynced `7c1e9a2f4b0d6e8a1c3f5b7d9e0a2c4e6f8a0b1c`, which is 4 commits behind `origin/main` at `3f0b8d2`.\n\n## Rendered output\n\n```\nThe sync stopped before any write because this harness has no helper facility for conflict resolution and review, so verification did not run.\n\nSync: stopped - no helper facility for conflict resolution and review\nVerdict: not assessed - sync stopped before verification (no helper facility)\n\n1. show evidence - print the digest's head-dependent fields and the sync record\n2. stop - leave the PR as-is                                        [recommended]\nType a number.\n```\n",
+      "words": 321,
+      "wallMs": 18131,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "1. Initialize the tracker with `gather`, `provision`, `sync`, and `verify`. Steps 1 and 2 are finished, so mark `gather` and `provision` complete and enter `sync`. The invocation selects `main` as the rebase base.\n\n2. Check the first sync precondition: a helper dispatch facility must exist. The harness has none, so stop before any write. No commands run, and no helpers are dispatched.\n\n3. Mark `sync` failed. Leave `verify` pending; do not enter verification, review, or integration, and do not add their remaining tracker stages. No fetch, rebase, push, or pre-menu forge refresh runs on this terminal path.\n\n4. Keep the digest at `7c1e9a2f4b0d6e8a1c3f5b7d9e0a2c4e6f8a0b1c`. Verification assesses no SHA because it never runs. The terminal brief refers to that unchanged head; it makes no delivery or verification findings. The existing successful check is not a new verification assessment.\n\nDelivers: No delivery assessment was completed because sync stopped before verification.\n\nSync: stopped - no helper facility for conflict resolution and review\nVerdict: fixable - sync stopped before verification\n\n1. show evidence - print the digest's head-dependent fields and sync record\n2. stop - leave the PR as-is [recommended]\n\nType a number.\n",
+      "words": 184,
+      "wallMs": 13181,
+      "mechanical": {}
+    }
+  },
+  "repoSha": "9932ea84fb0c04cbf4e1807b9905241bcfbf4402"
+}

@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- **Evals: one driver, paired intent-aware judge, `eval/_template`.** `node eval/run.mjs <target>` replaces the eight per-target runners; two frozen replay models produce before/after outputs, a frozen judge reports per-fact outcomes, and the driver labels each against the target's committed `intent.md` (`held`, `intended change`, `regression`, `unexplained change`). Only the newest `baseline.json`/`candidate.json` per sample is kept; 54 baselines are committed. `forge-skill` runs as `kind: edit`. `AGENTS.md` scopes the mandatory eval to behavior-changing edits; `AGENTS.core.md` v9 bans private data and secrets in tickets, specs, and samples. (#50)
+
 ## v7.6.1 - 2026-10-07
 
 ### Changed

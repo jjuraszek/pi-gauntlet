@@ -1,0 +1,34 @@
+{
+  "sample": "ticket-drifted",
+  "arm": "baseline",
+  "skillSha": "b4bed9fa9a438e61cbf78c4047138111fed6c1d760a9e27030f0641d32b23bde",
+  "inputSha": "54e677bbad8bfb4335530cb8a4d5eb3980b635827aa560b3a6bc616650384765",
+  "kind": "text",
+  "assembly": "headed",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "```\nDelivers: the reports page exports its table as CSV on demand. ACs 1, 2, 4; 3, 5 deferred per spec to acme/widgets#46; 4's observable half (export completes under 5s on production data) is checked after merge, not here.\n\nNits:\n- The export pages results with its own loop instead of the shared paging helper, so a paging bug fixed once would need fixing twice. (src/api/export.ts:31, lib/page.ts)\n\nVerdict: mergeable - CI green on the assessed head (test)\n\n1. merge - squash onto the base branch at the assessed head               [recommended]\n2. fix - apply the nit payload in the worktree, review the wave, push\n3. show evidence - gate output, CI run, drafted edit\n4. stop - leave the PR as-is\nType a number, or compose: \"fix nits\".\n```\n\n---\n\n**Pick: show evidence**\n\n`show evidence` is read-only, so no external command runs for it. It prints:\n\n```\nEvidence record:\n- source: ci\n- check test: completed, success, on the assessed headRefOid, run url: unavailable\n- No local run; the CI-sufficient row applied.\n\nClaim dispositions:\n- \"adds tests for the CSV handler\": matched (test/api/export.test.ts)\n\nAC outcomes (spec doc/specs/2026-09-30-csv-export.md at the assessed head):\n- AC1 Export CSV button: covered (src/ui/reports.tsx, Design 1)\n- AC2 every table column: covered (src/api/export.ts, test/api/export.test.ts, Design 2)\n- AC3 email delivery: deferred per spec to acme/widgets#46\n- AC4 under 5s: mechanism half covered (100-row page cap and 4s deadline, tested with a controlled clock, Design 3); observation half not judged here, checked after merge\n- AC5 audit events: deferred per spec to acme/widgets#46\n- Design 1-4: mechanism present; Design 4 is settled by the deferral to acme/widgets#46\ncross-check: differs on row 2 - the spec governs here; /skill:check-delivery judges the ticket\n\nCheck dispositions:\n- none (no failing or pending check in the resolved set)\n\nreviewer workflow: unknown\n\nDrafted payloads:\n- Nit 1: in src/api/export.ts at line 31, replace the hand-rolled paging loop with the shared helper from lib/page.ts. The edit must keep the 100-row page cap and the 4s deadline that test/api/export.test.ts asserts.\n\nDrafted replies:\n- none\n```\n\nThe head is unchanged, so the run re-enters step 5 through the pre-menu refresh. These are read-only calls:\n\n- `gh pr view 210 --json headRefOid,state,mergeable,mergeStateStatus,reviewDecision,statusCheckRollup`\n- `gh run list -R acme/widgets -c <headRefOid> --json databaseId,status,conclusion,workflowName,url`\n\nThis re-render assumes the refresh returns unchanged values.\n\n```\nDelivers: the reports page exports its table as CSV on demand. ACs 1, 2, 4; 3, 5 deferred per spec to acme/widgets#46; 4's observable half (export completes under 5s on production data) is checked after merge, not here.\n\nNits:\n- The export pages results with its own loop instead of the shared paging helper, so a paging bug fixed once would need fixing twice. (src/api/export.ts:31, lib/page.ts)\n\nVerdict: mergeable - CI green on the assessed head (test)\n\n1. merge - squash onto the base branch at the assessed head               [recommended]\n2. fix - apply the nit payload in the worktree, review the wave, push\n3. show evidence - gate output, CI run, drafted edit\n4. stop - leave the PR as-is\nType a number, or compose: \"fix nits\".\n```\n",
+      "words": 478,
+      "wallMs": 25337,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "Delivers: the reports page exports CSV on demand with bounded paging. ACs 1, 2, 4; 3, 5 deferred per spec to acme/widgets#46; 4's observable half (export completes under 5s on production data) is checked after merge, not here.\n\nPR comments:\n- GitHub has not reported this actor's merge state, so merge waits. (merge state not refreshed (no tool available))\n\nNits:\n- The export pages results with its own loop instead of the shared paging helper, so a paging bug fixed once would need fixing twice. (src/api/export.ts:31, lib/page.ts)\n\nVerdict: fixable - merge state unknown\n\n1. wait - refresh the merge state, then re-render [recommended]\n2. show evidence - print CI evidence, claim and AC outcomes, and the drafted edit\n3. stop - leave the PR as-is\n\nType a number. Not offered: fix (no helper facility available), merge (merge state unknown).\n\n## Evidence\n\n### Verification\n- Source: CI.\n- Check: `test`.\n- Conclusion: success.\n- Assessed SHA: not supplied in the fixture.\n- Run URL: unavailable.\n- No local verification command ran.\n\n### Claims\n- \"adds tests for the CSV handler\": matched.\n\n### AC outcomes\n1. AC1: covered by the Export CSV button wired to download the handler response.\n2. AC2: covered by column serialization and the header and all-column tests.\n3. AC3: deferred per spec to acme/widgets#46.\n4. AC4: the mechanism is covered by the 100-row paging cap, 4s deadline, and controlled-clock tests. Completion under 5s on production data is checked after merge.\n5. AC5: deferred per spec to acme/widgets#46.\n\ncross-check: differs on row 2 - the spec governs here; /skill:check-delivery judges the ticket.\n\n### Check dispositions\n- No failing check was supplied.\n- Merge state is unreadable, and the pre-menu refresh could not run because no tool is available.\n\n### Drafted payload for nit 1\nReplace the export handler's custom paging loop with the shared paging helper. Preserve the 100-row cap, 4s deadline, column order, CSV serialization, and unknown-report response, and retain the existing handler tests. (src/api/export.ts:31, lib/page.ts)\n\nNo external command runs for `show evidence`.\n\nVerdict: fixable - merge state unknown\n\n1. wait - refresh the merge state, then re-render [recommended]\n2. show evidence - print CI evidence, claim and AC outcomes, and the drafted edit\n3. stop - leave the PR as-is\n\nType a number. Not offered: fix (no helper facility available), merge (merge state unknown).\n",
+      "words": 361,
+      "wallMs": 25112,
+      "mechanical": {}
+    }
+  },
+  "repoSha": "9932ea84fb0c04cbf4e1807b9905241bcfbf4402"
+}

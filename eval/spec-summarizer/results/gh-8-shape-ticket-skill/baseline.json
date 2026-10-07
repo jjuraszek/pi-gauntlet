@@ -1,0 +1,38 @@
+{
+  "sample": "gh-8-shape-ticket-skill",
+  "arm": "baseline",
+  "skillSha": "87bb75e6feeada94486e7e80476e149a6b8883132660ce5ceb40b5d99e2649fe",
+  "inputSha": "b809f3342648fe7819bca4cd93ee2e07f0fb68f489716c3186321af0bc95ebc0",
+  "kind": "text",
+  "assembly": "concat",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "**Briefing: a new ticket-shaping skill for tracker issues**\n\nToday raw ideas land in the issue tracker as prescribed solutions or untestable wishes, and every later stage inherits the defect. The existing ticket convention is prose that consumer projects cannot enforce. This spec adds a user-triggered skill that creates or repairs one ticket per run. It produces a Context / Problem / Idea / Acceptance Criteria body plus audited metadata, and nothing is written until a human approves. Once it ships, maintainers get bounded, verifiable tickets, and re-running the skill cleans up the backlog.\n\n**What changes**\n\n- When an acceptance criterion is a wish or depends on output the ticket itself produces, the whole run writes nothing until the user supplies values or converts it to a discovery ticket.\n- When a ticket already conforms and its metadata is clean, the skill reports that and writes nothing.\n- When the ticket changes during review, or the run is unattended, the skill re-asks or stops rather than writing.\n- When the work is several independent deliverables, the skill proposes feature slices, never layers, and the user approves any subset under one approval.\n- Comments, status changes and closure stay with the plain tracker tools.\n\n**Approval risks**\n\n- Changes are pushed directly to three sibling repositories' main branches.\n- How every existing skill finds its overrides file changes, a contract other skills depend on.\n- Claude Code reviewer dispatch is deferred to the separate marketplace ticket.\n\n**Done when**\n\nThese scenarios pass against a scratch issue: create, repair, hard stop, split decline, no-op, mid-run conflict, reviewer failure. The test suite passes and the genericity check finds nothing.\n\n**Missing from the spec**\n\n- The writing-skills compliance checklist and testing protocol\n- The roasting skill's dispatch mechanics that this skill mirrors\n",
+      "words": 282,
+      "wallMs": 13702,
+      "mechanical": {
+        "m1": "holds"
+      }
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "Teams inherit vague or solution-prescribing tracker requests, leaving downstream work poorly bounded and hard to verify. This spec adds an explicitly invoked ticket-shaping tool that creates or repairs one issue by default, producing a clear problem, proposed idea, testable acceptance criteria, and audited metadata. Users review the complete proposal before any write; approved splits can create multiple issues under that same approval.\n\n**What changes**\n- When creating, check duplicates and reversed decisions; when repairing, preserve links and fields.\n- When criteria remain wishful or circular, stop all writes; missing values or external inputs park tickets, while production-only checks become non-blocking housekeeping.\n- When body and metadata already conform, stop without review or writing.\n- When changes are proposed, require explicit approval; concurrent edits require renewed approval, and splits allow subset selection.\n- Status changes, comments, closure, and existing delivery phases remain outside this tool.\n\n**Approval risks**\n- Documentation changes are committed and pushed directly to three sibling repositories’ main branches, requiring clean local clones.\n- Override discovery changes across every existing skill, expanding scope beyond ticket shaping.\n- Several behavioral sections are marked superseded, so this text alone does not establish their current requirements.\n\n**Done when**\nTests pass; all seven required scenarios pass; genericity has zero matches; checklist passes; documentation lists 14 skills; sibling propagation completes.\n\n**Missing from the spec**\n- Writing-skills testing protocol and compliance checklist.\n- Repository genericity-check placeholder pattern.\n- Claude Code dispatch contract owned by marketplace packaging.\n",
+      "words": 230,
+      "wallMs": 14276,
+      "mechanical": {
+        "m1": "holds"
+      }
+    }
+  },
+  "repoSha": "9932ea84fb0c04cbf4e1807b9905241bcfbf4402"
+}

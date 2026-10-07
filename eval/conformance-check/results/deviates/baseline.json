@@ -1,0 +1,34 @@
+{
+  "sample": "deviates",
+  "arm": "baseline",
+  "skillSha": "eda00b87f0f377b718bed3e5a04c795d2de538f6e7bb649b2aaf0ec9cd524c7b",
+  "inputSha": "e60ea3efa430af5b7daa36e3791c877b62f3bd8ccfd678d113fd7974ddab690a",
+  "kind": "text",
+  "assembly": "headed",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "## Closure / conformance\n\n```text\nstatus: CONFORMS (0 open)\naudited-base: 4c1e8f0a9b2d7c6e5f4a3b2c1d0e9f8a7b6c5d4e\nhappy-path: not run - no row configured\nDeferred/deviates per spec: AC2 deviates: the export includes the 12 visible-by-default columns (Design clause 3)\n\nCoverage: R1 (AC1 button), R3 (AC3 email), R4 (AC4 latency), R5 (AC5 audit log),\nR6 (Design clause 1), R7 (Design clause 2), R8 (Design clause 3) - all DELIVERED.\nAC2 is a recorded `deviates:` row, so it gets no concern card.\n\nauto-applied fix commits: none (fix loop not entered: R0 CONFORMS)\n\nwhole-diff minors: none\n```\n\n---\n\n**Step 3.5 as the operator sees it:**\n\n```\nClosure / conformance: CONFORMS\nhappy-path: not run - no row configured\nDeferred/deviates per spec: AC2 deviates: the export includes the 12 visible-by-default columns (Design clause 3)\nwhole-diff minors: none\n```\n\n**Step 4:**\n\n```\nImplementation complete. What would you like to do?\n```\n\n---\n\nNotes on the choices above:\n\n- **Freshness.** Taking the `CONFORMS` fast path assumes the reference's freshness rule finds no changes. That rule is `git -C \"$ROOT\" diff --stat 4c1e8f0a… -- .` plus `git status --porcelain --untracked-files=all`, and both must return nothing. I did not run either command because tools were off-limits. If either one produces output, a fresh audit must replace this block.\n- **Happy path.** The reviewer emitted a `Happy path:` line, which means a happy-path input was passed. So the sentinel carries it, and Step 3.5 shows it as an informational line only.\n- **Deferred/deviates line.** The spec's AC2 `deviates:` row produces the `Deferred/deviates per spec:` line. It does not count toward `N` and does not trigger a re-audit.\n- **Auto-applied fixes.** No fix loop ran, so there is no `auto-applied fix commits` line in the render and no revert offer.\n- **Whole-diff minors.** The inputs gave no whole-diff Minor findings, so the section is `none`. That also means no `fix minors` line appears under the Step 4 menu.\n- **Amendment digest.** No `amend:` commits were provided, so N = 0 and the digest block is omitted.\n- **Checkout type.** I assumed a normal repo or named-branch worktree, so Step 4 uses the 5-option variant.\n",
+      "words": 324,
+      "wallMs": 16931,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "## Closure / conformance\nstatus: CONFORMS (0 open)\naudited-base: 4c1e8f0a9b2d7c6e5f4a3b2c1d0e9f8a7b6c5d4e\nDeferred/deviates per spec: AC2 deviates: the export includes the 12 visible-by-default columns (Design clause 3)\n\nauto-applied fix commits: none\n\nwhole-diff minors: not recorded\n\n---\n\nClosure / conformance: CONFORMS\nDeferred/deviates per spec: AC2 deviates: the export includes the 12 visible-by-default columns (Design clause 3)\nwhole-diff minors: not recorded\n\nImplementation complete. What would you like to do?\n",
+      "words": 61,
+      "wallMs": 8036,
+      "mechanical": {}
+    }
+  },
+  "repoSha": "9932ea84fb0c04cbf4e1807b9905241bcfbf4402"
+}

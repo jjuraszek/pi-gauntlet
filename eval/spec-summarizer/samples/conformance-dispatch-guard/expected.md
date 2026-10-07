@@ -1,0 +1,7 @@
+- f1: judged: Operators repairing conformance gaps can dispatch workers without isolation because the existing loop rules are only written guidance.
+- f2: judged: After the first conformance audit, verification will block lone repair workers.
+- f3: judged: The default repair budget increases from two rounds to three.
+- f4: judged: Reaching the repair budget blocks further repair dispatches.
+- f5: judged: Setting the repair budget to zero prevents all repair rounds.
+- f6: judged: Resuming a session retains the repair rounds already used.
+- m1: mechanical: lacks "/Users"

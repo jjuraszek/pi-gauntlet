@@ -1,0 +1,6 @@
+- f1: judged: The ticket's row 2 text differs from the spec's row 2 text.
+- f2: judged: No blocker arises from the ticket differing.
+- f3: judged: Under show evidence the report prints a cross-check line saying ticket row 2 differs from the spec and that the spec governs.
+- f4: judged: The menu offers merge.
+- f5: judged: The ticket's rows are not judged beyond the spec's rows.
+- f6: judged: No tracker or PR comment is posted without a pick.

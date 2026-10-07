@@ -1,0 +1,1 @@
+Add one rule to the body: when adjudicating severity, apply the requesting-code-review skill's calibration - Critical only for bugs, data loss, security, or broken functionality; anything a reviewer would not block a PR over is not Critical.

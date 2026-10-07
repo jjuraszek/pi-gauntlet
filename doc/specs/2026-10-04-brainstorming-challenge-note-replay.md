@@ -1,5 +1,7 @@
 # Brainstorming challenges the ask: framing question, pattern-judged approaches, replay validation
 
+> **Superseded by:** [doc/specs/2026-10-07-gh-50-universal-eval-template.md](./2026-10-07-gh-50-universal-eval-template.md) - the `eval/brainstorming/` sample package only; section 6 "Replay harness" stays live
+
 **Goal:** Make `/skill:brainstorming` challenge the idea behind the initial ask instead of hardening it, with the challenge shape fixed so that a compliant driver model produces one and a pushy driver model stays bounded to one, and validate the change by replaying historical brainstorms on two driver models before and after the edit.
 
 ## Problem

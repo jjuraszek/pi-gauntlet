@@ -1,0 +1,1 @@
+Align the verdict with severity in the body: a Critical or Moderate finding means FIX_FIRST, Minor-only findings and clean reports mean SHIP, REJECT overrides both for a change that must not land. Update the Moderate and Minor severity rows to match. The description is out of scope; leave the frontmatter alone.

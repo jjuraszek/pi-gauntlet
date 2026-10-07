@@ -1,0 +1,4 @@
+- f1: judged: With `head_pushable: false` the run stops right after step 2 with a report naming the non-pushable head as the reason.
+- f2: judged: No git rebase runs.
+- f3: judged: No push runs.
+- f4: judged: No verification helper is dispatched and the sync stage is recorded as failed.

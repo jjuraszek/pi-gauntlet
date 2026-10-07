@@ -1,0 +1,5 @@
+- f1: judged: The spec defers the email-delivery slice that this PR's enabled export button depends on.
+- f2: judged: The gate offers merge.
+- f3: judged: With the appended delivery-check bundle, the check-delivery Stage 3 table marks AC3 and AC5 unexplained gap over the same ticket.
+- f4: judged: No blocker is minted for a row the spec defers.
+- f5: judged: No tracker or PR comment is posted without a pick.

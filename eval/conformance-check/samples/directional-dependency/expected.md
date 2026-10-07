@@ -1,0 +1,6 @@
+- f1: judged: The spec defers the slice that the change depends on.
+- f2: judged: The Deferred/deviates per spec line names the deferred slice.
+- f3: judged: The render produces zero decision items.
+- f4: judged: The Step 3.5 render reaches the first line of Step 4.
+- f5: judged: The delivered disabled-button clause creates no additional gap for the recorded dependency.
+- f6: judged: The render reaches the first line of Step 4.
