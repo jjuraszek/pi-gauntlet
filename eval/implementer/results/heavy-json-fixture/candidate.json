@@ -1,0 +1,102 @@
+{
+  "sample": "heavy-json-fixture",
+  "arm": "candidate",
+  "skillSha": "14ffccf90aa4b3fc4c5836644279aa68c816036bcf351642df54124440e6c857",
+  "inputSha": "671fbf39e232f1fb65c6303102dd54dfc36dbb9a86447d09ded0d1cbde7b34bf",
+  "kind": "text",
+  "assembly": "headed",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "```python\n# Hand-built minimal record: the rejection rule reads only posted_on, so no fixture is loaded.\nVALID_RECORD = {\"account\": \"4010\", \"amount\": \"125.00\", \"posted_on\": \"2026-01-15\", \"memo\": \"opening\"}\n\n\ndef test_rejects_posted_on_in_the_future():\n    record = dict(VALID_RECORD, posted_on=\"2026-03-02\")\n    with pytest.raises(ImportRejected, match=\"posted_on is in the future\"):\n        import_record(record, TODAY)\n\n\ndef test_imports_record_posted_today():\n    record = dict(VALID_RECORD, posted_on=TODAY.isoformat())\n    entry = import_record(record, TODAY)\n    assert entry.posted_on == TODAY\n```\n",
+      "words": 49,
+      "wallMs": 6586,
+      "mechanical": {
+        "m1": "holds"
+      }
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "@pytest.mark.parametrize(\n    \"posted_on\",\n    [\n        pytest.param(\"2026-02-28\", id=\"before-today\"),\n        pytest.param(\"2026-03-01\", id=\"on-today\"),\n    ],\n)\ndef test_imports_record_posted_on_or_before_today(posted_on):\n    record = {\"account\": \"4010\", \"amount\": \"125.00\", \"posted_on\": posted_on}\n\n    entry = import_record(record, TODAY)\n\n    assert entry.posted_on == date.fromisoformat(posted_on)\n    assert entry.account == \"4010\"\n    assert entry.amount == Decimal(\"125.00\")\n    assert entry.memo == \"\"\n\n\ndef test_rejects_future_posted_on():\n    record = {\"account\": \"4010\", \"amount\": \"125.00\", \"posted_on\": \"2026-03-02\"}\n\n    with pytest.raises(ImportRejected, match=r\"^posted_on is in the future$\"):\n        import_record(record, TODAY)\n",
+      "words": 47,
+      "wallMs": 7565,
+      "mechanical": {
+        "m1": "holds"
+      }
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "eed2c1b7a2b16e4dcfd9d2fc64141f75fd370c088e2db36003f534ea2e56af89",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "e798e175b7d39ddc7448b76a4091d82622802b87140cea503923a21310a6a459",
+      "baselineOutputSha": "8d30c8fb8ac171951af9fc99d37f6ab80cf1e212036563685d632f7837879e25",
+      "candidateOutputSha": "f9e12c009791d431ac156f9011a932e876ec389ba50cfd09aef976dc3f751680",
+      "facts": {
+        "f1": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "f2": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "f3": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "m1": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "After moved f1 and f3 in the intended direction: the module-level VALID_RECORD dict literal replaces the per-test open/json.load of the 60 KB fixture, and both new tests derive their one record from it, while the rejection assertion (pytest.raises(ImportRejected, match=...)) is unchanged so f2 still holds. One nit that keeps f1 only loosely satisfied: VALID_RECORD is a verbatim copy of the fixture's first record, including memo, which import_record does not require (it defaults via .get); the Test economy wording could say 'carry only the keys the code under test requires' so the persona drops memo and the dict is unambiguously minimal rather than a transcribed fixture row. Otherwise the wording delivered the Change without regressing any Before fact.",
+      "verdict": "improved"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "eed2c1b7a2b16e4dcfd9d2fc64141f75fd370c088e2db36003f534ea2e56af89",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "e798e175b7d39ddc7448b76a4091d82622802b87140cea503923a21310a6a459",
+      "baselineOutputSha": "2029124a3c95e237733a243b9a160418619ec1c6027538e19c6cd19bd489f8bf",
+      "candidateOutputSha": "f386140f943741dd23d82921b0cb490c150cb60316cc40eae6635d85905f4627",
+      "facts": {
+        "f1": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "f2": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "f3": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "m1": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "After moved f1 and f3 from fails to holds and kept f2: the rejection test now builds its record as a dict literal with only account, amount, and posted_on (memo correctly omitted since import_record defaults it), and neither new test opens or json.loads fixtures/ledger_400.json, while the pytest.raises(ImportRejected, match=...) assertion is preserved verbatim from Before. The Test economy wording delivered exactly the intended Change without regressing anything; the parametrized on/before-today test is also hand-built, so the deliberate-heavy-test DONE_WITH_CONCERNS mapping was not needed here. One small note for the author: the context says to add the regression 'alongside those rejection tests' and the existing rejection tests load the fixture, so the wording should make clear that 'alongside' means placement, not copying their setup — After got this right, but a less careful persona might read the neighbouring tests as a template and reintroduce the json.load.",
+      "verdict": "improved"
+    }
+  },
+  "repoSha": "69e67d29644683bbc50881d404185f0324d96da5"
+}

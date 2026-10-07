@@ -1,0 +1,102 @@
+{
+  "sample": "extend-existing-test",
+  "arm": "candidate",
+  "skillSha": "14ffccf90aa4b3fc4c5836644279aa68c816036bcf351642df54124440e6c857",
+  "inputSha": "4a6b5a74129233ec1402e8a3af90e368ba585d000f54bd193a07dcc1a48b3596",
+  "kind": "text",
+  "assembly": "headed",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "```python\nCASES = [\n    (\"plain\", \"12.50\", Decimal(\"12.50\")),\n    (\"negative\", \"-3.00\", Decimal(\"-3.00\")),\n    (\"integer\", \"7\", Decimal(\"7\")),\n    (\"thousands separator\", \"1,250.00\", Decimal(\"1250.00\")),\n]\n```\n",
+      "words": 15,
+      "wallMs": 3029,
+      "mechanical": {
+        "m1": "holds"
+      }
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "```python\nCASES = [\n    (\"plain\", \"12.50\", Decimal(\"12.50\")),\n    (\"negative\", \"-3.00\", Decimal(\"-3.00\")),\n    (\"integer\", \"7\", Decimal(\"7\")),\n    (\"thousands_separator\", \"1,250.00\", Decimal(\"1250.00\")),\n]\n```\n",
+      "words": 14,
+      "wallMs": 4424,
+      "mechanical": {
+        "m1": "holds"
+      }
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "ab5c3bf54f1c29e6e4873a5f5122dcd5d7ca5f7c4ba1f291976c128fb2aaee46",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "e798e175b7d39ddc7448b76a4091d82622802b87140cea503923a21310a6a459",
+      "baselineOutputSha": "c642a7557dd3bd0fe6a8882cc301c22f6933d3aba821dff2d52816bd0ccf6c62",
+      "candidateOutputSha": "6f25b015221d6cd3b7c0436d85c1ff7eae6653f918f7bbb941b61c2bf33f5b4b",
+      "facts": {
+        "f1": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "f2": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "f3": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "m1": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "Both outputs extend the existing CASES table with a single new row asserting \"1,250.00\" parses to Decimal(\"1250.00\"), leave the three existing rows and test_rejects_empty_amount untouched, and add no new test function, so f1, f2, and f3 hold in both. The only difference is the case name (\"thousands\" vs \"thousands separator\"), which affects no fact. Note that the Expected-to-move entry extend-existing-test/f1 says Before should fail, but this Before already extends CASES; the Test economy wording is delivering the intended behavior but the baseline here already met it, so no further wording change is needed for this case.",
+      "verdict": "unchanged"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "ab5c3bf54f1c29e6e4873a5f5122dcd5d7ca5f7c4ba1f291976c128fb2aaee46",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "e798e175b7d39ddc7448b76a4091d82622802b87140cea503923a21310a6a459",
+      "baselineOutputSha": "d851f457b56683d1c7db9bd52445f03758b35b455a3418122c55339984f6639b",
+      "candidateOutputSha": "d1c7df986d662d25c8fc4e9e8a7829fbece0f8e5f09af926db21a133a0d72e8d",
+      "facts": {
+        "f1": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "f2": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "f3": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "m1": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "After moved f1 from fails to holds exactly as intended: it appends a (\"thousands_separator\", \"1,250.00\", Decimal(\"1250.00\")) row to the existing CASES table rather than adding a standalone test function, so the parametrized test_parses_amount covers the new scenario. f2 holds in both outputs because both assert the same text-to-Decimal mapping, and f3 holds in both because the three original rows and test_rejects_empty_amount are preserved (After shows the full CASES list intact; Before adds a function without touching anything). No fact regressed. The Test economy block's 'extend an existing test before adding one' and 'parametrize equivalent cases' phrasing is doing the work here; keep it as written, and if you want to be safer about f3, add a sentence like 'when extending a parametrized table, append rows and leave existing rows and their names unchanged' so the persona reproduces the full table rather than a diff fragment that could be misread as a rewrite.",
+      "verdict": "improved"
+    }
+  },
+  "repoSha": "f5d8991a2617781802069df10a8b4a54640af082"
+}

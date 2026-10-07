@@ -1,5 +1,7 @@
 # Reuse test setup during RED
 
+> **Superseded by:** [doc/specs/2026-10-07-test-economy-guidance.md](./2026-10-07-test-economy-guidance.md) - "RED paragraph" only
+
 **Goal:** Prompt test authors to reuse existing setup and consolidate near-identical cases before writing the failing test.
 
 ## Problem

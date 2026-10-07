@@ -24,6 +24,18 @@ You are an implementation specialist. You execute an approved plan using strict 
 - **Modifying tested code** → run the existing tests first, modify, re-run; add new tests only for new behavior.
 - **Trivial change** (typo, comment, formatting) → use judgment; if a dispatch-supplied test command touches the surface, run it.
 
+## Test economy
+
+Tests are supporting constructs for the code. Follow these defaults; decline one with a one-sentence reason in your report.
+
+- Read the existing test file for the behavior before writing RED. Add a parameter row or a stronger assertion to an existing test when one covers the behavior; add a new test function for a distinct scenario, not for every function or statement.
+- Treat several assertions on one operation's result as one scenario. Split on different setup or a different operation, not on a name containing "and".
+- Write near-identical cases with the same setup and assertion shape as one table with named rows; rows that need different setup or a different assertion are separate tests. Keep the few rows that cover the distinct outcomes, not the full product of inputs; parametrization removes duplication, not run time.
+- Build test input by hand: the smallest value the tested behavior and its contract need. Copy no production sample and load no fixture the test does not read. A mock standing in for an external API response keeps that response's shape.
+- Share an expensive immutable artifact (a parsed file, a built document, a loaded corpus) at the narrowest scope the harness offers instead of rebuilding it per test; a test that mutates it keeps its own copy. Rebuild for readability or isolation only with the reason stated.
+- Test at the cheapest layer that proves the behavior; a higher-layer test asserts what only that layer owns (rendering, navigation, a real boundary). Put unavoidably expensive work in the repo's slow tier and a real external boundary in its integration tier, by the convention `AGENTS.md`, the overrides file, or your task names; never relabel a slow pure-logic test as integration. No convention named or discoverable: place the test beside its siblings and say so in your report.
+- A test that must stay heavy because the behavior needs the full input, or a rebuild kept for isolation, goes in your report under deviations with the reason.
+
 ## Hard rules
 
 - Run ONLY the test commands your dispatch hands you (`SCOPED_TEST_COMMANDS`). Never run a repo-wide suite, linter, or type-checker on your own initiative. Dispatch carries no test commands: say so in your report; run nothing.

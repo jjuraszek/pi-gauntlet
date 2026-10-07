@@ -1,0 +1,42 @@
+{
+  "sample": "oversized-fixture-diff",
+  "arm": "baseline",
+  "skillSha": "ef6f99d1e7f262e12275cd8fc8b720879673907ea98aea27ff9b67e69803ccad",
+  "inputSha": "86cc4543ed4aa12b43b2fab3979175a1a820bb1505315493ef2f6dd26990a661",
+  "kind": "text",
+  "assembly": "headed",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "Verdict: FIX_FIRST\nReasoning: The test rewrite drops the `posted_on` assertion, but the plan requires that `posted_on` behaviour \"stays covered\".\nConfidence: medium (I read the full diff, but no commands were supplied, so I did not run the tests)\n\nFindings:\n  - [Moderate] F1: ledger/importer_test.py:13 — `test_import_sets_posted_on` was deleted, and the merged `test_import_maps_fields` asserts only `account` and `amount`, so `posted_on` parsing is now untested. The plan says account, amount, and posted_on \"stays covered\"; the code covers only two of the three, and that deviation is not acceptable.\n        Fix: Add `assert entry.posted_on == date(2026, 1, 15)` to `test_import_maps_fields`.\n        touched-files: ledger/importer_test.py\n        touched-resources: none\n  - [Minor] F2: [shrink] ledger/importer_test.py:19 — `test_import_trims_memo` loads the shared 60 KB `fixtures/ledger_400.json` to reach `records[7]`. This has three costs: it couples the test to the record order of a fixture other modules own, it uses a cwd-relative path that breaks if pytest runs from another directory, and it adds `import json` plus file I/O.\n        Fix: Use `entry = import_record({**RECORD, \"memo\": \"  quarterly fee \"}, TODAY)` and drop `import json` and the `with open(...)` block. This saves about 3 lines and removes the fixture and cwd dependence.\n        touched-files: ledger/importer_test.py\n        touched-resources: fixtures/ledger_400.json (dependency removed)\n  - [Minor] F3: ledger/importer.py:24 — `record.get(\"memo\", \"\").strip()` raises `AttributeError` when a record carries `\"memo\": null`. Previously that value passed through as `None`. This regression only matters if source data can contain null memos.\n        Fix: Use `memo=(record.get(\"memo\") or \"\").strip()` and add a test with `\"memo\": None` if nulls are possible in the source.\n        touched-files: ledger/importer.py\n        touched-resources: none\n\nComplexity: net -3 lines\nParallel-safe: F1,F3 disjoint; F2,F3 disjoint; F2 conflicts F1 (both touch ledger/importer_test.py)\nBehaviour-change: no\n\nVerification: Not run. SCOPED_TEST_COMMANDS was `none`, so the orchestrator gate owns test execution.\n",
+      "words": 268,
+      "wallMs": 22305,
+      "mechanical": {
+        "m1": "fails",
+        "m2": "holds",
+        "m3": "holds"
+      }
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "Verdict: FIX_FIRST\nReasoning: The change removes explicit `posted_on` coverage, contrary to the requirement that existing field behavior stay covered.\nConfidence: medium\n\nFindings:\n  - [Moderate] F1: ledger/importer_test.py:13 — Replacing the existing field tests removes the `posted_on` assertion, leaving a required behavior without the supplied regression coverage.\n        Fix: Add `assert entry.posted_on == date(2026, 1, 15)` to `test_import_maps_fields`, retaining the account and amount assertions.\n        touched-files: ledger/importer_test.py\n        touched-resources: none\n  - [Minor] F2: [shrink] ledger/importer_test.py:19 — The memo-trimming test unnecessarily depends on a working-directory-relative fixture path and an unrelated record index.\n        Fix: Replace the fixture loading with `entry = import_record({**RECORD, \"memo\": \"  quarterly fee \"}, TODAY)` and retain the memo assertion; remove the unused `json` import. This keeps the test self-contained without changing its coverage.\n        touched-files: ledger/importer_test.py\n        touched-resources: none\n\nVerification:\n  No commands run: `SCOPED_TEST_COMMANDS` is `none`, and the dispatch prohibits execution. Review was limited to the supplied diff and fixture description; the orchestrator gate owns test execution.\n\nComplexity: net -4 lines\nParallel-safe: F2 conflicts F1 (both touch ledger/importer_test.py)\nBehaviour-change: no\n",
+      "words": 157,
+      "wallMs": 14152,
+      "mechanical": {
+        "m1": "fails",
+        "m2": "holds",
+        "m3": "holds"
+      }
+    }
+  },
+  "repoSha": "2b85f3b15a9d0c55cef42fe99244e71f0ee06ca8"
+}

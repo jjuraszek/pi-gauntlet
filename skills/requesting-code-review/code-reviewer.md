@@ -62,8 +62,7 @@ git diff {BASE_SHA}..{HEAD_SHA}
 
 **Testing:**
 - Tests actually test logic (not mocks)?
-- Edge cases covered?
-- Integration tests where needed?
+- Each added or changed test earns its run: no repeat of an existing test's setup and operation, input no larger than the behavior and its contract need (external-API mocks keep their shape), expensive setup shared, right tier?
 - Scoped test commands passing (quote actual output; if `none` supplied, note the orchestrator gate owns execution)?
 
 **Requirements:**

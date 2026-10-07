@@ -1,0 +1,114 @@
+{
+  "sample": "duplicate-tests-diff",
+  "arm": "candidate",
+  "skillSha": "161920a0ea2b690b51e6e9932a62afb602357b47395d04491704f2be371cada0",
+  "inputSha": "8b6576574ffef847ebc184abdbe9ec9d92cdc9ea4da9362cda326aef36c2e4c7",
+  "kind": "text",
+  "assembly": "headed",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "Verdict: FIX_FIRST\nReasoning: `import_record` builds `amount` with bare `Decimal(...)`, so it accepts `\"NaN\"`/`\"Infinity\"` as ledger amounts and lets malformed amounts escape as `decimal.InvalidOperation` instead of `ImportRejected` (Moderate).\nConfidence: medium (I read the diff and the post-change `import_record`/`Entry` source; I ran nothing, and I did not see `parse_amount`'s body)\n\nFindings:\n  - [Moderate] F1: ledger/importer.py:`import_record` (amount=Decimal(record[\"amount\"])): The function ignores the module's existing `parse_amount` and calls `Decimal` directly. As a result, `\"NaN\"`, `\"sNaN\"` and `\"Infinity\"` become `Entry` amounts, and `\"1,250.00\"` or `\"abc\"` raises `decimal.InvalidOperation` rather than the module's `ImportRejected`. Callers that only catch `ImportRejected` will crash on bad input.\n        Fix: Route the field through `parse_amount(record[\"amount\"])`. If `parse_amount` does not already reject non-finite or malformed values with `ImportRejected`, wrap the call so it does. Add one test, e.g. `amount=\"NaN\"` -> `ImportRejected`.\n        touched-files: ledger/importer.py, ledger/importer_test.py\n        touched-resources: none\n  - [Minor] F2: ledger/importer.py:`import_record`: Other bad inputs also bypass `ImportRejected`:\n        - A missing `\"amount\"` or `\"posted_on\"` key raises `KeyError`.\n        - A bad date string raises `ValueError` from `date.fromisoformat`.\n        - A whitespace-only account (`\"  \"`) passes the `not record.get(\"account\")` check.\n        Fix: Catch `KeyError` and `ValueError` around field extraction and re-raise as `ImportRejected`. Check `not record.get(\"account\", \"\").strip()`.\n        touched-files: ledger/importer.py\n        touched-resources: none\n  - [Minor] F3: [shrink] ledger/importer_test.py:`test_import_sets_account` / `test_import_sets_amount` / `test_import_sets_posted_on`: All three tests run the same setup and the same `import_record(RECORD, TODAY)` call, with one assertion each. Merge them into one test, with no loss of coverage:\n        ```python\n        def test_import_maps_fields():\n            entry = import_record(RECORD, TODAY)\n            assert (entry.account, entry.amount, entry.posted_on) == (\"4010\", Decimal(\"125.00\"), date(2026, 1, 15))\n        ```\n        touched-files: ledger/importer_test.py\n        touched-resources: none\n  - [Minor] F4: ledger/importer.py:`Entry.memo` / `import_record`: This is a plan deviation.\n        - The plan says the Entry carries account, amount and posted_on from the record.\n        - The code also copies `memo` (default `\"\"`), and no test covers it.\n        - The deviation is acceptable if `memo` is intended. If so, add `entry.memo == \"opening\"` to the merged assertion from F3. Otherwise, drop the field.\n        - Separately, `today` is unused. The plan's signature requires it, so this is not a finding against the task, but its purpose should be confirmed.\n        Fix: Either assert `memo` in the field-mapping test or remove `memo` from `Entry`/`import_record`.\n        touched-files: ledger/importer_test.py\n        touched-resources: none\n\nComplexity: net -6 lines\n\nVerification: No commands run. SCOPED_TEST_COMMANDS was `none`, so the orchestrator gate owns test execution.\n\nParallel-safe: F1 conflicts F2 (both touch importer.py); F1 conflicts F3 (both touch importer_test.py); F1 conflicts F4 (both touch importer_test.py); F3 conflicts F4 (both touch importer_test.py); F2,F3,F4 disjoint\nBehaviour-change: yes\n",
+      "words": 379,
+      "wallMs": 26603,
+      "mechanical": {
+        "m1": "holds",
+        "m2": "holds"
+      }
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "Verdict: SHIP\nReasoning: The implementation satisfies the stated field-mapping requirement; the only finding is redundant test setup and execution.\nConfidence: medium\n\nFindings:\n  - [Minor] F1: [shrink] ledger/importer_test.py:12 — Three tests repeat the same input and `import_record` call, splitting assertions for one successful import across separate tests.\n        Fix: Combine them into one `test_import_maps_record_fields` test that calls `import_record(RECORD, TODAY)` once and asserts account, amount, and posted_on together. Keep the empty-account rejection test separate.\n        touched-files: ledger/importer_test.py\n        touched-resources: none\n\nVerification:\n  No verification commands were supplied (`SCOPED_TEST_COMMANDS: none`), and none were run. Review was limited to the supplied diff and implementation excerpt; execution remains with the orchestrator gate.\n\nComplexity: net -8 lines\nParallel-safe: F1 disjoint\nBehaviour-change: no\n",
+      "words": 110,
+      "wallMs": 12156,
+      "mechanical": {
+        "m1": "holds",
+        "m2": "holds"
+      }
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "8d37189c8721f4d3a130b397b704108fb73a84d29c91d6127906f22e6e645694",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "1cc2668b4a2223988a665f5ea3ccdbccce9e7aa517c7cd74b397068f4d7b0918",
+      "baselineOutputSha": "126d66b63dd12895792d9ab2d85116006f21ac265d3d8662ffe83697a7902365",
+      "candidateOutputSha": "197497ff2494c8bca03613e69b84bfbb6aae266a9ebeb11a3f2178ab0e796daa",
+      "facts": {
+        "f1": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "f2": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "f3": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "m1": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "m2": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "After delivers the Change without losing anything Before kept. Both outputs already had a Minor [shrink] finding collapsing the three single-field tests into one call with one combined assertion (Before via Entry equality, After via a tuple assertion), so f1 and f2 hold on both sides. The fact that moved is f3: Before's F4 asked for a separate `memo`-omitted test asserting the `\"\"` default, and F3 floated a future-date guard test, i.e. extra standalone field-mapping edge-case tests; After instead folds the memo check into the merged F3 assertion and limits new tests to one rejection case (`amount=\"NaN\"` -> `ImportRejected`), which is a validation-contract test rather than a field-mapping edge case. To keep f3 robust, the After wording should continue to steer memo/default-value and similar mapping checks into the existing consolidated test ('add the assertion to the merged test') rather than 'add a test', and keep any newly requested tests tied to a concrete contract gap (an exception type escaping) so a reader does not read them as more field-mapping cases.",
+      "verdict": "improved"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "8d37189c8721f4d3a130b397b704108fb73a84d29c91d6127906f22e6e645694",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "1cc2668b4a2223988a665f5ea3ccdbccce9e7aa517c7cd74b397068f4d7b0918",
+      "baselineOutputSha": "305195faf2f58f21289e5a492894f4cb690e0070eccb82d005afa0b8a582f519",
+      "candidateOutputSha": "6e2b888f61b0247033d6dc30fd419eb1a1d0d41840dd6015068e0c48da36f8e8",
+      "facts": {
+        "f1": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "f2": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "f3": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "m1": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "m2": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "After moved f1 and f2 from fails to holds as intended: it emits a single [Minor] [shrink] finding at ledger/importer_test.py:12 that explicitly proposes one test calling import_record once and asserting account, amount, and posted_on together, while keeping the rejection test separate, which matches f1 and f2 exactly. f3 already held in Before (no findings at all) and still holds in After, since the only finding is the consolidation and nothing asks for extra field-mapping edge-case tests; note the Expected list marks f3 as fails -> holds, but Before's empty findings list already satisfied it. No fact regressed, so no wording adjustment is needed; if anything, the After template's extra 'Complexity' and 'Parallel-safe' lines are harmless but could be dropped to keep the output tighter.",
+      "verdict": "improved"
+    }
+  },
+  "repoSha": "e70b34e22cf088d28ecdd9a6e31d6595b64393f4"
+}

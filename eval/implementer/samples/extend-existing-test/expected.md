@@ -1,0 +1,4 @@
+- f1: judged: The reply extends the existing CASES table with a new row for a thousands-separator amount instead of adding a new test function for it.
+- f2: judged: The added case asserts that "1,250.00" parses to Decimal("1250.00").
+- f3: judged: The reply does not remove or rewrite the existing CASES rows or test_rejects_empty_amount.
+- m1: mechanical: lacks "/Users"

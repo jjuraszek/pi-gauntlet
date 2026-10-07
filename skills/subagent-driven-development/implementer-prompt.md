@@ -104,7 +104,7 @@ Dispatch a subagent with this prompt:
     **Testing:**
     - Do tests actually verify behavior (not just mock behavior)?
     - Did I follow TDD (step 2)?
-    - Are tests comprehensive?
+    - Does each added test earn its run - extends an existing test where one covers the behavior, minimal synthetic input, shared expensive setup, right tier?
 
     If you find issues during self-review, fix them now before reporting.
 
@@ -121,7 +121,7 @@ Dispatch a subagent with this prompt:
     - Self-review findings (if any)
     - Any issues or concerns
 
-    Use `DONE_WITH_CONCERNS` if you completed the work but have doubts about correctness.
+    Use `DONE_WITH_CONCERNS` if you completed the work but have doubts about correctness, or when you kept a test heavy or rebuilt its setup on purpose (a declined test-economy default) - name it under issues or concerns with the reason.
     Use `BLOCKED` if you cannot complete the task. Use `NEEDS_CONTEXT` if you need
     information that wasn't provided. Never silently produce work you're unsure about.
 ```

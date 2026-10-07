@@ -2,8 +2,8 @@
 
 Deep reference for the 7 personas in [`agents/`](../agents/), dispatched via [pi-cohort](https://github.com/jjuraszek/pi-cohort). See the [README](../README.md) for the workflow overview; the frontmatter-knobs table and the rationale behind each pin are in [Frontmatter knobs](#frontmatter-knobs) below.
 
-- `implementer` — strict RED→GREEN→REFACTOR TDD, completion-guarded.
-- `code-reviewer` — read-only review, Critical/Moderate/Minor severity.
+- `implementer` — strict RED→GREEN→REFACTOR TDD with test-economy defaults, completion-guarded.
+- `code-reviewer` — read-only review, Critical/Moderate/Minor severity, test-economy checks as Minor.
 - `spec-reviewer` — verifies an implementation against its plan/spec, per-requirement table.
 - `conformance-reviewer` — closing-loop intent gate; confronts the delivered code+docs against the *origin* (spec + verbatim prompt), skipping the plan, and emits a per-requirement coverage verdict. Spec clauses no human input required and nothing depends on are reported once as `UNAUTHORIZED` (over-spec), with `recommended: fix` only when removal is contained. Read-only; proposes remediation, never fixes or decides. Ships model-free — pin its model per preset (see [Configuration: conformance gate model](./configuration.md#conformance-gate-model)).
 - `spec-summarizer` - produces a plain-language briefing (at most 300 words) of one spec for the brainstorming user review gate. Fresh context, read-only (`tools: read`), reads only the spec it is given; output is ephemeral (rendered at the gate, never committed). Dispatched only by `brainstorming`; not for direct dispatch. Ships model-free - set `subagents.agentOverrides.spec-summarizer.model` per preset to override (unset -> inherits the main loop).

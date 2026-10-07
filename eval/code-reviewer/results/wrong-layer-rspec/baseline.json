@@ -1,0 +1,40 @@
+{
+  "sample": "wrong-layer-rspec",
+  "arm": "baseline",
+  "skillSha": "ef6f99d1e7f262e12275cd8fc8b720879673907ea98aea27ff9b67e69803ccad",
+  "inputSha": "68b7d87ee32ab69a8c393350b38e3d2039f50e9fbe891d35c2757b51274842f6",
+  "kind": "text",
+  "assembly": "headed",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "```\nVerdict: FIX_FIRST\nReasoning: The new system spec likely can't locate the form fields, and its `LedgerImport.count` assertion races the JS driver, so it can't reliably show that no record is created.\nConfidence: medium   (no commands supplied; only the first lines of _form.html.erb and none of the controller are visible)\n\nFindings:\n  - [Moderate] F1: app/views/ledger_imports/_form.html.erb:4-6 — The three inputs have no `<label>` (the visible lines are contiguous `f.text_field`/`f.date_field` calls), so `fill_in \"Account\"` / `\"Amount\"` / `\"Posted on\"` match no label, id (`ledger_import_account`), name, or placeholder. Every example would raise `Capybara::ElementNotFound`, and the form has no accessible field names.\n        Fix: Add `<%= f.label :account %>`, `<%= f.label :amount %>`, and `<%= f.label :posted_on %>` before each field; the default humanized texts match the spec locators. Also confirm the submit button reads \"Import\" (it is outside the shown hunk; the default `f.submit` reads \"Create Ledger import\").\n        touched-files: app/views/ledger_imports/_form.html.erb\n        touched-resources: none\n  - [Moderate] F2: spec/system/ledger_imports_spec.rb:11,20,29 — With `js: true`, `click_button` returns before the server handles the POST. `expect(LedgerImport.count).to eq(0)` runs first and is checked against the pre-submit state, so it passes even when a record is created. This leaves the plan's \"creates no LedgerImport\" clause untested at the system level.\n        Fix: Drop `js: true` so the synchronous `rack_test` driver runs; the form needs no JS. Or move each `expect(page).to have_content(...)` above the count assertion so Capybara waits for the re-render first.\n        touched-files: spec/system/ledger_imports_spec.rb\n        touched-resources: none\n  - [Minor] F3: spec/system/ledger_imports_spec.rb:9,18,27 — Under Selenium, Capybara types string values into `<input type=\"date\">` with send_keys. The ISO strings \"2026-01-15\" and \"2099-01-01\" are then entered according to the browser locale (e.g. mm/dd/yyyy), so the posted date may not be what the spec intends. This is moot if F2 drops `js: true`.\n        Fix: Pass `Date.new(2026, 1, 15)` / `Date.new(2099, 1, 1)` so Capybara sets the value via JS.\n        touched-files: spec/system/ledger_imports_spec.rb\n        touched-resources: none\n\nParallel-safe: F1,F2 disjoint; F1,F3 disjoint; F3 conflicts F2 (both touch spec/system/ledger_imports_spec.rb)\nBehaviour-change: yes\n\nVerification: none run. SCOPED_TEST_COMMANDS was `none`, so execution is owned by the orchestrator gate.\n```\n\nNotes:\n- **Plan conformance:** The view change meets \"re-renders the form with the model's error message\". The rendered messages are escaped via `<%= m %>`. The existing request spec (422, count unchanged, body includes the message) covers the server side of the plan, so the controller looks plan-conformant. I could not read the controller to confirm this directly.\n- **Error message wording:** The three message strings asserted in the system spec are consistent with the validations the model spec describes. I could not check their exact wording against the model source.\n",
+      "words": 401,
+      "wallMs": 31465,
+      "mechanical": {
+        "m1": "holds",
+        "m2": "holds"
+      }
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "Verdict: SHIP\nReasoning: The view renders escaped model error messages, and existing request coverage verifies rejection without persistence; the new system tests have a non-blocking synchronization weakness.\nConfidence: medium\n\nFindings:\n  - [Minor] F1: spec/system/ledger_imports_spec.rb:11 — All three JavaScript-enabled examples check the database immediately after clicking, so the count assertion can run before submission finishes and miss a later record creation.\n        Fix: Move each count assertion after its corresponding `have_content` assertion, which waits for the validation response to render.\n        touched-files: spec/system/ledger_imports_spec.rb\n        touched-resources: none\n\nVerification:\n  No commands run: SCOPED_TEST_COMMANDS is `none`, and the dispatch prohibits execution. Review was limited to the supplied diff and coverage descriptions.\n\nParallel-safe: F1 disjoint\nBehaviour-change: no\n",
+      "words": 107,
+      "wallMs": 18731,
+      "mechanical": {
+        "m1": "holds",
+        "m2": "holds"
+      }
+    }
+  },
+  "repoSha": "2b85f3b15a9d0c55cef42fe99244e71f0ee06ca8"
+}

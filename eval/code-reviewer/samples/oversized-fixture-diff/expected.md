@@ -1,0 +1,5 @@
+- f1: judged: A finding tagged shrink says test_import_trims_memo reads only record 7's memo and proposes a hand-built record with that memo value instead of loading fixtures/ledger_400.json.
+- f2: judged: A Critical finding says the consolidation into test_import_maps_fields dropped coverage of posted_on mapping that test_import_sets_posted_on provided.
+- m1: mechanical: contains "Critical"
+- m2: mechanical: contains "Behaviour-change:"
+- m3: mechanical: lacks "/Users"

@@ -1,0 +1,114 @@
+{
+  "sample": "wrong-layer-rspec",
+  "arm": "candidate",
+  "skillSha": "161920a0ea2b690b51e6e9932a62afb602357b47395d04491704f2be371cada0",
+  "inputSha": "68b7d87ee32ab69a8c393350b38e3d2039f50e9fbe891d35c2757b51274842f6",
+  "kind": "text",
+  "assembly": "headed",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "Verdict: FIX_FIRST\nReasoning: The view change meets the plan, but the new system spec likely cannot locate its fields, and its count assertion can pass without testing anything. Together these leave the plan's three cases effectively unproven.\nConfidence: medium (I read the diff only. Only lines 1–7 of `_form.html.erb` are visible, and no commands were run.)\n\nFindings:\n  - [Moderate] F1: spec/system/ledger_imports_spec.rb:7 — The spec's tests may fail or pass without proving anything:\n      - `fill_in \"Account\"` / `\"Amount\"` / `\"Posted on\"` match on label text, placeholder, id, or name. The visible form has bare `f.text_field` / `f.date_field` calls with no `f.label`, so each `fill_in` likely raises `Capybara::ElementNotFound`.\n      - If labels do exist below the visible hunk, there is a second problem. `expect(LedgerImport.count).to eq(0)` runs right after `click_button` under `js: true`. The browser submits asynchronously, so the count is read before the server handles the POST and is trivially 0.\n        Fix: Delete `spec/system/ledger_imports_spec.rb`. Cover the three cases in `spec/requests/ledger_imports_spec.rb` as described in F2. If the system spec is kept, assert `have_content(...)` before the count check, and confirm the labels exist.\n        touched-files: spec/system/ledger_imports_spec.rb, spec/requests/ledger_imports_spec.rb\n        touched-resources: test DB\n  - [Minor] F2: [shrink] spec/system/ledger_imports_spec.rb:3 — This is a JS browser test asserting model validation rules at a higher layer than needed.\n      - The form has no JavaScript, so `js: true` adds a browser driver for nothing.\n      - `spec/models/ledger_import_spec.rb` already owns the messages.\n      - `spec/requests/ledger_imports_spec.rb` already proves the re-render, the 422 status, the unchanged count, and the message in the body, but for only one invalid record.\n        Fix: Add a three-row table to the request spec: `empty account`, `negative amount`, `future posted_on`. Each row should post the invalid params and expect 422, an unchanged `LedgerImport.count`, and the row's message in `response.body`. Then drop the system spec.\n        touched-files: spec/system/ledger_imports_spec.rb, spec/requests/ledger_imports_spec.rb\n        touched-resources: test DB\n  - [Minor] F3: [shrink] spec/system/ledger_imports_spec.rb:6-37 — The three tests are equivalent cases that repeat the same fill/click/assert sequence and differ only in one input and one message.\n        Fix: Write them as one table of named rows `{field, value, message}` with a single example body. If F2 is applied, F3 is folded into it.\n        touched-files: spec/system/ledger_imports_spec.rb\n        touched-resources: none\n  - [Minor] F4: app/views/ledger_imports/_form.html.erb:4-6 — The visible inputs have no `<label>` elements. This is an accessibility gap, and it is also the reason the label-based `fill_in` calls in F1 cannot find the fields.\n        Fix: Add `<%= f.label :account %>`, `<%= f.label :amount %>`, and `<%= f.label :posted_on %>` before each field, if they are not already further down the file.\n        touched-files: app/views/ledger_imports/_form.html.erb\n        touched-resources: none\n\nComplexity: net -20 lines (38-line system spec replaced by a ~15-line request-spec table)\nParallel-safe: F4 disjoint; F1 conflicts F2 (both touch spec/system/ledger_imports_spec.rb and spec/requests/ledger_imports_spec.rb); F1 conflicts F3 (both touch spec/system/ledger_imports_spec.rb); F2 conflicts F3 (both touch spec/system/ledger_imports_spec.rb)\nBehaviour-change: no\n\nVerification: None run. The dispatch supplied `SCOPED_TEST_COMMANDS: none`, so the orchestrator's gate owns test execution.\n",
+      "words": 448,
+      "wallMs": 32786,
+      "mechanical": {
+        "m1": "holds",
+        "m2": "holds"
+      }
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "Verdict: SHIP\nReasoning: The view renders the model’s validation messages as required; the only finding is unnecessary browser-level coverage of behavior owned by existing model and request specs.\nConfidence: medium\n\nFindings:\n  - [Minor] F1: [shrink] spec/system/ledger_imports_spec.rb:3 — Three JavaScript-enabled browser tests exercise server-side validation and response rendering already owned by the model and request layers, adding unnecessary execution cost.\n        Fix: Move any missing submission cases into a named table in the request specs, asserting status 422, unchanged LedgerImport count, and the corresponding rendered error message for all three invalid inputs; remove these browser tests. Use a current valid date for the account and amount cases and a relative future date for the posted_on case.\n        touched-files: spec/system/ledger_imports_spec.rb, spec/requests/ledger_imports_spec.rb\n        touched-resources: none\n\nVerification:\n  No commands were run. SCOPED_TEST_COMMANDS was `none`, and no tools were available; execution remains with the orchestrator gate. Review was limited to the supplied diff and descriptions of existing specs.\n\nParallel-safe: F1 disjoint\nBehaviour-change: no\n",
+      "words": 153,
+      "wallMs": 14690,
+      "mechanical": {
+        "m1": "holds",
+        "m2": "holds"
+      }
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "127b5232b9bd8237e230d7d7657561e031f1e88d6d72ccef61c551fccac75e2f",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "1cc2668b4a2223988a665f5ea3ccdbccce9e7aa517c7cd74b397068f4d7b0918",
+      "baselineOutputSha": "6dc6d92434f7ce95fdb5f808865993cf46475b4a874cbce78ead8c29a5120429",
+      "candidateOutputSha": "731711898aff0eb64e188f17151b05d974ecd3d9b6a339f099a969b94ceb5ad8",
+      "facts": {
+        "f1": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "f2": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "f3": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "m1": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "m2": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "After moves f1 as intended: F2 is tagged [shrink] and explicitly names spec/models/ledger_import_spec.rb as owning the messages and spec/requests/ledger_imports_spec.rb as owning the re-render/422/count, which Before never did (Before's three findings were all mechanics bugs in the system spec with no layer or economy framing). The one soft spot is that f1 asks for 'keeping at most one browser example for what only the browser proves'; After instead says 'drop the system spec' outright and claims the request spec already proves the re-render, so it satisfies the fact only because zero ≤ one, not because it recognises anything the browser uniquely proves. If you want this to read unambiguously, have the Tests checklist say for wrong-layer tests: 'move the per-rule cases to the owning layer and keep one browser example only for what the browser alone proves (e.g. the form actually rendering its error)' — that still delivers the shrink while making the reviewer propose a single retained example rather than deletion. Also consider keeping the Moderate defect finding (F1) separate from the shrink recommendation; After's F1 Fix also says 'Delete the system spec', which blends a correctness fix with an economy finding the implementer is supposed to be able to decline. f2 and f3 hold in both outputs: neither asks to weaken the model or request specs, and neither asks for additional browser examples.",
+      "verdict": "improved"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "127b5232b9bd8237e230d7d7657561e031f1e88d6d72ccef61c551fccac75e2f",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "1cc2668b4a2223988a665f5ea3ccdbccce9e7aa517c7cd74b397068f4d7b0918",
+      "baselineOutputSha": "2305f4fb9c935340f3fdac207b933c1f0858b63a26ea9602eaccdea6d574c73c",
+      "candidateOutputSha": "4fa5d4dc6b54456a1ea1ce320050e223d16332074357c664279dcc9a8fffc067",
+      "facts": {
+        "f1": {
+          "before": "fails",
+          "after": "fails",
+          "label": "intended but unchanged"
+        },
+        "f2": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "f3": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "m1": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "m2": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "After gets most of the way to f1: F1 is tagged [shrink], names the model and request layers as owners of the three validation rules, and is Minor, so f2 and f3 remain intact as they were in Before (Before's only finding was a synchronization ordering nit, not a shrink finding, so f1 failed there too). What keeps f1 from holding in After is the Fix: it deletes all three browser examples outright and treats the request spec's body check as fully equivalent, rather than identifying what only the browser proves — the form partial actually rendering `<ul class=\"errors\">` with the message on re-render — and proposing to keep at most one system example for that. The wrong-layer check in the Tests priority should be worded so the reviewer asks 'what does this layer uniquely prove?' before proposing deletion, e.g. 'wrong-layer tests: propose moving the behavior to the owning layer and keeping at most one example at the higher layer for whatever only that layer verifies', which would yield a finding like 'keep one browser example for the error-list rendering, move the other two field cases to the request spec table' and satisfy f1 without touching f2 or f3.",
+      "verdict": "unchanged"
+    }
+  },
+  "repoSha": "e70b34e22cf088d28ecdd9a6e31d6595b64393f4"
+}

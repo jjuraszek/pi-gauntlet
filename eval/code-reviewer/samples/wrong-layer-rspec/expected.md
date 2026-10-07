@@ -1,0 +1,5 @@
+- f1: judged: A finding tagged shrink says the three validation rules are owned by the model spec and the request spec, and proposes keeping at most one browser example for what only the browser proves (the form rendering its error).
+- f2: judged: No finding asks to delete or weaken the model spec or the request spec coverage.
+- f3: judged: No finding asks for more browser examples.
+- m1: mechanical: contains "Behaviour-change:"
+- m2: mechanical: lacks "/Users"

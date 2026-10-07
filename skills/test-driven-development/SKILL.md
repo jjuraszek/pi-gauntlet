@@ -60,11 +60,18 @@ Implement fresh from tests. Period.
 
 Write one minimal test showing what should happen.
 
-Before writing setup, look for an existing helper, fixture, or factory. Extend a suitable existing one before creating another. Write near-identical cases for the same behavior as one parametrized or table-driven example.
+Test economy - defaults a competent engineer follows and may decline with a stated reason:
+
+1. **Extend before add.** Read the existing test file for the behavior first. Prefer a new parameter row or a stronger assertion in an existing test; add a new test function for a distinct scenario, not for every function or statement.
+2. **One scenario per test.** Several assertions on one operation's result are one scenario. A name containing "and" is not by itself a split signal; different setup or a different operation is.
+3. **Parametrize equivalent cases.** Near-identical cases with the same setup and assertion shape are one table with named rows; rows that need different setup or a different assertion are separate tests. Prefer the few rows that cover the distinct outcomes over the full product of inputs. Parametrization removes duplication, not run time.
+4. **Minimal synthetic input.** Test input is the smallest hand-built value the tested behavior and its contract need - never a copied production sample, never a fixture the test does not read. A mock standing in for an external API response mirrors that response's shape (anti-pattern 4); a field the contract requires is never oversized.
+5. **Setup is measured in work, not lines.** Look for an existing helper, fixture, or factory and extend it before creating another. Share an expensive immutable artifact (a parsed file, a built document, a loaded corpus) at the narrowest scope the harness offers instead of rebuilding it per example; a test that mutates the artifact keeps its own copy. Readability or isolation may justify a rebuild - say so.
+6. **Right tier, honestly.** Test at the cheapest layer that proves the behavior: a behavior a unit or request-level test proves does not get a browser or end-to-end test, and a higher-layer test asserts what only that layer owns (rendering, navigation, a real boundary). Cost and dependency are separate axes: unavoidably expensive work goes in the repo's slow tier, a real external boundary in its integration tier, each by the convention `AGENTS.md`, the overrides file, or the task text names. Never relabel a slow pure-logic test as integration to hide its cost. When no convention is named or discoverable, place the test beside its siblings and report that.
 
 **Requirements:**
-- One behavior per test
-- Clear name describing behavior (if the name contains "and", split it)
+- One scenario per test
+- Clear name describing the scenario
 - Real code (no mocks unless unavoidable)
 - Shows desired API — demonstrates how code should be called
 
@@ -174,14 +181,14 @@ If you catch yourself doing any of these, stop immediately:
 
 Before marking work complete:
 
-- [ ] Every new function/method has a test
+- [ ] Every new behavior is covered - by an extended existing test or a new one
 - [ ] Watched each test fail before implementing
 - [ ] Each test failed for expected reason (feature missing, not typo)
 - [ ] Wrote minimal code to pass each test
 - [ ] The task's `Tests:` commands pass (full suite belongs to the verify phase)
 - [ ] Output pristine (no errors, warnings)
 - [ ] Tests use real code (mocks only if unavoidable)
-- [ ] Edge cases and errors covered
+- [ ] Edge cases and errors covered - as rows or assertions where they share setup
 
 Can't check all boxes? You skipped TDD. Start over.
 

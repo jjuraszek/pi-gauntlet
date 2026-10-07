@@ -1,0 +1,5 @@
+- f1: judged: A finding tagged shrink proposes replacing test_import_sets_account, test_import_sets_amount, and test_import_sets_posted_on with one test that calls import_record once and asserts all three fields (separate assertions or one Entry equality).
+- f2: judged: The shrink finding that consolidates the three field tests is Minor severity.
+- f3: judged: No finding asks for additional separate edge-case tests of import_record's field mapping.
+- m1: mechanical: contains "Behaviour-change:"
+- m2: mechanical: lacks "/Users"

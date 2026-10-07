@@ -176,6 +176,8 @@ BEFORE mocking any method:
 
 ## Anti-Pattern 4: Incomplete Mocks
 
+Scope: a mock standing in for an external API response. Internal inputs (records, config, fixtures your own code consumes) follow the minimal-synthetic default in `SKILL.md` RED step rule 4 - the smallest hand-built value the tested behavior and its contract need.
+
 **The violation:**
 ```typescript
 // ❌ BAD: Partial mock - only fields you think you need
@@ -194,7 +196,7 @@ const mockResponse = {
 - **Tests pass but integration fails** - Mock incomplete, real API complete
 - **False confidence** - Test proves nothing about real behavior
 
-**The Iron Rule:** Mock the COMPLETE data structure as it exists in reality, not just fields your immediate test uses.
+**The Iron Rule:** Mock the COMPLETE external response as it exists in reality, not just fields your immediate test uses.
 
 **The fix:**
 ```typescript
@@ -210,7 +212,7 @@ const mockResponse = {
 ### Gate Function
 
 ```
-BEFORE creating mock responses:
+BEFORE creating a mock of an external API response:
   Check: "What fields does the real API response contain?"
 
   Actions:
@@ -222,7 +224,7 @@ BEFORE creating mock responses:
     If you're creating a mock, you must understand the ENTIRE structure
     Partial mocks fail silently when code depends on omitted fields
 
-  If uncertain: Include all documented fields
+  If uncertain: Include all documented fields of that response
 ```
 
 ## Anti-Pattern 5: Integration Tests as Afterthought

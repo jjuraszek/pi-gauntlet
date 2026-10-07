@@ -1,0 +1,38 @@
+{
+  "sample": "heavy-json-fixture",
+  "arm": "baseline",
+  "skillSha": "93ef3cc5f796c4460dde0e0532a744a111e0c73538ef82919d2e8cd93898c31c",
+  "inputSha": "671fbf39e232f1fb65c6303102dd54dfc36dbb9a86447d09ded0d1cbde7b34bf",
+  "kind": "text",
+  "assembly": "headed",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "```python\ndef test_rejects_posted_on_in_the_future():\n    with open(\"fixtures/ledger_400.json\") as f:\n        records = json.load(f)\n    record = dict(records[0], posted_on=\"2026-03-02\")\n    with pytest.raises(ImportRejected, match=\"posted_on is in the future\"):\n        import_record(record, TODAY)\n\n\ndef test_imports_record_posted_today():\n    with open(\"fixtures/ledger_400.json\") as f:\n        records = json.load(f)\n    record = dict(records[0], posted_on=\"2026-03-01\")\n    entry = import_record(record, TODAY)\n    assert entry.posted_on == TODAY\n```\n",
+      "words": 38,
+      "wallMs": 4117,
+      "mechanical": {
+        "m1": "holds"
+      }
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "def test_rejects_future_posted_on():\n    with open(\"fixtures/ledger_400.json\") as f:\n        records = json.load(f)\n    record = dict(records[0], posted_on=\"2026-03-02\")\n    with pytest.raises(ImportRejected, match=r\"^posted_on is in the future$\"):\n        import_record(record, TODAY)\n\n\n@pytest.mark.parametrize(\"posted_on\", [\"2026-02-28\", \"2026-03-01\"])\ndef test_imports_posted_on_or_before_today(posted_on):\n    with open(\"fixtures/ledger_400.json\") as f:\n        records = json.load(f)\n    record = dict(records[0], posted_on=posted_on)\n    entry = import_record(record, TODAY)\n    assert entry.posted_on == date.fromisoformat(posted_on)\n    assert entry.account == record[\"account\"]\n    assert entry.amount == Decimal(record[\"amount\"])\n    assert entry.memo == record[\"memo\"]\n",
+      "words": 49,
+      "wallMs": 6435,
+      "mechanical": {
+        "m1": "holds"
+      }
+    }
+  },
+  "repoSha": "2b85f3b15a9d0c55cef42fe99244e71f0ee06ca8"
+}

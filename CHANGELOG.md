@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- **Test economy in TDD, implementer, and code review.** The TDD skill's RED step carries six declinable defaults (extend before add, one scenario per test, parametrize equivalent cases, minimal synthetic input, shared expensive setup, cheapest honest tier); `agents/implementer.md` and the SDD self-review carry the imperative view, `agents/code-reviewer.md` and the review template the check view (economy findings are Minor `shrink:`/`delete:`, lost coverage on consolidation is Critical); anti-pattern 4 is scoped to external API responses; writing-plans prefers the existing test file as `Test:`. Two new eval targets, `eval/implementer` and `eval/code-reviewer`, measure the change on five synthetic ledger-import samples (Python and RSpec).
 - **Evals: one driver, paired intent-aware judge, `eval/_template`.** `node eval/run.mjs <target>` replaces the eight per-target runners; two frozen replay models produce before/after outputs, a frozen judge reports per-fact outcomes, and the driver labels each against the target's committed `intent.md` (`held`, `intended change`, `regression`, `unexplained change`). Only the newest `baseline.json`/`candidate.json` per sample is kept; 54 baselines are committed. `forge-skill` runs as `kind: edit`. `AGENTS.md` scopes the mandatory eval to behavior-changing edits; `AGENTS.core.md` v9 bans private data and secrets in tickets, specs, and samples. (#50)
 
 ## v7.6.1 - 2026-10-07

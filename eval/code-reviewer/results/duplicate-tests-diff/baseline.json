@@ -1,0 +1,40 @@
+{
+  "sample": "duplicate-tests-diff",
+  "arm": "baseline",
+  "skillSha": "ef6f99d1e7f262e12275cd8fc8b720879673907ea98aea27ff9b67e69803ccad",
+  "inputSha": "8b6576574ffef847ebc184abdbe9ec9d92cdc9ea4da9362cda326aef36c2e4c7",
+  "kind": "text",
+  "assembly": "headed",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "```\nVerdict: FIX_FIRST\nReasoning: F1 is Moderate. Malformed or missing `amount`/`posted_on` escapes as `InvalidOperation`/`ValueError`/`KeyError` instead of `ImportRejected`, so the importer's rejection contract is inconsistent and untested.\nConfidence: medium   (diff and post-change function read in full; no commands supplied, nothing run; rest of importer.py, incl. parse_amount's body, not shown)\n\nFindings:\n  - [Moderate] F1: ledger/importer.py:import_record — Only an empty `account` raises `ImportRejected`. A bad amount like `\"12,50\"` raises `decimal.InvalidOperation`. A bad date like `\"15/01/2026\"` raises `ValueError`. A missing `amount` or `posted_on` key raises `KeyError`. Callers that catch `ImportRejected` to skip bad rows will crash on these. `Decimal` also silently accepts `\"NaN\"`, `\"Infinity\"` and `\"1e3\"` as amounts. The module already exports `parse_amount` (the test imports it alongside `ImportRejected`), but `import_record` bypasses it with a bare `Decimal(...)`.\n        Fix: Parse the amount with `parse_amount(record.get(\"amount\"))`, or wrap `Decimal` in `try/except InvalidOperation` and raise `ImportRejected`. Wrap `date.fromisoformat` the same way for `ValueError`/`TypeError`. Use `record.get` for both keys. Add negative tests for an unparseable amount, an unparseable date and each missing key.\n        touched-files: ledger/importer.py, ledger/importer_test.py\n        touched-resources: none\n  - [Minor] F3: ledger/importer.py:import_record — `today` is accepted but never used. Plan deviation: the plan's signature includes `today` but gives it no stated role. The code ignores it, which is acceptable as written. If `today` was meant for a future-date guard (`posted_on > today` → reject), that check and its test are missing.\n        Fix: Confirm the intent with the plan author. Either add `if posted_on > today: raise ImportRejected(...)` plus a test, or add a one-line docstring noting that `today` is reserved.\n        touched-files: ledger/importer.py\n        touched-resources: none\n  - [Minor] F4: ledger/importer.py:Entry — Plan deviation: the plan names account, amount and posted_on. The code also populates `memo` (default `\"\"`), and no test covers it. The deviation is acceptable because it is harmless scope.\n        Fix: Cover `memo`, including the missing-key default. F5's equality assertion does this for the present-memo case. Add one test with `memo` omitted that asserts `entry.memo == \"\"`.\n        touched-files: ledger/importer_test.py\n        touched-resources: none\n  - [Minor] F5: [shrink] ledger/importer_test.py:13-27 — Three single-field tests call the same function on the same input. Replace them with one test using `from ledger.importer import Entry`:\n        `assert import_record(RECORD, TODAY) == Entry(\"4010\", Decimal(\"125.00\"), date(2026, 1, 15), \"opening\")`\n        This also covers `memo`.\n        Fix: Collapse `test_import_sets_account/amount/posted_on` into the single equality test above.\n        touched-files: ledger/importer_test.py\n        touched-resources: none\n\nNote: IDs skip F2; no finding is assigned that ID.\n\nComplexity: net -8 lines\nParallel-safe: F3,F5 disjoint; F1 conflicts F3 (both touch ledger/importer.py); F1 conflicts F4 (both touch ledger/importer_test.py); F1 conflicts F5 (both touch ledger/importer_test.py); F4 conflicts F5 (both touch ledger/importer_test.py)\nBehaviour-change: yes\n\nVerification: none. SCOPED_TEST_COMMANDS was `none`, so I ran nothing, and the orchestrator gate owns test execution.\n```\n",
+      "words": 418,
+      "wallMs": 27851,
+      "mechanical": {
+        "m1": "holds",
+        "m2": "holds"
+      }
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "Verdict: SHIP\nReasoning: The supplied implementation takes account, amount, and posted_on from the record as required, with tests asserting each field and empty-account rejection.\nConfidence: medium\n\nFindings: none.\n\nVerification: No commands run; SCOPED_TEST_COMMANDS is `none`, and no tools were available. The orchestrator gate owns execution. Review was limited to the supplied diff and implementation excerpt.\n\nBehaviour-change: no\n",
+      "words": 57,
+      "wallMs": 4610,
+      "mechanical": {
+        "m1": "holds",
+        "m2": "holds"
+      }
+    }
+  },
+  "repoSha": "2b85f3b15a9d0c55cef42fe99244e71f0ee06ca8"
+}

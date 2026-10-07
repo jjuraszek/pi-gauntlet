@@ -105,7 +105,7 @@ Group tasks into **waves** so the executor can parallelize independent work (see
 
 **File-ownership contract.** See [reference/plan-contract.md § Files](reference/plan-contract.md).
 
-**Test contract.** Every task that creates or modifies code declares a `Test:` path and an executable `**Tests:**` command anchored to it (grammar: [reference/plan-contract.md § Tests](reference/plan-contract.md)); `- none: <category>` only when no tests apply. Anchoring is presence, not coverage. When the anchored spec names the thing under test, the task carries `- via:` naming it; a fixture path the spec names goes under `Create:`.
+**Test contract.** Every task that creates or modifies code declares a `Test:` path and an executable `**Tests:**` command anchored to it (grammar: [reference/plan-contract.md § Tests](reference/plan-contract.md)); `- none: <category>` only when no tests apply. Anchoring is presence, not coverage. When the anchored spec names the thing under test, the task carries `- via:` naming it; a fixture path the spec names goes under `Create:`. Prefer the existing test file for the behavior as `Test:`; a new test file is declared as both `Create:` and `Test:`.
 
 **Runtime-resource disjointness.** File-disjoint is necessary but not sufficient: two tasks with disjoint files that both mutate the same DB, bind the same port, or share a fixture are **not** parallel-safe and must land in different waves. The executor auto-selects parallel for *every* multi-task wave, so this grouping is the sole parallel-safety guarantee — there is no selection-time judgment downstream. No new mandatory per-task syntax; when a shared runtime resource is the reason two file-disjoint tasks sit in different waves, record it in an inline note on the later wave.
 
@@ -190,9 +190,11 @@ Each task uses `- [ ]` checkbox steps so execution tools (and humans) can track 
 - [ ] **Step 1: Write the failing test**
 
   ```python
-  def test_specific_behavior():
-      result = function(input)
-      assert result == expected
+  # add a row to the existing table when one covers the behavior
+  CASES = [
+      ("existing", input, expected),
+      ("new_behavior", new_input, new_expected),
+  ]
   ```
 
 - [ ] **Step 2: Run test, confirm failure**
@@ -262,7 +264,7 @@ After drafting the plan and before announcing it complete, run the deterministic
 - **Deterministic checker.** Run `plan_check({ planPath: "<abs plan path>" })` on the saved plan. Assess and fix every finding yourself (no human involvement), then re-run until it passes — a pass writes the execution stamp that implement-start verifies mechanically. If the same finding survives 3 fix rounds, convert it to an explicit Open Question and stop (the pre-existing Open-Questions halt, resolved by the human in-session — not a new gate). Findings are defined in [reference/plan-contract.md](reference/plan-contract.md).
 - **Code-vs-anchor sanity.** For each task-owned requirement row, re-read the anchored spec lines and confirm the owner tasks' bodies do what they say - mechanism present, not just the quoted literal. For each `Verification` row, confirm the header command exercises the anchored requirement. Fix the task, don't annotate.
 - **Type / API consistency.** Function signatures and field names that appear in multiple tasks must match exactly. The plan is its own contract — internal contradictions surface as bugs during execution.
-- **Test contract.** Every code task's `Tests:` commands are anchored to its `Test:` path(s); `none:` only where no tests apply; a spec-named seam appears as `via:`, a spec-named fixture path as `Create:`.
+- **Test contract.** Every code task's `Tests:` commands are anchored to its `Test:` path(s); `none:` only where no tests apply; a spec-named seam appears as `via:`, a spec-named fixture path as `Create:`. Prefer the existing test file for the behavior as `Test:`; a new test file is declared as both `Create:` and `Test:`.
 - **Runtime-resource disjointness.** For every multi-task wave, confirm no two tasks contend on a shared mutable runtime resource (DB/schema, port, fixture, external service, shared temp path) — `Files:` overlap is checked mechanically, resource contention is not. Contention = mis-grouped wave; split or re-order before handoff.
 - **Solo-reason validity.** Every single-task wave's `Solo:` line (presence is checked mechanically) must name its specific blocker — the blocking task/wave, the contended resource, or `lone remaining task`. Category-only justifications are under-justified; merge or justify before handoff.
 - **Waiver authorization.** `waived: <reason>` is only for requirements the spec marks out of scope **and** that exclude work from the change. A requirement whose text carries an inline code span (`` `literal` ``) names concrete behaviour and is never waivable - it maps to a task or `Verification`. A waiver on an in-scope normative requirement is a Self-Review failure — there is no human plan-review gate to catch it downstream.
