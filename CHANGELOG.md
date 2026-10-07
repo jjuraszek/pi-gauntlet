@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Changed
+
+- **shape-ticket: model invocation allowed; tracker writes still require the explicit confirmation gate.** `disable-model-invocation: true` is gone from `skills/shape-ticket/SKILL.md`, so another skill or a downstream command can route "file a ticket" to it (Claude Code's Skill tool refused the call before, and `skillOverrides` cannot loosen a plugin skill). The description now triggers on file/create/shape a ticket, open a tracker issue, repair/clean up `ABC-123`. Who starts the pipeline changed; who approves the write did not.
+
 ## v7.7.0 - 2026-10-07
 
 - **Test economy in TDD, implementer, and code review.** The TDD skill's RED step carries six declinable defaults (extend before add, one scenario per test, parametrize equivalent cases, minimal synthetic input, shared expensive setup, cheapest honest tier); `agents/implementer.md` and the SDD self-review carry the imperative view, `agents/code-reviewer.md` and the review template the check view (economy findings are Minor `shrink:`/`delete:`, lost coverage on consolidation is Critical); anti-pattern 4 is scoped to external API responses; writing-plans prefers the existing test file as `Test:`. Two new eval targets, `eval/implementer` and `eval/code-reviewer`, measure the change on five synthetic ledger-import samples (Python and RSpec).

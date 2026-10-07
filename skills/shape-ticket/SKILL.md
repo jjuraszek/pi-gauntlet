@@ -1,7 +1,6 @@
 ---
 name: shape-ticket
-description: Use when creating a new tracker issue from a request, repairing or cleaning up an existing tracker issue, or converting a vague ask into an actionable ticket with real acceptance criteria. Also explicit invocation via /skill:shape-ticket.
-disable-model-invocation: true
+description: Use when asked to file, create, or shape a ticket, open a tracker issue, or repair or clean up an existing one (ticket IDs like ABC-123) - including when another skill or command routes ticket authoring here.
 ---
 
 # Shape Ticket
@@ -20,6 +19,8 @@ disable-model-invocation: true
 | Headless / no interactive response available | Stops at the confirmation gate |
 
 Every path that writes ends at the **same single confirmation gate** - no write happens without an explicit yes on the exact presented diff. The no-op path stops before any gate opens; the hard-stop path aborts and never opens one either.
+
+Model-initiated invocation is allowed: another skill, a command, or an ask matching the description starts this pipeline without a human typing the command. That changes who starts the pipeline, never who approves the write - the human answers the gate.
 
 ## Overview
 
