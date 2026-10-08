@@ -1,0 +1,98 @@
+{
+  "sample": "head-not-pushable",
+  "arm": "candidate",
+  "skillSha": "a11bdb95c7e66816bd3a5a14919efab496fd2d4299ea43d5b113997d50725f5e",
+  "inputSha": "1f48c1c5e5f34bff4d77a384ba297186d636f529a9fe4494234b9b9374664c7a",
+  "kind": "text",
+  "assembly": "concat",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "# gatekeep-pr 412 --rebase: from step 2 to the first menu\n\n## Tracker\n\n`plan_tracker` was initialized at the start of the run with four stages, because `--rebase` is present:\n\n- `gather`\n- `provision`\n- `sync`\n- `verify`\n\n`gather` and `provision` are already `complete`. The remaining three stages (`review`, `report`, `menu`) were never added. They are added only after `verify` closes, and it never does in this run.\n\n## Step 2b: sync\n\nThe arguments are `412 --rebase` with no token after `--rebase`. That makes `<base>` the digest's `baseRefName`, which is `main`, so `origin/release/2` plays no part. I check the preconditions in order. The first two need no command.\n\n1. **Helper facility.** The harness is pi with the subagent facility, so this check passes.\n2. **`permissions.head_pushable`.** The digest reads `false`. This is a terminal stop: no rebase and no push.\n\nBecause of that stop:\n\n- **Preconditions 3 to 5 are never reached.** No `git fetch origin main` runs, no ancestry check runs, and no merge-commit scan runs.\n- **The later sync sections never run.** `## Baseline` (no `gh pr view --json headRefOid`) and `## Other-author confirmation` are skipped. The confirmation is moot anyway, since `mara-lindqvist` is the author.\n- **No sync work happens.** No rebase, no conflict-stop `implementer`, no sync `code-reviewer`, no lease push, and no re-gather.\n\n**Commands run in this narration:** none. **Helpers dispatched:** none.\n\n`plan_tracker`: the `sync` stage closes `failed`. The `verify` stage stays pending, and step 3 does not run.\n\n## SHA assessed\n\nNo SHA is assessed. Step 3 (Verify) and step 4 (Review) never run, so neither verification nor the brief assesses anything. The worktree `.worktrees/pr-412` stays on the unsynced head `7c1e9a2f4b0d6e8a1c3f5b7d9e0a2c4e6f8a0b1c`, clean and unchanged.\n\n## Rendered output\n\nThe `Sync:` line renders where `report.md` places it, immediately before the verdict position:\n\n```\nSync: stopped - the head branch is not pushable by this actor (head_pushable false for git@git.example.invalid:orchard/ledger.git:feature/ledger-rounding), so no rebase or push ran.\n```\n\nNo verdict line renders. A `--rebase` terminal stop skips steps 3 to 5, so no `Delivers`, no `Verdict:`, and no blockers or nits are produced.\n\n## First menu\n\nThe terminal-stop menu offers `show evidence` and `stop` only. `stop` is `[recommended]` because the only other row is `show evidence`.\n\n```\n1. show evidence - print the digest's head-dependent fields and the sync record\n2. stop - leave the PR as-is                                        [recommended]\nType a number.\n```\n",
+      "words": 369,
+      "wallMs": 22558,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "1. Initialize `plan_tracker` with `gather`, `provision`, `sync`, and `verify`. Mark `gather` and `provision` complete because step 2 has finished.\n\n2. Enter sync with base `main`, taken from `baseRefName` because `--rebase` names no alternate base.\n\n3. Check the sync preconditions in order:\n   - The pi helper facility is available.\n   - `permissions.head_pushable` is false. This is a terminal stop before any fetch, rebase, review, or push.\n\n4. Record `sync: stopped - head not pushable` and mark `sync` failed. Leave `verify` pending; step 3 never starts.\n\nNo commands run and no helpers are dispatched. There is no rebase review, CI poll, local verification, or pre-menu refresh: the terminal sync stop renders its restricted menu directly.\n\nThe digest and worktree retain SHA `7c1e9a2f4b0d6e8a1c3f5b7d9e0a2c4e6f8a0b1c`. Neither Verify nor the review brief assesses a SHA in this invocation because neither runs.\n\nSync: stopped because this actor cannot push to the PR head. (git@git.example.invalid:orchard/ledger.git, feature/ledger-rounding)\n\nVerdict: fixable - sync stopped\n\n1. show evidence - display the digest's head-dependent fields and sync record\n2. stop - leave the PR as-is [recommended]\n\nType a number.\n",
+      "words": 169,
+      "wallMs": 14390,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "beff4998dbe3e7c37f024fa277e4d82254b87e43fea788cbd0698f6d9ac36d51",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "dee3e759da6ab589916b9a7af31d0be3a83e85f4509c6ffefbbd4e6d853c62a8",
+      "baselineOutputSha": "07c5fc638dc44f4a091ff5d73c7fe0815b3777f43bfc075625792576e38a7840",
+      "candidateOutputSha": "beeff2759b4a7424d79c70994bf8e58e9c291f55ba9b6dcdd7093128a887f69b",
+      "facts": {
+        "f1": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "f2": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "f3": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "f4": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "No fact moved. Both outputs stop at precondition 2 of step 2b on `head_pushable: false`, name the non-pushable head as the reason in the Sync line, state explicitly that no rebase and no push run, dispatch no helper (no implementer, code-reviewer, Verify, or Review), and close the `sync` stage as `failed`. After reorganizes the narration (grouping skipped preconditions, moving the menu to its own section) and rewords the Sync line, but every element the facts require is still present. This case is unaffected by the Change, which targets the fix/fix nits menu, wave test commands, and pre-push reviewer scope - none of which are reached on a sync terminal stop - so no wording adjustment is needed here.",
+      "verdict": "unchanged"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "beff4998dbe3e7c37f024fa277e4d82254b87e43fea788cbd0698f6d9ac36d51",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "dee3e759da6ab589916b9a7af31d0be3a83e85f4509c6ffefbbd4e6d853c62a8",
+      "baselineOutputSha": "ceb5f5f468bd60aadc3dd76141750ccec57f1f62b2474957008abafa60f1b6d6",
+      "candidateOutputSha": "bef8b08c8f2b0b7c02dfcdfe0b487a269c74e717999885789d3bbb4e45baf1f1",
+      "facts": {
+        "f1": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "f2": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "f3": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "f4": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "Nothing moved on this case: After still stops at the `head_pushable` precondition immediately after step 2, names the non-pushable head as the reason (now with the remote URL and ref, which is a clearer report), runs no rebase or push, dispatches no helpers, and marks `sync` failed with `verify` pending. The Change text (fix/fix nits verbs, scoped wave test commands, pre-push reviewer scoping) does not touch this path, which is why all four facts hold in both. Two small drifts worth watching though they are not facts here: After dropped the `Delivers:` line that Before printed in the terminal report, and the Verdict line lost the explicit reason (`fixable - sync stopped` vs Before's `fixable - sync stopped because the PR head is not pushable`). If the terminal-stop report template is shared with the cases that do move, keep the `Delivers:` line and the full verdict reason in the stop-menu rendering so a future fact about report contents isn't lost while the fix/nits and wave-closure wording lands.",
+      "verdict": "unchanged"
+    }
+  },
+  "repoSha": "eea182d2dd787e388d3288cd61d40b051950fd2f"
+}

@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Changed
+
+- `gatekeep-pr`: `fix` applies open blockers only; nits move behind a `fix nits` verb whose payloads are drafted at the pick, and the report counts open nits. Each fix helper gets a scoped test command resolved from the merge-base overrides or `AGENTS.md`, never the verification command. The pre-push review lists only the wave's own findings; the next round carries open closure lines, in-delta Critical/Moderate, and outside-delta Critical findings.
+
 ## v7.7.1 - 2026-10-07
 
 ### Changed

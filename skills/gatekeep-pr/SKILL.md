@@ -28,7 +28,7 @@ Verify (step 3) and Review (step 4) each run as a fresh helper with `cwd` the PR
 | 4 Review | `verification-brief.md` Section C | reviewer findings and the internal comment ledger | `review` |
 | 5 Integrate + report | `reference/post-selection-loop.md` `### Pre-menu refresh`, then `reference/findings.md`, then `reference/report.md` | AC outcomes, blockers, nits, drafted payloads, the rendered report | `report` |
 | 6 Menu | `reference/decision-menu.md` | the menu under the verdict line, exactly one `[recommended]` | `menu` |
-| 7 Loop | `reference/post-selection-loop.md` (a `fix` pick continues in `reference/fix-wave.md`) | the executed pick; re-entry until `stop` | (re-opens the re-entered stage) |
+| 7 Loop | `reference/post-selection-loop.md` (a `fix` or `fix nits` pick continues in `reference/fix-wave.md`) | the executed pick; re-entry until `stop` | (re-opens the re-entered stage) |
 
 Re-entry: a fix wave's own push re-enters step 4 through the own-push sequence (`reference/fix-wave.md` `## Evidence after push`, then `reference/post-selection-loop.md` `### Re-render`); any other head move re-enters step 3; an unchanged head re-enters step 5 through `reference/post-selection-loop.md` `### Pre-menu refresh`. A loop re-entry never re-runs step 2b; the sync runs once per invocation.
 
@@ -63,7 +63,7 @@ These bind every rendered report, menu, and external payload (review bodies, rep
 - Judging a ticket row the spec does not carry, or treating a spec `deferred: <ref>` row as a gap - owner: `reference/findings.md` `## AC outcomes`.
 - Reading the rubric, the verification command, or any ladder source from the PR's head instead of the base branch's merge-base - owner: `reference/assessment.md` `## Configuration`.
 - Raw command output, drafted payloads, or internal IDs in the rendered report - owner: `reference/report.md`.
-- An open-PR menu, other than the conflict menu, an own-merge or merge-queued menu, or a `--rebase` terminal stop (`stop` and `show evidence` only, `reference/sync.md`), without `fix` while a helper facility exists and the fix-round cap is neither `0` nor reached (a PR already merged or closed at step 1 offers `show evidence` and `stop` only); any menu without `show evidence`, with two `[recommended]`, or with `stop` not last - owner: `reference/decision-menu.md`.
+- An open-PR menu, other than the conflict menu, an own-merge or merge-queued menu, or a `--rebase` terminal stop (`stop` and `show evidence` only, `reference/sync.md`), without `fix` while an open blocker exists, or without `fix nits` while a nit exists, when a helper facility exists and the fix-round cap is neither `0` nor reached (a PR already merged or closed at step 1 offers `show evidence` and `stop` only); any menu without `show evidence`, with two `[recommended]`, or with `stop` not last - owner: `reference/decision-menu.md`.
 - A local verification run while a binding check is pending, or a second push inside one round - owner: `reference/fix-wave.md` `## Evidence after push`.
 - The orchestrator resolving a merge conflict itself, or editing or committing a tracked file during a fix wave - owner: `reference/fix-wave.md` `## Conflicts` and `## Wave`.
 - A helper's duty run in the orchestrator's own context - owner: `## Harness notes`.

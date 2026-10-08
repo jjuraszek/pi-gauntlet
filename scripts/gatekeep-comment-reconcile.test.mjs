@@ -87,7 +87,8 @@ test('findings.md owns the mechanism-only AC contract, drafted doc fixes, and th
   assert.match(findings, /observation half[^\n]*is checked after merge, not here/);
   assert.match(findings, /observation half[^\n]*blocks nothing|blocks nothing[^\n]*observation half/);
   assert.match(findings, /`gap`[^\n]*is a blocker/);
-  assert.match(findings, /applied only on a `fix` pick/);
+  assert.match(findings, /applied only on a `fix`, `fix nits`, or `fix \+ nits` pick/);
+  assert.match(findings, /Draft nit payloads on a `fix nits` or `fix \+ nits` pick/);
   assert.ok(findings.includes('deferred per spec'));
   assert.ok(!findings.includes('Only the tracker waives'));
   assert.ok(!findings.includes('`impossible`'));
@@ -152,7 +153,9 @@ test('decision-menu.md offers fix to every author, omits rows the actor cannot r
   for (const who of ['you', 'someone else']) {
     assert.ok(rows.some((row) => row.startsWith(`| ${who} |`)), `Consent table lacks ${who} rows`);
   }
-  for (const row of rows) assert.match(row, /`fix`/, `row lacks fix: ${row}`);
+  for (const row of rows) assert.match(row, /`fix`|`fix nits`/, `row lacks fix or fix nits: ${row}`);
+  for (const row of rows.filter((r) => / \| fixable \| /.test(r))) assert.match(row, /`fix`; `fix nits`/, `fixable row lacks fix; fix nits: ${row}`);
+  for (const row of rows.filter((r) => / \| mergeable \| /.test(r))) assert.ok(!/`fix`;/.test(row), `mergeable row offers fix: ${row}`);
   assert.ok(!menu.includes('(not available:'), 'no row renders a not-available suffix');
   assert.match(menu, /Not offered:/);
   assert.ok(menu.includes('## Availability'));
@@ -167,7 +170,7 @@ test('decision-menu.md offers fix to every author, omits rows the actor cannot r
   assert.ok(perm.length > 0, 'overlay table needs a head not pushable row');
   for (const row of perm) {
     assert.match(row, /`push` is omitted/);
-    assert.match(row, /`fix` stays/);
+    assert.match(row, /`fix` and `fix nits` stay/);
   }
 });
 
@@ -234,13 +237,13 @@ test('fix-wave.md owns the wave: fresh helpers, pre-push review, CI poll, local 
   assert.match(fixWave, /one fresh implementer helper/);
   assert.match(fixWave, /claim-check-only mode/);
   assert.match(fixWave, /<pushed_head>\.\.HEAD/);
-  assert.match(fixWave, /fix \(round cap reached\)/);
+  assert.match(fixWave, /fix, fix nits \(round cap reached\)/);
   assert.match(fixWave, /else 3; a cap of `0` omits `fix`/);
   assert.match(fixWave, /stops the round: dispatch no further implementer/);
-  assert.match(fixWave, /never the resolved `verification command`/);
+  assert.match(fixWave, /Never the resolved `verification command`/);
   assert.match(fixWave, /for a `P#` carried by a `rebased locally` sync record the failing test file named in that record/);
   assert.match(fixWave, /`<finding id>: resolved`/);
-  assert.match(fixWave, /Push only when the report has no Critical or Moderate finding/);
+  assert.match(fixWave, /Push only when the carried set holds no Critical or Moderate/);
   assert.ok(fixWave.includes('gh api --method POST repos/<base-owner>/<base-repo>/actions/runs/<id>/approve'));
   assert.match(fixWave, /merge-tree --write-tree/);
   assert.match(fixWave, /never shows `update branch`/);

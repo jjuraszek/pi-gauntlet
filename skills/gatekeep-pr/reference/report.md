@@ -21,7 +21,7 @@ PR comments:             (replyable review comments, a pending reviewer run, a b
 - The reviewer run is still in progress, so merge waits. (<run url>)
 - <the line from decision-menu.md `## Withhold reason resolver`>
 
-Nits:
+Nits:                   (after the list, one line `<N> nits open - fix nits to take them` (`1 nit open` for one); rendered only while the `fix nits` row renders.)
 - <1-2 sentences>. (<file:line>)
 
 Blockers:                (numbered; menu picks reference these numbers)
@@ -60,6 +60,7 @@ PR comments:
 
 Nits:
 - The export pages results with its own loop instead of the shared paging helper, so a paging bug fixed once would need fixing twice. (src/api/export.ts:31, lib/page.ts)
+1 nit open - fix nits to take them
 
 Blockers:
 1. The export endpoint ships with no test, so nothing proves it works and nothing
@@ -71,10 +72,11 @@ Blockers:
 Verdict: fixable - 2 blockers
 
 1. fix - apply both blockers in the worktree, review the wave, push        [recommended]
-2. review - post the blockers as a comment on your PR
-3. reply - post the drafted reply to maria
-4. show evidence - gate output, CI run, drafted edits
-5. stop - leave the PR as-is
+2. fix nits - apply the nit payload in the worktree, review the wave, push
+3. review - post the blockers as a comment on your PR
+4. reply - post the drafted reply to maria
+5. show evidence - gate output, CI run, drafted edits
+6. stop - leave the PR as-is
 Type a number, or compose: "fix 2", "fix nits", "fix + nits", "fix 1 + reply".
 ```
 
@@ -86,8 +88,7 @@ Delivers: the reports page exports CSV on demand. ACs 1-5.
 Verdict: mergeable - CI green on the assessed head (test)
 
 1. merge - squash onto main                                               [recommended]
-2. fix - name the change to apply in the worktree, review the wave, push
-3. show evidence - gate output, CI run
-4. stop - leave the PR as-is
+2. show evidence - gate output, CI run
+3. stop - leave the PR as-is
 Type a number.
 ```

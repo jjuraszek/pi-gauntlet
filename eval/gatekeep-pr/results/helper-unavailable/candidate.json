@@ -1,0 +1,98 @@
+{
+  "sample": "helper-unavailable",
+  "arm": "candidate",
+  "skillSha": "a11bdb95c7e66816bd3a5a14919efab496fd2d4299ea43d5b113997d50725f5e",
+  "inputSha": "746a546710c64a104fe0ce535e6f548b6a28f38af911022ca579d72352a42216",
+  "kind": "text",
+  "assembly": "concat",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "# gatekeep-pr: PR 412, from the end of step 2 through the first menu\n\n## Arguments\n\n`412 --rebase` has no token after `--rebase`. The sync base is therefore the digest's `baseRefName`, `main`. `origin/release/2` plays no part, and `issue_ref` gh-388 was already resolved and fetched in steps 1-2.\n\n## Tracker\n\n`--rebase` is present, so the plan was initialized with four stages: `gather, provision, sync, verify`. `gather` and `provision` are already `complete` from steps 1-2.\n\n## Step 2b: sync preconditions\n\nI check the preconditions in order, and the first one fails.\n\n**Precondition 1 (helper facility).** The digest states the harness has no subagent dispatch facility of any kind.\n- SKILL.md `## Harness notes` says an unsupported harness stops at step 2b, before any sync write, when `--rebase` was passed.\n- `reference/sync.md` precondition 1 makes this a terminal stop before any write.\n\n**What does not run** because of that stop:\n- No `git fetch origin main`. That fetch is precondition 3's write, and preconditions 2-5 are never reached.\n- No `## Baseline` `gh pr view` and no `rev-parse`.\n- No other-author confirmation. It would not apply anyway, since the author and viewer are both `mara-lindqvist`.\n- No `git rebase`, no lease push, and no `## Re-gather`.\n- No helper is dispatched: no `implementer`, no `code-reviewer`, and no `worker`.\n\nThe worktree `.worktrees/pr-412` stays on `7c1e9a2f4b0d6e8a1c3f5b7d9e0a2c4e6f8a0b1c`, clean and untouched. The digest's `BEHIND` state and the post-push CI behavior never come into play.\n\n**Commands run in this span:** none against git or the forge. The only call is the tracker update.\n\n**Tracker update:** `sync` is closed as `failed`. `verify` stays pending, and the `review`, `report`, and `menu` stages are never added.\n\n## Steps 3-5: not run\n\nA terminal stop runs no step 3. No Verify helper runs, no Review helper runs, and no claim tasks are added. Neither the verification nor the brief assesses any SHA. Head `7c1e9a2f4b0d6e8a1c3f5b7d9e0a2c4e6f8a0b1c` remains unassessed.\n\n## Sync record\n\nThe digest's `sync` field is set to `stopped - no helper facility for conflict resolution and review`.\n\n## Rendered output\n\nThe stop prints its reason as the sync line, then the terminal-stop menu.\n\nNo `Verdict:` line renders. Steps 3-5 never ran, so there is no evidence to judge mergeable or fixable.\n\n```\nSync: stopped - no helper facility for conflict resolution and review.\n\n1. show evidence - print the digest's head-dependent fields and the sync record\n2. stop - leave the PR as-is                                        [recommended]\nType a number.\n```\n",
+      "words": 382,
+      "wallMs": 22647,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "1. Initialize `plan_tracker` with `gather`, `provision`, `sync`, and `verify`. Mark `gather` and `provision` complete because step 2 has finished.\n\n2. Enter step 2b with base `main`, taken from `baseRefName` because `--rebase` has no base argument.\n\n3. Check the helper-facility precondition first. The harness has no subagent dispatch facility, so stop before any write:\n   `sync: stopped - no helper facility for conflict resolution and review`\n\n4. Record that reason in the digest's `sync` field and mark `sync` failed. Run no commands and dispatch no helpers; even `git fetch` does not run.\n\n5. Do not enter step 3 or step 4. `verify` remains pending. The digest retains head `7c1e9a2f4b0d6e8a1c3f5b7d9e0a2c4e6f8a0b1c`; neither verification nor review assesses a SHA in this invocation. The existing successful check does not complete the gate.\n\n6. Render the terminal-stop report and its restricted menu. No pre-menu refresh runs because this terminal stop does not enter step 5.\n\nDelivers: the PR's stated intent is to round ledger totals half-up.\n\nSync: stopped - no helper facility for conflict resolution and review.\nVerdict: fixable - verification not run\n\n1. show evidence - show the digest's head-dependent fields and sync record\n2. stop - leave the PR as-is [recommended]\n\nType a number.\n",
+      "words": 194,
+      "wallMs": 15698,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "dfda00b2319b98ee317880eba825e3be956df7242c4e83b677e5cc733e95d27d",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "dee3e759da6ab589916b9a7af31d0be3a83e85f4509c6ffefbbd4e6d853c62a8",
+      "baselineOutputSha": "8dcdfd44d563bb0c4ab77c14bf6ccc4c164f49d3e6c258f1d0c887859a528a6c",
+      "candidateOutputSha": "e42bf9965468b5309b076109f09e394fe3b59694897f371e42b3a69e17780b37",
+      "facts": {
+        "f1": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "f2": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "f3": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "f4": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "No fact moved on this case: both outputs stop at step 2b precondition 1 before any fetch, rebase, or push, name the missing helper facility as the reason, close `sync` as `failed`, dispatch no helper, and do nothing in the orchestrator's own context. After is actually more explicit on f3/f4 (it enumerates `implementer`, `code-reviewer`, `worker` as not dispatched and states no Verify or Review helper runs). The one visible drift is outside the facts: After drops the `Verdict:` line and the `Not offered: fix (...), merge (...), update branch (...)` trailer from the rendered menu, and its `Sync:` line no longer says the head stays unrebased or that nothing was verified. If the Change intends the terminal-stop menu to keep the verdict and the not-offered explanations (which is where the new `fix`-only-while-blockers-exist rule would show up as `fix (no helper facility)`), keep that wording in After; otherwise this case is stable and the wording change is safe here.",
+      "verdict": "unchanged"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "dfda00b2319b98ee317880eba825e3be956df7242c4e83b677e5cc733e95d27d",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "dee3e759da6ab589916b9a7af31d0be3a83e85f4509c6ffefbbd4e6d853c62a8",
+      "baselineOutputSha": "c1bc9caa4f8602ff6f2d9eb08f481879dcb786d53196ee676cb46b39f253e66c",
+      "candidateOutputSha": "bbc4a13c69ccf6ed4ca37cb5c2f5d860ac09050bb62067ffdd3e576dcaccbe77",
+      "facts": {
+        "f1": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "f2": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "f3": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "f4": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "Nothing moved on this case: both outputs stop at the helper-facility precondition before any fetch, rebase, or push, name the missing facility as the reason, record `sync` as failed with `verify` pending, dispatch no helpers, and attempt no in-context resolution or review. After is slightly more explicit (it spells out that `git fetch` does not run and that no pre-menu refresh happens because step 5 is never entered), which only strengthens f1 and f3. The Change's new `fix`/`fix nits` verbs, scoped test commands, and wave-finding rules do not apply here since the stop occurs before any wave, so the terminal menu correctly stays restricted to show evidence / stop; keep that early-exit path untouched when wording the new verbs so a no-helper harness never reaches a menu that offers `fix` or `fix nits`.",
+      "verdict": "unchanged"
+    }
+  },
+  "repoSha": "eea182d2dd787e388d3288cd61d40b051950fd2f"
+}

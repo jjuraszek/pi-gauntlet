@@ -1,0 +1,98 @@
+{
+  "sample": "nits-only-ready",
+  "arm": "candidate",
+  "skillSha": "a11bdb95c7e66816bd3a5a14919efab496fd2d4299ea43d5b113997d50725f5e",
+  "inputSha": "53af28aec57102ea56d49c1d7c47a5bab1aca000aae9265e4f0b303ee0c0ed8a",
+  "kind": "text",
+  "assembly": "concat",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "# gatekeep-pr 517: narration from the end of step 2 through the first menu\n\n## Starting state\n\n- **Arguments:** `517` only.\n  - The PR number comes from the argument.\n  - There is no issue reference, and step 1 resolved `issue_ref: null`.\n  - There is no `--rebase`, so step 2b does not run and the sync stage is not tracked.\n- **Tracker init:** `plan_tracker` `init` with three stages: `gather`, `provision`, `verify`.\n  - `gather` and `provision` are already closed `complete`.\n  - `verify` is now open.\n- **Assessed SHA:** both verification and the brief assess `a9c1e3f5b7d9e1a3c5f7b9d1e3a5c7f9b1d3e5a7`.\n  - This is the digest's `headRefOid`.\n  - It equals the HEAD of `.worktrees/pr-517`.\n\n## Step 3: Verify\n\n1. **Output path:** `mktemp \"${TMPDIR:-/tmp}/gatekeep-verify.XXXXXX\"`. The file sits outside the worktree.\n2. **Dispatch:** `subagent({ agent: \"worker\", context: \"fresh\", async: false, cwd: \".worktrees/pr-517\" })`. The task carries:\n   - the duty in `verification-brief.md` Section B, run CI-first through the Evidence resolution table;\n   - the digest's status checks and Actions runs;\n   - the resolved `ci checks` filter and the reviewer-check exception;\n   - one disposition per material claim: matched, contradicted, or unverifiable-pre-merge;\n   - the output path and the output contract.\n3. **Result:**\n   - The evidence source is `ci`. `ci / test` is `COMPLETED` / `SUCCESS` on `a9c1e3f…` (run 9102, `ci`, success).\n   - No local run happens, because CI is sufficient.\n   - Every material claim is matched.\n4. **Tracker updates:**\n   - `add` one task per material claim, each recorded `complete`.\n   - Close `verify` as `complete`.\n   - `add` the remaining stages: `review`, `report`, `menu`.\n\n## Step 4: Review\n\nReview starts after the Verify output file exists.\n\n1. **Output path:** `mktemp \"${TMPDIR:-/tmp}/gatekeep-review.XXXXXX\"`.\n2. **Dispatch:** `subagent({ agent: \"code-reviewer\", context: \"fresh\", async: false, cwd: \".worktrees/pr-517\" })`.\n   - The task carries the Section C duty and the review baseline.\n   - It reviews the diff at `a9c1e3f…` against the rubric resolved from the merge-base.\n   - It asks for the reviewer's native findings report, written to the output path.\n3. **Result:**\n   - No Critical or Moderate findings.\n   - Three Minor findings: `src/api/export.ts:31`, `src/api/export.ts:40`, and `docs/exports.md:12`.\n   - The comment ledger is empty, because there are no inline or top-level comments.\n4. **Tracker:** `review` closed `complete`.\n\n## Step 5: Integrate and report\n\n1. **Pre-menu refresh**, run read-only:\n   - `gh pr view 517 --json headRefOid,state,mergeable,mergeStateStatus,reviewDecision,statusCheckRollup`\n   - `gh run list -R orchard/reports -c a9c1e3f5b7d9e1a3c5f7b9d1e3a5c7f9b1d3e5a7 --json databaseId,status,conclusion,workflowName,url`\n   - Result: head unchanged, `OPEN`, `MERGEABLE`, `CLEAN`, `ci / test` green, nothing pending.\n2. **Provenance:** the CI evidence is on the assessed head, so the clause is `CI green on the assessed head (ci / test)`.\n3. **Scope:** the scope is `source: pr` with no spec rows.\n   - `Delivers` states the PR's intent.\n   - No AC rows are judged.\n4. **Classification:**\n   - The three Minor findings translate to nits. The doc label is wording-only drift, so it is also a nit.\n   - There are no blockers.\n5. **Merge preconditions:** all hold. Evidence is present, claims are dispositioned, the PR is `MERGEABLE` and `CLEAN`, and there is no failing or binding pending check.\n6. **Drafting:**\n   - Nit payloads are not drafted yet; they are drafted only at a `fix nits` pick.\n   - There are no replies to draft.\n   - The worktree is tracked-clean.\n7. **Tracker:** `report` closed `complete`, and `menu` is open.\n\n## Sync line\n\nNo `Sync:` line renders, because `--rebase` was not passed.\n\n## Rendered report and first menu\n\n```\nDelivers: the reports page exports CSV on demand.\n\nNits:\n- The export pages results with its own loop instead of the shared paging helper, so a paging bug fixed once would need fixing twice. (src/api/export.ts:31)\n- A variable named tmp2 says nothing about what it holds, so the next reader has to trace it to learn its role. (src/api/export.ts:40)\n- The guide labels the feature \"CSV-Export\" while the page says \"CSV export\", so the docs do not match the label a reader sees. (docs/exports.md:12)\n3 nits open - fix nits to take them\n\nVerdict: mergeable - CI green on the assessed head (ci / test)\n\n1. merge - squash onto main                                               [recommended]\n2. fix nits - apply the nit payloads in the worktree, review the wave, push\n3. show evidence - gate output, CI run\n4. stop - leave the PR as-is\nType a number.\n```\n\nWhy some rows are missing:\n\n- **`fix`:** there is no open blocker, so the row is dropped and not named.\n- **`reply`:** there is no drafted reply.\n- **Compositions:** none are offered, because the `fix` row does not render.\n- **`Not offered:`:** no other row is omitted, so this sentence does not appear.\n",
+      "words": 683,
+      "wallMs": 27444,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "## Narration\n\n1. I initialize the plain stage sequence through `plan_tracker`: `gather`, `provision`, `verify`. I mark `gather` and `provision` complete because step 2 has finished, then start `verify`.\n\n   The invocation is `517`, without `--rebase`. I run no sync, fetch, rebase, or push, and create no `sync` stage.\n\n   Verification and the review brief both assess:\n   `a9c1e3f5b7d9e1a3c5f7b9d1e3a5c7f9b1d3e5a7`.\n\n   Both helpers use this absolute worktree:\n   `<scratch>/.worktrees/pr-517`.\n\n2. I read `verification-brief.md` Section B and allocate the Verify helper's output file outside the worktree:\n\n   ```bash\n   mktemp \"${TMPDIR:-/tmp}/gatekeep-verify.XXXXXX\"\n   ```\n\n   I dispatch:\n\n   ```text\n   subagent({\n     agent: \"worker\",\n     context: \"fresh\",\n     async: false,\n     cwd: <absolute worktree>\n   })\n   ```\n\n   Its task carries the digest, assessed SHA, selected PR-intent scope, resolved base-trusted configuration, and Section B's verification duties. It must use CI-first evidence, check every material claim against evidence rather than trusting the PR body, and write one evidence record with a disposition for each claim to the allocated output path.\n\n   The completed successful `ci / test` check supplies verification evidence. The worker runs no local verification command. I await its return and read its output file.\n\n3. I add one tracker task per material claim. Each receives `complete` because the worker reports every material claim matched. I close `verify` as complete, then add `review`, `report`, and `menu`.\n\n4. I start `review`, read `verification-brief.md` Section C, and allocate a separate output file:\n\n   ```bash\n   mktemp \"${TMPDIR:-/tmp}/gatekeep-review.XXXXXX\"\n   ```\n\n   I dispatch:\n\n   ```text\n   subagent({\n     agent: \"code-reviewer\",\n     context: \"fresh\",\n     async: false,\n     cwd: <absolute worktree>\n   })\n   ```\n\n   Its read-only task carries the assessed SHA, PR diff, selected scope, Verify output, base-trusted review rubric, and Section C's review and comment-ledger duties. It must review the source-backed behavior, tests, and docs, treat comments as leads rather than evidence, and write its native findings report and internal comment ledger to its allocated output path.\n\n   I await its return and read the output file. It reports the three Minor findings in the digest and no Critical or Moderate findings. The comment ledger is empty. I close `review` as complete.\n\n5. I start `report` and read `reference/post-selection-loop.md` through `### Pre-menu refresh`. Before integrating or rendering, I run:\n\n   ```bash\n   gh pr view 517 --json headRefOid,state,mergeable,mergeStateStatus,reviewDecision,statusCheckRollup\n   ```\n\n   ```bash\n   gh run list -R orchard/reports \\\n     -c a9c1e3f5b7d9e1a3c5f7b9d1e3a5c7f9b1d3e5a7 \\\n     --json databaseId,status,conclusion,workflowName,url\n   ```\n\n   The refreshed head remains the assessed SHA, the PR remains open and mergeable, the actor's merge state remains `CLEAN`, and CI remains successful. I replace the refreshed fields together and re-resolve the evidence set. No additional Verify helper is needed.\n\n6. I read `reference/findings.md`, then `reference/report.md`. I integrate all three Minor findings as nits. There are no blockers or AC rows because the scope source is the PR's stated intent.\n\n   I draft no nit payloads yet; those are drafted only after a `fix nits` pick. There are no replies to draft.\n\n   I confirm the worktree remains tracked-clean:\n\n   ```bash\n   git -C <scratch>/.worktrees/pr-517 \\\n     status --porcelain --untracked-files=no\n   ```\n\n   The output is empty. I close `report` as complete.\n\n7. I start `menu` and read `reference/decision-menu.md`. This is the viewer's own mergeable PR, so I offer `merge`, `fix nits`, `show evidence`, and `stop`. The first row, `merge`, is recommended. The helper facility is available and the fix-round cap is 3, so `fix nits` is available.\n\n   I close `menu` as complete and render the following report. No `Sync:` line renders because `--rebase` was not passed.\n\n## First rendered report and menu\n\nDelivers: the reports page exports CSV on demand.\n\nNits:\n- The export path uses its own paging loop instead of the shared paging helper, so a paging fix would need to be applied twice. (src/api/export.ts:31)\n- The export path uses the name `tmp2`, so readers cannot tell the variable's purpose from its name. (src/api/export.ts:40)\n- The guide labels the feature \"CSV-Export\" while the page says \"CSV export\", so readers encounter inconsistent wording for the same feature. (docs/exports.md:12)\n\n3 nits open - fix nits to take them\n\nVerdict: mergeable - CI green on the assessed head (ci / test)\n\n1. merge - squash onto main [recommended]\n2. fix nits - apply the nit payloads in the worktree, review the wave, and push\n3. show evidence - display the evidence record and finding details\n4. stop - leave the PR as-is\n\nType a number.\n",
+      "words": 666,
+      "wallMs": 39487,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "0b165a0700869542eaf1133a87545ffb44b518337d1f5dbc0a1651176f10d123",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "dee3e759da6ab589916b9a7af31d0be3a83e85f4509c6ffefbbd4e6d853c62a8",
+      "baselineOutputSha": "e8c7c86686765abfb52d09c6c2f6cf7e8f71ff218c93e58cbef0cb09f4df2650",
+      "candidateOutputSha": "b55bcadaab6f232ab300da5b244df8ff7607f46fdbac76efc0171f270ae59e01",
+      "facts": {
+        "n1": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "n2": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "n3": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "n4": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        }
+      },
+      "feedback": "After delivers all four facts: the verdict is mergeable with no `fix` row (and the row's omission is explained by the absence of blockers), `fix nits` renders as row 2 with `merge` the sole `[recommended]` row, the `3 nits open - fix nits to take them` line follows the nits list, and step 5 explicitly defers nit payload drafting to the `fix nits` pick with no implementer helper dispatched. Before failed every fact because its baseline wording offered a bare `fix` on a nit-only PR, printed no count line, and drafted the three nit payloads at step 5. Nothing regressed; keep the After wording that ties `fix` to an open blocker and names `fix nits` as the verb that drafts payloads at pick time, and note that After's \"Type a number.\" tail (dropping the `\"fix nits\"` composition hint) is consistent with the row now being a numbered option rather than a composition.",
+      "verdict": "improved"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "0b165a0700869542eaf1133a87545ffb44b518337d1f5dbc0a1651176f10d123",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "dee3e759da6ab589916b9a7af31d0be3a83e85f4509c6ffefbbd4e6d853c62a8",
+      "baselineOutputSha": "48fc6e8b72d6dfce49fda8601429c622fc48f2829f4afd89284aa701e65486f4",
+      "candidateOutputSha": "b9bdea86e3c28cf880b9854c242281d8ad53f7d14aa6829947e5a813387100cd",
+      "facts": {
+        "n1": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "n2": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "n3": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "n4": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        }
+      },
+      "feedback": "After moves all four facts to holds exactly as intended and loses nothing Before held. The `fix` row is gone from the nit-only menu (n1) and replaced by an explicit numbered `fix nits` row with `merge` as the sole `[recommended]` entry (n2); the `3 nits open - fix nits to take them` line renders directly after the nits list (n3); and step 6 now states plainly that no nit payloads are drafted until a `fix nits` pick, with no implementer dispatched (n4), where Before drafted the three payloads at the report stage and offered bare `fix`. The wording that did the work is the explicit 'draft no nit payloads yet; those are drafted only after a `fix nits` pick' sentence and the menu step naming `fix nits` as its own verb gated on the helper facility and round cap; keep both. One minor consistency point: the `show evidence` row in After says 'finding details' rather than 'drafted edits', which is correct given payloads are not drafted yet - keep that aligned so the menu never implies pre-pick drafts exist.",
+      "verdict": "improved"
+    }
+  },
+  "repoSha": "eea182d2dd787e388d3288cd61d40b051950fd2f"
+}

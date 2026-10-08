@@ -24,7 +24,7 @@ Before every external write, re-fetch `headRefOid`, `state`, `mergeable`, and `m
 
 ### Fix wave
 
-For a `fix` pick, take the drafted payloads (`findings.md` `## Drafted payloads`) for the named blockers - all open blockers by default, the nit payloads when no blocker is open; `fix nits` takes nit payloads only, `fix + nits` both. A finding closed by disposition is skipped. A finding whose payload touches no file (a failing check, a claim with no drafted edit) is reported as not fixable by this verb and stays open.
+For a `fix` pick, take the drafted payloads (`findings.md` `## Drafted payloads`) for the named blockers - all open blockers by default; `fix nits` takes nit payloads only, drafted at this pick; `fix + nits` both. A finding closed by disposition is skipped. A finding whose payload touches no file (a failing check, a claim with no drafted edit) is reported as not fixable by this verb and stays open.
 
 Apply per `fix-wave.md`: the local conflict check, one fresh implementer helper per payload with scoped tests only, the pre-push reviewer with its closure lines, the push, and the evidence poll. The orchestrator never edits a tracked file and never commits. When `head_pushable` is false, the wave's commits stay in the local `pr-<N>` worktree: report the branch name and re-enter step 5.
 

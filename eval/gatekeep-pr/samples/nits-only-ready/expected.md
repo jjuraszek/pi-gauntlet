@@ -1,0 +1,4 @@
+- n1: judged: The verdict line is mergeable and the first menu has no `fix` row.
+- n2: judged: The first menu offers a `fix nits` row and `merge` is the one `[recommended]` row.
+- n3: judged: The report prints the line `3 nits open - fix nits to take them` after the nits list.
+- n4: judged: No implementer helper is dispatched and no nit payload is drafted before a pick.

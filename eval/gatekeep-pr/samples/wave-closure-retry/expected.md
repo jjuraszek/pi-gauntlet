@@ -1,0 +1,4 @@
+- w1: judged: The pre-push reviewer task lists P1 and P2 only, never P3, and asks for a closure line per listed finding.
+- w2: judged: The next round dispatches implementers for P2, F1, and F2, each under a `P#` id, and no implementer for F3.
+- w3: judged: F3 is named as printed under `show evidence` and nothing else happens to it.
+- w4: judged: No push happens before that round.

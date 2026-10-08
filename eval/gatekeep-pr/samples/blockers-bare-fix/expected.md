@@ -1,0 +1,4 @@
+- b1: judged: Exactly two implementer helpers are dispatched, one for P1 and one for P2, one after the other.
+- b2: judged: No nit payload is drafted and no helper is dispatched for N1 or N2.
+- b3: judged: The P1 helper's task carries the scoped command `uv run --group test python -m pytest projects/x/tests/test_y.py -q` and no task carries `sh scripts/run-all-tests.sh`.
+- b4: judged: The P2 helper's task carries the scoped command `cd dashboard && mise x -- bin/rspec spec/models/widget_spec.rb`, chosen by its directory prefix over the Python runner.
