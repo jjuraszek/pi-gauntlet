@@ -1,0 +1,143 @@
+{
+  "sample": "deferred-without-ref",
+  "arm": "candidate",
+  "skillSha": "71c36ea627f1fc0d6de59f81e55376f9ab01c539dbc4ddf46bc4e50863440393",
+  "inputSha": "0e25f4624346032b214b98131e841145a730c88f89129c6a8b3523ef4fcd0fab",
+  "kind": "text",
+  "assembly": "headed",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "```\nDelivers: the reports page exports CSV on demand. ACs 1, 2, 4; 5 deferred per spec to acme/widgets#46; 4's observable half (export completes under 5s on production data) is checked after merge, not here.\n\nNits:\n- The export pages results with its own loop instead of the shared paging helper, so a paging bug fixed once would need fixing twice. (src/api/export.ts:31, lib/page.ts)\n1 nit open - fix nits to take them\n\nBlockers:\n1. Email delivery is deferred to a follow-up ticket that the spec never names, so nothing tracks the deferred work and the deferral cannot be checked. (doc/specs/2026-09-30-csv-export.md, Acceptance criteria row 3)\n\nVerdict: fixable - 1 blocker\n\n1. fix - report the blocker as not fixable here, because no edit can be drafted until a ticket for email delivery exists to name in the spec      [recommended]\n2. fix nits - apply the nit payload in the worktree, review the wave, push\n3. review - post the blocker as a comment on your PR\n4. show evidence - CI run, claim and AC outcomes, cross-check\n5. stop - leave the PR as-is\nType a number, or compose: \"fix 1\", \"fix nits\", \"fix + nits\".\n```\n\nThe pick is `none`, so nothing executes and the gate stops at this menu.\n",
+      "words": 199,
+      "wallMs": 25387,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "Delivers: the reports page offers on-demand CSV downloads with bounded paging. ACs 2, 4; 5 deferred per spec to acme/widgets#46; 4's observable half (export completes under 5s on production data) is checked after merge, not here.\n\nPR comments:\n- GitHub has not reported this actor's merge state, so merge waits. (merge state not refreshed (no tool available))\n\nNits:\n- The export pages results with its own loop instead of the shared paging helper, so a paging bug fixed once would need fixing twice. (src/api/export.ts:31, lib/page.ts)\n\n1 nit open - fix nits to take it\n\nBlockers:\n1. The Export CSV button has no test that exercises its download behavior, so the handler tests do not establish that readers can export from the reports page. (src/ui/reports.tsx, test/api/export.test.ts)\n2. Email delivery is deferred to no ticket, spec, or URL, so the spec does not settle that promised behavior with a valid deferral reference. (doc/specs/2026-09-30-csv-export.md)\n\nVerdict: fixable - 2 blockers\n\n1. fix - apply both blocker payloads in the worktree, review the wave, push [recommended]\n2. fix nits - apply the nit payload in the worktree, review the wave, push\n3. review - post the blockers as a comment on your PR\n4. wait - poll GitHub's merge state, then re-render\n5. show evidence - show gate evidence, claim and AC outcomes, and drafted edits\n6. stop - leave the PR as-is\n\nType a number, or compose: \"fix 2\", \"fix nits\", \"fix + nits\". Not offered: merge (merge state unknown).\n",
+      "words": 235,
+      "wallMs": 18673,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "901931a583d86a285a9baa21125dec4e36217dd5903a1f8ec1e4912998c8e0f5",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "c41cda60674e26f0c4b989471120265af64337b71e8745ed18c2136ac8a924bc",
+      "baselineOutputSha": "c74e7d517286172a131492592d6db058bde77924b264aaff52d08b61ef5de3c7",
+      "candidateOutputSha": "caae328a3ab3019912abf530fb83d9898edd02435b55afecad09456fe7269c19",
+      "facts": {
+        "f1": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "f2": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "f3": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "f4": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "f5": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "No fact moved: both outputs mint exactly one blocker for row 3 (unnamed follow-up ticket), leave row 5 as deferred-to-acme/widgets#46 with no blocker, omit merge from the menu, and stop at the menu with no comment posted. The Expected-to-move entries reference an elsewhere-settled case that does not apply here, since this spec has no elsewhere disposition, so the Wave 1 change correctly left this case's behavior intact. One wording regression worth fixing in After: option 1 is still labeled `fix` and `[recommended]` but its text says the blocker is not fixable here and no edit can be drafted, which contradicts Before's actionable 'apply the drafted spec edit' and makes the recommended choice a no-op; also 'show evidence' dropped 'drafted edit'. Keep Before's option 1 wording (draft a spec edit that inserts the ticket reference once the user supplies it, or prompt for the ticket number inside the fix flow), or if the gate truly cannot draft without a ticket, relabel it so the recommended action is 'review' or an explicit 'name the ticket' step rather than a 'fix' that declines to fix.",
+      "verdict": "unchanged"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "901931a583d86a285a9baa21125dec4e36217dd5903a1f8ec1e4912998c8e0f5",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "c41cda60674e26f0c4b989471120265af64337b71e8745ed18c2136ac8a924bc",
+      "baselineOutputSha": "aded98e936b21428782c85617f41ddaad28c89b16e949890cb36497357cfaa3a",
+      "candidateOutputSha": "efd3236afd96ed1d6661f57c809ebee05abaf93454bec00ed31022c71b1b8c8a",
+      "facts": {
+        "f1": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "f2": {
+          "before": "holds",
+          "after": "fails",
+          "label": "regression"
+        },
+        "f3": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "f4": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "f5": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "After keeps the row 3 gap (blocker 2, no ticket/spec/URL), still omits any blocker for row 5, still withholds merge, and posts nothing without a pick, but it breaks f2 by minting a second blocker: it drops AC1 from Delivers and demands a UI test for the Export CSV button, even though the diff summary shows src/ui/reports.tsx wiring the button to the handler and the spec's design item 1 defines exactly that, so Before correctly counted AC1 as delivered. The Wave 1 wording about elsewhere dispositions appears to have also tightened what counts as covered for ordinary in-scope rows; keep the elsewhere/attribution language scoped to rows whose spec disposition names another repository, and leave the in-scope coverage rule as it was (a row delivered by the diff and the spec design is covered; absence of a dedicated UI test is at most a nit, not a blocker). That keeps f1-f5 as Before did while still letting elsewhere rows render as 'elsewhere per spec' with their repository attribution.",
+      "verdict": "inconclusive",
+      "confirmation": {
+        "status": "ok",
+        "text": "Delivers: the reports page downloads on-demand CSV exports with every table column and bounded paging. ACs 1, 2, 4; 5 deferred per spec to acme/widgets#46; 4's observable half (export completes under 5s on production data) is checked after merge, not here.\n\nPR comments:\n- GitHub has not reported this actor's merge state, so merge waits. (merge state not refreshed (no tool available))\n\nNits:\n- The export pages results with its own loop instead of the shared paging helper, so a paging bug fixed once would need fixing twice. (src/api/export.ts:31, lib/page.ts)\n\nBlockers:\n1. Email delivery is deferred without a ticket, spec, or URL, so the spec does not settle that row's scope. (doc/specs/2026-09-30-csv-export.md)\n\nVerdict: fixable - 1 blocker\n\n1. review - post the blocker as a comment on your PR [recommended]\n2. show evidence - display CI evidence, claim and AC outcomes, and drafted payloads\n3. stop - leave the PR as-is\n\nType a number. Not offered: fix (no helper facility), fix nits (no helper facility), merge (merge state unknown).\n",
+        "words": 163,
+        "wallMs": 16379,
+        "mechanical": {},
+        "facts": {
+          "f1": {
+            "before": "holds",
+            "after": "holds",
+            "label": "held"
+          },
+          "f2": {
+            "before": "holds",
+            "after": "holds",
+            "label": "held"
+          },
+          "f3": {
+            "before": "holds",
+            "after": "holds",
+            "label": "held"
+          },
+          "f4": {
+            "before": "holds",
+            "after": "holds",
+            "label": "held"
+          },
+          "f5": {
+            "before": "holds",
+            "after": "holds",
+            "label": "held"
+          }
+        },
+        "feedback": "No fact moved on this case: both outputs still mint exactly one blocker for row 3 (email deferral with no ticket, spec path, or URL), keep row 5 attributed to acme/widgets#46 with no blocker, withhold merge because merge state is unknown, and only draft the review comment behind a pick rather than posting it. The Change's elsewhere-disposition handling correctly did not fire here since this spec has no elsewhere rows, so the 'expected to move' items (which belong to the elsewhere-settled case) are not applicable. One unrelated regression worth noting: After dropped the 'wait - poll GitHub's merge state, then re-render' menu item even though the PR comment still says merge is waiting on an unrefreshed merge state, leaving the user no path to resolve that; keep the wait option when merge state is unknown so the menu stays consistent with the stated reason merge is not offered."
+      }
+    }
+  },
+  "repoSha": "07c53575c996acf1c4e87209c4ef523dcf0b029e"
+}

@@ -1,0 +1,108 @@
+{
+  "sample": "all-none",
+  "arm": "candidate",
+  "skillSha": "4b44256f95b13ca612b04b1d3c0b3a9602707fe0d736c59f3d8b9cfca8cda5c2",
+  "inputSha": "904e2cf70810f37df7749e9375046dd947a895e64d6a30b45bf2ba145f86e5e5",
+  "kind": "text",
+  "assembly": "concat",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "Orchard coordinators use orchard-billing to collect monthly fees from growers, but a repeated collection request can currently charge the same invoice twice. Coordinators then reconcile receipts by hand while growers wait for a refund, and neither group can tell whether a retry is safe. The proposed change gives each collection request a stable receipt and makes retries return the original outcome instead of collecting again.\n\n**What changes**\n- Coordinators see one receipt for each invoice collection, including retries after an interrupted connection.\n- A pending collection stays visibly pending until its outcome is known; the service does not guess that a timeout means failure.\n- Growers receive a confirmation only after the collection succeeds, with the invoice amount and collection date.\n\n**Approval risks**\n- Existing duplicate charges remain a manual refund task; this change prevents new duplicates rather than rewriting past receipts.\n- The payment partner must preserve request keys across retries. Collection remains paused if that guarantee cannot be confirmed.\n- Receipt retention increases stored billing data, so operators must approve the retention window before rollout.\n\n**Done when**\n- Repeated requests produce one charge and one receipt, including after a service restart.\n- Pending outcomes remain visible, confirmations are sent once, and coordinators can reconcile the rollout's first billing cycle without duplicate charges.\n\nSpec written and committed to <project>/doc/specs/<filename>.md (worktree: <path>).\nScope cuts: [taken from the spec's `## Acceptance criteria` `deferred:` / `deviates:` / `venue:` rows, which are not in this context]\n\nCouncil: 0 applied, 0 deferred, 0 rejected\n\nUnresolved ambiguities: none. Missing from the spec: none.\nNew predecessor candidates at spec-writing: none. Index rows are a hint; code is the source and an absent row proves nothing.\n\n1 - approve: proceed to planning under the existing amendment review; a fresh reviewer applies evidence-backed factual corrections on its own, and every other spec amendment (scope, acceptance-criteria, or contract edits, and redraws) stops for your review.\n2 - approve, auto-apply amends: every later spec amendment in this flow (corrected facts, paths, verification lines, and scope, acceptance-criteria, or public-contract edits alike) applies without asking; only a redraw (changed problem statement, component added, removed, or re-bounded) still stops for you, and the grant never stands in for a spec approval.\n3 - show council dispositions: prints the council audit verbatim, then re-presents this gate. Not an approval.\n\nOr tell me what to change in the spec, or say \"revert applied council edit <X>\" to undo a specific applied edit.\n\n---\n\n**User reply: `approve`**\n\nThis is a plain approval with no grant, so the `**Amend-grant:**` value stays `none` and the commit is left as is. Next I read [Standing grants](amendment-surface.md#standing-grants), mark the brainstorm phase complete, and go straight to `/skill:writing-plans`.\n",
+      "words": 432,
+      "wallMs": 13971,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "Orchard coordinators use orchard-billing to collect monthly fees from growers, but a repeated collection request can currently charge the same invoice twice. Coordinators then reconcile receipts by hand while growers wait for a refund, and neither group can tell whether a retry is safe. The proposed change gives each collection request a stable receipt and makes retries return the original outcome instead of collecting again.\n\n**What changes**\n- Coordinators see one receipt for each invoice collection, including retries after an interrupted connection.\n- A pending collection stays visibly pending until its outcome is known; the service does not guess that a timeout means failure.\n- Growers receive a confirmation only after the collection succeeds, with the invoice amount and collection date.\n\n**Approval risks**\n- Existing duplicate charges remain a manual refund task; this change prevents new duplicates rather than rewriting past receipts.\n- The payment partner must preserve request keys across retries. Collection remains paused if that guarantee cannot be confirmed.\n- Receipt retention increases stored billing data, so operators must approve the retention window before rollout.\n\n**Done when**\n- Repeated requests produce one charge and one receipt, including after a service restart.\n- Pending outcomes remain visible, confirmations are sent once, and coordinators can reconcile the rollout's first billing cycle without duplicate charges.\n\nSpec written and committed (spec path and worktree path were not provided).\nScope cuts: cannot determine—the spec’s acceptance-criteria section was not provided.\n\nCouncil: 0 applied, 0 deferred, 0 rejected\n\nNew predecessor candidates at spec-writing: not provided.\n\n1 - approve: proceed to planning under the existing amendment review; a fresh reviewer applies evidence-backed factual corrections on its own, and every other spec amendment (scope, acceptance-criteria, or contract edits, and redraws) stops for your review.\n2 - approve, auto-apply amends: every later spec amendment in this flow (corrected facts, paths, verification lines, and scope, acceptance-criteria, or public-contract edits alike) applies without asking; only a redraw (changed problem statement, component added, removed, or re-bounded) still stops for you, and the grant never stands in for a spec approval.\n3 - show council dispositions: prints the council audit verbatim, then re-presents this gate. Not an approval.\n\nOr tell me what to change in the spec, or say \"revert applied council edit <X>\" to undo a specific applied edit.\n\n**Your reply: approve**\n\nI’ll leave `Amend-grant: none` and the spec commit unchanged, read Standing grants (stopping if unreadable), mark brainstorming complete, and proceed immediately to `/skill:writing-plans` under the existing amendment review.\n",
+      "words": 398,
+      "wallMs": 12556,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "250b723ec3014a04744469c2be7679da58b79a2736fee5b3a9500f3f90c4331a",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "b48161436fc7965cdde29a444787ba340abb08d6ec35bf1542618a3b759b4f6c",
+      "baselineOutputSha": "d9bda352628e19d1f4610959f2e2ee5b6abaa81dcbe9a71bf45577cbcac60b29",
+      "candidateOutputSha": "ce6f8deba0e9f391becb03efe3152fd6cb850dec31c7f85474a92801160b0cfd",
+      "facts": {
+        "f1": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "f2": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "f3": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "f4": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "f5": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "No fact moved: After still reproduces the briefing verbatim, keeps the Council counts line at 0/0/0, keeps menu row 3, adds no per-cluster Applied/Deferred/Rejected line, and treats `approve` as plain approval with Amend-grant none. The one weakness is that the new Scope cuts line is rendered as a bracketed placeholder (\"[taken from the spec's ... rows, which are not in this context]\") rather than an actual value; since the Change says to render `none` when no cuts exist and no deferred/deviates/venue rows were supplied, the instruction should tell the model to emit `Scope cuts: none` whenever the spec's acceptance-criteria rows are absent or contain only in-scope/elsewhere rows, and never to emit an explanatory placeholder in the gate. Also, After silently rewrote the punctuation of menu rows 1 and 2 and the predecessor line into longer run-on sentences; keeping those lines byte-identical to Before (change only the inserted Scope cuts line) would make the edit cleaner and reduce drift risk on facts about menu wording in other cases.",
+      "verdict": "unchanged"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "250b723ec3014a04744469c2be7679da58b79a2736fee5b3a9500f3f90c4331a",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "b48161436fc7965cdde29a444787ba340abb08d6ec35bf1542618a3b759b4f6c",
+      "baselineOutputSha": "d74a08442b8820d1342ca2384fba466c066343fb619de12c581d6b932bf61054",
+      "candidateOutputSha": "2b6db3369d7c7aa5788075ce195a31768accaea312d66908839ddc3b5ab4aa9b",
+      "facts": {
+        "f1": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "f2": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "f3": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "f4": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "f5": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "No fact moved: After still reproduces the briefing verbatim, keeps the 0/0/0 Council line, keeps menu row 3, adds no per-cluster disposition lines, and treats `approve` as plain approval with `Amend-grant: none`. The only concern is the new Scope cuts line itself: After renders it as \"cannot determine—the spec's acceptance-criteria section was not provided\" rather than the `none` the Change calls for when no cuts exist, and it sits correctly between the commit line and Council. If the author wants a deterministic `Scope cuts: none` when the input carries no deferred/deviates/venue rows (as here), the wording should say that an absent or empty acceptance-criteria section counts as no cuts and renders `none`, instead of leaving room for the model to emit an 'unknown' variant; otherwise the current wording is safe for every fact Before kept.",
+      "verdict": "unchanged"
+    }
+  },
+  "repoSha": "07c53575c996acf1c4e87209c4ef523dcf0b029e"
+}

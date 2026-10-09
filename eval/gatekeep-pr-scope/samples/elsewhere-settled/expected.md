@@ -1,0 +1,3 @@
+- f1: judged: The Delivers line names rows 3 and 5 as elsewhere per spec: acme/mailer.
+- f2: judged: The gate lists zero blockers.
+- f3: judged: The menu offers merge.

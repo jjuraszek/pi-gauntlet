@@ -19,12 +19,13 @@ Split each AC row once into a **mechanism half** (code + test + doc that make th
 | `not judged here` | the observation half; the mechanism half of the same row is still judged `covered`/`gap` | one `Delivers` clause ("<row>'s observable half is checked after merge, not here"); nothing is written, listed, or handed to check-delivery | no |
 | `deferred per spec` | a `deferred: <ref>` row with non-empty `ref` | one `Delivers` clause (`<n> deferred per spec to <ref>`) | no |
 | `deviates per spec` | a `deviates: <why>` row; the Design clauses the `<why>` names or quotes are judged for mechanism like an `in-scope` row | one `Delivers` clause (`<n> deviates per spec: <why>`); a missing adopted clause is one `Blockers` item | only an adopted clause's `gap` |
+| `elsewhere per spec` | an `elsewhere: <repo>` row | one `Delivers` clause (`<n> elsewhere per spec: <repo>`) | no |
 
 The `design` section is always part of the judged contract: a Design requirement with no mechanism in the diff is a `gap` blocker whether or not an AC row points at it. A `deferred:` row whose `ref` is empty is a `gap` ("row <n> is deferred to no ticket, spec, or URL"); the gate checks the reference's shape only, never that its destination shipped - delivery is `/skill:check-delivery`'s job. A row the repository cannot satisfy is corrected in the spec (`deviates: <why>` through brainstorming's amendment path) and, for `/skill:check-delivery`, on the ticket through `/skill:shape-ticket`; this gate posts no tracker comment, and no ticket edit lifts a withhold.
 
 **No spec rows** (`source: pr`, or `source: spec` with empty `rows`): no AC rows; `Delivers` states the PR's intent as read from its title and body, `design` is judged when present; `not judged here` and scope creep against rows do not apply.
 
-**Coverage.** With `source: spec`, `Delivers` lists the covered rows, then the `deferred per spec` and `deviates per spec` rows, then the observation halves (`report.md`); any other uncovered row is `gap`. The spec's disposition is the record: a tracker comment, a PR named in the body, or a later PR never widens or narrows it, and a bare `deferred:` is never confirmed by the ticket.
+**Coverage.** With `source: spec`, `Delivers` lists the covered rows, then the `deferred per spec`, `deviates per spec`, and `elsewhere per spec` rows, then the observation halves (`report.md`); any other uncovered row is `gap`. The spec's disposition is the record: a tracker comment, a PR named in the body, or a later PR never widens or narrows it, and a bare `deferred:` is never confirmed by the ticket.
 
 **Claims.** The Verifier's three dispositions stand. `contradicted` is a blocker. `unverifiable-pre-merge` is not evidence and renders nothing: a PR whose only proof of a new path is "verified on stg" is blocked by the untested-path rubric row, not by a claim rule.
 

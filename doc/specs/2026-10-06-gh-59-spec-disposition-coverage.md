@@ -1,5 +1,7 @@
 # Spec dispositions govern the PR gate and the conformance handoff
 
+> **Superseded by:** [doc/specs/2026-10-09-ac-coverage-dispositions.md](./2026-10-09-ac-coverage-dispositions.md) - the cross-repo `deferred: <ref>` authoring clause and the ask-when-observable rule in `ticket-acceptance.md` only
+
 **Goal:** The approved spec is the pre-merge scope contract: `/skill:gatekeep-pr` honors its `deferred: <ref>` and `deviates: <why>` rows as settled, falls back to the PR description when no spec applies, and uses the ticket only as the cross-check source its rows were copied from; the ship-time conformance handoff carries settled rows as one informational line; two post-merge menu rows post the rendered `AC coverage` text only on an explicit pick; `/skill:check-delivery` is untouched.
 **Amend-grant:** every later spec amendment in this flow (corrected facts, paths, verification lines, and scope, acceptance-criteria, or public-contract edits alike) applies without asking; only a redraw (changed problem statement, component added, removed, or re-bounded) still stops for you, and the grant never stands in for a spec approval.
 **Ticket:** jjuraszek/pi-gauntlet#59

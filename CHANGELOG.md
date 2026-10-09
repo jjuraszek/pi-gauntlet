@@ -1,5 +1,14 @@
 # Changelog
 
+## Unreleased
+
+### Changed
+
+- `shape-ticket`: a multi-repo Idea groups Acceptance Criteria under one `### <repo>` heading per repo; AC rows never name an environment (the production override valve is gone); the roast brief gains an attribution axis.
+- `brainstorming`: a row under another repo's group is `elsewhere: <repo>` with no question; `deferred:`/`deviates:` come only from the user's answer to a cut question (`A) in-scope B) deviates C) deferred D) repair the ticket`, recommendation A or D); moved paths are Design clauses; the gate renders a `Scope cuts:` line.
+- `spec-council-member`: blocks a cut with no cut-question answer in `Human input`, an `elsewhere:` row not under another repo's group, and a `venue:` naming production; amendment review escalates the same.
+- Conformance, `gatekeep-pr`, `finishing-a-development-branch`, `check-delivery`, and `writing-plans` read `elsewhere:` as settled attribution; venue rows are checked before the prod deploy. New evals `eval/shape-ticket/` and `eval/spec-council-member/`; new samples in `eval/brainstorming/`, `eval/spec-gate/`, `eval/conformance-check/`, `eval/gatekeep-pr-scope/`.
+
 ## v7.7.2 - 2026-10-08
 
 ### Changed

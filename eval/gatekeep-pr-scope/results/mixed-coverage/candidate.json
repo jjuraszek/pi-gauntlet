@@ -1,0 +1,108 @@
+{
+  "sample": "mixed-coverage",
+  "arm": "candidate",
+  "skillSha": "71c36ea627f1fc0d6de59f81e55376f9ab01c539dbc4ddf46bc4e50863440393",
+  "inputSha": "0f36b22a5efdbad7d7d609a9f45d926930138ac6e6be18d5a6225eccd0472231",
+  "kind": "text",
+  "assembly": "headed",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "```\nDelivers: the reports page exports a compact CSV on demand with bounded paging. ACs 1, 4; 2 deviates per spec: the table has 40 columns, so the export includes the 12 visible-by-default columns (Design clause 3); 3, 5 deferred per spec to acme/widgets#46; 4's observable half (export completes under 5s on production data) is checked after merge, not here.\n\nNits:\n- The export pages results with its own loop instead of the shared paging helper, so a paging bug fixed once would need fixing twice. (src/api/export.ts:31, lib/page.ts)\n1 nit open - fix nits to take them\n\nVerdict: mergeable - CI green on the assessed head (test)\n\n1. merge - squash-merge the assessed head                                 [recommended]\n2. fix nits - apply the nit payload in the worktree, review the wave, push\n3. show evidence - gate output, CI run, AC outcomes\n4. stop - leave the PR as-is\nType a number.\n```\n",
+      "words": 142,
+      "wallMs": 18484,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "Delivers: the reports page downloads an on-demand CSV containing the 12 visible-by-default columns with bounded paging and a deadline. ACs 1, 4; 3, 5 deferred per spec to acme/widgets#46; 2 deviates per spec: the table has 40 columns, so the export includes the 12 visible-by-default columns (Design clause 3); 4's observable half (export completes under 5s on production data) is checked after merge, not here.\n\nPR comments:\n- GitHub has not reported this actor's merge state, so merge waits. (merge state not refreshed (no tool available))\n\nNits:\n- The export pages results with its own loop instead of the shared paging helper, so a paging bug fixed once would need fixing twice. (src/api/export.ts:31, lib/page.ts)\n\nVerdict: fixable - merge state unknown\n\n1. wait - poll the merge state, then re-render [recommended]\n2. show evidence - show CI evidence, claim dispositions, and spec outcomes\n3. stop - leave the PR as-is\n\nType a number. Not offered: fix nits (no helper facility available), merge (merge state unknown).\n",
+      "words": 158,
+      "wallMs": 15536,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "7de846ac42f81a1c1ea9139480835e2fb10f4237bf76c190bd623a2c6a196554",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "c41cda60674e26f0c4b989471120265af64337b71e8745ed18c2136ac8a924bc",
+      "baselineOutputSha": "32d29cb251c19ae092218e75843db86cd910f5e82749a875305c7cda03723543",
+      "candidateOutputSha": "09de4e63f35c96780c12573c5855354385796bcdb2c99863f235481616888c42",
+      "facts": {
+        "f1": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "f2": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "f3": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "f4": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "f5": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "After keeps every fact Before kept: the Delivers line still names ACs 1 and 4 as covered, 2 as deviating per spec with the Design clause 3 rationale, and 3 and 5 as deferred per spec to acme/widgets#46; no blocker is minted for any deferred or deviated row, the gate reports mergeable with merge as the recommended option, and nothing is posted to the tracker or PR without a pick. The only substantive wording shift is the Delivers summary going from \"12-column CSV\" to \"compact CSV\", which drops a concrete detail without serving the Change (this case has no elsewhere rows, so the new elsewhere handling is correctly invisible here); keep the specific column count in the summary. Reordering the disposition clauses (deviates before deferred) is harmless, and the shorter nit phrasing and menu labels are equivalent. The After output is wrapped in a code fence that Before lacks - if that is a rendering artifact of the template, make sure it does not leak into the real report.",
+      "verdict": "unchanged"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "7de846ac42f81a1c1ea9139480835e2fb10f4237bf76c190bd623a2c6a196554",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "c41cda60674e26f0c4b989471120265af64337b71e8745ed18c2136ac8a924bc",
+      "baselineOutputSha": "ddfb613ed67d891a2411f9fe955ac3ffe098aedea461d5a3c843121140bdc1ad",
+      "candidateOutputSha": "b2fdf4e6cd206ab5f5ee0e38cbd23d6c2711070c3158de8b641676e9ec167994",
+      "facts": {
+        "f1": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "f2": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "f3": {
+          "before": "fails",
+          "after": "fails",
+          "label": "pre-existing"
+        },
+        "f4": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "f5": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "After is a near-verbatim rewording of Before (\"refresh\" -> \"poll\", \"AC outcomes\" -> \"spec outcomes\", reordered Not-offered list) and moves nothing: Delivers still attributes rows 1 and 4 as covered, row 2 as deviating per spec, and rows 3 and 5 as deferred per spec to acme/widgets#46, no blocker is minted for any deferred/deviated row, and nothing is posted without a pick. The one fact that fails in both, f3, fails for a reason unrelated to the elsewhere/deferred wording: both outputs declare the merge state unknown and withhold merge even though the case header already supplies `mergeable MERGEABLE`, `head_pushable true`, state OPEN, not draft, and a successful CI check. To deliver the Change without regressing anything, the report/post-selection-loop wording should instruct the gate to read the supplied mergeable/pushable fields as the current merge state (only falling back to \"wait - refresh\" when those fields are absent), so a clean gate with zero blockers renders `merge` as the recommended option; the coverage wording for elsewhere/deferred rows can stay exactly as it is, since it already keeps f1, f2, f4 and f5.",
+      "verdict": "unchanged"
+    }
+  },
+  "repoSha": "07c53575c996acf1c4e87209c4ef523dcf0b029e"
+}

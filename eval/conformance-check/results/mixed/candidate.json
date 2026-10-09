@@ -1,0 +1,118 @@
+{
+  "sample": "mixed",
+  "arm": "candidate",
+  "skillSha": "db07dda8f60340eab65702d6c6bbdf8970474db449817709cea5b85b26ae1452",
+  "inputSha": "9cc5ce5812521587ef29d9766b88975d9fa762096d7aac6c51b1c453e29e1813",
+  "kind": "text",
+  "assembly": "headed",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "## Closure / conformance\n\n```text\nstatus: GAPS (1 open)\naudited-base: 4c1e8f0a9b2d7c6e5f4a3b2c1d0e9f8a7b6c5d4e\nhappy-path: not run - no row configured\nDeferred/deviates per spec: AC2 deviates: the export includes the 12 visible-by-default columns (Design clause 3); AC3 deferred to acme/widgets#46; AC5 deferred to acme/widgets#46\n\nG1 - Production export misses the five-second budget\n  verdict: PARTIAL\n  origin: spec \"Acceptance criteria / AC4\" - \"The export completes under 5s on production data.\"\n  evidence: test/export/latency.test.ts:20 (6.2s on production data); src/export/stream.ts:30\n  blocker: none (fix loop not run: closureReview.maxFixRounds is 0, audit-only)\n  touched-files: src/export/stream.ts\n  touched-resources: none\n  round history: none (maxFixRounds 0, no round ran)\n\n  G1/C1 - Production export latency exceeds 5s\n    unresolved: The streaming export takes 6.2s on the production-sized fixture. AC4 requires under 5s.\n    impact: The spec Goal names the five-second export budget as a deliverable of acme/widgets#45, so shipping as-is leaves that deliverable unmet.\n    origin: spec \"Acceptance criteria / AC4\" - \"The export completes under 5s on production data.\"\n    remediation: Reduce streaming overhead in src/export/stream.ts until test/export/latency.test.ts:20 passes under 5s.\n    evidence: test/export/latency.test.ts:20 reports 6.2s; src/export/stream.ts:30\n    touched-files: src/export/stream.ts\n    touched-resources: none\n    available dispositions:\n      fix-now: reduce streaming overhead to meet the 5s budget. UNAVAILABLE: maxFixRounds is 0 (audit-only). Finish-time selection never resets that cap.\n      accept-into-spec: ratify 6.2s as the contract. Available (writable spec, concrete behavior), but evidence does not support it. The reviewer's own remediation says accepting \"would leave the budget unmet\", and the Goal makes the 5s budget a deliverable, so the contract is not stale.\n      rescope-into-spec: remove or defer AC4 from this workflow. Available (not UNAUTHORIZED, writable spec), but it contradicts the spec Goal, which delivers the five-second budget in this ticket.\n      follow-up: transfer to separately owned work. UNAVAILABLE: no executable issue-tracker convention is confirmed for this project. Use custom to name another durable owner.\n      custom: user-defined effect, e.g. a manual fix-in-place of src/export/stream.ts verified by test/export/latency.test.ts. Executable once the effect is stated.\n    recommended: none\n    rationale: The reviewer token `accept` maps to accept-into-spec, but current evidence contradicts its effect, so it is not recommended. fix-now is blocked by maxFixRounds 0. follow-up lacks an executable tracker convention. rescope would drop a Goal deliverable. The required custom effect is a manual fix of streaming overhead in src/export/stream.ts until the production latency test passes under 5s, followed by the project tests and code-reviewer on that delta.\n\nauto-applied fix commits: none\nwhole-diff minors: not recorded\n```\n\n---\n\n```\nConformance: 1 decision needed before shipping.\nhappy-path: not run - no row configured\nDeferred/deviates per spec: AC2 deviates: the export includes the 12 visible-by-default columns (Design clause 3); AC3 deferred to acme/widgets#46; AC5 deferred to acme/widgets#46\nwhole-diff minors: not recorded\n\n* latency - Production export latency exceeds 5s: export takes 6.2s on production data (AC4 requires under 5s).\n  Still in scope for this branch? Recommended: none (no named choice is executable; accepting 6.2s would leave the Goal's 5s budget unmet) (fix-now N/A: maxFixRounds 0; follow-up N/A: no issue-tracker convention).\n  Needs a custom decision, e.g. custom(manually reduce streaming overhead in src/export/stream.ts until the latency test passes under 5s).\n\nOther options per item: fix-now / accept / rescope / follow-up / custom.\n\n1. Go with recommended - withheld: \"latency - Production export latency exceeds 5s\" has no executable recommendation\n2. Recommended except <handle>=<choice>   e.g. \"2: latency=custom(manually reduce streaming overhead in src/export/stream.ts until test/export/latency.test.ts passes under 5s)\"\n```\n\nStep 4 does not render yet. The gate allows no auto-proceed, so the options menu stays withheld until you reply with a disposition for \"latency - Production export latency exceeds 5s\".\n",
+      "words": 549,
+      "wallMs": 30735,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "## Closure / conformance\nstatus: GAPS (1 open)\naudited-base: 4c1e8f0a9b2d7c6e5f4a3b2c1d0e9f8a7b6c5d4e\nDeferred/deviates per spec: AC2 deviates: the export includes the 12 visible-by-default columns (Design clause 3); AC3 deferred to acme/widgets#46; AC5 deferred to acme/widgets#46\n\nG1 - Export exceeds the five-second budget\n  verdict: PARTIAL\n  origin: spec \"Acceptance criteria / AC4\" - \"The export completes under 5s on production data.\"\n  evidence: test/export/latency.test.ts:20 reports 6.2s on production data; src/export/stream.ts:30\n  blocker: automated fixing is disabled by closureReview.maxFixRounds: 0\n  touched-files: src/export/stream.ts\n  touched-resources: none\n  round history: R0 PARTIAL; recommended accept; carried OPEN; no fix round run\n\n  G1/C1 - Export exceeds the five-second budget\n    unresolved: Production-sized export takes 6.2s rather than under 5s.\n    impact: The export does not meet the approved production-data performance budget.\n    origin: spec \"Acceptance criteria / AC4\" - \"The export completes under 5s on production data.\"\n    remediation: Reduce streaming overhead to meet the five-second budget.\n    evidence: test/export/latency.test.ts:20 reports 6.2s; src/export/stream.ts:30\n    touched-files: src/export/stream.ts\n    touched-resources: none\n    available dispositions:\n      fix-now: Reduce streaming overhead; unavailable because closureReview.maxFixRounds is 0.\n      accept-into-spec: Ratify the implemented 6.2s latency by explicitly revising the five-second contract; requires a writable spec.\n      rescope-into-spec: Explicitly defer the five-second requirement from this workflow; requires a writable spec.\n      follow-up: Transfer performance remediation to separately owned work; unavailable without an established executable issue-tracker convention.\n      custom: Execute a concrete user-defined disposition, including manual performance remediation; available after its effect is supplied and validated.\n    recommended: none\n    rationale: The reviewer recommends acceptance, but spec writability is not established. Automated fixing is disabled, and no executable issue-tracker convention is supplied. A concrete custom effect and its executable destination are required before disposition.\n\nauto-applied fix commits: none\n\nwhole-diff minors: not recorded\n\n---\n\nThe required working-tree freshness check cannot be performed without tools. The render below is therefore provisional; no disposition or spec edit has been executed. The non-AC amendment funnel excludes this gap because its origin is AC4. No happy-path run occurred, so the handoff omits the optional `happy-path:` line.\n\nConformance: 1 decision needed before shipping.\nwhole-diff minors: not recorded\n\n* latency - Export exceeds the five-second budget: production-sized export takes 6.2s, exceeding the approved budget. What concrete disposition should be executed? Recommended: none (spec writability and an executable follow-up convention are unconfirmed; fix-now is disabled).\n  (fix-now N/A: audit-only; accept/rescope require a writable spec; follow-up requires an executable issue-tracker convention.)\n\nOther options per item: custom; accept / rescope / follow-up once their prerequisites are established.\n\nReply with `2: latency=custom(<concrete effect>)`. For example, identify a writable spec and explicitly approve replacing its five-second contract with a 6.2-second production-data budget.\n\n**Step 4 cannot render yet:** freshness must be verified and the carried-open decision explicitly disposed of. Printing “Implementation complete. What would you like to do?” now would bypass the enforced gate.\n",
+      "words": 431,
+      "wallMs": 32489,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "5e9d99646aeba395a860da3947c376ed810e9db09b802fd17b4652a1e538833b",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "c8f83f413b6f9674bfbd8a42db82d1a5dd23f7b6ec6277d7351aac207aab39f2",
+      "baselineOutputSha": "373979aa23a5d707f20ebf2421793d69d12e6ed5b5b81941e5f6f077d28bc979",
+      "candidateOutputSha": "7795cd15d95abb1b9e1c01379246b1f0b7858f8a0fa1c7e70792a8f568315565",
+      "facts": {
+        "f1": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "f2": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "f3": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "f4": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "f5": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "f6": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "No fact moved between Before and After: both outputs already fold AC2/AC3/AC5 into a single 'Deferred/deviates per spec' line, surface only the AC4 latency gap as the one decision item (N=1 in both the status header and the operator view), say nothing about re-auditing the drift line, and, when recommending none, name the missing prerequisites (maxFixRounds 0, no tracker convention) while carrying G1 open with no auto-applied fix. So the 'fails -> holds' expectations for f1–f3 are not borne out by this pair; Before was already settling elsewhere rows correctly, meaning the Change is either not exercised by this case or was already satisfied. Two incidental drifts in After worth watching: 'round history' changed from 'R0 PARTIAL (recommended: accept)' to 'none', which drops the reviewer's accept token from the card body (it survives only in the rationale), and 'whole-diff minors' changed from 'none' to 'not recorded' with no source for that wording in the reviewer report. To keep f6 robust, keep the reviewer's recommended token visible in round history (e.g. 'R0 PARTIAL (reviewer recommended: accept); no fix round run (maxFixRounds 0)') and keep 'whole-diff minors: none' when the report lists none.",
+      "verdict": "unchanged"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "5e9d99646aeba395a860da3947c376ed810e9db09b802fd17b4652a1e538833b",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "c8f83f413b6f9674bfbd8a42db82d1a5dd23f7b6ec6277d7351aac207aab39f2",
+      "baselineOutputSha": "04ad19cd85f2673f314843eeadbd7a9ecd7b2a5d0e10529cd0d54339948b5b96",
+      "candidateOutputSha": "63cc5352dd74f94c5bebf278ac4caa271081d0815a1bd80faf9135cb6769faa5",
+      "facts": {
+        "f1": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "f2": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "f3": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "f4": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "f5": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "f6": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "No fact moved: both outputs settle AC2/AC3/AC5 on a single Deferred/deviates per spec line, raise exactly one decision item (the AC4 latency gap, N=1), create no decision for the elsewhere rows, trigger no re-audit, and name the missing prerequisites (spec writability, tracker convention, maxFixRounds=0) when recommending none. The expected-to-move facts already held in Before for this case, so the Change is delivered without regression. Two After-only differences are worth watching: the handoff block no longer repeats the Deferred/deviates line (fine for f1, but if a consumer expects it in the handoff, keep one copy there), and After injects a provisional 'freshness check cannot be performed without tools' preamble plus a 'Step 4 cannot render yet' justification that references freshness rather than only the undisposed decision — that extra gating reason is not in the spec or reviewer report and could be read as a second blocker. Keep the elsewhere-rows wording as is; drop the freshness caveat or tie Step 4's withholding solely to the unresolved decision, as Before did.",
+      "verdict": "unchanged"
+    }
+  },
+  "repoSha": "07c53575c996acf1c4e87209c4ef523dcf0b029e"
+}

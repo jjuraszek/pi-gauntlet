@@ -1,0 +1,88 @@
+{
+  "sample": "elsewhere-settled",
+  "arm": "candidate",
+  "skillSha": "db07dda8f60340eab65702d6c6bbdf8970474db449817709cea5b85b26ae1452",
+  "inputSha": "443a2a74e03e6a8eeebe71ac44d4d9d705b0a18f74c170d86c17f3b27cdfea56",
+  "kind": "text",
+  "assembly": "headed",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "## Closure / conformance\n\n```text\nstatus: CONFORMS (0 open)\naudited-base: 4c1e8f0a9b2d7c6e5f4a3b2c1d0e9f8a7b6c5d4e\nhappy-path: not run - no row configured\n```\n\nVerdict: `CONFORMS`. No gaps were found, so there are no concern cards and no fix loop ran.\n\n- R1 (AC1 button) DELIVERED: src/ui/export-button.tsx:12, test/ui/export-button.test.tsx:8\n- R2 (AC2 columns) DELIVERED: src/export/csv.ts:24, test/export/csv.test.ts:18\n- R4 (AC4 latency) DELIVERED: src/export/stream.ts:30, test/export/latency.test.ts:20\n- R6 (Design clause 1) DELIVERED: src/ui/export-button.tsx:12\n- R7 (Design clause 2) DELIVERED: src/export/csv.ts:24, src/ui/download.ts:9\n- R8 (Design clause 3) DELIVERED: src/export/stream.ts:30, test/export/latency.test.ts:20\n- AC3 and AC5 are `elsewhere: acme/mailer` and are recorded in the spec. They are not drift.\n- The spec has no `deferred:` or `deviates:` rows, so the `Deferred/deviates per spec:` line is omitted.\n\n```text\nauto-applied fix commits: none\nwhole-diff minors: none\n```\n\n---\n\n*Step 3.5 render. This assumes the freshness check is clean: `git diff --stat <audited-base> -- .` and `git status --porcelain --untracked-files=all` both show no output. I could not run those commands here because tools were not allowed.*\n\n```\nClosure / conformance: CONFORMS\nhappy-path: not run - no row configured\nwhole-diff minors: none\n```\n\n```\nImplementation complete. What would you like to do?\n```\n",
+      "words": 165,
+      "wallMs": 15869,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "## Closure / conformance\n```text\nstatus: CONFORMS (0 open)\naudited-base: 4c1e8f0a9b2d7c6e5f4a3b2c1d0e9f8a7b6c5d4e\nauto-applied fix commits: none\nwhole-diff minors: not recorded\n```\n\n### Operator view\n\n```text\nClosure / conformance: CONFORMS\nwhole-diff minors: not recorded\n\nImplementation complete. What would you like to do?\n```\n",
+      "words": 35,
+      "wallMs": 8641,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "18a6c6da6aaa18957a324903f08b8d1a0a401e6d104eedc0f4c7dce8f443bbc1",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "c8f83f413b6f9674bfbd8a42db82d1a5dd23f7b6ec6277d7351aac207aab39f2",
+      "baselineOutputSha": "9250249601c7c2d2a8197c9c8d8b33cbf7e5ed336446982202b1cb9388a532c4",
+      "candidateOutputSha": "fba3a8dddc56d9e972409d7bc1c6dffbb1ee43e387d8a8e02a1367b7db4c9c7b",
+      "facts": {
+        "f1": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "f2": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "f3": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        }
+      },
+      "feedback": "After keeps every fact Before kept: AC3/AC5 produce no concern cards (status CONFORMS, 0 open), they are named with their `elsewhere: acme/mailer` attribution rather than as gaps, and the render reaches `Implementation complete. What would you like to do?`. Two wording issues are worth tightening. First, After says AC3/AC5 'are not drift', which contradicts the Change's own framing (and Before's) that elsewhere rows are *recorded* drift; prefer 'recorded venue drift, not gaps' so the row classification matches the reviewer's `Origin drift:` section and does not invite a reader to wonder whether the attribution was dropped. Second, After interleaves the reviewer's R-list and an unverifiable freshness-check caveat ('I could not run those commands here') between the closure block and the operator view, and splits `auto-applied fix commits` into a separate code block; this adds hedging and fragments the render without serving the Change. Keep Before's single closure block plus a short note stating that elsewhere rows are recorded drift settled in acme/mailer, create no decision items, and let the gate proceed to Step 4.",
+      "verdict": "unchanged"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "18a6c6da6aaa18957a324903f08b8d1a0a401e6d104eedc0f4c7dce8f443bbc1",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "c8f83f413b6f9674bfbd8a42db82d1a5dd23f7b6ec6277d7351aac207aab39f2",
+      "baselineOutputSha": "e8878da040077ad3baf7bb12113b8e1c446b24cdf5007c75de9d1021bfd3b8c4",
+      "candidateOutputSha": "1edbc401aa1b5b033b8bcf36b3e8948444eb5a87edf7c664f0a8a55a805ae106",
+      "facts": {
+        "f1": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "f2": {
+          "before": "fails",
+          "after": "fails",
+          "label": "intended but unchanged"
+        },
+        "f3": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        }
+      },
+      "feedback": "After differs from Before only in formatting (code fences and an 'Operator view' heading); it did not move any fact. f1 and f3 hold in both: status is CONFORMS (0 open) and the render reaches the closure line and the 'Implementation complete' prompt. f2 fails in both because neither output mentions rows 3 and 5 at all - they are neither called gaps nor given their acme/mailer attribution, and the fact as written requires the render to name them as elsewhere/recorded. To deliver the Change and satisfy f2, have the closure block emit the reviewer's origin-drift lines, e.g. 'elsewhere (recorded in spec): AC3 -> acme/mailer, AC5 -> acme/mailer', so the attribution is preserved in the render while still producing zero decision items and no gaps.",
+      "verdict": "unchanged"
+    }
+  },
+  "repoSha": "07c53575c996acf1c4e87209c4ef523dcf0b029e"
+}

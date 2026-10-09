@@ -1,0 +1,34 @@
+{
+  "sample": "venue-stripped",
+  "arm": "baseline",
+  "skillSha": "7419927f59110fa49d40bf1014ee5844548b244f4d07a3383653335c042061b0",
+  "inputSha": "0fa4f1a9427e17d5d76f71c3a7cb1a188a48b73ce908d9eaac780332ac6fad0c",
+  "kind": "text",
+  "assembly": "concat",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "# Replacement ticket body\n\n```markdown\n## Context\nRequesters export reports as CSV files from the widgets app (acme/widgets). Export latency is the time from requesting an export to the file being ready. For the representative 100-row report, the recorded request-timing run measured p95 export latency at 5s. p95 means 95% of exports finish within that time.\n\n## Problem\nCSV exports take too long. Requesters exporting the representative 100-row report wait up to 5s (p95), but the required maximum is 2s. For example, a requester who asks for the 100-row report as CSV can wait about 5 seconds for the file instead of at most 2.\n\n## Idea\nReporter's sketch: improve CSV export in acme/widgets so the 100-row report is ready within 2s at p95.\n\n## Acceptance Criteria\n- [ ] In staging, CSV exports of the representative 100-row report are requested and timed with the same request-timing method as the recorded baseline run (request to file ready). The measured p95 export latency is <= 2s (baseline: 5s p95 from the recorded request-timing run).\n\n## Post-deployment housekeeping\nNon-blocking: monitor export latency after release.\n```\n\n# AC integrity gate report\n\n**Normalization:** There is 1 criterion. It was already in `- [ ]` form. I rewrote it to fold in the measurement method from the former `Measurement clarification` section. That section is not a standard body section, so its content now lives in the AC and in Context. Nothing was dropped.\n\n| # | AC (abridged) | Class test | Result |\n|---|---|---|---|\n| 1 | p95 export latency <= 2s in staging, same request-timing method, baseline 5s | **Comparative.** Baseline: 5s p95, recorded request-timing run, user-supplied, not estimated. Target: 2s. Measurement: request-to-file-ready timing of the representative 100-row report, same method as baseline. Venue: staging, which is pre-prod. | **Pass** |\n\n- **Wishful / tautological:** none, so there is no hard stop.\n- **Unspecified-but-binding / external-input:** none. Every closure-gating value is stated, so the ticket does not need to be parked.\n- **Deploy-window:** AC 1 can be verified in staging before production deployment. Post-release monitoring is already in `Post-deployment housekeeping` as a non-blocking item. It was preserved as written and is not an AC.\n- **Guards:** I invented no numbers. The sample size per timing run is not specified in the ticket, so I did not add one. The AC is anchored to \"the same method as the recorded baseline run.\"\n\n**Wording contract (Context/Problem/Idea):**\n- I defined \"p95\" and \"export latency\" in plain words.\n- The asserted failure leads with plain words (\"CSV exports take too long\") and gives a concrete example.\n- The repo reference is parenthetical and safe to delete.\n- The Idea section keeps exactly one attributed sketch line.\n\n**Reporter note:** no overflow, so no comment is proposed.\n\n**Outcome:** The gate is clean. The draft can proceed to the remaining step-5 gates.\n",
+      "words": 434,
+      "wallMs": 17403,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "## Full replacement ticket body\n\n## Context\nRequesters export reports as CSV from the widgets app. For the representative 100-row report, the recorded request-timing run measured a 95th-percentile (p95) export latency of 5 seconds. Export latency is measured from the request until the file is ready.\n\n## Problem\nRequesters wait too long for CSV exports. For the representative 100-row report, the measured p95 export latency is 5 seconds, exceeding the required maximum of 2 seconds.\n\n## Idea\nThe reporter proposes improving CSV export in acme/widgets.\n\n## Acceptance Criteria\n- [ ] In staging, request CSV exports of the representative 100-row report using the same request-timing method as the recorded baseline run. Measure request-to-file-ready latency and verify that p95 export latency is at most 2 seconds, against the recorded baseline of 5 seconds. The baseline and target are supplied values, not estimates.\n\n## Post-deployment housekeeping\nNon-blocking: monitor export latency after release.\n\n---\n\n## AC integrity gate report\n\n**Result: PASS**\n\n- **Normalization:** The criterion is rendered as an unchecked checklist item.\n- **Classification:** Comparative performance criterion.\n- **Baseline:** Recorded p95 export latency of 5 seconds for the representative 100-row report; preserved.\n- **Target:** p95 export latency of at most 2 seconds; preserved.\n- **Measurement:** Same request-timing method as the baseline, measuring request-to-file-ready latency.\n- **Setup and action:** Export the representative 100-row report as CSV in staging.\n- **Observable result:** Measured p95 latency is at most 2 seconds.\n- **Deployment window:** Verification is possible before production deployment.\n- **Housekeeping:** Post-release monitoring remains explicitly non-blocking and outside the ACs.\n- **Disposition:** No hard stop, parking, or relocation required. No Reporter-note comment proposed.\n",
+      "words": 247,
+      "wallMs": 15650,
+      "mechanical": {}
+    }
+  },
+  "repoSha": "1ad41846d4f3d7f67912e878754b83a82aa197c4"
+}

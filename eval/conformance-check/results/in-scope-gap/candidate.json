@@ -1,0 +1,178 @@
+{
+  "sample": "in-scope-gap",
+  "arm": "candidate",
+  "skillSha": "db07dda8f60340eab65702d6c6bbdf8970474db449817709cea5b85b26ae1452",
+  "inputSha": "c0ad33bd7a71472f24c15ebad3204ba0957bd9ffea9676db8ae9ba777a16c120",
+  "kind": "text",
+  "assembly": "headed",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "## Closure / conformance\n\n```text\nstatus: GAPS (1 open)\naudited-base: 4c1e8f0a9b2d7c6e5f4a3b2c1d0e9f8a7b6c5d4e\nhappy-path: not run - no row configured\n\nG1 - Audit-log export events are missing\n  verdict: MISSING\n  origin: spec \"Acceptance criteria / AC5\" - \"Export events appear in the audit log.\"\n  evidence: absent (searched src/audit/log.ts and export handlers; no export event mechanism)\n  blocker: none\n  touched-files: src/audit/log.ts\n  touched-resources: none\n  round history: R0 MISSING (recommended: fix); no fix round ran because closureReview.maxFixRounds is 0, so the gap is carried OPEN under the precondition-unavailable rule\n\n  G1/C1 - Export completion is not recorded in the audit log\n    unresolved: Completed exports write no event to the audit log.\n    impact: AC5 is unmet, so the branch does not deliver all five acme/widgets#45 requirements.\n    origin: spec \"Acceptance criteria / AC5\" - \"Export events appear in the audit log.\"\n    remediation: Record an export event in the audit log when an export completes.\n    evidence: absent (no export event mechanism in src/audit/log.ts or the export handlers)\n    touched-files: src/audit/log.ts\n    touched-resources: none\n    available dispositions:\n      fix-now: Implement the export audit event. Unavailable because maxFixRounds is 0 (audit-only), and finish-time selection does not bypass that cap.\n      accept-into-spec: Ratify implemented behavior. Unavailable because nothing is implemented to ratify (evidence: absent).\n      rescope-into-spec: Remove or defer AC5 from this workflow. Available because a writable spec exists and the verdict is not UNAUTHORIZED.\n      follow-up: Transfer the work to a separately owned ticket. Unavailable because no executable issue-tracker convention is established in this context.\n      custom: Always visible. Executable only after the user supplies a concrete effect, for example a manual fix-in-place.\n    recommended: none\n    rationale: The reviewer recommended fix, which maps to fix-now, but fix-now is blocked by maxFixRounds: 0. Follow-up cannot replace it because no executable tracker convention exists. Rescope is available, but it would contradict the spec goal of delivering all five requirements, so current evidence does not support it. The concrete custom effect still required is a manual fix-in-place: add an export-completed event write to src/audit/log.ts from the export handlers, run tests, then re-audit.\n\nauto-applied fix commits: none\n\nwhole-diff minors: not recorded\n```\n\nThe `whole-diff minors` section is shown as not recorded for two reasons. No whole-diff review findings were supplied, and `whole-diff-minors.md` could not be read in this run, so I am not inventing findings.\n\n---\n\n### Step 3.5: what the operator sees\n\nNo accept-eligible gaps existed, so the pre-menu amendment funnel had nothing to draft.\n\n```\nConformance: 1 decision needed before shipping.\nhappy-path: not run - no row configured\nwhole-diff minors: not recorded\n\n* audit - Audit-log export events: not implemented; no export event reaches the audit log (AC5).\n  Still in scope for this branch? Recommended: none (fix-now N/A: maxFixRounds 0; accept N/A: nothing to ratify; follow-up N/A: no tracker convention).\n\nOther options per item: rescope / custom\n\nOption 1 (go with recommended) is withheld: \"audit\" has no executable recommendation.\nReply with a custom decision, e.g.\n  2: audit=custom(manually add an export-completed event to src/audit/log.ts, run tests, re-audit)\nor\n  2: audit=rescope\n```\n\nThe gate stops here and waits for the reply. Step 4's options are not rendered yet, because every carried-open decision needs an explicit disposition first.\n\nAfter the reply:\n- A `custom(...)` effect is normalized and executed directly, since no other open items remain.\n- Code-changing work then runs the project tests and `code-reviewer` on its delta, followed by a re-audit.\n- If no concerns remain open, the summary prints and the Step 4 menu renders.\n",
+      "words": 540,
+      "wallMs": 31441,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "## Closure / conformance\nstatus: GAPS (1 open)\naudited-base: 4c1e8f0a9b2d7c6e5f4a3b2c1d0e9f8a7b6c5d4e\n\nG1 - Export events are missing from the audit log\n  verdict: MISSING\n  origin: spec \"Acceptance criteria / AC5\" - \"Export events appear in the audit log.\"\n  evidence: absent; reviewer searched src/audit/log.ts and export handlers and found no export event mechanism\n  blocker: none\n  touched-files: src/audit/log.ts\n  touched-resources: none\n  round history: R0 MISSING; carried OPEN because closureReview.maxFixRounds is 0; no fix round ran\n\n  G1/C1 - Record completed exports in the audit log\n    unresolved: Completed exports do not produce an audit-log event.\n    impact: AC5 remains unmet, so the goal of delivering all five export requirements is not satisfied.\n    origin: spec \"Acceptance criteria / AC5\" - \"Export events appear in the audit log.\"\n    remediation: Record an export event in the audit log when an export completes.\n    evidence: absent; no export event hook was added\n    touched-files: src/audit/log.ts\n    touched-resources: none\n    available dispositions:\n      fix-now: Implement the missing export event; unavailable because closureReview.maxFixRounds is 0.\n      accept-into-spec: Ratify intentional implemented behavior; unavailable because no concrete audit-event behavior exists to ratify.\n      rescope-into-spec: Explicitly defer or remove AC5; unavailable until a writable spec is established.\n      follow-up: Transfer audit-event implementation to separately owned work; unavailable because no executable issue-tracker convention or separate owner was supplied.\n      custom: Execute a user-defined concrete effect, including a manual fix; visible, but executable only after the user supplies an unambiguous, executable effect.\n    recommended: none\n    rationale: Auto-fix is disabled, spec writability is unestablished, and no executable follow-up convention is supplied. A concrete custom effect is required; missing implementation evidence is not an external blocker.\n\nauto-applied fix commits: none\nwhole-diff minors: not recorded\n\n---\n\nConformance: 1 decision needed before shipping.\nwhole-diff minors: not recorded\n\n* audit - Record completed exports in the audit log: completed exports produce no audit event. How should this requirement be resolved? Recommended: none (no named executable disposition is currently established). (fix-now N/A: audit-only; accept N/A: no behavior to ratify; rescope N/A: spec writability unestablished; follow-up N/A: no executable tracker convention.)\n\nOther options per item: custom.\n\nSupply a concrete effect with `2: audit=custom(<concrete effect>)`. Applying the recommended set is unavailable until this item has an executable decision.\n\n**Step 4 cannot render yet:** the carried-open concern requires an explicit disposition and execution first. Freshness also remains unverified because tools were prohibited. No happy-path line is emitted: no run happened.\n",
+      "words": 371,
+      "wallMs": 18703,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "1d9fa97bd38f747f615e9cdf49e7b15fff469dfbd430849a9a3934b6cb6be15e",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "c8f83f413b6f9674bfbd8a42db82d1a5dd23f7b6ec6277d7351aac207aab39f2",
+      "baselineOutputSha": "7dfcb603f74a905874fe5b1d4db22bb2061851c5045730f8e0dca33598ca9f7a",
+      "candidateOutputSha": "93def44ccf2cbce73ba98c446510670f616177d341155c9c2e271af4005923c1",
+      "facts": {
+        "f1": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "f2": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "f3": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "f4": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unexplained change"
+        },
+        "f5": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "No fact regressed in After; the only movement is f4, which After gains. Before's custom-effect example ended at \"plus a test\" and its post-reply description went straight to \"execute the dispositions, print the closure summary, and then show Step 4's options\" with no re-audit, so a careful reader could not say Before required re-auditing AC5 before claiming conformance. After adds \"run tests, then re-audit\" to the rationale and the explicit \"followed by a re-audit. If no concerns remain open, the summary prints\" sequence, which satisfies f4. Both outputs keep the row as a MISSING decision item with recommended: none and name maxFixRounds 0 as the missing prerequisite, and neither prints a Deferred/deviates per spec line, so f1/f2/f3/f5 hold throughout. This case has no elsewhere-attributed rows, so the Change's elsewhere-settled behavior is not exercised here; to keep the gains, retain the re-audit clause in both the rationale and the post-reply sequence, and keep the Step 4 withholding sentence so settled-vs-open rows remain distinguishable when elsewhere rows do appear.",
+      "verdict": "regressed",
+      "confirmation": {
+        "status": "ok",
+        "text": "## Closure / conformance\n\n```text\nstatus: GAPS (1 open)\naudited-base: 4c1e8f0a9b2d7c6e5f4a3b2c1d0e9f8a7b6c5d4e\nhappy-path: not run - no row configured\n\nG1 - Audit-log export events are missing\n  verdict: MISSING\n  origin: spec \"Acceptance criteria / AC5\" - \"Export events appear in the audit log.\"\n  evidence: absent (searched src/audit/log.ts and export handlers; no export event mechanism)\n  blocker: none (closureReview.maxFixRounds is 0, audit-only; fix loop never started, gap carried OPEN per the precondition-unavailable rule)\n  touched-files: src/audit/log.ts\n  touched-resources: none\n  round history: R0 MISSING / recommended fix, carried OPEN (maxFixRounds 0, no fix round run)\n\n  G1/C1 - Export events are not written to the audit log\n    unresolved: Completed exports produce no audit-log event.\n    impact: AC5 is in-scope and the spec goal is \"Deliver all five reports export requirements from acme/widgets#45\". Shipping now delivers four of five.\n    origin: spec \"Acceptance criteria / AC5\" - \"Export events appear in the audit log.\"\n    remediation: Record an export event in the audit log when an export completes.\n    evidence: absent\n    touched-files: src/audit/log.ts\n    touched-resources: none\n    available dispositions:\n      fix-now: Implement the export audit event. UNAVAILABLE: closureReview.maxFixRounds is 0 (audit-only), and finish-time selection does not bypass the cap.\n      accept-into-spec: Ratify implemented behavior. UNAVAILABLE: no behavior exists to ratify (evidence: absent).\n      rescope-into-spec: Remove or defer AC5 from this workflow. Available because a writable spec exists and the verdict is not UNAUTHORIZED. Not recommended: it contradicts the spec goal \"all five\".\n      follow-up: Transfer to separately owned work. UNAVAILABLE: no executable issue-tracker convention is established in this context.\n      custom: Always visible. Executable once a concrete effect is supplied.\n    recommended: none\n    rationale: The reviewer token `fix` maps to fix-now, which is unavailable because maxFixRounds is 0. follow-up cannot substitute because no issue-tracker convention is established. Rescoping would silently drop a requirement the spec goal names. Missing prerequisites: maxFixRounds > 0 for fix-now, or an executable issue-tracker convention for follow-up. Concrete custom effect still required: a manual fix-in-place that emits an export-completed event to src/audit/log.ts from the export handler, adds a test asserting the event, and re-runs the verification set. Alternatively, a named durable owner for this work.\n\nauto-applied fix commits: none\nwhole-diff minors: not recorded\n```\n\n---\n\n## Step 3.5 - as the operator sees it\n\n```\nConformance: 1 decision needed before shipping.\nhappy-path: not run - no row configured\nwhole-diff minors: not recorded\n\n* audit - Audit-log export events: not implemented (no export event reaches the audit log; AC5 unmet).\n  Ship without it, or how should it be resolved? Recommended: none, a custom decision is needed (fix-now N/A: maxFixRounds 0; accept N/A: nothing to ratify; follow-up N/A: no issue-tracker convention). Rescope is available but would drop an in-scope AC from \"all five\".\n\nOther options per item: fix-now / accept / rescope / follow-up / custom.\n\nOption 1 (Go with recommended) is withheld until \"audit\" has an executable decision.\n\n2. Recommended except <handle>=<choice>   e.g. \"2: audit=custom(add export-completed event to src/audit/log.ts + test, fix in place)\"\n                                          or  \"2: audit=rescope\"\n```\n\nThe gate is waiting for your reply. Step 4's options will not render until \"audit\" has an explicit disposition, because no carried-open decision auto-proceeds.\n",
+        "words": 479,
+        "wallMs": 28289,
+        "mechanical": {},
+        "facts": {
+          "f1": {
+            "before": "holds",
+            "after": "holds",
+            "label": "held"
+          },
+          "f2": {
+            "before": "holds",
+            "after": "holds",
+            "label": "held"
+          },
+          "f3": {
+            "before": "holds",
+            "after": "holds",
+            "label": "held"
+          },
+          "f4": {
+            "before": "fails",
+            "after": "holds",
+            "label": "unexplained change"
+          },
+          "f5": {
+            "before": "holds",
+            "after": "holds",
+            "label": "held"
+          }
+        },
+        "feedback": "After keeps every fact Before kept and additionally satisfies f4: Before's custom example only said \"fix-in-place ... plus a test\" with no re-verification step, whereas After's rationale spells out \"re-runs the verification set\" after the manual fix, so a reader can see the fix path requires re-auditing AC5 before conformance is claimed. After also improves f3 by explicitly listing \"Missing prerequisites: maxFixRounds > 0 for fix-now, or an executable issue-tracker convention for follow-up\" rather than leaving the reader to infer them from the unavailability notes. Nothing regressed: G1 still carries the MISSING verdict with AC5 origin, no Deferred/deviates line appears, the gate still withholds Step 4 until the in-scope item gets a disposition, and the gap is carried OPEN with no auto-fix. For the elsewhere-settled change, keep this same structure and make sure the new branch for \"attributed to another repository\" rows renders a recorded-drift line with the repo attribution and no decision item, while rows like this one (in-scope, no mechanism, same repo) continue to produce the G1/C1 decision block with the explicit missing-prerequisite sentence and the \"re-runs the verification set\" clause in the custom effect."
+      }
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "1d9fa97bd38f747f615e9cdf49e7b15fff469dfbd430849a9a3934b6cb6be15e",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "c8f83f413b6f9674bfbd8a42db82d1a5dd23f7b6ec6277d7351aac207aab39f2",
+      "baselineOutputSha": "e6152f30460c9e7ff609b9395970ac9b0eb4fe9ad255000f53869e33b6a3a8b5",
+      "candidateOutputSha": "90a00a041cc073ac323ac19d0a54c7ece6b2327a391086678d9579bf8f5fb4d1",
+      "facts": {
+        "f1": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "f2": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "f3": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "f4": {
+          "before": "holds",
+          "after": "fails",
+          "label": "regression"
+        },
+        "f5": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "Both renders keep G1 as a MISSING in-scope decision item with recommended: none and the maxFixRounds-is-0 prerequisite named (in After it survives only in the fix-now line, round history and rationale, since the blocker field was changed to 'none' — keep the blocker field populated with the audit-only prerequisite rather than 'none', as that field is the first place a reader looks). The regression is f4: Before's example custom decision ended with 'test the change, and re-audit conformance' and withheld Step 4 until a disposition was approved and executed, whereas After's placeholder `audit=custom(<concrete effect>)` and its Step 4 note ('requires an explicit disposition and execution first') never mention re-auditing the audit-log requirement, so a reader cannot say the fix path requires re-audit before conformance is claimed. To deliver the elsewhere-settled change without losing this, keep the concrete worked example (or add 'then re-audit AC5 against the new base before Step 4 renders') in the custom guidance and in the Step 4 withholding sentence; the elsewhere-row handling can be added as a separate branch that does not touch the fix-path text for MISSING rows.",
+      "verdict": "inconclusive",
+      "confirmation": {
+        "status": "ok",
+        "text": "## Closure / conformance\nstatus: GAPS (1 open)\naudited-base: 4c1e8f0a9b2d7c6e5f4a3b2c1d0e9f8a7b6c5d4e\n\nG1 - Export audit logging is missing\n  verdict: MISSING\n  origin: spec \"Acceptance criteria / AC5\" - \"Export events appear in the audit log.\"\n  evidence: absent; reviewer searched src/audit/log.ts and export handlers and found no export event mechanism\n  blocker: closureReview.maxFixRounds is 0 (audit-only); isolated auto-fix is unavailable\n  touched-files: src/audit/log.ts\n  touched-resources: none\n  round history: R0 MISSING; carried OPEN because maxFixRounds is 0; no fix round run\n\n  G1/C1 - Record completed exports in the audit log\n    unresolved: Completed exports do not produce audit-log events.\n    impact: AC5 remains unmet; exports lack the required audit trail.\n    origin: spec \"Acceptance criteria / AC5\" - \"Export events appear in the audit log.\"\n    remediation: Record an export event in the audit log when an export completes.\n    evidence: absent; reviewer found no export event mechanism in src/audit/log.ts or export handlers\n    touched-files: src/audit/log.ts\n    touched-resources: none\n    available dispositions:\n      fix-now: Would implement the missing event; unavailable because maxFixRounds is 0.\n      accept-into-spec: Would ratify implemented behavior; unavailable because there is no implemented export audit behavior to ratify.\n      rescope-into-spec: Would explicitly remove or defer AC5; unavailable until a writable spec is established.\n      follow-up: Would transfer this requirement to separately owned work; unavailable because no executable issue-tracker convention is supplied.\n      custom: Visible; executable after the user supplies a concrete effect, such as manual implementation and verification of the missing audit event.\n    recommended: none\n    rationale: Auto-fix is disabled, no implemented behavior can be ratified, spec writability is unestablished, and no executable follow-up convention is supplied. A concrete custom effect and approval are required, such as manually implementing the audit event and running verification.\n\nauto-applied fix commits: none\nwhole-diff minors: not recorded\n\n---\n\nConformance: 1 decisions needed before shipping.\nwhole-diff minors: not recorded\n\n* audit - Record completed exports in the audit log: completed exports produce no audit event. How should this requirement be resolved? Recommended: none (no named executable disposition is available). (fix-now N/A: audit-only; accept N/A: no behavior to ratify; rescope N/A: spec writability unestablished; follow-up N/A: no tracker convention supplied.)\n\nOther options per item: custom.\n\nSupply a concrete custom decision, for example:\n`2: audit=custom(manually implement the export-completion audit event, run the project's tests, and re-audit conformance)`\n\nStep 4 remains gated until this decision is approved and executed; its options cannot yet be presented.\n",
+        "words": 368,
+        "wallMs": 32333,
+        "mechanical": {},
+        "facts": {
+          "f1": {
+            "before": "holds",
+            "after": "holds",
+            "label": "held"
+          },
+          "f2": {
+            "before": "holds",
+            "after": "holds",
+            "label": "held"
+          },
+          "f3": {
+            "before": "holds",
+            "after": "holds",
+            "label": "held"
+          },
+          "f4": {
+            "before": "holds",
+            "after": "holds",
+            "label": "held"
+          },
+          "f5": {
+            "before": "holds",
+            "after": "holds",
+            "label": "held"
+          }
+        },
+        "feedback": "Nothing moved on this case: After still carries G1 as a MISSING in-scope AC5 gap with a decision item, still names maxFixRounds=0 as the blocker when recommending none, still routes the custom fix path through re-auditing conformance before Step 4 can render, and still prints no Deferred/deviates per spec line. The elsewhere-settled wording change correctly did not spill over into treating a same-repo missing row as settled drift, which is the right outcome here. Two small polish points that do not affect any fact: the summary line reads \"1 decisions needed\" (pluralization regressed from Before's \"1 decision needed\"), and the fix-now line now says \"Would implement the missing event\" rather than naming the audit-log implementation explicitly — keeping \"Complete the missing audit-log implementation\" would make the prerequisite-naming slightly more legible if a future fact checks for that specificity."
+      }
+    }
+  },
+  "repoSha": "07c53575c996acf1c4e87209c4ef523dcf0b029e"
+}

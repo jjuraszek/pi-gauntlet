@@ -1,0 +1,38 @@
+{
+  "sample": "scope-cuts-none",
+  "arm": "baseline",
+  "skillSha": "063230d435560c1ac5dbfb6aa106cff7e5ad28b866c93bd514e80f298273f125",
+  "inputSha": "c301836380f8116a2c4e2710d62cdf292dbf581032ea05f866528dba12718233",
+  "kind": "text",
+  "assembly": "concat",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "Orchard coordinators use orchard-billing to collect monthly fees from growers, but a repeated collection request can currently charge the same invoice twice. Coordinators then reconcile receipts by hand while growers wait for a refund, and neither group can tell whether a retry is safe. The proposed change gives each collection request a stable receipt and makes retries return the original outcome instead of collecting again.\n\n**What changes**\n- Coordinators see one receipt for each invoice collection, including retries after an interrupted connection.\n- A pending collection stays visibly pending until its outcome is known; the service does not guess that a timeout means failure.\n- Growers receive a confirmation only after the collection succeeds, with the invoice amount and collection date.\n\n**Approval risks**\n- Existing duplicate charges remain a manual refund task; this change prevents new duplicates rather than rewriting past receipts.\n- The payment partner must preserve request keys across retries. Collection remains paused if that guarantee cannot be confirmed.\n- Receipt retention increases stored billing data, so operators must approve the retention window before rollout.\n\n**Done when**\n- Repeated requests produce one charge and one receipt, including after a service restart.\n- Pending outcomes remain visible, confirmations are sent once, and coordinators can reconcile the rollout's first billing cycle without duplicate charges.\n\nSpec written and committed to <project>/doc/specs/<filename>.md (worktree: <path>).\n\nCouncil: 11 applied, 0 deferred, 0 rejected\n\n1 - approve: proceed to planning under the existing amendment review; a fresh reviewer applies evidence-backed factual corrections on its own, and every other spec amendment (scope, acceptance-criteria, or contract edits, and redraws) stops for your review.\n2 - approve, auto-apply amends: every later spec amendment in this flow (corrected facts, paths, verification lines, and scope, acceptance-criteria, or public-contract edits alike) applies without asking; only a redraw (changed problem statement, component added, removed, or re-bounded) still stops for you, and the grant never stands in for a spec approval.\n3 - show council dispositions: prints the council audit verbatim, then re-presents this gate. Not an approval.\n\nOr tell me what to change in the spec, or say \"revert applied council edit <X>\" to undo a specific applied edit.\n\n---\n\n**User reply: `1`**\n\nThe spec is approved with no grant, so `**Amend-grant:**` stays `none` and the commit is unchanged. Next I read [Standing grants](amendment-surface.md#standing-grants), mark the brainstorm phase complete, and go straight to `/skill:writing-plans`.\n",
+      "words": 380,
+      "wallMs": 11796,
+      "mechanical": {
+        "f1": "fails"
+      }
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "Orchard coordinators use orchard-billing to collect monthly fees from growers, but a repeated collection request can currently charge the same invoice twice. Coordinators then reconcile receipts by hand while growers wait for a refund, and neither group can tell whether a retry is safe. The proposed change gives each collection request a stable receipt and makes retries return the original outcome instead of collecting again.\n\n**What changes**\n- Coordinators see one receipt for each invoice collection, including retries after an interrupted connection.\n- A pending collection stays visibly pending until its outcome is known; the service does not guess that a timeout means failure.\n- Growers receive a confirmation only after the collection succeeds, with the invoice amount and collection date.\n\n**Approval risks**\n- Existing duplicate charges remain a manual refund task; this change prevents new duplicates rather than rewriting past receipts.\n- The payment partner must preserve request keys across retries. Collection remains paused if that guarantee cannot be confirmed.\n- Receipt retention increases stored billing data, so operators must approve the retention window before rollout.\n\n**Done when**\n- Repeated requests produce one charge and one receipt, including after a service restart.\n- Pending outcomes remain visible, confirmations are sent once, and coordinators can reconcile the rollout's first billing cycle without duplicate charges.\n\nSpec written and committed (spec filename and worktree path were not supplied).\n\nCouncil: 11 applied, 0 deferred, 0 rejected\n\n1 - approve: proceed to planning under the existing amendment review; a fresh reviewer applies evidence-backed factual corrections on its own, and every other spec amendment (scope, acceptance-criteria, or contract edits, and redraws) stops for your review.\n2 - approve, auto-apply amends: every later spec amendment in this flow (corrected facts, paths, verification lines, and scope, acceptance-criteria, or public-contract edits alike) applies without asking; only a redraw (changed problem statement, component added, removed, or re-bounded) still stops for you, and the grant never stands in for a spec approval.\n3 - show council dispositions: prints the council audit verbatim, then re-presents this gate. Not an approval.\n\nOr tell me what to change in the spec, or say \"revert applied council edit <X>\" to undo a specific applied edit.\n\n---\n\nYour reply **1** approves the spec without an auto-amend grant; next I will read Standing grants (stopping if unreadable), leave the spec and commit unchanged, mark brainstorming complete, and proceed immediately to `/skill:writing-plans` under the existing amendment review.\n",
+      "words": 388,
+      "wallMs": 12713,
+      "mechanical": {
+        "f1": "fails"
+      }
+    }
+  },
+  "repoSha": "07c53575c996acf1c4e87209c4ef523dcf0b029e"
+}

@@ -1,0 +1,92 @@
+{
+  "sample": "multi-repo-groups",
+  "arm": "candidate",
+  "skillSha": "21b2e112d649e02d4cec6f4908aa89134bd971a0983e89fe07a4882877e3cd81",
+  "inputSha": "0d7c24e0091382e61d5b224996ac468cf37e1f088c80daf4fd469377afdf41e6",
+  "kind": "text",
+  "assembly": "concat",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "# Draft: replacement ticket body (create mode)\n\n**Title (new):** Export a report as CSV and email it to the requester\n\n## Context\n\nRequesters can open and view reports in the widgets app. They have no way to get a copy of a report's data as a CSV file.\n\n## Problem\n\nA requester cannot take the data out of a report they are viewing. There is no export, and no way to have the file emailed to them. Example: none (the reporter gave no specific incident; the gap applies to every report).\n\n## Idea\n\nReporter's sketch: an Export CSV button in acme/widgets, with acme/mailer emailing the exported file to the requester.\n\n## Acceptance Criteria\n\n### acme/widgets\n\n- [ ] **Button is visible.** Given a requester has access to a report, when they open that report, an \"Export CSV\" button is visible on the report.\n- [ ] **CSV matches the screen.** Given a report is open and showing a known set of rows, when the requester clicks \"Export CSV\", a CSV file is produced with:\n  - a header row of exactly `name,count`\n  - one data row for each row shown on screen, with the same values\n- [ ] **Email delivery can be requested.** Given a report is open, when the requester exports it as CSV, they can choose to have the CSV emailed to them. Choosing that option hands the same CSV file and the requester's email address to acme/mailer for delivery.\n\n### acme/mailer\n\n- [ ] **CSV arrives as an attachment.** Given a requester with an email address on file has asked for email delivery of an export, when the delivery request is processed, that address receives one email with the CSV attached. The attachment's contents are identical to the exported file.\n\n---\n\n# AC integrity gate report\n\n**Normalization:** All four criteria were drafted as `- [ ]` items. No criteria needed rewriting.\n\n| # | Repo | AC (short) | Class | Setup / Action / Observable | Outcome |\n|---|---|---|---|---|---|\n| 1 | acme/widgets | Export CSV button visible | Behavioral | report accessible / open report / button visible | **pass** |\n| 2 | acme/widgets | CSV header `name,count`, rows match screen | Behavioral | report with known rows / click Export CSV / file content compared to screen | **pass** |\n| 3 | acme/widgets | email-delivery option hands CSV + address to mailer | Behavioral | report open / choose email delivery / mailer receives the CSV and address | **pass** |\n| 4 | acme/mailer | email with identical CSV attachment arrives | Behavioral | requester with address asks for email delivery / request processed / one email, attachment identical | **pass** |\n\n**Gate results**\n\n- **Comparative/completeness ACs:** none. \"Rows shown on screen\" is fixed by the test setup, not a set this ticket produces, so the AC is not tautological.\n- **Wishful / tautological ACs:** none. There is no hard stop.\n- **Unspecified-but-binding / external-input ACs:** none. The ticket is not parked.\n- **Deploy-window check:** every AC can be verified before production deployment with representative data. No AC names an environment, and none needs to move to Post-deployment housekeeping. The AC list is non-empty.\n- **Guards:** no numbers, labels, or URLs were invented. The way email delivery is offered (checkbox, second button, etc.) is left to the implementation. This is a detail the ticket's own work settles, not an unspecified value that gates closure.\n\n**Open questions for the confirmation gate.** These are proposed only and have not been written into the ACs:\n\n- **Empty report:** what should export do for a report with zero rows? One option is a header-only CSV; another is a disabled button. The gathered input is silent on this. If the user wants it covered, it can be added as an AC.\n- **No address on file:** what should happen when a requester asks for email delivery but has no email address on file? AC 4 assumes an address exists. Handling the missing-address case is a candidate AC if the user wants it.\n\n**Other notes for later steps**\n\n- **Repo grouping:** the AC rows are grouped by repo only to show which repo does which work. No split is proposed. The user stated this is one end-to-end deliverable, and the mailer criterion depends on the widgets export, so neither half is a separately shippable user outcome.\n- **Reporter-note comment:** none proposed. The Idea section fits in its single attributed sketch line, so there is no overflow, and no comment was requested in-session.\n",
+      "words": 670,
+      "wallMs": 29920,
+      "mechanical": {
+        "f3": "holds"
+      }
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "**Title:** Export report CSVs with optional email delivery\n\n## Full replacement ticket body\n\n## Context\nRequesters can view reports in the widgets app but cannot receive a CSV copy of a report.\n\n## Problem\nRequesters cannot export the report they are viewing or have its CSV emailed to them. For example, a requester viewing a report cannot download its displayed rows with the `name` and `count` columns or request that file as an email attachment.\n\n## Idea\nThe reporter proposes an Export CSV button in acme/widgets and delivery of the exported file to the requester by acme/mailer.\n\n## Acceptance Criteria\n\n### acme/widgets\n- [ ] Given a report available to a requester, when the requester opens that report, an Export CSV button is displayed.\n- [ ] Given an open report with displayed rows, when the requester clicks Export CSV, a CSV file containing those displayed rows with the columns `name` and `count` is exported.\n\n### acme/mailer\n- [ ] Given a CSV exported from the requester’s displayed report, when the requester asks for email delivery, the mailer sends an email to the requester’s address with that CSV attached.\n\n## Gate report\n\n**AC integrity: PASS**\n- All three criteria use unchecked checkbox syntax and name setup, action, and an observable expected result.\n- Each criterion is behavioral; none requires a comparative baseline or a today-enumerable completeness set.\n- Button visibility, exported CSV contents, and the sent email’s recipient and attachment are verifiable before production deployment. No criterion names an environment or requires a production-only observation.\n- No wishful, tautological, unspecified-but-binding, or external-input dependency criteria were found.\n\n**Draft checks**\n- Acceptance criteria are attributed under the two named repositories within one ticket.\n- The work remains one end-to-end deliverable; no split is proposed.\n- The Idea contains exactly one attributed sketch line. No overflow exists, so no Reporter-note comment is proposed.\n- No links or tracker fields were supplied to preserve, and no metadata changes are proposed.\n\n**Verification limit:** The referenced wording and split-axis files were not supplied and could not be read under the no-tools instruction. This report checks the rules included in the prompt, not those files.\n",
+      "words": 333,
+      "wallMs": 21175,
+      "mechanical": {
+        "f3": "holds"
+      }
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "63de724ca40bfb5c3326f1e8b45a207b526f789bbfbb07b7ab5eacb2c722ac69",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "a1f2e0277eea1c519237ebdc506c0828b849734854dde19521f3e688c84ba2e4",
+      "baselineOutputSha": "e6f0583bf82cb629ad28a48835de766004ab5c9d9e66e1f0dc66722f43d0010c",
+      "candidateOutputSha": "0a64e3206af05f5b92f8e3d9058bee93d71df8e1bba3a397885178d1d75ca9c3",
+      "facts": {
+        "f1": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "f2": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "f3": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        }
+      },
+      "feedback": "After delivers the Change: the Acceptance Criteria section now carries '### acme/widgets' and '### acme/mailer' headings, the button and column rows sit under widgets, the attachment-arrives row sits under mailer, and no row names staging or any other environment, so both facts move from fails to holds. Two things in After go beyond what the repo-group and venue-free rules ask for and are worth tightening in the wording: (1) the template added a fourth row under widgets ('Email delivery can be requested') that asserts a handoff of 'the same CSV file and the requester's email address to acme/mailer' - that interface is not in the gathered input, and Before correctly left the mechanism of asking for email open; the repo-group rule should say to attribute the supplied outcomes to repos, not to invent a boundary-crossing row per repo. (2) After's column row now asserts 'a header row of exactly name,count', which Before flagged as an ambiguity to surface rather than assert; the venue-free rule's 'preserve supplied measurements' should be paired with an explicit reminder that stripping the venue does not license adding unspecified details. Wording such as 'group the required outcomes under one heading per repo named in the Idea, keeping each outcome's setup, action, and observable result exactly as supplied and omitting environment names' would keep the grouping and venue-free gains while avoiding the new assertions.",
+      "verdict": "improved"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "63de724ca40bfb5c3326f1e8b45a207b526f789bbfbb07b7ab5eacb2c722ac69",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "a1f2e0277eea1c519237ebdc506c0828b849734854dde19521f3e688c84ba2e4",
+      "baselineOutputSha": "9b1b76688e3a61a7a52dc3710d4314daa8eb08e3bd61d230ceaf1ded9037555b",
+      "candidateOutputSha": "1b4dbd2af3f434c5cc79c4e36eece50dffe78027ef084c2609fd31fa4ffe624d",
+      "facts": {
+        "f1": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "f2": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "f3": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        }
+      },
+      "feedback": "Before renders a single flat Acceptance Criteria list with no repo headings, so f1 and f2 fail there; After adds `### acme/widgets` and `### acme/mailer` subheadings and places the button and column rows under widgets and the emailing row under mailer, so both facts hold. No fact regressed. The After wording delivers the Change cleanly; the only caution is to keep the repo subheadings as structural headings under Acceptance Criteria (as done) rather than inline labels, and to keep the venue-free rows free of environment names, which After already does by dropping the 'in the widgets app' phrasing from the first row.",
+      "verdict": "improved"
+    }
+  },
+  "repoSha": "1ad41846d4f3d7f67912e878754b83a82aa197c4"
+}

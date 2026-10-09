@@ -35,9 +35,19 @@ test('restored and redraw entry load the ticket contract before questionary or l
 
 test('moved ticket contract retains verbatim schema and all no-ticket cases', () => {
   const text = read('skills/brainstorming/reference/ticket-acceptance.md');
-  for (const marker of ['every top-level checkbox row', 'Post-deployment housekeeping', 'all written `- [ ]`', 'in-scope', 'deviates: <why>', 'deferred: <where>', 'venue: <env> - <observation>', 'none - no ticket', 'none - ticket has no acceptance criteria', 'none - ticket not fetched (<reason>)', 'Never author acceptance criteria']) assert.ok(text.includes(marker), marker);
+  for (const marker of ['every top-level checkbox row', 'Post-deployment housekeeping', 'all written `- [ ]`', 'in-scope', 'deviates: <why>', 'deferred: <where>', 'venue: <env> - <observation>', 'elsewhere: <repo>', 'Cut question', 'Scope cuts:', 'none - no ticket', 'none - ticket has no acceptance criteria', 'none - ticket not fetched (<reason>)', 'Never author acceptance criteria']) assert.ok(text.includes(marker), marker);
+  assert.doesNotMatch(text, /only when it changes what the user observes/);
+  assert.doesNotMatch(text, /operates without it/);
   assert.match(text, /\*\*Write the section in every spec\*\*, after `## Problem`/);
   assert.match(text, /\.\.\/SKILL.md#amending-an-approved-spec/);
+});
+
+test('gate template renders the Scope cuts line after the commit line', () => {
+  const text = read('skills/brainstorming/reference/spec-finalization.md');
+  assert.match(text, /Scope cuts: <row text, first 60 chars> - <disposition>; \.\.\. \| none/);
+  const commitAt = text.indexOf('Spec written and committed to');
+  const cutsAt = text.indexOf('Scope cuts: <row text');
+  assert.ok(commitAt >= 0 && cutsAt >= 0 && commitAt < cutsAt);
 });
 
 test('finalization retains ordered write checks, verdict routing and dispatches', () => {

@@ -1,0 +1,2 @@
+- f1: judged: No scope finding targets the 60s row.
+- f2: judged: No finding of kind scope targets the mailer row's elsewhere: acme/mailer disposition.

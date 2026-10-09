@@ -1,0 +1,2 @@
+- f1: judged: A blocker finding of kind scope names the column row's elsewhere disposition.
+- f2: judged: The mailer row's elsewhere: acme/mailer draws no finding.

@@ -1,0 +1,88 @@
+{
+  "sample": "elsewhere-settled",
+  "arm": "candidate",
+  "skillSha": "71c36ea627f1fc0d6de59f81e55376f9ab01c539dbc4ddf46bc4e50863440393",
+  "inputSha": "63f9de6a132bd835e2703027b72202e2e49229155f489dd54db46f7c48ec3b1f",
+  "kind": "text",
+  "assembly": "headed",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "```\nDelivers: the reports page exports CSV on demand with every table column and bounded paging. ACs 1, 2, 4; 3, 5 elsewhere per spec: acme/mailer; 4's observable half (export completes under 5s on production data) is checked after merge, not here.\n\nNits:\n- The export pages results with its own loop instead of the shared paging helper, so a paging bug fixed once would need fixing twice. (src/api/export.ts:31, lib/page.ts)\n1 nit open - fix nits to take them\n\nVerdict: mergeable - CI green on the assessed head (test)\n\n1. merge - squash-merge the assessed head onto the base branch            [recommended]\n2. fix nits - apply the nit payload in the worktree, review the wave, push\n3. show evidence - gate output, CI run, claim and AC outcomes\n4. stop - leave the PR as-is\nType a number.\n```\n",
+      "words": 130,
+      "wallMs": 13884,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "Delivers: the reports page offers on-demand CSV downloads with all table columns and bounded paging. ACs 1, 2, 4; 3, 5 elsewhere per spec: acme/mailer; 4's observable half (export completes under 5s on production data) is checked after merge, not here.\n\nPR comments:\n- GitHub has not reported this actor's merge state, so merge waits. (merge state not refreshed (no tool available))\n\nNits:\n- The export pages results with its own loop instead of the shared paging helper, so a paging bug fixed once would need fixing twice. (src/api/export.ts:31, lib/page.ts)\n\nVerdict: fixable - merge state unknown\n\n1. wait - poll GitHub's merge state, then re-render [recommended]\n2. show evidence - show CI evidence, claim dispositions, and AC outcomes\n3. stop - leave the PR as-is\nType a number. Not offered: fix nits (no helper facility available), merge (merge state unknown).\n",
+      "words": 134,
+      "wallMs": 18562,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "f3667a4781209fd716bc18bdea535b68c1cac13ce125f5e293699c4d74b65652",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "c41cda60674e26f0c4b989471120265af64337b71e8745ed18c2136ac8a924bc",
+      "baselineOutputSha": "adbd3692643f270036cd8a9f3d0b0f6782f9a1cb9311234cde414ace77e6f9d0",
+      "candidateOutputSha": "57fed9d70d2c609f19f20aaea8a5065b9479c3317d1da038084fada8ac75e543",
+      "facts": {
+        "f1": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "f2": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "f3": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        }
+      },
+      "feedback": "After delivers the Change exactly as intended: the Delivers line now reads \"3, 5 elsewhere per spec: acme/mailer\", the blocker section is gone, and the menu leads with merge, so all three facts move from fails to holds. One thing to watch that is outside the elsewhere change: Before listed AC1 as a blocker because no test exercises the Export CSV button (test/api/export.test.ts covers only the handler), yet After folds AC1 into the delivered list and that blocker disappears with no new evidence in the diff summary. If the Wave 1 edits were meant only to settle elsewhere rows, the AC1 test-gap blocker should have survived (verdict would then be fixable - 1 blocker, no merge offer); if dropping it was deliberate, the Delivers line or show-evidence note should say why AC1 now counts as covered (e.g. \"AC1 covered by handler download path, button untested\") so the reader can see the gate did not silently relax the executable-AC-needs-a-test rule while adding elsewhere attribution.",
+      "verdict": "improved"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "f3667a4781209fd716bc18bdea535b68c1cac13ce125f5e293699c4d74b65652",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "c41cda60674e26f0c4b989471120265af64337b71e8745ed18c2136ac8a924bc",
+      "baselineOutputSha": "7700f862565ebf86610bb5bb8cb217d8cd76e77cb4134010f2db6509a5ce465d",
+      "candidateOutputSha": "5a3b669b59297265535ebaf0c0218b4f2df4650c10e67b44fa7781143d0cad57",
+      "facts": {
+        "f1": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "f2": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "f3": {
+          "before": "fails",
+          "after": "fails",
+          "label": "intended but unchanged"
+        }
+      },
+      "feedback": "After delivers the elsewhere attribution and removes the blockers: Delivers now reads \"3, 5 elsewhere per spec: acme/mailer\" and no Blockers section remains, so f1 and f2 move as intended. f3 does not move: After still withholds merge with \"Not offered: merge (merge state unknown)\" and a \"wait - poll GitHub's merge state\" item, even though the case supplies mergeable MERGEABLE on an open, non-draft, head_pushable PR with CI success and no blockers. The elsewhere wording is fine as written; the remaining gap is in the merge-state handling, not the Wave 1 coverage edits. To land f3 while keeping f1 and f2, the report/post-selection wording should treat the PR's recorded mergeable state as the merge state when no refresh tool is available (e.g., \"use the assessed head's mergeable field; only wait when it is UNKNOWN\"), so a clean gate with zero blockers renders a 'merge' menu entry and a verdict like \"ready - 0 blockers\" instead of \"fixable - merge state unknown\".",
+      "verdict": "improved"
+    }
+  },
+  "repoSha": "07c53575c996acf1c4e87209c4ef523dcf0b029e"
+}

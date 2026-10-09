@@ -1,0 +1,3 @@
+- f1: judged: The cut question for the owner-column row offers A) in-scope, B) deviates, C) deferred, and D) repair the ticket in that order.
+- f2: judged: The cut question recommends A or D, never B or C.
+- f3: judged: Option D names /skill:shape-ticket acme/widgets#77.

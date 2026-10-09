@@ -1,0 +1,2 @@
+- f1: judged: A blocker finding of kind scope names the 60s row's deferred disposition.
+- f2: judged: The verdict is needs-work or unsound.

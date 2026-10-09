@@ -237,7 +237,7 @@ replaces it; everything the repo file does not name stays baseline. On any
 conflict the repo file wins. Severities the repo file names but does not
 map are fail-safe **blocking**, noted in output.
 
-**Never invent ACs.** AC outcomes (`covered` / `gap` / `not judged here` / `deferred per spec` / `deviates per spec` per row) are computed in step 5 (`reference/findings.md` `## AC outcomes`), not by the Reviewer - the Reviewer's judging context is the digest's `scope` block: the spec's `in-scope` and `venue:` rows plus its `design` when `source: spec` (a `source: spec` with empty `rows` is judged on `design` plus the stated intent), the PR's stated intent when `source: pr`.
+**Never invent ACs.** AC outcomes (`covered` / `gap` / `not judged here` / `deferred per spec` / `deviates per spec` / `elsewhere per spec` per row) are computed in step 5 (`reference/findings.md` `## AC outcomes`), not by the Reviewer - the Reviewer's judging context is the digest's `scope` block: the spec's `in-scope` and `venue:` rows plus its `design` when `source: spec` (a `source: spec` with empty `rows` is judged on `design` plus the stated intent), the PR's stated intent when `source: pr`.
 
 **Comment triage:** existing PR review comments and top-level comments,
 each labeled one of: already-addressed, reasonable, judgment-call - except

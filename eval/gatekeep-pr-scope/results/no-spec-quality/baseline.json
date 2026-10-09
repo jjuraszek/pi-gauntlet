@@ -1,7 +1,7 @@
 {
   "sample": "no-spec-quality",
   "arm": "baseline",
-  "skillSha": "b4bed9fa9a438e61cbf78c4047138111fed6c1d760a9e27030f0641d32b23bde",
+  "skillSha": "8b13f632c02f583a411a8ffb3b70a330dc432c8d6afe6fd88239067cf4cff1fa",
   "inputSha": "07685885dd1bf4163815107a6237249a4cbab1b0f9424509e5522d5bb7669543",
   "kind": "text",
   "assembly": "headed",
@@ -17,18 +17,18 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "Delivers: the reports page exports report data as CSV on demand through a new handler and an Export CSV button, and unknown reports return 404.\n\nBlockers:\n1. The export handler returns any existing report to any caller without checking who owns it, so one user can download another user's report data. No test covers a cross-user request, so nothing would catch this. (src/api/export.ts:14, test/api/export.test.ts)\n\nVerdict: fixable - 1 blocker\n\n1. fix - apply the blocker in the worktree, review the wave, push          [recommended]\n2. review - post the blocker as a comment on your PR\n3. show evidence - gate output, CI run, drafted edit\n4. stop - leave the PR as-is\nType a number, or compose: \"fix 1\".\n",
-      "words": 114,
-      "wallMs": 11513,
+      "text": "```\nDelivers: the reports page gains an Export CSV button backed by an on-demand CSV handler that returns the table columns and a 404 for unknown reports.\n\nBlockers:\n1. The export handler returns any existing report to any caller without checking who owns it, so one user can download another user's report data. The repo's review rules block any new handler without an authorization check, and no test covers a cross-user request. (src/api/export.ts:14, test/api/export.test.ts)\n\nVerdict: fixable - 1 blocker\n\n1. fix - apply the blocker in the worktree, review the wave, push          [recommended]\n2. review - post the blocker as a comment on your PR\n3. show evidence - gate output, CI run, drafted edit\n4. stop - leave the PR as-is\nType a number, or compose: \"fix 1\".\n```\n",
+      "words": 123,
+      "wallMs": 12406,
       "mechanical": {}
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "Delivers: the PR adds on-demand CSV downloads from the reports page, including table columns and a 404 response for unknown reports.\n\nPR comments:\n- GitHub has not reported this actor's merge state, so merge waits. (merge state not refreshed (no tool available))\n\nBlockers:\n1. The export handler lets callers download another user's report without an authorization check, exposing report data to unauthorized users. (src/api/export.ts:14)\n\nVerdict: fixable - 1 blocker\n\n1. review - post the blocker as a comment on your PR [recommended]\n2. show evidence - show CI evidence, claim dispositions, and drafted payloads\n3. stop - leave the PR as-is\n\nType a number. Not offered: fix (no helper facility), merge (authorization blocker and merge state unknown).\n",
-      "words": 112,
-      "wallMs": 10757,
+      "text": "Delivers: The reports page offers an Export CSV button for on-demand downloads with table columns and a 404 response for unknown reports.\n\nPR comments:\n- GitHub has not reported this actor's merge state, so merge waits. (merge state not refreshed (no tool available))\n\nBlockers:\n1. The export handler lets callers download another user's report because it does not check authorization. Add an ownership check and a cross-user authorization test before merge. (src/api/export.ts:14, test/api/export.test.ts)\n\nVerdict: fixable - 1 blocker\n\n1. review - post the blocker as a comment on your PR [recommended]\n2. show evidence - show CI evidence, claim dispositions, and drafted edits\n3. stop - leave the PR as-is\n\nType a number. Not offered: fix (no helper facility), merge (merge state unknown).\n",
+      "words": 118,
+      "wallMs": 13515,
       "mechanical": {}
     }
   },
-  "repoSha": "9932ea84fb0c04cbf4e1807b9905241bcfbf4402"
+  "repoSha": "07c53575c996acf1c4e87209c4ef523dcf0b029e"
 }

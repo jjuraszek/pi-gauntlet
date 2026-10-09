@@ -1,0 +1,2 @@
+- f1: judged: A question offers A) this repo B) elsewhere: phase 2 C) repair the ticket.
+- f2: judged: The first message does not silently assign the phase-2 row.

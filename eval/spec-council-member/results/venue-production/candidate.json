@@ -1,0 +1,68 @@
+{
+  "sample": "venue-production",
+  "arm": "candidate",
+  "skillSha": "618507101d28e17db84cf910af614e719333bfb19f58fef166b6389e801a6e46",
+  "inputSha": "484b14ce268ece8e7bdcb393c2931a74d7dbf5c686c9dbfd17a4ef8f8ba77417",
+  "kind": "text",
+  "assembly": "headed",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "verdict: needs-work\naddresses-problem: partial — the export design covers download, column order, the 10000-row target and empty output. But the \"Clicking Export downloads a CSV\" row is given a production venue, and the design never limits the export to the requesting user's widgets (\"their widgets\").\nfindings:\n- [blocker] scope @ \"Clicking Export downloads a CSV. - venue: prd - a human clicks Export on the live site\" — A `venue:` naming `prd` is not allowed. It also clashes with the Goal (\"delivers all four widgets rows\") and with Verification, which already plans request and collection-page rendering tests for this row. → Mark the row `in-scope` and verify it with the request test on headers/Content-Disposition plus the collection-page Export link test. Drop the live-site click. — probed: none\n- [major] gap @ \"Read widgets in id order in batches of 1000.\" — The problem statement says users download *their* widgets. The design reads every widget, with no ownership or authorization filter and no rule for unauthenticated requests to GET /widgets/export.csv. → State the query scope (e.g. widgets owned by or visible to the current user), the auth requirement and failure response (e.g. 401/redirect), and add a request test proving other users' widgets are excluded. — probed: none\n- [minor] ambiguity @ \"Read widgets in id order in batches of 1000\" / \"measures from request start to the complete response\" — The spec does not say whether the response is streamed as batches are read or buffered in full. This affects memory use and what the 60s benchmark measures. → State streamed or buffered output and, if streamed, how a mid-export error is handled (truncated response vs. error status). — probed: none\n- [minor] ambiguity @ \"Run the 10000-widget benchmark for the 60s row when in-scope.\" — The row is already `in-scope`, so \"when in-scope\" reads as optional. The spec also does not say where the benchmark lives or whether it gates CI. → Write \"Run the 10000-widget benchmark (location/command) and fail if the complete response exceeds 60s.\" — probed: none\nlean: nothing to cut\n",
+      "words": 319,
+      "wallMs": 11064,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "verdict: needs-work\naddresses-problem: partial — The design covers CSV download, content, performance, and empty collections, but assigns the download acceptance criterion to a production venue rather than keeping it in scope.\nfindings:\n- [blocker] scope @ Acceptance criteria: “Clicking Export downloads a CSV. - venue: prd - a human clicks Export on the live site” — A `venue: prd` disposition is prohibited; the ticket places this criterion under acme/widgets and supplies no human answer authorizing a scope cut or production-only verification → Mark the row `in-scope` and specify non-production verification that the rendered Export link targets the endpoint returning the CSV attachment. — probed: none\nlean: nothing to cut\n",
+      "words": 101,
+      "wallMs": 8279,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "8046c938e728ab04a931cd8cf594b0e95cabbd85aaaf604385a7fd686bd08f89",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "04bf88b6ddec157ebb1e13b63d4e0916bde2d6d07b50a7940d39cc567f36eb65",
+      "baselineOutputSha": "9b90dcb3ab5b1b8234e4439628d4909c58f2a5f1da4272d96bcf7f5acf018954",
+      "candidateOutputSha": "162f33aab4474172ad3ea6472f5a2cd1858f657ff39a02b51c4bb17d90dc64ee",
+      "facts": {
+        "f1": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        }
+      },
+      "feedback": "Before has no finding of kind scope at all; its prd-venue finding is a [major] ambiguity, so f1 fails there. After adds a [blocker] scope finding whose location quotes the 'venue: prd' row and whose body names prd explicitly, so f1 holds and the Change is delivered. Note that After's rationale ('A venue: naming prd is not allowed') is asserted rather than tied to a rule; to make the blocker durable, state the rule (own-repo snapshot rows cannot be deferred to a production venue without a quoted cut question and human answer) and keep the pointer to the Goal and Verification evidence. After also dropped Before's mailer-handoff gap finding; that finding is outside f1 but is worth retaining, since nothing in the Change asks to remove it.",
+      "verdict": "improved"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "8046c938e728ab04a931cd8cf594b0e95cabbd85aaaf604385a7fd686bd08f89",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "04bf88b6ddec157ebb1e13b63d4e0916bde2d6d07b50a7940d39cc567f36eb65",
+      "baselineOutputSha": "8b3792111a4cbed78485d5322409d687963eac664f47c8cb4322db9d07c66642",
+      "candidateOutputSha": "e9c41bbb3f6db6e83a06a5be643828dc4f8fe2b62e6fd5dcc0eaf0bb0c9adc88",
+      "facts": {
+        "f1": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        }
+      },
+      "feedback": "Before has no findings at all, so f1 fails there; After adds a [blocker] scope finding that quotes the row's 'venue: prd' text and names prd as prohibited, so f1 holds. The After wording delivers the Change cleanly: the blocker is kind scope, cites the verbatim row with its venue, and gives a concrete remedy (mark in-scope, verify non-production). Nothing that Before kept was lost, since Before held no facts. One minor tightening: the finding's explanation mentions both 'scope cut' and 'production-only verification' — keeping the rationale to 'prd is not a permitted venue for a row the ticket assigns to acme/widgets' would make the venue objection unambiguous without weakening the finding.",
+      "verdict": "improved"
+    }
+  },
+  "repoSha": "305dad897254c15d77edb5163eba56f50fdac229"
+}

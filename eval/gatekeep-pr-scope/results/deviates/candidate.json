@@ -1,0 +1,108 @@
+{
+  "sample": "deviates",
+  "arm": "candidate",
+  "skillSha": "71c36ea627f1fc0d6de59f81e55376f9ab01c539dbc4ddf46bc4e50863440393",
+  "inputSha": "08657d55590e8710f7ab526cd36d4e744ecca9666bfe276eac57080eb7130f8f",
+  "kind": "text",
+  "assembly": "headed",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "```\nDelivers: the reports page exports reports as CSV on demand, emails the file to the requesting user, and records an audit event. ACs 1, 3, 4, 5; 2 deviates per spec: the table has 40 columns, so the export includes the 12 visible-by-default columns (Design clause 3); 4's observable half (export completes under 5s on production data) is checked after merge, not here.\n\nNits:\n- The export pages results with its own loop instead of the shared paging helper, so a paging bug fixed once would need fixing twice. (src/api/export.ts:31, lib/page.ts)\n1 nit open - fix nits to take them\n\nVerdict: mergeable - CI green on the assessed head (test)\n\n1. merge - squash onto the base branch                                    [recommended]\n2. fix nits - apply the nit payload in the worktree, review the wave, push\n3. show evidence - gate output, CI run\n4. stop - leave the PR as-is\nType a number.\n```\n",
+      "words": 145,
+      "wallMs": 19720,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "Delivers: the reports page downloads CSV with the 12 visible-by-default columns, emails it to the requesting user, and records an audit event. ACs 1, 3, 4, 5; 2 deviates per spec: the table has 40 columns, so the export includes the 12 visible-by-default columns (Design clause 3); 4's observable half (export completes under 5s on production data) is checked after merge, not here.\n\nPR comments:\n- GitHub has not reported this actor's merge state, so merge waits. (merge state not refreshed (no tools available))\n\nNits:\n- The export pages results with its own loop instead of the shared paging helper, so a paging bug fixed once would need fixing twice. (src/api/export.ts:31, lib/page.ts)\n\nVerdict: fixable - merge state unknown\n\n1. wait - poll GitHub's merge state, then re-render [recommended]\n2. show evidence - show CI evidence, claim dispositions, and spec outcomes\n3. stop - leave the PR as-is\n\nType a number. Not offered: fix nits (no helper facility), merge (merge state unknown).\n",
+      "words": 155,
+      "wallMs": 12121,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "77d93095cae0cfbce04357cfd5281ec42960c12c35dc289ad7d58789003fc9c9",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "c41cda60674e26f0c4b989471120265af64337b71e8745ed18c2136ac8a924bc",
+      "baselineOutputSha": "0ad4138bfbe9c2b7040ca83bd6769fd86dd2ebf074d29229202526793745e6bd",
+      "candidateOutputSha": "097c1ba773c6d58209f2cdfc26bd3fd8d7a8c0ae2ecd49f33c6eb7703003c0ee",
+      "facts": {
+        "f1": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "f2": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "f3": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "f4": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "f5": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "No fact moved: both outputs attribute row 2 to the spec deviation with the 40-vs-12 reason, list only a nit and no blockers, offer merge as the recommended first option, mint nothing against row 2, and post no comment without a pick. This case has no elsewhere rows, so the Change is not exercised here and the Delivers line is unchanged in substance. The only differences are in the menu: After drops 'at the assessed head with the default merge policy' from the merge option and 'AC outcomes' from show evidence; neither breaks a fact, but both lose specificity a reader relies on (which head gets merged, what evidence includes). Keep Before's menu text verbatim and confine the Wave 1 edits to the elsewhere-row handling in Delivers and the blocker gate so cases without elsewhere rows render identically.",
+      "verdict": "unchanged"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "77d93095cae0cfbce04357cfd5281ec42960c12c35dc289ad7d58789003fc9c9",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "c41cda60674e26f0c4b989471120265af64337b71e8745ed18c2136ac8a924bc",
+      "baselineOutputSha": "cf6f9ce5df2c60c8d57c8fa57687b848fddb4d37896ba59c5e754a0f810cc11c",
+      "candidateOutputSha": "2e9b5aca95c8d03f09bd8aafa0498aa13d4a1220c3c0359908432038c47972da",
+      "facts": {
+        "f1": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "f2": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "f3": {
+          "before": "fails",
+          "after": "fails",
+          "label": "pre-existing"
+        },
+        "f4": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "f5": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "The After wording moved nothing on this case: row 2 is still rendered as 'deviates per spec' in Delivers (now quoting the spec's own deviation note and Design clause 3, which is a slight improvement), no blocker is minted for it, no Blockers list appears, and no comment is posted. The one fact that fails in both is f3, and it fails for a reason unrelated to the elsewhere/deviates change: both outputs treat the merge state as unknown ('merge state not refreshed') and withhold merge, even though the case supplies mergeable MERGEABLE directly. If the author wants a clean, deviation-only PR to reach the merge option, the assessment/report wording should instruct the gate to read the supplied mergeable field as the merge state rather than requiring a live refresh tool, and only fall back to 'wait - poll' when that field is absent; the rest of the After wording can stay as-is since it preserves every fact Before kept.",
+      "verdict": "unchanged"
+    }
+  },
+  "repoSha": "07c53575c996acf1c4e87209c4ef523dcf0b029e"
+}

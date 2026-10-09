@@ -1,0 +1,88 @@
+{
+  "sample": "wrong-row-cut-question",
+  "arm": "candidate",
+  "skillSha": "c88452a1a4d0e6d7331d498c44d55b40dcf95d02b5e07dc2da7959e8ead8bbef",
+  "inputSha": "a22fb3f8c30a59a4c22a58a08c4307d25bc89e631795145fe1c8dc8de1d48b6c",
+  "kind": "text",
+  "assembly": "headed",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "## (1) First message\n\n**Premise correction: the ticket's owner-column row conflicts with the code.**\n\n- **Corrected fact:** the ticket says \"The export includes the owner column.\" The column list the export path reuses has no owner column. `src/export/csv.ts:40` reads `const tableColumns = [\"title\", \"status\"];`, and the scout found that the CSV export reuses the table's column definitions.\n- **Assumption:** I am keeping the row `in-scope` as written. I read it as \"the exported file carries an owner column alongside title and status.\" Where that column is defined is a design choice, so I will cover it in the approaches. Reply if you see it differently.\n- **Unverified:** I could not confirm that report rows carry owner data at all. If they don't, the row becomes impossible as written, and I'll bring it back to you then. For now it goes in Open Questions.\n- **Recorded in the draft:** the corrected fact, for `## Problem`.\n\n**Other premises:**\n\n- **Not confirmed from source:** \"the reports page renders a table and has no export action\" comes only from the gather draft. I have not read the page component itself.\n- **Not traced:** I could not trace the other consumers of `tableColumns` beyond line 40. Who else would see a change to that list is unconfirmed.\n- **Repo attribution:** all three ticket rows belong to `acme/widgets`. The ticket has no repo groups, and the overrides set `repo: acme/widgets`.\n- **10k-row row:** it stays `in-scope`. It can be checked locally or in CI with a 10k-row fixture, so it needs no venue change.\n\n**Framing:** the framing holds. I checked:\n\n- `src/export/csv.ts:40`, the column list the export reuses.\n- The draft's finding that the page has no export action today.\n- The scout's owner-column objection. It produced a correction to one row, not an alternative to the ask.\n\nI'm recording `Framing: kept`.\n\n**Question:** where should the Export CSV button appear?\n\n- A) Beside the report title\n- B) In a toolbar above the table\n- C) Inside an overflow/actions menu\n- D) Other (name it)\n\nRecommendation: A. The draft shows no existing action area to join, so placing it beside the title is visible and needs no new toolbar or menu.\n\n---\n\n## (2) Approaches message\n\nThe button goes beside the report title, as you answered. I'm recommending **Approach 1**. The three approaches differ on two things:\n\n- where the owner column is defined, and\n- whether the export runs synchronously through the existing serializer.\n\n**Approach 1 (recommended): reuse the existing CSV serializer and paging, and add `owner` to the shared column list.**\n\n- The new button calls the existing serializer and pages through the report.\n- `owner` is added to `tableColumns` at `src/export/csv.ts:40`. One column definition then feeds both the table and the export.\n- A 10k-row fixture test asserts the export finishes in under 60s.\n- Trade-offs: no new construct and no parallel state. The cost is that the on-screen table also gains an owner column.\n- This is also the reuse-only candidate.\n- Pattern: follows the existing reuse of the table's column definitions in `src/export/csv.ts:40`.\n\n**Approach 2: reuse the serializer and paging, but give the export its own column list, `exportColumns = [...tableColumns, \"owner\"]`.**\n\n- The table stays unchanged and the export gains owner.\n- Trade-off: it creates a second column definition. The table and the export can then drift apart, and each future column needs a decision about which list it belongs in.\n- Pattern: cuts across the single column source at `src/export/csv.ts:40`. This is a parallel definition beside the one that owns the column list.\n\n**Approach 3: a server-side streaming export job.**\n\n- This drops the ask's unstated assumption that the export is a synchronous, in-page download. The button starts a job that streams rows to a downloadable file.\n- The owner column would be handled as in Approach 1.\n- Trade-off: much more headroom on the 60s budget, at the cost of a new boundary (job lifecycle, status, file delivery) that none of the ticket's rows ask for.\n- Pattern: no repo precedent cited. It adds an endpoint and an async boundary next to a serializer that already exists.\n\n**What would flip the recommendation:**\n\n- If the existing paging can't serialize 10k rows in under 60s in the fixture test, switch to Approach 3.\n- If the table must not show owner, switch to Approach 2. I'd name its parallel definition as debt in the spec.\n\n**Question:** which implementation approach should we take?\n\n- A) Approach 1: reuse the serializer and paging, with owner added to the shared columns\n- B) Approach 2: an export-only column list\n- C) Approach 3: a streaming export job\n\nRecommendation: A. It reuses the serializer, paging, and the single column contract, and adds no new construct.\n",
+      "words": 751,
+      "wallMs": 42330,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "## 1. First message to the user\n\nThe draft overstates the owner-column contradiction: `src/export/csv.ts:40` establishes that the **table** has `title` and `status` columns, but it does not establish that an export must contain only those columns. An export-specific owner column could satisfy acme/widgets#77 without changing the table. The draft reports reuse of the table’s column definitions; the supplied fixture does not show the serializer API, its callers, paging, or the owner-data path, so those remain unverified. With tools prohibited, I cannot honestly claim those paths have been traced.\n\nI’ll retain your recorded decisions: place the button beside the report title, and reuse the existing CSV serializer and paging. Neither answer authorizes dropping the ticket’s owner requirement.\n\nHow should we resolve the ticket row “The export includes the owner column”?\n\nA) **in-scope** — include owner in the CSV while leaving the table’s visible columns unchanged.  \nB) **deviates: omit owner** — export only the existing table columns.  \nC) **deferred: `docs/specs/widgets-77-owner-column.md`** — move owner support into a separately tracked specification.  \nD) **repair the ticket** — `/skill:shape-ticket acme/widgets#77` to clarify the owner-column row against `src/export/csv.ts:40` before proceeding.\n\nRecommendation: A - the table declaration does not make the export requirement impossible, and this preserves the ticket’s explicit requirement without widening the table UI.\n\n## 2. Approaches message\n\n*The recorded answers do not answer the scope question above. These approaches therefore retain all three ticket rows; neither omission nor deferral of owner is approved.*\n\nI recommend **configuring the existing export pipeline**, provided its serializer supports explicit columns and paging exposes owner data. Both approaches below honor your choice to reuse the serializer and paging. The distinguishing axis is whether existing configuration is sufficient or an export-specific adapter is needed.\n\n### Approach 1: Configure the existing serializer and paging\n\nAdd the button beside the report title. Use existing serializer configuration to select `title`, `status`, and `owner`, and feed it all report pages—not just the currently displayed page. Keep the table’s columns unchanged.\n\nThis is the minimal reuse-only option: no new export abstraction. It is viable only if the existing APIs already support explicit export columns and owner values. The supplied fixture cannot establish that capability.\n\nMeasure an end-to-end 10,000-row export against the ticket’s under-60-second requirement; reusing paging alone does not establish that result. Define loading and failure behavior so incomplete retrieval does not produce an apparently complete export.\n\nPattern: Follows the gathered draft’s claimed serializer reuse at `src/export/csv.ts`, while avoiding treating the visible-table declaration at `src/export/csv.ts:40` as the complete export contract.\n\n### Approach 2: Add a narrow export projection adapter\n\nKeep the serializer and paging, but introduce a small boundary that maps fetched report records into explicit CSV fields, including owner. The adapter owns export column selection; the table continues using its existing columns.\n\nThis drops the draft’s implied assumption that CSV columns must mirror the table. It adds a small construct and focused tests, but makes export behavior independently testable and avoids adding a visible owner column merely to satisfy CSV requirements. Its feasibility still depends on confirming where owner data comes from.\n\nPattern: Separates the ticket’s export contract from the presentation-specific `tableColumns` declaration at `src/export/csv.ts:40`; it corrects the coupling rather than extending it.\n\nI would choose Approach 1 if existing configuration can express the full export contract. I would switch to Approach 2 if inspection shows that serialization is hard-wired to table columns. Neither approach can promise the performance criterion until the complete paging-to-download path is measured.\n",
+      "words": 563,
+      "wallMs": 48147,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "9d55993ab739d602b4ba493c10df66c6692560974fa0be5092a8042fbc73cc8b",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "1a7b161e7aa0feab93e9509d4e882b4f25c2f4f8f5a8cd3d0b06d2f9a642974b",
+      "baselineOutputSha": "a0c2cb9ace4f82b25147339e09aa5797379f41a90533caf9c1fd94bdab12d3a9",
+      "candidateOutputSha": "a4dcad9170ec9168b097444cdc09713f2e435463138a673d2be6db133db4b202",
+      "facts": {
+        "f1": {
+          "before": "fails",
+          "after": "fails",
+          "label": "intended but unchanged"
+        },
+        "f2": {
+          "before": "fails",
+          "after": "fails",
+          "label": "intended but unchanged"
+        },
+        "f3": {
+          "before": "fails",
+          "after": "fails",
+          "label": "intended but unchanged"
+        }
+      },
+      "feedback": "Neither output asks the ordered cut question for the owner-column row, so all three facts fail on both sides and nothing moved. Before silently folded the decision into the approaches choice (recommending A marks row 2 'deviates' without ever presenting in-scope / deviates / deferred / repair). After swapped that for a different silent disposition: under 'Premise correction' it declares 'I am keeping the row in-scope as written' as an assumption and then designs around it, which is exactly the author-preference scope decision ticket-acceptance.md is meant to forbid, just in the keep direction instead of the cut direction. The wrong-row branch is apparently not firing because After treats the contradiction as a 'premise correction' rather than a 'wrong row'. To fix this, make the wording say that a ticket row the code contradicts is a wrong row regardless of whether the author can reinterpret it, and that the first message must then ask, before any placement or approach question: 'Row 2 says the export includes the owner column, but src/export/csv.ts:40 has no owner column. A) in-scope - add owner to the column contract; B) deviates - ship without owner; C) deferred - owner column in a follow-up; D) repair the ticket - run /skill:shape-ticket acme/widgets#77. Recommendation: A' (or D), with B and C never recommended, and state that the design may not record any disposition for that row until the user answers. That keeps the other premise notes, framing check, and repo-attribution lines After already has, and delivers the Change.",
+      "verdict": "unchanged"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "9d55993ab739d602b4ba493c10df66c6692560974fa0be5092a8042fbc73cc8b",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "1a7b161e7aa0feab93e9509d4e882b4f25c2f4f8f5a8cd3d0b06d2f9a642974b",
+      "baselineOutputSha": "3590e3c3cd250ebf8a6831bdb3c9afc4f25f4f4e293cb193da6ddfea1d0fb17a",
+      "candidateOutputSha": "cc729d66e5036d0959692999d125ac80331fc67e7edfed78df2bbc39d08ecd0e",
+      "facts": {
+        "f1": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "f2": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "f3": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        }
+      },
+      "feedback": "Before never poses a cut question at all: it silently decides to keep all three rows in scope and instead asks the already-answered button-placement question, so f1–f3 all fail there. After delivers the Change cleanly: the owner-column row gets the ordered cut question with A) in-scope, B) deviates, C) deferred, D) repair the ticket in exactly that order, the recommendation is A (never B or C), and option D names `/skill:shape-ticket acme/widgets#77` verbatim. Nothing that Before kept was lost — After still honors the recorded button-placement and reuse answers and still presents two approaches. One wording note: After's cut question is posed even though it also concludes the contradiction is overstated; if ticket-acceptance.md intends the cut question only for rows the draft flags as wrong, keep the current form (the draft did flag it), but make the first message explicit that the question is triggered by the gather draft's contradiction claim rather than by the author's own doubt, so readers don't take the question as a preference-driven invitation to cut.",
+      "verdict": "improved"
+    }
+  },
+  "repoSha": "305dad897254c15d77edb5163eba56f50fdac229"
+}

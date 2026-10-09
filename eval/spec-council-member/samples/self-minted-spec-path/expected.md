@@ -1,0 +1,2 @@
+- f1: judged: A blocker finding of kind scope names the 60s row's deferred disposition.
+- f2: judged: The finding does not accept the spec path as provenance.

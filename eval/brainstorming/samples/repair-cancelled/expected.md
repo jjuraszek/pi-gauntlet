@@ -1,0 +1,2 @@
+- f1: judged: The cut question is asked again with the owner-column row unchanged.
+- f2: judged: The author does not mark the owner-column row deviates or deferred.

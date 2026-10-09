@@ -1,0 +1,98 @@
+{
+  "sample": "post-merge-menu",
+  "arm": "candidate",
+  "skillSha": "71c36ea627f1fc0d6de59f81e55376f9ab01c539dbc4ddf46bc4e50863440393",
+  "inputSha": "36ba49eb50e4ef9bd639f8bcf59c2587dabf4cba6840528d5e8134d884b0764a",
+  "kind": "text",
+  "assembly": "headed",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "## Step 5 - report and menu\n\n```\nDelivers: the reports page exports its table as CSV on demand with bounded paging. ACs 1, 2, 4; 3, 5 deferred per spec to acme/widgets#46; 4's observable half (export completes under 5s on production data) is checked after merge, not here.\n\nNits:\n- The export pages results with its own loop instead of the shared paging helper, so a paging bug fixed once would need fixing twice. (src/api/export.ts:31, lib/page.ts)\n1 nit open - fix nits to take them\n\nVerdict: mergeable - CI green on the assessed head (test)\n\n1. merge - squash-merge the assessed head into the base branch            [recommended]\n2. fix nits - apply the nit payload in the worktree, review the wave, push\n3. show evidence - gate output, CI run, claim and AC outcomes\n4. stop - leave the PR as-is\nType a number.\n```\n\n## Pick: merge\n\n**Compare-and-swap and pre-merge refetch.** These are read-only. Each returned the assessed head unchanged, `state` OPEN, `mergeable` MERGEABLE, a non-blocking merge state, and no new or changed comments.\n\n```bash\ngh pr view 210 -R acme/widgets --json headRefOid,state,mergeable,mergeStateStatus,reviewDecision,statusCheckRollup\ngh run list -R acme/widgets -c <assessed-sha> --json databaseId,status,conclusion,workflowName,url\ngh api repos/acme/widgets/pulls/210/comments --paginate\ngh api repos/acme/widgets/issues/210/comments --paginate\n```\n\n**Merge.** The policy is the default, squash.\n\n```bash\ngh pr merge 210 -R acme/widgets --squash --match-head-commit <assessed-sha>\ngh pr view 210 -R acme/widgets --json state,mergeCommit\n```\n\nThe read returned `state: MERGED` with `mergeCommit.oid` 9f1c2d3e4b5a6978, so the `own merge` overlay applies:\n\n```\n## AC coverage\nInformational - the ticket's rows are unchanged. PR https://github.com/acme/widgets/pull/210, merged 9f1c2d3e4b5a6978, spec doc/specs/2026-09-30-csv-export.md\n- [ ] AC1 The reports page offers an Export CSV button. - covered\n- [ ] AC2 The export includes every column shown in the table. - covered\n- [ ] AC3 Exports are emailed to the requesting user. - deferred per spec to acme/widgets#46\n- [ ] AC4 The export completes under 5s on production data. - covered; observable half checked after merge\n- [ ] AC5 Export events appear in the audit log. - deferred per spec to acme/widgets#46\n\n1. post coverage to ticket - comment the block above on acme/widgets#45\n2. post coverage to PR - comment the block above on the PR\n3. show evidence - gate output, CI run, claim and AC outcomes\n4. stop - leave the PR as-is                                        [recommended]\nType a number.\n```\n\n## Reply: stop\n\nNothing is posted:\n- No coverage comment goes to acme/widgets#45 or to the PR.\n- The untaken nit is dropped and is not tracked after this run.\n- The worktree was never dirtied by a payload.\n\n**Teardown.** The `own merge` row tears down the worktree whether it was created or reused:\n\n```bash\ngit worktree remove .worktrees/pr-210\nrm -f \"$TMPDIR\"/gatekeep-verify.XXXXXX \"$TMPDIR\"/gatekeep-review.XXXXXX   # the two helper output files minted this run\n```\n\nThere is no `log_path` to delete, because evidence came from CI and nothing ran locally.\n\n**Tracker.** `menu` and the loop close `complete`.\n\nPR #210 is merged as 9f1c2d3e4b5a6978. AC4's observable half (under 5s on production data) and the deferred rows 3 and 5 (acme/widgets#46) are left for `/skill:check-delivery`.\n",
+      "words": 464,
+      "wallMs": 29380,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "Delivers: the reports page exports every table column as CSV on demand with bounded paging. ACs 1, 2, 4; 3, 5 deferred per spec to acme/widgets#46; 4's observable half (export completes under 5s on production data) is checked after merge, not here.\n\nNits:\n- The export pages results with its own loop instead of the shared paging helper, so a paging bug fixed once would need fixing twice. (src/api/export.ts:31, lib/page.ts)\n1 nit open - fix nits to take them\n\nVerdict: mergeable - CI green on the assessed head (test)\n\n1. merge - squash onto main [recommended]\n2. fix nits - apply the nit payload in the worktree, review the wave, push\n3. show evidence - show CI evidence, claim dispositions, and AC outcomes\n4. stop - leave the PR as-is\nType a number.\n\n### Executing `merge`\n\nThe assessed SHA is not supplied in the fixture; `<assessed-sha>` below denotes that SHA, not an invented value. Before merging, I would refresh readiness and reconcile comments with these read-only commands:\n\n```bash\ngh pr view 210 -R acme/widgets --json headRefOid,state,mergeable,mergeStateStatus,reviewDecision,statusCheckRollup\ngh run list -R acme/widgets -c <assessed-sha> --json databaseId,status,conclusion,workflowName,url\ngh pr view 210 -R acme/widgets --json headRefOid,state,mergeable,mergeStateStatus\ngh api repos/acme/widgets/pulls/210/comments --paginate\ngh api repos/acme/widgets/issues/210/comments --paginate\n```\n\nThe fixture does not supply the refresh results, including `mergeStateStatus`, so those reads cannot independently establish that the merge preconditions passed. Taking the supplied successful merge as the pick's recorded outcome, the merge command and post-merge read are:\n\n```bash\ngh pr merge 210 -R acme/widgets --squash --match-head-commit <assessed-sha>\ngh pr view 210 -R acme/widgets --json state,mergeCommit\n```\n\nNeither command has a body payload. The supplied post-merge result is `MERGED`, with merge commit `9f1c2d3e4b5a6978`.\n\n## AC coverage\nInformational - the ticket's rows are unchanged. PR https://github.com/acme/widgets/pull/210, merged 9f1c2d3e4b5a6978, spec doc/specs/2026-09-30-csv-export.md\n- [ ] AC1 The reports page offers an Export CSV button. - covered\n- [ ] AC2 The export includes every column shown in the table. - covered\n- [ ] AC3 Exports are emailed to the requesting user. - deferred per spec to acme/widgets#46\n- [ ] AC4 The export completes under 5s on production data. - covered; observable half checked after merge\n- [ ] AC5 Export events appear in the audit log. - deferred per spec to acme/widgets#46\n\n1. post coverage to ticket - comment the block above on acme/widgets#45\n2. post coverage to PR - comment the block above on the PR\n3. show evidence - show CI evidence, claim dispositions, and AC outcomes\n4. stop - finish the gate without posting coverage [recommended]\nType a number.\n\n### Handling `stop`\n\nThe gate is finished. No coverage comment is posted to the ticket or PR, and the ticket's rows remain unchanged. Teardown removes the PR worktree and deletes this run's helper output files and captured logs.\n",
+      "words": 424,
+      "wallMs": 21576,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "5d83aa5dbe3012d024fcb75d3d16a6a40400590c839ff2e96105105b9a566b06",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "c41cda60674e26f0c4b989471120265af64337b71e8745ed18c2136ac8a924bc",
+      "baselineOutputSha": "bfb9d000e0be4b0604b01c0f4ad3d47471ceccd69341f55124e2b4c2b474e7e7",
+      "candidateOutputSha": "0c3ba1dd0911fc9689f866a569db3e7a682c3b7b7bec1471cab49db26b450b6a",
+      "facts": {
+        "f1": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "f2": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "f3": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "f4": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "Nothing moved on this case: both Before and After render the same post-merge menu with post coverage to ticket, post coverage to PR, and stop marked recommended; both state plainly after stop that nothing is posted to acme/widgets#45 or the PR; both keep AC3 and AC5 as deferred per spec to acme/widgets#46 with no blocker and a mergeable verdict; and both judge exactly the five rows the spec and ticket share, adding no rows beyond the spec. The After wording changes only cosmetics (a slightly fuller Delivers sentence, the consolidated pre-merge refetch commands, the tracker close line, and a closing summary that names the deferred rows and the follow-up issue), none of which touch the elsewhere-disposition behavior the Change targets, since this case has no elsewhere rows. The After text is safe to keep as-is; if the author wants the elsewhere path exercised, this deferred-only case will not show it, and a case with a spec row dispositioned to another repository is needed to see the attribution appear in Delivers.",
+      "verdict": "unchanged"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "5d83aa5dbe3012d024fcb75d3d16a6a40400590c839ff2e96105105b9a566b06",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "c41cda60674e26f0c4b989471120265af64337b71e8745ed18c2136ac8a924bc",
+      "baselineOutputSha": "dc9bcf35a508947479cd17da6a47317f2b1063dace8c4bed66ef24742be6024f",
+      "candidateOutputSha": "c1ce8cb8cdbfc1ac8fe6145fd07d4218ac092c20380fbb0fadc8755445a04dbd",
+      "facts": {
+        "f1": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "f2": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "f3": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "f4": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "No fact moved between Before and After: both render the post-merge menu with post coverage to ticket (acme/widgets#45) and post coverage to PR plus stop recommended, both post nothing on stop, both keep ACs 3 and 5 as 'deferred per spec to acme/widgets#46' with no blocker and a mergeable verdict, and both judge only the five rows the spec carries. The Wave 1 elsewhere-attribution change is not exercised by this case since the spec uses deferred rather than elsewhere dispositions, so this fixture is a regression check rather than a demonstration of the Change. Two small drifts in After are worth tightening even though they do not touch these facts: 'squash onto main' names a base branch the fixture never supplies (Before's 'onto the base branch' is safer), and the stop section asserts 'Teardown removes the PR worktree and deletes ... logs' as if performed, whereas Before correctly noted that with no tools and no paths teardown cannot be executed or reported complete. Keep Before's conditional phrasing for teardown and the base branch, and the After wording otherwise preserves every fact.",
+      "verdict": "unchanged"
+    }
+  },
+  "repoSha": "07c53575c996acf1c4e87209c4ef523dcf0b029e"
+}

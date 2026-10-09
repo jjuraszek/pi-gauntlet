@@ -1,0 +1,38 @@
+{
+  "sample": "flat-conforming",
+  "arm": "baseline",
+  "skillSha": "00d6f904185f970a51ece51f2eb96480b76fbfad3204c67091e3db03a33ed6c2",
+  "inputSha": "f9c163d858dbfe8e67a5c065a21ad44b2f6c9141d08461795bf3170fc2bda43a",
+  "kind": "text",
+  "assembly": "headed",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "```\nverdict: needs-work\naddresses-problem: yes — all four widgets ticket rows are carried verbatim and in scope, and the design covers each one (Export link and GET download, id/name/status order, a 10000-row benchmark, header-only empty output); the mailer row is correctly routed to acme/mailer under the ticket's own `### acme/mailer` heading\nfindings:\n- [major] gap @ Design: \"the mailer handoff reuses the existing export-ready event\" — the spec never says when widgets emits this event, what triggers it, or what the payload is. The download is a synchronous GET, so it is unclear whether an export ever becomes \"ready\" separately from the response. The ticket's mailer row needs \"the download link\", but the spec does not say widgets puts that link in the event. Without this, acme/mailer cannot deliver its row, and nothing in Verification checks that the event is emitted → specify the emission point (for example, \"emitted once per successful GET /widgets/export.csv after the full response is written\" or another trigger), list the payload fields including the download URL, and add a request test asserting the event is published with that payload — probed: none\n- [minor] ambiguity @ Verification: \"Run the 10000-widget benchmark for the 60s row when in-scope\" — that row is already marked in-scope, so the conditional leaves it unclear whether the benchmark is a required gate → state that the benchmark is required and that it passes when the measured time is ≤ 60s — probed: none\n- [minor] ambiguity @ Design: \"The benchmark uses 10000 local widgets\" — the spec does not name the environment, database, or harness, so two implementers could get different results against the 60s threshold → name the harness and the environment (for example, CI runner with test DB seeded with 10000 rows owned by one user) — probed: none\n- [minor] oversimplification @ Design: \"Read widgets in id order in batches of 1000\" — the spec does not say whether the response is streamed or buffered. It also does not say what happens if a batch read fails after the header has been sent (truncated file with 200 status vs an error status) → state streaming vs buffering and the mid-export failure behavior — probed: none\nlean: nothing to cut\n```\n",
+      "words": 348,
+      "wallMs": 15758,
+      "mechanical": {
+        "f2": "holds"
+      }
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "verdict: needs-work\naddresses-problem: yes — The design covers all four widgets acceptance criteria and correctly assigns email delivery to mailer, but leaves the widgets-side notification handoff unspecified.\nfindings:\n- [major] external-ref @ Design: “the mailer handoff reuses the existing export-ready event” — The event contract is not inlined: an implementer cannot determine when widgets emits it, what recipient and download-link data it carries, or how that link relates to the synchronous, session-authenticated endpoint. Assigning email delivery to mailer does not resolve the producer-side contract → Inline the existing event contract and specify the widgets-side emission point and download-link construction, while leaving email delivery in acme/mailer. — probed: none\nlean: nothing to cut\n",
+      "words": 106,
+      "wallMs": 14581,
+      "mechanical": {
+        "f2": "holds"
+      }
+    }
+  },
+  "repoSha": "1ad41846d4f3d7f67912e878754b83a82aa197c4"
+}

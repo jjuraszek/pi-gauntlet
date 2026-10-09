@@ -6,4 +6,9 @@ This target tests the user review gate's verbatim briefing, council counts, appr
 |---|---|
 | `skills/brainstorming/reference/spec-finalization.md` | `## User Review Gate` |
 
+| Sample | Must hold |
+|---|---|
+| scope-cuts-listed | The Scope cuts line lists only deferred and venue rows, between the committed-to and Council lines. |
+| scope-cuts-none | The briefing renders `Scope cuts: none`. |
+
 Process, commands, and record schema: eval/README.md.

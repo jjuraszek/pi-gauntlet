@@ -1,0 +1,82 @@
+{
+  "sample": "flat-conforming",
+  "arm": "candidate",
+  "skillSha": "618507101d28e17db84cf910af614e719333bfb19f58fef166b6389e801a6e46",
+  "inputSha": "f9c163d858dbfe8e67a5c065a21ad44b2f6c9141d08461795bf3170fc2bda43a",
+  "kind": "text",
+  "assembly": "headed",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "verdict: needs-work\naddresses-problem: yes — all four widgets AC rows are carried over verbatim as in-scope with matching design. The mailer row is correctly marked `elsewhere: acme/mailer` under the `### acme/mailer` repo group, which is not acme/widgets.\nfindings:\n- [major] gap @ \"the mailer handoff reuses the existing export-ready event\" — The spec does not say whether widgets emits this event. It also does not say when it fires, given the download is a synchronous GET, or what payload it carries. Mailer's row needs \"the download link\", but no field holding that link is named. An implementer cannot tell whether widgets has any work here. → State whether widgets publishes the event and its trigger point, for example after the response completes or never because some existing producer emits it. Name the payload fields, including the download URL (presumably `/widgets/export.csv`). Add a test asserting the emission, or state explicitly that widgets emits nothing. — probed: none\n- [minor] ambiguity @ \"Run the 10000-widget benchmark for the 60s row when in-scope\" — The row is already marked in-scope, so the \"when in-scope\" conditional is dead wording. It also leaves unclear whether the benchmark is a gating automated check, and in what environment it runs. → Reword to \"Run the 10000-widget benchmark; it fails if request-start-to-complete-response exceeds 60s\". Say where it runs: a CI job or a documented manual step. — probed: none\n- [minor] gap @ \"The endpoint sits behind the existing session authentication\" — The response to an unauthenticated request is unspecified, whether a redirect to login or a 401. No test covers it, and no test covers the owner scoping, which is the data-leak guard. → Specify the unauthenticated response. Add request tests for (a) no session and (b) another user's widgets being excluded from the CSV. — probed: none\n- [minor] ambiguity @ \"Read widgets in id order in batches of 1000\" — The spec does not say whether the response streams batch by batch or buffers the whole body. It also does not choose between keyset and offset paging, so rows inserted or deleted mid-export may be duplicated or skipped. → Specify keyset pagination (`id > last_id`) and streamed output. — probed: none\nlean: nothing to cut\n",
+      "words": 347,
+      "wallMs": 18624,
+      "mechanical": {
+        "f2": "holds"
+      }
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "verdict: sound\naddresses-problem: yes — The design delivers CSV downloads and covers all four widgets acceptance rows. The email row is correctly assigned to acme/mailer, matching the ticket’s repo grouping and ownership instruction.\nfindings:\nlean: nothing to cut\n",
+      "words": 37,
+      "wallMs": 7365,
+      "mechanical": {
+        "f2": "holds"
+      }
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "f08ffd7f891c2e0eb30016f0aa9f8ee643b4e1a52b9a712e15c966a76a0adb0d",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "04bf88b6ddec157ebb1e13b63d4e0916bde2d6d07b50a7940d39cc567f36eb65",
+      "baselineOutputSha": "b8060748fe56872c2b385cb7c935a57c6faef19856ac45abeba5e390be569f2d",
+      "candidateOutputSha": "120ff06c0f693789d2c4220fd3e2daa0d66fe074f650d29bcfd7b18d818276b0",
+      "facts": {
+        "f1": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "f2": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "Neither output contains a finding of kind scope, so f1 holds in both; the After wording did not move this fact for this case. That is the correct outcome here: all four widgets rows are in-scope and the mailer row is attributed to another repo under the ticket's own `### acme/mailer` heading, which the Change explicitly keeps valid, so the new scope-blocker rule should stay silent. If anything, make sure the After wording keeps scoping its blocker to rows whose disposition is deferred/deviates/elsewhere without provenance, so that a case like this one, where every disposition is either in-scope or another repo's settled attribution, continues to produce no scope finding while the targeted cases (unprovenanced-deferred, self-minted-spec-path, elsewhere-under-own-group, venue-production) get flagged.",
+      "verdict": "unchanged"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "f08ffd7f891c2e0eb30016f0aa9f8ee643b4e1a52b9a712e15c966a76a0adb0d",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "04bf88b6ddec157ebb1e13b63d4e0916bde2d6d07b50a7940d39cc567f36eb65",
+      "baselineOutputSha": "72795ab674d7f047c6fbc932775b4f59d4bc73de0cc35791cc763d0c10e7aed8",
+      "candidateOutputSha": "8864601e1480160c57077b0bdf7974523f5f94e8a473470f1bf373c0a11211de",
+      "facts": {
+        "f1": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "f2": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "Both outputs satisfy f1: Before's only finding is kind external-ref targeting the Design paragraph, not any acceptance-criteria row or disposition, and After has no findings at all, so neither raises a scope finding against the correctly settled acme/mailer elsewhere attribution. The After wording therefore preserves the intended behavior for this case (another repo's settled attribution remains valid). One thing worth noticing though it is outside f1: After also dropped Before's external-ref finding about the un-inlined export-ready event contract and flipped the verdict to sound. If that was not intended, check that the new scope-blocker language (e.g. 'a deferred or deviates disposition without a quoted cut question and human answer is a scope blocker; elsewhere attribution to another repo's group in the human input is settled') is scoped narrowly to the scope check and does not read as a general 'if attribution is valid, the row is fine' rule that suppresses design-level external-ref findings about the handoff.",
+      "verdict": "unchanged"
+    }
+  },
+  "repoSha": "305dad897254c15d77edb5163eba56f50fdac229"
+}

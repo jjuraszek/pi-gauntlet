@@ -1,0 +1,108 @@
+{
+  "sample": "directional-dependency",
+  "arm": "candidate",
+  "skillSha": "4184930ca232b7b0bc8eda6a1b0c7960058a6c2988e2d9a8881295d28deca107",
+  "inputSha": "693aafb6145862cd556571b8a5148111090ead9fda0c10558e67d3135a094ea6",
+  "kind": "text",
+  "assembly": "headed",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "```\nDelivers: the reports page gains CSV export and an Export CSV button that stays disabled until the mailer in acme/widgets#46 ships. ACs 1, 2, 4; 3, 5 deferred per spec to acme/widgets#46; 4's observable half (export completes under 5s on production data) is checked after merge, not here.\n\nNits:\n- The export pages results with its own loop instead of the shared paging helper, so a paging bug fixed once would need fixing twice. (src/api/export.ts:31, lib/page.ts)\n1 nit open - fix nits to take them\n\nVerdict: mergeable - CI green on the assessed head (test)\n\n1. merge - squash-merge the assessed head onto the base branch            [recommended]\n2. fix nits - apply the nit payload in the worktree, review the wave, push\n3. show evidence - gate output, CI run, AC outcomes\n4. stop - leave the PR as-is\nType a number.\n```\n\nPick: none. Nothing was executed.\n\n---\n\n**After the gate: /skill:check-delivery Stage 3 for acme/widgets#45 after merge**\n\nStage 2 is reported as **skipped (no delivery target configured)**. Check-delivery reads the ACs from the ticket. The ticket carries no deferral, and no comment explains any row. The spec's `deferred: acme/widgets#46` lines were the pre-merge contract, so they do not settle the ticket's rows here.\n\n| AC | Verdict | Evidence |\n|---|---|---|\n| AC1 The reports page offers an Export CSV button. | `unexplained gap` | The button at the shipped SHA renders disabled until the mailer ships (src/ui/reports.tsx@`<sha>`). acme/widgets#46 is still open, so the code shows the page does not offer a working export. No runtime observation is needed to see this. |\n| AC2 The export includes every column shown in the table. | `unverified: no delivery target` | This is observable behavior with no target to check it against. The code evidence is the handler (src/api/export.ts@`<sha>`) and its column test (test/api/export.test.ts@`<sha>`). |\n| AC3 Exports are emailed to the requesting user. | `unexplained gap` | No mail transport exists at the shipped SHA. acme/widgets#46 is open, and nothing on the ticket explains the gap. |\n| AC4 The export completes under 5s on production data. | `unverified: no delivery target` | This is a production-data observation with no target configured. The code evidence is the 100-row page cap and the 4s deadline, with tests (src/api/export.ts@`<sha>`, test/api/export.test.ts@`<sha>`). |\n| AC5 Export events appear in the audit log. | `unexplained gap` | No audit emission exists at the shipped SHA. acme/widgets#46 is open, and nothing on the ticket explains the gap. |\n\n**Result: failure path.** There is no `Delivered:` comment, no status advance, and no marker. A findings comment (without a `Delivered:` line) can be offered behind an explicit yes, but it is never posted unprompted.\n\nAC3 and AC5 match the expected `unexplained gap`. AC1 is also a gap from the ticket's point of view: the spec's Design clause 4 chose the \"disabled until #46\" reading, but the ticket never adopted it.\n\nThere are two ways forward:\n- Correct the ticket through `/skill:shape-ticket`. That would move AC3 and AC5, and AC1's enablement, to #46.\n- Re-run check-delivery once #46 ships.\n",
+      "words": 476,
+      "wallMs": 51492,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "Delivers: the PR adds CSV export infrastructure and a reports-page button that stays disabled until the mailer ships. ACs 1, 2, 4; 3, 5 deferred per spec to acme/widgets#46; 4's observable half (export completes under 5s on production data) is checked after merge, not here.\n\nPR comments:\n- GitHub has not reported this actor's merge state, so merge waits. (merge state not refreshed (no tool available))\n\nNits:\n- The export pages results with its own loop instead of the shared paging helper, so a paging bug fixed once would need fixing twice. (src/api/export.ts:31, lib/page.ts)\n\nVerdict: fixable - merge state unknown\n\n1. wait - poll GitHub's merge state, then re-render [recommended]\n2. show evidence - print CI evidence, claim and AC outcomes, and drafted payloads\n3. stop - leave the PR as-is\n\nType a number. Not offered: merge (merge state unknown), fix nits (no helper facility).\n\n## After the gate: check-delivery Stage 3\n\nThe following verdicts assume Stage 1 has resolved the shipped SHA. The fixture supplies no SHA, so these are the expected classifications, not a completed delivery verification.\n\n| AC | Verdict | Evidence and limitation |\n|---|---|---|\n| AC1 The reports page offers an Export CSV button. | `unverified: no delivery target` | The button renders disabled until mailer readiness. Delivery verification needs code pinned to the shipped SHA; no target is configured to observe the page. |\n| AC2 The export includes every column shown in the table. | `unverified: no delivery target` | The handler serializes the table columns. Delivery verification needs code pinned to the shipped SHA; no target is configured to observe an export. |\n| AC3 Exports are emailed to the requesting user. | `unexplained gap` | This PR supplies no email transport, and acme/widgets#46 remains open. The ticket contains no sanctioned explanation for the missing behavior. |\n| AC4 The export completes under 5s on production data. | `unverified: no delivery target` | The handler has a paging cap and a 4s deadline, but those mechanisms do not establish production performance. No delivery target is configured for that observation. |\n| AC5 Export events appear in the audit log. | `unexplained gap` | This PR supplies no audit events, and acme/widgets#46 remains open. The ticket contains no sanctioned explanation for the missing behavior. |\n\nThe spec's deferrals settle pre-merge scope; they do not amend the ticket's acceptance criteria. AC3 and AC5 prevent a delivery comment, marker, or status advance.\n",
+      "words": 375,
+      "wallMs": 23252,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "c96452fb7aa0b38ccf0270ab63757d8149cfe65469507a98e013e5f4d919619c",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "c41cda60674e26f0c4b989471120265af64337b71e8745ed18c2136ac8a924bc",
+      "baselineOutputSha": "779c4d2d71722340e5690f2a0ba736bf53a5f1ea4a94ae87e36739b27fa339ca",
+      "candidateOutputSha": "c8dc05ccfb6a19a566c4cf6cc66e8621a429943c6b46a19e7e2bc71b1a6394d2",
+      "facts": {
+        "f1": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "f2": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "f3": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "f4": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "f5": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "No fact moved: both outputs attribute ACs 3 and 5 as deferred per spec to acme/widgets#46 in Delivers, both offer merge as the recommended pick with no blocker, both execute nothing on an empty pick, and both check-delivery tables mark AC3 and AC5 `unexplained gap`. The one substantive drift in After is outside the facts but worth noting: After's check-delivery table also marks AC1 `unexplained gap` (reasoning from the disabled button), whereas Before keeps AC1 `unverified: no delivery target`; this is a judgment the check-delivery stage makes from the ticket and the SHA, not something the gatekeep-pr wording should push, and it slightly muddies the 'AC3 and AC5 are the gaps' story the author asked for. If the Wave 1 edits are meant to keep elsewhere/deferred rows cleanly separated from in-scope rows downstream, the After wording should avoid reinterpreting in-scope rows (AC1) as gaps and keep the Delivers line's deferral attribution exactly as Before already had it; the rest of After's gate text (menu wording, 'show evidence' description) is a cosmetic change that neither helps nor hurts the facts.",
+      "verdict": "unchanged"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "c96452fb7aa0b38ccf0270ab63757d8149cfe65469507a98e013e5f4d919619c",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "c41cda60674e26f0c4b989471120265af64337b71e8745ed18c2136ac8a924bc",
+      "baselineOutputSha": "9d907d125c1dd587694c8e7d75a33df26b639b92a253dfdd80ca97fa9924a590",
+      "candidateOutputSha": "04cdc24aeec535a5360f1712bab95a747e0fc0d8bcd58d949a5768d7fb5c2d6a",
+      "facts": {
+        "f1": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "f2": {
+          "before": "fails",
+          "after": "fails",
+          "label": "pre-existing"
+        },
+        "f3": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "f4": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "f5": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "After moves nothing relative to Before: both attribute rows 3 and 5 to acme/widgets#46 as deferred per spec, both mint no blocker on those rows (the only verdict driver is merge-state), both leave the PR comment drafted rather than posted with no pick, and both Stage 3 tables mark AC3 and AC5 `unexplained gap`. The one fact that fails in both is f2 - neither output offers merge, because both claim 'GitHub has not reported this actor's merge state' even though the fixture states mergeable MERGEABLE, head_pushable true, viewer_permission WRITE, CI success, and reviewer approve. If the Change intends a clean gate to offer merge, the assessment wording needs to read the supplied mergeable field as the merge state rather than requiring a live refresh tool; e.g. 'merge state: MERGEABLE (from PR metadata)' and a verdict of 'clean' with 'merge' as option 1, while keeping the elsewhere attribution in Delivers unchanged and keeping the Stage 3 note that spec deferrals do not amend the ticket's ACs.",
+      "verdict": "unchanged"
+    }
+  },
+  "repoSha": "07c53575c996acf1c4e87209c4ef523dcf0b029e"
+}

@@ -1,0 +1,38 @@
+{
+  "sample": "multi-repo-groups",
+  "arm": "baseline",
+  "skillSha": "7419927f59110fa49d40bf1014ee5844548b244f4d07a3383653335c042061b0",
+  "inputSha": "0d7c24e0091382e61d5b224996ac468cf37e1f088c80daf4fd469377afdf41e6",
+  "kind": "text",
+  "assembly": "concat",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "# Draft: create mode, one ticket\n\n**Title (new):** Export reports as CSV, with optional email delivery to the requester\n\n---\n\n## Context\n\nRequesters can open and view reports in the widgets app, but they cannot get a copy of a report's data. Nothing exports the report or sends it to them.\n\n## Problem\n\nA requester who is looking at a report cannot save its rows as a CSV (comma-separated values) file, and cannot have that file emailed to them. To use the data elsewhere, they have to copy it by hand.\n\nExample: none (the gathered input names no specific report or requester; this applies to every report).\n\n## Idea\n\nThe reporter suggests an Export CSV button on the report page (acme/widgets), and having the mail service (acme/mailer) deliver the exported file.\n\n## Acceptance Criteria\n\n- [ ] In staging, a requester opens any report in the widgets app. An **Export CSV** button is visible on the report page.\n- [ ] In staging, a requester opens a report showing a known set of rows and clicks **Export CSV**. The resulting CSV file has the columns `name` and `count`, and it contains exactly the rows displayed on screen with the same values.\n- [ ] In staging, a requester exports a report and asks for email delivery. The mailer sends an email to that requester's address, and the email has the same CSV as an attachment. Verify this with a test mailbox or mail capture.\n\n---\n\n# AC integrity gate report\n\n**Normalization:** All three required outcomes were extracted and rendered as `- [ ]` items. No pre-existing ACs needed conversion because this is create mode.\n\n| AC | Class | Setup / action / observable | Deploy window | Outcome |\n|---|---|---|---|---|\n| 1. Export CSV button visible | Behavioral | Open a report / view the page / button present | Staging | **Pass** |\n| 2. Export contents | Behavioral | Report with known rows / click Export CSV / file has `name`, `count`, and exactly the displayed rows | Staging | **Pass** |\n| 3. Email delivery | Behavioral | Export plus email request / mailer sends / attachment arrives at the requester's address | Staging with mail capture | **Pass** |\n\n- **Wishful / tautological:** none. **Hard stop:** no.\n- **Unspecified-but-binding / external-input:** none. **Park:** no. The ticket stays ready.\n- **Post-deployment:** none found. Post-deployment housekeeping is omitted.\n- **Guards:** No number, label, or URL was invented. A header row, column order, and the way the requester asks for email were not specified, so the ACs do not assert them.\n\n**Ambiguities to surface at the confirmation gate** (shown to the user, not auto-applied):\n1. Should the CSV include a header row, and must the columns be in the order `name, count`?\n2. How does the requester ask for email delivery: an option on the button, a separate control, or a prompt? AC 3 is written so it stays valid for any of these.\n3. Should the export include only the visible page or filtered view (\"displayed rows\"), or the full result set? AC 2 follows the gathered wording, which says the displayed rows.\n\n**Split detection:** No split. This is one end-to-end deliverable. Dividing it into widgets work and mailer work would be a locational division, which is a Never axis. One ticket is correct.\n\n**Reporter note:** None proposed. The Idea section fits the single attributed sketch line, so there is no overflow and no in-session request.\n\n**Metadata:** Title is drafted (above). No links, tracker fields, or comments need preservation.\n\n**Gate result:** Clean. The draft can proceed to the roast and then the confirmation gate.\n",
+      "words": 548,
+      "wallMs": 25492,
+      "mechanical": {
+        "f3": "holds"
+      }
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "## Full replacement ticket body\n\n### Context\nRequesters can view reports in the widgets app but cannot receive a CSV copy.\n\n### Problem\nRequesters cannot export the displayed report or request its CSV by email. For example, a requester viewing a report cannot save its displayed rows as a CSV or have that file sent to their email address.\n\n### Idea\nThe reporter proposes an Export CSV button in the widgets app (acme/widgets), with requested email delivery handled by the mailer service (acme/mailer).\n\n### Acceptance Criteria\n- [ ] Given a report available to view in the widgets app, when a requester opens it, an Export CSV button is displayed.\n- [ ] Given an open report with known displayed rows and known `name` and `count` values, when the requester clicks Export CSV, a CSV file is produced containing those displayed rows and the columns `name` and `count`, with values matching the report.\n- [ ] Given an exported CSV and a requester with a known email address, when the requester asks for email delivery, the mailer service sends an email to that address with the exported CSV attached.\n\n## AC integrity gate report\n\n**Result: PASS**\n\n- All three criteria use normalized `- [ ]` syntax.\n- Each criterion is behavioral and names its setup, action, and observable expected result.\n- All criteria can be verified before production deployment: use a report with known rows and values, then inspect the generated CSV and email sent to a controlled test mailbox.\n- No comparative claims, undefined thresholds, self-produced closure-gating sets, or external-input blockers are present. The required columns are explicitly enumerated.\n- No production-only checks require relocation.\n\n**Disposition:** One end-to-end ticket; no split or Reporter-note comment proposed. No write performed.\n",
+      "words": 266,
+      "wallMs": 17799,
+      "mechanical": {
+        "f3": "holds"
+      }
+    }
+  },
+  "repoSha": "07c53575c996acf1c4e87209c4ef523dcf0b029e"
+}

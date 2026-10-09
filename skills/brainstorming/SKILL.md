@@ -94,7 +94,7 @@ Clarify freely.
 Ask one question per message, about purpose, constraints, success, and affected actors. Every questionary question offers 2-4 labeled options (`A)`, `B)`, ...), each a different outcome, and ends `Recommendation: <letter> - <why>`; when more outcomes are plausible, the last option is `other - name it` or the question splits in two. This format overrides chat-style rules in `AGENTS.md` (one paragraph, no Options/Recommendation layout). A decision that would be a yes/no or "may I" question is not asked: make it, state it as an assumption in the message that carries the next question or the premise note, and record it in the draft. Before asking, check code, docs, and tracker: look up current-state facts (dispatch a subagent when costly); adopt a ticket-recorded decision and cite the ticket, asking it only when a cited code or API contradiction, or conflicting recorded outcomes, prevents adopting it. Other approvals retain their wording.
 
 Bad: `May I treat those two acceptance criteria as location-only deviations? Recommendation: yes`
-Good: `The two ACs name a path that moved; the spec marks them deviates: location only. Which surface owns the refresh? A) the extension B) a new bin C) the existing skill step. Recommendation: A - the extension already holds the poll loop, so no new entrypoint.`
+Good: `The two ACs name a path that moved; the spec keeps them in-scope with the new path as a Design clause. Which surface owns the refresh? A) the extension B) a new bin C) the existing skill step. Recommendation: A - the extension already holds the poll loop, so no new entrypoint.`
 
 Append only citable findings - schemas, hard constraints, contradictions, and scope-changing answers - to `## Appended during questionary` using `edit`.
 

@@ -58,7 +58,7 @@ Self-checking in the main session is the fallback when delegation isn't possible
 | Order | Source | Why |
 |---|---|---|
 | 1 | The written spec (`doc/specs/…`) | Canonical. Brainstorm already fetched the ticket, reconciled its ACs, recorded deviations here. |
-| 1 | The spec's `## Acceptance criteria` section | Same priority as the spec body. The ticket's AC rows verbatim with dispositions; `in-scope`/`venue:` rows are requirements, `deviates:`/`deferred:` rows are recorded drift - read per the `conformance-reviewer` persona. |
+| 1 | The spec's `## Acceptance criteria` section | Same priority as the spec body. The ticket's AC rows verbatim with dispositions; `in-scope`/`venue:` rows are requirements, `deviates:`/`deferred:`/`elsewhere:` rows are recorded drift - read per the `conformance-reviewer` persona. |
 | 2 | Original prompt | Catches inline requirements never folded into the spec. |
 | 3 | Re-fetch the ticket | **Fallback only**, when no spec exists. Skip when a spec exists — the live ticket may have drifted. |
 

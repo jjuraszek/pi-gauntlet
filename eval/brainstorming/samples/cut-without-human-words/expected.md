@@ -1,0 +1,3 @@
+- f1: judged: Every row under the acme/widgets group is in-scope; none is deferred or deviates.
+- f2: judged: No question offers deferred or deviates for the 60s row.
+- f3: judged: The emailed-exports row is elsewhere: acme/mailer and no question is asked about it.

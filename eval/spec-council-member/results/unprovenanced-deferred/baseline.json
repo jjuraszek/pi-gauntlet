@@ -1,0 +1,34 @@
+{
+  "sample": "unprovenanced-deferred",
+  "arm": "baseline",
+  "skillSha": "00d6f904185f970a51ece51f2eb96480b76fbfad3204c67091e3db03a33ed6c2",
+  "inputSha": "a60d261ef8ad0233723cb1cdb61a156355c8f830cfe0441139500cce8d1b7c26",
+  "kind": "text",
+  "assembly": "headed",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "verdict: needs-work\naddresses-problem: partial — It delivers the Export link, CSV columns, and empty-header behaviour, and routes the email to mailer. It never limits the export to the requesting user's widgets (\"their widgets\"), and it defers the 60s row without a stated reason.\nfindings:\n- [major] gap @ Design: \"Read widgets in id order in batches of 1000\" — The problem says users download *their* widgets, but the design never limits the query to the current user or account, and never says how unauthenticated requests are handled. As written, an implementer could export every widget to anyone. → Add: \"GET /widgets/export.csv requires an authenticated session and selects only widgets owned by the current user (same scope as the collection page); unauthenticated requests get the app's standard redirect/401.\" Add a request test asserting that another user's widgets are absent. — probed: none\n- [major] ambiguity @ Goal: \"The 60s performance row is deferred\" / AC: \"deferred: acme/widgets#78\" — No reason is given for deferring a widgets-repo ticket row. The Design fully specifies the benchmark (10000 local widgets, request start to complete response) and batch reading, and Verification says to run it \"when in-scope\" without saying what makes it in-scope. A reader cannot tell whether the benchmark is built now or later. The deferral itself passes operates-without-it, since the export works without the guarantee, and #78 is a valid tracker ref. → Add a one-line reason to the deferred row. Either move the benchmark description into acme/widgets#78 or mark it explicitly as not built in this change. Replace \"when in-scope\" with \"under acme/widgets#78\". — probed: none\n- [minor] oversimplification @ Design: \"Read widgets in id order in batches of 1000\" — The design does not say whether the response is streamed or buffered. If it is streamed, an error after the headers are sent yields a truncated file with a 200 status, and that case is unhandled. → State streamed or buffered. If streamed, define the behaviour on mid-export failure, e.g. abort the connection so the client sees an incomplete download rather than a silently short CSV. — probed: none\n- [minor] ambiguity @ Design: \"Encode id, name, and status with standard CSV quoting\" — Several output details are unspecified: the exact header strings, the status representation (raw enum value or display label), line endings, and whether a BOM is used. The column-order test cannot assert exact output without these. → Specify header row `id,name,status`, status as its stored value (or label), CRLF line endings per RFC 4180, and no BOM. — probed: none\n- [minor] gap @ Design: \"standard CSV quoting\" — User-controlled `name` values beginning with `=`, `+`, `-`, or `@` can execute as formulas when the file is opened in a spreadsheet (CSV injection). → Decide whether to neutralise formula-leading cells (e.g. prefix with `'`) and add a test case either way. — probed: none\nlean: nothing to cut\n",
+      "words": 448,
+      "wallMs": 18710,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "verdict: sound\naddresses-problem: yes — Specifies the CSV download, required column order, and header-only empty output; explicitly tracks the independent performance requirement in acme/widgets#78 and leaves notification delivery with Mailer.\nfindings:\nlean: nothing to cut\n",
+      "words": 34,
+      "wallMs": 10180,
+      "mechanical": {}
+    }
+  },
+  "repoSha": "07c53575c996acf1c4e87209c4ef523dcf0b029e"
+}

@@ -1,0 +1,118 @@
+{
+  "sample": "directional-dependency",
+  "arm": "candidate",
+  "skillSha": "db07dda8f60340eab65702d6c6bbdf8970474db449817709cea5b85b26ae1452",
+  "inputSha": "38b6eabc3b9ce14fb07ed863eebb7209a1de5bdd985fbe26b91ce2699d9e27a4",
+  "kind": "text",
+  "assembly": "headed",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "## Closure / conformance\n\n```text\nstatus: CONFORMS (0 open)\naudited-base: 4c1e8f0a9b2d7c6e5f4a3b2c1d0e9f8a7b6c5d4e\nhappy-path: not run - no row configured\nDeferred/deviates per spec: AC3 deferred to acme/widgets#46; AC5 deferred to acme/widgets#46\nauto-applied fix commits: none\nwhole-diff minors: none\n```\n\n- The final audit has no gaps, so there are no concern cards. That matches `N = 0`.\n- The fix loop and Convergence did not run. After an R0 `CONFORMS` with no round, the diff `r0-head..HEAD` is empty, so no code-reviewer was dispatched.\n- The `happy-path:` value is copied verbatim from the reviewer's `Happy path:` line.\n- The `Deferred/deviates per spec:` line comes from the two `deferred:` acceptance-criteria rows, in row order. It is informational only.\n\nTwo things I could not confirm without tools:\n\n- **Freshness:** I could not run the two freshness commands (`git diff --stat`, `git status --porcelain`). The render below assumes both return nothing. Any output would trigger a fresh audit.\n- **Whole-diff minors:** No whole-diff review findings were supplied, so the section says `none`.\n\n---\n\n**Step 3.5 (operator view):**\n\n```\nClosure / conformance: CONFORMS\nhappy-path: not run - no row configured\nDeferred/deviates per spec: AC3 deferred to acme/widgets#46; AC5 deferred to acme/widgets#46\nwhole-diff minors: none\n```\n\n**Step 4:**\n\n```\nImplementation complete. What would you like to do?\n```\n",
+      "words": 192,
+      "wallMs": 15726,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "## Closure / conformance\nstatus: CONFORMS (0 open)\naudited-base: 4c1e8f0a9b2d7c6e5f4a3b2c1d0e9f8a7b6c5d4e\nhappy-path: not run - no row configured\nDeferred/deviates per spec: AC3 deferred to acme/widgets#46; AC5 deferred to acme/widgets#46\n\nauto-applied fix commits: none\nwhole-diff minors: not recorded\n\n---\n\nClosure / conformance: CONFORMS\nhappy-path: not run - no row configured\nDeferred/deviates per spec: AC3 deferred to acme/widgets#46; AC5 deferred to acme/widgets#46\nwhole-diff minors: not recorded\n\nImplementation complete. What would you like to do?\n",
+      "words": 65,
+      "wallMs": 9304,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "d656fb8baea796ebfecb16817e20d534451d68144e7695f39c5456a0e93c08cc",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "c8f83f413b6f9674bfbd8a42db82d1a5dd23f7b6ec6277d7351aac207aab39f2",
+      "baselineOutputSha": "06ffb741883d8f251225e3367a93cce9b38aa4d12877099c9a2555cd89b065d4",
+      "candidateOutputSha": "d1ad3c4422df439122b86282a26a3e47207b887a259eae228ce301df9601723c",
+      "facts": {
+        "f1": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "f2": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "f3": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "f4": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "f5": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "f6": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "Nothing moved: both Before and After already treat the acme/widgets#46 rows as recorded drift, emit the same `Deferred/deviates per spec: AC3 deferred to acme/widgets#46; AC5 deferred to acme/widgets#46` line, report 0 open with no concern cards, and reach the Step 4 prompt, so the expected fails->holds transitions for f1–f3 were already holding in Before and are preserved in After. The After wording's main additions are explanatory bullets (the informational nature of the deferred line, verbatim happy-path copy) and a 'Two things I could not confirm without tools' block about freshness commands and whole-diff findings; those caveats don't break any fact here but introduce hedging ('assumes both return nothing', 'Any output would trigger a fresh audit') that a stricter reader could treat as an unresolved precondition before Step 4. If the goal is to make the elsewhere-settled handling explicit, keep the single sentence stating the deferred rows are informational and produce no decision items, and either drop the freshness caveat or state it as a completed check rather than an assumption so the render unambiguously proceeds to Step 4 as Before did.",
+      "verdict": "unchanged"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "d656fb8baea796ebfecb16817e20d534451d68144e7695f39c5456a0e93c08cc",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "c8f83f413b6f9674bfbd8a42db82d1a5dd23f7b6ec6277d7351aac207aab39f2",
+      "baselineOutputSha": "3e67ce630d02cc02eeede877623f16c00c6f62e5f432d3d79a0bf7f3a4574993",
+      "candidateOutputSha": "fa040673a0c53278084258776a4c4e139ede5cd41faec65d6af384eb6876e2a4",
+      "facts": {
+        "f1": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "f2": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "f3": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "f4": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "f5": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "f6": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "Nothing moved between Before and After on this case: both renders report CONFORMS (0 open), name acme/widgets#46 on the Deferred/deviates per spec line for AC3 and AC5, raise no decision items, treat the delivered disabled-button clause as gap-free, and reach the Step 4 prompt ('Implementation complete. What would you like to do?'). So the Before output already satisfied f1–f3 as written; the expected fails->holds transitions are not visible in this pair, meaning the elsewhere-settled behavior was already correct for this input or the case needs a Before where the deferred rows were actually surfaced as gaps. The only After differences are the added 'happy-path: not run - no row configured' line (a reasonable carry-through of the reviewer report) and a stray blank line between the Deferred line and 'auto-applied fix commits' in the first block; drop that blank line so the closure block stays contiguous, and otherwise the After wording preserves every fact Before kept while delivering the Change.",
+      "verdict": "unchanged"
+    }
+  },
+  "repoSha": "07c53575c996acf1c4e87209c4ef523dcf0b029e"
+}

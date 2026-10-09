@@ -1,0 +1,143 @@
+{
+  "sample": "no-spec-quality",
+  "arm": "candidate",
+  "skillSha": "71c36ea627f1fc0d6de59f81e55376f9ab01c539dbc4ddf46bc4e50863440393",
+  "inputSha": "07685885dd1bf4163815107a6237249a4cbab1b0f9424509e5522d5bb7669543",
+  "kind": "text",
+  "assembly": "headed",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "```\nDelivers: the reports page exports report data as CSV on demand through an Export CSV button, with the table's columns and a 404 for unknown reports.\n\nBlockers:\n1. Any caller can export another user's report, because the export handler returns CSV for any existing report id without checking ownership, and no test asserts that cross-user access is refused. (src/api/export.ts:14, test/api/export.test.ts)\n\nVerdict: fixable - 1 blocker\n\n1. fix - apply the blocker in the worktree, review the wave, push          [recommended]\n2. review - post the blocker as a comment on your PR\n3. show evidence - gate output, CI run, drafted edit\n4. stop - leave the PR as-is\nType a number, or compose: \"fix 1\".\n```\n",
+      "words": 110,
+      "wallMs": 9933,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "Delivers: the reports page offers an Export CSV button that downloads report data on demand, including table columns and a 404 response for unknown reports.\n\nPR comments:\n- GitHub has not reported this actor's merge state, so merge waits. (merge state not refreshed (no tool is available))\n\nBlockers:\n1. Callers can export another user's report because the handler does not check authorization. Add an ownership check and a cross-user authorization test before merge. (src/api/export.ts:14, test/api/export.test.ts)\n\nVerdict: fixable - 1 blocker\n\n1. wait - poll GitHub's merge state, then re-render\n2. review - post the blocker as a comment on your PR [recommended]\n3. show evidence - display CI evidence, claim dispositions, and drafted edits\n4. stop - leave the PR as-is\n\nType a number. Not offered: fix (no helper facility is available), merge (merge state unknown).\n",
+      "words": 130,
+      "wallMs": 16558,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "f2097ee1a9a5bf0812d207eb8d710314757324a2bee695a1551c3134b451a1aa",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "c41cda60674e26f0c4b989471120265af64337b71e8745ed18c2136ac8a924bc",
+      "baselineOutputSha": "f87a59efd200ec28da11591f5a6003b4f13498571bbdd8c2c68ff8642b5b301a",
+      "candidateOutputSha": "ca780bf2c82dca97060d24573daced4a16f836f08090fc349c5684060f3e9e66",
+      "facts": {
+        "f1": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "f2": {
+          "before": "holds",
+          "after": "fails",
+          "label": "regression"
+        },
+        "f3": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "f4": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "f5": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "The After wording keeps the Delivers line free of acceptance-criteria rows, keeps the reviewer's authorization finding as the single blocker, judges no AC row, and posts nothing without a pick, so f1, f3, f4, and f5 are unchanged. What moved is f2: Before grounded the blocker in the repository's review policy (\"The repo's review rules block any new handler without an authorization check\"), while After describes only the cross-user exposure and the missing test, so a reader of After cannot see that REVIEW.md's blocking rule is what makes the missing check a blocker rather than just the reviewer's judgment. This is a side effect of tightening the blocker prose, not of the elsewhere-disposition change, which this case never exercises (no spec at head, no elsewhere rows). To keep f2 while still delivering the Change, retain the policy attribution in the blocker sentence, e.g. \"Any caller can export another user's report, because the handler returns CSV for any existing report id without checking ownership; the repo's review rules block any new handler without an authorization check, and no test asserts that cross-user access is refused.\" The elsewhere-related edits to assessment.md and report.md should only alter how coverage rows with an elsewhere disposition appear in Delivers and should leave the findings.md blocker-rationale template, including the REVIEW.md citation, untouched.",
+      "verdict": "regressed",
+      "confirmation": {
+        "status": "ok",
+        "text": "```\nDelivers: the reports page exports report data as CSV on demand through a new handler and an Export CSV button, with the table columns in the response and a 404 for unknown reports.\n\nBlockers:\n1. The export handler returns any existing report to any caller without checking who owns it, so one user can download another user's report data. (src/api/export.ts:14, test/api/export.test.ts)\n\nVerdict: fixable - 1 blocker\n\n1. fix - apply the blocker in the worktree, review the wave, push          [recommended]\n2. review - post the blocker as a comment on your PR\n3. show evidence - gate output, CI run, drafted edit\n4. stop - leave the PR as-is\nType a number, or compose: \"fix 1\".\n```\n",
+        "words": 111,
+        "wallMs": 12766,
+        "mechanical": {},
+        "facts": {
+          "f1": {
+            "before": "holds",
+            "after": "holds",
+            "label": "held"
+          },
+          "f2": {
+            "before": "holds",
+            "after": "fails",
+            "label": "regression"
+          },
+          "f3": {
+            "before": "holds",
+            "after": "holds",
+            "label": "held"
+          },
+          "f4": {
+            "before": "holds",
+            "after": "holds",
+            "label": "held"
+          },
+          "f5": {
+            "before": "holds",
+            "after": "holds",
+            "label": "held"
+          }
+        },
+        "feedback": "After keeps the Delivers line on the PR's own intent, judges no AC rows, keeps the authorization blocker, and posts nothing, but it drops the sentence that tied the blocker to the repository's review policy (\"The repo's review rules block any new handler without an authorization check, and no test covers a cross-user request\"), so a reader of After sees the missing check as a reviewer finding only and cannot tell that REVIEW.md independently makes it blocking - f2 moves from holds to fails. This case has no elsewhere rows, so the Wave 1 edits should not have touched the blocker text at all; the regression likely comes from the findings.md/report.md rewording that trimmed the blocker rationale while adding elsewhere handling. Keep the policy attribution in every blocker that a REVIEW.md rule triggers (e.g. retain \"The repo's review rules block any new handler without an authorization check\" and the missing cross-user test note) and confine the new elsewhere wording to rows that actually carry an elsewhere disposition in coverage; that preserves f2 while still letting elsewhere-settled cases attribute rows to acme/mailer and offer merge."
+      }
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "f2097ee1a9a5bf0812d207eb8d710314757324a2bee695a1551c3134b451a1aa",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "c41cda60674e26f0c4b989471120265af64337b71e8745ed18c2136ac8a924bc",
+      "baselineOutputSha": "a387970ce817194d8fd1fac0eeb3f700565101ff298477e89a86c50180876ec6",
+      "candidateOutputSha": "c15b1315e3a723a481bab6485ad96c97198b199bb535bb4a2e54aee39ce077ff",
+      "facts": {
+        "f1": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "f2": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "f3": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "f4": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "f5": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "No fact moved in this case: After still renders Delivers from the PR's own body without naming any ticket AC rows (f1, f3), keeps the authorization gap as the single blocker with the reviewer finding intact (f2, f4), and ends on a numbered menu without posting anything (f5). The elsewhere-disposition wording from Wave 1 is correctly inert here because there is no spec at head and no elsewhere rows exist, so nothing was attributed to another repository. The only visible differences are cosmetic: a new 'wait - poll GitHub's merge state' option, the 'merge state not refreshed (no tool is available)' phrasing, and a slight rewording of the blocker sentence; all are compatible with every fact. One minor note for both outputs: the merge-state line is listed under 'PR comments', which reads oddly since it is a gate status rather than a comment on the PR—consider a label like 'Gate status' or 'Merge state' so a reader does not mistake it for a drafted or posted comment, which would protect f5 against a careless reading.",
+      "verdict": "unchanged"
+    }
+  },
+  "repoSha": "07c53575c996acf1c4e87209c4ef523dcf0b029e"
+}

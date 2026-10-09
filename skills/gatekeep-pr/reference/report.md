@@ -13,7 +13,7 @@ Delivers: <one sentence: what the PR does. With source: spec, a second sentence 
           order, each present only when it applies, joined with semicolons: covered rows ("ACs 1, 2, 4";
           "ACs 1-5" when every row is covered; "no ACs" when none; a row whose mechanism half is covered
           counts in the covered list and its observation half adds the trailing clause); deferred rows grouped by ref, in row
-          order ("3, 5 deferred per spec to <ref>"); deviating rows ("2 deviates per spec: <why>");
+          order ("3, 5 deferred per spec to <ref>"); deviating rows ("2 deviates per spec: <why>"); elsewhere rows grouped by repo ("6 elsewhere per spec: <repo>");
           observation halves ("4's observable half (<what>) is checked after merge, not here").>
 
 PR comments:             (replyable review comments, a pending reviewer run, a blocked or unknown merge state, a binding pending check, a failed refresh, or an incomplete source review - see the paragraph above)

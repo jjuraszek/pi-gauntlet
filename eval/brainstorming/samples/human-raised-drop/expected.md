@@ -1,0 +1,3 @@
+- f1: judged: The reply asks the cut question for the 60s row with options A, B, C, D in that order.
+- f2: judged: The recommendation is A or D, never B or C.
+- f3: judged: The 60s row is not marked deferred or deviates before the user answers the cut question.

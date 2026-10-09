@@ -1,0 +1,3 @@
+- f1: judged: The Acceptance Criteria section groups rows under a heading for acme/widgets and a heading for acme/mailer.
+- f2: judged: The emailing row sits under the acme/mailer group and the button and column rows under acme/widgets.
+- f3: mechanical: lacks "in staging"

@@ -1,0 +1,118 @@
+{
+  "sample": "explicit-unit-normalization",
+  "arm": "candidate",
+  "skillSha": "c88452a1a4d0e6d7331d498c44d55b40dcf95d02b5e07dc2da7959e8ead8bbef",
+  "inputSha": "d2e1670556d0c25dff219f4d02e13fd4cca550ed441ac2765ccec79897cd6b6e",
+  "kind": "text",
+  "assembly": "headed",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "## (1) First message\n\nBefore question one, here is what I checked against the primary files and what changed.\n\n**Corrected premise: unit conversion.** The ask treats unit conversion as a likely cause, but conversion cannot be the lever. `svc-b/alarm-parser.md:3` shows the source is already in temperature and time units. The real defects are elsewhere:\n\n- **Band-edge choice:** a pressure band with a scalar delay picks the inner edge (`svc-b/alarm-parser.md:1`). The delay belongs to the outer edge, which is the edge farther from nominal (`svc-b/band-guidance.md:1`).\n- **Invented rows:** a tolerance-window Alarm row is promoted into the alarm collection with zero delay (`svc-b/alarm-parser.md:2`). Those are the invented and duplicated points.\n\n**Corrected premise: scope of the repair.** A one-document repair is the wrong size. Both defects sit in shared, document-agnostic behavior with no template detector (`svc-b/band-guidance.md:3`). Fixing only one document would leave every other pressure-band and tolerance-window source broken.\n\n**Disproved premise: weak confidence already keeps rows out of live data.** Marking a row weak does not send it to review today.\n\n- In svc-b, weak confidence means never auto-accept (`svc-b/review-contract.md:1`).\n- In svc-a, materialization and prefill ignore weak confidence (`svc-a/alarm-consumer.md:1`).\n- So weak rows reach live data now.\n\n**Supported premises.**\n\n- The temperature near-nominal convention is verified, and it stays as it is (`svc-b/band-guidance.md:2`).\n- The point-or-linear representation is unchanged by the shared guidance (`svc-b/band-guidance.md:4`).\n\n**Unverified premise.** No endorsed numeric ground truth exists. `svc-a/alarm-consumer.md:4` says numeric closure waits for endorsed points and tolerance. I am proceeding on the provisional design reference without inventing expected values, and numeric verification goes to Open Questions.\n\n**Traces behind the framing judgment.** I followed the path the ask's constraints name: parser band-edge and promotion logic, then the shared band guidance, then the svc-b review contract's weak-confidence envelope, then svc-a materialization and prefill, then the live consumers' parked-row exclusion and acceptance unpark (`svc-a/alarm-consumer.md:2-3`). I also checked the scout's conversion hypothesis, and it yielded no alternative because units are already usable.\n\nThat gives a framing concern. The ask is misdiagnosed, because conversion is not the cause, and wrong-sized, because it targets one document while the defects are shared.\n\n**Framing question:** which framing should the design follow?\n\n- **A) As framed:** repair the one document's alarm points and investigate unit conversion.\n- **B) Pivot:** change the shared pressure guidance to use the outer edge while keeping temperature near-nominal. Replace tolerance-window promotion with sourced weak alarm-shaped proposals that preserve the original row and never synthesize a zero delay. Add the svc-a gate so weak rows materialize parked and stay out of live consumers. The reason: the defects live in `svc-b/alarm-parser.md:1-2`, and the live-data leak lives in `svc-a/alarm-consumer.md:1`.\n- **C) Smaller:** ship only the shared pressure-edge correction in svc-b. Promoted zero-delay rows and weak rows would keep reaching live data through svc-a.\n\n**Recommendation: B.** It fixes the root causes for every document. It also reuses the existing weak-confidence contract and the parked-row model rather than adding a document-specific exception.\n\n**Assumptions:** the representation stays point-or-linear with the existing two-endpoint contract, with no document-specific models and no sampled ramp points.\n\n---\n\n## (2) Approaches message\n\n**Framing outcome:** Framing pivoted to shared pressure outer-edge guidance plus sourced review proposals and the svc-a live-data gate. The defects are band-edge assignment and promotion, not conversion. This is recorded in the draft under `## Appended during questionary`.\n\n**Shared across all approaches.** None of this varies between the options below.\n\n- **Band edge:** a pressure band with a scalar delay takes the outer edge, farther from nominal. Temperature keeps its existing inner edge. This lives in shared guidance with no template detector.\n- **Tolerance windows:** promotion is removed. A non-coincident tolerance-window Alarm becomes a weak alarm-shaped proposal with its sourced magnitude and delay. The original tolerance-window row is preserved, no zero delay is synthesized, and all zero-delay alarm rows are forced weak (`svc-b/review-contract.md:2-4`).\n- **Representation:** point-or-linear with the existing two-endpoint contract.\n- **Conversion:** untouched.\n- **Tests:** assert structure only, meaning the edge chosen, the weak flag, no synthesized zero-delay rows, and live-consumer exclusion. Numeric closure stays open until endorsed points and tolerance exist.\n\n**Axis:** the approaches differ in where svc-a holds weak rows out of live data.\n\n**Candidates considered and rejected.**\n\n- **Reuse-only (not viable):** the existing weak-confidence envelope is already in place. But `svc-a/alarm-consumer.md:1` shows materialization and prefill ignore it, so reusing it without an svc-a change leaves weak rows live.\n- **Dropping an unsettled assumption (not viable):** the assumptions a drop could target are already settled by your answers. Those are svc-b-only work, promotion, a new flag, a representation change, and conversion. So no unsettled assumption is left to drop.\n\n**I recommend Approach 1: gate at materialization with parked rows.**\n\n- svc-a materialization and prefill start honoring weak confidence.\n- A weak magnitude or weak delay materializes as a parked row carrying its candidates.\n- Live consumers already exclude parked rows, and acceptance unparks them (`svc-a/alarm-consumer.md:2-3`).\n- The change is one write-time rule in the consumer's ingest path. The review state lives in the row svc-a already owns, so every live consumer is covered without each one learning about confidence.\n\nPattern: follows `svc-b/review-contract.md:1` (weak means never auto-accept) and completes the parked-row model already described in `svc-a/alarm-consumer.md:2-3`. It closes the gap at `svc-a/alarm-consumer.md:1` rather than working around it.\n\n**Approach 2: hold weak rows back at ingestion.**\n\n- svc-a does not materialize weak rows at all.\n- It parks them in a separate pending-proposal store.\n- Acceptance materializes them as live rows.\n\nLive data is clean by construction, and no consumer filter is needed. The cost is a second store beside the alarm collection, plus a second acceptance path that duplicates what unparking already does. Prefill would also have to read two places to show candidates.\n\nPattern: cuts across `svc-a/alarm-consumer.md:2-3` by adding parallel state beside the owning collection, a second review path next to the existing parked-row one.\n\n**Approach 3: gate at read time in live consumers.**\n\n- Weak rows materialize normally.\n- Each live consumer, and prefill, filters on weak confidence when reading.\n\nThis touches no ingest code. But the gate is repeated in every consumer, and a new consumer that forgets the filter leaks weak rows. Acceptance would also have to rewrite confidence instead of unparking, which blurs \"reviewed\" with \"confident.\"\n\nPattern: bypasses the parked-row layer for a per-caller check, `svc-a/alarm-consumer.md:3`. That is a band-aid over the shared contract that parking already expresses.\n\n**What would flip the recommendation.** If parked rows cannot carry an alarm-shaped linear two-endpoint proposal with its sourced magnitude and delay as candidates, Approach 2's separate store becomes the cleaner home. Approach 1 would then need its parked-row schema widened first.\n",
+      "words": 1066,
+      "wallMs": 55325,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "## 1. First message to the user\n\nThe draft’s claim that shared pressure guidance selects the inner edge needs correcting: `svc-b/band-guidance.md` already specifies the outer edge for pressure and the existing inner edge for temperature. The supplied parser description instead shows pressure selecting the inner edge, so the supported repair is to align parsing with the shared guidance—not introduce a new convention.\n\nTracing the supplied paths reveals two additional defects: tolerance-window rows become invented zero-delay alarms in `svc-b/alarm-parser.md`, contrary to the sourced, weak-proposal contract in `svc-b/review-contract.md`; those weak proposals can then reach live data because svc-a’s materialization and prefill currently ignore weak confidence (`svc-a/alarm-consumer.md`). The existing weak envelope and parked-row lifecycle therefore provide the intended review boundary, but ingestion must enforce it.\n\nThe source units are already temperature and time units, so conversion cannot resolve band-edge ownership. Conversion implementation correctness remains unverified, as do expected numeric results without endorsed points and tolerance. These findings come from the supplied fixture documents; no additional code or tracker lookup was performed under the no-tools constraint.\n\nWhich framing should govern the repair?\n\nA) **As framed:** constrain the repair to the reported document, preserving representation and investigating conversion.\n\nB) **Pivot: shared-contract alignment and review routing:** make pressure parsing follow the existing outer-edge guidance, replace tolerance-window promotion with sourced weak proposals, and enforce parking at svc-a ingestion. Preserve temperature behavior and point-or-linear representation.\n\nC) **Smaller:** prevent weak rows from entering live consumers now, leaving parser correction and proposal generation for separate work.\n\nRecommendation: B - the documented defects span parsing, proposal generation, and ingestion; the existing contracts already describe the intended behavior without document-specific exceptions.\n\n## 2. Approaches message\n\nI recommend **repairing the existing paths in place**, using the recorded decisions: shared pressure outer-edge behavior, unchanged temperature behavior, sourced review proposals rather than promotion, the existing weak-confidence envelope, and a svc-a ingestion gate. Numeric closure remains pending endorsed ground truth and tolerance; we should not invent expected values.\n\nThe approaches differ in **where the shared semantics are enforced**, not in representation or review policy.\n\n### Approach 1 — Reuse existing guidance, envelope, and ingestion lifecycle\n\nAlign pressure parsing with `svc-b/band-guidance.md`, while retaining temperature’s inner-edge behavior and the existing point-or-linear, two-endpoint contract. Replace tolerance-window promotion with the sourced weak proposal defined by `svc-b/review-contract.md`, preserving the original tolerance row and synthesizing no zero delay. Force every zero-delay alarm row weak.\n\nAt svc-a’s materialization and prefill boundary, park rows with weak magnitude or delay, retain candidates, and exclude parked rows from live consumers until acceptance unparks them. Check conversion separately without treating it as the band-edge fix.\n\nThis is the smallest change surface and introduces no new envelope, representation, or document detector. Its trade-off is that correctness still depends on coordinated enforcement across the existing parser and ingestion paths.\n\nPattern: follows the shared semantics and review contract in `svc-b/band-guidance.md` and `svc-b/review-contract.md`, while repairing the confidence bypass documented in `svc-a/alarm-consumer.md`.\n\n### Approach 2 — Introduce a shared normalization boundary\n\nConsolidate band-edge assignment and tolerance-to-proposal decisions behind one testable normalization boundary, retaining the existing output envelope and two-endpoint representation. Keep svc-a’s parking gate independently authoritative so normalization cannot accidentally authorize live ingestion.\n\nThis makes semantic decisions easier to exercise together and could prevent divergence among multiple parsing callers. It adds a construct and refactoring cost, however, and the supplied fixtures do not establish multiple callers that need it.\n\nPattern: centralizes ownership of the contracts in `svc-b/band-guidance.md` and `svc-b/review-contract.md`, while preserving the downstream safety boundary in `svc-a/alarm-consumer.md`; it should not become a parallel schema or review state.\n\nAn assumption-dropping option that changes representation is not viable under the recorded answer preserving point-or-linear and the two-endpoint contract. A svc-b-only repair is also insufficient: svc-a currently ignores weak confidence, so proposals would not reliably remain review-only.\n\nI would choose Approach 1 unless implementation tracing reveals multiple callers independently implementing these decisions; that evidence would favor Approach 2.\n",
+      "words": 636,
+      "wallMs": 35444,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "07b70022d7c01d322cd1365fe706cf86f7a241085edbcace8e3279ac089b4237",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "1a7b161e7aa0feab93e9509d4e882b4f25c2f4f8f5a8cd3d0b06d2f9a642974b",
+      "baselineOutputSha": "209f6400007722f1a2c409a2ab8ad7f0c511ef2ee1714b48f5e5f3ccd33b8474",
+      "candidateOutputSha": "c1618879a6a626e523340ca28e1efa9e10be01e96a4bbe230f97c527ede4c68c",
+      "facts": {
+        "framing": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "pivot": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "edges": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "routing": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "representation": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "verification": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "Nothing moved in this case: After keeps every fact Before kept. Both first messages challenge the one-document and conversion premises on the grounds of shared band-edge semantics and tolerance-window promotion; both approaches messages share the document-agnostic outer-edge pressure rule with temperature inner-edge preserved, sourced weak proposals in place of promotion, and the svc-a parked-row gate as the recommended route. After is actually stronger on representation and verification, naming no document-specific models, no template detector, no sampled ramp points, and structure-only tests until endorsed ground truth exists, where Before only implied these via 'unchanged' and 'no invented expected values'. One caution for the ticket-acceptance change: After's 'Candidates considered and rejected' block declares reuse-only 'not viable' and says no unsettled assumption remains, which reads as the author pruning options by judgment rather than by a user answer; if that block is kept, tie each rejection explicitly to a recorded answer (e.g., 'rejected because you answered No to svc-b-only work') so it cannot be read as an author-preference scope cut, and keep the svc-b/svc-a attribution of each row in the dispositions as After already does.",
+      "verdict": "unchanged"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "07b70022d7c01d322cd1365fe706cf86f7a241085edbcace8e3279ac089b4237",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "1a7b161e7aa0feab93e9509d4e882b4f25c2f4f8f5a8cd3d0b06d2f9a642974b",
+      "baselineOutputSha": "ae827f24fe3bd70fc023e613cd85c97ec680ebd07143e3a186c4ebe5d5789b15",
+      "candidateOutputSha": "bb7659c491ec25a302d6415382520c23539dfd9fa88d80b24e21905d558ba5cc",
+      "facts": {
+        "framing": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "pivot": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "edges": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "routing": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "representation": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "verification": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "No fact moved: After still rejects the one-document/conversion explanation, keeps pressure outer-edge with temperature inner-edge unchanged, replaces promotion with sourced weak proposals plus the svc-a parking gate, preserves point-or-linear and the two-endpoint contract, and defers numeric closure to endorsed points and tolerance. Three wording choices in After are riskier than Before and worth tightening: (1) Approach 2's 'shared normalization boundary' and Approach 1's 'check conversion separately' invite a reader to confuse the pivot with an explicit-unit normalization repair—name it a 'band-edge/proposal semantics boundary' and state plainly that conversion is a side check, not a repair lever; (2) After drops Before's explicit 'add neither template detection nor sampled ramp points' and only says 'no document detector', so restore the sampled-ramp-points exclusion; (3) After never states that the design reference is provisional and used as reference only—Before's 'treat the design reference as provisional and will not invent expected numeric values' should be carried over verbatim. None of this affects the ticket-acceptance change, which is orthogonal to these facts; keeping Before's explicit exclusion lists while adding the cut-question/attribution behavior would deliver the Change without loosening any fact.",
+      "verdict": "unchanged"
+    }
+  },
+  "repoSha": "305dad897254c15d77edb5163eba56f50fdac229"
+}

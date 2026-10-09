@@ -1,0 +1,34 @@
+{
+  "sample": "venue-production",
+  "arm": "baseline",
+  "skillSha": "00d6f904185f970a51ece51f2eb96480b76fbfad3204c67091e3db03a33ed6c2",
+  "inputSha": "484b14ce268ece8e7bdcb393c2931a74d7dbf5c686c9dbfd17a4ef8f8ba77417",
+  "kind": "text",
+  "assembly": "headed",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "verdict: needs-work\naddresses-problem: partial — the design delivers a CSV download with the right columns and header-only empty output, but it never scopes the export to the requesting user's widgets, and it defines no contract for the mailer handoff the ticket depends on.\nfindings:\n- [major] gap @ Design \"Read widgets in id order in batches of 1000\" — The problem is users downloading *their* widgets, but the spec names no authentication or ownership filter. As written, the endpoint could export every widget to any caller. → State that GET /widgets/export.csv requires an authenticated user and selects only widgets that user owns. Also state the unauthenticated response (401 or redirect). Add a request test that one user's export excludes another user's widgets. — probed: spec text - no auth or ownership clause present\n- [major] gap @ Design \"Mailer owns delivery of the export-ready email and download link; no mailer changes belong in widgets\" — The export is a synchronous GET, so the spec never says what makes an export \"ready\". It also never says what signal or event mailer reacts to, or which download URL mailer embeds. Mailer cannot build its row without a widgets-side contract. → Name the trigger widgets emits, or state that none exists and why. Name the stable link mailer uses, e.g. `/widgets/export.csv`. Do this without adding mailer code to widgets. — probed: spec text - no event, hook, or URL contract defined for mailer\n- [major] ambiguity @ Acceptance criteria \"Clicking Export downloads a CSV. - venue: prd - a human clicks Export on the live site\" — `venue: prd` is not a defined disposition. The Goal says this change delivers all four widgets rows, yet this row's acceptance is pushed to a manual post-deploy check. Meanwhile Verification already covers it with request and rendering tests. → Mark the row `in-scope` and cite the request test plus the collection-page rendering test as its verification. If a prd smoke check is also wanted, list it as an extra step, not as the row's disposition. — probed: spec text - Verification lists header and link tests that already cover this row\n- [minor] ambiguity @ Verification \"Run the 10000-widget benchmark for the 60s row when in-scope\" — The row is already marked in-scope, so \"when in-scope\" reads as optional. → Drop the conditional: \"Run the 10000-widget benchmark; it must finish within 60s.\" — probed: spec text - AC marks the 60s row in-scope\n- [minor] not-actionable @ Design \"The benchmark uses 10000 local widgets and measures from request start to the complete response\" — The spec does not say where the benchmark lives, what environment or data shape it uses (e.g. name length), or whether it gates CI. → Name the benchmark file or command, its fixture, and whether it runs in CI or is manual. — probed: none\nlean: nothing to cut\n",
+      "words": 445,
+      "wallMs": 18316,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "verdict: sound\naddresses-problem: yes — The design covers all four widgets acceptance criteria, specifies CSV download behavior and verification, and leaves notification delivery with acme/mailer as requested.\nfindings:\nlean: nothing to cut\n",
+      "words": 31,
+      "wallMs": 11995,
+      "mechanical": {}
+    }
+  },
+  "repoSha": "07c53575c996acf1c4e87209c4ef523dcf0b029e"
+}

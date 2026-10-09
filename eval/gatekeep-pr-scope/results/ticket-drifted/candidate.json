@@ -1,0 +1,158 @@
+{
+  "sample": "ticket-drifted",
+  "arm": "candidate",
+  "skillSha": "71c36ea627f1fc0d6de59f81e55376f9ab01c539dbc4ddf46bc4e50863440393",
+  "inputSha": "54e677bbad8bfb4335530cb8a4d5eb3980b635827aa560b3a6bc616650384765",
+  "kind": "text",
+  "assembly": "headed",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "```\nDelivers: the reports page exports every table column as CSV on demand, with bounded paging. ACs 1, 2, 4; 3, 5 deferred per spec to acme/widgets#46; 4's observable half (export completes under 5s on production data) is checked after merge, not here.\n\nNits:\n- The export pages results with its own loop instead of the shared paging helper, so a paging bug fixed once would need fixing twice. (src/api/export.ts:31, lib/page.ts)\n1 nit open - fix nits to take them\n\nVerdict: mergeable - CI green on the assessed head (test)\n\n1. merge - squash-merge the PR at the assessed head                       [recommended]\n2. fix nits - apply the nit payload in the worktree, review the wave, push\n3. show evidence - gate output, CI run, AC outcomes\n4. stop - leave the PR as-is\nType a number.\n```\n\n## Pick: show evidence\n\n`show evidence` is read-only, so no external write runs and no compare-and-swap is needed.\n\n```\nEvidence record:\n- source: ci. Check test concluded success on the assessed head (headRefOid as gathered); run URL unavailable in the fixture.\n- No local run fired; the CI-sufficient row applied.\n- reviewer workflow: unknown\n\nClaim dispositions:\n- \"adds tests for the CSV handler\" - matched (test/api/export.test.ts)\n\nAC outcomes (spec doc/specs/2026-09-30-csv-export.md, read at the assessed head):\n- AC1 The reports page offers an Export CSV button. - covered (src/ui/reports.tsx; Design 1)\n- AC2 The export includes every column shown in the table. - covered (src/api/export.ts; test/api/export.test.ts asserts header row and all table columns; Design 2)\n- AC3 Exports are emailed to the requesting user. - deferred per spec to acme/widgets#46\n- AC4 The export completes under 5s on production data. - mechanism covered (100-row page cap and 4s deadline, tested; Design 3); observable half not judged here\n- AC5 Export events appear in the audit log. - deferred per spec to acme/widgets#46\n- Design 4 (email and audit in acme/widgets#46) - matches the AC3 and AC5 deferrals\ncross-check: differs on row 2 - the spec governs here; /skill:check-delivery judges the ticket\n```\n\nSections with no content are omitted:\n- There are no check dispositions.\n- There are no drafted payloads. The nit payload is drafted only on a `fix nits` pick.\n- There are no drafted replies.\n\n### Re-entry\n\nThe head is unchanged, so the run re-enters step 5 through the pre-menu refresh. These reads are not writes:\n\n```bash\ngh pr view 210 -R acme/widgets --json headRefOid,state,mergeable,mergeStateStatus,reviewDecision,statusCheckRollup\ngh run list -R acme/widgets -c <headRefOid> --json databaseId,status,conclusion,workflowName,url\n```\n\nThe fixture gives no change: the same head, `OPEN`, `MERGEABLE`, `test` success, and no pending checks. The report renders unchanged:\n\n```\nDelivers: the reports page exports every table column as CSV on demand, with bounded paging. ACs 1, 2, 4; 3, 5 deferred per spec to acme/widgets#46; 4's observable half (export completes under 5s on production data) is checked after merge, not here.\n\nNits:\n- The export pages results with its own loop instead of the shared paging helper, so a paging bug fixed once would need fixing twice. (src/api/export.ts:31, lib/page.ts)\n1 nit open - fix nits to take them\n\nVerdict: mergeable - CI green on the assessed head (test)\n\n1. merge - squash-merge the PR at the assessed head                       [recommended]\n2. fix nits - apply the nit payload in the worktree, review the wave, push\n3. show evidence - gate output, CI run, AC outcomes\n4. stop - leave the PR as-is\nType a number.\n```\n\nNo reply was named, so the gate waits for the next pick.\n",
+      "words": 538,
+      "wallMs": 34182,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "Delivers: the reports page exports all table columns as CSV on demand with bounded paging. ACs 1, 2, 4; 3, 5 deferred per spec to acme/widgets#46; 4's observable half (export completes under 5s on production data) is checked after merge, not here.\n\nPR comments:\n- GitHub has not reported this actor's merge state, so merge waits. (merge state not refreshed (no tool available))\n\nNits:\n- The export pages results with its own loop instead of the shared paging helper, so a paging bug fixed once would need fixing twice. (src/api/export.ts:31, lib/page.ts)\n1 nit open - fix nits to take them\n\nVerdict: fixable - merge state unknown\n\n1. wait - refresh the merge state, then re-render [recommended]\n2. fix nits - apply the nit payload in the worktree, review the wave, push\n3. show evidence - print the evidence record, claim and AC outcomes\n4. stop - leave the PR as-is\nType a number. Not offered: merge (merge state unknown).\n\n## Show evidence\n\n### Verification evidence\n- Source: CI.\n- Check: test; conclusion: success.\n- Assessed SHA: unavailable in the fixture.\n- Run URL: unavailable.\n- No local verification command ran.\n- The pre-menu refresh could not run because no tool is available. The fixture does not supply `mergeStateStatus`, so merge availability fails closed.\n\n### Claim dispositions\n- \"adds tests for the CSV handler\": matched by the handler tests.\n\n### AC outcomes\n- AC1: covered by the Export CSV button and its download behavior.\n- AC2: covered by serialization of all table columns and the column assertions.\n- AC3: deferred per spec to acme/widgets#46.\n- AC4: the paging-bound mechanism is covered by the 100-row cap, 4s deadline, and tests. Completion under 5s on production data is checked after merge, not here.\n- AC5: deferred per spec to acme/widgets#46.\n\nCross-check: differs on row 2 - the spec governs here; /skill:check-delivery judges the ticket. The spec's Design section separately requires table order.\n\n### Check dispositions\n- No failing check requires a disposition.\n\n### Drafted payloads and replies\n- No blocker payloads or replies exist. The nit payload is drafted only on a `fix nits` pick.\n\nVerdict: fixable - merge state unknown\n\n1. wait - refresh the merge state, then re-render [recommended]\n2. fix nits - apply the nit payload in the worktree, review the wave, push\n3. show evidence - print the evidence record, claim and AC outcomes\n4. stop - leave the PR as-is\nType a number. Not offered: merge (merge state unknown).\n",
+      "words": 377,
+      "wallMs": 28137,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "7a0aca48b29bed81b4461d0bd9ce6561d4d594574df4f74a59e070b8d38ab7d9",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "c41cda60674e26f0c4b989471120265af64337b71e8745ed18c2136ac8a924bc",
+      "baselineOutputSha": "f9ee4709655c8e9abd34b21fea507de406eb9fd84a43364181cf54b8bcbaf093",
+      "candidateOutputSha": "3b08d249427a8d4130bedeb8a94bd314281dbf16110d4913a7616d766a031b41",
+      "facts": {
+        "f1": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "f2": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "f3": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "f4": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "f5": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "f6": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "Nothing moved on this case: After keeps every fact Before kept. Both outputs print the cross-check line \"differs on row 2 - the spec governs here; /skill:check-delivery judges the ticket\" under show evidence, neither treats the ticket divergence as a blocker, both menus offer merge as recommended, both confine AC judgment to the spec's rows and hand the ticket to check-delivery, and both state that show evidence is read-only with no GitHub write. The Wave 1 elsewhere/attribution wording did not disturb the deferred-per-spec handling here (ACs 3 and 5 still read \"deferred per spec to acme/widgets#46\" in Delivers and in the AC outcomes). The only drift worth noting is cosmetic: After adds a \"reviewer workflow: unknown\" line and a second verbatim re-render of the full report block rather than just the verdict and menu; neither affects a fact, but if you want the re-entry section to stay tight, re-render only the Verdict line and menu as Before did, and drop the reviewer-workflow line when the fixture supplies no such field.",
+      "verdict": "unchanged"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "7a0aca48b29bed81b4461d0bd9ce6561d4d594574df4f74a59e070b8d38ab7d9",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "c41cda60674e26f0c4b989471120265af64337b71e8745ed18c2136ac8a924bc",
+      "baselineOutputSha": "0e9a802efd3274ea1511e60500dc31b573a63a09bc45a5c0d27c2ce837a5c31b",
+      "candidateOutputSha": "04313c90a139effab9b536c21343e0f26e718ce6f122ee9cb06339a7db5e33df",
+      "facts": {
+        "f1": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "f2": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "f3": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "f4": {
+          "before": "fails",
+          "after": "fails",
+          "label": "pre-existing"
+        },
+        "f5": {
+          "before": "holds",
+          "after": "fails",
+          "label": "regression"
+        },
+        "f6": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "The After output keeps the cross-check line, the clean deferral of ACs 3 and 5, the withheld merge (merge state unknown in both, so f4 fails identically), and posts nothing without a pick, but it appends \"The spec's Design section separately requires table order\" to the cross-check line. That sentence reaches into the ticket's extra row-2 clause (\"in table order\") and adjudicates it against the spec's Design, which is exactly the judging-beyond-the-spec's-rows that Before avoided by stopping at \"the spec governs here; /skill:check-delivery judges the ticket.\" The elsewhere-disposition wording did not need this: keep the cross-check line to the fixed form (row differs, spec governs, check-delivery judges the ticket) and let any Design-section coverage note live only in the AC2 outcome line if you want it at all; that preserves f5 while still delivering the elsewhere attribution changes in Delivers and AC outcomes. The other After edits (expanded evidence record, check dispositions, drafted payloads section, menu label rewording) are neutral to every fact.",
+      "verdict": "inconclusive",
+      "confirmation": {
+        "status": "ok",
+        "text": "Delivers: the reports page exports all table columns as CSV on demand with bounded paging. ACs 1, 2, 4; 3, 5 deferred per spec to acme/widgets#46; 4's observable half (export completes under 5s on production data) is checked after merge, not here.\n\nPR comments:\n- GitHub has not reported this actor's merge state, so merge waits. (merge state not refreshed (no tool available))\n\nNits:\n- The export pages results with its own loop instead of the shared paging helper, so a paging bug fixed once would need fixing twice. (src/api/export.ts:31, lib/page.ts)\n\nVerdict: fixable - merge state unknown\n\n1. wait - poll the merge state, then re-render [recommended]\n2. show evidence - show CI evidence, claim dispositions, and AC outcomes\n3. stop - leave the PR as-is\n\nType a number. Not offered: fix nits (no helper facility), merge (merge state unknown).\n\n## Show evidence\n\n### Verification evidence\n- Source: CI.\n- Check: test.\n- Conclusion: success.\n- Head: the assessed head; its SHA was not supplied.\n- Run URL: unavailable.\n- No local verification command ran.\n- The pre-menu refresh could not run because no tool is available. The merge state is unreadable.\n\n### Claim dispositions\n- \"adds tests for the CSV handler\": matched.\n\n### AC outcomes\n1. The reports page offers an Export CSV button. Covered.\n2. The export includes every column shown in the table. Covered.\n3. Exports are emailed to the requesting user. Deferred per spec to acme/widgets#46.\n4. The export completes under 5s on production data. The paging-bound mechanism is covered; the production observation is checked after merge, not here.\n5. Export events appear in the audit log. Deferred per spec to acme/widgets#46.\n\ncross-check: differs on row 2 - the spec governs here; /skill:check-delivery judges the ticket\n\nNo check dispositions or drafted payloads were supplied. The nit payload is drafted only on a fix nits pick. There are no drafted replies.\n\n## Report and menu\n\nDelivers: the reports page exports all table columns as CSV on demand with bounded paging. ACs 1, 2, 4; 3, 5 deferred per spec to acme/widgets#46; 4's observable half (export completes under 5s on production data) is checked after merge, not here.\n\nPR comments:\n- GitHub has not reported this actor's merge state, so merge waits. (merge state not refreshed (no tool available))\n\nNits:\n- The export pages results with its own loop instead of the shared paging helper, so a paging bug fixed once would need fixing twice. (src/api/export.ts:31, lib/page.ts)\n\nVerdict: fixable - merge state unknown\n\n1. wait - poll the merge state, then re-render [recommended]\n2. show evidence - show CI evidence, claim dispositions, and AC outcomes\n3. stop - leave the PR as-is\n\nType a number. Not offered: fix nits (no helper facility), merge (merge state unknown).\n",
+        "words": 432,
+        "wallMs": 32948,
+        "mechanical": {},
+        "facts": {
+          "f1": {
+            "before": "holds",
+            "after": "holds",
+            "label": "held"
+          },
+          "f2": {
+            "before": "holds",
+            "after": "holds",
+            "label": "held"
+          },
+          "f3": {
+            "before": "holds",
+            "after": "holds",
+            "label": "held"
+          },
+          "f4": {
+            "before": "fails",
+            "after": "fails",
+            "label": "pre-existing"
+          },
+          "f5": {
+            "before": "holds",
+            "after": "holds",
+            "label": "held"
+          },
+          "f6": {
+            "before": "holds",
+            "after": "holds",
+            "label": "held"
+          }
+        },
+        "feedback": "Nothing moved between Before and After on this case: both print the same Delivers line with ACs 3 and 5 deferred per spec, both emit the cross-check line (\"differs on row 2 - the spec governs here; /skill:check-delivery judges the ticket\") under show evidence, neither posts a comment, and neither judges ticket rows beyond the spec. The one fact failing in both, f4, fails for the same reason in each: the report treats the missing pre-menu merge-state refresh as a reason to withhold merge (\"merge state unknown\"), so the gate is never clean regardless of the elsewhere/deferred handling. If the author expects merge to be offered when the fixture already states mergeable MERGEABLE, the wording in post-selection-loop.md or report.md should let a supplied mergeable value stand in when no refresh tool is available (e.g. \"if no refresh tool exists, use the mergeability given in the input and note it was not re-polled\"), rather than converting an unrunnable refresh into a withheld merge. Separately, After dropped the \"fix nits\" option (\"no helper facility\") and the \"1 nit open\" count; that is unrelated to the Change and removes a path Before offered, so consider restoring the fix nits pick when a worktree is available."
+      }
+    }
+  },
+  "repoSha": "07c53575c996acf1c4e87209c4ef523dcf0b029e"
+}

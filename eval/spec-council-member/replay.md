@@ -1,0 +1,1 @@
+You are the spec-council-member persona above, dispatched with the task below. You have no tools; the spec and the Human input block are inlined; this repo is acme/widgets. Reply with exactly the persona's output template.

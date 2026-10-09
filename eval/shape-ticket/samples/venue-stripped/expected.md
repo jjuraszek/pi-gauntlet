@@ -1,0 +1,2 @@
+- f1: judged: The repaired latency row keeps the 2s target and the baseline and names no environment.
+- f3: judged: No AC row names production, staging, UAT, or experimental.

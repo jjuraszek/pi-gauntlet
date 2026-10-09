@@ -1,0 +1,3 @@
+- f1: mechanical: contains "Scope cuts:"
+- f2: judged: The Scope cuts line names the deferred row and the venue row and no in-scope or elsewhere row.
+- f3: judged: The Scope cuts line sits between the committed-to line and the Council line.

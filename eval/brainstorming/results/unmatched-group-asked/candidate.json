@@ -1,0 +1,78 @@
+{
+  "sample": "unmatched-group-asked",
+  "arm": "candidate",
+  "skillSha": "c88452a1a4d0e6d7331d498c44d55b40dcf95d02b5e07dc2da7959e8ead8bbef",
+  "inputSha": "176aedf5a16737b946dffa2ff5427d4a29be1acbf20ae591a43ceb0a655bb3d0",
+  "kind": "text",
+  "assembly": "headed",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "## (1) First message\n\nI have not re-read primary code in this pass. Everything below rests on the gather draft's recon and is flagged unverified where it is load-bearing.\n\nThe framing holds: I checked the draft's report of the reports page (a table with no export action), the table column definitions, the CSV serializer at `src/export/csv.ts` (which already reuses those column definitions), and the paging path the draft says meets the 10k-row target. None of these suggests the ask is misdiagnosed, already solved, or cutting across a sound pattern. The work is mostly wiring an existing serializer to a new action.\n\nI'm making one assumption so we don't ask a yes/no question: the export covers every row of the report, not just the current page. The table is paged, and the 10k-row criterion only makes sense for a full-report export.\n\nWhere should the Export CSV button appear?\nA) Beside the report title, as a page-level action.\nB) In the table's own toolbar or header, next to the paging controls.\nC) Other - name it.\n\nRecommendation: A. The export spans the whole report. A button next to the paging controls reads as \"export this page,\" which contradicts the full-report assumption.\n\n---\n\n## (2) Approaches message\n\n**Premises.** All of the draft's claims are unverified in this pass, because I read no primary code. I'm carrying them as stated assumptions, not facts:\n\n* The reports page has no export action today.\n* `src/export/csv.ts` serializes rows using the table's column definitions.\n* The existing paging path can deliver 10k rows fast enough for the under-60s criterion.\n\nThe third claim is the most load-bearing. Nothing in the draft cites a measurement, so it goes to Open Questions, to be settled by a timed 10k-row test.\n\n**Your answers, recorded:**\n\n* The button sits beside the report title.\n* \"Every column shown in the table\" means the visible table columns, in table order. I'm adding that reading as a Design clause. Row 2 stays `in-scope` with its text unchanged.\n\n**One question is still open.** The ticket's `phase 2` group (\"Exports are emailed to the requesting user.\") matches no repo; this repo is `acme/widgets`. I put the group question to you separately:\n\n> A) this repo\n> B) elsewhere: <name>\n> C) repair the ticket - /skill:shape-ticket acme/widgets#77\n\nI have no recorded answer to it, so I won't guess attribution. Rows 1-3 are `in-scope`, and the phase 2 row's disposition waits on your reply. The approaches below are framed so that reply flips the recommendation cleanly.\n\n**What separates the approaches** is where the CSV is assembled and how it reaches the user: client-side over existing endpoints, a server-side streamed download, or an asynchronous job that delivers later.\n\n**I recommend the first approach: client-side assembly over the existing paging API.**\n\nThe button walks the report's pages through the paging path the table already uses. It feeds the accumulated rows to `src/export/csv.ts` with the visible column definitions in table order, then triggers a browser download. This is the minimal reuse-only option. It adds the button and a short loop, with no new endpoint, no new serializer, and no new column list.\n\nThe risk is the 60s budget. Ten thousand rows means many sequential page fetches plus in-browser serialization. A timed test against a 10k-row fixture would prove or kill the approach early.\n\nPattern: follows the existing reuse of table column definitions by the serializer (`src/export/csv.ts`). It adds no second column source and no new boundary.\n\n**The second approach is a server-side streaming endpoint.**\n\nA new export route runs the same report query in pages server-side and streams each chunk through `src/export/csv.ts` into a CSV response. The button is a plain download link.\n\nThis is the safer bet for the 60s target. It avoids per-page round trips from the browser and keeps memory flat. The cost is a new endpoint, and the server needs the visible-column order, which today lives with the table. Passing column keys from the client, or sharing the definition module, keeps one source of truth.\n\nPattern: reuses `src/export/csv.ts` and the column definitions, provided the endpoint imports the shared definitions rather than redeclaring columns. Duplicating them server-side would be a second column source beside the owning one, and I would not do that.\n\n**The third approach is an asynchronous export job that emails the result.**\n\nIt drops an assumption the ask makes: that the button returns a file directly. The button enqueues a job, the job builds the CSV server-side as in the second approach, and the file is emailed to the requester.\n\nThis only earns its complexity if the phase 2 row lands in this repo. In that case it satisfies all four rows, and it sidesteps the 60s question for the email path, though row 3 still measures the export itself. If phase 2 is elsewhere or repaired off the ticket, this approach is speculative scope (YAGNI), and I would not build it now.\n\nPattern: reuses `src/export/csv.ts`. It introduces a queue and a mail dependency that the draft does not show exist in this repo. Whether a job runner already exists is unverified and goes to Open Questions.\n\n**What would flip the recommendation:**\n\n* If you answer the phase 2 question with **A) this repo**, I switch to the third approach.\n* If the timed 10k-row test of the first approach exceeds 60s, or `src/export/csv.ts` turns out to be server-only, I switch to the second approach.\n",
+      "words": 885,
+      "wallMs": 42656,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "## 1. First message to the user\n\nThe ticket identifies `acme/widgets` as this repo, but its `phase 2` acceptance-criteria group has no established repo owner. The draft’s claims about column reuse, CSV serialization, and 10k-row performance remain unverified: no primary code was supplied, and this exercise prohibits tools, so I cannot trace the reports-page callers, column-selection path, serializer consumers, or paging-to-export data flow. In particular, paging support alone does not establish that a complete export finishes within 60 seconds.\n\nI’ll carry forward the recorded decisions: place the button beside the report title and export the visible table columns in table order. The email acceptance criterion remains unresolved—not automatically out of scope.\n\nWhich repo owns the `phase 2` row, “Exports are emailed to the requesting user”?\n\nA) this repo — `acme/widgets` must deliver email exports as part of this implementation.  \nB) elsewhere: `<name>` — identify the repo responsible for delivering that row.  \nC) repair the ticket — `/skill:shape-ticket acme/widgets#77` to replace the ambiguous group with its actual repo owner.\n\nRecommendation: C - the heading does not identify ownership, and repairing it avoids silently assigning or dropping an acceptance criterion.\n\n## 2. Approaches message\n\n**I provisionally recommend reusing the table’s column contract and existing CSV serializer.** The following are conditional approaches, not a finalized scope decision: the recorded answers settle button placement and column selection, but do not answer the ownership question above.\n\nThe distinguishing axis is **where the complete report is fetched and serialized**.\n\n### 1. Reuse the existing report-loading and CSV paths\n\nPlace the button beside the report title, capture the visible columns in their current order, retrieve every report row through the existing loading path, and pass the rows and selected columns to the existing serializer. Avoid a new export service or parallel column schema.\n\nThis is the minimal reuse-only candidate. It minimizes new boundaries, but may require holding the full report in browser memory and could contend with UI responsiveness. Verify complete-row retrieval and benchmark the actual 10k-row export rather than treating paging as proof of performance.\n\nPattern: follows the shared-column reuse described in the gather draft at `src/export/csv.ts`; that relationship and its callers still require primary-code verification.\n\n### 2. Stream the export from the server\n\nKeep the same button and visible-column semantics, but send ordered column identifiers and report filters to a server-side export path. Stream the resulting CSV while preserving the table’s authoritative column definitions and applying the existing report authorization rules.\n\nThis drops the unproven assumption that browser-side paging is the right export mechanism. It can reduce browser memory pressure, but adds an API boundary and requires a verified server-side representation of the table’s column contract. If email belongs to this repo, server-side generation may also serve that delivery path; it does not establish that an email implementation already exists.\n\nPattern: preserves the shared column contract claimed for `src/export/csv.ts` rather than introducing a competing export schema; server-side reuse is unverified.\n\nI would switch to the server-streamed approach if code inspection or a representative benchmark shows that the reuse-only path cannot retrieve the complete report and finish within 60 seconds, or if confirmed email ownership makes server-side generation the appropriate shared boundary. Neither approach is complete for ticket #77 until the `phase 2` row has an owner.\n",
+      "words": 533,
+      "wallMs": 30815,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "17e4c6480ca869cfd4fc391793b5e2d97bf55671eea3066f550762e8e968d37a",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "1a7b161e7aa0feab93e9509d4e882b4f25c2f4f8f5a8cd3d0b06d2f9a642974b",
+      "baselineOutputSha": "51b555c8705152ab6e53fed47fa8cd3c7d3b06b25baccbcc490a382fd3a5c083",
+      "candidateOutputSha": "5a37f712d4ab6c938869783abd566fc06cefac601af32b842860b0ef7ce76649",
+      "facts": {
+        "f1": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "f2": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        }
+      },
+      "feedback": "After delivers the attribution question (A) this repo / B) elsewhere / C) repair the ticket with the shape-ticket invocation), which Before never asked because it reclassified `phase 2` as a section heading and defaulted the row to in-scope — Before did that openly rather than silently, so f2 holds there on the text, but it still skipped the question. Two wording weaknesses in After: the question only surfaces in the approaches message, prefaced by \"I put the group question to you separately,\" while the first message never mentions `phase 2` at all and spends its one question on button placement — so the unmatched group is neither assigned nor asked about in message (1), which reads as silent omission. And option B reads \"elsewhere: <name>\" rather than naming the group it is assigning (\"elsewhere: phase 2 → <repo>\"), so the reader cannot see which group the question is about from the options alone. To keep every fact and still deliver the Change, put the attribution question in the first message (it outranks button placement, which already has a recorded answer in this case), name the group in the question stem and in option B, and keep the explicit statement that the row's disposition waits on the answer rather than defaulting.",
+      "verdict": "improved"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "17e4c6480ca869cfd4fc391793b5e2d97bf55671eea3066f550762e8e968d37a",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "1a7b161e7aa0feab93e9509d4e882b4f25c2f4f8f5a8cd3d0b06d2f9a642974b",
+      "baselineOutputSha": "6e6793840e35994375a9f15b5df9b80e141387c7ab4cc3b838667066fb8e45ae",
+      "candidateOutputSha": "3da79fd2d8636a615f419c30e11af478b2b532cdf3e17ae089be7575c78e3b48",
+      "facts": {
+        "f1": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "f2": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        }
+      },
+      "feedback": "Before never asked an attribution question at all; its first message asked only about button placement (A beside title / B toolbar / C other) and silently kept the email row in scope for acme/widgets, so both facts failed there. After delivers the Change: the first message explicitly states the email criterion is unresolved rather than out of scope, and asks the three-way ownership question with A) this repo, B) elsewhere, C) repair the ticket (naming `/skill:shape-ticket acme/widgets#77`), recommending C. One wording nit: f1 is phrased as 'B) elsewhere: phase 2', while After renders B as 'elsewhere: `<name>`'; I counted it as holding because the question is unmistakably about the `phase 2` row, but if the intended format is to label option B with the unmatched group heading itself (e.g. 'B) elsewhere: phase 2 — name the repo that owns this group'), make the attribution-question template emit the group heading in option B rather than a bare `<name>` placeholder so the fact matches literally.",
+      "verdict": "improved"
+    }
+  },
+  "repoSha": "305dad897254c15d77edb5163eba56f50fdac229"
+}

@@ -1,0 +1,158 @@
+{
+  "sample": "deferred-with-ref",
+  "arm": "candidate",
+  "skillSha": "71c36ea627f1fc0d6de59f81e55376f9ab01c539dbc4ddf46bc4e50863440393",
+  "inputSha": "f251852cda4ed6e92c290b44c2ad630cdbd226babbfc96eb19601787cac47f80",
+  "kind": "text",
+  "assembly": "headed",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "Delivers: the reports page exports CSV on demand. ACs 1, 2, 4; 3, 5 deferred per spec to acme/widgets#46; 4's observable half (export completes under 5s on production data) is checked after merge, not here.\n\nNits:\n- The export pages results with its own loop instead of the shared paging helper, so a paging bug fixed in one place would need fixing in both. (src/api/export.ts:31, lib/page.ts)\n1 nit open - fix nits to take them\n\nVerdict: mergeable - CI green on the assessed head (test)\n\n1. merge - squash onto the base branch                                    [recommended]\n2. fix nits - apply the nit payload in the worktree, review the wave, push\n3. show evidence - gate output, CI run, claim and AC outcomes\n4. stop - leave the PR as-is\nType a number.\n",
+      "words": 124,
+      "wallMs": 16500,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "Delivers: the reports page exports every table column as CSV on demand with bounded paging. ACs 1, 2, 4; 3, 5 deferred per spec to acme/widgets#46; 4's observable half (export completes under 5s on production data) is checked after merge, not here.\n\nNits:\n- The export pages results with its own loop instead of the shared paging helper, so a paging bug fixed once would need fixing twice. (src/api/export.ts:31, lib/page.ts)\n1 nit open - fix nits to take them\n\nVerdict: mergeable - CI green on the assessed head (test)\n\n1. merge - squash into the PR's base branch [recommended]\n2. fix nits - apply the nit payload in the worktree, review the wave, push\n3. show evidence - show CI evidence, claim and AC outcomes, and drafted payloads\n4. stop - leave the PR as-is\n\nType a number.\n",
+      "words": 131,
+      "wallMs": 12168,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "15a08ef7829e9e5394005bbe9d5cafc1038022051c5c0c5278153ee835469e39",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "c41cda60674e26f0c4b989471120265af64337b71e8745ed18c2136ac8a924bc",
+      "baselineOutputSha": "7af66fceedd0050b1ed02be0215e48928232be336577402f62ce90ae646e644f",
+      "candidateOutputSha": "14ab659e3bcdc030cbd3125e01f198aff153c59d46ab1596e2d57dd474b19522",
+      "facts": {
+        "f1": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "f2": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "f3": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "f4": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "f5": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "f6": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "Nothing moved on this case: both outputs carry the identical Delivers line (ACs 1, 2, 4 covered; 3, 5 deferred per spec to acme/widgets#46), a mergeable verdict with no blockers, the paging issue confined to the Nits list, a merge option at position 1, and no posted comment before a pick. The After differences are cosmetic — the nit's consequence rephrased ('fixed in one place would need fixing in both'), the merge item described as 'squash onto the base branch' instead of 'squash-merge the PR at the assessed head', and 'claim and AC outcomes' added to show evidence — none of which touch the facts. This case has only deferred rows, not elsewhere rows, so the Change's elsewhere-attribution behavior is not exercised here; the expected-to-move entries reference a different case (elsewhere-settled, acme/mailer). One small note: the After merge label drops 'at the assessed head', which weakens the tie between the merge action and the verified head; keeping that phrase would preserve the precision of Before while still accommodating the Change.",
+      "verdict": "unchanged"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "15a08ef7829e9e5394005bbe9d5cafc1038022051c5c0c5278153ee835469e39",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "c41cda60674e26f0c4b989471120265af64337b71e8745ed18c2136ac8a924bc",
+      "baselineOutputSha": "9701250f7a52dfba3a7a51fadd674bad87483a3d18c2677cfb5efd898d24ac0c",
+      "candidateOutputSha": "7394a69bdd64914e5eb077be28a43fb6f9c96fcaa049f7edf4788889dcdabe51",
+      "facts": {
+        "f1": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "f2": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unexplained change"
+        },
+        "f3": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unexplained change"
+        },
+        "f4": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "f5": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "f6": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "After delivers the Change without regressing anything: the Delivers line is byte-identical to Before (rows 1, 2, 4 covered; 3, 5 deferred per spec to acme/widgets#46), the paging nit stays under Nits and does not block, and nothing is posted without a pick. What moved is the gate: Before invented a blocker ('merge state not refreshed (no tool available)') even though the case supplies mergeable MERGEABLE, and then withheld merge from the menu; After reads the supplied merge state, lists zero blockers, and recommends merge. One wording note: the Expected-to-move text says Delivers should attribute rows 3 and 5 to acme/mailer, but both the spec and the outputs cite acme/widgets#46, so the fact as written (f1) is what should govern - keep the repository attribution exactly as the spec's deferred annotation states rather than inventing a different repo.",
+      "verdict": "inconclusive",
+      "confirmation": {
+        "status": "ok",
+        "text": "Delivers: the reports page exports every table column as CSV on demand with bounded paging. ACs 1, 2, 4; 3, 5 deferred per spec to acme/widgets#46; 4's observable half (export completes under 5s on production data) is checked after merge, not here.\n\nPR comments:\n- GitHub has not reported this actor's merge state, so merge waits. (merge state not refreshed (no tool available))\n\nNits:\n- The export pages results with its own loop instead of the shared paging helper, so a paging bug fixed once would need fixing twice. (src/api/export.ts:31, lib/page.ts)\n\nVerdict: fixable - merge state unknown\n\n1. wait - poll the merge state, then re-render [recommended]\n2. show evidence - show CI evidence, claim and AC outcomes\n3. stop - leave the PR as-is\n\nType a number. Not offered: merge (merge state unknown), fix nits (no helper facility available).\n",
+        "words": 134,
+        "wallMs": 15372,
+        "mechanical": {},
+        "facts": {
+          "f1": {
+            "before": "holds",
+            "after": "holds",
+            "label": "held"
+          },
+          "f2": {
+            "before": "fails",
+            "after": "fails",
+            "label": "pre-existing"
+          },
+          "f3": {
+            "before": "fails",
+            "after": "fails",
+            "label": "pre-existing"
+          },
+          "f4": {
+            "before": "holds",
+            "after": "holds",
+            "label": "held"
+          },
+          "f5": {
+            "before": "holds",
+            "after": "holds",
+            "label": "held"
+          },
+          "f6": {
+            "before": "holds",
+            "after": "holds",
+            "label": "held"
+          }
+        },
+        "feedback": "After is textually identical to Before except for trivial menu rewording (\"show CI evidence, claim and AC outcomes\", reordered \"Not offered\"), so nothing moved: the Delivers line already attributed rows 3 and 5 as deferred per spec to acme/widgets#46 in both, and in both the gate still carries a blocker (\"GitHub has not reported this actor's merge state, so merge waits\" / \"Verdict: fixable - merge state unknown\") and withholds merge. The elsewhere-disposition edits are not what keeps f2 and f3 failing here; the blocker is the merge-state check, which ignores the case input `mergeable MERGEABLE` and insists on a refresh via an unavailable tool. To deliver the Change on this case, the assessment wording should let a mergeable state already present in the PR context satisfy the merge-state check (e.g. \"use the merge state supplied with the PR; only poll when none is supplied\"), so that with deferred rows attributed per spec and no other findings the gate lists zero blockers, the verdict becomes clean, and the menu offers merge while the paging nit remains a non-blocking nit and no comment is posted without a pick."
+      }
+    }
+  },
+  "repoSha": "07c53575c996acf1c4e87209c4ef523dcf0b029e"
+}

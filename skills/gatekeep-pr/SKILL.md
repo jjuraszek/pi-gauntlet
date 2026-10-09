@@ -50,7 +50,7 @@ These bind every rendered report, menu, and external payload (review bodies, rep
 4. No category tags, severity words, or IDs in prose - the section heading is the severity, the list number is the ID.
 5. Report only non-conformance; passing checks, per-row AC outcomes, and matched claims print only under `show evidence`; `Delivers` names the covered and settled rows.
 6. Omit empty sections.
-7. `Delivers` is always present and names which spec rows this PR covers, which it defers or deviates per spec, and which observable half is checked after merge.
+7. `Delivers` is always present and names which spec rows this PR covers, which are `deferred per spec`, `deviates per spec`, or `elsewhere per spec`, and which observable half is checked after merge.
 8. The verdict is one line in the fixed form.
 9. Menu rows start with a verb a human types, carry one clause of consequence, and exactly one row is `[recommended]`; compose grammar lives in the hint line only.
 10. ASCII only, American English, no hedges on checked facts, no intensifiers.

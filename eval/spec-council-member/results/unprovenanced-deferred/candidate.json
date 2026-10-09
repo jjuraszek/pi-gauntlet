@@ -1,0 +1,78 @@
+{
+  "sample": "unprovenanced-deferred",
+  "arm": "candidate",
+  "skillSha": "618507101d28e17db84cf910af614e719333bfb19f58fef166b6389e801a6e46",
+  "inputSha": "a60d261ef8ad0233723cb1cdb61a156355c8f830cfe0441139500cce8d1b7c26",
+  "kind": "text",
+  "assembly": "headed",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "verdict: needs-work\naddresses-problem: partial — the spec covers download, column order, and the empty-collection header, and correctly routes the email to mailer. But it defers the ticket's 10000-widgets-in-60s row with no human answer approving that cut, so not every acme/widgets ticket row is delivered.\nfindings:\n- [blocker] scope @ \"An export of 10000 widgets completes within 60s. - deferred: acme/widgets#78\" and Goal \"The 60s performance row is deferred\" — the `deferred:` disposition has no matching cut question or user answer in `Human input`. The verbatim block only says \"Implement the widgets CSV export described in this ticket. Mailer owns the notification.\", which approves no deferral of the performance row. → Mark the row `in-scope`, drop the deferral sentence from Goal, and make the benchmark a required verification step. Alternatively, get and quote an explicit user answer that picks this cut. — probed: Human input block (inlined) - no cut question or answer for the 60s row\n- [major] gap @ \"Read widgets in id order in batches of 1000.\" — the problem says users download \"their widgets\", but the design never says how the query is limited to the requesting user's or account's widgets. It also does not say what happens for unauthenticated or unauthorized requests to GET /widgets/export.csv. As written, an implementer could export every widget. → Add: \"Scope the query to widgets owned by the authenticated user (same authorization as the collection page); unauthenticated requests get the same response as the collection page (redirect/401)\". Add a request test showing another user's widgets are excluded. — probed: none\n- [minor] ambiguity @ \"Run the 10000-widget benchmark for the 60s row when in-scope.\" — the step is conditional, so verification of the performance AC is optional. Once the row is in scope, this must be a required, pass/fail check. → Reword to: \"Run the 10000-widget benchmark; fail if request start to complete response exceeds 60s.\" Name where it runs (CI job or documented local command). — probed: none\n- [minor] ambiguity @ \"Encode id, name, and status with standard CSV quoting\" — the spec names no standard, line terminator, or BOM policy, and does not say how `status` is serialized (enum name, label, or integer). → Specify RFC 4180 quoting, CRLF or LF, no BOM (or BOM), and the exact `status` representation, e.g. the stored enum string. — probed: none\nlean: nothing to cut\n",
+      "words": 371,
+      "wallMs": 13890,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "verdict: needs-work\naddresses-problem: partial — The design covers CSV download, column order, and empty exports, but defers the explicitly required 10000-widget performance criterion without human authorization.\nfindings:\n- [blocker] scope @ Goal, Acceptance criteria, and Verification — “An export of 10000 widgets completes within 60s” is marked “deferred: acme/widgets#78,” and its benchmark runs only “when in-scope.” Human input requires this row and contains no cut question or user answer authorizing deferral; a tracker destination does not authorize the cut → Restore the row to in-scope and require the benchmark to demonstrate completion within 60s before acceptance, or obtain an explicit human answer approving deferral. — probed: Human input and inlined spec - performance requirement is explicit; no human answer authorizes its deferral\nlean: nothing to cut\n",
+      "words": 119,
+      "wallMs": 8341,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "d42fe855edd3f09545a9a4d3c5c99f2282bd6cfcd1bd30ba9250858588873355",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "04bf88b6ddec157ebb1e13b63d4e0916bde2d6d07b50a7940d39cc567f36eb65",
+      "baselineOutputSha": "120a7313e4999443644b241fbb1fabdca9f42a301926340552cc0ca57fe57f12",
+      "candidateOutputSha": "b6490174d5cc69343e29b14872123a410dd778574bc98853dbb66f5cbe94e59d",
+      "facts": {
+        "f1": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "f2": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        }
+      },
+      "feedback": "After delivers the Change for f1: the deferral is now a [blocker] scope finding that quotes the `deferred: acme/widgets#78` row and the Goal sentence, and it grounds the blocker in the absence of any cut question or human answer in the verbatim Human input, which is exactly the provenance rule the Change describes. Before only raised the deferral as a [major] ambiguity about missing reasoning and explicitly said it 'passes operates-without-it', so f1 failed there. f2 did not move: Before already reached needs-work on the strength of the user-scoping gap plus the deferral ambiguity, so the 'fails -> holds' expectation for unprovenanced-deferred/f2 does not match this case's Before text; the new wording keeps needs-work and the blocker makes it more clearly justified. Nothing in After regressed a listed fact. One side effect worth noting: After drops Before's streamed-vs-buffered and CSV-injection minors, which are unrelated to the scope rule; if that trimming was not intended by the wording change, keep the lean/completeness guidance from Before alongside the new scope-blocker instruction.",
+      "verdict": "improved"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "d42fe855edd3f09545a9a4d3c5c99f2282bd6cfcd1bd30ba9250858588873355",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "04bf88b6ddec157ebb1e13b63d4e0916bde2d6d07b50a7940d39cc567f36eb65",
+      "baselineOutputSha": "0bcad8abb57809e198b7b85e8195921031f58be8c77e8c4b1e7db3a949107f54",
+      "candidateOutputSha": "4471cf66be1afb58bb483350caf0a7a49532237910e18c39efe417a4e8562417",
+      "facts": {
+        "f1": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "f2": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        }
+      },
+      "feedback": "Before returns a sound verdict with no findings, so neither fact holds; After adds a [blocker] scope finding that quotes the 60s row and its 'deferred: acme/widgets#78' disposition, and sets the verdict to needs-work, so both facts move to holds exactly as the Change intends. The After wording that drove this is the clause 'a tracker destination does not authorize the cut' paired with the explicit check for a quoted cut question and human answer; keep that provenance test anchored to the human input rather than to the destination path, and keep the remedy phrased as either restoring the row or obtaining a human answer so that a genuinely human-answered cut remains valid.",
+      "verdict": "improved"
+    }
+  },
+  "repoSha": "305dad897254c15d77edb5163eba56f50fdac229"
+}

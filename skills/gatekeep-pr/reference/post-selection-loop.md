@@ -34,7 +34,7 @@ Apply per `fix-wave.md`: the local conflict check, one fresh implementer helper 
 
 `merge` executes as `gh pr merge --match-head-commit <assessed-sha>` with the resolved merge policy. Push and merge are never one pick.
 
-After `gh pr merge` returns, read `gh pr view <N> --json state,mergeCommit`. `state: MERGED` -> render the `AC coverage` block once and re-render the menu under the `own merge` overlay (`decision-menu.md`); any other state (a merge queue) -> one `PR comments` line `The merge is queued, so coverage posts wait. (<state>)` and the menu `wait` (re-run the read) / `show evidence` / `stop`. The block, `<sha>` = `mergeCommit.oid`, one row per `scope.rows` entry in row order with its outcome (`covered`, `deferred per spec to <ref>`, `deviates per spec: <why>`, `venue: <env> - <observation>, checked after deploy`); with no rows (`source: pr`, or an empty `scope.rows`) the block has no row lines and `post coverage to ticket` is not offered. With `source: pr` the header line drops `, spec <path>`. An `in-scope` row whose observation half is `not judged here` renders `covered; observable half checked after merge`.
+After `gh pr merge` returns, read `gh pr view <N> --json state,mergeCommit`. `state: MERGED` -> render the `AC coverage` block once and re-render the menu under the `own merge` overlay (`decision-menu.md`); any other state (a merge queue) -> one `PR comments` line `The merge is queued, so coverage posts wait. (<state>)` and the menu `wait` (re-run the read) / `show evidence` / `stop`. The block, `<sha>` = `mergeCommit.oid`, one row per `scope.rows` entry in row order with its outcome (`covered`, `deferred per spec to <ref>`, `deviates per spec: <why>`, `elsewhere per spec: <repo>`, `venue: <env> - <observation>, checked before prod deploy`); with no rows (`source: pr`, or an empty `scope.rows`) the block has no row lines and `post coverage to ticket` is not offered. With `source: pr` the header line drops `, spec <path>`. An `in-scope` row whose observation half is `not judged here` renders `covered; observable half checked after merge`.
 
 ```markdown
 ## AC coverage
@@ -42,7 +42,8 @@ Informational - the ticket's rows are unchanged. PR <url>, merged <sha>, spec <p
 - [ ] <row 1 text verbatim> - covered
 - [ ] <row 3 text verbatim> - deferred per spec to <ref>
 - [ ] <row 2 text verbatim> - deviates per spec: <why>
-- [ ] <row 4 text verbatim> - venue: <env> - <observation>, checked after deploy
+- [ ] <row 4 text verbatim> - venue: <env> - <observation>, checked before prod deploy
+- [ ] <row 5 text verbatim> - elsewhere per spec: <repo>
 ```
 
 A post is one write of that block, verbatim; a post that succeeded cannot be picked again in this run. `/skill:check-delivery` reads a posted block as any other comment, and the block's first line states that it amends nothing.

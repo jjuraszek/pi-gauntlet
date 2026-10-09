@@ -1,0 +1,3 @@
+- f1: judged: The emailed-exports row is assigned elsewhere: acme/mailer.
+- f2: judged: The output asks no question about the emailed-exports row.
+- f3: judged: The spec's Acceptance criteria section is described as flat, with no repo heading inside it.

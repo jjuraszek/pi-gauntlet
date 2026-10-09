@@ -1,0 +1,2 @@
+- f1: judged: No finding of kind scope targets any acceptance-criteria row or its disposition.
+- f2: mechanical: contains "lean:"

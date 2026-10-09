@@ -1,0 +1,3 @@
+- f1: judged: Rows 3 and 5 produce zero decision items.
+- f2: judged: The render names rows 3 and 5 as elsewhere per spec: acme/mailer or as recorded attribution, never as gaps.
+- f3: judged: The render reaches the first line of Step 4.

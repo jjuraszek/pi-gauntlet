@@ -1,0 +1,78 @@
+{
+  "sample": "human-answered-cut",
+  "arm": "candidate",
+  "skillSha": "618507101d28e17db84cf910af614e719333bfb19f58fef166b6389e801a6e46",
+  "inputSha": "b283a91fbb4bccc3821ab9fbce4af854c4a0f5cc04e4beb2dbdb0e2c85c89577",
+  "kind": "text",
+  "assembly": "headed",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "verdict: needs-work\naddresses-problem: yes — the in-scope widgets rows (download, column order, header-only empty export) are designed and tested; the 60s row is deferred to acme/widgets#78 per the user's answer C, and the mailer row is correctly marked elsewhere under the acme/mailer group.\nfindings:\n- [major] gap @ \"the mailer handoff reuses the existing export-ready event\" — The spec does not say whether widgets emits this event, when it fires, or what payload it carries. The export is a synchronous GET that streams the file straight back, so no persisted artifact or download link exists for mailer's \"export-ready email with the download link\". → State whether widgets publishes the event (and at what point: request start, completion, or never) and which link it carries (e.g. the `/widgets/export.csv` URL). Otherwise state that no event emission is part of this change and mailer handles the trigger. Add a test for whichever emission is chosen. — probed: none\n- [minor] oversimplification @ \"Read widgets in id order in batches of 1000\" — The spec does not cover a database error after headers and early batches are already sent. It also does not say whether all batches must come from one consistent snapshot, given rows can be inserted or deleted between batches. → Say whether the response is buffered or streamed. If streamed, define mid-stream failure behaviour (e.g. abort the connection so the file is visibly truncated). State whether batches use a single transaction or snapshot, or keyset paging on id. — probed: none\n- [minor] ambiguity @ \"The benchmark uses 10000 local widgets and measures from request start to the complete response\" — The Design describes a benchmark for a row that is deferred to acme/widgets#78. Verification only says \"when in-scope\", which leaves an implementer unsure whether to build it now. → Mark the benchmark description as belonging to acme/widgets#78 and not delivered in this change, or drop it from the Design. — probed: none\n- [minor] gap @ \"Encode id, name, and status with standard CSV quoting\" — Widget names are user-controlled. A name starting with `=`, `+`, `-` or `@` will be run as a formula when the CSV is opened in a spreadsheet, and the spec does not decide whether to neutralise this. → Decide whether to prefix such values (e.g. with `'`) or explicitly accept the risk, and cover the decision in the CSV escaping request test. — probed: none\nlean: nothing to cut\n",
+      "words": 379,
+      "wallMs": 15487,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "verdict: needs-work\naddresses-problem: yes — Covers the widgets download requirements, preserves the explicitly approved timing deferral, and assigns the notification row to its ticket-designated mailer repo.\nfindings:\n- [major] external-ref @ Design: “the mailer handoff reuses the existing export-ready event” — The event contract is not inlined, and the design does not specify whether this download request emits it, when it is emitted, or how its payload supplies the authenticated download link. Mailer ownership does not define widgets’ producer responsibilities → Inline the relevant event contract and specify widgets’ emission responsibility, timing, and link construction; add a handoff test if widgets must emit the event. — probed: none\nlean: nothing to cut\n",
+      "words": 106,
+      "wallMs": 9656,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "127f9fdae51f93fb4ce1e1c2ce18d72498a1bac8ea178181b316253a24cd34a8",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "04bf88b6ddec157ebb1e13b63d4e0916bde2d6d07b50a7940d39cc567f36eb65",
+      "baselineOutputSha": "6ded76d7ef91482d3e6f72e42f3548c1590a3616d6124a5dc585fe0e62df2e95",
+      "candidateOutputSha": "2f5ccd153dc918a1fbbbefd34a92329483f6b560c71ff7e8a4ca54acbcf03d11",
+      "facts": {
+        "f1": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "f2": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "Neither output contains a finding of kind scope, so both facts hold in Before and After and nothing moved on this case. Before does carry an external-ref finding aimed at the 60s row's AC line (asking to restate the human's 'paging ships next sprint' reason) and a second ambiguity finding that leans on the #78 deferral while targeting the batching sentence, but both are typed external-ref/ambiguity, not scope, so a careful reader would not call them scope findings; After drops the external-ref one and reframes the batching finding as oversimplification about streaming/consistency, which is cleaner but was not required for the facts. Before's addresses-problem paragraph also explicitly invokes the old 'operates-without-it test' for the human-chosen deferral; After replaces that with 'deferred to acme/widgets#78 per the user's answer C', which is exactly the Change's intent (a quoted cut question plus human answer authorizes the cut) and should be kept. To be safe going forward, keep the After wording that cites the human answer as the provenance for the deferral and the acme/mailer group as settled attribution, and avoid re-introducing any finding that reads the deferral or the elsewhere disposition as a cut needing re-authorization.",
+      "verdict": "unchanged"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "127f9fdae51f93fb4ce1e1c2ce18d72498a1bac8ea178181b316253a24cd34a8",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "04bf88b6ddec157ebb1e13b63d4e0916bde2d6d07b50a7940d39cc567f36eb65",
+      "baselineOutputSha": "3ad32c0ef4b296c66d5c63d6ba6cd2601a2bd4f5ea676b5f3f92885ab2e9f5bc",
+      "candidateOutputSha": "8569764ec8075559e087c9cdfe377aadaea3115cfdc2a1e0819365d771d32e31",
+      "facts": {
+        "f1": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "f2": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "Nothing moved between Before and After: both outputs contain a single external-ref finding on the mailer event handoff and no finding of kind scope at all, so neither the human-answered 60s deferral nor the mailer row's elsewhere: acme/mailer attribution is targeted in either output. Note that the Expected-to-move entry for human-answered-cut/f1 predicted Before would fail, but the Before text already accepted the deferral (it even calls it 'explicitly approved'), so the wording change cannot claim credit for that fix here. After's addresses-problem line now says the notification row is 'assigned to its ticket-designated mailer repo', which is a good explicit nod to the settled cross-repo attribution rule; keep that phrasing, and keep the deferral acknowledged as approved via the quoted cut question and answer rather than via the spec path, since that is the provenance the Change says must authorize a cut.",
+      "verdict": "unchanged"
+    }
+  },
+  "repoSha": "305dad897254c15d77edb5163eba56f50fdac229"
+}

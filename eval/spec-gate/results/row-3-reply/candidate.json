@@ -1,0 +1,108 @@
+{
+  "sample": "row-3-reply",
+  "arm": "candidate",
+  "skillSha": "4b44256f95b13ca612b04b1d3c0b3a9602707fe0d736c59f3d8b9cfca8cda5c2",
+  "inputSha": "749410771fa6ff7da36d40c2e12948a255bb987cad59ac73267b0eb760fa0bc0",
+  "kind": "text",
+  "assembly": "concat",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "Spec written and committed. Here is the review gate.\n\n---\n\nOrchard coordinators use orchard-billing to collect monthly fees from growers, but a repeated collection request can currently charge the same invoice twice. Coordinators then reconcile receipts by hand while growers wait for a refund, and neither group can tell whether a retry is safe. The proposed change gives each collection request a stable receipt and makes retries return the original outcome instead of collecting again.\n\n**What changes**\n- Coordinators see one receipt for each invoice collection, including retries after an interrupted connection.\n- A pending collection stays visibly pending until its outcome is known; the service does not guess that a timeout means failure.\n- Growers receive a confirmation only after the collection succeeds, with the invoice amount and collection date.\n\n**Approval risks**\n- Existing duplicate charges remain a manual refund task; this change prevents new duplicates rather than rewriting past receipts.\n- The payment partner must preserve request keys across retries. Collection remains paused if that guarantee cannot be confirmed.\n- Receipt retention increases stored billing data, so operators must approve the retention window before rollout.\n\n**Done when**\n- Repeated requests produce one charge and one receipt, including after a service restart.\n- Pending outcomes remain visible, confirmations are sent once, and coordinators can reconcile the rollout's first billing cycle without duplicate charges.\n\nSpec written and committed to `<project>/doc/specs/<filename>.md` (worktree: `<path>`).\nScope cuts: `<from the spec's ## Acceptance criteria: every deferred: / deviates: / venue: row, or none>`\n\nCouncil: 11 applied, 0 deferred, 0 rejected\n\n1 - approve: proceed to planning under the existing amendment review. A fresh reviewer applies evidence-backed factual corrections on its own. Every other spec amendment (scope, acceptance-criteria, or contract edits, and redraws) stops for your review.\n2 - approve, auto-apply amends: every later spec amendment in this flow applies without asking. This covers corrected facts, paths, verification lines, and scope, acceptance-criteria, or public-contract edits alike. Only a redraw (changed problem statement, component added, removed, or re-bounded) still stops for you, and the grant never stands in for a spec approval.\n3 - show council dispositions: prints the council audit verbatim, then re-presents this gate. Not an approval.\n\nOr tell me what to change in the spec, or say \"revert applied council edit <X>\" to undo a specific applied edit.\n\n---\n\n**Reply: `3`**. Here is the council audit, verbatim from the spec commit body (`git show -s --format=%b HEAD`):\n\n```\nApplied: [blocker] interrupted retry recharges - raised-by: [vendor-a-model-x, vendor-b-model-y] -> reuse the collection key after every interrupted request (grounded: vendor-a-model-x interrupted collection probe)\nApplied: [blocker] uncertain payment outcome - raised-by: [vendor-b-model-y] -> preserve pending outcomes until the payment partner confirms them\nApplied: [major] confirmation precedes receipt - raised-by: [vendor-c-model-z] -> store the receipt before sending a grower confirmation\nApplied: [major] restart loses collection key - raised-by: [vendor-a-model-x] -> keep collection keys through a service restart (grounded: vendor-a-model-x restart probe)\nApplied: [major] changed amount on retry - raised-by: [vendor-b-model-y] -> reject retries that change the invoice amount\nApplied: [major] retry hides original receipt - raised-by: [vendor-c-model-z] -> show coordinators the original receipt on a retry\nApplied: [major] unconfirmed partner guarantee - raised-by: [vendor-a-model-x, vendor-c-model-z] -> require payment partner confirmation before rollout\nApplied: [minor] historical refund scope - raised-by: [vendor-b-model-y] -> state that historical refunds remain manual\nApplied: [minor] retention approval ownership - raised-by: [vendor-c-model-z] -> name the receipt retention approval owner\nApplied: [minor] confirmation lacks date - raised-by: [vendor-a-model-x] -> include the collection date in confirmations\nApplied: [minor] rollout reconciliation gap - raised-by: [vendor-b-model-y, vendor-c-model-z] -> check the first billing cycle for duplicate charges\nDeferred: none\nRejected: none\n```\n\nNothing in the spec or the commit has changed. Here is the same gate again:\n\n---\n\nOrchard coordinators use orchard-billing to collect monthly fees from growers, but a repeated collection request can currently charge the same invoice twice. Coordinators then reconcile receipts by hand while growers wait for a refund, and neither group can tell whether a retry is safe. The proposed change gives each collection request a stable receipt and makes retries return the original outcome instead of collecting again.\n\n**What changes**\n- Coordinators see one receipt for each invoice collection, including retries after an interrupted connection.\n- A pending collection stays visibly pending until its outcome is known; the service does not guess that a timeout means failure.\n- Growers receive a confirmation only after the collection succeeds, with the invoice amount and collection date.\n\n**Approval risks**\n- Existing duplicate charges remain a manual refund task; this change prevents new duplicates rather than rewriting past receipts.\n- The payment partner must preserve request keys across retries. Collection remains paused if that guarantee cannot be confirmed.\n- Receipt retention increases stored billing data, so operators must approve the retention window before rollout.\n\n**Done when**\n- Repeated requests produce one charge and one receipt, including after a service restart.\n- Pending outcomes remain visible, confirmations are sent once, and coordinators can reconcile the rollout's first billing cycle without duplicate charges.\n\nSpec written and committed to `<project>/doc/specs/<filename>.md` (worktree: `<path>`).\nScope cuts: `<from the spec's ## Acceptance criteria: every deferred: / deviates: / venue: row, or none>`\n\nCouncil: 11 applied, 0 deferred, 0 rejected\n\n1 - approve: proceed to planning under the existing amendment review. A fresh reviewer applies evidence-backed factual corrections on its own. Every other spec amendment (scope, acceptance-criteria, or contract edits, and redraws) stops for your review.\n2 - approve, auto-apply amends: every later spec amendment in this flow applies without asking. This covers corrected facts, paths, verification lines, and scope, acceptance-criteria, or public-contract edits alike. Only a redraw (changed problem statement, component added, removed, or re-bounded) still stops for you, and the grant never stands in for a spec approval.\n3 - show council dispositions: prints the council audit verbatim, then re-presents this gate. Not an approval.\n\nOr tell me what to change in the spec, or say \"revert applied council edit <X>\" to undo a specific applied edit.\n",
+      "words": 939,
+      "wallMs": 21400,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "Your reply `3` requests the council dispositions; it does **not** approve the spec. Tools are disabled, so I cannot verify the audit from Git; the supplied **Spec commit** body is reproduced verbatim below.\n\n```text\nApplied: [blocker] interrupted retry recharges - raised-by: [vendor-a-model-x, vendor-b-model-y] -> reuse the collection key after every interrupted request (grounded: vendor-a-model-x interrupted collection probe)\nApplied: [blocker] uncertain payment outcome - raised-by: [vendor-b-model-y] -> preserve pending outcomes until the payment partner confirms them\nApplied: [major] confirmation precedes receipt - raised-by: [vendor-c-model-z] -> store the receipt before sending a grower confirmation\nApplied: [major] restart loses collection key - raised-by: [vendor-a-model-x] -> keep collection keys through a service restart (grounded: vendor-a-model-x restart probe)\nApplied: [major] changed amount on retry - raised-by: [vendor-b-model-y] -> reject retries that change the invoice amount\nApplied: [major] retry hides original receipt - raised-by: [vendor-c-model-z] -> show coordinators the original receipt on a retry\nApplied: [major] unconfirmed partner guarantee - raised-by: [vendor-a-model-x, vendor-c-model-z] -> require payment partner confirmation before rollout\nApplied: [minor] historical refund scope - raised-by: [vendor-b-model-y] -> state that historical refunds remain manual\nApplied: [minor] retention approval ownership - raised-by: [vendor-c-model-z] -> name the receipt retention approval owner\nApplied: [minor] confirmation lacks date - raised-by: [vendor-a-model-x] -> include the collection date in confirmations\nApplied: [minor] rollout reconciliation gap - raised-by: [vendor-b-model-y, vendor-c-model-z] -> check the first billing cycle for duplicate charges\nDeferred: none\nRejected: none\n```\n\nOrchard coordinators use orchard-billing to collect monthly fees from growers, but a repeated collection request can currently charge the same invoice twice. Coordinators then reconcile receipts by hand while growers wait for a refund, and neither group can tell whether a retry is safe. The proposed change gives each collection request a stable receipt and makes retries return the original outcome instead of collecting again.\n\n**What changes**\n- Coordinators see one receipt for each invoice collection, including retries after an interrupted connection.\n- A pending collection stays visibly pending until its outcome is known; the service does not guess that a timeout means failure.\n- Growers receive a confirmation only after the collection succeeds, with the invoice amount and collection date.\n\n**Approval risks**\n- Existing duplicate charges remain a manual refund task; this change prevents new duplicates rather than rewriting past receipts.\n- The payment partner must preserve request keys across retries. Collection remains paused if that guarantee cannot be confirmed.\n- Receipt retention increases stored billing data, so operators must approve the retention window before rollout.\n\n**Done when**\n- Repeated requests produce one charge and one receipt, including after a service restart.\n- Pending outcomes remain visible, confirmations are sent once, and coordinators can reconcile the rollout's first billing cycle without duplicate charges.\n\nSpec reported committed; the spec filename and worktree path were not supplied.\nScope cuts: cannot determine without the spec's `## Acceptance criteria` section.\n\nCouncil: 11 applied, 0 deferred, 0 rejected\n\nUnresolved ambiguities: not supplied. The briefing contains no `Missing from the spec` entries.\nNew predecessor candidates at spec-writing: not supplied — index rows are a hint; code is the source and an absent row proves nothing.\n\n1 - approve: proceed to planning under the existing amendment review; a fresh reviewer applies evidence-backed factual corrections on its own, and every other spec amendment (scope, acceptance-criteria, or contract edits, and redraws) stops for your review.\n2 - approve, auto-apply amends: every later spec amendment in this flow (corrected facts, paths, verification lines, and scope, acceptance-criteria, or public-contract edits alike) applies without asking; only a redraw (changed problem statement, component added, removed, or re-bounded) still stops for you, and the grant never stands in for a spec approval.\n3 - show council dispositions: prints the council audit verbatim, then re-presents this gate. Not an approval.\n\nOr tell me what to change in the spec, or say \"revert applied council edit <X>\" to undo a specific applied edit.\n",
+      "words": 604,
+      "wallMs": 26216,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "fa7bc20d70610621a184ee165c7fe2214534a79800320a4e8706f5fd6f9cd027",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "b48161436fc7965cdde29a444787ba340abb08d6ec35bf1542618a3b759b4f6c",
+      "baselineOutputSha": "3aeed9cdb41027d41ba3362e4da5fa2d38cd14d9b7886010b6e3f47d6374184e",
+      "candidateOutputSha": "e3e84d9a87b5c41f388d521ff0cee1dbe933bf8de7c6bc6488e1ee225cd36882",
+      "facts": {
+        "f1": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "f2": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "f3": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "f4": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "f5": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "After keeps every fact Before kept: the reply to `3` prints all thirteen audit lines verbatim, states that nothing in the spec or commit changed, treats `3` as not an approval, and re-presents the gate with the verbatim briefing, the Council line at 11/0/0, and the three numbered rows. Two things are worth tightening, though neither moves a fact here. First, the new Scope cuts line is rendered as the literal template placeholder (`<from the spec's ## Acceptance criteria: every deferred: / deviates: / venue: row, or none>`) rather than the computed value; for this spec, which has no deferred/deviates/venue rows, it should read `Scope cuts: none`. Phrasing the reference as an instruction to compute and substitute (e.g., 'Scope cuts: list each deferred:, deviates:, or venue: row from ## Acceptance criteria; write `none` if there are no such rows') rather than an angle-bracket placeholder would stop the model from echoing the template. Second, After silently dropped the 'Unresolved ambiguities: none. Missing from the spec: none reported by the summary.' line that Before carried between Council and the numbered rows; if that line is still part of the gate, the edit should insert Scope cuts without removing it so the gate stays otherwise unchanged while adding the new line between the commit line and Council.",
+      "verdict": "unchanged"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "fa7bc20d70610621a184ee165c7fe2214534a79800320a4e8706f5fd6f9cd027",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "b48161436fc7965cdde29a444787ba340abb08d6ec35bf1542618a3b759b4f6c",
+      "baselineOutputSha": "86cd62e08e0e8255d2762160b67ac5a35032d026887163b2c0e87c27ce2876d8",
+      "candidateOutputSha": "0e01fc01b93ef39d2213d923b60211ed7784f9ec24951a7d112f6b5821a8c510",
+      "facts": {
+        "f1": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "f2": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "f3": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "f4": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "f5": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "No fact moved: After still prints every Applied/Deferred/Rejected line verbatim, re-presents the verbatim briefing with the three numbered rows, keeps `Council: 11 applied, 0 deferred, 0 rejected`, treats `3` as a non-approval, and makes no spec or commit edits. The only substantive addition is the new `Scope cuts:` line placed correctly between the commit line and the Council line, which is what the Change asked for. One point to tighten: After renders `Scope cuts: cannot determine without the spec's ## Acceptance criteria section` rather than `none`, because this fixture supplies no spec body. That is a defensible reading when the acceptance-criteria rows are absent, but the Change wording says to render `none` when no cuts exist; if you want deterministic output in tool-less or spec-absent runs, add a sentence to the reference such as 'When the acceptance-criteria table is not available, render `Scope cuts: not supplied` rather than guessing' so the line has a fixed form instead of free prose. Also consider keeping Before's explicit 'Nothing in the spec or commit changes' sentence after the audit block, since it states f4 outright rather than leaving it implied.",
+      "verdict": "unchanged"
+    }
+  },
+  "repoSha": "07c53575c996acf1c4e87209c4ef523dcf0b029e"
+}

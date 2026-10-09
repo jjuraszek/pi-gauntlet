@@ -1,5 +1,7 @@
 # Ticket acceptance criteria carried verbatim into the spec
 
+> **Superseded by:** [doc/specs/2026-10-09-ac-coverage-dispositions.md](./2026-10-09-ac-coverage-dispositions.md) - the AC extraction rule and the disposition ask rule only
+
 **Ticket:** jjuraszek/pi-gauntlet#41
 **Date:** 2026-09-20
 **Status:** draft, awaiting review

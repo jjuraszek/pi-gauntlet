@@ -1,0 +1,108 @@
+{
+  "sample": "deviates",
+  "arm": "candidate",
+  "skillSha": "db07dda8f60340eab65702d6c6bbdf8970474db449817709cea5b85b26ae1452",
+  "inputSha": "e60ea3efa430af5b7daa36e3791c877b62f3bd8ccfd678d113fd7974ddab690a",
+  "kind": "text",
+  "assembly": "headed",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "## Closure / conformance\n\n```text\nstatus: CONFORMS (0 open)\naudited-base: 4c1e8f0a9b2d7c6e5f4a3b2c1d0e9f8a7b6c5d4e\nhappy-path: not run - no row configured\nDeferred/deviates per spec: AC2 deviates: the export includes the 12 visible-by-default columns (Design clause 3)\n\nauto-applied fix commits: none\n```\n\nNotes on the block:\n\n- **No concern cards.** The verdict is `CONFORMS` with 0 open gaps. AC2's `deviates:` row is recorded drift, not a gap: the reviewer confirmed it is recorded in the spec, so it appears only on the informational `Deferred/deviates per spec:` line.\n- **No fix loop ran.** For Convergence, the pre-R0 full verification run counts. The `<r0-head>..HEAD` diff is empty, so no `code-reviewer` was dispatched and no `conformance fix` commits exist.\n- **The `whole-diff minors:` section is omitted on purpose.** That section is defined in `whole-diff-minors.md`. I could not read that file without tools, and the inputs contain no whole-PR review findings. Writing `none` would be an unsupported claim, so I left the section absent, and the finish gate renders it as `not recorded`.\n- **Freshness is assumed, not checked.** The finish gate checks it with `git -C <worktree> diff --stat 4c1e8f0a… -- .` plus `git status --porcelain --untracked-files=all`. I treated both as clean, since this is the same session with no edits after the audit. Any output from either command would require a fresh audit before the CONFORMS fast path below applies.\n\n---\n\n## Step 3.5, as the operator sees it\n\n```\nClosure / conformance: CONFORMS\nhappy-path: not run - no row configured\nDeferred/deviates per spec: AC2 deviates: the export includes the 12 visible-by-default columns (Design clause 3)\nwhole-diff minors: not recorded\n```\n\n## Step 4 (start)\n\nNo `amend:` commits are assumed on the branch, so the amendment digest is omitted. A named-branch worktree is assumed.\n\n```\nImplementation complete. What would you like to do?\n```\n",
+      "words": 279,
+      "wallMs": 17478,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "## Closure / conformance\nstatus: CONFORMS (0 open)\naudited-base: 4c1e8f0a9b2d7c6e5f4a3b2c1d0e9f8a7b6c5d4e\nDeferred/deviates per spec: AC2 deviates: the export includes the 12 visible-by-default columns (Design clause 3)\n\nauto-applied fix commits: none\n\nwhole-diff minors: not recorded\n\n---\n\nClosure / conformance: CONFORMS\nDeferred/deviates per spec: AC2 deviates: the export includes the 12 visible-by-default columns (Design clause 3)\nwhole-diff minors: not recorded\n\nImplementation complete. What would you like to do?\n",
+      "words": 61,
+      "wallMs": 9781,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "35578e980f4c52bc88ff73d6a2aca63fa79154db9b4dd9d0733ff4cdd8a307be",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "c8f83f413b6f9674bfbd8a42db82d1a5dd23f7b6ec6277d7351aac207aab39f2",
+      "baselineOutputSha": "ccefc7b7fc7fedcdbce220ca8ba057038281f9a1dd7cb0ae701d8cffd70c33eb",
+      "candidateOutputSha": "49a07745f0fa8af1e464aa43dcd6ecfbb87726c53f973af4fa59c98797bce132",
+      "facts": {
+        "f1": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "f2": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "f3": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "f4": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "f5": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "No fact moved: both outputs render AC2 on the `Deferred/deviates per spec:` line with the 12-default-columns explanation, produce zero concern cards, enter no fix loop, and reach the Step 4 prompt. After does weaken the evidence in two places, though. It drops Before's explicit sentence that the deviates row 'does not count toward N and does not trigger a re-audit' (f4 now rests only on 'no code-reviewer was dispatched'), and it drops the Coverage line listing R1/R3–R8 as DELIVERED, so f5 is inferred from the Step 4 prompt rather than stated. After also switches `whole-diff minors` from `none` to omitted/`not recorded`, which is a defensible reading but introduces a `not recorded` line that a stricter judge could read as an unfinished gate. To keep every fact that Before kept while still delivering the elsewhere-recorded-drift change, retain Before's Coverage line and its explicit 'no re-audit / does not count toward N' note on the deviates row, and only add the new attribution language (recorded drift, not a gap) alongside them rather than replacing them.",
+      "verdict": "unchanged"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "35578e980f4c52bc88ff73d6a2aca63fa79154db9b4dd9d0733ff4cdd8a307be",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "c8f83f413b6f9674bfbd8a42db82d1a5dd23f7b6ec6277d7351aac207aab39f2",
+      "baselineOutputSha": "c211e0efc0cbff5154a53d3dda2025d9dacd1163bb19c0661be5a7e30c4e93d3",
+      "candidateOutputSha": "c211e0efc0cbff5154a53d3dda2025d9dacd1163bb19c0661be5a7e30c4e93d3",
+      "facts": {
+        "f1": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "f2": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "f3": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "f4": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "f5": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "Before and After are textually identical for this case, so nothing moved: both report CONFORMS (0 open) with no decision items for AC2, both carry the 'Deferred/deviates per spec: AC2 deviates: the export includes the 12 visible-by-default columns (Design clause 3)' line naming row 2 and its explanation, both show 'auto-applied fix commits: none' with no re-audit, and both end at the 'Implementation complete. What would you like to do?' options menu. The Change targets elsewhere-attributed rows, and this case has no such row, so the unchanged render here is the correct outcome; the wording that keeps these facts is one that scopes the new 'recorded drift' handling narrowly to elsewhere rows while leaving the existing deviates-per-spec path (status line, Deferred/deviates line, no fix dispatch, reach Step 4) untouched, which the After text already does.",
+      "verdict": "unchanged"
+    }
+  },
+  "repoSha": "07c53575c996acf1c4e87209c4ef523dcf0b029e"
+}
