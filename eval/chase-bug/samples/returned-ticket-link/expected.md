@@ -1,0 +1,2 @@
+- returned-reference: judged: The summary cites the actual returned ticket reference https://github.com/example/widgets/issues/42 as the next step.
+- no-new-creation: judged: The output does not claim that a new ticket was created or filed; any description of ticket status is consistent with the supplied existing-ticket result.

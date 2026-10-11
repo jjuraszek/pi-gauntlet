@@ -4,6 +4,7 @@
 > **Superseded by:** [doc/specs/2026-08-19-split-axis-guard.md](./2026-08-19-split-axis-guard.md) - "Split rule" section and the roast brief/disposition axes only (vertical-slice hard rule replaced by the shared split-axis test; a third member axis with a non-adjudicable split veto added)
 > **Superseded by:** [doc/specs/2026-08-31-gh-18-self-contained-ticket-wording.md](./2026-08-31-gh-18-self-contained-ticket-wording.md) - "Ticket wording" defaults only (comms-style override opener narrowed; headline rule gated on the self-containment test)
 > **Superseded by:** [doc/specs/2026-09-23-gh-48-conventions-override-section.md](./2026-09-23-gh-48-conventions-override-section.md) - section-selection wording in the quoted standard "Project overrides" block under "Tracker abstraction and capability ladder" only; discovery ladder unchanged
+> **Superseded by:** [doc/specs/2026-10-11-gh-60-ticket-overlap-prevention.md](./2026-10-11-gh-60-ticket-overlap-prevention.md) - create-mode duplicate/reversal check and associated overlap comment, confirmation, and write behavior only
 
 Resolves [jjuraszek/pi-gauntlet#8](https://github.com/jjuraszek/pi-gauntlet/issues/8). The finishing squash commit carries `Closes #8`.
 

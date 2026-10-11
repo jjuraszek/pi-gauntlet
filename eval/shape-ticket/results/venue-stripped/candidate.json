@@ -1,7 +1,7 @@
 {
   "sample": "venue-stripped",
   "arm": "candidate",
-  "skillSha": "21b2e112d649e02d4cec6f4908aa89134bd971a0983e89fe07a4882877e3cd81",
+  "skillSha": "71d84d8b0445a755f89926c0fb2706f2c373fba8ef3a5416c75261dde14ee89a",
   "inputSha": "0fa4f1a9427e17d5d76f71c3a7cb1a188a48b73ce908d9eaac780332ac6fad0c",
   "kind": "text",
   "assembly": "concat",
@@ -17,16 +17,16 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "# Draft: replacement ticket body\n\n## Context\nRequesters export reports as CSV from the widgets app (acme/widgets). Today, exporting the representative 100-row report takes 5s at p95. Latency is measured from the moment the export is requested until the file is ready, using the recorded request-timing run. The 5s baseline and the 2s target are supplied values, not estimates.\n\n## Problem\nCSV exports are too slow. A requester exporting the representative 100-row report waits 5s at p95 before the file is ready, but the required maximum is 2s.\n\n## Idea\nThe reporter proposes improving CSV export in acme/widgets.\n\n## Acceptance Criteria\n- [ ] Exporting the representative 100-row report as CSV gives a p95 latency of 2s or less (baseline 5s), measured from request to file-ready with the same request-timing method as the recorded baseline run.\n\n## Post-deployment housekeeping\nNon-blocking: monitor export latency after release.\n\n---\n\n# AC integrity gate report\n\n**Normalization:** There is one criterion, and it was already a `- [ ]` item. No syntax conversion was needed.\n\n| # | AC | Structure | Class | Outcome |\n|---|---|---|---|---|\n| 1 | p95 CSV export latency ≤ 2s for the 100-row report | **Setup:** the representative 100-row report. **Action:** request a CSV export, timed with the baseline method. **Observable:** p95 request-to-file-ready latency ≤ 2s. | Comparative | **Pass.** The baseline (5s, from the recorded request-timing run), the target (≤ 2s) and the measurement method (request-to-file-ready, same method as the baseline) can all be named today. |\n\n**Deploy-window rule:** The original AC said \"in staging\". I removed it because an AC row must not name an environment; the spec picks the venue. The rewritten AC can be verified before production on any representative environment.\n\n**Post-deployment:** \"Monitor export latency after release\" can only be observed in production. It stays in Post-deployment housekeeping as a non-blocking item, unchanged.\n\n**Hard stops / parks:** None. There are no wishful, tautological, unspecified-but-binding or external-input ACs.\n\n**Structural repairs:**\n- The non-standard `## Measurement clarification` section was removed. Its content was folded into the AC (the measurement method) and into Context (the baseline/target are supplied values, the definition of request-to-file-ready). Nothing was dropped.\n- Context and Problem were reworded so each opens with plain words and states the concrete example: the 100-row report at 5s p95.\n\n**Preserved:** the target (≤ 2s), the baseline (5s, recorded request-timing run), and the non-blocking housekeeping.\n\n**Other gate-adjacent notes:**\n- **Wording contract:** `reference/ticket-wording.md` was not read because tool use was disallowed. I applied only the rules named in the skill text (plain-words lead, example per failure, references parenthetical). The contract-briefed roast should backstop the rest.\n- **Repo grouping:** The Idea names a single repo, so the AC list stays flat.\n- **Reporter note:** None. The Idea is a single attributed sketch line with no demoted overflow.\n- **Split:** None. There is one deliverable and one AC.\n- **Metadata:** Nothing was supplied to audit.\n",
-      "words": 442,
-      "wallMs": 16986,
+      "text": "# Replacement ticket body (repair, acme/widgets)\n\n## Context\nRequesters export reports as CSV files from the widgets app. For the representative 100-row report, 95% of exports currently take up to 5 seconds to finish. This figure is the p95 (95th-percentile) latency, measured as the time from request to file ready (source: the recorded request-timing run).\n\n## Problem\nCSV exports take longer than the required maximum of 2 seconds. For example, a requester who exports the representative 100-row report can wait about 5 seconds for the file, and 1 in 20 exports takes at least that long.\n\n## Idea\nReporter sketch: improve CSV export performance in acme/widgets.\n\n## Acceptance Criteria\n- [ ] Given the representative 100-row report, when CSV exports of it are requested and timed with the same request-timing method as the recorded baseline run (request-to-file-ready latency), then p95 latency is ≤ 2s (baseline: 5s).\n\n## Post-deployment housekeeping\nNon-blocking: monitor export latency after release.\n\n---\n\n# AC integrity gate report\n\n**Normalization:** There is 1 criterion, already in `- [ ]` form. It was re-rendered to name setup, action, and observable result. The separate `Measurement clarification` section is not a template section, so its content moved into the AC row (the measurement method) and into Context (the definition of p95 and the request-to-file-ready metric). No information was lost.\n\n| AC | Class | Result |\n|---|---|---|\n| p95 request-to-file-ready latency ≤ 2s for the 100-row report | Comparative | **Pass.** The baseline (5s) comes from the recorded request-timing run, which is a supplied value and not an estimate. The target is 2s. The measurement is the same request-timing method as the baseline. |\n\n**Deploy-window rule:** The original row said \"in staging\". Under this rule, an AC row never names an environment. \"In staging\" was removed, and the spec will pick the venue (local, UAT, or staging, using representative data). The AC can be fulfilled before production deployment.\n\n**Post-deployment:** The existing housekeeping item (\"monitor export latency after release\") is kept as written and stays non-blocking. It is not an AC.\n\n**Hard stops:** none. **Parks:** none. **Relocations:** none (the one AC can be checked before production).\n\n**Wording contract:**\n- p95 is defined.\n- The plain-words lead and the example for the single failure are present.\n- The baseline source is a deletion-safe parenthetical.\n- The repo is single, so the AC list stays flat with no repo heading.\n\n**Comment:** none. The Idea section's single sketch line holds everything the reporter proposed, so nothing overflows.\n\n**Overall:** clean. The draft moves on to the remaining deterministic gates and the roast.\n",
+      "words": 397,
+      "wallMs": 16418,
       "mechanical": {}
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "## Full replacement ticket body\n\n## Context\nRequesters export reports as CSV from the widgets app. For the representative 100-row report, the recorded request-timing run measured a 95th-percentile export latency (p95) of 5s: 95% of exports were file-ready within 5s of the request.\n\nMeasure exports using the same request-timing method as that baseline: request CSV exports of the representative 100-row report and measure request-to-file-ready latency. The recorded 5s baseline and required maximum of 2s are supplied values, not estimates.\n\n## Problem\nRequesters wait too long for CSV exports. For example, the representative 100-row report takes 5s at p95, exceeding the required maximum of 2s.\n\n## Idea\nThe reporter proposes improving CSV export in acme/widgets.\n\n## Acceptance Criteria\n- [ ] Given the representative 100-row report, when CSV exports are requested and request-to-file-ready latency is measured using the same request-timing method as the recorded 5s p95 baseline, the measured p95 export latency is at most 2s.\n\n## Post-deployment housekeeping\nNon-blocking: monitor export latency after release.\n\n---\n\n## AC integrity gate report\n\n**PASS**\n\n- **Normalization:** One criterion, rendered as an unchecked `- [ ]` item.\n- **Classification:** Comparative performance criterion.\n- **Baseline:** 5s p95, supplied from the recorded request-timing run.\n- **Target:** p95 ≤ 2s, preserved.\n- **Measurement:** Same request-timing method, representative 100-row report, request-to-file-ready latency.\n- **Setup / action / observable result:** All explicitly named.\n- **Deploy-window check:** Verifiable before production deployment. “In staging” was removed from the AC because the proof venue belongs in the specification, not the criterion.\n- **Housekeeping:** Post-release monitoring remains explicitly non-blocking and outside the ACs.\n- **Disposition:** No hard stop or parking required. No values invented.\n",
-      "words": 245,
-      "wallMs": 18547,
+      "text": "## Full replacement ticket body\n\n## Context\nRequesters export reports as CSV from the widgets app. For the representative 100-row report, the recorded request-timing run measured p95 export latency at 5 seconds.\n\nThe required target is p95 export latency of no more than 2 seconds. The baseline and target are supplied values, not estimates. Measure latency using the same request-timing method as the baseline: request CSV exports of the representative 100-row report and measure the time from request to file ready.\n\n## Problem\nRequesters wait too long for CSV exports. For the representative 100-row report, p95 latency—the latency at the 95th percentile—is 5 seconds, exceeding the required maximum of 2 seconds.\n\n## Idea\nThe reporter proposes improving CSV export in acme/widgets to meet the 2-second p95 latency target.\n\n## Acceptance Criteria\n- [ ] Given the representative 100-row report, when CSV exports are requested and request-to-file-ready latency is measured using the same request-timing method as the recorded baseline, p95 export latency is no more than 2 seconds, compared with the recorded 5-second baseline.\n\n## Post-deployment housekeeping\nNon-blocking: monitor export latency after release.\n\n---\n\n## AC integrity gate report\n\n**Result: PASS**\n\n- **Normalization:** The criterion is rendered as an unchecked checklist item.\n- **Classification:** Comparative performance criterion.\n- **Setup:** The representative 100-row report.\n- **Action:** Request CSV exports and measure request-to-file-ready latency using the baseline’s request-timing method.\n- **Expected result:** p95 latency is no more than 2 seconds.\n- **Baseline, target, and measurement:** Preserved: recorded 5-second baseline, supplied 2-second target, and the same request-timing method. No values were invented.\n- **Deploy-window check:** Verifiable before production deployment. The AC does not prescribe an environment.\n- **Housekeeping:** Post-release monitoring remains explicitly non-blocking and outside the AC list.\n- **Disposition:** No hard stop, parking requirement, or further relocation.\n",
+      "words": 274,
+      "wallMs": 18711,
       "mechanical": {}
     }
   },
@@ -34,45 +34,45 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "448351d40c9d682ff29e24f421ef519ec9b1455ddb4e39760068708be93aadf8",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "a1f2e0277eea1c519237ebdc506c0828b849734854dde19521f3e688c84ba2e4",
-      "baselineOutputSha": "8428dbfcf9ec28e82f1a1615a43d7fc76a36d141ef8c4b1cbaee21c9d842ccd1",
-      "candidateOutputSha": "6edf1a0504c4b343925222e1df58d55287b790cf5effc8bf7ee4ad0905982a44",
+      "intentSha": "bf911ba1667f3200092055a02960a6f2e98f4dcbcf4c609eb14ed6f4f68f9bc7",
+      "baselineOutputSha": "64b1a61850353e33d0f034b1d60e9355b550951076ca4aeffee4f04063fffb2a",
+      "candidateOutputSha": "64b1a61850353e33d0f034b1d60e9355b550951076ca4aeffee4f04063fffb2a",
       "facts": {
         "f1": {
-          "before": "fails",
+          "before": "holds",
           "after": "holds",
-          "label": "intended change"
+          "label": "held"
         },
         "f3": {
-          "before": "fails",
+          "before": "holds",
           "after": "holds",
-          "label": "intended change"
+          "label": "held"
         }
       },
-      "feedback": "After moved both facts from fails to holds, which is exactly the intended direction: the single AC row now reads \"...p95 latency of 2s or less (baseline 5s), measured from request to file-ready with the same request-timing method as the recorded baseline run\" with no environment named, while Before opened the row with \"In staging\" and so failed both f1 and f3. Nothing that Before kept was lost: the 2s target, the 5s baseline, the request-to-file-ready method, the supplied-not-estimated note (now in Context), and the non-blocking housekeeping line all survive verbatim or in substance. The one thing worth watching in the After wording is that the gate report still discusses staging and production in prose (\"The original AC said 'in staging'. I removed it...\", \"can be verified before production\"); that is fine for f3 as written because those are not AC rows, but if a future fact tightens to \"the output names no venue\" the report commentary would trip it. Keeping the venue-removal rationale phrased generically (\"the original row named a verification environment; the spec picks the venue\") would deliver the same Change with less risk.",
-      "verdict": "improved"
+      "feedback": "Before and After are textually identical for this case, so nothing moved: the single AC row still states the ≤ 2s target with the (baseline: 5s) parenthetical and names no environment, and the only mentions of staging, UAT, and production appear in the gate report's Deploy-window prose, not in any AC row. This is consistent with the Change note that the repair target's bundle-free draft slice is untouched by the overlap-reference wording; the closed-concern-additions guard does not reach this sample. No wording adjustment is needed for this case — keep the AC row free of venue names and keep the environment discussion confined to the gate report, as After already does.",
+      "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "448351d40c9d682ff29e24f421ef519ec9b1455ddb4e39760068708be93aadf8",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "a1f2e0277eea1c519237ebdc506c0828b849734854dde19521f3e688c84ba2e4",
-      "baselineOutputSha": "25418c84addeca9adfb059e7449d4e1382e1798ee9cba66a1dcdae987cff645c",
-      "candidateOutputSha": "d9d114e7b2fa86764a1c207cca8c7f0668eb00f1eca3d3dc584d5451af20ba99",
+      "intentSha": "bf911ba1667f3200092055a02960a6f2e98f4dcbcf4c609eb14ed6f4f68f9bc7",
+      "baselineOutputSha": "d8d9a5dc6de850968a437c351770a7adff4e360a80206ece7528f0b53c7ab056",
+      "candidateOutputSha": "d8d9a5dc6de850968a437c351770a7adff4e360a80206ece7528f0b53c7ab056",
       "facts": {
         "f1": {
-          "before": "fails",
+          "before": "holds",
           "after": "holds",
-          "label": "intended change"
+          "label": "held"
         },
         "f3": {
-          "before": "fails",
+          "before": "holds",
           "after": "holds",
-          "label": "intended change"
+          "label": "held"
         }
       },
-      "feedback": "After delivers the intended change cleanly: the single AC row drops the \"In staging\" lead-in from Before while keeping the supplied 2s target, the recorded 5s baseline, the 100-row setup, the request-to-file-ready action, and the observable p95 result, so both f1 and f3 move from fails to holds exactly as expected. Nothing that Before kept was lost - the non-blocking housekeeping line is intact, the measurement method is preserved (now folded into Context), and the gate report still records baseline, target, and measurement. One minor robustness note: the gate report's deploy-window line quotes \"In staging\" and says \"before production deployment\"; these are outside the AC rows so they do not trip f3, but if a future fact were to scan the whole body for venue names, phrasing it as \"the environment reference was removed from the AC\" and \"verifiable before release\" would avoid any ambiguity while still documenting the removal.",
-      "verdict": "improved"
+      "feedback": "Before and After are byte-identical for this case, so nothing moved: the single AC row keeps the 2s target and the recorded 5s baseline and names no environment (f1), and no AC row mentions production, staging, UAT, or experimental (f3) — the only 'production' reference is in the gate report's deploy-window line, outside the AC list, in both outputs. This is consistent with the Change's claim that the target's bundle-free draft slice is unaffected; the repeated-defect rule wording in the overlap reference does not reach this sample's output, so no adjustment is needed here to preserve these facts.",
+      "verdict": "unchanged"
     }
   },
-  "repoSha": "1ad41846d4f3d7f67912e878754b83a82aa197c4"
+  "repoSha": "063376c5fe9f59033edeae2ef5ec4f298ff99611"
 }

@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Changed
+
+- `shape-ticket`: create mode checks for overlap once within a bounded budget and discloses incomplete coverage. The existing confirmation menu offers supported same-concern enrichment, create-anyway, or no write; finished work favors useful evidence comments or no write instead of duplicates. `--skip-overlap` bypasses discovery, not source reads or write gates. Tracker behavior follows documented capabilities; native Linear body-only recall remains unverified, and concurrent sessions can still create duplicates. (#60)
+
 ## v7.8.2 - 2026-10-11
 
 ### Changed

@@ -1,11 +1,7 @@
-for: 21b2e112d649e02d4cec6f4908aa89134bd971a0983e89fe07a4882877e3cd81
+for: 71d84d8b0445a755f89926c0fb2706f2c373fba8ef3a5416c75261dde14ee89a
 
 ## Change
-The repo-group template attributes Acceptance Criteria rows to one named repo group per repo when the Idea names multiple repos. The venue-free rule removes environment names from AC rows while preserving setup, action, observable results, and supplied measurements; post-deployment housekeeping stays non-blocking.
+Clarify the overlap reference's repeated-defect rule: completion plus compatible same-concern additions does not justify a duplicate without evidence distinguishing a new regression. The closed-concern-additions sample alone bundles that reference and checks supplied-evidence recommendations, allowing useful existing-ticket additions or no write while retaining create-anyway as an override. Its pre-fix baseline already recommends the existing concern, so this is a guard rather than a forced failing baseline. The target's bundle-free draft slice and both older samples' facts remain unchanged.
 
 ## Expected to move
-- multi-repo-groups/f1: fails -> holds - The template renders a group for each named repo.
-- multi-repo-groups/f2: fails -> holds - Repo groups attribute emailing to mailer and the button and columns to widgets.
-- multi-repo-groups/f3: fails -> holds - AC rows omit verification venues.
-- venue-stripped/f1: fails -> holds - Repair preserves the supplied target and baseline without the environment.
-- venue-stripped/f3: fails -> holds - The venue-free rule excludes environment names from every AC row.
+- closed-concern-additions/existing-concern: fails -> holds - Prevent completion plus compatible additions from justifying a duplicate; a baseline that already holds remains a guard.

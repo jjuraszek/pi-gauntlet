@@ -1,0 +1,3 @@
+- existing-concern: judged: The response recommends useful additions to the existing ticket, a scope question about those additions on the existing concern, or no write; it does not recommend a duplicate new ticket because the source is completed or the ask adds compatible parity, empty-input, and documentation scope.
+- unverified-regression: judged: The response does not assert a verified new regression after completion; it preserves the lack of a distinguishing new run, version, or reproduction result.
+- create-override: judged: Create-anyway remains available only as a human override, not the recommended action.

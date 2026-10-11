@@ -275,7 +275,7 @@ explicit ask).
 any handoff:
 
 - File a ticket chosen -> shape-ticket runs its own gate first -> draft the
-  response citing the new ticket link -> gate 2 -> done.
+  response citing the ticket link shape-ticket returned -> gate 2 -> done.
 - Brainstorm now chosen -> draft the response first ("confirmed, investigating
   now - fix to follow") -> gate 2 -> **then** hand off to [`/skill:brainstorming`](../brainstorming/SKILL.md).
 - Hotfix now chosen -> hand off to `hotfix.md` first; on completion, draft the
@@ -339,7 +339,7 @@ action renders the verdict as a **summary to the human**, then the skill ends
 (or hands off):
 
 - File a ticket / discovery ticket chosen -> `/skill:shape-ticket` runs (its
-  own gate) -> render the summary citing the new ticket link -> done. If
+  own gate) -> render the summary citing the ticket link shape-ticket returned -> done. If
   shape-ticket is cancelled at its gate, render the summary without a ticket
   link.
 - Brainstorm now chosen -> render the summary -> **then** hand off to
