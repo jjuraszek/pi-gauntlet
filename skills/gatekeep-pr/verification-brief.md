@@ -33,6 +33,7 @@ gh pr view <N> --json number,title,body,author,state,isDraft,headRefName,baseRef
 gh run list -R <owner>/<repo> -c <headRefOid> --json databaseId,status,conclusion,workflowName,url   # Actions runs on the assessed head: held-run detection (action_required with or without a rollup entry)
 gh api user --jq .login                     # viewer_is_author = (login == pr.author.login)
 gh api graphql -f query='query($o:String!,$r:String!,$n:Int!){ repository(owner:$o,name:$r){ viewerPermission pullRequest(number:$n){ viewerCanUpdateBranch } } }' -f o=<owner> -f r=<repo> -F n=<N>   # viewer_permission, can_update_branch; a null field is recorded as `unreadable`
+gh repo view <base-repository> --json nameWithOwner   # resolved base repository context, never headRepository
 gh pr diff <N>
 gh api repos/{owner}/{repo}/pulls/<N>/comments --paginate    # inline review comments
 gh api repos/{owner}/{repo}/issues/<N>/comments --paginate   # top-level comments
@@ -62,6 +63,14 @@ provisioning, so it never re-polls; step 2 re-polls once after provisioning (`re
 ```text
 - pr: { number, title, body, author, author_is_bot, state, isDraft, headRefName, baseRefName,
         isCrossRepository, mergeable, mergeStateStatus, headRefOid, headRepository, maintainerCanModify, files, additions, deletions, reviewDecision }
+- base_repository: <lowercase nameWithOwner from gh repo view in the resolved base context | unreadable>
+- consent.target: { base_repository, number, baseRefName }
+- consent.scope_at_grant: <selected scope; source: pr includes original_intent: { title, body }>
+- consent.fix: null | { scope: "all" or an array of stable finding IDs, granted_by: string }
+- consent.merge_base: null | { granted_by: string }   # base is consent.target.baseRefName
+- repair.rounds_used: <nonnegative integer, initially 0>
+- repair.poll_deadline: null | <absolute timestamp for the existing poll window; reference/post-selection-loop.md ### Wait course>
+- repair.wave: null | { pre_wave_head, pushed_head, selected_ids, affected_claims, stage: apply | review | push | poll, no_progress: { failed_prerequisite, observed_value, result_path }? }
 - viewer: { login, is_author }
 - permissions: { viewer_permission, is_cross_repository, maintainer_can_modify, merge_state_status, can_update_branch, head_url, head_ref, head_pushable }   # head_pushable is set in step 2 after provisioning (reference/assessment.md); merge_state_status is `BLOCKED`, `BEHIND`, `UNKNOWN`, `unreadable` (null), or any other GitHub value (`CLEAN`, `UNSTABLE`, `HAS_HOOKS`, `DIRTY`) and is written only from a `gh pr view` invocation that names `mergeStateStatus` (this call, the step-2 re-poll, the step-2b re-gather (`reference/sync.md`), the pre-menu refresh, compare-and-swap, the wait and fix-wave polls), never from an ad hoc GraphQL query or `gh pr list`, and never from a reply carrying `errors`; any field that cannot be read is the literal `unreadable`; menu availability derives from this block (reference/decision-menu.md ## Availability)
 - status_checks: [ { name, kind, status, conclusion, required, url, workflowName } ]   # kind: check_run | status_context | unreadable, from the rollup entry's __typename; evidence semantics: Section B Evidence resolution; workflowName from the CheckRun rollup entry (absent on StatusContext)
@@ -138,14 +147,14 @@ command runs. Inputs come from Section A's fixed `gh pr view` and `gh run list` 
 
 Row precedence is top-down: the first matching row wins. The Fix wave row is an entry point, not a state row: it names when the table is re-resolved (after a push by this gate), and the state rows above it then decide.
 
-On the first pass the orchestrator re-runs Section A's fixed `gh pr view` and `gh run list` calls every 30 seconds for up to `timeout minutes` while no row other than Pending or Fallback matches (cadence as in `reference/fix-wave.md` `## Evidence after push`), then resolves the table.
+On the first pass the orchestrator uses the persisted poll deadline owned by `reference/post-selection-loop.md` `### Wait course` and re-runs Section A's fixed `gh pr view` and `gh run list` calls every 30 seconds while no row other than Pending or Fallback matches (cadence as in `reference/fix-wave.md` `## Evidence after push`), then resolves the table.
 
 | Path | Trigger | Action | Evidence recorded |
 |---|---|---|---|
 | Opt-out | `local verification: always` in `## PR gate` | Run local command unconditionally; a Failed-CI block below still applies independently | Local; `local run: local verification: always` |
 | Failed CI | Any blocking conclusion in the resolved set | Blocks: mints a `P#` (any resolved-set failure, required or not) and names the check in the evidence block; the menu re-renders with `fix` recommended only when a drafted payload exists for that failure, else per the overlays. A green local run never overrides it. Only the human `ci-infrastructure-broken` disposition - a pick, never a trigger - runs the fallback local run; merge stays withheld until that run is green | The disposition; plus the fallback run's result when the disposition triggered one |
 | Held run | an `action_required` rollup CheckRun whose run matches an `actions_runs` entry, or an `actions_runs` entry with `action_required` and no rollup entry (a rollup CheckRun matches the `actions_runs` entry whose `databaseId` equals the run id parsed from the CheckRun's `detailsUrl`) | Pending: render `approve workflow run` when available - `viewer_permission` in `WRITE`/`MAINTAIN`/`ADMIN`, the rule `reference/decision-menu.md` `## Availability` owns; when the row is not available, or it was picked and the API returned 403 or 404, run the local command at once; the fresh Section B helper receives the resolved row `held run not approvable` in its task; an approved run that completes is re-resolved per `reference/fix-wave.md` `## Evidence after push`, which dispatches the claim-check-only helper | `local run: held run not approvable` when it fired, else n/a (waiting) |
-| Pending | >=1 **binding** pending check, no blocking conclusion, and the poll window (first pass or after a push) elapsed | the `verification evidence pending` overlay renders (`reference/decision-menu.md` `## Overlays`); `wait` polls another `timeout minutes`; never a local run, never an evidence-less merge; when a later re-resolve moves this head to CI-sufficient, the orchestrator dispatches a fresh Section B helper in claim-check-only mode (no local run) so every material claim gets a disposition | n/a (waiting) |
+| Pending | >=1 **binding** pending check, no blocking conclusion, and the poll window (first pass or after a push) elapsed | the `verification evidence pending` overlay renders (`reference/decision-menu.md` `## Overlays`); a new explicit `wait` renews the expired window per `reference/post-selection-loop.md` `### Wait course`; never a local run, never an evidence-less merge; when a later re-resolve moves this head to CI-sufficient, the orchestrator dispatches a fresh Section B helper in claim-check-only mode (no local run) so every material claim gets a disposition | n/a (waiting) |
 | CI-sufficient | >=1 `success`, zero blocking, zero binding pending | Skip local run | CI claim: check name(s), conclusion, assessed SHA, run URL |
 | Fallback | No conclusive check: no checks on the assessed head, or only inert / fail-safe conclusions or only not-binding pending checks, after `timeout minutes` | Run local command (protocol below) | Local command + `log_path`; `local run: no conclusive check` |
 | Fix wave | A fix-wave push by this gate (not the step-2b sync push) | Poll the pushed head per `reference/fix-wave.md` `## Evidence after push`, then resolve this table on the normalized set | The resolved row's evidence for the pushed SHA |
@@ -197,6 +206,8 @@ run fires on exactly three triggers, each recorded in the evidence block:
 ```
 
 Claim-check-only mode: the orchestrator's task says `claim check only`; emit the resolved row's `source: ci` block (`head_sha`, `checks`), no run, and the per-claim dispositions.
+
+`description recheck` mode: take the actual body, assessed head, affected claims/finding IDs, and existing evidence block. Emit only affected `{ claim, disposition, evidence }` entries and supplied claim findings' `<finding id>: resolved` or `<finding id>: open - <why>` closure lines. No replacement evidence block is emitted. Run no tests or evidence resolver; preserve `source: ci`, `source: local` (including `log_path`), or `source: pending` unchanged. Preserve unrelated dispositions; pending evidence remains insufficient. Judge supplied proof against source, not author assertion alone. This mode is separate from `claim check only`.
 
 `source: pending` records a Pending or Held run outcome - no local run, no CI sufficiency, no claims; the orchestrator waits.
 

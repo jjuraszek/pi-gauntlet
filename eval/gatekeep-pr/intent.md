@@ -1,15 +1,76 @@
-for: a11bdb95c7e66816bd3a5a14919efab496fd2d4299ea43d5b113997d50725f5e
+for: 3c86d25807809d51291ac52c47afe01af78f89ee4c13b9760ef3bcbec0a78ebf
 
 ## Change
-`fix` applies open blockers only and is offered only while one exists; `fix nits` is its own verb whose payloads are drafted at the pick; each wave helper gets a scoped test command resolved from the merge-base overrides or AGENTS.md, never the verification command; the pre-push reviewer lists only the wave's own findings and the next round carries open closure lines, in-delta Critical/Moderate, and outside-delta Critical findings.
+Retain bounded, independent same-run fix and merge-base selections in one portable temporary record. Continue reviewed authorized repairs across base advances and source-backed later blockers, stopping at genuine decision boundaries. Add exact, scope-neutral description correction consent, fresh body/head checks and confirmed narrow readback; preserve independent obligations and evidence. Bind Verify, Review and integration/report to the refreshed exact headRefOid after sync, preserving the rebased-locally local-HEAD exception and head-not-pushed withholding while offering retained repair actions. File-backed retention is instruction-mediated on both harnesses, not runtime enforcement. These synthetic text-protocol comparisons pair the delivered instructions against the unchanged pinned baseline; they do not establish native harness execution.
 
 ## Expected to move
-- nits-only-ready/n1: fails -> holds - the baseline offers `fix` on a nit-only PR
-- nits-only-ready/n2: fails -> holds - the baseline has no `fix nits` row
-- nits-only-ready/n3: fails -> holds - the baseline prints no nit count line
-- nits-only-ready/n4: fails -> holds - the baseline drafts nit payloads before any pick
-- blockers-bare-fix/b2: fails -> holds - the baseline drafts nit payloads at step 5
-- blockers-bare-fix/b3: fails -> holds - the baseline names a test file, not a resolved command
-- wave-closure-retry/w1: fails -> holds - the baseline lists the whole pre-wave findings list
-- wave-closure-retry/w2: fails -> holds - the baseline carries every new Critical or Moderate and mints no P#
-- wave-closure-retry/w3: fails -> holds - the baseline has no show-evidence-only disposition for an outside-delta Minor
+- conflict-free-sync/f5: fails -> holds - Strengthened fresh-head handoff binds verification and the brief to the pushed assessed SHA, with Sync immediately before the verdict.
+- scoped-test-red-sync/S5: fails -> holds - Preserve required head-not-pushed withholding and no local verification while adding retained repair actions; acknowledge the previously observed favorable change without excusing any after failure.
+- continued-conflict-fix-loop/f1: fails -> holds - The initial mixed base/file pass spends one round before its first mutation.
+- continued-conflict-fix-loop/f2: fails -> holds - The second newly needed pre-push base resolution receives a fresh helper and review without another merge-base pick and spends a second round.
+- continued-conflict-fix-loop/f3: fails -> holds - The later source-verified P3 receives a reviewed repair under broad fix consent without another fix pick and spends the third round.
+- continued-conflict-fix-loop/f4: fails -> holds - Pending CI and reviewer work is polled within the existing deadline without another wait pick.
+- continued-conflict-fix-loop/f5: fails -> holds - Final readiness uses successful evidence on the final pushed head, not prior-head evidence.
+- continued-conflict-fix-loop/f6: fails -> holds - P2 is not repaired.
+- continued-conflict-fix-loop/f7: fails -> holds - The final ready menu is rendered without executing merge or approval.
+- fix-only-conflict-stop/f1: fails -> holds - No base-resolution helper or base merge runs without a merge-base grant.
+- fix-only-conflict-stop/f2: fails -> holds - The next menu asks for the missing base-repair decision while retaining the existing fix grant.
+- named-fix-new-blocker/f1: fails -> holds - Consent is retained for stable P1, not the new row-1 P4.
+- named-fix-new-blocker/f2: fails -> holds - No implementer is dispatched for unrelated P4 or P5.
+- cc-consent-recovery/f1: fails -> holds - Checkpoint A reads the exact checklist locator and restores the saved grants and finding contributions without prior chat selection.
+- cc-consent-recovery/f2: fails -> holds - Checkpoint A uses native Claude Code-shaped fresh base-resolution and review helpers without pi tools.
+- cc-consent-recovery/f3: fails -> holds - Checkpoint A preserves rounds_used 1 and spends only the next pass, reaching a fresh ready menu without automatic merge.
+- cc-consent-recovery/f4: fails -> holds - Checkpoint B establishes no repair authority when the locator is lost.
+- consent-record-missing/f1: fails -> holds - Checkpoint A pauses automatic repair on the missing record.
+- consent-record-missing/f2: fails -> holds - Checkpoint B pauses automatic repair on the unreadable record.
+- consent-record-missing/f3: fails -> holds - Neither checkpoint searches other old state files or guesses permission from chat.
+- consent-record-missing/f4: fails -> holds - Neither checkpoint resets round usage to zero to authorize repairs.
+- consent-record-mismatch/f1: fails -> holds - Checkpoint A authorizes no write from another PR record.
+- consent-record-mismatch/f2: fails -> holds - Checkpoint B authorizes no write from malformed JSON.
+- consent-record-mismatch/f3: fails -> holds - Checkpoint C authorizes no write from another base repository.
+- consent-record-mismatch/f4: fails -> holds - Checkpoint D authorizes no write from a case-mismatched base branch.
+- consent-revoked/f1: fails -> holds - The orchestrator persists fix revocation before another mutation.
+- consent-revoked/f2: fails -> holds - No automatic P1 fix runs after revocation.
+- consent-revoked/f3: fails -> holds - The merge-base grant survives revocation and show evidence and authorizes the reviewed base course.
+- consent-budget-stop/f1: fails -> holds - Exhausted usage survives recovery and head refresh with no additional repair attempt or push; read-only reassessment is permitted.
+- consent-zero-budget-description/f2: fails -> holds - No description write occurs under cap 0 despite selection of the exact available correction.
+- consent-mixed-pass-count/f3: fails -> holds - A single increment from rounds_used 1 to 2 and wave checkpoint are persisted before the first body write or repair helper; body, base and file work share that pass.
+- consent-no-progress-stop/f4: fails -> holds - The unchanged failed scoped-test prerequisite and still-open P1 yield a no-progress obstacle, not a silent retry or readiness based on green CI.
+- consent-poll-timeout/f5: fails -> holds - The expired absolute poll deadline yields a timeout obstacle without automatic renewal or indefinite polling.
+- consent-wait-needs-grant/f6: fails -> holds - Pending evidence with null repair grants and no wait selection requires an explicit wait decision rather than pick-free polling.
+- consent-contract-change-stop/f1: fails -> holds - The contract exception stops automatic repair despite both grants.
+- consent-contract-change-stop/f2: fails -> holds - The next decision presents accepting the named contract change through its owning process, preserving the contract and repairing implementation, or stopping.
+- consent-contract-change-stop/f3: fails -> holds - No description rewrite substitutes for a contract amendment.
+- pr-body-false-claim/f1: fails -> holds - The first consent preview offers the exact scope-neutral old-to-new description correction as a fix target.
+- pr-body-false-claim/f2: fails -> holds - A writes nothing after decline.
+- pr-body-false-claim/f3: fails -> holds - B preserves all unrelated body text.
+- pr-body-false-claim/f4: fails -> holds - B requires actual readback and a narrow claim recheck before clearing P1.
+- pr-body-false-claim/f5: fails -> holds - B does not propose the same resolved correction again on unchanged refresh.
+- pr-body-false-claim/f6: fails -> holds - Description-only correction dispatches no file implementer, creates no empty commit, and runs no full verification suite.
+- pr-body-false-claim/f7: fails -> holds - C preserves local evidence and its original log_path without inventing CI evidence.
+- pr-body-false-claim/f8: fails -> holds - D preserves pending evidence and does not turn the narrow claim result into sufficient evidence.
+- pr-body-new-claim-held-grant/f1: fails -> holds - A new description payload receives its exact-text consent preview despite the broad fix grant.
+- pr-body-new-claim-held-grant/f2: fails -> holds - No description write runs before selection of that new exact proposal.
+- pr-body-false-claim-missing-test/f1: fails -> holds - The body repair clears only P1 claim contribution and leaves its missing-test contribution open until the file repair.
+- pr-body-false-claim-missing-test/f2: fails -> holds - Approved body work is processed before the head-changing file push.
+- pr-body-false-claim-missing-test/f3: fails -> holds - The just-corrected claim is narrowly rechecked against the final pushed head and evidence.
+- pr-body-false-claim-missing-test/f4: fails -> holds - The newly false no-test sentence receives a new exact correction proposal requiring selection rather than silent rewrite.
+- pr-body-false-claim-missing-test/f5: fails -> holds - Valid file progress is recorded independently of description progress.
+- pr-body-scope-reduction-no-spec/f1: fails -> holds - Original PR intent is retained as the scope baseline through body correction.
+- pr-body-scope-reduction-no-spec/f2: fails -> holds - Later reassessment does not clear unsigned-event behavior or constant-time mechanism obligations by selecting the shortened body as scope.
+- pr-body-unverifiable-completion/f1: fails -> holds - A reports inability to verify production completion as non-blocking uncertainty, not a blocker or nit.
+- pr-body-unverifiable-completion/f2: fails -> holds - A does not invent unfinished work or a future production-observation promise.
+- pr-body-unverifiable-completion/f3: fails -> holds - Conflicting source statements remain uncertain rather than selecting one as proved.
+- pr-body-unverifiable-completion/f4: fails -> holds - B drafts a factual clarification distinguishing author assertion from gate evidence and obtains exact-text selection.
+- pr-body-unverifiable-completion/f5: fails -> holds - B creates no future-work commitment without an explicit pending-work source.
+- pr-body-concurrent-change/f1: fails -> holds - A does not overwrite the observed concurrent body edit and refreshes the exact proposal for fresh consent.
+- pr-body-head-change/f2: fails -> holds - B rejects the stale-head proposal and obtains fresh consent before writing.
+- pr-body-mixed-failure-progress/f3: fails -> holds - C preserves confirmed description progress independently of failed file progress.
+- pr-body-own-push-stale-proposal/f4: fails -> holds - D treats its own pushed head as invalidating the old exact proposal and obtains fresh selection.
+- pr-body-same-head-merge-refresh/f5: fails -> holds - E aborts the merge pick on the same-head body edit and narrowly rechecks changed material claims before a fresh final selection.
+- pr-body-write-failure/f1: fails -> holds - A keeps P1 unresolved and reports the API failure without blind retry.
+- pr-body-write-failure/f2: fails -> holds - B keeps P1 unresolved and does not report an unreadable write as successful.
+- pr-body-write-failure/f3: fails -> holds - C keeps P1 unresolved on unexpected readback.
+- pr-body-write-failure/f4: fails -> holds - D keeps P1 unresolved when the narrow recheck still contradicts the claim.
+- pr-body-write-failure/f5: fails -> holds - E leaves the raced operation unconfirmed and P1 initially unresolved; later closure uses fresh actual-body assessment and matching new-head claim/evidence checks, never old evidence or retroactive confirmation.
+- wave-closure-retry/w2: fails -> holds - Preserve the original pre-push reviewer carried-set while retaining named grants for P2 and source-backed F1/F2 repairs, excluding F3.

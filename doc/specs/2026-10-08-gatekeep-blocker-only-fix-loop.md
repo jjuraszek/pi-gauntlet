@@ -1,5 +1,7 @@
 # gatekeep-pr: blocker-only fix loop
 
+> **Superseded by:** [doc/specs/2026-10-11-gh-62-gatekeep-decision-grants.md](./2026-10-11-gh-62-gatekeep-decision-grants.md) - D1's fix-availability predicate for description targets, D2's file-level blocker-payload restriction, and D4's unchanged-round-accounting assumption only
+
 **Goal:** Make `/skill:gatekeep-pr`'s `fix` pick do only what merge needs - open blockers, scoped tests, a closure review over the wave's own findings - so a fix wave stops re-running the full verification command, re-reviewing the whole report, and polishing nits nobody asked for.
 **Amend-grant:** every later spec amendment in this flow (corrected facts, paths, verification lines, and scope, acceptance-criteria, or public-contract edits alike) applies without asking; only a redraw (changed problem statement, component added, removed, or re-bounded) still stops for you, and the grant never stands in for a spec approval.
 

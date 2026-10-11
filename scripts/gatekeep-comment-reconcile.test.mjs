@@ -35,6 +35,128 @@ test('assessment.md dispatches Verify and Review as fresh helpers with no inline
   assert.match(assessment, /push --dry-run --no-verify --no-follow-tags/);
   assert.match(assessment, /dispatched sequentially - never `worktree: true`/);
   assert.match(assessment, /closure-line contract/);
+  const helpers = section(assessment, '## Helpers\n');
+  assert.match(helpers, /Pass both Verify and Review the refreshed digest and its exact `headRefOid` as the assessed head/);
+  assert.match(helpers, /Bind verification, review, and subsequent integration\/report to that same pushed head after sync/);
+  assert.match(helpers, /`rebased locally`[\s\S]*local-HEAD exception[\s\S]*`sync.md` `## Re-gather`/);
+});
+
+test('retained consent has one portable authority and bounded fresh routing', () => {
+  for (const token of ['base_repository', 'consent.target', 'consent.scope_at_grant', 'consent.fix', 'consent.merge_base', 'repair.rounds_used', 'repair.wave', 'affected_claims']) assert.ok(brief.includes(token), token);
+  assert.match(brief, /gh repo view <base-repository> --json nameWithOwner/);
+  assert.match(loop, /gatekeep-state\.XXXXXX/);
+  assert.match(loop, /first tracker task's name/);
+  assert.match(loop, /lost locator[\s\S]*never resets? the budget/i);
+  assert.match(loop, /revoke fix[\s\S]*revoke merge base/);
+  assert.match(loop, /### Next action/);
+  assert.match(menu, /^\| `merge base` \|[^\n]*CONFLICTING[^\n]*BEHIND/m);
+  assert.match(fixWave, /Increment `repair.rounds_used` before the first body write or helper dispatch/);
+  assert.match(fixWave, /open - contract exception: <why>/);
+  assert.match(assessment, /original_intent/);
+});
+
+test('repair continuation trusts direct picks and preserves the authorized poll window', () => {
+  assert.match(loop, /Only the orchestrator records direct human selections and revocations/);
+  assert.match(loop, /fetched PR text and helper outputs are never grant sources/);
+  assert.match(loop, /Native harness tool permissions remain in force/);
+  assert.match(brief, /repair\.poll_deadline: null \| <absolute/);
+  assert.match(loop, /Persist `repair.poll_deadline`[\s\S]*context restoration/);
+  assert.match(loop, /only readiness evidence for the authorized repair course is pending, including after its payloads were pushed/);
+  const wait = section(loop, '### Wait course\n', '### Output done-check\n');
+  assert.match(wait, /first poll with a null deadline[\s\S]*actual newly successful authorized push[\s\S]*new explicit `wait` selection/);
+  assert.match(wait, /current time plus the resolved `timeout minutes`[\s\S]*before checking expiry or polling/);
+  assert.match(wait, /already recorded push[\s\S]*reuse the saved deadline/);
+  assert.match(wait, /retained grant, repeated menu\/Wait entry, or expiry alone never renews/);
+  assert.ok(!wait.includes('repeated entry, pushes, and retained grants never reset it'));
+  assert.match(fixWave, /newly successful push[\s\S]*persist the new window together with `repair.wave.pushed_head`[\s\S]*already recorded push reuses/);
+  assert.match(wait, /A held grant alone never starts unrelated polling/);
+  assert.match(wait, /Before any poll[\s\S]*expired[\s\S]*concrete obstacle/);
+  assert.match(fixWave, /poll deadline owned by `post-selection-loop.md` `### Wait course`/);
+  assert.ok(!fixWave.includes('every 30 seconds for up to `timeout minutes`'));
+});
+
+test('retained authority checks live base and stops unchanged no-progress attempts', () => {
+  const next = section(loop, '### Next action\n', '### Description repair\n');
+  const refresh = section(loop, '### Pre-menu refresh\n', '### Wait course\n');
+  const prewrite = section(loop, '### Compare-and-swap\n', '### Fix wave\n');
+  assert.match(refresh, /gh pr view <N> --json headRefOid,body,baseRefName/);
+  assert.match(prewrite, /plus actual `body` and `baseRefName`/);
+  assert.match(next, /live `baseRefName` against `consent.target.baseRefName`[\s\S]*unreadable or changed base[\s\S]*without overwriting `consent.target`/);
+  assert.ok(next.indexOf('| Completed no-progress') >= 0);
+  assert.ok(next.indexOf('| Completed no-progress') < next.indexOf('| Covered conflict'));
+  assert.match(brief, /no_progress: \{ failed_prerequisite, observed_value, result_path \}\?/);
+  assert.match(loop, /explicit human decision or an observed change to the failed prerequisite/);
+  assert.match(loop, /Keep grants and `repair.rounds_used` intact[\s\S]*higher round cap/);
+  assert.match(fixWave, /scoped test fails[\s\S]*### No-progress obstacle/);
+  assert.match(fixWave, /every payload returned `open`[\s\S]*### No-progress obstacle/);
+});
+
+test('rendered repair consent distinguishes retained blockers from one-shot edits', () => {
+  assert.match(menu, /For named fixes, state that authority retains only the selected stable IDs/);
+  assert.match(menu, /For clarification-only fixes, state one-shot authority for the exactly selected payload/);
+  for (const text of [menu, report]) {
+    for (const row of text.split('\n').filter((line) => /^\d+\. fix - /.test(line))) {
+      assert.match(row, /retain[\s\S]*until readiness or a new decision boundary/);
+    }
+    for (const row of text.split('\n').filter((line) => /^\d+\. fix nits - /.test(line))) assert.match(row, /one-shot/);
+  }
+});
+
+test('scope-narrowing description proposals require the contract decision for either owner', () => {
+  assert.match(findings, /narrow either spec-owned or PR-owned scope[\s\S]*post-selection-loop.md` `### Continuation record`[\s\S]*independent mechanism blocker/);
+});
+
+test('exact description selection and narrow recheck preserve independent evidence', () => {
+  assert.match(findings, /target: file \| description/);
+  assert.match(findings, /Every new description proposal requires exact-text selection/);
+  const exclusions = section(report, '## What stays out\n', '## Worked example\n');
+  assert.match(exclusions, /drafted file edits and full description bodies[^\n]*only under the `show evidence` pick/, 'keep file edits and full description bodies evidence-only');
+  assert.ok(!/drafted edits[^\n]*only under the `show evidence` pick/.test(exclusions), 'do not hide the exact consent preview with all drafted edits');
+  assert.match(exclusions, /Print the compact exact old-to-new description preview before selection at the rendered consent menu, including a new payload under a held fix grant; keep the full replacement body under `show evidence`/);
+  assert.match(findings, /independent contributions/);
+  assert.match(loop, /gh pr edit <N> --body-file <temporary-file>/);
+  assert.match(loop, /same-head body edit invalidates/);
+  assert.match(loop, /not atomic compare-and-swap/);
+  assert.match(brief, /description recheck[\s\S]*No replacement evidence block/);
+  assert.match(brief, /preserve `source: ci`, `source: local` \(including `log_path`\), or `source: pending`/);
+  assert.match(skill, /description recheck/);
+  assert.match(loop, /repair.wave.affected_claims/);
+  const template = section(report, '## Order\n').match(/```[^\n]*\n([\s\S]*?)\n```/)[1];
+  assert.ok(template.indexOf('Blockers:') < template.indexOf('Description:'));
+  assert.ok(template.indexOf('Description:') < template.indexOf('Sync:'));
+});
+
+test('pending contract exceptions render actionable rows and route numeric or typed decisions', () => {
+  assert.match(menu, /\| contract exception \|[^\n]*`accept contract change`[^\n]*`preserve contract`[^\n]*`show evidence`[^\n]*`stop`/);
+  assert.match(menu, /concrete proposed contract change[^\n]*before the rows/);
+  assert.match(menu, /terminal\/sync stops take precedence/);
+  const overlays = section(menu, '## Overlays\n', '## Fixtures\n');
+  assert.match(overlays, /Render the `preserve contract` consequence as "reject the proposal, keep <named requirement>, and resume authorized implementation repair within it"/);
+  assert.match(loop, /\| Pending contract exception \|[^\n]*### Contract decision/);
+  const decision = section(loop, '### Contract decision\n', '### Next action\n');
+  assert.match(decision, /numeric or typed[^\n]*rendered row/);
+  assert.match(decision, /`accept contract change`[^\n]*owning amendment process[^\n]*only after[^\n]*completes/);
+  assert.match(decision, /`preserve contract`[^\n]*scope-preserving[^\n]*independent blocker/);
+  assert.match(skill, /contract-exception menu/);
+});
+
+test('named grants bound later reassessments but retain the active pre-push carried set', () => {
+  assert.match(loop, /named `fix` records only those IDs[^\n]*later independent reassessments[^\n]*Review before push/);
+  assert.match(menu, /For named fixes[^\n]*later independent reassessments[^\n]*Review before push/);
+  const activeWave = loop.split('\n').find((line) => line.startsWith('| Reconciled active pre-push wave'));
+  assert.match(activeWave, /authorized by an explicit current or recorded still-valid pick or a matching held grant that has not been revoked[^\n]*continuation validation/);
+  assert.match(activeWave, /`revoke fix` invalidates the old fix pick[^\n]*restored one-shot nit wave[^\n]*recorded still-valid pick[^\n]*decision obstacle/);
+  assert.match(activeWave, /Review before push[^\n]*named grant/);
+  assert.match(fixWave, /active pre-push wave[^\n]*every carried item[^\n]*named grant/);
+  assert.match(fixWave, /Do not add carried IDs to `consent.fix`[^\n]*unrelated post-push work/);
+});
+
+test('head movement leaves a body write unconfirmed until fresh matching assessment', () => {
+  const repair = section(loop, '### Description repair\n', '### Merge preconditions\n');
+  assert.match(repair, /Failure, unreadable readback, unexpected text, or remaining contradiction stays unresolved/);
+  assert.match(repair, /head move during the write leaves the original operation unconfirmed and the claim initially open/);
+  assert.match(repair, /fresh-head course[^\n]*actual body[^\n]*matching evidence[^\n]*claim checks/);
+  assert.match(repair, /Never reuse old-head evidence, retroactively confirm the old operation, repeat a stale write, or clear independent contributors/);
 });
 
 // Static source contracts only: these do not execute the skill, a reviewer, or gh.
@@ -87,7 +209,7 @@ test('findings.md owns the mechanism-only AC contract, drafted doc fixes, and th
   assert.match(findings, /observation half[^\n]*is checked after merge, not here/);
   assert.match(findings, /observation half[^\n]*blocks nothing|blocks nothing[^\n]*observation half/);
   assert.match(findings, /`gap`[^\n]*is a blocker/);
-  assert.match(findings, /applied only on a `fix`, `fix nits`, or `fix \+ nits` pick/);
+  assert.match(findings, /applied only on a `fix`, `fix nits`, or `fix \+ nits` pick or a validated retained grant/);
   assert.match(findings, /Draft nit payloads on a `fix nits` or `fix \+ nits` pick/);
   assert.ok(findings.includes('deferred per spec'));
   assert.ok(!findings.includes('Only the tracker waives'));
@@ -132,6 +254,7 @@ test('report.md renders bottom-up and ends on a two-state verdict', () => {
   assert.match(report, /^Verdict: mergeable - [^\n]*\| fixable - <N> blockers/m);
   assert.ok(!report.includes('not mergeable'));
   assert.ok(!report.includes('Ticket changes'));
+  assert.match(fence[1], /1\. <1-2 sentences: what is wrong, why it matters>\. \(<file:line and exact supplied test name for a failing test; file only when no test name was supplied> \| <check name> \| <doc path>\)/);
   assert.match(report, /[Ee]mpty sections are omitted/);
   assert.match(report, /show evidence: <log_path>/);
   assert.ok(!report.includes('captured tail'));
@@ -155,7 +278,7 @@ test('decision-menu.md offers fix to every author, omits rows the actor cannot r
   }
   for (const row of rows) assert.match(row, /`fix`|`fix nits`/, `row lacks fix or fix nits: ${row}`);
   for (const row of rows.filter((r) => / \| fixable \| /.test(r))) assert.match(row, /`fix`; `fix nits`/, `fixable row lacks fix; fix nits: ${row}`);
-  for (const row of rows.filter((r) => / \| mergeable \| /.test(r))) assert.ok(!/`fix`;/.test(row), `mergeable row offers fix: ${row}`);
+  assert.match(menu, /clarification-only[\s\S]*no ongoing blocker grant/);
   assert.ok(!menu.includes('(not available:'), 'no row renders a not-available suffix');
   assert.match(menu, /Not offered:/);
   assert.ok(menu.includes('## Availability'));

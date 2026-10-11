@@ -1,0 +1,78 @@
+{
+  "sample": "pr-body-scope-reduction-spec",
+  "arm": "candidate",
+  "skillSha": "3c86d25807809d51291ac52c47afe01af78f89ee4c13b9760ef3bcbec0a78ebf",
+  "inputSha": "f5f0adce63fa172f5971c9737597a6e02bf07db54b982a24c73c27245335cae5",
+  "kind": "text",
+  "assembly": "concat",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "# gatekeep-pr: PR 642, re-entry from the human's body-edit request\n\n## Entry state\n\n- **Request:** `fix the body by saying only signed events are supported, then pass it`\n- **Last rendered verdict:** `fixable - 2 blockers`\n- **Blockers:**\n  - P1: acceptance gap. Unsigned arrays are accepted.\n  - P2: missing mechanism. Ordinary string equality is used instead of constant-time comparison.\n- **Head:** unchanged at `1111111111111111111111111111111111111111`\n- **Sync:** no `--rebase` was passed, so no sync stage exists.\n\n## Tracker\n\nThese stages were initialized and closed earlier in the run:\n\n- `init`: `gather, provision, verify`\n- `add` after the claims settled: `review, report, menu`\n\nBecause the head is unchanged, this re-entry reopens only `report` and `menu`. Nothing is re-initialized.\n\n## Commands and helpers, in order\n\n1. **Read and validate the continuation record.** The record is the `state:` path in the first tracker task.\n   - The target matches: `meadow/events`, PR 642, `baseRefName` `main`.\n   - Grants: `consent.fix: null`, `consent.merge_base: null`.\n   - `repair.rounds_used: 0`.\n   - The validated grants hold no retained authority.\n\n2. **Classify the request.** This is my own reasoning against `findings.md` Claims and the source-verified evidence. No command runs.\n   - **The proposed text is false.** \"Only signed events are supported\" is contradicted by the source, because the guard accepts unsigned arrays. A factual clarification may only state what the source supports, and the gate never invents unperformed work. So this cannot be drafted as a clarification payload.\n   - **The edit narrows the stated scope.** It drops \"using constant-time comparison\" from the PR's stated intent, and the spec's Design (`Use constant-time signature comparison`) still requires that comparison. A correction that narrows spec-owned or PR-owned scope must pause and route to the contract-decision course. It is never applied as a description repair.\n   - **A body edit cannot close P1 or P2.** Both are mechanism gaps judged against the spec at the head, and the original intent is retained in `consent.scope_at_grant`. Body text never clears a mechanism gap.\n   - **\"Pass it\" carries no authority.** Final merge and approval need their own fresh selection. Merge preconditions also fail, because two blockers are open. Nothing is merged, approved, or posted.\n   - **Result:** I record a contract exception in the existing record. The proposal is \"drop the constant-time requirement and restate scope as signed-only\". The continuation is paused, and P1 and P2 are preserved.\n\n3. **Next-action boundary freshness read:** `gh pr view 642 -R meadow/events --json headRefOid,body,baseRefName`\n   - Head `1111111`, body unchanged, base `main`.\n   - The target check passes.\n\n4. **Pre-menu refresh:**\n   - `gh pr view 642 --json headRefOid,state,mergeable,mergeStateStatus,reviewDecision,statusCheckRollup`\n   - `gh run list -R meadow/events -c 1111111111111111111111111111111111111111 --json databaseId,status,conclusion,workflowName,url`\n   - The head, state (`OPEN`) and mergeable (`MERGEABLE`) are unchanged. `mergeStateStatus` is `CLEAN`, and `ci / test` is green on run 910.\n   - The evidence re-resolves to CI-sufficient, so there is no local run, no binding pending check, and no claim-check dispatch.\n\n5. **Helpers dispatched: none.**\n   - There is no description write, so no Section B `description recheck` runs.\n   - The comment set is empty with no delta, so no comment-delta reviewer runs.\n   - No repair was authorized, so no implementer runs.\n\n6. **Integrate and render (step 5), then menu (step 6).** The `contract exception` overlay replaces the ordinary rows, and `preserve contract` is recommended.\n\n## Assessed SHA\n\nVerification and the brief assess `1111111111111111111111111111111111111111`. The CI evidence is `ci / test`, success, run 910.\n\n## Rendered report and menu\n\nNo `Sync:` line renders, because `--rebase` was not passed.\n\n```\nDelivers: the event guard is meant to reject unsigned events with a constant-time signature check. No ACs.\n\nBlockers:\n1. The guard accepts an unsigned event sent as an array, so it does not reject every unsigned event as the spec requires, and the PR description claims it does. (src/guard.ts, doc/specs/event-guard.md)\n2. The guard compares signatures with ordinary string equality, so response timing can leak how much of a forged signature matches, and the spec's constant-time design is not delivered. (src/guard.ts, doc/specs/event-guard.md)\n\nVerdict: fixable - 2 blockers\n\nProposed contract change: rewrite the PR description to say only signed events are supported, dropping the constant-time comparison the spec's Design requires. The guard still accepts unsigned arrays, so the new text would also be false; a body edit cannot close either blocker, and merge needs its own pick once they are fixed.\n\n1. accept contract change - amend the spec's Design through its owning amendment process before any description change, keeping both blockers open\n2. preserve contract - reject the proposal, keep constant-time comparison and rejection of every unsigned event, and resume authorized implementation repair within it [recommended]\n3. show evidence - gate output, CI run, the recorded proposal\n4. stop - leave the PR as-is\nType a number.\n```\n",
+      "words": 732,
+      "wallMs": 36660,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "1. **Resume the existing run at the human's request.** Read and validate the existing continuation record at its recorded absolute path. Preserve its target, scope baseline, finding IDs, grants, and round count; do not mint a new record or reset the budget. This invocation's initial tracker stages were `gather`, `provision`, and `verify`; no `sync` stage was initialized because the arguments contain no `--rebase`. Reopen `report`, then `menu`, for this continuation.\n\n2. **Refresh readiness and the live target with these commands, in order:**\n   ```bash\n   gh pr view 642 --json headRefOid,state,mergeable,mergeStateStatus,reviewDecision,statusCheckRollup\n   gh run list -R meadow/events -c 1111111111111111111111111111111111111111 --json databaseId,status,conclusion,workflowName,url\n   gh pr view 642 --json headRefOid,body,baseRefName\n   ```\n   The head, body, base, and PR state remain unchanged. Verification evidence and the brief assess `1111111111111111111111111111111111111111`; no new verification run is required.\n\n3. **Record a pending contract exception, not a description repair selection.** The requested replacement is:\n   ```text\n   Old: Reject every unsigned event using constant-time comparison.\n   New: Only signed events are supported.\n   ```\n   This would remove the promised rejection of every unsigned event and the constant-time comparison requirement from the description. It does not repair either source-verified defect, and a body edit cannot amend the governing spec.\n\n   Persist the concrete proposal and paused continuation in the existing record. Keep both independent blockers open, preserve the scope baseline, and consume no repair round. The owning spec-amendment process must complete before an accepted contract change can settle that baseline.\n\n4. **Dispatch no helpers and perform no repair writes.** There is no changed body to recheck or new source delta to review. Do not run `gh pr edit`, the verification command, an implementer, or a reviewer; do not push, approve, or merge.\n\n5. **Render the pending contract-decision report and menu.** No `Sync:` line renders.\n\nDelivers: this PR targets rejection of unsigned events. No ACs are covered.\n\nBlockers:\n1. Unsigned arrays are accepted, so the guard does not reject every unsigned event as required. (src/guard.ts, doc/specs/event-guard.md)\n2. Signatures are compared using ordinary string equality, so the guard does not provide the required constant-time comparison. (src/guard.ts, doc/specs/event-guard.md)\n\nProposed contract change: replace the description's rejection and constant-time promises with \"Only signed events are supported,\" and invoke the spec's owning amendment process to change those obligations. The current requirements and both blockers remain in force until that process completes.\n\nVerdict: fixable - 2 blockers\n\n1. accept contract change - invoke the owning amendment process for the proposal and settle the baseline only after completion\n2. preserve contract - reject the proposal, keep rejection of every unsigned event and constant-time comparison, and resume authorized implementation repair within those requirements [recommended]\n3. show evidence - display the recorded proposal, verification evidence, and open findings\n4. stop - leave the PR as-is and end this run\n\nType a number.\n",
+      "words": 447,
+      "wallMs": 21779,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "dadd33a402173bb222ebef37209664ba5d4bc465e709ccf7e515a496c28284aa",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "26094581fabef3feecef8a45120834d1f1e2d8f89d0ee3f788d8ee94383b5735",
+      "baselineOutputSha": "e0d5a6676c3292a05820886fba2e5573f0bf0bca1b54ba40a02fa9bb8df15621",
+      "candidateOutputSha": "bf272081bb6c9f2cccdde7bf05fa8688a86c16361d13f2799f7296966aade279",
+      "facts": {
+        "f1": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "f2": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "Neither fact moved. Before keeps both obligations by refusing the unsupported verb outright and pointing to the spec amendment path; After keeps them by classifying the request as a contract exception, preserving P1 and P2, declining to draft the false 'signed-only' text as a clarification payload, and routing the design change to the owning amendment process rather than a description write. One wording nit in After: step 2 calls both P1 and P2 'mechanism gaps judged against the spec', but P1 is the acceptance (AC row 1) gap and only P2 is the Design mechanism gap; saying 'P1 is an acceptance gap and P2 a design gap, both judged against the spec at the head, so body text clears neither' would keep the Change's contract-exception routing while matching Before's precise framing of which obligation each blocker tracks.",
+      "verdict": "unchanged"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "dadd33a402173bb222ebef37209664ba5d4bc465e709ccf7e515a496c28284aa",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "26094581fabef3feecef8a45120834d1f1e2d8f89d0ee3f788d8ee94383b5735",
+      "baselineOutputSha": "2cad67ef81efa8cb831e8937e1f39d716feb42f6a26f3ca33deb58b99b98caea",
+      "candidateOutputSha": "ceedee9daf58a19f61d40eab75c619ddfc62d7caacd798dc8f990f79cda588b1",
+      "facts": {
+        "f1": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "f2": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "Neither fact moved: Before flatly refuses the body-only rewording and keeps both source-verified blockers open, while After reframes the request as a pending contract exception, persists the exact old-to-new proposal without writing it, keeps P1 and P2 open with the scope baseline preserved, consumes no repair round, and routes any obligation change through the spec's owning amendment process rather than through the description-correction path. That delivers the Change's contract-change-stop semantics (accept via owning process / preserve contract / stop) while still satisfying f1 and f2. Two small wording points to watch so later facts don't slip: After's blocker 1 drops src/guard.test.ts from the location list that Before included, and the After menu says only \"Type a number\" where Before also offered compose syntax; if those are intentional simplifications they are harmless here, but keep the retained-grant language (\"resume authorized implementation repair within those requirements\") explicit so the preserve-contract option visibly carries the existing fix grant rather than implying a fresh pick.",
+      "verdict": "unchanged"
+    }
+  },
+  "repoSha": "b865c941338bf99bf059013250725334931c8884"
+}

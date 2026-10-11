@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Changed
+
+- `gatekeep-pr` retains separate run-scoped `fix` and `merge base` grants through covered repairs and bounded polling to a fresh final menu; final merge and approval still require selection. A temporary continuation record preserves authority, scope, repair usage, and deadlines without automatic recovery from lost state. Exact description corrections require selection, fresh snapshots, readback, and a narrow claim recheck; independent test and scope blockers stay open. Contract exceptions and unchanged unsuccessful attempts pause repair, and file, description-only, and conflict-only attempts share the existing round cap. Unverifiable completion assertions remain non-blocking Description uncertainty; pending-observation wording requires pending work explicitly recorded in the assessed PR description, approved spec, or linked ticket, or explicitly requested by the human. (#62)
+
 ## v7.9.0 - 2026-10-11
 
 ### Changed

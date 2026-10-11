@@ -1,0 +1,68 @@
+{
+  "sample": "consent-wait-needs-grant",
+  "arm": "candidate",
+  "skillSha": "3c86d25807809d51291ac52c47afe01af78f89ee4c13b9760ef3bcbec0a78ebf",
+  "inputSha": "dec6358180673021fbbeb5044953edf9c6b405325ea7d8f6a60401e60dcc07f7",
+  "kind": "text",
+  "assembly": "concat",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "# gatekeep-pr: resuming PR 642 at the same-run record\n\n## 1. Restore and validate the continuation record\n\n- I read `/tmp/gatekeep-state.synthetic` with a native file read. Its path comes from the tracker's first task, so I do not search for any other run's file.\n- The record matches `consent.target`:\n  - base repository `meadow/events` (lowercase)\n  - PR `642`\n  - `baseRefName` `main` (case-sensitive)\n- Grants:\n  - `consent.fix` is `null` and `consent.merge_base` is `null`, so no retained repair authority exists.\n  - `repair.rounds_used` stays `0` and `repair.wave` is `null`, so there is no in-flight stage to reconcile.\n  - `repair.poll_deadline` is absent, so it is treated as `null`. No poll window is active.\n- `findings` is empty, the comment baseline and ledger are empty, and the stored evidence is `source: pending` on `1111111111111111111111111111111111111111`.\n- Tracker: I do not re-initialize it, because this is the same run. It already holds `gather, provision, verify, review, report, menu`, and the first task carries `state: /tmp/gatekeep-state.synthetic`. No `sync` stage exists because `--rebase` was not passed. Verify closed with zero claim tasks, since pending evidence carries no claims. This re-entry re-opens `report`, then `menu`.\n\n## 2. Re-entry route\n\nThe head is unchanged, so this re-enters step 5 through `### Pre-menu refresh`. No new Verify or Review helper is dispatched.\n\n## 3. Pre-menu refresh (read-only)\n\n1. `gh pr view 642 --json headRefOid,state,mergeable,mergeStateStatus,reviewDecision,statusCheckRollup` returns:\n   - head `1111111...1111`, unchanged\n   - `OPEN`, `MERGEABLE`, `CLEAN`\n   - `ci / test` CheckRun `IN_PROGRESS` with a null conclusion\n2. `gh run list -R meadow/events -c 1111111111111111111111111111111111111111 --json databaseId,status,conclusion,workflowName,url` returns run `910`, workflow `ci`, `in_progress`, conclusion null.\n3. `gh pr view 642 --json headRefOid,body,baseRefName` returns the same head and the same body. Live `baseRefName` is `main`, matching `consent.target`. The base did not change, so I make no body-freshness recheck.\n\nThe head, state and mergeable are all unchanged. I replace `merge_state_status`, `reviewDecision`, `status_checks[]` and `actions_runs[]` in the digest together.\n\n**Binding classification:** `ci / test` is a `check_run`. Its `detailsUrl` parses to run `910`, which matches the `actions_runs` entry with status `in_progress`. It is therefore **binding**, even though `mergeStateStatus` is `CLEAN`.\n\n**Evidence re-resolve:** there is no blocking conclusion, no held run, no success, and one binding pending check. The table resolves to the **Pending** row. Consequences:\n- There is no local run, and `node --test src/guard.test.ts` is not executed, because Pending forbids it.\n- There is no claim-check-only helper, because the evidence did not move to CI-sufficient.\n- The evidence stays `source: pending` on `1111111111111111111111111111111111111111`.\n\n## 4. Comment freshness (read-only)\n\n- `gh api repos/meadow/events/pulls/642/comments --paginate` returns `[]`.\n- `gh api repos/meadow/events/issues/642/comments --paginate` returns `[]`.\n- The GraphQL `reviewThreads` query returns no threads.\n\nNo placeholder rows exist and no reviewer workflow is known, so I run no `gh run view` or reviewer `gh run list`. The diff against the empty `C#` ledger is empty, so there is no delta and no comment-delta reviewer is dispatched. I set the digest's `comments` to the fresh empty set.\n\n## 5. Next action\n\nThe record is valid. Checking each row in turn:\n- There is no contract exception and no no-progress obstacle.\n- There is no active wave and no conflict or `BEHIND` state.\n- There are no file blockers.\n- No repair grant is held, so the row \"held repair grant, readiness evidence pending\" does not apply.\n\nThe applicable row is **missing decision**. Evidence waiting needs an explicit `wait` selection.\n\nI start no poll window. `repair.poll_deadline` stays `null`, because only a new explicit `wait` pick mints a deadline of now + 15 minutes. I also make no merge or approve recommendation that could execute on its own. I persist the refreshed fields to the record. Grants and `rounds_used` are untouched.\n\n## 6. Integrate and report\n\n- **Assessed SHA:** both verification and the brief assess `1111111111111111111111111111111111111111`.\n- **Findings:** no blockers, no nits, no drafted payloads, no drafted replies. Claims are undispositioned because the evidence is `source: pending`, which withholds merge under the claim precondition.\n- **Withhold reason resolver:** this is reason 3, a binding pending check.\n- **Sync line:** none renders, because `--rebase` was not passed.\n\n## 7. Menu\n\nThe consent row is your own PR, with a `fixable` verdict that has zero blockers. That uses the mergeable rows with `merge` omitted:\n- `fix nits` drops because there is no nit.\n- `reply` drops because there is no drafted reply.\n- The verification-evidence-pending overlay, which ranks above the CI-check overlay, puts `wait` at row 1 and marks it `[recommended]` because `Blockers` is empty.\n\nThe tracker closes `report` as `complete` and opens `menu`.\n\n```\nDelivers: the event guard rejects unsigned events.\n\nPR comments:\n- A check that binds this actor is still pending, so merge waits. (ci / test)\n\nVerdict: fixable - binding check pending\n\n1. wait - start a 15-minute poll of ci / test (run 910) on the assessed head, then re-render [recommended]\n2. show evidence - pending CI check and state record (state: /tmp/gatekeep-state.synthetic)\n3. stop - leave the PR as-is\nType a number. Not offered: merge (ci / test pending).\n```\n",
+      "words": 773,
+      "wallMs": 49239,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "1. I read and validate `/tmp/gatekeep-state.synthetic`, including its target, assessed head/body, evidence, grants, and usage. The target remains `meadow/events`, PR `642`, base `main`. Both repair grants are null and zero rounds have been used. I retain the existing record and tracker; I init no stages, mint no replacement record, and reset no budget. The tracker retains `state: /tmp/gatekeep-state.synthetic` in its first task.\n\n2. I run the pre-menu refresh:\n   ```bash\n   gh pr view 642 --json headRefOid,state,mergeable,mergeStateStatus,reviewDecision,statusCheckRollup\n   gh run list -R meadow/events -c 1111111111111111111111111111111111111111 --json databaseId,status,conclusion,workflowName,url\n   gh pr view 642 --json headRefOid,body,baseRefName\n   ```\n   The head, body, base, open state, and mergeability remain unchanged. I update the record with the refreshed check and run data without changing consent or usage.\n\n3. I reclassify `ci / test` as binding: its matching Actions run `910` is still in progress, even though GitHub reports `CLEAN`. Evidence remains `source: pending` for `1111111111111111111111111111111111111111`, with no claim dispositions. The brief assesses that same SHA; no SHA has successful verification evidence.\n\n4. I dispatch no helper. No transition to CI-sufficient evidence occurred, so there is no claim-check-only dispatch. I do not run `node --test src/guard.test.ts`: a binding check is pending. I do not poll, sleep, or start a poll deadline: no wait was selected, no repair grant exists, and this entry resumes directly at the next-menu boundary.\n\n5. I confirm menu-time tracked cleanliness:\n   ```bash\n   git -C .worktrees/pr-642 status --porcelain --untracked-files=no\n   ```\n   The output is empty. No repair, push, approval, merge, or external post occurs. No sync line renders because the invocation contains no `--rebase`.\n\nThe next menu is:\n\nDelivers: this PR rejects unsigned events.\n\nPR comments:\n- A check that binds this actor is still pending, so merge waits. (ci / test)\n\nVerdict: fixable - binding check pending\n\n1. wait - poll the binding check, then refresh and re-render [recommended]\n2. show evidence - display the continuation record and pending verification evidence\n3. stop - leave the PR as-is\n\nType a number. Not offered: merge (ci / test pending).\n",
+      "words": 319,
+      "wallMs": 17856,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "4c74b1ce83e7cf7bf36d1fcd725c6f8b169be1c0427307abb794db8ce0c0ef0e",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "26094581fabef3feecef8a45120834d1f1e2d8f89d0ee3f788d8ee94383b5735",
+      "baselineOutputSha": "4710bda970cba09d7364625e87caff8c91994136ee79575ce758fec913b58b55",
+      "candidateOutputSha": "af3a90742eec623693b771a81a660ed51ad6ef35e49f92fcc0000a36f2b4a296",
+      "facts": {
+        "f6": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        }
+      },
+      "feedback": "Before fails f6 because, in Step 3, it opens a 15-minute poll window on its own initiative (\"No poll window has started for this head, so I open one\") with null grants and no wait selection, which is exactly the pick-free polling the fact forbids; it only reaches the explicit wait row after already polling. After holds f6: the next-action table routes pending evidence with no held grant and no wait selection to the missing-decision row, explicitly leaves repair.poll_deadline null, states that only an explicit wait pick mints a deadline, and renders the wait row as the decision rather than acting on it. The wording that produced this move is the ordered next-action row list ending in \"missing decision\" plus the sentence that a deadline is minted only by a new explicit wait pick; keep both, and keep the pre-menu refresh read-only, so that no revision reintroduces an automatic first-pass poll window when the run resumes without a selection.",
+      "verdict": "improved"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "4c74b1ce83e7cf7bf36d1fcd725c6f8b169be1c0427307abb794db8ce0c0ef0e",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "26094581fabef3feecef8a45120834d1f1e2d8f89d0ee3f788d8ee94383b5735",
+      "baselineOutputSha": "71bf2c8f316d6604cad8fa868d53880ef5b2172afd2e171faf60444cef04b7cc",
+      "candidateOutputSha": "b53ae9c99c8ca17c04e5c7535798b43fc85909283dd113f47c80f64b442f47a5",
+      "facts": {
+        "f6": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        }
+      },
+      "feedback": "Both outputs already satisfy f6: Before states it starts no poll window because the human has not selected wait, and After states it does not poll, sleep, or start a poll deadline because no wait was selected and no repair grant exists; both render wait as an explicit menu pick rather than polling pick-free. After's wording is marginally stronger because it names all three conditions (pending evidence, null grants, no wait selection) together in the refusal to poll and explicitly says it 'resumes directly at the next-menu boundary', which makes the decision-boundary reading unambiguous. Keep that explicit three-condition sentence in After; it preserves everything Before kept while making the Change's 'stopping at genuine decision boundaries' visible in the text, and nothing in After moved any fact.",
+      "verdict": "unchanged"
+    }
+  },
+  "repoSha": "b865c941338bf99bf059013250725334931c8884"
+}
