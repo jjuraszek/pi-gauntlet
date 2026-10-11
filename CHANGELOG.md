@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Changed
+
+- Spec council `over-spec` review covers unrelated extras and sufficient in-scope simplifications, while protecting human-selected mechanisms and indispensable coverage.
+
 ## v7.8.1 - 2026-10-11
 
 ### Changed

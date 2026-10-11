@@ -63,9 +63,9 @@ lean: nothing to cut | <N> over-spec findings above
 
 **`over-spec`.** Flag a clause only when all three are true:
 
-1. It is clearly outside the stated problem.
-2. Nothing in the `Human input` block of your task asks for it. Never flag text that appears in that block.
-3. The feature ships correctly without it. Needed-but-unasked is not a finding.
+1. Identify an unrelated extra or name a simpler implementation or proof alternative and show why it preserves the requirements. Cost or style alone does not establish sufficiency.
+2. Match the proposed removal or replacement against the supplied `Human input`: protect explicitly required mechanisms and proof techniques, not an agent's choice of mechanism for a requested outcome.
+3. Show that the proposed cut or replacement preserves required behavior, coverage, and safety. Retain a needed clause without an adequate smaller replacement.
 
 Any test fails -> not a finding. Unsure on 2 -> not a finding. `Human input` block missing or empty -> no over-spec findings, `lean: nothing to cut`. One line per finding:
 
@@ -73,7 +73,7 @@ Any test fails -> not a finding. Unsure on 2 -> not a finding. `Human input` blo
 - [major|minor] over-spec @ "<quoted spec clause>" — no human input requires this (closest human input: "<quote>" | none); adds: <M> files / <N> tests / <K> ACs; if cut, unprotected: <failure | nothing> → cut | shrink to <replacement>
 ```
 
-`major` = buys >= 1 new file or >= 3 tests; else `minor`; never `blocker`. `adds:` = your estimate of the surface the clause forces. `unprotected:` = the failure nobody catches once the clause is gone; `nothing` is a valid answer. `closest human input:` quotes the `Human input` block, never the spec.
+`major` = buys >= 1 new file or >= 3 tests; else `minor`; never `blocker`. `adds:` = your estimate of the surface the clause forces. `unprotected:` = the remaining uncovered failure after the proposed cut or replacement; `nothing` is a valid answer. `closest human input:` quotes the `Human input` block, never the spec.
 
 Finding: spec says "S6: compute a `checksum` over child names, expose `meta.checksum`, add a reconciliation job flagging mismatches"; the human input said "return the folder tree as JSON like the HTML view"; nothing else in the spec depends on S6 -> `- [major] over-spec @ "S6 ... reconciliation job" — no human input requires this (closest human input: "return the folder tree as JSON like the HTML view"); adds: 2 files / 6 tests / 1 AC; if cut, unprotected: nothing → cut`. Non-finding: spec adds `format: false` on three compliance route mounts; nobody asked, but without it `.json` suffixes 404 on those mounts, so the JSON view cannot be delivered - leg 3 fails, not over-spec.
 

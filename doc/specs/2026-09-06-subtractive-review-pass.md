@@ -1,5 +1,7 @@
 # Subtractive review pass: `over-spec` council kind + closure-gate removal
 
+> **Superseded by:** [doc/specs/2026-10-11-minimal-spec-proof.md](./2026-10-11-minimal-spec-proof.md) - D1-D2 council-side over-spec eligibility and the corresponding predicate in acceptance criterion 1 only; closure/conformance policy is not superseded.
+
 ## Problem
 
 The critique pipeline is monotonic-add. Council members hunt gaps, the chair clusters them, the parent applies them, `writing-plans` turns every surviving clause into an owned task, and downstream reviewers treat the approved spec as binding. No step asks "is this clause more than the problem needs" while it is still cheap to cut.

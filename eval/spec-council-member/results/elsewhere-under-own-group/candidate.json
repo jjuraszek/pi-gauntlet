@@ -1,7 +1,7 @@
 {
   "sample": "elsewhere-under-own-group",
   "arm": "candidate",
-  "skillSha": "618507101d28e17db84cf910af614e719333bfb19f58fef166b6389e801a6e46",
+  "skillSha": "8afe6505fb8b5a59ec412ea35f941a0ffa5fff87ac6126272ff08fbdbee5d1bc",
   "inputSha": "d3f954f8f410726fa7aefaf9222488c10f6e55471374ea4034cb7ee23d815432",
   "kind": "text",
   "assembly": "headed",
@@ -17,16 +17,16 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "verdict: needs-work\naddresses-problem: partial — the spec delivers the download, the 60s target and the empty-collection header, but it pushes the column row to mailer. That row sits under the acme/widgets group in the ticket, so the widgets CSV has no owned column contract.\nfindings:\n- [blocker] scope @ \"The CSV contains id, name, and status columns in that order. - elsewhere: acme/mailer\" — this AC row sits under the `### acme/widgets` repo group in Human input, and this repo is acme/widgets. An `elsewhere:` disposition is only valid when the row sits under a group naming another repo. Mailer also cannot control which columns a widgets endpoint emits. → change the disposition to `in-scope` and specify the header `id,name,status` in that order. — probed: Human input repo-group headings vs repo acme/widgets - row is under `### acme/widgets`\n- [major] gap @ Design \"Column selection is assigned to mailer\" — this contradicts the Goal (\"delivers all four widgets rows\") and Verification (\"Request tests check ... column order\"). The design never says which columns the endpoint writes, so nothing defines what the header-only empty export contains. → replace it with \"The CSV writes columns id, name, status in that order; the header row is always written.\" — probed: none\n- [major] gap @ Design \"Export is a same-origin GET /widgets/export.csv\" — the problem says users download *their* widgets, but the design gives no authentication, authorization or ownership scoping for the query (\"Read widgets in id order\"). As written, the endpoint could export every user's widgets. → state the auth requirement and the scoping filter (for example, widgets owned by the current user), and add a request test showing other users' widgets are excluded. — probed: none\n- [minor] ambiguity @ Verification \"Run the 10000-widget benchmark for the 60s row when in-scope\" — the row is already marked `in-scope`, so the conditional is confusing. → drop \"when in-scope\" and state how the benchmark is run and asserted. — probed: none\n- [minor] gap @ Verification \"CSV escaping\" — the Design never defines the escaping rules (quotes, commas, newlines in names), how `status` is serialized, or the line terminator. → name the escaping standard (RFC 4180), the line endings and the status representation. — probed: none\n- [minor] oversimplification @ \"Read widgets in id order in batches of 1000\" — the design does not say whether the response is streamed as batches are read or buffered whole. That choice drives memory use and whether the 60s target is met. → state whether the response is streamed or buffered. — probed: none\nlean: nothing to cut\n",
-      "words": 395,
-      "wallMs": 13187,
+      "text": "verdict: needs-work\naddresses-problem: partial — the download, empty-header and 10000-widget rows are covered, but the column row (id, name, status) is marked `elsewhere: acme/mailer` even though the ticket lists it under `### acme/widgets`, so the CSV's required contents are left unspecified in this repo.\nfindings:\n- [blocker] scope @ \"The CSV contains id, name, and status columns in that order. - elsewhere: acme/mailer\" — In Human input this row sits under the `### acme/widgets` heading. That heading equals this repo (acme/widgets), so `elsewhere:` is invalid. Mailer cannot decide which columns the widgets download contains. → Change the disposition to `in-scope` and specify the header `id,name,status` and the per-row field order in Design. — probed: none\n- [major] gap @ \"Column selection is assigned to mailer; write the header even when no rows exist.\" — Design hands column selection to mailer but still requires a header. The header contents are never defined, so the empty-collection row cannot be implemented or tested. → Replace this with \"Columns are id, name, status in that order; the header row `id,name,status` is always written, including for an empty collection.\" — probed: none\n- [major] ambiguity @ \"This change delivers all four widgets rows.\" — This contradicts the acceptance list, which marks one of the four widgets rows `elsewhere`. It also contradicts Verification, which tests \"column order\" in this repo. → Make Goal, Design, AC and Verification agree on one position: all four widgets rows are in-scope. — probed: none\n- [major] gap @ \"Read widgets in id order in batches of 1000.\" — The problem says users download \"their widgets\". The spec never says which widgets are included (the current user's, or an account's) or what authentication or authorization the GET requires. → State the collection scope (for example, widgets owned by the current user) and the response for unauthenticated requests (401 or a redirect). — probed: none\n- [minor] ambiguity @ \"Run the 10000-widget benchmark for the 60s row when in-scope.\" — \"when in-scope\" is conditional wording, but the row is already marked in-scope. The benchmark environment and pass condition are also not pinned down. → Say \"Run the 10000-widget benchmark; it passes when the complete response arrives in ≤60s\", and name the environment (local dev DB, seeded fixture). — probed: none\n- [minor] ambiguity @ \"Request tests check ... CSV escaping\" — Escaping rules are not specified in Design. Commas, quotes, newlines and formula-leading characters in `name` are undefined. → Specify RFC 4180 quoting, and decide whether values beginning with =, +, - or @ are neutralized. — probed: none\n- [minor] ambiguity @ \"Read widgets in id order in batches of 1000.\" — The spec does not say whether the response is streamed per batch or buffered. This affects memory use and how a mid-export error appears after headers have been sent. → State streamed or buffered, and the behavior when an error occurs mid-stream. — probed: none\nlean: nothing to cut\n",
+      "words": 446,
+      "wallMs": 15554,
       "mechanical": {}
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "verdict: needs-work\naddresses-problem: partial — The download design covers most widgets requirements, but incorrectly assigns the required CSV column selection to mailer.\nfindings:\n- [blocker] scope @ Acceptance criteria: “The CSV contains id, name, and status columns in that order. - elsewhere: acme/mailer”; Design: “Column selection is assigned to mailer” — This row belongs to the acme/widgets ticket group, so it cannot be disposed to mailer. Mailer owns notification, not CSV content; the design leaves widgets’ required schema unimplemented despite claiming to deliver all four rows → Mark this row in-scope and specify that widgets writes the id, name, status header and corresponding values in that order, including the header-only empty case — probed: inlined Human input - column-order row is under acme/widgets; only the email row is under acme/mailer\nlean: nothing to cut\n",
-      "words": 126,
-      "wallMs": 10585,
+      "text": "verdict: needs-work\naddresses-problem: partial — The download endpoint, empty export, and performance requirement are covered, but the required CSV schema is incorrectly assigned to mailer.\nfindings:\n- [blocker] scope @ Acceptance criteria: “The CSV contains id, name, and status columns in that order. - elsewhere: acme/mailer” — This row belongs to the acme/widgets group in Human input, so assigning it elsewhere is not authorized. Design’s “Column selection is assigned to mailer” also contradicts the Goal’s promise to deliver all four widgets rows and leaves widgets without ownership of its CSV schema → Mark this row in-scope and specify that widgets emits id, name, and status in that order for both the header and data rows; retain only the email notification row as elsewhere: acme/mailer — probed: none\nlean: nothing to cut\n",
+      "words": 124,
+      "wallMs": 11523,
       "mechanical": {}
     }
   },
@@ -34,14 +34,14 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "2efb798eeaf73a48fdaaee0b9ef240576645f84594be81d009225919aca6f8b5",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "04bf88b6ddec157ebb1e13b63d4e0916bde2d6d07b50a7940d39cc567f36eb65",
-      "baselineOutputSha": "90efb02df888b12500428ccf044dcd405b45a21c827b9387213c3771170b4a0e",
-      "candidateOutputSha": "259ec6b894da2b1e646b875b17cd60f7ad673477daf19270c5588bae3c9f9071",
+      "intentSha": "3dbd07e3f1c1b8ca5d3f06455820f705d35c4f073064927e6fbdf56acbf1a2e6",
+      "baselineOutputSha": "259ec6b894da2b1e646b875b17cd60f7ad673477daf19270c5588bae3c9f9071",
+      "candidateOutputSha": "d186e1a2500f231bf084e9669fc4d20bdea33c59603ad0761fe67cafcd62e91b",
       "facts": {
         "f1": {
           "before": "holds",
           "after": "holds",
-          "label": "intended but unchanged"
+          "label": "held"
         },
         "f2": {
           "before": "holds",
@@ -49,20 +49,20 @@
           "label": "held"
         }
       },
-      "feedback": "Nothing moved on this case: both Before and After open with a [blocker] scope finding anchored verbatim on \"The CSV contains id, name, and status columns in that order. - elsewhere: acme/mailer\", and neither output raises any finding against the mailer row's own elsewhere: acme/mailer disposition, so f1 and f2 hold in both. After is actually the cleaner version of the intended rule — it states the group-heading test explicitly (\"only valid when the row sits under a group naming another repo\") and records the probe against the Human input headings — while still leaving the genuinely-other-repo mailer row untouched; the only difference is that After splits the Design sentence contradiction into a separate [major] gap rather than folding it into the blocker, which is fine for these facts. Keep the wording as-is; if you want to guard against regressions, make sure the rule text keeps the explicit carve-out that an elsewhere row under another repo's group draws no finding, since that is what preserves f2.",
+      "feedback": "Both outputs keep the blocker scope finding anchored to the column row's `elsewhere: acme/mailer` disposition and neither raises any finding against the mailer row's elsewhere disposition, so f1 and f2 hold on both sides. The After wording preserved the scope and human-input protections as intended; the only drift is cosmetic: After dropped the `probed:` evidence on the blocker (Before cited the repo-group heading check) and added a second major on the Goal sentence that largely duplicates the gap on the Design sentence. To keep the Change without weakening these facts, keep the explicit 'elsewhere is only valid when the row sits under a group naming another repo' rule and the probed citation on the scope blocker, and fold the Goal/Design/AC inconsistency into one finding rather than two.",
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "2efb798eeaf73a48fdaaee0b9ef240576645f84594be81d009225919aca6f8b5",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "04bf88b6ddec157ebb1e13b63d4e0916bde2d6d07b50a7940d39cc567f36eb65",
-      "baselineOutputSha": "468e482e93a9f4bbfe23a68c1ab268059897d0cdc910e806425dcdbea0da7e52",
-      "candidateOutputSha": "49b2129446c4f2c698e311008cc28efb2694946c8dc40e8fa79d59f16813c410",
+      "intentSha": "3dbd07e3f1c1b8ca5d3f06455820f705d35c4f073064927e6fbdf56acbf1a2e6",
+      "baselineOutputSha": "49b2129446c4f2c698e311008cc28efb2694946c8dc40e8fa79d59f16813c410",
+      "candidateOutputSha": "305186cfb017ed5ab3a6892188933c6191934040abea2f71e099657379ad4b4c",
       "facts": {
         "f1": {
           "before": "holds",
           "after": "holds",
-          "label": "intended but unchanged"
+          "label": "held"
         },
         "f2": {
           "before": "holds",
@@ -70,9 +70,9 @@
           "label": "held"
         }
       },
-      "feedback": "Nothing moved on this case: both Before and After raise exactly one blocker of kind scope that quotes the column row's \"elsewhere: acme/mailer\" disposition, and neither raises any finding against the mailer row's own elsewhere attribution (After's probed note merely observes the email row sits under acme/mailer, which is context, not a finding). The After wording is a modest improvement in that it grounds the blocker in the ticket's group header (\"This row belongs to the acme/widgets ticket group\") and cites the probe, which is exactly the own-repo-snapshot reasoning the Change calls for; keep that citation form, and keep the explicit contrast that the mailer row's attribution is settled so a reader can see f2-style silence is deliberate rather than an omission.",
+      "feedback": "Neither fact moved: both outputs raise exactly one blocker scope finding anchored on the column row's “elsewhere: acme/mailer” disposition, and neither raises a finding against the mailer row (both only reference it as the row that legitimately stays elsewhere). The After wording preserves these behaviors, but two small regressions are worth noting: After reports “probed: none” while its reasoning explicitly relies on reading the Human input grouping, whereas Before recorded that probe (“probed: inlined Human input - column-order row is under acme/widgets…”); and After moved the Design quote (“Column selection is assigned to mailer”) out of the anchor into prose, weakening the clause-level anchoring the Change says to keep. To deliver the Change without loosening these, keep instructing that any claim derived from the human input is cited under probed, and that every clause contradicted by the finding (Acceptance criteria row and Design sentence) stays in the @ anchor; the in-scope-excess additions can be layered on top of that unchanged scope/human-input control.",
       "verdict": "unchanged"
     }
   },
-  "repoSha": "305dad897254c15d77edb5163eba56f50fdac229"
+  "repoSha": "76e0a818108da1d20c88f830b188a91146b9dd54"
 }

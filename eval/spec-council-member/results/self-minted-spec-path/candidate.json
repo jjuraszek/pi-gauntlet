@@ -1,7 +1,7 @@
 {
   "sample": "self-minted-spec-path",
   "arm": "candidate",
-  "skillSha": "618507101d28e17db84cf910af614e719333bfb19f58fef166b6389e801a6e46",
+  "skillSha": "8afe6505fb8b5a59ec412ea35f941a0ffa5fff87ac6126272ff08fbdbee5d1bc",
   "inputSha": "798d017810374994ba29c82150ed8defbfa48df831458bf4f7044653b4a2698d",
   "kind": "text",
   "assembly": "headed",
@@ -17,16 +17,16 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "verdict: needs-work\naddresses-problem: partial — Every ticket row appears verbatim, and the mailer row is correctly routed. However, the 60s performance row is deferred, and no human answer picks that cut. Export scoping to \"their widgets\" is also unspecified.\nfindings:\n- [blocker] scope @ \"An export of 10000 widgets completes within 60s. - deferred: doc/specs/2026-10-10-export-paging.md\" and Goal \"The 60s performance row is deferred\" — The `Human input` block has no cut question and no user answer choosing to defer this row. The only human text is the ticket and the line \"Mailer owns the notification\", which covers the mailer row only. → Mark the row in-scope and keep the 10000-widget benchmark as its verification. Defer it only after a quoted user answer picks that cut for this row. — probed: Human input block (inlined) - no cut question or answer present\n- [major] gap @ Design \"Export is a same-origin GET /widgets/export.csv … Read widgets in id order in batches of 1000\" — The problem says users download *their* widgets, but the design never says which widgets the query covers. It also leaves out authentication, owner/tenant filtering, and the response to an unauthenticated request. → State that the endpoint requires an authenticated session and filters by the current user's ownership. Specify 401/redirect behavior. Add a request test proving another user's widgets are excluded. — probed: none\n- [minor] ambiguity @ Verification \"Run the 10000-widget benchmark for the 60s row when in-scope\" — The conditional contradicts the Goal's deferral and leaves it unclear whether the benchmark runs in this change. The Design also says \"measures from request start\" without naming the environment or the pass threshold. → Once the row is in-scope, drop \"when in-scope\". State the pass condition: complete response within 60s on the named environment. — probed: none\n- [minor] ambiguity @ Design \"Encode id, name, and status with standard CSV quoting\" — The spec does not define how `status` is rendered (enum label vs stored value), how null names are written, or the line terminator. Without these, the column-content tests are not deterministic. → Specify the status serialization, the null handling, and CRLF vs LF (e.g. RFC 4180 CRLF). — probed: none\nlean: nothing to cut\n",
-      "words": 344,
-      "wallMs": 12713,
+      "text": "verdict: needs-work\naddresses-problem: partial — the design covers download, column order and header-only output, but the spec defers the 10000-widgets-in-60s row with no user answer authorising that cut.\nfindings:\n- [blocker] scope @ \"An export of 10000 widgets completes within 60s. - deferred: doc/specs/2026-10-10-export-paging.md\" and Goal \"The 60s performance row is deferred\" — The `Human input` block has no cut question and no user answer picking a deferral for this row. The ticket lists it as a plain acceptance criterion under acme/widgets, and the Goal's own sentence cannot authorise the cut. → Mark the row `in-scope` and make the 10000-widget benchmark a required verification step (drop \"when in-scope\"). Alternatively, put a cut question to the user and record their verbatim answer in `Human input` before keeping `deferred:`. — probed: none\n- [major] gap @ Design \"Read widgets in id order in batches of 1000\" — The problem statement says users download \"their widgets\", but the design reads all widgets. It names no owner or tenant scoping and no authentication or authorization on GET /widgets/export.csv, so one user could export another user's data. → State the scoping rule, for example \"only widgets owned by the current user / account\". Require an authenticated session that is rejected otherwise. Add a request test proving a user's export excludes other users' widgets and that an unauthenticated request is refused. — probed: none\n- [minor] ambiguity @ Design \"Read widgets in id order in batches of 1000\" — The spec does not say whether the response is streamed as batches are read or buffered in full before sending. This choice drives memory use and the 60s target. → State \"stream the response, flushing after each batch\", or state that it is buffered and justify that for 10000 rows. — probed: none\n- [minor] ambiguity @ Design \"Encode id, name, and status\" — The representation of `status` in the CSV is undefined: raw stored value, enum key or display label. → Name the exact representation and assert it in the column-order request test. — probed: none\nlean: nothing to cut\n",
+      "words": 321,
+      "wallMs": 12710,
       "mechanical": {}
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "verdict: needs-work\naddresses-problem: partial — The design covers CSV downloads, column order, and empty exports, and correctly assigns notification to acme/mailer, but excludes the required 10000-widget performance guarantee.\nfindings:\n- [blocker] scope @ Goal, Acceptance criteria performance row, and Verification — The spec marks “An export of 10000 widgets completes within 60s.” as deferred and makes its benchmark conditional. Human input explicitly requires this row for acme/widgets and contains no cut question or user answer authorizing deferral; naming a spec path does not authorize that cut. → Restore the row to in-scope, remove the deferral from the Goal, and require the benchmark to verify completion within 60s before acceptance. — probed: none\nlean: nothing to cut\n",
-      "words": 110,
-      "wallMs": 6715,
+      "text": "verdict: needs-work\naddresses-problem: partial — The design covers CSV downloads, required columns, and empty exports, and correctly assigns notification to mailer, but excludes the required 10000-widget performance guarantee.\nfindings:\n- [blocker] scope @ Goal, Acceptance criteria, and Verification — “An export of 10000 widgets completes within 60s” is marked `deferred:` without a human cut question and an answer authorizing that deferral. The supplied human input explicitly requires this widgets criterion; a valid destination path does not authorize removing it from scope. Making its benchmark conditional also leaves the requirement unverified → Restore the row to in-scope, require the benchmark to demonstrate completion within 60s, and remove the Goal’s deferral statement. — probed: none\nlean: nothing to cut\n",
+      "words": 111,
+      "wallMs": 6044,
       "mechanical": {}
     }
   },
@@ -34,45 +34,45 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "a11d0a41d6822aff8742aab91e91a1f076382cd3248676b6ccd8a764584c84bf",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "04bf88b6ddec157ebb1e13b63d4e0916bde2d6d07b50a7940d39cc567f36eb65",
-      "baselineOutputSha": "9d4a4408e1a251cf024fbfb03b2157c5590bccef695af4ba53daf7733027f98a",
-      "candidateOutputSha": "279319275a6c0279c0bac7658d3bd37b3ef644579b0a51d8f00452cf5825f225",
+      "intentSha": "3dbd07e3f1c1b8ca5d3f06455820f705d35c4f073064927e6fbdf56acbf1a2e6",
+      "baselineOutputSha": "279319275a6c0279c0bac7658d3bd37b3ef644579b0a51d8f00452cf5825f225",
+      "candidateOutputSha": "22c90a34aa9343b337303189fea23229ce7c00bffe562b81f18ce09987cb6451",
       "facts": {
         "f1": {
-          "before": "fails",
+          "before": "holds",
           "after": "holds",
-          "label": "intended change"
+          "label": "held"
         },
         "f2": {
-          "before": "fails",
+          "before": "holds",
           "after": "holds",
-          "label": "intended change"
+          "label": "held"
         }
       },
-      "feedback": "After moves both facts to holds and loses nothing Before kept. Before rated the deferral only [major] and its fix path (\"state a concrete reason… and confirm that the referenced spec owns this exact row\") still treated the doc/specs path as a possible authorization for the cut, so f2 failed. After's [blocker] scope finding quotes the deferred disposition and the Goal line, states that the Human input block contains no cut question or answer, and makes the remedy a quoted user answer rather than a spec reference — exactly the Change. The probed note (\"Human input block (inlined) - no cut question or answer present\") is a good concrete trace; keep it. The other findings (ownership gap, benchmark conditional, CSV encoding) are preserved with comparable precision, and addresses-problem now names the missing human answer explicitly, which reinforces f2. No wording adjustment is needed to deliver the Change without regressing either fact.",
-      "verdict": "improved"
+      "feedback": "Neither fact moved: both outputs raise a [blocker] scope finding anchored on the 60s row's `deferred: doc/specs/2026-10-10-export-paging.md` disposition, and both refuse the spec path as provenance, demanding a quoted user answer in the Human input block before the deferral stands (After adds that the Goal's own sentence cannot authorise the cut, which strengthens f2). The in-scope-excess wording did not weaken the scope and human-input controls here, which is what the Change asks for. One small regression unrelated to the facts: Before recorded `probed: Human input block (inlined)` on the scope finding, which documents that the reviewer actually checked the only possible provenance source, whereas After writes `probed: none`; keep the explicit probe note on scope findings so the refusal of the spec path reads as verified rather than assumed.",
+      "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "a11d0a41d6822aff8742aab91e91a1f076382cd3248676b6ccd8a764584c84bf",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "04bf88b6ddec157ebb1e13b63d4e0916bde2d6d07b50a7940d39cc567f36eb65",
-      "baselineOutputSha": "1ac7708e4bf58fa96728bf6217932364ee0f277f68ce57474f1b0678b7163ad8",
-      "candidateOutputSha": "a2e6658be795750749a8f7928572be99800313bb2ed98d88638a929472086ed2",
+      "intentSha": "3dbd07e3f1c1b8ca5d3f06455820f705d35c4f073064927e6fbdf56acbf1a2e6",
+      "baselineOutputSha": "a2e6658be795750749a8f7928572be99800313bb2ed98d88638a929472086ed2",
+      "candidateOutputSha": "a9c4ad3c1ed965b3ecd310569c240b646c61c06cd7bbe83d3efce158c16d1caa",
       "facts": {
         "f1": {
-          "before": "fails",
+          "before": "holds",
           "after": "holds",
-          "label": "intended change"
+          "label": "held"
         },
         "f2": {
-          "before": "fails",
+          "before": "holds",
           "after": "holds",
-          "label": "intended change"
+          "label": "held"
         }
       },
-      "feedback": "After moves both facts in the intended direction: the finding is now kind scope at severity blocker, it quotes the 60s row and its deferred disposition, and it explicitly says the spec path does not authorize the cut because the human input contains no cut question or answer. Before only rated the issue major and conceded 'the destination is a valid spec path', asking for a deferral reason rather than human provenance, so it accepted the path as sufficient destination. Nothing that Before kept was lost in After (verdict stays needs-work, mailer attribution remains accepted, lean unchanged). If anything, the After wording could be tightened by quoting the deferred disposition line verbatim including the spec path so the reader sees exactly what was rejected as provenance, and by keeping the location anchor to a single section rather than three, but neither affects the facts.",
-      "verdict": "improved"
+      "feedback": "After keeps both facts: it still emits a single blocker of kind scope that names the 60s row's `deferred:` disposition, and it explicitly states that a valid destination path does not authorize removing the row from scope, which is at least as clear as Before's \"naming a spec path does not authorize that cut.\" The Change's in-scope-excess admissions did not alter this case because no sufficient alternative is named for the 60s row, so the scope control correctly stayed in effect. The only drift is cosmetic: After drops the quoted period from the criterion and compresses the anchor to \"Acceptance criteria\" rather than \"Acceptance criteria performance row\"; keeping the row-specific anchor would make the finding easier to locate without changing any fact outcome.",
+      "verdict": "unchanged"
     }
   },
-  "repoSha": "305dad897254c15d77edb5163eba56f50fdac229"
+  "repoSha": "76e0a818108da1d20c88f830b188a91146b9dd54"
 }

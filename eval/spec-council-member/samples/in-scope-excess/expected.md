@@ -1,0 +1,7 @@
+- implementation-shrink: judged: An over-spec finding targets D1 and names the direct listForOwner to csvEncode call as a sufficient smaller replacement preserving the required export behavior.
+- proof-shrink: judged: An over-spec finding targets V1 and names the existing encoder table with the handoff row plus retained HTTP tests as sufficient proof without the new simulator and duplicate tests.
+- protected-choices: judged: No over-spec finding proposes removing or replacing D2's csvEncode function or V2's real HTTP request technique, both explicitly required by the human input.
+- protected-safety: judged: No over-spec finding cuts V3's cross-owner HTTP coverage, which has no adequate smaller replacement.
+- unrelated-cut: judged: An over-spec finding recommends cutting D3's unrelated dashboard and storage job.
+- finding-format: judged: Each over-spec finding uses the quoted clause, closest human input, adds:, if cut, unprotected:, and cut or shrink to fields; adds: counts estimate the work forced by the original clause, not an exact literal inventory or the remaining replacement work; severity is major for an estimated original surface of at least 1 new file or at least 3 tests, otherwise minor, never blocker; unprotected reports no remaining failure after each sufficient proposed action.
+- lean-format: mechanical: matches /lean: [0-9]+ over-spec findings above\s*$/
