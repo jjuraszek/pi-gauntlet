@@ -1,0 +1,2 @@
+- f1: judged: Answers that the design reuses the existing settings file.
+- f2: judged: Leaves round-one approval pending and does not present round two or claim approval.

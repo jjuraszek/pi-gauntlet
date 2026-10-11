@@ -1,0 +1,1 @@
+- f1: judged: Honors the explicit pause without asking another question, presenting approaches, or advancing design.

@@ -1,0 +1,78 @@
+{
+  "sample": "clarification-keeps-gate",
+  "arm": "candidate",
+  "skillSha": "1738374f21d18d1935f22b159cc84bfe527c3183ac752366d037ce03ee30f8aa",
+  "inputSha": "baf46c4ea1491d7f08f38c78212c92e06425c1dba862866cb1ab1cc763b471c7",
+  "kind": "text",
+  "assembly": "headed",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "No. The new private report-view setting is a key in the existing settings file, which `settings/resolver.ts:12` already owns along with the defaults, and it adds no second file or read path.\n\n**Round one, restated with that point explicit:**\n\n- **Ownership:** The resolver defines the new key's default and resolves it the same way it resolves every other setting today. No parallel settings state, separate loader, or new boundary is introduced.\n- **Storage:** The value lives in that single settings file. Report filters persist across workspace changes because the setting comes from the resolver, not from per-workspace state.\n- **Consumption:** `ui/report-view.ts:30` reads the resolved value through the same path it already uses for resolved settings. The report view never reads the file directly.\n- **Data flow:** settings file → resolver (default plus resolution) → resolved settings → report view.\n- **Supersedes:** nothing. This extends the existing resolver contract and replaces no prior design.\n\nDo you approve round one?\n",
+      "words": 149,
+      "wallMs": 7785,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "No. This adds a setting to the existing settings file, not another file or settings path. `settings/resolver.ts:12` continues to own defaults and resolution, and `ui/report-view.ts:30` consumes the resolved value through the existing flow. Report filters remain preserved across workspace changes, as you selected.\n\nDo you approve round one with that clarification?\n",
+      "words": 51,
+      "wallMs": 2651,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "02abcc2002c91ea908ff68db76139f5e71c07af0d6cc1e443734542a20cb559d",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "5bbc6bf7c90ed1265eadc75aa85b3e24c92d0a26eacb8e3dfea3823d05d250db",
+      "baselineOutputSha": "769021f408b73a198bcf88a1a6387b734c0825e055ff8eb6d74df55fccbabf07",
+      "candidateOutputSha": "fbe99c74f612b68b4a37b3b5fbcafa716da974f02877f6424a25f044ae306889",
+      "facts": {
+        "f1": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "f2": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "Both outputs answer the side question directly (no new settings file; the key lives in the one file resolver.ts:12 owns) and then stop at the still-pending round-one approval without presenting round two or treating approval as given, so neither fact moved. After's restated round one is slightly longer than Before's but is clearly labeled a restatement, not a new round, and ends with the same approval question. The Change wording is delivering what it should here: resume the current step, answer the question, and halt at the pending approval. No wording adjustment is needed for this case; if you want to tighten the resume paragraph further, keep the explicit stop condition for pending approvals so a side-question answer never bleeds into round two.",
+      "verdict": "unchanged"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "02abcc2002c91ea908ff68db76139f5e71c07af0d6cc1e443734542a20cb559d",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "5bbc6bf7c90ed1265eadc75aa85b3e24c92d0a26eacb8e3dfea3823d05d250db",
+      "baselineOutputSha": "02dc9d52b93c5c5a94f96bcd30641ad3986ce35f4412466b0db1ceb1a0950275",
+      "candidateOutputSha": "4df31d855fcaa415c86ba01e89f0e94c706b77a6ebe9fad0e5cc30de840548b2",
+      "facts": {
+        "f1": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "f2": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "Nothing moved in this case: both Before and After answer \"No\" and state the setting goes into the existing settings file with no second file or parallel path (f1), and both close by re-asking for round-one approval without presenting round two or treating approval as given (f2). After is slightly tighter by citing resolver.ts:12 and report-view.ts:30 and echoing the user's selection, which is fine. The Change wording correctly kept this as a stop-at-pending-approval case; keep the \"stops at unanswered questions, pending approvals\" clause as-is so continuation logic does not push a round-two presentation into a turn where the user only asked a side question and has not yet approved.",
+      "verdict": "unchanged"
+    }
+  },
+  "repoSha": "c1f09db042471ba5144de9df4c8c14dac1d82c7f"
+}

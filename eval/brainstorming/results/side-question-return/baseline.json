@@ -1,0 +1,34 @@
+{
+  "sample": "side-question-return",
+  "arm": "baseline",
+  "skillSha": "3f6525ccf2c2a0331629e4fa3efd592d85f662d69d1f5f61dbc0b87059eb40f9",
+  "inputSha": "33b507fa54529c04a808ab9c838165d625c57f35cfae8737c44796ca49d9cdbc",
+  "kind": "text",
+  "assembly": "headed",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "A is the better fit because of how the code is already wired.\n\n- **One owner for defaults.** `settings/resolver.ts:12` already holds the defaults.\n- **The view already reads from it.** `ui/report-view.ts:30` consumes the resolver's resolved values, and I traced that path end to end.\n- **No parallel state.** Existing settings already flow through the resolver. A view-local object would add a second settings path beside it, and its defaults could drift from the resolver's. The new setting would then behave differently from every other setting the view reads.\n\nSo the new setting becomes one more resolved key on a path the view already uses. I'm recording \"settings ownership: existing resolver\" in the draft.\n\nOne premise is still unverified. I haven't yet traced where the active report filters are stored or what runs on a workspace switch. I'll trace that before the design rounds. The answer below doesn't depend on it.\n\nWhat should happen to active report filters when the user switches workspaces?\n\nA) Add a setting whose default resets filters on a switch. Users can choose to keep filters.\nB) Add a setting whose default keeps filters, which is today's behavior. Users can choose to reset filters.\nC) Other: name it.\n\nRecommendation: A. The problem you described is that carried-over filters hide rows in the new workspace, and a reset default fixes that for everyone. Users who rely on filters persisting can still opt out through the same resolver key.\n",
+      "words": 237,
+      "wallMs": 12856,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "A is the better fit because `settings/resolver.ts:12` already owns defaults, and `ui/report-view.ts:30` consumes its resolved settings. Adding this setting there keeps one source of truth and uses the existing resolver-to-view path. A view-local settings object would introduce a second ownership path without a demonstrated need.\n\nThat settles where the setting belongs, but not what happens when the workspace changes. Which behavior should it control?\n\nA) Reset filters on every workspace change, so the new workspace starts unfiltered.  \nB) Preserve filters across workspace changes, keeping the current behavior.  \nC) Remember filters separately for each workspace, restoring them when returning.  \nD) Other — name it.\n\nRecommendation: A - it directly addresses rows being unexpectedly hidden in the new workspace without introducing per-workspace filter storage.\n",
+      "words": 120,
+      "wallMs": 4647,
+      "mechanical": {}
+    }
+  },
+  "repoSha": "7f80c640f00445df6fc2c43961d24e5df1888a14"
+}

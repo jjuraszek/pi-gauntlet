@@ -1,0 +1,34 @@
+{
+  "sample": "design-approval-return",
+  "arm": "baseline",
+  "skillSha": "fbd340231eb9addb783c1408a3241ef3dcbaf9582e59829efab0a9d4b993b54d",
+  "inputSha": "18becb3535b4290798c34e8ed1f961abcd8235d697ad09f05f651f38c73303a6",
+  "kind": "text",
+  "assembly": "headed",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "Round two covers errors, edge cases, tests, and documentation impact.\n\n**Errors and fallback.** `settings/resolver.ts` validates the report-view setting the same way it validates the other settings it owns. An invalid value falls back to the existing default. That fallback is the only error path. The resolver does not throw, and `ui/report-view.ts` never sees an unresolved or invalid value, because it consumes only the resolver's output (`ui/report-view.ts:30`). The setting lives in memory only, so there are no load or save failures, migrations, or stale stored values to handle.\n\n**Edge cases.**\n- **Missing setting:** a missing setting is treated like an invalid one and resolves to the default at `settings/resolver.ts:12`.\n- **Workspace changes:** report filters keep their current values when the workspace changes. Per your round-one approval, the filters are not reset or re-derived from the new workspace.\n  - Assumption: if a kept filter matches nothing in the new workspace, the view shows its normal empty result rather than silently clearing the filter. This keeps the \"filters persist\" rule unconditional and easy to test.\n- **Process restart:** a restart returns the setting to its default. That follows directly from in-memory storage and is intended.\n- **No public surface:** the public API and the config shape do not change. Nothing outside the report view can observe the new key.\n\n**Tests.**\n- **Resolver unit tests** beside the existing resolver tests cover three cases:\n  - absent value resolves to the default\n  - valid value passes through\n  - invalid value falls back to the default\n- **Report-view test:** the view reads the setting from the resolved settings it already receives, and no view-local settings object is introduced.\n- **Workspace-change test:** set filters, change workspace, and assert the filters are unchanged. A second case covers a kept filter that matches nothing and shows the empty result.\n- **Regression check:** existing resolver tests for other settings still pass. This shows the new key did not change shared resolution behavior.\n\n**Documentation impact.** I applied the materiality bar in `reference/documentation-impact.md`, and the default of \"none\" holds for each class:\n- **No doc introduced:** this is a private setting with no public API or config change, so no user-facing doc is needed.\n- **No existing doc amended:** no product doc or user guide covers this report view, and the gather draft lists `Docs touched: none`.\n- **Nothing invalidated:** no router or topic guide describes report-view settings, so nothing goes stale.\n- **No rationale entry:** the decision to reuse the shared resolver follows the existing pattern. A teammate can read it from the code, so it does not need a recorded rationale.\n\n```markdown\n## Documentation impact\n- Feature / user-facing docs introduced: none\n- Materially amended existing docs: none\n- Derived / memory docs invalidated: none\n```\n\nDo you approve round two?\n",
+      "words": 437,
+      "wallMs": 15850,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "### Round two: errors, edge cases, tests, and documentation\n\nThe setting’s error handling stays in the shared resolver. An invalid value falls back to the existing default, rather than introducing a report-view-specific fallback or a second validation path. `ui/report-view.ts` consumes the resolved value through its existing settings flow; it does not interpret raw inputs or maintain a parallel settings object.\n\nWorkspace changes must preserve the current report filters, as selected in round one. This is an in-memory guarantee, not a persistence feature: the design adds no disk storage and makes no promise that filters survive an application restart. A workspace change must not inadvertently reapply defaults over the current filters. The implementation should preserve that distinction without moving settings ownership out of the resolver.\n\nThe change remains private. It introduces neither a public API nor a public configuration-shape change. Tests should establish the behavior at the existing boundaries, rather than require new interfaces solely for test access:\n\n- **Resolution:** the existing default remains effective when no valid setting is supplied; valid values resolve as intended; invalid values fall back to that same default.\n- **View consumption:** the report view uses the resolved setting, demonstrating that the existing resolver-to-view path carries the change.\n- **Workspace transitions:** after filters are changed, switching workspaces retains their current values, including across repeated switches.\n- **Regression coverage:** existing settings resolution and unrelated report-view behavior remain unchanged.\n\nThese checks separate resolver behavior from view behavior so failures identify the responsible boundary. They should also catch an accidental view-local fallback that could otherwise mask a broken shared-settings path.\n\n## Documentation impact\n- Feature / user-facing docs introduced: none\n- Materially amended existing docs: none\n- Derived / memory docs invalidated: none\n\nApplying `reference/documentation-impact.md`, no standalone documentation is warranted: this is private behavior, there is no public contract change, and the gathered draft identifies no existing guide or derived documentation made inaccurate by it. Resolver and view changes are implementation surface, not documentation-impact entries.\n\nDo you approve round two?\n",
+      "words": 320,
+      "wallMs": 10107,
+      "mechanical": {}
+    }
+  },
+  "repoSha": "7f80c640f00445df6fc2c43961d24e5df1888a14"
+}

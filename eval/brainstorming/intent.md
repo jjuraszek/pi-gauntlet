@@ -1,22 +1,11 @@
-for: c88452a1a4d0e6d7331d498c44d55b40dcf95d02b5e07dc2da7959e8ead8bbef
+for: 1738374f21d18d1935f22b159cc84bfe527c3183ac752366d037ce03ee30f8aa
 
 ## Change
-The assembly now includes ticket-acceptance.md: scope cuts come only through the cut question and the user's answer, never from author preference or implementation difficulty. Repo groups assign other repos' rows elsewhere without asking, unmatched groups require an attribution question, wrong rows require the ordered cut question with recommendation A or D, and cancelled repair returns to that question with the row unchanged.
+The checklist owner resumes the current step after a user answer or completed side task and performs the next authorized action in the same turn. It advances only after required decisions and approvals are satisfied and stops at unanswered questions, pending approvals, explicit pauses, or required-tool/resource blockers. Remaining facts are safety controls expected to hold, not intended weakening.
+
+A supplementary original-context replay before the edit ended normally with a repair acknowledgment, without a next question or tool call. This is one observed reproduction, not frequency evidence or byte-identical historical transport. The frozen synthetic baselines already continue; unchanged outcomes do not demonstrate improvement. One original-context before/after pair on the originally reported model with high thinking changed from a normal repair acknowledgment with no continuation to a design choice with two approaches and a recommendation. Only the exact committed recipe was inserted in the existing Checklist owning paragraph of one frozen text block; system text, 14 tool declarations, the other content of 64 messages, and runtime options were unchanged. Both original-context calls ended normally, emitted zero tool calls, and executed zero tools; AFTER continued in text to a design choice. This is evidence of response continuation in one pair, not a frequency estimate, file-write proof, full approach-format audit, or byte-identical historical transport. Frozen synthetic cases remain unchanged. Text replays do not prove tool execution, spec-file writes, or multi-turn liveness; the round-two-approval-to-file-writing boundary remains outside these five cases.
 
 ## Expected to move
-- human-raised-drop/f1: fails -> holds - A human-raised drop triggers the ordered cut question.
-- human-raised-drop/f2: fails -> holds - Only A or D can be recommended for a human-raised drop.
-- human-raised-drop/f3: fails -> holds - A drop request authorizes no cut before the cut question is answered.
-- cut-without-human-words/f1: fails -> holds - Difficulty alone does not authorize cuts.
-- cut-without-human-words/f2: fails -> holds - A hard row alone does not trigger the cut question.
-- cut-without-human-words/f3: fails -> holds - Repo groups settle attribution without asking.
-- other-repo-group/f1: fails -> holds - The mailer group names the delivering repo.
-- other-repo-group/f2: fails -> holds - Settled attribution needs no question.
-- other-repo-group/f3: fails -> holds - Repo attribution belongs in dispositions, not spec headings.
-- unmatched-group-asked/f1: fails -> holds - Unknown groups require the attribution question.
-- unmatched-group-asked/f2: fails -> holds - Unknown groups cannot be assigned silently.
-- wrong-row-cut-question/f1: fails -> holds - Wrong rows trigger the ordered cut question.
-- wrong-row-cut-question/f2: fails -> holds - Only A or D can be recommended.
-- wrong-row-cut-question/f3: fails -> holds - Repair names the ticket-specific skill invocation.
-- repair-cancelled/f1: fails -> holds - Cancelled repair returns to the unchanged row's question.
-- repair-cancelled/f2: fails -> holds - Cancellation authorizes no cut.
+- side-question-return/f2: fails -> holds - Resume the next unresolved step after answering the side question.
+- ticket-repair-return/f2: fails -> holds - Resume the next unresolved step from the supplied repaired state.
+- design-approval-return/f1: fails -> holds - Present substantive round two after round-one approval.

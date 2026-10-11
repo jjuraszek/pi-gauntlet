@@ -1,0 +1,2 @@
+- f1: judged: Uses the repaired shared-resolver criterion without re-requesting repair approval or claiming an unfetched result.
+- f2: judged: Resumes the unresolved reset-behavior question with labeled options and a recommendation rather than ending at a ticket-update report; rejects presenting approaches while the reset decision remains unresolved.

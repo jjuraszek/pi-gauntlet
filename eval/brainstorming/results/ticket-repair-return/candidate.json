@@ -1,0 +1,78 @@
+{
+  "sample": "ticket-repair-return",
+  "arm": "candidate",
+  "skillSha": "1738374f21d18d1935f22b159cc84bfe527c3183ac752366d037ce03ee30f8aa",
+  "inputSha": "abcc63ffeaa4c6a9be03364fe233e23684891ee0eac469f50651e06cfb74a4f2",
+  "kind": "text",
+  "assembly": "headed",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "The ticket repair is saved and verified. acme/widgets#77 now has one acceptance criterion: \"The report-view setting uses the shared settings resolver.\" Its disposition is `in-scope`. It matches the path I traced, from the defaults in `settings/resolver.ts:12` to the view that consumes them in `ui/report-view.ts:30`. That leaves no deviation or deferral to record, and the framing stays as kept.\n\nThe remaining open decision is the behavior you reported: filters stay active after a workspace switch and can hide rows in the new workspace. The new setting goes through the resolver, but its default behavior is not decided yet.\n\nWhen a user switches workspaces, what should happen to active report filters by default?\n\n- **A) Reset by default.** The setting defaults to clearing filters on a workspace change. Users who want filters to carry over can opt out.\n- **B) Keep by default.** The setting defaults to keeping filters, which matches today's behavior. Users who are affected can opt in to resetting them.\n- **C) Remember per workspace.** Each workspace keeps its own filters, and the setting turns this on or off. The resolver would then hold workspace-scoped state as well as defaults.\n- **D) Other.** Name it.\n\n**Recommendation: A.** The ticket's symptom is that carried-over filters silently hide rows. Resetting by default fixes that for everyone and still leaves the old behavior one setting away. It also keeps the resolver's job to providing a default, without adding per-workspace state.\n",
+      "words": 234,
+      "wallMs": 11131,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "The repair is verified: acme/widgets#77 now requires the shared settings resolver. I’ll adopt that criterion and retain the existing resolver-to-report-view path (`settings/resolver.ts:12` → `ui/report-view.ts:30`).\n\nWhat should happen to active report filters when the workspace changes?\n\nA) Clear them by default, with a setting to keep them across workspaces.\nB) Keep them by default, with a setting to clear them on workspace changes.\nC) Restore each workspace’s last-used filters rather than carry filters between workspaces.\nD) Other — name it.\n\nRecommendation: A - it prevents filters from unexpectedly hiding rows in the new workspace while preserving an opt-out.\n",
+      "words": 94,
+      "wallMs": 8999,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "34304835e53809fc03e28c969453a2029ba79885abd38a7f3b0c8c8b3bc82a8f",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "5bbc6bf7c90ed1265eadc75aa85b3e24c92d0a26eacb8e3dfea3823d05d250db",
+      "baselineOutputSha": "1bacc4d005c99fc3bd302c59a6206f37aff0ac1b8b4c67fb5f4f727d73cf3372",
+      "candidateOutputSha": "9e6b7e4cd264f61d6b981c4f571b5091b127e999215cc9a4c7a8183841186665",
+      "facts": {
+        "f1": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "f2": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        }
+      },
+      "feedback": "Neither fact moved in this case: both Before and After accept the saved-and-verified shared-resolver criterion without asking for repair approval again or inventing an unfetched result (f1), and both continue past the ticket-update report into the unresolved workspace-switch reset question with labeled A–D options and a recommendation while withholding design approaches (f2). Note that Before already satisfied f2 here, so this case does not show the expected fails -> holds movement for ticket-repair-return/f2; the author should not count it as evidence of improvement. After's wording is slightly tighter on the gate — it names the reset default explicitly as 'not decided yet' before listing options, which makes the refusal to present approaches legible — and that phrasing is worth keeping. One minor drift to watch: After's option C ('Remember per workspace') proposes the resolver holding workspace-scoped state, which edges toward a design approach rather than a behavior default; keeping options framed strictly as default-behavior choices (as Before's C 'reset only stale filters' did) would reduce any risk of a reader seeing approaches surfaced before the reset decision is made.",
+      "verdict": "unchanged"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "34304835e53809fc03e28c969453a2029ba79885abd38a7f3b0c8c8b3bc82a8f",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "5bbc6bf7c90ed1265eadc75aa85b3e24c92d0a26eacb8e3dfea3823d05d250db",
+      "baselineOutputSha": "0cf870130982f40ed370eea1a6229d9e88b91bb40520c1f9ec26759eee8e141f",
+      "candidateOutputSha": "6e70884cf9c27db6028a7e597b0d60ccaf66abdb1335dd0018928b24c5caff3e",
+      "facts": {
+        "f1": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "f2": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        }
+      },
+      "feedback": "Both outputs adopt the verified shared-resolver criterion without re-requesting approval or inventing results, and both resume the unresolved reset-behavior question with labeled options and a recommendation instead of stopping at the repair acknowledgment; neither presents design approaches. Nothing moved between Before and After on this case. After is a slight tightening: it adds a concrete option C (restore per-workspace last-used filters) and phrases the question in terms of the user's reported symptom, which fits the Change's intent of resuming the current step; keep that wording, and continue to avoid any approach-level content until the reset decision is answered.",
+      "verdict": "unchanged"
+    }
+  },
+  "repoSha": "c1f09db042471ba5144de9df4c8c14dac1d82c7f"
+}

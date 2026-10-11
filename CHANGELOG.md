@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Changed
+
+- `brainstorming`: the checklist now instructs same-turn continuation after a user answer or completed side task, advancing only when required decisions and approvals are satisfied. Unanswered questions, pending human approvals, explicit pauses, and required-tool/resource blockers still stop progress.
+
 ## v7.8.0 - 2026-10-09
 
 ### Changed

@@ -1,5 +1,5 @@
 anonymized: true
-- framing: judged: The first message questions whether a workspace-wide revision on a file or item would imply false provenance and whether a revision-only badge omits the required date.
+- framing: judged: Require the first message itself to explicitly raise both concerns: a workspace-wide revision on a file or item would imply false provenance, and a revision-only badge omits the required date. Count implications, merely listing date as a field, or raising either concern only in the approaches as failing this fact.
 - pivot: judged: The approaches include persisting svc-a's release identity on the run and deriving file and item provenance from existing joins rather than stamping those records or showing only a producer revision.
 - surfaces: judged: The chosen design keeps the document card, file tooltip, and root item badge with quiet styling and browser-local date-time alongside the version.
 - selection: judged: Each surface pairs date and revision from the same latest succeeded persisted run at its own grain: workspace, file placement, or last touch on the root and its descendants.

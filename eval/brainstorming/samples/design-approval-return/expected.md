@@ -1,0 +1,2 @@
+- f1: judged: Presents round-two errors, edges, tests, and documentation impact rather than only promising to do so.
+- f2: judged: Ends at round two's existing approval request, without treating round-one approval as final-spec approval.

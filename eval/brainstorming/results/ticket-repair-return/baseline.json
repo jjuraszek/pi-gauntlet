@@ -1,0 +1,34 @@
+{
+  "sample": "ticket-repair-return",
+  "arm": "baseline",
+  "skillSha": "3f6525ccf2c2a0331629e4fa3efd592d85f662d69d1f5f61dbc0b87059eb40f9",
+  "inputSha": "abcc63ffeaa4c6a9be03364fe233e23684891ee0eac469f50651e06cfb74a4f2",
+  "kind": "text",
+  "assembly": "headed",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "The ticket repair is saved and verified. acme/widgets#77 now has one acceptance criterion: \"The report-view setting uses the shared settings resolver.\" I'm recording it as `in-scope`. It matches the path we kept. Defaults are owned in `settings/resolver.ts:12`, and `ui/report-view.ts:30` consumes the resolved value. So the earlier conflict with view-local ownership is gone, and the framing stays as kept.\n\nThe remaining open point is what the new setting should do when the user switches workspaces. Which behavior should the setting's default produce?\n\nA) **Reset by default:** all report filters clear on a workspace switch, and the setting lets users opt out and keep their filters.\nB) **Keep by default:** filters carry over as they do today, and the setting lets users opt into clearing them on a switch.\nC) **Reset only stale filters:** filters whose values don't exist in the new workspace are dropped, and valid ones carry over. The setting toggles this pruning on or off.\nD) other - name it.\n\nRecommendation: A. The reported defect is rows silently hidden in the new workspace, and only a default reset removes that for every user. C is more precise, but it needs a per-filter validity check against workspace data that the resolver doesn't own, which is a new boundary the ticket doesn't ask for.\n",
+      "words": 212,
+      "wallMs": 10215,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "The saved repair is verified: acme/widgets#77 now requires the shared settings resolver. I’ll adopt that requirement, using `settings/resolver.ts:12` for defaults and the existing resolved-settings path into `ui/report-view.ts:30`.\n\nWhat should the setting’s default behavior be when switching workspaces?\n\nA) Reset report filters by default, with a setting to preserve them.\nB) Preserve report filters by default, with a setting to reset them.\nC) Other — name the desired behavior.\n\nRecommendation: A - it prevents carried-over filters from hiding rows in the new workspace while allowing users to retain the current behavior.\n",
+      "words": 88,
+      "wallMs": 10081,
+      "mechanical": {}
+    }
+  },
+  "repoSha": "7f80c640f00445df6fc2c43961d24e5df1888a14"
+}

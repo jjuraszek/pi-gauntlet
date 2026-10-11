@@ -1,0 +1,2 @@
+- f1: judged: Explains why the shared resolver fits the supplied current code and retains choice A.
+- f2: judged: In the same response asks one labeled-options question with a recommendation about the unresolved reset behavior; does not stop at acknowledgment or start approaches with that choice unresolved.

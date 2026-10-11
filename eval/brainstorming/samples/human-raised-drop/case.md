@@ -1,3 +1,8 @@
+replay: continuation
+
+## Current state
+Checklist step 5, after approach selection. The gathered draft has already been read. Framing: kept. The placement question and approaches have been completed. No design round has been approved.
+
 ## Ask
 Implement acme/widgets#77.
 
@@ -10,12 +15,14 @@ Overrides, ## Issue tracker: repo: acme/widgets.
 - [ ] The export includes the owner column.
 - [ ] The export of a 10k-row report completes in under 60s.
 
-## Recorded answers
-Q: Where should the button appear? A: Beside the report title.
-Q: Which implementation approach? A: Reuse the existing CSV serializer and paging. The 10k-row export under 60s is more than we need this sprint - can we drop that row?
-
 ## Fixture files
 ### src/export/csv.ts
 ```text
 40: const tableColumns = ["title", "status", "owner"];
 ```
+
+## Recorded conversation
+Assistant: Where should the button appear?
+User: Beside the report title.
+Assistant: The approaches are reusing the existing CSV serializer and paging, a server-side streaming endpoint, or an async export job. Which implementation approach?
+User: Reuse the existing CSV serializer and paging. The 10k-row export under 60s is more than we need this sprint - can we drop that row?
