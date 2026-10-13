@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Changed
+
+- `gauntlet-resume` repairs plan citation drift on a `plan_check` failure instead of stopping: moved anchors, missing literals, `Modify:` rows that completed tasks deleted, and renamed `Test:` paths are fixed in place through a new `## Plan repair` section of the brief contract, re-checked up to three rounds, committed alone when the plan was tracked and clean, and reported on a `Repaired plan:` receipt line; the restore then continues with the task list verbatim. A finding that needs a task renamed, reordered, added, or removed stops before any write with a `Repair stopped:` line. Reconstruction reads task evidence from the union of the working-copy and plan-commit `Files:` paths. New eval target `eval/gauntlet-resume`.
+
 ## v7.10.0 - 2026-10-11
 
 ### Changed
