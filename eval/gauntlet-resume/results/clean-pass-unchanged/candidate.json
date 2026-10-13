@@ -1,0 +1,88 @@
+{
+  "sample": "clean-pass-unchanged",
+  "arm": "candidate",
+  "skillSha": "dd825826085e3925419b91d4be8399734af5bd6cf52ecb22f2ee2b0146b260d8",
+  "inputSha": "d88436f3b8477282e2163e0e5932da60eb5deb3e755dd05bc3b38dedfe07a87e",
+  "kind": "text",
+  "assembly": "headed",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "# Restore Narration: implement Stage, plan_check PASS Onward\n\n**Tool result 1:** `plan_check({ planPath: \"/work/app/.worktrees/config-loader/doc/plans/2026-03-02-config-loader.md\" })` → **PASS**\n\n`plan_check` passed on the first run, so the restore skips `## Plan repair`, makes no plan commit and prints no `Repaired plan:` receipt. It continues on the call table's `implement` row from `skip plan R`.\n\n**Call 1:** `phase_tracker` skip\n- phase: `plan`\n- reason: `resume: pasted brief`\n\n*Assumption:* the input gives no brief file path, so `R` uses the `\"pasted brief\"` form. If the brief came from a file, the reason would be `resume: <that file path>` instead.\n\n**Call 2:** `phase_tracker` start\n- phase: `implement`\n\n**No `substep` call.** The brief's active phase reads `→ implement` with no `(substep)` suffix.\n\nBefore the `init` call, I checked feasibility:\n- **Pending-suffix order holds.** The order is ✓, ✓, →, ○, so the only `○` task comes after every non-pending task.\n- **The implement auto-complete edge does not apply.** Task 3 is `in_progress` and task 4 is `pending`, so not every task is complete or skipped.\n\n**Call 3:** `plan_tracker` init, with the task list copied verbatim (names, order, statuses):\n```json\n[\n  { \"name\": \"W1: Parse config file\",  \"status\": \"complete\" },\n  { \"name\": \"W1: Validate schema\",    \"status\": \"complete\" },\n  { \"name\": \"W2: Wire CLI flag\",      \"status\": \"in_progress\" },\n  { \"name\": \"W3: Document the loader\",\"status\": \"pending\" }\n]\n```\n\nEvery tracker call succeeds. The restore ends with this closing line, using the brief's `Active task`:\n\n```\nGate history not restored; re-validating `W2: Wire CLI flag` before any stage advance\n```\n\nThe next printed line would be `Standing grant active: <sentence>` or `No standing grant.`. Which one depends on the result of entry check 6, and the input does not give that result. After that line, work continues in subagent-driven-development. It first re-validates `W2: Wire CLI flag` by re-running that task's `Tests:`, then enters the task loop at the first non-complete task.\n",
+      "words": 284,
+      "wallMs": 15080,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "1. Call `plan_check({ planPath: \"/work/app/.worktrees/config-loader/doc/plans/2026-03-02-config-loader.md\" })` → `PASS`.\n2. Call `phase_tracker({ action: \"skip\", phase: \"plan\", reason: \"resume: pasted brief\" })` → succeeds.\n3. Call `phase_tracker({ action: \"start\", phase: \"implement\" })` → succeeds.\n4. Call `plan_tracker({ action: \"init\", tasks: [{ name: \"W1: Parse config file\", status: \"complete\" }, { name: \"W1: Validate schema\", status: \"complete\" }, { name: \"W2: Wire CLI flag\", status: \"in_progress\" }, { name: \"W3: Document the loader\", status: \"pending\" }] })` → succeeds.\n5. Print:\n\nGate history not restored; re-validating `W2: Wire CLI flag` before any stage advance\n",
+      "words": 75,
+      "wallMs": 14133,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "7aac15eeb14216f578be8726850ff75d4971fcb3b767c23fa9a4c02ef7a1938c",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "b5e6a1fa66970d763cf2680bef4a51836100ef07cfc61cdb1b140d184c656f56",
+      "baselineOutputSha": "a40a7b8b28a9785a757273bd2702eeae66a424d8a8969a174e24233d4b2390e0",
+      "candidateOutputSha": "3ca96745128916b50cceef8a6b21eddb0e1d58332f9bc128f1068f03ab53dd2d",
+      "facts": {
+        "f1": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "f2": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "f3": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "Nothing moved on this PASS path: After still makes the same three tracker calls with the brief's four tasks and statuses verbatim, commits nothing, edits nothing, and explicitly notes that `## Plan repair` is skipped and no `Repaired plan:` receipt is printed, which is the correct behaviour under the Change. The one risk After introduces is the trailing paragraph after the closing line that speculates about `Standing grant active:` / `No standing grant.` and subagent-driven-development; the input asked to narrate 'to the closing line', and a stricter reader could take that extra material as the output not ending on the closing line. To keep every fact safely intact while delivering the Change, keep the single sentence 'plan_check passed on the first run, so the restore skips Plan repair, makes no plan commit and prints no Repaired plan: receipt' and stop the narration at the closing line, dropping the speculative next-step paragraph.",
+      "verdict": "unchanged"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "7aac15eeb14216f578be8726850ff75d4971fcb3b767c23fa9a4c02ef7a1938c",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "b5e6a1fa66970d763cf2680bef4a51836100ef07cfc61cdb1b140d184c656f56",
+      "baselineOutputSha": "046a3b73407d51e02acae5e67e050223d7f807aa77f9cf4bce26ef235068644e",
+      "candidateOutputSha": "24245c828ce0cda3a6a745b600cacc5112e403f54b165b4bcc73b9b8920ba92b",
+      "facts": {
+        "f1": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "f2": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "f3": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "Nothing moved on this PASS case: both outputs skip plan, start implement, init the tracker with the four tasks and unchanged statuses, print no Repaired plan receipt, and make no commit or file edit before the closing line. After differs from Before only in a blank line before the closing line, which does not affect any fact. The repair path wording is correctly gated on FAIL, so a PASS restore stays identical to the baseline; keep that gating (\"on plan_check FAIL\") explicit so the receipt, commit, and re-run steps never fire on PASS.",
+      "verdict": "unchanged"
+    }
+  },
+  "repoSha": "9c326fbdda997e200859f36a9596717898e50c18"
+}

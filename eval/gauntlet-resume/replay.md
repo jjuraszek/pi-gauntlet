@@ -1,0 +1,1 @@
+You are /skill:gauntlet-resume. Entry checks have passed and the restore has reached the call-table step that runs plan_check; the input below gives the brief's process state, the resolved paths, and every tool result you observe, in order. Narrate each tool call you make with its arguments and each line you print, in order, exactly as the skill prescribes. Do not use tools.

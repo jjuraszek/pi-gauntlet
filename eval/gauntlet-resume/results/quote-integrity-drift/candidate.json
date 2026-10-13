@@ -1,0 +1,124 @@
+{
+  "sample": "quote-integrity-drift",
+  "arm": "candidate",
+  "skillSha": "dd825826085e3925419b91d4be8399734af5bd6cf52ecb22f2ee2b0146b260d8",
+  "inputSha": "01107074ec36125942609f656c7d4b35e4e6a99080ac091a9c4446df1cba55b3",
+  "kind": "text",
+  "assembly": "headed",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "# Restore narration: plan_check through the closing line\n\n**1. Tool call:** `plan_check({ planPath: \"/work/app/.worktrees/config-loader/doc/plans/2026-03-02-config-loader.md\" })`\n→ `FAIL (5 findings)`. All five are `quote-integrity`.\n\n**2. FAIL leads into `## Plan repair`.**\nIts inputs are the five findings and the brief's task list. I read the task list for evidence only and do not rewrite it.\n\n**3. Record the plan's state before any write.**\n- **Tool call:** `git -C /work/app/.worktrees/config-loader ls-files --error-unmatch -- doc/plans/2026-03-02-config-loader.md` → exit 0\n- **Tool call:** `git -C /work/app/.worktrees/config-loader status --porcelain -- doc/plans/2026-03-02-config-loader.md` → prints nothing\n\nThe plan is **tracked and clean**, so no temp copy is needed.\n\n**4. Classify each finding.**\nAll five fall in the row \"`quote-integrity`, task-owned row\". The required evidence holds: every row's anchor already resolves, and there is no anchor-resolution finding. No finding lacks a row, so no stop is needed.\n\n| Finding | Edit (add the literal to the owning task's body; replace or remove nothing) |\n|---|---|\n| line 120 | Task 1 body: add `` `load_config` `` |\n| line 121 | Task 1 body: add `` `ConfigError` `` |\n| line 124 | Task 2 body: add `` `schema.json` `` |\n| line 127 | Task 3 body: add `` `--config` `` |\n| line 128 | Task 3 body: add `` `CONFIG_PATH` `` |\n\nThese edits leave task names, count, order, wave membership, `Solo:` lines and owners unchanged.\n\n**5. Round 1.**\n- Write the five edits to `doc/plans/2026-03-02-config-loader.md`.\n- **Tool call:** `plan_check({ planPath: \"/work/app/.worktrees/config-loader/doc/plans/2026-03-02-config-loader.md\" })` → `PASS`\n\n**6. Commit the plan alone.**\nThe plan was tracked and clean before the loop, and the repair passed. Commit only the plan file:\n**Tool call:** `git -C /work/app/.worktrees/config-loader add -- doc/plans/2026-03-02-config-loader.md && git -C /work/app/.worktrees/config-loader commit -q -m \"resume: plan citation repair - 5 findings\" -- doc/plans/2026-03-02-config-loader.md` → exit 0\n\n**7. Continue the call table from `skip plan R`.**\n- **Tool call:** `phase_tracker skip plan` with reason `resume: pasted brief`. The input gives no brief file path, so R takes the \"pasted brief\" form.\n- **Tool call:** `phase_tracker start implement`\n- No `substep` call. The brief shows a bare `→ implement` with no `(substep)`.\n\n**8. Check feasibility, then init the task list.**\n- Pending-suffix order holds: the only `○` task, [4], trails all non-pending tasks.\n- Not every task is complete or skipped, so implement will not auto-complete.\n\n**Tool call:** `plan_tracker init` with the task list verbatim:\n```\n[\n  { name: \"W1: Parse config file\",    status: \"complete\" },\n  { name: \"W1: Validate schema\",      status: \"complete\" },\n  { name: \"W2: Wire CLI flag\",        status: \"in_progress\" },\n  { name: \"W3: Document the loader\",  status: \"pending\" }\n]\n```\n→ exit 0\n\n**9. Printed lines, in order.**\n\nThe repair receipt comes directly before the closing line:\n```\nRepaired plan: 5 findings (quote-integrity)\n```\nThen the closing line, using the brief's `Active task`:\n```\nGate history not restored; re-validating `W2: Wire CLI flag` before any stage advance\n```\n\nNext, on its own line, I would print the check-6 result (`Standing grant active: <sentence>` or `No standing grant.`). Work then continues in subagent-driven-development: first re-run `W2: Wire CLI flag`'s `Tests:`, then resume the task loop from that task.\n",
+      "words": 450,
+      "wallMs": 21979,
+      "mechanical": {
+        "f2": "holds",
+        "f4": "holds"
+      }
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "1. Call:\n   ```text\n   plan_check({ planPath: \"/work/app/.worktrees/config-loader/doc/plans/2026-03-02-config-loader.md\" })\n   ```\n   Result: FAIL with five `quote-integrity` findings.\n\n2. Enter Plan repair. The preceding git results establish that the plan was tracked and clean. All five findings qualify as task-owned quote repairs because every row’s anchor already resolves.\n\n   Edit `/work/app/.worktrees/config-loader/doc/plans/2026-03-02-config-loader.md`, adding only these missing backtick literals to the existing task bodies:\n   - Task 1: `load_config`, `ConfigError`\n   - Task 2: `schema.json`\n   - Task 3: `--config`, `CONFIG_PATH`\n\n   Do not replace or remove existing task text or change the confirmed task list.\n\n3. Call:\n   ```text\n   plan_check({ planPath: \"/work/app/.worktrees/config-loader/doc/plans/2026-03-02-config-loader.md\" })\n   ```\n   Result: PASS.\n\n4. Call:\n   ```bash\n   git -C /work/app/.worktrees/config-loader add -- doc/plans/2026-03-02-config-loader.md && git -C /work/app/.worktrees/config-loader commit -q -m \"resume: plan citation repair - 5 findings\" -- doc/plans/2026-03-02-config-loader.md\n   ```\n   Result: exit 0.\n\n5. Call:\n   ```text\n   phase_tracker({ action: \"skip\", phase: \"plan\", reason: \"resume: pasted brief\" })\n   ```\n   Result: succeeds.\n\n6. Call:\n   ```text\n   phase_tracker({ action: \"start\", phase: \"implement\" })\n   ```\n   Result: succeeds. No substep is specified.\n\n7. Call:\n   ```text\n   plan_tracker({\n     action: \"init\",\n     tasks: [\n       { name: \"W1: Parse config file\", status: \"complete\" },\n       { name: \"W1: Validate schema\", status: \"complete\" },\n       { name: \"W2: Wire CLI flag\", status: \"in_progress\" },\n       { name: \"W3: Document the loader\", status: \"pending\" }\n     ]\n   })\n   ```\n   Result: succeeds.\n\n8. Print:\n   ```text\n   Repaired plan: 5 findings (quote-integrity)\n   Gate history not restored; re-validating `W2: Wire CLI flag` before any stage advance\n   ```\n",
+      "words": 197,
+      "wallMs": 30233,
+      "mechanical": {
+        "f2": "holds",
+        "f4": "holds"
+      }
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "0b0204ed71a67cd72bcb7ae93f4cc4ba64efacff1067e5ed33d838e049d69dc9",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "b5e6a1fa66970d763cf2680bef4a51836100ef07cfc61cdb1b140d184c656f56",
+      "baselineOutputSha": "390f8b0ec921cddc32ec3af660afc401f0369e5c883d2c84b4f61859e1846938",
+      "candidateOutputSha": "174d58864bb2b38e46d7002a2cad1bbcd508adb42f36f38d3873cbe05c3ece60",
+      "facts": {
+        "f1": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "f3": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "f5": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "f6": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "f2": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "f4": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        }
+      },
+      "feedback": "After delivers the Change cleanly on this case: it classifies all five quote-integrity findings against the repair table, confines the edits to adding each literal to the task body its finding names (and explicitly replaces or removes nothing else), re-runs plan_check once after the edits and before the commit, commits the plan alone with the exact \"resume: plan citation repair - 5 findings\" message after confirming tracked-and-clean, then proceeds through skip plan, start implement, and plan_tracker init with the four tasks and statuses verbatim, without stopping or printing a Repair stopped line. No fact that Before held was lost, since Before held none of these. One ordering nit worth tightening in the wording: the Change says the \"Repaired plan:\" receipt is printed and then the restore continues, but After emits the receipt only in step 9 after the tracker calls; stating in the skill that the receipt prints immediately after the commit (before `skip plan`) would make the narrated order match the intended sequence while keeping every fact here intact.",
+      "verdict": "improved"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "0b0204ed71a67cd72bcb7ae93f4cc4ba64efacff1067e5ed33d838e049d69dc9",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "b5e6a1fa66970d763cf2680bef4a51836100ef07cfc61cdb1b140d184c656f56",
+      "baselineOutputSha": "71216a4a318820468288df6a46d6c8d5437bb562c9e7334a1ae3ecea13d0ed2a",
+      "candidateOutputSha": "cde0e6a6fb48f3b160571374688ca483e68460c3440002c1c844929d91b48a43",
+      "facts": {
+        "f1": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "f3": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "f5": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "f6": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "f2": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "f4": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        }
+      },
+      "feedback": "Before stops on the FAIL and never edits, re-checks, commits, or restores, so every fact fails there as the Expected list anticipates. After delivers the Change cleanly: it names exactly the five missing literals against the tasks the findings cite (Task 1: load_config, ConfigError; Task 2: schema.json; Task 3: --config, CONFIG_PATH) with an explicit 'no other edits' statement, re-runs plan_check (step 3) before the commit (step 4) and tracker calls, then issues skip plan, start implement, and plan_tracker init with the four tasks and the brief's statuses in that order, and never stops or prints a Repair stopped line. No fact regressed. One small wording note: the 'Repaired plan:' receipt is printed only after the tracker calls; if the author wants the receipt to sit next to the commit it produced, moving the print directly after step 4 would read more naturally without affecting any of these facts.",
+      "verdict": "improved"
+    }
+  },
+  "repoSha": "9c326fbdda997e200859f36a9596717898e50c18"
+}

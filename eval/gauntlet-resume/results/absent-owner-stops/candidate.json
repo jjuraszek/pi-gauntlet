@@ -1,0 +1,92 @@
+{
+  "sample": "absent-owner-stops",
+  "arm": "candidate",
+  "skillSha": "dd825826085e3925419b91d4be8399734af5bd6cf52ecb22f2ee2b0146b260d8",
+  "inputSha": "64883867a392a4f6302de48b977ba876a6c861e7971db20d963f47e816ce734c",
+  "kind": "text",
+  "assembly": "headed",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "# Resume: plan repair stops on an unclassifiable finding\n\n**Recorded plan state (results 1–2):** The plan is tracked (`ls-files --error-unmatch` exited 0) and clean (`status --porcelain` printed nothing). A later rollback would therefore use `git checkout`, and no temp copy was needed.\n\n**plan_check returns FAIL (result 3).** Resume enters `## Plan repair` with one finding and the brief's task list as read-only evidence:\n\n- `✓ [1] W1: Emit the rate-limit header`\n- `→ [2] W2: Read the header in the client`\n\n**Classifying the finding**\n\n- The finding is `table-closure` with reason `row owner Task 3: no such task exists`.\n- The only `table-closure` row covers \"row anchor not in the owner's `**Spec:**` set\". Its evidence requires that \"the owner cell names an existing task\".\n- Here the owner cell names Task 3, but the plan has exactly two tasks. That fails the evidence, and the reason is not one the row covers.\n- Repair is not allowed to change the owner column, task names, or task count.\n- So this finding has no row, and repair stops before any write.\n\n**Stopping**\n\nNothing was written to the plan, so this stop runs no git command. There is no `checkout` and no commit.\n\nPrinted:\n\n```\ntable-closure @ line 98: row owner Task 3: no such task exists\nRepair stopped: table-closure - row owner Task 3: no such task exists is outside citation repair; the plan file is unchanged. Edit the plan (task changes allowed), then re-run /skill:gauntlet-resume.\n```\n\n**State left behind**\n\n- `plan` stays in_progress, and the plan file is byte-identical.\n- Resume does not run any of these:\n  - `skip plan resume: brief`\n  - `start implement`\n  - `substep`\n  - `plan_tracker init`\n- Resume prints none of these:\n  - the `Repaired plan:` receipt\n  - the `Gate history not restored; re-validating …` closing line\n  - the `Standing grant` line\n- There is no post-restore continuation into subagent-driven-development.\n- The spec is not touched, and no Open Question is written.\n",
+      "words": 298,
+      "wallMs": 11918,
+      "mechanical": {
+        "f1": "holds"
+      }
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "```text\ntable-closure @ line 98: row owner Task 3: no such task exists\nRepair stopped: table-closure - row owner Task 3: no such task exists is outside citation repair; the plan file is unchanged. Edit the plan (task changes allowed), then re-run /skill:gauntlet-resume.\n```\n",
+      "words": 41,
+      "wallMs": 10095,
+      "mechanical": {
+        "f1": "holds"
+      }
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "c8c6c9d7aa8cf02286a9d0573c92690d87642c5c759cff115b281ddea191aebe",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "b5e6a1fa66970d763cf2680bef4a51836100ef07cfc61cdb1b140d184c656f56",
+      "baselineOutputSha": "4b1488786331f2331fb1fc2ac47e94c9f99c2d9a930e2e0e54ad09201f8484cb",
+      "candidateOutputSha": "e36d296e89fb2564b0d2cbfd9af11d70b3c272533f52ea1b85df61388a728e1f",
+      "facts": {
+        "f2": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "f3": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "f1": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        }
+      },
+      "feedback": "Both facts land where intended. After keeps f2 by reasoning explicitly that the table-closure row's evidence requires an existing owner task, that repair may not touch the owner column, task names, or task count, and that the finding therefore has no row and stops before any write — no owner rewrite, no added task. It gains f3 by stating no git command runs, no checkout and no commit, listing `plan_tracker init` among the calls not made, and saying outright that the plan file is unchanged / byte-identical, with a `Repair stopped:` line that repeats 'the plan file is unchanged'. Before failed f3 only because it never stated the plan file was unchanged, so the After wording is a strict improvement here; keep the explicit 'nothing was written, so no git command runs' sentence and the unchanged/byte-identical statement, and keep the classification step that names what repair is forbidden to change, since that is what guards f2 under the new repair-capable flow.",
+      "verdict": "improved"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "c8c6c9d7aa8cf02286a9d0573c92690d87642c5c759cff115b281ddea191aebe",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "b5e6a1fa66970d763cf2680bef4a51836100ef07cfc61cdb1b140d184c656f56",
+      "baselineOutputSha": "fa2e642fbb8cdb2c76e97d17c07df74596e356f10b11900462212efd161c329e",
+      "candidateOutputSha": "c096dcadbe50780540cae1af58a3a60a538ac8c098477179cb666aa5fca5fdca",
+      "facts": {
+        "f2": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "f3": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "f1": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        }
+      },
+      "feedback": "After keeps every fact Before kept and gains f3: it explicitly says \"the plan file is unchanged\" and shows no init call or commit, while the \"Repair stopped:\" line correctly refuses to retarget the Task 3 owner or add a task (f2). Before failed f3 only because it never stated the file was unchanged. One wording nit outside the graded facts: After drops the `FAIL (1 findings)` header and the plan_check call echo that Before printed; keeping that header before the finding line (as Before did) would make the receipt self-contained without affecting either fact, and the \"Repair stopped:\" line might read cleaner as `Repair stopped: table-closure @ line 98 is outside citation repair (row owner Task 3: no such task exists); the plan file is unchanged.`",
+      "verdict": "improved"
+    }
+  },
+  "repoSha": "9c326fbdda997e200859f36a9596717898e50c18"
+}

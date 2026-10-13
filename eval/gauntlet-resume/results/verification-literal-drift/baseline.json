@@ -1,0 +1,40 @@
+{
+  "sample": "verification-literal-drift",
+  "arm": "baseline",
+  "skillSha": "63d5be7d983c4d2d9f7abb7cf276f59a23d7e33625bcafd0d5fe86a0017d5a8b",
+  "inputSha": "ccbdb78c3de88c2fc2497a3ab06cb7a2ce6b1b45f37bf29998fff6981f590eb1",
+  "kind": "text",
+  "assembly": "headed",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "# Restore narration: `plan_check` FAIL stops the restore\n\nThe restore had already run `start brainstorm`, `skip brainstorm resume: /work/app/.worktrees/config-loader/doc/specs/2026-03-02-config-loader.md` and `start plan`. The next call in the implement row is `plan_check`.\n\n## Tool call\n\n`plan_check({ planPath: \"/work/app/.worktrees/config-loader/doc/plans/2026-03-02-config-loader.md\" })`\n\nResult: **FAIL**\n\n## Printed lines\n\n```\nFAIL (1 findings)\nquote-integrity @ line 130: verification header does not contain the required verbatim literal `--check`\nThe row's owner cell is `Verification`; the plan header line is `**Verification:** \\`npm test\\``.\n```\n\n## Stop\n\nThe implement row says: \"on FAIL print findings and stop with plan in_progress, no init.\" So the restore ends here, with this state:\n\n- Phase tracker: `⊘ brainstorm (resume: …)`, `→ plan`, `○ implement`, `○ verify`, `○ ship`.\n- No `skip plan`, no `start implement`, no `substep`, no `plan_tracker init`.\n- The plan file is not edited. Resume writes only tracker state.\n\n## Not done\n\n- **No second `plan_check` call.** The skill stops on FAIL and does not retry. Tool result 4 (PASS) and the success results in item 5 are never reached. A PASS on an unchanged plan would also contradict the FAIL, so retrying to get a pass would be wrong.\n- **No closing line.** `Gate history not restored; re-validating \\`W2: Wire CLI flag\\` before any stage advance` belongs only to a successful restore.\n- **No standing-grant line, and no handoff into subagent-driven-development.** Both are part of post-restore continuation, which also requires a successful restore.\n\nTo proceed, the human fixes the plan's Verification header so it contains the required literal `--check` (line 130's finding), then re-runs `/skill:gauntlet-resume`.\n",
+      "words": 236,
+      "wallMs": 10765,
+      "mechanical": {
+        "f2": "fails",
+        "f4": "fails"
+      }
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "Call:\n```text\nplan_check({ planPath: \"/work/app/.worktrees/config-loader/doc/plans/2026-03-02-config-loader.md\" })\n```\n\nPrint:\n```text\nFAIL (1 findings)\nquote-integrity @ line 130: verification header does not contain the required verbatim literal `--check`\nThe row's owner cell is `Verification`; the plan header line is `**Verification:** \\`npm test\\``.\n```\n\nStop with `plan` in_progress. Make no second `plan_check` call, no `plan_tracker init`, and no further git or tracker calls. The restore was unsuccessful, so the successful-restore closing line is not printed.\n",
+      "words": 68,
+      "wallMs": 12315,
+      "mechanical": {
+        "f2": "fails",
+        "f4": "fails"
+      }
+    }
+  },
+  "repoSha": "afe20bc50c050ff45cd2930c2c18a787718b5d63"
+}

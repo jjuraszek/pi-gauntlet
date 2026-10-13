@@ -130,7 +130,7 @@ announcement without re-resolving it.
 |---|---|
 | brainstorm | `start brainstorm`; `substep` if the brief shows one |
 | plan | `start brainstorm`; `skip brainstorm S`; `start plan`; `substep` if shown |
-| implement | `start brainstorm`; `skip brainstorm S`; `start plan`; `plan_check({ planPath })`; on FAIL print findings and stop with plan in_progress, no init; on PASS `skip plan R`; `start implement`; `substep` if shown; `plan_tracker init` |
+| implement | `start brainstorm`; `skip brainstorm S`; `start plan`; `plan_check({ planPath })`; on FAIL run `## Plan repair`; on PASS `skip plan R`; `start implement`; `substep` if shown; `plan_tracker init` |
 | verify | as implement through `skip plan R`, then `skip implement R`; `start verify`; `substep` if shown; `plan_tracker init` |
 | ship | as verify. Restoration stops at verify in_progress: `complete verify` needs a fresh conformance dispatch and `skip verify` would bypass a real gate. Announce that the closure review re-runs before ship |
 
@@ -140,6 +140,42 @@ single plan added after base, paired with `<specDir>/<same basename>` whether th
 spec was added after base or tracked from base (`reconstruction.md` "Candidates");
 resolve the selected plan to an absolute path under the worktree before `plan_check`.
 Zero pairs -> stop; more than one -> human picks.
+
+## Plan repair
+
+Entered from the call table's `implement` row and from `reconstruction.md` "Spec with plan" step 2 when `plan_check` returns FAIL. Inputs: the findings, and the task list with statuses (the brief's, or the confirmed reconstruction snapshot) - read it for evidence, never rewrite it.
+
+Record the plan's state before any write: tracked and clean when `git -C <worktree> ls-files --error-unmatch -- <plan path>` exits 0 and `git -C <worktree> status --porcelain -- <plan path>` prints nothing (index and working copy both match HEAD; a staged edit alone makes it dirty); otherwise copy the file to a temp path outside the worktree.
+
+Classify every finding against the table by its `check` and `reason`, gathering the row's evidence first. One finding with no row -> stop (below) before any write.
+
+| Finding (`check`, `reason`) | Evidence | Edit |
+|---|---|---|
+| `anchor-resolution`, range outside section or line shift | the anchor's heading string matches exactly one current spec heading | set the `**Spec:**` `L<n>-L<m>` range to the current span of that section that holds the task body's existing literals |
+| `quote-integrity`, task-owned row | the row's anchor already resolves (repair anchors first) | add the missing backtick literal to the owning task's body; never replace or remove task text |
+| `quote-integrity`, `Verification`-owned row | as above | add the missing literal to the header `**Verification:**` line |
+| `table-closure`, row anchor not in the owner's `**Spec:**` set | the owner cell names an existing task whose body does the row's requirement | move the row's anchor together with that same owner's `**Spec:**` anchor; the owner cell never changes |
+| `paths-exist`, `Modify: path "<p>" does not exist` | the owning task is `complete` or `skipped` in the task list, and `git -C <worktree> log --diff-filter=D --format=%h -1 -- <p>` is non-empty | drop that `Modify:` row |
+| `paths-exist` or `tests-block`, a `Test:` path that does not exist or a `Tests:` segment not anchored | `git -C <worktree> log --diff-filter=R --format= --name-status -M -1 -- <old> <new>` shows the rename `<old>` -> `<new>` | substitute `<new>` for `<old>` in the `Test:` line and in the `Tests:` command; nothing else in the command changes |
+
+Every other `check` (`input`, `placeholder-scan`, `header-entrypoint`, `header-happy-path`, `waiver-literal`, `wave-file-disjointness`, `solo-line`, `internal`) and every reason not listed (a missing `Files:` block, an invalid or empty glob, a missing or ambiguous heading, a `pending`/`in_progress` owner of a dead `Modify:` row, a command broadening) has no row. Task names, count, order, wave membership, `Solo:` lines, the owner column, and task text beyond an added literal or a substituted path never change.
+
+Loop: write every classified edit, re-run `plan_check({ planPath })`, classify any new finding the same way; at most 3 rounds.
+
+PASS with the plan tracked and clean before the loop -> commit the plan alone:
+
+```bash
+git -C <worktree> add -- <plan path> && git -C <worktree> commit -q -m "resume: plan citation repair - <n> findings" -- <plan path>
+```
+
+The subject is not `amend:`, so `finishing-a-development-branch` Step 4's digest ignores it; a failed commit stops with git's output. PASS with the plan untracked or dirty before the loop -> leave the repair in the working copy; it lands with the next task commit. Then continue the originating route: the call table from `skip plan R`, or reconstruction step 3.
+
+Stop (a finding with no row, or a finding surviving the third round): when a round wrote the plan, restore its pre-loop bytes (`git -C <worktree> checkout -- <plan path>` when tracked and clean, else the saved copy) - a stop before the first write runs no git command; print the findings (a dead `Modify:` row prefixed with its owning task, e.g. `Task 5:`), leave `plan` in_progress with no `init`, and print one line:
+
+- no row: `Repair stopped: <check> - <reason> is outside citation repair; the plan file is unchanged. Edit the plan (task changes allowed), then re-run /skill:gauntlet-resume.`
+- third round: `Repair stopped: <check> - <reason> survived 3 rounds. Edit the plan, then re-run /skill:gauntlet-resume.`
+
+Resume never edits the spec; no Open Question is written.
 
 "Exact" restoration binds: the active phase identity and substep, and the plan task list
 (names, order, statuses) verbatim. Prior phases show `⊘ (resume: ...)` regardless of the
@@ -161,3 +197,5 @@ Gate history not restored; re-validating `<task>` before any stage advance
 where `<task>` is the brief's `Active task`, else the first in-progress task, else `none`
 (whole-deliverable re-validation). Gate history, closure-review evidence, and fix rounds
 are never inferred or restored; a ship-stage brief resumes at verify.
+
+A restore that ran `## Plan repair` prints `Repaired plan: <n> findings (<comma-separated check names, deduplicated>)` on its own line directly before the closing line; the `Standing grant` line (SKILL.md "Post-restore continuation") keeps its place after the closing line. A first-check PASS prints no receipt and makes no commit.

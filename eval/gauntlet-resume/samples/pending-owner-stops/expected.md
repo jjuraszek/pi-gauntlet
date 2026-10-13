@@ -1,0 +1,4 @@
+- f1: mechanical: contains "Repair stopped: paths-exist - "
+- f2: judged: Names Task 5 as the pending owner of the dead row and states the plan file is unchanged.
+- f3: judged: Makes no plan_tracker init call and no git commit.
+- f4: judged: Prints no Repaired plan receipt line (saying that no receipt is printed is fine).

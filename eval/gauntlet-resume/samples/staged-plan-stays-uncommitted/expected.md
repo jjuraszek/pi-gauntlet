@@ -1,0 +1,4 @@
+- f1: judged: Classifies the plan as dirty before the loop because git status printed a staged change, and saves a copy of the plan outside the worktree.
+- f2: judged: After the PASS, makes no git commit and runs no git add; states the repair stays in the working copy and lands with the next task commit.
+- f3: judged: Continues with skip plan, start implement, and plan_tracker init with the brief's four tasks and statuses unchanged.
+- f4: mechanical: contains "Repaired plan: 5 findings (quote-integrity)"

@@ -1,0 +1,42 @@
+{
+  "sample": "paths-exist-from-deleted-files",
+  "arm": "baseline",
+  "skillSha": "63d5be7d983c4d2d9f7abb7cf276f59a23d7e33625bcafd0d5fe86a0017d5a8b",
+  "inputSha": "b7c0a89e9d2f732da4abb96502fcb7a5a2ccbc92de384eb06d256e548ffe5507",
+  "kind": "text",
+  "assembly": "headed",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "# Restore narration: from `plan_check` to the stop\n\n**Call** (call-table row `implement`, after `start brainstorm`, `skip brainstorm resume: /work/app/.worktrees/retire-legacy/doc/specs/2026-03-09-retire-legacy-parsers.md`, and `start plan`):\n\n```\nplan_check({ planPath: \"/work/app/.worktrees/retire-legacy/doc/plans/2026-03-09-retire-legacy-parsers.md\" })\n```\n\n**Result:** FAIL.\n\n**Printed** (the findings, verbatim as returned):\n\n```\nFAIL (400 findings)\npaths-exist @ line 61: Modify: path \"legacy/parsers/csv_v1.py\" does not exist\npaths-exist @ line 62: Modify: path \"legacy/parsers/csv_v2.py\" does not exist\npaths-exist @ line 63: Modify: path \"legacy/parsers/xml_v1.py\" does not exist\n```\n\nThe remaining 397 findings follow verbatim, as `plan_check` returned them: 200 `paths-exist` rows under Task 2 (`legacy/parsers/...`) and 197 under Task 3 (`legacy/fixtures/...`). The input summarizes these 397 rows and does not reproduce them, so I cannot quote them here.\n\n**Stop.** The call table says: \"on FAIL print findings and stop with plan in_progress, no init.\" So the restore ends here:\n\n- Tracker state stays as it is:\n  - `⊘ brainstorm (resume: <spec path>)`\n  - `→ plan`\n  - `○ implement`\n  - `○ verify`\n  - `○ ship`\n- The following calls are not made:\n  - `skip plan`\n  - `start implement`\n  - `plan_tracker init`\n- No `git log --diff-filter=D` probe is run. No second `plan_check` is run. No \"deleted-on-purpose\" exemption is applied.\n  - The skill has no rule that excuses `paths-exist` findings because the paths were deleted in history.\n  - Retrying until PASS would bypass a real gate.\n  - So tool results 4–6 are never reached.\n- The closing line `Gate history not restored; re-validating ...` is not printed. The standing-grant line is not printed either. Both belong to the post-restore continuation, which runs only after a successful restore.\n- No continuation into subagent-driven-development happens.\n\n**What the human needs to do:** fix the plan so it passes `plan_check`, then re-run `/skill:gauntlet-resume`. Tasks 2 and 3 declare `Modify:` paths whose files were deleted by those tasks; those paths need to be redeclared, for example as deletions the plan's grammar accepts, or removed from the `Files:` blocks.\n",
+      "words": 283,
+      "wallMs": 15747,
+      "mechanical": {
+        "f2": "holds",
+        "f4": "fails",
+        "f5": "fails"
+      }
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "1. Call:\n   ```text\n   plan_check({ planPath: \"/work/app/.worktrees/retire-legacy/doc/plans/2026-03-09-retire-legacy-parsers.md\" })\n   ```\n\n2. Print the failure output, including all 400 findings. The input expands these lines:\n   ```text\n   FAIL (400 findings)\n   paths-exist @ line 61: Modify: path \"legacy/parsers/csv_v1.py\" does not exist\n   paths-exist @ line 62: Modify: path \"legacy/parsers/csv_v2.py\" does not exist\n   paths-exist @ line 63: Modify: path \"legacy/parsers/xml_v1.py\" does not exist\n   ```\n   Print the remaining 397 findings as returned; their exact lines are not supplied here.\n\n3. Stop with `plan` in_progress. Make no deletion-history queries, second `plan_check`, or `plan_tracker init` call. Results 4–6 are not reached. Do not print the successful-restore closing line.\n",
+      "words": 92,
+      "wallMs": 18094,
+      "mechanical": {
+        "f2": "holds",
+        "f4": "fails",
+        "f5": "fails"
+      }
+    }
+  },
+  "repoSha": "afe20bc50c050ff45cd2930c2c18a787718b5d63"
+}

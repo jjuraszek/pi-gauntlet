@@ -69,7 +69,11 @@ with this unapproved spec as the draft? Show the spec path (and the brief's
 Show, and ask the human to confirm or edit both in one reply:
 
 1. Per task, in plan order: the commits after the plan commit that touch any path in
-   the task's declared `Files:` block. Strip a trailing `:digits[-digits]` range from
+   the task's declared `Files:` block, taking the union of the block in the working
+   copy and in `git -C <worktree> show <plan-commit>:<plan path relative to the worktree>`
+   (an object path inside the repository, never the absolute `planPath`; a `Modify:` row
+   dropped by `brief-contract.md` "Plan repair" still yields its `complete` evidence).
+   Strip a trailing `:digits[-digits]` range from
    each `Modify:` path before matching `git -C <worktree> log -- <path>`:
    `git -C <worktree> log --format=%h --oneline <plan-commit>..HEAD -- <path>`.
    Uncommitted plan (no
@@ -94,7 +98,8 @@ edits override proposals; never rewrite confirmed state silently.
 After confirmation:
 
 1. Run SKILL.md entry check 6 on `<spec path>` (a malformed `**Amend-grant:**` line stops here, no tracker call); then `start brainstorm`; `skip brainstorm resume: <spec path>`; `start plan`.
-2. `plan_check` with `planPath` = the plan's absolute path. FAIL -> print the findings, stop with plan
+2. `plan_check` with `planPath` = the plan's absolute path. FAIL -> run `brief-contract.md`
+   `## Plan repair`; its PASS continues at step 3, its stop ends the restore with plan
    in_progress, no `init`.
 3. PASS -> `skip plan` with the same `resume:` reason; for stage verify also
    `skip implement`; `start <stage>`.

@@ -1,0 +1,4 @@
+- f1: judged: Adds --check to the plan header Verification line and edits no task body.
+- f2: mechanical: contains "resume: plan citation repair - 1 findings"
+- f3: judged: Continues with skip plan, start implement, and plan_tracker init with the brief's four tasks unchanged.
+- f4: mechanical: contains "Repaired plan: 1 findings (quote-integrity)"

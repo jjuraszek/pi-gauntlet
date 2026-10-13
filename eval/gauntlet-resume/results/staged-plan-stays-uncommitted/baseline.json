@@ -1,0 +1,38 @@
+{
+  "sample": "staged-plan-stays-uncommitted",
+  "arm": "baseline",
+  "skillSha": "63d5be7d983c4d2d9f7abb7cf276f59a23d7e33625bcafd0d5fe86a0017d5a8b",
+  "inputSha": "e4b982ac3001a934261e93db0b886734dd0988e60ee9e6c5b06ee9637880c248",
+  "kind": "text",
+  "assembly": "headed",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "# Restore narration from plan_check to stop\n\nThe tracker state before this step, from the call table's implement row, is: `start brainstorm`, `skip brainstorm resume: /work/app/.worktrees/config-loader/doc/specs/2026-03-02-config-loader.md`, `start plan`. Plan is `in_progress`.\n\n**Tool call:**\n\n```\nplan_check({ planPath: \"/work/app/.worktrees/config-loader/doc/plans/2026-03-02-config-loader.md\" })\n```\n\n**Result:** FAIL. The implement row says that on FAIL I print the findings and stop with plan in_progress, with no `init`.\n\n**Printed:**\n\n```\nFAIL (5 findings)\nquote-integrity @ line 120: Task 1 body does not contain the required verbatim literal `load_config` from its anchored spec lines\nquote-integrity @ line 121: Task 1 body does not contain the required verbatim literal `ConfigError` from its anchored spec lines\nquote-integrity @ line 124: Task 2 body does not contain the required verbatim literal `schema.json` from its anchored spec lines\nquote-integrity @ line 127: Task 3 body does not contain the required verbatim literal `--config` from its anchored spec lines\nquote-integrity @ line 128: Task 3 body does not contain the required verbatim literal `CONFIG_PATH` from its anchored spec lines\n```\n\n**Restore stops here.** I make no further tool calls:\n\n- **No second `plan_check`.** Re-running until it passes would get around the FAIL-stop. I don't act on tool result 4, because the call that would produce it is never made.\n- **No `skip plan`, `start implement` or `plan_tracker init`.** `start implement` would be rejected anyway without a current `plan_check` stamp.\n- **No closing line.** I don't print `Gate history not restored; re-validating ...` or the standing-grant line. Those belong to post-restore continuation, which only follows a successful restore.\n\n**Resulting state:**\n\n- Phases: brainstorm `⊘ (resume: …)`, plan `→` (in_progress), implement, verify and ship `○`.\n- Plan: no plan active, since `init` never ran.\n\nThe plan's Tasks 1–3 must quote their anchored spec literals verbatim before a resume can proceed. That fix happens in the plan stage. Then `/skill:gauntlet-resume` is re-run from the start.\n",
+      "words": 287,
+      "wallMs": 14849,
+      "mechanical": {
+        "f4": "fails"
+      }
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "Call:\n```text\nplan_check({ planPath: \"/work/app/.worktrees/config-loader/doc/plans/2026-03-02-config-loader.md\" })\n```\n\nPrint:\n```text\nFAIL (5 findings)\nquote-integrity @ line 120: Task 1 body does not contain the required verbatim literal `load_config` from its anchored spec lines\nquote-integrity @ line 121: Task 1 body does not contain the required verbatim literal `ConfigError` from its anchored spec lines\nquote-integrity @ line 124: Task 2 body does not contain the required verbatim literal `schema.json` from its anchored spec lines\nquote-integrity @ line 127: Task 3 body does not contain the required verbatim literal `--config` from its anchored spec lines\nquote-integrity @ line 128: Task 3 body does not contain the required verbatim literal `CONFIG_PATH` from its anchored spec lines\n```\n\nStop with `plan` in_progress. Make no second `plan_check` call, no further git or tracker calls, and no `plan_tracker init`. The restore did not succeed, so print neither the closing line nor a standing-grant announcement.\n",
+      "words": 139,
+      "wallMs": 10166,
+      "mechanical": {
+        "f4": "fails"
+      }
+    }
+  },
+  "repoSha": "afe20bc50c050ff45cd2930c2c18a787718b5d63"
+}

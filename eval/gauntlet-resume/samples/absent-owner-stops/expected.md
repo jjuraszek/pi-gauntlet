@@ -1,0 +1,3 @@
+- f1: mechanical: contains "Repair stopped: table-closure - "
+- f2: judged: Does not change the row's owner cell to Task 1 or Task 2 and does not add a task.
+- f3: judged: Makes no plan_tracker init call and no git commit, and states the plan file is unchanged.

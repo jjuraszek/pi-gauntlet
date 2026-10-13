@@ -1,0 +1,3 @@
+- f1: judged: Prints no Repaired plan receipt line (saying that no receipt is printed is fine).
+- f2: judged: Makes no git commit and edits no file.
+- f3: judged: Calls skip plan, start implement, and plan_tracker init with the brief's four tasks and statuses unchanged, then prints the closing line.

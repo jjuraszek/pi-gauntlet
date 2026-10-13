@@ -1,0 +1,38 @@
+{
+  "sample": "pending-owner-stops",
+  "arm": "baseline",
+  "skillSha": "63d5be7d983c4d2d9f7abb7cf276f59a23d7e33625bcafd0d5fe86a0017d5a8b",
+  "inputSha": "95082ff7b9432cd7fa83973e32a68929d7dfe5fe4721fafaf1f54d5bbf536106",
+  "kind": "text",
+  "assembly": "headed",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "## Narration from tool result 3 onward\n\n**Tool call:**\n\n```\nplan_check({ planPath: \"/work/app/.worktrees/retire-legacy/doc/plans/2026-03-09-retire-legacy-parsers.md\" })\n```\n\n**Result:** FAIL. Per the implement row of the call table, a FAIL means printing the findings and stopping with plan in_progress and no init.\n\n**Printed:**\n\n```\nFAIL (1 findings)\npaths-exist @ line 143: Modify: path \"docs/parsers.md\" does not exist\n```\n\n**Stop.** No further tracker calls are made:\n\n- no `skip plan resume: brief`\n- no `start implement`\n- no `substep`\n- no `plan_tracker init`\n\nThe tracker is left as follows:\n\n- `⊘ brainstorm (resume: /work/app/.worktrees/retire-legacy/doc/specs/2026-03-09-retire-legacy-parsers.md)`\n- `→ plan`\n- no plan task list\n\n**Tool result 4 is not used.** Resume does not run the `git log --diff-filter=D … -- docs/parsers.md` query, and it does not act on the `9f8e7d6` it would return. On FAIL, the skill only prints the findings and stops. Resume has no step for diagnosing the failure, and it never edits the plan or restores the file. Its only writes are tracker state.\n\n**No closing line is printed.** The restore did not succeed, so there is:\n\n- no `Gate history not restored; re-validating …` line\n- no standing-grant line\n- no hand-off into subagent-driven-development\n\nThe human fixes the plan's `Files:` block (Task 5, line 143) or the missing path, then re-runs resume.\n",
+      "words": 188,
+      "wallMs": 11479,
+      "mechanical": {
+        "f1": "fails"
+      }
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "Call:\n```text\nplan_check({ planPath: \"/work/app/.worktrees/retire-legacy/doc/plans/2026-03-09-retire-legacy-parsers.md\" })\n```\n\nPrint:\n```text\nFAIL (1 findings)\npaths-exist @ line 143: Modify: path \"docs/parsers.md\" does not exist\n```\n\nStop with `plan` in_progress. No `plan_tracker init`, no further tracker calls, and no deletion-history query. Tool result 4 is not consumed.\n",
+      "words": 40,
+      "wallMs": 13068,
+      "mechanical": {
+        "f1": "fails"
+      }
+    }
+  },
+  "repoSha": "afe20bc50c050ff45cd2930c2c18a787718b5d63"
+}

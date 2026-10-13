@@ -1,0 +1,34 @@
+{
+  "sample": "clean-pass-unchanged",
+  "arm": "baseline",
+  "skillSha": "63d5be7d983c4d2d9f7abb7cf276f59a23d7e33625bcafd0d5fe86a0017d5a8b",
+  "inputSha": "d88436f3b8477282e2163e0e5932da60eb5deb3e755dd05bc3b38dedfe07a87e",
+  "kind": "text",
+  "assembly": "headed",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "# Restore narration: from `plan_check` to the closing line\n\nThe brief's active phase is `→ implement`, so I follow the **implement** row of the call table. The earlier calls in that row have already run: `start brainstorm`, `skip brainstorm resume: /work/app/.worktrees/config-loader/doc/specs/2026-03-02-config-loader.md`, and `start plan`.\n\n**1. Tool call:** `plan_check({ planPath: \"/work/app/.worktrees/config-loader/doc/plans/2026-03-02-config-loader.md\" })`\nThe result is **PASS**, so the plan check stamps and the restore continues.\n\n**2. Tool call:** `phase_tracker skip plan`, with reason `resume: pasted brief`\nThe brief came in pasted, with no file path, so `R` is `resume: pasted brief`.\n\n**3. Tool call:** `phase_tracker start implement`\nThis is allowed because the `plan_check` stamp is current.\n\n**4. No `substep` call.** The brief shows `→ implement` with no `(substep)` suffix.\n\n**5. Feasibility check before `init`**\n- **Pending-suffix order:** passes. The only `○` task, `W3: Document the loader`, comes after every non-pending task.\n- **Implement auto-complete edge:** passes. Not all tasks are complete or skipped, because `W2: Wire CLI flag` is in progress and `W3` is pending. Implement will therefore not auto-complete.\n\n**6. Tool call:** `plan_tracker init`, with this task list (names, order, and statuses copied from the brief):\n```\n[\n  { name: \"W1: Parse config file\",     status: \"complete\" },\n  { name: \"W1: Validate schema\",       status: \"complete\" },\n  { name: \"W2: Wire CLI flag\",         status: \"in_progress\" },\n  { name: \"W3: Document the loader\",   status: \"pending\" }\n]\n```\nThe call succeeds.\n\n**7. Printed line (closing line):**\n```\nGate history not restored; re-validating `W2: Wire CLI flag` before any stage advance\n```\n",
+      "words": 227,
+      "wallMs": 14162,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "1. Call `plan_check({ planPath: \"/work/app/.worktrees/config-loader/doc/plans/2026-03-02-config-loader.md\" })` → `PASS`.\n2. Call `phase_tracker({ action: \"skip\", phase: \"plan\", reason: \"resume: pasted brief\" })` → succeeds.\n3. Call `phase_tracker({ action: \"start\", phase: \"implement\" })` → succeeds.\n4. Call `plan_tracker({ action: \"init\", tasks: [{ name: \"W1: Parse config file\", status: \"complete\" }, { name: \"W1: Validate schema\", status: \"complete\" }, { name: \"W2: Wire CLI flag\", status: \"in_progress\" }, { name: \"W3: Document the loader\", status: \"pending\" }] })` → succeeds.\n5. Print:\n   Gate history not restored; re-validating `W2: Wire CLI flag` before any stage advance\n",
+      "words": 75,
+      "wallMs": 10074,
+      "mechanical": {}
+    }
+  },
+  "repoSha": "0646b2adc6e1f2a9cfa2bba90e835dae5af38073"
+}

@@ -1,0 +1,38 @@
+{
+  "sample": "absent-owner-stops",
+  "arm": "baseline",
+  "skillSha": "63d5be7d983c4d2d9f7abb7cf276f59a23d7e33625bcafd0d5fe86a0017d5a8b",
+  "inputSha": "64883867a392a4f6302de48b977ba876a6c861e7971db20d963f47e816ce734c",
+  "kind": "text",
+  "assembly": "headed",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "## Tool call 3\n\n```\nplan_check({ planPath: \"/work/app/.worktrees/rate-limit/doc/plans/2026-03-16-rate-limit-header.md\" })\n```\n\nResult: **FAIL**.\n\n## Printed\n\n```\nFAIL (1 findings)\ntable-closure @ line 98: row owner Task 3: no such task exists\n```\n\n## Stop\n\nThe implement row of the call table says that on FAIL, resume prints the findings and stops with plan in_progress and makes no `init` call. Resume halts here.\n\nThe tracker state stays as the earlier calls in this row left it:\n\n- `start brainstorm` armed the flow.\n- `skip brainstorm resume: /work/app/.worktrees/rate-limit/doc/specs/2026-03-16-rate-limit-header.md` was called.\n- `start plan` was called, so **plan is in_progress**.\n\nResume does **not**:\n\n- call `skip plan resume: <brief>`\n- call `start implement`, which would be rejected anyway without a current `plan_check` stamp\n- call `substep`, since the brief shows none\n- call `plan_tracker init` with the two-task list (`W1` complete, `W2` in_progress)\n- print the closing `Gate history not restored; re-validating ...` line, because the restore did not succeed\n- print the check-6 `Standing grant active: ...` or `No standing grant.` line\n- continue into subagent-driven-development\n\nThe plan's table-closure finding (line 98 names `Task 3`, but the plan has only two tasks) has to be fixed in the plan file first. After that, running resume again repeats the call table from the start and reaches `plan_check` again.\n",
+      "words": 193,
+      "wallMs": 9286,
+      "mechanical": {
+        "f1": "fails"
+      }
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "Call:\n`plan_check({ planPath: \"/work/app/.worktrees/rate-limit/doc/plans/2026-03-16-rate-limit-header.md\" })`\n\nPrint:\n```text\nFAIL (1 findings)\ntable-closure @ line 98: row owner Task 3: no such task exists\n```\n\nStop with `plan` in_progress. No further tracker calls; no `plan_tracker init`; no restore closing line or continuation.\n",
+      "words": 37,
+      "wallMs": 3344,
+      "mechanical": {
+        "f1": "fails"
+      }
+    }
+  },
+  "repoSha": "afe20bc50c050ff45cd2930c2c18a787718b5d63"
+}

@@ -23,7 +23,8 @@ before any tracker mutation; every stop names the offending path, field, or line
 
 - Reads: anything.
 - Writes: `phase_tracker` / `plan_tracker` state after every check passes and every
-  human question is answered; on the seed route, what `/skill:using-git-worktrees`
+  human question is answered; the plan file, only through `reference/brief-contract.md`
+  `## Plan repair`; on the seed route, what `/skill:using-git-worktrees`
   writes. Never a spec copy, rename, or marker commit.
 - Never: `git worktree add` directly; worktree creation by resume itself only on
   the seed route, only through `/skill:using-git-worktrees`; infer approval from

@@ -1,0 +1,5 @@
+- f1: judged: States that the 400 Modify rows under Task 2 and Task 3 are dropped because both tasks are complete and git shows each deletion, and names no other plan edit.
+- f2: mechanical: lacks "Delete:"
+- f3: judged: Calls plan_tracker init with exactly the five tasks and statuses from the brief, unchanged.
+- f4: mechanical: contains "Repaired plan: 400 findings (paths-exist)"
+- f5: mechanical: contains "resume: plan citation repair - 400 findings"

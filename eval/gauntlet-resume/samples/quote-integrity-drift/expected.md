@@ -1,0 +1,6 @@
+- f1: judged: Names each of the five literals (load_config, ConfigError, schema.json, --config, CONFIG_PATH) as added to the body of the task the finding names, and names no other plan edit.
+- f2: mechanical: contains "resume: plan citation repair - 5 findings"
+- f3: judged: After the PASS, calls skip plan, start implement, and plan_tracker init with exactly the four tasks and statuses from the brief (1 and 2 complete, 3 in_progress, 4 pending), in that order.
+- f4: mechanical: contains "Repaired plan: 5 findings (quote-integrity)"
+- f5: judged: Does not stop, ask the human, or print a Repair stopped line.
+- f6: judged: Re-runs plan_check after the literal edits and before the commit and tracker calls.
