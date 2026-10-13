@@ -63,16 +63,16 @@ test('repair continuation trusts direct picks and preserves the authorized poll 
   assert.match(loop, /Persist `repair.poll_deadline`[\s\S]*context restoration/);
   assert.match(loop, /only readiness evidence for the authorized repair course is pending, including after its payloads were pushed/);
   const wait = section(loop, '### Wait course\n', '### Output done-check\n');
-  assert.match(wait, /first poll with a null deadline[\s\S]*actual newly successful authorized push[\s\S]*new explicit `wait` selection/);
-  assert.match(wait, /current time plus the resolved `timeout minutes`[\s\S]*before checking expiry or polling/);
-  assert.match(wait, /already recorded push[\s\S]*reuse the saved deadline/);
+  assert.match(wait, /first watch with a null deadline[\s\S]*new explicit `wait` selection/);
+  assert.match(wait, /current time plus the resolved `timeout minutes`/);
   assert.match(wait, /retained grant, repeated menu\/Wait entry, or expiry alone never renews/);
-  assert.ok(!wait.includes('repeated entry, pushes, and retained grants never reset it'));
-  assert.match(fixWave, /newly successful push[\s\S]*persist the new window together with `repair.wave.pushed_head`[\s\S]*already recorded push reuses/);
-  assert.match(wait, /A held grant alone never starts unrelated polling/);
-  assert.match(wait, /Before any poll[\s\S]*expired[\s\S]*concrete obstacle/);
-  assert.match(fixWave, /poll deadline owned by `post-selection-loop.md` `### Wait course`/);
-  assert.ok(!fixWave.includes('every 30 seconds for up to `timeout minutes`'));
+  assert.match(wait, /gh pr checks <N> -R <base-owner>\/<base-repo> --watch/);
+  assert.ok(!wait.includes('sleep 30'), 'no poll loop');
+  assert.ok(!wait.includes('every 30 s'), 'no poll cadence');
+  assert.match(wait, /A held grant alone never starts a watch/);
+  assert.match(wait, /A `wait` pick on an expired window first applies the expiry step/);
+  assert.ok(!fixWave.includes('every 30 seconds'), 'no post-push poll');
+  assert.ok(!fixWave.includes('poll the pushed head'), 'no post-push poll');
 });
 
 test('retained authority checks live base and stops unchanged no-progress attempts', () => {
@@ -108,22 +108,19 @@ test('scope-narrowing description proposals require the contract decision for ei
 
 test('exact description selection and narrow recheck preserve independent evidence', () => {
   assert.match(findings, /target: file \| description/);
-  assert.match(findings, /Every new description proposal requires exact-text selection/);
+  assert.ok(!findings.includes('Every new description proposal requires exact-text selection'), 'selection sentence deleted');
+  assert.ok(!findings.includes('decline writes nothing'), 'decline clause deleted');
+  assert.match(findings, /A `fix` pick or a validated retained fix grant applies a description payload in the same round as the file payloads/);
   const exclusions = section(report, '## What stays out\n', '## Worked example\n');
   assert.match(exclusions, /drafted file edits and full description bodies[^\n]*only under the `show evidence` pick/, 'keep file edits and full description bodies evidence-only');
-  assert.ok(!/drafted edits[^\n]*only under the `show evidence` pick/.test(exclusions), 'do not hide the exact consent preview with all drafted edits');
-  assert.match(exclusions, /Print the compact exact old-to-new description preview before selection at the rendered consent menu, including a new payload under a held fix grant; keep the full replacement body under `show evidence`/);
+  assert.match(exclusions, /Print the compact exact old-to-new description preview under its blocker; keep the full replacement body under `show evidence`/);
+  assert.ok(!exclusions.includes('before selection at the rendered consent menu'), 'consent-menu clause deleted');
   assert.match(findings, /independent contributions/);
   assert.match(loop, /gh pr edit <N> --body-file <temporary-file>/);
   assert.match(loop, /same-head body edit invalidates/);
-  assert.match(loop, /not atomic compare-and-swap/);
-  assert.match(brief, /description recheck[\s\S]*No replacement evidence block/);
-  assert.match(brief, /preserve `source: ci`, `source: local` \(including `log_path`\), or `source: pending`/);
-  assert.match(skill, /description recheck/);
-  assert.match(loop, /repair.wave.affected_claims/);
-  const template = section(report, '## Order\n').match(/```[^\n]*\n([\s\S]*?)\n```/)[1];
-  assert.ok(template.indexOf('Blockers:') < template.indexOf('Description:'));
-  assert.ok(template.indexOf('Description:') < template.indexOf('Sync:'));
+  assert.match(loop, /re-propose from the current body/);
+  assert.ok(!loop.includes('requires renewed selection before writing'), 'renewed-selection clause deleted');
+  assert.ok(!menu.includes('require its selection per `findings.md`'), 'fix row selection clause deleted');
 });
 
 test('pending contract exceptions render actionable rows and route numeric or typed decisions', () => {
@@ -185,10 +182,17 @@ test('source review is not comment triage or blind bot promotion', () => {
   assert.match(brief, /top_level\[ \{ id, updated_at, user_type, body,/);
 });
 
-test('wait polling preserves the review baseline and checks freshness before reusing evidence', () => {
-  const wait = section(loop, '### Wait course\n', '### Teardown\n');
-  assert.match(wait, /polling refetch[^\n]*leave[^\n]*digest[^\n]*ledger[^\n]*untouched/i);
-  assert.match(wait, /head[^\n]*advanced[^\n]*re-assessment[^\n]*before[^\n]*evidence/i);
+test('the watch runs only when blockers are empty after the first report, then the refresh decides', () => {
+  const refresh = section(loop, '### Pre-menu refresh\n', '### Wait course\n');
+  assert.match(refresh, /not the first report, Blockers are empty, and a binding check is pending/);
+  assert.match(refresh, /gh run view <id> -R <repo> --log-failed/);
+  assert.match(refresh, /Evidence resolution table/);
+  assert.ok(!loop.includes('polling refetch'), 'poll vocabulary deleted');
+  assert.match(brief, /stage: apply \| review \| push,/);
+  assert.ok(!brief.includes('every 30 seconds while no row other than Pending or Fallback matches'), 'first-pass poll deleted');
+  assert.match(brief, /\| Pending \| >=1 \*\*binding\*\* pending check, no blocking conclusion \|/);
+  assert.match(brief, /\| Fallback \| No conclusive check: no checks on the assessed head, or only inert \/ fail-safe conclusions or only not-binding pending checks \|/);
+  assert.ok(!sync.includes('single poll window'), 'sync poll-window sentence deleted');
 });
 
 test('SKILL.md is a short orchestrator carrying none of the retired vocabulary', () => {
@@ -200,12 +204,17 @@ test('SKILL.md is a short orchestrator carrying none of the retired vocabulary',
     assert.ok(!skill.includes(banned), `SKILL.md must not contain ${banned}`);
   }
   assert.ok(skill.includes('## Harness notes'));
+  assert.match(skill, /only when it starts/);
+  assert.match(skill, /one task per pending claim/);
   assert.match(skill, /resolving a merge conflict itself/);
-  assert.match(skill, /A local verification run while a binding check is pending, or a second push inside one round/);
+  assert.match(skill, /A CI wait while a blocker is open or before the first report, or a second push inside one round/);
   assert.ok(!skill.includes('Run every step inline'));
 });
 
 test('findings.md owns the mechanism-only AC contract, drafted doc fixes, and the C# ledger', () => {
+  assert.ok(!findings.includes('An undispositioned failing check is never a target of `fix`'), 'failing checks are fixable');
+  assert.ok(!findings.includes('reports it as not fixable'), 'not-fixable clause deleted');
+  assert.match(findings, /A payload is the smallest in-repo edit that turns the finding green and keeps the behavior the PR promises; it never adds infrastructure, a dependency, or a new module\./);
   assert.match(findings, /observation half[^\n]*is checked after merge, not here/);
   assert.match(findings, /observation half[^\n]*blocks nothing|blocks nothing[^\n]*observation half/);
   assert.match(findings, /`gap`[^\n]*is a blocker/);
@@ -356,7 +365,9 @@ test('check-delivery takes no input from the pre-merge gate', () => {
   assert.ok(delivery.includes('takes no input from `/skill:gatekeep-pr`'));
 });
 
-test('fix-wave.md owns the wave: fresh helpers, pre-push review, CI poll, local conflict check', () => {
+test('fix-wave.md owns the wave: fresh helpers, pre-push review, local conflict check', () => {
+  assert.match(fixWave, /A payload is the smallest in-repo edit that turns the finding green and keeps the behavior the PR promises; it never adds infrastructure, a dependency, or a new module\./);
+  assert.ok(!fixWave.includes('then re-polls'), 'approve workflow run re-enters the refresh');
   assert.match(fixWave, /one fresh implementer helper/);
   assert.match(fixWave, /claim-check-only mode/);
   assert.match(fixWave, /<pushed_head>\.\.HEAD/);
@@ -396,7 +407,7 @@ test('verification-brief.md classifies pending checks as binding from merge_stat
 });
 
 test('sync.md re-gather resolves pending checks through the binding rule', () => {
-  assert.match(sync, /a binding check still pending at the limit renders the `verification evidence pending` overlay/);
+  assert.match(sync, /a binding check still pending renders the `verification evidence pending` overlay/);
 });
 
 test('post-selection-loop.md refreshes merge state before every menu and binds the preconditions to it', () => {
@@ -412,10 +423,6 @@ test('post-selection-loop.md refreshes merge state before every menu and binds t
   assert.ok(!pre.includes('no pending required check'));
   assert.match(section(loop, '### Compare-and-swap\n', '### Fix wave\n'), /re-fetch `headRefOid`, `state`, `mergeable`, and `mergeStateStatus`/);
   assert.match(section(loop, '### Re-render\n', '### Pre-menu refresh\n'), /1\. Run the pre-menu refresh \(`### Pre-menu refresh`\)/);
-  const wait = section(loop, '### Wait course\n', '### Output done-check\n');
-  assert.match(wait, /--json statusCheckRollup,mergeStateStatus/);
-  assert.match(wait, /or the polled `mergeStateStatus` is `BLOCKED`, `UNKNOWN`, or `unreadable`/);
-  assert.match(fixWave, /gh pr view <N> --json headRefOid,statusCheckRollup,mergeStateStatus/);
   assert.match(fixWave, /binding classification/);
   assert.match(fixWave, /runs the pre-menu refresh as `post-selection-loop\.md` `### Re-render` step 1/);
 });
@@ -437,7 +444,7 @@ test('decision-menu.md resolves the withhold reason once and overlays merge stat
   assert.match(overlays, /a binding pending check renders one `PR comments` line/);
   assert.match(overlays, /\| merge state \|[^\n]*`\[recommended\]` goes to `approve` when the consent row renders it/);
   assert.match(menu, /else to `approve` or `wait` under the merge state overlay/);
-  assert.match(menu, /- `wait` - poll the reviewer run, every \*\*binding\*\* pending check in the resolved set \(required or not\), `mergeStateStatus` while it is `BLOCKED`, `UNKNOWN`, or `unreadable`, and the comment set/);
+  assert.match(menu, /- `wait` - run one bounded `gh pr checks --watch` on every \*\*binding\*\* pending check in the resolved set \(required or not\), then re-render/);
   assert.match(findings, /A \*\*binding\*\* pending check/);
   assert.match(findings, /<name> pending - not binding this viewer \(merge_state_status <value>\)/);
   assert.ok(!report.includes('required check pending'));

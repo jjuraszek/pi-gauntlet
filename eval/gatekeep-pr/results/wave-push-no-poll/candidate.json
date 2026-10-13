@@ -1,0 +1,88 @@
+{
+  "sample": "wave-push-no-poll",
+  "arm": "candidate",
+  "skillSha": "5a81113f629283115d188517be75f6d4915a4f92a086291cba7c045f61bb2579",
+  "inputSha": "fb15617a026304d6e57641efe8ff1a8e1ee3535cfc076a41cb26de081cae1db9",
+  "kind": "text",
+  "assembly": "concat",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "# gatekeep-pr - PR 642, re-entry after the own fix push\n\n## Narration\n\n**1. Validate the continuation record.**\n- Read `/tmp/gatekeep-state.synthetic`, located through the `state:` locator in the first tracker task.\n- The target matches: base repository `meadow/events`, PR `642`, `baseRefName` `main`.\n- Retained state:\n  - `consent.fix` is `{ scope: \"all\", granted_by: \"fix\" }`.\n  - `consent.merge_base` is null.\n  - `repair.rounds_used` is 1.\n  - `repair.poll_deadline` is null.\n  - `assessed_head` is `2222222222222222222222222222222222222222`.\n- The record is valid, so the grants and the budget stand. Nothing is reset.\n\n**2. Persist the pushed head.**\n- Write `repair.wave.pushed_head = 2222222222222222222222222222222222222222`.\n- No poll runs (`fix-wave.md` `## Evidence after push`).\n\n**3. Re-open the tracker stage.**\n- `plan_tracker`: `add` the `review` stage. The own push re-enters step 4 through the own-push sequence.\n- There is no new `init`. Its stages (`gather, provision, verify`) were set at invocation, and no `sync` stage exists because `--rebase` was not passed.\n\n**4. Run the pre-menu refresh (`### Re-render` step 1, run once).** This is the only refresh in this pass.\n- `gh pr view 642 --json headRefOid,state,mergeable,mergeStateStatus,reviewDecision,statusCheckRollup,body,baseRefName,number,title,author,isDraft,headRefName,isCrossRepository,files,additions,deletions,commits,reviews,closingIssuesReferences,headRepository,maintainerCanModify`\n- `gh run list -R meadow/events -c 2222222222222222222222222222222222222222 --json databaseId,status,conclusion,workflowName,url`\n- Results:\n  - The head is unchanged (`2222...`).\n  - `state` is OPEN and `mergeable` is MERGEABLE, both unchanged.\n  - The body is unchanged and `baseRefName` is still `main`, so the live target check passes.\n- Replace these digest fields together: `merge_state_status` (CLEAN), `reviewDecision`, `status_checks[]`, and `actions_runs[]`.\n- Re-classify the pending checks. `ci / test` is a `check_run` whose run 910 is `in_progress`, so it is **binding**.\n- Re-resolve the Evidence resolution table. The **Pending** row applies, so evidence stays `source: pending` for `2222...`. The run is not CI-sufficient, so no claim-check-only helper is dispatched.\n- Claim dispositions carry to the pushed SHA. No claim re-check and no whole-wave review run after an own push, and no description payload was in this wave.\n\n**5. Apply the watch guard.**\n- P1 is open, so `Blockers` is non-empty and no watch runs.\n- `repair.poll_deadline` stays null.\n\n**6. Refetch and reconcile comments (`### Re-render` steps 1-5).**\n- `gh api repos/meadow/events/pulls/642/comments --paginate`\n- `gh api repos/meadow/events/issues/642/comments --paginate`\n- The GraphQL `reviewThreads` query runs, because the gather populated `review_threads`.\n- There are no placeholder rows and no known reviewer workflow, so no `gh run view` or reviewer `gh run list` runs.\n- The comment ledger diff is empty: no new, edited, or withdrawn comments.\n- Re-triage finds nothing, and there is no comment delta, so no comment-delta reviewer is dispatched.\n- The digest `comments` field is replaced with the identical fresh set.\n\n**7. Integrate (step 5).**\n- Close `review` and `add` the `report` stage.\n- Read the pre-push reviewer's closure lines for `2222...`. P1 is open and every other finding is resolved, so those findings leave the list while their IDs stay in the ledger.\n- Provenance: the evidence is CI-pending at the assessed head.\n\n**8. Check the continuation boundary (`### Next action`).**\n- The first applicable row is **completed no-progress result with unchanged failed prerequisite**.\n- Persist `repair.wave.no_progress`:\n  - `failed_prerequisite`: the P1 payload needs an edit to `src/guard.ts` outside the diff.\n  - `observed_value`: implementer `open - needs src/guard.ts outside the diff`.\n  - `result_path`: the implementer's output file.\n- The retained `fix` grant does **not** re-dispatch P1, because an `open - needs <what>` finding is not covered until a new explicit pick names it.\n- No helper is dispatched. `repair.rounds_used` stays at 1, below the cap of 3, and the grants are kept.\n\n**9. Render.**\n- Close `report` and `add` the `menu` stage.\n\n**Assessed SHA:** verification evidence, review closure lines, and the report all assess `2222222222222222222222222222222222222222`.\n\n**Sync line:** none renders, because `--rebase` was not passed.\n\n## Report and menu\n\n```\nDelivers: the event guard rejects unsigned events.\n\nPR comments:\n- A check that binds this actor is still pending, so merge waits. (ci / test)\n\nBlockers:\n1. Unsigned events can still pass the guard, so the PR does not yet deliver its promise\n   to reject them; the remaining fix needs an edit to src/guard.ts outside this diff,\n   which the last attempt stopped on. (src/guard.ts)\n\nVerdict: fixable - 1 blocker\n\n1. wait - run one bounded CI watch on ci / test, then re-render\n2. fix - authorize the edit to src/guard.ts outside the diff for blocker 1 and retain in-scope blocker repair during this run until readiness or a new decision boundary; review before push [recommended]\n3. review - post the blocker as a comment on your PR\n4. show evidence - gate output, CI run, the implementer's open reason\n5. stop - leave the PR as-is\nType a number, or compose: \"fix 1\". Not offered: merge (ci / test pending).\n```\n",
+      "words": 703,
+      "wallMs": 46774,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "This entry resumes the existing run after its own push. It does not start a new invocation or run the sync step.\n\n### Ordered continuation\n\n1. **Read and validate `/tmp/gatekeep-state.synthetic`.** I retain the recorded target `meadow/events`, PR `642`, base `main`, original intent, finding IDs, helper-result paths, and assessed head. I preserve the broad fix grant, `repair.rounds_used: 1`, and the null polling deadline.\n\n   I do **not** initialize the tracker again. This invocation's initial stages were `gather`, `provision`, and `verify`; there was no `sync` stage because the arguments contain no `--rebase`. I reopen `report` for this continuation and reopen `menu` when rendering starts.\n\n2. **Re-sync the provisioned worktree**, using its existing tracking branch:\n\n   ```bash\n   git -C <scratch>/.worktrees/pr-642 fetch origin\n   git -C <scratch>/.worktrees/pr-642 pull --ff-only\n   ```\n\n   HEAD remains `2222222222222222222222222222222222222222`.\n\n3. **Run the pre-menu refresh once:**\n\n   ```bash\n   gh pr view 642 --json headRefOid,state,mergeable,mergeStateStatus,reviewDecision,statusCheckRollup,body,baseRefName,number,title,author,isDraft,headRefName,isCrossRepository,files,additions,deletions,commits,reviews,closingIssuesReferences,headRepository,maintainerCanModify\n   gh run list -R meadow/events -c 2222222222222222222222222222222222222222 --json databaseId,status,conclusion,workflowName,url\n   ```\n\n   The target, body, state, and head are unchanged. The refreshed check and Actions run are still in progress. `ci / test` binds this actor because its matching Actions run has not completed, even though the merge state is `CLEAN`.\n\n   Evidence therefore stays `source: pending` at `2222222222222222222222222222222222222222`. I run neither `node --test src/guard.test.ts` nor a CI watch: the evidence table selects Pending, and an open blocker prohibits the watch.\n\n4. **Refresh comments:**\n\n   ```bash\n   gh api repos/meadow/events/pulls/642/comments --paginate\n   gh api repos/meadow/events/issues/642/comments --paginate\n   ```\n\n   I also refresh the digest's review-thread resolution connection:\n\n   ```bash\n   gh api graphql --paginate \\\n     -f query='query($o:String!,$r:String!,$n:Int!,$endCursor:String){repository(owner:$o,name:$r){pullRequest(number:$n){reviewThreads(first:100,after:$endCursor){nodes{id isResolved isOutdated}pageInfo{hasNextPage endCursor}}}}}' \\\n     -f o=meadow -f r=events -F n=642\n   ```\n\n   All comment sets remain empty. There are no placeholders requiring `gh run view`, no known reviewer workflow requiring another run-list call, and no eligible comment delta requiring source review.\n\n5. **Reconcile the completed repair and retained authority.** I preserve the open finding and its independent contributions. I persist the completed unsuccessful payload's no-progress checkpoint, linked to its existing implementer result and the reported prerequisite: `needs src/guard.ts outside the diff`.\n\n   That result does not authorize an automatic retry. The retained broad grant stays recorded, but this finding requires a new explicit selection before another attempt. I neither increment the round count nor dispatch an implementer.\n\n6. **Check the worktree before rendering:**\n\n   ```bash\n   git -C <scratch>/.worktrees/pr-642 rev-parse HEAD\n   git -C <scratch>/.worktrees/pr-642 status --porcelain --untracked-files=no\n   ```\n\n   HEAD matches the assessed SHA, and the tracked tree is clean. I save the refreshed digest and reconciliation fields without replacing grants or resetting usage.\n\n7. **Integrate and render.** The existing wave review's unchanged open closure keeps the blocker open. All other findings remain closed.\n\n   **Helpers dispatched in this continuation: none.** An own push does not trigger another whole-wave review or routine claim recheck. Pending evidence has not become CI-sufficient, and there is no comment delta or description change.\n\n   Verification evidence and the brief assess **`2222222222222222222222222222222222222222`**. No local verification executes. No `Sync:` line renders because this invocation did not include `--rebase`.\n\n### Rendered report and next menu\n\nDelivers: the PR targets rejection of unsigned events.\n\nPR comments:\n- A check that binds this actor is still pending, so merge waits. (ci / test)\n\nBlockers:\n1. The remaining guard repair needs a change the implementer did not make, so the promised rejection behavior remains unresolved. (src/guard.ts)\n\nVerdict: fixable - 1 blocker\n\n1. wait - run one bounded CI watch after the blocker is resolved, then re-render\n2. fix - explicitly retry the remaining blocker and retain in-scope repair during this run until readiness or a new decision boundary; review before push [recommended]\n3. review - post the blocker as a comment on your PR\n4. show evidence - print the evidence, retained state, and repair result\n5. stop - leave the PR as-is\nType a number, or compose: \"fix 1\", \"revoke fix\". Not offered: merge (ci / test pending).\n",
+      "words": 609,
+      "wallMs": 47123,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "983e1ae87b466afa0bf8adcc7b5b07f3af50c920c4f56d822b92cdaecb09fd6c",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "490b767d336545357ec2f7a6714d1aa67c79b98fdfd26ea2daedddb14d302f99",
+      "baselineOutputSha": "4bca804742be4abc080c842ccbcb3130fafa07e0726d49fb0406d70eb820668f",
+      "candidateOutputSha": "f225bf7f0eb6cc4e3c29560a51666131111e59aff9fc6bb3fb4a2a11a2c13318",
+      "facts": {
+        "f1": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "f2": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "f3": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        }
+      },
+      "feedback": "After delivers the Change cleanly: the own push re-enters the refresh with a single `gh pr view` and a single `gh run list` (step 4), the watch guard in step 5 explicitly skips the watch because Blockers is non-empty, and the menu reaches the reader with `fix` recommended for the open P1 without any time spent on CI. Before failed all three facts because steps 7-10 ran the 30 s poll loop until the 15-minute deadline (repeated `gh pr view`/`gh run list`/`gh run view` reads) and only then rendered, so the report and the `fix` offer were gated on CI. Keep the After structure (persist pushed_head, one refresh, guard, comment refetch, next-action row); the one wording to tighten is the `wait` row, which still offers a bounded watch while a blocker is open—phrase it as something like `wait - run one bounded CI watch on ci / test; only useful once blocker 1 is fixed` or move it below `fix` so the menu text itself does not suggest watching CI while Blockers is non-empty.",
+      "verdict": "improved"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "983e1ae87b466afa0bf8adcc7b5b07f3af50c920c4f56d822b92cdaecb09fd6c",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "490b767d336545357ec2f7a6714d1aa67c79b98fdfd26ea2daedddb14d302f99",
+      "baselineOutputSha": "3b781667659df72224de74f22431b2db6de916e0093e0cca7e1c6198c6dee62c",
+      "candidateOutputSha": "fa72ca42aeffb61cc2fd26de7380d1f936880ccf679e6eb1c313ba77b9b68aec",
+      "facts": {
+        "f1": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "f2": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "f3": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        }
+      },
+      "feedback": "After moves all three facts in the intended direction: it drops the Before behavior of writing a 15-minute deadline and running a `sleep 30` poll loop (repeated `gh pr view`/`gh run list`/`gh run view` reads) before the report, instead doing a single pre-menu refresh with exactly one `gh pr view` and one `gh run list`, explicitly stating that an open blocker prohibits the watch, and rendering the menu immediately with `fix` as the recommended pick. The key wording that delivers this is the rule that the bounded watch runs only when Blockers are empty and that an own push re-enters the refresh without polling; keep that rule stated as a hard gate on the watch and keep the refresh capped at one PR read and one run-list read. One small cleanup: the `wait` menu line in After (\"run one bounded CI watch after the blocker is resolved\") is awkward since a user picking `wait` while a blocker is open cannot actually trigger the watch; phrase it as something like \"wait - no watch runs while a blocker is open; resolve the blocker to enable the single bounded CI watch\" so the menu text matches the gating rule without implying the report waits on CI.",
+      "verdict": "improved"
+    }
+  },
+  "repoSha": "d0e8724295259e526ae2925c837c75aa86bf6361"
+}

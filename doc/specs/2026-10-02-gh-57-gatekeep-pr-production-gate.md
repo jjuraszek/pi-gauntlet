@@ -2,6 +2,7 @@
 
 > **Superseded by:** [doc/specs/2026-10-06-gh-59-spec-disposition-coverage.md](./2026-10-06-gh-59-spec-disposition-coverage.md) - D8 tracker-only split rule only
 > **Superseded by:** [doc/specs/2026-10-11-gh-62-gatekeep-decision-grants.md](./2026-10-11-gh-62-gatekeep-decision-grants.md) - D3/D5 repair-round accounting and repeat conflict-menu selection, and corresponding Phase 4 conflict-menu behavior only
+> **Superseded by:** [doc/specs/2026-10-13-gatekeep-pr-speed-and-fixability.md](./2026-10-13-gatekeep-pr-speed-and-fixability.md) - D4 CI poll after push and the first-pass 30 s poll only
 
 **Goal:** Make `/skill:gatekeep-pr` safe to run on a real PR by default - helpers in fresh contexts, no orchestrator edits, a reviewer before every push, CI read after the push, conflict and permission facts owned by the digest - with the smallest text change per ticket row, inside `skills/gatekeep-pr/` only, and with a before/after control run on past PRs so the first-pass report does not regress.
 

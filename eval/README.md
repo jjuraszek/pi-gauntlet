@@ -10,6 +10,15 @@ node eval/run.mjs <target> [<sample>] [--baseline-only] [--base <ref>]
 
 The default run compares baseline skill text from `git merge-base HEAD origin/main` with the working tree, reuses fresh cells, and judges each pair against `intent.md`. `--base <ref>` selects another baseline commit. `<sample>` selects one sample and writes a report labeled partial, not a target-wide pass. `--baseline-only` seeds or refreshes baseline records without checking intent or judging; fresh baselines require no model call. Commit the records and intent with the change. Models are constants, not CLI options.
 
+## Iterating on a skill edit
+
+A full target run replays every sample on every replay model and judges each cell: on the order of 90 minutes for a 40-sample target, and every edit under `skills/` changes the assembly SHA, so stored cells go stale and the next default run redoes the whole target. Keep the loop cheap:
+
+1. Edit, then run only the samples the edit targets plus the ones the last report flagged: `node eval/run.mjs <target> <sample>` per sample (about 5 minutes each, partial report).
+2. Batch every wording fix the partial reports ask for into one edit before the next run; never run the full target after a single-sentence change.
+3. Run the full target once, when every targeted cell holds, to produce the committed `report.md`; a judge note on a sample the edit did not touch is a finding to record in the commit body, not a reason to edit the skill again.
+4. Change only what the spec names. A clause added on the agent's own judgment (a reordering, an extra guard) is the usual cause of a regression on an untouched sample and of another full rerun.
+
 A skill file with no version at the baseline refuses the run; use `--base <ref>` to pick a base that has it. Unreadable skill files or unresolved slice headings also refuse with the file and ref.
 
 | Exit | Meaning |

@@ -459,7 +459,7 @@ customization lives in two places, never in the wrapper itself:
 ```markdown
 ## PR gate
 - verification command: <command>            # required unless documented elsewhere
-- timeout minutes: 15                        # optional; default 15
+- timeout minutes: 15                        # optional; default 15; bounds each gh pr checks --watch window
 - requires credentials: false                # optional; true => skill reports "not run" as missing evidence
 - local verification: always                 # optional; default (absent) = CI-first; "always" forces the local run even when exact-head CI is green
 - ci checks: <comma-separated check names>   # optional; narrows which checks count as evidence; absent = all checks on the assessed head

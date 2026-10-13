@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Changed
+
+- `gatekeep-pr` waits on CI once: one `gh pr checks --watch` call bounded by `timeout minutes`, run only when Blockers are empty after the first report; the 30 s poll loop and the post-push poll are gone, and a wave push re-enters the menu on scoped-test evidence. A failing check is a `fix` target. Description corrections apply on `fix` or a retained fix grant like any payload, with readback and a re-propose when the body changed. Every payload is the smallest in-repo edit that turns the finding green - never infrastructure, a dependency, or a new module.
+
 ## v7.10.1 - 2026-10-13
 
 ### Changed

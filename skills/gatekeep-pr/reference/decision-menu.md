@@ -12,12 +12,12 @@ Rows are `<n>. <verb> - <consequence>`; every row, `stop` included, carries its 
 
 - `accept contract change` - invoke the concrete proposal's owning amendment process through `post-selection-loop.md` `### Contract decision`; settle the baseline only after completion
 - `preserve contract` - reject the concrete proposal and resume only permitted scope-preserving repair through `post-selection-loop.md` `### Contract decision`; keep independent blockers open
-- `fix` - retain covered blocker repair during this run until readiness or a new decision boundary (`post-selection-loop.md`); show exact old-to-new description text and require its selection per `findings.md`; apply description targets through the loop's Description repair and file payloads for the named blockers (open blockers by default) through fresh implementer helpers in the provisioned worktree, review the wave before any push, push when `push` is available (`fix-wave.md`); on a `rebased locally` head, lease-push once every carried blocker is resolved (`fix-wave.md` `## Evidence after push`); `fix + nits` composes this verb with `fix nits`
+- `fix` - retain covered blocker repair during this run until readiness or a new decision boundary (`post-selection-loop.md`); apply description targets through the loop's Description repair and file payloads for the named blockers (open blockers by default) through fresh implementer helpers in the provisioned worktree, review the wave before any push, push when `push` is available (`fix-wave.md`); on a `rebased locally` head, lease-push once every carried blocker is resolved (`fix-wave.md` `## Evidence after push`); `fix + nits` composes this verb with `fix nits`
 - `fix nits` - apply one-shot nit payloads drafted at this pick (`findings.md` `## Drafted payloads`) through fresh implementer helpers in the provisioned worktree, review the wave before any push, push when `push` is available (`fix-wave.md`); `fix + nits` typed with zero open blockers runs as this verb
 - `push` - push local fix commits (renders only when unpushed commits exist)
 - `review` - post the blockers as a GitHub review: request-changes on someone else's PR, a comment on your own
 - `approve` - approve the PR (never your own)
-- `approve workflow run` - `gh api --method POST repos/<base-owner>/<base-repo>/actions/runs/<id>/approve` for a held run on the assessed head, then re-poll (`fix-wave.md` `## Evidence after push`)
+- `approve workflow run` - `gh api --method POST repos/<base-owner>/<base-repo>/actions/runs/<id>/approve` for a held run on the assessed head, then re-enter the refresh (`post-selection-loop.md` `### Pre-menu refresh`)
 - `update branch` - `gh pr update-branch <N>`, then fast-forward the worktree to the new head (`fix-wave.md` `## Conflicts`); renders on a conflict with no wave commit, or when `merge_state_status` is `BEHIND` at the merge preconditions
 - `merge base` - retain merging the recorded base and resolving conflicts through reviewed helper work and push during this run until readiness or a new decision boundary (`fix-wave.md`)
 - `merge` - `gh pr merge --match-head-commit <assessed-sha>` with the resolved `merge policy` (default squash); preconditions per `post-selection-loop.md` `### Merge preconditions`
@@ -26,7 +26,7 @@ Rows are `<n>. <verb> - <consequence>`; every row, `stop` included, carries its 
 - `post coverage to ticket` - post the rendered `AC coverage` block as a comment on the source ticket via the resolved tracker verb (`gh issue comment`, the overrides' tracker mapping, or `/skill:linear`); renders only under the `own merge` overlay
 - `post coverage to PR` - post the same block with `gh pr comment <N> --body-file`; renders only under the `own merge` overlay
 - `show evidence` - print the evidence record, claim and AC outcomes, dispositions, drafted payloads and replies (`report.md` `## What stays out`)
-- `wait` - poll the reviewer run, every **binding** pending check in the resolved set (required or not), `mergeStateStatus` while it is `BLOCKED`, `UNKNOWN`, or `unreadable`, and the comment set, then re-render
+- `wait` - run one bounded `gh pr checks --watch` on every **binding** pending check in the resolved set (required or not), then re-render
 - `stop` - leave the PR as-is; on a `rebased locally` head run `git reset --hard <pre_head>` before `### Teardown`, discarding the rewrite and any unpushed fix commits, and assert `HEAD == <pre_head>` with a clean tree; a mismatch is the existing hard stop with the error, and the remote stays untouched
 
 Compose hint: `Type a number, or compose: "fix 2", "fix nits", "fix + nits", "fix 1 + reply". Not offered: push (needs push to <head_url>:<head_ref>), merge (needs WRITE on <owner>/<repo>).` The first sentence lists only compositions whose every verb is a rendered row: `fix nits` and `fix + nits` appear only when both the `fix` and `fix nits` rows render; no `reply` row, no `fix 1 + reply`; no composable row, `Type a number.` alone. The second sentence names every omitted row as `<verb> (<why it is omitted>)` and is dropped when nothing is omitted. `merge anyway` renders as its own row when `## Availability` allows it, so the rendered-row rule does not apply to it. Offer `revoke fix` and `revoke merge base` compose forms for held grants, persisting only the named revocation through the loop. A composed line never bundles a push-producing verb (`fix`, `fix nits`, `push`, `merge base`) with `merge`. When a failing check withholds `merge`, the hint line also offers `check <name> flaky | real | ci-broken`, which records the disposition on that check (`findings.md` `## Dispositions`): `flaky` lifts the blocker, `real` keeps it until green, `ci-broken` triggers the fallback local run (`ci-broken` records `ci-infrastructure-broken`).
@@ -40,7 +40,7 @@ Rows derive from the digest's `permissions` block (`../verification-brief.md` Se
 | Row | Available when |
 |---|---|
 | `accept contract change`, `preserve contract` | a recorded contract exception is pending and no terminal/sync stop applies; route numeric and typed selections through `post-selection-loop.md` `### Contract decision` |
-| `fix` | an open blocker or explicitly requested exact clarification payload exists (a failing-check `P#` included; the wave reports a blocker with no file or description payload as not fixable, `post-selection-loop.md` `### Fix wave`), a helper facility exists (`../SKILL.md` `## Harness notes`), and the fix-round cap is neither `0` nor reached (`fix-wave.md` `## Wave`) |
+| `fix` | an open blocker or explicitly requested exact clarification payload exists (a failing-check `P#` included), a helper facility exists (`../SKILL.md` `## Harness notes`), and the fix-round cap is neither `0` nor reached (`fix-wave.md` `## Wave`) |
 | `fix nits` | a nit exists, a helper facility exists (`../SKILL.md` `## Harness notes`), and the fix-round cap is neither `0` nor reached (`fix-wave.md` `## Wave`); a `fix` with neither blocker nor requested clarification, or a `fix nits` with no nit, is dropped from the row set and never named in `Not offered:` |
 | `merge base` | open PR with `mergeable: CONFLICTING` or `mergeStateStatus: BEHIND`, even with zero code blockers; head_pushable true, helpers, remaining budget, and no terminal/sync stop; preserve rebased-locally lease-only restrictions |
 | `push` | `head_pushable` is true and unpushed wave commits exist and the last pre-push review's carried set (`fix-wave.md` `## Review before push`) held no Critical or Moderate |
@@ -117,7 +117,7 @@ Nits:
 
 Verdict: fixable - reviewer run in progress
 
-1. wait - poll the reviewer run, then re-render [recommended]
+1. wait - run one bounded CI watch, then re-render [recommended]
 2. fix nits - apply the one-shot nit payload in the worktree, review the wave, push
 3. reply - post the drafted reply to maria
 4. show evidence - gate output, CI run

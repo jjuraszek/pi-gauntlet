@@ -1,2 +1,2 @@
 anonymized: true
-- f6: judged: Pending evidence with null repair grants and no wait selection requires an explicit wait decision rather than pick-free polling.
+- f6: judged: On this resumed entry with no blocker and a binding check pending, one bounded watch runs without a pick; `wait` is asked only after the window expires.
