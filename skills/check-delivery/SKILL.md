@@ -1,7 +1,6 @@
 ---
 name: check-delivery
-description: Use when a merged issue needs delivery proof before its tracker status advances - explicit-only post-merge detective control (/skill:check-delivery <ticket-ref>) that verifies default-branch landing, delivery target, and per-AC evidence, stopping loudly with zero writes on any failure.
-disable-model-invocation: true
+description: Use only when explicitly asked to prove delivery of a named merged ticket ("check delivery of ABC-123", a loop task naming the ticket and the verb) before its tracker status advances; pre-merge gating belongs to /skill:gatekeep-pr.
 ---
 
 # Check Delivery
@@ -53,7 +52,7 @@ no metadata to check. Where the tracker exposes cheap classification
 detectably-terminal write** - the evidence comment still posts, the
 misconfiguration is reported.
 
-Explicit invocation only (`/skill:check-delivery <ticket-ref>`), read-only
+Explicit ask only (`/skill:check-delivery <ticket-ref>`, or a task that names the ticket and the verb), read-only
 against the repository (no builds, no branch/tag/worktree mutation) plus at
 most one batched tracker write, runs from wherever invoked, no worktree.
 

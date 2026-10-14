@@ -1,7 +1,6 @@
 ---
 name: gatekeep-pr
-description: Use when gating a pull request before it merges - whether you authored it or are reviewing someone else's work. Judges whether the diff delivers the mechanism each acceptance criterion needs (code, tests, docs) and conforms to the review rubric; what can be seen only after merge belongs to /skill:check-delivery. Consent-gated - repairs use explicit action-scoped run grants; final merge, approval, and external posts require their own selection, except the sync `--rebase` asks for.
-disable-model-invocation: true
+description: Use only when explicitly asked to gatekeep, verify, or gate a named pull request before it merges ("gatekeep PR 123", a loop task naming the PR and the verb); post-merge delivery proof belongs to /skill:check-delivery.
 argument-hint: "<pr> [issue-ref] [--rebase [base]]  (e.g. 123, 123 gh-45, 123 --rebase, 123 gh-45 --rebase release/2)"
 ---
 

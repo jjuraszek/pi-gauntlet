@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Changed
+
+- **gatekeep-pr and check-delivery: model invocation allowed on an explicit ask; every in-skill gate still needs your selection.** `disable-model-invocation: true` is gone from `skills/gatekeep-pr/SKILL.md` and `skills/check-delivery/SKILL.md`, so a task that names the PR or ticket and the verb ("gatekeep PR 123", "check delivery of ABC-123", a loop over tickets) loads the skill instead of being refused by Claude Code's Skill tool. Both descriptions are now trigger-only ("Use only when explicitly asked to ..."); neither names a situation (a ready-looking PR, a fresh merge) as a trigger. The decision menu, run grants, zero-writes-on-failure, and the no-auto-chain rule from `finishing-a-development-branch` are unchanged. Follows the v7.7.1 `shape-ticket` precedent.
+
 ## v7.11.0 - 2026-10-13
 
 ### Changed
