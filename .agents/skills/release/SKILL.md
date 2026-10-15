@@ -17,14 +17,14 @@ The release is **tag-driven and CI-executed**: pushing a `vX.Y.Z` tag triggers
 tag; **never run `npm publish` by hand.**
 
 All mechanics live in `.agents/skills/release/scripts/release.sh`. Its CONFIG
-header is the only block that differs from the sibling pi-* copies - keep the
-rest byte-identical.
+header and the marketplace version step after the bump are the only blocks
+that differ from the sibling pi-* copies - keep the rest byte-identical.
 
 ## Boundaries
 
 - Reads: git log/tags, `package.json`, `CHANGELOG.md`, pi `settings.json` files.
-- Writes: `CHANGELOG.md` heading, `package.json` version, one `Release X.Y.Z`
-  commit, the `vX.Y.Z` tag; `settings.json` pins only via `sync-presets --apply`.
+- Writes: `CHANGELOG.md` heading, `package.json` version,
+  `.claude-plugin/marketplace.json` plugin version, one `Release X.Y.Z` commit, the `vX.Y.Z` tag; `settings.json` pins only via `sync-presets --apply`.
 - Never: `npm publish`, consumer project files, `~/.pi/**/settings.json`
   without `--apply` being authorized.
 

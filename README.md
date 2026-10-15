@@ -223,6 +223,12 @@ then install.
 
 Invocation: `/gauntlet:shape-ticket` (or bare `/shape-ticket` when unambiguous).
 
+Updates: the plugin's marketplace `version` equals the npm version; the release
+script writes it on every release, so Claude Code sees each release as a new
+plugin version. Third-party marketplaces do not auto-update by default - run
+`claude plugin update gauntlet@pi-gauntlet` or turn on auto-update for the
+marketplace in `/plugin`. `claude update` updates Claude Code itself, not plugins.
+
 Project instructions: Claude Code reads `CLAUDE.md`, pi reads `AGENTS.md` - a
 symlink keeps one source of truth: `ln -s AGENTS.md CLAUDE.md`. The gauntlet
 overrides ladder (`.pi/gauntlet-overrides.md` -> `gauntlet-overrides.md` ->

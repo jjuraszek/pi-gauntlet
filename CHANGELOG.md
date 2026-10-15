@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Changed
+
+- **Claude Code plugin is versioned.** `.claude-plugin/marketplace.json` carries a plugin `version` equal to the npm version; `release.sh` writes it in the Release commit and `npm test` fails when the two diverge. Claude Code now sees each release as a new plugin version, so `claude plugin update gauntlet@pi-gauntlet` (or the `/plugin` auto-update toggle) picks it up; before, the plugin entry had no version and an installed copy never knew a newer release existed. Same mechanism as pi-quiver.
+
 ## v7.11.1 - 2026-10-14
 
 ### Changed

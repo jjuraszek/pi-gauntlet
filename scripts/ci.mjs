@@ -569,6 +569,7 @@ try {
       if (plugin.name !== "gauntlet") fail(`marketplace.json: plugin name must be "gauntlet" (got ${JSON.stringify(plugin.name)})`);
       if (plugin.source !== "./") fail(`marketplace.json: plugin source must be "./" (got ${JSON.stringify(plugin.source)})`);
       if (plugin.strict !== false) fail("marketplace.json: plugin strict must be false");
+      if (plugin.version !== pkg.version) fail(`marketplace.json: plugin version must equal package.json version ${pkg.version} (got ${JSON.stringify(plugin.version)}) - release.sh writes it`);
       if (!Array.isArray(plugin.agents) || plugin.agents.length !== 0) fail("marketplace.json: plugin agents must be [] (suppresses the default agents/ scan - pi personas are not CC plugin agents)");
       const mpSkills = Array.isArray(plugin.skills) ? plugin.skills : [];
       if (mpSkills.length === 0) fail("marketplace.json: plugin skills must be a non-empty array");
