@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Changed
+
+- The carried-open conformance menu and the spec-amendment batch menu render as numbered decision briefs - the problem in plain words first, lettered options with one-line consequences, `Recommended: <letter> - <reason>` or `No recommendation - pick one` - and accept one reply line per item (`1. B`); bare `1` applies every recommendation and re-asks no-recommendation items by number, so the old `recommended: none` withholding is gone. (#63)
+
 ## v7.11.3 - 2026-10-16
 
 ### Added

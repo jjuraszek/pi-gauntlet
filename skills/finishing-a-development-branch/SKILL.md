@@ -90,32 +90,60 @@ This is an **enforced disposition gate**, not a surface-only notice. The user is
 Closure / conformance: CONFORMS
 ```
 
-then continue directly to Step 4. No approval prompt, no menu, no shared options line, no sign-off. If the run auto-applied fixes, surface the flat `auto-applied fix commits: <Gn: SHA>, ...` index from the durable block as **one informational, non-blocking line** with a one-line revert offer (see "Revert semantics") - a gap that auto-converged mid-verify has no bullet, so this index is the only place its fix commit stays revertable. Do not wait for acknowledgment.
+then continue directly to Step 4 and render its menu in full, options included. Place no approval prompt, conformance menu, or sign-off between the CONFORMS line and that menu. The render never stops at Step 4's question line; the numbered options are part of the same message. If the run auto-applied fixes, surface the flat `auto-applied fix commits: <Gn: SHA>, ...` index from the durable block as **one informational, non-blocking line** with a one-line revert offer (see "Revert semantics") - a gap that auto-converged mid-verify has no bullet, so this index is the only place its fix commit stays revertable. Do not wait for acknowledgment.
 
 When the sentinel carries a `happy-path:` line, print it directly under `Closure / conformance: CONFORMS` as one informational, non-blocking line in the same shape as the `auto-applied fix commits` line: `happy-path: passed`, `happy-path: failed - unattributable`, or `happy-path: not run - <reason>` (a `failed - attributed to G<n>` value cannot reach this branch: its gaps are open). When the sentinel carries a `Deferred/deviates per spec:` line, print it verbatim as one informational line directly under the `happy-path:` line when present, else directly under `Closure / conformance: CONFORMS` or the `Conformance: N decisions needed before shipping.` header, and above the `whole-diff minors` line (both paths).
 
 **Pre-menu amendment funnel (GAPS only).** Before rendering the carried-open menu, `read` and run [`amendment-surface.md` § Conformance entry](../brainstorming/reference/amendment-surface.md) over the inventory once: gaps with `recommended: accept`, verdict `DRIFTED` or `PARTIAL`, not `UNAUTHORIZED`, whose `origin` is not an acceptance criterion are drafted as `accept-into-spec` items (the edit built from `origin` + `evidence`) and sent to the reviewer in one call; cleared items apply and land as one batch commit, the spec is re-audited, the inventory regenerated. Only concerns the re-audit actually closed drop out; sibling concerns in the same gap keep their rows and dispositions. Survivors and every other gap render as ordinary rows below - one menu, never two.
 
-**Carried-open (`status: GAPS (N open)`).** Read `reference/disposition-protocol.md` and follow it for the carried-open render (dense) grammar, the response grammar, and the 9-step execute order. Render the human decision menu in the shape below, with the sentinel's `happy-path:` line (when present) printed as one informational line directly under the `Conformance: N decisions needed before shipping.` header - a `failed - attributed to G<n>,...` value names the rows whose evidence is the transcript, a `rescope` recommendation on such a row means the failure lies in code the change never owned - drive the dispositions per that reference, then print the summary render and continue to Step 4. If that reference file cannot be read, stop and surface a blocking error — do **not** improvise the grammar from memory.
+**Carried-open (`status: GAPS (N open)`).** Read `reference/disposition-protocol.md` and follow it for the carried-open render grammar, the response grammar, and the 9-step execute order. Render the human decision menu in the shape below; print the `Conformance: N decisions needed before shipping.` header below the item list, followed by the sentinel's informational lines (`happy-path:`, `Deferred/deviates per spec:`, `whole-diff minors:`) when present, in that order, above the reply instruction - a `failed - attributed to G<n>,...` value names the rows whose evidence is the transcript, a `rescope` recommendation on such a row means the failure lies in code the change never owned - drive the dispositions per that reference, then print the summary render and continue to Step 4. If that reference file cannot be read, stop and surface a blocking error — do **not** improvise the grammar from memory.
 
 Representative carried-open render (multi-concern gap split to `e2e`; single-concern gap `cache`; `UNAUTHORIZED` gap `auth`):
 
 ```
+1. Source-image E2E validation - not run; blocked (HYDRA1.png, HTTP 401), so the branch ships without its end-to-end evidence.
+   The spec requires this validation, but HYDRA1.png is unavailable; decide whether it stays in scope for this branch.
+   what: The spec's Verification section gains a line deferring the source-image E2E run until the image is available.
+   why: The branch cannot produce that evidence without the image.
+   Example: Run the packed-image E2E before merge -> deferred until HYDRA1.png is available
+   Reviewer: not reviewed - the pre-menu funnel drafts only recommended-accept items
+   Impact: Verification: E2E evidence required before merge -> deferred until the image lands
+   A) accept - Ratify shipping without the end-to-end evidence in the spec.
+   B) rescope - Defer the validation requirement in the spec until the image is available.
+   C) follow-up - Transfer validation to separately owned work with a tracked ticket.
+   Custom: <your own answer> - Execute your disposition after clarifying its effect.
+   Recommended: B - Defer until the image is available.
+   Not available: fix-now - needs HYDRA1.png
+
+2. Cache coverage - implemented but the spec is silent on it, leaving the intended contract unclear.
+   Spec and code disagree; decide whether the implemented behavior is in scope.
+   what: The spec's Design section gains a clause ratifying the implemented cache coverage.
+   why: The behavior is intentional and the spec is silent.
+   Example: spec silent on cache coverage -> Design states the cache covers the rendered menu path
+   Reviewer: not reviewed - origin quotes an acceptance criterion
+   Impact: Design: no cache-coverage contract -> cache coverage is ratified as specified behavior
+   A) fix-now - Align the implementation with the current spec.
+   B) accept - Ratify the implemented cache behavior in the spec.
+   C) rescope - Explicitly remove or defer the origin requirement in the spec.
+   D) follow-up - Transfer the concern to separately owned work with a tracked ticket.
+   Custom: <your own answer> - Execute your disposition after clarifying its effect.
+   Recommended: B - The behavior is intentional.
+
+3. Unrequested admin bypass - adds an unlisted route, expanding the workflow beyond approved scope.
+   Should this unrequested behavior become part of the current workflow?
+   A) fix-now - Remove the unrequested admin bypass.
+   B) accept - Ratify the bypass as approved scope in the spec.
+   C) follow-up - Transfer the decision or removal task to separately owned work with a tracked ticket.
+   Custom: <your own answer> - Execute your disposition after clarifying its effect.
+   Recommended: A - Remove the unrequested behavior.
+   Not available: rescope - scope creep
+
 Conformance: 3 decisions needed before shipping.
 
-* e2e - Source-image E2E validation: not run; blocked (HYDRA1.png, HTTP 401).
-  Still in scope for this branch? Recommended: rescope (defer until image available) (fix-now N/A: needs HYDRA1.png).
-* cache - Cache coverage: implemented but the spec is silent on it.
-  In scope? Recommended: accept into spec (behavior is intentional).
-* auth - Unrequested admin bypass: adds an unlisted route. Should this unrequested behavior become part of the current workflow? Recommended: fix-now = remove it (rescope N/A: scope creep).
-
-Other options per item: fix-now / accept / rescope / follow-up / custom.
-
-1. Go with recommended
-2. Recommended except <handle>=<choice>   e.g. "2: cache=follow-up"
+Reply with one line per item: `1. C`, `2. A`. Bare `1` takes every recommendation and re-asks items without one by number.
 ```
 
-A single-concern render is identical minus the split: one bullet whose handle is the gap ID or word, no sibling.
+A single-concern render is identical minus the split: one numbered item, no siblings.
 
 Execute the chosen dispositions per `reference/disposition-protocol.md` (Execute order), then print the closure summary and continue to Step 4:
 

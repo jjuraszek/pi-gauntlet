@@ -1,0 +1,88 @@
+{
+  "sample": "amendment-menu-reply",
+  "arm": "candidate",
+  "skillSha": "c710b6de8f1f1d5218e9df8d8d225b27b13cac560c7b44a3f57ed66e0bae619e",
+  "inputSha": "3ab358f16a572bf18e1c07e3911a167eaa0052575de5d43e6b8cf899b3eb7621",
+  "kind": "text",
+  "assembly": "headed",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "Applying your picks to `doc/specs/report-runner.md`. This replay cannot run tools, so these are the intended edits, not a claim of disk writes or a commit.\n\n**1. Share retry policy (B, alt-1)**\nIn Design / retries, the existing report coordinator will own one shared retry policy, and adapters will keep execution.\n\n- **Old:** each report adapter owns its retry policy.\n- **New:** the report coordinator owns the shared retry policy; adapters keep execution.\n- **Reason:** this replaces the conflicting adapter-local limits (two retries at `adapters/alpha.ts:18`, four at `adapters/beta.ts:22`) with one coordinator limit. No new retry service is added.\n\n**2. Classify blocked execution (your custom answer)**\nThe proposed change to `blocked` is not applied. In Design / run status, exit 126 stays `failed`. Your \"document it\" will be added as a clarifying clause in the same section:\n\n- Exit 126 means the report could not be launched, so execution never started.\n- Exit 126 is still reported as `failed`.\n\nThe run-status contract does not change. The reviewer's concern is still recorded: operators cannot tell a launch problem apart from a report failure by status alone.\n\n**Plan and phase**\nNo plan exists yet, so no tasks reopen and the phase does not change.\n\nRecorded: crosscut=alt-1, exit126=custom(keep 126 as failed, document it)\n\nNext, I'll resume the spec review against the amended spec.\n",
+      "words": 211,
+      "wallMs": 13490,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "Selected edits for `doc/specs/report-runner.md`:\n\n- **Design / retries:** The existing report coordinator owns the shared retry policy; adapters keep execution. No new retry service.\n- **Design / run status:** Keep exit 126 classified as **failed** and document that it can indicate a launch problem before report execution. The proposed change to **blocked** is dropped.\n\nRecorded: crosscut=alt-1, exit126=custom(keep 126 as failed, document it)\n\nNo tasks reopen and no phase changes. These are the selected edits only; no files have been written or commits made in this text-only replay.\n",
+      "words": 83,
+      "wallMs": 4009,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "f497135f922e058af932a3380ad44da1088eecd38cc4b3c94a12942086eaec45",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "b989ea3444596c9f6f0caac5b8df2f56d29152dcaafd072efe3044f0e79835e3",
+      "baselineOutputSha": "d505b41b6330c8747d9d2cfadc58889b9dd26cdd3cecacd859363c9f739d070e",
+      "candidateOutputSha": "71e04540b0c5ff3d41f9819641788303832d611ac3d0ba276628b51580e9f6af",
+      "facts": {
+        "f1": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "f2": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "f3": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        }
+      },
+      "feedback": "After moved f1 from fails to holds: it prints a single `Recorded: crosscut=alt-1, exit126=custom(keep 126 as failed, document it)` line that echoes the reply's free text verbatim, whereas Before used a bulleted 'Recorded choices' block and silently paraphrased the custom text to 'keep exit 126 as failed', so the required token string never appeared. Both outputs accept the free text as a custom choice (f2) and describe the alt-1 coordinator edit and the keep-failed-plus-document edit rather than the rejected new-service or blocked-status proposals (f3), so nothing regressed. The wording that delivered the Change — 'free text records custom(text), preserving the reply's free text verbatim in the Recorded confirmation' — is doing the work; keep that verbatim-echo rule and the single `Recorded:` line form, and avoid adding any normalization or restatement language that could tempt the model to clean up user text as Before did.",
+      "verdict": "improved"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "f497135f922e058af932a3380ad44da1088eecd38cc4b3c94a12942086eaec45",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "b989ea3444596c9f6f0caac5b8df2f56d29152dcaafd072efe3044f0e79835e3",
+      "baselineOutputSha": "f78ceb92658e42165eb557edffd64286ee98c395aa62fecf30045eb05b0e395c",
+      "candidateOutputSha": "e7dd0370ada4d623a0b9ba309ee107b9015601f796c9acdfc8c08afd6041a8a9",
+      "facts": {
+        "f1": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "f2": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "f3": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        }
+      },
+      "feedback": "After moved f1 from fails to holds by emitting the exact single-line echo `Recorded: crosscut=alt-1, exit126=custom(keep 126 as failed, document it)`; Before only had a heading `Recorded choices for ...:` with em-dash bullets (`crosscut — alt-1`), which never produced the `handle=token` form the fact requires. After also keeps f2 and f3 intact: the free-text reply is accepted as custom without re-asking, and the described edits apply alt-1 (coordinator owns shared retry policy, adapters keep execution) and the custom effect (exit 126 stays failed, documented), explicitly dropping the new-service and blocked-status proposals, while disclaiming disk writes and commits. No fact regressed, so the current wording in section 4 — record a letter as its option token, record free text as custom(text) verbatim, and print one `Recorded:` line — is sufficient; the only optional tightening would be to state that the Recorded line appears exactly once and precedes or immediately follows the edit summary so renderers do not split it into bullets as Before did.",
+      "verdict": "improved"
+    }
+  },
+  "repoSha": "478f16f16c92f11da4112153f5f23b5e9a45ff33"
+}

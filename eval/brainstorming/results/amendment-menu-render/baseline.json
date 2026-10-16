@@ -1,0 +1,38 @@
+{
+  "sample": "amendment-menu-render",
+  "arm": "baseline",
+  "skillSha": "36f733b03a9fa1ebc15e15659d5661462729389ad4252f62581872901f915a23",
+  "inputSha": "5e70db36999f58843cd931975a9c249567a3cb30935d7c2864de0b285e1c36a3",
+  "kind": "text",
+  "assembly": "headed",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "Spec amendments: 2 need your call - from the spec review; applying as recommended reopens no tasks; no phase change.\n\n* crosscut - Share retry policy: move retry policy into one owner. Adapters currently disagree about when to retry.\n  Example: adapter-local retry limits -> one coordinator retry limit\n  Reviewer: changing retry ownership needs a human architecture choice\n  Impact: Design / retries: each adapter sets its own retry policy -> one new retry service sets the retry policy for every adapter\n  Recommended: alt-1 (the existing coordinator keeps policy consistent without adding a service).\n  Alternatives: alt-1 the existing report coordinator owns the shared retry policy, and adapters keep execution\n\n* exit126 - Classify blocked execution: classify exit 126 as blocked rather than failed. Operators need to tell a launch problem from a report failure.\n  Example: exit 126 = failed -> blocked\n  Reviewer: operator-visible status changes need a human decision\n  Impact: Design / run status: exit 126 reports a failed run -> exit 126 reports a blocked run\n  Recommended: accept (a separate status identifies launch failures).\n\nReply: 1 (apply all recommendations) | 2: <handle>=<accept|alt-n|custom(<effect>)>, ...\nStanding grant: reply \"auto-apply amends\" to apply every later spec amendment in this flow without asking. That covers corrected facts, paths, and verification lines. It also covers scope, acceptance-criteria, and public-contract edits. A redraw still stops for you: a changed problem statement, or a component that is added, removed, or re-bounded. The grant never replaces a spec approval.\n\nDetails\ncrosscut: Design / retries - old: each report adapter owns its retry policy -> new: a new retry service owns all retry policies\nexit126: Design / run status - old: exit 126 is failed -> new: exit 126 is blocked\n",
+      "words": 261,
+      "wallMs": 9300,
+      "mechanical": {
+        "f5": "fails"
+      }
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "Spec amendments: 2 need your call - from the spec review; applying as recommended reopens no tasks; no phase change.\n\n* crosscut - Share retry policy: move retry policy into one owner. Adapters currently disagree about when to retry.\n  Example: adapter-local retry limits -> one coordinator retry limit.\n  Reviewer: changing retry ownership needs a human architecture choice\n  Impact: Design / retries: each adapter owns its retry policy -> the existing report coordinator owns shared retry policy; adapters keep execution.\n  Recommended: alt-1 (using the existing coordinator avoids a new service while keeping policy consistent).\n  Alternatives: alt-1 the existing report coordinator owns the shared retry policy; adapters keep execution.\n\n* exit126 - Classify blocked execution: classify exit 126 as blocked rather than failed. Operators need to distinguish a launch problem from a report failure.\n  Example: exit 126 = failed -> blocked.\n  Reviewer: operator-visible status changes need a human decision\n  Impact: Design / run status: exit 126 is failed -> exit 126 is blocked.\n  Recommended: accept (a separate status identifies launch failures).\n\nReply: 1 (apply all recommendations) | 2: <handle>=<accept|alt-n|custom(<effect>)>, ...\nStanding grant: reply \"auto-apply amends\" - every later spec amendment in this flow (corrected facts, paths, verification lines, and scope, acceptance-criteria, or public-contract edits alike) applies without asking; only a redraw (changed problem statement, component added, removed, or re-bounded) still stops for you, and the grant never stands in for a spec approval.\n\nDetails\ncrosscut: Design / retries - old: each report adapter owns its retry policy. -> new: a new retry service owns all retry policies.\nexit126: Design / run status - old: exit 126 is failed. -> new: exit 126 is blocked.\n",
+      "words": 251,
+      "wallMs": 7755,
+      "mechanical": {
+        "f5": "holds"
+      }
+    }
+  },
+  "repoSha": "c7b92e65575bf39b3e2c6503eaf670d76ae97761"
+}

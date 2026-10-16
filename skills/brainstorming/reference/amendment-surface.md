@@ -102,19 +102,24 @@ Fail closed: a dispatch error, an async handle, a silence-kill, or a missing or 
 
 ## 4. Human batch - one menu
 
-Render only escalated and prefiltered items; `<N>` counts them. Nothing symbol-dense above the fold; each item's `old -> new` sits under `Details`, after the footer.
+Decide every recommendation and its reason before writing the menu text: the menu text is written after the recommendation is decided, never while deciding it. Never leak deliberation: `recommended: custom? Hmm. Dispositions: fix-now ... Actually, the amended spec makes G2 ...`.
+
+Render only escalated and prefiltered items; `<N>` counts them. Build the opening sentence from the prepared item's `what` and `why`; take the human-call sentence from the prefilter rule or reviewer's escalate reason in plain words, with `Reviewer:` verbatim beneath it. Nothing symbol-dense above the fold; each item's `old -> new` sits under `Details`, after the footer. This menu's grammar governs the amendment batch only; brainstorming's questionary formats (the labeled recommendation question and the ticket cut question) keep their own rules - including the cut question's re-ask after a cancelled repair, re-rendered in full with the row unchanged.
 
 ```
 Spec amendments: <N> need your call - from <trigger>; applying as recommended <reopens | adds | removes> <task ids | no tasks>; no phase change.
 
-* <handle> - <title>: <what>. <why>.
-  Example: <before -> after>
-  Reviewer: <one-line reason verbatim | not reviewed - <prefilter rule> | reviewer unavailable: <reason>>
-  Impact: <spec section>: <approved contract> -> <new contract>; ...
-  Recommended: <accept | alt-n> (<one-clause why>).
-  Alternatives: alt-1 <one line>; alt-2 <one line>
+1. <title> - <what>. <why>
+   <why this is a human call: the prefilter rule or the reviewer's escalate reason in plain words>
+   Example: <before -> after>
+   Reviewer: <one-line reason verbatim | not reviewed - <prefilter rule> | reviewer unavailable: <reason>>
+   Impact: <spec section>: <approved contract> -> <new contract>; ...
+   A) accept - the spec reads the new text
+   B) alt-1 - <the alternative's effect, one line>
+   Custom: <your own answer> - executed as given; may redirect away from the spec
+   Recommended: A - <one-clause why>
 
-Reply: 1 (apply all recommendations) | 2: <handle>=<accept|alt-n|custom(<effect>)>, ...
+Reply with one line per item: `1. A`, `2. <your own text>`. Bare `1` takes every recommendation.
 Standing grant: reply "auto-apply amends" - every later spec amendment in this flow (corrected facts, paths, verification lines, and scope, acceptance-criteria, or public-contract edits alike) applies without asking; only a redraw (changed problem statement, component added, removed, or re-bounded) still stops for you, and the grant never stands in for a spec approval.
 
 Details
@@ -125,7 +130,9 @@ Details
 
 `Reviewer:` quotes the `<one-line reason>` of the section 3 reply verbatim; the `probed:` half stays in the commit body; a prefiltered item carries `not reviewed - <the rule that prefiltered it>`. `Impact:` restates the design-contract shift from `location` in the reader's words, never quoted spec text, one clause per touched decision, `;`-joined; `(none) -> <new>` for a contract added, `<old> -> (removed)` for a contract removed. `Details` keeps the verbatim `old -> new`.
 
-`Alternatives:` appears only when genuine ones exist; otherwise the item's choices are exactly `accept` and `custom(...)`. Reply grammar: `1` applies every recommendation; `2:` overrides the named handles, omitted handles keep theirs, a handle at most once; `custom(<effect>)` is free text and may redirect anywhere ("keep the spec, fix the parser"). A redirect away from the spec drops the item (still recorded in the batch commit body as `custom(<effect>)`) and returns the finding to its calling loop. Invalid handle or choice -> reprompt for that item only, keep every valid pick, never reopen the gate; a bare `2` without a colon is an invalid tier-2 reply (reprompt the same way) and never a grant. Take no action before the reply.
+Letter options in fixed order: `A) accept`, then `B) alt-1`, `C) alt-2` in index order, only for genuine alternatives. Give each option its one-line effect; tie the recommendation's reason to the end goal or a development practice. Record a letter as its shown option's token. Keep custom unlettered as shown. Keep an unavailable option visible and unlettered: `Not available: <option> - <missing prerequisite>`. Use exactly `Recommended: <letter> - <reason>` or `No recommendation - pick one`; the prepared-item schema requires a recommendation, so this amendment menu never renders the second form.
+
+Reply grammar: one line per item, `<n>. <letter or free text>`; bare `1` applies every recommendation and re-asks any item without one by number, never re-rendering the menu (vacuous here: the prepared-item schema always supplies a recommendation); an omitted item keeps its recommendation; free text is `custom(<text>)` and may redirect anywhere ("keep the spec, fix the parser") - a redirect drops the item (still recorded in the batch commit body as `custom(<effect>)`) and returns the finding to its calling loop; a letter always picks its shown option, even when free text would spell its name. A legacy `2: <handle>=<choice>` reply is accepted silently as the same picks; the form is never rendered in a prompt. Invalid number or letter -> reprompt for that item only, keep every valid pick, never reopen the gate; a bare digit other than `1` is an invalid reply and never a grant (reprompt the same way). A bare letter or bare `1` mixed with numbered lines is invalid; free text matching an option's name remains `custom(<text>)`. Resolve every item before applying; retain original numbers during reprompts. Take no action before the reply. After the reply lands and the batch applies, print one confirmation line `Recorded: <handle>=<choice>, ...` covering the batch's decided items (a custom choice keeps the reply's free text verbatim; grant-applied items record their recommended choice); this is the only place `<handle>=<choice>` appears to the human.
 
 ## 5. Apply, aftermath, commit
 
@@ -153,7 +160,7 @@ Called from `finishing-a-development-branch` Step 3.5, before the carried-open m
 1. Draft an item (step 1) for each gap with `recommended: accept`, verdict `DRIFTED` or `PARTIAL`, not `UNAUTHORIZED`, whose `origin` is not an acceptance criterion - the `accept-into-spec` edit built from its `origin` + `evidence`. Every other gap skips the funnel and stays a menu row.
 2. Review (step 3), apply and commit (step 5).
 3. Re-audit against the amended spec; regenerate the inventory. Only concerns the re-audit closed drop out; sibling concerns keep their rows.
-4. Render the disposition menu for what remains - escalated items are ordinary rows there, never a second menu. Rows whose recommended disposition edits the spec carry the readable card fields (`what`, `why`, `Example:`, `Reviewer:`, `Impact:`) on the bullet, adapted to the disposition bullet grammar. A human-selected spec-changing disposition (`accept-into-spec`, `rescope-into-spec`, state-changing `custom`) is already approved: it applies at the protocol's execute-order step 2, bypasses steps 2-4 of this surface, and is recorded as today (`Gn - <title>: <disposition>`); an auto-applied item is recorded `Gn - <title>: accept-into-spec (auto-applied)`.
+4. Render the disposition menu for what remains - escalated items are ordinary rows there, never a second menu. Rows whose recommended disposition edits the spec carry the readable card fields (`what`, `why`, `Example:`, `Reviewer:`, `Impact:`) on the item, adapted to the numbered item render. A human-selected spec-changing disposition (`accept-into-spec`, `rescope-into-spec`, state-changing `custom`) is already approved: it applies at the protocol's execute-order step 2, bypasses steps 2-4 of this surface, and is recorded as today (`Gn - <title>: <disposition>`); an auto-applied item is recorded `Gn - <title>: accept-into-spec (auto-applied)`.
 
 ## Worked example
 
@@ -175,24 +182,33 @@ The reviewer clears items 1-5; nothing is applied yet. The batch renders items 6
 ```
 Spec amendments: 3 need your call - from Task 7 BLOCKED; applying as recommended reopens Tasks 4, 6; no phase change.
 
-* scope - ROP feed out of scope: adds an out-of-scope line for the ROP feed to Non-goals. Drops a deliverable you approved.
-  Example: regulator feed = NERC filings + ROP announcements -> NERC filings only
-  Reviewer: not reviewed - removes approved scope
-  Impact: Non-goals: the ROP feed ships this release -> (removed)
-  Recommended: accept (the ROP source has no stable page this release).
-* count - Fewer announcements per fetch: the acceptance criterion drops from at least 3 to at least 1. Lowers the bar you set.
-  Example: 3 items per fetch -> 1
-  Reviewer: not reviewed - acceptance-criteria location
-  Impact: Acceptance criteria: a fetch yields three or more announcements -> one or more
-  Recommended: accept (the captured fixture has one item; the criterion assumed three).
-* bytes - Fixture byte count: the verification line changes from 41,208 to 43,117 bytes. The verification line would assert a size nobody measured.
-  Example: 41,208 bytes -> 43,117 bytes
-  Reviewer: rubric (a) fails - no measurement cited for the new byte count
-  Impact: Verification: the fixture measures 41,208 bytes -> 43,117 bytes
-  Recommended: alt-1 (measure first; apply whatever `wc -c` reports).
-  Alternatives: alt-1 replace the number with the `wc -c` result
+1. Fewer announcements per fetch - the acceptance criterion drops from at least 3 to at least 1. Lowers the bar you set.
+   Only you can change the acceptance criterion.
+   Example: 3 items per fetch -> 1
+   Reviewer: not reviewed - acceptance-criteria location
+   Impact: Acceptance criteria: a fetch yields three or more announcements -> one or more
+   A) accept - the spec reads the new text
+   Custom: <your own answer> - executed as given; may redirect away from the spec
+   Recommended: A - the captured fixture has one item; the criterion assumed three
+2. Fixture byte count - the verification line changes from 41,208 to 43,117 bytes. The verification line would assert a size nobody measured.
+   The reviewer cannot clear a correction without a cited measurement.
+   Example: 41,208 bytes -> 43,117 bytes
+   Reviewer: rubric (a) fails - no measurement cited for the new byte count
+   Impact: Verification: the fixture measures 41,208 bytes -> 43,117 bytes
+   A) accept - the spec reads the new text
+   B) alt-1 - replace the number with the `wc -c` result
+   Custom: <your own answer> - executed as given; may redirect away from the spec
+   Recommended: B - measure first so the verification line matches the fixture
+3. ROP feed out of scope - adds an out-of-scope line for the ROP feed to Non-goals. Drops a deliverable you approved.
+   Only you can remove approved scope.
+   Example: regulator feed = NERC filings + ROP announcements -> NERC filings only
+   Reviewer: not reviewed - removes approved scope
+   Impact: Non-goals: the ROP feed ships this release -> (removed)
+   A) accept - the spec reads the new text
+   Custom: <your own answer> - executed as given; may redirect away from the spec
+   Recommended: A - the ROP source has no stable page this release
 
-Reply: 1 (apply all recommendations) | 2: <handle>=<accept|alt-n|custom(<effect>)>, ...
+Reply with one line per item: `1. A`, `2. <your own text>`. Bare `1` takes every recommendation.
 Standing grant: reply "auto-apply amends" - every later spec amendment in this flow (corrected facts, paths, verification lines, and scope, acceptance-criteria, or public-contract edits alike) applies without asking; only a redraw (changed problem statement, component added, removed, or re-bounded) still stops for you, and the grant never stands in for a spec approval.
 
 Details
@@ -201,4 +217,4 @@ count: Acceptance criteria - old: at least 3 announcements per fetch -> new: at 
 bytes: Verification - old: fixture is 41,208 bytes -> new: fixture is 43,117 bytes
 ```
 
-Reply `2: scope=custom(keep scope; fix the parser instead)` drops `scope`, returns it to the fix loop, and applies `count` and `bytes` as recommended.
+Reply `3. keep scope; fix the parser instead` drops item 3 (recorded `scope=custom(keep scope; fix the parser instead)`), returns it to the fix loop, and applies items 1 and 2 as recommended, recorded `count=accept`, `bytes=alt-1`.

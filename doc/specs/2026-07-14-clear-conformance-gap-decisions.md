@@ -1,5 +1,7 @@
 # Clear Conformance Gap Decisions
 
+> **Superseded by:** [doc/specs/2026-10-16-gh-63-decision-gate-briefs.md](./2026-10-16-gh-63-decision-gate-briefs.md) - "User render" and "Response grammar" sections only (the human-facing reply layer; durable card schema, freshness rule, and execute order stay live)
+
 ## Context
 
 The finish-time conformance gate presented carried-open findings as terse identifiers:

@@ -1,9 +1,33 @@
-for: db07dda8f60340eab65702d6c6bbdf8970474db449817709cea5b85b26ae1452
+for: f5e58eb04c446b66d3a12b2a2ab5cd79bff20ccaaee1a1135d3071d09b8ea222
 
 ## Change
-The Wave 1 edit to skills/verification-before-completion/reference/conformance-check.md recognizes elsewhere acceptance-criteria rows as recorded drift rather than unmet delivery requirements. Rows attributed to another repository remain settled and do not create conformance decisions or prevent the finish gate from proceeding.
+Replace carried-open token menus with numbered decision briefs: open with the unresolved problem, letter available named options with consequences, and show either a lettered recommendation or No recommendation - pick one. Bare 1 applies recommendations and re-asks unanswered no-recommendation items by number. Continuation cases replay only the next response: no-recommendation-reask stops at the focused re-ask, and no-recommendation-execute continues after the custom answer through execution scheduling and the re-audit barrier. Follow-up wording fixes keep the Custom line numberless, pluralize the count, include the re-ask clause in the reply instruction, echo custom free text verbatim in Recorded, and make the zero-gap CONFORMS fall-through render Step 4's menu in full, options included, without stopping at Step 4's question line. In in-scope-gap, f4 now pins the clarify-before-execute and decide-everything-first properties. The re-audit barrier's render-level mention left the menu because Custom shows a one-line consequence by design; its behavior coverage moves to no-recommendation-execute, which requires re-auditing the updated state before any CONFORMS claim or Step 4 menu. The execute-order barrier remains required. The lettered-pick fix preserves named dispositions on recommended: none items: a letter selects the shown option, while only free text records custom(<text>).
+
+All existing samples (deferred-with-ref, deviates, directional-dependency, elsewhere-settled, in-scope-gap, mixed, no-dispositions, no-recommendation-render, no-recommendation-reask, no-recommendation-execute) regenerate against the new assembly and replay instruction. Their existing conformance facts remain required; changed menu wording alone does not imply a fact transition.
 
 ## Expected to move
-- elsewhere-settled/f1: fails -> holds - Recorded elsewhere rows create no decision items.
-- elsewhere-settled/f2: fails -> holds - The render preserves repository attribution instead of calling these rows gaps.
-- elsewhere-settled/f3: fails -> holds - Settled rows allow the render to reach Step 4.
+
+- deferred-with-ref/f1: holds -> holds - Settled deferrals still produce no decisions under the new assembly.
+- deviates/f5: fails -> holds - the zero-gap fall-through strengthening (Step 4 menu renders in full, options included, never stopping at the question line) fixes the baseline's truncation at the question line; the candidate renders the full option list.
+- directional-dependency/f5: holds -> holds - The delivered disabled-button clause still creates no additional gap.
+- elsewhere-settled/f1: holds -> holds - Recorded elsewhere attribution still produces no decisions.
+- in-scope-gap/f3: fails -> holds - Unavailable fix prerequisites are named rather than silently replacing the reviewer's recommendation.
+- in-scope-gap/f4: fails -> holds - The render-level fact pins clarification before execution and no execution before every item is decided; no-recommendation-execute/f3 preserves the post-fix re-audit barrier at the execution boundary.
+- mixed/f4: holds -> holds - The pluralized count header still reports exactly one decision.
+- no-dispositions/f3: holds -> holds - A conforming report still produces no decisions.
+
+- no-recommendation-render/f1: fails -> holds - The menu opens with the unresolved problem instead of metadata.
+- no-recommendation-render/f2: fails -> holds - Available options receive letters and consequences even without a recommendation.
+- no-recommendation-render/f3: fails -> holds - The menu explicitly names the absent recommendation.
+- no-recommendation-render/f4: fails -> holds - The prompt replaces bare tokens and handle assignments with numbered replies.
+- no-recommendation-reask/f1: fails -> holds - Bare 1 re-asks the unanswered item by number instead of rejecting it.
+- no-recommendation-reask/f2: fails -> holds - The undecided item blocks execution and Step 4.
+- no-recommendation-reask/f3: fails -> holds - The focused re-ask uses numbered replies, not handle assignments.
+- no-recommendation-execute/f1: holds -> holds - A concrete numbered free-text answer is accepted as the custom disposition without another choice prompt.
+- no-recommendation-execute/f2: fails -> holds - The custom disposition record echoes the user's free text verbatim.
+- no-recommendation-execute/f3: holds -> holds - The execution continuation preserves the re-audit barrier after state-changing work and before conformance or Step 4.
+- no-recommendation-execute/f4: holds -> holds - Handle assignments stay confined to the record, never the operator prompt.
+- no-recommendation-letter/f1: holds -> holds - The focused re-ask accepts option B without demanding a custom effect.
+- no-recommendation-letter/f2: holds -> holds - A lettered rescope pick records the named disposition, never custom.
+- no-recommendation-letter/f3: holds -> holds - Rescoping amends the spec and re-audits against it before conformance or Step 4.
+- no-recommendation-letter/f4: holds -> holds - Handle assignments remain record-only.

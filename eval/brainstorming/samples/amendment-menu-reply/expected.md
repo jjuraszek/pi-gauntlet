@@ -1,0 +1,3 @@
+- f1: judged: Prints a Recorded: confirmation line containing crosscut=alt-1 and exit126=custom(keep 126 as failed, document it).
+- f2: judged: Accepts item 2's free text as a custom choice without rejecting it or asking for another reply.
+- f3: judged: Proceeds with applying item 1's alt-1 (existing coordinator owns shared retry policy, adapters keep execution) and item 2's custom effect (retain failed for exit 126 and document it), describing the selected edits rather than applying the rejected new-service or blocked-status proposals. Actual file writes are not required in this text replay.

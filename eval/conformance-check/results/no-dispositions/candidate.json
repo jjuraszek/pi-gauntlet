@@ -1,8 +1,8 @@
 {
   "sample": "no-dispositions",
   "arm": "candidate",
-  "skillSha": "db07dda8f60340eab65702d6c6bbdf8970474db449817709cea5b85b26ae1452",
-  "inputSha": "e4ebd1964fc167406b90f88aee3954766d6924be8de4d0188cf3c2ac243bb1a5",
+  "skillSha": "f5e58eb04c446b66d3a12b2a2ab5cd79bff20ccaaee1a1135d3071d09b8ea222",
+  "inputSha": "a7f170837dfc174e240824392d8d33a838e93ee8b3d0b89439428b01a009e454",
   "kind": "text",
   "assembly": "headed",
   "thinking": "medium",
@@ -17,16 +17,16 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "## Closure / conformance\n\n```text\nstatus: CONFORMS (0 open)\naudited-base: 4c1e8f0a9b2d7c6e5f4a3b2c1d0e9f8a7b6c5d4e\nhappy-path: not run - no row configured\nauto-applied fix commits: none\n```\n\nThe block has no concern cards because there are no gaps, so `N = 0`. There is no `Deferred/deviates per spec:` line because all five AC rows are `in-scope`. The fix loop did not run, so there are no `conformance fix Gn` commits. I did not add a `whole-diff minors:` section: no whole-diff review result was supplied, and `whole-diff-minors.md` was not read because tools were not allowed. Adding the section would have meant inventing findings.\n\n---\n\n**Step 3.5 as the operator sees it**\n\nThis assumes the freshness check passes, meaning `git diff --stat 4c1e8f0…` and `git status --porcelain` both produce no output against the worktree.\n\n```\nClosure / conformance: CONFORMS\nhappy-path: not run - no row configured\nwhole-diff minors: not recorded\n```\n\n**Step 4**\n\nThere is no amendment digest because N = 0.\n\n```\nImplementation complete. What would you like to do?\n```\n",
-      "words": 153,
-      "wallMs": 14578,
+      "text": "## Closure / conformance\n\n```text\nstatus: CONFORMS (0 open)\naudited-base: 4c1e8f0a9b2d7c6e5f4a3b2c1d0e9f8a7b6c5d4e\nhappy-path: not run - no row configured\n```\n\nThere are no concern cards. The reviewer reported `Gaps: none`, and R1–R8 are all DELIVERED with evidence.\n\n```text\nauto-applied fix commits: none\nwhole-diff minors: none\n```\n\n---\n\n```\nClosure / conformance: CONFORMS\nhappy-path: not run - no row configured\nwhole-diff minors: none\n```\n\n```\nImplementation complete. What would you like to do?\n\n1. Push and create a Pull Request\n2. Push and create a draft Pull Request\n3. Squash-merge to <base-branch> (no PR, no surviving branch)\n4. Keep the branch as-is (I'll handle it later)\n5. Discard this work\n\nWhich option?\n```\n",
+      "words": 99,
+      "wallMs": 13040,
       "mechanical": {}
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "## Closure / conformance\nstatus: CONFORMS (0 open)\naudited-base: 4c1e8f0a9b2d7c6e5f4a3b2c1d0e9f8a7b6c5d4e\n\nauto-applied fix commits: none\nwhole-diff minors: not recorded\n\n---\n\nClosure / conformance: CONFORMS\nwhole-diff minors: not recorded\n\nImplementation complete. What would you like to do?\n",
-      "words": 31,
-      "wallMs": 8873,
+      "text": "## Closure / conformance\nstatus: CONFORMS (0 open)\naudited-base: 4c1e8f0a9b2d7c6e5f4a3b2c1d0e9f8a7b6c5d4e\nhappy-path: not run - no row configured\n\nauto-applied fix commits: none\nwhole-diff minors: not recorded\n\n---\n\nClosure / conformance: CONFORMS\nhappy-path: not run - no row configured\nwhole-diff minors: not recorded\n\nImplementation complete. What would you like to do?\n\n1. Push and create a Pull Request\n",
+      "words": 50,
+      "wallMs": 11030,
       "mechanical": {}
     }
   },
@@ -34,9 +34,9 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "468891d80c1566b6cd8f5e9f39fe285e34374c35346e1832d709ae38ce733e08",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "c8f83f413b6f9674bfbd8a42db82d1a5dd23f7b6ec6277d7351aac207aab39f2",
-      "baselineOutputSha": "5070ccbe4c355676f39da54b5a86405eae71522cd9ab6ee0b9c3322aee089508",
-      "candidateOutputSha": "9e7cf87b2e66f8cfd5d46fb8cfe24b83d3387ee80e2cd99350891b0f28bb59e1",
+      "intentSha": "68fdb5434a67270e3e3a98d76e69521337d5547b430839ca82b1daf357fd84cc",
+      "baselineOutputSha": "4202b90536b0833227d109bf96206d53af5b78bc25e9fd23b65adcd74c8a3014",
+      "candidateOutputSha": "ebd0691fcb431a2dde89c1a8549d91bdf1b81205983a35aaa1f1f3b17c971891",
       "facts": {
         "f1": {
           "before": "holds",
@@ -45,13 +45,13 @@
         },
         "f2": {
           "before": "holds",
-          "after": "fails",
-          "label": "regression"
+          "after": "holds",
+          "label": "held"
         },
         "f3": {
           "before": "holds",
           "after": "holds",
-          "label": "held"
+          "label": "intended but unchanged"
         },
         "f4": {
           "before": "holds",
@@ -64,50 +64,15 @@
           "label": "held"
         }
       },
-      "feedback": "After keeps the status line, the absent Deferred/deviates line, N = 0, no fix loop, and the Step 4 first line, but it dropped the per-requirement roll-call that Before printed (R1–R8 each marked delivered). Without that list a reader cannot say from the text that every requirement row is reported delivered, so f2 fails even though no gap card appears. The elsewhere-row wording should be additive: keep the 'All requirements were delivered' list and simply add the attribution annotation for rows settled in another repository (e.g. 'R3 (AC3): settled in acme/other#12 - recorded drift, no decision') rather than replacing the roll-call with prose about why the block is empty. Also note After changed `whole-diff minors: none` to `not recorded` and added tool-availability caveats that are unrelated to the elsewhere change; reverting those keeps the render identical to Before for all-in-scope specs.",
-      "verdict": "inconclusive",
-      "confirmation": {
-        "status": "ok",
-        "text": "## Closure / conformance\n\n```text\nstatus: CONFORMS (0 open)\naudited-base: 4c1e8f0a9b2d7c6e5f4a3b2c1d0e9f8a7b6c5d4e\nhappy-path: not run - no row configured\n\nVerdict: CONFORMS. R1-R8 are DELIVERED: AC1-AC5 and Design clauses 1-3.\nOrigin drift: none.\nDeferred/deviates: none. The spec's ## Acceptance criteria has only in-scope rows.\n\nauto-applied fix commits: none\n\nwhole-diff minors: none\n```\n\nNo gaps are open, so there are no concern cards and no fix loop ran. The `Deferred/deviates per spec:` line is left out because the spec has no `deferred:` or `deviates:` rows.\n\n---\n\n**Step 3.5 as the operator sees it:**\n\n```\nClosure / conformance: CONFORMS\nhappy-path: not run - no row configured\nwhole-diff minors: none\n```\n\n**Step 4:**\n\n```\nImplementation complete. What would you like to do?\n```\n",
-        "words": 106,
-        "wallMs": 13685,
-        "mechanical": {},
-        "facts": {
-          "f1": {
-            "before": "holds",
-            "after": "fails",
-            "label": "regression"
-          },
-          "f2": {
-            "before": "holds",
-            "after": "holds",
-            "label": "held"
-          },
-          "f3": {
-            "before": "holds",
-            "after": "holds",
-            "label": "held"
-          },
-          "f4": {
-            "before": "holds",
-            "after": "holds",
-            "label": "held"
-          },
-          "f5": {
-            "before": "holds",
-            "after": "holds",
-            "label": "held"
-          }
-        },
-        "feedback": "After moved f1: the status block now prints a \"Deferred/deviates: none.\" line for a spec whose acceptance criteria are all in-scope, and then contradicts itself in prose by saying the \"Deferred/deviates per spec:\" line is left out. A careful reader sees a Deferred/deviates line printed, which is exactly what f1 forbids. Before handled this correctly by printing nothing and only explaining in prose why the line is absent. To deliver the Change (elsewhere rows recorded as settled drift rather than gaps) without regressing this case, keep the Deferred/deviates line strictly conditional on the presence of deferred:/deviates:/elsewhere rows in the spec — emit it only when at least one such row exists, and when none exist print no line at all (a prose note like Before's is fine). The rest of After (R1-R8 delivered, no concern cards, no fix loop, Step 3.5 render, Step 4 first line) matches Before and keeps f2-f5."
-      }
+      "feedback": "No fact moved on this conforming sample: both outputs print the CONFORMS block without a `Deferred/deviates per spec:` line, report R1–R8 DELIVERED with no concern or gap cards, produce zero decision items, dispatch no fix and no re-audit, and reach the Step 4 opening line `Implementation complete. What would you like to do?`. After additionally renders the full Step 4 option list through `Which option?`, which is the intended zero-gap fall-through strengthening and does not disturb any fact here. The only observable regression in After is the loss of Before's explicit notes about the freshness precondition (`git diff --stat`/`git status` against audited-base) and the amendment digest being skipped for lack of tools; none of the facts pin those, but if you want parity you could keep a one-line 'freshness check not run - tools excluded; assuming clean tree' note above the Step 3.5 block while still rendering the full menu.",
+      "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "468891d80c1566b6cd8f5e9f39fe285e34374c35346e1832d709ae38ce733e08",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "c8f83f413b6f9674bfbd8a42db82d1a5dd23f7b6ec6277d7351aac207aab39f2",
-      "baselineOutputSha": "2362fafc9c3e240d204c64cb25cc5c8394bc81e57674d928dcbf2f4c651cc8e0",
-      "candidateOutputSha": "e8878da040077ad3baf7bb12113b8e1c446b24cdf5007c75de9d1021bfd3b8c4",
+      "intentSha": "68fdb5434a67270e3e3a98d76e69521337d5547b430839ca82b1daf357fd84cc",
+      "baselineOutputSha": "d95ab2526373d56000d08bcb3f90a61cbffd7dd622c6105ff9cc94d8fc034626",
+      "candidateOutputSha": "18f5cb6318225bcb4fb3a72bca54f71598c1d40f0a548155076468649d8e4927",
       "facts": {
         "f1": {
           "before": "holds",
@@ -122,7 +87,7 @@
         "f3": {
           "before": "holds",
           "after": "holds",
-          "label": "held"
+          "label": "intended but unchanged"
         },
         "f4": {
           "before": "holds",
@@ -135,9 +100,9 @@
           "label": "held"
         }
       },
-      "feedback": "No fact moved on this all-in-scope case: both renders print CONFORMS (0 open), omit any Deferred/deviates per spec line, show no gap card or decision item, trigger no fix dispatch or re-audit (After even says so explicitly with 'auto-applied fix commits: none'), and reach the Step 4 prompt. The one visible difference is that After dropped the 'happy-path: not run - no row configured' line from both the header block and the trailing closure echo while adding the 'auto-applied fix commits' line; none of the facts here depend on it, but that omission is unrelated to the elsewhere-rows change and loses information the reviewer report supplies. Keep the happy-path line in both places alongside the new auto-applied fix commits line so the Wave 1 edit only adds the elsewhere/recorded-drift handling without removing existing status fields.",
+      "feedback": "No fact moved: both outputs print no Deferred/deviates line, show CONFORMS (0 open) with no gap card, carry no decision items, record no fix dispatch or re-audit (auto-applied fix commits: none), and reach the Step 4 opener 'Implementation complete. What would you like to do?'. The only textual difference is that After appends a single numbered option ('1. Push and create a Pull Request') and drops the blank line between the fix-commits and minors lines, neither of which touches a fact. One caution for the Change's own intent: the zero-gap CONFORMS fall-through is supposed to render Step 4's menu in full, options included, yet After shows only one option; if Step 4 has more options, the wording should make the assembly enumerate the complete numbered list after the question line rather than stopping at the first item, which would deliver the Change fully while leaving f1-f5 exactly as Before kept them.",
       "verdict": "unchanged"
     }
   },
-  "repoSha": "07c53575c996acf1c4e87209c4ef523dcf0b029e"
+  "repoSha": "f6b27b68f40de3df9350a4f224f973b553a0f0cd"
 }

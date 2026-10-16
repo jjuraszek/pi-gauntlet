@@ -1,34 +1,39 @@
 # Carried-open disposition protocol
 
-Consumed by `finishing-a-development-branch` Step 3.5 on the **GAPS branch only** — the CONFORMS fast path never reads this file. Antecedent map for the relocated grammar below: "the reference" = `../../verification-before-completion/reference/conformance-check.md` (canonical for the availability table, the `UNAUTHORIZED` question, the `recommended: none` preflight, the freshness rule, and the concern-scoped fix projection); "Revert semantics", "the zero-gap path", and every `Step N` (`Step 1`, `Step 3.5`, `Step 4`) reference = `../SKILL.md`.
+Consumed by `finishing-a-development-branch` Step 3.5 on the **GAPS branch only** — the CONFORMS fast path never reads this file. Antecedent map for the relocated grammar below: "the reference" = `../../verification-before-completion/reference/conformance-check.md` (canonical for the availability table, the `UNAUTHORIZED` question, the `recommended: none` rule, the freshness rule, and the concern-scoped fix projection); "Revert semantics", "the zero-gap path", and every `Step N` (`Step 1`, `Step 3.5`, `Step 4`) reference = `../SKILL.md`.
 
-**Carried-open render (dense).** Read the `## Closure / conformance` block. Render a header with the decision count, one bullet per decision unit (a gap by default; a `Gn/Cn` concern only where the reference split it), then the shared options line, then the recommended-set reply. Never show durable-card internals (ownership, evidence tokens, identity, hashes) in the render.
+**Carried-open render (numbered brief).** Read the `## Closure / conformance` block. The menu text is written after the recommendation is decided, never while deciding it. Negative example: `recommended: custom? Hmm. Dispositions: fix-now ... Actually, the amended spec makes G2 ...`.
 
-Each bullet:
+Open with item 1's plain-words problem sentence, never metadata. Render one numbered item per decision unit (a gap by default; a `Gn/Cn` concern only where the reference split it):
 
-`* <handle> - <plain title>: <what's unresolved, one clause>. <short question> Recommended: <choice> (<one-clause why>).`
+```text
+<n>. <plain title> - <what is unresolved and what it costs, one sentence>.
+   <why this is a human call, one sentence>.
+   A) <option> - <one-line consequence>
+   B) <option> - <one-line consequence>
+   Custom: <your own answer> - <the availability table's custom effect, one line>
+   Recommended: <letter> - <reason>
+   Not available: <option> - <missing prerequisite>
+```
 
-- `<handle>` leads the bullet and is a short unique human word derived from the title (`Cache coverage` -> `cache`); on collision append a digit. It is the token option 2 targets. When a gap split and no clean word fits, use the bare `Gn/Cn`; a single-concern gap uses its gap ID `Gn`.
-- The shared options line sits below the bullets: `Other options per item: fix-now / accept / rescope / follow-up / custom`, listing the options **generally available across items**. When a specific item's availability deviates - an option unavailable for it, or an `UNAUTHORIZED` item whose `rescope` is unavailable and whose `fix-now` means removal - note that deviation as a short parenthetical on **that item's bullet** (one clause, not a block), e.g. `(rescope N/A: scope creep)`. The shared line appears **only in the carried-open render**, never in the zero-gap path. Full per-option effects only on request, or when option 2 targets an unclear choice.
-- Group items under one recommended line only when they share a disposition and rationale; each grouped handle repeats its title.
-- A bullet whose recommendation edits the spec (`accept-into-spec`, `rescope-into-spec`, or an item the pre-menu funnel escalated) carries, indented under it, `what` and `why` as one sentence each, `Example: <before -> after>`, `Reviewer: <one-line reason verbatim | not reviewed - <the Conformance entry step 1 exclusion that kept it out> | reviewer unavailable: <reason>>`, and `Impact: <spec section>: <approved contract> -> <new contract>; ...` - the readable card from `../../brainstorming/reference/amendment-surface.md`, adapted to this bullet. Escalated items are ordinary rows here; no second amendment menu renders.
-- Availability per concern comes from the reference's single availability table - apply it against current context (worktree state, `maxFixRounds`, ownership, resource accessibility), do not restate it. `UNAUTHORIZED` bullets ask the reference's question verbatim (`Should this unrequested behavior become part of the current workflow?`); `rescope-into-spec` is shown **unavailable** (not dropped) and `fix-now` means **removal** of the unrequested code.
-- `revert conformance fix Gn`, when the gap has an auto-applied fix, renders on the shared options line as a **separate one-off action** - never inside a bullet's recommendation and never in the option-2 list. Name the parent gap and warn that revert undoes the entire gap-level commit (see "Revert semantics").
+- Build the problem sentence from the concern card's existing `unresolved` and `impact`; invent no sentence sources at render time. Derive the human-call sentence from the verdict: `UNAUTHORIZED` asks `Should this unrequested behavior become part of the current workflow?` verbatim; `MISSING`/`PARTIAL` says the spec requires it and implementation is incomplete or blocked, naming the missing prerequisite; `DRIFTED` says spec and code disagree and only the human can say which is the contract. For a fix gap carried open because the fix loop cannot run (`maxFixRounds: 0`, no named-branch worktree, unknown ownership), say so and name the prerequisite.
+- For a spec-editing recommendation (`accept-into-spec`, `rescope-into-spec`) or a pre-menu escalated item, indent the readable card between the problem sentence and lettered options: `what` and `why` as one sentence each, `Example: <before -> after>`, `Reviewer: <one-line reason verbatim | not reviewed - <the Conformance entry step 1 exclusion that kept it out> | reviewer unavailable: <reason>>`, and `Impact: <spec section>: <approved contract> -> <new contract>; ...`. Adapt the card from `../../brainstorming/reference/amendment-surface.md`; keep escalated items here, not in a second menu.
+- Apply the reference's single availability table against current context (worktree state, `maxFixRounds`, ownership, resource accessibility); do not restate it. Letter available named options in table row order (`fix-now`, `accept`, `rescope`, `follow-up`), skipping unavailable ones. Lettering follows availability only - a `No recommendation - pick one` item letters its available options like any other. Give every lettered option the table's one-line effect for this verdict. Keep letters stable for the shown menu; map each pick to its shown disposition token. Use the menu's short forms `accept` and `rescope` for the canonical `accept-into-spec` and `rescope-into-spec`.
+- Keep one unlettered `Custom:` line per item as shown. Keep unavailable options visible and unlettered as `Not available: <option> - <missing prerequisite>`; render `UNAUTHORIZED` rescope as `Not available: rescope - scope creep`, and its `fix-now` consequence as removal of the unrequested code. Show no bare option tokens.
+- Use exactly `Recommended: <letter> - <reason>`, with a one-sentence reason tied to the end goal or a development practice, or `No recommendation - pick one` when no named choice is executable. Never recommend custom.
+- Below the item list, render `Conformance: N decisions needed before shipping.` (when the count is 1, write `Conformance: 1 decision needed before shipping.`), then the informational `happy-path:`, `Deferred/deviates per spec:`, and `whole-diff minors:` lines in their current relative order, above the reply instruction: `Reply: one line per item: <n>. <letter or free text>; bare "1" takes every recommendation and re-asks items without one by number.` Keep handles and durable-card internals (ownership, evidence tokens, identity, hashes) out of the prompt.
+- Render `revert conformance fix Gn` for an indexed auto-applied fix on its own line outside the items, never lettered. Name the parent gap and warn that revert undoes the entire gap-level commit (see "Revert semantics").
 
 #### Response grammar
 
-```
-1                                  -> apply every recommendation
-2: cache=follow-up
-2: e2e=custom(open ticket after image lands), cache=follow-up
-```
+One reply line per item: `<n>. <letter or free text>`. Free text is always the custom path (`custom(<text>)`), even when it matches a shown option's name - letters pick options, text instructs. No other forms: no bare letters, no mixing bare `1` with item lines.
 
-- `1` (or `apply recommended`) applies all recommendations.
-- `2:` takes a comma-separated override list, each `<handle>=<choice>`; omitted items keep their recommendation. A handle may appear at most once (repeat = invalid).
-- `custom(<concrete effect>)` supplies an inline effect. Manual fix-in-place is expressed only as `custom(...)` where isolated `fix-now` is unavailable.
-- `recommended: none` items follow the reference's preflight (linked, not restated): the item needs a `<handle>=custom(...)` decision, and option 1 is withheld until every open item has an executable recommendation; after the custom decision the menu re-renders for the remainder.
-- `revert conformance fix Gn` is a valid standalone reply, mutually exclusive with `1` and `2:`; it never appears inside a `2:` override list.
-- Invalid handle or choice -> focused reprompt naming only that item, retaining every valid pick and never reopening the gate. Unknown token: list the valid titled handles. Known item, bad choice: repeat its title + its available choices.
+- Bare `1` (or `apply recommended`, accepted, never advertised) applies every item that has a recommendation and re-asks only the items without one, by number, never re-rendering the whole menu.
+- An omitted item keeps its recommendation; an omitted no-recommendation item is re-asked by number, same as after a bare `1`.
+- A legacy `2: <handle>=<choice>` reply is accepted silently as the same picks and recorded normally; the form is never rendered in a prompt.
+- An invalid number or letter gets a focused reprompt naming only that item, retaining every valid pick, never reopening the gate. A bare digit other than `1` is an invalid reply and reprompts the same way.
+- `revert conformance fix Gn` is a standalone reply, mutually exclusive with numbered lines and bare `1`; it never takes a letter and never waits on undecided items - the decide-everything-first barrier binds disposition batches only. Run execute-order step 8 without applying any recommendation.
+- Nothing in a disposition batch executes until every item has a decision; then the execute order below runs once. Keep original item numbers through re-asks; no re-audit runs before the batch is decided.
 
 #### Execute order
 
@@ -44,4 +49,4 @@ Take **no** disposition action before the reply. Then, once, in order:
 8. **revert** (`revert conformance fix Gn`): light-revert the indexed commit, re-run Step 1's canonical tests; on failure stop; on pass re-audit and regenerate.
 9. Re-enter Step 3.5 with the re-audited block if any concern remains open.
 
-Record every final disposition with its **stable ID** as `Gn/Cn - <title>: <disposition>` (or `Gn - <title>: <disposition>` for a single-concern gap) - ticket ID/URL for `follow-up`, result for `custom`; never relabel a `custom` result as a recommendation. This durable record is the machine/audit surface; the interactive render stays handle-based. Then continue to Step 4:
+Record every final disposition with its **stable ID** as `Gn/Cn - <title>: <disposition>` (or `Gn - <title>: <disposition>` for a single-concern gap) - ticket ID/URL for `follow-up`, result for `custom`; never relabel a `custom` result as a recommendation. This durable record is the machine/audit surface; keep canonical disposition tokens. After the reply, print each decided item's short-form choice in `Recorded: <handle>=<choice>, ...` (e.g. `Recorded: cache=accept, e2e=rescope`); keep custom choices as `custom(<text>)` with the reply's free text verbatim. Derive handles internally from a short unique word in the title; append a digit on collision. When no clean word fits, use `Gn/Cn` for a split concern or `Gn` for a single-concern gap. Use `<handle>=<choice>` only in this record line and silently accepted legacy replies, never in a prompt. Then continue to Step 4:

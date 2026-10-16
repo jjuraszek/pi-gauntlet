@@ -1,0 +1,3 @@
+- f1: judged: The response re-asks item 1. with its lettered options, without rejecting the reply or claiming option 1 is withheld.
+- f2: judged: The response executes nothing and does not advance to the Step 4 branch menu.
+- f3: judged: The response never renders a <handle>=<choice> form.

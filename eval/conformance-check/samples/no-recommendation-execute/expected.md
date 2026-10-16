@@ -1,0 +1,4 @@
+- f1: judged: The response accepts the free-text answer as item 1's custom disposition, without reprompting, rejecting it, or asking the user to rephrase it as a letter.
+- f2: judged: The response records the disposition with the reply's text verbatim as custom(append the sha256 table from the build log to the release notes), in a Recorded: line or equivalent record.
+- f3: judged: Before any CONFORMS claim or Step 4 menu, the response performs or schedules a re-audit of the concern against the updated state after the custom edit, honoring the execute-order re-audit barrier; it never claims conformance while that re-audit is pending.
+- f4: judged: No <handle>=<choice> form appears in any prompt-facing question or instruction; that form may appear only in the record line.

@@ -312,21 +312,7 @@ executable choice exists" - and its `rationale` must name the exact missing
 prerequisites plus the concrete custom effect still required. `custom` is never
 auto-recommended, so `none` never silently resolves to `custom`.
 
-A concern with `recommended: none` is excluded from the recommended set. Before
-any exhaustive `Apply recommended set`, the finish gate asks for a targeted
-custom approval that supplies a concrete effect for that one concern (finishing
-owns the exact reply syntax - a per-item `custom(...)` decision - not an `apply
-recommended` variant). That reply approves only that concrete custom effect for
-that concern. Validate and normalize it immediately: if the effect is ambiguous or
-unexecutable, clarify and keep the concern open; if executable, record it as a
-**pending approved custom decision** and remove that concern from the still-open
-inventory used to build the recommended set. If other open concerns remain,
-render the exhaustive recommended set for them and visibly carry the pending
-approved custom decision through the existing action-order and freshness
-barriers; `apply recommended` approves only the remaining recommendations. If no
-other concerns remain, execute the approved custom directly through the existing
-mechanics. The final disposition record keeps this concern as a `custom` result;
-never relabel it as a model recommendation.
+A concern with `recommended: none` is excluded from the recommended set. It renders as `No recommendation - pick one` with its lettered options (finishing owns the render and the exact reply syntax). When the human's reply decides every recommended item (a bare `1`, or numbered lines covering them) but leaves a `recommended: none` item unanswered, the item is re-asked by its number, alone, never re-rendering the whole menu. Use the same one-line reply form as any item: a letter picks the shown option and records that option's disposition token (`accept` -> `accept-into-spec`, `rescope` -> `rescope-into-spec`, `follow-up` stays `follow-up`); free text is `custom(<text>)` and requires a concrete effect. Validate and normalize the custom effect immediately: ambiguous or unexecutable -> clarify and keep the concern open; never relabel a lettered pick as `custom`, and never relabel a `custom` result as a model recommendation.
 
 **Never recommend an unavailable disposition or an unexecutable `custom`
 placeholder.**
@@ -399,8 +385,9 @@ For each carried-open gap, emit a durable gap header plus one card per concern
 lists, clarification lists, and final disposition records, every user-facing
 identifier carries both its ID **and** title; bare `Gn`/`Cn` or grouped
 identifier lists without titles are prohibited. The only exceptions are the
-machine/interaction tokens the grammar requires: bare `Gn/Cn` inside typed
-response tokens, the literal `conformance fix Gn` commit/action identifiers, and
+machine/interaction tokens the grammar requires: bare handles inside the
+`Recorded:` disposition line and accepted legacy replies, the literal
+`conformance fix Gn` commit/action identifiers, and
 the flat `auto-applied fix commits` index below. The surrounding prompt or list
 must map each token to its titled concern or gap before asking for input.
 

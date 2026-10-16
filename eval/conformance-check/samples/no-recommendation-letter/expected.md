@@ -1,0 +1,4 @@
+- f1: judged: The response accepts the letter pick as the shown option B (rescope), without reprompting or demanding free text or a concrete effect.
+- f2: judged: The recorded disposition for the item is rescope or rescope-into-spec (for example, Recorded: manifest=rescope), never custom(...).
+- f3: judged: Before any CONFORMS claim or Step 4 menu, the response amends the spec to drop the manifest requirement and re-audits against the amended spec, or schedules those actions in that order without claiming they already happened in this tool-free replay.
+- f4: judged: No <handle>=<choice> form appears in any prompt-facing question or instruction; that form may appear only in the record line.

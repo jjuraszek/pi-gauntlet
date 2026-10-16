@@ -1,0 +1,88 @@
+{
+  "sample": "no-recommendation-reask",
+  "arm": "candidate",
+  "skillSha": "f5e58eb04c446b66d3a12b2a2ab5cd79bff20ccaaee1a1135d3071d09b8ea222",
+  "inputSha": "ea9ebb4bda5fd428e259b648cd85636e2319af87e025f3c305e736c4e18b507b",
+  "kind": "text",
+  "assembly": "headed",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "Bare `1` found no recommendation to apply: item 1 has none. Nothing has executed. Item 1 still needs your pick:\n\n```text\n1. Integrity manifest is missing - the release notes lack the required sha256 table, leaving artifact integrity undocumented.\n   The spec requires the manifest, but implementation is incomplete and fix ownership is unknown.\n   A) accept - Ratify the current published behavior in the spec.\n   B) rescope - Remove or defer the manifest requirement from this workflow.\n   C) follow-up - Keep the requirement valid and transfer it to separately owned work.\n   Custom: <your own answer> - Supply another concrete effect, such as appending the build log's sha256 table to the release notes.\n   No recommendation - pick one\n   Not available: fix-now - file ownership has not been established.\n\nReply: 1. <letter or free text>\n```\n",
+      "words": 125,
+      "wallMs": 6610,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "1. Integrity manifest is missing - the release notes lack the required sha256 table, leaving artifact integrity undocumented.\n   The spec requires the manifest, but implementation is incomplete and fix ownership is unknown.\n   A) accept - Ratify the current published behavior in the spec.\n   B) rescope - Remove or defer the manifest requirement from this workflow.\n   C) follow-up - Keep the requirement valid and transfer it to separately owned work.\n   Custom: <your own answer> - Supply another concrete effect, such as appending the build log's sha256 table to the release notes.\n   No recommendation - pick one\n   Not available: fix-now - file ownership has not been established.\n\nReply: one line for this item: `1. <letter or free text>`.\n",
+      "words": 109,
+      "wallMs": 4038,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "93c624d0e66c093366ab9fc591f2d86749d94aa986da9a4425a7c1f7dd94125b",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "68fdb5434a67270e3e3a98d76e69521337d5547b430839ca82b1daf357fd84cc",
+      "baselineOutputSha": "64cef571f8f478ec211fa6976366f10866c507e22ff6b6a2cb08abd196d6c888",
+      "candidateOutputSha": "c7f3f31ed3f41ab70e4351f79fc6874ce871e927a35b70d7871a96451654219b",
+      "facts": {
+        "f1": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "f2": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "f3": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        }
+      },
+      "feedback": "Nothing moved. Both outputs re-ask item 1 with lettered A/B/C options, the numberless Custom line, the named unavailable fix-now, and a `1. <letter or free text>` reply form; neither executes anything, advances to Step 4, or shows a <handle>=<choice> assignment. After's opening line (\"Bare `1` found no recommendation to apply: item 1 has none\") reads as an explanation followed by a re-ask rather than a rejection, matching Before. The only structural difference is that After wraps the brief in a text code fence and adds the explicit \"No recommendation - pick one\" line, both consistent with the Change and harmless to the facts. If anything, the After re-ask could trim the fence so the lettered options read as the same prose menu the user already saw, but no wording change is required to keep every fact.",
+      "verdict": "unchanged"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "93c624d0e66c093366ab9fc591f2d86749d94aa986da9a4425a7c1f7dd94125b",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "68fdb5434a67270e3e3a98d76e69521337d5547b430839ca82b1daf357fd84cc",
+      "baselineOutputSha": "0c02161e0cd5ab636e384e24090b81a7263649be4a37107dcd2f61d3d0b44495",
+      "candidateOutputSha": "27af96549bd5ada3977dcc20a0cb55b86c69cce147765c28f6741cd9a17df268",
+      "facts": {
+        "f1": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "f2": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "f3": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        }
+      },
+      "feedback": "After delivers the Change cleanly: it re-asks item 1 by number with the full lettered brief (problem, A/B/C with consequences, Custom line, explicit 'No recommendation - pick one', Not available clause) rather than Before's rejection sentence ('`1` cannot apply a recommendation'), which is what flipped f1 to holds; it also drops Before's `manifest=custom(...)` handle-assignment example, which flipped f3 to holds; and like Before it executes nothing and shows no Step 4 menu, so f2 is preserved. No wording regressions to fix. One optional tightening: the reply instruction 'one line for this item: `1. <letter or free text>`' could carry a short echo of the 'bare 1 re-asks' clause for consistency with the original prompt, but that is not required by any fact here and the current text already keeps the Custom line numberless and the record-only handle form out of the operator prompt.",
+      "verdict": "improved"
+    }
+  },
+  "repoSha": "f6b27b68f40de3df9350a4f224f973b553a0f0cd"
+}

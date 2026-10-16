@@ -1,0 +1,4 @@
+- f1: judged: The carried-open menu's first sentence states the item's unresolved problem in plain words, rather than opening with a count or metadata; the preceding durable Closure / conformance block is not the menu.
+- f2: judged: Item 1 lists lettered options A) accept, B) rescope, and C) follow-up, each with a one-line consequence, and shows fix-now unlettered as unavailable because ownership is unknown.
+- f3: judged: The line No recommendation - pick one is present.
+- f4: judged: No bare-token options line and no <handle>=<choice> prompt form appears.

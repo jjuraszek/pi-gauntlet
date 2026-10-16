@@ -1,0 +1,6 @@
+- f1: judged: Each of the two numbered items opens with a plain-words sentence explaining what changes and why it matters.
+- f2: judged: The crosscut item lists A) accept and B) alt-1, each with a one-line consequence.
+- f3: judged: The crosscut item has Recommended: B - followed by a reason, and exit126 has Recommended: A - followed by a reason.
+- f4: judged: Reply instructions request one line per item in the form <n>. <letter or free text>, say bare 1 takes every recommendation, and never prompt with the legacy 2: <handle>=<choice> form.
+- f5: mechanical: contains "Standing grant: reply "auto-apply amends" - every later spec amendment in this flow (corrected facts, paths, verification lines, and scope, acceptance-criteria, or public-contract edits alike) applies without asking; only a redraw (changed problem statement, component added, removed, or re-bounded) still stops for you, and the grant never stands in for a spec approval."
+- f6: judged: Each numbered item carries one sentence saying why the decision is a human call (for example, naming the prefilter rule or the reviewer's escalation reason in plain words).
