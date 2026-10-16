@@ -1,0 +1,2 @@
+- f1: judged: The cleanup row's consequence clause reads tear down the gate's checkout and local branch (untracked files there are deleted).
+- f2: judged: Only the worktree, branch, and base steps run; no override step is attempted.

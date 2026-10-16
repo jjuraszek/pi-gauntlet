@@ -1,0 +1,34 @@
+{
+  "sample": "cleanup-merged-at-step-1",
+  "arm": "baseline",
+  "skillSha": "fb43a9f15b755095150d6658f9a74d67d0a1e2c52b1d8046836ecf9ba74a03e7",
+  "inputSha": "71d216c1d500eabc8c2c6f33c8e50e84c69e0d12138be55a73ceadcdf405e952",
+  "kind": "text",
+  "assembly": "headed",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "## Report\n\n```\nDelivers: the reports page exports CSV on demand. ACs 1, 2, 4; 3, 5 deferred per spec to acme/widgets#46; 4's observable half (export completes under 5s on production data) is checked after merge, not here.\n\nNits:\n- The export pages results with its own loop instead of the shared paging helper, so a paging bug fixed once would need fixing twice. (src/api/export.ts:31, lib/page.ts)\n\nBlockers:\n1. The design requires escaped CSV cells, but no test exports a value containing a comma, quote, or newline, so such a value could split or corrupt a row unnoticed. (src/api/export.ts, test/api/export.test.ts)\n\nVerdict: fixable - 1 blocker\n\n1. show evidence - gate output, CI run, drafted test edit\n2. stop - leave the PR as-is                                        [recommended]\nType a number. Not offered: fix, fix nits, review (PR already merged).\n```\n\nThe PR was already `MERGED` at step 1, so the `merged or closed PR` overlay limits the menu to `show evidence` and `stop`. The blocker comes from Design clause 2. The diff and its tests show the header row, columns, paging cap, deadline, and 404, but nothing exercises cell escaping. A Design clause with no tested mechanism is a gap.\n\n## Reply: `cleanup`\n\n`cleanup` is not a rendered row, so the gate refuses it by name and runs no command:\n\n- **No such verb.** `reference/cleanup.md` is empty, and gatekeep-pr has no step that consumes the overrides' `## cleanup` section.\n- **Separate consent needed.** Closing the ticket (`gh issue close ...`) and `/skill:release` are external writes. Each needs its own explicit selection, and neither is a verb this menu can offer.\n- **Wrong skill.** Post-merge delivery work belongs to `/skill:check-delivery`, not this pre-merge gate.\n- **Premature anyway.** Rows 3 and 5 of acme/widgets#210 are still deferred to acme/widgets#46, and this run found an open blocker on the merged code.\n\nRe-rendered menu:\n\n```\n1. show evidence - gate output, CI run, drafted test edit\n2. stop - leave the PR as-is                                        [recommended]\nType a number. Not offered: fix, fix nits, review (PR already merged), cleanup (not a gatekeep-pr verb - closing acme/widgets#210 and releasing belong to /skill:check-delivery and your own selection).\n```\n\nWhat happens on `stop`:\n\n- **Worktree.** `.worktrees/pr-212` was reused, so the Non-merge stop row leaves it as found. It has no unpushed fix commits, and the untracked `node_modules/` stays in place.\n- **Temporary files.** The continuation record, helper output files, and any `log_path` files are deleted.\n- **Remote.** Nothing is written.\n",
+      "words": 385,
+      "wallMs": 27023,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "Delivers: the reports page downloads CSV with every table column and bounded paging. ACs 1, 2, 4; 3, 5 deferred per spec to acme/widgets#46; 4's observable half (export completes under 5s on production data) is checked after merge, not here.\n\nNits:\n- The export pages results with its own loop instead of the shared paging helper, so a paging bug fixed once would need fixing twice. (src/api/export.ts:31, lib/page.ts)\n\nVerdict: mergeable - CI green on the assessed head (test)\n\n1. show evidence - print the evidence record, claim and AC outcomes, and drafted payloads\n2. stop - leave the PR as-is [recommended]\n\nType a number.\n\n`cleanup` is not offered. The PR was already merged when this run began, so only `show evidence` and `stop` are available. No external command runs; the cleanup override does not authorize closing the ticket or starting a release.\n\n1. show evidence - print the evidence record, claim and AC outcomes, and drafted payloads\n2. stop - leave the PR as-is [recommended]\n\nType a number.\n",
+      "words": 162,
+      "wallMs": 13249,
+      "mechanical": {}
+    }
+  },
+  "repoSha": "d19e7c14fbe1e49b8f78b00f5355e146eb80ee26"
+}

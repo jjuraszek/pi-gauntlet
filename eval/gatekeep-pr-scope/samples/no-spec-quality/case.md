@@ -1,5 +1,5 @@
 ## PR
-acme/widgets#210 "Export reports as CSV" by maria (you are maria; viewer_permission WRITE; state OPEN; not draft; head_pushable true; mergeable MERGEABLE)
+acme/widgets#210 "Export reports as CSV" by maria (you are maria; viewer_permission WRITE; state OPEN; not draft; head_pushable true; mergeable MERGEABLE; merge_state_status CLEAN)
 Body: Add an on-demand CSV handler and an Export CSV button to download report data. The response includes the table columns and returns 404 for unknown reports. Closes acme/widgets#45.
 
 ## Diff summary

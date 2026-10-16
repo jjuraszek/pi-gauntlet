@@ -1,5 +1,5 @@
 ## PR
-acme/widgets#210 "Export reports as CSV" by maria (you are maria; viewer_permission WRITE; state OPEN; not draft; head_pushable true; mergeable MERGEABLE)
+acme/widgets#210 "Export reports as CSV" by maria (you are maria; viewer_permission WRITE; state OPEN; not draft; head_pushable true; mergeable MERGEABLE; merge_state_status CLEAN)
 Body: Add on-demand CSV export from the reports page. Email delivery and audit events are deferred to acme/widgets#46; this PR delivers the button, all table columns, and bounded paging.
 Spec: doc/specs/2026-09-30-csv-export.md
 
@@ -51,5 +51,11 @@ source: ci; check `test` success on the assessed head; claims: "adds tests for t
 ## Reviewer findings
 Verdict: approve. Minor: `src/api/export.ts:31` pages with its own loop instead of `lib/page.ts`.
 
+## Worktree record
+worktree.path .worktrees/pr-210; worktree.branch csv-export (the headRefName); worktree.created true; worktree.destroy null.
+The gate worktree's git status --porcelain --untracked-files=no is empty (tracked-clean); HEAD equals the assessed head headRefOid, so merge-base --is-ancestor HEAD <headRefOid> succeeds. One untracked node_modules/ directory is present.
+baseRefName main; the primary checkout (parent of rev-parse --git-common-dir) is on main, tracked-clean. After git fetch origin + git pull --ff-only, HEAD contains the merge commit 9f1c2d3e4b5a6978.
+pr.url https://github.com/acme/widgets/pull/210; pr.state MERGED.
+
 ## Pick
-merge (gh pr merge succeeded; gh pr view returned state MERGED, mergeCommit.oid 9f1c2d3e4b5a6978). Render the post-merge menu, then handle the reply `stop`.
+merge (gh pr merge succeeded; gh pr view returned state MERGED, mergeCommit.oid 9f1c2d3e4b5a6978). Render the post-merge menu, then handle the reply `post coverage to PR` (the gh pr comment succeeds), render the menu again, then handle the reply `stop`.

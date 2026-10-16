@@ -1,7 +1,7 @@
 bundle+: skills/check-delivery/SKILL.md
 
 ## PR
-acme/widgets#210 "Export reports as CSV" by maria (you are maria; viewer_permission WRITE; state OPEN; not draft; head_pushable true; mergeable MERGEABLE)
+acme/widgets#210 "Export reports as CSV" by maria (you are maria; viewer_permission WRITE; state OPEN; not draft; head_pushable true; mergeable MERGEABLE; merge_state_status CLEAN)
 Body: Add CSV export infrastructure and the reports-page button. The button remains disabled until the mailer in acme/widgets#46 ships; email and audit events are deferred there.
 Spec: doc/specs/2026-09-30-csv-export.md
 

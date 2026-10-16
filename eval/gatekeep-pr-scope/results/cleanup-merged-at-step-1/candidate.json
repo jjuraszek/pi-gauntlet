@@ -1,0 +1,88 @@
+{
+  "sample": "cleanup-merged-at-step-1",
+  "arm": "candidate",
+  "skillSha": "ef0c418ba747cd021cf50c7c3f596dc67c76f3dd4ca0c88caca86dc806aa9efd",
+  "inputSha": "71d216c1d500eabc8c2c6f33c8e50e84c69e0d12138be55a73ceadcdf405e952",
+  "kind": "text",
+  "assembly": "headed",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "Delivers: the reports page exports CSV on demand. ACs 1, 2, 4; 3, 5 deferred per spec to acme/widgets#46; 4's observable half (export completes under 5s on production data) is checked after merge, not here.\n\nNits:\n- The export pages results with its own loop instead of the shared paging helper, so a paging bug fixed once would need fixing twice. (src/api/export.ts:31, lib/page.ts)\n\nVerdict: mergeable - CI green on the assessed head (test)\n\n1. cleanup - remove .worktrees/pr-212 (untracked files there are deleted) and branch csv-export, pull main, then close ticket (gh issue close '210' --comment \"Delivered in https://github.com/acme/widgets/pull/212, merged 9f1c2d3e4b5a6978.\"), release (/skill:release) [recommended]\n2. show evidence - gate output, CI run\n3. stop - leave the PR as-is; .worktrees/pr-212 and branch csv-export stay\nType a number.\n\n---\n\n**Reply: `cleanup`**\n\nThe orchestrator runs the steps in `cleanup.md` order. The primary checkout is the parent of `git -C .worktrees/pr-212 rev-parse --git-common-dir`.\n\n1. **Worktree.** This step is eligible:\n   - The path is not the primary checkout.\n   - The worktree is tracked-clean.\n   - The PR has landed.\n   - HEAD is an ancestor of `headRefOid`.\n\n   The worktree was reused, but it is removed because the PR has landed. `worktree.destroy` is null, so the commands are:\n   ```bash\n   git -C <primary> worktree remove --force .worktrees/pr-212\n   git -C <primary> worktree prune\n   ```\n2. **Branch.** The PR has landed and no worktree holds `csv-export` any more:\n   ```bash\n   git -C <primary> branch -D csv-export\n   ```\n3. **Base.** The primary checkout is on `main` and is tracked-clean:\n   ```bash\n   git -C <primary> fetch origin\n   git -C <primary> pull --ff-only\n   git -C <primary> merge-base --is-ancestor 9f1c2d3e4b5a6978 HEAD   # succeeds\n   ```\n4. **Override steps** (merge-base `## cleanup`, in list order):\n   - **close ticket.** The PR has landed, so the guard passes. The placeholders resolve as follows:\n     - `<issue>`: `#210`, stripped to `210`, outside quotes, so single-quoted.\n     - `<pr>` and `<merge-sha>`: verbatim inside the existing quoted span.\n\n     The command runs non-interactively with cwd set to the primary checkout and a 15-minute bound:\n     ```bash\n     gh issue close '210' --comment \"Delivered in https://github.com/acme/widgets/pull/212, merged 9f1c2d3e4b5a6978.\"\n     ```\n   - **release.** The PR has landed and step 3 printed `synced`. The orchestrator invokes `/skill:release` with no level, so its own propose-then-pick gate runs.\n\nThe steps print these lines:\n\n```\nworktree: done\nbranch: done\nbase: synced <primary HEAD after pull, which contains 9f1c2d3e4b5a6978>\nclose ticket: done\nrelease: invoked /skill:release - paused at its level pick\n```\n\n`cleanup_done` is set to true. The untracked `node_modules/` was deleted with the worktree. The consent record, helper output files, and temporary body files are kept, so `show evidence` stays available until teardown on terminal exit.\n\nVerdict: mergeable - CI green on the assessed head (test)\n\n1. show evidence - gate output, CI run\n2. stop - end the run; the gate's worktree and local branch are already removed [recommended]\nType a number.\n",
+      "words": 442,
+      "wallMs": 32642,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "Delivers: The reports page exports every table column as CSV on demand with bounded paging. ACs 1, 2, 4; 3, 5 deferred per spec to acme/widgets#46; 4's observable half (completion under 5s on production data) is checked after merge, not here.\n\nNits:\n- The export pages results with its own loop instead of the shared paging helper, so a paging bug fixed once would need fixing twice. (src/api/export.ts:31, lib/page.ts)\n\nVerdict: mergeable - CI green on the assessed head (test)\n\n1. cleanup - remove .worktrees/pr-212 (untracked files there are deleted) and branch csv-export, pull main, then close ticket (gh issue close '210' --comment \"Delivered in https://github.com/acme/widgets/pull/212, merged 9f1c2d3e4b5a6978.\"), then release (/skill:release) [recommended]\n2. show evidence - show the evidence record, claim and AC outcomes, dispositions, and drafted payloads\n3. stop - leave the checkout at .worktrees/pr-212 on branch csv-export\nType a number.\n\n### Selected: cleanup\n\nIn the commands below, `$PRIMARY` denotes the fixture's primary checkout. Commands are shown, not executed.\n\n```bash\ngit -C \"$PRIMARY\" worktree remove --force .worktrees/pr-212\ngit -C \"$PRIMARY\" worktree prune\ngit -C \"$PRIMARY\" branch -D csv-export\ngit -C \"$PRIMARY\" fetch origin\ngit -C \"$PRIMARY\" pull --ff-only\ngit -C \"$PRIMARY\" merge-base --is-ancestor 9f1c2d3e4b5a6978 HEAD\n```\n\nBefore the external ticket write, refresh the PR target, head, and body from the primary checkout:\n\n```bash\ngh pr view 212 -R acme/widgets --json headRefOid,state,mergeable,mergeStateStatus,body,baseRefName\n```\n\nWith the fixture's unchanged target, head, and body, run this command from the primary checkout:\n\n```bash\ngh issue close '210' --comment \"Delivered in https://github.com/acme/widgets/pull/212, merged 9f1c2d3e4b5a6978.\"\n```\n\nInvoke the release skill without a level, preserving its propose-then-pick gate:\n\n```text\n/skill:release\n```\n\nThe fixture establishes successful git cleanup and base synchronization. The ticket command and release invocation have no execution results in this no-tool fixture, so their completion cannot be claimed.\n\nworktree: done\nbranch: done\nbase: synced to a head containing 9f1c2d3e4b5a6978\nclose ticket: failed - no tool is available to execute the command\nrelease: invoked /skill:release - awaiting its proposal and level pick\n\n1. show evidence - show the evidence record, claim and AC outcomes, dispositions, and drafted payloads\n2. stop - leave the primary checkout on main [recommended]\nType a number.\n",
+      "words": 340,
+      "wallMs": 25732,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "12ff313caabf370b52941d4ca784033c51489a9ede8f494aceb34fb0aee812f7",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "ea58ee7ec87cd97b1383c86b1bbeec03e75210853cd9a81e1110a346447723bf",
+      "baselineOutputSha": "971dd024259cbf91668cff046aed6e65d256c852b444d4a68aac9baa858ffd8f",
+      "candidateOutputSha": "65b24efb21890ba2b667824fe3cd14cce17845af13e82fe089b9ae0afa761183",
+      "facts": {
+        "f1": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "f2": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "f3": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        }
+      },
+      "feedback": "Before refuses `cleanup` as a non-verb and runs nothing, so none of the three facts can hold there; After delivers the Change exactly: cleanup is row 1 recommended, the reused worktree is removed with the branch deleted via `branch -D csv-export` because the PR landed (f2), the close command is rendered as `gh issue close '210' --comment \"Delivered in https://github.com/acme/widgets/pull/212, merged 9f1c2d3e4b5a6978.\"` with the # stripped and the comment as a single separate quoted argument (f3), and the merge-sha resolves to the mergeCommit.oid from the digest (f1), which After also reuses in the merge-base ancestry check. No fact regressed. One small tightening: After only implies the SHA source by reuse in step 3 — adding a clause like \"`<merge-sha>`: `mergeCommit.oid` from the step-1 digest\" next to the `<issue>` placeholder bullet would make f1's provenance explicit rather than inferred. Otherwise keep the After wording as is.",
+      "verdict": "improved"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "12ff313caabf370b52941d4ca784033c51489a9ede8f494aceb34fb0aee812f7",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "ea58ee7ec87cd97b1383c86b1bbeec03e75210853cd9a81e1110a346447723bf",
+      "baselineOutputSha": "afbfe052f3359649d2ca0d33cd5cd5f4348749c22e609d6676802d08fd31f208",
+      "candidateOutputSha": "744c23f878146d5420a40fda47e66c75da54b7a806cb70dc8544575d7ac18baa",
+      "facts": {
+        "f1": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "f2": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "f3": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        }
+      },
+      "feedback": "Before never offered cleanup at all (it rendered only show evidence and stop and explicitly refused to close the ticket or release), so every fact failed there; After renders cleanup as row 1 recommended and, on the pick, shows `git worktree remove --force .worktrees/pr-212` plus `git branch -D csv-export` (f2), substitutes the step-1 digest's mergeCommit.oid into the close command as `merged 9f1c2d3e4b5a6978` (f1), and passes the issue as a bare `'210'` with the comment as a separate `--comment` argument (f3). No fact regressed. One wording nit to keep consistent: After says 'Commands are shown, not executed' and that git cleanup is 'established' by the fixture, yet the status block reports 'close ticket: failed - no tool is available' - consider a single consistent phrasing such as 'not run (no tool)' for both the git and gh steps, or state that git steps are fixture-established while ticket/release are pending, so the status lines cannot be read as contradicting the earlier disclaimer.",
+      "verdict": "improved"
+    }
+  },
+  "repoSha": "6f235717ae0b38aeca15a0227eaec665c938541a"
+}

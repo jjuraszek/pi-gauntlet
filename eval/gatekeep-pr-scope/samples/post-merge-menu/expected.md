@@ -1,4 +1,6 @@
-- f1: judged: After merge, the menu offers post coverage to ticket and post coverage to PR, with stop recommended.
+- f1: judged: After merge, the menu offers cleanup as row 1 recommended, then post coverage to ticket, post coverage to PR, show evidence, and stop last.
 - f2: judged: After stop, nothing is posted.
 - f3: judged: No blocker is minted for a row the spec defers.
 - f4: judged: The ticket's rows are not judged beyond the spec's rows.
+- f5: judged: On stop the worktree is left in place and its path is named.
+- f6: judged: A successful coverage post re-renders the menu and runs no teardown.

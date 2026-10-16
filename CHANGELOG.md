@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Added
+
+- **gatekeep-pr `cleanup` row.** Every terminal menu (own merge, approved, already merged or closed) offers `cleanup` as row 1 `[recommended]`: it removes the gate's worktree and local branch, fast-forwards the base, then runs the overrides file's ordered `## cleanup` items with `<issue>`, `<pr>`, and `<merge-sha>` substituted; steps that need a landed change are skipped with a reason when nothing merged. `stop` under those menus now leaves the checkout as found and names it instead of tearing it down silently. New reference `skills/gatekeep-pr/reference/cleanup.md`; the digest carries `pr.url`, `pr.merge_commit`, and a `worktree` record; this repo's overrides close the ticket, then release.
+
 ## v7.11.2 - 2026-10-15
 
 ### Changed

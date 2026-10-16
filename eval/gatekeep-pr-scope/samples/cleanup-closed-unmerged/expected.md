@@ -1,0 +1,3 @@
+- f1: judged: No release runs; the release step is skipped as needing a landed change.
+- f2: judged: No git branch -D runs.
+- f3: judged: The output prints base: skipped - PR not merged.

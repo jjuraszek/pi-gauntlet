@@ -1,5 +1,5 @@
 ## PR
-acme/widgets#210 "Export reports as CSV" by maria (you are maria; viewer_permission WRITE; state OPEN; not draft; head_pushable true; mergeable MERGEABLE)
+acme/widgets#210 "Export reports as CSV" by maria (you are maria; viewer_permission WRITE; state OPEN; not draft; head_pushable true; mergeable MERGEABLE; merge_state_status CLEAN)
 Body: Add CSV download and email delivery with audit events. Export the 12 visible-by-default columns rather than all 40 table columns, as the spec explains.
 Spec: doc/specs/2026-09-30-csv-export.md
 

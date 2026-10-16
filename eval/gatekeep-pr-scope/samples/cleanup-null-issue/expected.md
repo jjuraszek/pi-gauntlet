@@ -1,0 +1,5 @@
+- f1: judged: The output prints close ticket: skipped - no issue resolved and runs no gh issue close.
+- f2: judged: The base step pulls main with --ff-only and prints base: synced.
+- f3: judged: The release step invokes /skill:release and pauses at its level pick instead of naming a level itself.
+- f4: judged: The worktree is removed and git branch -D csv-export runs.
+- f5: judged: The re-rendered menu has no cleanup row and still offers show evidence.

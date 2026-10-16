@@ -4,11 +4,11 @@ Read from SKILL.md step 6. Input: the report's verdict and the PR state. Output:
 
 ## Verbs
 
-`accept contract change`, `preserve contract`, `fix`, `fix nits`, `push`, `review`, `approve`, `approve workflow run`, `update branch`, `merge base`, `merge`, `merge anyway`, `reply`, `post coverage to ticket`, `post coverage to PR`, `show evidence`, `wait`, `stop`.
+`accept contract change`, `preserve contract`, `fix`, `fix nits`, `push`, `review`, `approve`, `approve workflow run`, `update branch`, `merge base`, `merge`, `merge anyway`, `reply`, `post coverage to ticket`, `post coverage to PR`, `cleanup`, `show evidence`, `wait`, `stop`.
 
 Render fix consequences with the applicable lifetime from `post-selection-loop.md` `### Continuation record`. For named fixes, state that authority retains only the selected stable IDs for later independent reassessments, with the same lifetime as broad fixes; link active pre-push retries to `fix-wave.md` `## Review before push`. For clarification-only fixes, state one-shot authority for the exactly selected payload; keep nit consequences one-shot.
 
-Rows are `<n>. <verb> - <consequence>`; every row, `stop` included, carries its consequence clause. `stop` is always last, before the compose hint. `show evidence` is always offered and never `[recommended]`. A row the actor cannot execute - by `## Availability` below, or because the forge would refuse it (branch protection, a withhold) - is omitted and named in the compose line's `Not offered:` sentence; it is never `[recommended]`. Exactly one row is `[recommended]`.
+Rows are `<n>. <verb> - <consequence>`; every row, `stop` included, carries its consequence clause. `stop` is always last, before the compose hint. `show evidence` is always offered and never `[recommended]`. A row the actor cannot execute - by `## Availability` below, or because the forge would refuse it (branch protection, a withhold) - is omitted and named in the compose line's `Not offered:` sentence; it is never `[recommended]`. Exactly one row is `[recommended]`. A **terminal overlay** is `own merge`, `merge queued` (once its read returns `MERGED` it re-renders as `own merge`), `approved`, or `merged or closed PR`; every other menu is an ordinary open-PR menu. **Landed** means the PR's `state` is `MERGED`; under `approved` and under a closed-unmerged PR nothing has landed.
 
 - `accept contract change` - invoke the concrete proposal's owning amendment process through `post-selection-loop.md` `### Contract decision`; settle the baseline only after completion
 - `preserve contract` - reject the concrete proposal and resume only permitted scope-preserving repair through `post-selection-loop.md` `### Contract decision`; keep independent blockers open
@@ -25,9 +25,10 @@ Rows are `<n>. <verb> - <consequence>`; every row, `stop` included, carries its 
 - `reply` - post the drafted replies under `PR comments` (`reply <n>` for one)
 - `post coverage to ticket` - post the rendered `AC coverage` block as a comment on the source ticket via the resolved tracker verb (`gh issue comment`, the overrides' tracker mapping, or `/skill:linear`); renders only under the `own merge` overlay
 - `post coverage to PR` - post the same block with `gh pr comment <N> --body-file`; renders only under the `own merge` overlay
+- `cleanup` - tear down the gate's checkout and local branch per `cleanup.md`, then run the repo's `## cleanup` steps in order; the consequence clause names each override step as `<label> (<resolved command>)` with placeholders already substituted, so the exact tracker comment or release invocation is visible before the pick; with no `## cleanup` section the clause reads `tear down the gate's checkout and local branch (untracked files there are deleted)`
 - `show evidence` - print the evidence record, claim and AC outcomes, dispositions, drafted payloads and replies (`report.md` `## What stays out`)
 - `wait` - run one bounded `gh pr checks --watch` on every **binding** pending check in the resolved set (required or not), then re-render
-- `stop` - leave the PR as-is; on a `rebased locally` head run `git reset --hard <pre_head>` before `### Teardown`, discarding the rewrite and any unpushed fix commits, and assert `HEAD == <pre_head>` with a clean tree; a mismatch is the existing hard stop with the error, and the remote stays untouched
+- `stop` - leave the PR as-is; under a terminal overlay leave the checkout as found and print one line naming the leftover worktree path and local branch; on an ordinary open-PR menu with a `rebased locally` head run `git reset --hard <pre_head>` before `### Teardown`, discarding the rewrite and any unpushed fix commits, and assert `HEAD == <pre_head>` with a clean tree; a mismatch is the existing hard stop with the error, and the remote stays untouched
 
 Compose hint: `Type a number, or compose: "fix 2", "fix nits", "fix + nits", "fix 1 + reply". Not offered: push (needs push to <head_url>:<head_ref>), merge (needs WRITE on <owner>/<repo>).` The first sentence lists only compositions whose every verb is a rendered row: `fix nits` and `fix + nits` appear only when both the `fix` and `fix nits` rows render; no `reply` row, no `fix 1 + reply`; no composable row, `Type a number.` alone. The second sentence names every omitted row as `<verb> (<why it is omitted>)` and is dropped when nothing is omitted. `merge anyway` renders as its own row when `## Availability` allows it, so the rendered-row rule does not apply to it. Offer `revoke fix` and `revoke merge base` compose forms for held grants, persisting only the named revocation through the loop. A composed line never bundles a push-producing verb (`fix`, `fix nits`, `push`, `merge base`) with `merge`. When a failing check withholds `merge`, the hint line also offers `check <name> flaky | real | ci-broken`, which records the disposition on that check (`findings.md` `## Dispositions`): `flaky` lifts the blocker, `real` keeps it until green, `ci-broken` triggers the fallback local run (`ci-broken` records `ci-infrastructure-broken`).
 
@@ -49,6 +50,7 @@ Rows derive from the digest's `permissions` block (`../verification-brief.md` Se
 | `approve workflow run` | `viewer_permission` is `WRITE`, `MAINTAIN`, or `ADMIN`, and a held run exists on the assessed head |
 | `update branch` | `can_update_branch` is true and no unpushed wave commit exists |
 | `update branch`, `review`, `merge`, `merge anyway`, `push`, `wait` | omitted while the sync record is `rebased locally`, named in `Not offered:` as `(head not pushed)`; the fix wave's lease push is the only write to the PR head |
+| `cleanup` | only under a terminal overlay, never on an ordinary open-PR menu; it leaves the menu after it runs, success or not (`cleanup.md`) |
 | `approve`, `review`, `reply`, `post coverage to ticket`, `post coverage to PR`, `show evidence`, `wait`, `stop` | per the consent table and overlays below |
 
 ## Consent table
@@ -80,13 +82,14 @@ The single source for the merge-withhold reason, the `PR comments` line, and the
 
 For a pending contract exception, print the concrete proposed contract change before the rows, using the recorded proposal; numeric and typed picks select these actual rows and route to `post-selection-loop.md` `### Contract decision`. Render the `preserve contract` consequence as "reject the proposal, keep <named requirement>, and resume authorized implementation repair within it". Existing terminal/sync stops take precedence; otherwise the contract-exception overlay replaces ordinary rows, and lower overlays cannot discard its decision rows.
 
-Apply overlays to the consent row; take additional rows only from `own merge` (post-coverage rows) or the pending `contract exception` (contract-decision rows). When two apply, the one higher in this table wins the `merge` reason and `[recommended]`.
+Apply overlays to the consent row; take additional rows only from a terminal overlay (`cleanup` and the post-coverage rows) or the pending `contract exception` (contract-decision rows). When two apply, the one higher in this table wins the `merge` reason and `[recommended]`.
 
 | Overlay | Trigger | Effect |
 |---|---|---|
-| own merge | this run's `merge` pick ran and the post-merge read (`post-selection-loop.md` `### Merge course`) returned `state: MERGED` | the menu is `post coverage to ticket` (when `issue` is non-null and `scope.rows` is non-empty), `post coverage to PR`, `show evidence`, `stop`, with `stop` `[recommended]`; each post row renders once and leaves the menu after its post succeeds; a failed post keeps its row and prints the `gh` error; no compare-and-swap runs before a post |
+| own merge | this run's `merge` pick ran and the post-merge read (`post-selection-loop.md` `### Merge course`) returned `state: MERGED` | the menu is `cleanup` `[recommended]`, `post coverage to ticket` (when `issue` is non-null and `scope.rows` is non-empty), `post coverage to PR`, `show evidence`, `stop`; each post row renders once and leaves the menu after its post succeeds, and a successful post re-renders this menu - posting never tears down and never ends the run; a failed post keeps its row and prints the `gh` error; no compare-and-swap runs before a post |
 | merge queued | this run's `merge` pick ran and the post-merge read returned a state other than `MERGED` | the menu is `wait` (re-run the post-merge read, then re-render), `show evidence`, `stop`, with `wait` `[recommended]`; one `PR comments` line `The merge is queued, so coverage posts wait. (<state>)` |
-| merged or closed PR | `state` was not `OPEN` at step 1 | the report renders; the menu is `show evidence` and `stop` only |
+| approved | the continuation record's `approved_head` equals the assessed head (`post-selection-loop.md` sets it only when `gh pr review --approve` exits 0, before the re-render; a non-zero exit prints the `gh` error and the ordinary menu re-renders) | the menu is `cleanup` `[recommended]`, `show evidence`, `stop` |
+| merged or closed PR | `state` was not `OPEN` at step 1 | the report renders; the menu is `cleanup` `[recommended]`, `show evidence`, `stop` |
 | contract exception | a recorded contract exception is pending, with no terminal/sync stop | replace the ordinary menu with `accept contract change`, `preserve contract`, `show evidence`, `stop`; recommend `preserve contract`; use `post-selection-loop.md` `### Contract decision` for every selection |
 | draft PR | `isDraft` | `merge` and `approve` are omitted (`Not offered: merge (draft)`, plus `approve (draft)` when the consent row holds `approve`) and never carry `[recommended]`; `review` is recommended on someone else's fixable draft, `fix nits` on their mergeable draft when a nit exists, else `stop`; on your own, `fix` when a blocker exists, else `stop` |
 | held run | an `action_required` conclusion on an Actions run of the assessed head (`../verification-brief.md` Evidence resolution, Held run) with no `local run: held run not approvable` evidence yet for that head | `approve workflow run` renders as row 1 when available (`## Availability`) and is `[recommended]` when `Blockers` is empty, else `[recommended]` stays on the consent row's first row; `merge` is omitted (`Not offered: merge (workflow run awaiting approval)`); once the held-run-not-approvable local run exists, this overlay no longer applies and `merge` follows the preconditions |
@@ -161,9 +164,10 @@ Informational - the ticket's rows are unchanged. PR https://github.com/acme/widg
 - [ ] The reports page offers an Export CSV button. - covered
 - [ ] Exports are emailed to the requesting user. - deferred per spec to acme/widgets#46
 
-1. post coverage to ticket - comment the block above on acme/widgets#45
-2. post coverage to PR - comment the block above on the PR
-3. show evidence - gate output, CI run
-4. stop - leave the PR as-is                                        [recommended]
+1. cleanup - remove .worktrees/pr-210 and branch csv-export, pull main, then close ticket (gh issue close 45 --comment "Delivered in https://github.com/acme/widgets/pull/210, merged 9f1c2d3e4b5a6978.") [recommended]
+2. post coverage to ticket - comment the block above on acme/widgets#45
+3. post coverage to PR - comment the block above on the PR
+4. show evidence - gate output, CI run
+5. stop - leave the PR as-is; .worktrees/pr-210 and branch csv-export stay
 Type a number.
 ```

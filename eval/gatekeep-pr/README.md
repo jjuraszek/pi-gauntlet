@@ -1,6 +1,6 @@
 # gatekeep-pr sync and decision-grants eval
 
-Thirty-eight synthetic digest samples test command and helper narration through the first menu or an `## Entry` continuation state. The inventory covers sync and scoped-test push holds; permissions, helpers, and other-author confirmation; blocker-only and one-shot nit fixes; reviewed carried-set retries; separate fix/base grants and named-fix limits; missing, mismatched, revoked, and Claude Code continuation state; shared repair budgets, no-progress stops, contract decisions, and bounded polling; exact description corrections, uncertainty, independent test/scope blockers, stale proposals, concurrent edits, write failures, and mixed file/body progress. Samples and must-hold facts live under `samples/`; the current change intent is in `intent.md`.
+Forty-three synthetic digest samples test command and helper narration through the first menu or an `## Entry` continuation state. The inventory covers sync and scoped-test push holds; permissions, helpers, and other-author confirmation; blocker-only and one-shot nit fixes; reviewed carried-set retries; separate fix/base grants and named-fix limits; missing, mismatched, revoked, and Claude Code continuation state; shared repair budgets, no-progress stops, contract decisions, and bounded polling; exact description corrections, uncertainty, independent test/scope blockers, stale proposals, concurrent edits, write failures, and mixed file/body progress. Samples and must-hold facts live under `samples/`; the current change intent is in `intent.md`.
 
 | Skill file loaded |
 |---|
@@ -9,6 +9,7 @@ Thirty-eight synthetic digest samples test command and helper narration through 
 | `skills/gatekeep-pr/reference/decision-menu.md` |
 | `skills/gatekeep-pr/reference/findings.md` |
 | `skills/gatekeep-pr/reference/post-selection-loop.md` |
+| `skills/gatekeep-pr/reference/cleanup.md` |
 | `skills/gatekeep-pr/reference/fix-wave.md` |
 | `skills/gatekeep-pr/reference/report.md` |
 | `skills/gatekeep-pr/verification-brief.md` |

@@ -10,7 +10,7 @@ Read from SKILL.md step 2. Input: the step-1 digest. Output: a provisioned workt
 | The default path `.worktrees/pr-<N>` exists but holds a different branch | STOP and surface; never repurpose | STOP and surface; never repurpose | - |
 | Nothing exists (an overrides worktree wrapper can relocate it, following `using-git-worktrees` conventions, gitignore-first) | Create at `.worktrees/pr-<N>`; `git fetch origin` + `git worktree add .worktrees/pr-<N> <headRefName>`; verify post-checkout that HEAD == the digest's `headRefOid` | Create at `.worktrees/pr-<N>`; `git fetch origin pull/<N>/head:pr-<N>` first, then add on that local branch; verify post-checkout that HEAD == the digest's `headRefOid` | - |
 
-Record create-vs-reuse; it drives teardown (`post-selection-loop.md` `### Teardown`).
+Record the digest's `worktree` block (`../verification-brief.md`): `path`, `branch` (the actual local branch - `headRefName`, `pr-<N>`, or whatever a wrapper created), `created` (true when this run created it), and `destroy` (the exact destroy invocation when a `worktree wrapper` created it, else null). `cleanup.md` reads it; `post-selection-loop.md` `### Teardown` points there.
 
 Then set the digest's `permissions.head_pushable` (`../verification-brief.md` Section A): `git -C <worktree> push --dry-run --no-verify --no-follow-tags <head_url> HEAD:refs/heads/<head_ref>` exit 0 is `true`, a non-zero exit is `false`, when `head_url` is `unreadable`, `head_pushable` is `unreadable` and the probe does not run. The probe records observed authorization; a real push the server rejects (branch protection) is reported as that push's failure.
 
@@ -21,7 +21,7 @@ When the digest reported `mergeable: UNKNOWN` or `mergeStateStatus: UNKNOWN`, re
 Resolve per concern, first match wins, evaluated unconditionally - never delegated to a wrapper skill:
 
 1. **Repo root `REVIEW.md`** (rubric concerns only). Wins over the shipped baseline and reviewer-persona defaults on any conflict.
-2. **Gauntlet overrides file** (`.pi/gauntlet-overrides.md`, `<repo root>/gauntlet-overrides.md`, `<repo root>/doc/gauntlet-overrides.md`; first found wins): the `## PR gate` section below. An existing `## verification-before-completion` section is an accepted equivalent source for the verification command.
+2. **Gauntlet overrides file** (`.pi/gauntlet-overrides.md`, `<repo root>/gauntlet-overrides.md`, `<repo root>/doc/gauntlet-overrides.md`; first found wins): the `## PR gate` section below. The same file's `## cleanup` section is the second gatekeep-read section: an ordered list of `<label>: <command or /skill:... invocation>` items with placeholders `<issue>`, `<pr>`, `<merge-sha>`, read from the merge-base like `## PR gate` and consumed by `cleanup.md`; a PR that edits it is review subject matter, never this run's config. Git teardown and base sync are implied and never listed; the release skill's own propose step supplies the recommended level and pauses for the pick, and a repo that wants no pause writes the level in the item. An existing `## verification-before-completion` section is an accepted equivalent source for the verification command.
 3. **Repo documentation** - an explicitly documented command or tool (`AGENTS.md`'s canonical test entrypoint, a documented worktree wrapper, a documented tracker CLI, documented merge policy or branch rules). Reading documentation is not inference. Discovery-only: never tell consumers to add gatekeep-pr configuration here.
 4. **Ask the user.** Never guess from lockfiles, file heuristics, or vibes.
 
@@ -39,7 +39,7 @@ Resolve per concern, first match wins, evaluated unconditionally - never delegat
 
 Read every ladder source from the **merge-base of the PR's base branch**, never from the PR's head tree - a PR cannot weaken its own rubric or swap the command that will gate it: `MB=$(git merge-base origin/<baseRefName> <headRefOid>)`, then `git show "$MB:<path>"` per source (`git show "$MB:REVIEW.md"`, `git show "$MB:AGENTS.md"`). A plain cwd read (`cat REVIEW.md`, the file open in the PR worktree) is invalid for any ladder source. Exception: a PR that itself changes `REVIEW.md` or the overrides file makes that diff review subject matter, surfaced as a finding - never applied to this run's configuration.
 
-**Thin-wrapper contract.** A consumer wrapper skill is a pure proxy: trigger phrases plus "follow `/skill:gatekeep-pr`" - zero configuration data. Customization lives in the repo's `REVIEW.md` (rubric) and the overrides file's `## PR gate` section (everything else); a `## comms style` section extends the wording rules in SKILL.md.
+**Thin-wrapper contract.** A consumer wrapper skill is a pure proxy: trigger phrases plus "follow `/skill:gatekeep-pr`" - zero configuration data. Customization lives in the repo's `REVIEW.md` (rubric) and the overrides file's `## PR gate` section (everything else) and `## cleanup` section (post-gate steps); a `## comms style` section extends the wording rules in SKILL.md.
 
 ## Fetch the ticket
 

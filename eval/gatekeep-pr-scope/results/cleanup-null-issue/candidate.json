@@ -1,0 +1,108 @@
+{
+  "sample": "cleanup-null-issue",
+  "arm": "candidate",
+  "skillSha": "ef0c418ba747cd021cf50c7c3f596dc67c76f3dd4ca0c88caca86dc806aa9efd",
+  "inputSha": "95ff95f49169faff5a76204e27ef82d34cd92198216ba1c66bc9b81fbe268705",
+  "kind": "text",
+  "assembly": "headed",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "## Report and menu\n\n```\nDelivers: the reports page exports reports as CSV on demand, with every table column and bounded paging. ACs 1, 2, 4; 3, 5 deferred per spec to acme/widgets#46; 4's observable half (export completes under 5s on production data) is checked after merge, not here.\n\nNits:\n- The export pages results with its own loop instead of the shared paging helper, so a paging bug fixed once would need fixing twice. (src/api/export.ts:31, lib/page.ts)\n1 nit open - fix nits to take them\n\nVerdict: mergeable - CI green on the assessed head (test)\n\n1. merge - squash onto main [recommended]\n2. fix nits - apply the one-shot nit payload in the worktree, review the wave, push\n3. show evidence - gate output, CI run\n4. stop - leave the PR as-is\nType a number.\n```\n\n## Executing the pick: `merge`\n\n**1. Compare-and-swap.** Re-fetch the live state and confirm the target:\n\n```bash\ngh pr view 210 -R acme/widgets --json headRefOid,state,mergeable,mergeStateStatus,body,baseRefName\n```\n\nEach of these must match the assessed state: head unchanged, `OPEN`, `MERGEABLE`, `CLEAN`, body unchanged, and `baseRefName` equal to `main`.\n\n**2. Full comment refetch and reconciliation.** This covers `### Re-render` steps 1-5:\n\n```bash\ngh api repos/acme/widgets/pulls/210/comments --paginate\ngh api repos/acme/widgets/issues/210/comments --paginate\n```\n\nThe refetch found no new comments and no changed-body comments. There are no placeholder rows and no reviewer workflow is known, so nothing aborts the merge.\n\n**3. Merge with the default policy (squash):**\n\n```bash\ngh pr merge 210 -R acme/widgets --squash --match-head-commit <assessed headRefOid>\n```\n\n**4. Post-merge read:**\n\n```bash\ngh pr view 210 -R acme/widgets --json state,mergeCommit\n```\n\nThe read returned `state: MERGED` and `mergeCommit.oid 9f1c2d3e4b5a6978`. I wrote `pr.state = MERGED` and `pr.merge_commit = 9f1c2d3e4b5a6978` to the digest.\n\n## Post-merge render (own merge overlay)\n\n```\n## AC coverage\nInformational - the ticket's rows are unchanged. PR https://github.com/acme/widgets/pull/210, merged 9f1c2d3e4b5a6978, spec doc/specs/2026-09-30-csv-export.md\n- [ ] AC1 The reports page offers an Export CSV button. - covered\n- [ ] AC2 The export includes every column shown in the table. - covered\n- [ ] AC3 Exports are emailed to the requesting user. - deferred per spec to acme/widgets#46\n- [ ] AC4 The export completes under 5s on production data. - covered; observable half checked after merge\n- [ ] AC5 Export events appear in the audit log. - deferred per spec to acme/widgets#46\n\n1. cleanup - remove .worktrees/pr-210 (untracked files there are deleted) and branch csv-export, pull main, then close ticket (skipped - no issue resolved), release (/skill:release) [recommended]\n2. post coverage to PR - comment the block above on the PR\n3. show evidence - gate output, CI run\n4. stop - leave the PR as-is; .worktrees/pr-210 and branch csv-export stay\nType a number.\n```\n\n`post coverage to ticket` is not rendered because `issue` is null.\n\n## Handling the reply: `cleanup`\n\nThe primary checkout is the parent of `rev-parse --git-common-dir`, and it is on `main`. Every command below runs as `git -C <primary>`.\n\n**1. Worktree.** The worktree is eligible for removal:\n- It is not the primary checkout.\n- It is tracked-clean.\n- The PR has landed.\n- HEAD is an ancestor of the assessed head.\n- `worktree.created` is true and `worktree.destroy` is null.\n\n```bash\ngit -C <primary> worktree remove --force .worktrees/pr-210\ngit -C <primary> worktree prune\n```\n\n**2. Branch.** The PR has landed and no worktree holds `csv-export`:\n\n```bash\ngit -C <primary> branch -D csv-export\n```\n\n**3. Base.** The primary checkout is on `main` and tracked-clean:\n\n```bash\ngit -C <primary> fetch origin\ngit -C <primary> pull --ff-only\ngit -C <primary> merge-base --is-ancestor 9f1c2d3e4b5a6978 HEAD   # succeeds\n```\n\n**4. Override steps.**\n- **close ticket:** The landed-change guard passes. Substituting `<issue>` gives null, so nothing runs.\n- **release:** The base step printed `synced`, so I invoke `/skill:release` with no level. Its propose-then-pick gate pauses at the level pick.\n\nOutput:\n\n```\nworktree: done\nbranch: done\nbase: synced <primary HEAD after pull, contains 9f1c2d3e4b5a6978>\nclose ticket: skipped - no issue resolved\nrelease: invoked /skill:release - paused at its level pick\n```\n\nThe `node_modules/` directory, which was untracked, was deleted with the worktree.\n\nI set `cleanup_done = true` and re-rendered the same terminal menu without the `cleanup` row:\n\n```\n1. post coverage to PR - comment the AC coverage block on the PR [recommended]\n2. show evidence - gate output, CI run\n3. stop - leave the PR as-is and end the run\nType a number.\n```\n\nThe continuation record, helper output files, and log paths stay in place for now. They are deleted at terminal exit (`### Teardown`), not by `cleanup`.\n",
+      "words": 683,
+      "wallMs": 42655,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "Delivers: the reports page downloads CSV with every table column and bounded paging. ACs 1, 2, 4; 3, 5 deferred per spec to acme/widgets#46; 4's observable half (completion under 5s on production data) is checked after merge, not here.\n\nVerdict: mergeable - CI green on the assessed head (test)\n\n## AC coverage\nInformational - the ticket's rows are unchanged. PR https://github.com/acme/widgets/pull/210, merged 9f1c2d3e4b5a6978, spec doc/specs/2026-09-30-csv-export.md\n- [ ] AC1 The reports page offers an Export CSV button. - covered\n- [ ] AC2 The export includes every column shown in the table. - covered\n- [ ] AC3 Exports are emailed to the requesting user. - deferred per spec to acme/widgets#46\n- [ ] AC4 The export completes under 5s on production data. - covered; observable half checked after merge\n- [ ] AC5 Export events appear in the audit log. - deferred per spec to acme/widgets#46\n\n1. cleanup - remove .worktrees/pr-210 (untracked files there are deleted) and branch csv-export, pull main, then close ticket (skipped - no issue resolved), release (/skill:release) [recommended]\n2. post coverage to PR - comment the coverage block above on the PR\n3. show evidence - show gate evidence, claim and AC outcomes, and drafted payloads\n4. stop - leave .worktrees/pr-210 and branch csv-export as found\nType a number.\n\n### Selected: cleanup\n\nThe merge and its confirming read already succeeded in the fixture, so neither is repeated. Below, `<primary>` denotes the primary checkout's absolute path, which the fixture does not supply; these are the commands for the simulated cleanup, not claims of tool execution.\n\n```bash\ngit -C \"<primary>\" worktree remove --force .worktrees/pr-210\ngit -C \"<primary>\" worktree prune\ngit -C \"<primary>\" branch -D csv-export\ngit -C \"<primary>\" fetch origin\ngit -C \"<primary>\" pull --ff-only\ngit -C \"<primary>\" merge-base --is-ancestor 9f1c2d3e4b5a6978 HEAD\n```\n\nThe worktree removal deletes its untracked `node_modules/` directory. No `gh issue close` command runs because no issue is resolved.\n\nThe release invocation is:\n\n```text\n/skill:release\n```\n\nNo release level was selected, so this invocation retains the release skill's propose-then-pick gate.\n\nworktree: done  \nbranch: done  \nbase: synced 9f1c2d3e4b5a6978  \nclose ticket: skipped - no issue resolved  \nrelease: invoked /skill:release - paused at its level pick\n\n1. post coverage to PR - comment the coverage block above on the PR [recommended]\n2. show evidence - show gate evidence, claim and AC outcomes, and drafted payloads\n3. stop - leave the PR as-is with the gate worktree and local branch removed\nType a number.\n",
+      "words": 370,
+      "wallMs": 32028,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "b42679f5cc744c2b8ef5926a81acdc69edc0862500f5c2a4a55ba472d5f052a4",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "ea58ee7ec87cd97b1383c86b1bbeec03e75210853cd9a81e1110a346447723bf",
+      "baselineOutputSha": "5ebe38123e700819f5fb407a8722d856cf9d2a1439f710eb864e363778d028f5",
+      "candidateOutputSha": "193f38db7076403ab9438a7b58abb4fcde97ceb33087a1825f37476b6b55a07e",
+      "facts": {
+        "f1": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "f2": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "f3": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "f4": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "f5": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        }
+      },
+      "feedback": "After delivers the Change cleanly: the post-merge menu offers cleanup as row 1 recommended with stop last naming the leftover worktree and branch; the cleanup pick removes .worktrees/pr-210 with worktree remove --force plus prune, runs git branch -D csv-export, fetches and pulls --ff-only on the primary and prints `base: synced`, prints `close ticket: skipped - no issue resolved` with no gh issue close, invokes /skill:release with no level and pauses at its level pick, and re-renders without the cleanup row while keeping show evidence. Nothing that Before kept was lost - f5 is the only fact Before already satisfied, trivially, because Before's refused-cleanup re-render never had a cleanup row and still listed show evidence, and After keeps it. One thing to watch in the wording: After's close-ticket line says the guard 'passes' and then 'nothing runs' because `<issue>` is null; keep the explicit 'skipped - <reason>' phrasing in both the prose and the output block (as After's output block does) so the guard/skip distinction stays unambiguous, and keep the re-rendered menu's stop row free of teardown language since teardown has already happened.",
+      "verdict": "improved"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "b42679f5cc744c2b8ef5926a81acdc69edc0862500f5c2a4a55ba472d5f052a4",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "ea58ee7ec87cd97b1383c86b1bbeec03e75210853cd9a81e1110a346447723bf",
+      "baselineOutputSha": "a64a23108a046c9844becd28e3d175ddc34b267e59041d9e1c9d979499165e40",
+      "candidateOutputSha": "40a1a6c0a67b4d84f633324c01252e5ae6ff8f47067c3b5544ee9bdf64feed24",
+      "facts": {
+        "f1": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "f2": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "f3": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "f4": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "f5": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        }
+      },
+      "feedback": "After delivers the Change cleanly: the post-merge menu puts cleanup at row 1 recommended with stop last naming the leftover worktree and branch, and the cleanup pick removes .worktrees/pr-210, runs git branch -D csv-export, fetches and pulls --ff-only, prints the status block with 'base: synced', 'close ticket: skipped - no issue resolved' (no gh issue close emitted), and invokes /skill:release without choosing a level, then re-renders without a cleanup row while keeping show evidence. Nothing regressed versus Before; note that f5 is trivially satisfied by Before too because its menu never contained a cleanup row, so that fact only discriminates if read as 'after cleanup ran'. One thing worth tightening in After: the 'Nits' section and the 'fix nits' row present in Before vanished from the pre-merge rendering, and the post-cleanup menu's stop row reads 'leave the PR as-is' alongside 'with the gate worktree and local branch removed', which is slightly contradictory—consider 'stop - end the run (worktree and branch already removed)'. Also consider keeping the pre-merge nit block so the cleanup wording change doesn't silently drop reviewer findings.",
+      "verdict": "improved"
+    }
+  },
+  "repoSha": "6f235717ae0b38aeca15a0227eaec665c938541a"
+}

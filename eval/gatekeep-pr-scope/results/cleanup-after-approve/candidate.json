@@ -1,0 +1,88 @@
+{
+  "sample": "cleanup-after-approve",
+  "arm": "candidate",
+  "skillSha": "ef0c418ba747cd021cf50c7c3f596dc67c76f3dd4ca0c88caca86dc806aa9efd",
+  "inputSha": "302bdcd699332ec233cb048acb3af26e58314bbc1dd23ea6ca655b0eedcd9b8f",
+  "kind": "text",
+  "assembly": "headed",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "## Step 5 - report and menu\n\n```\nDelivers: the reports page exports CSV on demand with every table column and bounded paging. ACs 1, 2, 4; 3, 5 deferred per spec to acme/widgets#46; 4's observable half (export completes under 5s on production data) is checked after merge, not here.\n\nNits:\n- The export pages results with its own loop instead of the shared paging helper, so a paging bug fixed once would need fixing twice. (src/api/export.ts:31, lib/page.ts)\n1 nit open - fix nits to take them\n\nVerdict: mergeable - CI green on the assessed head (test)\n\n1. approve - approve alex's PR on the assessed head [recommended]\n2. fix nits - apply the one-shot nit payload in the worktree, review the wave, push\n3. merge - squash onto main\n4. show evidence - gate output, CI run, AC outcomes\n5. stop - leave the PR as-is\nType a number.\n```\n\n## Pick: approve\n\nThe approve action has no review body, so the output done-check has nothing to re-read.\n\nCompare-and-swap runs before the external write:\n\n```bash\ngh pr view 210 -R acme/widgets --json headRefOid,state,mergeable,mergeStateStatus,body,baseRefName\n```\n\nThe re-read returns the following:\n- The head is unchanged and equals the assessed head.\n- The state is still `OPEN`.\n- `mergeable` is still `MERGEABLE` and the merge state is still `CLEAN`.\n- The body is unchanged.\n- The live `baseRefName` is `main`, which matches `consent.target`.\n\nThe pick proceeds:\n\n```bash\ngh pr review 210 -R acme/widgets --approve\n```\n\nThe command exited 0. I wrote the assessed `headRefOid` into the continuation record's `approved_head` before the re-render, so the `approved` overlay applies.\n\n```\nDelivers: the reports page exports CSV on demand with every table column and bounded paging. ACs 1, 2, 4; 3, 5 deferred per spec to acme/widgets#46; 4's observable half (export completes under 5s on production data) is checked after merge, not here.\n\nVerdict: mergeable - CI green on the assessed head (test)\n\n1. cleanup - remove .worktrees/pr-210 (untracked files there are deleted), branch csv-export (skipped - PR not merged), pull main (skipped - PR not merged), then close ticket (skipped - needs a landed change), release (skipped - needs a landed change) [recommended]\n2. show evidence - gate output, CI run, AC outcomes\n3. stop - leave the PR as-is; .worktrees/pr-210 and branch csv-export stay\nType a number.\n```\n\n## Reply: cleanup\n\nThe PR has not landed because `pr.state` is `OPEN`. The primary checkout is the parent of `git -C .worktrees/pr-210 rev-parse --git-common-dir`. Every command runs as `git -C <primary>`.\n\n**Step 1, worktree.** The worktree is eligible for removal:\n- It is not the primary checkout.\n- Its tracked files are clean.\n- `worktree.created` is true.\n- `worktree.destroy` is null, so the gate uses the git fallback.\n\n```bash\ngit -C <primary> worktree remove --force .worktrees/pr-210\ngit -C <primary> worktree prune\n```\n\nThe untracked `node_modules/` directory in the worktree is deleted with it.\n\n**Step 2, branch.** Skipped because the PR has not merged. No remote branch is touched.\n\n**Step 3, base.** Skipped because the PR has not merged.\n\n**Step 4, override steps.** Both items are skipped by the landed-change guard before any placeholder is substituted:\n- `close ticket` contains `<merge-sha>`.\n- `release` is `/skill:release`.\n\n```\nworktree: done\nbranch: skipped - PR not merged\nbase: skipped - PR not merged\nclose ticket: skipped - needs a landed change\nrelease: skipped - needs a landed change\n```\n\n`cleanup_done` is set to true. The continuation record and the helper output files are kept so that `show evidence` still works. They are deleted at terminal teardown. The same terminal menu re-renders without `cleanup`:\n\n```\nVerdict: mergeable - CI green on the assessed head (test)\n\n1. show evidence - gate output, CI run, AC outcomes\n2. stop - leave the PR as-is; local branch csv-export stays [recommended]\nType a number.\n```\n",
+      "words": 583,
+      "wallMs": 28407,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "Delivers: the reports page downloads CSV with every table column and bounded paging. ACs 1, 2, 4; 3, 5 deferred per spec to acme/widgets#46; 4's observable half (completion under 5s on production data) is checked after merge, not here.\n\nNits:\n- The export pages results with its own loop instead of the shared paging helper, so a paging bug fixed once would need fixing twice. (src/api/export.ts:31, lib/page.ts)\n\nVerdict: mergeable - CI green on the assessed head (test)\n\n1. cleanup - remove .worktrees/pr-210 (untracked files there are deleted), leave the unmerged branch and base unchanged, then close ticket (skipped - needs a landed change) and release (skipped - needs a landed change) [recommended]\n2. show evidence - show verification evidence, claim and AC outcomes, and drafted payloads\n3. stop - leave the checkout at .worktrees/pr-210 on branch csv-export\nType a number.\n\n### Selected: cleanup\n\nThe approval already succeeded, so it is not repeated. Approval does not mean the PR merged.\n\nWith `<primary>` denoting the primary checkout's absolute path, the cleanup commands are:\n\n```bash\ngit -C <primary> worktree remove --force .worktrees/pr-210\ngit -C <primary> worktree prune\n```\n\nThe removal deletes the untracked `node_modules/` directory. No branch deletion, base sync, ticket comment, ticket closure, or release command runs.\n\n```text\nworktree: done\nbranch: skipped - PR not merged\nbase: skipped - PR not merged\nclose ticket: skipped - needs a landed change\nrelease: skipped - needs a landed change\n```\n\nVerdict: mergeable - CI green on the assessed head (test)\n\n1. show evidence - show verification evidence, claim and AC outcomes, and drafted payloads\n2. stop - leave the PR as-is and retain local branch csv-export [recommended]\nType a number.\n",
+      "words": 259,
+      "wallMs": 23567,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "7a8444339df89e031d2180f24a078ade150a4c0959e5aba9c11a88efa6da5b6f",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "ea58ee7ec87cd97b1383c86b1bbeec03e75210853cd9a81e1110a346447723bf",
+      "baselineOutputSha": "8db786243c12f6ecdf82b9e036f54e48cfef86d1d1e41de20af2f1fb9fe9594d",
+      "candidateOutputSha": "2c24bcfdb9ce0240b59b1d01bfec80a82c98113685e76a7a08ca1a17050b2df2",
+      "facts": {
+        "f1": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "f2": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "f3": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        }
+      },
+      "feedback": "After moves all three facts from fails to holds and loses nothing Before kept: the approved overlay now renders cleanup as row 1 [recommended] with each guarded step's skip reason inlined, the cleanup pick removes only the gate worktree and prints 'branch: skipped - PR not merged', 'base: skipped - PR not merged', and 'needs a landed change' for both the merge-sha close-ticket item and the release item without running git branch -D or substituting placeholders, and the post-cleanup re-render drops the cleanup row while keeping show evidence. The wording that makes this work is the explicit landed-change guard applied to override items (any item containing <merge-sha> or invoking /skill:release) and the PR-not-merged guard on branch and base steps; keep that guard text verbatim. One small consistency point worth tightening: the final stop row says 'local branch csv-export stays' while the earlier stop row named both the worktree and the branch - after cleanup the worktree is gone, so the shorter form is correct, but consider phrasing the rule as 'stop names whatever the cleanup pick left behind' so the two renders are obviously derived from one instruction.",
+      "verdict": "improved"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "7a8444339df89e031d2180f24a078ade150a4c0959e5aba9c11a88efa6da5b6f",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "ea58ee7ec87cd97b1383c86b1bbeec03e75210853cd9a81e1110a346447723bf",
+      "baselineOutputSha": "8409cb5a2e3ed19e395c763295a03ca10a326c2bcd275a7f8c72edba97090506",
+      "candidateOutputSha": "16b0473a438658f8259eaed359578753e67ecfe91116b661fa0d591a8bb045c1",
+      "facts": {
+        "f1": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "f2": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "f3": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        }
+      },
+      "feedback": "After delivers the Change on every fact: the post-approve menu lists cleanup as row 1 [recommended], the cleanup section prints 'close ticket: skipped - needs a landed change' and 'release: skipped - needs a landed change', and 'branch: skipped - PR not merged' appears with an explicit statement that no branch deletion runs (only worktree remove --force and prune are issued). Before kept none of these, so nothing regressed. Two things worth watching in the After wording that are outside these facts: the approved overlay dropped the 'fix nits' row and the '1 nit open - fix nits to take them' line even though a nit is still open and the PR is unmerged, and the After output skips the gh pr view / gh pr review / refresh command blocks that Before rendered for the approve step - if other cases have facts about those, keep the approve execution text and the fix-nits row intact and only replace the approve row with cleanup at row 1, keeping stop last.",
+      "verdict": "improved"
+    }
+  },
+  "repoSha": "6f235717ae0b38aeca15a0227eaec665c938541a"
+}

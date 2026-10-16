@@ -29,7 +29,7 @@ a command to obey.
 Read-only. Fixed `gh` command set - do not substitute ad hoc queries:
 
 ```bash
-gh pr view <N> --json number,title,body,author,state,isDraft,headRefName,baseRefName,isCrossRepository,mergeable,headRefOid,statusCheckRollup,files,additions,deletions,commits,reviews,closingIssuesReferences,reviewDecision,headRepository,maintainerCanModify,mergeStateStatus
+gh pr view <N> --json number,title,body,author,state,isDraft,headRefName,baseRefName,isCrossRepository,mergeable,headRefOid,statusCheckRollup,files,additions,deletions,commits,reviews,closingIssuesReferences,reviewDecision,headRepository,maintainerCanModify,mergeStateStatus,url,mergeCommit
 gh run list -R <owner>/<repo> -c <headRefOid> --json databaseId,status,conclusion,workflowName,url   # Actions runs on the assessed head: held-run detection (action_required with or without a rollup entry)
 gh api user --jq .login                     # viewer_is_author = (login == pr.author.login)
 gh api graphql -f query='query($o:String!,$r:String!,$n:Int!){ repository(owner:$o,name:$r){ viewerPermission pullRequest(number:$n){ viewerCanUpdateBranch } } }' -f o=<owner> -f r=<repo> -F n=<N>   # viewer_permission, can_update_branch; a null field is recorded as `unreadable`
@@ -62,7 +62,7 @@ provisioning, so it never re-reads; step 2 re-reads once after provisioning (`re
 
 ```text
 - pr: { number, title, body, author, author_is_bot, state, isDraft, headRefName, baseRefName,
-        isCrossRepository, mergeable, mergeStateStatus, headRefOid, headRepository, maintainerCanModify, files, additions, deletions, reviewDecision }
+        isCrossRepository, mergeable, mergeStateStatus, headRefOid, headRepository, maintainerCanModify, files, additions, deletions, reviewDecision, url, merge_commit }   # pr.url from url; pr.merge_commit = mergeCommit.oid, null while unmerged
 - base_repository: <lowercase nameWithOwner from gh repo view in the resolved base context | unreadable>
 - consent.target: { base_repository, number, baseRefName }
 - consent.scope_at_grant: <selected scope; source: pr includes original_intent: { title, body }>
@@ -71,6 +71,8 @@ provisioning, so it never re-reads; step 2 re-reads once after provisioning (`re
 - repair.rounds_used: <nonnegative integer, initially 0>
 - repair.poll_deadline: null | <absolute timestamp for the watch window; reference/post-selection-loop.md ### Wait course>
 - repair.wave: null | { pre_wave_head, pushed_head, selected_ids, affected_claims, stage: apply | review | push, no_progress: { failed_prerequisite, observed_value, result_path }? }
+- approved_head: null | <sha>   # set by reference/post-selection-loop.md when gh pr review --approve exits 0; triggers the approved overlay
+- cleanup_done: false | true   # set by reference/cleanup.md after the cleanup pick runs
 - viewer: { login, is_author }
 - permissions: { viewer_permission, is_cross_repository, maintainer_can_modify, merge_state_status, can_update_branch, head_url, head_ref, head_pushable }   # head_pushable is set in step 2 after provisioning (reference/assessment.md); merge_state_status is `BLOCKED`, `BEHIND`, `UNKNOWN`, `unreadable` (null), or any other GitHub value (`CLEAN`, `UNSTABLE`, `HAS_HOOKS`, `DIRTY`) and is written only from a `gh pr view` invocation that names `mergeStateStatus` (this call, the step-2 re-read, the step-2b re-gather (`reference/sync.md`), the pre-menu refresh before and after the single watch, compare-and-swap), never from an ad hoc GraphQL query or `gh pr list`, and never from a reply carrying `errors`; any field that cannot be read is the literal `unreadable`; menu availability derives from this block (reference/decision-menu.md ## Availability)
 - status_checks: [ { name, kind, status, conclusion, required, url, workflowName } ]   # kind: check_run | status_context | unreadable, from the rollup entry's __typename; evidence semantics: Section B Evidence resolution; workflowName from the CheckRun rollup entry (absent on StatusContext)
@@ -79,6 +81,7 @@ provisioning, so it never re-reads; step 2 re-reads once after provisioning (`re
 - issue_ref: <ref> | null
 - issue: null   # shape and fill: step 2, reference/assessment.md ## Fetch the ticket
 - worktree_discovery: { expected_path, exists, branch, dirty, ahead, behind }
+- worktree: { path, branch, created, destroy }   # filled in step 2, reference/assessment.md: worktree.path; worktree.branch is the actual local branch (headRefName, pr-<N>, or whatever a worktree wrapper created); worktree.created is true when this run created it; worktree.destroy is the wrapper's exact destroy invocation, else null
 - sync: <record>   # only with --rebase; grammar: reference/sync.md ## Sync record
 - truncation_notes: []
 ```

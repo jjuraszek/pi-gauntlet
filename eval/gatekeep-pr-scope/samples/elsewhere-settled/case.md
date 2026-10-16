@@ -1,5 +1,5 @@
 ## PR
-acme/widgets#210 "Export reports as CSV" by maria (you are maria; viewer_permission WRITE; state OPEN; not draft; head_pushable true; mergeable MERGEABLE)
+acme/widgets#210 "Export reports as CSV" by maria (you are maria; viewer_permission WRITE; state OPEN; not draft; head_pushable true; mergeable MERGEABLE; merge_state_status CLEAN)
 Body: Add on-demand CSV export from the reports page. Email delivery and audit events belong to acme/mailer; this PR delivers the button, all table columns, and bounded paging.
 Spec: doc/specs/2026-09-30-csv-export.md
 

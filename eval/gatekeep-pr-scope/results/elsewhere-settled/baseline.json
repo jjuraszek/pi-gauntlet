@@ -1,8 +1,8 @@
 {
   "sample": "elsewhere-settled",
   "arm": "baseline",
-  "skillSha": "8b13f632c02f583a411a8ffb3b70a330dc432c8d6afe6fd88239067cf4cff1fa",
-  "inputSha": "63f9de6a132bd835e2703027b72202e2e49229155f489dd54db46f7c48ec3b1f",
+  "skillSha": "fb43a9f15b755095150d6658f9a74d67d0a1e2c52b1d8046836ecf9ba74a03e7",
+  "inputSha": "a506df30230611a350a2e2a18676e71f194105a51559ab113201c6b0191e3b2f",
   "kind": "text",
   "assembly": "headed",
   "thinking": "medium",
@@ -17,18 +17,18 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "```\nDelivers: the reports page exports any report as CSV on demand, with every table column and bounded paging. ACs 2, 4; 4's observable half (export completes under 5s on production data) is checked after merge, not here.\n\nNits:\n- The export pages results with its own loop instead of the shared paging helper, so a paging bug fixed once would need fixing twice. (src/api/export.ts:31, lib/page.ts)\n1 nit open - fix nits to take them\n\nBlockers:\n1. The Export CSV button ships with no test, so nothing proves the reports page offers it or that it downloads the handler response. (src/ui/reports.tsx)\n2. The spec marks the email-delivery row as handled elsewhere without naming a ticket, spec, or URL, so the row is neither covered here nor recorded as deferred anywhere. (doc/specs/2026-09-30-csv-export.md, \"Exports are emailed to the requesting user.\")\n3. The spec marks the audit-log row the same way, so nothing records where audit events ship and the row is left unsettled. (doc/specs/2026-09-30-csv-export.md, \"Export events appear in the audit log.\")\n\nVerdict: fixable - 3 blockers\n\n1. fix - apply the three blockers in the worktree, review the wave, push        [recommended]\n2. fix nits - apply the nit payload in the worktree, review the wave, push\n3. review - post the blockers as a comment on your PR\n4. show evidence - gate output, CI run, drafted edits\n5. stop - leave the PR as-is\nType a number, or compose: \"fix 2\", \"fix nits\", \"fix + nits\".\n```\n\n**Why rows 3 and 5 are blockers.** The spec gives both rows the disposition `elsewhere: acme/mailer`. The gate settles a row only as `deferred: <ref>` with a non-empty ref, or as `deviates: <why>`. `findings.md` says any other uncovered row is a `gap`.\n\nReading the token as a deferral does not help. `acme/mailer` is a bare repository name. It is not a tracker ref (`owner/repo#N`), a spec path, or a URL, so the `ref` is empty, and an empty `ref` is still a `gap`.\n\nThe drafted payload changes each row to `deferred: acme/mailer#<n>` through brainstorming's amendment path. It stays undrafted-applied until a `fix` pick and prints under `show evidence`. The PR body's claim that these rows \"belong to acme/mailer\" is a lead, not evidence.\n\n**Why AC1 is a blocker.** An executable AC needs the code path plus a real test that exercises it. `test/api/export.test.ts` covers only the handler, and no test touches the button.\n\n**Not in the report:** the cross-check is `matched`, and the `test` check is green on the assessed head. Both print only under `show evidence`.\n\n**Pick:** none, so nothing executes.\n",
-      "words": 417,
-      "wallMs": 34564,
+      "text": "```\nDelivers: the reports page exports its table as CSV on demand, with paging capped at 100 rows and a 4s deadline. ACs 1, 2, 4; 3, 5 elsewhere per spec: acme/mailer; 4's observable half (export completes under 5s on production data) is checked after merge, not here.\n\nNits:\n- The export pages results with its own loop instead of the shared paging helper, so a paging bug fixed once would need fixing twice. (src/api/export.ts:31, lib/page.ts)\n1 nit open - fix nits to take them\n\nVerdict: mergeable - CI green on the assessed head (test)\n\n1. merge - squash onto the base branch                                    [recommended]\n2. fix nits - apply the one-shot nit payload in the worktree, review the wave, push\n3. show evidence - gate output, CI run\n4. stop - leave the PR as-is\nType a number.\n```\n",
+      "words": 130,
+      "wallMs": 14569,
       "mechanical": {}
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "Delivers: the reports page downloads CSV on demand with all table columns and bounded paging. ACs 1, 2, 4; 4's observable half (export completes under 5s on production data) is checked after merge, not here.\n\nPR comments:\n- GitHub has not reported this actor's merge state, so merge waits. (merge state not refreshed (no tool available))\n\nNits:\n- The export pages results with its own loop instead of the shared paging helper, so a paging bug fixed once would need fixing twice. (src/api/export.ts:31, lib/page.ts)\n\nBlockers:\n1. Exports are not emailed to the requesting user, and the spec's `elsewhere: acme/mailer` annotation supplies no valid deferral to a ticket, spec, or URL. The missing email mechanism remains unsettled scope. (doc/specs/2026-09-30-csv-export.md, AC3)\n2. Export events do not appear in the audit log, and the spec's `elsewhere: acme/mailer` annotation supplies no valid deferral to a ticket, spec, or URL. The missing audit mechanism remains unsettled scope. (doc/specs/2026-09-30-csv-export.md, AC5)\n\nVerdict: fixable - 2 blockers\n\n1. review - post the blockers as a comment on your PR [recommended]\n2. show evidence - show CI evidence, claim dispositions, and AC outcomes\n3. stop - leave the PR as-is\n\nType a number. Not offered: fix (no helper facility), fix nits (no helper facility), merge (merge state unknown and open blockers).\n",
-      "words": 206,
-      "wallMs": 28327,
+      "text": "Delivers: the reports page downloads CSV with every table column and bounded paging. ACs 1, 2, 4; 3, 5 elsewhere per spec: acme/mailer; 4's observable half (export completes under 5s on production data) is checked after merge, not here.\n\nNits:\n- The export pages results with its own loop instead of the shared paging helper, so a paging bug fixed once would need fixing twice. (src/api/export.ts:31, lib/page.ts)\n1 nit open - fix nits to take them\n\nVerdict: mergeable - CI green on the assessed head (test)\n\n1. merge - squash onto the PR's base branch [recommended]\n2. fix nits - apply the one-shot nit payload in the worktree, review the wave, and push\n3. show evidence - show the evidence record, claim and AC outcomes, and drafted payloads\n4. stop - leave the PR as-is\n\nType a number.\n",
+      "words": 131,
+      "wallMs": 8440,
       "mechanical": {}
     }
   },
-  "repoSha": "07c53575c996acf1c4e87209c4ef523dcf0b029e"
+  "repoSha": "7989d9105a7b3fc7c4dcc9823848cb38aa4eccad"
 }

@@ -1,0 +1,3 @@
+- f1: judged: After the approve succeeds the menu offers cleanup as row 1 recommended.
+- f2: judged: The release step and the merge-sha close ticket step print skipped - needs a landed change.
+- f3: judged: The output prints branch: skipped - PR not merged and no git branch -D runs.
