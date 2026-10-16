@@ -1,9 +1,11 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { mkdtempSync, existsSync, readFileSync, rmSync } from "node:fs";
+import { mkdtempSync, existsSync, readFileSync, rmSync, readdirSync, mkdirSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
 import { cellReusable, baselineFresh, judgmentCurrent, promote, readRecord, writeRecord } from "./records.mjs";
+import * as records from "./records.mjs";
+import { sha256 } from "./checks.mjs";
 
 const id = { skillSha: "s", inputSha: "i", kind: "text", assembly: "concat", thinking: "medium" };
 const rec = (over = {}) => ({ sample: "x", arm: "baseline", kind: "text", assembly: "concat", skillSha: "s", inputSha: "i", repoSha: "r",
@@ -32,14 +34,63 @@ test("judgment currency", () => {
   for (const key of Object.keys(j)) assert.equal(judgmentCurrent({ ...j, [key]: "z" }, j), false, key);
   assert.equal(judgmentCurrent(undefined, j), false);
 });
-test("promotion strips judge and relabels arm", () => {
-  const candidate = rec({ arm: "candidate", judge: { m1: {} } });
+test("promotion strips judge and refresh and relabels arm", () => {
+  const candidate = rec({ arm: "candidate", judge: { m1: {} }, refresh: { status: "complete" } });
   const p = promote(candidate);
   assert.deepEqual(p, rec());
   assert.equal("judge" in p, false);
+  assert.equal("refresh" in p, false);
+  assert.deepEqual(candidate.refresh, { status: "complete" });
   assert.equal(candidate.arm, "candidate");
   assert.deepEqual(candidate.judge, { m1: {} });
 });
+test("payload identity canonicalizes complete cells without changing text identity", () => {
+  const cell = { status: "ok", text: "reply", metadata: { words: 1, ms: 2 }, tree: [{ path: "a", text: "x" }, { path: "b", text: "y" }] };
+  const reordered = { tree: [{ text: "x", path: "a" }, { text: "y", path: "b" }], metadata: { ms: 2, words: 1 }, text: "reply", status: "ok" };
+  assert.equal(records.payloadSha(cell), records.payloadSha(reordered));
+  assert.equal(records.payloadSha(cell), sha256(JSON.stringify({ metadata: { ms: 2, words: 1 }, status: "ok", text: "reply", tree: [{ path: "a", text: "x" }, { path: "b", text: "y" }] })));
+  for (const changed of [
+    { ...cell, tree: [...cell.tree].reverse() },
+    { ...cell, metadata: { ...cell.metadata, ms: 3 } },
+    { ...cell, tree: [{ path: "a", text: "changed" }, cell.tree[1]] },
+  ]) {
+    assert.notEqual(records.payloadSha(cell), records.payloadSha(changed));
+    assert.equal(sha256(cell.text), sha256(changed.text));
+  }
+});
+
+test("atomic writes create and replace normal JSON records", (t) => {
+  const dir = mkdtempSync(join(tmpdir(), "rec-"));
+  t.after(() => rmSync(dir, { recursive: true, force: true }));
+  for (const record of [rec(), rec({ skillSha: "new" })]) {
+    records.writeRecordAtomic(dir, "x", "candidate", record);
+    assert.equal(readFileSync(join(dir, "x", "candidate.json"), "utf8"), JSON.stringify(record, null, 2) + "\n");
+    assert.deepEqual(readdirSync(join(dir, "x")), ["candidate.json"]);
+  }
+});
+
+test("atomic serialization failure preserves the old record and original error", (t) => {
+  const dir = mkdtempSync(join(tmpdir(), "rec-"));
+  t.after(() => rmSync(dir, { recursive: true, force: true }));
+  writeRecord(dir, "x", "candidate", rec());
+  const before = readFileSync(join(dir, "x", "candidate.json"), "utf8");
+  const failure = new Error("serialization failed");
+  assert.throws(() => records.writeRecordAtomic(dir, "x", "candidate", { toJSON() { throw failure; } }), (error) => error === failure);
+  assert.equal(readFileSync(join(dir, "x", "candidate.json"), "utf8"), before);
+  assert.deepEqual(readdirSync(join(dir, "x")), ["candidate.json"]);
+});
+
+test("atomic rename failure cleans the temporary JSON and preserves the destination", (t) => {
+  const dir = mkdtempSync(join(tmpdir(), "rec-"));
+  t.after(() => rmSync(dir, { recursive: true, force: true }));
+  const destination = join(dir, "x", "candidate.json");
+  mkdirSync(destination, { recursive: true });
+  writeFileSync(join(destination, "keep"), "old destination");
+  assert.throws(() => records.writeRecordAtomic(dir, "x", "candidate", rec()), { code: "EISDIR" });
+  assert.equal(readFileSync(join(destination, "keep"), "utf8"), "old destination");
+  assert.deepEqual(readdirSync(join(dir, "x")), ["candidate.json"]);
+});
+
 test("read/write round trip", (t) => {
   const dir = mkdtempSync(join(tmpdir(), "rec-"));
   t.after(() => rmSync(dir, { recursive: true, force: true }));

@@ -163,7 +163,7 @@ pi install -l ~/repos/pi-gauntlet
 
 ## Evals
 
-Run `node eval/run.mjs <target>` to check a wording change on fixed inputs: two frozen replay models produce before/after outputs, and one frozen judge checks must-hold facts against a committed `intent.md`. The [eval process](eval/README.md) explains the single driver, target and sample layout, newest-only records, and anonymization rule. Model calls run manually, never in CI; CI runs deterministic library tests, structural lint, and hygiene checks. `eval/` is checkout-only and excluded from the npm tarball.
+Run `node eval/run.mjs <target>` to check a wording change on fixed inputs: two frozen replay models produce before/after outputs, and one frozen judge checks must-hold facts against a committed `intent.md`. The [eval process](eval/README.md) explains the single driver, target and sample layout, newest-only primary replies with a bounded judgment-refresh audit, and anonymization rule. Model calls run manually, never in CI; CI runs deterministic library tests, structural lint, and hygiene checks. `eval/` is checkout-only and excluded from the npm tarball.
 
 ## Use from Claude Code
 

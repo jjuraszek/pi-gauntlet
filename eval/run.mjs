@@ -11,7 +11,7 @@ import { parseExpected, runMechanical, wordCount, sha256 } from "./lib/checks.mj
 import { scanText, scanTree, redact } from "./lib/hygiene.mjs";
 import { assemble, parseCase, textArgs, editArgs, prepareFixture, captureEdit, readTree, inputSha, baseReader, treeReader, PI_FLAGS } from "./lib/replay.mjs";
 import { parseJudgeReply, deriveLabels, cellVerdict, worseVerdict, buildJudgePrompt } from "./lib/judge.mjs";
-import { baselineFresh, judgmentCurrent, promote, readRecord, writeRecord, cellReusable } from "./lib/records.mjs";
+import { baselineFresh, judgmentCurrent, promote, readRecord, writeRecord, writeRecordAtomic, payloadSha, cellReusable } from "./lib/records.mjs";
 import { renderReport } from "./lib/report.mjs";
 import { spawnCommand, limiter } from "./lib/spawn.mjs";
 import { lintTarget } from "./lib/lint.mjs";
@@ -61,10 +61,10 @@ async function confirm(entry, replayCell, judgeCell, labels) {
   if (!reproduced) entry.verdict = "inconclusive";
 }
 
-async function judgeEntry({ current, previous, judgeCell, candidate, labels, replayCell }) {
-  if (judgmentCurrent(previous, current)) return previous;
+async function judgeEntry({ current, previous, judgeCell, candidate, labels, replayCell, refresh = false }) {
+  if (!refresh && judgmentCurrent(previous, current)) return previous;
   const judged = await judgeCell(candidate);
-  if (judged.error) return { verdict: "error", error: judged.error };
+  if (judged.error) return { verdict: "error", error: judged.error, ...(refresh ? { wallMs: judged.wallMs } : {}) };
   const entry = { ...current, facts: labels(judged, candidate), feedback: judged.feedback, wallMs: judged.wallMs };
   entry.verdict = cellVerdict(entry.facts);
   if (entry.verdict === "regressed") await confirm(entry, replayCell, judgeCell, labels);
@@ -124,7 +124,7 @@ async function judge({ spawn, judgeText, caseText, facts, intent, before, after,
     wallMs += res.wallMs ?? 0;
     const safe = safeOutput(res.stdout || res.stderr || "", denylist);
     if (safe.error) return { error: safe.error, text: safe.text, wallMs };
-    if (res.status !== "ok") { error = res.stderr || "judge failed"; continue; }
+    if (res.status !== "ok") { error = redact(res.stderr || "judge failed", denylist); continue; }
     try { return { ...parseJudgeReply(safe.text, facts.filter((f) => f.kind === "judged").map((f) => f.id)), wallMs }; }
     catch (e) { error = e.message; }
   }
@@ -137,8 +137,9 @@ function labeled(sample, judged, facts, before, after, moves) {
   return deriveLabels(sample, outcomes, moves);
 }
 
-export async function runTarget({ root, target: name, sample: only, baselineOnly = false, base, spawn = defaultSpawn, concurrency = process.env.EVAL_CONCURRENCY ?? 4, signal }) {
+export async function runTarget({ root, target: name, sample: only, baselineOnly = false, refreshJudgments = false, base, spawn = defaultSpawn, concurrency = process.env.EVAL_CONCURRENCY ?? 4, signal, refreshWriter = writeRecordAtomic }) {
   const started = Date.now();
+  if (refreshJudgments && (!only || baselineOnly)) return { exit: 2, message: "refresh judgments requires one sample and cannot use --baseline-only" };
   const dir = join(root, "eval", name);
   const refuse = (message) => ({ exit: 2, message });
   const pool = Number(concurrency);
@@ -206,29 +207,105 @@ export async function runTarget({ root, target: name, sample: only, baselineOnly
   const results = join(dir, "results");
   const counts = { replay: 0, judge: 0, confirm: 0 };
   const limited = limiter(pool);
+  let persistenceError;
   // The pooled unit is one adapter call; orchestration above it never holds a slot while awaiting.
   const call = (args, options) => limited(async () => {
-    if (signal?.aborted) return { status: "error", stderr: "aborted", wallMs: 0 };
+    if (signal?.aborted || (refreshJudgments && persistenceError)) return { status: "error", stderr: signal?.aborted ? (refreshJudgments ? "refresh interrupted" : "aborted") : "refresh persistence failed", wallMs: 0 };
     try { return await spawn(args, { ...options, signal }); }
     catch (e) { return { status: "error", stderr: e?.message ?? String(e), wallMs: 0 }; }
   });
   const intentSha = sha256(intentBody(intentText));
   const judgePromptSha = sha256(judgeText);
+  const identityFor = (skill, input) => ({ skillSha: sha256(skill), inputSha: input, kind: target.kind, assembly: target.assembly ?? "n/a", thinking: MODELS.thinking });
+  let admitted;
+  if (refreshJudgments && signal?.aborted) return { exit: 130, message: `${name}: refresh ${only} interrupted before admission; records and report.md unchanged` };
+  if (refreshJudgments) {
+    const plan = plans[0];
+    admitted = {};
+    for (const arm of ["baseline", "candidate"]) {
+      try {
+        admitted[arm] = readRecord(results, plan.sample, arm);
+        for (const model of MODELS.replay) {
+          if (!cellReusable(admitted[arm], model, identityFor(arm === "baseline" ? plan.baseSkill : plan.candSkill, plan.input))) return refuse(`${plan.sample}/${arm}/${model}: saved reply is not reusable`);
+          const cell = admitted[arm].outputs[model];
+          if (typeof cell.text !== "string") return refuse(`${plan.sample}/${arm}/${model}: saved reply text must be a string`);
+          if (target.kind === "edit") {
+            const tree = cell.tree;
+            if (!tree || typeof tree !== "object" || Array.isArray(tree) || Object.values(tree).some((entry) =>
+              !entry || typeof entry !== "object" || Array.isArray(entry) || typeof entry.content !== "string" || !Number.isInteger(entry.lines) || entry.lines < 0)) {
+              return refuse(`${plan.sample}/${arm}/${model}: saved reply tree must contain entries with string content and nonnegative integer lines`);
+            }
+          }
+        }
+      } catch (error) { return refuse(MODELS.replay.map((model) => `${plan.sample}/${arm}/${model}: ${error.message}`).join("\n")); }
+    }
+  }
   const rowsBySample = plans.map(() => []);
   const baselineErrors = [];
   const runSample = async (plan, index) => {
     const { sample, facts, baseSkill, candSkill, input, expectedText } = plan;
-    const identity = (skill) => ({ skillSha: sha256(skill), inputSha: input, kind: target.kind, assembly: target.assembly ?? "n/a", thinking: MODELS.thinking });
+    const identity = (skill) => identityFor(skill, input);
     const freshRecord = (arm, skill) => ({ sample, arm, ...identity(skill), models: { replay: [...MODELS.replay], judge: MODELS.judge, thinking: MODELS.thinking }, outputs: {} });
     const replayCell = (skill, model, skillFiles, kind = "replay") => { counts[kind]++; return replay({ ...plan, target, skill, skillFiles, replayText, model, spawn: call }); };
     const judgeSpawn = (args, options) => { counts.judge++; return call(args, options); };
+    if (refreshJudgments) {
+      const { baseline, candidate: cand } = admitted;
+      const previous = Object.fromEntries(MODELS.replay.map((model) => {
+        const old = cand.judge?.[model];
+        return [model, old ? { ...structuredClone(old), judgeModel: old.judgeModel ?? null, thinking: old.thinking ?? null,
+          ...Object.fromEntries(["factsSha", "judgePromptSha", "intentSha", "baselineOutputSha", "candidateOutputSha"].map((key) => [key, old[key] ?? null])) } : null];
+      }));
+      const outputIdentity = (record, arm) => Object.fromEntries(MODELS.replay.map((model) => [model, { [`${arm}OutputSha`]: sha256(record.outputs[model].text), payloadSha: payloadSha(record.outputs[model]) }]));
+      cand.refresh = { status: "running", identity: { sample, kind: target.kind, assembly: target.assembly ?? "n/a",
+        baselineSkillSha: sha256(baseSkill), candidateSkillSha: sha256(candSkill), inputSha: input,
+        factsSha: sha256(expectedText), judgePromptSha, intentSha,
+        models: { replay: [...MODELS.replay], judge: MODELS.judge }, thinking: MODELS.thinking,
+        outputs: { baseline: outputIdentity(baseline, "baseline"), candidate: outputIdentity(cand, "candidate") } }, previous, refreshed: {} };
+      const provenance = { judgeModel: MODELS.judge, thinking: MODELS.thinking };
+      cand.judge ??= {};
+      for (const model of MODELS.replay) {
+        cand.judge[model] = { verdict: "error", error: "refresh incomplete", ...provenance };
+        cand.refresh.refreshed[model] = structuredClone(cand.judge[model]);
+      }
+      const save = () => {
+        cand.repoSha = repoSha;
+        try { refreshWriter(results, sample, "candidate", cand); return true; }
+        catch (error) {
+          persistenceError ??= `${relative(root, join(results, sample, "candidate.json"))}: ${redact(error?.message ?? String(error), target.denylist)}`;
+          return false;
+        }
+      };
+      if (!save()) return;
+      await Promise.all(MODELS.replay.map(async (model, m) => {
+        const b = structuredClone(baseline.outputs[model]), c = structuredClone(cand.outputs[model]);
+        b.mechanical = runMechanical(facts, b.text);
+        c.mechanical = runMechanical(facts, c.text);
+        const current = { factsSha: sha256(expectedText), judgePromptSha, intentSha, baselineOutputSha: sha256(b.text), candidateOutputSha: sha256(c.text) };
+        const judgeCell = (after) => judge({ spawn: judgeSpawn, judgeText, ...plan, intent: intentParsed, before: b.text, after: after.text,
+          baselineTree: target.kind === "edit" ? b.tree : undefined, candidateTree: target.kind === "edit" ? after.tree : undefined, denylist: target.denylist });
+        const entry = await judgeEntry({ current, previous: previous[model], refresh: true, judgeCell, candidate: c,
+          labels: (judged, after) => labeled(sample, judged, facts, b, after, intentParsed.moves),
+          replayCell: () => replayCell(candSkill, model, plan.candFiles, "confirm") });
+        if (signal?.aborted && entry.verdict === "error") entry.error = `refresh interrupted: ${entry.error}`;
+        cand.judge[model] = { ...entry, ...provenance };
+        cand.refresh.refreshed[model] = structuredClone(cand.judge[model]);
+        rowsBySample[index][m] = { sample, model, mechanical: c.mechanical, ...cand.judge[model] };
+        save();
+      }));
+      cand.refresh.status = signal?.aborted ? "interrupted" : "complete";
+      save();
+      return;
+    }
     let baseline = readRecord(results, sample, "baseline");
     const stored = readRecord(results, sample, "candidate");
     if (!baselineFresh(baseline, MODELS.replay, identity(baseSkill)).fresh && stored?.skillSha === sha256(baseSkill)) baseline = promote(structuredClone(stored));
     const stale = baselineFresh(baseline, MODELS.replay, identity(baseSkill)).stale;
     if (!baseline || stale.length === MODELS.replay.length) baseline = freshRecord("baseline", baseSkill);
     const cand = baselineOnly ? null : stored && MODELS.replay.some((m) => cellReusable(stored, m, identity(candSkill))) ? stored : freshRecord("candidate", candSkill);
-    if (cand) cand.judge ??= {};
+    if (cand) {
+      cand.judge ??= {};
+      if (stored?.refresh) cand.refresh = structuredClone(stored.refresh);
+    }
     await Promise.all(MODELS.replay.map(async (model, m) => {
       const baselinePromise = stale.includes(model) ? replayCell(baseSkill, model, plan.baseFiles) : baseline.outputs[model];
       const candidatePromise = !baselineOnly && !cellReusable(cand, model, identity(candSkill)) ? replayCell(candSkill, model, plan.candFiles) : cand?.outputs[model];
@@ -259,31 +336,32 @@ export async function runTarget({ root, target: name, sample: only, baselineOnly
   await Promise.all(plans.map(runSample));
   const called = counts.replay + counts.judge + counts.confirm;
   const wall = `wall ${Math.round((Date.now() - started) / 1000)}s`;
-  if (signal?.aborted) return { exit: 130, message: `${name}: interrupted (${wall}); in-flight samples not written, report.md not written` };
+  if (persistenceError) return { exit: 1, message: `${name}: refresh ${only} save failed: ${persistenceError}; report.md unchanged` };
+  if (signal?.aborted && !refreshJudgments) return { exit: 130, message: `${name}: interrupted (${wall}); in-flight samples not written, report.md not written` };
   if (baselineOnly) return { exit: baselineErrors.length ? 1 : 0, message: baselineErrors.length ? baselineErrors.join("\n") : called ? `baseline seeded (replay ${counts.replay}, ${wall})` : "baseline fresh" };
   const rows = rowsBySample.flat();
   let worst = "improved";
   for (const row of rows) worst = worseVerdict(worst, row.verdict);
-  const exit = ["error", "inconclusive", "regressed"].includes(worst) ? 1 : 0;
-  const tally = `replay ${counts.replay}, judge ${counts.judge}, confirm ${counts.confirm}, ${wall}`;
+  const exit = signal?.aborted ? 130 : ["error", "inconclusive", "regressed"].includes(worst) ? 1 : 0;
+  const tally = `${refreshJudgments ? `refresh ${only} [${MODELS.replay.join(", ")}]; ` : ""}replay ${counts.replay}, judge ${counts.judge}, confirm ${counts.confirm}, ${wall}`;
   if (!called) return { exit, message: `${name}: ${worst} (report.md unchanged; ${tally})` };
-  writeFileSync(join(dir, "report.md"), renderReport({ target: name, forSha, change: intentParsed.change, rows, partial: only ?? null, exit, wallMs: Date.now() - started }));
-  return { exit, message: `${name}: ${worst} (report.md written; ${tally})` };
+  writeFileSync(join(dir, "report.md"), renderReport({ target: name, forSha, change: intentParsed.change, rows, partial: only ?? null, ...(refreshJudgments ? { refresh: { sample: only, models: MODELS.replay, status: signal?.aborted ? "interrupted" : "complete" } } : {}), exit, wallMs: Date.now() - started }));
+  return { exit, message: `${name}: ${signal?.aborted ? "interrupted" : worst} (report.md written; ${tally})` };
 }
 if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
   let parsed;
   try {
-    parsed = parseArgs({ strict: true, allowPositionals: true, options: { "baseline-only": { type: "boolean" }, base: { type: "string" } } });
+    parsed = parseArgs({ strict: true, allowPositionals: true, options: { "baseline-only": { type: "boolean" }, "refresh-judgments": { type: "boolean" }, base: { type: "string" } } });
     if (parsed.positionals.length < 1 || parsed.positionals.length > 2) throw new Error("invalid positionals");
   } catch {
-    console.error("usage: node eval/run.mjs <target> [<sample>] [--baseline-only] [--base <ref>]");
+    console.error("usage: node eval/run.mjs <target> [<sample>] [--baseline-only] [--refresh-judgments] [--base <ref>]");
     process.exit(2);
   }
   const [target, sample] = parsed.positionals;
-  const { base, "baseline-only": baselineOnly } = parsed.values;
+  const { base, "baseline-only": baselineOnly, "refresh-judgments": refreshJudgments } = parsed.values;
   const controller = new AbortController();
   process.once("SIGINT", () => controller.abort());
-  const result = await runTarget({ root: resolve(dirname(fileURLToPath(import.meta.url)), ".."), target, sample, baselineOnly, base, signal: controller.signal });
+  const result = await runTarget({ root: resolve(dirname(fileURLToPath(import.meta.url)), ".."), target, sample, baselineOnly, refreshJudgments, base, signal: controller.signal });
   console[result.exit ? "error" : "log"](result.message);
   process.exit(result.exit);
 }

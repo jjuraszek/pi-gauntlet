@@ -1,5 +1,8 @@
-export function renderReport({ target, forSha, change, rows, partial, exit, wallMs = 0 }) {
-  const out = [`# eval report: ${target}${partial ? ` (partial run: ${partial})` : ""}`, "", `for: ${forSha}`, "", `wall: ${Math.round(wallMs / 1000)}s`, "", "## Change", "", change, "", "## Cells", "", "| sample | model | verdict | judge ms | facts |", "|---|---|---|---|---|"];
+export function renderReport({ target, forSha, change, rows, partial, exit, wallMs = 0, refresh = null }) {
+  const refreshNote = refresh
+    ? `refresh: ${refresh.status}; sample: ${refresh.sample}; models: ${refresh.models.join(", ")}\naudit: [candidate.json](results/${refresh.sample}/candidate.json)\n\n`
+    : "";
+  const out = [`# eval report: ${target}${partial ? ` (partial run: ${partial})` : ""}`, "", `for: ${forSha}`, "", `wall: ${Math.round(wallMs / 1000)}s`, "", `${refreshNote}## Change`, "", change, "", "## Cells", "", "| sample | model | verdict | judge ms | facts |", "|---|---|---|---|---|"];
   for (const r of rows) {
     const facts = Object.entries(r.facts ?? {}).map(([id, f]) => `${id}: ${f.before} -> ${f.after} (${f.label})`).join("; ");
     const mech = Object.entries(r.mechanical ?? {}).filter(([id]) => !Object.hasOwn(r.facts ?? {}, id)).map(([id, v]) => `${id}: ${v}`).join("; ");

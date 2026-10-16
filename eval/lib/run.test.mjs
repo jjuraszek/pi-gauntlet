@@ -8,6 +8,7 @@ import { runTarget } from "../run.mjs";
 import { sha256 } from "./checks.mjs";
 import { INTENT_STUB } from "./intent.mjs";
 import { MODELS } from "./models.mjs";
+import { writeRecordAtomic } from "./records.mjs";
 
 function repo() {
   const root = mkdtempSync(join(tmpdir(), "run-"));
@@ -537,4 +538,287 @@ test("a record without judge wallMs is still current", async () => {
   for (const entry of Object.values(saved.judge)) { assert.equal(typeof entry.wallMs, "number"); delete entry.wallMs; }
   put("eval/t/results/s1/candidate.json", JSON.stringify(saved, null, 2) + "\n");
   assert.match((await run(root, () => assert.fail("unexpected call"))).message, /judge 0/);
+});
+
+for (const extra of [{}, { sample: "missing" }, { sample: "s1", baselineOnly: true }]) test(`refresh admission rejects ${JSON.stringify(extra)}`, async () => {
+  const { root } = candidate();
+  assert.equal((await run(root, () => assert.fail("unexpected call"), { refreshJudgments: true, ...extra })).exit, 2);
+});
+
+for (const outcome of ["pass", "regressed", "inconclusive", "judge error", "replay error", "confirmation error"]) test(`refresh activates ${outcome} with immutable replies and bounded audit`, async () => {
+  const { root, put } = candidate();
+  put("eval/t/samples/s2/case.md", "OTHER\n"); put("eval/t/samples/s2/expected.md", "- f1: judged: other\n");
+  assert.equal((await run(root, okSpawn)).exit, 0);
+  const saved = record(root, "candidate");
+  for (const cell of Object.values(saved.outputs)) cell.mechanical = { historical: "fails" };
+  saved.outputs.historical = { status: "ok", text: "old", tree: { x: { content: "old" } }, wallMs: 123 };
+  put("eval/t/results/s1/candidate.json", JSON.stringify(saved));
+  const baseline = readFileSync(join(root, "eval/t/results/s1/baseline.json"), "utf8");
+  const other = readFileSync(join(root, "eval/t/results/s2/candidate.json"), "utf8");
+  let judges = 0, confirmations = 0;
+  const result = await run(root, (args) => {
+    const active = record(root, "candidate");
+    assert.equal(active.refresh.status, "running");
+    if (!judges && !confirmations) for (const model of MODELS.replay) {
+      assert.deepEqual(active.judge[model], { verdict: "error", error: "refresh incomplete", judgeModel: MODELS.judge, thinking: MODELS.thinking });
+      assert.deepEqual(active.refresh.refreshed[model], active.judge[model]);
+    }
+    if (!isJudge(args)) { confirmations++; return outcome === "replay error" ? { status: "error", stderr: "down" } : okSpawn(args); }
+    judges++;
+    if (outcome === "judge error" || (outcome === "confirmation error" && judges > 2)) return { status: "error", stderr: "down" };
+    return { status: "ok", stdout: judgeReply("holds", outcome === "pass" || (outcome === "inconclusive" && judges > 2) ? "holds" : "fails"), wallMs: 3 };
+  }, { sample: "s1", refreshJudgments: true });
+  assert.equal(result.exit, outcome === "pass" ? 0 : 1);
+  const refreshed = record(root, "candidate");
+  assert.deepEqual(refreshed.outputs, saved.outputs);
+  assert.equal(readFileSync(join(root, "eval/t/results/s1/baseline.json"), "utf8"), baseline);
+  assert.equal(readFileSync(join(root, "eval/t/results/s2/candidate.json"), "utf8"), other);
+  assert.equal(refreshed.refresh.status, "complete");
+  assert.equal(confirmations, ["pass", "judge error"].includes(outcome) ? 0 : 2);
+  assert.equal(judges, outcome === "pass" || outcome === "replay error" ? 2 : outcome === "confirmation error" ? 6 : 4);
+  for (const model of MODELS.replay) {
+    for (const arm of ["baseline", "candidate"]) {
+      const identity = refreshed.refresh.identity.outputs[arm][model];
+      assert.equal(identity[`${arm}OutputSha`], sha256(record(root, arm).outputs[model].text));
+      assert.equal(Object.hasOwn(identity, "textSha"), false);
+      assert.match(identity.payloadSha, /^[a-f0-9]{64}$/);
+    }
+    const entry = refreshed.judge[model];
+    assert.equal(entry.verdict, outcome.includes("error") ? "error" : outcome === "pass" ? "unchanged" : outcome);
+    assert.equal(entry.judgeModel, MODELS.judge);
+    assert.equal(entry.thinking, MODELS.thinking);
+    if (["replay error", "confirmation error"].includes(outcome)) {
+      assert.equal(entry.error, "down");
+      assert.equal(entry.confirmation.error, "down");
+      assert.equal(entry.confirmation.status, outcome === "replay error" ? "error" : "ok");
+      assert.equal(entry.confirmation.text, outcome === "replay error" ? undefined : "hi");
+      assert.equal(entry.confirmation.judgeWallMs, outcome === "replay error" ? undefined : 0);
+      assert.equal(entry.facts.f1.label, "regression");
+      assert.equal(entry.feedback, "fb");
+    }
+    assert.equal(entry.factsSha === undefined, outcome.includes("error"));
+    assert.deepEqual(refreshed.refresh.refreshed[model], entry);
+    assert.equal(refreshed.refresh.previous[model].judgeModel, null);
+    assert.equal(refreshed.refresh.previous[model].verdict, "unchanged");
+  }
+  assert.match(result.message, /refresh.*s1/);
+  assert.match(readFileSync(join(root, "eval/t/report.md"), "utf8"), /refresh/i);
+  const audit = refreshed.refresh;
+  await run(root, okSpawn, { sample: "s1" });
+  assert.deepEqual(record(root, "candidate").refresh, audit);
+  await run(root, okSpawn, { sample: "s1", refreshJudgments: true });
+  assert.equal(record(root, "candidate").refresh.previous[MODELS.replay[0]].judgeModel, outcome.includes("error") ? null : MODELS.judge);
+});
+
+for (const arm of ["baseline", "candidate"]) for (const defect of ["missing", "malformed", "skillSha", "inputSha", "assembly", "thinking", "membership", "failed", "missing text", "non-string text", "promotable", ...(arm === "candidate" ? ["invalid intent"] : [])]) test(`refresh refuses ${defect} ${arm} replies without writes`, async () => {
+  const { root, put } = candidate();
+  await run(root, okSpawn);
+  const saved = record(root, arm);
+  if (defect === "missing") put(`eval/t/results/s1/${arm}.json`, "null");
+  else if (defect === "malformed") put(`eval/t/results/s1/${arm}.json`, "{");
+  else {
+    if (["skillSha", "inputSha", "assembly"].includes(defect)) saved[defect] = "stale";
+    if (defect === "thinking") saved.models.thinking = "stale";
+    if (defect === "membership") saved.models.replay.pop();
+    if (defect === "failed") saved.outputs[MODELS.replay[1]].status = "error";
+    if (defect === "missing text") delete saved.outputs[MODELS.replay[1]].text;
+    if (defect === "non-string text") saved.outputs[MODELS.replay[1]].text = 42;
+    saved.refresh = { status: "complete", previous: {}, refreshed: {} };
+    if (defect === "promotable") commit(root, "advance base");
+    if (defect === "invalid intent") put("eval/t/intent.md", INTENT_STUB);
+    put(`eval/t/results/s1/${arm}.json`, JSON.stringify(saved));
+  }
+  const paths = ["results/s1/baseline.json", "results/s1/candidate.json", "report.md"].map((p) => join(root, "eval/t", p));
+  const bytes = paths.map((p) => readFileSync(p, "utf8"));
+  let calls = 0;
+  const result = await run(root, () => { calls++; return okSpawn([]); }, { sample: "s1", refreshJudgments: true });
+  assert.equal(result.exit, 2);
+  assert.equal(calls, 0);
+  if (["missing text", "non-string text"].includes(defect)) assert.ok(result.message.includes(`s1/${arm}/${MODELS.replay[1]}:`));
+  if (defect === "invalid intent") assert.match(result.message, /intent.md is the template stub/);
+  if (defect === "malformed") for (const model of MODELS.replay) assert.ok(result.message.includes(`s1/${arm}/${model}:`));
+  assert.deepEqual(paths.map((p) => readFileSync(p, "utf8")), bytes);
+});
+
+for (const history of ["inconclusive", "missing", "stale", "error"]) test(`refresh bypasses ${history} judgment and keeps a bounded predecessor`, async () => {
+  const { root, put } = candidate();
+  await run(root, okSpawn);
+  const saved = record(root, "candidate");
+  for (const model of MODELS.replay) {
+    if (history === "missing") delete saved.judge[model];
+    else if (history === "stale") saved.judge[model].factsSha = "old";
+    else saved.judge[model].verdict = history;
+  }
+  put("eval/t/results/s1/candidate.json", JSON.stringify(saved));
+  let calls = 0;
+  const fresh = (args) => { assert.ok(isJudge(args)); calls++; return okSpawn(args); };
+  assert.equal((await run(root, fresh, { sample: "s1", refreshJudgments: true })).exit, 0);
+  assert.equal(calls, 2);
+  const first = record(root, "candidate");
+  for (const model of MODELS.replay) {
+    assert.equal(first.refresh.previous[model]?.factsSha ?? null, history === "missing" ? null : history === "stale" ? "old" : saved.judge[model].factsSha);
+    assert.equal(first.refresh.previous[model]?.judgeModel ?? null, null);
+  }
+  const report = readFileSync(join(root, "eval/t/report.md"), "utf8");
+  assert.equal((await run(root, () => assert.fail("ordinary selection must reuse"), { sample: "s1" })).exit, 0);
+  assert.equal(readFileSync(join(root, "eval/t/report.md"), "utf8"), report);
+  await run(root, fresh, { sample: "s1", refreshJudgments: true });
+  const second = record(root, "candidate");
+  for (const model of MODELS.replay) assert.deepEqual(second.refresh.previous[model], first.judge[model]);
+  put("skills/x/SKILL.md", "NEW2\n");
+  put("eval/t/intent.md", `for: ${sha256("NEW2\n")}\n\n## Change\nx\n\n## Expected to move\n`);
+  await run(root, okSpawn);
+  assert.deepEqual(record(root, "candidate").refresh, second.refresh);
+});
+
+test("refresh uses saved edit trees without rewriting their payloads", async () => {
+  const { root, put } = editRepo();
+  const skill = readFileSync(join(root, "skills/x/SKILL.md"), "utf8") + "\nreference\n";
+  put("eval/t/intent.md", `for: ${sha256(skill)}\n\n## Change\nx\n\n## Expected to move\n`);
+  const spawn = (args, { cwd }) => {
+    if (isJudge(args)) return okSpawn(args);
+    writeFileSync(join(cwd, "SKILL.md"), "hi changed\n");
+    return { status: "ok", stdout: "done", wallMs: 7 };
+  };
+  assert.equal((await run(root, spawn)).exit, 0);
+  const before = record(root, "candidate");
+  let calls = 0;
+  assert.equal((await run(root, (args, { input }) => {
+    assert.ok(isJudge(args)); assert.match(input, /hi changed/); calls++;
+    return okSpawn(args);
+  }, { sample: "s1", refreshJudgments: true })).exit, 0);
+  assert.equal(calls, 2);
+  const after = record(root, "candidate");
+  assert.deepEqual(after.outputs, before.outputs);
+  for (const model of MODELS.replay) {
+    assert.match(after.refresh.identity.outputs.candidate[model].payloadSha, /^[a-f0-9]{64}$/);
+    assert.equal(after.refresh.identity.outputs.candidate[model].candidateOutputSha, sha256(before.outputs[model].text));
+    assert.equal(Object.hasOwn(after.refresh.identity.outputs.candidate[model], "textSha"), false);
+  }
+});
+
+for (const arm of ["baseline", "candidate"]) for (const [defect, tree] of [
+  ["missing tree", undefined], ["null tree", null], ["array tree", []], ["string tree", "bad"],
+  ["null entry", { x: null }], ["array entry", { x: [] }],
+  ["missing content", { x: { lines: 0 } }], ["non-string content", { x: { content: 42, lines: 0 } }],
+  ["missing lines", { x: { content: "" } }], ["negative lines", { x: { content: "", lines: -1 } }],
+  ["fractional lines", { x: { content: "", lines: 0.5 } }], ["string lines", { x: { content: "", lines: "0" } }],
+  ["empty tree", {}], ["empty file", { x: { content: "", lines: 0 } }],
+]) test(`refresh edit payload ${defect} in ${arm}`, async () => {
+  const { root, put } = editRepo();
+  const skill = readFileSync(join(root, "skills/x/SKILL.md"), "utf8") + "\nreference\n";
+  put("eval/t/intent.md", `for: ${sha256(skill)}\n\n## Change\nx\n\n## Expected to move\n`);
+  put("eval/t/samples/s1/expected.md", "- f1: judged: says hi\n");
+  await run(root, (args, { cwd }) => {
+    if (isJudge(args)) return okSpawn(args);
+    writeFileSync(join(cwd, "SKILL.md"), "hi changed\n");
+    return { status: "ok", stdout: "done", wallMs: 1 };
+  });
+  const saved = record(root, arm);
+  saved.outputs[MODELS.replay[1]].tree = tree;
+  saved.outputs[MODELS.replay[1]].text = "";
+  saved.outputs.historical = { status: "ok" };
+  saved.refresh = { status: "complete", previous: {}, refreshed: {} };
+  put(`eval/t/results/s1/${arm}.json`, JSON.stringify(saved));
+  const paths = ["results/s1/baseline.json", "results/s1/candidate.json", "report.md"].map((p) => join(root, "eval/t", p));
+  const bytes = paths.map((p) => readFileSync(p, "utf8"));
+  let calls = 0;
+  const result = await run(root, (args) => { assert.ok(isJudge(args)); calls++; return okSpawn(args); }, { sample: "s1", refreshJudgments: true });
+  const valid = defect === "empty tree" || defect === "empty file";
+  assert.equal(result.exit, valid ? 0 : 2);
+  assert.equal(calls, valid ? 2 : 0);
+  if (valid) assert.deepEqual(record(root, arm).outputs, saved.outputs);
+  else {
+    assert.ok(result.message.includes(`s1/${arm}/${MODELS.replay[1]}:`));
+    assert.deepEqual(paths.map((p) => readFileSync(p, "utf8")), bytes);
+  }
+});
+
+test("refresh overlapping settlements persist both results in every later snapshot", async () => {
+  const { root } = candidate();
+  await run(root, okSpawn);
+  const releases = [], snapshots = [];
+  const done = run(root, (args) => new Promise((resolve) => releases.push(() => resolve(okSpawn(args)))), {
+    sample: "s1", refreshJudgments: true, concurrency: 2,
+    refreshWriter: (...args) => { writeRecordAtomic(...args); snapshots.push(record(root, "candidate")); },
+  });
+  await tick(); assert.equal(releases.length, 2);
+  releases.shift()(); await tick();
+  releases.shift()();
+  assert.equal((await done).exit, 0);
+  assert.equal(snapshots.length, 4);
+  assert.equal(snapshots[1].judge[MODELS.replay[0]].verdict, "unchanged");
+  for (const saved of snapshots.slice(2)) for (const model of MODELS.replay) {
+    assert.equal(saved.judge[model].verdict, "unchanged");
+    assert.deepEqual(saved.refresh.refreshed[model], saved.judge[model]);
+  }
+});
+
+for (const phase of ["before admission", "queued", "confirmation"]) test(`refresh interruption ${phase} retains evidence`, async () => {
+  const { root } = candidate(); await run(root, okSpawn);
+  const controller = new AbortController(); let calls = 0;
+  const before = readFileSync(join(root, "eval/t/results/s1/candidate.json"), "utf8");
+  const previous = Object.fromEntries(Object.entries(JSON.parse(before).judge).map(([model, entry]) =>
+    [model, { ...entry, judgeModel: null, thinking: null }]));
+  let attemptIdentity;
+  if (phase === "before admission") controller.abort();
+  const result = await run(root, (args) => {
+    calls++;
+    attemptIdentity ??= record(root, "candidate").refresh.identity;
+    if (phase === "queued" || !isJudge(args)) { controller.abort(); return okSpawn(args); }
+    return { status: "ok", stdout: judgeReply("holds", "fails"), wallMs: 1 };
+  }, { sample: "s1", refreshJudgments: true, concurrency: 1, signal: controller.signal });
+  assert.equal(result.exit, 130);
+  if (phase === "before admission") {
+    assert.equal(calls, 0);
+    assert.equal(readFileSync(join(root, "eval/t/results/s1/candidate.json"), "utf8"), before);
+  } else {
+    const saved = record(root, "candidate");
+    assert.equal(saved.refresh.status, "interrupted");
+    assert.deepEqual(saved.refresh.previous, previous);
+    assert.deepEqual(saved.refresh.identity, attemptIdentity);
+    assert.equal(saved.judge[MODELS.replay[1]].verdict, "error");
+    assert.match(saved.judge[MODELS.replay[1]].error, /interrupt/);
+    if (phase === "queued") { assert.equal(calls, 1); assert.equal(saved.judge[MODELS.replay[0]].verdict, "unchanged"); }
+    else assert.equal(saved.judge[MODELS.replay[0]].confirmation.text, "hi");
+    const report = readFileSync(join(root, "eval/t/report.md"), "utf8");
+    assert.match(report, /partial run: s1/); assert.match(report, /refresh: interrupted/); assert.match(report, /exit: 130/);
+  }
+});
+
+for (const failure of ["initial", "middle", "abort"]) test(`refresh ${failure} save failure is sticky and preserves report`, async () => {
+  const { root } = candidate(); await run(root, okSpawn);
+  const report = readFileSync(join(root, "eval/t/report.md"), "utf8");
+  const controller = new AbortController(); let writes = 0, calls = 0;
+  const result = await run(root, async (args) => {
+    const call = ++calls;
+    await tick();
+    if (failure === "abort") controller.abort();
+    if (failure === "middle" && call === 2) {
+      await tick();
+      return { status: "ok", stdout: judgeReply("holds", "fails"), wallMs: 1 };
+    }
+    return okSpawn(args);
+  }, { sample: "s1", refreshJudgments: true, concurrency: failure === "initial" ? 1 : 2, signal: controller.signal,
+    refreshWriter: (...args) => {
+      writes++;
+      if (writes === (failure === "initial" ? 1 : 2)) throw new Error("ENOSPC: disk full");
+      writeRecordAtomic(...args);
+    },
+  });
+  assert.equal(result.exit, 1);
+  assert.match(result.message, /results\/s1\/candidate.json/); assert.match(result.message, /ENOSPC: disk full/);
+  assert.equal(readFileSync(join(root, "eval/t/report.md"), "utf8"), report);
+  assert.equal(calls, failure === "initial" ? 0 : 2);
+  if (failure !== "initial") { assert.ok(writes > 2); assert.equal(record(root, "candidate").judge[MODELS.replay[0]].verdict, "unchanged"); }
+  if (failure === "middle") assert.match(record(root, "candidate").judge[MODELS.replay[1]].confirmation.error, /persistence failed/);
+});
+
+for (const { name, args, message } of [
+  { name: "accepts refresh flag with the existing base option", args: ["s1"], message: /unknown target/ },
+  { name: "rejects refresh without a sample", args: [], message: /refresh judgments requires one sample/ },
+  { name: "rejects refresh with baseline-only", args: ["s1", "--baseline-only"], message: /cannot use --baseline-only/ },
+]) test(`CLI ${name}`, () => {
+  assert.throws(() => execFileSync(process.execPath, [new URL("../run.mjs", import.meta.url).pathname, "unknown-refresh-target", ...args, "--refresh-judgments", "--base", "HEAD"], { stdio: "pipe" }),
+    (error) => error.status === 2 && message.test(error.stderr) && !/usage:/.test(error.stderr));
 });

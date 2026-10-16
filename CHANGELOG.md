@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Added
+
+- One-sample noninteractive judgment recovery with `node eval/run.mjs <target> <sample> --refresh-judgments`: reuses current saved replies, refreshes LLM judgments and preserves a bounded previous/refreshed audit without accepting variance or replacing primary replies. Documents admission, interruption and failure handling in the [eval process](eval/README.md#recover-a-disputed-saved-judgment). (#64)
+
 ## v7.12.0 - 2026-10-16
 
 ### Changed

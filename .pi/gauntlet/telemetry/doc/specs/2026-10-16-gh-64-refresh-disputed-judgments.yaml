@@ -1,0 +1,181 @@
+schema: 1
+spec: doc/specs/2026-10-16-gh-64-refresh-disputed-judgments.md
+run_id: dd701e27-1c65-406d-85a9-e66e96724225
+branch: gh-64-refresh-judgments
+status: shipped
+created_at: 2026-10-16T16:17:12Z
+sessions:
+  - 01a14580-9547-703e-80af-f64ff8a253c7
+author:
+  name: Jacek Juraszek
+  email: jacek.juraszek@gmail.com
+versions:
+  pi: 1.3.0
+  pi-gauntlet: 7.12.0
+  pi-cohort: 7.2.1
+  pi-quiver: 6.13.2
+  pi-condense: 2.11.5
+agent_overrides:
+  oracle:
+    model: anthropic-fable/claude-fable-5-1
+    thinking: max
+  scout:
+    model: anthropic/claude-sonnet-5-5
+    thinking: medium
+  planner:
+    model: github-copilot/gpt-6.1-sol
+    thinking: xhigh
+  worker:
+    model: github-copilot/gpt-6.1-sol
+    thinking: medium
+  implementer:
+    model: github-copilot/gpt-6.1-sol
+    thinking: low
+  code-reviewer:
+    model: github-copilot/gpt-6-astra
+    thinking: low
+  spec-reviewer:
+    model: anthropic/claude-opus-5-5
+    thinking: low
+  context-builder:
+    model: github-copilot/gpt-6.1-sol
+    thinking: medium
+  ticket-reviewer:
+    model: github-copilot/gpt-6.1-sol
+    thinking: low
+supersedes:
+  - doc/specs/2026-10-16-eval-granular-staleness-parallel-runs.md
+approved_at: 2026-10-16T17:09:42Z
+shipped_at: 2026-10-16T18:16:11Z
+derived:
+  duration_s: 7139
+  phases:
+    brainstorm: { started_at: 2026-10-16T16:17:12Z, model: github-copilot/gpt-6-astra, thinking: high, completed_at: 2026-10-16T17:09:42Z, duration_s: 3150, tokens: { input: 121809, output: 127505, cache_read: 5008317, cache_write: 518983, cost: 12.25793175 }, peak_context: 96023 }
+    plan: { started_at: 2026-10-16T17:10:09Z, model: github-copilot/gpt-6-astra, thinking: high, completed_at: 2026-10-16T17:15:47Z, duration_s: 338, tokens: { input: 55, output: 17335, cache_read: 1613848, cache_write: 84048, cost: 2.5903529000000005 }, peak_context: 124500 }
+    implement: { started_at: 2026-10-16T17:18:02Z, model: github-copilot/gpt-6-astra, thinking: high, completed_at: 2026-10-16T17:54:34Z, duration_s: 2192, tokens: { input: 672, output: 87046, cache_read: 9786721, cache_write: 816509, cost: 13.673493599999993 }, peak_context: 173240 }
+    verify: { started_at: 2026-10-16T17:54:38Z, model: github-copilot/gpt-6-astra, thinking: high, completed_at: 2026-10-16T18:13:55Z, duration_s: 1157, tokens: { input: 217, output: 52547, cache_read: 5784427, cache_write: 439039, cost: 11.952030049999998 }, peak_context: 184248 }
+    ship: { started_at: 2026-10-16T18:14:15Z, model: github-copilot/gpt-6-astra, thinking: high }
+    unphased: { tokens: { input: 51, output: 6004, cache_read: 2269560, cache_write: 42203, cost: 3.0978074999999996 }, peak_context: 160356 }
+  personas:
+    scout: { dispatches: 2, models: [ anthropic/claude-sonnet-5-5:medium ], tokens: { input: 34, output: 15758, cache_read: 384925, cache_write: 102201, cost: 0.451643 } }
+    context-builder: { dispatches: 1, models: [ github-copilot/gpt-6.1-sol:medium ], tokens: { input: 30, output: 5616, cache_read: 155965, cache_write: 80360, cost: 0.27271650000000003 } }
+    spec-council-member: { dispatches: 3, models: [ github-copilot/grok-4.7:high, github-copilot/gpt-6-astra:xhigh, anthropic-fable/claude-fable-5-1:high ], tokens: { input: 121602, output: 82732, cache_read: 1750322, cache_write: 107605, cost: 4.14544375 } }
+    spec-council-synthesizer: { dispatches: 1, models: [ github-copilot/gpt-6.1-sol:medium ], tokens: { input: 9, output: 2961, cache_read: 22769, cache_write: 16296, cost: 0.07264489999999998 } }
+    spec-summarizer: { dispatches: 1, models: [ github-copilot/gpt-6-astra:high ], tokens: { input: 6, output: 1751, cache_read: 6617, cache_write: 10856, cost: 0.229927 } }
+    implementer: { dispatches: 10, models: [ github-copilot/gpt-6.1-sol:low ], tokens: { input: 396, output: 37252, cache_read: 2739211, cache_write: 333277, cost: 1.4804256 } }
+    spec-reviewer: { dispatches: 9, models: [ anthropic/claude-opus-5-5:low ], tokens: { input: 132, output: 38335, cache_read: 1213819, cache_write: 327158, cost: 2.6457818000000004 } }
+    code-reviewer: { dispatches: 5, models: [ github-copilot/gpt-6-astra:low ], tokens: { input: 132, output: 7259, cache_read: 1014860, cache_write: 166636, cost: 3.46208 } }
+    conformance-reviewer: { dispatches: 1, models: [ anthropic-fable/claude-fable-5-1:high ], tokens: { input: 34, output: 35777, cache_read: 1015499, cache_write: 110966, cost: 3.43013975 } }
+  reviews:
+    spec-reviewer: { dispatches: 9, nonzero_exit: 0 }
+    code-reviewer: { dispatches: 5, nonzero_exit: 0, findings: { blocker: 0, major: 1, minor: 1 } }
+    conformance-reviewer: { dispatches: 1, nonzero_exit: 0 }
+  conformance_loops: 1
+  conformance_open_gaps: 0
+  gates: { spec_rounds: 1, plan_rounds: 3, fix_round_grants: 0, task_reopens: 2, ship_option: squash }
+  plan: { tasks: 5, complete: 5, failed: 0, skipped: 0 }
+  tests: { command: npm test), result: pass }
+  amendments: 1
+  spec_edits_after_ship: 0
+  diff: { base: 041214088f77d2e263c2d3b588bdf0a105a9055a, commits: 9, buckets: { docs: { files: 4, insertions: 43, deletions: 8 }, code: { files: 3, insertions: 130, deletions: 22 }, test: { files: 3, insertions: 361, deletions: 3 } } }
+  modified_files:
+    - CHANGELOG.md
+    - README.md
+    - doc/specs/2026-10-16-eval-granular-staleness-parallel-runs.md
+    - eval/README.md
+    - eval/lib/records.mjs
+    - eval/lib/records.test.mjs
+    - eval/lib/report.mjs
+    - eval/lib/report.test.mjs
+    - eval/lib/run.test.mjs
+    - eval/run.mjs
+  council:
+    chair: { model: github-copilot/gpt-6.1-sol:medium, dispatches: 1, clusters: 4, members_reported: 2 }
+    members:
+      anthropic-fable/claude-fable-5-1:high: { dispatches: 1, total: { blocker: 0, major: 3, minor: 1 }, unique: { blocker: 0, major: 0, minor: 1 }, applied: { blocker: 0, major: 3, minor: 1 }, unique_applied: { blocker: 0, major: 0, minor: 1 }, deferred: { blocker: 0, major: 0, minor: 0 }, rejected: { blocker: 0, major: 0, minor: 0 } }
+      github-copilot/gpt-6-astra:xhigh: { dispatches: 1, total: { blocker: 0, major: 0, minor: 0 }, unique: { blocker: 0, major: 0, minor: 0 }, applied: { blocker: 0, major: 0, minor: 0 }, unique_applied: { blocker: 0, major: 0, minor: 0 }, deferred: { blocker: 0, major: 0, minor: 0 }, rejected: { blocker: 0, major: 0, minor: 0 } }
+      github-copilot/grok-4.7:high: { dispatches: 1, total: { blocker: 0, major: 3, minor: 0 }, unique: { blocker: 0, major: 0, minor: 0 }, applied: { blocker: 0, major: 3, minor: 0 }, unique_applied: { blocker: 0, major: 0, minor: 0 }, deferred: { blocker: 0, major: 0, minor: 0 }, rejected: { blocker: 0, major: 0, minor: 0 } }
+  spec_writes:
+    brainstorm: { count: 7, last_sha256: 2da12eb02f8e48a4bd4215e1767cc9382c91090eb73d33105f1d3f3fefe05316 }
+    unphased: { count: 1, last_sha256: acd22488fe14d0c53f98c546671d2eeedb43723f13aae8733335ee7d74003687 }
+  events_dropped: 0
+accumulators:
+  01a14580-9547-703e-80af-f64ff8a253c7:
+    phases:
+      brainstorm: { tokens: { input: 121809, output: 127505, cache_read: 5008317, cache_write: 518983, cost: 12.25793175 }, peak_context: 96023 }
+      unphased: { peak_context: 160356, tokens: { input: 51, output: 6004, cache_read: 2269560, cache_write: 42203, cost: 3.0978074999999996 } }
+      plan: { peak_context: 124500, tokens: { input: 55, output: 17335, cache_read: 1613848, cache_write: 84048, cost: 2.5903529000000005 } }
+      implement: { peak_context: 173240, tokens: { input: 672, output: 87046, cache_read: 9786721, cache_write: 816509, cost: 13.673493599999993 } }
+      verify: { peak_context: 184248, tokens: { input: 217, output: 52547, cache_read: 5784427, cache_write: 439039, cost: 11.952030049999998 } }
+    personas:
+      scout: { dispatches: 2, models: [ anthropic/claude-sonnet-5-5:medium ], tokens: { input: 34, output: 15758, cache_read: 384925, cache_write: 102201, cost: 0.451643 } }
+      context-builder: { dispatches: 1, models: [ github-copilot/gpt-6.1-sol:medium ], tokens: { input: 30, output: 5616, cache_read: 155965, cache_write: 80360, cost: 0.27271650000000003 } }
+      spec-council-member: { dispatches: 3, models: [ github-copilot/grok-4.7:high, github-copilot/gpt-6-astra:xhigh, anthropic-fable/claude-fable-5-1:high ], tokens: { input: 121602, output: 82732, cache_read: 1750322, cache_write: 107605, cost: 4.14544375 } }
+      spec-council-synthesizer: { dispatches: 1, models: [ github-copilot/gpt-6.1-sol:medium ], tokens: { input: 9, output: 2961, cache_read: 22769, cache_write: 16296, cost: 0.07264489999999998 } }
+      spec-summarizer: { dispatches: 1, models: [ github-copilot/gpt-6-astra:high ], tokens: { input: 6, output: 1751, cache_read: 6617, cache_write: 10856, cost: 0.229927 } }
+      implementer: { dispatches: 10, models: [ github-copilot/gpt-6.1-sol:low ], tokens: { input: 396, output: 37252, cache_read: 2739211, cache_write: 333277, cost: 1.4804256 } }
+      spec-reviewer: { dispatches: 9, models: [ anthropic/claude-opus-5-5:low ], tokens: { input: 132, output: 38335, cache_read: 1213819, cache_write: 327158, cost: 2.6457818000000004 } }
+      code-reviewer: { dispatches: 5, models: [ github-copilot/gpt-6-astra:low ], tokens: { input: 132, output: 7259, cache_read: 1014860, cache_write: 166636, cost: 3.46208 } }
+      conformance-reviewer: { dispatches: 1, models: [ anthropic-fable/claude-fable-5-1:high ], tokens: { input: 34, output: 35777, cache_read: 1015499, cache_write: 110966, cost: 3.43013975 } }
+    reviews:
+      spec-reviewer: { dispatches: 9, nonzero_exit: 0 }
+      code-reviewer: { dispatches: 5, nonzero_exit: 0, findings: { blocker: 0, major: 1, minor: 1 } }
+      conformance-reviewer: { dispatches: 1, nonzero_exit: 0 }
+    spec_writes:
+      brainstorm: { count: 7, last_sha256: 2da12eb02f8e48a4bd4215e1767cc9382c91090eb73d33105f1d3f3fefe05316 }
+      unphased: { count: 1, last_sha256: acd22488fe14d0c53f98c546671d2eeedb43723f13aae8733335ee7d74003687 }
+    gates: { spec_rounds: 1, plan_rounds: 3, fix_round_grants: 0, task_reopens: 2 }
+    conformance_loops: 1
+    amendments: 1
+    spec_edits_after_ship: 0
+    events_dropped: 0
+    conformance_open_gaps: 0
+events:
+  - { ts: 2026-10-16T16:17:12Z, session: 01a14580-9547-703e-80af-f64ff8a253c7, phase: unphased, kind: phase, action: start, name: brainstorm, model: github-copilot/gpt-6-astra, thinking: high }
+  - { ts: 2026-10-16T16:21:31Z, session: 01a14580-9547-703e-80af-f64ff8a253c7, phase: brainstorm, kind: dispatch, agent: scout, model: anthropic/claude-sonnet-5-5:medium }
+  - { ts: 2026-10-16T16:21:31Z, session: 01a14580-9547-703e-80af-f64ff8a253c7, phase: brainstorm, kind: dispatch, agent: context-builder, model: github-copilot/gpt-6.1-sol:medium }
+  - { ts: 2026-10-16T17:03:28Z, session: 01a14580-9547-703e-80af-f64ff8a253c7, phase: brainstorm, kind: dispatch, agent: spec-council-member, model: github-copilot/grok-4.7:high }
+  - { ts: 2026-10-16T17:03:28Z, session: 01a14580-9547-703e-80af-f64ff8a253c7, phase: brainstorm, kind: dispatch, agent: spec-council-member, model: github-copilot/gpt-6-astra:xhigh }
+  - { ts: 2026-10-16T17:03:28Z, session: 01a14580-9547-703e-80af-f64ff8a253c7, phase: brainstorm, kind: dispatch, agent: spec-council-member, model: anthropic-fable/claude-fable-5-1:high }
+  - { ts: 2026-10-16T17:05:02Z, session: 01a14580-9547-703e-80af-f64ff8a253c7, phase: brainstorm, kind: dispatch, agent: spec-council-synthesizer, model: github-copilot/gpt-6.1-sol:medium }
+  - { ts: 2026-10-16T17:06:49Z, session: 01a14580-9547-703e-80af-f64ff8a253c7, phase: brainstorm, kind: dispatch, agent: spec-summarizer, model: github-copilot/gpt-6-astra:high }
+  - { ts: 2026-10-16T17:09:42Z, session: 01a14580-9547-703e-80af-f64ff8a253c7, phase: brainstorm, kind: phase, action: complete, name: brainstorm }
+  - { ts: 2026-10-16T17:10:09Z, session: 01a14580-9547-703e-80af-f64ff8a253c7, phase: unphased, kind: phase, action: start, name: plan, model: github-copilot/gpt-6-astra, thinking: high }
+  - { ts: 2026-10-16T17:12:01Z, session: 01a14580-9547-703e-80af-f64ff8a253c7, phase: plan, kind: dispatch, agent: scout, model: anthropic/claude-sonnet-5-5:medium }
+  - { ts: 2026-10-16T17:15:09Z, session: 01a14580-9547-703e-80af-f64ff8a253c7, phase: plan, kind: plan_check, pass: false, plan: doc/plans/2026-10-16-gh-64-refresh-disputed-judgments.md }
+  - { ts: 2026-10-16T17:15:19Z, session: 01a14580-9547-703e-80af-f64ff8a253c7, phase: plan, kind: plan_check, pass: true, spec: doc/specs/2026-10-16-gh-64-refresh-disputed-judgments.md, plan: doc/plans/2026-10-16-gh-64-refresh-disputed-judgments.md }
+  - { ts: 2026-10-16T17:15:47Z, session: 01a14580-9547-703e-80af-f64ff8a253c7, phase: plan, kind: phase, action: complete, name: plan }
+  - { ts: 2026-10-16T17:17:46Z, session: 01a14580-9547-703e-80af-f64ff8a253c7, phase: unphased, kind: plan_check, pass: true, spec: doc/specs/2026-10-16-gh-64-refresh-disputed-judgments.md, plan: doc/plans/2026-10-16-gh-64-refresh-disputed-judgments.md }
+  - { ts: 2026-10-16T17:18:02Z, session: 01a14580-9547-703e-80af-f64ff8a253c7, phase: unphased, kind: phase, action: start, name: implement, model: github-copilot/gpt-6-astra, thinking: high }
+  - { ts: 2026-10-16T17:19:59Z, session: 01a14580-9547-703e-80af-f64ff8a253c7, phase: implement, kind: dispatch, agent: implementer, model: github-copilot/gpt-6.1-sol:low }
+  - { ts: 2026-10-16T17:19:59Z, session: 01a14580-9547-703e-80af-f64ff8a253c7, phase: implement, kind: dispatch, agent: implementer, model: github-copilot/gpt-6.1-sol:low }
+  - { ts: 2026-10-16T17:21:15Z, session: 01a14580-9547-703e-80af-f64ff8a253c7, phase: implement, kind: dispatch, agent: spec-reviewer, model: anthropic/claude-opus-5-5:low }
+  - { ts: 2026-10-16T17:21:15Z, session: 01a14580-9547-703e-80af-f64ff8a253c7, phase: implement, kind: dispatch, agent: spec-reviewer, model: anthropic/claude-opus-5-5:low }
+  - { ts: 2026-10-16T17:22:34Z, session: 01a14580-9547-703e-80af-f64ff8a253c7, phase: implement, kind: dispatch, agent: code-reviewer, model: github-copilot/gpt-6-astra:low }
+  - { ts: 2026-10-16T17:26:21Z, session: 01a14580-9547-703e-80af-f64ff8a253c7, phase: implement, kind: dispatch, agent: implementer, model: github-copilot/gpt-6.1-sol:low }
+  - { ts: 2026-10-16T17:29:18Z, session: 01a14580-9547-703e-80af-f64ff8a253c7, phase: implement, kind: dispatch, agent: spec-reviewer, model: anthropic/claude-opus-5-5:low }
+  - { ts: 2026-10-16T17:31:48Z, session: 01a14580-9547-703e-80af-f64ff8a253c7, phase: implement, kind: dispatch, agent: implementer, model: github-copilot/gpt-6.1-sol:low }
+  - { ts: 2026-10-16T17:31:48Z, session: 01a14580-9547-703e-80af-f64ff8a253c7, phase: implement, kind: dispatch, agent: implementer, model: github-copilot/gpt-6.1-sol:low }
+  - { ts: 2026-10-16T17:34:15Z, session: 01a14580-9547-703e-80af-f64ff8a253c7, phase: implement, kind: dispatch, agent: implementer, model: github-copilot/gpt-6.1-sol:low }
+  - { ts: 2026-10-16T17:35:47Z, session: 01a14580-9547-703e-80af-f64ff8a253c7, phase: implement, kind: dispatch, agent: spec-reviewer, model: anthropic/claude-opus-5-5:low }
+  - { ts: 2026-10-16T17:38:33Z, session: 01a14580-9547-703e-80af-f64ff8a253c7, phase: implement, kind: dispatch, agent: code-reviewer, model: github-copilot/gpt-6-astra:low }
+  - { ts: 2026-10-16T17:41:38Z, session: 01a14580-9547-703e-80af-f64ff8a253c7, phase: implement, kind: dispatch, agent: implementer, model: github-copilot/gpt-6.1-sol:low }
+  - { ts: 2026-10-16T17:43:26Z, session: 01a14580-9547-703e-80af-f64ff8a253c7, phase: implement, kind: dispatch, agent: spec-reviewer, model: anthropic/claude-opus-5-5:low }
+  - { ts: 2026-10-16T17:44:58Z, session: 01a14580-9547-703e-80af-f64ff8a253c7, phase: implement, kind: dispatch, agent: implementer, model: github-copilot/gpt-6.1-sol:low }
+  - { ts: 2026-10-16T17:46:11Z, session: 01a14580-9547-703e-80af-f64ff8a253c7, phase: implement, kind: dispatch, agent: spec-reviewer, model: anthropic/claude-opus-5-5:low }
+  - { ts: 2026-10-16T17:47:34Z, session: 01a14580-9547-703e-80af-f64ff8a253c7, phase: implement, kind: dispatch, agent: code-reviewer, model: github-copilot/gpt-6-astra:low }
+  - { ts: 2026-10-16T17:50:57Z, session: 01a14580-9547-703e-80af-f64ff8a253c7, phase: implement, kind: dispatch, agent: implementer, model: github-copilot/gpt-6.1-sol:low }
+  - { ts: 2026-10-16T17:52:03Z, session: 01a14580-9547-703e-80af-f64ff8a253c7, phase: implement, kind: dispatch, agent: spec-reviewer, model: anthropic/claude-opus-5-5:low }
+  - { ts: 2026-10-16T17:54:20Z, session: 01a14580-9547-703e-80af-f64ff8a253c7, phase: implement, kind: dispatch, agent: spec-reviewer, model: anthropic/claude-opus-5-5:low }
+  - { ts: 2026-10-16T17:54:34Z, session: 01a14580-9547-703e-80af-f64ff8a253c7, phase: implement, kind: phase, action: complete, name: implement }
+  - { ts: 2026-10-16T17:54:38Z, session: 01a14580-9547-703e-80af-f64ff8a253c7, phase: unphased, kind: phase, action: start, name: verify, model: github-copilot/gpt-6-astra, thinking: high }
+  - { ts: 2026-10-16T17:58:41Z, session: 01a14580-9547-703e-80af-f64ff8a253c7, phase: verify, kind: dispatch, agent: code-reviewer, model: github-copilot/gpt-6-astra:low }
+  - { ts: 2026-10-16T17:59:00Z, session: 01a14580-9547-703e-80af-f64ff8a253c7, phase: verify, kind: gate, gate: task_reopen }
+  - { ts: 2026-10-16T17:59:04Z, session: 01a14580-9547-703e-80af-f64ff8a253c7, phase: verify, kind: gate, gate: task_reopen }
+  - { ts: 2026-10-16T18:01:43Z, session: 01a14580-9547-703e-80af-f64ff8a253c7, phase: verify, kind: dispatch, agent: implementer, model: github-copilot/gpt-6.1-sol:low }
+  - { ts: 2026-10-16T18:03:15Z, session: 01a14580-9547-703e-80af-f64ff8a253c7, phase: verify, kind: dispatch, agent: spec-reviewer, model: anthropic/claude-opus-5-5:low }
+  - { ts: 2026-10-16T18:04:29Z, session: 01a14580-9547-703e-80af-f64ff8a253c7, phase: verify, kind: dispatch, agent: code-reviewer, model: github-copilot/gpt-6-astra:low }
+  - { ts: 2026-10-16T18:12:58Z, session: 01a14580-9547-703e-80af-f64ff8a253c7, phase: verify, kind: dispatch, agent: conformance-reviewer, model: anthropic-fable/claude-fable-5-1:high }
+  - { ts: 2026-10-16T18:13:55Z, session: 01a14580-9547-703e-80af-f64ff8a253c7, phase: verify, kind: phase, action: complete, name: verify }
+  - { ts: 2026-10-16T18:14:15Z, session: 01a14580-9547-703e-80af-f64ff8a253c7, phase: unphased, kind: phase, action: start, name: ship, model: github-copilot/gpt-6-astra, thinking: high }
+  - { ts: 2026-10-16T18:16:11Z, session: 01a14580-9547-703e-80af-f64ff8a253c7, phase: ship, kind: ship, option: squash }

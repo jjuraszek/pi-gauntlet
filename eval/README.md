@@ -5,12 +5,30 @@ An eval checks change safety on fixed inputs and must-hold facts, not a quality 
 ## Run
 
 ```bash
-node eval/run.mjs <target> [<sample>] [--baseline-only] [--base <ref>]
+node eval/run.mjs <target> [<sample>] [--baseline-only] [--refresh-judgments] [--base <ref>]
 ```
 
 The default run compares baseline skill text from `git merge-base HEAD origin/main` with the working tree, reuses fresh cells, and judges each pair against `intent.md`. `--base <ref>` selects another baseline commit. `<sample>` selects one sample and writes a report labeled partial, not a target-wide pass. `--baseline-only` seeds or refreshes baseline records without checking intent or judging; fresh baselines require no model call. Commit the records and intent with the change. Models are constants, not CLI options.
 
-`EVAL_CONCURRENCY=<n>` (default `4`) bounds how many `pi` children run at once; any value other than a positive integer refuses with `EVAL_CONCURRENCY must be a positive integer, got <v>`. Lower it when the provider rate-limits (a limited cell lands as `status: error`; rerun and reuse picks up the finished cells). The completion line reports what the invocation actually called: `<target>: <worst> (report.md written; replay <n>, judge <n>, confirm <n>, wall <s>s)`; `--baseline-only` prints `baseline seeded (replay <n>, wall <s>s)` or `baseline fresh`. An invocation that calls nothing leaves `report.md` untouched and prints `<target>: <worst> (report.md unchanged; replay <n>, judge <n>, confirm <n>, wall <s>s)`. Ctrl-C keeps the records of samples that finished, writes nothing for samples in flight, and writes no report.
+`EVAL_CONCURRENCY=<n>` (default `4`) bounds how many `pi` children run at once; any value other than a positive integer refuses with `EVAL_CONCURRENCY must be a positive integer, got <v>`. Lower it when the provider rate-limits (a limited cell lands as `status: error`; rerun and reuse picks up the finished cells). The completion line reports what the invocation actually called: `<target>: <worst> (report.md written; replay <n>, judge <n>, confirm <n>, wall <s>s)`; `--baseline-only` prints `baseline seeded (replay <n>, wall <s>s)` or `baseline fresh`. An invocation that calls nothing leaves `report.md` untouched and prints `<target>: <worst> (report.md unchanged; replay <n>, judge <n>, confirm <n>, wall <s>s)`. For ordinary runs, Ctrl-C keeps the records of samples that finished, writes nothing for samples in flight, and writes no report. Judgment is noninteractive: the runner uses an LLM judge, not a human runtime approval gate.
+
+### Recover a disputed saved judgment
+
+Use a judgment-only refresh when a saved judgment is disputed and the saved replies still match the inputs:
+
+```bash
+node eval/run.mjs <target> <sample> --refresh-judgments
+```
+
+Select exactly one sample; omitting it or combining refresh with `--baseline-only` refuses the run. `--base <ref>` still selects the baseline commit. Before any model call or write, the runner checks ordinary structure, hygiene, baseline and intent requirements, then requires reusable successful baseline and candidate replies for every configured replay model. Reuse matches skill and input hashes, kind, assembly, replay-model membership and thinking level. Refresh never promotes a candidate into the baseline. A missing, failed or stale reply refuses refresh rather than generating a replacement. Use an ordinary run to obtain current replies first.
+
+Refresh bypasses judgment currency, recomputes mechanical checks on copies of the saved replies, and calls the LLM judge for every configured replay-model pair. It does not replay either primary arm. A regressed result still gets the normal bounded candidate confirmation replay and judgment; this observation never replaces the saved primary candidate reply. Refresh is not retry-until-pass, automatic acceptance, or evidence that the skill improved.
+
+Read `report.md` together with `results/<sample>/candidate.json`. The completion line names `refresh <sample> [<models>]` and reports actual replay, judge and confirmation call counts. The report is partial, names the sample and models, marks refresh status, and links the candidate audit. `candidate.json` keeps one bounded `refresh` block: input/output and judge identity, the immediately previous judgments (or `null` when absent), refreshed judgments, provenance and any confirmation. Each refresh replaces that block, not an accumulating history; Git retains older versions. An ordinary run preserves the latest block. Primary replies and `baseline.json` remain unchanged. Output text hashes identify the text judged; payload hashes cover the full saved reply, including edit trees and metadata, so the audit can distinguish unchanged text from an unchanged payload.
+
+A completed refresh exits `0` for improved or unchanged, or `1` for regressed, inconclusive or error; `complete` means the attempt finished, not that it passed. Refusal exits `2` without changing records or report. Ctrl-C before admission exits `130` without changing them. After admission, the runner first saves incomplete error judgments, then atomically saves completed cells: Ctrl-C exits `130`, retains completed work, marks remaining work interrupted/error and writes an interrupted partial report. Never read retained old judgments as a successful refresh. A candidate-record save failure exits `1` and leaves `report.md` unchanged; inspect the candidate record for the last successfully saved checkpoint rather than treating the old report as current. An ordinary rerun retries errored judgments while reusing successful current judgments and reusable replies; refresh deliberately re-judges every configured pair, including successful ones.
+
+When interpreting a dispute, distinguish a wrong or ambiguous fact/judge interpretation from intended variance. Correct an unclear fact or judge instruction, then judge again; refresh never widens intent. If a behavior change is genuinely accepted, record its exact fact and direction in `intent.md` as described below and rerun. A different refreshed verdict, a clean rerun, or repeated attempts alone do not justify accepting a deviation.
 
 ## Iterating on a skill edit
 
@@ -35,14 +53,15 @@ A skill file with no version at the baseline refuses the run; use `--base <ref>`
 |---|---|
 | `0` | Pass: improved or unchanged; baseline-only succeeded |
 | `1` | Regressed, inconclusive, or error |
-| `2` | Refused: invalid CLI, target/sample, structure, hygiene, intent, or baseline ref |
+| `2` | Refused: invalid CLI, target/sample, structure, hygiene, intent, baseline ref, or unusable saved replies for refresh |
+| `130` | Interrupted; refresh preserves checkpointed results and writes an interrupted partial report after admission |
 
 ## Layout
 
 ```
 eval/
   README.md                  the process: what a run does, how to add a target or sample, record schema, hygiene rule
-  run.mjs                    the only driver; CLI: node eval/run.mjs <target> [<sample>] [--baseline-only]
+  run.mjs                    the only driver; CLI and recovery flags: see Run above
   judge.md                   the only judge prompt
   anonymize-prompt.md        anonymization prompt for rewriting private material
   lib/
@@ -96,6 +115,14 @@ for: <skillSha of the candidate assembly this intent describes>
 
 `for:` is the first non-blank line and binds to the SHA-256 of the candidate's bundle-free assembly: only `target.json`'s `skillFiles`, not any sample's `bundle+` files or a commit SHA. The mismatch refusal prints the current assembly SHA. Sample and fact ids use letters, digits, underscores, or hyphens and must name existing facts. The move list may be empty. Missing files/headings, the template stub, malformed or unknown bullets, and a stale `for:` refuse the run before model calls. `--baseline-only` bypasses intent parsing but still requires the file structurally. Git holds intent history. Judgment currency hashes the intent without its `for:` line, so a `for:` bump alone re-judges nothing.
 
+For accepted variance, use the existing `## Expected to move` list, for example:
+
+```markdown
+- sample/fact: holds -> fails - The approved edit replaces the old response format.
+```
+
+Name only the accepted fact and direction and explain why the change is intended. A matching observed move becomes `intended change`; other deviations remain regressions or unexplained changes. The rationale is free-form text, not proof of harmless variance. A changed assembly changes the replay input, so it needs current replies rather than a judgment-only refresh of old ones. Contradictions between the fact, intent and observed behavior require review, which may be agent-driven; there is no human runtime adoption stage. Refresh neither inserts these entries nor records acceptance. Do not add one merely to silence a disputed judgment or because a rerun passed.
+
 ## Judge
 
 The question in `eval/judge.md` is: does this output satisfy the fact as written, before and after? The judge sees the case, judged facts, change paragraph, parsed move list, and both outputs; for edits it also sees the fixture before and each resulting tree. It reports `holds` or `fails` for each judged fact plus feedback in exactly one fenced JSON block. Intent does not override observed outcomes. The driver derives labels, including for mechanical facts:
@@ -113,7 +140,7 @@ A regressed cell gets one candidate replay and a new judgment; the label stands 
 
 ## Records
 
-`results/<sample>/{baseline,candidate}.json` holds one record per arm, newest only. The record shape is:
+`results/<sample>/{baseline,candidate}.json` holds one record per arm, newest only, with one bounded previous/refreshed judgment audit in the candidate's `refresh` block after judgment recovery (see Run). Primary replies are not a run history. The record shape is:
 
 ```json
 {
@@ -141,9 +168,9 @@ A regressed cell gets one candidate replay and a new judgment; the label stands 
 
 The alternatives above describe a shape, not literal JSON. Shipped records also carry top-level `thinking`; edit records without an assembly setting use `"assembly": "n/a"`. `tree` exists only for edits. Confirmation includes the replay fields and, on successful judgment, facts and feedback; error judgments may contain only verdict and error. Baseline records have no paired `judge` block.
 
-Replay reuse requires matching `skillSha` (the sample's own assembly after `bundle+` and `bundle-`), `inputSha` (replay instruction, stripped case, bundle paths, sorted fixture paths and contents), `kind`, `assembly`, replay model membership, and `models.thinking`, with `status: ok`. Only stale or failed cells replay. A stored candidate whose `skillSha` matches the base assembly is promoted first, in either mode, with its judge block removed only when the existing baseline is missing or stale for at least one replay model; a baseline that is fresh for every replay model is kept, and normal freshness checks follow.
+Replay reuse requires matching `skillSha` (the sample's own assembly after `bundle+` and `bundle-`), `inputSha` (replay instruction, stripped case, bundle paths, sorted fixture paths and contents), `kind`, `assembly`, replay model membership, and `models.thinking`, with `status: ok`. Only stale or failed cells replay. In ordinary comparison or baseline-only mode (not judgment refresh), a stored candidate whose `skillSha` matches the base assembly is promoted first, with its judge block removed only when the existing baseline is missing or stale for at least one replay model; a baseline that is fresh for every replay model is kept, and normal freshness checks follow.
 
-Judgment currency requires matching `factsSha`, `judgePromptSha`, `intentSha`, `baselineOutputSha`, and `candidateOutputSha`. `wallMs` on a judge entry sums its attempts; `confirmation.judgeWallMs` times the confirmation judgment; both are optional and never affect currency. The report carries a `wall:` line and a `judge ms` column. Changing facts, judge prompt, or intent rejudges reusable outputs without replaying. Records are written only when changed; `repoSha` updates on that write, not on a no-op run. Scratch paths in outputs are stored as `<scratch>`. The comparison report contains the change, bundle-free `for:` SHA, per-cell outcomes and labels, feedback/errors, and final exit code.
+Judgment currency requires matching `factsSha`, `judgePromptSha`, `intentSha`, `baselineOutputSha`, and `candidateOutputSha`. `wallMs` on a judge entry sums its attempts; `confirmation.judgeWallMs` times the confirmation judgment; both are optional and never affect currency. The report carries a `wall:` line and a `judge ms` column. Changing facts, judge prompt, or intent rejudges reusable outputs without replaying. Ordinary runs write records only when changed; `repoSha` updates on that write, not on a no-op run. Explicit refresh writes audit checkpoints even when primary replies are unchanged. Scratch paths in outputs are stored as `<scratch>`. The comparison report contains the change, bundle-free `for:` SHA, per-cell outcomes and labels, feedback/errors, and final exit code.
 
 ## Hygiene and anonymization
 

@@ -1,5 +1,7 @@
 # Eval: per-sample assembly subsets and bounded parallel replay
 
+> **Superseded by:** [doc/specs/2026-10-16-gh-64-refresh-disputed-judgments.md](./2026-10-16-gh-64-refresh-disputed-judgments.md) - Component 2 persistence/cancellation and Report and CLI additions, only for explicit judgment refresh and bounded refresh-audit retention.
+
 **Goal:** A skill edit costs the eval only the cells whose prompt it changes, and the cells it does cost run concurrently - the full-target `report.md` stays the committed evidence while a cold `gatekeep-pr` pass takes about the sum of its cell walls divided by the pool size (roughly 4x faster at the default pool of 4) and a reference-file edit replays only the samples that kept that file.
 **Amend-grant:** every later spec amendment in this flow (corrected facts, paths, verification lines, and scope, acceptance-criteria, or public-contract edits alike) applies without asking; only a redraw (changed problem statement, component added, removed, or re-bounded) still stops for you, and the grant never stands in for a spec approval.
 **Supersedes:** `doc/specs/2026-10-07-gh-50-universal-eval-template.md`, sections "Replay" (assembly inputs) and "Records and report" (freshness identity, runner loop); the template, judge, intent, refusal, and CI contracts stand.
