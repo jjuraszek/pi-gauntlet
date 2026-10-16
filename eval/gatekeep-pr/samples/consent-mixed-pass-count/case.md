@@ -1,3 +1,5 @@
+bundle-: skills/gatekeep-pr/reference/sync.md
+bundle-: skills/gatekeep-pr/reference/assessment.md
 ## Digest
 
 - pr: { number: 642, title: "Reject unsigned events", body: "Reject unsigned events.\nThe rejected path has two tests.\nA small, readable change.\n", author: "river-example", state: OPEN, isDraft: false, headRefName: feature/event-guard, baseRefName: main, headRefOid: 1111111111111111111111111111111111111111, isCrossRepository: false, mergeable: CONFLICTING, mergeStateStatus: DIRTY, headRepository: { nameWithOwner: "meadow/events" }, files: [src/guard.ts, src/guard.test.ts] }

@@ -1,3 +1,4 @@
+bundle-: skills/gatekeep-pr/reference/sync.md
 ## Digest
 
 - pr: { number: 523, title: "Add retry budget to the sync worker", author: "ines-okafor", state: OPEN, isDraft: false, headRefName: feature/retry-budget, baseRefName: main, isCrossRepository: false, mergeable: MERGEABLE, mergeStateStatus: CLEAN, headRefOid: c4e6a8b0d2f4a6c8e0b2d4f6a8c0e2b4d6f8a0c2, files: [projects/x/sync.py, projects/x/tests/test_y.py, dashboard/app/models/widget.rb, dashboard/spec/models/widget_spec.rb] }

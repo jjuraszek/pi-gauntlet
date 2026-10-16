@@ -1,3 +1,5 @@
+bundle-: skills/gatekeep-pr/reference/sync.md
+bundle-: skills/gatekeep-pr/reference/assessment.md
 ## Digest
 
 - pr: { number: 517, title: "Export reports as CSV", author: "tomas-vik", state: OPEN, isDraft: false, headRefName: feature/csv-export, baseRefName: main, isCrossRepository: false, mergeable: MERGEABLE, mergeStateStatus: CLEAN, headRefOid: a9c1e3f5b7d9e1a3c5f7b9d1e3a5c7f9b1d3e5a7, files: [src/api/export.ts, src/api/export.test.ts, docs/exports.md] }

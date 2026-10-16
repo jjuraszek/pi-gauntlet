@@ -1,3 +1,5 @@
+bundle-: skills/gatekeep-pr/reference/sync.md
+bundle-: skills/gatekeep-pr/reference/assessment.md
 ## Digest
 
 - pr: { number: 531, title: "Validate webhook signatures", author: "petra-hale", state: OPEN, isDraft: false, headRefName: feature/webhook-sig, baseRefName: main, isCrossRepository: false, mergeable: MERGEABLE, mergeStateStatus: CLEAN, headRefOid: e1a3c5f7b9d1e3a5c7f9b1d3e5a7c9f1b3d5e7a9, files: [src/webhooks/verify.ts, src/webhooks/verify.test.ts, src/webhooks/handler.ts] }

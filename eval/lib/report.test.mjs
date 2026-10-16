@@ -28,10 +28,17 @@ test("report includes every supplied cell and error reason", () => {
     { sample: "s1", model: "m2", verdict: "inconclusive", mechanical: { f2: "fails" } },
     { sample: "s2", model: "m1", verdict: "error", error: "Replay timed out." },
   ], partial: null, exit: 1 });
-  assert.ok(r.includes("| s1 | m2 | inconclusive | f2: fails |"));
-  assert.ok(r.includes("| s2 | m1 | error |  |"));
+  assert.ok(r.includes("| s1 | m2 | inconclusive |  | f2: fails |"));
+  assert.ok(r.includes("| s2 | m1 | error |  |  |"));
   assert.ok(r.includes("- s2 / m1: error - Replay timed out."));
   assert.equal(r.split("- s1 / m1: Say X.").length - 1, 1);
+});
+
+test("report carries the run wall time and each judgment's wallMs", () => {
+  const r = renderReport({ target: "t", forSha: "abc", change: "CH", rows: [{ ...rows[0], wallMs: 1234 }], partial: null, exit: 1, wallMs: 61499 });
+  assert.ok(r.includes("for: abc\n\nwall: 61s\n"));
+  assert.ok(r.includes("| sample | model | verdict | judge ms | facts |"));
+  assert.ok(r.includes("| s1 | m1 | regressed | 1234 | f1: holds -> fails (regression)"));
 });
 
 test("mechanical facts already present in facts appear once", () => {

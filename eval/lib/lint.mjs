@@ -1,5 +1,6 @@
 import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
 import { join, dirname, relative, isAbsolute } from "node:path";
+import { parseCase } from "./replay.mjs";
 import { parseExpected } from "./checks.mjs";
 
 export const KINDS = ["text", "edit"];
@@ -36,7 +37,16 @@ export function lintTarget(dir) {
     const s = join(samples, n);
     for (const f of ["case.md", "expected.md"]) if (!existsSync(join(s, f))) errs.push(`${n}: ${f} missing`);
     if (existsSync(join(s, "expected.md"))) { try { parseExpected(readFileSync(join(s, "expected.md"), "utf8")); } catch (e) { errs.push(`${n}: ${e.message}`); } }
-    if (target?.kind === "edit" && existsSync(join(s, "case.md")) && /^bundle\+:/m.test(readFileSync(join(s, "case.md"), "utf8"))) errs.push(`${n}: bundle+ not allowed for kind edit`);
+    if (existsSync(join(s, "case.md"))) {
+      const caseText = readFileSync(join(s, "case.md"), "utf8");
+      const { bundle, drop } = parseCase(caseText);
+      if (target?.kind === "edit" && /^bundle\+:/m.test(caseText)) errs.push(`${n}: bundle+ not allowed for kind edit`);
+      if (target?.kind === "edit" && drop.length) errs.push(`${n}: bundle- not allowed for kind edit`);
+      const paths = Array.isArray(target?.skillFiles) ? target.skillFiles.map((f) => f.path) : [];
+      for (const p of drop) if (!paths.includes(p)) errs.push(`${n}: bundle- ${p} not in skillFiles`);
+      if (drop.length && paths.length && paths.every((p) => drop.includes(p))) errs.push(`${n}: bundle- leaves an empty assembly`);
+      for (const p of drop) if (bundle.includes(p)) errs.push(`${n}: ${p} in both bundle+ and bundle-`);
+    }
     if (target?.kind === "edit" && !existsSync(join(s, "fixture"))) errs.push(`${n}: kind edit needs fixture/`);
     if (target?.kind === "text" && existsSync(join(s, "fixture"))) errs.push(`${n}: kind text must not have fixture/`);
   }

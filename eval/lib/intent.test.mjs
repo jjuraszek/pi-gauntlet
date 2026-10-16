@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { parseIntent, INTENT_STUB } from "./intent.mjs";
+import { parseIntent, intentBody, INTENT_STUB } from "./intent.mjs";
 
 const sha = "a".repeat(64);
 const good = `for: ${sha}\n\n## Change\nThe skill now asks the framing question first.\n\n## Expected to move\n- council-first/f2: fails -> holds - the question now precedes approaches\n- council-first/f4: holds -> fails - the old greeting line is gone\n`;
@@ -47,4 +47,12 @@ test("for: mismatch is refused and reports the current sha", () => {
 });
 test("empty move list is valid", () => {
   assert.equal(parseIntent(`for: ${sha}\n\n## Change\nx\n\n## Expected to move\n`, sha).status, "ok");
+});
+
+test("intentBody drops the for: line so two for: values share one body", () => {
+  const other = good.replace(sha, "b".repeat(64));
+  assert.equal(intentBody(good), intentBody(other));
+  assert.equal(intentBody(good), good.replace(`for: ${sha}\n`, ""));
+  assert.equal(intentBody(`\n\n${good}`), `\n\n${intentBody(good)}`);
+  assert.equal(intentBody("## Change\nx\n"), "## Change\nx\n");
 });

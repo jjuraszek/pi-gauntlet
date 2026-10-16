@@ -49,6 +49,15 @@ test("case.md bundle+ lines are stripped from the user turn", () => {
   assert.deepEqual(c.bundle, ["skills/x/SKILL.md"]);
   assert.equal(c.text, "# Digest\nbody\n");
 });
+test("case.md leading bundle- lines are collected as drops and stripped; later ones stay text", () => {
+  const c = parseCase("bundle+: skills/x/extra.md\nbundle-: skills/x/reference/sync.md\n# Digest\nbundle-: late.md\n");
+  assert.deepEqual(c.bundle, ["skills/x/extra.md"]);
+  assert.deepEqual(c.drop, ["skills/x/reference/sync.md"]);
+  assert.equal(c.text, "# Digest\nbundle-: late.md\n");
+});
+test("a case without directives has empty bundle and drop", () => {
+  assert.deepEqual(parseCase("# Digest\n"), { bundle: [], drop: [], text: "# Digest\n" });
+});
 test("text args", () => {
   const a = textArgs("anthropic/claude-opus-5-5", "/tmp/sys.md");
   assert.deepEqual(a, ["-p", "--no-skills", "--no-extensions", "--no-context-files", "--no-session", "--no-tools", "--model", "anthropic/claude-opus-5-5", "--thinking", "medium", "--system-prompt", "/tmp/sys.md"]);

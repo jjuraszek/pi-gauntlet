@@ -1,3 +1,4 @@
+bundle-: skills/gatekeep-pr/reference/sync.md
 ## Digest
 
 - pr: { number: 642, title: "Reject unsigned events", body: "Reject every unsigned event using constant-time comparison.", author: "river-example", state: OPEN, isDraft: false, headRefName: feature/event-guard, baseRefName: main, headRefOid: 1111111111111111111111111111111111111111, isCrossRepository: false, mergeable: MERGEABLE, mergeStateStatus: CLEAN, headRepository: { nameWithOwner: "meadow/events" }, files: [src/guard.ts, src/guard.test.ts] }

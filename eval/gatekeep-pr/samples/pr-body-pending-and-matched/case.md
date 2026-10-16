@@ -1,3 +1,6 @@
+bundle-: skills/gatekeep-pr/reference/sync.md
+bundle-: skills/gatekeep-pr/reference/fix-wave.md
+bundle-: skills/gatekeep-pr/reference/assessment.md
 ## Digest
 
 - pr: { number: 642, title: "Reject unsigned events", body: "The rejected path has a test.\nProduction observation is pending.\nA small, readable change.\n", author: "river-example", state: OPEN, isDraft: false, headRefName: feature/event-guard, baseRefName: main, headRefOid: 1111111111111111111111111111111111111111, isCrossRepository: false, mergeable: MERGEABLE, mergeStateStatus: CLEAN, headRepository: { nameWithOwner: "meadow/events" }, files: [src/guard.ts, src/guard.test.ts] }

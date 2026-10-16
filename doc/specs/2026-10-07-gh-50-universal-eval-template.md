@@ -1,5 +1,7 @@
 # Universal eval driver, paired intent-aware judge, and `eval/_template`
 
+> **Superseded by:** [doc/specs/2026-10-16-eval-granular-staleness-parallel-runs.md](./2026-10-16-eval-granular-staleness-parallel-runs.md) - "Replay" (assembly inputs) and "Records and report" (freshness identity, runner loop) sections only
+
 **Goal:** Replace the eight per-target eval runners with one driver, one judge prompt, and one directory shape, so that a skill, persona, or prompt edit is checked unattended by two frozen replay models and one frozen judge that compares the before and after outputs against a committed intent, keeps only the newest records, and fails on any deviation the intent does not own.
 **Amend-grant:** every later spec amendment in this flow (corrected facts, paths, verification lines, and scope, acceptance-criteria, or public-contract edits alike) applies without asking; only a redraw (changed problem statement, component added, removed, or re-bounded) still stops for you, and the grant never stands in for a spec approval.
 **Ticket:** jjuraszek/pi-gauntlet#50

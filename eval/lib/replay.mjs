@@ -45,14 +45,14 @@ export function assemble(target, read, extra = []) {
   return parts.join("\n");
 }
 
+// Leading `bundle+: <path>` lines add files to the assembly; `bundle-: <path>` drops target.json skillFiles entries.
 export function parseCase(text) {
-  const bundle = [];
-  const kept = [];
+  const bundle = [], drop = [], kept = [];
   for (const line of text.split("\n")) {
-    const m = /^bundle\+: (\S+)\s*$/.exec(line);
-    if (m && kept.length === 0) bundle.push(m[1]); else kept.push(line);
+    const m = /^bundle([+-]): (\S+)\s*$/.exec(line);
+    if (m && kept.length === 0) (m[1] === "+" ? bundle : drop).push(m[2]); else kept.push(line);
   }
-  return { bundle, text: kept.join("\n") };
+  return { bundle, drop, text: kept.join("\n") };
 }
 
 export function textArgs(model, systemPromptPath) {

@@ -75,6 +75,34 @@ test("every committed target and _template pass", () => {
   assert.deepEqual(Object.values(r).flat(), []);
 });
 
+test("bundle- must name a skillFiles entry", () => {
+  const { t } = mk("text");
+  writeFileSync(join(t, "samples/one/case.md"), "bundle-: skills/x/other.md\ncase\n");
+  assert.match(lintTarget(t).join("\n"), /^one: bundle- skills\/x\/other.md not in skillFiles$/m);
+});
+test("bundle- may not empty the assembly", () => {
+  const { t } = mk("text");
+  writeFileSync(join(t, "samples/one/case.md"), "bundle-: skills/x/SKILL.md\ncase\n");
+  assert.match(lintTarget(t).join("\n"), /^one: bundle- leaves an empty assembly$/m);
+});
+test("edit cases reject bundle- lines", () => {
+  const { t } = mk("edit");
+  writeFileSync(join(t, "samples/one/case.md"), "bundle-: skills/x/SKILL.md\ncase\n");
+  assert.match(lintTarget(t).join("\n"), /^one: bundle- not allowed for kind edit$/m);
+});
+test("a path in both bundle+ and bundle- is rejected", () => {
+  const { t } = mk("text");
+  writeFileSync(join(t, "target.json"), JSON.stringify({ kind: "text", skillFiles: [{ path: "skills/x/SKILL.md" }, { path: "skills/x/extra.md" }], assembly: "concat", wordCap: 100 }));
+  writeFileSync(join(t, "samples/one/case.md"), "bundle+: skills/x/extra.md\nbundle-: skills/x/extra.md\ncase\n");
+  assert.match(lintTarget(t).join("\n"), /^one: skills\/x\/extra.md in both bundle\+ and bundle-$/m);
+});
+test("a valid bundle- subset passes", () => {
+  const { t } = mk("text");
+  writeFileSync(join(t, "target.json"), JSON.stringify({ kind: "text", skillFiles: [{ path: "skills/x/SKILL.md" }, { path: "skills/x/extra.md" }], assembly: "concat", wordCap: 100 }));
+  writeFileSync(join(t, "samples/one/case.md"), "bundle-: skills/x/extra.md\ncase\n");
+  assert.deepEqual(lintTarget(t), []);
+});
+
 test("edit skill entries reject slicing and body even when false", () => {
   for (const key of ["slice", "sliceTo", "body"]) {
     const { t } = mk("edit");

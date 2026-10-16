@@ -17,4 +17,6 @@ Forty-three synthetic digest samples test command and helper narration through t
 
 Baseline capture with `node eval/run.mjs gatekeep-pr --baseline-only --base <ref>` succeeds when baseline replay outputs are usable; it does not check intent, judge facts, or write `report.md`. Run the target-wide candidate comparison with `node eval/run.mjs gatekeep-pr --base <ref>` against the same pinned baseline. Delivery requires every new or changed must-hold fact to have `after: holds` for both frozen replay models in the committed candidate results, with no regression, error, or inconclusive outcome. A successful exit or aggregate `improved`/`unchanged` verdict is not sufficient: unchanged failures can be labeled `pre-existing` or `intended but unchanged`.
 
+Samples use `bundle-` lines in `case.md` to drop the reference files their facts never exercise (`sync.md` outside `--rebase` digests, `assessment.md` and `fix-wave.md` where no config or fix-wave fact exists); samples whose facts span the whole workflow keep the complete assembly and carry no `bundle-` line, so a reference edit replays only the samples that keep it.
+
 Process, commands, and record schema: [eval process](../README.md).

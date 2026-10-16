@@ -3,25 +3,20 @@ import { existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, statSync
 import { join, resolve, dirname, basename, relative } from "node:path";
 import { tmpdir } from "node:os";
 import { fileURLToPath } from "node:url";
-import { execFileSync, spawnSync } from "node:child_process";
+import { execFileSync } from "node:child_process";
 import { parseArgs } from "node:util";
 import { MODELS, judgeArg } from "./lib/models.mjs";
-import { parseIntent } from "./lib/intent.mjs";
+import { parseIntent, intentBody } from "./lib/intent.mjs";
 import { parseExpected, runMechanical, wordCount, sha256 } from "./lib/checks.mjs";
 import { scanText, scanTree, redact } from "./lib/hygiene.mjs";
 import { assemble, parseCase, textArgs, editArgs, prepareFixture, captureEdit, readTree, inputSha, baseReader, treeReader, PI_FLAGS } from "./lib/replay.mjs";
 import { parseJudgeReply, deriveLabels, cellVerdict, worseVerdict, buildJudgePrompt } from "./lib/judge.mjs";
 import { baselineFresh, judgmentCurrent, promote, readRecord, writeRecord, cellReusable } from "./lib/records.mjs";
 import { renderReport } from "./lib/report.mjs";
+import { spawnCommand, limiter } from "./lib/spawn.mjs";
 import { lintTarget } from "./lib/lint.mjs";
 
-export function defaultSpawn(args, { cwd, input }) {
-  const start = Date.now();
-  const res = spawnSync("pi", args, { cwd, input, encoding: "utf8", timeout: 600000, maxBuffer: 64 * 1024 * 1024 });
-  const wallMs = Date.now() - start;
-  if (res.error || res.status !== 0 || !res.stdout?.trim()) return { status: "error", stderr: res.error?.code === "ETIMEDOUT" ? "timeout" : res.error ? String(res.error) : res.stderr?.trim() || (res.status !== 0 ? `exit ${res.status}` : "empty output"), wallMs };
-  return { status: "ok", stdout: res.stdout, wallMs };
-}
+export const defaultSpawn = (args, options) => spawnCommand("pi", args, options);
 const git = (root, ...args) => execFileSync("git", args, { cwd: root, encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] }).trim();
 const read = (path) => readFileSync(path, "utf8");
 
@@ -38,6 +33,9 @@ function editInput(skillFiles, caseText, fixtureDir) {
 }
 
 function writeChanged(results, sample, arm, record, repoSha) {
+  for (const key of ["outputs", "judge"]) {
+    if (record[key]) record[key] = Object.fromEntries(MODELS.replay.filter((model) => model in record[key]).map((model) => [model, record[key][model]]));
+  }
   const path = join(results, sample, `${arm}.json`);
   if (!existsSync(path) || read(path) !== JSON.stringify(record, null, 2) + "\n") {
     record.repoSha = repoSha;
@@ -45,10 +43,11 @@ function writeChanged(results, sample, arm, record, repoSha) {
   }
 }
 
-function confirm(entry, replayCell, judgeCell, labels) {
-  const again = replayCell();
-  const judged = again.status === "ok" ? judgeCell(again) : { error: again.error };
+async function confirm(entry, replayCell, judgeCell, labels) {
+  const again = await replayCell();
+  const judged = again.status === "ok" ? await judgeCell(again) : { error: again.error };
   entry.confirmation = { ...again };
+  if (judged.wallMs !== undefined) entry.confirmation.judgeWallMs = judged.wallMs;
   if (judged.error) {
     entry.confirmation.error = judged.error;
     entry.error = judged.error;
@@ -62,18 +61,17 @@ function confirm(entry, replayCell, judgeCell, labels) {
   if (!reproduced) entry.verdict = "inconclusive";
 }
 
-function judgeEntry({ current, previous, judgeCell, candidate, labels, replayCell }) {
+async function judgeEntry({ current, previous, judgeCell, candidate, labels, replayCell }) {
   if (judgmentCurrent(previous, current)) return previous;
-  const judged = judgeCell(candidate);
+  const judged = await judgeCell(candidate);
   if (judged.error) return { verdict: "error", error: judged.error };
-  const entry = { ...current, facts: labels(judged, candidate), feedback: judged.feedback };
+  const entry = { ...current, facts: labels(judged, candidate), feedback: judged.feedback, wallMs: judged.wallMs };
   entry.verdict = cellVerdict(entry.facts);
-  if (entry.verdict === "regressed") confirm(entry, replayCell, judgeCell, labels);
+  if (entry.verdict === "regressed") await confirm(entry, replayCell, judgeCell, labels);
   if (entry.verdict === "error") for (const key of Object.keys(current)) delete entry[key];
   return entry;
 }
-
-function replay({ target, skill, skillFiles, replayText, caseText, fixtureDir, facts, model, spawn }) {
+async function replay({ target, skill, skillFiles, replayText, caseText, fixtureDir, facts, model, spawn }) {
   const dir = mkdtempSync(join(tmpdir(), "eval-skill-"));
   const path = join(dir, "SKILL.md");
   let cwd = dir;
@@ -90,7 +88,7 @@ function replay({ target, skill, skillFiles, replayText, caseText, fixtureDir, f
     const input = target.kind === "edit" ? editInput(skillFiles, caseText, fixtureDir) : `${replayText}\n\n${caseText}`;
     const scratchPaths = [...new Set([dir, cwd].flatMap((scratch) => [scratch, realpathSync(scratch)]))].sort((a, b) => b.length - a.length);
     const scrub = (text) => scratchPaths.reduce((output, scratch) => output.replaceAll(scratch, "<scratch>"), text);
-    const out = spawn(args, { cwd, input });
+    const out = await spawn(args, { cwd, input });
     if (out.status !== "ok") {
       const safe = safeOutput(scrub(out.stderr || "replay failed"), target.denylist);
       return { status: "error", error: safe.error || safe.text, ...(safe.error ? { text: safe.text } : {}), wallMs: out.wallMs };
@@ -118,20 +116,20 @@ function replay({ target, skill, skillFiles, replayText, caseText, fixtureDir, f
   }
 }
 
-function judge({ spawn, judgeText, caseText, facts, intent, before, after, beforeTree, baselineTree, candidateTree, denylist }) {
+async function judge({ spawn, judgeText, caseText, facts, intent, before, after, beforeTree, baselineTree, candidateTree, denylist }) {
   const prompt = buildJudgePrompt({ judgeText, caseText, facts, ...intent, before, after, beforeTree, baselineTree, candidateTree });
-  let error = "";
+  let error = "", wallMs = 0;
   for (let attempt = 0; attempt < 2; attempt++) {
-    const res = spawn([...PI_FLAGS, "--no-tools", ...judgeArg()], { cwd: tmpdir(), input: prompt + (attempt ? `\n\nYour previous reply was rejected: ${error}. Reply again with exactly one fenced JSON block.` : "") });
+    const res = await spawn([...PI_FLAGS, "--no-tools", ...judgeArg()], { cwd: tmpdir(), input: prompt + (attempt ? `\n\nYour previous reply was rejected: ${error}. Reply again with exactly one fenced JSON block.` : "") });
+    wallMs += res.wallMs ?? 0;
     const safe = safeOutput(res.stdout || res.stderr || "", denylist);
-    if (safe.error) return { error: safe.error, text: safe.text };
+    if (safe.error) return { error: safe.error, text: safe.text, wallMs };
     if (res.status !== "ok") { error = res.stderr || "judge failed"; continue; }
-    try { return parseJudgeReply(safe.text, facts.filter((f) => f.kind === "judged").map((f) => f.id)); }
+    try { return { ...parseJudgeReply(safe.text, facts.filter((f) => f.kind === "judged").map((f) => f.id)), wallMs }; }
     catch (e) { error = e.message; }
   }
-  return { error };
+  return { error, wallMs };
 }
-
 function labeled(sample, judged, facts, before, after, moves) {
   const outcomes = { ...judged.facts };
   const b = before.mechanical;
@@ -139,9 +137,12 @@ function labeled(sample, judged, facts, before, after, moves) {
   return deriveLabels(sample, outcomes, moves);
 }
 
-export function runTarget({ root, target: name, sample: only, baselineOnly = false, base, spawn = defaultSpawn }) {
+export async function runTarget({ root, target: name, sample: only, baselineOnly = false, base, spawn = defaultSpawn, concurrency = process.env.EVAL_CONCURRENCY ?? 4, signal }) {
+  const started = Date.now();
   const dir = join(root, "eval", name);
   const refuse = (message) => ({ exit: 2, message });
+  const pool = Number(concurrency);
+  if (!Number.isInteger(pool) || pool < 1) return refuse(`EVAL_CONCURRENCY must be a positive integer, got ${concurrency}`);
   if (!existsSync(dir) || !statSync(dir).isDirectory()) return refuse(`unknown target: ${name}`);
   const errors = lintTarget(dir);
   if (errors.length) return refuse(`lint: ${name}:\n  ${errors.join("\n  ")}`);
@@ -167,8 +168,8 @@ export function runTarget({ root, target: name, sample: only, baselineOnly = fal
   };
   const baseRead = checkedReader(baseRef, baseReader(root, baseRef));
   const treeRead = checkedReader("working tree", treeReader(root));
-  const checkedAssembly = (reader, ref, bundle = []) => {
-    const parts = target.skillFiles.map((file) => {
+  const checkedAssembly = (reader, ref, skillFiles, bundle = []) => {
+    const parts = skillFiles.map((file) => {
       try { return assemble({ ...target, skillFiles: [file] }, reader); }
       catch (e) {
         if (e.message.startsWith(`${file.path} at `)) throw e;
@@ -180,7 +181,7 @@ export function runTarget({ root, target: name, sample: only, baselineOnly = fal
   };
   let forSha, intentParsed;
   try {
-  forSha = sha256(checkedAssembly(treeRead, "working tree"));
+  forSha = sha256(checkedAssembly(treeRead, "working tree", target.skillFiles));
   intentParsed = baselineOnly ? undefined : parseIntent(intentText, forSha, knownFacts);
   if (intentParsed && intentParsed.status !== "ok") return refuse(`intent: ${intentParsed.reason}`);
   const rawFiles = (reader) => target.skillFiles.map((file) => ({ path: file.path, content: reader(file.path) }));
@@ -188,11 +189,12 @@ export function runTarget({ root, target: name, sample: only, baselineOnly = fal
   const candFiles = target.kind === "edit" ? rawFiles(treeRead) : undefined;
   for (const sample of names.filter((n) => !only || n === only)) {
     const sdir = join(dir, "samples", sample);
-    const { bundle, text: caseText } = parseCase(read(join(sdir, "case.md")));
+    const { bundle, drop, text: caseText } = parseCase(read(join(sdir, "case.md")));
+    const skillFiles = target.skillFiles.filter((file) => !drop.includes(file.path));
     const expectedText = read(join(sdir, "expected.md"));
     const { facts } = parseExpected(expectedText);
-    const baseSkill = checkedAssembly(baseRead, baseRef, bundle);
-    const candSkill = checkedAssembly(treeRead, "working tree", bundle);
+    const baseSkill = checkedAssembly(baseRead, baseRef, skillFiles, bundle);
+    const candSkill = checkedAssembly(treeRead, "working tree", skillFiles, bundle);
     const skillHygiene = scanText(baseSkill + "\n" + candSkill, target.denylist);
     if (skillHygiene.length) return refuse(`hygiene: skill assembly: ${skillHygiene.map((h) => h.rule).join(",")}`);
     const fixtureDir = join(sdir, "fixture");
@@ -202,51 +204,72 @@ export function runTarget({ root, target: name, sample: only, baselineOnly = fal
   }
   } catch (e) { return refuse(e.message); }
   const results = join(dir, "results");
-  const rows = [];
-  let worst = "improved", called = false;
-  for (const plan of plans) {
+  const counts = { replay: 0, judge: 0, confirm: 0 };
+  const limited = limiter(pool);
+  // The pooled unit is one adapter call; orchestration above it never holds a slot while awaiting.
+  const call = (args, options) => limited(async () => {
+    if (signal?.aborted) return { status: "error", stderr: "aborted", wallMs: 0 };
+    try { return await spawn(args, { ...options, signal }); }
+    catch (e) { return { status: "error", stderr: e?.message ?? String(e), wallMs: 0 }; }
+  });
+  const intentSha = sha256(intentBody(intentText));
+  const judgePromptSha = sha256(judgeText);
+  const rowsBySample = plans.map(() => []);
+  const baselineErrors = [];
+  const runSample = async (plan, index) => {
     const { sample, facts, baseSkill, candSkill, input, expectedText } = plan;
     const identity = (skill) => ({ skillSha: sha256(skill), inputSha: input, kind: target.kind, assembly: target.assembly ?? "n/a", thinking: MODELS.thinking });
     const freshRecord = (arm, skill) => ({ sample, arm, ...identity(skill), models: { replay: [...MODELS.replay], judge: MODELS.judge, thinking: MODELS.thinking }, outputs: {} });
-    const replayCell = (skill, model, skillFiles) => { called = true; return replay({ ...plan, target, skill, skillFiles, replayText, model, spawn }); };
+    const replayCell = (skill, model, skillFiles, kind = "replay") => { counts[kind]++; return replay({ ...plan, target, skill, skillFiles, replayText, model, spawn: call }); };
+    const judgeSpawn = (args, options) => { counts.judge++; return call(args, options); };
     let baseline = readRecord(results, sample, "baseline");
     const stored = readRecord(results, sample, "candidate");
-    if (stored?.skillSha === sha256(baseSkill)) baseline = promote(structuredClone(stored));
+    if (!baselineFresh(baseline, MODELS.replay, identity(baseSkill)).fresh && stored?.skillSha === sha256(baseSkill)) baseline = promote(structuredClone(stored));
     const stale = baselineFresh(baseline, MODELS.replay, identity(baseSkill)).stale;
     if (!baseline || stale.length === MODELS.replay.length) baseline = freshRecord("baseline", baseSkill);
-    for (const model of stale) baseline.outputs[model] = replayCell(baseSkill, model, plan.baseFiles);
-    if (baselineOnly) {
-      writeChanged(results, sample, "baseline", baseline, repoSha);
-      for (const model of MODELS.replay) if (baseline.outputs[model]?.status !== "ok") { worst = "error"; rows.push({ error: `${sample}/${model}: ${baseline.outputs[model]?.error}` }); }
-      continue;
-    }
-    const cand = stored && MODELS.replay.some((m) => cellReusable(stored, m, identity(candSkill))) ? stored : freshRecord("candidate", candSkill);
-    cand.judge ??= {};
-    for (const model of MODELS.replay) {
-      if (!cellReusable(cand, model, identity(candSkill))) { cand.outputs[model] = replayCell(candSkill, model, plan.candFiles); delete cand.judge[model]; }
-      const b = baseline.outputs[model], c = cand.outputs[model];
+    const cand = baselineOnly ? null : stored && MODELS.replay.some((m) => cellReusable(stored, m, identity(candSkill))) ? stored : freshRecord("candidate", candSkill);
+    if (cand) cand.judge ??= {};
+    await Promise.all(MODELS.replay.map(async (model, m) => {
+      const baselinePromise = stale.includes(model) ? replayCell(baseSkill, model, plan.baseFiles) : baseline.outputs[model];
+      const candidatePromise = !baselineOnly && !cellReusable(cand, model, identity(candSkill)) ? replayCell(candSkill, model, plan.candFiles) : cand?.outputs[model];
+      const [b, c] = await Promise.all([baselinePromise, candidatePromise]);
+      baseline.outputs[model] = b;
+      if (baselineOnly) return;
+      cand.outputs[model] = c;
       if (b?.status !== "ok" || c.status !== "ok") cand.judge[model] = { verdict: "error", error: c.status !== "ok" ? c.error : `baseline: ${b?.error}` };
       else {
         b.mechanical = runMechanical(facts, b.text);
         c.mechanical = runMechanical(facts, c.text);
-        const current = { factsSha: sha256(expectedText), judgePromptSha: sha256(judgeText), intentSha: sha256(intentText), baselineOutputSha: sha256(b.text), candidateOutputSha: sha256(c.text) };
-        const judgeCell = (after) => judge({ spawn, judgeText, ...plan, intent: intentParsed, before: b.text, after: after.text, baselineTree: target.kind === "edit" ? b.tree : undefined, candidateTree: target.kind === "edit" ? after.tree : undefined, denylist: target.denylist });
-        cand.judge[model] = judgeEntry({ current, previous: cand.judge[model], judgeCell, candidate: c,
+        const current = { factsSha: sha256(expectedText), judgePromptSha, intentSha, baselineOutputSha: sha256(b.text), candidateOutputSha: sha256(c.text) };
+        const judgeCell = (after) => judge({ spawn: judgeSpawn, judgeText, ...plan, intent: intentParsed, before: b.text, after: after.text, baselineTree: target.kind === "edit" ? b.tree : undefined, candidateTree: target.kind === "edit" ? after.tree : undefined, denylist: target.denylist });
+        cand.judge[model] = await judgeEntry({ current, previous: stored?.judge?.[model], judgeCell, candidate: c,
           labels: (judged, after) => labeled(sample, judged, facts, b, after, intentParsed.moves),
-          replayCell: () => replayCell(candSkill, model, plan.candFiles) });
+          replayCell: () => replayCell(candSkill, model, plan.candFiles, "confirm") });
       }
-      rows.push({ sample, model, mechanical: c.mechanical ?? {}, ...cand.judge[model] });
-      worst = worseVerdict(worst, cand.judge[model].verdict);
-    }
+      rowsBySample[index][m] = { sample, model, mechanical: c.mechanical ?? {}, ...cand.judge[model] };
+    }));
+    if (signal?.aborted) return;
     writeChanged(results, sample, "baseline", baseline, repoSha);
+    if (baselineOnly) {
+      for (const model of MODELS.replay) if (baseline.outputs[model]?.status !== "ok") baselineErrors.push(`${sample}/${model}: ${baseline.outputs[model]?.error}`);
+      return;
+    }
     writeChanged(results, sample, "candidate", cand, repoSha);
-  }
-  if (baselineOnly) return { exit: worst === "error" ? 1 : 0, message: worst === "error" ? rows.map((r) => r.error).join("\n") : called ? "baseline seeded" : "baseline fresh" };
+  };
+  await Promise.all(plans.map(runSample));
+  const called = counts.replay + counts.judge + counts.confirm;
+  const wall = `wall ${Math.round((Date.now() - started) / 1000)}s`;
+  if (signal?.aborted) return { exit: 130, message: `${name}: interrupted (${wall}); in-flight samples not written, report.md not written` };
+  if (baselineOnly) return { exit: baselineErrors.length ? 1 : 0, message: baselineErrors.length ? baselineErrors.join("\n") : called ? `baseline seeded (replay ${counts.replay}, ${wall})` : "baseline fresh" };
+  const rows = rowsBySample.flat();
+  let worst = "improved";
+  for (const row of rows) worst = worseVerdict(worst, row.verdict);
   const exit = ["error", "inconclusive", "regressed"].includes(worst) ? 1 : 0;
-  writeFileSync(join(dir, "report.md"), renderReport({ target: name, forSha, change: intentParsed.change, rows, partial: only ?? null, exit }));
-  return { exit, message: `${name}: ${worst} (report.md written)` };
+  const tally = `replay ${counts.replay}, judge ${counts.judge}, confirm ${counts.confirm}, ${wall}`;
+  if (!called) return { exit, message: `${name}: ${worst} (report.md unchanged; ${tally})` };
+  writeFileSync(join(dir, "report.md"), renderReport({ target: name, forSha, change: intentParsed.change, rows, partial: only ?? null, exit, wallMs: Date.now() - started }));
+  return { exit, message: `${name}: ${worst} (report.md written; ${tally})` };
 }
-
 if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
   let parsed;
   try {
@@ -258,7 +281,9 @@ if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.ur
   }
   const [target, sample] = parsed.positionals;
   const { base, "baseline-only": baselineOnly } = parsed.values;
-  const result = runTarget({ root: resolve(dirname(fileURLToPath(import.meta.url)), ".."), target, sample, baselineOnly, base });
+  const controller = new AbortController();
+  process.once("SIGINT", () => controller.abort());
+  const result = await runTarget({ root: resolve(dirname(fileURLToPath(import.meta.url)), ".."), target, sample, baselineOnly, base, signal: controller.signal });
   console[result.exit ? "error" : "log"](result.message);
   process.exit(result.exit);
 }

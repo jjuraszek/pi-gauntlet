@@ -30,3 +30,11 @@ export function parseIntent(text, candidateSha, knownFacts) {
   }
   return { status: "ok", change: change[1].trim(), moves: parsed };
 }
+
+// The judge never sees the for: line, so judgment currency keys on the rest of the file.
+export function intentBody(text) {
+  const lines = text.split(/\r?\n/);
+  const first = lines.findIndex((line) => line.trim());
+  if (first >= 0 && /^for: \S+\s*$/.test(lines[first])) lines.splice(first, 1);
+  return lines.join("\n");
+}
