@@ -1,5 +1,11 @@
 # Changelog
 
+## v7.13.0 - 2026-10-16
+
+### Added
+
+- **gatekeep-pr `merge policy: rebase`.** The `## PR gate` key accepts `rebase` beside `squash` (default) and `merge-commit`; the `merge` pick maps the policy to `gh pr merge --squash | --merge | --rebase --match-head-commit <assessed-sha>`. Before merging, the gate reads the repo's allowed methods with `gh api repos/{owner}/{repo} --jq '{allow_squash_merge,allow_merge_commit,allow_rebase_merge}'` and a policy the repo disables is a named blocker on the `merge` pick instead of a `gh` failure. A menu pick authorizes every command it needs; the agent runs them itself and never prints one for the human to paste.
+
 ## v7.12.1 - 2026-10-16
 
 ### Added

@@ -481,7 +481,7 @@ customization lives in three places, never in the wrapper itself:
 - ci checks: <comma-separated check names>   # optional; narrows which checks count as evidence; absent = all checks on the assessed head
 - worktree wrapper: <command>                # optional
 - issue fetch: <command with <ref> placeholder>   # optional, replaces gh issue view
-- merge policy: squash | merge-commit        # optional
+- merge policy: squash | merge-commit | rebase   # optional; default squash
 ```
 
 - **The gauntlet overrides file, `## cleanup` section** - the ordered post-gate steps the `cleanup` menu row runs (contract under Project-specific overrides above).

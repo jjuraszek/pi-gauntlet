@@ -72,6 +72,7 @@ All must hold before `merge` executes; a `merge` pick while one fails is refused
 - `merge_state_status` is not `BLOCKED`, `UNKNOWN`, or `unreadable`, and the pre-menu refresh succeeded (`### Pre-menu refresh`); a non-`BLOCKED` value is never a verdict - it only leaves this row satisfied, and a `gh pr merge` refusal is reported verbatim
 - no retained, unreviewed comment delta (`### Re-render` step 4)
 - worktree tracked-clean and synced with the remote head (fixes pushed first)
+- the repo allows the resolved merge policy: read `gh api repos/<owner>/<repo> --jq '{allow_squash_merge,allow_merge_commit,allow_rebase_merge}'` and require the policy's flag (`squash` -> `allow_squash_merge`, `merge-commit` -> `allow_merge_commit`, `rebase` -> `allow_rebase_merge`) to be `true`; a `false` is a blocker on the `merge` pick, named as `merge policy <policy> is disabled on <owner>/<repo>`, never a `gh pr merge` failure
 - the compare-and-swap below passes
 
 ### Compare-and-swap
@@ -88,7 +89,7 @@ Apply per `fix-wave.md`: the local conflict check, one fresh implementer helper 
 
 ### Merge course
 
-`merge` executes as `gh pr merge --match-head-commit <assessed-sha>` with the resolved merge policy. Push and merge are never one pick.
+`merge` executes as `gh pr merge --match-head-commit <assessed-sha>` with the flag of the resolved merge policy: `squash` -> `--squash`, `merge-commit` -> `--merge`, `rebase` -> `--rebase`. Push and merge are never one pick.
 
 After `gh pr merge` returns, read `gh pr view <N> --json state,mergeCommit`. `state: MERGED` -> write the returned `state` into `pr.state` and `mergeCommit.oid` into `pr.merge_commit` (the same two writes when a queued merge's `wait` re-read returns `MERGED`), render the `AC coverage` block once and re-render the menu under the `own merge` overlay (`decision-menu.md`); any other state (a merge queue) -> one `PR comments` line `The merge is queued, so coverage posts wait. (<state>)` and the menu `wait` (re-run the read) / `show evidence` / `stop`. The block, `<sha>` = `mergeCommit.oid`, one row per `scope.rows` entry in row order with its outcome (`covered`, `deferred per spec to <ref>`, `deviates per spec: <why>`, `elsewhere per spec: <repo>`, `venue: <env> - <observation>, checked before prod deploy`); with no rows (`source: pr`, or an empty `scope.rows`) the block has no row lines and `post coverage to ticket` is not offered. With `source: pr` the header line drops `, spec <path>`. An `in-scope` row whose observation half is `not judged here` renders `covered; observable half checked after merge`.
 

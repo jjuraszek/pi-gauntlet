@@ -20,7 +20,7 @@ Rows are `<n>. <verb> - <consequence>`; every row, `stop` included, carries its 
 - `approve workflow run` - `gh api --method POST repos/<base-owner>/<base-repo>/actions/runs/<id>/approve` for a held run on the assessed head, then re-enter the refresh (`post-selection-loop.md` `### Pre-menu refresh`)
 - `update branch` - `gh pr update-branch <N>`, then fast-forward the worktree to the new head (`fix-wave.md` `## Conflicts`); renders on a conflict with no wave commit, or when `merge_state_status` is `BEHIND` at the merge preconditions
 - `merge base` - retain merging the recorded base and resolving conflicts through reviewed helper work and push during this run until readiness or a new decision boundary (`fix-wave.md`)
-- `merge` - `gh pr merge --match-head-commit <assessed-sha>` with the resolved `merge policy` (default squash); preconditions per `post-selection-loop.md` `### Merge preconditions`
+- `merge` - `gh pr merge --match-head-commit <assessed-sha>` with the flag of the resolved `merge policy` (`squash` -> `--squash`, `merge-commit` -> `--merge`, `rebase` -> `--rebase`; default squash); preconditions per `post-selection-loop.md` `### Merge preconditions`, including the repo allowing that method
 - `merge anyway` - merge while the pending-reviewer overlay withholds it; prints what it overrode
 - `reply` - post the drafted replies under `PR comments` (`reply <n>` for one)
 - `post coverage to ticket` - post the rendered `AC coverage` block as a comment on the source ticket via the resolved tracker verb (`gh issue comment`, the overrides' tracker mapping, or `/skill:linear`); renders only under the `own merge` overlay

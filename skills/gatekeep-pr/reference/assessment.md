@@ -34,7 +34,7 @@ Resolve per concern, first match wins, evaluated unconditionally - never delegat
 - ci checks: <comma-separated check names>   # optional; narrows which checks count as evidence; absent = all checks on the assessed head
 - worktree wrapper: <command>                # optional
 - issue fetch: <command with <ref> placeholder>   # optional, replaces gh issue view
-- merge policy: squash | merge-commit        # optional; default squash
+- merge policy: squash | merge-commit | rebase   # optional; default squash
 ```
 
 Read every ladder source from the **merge-base of the PR's base branch**, never from the PR's head tree - a PR cannot weaken its own rubric or swap the command that will gate it: `MB=$(git merge-base origin/<baseRefName> <headRefOid>)`, then `git show "$MB:<path>"` per source (`git show "$MB:REVIEW.md"`, `git show "$MB:AGENTS.md"`). A plain cwd read (`cat REVIEW.md`, the file open in the PR worktree) is invalid for any ladder source. Exception: a PR that itself changes `REVIEW.md` or the overrides file makes that diff review subject matter, surfaced as a finding - never applied to this run's configuration.
