@@ -1,6 +1,6 @@
 # Configuration reference
 
-Deep reference for pi-gauntlet's gates. See the [README](../README.md) for the workflow overview.
+Deep reference for pi-gauntlet's gates. The [README front door](../README.md#configuring-the-gates) lists every key with its default; the overrides-file headings are at [Project-specific overrides](../README.md#project-specific-overrides).
 
 ## Conformance gate model
 

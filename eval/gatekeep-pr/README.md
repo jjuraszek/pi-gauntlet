@@ -20,3 +20,5 @@ Baseline capture with `node eval/run.mjs gatekeep-pr --baseline-only --base <ref
 Samples use `bundle-` lines in `case.md` to drop the reference files their facts never exercise (`sync.md` outside `--rebase` digests, `assessment.md` and `fix-wave.md` where no config or fix-wave fact exists); samples whose facts span the whole workflow keep the complete assembly and carry no `bundle-` line, so a reference edit replays only the samples that keep it.
 
 Process, commands, and record schema: [eval process](../README.md).
+
+Samples prefixed `cleanup-keyed-` enter at the `cleanup` pick with a keyed `## using-git-worktrees` contract in the merge-base overrides and judge the ownership match before removal.

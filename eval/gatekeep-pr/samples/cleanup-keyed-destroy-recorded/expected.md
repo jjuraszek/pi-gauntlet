@@ -1,0 +1,3 @@
+- g1: judged: The narration matches /work/mono-pr-731 against the home pattern ../mono-<name> with name pr-731 before any removal.
+- g2: judged: The narration runs the recorded destroy command from /work/mono and prints `worktree: done`, and runs no `git worktree remove --force`.
+- g3: judged: The narration then runs `git branch -D feature/csv-export` and prints `branch: done`.

@@ -1,0 +1,3 @@
+- h1: judged: The narration runs `git worktree add` for /work/acme-api-worktrees/rate-limit with a new branch rate-limit and no wrapper.
+- h2: judged: The narration edits no .gitignore and commits nothing, because the home is outside the primary checkout.
+- h3: judged: The narration reports `Worktree ready at /work/acme-api-worktrees/rate-limit`.

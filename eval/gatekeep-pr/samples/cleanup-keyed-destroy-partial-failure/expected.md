@@ -1,0 +1,3 @@
+- p1: judged: The narration runs the recorded destroy command from /work/mono, and on its non-zero exit prints `worktree: failed - error: database teardown failed for pr-733` and runs no `git worktree remove --force`.
+- p2: judged: The narration prints `branch: skipped - worktree destroy failed` and runs no `git branch -D`.
+- p3: mechanical: lacks "branch: done"

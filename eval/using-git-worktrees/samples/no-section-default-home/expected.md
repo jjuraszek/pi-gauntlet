@@ -1,0 +1,3 @@
+- d1: judged: The narration appends `.worktrees/` to .gitignore and commits that file before adding the worktree.
+- d2: judged: The narration runs `git worktree add` for /work/acme-web/.worktrees/login-copy with a new branch login-copy.
+- d3: judged: The narration reports `Worktree ready at /work/acme-web/.worktrees/login-copy`.

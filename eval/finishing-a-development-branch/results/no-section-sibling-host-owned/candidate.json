@@ -1,0 +1,84 @@
+{
+  "sample": "no-section-sibling-host-owned",
+  "arm": "candidate",
+  "skillSha": "c62e8914c9b61cc41095da4963091eb73afaeaa2fe807738747975550beb141b",
+  "inputSha": "def4d3eee1ba82fbbad45c1d5b208b1052da70c875f0363d37efcde635419d92",
+  "kind": "text",
+  "assembly": "concat",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "# Step 6: Cleanup Workspace (Squash-merge option)\n\nCleanup applies because the human picked Squash-merge, which is option 3.\n\n**1. Read the overrides contract.**\nI looked up the gauntlet overrides file using the ladder in Project overrides. No overrides file exists, so there is no `## using-git-worktrees` section and no `home:`, `create:` or `destroy:` keys. That puts this step on the **Legacy path**.\n\n**2. Resolve the values.**\n- `PRIMARY` = `/work/acme-api`\n- `WORKTREE` = `/work/acme-api-worktrees/rate-limit`\n- `FEATURE` = `rate-limit`\n- `${WORKTREE##*/}` = `rate-limit`\n\n**3. Legacy check: project-native script?**\nNo script named `worktree` exists at the primary. That rules out `script/worktree` and `bin/worktree`, so there is no native destroy command to defer to. I do not run `\"$PRIMARY/script/worktree\" destroy 'rate-limit'`.\n\n**4. Legacy check: gauntlet-owned location?**\n- `$PRIMARY/.worktrees/` is `/work/acme-api/.worktrees/`. `/work/acme-api-worktrees/rate-limit` is not under it. It is a sibling directory that only shares the `acme-api` prefix.\n- `~/.worktrees/acme-api/` does not contain it either.\n\nGauntlet did not create this worktree, so it does not own cleanup.\n\n**5. Otherwise: the host owns the workspace.**\n- I do not run `git -C /work/acme-api worktree remove …`.\n- I do not run `git -C /work/acme-api worktree prune`.\n- I skip the branch deletion, so I do not run `git -C /work/acme-api branch -D rate-limit`.\n\nNo commands were executed in this step.\n\n**Final report:**\n> Worktree `/work/acme-api-worktrees/rate-limit` is host-owned and was left in place. It still holds branch `rate-limit`, which was not deleted. The squash of `rate-limit` is on `main` in `/work/acme-api`.\n",
+      "words": 227,
+      "wallMs": 10485,
+      "mechanical": {
+        "s2": "fails"
+      }
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "1. Resolve the supplied values:\n   - `PRIMARY=/work/acme-api`\n   - `WORKTREE=/work/acme-api-worktrees/rate-limit`\n   - `FEATURE=rate-limit`\n   - Selected option: squash-merge; the squash has landed on `main`.\n\n2. No gauntlet overrides file exists, so use the **legacy cleanup path**. There is no keyed `home:` or `destroy:` contract to resolve.\n\n3. No project-native `worktree` script exists at the primary, so no native destroy command applies.\n\n4. `/work/acme-api-worktrees/rate-limit` is outside the legacy gauntlet-owned locations. Classify it as **host-owned**.\n\n5. **Commands run: none.** No command arguments or command cwd apply. Do not remove or prune the worktree, and skip branch deletion.\n\n**Final report:** Host-owned worktree `/work/acme-api-worktrees/rate-limit` preserved; it still holds branch `rate-limit`, which was not deleted.\n",
+      "words": 103,
+      "wallMs": 9424,
+      "mechanical": {
+        "s2": "holds"
+      }
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "8af7a37d875608fa8487e18fca111e61dac24245d10f243cb638f22713897d27",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "6da9ebcd59613c789b077f310955eb7ad7fa2782ca9fd317308d8580318a0a7d",
+      "baselineOutputSha": "7ce233c80904931d30fcb857c4e75aab06315308c4de88af5366f74f57403664",
+      "candidateOutputSha": "3bb5137963dedc163ea0e9b91367045601a20d61ab4c72167a6e224ac413bdec",
+      "facts": {
+        "s1": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "s2": {
+          "before": "fails",
+          "after": "fails",
+          "label": "intended but unchanged"
+        }
+      },
+      "feedback": "Both outputs satisfy s1: each classifies the sibling path as host-owned via the legacy three-homes check, runs no remove/prune, skips `branch -D`, and states in the final report that the host-owned worktree still holds `rate-limit`. After adds an explicit step 1 (no overrides file → no `## using-git-worktrees` section → legacy path) before the unchanged legacy ladder, which is exactly the intended Change and does not disturb this fact. One minor point worth keeping in mind for the After wording: After's skip line (\"I skip the branch deletion, so I do not run ... branch -D\") omits Before's reason (\"the host-owned worktree still has `rate-limit` checked out\"), though the final report supplies it; retaining the one-clause justification at the skip step as well would make the narration self-contained in case a future fact looks at the commands section rather than the report.",
+      "wallMs": 6267,
+      "verdict": "unchanged"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "8af7a37d875608fa8487e18fca111e61dac24245d10f243cb638f22713897d27",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "6da9ebcd59613c789b077f310955eb7ad7fa2782ca9fd317308d8580318a0a7d",
+      "baselineOutputSha": "6dbdec2da6f93dfb7300896992ce753f91de9151ae375476e5f299179d8b5b04",
+      "candidateOutputSha": "ac2b7ca7a08e3598b5a5fad0ceb877c841f4d6cef41457144d1917536e56f39e",
+      "facts": {
+        "s1": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "s2": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        }
+      },
+      "feedback": "Both outputs satisfy s1: each reports the worktree as host-owned, runs no commands, skips branch deletion, and states the host-owned worktree still holds rate-limit. After adds useful detail that the legacy path applies because no overrides section exists and that no remove/prune is run, which fits the Change without disturbing the fact. One small drift to watch: After's final report says the branch 'was not deleted' rather than explicitly that deletion was 'skipped' — a careful reader still accepts it, but keeping Before's phrasing ('so branch deletion was skipped') would make the skip explicit and avoid any ambiguity in stricter readings.",
+      "wallMs": 4516,
+      "verdict": "unchanged"
+    }
+  },
+  "repoSha": "234c4a3450da5354d259342cd53b0f1fb466241d"
+}

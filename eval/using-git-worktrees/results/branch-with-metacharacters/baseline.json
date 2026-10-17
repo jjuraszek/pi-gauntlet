@@ -1,0 +1,38 @@
+{
+  "sample": "branch-with-metacharacters",
+  "arm": "baseline",
+  "skillSha": "d756f10e7334d9d954cde44b08067e2ef23ef7181eaf7bbb6dc42b5860e558ce",
+  "inputSha": "9b30be50b7d3e5bf6b6ef39ec01e575bed1164d0471431e31ccc46ef231a70f4",
+  "kind": "text",
+  "assembly": "concat",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "I'm using the using-git-worktrees skill to set up an isolated workspace.\n\n## Step 0: Detect existing isolation\n\nAll commands run with cwd `/work/acme-mono`. I never change the process cwd.\n\n1. `git rev-parse --path-format=absolute --git-dir --git-common-dir`\n   - Output: `/work/acme-mono/.git` twice.\n   - Resolved: `GIT_DIR=/work/acme-mono/.git` and `GIT_COMMON=/work/acme-mono/.git`. They are equal.\n2. `git rev-parse --show-superproject-working-tree`\n   - Output: empty, so this is not a submodule.\n3. Resolved `ROOT=$(dirname /work/acme-mono/.git)`, which gives `ROOT=/work/acme-mono`.\n4. `git branch --show-current`\n   - Output: `main`, so `CURRENT_BRANCH=main`.\n5. Detached-HEAD check: `git symbolic-ref -q HEAD`\n   - Output: `refs/heads/main`. HEAD is attached, so I continue.\n\nI am in the primary checkout, so I proceed to Step 1.\n\n## Project overrides\n\n- I check `.pi/gauntlet-overrides.md` first. It exists, so it wins.\n- It has no `## conventions` section.\n- Its `## using-git-worktrees` section applies:\n  - home: `../acme-mono-<name>`\n  - create: `script/worktree create <name> <subproject> --branch <branch>`\n\n## Step 1: Announce\n\n> \"Setting up an isolated worktree at `/work/acme-mono-topic;id` on branch `topic;id` for this work.\"\n\nThis is plan-driven implementation work, so no consent pause is needed.\n\n## Step 1a: Use the project wrapper\n\n`script/worktree` is the project's wrapper, so I use it instead of calling `git worktree add` directly. I resolve its arguments:\n\n- `<name>` = `topic;id`. The home therefore resolves to `/work/acme-mono-topic;id`.\n- `<subproject>` = `billing`, because the approved plan touches only `billing/`.\n- `<branch>` = `topic;id`.\n\nThe branch name contains `;`, which is a shell command separator. Every use of it must be single-quoted. Left unquoted, `;` would split the command and run `id` as a separate command.\n\n## Step 3: Clean-base check (before the wrapper runs)\n\n6. `git -C /work/acme-mono status --porcelain`\n   - Output: empty, exit 0. The source checkout is clean.\n\nProvenance check (this is a fresh-creation path):\n\n7. `git -C /work/acme-mono symbolic-ref --short refs/remotes/origin/HEAD`\n   - Output: `origin/main`. Stripping `origin/` gives the default branch `main`.\n   - The source branch is also `main`, so no provenance note is added.\n\n## Create the worktree\n\n8. `script/worktree create 'topic;id' billing --branch 'topic;id'`\n   - cwd: `/work/acme-mono`\n   - The wrapper handles placement, tool trust, the dependency install for `billing`, and branch creation. I therefore skip Step 2c.\n   - I run no tests during creation.\n9. `git -C /work/acme-mono worktree list --porcelain`\n   - Output: `worktree /work/acme-mono` and `worktree /work/acme-mono-topic;id`.\n   - Resolved: `WORKTREE='/work/acme-mono-topic;id'`.\n\n## Step 4: Report\n\n```\nWorktree ready at /work/acme-mono-topic;id\nBranch: topic;id\nBase: main (clean)\nReady to implement the billing/ change\n```\n\nLater skills take this path as a quoted value and never `cd` into it. Examples:\n\n- `git -C '/work/acme-mono-topic;id' ...`\n- dispatch with `cwd: \"/work/acme-mono-topic;id\"`\n\nCleanup will use the wrapper's destroy command through `/skill:finishing-a-development-branch`.\n",
+      "words": 388,
+      "wallMs": 22676,
+      "mechanical": {
+        "m2": "holds"
+      }
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "I'm using the using-git-worktrees skill to set up an isolated workspace.\n\nAll commands below run with **cwd `/work/acme-mono`**. The process cwd never changes.\n\n1. **Detect existing isolation.**\n\n   ```bash\n   read -r GIT_DIR GIT_COMMON <<<\"$(git rev-parse --path-format=absolute --git-dir --git-common-dir | tr '\\n' ' ')\"\n   ROOT=$(dirname \"$(git rev-parse --path-format=absolute --git-common-dir)\")\n   CURRENT_BRANCH=$(git branch --show-current)\n   ```\n\n   Resolved values:\n   - `GIT_DIR=/work/acme-mono/.git`\n   - `GIT_COMMON=/work/acme-mono/.git`\n   - `ROOT=/work/acme-mono`\n   - `CURRENT_BRANCH=main`\n\n   ```bash\n   git rev-parse --show-superproject-working-tree\n   ```\n\n   Output is empty. This is the primary checkout, not a submodule. HEAD is attached, as specified.\n\n2. **Read the first applicable overrides file and check project instructions.**\n\n   ```bash\n   cat .pi/gauntlet-overrides.md\n   ```\n\n   It provides:\n\n   ```text\n   ## using-git-worktrees\n   - home: ../acme-mono-<name>\n   - create: script/worktree create <name> <subproject> --branch <branch>\n   ```\n\n   This is the first override file in precedence order, so I do not check the lower-priority files.\n\n   ```bash\n   if [ -f AGENTS.md ]; then cat AGENTS.md; fi\n   ```\n\n   No output; no additional instructions are supplied.\n\n   ```bash\n   test -x script/worktree\n   ```\n\n   This succeeds. I use the project wrapper, not `git worktree add`.\n\n   Resolved creation values:\n   - Name: `topic;id`\n   - Branch: `topic;id`\n   - Subproject: `billing`, from the approved plan’s sole top-level directory\n   - Worktree home: `../acme-mono-topic;id`\n   - Absolute worktree path: `/work/acme-mono-topic;id`\n   - Base: `main`\n\n   Setting up an isolated worktree at `/work/acme-mono-topic;id` on branch `topic;id` for this work.\n\n3. **Verify the source is clean before creation, then resolve provenance.**\n\n   ```bash\n   git -C /work/acme-mono status --porcelain\n   ```\n\n   It exits successfully with empty output. The source is clean.\n\n   ```bash\n   git symbolic-ref --short refs/remotes/origin/HEAD\n   ```\n\n   Output: `origin/main`. Stripping `origin/` gives default branch `main`, matching the source branch. No provenance note is needed.\n\n4. **Create through the wrapper and locate the resulting worktree.**\n\n   ```bash\n   script/worktree create 'topic;id' billing --branch 'topic;id'\n   ```\n\n   It succeeds with empty output. Both occurrences of `topic;id` are quoted, so the semicolon remains part of a single argument and is not executed as shell syntax.\n\n   ```bash\n   git worktree list --porcelain\n   ```\n\n   Output:\n\n   ```text\n   worktree /work/acme-mono\n   worktree /work/acme-mono-topic;id\n   ```\n\n   Resolved `WORKTREE=/work/acme-mono-topic;id`. The wrapper supplies the project-native setup path; I do not run manual setup or tests.\n\n**Step 4 report:**\n\n```text\nWorktree ready at /work/acme-mono-topic;id\nBranch: topic;id\nBase: main (clean)\nReady to implement the billing change\n```\n",
+      "words": 325,
+      "wallMs": 31011,
+      "mechanical": {
+        "m2": "holds"
+      }
+    }
+  },
+  "repoSha": "638a007e2327b5fb04cfb5123b8e91eab7a1b48d"
+}

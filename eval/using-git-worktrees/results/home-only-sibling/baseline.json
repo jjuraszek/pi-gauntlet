@@ -1,0 +1,34 @@
+{
+  "sample": "home-only-sibling",
+  "arm": "baseline",
+  "skillSha": "d756f10e7334d9d954cde44b08067e2ef23ef7181eaf7bbb6dc42b5860e558ce",
+  "inputSha": "73bf91e67514f999cc88cfc013d825e40fc358e75b36662faeffc756857ba8ad",
+  "kind": "text",
+  "assembly": "concat",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "I'm using the using-git-worktrees skill to set up an isolated workspace.\n\nAll commands run with process cwd `/work/acme-api`. The cwd never changes.\n\n## Project overrides (read first)\n\n`.pi/gauntlet-overrides.md` exists. It is the first location checked, so it wins. It has no `## conventions` section. Its `## using-git-worktrees` section sets:\n- **home:** `../acme-api-worktrees/<name>`\n\nThis replaces the canonical `<repo>/.worktrees/<branch>`. Resolved against the repo root, the worktree path is **`/work/acme-api-worktrees/rate-limit`**.\n\n## Step 0: Detect existing isolation\n\n1. `git rev-parse --path-format=absolute --git-dir --git-common-dir`\n   - `GIT_DIR=/work/acme-api/.git`\n   - `GIT_COMMON=/work/acme-api/.git`\n2. `git rev-parse --path-format=absolute --git-common-dir`\n   - `ROOT=/work/acme-api`\n3. `git branch --show-current`\n   - `CURRENT_BRANCH=main`\n4. `git rev-parse --show-superproject-working-tree`\n   - Empty, so this is not a submodule.\n\n`GIT_DIR == GIT_COMMON`, so this is the primary checkout. Proceed.\n\n**Detached HEAD check:** `git symbolic-ref -q HEAD` prints `refs/heads/main`. HEAD is attached, so I continue.\n\n## Step 1: Announce\n\n\"Setting up an isolated worktree at `/work/acme-api-worktrees/rate-limit` on branch `rate-limit` for this work.\"\n\nNone of the consent-pause conditions apply.\n\n## Step 1a: Native tool or wrapper\n\n- I have no native worktree tool.\n- No `worktree` script exists anywhere in the repository.\n- AGENTS.md names no wrapper.\n\nSo I fall back to Step 2.\n\n## Step 3 (pre-creation): Clean base check in the source checkout\n\n1. `git -C /work/acme-api status --porcelain`\n   - Empty output, exit 0, so the base is **clean**.\n\n**Provenance check:**\n\n2. `git symbolic-ref --short refs/remotes/origin/HEAD`\n   - Prints `origin/main`, so the default branch is `main`.\n   - The source branch is `main`, which matches. No note is added.\n\n## Step 2: Manual creation\n\n**2a. Location:** `/work/acme-api-worktrees/rate-limit`, from the override. `BRANCH=rate-limit`.\n\n**2b. Create:**\n\n3. `git -C /work/acme-api worktree list --porcelain`\n   - No line reads `worktree /work/acme-api/.worktrees/rate-limit` or `worktree /work/acme-api-worktrees/rate-limit`, so the worktree does not exist yet.\n   - I skip the `.worktrees/` gitignore step. The override puts the worktree outside the repository, so nothing lands inside the tree.\n4. `git -C /work/acme-api worktree add /work/acme-api-worktrees/rate-limit -b rate-limit`\n   - Succeeds. `git worktree list --porcelain` now lists `/work/acme-api-worktrees/rate-limit`.\n   - `WORKTREE=/work/acme-api-worktrees/rate-limit`\n\n**2c. Project setup:**\n\n5. `(cd \"/work/acme-api-worktrees/rate-limit\" && { …manifest checks… })`\n   - The case describes no `pnpm-lock.yaml`, `yarn.lock`, `package.json`, `Cargo.toml`, `pyproject.toml`, `Gemfile`, or `go.mod`, so no install runs.\n   - The subshell leaves the process cwd unchanged.\n\nNo tests are run.\n\n## Step 4: Report\n\n```\nWorktree ready at /work/acme-api-worktrees/rate-limit\nBranch: rate-limit\nBase: main (clean)\nReady to implement rate-limit\n```\n\nLater skills take `/work/acme-api-worktrees/rate-limit` as a value, through `cwd:`, `git -C`, or `(cd … && …)`. The process cwd stays `/work/acme-api`.\n",
+      "words": 368,
+      "wallMs": 20190,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "I'm using the using-git-worktrees skill to set up an isolated workspace.\n\n1. **Check repository isolation.**\n\n   **Cwd:** `/work/acme-api`  \n   **Command:**\n   ```bash\n   git rev-parse --path-format=absolute --git-dir --git-common-dir\n   ```\n\n   Under the case’s explicit rule for commands whose output is not described, this succeeds with **empty output**. Consequently, it supplies neither an absolute `GIT_DIR` nor an absolute `GIT_COMMON`.\n\n2. **Stop: isolation metadata could not be resolved.**\n\n   The stated fact that `GIT_DIR == GIT_COMMON` establishes that this is the primary checkout, but it does not supply either directory’s actual path. I will not invent those paths or use empty values to derive `ROOT`.\n\nNo further commands run. No worktree, branch, or commit is created, and no Step 4 readiness report is issued.\n",
+      "words": 114,
+      "wallMs": 31960,
+      "mechanical": {}
+    }
+  },
+  "repoSha": "638a007e2327b5fb04cfb5123b8e91eab7a1b48d"
+}

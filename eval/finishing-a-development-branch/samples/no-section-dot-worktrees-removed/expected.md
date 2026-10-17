@@ -1,0 +1,2 @@
+- w1: judged: The narration runs `git -C /work/acme-web worktree remove /work/acme-web/.worktrees/login-copy`, then `git -C /work/acme-web worktree prune`, then `git -C /work/acme-web branch -D login-copy`.
+- w2: mechanical: lacks "host-owned"

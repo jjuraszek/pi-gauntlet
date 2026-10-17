@@ -1,0 +1,4 @@
+- c1: judged: The narration runs the configured create command from /work/acme-mono with name csv-export, subproject reports, and branch csv-export substituted, each value quoted as one shell word, and runs no `git worktree add`.
+- c2: judged: The narration resolves `<subproject>` to reports from the plan without asking the user.
+- c3: judged: The narration checks `git worktree list --porcelain` after the create command and reports `Worktree ready at /work/acme-mono-csv-export`.
+- c4: mechanical: lacks "AGENTS.md"

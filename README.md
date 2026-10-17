@@ -290,52 +290,86 @@ exact repo folder* in interactive Claude Code. Trusting a parent folder,
 
 ## Project-specific overrides
 
-The skills shipped here are generic on purpose - they describe *how* to TDD, brainstorm, debug, request review, etc., without naming your services, your CI command, or your worktree wrapper. When you need that level of detail, drop a file at `.pi/gauntlet-overrides.md` in your repo. Every active skill reads and applies `## conventions` whenever present in the selected file, without relevance filtering. Use this heading for repo-wide rules that bind more than one skill:
+The gauntlet overrides file is the one place a repo tunes gauntlet's Markdown surface: skills read it as instructions, and `gauntlet-spec-index` reads `## Spec index`. Discovery checks `.pi/gauntlet-overrides.md`, `<repo root>/gauntlet-overrides.md`, then `<repo root>/doc/gauntlet-overrides.md`; first found wins, never merged (`<repo root>` is `git rev-parse --show-toplevel`, or the current directory outside a repo). `## conventions` applies to every skill without a relevance judgment; `## <skill-name>` applies to that skill's steps and wins over conflicting conventions. Missing or empty conventions adds no rules; a lower-priority file cannot supplement the selected file.
+
+### What you can tweak
+
+| Heading / key | Read by | Default (absent) | Extends or overrides | Effect |
+|---|---|---|---|---|
+| `## conventions` | every skill | no added rules | extends | repo-wide rules applied without a relevance judgment |
+| `## <skill-name>` (e.g. `## writing-plans`) | that skill | no added rules | overrides the named step | replaces or extends the step it names |
+| `## using-git-worktrees` `- home: <path pattern>` | using-git-worktrees, finishing-a-development-branch, gatekeep-pr | `<primary>/.worktrees/<name>` | overrides | where worktrees live; `<name>` is the branch (`/` -> `-`) or `pr-<N>`; the ownership test at cleanup |
+| `## using-git-worktrees` `- create: <command>` | using-git-worktrees, gatekeep-pr | `git worktree add` at `home:` | overrides | creation command run from the primary; `<name>`, `<branch>` substituted, other `<token>`s resolved from context or asked once |
+| `## using-git-worktrees` `- destroy: <command>` | finishing-a-development-branch, gatekeep-pr | `git worktree remove` + `prune` when the path matches `home:` | overrides | removal command run from the primary; a failure keeps the branch |
+| `## cleanup` items `- <label>: <command or /skill:...>` | gatekeep-pr | git teardown and base sync only | extends | ordered post-gate steps with `<issue>`, `<pr>`, `<merge-sha>`; inherits `## PR gate` `timeout minutes:`; missing placeholders or unlanded-change steps are skipped with a reason; `/skill:` items keep their own gates |
+| `## PR gate` keys (`verification command`, `timeout minutes`, `requires credentials`, `local verification`, `ci checks`, `issue fetch`, `merge policy`) | gatekeep-pr | per-key defaults in the block below | overrides | the gate's verification, evidence, and merge configuration |
+| `## comms style` | gatekeep-pr | shipped wording rules | extends | tone and format of reports, menus, and external payloads |
+| `## verification-before-completion` | verification-before-completion; gatekeep-pr (verification command only); chase-bug (hotfix verification) | repo test entrypoint discovery | overrides | the canonical verification target |
+| `## Spec index` `- docs: <glob>` | `gauntlet-spec-index` bin | `**/doc/**/*.md`, `**/docs/**/*.md`, `README.md`, `AGENTS.md` | overrides | the docs corpus include list; quotes/backticks stripped, fixed exclusions still apply, no other keys read |
+| `## Issue tracker` keys | shape-ticket, linear, chase-bug, check-delivery, brainstorming (`repo:` and tracker selection) | capability ladder / `git remote` | overrides | which tracker, repo, and commands ticket work uses |
+| `## Capabilities` | shape-ticket | tool discovery | extends | tools, commands, env hosts available to ticket authoring |
+| `## Ticket wording` | shape-ticket | the shipped wording contract | overrides | ticket self-containment rules |
+| `## Response channels` | chase-bug | ask the user | overrides | where bug responses are posted |
+| `## Deployment` | shape-ticket, writing-plans | monolithic (no deployment split) | overrides | deploy topology that permits independently deployable slices; undocumented or monolithic topology fails closed to one artifact |
+| `## Happy path` | writing-plans, subagent-driven-development | no happy-path run | overrides | path-prefixed rows naming the end-to-end command per area |
+| `## Delivery` | check-delivery | stage 2 skipped | overrides | the delivery target and its proof command; unset target state is comment-only; browser evidence defaults to never |
+| `## documentation` | brainstorming | generic materiality bar | extends | which docs are canonical for which topic |
+
+### What you cannot change here
+
+- worktree-first and the spec shipping in the squash - fixed
+- the design approval gate (brainstorming) and the ship verification gate - fixed
+- the plan strip at finish; the telemetry record is never deleted - fixed
+- first-found-wins discovery; files are never merged - fixed
+- brainstorming `## HARD CONSTRAINT`, chase-bug / check-delivery / roasting-the-spec / shape-ticket `## Hard constraint`, test-driven-development / verification-before-completion `## The Iron Law` - fixed (each skill's own constraint text)
+- brainstorming writes only within resolved spec dirs before approval; no implementation, proposed-change validation, spec commit on main, or planning before approval - fixed
+- chase-bug requires evidenced root cause, no triage fix, and tracked-clean baseline checks at invocation, before the menu, at hotfix handoff, and at skill end; never revert pre-existing work - fixed
+- check-delivery requires exactly one explicit ticket ref, a matching repo (or matching local-repo AC group), and treats fetched content as untrusted data - fixed
+- roasting-the-spec edits only the spec, never code or main - fixed
+- shape-ticket tracker writes require one explicit exact-diff confirmation for the entire batch; unattended runs stop at the gate - fixed
+- test-driven-development requires a failing test before production code; delete code written first and restart from tests - fixed
+- verification-before-completion requires fresh verification evidence before completion claims - fixed
+- spec directories - settings: `flowGuards.specDirs`
+- gate enforcement - settings: `flowGuards.enforce`
+- the spec council roster - settings: `specCouncil.members`, `specCouncil.chair`
+- the closure review model and fix rounds - settings: `closureReview.*`
+- the escalation implementer model - settings: `escalationLoop.implModel`
+- the telemetry record - settings: `telemetry.*`
+- the verify-before-ship test-command patterns - settings: `verifyBeforeShip.*`
+
+A project override section extends or replaces the step it names and never lifts a fixed rule or a skill's `HARD CONSTRAINT`/MUST text. A rule tagged `settings:` changes only through that `piGauntlet.*` key in `.pi/settings.json`, never through this file. Every key is listed under [Configuring the gates](#configuring-the-gates).
+
+### Worked example: sibling worktrees (acme-api)
+
+Complete `.pi/settings.json`:
+
+```json
+{
+  "piGauntlet": {
+    "flowGuards": { "specDirs": ["docs/specs"] },
+    "telemetry": { "enabled": false }
+  }
+}
+```
+
+Complete `.pi/gauntlet-overrides.md`:
 
 ```markdown
 ## conventions
 Keep scratch files outside the repository.
-```
 
-This skill's named section means the section named for the active skill (for example, `## writing-plans`), not another heading it reads by name. This skill's named section wins over conflicting `## conventions` rules; non-conflicting conventions still apply. Other relevant sections can also override or extend skill instructions, as in this skill-specific example:
-
-```markdown
 ## verification-before-completion
 
 Canonical verification target: `make ci` per service. Bare `pytest` does NOT satisfy
-the gate — it skips integration tests.
+the gate - it skips integration tests.
 
-## using-git-worktrees
-
-Use the project's wrapper: `script/worktree create <name>`. It provisions an isolated
-database and copies `.env.local`. Never call `git worktree add` directly.
-```
-
-A `## cleanup` section lists what gatekeep-pr runs after a PR is merged, approved, or found already merged or closed, in order, after the implied git teardown (worktree, local branch, base fast-forward):
-
-```markdown
-## cleanup
-- close ticket: gh issue close <issue> --comment "Delivered in <pr>, merged <merge-sha>."
-- release: /skill:release
-```
-
-Each item is `<label>: <command or /skill:... invocation>`. Placeholders `<issue>`, `<pr>`, and `<merge-sha>` are filled from the gate's digest; an item whose placeholder has no value is skipped with a reason, and items that need a landed change (`<merge-sha>`, `/skill:release`) are skipped when the PR was only approved or closed. A `/skill:` item keeps its own gates; anything else runs as a shell command in the primary checkout under the PR gate's `timeout minutes`.
-
-Beyond `## conventions` and skill-named sections, headings a skill reads by name are documented in their owning skills; other headings retain topic/workflow-convention matching. The override file is read by skill instructions and, for its `## Spec index` section only, by `gauntlet-spec-index`; the Pi runtime itself never reads it. Missing or empty `## conventions` adds no rules; a lower-priority file cannot supplement the selected file.
-
-**Discovery ladder:** skills check three locations, in order, and use the first one found - never merged: `.pi/gauntlet-overrides.md`, then `<repo root>/gauntlet-overrides.md`, then `<repo root>/doc/gauntlet-overrides.md` (`<repo root>` = `git rev-parse --show-toplevel`, or the current directory outside a repo). Pick one location per repo.
-
-**`## Spec index` section:** `gauntlet-spec-index --corpus docs` reads `- docs: <glob>` bullets under this heading as the docs include list, replacing the default (`**/doc/**/*.md`, `**/docs/**/*.md`, `README.md`, `AGENTS.md`). Backticks or quotes around the glob are stripped; no other key under the heading is read, and the fixed exclusions always apply. For example:
-
-```markdown
 ## Spec index
 - docs: `**/doc/**/*.md`
 - docs: `handbook/**/*.md`
-```
 
-**`## Issue tracker` section:** `shape-ticket` resolves tracker access through a capability ladder, and this is its first rung - it overrides the zero-config `gh` (GitHub) / `linearis` (Linear) defaults for any other tracker. Name the CLI's read, search, create, update, and post comment commands explicitly. For a Jira CLI, for example:
+## using-git-worktrees
+- home: ../acme-api-worktrees/<name>
 
-```markdown
 ## Issue tracker
 
 Use the `jira` CLI (authenticated via `jira login`), not `gh` or `linearis`.
@@ -345,9 +379,14 @@ Use the `jira` CLI (authenticated via `jira login`), not `gh` or `linearis`.
 - create: `jira issue create --project ABC --type Task --summary "<title>" --description "<body>"`
 - update: `jira issue edit ABC-123 --summary "<title>" --description "<body>"`
 - post comment (approved Reporter note/evidence): `jira issue comment ABC-123 --body "<text>"`
-```
 
-Overlap checking uses only the selected tracker's documented search fields, workflow meanings, and supported mutations. Native Linear body-only recall remains unverified; returned descriptions do not prove body indexing. Disabled or unavailable trackers report discovery not performed and retain manual output. Missing comment support emits the approved text for manual posting and reports it as not performed. Overlap evidence is a gated comment exception even without Reporter-note overflow; when both are needed, they share the one-comment slot with labeled parts.
+## PR gate
+- verification command: npm test
+
+## cleanup
+- close ticket: jira issue move <issue> Done --comment "Delivered in <pr>, merged <merge-sha>."
+- release: /skill:release
+```
 
 **`linear` setup:** preferred, not required - `linearis` installed and authenticated
 (or a Linear MCP server as a fallback when `linearis` is missing). Without either, the
@@ -364,17 +403,32 @@ tracker selection; free-form verb mappings keep working both without a `tracker:
 key (ladder rung 1, as today) and as the mechanics source when `tracker:` names an
 unknown value.
 
-**`## Deployment` section:** `shape-ticket` (split rule), `writing-plans` (scope check), and `brainstorming` (scope check) read deploy topology from this section: what ships together, what ships independently, and the mechanism. It is a fact to look up, never to infer - when the section is absent, or when it documents a monolithic topology (like the example below), the "separable release timing" split axis is unavailable and splits fail closed to one artifact.
+### Worked example: wrapper-managed worktrees (acme-mono)
+
+Complete `.pi/settings.json`:
+
+```json
+{
+  "piGauntlet": {
+    "flowGuards": { "specDirs": ["doc/specs"] }
+  }
+}
+```
+
+Complete `.pi/gauntlet-overrides.md`:
 
 ```markdown
+## using-git-worktrees
+- home: ../acme-mono-<name>
+- create: script/worktree create <name> <subproject> --branch <branch>
+- destroy: script/worktree destroy <name>
+
+The wrapper symlinks build/ into the tree; never replace it with a directory.
+
 ## Deployment
 
 One deploy workflow ships the whole system at once - nothing ships independently.
-```
 
-**`## Happy path` section:** `writing-plans` selects the row whose `Paths` cover the plan's files and copies it into the plan header's `**Happy path:**` line; `subagent-driven-development` runs it once in the verify phase - after full verification and code review, before the conformance audit - and hands a bounded transcript to the conformance reviewer as runtime evidence. Optional: without the section, or with no matching row, nothing downstream changes.
-
-```markdown
 ## Happy path
 
 | Row | Paths | Command | Timeout |
@@ -382,39 +436,7 @@ One deploy workflow ships the whole system at once - nothing ships independently
 | dashboard | `dashboard/` | `script/e2e-dashboard` | 3m |
 | excavation | `excavation/` | `cd excavation && make e2e` | 2m |
 | cross-cutting | `dashboard/`, `excavation/`, `docker-compose.yml`, `Makefile` | `script/e2e-stack` | 5m |
-```
 
-- `Row` is a free label; `cross-cutting` is reserved: it applies when the change matches two or more non-`cross-cutting` rows, or when a path is inside its own `Paths` and inside no other row's `Paths`, and it takes precedence over a single matched row (so root compose files, Makefiles, and lockfiles a stack run depends on select it on their own, while a change inside one project row alone selects that row).
-- `Paths` is a comma-separated list of repo-relative prefixes; a path is inside a row when it starts with one of them. Paths matching no row are ignored, both for selection and for the fix-loop re-run test.
-- `Command` is repo-relative and runs through `bash -c`, so `cd`, `&&`, and env assignments work. It must be self-contained and worktree-safe: boot what it needs, drive one flow, exit, trap `TERM`/`INT` to tear down (containers are not in the process group, so the script owns their teardown), and write only to gitignored paths or outside the worktree. Two worktrees may run it at the same time; pi-gauntlet does not serialize, and knows nothing about brokers, compose files, or ports.
-- `Timeout` is optional, grammar `\d+(s|m|h)`, default `10m`. The parent runs the command under `timeout -k 30s <Timeout>`: `TERM`, then `KILL` after 30s. A malformed cell falls back to the default and the plan header omits the suffix.
-- Exit code contract: `0` = passed; `75` (`EX_TEMPFAIL`) = environment unavailable, reported as `not run`; `126` = not executable, reported as `not run`; any other non-zero = failed. A timeout is failed, not `not run`. Residue left in the worktree is failed regardless of exit code.
-- Host dependency: GNU `timeout` (`timeout` or `gtimeout` on PATH); absent -> `not run - no timeout binary`.
-
-**`## Delivery` section:** `check-delivery` resolves its overrides through the same discovery ladder. Defaults are pessimistic where it matters: an unset `target state` keeps the write comment-only; unset `deploy watch`/`delivery target` skip stage 2 (reported, never silently passed); `browser evidence` defaults to never. `check-delivery` is single-ticket by design - sweep/reconciliation passes over many tickets stay consumer territory, invoking the skill once per ticket. The remaining slots have working defaults shown below:
-
-| Slot | Meaning | Default (unset) |
-|---|---|---|
-| `target state` | Non-terminal tracker state to advance to on success | none - comment only |
-| `deploy watch` | Workflow/command to await before the target check | none |
-| `delivery target` | URL / health endpoint / registry query / command + success predicate reflecting the shipped SHA (`<sha>` substituted) | none - stage 2 skipped, reported |
-| `timeout` | Upper bound on stage 2 (watch + target check) | 10 minutes when stage 2 runs at all |
-| `browser evidence` | When/how to capture UI evidence (requires a browser tool) | never |
-| `ref convention` | How commits/PRs reference tickets (e.g. `(ref ABC-123)`) | tracker-native forms (`#N`, `Fixes #N`, bare `ABC-123`) |
-| `AC location` | Where ACs live if not the ticket body | ticket body |
-| `synthesized AC gaps` | `block` or `soft` - whether an unmet synthesized AC produces a blocking `unexplained gap` or a non-blocking proposal | `soft` |
-| `descope edits` | `strikethrough` - on gate approval, strike ratified `proposed descope` AC lines in the ticket body | none - no body edits ever |
-
-Malformed slot values fail safe, with one warning per invocation naming the
-bad value: `synthesized AC gaps` treats anything other than `block`/`soft`
-as `soft`; `descope edits` treats anything other than `strikethrough` as
-unset (no body edits). `descope edits` also requires a resolved edit-body
-write verb: when the slot is active and the approval ratifies a `proposed
-descope` but no edit-body verb resolves, the whole batched write (body
-edit, evidence comment, status advance) degrades to manual - none
-auto-posted.
-
-```markdown
 ## Delivery
 - target state: Ready
 - deploy watch: gh run watch --workflow deploy.yml (run for <sha>)
@@ -424,6 +446,10 @@ auto-posted.
 - synthesized AC gaps: block
 - descope edits: strikethrough
 ```
+
+The Happy path table selects a row by repo-relative path prefix. `cross-cutting` takes precedence when multiple project rows match or only its own paths match. No matching row means no run. Commands run through `bash -c` and must be self-contained, worktree-safe, tear down on `TERM`/`INT`, and leave no residue. Timeout accepts `s`, `m`, or `h` (default `10m`, malformed values fall back); GNU `timeout` or `gtimeout` is required, with `TERM` then `KILL` after 30 seconds. Exit `0` passes; `75` or `126` reports not run; other nonzero exits, timeout, or residue fail.
+
+Delivery is single-ticket. `timeout` defaults to 10 minutes when stage 2 runs, `ref convention` to tracker-native forms, `AC location` to the ticket body, `synthesized AC gaps` to `soft`, and `descope edits` to unset. Malformed synthesized-gap values fall back to `soft`; malformed descope values remain unset, with one warning. `descope edits: strikethrough` needs an edit-body verb and gate approval; without the verb, the entire batched write degrades to manual output.
 
 ## REVIEW.md convention
 
@@ -479,7 +505,6 @@ customization lives in three places, never in the wrapper itself:
 - requires credentials: false                # optional; true => skill reports "not run" as missing evidence
 - local verification: always                 # optional; default (absent) = CI-first; "always" forces the local run even when exact-head CI is green
 - ci checks: <comma-separated check names>   # optional; narrows which checks count as evidence; absent = all checks on the assessed head
-- worktree wrapper: <command>                # optional
 - issue fetch: <command with <ref> placeholder>   # optional, replaces gh issue view
 - merge policy: squash | merge-commit | rebase   # optional; default squash
 ```
@@ -490,14 +515,32 @@ An existing `## verification-before-completion` overrides section is an accepted
 equivalent source for the verification command only; all other PR-gate keys
 still live under `## PR gate`. A `## comms style` section in the same overrides
 file extends gatekeep-pr's wording rules - the rendered report and menu, and every
-external payload (review bodies, replies, tracker comments, commit subjects) alike.
+external payload (review bodies, replies, tracker comments, commit subjects) alike. Worktree placement for the gate is the `## using-git-worktrees` contract above.
 
 Anything a wrapper skill contains beyond trigger phrases is misplaced - move it to
 `REVIEW.md` or the overrides file instead.
 
 ## Configuring the gates
 
-The conformance gate's model, the spec council's roster, and the phase-tracker's flow guards are all configured per pi preset (or per repo, via `.pi/settings.json`). See [doc/configuration.md](./doc/configuration.md) for every setting, its default, and how repo-local config overrides a preset.
+The conformance gate's model, the spec council's roster, and the phase-tracker's flow guards are all configured per pi preset (or per repo, via `.pi/settings.json`). Keys below are relative to `piGauntlet`.
+
+| Key | Owner (extension) | Default | Effect |
+|---|---|---|---|
+| `specCouncil.members` | phase-tracker (`gauntlet_setting`), roasting-the-spec | `[]` (worker critique) | council models for the spec critique - [detail](./doc/configuration.md#spec-council) |
+| `specCouncil.chair` | same | unset (inherits the main loop) | chair model - [detail](./doc/configuration.md#spec-council) |
+| `closureReview.enforce` | phase-tracker | `true` | conformance gate on/off - [detail](./doc/configuration.md#conformance-gate-model) |
+| `closureReview.model` | phase-tracker | unset (inherits) | conformance reviewer model - [detail](./doc/configuration.md#conformance-gate-model) |
+| `closureReview.maxFixRounds` | phase-tracker | `3` | fix rounds before escalation - [detail](./doc/configuration.md#conformance-gate-model) |
+| `escalationLoop.implModel` | phase-tracker | unset (main loop) | implementer model on escalation - [detail](./doc/configuration.md#escalation-loop) |
+| `flowGuards.enforce` | phase-tracker | `true` | phase gates on/off - [detail](./doc/configuration.md#phase-tracker) |
+| `flowGuards.specDirs` | phase-tracker, plan-tracker; telemetry and spec-index consumers | `["doc/specs", "docs/specs"]` | where specs and sibling plans live - [detail](./doc/configuration.md#phase-tracker) |
+| `verifyBeforeShip.testCommands` | verify-before-ship | the `DEFAULT_TEST_COMMANDS` patterns in `extensions/lib/gauntlet-settings.ts` (make, npm, pnpm, yarn, pytest, rspec, cargo, go) | patterns that count as a test run - [detail](./doc/configuration.md#verify-before-ship) |
+| `verifyBeforeShip.warningReference` | verify-before-ship | unset | pointer shown with the warning - [detail](./doc/configuration.md#verify-before-ship) |
+| `telemetry.enabled` | telemetry | `true` | record each flow - [detail](./doc/configuration.md#telemetry) |
+| `telemetry.dir` | telemetry | `.pi/gauntlet/telemetry` | record location - [detail](./doc/configuration.md#telemetry) |
+| `telemetry.buckets` | telemetry | test / docs / config globs (`DEFAULT_TELEMETRY_BUCKETS`) | file classification - [detail](./doc/configuration.md#telemetry) |
+
+For Markdown instructions rather than runtime settings, use [Project-specific overrides](#project-specific-overrides). Repo-local settings replace each configured second-level object wholesale; see the [deep reference](./doc/configuration.md).
 
 ## Relationship to the other repos
 

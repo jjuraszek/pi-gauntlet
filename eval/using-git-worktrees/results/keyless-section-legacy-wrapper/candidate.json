@@ -1,0 +1,80 @@
+{
+  "sample": "keyless-section-legacy-wrapper",
+  "arm": "candidate",
+  "skillSha": "3060385552f5417c4ea49a6b837844f28775e5651e008135387b8f911fe7a597",
+  "inputSha": "341a838fe547f8848a2ddccc67a8e7bc76d6c0785eb85085668dd68e5f19b25c",
+  "kind": "text",
+  "assembly": "concat",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "I'm using the using-git-worktrees skill to set up an isolated workspace.\n\n## Step 0: Detect existing isolation\n\nAll commands run with cwd `/work/acme-ops`.\n\n1. `git rev-parse --path-format=absolute --git-dir --git-common-dir`\n   - `GIT_DIR` is `/work/acme-ops/.git`.\n   - `GIT_COMMON` is `/work/acme-ops/.git`.\n2. `git rev-parse --path-format=absolute --git-common-dir` gives `ROOT=/work/acme-ops`.\n3. `git branch --show-current` gives `CURRENT_BRANCH=main`.\n4. `git rev-parse --show-superproject-working-tree` prints nothing, so this is not a submodule.\n5. `git symbolic-ref -q HEAD` gives `refs/heads/main`, so HEAD is attached.\n\n`GIT_DIR == GIT_COMMON`, so this is the primary checkout. I proceed to Step 1.\n\n## Step 1: Announce\n\nThis is real feature work, so no consent pause is needed.\n\n> \"Setting up an isolated worktree via the project wrapper on branch `alerts` for this work.\"\n\n## Step 1a: Read the `## using-git-worktrees` contract\n\n- The overrides ladder finds `.pi/gauntlet-overrides.md` first.\n- Its `## using-git-worktrees` section contains no `home:`, `create:` or `destroy:` key lines, only prose.\n- With no keys, the keyed contract is inactive. This is the **legacy path**.\n- The prose is still instruction:\n  - use `script/worktree create <name>`\n  - never call `git worktree add` directly.\n\n## Step 1b: Native tools and wrapper (legacy path)\n\n- I have no native worktree tool.\n- The overrides prose names the project wrapper `script/worktree`, which exists and is executable, so I use it.\n- `<name>` resolves to `alerts`. The branch contains no `/`, so the name is the branch name unchanged.\n\n**Step 3 clean-base check, run before invoking the wrapper:**\n\n6. `git -C /work/acme-ops status --porcelain` exits 0 with empty output, so the base is clean.\n\n**Provenance check (fresh creation):**\n\n7. `git symbolic-ref --short refs/remotes/origin/HEAD` prints `origin/main`. Stripping the prefix gives default `main`.\n   - The source branch is also `main`, so there is no provenance note.\n\n**Create via the wrapper:**\n\n8. `script/worktree create alerts` (cwd `/work/acme-ops`) prints `/work/acme-ops-alerts`.\n   - `WORKTREE=/work/acme-ops-alerts`.\n   - I do not `cd` into it.\n   - I skip Step 2 entirely: no `.gitignore` edit, no `git worktree add`, and no manual setup. The wrapper handles the database and `.env.local`.\n\n## Step 3: Verify clean base\n\nThe clean-base check already passed before creation (command 6). I proceed to the report.\n\n## Step 4: Report\n\n```\nWorktree ready at /work/acme-ops-alerts\nBranch: alerts\nBase: main (clean)\nReady to implement alerts\n```\n\nLater steps carry `/work/acme-ops-alerts` as a value, using `cwd:`, `git -C` or a `(cd … && …)` subshell. The process cwd stays `/work/acme-ops`. Cleanup later defers to the wrapper's destroy command, through `/skill:finishing-a-development-branch`.\n",
+      "words": 373,
+      "wallMs": 17505,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "I'm using the using-git-worktrees skill to set up an isolated workspace.\n\n1. **Use the supplied Step 0 facts.** No discovery command is needed: this is the primary checkout, `GIT_DIR == GIT_COMMON`, it is not a submodule, and HEAD is attached.\n   - `ROOT=/work/acme-ops`\n   - `CURRENT_BRANCH=main`\n   - Requested branch: `BRANCH=alerts`\n\n2. **Read the supplied override content.** The first overrides file is `/work/acme-ops/.pi/gauntlet-overrides.md`. Its `## using-git-worktrees` section contains no `home:`, `create:`, or `destroy:` keys, so this is the **legacy path**. Its prose requires the project wrapper and prohibits direct `git worktree add`.\n\n   The supplied facts already establish that `script/worktree` exists and is executable. No discovery commands are needed. No native worktree tool is available in this interaction.\n\n3. **Check the source checkout before invoking the wrapper.**\n\n   Cwd: `/work/acme-ops`\n   ```bash\n   git -C /work/acme-ops status --porcelain\n   ```\n   Output: empty; exit status: 0. The source is clean.\n\n4. **Resolve provenance.**\n\n   Cwd: `/work/acme-ops`\n   ```bash\n   git symbolic-ref --short refs/remotes/origin/HEAD\n   ```\n   Output:\n   ```text\n   origin/main\n   ```\n   Resolved default branch: `main`. Source branch: `main`. They match, so no provenance note is needed.\n\n5. **Create through the required wrapper.**\n\n   Setting up an isolated worktree on branch `alerts` using the project's wrapper.\n\n   Cwd: `/work/acme-ops`\n   ```bash\n   script/worktree create alerts\n   ```\n   Output:\n   ```text\n   /work/acme-ops-alerts\n   ```\n   The wrapper provisions the isolated database and copies `.env.local`.\n\n   Resolved values:\n   - Wrapper name argument: `alerts`\n   - `WORKTREE=/work/acme-ops-alerts`\n   - Worktree branch: `alerts`\n   - Base: `main`\n\n6. **Verify the resulting location.**\n\n   Cwd: `/work/acme-ops`\n   ```bash\n   git worktree list --porcelain\n   ```\n   The listing includes:\n   ```text\n   worktree /work/acme-ops-alerts\n   ```\n   The location matches the wrapper's output. No direct `git worktree add`, manual directory creation, dependency installation, or tests are run.\n\n**Step 4 report:**\n```text\nWorktree ready at /work/acme-ops-alerts\nBranch: alerts\nBase: main (clean)\nReady to implement alerts\n```\n",
+      "words": 266,
+      "wallMs": 23730,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "7cc8f0793450e18346d8ab523d8a1f626bbe0f8d083b38c5d3f2e0961c9ec230",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "487af6f1a65d30478c9107cb6c45feac6eac084e254cec9d9aeef29eb9d63d0a",
+      "baselineOutputSha": "7269ba6ea648676474342069ff42c86fdf67d8588467b99dabc9af20a228fae6",
+      "candidateOutputSha": "723a1992040ca1b5f733da7176cbab13c8119fdfa2b2ac5d5dc2481c8931168f",
+      "facts": {
+        "k1": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "k2": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "Both outputs run `script/worktree create alerts`, explicitly state that no `git worktree add` is invoked, and report `Worktree ready at /work/acme-ops-alerts`, so k1 and k2 hold in Before and After alike. After correctly recognises that the `## using-git-worktrees` section has no `home:`/`create:`/`destroy:` keys, declares the keyed contract inactive, and falls through to the legacy ladder where the prose instruction still names the wrapper — exactly the behaviour the Change describes for a keyless section. One small drift worth noting: the Step 1 announcement in After says 'via the project wrapper' without the path, whereas Before announced the concrete path `/work/acme-ops-alerts`; neither fact depends on the announcement, but if you want the announcement to stay path-bearing, phrase the legacy branch as 'announce the path once the wrapper reports it, or the expected sibling path if known'. Otherwise the After wording preserves everything Before did while adding the keyed-contract check.",
+      "wallMs": 5733,
+      "verdict": "unchanged"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "7cc8f0793450e18346d8ab523d8a1f626bbe0f8d083b38c5d3f2e0961c9ec230",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "487af6f1a65d30478c9107cb6c45feac6eac084e254cec9d9aeef29eb9d63d0a",
+      "baselineOutputSha": "f10959e508bde367264c2f03ed8d177ac4f4897b021f62366d263bcf22801dc5",
+      "candidateOutputSha": "f9083e17b1d34817a5c2d950d0c6c242777516d07a36b556c928a645028e4a07",
+      "facts": {
+        "k1": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "k2": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "Nothing moved on this case: both outputs run only `script/worktree create alerts`, never `git worktree add`, and both report the worktree at /work/acme-ops-alerts. After correctly detects that the `## using-git-worktrees` section has no `home:`/`create:`/`destroy:` keys and takes the legacy path, so the keyed contract did not interfere with the prose-wrapper override. Two small drifts worth watching: After skips the discovery commands entirely by citing 'supplied Step 0 facts', which the Change does not license and which could regress narrations where discovery is expected, and After adds a `git worktree list --porcelain` check on the legacy path even though the Change says the legacy ladder is unchanged. If the intent is for the post-create check to be keyed-contract-only, the wording should say so explicitly ('after a keyed create, check git worktree list'), and the override-reading step should state that it precedes discovery rather than replaces it.",
+      "wallMs": 9154,
+      "verdict": "unchanged"
+    }
+  },
+  "repoSha": "120885bf882aea493f0735186395bdd64dfc4e4f"
+}

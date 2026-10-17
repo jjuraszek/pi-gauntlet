@@ -1,0 +1,3 @@
+- r1: judged: The narration recovers the name fix-x from the matched path segment (not acme-mono-fix-x) and runs the destroy command from /work/acme-mono with 'fix-x' as its argument.
+- r2: judged: The narration runs `git -C /work/acme-mono branch -D fix-x` after the destroy command succeeds and runs no `git worktree remove`.
+- r4: mechanical: contains "'fix-x'"

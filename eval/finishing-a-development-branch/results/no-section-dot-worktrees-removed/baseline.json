@@ -1,0 +1,38 @@
+{
+  "sample": "no-section-dot-worktrees-removed",
+  "arm": "baseline",
+  "skillSha": "e0699b307e94921b893ca681a5ea227956276cbcf58e1833be5303d1aa1acda7",
+  "inputSha": "ca11055389c1ef38b69b5be6ab8e556b602da500eec8e432b25a488f6f885bbe",
+  "kind": "text",
+  "assembly": "concat",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "# Step 6: Cleanup Workspace (squash-merge, option 3)\n\n**Values resolved**\n- `PRIMARY` = `/work/acme-web`, on branch `main`, where the squash commit has landed.\n- `WORKTREE` = `/work/acme-web/.worktrees/login-copy`\n- `FEATURE` = `login-copy`\n- Cleanup applies because the human chose squash-merge (option 3).\n- **Ownership:** Nothing indicates the worktree came from a project-native script. Its path is under `$PRIMARY/.worktrees/`, so gauntlet created it and gauntlet owns cleanup.\n\n**Commands**\n\nAll commands run from cwd `<scratch>`. They use `-C`, so they act on the primary checkout.\n\n1. Remove the worktree. This must happen first, because branch deletion fails while a worktree still references the branch.\n   ```bash\n   git -C \"/work/acme-web\" worktree remove \"/work/acme-web/.worktrees/login-copy\"\n   ```\n   It succeeds with empty output.\n\n2. Prune stale worktree metadata.\n   ```bash\n   git -C \"/work/acme-web\" worktree prune\n   ```\n   It succeeds with empty output.\n\n3. Delete the feature branch. A squash-merge creates a new commit on `main`, so `login-copy`'s commits are not ancestors of `main`. That means `-d` would refuse, and `-D` is required.\n   ```bash\n   git -C \"/work/acme-web\" branch -D login-copy\n   ```\n   It succeeds with empty output.\n\n**Final report**\nWorktree `/work/acme-web/.worktrees/login-copy` was removed and pruned. Branch `login-copy` was force-deleted after its squash landed on `main`.\n",
+      "words": 180,
+      "wallMs": 10736,
+      "mechanical": {
+        "w2": "holds"
+      }
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "Resolved values:\n- `PRIMARY=/work/acme-web`, on `main`\n- `WORKTREE=/work/acme-web/.worktrees/login-copy`\n- `FEATURE=login-copy`\n- Selected option: squash-merge; the squash has landed on `main`.\n- No gauntlet overrides file exists.\n- The worktree is under `$PRIMARY/.worktrees/`, so gauntlet owns cleanup.\n\nCommands, in order, all with cwd `<scratch>`:\n\n1. Remove the worktree:\n   ```bash\n   git -C \"/work/acme-web\" worktree remove \"/work/acme-web/.worktrees/login-copy\"\n   ```\n   Succeeds with empty output.\n\n2. Prune worktree metadata:\n   ```bash\n   git -C \"/work/acme-web\" worktree prune\n   ```\n   Succeeds with empty output.\n\n3. Delete the feature branch after removing its worktree:\n   ```bash\n   git -C \"/work/acme-web\" branch -d \"login-copy\"\n   ```\n   Succeeds with empty output.\n\nFinal report: Removed worktree `/work/acme-web/.worktrees/login-copy`; deleted branch `login-copy`.\n",
+      "words": 94,
+      "wallMs": 12924,
+      "mechanical": {
+        "w2": "holds"
+      }
+    }
+  },
+  "repoSha": "5ea36265ad38ba02d2381d2b7714891b522f1d55"
+}

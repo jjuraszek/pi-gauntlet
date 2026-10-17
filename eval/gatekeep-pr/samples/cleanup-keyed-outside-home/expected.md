@@ -1,0 +1,3 @@
+- o1: judged: The narration prints `worktree: skipped - outside configured home, left at /home/dev/scratch/backoff` and runs no worktree removal.
+- o2: judged: The narration prints `branch: skipped - checked out at /home/dev/scratch/backoff` and runs no `git branch -D`.
+- o3: mechanical: lacks "worktree: done"

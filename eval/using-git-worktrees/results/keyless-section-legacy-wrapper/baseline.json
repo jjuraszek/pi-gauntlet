@@ -1,0 +1,34 @@
+{
+  "sample": "keyless-section-legacy-wrapper",
+  "arm": "baseline",
+  "skillSha": "d756f10e7334d9d954cde44b08067e2ef23ef7181eaf7bbb6dc42b5860e558ce",
+  "inputSha": "341a838fe547f8848a2ddccc67a8e7bc76d6c0785eb85085668dd68e5f19b25c",
+  "kind": "text",
+  "assembly": "concat",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "I'm using the using-git-worktrees skill to set up an isolated workspace.\n\n## Project overrides\n\n1. **Check `.pi/gauntlet-overrides.md`** (cwd `/work/acme-ops`). It exists, so it is the first match and the other locations are not checked.\n   - It has no `## conventions` section.\n   - Its `## using-git-worktrees` section applies: use `script/worktree create <name>`, and never call `git worktree add` directly.\n\n## Step 0: Detect existing isolation\n\nAll commands below run with cwd `/work/acme-ops`.\n\n2. `git rev-parse --path-format=absolute --git-dir --git-common-dir`\n   - `GIT_DIR` = `/work/acme-ops/.git`\n   - `GIT_COMMON` = `/work/acme-ops/.git`\n3. `git rev-parse --path-format=absolute --git-common-dir`\n   - `ROOT` = `dirname /work/acme-ops/.git` = `/work/acme-ops`\n4. `git branch --show-current`\n   - `CURRENT_BRANCH` = `main`\n5. `git rev-parse --show-superproject-working-tree`\n   - Empty output, so this is not a submodule.\n6. `GIT_DIR == GIT_COMMON`, so this is the primary checkout. Proceed to Step 1.\n\n**Detached HEAD check:** `git symbolic-ref -q HEAD` returns `refs/heads/main`. HEAD is attached, so I continue.\n\n## Step 1: Announce\n\nThis is real feature work (branch `alerts`), so I announce rather than ask:\n\n> \"Setting up an isolated worktree at `/work/acme-ops-alerts` on branch `alerts` for this work.\"\n\n## Step 1a: Use the project wrapper\n\nThe override and `script/worktree` both exist, so I use the wrapper. Before invoking it, I run the Step 3 clean-base check in the source checkout:\n\n7. `git -C /work/acme-ops status --porcelain`\n   - Output is empty and the exit code is 0, so the source is **clean**.\n8. Provenance check: `git -C /work/acme-ops symbolic-ref --short refs/remotes/origin/HEAD`\n   - Prints `origin/main`. Stripping `origin/` gives the default branch `main`.\n   - The source branch is also `main`, so there is no provenance note.\n9. `script/worktree create alerts` (cwd `/work/acme-ops`)\n   - Prints `/work/acme-ops-alerts`.\n   - `WORKTREE` = `/work/acme-ops-alerts`.\n   - The wrapper handles DB provisioning and `.env.local`.\n   - I skip Step 2 entirely: no `git worktree add`, no `.gitignore` edit, no manual setup.\n   - I run no tests.\n   - The process cwd stays `/work/acme-ops`. I do not `cd` into the worktree.\n\n## Step 4: Report\n\n```\nWorktree ready at /work/acme-ops-alerts\nBranch: alerts\nBase: main (clean)\nReady to implement alerts\n```\n\nLater skills receive `/work/acme-ops-alerts` as a value, using `cwd:` or `git -C /work/acme-ops-alerts …`. Cleanup goes through the wrapper's destroy command, via `/skill:finishing-a-development-branch`.\n",
+      "words": 326,
+      "wallMs": 18458,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "I’m using the using-git-worktrees skill to set up an isolated workspace.\n\nAll commands below run with cwd **`/work/acme-ops`**. The process cwd never changes.\n\n1. Run:\n   ```bash\n   git rev-parse --path-format=absolute --git-dir --git-common-dir\n   ```\n   Resolve:\n   ```text\n   GIT_DIR=/work/acme-ops/.git\n   GIT_COMMON=/work/acme-ops/.git\n   ```\n\n2. Run:\n   ```bash\n   git rev-parse --show-superproject-working-tree\n   ```\n   Output is empty: this is not a submodule. Since `GIT_DIR == GIT_COMMON`, this is the primary checkout.\n\n3. Run:\n   ```bash\n   dirname /work/acme-ops/.git\n   ```\n   Resolve `ROOT=/work/acme-ops`.\n\n4. Run:\n   ```bash\n   git branch --show-current\n   ```\n   Output is `main`. Resolve `CURRENT_BRANCH=main`; HEAD is attached.\n\n5. Run:\n   ```bash\n   test -f .pi/gauntlet-overrides.md\n   ```\n   It succeeds. This is the first matching overrides file.\n\n6. Run:\n   ```bash\n   cat .pi/gauntlet-overrides.md\n   ```\n   Read the `using-git-worktrees` override: use `script/worktree create <name>`, which provisions an isolated database and copies `.env.local`. Never invoke `git worktree add` directly.\n\n7. Run:\n   ```bash\n   test -x script/worktree\n   ```\n   It succeeds. Select the project wrapper and resolve the requested branch name as `alerts`. The wrapper controls workspace placement.\n\n   Announce: “Setting up an isolated worktree on branch `alerts` using the project’s wrapper.”\n\n8. Run the required clean-base check before invoking the wrapper:\n   ```bash\n   git -C /work/acme-ops status --porcelain\n   ```\n   It exits successfully with empty output. Resolve the source base as `main (clean)`.\n\n9. Run the fresh-creation provenance check:\n   ```bash\n   git symbolic-ref --short refs/remotes/origin/HEAD\n   ```\n   Output is `origin/main`. Strip `origin/` to resolve the default branch as `main`. It matches the source branch, so no provenance note is needed.\n\n10. Run:\n    ```bash\n    script/worktree create alerts\n    ```\n    It creates the worktree and prints:\n    ```text\n    /work/acme-ops-alerts\n    ```\n    Resolve `WORKTREE=/work/acme-ops-alerts` and `BRANCH=alerts`. The wrapper handles setup; no manual creation, `.gitignore` edit, dependency setup, or tests are run.\n\nStep 4 report:\n\n```text\nWorktree ready at /work/acme-ops-alerts\nBranch: alerts\nBase: main (clean)\nReady to implement alerts\n```\n",
+      "words": 271,
+      "wallMs": 21877,
+      "mechanical": {}
+    }
+  },
+  "repoSha": "638a007e2327b5fb04cfb5123b8e91eab7a1b48d"
+}

@@ -1,0 +1,40 @@
+{
+  "sample": "destroy-failure",
+  "arm": "baseline",
+  "skillSha": "e0699b307e94921b893ca681a5ea227956276cbcf58e1833be5303d1aa1acda7",
+  "inputSha": "d8108636f1259ec00aee9b1021eb9edb997bfe56c93599833ca1c8a24b364c59",
+  "kind": "text",
+  "assembly": "concat",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "# Step 6: Cleanup Workspace (Squash-merge path)\n\nStep 6 applies because the human chose Squash-merge (option 3).\n\n## 1. Resolve paths\n\n- **Command:** `realpath /work/acme-mono` (cwd `/work/acme-mono`)\n  **Output:** `/work/acme-mono`. So `PRIMARY=/work/acme-mono`.\n- **Command:** `realpath /work/acme-mono-fix-x` (cwd `/work/acme-mono`)\n  **Output:** `/work/acme-mono-fix-x`. So `WORKTREE=/work/acme-mono-fix-x`.\n- `FEATURE=fix-x`\n\n## 2. Decide who owns the worktree\n\n- **Command:** `cat /work/acme-mono/.pi/gauntlet-overrides.md` (cwd `/work/acme-mono`)\n- **What it shows:** The `using-git-worktrees` override sets `home: ../acme-mono-<name>` and `destroy: script/worktree destroy <name>`. This means the worktree was created by the project-native `script/worktree`.\n- **Name:** Matching `/work/acme-mono-fix-x` against `../acme-mono-<name>` gives `<name> = fix-x`. I use the override's `<name>` here, not the generic `${WORKTREE##*/}`, which would give `acme-mono-fix-x`.\n- **Ownership:** `WORKTREE` is not under `$PRIMARY/.worktrees/` or `~/.worktrees/acme-mono/`, so the gauntlet `git worktree remove` path does not apply. Cleanup goes through the project's destroy command.\n\n## 3. Run the project's destroy command\n\n- **Command:** `/work/acme-mono/script/worktree destroy fix-x` (cwd `/work/acme-mono`)\n- **Result:** Exit code 1, with the message `error: worktree fix-x has unsynced changes`.\n\n## 4. Stop\n\n- The project's own tool refused to remove the worktree. I do not override that refusal with `git worktree remove --force` or by deleting the directory.\n- Branch deletion must come after the worktree is removed. The worktree still holds `fix-x`, so I skip `git branch -D fix-x`. It would fail anyway, and the unsynced changes need a human to look at them first.\n\n## Final report\n\n> Squash of `fix-x` landed on `main`, but cleanup did not complete. `/work/acme-mono/script/worktree destroy fix-x` failed with `error: worktree fix-x has unsynced changes`.\n> - The worktree at `/work/acme-mono-fix-x` is still in place.\n> - Branch `fix-x` was **not** deleted.\n>\n> Check the unsynced changes in `/work/acme-mono-fix-x`. Then re-run `script/worktree destroy fix-x` from `/work/acme-mono` and delete `fix-x` with `git branch -D fix-x`.\n",
+      "words": 267,
+      "wallMs": 14535,
+      "mechanical": {
+        "f2": "fails",
+        "f3": "holds"
+      }
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "1. **cwd:** `/work/acme-mono`  \n   **Command:** `realpath /work/acme-mono`  \n   **Resolved:** `PRIMARY=/work/acme-mono`.\n\n2. **cwd:** `/work/acme-mono`  \n   **Command:** `realpath /work/acme-mono-fix-x`  \n   **Resolved:** `WORKTREE=/work/acme-mono-fix-x`; `FEATURE=fix-x`; `${WORKTREE##*/}=acme-mono-fix-x`.\n\n3. **cwd:** `/work/acme-mono`  \n   **Command:** `cat /work/acme-mono/.pi/gauntlet-overrides.md`  \n   **Read:** the configured home pattern `../acme-mono-<name>` and destroy recipe `script/worktree destroy <name>`.\n\n4. **Resolve cleanup ownership:** The configuration describes a native-script convention, but the case does not establish that a native script created this worktree. Its canonical path is outside both gauntlet-owned directory patterns. Therefore, Step 6 treats it as host-owned.\n\n5. **Run no cleanup or branch-deletion commands.** In particular, do not invoke the destroy recipe merely because it exists. Its stated failure is not encountered.\n\n**Final report:** Squash landed on `main`; host-owned worktree `/work/acme-mono-fix-x` is preserved and still holds branch `fix-x`, so branch deletion was skipped.\n",
+      "words": 121,
+      "wallMs": 29146,
+      "mechanical": {
+        "f2": "holds",
+        "f3": "fails"
+      }
+    }
+  },
+  "repoSha": "fb6512bafcc5b02357ccec687252a942ee94f54f"
+}

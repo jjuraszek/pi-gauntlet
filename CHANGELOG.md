@@ -1,5 +1,16 @@
 # Changelog
 
+## Unreleased
+
+### Added
+
+- **`## using-git-worktrees` keys.** The overrides file's `## using-git-worktrees` section accepts `- home: <path pattern>`, `- create: <command>`, and `- destroy: <command>`; `using-git-worktrees` creates there, `finishing-a-development-branch` Step 6 and `gatekeep-pr` cleanup remove only a worktree that matches `home:` and run `destroy:` when set. A section with none of the keys keeps the legacy behavior.
+- **Configuration front door.** `README.md` "Project-specific overrides" lists every overrides-file heading with its reader, default, and extends/overrides relationship, plus the rules the file cannot change; "Configuring the gates" lists every `piGauntlet.*` key with its default. Every skill's `## Project overrides` paragraph points there.
+
+### Changed
+
+- **gatekeep-pr `## PR gate` `worktree wrapper:` removed.** Worktree placement for the gate comes from `## using-git-worktrees`; a leftover key is named once and ignored.
+
 ## v7.13.0 - 2026-10-16
 
 ### Added

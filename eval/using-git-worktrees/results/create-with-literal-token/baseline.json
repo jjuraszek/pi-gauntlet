@@ -1,0 +1,38 @@
+{
+  "sample": "create-with-literal-token",
+  "arm": "baseline",
+  "skillSha": "d756f10e7334d9d954cde44b08067e2ef23ef7181eaf7bbb6dc42b5860e558ce",
+  "inputSha": "4d3ee758098e85a635789b602b7efc6df75cbec7bdd05ee9a8498b37332f18ec",
+  "kind": "text",
+  "assembly": "concat",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "I'm using the using-git-worktrees skill to set up an isolated workspace.\n\n## Project overrides\n\n1. **Read** `/work/acme-mono/.pi/gauntlet-overrides.md`. It is the first candidate checked, so it wins.\n   - It has no `## conventions` section.\n   - It has a `## using-git-worktrees` section, which applies here:\n     - **home:** `../acme-mono-<name>`\n     - **create:** `script/worktree create <name> <subproject> --branch <branch>`\n     - **destroy:** `script/worktree destroy <name>`\n     - The wrapper symlinks `build/` into the new tree.\n\n## Step 0: Detect existing isolation\n\nAll commands run with cwd `/work/acme-mono`.\n\n2. `git rev-parse --path-format=absolute --git-dir --git-common-dir`\n   - GIT_DIR = `/work/acme-mono/.git`\n   - GIT_COMMON = `/work/acme-mono/.git`\n3. `git rev-parse --path-format=absolute --git-common-dir`\n   - ROOT = `dirname /work/acme-mono/.git` = `/work/acme-mono`\n4. `git branch --show-current`\n   - CURRENT_BRANCH = `main`\n5. `git rev-parse --show-superproject-working-tree`\n   - Output is empty, so this is not a submodule.\n6. GIT_DIR equals GIT_COMMON, so this is the primary checkout. I proceed to Step 1.\n\n## Detached HEAD check\n\n7. `git -C /work/acme-mono symbolic-ref -q HEAD`\n   - Output is `refs/heads/main`, so HEAD is attached and I can proceed.\n\n## Step 1: Announce\n\n8. \"Setting up an isolated worktree at `/work/acme-mono-csv-export` on branch `csv-export` for this work.\"\n   - This is real planned work, so no consent pause is needed.\n   - The values I resolved:\n     - **name** = `csv-export`\n     - **subproject** = `reports`, because the approved plan touches only the top-level `reports/`\n     - **branch** = `csv-export`\n     - **home** = `../acme-mono-csv-export`, which resolves to `/work/acme-mono-csv-export`\n\n## Step 1a: Use the wrapper\n\n`script/worktree` exists, so I use it instead of `git worktree add`. First I run the Step 3 clean-base check in the source checkout.\n\n9. `git -C /work/acme-mono status --porcelain`\n   - Output is empty and the exit code is 0, so the base is clean.\n10. Provenance note:\n    - `git -C /work/acme-mono symbolic-ref --short refs/remotes/origin/HEAD` prints `origin/main`. Stripping `origin/` gives the default branch `main`.\n    - `git -C /work/acme-mono branch --show-current` prints `main`.\n    - They match, so no provenance note is needed.\n11. `(cd /work/acme-mono && script/worktree create csv-export reports --branch csv-export)`\n    - This runs in a subshell, so the process cwd does not change.\n    - It succeeds. The wrapper handles placement, setup and the `build/` symlink, so I skip manual Step 2.\n    - I do not touch `.gitignore` and run no tests.\n12. `git -C /work/acme-mono worktree list --porcelain`\n    - Output includes `worktree /work/acme-mono` and `worktree /work/acme-mono-csv-export`.\n    - WORKTREE = `/work/acme-mono-csv-export`\n\n## Step 4: Report\n\n```\nWorktree ready at /work/acme-mono-csv-export\nBranch: csv-export\nBase: main (clean)\nReady to implement csv-export\n```\n\nLater skills will use `/work/acme-mono-csv-export` as a value, through `cwd:`, `git -C`, or `(cd … && …)`. Cleanup at finish goes through `script/worktree destroy csv-export`.\n",
+      "words": 379,
+      "wallMs": 24180,
+      "mechanical": {
+        "c4": "holds"
+      }
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "I'm using the using-git-worktrees skill to set up an isolated workspace.\n\n### 1. Detect existing isolation\n\nUsing the case’s supplied facts:\n- Primary checkout / `ROOT`: `/work/acme-mono`\n- `GIT_DIR == GIT_COMMON`\n- Not a submodule\n- HEAD is attached\n- Current branch / base: `main`\n- Requested branch: `csv-export`\n\nNo worktree already isolates this session.\n\n### 2. Read the project override\n\nCommand, cwd `/work/acme-mono`:\n```bash\ncat /work/acme-mono/.pi/gauntlet-overrides.md\n```\n\nThe override resolves:\n- Worktree name: `csv-export`\n- Home template: `../acme-mono-<name>`\n- Absolute destination: `/work/acme-mono-csv-export`\n- Creation wrapper: `script/worktree`\n- Subproject: `reports`, because the approved plan touches only `reports/`\n- Branch: `csv-export`\n- Cleanup command for later: `script/worktree destroy csv-export`\n\nThe supplied facts establish that the wrapper exists and is executable. I use it rather than `git worktree add`.\n\nSetting up an isolated worktree at `/work/acme-mono-csv-export` on branch `csv-export` for this work.\n\n### 3. Verify the source checkout is clean\n\nCommand, cwd `/work/acme-mono`:\n```bash\ngit -C /work/acme-mono status --porcelain\n```\n\nIt exits successfully with empty output. The source checkout is clean.\n\n### 4. Resolve default-branch provenance\n\nCommand, cwd `/work/acme-mono`:\n```bash\ngit symbolic-ref --short refs/remotes/origin/HEAD\n```\n\nOutput:\n```text\norigin/main\n```\n\nStripping `origin/` resolves the default branch to `main`. It matches the source branch, so no provenance note is needed.\n\n### 5. Create with the project wrapper\n\nCommand, cwd `/work/acme-mono`:\n```bash\nscript/worktree create csv-export reports --branch csv-export\n```\n\nIt succeeds with empty output. The wrapper handles creation, including its stated `build/` symlink behavior. I do not run manual worktree creation, dependency installation, or tests.\n\n### 6. Confirm the registered location\n\nCommand, cwd `/work/acme-mono`:\n```bash\ngit worktree list --porcelain\n```\n\nOutput:\n```text\nworktree /work/acme-mono\nworktree /work/acme-mono-csv-export\n```\n\nResolved `WORKTREE`: `/work/acme-mono-csv-export`. The process cwd remains `/work/acme-mono`.\n\n### Step 4 report\n\n```text\nWorktree ready at /work/acme-mono-csv-export\nBranch: csv-export\nBase: main (clean)\nReady to implement CSV export in reports/\n```\n",
+      "words": 271,
+      "wallMs": 25190,
+      "mechanical": {
+        "c4": "holds"
+      }
+    }
+  },
+  "repoSha": "638a007e2327b5fb04cfb5123b8e91eab7a1b48d"
+}

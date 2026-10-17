@@ -1,0 +1,84 @@
+{
+  "sample": "branch-with-metacharacters",
+  "arm": "candidate",
+  "skillSha": "3060385552f5417c4ea49a6b837844f28775e5651e008135387b8f911fe7a597",
+  "inputSha": "9b30be50b7d3e5bf6b6ef39ec01e575bed1164d0471431e31ccc46ef231a70f4",
+  "kind": "text",
+  "assembly": "concat",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "I'm using the using-git-worktrees skill to set up an isolated workspace.\n\n## Step 0: Detect existing isolation\n\nAll commands below run in cwd `/work/acme-mono`.\n\n1. `git rev-parse --path-format=absolute --git-dir --git-common-dir`\n   - `GIT_DIR=/work/acme-mono/.git`\n   - `GIT_COMMON=/work/acme-mono/.git`\n   - The two are equal.\n2. `git rev-parse --path-format=absolute --git-common-dir`\n   - `ROOT=/work/acme-mono`\n3. `git branch --show-current`\n   - `CURRENT_BRANCH=main`\n4. `git rev-parse --show-superproject-working-tree`\n   - Empty output, so this is not a submodule.\n5. `git symbolic-ref -q HEAD`\n   - HEAD is attached (`refs/heads/main`), so the detached-HEAD branch does not apply.\n\nThis is the primary checkout, so I proceed to Step 1.\n\n## Step 1: Announce\n\n\"Setting up an isolated worktree at `/work/acme-mono-topic;id` on branch `topic;id` for this work.\"\n\nThis is real work, so I don't pause for consent.\n\n## Step 1a: Read the contract\n\n6. Read `/work/acme-mono/.pi/gauntlet-overrides.md`. This is the first rung of the overrides ladder, so it wins.\n   - The file has no `## conventions` section.\n   - `## using-git-worktrees` contains `home:` and `create:`, so the **keyed contract is active**.\n   - There are no duplicate keys.\n   - `home: ../acme-mono-<name>` has `<name>` exactly once, inside one segment with the literal prefix `acme-mono-`. This is valid.\n   - `destroy:` is absent. That key matters only at finish time.\n\n### 1a.1: Clean-base check (Step 3, fresh path)\n\n7. `git -C /work/acme-mono status --porcelain`\n   - Exit 0 with empty output, so the base is **clean**.\n\n### 1a.2: Resolve values\n\n- `BRANCH=topic;id`\n- `NAME=topic;id`, because the branch contains no `/` to replace.\n- `HOME` is `/work/acme-mono/../acme-mono-topic;id`, which resolves to `/work/acme-mono-topic;id`.\n\n### 1a.3: Run `create:` from `$ROOT`\n\nEach token resolves as follows:\n- `<name>` → `topic;id`\n- `<branch>` → `topic;id`\n- `<subproject>` → `billing`. The approved plan names exactly one top-level directory touched, `billing/`, so there's no need to ask.\n\nEach resolved token is inserted as one single-quoted shell word. This matters because the `;` in the branch name must not act as a command separator.\n\n8. cwd `/work/acme-mono`: `script/worktree create 'topic;id' 'billing' --branch 'topic;id'`\n   - Succeeds with exit 0.\n\n### 1a.4: Post-create check\n\n9. `git -C /work/acme-mono worktree list --porcelain`\n   - Prints `worktree /work/acme-mono` and `worktree /work/acme-mono-topic;id`.\n   - The line `worktree /work/acme-mono-topic;id` matches `HOME`, so the check passes.\n\n### 1a.5: Carry the path\n\n- `WORKTREE=/work/acme-mono-topic;id`\n- The process cwd stays `/work/acme-mono`.\n- I don't run a manual setup or test step; the wrapper owns setup.\n\n## Provenance note (fresh path)\n\n10. `git symbolic-ref --short refs/remotes/origin/HEAD` prints `origin/main`.\n    - After stripping the prefix, the default branch is `main`.\n11. `git branch --show-current` in `/work/acme-mono` prints `main`.\n    - The source branch matches the default branch, so no note is added.\n\n## Step 4: Report\n\n```\nWorktree ready at /work/acme-mono-topic;id\nBranch: topic;id\nBase: main (clean)\nReady to implement the billing/ change from the approved plan\n```\n",
+      "words": 403,
+      "wallMs": 18261,
+      "mechanical": {
+        "m2": "holds"
+      }
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "I’m using the using-git-worktrees skill to set up an isolated workspace.\n\nAll commands below run with **cwd `/work/acme-mono`**. The process cwd never changes.\n\n1. **Detect existing isolation.**\n   ```bash\n   read -r GIT_DIR GIT_COMMON <<<\"$(git rev-parse --path-format=absolute --git-dir --git-common-dir | tr '\\n' ' ')\"\n   ROOT=$(dirname \"$(git rev-parse --path-format=absolute --git-common-dir)\")\n   CURRENT_BRANCH=$(git branch --show-current)\n   git rev-parse --show-superproject-working-tree 2>/dev/null\n   ```\n   Resolved state: `GIT_DIR == GIT_COMMON`, no superproject, `ROOT=/work/acme-mono`, and `CURRENT_BRANCH=main`. This is the primary checkout with attached HEAD, so worktree creation can proceed.\n\n2. **Read the first-priority overrides file before discovering tools or wrappers.**\n   ```bash\n   cat .pi/gauntlet-overrides.md\n   ```\n   The keyed contract is active:\n   - `home`: `../acme-mono-<name>`\n   - `create`: `script/worktree create <name> <subproject> --branch <branch>`\n   - `destroy`: absent.\n\n   Resolve the template values:\n   - `BRANCH=topic;id`\n   - `NAME=topic;id` — replacing `/` with `-` changes nothing.\n   - `<subproject>=billing` — the approved plan identifies exactly one top-level directory.\n   - `HOME=/work/acme-mono-topic;id` — resolving the home pattern against `/work/acme-mono`.\n\n   Setting up an isolated worktree at `/work/acme-mono-topic;id` on branch `topic;id` for this work.\n\n3. **Verify the source checkout is clean.**\n   ```bash\n   git -C /work/acme-mono status --porcelain\n   ```\n   It succeeds with empty output. The source base is clean.\n\n4. **Resolve the provenance note.**\n   ```bash\n   git symbolic-ref --short refs/remotes/origin/HEAD\n   ```\n   Output: `origin/main`. Stripping `origin/` gives default branch `main`, matching source branch `main`. No provenance note is needed.\n\n5. **Run the configured creation command from the primary checkout.**\n   ```bash\n   script/worktree create 'topic;id' 'billing' --branch 'topic;id'\n   ```\n   Each substituted token is one single-quoted shell word. The semicolon is literal argument content; it does not execute `id`.\n\n   The command succeeds with empty output. No direct `git worktree add`, gitignore modification, or separate dependency-install command is run.\n\n6. **Verify the created location.**\n   ```bash\n   git -C /work/acme-mono worktree list --porcelain\n   ```\n   Output:\n   ```text\n   worktree /work/acme-mono\n   worktree /work/acme-mono-topic;id\n   ```\n   The required `worktree /work/acme-mono-topic;id` line is present. Resolve `WORKTREE=/work/acme-mono-topic;id`.\n\n**Step 4 report**\n```text\nWorktree ready at /work/acme-mono-topic;id\nBranch: topic;id\nBase: main (clean)\nReady to implement the approved billing feature\n```\n",
+      "words": 294,
+      "wallMs": 25229,
+      "mechanical": {
+        "m2": "holds"
+      }
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "c1bc7a968a1fd40ba84cd1491d298885f0d2f2213cc146e3d774f9dd4ad78e33",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "487af6f1a65d30478c9107cb6c45feac6eac084e254cec9d9aeef29eb9d63d0a",
+      "baselineOutputSha": "8f94850edaab7c2d38077e301de435e5cb9442cb4048b9495affd139c39d73fd",
+      "candidateOutputSha": "0c652b4e4f223f320346c0225180e05337255832a0ac79c87fb5e33472947012",
+      "facts": {
+        "m1": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "m2": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        }
+      },
+      "feedback": "Nothing moved here: both outputs pass the branch to the create command as a single-quoted shell word (`--branch 'topic;id'`), and both explain that the `;` must not act as a command separator, so m1 holds in Before as well as After despite the Expected list predicting fails -> holds. The After wording delivers the Change cleanly: it names the keyed contract explicitly, states the one-token-per-single-quoted-word rule before showing the command, and adds the post-create `git worktree list` check that matches `HOME`. The only wording note is that After also quotes `'billing'`, which is consistent with the 'every token single-quoted' rule and is fine; keep that rule stated once, before the command line, exactly as After does, so the quoting evidence stays visible in the transcript rather than being implied.",
+      "wallMs": 7784,
+      "verdict": "unchanged"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "c1bc7a968a1fd40ba84cd1491d298885f0d2f2213cc146e3d774f9dd4ad78e33",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "487af6f1a65d30478c9107cb6c45feac6eac084e254cec9d9aeef29eb9d63d0a",
+      "baselineOutputSha": "9d76f9118e5e0b5858da3f707d2acf4ce9ace81faaef2d8853b687922cdaf1aa",
+      "candidateOutputSha": "27099cfb617435b2dcf8b24a37dcd6780a27f9c33d16df2cdd18fc1affe1aee3",
+      "facts": {
+        "m1": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "m2": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        }
+      },
+      "feedback": "Both outputs single-quote the branch value in the create invocation (`--branch 'topic;id'`) and explicitly state that the semicolon stays literal, so m1 holds in Before as well as After; the expected fails->holds movement did not occur because Before already quoted the token. After additionally quotes `'billing'` and names the rule as 'each substituted token is one single-quoted shell word', which is the clearer articulation of the Change, but it does not move m1. If the author wants this case to discriminate, the fact would need to target something Before lacked—e.g. that quoting is applied as a stated rule to every substituted token (Before leaves `billing` unquoted), or that the keyed `create:` contract is followed rather than wrapper discovery via `test -x`—since the mere single-quoting of the branch value is present in both outputs.",
+      "wallMs": 7138,
+      "verdict": "unchanged"
+    }
+  },
+  "repoSha": "120885bf882aea493f0735186395bdd64dfc4e4f"
+}

@@ -46,3 +46,5 @@ verification, worktrees, etc.), or by workflow convention - to override or
 extend the instructions above. Project-local `AGENTS.md` is already in
 context - check it for project-specific routing tables, service paths, and
 verification commands.
+
+The recognized headings, their readers, and the rules an override cannot change are listed in the [configuration front door](../../README.md#project-specific-overrides); an override extends or replaces the step it names and never lifts this skill's HARD CONSTRAINT or MUST text.

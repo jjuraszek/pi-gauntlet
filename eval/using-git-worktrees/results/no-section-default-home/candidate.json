@@ -1,0 +1,90 @@
+{
+  "sample": "no-section-default-home",
+  "arm": "candidate",
+  "skillSha": "3060385552f5417c4ea49a6b837844f28775e5651e008135387b8f911fe7a597",
+  "inputSha": "efeee0765767952f818554f37704dff3b22dbc92c5ef77cfcbf057ee7b0076cb",
+  "kind": "text",
+  "assembly": "concat",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "# using-git-worktrees run for `login-copy` in /work/acme-web\n\nI'm using the using-git-worktrees skill to set up an isolated workspace.\n\n## Step 0: Detect existing isolation\n\nAll commands run with cwd `/work/acme-web`.\n\n1. `git rev-parse --path-format=absolute --git-dir --git-common-dir`\n   - Prints `/work/acme-web/.git` twice.\n   - So `GIT_DIR=/work/acme-web/.git` and `GIT_COMMON=/work/acme-web/.git`. They are equal.\n2. `git rev-parse --path-format=absolute --git-common-dir`\n   - Prints `/work/acme-web/.git`.\n   - So `ROOT=$(dirname /work/acme-web/.git)` = `/work/acme-web`.\n3. `git branch --show-current`\n   - So `CURRENT_BRANCH=main`.\n4. `git rev-parse --show-superproject-working-tree`\n   - Empty output, so this is not a submodule.\n5. `git symbolic-ref -q HEAD`\n   - Prints `refs/heads/main`, so HEAD is attached and the detached-HEAD ask does not apply.\n\nResult: this is the primary checkout, so I go on to Step 1.\n\n## Step 1: Announce\n\n\"Setting up an isolated worktree at `/work/acme-web/.worktrees/login-copy` on branch `login-copy` for this work.\"\n\nNone of the consent exceptions apply, so I proceed without asking.\n\n## Step 1a: Overrides contract\n\nI check the overrides ladder in order:\n- `/work/acme-web/.pi/gauntlet-overrides.md`: absent\n- `/work/acme-web/gauntlet-overrides.md`: absent\n- `/work/acme-web/doc/gauntlet-overrides.md`: absent\n\nThere is no overrides file, so the legacy path applies.\n\n## Step 1b: Native tools and wrappers\n\n- No native worktree tool is available.\n- No `script/worktree`, `bin/worktree` or repo-root wrapper exists.\n- AGENTS.md names no wrapper.\n\nSo I fall through to Step 2.\n\n## Step 2a: Location\n\n- `BRANCH=login-copy`\n- Home is `/work/acme-web/.worktrees/login-copy`\n\n## Step 3: Clean-base check (before creation, in the source checkout)\n\n1. `git -C /work/acme-web status --porcelain`\n   - Exits 0 with empty output, so the source is **clean**.\n2. Provenance note:\n   - `git -C /work/acme-web symbolic-ref --short refs/remotes/origin/HEAD` prints `origin/main`. Stripping the prefix gives the default branch `main`.\n   - The source branch (`git branch --show-current`) is `main`, which matches. No note is added.\n\n## Step 2b: Create\n\nAll commands run with cwd `/work/acme-web`. The process cwd never changes.\n\n1. `git -C /work/acme-web worktree list --porcelain | grep -qx \"worktree /work/acme-web/.worktrees/login-copy\"`\n   - No match, so the worktree does not exist yet.\n2. `git -C /work/acme-web check-ignore -q .worktrees`\n   - Exits 1, so `.worktrees` is not ignored yet.\n3. `echo \".worktrees/\" >> /work/acme-web/.gitignore`\n4. `git -C /work/acme-web add .gitignore`\n5. `git -C /work/acme-web commit -m \"Ignore .worktrees/\" -- .gitignore`\n6. `git -C /work/acme-web worktree add /work/acme-web/.worktrees/login-copy -b login-copy`\n   - `git worktree list --porcelain` now lists `worktree /work/acme-web/.worktrees/login-copy`.\n7. `WORKTREE=/work/acme-web/.worktrees/login-copy`\n\n## Step 2c: Project setup\n\nI run `(cd /work/acme-web/.worktrees/login-copy && { …manifest checks… })` in a subshell.\n- The case describes no pnpm-lock, yarn.lock, package.json, Cargo.toml, pyproject.toml, Gemfile or go.mod.\n- So no install or build runs, and the subshell completes with empty output.\n- No tests are run.\n\n## Step 4: Report\n\n```\nWorktree ready at /work/acme-web/.worktrees/login-copy\nBranch: login-copy\nBase: main (clean)\nReady to implement login-copy\n```\n\nLater steps carry `/work/acme-web/.worktrees/login-copy` as a value, via `git -C`, `cwd:` or `(cd … && …)`. The process cwd is never changed.\n",
+      "words": 418,
+      "wallMs": 20091,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "I’m using the using-git-worktrees skill to set up an isolated workspace.\n\nAll commands below run with cwd `/work/acme-web`, except dependency commands inside the explicitly shown setup subshell. The process cwd never changes.\n\n### 1. Detect existing isolation\n\nRun:\n\n```bash\ngit rev-parse --path-format=absolute --git-dir --git-common-dir\n```\n\nResolve:\n\n```text\nGIT_DIR=/work/acme-web/.git\nGIT_COMMON=/work/acme-web/.git\nROOT=/work/acme-web\n```\n\nRun:\n\n```bash\ngit branch --show-current\n```\n\nOutput and resolved value:\n\n```text\nCURRENT_BRANCH=main\n```\n\nRun:\n\n```bash\ngit rev-parse --show-superproject-working-tree\n```\n\nOutput is empty. This is the primary checkout, not a submodule. HEAD is attached, as stipulated.\n\n### 2. Check overrides and discover the creation mechanism\n\nCheck override files in precedence order:\n\n```bash\ntest -f /work/acme-web/.pi/gauntlet-overrides.md\ntest -f /work/acme-web/gauntlet-overrides.md\ntest -f /work/acme-web/doc/gauntlet-overrides.md\n```\n\nNone exists. There is no keyed contract or override prose to apply.\n\nNo native worktree tool is available.\n\nRead project instructions and inspect the conventional wrapper locations:\n\n```bash\ncat /work/acme-web/AGENTS.md\n```\n\n```bash\nfind /work/acme-web -maxdepth 1 -type f -iname '*worktree*'\n```\n\n```bash\nfind /work/acme-web/script /work/acme-web/bin -maxdepth 1 -type f -iname '*worktree*'\n```\n\nThese produce no wrapper discovery. Use the manual fallback.\n\nResolve:\n\n```text\nBRANCH=login-copy\nWORKTREE=/work/acme-web/.worktrees/login-copy\nBase ref=main\n```\n\nSetting up an isolated worktree at `/work/acme-web/.worktrees/login-copy` on branch `login-copy` for this work.\n\n### 3. Verify the source checkout and resolve provenance\n\nRun:\n\n```bash\ngit -C /work/acme-web status --porcelain\n```\n\nIt exits successfully with empty output. The source checkout is clean.\n\nRun:\n\n```bash\ngit symbolic-ref --short refs/remotes/origin/HEAD\n```\n\nOutput:\n\n```text\norigin/main\n```\n\nStrip `origin/` to resolve the default branch as `main`. The source branch is also `main`, so no provenance note is needed.\n\n### 4. Ignore the worktree home, then create the worktree\n\nRun:\n\n```bash\ngit -C /work/acme-web worktree list --porcelain\n```\n\nOutput is empty under the case’s command behavior; the target path is not listed.\n\nRun:\n\n```bash\ngit -C /work/acme-web check-ignore -q .worktrees\n```\n\nIt exits `1`. Ignore the directory before creating the worktree.\n\nRun:\n\n```bash\necho \".worktrees/\" >> /work/acme-web/.gitignore\n```\n\nRun:\n\n```bash\ngit -C /work/acme-web add .gitignore\n```\n\nRun:\n\n```bash\ngit -C /work/acme-web commit -m \"Ignore .worktrees/\" -- .gitignore\n```\n\nRun:\n\n```bash\ngit -C /work/acme-web worktree add /work/acme-web/.worktrees/login-copy -b login-copy\n```\n\nThe new branch starts at `main`, including the just-created ignore commit.\n\nRun:\n\n```bash\ngit -C /work/acme-web worktree list --porcelain\n```\n\nThe output lists:\n\n```text\nworktree /work/acme-web/.worktrees/login-copy\n```\n\nThe created path matches `WORKTREE`.\n\n### 5. Run project setup\n\nRun this shell command from cwd `/work/acme-web`; its subshell uses cwd `/work/acme-web/.worktrees/login-copy`:\n\n```bash\n(cd \"/work/acme-web/.worktrees/login-copy\" && {\n  if   [ -f pnpm-lock.yaml ]; then pnpm install\n  elif [ -f yarn.lock ];      then yarn install\n  elif [ -f package.json ];   then npm install\n  fi\n  [ -f Cargo.toml ]      && cargo build\n  [ -f pyproject.toml ]  && uv sync\n  [ -f Gemfile ]         && bundle install\n  [ -f go.mod ]          && go mod download\n})\n```\n\nUnder the stipulated behavior, this command succeeds with empty output. No test suite is run.\n\n### Step 4 report\n\n```text\nWorktree ready at /work/acme-web/.worktrees/login-copy\nBranch: login-copy\nBase: main (clean)\nReady to implement login-copy\n```\n",
+      "words": 435,
+      "wallMs": 36891,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "0ee0c9ce40344d38f27f8601fa91e91d7cf84bf489fef2ccef1f87ab9ec01934",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "487af6f1a65d30478c9107cb6c45feac6eac084e254cec9d9aeef29eb9d63d0a",
+      "baselineOutputSha": "974bfd5c5ea51e288d814e11cae71eaf4cce7e34ee3feb064f011787a7bec75f",
+      "candidateOutputSha": "9b926576e456a94d085538be59fe1aeaa6a048b3b3e470492168356e84732dca",
+      "facts": {
+        "d1": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "d2": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "d3": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "After keeps all three facts: it appends `.worktrees/` to .gitignore, adds and commits it (steps 3-5), then runs `git worktree add /work/acme-web/.worktrees/login-copy -b login-copy` (step 6), and reports `Worktree ready at /work/acme-web/.worktrees/login-copy`. The new Step 1a overrides check correctly finds no file and falls through to the legacy ladder, so the Change did not disturb the no-overrides path. The only behavioral difference is in Step 2c, where After runs no installs because no manifests are described, versus Before running every installer; that is outside the facts here, but if the skill text is meant to pin that down, make the manifest-presence rule explicit so both wordings agree.",
+      "wallMs": 5044,
+      "verdict": "unchanged"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "0ee0c9ce40344d38f27f8601fa91e91d7cf84bf489fef2ccef1f87ab9ec01934",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "487af6f1a65d30478c9107cb6c45feac6eac084e254cec9d9aeef29eb9d63d0a",
+      "baselineOutputSha": "b26f2d85d97a3882d83c10ef4dee4b276b5e5364398ad4a62fc6ca6ba0f7ce07",
+      "candidateOutputSha": "577c38a1286d0963d72b3746da50db51c45112230f8e2623cfa590ae33c6d4b1",
+      "facts": {
+        "d1": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "d2": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "d3": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "After preserves every fact for this no-overrides case: it appends `.worktrees/` to .gitignore and commits it before `git worktree add` (d1), runs `git worktree add /work/acme-web/.worktrees/login-copy -b login-copy` (d2), and reports `Worktree ready at /work/acme-web/.worktrees/login-copy` (d3). The only visible differences from Before are the explicit override-file probes, the added post-create `git worktree list --porcelain` check, and a setup step that runs a conditional install subshell rather than a `find` for manifests; none of these alter the facts, and the keyless/no-section path correctly falls through to the unchanged legacy ladder as the Change intends. No wording adjustment is needed to retain these facts; just keep the legacy branch's gitignore-then-add ordering untouched when the overrides section is absent, as After already does.",
+      "wallMs": 5608,
+      "verdict": "unchanged"
+    }
+  },
+  "repoSha": "120885bf882aea493f0735186395bdd64dfc4e4f"
+}

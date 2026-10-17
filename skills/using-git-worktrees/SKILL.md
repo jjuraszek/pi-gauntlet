@@ -55,7 +55,30 @@ Pause for explicit consent **only** when one of these holds:
 
 Otherwise create it. The gate is "is this real work?", not "did the user approve this worktree?"
 
-## Step 1a — Prefer Native Worktree Tools
+## Step 1a - Read the `## using-git-worktrees` contract
+
+Read the gauntlet overrides file (ladder in Project overrides) before any tool or wrapper discovery. Its `## using-git-worktrees` section carries up to three key lines, written like `## cleanup` items; prose before, between, or after them is instruction too:
+
+| Key | Meaning | Absent (keyed contract active) |
+|---|---|---|
+| `- home: <path pattern>` | Where this repo's worktrees live, relative to the primary checkout (an absolute path is used as-is). `<name>` substitutes and must appear exactly once, inside one path segment that may carry a literal prefix or suffix (`../acme-mono-<name>`). Ownership test for finishing Step 6 and gatekeep cleanup. | `<primary>/.worktrees/<name>` |
+| `- create: <command>` | Shell command run from the primary with `<name>` and `<branch>` substituted. Any other `<token>` stays literal: resolve it from the task context when the plan, ticket, or prompt names exactly one value for it (`<subproject>`: the one top-level directory the change touches); zero or several candidates -> ask once. | Built-in: `git worktree add "<home>" -b "<branch>"`, gitignore-first only when the home is inside the primary |
+| `- destroy: <command>` | Removal command run from the primary, same substitution; read by `finishing-a-development-branch` Step 6 and gatekeep-pr cleanup. | `git worktree remove "<path>" && git worktree prune` when the path matches `home:`; host-owned, keep, when it does not |
+
+The **keyed contract is active** when at least one key is present. A duplicate key: the first wins; name the duplicate. `home:` without a `<name>` segment, or with it twice: stop and name the line.
+
+Keyed contract active:
+
+1. Run the Step 3 clean-base check in the source checkout.
+2. `NAME` is the branch name with every `/` replaced by `-` (`jacek/fix-x` -> `jacek-fix-x`). `HOME` is `home:` resolved against `$ROOT` with `<name>` -> `NAME`.
+3. `create:` set -> run it from `$ROOT` with each resolved token inserted as one single-quoted shell word (`'...'`, an embedded `'` escaped), including when the template already quotes it; a `<token>` the context rule cannot resolve is never executed - ask once for its value. A non-zero exit stops this skill with the command's output: no `git worktree add` fallback, no Step 4 report.
+   `create:` absent -> when `HOME` is inside `$ROOT`, gitignore its parent directory first (the Step 2b sequence with that directory in place of `.worktrees`); then `git -C "$ROOT" worktree add "$HOME" -b "$BRANCH"`.
+4. Post-create check, always: `git -C "$ROOT" worktree list --porcelain` must print `worktree $HOME`; otherwise stop and report the mismatch (a wrong `home:` pattern, or a wrapper that places trees elsewhere).
+5. `WORKTREE="$HOME"`; `$WORKTREE` is the value every later step carries (`home: ../acme-mono-<name>` with branch `fix-x` gives `/work/acme-mono-fix-x`, so the basename `acme-mono-fix-x` is not the name). Go to Step 4.
+
+No overrides file, no section, or a section with none of the three keys (both shapes are the **legacy path**): the prose, if any, is instruction; continue at Step 1b - native tools, then a wrapper discovered from `AGENTS.md`, the repo root, `script/`, or `bin/`, then `.worktrees/`.
+
+## Step 1b - Prefer Native Worktree Tools (legacy path)
 
 Do you already have a way to create a worktree? It might be a tool with a name like `EnterWorktree`, `WorktreeCreate`, a `/worktree` command, or a `--worktree` flag. If you do, run the Step 3 clean-base check in the source checkout *before* invoking it, then use it and skip to Step 3.
 
@@ -76,7 +99,7 @@ Only when no native tool exists:
 
 ### 2a. Pick a location
 
-The canonical home is `<repo>/.worktrees/<branch>`. A project override or wrapper may define another path; otherwise use the canonical home. Do not ask local-vs-global or invent another path.
+The canonical home is `<repo>/.worktrees/<branch>`. A keyed `## using-git-worktrees` section never reaches this step (Step 1a creates at `home:`); on the legacy path a wrapper may define another path, otherwise use the canonical home. Do not ask local-vs-global or invent another path.
 
 ### 2b. Create - gitignore the home first
 
@@ -170,7 +193,9 @@ Re-run tests after rebasing.
 | `GIT_DIR != GIT_COMMON` | Already in worktree - report its path, create nothing |
 | Worktree path already listed by `git worktree list` | Report it, create nothing |
 | `git rev-parse --show-superproject-working-tree` returns a path | Submodule — treat as normal repo |
-| Project-native wrapper exists | Use the wrapper (commonly `script/worktree create`) |
+| `## using-git-worktrees` has `home:`/`create:`/`destroy:` | Keyed contract (Step 1a): run `create:` or the built-in add at `home:`, then the post-create check |
+| `## using-git-worktrees` absent or keyless | Legacy path: native tool, then wrapper discovery, then `<repo>/.worktrees/<branch>` |
+| Project-native wrapper exists (legacy path) | Use the wrapper (commonly `script/worktree create`) |
 | No native tool | Create `<repo>/.worktrees/<branch>` (gitignore `.worktrees/` first) |
 | Detached HEAD | Ask before branching |
 | Sandbox/permission failure | Work in place on a feature branch |
@@ -182,9 +207,11 @@ Re-run tests after rebasing.
 - About to `cd` into the worktree (carry the path instead)
 - About to call `git worktree add` directly when the project ships a wrapper (use the wrapper)
 - Created a `.worktrees/` worktree without gitignoring `.worktrees/` first
-- Placed a worktree outside `.worktrees/` (or the project's configured path) for no reason
+- Placed a worktree outside `.worktrees/` (or the `home:` key of `## using-git-worktrees`) for no reason
 - Source checkout dirty and you proceed without asking
 - About to run a test suite during worktree creation
+- Executed a `create:` or `destroy:` template with an unresolved `<token>` still in it
+- Fell back to `git worktree add` after a configured `create:` failed
 
 ## Integration
 
@@ -201,3 +228,5 @@ Re-run tests after rebasing.
 ## Project overrides
 
 If a gauntlet overrides file exists - checked in order: `.pi/gauntlet-overrides.md`, `<repo root>/gauntlet-overrides.md`, `<repo root>/doc/gauntlet-overrides.md`; first found wins - read it. Read and apply `## conventions` whenever present, without a relevance judgment. Give this skill's named section precedence over conflicting `## conventions` rules. Use other relevant sections - by name match, by topic (routing, verification, worktrees, etc.), or by workflow convention - to override or extend the instructions above. Project-local `AGENTS.md` is already in context — check it for project-specific routing tables, service paths, and verification commands.
+
+The recognized headings, their readers, and the rules an override cannot change are listed in the [configuration front door](../../README.md#project-specific-overrides); an override extends or replaces the step it names and never lifts this skill's HARD CONSTRAINT or MUST text.

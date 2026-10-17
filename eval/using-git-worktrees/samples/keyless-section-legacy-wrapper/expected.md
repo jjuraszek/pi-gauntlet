@@ -1,0 +1,2 @@
+- k1: judged: The narration runs `script/worktree create alerts` and runs no `git worktree add`.
+- k2: judged: The narration reports a worktree ready at /work/acme-ops-alerts.

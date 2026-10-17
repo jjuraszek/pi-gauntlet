@@ -1,0 +1,84 @@
+{
+  "sample": "no-section-dot-worktrees-removed",
+  "arm": "candidate",
+  "skillSha": "c62e8914c9b61cc41095da4963091eb73afaeaa2fe807738747975550beb141b",
+  "inputSha": "ca11055389c1ef38b69b5be6ab8e556b602da500eec8e432b25a488f6f885bbe",
+  "kind": "text",
+  "assembly": "concat",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "# Step 6: Cleanup Workspace (Squash-merge option)\n\nCleanup runs because the human picked the Squash-merge option.\n\n**1. Read the overrides contract**\n\nI looked for the gauntlet overrides file using the Project overrides ladder. No overrides file exists, so there is no `## using-git-worktrees` section and no `home:`, `create:` or `destroy:` keys. This puts Step 6 on the **Legacy path**.\n\n**2. Classify ownership (Legacy path)**\n\n- `$PRIMARY` = `/work/acme-web`\n- `$WORKTREE` = `/work/acme-web/.worktrees/login-copy`\n- `$FEATURE` = `login-copy`\n\nThe case names no project-native script (such as `script/worktree` or `bin/worktree`), so that branch does not apply.\n\n`$WORKTREE` is under `$PRIMARY/.worktrees/` (`/work/acme-web/.worktrees/`). That means gauntlet created this worktree and owns its cleanup.\n\n**3. Remove the worktree** (cwd `/work/acme-web`)\n\n```bash\ngit -C \"/work/acme-web\" worktree remove \"/work/acme-web/.worktrees/login-copy\"\n```\nThis succeeds with empty output.\n\n**4. Prune worktree metadata** (cwd `/work/acme-web`)\n\n```bash\ngit -C \"/work/acme-web\" worktree prune\n```\nThis succeeds with empty output.\n\n**5. Delete the feature branch** (cwd `/work/acme-web`)\n\nThe worktree was removed first, so nothing references the branch any more. I use `-D` because a squash-merge leaves `login-copy` looking unmerged to git.\n\n```bash\ngit -C \"/work/acme-web\" branch -D \"login-copy\"\n```\nThis succeeds with empty output.\n\n**Report:** I removed the worktree `/work/acme-web/.worktrees/login-copy` and pruned its metadata. I then deleted the branch `login-copy`, since the squash had already landed on `main`.\n",
+      "words": 202,
+      "wallMs": 9962,
+      "mechanical": {
+        "w2": "holds"
+      }
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "Resolved values:\n- `PRIMARY=/work/acme-web`\n- `WORKTREE=/work/acme-web/.worktrees/login-copy`\n- `FEATURE=login-copy`\n- No gauntlet overrides file exists, so the legacy cleanup rules apply.\n- `WORKTREE` is under `$PRIMARY/.worktrees/`, so gauntlet owns cleanup.\n\nCommands, in order, all with cwd `<scratch>`:\n\n1. Remove the worktree:\n   ```bash\n   git -C /work/acme-web worktree remove /work/acme-web/.worktrees/login-copy\n   ```\n   Succeeds with empty output.\n\n2. Prune worktree metadata:\n   ```bash\n   git -C /work/acme-web worktree prune\n   ```\n   Succeeds with empty output.\n\n3. Delete the feature branch after successful worktree removal:\n   ```bash\n   git -C /work/acme-web branch -D login-copy\n   ```\n   Succeeds with empty output.\n\nFinal report: Removed worktree `/work/acme-web/.worktrees/login-copy` and deleted branch `login-copy`.\n",
+      "words": 89,
+      "wallMs": 10388,
+      "mechanical": {
+        "w2": "holds"
+      }
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "07409c225903ddcb141b7b25c26011b2c78e54700fbabe485739b2c7cfe045c3",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "6da9ebcd59613c789b077f310955eb7ad7fa2782ca9fd317308d8580318a0a7d",
+      "baselineOutputSha": "75eca9fe824acb2e03597752d1d0e0ba3df8d2dc68ca9878a870f9f305fbcd67",
+      "candidateOutputSha": "58c7863719364f21a0134b8df2362d8afd2ecb122f92bd337661f1e39884c729",
+      "facts": {
+        "w1": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "w2": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "Both outputs narrate the same three commands in the same order against the primary checkout: `git -C /work/acme-web worktree remove /work/acme-web/.worktrees/login-copy`, then `worktree prune`, then `branch -D login-copy`, each reported as succeeding with empty output. The Before text already satisfies w1 on its own wording, so the expected fails->holds movement does not appear in this case; the After only adds the explicit overrides-file lookup (none found, legacy path) and quotes `\"login-copy\"` in the branch -D command, which is shell-equivalent and does not affect the fact. Nothing in After moved w1. To keep delivering the Change without disturbing this legacy narration, keep the After's structure: state up front that no `## using-git-worktrees` section exists and that the legacy three homes decide, classify the `.worktrees/` path as gauntlet-owned, then run remove, prune, and branch -D in that order with the same `-C \"$PRIMARY\"` form.",
+      "wallMs": 7636,
+      "verdict": "unchanged"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "07409c225903ddcb141b7b25c26011b2c78e54700fbabe485739b2c7cfe045c3",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "6da9ebcd59613c789b077f310955eb7ad7fa2782ca9fd317308d8580318a0a7d",
+      "baselineOutputSha": "f159cb7bb31f77c69bc199a034f665ac6050038203b1b171e6d260e0636d91bc",
+      "candidateOutputSha": "3624d37df2fed75ddd2ca77d29a0f41b6e5ae4d1ff47b895627a6f1315093a42",
+      "facts": {
+        "w1": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "w2": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "Before runs the remove and prune steps but ends with `git branch -d login-copy` (lowercase -d), so w1 fails on the branch-deletion command; After runs `git -C /work/acme-web worktree remove /work/acme-web/.worktrees/login-copy`, then `worktree prune`, then `branch -D login-copy`, matching w1 exactly, so the explicit `branch -D \"$FEATURE\"` continuation in the Change landed as intended. Nothing in After regressed; to keep this stable, make sure the legacy no-section path in Step 6 states the `-D` form unambiguously (e.g. \"then delete the branch with `git -C \"$PRIMARY\" branch -D \"$FEATURE\"`\") rather than relying on the keyed-contract sentence alone, so the lowercase `-d` from the baseline cannot reappear when no overrides file exists.",
+      "wallMs": 5443,
+      "verdict": "improved"
+    }
+  },
+  "repoSha": "234c4a3450da5354d259342cd53b0f1fb466241d"
+}

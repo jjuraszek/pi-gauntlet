@@ -1,0 +1,38 @@
+{
+  "sample": "home-match-builtin-remove",
+  "arm": "baseline",
+  "skillSha": "e0699b307e94921b893ca681a5ea227956276cbcf58e1833be5303d1aa1acda7",
+  "inputSha": "ce0d318746779bb95b6df943b85a054d52f41977ec75cedebb44e96e54a90203",
+  "kind": "text",
+  "assembly": "concat",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "# Step 6: Cleanup Workspace (squash-merge option)\n\nStep 6 applies because the human chose Squash-merge (option 3). The worktree must be removed before the branch, because `git branch -D` fails while a worktree still references the branch.\n\n## 1. Decide who owns the worktree\n\n**Values:**\n- `PRIMARY` = `/work/acme-api`\n- `WORKTREE` = `/work/acme-api-worktrees/rate-limit`\n- `FEATURE` = `rate-limit`\n- `realpath` returns both paths unchanged.\n\n**Default gauntlet homes:** The worktree is not under either default location:\n- `/work/acme-api/.worktrees/`\n- `~/.worktrees/acme-api/`\n\nSo I check the project overrides before deciding the host owns it.\n\n**Command (cwd `/work/acme-api`):**\n```\ncat /work/acme-api/.pi/gauntlet-overrides.md\n```\n**Output:**\n```\n## using-git-worktrees\n- home: ../acme-api-worktrees/<name>\n```\n\n**Resolving the override:**\n- `../acme-api-worktrees/<name>` is relative to the primary, `/work/acme-api`.\n- With `<name>` = `rate-limit`, it resolves to `/work/acme-api-worktrees/rate-limit`.\n- That is exactly `$WORKTREE`.\n\nSo this is gauntlet's configured worktree home for this project. Gauntlet created the worktree and owns its cleanup.\n\n**Project-native script:** The worktree was not created by a project script such as `script/worktree`. It lives at the gauntlet override home, so the generic git path applies.\n\n## 2. Remove the worktree\n\n**Command (cwd `/work/acme-api`):**\n```\ngit -C /work/acme-api worktree remove /work/acme-api-worktrees/rate-limit\n```\nSucceeds with empty output.\n\n**Command (cwd `/work/acme-api`):**\n```\ngit -C /work/acme-api worktree prune\n```\nSucceeds with empty output.\n\n## 3. Delete the feature branch\n\nThe change landed as a squash commit, so `rate-limit` is not an ancestor of `main`. That means `-d` would refuse, and `-D` is required.\n\n**Command (cwd `/work/acme-api`):**\n```\ngit -C /work/acme-api branch -D rate-limit\n```\nSucceeds.\n\n## Final report\n\nWorktree `/work/acme-api-worktrees/rate-limit` was removed and pruned. It was gauntlet-owned via the `.pi/gauntlet-overrides.md` home `../acme-api-worktrees/<name>`. Branch `rate-limit` was force-deleted with `-D` because its work is on `main` as a squash commit.\n",
+      "words": 254,
+      "wallMs": 14447,
+      "mechanical": {
+        "b3": "holds"
+      }
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "1. Resolve the supplied values without running commands:\n   - `PRIMARY=/work/acme-api`\n   - `WORKTREE=/work/acme-api-worktrees/rate-limit`\n   - `FEATURE=rate-limit`\n   - Primary branch: `main`\n   - Both canonical paths equal their supplied paths.\n   - The override `../acme-api-worktrees/<name>`, relative to `PRIMARY`, resolves for this feature to `/work/acme-api-worktrees/rate-limit`.\n\n2. Classify ownership. The override specifies a worktree location, not creation by a project-native script. The worktree is outside both `$PRIMARY/.worktrees/` and `~/.worktrees/<project>/`. Step 6 therefore treats it as **host-owned**.\n\n3. Preserve the worktree and skip branch deletion. **No commands are run**, so there are no command arguments or command working directories to report.\n\n**Final report:** Squash landed on `main`; host-owned worktree `/work/acme-api-worktrees/rate-limit` preserved and still holds branch `rate-limit`; branch deletion skipped.\n",
+      "words": 105,
+      "wallMs": 9302,
+      "mechanical": {
+        "b3": "fails"
+      }
+    }
+  },
+  "repoSha": "5ea36265ad38ba02d2381d2b7714891b522f1d55"
+}

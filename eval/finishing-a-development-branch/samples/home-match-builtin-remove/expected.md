@@ -1,0 +1,3 @@
+- b1: judged: The narration matches /work/acme-api-worktrees/rate-limit against the home pattern with name rate-limit and treats the worktree as gauntlet-owned.
+- b2: judged: The narration runs `git -C /work/acme-api worktree remove /work/acme-api-worktrees/rate-limit`, then `git -C /work/acme-api worktree prune`, then `git -C /work/acme-api branch -D rate-limit`, in that order.
+- b3: mechanical: lacks "host-owned"

@@ -320,6 +320,18 @@ If confirmed: Cleanup worktree (Step 6), then, if Step 6 removed the worktree, `
 
 **Only runs for the Squash-merge and Discard options (3 and 5).** The PR, draft PR, and Keep options always preserve the worktree.
 
+Read the gauntlet overrides file now (ladder in Project overrides) and its `## using-git-worktrees` section; nothing from creation time is carried - the file is the contract (keys written like `## cleanup` items: `using-git-worktrees/SKILL.md` Step 1a).
+
+**Keyed contract** - the section has at least one of `- home:`, `- create:`, `- destroy:`:
+
+1. Resolve `home:` against `$PRIMARY` (absent -> `$PRIMARY/.worktrees/<name>`; an absolute value is used as-is). `<name>` must appear exactly once, inside one path segment that may carry a literal prefix or suffix; otherwise stop and name the line.
+2. Ownership match: canonicalize both sides (`realpath`) and compare `$WORKTREE` to the resolved pattern, treating the `<name>` segment as `<prefix>*<suffix>` where `*` matches the remainder of that one segment. The text `*` matched is `NAME` - the creation identifier (`jacek/fix-x` was created as `jacek-fix-x`; `home: ../acme-mono-<name>` recovers `fix-x` from `acme-mono-fix-x`). A pattern that cannot isolate one segment -> stop and report.
+3. Match and `destroy:` set -> run it from `$PRIMARY` with `<name>` -> `'NAME'` and `<branch>` -> `'$FEATURE'`, each value one single-quoted shell word (`'...'`, an embedded `'` escaped), any other `<token>` resolved from context or asked once, never executed raw. Non-zero exit -> print its output, keep the branch, end this step; never fall back to `git worktree remove --force`. On success, run no `git worktree remove` or `prune`; continue to `git -C "$PRIMARY" branch -D "$FEATURE"`.
+4. Match and no `destroy:` -> `git -C "$PRIMARY" worktree remove "$WORKTREE"` then `git -C "$PRIMARY" worktree prune`; after success, continue to `git -C "$PRIMARY" branch -D "$FEATURE"`.
+5. No match -> the host environment owns this workspace: remove nothing, skip the branch deletion that follows, report that the host-owned worktree still holds `$FEATURE`.
+
+**Legacy path** - no overrides file, no section, or a keyless section:
+
 **If the worktree was created by a project-native script** (e.g. `script/worktree create`, `bin/worktree`): defer to its destroy command, run against the primary: `"$PRIMARY/script/worktree" destroy "${WORKTREE##*/}"`.
 
 **If `$WORKTREE` is under `$PRIMARY/.worktrees/` or `~/.worktrees/<project>/`:** gauntlet created it - we own cleanup:
@@ -343,7 +355,7 @@ Removal precedes branch deletion in both options; `git branch -d`/`-D` fails whi
 | 4. Keep as-is | - | - | yes | - | - |
 | 5. Discard | - | - | - | yes (force, after Step 6 removal) | - |
 
-A host-owned worktree (Step 6 "Otherwise") keeps both the worktree and the branch.
+A host-owned worktree (Step 6: no `home:` match, or the legacy "Otherwise") keeps both the worktree and the branch.
 
 ## Common Mistakes
 
@@ -369,7 +381,7 @@ A host-owned worktree (Step 6 "Otherwise") keeps both the worktree and the branc
 
 **Cleaning up harness-owned worktrees**
 - **Problem:** Removing a worktree the harness created causes phantom state
-- **Fix:** Only clean up worktrees under `.worktrees/`, `~/.worktrees/<project>/`, or paths produced by a project-native worktree script
+- **Fix:** Only clean up worktrees that match the `home:` pattern of `## using-git-worktrees`, or - on the legacy path - under `.worktrees/`, `~/.worktrees/<project>/`, or paths produced by a project-native worktree script
 
 **No confirmation for discard**
 - **Problem:** Accidentally delete work
@@ -402,6 +414,7 @@ Once the merge (and any deploy) has landed, `/skill:check-delivery <ticket-ref>`
 - Force-push without explicit request
 - Remove a worktree before confirming merge success
 - Clean up worktrees you didn't create (provenance check)
+- Retry a failed `destroy:` with `git worktree remove --force`
 - Run any step without the `<worktree-path>` argument
 - Auto-proceed past an undispositioned carried-open gap
 - Skip the strip-and-seal block before the Option 3 squash or the Option 1/2 push
@@ -416,8 +429,11 @@ Once the merge (and any deploy) has landed, `/skill:check-delivery <ticket-ref>`
 - Clean up worktree for Options 3 & 5 (Squash-merge, Discard) only
 - Target `$PRIMARY` with `git -C` for merge, worktree removal, and branch deletion
 - Run `git -C "$PRIMARY" worktree prune` after removal
+- Match `$WORKTREE` against the `home:` pattern of `## using-git-worktrees` before removing anything when the keyed contract is active
 - Surface the closure / conformance verdict as its own section before the options menu
 
 ## Project overrides
 
 If a gauntlet overrides file exists - checked in order: `.pi/gauntlet-overrides.md`, `<repo root>/gauntlet-overrides.md`, `<repo root>/doc/gauntlet-overrides.md`; first found wins - read it. Read and apply `## conventions` whenever present, without a relevance judgment. Give this skill's named section precedence over conflicting `## conventions` rules. Use other relevant sections - by name match, by topic (routing, verification, worktrees, etc.), or by workflow convention - to override or extend the instructions above. Project-local `AGENTS.md` is already in context — check it for project-specific routing tables, service paths, and verification commands.
+
+The recognized headings, their readers, and the rules an override cannot change are listed in the [configuration front door](../../README.md#project-specific-overrides); an override extends or replaces the step it names and never lifts this skill's HARD CONSTRAINT or MUST text.

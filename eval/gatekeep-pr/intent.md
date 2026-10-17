@@ -1,6 +1,12 @@
-for: 2a265ad48b7fbfa5f1ec95f785f2fa128f1ac137b8f73aa3c25ef1660d200b2e
+for: 2c404cac0f6b6730d59c12dc7f86de5db211119c518ff85c135a933f0ef522bc
 
 ## Change
-Terminal gatekeep-pr menus (own merge, approved, merged or closed at step 1) offer cleanup as row 1 recommended; the pick tears down the gate's worktree and local branch, fast-forwards the base, then runs the overrides file's ordered cleanup items with issue, pr, and merge-sha placeholders substituted and guarded steps skipped with a reason. stop under a terminal menu leaves the checkout as found and names it.
+gatekeep-pr reads the merge-base overrides file's `## using-git-worktrees` section as its worktree contract: provisioning creates at `home:` through `create:` with `<name>` = `pr-<N>`, the digest records `destroy` from `destroy:`, and cleanup requires the `home:` ownership match before running `worktree.destroy` or a forced removal, printing `worktree: skipped - outside configured home, left at <path>` otherwise. The `## PR gate` `worktree wrapper:` key is gone. Every SKILL.md also gains the front-door sentence under Project overrides. Cleanup step 2 skips branch deletion after a failed destroy even when the checkout is gone.
 
 ## Expected to move
+- cleanup-keyed-destroy-recorded/g1: fails -> holds - the ownership match is new.
+- cleanup-keyed-outside-home/o1: fails -> holds - the baseline removes any created-or-landed tree.
+- cleanup-keyed-outside-home/o2: fails -> holds - the branch stays checked out because the tree stays.
+- cleanup-keyed-outside-home/o3: fails -> holds - same.
+- cleanup-keyed-destroy-partial-failure/p2: fails -> holds - step 2 now skips the branch after a failed destroy.
+- cleanup-keyed-destroy-partial-failure/p3: fails -> holds - same.

@@ -81,7 +81,7 @@ provisioning, so it never re-reads; step 2 re-reads once after provisioning (`re
 - issue_ref: <ref> | null
 - issue: null   # shape and fill: step 2, reference/assessment.md ## Fetch the ticket
 - worktree_discovery: { expected_path, exists, branch, dirty, ahead, behind }
-- worktree: { path, branch, created, destroy }   # filled in step 2, reference/assessment.md: worktree.path; worktree.branch is the actual local branch (headRefName, pr-<N>, or whatever a worktree wrapper created); worktree.created is true when this run created it; worktree.destroy is the wrapper's exact destroy invocation, else null
+- worktree: { path, branch, created, destroy }   # filled in step 2, reference/assessment.md: worktree.path; worktree.branch is the actual local branch (headRefName, pr-<N>, or whatever a worktree wrapper created); worktree.created is true when this run created it; worktree.destroy is the substituted ## using-git-worktrees destroy: command, else a legacy wrapper's exact destroy invocation, else null
 - sync: <record>   # only with --rebase; grammar: reference/sync.md ## Sync record
 - truncation_notes: []
 ```

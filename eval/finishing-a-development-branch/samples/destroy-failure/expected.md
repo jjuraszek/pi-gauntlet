@@ -1,0 +1,3 @@
+- f1: judged: The narration runs the destroy command from /work/acme-mono with 'fix-x' as its argument, reports its output, and then runs no `git worktree remove` and no `git branch -D`.
+- f2: mechanical: lacks "--force"
+- f3: mechanical: contains "unsynced changes"

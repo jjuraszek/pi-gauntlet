@@ -1,0 +1,94 @@
+{
+  "sample": "home-match-destroy-recovered-name",
+  "arm": "candidate",
+  "skillSha": "c62e8914c9b61cc41095da4963091eb73afaeaa2fe807738747975550beb141b",
+  "inputSha": "72b83ce235acd64a8960fed16c413697b98c32368e0bb08fc721b9f16269e0e8",
+  "kind": "text",
+  "assembly": "concat",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "# Step 6: Cleanup Workspace (Squash-merge)\n\nCleanup runs because the human chose Squash-merge, option 3.\n\n**1. Read the overrides contract**\n\n- I read `/work/acme-mono/.pi/gauntlet-overrides.md` and its `## using-git-worktrees` section.\n- The section has `- home:` and `- destroy:` keys, so the **keyed contract** applies, not the legacy path.\n\n**2. Resolve `home:`**\n\n- The value is `../acme-mono-<name>`. It is relative, so I resolve it against `$PRIMARY` (`/work/acme-mono`).\n  - The result is `/work/acme-mono/../acme-mono-<name>`.\n  - Canonicalized, that is **`/work/acme-mono-<name>`**.\n- `<name>` appears exactly once, inside the single final segment, with the literal prefix `acme-mono-` and no suffix. The pattern is valid.\n\n**3. Ownership match**\n\n- `realpath /work/acme-mono-fix-x` returns `/work/acme-mono-fix-x`, unchanged.\n- The pattern is `/work/acme-mono-*`, where `*` stands for the rest of the final segment.\n- `/work/acme-mono-fix-x` matches, and `*` captures `fix-x`.\n- So **NAME = `fix-x`**.\n\n**4. Match, and `destroy:` is set, so I run destroy**\n\n- The template is `script/worktree destroy <name>`.\n- `<name>` becomes `'fix-x'`, quoted as a single shell word.\n- The template has no other tokens. `<subproject>` and `<branch>` appear only in `create:`.\n\n| Item | Value |\n|---|---|\n| cwd | `/work/acme-mono` |\n| Command | `script/worktree destroy 'fix-x'` |\n| Exit code | 0 |\n| Output | `removed fix-x` |\n\nDestroy succeeded, so I run no `git worktree remove` and no `git worktree prune`.\n\n**5. Delete the feature branch**\n\n| Item | Value |\n|---|---|\n| cwd | `/work/acme-mono` |\n| Command | `git -C \"/work/acme-mono\" branch -D \"fix-x\"` |\n| Result | Succeeds, empty output |\n\n**Final report:** The worktree `/work/acme-mono-fix-x` was removed via the project's destroy command (`script/worktree destroy 'fix-x'` printed `removed fix-x`). The branch `fix-x` was deleted from `/work/acme-mono`.\n",
+      "words": 228,
+      "wallMs": 11081,
+      "mechanical": {
+        "r4": "holds"
+      }
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "All commands below run with cwd `/work/acme-mono`, in this order.\n\n1. **Read the current overrides file:**\n   ```sh\n   cat .pi/gauntlet-overrides.md\n   ```\n   The `using-git-worktrees` section is keyed and supplies:\n   - `home`: `../acme-mono-<name>`\n   - `create`: `script/worktree create <name> <subproject> --branch <branch>`\n   - `destroy`: `script/worktree destroy <name>`\n\n   Resolve `home` against `PRIMARY=/work/acme-mono` to obtain `/work/acme-mono-<name>`. The single `<name>` occurrence lies within the segment `acme-mono-<name>`, whose literal prefix is `acme-mono-` and whose suffix is empty.\n\n   Matching `WORKTREE=/work/acme-mono-fix-x` against that pattern yields the candidate creation identifier `NAME=fix-x`.\n\n2. **Canonicalize the worktree side:**\n   ```sh\n   realpath /work/acme-mono-fix-x\n   ```\n   Result: `/work/acme-mono-fix-x`.\n\n3. **Canonicalize the resolved home pattern instantiated with `NAME=fix-x`:**\n   ```sh\n   realpath /work/acme-mono-fix-x\n   ```\n   Result: `/work/acme-mono-fix-x`.\n\n   The canonical paths match, establishing ownership under the keyed contract.\n\n   Resolve the destroy command’s `<name>` to the single-quoted shell word `'fix-x'`. It has no `<branch>` or other tokens to resolve. The unused `create` command is not executed; its `<subproject>` does not need resolution.\n\n4. **Run the configured destroy command:**\n   ```sh\n   script/worktree destroy 'fix-x'\n   ```\n   Output:\n   ```text\n   removed fix-x\n   ```\n   Exit status: `0`. Run neither `git worktree remove` nor `git worktree prune`.\n\n5. **Delete the feature branch after successful destruction:**\n   ```sh\n   git -C \"/work/acme-mono\" branch -D \"fix-x\"\n   ```\n   This succeeds with empty output.\n\n**Final report: Worktree `/work/acme-mono-fix-x` removed by the configured destroy command; branch `fix-x` deleted.**\n",
+      "words": 202,
+      "wallMs": 16557,
+      "mechanical": {
+        "r4": "holds"
+      }
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "c1ba8a24eb5c6751c42f0606cf4aaa7998a5664b303712a0fb2ed4e676d715d5",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "6da9ebcd59613c789b077f310955eb7ad7fa2782ca9fd317308d8580318a0a7d",
+      "baselineOutputSha": "61b4dd0315fcae4ba625b9a6ecf94f1a3acafcf0863247d926ef6e3a4fb4735b",
+      "candidateOutputSha": "e0a9659376dfe48f97c53dc6dca87d373f406323a2515c8e949c8419dcacb038",
+      "facts": {
+        "r1": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "r2": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "r4": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        }
+      },
+      "feedback": "Nothing moved in this case: both facts already hold in Before, despite the Expected-to-move list predicting fails->holds. Before matches `/work/acme-mono-fix-x` against the resolved home pattern, recovers `<name>` = `fix-x`, explicitly rejects the `acme-mono-fix-x` basename, runs the destroy script from `/work/acme-mono` with `'fix-x'`, declines the built-in `git worktree remove`/`prune`, and follows with `git -C /work/acme-mono branch -D fix-x`. After does the same with a more structured narration (keyed-contract detection, segment-level `<name>` capture, explicit single-word quoting, explicit 'no remove, no prune' after a successful destroy, and `branch -D` with quoted arguments that are equivalent to the fact's command). The After wording is safe for r1 and r2; the only minor note is that After writes the command as `script/worktree destroy 'fix-x'` rather than an absolute path, which is fine given cwd is `/work/acme-mono` and matches the State's stated command, so no change is needed to keep these facts.",
+      "wallMs": 14039,
+      "verdict": "unchanged"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "c1ba8a24eb5c6751c42f0606cf4aaa7998a5664b303712a0fb2ed4e676d715d5",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "6da9ebcd59613c789b077f310955eb7ad7fa2782ca9fd317308d8580318a0a7d",
+      "baselineOutputSha": "7ea992075cb2ddae18a12dcc66a94658fc229f8ec3029c5a69eed8d2b0c93012",
+      "candidateOutputSha": "954928c17359d87c0444455487ae20bb1b21771bd866e2a4c1e8ad7c28106f7c",
+      "facts": {
+        "r1": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "r2": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "r4": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        }
+      },
+      "feedback": "After delivers the Change on both facts: it matches /work/acme-mono-fix-x against the home pattern with <name> confined to the acme-mono-<name> segment, recovers NAME=fix-x rather than the basename acme-mono-fix-x, runs `script/worktree destroy 'fix-x'` from /work/acme-mono, and after exit 0 explicitly continues to `git -C \"/work/acme-mono\" branch -D \"fix-x\"` while stating that neither `git worktree remove` nor `git worktree prune` is run. Before failed both: it hardcoded the directory basename as the destroy argument and used `branch -d` instead of `-D`. No fact that Before kept was lost. One small robustness note for the wording: After quotes the -C argument and branch name (`\"/work/acme-mono\"`, `\"fix-x\"`) while the fact text shows them unquoted; a careful reader still accepts this as the same command, but if you want narrations to echo the fact literally, phrase the contract as 'run `git -C $PRIMARY branch -D $FEATURE` with the values substituted' so outputs print the bare paths.",
+      "wallMs": 9622,
+      "verdict": "improved"
+    }
+  },
+  "repoSha": "234c4a3450da5354d259342cd53b0f1fb466241d"
+}

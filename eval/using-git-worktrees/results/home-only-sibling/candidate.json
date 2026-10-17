@@ -1,0 +1,90 @@
+{
+  "sample": "home-only-sibling",
+  "arm": "candidate",
+  "skillSha": "3060385552f5417c4ea49a6b837844f28775e5651e008135387b8f911fe7a597",
+  "inputSha": "73bf91e67514f999cc88cfc013d825e40fc358e75b36662faeffc756857ba8ad",
+  "kind": "text",
+  "assembly": "concat",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "# Running /skill:using-git-worktrees\n\nI'm using the using-git-worktrees skill to set up an isolated workspace.\n\nThe process cwd is `/work/acme-api` (the primary checkout) for every command below. It never changes.\n\n## Step 0: Detect existing isolation\n\n1. Run `git rev-parse --path-format=absolute --git-dir --git-common-dir` (cwd `/work/acme-api`).\n   - `GIT_DIR` = `/work/acme-api/.git`\n   - `GIT_COMMON` = `/work/acme-api/.git`\n   - They are equal.\n2. Run `git rev-parse --path-format=absolute --git-common-dir`.\n   - `ROOT` = `dirname /work/acme-api/.git` = `/work/acme-api`\n3. Run `git branch --show-current`.\n   - `CURRENT_BRANCH` = `main`\n4. Run `git rev-parse --show-superproject-working-tree`. It prints nothing, so this is not a submodule.\n5. Run `git symbolic-ref -q HEAD`. It prints `refs/heads/main`, so HEAD is attached.\n\nResult: this is the primary checkout, so I continue to Step 1.\n\n## Step 1: Announce\n\n\"Setting up an isolated worktree at `/work/acme-api-worktrees/rate-limit` on branch `rate-limit` for this work.\"\n\n## Step 1a: Read the `## using-git-worktrees` contract\n\n1. I checked the overrides ladder. The first file found is `/work/acme-api/.pi/gauntlet-overrides.md`, so I read it.\n   - There is no `## conventions` section.\n   - The `## using-git-worktrees` section has one key: `- home: ../acme-api-worktrees/<name>`.\n   - `<name>` appears exactly once, in one segment, so the line is valid.\n   - There is no `create:` or `destroy:` key and no duplicates.\n   - Because at least one key is present, **the keyed contract is active**. I skip Step 1b (native tool and wrapper discovery).\n2. **Clean-base check (Step 3, fresh creation):** run `git -C /work/acme-api status --porcelain`.\n   - It prints nothing and exits 0, so the base is clean.\n3. **Resolve values:**\n   - `BRANCH` = `rate-limit`\n   - `NAME` = `rate-limit` (it has no `/`)\n   - `HOME` = `../acme-api-worktrees/rate-limit` resolved against `/work/acme-api`, which gives `/work/acme-api-worktrees/rate-limit`\n4. **Create:** `create:` is absent, so I use the built-in command.\n   - `HOME` is not inside `ROOT` (`/work/acme-api`), so no gitignore step is needed.\n   - Run `git -C /work/acme-api worktree add /work/acme-api-worktrees/rate-limit -b rate-limit`. It succeeds.\n5. **Post-create check:** run `git -C /work/acme-api worktree list --porcelain`.\n   - The output includes `worktree /work/acme-api-worktrees/rate-limit`, so the check passes.\n6. Set `WORKTREE` = `/work/acme-api-worktrees/rate-limit`.\n\n**Provenance note:**\n- Run `git symbolic-ref --short refs/remotes/origin/HEAD`. It prints `origin/main`, so the default branch is `main`.\n- The source branch is `main` (from `git branch --show-current` earlier).\n- They match, so there is no note.\n\n## Step 4: Report\n\n```\nWorktree ready at /work/acme-api-worktrees/rate-limit\nBranch: rate-limit\nBase: main (clean)\nReady to implement rate-limit\n```\n\nLater steps carry `/work/acme-api-worktrees/rate-limit` as a value, using `cwd:`, `git -C`, or `(cd … && …)`. I never `cd` into it.\n",
+      "words": 365,
+      "wallMs": 16215,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "I'm using the using-git-worktrees skill to set up an isolated workspace.\n\nAll commands below run with cwd `/work/acme-api`. I do not change the process cwd.\n\n### 1. Detect existing isolation\n\nRun:\n```bash\ngit rev-parse --path-format=absolute --git-dir --git-common-dir\n```\n\nResolve:\n- `GIT_DIR=/work/acme-api/.git`\n- `GIT_COMMON=/work/acme-api/.git`\n- `ROOT=/work/acme-api`, the parent directory of `GIT_COMMON`\n\nRun:\n```bash\ngit rev-parse --show-superproject-working-tree\n```\n\nOutput is empty: this is not a submodule. Since `GIT_DIR == GIT_COMMON`, this is the primary checkout.\n\nRun:\n```bash\ngit branch --show-current\n```\n\nOutput:\n```text\nmain\n```\n\nResolve `CURRENT_BRANCH=main`. HEAD is attached, so no detached-HEAD question is needed.\n\n### 2. Read the project override\n\nRun:\n```bash\ncat .pi/gauntlet-overrides.md\n```\n\nOutput:\n```markdown\n## using-git-worktrees\n- home: ../acme-api-worktrees/<name>\n```\n\nThis is the first overrides file in the lookup order. Its keyed contract is active.\n\nResolve:\n- `BRANCH=rate-limit`\n- `NAME=rate-limit` — replacing `/` with `-` leaves it unchanged.\n- Home pattern: `../acme-api-worktrees/<name>`, containing exactly one `<name>` in one path segment.\n- `HOME=/work/acme-api-worktrees/rate-limit`\n- `create:` is absent, so use the built-in creation command.\n- `destroy:` is absent, so the default cleanup rule applies.\n\nThe keyed contract bypasses native-tool and wrapper discovery. `HOME` is outside `ROOT`, so no gitignore change is required.\n\nSetting up an isolated worktree at `/work/acme-api-worktrees/rate-limit` on branch `rate-limit` for this work.\n\n### 3. Verify the source checkout and resolve provenance\n\nRun:\n```bash\ngit -C /work/acme-api status --porcelain\n```\n\nIt exits successfully with empty output. The source checkout is clean.\n\nRun:\n```bash\ngit symbolic-ref --short refs/remotes/origin/HEAD\n```\n\nOutput:\n```text\norigin/main\n```\n\nResolve:\n- Default branch: `main`, after stripping `origin/`.\n- Source base: `main`, from the current-branch result.\n- These match, so no provenance note is required.\n\n### 4. Create and verify the worktree\n\nRun:\n```bash\ngit -C /work/acme-api worktree add /work/acme-api-worktrees/rate-limit -b rate-limit\n```\n\nThe command succeeds.\n\nRun:\n```bash\ngit -C /work/acme-api worktree list --porcelain\n```\n\nIts output includes:\n```text\nworktree /work/acme-api-worktrees/rate-limit\n```\n\nThe required post-create check passes. Resolve:\n- `WORKTREE=/work/acme-api-worktrees/rate-limit`\n- Worktree branch: `rate-limit`\n- Creation base: `main`\n\nThe keyed-contract path now goes directly to the Step 4 report; I run no dependency setup or tests.\n\n### Step 4 report\n\n```text\nWorktree ready at /work/acme-api-worktrees/rate-limit\nBranch: rate-limit\nBase: main (clean)\nReady to implement rate-limit\n```\n",
+      "words": 321,
+      "wallMs": 26430,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "056f784fb50da320b0a2bdcc8525f11e59c28b518991d887cdd772f64d5ccb78",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "487af6f1a65d30478c9107cb6c45feac6eac084e254cec9d9aeef29eb9d63d0a",
+      "baselineOutputSha": "bf04bf4e5385ed9d6857d516d166eff9e5907b314172de528cdd8b0f4ae14311",
+      "candidateOutputSha": "506f268d7a4932df122554bac69b2a9926175c23fde8832835c4f0299f8111d1",
+      "facts": {
+        "h1": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "h2": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "h3": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        }
+      },
+      "feedback": "Nothing moved on this case: Before already read the home: override and ran `git -C /work/acme-api worktree add /work/acme-api-worktrees/rate-limit -b rate-limit` with no wrapper, skipped the .gitignore step because the path is outside the repo, and reported the override path, so h1–h3 held on both sides. After delivers the Change cleanly — it reads the `## using-git-worktrees` section first, declares the keyed contract active, explicitly skips native-tool/wrapper discovery, uses the built-in add at home: since create: is absent, and adds the post-create `git worktree list --porcelain` check — all without disturbing any fact. One small regression worth noting for other cases: After dropped the Step 2c project-setup pass (manifest checks in a `(cd … && …)` subshell) that Before narrated; keep that step after the post-create check so the keyed path still runs installs when a lockfile or manifest is present, and keep the provenance check before the report as you have it.",
+      "wallMs": 9187,
+      "verdict": "unchanged"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "056f784fb50da320b0a2bdcc8525f11e59c28b518991d887cdd772f64d5ccb78",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "487af6f1a65d30478c9107cb6c45feac6eac084e254cec9d9aeef29eb9d63d0a",
+      "baselineOutputSha": "c3ce4e0d3bf59009ce3e9ab26427206bc4eb7c00d6e3f079a2a83242b219a77f",
+      "candidateOutputSha": "1087620792e5582435a93b8bd1cdb39f3b2077ae9829d5ca7aeac1e22840eae1",
+      "facts": {
+        "h1": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "h2": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "h3": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        }
+      },
+      "feedback": "Before never reaches worktree creation: it treats the undescribed `git rev-parse` output as empty, refuses to resolve ROOT, and stops, so it runs no `git worktree add`, reports no ready path, and its lack of .gitignore edits is a side effect of aborting rather than a consequence of the home being outside the checkout — h1, h2, and h3 all fail. After resolves the paths from the stated repository facts, reads the overrides section before any wrapper discovery, derives HOME=/work/acme-api-worktrees/rate-limit, runs the built-in `git worktree add ... -b rate-limit` with no wrapper, explicitly notes that HOME is outside ROOT so no gitignore change is needed, verifies with `git worktree list --porcelain`, and reports `Worktree ready at /work/acme-api-worktrees/rate-limit` — all three facts hold. No fact regressed. The After wording works as intended; keep the explicit statement that the keyed contract bypasses native-tool/wrapper discovery and the 'HOME outside ROOT, so no gitignore change' reasoning, and consider also stating that undescribed command outputs for well-known repository queries may be resolved from the stated repository facts, since the Before failure stemmed from refusing to do that rather than from the override logic.",
+      "wallMs": 7603,
+      "verdict": "improved"
+    }
+  },
+  "repoSha": "120885bf882aea493f0735186395bdd64dfc4e4f"
+}

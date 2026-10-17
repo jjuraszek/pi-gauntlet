@@ -131,7 +131,7 @@ Bin sources live in `src/bins/`; the shipped `bin/gauntlet-telemetry-seal.mjs`, 
 | Search the spec and docs corpora | [`README.md#spec-search-index`](README.md#spec-search-index) |
 | What changed across versions | [`CHANGELOG.md`](CHANGELOG.md) |
 | Persona roster, frontmatter knobs, thinking budgets, where personas land | [`doc/personas.md`](doc/personas.md) |
-| `piGauntlet.*` settings, `gauntlet_setting` / `plan_check` tools, flow guards | [`doc/configuration.md`](doc/configuration.md) |
+| `piGauntlet.*` settings and overrides-file headings (front door), then `gauntlet_setting` / `plan_check` tools, flow guards | [`README.md#configuring-the-gates`](README.md#configuring-the-gates), then [`doc/configuration.md`](doc/configuration.md) |
 | Symlink vs copy install, local dev install, versioning | [`doc/install-internals.md`](doc/install-internals.md) |
 | pi-gauntlet skill overrides for this repo | [`.pi/gauntlet-overrides.md`](.pi/gauntlet-overrides.md) |
 | Run a release | [`.agents/skills/release/SKILL.md`](.agents/skills/release/SKILL.md) |

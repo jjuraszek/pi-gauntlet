@@ -1,0 +1,2 @@
+- s1: judged: The narration reports the worktree as host-owned, removes nothing, and skips the branch deletion, stating that the host-owned worktree still holds rate-limit.
+- s2: mechanical: lacks "branch -D"
