@@ -69,7 +69,9 @@ const resumedBranch = (rest: Partial<Record<Phase, Status>>) => [
   phaseResult("complete", phases({ brainstorm: "skipped", ...rest })),
 ];
 
-function harness(options: { cwd?: string; branch?: unknown[]; idle?: boolean; beforeSettled?: (setIdle: (idle: boolean) => void) => void; sendThrows?: boolean; model?: { provider: string; id: string }; thinkingLevel?: string } = {}) {
+type TestModel = { provider: string; id: string; promptCache?: { short?: number; long?: number } };
+
+function harness(options: { cwd?: string; branch?: unknown[]; idle?: boolean; beforeSettled?: (setIdle: (idle: boolean) => void) => void; sendThrows?: boolean; model?: TestModel; thinkingLevel?: string; registry?: Record<string, TestModel>; setModelResult?: boolean | Error } = {}) {
   const handlers = new Map<string, ((event: unknown, ctx: unknown) => unknown)[]>();
   const tools: { name: string; executionMode?: string; parameters?: any; execute: (...args: any[]) => unknown }[] = [];
   const sent: { message: any; options: any }[] = [];
@@ -82,8 +84,21 @@ function harness(options: { cwd?: string; branch?: unknown[]; idle?: boolean; be
     sessionManager: { getBranch: () => branch },
     model: options.model,
     thinkingLevel: options.thinkingLevel,
+    modelRegistry: { find: (provider: string, id: string) => options.registry?.[`${provider}/${id}`] },
   };
   const pi = {
+    calls: [] as string[],
+    setModelCalls: [] as unknown[],
+    thinkingCalls: [] as string[],
+    async setModel(model: TestModel) {
+      pi.calls.push("setModel");
+      pi.setModelCalls.push(model);
+      if (options.setModelResult instanceof Error) throw options.setModelResult;
+      const ok = options.setModelResult ?? true;
+      if (ok) ctx.model = model;
+      return ok;
+    },
+    setThinkingLevel(level: string) { pi.calls.push("setThinkingLevel"); pi.thinkingCalls.push(level); },
     on(event: string, handler: (event: unknown, context: unknown) => unknown) {
       const registered = handlers.get(event) ?? [];
       registered.push(handler);
@@ -107,13 +122,146 @@ function harness(options: { cwd?: string; branch?: unknown[]; idle?: boolean; be
     for (const handler of handlers.get(name) ?? []) results.push(await handler(event, ctx));
     return results;
   };
-  return { emit, emitEvent, sent, tools, ctx, setIdle: (next: boolean) => (idle = next), setBranch: (next: unknown[]) => (branch = next) };
+  return { pi, emit, emitEvent, sent, tools, ctx, setIdle: (next: boolean) => (idle = next), setBranch: (next: unknown[]) => (branch = next) };
 }
 
 const settle = async (h: ReturnType<typeof harness>) => {
   await h.emit("session_start");
   await h.emit("agent_settled");
 };
+
+const startPhase = async (h: ReturnType<typeof harness>, phase: string) => {
+  const tool = h.tools.find((t) => t.name === "phase_tracker")!;
+  const r = (await tool.execute("id", { action: "start", phase }, undefined, undefined, h.ctx)) as { content: { text: string }[]; details: { phases: Record<string, { status: string }> } };
+  return { text: r.content.map((c) => c.text).join("\n"), status: r.details.phases[phase].status };
+};
+
+const M = (id: string, promptCache?: { short?: number; long?: number }) => ({ provider: "p", id, promptCache });
+
+const preparePhase = async (h: ReturnType<typeof harness>, phase = "plan") => {
+  await settle(h);
+  const tool = h.tools.find((t) => t.name === "phase_tracker")!;
+  for (const prior of phase === "implement" ? ["brainstorm", "plan"] : ["brainstorm"]) {
+    await startPhase(h, prior);
+    await tool.execute("id", { action: "complete", phase: prior }, undefined, undefined, h.ctx);
+  }
+};
+
+test("phaseModels: switch applies thinking and reports the old and new model", async () => {
+  const h = harness({ cwd: tempCwd({ piGauntlet: { phaseModels: { plan: "p/m:medium" } } }), model: M("old"), thinkingLevel: "high", registry: { "p/m": M("m") } });
+  await preparePhase(h);
+  const r = await startPhase(h, "plan");
+  assert.deepEqual(h.pi.setModelCalls, [M("m")]);
+  assert.deepEqual(h.pi.thinkingCalls, ["medium"]);
+  assert.deepEqual(h.pi.calls, ["setModel", "setThinkingLevel"]);
+  assert.match(r.text, /model: p\/old:high -> p\/m:medium/);
+  assert.equal(r.status, "in_progress");
+});
+
+for (const row of [
+  { name: "unknown model", target: "p/nope", warning: /phaseModels\.plan: model p\/nope not found in the registry/, calls: 0 },
+  { name: "unknown thinking suffix", target: "p/m:turbo", warning: /":turbo" is not a pi thinking level \(off\|minimal\|low\|medium\|high\|xhigh\|max\)/, calls: 0 },
+  { name: "colon model id", target: "p/a:b", warning: undefined, calls: 1 },
+  { name: "missing auth", target: "p/m", result: false, warning: /cannot switch to p\/m - no auth configured for p/, calls: 1 },
+  { name: "auth exception", target: "p/m", result: new Error("No API key for p"), warning: /cannot switch to p\/m - No API key for p/, calls: 1 },
+]) {
+  test(`phaseModels: ${row.name} still starts the phase`, async () => {
+    const h = harness({ cwd: tempCwd({ piGauntlet: { phaseModels: { plan: row.target } } }), model: M("old"), registry: { "p/m": M("m"), "p/a:b": M("a:b") }, setModelResult: row.result });
+    await preparePhase(h);
+    const r = await startPhase(h, "plan");
+    assert.equal(h.pi.setModelCalls.length, row.calls);
+    assert.deepEqual(h.pi.thinkingCalls, []);
+    if (row.warning) assert.match(r.text, row.warning);
+    else assert.doesNotMatch(r.text, /phaseModels\.plan:/);
+    assert.equal(r.status, "in_progress");
+  });
+}
+
+for (const row of [
+  { target: "p/m:high", levels: ["high"], line: /thinking: medium -> high/ },
+  { target: "p/m:medium", levels: [], line: undefined },
+  { target: "p/m", levels: [], line: undefined },
+]) {
+  test(`phaseModels: active target ${row.target} never reselects the model`, async () => {
+    const h = harness({ cwd: tempCwd({ piGauntlet: { phaseModels: { plan: row.target } } }), model: M("m"), thinkingLevel: "medium", registry: { "p/m": M("m") } });
+    await preparePhase(h);
+    const r = await startPhase(h, "plan");
+    assert.deepEqual(h.pi.setModelCalls, []);
+    assert.deepEqual(h.pi.thinkingCalls, row.levels);
+    if (row.line) assert.match(r.text, row.line);
+    else assert.doesNotMatch(r.text, /model:|thinking:/);
+    assert.equal(r.status, "in_progress");
+  });
+}
+
+test("phaseModels: child sessions neither switch nor warn", async () => {
+  const depth = process.env.PI_SUBAGENT_DEPTH;
+  process.env.PI_SUBAGENT_DEPTH = "1";
+  try {
+    const h = harness({ cwd: tempCwd({ piGauntlet: { phaseModels: { plan: "p/nope" } } }) });
+    await preparePhase(h);
+    const r = await startPhase(h, "plan");
+    assert.deepEqual(h.pi.setModelCalls, []);
+    assert.deepEqual(h.pi.thinkingCalls, []);
+    assert.doesNotMatch(r.text, /phaseModels/);
+    assert.equal(r.status, "in_progress");
+  } finally {
+    if (depth === undefined) delete process.env.PI_SUBAGENT_DEPTH;
+    else process.env.PI_SUBAGENT_DEPTH = depth;
+  }
+});
+
+test("phaseModels: resolver warnings appear only for their phase", async () => {
+  const h = harness({ cwd: tempCwd({ piGauntlet: { phaseModels: { plan: 5 } } }) });
+  await settle(h);
+  assert.doesNotMatch((await startPhase(h, "brainstorm")).text, /phaseModels/);
+  await h.tools.find(t => t.name === "phase_tracker")!.execute("id", { action: "complete", phase: "brainstorm" }, undefined, undefined, h.ctx);
+  const r = await startPhase(h, "plan");
+  assert.match(r.text, /piGauntlet\.phaseModels\.plan must be a "provider\/id" or "provider\/id:level" string/);
+  assert.equal(r.status, "in_progress");
+  assert.deepEqual(h.pi.setModelCalls, []);
+  assert.deepEqual(h.pi.thinkingCalls, []);
+});
+
+for (const row of [
+  { name: "missing short", phase: "implement", cache: undefined, retention: undefined, tier: "short" },
+  { name: "declared short", phase: "implement", cache: { short: 300 }, retention: undefined, tier: undefined },
+  { name: "missing long", phase: "implement", cache: { short: 300 }, retention: "long", tier: "long" },
+  { name: "plan ignores cache", phase: "plan", cache: undefined, retention: undefined, tier: undefined },
+]) {
+  test(`phaseModels: cache warning ${row.name}`, async () => {
+    const retention = process.env.PI_CACHE_RETENTION;
+    if (row.retention === undefined) delete process.env.PI_CACHE_RETENTION;
+    else process.env.PI_CACHE_RETENTION = row.retention;
+    try {
+      const h = harness({ cwd: tempCwd({ piGauntlet: { flowGuards: { enforce: false } } }), model: M("m", row.cache) });
+      await preparePhase(h, row.phase);
+      const r = await startPhase(h, row.phase);
+      if (row.tier) {
+        assert.ok(r.text.includes(`p/m declares no promptCache.${row.tier} lifetime, so pi's cache warmer skips it`));
+        assert.ok(r.text.includes("providers.p.modelOverrides.m.promptCache"));
+        assert.ok(r.text.includes("providers.p.models[].promptCache"));
+      } else assert.doesNotMatch(r.text, /cache warmer/);
+      assert.deepEqual(h.pi.setModelCalls, []);
+      assert.deepEqual(h.pi.thinkingCalls, []);
+      assert.equal(r.status, "in_progress");
+    } finally {
+      if (retention === undefined) delete process.env.PI_CACHE_RETENTION;
+      else process.env.PI_CACHE_RETENTION = retention;
+    }
+  });
+}
+
+test("phaseModels: cache warning checks the switched model", async () => {
+  const h = harness({ cwd: tempCwd({ piGauntlet: { flowGuards: { enforce: false }, phaseModels: { implement: "p/warm" } } }), model: M("old"), registry: { "p/warm": M("warm", { short: 300, long: 3600 }) } });
+  await preparePhase(h, "implement");
+  const r = await startPhase(h, "implement");
+  assert.equal(h.pi.setModelCalls.length, 1);
+  assert.deepEqual(h.pi.thinkingCalls, []);
+  assert.equal(h.ctx.model?.id, "warm");
+  assert.doesNotMatch(r.text, /cache warmer/);
+  assert.equal(r.status, "in_progress");
+});
 
 test("agent_settled nudges each exact edge with persisted details", async () => {
   for (const [state, edge, skill] of [

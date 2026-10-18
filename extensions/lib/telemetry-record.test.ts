@@ -166,6 +166,24 @@ test("parseRecord drops malformed accumulator blocks and fills missing fields", 
   assert.equal(derive(parsed, "2026-09-17T10:01:00Z").amendments, 2);
 });
 
+test("foldAccumulators concatenates parent_calls in order and leaves the field absent when neither side has it", () => {
+  const a: Accumulators = { ...emptyAccumulators(), phases: { implement: { parent_calls: [[1, 2, 0]] } } };
+  const b: Accumulators = { ...emptyAccumulators(), phases: { implement: { parent_calls: [[3, 60000, 60000]] }, plan: { compactions: 1 } } };
+  const ab = foldAccumulators(a, b);
+  assert.deepEqual(ab.phases.implement, { parent_calls: [[1, 2, 0], [3, 60000, 60000]] });
+  assert.deepEqual(ab.phases.plan, { compactions: 1 });
+  assert.equal("parent_calls" in (ab.phases.plan ?? {}), false);
+});
+
+test("derive exposes parent_calls per phase and an old record without the field round-trips unchanged", () => {
+  const rec = newRecord({ spec: "doc/specs/a.md", session: "s", now: "2026-01-01T00:00:00Z", runId: "r" });
+  rec.accumulators.s = { ...emptyAccumulators(), phases: { implement: { parent_calls: [[0, 70000, 0]] } } };
+  assert.deepEqual(derive(rec, "2026-01-01T00:01:00Z").phases.implement, { parent_calls: [[0, 70000, 0]] });
+  const old = newRecord({ spec: "doc/specs/b.md", session: "s", now: "2026-01-01T00:00:00Z", runId: "r2" });
+  old.accumulators.s = { ...emptyAccumulators(), phases: { implement: { compactions: 2 } } };
+  assert.deepEqual(derive(old, "2026-01-01T00:01:00Z").phases.implement, { compactions: 2 });
+});
+
 const COUNCIL: CouncilBlock = {
   chair: { model: "p/chair:medium", dispatches: 1, clusters: 2, members_reported: 2 },
   members: {

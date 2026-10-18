@@ -9,7 +9,7 @@ import process from "node:process";
 import { parse as parseYaml } from "yaml";
 import { mergeGauntlet, resolveTelemetry } from "../../extensions/lib/gauntlet-settings.ts";
 
-import { PHASES, TOKEN_KEYS, cmpSemver, num, obj, semver, str, sumOrNull } from "./performance/shared.mjs";
+import { BIG_CACHE_WRITE, PHASES, TOKEN_KEYS, cmpSemver, num, obj, semver, str, sumOrNull } from "./performance/shared.mjs";
 import * as runs from "./performance/runs.mjs";
 import * as versions from "./performance/versions.mjs";
 import * as council from "./performance/council.mjs";
@@ -97,6 +97,22 @@ function loadRecord(file, label) {
   const phases = obj(derived.phases) ?? {};
   const ph = (p) => obj(phases[p]);
   const tok = (p) => obj(ph(p)?.tokens);
+  const callsOf = (p) => {
+    const raw = ph(p)?.parent_calls;
+    if (!Array.isArray(raw)) return null;
+    return raw.filter((c) => Array.isArray(c) && c.length === 3 && c.every((v) => num(v) !== null));
+  };
+  const bigStats = (calls) => {
+    if (calls === null) return { big_calls: null, big_write_share: null };
+    const total = calls.reduce((a, c) => a + c[1], 0);
+    const bigs = calls.filter((c) => c[1] > BIG_CACHE_WRITE);
+    const big = bigs.reduce((a, c) => a + c[1], 0);
+    return { big_calls: bigs.length, big_write_share: total === 0 ? null : big / total };
+  };
+  const phaseKeys = [...PHASES, "unphased"];
+  const perPhase = Object.fromEntries(phaseKeys.map((p) => [p, callsOf(p)]).filter(([, c]) => c !== null).map(([p, c]) => [p, bigStats(c)]));
+  const allCalls = phaseKeys.map(callsOf).filter((c) => c !== null);
+  const runBig = allCalls.length ? bigStats(allCalls.flat()) : { big_calls: null, big_write_share: null };
   const personas = obj(derived.personas) ?? {};
   const reviews = obj(derived.reviews);
   const gates = obj(derived.gates) ?? {};
@@ -146,6 +162,9 @@ function loadRecord(file, label) {
       council: num(obj(personas["spec-council-member"])?.dispatches),
       ship_option: str(gates.ship_option),
       tests: str(obj(derived.tests)?.result),
+      big_calls: runBig.big_calls,
+      big_write_share: runBig.big_write_share,
+      phases: Object.keys(perPhase).length ? perPhase : undefined,
     },
     council: derived.council ?? null,
   };

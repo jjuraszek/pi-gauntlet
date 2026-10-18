@@ -772,6 +772,11 @@
       const msg = event.message as { role?: string; usage?: unknown; content?: unknown };
       if (msg.role !== "assistant") return;
       addPhaseTokens(usageToTokens(msg.usage));
+      const u = msg.usage as { cacheRead?: unknown; cacheWrite?: unknown; cacheWrite1h?: unknown } | undefined;
+      if (u && typeof u === "object") {
+        const n = (v: unknown): number => (typeof v === "number" && Number.isFinite(v) ? v : 0);
+        (phaseAcc().parent_calls ??= []).push([n(u.cacheRead), n(u.cacheWrite), n(u.cacheWrite1h)]);
+      }
       if (phaseNow() === "brainstorm") onCouncilAudit(textOf(msg.content));
     });
 

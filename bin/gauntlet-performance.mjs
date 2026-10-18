@@ -51,6 +51,7 @@ function resolveTelemetry(g) {
 // src/bins/performance/shared.mjs
 var PHASES = ["brainstorm", "plan", "implement", "verify", "ship"];
 var TOKEN_KEYS = ["input", "output", "cache_read", "cache_write"];
+var BIG_CACHE_WRITE = 5e4;
 var semver = (s) => {
   const m = /^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)$/.exec(typeof s === "string" ? s.trim() : "");
   return m ? [Number(m[1]), Number(m[2]), Number(m[3])] : void 0;
@@ -91,7 +92,7 @@ __export(runs_exports, {
   renderText: () => renderText
 });
 var key = "runs";
-var HEADER = ["run_id", "repo", "spec", "version", "status", "wall", "b/p/i/v/s min", "tokens", "cost", "models", "disp", "grants", "reopens", "loops", "findings", "council"];
+var HEADER = ["run_id", "repo", "spec", "version", "status", "wall", "b/p/i/v/s min", "tokens", "cost", "models", "disp", "grants", "reopens", "loops", "findings", "council", "big"];
 var runRow = (r) => [
   r.run_id.slice(0, 8),
   r.repo,
@@ -108,7 +109,8 @@ var runRow = (r) => [
   dash(r.reopens),
   dash(r.loops),
   findingsCell(r.findings),
-  dash(r.council)
+  dash(r.council),
+  r.big_calls === null ? dash(null) : `${r.big_calls}/${r.big_write_share === null ? "-" : `${Math.round(r.big_write_share * 100)}%`}`
 ];
 var aggregate = (entries) => entries.map((e) => e.row);
 var renderText = (rows) => [`runs (${rows.length})`, table(HEADER, rows.map(runRow))].join("\n");
@@ -339,6 +341,22 @@ function loadRecord(file, label) {
   const phases = obj(derived.phases) ?? {};
   const ph = (p) => obj(phases[p]);
   const tok = (p) => obj(ph(p)?.tokens);
+  const callsOf = (p) => {
+    const raw = ph(p)?.parent_calls;
+    if (!Array.isArray(raw)) return null;
+    return raw.filter((c) => Array.isArray(c) && c.length === 3 && c.every((v) => num(v) !== null));
+  };
+  const bigStats = (calls) => {
+    if (calls === null) return { big_calls: null, big_write_share: null };
+    const total = calls.reduce((a, c) => a + c[1], 0);
+    const bigs = calls.filter((c) => c[1] > BIG_CACHE_WRITE);
+    const big = bigs.reduce((a, c) => a + c[1], 0);
+    return { big_calls: bigs.length, big_write_share: total === 0 ? null : big / total };
+  };
+  const phaseKeys = [...PHASES, "unphased"];
+  const perPhase = Object.fromEntries(phaseKeys.map((p) => [p, callsOf(p)]).filter(([, c]) => c !== null).map(([p, c]) => [p, bigStats(c)]));
+  const allCalls = phaseKeys.map(callsOf).filter((c) => c !== null);
+  const runBig = allCalls.length ? bigStats(allCalls.flat()) : { big_calls: null, big_write_share: null };
   const personas = obj(derived.personas) ?? {};
   const reviews = obj(derived.reviews);
   const gates = obj(derived.gates) ?? {};
@@ -383,7 +401,10 @@ function loadRecord(file, label) {
       findings,
       council: num(obj(personas["spec-council-member"])?.dispatches),
       ship_option: str(gates.ship_option),
-      tests: str(obj(derived.tests)?.result)
+      tests: str(obj(derived.tests)?.result),
+      big_calls: runBig.big_calls,
+      big_write_share: runBig.big_write_share,
+      phases: Object.keys(perPhase).length ? perPhase : void 0
     },
     council: derived.council ?? null
   };

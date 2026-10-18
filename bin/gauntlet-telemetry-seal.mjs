@@ -294,7 +294,7 @@ function foldAccumulators(a, b) {
   const out = emptyAccumulators();
   for (const k of /* @__PURE__ */ new Set([...Object.keys(a.phases), ...Object.keys(b.phases)])) {
     const x = a.phases[k] ?? {}, y = b.phases[k] ?? {};
-    out.phases[k] = compact({ tokens: x.tokens && y.tokens ? addTokens(x.tokens, y.tokens) : x.tokens ?? y.tokens, compactions: optSum(x.compactions, y.compactions), user_messages: optSum(x.user_messages, y.user_messages), peak_context: optMax(x.peak_context, y.peak_context) });
+    out.phases[k] = compact({ tokens: x.tokens && y.tokens ? addTokens(x.tokens, y.tokens) : x.tokens ?? y.tokens, compactions: optSum(x.compactions, y.compactions), user_messages: optSum(x.user_messages, y.user_messages), peak_context: optMax(x.peak_context, y.peak_context), parent_calls: x.parent_calls || y.parent_calls ? [...x.parent_calls ?? [], ...y.parent_calls ?? []] : void 0 });
   }
   for (const k of /* @__PURE__ */ new Set([...Object.keys(a.personas), ...Object.keys(b.personas)])) {
     const x = a.personas[k], y = b.personas[k];

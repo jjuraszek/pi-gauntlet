@@ -123,6 +123,18 @@ const REVIEW_WITHOUT_FINDINGS = IN_PROGRESS
   .replace("spec: doc/specs/c.md", "spec: doc/specs/h.md")
   .replace("  conformance_loops: 0", "  reviews: { code-reviewer: { dispatches: 1, nonzero_exit: 0 } }\n  conformance_loops: 0");
 
+const PARENT_CALLS = COMPLETE
+  .replace("run_id: aaaaaaaa-0000-0000-0000-000000000001", "run_id: iiiiiiii-0000-0000-0000-000000000009")
+  .replace("spec: doc/specs/a.md", "spec: doc/specs/i.md")
+  .replace("created_at: 2026-09-01T00:00:00Z", "created_at: 2026-09-06T00:00:00Z")
+  .replace("plan: " + phase(`model: m/alpha, ${tokens(50, 5, 1000, 100, 0.5)}`),
+    "plan: " + phase(`model: m/alpha, ${tokens(50, 5, 1000, 100, 0.5)}, parent_calls: [[1, 60000, 60000], [1, 100, 0]]`))
+  .replace("implement: " + phase(`model: m/beta, ${tokens(10, 1, 100, 10, 0.25)}`),
+    "implement: " + phase(`model: m/beta, ${tokens(10, 1, 100, 10, 0.25)}, parent_calls: [[1, 70000, 0], [1, 200, 0], [1, 300, 0]]`))
+  .replace(`unphased: { ${tokens(99999, 99999, 99999, 99999, 999)} }`,
+    `unphased: { ${tokens(99999, 99999, 99999, 99999, 999)}, parent_calls: [[1, 50000, 0]] }`)
+  .replace("cache_write: 100, cost: 0.5", "cache_write: 100, cache_write_1h: 60000, cost: 0.5");
+
 const corpus = (root) => {
   write(root, `${TDIR}/a.yaml`, COMPLETE);
   write(root, `${TDIR}/b.yaml`, TRUNCATED);
@@ -130,6 +142,7 @@ const corpus = (root) => {
   write(root, `${TDIR}/d.yaml`, COMPLETE_2);
   write(root, `${TDIR}/e.yaml`, OLD_VERSION);
   write(root, `${TDIR}/f.yaml`, BAD_GATES);
+  write(root, `${TDIR}/i.yaml`, PARENT_CALLS);
   write(root, `${TDIR}/present-empty-reviews.yaml`, EMPTY_REVIEWS);
   write(root, `${TDIR}/broken.yaml`, "schema: 1\nspec: [\n");
   write(root, `${TDIR}/v2.yaml`, "schema: 2\nspec: doc/specs/z.md\nrun_id: z\n");
@@ -141,7 +154,7 @@ const byId = (runs, prefix) => runs.find((r) => r.run_id.startsWith(prefix));
 test("per-run fields: typed reads, unphased excluded, truncated wall null, findings null vs 0/0/0", (t) => {
   const root = corpus(gitRepo()); cleanup(t, root);
   const d = json(root);
-  assert.deepEqual(d.corpus, { [root.split("/").pop()]: 7 });
+  assert.deepEqual(d.corpus, { [root.split("/").pop()]: 8 });
   assert.equal(d.since, null);
   const a = byId(d.runs, "aaaaaaaa");
   assert.equal(a.repo, root.split("/").pop());
@@ -184,6 +197,44 @@ test("per-run fields: typed reads, unphased excluded, truncated wall null, findi
   assert.deepEqual(emptyReviews.findings, { blocker: 0, major: 0, minor: 0 });
 });
 
+test("parent_calls: big counts and parent-only shares include unphased without double-counting tokens", (t) => {
+  const root = corpus(gitRepo()); cleanup(t, root);
+  const i = byId(json(root).runs, "iiiiiiii");
+  assert.equal(i.big_calls, 2);
+  assert.equal(i.big_write_share, (60000 + 70000) / (60000 + 100 + 70000 + 200 + 300 + 50000));
+  assert.deepEqual(i.phases.plan, { big_calls: 1, big_write_share: 60000 / 60100 });
+  assert.deepEqual(i.phases.implement, { big_calls: 1, big_write_share: 70000 / 70500 });
+  assert.deepEqual(i.phases.unphased, { big_calls: 0, big_write_share: 0 });
+  assert.equal(i.tokens, 100 + 10 + 5000 + 200 + 50 + 5 + 1000 + 100 + 10 + 1 + 100 + 10);
+  const row = invoke(root).stdout.split("\n").find((l) => l.startsWith("iiiiiiii"));
+  assert.match(row, /\b2\/72%/);
+});
+
+test("parent_calls with zero cache writes: null shares and text 0/-", (t) => {
+  const root = gitRepo(); cleanup(t, root);
+  write(root, `${TDIR}/zero.yaml`, `schema: 1
+spec: doc/specs/zero.md
+run_id: zero0000
+derived: { phases: { plan: { parent_calls: [[5, 0, 0]] } } }
+`);
+  const run = json(root).runs[0];
+  assert.equal(run.big_calls, 0);
+  assert.equal(run.big_write_share, null);
+  assert.deepEqual(run.phases.plan, { big_calls: 0, big_write_share: null });
+  const row = invoke(root).lines.find((line) => line.startsWith("zero0000"));
+  assert.match(row, /\s0\/-$/);
+});
+
+test("parent_calls absent: JSON nulls and text dash", (t) => {
+  const root = corpus(gitRepo()); cleanup(t, root);
+  const a = byId(json(root).runs, "aaaaaaaa");
+  assert.equal(a.big_calls, null);
+  assert.equal(a.big_write_share, null);
+  assert.equal(a.phases, undefined);
+  const row = invoke(root).stdout.split("\n").find((l) => l.startsWith("aaaaaaaa"));
+  assert.match(row, /\s-\s*$/);
+});
+
 test("review entries without findings contribute zero counters", (t) => {
   const root = gitRepo(); cleanup(t, root);
   write(root, `${TDIR}/review-without-findings.yaml`, REVIEW_WITHOUT_FINDINGS);
@@ -201,7 +252,7 @@ test("malformed findings counters remain null in JSON and render as dashes in te
   const d = json(root);
   assert.deepEqual(d.runs[0].findings, { blocker: null, major: 2, minor: 3 });
   const row = invoke(root).lines.find((line) => line.startsWith("aaaaaaaa"));
-  assert.match(row, /\s-\/2\/3\s+4$/);
+  assert.match(row, /\s-\/2\/3\s+4\s+-$/);
 });
 
 test("malformed reviewer entries and findings objects contribute null counters", (t) => {
@@ -237,14 +288,14 @@ test("aggregates: only shipped non-truncated rows feed p50/max; even-count p50 i
   const d = json(root);
   assert.deepEqual(d.by_version.map((g) => g.version), ["5.9.1", "5.10.0", "5.11.0", "unknown"]);
   const v591 = d.by_version[0];
-  assert.equal(v591.n, 3);
-  assert.equal(v591.shipped, 2);
+  assert.equal(v591.n, 4);
+  assert.equal(v591.shipped, 3);
   assert.equal(v591.truncated, 1);
-  assert.deepEqual(v591.wall_s, { p50: 5400, max: 7200 });
-  assert.deepEqual(v591.grants, { p50: 2, max: 3 });
+  assert.deepEqual(v591.wall_s, { p50: 3600, max: 7200 });
+  assert.deepEqual(v591.grants, { p50: 1, max: 3 });
   assert.deepEqual(v591.dispatches, { p50: 7 });
   assert.deepEqual(v591.findings, { blocker: { p50: 1 }, major: { p50: 2 }, minor: { p50: 3 } });
-  assert.deepEqual(v591.models, { "m/alpha": 2, "m/beta": 2 });
+  assert.deepEqual(v591.models, { "m/alpha": 3, "m/beta": 3 });
   const v5110 = d.by_version[2];
   assert.equal(v5110.n, 3);
   assert.equal(v5110.shipped, 0);
@@ -256,7 +307,7 @@ test("aggregates: only shipped non-truncated rows feed p50/max; even-count p50 i
 test("row order is created_at then run_id; skipped lists unparseable, schema, not a record", (t) => {
   const root = corpus(gitRepo()); cleanup(t, root);
   const d = json(root);
-  assert.deepEqual(d.runs.map((r) => r.run_id[0]), ["a", "e", "b", "c", "f", "d", "g"]);
+  assert.deepEqual(d.runs.map((r) => r.run_id[0]), ["a", "e", "b", "c", "f", "d", "g", "i"]);
   const reasons = Object.fromEntries(d.skipped.map((s) => [s.file.split("/").pop(), s.reason]));
   assert.equal(reasons["broken.yaml"], "unparseable");
   assert.equal(reasons["v2.yaml"], "schema 2");
@@ -267,17 +318,17 @@ test("text output: header, shipped* marker, - cells, by version block, skipped l
   const root = corpus(gitRepo()); cleanup(t, root);
   const r = invoke(root);
   assert.equal(r.status, 0, r.stderr);
-  assert.equal(r.lines[0], `corpus: ${root.split("/").pop()}=7`);
-  assert.equal(r.lines[1], "runs (7)");
-  assert.match(r.lines[2], /^run_id\s+repo\s+spec\s+version\s+status\s+wall\s+b\/p\/i\/v\/s min\s+tokens\s+cost\s+models\s+disp\s+grants\s+reopens\s+loops\s+findings\s+council$/);
+  assert.equal(r.lines[0], `corpus: ${root.split("/").pop()}=8`);
+  assert.equal(r.lines[1], "runs (8)");
+  assert.match(r.lines[2], /^run_id\s+repo\s+spec\s+version\s+status\s+wall\s+b\/p\/i\/v\/s min\s+tokens\s+cost\s+models\s+disp\s+grants\s+reopens\s+loops\s+findings\s+council\s+big$/);
   const bRow = r.lines.find((l) => l.startsWith("bbbbbbbb"));
   assert.match(bRow, /\s5\.9\.1\s+shipped\*\s+-\s+10\/-\/-\/-\/-\s/);
   assert.match(bRow, /\s-\s*$/);
   const aRow = r.lines.find((l) => l.startsWith("aaaaaaaa"));
-  assert.match(aRow, /\sshipped\s+60m\s+10\/10\/10\/10\/10\s+6\.6k\s+2\.25\s+m\/alpha,m\/beta\s+7\s+1\s+0\s+2\s+1\/2\/3\s+4$/);
+  assert.match(aRow, /\sshipped\s+60m\s+10\/10\/10\/10\/10\s+6\.6k\s+2\.25\s+m\/alpha,m\/beta\s+7\s+1\s+0\s+2\s+1\/2\/3\s+4\s+-$/);
   assert.ok(r.lines.includes("by version"));
   const v = r.lines.find((l) => l.startsWith("5.9.1"));
-  assert.match(v, /^5\.9\.1\s+3\s+2\s+1\s+90m\/120m\s/);
+  assert.match(v, /^5\.9\.1\s+4\s+3\s+1\s+60m\/120m\s/);
   assert.ok(r.lines.some((l) => /^skipped: .*broken\.yaml: unparseable$/.test(l)));
 });
 

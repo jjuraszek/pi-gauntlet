@@ -5,6 +5,7 @@ import {
   resolveSpecCouncil,
   resolveClosureReview,
   resolveEscalationLoop,
+  resolvePhaseModels,
   mainLoopModel,
   resolveFlowGuards,
   planDirsFor,
@@ -55,6 +56,31 @@ test("escalationLoop: non-empty string wins, trimmed; undefined mainLoop passes 
     "p/x:high",
   );
   assert.equal(resolveEscalationLoop({}, undefined).implModel, undefined);
+});
+
+test("phaseModels: absent -> empty map, no warning", () => {
+  assert.deepEqual(resolvePhaseModels({}), { phaseModels: {}, warning: undefined });
+  assert.deepEqual(resolvePhaseModels({ phaseModels: {} }), { phaseModels: {}, warning: undefined });
+});
+
+test("phaseModels: non-empty strings kept trimmed; other present values dropped with a warning naming the phase", () => {
+  const r = resolvePhaseModels({ phaseModels: { plan: " p/m:low ", implement: "p/m", verify: 7, ship: "" } } as PiGauntlet);
+  assert.deepEqual(r.phaseModels, { plan: "p/m:low", implement: "p/m" });
+  assert.equal(
+    r.warning,
+    'piGauntlet.phaseModels.verify must be a "provider/id" or "provider/id:level" string; piGauntlet.phaseModels.ship must be a "provider/id" or "provider/id:level" string',
+  );
+});
+
+test("phaseModels: unknown keys are ignored; brainstorm is not a phase key", () => {
+  const r = resolvePhaseModels({ phaseModels: { brainstorm: "p/m", implement: "p/m" } } as PiGauntlet);
+  assert.deepEqual(r.phaseModels, { implement: "p/m" });
+  assert.equal(r.warning, undefined);
+});
+
+test("mergeGauntlet: repo phaseModels replaces preset whole-object", () => {
+  const g = mergeGauntlet({ phaseModels: { plan: "a/b", implement: "a/b" } }, { phaseModels: { verify: "c/d" } });
+  assert.deepEqual(g.phaseModels, { verify: "c/d" });
 });
 
 test("mainLoopModel: always suffixed; unset -> off, max -> xhigh, recognised pass through", () => {

@@ -1,5 +1,6 @@
 export const PHASES = ["brainstorm", "plan", "implement", "verify", "ship"];
 export const TOKEN_KEYS = ["input", "output", "cache_read", "cache_write"];
+export const BIG_CACHE_WRITE = 50_000;
 
 export const semver = (s) => {
   const m = /^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)$/.exec(typeof s === "string" ? s.trim() : "");

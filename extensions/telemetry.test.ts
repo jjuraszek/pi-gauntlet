@@ -493,6 +493,25 @@
     assert.equal(rec.derived.amendments, 7);
   });
 
+  test("message_end appends one cache triplet per parent call; child usage is excluded from parent_calls but still summed into tokens", async () => {
+    const h = harness();
+    await h.phaseResult("start", P({ brainstorm: "in_progress" }));
+    await h.writeSpec("doc/specs/a.md");
+    await h.phaseResult("complete", P({ brainstorm: "complete" }));
+    await h.phaseResult("start", P({ brainstorm: "complete", plan: "in_progress" }));
+    await h.phaseResult("complete", P({ brainstorm: "complete", plan: "complete" }));
+    await h.phaseResult("start", P({ brainstorm: "complete", plan: "complete", implement: "in_progress" }));
+    const big = { input: 1, output: 1, cacheRead: 10, cacheWrite: 60000, cacheWrite1h: 60000, totalTokens: 2, cost: { input: 0, output: 0, cacheRead: 0, cacheWrite: 0, total: 0 } };
+    const small = { input: 1, output: 1, cacheRead: 20, cacheWrite: 5, totalTokens: 2, cost: { input: 0, output: 0, cacheRead: 0, cacheWrite: 0, total: 0 } };
+    await h.emit("message_end", { type: "message_end", message: { role: "assistant", usage: big } });
+    await h.emit("message_end", { type: "message_end", message: { role: "assistant", usage: small } });
+    await h.emit("tool_result", subagentResult([{ agent: "implementer", exitCode: 0, model: "p/i", usage: { input: 7, output: 1, cacheRead: 0, cacheWrite: 90000, totalTokens: 8, cost: { input: 0, output: 0, cacheRead: 0, cacheWrite: 0, total: 0 } } }]));
+    await h.emit("turn_end", { type: "turn_end", turnIndex: 1, message: {}, toolResults: [] });
+    const impl = h.readRecord("doc/specs/a.md").derived.phases.implement!;
+    assert.deepEqual(impl.parent_calls, [[10, 60000, 60000], [20, 5, 0]]);
+    assert.equal(impl.tokens!.cache_write, 60000 + 5 + 90000);
+  });
+
   const usage = (input: number, output = 0, cost = 0) => ({ input, output, cacheRead: 0, cacheWrite: 0, totalTokens: input + output, cost: { input: cost, output: 0, cacheRead: 0, cacheWrite: 0, total: cost } });
 
   test("pre-binding observations merge into the bound record in event order", async () => {

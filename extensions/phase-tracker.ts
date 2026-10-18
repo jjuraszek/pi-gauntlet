@@ -21,6 +21,8 @@ import {
   resolveClosureReview,
   resolveEscalationLoop,
   resolveFlowGuards,
+  resolvePhaseModels,
+  type PhaseModelPhase,
   resolveSpecCouncil,
   settingsErrorWarning,
 } from "./lib/gauntlet-settings.ts";
@@ -371,6 +373,50 @@ function formatStatus(phases: PhaseMap): string {
     lines.push(`  ${icon} ${phaseLabel(p, s.status === "in_progress" ? s.substep : undefined)}${suffix}`);
   }
   return lines.join("\n");
+}
+
+const THINKING_LEVELS = new Set(["off", "minimal", "low", "medium", "high", "xhigh", "max"]);
+const PHASE_MODEL_PHASES = new Set<string>(["plan", "implement", "verify", "ship"]);
+
+async function applyPhaseModel(
+  pi: Pick<ExtensionAPI, "setModel" | "setThinkingLevel">,
+  ctx: Pick<ExtensionContext, "model" | "thinkingLevel" | "modelRegistry">,
+  phase: PhaseModelPhase,
+  target: string,
+): Promise<string[]> {
+  const warn = (msg: string) => [`\u26a0\ufe0f phaseModels.${phase}: ${msg}`];
+  const slash = target.indexOf("/");
+  if (slash <= 0 || slash === target.length - 1) return warn(`model ${target} not found in the registry`);
+  const provider = target.slice(0, slash);
+  const rest = target.slice(slash + 1);
+  const colon = rest.lastIndexOf(":");
+  const suffix = colon >= 0 ? rest.slice(colon + 1) : undefined;
+  const level = suffix !== undefined && THINKING_LEVELS.has(suffix) ? suffix : undefined;
+  const id = level === undefined ? rest : rest.slice(0, colon);
+  const model = ctx.modelRegistry.find(provider, id);
+  if (!model) {
+    if (suffix !== undefined && level === undefined && ctx.modelRegistry.find(provider, rest.slice(0, colon))) {
+      return warn(`":${suffix}" is not a pi thinking level (off|minimal|low|medium|high|xhigh|max)`);
+    }
+    return warn(`model ${provider}/${id} not found in the registry`);
+  }
+  const cur = ctx.model;
+  const curLevel = ctx.thinkingLevel;
+  const fmt = (m: { provider: string; id: string } | undefined, l: string | undefined) => (m ? `${m.provider}/${m.id}${l ? `:${l}` : ""}` : "none");
+  if (cur && cur.provider === model.provider && cur.id === model.id) {
+    if (level === undefined || level === curLevel) return [];
+    pi.setThinkingLevel(level as Parameters<ExtensionAPI["setThinkingLevel"]>[0]);
+    return [`thinking: ${curLevel ?? "off"} -> ${level}`];
+  }
+  let ok = false;
+  try {
+    ok = await pi.setModel(model);
+  } catch (e) {
+    return warn(`cannot switch to ${provider}/${id} - ${String((e as Error)?.message ?? e).split("\n")[0]}`);
+  }
+  if (!ok) return warn(`cannot switch to ${provider}/${id} - no auth configured for ${provider}`);
+  if (level !== undefined) pi.setThinkingLevel(level as Parameters<ExtensionAPI["setThinkingLevel"]>[0]);
+  return [`model: ${fmt(cur, curLevel)} -> ${fmt(model, level)}`];
 }
 
 export default function (pi: ExtensionAPI) {
@@ -978,6 +1024,25 @@ export default function (pi: ExtensionAPI) {
               }
             }
           }
+          const startLines: string[] = [];
+          if (!isSubagentChild && PHASE_MODEL_PHASES.has(params.phase)) {
+            const phase = params.phase as PhaseModelPhase;
+            const resolved = resolvePhaseModels(loadGauntletSettings(ctx.cwd).gauntlet);
+            for (const w of resolved.warning?.split("; ") ?? []) if (w.includes(`phaseModels.${phase} `)) startLines.push(`\u26a0\ufe0f ${w}`);
+            const target = resolved.phaseModels[phase];
+            if (target) startLines.push(...(await applyPhaseModel(pi, ctx, phase, target)));
+            if (phase === "implement") {
+              const tier = process.env.PI_CACHE_RETENTION === "long" ? "long" : "short";
+              const m = ctx.model;
+              if (m && m.promptCache?.[tier] === undefined) {
+                startLines.push(
+                  `\u26a0\ufe0f ${m.provider}/${m.id} declares no promptCache.${tier} lifetime, so pi's cache warmer skips it. ` +
+                    `Declare it in <agent-dir>/models.json (default ~/.pi/agent): providers.${m.provider}.modelOverrides.${m.id}.promptCache for a built-in model, ` +
+                    `or providers.${m.provider}.models[].promptCache for a custom one; the lifetime is required by the warmer but not sufficient - see doc/configuration.md#phase-models.`,
+                );
+              }
+            }
+          }
           phases = { ...phases, [params.phase]: transitionPhaseState("in_progress") as PhaseState };
           // A rewind must not inherit the prior verify's conformance latch.
           if (params.phase === "implement") {
@@ -989,7 +1054,7 @@ export default function (pi: ExtensionAPI) {
           firedGuards.clear();
           updateWidget(ctx);
           return {
-            content: [{ type: "text", text: `Phase "${params.phase}" → in_progress\n${formatStatus(phases)}` }],
+            content: [{ type: "text", text: [`Phase "${params.phase}" → in_progress`, ...startLines, formatStatus(phases)].join("\n") }],
             details: { action: "start", phases: { ...phases } } as PhaseTrackerDetails,
           };
         }

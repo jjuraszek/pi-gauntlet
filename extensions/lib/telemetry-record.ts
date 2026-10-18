@@ -48,7 +48,7 @@ export function capEvents(events: TelemetryEvent[], cap = EVENT_CAP): { events: 
 }
 
 export interface Tokens { input: number; output: number; cache_read: number; cache_write: number; cost: number }
-export interface PhaseAcc { tokens?: Tokens; compactions?: number; user_messages?: number; peak_context?: number }
+export interface PhaseAcc { tokens?: Tokens; compactions?: number; user_messages?: number; peak_context?: number; parent_calls?: [number, number, number][] }
 export interface PersonaAcc { dispatches: number; models: string[]; tokens?: Tokens }
 export interface ReviewAcc { dispatches: number; nonzero_exit: number; findings?: { blocker: number; major: number; minor: number } }
 export interface Gates { spec_rounds: number; plan_rounds: number; fix_round_grants: number; task_reopens: number }
@@ -67,7 +67,7 @@ export function foldAccumulators(a: Accumulators, b: Accumulators): Accumulators
   const out = emptyAccumulators();
   for (const k of new Set([...Object.keys(a.phases), ...Object.keys(b.phases)]) as Set<PhaseKey>) {
     const x = a.phases[k] ?? {}, y = b.phases[k] ?? {};
-    out.phases[k] = compact({ tokens: x.tokens && y.tokens ? addTokens(x.tokens, y.tokens) : x.tokens ?? y.tokens, compactions: optSum(x.compactions, y.compactions), user_messages: optSum(x.user_messages, y.user_messages), peak_context: optMax(x.peak_context, y.peak_context) });
+    out.phases[k] = compact({ tokens: x.tokens && y.tokens ? addTokens(x.tokens, y.tokens) : x.tokens ?? y.tokens, compactions: optSum(x.compactions, y.compactions), user_messages: optSum(x.user_messages, y.user_messages), peak_context: optMax(x.peak_context, y.peak_context), parent_calls: x.parent_calls || y.parent_calls ? [...(x.parent_calls ?? []), ...(y.parent_calls ?? [])] : undefined });
   }
   for (const k of new Set([...Object.keys(a.personas), ...Object.keys(b.personas)])) {
     const x = a.personas[k], y = b.personas[k];

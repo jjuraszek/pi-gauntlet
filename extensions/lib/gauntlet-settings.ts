@@ -11,6 +11,7 @@ export interface PiGauntlet {
   flowGuards?: { enforce?: unknown; specDirs?: unknown };
   verifyBeforeShip?: { testCommands?: unknown; warningReference?: unknown };
   escalationLoop?: { implModel?: unknown };
+  phaseModels?: { plan?: unknown; implement?: unknown; verify?: unknown; ship?: unknown };
   telemetry?: { enabled?: unknown; dir?: unknown; buckets?: unknown };
 }
 
@@ -98,6 +99,25 @@ export interface EscalationLoopResolved {
 export function resolveEscalationLoop(g: PiGauntlet, mainLoop: string | undefined): EscalationLoopResolved {
   const raw = g.escalationLoop?.implModel;
   return { implModel: nonEmptyString(raw) ? raw.trim() : mainLoop };
+}
+
+export type PhaseModelPhase = "plan" | "implement" | "verify" | "ship";
+const PHASE_MODEL_PHASES: PhaseModelPhase[] = ["plan", "implement", "verify", "ship"];
+export interface PhaseModelsResolved {
+  phaseModels: Partial<Record<PhaseModelPhase, string>>;
+  warning: string | undefined;
+}
+
+export function resolvePhaseModels(g: PiGauntlet): PhaseModelsResolved {
+  const phaseModels: Partial<Record<PhaseModelPhase, string>> = {};
+  const warnings: string[] = [];
+  for (const phase of PHASE_MODEL_PHASES) {
+    const raw = g.phaseModels?.[phase];
+    if (raw === undefined) continue;
+    if (nonEmptyString(raw)) phaseModels[phase] = raw.trim();
+    else warnings.push(`piGauntlet.phaseModels.${phase} must be a "provider/id" or "provider/id:level" string`);
+  }
+  return { phaseModels, warning: joinWarn(warnings) };
 }
 
 const THINKING_SUFFIXES = new Set(["off", "minimal", "low", "medium", "high", "xhigh"]);
