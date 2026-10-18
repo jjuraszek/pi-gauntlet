@@ -1,0 +1,138 @@
+{
+  "sample": "untouched-history-stays",
+  "arm": "candidate",
+  "skillSha": "e06c4f6e09931c0d8fdc05337f4e345dac8302bfd23b3feb1d343bf14bff3e31",
+  "inputSha": "b34f2568e16b21b329e6be3dc8a6dbeb1f18762abd3a671b529eb6a4a7811abe",
+  "kind": "edit",
+  "assembly": "n/a",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "diff --git a/doc/runbook.md b/doc/runbook.md\nindex 9bbbace..50733ce 100644\n--- a/doc/runbook.md\n+++ b/doc/runbook.md\n@@ -5,7 +5,7 @@\n 1. Build the image: `make build`.\n 2. Push it: `make push`.\n 3. Roll the deployment: `kubectl rollout restart deployment/web`.\n-4. Watch it: `kubectl rollout status deployment/web --timeout=120s`.\n+4. Watch it: `kubectl rollout status deployment/web --timeout=300s`.\n \n ## Rollback\n \n",
+      "words": 47,
+      "wallMs": 12840,
+      "tree": {
+        "AGENTS.md": {
+          "lines": 3,
+          "content": "# web service\n\n- Edits to doc/runbook.md follow /skill:forge-skill.\n"
+        },
+        "NOTES.md": {
+          "lines": 6,
+          "content": "# Notes\n\nScratch notes for the web service. Nothing here is a rule.\n\n- The staging cluster lives in the `eu-west` region.\n- On-call hands over on Mondays.\n"
+        },
+        "doc/runbook.md": {
+          "lines": 18,
+          "content": "# Web service runbook\n\n## Deploy\n\n1. Build the image: `make build`.\n2. Push it: `make push`.\n3. Roll the deployment: `kubectl rollout restart deployment/web`.\n4. Watch it: `kubectl rollout status deployment/web --timeout=300s`.\n\n## Rollback\n\nRun `kubectl rollout undo deployment/web`, then the watch command from Deploy.\n\n## History\n\n- 2025-03-02: builds now use the `release` profile because `debug` ran out of memory.\n- 2025-01-10: moved the runbook here from the wiki.\n- 2024-11-03: first draft.\n"
+        }
+      },
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "diff --git a/doc/runbook.md b/doc/runbook.md\nindex 9bbbace..50733ce 100644\n--- a/doc/runbook.md\n+++ b/doc/runbook.md\n@@ -5,7 +5,7 @@\n 1. Build the image: `make build`.\n 2. Push it: `make push`.\n 3. Roll the deployment: `kubectl rollout restart deployment/web`.\n-4. Watch it: `kubectl rollout status deployment/web --timeout=120s`.\n+4. Watch it: `kubectl rollout status deployment/web --timeout=300s`.\n \n ## Rollback\n \n",
+      "words": 47,
+      "wallMs": 11727,
+      "tree": {
+        "AGENTS.md": {
+          "lines": 3,
+          "content": "# web service\n\n- Edits to doc/runbook.md follow /skill:forge-skill.\n"
+        },
+        "NOTES.md": {
+          "lines": 6,
+          "content": "# Notes\n\nScratch notes for the web service. Nothing here is a rule.\n\n- The staging cluster lives in the `eu-west` region.\n- On-call hands over on Mondays.\n"
+        },
+        "doc/runbook.md": {
+          "lines": 18,
+          "content": "# Web service runbook\n\n## Deploy\n\n1. Build the image: `make build`.\n2. Push it: `make push`.\n3. Roll the deployment: `kubectl rollout restart deployment/web`.\n4. Watch it: `kubectl rollout status deployment/web --timeout=300s`.\n\n## Rollback\n\nRun `kubectl rollout undo deployment/web`, then the watch command from Deploy.\n\n## History\n\n- 2025-03-02: builds now use the `release` profile because `debug` ran out of memory.\n- 2025-01-10: moved the runbook here from the wiki.\n- 2024-11-03: first draft.\n"
+        }
+      },
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "f8386df9c7572ea18b96af2ffef00fab33d27bf8faae972c02f5e1710b38d4da",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "80432f1757c92423e46c25b725d574845b6b385dbfb847cdddf71dd9b58e663e",
+      "baselineOutputSha": "db1965f3edfe89988b958bafaa2f919d8041abd1ea7094d772a49e61ee8fc5ea",
+      "candidateOutputSha": "db1965f3edfe89988b958bafaa2f919d8041abd1ea7094d772a49e61ee8fc5ea",
+      "facts": {
+        "step-changed": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "history-intact": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "no-dates-added": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "notes-untouched": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "agents-untouched": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "Before and After are byte-identical: both make the single minimal diff to step 4 of `## Deploy` (120s -> 300s), leave the `## History` section, NOTES.md, and AGENTS.md untouched, and add no dated or narrated line. Nothing moved, which is the right outcome for this case — the edit does not touch the history section, so the new 'No history' rule's 'a history section the edit does not touch stays byte-identical' clause is correctly honoured rather than over-applied. The Expected-to-move items listed belong to a different case (history-section-cleanup) and are not exercised here; this case confirms the wording does not cause spurious history-section deletion or dated-line additions when the edited rule lives outside any changelog. Keep the wording as is for this scenario.",
+      "wallMs": 7727,
+      "verdict": "unchanged"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "f8386df9c7572ea18b96af2ffef00fab33d27bf8faae972c02f5e1710b38d4da",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "80432f1757c92423e46c25b725d574845b6b385dbfb847cdddf71dd9b58e663e",
+      "baselineOutputSha": "db1965f3edfe89988b958bafaa2f919d8041abd1ea7094d772a49e61ee8fc5ea",
+      "candidateOutputSha": "db1965f3edfe89988b958bafaa2f919d8041abd1ea7094d772a49e61ee8fc5ea",
+      "facts": {
+        "step-changed": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "history-intact": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "no-dates-added": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "notes-untouched": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "agents-untouched": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "Before and After are byte-identical here: both make the single-line `--timeout=120s` -> `--timeout=300s` edit in `## Deploy`, leave `## History` untouched with its heading and all three dated bullets intact, add no dated or narrative line, and do not touch NOTES.md or AGENTS.md. Nothing moved in either direction. The Expected-to-move entries listed belong to the history-section-cleanup case (where the edited rule lives inside the dated bullet); in this case the edited rule is not in the history section, so the No history rule's 'a history section the edit does not touch stays byte-identical' clause is exactly what the After output honoured. The After wording is fine for this case; keep the explicit distinction between a history section that contains the edited rule (fold and delete) and one that does not (leave byte-identical), since that is what prevents the new rule from over-triggering a cleanup on an unrelated edit.",
+      "wallMs": 8547,
+      "verdict": "unchanged"
+    }
+  },
+  "repoSha": "f9cd85b0c38cbb5fe0045078a29018439be690db"
+}

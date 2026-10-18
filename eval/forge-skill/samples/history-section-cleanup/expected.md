@@ -1,0 +1,6 @@
+- rule-in-deploy: judged: The `## Deploy` section of doc/runbook.md states that builds use the `prod` profile.
+- history-gone: judged: doc/runbook.md has no `## History` heading after the edit.
+- no-dates-added: judged: No added line in doc/runbook.md carries a date, "previously", "formerly", "as of", or a narration of what the rule used to be.
+- other-sections-intact: judged: Every section of doc/runbook.md other than `## Deploy` and `## History` is byte-identical to the fixture.
+- notes-untouched: judged: NOTES.md is byte-identical to the fixture.
+- agents-untouched: judged: AGENTS.md is byte-identical to the fixture.

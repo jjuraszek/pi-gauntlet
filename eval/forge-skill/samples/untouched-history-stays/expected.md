@@ -1,0 +1,5 @@
+- step-changed: judged: The `## Deploy` watch step in doc/runbook.md now uses `--timeout=300s`.
+- history-intact: judged: The `## History` section of doc/runbook.md is byte-identical to the fixture, heading and all three bullets.
+- no-dates-added: judged: No added line in doc/runbook.md carries a date, "previously", "formerly", "as of", or a narration of what the rule used to be.
+- notes-untouched: judged: NOTES.md is byte-identical to the fixture.
+- agents-untouched: judged: AGENTS.md is byte-identical to the fixture.

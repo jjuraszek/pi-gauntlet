@@ -1,6 +1,6 @@
 ---
 name: forge-skill
-description: Use when creating or editing a SKILL.md, a skill's reference file, an agent persona, a prompt template, or a slash command in pi or Claude Code - including one-line edits - or when such a file exceeds 500 lines, gains if/else branching, or drifts from imperative voice; the authoring skill for repos that follow gauntlet's conventions.
+description: Use when creating or editing a SKILL.md, a skill's reference file, an agent persona, a prompt template, a slash command, or a file the repo's AGENTS.md or CLAUDE.md routes here, in pi or Claude Code - including one-line edits - or when such a file exceeds 500 lines, gains if/else branching, or drifts from imperative voice; the authoring skill for repos that follow gauntlet's conventions.
 ---
 
 # Forge Skill
@@ -35,6 +35,7 @@ These rules bind the lines an edit adds or changes. Leave other lines alone.
 - Imperative voice. Write instructions as commands. Never "should", "consider", "you may want to", "it is recommended".
 - Low conditionality. One path per step: branch only on a runtime fact the model can observe - a tool result, a file's presence, a settings value - never on the reader's judgment. Two branches is the ceiling; a third goes into a table, or for a skill a reference/ file.
 - Minimal diff. A rule change touches the sentence that owns the rule, not the section. Never restate a rule in a second place; link the owner.
+- No history. An instruction file states current rules only: an added or changed line carries no date, no "previously"/"formerly"/"as of" clause, and no narration of a rule's past - that goes to the commit body, the ticket, or the spec; a one-clause operational reason stays, and a date that is itself a rule (a freeze window) stays. The one exception to Minimal diff and to "Leave other lines alone": an edit that changes a rule inside a changelog, a dated-entry list, or a "previously" section moves that section's surviving rules into the section that owns their topic and deletes the history section in the same edit; a history section the edit does not touch stays. Example: `2025-03-02: builds now use the release profile because debug ran out of memory` under `## History` becomes `Build with the release profile (debug runs out of memory)` under `## Deploy`, and `## History` is deleted.
 - Skills only: Oversized file. A change touching a file over 500 lines extracts the concern it touches - or the largest self-contained `##` section - into `reference/<topic>.md` in the same change, and leaves a one-line "read X now" pointer at the step that needs it.
 - Recipe over prohibition. A shape or quality problem gets a statement of what the output is; a discipline problem gets one explicit rule. Never a list of things to avoid.
 - No nuance clauses. "Unless it matters", "when appropriate", "if needed" reopen the decision; delete them or name the observable condition.
@@ -59,7 +60,7 @@ A persona is an `agents/<name>.md` file dispatched by name (pi-cohort `subagent(
 ## Edit procedure
 
 1. Read the whole file.
-2. Locate and edit the sentence that owns the rule you are changing (see Minimal diff).
+2. Locate and edit the sentence that owns the rule you are changing (see Minimal diff; under No history, the history section it sits in).
 3. Read the changed lines back against `## Authoring rules`.
 4. Run wc -l; over 500 lines, a skill extracts per the oversized-file rule, a persona splits by job.
 5. Skill, pi: run /reload. Persona, pi: nothing. Claude Code: start a new session.

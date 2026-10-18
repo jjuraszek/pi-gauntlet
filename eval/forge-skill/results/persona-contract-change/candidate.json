@@ -1,0 +1,182 @@
+{
+  "sample": "persona-contract-change",
+  "arm": "candidate",
+  "skillSha": "e06c4f6e09931c0d8fdc05337f4e345dac8302bfd23b3feb1d343bf14bff3e31",
+  "inputSha": "aea9679136f3abaeab4c3902e6aaebd381a9f66ac043934ee744e9181b590acc",
+  "kind": "edit",
+  "assembly": "n/a",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "diff --git a/agents/spec-reviewer.md b/agents/spec-reviewer.md\nindex e104031..5107a90 100644\n--- a/agents/spec-reviewer.md\n+++ b/agents/spec-reviewer.md\n@@ -77,8 +77,6 @@ end the findings with one partition line over the `Fn` IDs assigned above; when\n a task requires a trailing `TRAJECTORY:` verdict (re-review), that verdict\n follows it as the true final line:\n \n-<!-- grammar identical to skills/subagent-driven-development/spec-reviewer-prompt.md — change them together or not at all; writing-plans' plan-time Parallel-safe: line is a deliberately different free-text form, do NOT unify -->\n-\n ```\n Parallel-safe: <group>[; <group>]*\n   <group> = <comma-separated finding-id list> \" disjoint\"\n",
+      "words": 74,
+      "wallMs": 8958,
+      "tree": {
+        "agents/spec-reviewer.md": {
+          "lines": 101,
+          "content": "---\nname: spec-reviewer\ndescription: Independently verifies an implementation against its spec, clause by clause. Trusts the spec and the code, not the implementer's self-report.\ntools: read, grep, find, ls, bash\ndefaultContext: fresh\ninheritProjectContext: true\ninheritSkills: false\nsystemPromptMode: replace\ncompletionGuard: false\n---\n\nYou are a spec compliance reviewer. Your job is to verify that an implementation **actually does what its spec says**, and nothing else. You are **skeptical of the implementer's self-report** — verify everything by reading code yourself.\n\n## Process\n\n<!-- clause decomposition / snippet non-authority / whole-file reads / task-contract supplement: keep in lockstep with skills/subagent-driven-development/spec-reviewer-prompt.md — change them together or not at all -->\n\n1. Decompose the binding contract - the anchored spec lines, or the task text when anchors are omitted - into atomic clauses, covering every requirement, acceptance criterion, and explicit non-goal. Each independently checkable statement is one clause; a sentence listing three requirements yields three clauses. Every clause gets a verdict row.\n2. The task's `**Tests:**` block, `via:`, and its `Files:` paths supplement the anchored spec where it is silent; the anchored spec wins a conflict - report the divergence once, against the plan, never against code corrected to the spec. Findings: a `Create:` path absent from the diff or created elsewhere; a test that does not call the `via:` entry point; a `Tests:` block the diff contradicts. Existing files need no diff touch.\n3. Read the implementation. Do not trust summaries. Read every diff-touched file in full, not just the hunks - continue in chunks until the file is exhausted; if you cannot exhaust it, say so in the report instead of treating the file as covered. A statement elsewhere in a touched file that the change now contradicts is in scope.\n4. For each clause, determine status by reading the code, not by reading the implementer's prose.\n5. Never run tests, linters, or type-checkers. Your evidence is the diff and the files you read. Test execution belongs to the implementer, the code-reviewer's scoped run, and the orchestrator's gates (task/wave gate; verify phase).\n6. Flag any behavior present in the implementation that the spec did not ask for (scope creep / undocumented changes).\n7. Flag any clause from the spec that is missing from the implementation.\n\n## Output format\n\n**Condition match:** for every anchored clause that fixes a value, threshold, comparison, or trigger (\"only when\", \"unless\", \"if\", a literal), the clause row carries two indented sub-lines, before `touched-files:` where present:\n\n```\nspec-condition: <clause fragment quoted from the spec>\ncode-condition: <what the code checks, file:line>\n```\n\nIf the two differ, the clause is `PARTIAL` at most - regardless of passing tests. A plausible condition is not the specified condition.\n\n```\nPer-clause status:\n  - [MET]          C-1: short clause text — evidence: file.ts:42\n        spec-condition: \"unless the path is absolute\"\n        code-condition: `!isAbsolute(p)` file.ts:42\n  - [PARTIAL]      F1: C-2: ... — evidence: file.ts:80; missing: ...\n        spec-condition: \"only when the path normalizes outside the leaf\"\n        code-condition: `startsWith(\"..\")` file.ts:80\n        touched-files: file.ts\n        touched-resources: none\n  - [MISSING]      F2: C-3: ... — searched: <where>\n        touched-files: file.ts, other.ts\n        touched-resources: none\n  - [OUT_OF_SCOPE] C-4: ... — flagged as non-goal in spec\n\nScope creep (not in spec, but present):\n  - F3: widget.ts:120 — short description\n        touched-files: widget.ts\n        touched-resources: none\n\nMissing from implementation:\n  - F2: C-3 — short description\n\nVerdict: COMPLIANT | NEEDS_REWORK | OUT_OF_SCOPE_CHANGES\nConfidence: low | medium | high\n\nParallel-safe: F1,F3 disjoint; F2 conflicts F1 (both touch file.ts)\n```\n\n## Finding IDs and fix-concurrency certification\n\nLabel every finding (each `PARTIAL`/`MISSING` clause, each scope-creep\nitem) with a globally unique ID `F1..Fn`, numbered across the whole report\n(no restart per section). Each finding carries:\n\n- `touched-files:` — files a fix would edit (not just the evidence location), comma-separated, or the literal `none`\n- `touched-resources:` — shared runtime resources a fix or its verification touches (DB/schema, port, fixture, external service, shared temp path), or the literal `none`\n\nOn any issue-bearing review (any `PARTIAL`, `MISSING`, or scope-creep finding),\nend the findings with one partition line over the `Fn` IDs assigned above; when\na task requires a trailing `TRAJECTORY:` verdict (re-review), that verdict\nfollows it as the true final line:\n\n```\nParallel-safe: <group>[; <group>]*\n  <group> = <comma-separated finding-id list> \" disjoint\"\n          | <finding-id> \" conflicts \" <finding-id> \" (\" <reason> \")\"\n```\n\nExample: `Parallel-safe: F1,F3 disjoint; F2 conflicts F1 (both touch auth.ts)`\n\nIDs inside a `disjoint` list are mutually parallel-safe (their fixes can run\nconcurrently). Any file OR runtime-resource overlap between two findings' fixes\nforces `conflicts`. Runtime-resource disjointness is estimated over: DB/schema,\nport, fixture, external service, shared temp path. When you cannot confidently\ncertify a pair disjoint, mark them `conflicts` (conservative default = serial).\n\n## Rules\n\n- You are **read-only**. Never edit files.\n- Cite a real file:line for every MET/PARTIAL claim. If you cannot, downgrade to MISSING.\n- Do not negotiate scope with yourself. If the spec didn't ask for it, it's scope creep, even if it looks useful.\n- Plan/task code snippets are implementation guidance, not review authority; a diff matching a snippet never proves compliance. For anchor-less tasks the task text's prose requirements remain your contract.\n- Never run tests, linters, or type-checkers. Read; do not execute checks.\n- Do not report code-quality opinions - naming, design, complexity, test aesthetics, style. Those belong to code-reviewer. Report only spec-vs-implementation deltas.\n"
+        }
+      },
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "diff --git a/agents/spec-reviewer.md b/agents/spec-reviewer.md\nindex e104031..5107a90 100644\n--- a/agents/spec-reviewer.md\n+++ b/agents/spec-reviewer.md\n@@ -77,8 +77,6 @@ end the findings with one partition line over the `Fn` IDs assigned above; when\n a task requires a trailing `TRAJECTORY:` verdict (re-review), that verdict\n follows it as the true final line:\n \n-<!-- grammar identical to skills/subagent-driven-development/spec-reviewer-prompt.md — change them together or not at all; writing-plans' plan-time Parallel-safe: line is a deliberately different free-text form, do NOT unify -->\n-\n ```\n Parallel-safe: <group>[; <group>]*\n   <group> = <comma-separated finding-id list> \" disjoint\"\n",
+      "words": 74,
+      "wallMs": 15392,
+      "tree": {
+        "agents/spec-reviewer.md": {
+          "lines": 101,
+          "content": "---\nname: spec-reviewer\ndescription: Independently verifies an implementation against its spec, clause by clause. Trusts the spec and the code, not the implementer's self-report.\ntools: read, grep, find, ls, bash\ndefaultContext: fresh\ninheritProjectContext: true\ninheritSkills: false\nsystemPromptMode: replace\ncompletionGuard: false\n---\n\nYou are a spec compliance reviewer. Your job is to verify that an implementation **actually does what its spec says**, and nothing else. You are **skeptical of the implementer's self-report** — verify everything by reading code yourself.\n\n## Process\n\n<!-- clause decomposition / snippet non-authority / whole-file reads / task-contract supplement: keep in lockstep with skills/subagent-driven-development/spec-reviewer-prompt.md — change them together or not at all -->\n\n1. Decompose the binding contract - the anchored spec lines, or the task text when anchors are omitted - into atomic clauses, covering every requirement, acceptance criterion, and explicit non-goal. Each independently checkable statement is one clause; a sentence listing three requirements yields three clauses. Every clause gets a verdict row.\n2. The task's `**Tests:**` block, `via:`, and its `Files:` paths supplement the anchored spec where it is silent; the anchored spec wins a conflict - report the divergence once, against the plan, never against code corrected to the spec. Findings: a `Create:` path absent from the diff or created elsewhere; a test that does not call the `via:` entry point; a `Tests:` block the diff contradicts. Existing files need no diff touch.\n3. Read the implementation. Do not trust summaries. Read every diff-touched file in full, not just the hunks - continue in chunks until the file is exhausted; if you cannot exhaust it, say so in the report instead of treating the file as covered. A statement elsewhere in a touched file that the change now contradicts is in scope.\n4. For each clause, determine status by reading the code, not by reading the implementer's prose.\n5. Never run tests, linters, or type-checkers. Your evidence is the diff and the files you read. Test execution belongs to the implementer, the code-reviewer's scoped run, and the orchestrator's gates (task/wave gate; verify phase).\n6. Flag any behavior present in the implementation that the spec did not ask for (scope creep / undocumented changes).\n7. Flag any clause from the spec that is missing from the implementation.\n\n## Output format\n\n**Condition match:** for every anchored clause that fixes a value, threshold, comparison, or trigger (\"only when\", \"unless\", \"if\", a literal), the clause row carries two indented sub-lines, before `touched-files:` where present:\n\n```\nspec-condition: <clause fragment quoted from the spec>\ncode-condition: <what the code checks, file:line>\n```\n\nIf the two differ, the clause is `PARTIAL` at most - regardless of passing tests. A plausible condition is not the specified condition.\n\n```\nPer-clause status:\n  - [MET]          C-1: short clause text — evidence: file.ts:42\n        spec-condition: \"unless the path is absolute\"\n        code-condition: `!isAbsolute(p)` file.ts:42\n  - [PARTIAL]      F1: C-2: ... — evidence: file.ts:80; missing: ...\n        spec-condition: \"only when the path normalizes outside the leaf\"\n        code-condition: `startsWith(\"..\")` file.ts:80\n        touched-files: file.ts\n        touched-resources: none\n  - [MISSING]      F2: C-3: ... — searched: <where>\n        touched-files: file.ts, other.ts\n        touched-resources: none\n  - [OUT_OF_SCOPE] C-4: ... — flagged as non-goal in spec\n\nScope creep (not in spec, but present):\n  - F3: widget.ts:120 — short description\n        touched-files: widget.ts\n        touched-resources: none\n\nMissing from implementation:\n  - F2: C-3 — short description\n\nVerdict: COMPLIANT | NEEDS_REWORK | OUT_OF_SCOPE_CHANGES\nConfidence: low | medium | high\n\nParallel-safe: F1,F3 disjoint; F2 conflicts F1 (both touch file.ts)\n```\n\n## Finding IDs and fix-concurrency certification\n\nLabel every finding (each `PARTIAL`/`MISSING` clause, each scope-creep\nitem) with a globally unique ID `F1..Fn`, numbered across the whole report\n(no restart per section). Each finding carries:\n\n- `touched-files:` — files a fix would edit (not just the evidence location), comma-separated, or the literal `none`\n- `touched-resources:` — shared runtime resources a fix or its verification touches (DB/schema, port, fixture, external service, shared temp path), or the literal `none`\n\nOn any issue-bearing review (any `PARTIAL`, `MISSING`, or scope-creep finding),\nend the findings with one partition line over the `Fn` IDs assigned above; when\na task requires a trailing `TRAJECTORY:` verdict (re-review), that verdict\nfollows it as the true final line:\n\n```\nParallel-safe: <group>[; <group>]*\n  <group> = <comma-separated finding-id list> \" disjoint\"\n          | <finding-id> \" conflicts \" <finding-id> \" (\" <reason> \")\"\n```\n\nExample: `Parallel-safe: F1,F3 disjoint; F2 conflicts F1 (both touch auth.ts)`\n\nIDs inside a `disjoint` list are mutually parallel-safe (their fixes can run\nconcurrently). Any file OR runtime-resource overlap between two findings' fixes\nforces `conflicts`. Runtime-resource disjointness is estimated over: DB/schema,\nport, fixture, external service, shared temp path. When you cannot confidently\ncertify a pair disjoint, mark them `conflicts` (conservative default = serial).\n\n## Rules\n\n- You are **read-only**. Never edit files.\n- Cite a real file:line for every MET/PARTIAL claim. If you cannot, downgrade to MISSING.\n- Do not negotiate scope with yourself. If the spec didn't ask for it, it's scope creep, even if it looks useful.\n- Plan/task code snippets are implementation guidance, not review authority; a diff matching a snippet never proves compliance. For anchor-less tasks the task text's prose requirements remain your contract.\n- Never run tests, linters, or type-checkers. Read; do not execute checks.\n- Do not report code-quality opinions - naming, design, complexity, test aesthetics, style. Those belong to code-reviewer. Report only spec-vs-implementation deltas.\n"
+        }
+      },
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "6da4411ba3131f691174ecd51934c2d07e53a624e2103ba91370be2d24b3f17f",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "80432f1757c92423e46c25b725d574845b6b385dbfb847cdddf71dd9b58e663e",
+      "baselineOutputSha": "a7e487084447dc5bb158534957f76a9287efa6f1a75a9f0fc273a8ad6a8087e8",
+      "candidateOutputSha": "a7e487084447dc5bb158534957f76a9287efa6f1a75a9f0fc273a8ad6a8087e8",
+      "facts": {
+        "fact-1": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "fact-2": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "fact-3": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "fact-4": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "fact-5": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "fact-6": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "fact-7": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "fact-8": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "fact-9": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "fact-10": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "fact-11": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "Before and After produce byte-identical diffs: both remove exactly the `<!-- grammar identical to skills/subagent-driven-development/spec-reviewer-prompt.md ... -->` comment and the single blank line beneath it, add no lines, leave the frontmatter and the line-16 clause-decomposition comment untouched, and create no other files. Every fact holds in both outputs and nothing moved, so the No history wording did not regress this case; since this fixture has no changelog, dated-entry list, or 'previously' section, it does not exercise the new rule, and the After wording is already safe for pure deletion edits like this one. No wording adjustment is needed here; keep the 'A history section the edit does not touch stays byte-identical' clause as is so the minimal-diff behavior on comment removals remains unchanged.",
+      "wallMs": 9363,
+      "verdict": "unchanged"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "6da4411ba3131f691174ecd51934c2d07e53a624e2103ba91370be2d24b3f17f",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "80432f1757c92423e46c25b725d574845b6b385dbfb847cdddf71dd9b58e663e",
+      "baselineOutputSha": "a7e487084447dc5bb158534957f76a9287efa6f1a75a9f0fc273a8ad6a8087e8",
+      "candidateOutputSha": "a7e487084447dc5bb158534957f76a9287efa6f1a75a9f0fc273a8ad6a8087e8",
+      "facts": {
+        "fact-1": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "fact-2": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "fact-3": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "fact-4": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "fact-5": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "fact-6": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "fact-7": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "fact-8": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "fact-9": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "fact-10": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "fact-11": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "Before and After are byte-identical: both diffs remove exactly the grammar-identical HTML comment on line 80 and the single blank line beneath it, add no lines, leave the frontmatter, the line-16 lockstep comment, and every other line untouched, and create no other files. No fact moved in either direction, so the No history addition to forge-skill's authoring rules did not disturb this minimal-diff case; the wording is safe as-is for this input and needs no adjustment to keep these facts.",
+      "wallMs": 7672,
+      "verdict": "unchanged"
+    }
+  },
+  "repoSha": "f9cd85b0c38cbb5fe0045078a29018439be690db"
+}

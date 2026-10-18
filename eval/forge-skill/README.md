@@ -1,6 +1,6 @@
 # forge-skill eval
 
-Tests instruction-file edits with `kind: edit`: minimal diffs, imperative wording, oversized-skill extraction, reference-file edits, and persona body and frontmatter constraints across 10 samples.
+Tests instruction-file edits with `kind: edit`: minimal diffs, imperative wording, oversized-skill extraction, reference-file edits, persona body and frontmatter constraints, and history-section handling in routed files across 12 samples.
 
 | Skill file |
 |---|

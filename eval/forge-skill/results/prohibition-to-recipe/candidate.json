@@ -1,0 +1,162 @@
+{
+  "sample": "prohibition-to-recipe",
+  "arm": "candidate",
+  "skillSha": "e06c4f6e09931c0d8fdc05337f4e345dac8302bfd23b3feb1d343bf14bff3e31",
+  "inputSha": "de4f246c9903dd1319b510e2d983a594b55e467d5734120f871f0a5346b31e70",
+  "kind": "edit",
+  "assembly": "n/a",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "diff --git a/SKILL.md b/SKILL.md\nindex 360dcfb..b0016c8 100644\n--- a/SKILL.md\n+++ b/SKILL.md\n@@ -18,7 +18,7 @@ Find the answer in the source and state it.\n \n ## Output\n \n-One paragraph. The first sentence is the answer. The second sentence names the source as `path:line`. A third sentence exists only when the source shows a caveat.\n+One paragraph. The first sentence is the answer. The second sentence names the source as `path:line`. A third sentence exists only when the source shows a caveat. The last sentence is the caveat sentence, or the source sentence when there is no caveat.\n \n ## Rules\n \n",
+      "words": 92,
+      "wallMs": 14634,
+      "tree": {
+        "SKILL.md": {
+          "lines": 60,
+          "content": "---\nname: answer-question\ndescription: Use when the user asks a factual question about the codebase and wants a direct answer.\n---\n\n# Answer Question\n\n## Overview\n\nFind the answer in the source and state it.\n\n## Procedure\n\n1. Restate nothing; open the file the question names, or search for the symbol with `rg`.\n2. Read the definition end to end.\n3. Answer in one paragraph: the fact, the file and line it comes from, and the one caveat the source shows.\n4. Stop.\n\n## Output\n\nOne paragraph. The first sentence is the answer. The second sentence names the source as `path:line`. A third sentence exists only when the source shows a caveat. The last sentence is the caveat sentence, or the source sentence when there is no caveat.\n\n## Rules\n\n- Read before answering; never answer from memory.\n- One term per concept.\n- ASCII punctuation.\n\n## Red flags\n\n- An answer with no `path:line`.\n- A paragraph that opens by restating the question.\n\n## Examples\n\n### Configuration default\n\nQuestion: What is the default retry count?\nGood: The default retry count is three. The default is defined at `src/config.ts:18`.\nBad: The retries probably use a typical default.\n\nUse the literal value from the definition, not an estimate.\n\n### Boundary behavior\n\nQuestion: What happens for an empty list?\nGood: An empty list returns zero. The return branch is at `src/count.ts:12`. The branch runs before the filter.\nBad: An empty list causes an error, based on the function name.\n\nCheck the branch before describing its result.\n\n## Edge cases\n\n- Follow an imported constant to its definition.\n- Name the missing definition before asking for another file.\n- Distinguish a test expectation from the implementation's return value.\n\n## Project overrides\n\nIf a gauntlet overrides file exists - checked in order: `.pi/gauntlet-overrides.md`, `<repo root>/gauntlet-overrides.md`, `<repo root>/doc/gauntlet-overrides.md`; first found wins - read it and apply its `## conventions` section.\n"
+        }
+      },
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "diff --git a/SKILL.md b/SKILL.md\nindex 360dcfb..0a2849e 100644\n--- a/SKILL.md\n+++ b/SKILL.md\n@@ -18,7 +18,7 @@ Find the answer in the source and state it.\n \n ## Output\n \n-One paragraph. The first sentence is the answer. The second sentence names the source as `path:line`. A third sentence exists only when the source shows a caveat.\n+One paragraph. The first sentence is the answer. The second sentence names the source as `path:line`. End the answer immediately after the source sentence or, when the source shows a caveat, after one caveat sentence.\n \n ## Rules\n \n",
+      "words": 84,
+      "wallMs": 28461,
+      "tree": {
+        "SKILL.md": {
+          "lines": 60,
+          "content": "---\nname: answer-question\ndescription: Use when the user asks a factual question about the codebase and wants a direct answer.\n---\n\n# Answer Question\n\n## Overview\n\nFind the answer in the source and state it.\n\n## Procedure\n\n1. Restate nothing; open the file the question names, or search for the symbol with `rg`.\n2. Read the definition end to end.\n3. Answer in one paragraph: the fact, the file and line it comes from, and the one caveat the source shows.\n4. Stop.\n\n## Output\n\nOne paragraph. The first sentence is the answer. The second sentence names the source as `path:line`. End the answer immediately after the source sentence or, when the source shows a caveat, after one caveat sentence.\n\n## Rules\n\n- Read before answering; never answer from memory.\n- One term per concept.\n- ASCII punctuation.\n\n## Red flags\n\n- An answer with no `path:line`.\n- A paragraph that opens by restating the question.\n\n## Examples\n\n### Configuration default\n\nQuestion: What is the default retry count?\nGood: The default retry count is three. The default is defined at `src/config.ts:18`.\nBad: The retries probably use a typical default.\n\nUse the literal value from the definition, not an estimate.\n\n### Boundary behavior\n\nQuestion: What happens for an empty list?\nGood: An empty list returns zero. The return branch is at `src/count.ts:12`. The branch runs before the filter.\nBad: An empty list causes an error, based on the function name.\n\nCheck the branch before describing its result.\n\n## Edge cases\n\n- Follow an imported constant to its definition.\n- Name the missing definition before asking for another file.\n- Distinguish a test expectation from the implementation's return value.\n\n## Project overrides\n\nIf a gauntlet overrides file exists - checked in order: `.pi/gauntlet-overrides.md`, `<repo root>/gauntlet-overrides.md`, `<repo root>/doc/gauntlet-overrides.md`; first found wins - read it and apply its `## conventions` section.\n"
+        }
+      },
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "fe647685b83160a2af8c38717c0215b60a9ad7810b412310c6b003e4ea8ffda7",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "80432f1757c92423e46c25b725d574845b6b385dbfb847cdddf71dd9b58e663e",
+      "baselineOutputSha": "6709e593131b29d86f1f3e9b27db913646afb292e14833b96e9042f38c92ed4d",
+      "candidateOutputSha": "20b30319f1f464b1d42d17e0d54201067822315a4514bb843bd4f98359404bd4",
+      "facts": {
+        "fact-1": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "fact-2": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "fact-3": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "fact-4": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "fact-5": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "fact-6": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "fact-7": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "fact-8": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "fact-9": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "Nothing moved on this case: both Before and After add exactly one ASCII sentence to the `## Output` paragraph, phrased as a description of the output rather than a prohibition, with no hedge words or listed nuance clauses, and no touch to `## Rules`, `## Red flags`, or the examples. After's wording (\"The last sentence is the caveat sentence, or the source sentence when there is no caveat\") is if anything a cleaner fit for fact-7 than Before's \"The paragraph ends at ...\" since it names the last sentence directly. This fixture has no history section, so the No history rule has no bearing here; the Expected-to-move items belong to the history-section-cleanup case, and the After wording has not regressed this case while delivering that change.",
+      "wallMs": 13057,
+      "verdict": "unchanged"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "fe647685b83160a2af8c38717c0215b60a9ad7810b412310c6b003e4ea8ffda7",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "80432f1757c92423e46c25b725d574845b6b385dbfb847cdddf71dd9b58e663e",
+      "baselineOutputSha": "1df6cfaa468aa7e3a395a62e336f5060fe2c477ade9065dd19fc994c2ea8fcd7",
+      "candidateOutputSha": "66c126146b49032f0973ce6a6e2567876bc0f066ebbda44fb523258d5fd9e9f1",
+      "facts": {
+        "fact-1": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "fact-2": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "fact-3": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "fact-4": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "fact-5": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "fact-6": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "fact-7": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "fact-8": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "fact-9": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "No fact moved between Before and After on this case: both edits touch only the single `## Output` paragraph, stay ASCII, add no advisory or nuance phrasing from the listed sets, do not restate the rule elsewhere, and leave `## Red flags` untouched. After actually tightens the wording relative to Before by stating the terminal sentence positively (\"End the answer immediately after the source sentence or ... after one caveat sentence\") instead of Before's \"without a closing summary sentence\", which named the forbidden thing rather than the required shape; both satisfy fact-7 because each says what the last sentence of the paragraph is. The only trade-off is that After no longer names \"summary\" explicitly, so a reader who wants the rule to be recognizably about the \"In summary\" habit must infer it from \"immediately after\" - if you want that cue back without reintroducing a negation-led line, a form like \"The paragraph ends at the source sentence, or at one caveat sentence when the source shows one; the citation or caveat is the last sentence.\" keeps every fact Before kept and still delivers the change. Nothing in this case exercised the new No history rule, since the fixture has no history section and neither diff adds a date.",
+      "wallMs": 16854,
+      "verdict": "unchanged"
+    }
+  },
+  "repoSha": "f9cd85b0c38cbb5fe0045078a29018439be690db"
+}

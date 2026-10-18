@@ -179,7 +179,7 @@ On both harnesses, `gatekeep-pr` uses the same temporary continuation record
 and action-scoped consent protocol; Claude Code uses native file operations
 and a checklist when pi's tracker is absent. Native tool permissions still apply.
 `forge-skill` is the authoring skill for skills, personas, prompt templates,
-and slash commands under
+slash commands, and files the repo routes to it under
 gauntlet's conventions (imperative voice, minimal diff, low conditionality,
 extraction over 500 lines); Claude Code namespaces plugin skills, so it lists
 as `/gauntlet:forge-skill` and coexists with the skill-authoring skill of
@@ -290,7 +290,7 @@ exact repo folder* in interactive Claude Code. Trusting a parent folder,
 
 ## Project-specific overrides
 
-The gauntlet overrides file is the one place a repo tunes gauntlet's Markdown surface: skills read it as instructions, and `gauntlet-spec-index` reads `## Spec index`. Discovery checks `.pi/gauntlet-overrides.md`, `<repo root>/gauntlet-overrides.md`, then `<repo root>/doc/gauntlet-overrides.md`; first found wins, never merged (`<repo root>` is `git rev-parse --show-toplevel`, or the current directory outside a repo). `## conventions` applies to every skill without a relevance judgment; `## <skill-name>` applies to that skill's steps and wins over conflicting conventions. Missing or empty conventions adds no rules; a lower-priority file cannot supplement the selected file.
+The gauntlet overrides file is the one place a repo tunes gauntlet's Markdown surface: skills read it as instructions, and `gauntlet-spec-index` reads `## Spec index`. Discovery checks `.pi/gauntlet-overrides.md`, `<repo root>/gauntlet-overrides.md`, then `<repo root>/doc/gauntlet-overrides.md`; first found wins, never merged (`<repo root>` is `git rev-parse --show-toplevel`, or the current directory outside a repo). `## conventions` applies to every skill without a relevance judgment; `## <skill-name>` applies to that skill's steps and wins over conflicting conventions. Missing or empty conventions adds no rules; a lower-priority file cannot supplement the selected file. A repo declares procedure files for `forge-skill` in its `AGENTS.md` (Claude Code: `CLAUDE.md`), not here, because the overrides file is read only after a skill loads - for example `Edits to projects/*/README.md follow /skill:forge-skill`.
 
 ### What you can tweak
 

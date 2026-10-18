@@ -1,0 +1,148 @@
+{
+  "sample": "history-section-cleanup",
+  "arm": "candidate",
+  "skillSha": "e06c4f6e09931c0d8fdc05337f4e345dac8302bfd23b3feb1d343bf14bff3e31",
+  "inputSha": "826665feb3cf386227618f8e79c0144573a67a1c697ce665bad74b4b87b0a174",
+  "kind": "edit",
+  "assembly": "n/a",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "diff --git a/doc/runbook.md b/doc/runbook.md\nindex 9bbbace..f359484 100644\n--- a/doc/runbook.md\n+++ b/doc/runbook.md\n@@ -2,7 +2,7 @@\n \n ## Deploy\n \n-1. Build the image: `make build`.\n+1. Build the image with the `prod` profile (`debug` runs out of memory): `make build`.\n 2. Push it: `make push`.\n 3. Roll the deployment: `kubectl rollout restart deployment/web`.\n 4. Watch it: `kubectl rollout status deployment/web --timeout=120s`.\n@@ -10,9 +10,3 @@\n ## Rollback\n \n Run `kubectl rollout undo deployment/web`, then the watch command from Deploy.\n-\n-## History\n-\n-- 2025-03-02: builds now use the `release` profile because `debug` ran out of memory.\n-- 2025-01-10: moved the runbook here from the wiki.\n-- 2024-11-03: first draft.\n",
+      "words": 93,
+      "wallMs": 12101,
+      "tree": {
+        "AGENTS.md": {
+          "lines": 3,
+          "content": "# web service\n\n- Edits to doc/runbook.md follow /skill:forge-skill.\n"
+        },
+        "NOTES.md": {
+          "lines": 6,
+          "content": "# Notes\n\nScratch notes for the web service. Nothing here is a rule.\n\n- The staging cluster lives in the `eu-west` region.\n- On-call hands over on Mondays.\n"
+        },
+        "doc/runbook.md": {
+          "lines": 12,
+          "content": "# Web service runbook\n\n## Deploy\n\n1. Build the image with the `prod` profile (`debug` runs out of memory): `make build`.\n2. Push it: `make push`.\n3. Roll the deployment: `kubectl rollout restart deployment/web`.\n4. Watch it: `kubectl rollout status deployment/web --timeout=120s`.\n\n## Rollback\n\nRun `kubectl rollout undo deployment/web`, then the watch command from Deploy.\n"
+        }
+      },
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "diff --git a/doc/runbook.md b/doc/runbook.md\nindex 9bbbace..6073565 100644\n--- a/doc/runbook.md\n+++ b/doc/runbook.md\n@@ -2,7 +2,7 @@\n \n ## Deploy\n \n-1. Build the image: `make build`.\n+1. Build the image with the `prod` profile (the `debug` profile runs out of memory): `make build`.\n 2. Push it: `make push`.\n 3. Roll the deployment: `kubectl rollout restart deployment/web`.\n 4. Watch it: `kubectl rollout status deployment/web --timeout=120s`.\n@@ -10,9 +10,3 @@\n ## Rollback\n \n Run `kubectl rollout undo deployment/web`, then the watch command from Deploy.\n-\n-## History\n-\n-- 2025-03-02: builds now use the `release` profile because `debug` ran out of memory.\n-- 2025-01-10: moved the runbook here from the wiki.\n-- 2024-11-03: first draft.\n",
+      "words": 95,
+      "wallMs": 17116,
+      "tree": {
+        "AGENTS.md": {
+          "lines": 3,
+          "content": "# web service\n\n- Edits to doc/runbook.md follow /skill:forge-skill.\n"
+        },
+        "NOTES.md": {
+          "lines": 6,
+          "content": "# Notes\n\nScratch notes for the web service. Nothing here is a rule.\n\n- The staging cluster lives in the `eu-west` region.\n- On-call hands over on Mondays.\n"
+        },
+        "doc/runbook.md": {
+          "lines": 12,
+          "content": "# Web service runbook\n\n## Deploy\n\n1. Build the image with the `prod` profile (the `debug` profile runs out of memory): `make build`.\n2. Push it: `make push`.\n3. Roll the deployment: `kubectl rollout restart deployment/web`.\n4. Watch it: `kubectl rollout status deployment/web --timeout=120s`.\n\n## Rollback\n\nRun `kubectl rollout undo deployment/web`, then the watch command from Deploy.\n"
+        }
+      },
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "931ab399d2220bc42e27b672f438a2b3fc6ed1e5c91ea38508b31ed004695e94",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "80432f1757c92423e46c25b725d574845b6b385dbfb847cdddf71dd9b58e663e",
+      "baselineOutputSha": "38092b01b84ad951085a1e8f2b00c39f8a1e0d7a0c365c1237e520d453c95df9",
+      "candidateOutputSha": "685e94248fc0286abafaabb8761b33e380b808e888f0da409b932bd8491e50b7",
+      "facts": {
+        "rule-in-deploy": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "history-gone": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "no-dates-added": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "other-sections-intact": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "notes-untouched": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "agents-untouched": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "After delivers exactly the intended movement: the profile rule now lives in `## Deploy` step 1 as a present-tense instruction, the `## History` section is deleted in the same edit, and the only added line carries no date, \"previously\", \"formerly\", \"as of\", or past-rule narration. Nothing Before kept was lost — the title and `## Rollback` are byte-identical, and NOTES.md and AGENTS.md are untouched. The one thing worth tightening in the wording is the surviving rationale: After carried the `debug` out-of-memory reason forward as a present-tense parenthetical (`(`debug` runs out of memory)`), which is acceptable under No history as written, but a careful reader could see it as the old changelog's justification smuggled in. If you want to foreclose that, have the No history rule say that when a changelog entry's rule moves into its topic section, only the rule itself moves — the dated entry's reason stays out unless it is a current constraint the reader needs — and pair it with the existing minimal-diff rule so the moved line reads as a plain instruction (e.g. `Build the image with the `prod` profile: `make build`.`). That keeps every fact After already holds while making the no-narration outcome less dependent on the model's tense choice.",
+      "wallMs": 13419,
+      "verdict": "improved"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "931ab399d2220bc42e27b672f438a2b3fc6ed1e5c91ea38508b31ed004695e94",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "80432f1757c92423e46c25b725d574845b6b385dbfb847cdddf71dd9b58e663e",
+      "baselineOutputSha": "38092b01b84ad951085a1e8f2b00c39f8a1e0d7a0c365c1237e520d453c95df9",
+      "candidateOutputSha": "d76570069b91a0d67d2a56bd7fde473e6613d0f953b9911f94553b7f691fb457",
+      "facts": {
+        "rule-in-deploy": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "history-gone": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "no-dates-added": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "other-sections-intact": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "notes-untouched": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "agents-untouched": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "After moved exactly the three facts the Change intended and kept every fact Before kept: the surviving profile rule now lives in `## Deploy` as a present-tense instruction, the `## History` section (whose other two bullets were not rules) is deleted in the same edit, and the only added line carries no date or past-tense narration. Rollback, the title, NOTES.md and AGENTS.md are byte-identical. The one thing worth tightening in the wording is the rationale parenthetical `(the `debug` profile runs out of memory)` — it is phrased in the present tense so it does not read as history, which is why no-dates-added still holds, but the No history rule should explicitly say that any carried-over rationale must be stated as a current fact rather than as what changed and why, so that an output writing e.g. \"switched from `debug` because it ran out of memory\" is clearly out of bounds; otherwise the current wording delivers the Change cleanly.",
+      "wallMs": 13094,
+      "verdict": "improved"
+    }
+  },
+  "repoSha": "f9cd85b0c38cbb5fe0045078a29018439be690db"
+}

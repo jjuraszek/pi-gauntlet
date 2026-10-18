@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Changed
+
+- **forge-skill covers repo-routed files and adds the No history rule.** The `description` names a file the repo's `AGENTS.md` or `CLAUDE.md` routes to the skill, so a consumer declares procedure files with one always-on bullet instead of an overrides key; `## Authoring rules` gains "No history": an added or changed line carries no date or narration of a rule's past, and a rule edited inside a history section moves to its topic section with the history section deleted in the same edit (#66).
+
 ## v7.14.0 - 2026-10-17
 
 ### Added
