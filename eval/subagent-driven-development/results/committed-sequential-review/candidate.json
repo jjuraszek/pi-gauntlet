@@ -1,0 +1,90 @@
+{
+  "sample": "committed-sequential-review",
+  "arm": "candidate",
+  "skillSha": "f7d5925bcd23a57ae0d67ad5a8f26d250a5efe0aa02e4d212671c16c0b9b64b9",
+  "inputSha": "2b7f3aba4e0b61186f1f20df636a2dc28e29a2c32631d2f4d07db79435ff9b1c",
+  "kind": "text",
+  "assembly": "headed",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "# Code-review dispatch (sequential mode, committed task)\n\n## Review source\n\nThe task is committed, so the review uses a **commit range**, not `WORKTREE`:\n\n- `BASE_SHA: 1111111111111111111111111111111111111111` (the commit before the task)\n- `HEAD_SHA: 2222222222222222222222222222222222222222` (the task's commit)\n\nThis range excludes the uncommitted `notes.md` edits. Using `WORKTREE` would pull them into the review, which would be wrong. `WORKTREE` is only for integrated, uncommitted waves.\n\n## Pre-dispatch checks (read-only)\n\n```bash\ngit -C /workspace/project rev-parse HEAD                      # expect 2222222222222222222222222222222222222222\ngit -C /workspace/project rev-parse 2222222222222222222222222222222222222222^   # expect 1111111111111111111111111111111111111111\ngit -C /workspace/project diff --stat 1111111111111111111111111111111111111111..2222222222222222222222222222222222222222\ngit -C /workspace/project status --short                      # expect only notes.md modified\n```\n\nThese checks confirm the range and that `notes.md` is the only dirty path. They do not change it: no `add`, `stash`, `checkout`, or `commit`.\n\nIf HEAD is not 2222…, or the range shows unexpected paths, stop and diagnose before dispatching.\n\n## Dispatch\n\nThis is the first code review, so the payload has:\n\n- no `## Previous review report (re-review trigger)` marker\n- no `## Fix delta`\n- no `TRAJECTORY` request\n- no `model:` field\n\n```ts\nsubagent({\n  agent: \"code-reviewer\",\n  async: false,\n  cwd: \"/workspace/project\",\n  task: `<filled ../requesting-code-review/code-reviewer.md template>\n\nDESCRIPTION: <task summary from implementer's report>\nPLAN_OR_REQUIREMENTS: Task N from <plan-file> (full task text)\nBASE_SHA: 1111111111111111111111111111111111111111\nHEAD_SHA: 2222222222222222222222222222222222222222\nSCOPED_TEST_COMMANDS:\nnode --test tests/parse.test.ts\n\nReview only the committed range above. Uncommitted edits to notes.md in the checkout are unrelated to this task and out of scope.\n\nAdditional checks: one clear responsibility per file with a well-defined interface; units testable independently; follows the plan's file structure; flag new files that are already large or significant growth of existing files (not pre-existing sizes).\n\nReport in the format agents/code-reviewer.md defines (Verdict:, Parallel-safe:, Behaviour-change: footer lines).`\n})\n```\n\n## Commands the reviewer runs (from the template's committed branch)\n\n```bash\ngit diff --stat 1111111111111111111111111111111111111111..2222222222222222222222222222222222222222\ngit diff 1111111111111111111111111111111111111111..2222222222222222222222222222222222222222\nnode --test tests/parse.test.ts\n```\n\nThe reviewer runs no other commands and makes no edits.\n\n## Boundary\n\nI stop at dispatch. No verdict is assumed.\n\n- **Commit timing:** the task is already committed at 2222…, so no further commit is needed.\n- **Task status:** the task stays `in_progress` in `plan_tracker`. It is marked `complete` only after this review returns `SHIP`.\n- **Other outcomes:** `FIX_FIRST` leads into the Fix-Loop Rounds. `REJECT` means a stop note.\n- **notes.md:** left untouched throughout.\n",
+      "words": 350,
+      "wallMs": 14882,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "Review the **committed task range**, not the working tree. Leave `notes.md` untouched; do not stage, stash, or create another commit.\n\nRead-only shell commands:\n```bash\ncd /workspace/project\ngit diff --stat 1111111111111111111111111111111111111111..2222222222222222222222222222222222222222\ngit diff 1111111111111111111111111111111111111111..2222222222222222222222222222222222222222\n```\n\nDispatch:\n```ts\nsubagent({\n  agent: \"code-reviewer\",\n  async: false,\n  cwd: \"/workspace/project\",\n  task: `\nReview the committed task implementation for production readiness.\nSpec compliance review has already accepted it.\n\nDESCRIPTION: Code-touching task implementation committed at\n2222222222222222222222222222222222222222.\n\nBASE_SHA: 1111111111111111111111111111111111111111\nHEAD_SHA: 2222222222222222222222222222222222222222\n\nSCOPED_TEST_COMMANDS:\nnode --test tests/parse.test.ts\n\nReview source: the committed diff BASE_SHA..HEAD_SHA, not WORKTREE.\nRead it with:\ngit diff --stat 1111111111111111111111111111111111111111..2222222222222222222222222222222222222222\ngit diff 1111111111111111111111111111111111111111..2222222222222222222222222222222222222222\n\nInspect file contents from the reviewed commit where needed:\ngit show 2222222222222222222222222222222222222222:<path>\n\nCheck correctness, maintainability, architecture, error handling,\ntest coverage, and production readiness using the code-reviewer template.\nRun only the scoped test command above, from /workspace/project.\nDo not edit files or apply fixes.\n\nUncommitted edits to notes.md are unrelated and excluded from this review.\nDo not stage, stash, revert, or otherwise alter them.\nThe implementation is already committed; no commit is due at this dispatch.\nReturn a written review report; do not mark the task complete.\n`\n})\n```\n",
+      "words": 177,
+      "wallMs": 12825,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "4a60903b5e03f26839c61ad9244c5332de3489fb89091df32f6d6645f6a8f5ce",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "4553a089a2e85612e74c232481a8dd791a73595702d5315f411226177207adb4",
+      "baselineOutputSha": "d6640115da1700979d6644398e7ac00b7ddc86398a59e96273f22382a46f2265",
+      "candidateOutputSha": "d9d8f07adc2f4bc4f450b90180294ab525e58a92440aa5deb618653ba541e354",
+      "facts": {
+        "committed-range": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "existing-checkout": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "scoped-gate": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "Nothing moved on this case. After still binds the review to the explicit range 1111…..2222… with BASE_SHA/HEAD_SHA, explicitly rejects WORKTREE for a committed sequential task (and correctly scopes WORKTREE to integrated uncommitted waves, which is consistent with the Change), reviews in /workspace/project with no per-patch snapshot, keeps notes.md untouched with no add/stash/checkout/commit, passes node --test tests/parse.test.ts as the only test command, states the reviewer runs no other commands, and holds the task at in_progress until SHIP. One small tightening to keep this stable: After's scoped-test restriction is stated only in the orchestrator-side 'Commands the reviewer runs' section rather than inside the dispatched task text; adding Before's explicit instruction ('Run only the SCOPED_TEST_COMMANDS above, no repo-wide suite, linter, or type-checker; do not edit files') into the payload itself would make the scoped-gate fact depend on the dispatched text rather than on surrounding narration, without affecting the snapshot/WORKTREE behavior the Change introduces for the other cases.",
+      "wallMs": 9390,
+      "verdict": "unchanged"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "4a60903b5e03f26839c61ad9244c5332de3489fb89091df32f6d6645f6a8f5ce",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "4553a089a2e85612e74c232481a8dd791a73595702d5315f411226177207adb4",
+      "baselineOutputSha": "b43ddcf01dd3adabef28e191c30a58dff1c90ec7f1ae5065d9b0130e580b460d",
+      "candidateOutputSha": "1a2ab2f2059e147c870279870f9477105f41b020bc11492295f4de73da14f1e9",
+      "facts": {
+        "committed-range": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "existing-checkout": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "scoped-gate": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "Nothing moved in this case: After still binds the review to BASE_SHA..HEAD_SHA (explicitly 'not WORKTREE'), keeps cwd at /workspace/project with no snapshot, leaves notes.md untouched, passes the single scoped test command, and tells the reviewer not to mark the task complete. Two softenings are worth restoring so the committed-sequential path stays as crisp as Before while the Change lands elsewhere: Before had an explicit outer-level sentence ('Stop after this foreground dispatch; await its actual report before taking further action') and an explicit 'Do not run a repo-wide suite, linter, or type-checker' prohibition; After relies on async:false plus 'Run only the scoped test command above' and the in-payload 'do not mark the task complete'. Adding back a one-line post-dispatch wait statement and the negative 'no full suite/lint/typecheck' clause would make the commit gate and scoped-test constraint unambiguous rather than inferred, without touching the WORKTREE/snapshot behavior the Change is meant to introduce for patch reviews and integrated-wave reviews.",
+      "wallMs": 12285,
+      "verdict": "unchanged"
+    }
+  },
+  "repoSha": "530dce0097a4303c2199bc41ec3a42afce73b4b7"
+}

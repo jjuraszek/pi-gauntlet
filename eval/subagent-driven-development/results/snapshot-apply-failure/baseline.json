@@ -1,0 +1,34 @@
+{
+  "sample": "snapshot-apply-failure",
+  "arm": "baseline",
+  "skillSha": "f48fd505967b45471c058bdff14d2e613d85e448c652a41723293460fa49811d",
+  "inputSha": "11075efd07e3d3ab1c7a42cd7170d585aadacfbd53c34490ca828c98b4c6213c",
+  "kind": "text",
+  "assembly": "headed",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "# Failure decision: the patch did not materialize, so no spec review runs\n\n## What the observations establish\n\n- The returned patch does not apply to the wave base. `git apply --index` exited 1 at `src/parse.ts:8`, and no snapshot path was printed. `git apply` is atomic, so nothing landed in `/tmp/review-snapshot/tree`.\n- The worker's own checkout is deleted. No tree anywhere contains the post-change files.\n- `/workspace/project` holds only the old wave-base files.\n- The worker's `DONE` is a claim about a tree that no longer exists. It cannot be verified.\n\n## Decision: dispatch no reviewer on this patch\n\n- **The snapshot is not a valid review source.** It was never created.\n- **`/workspace/project` is not a valid review source.**\n  - The spec reviewer must start from the diff and read each touched file in full.\n  - Here it would read the pre-change `src/parse.ts` against hunks that do not apply to it.\n  - Its verdict would describe code that does not exist.\n- **Reviewing the diff text alone is not acceptable either.** It would be a silent fallback around the \"spec + task or stop\" contract.\n- **This is not a fix-loop round.** No review happened, so no `TRAJECTORY` applies and nothing counts against the Fix-Loop budget. It is a broken implementer result. I treat it as an implementer failure and re-run the task.\n\n## Next commands (read-only diagnosis; nothing is applied to the parent)\n\n```bash\n# confirm the parent is still at the wave base and clean\ngit -C /workspace/project rev-parse HEAD\ngit -C /workspace/project status --porcelain\n\n# reproduce the failure against the parent without touching it, for the stop/diagnosis note\ngit -C /workspace/project apply --check --verbose \"<REPORT_DIR>/<wave>-<task>.patch\"\n\n# show what the patch expects at the failing hunk vs. what the base has\ngrep -n -A12 '^+++ b/src/parse.ts' \"<REPORT_DIR>/<wave>-<task>.patch\"\nsed -n '1,30p' /workspace/project/src/parse.ts\n\n# discard the failed snapshot directory (it contains no applied state)\nrm -rf /tmp/review-snapshot/tree\n```\n\n## Next dispatch: re-run the implementer fresh from the wave base\n\n- The original checkout is gone, so the re-run gets a fresh isolated worktree.\n- The task stays `in_progress` in `plan_tracker`. There is no new `plan_tracker` write.\n\n```ts\nsubagent({\n  agent: \"implementer\",\n  context: \"fresh\",\n  async: false,\n  cwd: \"/workspace/project\",\n  worktree: true,\n  task: \"<full task text + scene-setting + owned files + SCOPED_TEST_COMMANDS + TEST_CONTRACT (Tests: block verbatim, Create:/Test: paths) + status protocol>\\n\\nNote: your previous patch for this task did not apply to the wave base (error: patch failed: src/parse.ts:8). Produce a patch generated against the current HEAD of cwd; do not reuse the prior patch.\"\n})\n```\n\nIf the diagnosis shows the base itself is wrong, I fix that first and then re-dispatch. Examples: HEAD moved, or the tree is dirty.\n\n## Commit timing\n\n- No commit and no integration for this task now.\n- The task's spec review is dispatched only after a returned patch materializes successfully into a snapshot. The reviewer then reads that snapshot path, with the task text, the patch diff, the absolute spec path, the `Spec:` anchors, and the `Tests:` block and `- Test:` paths.\n- The wave commit, followed by marking its indices `complete`, still waits for:\n  - every task's accepted spec review,\n  - integration,\n  - the wave's `SCOPED_TEST_COMMANDS` gate,\n  - the wave code review.\n\n**Stopping here at the failure decision.**\n",
+      "words": 504,
+      "wallMs": 21295,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "**Stop: the spec-review checkout could not be materialized. No reviewer is dispatched.**\n\n- **Review source:** None is currently valid. `/tmp/review-snapshot/tree` failed patch application, the worker checkout was deleted, and `/workspace/project` still contains the wave-base files. Do not review the parent as though it contained the worker’s implementation, or review the patch alone without the required readable files.\n- **Next shell commands:** None at this failure-decision boundary. Do not integrate the patch into `/workspace/project` merely to bypass the failed review snapshot.\n- **Next dispatch payload:** None—neither a spec-reviewer nor a code-reviewer.\n- **Tracking:** Leave the task `in_progress`; worker `DONE` is not acceptance.\n- **Commit timing:** No parent wave commit and no task completion. Those require successful spec review, integration, scoped tests, and applicable quality review.\n\nReport an **orchestration blocker**: the returned patch must be preserved, and a valid checkout containing that patch must be recovered or recreated before review can resume. No review verdict is available.\n",
+      "words": 150,
+      "wallMs": 12460,
+      "mechanical": {}
+    }
+  },
+  "repoSha": "530dce0097a4303c2199bc41ec3a42afce73b4b7"
+}

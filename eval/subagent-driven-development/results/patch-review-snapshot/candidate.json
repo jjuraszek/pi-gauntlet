@@ -1,0 +1,100 @@
+{
+  "sample": "patch-review-snapshot",
+  "arm": "candidate",
+  "skillSha": "f7d5925bcd23a57ae0d67ad5a8f26d250a5efe0aa02e4d212671c16c0b9b64b9",
+  "inputSha": "994a9202336a50f58bf955038e05dafd124d7c18a4c322e84ee7d03644328949",
+  "kind": "text",
+  "assembly": "headed",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "# Wave spec review: snapshot materialization and parallel SR dispatch\n\n**State going in:**\n- Both wave indices are already `in_progress`.\n- `WAVE_BASE_SHA` is `1111111111111111111111111111111111111111`, and it stays fixed through the wave commit.\n- Both patches are accepted (`DONE`), so each gets a spec reviewer.\n- The parent `/workspace/project` stays untouched at the wave base. There is no `git apply` into it, no staging, no commit and no CR in this step.\n\n## 1. Materialize a spec-review snapshot per patch\n\nRun each block once, separately. If any command fails, or no `snapshot:` line prints, stop: do not dispatch that review, and keep the failed snapshot for diagnosis.\n\n**Task 1 snapshot**\n```bash\nSR_ROOT='/workspace/project'\nSR_BASE='1111111111111111111111111111111111111111'\nSR_PATCH='/tmp/reports/task1.patch'\nSR_DIR=$(mktemp -d) || exit 1\nSR_TREE=\"$SR_DIR/tree\"\ngit -C \"$SR_ROOT\" worktree add --detach \"$SR_TREE\" \"$SR_BASE\" || exit 1\ngit -C \"$SR_TREE\" apply --index \"$SR_PATCH\" || exit 1\nprintf 'snapshot: %s\\n' \"$SR_TREE\"\n```\nI'll call the printed path `<SNAP1>`. It contains the modified `src/parse.ts` and the new `tests/parse.test.ts`.\n\n**Task 2 snapshot**\n```bash\nSR_ROOT='/workspace/project'\nSR_BASE='1111111111111111111111111111111111111111'\nSR_PATCH='/tmp/reports/task2.patch'\nSR_DIR=$(mktemp -d) || exit 1\nSR_TREE=\"$SR_DIR/tree\"\ngit -C \"$SR_ROOT\" worktree add --detach \"$SR_TREE\" \"$SR_BASE\" || exit 1\ngit -C \"$SR_TREE\" apply --index \"$SR_PATCH\" || exit 1\nprintf 'snapshot: %s\\n' \"$SR_TREE\"\n```\nI'll call the printed path `<SNAP2>`. It contains the modified `src/format.ts`. `src/legacy-format.ts` is absent from it because the patch deletes that file.\n\nIf the Task 2 reviewer needs the deleted file's prior contents, it reads them from the wave base, not the snapshot:\n```bash\ngit -C '/workspace/project' show 1111111111111111111111111111111111111111:src/legacy-format.ts\n```\n\n## 2. Dispatch both spec reviewers in one parallel fan-out\n\nThe dispatch is read-only. It uses `context: \"fresh\"`, has no `worktree` flag, and sets each task's `cwd` to its snapshot.\n\n```ts\nsubagent({\n  context: \"fresh\",\n  async: false,\n  cwd: \"/workspace/project\",           // top-level: implementation worktree\n  // NO worktree: true — reviewers are read-only\n  tasks: [\n    {\n      agent: \"spec-reviewer\",\n      cwd: \"<SNAP1>\",                  // whole-file read root for Task 1\n      output: \"/tmp/reports/wave-sr-task1.md\",\n      task: `\n<Task 1 full text from the plan>\n\n## Patch diff\n<contents of /tmp/reports/task1.patch, verbatim>\n\n## Spec\nAuthoritative spec (absolute path; read the anchored ranges yourself): /workspace/project/doc/specs/feature.md\nSpec anchors: <Task 1 **Spec:** anchors, unchanged>\n\n## Test contract (contract only — do not execute anything)\n<Task 1 **Tests:** block verbatim>\n- Test: tests/parse.test.ts   <plus any other Task 1 - Test: paths>\n\nReview from the diff, then read each touched file in full from your cwd (the snapshot).\nThe spec wins every dispute. If any cited anchor cannot be resolved, return a blocking finding.\nVerify: nothing missing, nothing extra.`\n    },\n    {\n      agent: \"spec-reviewer\",\n      cwd: \"<SNAP2>\",                  // whole-file read root for Task 2\n      output: \"/tmp/reports/wave-sr-task2.md\",\n      task: `\n<Task 2 full text from the plan>\n\n## Patch diff\n<contents of /tmp/reports/task2.patch, verbatim>\n\n## Spec\nAuthoritative spec (absolute path; read the anchored ranges yourself): /workspace/project/doc/specs/feature.md\nSpec anchors: <Task 2 **Spec:** anchors, unchanged>\n\n## Test contract (contract only — do not execute anything)\n<Task 2 **Tests:** block verbatim>\n<Task 2 - Test: paths>\n\nReview from the diff, then read each touched file in full from your cwd (the snapshot).\nsrc/legacy-format.ts is deleted and therefore absent from the snapshot. For its prior contents use:\ngit -C /workspace/project show 1111111111111111111111111111111111111111:src/legacy-format.ts\nThe spec wins every dispute. If any cited anchor cannot be resolved, return a blocking finding.\nVerify: nothing missing, nothing extra.`\n    },\n  ],\n})\n```\n\n**How the payloads are built:**\n- **Spec supply:** the spec is passed only as its absolute path in the implementation worktree, plus each task's anchors. No spec excerpts are inlined.\n- **Whole-file read location:** Task 1 reads from `<SNAP1>` and Task 2 from `<SNAP2>`. Neither reads from `/workspace/project`.\n- **Test contract:** the `**Tests:**` blocks and `- Test:` paths go in as contract only. No `SCOPED_TEST_COMMANDS` are passed, because the spec reviewer never executes anything.\n\n## 3. Snapshot cleanup timing\n\nA snapshot is removed only after its review report is terminal and saved to `/tmp/reports/wave-sr-taskN.md`:\n```bash\ngit -C '/workspace/project' worktree remove --force '<SNAP1>'\ngit -C '/workspace/project' worktree remove --force '<SNAP2>'\n```\n- **Spec gap found:** keep the snapshot until that report is saved. The implementer is re-dispatched (fresh, `worktree: true`, carrying the prior patch and the findings). The replacement patch then gets a new snapshot from the same base, and the re-review carries the `## Previous review report (re-review trigger)` marker.\n- **Failed snapshot:** keep it for diagnosis.\n\n## Boundary\n\nI stop here, at the dispatch. Reviewer verdicts are not yet known. Integration (`git -C /workspace/project apply --index ...`), the wave test gate, the wave code review, and the wave commit happen later: integration only after both tasks are accepted with spec ✅, and the commit only at step 7, after the gates pass.\n",
+      "words": 710,
+      "wallMs": 27357,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "### 1. Materialize one review snapshot per patch\n\nRun the following shell block. It leaves `/workspace/project` untouched and stops on any failure; retain a failed snapshot for diagnosis.\n\n```bash\nSR_ROOT=/workspace/project\nSR_BASE=1111111111111111111111111111111111111111\n\nSR1_DIR=$(mktemp -d /tmp/task1-spec-review.XXXXXX) || exit 1\nSR1=\"$SR1_DIR/tree\"\ngit -C \"$SR_ROOT\" worktree add --detach \"$SR1\" \"$SR_BASE\" || exit 1\ngit -C \"$SR1\" apply --index /tmp/reports/task1.patch || exit 1\nprintf 'Task 1 snapshot: %s\\n' \"$SR1\"\n\nSR2_DIR=$(mktemp -d /tmp/task2-spec-review.XXXXXX) || exit 1\nSR2=\"$SR2_DIR/tree\"\ngit -C \"$SR_ROOT\" worktree add --detach \"$SR2\" \"$SR_BASE\" || exit 1\ngit -C \"$SR2\" apply --index /tmp/reports/task2.patch || exit 1\nprintf 'Task 2 snapshot: %s\\n' \"$SR2\"\n\nexport SR1 SR2\n```\n\n**Whole-file read locations:**\n\n- Task 1: `$SR1/src/parse.ts` and `$SR1/tests/parse.test.ts`.\n- Task 2: `$SR2/src/format.ts`. The deleted file is intentionally absent. If needed, its prior contents are available with:\n  ```bash\n  git -C \"$SR2\" show \\\n    1111111111111111111111111111111111111111:src/legacy-format.ts\n  ```\n\n### 2. Dispatch the two spec reviewers in parallel\n\nBelow, `TASK_1_FULL_TEXT` and `TASK_2_FULL_TEXT` mean the existing full task texts, including their **unchanged `Spec:` anchors, `Tests:` blocks, and any `- Test:` paths**. Substitute those actual texts, not their variable names. Read the patch files into the payloads as shown.\n\n```ts\nsubagent({\n  context: \"fresh\",\n  async: false,\n  cwd: \"/workspace/project\",\n  concurrency: 2,\n  tasks: [\n    {\n      agent: \"spec-reviewer\",\n      cwd: process.env.SR1,\n      task: `\nReview Task 1 for spec compliance. This is a read-only review; do not\nexecute tests or modify files.\n\n## Full task and contract\n${TASK_1_FULL_TEXT}\n\n## Authoritative spec\n/workspace/project/doc/specs/feature.md\n\nRead the task's cited anchors directly from that absolute spec path.\nDo not substitute task text for an unreadable or unresolvable spec anchor;\nreport that as blocking.\n\n## Patch under review\n${readFileSync(\"/tmp/reports/task1.patch\", \"utf8\")}\n\n## Review source\nThe materialized snapshot at ${process.env.SR1}, based on\n1111111111111111111111111111111111111111 with Task 1's patch applied.\n\nStart from the patch, then read each touched file in full from this snapshot.\nThe Tests block and Test paths are contract, not execution instructions.\nVerify the change against the anchored spec: nothing missing, nothing extra.\n`,\n    },\n    {\n      agent: \"spec-reviewer\",\n      cwd: process.env.SR2,\n      task: `\nReview Task 2 for spec compliance. This is a read-only review; do not\nexecute tests or modify files.\n\n## Full task and contract\n${TASK_2_FULL_TEXT}\n\n## Authoritative spec\n/workspace/project/doc/specs/feature.md\n\nRead the task's cited anchors directly from that absolute spec path.\nDo not substitute task text for an unreadable or unresolvable spec anchor;\nreport that as blocking.\n\n## Patch under review\n${readFileSync(\"/tmp/reports/task2.patch\", \"utf8\")}\n\n## Review source\nThe materialized snapshot at ${process.env.SR2}, based on\n1111111111111111111111111111111111111111 with Task 2's patch applied.\n\nStart from the patch, then read each touched file in full from this snapshot.\nsrc/legacy-format.ts is deleted. Read its prior contents, if needed, using:\ngit show 1111111111111111111111111111111111111111:src/legacy-format.ts\n\nThe Tests block and Test paths are contract, not execution instructions.\nVerify the change against the anchored spec: nothing missing, nothing extra.\n`,\n    },\n  ],\n});\n```\n\nDo **not** set `worktree: true`: these are already-materialized, read-only review checkouts. Supply the authoritative spec by its absolute parent-worktree path, not by inlining excerpts.\n\n### Cleanup and commit timing\n\nOnly **after each reviewer’s terminal report is saved**, remove that reviewer’s snapshot:\n\n```bash\n# Deferred cleanup—not before the respective report is saved:\ngit -C /workspace/project worktree remove --force \"$SR1\"\ngit -C /workspace/project worktree remove --force \"$SR2\"\n```\n\nNo parent integration, code review, or commit occurs at this boundary. The wave commit remains deferred until accepted patches are integrated and the required test and review gates pass.\n",
+      "words": 514,
+      "wallMs": 33913,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "e3ebda560f419d6f359b26facaa13282c129fb54f1c09a36485704f5aa08cb22",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "4553a089a2e85612e74c232481a8dd791a73595702d5315f411226177207adb4",
+      "baselineOutputSha": "ce87dc1a2215c1fba3b43c7bd7569d3bb46797bfee54196b0c0e4ef13b563b90",
+      "candidateOutputSha": "d846807900dc5b55653a3355bad0ac40f7632c721d01d9c095c279c3b066b949",
+      "facts": {
+        "applied-snapshot": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "reviewer-cwd": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "authority-and-isolation": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "cleanup-after-report": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        }
+      },
+      "feedback": "After moved reviewer-cwd from fails to holds by adding a per-task `cwd: \"<SNAP1>\"` / `cwd: \"<SNAP2>\"` on each spec-reviewer task while keeping the top-level cwd at the implementation worktree and omitting `worktree: true`; Before only named the snapshot path inside the task text, so the reviewer's actual cwd was still the unchanged parent. Nothing regressed: both outputs materialize per-task detached checkouts at the recorded base with the patch applied (After's `apply --index` also stages the add/delete so the tree and index agree), both pass the spec solely as `/workspace/project/doc/specs/feature.md` plus anchors, both leave the parent untouched and defer code review, and both retain snapshots until the terminal report is saved before removing only those worktrees. Two small things worth carrying forward from Before into After's wording: the explicit instruction that the reviewer must not use the `doc/specs` copy inside the snapshot (After's cwd now points at the snapshot, so that copy is closer at hand), and an explicit `worktree remove --force` plus rebuild step for the fix-loop re-snapshot so a stale tree is never re-read.",
+      "wallMs": 19972,
+      "verdict": "improved"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "e3ebda560f419d6f359b26facaa13282c129fb54f1c09a36485704f5aa08cb22",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "4553a089a2e85612e74c232481a8dd791a73595702d5315f411226177207adb4",
+      "baselineOutputSha": "a6fd3380b2674f537fc979c5d4d8b55a2652e458d343e66aa10a2551bcd2eb8c",
+      "candidateOutputSha": "ccb9483a75378cd318b9bf27b4027d14f2676fff6f6562dba2bfa7f8c70b8f6c",
+      "facts": {
+        "applied-snapshot": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "reviewer-cwd": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "authority-and-isolation": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "cleanup-after-report": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        }
+      },
+      "feedback": "No fact moved: both outputs materialize each patch on the recorded base in a separate detached worktree with `git apply --index` before dispatch, give each spec-reviewer task its own snapshot cwd without `worktree: true`, keep the spec as the absolute `/workspace/project/doc/specs/feature.md` path, leave the parent untouched, defer code review, and remove snapshots only after terminal reports are saved. After is slightly tighter (per-reviewer cleanup bound to that reviewer's saved report, explicit fail-on-error with retained failed snapshots), which matches the Change's snapshot-failure intent. Minor things to keep an eye on in After: the Task 2 reviewer's `git show` lacks `-C \"$SR2\"` and relies on cwd, and Before's note that snapshots also stay alive through any fix/re-review loop is dropped—consider restoring that clause so cleanup timing stays explicit if a re-review is needed, while keeping the per-snapshot removal wording.",
+      "wallMs": 11451,
+      "verdict": "unchanged"
+    }
+  },
+  "repoSha": "530dce0097a4303c2199bc41ec3a42afce73b4b7"
+}

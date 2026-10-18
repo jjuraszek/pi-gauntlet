@@ -1,0 +1,3 @@
+- committed-range: judged: Uses the explicit base and implementation commit as the review range, not WORKTREE or a diff including unrelated uncommitted edits.
+- existing-checkout: judged: Reviews in /workspace/project without creating a per-patch snapshot or modifying notes.md.
+- scoped-gate: judged: Passes node --test tests/parse.test.ts as SCOPED_TEST_COMMANDS, does not run the full suite, and waits for code-review acceptance before task completion.

@@ -1,0 +1,4 @@
+- working-tree-source: judged: Uses BASE_SHA equal to the recorded wave base and HEAD_SHA WORKTREE for initial and repeated code review, with git diff against the current staged and unstaged checkout instead of base..HEAD.
+- fix-only-delta: judged: Preserves the staged reviewed tree while the repair runs, leaves the repair unstaged and uncommitted, includes the new repair test with intent-to-add before capturing git diff --binary, then stages repair deliverables before re-review.
+- repair-review-root: judged: Routes the behavior-changing repair through SR before CR and uses the current implementation worktree for SR whole-file reads, not an original per-patch snapshot.
+- gates-preserved: judged: Leaves HEAD and task completion unchanged pending accepted re-review, passes the scoped test command to CR, and does not run a full repository suite.

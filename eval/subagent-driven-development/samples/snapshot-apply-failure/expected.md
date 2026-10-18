@@ -1,0 +1,2 @@
+- fail-closed: judged: Stops review dispatch and reports the failed snapshot setup rather than reviewing the unchanged parent or treating the worker's DONE as acceptance.
+- evidence-retained: judged: Retains the failed snapshot for diagnosis and leaves the implementation worktree and task completion unchanged.

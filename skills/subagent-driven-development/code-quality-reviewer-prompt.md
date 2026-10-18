@@ -12,8 +12,8 @@ Dispatch a subagent with the code-reviewer template:
 
   DESCRIPTION: [task summary, from implementer's report]
   PLAN_OR_REQUIREMENTS: Task N from [plan-file]
-  BASE_SHA: [commit before task]
-  HEAD_SHA: [current commit]
+  BASE_SHA: [commit before task; wave: WAVE_BASE_SHA recorded before worker dispatch]
+  HEAD_SHA: [current commit; integrated uncommitted wave: the literal WORKTREE, including re-reviews]
   SCOPED_TEST_COMMANDS: [the consuming task's Tests: commands; wave reviews: the union of the wave's tasks' Tests: commands; `none` for the whole-diff verify-phase review]
 ```
 

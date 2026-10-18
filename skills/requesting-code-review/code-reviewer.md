@@ -40,9 +40,16 @@ Before writing the report:
 **Base:** {BASE_SHA}
 **Head:** {HEAD_SHA}
 
+Use a commit SHA for committed changes, or the literal `WORKTREE` for an integrated uncommitted wave. For `WORKTREE`, the caller stages every new deliverable before dispatch; read the current checkout, including staged and unstaged changes, against Base. Use the same source on re-review.
+
 ```bash
-git diff --stat {BASE_SHA}..{HEAD_SHA}
-git diff {BASE_SHA}..{HEAD_SHA}
+if [ "{HEAD_SHA}" = WORKTREE ]; then
+  git diff --stat {BASE_SHA} -- .
+  git diff --binary {BASE_SHA} -- .
+else
+  git diff --stat {BASE_SHA}..{HEAD_SHA}
+  git diff {BASE_SHA}..{HEAD_SHA}
+fi
 ```
 
 ## Review Checklist

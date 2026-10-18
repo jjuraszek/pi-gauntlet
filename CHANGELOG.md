@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Fixed
+
+- **Wave reviews inspect the implemented files.** Pre-integration spec reviews read a temporary checkout with the task's patch applied, including new and deleted files. Integrated code reviews compare staged and unstaged deliverables against the recorded wave base instead of an unchanged commit range; in-place repairs preserve that base and supply only their fix delta. Real Git fixtures cover both review sources and malformed patches. Paired with pi-cohort's binary-safe patch capture fix.
+
 ## v7.17.0 - 2026-10-18
 
 ### Changed

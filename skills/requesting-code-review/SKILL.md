@@ -25,7 +25,7 @@ Dispatch a subagent with the code-reviewer prompt template to catch issues befor
 
 ## How to Request
 
-**1. Get git SHAs:**
+**1. Select the review source.** For an integrated uncommitted wave, use its recorded base as `BASE_SHA` and the literal `WORKTREE` as `HEAD_SHA`; stage new deliverables before dispatch, per `code-reviewer.md`. For committed changes, get git SHAs:
 ```bash
 BASE_SHA=$(git rev-parse HEAD~1)  # or origin/main
 HEAD_SHA=$(git rev-parse HEAD)
@@ -47,7 +47,7 @@ subagent({ agent: "code-reviewer", async: false, task: "... filled template ..."
 - `{WHAT_WAS_IMPLEMENTED}` - What you just built
 - `{PLAN_OR_REQUIREMENTS}` - What it should do
 - `{BASE_SHA}` - Starting commit
-- `{HEAD_SHA}` - Ending commit
+- `{HEAD_SHA}` - Ending commit, or `WORKTREE` for an integrated uncommitted wave
 - `{DESCRIPTION}` - Brief summary
 - `{SCOPED_TEST_COMMANDS}` - the scoped verification commands the reviewer may run, or `none`
 
