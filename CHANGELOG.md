@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Changed
+
+- **`writing-plans` authors the plan through a fresh `plan-writer` child.** The main loop dispatches one `plan-writer` (`context: "fresh"`, spec, plan, and worktree paths in the task), runs `plan_check` once for the stamp, re-dispatches once with the verbatim findings when its check fails after a `PLAN WRITTEN` reply, and reads the finished plan once before `plan_tracker` init; the scout recon dispatch, the context-draft marker, and the parent's write-and-fix loop are gone. The amendment aftermath's plan edit goes through the same dispatch. New persona `agents/plan-writer.md` (model-free; `subagents.agentOverrides.plan-writer.model` overrides). (#69)
+
 ## v7.16.0 - 2026-10-18
 
 ### Added

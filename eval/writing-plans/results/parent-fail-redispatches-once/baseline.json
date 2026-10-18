@@ -1,0 +1,38 @@
+{
+  "sample": "parent-fail-redispatches-once",
+  "arm": "baseline",
+  "skillSha": "eed12212dd5b4117169f96e207fea8630a2fce41fa5a5e6d634f7b57ddc04203",
+  "inputSha": "eeae722efdcced2b6babf6d540cd98c06d48c2026a12458010eea6452f1d0133",
+  "kind": "text",
+  "assembly": "concat",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "# Narration: writing-plans, from the first `plan-writer` result onward\n\n**A gap in what I was given.** The skill excerpt in my context defines the recon `scout` template and the Execution Handoff. It does not include the `plan-writer` dispatch template or the `plan_check` loop rules. Those are in `/opt/pi/skills/writing-plans/reference/plan-contract.md`, which isn't shown to me. So I won't make up template wording. For each dispatch below, I give the fields I know and the content that must go in it.\n\n**Before result 1.** The skill requires a recon step first. I dispatched the `scout` using the fixed template, with only `<abs spec path>` = `/work/app/.worktrees/rate-limit/doc/specs/2026-03-16-rate-limit-header.md` filled in. The fields were:\n- `cwd: \"/work/app/.worktrees/rate-limit\"`\n- `phase: \"plan-recon\"`\n- `output: \"/work/app/.worktrees/rate-limit/doc/plans/2026-03-16-rate-limit-header.md\"`\n\nNo overrides file exists, so the plan cannot be split for deployment reasons. I then made the first `plan-writer` dispatch, per plan-contract.md.\n\n---\n\n**Tool result 1:** `PLAN WRITTEN /work/app/.worktrees/rate-limit/doc/plans/2026-03-16-rate-limit-header.md`\n\n- **Decision:** The writer says the plan is written, but I don't treat that as proof. I validate the file before self-review or handoff.\n- **Call:** `plan_check({ path: \"/work/app/.worktrees/rate-limit/doc/plans/2026-03-16-rate-limit-header.md\" })`\n\n**Tool result 2:**\n```\nFAIL (1 findings)\nsolo-line @ line 40: wave 2 has one task and no `Solo:` line\n```\n\n- **Decision:** There is one specific finding that can be fixed. Wave 2 needs a `Solo:` line that justifies why it has only one task. I don't edit the plan myself here, because the writer owns it. I send the finding back to the writer.\n- **Call:** a `plan-writer` dispatch on the same plan path, using the same `cwd` and spec path. The variable content is the `plan_check` output, passed verbatim:\n  > FAIL (1 findings)\n  > solo-line @ line 40: wave 2 has one task and no `Solo:` line\n  \n  The instruction is to fix this finding in place, add the missing `Solo:` line for wave 2, and leave all other content unchanged. I don't have the exact template wrapper text, so it isn't reproduced here.\n\n**Tool result 3:** `PLAN WRITTEN /work/app/.worktrees/rate-limit/doc/plans/2026-03-16-rate-limit-header.md`\n\n- **Call:** `plan_check({ path: \"/work/app/.worktrees/rate-limit/doc/plans/2026-03-16-rate-limit-header.md\" })`\n\n**Tool result 4:** The same two lines as result 2, byte for byte:\n```\nFAIL (1 findings)\nsolo-line @ line 40: wave 2 has one task and no `Solo:` line\n```\n\n- **Decision: STOP and hand off to the human.** The fix round made no progress:\n  - The writer reported success.\n  - The checker shows exactly the same failure at the same line.\n  \n  Sending it back again would just repeat a loop that isn't converging. Possible causes are a writer that isn't applying the edit, a disagreement over the `Solo:` format, or a checker bug. Silently retrying won't resolve any of these. Patching the plan myself would also bypass the writer/checker contract.\n- **What I do not do:**\n  - No `phase_tracker({ action: \"complete\", phase: \"plan\" })`. The plan phase stays `in_progress`.\n  - No `plan_tracker` init.\n  - No auto-invoke of `/skill:subagent-driven-development`.\n  - No commit of the plan. A plan that fails validation can't be executed.\n- **Message to the human:**\n  > The plan at `doc/plans/2026-03-16-rate-limit-header.md` fails `plan_check` with `solo-line @ line 40: wave 2 has one task and no Solo: line`. One fix round with `plan-writer` reported success, but the check output was byte-identical, so the fix isn't landing. Please choose one:\n  > 1. Inspect line 40 and confirm the intended `Solo:` format.\n  > 2. Let me add the `Solo:` justification directly.\n  > 3. Check whether `plan_check` is misreading the file.\n  >\n  > Execution is on hold until the plan passes.\n",
+      "words": 535,
+      "wallMs": 21572,
+      "mechanical": {
+        "f1": "holds"
+      }
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "I can’t faithfully supply the requested exact dispatch sequence from the information provided. The supplied skill text references Self-Review but does **not** include:\n\n- The `plan-writer` dispatch schema or required task template.\n- The `plan_check` invocation schema.\n- The repair/retry policy, including whether an identical second failure requires a human stop.\n\nThe contents of `/opt/pi/skills/writing-plans/SKILL.md` and its plan contract are not supplied, and you prohibited using tools to read them.\n\nFrom result 1 onward, the supported conclusions are:\n\n1. `PLAN WRITTEN` reports a saved file; it does not establish that the plan passed review. Before self-review, the saved plan’s first line must be confirmed not to be the recon draft marker.\n2. The first reported check fails because wave 2 lacks a required `Solo:` line. Planning must remain incomplete.\n3. The second writer response still does not establish correctness.\n4. The identical second check failure leaves the plan invalid. I must **not** call `phase_tracker` to complete planning, initialize `plan_tracker`, or invoke execution.\n\n**I stop here for the missing instructions**, not because the supplied skill establishes a “two identical failures” stop rule—it does not. Please provide the plan-writing and Self-Review sections, including their dispatch templates and retry policy. Inventing those would not be narrating “exactly as the skill prescribes.”\n",
+      "words": 205,
+      "wallMs": 16381,
+      "mechanical": {
+        "f1": "fails"
+      }
+    }
+  },
+  "repoSha": "e86b4d971430d8f2619b553d7c82e8020f6880b5"
+}

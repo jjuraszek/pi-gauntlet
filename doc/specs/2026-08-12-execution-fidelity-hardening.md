@@ -2,6 +2,7 @@
 
 > **Superseded by:** [doc/specs/2026-08-21-execution-latency-review-scoping.md](./2026-08-21-execution-latency-review-scoping.md) - the TDD out-of-scope decision only ("`skills/test-driven-development/SKILL.md` changes ... out of scope")
 > **Superseded by:** [doc/specs/2026-09-22-finish-stage-verification-scoping.md](./2026-09-22-finish-stage-verification-scoping.md) - the "ship-time re-run accepted, out of scope" note only (the `finishing-a-development-branch` Out of scope bullet and the tier-boundary paragraph's closing sentence)
+> **Superseded by:** [doc/specs/2026-10-18-gh-69-fresh-planner-child.md](./2026-10-18-gh-69-fresh-planner-child.md) - "Change 1: Plan-time recon in writing-plans" only (the `scout` recon dispatch, the `# CONTEXT DRAFT - NOT A PLAN` marker, and the parent's read-then-full-replacement write)
 
 **Goal:** Close three gaps where the execution pipeline improvises against (or violates) written skill contracts: plan-time recon is uncodified, the SR/CR review cadence is prose-only and was violated in practice, and test-scope wording drives full-CI runs per wave instead of once at verify.
 

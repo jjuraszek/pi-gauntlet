@@ -1,18 +1,19 @@
 # Subagent personas
 
-Deep reference for the 7 personas in [`agents/`](../agents/), dispatched via [pi-cohort](https://github.com/jjuraszek/pi-cohort). See the [README](../README.md) for the workflow overview; the frontmatter-knobs table and the rationale behind each pin are in [Frontmatter knobs](#frontmatter-knobs) below.
+Deep reference for the 8 personas in [`agents/`](../agents/), dispatched via [pi-cohort](https://github.com/jjuraszek/pi-cohort). See the [README](../README.md) for the workflow overview; the frontmatter-knobs table and the rationale behind each pin are in [Frontmatter knobs](#frontmatter-knobs) below.
 
 - `implementer` — strict RED→GREEN→REFACTOR TDD with test-economy defaults, completion-guarded.
 - `code-reviewer` — read-only review, Critical/Moderate/Minor severity, test-economy checks as Minor.
 - `spec-reviewer` — verifies an implementation against its plan/spec, per-requirement table.
 - `conformance-reviewer` — closing-loop intent gate; confronts the delivered code+docs against the *origin* (spec + verbatim prompt), skipping the plan, and emits a per-requirement coverage verdict. Spec clauses no human input required and nothing depends on are reported once as `UNAUTHORIZED` (over-spec), with `recommended: fix` only when removal is contained. Read-only; proposes remediation, never fixes or decides. Ships model-free — pin its model per preset (see [Configuration: conformance gate model](./configuration.md#conformance-gate-model)).
 - `spec-summarizer` - produces a plain-language briefing (at most 300 words) of one spec for the brainstorming user review gate. Fresh context, read-only (`tools: read`), reads only the spec it is given; output is ephemeral (rendered at the gate, never committed). Dispatched only by `brainstorming`; not for direct dispatch. Ships model-free - set `subagents.agentOverrides.spec-summarizer.model` per preset to override (unset -> inherits the main loop).
+- `plan-writer` - writes, checks, and repairs the implementation plan for one approved spec in a fresh context; the plan file is its only output and its reply is one line (`PLAN WRITTEN <path>` or `OPEN QUESTIONS <path>`). Runs its own `plan_check` loop (the stamp still comes from the parent's call). Dispatched only by `writing-plans`; not for direct dispatch. Ships model-free - set `subagents.agentOverrides.plan-writer.model` per preset to override (unset -> inherits the main loop, the same as `spec-summarizer`).
 - `spec-council-member` — adversarial single-model spec critic; one per configured council model. Flags unrelated extras or sufficient in-scope simplifications as `over-spec`; every report closes with a mandatory `lean:` line; findings other than `over-spec` end with `probed: <source or check> - <result>` or `probed: none`. Dispatched by `roasting-the-spec` and `shape-ticket` (the latter at `:low` thinking via a model-suffix override, for ticket roasts), and by brainstorming's `reference/amendment-surface.md` in `Mode: amendment-review` (a task-text discriminator; one `auto-apply | escalate` line per proposed spec amendment) on the main loop's own model and reasoning level.
 - `spec-council-synthesizer` — neutral chair that consolidates and adjudicates member critiques. Preserves `over-spec:` as a cluster prefix (an over-spec cluster loses only to a finding proving the clause load-bearing) and tallies `lean:` across members; tags each suggested edit `grounded:` (member probes support every assertion) or `hypothesis:`. Dispatched only by `roasting-the-spec` and `shape-ticket` (the latter at `:low` thinking via a model-suffix override, for ticket roasts).
 
 ## Where personas land
 
-On a user install the seven personas in `agents/` are symlinked into `getAgentDir()/agents` (profile-scoped user dir — `$PI_CODING_AGENT_DIR/agents`, default `~/.pi/agent/agents`). On a project install they are copied into `<repo>/.pi/agents/` (project scope, isolated per repo). Override precedence is `project > user > builtin`, so a project install always shadows the user personas for that repo, and you can hand-edit or drop your own `.pi/agents/<name>.md` to shadow them further.
+On a user install the eight personas in `agents/` are symlinked into `getAgentDir()/agents` (profile-scoped user dir - `$PI_CODING_AGENT_DIR/agents`, default `~/.pi/agent/agents`). On a project install they are copied into `<repo>/.pi/agents/` (project scope, isolated per repo). Override precedence is `project > user > builtin`, so a project install always shadows the user personas for that repo, and you can hand-edit or drop your own `.pi/agents/<name>.md` to shadow them further.
 
 Target dir override: set `PI_GAUNTLET_AGENT_DIR` to force symlinking into a specific dir (leading `~` expanded; always symlink mode). See [install-internals.md](./install-internals.md) for the full symlink-vs-copy mechanics.
 
@@ -38,16 +39,18 @@ Unset → provider default thinking for that model. `conformance-reviewer` and t
 
 Body text becomes the child's system prompt (`systemPromptMode: replace`). Frontmatter knobs are **not overridable** at `subagent()` call time; the only callable knobs are `model`, `task`, `output`, `outputMode`, `reads`, `progress`, `skill`. Preset-level `subagents.agentOverrides.<agent>` fills only fields the frontmatter left unset (pi-cohort `agents.ts`), so a frontmatter pin kills the config knob. Editing a persona body or frontmatter follows `/skill:forge-skill` `## Persona rules`.
 
-| Knob | implementer | code-reviewer | spec-reviewer | conformance-reviewer | spec-council-member | spec-council-synthesizer | spec-summarizer |
-|---|---|---|---|---|---|---|---|
-| `tools` | `read, write, edit, bash, grep, find, ls` | `read, grep, find, ls, bash` | `read, grep, find, ls, bash` | `read, grep, find, ls, bash` | `read, grep, find, ls, bash` | `read, grep, find, ls, bash` | `read` |
-| `thinking` | - | - | - | `xhigh` | `xhigh` | `xhigh` | - |
-| `defaultContext` | `fork` | `fresh` | `fresh` | `fresh` | `fresh` | `fresh` | `fresh` |
-| `inheritProjectContext` | `true` | `true` | `true` | `true` | `true` | `true` | `false` |
-| `inheritSkills` | `false` | `false` | `false` | `false` | `false` | `false` | `false` |
-| `completionGuard` | `true` | `false` | `false` | `false` | `false` | `false` | `false` |
+| Knob | implementer | code-reviewer | spec-reviewer | conformance-reviewer | spec-council-member | spec-council-synthesizer | spec-summarizer | plan-writer |
+|---|---|---|---|---|---|---|---|---|
+| `tools` | `read, write, edit, bash, grep, find, ls` | `read, grep, find, ls, bash` | `read, grep, find, ls, bash` | `read, grep, find, ls, bash` | `read, grep, find, ls, bash` | `read, grep, find, ls, bash` | `read` | `read, grep, find, ls, write, plan_check` |
+| `thinking` | - | - | - | `xhigh` | `xhigh` | `xhigh` | - | - |
+| `defaultContext` | `fork` | `fresh` | `fresh` | `fresh` | `fresh` | `fresh` | `fresh` | - |
+| `inheritProjectContext` | `true` | `true` | `true` | `true` | `true` | `true` | `false` | `false` |
+| `inheritSkills` | `false` | `false` | `false` | `false` | `false` | `false` | `false` | `false` |
+| `completionGuard` | `true` | `false` | `false` | `false` | `false` | `false` | `false` | `true` |
 
 Why each pin:
+
+- **`plan-writer` has `write` and `plan_check`, nothing else that mutates.** It writes one file (the plan) and validates it with the extension tool a `tools:` allowlist would otherwise exclude; `defaultContext` is unset because `writing-plans` names `context: "fresh"` on every dispatch, `inheritProjectContext: false` because the body reads `AGENTS.md` and the overrides file itself, and `completionGuard: true` because it is an implementing persona.
 
 - **Reviewers are fresh and read-only** (no edit tools) so they stay skeptical of the parent's context.
 - **`implementer` forks** the parent's session but `inheritSkills: false` avoids dispatch loops through skill discovery.
@@ -55,7 +58,7 @@ Why each pin:
 - **`thinking` unset on `implementer`/`code-reviewer`/`spec-reviewer`** so each preset supplies it (see [Thinking budgets](#thinking-budgets)). `conformance-reviewer` and the council pin `xhigh`: the gate often inherits the main session's model (`closureReview.model` unset) and must run at max budget regardless of preset config.
 - **`spec-council-*` keep `bash`** because it is in the output path: `roasting-the-spec` dispatches members with an `output:` path and pi-cohort injects `Write your findings to: <path>` into every such task (`single-output.ts` `injectSingleOutputInstruction`). Without a write-capable tool the member is told to write a file it cannot write; observed failures were preamble stubs and stalls, critique lost before the chair saw it. Members write via `cat > <output>`; the persona pins a read-only invariant otherwise, and verification scope is dispatch-supplied.
 - **`spec-summarizer` cannot satisfy that injected instruction** with `tools: read`; it relies on the harness persisting its final text to the path (`persistSingleOutput`) and a directive not to attempt the write. `brainstorming` dispatches it with an `output:` temp path + `outputMode: "file-only"` so the summary survives pi-condense and is read back verbatim.
-- **No `model:` on `spec-council-*`, `spec-summarizer`, `conformance-reviewer`.** The dispatching skill injects it per task: council from `piGauntlet.specCouncil.members` / `.chair`, summarizer from `subagents.agentOverrides.spec-summarizer.model`, conformance from `piGauntlet.closureReview.model` (repo-local first; `skills/verification-before-completion/reference/settings-precedence.md`). The phase-tracker guard blocks a conformance dispatch that omits `model:` inside a brainstorming-entered flow.
+- **No `model:` on `spec-council-*`, `spec-summarizer`, `plan-writer`, `conformance-reviewer`.** The dispatching skill injects it per task: council from `piGauntlet.specCouncil.members` / `.chair`, summarizer from `subagents.agentOverrides.spec-summarizer.model`, plan-writer omits `model:` from its dispatch so pi-cohort resolves `subagents.agentOverrides.plan-writer.model` (else the main loop's model), the same resolution as `spec-summarizer` and unlike council/conformance whose skills pass a resolved `model:` explicitly, conformance from `piGauntlet.closureReview.model` (repo-local first; `skills/verification-before-completion/reference/settings-precedence.md`). The phase-tracker guard blocks a conformance dispatch that omits `model:` inside a brainstorming-entered flow.
 
 `conformance-reviewer` diverges from `code-reviewer` deliberately: code-reviewer ranks bugs by severity; conformance-reviewer confronts the deliverable against the origin (spec + verbatim prompt, not the plan) and emits per-requirement `DELIVERED/PARTIAL/MISSING/DRIFTED/UNAUTHORIZED`. `UNAUTHORIZED` also covers spec-laundered excess: a spec clause no human input required and nothing depends on is reported once with origin `none (scope creep)` and an `evidence:` line opening `spec "<section>" - "<clause>" (over-spec)`; each row follows its `recommended` value (`fix` only when removal is contained). Dispatch it as its own call, never fused into the whole-PR code review.
 

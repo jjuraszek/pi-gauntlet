@@ -33,7 +33,7 @@ If no spec exists, recommend `/skill:brainstorming` and await the user's explici
 ## Boundaries
 
 - Read code and docs: yes
-- Write the plan to the sibling `plans/` dir of the spec: yes
+- Dispatch `plan-writer` to write the plan to the sibling `plans/` dir of the spec: yes; the main loop never writes it
 - Edit or create any other files: no
 - Write implementation code: never inside this skill. After Self-Review + `phase_tracker` complete, auto-invoke `/skill:subagent-driven-development` to execute.
 - Land the plan on `main`: no — the plan commit goes on the worktree branch (same branch as the spec)
@@ -50,25 +50,36 @@ If yes, decompose into separate plans, executed in order, and state the split an
 
 Otherwise one plan. Service, contract, or schema count is not a split signal - one concern routinely spans several. The concern test itself lives in `../shape-ticket/reference/split-axes.md` (resolve the path against this skill's own directory) and was applied upstream at spec time; plans do not re-litigate it. A single plan should land in one PR worth of work.
 
-## Recon (mandatory)
+## Author the plan
 
-Before mapping files, dispatch a scout to build the implementation map. Foreground, no announcement, no user interaction. The task template below is fixed — fill exactly **one** variable, the absolute spec path; compose nothing else:
+The main loop never writes the plan. One fresh `plan-writer` child does the recon, writes the plan at the plan path, runs `plan_check` itself, and repairs its own findings; the parent dispatches it, runs the stamping `plan_check`, and reads the finished plan once. Foreground, no announcement, no user interaction.
 
-```
-subagent({ agent: "scout", context: "fresh", async: false, cwd: "<abs worktree path>",
-  phase: "plan-recon", output: "<abs plan path — same filename as the spec, per the table above>",
-  task: <the fixed template below, with the spec path filled> })
-```
+1. The Overview already ran `phase_tracker({ action: "start", phase: "plan" })`, or skipped it because `plan` was `in_progress`. Set the substep: `phase_tracker({ action: "substep", phase: "plan", substep: "plan-write" })`.
+2. Resolve five absolute paths: the worktree (the `using-git-worktrees` Step 4 value), the spec, the plan (table above), this `SKILL.md`, and `reference/plan-contract.md` beside it - the last two from the loaded skill's path in the command's skill envelope or the absolute path used to read it.
+3. Entry branch. A plan file already at the plan path in a flow restored by `/skill:gauntlet-resume` is checked before anything overwrites it: skip to step 5. Otherwise dispatch:
 
-> Recon for implementation planning. Read the approved spec at `<abs spec path>` - it is the single source of truth for what is being built. Also read the repo's `AGENTS.md` and, if present, the gauntlet overrides file (checked in order: `.pi/gauntlet-overrides.md`, `gauntlet-overrides.md`, `doc/gauntlet-overrides.md` at the repo root) for conventions. Build an implementation map for the spec: exact file paths to create/modify/delete; existing call sites and tests with line ranges; conventions and patterns the plan must match; the project's test runner and the exact scoped-invocation form for running individual test files (derived from the repo's Makefile/bin/config and the overrides file); the style/lint and auto-format commands in both scoped per-file form and repo-wide form (same sources); separately, the full-suite verification entrypoint and whether it bundles style/format checks. When the overrides file has a `## Happy path` section, copy its table verbatim into your report under a `## Happy path` heading. Flag any spec claim that contradicts the code. Read-only recon: do not edit any file except writing your report to your output path. Start your report with the line `# CONTEXT DRAFT - NOT A PLAN - fully replaced at plan-writing` verbatim. End with an "Open questions that matter for the plan" section. Compact handoff, not a dump.
+   ```
+   subagent({ agent: "plan-writer", context: "fresh", async: false, cwd: "<abs worktree path>",
+     phase: "plan-write",
+     acceptance: { level: "none", reason: "the parent plan_check owns acceptance" },
+     task: <the fixed template below, with the five paths filled> })
+   ```
 
-Consumption:
+   > Write the implementation plan for the approved spec. Worktree: `<abs worktree path>`. Spec: `<abs spec path>`. Plan path: `<abs plan path>`. Plan skill: `<abs path to this SKILL.md>`. Plan contract: `<abs path to reference/plan-contract.md>`.
 
-- `Read` the draft at the plan path before mapping files — the on-disk copy is canonical (prune-proof, restart-proof).
-- The draft is a helper, not a fence: verify load-bearing claims against real code before planning against them.
-- Plan-writing is a **full-replacement `write`** at the same path. Re-read the draft in the same turn immediately before the overwrite. After the write, confirm line 1 is no longer the draft marker before self-review and handoff.
-- **Degradation:** the scout failed when its task errored or the output file is missing or empty. Proceed from your own reads with a one-line note; never block. If the file is absent, no marker check applies at the overwrite.
-- **Re-entry:** re-dispatching recon overwrites whatever the plan path holds — including a committed prior plan (recoverable from git history) or an uncommitted one (destroyed). Re-planning is a deliberate overwrite.
+   No `output:`, no `model:` (`subagents.agentOverrides.plan-writer.model` applies when set, else the child inherits the main loop). The `acceptance` line is required: without it pi-cohort appends a structured-report contract that the child's one-line reply would fail. Fill the five paths and, when step 6 or an amendment supplies one, append a `Findings:` or `Amend:` block after the template; compose nothing else.
+4. The dispatch errored, returned an async handle, or left the plan path missing or empty: stop and report. There is no parent-authored fallback.
+5. `plan_check({ planPath: "<abs plan path>" })` in the parent. This is the stamping call; run it whichever line the child replied with.
+6. Branch on the pair (child reply, parent check):
+   - `PLAN WRITTEN` + `PASS` -> step 7.
+   - `OPEN QUESTIONS` + any result -> present the plan's `## Open Questions` section to the user and wait (the Open-Questions halt; no `plan_tracker` init before the answers). After the answers, re-dispatch per step 3 with the answers as the `Findings:` block, then step 5.
+   - `PLAN WRITTEN` + `FAIL` -> re-dispatch per step 3 with the verbatim `FAIL (...)` output as the `Findings:` block, then step 5. Once per verbatim FAIL output: the same FAIL a second time goes to the user as an open question (the FAIL lines, verbatim), as an exhausted finding does.
+   - No child reply (the step 3 entry branch on a restored plan) -> read the result as if the reply were `OPEN QUESTIONS` when the plan carries an `## Open Questions` section, else `PLAN WRITTEN`, and take that reply's branch above; a `FAIL` re-dispatch overwrites the restored plan with a repaired one.
+7. Clear the substep (`phase_tracker({ action: "substep", phase: "plan", substep: null })`). Read the plan once, then `## Execution Handoff` as written below: `phase_tracker({ action: "complete", phase: "plan" })`, `plan_tracker({ action: "init", ... })` from the `W<k>: <title>` list, mode selection from the wave structure, `/skill:subagent-driven-development`.
+
+The parent holds no run id and never calls `resume` or `status`; every dispatch here is `async: false`. Re-entering this section without a restored plan overwrites whatever the plan path holds - a committed prior plan (recoverable from git history) or an uncommitted one (destroyed); re-planning is a deliberate overwrite. An amendment of the approved spec after the plan exists re-enters at step 3 with an `Amend:` block (brainstorming's `reference/amendment-surface.md` section 5 owns that call).
+
+The sections from `## File Structure` through `## Self-Review` are the plan contract: `plan-writer` reads and executes them; the main loop never does.
 
 ## File Structure
 
@@ -76,7 +87,7 @@ Consumption:
 
 List the files this implementation will create, modify, or delete. Group by component. This forces the design decisions out of the task list and into a single review surface.
 
-**Happy-path row selection.** When the recon report carries a `## Happy path` table, match the union of every task's `Files:` paths against the table's `Paths` prefixes (a path is inside a row when it starts with one of the row's prefixes). Two or more non-`cross-cutting` rows matched, or a path inside the `cross-cutting` row's own `Paths` and inside no other row's -> the `cross-cutting` row (no such row -> no line); this takes precedence. Otherwise exactly one non-`cross-cutting` row matched -> that row. No row matched, or no table -> no line. The selected row becomes the header's `**Happy path:**` line (below); the parent re-derives the row from the real diff at verify time, so this is the plan-time default and the `plan_check` anchor.
+**Happy-path row selection.** When the overrides file carries a `## Happy path` table, match the union of every task's `Files:` paths against the table's `Paths` prefixes (a path is inside a row when it starts with one of the row's prefixes). Two or more non-`cross-cutting` rows matched, or a path inside the `cross-cutting` row's own `Paths` and inside no other row's -> the `cross-cutting` row (no such row -> no line); this takes precedence. Otherwise exactly one non-`cross-cutting` row matched -> that row. No row matched, or no table -> no line. The selected row becomes the header's `**Happy path:**` line (below); the parent re-derives the row from the real diff at verify time, so this is the plan-time default and the `plan_check` anchor.
 
 ```markdown
 ## Files
@@ -157,7 +168,7 @@ Each step is **one action, 2-5 minutes**:
 
 **Spec:** `<project>/doc/specs/<same-filename-as-this-plan>.md`
 
-**Verification:** `<full verification command set — tests + style + format; a single bundling entrypoint, or the listed individual commands; from the recon report / project overrides>` - in a repo with per-service verification commands, list the command of every service the change affects (its own files or code it depends on; a repo-wide shared path such as root config, a lockfile, or a shared library affects every dependent service), taking the per-service commands from the overrides file or AGENTS.md when recon reports a single entrypoint
+**Verification:** `<full verification command set - tests + style + format; a single bundling entrypoint, or the listed individual commands; from your recon / the overrides file>` - in a repo with per-service verification commands, list the command of every service the change affects (its own files or code it depends on; a repo-wide shared path such as root config, a lockfile, or a shared library affects every dependent service), taking the per-service commands from the overrides file or AGENTS.md when recon reports a single entrypoint
 **Happy path:** <row label> - `<command from the selected row>` (~<Timeout from the row>)
 
 **Ticket:** `<ticket-id>` (omit if none)
@@ -259,9 +270,9 @@ If a decision is genuinely open, put it in an explicit **Open Questions** sectio
 
 ## Self-Review (Before Handoff)
 
-After drafting the plan and before announcing it complete, run the deterministic checker, then the judgment checks yourself — not a subagent dispatch.
+The plan-writer runs these before replying: the deterministic checker, then the judgment checks.
 
-- **Deterministic checker.** Run `plan_check({ planPath: "<abs plan path>" })` on the saved plan. Assess and fix every finding yourself (no human involvement), then re-run until it passes — a pass writes the execution stamp that implement-start verifies mechanically. If the same finding survives 3 fix rounds, convert it to an explicit Open Question and stop (the pre-existing Open-Questions halt, resolved by the human in-session — not a new gate). Findings are defined in [reference/plan-contract.md](reference/plan-contract.md).
+- **Deterministic checker.** Run `plan_check({ planPath: "<abs plan path>" })` on the saved plan. Assess and fix every finding yourself (no human involvement), then re-run until it passes - a pass in the child validates the plan; the parent's own `plan_check` writes the execution stamp that implement-start verifies mechanically. If the same finding survives 3 fix rounds, convert it to an explicit Open Question and stop (the pre-existing Open-Questions halt, resolved by the human in-session - not a new gate). Findings are defined in [reference/plan-contract.md](reference/plan-contract.md).
 - **Code-vs-anchor sanity.** For each task-owned requirement row, re-read the anchored spec lines and confirm the owner tasks' bodies do what they say - mechanism present, not just the quoted literal. For each `Verification` row, confirm the header command exercises the anchored requirement. Fix the task, don't annotate.
 - **Type / API consistency.** Function signatures and field names that appear in multiple tasks must match exactly. The plan is its own contract — internal contradictions surface as bugs during execution.
 - **Test contract.** Every code task's `Tests:` commands are anchored to its `Test:` path(s); `none:` only where no tests apply; a spec-named seam appears as `via:`, a spec-named fixture path as `Create:`. Prefer the existing test file for the behavior as `Test:`; a new test file is declared as both `Create:` and `Test:`.
@@ -286,7 +297,7 @@ Fix what this review finds before handoff.
 
 ## Execution Handoff
 
-After saving the plan, mark the planning phase complete, then initialize `plan_tracker` once with every plan task in wave order. Name each entry `W<k>: <title>` using its containing wave and task title. This is the execution list: do not initialize it again on continuation.
+After the parent `plan_check` passes and the plan has been read once (`## Author the plan` step 7), mark the planning phase complete, then initialize `plan_tracker` once with every plan task in wave order. Name each entry `W<k>: <title>` using its containing wave and task title. This is the execution list: do not initialize it again on continuation.
 
 ```
 phase_tracker({ action: "complete", phase: "plan" })
@@ -309,6 +320,7 @@ Auto-invoke `/skill:subagent-driven-development` in this session. Do not wait fo
 - Two tasks reference the same function with different signatures
 - Self-review skipped
 - About to start executing the plan yourself
+- A `scout` recon dispatch, or a parent `write`/`edit` on the plan path
 
 ## Project overrides
 
