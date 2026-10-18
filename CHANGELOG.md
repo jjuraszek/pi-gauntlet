@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Added
+
+- **Per-phase parent model switch, cache-warming warning, and per-call cache telemetry.** `piGauntlet.phaseModels` (`plan`, `implement`, `verify`, `ship` -> `provider/id[:level]`) switches the parent session's model and thinking level persistently when that phase starts; an unresolvable model, unknown `:level`, or missing auth prints one warning in the `phase_tracker` result and leaves the session unchanged. `start implement` warns when the active model declares no `promptCache` lifetime for the active retention tier, so pi's cache warmer never runs. Telemetry records one `[cache_read, cache_write, cache_write_1h]` triplet per parent call (`parent_calls`), and `gauntlet-performance` gains a `big` column with the count and share of >50k cache-write parent calls (#67).
+
 ## v7.15.0 - 2026-10-18
 
 ### Changed
