@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## v7.18.1 - 2026-10-19
 
 ### Removed
 
