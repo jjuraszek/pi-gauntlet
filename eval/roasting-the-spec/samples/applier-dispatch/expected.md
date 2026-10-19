@@ -1,0 +1,4 @@
+- snapshots: judged: Before dispatch copy the spec to /tmp/council-widgets/spec.before.md and capture git -C /tmp/acme/widgets-wt status --porcelain --untracked-files=all to /tmp/council-widgets/status.before.
+- fresh-dispatch: judged: Dispatch spec-council-applier as a fresh-context foreground single call, cwd /tmp/acme/widgets-wt, controls 300000/600000/900000; omit model, thinking and output pins.
+- full-context: judged: Task includes problem, absolute spec/chair/worktree and usable member paths (probe evidence only), verbatim human prompt and answer, acme/widgets#17 body and comment, and exact partial coverage.
+- protected-boundary: judged: Task supplies documentation guideline absolute path with not-external-reference protection and Amend-grant protection; delegate dispositions and spec edits to the applier instead of parent reading or adjudicating the chair.

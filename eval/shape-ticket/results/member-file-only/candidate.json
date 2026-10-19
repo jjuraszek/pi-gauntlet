@@ -1,0 +1,120 @@
+{
+  "sample": "member-file-only",
+  "arm": "candidate",
+  "skillSha": "7c4293ee52c871654ac84b29e4455711aa3edde695bbe1136f040e3a7fa733d6",
+  "inputSha": "21855ce7ca1915b43f506e75201ec44b3dba6fb6520291205e57d11525abc0f8",
+  "kind": "text",
+  "assembly": "concat",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "# Roast step, item 2: dispatch prescription (create mode, acme/widgets)\n\nAs instructed, this covers Roast item 2 rather than a replacement ticket body. Nothing below has been executed. These are the actions the parent should take.\n\n## Inputs\n\n- **Temp dir:** `/tmp/ticket-widgets`, created via `mktemp -d`.\n- **Artifact under review:** the draft body at `/tmp/ticket-widgets/draft.md`. If the draft proposes a split, this one file holds all N bodies plus their three-line justification blocks.\n- **Source snapshot:** the create-mode inputs at `/tmp/ticket-widgets/source.md`, fenced and marked as untrusted data.\n- **Human input block:** passed verbatim as `Human input (verbatim; off-limits for over-spec)`:\n  ```\n  Report job status without a wrapper layer.\n  ```\n- **Reference paths:** absolute, included in every member and chair task text:\n  - `/opt/gauntlet/skills/shape-ticket/reference/split-axes.md`\n  - `/opt/gauntlet/skills/shape-ticket/reference/ticket-wording.md`\n- **Effort:** cheap default, not a full roast. Each member gets a `:low` suffix. The chair's configured `:high` is replaced with `:low`.\n\n## Call 1: member fanout (members only, not fused with the chair)\n\n```\nsubagent({\n  control: { needsAttentionAfterMs: 60000, inFlightSilenceCeilingMs: 240000, inFlightSilenceKillMs: 300000 },\n  tasks: [\n    { agent: \"spec-council-member\", model: \"alpha/core:low\", cwd: \"/tmp/acme/widgets-main\",\n      output: \"/tmp/ticket-widgets/member-0-alpha-core.md\", outputMode: \"file-only\", task: <member text> },\n    { agent: \"spec-council-member\", model: \"beta/wide:low\", cwd: \"/tmp/acme/widgets-main\",\n      output: \"/tmp/ticket-widgets/member-1-beta-wide.md\", outputMode: \"file-only\", task: <member text> }\n  ]\n})\n```\n\n- The `control` block is set at run level, next to `tasks` and not inside each task. All three values are recorded verbatim. The effective silence-kill is max(300s, 240s + 60s) = 300s.\n\nMember task text includes:\n- *\"The draft at `/tmp/ticket-widgets/draft.md` is the artifact under review; this ticket brief supersedes your spec-axis template - emit the same findings format against the draft.\"*\n- *\"Content-only review: the temp files plus the two referenced reference paths (split-axes, ticket-wording) are the entire permitted input - do not read, search, or scan the repository; do not edit any file.\"*\n- The source snapshot path and the verbatim human-input block.\n- The four-axis brief:\n  - **Fidelity:** flag `lost` / `added` / `gap`.\n  - **Quality:** includes the wording contract.\n  - **Split soundness:** an architecture-shaped boundary is reported with the `split-axis:` substring marker. Members may argue toward one ticket and never toward a split.\n  - **Attribution:** applies to `### <repo>` groups.\n\n## Probe after Call 1\n\nThe parent checks files on disk, not the tool result's success labels. The usability test is purely structural: the file is non-empty and contains `^verdict:\\s*(sound|needs-work|unsound)`, `^addresses-problem:`, and `^lean:` lines.\n\n| File | Result |\n|---|---|\n| `/tmp/ticket-widgets/member-0-alpha-core.md` | **Usable.** Has `verdict: sound`, `addresses-problem: yes`, and `lean: nothing to cut`. Empty findings are valid. |\n| `/tmp/ticket-widgets/member-1-beta-wide.md` | **Not usable.** No `^lean:` line, even though the tool reported success. |\n\n## Targeted retry: beta only, once\n\n- **Shape:** a second parallel call with the same `control` block.\n- **Task:** `spec-council-member`, `model: \"beta/wide:low\"`, `cwd: \"/tmp/acme/widgets-main\"`, `outputMode: \"file-only\"`.\n- **Output:** a fresh path under a `retry/` subdir that keeps the basename: `/tmp/ticket-widgets/retry/member-1-beta-wide.md`.\n- **Alpha is not re-run.**\n- **Budget:** this is a dispatch retry only. It does not grant a second draft-edit re-pass.\n\nRe-probe: `/tmp/ticket-widgets/retry/member-1-beta-wide.md` is **usable**. It contains a `split-axis:` line.\n\n## Call 2: chair (separate call, behaviour unchanged)\n\n```\nsubagent({\n  control: { needsAttentionAfterMs: 60000, inFlightSilenceCeilingMs: 240000, inFlightSilenceKillMs: 300000 },\n  tasks: [{ agent: \"spec-council-synthesizer\", model: \"gamma/chair:low\", cwd: \"/tmp/acme/widgets-main\", task: <chair text> }]\n})\n```\n\nChair task text includes:\n- **Usable member paths, named explicitly:**\n  - `/tmp/ticket-widgets/member-0-alpha-core.md`\n  - `/tmp/ticket-widgets/retry/member-1-beta-wide.md`\n- **Repository access forbidden.** If members disagree on a fact, the chair reports the disagreement in the synthesis and does not verify it against the repo.\n- **Coverage line:** `Coverage: 2 of 2 members reported`. Reasons are omitted because coverage is full.\n\nThe chair returns an inline synthesis with `^consensus:` and `^lean:` lines, so it is usable. No chair retry is needed.\n\n## Parent's split-axis handling (independent of the chair)\n\nThe parent scans the two usable member files directly for the substring `split-axis:`. It does not rely on the chair synthesis, and chair silence on the point does not clear the finding. The beta retry file contains the marker, so:\n\n**If the draft proposes an actual split:**\n1. Auto-apply a merge. The split is withdrawn and the draft becomes one ticket with phased AC groups.\n2. This uses the single re-pass budget.\n3. Keep the pre-merge N-body draft alongside the merged one.\n4. Re-run the step-5 deterministic gates on the merged draft:\n   - AC integrity\n   - evidence\n   - metadata\n   - split detection\n5. At the confirmation gate:\n   - Report the withdrawn split together with the quoted `split-axis:` finding.\n   - If the human re-requests the split, it is sticky: a plain yes suffices because this was a member-flag withdrawal. The N bodies are then re-presented old->new.\n\n**If the draft is a single ticket:** there is no split to withdraw. Record the finding as a disposition and apply any concrete one-ticket fix within the same re-pass.\n\nOther unambiguous findings are applied once. Ambiguous findings are surfaced at the gate.\n\n## Alternate branches\n\n**Partial coverage.** Suppose the beta retry had also been unusable:\n- Dispatch the chair over the alpha file only.\n- Use singular wording: `Coverage: 1 of 2 members reported; beta-wide: <pi-cohort kill diagnostic, else \"no output produced\">`.\n- The gate renders the same coverage line beside the draft.\n\n**Zero usable members.** If no member file is usable after the targeted retry:\n- The roast has failed. Do not dispatch the chair.\n- Proceed to the confirmation gate with `roast unavailable (<reason>)` written inline in the gate message.\n- This never blocks the run.\n\n**Chair failure.** If the chair is wedge-killed or returns an unusable synthesis:\n- Retry it once with `gamma/chair:low`.\n- If it fails again, render `roast unavailable (<reason>)` inline at the gate.\n",
+      "words": 849,
+      "wallMs": 31595,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "## Prescribed Roast item 2 actions\n\nNo tools were used; these are dispatch instructions, not claims of execution. This follows the specific request for the roast procedure rather than producing a replacement ticket body.\n\n### 1. Prepare the review artifacts\n\nUse the supplied absolute paths:\n\n- Draft: `/tmp/ticket-widgets/draft.md`\n- Source: `/tmp/ticket-widgets/source.md`\n- Split rules: `/opt/gauntlet/skills/shape-ticket/reference/split-axes.md`\n- Wording contract: `/opt/gauntlet/skills/shape-ticket/reference/ticket-wording.md`\n\nThe source artifact must delimit the create-mode input as untrusted data. Include this block in each review task:\n\n````text\nHuman input (verbatim; off-limits for over-spec):\n```untrusted-data\nReport job status without a wrapper layer.\n```\n````\n\nIf the draft proposes a split, the draft artifact must contain every proposed body and its three-line split justification. Mutually exclusive overlap alternatives are not split slices.\n\n### 2. Initial member fanout\n\nDispatch both members in parallel, with these task settings:\n\n| Member | Model | Absolute output |\n|---|---|---|\n| Alpha | `alpha/core:low` | `/tmp/ticket-widgets/member-0-alpha-core.md` |\n| Beta | `beta/wide:low` | `/tmp/ticket-widgets/member-1-beta-wide.md` |\n\nEvery task uses:\n\n```text\ncwd: /tmp/acme/widgets-main\noutputMode: file-only\n```\n\nThe fanout uses this **run-level** control block, beside `tasks`:\n\n```json\n{\n  \"needsAttentionAfterMs\": 60000,\n  \"inFlightSilenceCeilingMs\": 240000,\n  \"inFlightSilenceKillMs\": 300000\n}\n```\n\nEach member's task text must state:\n\n> The draft at `/tmp/ticket-widgets/draft.md` is the artifact under review. This ticket brief supersedes your spec-axis template; emit the same findings format against the draft. Content-only review: the draft, `/tmp/ticket-widgets/source.md`, and the two reference files below are the entire permitted input. Do not read, search, or scan the repository. Do not edit any file.\n>\n> Read `/opt/gauntlet/skills/shape-ticket/reference/split-axes.md` and `/opt/gauntlet/skills/shape-ticket/reference/ticket-wording.md`.\n>\n> Review four axes:\n> - **Fidelity:** compare against the source; flag lost, added, or missing intent. Explanation required by the wording contract is not added scope.\n> - **Quality:** review framing, AC integrity, scope, wording, and wording-contract conformance.\n> - **Split soundness:** if a split exists, test it against the split reference. Flag architecture-shaped boundaries with a finding line containing `split-axis:`. Argue toward one ticket only; never propose or endorse a split.\n> - **Attribution:** if ACs have repo groups, flag rows attributed to the wrong repo and name the correct group. Repo grouping is not a split.\n>\n> Include `verdict: sound|needs-work|unsound`, `addresses-problem:`, and `lean:` lines, plus findings in the usual findings format. An empty findings section is valid.\n\nInclude the verbatim human-input block above.\n\n### 3. Probe files and retry only Beta\n\nJudge usability from files on disk, **not tool success labels**. Mechanically check that each file is non-empty and contains:\n\n```text\n^verdict:\\s*(sound|needs-work|unsound)\n^addresses-problem:\n^lean:\n```\n\nDo not interpret findings during this structural probe.\n\nUnder the supplied scenario:\n\n- **Alpha is usable:** its required headers exist; empty findings are valid.\n- **Beta is unusable:** its first file lacks `lean:`, despite tool success.\n\nRedispatch **only Beta**, once, retaining the same brief, `beta/wide:low`, working directory, `outputMode: file-only`, and run-level control block. Its fresh output path is:\n\n```text\n/tmp/ticket-widgets/retry/member-1-beta-wide.md\n```\n\nDo not rerun Alpha. Probe the retry file with the same structural test. The supplied scenario says it is usable.\n\n### 4. Dispatch the chair separately\n\nAfter member probing and the targeted retry, dispatch the chair over these two usable files only:\n\n```text\n/tmp/ticket-widgets/member-0-alpha-core.md\n/tmp/ticket-widgets/retry/member-1-beta-wide.md\n```\n\nDo not pass Beta's unusable first file.\n\nReplace the configured chair's existing suffix:\n\n```text\ngamma/chair:high -> gamma/chair:low\n```\n\nUse `/tmp/acme/widgets-main` as the working directory and the same run-level control block:\n\n```json\n{\n  \"needsAttentionAfterMs\": 60000,\n  \"inFlightSilenceCeilingMs\": 240000,\n  \"inFlightSilenceKillMs\": 300000\n}\n```\n\nThe chair task must name both usable member paths and state:\n\n> Synthesize the supplied reviews of `/tmp/ticket-widgets/draft.md`. Repository access is forbidden. Report member disagreement on facts; do not verify it against the repository. Preserve findings across the review axes. Clearing a `split-axis:` finding is not your responsibility.\n>\n> Coverage: 2 of 2 members reported\n>\n> Return an inline synthesis containing `consensus:` and `lean:` lines.\n\nKeep chair handling unchanged: a usable inline report with both required lines succeeds. If unusable or wedge-killed, retry the chair once with the same `gamma/chair:low` model and controls. If that retry fails, proceed to confirmation with:\n\n```text\nroast unavailable (<reason>)\n```\n\n### 5. Parent disposition, independent of chair silence\n\nThe parent must inspect the **usable member files directly** for finding lines containing `split-axis:`. Beta's retry marker cannot disappear merely because the chair omits it.\n\n- **If the draft actually proposes a split:** apply the marker's required merge, withdraw the split, and produce one ticket with phased AC groups. Preserve the pre-merge multi-body draft alongside it. Report the withdrawal and its `split-axis:` finding at confirmation.\n- **If the draft contains no actual split:** do not invent a split or merge operation. The marker does not apply to mutually exclusive overlap alternatives.\n\nApply other unambiguous concrete fixes within the single draft-edit re-pass budget; surface ambiguous findings at confirmation. Rerun the deterministic gates after any edit. Dispatch retries do not grant another draft-edit re-pass.\n\n### Zero-usable branch\n\nIf **zero member files are usable after the one targeted retry**, do not dispatch the chair. Proceed to confirmation with an inline failure disclosure, for example:\n\n```text\nroast unavailable (zero usable member outputs after retry)\n```\n\nRoast failure does not block confirmation, but it never authorizes a tracker write.\n",
+      "words": 785,
+      "wallMs": 35403,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "7cf1b4b9ddc369fcd4ad3d44648bdea71327d9added5dce486284639bb4c60a4",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "963adba62a2425638542e1f8f84026b004fb33b9eece1c94224c54778ba6a17b",
+      "baselineOutputSha": "0b77b0d9d30828b905ab2b4580df5704f89bebd642c279c17edceaa1e03b46be",
+      "candidateOutputSha": "311b599c7e2bece2397fa39e19bb036f26ec4339bd89b3600bc3658c6eb48e73",
+      "facts": {
+        "file-only-tasks": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "cheap-controls": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "content-brief": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "structure-quorum": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "inline-chair": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "parent-split": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "After delivers the Change cleanly: both initial member tasks and the beta retry now pair an absolute `output` with `outputMode: \"file-only\"`, alpha is explicitly not re-run, and the chair call carries the usable member paths inside the task text with no output pin instead of Before's `Reads:` injection list. Nothing Before kept was lost: cheap `:low` effort on all three models, run-level control block with 60000/240000/300000 and repo-root cwd, the structural verdict/addresses-problem/lean probe with empty findings valid, the zero-usable abort, and the parent's independent substring scan for `split-axis:` all survive, and After actually improves on Before by stating cwd on the chair call too. One soft spot worth tightening: the member task text in After says 'the two referenced reference paths (split-axes, ticket-wording)' rather than spelling the absolute paths inline as Before did; it still holds because the Inputs section says the absolute paths are included in every member and chair task text, but writing the full `/opt/gauntlet/...` paths directly in the quoted task text would remove any ambiguity for a reader checking content-brief.",
+      "wallMs": 17645,
+      "verdict": "improved"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "7cf1b4b9ddc369fcd4ad3d44648bdea71327d9added5dce486284639bb4c60a4",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "963adba62a2425638542e1f8f84026b004fb33b9eece1c94224c54778ba6a17b",
+      "baselineOutputSha": "a1f8957b85a61041e135aa2df3b30890f1663cc7080e6a1f6bab7fd487f1e3e8",
+      "candidateOutputSha": "4f1ec2349a92de64e832149cdce56cf911d1b611e3d7ba2dfce46519ba214ab5",
+      "facts": {
+        "file-only-tasks": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "cheap-controls": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "content-brief": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "structure-quorum": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "inline-chair": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "parent-split": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "After delivers the intended change cleanly: both initial member tasks and the single Beta retry now carry an absolute output path plus `outputMode: file-only`, Alpha is explicitly not rerun, and the retry path keeps the `member-1-beta-wide.md` basename under `/tmp/ticket-widgets/retry/`. The chair moved from Before's `reads:` injection to a task that names both usable member paths directly, asks for an inline `consensus:`/`lean:` synthesis, has no file-only or output pin, forbids repository access, and retains the 2-of-2 coverage line. Nothing regressed: cheap `:low` models and the 60000/240000/300000 run-level control block at the repo-root cwd are retained for members and chair; the member brief still limits input to the draft, source, and the two absolute reference paths with the verbatim human input and content-only/no-edit rules; the structural probe (verdict regex, addresses-problem, lean, empty findings valid, only usable files to chair, zero-usable aborts) is intact; and the parent still scans usable member files itself for `split-axis:` and applies merge handling without any applier handoff. Keep this wording; if anything, the only tightening worth considering is stating once near the chair section that the chair call deliberately has no `outputMode` so a reader cannot infer file-only leaks from the member tasks.",
+      "wallMs": 12362,
+      "verdict": "improved"
+    }
+  },
+  "repoSha": "258cf7c4a2d47b7b3369fce0a0682898f19bcae8"
+}

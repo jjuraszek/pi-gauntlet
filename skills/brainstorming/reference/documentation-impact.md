@@ -123,7 +123,7 @@ Doc updates ship in the same commit as the code and the conformance gate verifie
 Keep this list in sync with the skills that cite this doc:
 
 - `brainstorming` section 6 and `brainstorming/reference/spec-finalization.md` self-review and worker dispatch context.
-- `roasting-the-spec` member and chair dispatch context.
+- `roasting-the-spec` member, chair, and applier dispatch context.
 - `brainstorming/reference/amendment-surface.md` amendment-review dispatch context.
 - `writing-plans` - sources doc-update tasks from the spec's Documentation
   impact section.

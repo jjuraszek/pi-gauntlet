@@ -1,5 +1,7 @@
 # Spec: spec council ("roasting the spec")
 
+> **Superseded by:** [doc/specs/2026-10-19-council-file-only-applier.md](./2026-10-19-council-file-only-applier.md) - "Separation of powers" parent-as-executor clause and the member/chair dispatch shape only
+
 ## Context
 
 `/skill:brainstorming` currently ends a spec with two checks: an inline self-review pass, then a user review gate. The author (the parent agent) verifies its own spec alone; cross-model verification is ad-hoc and manual.

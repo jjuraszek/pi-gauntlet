@@ -12,6 +12,8 @@ Run `node eval/run.mjs shape-ticket --base 9287ab3` against the pre-fix referenc
 
 Keep the strict historical diagnostics below separate from the first-version delivery review. Historical corpus, labels, scores, and nonzero outcomes remain unchanged. The first-version bar uses source review of four saved overlap responses, clear duplication fixes, this focused regression, and package checks; compatible useful additions do not need perfect no-write wording. The text-target `report.md` records this focused evidence separately from `replay/report.md`, the historical report.
 
+The `member-file-only` sample alone bundles the complete `skills/shape-ticket/SKILL.md` and selects Roast item 2 over the replay's default Draft stage. It checks paired file-only member outputs on initial/retry tasks, cheap `:low` effort, structural quorum, unchanged inline chair and parent-owned split-axis handling. Existing sample bundles and historical replay evidence remain separate. This sample proves prescribed dispatches, not actual file transport or tracker writes.
+
 ## Read-only full-skill comparison
 
 `replay/` is a checkout-only history comparison, not a text sample target or a general eval kind. It loads the complete skill and referenced instructions from git for the baseline and the working tree for the candidate. Each cell sends exactly one scenario prompt. Only an instruction-map reader, read-only fixture tracker, controlled clock, and always-unavailable subagent stub are active. Built-in tools, MCP, extensions, and resource discovery are isolated; each cell uses fresh OS scratch cwd/agentDir and in-memory state.

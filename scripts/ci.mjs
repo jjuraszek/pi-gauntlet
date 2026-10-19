@@ -199,7 +199,9 @@ const tokenChecks = [
   ["agents/spec-council-member.md", "probed:", true],
   ["agents/spec-council-member.md", "End every finding with `probed:`", true],
   ["agents/spec-council-synthesizer.md", "grounded|hypothesis:", true],
-  ["skills/roasting-the-spec/SKILL.md", "clusters that assert data shape, ordering, or semantics", true],
+  ["agents/spec-council-applier.md", "clusters that assert data shape, ordering, or semantics", true],
+  ["skills/roasting-the-spec/SKILL.md", "outputMode: \"file-only\"", true],
+  ["skills/shape-ticket/SKILL.md", "outputMode: \"file-only\"", true],
   ["skills/brainstorming/reference/amendment-surface.md", "waives per-diff review", true],
   // #27 gate removal / amendment path
   ["skills/brainstorming/SKILL.md", "## Amending an approved spec", true],

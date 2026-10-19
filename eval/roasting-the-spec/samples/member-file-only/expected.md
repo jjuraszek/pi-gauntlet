@@ -1,0 +1,5 @@
+- paired-output: judged: Every initial member task and the beta retry task pairs an absolute output path with outputMode: "file-only"; retry preserves basename under /tmp/council-widgets/retry/.
+- only-failed: judged: Dispatch two initial members and retry only beta once with the complete same task; never rerun alpha.
+- controls-cwd: judged: Both calls are foreground with run-level controls 300000/300000/600000 and every task cwd is /tmp/acme/widgets-wt.
+- file-structure: judged: Check nonempty files and verdict sound|needs-work|unsound, addresses-problem and lean headers mechanically; empty findings is usable and tool success labels do not decide usability.
+- quorum-boundary: judged: Route only the two usable paths to the chair; zero usable after retry aborts to the gate. Do not follow the harness invitation or ingest findings.

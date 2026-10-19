@@ -590,6 +590,48 @@
     assert.deepEqual(h.readRecord().derived.council, EXPECTED_COUNCIL);
     assert.deepEqual(h.readRecord().derived.personas["spec-council-member"], { dispatches: 3, models: ["p/alpha:xhigh", "p/beta:high"], tokens: { input: 3, output: 0, cache_read: 0, cache_write: 0, cost: 0 } });
   });
+  for (const source of ["saved report", "inline report", "missing report"] as const) {
+    test(`council chair artifact: ${source}`, async () => {
+      const h = await boundInBrainstorm();
+      const chairPath = join(h.root, "chair.md");
+      if (source !== "missing report") writeFileSync(chairPath, source === "inline report" ? "consensus: sound\nclusters:\nresolved:\n" : CHAIR_TEXT);
+      await h.emit("tool_result", memberBatch());
+      await h.emit("tool_result", subagentResult([
+        { agent: "spec-council-synthesizer", exitCode: 0, model: "p/chair:medium", savedOutputPath: chairPath, usage: usage(1) },
+      ], source === "inline report" ? CHAIR_TEXT : `Output saved to: ${chairPath}`));
+      assert.equal(h.readFileCalls.filter((p) => p === chairPath).length, source === "inline report" ? 0 : 1);
+      await h.emit("message_end", assistant(AUDIT_TEXT));
+      assert.deepEqual(h.readRecord().derived.council, source === "missing report" ? undefined : EXPECTED_COUNCIL);
+    });
+  }
+  test("council accepts the applier audit before conflicting commit and chat audits", async () => {
+    const h = await boundInBrainstorm();
+    await h.emit("tool_result", memberBatch());
+    await h.emit("tool_result", chairResult());
+    await h.emit("tool_result", subagentResult([{ agent: "spec-council-applier", exitCode: 0, model: "p/applier", usage: usage(1) }], AUDIT_TEXT));
+    assert.deepEqual(h.readRecord().derived.council, EXPECTED_COUNCIL);
+    const conflictingAudit = AUDIT_TEXT.replace("Applied:", "Deferred:").replace("Deferred: none", "Applied: none");
+    await h.bash("c1", HEREDOC_COMMIT(conflictingAudit));
+    assert.deepEqual(h.readRecord().derived.council, EXPECTED_COUNCIL);
+    await h.emit("message_end", assistant(conflictingAudit));
+    assert.deepEqual(h.readRecord().derived.council, EXPECTED_COUNCIL);
+  });
+  test("council ignores a failed applier audit and records different dispositions from its successful retry", async () => {
+    const h = await boundInBrainstorm();
+    await h.emit("tool_result", memberBatch());
+    await h.emit("tool_result", chairResult());
+    await h.emit("tool_result", { ...subagentResult([{ agent: "spec-council-applier", exitCode: 1, usage: usage(1) }], AUDIT_TEXT), isError: true });
+    assert.equal(h.readRecord().derived.council, undefined);
+    const retryAudit = AUDIT_TEXT.replace("Applied:", "Deferred:").replace("Deferred: none", "Applied: none");
+    await h.emit("tool_result", subagentResult([{ agent: "spec-council-applier", exitCode: 0, usage: usage(1) }], retryAudit));
+    assert.deepEqual(h.readRecord().derived.council, {
+      ...EXPECTED_COUNCIL,
+      members: {
+        ...EXPECTED_COUNCIL.members,
+        "p/alpha:xhigh": { ...EXPECTED_COUNCIL.members["p/alpha:xhigh"], applied: counts(), unique_applied: counts(), deferred: counts(1) },
+      },
+    });
+  });
   test("council defaults missing chair model and survives unrelated result before audit", async () => {
     const h = await boundInBrainstorm();
     await h.emit("tool_result", memberBatch());

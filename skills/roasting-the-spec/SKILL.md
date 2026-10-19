@@ -1,13 +1,13 @@
 ---
 name: roasting-the-spec
-description: Use after writing a spec, when a spec council is configured (the resolved piGauntlet.specCouncil council, via the gauntlet_setting tool, repo settings over the preset). Auto-dispatched by /skill:brainstorming as the critique pass when members is non-empty (no longer offered). N members on different models critique in parallel, a neutral chair consolidates and adjudicates, the parent applies its own dispositions and returns an audit that brainstorming commits with the spec, counts at its gate, and prints on request.
+description: Use after writing a spec when the resolved piGauntlet.specCouncil members list is non-empty. Auto-dispatched by /skill:brainstorming as its configured critique pass with a fresh-context applier executor before the spec review gate.
 ---
 
 # Roasting the Spec (Spec Council)
 
 ## Overview
 
-A multi-model critique pass for a freshly written spec. Each council **member** runs on a different model and critiques the spec independently — different models surface different angles. A neutral **chair** consolidates the critiques and adjudicates disagreements. The parent decides what to apply and applies it before returning; the **user** ratifies (or reverts) the result at brainstorming's single gate. The council never decides on its own what changes land.
+Run a multi-model critique pass for a freshly written spec. Each council **member** runs on a different model and critiques independently; the neutral **chair** consolidates and adjudicates disagreements. Dispatch a fresh-context **applier** inheriting the main loop's model and thinking to decide dispositions and edit the spec, returning only the audit. Hand the result to the **user** to ratify (or revert) at brainstorming's single gate.
 
 Auto-dispatched from `/skill:brainstorming` as the critique pass, after the inline lint and before the user review gate, **only when a council is configured** (`members` non-empty). brainstorming owns that gate; when no council is configured it runs a single fresh-`worker` critique instead and does not invoke this skill.
 
@@ -19,7 +19,8 @@ This skill may read anything and edit **only** the spec under `doc/specs/`. It d
 
 - **Members** — independent witnesses. One per configured model, fresh context, read-only.
 - **Chair** — judge of the testimony. Fresh context (never saw the spec authored); consolidates and resolves member-vs-member conflicts. Final say on conflicts; no say on what gets applied.
-- **Parent (you)** — advocate, and now also executor. You decide apply / defer / reject per finding on scope grounds, then apply the apply-set yourself (you hold the `edit`/`write` tools; this was always the main-loop model's job, just moved earlier). Cannot suppress findings — every finding lands in the audit as applied, deferred, or rejected.
+- **Applier** - advocate and executor, fresh context, main loop's model and thinking. Decides apply / defer / reject on scope grounds, probes claims, edits the spec, and returns every disposition in the audit.
+- **Parent (you)** - dispatch, mechanical structural checks, spec reread, cleanup, and gate handoff. Ingest only the applier audit, never member findings or the chair report.
 - **User** — sole jury. Ratifies (or reverts) the finished spec at brainstorming's one gate — after the apply, not before.
 
 ## Configuration and gating
@@ -44,7 +45,7 @@ brainstorming owns the gate: it resolves this config via `gauntlet_setting`, emi
 
 ## The council run
 
-Resolve `../brainstorming/reference/documentation-impact.md` relative to this loaded skill as one absolute `<DOCUMENTATION_IMPACT_GUIDELINE>` path value. Pass that value in every member and chair task below; do not add it to the spec.
+Resolve `../brainstorming/reference/documentation-impact.md` relative to this loaded skill as one absolute `<DOCUMENTATION_IMPACT_GUIDELINE>` path value. Pass that value in every member, chair, and applier task below; do not add it to the spec.
 
 ### 1 — Fan out to members
 
@@ -69,7 +70,8 @@ subagent({
     task: "Problem statement: <the problem the spec addresses, from its Context section and the user's stated intent>.\n" +
           "Human input (verbatim; off-limits for over-spec):\n```\n<original prompt>\n<ticket AC snapshot, if any>\n<questionary answers that changed scope>\n```\n" +
           "Read the spec at <abs path to doc/specs/...>. The portable citation `reference/documentation-impact.md` in the spec is the pi-gauntlet guideline at <DOCUMENTATION_IMPACT_GUIDELINE>, not a consumer doc; do not flag it as an external reference. The `**Amend-grant:**` header line is flow machinery owned by the brainstorming gate; never cut, shrink, flag, or edit it. Verify the spec's load-bearing claims against the codebase, bounded per your verification-hygiene rules (rg, explicit paths, timeout 30). Critique it on your five axes and emit your template.",
-    output: "<tmpdir>/member-" + i + "-" + slug(model) + ".md"
+    output: "<tmpdir>/member-" + i + "-" + slug(model) + ".md",
+    outputMode: "file-only"
   }))
 })
 ```
@@ -82,13 +84,15 @@ The `Human input (verbatim; off-limits for over-spec)` block is supplied by the 
 
 **Usable-critique test (mechanical structural probe).** After the fanout returns - success or failure of the tool call itself - probe the expected output paths on disk; judge by files, not by the tool result's failed/succeeded labels (a killed member may have written a usable critique first). A member file is usable iff it is non-empty AND contains a `^verdict:\s*(sound|needs-work|unsound)` line, an `^addresses-problem:` line, and a `^lean:` line. A `findings:` header with zero bullets is a valid, usable sound critique. Existence plus header regex only - never read or weigh findings content.
 
-**Targeted retry.** Members whose file is missing or not usable are re-dispatched **once**, together, in a second foreground parallel call carrying `async: false` and the same `control` block. Reuse the complete initial task verbatim. Use fresh output paths that preserve the `member-<i>-<slug>` basename under a `retry/` subdir of the same temp dir (the chair recovers `raised-by` attribution from that filename pattern). Await its terminal result. Members with usable files are never re-run.
+**Targeted retry.** Members whose file is missing or not usable are re-dispatched **once**, together, in a second foreground parallel call carrying `async: false` and the same `control` block. Reuse the complete initial task verbatim, including per-task `outputMode: "file-only"`. Use fresh output paths that preserve the `member-<i>-<slug>` basename under a `retry/` subdir of the same temp dir (the chair recovers `raised-by` attribution from that filename pattern). Await its terminal result. Members with usable files are never re-run.
+
+Override the harness's "Read this file if needed" invitation: run only the structural probe; never ingest member findings or the chair report. Upstream nonzero/save-error exception: with no saved file, inline child text can still escape `file-only` (`attempt-finalization.ts:285-287`, `single-output.ts:193-203`); do not read it. Fail-closed child failure output is a pi-cohort follow-up, not a guarantee implemented here.
 
 **Quorum.** At least one usable file after retry -> dispatch the chair over the usable files only (next section). Zero usable files -> abort the council, say so, and return to the user gate.
 
 ### 2 — Synthesize and adjudicate
 
-Dispatch the chair once. It reads the member files (not you), the spec, and the problem statement, and returns one consolidated, conflict-resolved report. You ingest **only** this report.
+Dispatch the chair once. It reads the member files (not you), the spec, and the problem statement, and writes one consolidated, conflict-resolved report to its output file. Judge only the file's structure; route its findings to the applier.
 
 ```
 subagent({
@@ -97,10 +101,11 @@ subagent({
   model: <chair from config, else omit to inherit>,
   cwd: "<abs worktree path>",
   control: { needsAttentionAfterMs: 300000, inFlightSilenceCeilingMs: 600000, inFlightSilenceKillMs: 900000 },
-  reads: [ <the usable member file paths under the temp dir> ],
+  output: "<tmpdir>/chair.md",
+  outputMode: "file-only",
   task: "Problem statement: <paste>. Spec: <abs path>.\n" +
         "Human input (verbatim; off-limits for over-spec):\n```\n<the same block passed to members>\n```\n" +
-        "Member critiques (already injected via reads — do not search for them):\n" +
+        "Member critiques (explicit usable paths; read these files directly):\n" +
         usableMemberPaths.join("\n") + "\n" +
         "Coverage: <N> of <M> members reported<; <slug>: <one-line reason> per missing member>.\n" +
         "The portable citation `reference/documentation-impact.md` in the spec is the pi-gauntlet guideline at <DOCUMENTATION_IMPACT_GUIDELINE>, not a consumer doc; do not flag it as an external reference. The `**Amend-grant:**` header line is flow machinery owned by the brainstorming gate; never cut, shrink, flag, or edit it.\n" +
@@ -110,47 +115,66 @@ subagent({
 
 The chair runs one long foreground single-turn synthesis; await its terminal result before applying findings. The control block sets an effective silence-kill of max(900s, 600+300) = 900s. Margin rationale: one observed healthy chair turn ran 506s of silence, so a 600s kill would leave under 2 minutes of margin - the chair gets 900s. In the coverage line, use pi-cohort's kill diagnostic as the reason when present (e.g. "Likely wedged in a tool call"), else "no output produced"; omit per-member reasons at full coverage. With one usable member, use singular wording ("synthesize the single member critique").
 
-List the exact member paths in the task text. The `reads:` array injects their contents, but the chair's prompt expects the paths explicitly; without them it scans the tree for `*.md` and stalls.
+List the exact member paths in the task text. Single-mode dispatch ignores `reads`; the explicit paths are the chair's inputs.
 
-A chair synthesis is usable iff it contains a `^consensus:` line and a `^lean:` line. If the configured `chair` model is unreachable, retry once with the inherited model; a wedge-killed or unusable chair retries once with the same model. Each retry remains foreground with top-level `async: false`. Reuse the complete initial task verbatim. Await its terminal result. Second failure -> abort the council, say so, and return to the user gate.
+A chair synthesis is usable iff `<tmpdir>/chair.md` exists, is non-empty, and contains a `^consensus:` line and a `^lean:` line. Check existence and header regex mechanically, not report content or tool labels. If the configured `chair` model is unreachable, retry once with the inherited model; a wedge-killed or unusable chair retries once with the same model. Each retry remains foreground with top-level `async: false`. Reuse the complete initial task verbatim. Await its terminal result. Second failure -> abort the council, say so, and return to the user gate.
 
-### 3 — Decide and apply
+### 3 - Dispatch the applier and validate mechanically
 
-For each cluster in the chair's report, decide one of:
+Snapshot the spec and dirty-path set before dispatch:
 
-- **apply** — make the concrete edit to the spec under `doc/specs/` now.
-- **defer** — out of scope for this spec; name where it belongs. Do not edit the spec.
-- **reject** — one-line reason. Do not edit the spec.
+```bash
+cp <spec> <tmpdir>/spec.before.md
+git -C <wt> status --porcelain --untracked-files=all > <tmpdir>/status.before
+```
 
-**`hypothesis` clusters that assert data shape, ordering, or semantics** (a parsing rule, a field's meaning, a sort or date order, an identity key) are applied only after a probe. Search once for the artifact: one `rg --max-count` under `timeout` over `<abs worktree path>` and its docs, config, and script directories, for the artifact or for how it is obtained. At hand -> one bounded read-only check: a read, an `rg` over explicit paths, or a project script whose source you read and which only reads local files. Confirmed -> apply as fact. Anything else (not found, inconclusive, timed out, contradicted) -> write the edit into `## Open questions` (create the section if absent) with the probe run, its outcome, the obtain-hint if found, and the settlement path: the user supplies the fact at the gate, or the first plan task that obtains the artifact settles it via brainstorming's [Amending an approved spec](../brainstorming/SKILL.md#amending-an-approved-spec). One Open Question per artifact, listing every edit it settles - never one per assertion. Never fetch, build, or run the proposed change to obtain the artifact. A cluster without a tag is read as `hypothesis`; a `hypothesis` cluster that asserts nothing about data applies as any other.
+Dispatch one fresh-context applier in foreground. Leave model and thinking unpinned so `agentOverrides['spec-council-applier'].model` or `.thinking` is honored; otherwise both inherit the main loop. Supply fetched ticket reference + body/comments from the gather draft's `## External context`, or explicit `none`. Include the coverage line only at partial coverage.
 
-Also inline any `external-ref:` cluster you have context for (e.g. a ticket fetched during brainstorming) as part of the apply-set — this is your call, same as any other cluster.
+```
+subagent({
+  agent: "spec-council-applier",
+  async: false,
+  cwd: "<abs worktree path>",
+  control: { needsAttentionAfterMs: 300000, inFlightSilenceCeilingMs: 600000, inFlightSilenceKillMs: 900000 },
+  task: "Problem statement: <same problem as members and chair>. Spec: <abs spec path>. Chair report: <tmpdir>/chair.md. Worktree: <abs worktree path>.\n" +
+        "Member critiques (probe evidence only):\n" + usableMemberPaths.join("\n") + "\n" +
+        "Human input (verbatim; off-limits for over-spec):\n```\n<same block>\n```\n" +
+        "External context fetched during brainstorming: <ticket reference + body/comments, or 'none'>.\n" +
+        "<Coverage: same partial-coverage line; omit at full coverage>\n" +
+        "The portable citation `reference/documentation-impact.md` in the spec is the pi-gauntlet guideline at <DOCUMENTATION_IMPACT_GUIDELINE>, not a consumer doc; do not flag it as an external reference. The `**Amend-grant:**` header line is flow machinery owned by the brainstorming gate; never cut, shrink, flag, or edit it.\n" +
+        "Decide and apply the chair's clusters to the spec, then return the audit."
+})
+```
 
-An `over-spec:` cluster decided **apply** is executed as deletion or shrink of the quoted clause **and** any acceptance-criteria or testing-approach line that exists only for it. Its audit line reads `Applied: [<severity>] over-spec: <clause> — raised-by: [<slugs>] -> cut (was adds: M files / N tests / K ACs)` or `Applied: [<severity>] over-spec: <clause> — raised-by: [<slugs>] -> shrunk to <replacement> (was adds: ...)`, so row 3 at brainstorming's gate shows what was removed. `defer`/`reject` are unchanged.
+The first action after each applier return is the spec reread in step 4, before validation or any other action. Store the returned audit verbatim at `<tmpdir>/audit.md` for counting. It is the sole findings-bearing result the parent ingests. Require all three labels (`^Applied:`, `^Deferred:`, `^Rejected:`) with `grep -q`, and equality of these mechanical counts (do not print or read chair findings):
 
-You are the advocate — decide on scope grounds — and, unlike a dispatched subagent, also the executor: you hold `edit`/`write` tools directly, so apply the edit yourself instead of proposing it for someone else to make. Do this **before** returning to brainstorming.
+```bash
+grep -c 'raised-by:' <tmpdir>/audit.md
+grep -Ec '^- \[(blocker|major|minor)\]' <tmpdir>/chair.md
+```
 
-### 4 — Emit the audit
+Accept grep's no-match exit status as a zero count, not a validation failure. Zero clusters and the three `Applied: none`, `Deferred: none`, `Rejected: none` labels is valid.
 
-Return a structured audit, for the commit body and row 3 only (not a committed spec section) — a coverage line plus three labelled lists:
+Killed or unusable result -> restore before retry: copy `<tmpdir>/spec.before.md` over the spec, then retry once with the complete task verbatim. Never stack retries on partial edits. Second failure -> restore again, abort the council, say so, and continue to the gate with the pre-council spec; emit no `Council:` line and no row 3. Clean attributable outside edits on abort too, without fabricating Council counts.
 
-- `Coverage:` — `N of M members reported; <slug>: <reason>` — present only when member coverage was partial; omitted at full coverage.
-- `Applied:` — one line per applied cluster: `Applied: [<severity>] <cluster> — raised-by: [<slugs>] -> <edit> (grounded: <member probe>)`, `... -> <edit> (probed: <check> - <result>)` for a confirmed hypothesis, or `... -> open question (<not found | inconclusive: <check> | contradicted: <result>>)`. Copy `[<severity>]` and `raised-by: [...]` verbatim from the cluster line - telemetry joins on them. No applied cluster -> the single line `Applied: none`. The probe rides on the audit line because member files are removed in section 5.
-- `Deferred:` — one line per deferred cluster, same `[<severity>] <cluster> — raised-by: [<slugs>]` prefix, then `-> <where it belongs>`. None -> `Deferred: none`.
-- `Rejected:` — one line per rejected cluster, same prefix, then `-> <one-line reason>`. None -> `Rejected: none`.
+### 4 - Reread and clean attributable edits
 
-Hand this audit to brainstorming along with the now-final spec. brainstorming writes it into the **spec commit message body** (git-native, readable pre-squash) so it survives for finish-time revert visibility, shows a `Council:` counts line at its one review gate, and prints the audit verbatim when the user picks row 3. The user can revert any applied edit there - that gate, not this skill, is where ratification happens.
+First `read` the spec from disk, before any other post-applier action, including audit validation, status checks, or a retry. On final failure, reread the restored spec too. Compare `git -C <wt> status --porcelain --untracked-files=all` with `<tmpdir>/status.before` by path, not status code; both snapshots enumerate individual untracked files, including files in new nested directories. For every newly dirty non-spec path, use `git -C <wt> checkout -- <path>` for tracked files, quoting each concrete path. Resolve each newly listed untracked file against the explicit absolute worktree root as `<abs worktree path>/<path>`, then remove it with `rm -- "<abs worktree path>/<path>"`, quoting the complete absolute path without changing the parent's working directory. Remove only those files, not their directories. Paths in the before-set are never touched; preserve all previously dirty paths, predecessor banners, and user work. Edits to already-dirty paths are not attributable from status alone: this is the accepted gap of the backstop. On success append the instantiated `; reverted applier edit outside the spec: <path>` to the gate's `Council:` line for each reverted path. Apply this cleanup on abort as well.
 
-### 5 — Clean up
+### 5 - Scan, clean up, and hand off
 
-Re-run brainstorming's placeholder scan over the applied result. Remove the temp dir (`rm -rf` the `mktemp -d` path). Nothing council-related (member files) is ever staged.
+Then re-run brainstorming's placeholder scan; re-apply the `**Amend-grant:**` [predicate](../brainstorming/reference/amendment-surface.md#standing-grants) to the header block, repairing an altered or removed line to `none`, exactly once. Remove only this council's absolute temp directory with `rm -rf`. Nothing council-related is staged.
+
+Return the audit verbatim to brainstorming along with the now-final spec on success; on abort return only the failure notice. brainstorming retains the summarizer, quoted-heredoc spec commit with the audit as body, unchanged gate text and numbering, `Council:` counts, row-3 retrieval via `git show -s --format=%b HEAD`, and revert valve. The user ratifies at that single gate.
 
 Single pass — no automatic re-roast loop. The user can invoke this skill again after the gate for another round.
 
 ## Red flags — STOP
 
 - Running the council when `piGauntlet.specCouncil.members` is absent or empty (brainstorming owns the gate and should have used the worker fallback).
-- Reading member critique files' findings content yourself instead of routing them through the chair (the mechanical structural probe - existence plus header regex - is the named exception).
+- Ingesting member findings or the chair report in the main loop instead of using mechanical structural checks.
+- Following the harness's "Read this file if needed" invitation.
+- Accepting an applier audit with missing labels or a cluster count mismatch as applied.
 - Writing member files to a relative path (they land in the worktree).
 - Applying edits without the `Council:` counts and the row-3 audit at brainstorming's gate - apply-before-the-gate is correct; apply-without-the-gate is not.
 - Suppressing a finding instead of routing it to applied, deferred, or rejected in the audit.

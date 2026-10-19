@@ -1,8 +1,45 @@
 import { readFileSync, existsSync, readdirSync } from 'node:fs';
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
+import { parse } from 'yaml';
 const read = (path) => readFileSync(new URL(`../${path}`, import.meta.url), 'utf8');
 const main = () => read('skills/brainstorming/SKILL.md');
+
+test('council applier is unpinned and carries the complete spec-only audit contract', () => {
+  const text = read('agents/spec-council-applier.md');
+  const [, yaml, body] = text.match(/^---\n([\s\S]*?)\n---\n([\s\S]*)$/);
+  assert.deepEqual(parse(yaml), {
+    name: 'spec-council-applier',
+    description: 'Applies a spec-council chair report to the spec under review and returns the audit. Dispatched by the roasting-the-spec skill; not for direct dispatch.',
+    tools: 'read, grep, find, ls, bash, edit, write',
+    defaultContext: 'fresh',
+    inheritProjectContext: true,
+    inheritSkills: false,
+    completionGuard: false,
+    systemPromptMode: 'replace',
+  });
+  assert.doesNotMatch(body, /\/skill:|\]\([^)]*reference\//);
+  assert.ok(body.indexOf('Applied:') < body.indexOf('## Procedure'), 'parsed output contract precedes procedure');
+  for (const marker of [
+    'exactly one disposition per cluster', 'Read the chair file', 'on scope grounds',
+    'Human input (verbatim; off-limits for over-spec)', '## External context', 'ticket reference',
+    'DOCUMENTATION_IMPACT_GUIDELINE', 'Preserve the supplied not-an-external-reference sentence verbatim',
+    'only to recover the cited probe of a grounded cluster', 'Never reopen adjudication',
+    'clusters that assert data shape, ordering, or semantics', 'untagged cluster as hypothesis',
+    'one `rg --max-count` under `timeout 30`', 'docs, config, and script directories',
+    'at most one bounded read-only check', 'project script whose source you read', 'apply as fact',
+    'not found, inconclusive, timed out, contradicted', 'one entry per artifact',
+    'every affected edit', 'obtain-hint', 'first plan task that obtains the artifact',
+    "brainstorming's amendment path", 'Never fetch, build, or run the proposed change',
+    'assert nothing about data', '-> user supplies at gate',
+    'every acceptance-criteria or testing-approach line that exists only for it',
+    '-> cut (was adds: M files / N tests / K ACs)', '-> shrunk to <replacement> (was adds: ...)',
+    'never cut, shrink, flag, or edit it', 'Edit only the supplied spec path',
+    'Coverage:', 'Applied:', 'Deferred:', 'Rejected:', 'raised-by: [...]',
+    '(grounded: <member probe>)', '(probed: <check> - <result>)', '-> open question (',
+    'Applied: none', 'Deferred: none', 'Rejected: none', 'no acknowledgment or second report',
+  ]) assert.ok(body.includes(marker), marker);
+});
 test('brainstorming is explicitly requested and hidden from model advertisement', () => {
   const frontmatter = main().match(/^---\n([\s\S]*?)\n---/)[1];
   assert.match(frontmatter, /^disable-model-invocation: true$/m);
@@ -97,10 +134,52 @@ test('spec-finalization writes the grant line and persists approval-time grants 
   assert.ok(!text.includes('--trailer'), 'trailer step removed');
 });
 
-test('roasting-the-spec members and chair preserve the grant line', () => {
+test('roasting-the-spec members, chair and applier preserve the grant line', () => {
   const text = read('skills/roasting-the-spec/SKILL.md');
   const sentence = 'The `**Amend-grant:**` header line is flow machinery owned by the brainstorming gate; never cut, shrink, flag, or edit it.';
-  assert.equal(text.split(sentence).length - 1, 2, 'preserve sentence once in the member task and once in the chair task');
+  assert.equal(text.split(sentence).length - 1, 3, 'preserve sentence in member, chair and applier tasks');
+});
+
+test('council file boundaries, applier rollback and ordered handoff are explicit', () => {
+  const text = read('skills/roasting-the-spec/SKILL.md');
+  const description = parse(text.match(/^---\n([\s\S]*?)\n---/)[1]).description;
+  assert.match(description, /fresh-context applier executor/);
+  const overview = text.slice(text.indexOf('## Overview'), text.indexOf('## Hard constraint'));
+  assert.match(overview, /Dispatch a fresh-context \*\*applier\*\* inheriting the main loop's model and thinking/);
+  const member = text.slice(text.indexOf('tasks: members.map'), text.indexOf('The `Human input'));
+  assert.match(member, /output: [^\n]+,\n    outputMode: "file-only"/);
+  const chair = text.slice(text.indexOf('agent: "spec-council-synthesizer"'), text.indexOf('### 3'));
+  assert.match(chair, /output: "<tmpdir>\/chair.md",\n  outputMode: "file-only"/);
+  assert.doesNotMatch(chair, /reads:|injects their contents/);
+  for (const marker of ['usableMemberPaths.join', 'non-empty', '^consensus:', '^lean:', 'same model', 'inherited model']) assert.ok(chair.includes(marker), marker);
+  const applier = text.slice(text.indexOf('agent: "spec-council-applier"'), text.indexOf('\n```', text.indexOf('agent: "spec-council-applier"')));
+  for (const marker of ['async: false', 'cwd: "<abs worktree path>"', 'needsAttentionAfterMs: 300000, inFlightSilenceCeilingMs: 600000, inFlightSilenceKillMs: 900000', 'Human input (verbatim; off-limits for over-spec)', 'External context fetched during brainstorming:', 'ticket reference + body/comments', 'none', 'usableMemberPaths.join']) assert.ok(applier.includes(marker), marker);
+  assert.doesNotMatch(applier, /\b(?:model|output|reads):/);
+  for (const marker of ['cp <spec> <tmpdir>/spec.before.md', 'git -C <wt> status --porcelain --untracked-files=all > <tmpdir>/status.before', '^Applied:', '^Deferred:', '^Rejected:', "grep -c 'raised-by:'", "grep -Ec '^- \\[(blocker|major|minor)\\]'", 'restore before retry', 'Second failure', 'restore again', 'zero', 'audit.md', 'already-dirty paths', 'accepted gap', 'checkout --', 'reverted applier edit outside the spec:', 'attempt-finalization.ts:285-287', 'single-output.ts:193-203', 'pi-cohort follow-up']) assert.ok(text.includes(marker), marker);
+  const after = text.slice(text.indexOf('### 4'));
+  assert.ok(after.includes('git -C <wt> status --porcelain --untracked-files=all'));
+  assert.equal([...text.matchAll(/status --porcelain/g)].length, 2);
+  assert.equal([...text.matchAll(/status --porcelain --untracked-files=all/g)].length, 2, 'both snapshots enumerate nested untracked files');
+  for (const marker of ['abs worktree path>/<path>', 'rm -- "<abs worktree path>/<path>"', 'complete absolute path', 'Paths in the before-set are never touched']) assert.ok(after.includes(marker), marker);
+  assert.doesNotMatch(after, /`rm -- <path>`/);
+  let previous = -1;
+  for (const marker of ['First `read` the spec', 'status --porcelain', 'placeholder scan', 'predicate', 'rm -rf', 'Return the audit verbatim']) { const at = after.indexOf(marker); assert.ok(at > previous, marker); previous = at; }
+  assert.ok(!text.includes('clusters that assert data shape, ordering, or semantics'));
+});
+
+test('chair input paths and output destination are factual corrections and ticket chair stays inline', () => {
+  const chair = read('agents/spec-council-synthesizer.md');
+  assert.deepEqual(parse(chair.match(/^---\n([\s\S]*?)\n---/)[1]), { name: 'spec-council-synthesizer', description: 'Neutral chair that consolidates and adjudicates spec-council member critiques into a single ranked, conflict-resolved report. Dispatched by the roasting-the-spec or shape-ticket skills; not for direct dispatch.', tools: 'read, grep, find, ls, bash', thinking: 'xhigh', defaultContext: 'fresh', inheritProjectContext: true, inheritSkills: false, completionGuard: false, systemPromptMode: 'replace' });
+  for (const marker of ['**Output:**', 'entire identical report', 'acknowledgment or partial', 'grounded|hypothesis:', 'lean:', 'consensus:', 'clusters:', 'resolved:']) assert.ok(chair.includes(marker), marker);
+  assert.ok(chair.includes('Read the member critique files directly from the explicit paths supplied in your task.'));
+  assert.doesNotMatch(chair, /already injected into your context via|(?:injected|injection)[^.\n]*`reads`|`reads`[^.\n]*(?:injected|injection)/i);
+  const ticket = read('skills/shape-ticket/SKILL.md');
+  const item = ticket.slice(ticket.indexOf('2. **Dispatch shape**'), ticket.indexOf('3. **Effort:'));
+  assert.ok(item.includes('outputMode: "file-only"'));
+  assert.doesNotMatch(item, /via\s+`reads`|(?:injects|injected|injection)[^.\n]*(?:member|critique|contents)|(?:member|critique|contents)[^.\n]*(?:injects|injected|injection)/i);
+  for (const marker of ['every member task and targeted retry', 'inline', 'explicit usable member paths']) assert.ok(item.includes(marker), marker);
+  for (const marker of [':low', 'split-axis:', 'parent scans', 'Roast failure never blocks the run']) assert.ok(ticket.includes(marker), marker);
+  assert.ok(!ticket.includes('spec-council-applier'));
 });
 
 test('gauntlet-resume checks the grant field before dispatch and announces it after restore', () => {

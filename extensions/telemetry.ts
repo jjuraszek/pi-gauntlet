@@ -650,8 +650,11 @@
           const chair = ((councilPending ??= { memberResults: [] }).chair ??= { model: "unknown", dispatches: 0 });
           if (typeof r.model === "string") chair.model = r.model;
           chair.dispatches += 1;
-          const parsed = parseChairReport(textOf(content));
+          const parsed = parseChairReport(textOf(content))
+            ?? (typeof r.savedOutputPath === "string" ? parseChairReport(deps.fs.readFile(r.savedOutputPath) ?? "") : null);
           if (parsed) chair.clusters = parsed.clusters;
+        } else if (r.agent === "spec-council-applier" && r.exitCode === 0) {
+          onCouncilAudit(textOf(content));
         }
       }
     };

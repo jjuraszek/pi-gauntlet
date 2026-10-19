@@ -1,0 +1,5 @@
+- mechanical-reject: judged: Require all three anchored labels and equality of raised-by disposition count versus mechanically counted chair cluster lines; reject 2 versus 3 and separately reject missing Rejected even with 3 dispositions; do not ingest chair findings.
+- read-first: judged: First action after each applier return is reading spec from disk before validation, status checks or retry; reread the restored spec on final failure too.
+- restore-retry: judged: Copy spec.before.md over the spec before one identical complete-task retry, then restore again after killed second attempt; never stack partial edits.
+- abort-contract: judged: Abort council after second failure, continue unchanged gate with pre-council spec and failure notice, no Council line or row 3 and no partial edits; run attributable cleanup on abort and remove this temp dir.
+- zero-valid: judged: Accept zero clusters with all three none labels and zero dispositions; normalize grep no-match exit status to zero rather than failure.

@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Changed
+
+- **Spec council critiques stay in files; a fresh applier edits the spec.** Members and the spec chair return saved-file references, while `spec-council-applier` decides dispositions, edits only the spec, and returns the audit. The applier inherits the main loop's model and thinking unless overridden; the main loop re-reads the spec before the unchanged ratify/revert gate. Ticket-roast members also return file-only output; their chair stays inline. Telemetry accepts inline or saved-file chair clusters and applier, commit-command, or assistant audits with the same completeness, provenance, and schema rules. Failed children without a saved file can still return inline text upstream; fail-closed output remains a pi-cohort follow-up.
+
 ## v7.18.1 - 2026-10-19
 
 ### Removed

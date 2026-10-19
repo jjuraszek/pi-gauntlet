@@ -1,0 +1,6 @@
+- file-only-tasks: judged: Every initial/retry member task pairs an absolute output with outputMode: "file-only"; retry only beta once verbatim with fresh retry path retaining basename, never alpha.
+- cheap-controls: judged: Member models alpha/core:low and beta/wide:low and chair gamma/chair:low retain cheap effort; foreground calls have run-level controls 60000/240000/300000, cwd repo root.
+- content-brief: judged: Members review draft/source temp files and the two explicit absolute reference paths only, with human input and content-only brief forbidding repository scans and file edits.
+- structure-quorum: judged: Mechanically judge nonempty member files by verdict sound|needs-work|unsound, addresses-problem and lean; empty findings is valid; only usable paths reach chair and zero usable after retry aborts roast.
+- inline-chair: judged: Separate chair call stays inline, no output/file-only pin, explicit usable member paths in task read directly rather than reads injection, content-only no repository access and coverage retained; judge consensus and lean.
+- parent-split: judged: Parent scans member files for split-axis marker independently of chair silence and applies split-axis merge handling itself; no spec applier handoff.

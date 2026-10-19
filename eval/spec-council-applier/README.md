@@ -1,0 +1,7 @@
+# Spec council applier eval
+
+Load the full immutable applier persona, including frontmatter, through the existing edit-kind harness. grounded-hypothesis-over-spec supplies a fixture spec, chair, members, config, documentation-impact guideline, and zero-byte council-audit.md reserved output slot. The case neutrally requests cluster application and the same final audit capture in both arms.
+
+Judge corrected default, unresolved artifact question, wrapper/dependent removal, and Amend-grant preservation from the resulting doc/specs/job-status.md tree, never audit narration or deleted diff lines. Judge recovered member probe, concrete cut, labels, cluster cardinality, and coverage from resulting council-audit.md only. Other inputs stay unchanged; the reserved audit output is the sole exception to spec-only fixture edits. Audit grammar is unchanged.
+
+Use --base 9dcef7751442c7c445097e09c7c00484ab9eb56e, which contains the persona. Baseline and candidate persona instructions are identical. The harness loads the root .md by name and invokes /skill:spec-council-applier with read/edit/write tools, not the production persona's tool list. replay.md exists for structural lint but is not the edit instruction. Captured diff/tree prove real fixture edits and input isolation; the harness does not capture final stdout, hence the reserved audit artifact. The supplied bounded-search outcome tests routing, not actual rg/timeout enforcement. See eval/README.md for process and records.

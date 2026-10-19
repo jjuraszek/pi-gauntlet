@@ -1,0 +1,5 @@
+- chair-file-output: judged: Initial and retry chair dispatches pair output /tmp/council-widgets/chair.md and outputMode: "file-only", omit reads, use foreground cwd /tmp/acme/widgets-wt and controls 300000/600000/900000.
+- direct-read-input: judged: The child instructions explicitly require reading /tmp/council-widgets/member-0-alpha-core.md directly from the task-supplied path because member contents are not preloaded; do not rely on reads injection or discover files.
+- complete-report: judged: Instruct the child to write its complete consensus/lean/clusters/resolved report to the injected output path, not an acknowledgment or partial report.
+- chair-retry: judged: Judge nonempty chair file with consensus and lean headers, not tool success; retry the unusable first chair once with same model and complete task verbatim; unreachable configured model instead retries inherited model once; second failure aborts to gate.
+- single-coverage: judged: Task names only the usable member path, uses single-member synthesis wording, preserves partial coverage and kill diagnostic, human input and grant/documentation protections; parent does not read report findings.

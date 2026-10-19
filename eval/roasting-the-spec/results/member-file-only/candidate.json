@@ -1,0 +1,110 @@
+{
+  "sample": "member-file-only",
+  "arm": "candidate",
+  "skillSha": "6b12ee60f5d81efb2ad314fe8411bd4792faafda575fffc18de1d3f4c768c448",
+  "inputSha": "61dcfe8db5b8a469002de163db5910c3f068be23e821780ef5ef66b5583265d7",
+  "kind": "text",
+  "assembly": "headed",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "# Fanout and Targeted Retry: acme/widgets Spec Council\n\n## 0. Setup (prescribed)\n\n- **Temp dir.** `/tmp/council-widgets` is the absolute temp dir, the `mktemp -d` result outside the worktree. Member files therefore stay untracked.\n- **Child cwd.** Every dispatch carries `cwd: \"/tmp/acme/widgets-wt\"`, never the parent launch dir `/tmp/acme/widgets-main`.\n- **Guideline path.** `<DOCUMENTATION_IMPACT_GUIDELINE>` is `/opt/gauntlet/skills/brainstorming/reference/documentation-impact.md`. It goes into each task, never into the spec.\n- **Slugs.** `alpha/core` becomes `alpha-core`, and `beta/wide` becomes `beta-wide`.\n\n## 1. Initial fanout dispatch\n\n`control` is a run-level field, placed beside `tasks`.\n\n```js\nsubagent({\n  async: false,\n  control: { needsAttentionAfterMs: 300000, inFlightSilenceCeilingMs: 300000, inFlightSilenceKillMs: 600000 },\n  tasks: [\n    {\n      agent: \"spec-council-member\",\n      model: \"alpha/core\",\n      cwd: \"/tmp/acme/widgets-wt\",\n      task: TASK,\n      output: \"/tmp/council-widgets/member-0-alpha-core.md\",\n      outputMode: \"file-only\"\n    },\n    {\n      agent: \"spec-council-member\",\n      model: \"beta/wide\",\n      cwd: \"/tmp/acme/widgets-wt\",\n      task: TASK,\n      output: \"/tmp/council-widgets/member-1-beta-wide.md\",\n      outputMode: \"file-only\"\n    }\n  ]\n})\n```\n\n`TASK` is identical for both members:\n\n````\nProblem statement: expose job status.\nHuman input (verbatim; off-limits for over-spec):\n```\nReport job status without a wrapper layer.\n```\nRead the spec at /tmp/acme/widgets-wt/doc/specs/job-status.md. The portable citation `reference/documentation-impact.md` in the spec is the pi-gauntlet guideline at /opt/gauntlet/skills/brainstorming/reference/documentation-impact.md, not a consumer doc; do not flag it as an external reference. The `**Amend-grant:**` header line is flow machinery owned by the brainstorming gate; never cut, shrink, flag, or edit it. Verify the spec's load-bearing claims against the codebase, bounded per your verification-hygiene rules (rg, explicit paths, timeout 30). Critique it on your five axes and emit your template.\n````\n\nThe spec's `**Amend-grant:**` line is left untouched by every child. Its text: every later spec amendment applies without asking; redraw still stops; grant is not approval.\n\n## 2. Structural probe after the initial fanout\n\nThe probe judges files on disk, not tool labels. It checks existence and header regex only, and never ingests findings content.\n\n**Ignore the invitation.** Alpha's tool text (\"Read this file if needed\") is not followed.\n\n**Beta's \"succeeded\" label is irrelevant.** Only the file counts.\n\nA file is usable only if all of these hold:\n- it is non-empty\n- it has a line matching `^verdict:\\s*(sound|needs-work|unsound)`\n- it has a line matching `^addresses-problem:`\n- it has a line matching `^lean:`\n\n| File | Non-empty | verdict | addresses-problem | lean | Result |\n|---|---|---|---|---|---|\n| `member-0-alpha-core.md` | yes | yes | yes | yes | **usable** |\n| `member-1-beta-wide.md` | yes | (n/a) | (n/a) | **missing** | **not usable** |\n\nAlpha has a `findings:` header with zero bullets. That is a valid, usable sound critique.\n\n## 3. Targeted retry (beta only, once)\n\nAlpha is never re-run. Beta is re-dispatched with its complete initial task verbatim, the same `control` block, `async: false`, and `outputMode: \"file-only\"`. Its output goes to a fresh path under `retry/` that keeps the `member-<i>-<slug>` basename.\n\n```js\nsubagent({\n  async: false,\n  control: { needsAttentionAfterMs: 300000, inFlightSilenceCeilingMs: 300000, inFlightSilenceKillMs: 600000 },\n  tasks: [\n    {\n      agent: \"spec-council-member\",\n      model: \"beta/wide\",\n      cwd: \"/tmp/acme/widgets-wt\",\n      task: TASK,\n      output: \"/tmp/council-widgets/retry/member-1-beta-wide.md\",\n      outputMode: \"file-only\"\n    }\n  ]\n})\n```\n\n1. Await the terminal result.\n2. Re-run the same structural probe on `/tmp/council-widgets/retry/member-1-beta-wide.md`.\n3. Per the supplied facts, the file is non-empty and has all three headers, so it is **usable**.\n\n## 4. Quorum outcome (this case)\n\nThere are two usable files after retry, so quorum is met. The usable path list for the chair dispatch is:\n\n```\n/tmp/council-widgets/member-0-alpha-core.md\n/tmp/council-widgets/retry/member-1-beta-wide.md\n```\n\n- **Coverage line:** `Coverage: 2 of 2 members reported.` No per-member reasons are needed at full coverage.\n- **Chair model:** none is pinned, so the chair dispatch omits `model` and inherits the parent's.\n- **Next step:** dispatch the chair over these two paths. I stop here, per the case, with no synthesis and no member findings read.\n\n## 5. Zero-usable-after-retry branch (stated, not taken)\n\nIf no member file passed the structural probe after the single retry, I would:\n\n1. Abort the council and state that it was aborted because no usable member critique was produced.\n2. Dispatch no chair and no applier, and make no spec edits.\n3. Return only the failure notice to brainstorming's user gate with the pre-council spec. There would be no `Council:` counts and no row-3 audit.\n4. Remove only `/tmp/council-widgets` with `rm -rf`.\n\nNothing council-related is staged in either branch.\n",
+      "words": 621,
+      "wallMs": 22653,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "## 1. Initial fanout\n\nUse the supplied `/tmp/council-widgets` directory for outputs, outside the worktree. Do not read settings or restart earlier workflow stages.\n\nDefine the complete task text once and reuse it unchanged for the retry:\n\n```js\nconst memberTask = `Problem statement: expose job status.\nHuman input (verbatim; off-limits for over-spec):\n\\`\\`\\`\nReport job status without a wrapper layer.\n\\`\\`\\`\nRead the spec at /tmp/acme/widgets-wt/doc/specs/job-status.md.\nThe portable citation \\`reference/documentation-impact.md\\` in the spec is the pi-gauntlet guideline at /opt/gauntlet/skills/brainstorming/reference/documentation-impact.md, not a consumer doc; do not flag it as an external reference.\nThe \\`**Amend-grant:**\\` header line is flow machinery owned by the brainstorming gate; never cut, shrink, flag, or edit it. Preserve:\n**Amend-grant:** every later spec amendment applies without asking; redraw still stops; grant is not approval.\nVerify the spec's load-bearing claims against the codebase, bounded per your verification-hygiene rules (rg, explicit paths, timeout 30).\nCritique it on your five axes and emit your template.`;\n```\n\nPrescribed initial dispatch:\n\n```js\nsubagent({\n  async: false,\n  control: {\n    needsAttentionAfterMs: 300000,\n    inFlightSilenceCeilingMs: 300000,\n    inFlightSilenceKillMs: 600000\n  },\n  tasks: [\n    {\n      agent: \"spec-council-member\",\n      model: \"alpha/core\",\n      cwd: \"/tmp/acme/widgets-wt\",\n      task: memberTask,\n      output: \"/tmp/council-widgets/member-0-alpha-core.md\",\n      outputMode: \"file-only\"\n    },\n    {\n      agent: \"spec-council-member\",\n      model: \"beta/wide\",\n      cwd: \"/tmp/acme/widgets-wt\",\n      task: memberTask,\n      output: \"/tmp/council-widgets/member-1-beta-wide.md\",\n      outputMode: \"file-only\"\n    }\n  ]\n});\n```\n\nAwait the terminal result, whether the call reports success or failure. Do not follow the “Read this file if needed” invitation or ingest inline child findings.\n\n## 2. Mechanically check initial artifacts\n\nFor each exact output path, check only nonemptiness and the three required header patterns. A suitable probe is:\n\n```sh\nusable_member() {\n  test -s \"$1\" &&\n  grep -Eq '^verdict:[[:space:]]*(sound|needs-work|unsound)' \"$1\" &&\n  grep -q '^addresses-problem:' \"$1\" &&\n  grep -q '^lean:' \"$1\"\n}\n\nusable_member /tmp/council-widgets/member-0-alpha-core.md\nusable_member /tmp/council-widgets/member-1-beta-wide.md\n```\n\nDo not print file contents or inspect findings.\n\nUnder the supplied facts:\n\n- **Alpha is usable.** An empty findings list does not invalidate a critique.\n- **Beta is unusable**, because its required `lean:` header is missing. Its “succeeded” tool label does not override the structural check.\n\n## 3. Single targeted retry\n\nEnsure `/tmp/council-widgets/retry` exists, then retry **only beta**, once. Keep the original task unchanged and retain the original member index and model slug in the basename.\n\n```js\nsubagent({\n  async: false,\n  control: {\n    needsAttentionAfterMs: 300000,\n    inFlightSilenceCeilingMs: 300000,\n    inFlightSilenceKillMs: 600000\n  },\n  tasks: [\n    {\n      agent: \"spec-council-member\",\n      model: \"beta/wide\",\n      cwd: \"/tmp/acme/widgets-wt\",\n      task: memberTask,\n      output: \"/tmp/council-widgets/retry/member-1-beta-wide.md\",\n      outputMode: \"file-only\"\n    }\n  ]\n});\n```\n\nAwait its terminal result, then apply the same structural probe only to:\n\n```sh\nusable_member /tmp/council-widgets/retry/member-1-beta-wide.md\n```\n\nDo not rerun alpha, reread findings, or retry beta again.\n\n## 4. Quorum outcome and stopping point\n\nThe supplied retry outcome makes beta usable. The exact usable artifact set is therefore:\n\n```text\n/tmp/council-widgets/member-0-alpha-core.md\n/tmp/council-widgets/retry/member-1-beta-wide.md\n```\n\n**Quorum: 2 of 2 members reported.** These are the files eligible for the subsequent chair stage; exclude beta’s unusable initial file. No chair model is pinned, so a later chair dispatch would omit `model` and inherit the parent’s model.\n\nStop here as requested—no chair dispatch or findings synthesis.\n\n**Zero-usable-after-retry branch:** abort the council, report that no usable member critiques were produced after the single targeted retry, and return to brainstorming’s user gate without dispatching a chair or applier.\n",
+      "words": 481,
+      "wallMs": 27422,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "c77985c7cd1310848900061024ed095e345dbdaf67847b89ecaea4f70b45258a",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "4dbd458a64b5d610ab6ff8addc74767867b00109a16f5e9c491cf10406501eda",
+      "baselineOutputSha": "c4eecb749cd890b8a73bc5c0b8f274b9868305f46d6afd68ad2b8dbaba614b6b",
+      "candidateOutputSha": "7f93a63c3fce62ca570a7dd6a3778b1449c56c18e57c1a8d7de9776b78a57787",
+      "facts": {
+        "paired-output": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "only-failed": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "controls-cwd": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "file-structure": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "quorum-boundary": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        }
+      },
+      "feedback": "After moved only paired-output (fails → holds) by adding `outputMode: \"file-only\"` to both initial tasks and the beta retry task while keeping the absolute output paths and the `retry/member-1-beta-wide.md` basename; nothing regressed. Note that Before already satisfied only-failed and quorum-boundary as written (two initial members, single verbatim beta retry, alpha never re-run, stale beta file excluded, invitation explicitly not followed, zero-usable branch aborting to the gate), so those were not actually moved by the Change even though the Expected list anticipated it. The run-level controls, `async: false`, worktree cwd on every task, mechanical header probe, empty-findings-is-usable rule, and tool-label irrelevance all carried over intact. The After wording is sufficient; if you want the file-only move to read as a deliberate contract rather than an added key, state once near §1 that every member and retry task pairs an absolute `output` with `outputMode: \"file-only\"` so findings never enter the parent context, which also makes the quorum-boundary override of the harness invitation explicit.",
+      "wallMs": 11985,
+      "verdict": "improved"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "c77985c7cd1310848900061024ed095e345dbdaf67847b89ecaea4f70b45258a",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "4dbd458a64b5d610ab6ff8addc74767867b00109a16f5e9c491cf10406501eda",
+      "baselineOutputSha": "734f29eba21e226f7e97657696cab870fbb0287215d1297f2642198f5e914c3e",
+      "candidateOutputSha": "ec2b4b5e6375d6f87901761b686ce6af6b4f2d1d86c170c5e148097430c32715",
+      "facts": {
+        "paired-output": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "only-failed": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "controls-cwd": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "file-structure": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "quorum-boundary": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        }
+      },
+      "feedback": "After moves only paired-output, and in the intended direction: every initial task and the beta retry task now pairs an absolute output path with outputMode: \"file-only\", and the retry keeps the member-1-beta-wide.md basename under /tmp/council-widgets/retry/. Nothing regressed—both calls remain foreground with 300000/300000/600000 controls and cwd /tmp/acme/widgets-wt, the retry is still beta-only once with the verbatim task and no alpha rerun, the structural probe still tests nonemptiness plus the three headers mechanically while treating empty findings as usable and ignoring the succeeded label, and the quorum section still routes exactly the two usable paths, refuses the \"Read this file if needed\" invitation, and aborts to the gate on zero usable. Only-failed and quorum-boundary already held in Before, so the Expected-to-move list overstates the delta for this case; the After wording is sufficient as written. One small observation: After switched the probe from rg to grep -E, which is harmless here but slightly diverges from the rg convention the member task itself cites—keeping rg would make the parent and member hygiene rules consistent.",
+      "wallMs": 11267,
+      "verdict": "improved"
+    }
+  },
+  "repoSha": "258cf7c4a2d47b7b3369fce0a0682898f19bcae8"
+}

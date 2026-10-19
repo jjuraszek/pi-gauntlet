@@ -1,0 +1,110 @@
+{
+  "sample": "audit-rollback",
+  "arm": "candidate",
+  "skillSha": "6b12ee60f5d81efb2ad314fe8411bd4792faafda575fffc18de1d3f4c768c448",
+  "inputSha": "06c812ee40b7c414555702ce3937ff4da21414d603ee26d671827f54f11651a5",
+  "kind": "text",
+  "assembly": "headed",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "# Applier-Return Stage: Council at /tmp/acme/widgets-wt\n\nAll commands use `git -C /tmp/acme/widgets-wt` and absolute paths. The parent stays in `/tmp/acme/widgets-main`. Every dispatch carries `cwd: \"/tmp/acme/widgets-wt\"`.\n\n**Fixed pre-dispatch state** (already taken, not re-taken):\n- `/tmp/council-widgets/spec.before.md` is the snapshot of `/tmp/acme/widgets-wt/doc/specs/job-status.md`.\n- `/tmp/council-widgets/status.before` is the output of `git -C /tmp/acme/widgets-wt status --porcelain --untracked-files=all`.\n- The chair file's mechanical count is 3:\n  ```bash\n  grep -Ec '^- \\[(blocker|major|minor)\\]' /tmp/council-widgets/chair.md\n  ```\n\n## Attempt 1 return (either variant)\n\n1. **First action: reread the spec.** `read /tmp/acme/widgets-wt/doc/specs/job-status.md`. This comes before validation, status checks, or any retry.\n2. **Store the audit** verbatim at `/tmp/council-widgets/audit.md`. This audit is the only findings-bearing result the parent ingests.\n3. **Label checks:**\n   ```bash\n   grep -q '^Applied:'  /tmp/council-widgets/audit.md\n   grep -q '^Deferred:' /tmp/council-widgets/audit.md\n   grep -q '^Rejected:' /tmp/council-widgets/audit.md\n   ```\n4. **Count check:**\n   ```bash\n   grep -c 'raised-by:' /tmp/council-widgets/audit.md\n   grep -Ec '^- \\[(blocker|major|minor)\\]' /tmp/council-widgets/chair.md\n   ```\n   - **Variant A:** all three labels are present, but the audit count is 2 and the chair count is 3. The counts don't match, so the result is unusable.\n   - **Variant B:** the audit count is 3 and the chair count is 3, but `grep -q '^Rejected:'` fails. A label is missing, so the result is unusable.\n   - In both variants, the audit is not accepted as applied. No `Council:` counts are derived from it.\n5. **Restore before retry:**\n   ```bash\n   cp /tmp/council-widgets/spec.before.md /tmp/acme/widgets-wt/doc/specs/job-status.md\n   ```\n   This discards attempt 1's partial edits. Retries never stack on them.\n6. **Retry once**, with the complete initial task verbatim, in the foreground. Model and thinking stay unpinned.\n\n```\nsubagent({\n  agent: \"spec-council-applier\",\n  async: false,\n  cwd: \"/tmp/acme/widgets-wt\",\n  control: { needsAttentionAfterMs: 300000, inFlightSilenceCeilingMs: 600000, inFlightSilenceKillMs: 900000 },\n  task: \"Problem statement: expose job status. Spec: /tmp/acme/widgets-wt/doc/specs/job-status.md. Chair report: /tmp/council-widgets/chair.md. Worktree: /tmp/acme/widgets-wt.\\n\" +\n        \"Member critiques (probe evidence only):\\n<identical usable member paths under /tmp/council-widgets/, as in attempt 1>\\n\" +\n        \"Human input (verbatim; off-limits for over-spec):\\n```\\nReport job status without a wrapper layer.\\n```\\n\" +\n        \"External context fetched during brainstorming: <identical to attempt 1>.\\n\" +\n        \"<identical coverage line if attempt 1 had one; omitted at full coverage>\\n\" +\n        \"The portable citation `reference/documentation-impact.md` in the spec is the pi-gauntlet guideline at /opt/gauntlet/skills/brainstorming/reference/documentation-impact.md, not a consumer doc; do not flag it as an external reference. The `**Amend-grant:**` header line is flow machinery owned by the brainstorming gate; never cut, shrink, flag, or edit it.\\n\" +\n        \"Decide and apply the chair's clusters to the spec, then return the audit.\"\n})\n```\n\n## Attempt 2 return (killed after a partial edit)\n\n1. **First action: reread the spec** (`read /tmp/acme/widgets-wt/doc/specs/job-status.md`). This happens before anything else.\n2. **Second failure:** a killed applier has no usable audit, so nothing is validated or counted.\n3. **Restore again:**\n   ```bash\n   cp /tmp/council-widgets/spec.before.md /tmp/acme/widgets-wt/doc/specs/job-status.md\n   ```\n4. **Reread the restored spec.**\n5. **Abort the council** and say so. No third attempt.\n6. **Cleanup on abort:**\n   - Compare `git -C /tmp/acme/widgets-wt status --porcelain --untracked-files=all` with `/tmp/council-widgets/status.before`, by path.\n   - No newly dirty non-spec paths exist, so there are no `checkout --` or `rm --` actions and no \"reverted applier edit\" note.\n   - Before-set paths are untouched.\n7. **Re-run brainstorming's placeholder scan** on the restored spec.\n8. **Re-apply the `**Amend-grant:**` predicate** to the header block once. If the line was altered or removed, repair it to `none`.\n   - The line must carry the supplied grant: later spec amendments apply without asking, redraw still stops, and the grant is not approval.\n   - The `reference/documentation-impact.md` citation stays portable. It is not replaced with the absolute path.\n9. **Remove the temp dir:** `rm -rf /tmp/council-widgets`. Nothing council-related is staged.\n10. **Return only the failure notice** to brainstorming, with the pre-council spec going to the gate. There is no `Council:` line, no row 3, and no fabricated counts.\n\n## Comparison case (a success, not the failed run)\n\nThe chair has zero clusters, and the audit reads `Applied: none` / `Deferred: none` / `Rejected: none`.\n\n1. **First action: reread the spec.**\n2. **Store the audit** at `/tmp/council-widgets/audit.md`.\n3. **Label checks:** all three `grep -q` checks pass.\n4. **Count checks:** both `grep -c` commands print 0 and exit 1. Exit status 1 is accepted as a zero count, not a failure. The counts are equal (0 = 0), so the audit is valid and accepted with no restore or retry.\n5. **Status comparison:** no newly dirty non-spec paths, so no revert note.\n6. **Final steps:** placeholder scan, one Amend-grant predicate pass, then `rm -rf /tmp/council-widgets`.\n7. **Return** the audit verbatim with the final spec to brainstorming. Brainstorming then handles the spec commit with the audit as its body, the `Council:` counts (all zero), row 3, and the single user gate.\n",
+      "words": 715,
+      "wallMs": 27766,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "I would resume at the **post-applier stage**, without rerunning members or the chair. The following are prescribed actions, not claimed executions.\n\n## 1. First return: reread before doing anything else\n\nFor either first-audit variant, the **first action** would be to read:\n\n```text\n/tmp/acme/widgets-wt/doc/specs/job-status.md\n```\n\nOnly afterward would I save the returned audit verbatim to `/tmp/council-widgets/audit.md` and perform these mechanical checks:\n\n```bash\ngrep -q '^Applied:' /tmp/council-widgets/audit.md\ngrep -q '^Deferred:' /tmp/council-widgets/audit.md\ngrep -q '^Rejected:' /tmp/council-widgets/audit.md\n\ngrep -c 'raised-by:' /tmp/council-widgets/audit.md\ngrep -Ec '^- \\[(blocker|major|minor)\\]' /tmp/council-widgets/chair.md\n```\n\nI would not read the chair’s findings.\n\n| First-audit case | Label check | Count check | Disposition |\n|---|---|---|---|\n| Supplied audit | All three labels present | 2 audit attributions versus 3 chair clusters | Unusable; restore and retry |\n| Separate variant | `Rejected:` missing | 3 audit attributions versus 3 chair clusters | Unusable; restore and retry |\n\nMatching counts do not excuse a missing label.\n\n## 2. Restore, then retry once with the identical task\n\nBefore retrying, I would discard the partial spec edits by restoring the pre-dispatch snapshot:\n\n```bash\ncp /tmp/council-widgets/spec.before.md \\\n   /tmp/acme/widgets-wt/doc/specs/job-status.md\n```\n\nThe retry dispatch would be:\n\n```javascript\nsubagent({\n  agent: \"spec-council-applier\",\n  async: false,\n  cwd: \"/tmp/acme/widgets-wt\",\n  control: {\n    needsAttentionAfterMs: 300000,\n    inFlightSilenceCeilingMs: 600000,\n    inFlightSilenceKillMs: 900000\n  },\n  task: originalApplierTask\n})\n```\n\nHere, `originalApplierTask` means the **complete initial task string, reused verbatim**, not a shortened retry instruction. Its full text and member-path list were not supplied, so I would not fabricate them.\n\nThat retained task must continue to carry the supplied problem, verbatim human input, spec/worktree paths, `/tmp/council-widgets/chair.md`, original member paths and external-context/coverage information, and `/opt/gauntlet/skills/brainstorming/reference/documentation-impact.md`. It must retain the instructions protecting `**Amend-grant:**` and recognizing the portable guideline citation. I would leave `model` and `thinking` unpinned.\n\n## 3. Second return: reread first, then restore and abort\n\nFor **both first-audit variants**, the supplied second outcome is a killed applier after another partial edit.\n\nThe first action after that return would again be to read:\n\n```text\n/tmp/acme/widgets-wt/doc/specs/job-status.md\n```\n\nThe killed second attempt is a failure; I would not infer a successful audit. Any returned audit would be stored verbatim, but none would be invented.\n\nI would then restore the snapshot again:\n\n```bash\ncp /tmp/council-widgets/spec.before.md \\\n   /tmp/acme/widgets-wt/doc/specs/job-status.md\n```\n\nImmediately after restoration, I would reread the restored spec. There would be **no third dispatch**.\n\n## 4. Abort cleanup and handoff\n\nAfter the required rereads, I would compare:\n\n```bash\ngit -C /tmp/acme/widgets-wt status --porcelain --untracked-files=all\n```\n\nagainst `/tmp/council-widgets/status.before`, comparing **paths rather than status codes**.\n\nThe supplied outcome says there are no newly dirty outside-spec paths, so no outside-spec checkout or deletion is warranted. Previously dirty paths remain untouched.\n\nI would then:\n\n1. Rerun brainstorming’s placeholder scan.\n2. Reapply the amendment-header predicate exactly once. Preserve the supplied standing grant; its breadth alone is not grounds to shrink it. If the line were altered or removed, apply the prescribed repair to `none`.\n3. Remove only this council’s temporary directory:\n   ```bash\n   rm -rf -- /tmp/council-widgets\n   ```\n4. Return only a failure notice to brainstorming, for example:\n\n   > Council aborted: the first applier audit failed validation, and the single retry was killed. The pre-council spec was restored.\n\nNo success audit, `Council:` counts line, or row-3 audit would be emitted. Brainstorming would continue to its existing user gate with the restored spec.\n\n## Separate comparison: valid zero-cluster result\n\nThis is **not** the failed run above.\n\nIf the chair has zero clusters and the audit is:\n\n```text\nApplied: none\nDeferred: none\nRejected: none\n```\n\nthen all three required labels are present. Both count commands yield zero; their exit status of `1` means “no matches,” not a validation failure.\n\nThat audit therefore passes validation. I would retain the spec, perform the normal cleanup and final checks, and return that audit verbatim to brainstorming—without restoring or retrying solely because `grep` returned `1`.\n",
+      "words": 588,
+      "wallMs": 31868,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "1de4f6d05dfc073264bdffef157b9911fed9de739cc06814ca5590b921a8cba8",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "4dbd458a64b5d610ab6ff8addc74767867b00109a16f5e9c491cf10406501eda",
+      "baselineOutputSha": "4a271f319312901d657b482b278da00893f9aa2e325b1000ba9cdc4e50696229",
+      "candidateOutputSha": "95a46c85927cad43a696ead9521a7df97f78ce2f6a695561aff476b41b0c8e70",
+      "facts": {
+        "mechanical-reject": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "read-first": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "restore-retry": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "abort-contract": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "zero-valid": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        }
+      },
+      "feedback": "After keeps every fact Before held and picks up the two Before missed. read-first moved because After makes `read` of the spec from disk the explicit first action after both returns and adds a reread of the restored spec before abort, whereas Before's first action was the restore itself. abort-contract moved because After spells out the status-vs-status.before comparison on abort, states that no newly dirty non-spec paths exist so no revert actions fire, and explicitly says no `Council:` line, no row 3, no fabricated counts, then `rm -rf /tmp/council-widgets`; Before only said 'emit no audit' and 'report as aborted council for the commit body and gate', which left the gate shape and attributable cleanup unstated. mechanical-reject held in both, but After is stronger by showing the chair-side `grep -Ec '^- \\[(blocker|major|minor)\\]'` count rather than taking C=3 as a given, and by stating the audit is the only findings-bearing result ingested; keep that framing and avoid reintroducing a `reads:` injection of the chair report into any parent-side step. The zero-cluster comparison, the identical verbatim retry, and the repeated `cp spec.before.md` restores are all preserved, so no wording change is needed beyond keeping the first-action reread and the explicit no-Council-line/no-row-3 abort sentence intact.",
+      "wallMs": 25702,
+      "verdict": "improved"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "1de4f6d05dfc073264bdffef157b9911fed9de739cc06814ca5590b921a8cba8",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "4dbd458a64b5d610ab6ff8addc74767867b00109a16f5e9c491cf10406501eda",
+      "baselineOutputSha": "ce339790c2f943659e5c98d2c7810774df6784b2dc6bc26d8a2b67de5f6398aa",
+      "candidateOutputSha": "0eb31356902ee6ef6fcd9b76a103f341b88962f9a9f02f5fe69fda8829dc7015",
+      "facts": {
+        "mechanical-reject": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "read-first": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "restore-retry": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "abort-contract": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "zero-valid": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        }
+      },
+      "feedback": "After keeps everything Before kept and delivers the Change: it makes the spec reread the literal first action after each return (Before led with the status comparison), anchors the three label greps and counts raised-by lines against mechanically counted chair cluster lines while explicitly refusing to read chair findings (Before relied on the chair's supplied count and only barred member findings), restores from the named spec.before.md snapshot before an identical verbatim applier-task retry and again after the killed second attempt, and spells out the abort contract (no Council line, no row 3, failure notice, restored pre-council spec, attributable path-based cleanup against the absolute worktree root, rm of the temp dir). zero-valid held in both; After's phrasing that grep exit 1 means 'no matches' is fine, though stating outright that the no-match status is normalized to zero in the check would make it bulletproof. One minor tightening: in section 4 say the status comparison and cleanup happen only after the rereads and that the spec itself is never treated as an outside-spec path, so the read-first and restore-retry ordering stays unambiguous.",
+      "wallMs": 19756,
+      "verdict": "improved"
+    }
+  },
+  "repoSha": "258cf7c4a2d47b7b3369fce0a0682898f19bcae8"
+}

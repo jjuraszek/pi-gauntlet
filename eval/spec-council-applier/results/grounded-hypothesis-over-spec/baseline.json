@@ -1,0 +1,94 @@
+{
+  "sample": "grounded-hypothesis-over-spec",
+  "arm": "baseline",
+  "skillSha": "a07c15b2da7605a3d4314e3a10deec31d97739b78acba3b3bb6e6bc911044342",
+  "inputSha": "3c15101e7050a0977b2ced5359445153b5c030c03dac7dd2bb09e4cefd3e6587",
+  "kind": "edit",
+  "assembly": "n/a",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "diff --git a/council-audit.md b/council-audit.md\nindex e69de29..cda1539 100644\n--- a/council-audit.md\n+++ b/council-audit.md\n@@ -0,0 +1,7 @@\n+Coverage: 2 of 3 members reported; gamma-fast: no output produced.\n+Applied:\n+- Applied: [major] config-default - raised-by: [alpha-core] -> corrected Design enabled default from true to false (grounded: read config/settings.json - {\"enabled\":false})\n+- Applied: [major] event-order - raised-by: [beta-wide] -> open question (not found)\n+- Applied: [minor] envelope-wrapper - raised-by: [alpha-core] -> cut ReportEnvelope design clause, wrapper AC, and tests/report-wrapper.test.ts testing line -> cut (was adds: 2 files / 1 tests / 1 ACs)\n+Deferred: none\n+Rejected: none\ndiff --git a/doc/specs/job-status.md b/doc/specs/job-status.md\nindex 2c63764..4de8c0d 100644\n--- a/doc/specs/job-status.md\n+++ b/doc/specs/job-status.md\n@@ -1,13 +1,12 @@\n # Job status\n **Amend-grant:** every later spec amendment applies without asking; redraw still stops; grant is not approval.\n ## Design\n-The config enabled default is true. Report existing job status strings.\n-Add ReportEnvelope around every job-status result using src/envelope.ts and src/report-wrapper.ts.\n+The config enabled default is false. Report existing job status strings.\n ## Acceptance criteria\n - Existing job status strings appear in the report.\n-- Every report has a ReportEnvelope wrapper.\n ## Testing approach\n - Check existing job status strings.\n-- tests/report-wrapper.test.ts checks the ReportEnvelope wrapper.\n ## Documentation impact\n Use reference/documentation-impact.md.\n+## Open questions\n+- fixtures/events.json (event order): probe run - one `timeout 30 rg --max-count` search across the worktree and its docs/config/scripts directories for fixtures/events.json and how to obtain it; outcome - not found; no obtain-hint. Affected edit: whether the Design should specify job events ordered by descending created_at (not applied pending verification). Settlement: the user supplies the ordering fact at the gate, or the first plan task that obtains fixtures/events.json settles it via brainstorming's amendment path.\n",
+      "words": 242,
+      "wallMs": 21467,
+      "tree": {
+        "config/settings.json": {
+          "lines": 1,
+          "content": "{\"enabled\":false}\n"
+        },
+        "council/chair.md": {
+          "lines": 7,
+          "content": "consensus: needs-work\nlean: 1 of 2 members found nothing to cut\nclusters:\n- [major] grounded: config-default - raised-by: [alpha-core] - default true contradicts checked config -> correct enabled default to false\n- [major] hypothesis: event-order - raised-by: [beta-wide] - fixtures/events.json might establish descending created_at -> specify descending created_at order after verification\n- [minor] over-spec: envelope-wrapper - adds: 2 files / 1 tests / 1 ACs; unprotected: nothing - raised-by: [alpha-core] - \"Add ReportEnvelope around every job-status result using src/envelope.ts and src/report-wrapper.ts.\" has no human requirement -> cut wrapper and wrapper-only AC/test\nresolved:\n"
+        },
+        "council/member-0-alpha-core.md": {
+          "lines": 6,
+          "content": "verdict: needs-work\naddresses-problem: yes\nlean: envelope-wrapper adds: 2 files / 1 tests / 1 ACs\nfindings:\n- [major] config-default: enabled defaults false\nprobed: read config/settings.json - {\"enabled\":false}\n"
+        },
+        "council/member-1-beta-wide.md": {
+          "lines": 6,
+          "content": "verdict: needs-work\naddresses-problem: yes\nlean: nothing to cut\nfindings:\n- [major] event-order: verify descending created_at from fixtures/events.json\nprobed: none\n"
+        },
+        "council-audit.md": {
+          "lines": 7,
+          "content": "Coverage: 2 of 3 members reported; gamma-fast: no output produced.\nApplied:\n- Applied: [major] config-default - raised-by: [alpha-core] -> corrected Design enabled default from true to false (grounded: read config/settings.json - {\"enabled\":false})\n- Applied: [major] event-order - raised-by: [beta-wide] -> open question (not found)\n- Applied: [minor] envelope-wrapper - raised-by: [alpha-core] -> cut ReportEnvelope design clause, wrapper AC, and tests/report-wrapper.test.ts testing line -> cut (was adds: 2 files / 1 tests / 1 ACs)\nDeferred: none\nRejected: none\n"
+        },
+        "doc/specs/job-status.md": {
+          "lines": 12,
+          "content": "# Job status\n**Amend-grant:** every later spec amendment applies without asking; redraw still stops; grant is not approval.\n## Design\nThe config enabled default is false. Report existing job status strings.\n## Acceptance criteria\n- Existing job status strings appear in the report.\n## Testing approach\n- Check existing job status strings.\n## Documentation impact\nUse reference/documentation-impact.md.\n## Open questions\n- fixtures/events.json (event order): probe run - one `timeout 30 rg --max-count` search across the worktree and its docs/config/scripts directories for fixtures/events.json and how to obtain it; outcome - not found; no obtain-hint. Affected edit: whether the Design should specify job events ordered by descending created_at (not applied pending verification). Settlement: the user supplies the ordering fact at the gate, or the first plan task that obtains fixtures/events.json settles it via brainstorming's amendment path.\n"
+        },
+        "reference/documentation-impact.md": {
+          "lines": 1,
+          "content": "Amend an existing user-facing guide when this spec changes its contract. Record no introduced or amended feature docs when it introduces none.\n"
+        }
+      },
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "diff --git a/council-audit.md b/council-audit.md\nindex e69de29..2ecffa8 100644\n--- a/council-audit.md\n+++ b/council-audit.md\n@@ -0,0 +1,6 @@\n+Coverage: 2 of 3 members reported; gamma-fast: no output produced.\n+Applied: [major] grounded: config-default - raised-by: [alpha-core] -> corrected enabled default to false (grounded: read config/settings.json - {\"enabled\":false})\n+Applied: [major] hypothesis: event-order - raised-by: [beta-wide] -> open question (not found)\n+Applied: [minor] over-spec: envelope-wrapper - raised-by: [alpha-core] -> cut (was adds: 2 files / 1 tests / 1 ACs)\n+Deferred: none\n+Rejected: none\ndiff --git a/doc/specs/job-status.md b/doc/specs/job-status.md\nindex 2c63764..a93e7ff 100644\n--- a/doc/specs/job-status.md\n+++ b/doc/specs/job-status.md\n@@ -1,13 +1,15 @@\n # Job status\n **Amend-grant:** every later spec amendment applies without asking; redraw still stops; grant is not approval.\n ## Design\n-The config enabled default is true. Report existing job status strings.\n-Add ReportEnvelope around every job-status result using src/envelope.ts and src/report-wrapper.ts.\n+The config enabled default is false. Report existing job status strings without a wrapper layer.\n ## Acceptance criteria\n - Existing job status strings appear in the report.\n-- Every report has a ReportEnvelope wrapper.\n ## Testing approach\n - Check existing job status strings.\n-- tests/report-wrapper.test.ts checks the ReportEnvelope wrapper.\n ## Documentation impact\n Use reference/documentation-impact.md.\n+The portable reference/documentation-impact.md names this guideline, not an external consumer reference.\n+No introduced or amended feature docs: this spec retains existing job status strings without introducing a wrapper contract.\n+\n+## Open questions\n+- `fixtures/events.json`: Does this artifact establish descending `created_at` order? Supplied probe evidence (not executed in this replay): one `timeout 30 rg --max-count` search across the worktree and docs/config/scripts for `fixtures/events.json` and how to obtain it returned not found; no obtain-hint. The artifact is unavailable; do not fetch or build it. Descending `created_at` ordering and any corresponding ordering acceptance criteria or tests remain unsettled, not requirements. The user supplies the fact at the gate, or the first plan task that obtains the artifact settles these edits via brainstorming's amendment path.\n",
+      "words": 281,
+      "wallMs": 23346,
+      "tree": {
+        "config/settings.json": {
+          "lines": 1,
+          "content": "{\"enabled\":false}\n"
+        },
+        "council/chair.md": {
+          "lines": 7,
+          "content": "consensus: needs-work\nlean: 1 of 2 members found nothing to cut\nclusters:\n- [major] grounded: config-default - raised-by: [alpha-core] - default true contradicts checked config -> correct enabled default to false\n- [major] hypothesis: event-order - raised-by: [beta-wide] - fixtures/events.json might establish descending created_at -> specify descending created_at order after verification\n- [minor] over-spec: envelope-wrapper - adds: 2 files / 1 tests / 1 ACs; unprotected: nothing - raised-by: [alpha-core] - \"Add ReportEnvelope around every job-status result using src/envelope.ts and src/report-wrapper.ts.\" has no human requirement -> cut wrapper and wrapper-only AC/test\nresolved:\n"
+        },
+        "council/member-0-alpha-core.md": {
+          "lines": 6,
+          "content": "verdict: needs-work\naddresses-problem: yes\nlean: envelope-wrapper adds: 2 files / 1 tests / 1 ACs\nfindings:\n- [major] config-default: enabled defaults false\nprobed: read config/settings.json - {\"enabled\":false}\n"
+        },
+        "council/member-1-beta-wide.md": {
+          "lines": 6,
+          "content": "verdict: needs-work\naddresses-problem: yes\nlean: nothing to cut\nfindings:\n- [major] event-order: verify descending created_at from fixtures/events.json\nprobed: none\n"
+        },
+        "council-audit.md": {
+          "lines": 6,
+          "content": "Coverage: 2 of 3 members reported; gamma-fast: no output produced.\nApplied: [major] grounded: config-default - raised-by: [alpha-core] -> corrected enabled default to false (grounded: read config/settings.json - {\"enabled\":false})\nApplied: [major] hypothesis: event-order - raised-by: [beta-wide] -> open question (not found)\nApplied: [minor] over-spec: envelope-wrapper - raised-by: [alpha-core] -> cut (was adds: 2 files / 1 tests / 1 ACs)\nDeferred: none\nRejected: none\n"
+        },
+        "doc/specs/job-status.md": {
+          "lines": 15,
+          "content": "# Job status\n**Amend-grant:** every later spec amendment applies without asking; redraw still stops; grant is not approval.\n## Design\nThe config enabled default is false. Report existing job status strings without a wrapper layer.\n## Acceptance criteria\n- Existing job status strings appear in the report.\n## Testing approach\n- Check existing job status strings.\n## Documentation impact\nUse reference/documentation-impact.md.\nThe portable reference/documentation-impact.md names this guideline, not an external consumer reference.\nNo introduced or amended feature docs: this spec retains existing job status strings without introducing a wrapper contract.\n\n## Open questions\n- `fixtures/events.json`: Does this artifact establish descending `created_at` order? Supplied probe evidence (not executed in this replay): one `timeout 30 rg --max-count` search across the worktree and docs/config/scripts for `fixtures/events.json` and how to obtain it returned not found; no obtain-hint. The artifact is unavailable; do not fetch or build it. Descending `created_at` ordering and any corresponding ordering acceptance criteria or tests remain unsettled, not requirements. The user supplies the fact at the gate, or the first plan task that obtains the artifact settles these edits via brainstorming's amendment path.\n"
+        },
+        "reference/documentation-impact.md": {
+          "lines": 1,
+          "content": "Amend an existing user-facing guide when this spec changes its contract. Record no introduced or amended feature docs when it introduces none.\n"
+        }
+      },
+      "mechanical": {}
+    }
+  },
+  "repoSha": "7da9f6fee87bcd2aaa391147789600660cadb1ab"
+}
