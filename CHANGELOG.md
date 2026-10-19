@@ -1,5 +1,15 @@
 # Changelog
 
+## Unreleased
+
+### Changed
+
+- **Brainstorming questions list one option per line.** Each `A)`/`B)` option and the `Recommendation:` line sit on their own physical line instead of one paragraph; wording and the framing rules are unchanged. (#70)
+
+### Fixed
+
+- **Telemetry counts the agents of a failed dispatch.** A `subagent` call that ended in error (a failed chain step, a sibling that exited non-zero) still records its retained per-persona results; spec-round and conformance bookkeeping stay on the success path. `package.json` now declares pi-cohort >= 7.3.1 as a peer dependency, matching the README requirement. (#70)
+
 ## v7.17.1 - 2026-10-18
 
 ### Fixed
