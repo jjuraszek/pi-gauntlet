@@ -1031,17 +1031,6 @@ export default function (pi: ExtensionAPI) {
             for (const w of resolved.warning?.split("; ") ?? []) if (w.includes(`phaseModels.${phase} `)) startLines.push(`\u26a0\ufe0f ${w}`);
             const target = resolved.phaseModels[phase];
             if (target) startLines.push(...(await applyPhaseModel(pi, ctx, phase, target)));
-            if (phase === "implement") {
-              const tier = process.env.PI_CACHE_RETENTION === "long" ? "long" : "short";
-              const m = ctx.model;
-              if (m && m.promptCache?.[tier] === undefined) {
-                startLines.push(
-                  `\u26a0\ufe0f ${m.provider}/${m.id} declares no promptCache.${tier} lifetime, so pi's cache warmer skips it. ` +
-                    `Declare it in <agent-dir>/models.json (default ~/.pi/agent): providers.${m.provider}.modelOverrides.${m.id}.promptCache for a built-in model, ` +
-                    `or providers.${m.provider}.models[].promptCache for a custom one; the lifetime is required by the warmer but not sufficient - see doc/configuration.md#phase-models.`,
-                );
-              }
-            }
           }
           phases = { ...phases, [params.phase]: transitionPhaseState("in_progress") as PhaseState };
           // A rewind must not inherit the prior verify's conformance latch.

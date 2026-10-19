@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Removed
+
+- **`start implement` no longer warns about a missing `promptCache` lifetime.** The warning fired on every non-Anthropic model (pi's catalog declares `promptCache` only for direct `anthropic` Claude entries) and read as an instruction to edit `models.json`, which stalled auto-chaining into implement until the user typed "continue"; the per-call cache telemetry from #67 stays and is the real signal for cache hits.
+
 ## v7.18.0 - 2026-10-19
 
 ### Changed

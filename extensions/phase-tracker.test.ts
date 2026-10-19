@@ -69,7 +69,7 @@ const resumedBranch = (rest: Partial<Record<Phase, Status>>) => [
   phaseResult("complete", phases({ brainstorm: "skipped", ...rest })),
 ];
 
-type TestModel = { provider: string; id: string; promptCache?: { short?: number; long?: number } };
+type TestModel = { provider: string; id: string };
 
 function harness(options: { cwd?: string; branch?: unknown[]; idle?: boolean; beforeSettled?: (setIdle: (idle: boolean) => void) => void; sendThrows?: boolean; model?: TestModel; thinkingLevel?: string; registry?: Record<string, TestModel>; setModelResult?: boolean | Error } = {}) {
   const handlers = new Map<string, ((event: unknown, ctx: unknown) => unknown)[]>();
@@ -136,7 +136,7 @@ const startPhase = async (h: ReturnType<typeof harness>, phase: string) => {
   return { text: r.content.map((c) => c.text).join("\n"), status: r.details.phases[phase].status };
 };
 
-const M = (id: string, promptCache?: { short?: number; long?: number }) => ({ provider: "p", id, promptCache });
+const M = (id: string) => ({ provider: "p", id });
 
 const preparePhase = async (h: ReturnType<typeof harness>, phase = "plan") => {
   await settle(h);
@@ -221,46 +221,6 @@ test("phaseModels: resolver warnings appear only for their phase", async () => {
   assert.equal(r.status, "in_progress");
   assert.deepEqual(h.pi.setModelCalls, []);
   assert.deepEqual(h.pi.thinkingCalls, []);
-});
-
-for (const row of [
-  { name: "missing short", phase: "implement", cache: undefined, retention: undefined, tier: "short" },
-  { name: "declared short", phase: "implement", cache: { short: 300 }, retention: undefined, tier: undefined },
-  { name: "missing long", phase: "implement", cache: { short: 300 }, retention: "long", tier: "long" },
-  { name: "plan ignores cache", phase: "plan", cache: undefined, retention: undefined, tier: undefined },
-]) {
-  test(`phaseModels: cache warning ${row.name}`, async () => {
-    const retention = process.env.PI_CACHE_RETENTION;
-    if (row.retention === undefined) delete process.env.PI_CACHE_RETENTION;
-    else process.env.PI_CACHE_RETENTION = row.retention;
-    try {
-      const h = harness({ cwd: tempCwd({ piGauntlet: { flowGuards: { enforce: false } } }), model: M("m", row.cache) });
-      await preparePhase(h, row.phase);
-      const r = await startPhase(h, row.phase);
-      if (row.tier) {
-        assert.ok(r.text.includes(`p/m declares no promptCache.${row.tier} lifetime, so pi's cache warmer skips it`));
-        assert.ok(r.text.includes("providers.p.modelOverrides.m.promptCache"));
-        assert.ok(r.text.includes("providers.p.models[].promptCache"));
-      } else assert.doesNotMatch(r.text, /cache warmer/);
-      assert.deepEqual(h.pi.setModelCalls, []);
-      assert.deepEqual(h.pi.thinkingCalls, []);
-      assert.equal(r.status, "in_progress");
-    } finally {
-      if (retention === undefined) delete process.env.PI_CACHE_RETENTION;
-      else process.env.PI_CACHE_RETENTION = retention;
-    }
-  });
-}
-
-test("phaseModels: cache warning checks the switched model", async () => {
-  const h = harness({ cwd: tempCwd({ piGauntlet: { flowGuards: { enforce: false }, phaseModels: { implement: "p/warm" } } }), model: M("old"), registry: { "p/warm": M("warm", { short: 300, long: 3600 }) } });
-  await preparePhase(h, "implement");
-  const r = await startPhase(h, "implement");
-  assert.equal(h.pi.setModelCalls.length, 1);
-  assert.deepEqual(h.pi.thinkingCalls, []);
-  assert.equal(h.ctx.model?.id, "warm");
-  assert.doesNotMatch(r.text, /cache warmer/);
-  assert.equal(r.status, "in_progress");
 });
 
 test("agent_settled nudges each exact edge with persisted details", async () => {

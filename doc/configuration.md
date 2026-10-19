@@ -78,23 +78,6 @@ Pin review personas (`code-reviewer`, `spec-reviewer`, `conformance-reviewer`) a
 
 Each failure prints one warning in the `phase_tracker` result and leaves the model and thinking level unchanged; the phase still starts: the key is not a non-empty string; the model is not in pi's registry; the `:level` token is not a pi thinking level (only when the id without it resolves); `pi.setModel` returns `false` (no auth for the provider) or throws. A key that names the already-active model with a different level only changes the thinking level; naming the active model and level does nothing. Subagent children never switch.
 
-### Cache warming
-
-pi's cache warmer (`cacheWarming`, default `streaming`) only warms a model whose catalog entry declares a `promptCache` lifetime for the active retention tier (`long` under `PI_CACHE_RETENTION=long`, else `short`; seconds). At `start implement`, after any switch, the phase tracker prints one warning when the active model lacks it, naming the model and both places it can be declared in `<agent-dir>/models.json` (default `~/.pi/agent`):
-
-```json
-{
-  "providers": {
-    "anthropic": {
-      "modelOverrides": { "claude-sonnet-4-5": { "promptCache": { "short": 300, "long": 3600 } } },
-      "models": [{ "id": "my-custom-model", "promptCache": { "short": 300 } }]
-    }
-  }
-}
-```
-
-`modelOverrides.<id>` patches a built-in model; `models[]` entries are custom models. The lifetime is required by the warmer but not sufficient: it also needs a replayable request (an `anthropic-messages` model with thinking on needs `compat.forceAdaptiveThinking`), cost rates on the model, and expected savings of at least $0.05 per warm. `/session` shows the warmer's status.
-
 ## Extensions
 
 ### `plan-tracker`
