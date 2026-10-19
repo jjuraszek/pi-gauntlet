@@ -86,7 +86,7 @@ The `Human input (verbatim; off-limits for over-spec)` block is supplied by the 
 
 **Targeted retry.** Members whose file is missing or not usable are re-dispatched **once**, together, in a second foreground parallel call carrying `async: false` and the same `control` block. Reuse the complete initial task verbatim, including per-task `outputMode: "file-only"`. Use fresh output paths that preserve the `member-<i>-<slug>` basename under a `retry/` subdir of the same temp dir (the chair recovers `raised-by` attribution from that filename pattern). Await its terminal result. Members with usable files are never re-run.
 
-Override the harness's "Read this file if needed" invitation: run only the structural probe; never ingest member findings or the chair report. Upstream nonzero/save-error exception: with no saved file, inline child text can still escape `file-only` (`attempt-finalization.ts:285-287`, `single-output.ts:193-203`); do not read it. Fail-closed child failure output is a pi-cohort follow-up, not a guarantee implemented here.
+Override the harness's "Read this file if needed" invitation: run only the structural probe; never ingest member findings or the chair report.
 
 **Quorum.** At least one usable file after retry -> dispatch the chair over the usable files only (next section). Zero usable files -> abort the council, say so, and return to the user gate.
 

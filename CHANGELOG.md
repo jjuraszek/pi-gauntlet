@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Changed
+
+- Require pi-cohort >= 7.4.1 and document its file-only failure pointers instead of the obsolete inline-failure exception; save-error summaries still take the degrade path.
+
 ## v7.20.0 - 2026-10-19
 
 ### Changed
