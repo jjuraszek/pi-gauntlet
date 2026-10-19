@@ -91,23 +91,46 @@ Clarify freely.
 
 `Read` the gathered draft unconditionally before question one. Treat it as a helper, not a fence: verify load-bearing claims from primary code, and confirm whether the codebase or ecosystem already solves the problem.
 
-Ask one question per message, about purpose, constraints, success, and affected actors. Every questionary question offers 2-4 labeled options (`A)`, `B)`, ...), each a different outcome, and ends `Recommendation: <letter> - <why>`; when more outcomes are plausible, the last option is `other - name it` or the question splits in two. This format overrides chat-style rules in `AGENTS.md` (one paragraph, no Options/Recommendation layout). A decision that would be a yes/no or "may I" question is not asked: make it, state it as an assumption in the message that carries the next question or the premise note, and record it in the draft. Before asking, check code, docs, and tracker: look up current-state facts (dispatch a subagent when costly); adopt a ticket-recorded decision and cite the ticket, asking it only when a cited code or API contradiction, or conflicting recorded outcomes, prevents adopting it. Other approvals retain their wording.
+Ask one question per message, about purpose, constraints, success, and affected actors. Offer 2-4 labeled options (`A)`, `B)`, ...) for every questionary question, each a different outcome. Put the lead-in before the first option, each labeled option on its own physical line, and `Recommendation: <letter> - <why>` on its own final line; when more outcomes are plausible, the last option is `other - name it` or the question splits in two. Use this one-option-per-line layout even when chat-style rules in `AGENTS.md` require one paragraph or no Options/Recommendation layout. A decision that would be a yes/no or "may I" question is not asked: make it, state it as an assumption in the message that carries the next question or the premise note, and record it in the draft. Before asking, check code, docs, and tracker: look up current-state facts (dispatch a subagent when costly); adopt a ticket-recorded decision and cite the ticket, asking it only when a cited code or API contradiction, or conflicting recorded outcomes, prevents adopting it. Other approvals retain their wording.
 
 Bad: `May I treat those two acceptance criteria as location-only deviations? Recommendation: yes`
-Good: `The two ACs name a path that moved; the spec keeps them in-scope with the new path as a Design clause. Which surface owns the refresh? A) the extension B) a new bin C) the existing skill step. Recommendation: A - the extension already holds the poll loop, so no new entrypoint.`
+Good:
+```text
+The two ACs name a path that moved; the spec keeps them in-scope with the new path as a Design clause. Which surface owns the refresh?
+A) the extension
+B) a new bin
+C) the existing skill step.
+Recommendation: A - the extension already holds the poll loop, so no new entrypoint.
+```
 
 Append only citable findings - schemas, hard constraints, contradictions, and scope-changing answers - to `## Appended during questionary` using `edit`.
 
 Before approaches, state in chat the supported, disproved, corrected, and unverified premises with sources and attempted lookups, in full sentences - no status-keyword lists, no template; if the design depends on no claims, one sentence says so. An unverified claim is not a stop: put it in Open Questions or a stated assumption. If a load-bearing claim is contradicted, the premise note is your next message - even as question one - and states the corrected fact with its source; the design continues on it and the user overrides in reply. Record the corrected fact, and any override, in the draft for `## Problem` or the relevant design decision.
 
-Before question one, verify the draft's `Framing:` line against primary code and add your own recon. This check adds to the premise verification above and never replaces it: trace every consumer, caller, and data path the ask's constraints name before writing the holds-statement or the question, and name those traces in the holds-statement, not only the files read. A framing concern exists when you can state a cited case that the ask is misdiagnosed, wrong-sized, already solved, a band-aid where the root cause is reachable, or cuts across a sound pattern - including a repo convention that is itself the debt - and can name the alternative it implies; an objection without an alternative is a lead to investigate, not a concern. With a concern, question one is the framing question in the questionary format: `A) as framed`, `B) pivot: <named alternative> - <cited reason>`, `C) smaller or none: <what ships, or what happens if nothing ships>`, `Recommendation: <letter> - <why>`; for a band-aid concern, B carries the root-cause alternative. Without a concern, open the first message with one sentence naming what was checked - `The framing holds: checked <x>, <y>` - and continue to the first ordinary question; a scout objection that yielded no alternative is named among the things checked.
+Before question one, verify the draft's `Framing:` line against primary code and add your own recon. This check adds to the premise verification above and never replaces it: trace every consumer, caller, and data path the ask's constraints name before writing the holds-statement or the question, and name those traces in the holds-statement, not only the files read. A framing concern exists when you can state a cited case that the ask is misdiagnosed, wrong-sized, already solved, a band-aid where the root cause is reachable, or cuts across a sound pattern - including a repo convention that is itself the debt - and can name the alternative it implies; an objection without an alternative is a lead to investigate, not a concern. With a concern, question one is the framing question in the questionary format:
+
+```text
+A) as framed
+B) pivot: <named alternative> - <cited reason>
+C) smaller or none: <what ships, or what happens if nothing ships>
+Recommendation: <letter> - <why>
+```
+
+For a band-aid concern, put the root-cause alternative in B. Without a concern, open the first message with one sentence naming what was checked - `The framing holds: checked <x>, <y>` - and continue to the first ordinary question; a scout objection that yielded no alternative is named among the things checked.
 
 After any premise correction in the same message, ask the framing question or give the holds-statement. Ask the framing question at most once per brainstorm, including after pushback; the user's reply is final, and later doubts on the same point go to Open Questions or a `Pattern:` line. Recommend; never pivot without the reply. A ticket-recorded decision on the exact point follows the ticket rule above; an adopted decision records `Framing: kept (ticket <id>)`. A pivot never rewrites AC rows: rows it no longer satisfies take `deviates:` dispositions, and a pivot that changes the topic re-mints the slug.
 
 Record the outcome in the draft under `## Appended during questionary` as `Framing: kept` or `Framing: pivoted to <x> - <why>`; spec-writing carries that line into `## Problem`. On redraw entry (checklist step 4) the count restarts: run this evaluation once against the new draft. On redraw the draft is the approved spec: its `## Problem` `Framing:` line is context, not scout evidence, and the new outcome is recorded directly in `## Problem`. When the scout failed there is no `Framing:` line; the holds-statement or the question still comes from your own recon.
 
 Bad: `The ask adds another settings path - should we? Recommendation: no`
-Good: `The ask adds a second settings path beside the resolver that already owns every setting (settings/resolver.ts:11). A) as framed B) pivot: a key under the existing resolver - one read path, no new boundary C) smaller or none: document the default and ship no setting. Recommendation: B - the owning schema already exists.`
+Good:
+```text
+The ask adds a second settings path beside the resolver that already owns every setting (settings/resolver.ts:11).
+A) as framed
+B) pivot: a key under the existing resolver - one read path, no new boundary
+C) smaller or none: document the default and ship no setting.
+Recommendation: B - the owning schema already exists.
+```
 
 ### 4. Explore approaches
 

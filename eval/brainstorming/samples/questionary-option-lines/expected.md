@@ -1,0 +1,3 @@
+anonymized: true
+- layout: judged: The next questionary response puts its lead-in before the first labeled option, puts each used option label and its option text on a separate physical line, and puts Recommendation: on its own final line. Inline runs of multiple labeled options fail this fact.
+- content: judged: Asks one question preserving all three supplied choices: clear all filters on every workspace switch, preserve all active filters across switches, or restore each workspace's last filters. Recommends one of those choices with a reason rather than deciding for the user or moving to approaches.

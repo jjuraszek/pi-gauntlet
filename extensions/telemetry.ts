@@ -548,7 +548,7 @@
       }
       if (event.toolName === "subagent") {
         if (phaseNow() === "brainstorm") onCouncilResults(event.details, event.content);
-        if (!event.isError) await onSubagentResult(event.details, event.content);
+        await onSubagentResult(event.details, event.content, event.isError);
         return undefined;
       }
       if (event.toolName === "plan_tracker" && !event.isError) {
@@ -670,7 +670,7 @@
       flush();
     };
 
-    const onSubagentResult = async (details: unknown, content: unknown) => {
+    const onSubagentResult = async (details: unknown, content: unknown, isError: boolean) => {
       const results = (details as { results?: unknown[] } | undefined)?.results;
       if (!Array.isArray(results) || results.length === 0) return;
       const acc = live();
@@ -687,7 +687,7 @@
         persona.dispatches += 1;
         if (model && !persona.models.includes(model)) persona.models.push(model);
         if (tokens) persona.tokens = addTokens(persona.tokens, tokens);
-        if (agent === "spec-summarizer") acc.gates.spec_rounds += 1;
+        if (!isError && agent === "spec-summarizer") acc.gates.spec_rounds += 1;
         if (REVIEWER_AGENTS.has(agent)) {
           const review = (acc.reviews[agent] ??= { dispatches: 0, nonzero_exit: 0 });
           review.dispatches += 1;
@@ -699,7 +699,7 @@
             review.findings.major += findings.major;
             review.findings.minor += findings.minor;
           }
-          if (agent === "conformance-reviewer") {
+          if (!isError && agent === "conformance-reviewer") {
             if (phases.verify.status === "in_progress") acc.conformance_loops += 1;
             const openGaps = countOpenGaps(text);
             if (openGaps !== undefined) acc.conformance_open_gaps = openGaps;

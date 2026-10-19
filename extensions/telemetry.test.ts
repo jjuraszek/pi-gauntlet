@@ -588,7 +588,7 @@
     assert.deepEqual(h.readRecord().derived.council, EXPECTED_COUNCIL);
     await h.phaseResult("complete", P({ brainstorm: "complete" }));
     assert.deepEqual(h.readRecord().derived.council, EXPECTED_COUNCIL);
-    assert.equal(h.readRecord().derived.personas["spec-council-member"], undefined);
+    assert.deepEqual(h.readRecord().derived.personas["spec-council-member"], { dispatches: 3, models: ["p/alpha:xhigh", "p/beta:high"], tokens: { input: 3, output: 0, cache_read: 0, cache_write: 0, cost: 0 } });
   });
   test("council defaults missing chair model and survives unrelated result before audit", async () => {
     const h = await boundInBrainstorm();
@@ -725,6 +725,66 @@
     assert.deepEqual(rec.derived.reviews?.["code-reviewer"], { dispatches: 1, nonzero_exit: 0, findings: { blocker: 0, major: 1, minor: 2 } });
     assert.equal(rec.derived.conformance_loops, 0);
     assert.deepEqual(rec.derived.phases.plan?.tokens, { input: 152, output: 15, cache_read: 0, cache_write: 0, cost: 1.5 });
+  });
+
+  for (const [name, agents] of [
+    ["chain", ["implementer", "spec-reviewer", "spec-reviewer"]],
+    ["plain tasks", ["implementer", "implementer"]],
+    ["empty results", []],
+    ["missing results", undefined],
+  ] as const) {
+    test(`failed subagent ${name}: count terminal retained results once, not progress`, async () => {
+      const h = harness();
+      await h.phaseResult("start", P({ brainstorm: "in_progress" }));
+      await h.writeSpec("doc/specs/a.md");
+      await h.phaseResult("start", P({ brainstorm: "complete", plan: "complete", implement: "in_progress" }));
+      await h.emit("tool_result", { toolName: "plan_tracker", toolCallId: "pt", input: {}, content: [], isError: false, details: { action: "init", tasks: [{ name: "repair", status: "in_progress" }] } });
+      const before = h.readRecord();
+      const results = agents?.map((agent, i) => ({ agent, exitCode: i === agents.length - 1 ? 1 : 0, model: `p/m${i}`, usage: usage(10, 2, 0.5) }));
+      const terminal = { ...subagentResult(results ?? []), isError: true, details: results === undefined ? {} : { results } };
+      for (const partial of [results?.slice(0, 1), results]) {
+        await h.emit("tool_execution_update", { type: "tool_execution_update", toolName: "subagent", toolCallId: "sa", args: {}, partialResult: { content: [], details: { results: partial ?? [] } } });
+      }
+      assert.deepEqual(h.readRecord(), before);
+      await h.emit("tool_result", terminal);
+      const rec = h.readRecord();
+      const dispatches = rec.events.filter((e) => e.kind === "dispatch");
+      assert.equal(dispatches.length, agents?.length ?? 0);
+      assert.deepEqual(dispatches.map((e) => ({ agent: e.agent, model: e.model, exit: e.exit, phase: e.phase })), results?.map((r) => ({ agent: r.agent, model: r.model, exit: r.exitCode || undefined, phase: "implement" })) ?? []);
+      for (const agent of new Set(agents)) {
+        const retained = results!.filter((r) => r.agent === agent);
+        assert.deepEqual(rec.derived.personas[agent], { dispatches: retained.length, models: retained.map((r) => r.model), tokens: { input: 10 * retained.length, output: 2 * retained.length, cache_read: 0, cache_write: 0, cost: 0.5 * retained.length } });
+      }
+      if (name === "chain") assert.deepEqual(rec.derived.reviews?.["spec-reviewer"], { dispatches: 2, nonzero_exit: 1 });
+      if (results?.length) assert.deepEqual(rec.derived.phases.implement?.tokens, { input: 10 * results.length, output: 2 * results.length, cache_read: 0, cache_write: 0, cost: 0.5 * results.length });
+      else assert.deepEqual(rec, before);
+      assert.deepEqual(rec.events.filter((e) => e.kind === "phase" || e.kind === "gate"), before.events.filter((e) => e.kind === "phase" || e.kind === "gate"));
+      assert.deepEqual(rec.derived.plan, before.derived.plan);
+      assert.deepEqual(rec.derived.gates, before.derived.gates);
+    });
+  }
+
+  test("failed spec and conformance dispatches count usage and failures without advancing successful gates", async () => {
+    const h = await boundInPlan();
+    await h.phaseResult("start", P({ brainstorm: "complete", plan: "complete", implement: "complete", verify: "in_progress" }));
+    const results = ["spec-summarizer", "conformance-reviewer"].map((agent) => ({ agent, exitCode: 1, model: "p/r", usage: usage(3) }));
+    const before = h.readRecord();
+    await h.emit("tool_result", { ...subagentResult(results, "Conformance verdict: GAPS\nG1:\n  verdict: MISSING"), isError: true });
+    let rec = h.readRecord();
+    assert.deepEqual(rec.events.filter((e) => e.kind === "dispatch").map((e) => ({ agent: e.agent, exit: e.exit, phase: e.phase })), results.map((r) => ({ agent: r.agent, exit: 1, phase: "verify" })));
+    for (const { agent } of results) assert.deepEqual(rec.derived.personas[agent], { dispatches: 1, models: ["p/r"], tokens: { input: 3, output: 0, cache_read: 0, cache_write: 0, cost: 0 } });
+    assert.equal(rec.derived.gates.spec_rounds, before.derived.gates.spec_rounds);
+    assert.equal(rec.derived.conformance_loops, before.derived.conformance_loops);
+    assert.equal(rec.derived.conformance_open_gaps, before.derived.conformance_open_gaps);
+    assert.deepEqual(rec.derived.reviews?.["conformance-reviewer"], { dispatches: 1, nonzero_exit: 1 });
+    assert.deepEqual(rec.derived.phases.verify?.tokens, { input: 6, output: 0, cache_read: 0, cache_write: 0, cost: 0 });
+    assert.deepEqual(rec.events.filter((e) => e.kind === "phase" || e.kind === "gate"), before.events.filter((e) => e.kind === "phase" || e.kind === "gate"));
+    await h.emit("tool_result", subagentResult(results.map((r) => ({ ...r, exitCode: 0 })), "Conformance verdict: GAPS\nG1:\n  verdict: MISSING"));
+    rec = h.readRecord();
+    assert.equal(rec.derived.gates.spec_rounds, before.derived.gates.spec_rounds + 1);
+    assert.equal(rec.derived.conformance_loops, 1);
+    assert.equal(rec.derived.conformance_open_gaps, 1);
+    assert.deepEqual(rec.derived.reviews?.["conformance-reviewer"], { dispatches: 2, nonzero_exit: 1 });
   });
 
   test("conformance-reviewer during verify counts loops and retains the latest open gap count", async () => {

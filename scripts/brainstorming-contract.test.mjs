@@ -201,7 +201,25 @@ test('section 3 asks the framing question once, with a named alternative, after 
   assert.ok(left > -1 && right > -1 && left < right, 'framing paragraph follows the premise note');
   for (const marker of ['A) as framed', 'B) pivot:', 'C) smaller or none:', 'The framing holds: checked', 'After any premise correction in the same message, ask the framing question or give the holds-statement', 'at most once per brainstorm', 'Framing: kept', 'Framing: pivoted to <x> - <why>', '## Appended during questionary', 'the count restarts', 'adds to the premise verification above', 'trace every consumer, caller, and data path']) assert.ok(section.includes(marker), marker);
   assert.match(section, /^Bad: `The ask adds another settings path - should we\? Recommendation: no`$/m);
-  assert.match(section, /^Good: `.*A\) as framed B\) pivot: .* C\) smaller or none: .* Recommendation: B - .*`$/m);
+  const good = [...section.matchAll(/^Good:\n```text\n([\s\S]*?)\n```$/gm)].map((match) => match[1]);
+  const framing = section.match(/^```text\n(A\) as framed[\s\S]*?)\n```$/m);
+  assert.equal(good.length, 2, 'both Good examples use fenced text blocks');
+  assert.ok(framing, 'framing template uses a fenced text block');
+  const preserved = [
+    'The two ACs name a path that moved; the spec keeps them in-scope with the new path as a Design clause. Which surface owns the refresh? A) the extension B) a new bin C) the existing skill step. Recommendation: A - the extension already holds the poll loop, so no new entrypoint.',
+    'The ask adds a second settings path beside the resolver that already owns every setting (settings/resolver.ts:11). A) as framed B) pivot: a key under the existing resolver - one read path, no new boundary C) smaller or none: document the default and ship no setting. Recommendation: B - the owning schema already exists.',
+  ];
+  for (const [index, example] of good.entries()) {
+    assert.equal(example.replace(/\n/g, ' '), preserved[index], 'preserve example wording');
+    assert.ok(example.indexOf('\nA)') > 0, 'lead-in precedes first option');
+  }
+  assert.equal(framing[1].replace(/\n/g, ' '), 'A) as framed B) pivot: <named alternative> - <cited reason> C) smaller or none: <what ships, or what happens if nothing ships> Recommendation: <letter> - <why>');
+  for (const rendering of [...good, framing[1]]) {
+    const lines = rendering.split('\n');
+    assert.deepEqual(lines.filter((line) => /^[A-Z]\)/.test(line)).map((line) => line.slice(0, 2)), ['A)', 'B)', 'C)']);
+    assert.ok(lines.every((line) => (line.match(/[A-Z]\)/g) ?? []).length <= 1), 'one labeled option per physical line');
+    assert.match(lines.at(-1), /^Recommendation: /, 'recommendation owns the final line');
+  }
 });
 
 test('section 4 demands distinct, pattern-judged approaches and section 5 refuses to extend debt', () => {
