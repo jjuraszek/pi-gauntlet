@@ -1,0 +1,9 @@
+bundle-: skills/subagent-driven-development/code-quality-reviewer-prompt.md
+bundle-: skills/requesting-code-review/SKILL.md
+bundle-: skills/requesting-code-review/code-reviewer.md
+
+A two-task wave in /workspace/project uses pi-cohort 7.4.0 and its initial implementer-to-SR chain. Task 1 returns DONE; task 2 reports BLOCKED. Do not assume whether task 2 edited. No SR has run. The recorded wave base is 1111111111111111111111111111111111111111. The authoritative spec is /workspace/project/doc/specs/feature.md; both full tasks, Spec anchors, Files and Tests blocks are available unchanged.
+
+Describe the conditional exit-0 stop and completion-guard error routes without selecting an unprovided execution. Also address a sibling's ## Stop coexisting with a failed task, rejected/missing structured_output, and a no-edits NEEDS_CONTEXT alternative. Describe recovery evidence and unavailable-artifact behavior, the one accepted sibling's review, and whether another chain is allowed. Give a concise dispatch/decision response of at most 900 words, not executed verdicts. Use placeholders for already-supplied full task and prompt text; express schemas by allowed enum values.
+
+The result surface is tool-result text, not details: ## Outputs contains exit-0 fenced statuses and ## Stop identifies a matched exit-0 stop. Artifacts: /tmp/chain-run identifies task 1's captured patch /tmp/chain-run/worktree-diffs/step-0/task-0-implementer.patch. Its known output: report is /tmp/reports/wave1-task1.md. If task 2 exits zero, its known output: file is /tmp/reports/wave1-task2.md. If it fails, there is no output: file or bound output: use run/task identity to match its prose in session subagent-artifacts according to pi-cohort src/shared/artifacts.ts, or explain the fallback when disabled, missing, or ambiguous. The chain's parallel-0/ directory is not failed-task prose evidence.

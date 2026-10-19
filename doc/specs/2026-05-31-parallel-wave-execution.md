@@ -1,5 +1,7 @@
 # Parallel Wave-Based Implementation Execution
 
+> **Superseded by:** [doc/specs/2026-10-18-gh-70-wave-as-one-chain.md](./2026-10-18-gh-70-wave-as-one-chain.md) - "Design Overview" implementer fan-out and spec-review dispatch shape only
+
 **Status:** Draft (spec review)
 **Date:** 2026-05-31
 **Spec:** this document

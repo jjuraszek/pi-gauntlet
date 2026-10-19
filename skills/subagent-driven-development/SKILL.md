@@ -166,8 +166,8 @@ Auto-selected at handoff by `writing-plans` (any wave with ≥2 tasks) when the 
 **Per-wave loop:**
 
 1. **Independence check.** Parse the wave's tasks' `Files:` blocks; assert pairwise-disjoint (mechanical, mirroring `wave-file-disjointness`: `Test`/`Test` on one path is not overlap, `Test` vs another task's `Create`/`Modify` is, `Modify`/`Modify` is). Runtime-resource disjointness (DB/schema, port, fixture, external service, shared temp path) is not machine-checkable here — trust the plan's wave grouping, which `writing-plans`' D5 contract guarantees. Either kind of overlap → the wave is mis-grouped; run those tasks as sequential single-task waves and note it.
-2. **Start, then fan out.** Record `WAVE_BASE_SHA` with `git -C <worktree> rev-parse HEAD` before dispatch; keep it fixed through the wave's commit. Mark every wave index `in_progress` before one parallel foreground dispatch (shape below): `implementer` per task, `context: "fresh"`, `worktree: true`. Each returns a status + a patch.
-3. **Status + spec review per task.** Parse each `DONE`/`BLOCKED`/etc. (see [Implementer Status](#implementer-status)) **first**. Then **dispatch a `spec-reviewer` per accepted patch** (`DONE`, or a `DONE_WITH_CONCERNS` you proceeded with) in one parallel fan-out - `context: "fresh"`, each task's `cwd` = its [Spec-review snapshot](#spec-review-snapshots), **no `worktree` flag** (read-only) - each passed its task text, the returned **patch diff**, the absolute spec path, and the task's `**Spec:**` anchors, plus its `**Tests:**` block and `- Test:` paths as contract — SR reads the anchored ranges itself (never inline excerpts; authority hierarchy in `./spec-reviewer-prompt.md`; anchor-less tasks are task-text-only). Review starts from the diff (its hunks carry `file:line`) and reads each touched file in full, and test execution is never the reviewer's job - in either mode (persona rule; the wave test gate in step 5 runs the wave's `SCOPED_TEST_COMMANDS`). Inline verdicts are fine at normal wave sizes; large waves use `output:` + `outputMode: "file-only"` to keep verdicts out of your context. **Re-dispatch by cause:** `BLOCKED`/`NEEDS_CONTEXT` per the [Implementer Status](#implementer-status) matrix; a **spec gap** re-dispatches the implementer (fresh, `worktree: true`) carrying the prior patch + the reviewer's findings, the new patch superseding the old at step 4. Loop until accepted + spec ✅, within [Fix-Loop Rounds](#fix-loop-rounds), same as sequential.
+2. **Start, then dispatch.** Record `WAVE_BASE_SHA` with `git -C <worktree> rev-parse HEAD` before dispatch; keep it fixed through the wave's commit. Mark every wave index `in_progress` in increasing index order. Use the once-per-phase preflight below to choose exactly one initial chain (including one-task waves), or the fallback implementer fan-out.
+3. **Read the result once.** Read statuses, verdicts, patches, and reports as specified below. All implementers `DONE` and all verdicts `COMPLIANT` -> step 4. Any other outcome -> [Chain stopped or failed](#chain-stopped-or-failed). The ticket's `FAIL` means a spec gap (`NEEDS_REWORK`), not a structured verdict or an SR `stopOn` condition.
 4. **Integrate.** Run `git -C <worktree> apply --index <patch-path>` for each accepted task's patch sequentially. This stages additions as well as tracked changes for review. Apply fails = textual conflict → drop that task, finish the rest, re-run the dropped task sequentially on the updated HEAD.
 5. **Test gate.** Run the wave's `SCOPED_TEST_COMMANDS` (union of its tasks' `Tests:` commands) on the integrated tree as `(cd "<worktree>" && <command>)` for each command — the full verification set is the verify phase's job, run once. Failure = semantic conflict or bug → re-run the offending task sequentially, else fix per [When a Subagent Fails](#when-a-subagent-fails).
 6. **Quality review.** CR binds to the wave: exactly one **initial** code-review dispatch per code-touching wave, over the integrated wave diff - never per task within a wave, never batched across waves. Subsequent dispatches within the wave are re-reviews triggered only by findings, per Fix-Loop Rounds. Pass the wave's `SCOPED_TEST_COMMANDS`, `BASE_SHA: <WAVE_BASE_SHA>`, and `HEAD_SHA: WORKTREE` per `code-quality-reviewer-prompt.md`; the review reads the staged and unstaged integrated diff, not a commit range. On findings, fix and re-review per `/skill:requesting-code-review` and [Fix-Loop Rounds](#fix-loop-rounds). For in-place repairs, stage the reviewed deliverables before dispatch and override the implementer commit step: leave the fix uncommitted and unstaged. After it returns, run `git -C <worktree> add -N -- <new-fix-paths>` for new deliverables, capture `git -C <worktree> diff --binary` as `## Fix delta`, then stage the fix's deliverable paths before SR/CR re-review. Preserve `WAVE_BASE_SHA` and `HEAD_SHA: WORKTREE` through every re-review and escalated in-place repair. Skip CR for doc-only waves (SR-only per the commit precondition below).
@@ -179,11 +179,68 @@ Auto-selected at handoff by `writing-plans` (any wave with ≥2 tasks) when the 
 
 **Caveat:** each task must be independently runnable and verifiable in a fresh worktree — no reliance on uncommitted local state. `pi-cohort` symlinks `node_modules`; repos needing other per-worktree setup must account for it.
 
-Pass the implementation worktree's absolute path as top-level `cwd`; override each per-patch SR task's `cwd` with its snapshot path, without `worktree: true`. Rule and rationale for editing dispatches: `dispatching-parallel-agents` "pi-cohort Integration".
+Requires pi-cohort >= 7.4.0 for `treePath` (`stopOn` is 7.3.0); below it, the preflight turns the chain off and the wave runs as today's two fan-outs.
+
+Before the first wave, run this lookup once per implement phase, observing both commands' failures (use shell pipeline failure detection):
+
+```bash
+set -o pipefail
+COHORT_DIR=$(pi list | grep -A1 'pi-cohort$' | tail -1 | tr -d ' ')
+COHORT_VERSION=$(node -p "require('$COHORT_DIR/package.json').version")
+```
+
+Compare the three semver components numerically against 7.4.0, not lexicographically. On a lower or unparseable version, or either command's failure, use the two fan-outs for every wave in this run. Note `pi-cohort <version>: chain disabled` once with the observed version; display `unknown` and the lookup failure when discovery failed. A 7.3.x runtime must never receive the chain: it passes the literal tree reference to SR. The package peer floor is declarative; pi-managed packages do not auto-install peers.
+
+Pass the implementation worktree's absolute path as top-level `cwd`. Per-task `cwd` outranks step and run `cwd`; only the SR tasks override it. Rule and rationale for editing dispatches: `dispatching-parallel-agents` "pi-cohort Integration".
 
 ```bash
 REPORT_DIR=$(mktemp -d)
 ```
+
+```ts
+IMPLEMENTER_STATUS_SCHEMA = { type: "object", required: ["status"], additionalProperties: true,
+  properties: { status: { type: "string", enum: ["DONE", "DONE_WITH_CONCERNS", "NEEDS_CONTEXT", "BLOCKED"] } } }
+```
+
+```ts
+subagent({
+  async: false,
+  context: "fresh",
+  cwd: "<abs worktree path>",
+  chain: [
+    {
+      parallel: [
+        { agent: "implementer", as: "impl_1", outputSchema: IMPLEMENTER_STATUS_SCHEMA,
+          output: "<REPORT_DIR>/wave<w>-task1.md",
+          task: "<full task text + owned files + SCOPED_TEST_COMMANDS + Tests: block + status protocol> pi-cohort saves your final report to the output path; do not write that file yourself, and it is not a concern about owned files." },
+        // one entry per wave task, as: "impl_<n>" in plan index order
+      ],
+      worktree: true,
+      concurrency: 4,
+      stopOn: { path: "/status", in: ["BLOCKED", "NEEDS_CONTEXT", "DONE_WITH_CONCERNS"] },
+    },
+    {
+      parallel: [
+        { agent: "spec-reviewer", as: "sr_1",
+          cwd: "{outputs.impl_1.treePath}",
+          output: "<REPORT_DIR>/wave<w>-sr1.md",
+          acceptance: { level: "none", reason: "the parent reads each SR Verdict: line; review trees are staged by design" },
+          task: "<full task text + absolute spec path (in the implementation worktree) + Spec: anchors + Tests: block + Test: paths> The patch under review is the file at {outputs.impl_1.patchPath}; the working tree you run in already has it applied. The implementer's report is at <REPORT_DIR>/wave<w>-task1.md; read it for the 'What Implementer Claims They Built' section." },
+        // one entry per wave task, paired by index
+      ],
+      concurrency: 4,
+    },
+  ],
+})
+```
+
+Count the clean code-wave path as one chain plus one separate CR `subagent()` call; integration and tests remain parent actions between them. Use positional 1-based `impl_<n>` and `sr_<n>` names; map results to plan indices by wave position. Keep `context`, `async`, and top-level `cwd` invocation-level; `worktree`, `concurrency`, and `stopOn` step-level; `as`, `outputSchema`, `cwd`, `output`, `acceptance`, and `task` per-task. Give the SR step neither `worktree` nor `stopOn`, and its tasks no `outputSchema`.
+
+Tell SR to start from diff hunks carrying `file:line`, read every touched file in full from its materialized tree, read deleted files from `WAVE_BASE_SHA`, and never run tests. Pass the authoritative spec's absolute implementation-worktree path; SR reads the anchored ranges itself (never inline excerpts; authority hierarchy in `./spec-reviewer-prompt.md`; anchor-less tasks are task-text-only). Output references resolve only in `task` strings and `cwd` (`treePath` only), never `reads:`; paste no diff into the chain payload. Rely on pi-cohort's `structured_output` injection only for implementers carrying `outputSchema`; 7.4.0 orders an enabled acceptance report before that call. Keep SR schema-free because no `stopOn` reads its verdict. Disable acceptance on each initial chained SR task with `none` and a nonempty reason because the parent reads each `Verdict:` line and review trees are staged by design: risky-word inference precedes read-only inference, non-none explicit levels only raise the inferred level, and `checked` or higher requires no staged files; snapshot-backed spec reviews and code review carry no `acceptance` field. Keep prompts and persona vocabularies unchanged.
+
+Read the tool-result text, not `details`: read implementer statuses from fenced JSON in `## Outputs` and the `## Stop` line; read SR verdicts from the `Verdict:` line of each SR `output:` report, one of `COMPLIANT`, `NEEDS_REWORK`, or `OUT_OF_SCOPE_CHANGES`. Read patch locations from `Artifacts:`: `<Artifacts dir>/worktree-diffs/step-0/task-<i>-implementer.patch`, with 0-based wave position `<i>`. Use these artifact patches for integration and later repairs. Exit-0 reports are the known `output:` files. A nonzero task has no `output:` file and no bound output. Recover its prose from its session `subagent-artifacts` output file (`<runId>_implementer_<index>_output.md`, defined by pi-cohort `src/shared/artifacts.ts`), matching the run/task identity in the result or session transcript. Use the same source-defined per-agent naming for a failed reviewer. Do not use the chain's empty `parallel-0/` directories for failed prose. If artifacts are disabled, missing, or cannot be unambiguously matched, enter [When a Subagent Fails](#when-a-subagent-fails) with the visible diagnostic; never invent a status. Keep SR's large-wave `outputMode: "file-only"` hint; read the report itself, not its `Output saved to:` pointer. Carry its full contents verbatim under `## Previous review report (re-review trigger)` on re-review.
+
+**Older-runtime fallback only:** use this plain implementer fan-out, then the snapshot-backed SR fan-out below. Keep the same report-path wave/task mapping.
 
 ```ts
 subagent({
@@ -202,9 +259,24 @@ subagent({
 
 For the fan-out + worktree + patch-integration + conflict mechanics, see `dispatching-parallel-agents`.
 
+### Chain stopped or failed
+
+Route the result already read in step 3; retain all successful sibling patches and verdicts. Inspect failed tasks regardless of whether `## Stop` is also present: pi-cohort evaluates the stop condition before checking sibling failures, so both can coexist. Read exit-0 statuses from `## Outputs` when present or their `output:` reports; recover failed-task prose using the session-artifact rule above, including its unavailable-artifact fallback. Treat `## Stop` as a matched exit-0 status, not proof that every sibling succeeded. For `DONE_WITH_CONCERNS` alongside a nonzero `BLOCKED`, judge the concerns, diagnose the failed task, and retain accepted siblings:
+
+| Outcome | Recovery |
+|---|---|
+| Exit-0 stop (`## Stop`) with no failed siblings | Siblings finished, statuses remain in `## Outputs`, and no SR step ran. Judge `DONE_WITH_CONCERNS`, answer `NEEDS_CONTEXT`, diagnose `BLOCKED`, then snapshot accepted patches and use the ordinary SR fan-out below. |
+| Chain error, with or without `## Stop` | Identify and diagnose every failed task from the result, including prose `**Status:**` / `Verdict:` recovered through the session-artifact rule above. Completion-guard failure with no edits, rejected/missing `structured_output`, failed `treePath`, and sibling process failure all take this route. Handle a recoverable `BLOCKED` or `NEEDS_CONTEXT` through its status matrix even when that unaccepted task has no patch. Route a task with no recoverable status, or an accepted task with a missing/empty patch, to [When a Subagent Fails](#when-a-subagent-fails) with the visible diagnostic; never invent a status or review an unchanged tree. Retain exit-0 SR verdicts obtained in a materialized tree; dispatch only accepted patches without a verdict. Successful siblings are never re-run. |
+| Completed chain with `NEEDS_REWORK` or `OUT_OF_SCOPE_CHANGES` | Repair only those tasks using the spec-gap loop below. Preserve passing sibling patches/verdicts. |
+| Older-runtime fallback | Parse the plain fan-out statuses, then use the same snapshot-backed SR and fix loop below. |
+
+Parse each `DONE`/`BLOCKED`/etc. (see [Implementer Status](#implementer-status)) **first**. Then **dispatch a `spec-reviewer` per accepted patch** (`DONE`, or a `DONE_WITH_CONCERNS` you proceeded with) still missing a verdict in one parallel fan-out - `context: "fresh"`, each task's `cwd` = its [Spec-review snapshot](#spec-review-snapshots), **no `worktree` flag** (read-only) - each passed its full task text, the returned **patch diff**, the absolute spec path, and the task's `**Spec:**` anchors, plus its `**Tests:**` block and `- Test:` paths as contract. SR reads the anchored ranges itself (never inline excerpts; authority hierarchy in `./spec-reviewer-prompt.md`; anchor-less tasks are task-text-only). Review starts from the diff (its hunks carry `file:line`) and reads each touched file in full; test execution is never the reviewer's job (step 5 runs the wave's `SCOPED_TEST_COMMANDS`). Inline verdicts are fine at normal wave sizes; large waves use `output:` + `outputMode: "file-only"`; read the full report file itself.
+
+**Re-dispatch by cause:** `BLOCKED`/`NEEDS_CONTEXT` per the [Implementer Status](#implementer-status) matrix; a **spec gap** re-dispatches only that implementer using a one-entry `tasks` array with invocation-level `worktree: true`, `context: "fresh"`, and implementation `cwd`, carrying the artifacts patch + full SR report verbatim. Snapshot the replacement patch with [Spec-review snapshots](#spec-review-snapshots) (a setup failure stops dispatch and keeps the failed snapshot) and dispatch one plain re-review with `## Previous review report (re-review trigger)` and the trajectory block. The new patch supersedes the old at step 4. Loop until accepted + spec compliant, within [Fix-Loop Rounds](#fix-loop-rounds), same as sequential. Never dispatch a second chain in the same wave.
+
 ## Spec-review snapshots
 
-Materialize each accepted patch before its pre-integration spec review, including replacement patches on re-review. Keep the implementation worktree unchanged; pi-cohort removes its worker checkouts before returning patches.
+Materialize each accepted patch for every pre-integration review not run by the chain: accepted siblings after errors/stops, replacement patches on re-review, and older-runtime fallback. Keep the implementation worktree unchanged; pi-cohort removes its worker checkouts before returning patches.
 
 Substitute shell-quoted literals for the implementation worktree, the recorded `WAVE_BASE_SHA`, and the absolute patch path. Run this block once per patch:
 
@@ -318,6 +390,7 @@ Use the printed snapshot path as that spec-review task's `cwd` and whole-file re
 - Making a subagent read the plan, inlining spec excerpts to the spec reviewer, or dispatching with a `SCOPED_TEST_COMMANDS` value missing or not copied from the plan's `Tests:` bullets.
 - Dispatching `code-reviewer` before every in-scope spec-review verdict is ✅, or per task inside a wave.
 - Moving to the next task with either review still showing issues, or skipping the `Implementer Status` parse.
+- Second chain call in the same wave after a stop or a chain error - the retained results are the fan-out result; continue on the snapshot path.
 - Dispatching fix 3 without a reviewer-emitted `CONVERGING` verdict, or continuing past `STAGNANT` instead of escalating.
 - Running the full verification entrypoint, or any test command outside `SCOPED_TEST_COMMANDS`, during the implement phase.
 - Dispatching a repair before reopening the plan-task indices that own its files, whole-diff CR before parent verification passes, or conformance before the CR result is accepted.

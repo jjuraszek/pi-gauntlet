@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Changed
+
+- **A parallel wave's implementers and first spec reviews are one chain call.** On pi-cohort 7.4.0 or newer, `subagent-driven-development` dispatches each wave as one `chain:` call: implementers fan out with `worktree: true` and stop the chain on `BLOCKED`, `NEEDS_CONTEXT`, or `DONE_WITH_CONCERNS`; spec reviewers then read each implementer's base-plus-patch tree through `{outputs.<as>.treePath}` with no `outputSchema` and acceptance off, their verdict read from the report's `Verdict:` line. A clean wave costs one parent turn fewer. A chain stop, chain error, spec `FAIL`, re-review, and sequential mode keep the parent-built snapshot path; an older pi-cohort is detected by a `pi list` preflight and uses the two fan-outs. Peer floor `pi-cohort >=7.4.0`. (#70)
+
 ## v7.19.0 - 2026-10-19
 
 ### Changed

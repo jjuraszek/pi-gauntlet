@@ -1,6 +1,7 @@
 # Parallel-Wave Mode: dispatch `spec-reviewer` per patch
 
 > **Superseded by:** [doc/specs/2026-08-23-gh-13-plan-fidelity-anchors.md](./2026-08-23-gh-13-plan-fidelity-anchors.md) - SR contract scope only
+> **Superseded by:** [doc/specs/2026-10-18-gh-70-wave-as-one-chain.md](./2026-10-18-gh-70-wave-as-one-chain.md) - dispatch mechanics of the per-patch `spec-reviewer` fan-out on the all-`DONE` path only
 
 ## Context
 
