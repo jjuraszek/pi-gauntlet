@@ -155,7 +155,7 @@ test('council file boundaries, applier rollback and ordered handoff are explicit
   const applier = text.slice(text.indexOf('agent: "spec-council-applier"'), text.indexOf('\n```', text.indexOf('agent: "spec-council-applier"')));
   for (const marker of ['async: false', 'cwd: "<abs worktree path>"', 'needsAttentionAfterMs: 300000, inFlightSilenceCeilingMs: 600000, inFlightSilenceKillMs: 900000', 'Human input (verbatim; off-limits for over-spec)', 'External context fetched during brainstorming:', 'ticket reference + body/comments', 'none', 'usableMemberPaths.join']) assert.ok(applier.includes(marker), marker);
   assert.doesNotMatch(applier, /\b(?:model|output|reads):/);
-  for (const marker of ['cp <spec> <tmpdir>/spec.before.md', 'git -C <wt> status --porcelain --untracked-files=all > <tmpdir>/status.before', '^Applied:', '^Deferred:', '^Rejected:', "grep -c 'raised-by:'", "grep -Ec '^- \\[(blocker|major|minor)\\]'", 'restore before retry', 'Second failure', 'restore again', 'zero', 'audit.md', 'already-dirty paths', 'accepted gap', 'checkout --', 'reverted applier edit outside the spec:', 'attempt-finalization.ts:285-287', 'single-output.ts:193-203', 'pi-cohort follow-up']) assert.ok(text.includes(marker), marker);
+  for (const marker of ['cp <spec> <tmpdir>/spec.before.md', 'git -C <wt> status --porcelain --untracked-files=all > <tmpdir>/status.before', '^Applied:', '^Deferred:', '^Rejected:', "grep -c 'raised-by:'", "grep -Ec '^- \\[(blocker|major|minor)\\]'", 'restore before retry', 'Second failure', 'restore again', 'zero', 'audit.md', 'already-dirty paths', 'accepted gap', 'checkout --', 'reverted applier edit outside the spec:']) assert.ok(text.includes(marker), marker);
   const after = text.slice(text.indexOf('### 4'));
   assert.ok(after.includes('git -C <wt> status --porcelain --untracked-files=all'));
   assert.equal([...text.matchAll(/status --porcelain/g)].length, 2);
@@ -165,6 +165,7 @@ test('council file boundaries, applier rollback and ordered handoff are explicit
   let previous = -1;
   for (const marker of ['First `read` the spec', 'status --porcelain', 'placeholder scan', 'predicate', 'rm -rf', 'Return the audit verbatim']) { const at = after.indexOf(marker); assert.ok(at > previous, marker); previous = at; }
   assert.ok(!text.includes('clusters that assert data shape, ordering, or semantics'));
+  assert.ok(!text.includes('Upstream nonzero/save-error exception'));
 });
 
 test('chair input paths and output destination are factual corrections and ticket chair stays inline', () => {
