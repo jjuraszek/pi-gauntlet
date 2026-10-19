@@ -1,0 +1,110 @@
+{
+  "sample": "all-singleton-waves",
+  "arm": "candidate",
+  "skillSha": "b0edc73eb6a8c3994f3fe537ebdf2b380a9163465e541bf3ab453928decb9299",
+  "inputSha": "854f952329675f5f232947fabf4ffeb49444b9df903dc998adeebc260ea8201d",
+  "kind": "text",
+  "assembly": "headed",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "# Implement-Phase Plan: Three Singleton Waves (Not Executed)\n\nNothing below has been run. Each wave's outcome comes from the supplied future observations: implementers return `DONE`, reviews accept, scoped tests pass. I invent no verdicts.\n\n## Phase setup (once)\n\n1. Call `phase_tracker({ action: \"start\", phase: \"implement\" })`.\n2. Keep the existing `plan_tracker` list. Indices 1, 2 and 3 are `pending`. Do not re-init.\n3. The preflight already reported pi-cohort 7.4.0, which is at least 7.4.0, so the chain is enabled for every wave.\n4. Run `REPORT_DIR=$(mktemp -d)`.\n\nEach wave has one task, so the independence check passes trivially.\n\n## Per-wave procedure (wave *w*, task *t*, worktree `/workspace/project`)\n\n**Step 2: Record the base and start the task.**\n- Run `git -C /workspace/project rev-parse HEAD` and record the result as `WAVE_BASE_SHA_w`.\n- Call `plan_tracker` to set task *t* to `in_progress`.\n\n**Step 2: Dispatch the chain.** This is the concrete N=1 shape, shown once:\n\n```ts\nsubagent({\n  async: false, context: \"fresh\", cwd: \"/workspace/project\",\n  chain: [\n    { parallel: [\n        { agent: \"implementer\", as: \"impl_1\", outputSchema: IMPLEMENTER_STATUS_SCHEMA,\n          output: \"<REPORT_DIR>/wave<w>-task1.md\",\n          task: \"<full Task t text + owned Files + SCOPED_TEST_COMMANDS + Tests: block + status protocol + prior-wave summary/paths> pi-cohort saves your final report to the output path; do not write that file yourself, and it is not a concern about owned files.\" } ],\n      worktree: true, concurrency: 4,\n      stopOn: { path: \"/status\", in: [\"BLOCKED\", \"NEEDS_CONTEXT\", \"DONE_WITH_CONCERNS\"] } },\n    { parallel: [\n        { agent: \"spec-reviewer\", as: \"sr_1\",\n          cwd: \"{outputs.impl_1.treePath}\",\n          output: \"<REPORT_DIR>/wave<w>-sr1.md\",\n          acceptance: { level: \"none\", reason: \"the parent reads each SR Verdict: line; review trees are staged by design\" },\n          task: \"<full Task t text + /workspace/project/doc/specs/numbers.md + Spec: anchors + Tests: block + Test: paths; start from file:line hunks, read touched files fully, deleted files from WAVE_BASE_SHA_w, never run tests> The patch under review is the file at {outputs.impl_1.patchPath}; the working tree you run in already has it applied. The implementer's report is at <REPORT_DIR>/wave<w>-task1.md; read it for the 'What Implementer Claims They Built' section.\" } ],\n      concurrency: 4 } ] })\n```\n\n**Step 3: Read the result.**\n- Read `status: DONE` from the `## Outputs` JSON.\n- Read `Verdict: COMPLIANT` from `<REPORT_DIR>/wave<w>-sr1.md`.\n- Take the patch path from `Artifacts:`, at `<ARTIFACTS_w>/worktree-diffs/step-0/task-0-implementer.patch`.\n\n**Step 4: Integrate.**\n- Run `git -C /workspace/project apply --index <ARTIFACTS_w>/worktree-diffs/step-0/task-0-implementer.patch`.\n\n**Step 5: Scoped gate.**\n- Run `(cd \"/workspace/project\" && node --test <the task's test file>)`.\n\n**Step 6: Code review.**\n1. Run `git -C /workspace/project add -A`.\n2. Run the fix-delta tree block with `FD_ROOT='/workspace/project'`. Record the printed SHA as `CR_TREE_w`, which is only needed if a re-review follows.\n3. Dispatch:\n\n```ts\nsubagent({ agent: \"code-reviewer\", async: false, cwd: \"/workspace/project\",\n  task: \"<code-reviewer.md filled: DESCRIPTION=<wave w summary from impl report>, PLAN=<Task t text>, BASE_SHA=<WAVE_BASE_SHA_w>, HEAD_SHA=WORKTREE, SCOPED_TEST_COMMANDS=<task's command>, + file-structure checks; ask: production-ready?>\" })\n```\n\nThe review reads the staged and unstaged checkout against the base. It does not use a commit range.\n\n**Step 7: Commit, only after CR returns `SHIP`.**\n\n```bash\ngit -C /workspace/project reset --soft \"<WAVE_BASE_SHA_w>\" && git -C /workspace/project add -A && git -C /workspace/project commit -m \"<wave w: Task t message>\"\n```\n\n- If the commit would be empty, stop and do not complete the task.\n- Otherwise call `plan_tracker` to set task *t* to `complete`. The tree is now clean.\n\n## Applied across the three waves\n\n| Wave | Base | Implementer payload | SR anchors | Scoped gate | Commit, then tracker |\n|---|---|---|---|---|---|\n| 1 | `WAVE_BASE_SHA_1` (initial HEAD) | Task 1 text; files `src/parse.mjs`, `tests/parse.test.mjs` | `numbers.md:8-10` | `node --test tests/parse.test.mjs` | Wave-1 commit → task 1 `complete` |\n| 2 | `WAVE_BASE_SHA_2` (wave-1 commit) | Task 2 text plus Task 1 summary and paths `src/parse.mjs`, `tests/parse.test.mjs` (read-only context) | `numbers.md:12-14` | `node --test tests/format.test.mjs` | Wave-2 commit → task 2 `complete` |\n| 3 | `WAVE_BASE_SHA_3` (wave-2 commit) | Task 3 text plus Task 2 summary and paths `src/format.mjs`, `tests/format.test.mjs` | `numbers.md:16-18` | `node --test tests/label.test.mjs` | Wave-3 commit → task 3 `complete`, so `plan_tracker` auto-completes the implement phase |\n\nWaves run strictly in sequence. Each wave branches from the previous wave's commit, so children can see the integrated code. The boundary is the end of wave 3. The verify phase is outside this scope.\n\n## Under pi-cohort 7.3.1\n\n7.3.1 is below 7.4.0, so the chain is disabled for every wave. Note this once: `pi-cohort 7.3.1: chain disabled`. A 7.3.x runtime must never receive the chain, because it would pass the literal `treePath` reference to SR.\n\nEach wave instead uses two fan-outs.\n\n**1. Plain implementer fan-out:**\n\n```ts\nsubagent({ context: \"fresh\", async: false, cwd: \"/workspace/project\", worktree: true, concurrency: 4,\n  tasks: [{ agent: \"implementer\", task: \"<same payload>\", output: \"<REPORT_DIR>/wave<w>-task1.md\" }] })\n```\n\nThere is no per-task `cwd`.\n\n**2. Snapshot-backed SR checkout:**\n1. Run the snapshot block:\n\n   ```bash\n   SR_ROOT='/workspace/project'; SR_BASE='<WAVE_BASE_SHA_w>'; SR_PATCH='<patch path>'\n   SR_DIR=$(mktemp -d) || exit 1; SR_TREE=\"$SR_DIR/tree\"\n   git -C \"$SR_ROOT\" worktree add --detach \"$SR_TREE\" \"$SR_BASE\" || exit 1\n   git -C \"$SR_TREE\" apply --index \"$SR_PATCH\" || exit 1\n   printf 'snapshot: %s\\n' \"$SR_TREE\"\n   ```\n\n2. Run the fix-delta tree block in that snapshot, keyed by task.\n3. Dispatch `spec-reviewer` with:\n   - `cwd: \"<printed snapshot path>\"`\n   - no `worktree` flag\n   - no `acceptance` field\n   - the patch diff pasted in\n   - the spec path kept as `/workspace/project/doc/specs/numbers.md`\n   - `output: \"<REPORT_DIR>/wave<w>-sr1.md\"`\n4. After the report is saved and read, run `git -C /workspace/project worktree remove --force <snapshot path>`.\n\nIf snapshot setup fails, stop and retain the snapshot directory and shell output for diagnosis. Steps 4–7 are unchanged.\n\n## Still allowed\n\n**Plain in-place repair and escalation workers: yes, on either runtime.**\n- Test-gate repairs and CR/SR fix rounds use a single `implementer` with `cwd: \"/workspace/project\"`.\n- They never use nested waves or commit/staging instructions.\n- An escalated round adds `model: <implModel>`, `context: \"fresh\"` and `async: false`, with one worker and no fan-out.\n\n**Doc-only SR-only waves: yes.**\n- They skip CR and commit after SR acceptance.\n- None of these three waves qualifies, because each touches code, so each requires CR.\n",
+      "words": 880,
+      "wallMs": 31217,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "The following is the **next-action sequence**, not a claim that anything has executed. Advance past each gate only when its supplied successful observation is reached. Stop after Wave 3’s commit and tracker completion.\n\n## 1. Start implementation\n\n```ts\nphase_tracker({ action: \"start\", phase: \"implement\" })\n```\n\nUse the existing tracker; do not reinitialize it. The supplied preflight result, pi-cohort **7.4.0**, enables the chain, including for singleton waves.\n\n```bash\nREPORT_DIR=$(mktemp -d)\n```\n\nEach wave has one task, so file-disjointness is trivially satisfied.\n\n## 2. Singleton dispatch shape\n\nFor Wave 1:\n\n```bash\nWAVE1_BASE_SHA=$(git -C /workspace/project rev-parse HEAD)\n```\n\nMark Task 1 `in_progress` using its existing positional tracker index, then dispatch:\n\n```ts\nsubagent({\n  async: false,\n  context: \"fresh\",\n  cwd: \"/workspace/project\",\n  chain: [\n    {\n      parallel: [{\n        agent: \"implementer\",\n        as: \"impl_1\",\n        outputSchema: {\n          type: \"object\",\n          required: [\"status\"],\n          additionalProperties: true,\n          properties: {\n            status: {\n              type: \"string\",\n              enum: [\"DONE\", \"DONE_WITH_CONCERNS\", \"NEEDS_CONTEXT\", \"BLOCKED\"]\n            }\n          }\n        },\n        output: \"<REPORT_DIR>/wave1-task1.md\",\n        task: `\nImplement Task 1: Parse integers.\n<FULL TASK 1 TEXT, Files block, Tests block, and Test paths>\nSpec: /workspace/project/doc/specs/numbers.md:8-10\nSCOPED_TEST_COMMANDS: node --test tests/parse.test.mjs\n\nFollow the implementer prompt template: clarify uncertainties, use TDD,\nimplement exactly the task, run only the scoped command, commit your worker\nchanges, self-review, and return an explicit allowed status with the test\ncontract, changed files, summary, and concerns.\npi-cohort saves your final report; do not write the output file yourself.\n`\n      }],\n      worktree: true,\n      concurrency: 4,\n      stopOn: {\n        path: \"/status\",\n        in: [\"BLOCKED\", \"NEEDS_CONTEXT\", \"DONE_WITH_CONCERNS\"]\n      }\n    },\n    {\n      parallel: [{\n        agent: \"spec-reviewer\",\n        as: \"sr_1\",\n        cwd: \"{outputs.impl_1.treePath}\",\n        output: \"<REPORT_DIR>/wave1-sr1.md\",\n        acceptance: {\n          level: \"none\",\n          reason: \"Parent reads the SR verdict; review trees are staged by design.\"\n        },\n        task: `\n<FULL TASK 1 TEXT, Spec anchors, Tests block, and Test paths>\nAuthoritative spec: /workspace/project/doc/specs/numbers.md:8-10\nPatch: {outputs.impl_1.patchPath}; already applied in your materialized checkout.\nImplementer report: <REPORT_DIR>/wave1-task1.md.\nRead it for What Implementer Claims They Built.\nStart from diff hunks carrying file:line; read every touched file in full.\nRead deleted files from <WAVE1_BASE_SHA>. Never run tests.\nReturn the spec-review report and Verdict.\n`\n      }],\n      concurrency: 4\n    }\n  ]\n})\n```\n\nThe implementer gets an isolated worker checkout branched from `/workspace/project`’s recorded HEAD. SR gets **that implementation’s materialized `treePath`**, not the branch checkout or bare base.\n\nRead statuses from the result’s fenced JSON and any `## Stop`; read the **full SR report**, not merely its pointer. Obtain the patch from:\n\n```text\n<Artifacts dir>/worktree-diffs/step-0/task-0-implementer.patch\n```\n\nProceed only after the supplied `DONE` and accepting SR observation are reached.\n\n## 3. Integration and review gate — repeat per wave\n\nFor wave `N`, substitute its recorded base, patch, and command:\n\n```bash\ngit -C /workspace/project apply --index '<PATCH_N>'\n(cd /workspace/project && node --test tests/parse.test.mjs) # Wave 1\ngit -C /workspace/project add -A\n```\n\nBefore CR, record the review tree using this entire block; retain its printed SHA keyed by wave. Stop on error.\n\n```bash\n(\nFD_ROOT='/workspace/project'\nFD_INDEX=$(mktemp) || exit 1\ncp \"$(git -C \"$FD_ROOT\" rev-parse --path-format=absolute --git-path index)\" \"$FD_INDEX\" || { rm -f \"$FD_INDEX\"; exit 1; }\nGIT_INDEX_FILE=\"$FD_INDEX\" git -C \"$FD_ROOT\" add -A && GIT_INDEX_FILE=\"$FD_INDEX\" git -C \"$FD_ROOT\" write-tree\nFD_STATUS=$?\nrm -f \"$FD_INDEX\"\nexit \"$FD_STATUS\"\n)\n```\n\nDispatch exactly one initial CR per wave:\n\n```ts\nsubagent({\n  agent: \"code-reviewer\",\n  async: false,\n  cwd: \"/workspace/project\",\n  task: `\nUse the supplied code-quality/code-reviewer template.\nDESCRIPTION: <implementer summary for wave N>\nPLAN_OR_REQUIREMENTS: <FULL TASK N TEXT and requirements>\nBASE_SHA: <WAVEN_BASE_SHA>\nHEAD_SHA: WORKTREE\nSCOPED_TEST_COMMANDS: <task N command>\nReview the integrated staged and unstaged diff against BASE_SHA.\nRead-only source review; execute only the scoped command. Production-ready?\n`\n})\n```\n\nRead its report and footer. Only after its supplied accepting observation:\n\n```bash\ngit -C /workspace/project reset --soft '<WAVEN_BASE_SHA>'\ngit -C /workspace/project add -A\ngit -C /workspace/project commit -m '<wave-specific message>'\ngit -C /workspace/project status --short\n```\n\nRequire a nonempty durable commit and clean checkout, then mark that task `complete`.\n\n## 4. Apply the sequence to all three waves\n\n| Wave | Before dispatch | Chain substitutions | Integrated gate | Commit |\n|---|---|---|---|---|\n| 1 | Record `WAVE1_BASE_SHA`; Task 1 → `in_progress` | Parse; anchors 8–10; wave1 reports | `node --test tests/parse.test.mjs` | `Implement integer parsing` |\n| 2 | Record `WAVE2_BASE_SHA` **after Wave 1 commit**; Task 2 → `in_progress` | Format; anchors 12–14; wave2 reports; forward Task 1 summary and relevant paths | `node --test tests/format.test.mjs` | `Implement integer formatting` |\n| 3 | Record `WAVE3_BASE_SHA` **after Wave 2 commit**; Task 3 → `in_progress` | Label; anchors 16–18; wave3 reports; forward Task 2 summary and relevant paths | `node --test tests/label.test.mjs` | `Implement integer labeling` |\n\nEach uses the same `impl_1`/`sr_1` names. Complete each task only after its wave commit.\n\n## 5. Older runtime and exceptions\n\nWith **7.3.1**, disable chains. Dispatch isolated implementers, then construct each SR checkout:\n\n```bash\nSR_DIR=$(mktemp -d) || exit 1\nSR_TREE=\"$SR_DIR/tree\"\ngit -C /workspace/project worktree add --detach \"$SR_TREE\" '<WAVEN_BASE_SHA>' || exit 1\ngit -C \"$SR_TREE\" apply --index '<PATCH_N>' || exit 1\n```\n\nRecord its tree using the block above with `FD_ROOT=\"$SR_TREE\"`. Dispatch plain read-only SR with `cwd: \"<SR_TREE>\"`, no `worktree` flag, the full task, patch diff, authoritative spec, anchors and test contract; never tests. Save/read its report before removing the snapshot.\n\nPlain **in-place repair workers remain allowed**; escalation uses the configured runtime model and prescribed review gates. Integrated-wave repairs stay in `/workspace/project`, not nested worktrees. **Doc-only waves remain SR-only**, committing after SR acceptance without CR.\n\nStop here; no verify-phase or closure dispatch.\n",
+      "words": 791,
+      "wallMs": 49458,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "0deb09ebbe6c5c699f2b1c9c18da8e1e1d0f9e6848348712bdf746eefb13b3d2",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "68c335f53879dae92a61211b2abf5860cd9a6a12dd2fbd6cb98f2282bde6a9eb",
+      "baselineOutputSha": "a3f0fd0f94870a03be198e38ab50e3c3501d7535cce9e168955059a80a22ac77",
+      "candidateOutputSha": "849c0a8b335881a59c39f0ddbfa4a7d95cda0791591975286eb757aac4f5b725",
+      "facts": {
+        "singleton-dispatch": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "task-spec-review": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "integrated-gates": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "accepted-commit": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "retained-exemptions": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "No fact moved: both outputs run every task as a one-entry chain per wave in a nested worktree (one-entry `tasks` fan-out plus a detached wave-base snapshot with `git apply --index` on 7.3.1), integrate with `git apply --index`, run only the task's scoped command, send one initial CR with BASE_SHA=recorded wave base and HEAD_SHA=WORKTREE, commit only after SHIP, then mark complete and take the next base from the new HEAD, and both keep plain in-place repair/escalation workers and doc-only SR-only waves. After does deliver the Change well: the step-6 `add -A` plus fix-delta tree capture (recorded as CR_TREE_w) replaces Before's 'stay uncommitted and unstaged' override, step 7's `reset --soft <WAVE_BASE_SHA_w> && add -A && commit` folds any worker commits into the wave commit, the empty-commit guard withholds completion, and the 7.3.1 section now retains the failed snapshot directory and shell output on setup failure. Two small things to tidy so nothing drifts in a reader's eyes: the per-wave procedure labels both 'Record the base' and 'Dispatch the chain' as 'Step 2' (renumber to 1 and 2, or call the first 'Step 1b'), and the 'Still allowed' section should explicitly say the in-place repair payload carries 'no commit or staging instruction' and that its Fix delta is the diff between scratch-index tree captures, so the retained-exemptions wording matches the new payload rule rather than just saying 'never use ... commit/staging instructions'.",
+      "wallMs": 17722,
+      "verdict": "unchanged"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "0deb09ebbe6c5c699f2b1c9c18da8e1e1d0f9e6848348712bdf746eefb13b3d2",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "68c335f53879dae92a61211b2abf5860cd9a6a12dd2fbd6cb98f2282bde6a9eb",
+      "baselineOutputSha": "24f17243d5580db5ba2c2ae8db60ed1e775fdf30f3291c4a953452e3e3243113",
+      "candidateOutputSha": "1f32dc3c071ce1ac6c8169a4637a2aaef8a09e5ee5ee2d9c7cb2c94776ffae32",
+      "facts": {
+        "singleton-dispatch": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "task-spec-review": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "integrated-gates": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "accepted-commit": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "retained-exemptions": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "No fact moved: After still runs each task as a one-entry implementer→SR chain with worktree:true and one chain per wave, SR reads {outputs.impl_1.treePath} (7.3.1 path uses worktree add --detach at the wave base plus git apply --index), each wave applies the patch with --index, runs only its scoped node --test command, dispatches one CR with BASE_SHA=<WAVEN_BASE_SHA>/HEAD_SHA=WORKTREE, commits only after acceptance, records the next base after the commit, completes the tracker task after the commit, and keeps in-place repair/escalation and doc-only SR-only waves. The wording risks worth tightening: the scratch-index tree-capture block is injected into every wave's normal integration gate and the 7.3.1 SR setup, although the Change scopes tree captures to repair-only deltas and SR re-reviews — a reader could take this as a mandatory new step for clean singleton waves; the pre-CR `git add -A` and the `reset --soft '<WAVEN_BASE_SHA>'` before commit are unexplained (they only matter when a worker has moved HEAD) and could be read as a different commit path; and the SR task text dropped the Files block that Before supplied. To deliver the Change while keeping Before's clarity, move the tree-capture and reset --soft steps into a short 'if an in-place repair ran this wave' clause, keep the plain apply → scoped test → CR → add owned files → commit sequence as the default, and restore the Files block in the SR prompt.",
+      "wallMs": 23072,
+      "verdict": "unchanged"
+    }
+  },
+  "repoSha": "a73f876bece54e85ac20cefd64441c2a607312c2"
+}

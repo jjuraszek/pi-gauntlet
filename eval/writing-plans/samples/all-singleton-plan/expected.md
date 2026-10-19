@@ -1,0 +1,3 @@
+- singleton-template: judged: Treats all three singleton waves as ordinary valid groups; requires no Solo justification or plan-time Parallel-safe line and describes no execution mode in the wave grouping/template.
+- parent-check: judged: Dispatches one fresh async false plan-writer with acceptance level none and the spec, plan and worktree paths; runs its own successful plan_check after PLAN WRITTEN and before reading the finished plan once.
+- ordered-handoff: judged: Initializes plan_tracker with W1: Parse integers, W2: Format integers, W3: Label integers in order, then directly invokes /skill:subagent-driven-development without selecting or asking about an execution mode.

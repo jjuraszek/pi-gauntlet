@@ -10,11 +10,11 @@ Use this template when dispatching a code quality reviewer subagent.
 Dispatch a subagent with the code-reviewer template:
   Use the template at ../requesting-code-review/code-reviewer.md
 
-  DESCRIPTION: [task summary, from implementer's report]
-  PLAN_OR_REQUIREMENTS: Task N from [plan-file]
-  BASE_SHA: [commit before task; wave: WAVE_BASE_SHA recorded before worker dispatch]
-  HEAD_SHA: [current commit; integrated uncommitted wave: the literal WORKTREE, including re-reviews]
-  SCOPED_TEST_COMMANDS: [the consuming task's Tests: commands; wave reviews: the union of the wave's tasks' Tests: commands; `none` for the whole-diff verify-phase review]
+  DESCRIPTION: [wave summary, from implementers' reports; whole-diff review: implementation summary]
+  PLAN_OR_REQUIREMENTS: [wave tasks from plan-file; whole-diff review: full plan/requirements]
+  BASE_SHA: [WAVE_BASE_SHA recorded before worker dispatch; whole-diff review: committed implementation base]
+  HEAD_SHA: [the literal WORKTREE for the integrated wave, including re-reviews; whole-diff review: committed HEAD]
+  SCOPED_TEST_COMMANDS: [the union of the wave's tasks' Tests: commands; `none` for the whole-diff verify-phase review]
 ```
 
 **In addition to standard code quality concerns, the reviewer should check:**

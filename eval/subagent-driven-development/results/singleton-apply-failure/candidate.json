@@ -1,0 +1,100 @@
+{
+  "sample": "singleton-apply-failure",
+  "arm": "candidate",
+  "skillSha": "b0edc73eb6a8c3994f3fe537ebdf2b380a9163465e541bf3ab453928decb9299",
+  "inputSha": "ac1535a5620fc76e1689af7da75387168e6d16136122cc5f50dca270a643afae",
+  "kind": "text",
+  "assembly": "headed",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "# Recovery after the failed parent integration\n\n## 1. Classify the failure\n\nThe chain itself succeeded: the implementer returned `DONE`, SR returned `COMPLIANT`, and the patch was captured. The failure is a **step 4 integration failure** in the parent. Task 1 is dropped from the wave, which leaves **zero surviving patches**.\n\nUnder step 4 with zero survivors:\n\n- **Skip step 5:** no scoped test gate, because nothing was integrated.\n- **Skip step 6:** no initial CR, and no empty review.\n- **Skip step 7:** no `reset --soft`, no commit, and no tracker `complete`.\n- **Retry Task 1** from the unchanged clean HEAD, under the two-attempt limit in *When a Subagent Fails*.\n- The tracker index stays `in_progress`.\n\nConfirm the retry base before dispatch:\n\n```bash\ngit -C /workspace/project status --porcelain          # expect empty\ngit -C /workspace/project rev-parse HEAD              # expect 1111111111111111111111111111111111111111\n```\n\nThe earlier `COMPLIANT` verdict covers only `/tmp/reports/task1.patch`. That patch cannot integrate, so the verdict cannot gate a commit. I do not dispatch a second chain in this wave.\n\n## 2. Retry attempt (repeat once for attempt 2)\n\nThe retry is a plain one-entry worktree fan-out:\n\n- **Checkout:** a fresh worker worktree branched from `/workspace/project` at `1111…`.\n- **Source:** the worker's own artifact patch.\n\n```ts\nsubagent({\n  context: \"fresh\",\n  async: false,\n  cwd: \"/workspace/project\",\n  worktree: true,\n  tasks: [{\n    agent: \"implementer\",\n    output: \"<REPORT_DIR>/wave1-task1-retry<k>.md\",\n    task: `<full Task 1 \"Parse\" text>\nOwned files: src/parse.mjs, tests/parse.test.mjs\nSCOPED_TEST_COMMANDS: node --test tests/parse.test.mjs\nTEST_CONTRACT: <Task 1 **Tests:** block verbatim + Files: Create:/Test: paths>\nSpec: /workspace/project/doc/specs/numbers.md:8-9 (read the anchored ranges yourself)\nContext: your prior patch (/tmp/reports/task1.patch, attached verbatim) did not apply to\nbase 1111111111111111111111111111111111111111:\n  error: patch failed: src/parse.mjs:8\n  error: src/parse.mjs: patch does not apply\nRe-implement against the current src/parse.mjs at this base so the resulting diff applies cleanly.\n<status protocol: DONE | DONE_WITH_CONCERNS | BLOCKED | NEEDS_CONTEXT>`\n  }],\n})\n```\n\n**If the retry returns an accepted, non-empty artifact patch:**\n\n1. **Materialize a snapshot.** Run the spec-review-snapshot block with:\n   - `SR_ROOT=/workspace/project`\n   - `SR_BASE=1111111111111111111111111111111111111111`\n   - `SR_PATCH=<retry artifact patch>`\n\n   A `git apply --index` failure here also means the retry produced no integrable patch. That uses up the attempt.\n2. **Record the review tree.** Run the fix-delta tree block with `FD_ROOT=<printed snapshot path>` and key the SHA by Task 1.\n3. **Dispatch a first-style SR.** This is not a fix round, so it carries no re-review marker and no `TRAJECTORY:` line:\n\n   ```ts\n   subagent({ agent: \"spec-reviewer\", async: false, context: \"fresh\",\n     cwd: \"<snapshot path>\", output: \"<REPORT_DIR>/wave1-sr1-retry<k>.md\",\n     task: \"<full Task 1 text + retry patch diff + /workspace/project/doc/specs/numbers.md + anchors 8-9 + Tests: block + Test: paths; start from diff hunks, read touched files in full, read deleted files from 1111…, never run tests>\" })\n   ```\n\n4. **Act on the verdict.** Save and read the report, then remove the snapshot with `git -C /workspace/project worktree remove --force <snapshot>`.\n5. **If the verdict is `COMPLIANT`, run the normal gates in the parent checkout:**\n   1. `git -C /workspace/project apply --index <retry patch>`\n   2. `(cd \"/workspace/project\" && node --test tests/parse.test.mjs)`\n   3. `git -C /workspace/project add -A` and record the tree.\n   4. Dispatch one initial CR with:\n      - `cwd: /workspace/project`\n      - `BASE_SHA: 1111…`\n      - `HEAD_SHA: WORKTREE`\n      - `SCOPED_TEST_COMMANDS: node --test tests/parse.test.mjs`\n   5. Only after CR returns `SHIP`, commit and mark complete:\n      `git -C /workspace/project reset --soft 1111… && git -C /workspace/project add -A && git -C /workspace/project commit -m \"<msg>\"`, then mark index `complete`.\n\n**If the retry returns no accepted integrable patch** (a non-`DONE` status, a missing or empty patch, or a patch that fails to apply):\n\n- Dispatch no SR, CR, or commit.\n- The parent stays clean at `1111…`.\n- Count the failed attempt.\n\n## 3. Given outcome: both attempts fail\n\nAttempts 1 and 2 each produced no accepted integrable patch. That means no SR was dispatched for either one, and no verdict exists. I am not inventing one.\n\n- **Terminal outcome:** the two-attempt limit is exhausted. Stop dispatching and report to the human per *When a Subagent Fails* and `stop-note.md`. The report includes:\n  - the original `apply --index` error;\n  - both retry diagnostics and statuses;\n  - the clean state.\n- **Tracker:** Task 1 stays **`in_progress`**. There is no `failed` mark unless the human decides on terminal failure, and no `skipped`, `clear`, or re-`init`.\n- **HEAD:** `1111111111111111111111111111111111111111`, with a clean working tree. No wave commit was made and nothing was integrated.\n- **Attempt budget:** dispatching Task 1 as \"another new wave\" does **not** reset the budget. Step 4 sends the zero-survivor case into the same two-attempt limit. The index stays `in_progress` until its own wave commits, so re-wrapping the task would just evade the limit. The next action belongs to the human.\n",
+      "words": 714,
+      "wallMs": 29956,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "## Next action\n\nThis is a **parent integration failure**, not a spec-review snapshot failure. With zero surviving patches and the parent clean at the unchanged base:\n\n- Skip the integrated scoped-test gate, code review, and wave commit.\n- Do not re-review the old patch or make an empty commit.\n- Retry Task 1 alone from the unchanged parent HEAD, under the **two-attempt failure limit**.\n- Keep Task 1 `in_progress`.\n- Do not run a second implementation-to-SR chain for this recovery. Use a plain isolated implementer dispatch.\n\nThe original `COMPLIANT` verdict covered `/tmp/reports/task1.patch`; it does not establish that any replacement patch is compliant.\n\n## Recovery attempt 1\n\nThe following are proposed commands, not claims of execution:\n\n```bash\nmkdir -p /tmp/reports\n\ngit -C /workspace/project status --porcelain\ngit -C /workspace/project rev-parse HEAD\n```\n\nThe supplied observations establish empty status and:\n\n```text\n1111111111111111111111111111111111111111\n```\n\nDispatch using the supplied full task and contract verbatim. In this payload builder, `fullTask1`, `testsContract1`, and `specAnchors1` denote that already-available text—not newly invented requirements:\n\n```js\nfunction retryPayload(attempt, fullTask1, testsContract1, specAnchors1) {\n  return {\n    context: \"fresh\",\n    async: false,\n    cwd: \"/workspace/project\",\n    worktree: true,\n    concurrency: 1,\n    tasks: [{\n      agent: \"implementer\",\n      output: `/tmp/reports/task1-retry-${attempt}.md`,\n      task: `\nImplement Task 1: Parse — recovery attempt ${attempt} of 2.\n\n## Full task\n${fullTask1}\n\n## Ownership\nsrc/parse.mjs\ntests/parse.test.mjs\n\n## Spec\n/workspace/project/doc/specs/numbers.md:8-9\n${specAnchors1}\n\n## Tests contract\n${testsContract1}\n\nSCOPED_TEST_COMMANDS:\nnode --test tests/parse.test.mjs\n\nRun ONLY that command for verification. Follow TDD for production changes.\n\n## Recovery context\nThe initial worker returned DONE and its captured patch received COMPLIANT.\nHowever, the PARENT command\ngit -C /workspace/project apply --index /tmp/reports/task1.patch\nexited 1:\nerror: patch failed: src/parse.mjs:8\nerror: src/parse.mjs: patch does not apply\n\nThe parent remains clean at\n1111111111111111111111111111111111111111.\nThere are zero integrated patches.\n\nStart from this isolated worker's clean checkout of the parent HEAD.\nImplement the full task and return a complete replacement patch against\nthat base, not an incremental fix dependent on the old patch.\nThe old artifact /tmp/reports/task1.patch is diagnostic context only.\nDo not assume its prior acceptance transfers to your replacement.\n\nSelf-review and report implementation, files changed, test results,\ntest-contract evidence, and concerns.\n\nReturn explicitly one status:\nDONE | DONE_WITH_CONCERNS | NEEDS_CONTEXT | BLOCKED.\n\npi-cohort saves your final report at the output path; do not write it yourself.\n`\n    }]\n  };\n}\n\n// Foreground dispatch:\nsubagent(retryPayload(1, fullTask1, testsContract1, specAnchors1));\n```\n\n**Checkout/source:** invocation-level `cwd` is `/workspace/project`; `worktree: true` creates an isolated worker checkout from that checkout’s HEAD, namely the fixed wave base. Do not supply a guessed worker path or a per-task `cwd`.\n\n## Recovery attempt 2\n\nRead attempt 1’s actual result and retain its diagnostic. Given the stipulated failure and clean unchanged parent, check the parent again:\n\n```bash\ngit -C /workspace/project status --porcelain\ngit -C /workspace/project rev-parse HEAD\n```\n\nThen dispatch:\n\n```js\nconst attempt2 = retryPayload(2, fullTask1, testsContract1, specAnchors1);\nattempt2.tasks[0].task +=\n  \"\\n## Prior recovery failure\\n\" + attempt1FailureReportVerbatim;\n\nsubagent(attempt2);\n```\n\nAttempt 2 again branches from `/workspace/project` at the same fixed base—not from a failed worker’s checkout.\n\nFor any usable replacement patch, per-task SR would review its materialized snapshot against the authoritative spec before integration. No usable patch or new verdict is supplied here, so none is presumed. With zero integrated patches after each failure, dispatch **no integrated test gate, CR, or commit**.\n\n## Terminal boundary\n\nBoth recovery attempts have failed. **Stop and report the failure for human decision; do not dispatch attempt 3.**\n\n- **Tracker:** Task 1 remains `in_progress`, not `complete` or automatically `failed`.\n- **Parent tree:** clean.\n- **HEAD:** `1111111111111111111111111111111111111111`.\n- **Wave commit:** none.\n- **Budget:** exhausted. Relabeling the retry as another new wave does **not** reset the two-attempt budget for this failed task.\n- No review verdict or successful recovery is claimed.\n",
+      "words": 561,
+      "wallMs": 37326,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "e23807c10d0b03ac1cd5542034fedd94e035f9cfa7d71682c7cc2e2c4875c7ea",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "68c335f53879dae92a61211b2abf5860cd9a6a12dd2fbd6cb98f2282bde6a9eb",
+      "baselineOutputSha": "b7cbfc1e6b490cdb52ab71fddabddb4e008a7b4bdc5c31d87eaf4bc8dfd320d8",
+      "candidateOutputSha": "bfbcb139805d5ffe463f2162e528ebc4570e25124bb02c48dc84b8dce587165a",
+      "facts": {
+        "no-empty-wave": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "clean-base-retry": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "bounded-attempts": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "completion-withheld": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        }
+      },
+      "feedback": "After moved clean-base-retry and completion-withheld from fails to holds and kept the two facts Before already satisfied. Before failed clean-base-retry because its retry was a sequential in-place implementer dispatch in /workspace/project with no worktree and no nested chain SR, and it failed completion-withheld because that implementer committed directly on the parent HEAD before SR, the test gate, or CR ran, i.e. a commit without accepted, integrated, gated work. After fixes both: the retry is a worktree fan-out from the confirmed clean 1111… base producing an artifact patch, SR runs on a materialized snapshot that is then removed, the parent only applies the patch after COMPLIANT, and the single wave commit follows SHIP before the tracker complete mark; exhausted attempts leave in_progress, a clean HEAD at the wave base, and no budget reset for a re-wrapped wave. No wording changes are needed to retain these facts; the only wording to keep an eye on is the 'Task 1 is dropped from the wave' phrase, which should continue to be paired (as it is now) with the explicit statement that the task is retried rather than skipped, and the retry section should keep stating explicitly that a snapshot apply --index failure consumes an attempt so bounded-attempts stays unambiguous.",
+      "wallMs": 17581,
+      "verdict": "improved"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "e23807c10d0b03ac1cd5542034fedd94e035f9cfa7d71682c7cc2e2c4875c7ea",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "68c335f53879dae92a61211b2abf5860cd9a6a12dd2fbd6cb98f2282bde6a9eb",
+      "baselineOutputSha": "a8bd3837e7b0e75d683c71ffcebdbb8c2a13bd2975ee06f8cae63726c3d43fd7",
+      "candidateOutputSha": "de323929d15aca71fd6af973d228d533890133e5532231c4a28f3d2f3dcdd59b",
+      "facts": {
+        "no-empty-wave": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "clean-base-retry": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "bounded-attempts": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "completion-withheld": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        }
+      },
+      "feedback": "After moved only completion-withheld, and in the intended direction: Before's terminal section wrote Task 1 as `failed`, while After's \"Terminal boundary\" keeps it `in_progress`, HEAD at the wave base, no wave commit, and pending human decision — exactly the D1 lifecycle the Change asked for. Every fact Before kept (skipping steps 5-7 with zero integrated patches, not treating the chain COMPLIANT as integration, retrying from the clean unchanged base in an isolated worktree rather than an in-place dirty repair or blind reapply, two bounded attempts with diagnostics and no budget reset) is still present in After. One wording risk worth tightening: both outputs say \"do not run a second implementation-to-SR chain,\" which is correct in rejecting a redundant initial chain but could be read as refusing the ordinary singleton-wave retry path the Change describes (nested implementation plus chain SR, or the older-runtime materialized-snapshot fallback). A phrasing like \"retry as an ordinary singleton wave from the clean base: nested implementer, then chain SR of its tree capture (or the older-runtime materialized snapshot) before any integration; do not merely re-review or re-apply the rejected patch\" would deliver the Change more explicitly without weakening clean-base-retry or no-empty-wave.",
+      "wallMs": 20112,
+      "verdict": "improved"
+    }
+  },
+  "repoSha": "a73f876bece54e85ac20cefd64441c2a607312c2"
+}

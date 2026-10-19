@@ -1,6 +1,6 @@
 # Stop note (subagent-driven-development companion)
 
-Emitted when no escalation model resolves, the escalated dispatch errors, or its one escalated round fails (see `SKILL.md` "Fix-Loop Rounds"); an unavailable `gauntlet_setting` tool is a configuration error - stop and report, no stop note. Inline in the reply; the turn ends; phase stays `implement`, the task stays `in_progress`; no further tasks start. Wave mode: one note per stalled task, after the current batch returns.
+Emitted when no escalation model resolves, the escalated dispatch errors, or its one escalated round fails (see `SKILL.md` "Fix-Loop Rounds"); an unavailable `gauntlet_setting` tool is a configuration error - stop and report, no stop note. Inline in the reply; the turn ends; phase stays `implement`, the task stays `in_progress`; no further tasks start. Emit one note per stalled task, after the current batch returns.
 
 ## Template
 

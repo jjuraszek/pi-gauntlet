@@ -1,0 +1,100 @@
+{
+  "sample": "test-gate-repair",
+  "arm": "candidate",
+  "skillSha": "b0edc73eb6a8c3994f3fe537ebdf2b380a9163465e541bf3ab453928decb9299",
+  "inputSha": "457b17d0cc177e345ae57432ee4bf989f5a984649e2c37524b8c357e24718ecb",
+  "kind": "text",
+  "assembly": "headed",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "# Next action: Task 1 test-gate repair (step 5)\n\nThe step-5 scoped gate failed on Task 1 only. The response is **one plain in-place `implementer`** in the branch checkout. It does not use a worktree, a fan-out, or a nested wave, because children would branch from HEAD `1111111…` and miss the integrated sibling. This dispatch counts toward the two-attempt limit under When a Subagent Fails.\n\n```ts\nsubagent({\n  agent: \"implementer\",\n  async: false,\n  cwd: \"/workspace/project\",\n  task: `\n<Task 1: Parse — full original task text, verbatim>\nFiles: <Task 1 Files: block verbatim — src/parse.mjs, tests/parse.test.mjs>\n\n## Context\nIntegrated wave in /workspace/project. Task 2 (Format: src/format.mjs, tests/format.test.mjs)\nis also staged. Do not touch Task 2's files. Repair in place in this checkout.\nAuthoritative spec: /workspace/project/doc/specs/numbers.md, lines 8-9 (Task 1's anchors).\n\n## Failing gate output\nnode --test tests/parse.test.mjs -> FAIL: parse(\" 7 \") actual NaN, expected 7\n(spec line 9: parse(\" 7 \") returns 7, not NaN; line 8: ignore surrounding whitespace)\nnode --test tests/format.test.mjs -> pass\n\nSCOPED_TEST_COMMANDS:\nnode --test tests/parse.test.mjs\nnode --test tests/format.test.mjs\nTEST_CONTRACT: <Task 1 **Tests:** block verbatim + its Create:/Test: paths>\n\n<status protocol: report Status DONE | DONE_WITH_CONCERNS | BLOCKED | NEEDS_CONTEXT, test-contract lines, files changed>\n`\n})\n```\n\nThe payload contains no commit or staging instruction. If the worker commits anyway, the step-7 `reset --soft \"$WAVE_BASE_SHA\"` folds that commit into the wave commit.\n\n**Gate on return:**\n- If the status is not `DONE`, route it through the Implementer Status matrix.\n- If the status is `DONE`, rerun the scoped union on the integrated tree:\n\n```bash\n(cd \"/workspace/project\" && node --test tests/parse.test.mjs)\n(cd \"/workspace/project\" && node --test tests/format.test.mjs)\n```\n\n# Later observation: worker repaired Task 1, both commands pass\n\n**1. Stage the repair deliverables:**\n```bash\ngit -C /workspace/project add -A\n```\n\n**2. Determine the affected tasks.** Check the worker's \"Files changed\" list against the staged tree:\n```bash\ngit -C /workspace/project diff --cached --name-only 1111111111111111111111111111111111111111\n```\n- The repair touched `src/parse.mjs` and/or `tests/parse.test.mjs`, so **Task 1 is affected**.\n- Task 2 needs post-repair SR only if the repair touched `src/format.mjs` or `tests/format.test.mjs`.\n- Task 1's earlier chain-SR acceptance does not cover this repair.\n\n**3. Record Task 1's review tree** per Fix delta. Run it in the branch checkout, because this is an integrated review, and key the printed SHA by task (Task 1):\n\n```bash\nFD_ROOT='/workspace/project'\nFD_INDEX=$(mktemp) || exit 1\ncp \"$(git -C \"$FD_ROOT\" rev-parse --path-format=absolute --git-path index)\" \"$FD_INDEX\" || { rm -f \"$FD_INDEX\"; exit 1; }\nGIT_INDEX_FILE=\"$FD_INDEX\" git -C \"$FD_ROOT\" add -A && GIT_INDEX_FILE=\"$FD_INDEX\" git -C \"$FD_ROOT\" write-tree\nFD_STATUS=$?\nrm -f \"$FD_INDEX\"\nexit \"$FD_STATUS\"\n```\nIf this exits nonzero, stop dispatch and report the shell error.\n\n**4. Dispatch post-repair SR for Task 1** (the stopping boundary). Details of this dispatch:\n- It reviews the implementation worktree directly. No snapshot is involved, because snapshots are for pre-integration reviews only.\n- It is read-only: no `worktree` flag and no `acceptance` field.\n- It is a fresh SR, so it carries no `## Previous review report` marker, no `TRAJECTORY:` block, and no `## Fix delta`.\n\n```ts\nsubagent({\n  agent: \"spec-reviewer\",\n  async: false,\n  context: \"fresh\",\n  cwd: \"/workspace/project\",\n  output: \"<REPORT_DIR>/wave<w>-sr1-postrepair.md\",\n  task: `\n<Task 1: Parse — full original task text, verbatim, incl. Files: block>\nSpec: /workspace/project/doc/specs/numbers.md lines 8-9 (read the anchored range yourself)\nTests (contract only — do NOT run anything):\n  <Task 1 **Tests:** block verbatim: node --test tests/parse.test.mjs>\n  - Test: tests/parse.test.mjs\nDiff under review (integrated, staged, against WAVE_BASE_SHA):\n  <output of: git -C /workspace/project diff --cached --binary 1111111111111111111111111111111111111111 -- src/parse.mjs tests/parse.test.mjs>\nStart from the diff hunks (file:line). Read every touched file in full from /workspace/project.\nRead deleted files from 1111111111111111111111111111111111111111. Never run tests.\nThis SR covers a test-gate repair to the whitespace handling: parse(\" 7 \") must return 7.\n`\n})\n```\n\nIf Task 2 turns out to be affected, dispatch the same shape for it in parallel, using its full text, spec line 10, its Tests block, and `- Test: tests/format.test.mjs`.\n\n# What must be awaited before initial CR\n\nAwait the **terminal SR report** for every affected task. Save it to its `output:` path and read the `Verdict:` line from the file. No verdict is supplied here, so the following steps are conditional only.\n\n**If the verdict is `COMPLIANT` (for every affected task):** proceed to step 6, the single initial CR over the integrated wave.\n- Run `git -C /workspace/project add -A`.\n- Record the CR review tree, keyed by wave, with `FD_ROOT='/workspace/project'`.\n- Dispatch `code-reviewer` with:\n  - `cwd: \"/workspace/project\"`\n  - `BASE_SHA: 1111111111111111111111111111111111111111`\n  - `HEAD_SHA: WORKTREE`\n  - `SCOPED_TEST_COMMANDS`: both node commands\n  - wave tasks and description\n\n**If the verdict is `NEEDS_REWORK` or `OUT_OF_SCOPE_CHANGES`:** follow Fix-Loop Rounds.\n- Dispatch an in-place repair in `/workspace/project`, carrying the report verbatim and both scoped commands.\n- Rerun the gate, then `add -A`, then record the tree-after.\n- Dispatch an SR re-review with:\n  - the `## Previous review report (re-review trigger)` marker and the trajectory block;\n  - a `## Fix delta` from `git -C /workspace/project diff --binary <tree-before> <tree-after>`.\n- On an empty delta, dispatch no re-review.\n- The initial CR waits until SR is clean.\n\n**Not yet:**\n- No wave commit. Step 7 runs only after CR returns `SHIP`.\n- No `plan_tracker` change. Both tasks stay `in_progress`.\n- HEAD stays at `WAVE_BASE_SHA` with deliverables staged.\n\nI stop here, at the first post-repair SR dispatch.\n",
+      "words": 803,
+      "wallMs": 34535,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "### 1. Dispatch one in-place repair worker\n\nDo not start another wave or create a worker worktree: the repair must see both integrated tasks in `/workspace/project`.\n\nIn the payload below, substitute Task 1’s **original full task text, Files block, and Tests contract verbatim**. Their full wording is not reproduced in the scenario; do not reconstruct or alter it.\n\n```js\nsubagent({\n  agent: \"implementer\",\n  async: false,\n  cwd: \"/workspace/project\",\n  task: `\nRepair Task 1 (Parse) after the integrated wave's scoped test gate failed.\n\n## Task Description\n<verbatim original full Task 1 text, including its Files and Tests contracts>\n\n## Integrated context\nBoth accepted task patches are already integrated and staged here.\nHEAD is still WAVE_BASE_SHA:\n1111111111111111111111111111111111111111\n\nTask 1 owns:\n- src/parse.mjs\n- tests/parse.test.mjs\n\nTask 2 owns:\n- src/format.mjs\n- tests/format.test.mjs\n\nRepair Task 1 in this checkout. Preserve Task 2's integrated changes.\n\n## Authoritative spec\n/workspace/project/doc/specs/numbers.md\nTask 1 anchors: lines 8-9.\n\n## Failing gate observation\nnode --test tests/parse.test.mjs failed:\nwhitespace input parse(\" 7 \"), actual NaN, expected 7.\nnode --test tests/format.test.mjs passed.\n\n## SCOPED_TEST_COMMANDS\nnode --test tests/parse.test.mjs\nnode --test tests/format.test.mjs\n\nRun only these commands for verification. Both commands are required.\nEnsure the whitespace case is covered, implement the repair, and self-review.\n\n## Report protocol\nExplicitly return one of:\nDONE, DONE_WITH_CONCERNS, NEEDS_CONTEXT, BLOCKED.\n\nReport changes, tests and results, contract compliance, and concerns.\nDONE means implemented, scoped tests passing, and self-reviewed.\nAny unmet test contract must be reported as DONE_WITH_CONCERNS.\n`\n})\n```\n\nThis is a plain in-place worker, not a fan-out. Do not include commit or staging instructions in its payload.\n\n### 2. After the worker’s terminal result\n\nRead its status and report first. The supplied later observation establishes that it repaired Task 1 in place and that rerunning **both** scoped commands passes. The parent’s rerun commands are:\n\n```bash\n(cd \"/workspace/project\" && node --test tests/parse.test.mjs)\n(cd \"/workspace/project\" && node --test tests/format.test.mjs)\n```\n\nBoth must succeed before proceeding; a failed command returns to the integrated test-gate repair path.\n\nStage all repair deliverables:\n\n```bash\ngit -C \"/workspace/project\" add -A\n```\n\nRecord the tree for Task 1’s post-repair SR using the required scratch-index block:\n\n```bash\nFD_ROOT='/workspace/project'\nFD_INDEX=$(mktemp) || exit 1\ncp \"$(git -C \"$FD_ROOT\" rev-parse --path-format=absolute --git-path index)\" \"$FD_INDEX\" || { rm -f \"$FD_INDEX\"; exit 1; }\nGIT_INDEX_FILE=\"$FD_INDEX\" git -C \"$FD_ROOT\" add -A && GIT_INDEX_FILE=\"$FD_INDEX\" git -C \"$FD_ROOT\" write-tree\nFD_STATUS=$?\nrm -f \"$FD_INDEX\"\nexit \"$FD_STATUS\"\n```\n\nSave the printed SHA keyed to Task 1. A nonzero exit stops review dispatch.\n\n### 3. Dispatch the affected-task SR, then stop\n\nThis review uses the **current integrated implementation checkout**, not a snapshot or the chain’s removed worker checkout. Initial chain acceptance does not cover the repair.\n\n```js\nsubagent({\n  agent: \"spec-reviewer\",\n  async: false,\n  cwd: \"/workspace/project\",\n  output: \"/tmp/numbers-wave-post-repair-sr-task1.md\",\n  task: `\nReview Task 1's integrated implementation after its test-gate repair.\n\n## Task Description and contract\n<verbatim original full Task 1 text>\n<verbatim original Files block, including - Test: tests/parse.test.mjs>\n<verbatim original **Tests:** block, including all via:/none: details if present>\n\n## Authoritative spec\n/workspace/project/doc/specs/numbers.md\nTask 1 Spec anchors: lines 8-9. Read those ranges directly.\n\n## Review source\nCheckout: /workspace/project\nBase: 1111111111111111111111111111111111111111\nHead: WORKTREE\nRead staged and unstaged integrated changes against Base.\nTask 1 files: src/parse.mjs and tests/parse.test.mjs.\nTask 2's format files are integrated siblings, not this task's review scope.\n\nStart from diff hunks carrying file:line; read every Task 1 touched\nfile in full from this checkout. Read deleted files from Base if needed.\nReview the repaired implementation against the full task and spec anchors.\n\nNever execute tests. The Tests block is a contract, not execution permission.\nReturn your spec-compliance report and Verdict.\n`\n})\n```\n\nThis is the first SR of the test-gate repair: no previous-review marker or trajectory request.\n\n**Await this SR’s terminal report.** Resolve any findings through the SR fix loop before dispatching CR. Only after affected-task SR acceptance may the wave’s **single initial CR** run in `/workspace/project`, against base `1111111111111111111111111111111111111111` and `HEAD_SHA: WORKTREE`, covering **both tasks**, with both scoped test commands.\n\nNo CR dispatch, commit, or tracker completion occurs at this boundary. Both tasks remain `in_progress`; the durable wave commit comes only after the required review gates accept.\n",
+      "words": 640,
+      "wallMs": 88054,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "61ea6da9a47eee89079f3550cac796bce19654d77cc14b38f3e899306c11fd55",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "68c335f53879dae92a61211b2abf5860cd9a6a12dd2fbd6cb98f2282bde6a9eb",
+      "baselineOutputSha": "cc9344587646e3b5872856cdeaed4685431d50ace66aadaef733e85d36291e2a",
+      "candidateOutputSha": "c16251217ade2cdb64994b6544538e839093c75b554befa7d497a2be74380066",
+      "facts": {
+        "in-place-repair": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "scoped-rerun": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "affected-task-sr": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "sr-before-initial-cr": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        }
+      },
+      "feedback": "Both outputs satisfy all four facts, so the After wording did not move anything here; the expected fails->holds shifts are not visible because Before already dispatched a single plain implementer in /workspace/project with the failing parse output, full task and both scoped commands, reran the union, dispatched a Task 1-only SR against the integrated checkout with the absolute spec, lines 8-9, full task and Tests contract while stating the old chain-SR acceptance no longer covers the repair, and stopped awaiting that SR before a BASE_SHA/WAVE_BASE_SHA, HEAD_SHA WORKTREE initial CR. After does deliver the Change cleanly: the payload carries no commit/staging override, staging is `add -A` over all repair deliverables rather than only the two owned paths, the review tree is captured via a scratch index, and worker commits are explicitly folded at step 7 via `reset --soft`. Two things worth tightening so later judges do not read them as regressions: the After SR dispatch says it carries 'no ## Fix delta' yet the Change describes a Fix delta between tree captures for repairs, so clarify that the first post-repair SR is a fresh review whose diff is the integrated staged range and that the tree-before capture exists only to seed a later re-review's Fix delta; and the step-3 tree-capture script ends with `exit` which would terminate the orchestrator shell if pasted inline, so wrap it in a subshell or function. Otherwise the After keeps every fact Before kept.",
+      "wallMs": 19423,
+      "verdict": "unchanged"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "61ea6da9a47eee89079f3550cac796bce19654d77cc14b38f3e899306c11fd55",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "68c335f53879dae92a61211b2abf5860cd9a6a12dd2fbd6cb98f2282bde6a9eb",
+      "baselineOutputSha": "3cbc4ff2fc61b448ccd83d367605aeb7a89e26f65965f61e0c2881a99f7d6a3a",
+      "candidateOutputSha": "4b67c88fcc7e83c4b999fa2edba82f02a7d6cd6c59735de52286844d0308cf81",
+      "facts": {
+        "in-place-repair": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "scoped-rerun": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "affected-task-sr": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "sr-before-initial-cr": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        }
+      },
+      "feedback": "After keeps every fact Before kept and moves affected-task-sr from fails to holds. Before dispatched a plain implementer in the dirty integrated checkout with the failing output, Task 1's full task and both scoped commands, reran the union, staged, and stopped on SR before a WAVE_BASE_SHA..WORKTREE CR — but its SR step never explicitly stated that Task 1's earlier chain SR acceptance was invalidated by the behavior change (it only said Task 2 retains its accepted SR) and framed the review as a repair-delta patch review rather than a review of the repaired integrated implementation. After fixes this with 'Initial chain acceptance does not cover the repair', a review source of the integrated checkout with Base WAVE_BASE_SHA / Head WORKTREE and the full Task 1 files, while delivering the Change: no commit/staging override in the worker payload, a scratch-index tree capture, and explicit 'both tasks remain in_progress' with the wave commit deferred to acceptance. Two cautions that do not move facts here: `git -C /workspace/project add -A` is broader than the Task 1 owned paths and could stage stray files, so consider restricting to Task 1's Files paths or stating the unaffected-Task-2 assumption; and the tree-capture block's trailing `exit \"$FD_STATUS\"` would terminate the orchestrator's shell if pasted inline, so present it as a function or subshell and say what the captured SHA is used for (the later Fix delta), otherwise a reader may think the capture replaces SR dispatch.",
+      "wallMs": 25855,
+      "verdict": "improved"
+    }
+  },
+  "repoSha": "a73f876bece54e85ac20cefd64441c2a607312c2"
+}

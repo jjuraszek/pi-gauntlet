@@ -1,8 +1,8 @@
 {
   "sample": "parent-fail-redispatches-once",
   "arm": "candidate",
-  "skillSha": "9dbeca74c143fb10e7b0301db438c900f9d11204fec55b9fe01dcf92f4f209d6",
-  "inputSha": "eeae722efdcced2b6babf6d540cd98c06d48c2026a12458010eea6452f1d0133",
+  "skillSha": "79437a7e0f95ffc2414ee51a3618b6bb6d7ed879046264209b8477b530580592",
+  "inputSha": "38ca6a14840c6c81f694bbcda44bd615ef9ed58263c4dcfa92ebf95e7e1b815d",
   "kind": "text",
   "assembly": "concat",
   "thinking": "medium",
@@ -17,18 +17,18 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "# Plan phase for the rate-limit-header spec: narration\n\n## Before tool result 1\n\n**Scope check**\n- No overrides file exists, so there is no documented `## Deployment` topology. Failing closed, there is no deployment-driven split.\n- The case raises no review-risk isolation reason.\n- Decision: one plan.\n\n**Phase tracking**\n- `phase_tracker` shows `plan` as `in_progress`, so I skip `start`.\n- Call: `phase_tracker({ action: \"substep\", phase: \"plan\", substep: \"plan-write\" })`\n\n**Resolved paths**\n- Worktree: `/work/app/.worktrees/rate-limit`\n- Spec: `/work/app/.worktrees/rate-limit/doc/specs/2026-03-16-rate-limit-header.md`\n- Plan, in the `plans/` directory beside `specs/`: `/work/app/.worktrees/rate-limit/doc/plans/2026-03-16-rate-limit-header.md`\n- Plan skill: `/opt/pi/skills/writing-plans/SKILL.md`\n- Plan contract: `/opt/pi/skills/writing-plans/reference/plan-contract.md`\n\n**Entry branch**\n- No plan file exists and this is not a restored flow, so I dispatch.\n\n**Dispatch 1**\n```\nsubagent({ agent: \"plan-writer\", context: \"fresh\", async: false, cwd: \"/work/app/.worktrees/rate-limit\",\n  phase: \"plan-write\",\n  acceptance: { level: \"none\", reason: \"the parent plan_check owns acceptance\" },\n  task: \"Write the implementation plan for the approved spec. Worktree: `/work/app/.worktrees/rate-limit`. Spec: `/work/app/.worktrees/rate-limit/doc/specs/2026-03-16-rate-limit-header.md`. Plan path: `/work/app/.worktrees/rate-limit/doc/plans/2026-03-16-rate-limit-header.md`. Plan skill: `/opt/pi/skills/writing-plans/SKILL.md`. Plan contract: `/opt/pi/skills/writing-plans/reference/plan-contract.md`.\" })\n```\n\n## Tool result 1\n\n- The child replies `PLAN WRITTEN …`.\n- I run the stamping check in the parent: `plan_check({ planPath: \"/work/app/.worktrees/rate-limit/doc/plans/2026-03-16-rate-limit-header.md\" })`\n\n## Tool result 2\n\n- The result is `PLAN WRITTEN` + `FAIL`.\n- This is the first time I have seen this FAIL output, so I re-dispatch once with the verbatim FAIL as a `Findings:` block.\n\n**Dispatch 2**\n```\nsubagent({ agent: \"plan-writer\", context: \"fresh\", async: false, cwd: \"/work/app/.worktrees/rate-limit\",\n  phase: \"plan-write\",\n  acceptance: { level: \"none\", reason: \"the parent plan_check owns acceptance\" },\n  task: \"Write the implementation plan for the approved spec. Worktree: `/work/app/.worktrees/rate-limit`. Spec: `/work/app/.worktrees/rate-limit/doc/specs/2026-03-16-rate-limit-header.md`. Plan path: `/work/app/.worktrees/rate-limit/doc/plans/2026-03-16-rate-limit-header.md`. Plan skill: `/opt/pi/skills/writing-plans/SKILL.md`. Plan contract: `/opt/pi/skills/writing-plans/reference/plan-contract.md`.\n\nFindings:\nFAIL (1 findings)\nsolo-line @ line 40: wave 2 has one task and no `Solo:` line\" })\n```\n\n## Tool result 3\n\n- The child replies `PLAN WRITTEN …`.\n- I run the check again: `plan_check({ planPath: \"/work/app/.worktrees/rate-limit/doc/plans/2026-03-16-rate-limit-header.md\" })`\n\n## Tool result 4: stop\n\n- The check returns exactly the same FAIL output as before.\n- The skill allows only one re-dispatch per verbatim FAIL output. A second dispatch would repeat the same repair.\n- **I stop and take it to the human as an open question.** I present the FAIL lines verbatim:\n  ```\n  FAIL (1 findings)\n  solo-line @ line 40: wave 2 has one task and no `Solo:` line\n  ```\n- I ask how to resolve it. For example: is there a reason wave 2 must stay a solo task (which needs a `Solo:` line), or should its task merge into or regroup with another wave?\n- Then I wait for the answer.\n\n## What I did not do\n\n- I did not clear the substep.\n- I did not call `phase_tracker complete`.\n- I did not call `plan_tracker init`.\n- I did not choose an execution mode or invoke `/skill:subagent-driven-development`.\n\nAll of those wait until the plan passes `plan_check` after the human answers.\n",
-      "words": 419,
-      "wallMs": 16782,
+      "text": "# Plan phase: rate-limit header\n\n## Pre-dispatch decisions\n\n**Overview / phase start.** `phase_tracker` reports `plan` as `in_progress`, so the Overview skipped `start`. I make no `start` call.\n\n**Scope Check.** There is no overrides file, so no `## Deployment` section documents an independently deployable topology. That fails closed: there is no deployment-driven split. Nothing in the case gives a review-risk isolation reason either. The result is **one plan**.\n\n**Plan path.** The plan goes in the `plans/` directory beside the spec: `/work/app/.worktrees/rate-limit/doc/plans/2026-03-16-rate-limit-header.md`.\n\n## Tool calls\n\n**Call 1: set the substep (step 1)**\n```\nphase_tracker({ action: \"substep\", phase: \"plan\", substep: \"plan-write\" })\n```\n\n**Decision (steps 2–3).** I resolve the five absolute paths:\n- worktree: `/work/app/.worktrees/rate-limit`\n- spec: `/work/app/.worktrees/rate-limit/doc/specs/2026-03-16-rate-limit-header.md`\n- plan: `/work/app/.worktrees/rate-limit/doc/plans/2026-03-16-rate-limit-header.md`\n- skill: `/opt/pi/skills/writing-plans/SKILL.md`\n- contract: `/opt/pi/skills/writing-plans/reference/plan-contract.md`\n\nNo plan file exists and this is not a restored flow, so I dispatch.\n\n**Call 2: first `plan-writer` dispatch (step 3)**\n```\nsubagent({\n  agent: \"plan-writer\",\n  context: \"fresh\",\n  async: false,\n  cwd: \"/work/app/.worktrees/rate-limit\",\n  phase: \"plan-write\",\n  acceptance: { level: \"none\", reason: \"the parent plan_check owns acceptance\" },\n  task: \"Write the implementation plan for the approved spec. Worktree: `/work/app/.worktrees/rate-limit`. Spec: `/work/app/.worktrees/rate-limit/doc/specs/2026-03-16-rate-limit-header.md`. Plan path: `/work/app/.worktrees/rate-limit/doc/plans/2026-03-16-rate-limit-header.md`. Plan skill: `/opt/pi/skills/writing-plans/SKILL.md`. Plan contract: `/opt/pi/skills/writing-plans/reference/plan-contract.md`.\"\n})\n```\nThe call has no `output:` and no `model:` field.\n\n**Result 1:** `PLAN WRITTEN /work/app/.worktrees/rate-limit/doc/plans/2026-03-16-rate-limit-header.md`. The dispatch did not error and the plan file exists, so step 4 is not triggered.\n\n**Call 3: stamping check (step 5)**\n```\nplan_check({ planPath: \"/work/app/.worktrees/rate-limit/doc/plans/2026-03-16-rate-limit-header.md\" })\n```\n**Result 2:**\n```\nFAIL (1 findings)\nwave-file-disjointness @ line 40: tasks 1 and 2 both modify src/shared.ts\n```\n\n**Decision (step 6).** The pair is `PLAN WRITTEN` + `FAIL`. This is the first time this exact FAIL output has appeared, so I re-dispatch with the FAIL output verbatim as a `Findings:` block.\n\n**Call 4: second `plan-writer` dispatch (re-dispatch per step 3)**\n```\nsubagent({\n  agent: \"plan-writer\",\n  context: \"fresh\",\n  async: false,\n  cwd: \"/work/app/.worktrees/rate-limit\",\n  phase: \"plan-write\",\n  acceptance: { level: \"none\", reason: \"the parent plan_check owns acceptance\" },\n  task: \"Write the implementation plan for the approved spec. Worktree: `/work/app/.worktrees/rate-limit`. Spec: `/work/app/.worktrees/rate-limit/doc/specs/2026-03-16-rate-limit-header.md`. Plan path: `/work/app/.worktrees/rate-limit/doc/plans/2026-03-16-rate-limit-header.md`. Plan skill: `/opt/pi/skills/writing-plans/SKILL.md`. Plan contract: `/opt/pi/skills/writing-plans/reference/plan-contract.md`.\\n\\nFindings:\\nFAIL (1 findings)\\nwave-file-disjointness @ line 40: tasks 1 and 2 both modify src/shared.ts\"\n})\n```\n\n**Result 3:** `PLAN WRITTEN /work/app/.worktrees/rate-limit/doc/plans/2026-03-16-rate-limit-header.md`.\n\n**Call 5: stamping check again (step 5)**\n```\nplan_check({ planPath: \"/work/app/.worktrees/rate-limit/doc/plans/2026-03-16-rate-limit-header.md\" })\n```\n**Result 4:** the same FAIL output, byte for byte:\n```\nFAIL (1 findings)\nwave-file-disjointness @ line 40: tasks 1 and 2 both modify src/shared.ts\n```\n\n## Decision: stop for the human\n\nThe pair is again `PLAN WRITTEN` + `FAIL`. However, the re-dispatch is allowed only once per verbatim FAIL output, and this identical FAIL has now appeared a second time. A third dispatch is not allowed. The skill sends this case to the user as an open question, carrying the FAIL lines verbatim, the same way an exhausted finding is handled.\n\nI present to the user:\n\n> The plan-writer could not repair this `plan_check` finding after one retry. The plan at `/work/app/.worktrees/rate-limit/doc/plans/2026-03-16-rate-limit-header.md` still fails with:\n> ```\n> FAIL (1 findings)\n> wave-file-disjointness @ line 40: tasks 1 and 2 both modify src/shared.ts\n> ```\n> How should this be resolved? For example, should Tasks 1 and 2 be merged into a single task that owns `src/shared.ts`, or should one task move to a later wave that depends on the other?\n\nI then **stop and wait**. Step 7 is not reached, so I do not:\n- clear the substep (it stays `plan-write`),\n- call `phase_tracker` `complete`,\n- call `plan_tracker` `init`,\n- invoke `/skill:subagent-driven-development`.\n\nAfter the user answers, I will re-dispatch `plan-writer` with the answers in a `Findings:` block and then run `plan_check` again.\n",
+      "words": 542,
+      "wallMs": 20710,
       "mechanical": {
         "f1": "holds"
       }
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "The plan phase is already `in_progress`, so I do not call `phase_tracker` with `action: \"start\"`. There is no overrides file documenting an independently deployable topology, so no deployment-driven split is allowed. The case supplies no review-risk isolation reason for splitting; I proceed with one plan.\n\n### 1. Set the planning substep\n\n```text\nphase_tracker({\n  action: \"substep\",\n  phase: \"plan\",\n  substep: \"plan-write\"\n})\n```\n\nNo plan file exists, so the restored-plan entry branch does not apply.\n\n### 2. First plan-writer dispatch → tool result 1\n\n```text\nsubagent({\n  agent: \"plan-writer\",\n  context: \"fresh\",\n  async: false,\n  cwd: \"/work/app/.worktrees/rate-limit\",\n  phase: \"plan-write\",\n  acceptance: {\n    level: \"none\",\n    reason: \"the parent plan_check owns acceptance\"\n  },\n  task: \"Write the implementation plan for the approved spec. Worktree: `/work/app/.worktrees/rate-limit`. Spec: `/work/app/.worktrees/rate-limit/doc/specs/2026-03-16-rate-limit-header.md`. Plan path: `/work/app/.worktrees/rate-limit/doc/plans/2026-03-16-rate-limit-header.md`. Plan skill: `/opt/pi/skills/writing-plans/SKILL.md`. Plan contract: `/opt/pi/skills/writing-plans/reference/plan-contract.md`.\"\n})\n```\n\nResult:\n\n```text\nPLAN WRITTEN /work/app/.worktrees/rate-limit/doc/plans/2026-03-16-rate-limit-header.md\n```\n\n**Decision:** Run the parent’s stamping check regardless of the child’s success reply.\n\n### 3. First parent check → tool result 2\n\n```text\nplan_check({\n  planPath: \"/work/app/.worktrees/rate-limit/doc/plans/2026-03-16-rate-limit-header.md\"\n})\n```\n\nResult:\n\n```text\nFAIL (1 findings)\nsolo-line @ line 40: wave 2 has one task and no `Solo:` line\n```\n\n**Decision:** This is `PLAN WRITTEN` + `FAIL`, and this exact failure has not previously been retried. Dispatch a fresh plan-writer with the verbatim failure in a `Findings:` block.\n\n### 4. Repair dispatch → tool result 3\n\n```text\nsubagent({\n  agent: \"plan-writer\",\n  context: \"fresh\",\n  async: false,\n  cwd: \"/work/app/.worktrees/rate-limit\",\n  phase: \"plan-write\",\n  acceptance: {\n    level: \"none\",\n    reason: \"the parent plan_check owns acceptance\"\n  },\n  task: \"Write the implementation plan for the approved spec. Worktree: `/work/app/.worktrees/rate-limit`. Spec: `/work/app/.worktrees/rate-limit/doc/specs/2026-03-16-rate-limit-header.md`. Plan path: `/work/app/.worktrees/rate-limit/doc/plans/2026-03-16-rate-limit-header.md`. Plan skill: `/opt/pi/skills/writing-plans/SKILL.md`. Plan contract: `/opt/pi/skills/writing-plans/reference/plan-contract.md`.\\n\\nFindings:\\nFAIL (1 findings)\\nsolo-line @ line 40: wave 2 has one task and no `Solo:` line\"\n})\n```\n\nResult:\n\n```text\nPLAN WRITTEN /work/app/.worktrees/rate-limit/doc/plans/2026-03-16-rate-limit-header.md\n```\n\n**Decision:** Run the parent’s stamping check again.\n\n### 5. Second parent check → tool result 4\n\n```text\nplan_check({\n  planPath: \"/work/app/.worktrees/rate-limit/doc/plans/2026-03-16-rate-limit-header.md\"\n})\n```\n\nResult:\n\n```text\nFAIL (1 findings)\nsolo-line @ line 40: wave 2 has one task and no `Solo:` line\n```\n\n**Decision:** The identical failure has now occurred a second time. The single retry permitted for this verbatim failure is exhausted. I do not dispatch another writer or repair the plan myself. I present the failure to the human as an open question:\n\n```text\nFAIL (1 findings)\nsolo-line @ line 40: wave 2 has one task and no `Solo:` line\n```\n\n**Stop and wait for human input.** I do not clear the substep, mark the phase complete, initialize `plan_tracker`, or invoke the executor.\n",
-      "words": 374,
-      "wallMs": 19385,
+      "text": "The plan path is `/work/app/.worktrees/rate-limit/doc/plans/2026-03-16-rate-limit-header.md`. No overrides file exists, so there is no documented deployment topology permitting a deployment-driven split. No review-risk isolation reason is supplied; proceed with one plan.\n\nBecause `plan` is already `in_progress`, I do not call `phase_tracker` with `action: \"start\"`. The setup call is:\n\n```text\nphase_tracker({\n  action: \"substep\",\n  phase: \"plan\",\n  substep: \"plan-write\"\n})\n```\n\n### 1. First dispatch and result 1\n\nThe first dispatch, whose result begins the requested sequence, has these arguments:\n\n```text\nsubagent({\n  agent: \"plan-writer\",\n  context: \"fresh\",\n  async: false,\n  cwd: \"/work/app/.worktrees/rate-limit\",\n  phase: \"plan-write\",\n  acceptance: {\n    level: \"none\",\n    reason: \"the parent plan_check owns acceptance\"\n  },\n  task: \"Write the implementation plan for the approved spec. Worktree: `/work/app/.worktrees/rate-limit`. Spec: `/work/app/.worktrees/rate-limit/doc/specs/2026-03-16-rate-limit-header.md`. Plan path: `/work/app/.worktrees/rate-limit/doc/plans/2026-03-16-rate-limit-header.md`. Plan skill: `/opt/pi/skills/writing-plans/SKILL.md`. Plan contract: `/opt/pi/skills/writing-plans/reference/plan-contract.md`.\"\n})\n```\n\nIt returns:\n\n```text\nPLAN WRITTEN /work/app/.worktrees/rate-limit/doc/plans/2026-03-16-rate-limit-header.md\n```\n\n**Decision:** Run the parent’s stamping check, regardless of the child’s success reply.\n\n### 2. First parent check\n\n```text\nplan_check({\n  planPath: \"/work/app/.worktrees/rate-limit/doc/plans/2026-03-16-rate-limit-header.md\"\n})\n```\n\nIt returns:\n\n```text\nFAIL (1 findings)\nwave-file-disjointness @ line 40: tasks 1 and 2 both modify src/shared.ts\n```\n\n**Decision:** This is the first occurrence of this verbatim failure. Re-dispatch a fresh `plan-writer` with the exact failure output in a `Findings:` block. I do not repair or write the plan myself.\n\n### 3. Repair dispatch\n\n```text\nsubagent({\n  agent: \"plan-writer\",\n  context: \"fresh\",\n  async: false,\n  cwd: \"/work/app/.worktrees/rate-limit\",\n  phase: \"plan-write\",\n  acceptance: {\n    level: \"none\",\n    reason: \"the parent plan_check owns acceptance\"\n  },\n  task: \"Write the implementation plan for the approved spec. Worktree: `/work/app/.worktrees/rate-limit`. Spec: `/work/app/.worktrees/rate-limit/doc/specs/2026-03-16-rate-limit-header.md`. Plan path: `/work/app/.worktrees/rate-limit/doc/plans/2026-03-16-rate-limit-header.md`. Plan skill: `/opt/pi/skills/writing-plans/SKILL.md`. Plan contract: `/opt/pi/skills/writing-plans/reference/plan-contract.md`.\\n\\nFindings:\\nFAIL (1 findings)\\nwave-file-disjointness @ line 40: tasks 1 and 2 both modify src/shared.ts\"\n})\n```\n\nIt returns:\n\n```text\nPLAN WRITTEN /work/app/.worktrees/rate-limit/doc/plans/2026-03-16-rate-limit-header.md\n```\n\n**Decision:** Run the parent’s stamping check again.\n\n### 4. Second parent check\n\n```text\nplan_check({\n  planPath: \"/work/app/.worktrees/rate-limit/doc/plans/2026-03-16-rate-limit-header.md\"\n})\n```\n\nIt returns:\n\n```text\nFAIL (1 findings)\nwave-file-disjointness @ line 40: tasks 1 and 2 both modify src/shared.ts\n```\n\n**Decision:** The identical failure has occurred a second time. Its repair opportunity is exhausted. I stop and present the failure verbatim to the user as an open question:\n\n```text\nFAIL (1 findings)\nwave-file-disjointness @ line 40: tasks 1 and 2 both modify src/shared.ts\n```\n\nHow should this exhausted finding be resolved?\n\nI wait for the human’s answer. I do not dispatch another writer, clear the substep, mark planning complete, initialize `plan_tracker`, or invoke execution.\n",
+      "words": 356,
+      "wallMs": 22521,
       "mechanical": {
         "f1": "holds"
       }
@@ -36,21 +36,21 @@
   },
   "judge": {
     "anthropic/claude-opus-5-5": {
-      "factsSha": "80da2cc2971af71cc5ef56e5e42dbdb3965f5e8606fb087b34630ad6dfc1a7aa",
+      "factsSha": "11ae8682181946f92d73d60301684a2587730dd68cc4f482c2d9ab18b58632f0",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "5b304e8e476fc4738aac5a98e83b528f39847da6ba2bd2d695c7dc2f1aac0ac1",
-      "baselineOutputSha": "e420c0d654bb059ec6b3a33b702243c55572d5536862919ffc70045569acb3ba",
-      "candidateOutputSha": "d27d624b3ac410670dac3d30e0bc8d7f566ca59e2758d395ef127282984178e8",
+      "intentSha": "4dc5fa5801907ad420e0a33104f21186ccef17002b9817e5ad1687c5fa9605fd",
+      "baselineOutputSha": "424e020af856259a64333e19cbf3cc3d9e36600001f793dc4ce5e98f63cb59fb",
+      "candidateOutputSha": "d2b1f14a75d33066e357c9b1f7fbff25ceed0bb251535048eacf7371a8ebc014",
       "facts": {
         "f2": {
-          "before": "fails",
+          "before": "holds",
           "after": "holds",
-          "label": "intended change"
+          "label": "held"
         },
         "f3": {
           "before": "holds",
           "after": "holds",
-          "label": "intended but unchanged"
+          "label": "held"
         },
         "f4": {
           "before": "holds",
@@ -60,29 +60,29 @@
         "f1": {
           "before": "holds",
           "after": "holds",
-          "label": "intended but unchanged"
+          "label": "held"
         }
       },
-      "feedback": "After keeps every fact Before kept and gains f2: Dispatch 2 is a concrete `subagent({ agent: \"plan-writer\", context: \"fresh\", async: false, ... })` call whose task ends with a `Findings:` block carrying the two FAIL lines byte-for-byte, and the parent never edits the plan. Before failed f2 only because it declined to reproduce the dispatch wrapper (no `fresh`/`async: false`, no `Findings:` label), so the After wording's instruction to show the full dispatch with the verbatim FAIL under `Findings:` is what delivered the move. Both outputs stop after result 4, skip `plan_tracker init`, surface the FAIL to the human as a question, and never call resume/status or read the plan body. Two small clean-ups in After that don't move facts but would tighten it: the 'Tool result 2' bullet says 'The result is `PLAN WRITTEN` + `FAIL`' which conflates results 1 and 2 (better: 'plan_check returns FAIL'), and the `plan_check` argument name drifted from `path` (Before) to `planPath` (After) — pin the tool signature in the skill text so narrations agree.",
-      "wallMs": 15393,
-      "verdict": "improved"
+      "feedback": "After preserves every fact in this fixture: the second dispatch is a fresh, async-false plan-writer with the two FAIL lines verbatim under a Findings: block (rendered with \\n escapes inside the string, which still carries the lines verbatim), no third dispatch follows the identical second FAIL, plan_tracker init is explicitly withheld, the FAIL lines go to the human as an open question, and the parent never calls resume/status or reads the plan body. The only cosmetic difference is that After encodes the Findings block as \\n inside a single-line task string rather than a literal multi-line block; if the author wants the retry fact to be unambiguous to a strict reader, keep the literal multi-line rendering Before used, but no wording change in the Change paragraph moved any fact here.",
+      "wallMs": 6745,
+      "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
-      "factsSha": "80da2cc2971af71cc5ef56e5e42dbdb3965f5e8606fb087b34630ad6dfc1a7aa",
+      "factsSha": "11ae8682181946f92d73d60301684a2587730dd68cc4f482c2d9ab18b58632f0",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "5b304e8e476fc4738aac5a98e83b528f39847da6ba2bd2d695c7dc2f1aac0ac1",
-      "baselineOutputSha": "c2d8370aba23175200fc212919d729994d7722499fd3ca77ae9a1ccbc73ae5a9",
-      "candidateOutputSha": "6b7afd620ee733985181076bfd09c0069527e119f7b37a1223c421dd4cd65e1d",
+      "intentSha": "4dc5fa5801907ad420e0a33104f21186ccef17002b9817e5ad1687c5fa9605fd",
+      "baselineOutputSha": "08e52717a713d0fe5641302e8a18c3234323c4e8ecf44830f0b3617fbf318c1e",
+      "candidateOutputSha": "7b27e4170caa8c57fa13c3d186bcd5efac0b264586439a5aa29a42d2440fb557",
       "facts": {
         "f2": {
-          "before": "fails",
+          "before": "holds",
           "after": "holds",
-          "label": "intended change"
+          "label": "held"
         },
         "f3": {
-          "before": "fails",
+          "before": "holds",
           "after": "holds",
-          "label": "intended change"
+          "label": "held"
         },
         "f4": {
           "before": "holds",
@@ -90,15 +90,15 @@
           "label": "held"
         },
         "f1": {
-          "before": "fails",
+          "before": "holds",
           "after": "holds",
-          "label": "intended change"
+          "label": "held"
         }
       },
-      "feedback": "After moved f2 and f3 from fails to holds and kept f4. Before never dispatched anything (it refused for lack of skill text) and only paraphrased the finding while asking for instructions, so it had no fresh plan-writer re-dispatch carrying the verbatim FAIL under a Findings: block and did not present the FAIL lines themselves as the open question. After does both: section 4 dispatches plan-writer with context fresh, async false, and the two FAIL lines verbatim after a Findings: header, without touching the plan; section 5 stops after the identical second FAIL, dispatches nothing further, skips plan_tracker init, and hands the exact FAIL text to the human. Neither output calls resume/status or reads the plan body to fix it, so f4 holds in both. No regression to fix; one small tightening to consider is that After adds a phase_tracker substep call not listed among the input's tool results — harmless for these facts, but if a future fact constrains the call sequence to only the listed tools, the wording should say the substep call is optional or already recorded when the phase is in_progress.",
-      "wallMs": 15879,
-      "verdict": "improved"
+      "feedback": "No fact moved on this fixture: both outputs re-dispatch a fresh, async-false plan-writer carrying the FAIL lines verbatim under a Findings: block, both halt after the byte-identical second FAIL with the failure presented as an open question, and neither calls resume/status, initializes plan_tracker, or reads the plan to fix it. The After wording preserves the retry-and-halt path cleanly; the only visible difference is a slightly more explicit open-question phrasing (\"How should this exhausted finding be resolved?\"), which is harmless. Keep the halt text exactly as it is - the Change's singleton-wave grouping and direct handoff wording only affects the passing path, so no adjustment is needed here as long as the handoff clause stays gated on a PASS from plan_check.",
+      "wallMs": 5768,
+      "verdict": "unchanged"
     }
   },
-  "repoSha": "8a9de9fe0cd74131822330e398bf37cb5a927b55"
+  "repoSha": "a73f876bece54e85ac20cefd64441c2a607312c2"
 }

@@ -62,8 +62,6 @@ This task handles naming details.
 
 ## Wave 2 — Solo task
 
-Solo: lone remaining task
-
 ### Task 3: Document banned token handling
 
 **Spec:** doc/specs/fixture-spec.md § "Testing" L9
@@ -520,8 +518,6 @@ const ENTRYPOINT_PLAN = `# Fixture Plan
 
 ## Wave 1 — Solo
 
-Solo: lone remaining task
-
 ### Task 1: Scoped test
 
 **Spec:** doc/specs/fixture-spec.md § "Testing" L4
@@ -698,13 +694,14 @@ test("check 6 wave-file-disjointness: two tasks in the same wave declare the sam
   );
 });
 
-test("check 7 solo-line: single-task wave missing its Solo: line", () => {
-  const mutated = VALID_PLAN.replace("Solo: lone remaining task\n\n", "");
-  const findings = checkPlan(mutated, SPEC_TEXT, alwaysTruePort());
-  const sl = findingsFor(findings, "solo-line");
-  assert.equal(sl.length, 1);
-  assert.match(sl[0].reason, /missing a 'Solo: <reason>' line/);
-  assert.equal(sl[0].line, lineOf(mutated, "## Wave 2 — Solo task"));
+test("every-wave-singleton plan without Solo: lines passes; legacy Solo: lines are accepted silently", () => {
+  const plan = VALID_PLAN.replace(
+    "### Task 2: Implement naming",
+    "## Wave 2 - Naming\n\n### Task 2: Implement naming",
+  ).replace("## Wave 2 — Solo task", "## Wave 3 - Documentation");
+  assert.deepEqual(checkPlan(plan, SPEC_TEXT, alwaysTruePort()), []);
+  const legacy = plan.replace("## Wave 2 - Naming", "## Wave 2 - Naming\n\nSolo: Task 2 depends on Wave 1");
+  assert.deepEqual(checkPlan(legacy, SPEC_TEXT, alwaysTruePort()), []);
 });
 
 test("check 8 header-entrypoint: verification entrypoint string reused outside the header", () => {
@@ -745,8 +742,6 @@ const EXEMPTION_PLAN = `# Exemption Plan
 ---
 
 ## Wave 1 — Solo task
-
-Solo: only task in this wave
 
 ### Task 1: Document banned token handling
 
@@ -799,9 +794,8 @@ test("check 2/5 exemption negative: without the task body carrying the literal, 
   );
 });
 
-test("aggregate: independent mutations across three checks are all reported together", () => {
+test("aggregate: independent mutations across two checks are all reported together", () => {
   let mutated = VALID_PLAN;
-  mutated = mutated.replace("Solo: lone remaining task\n\n", "");
   mutated = mutated.replace(
     "- via: `helperFn()`\n\nThis task implements helperFn() for parsing.",
     "- via: `parserSeam()`\n\nThis task implements the helper for parsing.",
@@ -811,7 +805,6 @@ test("aggregate: independent mutations across three checks are all reported toge
     "- Modify: extensions/lib/fixture-shared.ts",
   );
   const findings = checkPlan(mutated, SPEC_TEXT, alwaysTruePort());
-  assert.ok(findingsFor(findings, "solo-line").length > 0, "expected a solo-line finding");
   assert.ok(findingsFor(findings, "quote-integrity").length > 0, "expected a quote-integrity finding");
   assert.ok(findingsFor(findings, "wave-file-disjointness").length > 0, "expected a wave-file-disjointness finding");
 });

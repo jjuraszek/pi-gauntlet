@@ -1,4 +1,4 @@
-- f1: mechanical: contains "solo-line @ line 40"
+- f1: mechanical: contains "wave-file-disjointness @ line 40"
 - f2: judged: After result 2, dispatches plan-writer again (fresh, async false) whose task carries the FAIL lines verbatim under a Findings: block, and does not edit or write the plan itself.
 - f3: judged: After result 4, dispatches nothing more, calls no plan_tracker init, and presents the FAIL lines to the human as an open question.
 - f4: judged: Never calls resume or status and never reads the plan body to fix it.

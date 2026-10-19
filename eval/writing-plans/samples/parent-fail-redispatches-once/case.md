@@ -7,7 +7,7 @@ Tool results, in order, as you call them:
 1. The first `plan-writer` dispatch returns `PLAN WRITTEN /work/app/.worktrees/rate-limit/doc/plans/2026-03-16-rate-limit-header.md`.
 2. `plan_check` on that path returns:
    FAIL (1 findings)
-   solo-line @ line 40: wave 2 has one task and no `Solo:` line
+   wave-file-disjointness @ line 40: tasks 1 and 2 both modify src/shared.ts
 3. Your next `plan-writer` dispatch returns `PLAN WRITTEN /work/app/.worktrees/rate-limit/doc/plans/2026-03-16-rate-limit-header.md`.
 4. `plan_check` on that path returns the same two FAIL lines as result 2, byte for byte.
 

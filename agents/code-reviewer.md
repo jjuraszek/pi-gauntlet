@@ -77,8 +77,6 @@ with one partition line over the `Fn` IDs assigned above; when a task requires
 a trailing `TRAJECTORY:` verdict (re-review), that verdict comes after `Behaviour-change:` as the
 true final line:
 
-<!-- writing-plans' plan-time Parallel-safe: line is a deliberately different free-text form; do not unify -->
-
 ```
 Parallel-safe: <group>[; <group>]*
   <group> = <comma-separated finding-id list> " disjoint"

@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Changed
+
+- **Removed sequential mode; every plan task runs through the wave loop.** Singleton waves use the same implementer/spec-review chain, integration, review, and accepted-wave commit as larger waves. Re-review fixes use a single tree-to-tree fix delta captured through a scratch index, so committed, staged, and unstaged repairs produce the same repair-only patch. Each accepted wave folds repair commits into one wave commit before tracker completion. (#71)
+
 ## v7.20.1 - 2026-10-19
 
 ### Changed

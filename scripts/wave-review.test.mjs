@@ -1,14 +1,14 @@
 import test from 'node:test';
 import { runInNewContext } from 'node:vm';
 import assert from 'node:assert/strict';
-import { readFileSync, writeFileSync, mkdtempSync, existsSync } from 'node:fs';
+import { readFileSync, writeFileSync, mkdtempSync, existsSync, mkdirSync, readdirSync, unlinkSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { execFileSync, spawnSync } from 'node:child_process';
 
 const skill = readFileSync(new URL('../skills/subagent-driven-development/SKILL.md', import.meta.url), 'utf8');
 const template = readFileSync(new URL('../skills/requesting-code-review/code-reviewer.md', import.meta.url), 'utf8');
-const wave = skill.split('## Parallel-Wave Mode')[1].split('## Spec-review snapshots')[0];
+const wave = skill.split('## The Wave Loop')[1].split('## Spec-review snapshots')[0];
 
 test('wave chain isolates implementers then reviews their paired materialized trees', () => {
   const blocks = [...wave.matchAll(/```ts\n([\s\S]*?)\n```/g)].map(match => match[1]);
@@ -95,7 +95,9 @@ test('version preflight and retained-result recovery surround the initial chain'
   assert.match(retained, /recoverable `BLOCKED` or `NEEDS_CONTEXT`[^\n]*status matrix[^\n]*no patch/);
   assert.match(retained, /no recoverable status, or an accepted task with a missing\/empty patch[^\n]*When a Subagent Fails[^\n]*visible diagnostic/);
   const redispatch = retained.match(/^\*\*Re-dispatch by cause:\*\*[^\n]*/m)[0];
-  assert.match(redispatch, /Snapshot the replacement patch with \[Spec-review snapshots\]\(#spec-review-snapshots\) \(a setup failure stops dispatch and keeps the failed snapshot\)/);
+  assert.match(redispatch, /Materialize the replacement patch in a new detached `WAVE_BASE_SHA` checkout with `git apply --index` per \[Spec-review snapshots\]\(#spec-review-snapshots\)/);
+  assert.match(redispatch, /on setup or tree-capture failure, stop dispatch and retain the failed snapshot directory and shell output/);
+  assert.match(redispatch, /After successful setup, record tree-after in that replacement snapshot before dispatching one plain re-review/);
   assert.match(skill, /Second chain call in the same wave after a stop or a chain error - the retained results are the fan-out result; continue on the snapshot path\./);
 });
 
@@ -183,4 +185,61 @@ test('committed review keeps the explicit range and excludes later uncommitted e
   assert.match(result.stdout, /\+after/);
   assert.match(result.stdout, /\+new content/);
   assert.doesNotMatch(result.stdout, /not reviewed/);
+});
+
+function captureTree(repo, scratch) {
+  const block = skill.match(/<!-- fix-delta-tree-shell -->\s*```bash\n([\s\S]*?)\n```/);
+  assert.ok(block, 'fix delta must record trees through the marked scratch-index block');
+  return spawnSync('bash', ['-c', block[1].replaceAll('{{CHECKOUT}}', () => quote(repo))], {
+    encoding: 'utf8', env: { ...process.env, TMPDIR: scratch },
+  });
+}
+
+test('tree delta is repair-only regardless of committed, staged or unstaged repair state', () => {
+  const f = fixture();
+  const checkout = join(f.root, "linked tree's space");
+  const scratch = join(f.root, 'scratch');
+  mkdirSync(scratch);
+  git(f.repo, 'worktree', 'add', '--detach', checkout, f.base);
+  writeFileSync(join(checkout, 'existing.txt'), 'implementation\n');
+  git(checkout, 'add', '-A');
+  const implementationStatus = git(checkout, 'status', '--porcelain');
+  const before = captureTree(checkout, scratch);
+  assert.equal(before.status, 0, before.stderr);
+  assert.equal(git(checkout, 'status', '--porcelain'), implementationStatus);
+  assert.deepEqual(readdirSync(scratch), []);
+  git(checkout, 'commit', '-qm', 'implementation');
+  const implementation = git(checkout, 'rev-parse', 'HEAD');
+  // The expected patch is independent of the capture and includes no implementation hunk.
+  const repairBlob = execFileSync('git', ['-C', checkout, 'hash-object', '--stdin'], { input: 'repair\n', encoding: 'utf8' }).trim();
+  const expected = `diff --git a/repair.txt b/repair.txt\nnew file mode 100644\nindex 0000000..${repairBlob.slice(0, 7)}\n--- /dev/null\n+++ b/repair.txt\n@@ -0,0 +1 @@\n+repair\n`;
+  const deltas = [];
+  for (const state of ['committed', 'staged', 'unstaged']) {
+    git(checkout, 'reset', '--hard', implementation);
+    writeFileSync(join(checkout, 'repair.txt'), 'repair\n');
+    if (state !== 'unstaged') git(checkout, 'add', '-A');
+    if (state === 'committed') git(checkout, 'commit', '-qm', 'repair');
+    const status = git(checkout, 'status', '--porcelain');
+    const after = captureTree(checkout, scratch);
+    assert.equal(after.status, 0, `${state}: ${after.stderr}`);
+    const delta = execFileSync('git', ['-C', checkout, 'diff', '--binary', before.stdout.trim(), after.stdout.trim()], { encoding: 'utf8' });
+    assert.equal(delta, expected, state);
+    deltas.push(delta);
+    assert.equal(git(checkout, 'status', '--porcelain'), status, state);
+    assert.deepEqual(readdirSync(scratch), [], state);
+  }
+  assert.equal(new Set(deltas).size, 1);
+});
+
+test('missing live index fails tree capture without a SHA or scratch residue', () => {
+  const f = fixture();
+  const checkout = join(f.root, "missing index's tree");
+  const scratch = join(f.root, 'scratch');
+  mkdirSync(scratch);
+  git(f.repo, 'worktree', 'add', '--detach', checkout, f.base);
+  unlinkSync(git(checkout, 'rev-parse', '--path-format=absolute', '--git-path', 'index'));
+  const result = captureTree(checkout, scratch);
+  assert.notEqual(result.status, 0);
+  assert.equal(result.stdout, '');
+  assert.deepEqual(readdirSync(scratch), []);
 });

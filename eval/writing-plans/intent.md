@@ -1,14 +1,11 @@
-for: 9dbeca74c143fb10e7b0301db438c900f9d11204fec55b9fe01dcf92f4f209d6
+for: 79437a7e0f95ffc2414ee51a3618b6bb6d7ed879046264209b8477b530580592
 
 ## Change
-The plan phase no longer has the main loop dispatch a scout, read its draft, write the plan, and fix plan_check findings itself. The parent dispatches one fresh plan-writer child with the spec, plan, and worktree paths and the acceptance-none line, runs plan_check once for the stamp, re-dispatches once with the verbatim FAIL as a Findings: block when the child and parent checks disagree, and reads the finished plan once before plan_tracker init.
+
+Keep the fresh plan-writer child, parent stamping check, single finished-plan read and one verbatim Findings retry with identical second FAIL halting for the human. Treat every singleton wave as an ordinary group with no Solo or plan-time Parallel-safe requirement, initialize tasks in wave order and hand off directly to subagent-driven-development without mode selection. The all-singleton-plan sample exercises this grouping and handoff. The existing parent-fail-redispatches-once fixture now uses wave-file-disjointness for tasks modifying src/shared.ts instead of the deleted solo-line check; its retry and halt facts remain stable. This is behavior-changing conformance evidence.
 
 ## Expected to move
-- parent-fail-redispatches-once/f1: fails -> holds - the baseline never surfaces the FAIL lines; it stops asking for skill text before any dispatch
-- fresh-child-authors-plan/f1: fails -> holds - the baseline dispatches scout; "plan-writer" never appears
-- fresh-child-authors-plan/f3: fails -> holds - the baseline has no plan-writer dispatch
-- fresh-child-authors-plan/f4: fails -> holds - the baseline halts at the scout draft and never reaches the parent plan_check
-- fresh-child-authors-plan/f5: fails -> holds - the baseline writes the plan in the parent
-- fresh-child-authors-plan/f6: fails -> holds - the baseline never reads a finished plan or initializes the tracker
-- parent-fail-redispatches-once/f2: fails -> holds - the baseline fixes findings in the parent
-- parent-fail-redispatches-once/f3: fails -> holds - the baseline keeps fixing until the 3-round bound
+
+- fresh-child-authors-plan/f6: fails -> holds - Tracker initialization now ends in direct execution handoff without selecting an execution mode.
+- all-singleton-plan/singleton-template: fails -> holds - Singleton waves require no Solo justification or mode-specific template lines.
+- all-singleton-plan/ordered-handoff: fails -> holds - The parent initializes all three singleton tasks in wave order then directly invokes execution without mode selection.

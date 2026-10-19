@@ -1,5 +1,7 @@
 # Auto-Proceed From Approved Spec Through Execution
 
+> **Superseded by:** [doc/specs/2026-10-19-gh-71-drop-sequential-mode.md](./2026-10-19-gh-71-drop-sequential-mode.md) - D4 execution-mode auto-selection only
+
 **Status:** Draft (pending user review)
 **Date:** 2026-06-15
 **Worktree:** `.worktrees/auto-proceed-spec-to-execution`

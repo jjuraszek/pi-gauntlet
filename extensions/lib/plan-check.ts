@@ -67,8 +67,6 @@ interface Wave {
   line: number;
   text: string;
   label: string;
-  soloLine: number | undefined;
-  soloReason: string | undefined;
 }
 
 interface CoverageRow {
@@ -188,18 +186,7 @@ function parsePlan(planText: string): ParsedPlan {
     if (mask[i]) continue;
     const m = waveRe.exec(lines[i]);
     if (!m) continue;
-    let soloLine: number | undefined;
-    let soloReason: string | undefined;
-    let j = i + 1;
-    while (j < lines.length && lines[j].trim() === "") j++;
-    if (j < lines.length) {
-      const sm = /^Solo: (.+)$/.exec(lines[j]);
-      if (sm) {
-        soloLine = j + 1;
-        soloReason = sm[1];
-      }
-    }
-    waves.push({ number: Number(m[1]), line: i + 1, text: lines[i], label: m[3], soloLine, soloReason });
+    waves.push({ number: Number(m[1]), line: i + 1, text: lines[i], label: m[3] });
   }
 
   const taskHeaderIdxs: number[] = [];
@@ -944,23 +931,6 @@ function globErrFinding(wave: Wave, pattern: string, err: Error): PlanCheckFindi
   };
 }
 
-function checkSoloLine(parsed: ParsedPlan): PlanCheckFinding[] {
-  const findings: PlanCheckFinding[] = [];
-  for (const wave of parsed.waves) {
-    const count = parsed.tasks.filter((t) => t.waveNumber === wave.number).length;
-    if (count !== 1) continue;
-    if (wave.soloLine === undefined || !wave.soloReason || wave.soloReason.trim().length === 0) {
-      findings.push({
-        check: "solo-line",
-        line: wave.line,
-        text: wave.text,
-        reason: `single-task Wave ${wave.number} is missing a 'Solo: <reason>' line directly under its header`,
-      });
-    }
-  }
-  return findings;
-}
-
 function checkHappyPathLine(parsed: ParsedPlan): PlanCheckFinding[] {
   const { happyPathLine, happyPathText, happyPathCommand } = parsed.header;
   if (happyPathLine === undefined || happyPathCommand !== undefined) return [];
@@ -1090,7 +1060,6 @@ export function checkPlan(planText: string, specText: string, fs: FsPort): PlanC
     const requiredLiterals = computeRequiredLiteralsPerTask(parsed, specLines);
     findings.push(...checkPlaceholderScan(parsed, requiredLiterals));
     findings.push(...checkWaveFileDisjointness(parsed, fs));
-    findings.push(...checkSoloLine(parsed));
     findings.push(...checkHeaderEntrypoint(parsed));
     findings.push(...checkHappyPathLine(parsed));
     findings.push(...checkWaiverLiteral(parsed));

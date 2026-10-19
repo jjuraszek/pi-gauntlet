@@ -75,7 +75,7 @@ The main loop never writes the plan. One fresh `plan-writer` child does the reco
    - `OPEN QUESTIONS` + any result -> present the plan's `## Open Questions` section to the user and wait (the Open-Questions halt; no `plan_tracker` init before the answers). After the answers, re-dispatch per step 3 with the answers as the `Findings:` block, then step 5.
    - `PLAN WRITTEN` + `FAIL` -> re-dispatch per step 3 with the verbatim `FAIL (...)` output as the `Findings:` block, then step 5. Once per verbatim FAIL output: the same FAIL a second time goes to the user as an open question (the FAIL lines, verbatim), as an exhausted finding does.
    - No child reply (the step 3 entry branch on a restored plan) -> read the result as if the reply were `OPEN QUESTIONS` when the plan carries an `## Open Questions` section, else `PLAN WRITTEN`, and take that reply's branch above; a `FAIL` re-dispatch overwrites the restored plan with a repaired one.
-7. Clear the substep (`phase_tracker({ action: "substep", phase: "plan", substep: null })`). Read the plan once, then `## Execution Handoff` as written below: `phase_tracker({ action: "complete", phase: "plan" })`, `plan_tracker({ action: "init", ... })` from the `W<k>: <title>` list, mode selection from the wave structure, `/skill:subagent-driven-development`.
+7. Clear the substep (`phase_tracker({ action: "substep", phase: "plan", substep: null })`). Read the plan once, then `## Execution Handoff` as written below: `phase_tracker({ action: "complete", phase: "plan" })`, `plan_tracker({ action: "init", ... })` from the `W<k>: <title>` list, `/skill:subagent-driven-development`.
 
 The parent holds no run id and never calls `resume` or `status`; every dispatch here is `async: false`. Re-entering this section without a restored plan overwrites whatever the plan path holds - a committed prior plan (recoverable from git history) or an uncommitted one (destroyed); re-planning is a deliberate overwrite. An amendment of the approved spec after the plan exists re-enters at step 3 with an `Amend:` block (brainstorming's `reference/amendment-surface.md` section 5 owns that call).
 
@@ -108,34 +108,30 @@ If you can't list the files, the spec isn't ready: amend or redraw per brainstor
 
 ## Wave Grouping
 
-Group tasks into **waves** so the executor can parallelize independent work (see `subagent-driven-development` Parallel-Wave Mode). A wave is a maximal set of tasks that (a) have no ordering dependency on each other, (b) own **pairwise-disjoint files**, and (c) contend on **no shared mutable runtime resource** (same DB/schema, port, fixture file, external service, shared temp path).
+Group tasks into **waves** so the executor can parallelize independent work (see `subagent-driven-development` wave loop). A wave is a maximal set of tasks that (a) have no ordering dependency on each other, (b) own **pairwise-disjoint files**, and (c) contend on **no shared mutable runtime resource** (same DB/schema, port, fixture file, external service, shared temp path).
 
-- Group independent tasks into the same wave by default. A wave with one task is legal **only with a named-blocker justification**: a body line directly under the `## Wave N — <label>` header, `Solo: <reason>`, where the reason names the blocking task/wave, the contended runtime resource, or `lone remaining task` (reserved for the genuinely final unmatched task; doc-only trailing waves qualify). Category-only justifications ("dependency" with no named task) do not satisfy the rule.
-- A pure dependency chain yields one task per wave — no parallelism, which is correct; each such wave carries its `Solo:` line naming the prior-wave dependency.
+- Group independent tasks into the same wave by default.
+- Group a pure dependency chain into one task per wave.
 - Each wave after the first states its dependency on prior waves.
 
 **File-ownership contract.** See [reference/plan-contract.md § Files](reference/plan-contract.md).
 
 **Test contract.** Every task that creates or modifies code declares a `Test:` path and an executable `**Tests:**` command anchored to it (grammar: [reference/plan-contract.md § Tests](reference/plan-contract.md)); `- none: <category>` only when no tests apply. Anchoring is presence, not coverage. When the anchored spec names the thing under test, the task carries `- via:` naming it; a fixture path the spec names goes under `Create:`. Prefer the existing test file for the behavior as `Test:`; a new test file is declared as both `Create:` and `Test:`.
 
-**Runtime-resource disjointness.** File-disjoint is necessary but not sufficient: two tasks with disjoint files that both mutate the same DB, bind the same port, or share a fixture are **not** parallel-safe and must land in different waves. The executor auto-selects parallel for *every* multi-task wave, so this grouping is the sole parallel-safety guarantee — there is no selection-time judgment downstream. No new mandatory per-task syntax; when a shared runtime resource is the reason two file-disjoint tasks sit in different waves, record it in an inline note on the later wave.
+**Runtime-resource disjointness.** File-disjoint is necessary but not sufficient: two tasks with disjoint files that both mutate the same DB, bind the same port, or share a fixture are **not** parallel-safe and must land in different waves. Use this grouping as the parallel-safety guarantee for every multi-task wave. No new mandatory per-task syntax; when a shared runtime resource is the reason two file-disjoint tasks sit in different waves, record it in an inline note on the later wave.
 
 **Doc tasks.** Doc updates are real plan tasks, not an afterthought. Task-local docs (a doc that only describes the file(s) a task already touches) ride with that task. Cross-cutting or index docs (README, `AGENTS.md`, topic guides, taxonomy indexes) sequence into a dedicated trailing doc-only wave — last wave by convention, file-disjoint from every code task so the pairwise-disjoint wave contract holds.
 
-**Doc-wave collision rule.** Amend-over-create (see `brainstorming/reference/documentation-impact.md`) concentrates edits into hub docs like README and `AGENTS.md`. A doc wave with ≥2 tasks auto-selects Parallel-Wave Mode, which requires pairwise-disjoint files — so doc tasks that land on the *same* file merge into one task rather than splitting. A single-task trailing doc wave is the expected shape, not a smell.
+**Doc-wave collision rule.** Amend-over-create (see `brainstorming/reference/documentation-impact.md`) concentrates edits into hub docs like README and `AGENTS.md`. Run a multi-task doc wave's tasks concurrently with pairwise-disjoint files; merge doc tasks that land on the *same* file into one task rather than splitting. A single-task trailing doc wave is the expected shape, not a smell.
 
 ```markdown
 ## Wave 1 — Foundations
-
-Parallel-safe: Tasks 1–3 own disjoint files (see each task's Files block).
 
 ### Task 1: ...
 ### Task 2: ...
 ### Task 3: ...
 
 ## Wave 2 — Wire-up
-
-Solo: Task 4 depends on Wave 1 Task 1's API (named-blocker justification).
 
 Depends on Wave 1: Task 4 consumes the API introduced by Task 1.
 
@@ -240,7 +236,7 @@ Each task uses `- [ ]` checkbox steps so execution tools (and humans) can track 
 
 Every code task carries this step (red -> green -> fmt/lint -> commit). Doc-only tasks omit it unless the project formats Markdown.
 
-Task commit steps use bare `git`: the implementer subagent runs with the checkout as its cwd (dispatch `cwd`, or its own worktree in Parallel-Wave Mode), so `git -C` would point at the wrong tree.
+Use bare `git` in task commit steps: the orchestrator commits each wave after code review accepts; a task's own commit step runs inside its nested worktree and is captured as its patch.
 
 **Anchor rules.** See [reference/plan-contract.md § Spec anchors](reference/plan-contract.md). A task with no anchorable requirement omits the `**Spec:**` line and carries a mechanical-task row in `## Spec coverage` — silence is never valid.
 
@@ -277,7 +273,6 @@ The plan-writer runs these before replying: the deterministic checker, then the 
 - **Type / API consistency.** Function signatures and field names that appear in multiple tasks must match exactly. The plan is its own contract — internal contradictions surface as bugs during execution.
 - **Test contract.** Every code task's `Tests:` commands are anchored to its `Test:` path(s); `none:` only where no tests apply; a spec-named seam appears as `via:`, a spec-named fixture path as `Create:`. Prefer the existing test file for the behavior as `Test:`; a new test file is declared as both `Create:` and `Test:`.
 - **Runtime-resource disjointness.** For every multi-task wave, confirm no two tasks contend on a shared mutable runtime resource (DB/schema, port, fixture, external service, shared temp path) — `Files:` overlap is checked mechanically, resource contention is not. Contention = mis-grouped wave; split or re-order before handoff.
-- **Solo-reason validity.** Every single-task wave's `Solo:` line (presence is checked mechanically) must name its specific blocker — the blocking task/wave, the contended resource, or `lone remaining task`. Category-only justifications are under-justified; merge or justify before handoff.
 - **Waiver authorization.** `waived: <reason>` is only for requirements the spec marks out of scope **and** that exclude work from the change. A requirement whose text carries an inline code span (`` `literal` ``) names concrete behaviour and is never waivable - it maps to a task or `Verification`. A waiver on an in-scope normative requirement is a Self-Review failure — there is no human plan-review gate to catch it downstream.
 - **Verification-ownership authorization.** `Verification` on a requirement no header command exercises is a Self-Review failure.
 - **Documentation-impact mapping.** Each Documentation impact entry maps to a plan task (or explicit "none").
@@ -303,11 +298,6 @@ After the parent `plan_check` passes and the plan has been read once (`## Author
 phase_tracker({ action: "complete", phase: "plan" })
 plan_tracker({ action: "init", tasks: ["W1: <title>", "W1: <title>", "W2: <title>"] })
 ```
-
-Then auto-select the execution mode and proceed — no pause, no picker. The mode is a pure function of the plan's wave structure:
-
-- **If any wave contains ≥2 tasks → Parallel-Wave Mode.** The strengthened Wave Grouping contract (files + runtime-resource disjoint) guarantees every multi-task wave is parallel-safe.
-- **Otherwise (pure dependency chain, one task per wave) → Sequential Mode.**
 
 Auto-invoke `/skill:subagent-driven-development` in this session. Do not wait for confirmation — the spec gate already happened, and the plan is a mechanical derivative. The only pauses from here are in-flight STOPs (`BLOCKED` / `NEEDS_CONTEXT`) and the end gate, both owned by the executor.
 

@@ -124,9 +124,9 @@ carried gap's `recommended`. Re-run steps 1-2 above over the **full current
 open-gap set** each time the reviewer returns a report — never reuse a stale
 partition from an earlier round.
 
-### Fix loop — SDD Parallel-Wave mirror, per round
+### Fix loop - SDD wave-loop mirror, per round
 
-Mirrors `subagent-driven-development` Parallel-Wave Mode and reuses its
+Mirrors `subagent-driven-development`'s wave loop and reuses its
 `plan_tracker` progress surface. Runs entirely inside the gate — it invokes
 **no** phase-transition `phase_tracker` calls (`start`/`complete`/`skip`/`reset`
 - `phase_tracker({ phase: "implement" })` errors while verify is `in_progress`;

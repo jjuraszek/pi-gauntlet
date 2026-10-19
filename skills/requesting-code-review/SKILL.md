@@ -14,7 +14,7 @@ Dispatch a subagent with the code-reviewer prompt template to catch issues befor
 ## When to Request Review
 
 **Mandatory:**
-- After each task in subagent-driven development
+- Dispatch one initial code review per code-touching wave in subagent-driven development, over the integrated wave diff; doc-only waves are SR-only
 - After completing major feature
 - Before merge to main
 
@@ -25,7 +25,7 @@ Dispatch a subagent with the code-reviewer prompt template to catch issues befor
 
 ## How to Request
 
-**1. Select the review source.** For an integrated uncommitted wave, use its recorded base as `BASE_SHA` and the literal `WORKTREE` as `HEAD_SHA`; stage new deliverables before dispatch, per `code-reviewer.md`. For committed changes, get git SHAs:
+**1. Select the review source.** For an integrated uncommitted wave, use its recorded base as `BASE_SHA` and the literal `WORKTREE` as `HEAD_SHA`; stage new deliverables before dispatch, per `code-reviewer.md`. For the whole-diff review only, use the committed range:
 ```bash
 BASE_SHA=$(git rev-parse HEAD~1)  # or origin/main
 HEAD_SHA=$(git rev-parse HEAD)
@@ -51,7 +51,7 @@ subagent({ agent: "code-reviewer", async: false, task: "... filled template ..."
 - `{DESCRIPTION}` - Brief summary
 - `{SCOPED_TEST_COMMANDS}` - the scoped verification commands the reviewer may run, or `none`
 
-**Fix rounds.** A `FIX_FIRST` report triggers a fix round. A `SHIP` report dispatches nothing and ends the loop, whatever Minors it lists. `REJECT` is neither: stop and report (in SDD, per its `stop-note.md`); no fix round. When dispatched from an orchestrating skill, fixes go to `implementer` subagents (per the orchestrator's no-self-coding rule), fanned out per `dispatching-parallel-agents` "Fix fan-out" when the review's `Parallel-safe:` line certifies a `disjoint` group of ≥ 2 Critical/Moderate findings. Before fanning out, validate the review's `Parallel-safe:` line with the structural probe in `dispatching-parallel-agents` § Fix fan-out (exactly-one-line grammar check, one re-ask, then explicit sequential fallback). Sequential round (one task): the task carries the whole report; every Minor rides. Fan-out: the certificate partitions the Critical and Moderate findings; each Minor attaches once to the first task, in `Fn` order, whose ownership boundary - the union of its findings' `touched-files:` - already contains the Minor's `touched-files:`; a Minor no boundary contains is not dispatched this round, and a boundary never grows for a Minor. The implementer fixes its Minors or declines one with a stated reason. After integration and the project's test command, re-dispatch the reviewer once on the integrated delta in the foreground with top-level `async: false`; await its terminal result. A `FIX_FIRST` re-review buys one more fix round and one more foreground re-review; still `FIX_FIRST` -> escalate to the user. A `SHIP` report's Minors are not carried, with one exception: the whole-diff review's Minor finding lines go verbatim into the closure block's `whole-diff minors:` section (`verification-before-completion/reference/conformance-check.md` "Closure / conformance").
+**Fix rounds.** A `FIX_FIRST` report triggers a fix round. A `SHIP` report dispatches nothing and ends the loop, whatever Minors it lists. `REJECT` is neither: stop and report (in SDD, per its `stop-note.md`); no fix round. When dispatched from an orchestrating skill, fixes go to `implementer` subagents (per the orchestrator's no-self-coding rule), fanned out per `dispatching-parallel-agents` "Fix fan-out" when the review's `Parallel-safe:` line certifies a `disjoint` group of ≥ 2 Critical/Moderate findings. Apply `dispatching-parallel-agents` "Fix fan-out" source precondition first: an integrated wave before its accepted-wave commit gets one in-place repair worker, not fan-out; keep the commit after acceptance. Before fanning out, validate the review's `Parallel-safe:` line with the structural probe in `dispatching-parallel-agents` § Fix fan-out (exactly-one-line grammar check, one re-ask, then explicit sequential fallback). Sequential round (one task): the task carries the whole report; every Minor rides. Fan-out: the certificate partitions the Critical and Moderate findings; each Minor attaches once to the first task, in `Fn` order, whose ownership boundary - the union of its findings' `touched-files:` - already contains the Minor's `touched-files:`; a Minor no boundary contains is not dispatched this round, and a boundary never grows for a Minor. The implementer fixes its Minors or declines one with a stated reason. After integration and the project's test command, re-dispatch the reviewer once on the integrated delta in the foreground with top-level `async: false`; await its terminal result. A `FIX_FIRST` re-review buys one more fix round and one more foreground re-review; still `FIX_FIRST` -> escalate to the user. A `SHIP` report's Minors are not carried, with one exception: the whole-diff review's Minor finding lines go verbatim into the closure block's `whole-diff minors:` section (`verification-before-completion/reference/conformance-check.md` "Closure / conformance").
 
 Worked example: a `FIX_FIRST` report with 1 Moderate and 3 Minors -> one implementer task holding all four findings (one actionable ID, no fan-out). A `SHIP` report with 4 Minors -> no dispatch; the loop ends.
 
@@ -60,9 +60,8 @@ Take the recipient stance from `receiving-code-review`: verify each finding, ans
 ## Integration with Workflows
 
 **Subagent-Driven Development:**
-- Review after EACH task
-- Catch issues before they compound
-- Fix before moving to next task
+- Dispatch one initial code review per code-touching wave over the integrated wave diff; doc-only waves are SR-only
+- Fix and re-review before the accepted-wave commit and before moving to the next wave
 
 **Ad-Hoc Development:**
 - Review before merge

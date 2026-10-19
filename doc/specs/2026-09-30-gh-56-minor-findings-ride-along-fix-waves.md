@@ -1,5 +1,7 @@
 # Minor findings ride along in fix rounds, never buy one
 
+> **Superseded by:** [doc/specs/2026-10-19-gh-71-drop-sequential-mode.md](./2026-10-19-gh-71-drop-sequential-mode.md) - D6 `## Fix delta` definitions only
+
 **Ticket:** jjuraszek/pi-gauntlet#56
 **Goal:** A Minor code-review finding never triggers an implementer dispatch or a re-review on its own; it is fixed when a round is already forced by a Critical or Moderate finding, and the whole-diff review's Minors reach the finish gate as an informational, opt-in list. Re-reviews stop buying rounds through out-of-delta findings. Conformance keeps no severity. Telemetry counts the tags the code-reviewer persona emits.
 

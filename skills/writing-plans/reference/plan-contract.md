@@ -29,10 +29,6 @@ Absence is never valid. A `- [ ]` step or any non-bullet line ends the block. `v
 
 Commands are written repo-relative and run in the worktree via `(cd "<abs worktree path>" && <command>)` - the checker never runs them; the executor does. Each command is split into segments on `&&`, `||`, `;`, `|`; every segment must contain, as a whitespace-delimited token, a `Test:` path of the same task (the path alone, or followed by `::`, `#`, or `:` and a filter). A `Test:` value containing `*`, `?`, `[` or ending in `/` never anchors; any other argument token with those shapes is a broadening selector and fails. `cd `, `sh -c`, `bash -c`, `eval `, `$(` are unsupported. Each `Test:` path must exist or be a `Create:` path of some task. A segment equal to a header `**Verification:**` or `**Happy path:**` segment is a full-suite command and fails. Runners with no file-addressable form are out of scope (`go test ./pkg -run X`, `mvn -Dtest=`).
 
-## Solo line (`solo-line`)
-
-A wave with one task carries, directly under its `## Wave N — <label>` header, the line `Solo: <reason>`. The reason names the blocking task/wave, the contended runtime resource, or `lone remaining task`. Presence is checked here; validity is `writing-plans` Self-Review.
-
 ## Header-only entrypoint (`header-entrypoint`)
 
 The `**Verification:**` line is the **only** place the full verification entrypoint may appear — never in any task or wave step. The verify phase reads it from the plan instead of re-deriving it; execution runs scoped commands only.

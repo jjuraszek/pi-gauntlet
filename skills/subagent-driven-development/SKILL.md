@@ -43,41 +43,19 @@ Periodic "should I continue?" prompts add latency without adding safety. The pla
 - Approved plan or clear task scope
 - `plan_tracker` list initialized at writing-plans handoff with the full wave-ordered task list. Consume and preserve it on continuation; only direct recovery with no tracker initializes the full plan list once, before dispatch, and never over an existing list.
 
-## Sequential vs. Parallel-Wave
+Extract **`SCOPED_TEST_COMMANDS`** from the task's `**Tests:**` command bullets, backticks stripped, one per line; `- none:` -> `none`; a wave = the union of its tasks' commands. Treat `via:` bullets and `- Test:` paths as contract, not commands: carry them with the task text, never in `SCOPED_TEST_COMMANDS`.
 
-subagent-driven-development runs **sequentially by default**; when the plan groups independent tasks into waves, [Parallel-Wave Mode](#parallel-wave-mode) parallelizes the tasks within a wave. The mode is auto-selected by `writing-plans` at handoff (≥2 tasks in some wave → parallel; else sequential) — you are not asked to choose.
-
-**Dependent tasks:** include the previous task's implementation summary and relevant file paths in the next subagent's `task`. Track outputs so you can pass them forward.
-
-## The Process
-
-Before the first task, enter the implement phase: `phase_tracker({ action: "start", phase: "implement" })` — you hold this phase for the parent session while the per-task work is dispatched to subagents; `plan_tracker` auto-completes it once every task is done.
-
-For each task in `plan_tracker`:
-
-**`SCOPED_TEST_COMMANDS`** = the task's `**Tests:**` command bullets, backticks stripped, one per line; `- none:` -> `none`; a wave = the union of its tasks' commands. `via:` bullets and `- Test:` paths are contract, not commands: they ride with the task text, never in `SCOPED_TEST_COMMANDS`.
-
-1. **Start, then dispatch implementer.** Mark the task's existing `plan_tracker` index `in_progress` before dispatch. Pass the full task text + scene-setting context + its `SCOPED_TEST_COMMANDS` (definition above) and its `**Tests:**` block verbatim. Don't make the subagent re-read the plan.
-2. **Handle implementer status** (see below).
-3. **Dispatch spec reviewer.** Pass the task text, the patch diff, the absolute spec path, and the task's `**Spec:**` anchors, plus the task's `**Tests:**` block and `- Test:` paths as contract (never as commands - SR never executes) — SR reads the anchored ranges from the spec file itself; never inline spec excerpts. The spec wins every dispute; the authority hierarchy and finding labels live in `./spec-reviewer-prompt.md`. Anchor-less tasks (no `**Spec:**` line): task text alone is the contract. Verify the change satisfies the anchored spec — nothing missing, nothing extra.
-4. If spec reviewer finds gaps → re-dispatch implementer to fix → re-review. Loop until ✅, within [Fix-Loop Rounds](#fix-loop-rounds).
-5. **Dispatch code-quality reviewer.** Only after spec is ✅. Skip for doc-only tasks (every file in the task's `Files:` block documentation-only) — SR-only, same exemption as doc-only waves. Pass the task's `SCOPED_TEST_COMMANDS`.
-6. If the quality review is issue-bearing → re-dispatch the implementer per `/skill:requesting-code-review` Fix rounds → re-review. Loop until ✅, within [Fix-Loop Rounds](#fix-loop-rounds).
-7. After its existing reviews accept the work (and its required commit point), mark that same task index `complete` in `plan_tracker`. A subagent exit or green tests alone are not acceptance.
-
-The orchestrator is the spec's only writer during execution. Amendment trigger: implementer `BLOCKED` citing a spec defect, or a review finding showing the spec (not the code) is wrong -> pause the fix loop, `read` and execute brainstorming's [amendment path](../brainstorming/SKILL.md#amending-an-approved-spec) in place (it reviews first, stops only on escalation or redraw), resume. Code-vs-spec mismatch stays in the SR loop. An SR unable to read the spec at a cited anchor (missing file, unresolvable heading/range) returns a blocking finding — the contract is spec+task or stop, never a silent fallback to task-only review.
-
-After all tasks: proceed to [After All Tasks](#after-all-tasks-complete) - it owns parent full verification, then whole-diff code review, then conformance.
+Keep the orchestrator as the spec's only writer during execution. On implementer `BLOCKED` citing a spec defect, or a review finding showing the spec (not the code) is wrong, pause the fix loop, read and execute brainstorming's [amendment path](../brainstorming/SKILL.md#amending-an-approved-spec) in place (it reviews first, stops only on escalation or redraw), then resume. Keep code-vs-spec mismatch in the SR loop. Require an SR unable to read the spec at a cited anchor (missing file, unresolvable heading/range) to return a blocking finding - the contract is spec+task or stop, never a silent fallback to task-only review.
 
 ## Fix-Loop Rounds
 
-One rule governs both review loops - spec-compliance and code-quality - in sequential and parallel-wave modes alike.
+Apply one rule to both review loops - spec-compliance and code-quality.
 
-**Re-review dispatch rule:** every re-review task includes the complete prior review report verbatim under the marker `## Previous review report (re-review trigger)`, plus the trajectory block from the reviewer's prompt template. The marker's presence is what obligates the reviewer to emit the `TRAJECTORY:` line. You never select, summarize, or diff findings yourself - pattern-match the sentinel line only. Code re-reviews also carry a `## Fix delta` block holding the fix round just integrated: sequential mode, the output of `git diff <HEAD the prior review was dispatched against> HEAD`; wave mode (HEAD unmoved until step 7), the applied fix patch(es) verbatim, or the in-place fix delta captured in wave step 6, never a SHA range. Whole-diff re-reviews never carry the block. Omit it otherwise only when the input is unavailable (a fresh-session resume); the reviewer then treats the task's whole diff as the delta.
+**Re-review dispatch rule:** every re-review task includes the complete prior review report verbatim under the marker `## Previous review report (re-review trigger)`, plus the trajectory block from the reviewer's prompt template. The marker's presence is what obligates the reviewer to emit the `TRAJECTORY:` line. You never select, summarize, or diff findings yourself - pattern-match the sentinel line only. Include the delta defined in [Fix delta](#fix-delta) in every SR/CR re-review.
 
-**Fix fan-out.** When a fix round is fanned out per `/skill:requesting-code-review` Fix rounds, dispatch per `dispatching-parallel-agents` "Fix fan-out"; the fan-out counts as **one** fix against this budget, its scoped test gate is the consuming task/wave's `SCOPED_TEST_COMMANDS`, and one re-review of the integrated delta follows.
+**Fix fan-out.** When a fix round is fanned out per `/skill:requesting-code-review` Fix rounds, use the precondition and dispatch shape owned by `/skill:dispatching-parallel-agents` "Fix fan-out"; the fan-out counts as **one** fix against this budget, its scoped test gate is the consuming task/wave's `SCOPED_TEST_COMMANDS`, and one re-review of the integrated delta follows.
 
-**Behaviour-change reroute.** When the triggering CR report carries `Behaviour-change: yes`, the fix round's re-review is SR first, then CR. The SR dispatch reviews the fix diff against the task's spec anchors as a first review (no `## Previous review report` marker, so no `TRAJECTORY:` line; SR carries no test commands but does carry the task's `**Tests:**` block and `- Test:` paths), but its ordinal continues the task's SR-loop count - a task whose SR loop ended at review 2 gets review 3 here, and an issue-bearing rerouted SR after review 4 escalates. Issues follow the normal sequence: fix, then SR re-review pasting this SR's report. CR round numbering is unchanged. `Behaviour-change: no` re-reviews with CR only. A missing or malformed `Behaviour-change:` line is re-asked once like `Parallel-safe:` (see `dispatching-parallel-agents` "Structural probe"); still missing -> route through SR, never default to `no`. In wave mode the SR re-review targets the task(s) whose files the fix touched; after integration, dispatch it against the current implementation worktree, not a pre-integration snapshot.
+**Behaviour-change reroute.** When the triggering CR report carries `Behaviour-change: yes`, the fix round's re-review is SR first, then CR. Include `## Fix delta` on this SR-first behavior-change repair. Dispatch SR against the fix diff and the task's spec anchors as a first review (no `## Previous review report` marker, so no `TRAJECTORY:` line; SR carries no test commands but does carry the task's `**Tests:**` block and `- Test:` paths), but its ordinal continues the task's SR-loop count - a task whose SR loop ended at review 2 gets review 3 here, and an issue-bearing rerouted SR after review 4 escalates. Issues follow the normal sequence: fix, then SR re-review pasting this SR's report. CR round numbering is unchanged. `Behaviour-change: no` re-reviews with CR only. A missing or malformed `Behaviour-change:` line is re-asked once like `Parallel-safe:` (see `dispatching-parallel-agents` "Structural probe"); still missing -> route through SR, never default to `no`. Target the SR re-review at the task(s) whose files the fix touched; after integration, dispatch it against the current implementation worktree, not a pre-integration snapshot.
 
 Every fix re-dispatch (implementer) and code-review re-review carries the consuming task/wave's `SCOPED_TEST_COMMANDS`; spec-reviewer re-reviews carry the `**Tests:**` block and `- Test:` paths, no commands - SR never executes.
 
@@ -90,7 +68,7 @@ Every fix re-dispatch (implementer) and code-review re-review carries the consum
 
 Every dispatched fix is verified by a re-review before escalation or task progression - the loop only ever exits on a clean review or an escalation.
 
-**Escalate** = one escalated round; stop only on failure. Call `gauntlet_setting({ key: "escalationLoop" })` (unavailable -> stop and report). `implModel` undefined -> stop note. Otherwise re-dispatch that fix - same payload and isolation knobs (`cwd`, `worktree`, `SCOPED_TEST_COMMANDS`, status protocol, prior patch, spec anchors) plus the prior report verbatim - overriding only `model: <implModel>`, `context: "fresh"`, `async: false`; one implementer, no fan-out. Run the normal fix-round review gate (SR then CR on `Behaviour-change: yes`, else the triggering reviewer with the re-review marker). All clean -> proceed; in wave mode the escalated patch supersedes the prior one at integrate. Any review with issues, a non-`DONE` status, or a dispatch error -> stop note per `stop-note.md`; no second dispatch. Once per loop; independent of the convergence exception. No `plan_tracker` write during escalation - the task stays `in_progress` until the human decides.
+**Escalate** = one escalated round; stop only on failure. Call `gauntlet_setting({ key: "escalationLoop" })` (unavailable -> stop and report). `implModel` undefined -> stop note. Otherwise re-dispatch that fix - same payload and isolation knobs (`cwd`, `worktree`, `SCOPED_TEST_COMMANDS`, status protocol, prior patch, spec anchors) plus the prior report verbatim - overriding only `model: <implModel>`, `context: "fresh"`, `async: false`; one implementer, no fan-out. Run the normal fix-round review gate (SR then CR on `Behaviour-change: yes`, else the triggering reviewer with the re-review marker). All clean -> proceed; the escalated patch supersedes the prior one at integrate. Any review with issues, a non-`DONE` status, or a dispatch error -> stop note per `stop-note.md`; no second dispatch. Once per loop; independent of the convergence exception. No `plan_tracker` write during escalation - the task stays `in_progress` until the human decides.
 
 **Worked examples:**
 
@@ -98,13 +76,32 @@ Every dispatched fix is verified by a re-review before escalation or task progre
 - Review-3 verdict `TRAJECTORY: CONVERGING (3 -> 1, max severity Moderate)` -> dispatch fix 3; if review 4 still finds issues, escalate.
 - Review-3 verdict `TRAJECTORY: CONVERGING (3 -> 2, max severity Critical)` or `TRAJECTORY: DIVERGING` or no `TRAJECTORY:` line -> escalate.
 
+## Fix delta
+
+Include a `## Fix delta` block in every SR/CR re-review payload: `git diff --binary <tree-before> <tree-after>` between the tree recorded at the prior review's dispatch and the tree recorded at this re-review's dispatch. Record each tree with the shell block below; keep the printed SHA keyed by task for SR or wave for CR. Run it in the spec-review snapshot for pre-integration reviews, or in the branch checkout for integrated reviews (`FD_ROOT`). Tree objects share the repository's object store; use `git -C "$FD_ROOT" diff --binary <tree-before> <tree-after>` to produce the delta. Worker commits and staging state do not affect it; never substitute a SHA range or working-tree diff.
+
+Substitute a shell-quoted checkout path for `{{CHECKOUT}}` and run the entire block. Stop review dispatch on a nonzero exit and report the shell error. The block reads the live index, writes only a scratch index and tree object, and preserves checkout status.
+
+<!-- fix-delta-tree-shell -->
+```bash
+FD_ROOT={{CHECKOUT}}
+FD_INDEX=$(mktemp) || exit 1
+cp "$(git -C "$FD_ROOT" rev-parse --path-format=absolute --git-path index)" "$FD_INDEX" || { rm -f "$FD_INDEX"; exit 1; }
+GIT_INDEX_FILE="$FD_INDEX" git -C "$FD_ROOT" add -A && GIT_INDEX_FILE="$FD_INDEX" git -C "$FD_ROOT" write-tree
+FD_STATUS=$?
+rm -f "$FD_INDEX"
+exit "$FD_STATUS"
+```
+
+Omit the delta for whole-diff re-reviews. Otherwise omit it only when the prior tree is genuinely unavailable after a fresh-session resume; the reviewer then treats the task's whole diff as the delta. On an empty delta (including ignored-only repairs), dispatch no re-review: count a failed attempt under [When a Subagent Fails](#when-a-subagent-fails), resend the prior report with "your fix changed no tracked file", and stop after the existing two-attempt limit.
+
 ## Implementer Status
 
 Every implementer dispatch returns one of:
 
 | Status | Meaning | Orchestrator action |
 |---|---|---|
-| `DONE` | Implemented + tests pass + self-reviewed + committed (in-place wave repairs leave the commit to wave step 7) | Proceed to spec review |
+| `DONE` | Implemented + tests pass + self-reviewed; work present in the worker's tree; the wave commit is step 7 | Proceed to spec review |
 | `DONE_WITH_CONCERNS` | Implemented + tests pass, but flagged a deviation or risk | Read concerns. If acceptable, proceed. If not, dispatch fix subagent. |
 | `NEEDS_CONTEXT` | Implementer needs information you have | Answer the questions, re-dispatch with answers in the task text |
 | `BLOCKED` | Cannot proceed (missing dependency, spec contradicts code, environment broken) | Stop. Diagnose. Either fix orchestration-level issue and re-dispatch, or escalate to user. |
@@ -121,11 +118,11 @@ Implementer prompt templates must instruct subagents to return one of these stat
 
 ## Dispatch
 
-Pass the implementation worktree as top-level `cwd` - sequential mode included. For per-patch spec reviews, use [Spec-review snapshots](#spec-review-snapshots) instead.
+Pass the implementation worktree as top-level `cwd`. For per-patch spec reviews, use [Spec-review snapshots](#spec-review-snapshots) instead.
 
 ```ts
-// implementer
-subagent({ agent: "implementer", async: false, cwd: "<abs worktree path>", task: "<task text + context + SCOPED_TEST_COMMANDS + status protocol>" })
+// in-place repair worker
+subagent({ agent: "implementer", async: false, cwd: "<abs worktree path>", task: "<task text + context + prior report verbatim + SCOPED_TEST_COMMANDS + status protocol>" })
 
 // escalated fix round (Fix-Loop Rounds): same fix payload, model from gauntlet_setting({ key: "escalationLoop" }).implModel
 subagent({ agent: "implementer", model: "<implModel>", context: "fresh", async: false, cwd: "<abs worktree path>", task: "<the just-dispatched fix payload + prior review report verbatim>" })
@@ -148,30 +145,29 @@ Prompt templates live alongside this SKILL.md:
 - `./spec-reviewer-prompt.md`
 - `./code-quality-reviewer-prompt.md`
 
-## Parallel-Wave Mode
+## The Wave Loop
 
-Auto-selected at handoff by `writing-plans` (any wave with ≥2 tasks) when the plan groups tasks into **waves** (see `writing-plans`). Waves run in sequence; within a wave, tasks that the plan certified file- **and** runtime-resource-disjoint run concurrently in isolated worktrees, integrated serially behind one test + review gate. The sequential [Process](#the-process) above is the default and the fallback; this mode is the deliberate, worktree-isolated exception to the "no parallel implementers" red flag.
+Run every plan task through this loop in a wave of N >= 1 tasks. Run waves in sequence; dispatch file- and runtime-resource-disjoint tasks concurrently in isolated worktrees, then integrate serially behind one test + review gate. For dependent tasks, include the previous task's implementation summary and relevant file paths in the next subagent's `task`; track outputs to pass them forward.
 
-**Enter the implement phase first.** Before the first wave, call `phase_tracker({ action: "start", phase: "implement" })` (as in [The Process](#the-process)); `plan_tracker` auto-completes it once every task across all waves is done.
+**Enter the implement phase first.** Before the first wave, call `phase_tracker({ action: "start", phase: "implement" })`; `plan_tracker` auto-completes it once every task across all waves is done.
 
 **Progress tracking (`plan_tracker`).** `plan_tracker` is a flat list with no native group concept, so waves are *encoded*, not modeled:
 
 - **Consume, preserve, recover only if absent:** consume the wave-ordered list initialized at writing-plans handoff; indices are positional and stable, so never re-init on continuation or mid-run. Only direct recovery with no tracker initializes the full plan list once before dispatch.
-- **Wave fan-out → `in_progress`:** unconditionally mark every task index in the wave `in_progress` before dispatch, in increasing index order (the tracker validates each call against the previous one and rejects a start while an earlier index is still `pending`). Multiple simultaneous entries are expected (sequential mode has one).
+- **Wave fan-out → `in_progress`:** unconditionally mark every task index in the wave `in_progress` before dispatch, in increasing index order (the tracker validates each call against the previous one and rejects a start while an earlier index is still `pending`). Expect one or more simultaneous entries.
 - **Wave commit → `complete`:** after the wave's gate passes and it commits, unconditionally mark all those same indices `complete`. `complete` = durably committed, so a task in conflict fallback stays `in_progress` until its wave commits.
-- **Lifecycle per task:** `pending → in_progress (wave fan-out) → complete (wave commit)`; `failed` when a task ran and did not pass; `skipped` when the plan drops it as not applicable (terminal, counted done). A rejected `update` names the earlier pending tasks and the legal fixes - record those tasks' true state, never `clear` or re-`init` to move on.
-- **Widget caveat (known, deliberately unfixed).** The persistent `plan_tracker` widget's icon strip (`○ → ✓`) and `(c/total)` count reflect every task, but its trailing *name* shows only the **first** `in_progress` task. In parallel mode the icon strip and the `status` action are the full in-flight view; a richer multi-task widget is a separate extension change, out of scope (YAGNI).
-- **Sequential mode:** consume the same existing full list, one `in_progress` index at a time; wave prefixes are harmless.
+- **Lifecycle per task:** `pending → in_progress (wave fan-out) → complete (wave commit)`; keep `in_progress` through exhausted integration or repair attempts pending the human's decision (see [When a Subagent Fails](#when-a-subagent-fails)); use `failed` only for a human-decided terminal failure; `skipped` when the plan drops it as not applicable (terminal, counted done). A rejected `update` names the earlier pending tasks and the legal fixes - record those tasks' true state, never `clear` or re-`init` to move on.
+- **Widget caveat (known, deliberately unfixed).** The persistent `plan_tracker` widget's icon strip (`○ → ✓`) and `(c/total)` count reflect every task, but its trailing *name* shows only the **first** `in_progress` task. Use the icon strip and the `status` action for the full in-flight view; a richer multi-task widget is a separate extension change, out of scope (YAGNI).
 
 **Per-wave loop:**
 
-1. **Independence check.** Parse the wave's tasks' `Files:` blocks; assert pairwise-disjoint (mechanical, mirroring `wave-file-disjointness`: `Test`/`Test` on one path is not overlap, `Test` vs another task's `Create`/`Modify` is, `Modify`/`Modify` is). Runtime-resource disjointness (DB/schema, port, fixture, external service, shared temp path) is not machine-checkable here — trust the plan's wave grouping, which `writing-plans`' D5 contract guarantees. Either kind of overlap → the wave is mis-grouped; run those tasks as sequential single-task waves and note it.
+1. **Independence check.** Parse the wave's tasks' `Files:` blocks; assert pairwise-disjoint (mechanical, mirroring `wave-file-disjointness`: `Test`/`Test` on one path is not overlap, `Test` vs another task's `Create`/`Modify` is, `Modify`/`Modify` is). Runtime-resource disjointness (DB/schema, port, fixture, external service, shared temp path) is not machine-checkable here — trust the plan's wave grouping, which `writing-plans`' D5 contract guarantees. Either kind of overlap → the wave is mis-grouped; split it into one-task waves and note it.
 2. **Start, then dispatch.** Record `WAVE_BASE_SHA` with `git -C <worktree> rev-parse HEAD` before dispatch; keep it fixed through the wave's commit. Mark every wave index `in_progress` in increasing index order. Use the once-per-phase preflight below to choose exactly one initial chain (including one-task waves), or the fallback implementer fan-out.
 3. **Read the result once.** Read statuses, verdicts, patches, and reports as specified below. All implementers `DONE` and all verdicts `COMPLIANT` -> step 4. Any other outcome -> [Chain stopped or failed](#chain-stopped-or-failed). The ticket's `FAIL` means a spec gap (`NEEDS_REWORK`), not a structured verdict or an SR `stopOn` condition.
-4. **Integrate.** Run `git -C <worktree> apply --index <patch-path>` for each accepted task's patch sequentially. This stages additions as well as tracked changes for review. Apply fails = textual conflict → drop that task, finish the rest, re-run the dropped task sequentially on the updated HEAD.
-5. **Test gate.** Run the wave's `SCOPED_TEST_COMMANDS` (union of its tasks' `Tests:` commands) on the integrated tree as `(cd "<worktree>" && <command>)` for each command — the full verification set is the verify phase's job, run once. Failure = semantic conflict or bug → re-run the offending task sequentially, else fix per [When a Subagent Fails](#when-a-subagent-fails).
-6. **Quality review.** CR binds to the wave: exactly one **initial** code-review dispatch per code-touching wave, over the integrated wave diff - never per task within a wave, never batched across waves. Subsequent dispatches within the wave are re-reviews triggered only by findings, per Fix-Loop Rounds. Pass the wave's `SCOPED_TEST_COMMANDS`, `BASE_SHA: <WAVE_BASE_SHA>`, and `HEAD_SHA: WORKTREE` per `code-quality-reviewer-prompt.md`; the review reads the staged and unstaged integrated diff, not a commit range. On findings, fix and re-review per `/skill:requesting-code-review` and [Fix-Loop Rounds](#fix-loop-rounds). For in-place repairs, stage the reviewed deliverables before dispatch and override the implementer commit step: leave the fix uncommitted and unstaged. After it returns, run `git -C <worktree> add -N -- <new-fix-paths>` for new deliverables, capture `git -C <worktree> diff --binary` as `## Fix delta`, then stage the fix's deliverable paths before SR/CR re-review. Preserve `WAVE_BASE_SHA` and `HEAD_SHA: WORKTREE` through every re-review and escalated in-place repair. Skip CR for doc-only waves (SR-only per the commit precondition below).
-7. **Commit and complete the wave.** After the gate passes, commit with `git -C <worktree> add ... && git -C <worktree> commit ...`, then mark all of its existing indices `complete`. Leaves a clean tree; the next wave's children branch from this commit and so see the integrated work.
+4. **Integrate.** Run `git -C <worktree> apply --index <patch-path>` for each accepted task's patch sequentially. This stages additions as well as tracked changes for review. On an apply failure, drop that task from the wave; finish steps 5-7 for the survivors, then re-dispatch the dropped task as a one-task wave from the new committed HEAD. With zero surviving patches, skip steps 5-7 and retry the failed task from the unchanged clean HEAD under [When a Subagent Fails](#when-a-subagent-fails)'s two-attempt limit; dispatch no empty review or commit. Keep its tracker index `in_progress` until its own wave commits.
+5. **Test gate.** Run the wave's `SCOPED_TEST_COMMANDS` (union of its tasks' `Tests:` commands) on the integrated tree as `(cd "<worktree>" && <command>)` for each command — the full verification set is the verify phase's job, run once. On failure, dispatch one plain in-place `implementer` in the branch checkout with the failing output, the owning task's full text, and the wave's `SCOPED_TEST_COMMANDS`, under [When a Subagent Fails](#when-a-subagent-fails), then rerun the scoped gate. After the repaired tree passes, stage repair deliverables with `git -C <worktree> add -A` and dispatch spec review for every affected task against the integrated checkout before the initial CR; prior SR acceptance does not cover the repair. Pass each affected task's full text, absolute spec path, `Spec:` anchors, `Tests:` block, and `- Test:` paths; record its review tree per [Fix delta](#fix-delta). Resolve SR findings through [Fix-Loop Rounds](#fix-loop-rounds), with repairs in place and the scoped gate rerun. Never dispatch a nested wave from this dirty checkout: children cannot see integrated siblings from the old HEAD.
+6. **Quality review.** CR binds to the wave: exactly one **initial** code-review dispatch per code-touching wave, over the integrated wave diff - never per task within a wave, never batched across waves. Subsequent dispatches within the wave are re-reviews triggered only by findings, per Fix-Loop Rounds. Pass the wave's `SCOPED_TEST_COMMANDS`, `BASE_SHA: <WAVE_BASE_SHA>`, and `HEAD_SHA: WORKTREE` per `code-quality-reviewer-prompt.md`; the review reads the staged and unstaged integrated diff, not a commit range. On findings, fix and re-review per `/skill:requesting-code-review` and [Fix-Loop Rounds](#fix-loop-rounds). Dispatch repairs as plain in-place workers in the branch checkout, never nested waves from the dirty checkout. Carry the report verbatim and no commit or staging instruction in the repair payload. Before every CR dispatch and every SR/CR re-review, run `git -C <worktree> add -A` so all deliverables appear in the whole diff; record the review tree per [Fix delta](#fix-delta). Preserve `WAVE_BASE_SHA` and `HEAD_SHA: WORKTREE` through every re-review and escalated in-place repair. Skip CR for doc-only waves (SR-only per the commit precondition below).
+7. **Commit and complete the wave.** After CR accepts (SR alone for doc-only waves), fold worker commits and all remaining changes into one durable wave commit: `git -C <worktree> reset --soft "$WAVE_BASE_SHA" && git -C <worktree> add -A && git -C <worktree> commit -m <message>`. Then mark the wave's existing indices `complete`. Stop on an empty commit instead of completing tasks. Leave a clean tree so the next wave's children see the integrated work.
 
 **Two-stage review is preserved:** spec review per task (pre-integration, dispatched `spec-reviewer` — not inline), quality review per wave (post-integration). A wave commit requires one spec-review verdict per accepted task, plus one code-review verdict on the integrated diff for waves that touch code. A doc-only wave (every task's `Files:` block documentation-only, per `writing-plans`' Wave Grouping) is SR-only — the CR gate does not apply.
 
@@ -272,7 +268,7 @@ Route the result already read in step 3; retain all successful sibling patches a
 
 Parse each `DONE`/`BLOCKED`/etc. (see [Implementer Status](#implementer-status)) **first**. Then **dispatch a `spec-reviewer` per accepted patch** (`DONE`, or a `DONE_WITH_CONCERNS` you proceeded with) still missing a verdict in one parallel fan-out - `context: "fresh"`, each task's `cwd` = its [Spec-review snapshot](#spec-review-snapshots), **no `worktree` flag** (read-only) - each passed its full task text, the returned **patch diff**, the absolute spec path, and the task's `**Spec:**` anchors, plus its `**Tests:**` block and `- Test:` paths as contract. SR reads the anchored ranges itself (never inline excerpts; authority hierarchy in `./spec-reviewer-prompt.md`; anchor-less tasks are task-text-only). Review starts from the diff (its hunks carry `file:line`) and reads each touched file in full; test execution is never the reviewer's job (step 5 runs the wave's `SCOPED_TEST_COMMANDS`). Inline verdicts are fine at normal wave sizes; large waves use `output:` + `outputMode: "file-only"`; read the full report file itself.
 
-**Re-dispatch by cause:** `BLOCKED`/`NEEDS_CONTEXT` per the [Implementer Status](#implementer-status) matrix; a **spec gap** re-dispatches only that implementer using a one-entry `tasks` array with invocation-level `worktree: true`, `context: "fresh"`, and implementation `cwd`, carrying the artifacts patch + full SR report verbatim. Snapshot the replacement patch with [Spec-review snapshots](#spec-review-snapshots) (a setup failure stops dispatch and keeps the failed snapshot) and dispatch one plain re-review with `## Previous review report (re-review trigger)` and the trajectory block. The new patch supersedes the old at step 4. Loop until accepted + spec compliant, within [Fix-Loop Rounds](#fix-loop-rounds), same as sequential. Never dispatch a second chain in the same wave.
+**Re-dispatch by cause:** Before fixing a chain-run SR's `NEEDS_REWORK` or `OUT_OF_SCOPE_CHANGES`, reconstruct the original artifact patch's snapshot from `WAVE_BASE_SHA` and record its tree-before per [Fix delta](#fix-delta); the chain's own trees are already removed. Route `BLOCKED`/`NEEDS_CONTEXT` per the [Implementer Status](#implementer-status) matrix; a **spec gap** re-dispatches only that implementer using a one-entry `tasks` array with invocation-level `worktree: true`, `context: "fresh"`, and implementation `cwd`, carrying the artifacts patch + full SR report verbatim. Materialize the replacement patch in a new detached `WAVE_BASE_SHA` checkout with `git apply --index` per [Spec-review snapshots](#spec-review-snapshots); on setup or tree-capture failure, stop dispatch and retain the failed snapshot directory and shell output for diagnosis. After successful setup, record tree-after in that replacement snapshot before dispatching one plain re-review with `## Previous review report (re-review trigger)`, the trajectory block, and `## Fix delta`. The new patch supersedes the old at step 4. Loop until accepted + spec compliant, within [Fix-Loop Rounds](#fix-loop-rounds). Never dispatch a second chain in the same wave.
 
 ## Spec-review snapshots
 
@@ -292,7 +288,7 @@ git -C "$SR_TREE" apply --index "$SR_PATCH" || exit 1
 printf 'snapshot: %s\n' "$SR_TREE"
 ```
 
-Use the printed snapshot path as that spec-review task's `cwd` and whole-file read root. Keep the authoritative spec's absolute path in the implementation worktree. Pass the patch diff as before; the snapshot contains this task's changed and added files, with deleted files absent. Read deleted files from `WAVE_BASE_SHA` when the review needs their prior contents. Dispatch read-only, with no `worktree` flag. A failed command or missing snapshot path stops dispatch; retain the failed snapshot for diagnosis. After a terminal review report is saved, remove its snapshot with `git -C <implementation-worktree> worktree remove --force <snapshot-path>`. Recreate from the replacement patch for each pre-integration re-review. Post-integration SR reviews the implementation worktree directly.
+Record its review tree per [Fix delta](#fix-delta) before every parent-dispatched SR, keyed by task. Use the printed snapshot path as that spec-review task's `cwd` and whole-file read root. Keep the authoritative spec's absolute path in the implementation worktree. Pass the patch diff as before; the snapshot contains this task's changed and added files, with deleted files absent. Read deleted files from `WAVE_BASE_SHA` when the review needs their prior contents. Dispatch read-only, with no `worktree` flag. On snapshot setup or tree-capture failure, or a missing snapshot path, stop dispatch and retain the failed snapshot directory and shell output for diagnosis; dispatch no review and perform no snapshot cleanup. Save each snapshot-backed review's terminal report to its `output:` path, read it, then remove that review's snapshot with `git -C <implementation-worktree> worktree remove --force <snapshot-path>`. Keep every snapshot used as a reviewer `cwd` until that terminal report is saved; recording its tree never authorizes early cleanup. Remove a reconstruction used only to record tree-before after capturing its tree, since no reviewer runs there. Recreate from the replacement patch for each pre-integration re-review. Post-integration SR reviews the implementation worktree directly.
 
 ## When a Subagent Fails
 
@@ -300,7 +296,7 @@ Use the printed snapshot path as that spec-review task's `cwd` and whole-file re
 
 1. **Attempt 1:** dispatch a NEW fix subagent with the error output, the original task, and specific instructions about what went wrong.
 2. **Attempt 2:** if attempt 1 also fails, dispatch one more with a simplified scope or different approach.
-3. **After 2 failed attempts:** STOP. Report failure to the user. The task probably needs redesign.
+3. **After 2 failed attempts:** STOP. Report failure to the user. Keep the task `in_progress`, not `failed` or `complete`, pending the human's decision; completion requires the wave commit.
 
 **NEVER:**
 

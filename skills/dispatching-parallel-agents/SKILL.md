@@ -13,7 +13,7 @@ When you have multiple **independent tasks** — unrelated test failures, or imp
 
 **Core principle:** Dispatch one agent per independent problem domain (one bug, one subsystem, or one plan task). Let them work concurrently.
 
-This skill is the **mechanic home** for parallel fan-out: fresh-context isolation, `worktree: true` filesystem isolation, and serial patch integration. `subagent-driven-development`'s Parallel-Wave Mode builds its per-wave dispatch on this skill — debugging is the worked example below, but the mechanics are identical for implementation tasks.
+This skill is the **mechanic home** for parallel fan-out: fresh-context isolation, `worktree: true` filesystem isolation, and serial patch integration. `subagent-driven-development`'s wave loop builds its per-wave dispatch on this skill - debugging is the worked example below, but the mechanics are identical for implementation tasks.
 
 Gauntlet flow callers dispatch foreground: explicitly set top-level `async: false`, including retries and prose-described dispatches. `forceTopLevelAsync` is incompatible; if an async handle is returned anyway, stop and report rather than polling or relaunching. See [pi-cohort dispatch configuration](https://github.com/jjuraszek/pi-cohort/blob/main/doc/configuration.md).
 
@@ -113,7 +113,13 @@ Fix rounds in review loops reuse the fan-out mechanics above, keyed off the revi
 
 Reviewers certify fix concurrency with a `Parallel-safe:` line (see the reviewer's report contract). The fan-out trigger is a `disjoint` group naming **≥ 2 actionable finding IDs**: that group IS the parallel wave — dispatch **one `implementer` per actionable finding ID in the group (the probe's actionable set; the consuming loop places non-actionable findings)** (`context: "fresh"`, `worktree: true`, `cwd` = the current worktree; task = that finding's block **verbatim**, including its `touched-files` line as the ownership boundary). An actionable finding named in any `conflicts` pair runs sequentially after every finding it names has integrated (chained `conflicts` define a partial order; remaining serial findings run in the line's order). Actionable findings outside any ≥ 2-ID `disjoint` group run sequentially. Fan out per review line only — never merge or co-schedule groups from different `Parallel-safe:` lines; run those fan-outs serially.
 
-**Precondition:** a clean committed HEAD containing the code under review. When the reviewed change is an unintegrated patch (a wave-mode per-patch spec review), each fix task branches from the wave's base HEAD and carries the prior patch verbatim in its task text — the consuming loop's existing re-dispatch protocol. When the tree is dirty (e.g. post-integration, before the wave commit), the fan-out is unavailable: fix sequentially in place.
+**Precondition:** select the review source below before dispatching fixes.
+
+| Review source | Fix dispatch |
+|---|---|
+| Clean committed HEAD containing the code under review (verify-phase whole-diff review or conformance loop) | Fan out from that HEAD when the certificate permits. |
+| Unintegrated patch (per-patch spec review) | Branch each fix task from `WAVE_BASE_SHA` and carry the prior patch verbatim in its task text, per the consuming loop's spec-gap re-dispatch protocol. |
+| Integrated wave before its accepted-wave commit | Fix in place; fan-out is unavailable. Keep the wave commit after its required review accepts, before `plan_tracker` `complete`; never commit early to enable fan-out. |
 
 Grammar (identical across producers, modulo id prefix — `F` for code/spec reviewers, `G` for conformance-reviewer):
 

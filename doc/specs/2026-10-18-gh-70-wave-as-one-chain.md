@@ -1,5 +1,7 @@
 # Wave implementers and spec reviewers as one chain (gh-70)
 
+> **Superseded by:** [doc/specs/2026-10-19-gh-71-drop-sequential-mode.md](./2026-10-19-gh-71-drop-sequential-mode.md) - D1 out-of-scope clause keeping sequential mode only
+
 Ticket: [jjuraszek/pi-gauntlet#70](https://github.com/jjuraszek/pi-gauntlet/issues/70)
 
 **Goal:** In Parallel-Wave Mode, dispatch a wave's implementers and its first spec reviews as one pi-cohort `chain:` call - each reviewer's `cwd` is the `{outputs.impl_<n>.treePath}` checkout pi-cohort 7.4.0 builds from the implementer's base commit plus patch - so an all-`DONE` wave costs one parent `subagent()` call for steps 2-3 instead of two; every other path (stop, chain error, spec gap, re-review, older pi-cohort, sequential mode) runs today's text unchanged, including the parent-built spec-review snapshot.
