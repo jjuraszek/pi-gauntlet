@@ -1,0 +1,3 @@
+- ordered-lookups: judged: Records the template-store summary-frames/summary-frame.tpl miss followed by the repo archive/templates/summary-frame.tpl hit, in documented lookup order.
+- redispatch-found: judged: Re-dispatches the implementer with archive/templates/summary-frame.tpl in the task text as the found template location, preserving the task and scoped test contract.
+- no-stop: judged: Emits no stop note and asks no human location question after finding the template; task remains in_progress pending the worker and review gates.

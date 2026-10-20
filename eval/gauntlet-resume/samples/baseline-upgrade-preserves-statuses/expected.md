@@ -1,0 +1,3 @@
+- rerun: judged: Re-dispatches plan-writer fresh and foreground with cwd the resolved worktree, phase plan-write, acceptance level none, the worktree/spec/plan/skill/contract paths and Findings: rerun baseline, rather than editing baseline evidence in the parent.
+- parent-check: judged: Runs plan_check in the parent on the absolute plan path after the child returns PLAN WRITTEN and before continuing restoration.
+- snapshot: judged: After PASS, skips plan and implement with resume reasons, starts verify, then calls plan_tracker init with exactly [{name: "W1: Parse options", status: "complete"}, {name: "W1: Validate options", status: "complete"}] in that order; never takes writing-plans step 7 fresh-plan initialization or starts implement.

@@ -42,6 +42,7 @@ const VALID_PLAN = `# Fixture Plan
 
 **Tests:**
 - \`node --test extensions/lib/fixture-task1.test.ts\`
+- baseline: abc1234 pass
 - via: \`helperFn()\`
 
 This task implements helperFn() for parsing.
@@ -57,6 +58,7 @@ This task implements helperFn() for parsing.
 
 **Tests:**
 - \`node --test extensions/lib/fixture-task2.test.ts\`
+- baseline: abc1234 pass
 
 This task handles naming details.
 
@@ -72,6 +74,7 @@ This task handles naming details.
 
 **Tests:**
 - \`node --test extensions/lib/fixture-task3.test.ts\`
+- baseline: abc1234 pass
 
 The literal TODO is intentionally documented here per spec quote-integrity requirement.
 
@@ -528,6 +531,7 @@ const ENTRYPOINT_PLAN = `# Fixture Plan
 
 **Tests:**
 - \`node --test extensions/lib/plan-check.test.ts\`
+- baseline: abc1234 pass
 
 Run node --test extensions/lib/plan-check.test.ts and confirm green.
 
@@ -546,7 +550,7 @@ test("quote-integrity: header entrypoint literal on an anchored line is satisfie
 
 test("quote-integrity: scoped command on the same anchored line is still required in the task body", () => {
   const mutated = ENTRYPOINT_PLAN.replace(
-    "- Test: extensions/lib/plan-check.test.ts\n\n**Tests:**\n- `node --test extensions/lib/plan-check.test.ts`\n\nRun node --test extensions/lib/plan-check.test.ts and confirm green.",
+    "- Test: extensions/lib/plan-check.test.ts\n\n**Tests:**\n- `node --test extensions/lib/plan-check.test.ts`\n- baseline: abc1234 pass\n\nRun node --test extensions/lib/plan-check.test.ts and confirm green.",
     "- Test: extensions/lib/other.test.ts\n\n**Tests:**\n- `node --test extensions/lib/other.test.ts`\n\nRun the scoped test and confirm green.",
   );
   const qi = findingsFor(checkPlan(mutated, ENTRYPOINT_SPEC, alwaysTruePort()), "quote-integrity");
@@ -645,7 +649,7 @@ test("check 4 fail-closed: invalid glob (port throws)", () => {
 
 test("check 4 fail-closed: task missing **Files:** block", () => {
   const mutated = VALID_PLAN.replace(
-    "**Files:**\n- Modify: extensions/lib/fixture-task3.ts\n- Test: extensions/lib/fixture-task3.test.ts\n\n**Tests:**\n- `node --test extensions/lib/fixture-task3.test.ts`\n\n",
+    "**Files:**\n- Modify: extensions/lib/fixture-task3.ts\n- Test: extensions/lib/fixture-task3.test.ts\n\n**Tests:**\n- `node --test extensions/lib/fixture-task3.test.ts`\n- baseline: abc1234 pass\n\n",
     "",
   );
   const findings = checkPlan(mutated, SPEC_TEXT, alwaysTruePort());
@@ -753,6 +757,7 @@ const EXEMPTION_PLAN = `# Exemption Plan
 
 **Tests:**
 - \`node --test extensions/lib/exemption-task1.test.ts\`
+- baseline: abc1234 pass
 
 The literal TODO is intentionally documented here per spec quote-integrity requirement.
 
@@ -1041,6 +1046,104 @@ test("tests-block: passing forms - multi-path, ::filter -v, -k name, -- passthro
 test("tests-block: no path normalization - ./x and x differ, as in Files:", () => {
   const mutated = VALID_PLAN.replace(T2_FILES_TEST, "- Test: ./extensions/lib/fixture-task2.test.ts\n");
   assert.ok(tb(mutated).some((x) => x.reason.includes("not anchored")));
+});
+
+const BASELINE = "- baseline: abc1234 pass";
+const T1_COMMAND = "node --test extensions/lib/fixture-task1.test.ts";
+const T1_PATH = "extensions/lib/fixture-task1.test.ts";
+const baselineFindings = (plan: string) => findingsFor(checkPlan(plan, SPEC_TEXT, alwaysTruePort()), "baseline-line");
+
+for (const [name, evidence] of [
+  ["pass", BASELINE],
+  ["pass artifacts", BASELINE + " - artifacts: coverage.json, report.txt"],
+  ["via", BASELINE + " via `" + T1_COMMAND + "`"],
+  ["via artifacts", BASELINE + " via `" + T1_COMMAND + "` - artifacts: coverage.json"],
+] ) {
+  test(`baseline-line accepts ${name}`, () => {
+    assert.deepEqual(baselineFindings(VALID_PLAN.replace(BASELINE, evidence)), []);
+  });
+}
+
+for (const [name, evidence, reason] of [
+  ["missing", "", `Task 1: command \`${T1_COMMAND}\` has no baseline: bullet`],
+  ["bad sha", "- baseline: ABC1234 pass", "Task 1: baseline: bullet malformed:"],
+  ["short sha", "- baseline: abc123 pass", "Task 1: baseline: bullet malformed:"],
+  ["long sha", "- baseline: " + "a".repeat(41) + " pass", "Task 1: baseline: bullet malformed:"],
+  ["bad result", "- baseline: abc1234 fail", "Task 1: baseline: bullet malformed:"],
+  ["empty base command", BASELINE + " via `   `", "Task 1: baseline: bullet malformed:"],
+  ["separator-only base command", BASELINE + " via ` ; `", "Task 1: baseline: bullet malformed:"],
+  ["misplaced", "- via: seam\n" + BASELINE, "Task 1: baseline: not directly after its command"],
+  ["duplicate", BASELINE + "\n" + BASELINE, "Task 1: baseline: not directly after its command"],
+  ["sha mismatch", "- baseline: def5678 pass", "baseline SHAs differ: def5678, abc1234"],
+  ["skip existing", `- baseline: abc1234 skipped - ${T1_PATH} created by this task`, `Task 1: baseline: skipped but \`${T1_PATH}\` is not a Create: path`],
+  ["via unanchored", BASELINE + " via `echo hi`", `Task 1: baseline: pass via \`echo hi\` segment \`echo hi\` anchors no existing Test: path`],
+  ["via unanchored compound", BASELINE + " via `" + T1_COMMAND + " && echo hi`", "anchors no existing Test: path"],
+]) {
+  test(`baseline-line rejects ${name}`, () => {
+    const findings = baselineFindings(VALID_PLAN.replace(BASELINE, evidence));
+    assert.ok(findings.some(f => f.reason.includes(reason)), JSON.stringify(findings));
+  });
+}
+
+test("baseline-line accepts 40-character SHAs and introduced-selector base commands", () => {
+  assert.deepEqual(baselineFindings(VALID_PLAN.replaceAll("abc1234", "a".repeat(40))), []);
+  const plan = VALID_PLAN.replace(`- \`${T1_COMMAND}\``, `- \`${T1_COMMAND}::new_case\``)
+    .replace(BASELINE, BASELINE + " via `" + T1_COMMAND + "`");
+  assert.deepEqual(baselineFindings(plan), []);
+});
+
+test("baseline-line pass via rejects created tokens outside this task's Test paths", () => {
+  const plan = VALID_PLAN.replace(BASELINE, BASELINE + " via `" + T1_COMMAND + " extensions/lib/fixture-task2.ts`");
+  assert.ok(baselineFindings(plan).some(f => f.reason.includes("anchors Create: path extensions/lib/fixture-task2.ts")));
+});
+
+test("baseline-line validates skipped anchor sets and derived surviving segments", () => {
+  const created = VALID_PLAN.replace("- Create: extensions/lib/fixture-task1.ts", `- Create: ${T1_PATH}`);
+  const skipped = `- baseline: abc1234 skipped - ${T1_PATH} created by this task`;
+  assert.deepEqual(baselineFindings(created.replace(BASELINE, skipped)), []);
+  assert.ok(baselineFindings(created.replace(BASELINE, BASELINE + " via `" + T1_COMMAND + "`" )).some(f => f.reason.includes("anchors Create: path " + T1_PATH)));
+  for (const list of ["other.test.ts", `${T1_PATH}, other.test.ts`]) {
+    assert.ok(baselineFindings(created.replace(BASELINE, `- baseline: abc1234 skipped - ${list} created by this task`)).length);
+  }
+  const compound = created.replace(`- \`${T1_COMMAND}\``, `- \`${T1_COMMAND} && node --test extensions/lib/fixture-task2.test.ts\``)
+    .replace(`- Test: ${T1_PATH}`, `- Test: ${T1_PATH}\n- Test: extensions/lib/fixture-task2.test.ts`);
+  assert.deepEqual(baselineFindings(compound.replace(BASELINE, BASELINE + " via `node --test extensions/lib/fixture-task2.test.ts`")), []);
+  assert.ok(baselineFindings(compound.replace(BASELINE, skipped)).length);
+  const allCreated = compound.replace("- Create: extensions/lib/fixture-task1.ts", "- Create: extensions/lib/fixture-task2.test.ts")
+    .replace("- Create: extensions/lib/fixture-task2.ts", "- Create: extensions/lib/fixture-task2.test.ts");
+  const bothSkipped = `- baseline: abc1234 skipped - ${T1_PATH}, extensions/lib/fixture-task2.test.ts created by this task`;
+  assert.deepEqual(baselineFindings(allCreated.replace(BASELINE, bothSkipped)), []);
+  assert.ok(baselineFindings(allCreated.replace(BASELINE, skipped)).length);
+  const none = VALID_PLAN.replace(`- \`${T1_COMMAND}\``, "- none: docs");
+  assert.ok(baselineFindings(none).some(f => f.reason === "Task 1: baseline: under a none: task"));
+});
+
+const FAILURE_ROW = `- Task 1: \`${T1_COMMAND}\` fails on abc1234 (exit 2): assertion failed`;
+for (const [name, body, count, malformed] of [
+  ["absent", "", 0, false],
+  ["sentinel", "- none", 0, false],
+  ["failure", FAILURE_ROW, 1, false],
+  ["global then failure", "- Baseline: worktree dirty on abc1234: source.ts\n" + FAILURE_ROW, 2, false],
+  ["contract", "- Task 1: unresolved caller contract", 1, false],
+  ["prose", "Not resolved", 1, true],
+  ["table", "| question | owner |", 1, true],
+  ["continuations", FAILURE_ROW + "\n  ran: `node --test original.ts`\n  blocked: Task 2 `node --test next.ts`\n  ```text\n  TODO etc.\n  ```", 1, false],
+] as const) {
+  test(`open-questions ${name}`, () => {
+    const plan = VALID_PLAN + (body ? "\n## Open Questions\n\n" + body + "\n" : "");
+    const findings = checkPlan(plan, SPEC_TEXT, alwaysTruePort());
+    const questions = findingsFor(findings, "open-questions");
+    assert.equal(questions.length, count);
+    if (malformed) assert.equal(questions[0].reason, "## Open Questions malformed: expected `- ` rows or `- none`");
+    if (body.includes(FAILURE_ROW)) assert.ok(questions.some(f => f.reason === "plan has open questions: " + FAILURE_ROW));
+    assert.deepEqual(findingsFor(findings, "placeholder-scan"), []);
+  });
+}
+
+test("placeholder-scan masks only valid question output, not authored fences or continuations", () => {
+  for (const text of ["```\nTODO\n```", "## Open Questions\n  ```\n  TODO\n  ```", "## Open Questions\n- TODO unresolved", "## Open Questions\n" + FAILURE_ROW + "\n  ```\n  TODO", "## Open Questions\n" + FAILURE_ROW + "\n  ```\nTODO\n  ```", "## Open Questions\n" + FAILURE_ROW + "\n  ran: `TODO`", "## Open Questions\n" + FAILURE_ROW + "\n  blocked: TODO"]) {
+    assert.ok(findingsFor(checkPlan(VALID_PLAN + "\n" + text, SPEC_TEXT, alwaysTruePort()), "placeholder-scan").length);
+  }
 });
 
 test("tests-block: fenced **Tests:** lines are ignored", () => {

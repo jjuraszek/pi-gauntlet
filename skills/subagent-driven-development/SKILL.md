@@ -43,7 +43,7 @@ Periodic "should I continue?" prompts add latency without adding safety. The pla
 - Approved plan or clear task scope
 - `plan_tracker` list initialized at writing-plans handoff with the full wave-ordered task list. Consume and preserve it on continuation; only direct recovery with no tracker initializes the full plan list once, before dispatch, and never over an existing list.
 
-Extract **`SCOPED_TEST_COMMANDS`** from the task's `**Tests:**` command bullets, backticks stripped, one per line; `- none:` -> `none`; a wave = the union of its tasks' commands. Treat `via:` bullets and `- Test:` paths as contract, not commands: carry them with the task text, never in `SCOPED_TEST_COMMANDS`.
+Extract **`SCOPED_TEST_COMMANDS`** from the task's `**Tests:**` command bullets, backticks stripped, one per line; `- none:` -> `none`; a wave = the union of its tasks' commands. Treat `via:` and `baseline:` bullets and `- Test:` paths as contract, not commands: carry them with the task text, never in `SCOPED_TEST_COMMANDS`.
 
 Keep the orchestrator as the spec's only writer during execution. On implementer `BLOCKED` citing a spec defect, or a review finding showing the spec (not the code) is wrong, pause the fix loop, read and execute brainstorming's [amendment path](../brainstorming/SKILL.md#amending-an-approved-spec) in place (it reviews first, stops only on escalation or redraw), then resume. Keep code-vs-spec mismatch in the SR loop. Require an SR unable to read the spec at a cited anchor (missing file, unresolvable heading/range) to return a blocking finding - the contract is spec+task or stop, never a silent fallback to task-only review.
 
@@ -103,8 +103,10 @@ Every implementer dispatch returns one of:
 |---|---|---|
 | `DONE` | Implemented + tests pass + self-reviewed; work present in the worker's tree; the wave commit is step 7 | Proceed to spec review |
 | `DONE_WITH_CONCERNS` | Implemented + tests pass, but flagged a deviation or risk | Read concerns. If acceptable, proceed. If not, dispatch fix subagent. |
-| `NEEDS_CONTEXT` | Implementer needs information you have | Answer the questions, re-dispatch with answers in the task text |
-| `BLOCKED` | Cannot proceed (missing dependency, spec contradicts code, environment broken) | Stop. Diagnose. Either fix orchestration-level issue and re-dispatch, or escalate to user. |
+| `NEEDS_CONTEXT` | Implementer needs information you have | Resolve fact asks per [lookup handling](./stop-note.md). For decisions, answer and re-dispatch with answers in the task text, or escalate to the user. |
+| `BLOCKED` | Cannot proceed (missing dependency, spec contradicts code, environment broken) | Resolve fact asks per [lookup handling](./stop-note.md). For decisions, stop and diagnose: fix the orchestration-level issue and re-dispatch, or escalate to the user. |
+
+Classify each question: artifact location, value, or existence is a fact ask; scope choices, option choices, and another-round approval are decisions.
 
 Implementer prompt templates must instruct subagents to return one of these statuses explicitly.
 
@@ -261,7 +263,7 @@ Route the result already read in step 3; retain all successful sibling patches a
 
 | Outcome | Recovery |
 |---|---|
-| Exit-0 stop (`## Stop`) with no failed siblings | Siblings finished, statuses remain in `## Outputs`, and no SR step ran. Judge `DONE_WITH_CONCERNS`, answer `NEEDS_CONTEXT`, diagnose `BLOCKED`, then snapshot accepted patches and use the ordinary SR fan-out below. |
+| Exit-0 stop (`## Stop`) with no failed siblings | Siblings finished, statuses remain in `## Outputs`, and no SR step ran. Judge `DONE_WITH_CONCERNS`, handle `NEEDS_CONTEXT` and `BLOCKED` per the status table, then snapshot accepted patches and use the ordinary SR fan-out below. |
 | Chain error, with or without `## Stop` | Identify and diagnose every failed task from the result, including prose `**Status:**` / `Verdict:` recovered through the session-artifact rule above. Completion-guard failure with no edits, rejected/missing `structured_output`, failed `treePath`, and sibling process failure all take this route. Handle a recoverable `BLOCKED` or `NEEDS_CONTEXT` through its status matrix even when that unaccepted task has no patch. Route a task with no recoverable status, or an accepted task with a missing/empty patch, to [When a Subagent Fails](#when-a-subagent-fails) with the visible diagnostic; never invent a status or review an unchanged tree. Retain exit-0 SR verdicts obtained in a materialized tree; dispatch only accepted patches without a verdict. Successful siblings are never re-run. |
 | Completed chain with `NEEDS_REWORK` or `OUT_OF_SCOPE_CHANGES` | Repair only those tasks using the spec-gap loop below. Preserve passing sibling patches/verdicts. |
 | Older-runtime fallback | Parse the plain fan-out statuses, then use the same snapshot-backed SR and fix loop below. |

@@ -43,7 +43,7 @@ Body text becomes the child's system prompt (`systemPromptMode: replace`). Front
 
 | Knob | implementer | code-reviewer | spec-reviewer | conformance-reviewer | spec-council-member | spec-council-synthesizer | spec-summarizer | plan-writer | spec-council-applier |
 |---|---|---|---|---|---|---|---|---|---|
-| `tools` | `read, write, edit, bash, grep, find, ls` | `read, grep, find, ls, bash` | `read, grep, find, ls, bash` | `read, grep, find, ls, bash` | `read, grep, find, ls, bash` | `read, grep, find, ls, bash` | `read` | `read, grep, find, ls, write, plan_check` | `read, grep, find, ls, bash, edit, write` |
+| `tools` | `read, write, edit, bash, grep, find, ls` | `read, grep, find, ls, bash` | `read, grep, find, ls, bash` | `read, grep, find, ls, bash` | `read, grep, find, ls, bash` | `read, grep, find, ls, bash` | `read` | `read, grep, find, ls, bash, write, plan_check` | `read, grep, find, ls, bash, edit, write` |
 | `thinking` | - | - | - | `xhigh` | `xhigh` | `xhigh` | - | - | - |
 | `defaultContext` | `fork` | `fresh` | `fresh` | `fresh` | `fresh` | `fresh` | `fresh` | - | `fresh` |
 | `inheritProjectContext` | `true` | `true` | `true` | `true` | `true` | `true` | `false` | `false` | `true` |
@@ -52,7 +52,7 @@ Body text becomes the child's system prompt (`systemPromptMode: replace`). Front
 
 Why each pin:
 
-- **`plan-writer` has `write` and `plan_check`, nothing else that mutates.** It writes one file (the plan) and validates it with the extension tool a `tools:` allowlist would otherwise exclude; `defaultContext` is unset because `writing-plans` names `context: "fresh"` on every dispatch, `inheritProjectContext: false` because the body reads `AGENTS.md` and the overrides file itself, and `completionGuard: true` because it is an implementing persona.
+- **`plan-writer` runs baseline commands and writes only the plan.** It uses `bash` for git/jj provenance and task test commands on the base commit, never for source edits or VCS mutations, and validates the plan with `plan_check`, the extension tool a `tools:` allowlist would otherwise exclude; `defaultContext` is unset because `writing-plans` names `context: "fresh"` on every dispatch, `inheritProjectContext: false` because the body reads `AGENTS.md` and the overrides file itself, and `completionGuard: true` because it is an implementing persona.
 
 - **Reviewers are fresh and read-only** (no edit tools) so they stay skeptical of the parent's context.
 - **`implementer` forks** the parent's session but `inheritSkills: false` avoids dispatch loops through skill discovery.

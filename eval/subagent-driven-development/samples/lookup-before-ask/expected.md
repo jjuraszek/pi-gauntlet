@@ -1,0 +1,2 @@
+- searched: judged: Performs or explicitly uses the bounded template-store lookup and emits a stop note with Searched: directly under Problem:, naming summary-frames/summary-frame.tpl and its not-found result.
+- supply-or-amend: judged: Offers actionable options to supply the template or access, or amend the spec or plan task to drop the template requirement; never asks the human where the template is.

@@ -1,0 +1,80 @@
+{
+  "sample": "lookup-before-ask",
+  "arm": "candidate",
+  "skillSha": "79b64041bdfde6c7db1f6e174db4f16e708e57778ac3044661c2b41a718dce7a",
+  "inputSha": "f105a691f9d7a966bb83fe9814c7607af68e21344eb3682771c944fe731a40c8",
+  "kind": "text",
+  "assembly": "headed",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "## Parent's next action\n\n**1. Classify the ask.** \"Where is the summary-frame.tpl template?\" asks where an artifact is located, so it is a **fact ask**, not a decision. Per `stop-note.md` lookup handling, the parent searches each documented location once, in documented order, and stops at the first hit.\n\n**2. Bounded lookup.** The spec documents exactly one location.\n\n- Tool: template-store\n- Collection: `summary-frames`\n- Key: `summary-frame.tpl`\n- Fixed observation: `summary-frames/summary-frame.tpl - not found`\n\nNo other location is documented in the spec, task, or repo. I will not probe other stores, grep the repo, or guess paths.\n\n**3. Route the result.** The ask has exhausted every documented location. The tool was available, and no credentials are missing. That is a stop-note trigger, so:\n\n- No re-dispatch. There is no found result to put in the task text.\n- No escalation round. This is a status stall, not a review loop, so `escalationLoop` does not apply.\n- No `gauntlet_setting` call is needed.\n- No shell commands, checkout, or snapshot. The implementer made no edits, so there is no patch to integrate.\n- No spec review, code review, `git add`, or commit.\n- No `plan_tracker` write. Task 2 stays `in_progress`.\n- The phase stays `implement`.\n- No further tasks start.\n\nThe turn ends with the inline note below.\n\n## Reply (turn ends here)\n\n```\nStopped on task 2 (Render a summary).\n\nProblem: the task requires the summary-frame.tpl template, and the only location the spec documents for it does not have it, so the implementer cannot proceed (documented fact lookups exhausted).\nSearched: template-store summary-frames/summary-frame.tpl - not found\n\nFix options:\n  a) add summary-frame.tpl to the template-store collection summary-frames (or give access to where it is held), and I will re-dispatch task 2 with it\n  b) amend the spec's summary-rendering section and plan task 2 to drop the summary-frame.tpl requirement, for example by rendering the summary without a frame template\n  c) amend the spec to document a different location or inline contents for the template, and I will re-dispatch task 2 against that\n\nPick one, or give another fix.\n```\n",
+      "words": 326,
+      "wallMs": 11964,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "Next action: perform the single documented lookup using the available `template-store` tool, with lookup arguments:\n\n```json\n{\n  \"collection\": \"summary-frames\",\n  \"key\": \"summary-frame.tpl\"\n}\n```\n\nThe fixed result is **not found**. The documented lookup locations are exhausted. No shell commands, implementer dispatch, review, or commit follows. Task 2 remains `in_progress`, and the phase remains `implement`.\n\nParent's reply, ending the turn:\n\nStopped on task 2 (Render a summary).\n\nProblem: The required summary-frame.tpl template is unavailable, and the documented artifact lookup is exhausted.\nSearched: template-store, collection summary-frames, key summary-frame.tpl - not found\n\nFix options:\n  a) supply summary-frame.tpl or add it to the documented template-store location\n  b) amend the spec and task to remove the template requirement and define the replacement rendering behavior\n\nPick one, or give another fix.\n",
+      "words": 120,
+      "wallMs": 10522,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "86d9a0a63147adc5f666e4265b39c8501b9352c2b5b248fd694ef05eccc6b5ed",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "8e20307bd67e2e0208f9a3da33df255700c820053d13041fc815ccdc841940e8",
+      "baselineOutputSha": "06d0437679664cdf2b5b93c269a13b652fc0c3e0d9fc1ded2b590b17f9dc1222",
+      "candidateOutputSha": "bc608685b9e5e0d5a9a08e61bd94a23eff71d0a59932c77589bb9986b47d6591",
+      "facts": {
+        "searched": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "supply-or-amend": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        }
+      },
+      "feedback": "After delivers the change cleanly: it classifies the ask as a fact, uses the fixed bounded lookup, and emits a stop note with a Problem: line followed directly by a Searched: line naming template-store summary-frames/summary-frame.tpl - not found, then offers supply (a), amend-to-drop (b), and amend-to-document (c) options without ever asking the human where the template lives. Before failed both facts because its reply had no Problem:/Searched: structure and its option (b) was an explicit location question (\"Give me another location\"). Nothing regressed; one small risk in After is option (c) (\"amend the spec to document a different location\"), which stays on the right side of the line because it is framed as a spec amendment rather than a question, but authors should keep that framing (amend the spec/task, not \"tell me where\") in any further rewording so it does not drift back into a location question.",
+      "wallMs": 10119,
+      "verdict": "improved"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "86d9a0a63147adc5f666e4265b39c8501b9352c2b5b248fd694ef05eccc6b5ed",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "8e20307bd67e2e0208f9a3da33df255700c820053d13041fc815ccdc841940e8",
+      "baselineOutputSha": "dcf600ecbc81063db077f923d1d705e3b3ffb07c82080cba75c372e2fe8a31eb",
+      "candidateOutputSha": "f9802197c37b518fd236b943813b2d376c5b85c6e4ea79a11f065bcdce299a88",
+      "facts": {
+        "searched": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "supply-or-amend": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        }
+      },
+      "feedback": "After moved `searched` to holds by adding an explicit `Searched: template-store, collection summary-frames, key summary-frame.tpl - not found` line directly under `Problem:`; Before only folded the location and result into the Problem sentence and had no Searched line, so it failed that fact. `supply-or-amend` holds in both: Before already offered a concrete supply option (add the template at the documented collection/key) and an amend-spec option without asking where the template is, though its option (b) 'identify an available source' edges toward a location prompt; After is cleaner because (b) explicitly drops the requirement and defines replacement behavior. To keep both facts, retain the exact `Problem:` then `Searched:` adjacency, name the store/collection/key with its result, and phrase amend options as removing or replacing the requirement rather than asking the human to name a source.",
+      "wallMs": 13966,
+      "verdict": "improved"
+    }
+  },
+  "repoSha": "6760931ef6167dc9338abf6be0e20da04ebc5241"
+}

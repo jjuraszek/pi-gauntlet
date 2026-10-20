@@ -1,3 +1,5 @@
+bundle-: skills/writing-plans/reference/plan-contract.md
+
 # Input
 
 Approved spec: /work/app/.worktrees/rate-limit/doc/specs/2026-03-16-rate-limit-header.md. Worktree: /work/app/.worktrees/rate-limit. Skill files: /opt/pi/skills/writing-plans/SKILL.md and /opt/pi/skills/writing-plans/reference/plan-contract.md. `phase_tracker` status: brainstorm complete, plan in_progress (just started). No plan file exists yet. Overrides file: none.

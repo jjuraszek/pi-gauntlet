@@ -822,3 +822,102 @@ for (const { name, args, message } of [
   assert.throws(() => execFileSync(process.execPath, [new URL("../run.mjs", import.meta.url).pathname, "unknown-refresh-target", ...args, "--refresh-judgments", "--base", "HEAD"], { stdio: "pipe" }),
     (error) => error.status === 2 && message.test(error.stderr) && !/usage:/.test(error.stderr));
 });
+
+for (const listed of [false, true]) test(`fresh improvement skips confirmation: opposite intent ${listed}`, async () => {
+  const { root, put } = candidate();
+  if (listed) put("eval/t/intent.md", `for: ${sha256("NEW\n")}\n\n## Change\nx\n\n## Expected to move\n- s1/f1: holds -> fails - intended effect\n`);
+  let calls = 0;
+  const result = await run(root, (args) => { calls++; return { status: "ok", stdout: isJudge(args) ? judgeReply("fails", "holds") : "hi", wallMs: 7 }; });
+  assert.equal(result.exit, 0);
+  assert.equal(calls, 6);
+  for (const entry of Object.values(record(root, "candidate").judge)) {
+    assert.equal(entry.verdict, "improved");
+    assert.equal(entry.facts.f1.label, "unplanned improvement");
+    assert.equal(entry.confirmation, undefined);
+  }
+  assert.match(readFileSync(join(root, "eval/t/report.md"), "utf8"), /f1: fails -> holds \(unplanned improvement\)/);
+});
+
+for (const replay of ["regression", "improvement", "error"]) test(`mixed fresh cell confirms only regression: ${replay}`, async () => {
+  const { root, put } = candidate(); const seen = {};
+  put("eval/t/samples/s1/expected.md", "- f1: judged: improves\n- f2: judged: regresses\n");
+  const result = await run(root, (args, { input }) => {
+    if (!isJudge(args)) return { status: "ok", stdout: hiFor(args), wallMs: 3 };
+    const model = modelIn(input); const first = (seen[model] = (seen[model] ?? 0) + 1) === 1;
+    if (!first && replay === "error") return { status: "error", stderr: "confirmation failed", wallMs: 4 };
+    return { status: "ok", stdout: "```json\n" + JSON.stringify({ facts: {
+      f1: { before: "fails", after: "holds" },
+      f2: { before: "holds", after: first || replay === "regression" ? "fails" : "holds" },
+    }, feedback: "mixed" }) + "\n```", wallMs: 5 };
+  });
+  assert.equal(result.exit, 1);
+  for (const entry of Object.values(record(root, "candidate").judge)) {
+    assert.equal(entry.facts?.f1.label, "unplanned improvement");
+    assert.equal(entry.verdict, replay === "regression" ? "regressed" : replay === "error" ? "error" : "inconclusive");
+  }
+});
+
+for (const scenario of ["regressed improvement", "inconclusive improvement", "mixed disputed", "mixed reproduced", "missing confirmation", "error", "missing outcomes", "identity mismatch", "write failure"]) test(`cached policy reclassification: ${scenario}`, async () => {
+  const { root, put } = candidate();
+  const pairReply = (regressed) => "```json\n" + JSON.stringify({ facts: { f1: { before: "fails", after: "holds" }, f2: { before: "holds", after: regressed ? "fails" : "holds" } }, feedback: "fb" }) + "\n```";
+  put("eval/t/samples/s1/expected.md", "- f1: judged: improves\n- f2: judged: stays steady\n");
+  await run(root, (args) => ({ status: "ok", stdout: isJudge(args) ? pairReply(false) : "hi", wallMs: 7 }));
+  const saved = record(root, "candidate");
+  for (const entry of Object.values(saved.judge)) {
+    entry.verdict = scenario === "error" ? "error" : scenario.startsWith("inconclusive") || scenario === "mixed disputed" ? "inconclusive" : "regressed";
+    entry.facts.f1 = { before: "fails", after: "holds", label: "unexplained change" };
+    entry.confirmation = { status: "ok", text: "old replay", wallMs: 11, judgeWallMs: 13, feedback: "old confirmation", facts: structuredClone(entry.facts) };
+    if (scenario.startsWith("mixed") || scenario === "missing confirmation") {
+      entry.facts.f2 = { before: "holds", after: "fails", label: "regression" };
+      entry.confirmation.facts.f2 = { before: "holds", after: scenario === "mixed reproduced" ? "fails" : "holds", label: "held" };
+    }
+    if (scenario === "missing confirmation") delete entry.confirmation;
+    if (scenario === "missing outcomes") delete entry.facts.f1.after;
+    if (scenario === "identity mismatch") entry.intentSha = "stale";
+  }
+  put("eval/t/results/s1/candidate.json", JSON.stringify(saved, null, 2) + "\n");
+  const paths = ["results/s1/baseline.json", "results/s1/candidate.json", "report.md"].map((p) => join(root, "eval/t", p));
+  const before = paths.map((p) => readFileSync(p, "utf8"));
+  if (scenario === "missing confirmation") {
+    let failedCalls = 0;
+    const failed = await run(root, () => { failedCalls++; return { status: "error", stderr: "confirmation down", wallMs: 1 }; });
+    assert.equal(failed.exit, 1);
+    assert.equal(failedCalls, 2);
+    for (const entry of Object.values(record(root, "candidate").judge)) {
+      assert.equal(entry.verdict, "error");
+      assert.equal(entry.error, "confirmation down");
+    }
+  }
+  let calls = 0;
+  const result = await run(root, (args) => { calls++; return { status: "ok", stdout: isJudge(args) ? pairReply(true) : "hi", wallMs: 1 }; }, scenario === "write failure" ? { recordWriter: () => { throw new Error("record save failed"); } } : {});
+  if (scenario === "write failure") {
+    assert.equal(result.exit, 1); assert.match(result.message, /save failed/);
+    assert.equal(readFileSync(paths[2], "utf8"), before[2]);
+    assert.equal(calls, 0); return;
+  }
+  const recovery = scenario === "missing confirmation" || scenario === "identity mismatch";
+  assert.equal(calls, recovery ? 6 : 0);
+  const after = record(root, "candidate");
+  const preserved = scenario === "error" || scenario === "missing outcomes";
+  assert.equal(result.exit, !preserved && !recovery && !scenario.startsWith("mixed") ? 0 : 1);
+  for (const [model, entry] of Object.entries(after.judge)) {
+    const expected = preserved ? saved.judge[model].verdict : scenario === "mixed disputed" ? "inconclusive" : scenario === "mixed reproduced" || recovery ? "regressed" : "improved";
+    assert.equal(entry.verdict, expected);
+    if (preserved) assert.deepEqual(entry, saved.judge[model]);
+    if (!recovery && !preserved) {
+      assert.equal(entry.facts.f1.label, "unplanned improvement");
+      assert.equal(entry.feedback, saved.judge[model].feedback);
+      assert.equal(entry.wallMs, 7);
+      assert.equal(entry.confirmation.wallMs, 11);
+      assert.equal(entry.confirmation.feedback, "old confirmation");
+      assert.equal(entry.confirmation.judgeWallMs, 13);
+      assert.equal(entry.confirmation.text, "old replay");
+      if (!scenario.startsWith("mixed")) assert.deepEqual(entry.confirmation, saved.judge[model].confirmation);
+    }
+  }
+  assert.deepEqual(after.outputs, saved.outputs);
+  if (!preserved && !recovery) assert.match(readFileSync(paths[2], "utf8"), /unplanned improvement/);
+  const snapshot = paths.map((p) => [readFileSync(p, "utf8"), statSync(p).mtimeMs]);
+  await run(root, () => assert.fail("second identical run must not spawn"));
+  assert.deepEqual(paths.map((p) => [readFileSync(p, "utf8"), statSync(p).mtimeMs]), snapshot);
+});

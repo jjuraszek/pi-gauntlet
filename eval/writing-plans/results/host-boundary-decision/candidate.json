@@ -1,0 +1,90 @@
+{
+  "sample": "host-boundary-decision",
+  "arm": "candidate",
+  "skillSha": "64885d13401706def80650afc59bd8889562434d889a5ffa4cb228fc3efe6331",
+  "inputSha": "582f3076da4d48efc7808a4ce9b2063a94aa9cec80832566edfd878eb5a65646",
+  "kind": "text",
+  "assembly": "concat",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "# Hook caller-relative config resolution - Implementation Plan\n\n**Goal:** The hook resolves its config path relative to the caller's directory.\n\n**Spec:** /work/app/doc/specs/hook.md\n\n**Verification:** `npm test`\n\n## Wave 1 - Hook config resolution\n\n### Task 1: Resolve hook config relative to the caller\n\n**TDD scenario:** Modifying tested code - run existing tests first\n\n**Spec:** doc/specs/hook.md § \"Design\" L10-L12\n\nDecision: the hook uses `callerDirectory` as the base for config resolution, with no fallback to `process.cwd()`. Source: docs/harness.md:18, \"The host passes callerDirectory unchanged to the hook.\" The spec does not say whether the host forwards the directory. The harness contract does, so this needs no open question.\n\n**Files:**\n- Modify: `src/hook.ts`\n- Modify: `tests/hook.test.ts`\n- Test: `tests/hook.test.ts`\n\n**Tests:**\n- `node --test tests/hook.test.ts`\n- baseline: abc1234 pass\n- via: the hook entry point exported from `src/hook.ts` (its `callerDirectory` parameter)\n\n- [ ] **Step 1: Write the failing test**\n\n  Add a case to the existing config-resolution tests in `tests/hook.test.ts`. The case passes a relative config path with a `callerDirectory` that differs from `process.cwd()`. It asserts that the resolved path is `path.resolve(callerDirectory, configPath)`:\n\n  ```ts\n  test(\"resolves config relative to callerDirectory, not cwd\", () => {\n    const callerDirectory = path.join(os.tmpdir(), \"hook-caller\");\n    const resolved = resolveConfigPath(\"config/hook.json\", callerDirectory);\n    assert.equal(resolved, path.resolve(callerDirectory, \"config/hook.json\"));\n    assert.notEqual(resolved, path.resolve(process.cwd(), \"config/hook.json\"));\n  });\n  ```\n\n- [ ] **Step 2: Run test, confirm failure**\n\n  Run: `node --test tests/hook.test.ts`\n  Expected: FAIL. The new case reports a path resolved against cwd, or reports that `resolveConfigPath` is not exported.\n\n- [ ] **Step 3: Write minimal implementation**\n\n  In `src/hook.ts`, resolve the config path against the `callerDirectory` parameter the hook already receives:\n\n  ```ts\n  import path from \"node:path\";\n\n  export function resolveConfigPath(configPath: string, callerDirectory: string): string {\n    return path.resolve(callerDirectory, configPath);\n  }\n  ```\n\n  Then replace the hook's existing cwd-based resolution with `resolveConfigPath(configPath, callerDirectory)`.\n\n- [ ] **Step 4: Run test, confirm pass**\n\n  Run: `node --test tests/hook.test.ts`\n  Expected: PASS (all cases, including the new one).\n\n- [ ] **Step 5: Format & lint the task's files**\n\n  Run: `npx prettier --check src/hook.ts tests/hook.test.ts`\n  Expected: no diff after re-run\n\n- [ ] **Step 6: Commit**\n\n  ```bash\n  git add src/hook.ts tests/hook.test.ts\n  git commit -m \"Resolve hook config relative to callerDirectory\"\n  ```\n\n## Spec coverage\n\n| anchor | requirement (short) | owner |\n|---|---|---|\n| § \"Design\" L10-L12 | hook resolves config relative to the caller | Task 1 |\n\nPLAN WRITTEN /work/app/doc/plans/hook.md\n",
+      "words": 328,
+      "wallMs": 19107,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "# Caller-relative hook configuration\n\n**Spec:** `doc/specs/hook.md`  \n**Worktree:** `/work/app`  \n**Plan:** `/work/app/doc/plans/hook.md`  \n**Verification:** `npm test`\n\n## Wave 1 — Caller-relative configuration resolution\n\n### Task 1: Resolve hook configuration relative to the caller\n\n**TDD scenario:** Modifying tested code — run existing tests first\n\n**Spec:** doc/specs/hook.md § \"Design\" L10-L12\n\n**Files:**\n- Modify: `src/hook.ts`\n- Modify: `tests/hook.test.ts`\n- Test: `tests/hook.test.ts`\n\n**Tests:**\n- `node --test tests/hook.test.ts`\n- baseline: abc1234 pass\n- via: hook configuration resolution\n\nDecision: Use the existing `callerDirectory` parameter as the configuration-resolution base; do not add host-side directory forwarding — `docs/harness.md:18` states, “The host passes callerDirectory unchanged to the hook,” and `src/hook.ts` already receives that parameter.\n\n- [ ] **Step 1: Run the existing configuration-resolution tests**\n\n  Run: `node --test tests/hook.test.ts`\n\n  Expected: exit 0 with at least one test executed. The observed baseline on `abc1234` reports `tests 1, pass 1, fail 0`; the worktree remains clean and HEAD remains `abc1234`.\n\n- [ ] **Step 2: Add a caller-directory regression test**\n\n  Extend the existing configuration-resolution tests in `tests/hook.test.ts`, using their existing hook invocation and configuration format.\n\n  Create a temporary caller directory distinct from the process working directory. Place a valid configuration in that caller directory, and invoke the hook with that directory as `callerDirectory` and the relative configuration reference used by the existing test.\n\n  Assert that the hook resolves and loads the caller-directory configuration rather than resolving the reference against the process working directory. Use a unique temporary directory and remove it in test cleanup; do not change the process working directory.\n\n- [ ] **Step 3: Confirm the regression test fails**\n\n  Run: `node --test tests/hook.test.ts`\n\n  Expected: the new assertion fails because the configuration reference is not resolved relative to the supplied caller directory. Confirm that the failure concerns configuration resolution, not invalid fixture contents or test setup.\n\n- [ ] **Step 4: Update the hook's resolution base**\n\n  In `src/hook.ts`, change the existing configuration-path resolution to use the received `callerDirectory` as its base instead of the process working directory.\n\n  Preserve the existing configuration parsing and hook return contract. Use the parameter already supplied by the host; do not introduce a host API change or a second directory-discovery mechanism.\n\n- [ ] **Step 5: Confirm the tests pass**\n\n  Run: `node --test tests/hook.test.ts`\n\n  Expected: exit 0, with both the existing configuration-resolution coverage and the new caller-directory regression passing.\n\n- [ ] **Step 6: Check formatting and patch whitespace**\n\n  Keep both changed files consistent with their existing formatting.\n\n  Run: `git diff --check -- src/hook.ts tests/hook.test.ts`\n\n  Expected: exit 0 with no whitespace errors.\n\n- [ ] **Step 7: Commit**\n\n  ```bash\n  git add src/hook.ts tests/hook.test.ts\n  git commit -m \"Resolve hook configuration relative to caller\"\n  ```\n\n## Spec coverage\n\n| anchor | requirement (short) | owner |\n|---|---|---|\n| § \"Design\" L10-L12 | Resolve hook configuration relative to the caller | Task 1 |\n\nPLAN WRITTEN /work/app/doc/plans/hook.md\n",
+      "words": 418,
+      "wallMs": 24198,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "b4dff91e8d311b687093fa41d06630b42d0c5ed9d61032d8af9d80dca727a4eb",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "f5efca3e796a6df0f86c255e3eb9dfa8a164572630fd462c4fda36d3ad27b18d",
+      "baselineOutputSha": "1709519b3f09e31f51c8eebc46c9ec8d6084840a9b3b14fb04764afcf8b5d035",
+      "candidateOutputSha": "189eea06b2031e2f07dbbcab989e0fac45080cebbd7b14cd6a0a01515e0bbd1d",
+      "facts": {
+        "decision": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "no-question": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "reply": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        }
+      },
+      "feedback": "After moved both target facts to holds without regressing no-question: it placed an explicit `Decision:` line inside Task 1 that states the host forwards `callerDirectory` unchanged and cites docs/harness.md:18 verbatim (Before kept that reasoning only in a plan-level 'Source contract' paragraph, not as a Task 1 Decision), and it emitted the handoff reply on a single line `PLAN WRITTEN /work/app/doc/plans/hook.md` (Before split the sentinel and path across two lines). Two things to tighten so the Change's provenance goals are also visible: After collapsed the baseline to `baseline: abc1234 pass` and dropped Before's record that `git status --porcelain` was empty before and after the command and HEAD stayed at abc1234, plus the observed summary `tests 1, pass 1, fail 0` — keep a one-line baseline-evidence note carrying base rev, clean-before/after, HEAD-unchanged, and the exact summary. After also added a `npx prettier --check` format step that recon did not supply; keep Before's 'no scoped formatter identified' note unless recon actually surfaces a command, so the plan does not invent steps it cannot verify.",
+      "wallMs": 13082,
+      "verdict": "improved"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "b4dff91e8d311b687093fa41d06630b42d0c5ed9d61032d8af9d80dca727a4eb",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "f5efca3e796a6df0f86c255e3eb9dfa8a164572630fd462c4fda36d3ad27b18d",
+      "baselineOutputSha": "cdd4f5cb36cd0228ee024553c04aee8a2c9d27d069bd25584b44b1314db024d5",
+      "candidateOutputSha": "83f1d46ffc97edfddc4c165199799ef62a9b0a6aab4e203a367999041399d3e0",
+      "facts": {
+        "decision": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "no-question": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "reply": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "After delivers the intended move: Task 1 now carries an explicit `Decision:` line that settles the host boundary from `docs/harness.md:18` (quoting the contract and noting `src/hook.ts` already receives the parameter), whereas Before only buried the same reasoning in a 'Context and baseline' prose section and a Step 4 aside, never stating it as a task-level Decision. Nothing regressed: there is still no Open Questions row, and the final line remains `PLAN WRITTEN /work/app/doc/plans/hook.md`. Two incidental drifts worth watching, though they touch no fact here: After dropped the Self-Review section and switched the Spec header to the relative `doc/specs/hook.md` while the Plan header stays absolute — keep the absolute spec path and the Self-Review block alongside the new Decision line so future fixtures checking header consistency or self-review presence don't flip.",
+      "wallMs": 10587,
+      "verdict": "improved"
+    }
+  },
+  "repoSha": "6760931ef6167dc9338abf6be0e20da04ebc5241"
+}

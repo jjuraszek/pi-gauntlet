@@ -1,0 +1,90 @@
+{
+  "sample": "lookup-second-location-hits",
+  "arm": "candidate",
+  "skillSha": "79b64041bdfde6c7db1f6e174db4f16e708e57778ac3044661c2b41a718dce7a",
+  "inputSha": "033ba338dd7916eaaa699177b8c6ca0cad49c38d400a38da8c32325d5a2e8ff6",
+  "kind": "text",
+  "assembly": "headed",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "# Task 2 (\"Render a summary\"): routing the NEEDS_CONTEXT\n\n**Classification.** The question asks where an artifact is, so it is a **fact ask**, not a decision. The stop-note lookup rule applies. Check each documented location once, in the spec's order, and stop at the first hit.\n\n**Lookup record (fixed observations, in documented order):**\n1. template-store, collection `summary-frames`, `summary-frame.tpl`: **not found**\n2. repo `archive/templates/summary-frame.tpl`: **present** (first hit, so the lookups stop here)\n\nThe ask resolved at the second location. That means **no stop note** and no escalation. The next step is to re-dispatch the implementer with the answer written into the task text.\n\n**State to keep unchanged:**\n- The worker made no edits, so there is no patch to integrate. The `/workspace/project` checkout stays clean at the already-recorded `WAVE_BASE_SHA`. Do not re-record it, because it stays fixed through this wave's commit.\n- `plan_tracker`: task 2 stays `in_progress`. Make no write now.\n- No spec review, code review, test gate, or commit happens yet. This is not a fix round, so it does not count against the Fix-Loop budget.\n- No second chain is dispatched in this wave.\n\n**Next shell command (report directory for the re-dispatch, only if this run has none yet):**\n```bash\nREPORT_DIR=${REPORT_DIR:-$(mktemp -d)}\n```\n\n**Re-dispatch payload.** This is a one-entry `tasks` array with invocation-level `worktree: true`, branched from the implementation checkout's HEAD:\n```ts\nsubagent({\n  context: \"fresh\",\n  async: false,\n  cwd: \"/workspace/project\",\n  worktree: true,\n  tasks: [\n    {\n      agent: \"implementer\",\n      output: \"<REPORT_DIR>/wave<w>-task2-r1.md\",\n      task: `You are implementing Task 2: Render a summary\n\n## Task Description\nRender a summary using summary-frame.tpl; modify src/summary.ts only.\n\n## Answer to your previous question\nYou asked: \"Where is the summary-frame.tpl template required by the task?\"\nLookups, in the spec's documented order:\n- template-store collection summary-frames, summary-frame.tpl - not found\n- repo archive/templates/summary-frame.tpl - present\nUse the template at archive/templates/summary-frame.tpl (repo-relative; it is in your worktree).\nRead it as input only. Do not move, copy, or edit it. The only file you may modify is src/summary.ts.\n\nWork from: your worktree (branched from /workspace/project HEAD)\n\nSCOPED_TEST_COMMANDS: none\nRun ONLY these commands for verification. Never run a repo-wide suite, linter, or type-checker. The value is none: run nothing and say so in your report.\n\nTEST_CONTRACT: none: text-only wiring.\n\npi-cohort saves your final report to the output path; do not write that file yourself, and it is not a concern about owned files.\n\n## Report Format\n- **Status:** DONE | DONE_WITH_CONCERNS | BLOCKED | NEEDS_CONTEXT\n- What you implemented, what you tested (state \"none - SCOPED_TEST_COMMANDS is none\")\n- Test contract: none\n- Files changed, self-review findings, issues or concerns\nUse DONE_WITH_CONCERNS for doubts, BLOCKED if you cannot complete, NEEDS_CONTEXT if information is missing. Never silently produce work you are unsure about.`\n    },\n  ],\n})\n```\n\n**After the worker returns (not done now):**\n1. Read its status.\n2. If the status is `DONE`, or `DONE_WITH_CONCERNS` that you accept, take the artifact patch and build a spec-review snapshot from `WAVE_BASE_SHA`.\n3. Record the Fix delta tree and run spec review against that snapshot.\n4. Then integrate with `git -C /workspace/project apply --index`, followed by the test gate (none), code review with `BASE_SHA: <WAVE_BASE_SHA>` and `HEAD_SHA: WORKTREE`, and the wave commit.\n5. Mark task 2 `complete` only after that commit.\n\n**Stopping here,** before the worker returns.\n",
+      "words": 515,
+      "wallMs": 23383,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "Treat this as a resolved fact ask, not a review finding or fix round. Keep task 2 `in_progress`.\n\n**Lookup record, in documented order:**\n1. `template-store`, collection `summary-frames`, key `summary-frame.tpl` — not found.\n2. `/workspace/project/archive/templates/summary-frame.tpl` — present.\n\nStop searching at the second store. No escalation is needed.\n\nThe template can be read with:\n```bash\ncat -- /workspace/project/archive/templates/summary-frame.tpl\n```\nThis is a proposed command, not a claim of execution. No test command is required.\n\n**Re-dispatch:**\n```ts\nsubagent({\n  agent: \"implementer\",\n  async: false,\n  cwd: \"/workspace/project\",\n  task: `You are implementing task 2: Render a summary.\n\n## Original task\nRender a summary using summary-frame.tpl; modify src/summary.ts only. SCOPED_TEST_COMMANDS: none. TEST_CONTRACT: none: text-only wiring.\n\n## Resolved context\nYour previous response was NEEDS_CONTEXT:\n\"Where is the summary-frame.tpl template required by the task?\"\n\nThe documented stores were checked in order:\n1. template-store collection summary-frames, key summary-frame.tpl: not found.\n2. Repo archive/templates/summary-frame.tpl: present.\n\nUse the existing template at:\n/workspace/project/archive/templates/summary-frame.tpl\n\nRead that template as input; do not modify it. Modify only\n/workspace/project/src/summary.ts.\n\n## Verification\nSCOPED_TEST_COMMANDS: none\nTEST_CONTRACT: none: text-only wiring.\n\nRun no verification commands. State in your report that verification\ncommands were none.\n\nImplement the original task, self-review, and report what changed,\nany concerns, and explicitly one status:\nDONE | DONE_WITH_CONCERNS | NEEDS_CONTEXT | BLOCKED.`\n})\n```\n\n**Review source and commit timing:** No review is dispatched now; there is no implementation delta yet. Preserve the existing wave base. After an accepted implementation returns, spec review must inspect its actual changed tree; code review follows spec acceptance against the integrated wave source, with `BASE_SHA: <recorded WAVE_BASE_SHA>` and `HEAD_SHA: WORKTREE`. The parent’s durable wave commit occurs only after the required gates pass—not during this context-resolution step.\n\nStop here, before the worker returns.\n",
+      "words": 267,
+      "wallMs": 23934,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "dff86c73219980a8d4d5960fe54ffa32eba32baddeee93d95cbd646369938ba6",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "8e20307bd67e2e0208f9a3da33df255700c820053d13041fc815ccdc841940e8",
+      "baselineOutputSha": "cb1121e8a4e1dca14310b788ebc795581828f8501f3c53735a29ba69d0cad553",
+      "candidateOutputSha": "509495ae126e12d04fd048b9a7c57d4e212ff069628bd9cc4d45a3b1d06a93f3",
+      "facts": {
+        "ordered-lookups": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "redispatch-found": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "no-stop": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        }
+      },
+      "feedback": "Nothing moved on this case: both outputs record the template-store miss followed by the repo hit in documented order, both re-dispatch the implementer with archive/templates/summary-frame.tpl written into the task text alongside the original task, SCOPED_TEST_COMMANDS: none and TEST_CONTRACT: none: text-only wiring, and neither emits a stop note or a human location question while leaving task 2 in_progress. After additionally makes the fact-versus-decision classification and the stop-at-first-hit rule explicit, which is the intended Change and is delivered cleanly. One small wording improvement in After would be to tie the miss-then-hit list to the stop-note rule's 'earlier misses' phrasing (e.g., 'carrying the earlier miss and the hit into the re-dispatch') so a reader can see the ordered-lookups requirement is being satisfied by design rather than incidentally; otherwise the current wording keeps every fact Before kept.",
+      "wallMs": 7708,
+      "verdict": "unchanged"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "dff86c73219980a8d4d5960fe54ffa32eba32baddeee93d95cbd646369938ba6",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "8e20307bd67e2e0208f9a3da33df255700c820053d13041fc815ccdc841940e8",
+      "baselineOutputSha": "4ebd543716d3249747b954f686f011799fd5ed14a20406ef02df307b3255df13",
+      "candidateOutputSha": "2911b64337013cd99011f4295e442aec7e95f3c6747d2cf2320c9d2ebd28f3fb",
+      "facts": {
+        "ordered-lookups": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "redispatch-found": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "no-stop": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        }
+      },
+      "feedback": "Nothing moved on this case: both outputs record the template-store miss followed by the repo hit in documented order, both re-dispatch the implementer with archive/templates/summary-frame.tpl carried into the task text alongside the original task, SCOPED_TEST_COMMANDS: none and TEST_CONTRACT, and neither emits a stop note or asks a human where the template is—task 2 stays in_progress pending the worker and the review gates. The 'Expected to move' list predicted fails -> holds for all three, but Before already satisfied them, so this case is a no-op rather than conformance evidence for the lookup wording. One side observation unrelated to the Facts: After dropped `worktree: true` / `context: \"fresh\"` from the subagent call and dispatches directly in the parent cwd, so if an isolation fact were added later this would regress; keep the isolated-worker parameters from Before while retaining After's tighter 'Lookup record, in documented order' and 'Stop searching at the second store' phrasing, which states the stop-at-first-hit rule more explicitly than Before's 'documented fallback' sentence.",
+      "wallMs": 10539,
+      "verdict": "unchanged"
+    }
+  },
+  "repoSha": "6760931ef6167dc9338abf6be0e20da04ebc5241"
+}

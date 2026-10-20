@@ -32,15 +32,20 @@ function editInput(skillFiles, caseText, fixtureDir) {
   return `/skill:${name} ${caseText}\n\nFiles in this checkout: ${Object.keys(readTree(fixtureDir)).sort().join(", ")}`;
 }
 
-function writeChanged(results, sample, arm, record, repoSha) {
+function writeChanged(results, sample, arm, record, repoSha, recordWriter) {
   for (const key of ["outputs", "judge"]) {
     if (record[key]) record[key] = Object.fromEntries(MODELS.replay.filter((model) => model in record[key]).map((model) => [model, record[key][model]]));
   }
   const path = join(results, sample, `${arm}.json`);
   if (!existsSync(path) || read(path) !== JSON.stringify(record, null, 2) + "\n") {
     record.repoSha = repoSha;
-    writeRecord(results, sample, arm, record);
+    recordWriter(results, sample, arm, record);
   }
+}
+
+function regressionReproduced(facts, confirmationFacts) {
+  return Object.entries(facts).some(([id, fact]) =>
+    fact.label === "regression" && confirmationFacts?.[id]?.label === "regression");
 }
 
 async function confirm(entry, replayCell, judgeCell, labels) {
@@ -56,13 +61,27 @@ async function confirm(entry, replayCell, judgeCell, labels) {
   }
   entry.confirmation.facts = labels(judged, again);
   entry.confirmation.feedback = judged.feedback;
-  const reproduced = Object.entries(entry.facts).some(([id, fact]) =>
-    ["regression", "unexplained change"].includes(fact.label) && entry.confirmation.facts[id]?.label === fact.label);
-  if (!reproduced) entry.verdict = "inconclusive";
+  if (!regressionReproduced(entry.facts, entry.confirmation.facts)) entry.verdict = "inconclusive";
 }
 
-async function judgeEntry({ current, previous, judgeCell, candidate, labels, replayCell, refresh = false }) {
-  if (!refresh && judgmentCurrent(previous, current)) return previous;
+async function judgeEntry({ current, previous, judgeCell, candidate, labels, replayCell, sample, facts, moves, refresh = false }) {
+  if (!refresh && judgmentCurrent(previous, current)) {
+    const complete = (outcomes) => outcomes && facts.every(({ id }) =>
+      ["holds", "fails"].includes(outcomes[id]?.before) && ["holds", "fails"].includes(outcomes[id]?.after));
+    if (previous.verdict === "error" || !complete(previous.facts)) return previous;
+    const entry = { ...previous, facts: deriveLabels(sample, previous.facts, moves) };
+    entry.verdict = cellVerdict(entry.facts);
+    if (entry.verdict === "regressed") {
+      if (!entry.confirmation) await confirm(entry, replayCell, judgeCell, labels);
+      else {
+        const confirmationFacts = complete(entry.confirmation.facts) ? deriveLabels(sample, entry.confirmation.facts, moves) : undefined;
+        if (confirmationFacts) entry.confirmation = { ...entry.confirmation, facts: confirmationFacts };
+        if (!regressionReproduced(entry.facts, confirmationFacts)) entry.verdict = "inconclusive";
+      }
+    }
+    if (entry.verdict === "error") for (const key of Object.keys(current)) delete entry[key];
+    return entry;
+  }
   const judged = await judgeCell(candidate);
   if (judged.error) return { verdict: "error", error: judged.error, ...(refresh ? { wallMs: judged.wallMs } : {}) };
   const entry = { ...current, facts: labels(judged, candidate), feedback: judged.feedback, wallMs: judged.wallMs };
@@ -137,7 +156,7 @@ function labeled(sample, judged, facts, before, after, moves) {
   return deriveLabels(sample, outcomes, moves);
 }
 
-export async function runTarget({ root, target: name, sample: only, baselineOnly = false, refreshJudgments = false, base, spawn = defaultSpawn, concurrency = process.env.EVAL_CONCURRENCY ?? 4, signal, refreshWriter = writeRecordAtomic }) {
+export async function runTarget({ root, target: name, sample: only, baselineOnly = false, refreshJudgments = false, base, spawn = defaultSpawn, concurrency = process.env.EVAL_CONCURRENCY ?? 4, signal, refreshWriter = writeRecordAtomic, recordWriter = writeRecord }) {
   const started = Date.now();
   if (refreshJudgments && (!only || baselineOnly)) return { exit: 2, message: "refresh judgments requires one sample and cannot use --baseline-only" };
   const dir = join(root, "eval", name);
@@ -208,6 +227,7 @@ export async function runTarget({ root, target: name, sample: only, baselineOnly
   const counts = { replay: 0, judge: 0, confirm: 0 };
   const limited = limiter(pool);
   let persistenceError;
+  let classificationChanged = false;
   // The pooled unit is one adapter call; orchestration above it never holds a slot while awaiting.
   const call = (args, options) => limited(async () => {
     if (signal?.aborted || (refreshJudgments && persistenceError)) return { status: "error", stderr: signal?.aborted ? (refreshJudgments ? "refresh interrupted" : "aborted") : "refresh persistence failed", wallMs: 0 };
@@ -283,7 +303,7 @@ export async function runTarget({ root, target: name, sample: only, baselineOnly
         const current = { factsSha: sha256(expectedText), judgePromptSha, intentSha, baselineOutputSha: sha256(b.text), candidateOutputSha: sha256(c.text) };
         const judgeCell = (after) => judge({ spawn: judgeSpawn, judgeText, ...plan, intent: intentParsed, before: b.text, after: after.text,
           baselineTree: target.kind === "edit" ? b.tree : undefined, candidateTree: target.kind === "edit" ? after.tree : undefined, denylist: target.denylist });
-        const entry = await judgeEntry({ current, previous: previous[model], refresh: true, judgeCell, candidate: c,
+        const entry = await judgeEntry({ current, previous: previous[model], refresh: true, judgeCell, candidate: c, sample, facts, moves: intentParsed.moves,
           labels: (judged, after) => labeled(sample, judged, facts, b, after, intentParsed.moves),
           replayCell: () => replayCell(candSkill, model, plan.candFiles, "confirm") });
         if (signal?.aborted && entry.verdict === "error") entry.error = `refresh interrupted: ${entry.error}`;
@@ -319,24 +339,29 @@ export async function runTarget({ root, target: name, sample: only, baselineOnly
         c.mechanical = runMechanical(facts, c.text);
         const current = { factsSha: sha256(expectedText), judgePromptSha, intentSha, baselineOutputSha: sha256(b.text), candidateOutputSha: sha256(c.text) };
         const judgeCell = (after) => judge({ spawn: judgeSpawn, judgeText, ...plan, intent: intentParsed, before: b.text, after: after.text, baselineTree: target.kind === "edit" ? b.tree : undefined, candidateTree: target.kind === "edit" ? after.tree : undefined, denylist: target.denylist });
-        cand.judge[model] = await judgeEntry({ current, previous: stored?.judge?.[model], judgeCell, candidate: c,
+        const previous = stored?.judge?.[model];
+        cand.judge[model] = await judgeEntry({ current, previous, judgeCell, candidate: c, sample, facts, moves: intentParsed.moves,
           labels: (judged, after) => labeled(sample, judged, facts, b, after, intentParsed.moves),
           replayCell: () => replayCell(candSkill, model, plan.candFiles, "confirm") });
+        if (previous?.verdict !== cand.judge[model].verdict || JSON.stringify(previous?.facts) !== JSON.stringify(cand.judge[model].facts)) classificationChanged = true;
       }
       rowsBySample[index][m] = { sample, model, mechanical: c.mechanical ?? {}, ...cand.judge[model] };
     }));
     if (signal?.aborted) return;
-    writeChanged(results, sample, "baseline", baseline, repoSha);
+    writeChanged(results, sample, "baseline", baseline, repoSha, recordWriter);
     if (baselineOnly) {
       for (const model of MODELS.replay) if (baseline.outputs[model]?.status !== "ok") baselineErrors.push(`${sample}/${model}: ${baseline.outputs[model]?.error}`);
       return;
     }
-    writeChanged(results, sample, "candidate", cand, repoSha);
+    try { writeChanged(results, sample, "candidate", cand, repoSha, recordWriter); }
+    catch (error) {
+      persistenceError ??= `${relative(root, join(results, sample, "candidate.json"))}: ${redact(error?.message ?? String(error), target.denylist)}`;
+    }
   };
   await Promise.all(plans.map(runSample));
   const called = counts.replay + counts.judge + counts.confirm;
   const wall = `wall ${Math.round((Date.now() - started) / 1000)}s`;
-  if (persistenceError) return { exit: 1, message: `${name}: refresh ${only} save failed: ${persistenceError}; report.md unchanged` };
+  if (persistenceError) return { exit: 1, message: `${name}: ${refreshJudgments ? `refresh ${only} ` : ""}save failed: ${persistenceError}; report.md unchanged` };
   if (signal?.aborted && !refreshJudgments) return { exit: 130, message: `${name}: interrupted (${wall}); in-flight samples not written, report.md not written` };
   if (baselineOnly) return { exit: baselineErrors.length ? 1 : 0, message: baselineErrors.length ? baselineErrors.join("\n") : called ? `baseline seeded (replay ${counts.replay}, ${wall})` : "baseline fresh" };
   const rows = rowsBySample.flat();
@@ -344,7 +369,7 @@ export async function runTarget({ root, target: name, sample: only, baselineOnly
   for (const row of rows) worst = worseVerdict(worst, row.verdict);
   const exit = signal?.aborted ? 130 : ["error", "inconclusive", "regressed"].includes(worst) ? 1 : 0;
   const tally = `${refreshJudgments ? `refresh ${only} [${MODELS.replay.join(", ")}]; ` : ""}replay ${counts.replay}, judge ${counts.judge}, confirm ${counts.confirm}, ${wall}`;
-  if (!called) return { exit, message: `${name}: ${worst} (report.md unchanged; ${tally})` };
+  if (!called && !classificationChanged) return { exit, message: `${name}: ${worst} (report.md unchanged; ${tally})` };
   writeFileSync(join(dir, "report.md"), renderReport({ target: name, forSha, change: intentParsed.change, rows, partial: only ?? null, ...(refreshJudgments ? { refresh: { sample: only, models: MODELS.replay, status: signal?.aborted ? "interrupted" : "complete" } } : {}), exit, wallMs: Date.now() - started }));
   return { exit, message: `${name}: ${signal?.aborted ? "interrupted" : worst} (report.md written; ${tally})` };
 }

@@ -47,7 +47,14 @@ Scout (always dispatched):
 > Recon for an upcoming design discussion. The request: `<initial prompt verbatim>`.
 > Map the territory this change touches: relevant files with line ranges, existing
 > patterns and conventions the change must match, test conventions, integration
-> points, and whether the codebase or ecosystem already solves any of this. Then one required line:
+> points, and whether the codebase or ecosystem already solves any of this. Trace retained
+> loaders and call paths, and every repro and verification step, for dependencies the
+> request relies on without naming: files, binaries, extensions, fixtures, and data
+> subsets. Check each with the lookup the repo or spec names; a named path or
+> capability is a claim to check, not proof it exists. Emit one line per item:
+> `Implicit dependencies: <item> - <how checked> - <found | not found | not checkable: <why>>`
+> or `Implicit dependencies: none found - traced <components, steps>`.
+> Then one required line:
 > `Framing: <the strongest cited case that the request as framed is the wrong change - a path that already covers it, a sound convention it cuts across, an existing convention it would extend that is itself the debt, a band-aid where the root cause is reachable, or a smaller change with the same outcome>`
 > or `Framing: no objection - checked <what was read>`; this line is
 > evidence for the design discussion, not a verdict - the main loop decides. Cite

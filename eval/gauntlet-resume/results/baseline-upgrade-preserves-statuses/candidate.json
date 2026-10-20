@@ -1,0 +1,90 @@
+{
+  "sample": "baseline-upgrade-preserves-statuses",
+  "arm": "candidate",
+  "skillSha": "5433e341a09e5011da41af62ed82883d2f7e5801f8a04a912c535f72d829e742",
+  "inputSha": "48ff8f59f9329c92ca141355f5d8b98268f2d7a66a4e22e80eb1117a989f8e39",
+  "kind": "text",
+  "assembly": "headed",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "**Result 1: `plan_check` FAILs with 2 findings**\n\nTool call:\n```\nplan_check({ planPath: \"/work/demo/.worktrees/options/doc/plans/options.md\" })\n```\nResult: `FAIL (2 findings)`. Both findings are `baseline-line`:\n- Task 1: `node --test test/parse.test.mjs` has no baseline: bullet.\n- Task 2: `node --test test/validate.test.mjs` has no baseline: bullet.\n\nThis sends the restore into `## Plan repair` and its \"Baseline continuation\". `baseline-line` findings go there before any citation-table classification.\n\n- I hold the brief's task snapshot verbatim and do not change it: `W1: Parse options` (complete), then `W1: Validate options` (complete).\n- No landed fix is named, so there is no rebase or merge through `/skill:using-git-worktrees`. I go straight to the rerun.\n\n**Result 2: plan-writer rerun returns `PLAN WRITTEN`**\n\nTool call (subagent dispatch):\n```\nagent:      \"plan-writer\"\ncontext:    \"fresh\"\nasync:      false\ncwd:        \"/work/demo/.worktrees/options\"\nphase:      \"plan-write\"\nacceptance: { level: \"none\", reason: \"the parent plan_check owns acceptance\" }\ntask:       <writing-plans fixed plan-writer task template, filled with the five absolute paths>\n              worktree:            /work/demo/.worktrees/options\n              spec:                /work/demo/.worktrees/options/doc/specs/options.md\n              plan:                /work/demo/.worktrees/options/doc/plans/options.md\n              writing-plans skill: <scratch>/skills/writing-plans/SKILL.md\n              plan contract:       <scratch>/skills/writing-plans/reference/plan-contract.md\n            Findings: rerun baseline\n```\nResult: `PLAN WRITTEN`.\n- The writer itself ran Baseline and generated the baseline bullets.\n- The parent runs no test commands and synthesizes no evidence or SHAs.\n\n**Result 3: parent `plan_check` PASSes**\n\nTool call:\n```\nplan_check({ planPath: \"/work/demo/.worktrees/options/doc/plans/options.md\" })\n```\nResult: `PASS`, with no substantive Open Questions rows.\n\nThis matches the row \"`PLAN WRITTEN` + `PASS`\". I return to the verify row of the call table from `skip plan R`. R is `resume: pasted brief`.\n\n**Result 4: remaining tracker calls succeed**\n\nTool calls, in order:\n```\nphase_tracker skip plan       reason: \"resume: pasted brief\"\nphase_tracker skip implement  reason: \"resume: pasted brief\"\nphase_tracker start verify\n```\nThe brief shows no substep on verify, so there is no `substep` call.\n\nFeasibility check before `init`:\n- Pending-suffix order is satisfied because no task is pending.\n- The target stage is verify, not implement, so the auto-complete edge does not apply.\n\n`init` uses the saved brief snapshot, not any fresh-plan list:\n```\nplan_tracker init {\n  tasks: [\n    { \"name\": \"W1: Parse options\",    \"status\": \"complete\" },\n    { \"name\": \"W1: Validate options\", \"status\": \"complete\" }\n  ]\n}\n```\n\n**Printed lines, in order:**\n```\nRepaired plan: 2 findings (baseline-line)\nGate history not restored; re-validating `none` before any stage advance\n```\n",
+      "words": 335,
+      "wallMs": 22832,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "1. Call:\n   ```text\n   plan_check({\n     \"planPath\": \"/work/demo/.worktrees/options/doc/plans/options.md\"\n   })\n   ```\n   Result: FAIL:\n   - `baseline-line`: Task 1: command `node --test test/parse.test.mjs` has no `baseline:` bullet.\n   - `baseline-line`: Task 2: command `node --test test/validate.test.mjs` has no `baseline:` bullet.\n\n2. Enter Baseline continuation, retaining this task snapshot unchanged:\n   ```json\n   [\n     {\"name\":\"W1: Parse options\",\"status\":\"complete\"},\n     {\"name\":\"W1: Validate options\",\"status\":\"complete\"}\n   ]\n   ```\n   No landed fix is named, so perform no base-advance operation.\n\n3. Dispatch the plan writer:\n   ```text\n   {\n     \"agent\": \"plan-writer\",\n     \"context\": \"fresh\",\n     \"async\": false,\n     \"cwd\": \"/work/demo/.worktrees/options\",\n     \"phase\": \"plan-write\",\n     \"acceptance\": {\n       \"level\": \"none\",\n       \"reason\": \"the parent plan_check owns acceptance\"\n     },\n     \"task\": \"Run Baseline and regenerate its rows using the writing-plans Author the plan instructions.\\nWorktree: /work/demo/.worktrees/options\\nSpec: /work/demo/.worktrees/options/doc/specs/options.md\\nPlan: /work/demo/.worktrees/options/doc/plans/options.md\\nWriting-plans skill: <scratch>/skills/writing-plans/SKILL.md\\nPlan contract: <scratch>/skills/writing-plans/reference/plan-contract.md\\nFindings: rerun baseline\"\n   }\n   ```\n   Result: `PLAN WRITTEN`; the writer generated passing baseline bullets without changing task identities or order.\n\n4. Call:\n   ```text\n   plan_check({\n     \"planPath\": \"/work/demo/.worktrees/options/doc/plans/options.md\"\n   })\n   ```\n   Result: PASS. Continue from the saved snapshot, not a generated fresh-plan list.\n\n5. Call:\n   ```text\n   phase_tracker({\n     \"action\": \"skip\",\n     \"phase\": \"plan\",\n     \"reason\": \"resume: pasted brief\"\n   })\n   ```\n\n6. Call:\n   ```text\n   phase_tracker({\n     \"action\": \"skip\",\n     \"phase\": \"implement\",\n     \"reason\": \"resume: pasted brief\"\n   })\n   ```\n\n7. Call:\n   ```text\n   phase_tracker({\n     \"action\": \"start\",\n     \"phase\": \"verify\"\n   })\n   ```\n\n8. Call:\n   ```text\n   plan_tracker({\n     \"action\": \"init\",\n     \"tasks\": [\n       {\"name\":\"W1: Parse options\",\"status\":\"complete\"},\n       {\"name\":\"W1: Validate options\",\"status\":\"complete\"}\n     ]\n   })\n   ```\n\n9. Call:\n   ```text\n   phase_tracker({\"action\":\"status\"})\n   ```\n   Confirm the active phase is `verify`, with no substep.\n\n10. Call:\n    ```text\n    plan_tracker({\"action\":\"status\"})\n    ```\n    Confirm the two task names, order, and `complete` statuses match the saved snapshot exactly.\n\n11. Print:\n    ```text\n    Repaired plan: 2 findings (baseline-line)\n    Gate history not restored; re-validating `none` before any stage advance\n    ```\n",
+      "words": 231,
+      "wallMs": 31959,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "466f32778d2b2d9b4417a26f05dadcae72a56b3788a5b7692922bf8a289b742a",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "f3c4f51e5947ae01d3d783a1a1e9a41463ca9042976611c687ebc1afc15f420f",
+      "baselineOutputSha": "f6dd2bb1bceaa9884b08590b9469895e0e30ca21e21ef9d3f23798fcd169e3be",
+      "candidateOutputSha": "a691970aa62960381e5c4170c7fe560b1549b33025c7474ee136448fe1b6fd81",
+      "facts": {
+        "rerun": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "parent-check": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "snapshot": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        }
+      },
+      "feedback": "The After wording delivers the Change cleanly: all three facts move from fails to holds and nothing regresses. Before stopped at the citation-repair table with no row for baseline-line, so it never dispatched, never rechecked, and never initialized the tracker. After routes baseline-line to a fresh, foreground plan-writer (context fresh, async false, cwd the resolved worktree, phase plan-write, acceptance level none, all five absolute paths, Findings: rerun baseline), reruns plan_check in the parent on the absolute plan path immediately after PLAN WRITTEN and before any skip/start calls, then skips plan and implement with resume reasons, starts verify, and inits plan_tracker from the brief snapshot with exactly the two complete tasks in order while explicitly refusing fresh-plan initialization and never starting implement. One small thing worth keeping explicit in the skill text so later rewordings don't drift: that the parent recheck must occur before returning to the call-table row (After says it, but state it as an ordering rule), and that the 'Repaired plan: N findings' line is emitted only on the PASS return path so the stop-line and the success-line never both print.",
+      "wallMs": 11408,
+      "verdict": "improved"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "466f32778d2b2d9b4417a26f05dadcae72a56b3788a5b7692922bf8a289b742a",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "f3c4f51e5947ae01d3d783a1a1e9a41463ca9042976611c687ebc1afc15f420f",
+      "baselineOutputSha": "be7dc4b3a2395120127deb3fbe922dcbcca078574a46e6c74c3a1b0c36542a93",
+      "candidateOutputSha": "aad6af54d3cef4be9f17a2ac643a8258682982de9edf954b54c3437e75c7d2fd",
+      "facts": {
+        "rerun": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "parent-check": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "snapshot": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        }
+      },
+      "feedback": "After delivers the Change cleanly: Before halted at the baseline-line FAIL with no dispatch, so every fact failed there, while After dispatches plan-writer fresh and foreground (context fresh, async false) with cwd the resolved worktree, phase plan-write, acceptance level none, the worktree/spec/plan/skill/contract paths and `Findings: rerun baseline`, never editing baseline evidence in the parent; it then reruns plan_check on the absolute plan path immediately after `PLAN WRITTEN` and before any phase_tracker call; and on PASS it skips plan and implement with resume reasons, starts verify, and initializes plan_tracker with exactly the two snapshot entries in order, explicitly rejecting a fresh-plan list and never starting implement. No fact regressed. To keep this stable, retain the explicit 'continue from the saved snapshot, not a generated fresh-plan list' sentence and the acceptance-level none object in the dispatch, since those are the two places a looser wording could drift back toward writing-plans step 7 or parent-side baseline edits; the only cosmetic note is that the closing print line ('Repaired plan: 2 findings (baseline-line)') slightly suggests citation repair, so wording like 'Baseline regenerated by plan-writer: 2 findings (baseline-line)' would better match the rerun route without affecting any fact.",
+      "wallMs": 10647,
+      "verdict": "improved"
+    }
+  },
+  "repoSha": "79d51968be98b18e8098e0eae8a6a3793a1aee5e"
+}

@@ -1,6 +1,8 @@
-for: a1365a424397ca7f503297b004763088ee6009c77a73a6befc62071fd83b99a8
+for: 0041f2a0bd9dd5cce0b8155c59f9fbf22eba3172b9679732dd1863e47e126fef
 
 ## Change
+Trace implicit dependencies through retained loaders and repro steps, including when scout recon fails. Missing dependencies become corrected premises; not-checkable dependencies remain unverified. The premise note, separate approaches message, and spec Problem retain each lookup and result without stopping. Text replay checks this reporting from supplied observations, not live lookups.
+
 Questionary responses put the lead-in first, each labeled option on its own physical line, and Recommendation: on its own final line. The framing template and both Good examples retain their words in that layout.
 
 The amendment human batch uses numbered problem-first items with lettered options and one-line consequences, explicit letter recommendations, one numbered reply line per item, and bare 1 for all recommendations, re-asking any item without one by number without re-rendering the menu (vacuous for the amendment schema's required recommendation). Custom lines are unnumbered. Applying a letter records its option token; free text records custom(text), preserving the reply's free text verbatim in the Recorded confirmation. The target includes only section 4 of the amendment-surface slice, from Human batch up to ## 5. Apply; section 4's reply grammar includes the Recorded confirmation rule. Follow-up wording fixes keep custom lines unnumbered and require the Recorded echo to preserve free text verbatim. The section 4 scoping sentence confines this menu grammar to the amendment batch: brainstorming's labeled recommendation question and ticket cut question keep their own formats, including the scoping-sentence extension requiring the cut question's re-ask after a cancelled repair to re-render in full with the row unchanged. The assembly places the amendment-surface section 4 slice before ticket-acceptance.md so the ticket cut-question contract follows the amendment menu rather than being displaced by it. Render and continuation samples test the menu and Recorded confirmation separately; text replay proves neither file writes nor commits. The output word cap remains 1400: the first render replay produced 377 and 335 words, so a higher cap is not needed. It limits generated output, not the assembled prompt. Every existing sample is listed below because the assembly changed, with its prior behavior expected to stay unchanged; this edit does not aim to repair unrelated failures.
@@ -59,3 +61,9 @@ The amendment human batch uses numbered problem-first items with lettered option
 - wrong-row-cut-question/f1: holds -> holds - Preserve existing behavior under the expanded assembly.
 - wrong-row-cut-question/f2: holds -> holds - Preserve existing behavior under the expanded assembly.
 - wrong-row-cut-question/f3: holds -> holds - Preserve existing behavior under the expanded assembly.
+- implicit-template-not-found/premise: fails -> holds - Carry the traced missing dependency and lookup result through the premise note, approaches, and spec.
+- implicit-template-not-found/approaches: fails -> holds - Carry the traced missing dependency and lookup result through the premise note, approaches, and spec.
+- implicit-template-not-found/problem: fails -> holds - Carry the traced missing dependency and lookup result through the premise note, approaches, and spec.
+- missing-db-extension/premise: fails -> holds - Carry the traced missing dependency and lookup result through the premise note, approaches, and spec.
+- missing-db-extension/approaches: fails -> holds - Carry the traced missing dependency and lookup result through the premise note, approaches, and spec.
+- missing-db-extension/problem: fails -> holds - Carry the traced missing dependency and lookup result through the premise note, approaches, and spec.

@@ -145,6 +145,26 @@ Zero pairs -> stop; more than one -> human picks.
 
 Entered from the call table's `implement` row and from `reconstruction.md` "Spec with plan" step 2 when `plan_check` returns FAIL. Inputs: the findings, and the task list with statuses (the brief's, or the confirmed reconstruction snapshot) - read it for evidence, never rewrite it.
 
+Before citation-table classification, route `baseline-line` and substantive `open-questions` findings through the continuation below. Keep the brief's or confirmed reconstruction's task snapshot (names, order, statuses) verbatim throughout; never take writing-plans step 7's fresh-plan initialization.
+
+### Baseline continuation
+
+On `baseline-line` or a substantive baseline-form `open-questions` finding, bring a landed fix named by the brief or human into the worktree through `/skill:using-git-worktrees` "the base branch advances" (rebase, or merge for a shared branch). Without a named fix, proceed directly to the rerun. Dispatch `plan-writer` per `/skill:writing-plans` "Author the plan" step 3: `agent: "plan-writer"`, `context: "fresh"`, `async: false`, `cwd: <absolute worktree>`, `phase: "plan-write"`, `acceptance: { level: "none", reason: "the parent plan_check owns acceptance" }`. Fill its fixed task template with the five absolute paths (worktree, spec, plan, writing-plans SKILL.md, its reference/plan-contract.md), then append `Findings: rerun baseline`. Let the writer run Baseline and regenerate its rows; never synthesize evidence or SHAs. On dispatch error, async handle, or missing/empty plan, stop and report without a parent-authored fallback.
+
+Run `plan_check({ planPath })` in the parent after either child reply. Route the result:
+
+| Result / substantive row | Continuation |
+|---|---|
+| `PLAN WRITTEN` + `PASS`, section absent or exactly `- none` | Return to the originating restore's remaining steps: call table from `skip plan R` through the appropriate implement/verify continuation (ship restores at verify), or reconstruction step 3. Initialize `plan_tracker` only from the saved task snapshot, never the generated fresh-plan list. |
+| `- Task N: ... fails on <sha>` | Present the task, command, base SHA and exit code, then writing-plans step 6's three options, one per line: **fix-first** - `/skill:shape-ticket` for the base failure (its gate applies), then pause; **narrow** - human supplies filter or path text, re-dispatch with `Findings: Task N Tests: narrow to <text>`; **amend** - brainstorming's `reference/amendment-surface.md` section 5. Print a `Recommendation:` line and wait for selection. |
+| Global or contamination rows (`Baseline: worktree dirty`, `Baseline: in-flight source edits`, `dirtied tracked source`, `moved HEAD`) | Take writing-plans step 6's restore-and-rerun path, not the menu. Name paths and causes; the parent's own in-flight work uses its own commit step (doc-only paths can be listed under `In-flight:`); ask the human to commit, discard, or move other paths and test-produced dirt. Never clean automatically. After restoration re-dispatch with `Findings: rerun baseline`, then parent check. |
+| Other substantive `open-questions` rows (contract questions) | Present the rows, wait for answers, re-dispatch per step 3 with answers in `Findings:`, then parent check and this same return route. |
+| Other checks | Use the citation table and its three-round rollback below. |
+
+End a turn awaiting selection, restoration, or answers with phase `plan` retained in_progress and no tracker initialization of any kind. Keep the snapshot for the eventual return. Resolved failure rows disappear only through the writer's Baseline rerun; resume writes no Open Questions rows. Plans without `baseline:` bullets intentionally enter this continuation on their `baseline-line` finding.
+
+### Citation repair
+
 Record the plan's state before any write: tracked and clean when `git -C <worktree> ls-files --error-unmatch -- <plan path>` exits 0 and `git -C <worktree> status --porcelain -- <plan path>` prints nothing (index and working copy both match HEAD; a staged edit alone makes it dirty); otherwise copy the file to a temp path outside the worktree.
 
 Classify every finding against the table by its `check` and `reason`, gathering the row's evidence first. One finding with no row -> stop (below) before any write.
@@ -175,7 +195,7 @@ Stop (a finding with no row, or a finding surviving the third round): when a rou
 - no row: `Repair stopped: <check> - <reason> is outside citation repair; the plan file is unchanged. Edit the plan (task changes allowed), then re-run /skill:gauntlet-resume.`
 - third round: `Repair stopped: <check> - <reason> survived 3 rounds. Edit the plan, then re-run /skill:gauntlet-resume.`
 
-Resume never edits the spec; no Open Question is written.
+Resume never edits the spec or writes an Open Question itself; the dispatched plan-writer owns generated baseline rows.
 
 "Exact" restoration binds: the active phase identity and substep, and the plan task list
 (names, order, statuses) verbatim. Prior phases show `⊘ (resume: ...)` regardless of the

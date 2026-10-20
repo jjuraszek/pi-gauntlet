@@ -1,0 +1,34 @@
+{
+  "sample": "baseline-upgrade-preserves-statuses",
+  "arm": "baseline",
+  "skillSha": "dd825826085e3925419b91d4be8399734af5bd6cf52ecb22f2ee2b0146b260d8",
+  "inputSha": "48ff8f59f9329c92ca141355f5d8b98268f2d7a66a4e22e80eb1117a989f8e39",
+  "kind": "text",
+  "assembly": "headed",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "# Restore narration: verify-stage brief\n\nThe call table's `verify` row runs as the `implement` row through `skip plan R`. Brainstorm is already skipped and plan is already started, so the next call is `plan_check`.\n\n**Tool call 1**\n\n```\nplan_check({ planPath: \"/work/demo/.worktrees/options/doc/plans/options.md\" })\n```\n\n→ **FAIL** (2 findings):\n- `baseline-line`: Task 1: command `node --test test/parse.test.mjs` has no baseline: bullet\n- `baseline-line`: Task 2: command `node --test test/validate.test.mjs` has no baseline: bullet\n\n**Entering `## Plan repair`**\n\n- **Recorded plan state:** tracked and clean (as given in the input). No temp copy is needed.\n- **Classification:** `baseline-line` has no row in the repair table. That table covers only `anchor-resolution`, `quote-integrity`, `table-closure`, `paths-exist`, and `tests-block`, each with specific reasons. The rule is \"One finding with no row -> stop (below) before any write.\" Both findings have no row.\n- **Stop before the first write:**\n  - No git command runs, so there is no checkout or restore.\n  - The plan file is unchanged.\n  - `plan` stays in_progress.\n  - There is no `skip plan`, `skip implement`, `start verify`, or `plan_tracker init`.\n\n**Printed (findings):**\n\n```\nbaseline-line: Task 1: command `node --test test/parse.test.mjs` has no baseline: bullet\nbaseline-line: Task 2: command `node --test test/validate.test.mjs` has no baseline: bullet\n```\n\n**Printed (stop line):**\n\n```\nRepair stopped: baseline-line - Task 1: command `node --test test/parse.test.mjs` has no baseline: bullet is outside citation repair; the plan file is unchanged. Edit the plan (task changes allowed), then re-run /skill:gauntlet-resume.\n```\n\nThe restore ends here.\n\n## Why the narration stops before results 2–4\n\n**No plan-writer dispatch.** The skill writes the plan file \"only through `reference/brief-contract.md` `## Plan repair`.\" Plan repair has no plan-writer or baseline-rerun path; an unclassifiable finding is a hard stop. So I make no plan-writer dispatch, and there are no dispatch arguments to give.\n\n**No further tracker calls.** Result 2 (`PLAN WRITTEN`) and result 3 (the second `plan_check` PASS) never occur on this route. The same goes for the remaining calls in result 4:\n- `skip plan resume: pasted brief`\n- `skip implement resume: pasted brief`\n- `start verify`\n\n**No tracker initialization payload.** For the record, the would-be `init` payload on a successful route would have been:\n\n```\n[{name:\"W1: Parse options\",status:\"complete\"},{name:\"W1: Validate options\",status:\"complete\"}]\n```\n\nIt is not sent here.\n\n**No closing line.** The closing line `Gate history not restored; re-validating `none` before any stage advance` is printed only after a successful restore (SKILL.md \"Post-restore continuation\"). A Plan-repair stop ends instead with the `Repair stopped:` line above.\n\n**Path forward.** The human adds the baseline bullets themselves, for example by running the plan-writer outside resume. Then they re-run `/skill:gauntlet-resume`.\n",
+      "words": 400,
+      "wallMs": 18391,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "Tool call: `plan_check({\"planPath\":\"/work/demo/.worktrees/options/doc/plans/options.md\"})`\n\nResult: FAIL (2 findings).\n\nPrint:\n```text\nbaseline-line: Task 1: command `node --test test/parse.test.mjs` has no baseline: bullet\nbaseline-line: Task 2: command `node --test test/validate.test.mjs` has no baseline: bullet\nRepair stopped: baseline-line - command `node --test test/parse.test.mjs` has no baseline: bullet is outside citation repair; the plan file is unchanged. Edit the plan (task changes allowed), then re-run /skill:gauntlet-resume.\n```\n\nRestoration stops here: `baseline-line` has no permitted Plan repair row. No plan-writer dispatch, file write, further `plan_check`, tracker initialization, or restore closing line is permitted. Results 2–4 cannot be reached under this skill. The phase remains `plan` in_progress.\n",
+      "words": 98,
+      "wallMs": 12422,
+      "mechanical": {}
+    }
+  },
+  "repoSha": "79d51968be98b18e8098e0eae8a6a3793a1aee5e"
+}

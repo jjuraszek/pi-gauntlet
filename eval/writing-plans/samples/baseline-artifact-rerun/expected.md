@@ -1,0 +1,4 @@
+- proceed: judged: The ordinary Findings repair proceeds to PLAN WRITTEN /work/app/doc/plans/hook.md, retaining the unchanged command's same-base baseline evidence rather than blocking on coverage/hook.json.
+- artifact-kept: mechanical: contains "- baseline: abc1234 pass - artifacts: coverage/hook.json"
+- no-dirty-row: mechanical: lacks "- Baseline: worktree dirty"
+- forced-rerun-artifacts: judged: On the explicit Findings: rerun baseline re-entry, rerun the command and replace its baseline bullet with fresh passing evidence whose artifacts suffix keeps coverage/hook.json and merges coverage/summary.json; do not emit a Baseline: worktree dirty row or block the rerun.

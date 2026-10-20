@@ -17,6 +17,11 @@ test("full report has intent, rows, exit line", () => {
   assert.ok(r.includes("## Feedback\n\n- s1 / m1: Say X."));
   assert.ok(r.trimEnd().endsWith("exit: 1"));
 });
+test("unplanned improvement appears in the facts column", () => {
+  const report = renderReport({ target: "t", forSha: "abc", change: "CH", rows: [{ sample: "s", model: "m", verdict: "improved", facts: { f1: { before: "fails", after: "holds", label: "unplanned improvement" } } }], exit: 0 });
+  assert.ok(report.includes("| s | m | improved |  | f1: fails -> holds (unplanned improvement) |"));
+});
+
 test("partial run is titled", () => {
   const r = renderReport({ target: "t", forSha: "abc", change: "CH", rows, partial: "s1", exit: 0 });
   assert.ok(r.startsWith("# eval report: t (partial run: s1)\n"));

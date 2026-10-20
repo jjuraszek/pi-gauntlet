@@ -874,6 +874,7 @@ const FIXTURE_PLAN = `# Fixture Plan
 
 **Tests:**
 - \`node --test lib/task1.test.ts\`
+- baseline: abc1234 skipped - lib/task1.test.ts created by this task
 
 This task implements helperFn() for parsing.
 
@@ -889,6 +890,7 @@ This task implements helperFn() for parsing.
 
 **Tests:**
 - \`node --test lib/task2.test.ts\`
+- baseline: abc1234 skipped - lib/task2.test.ts created by this task
 
 This task handles naming details.
 
@@ -968,7 +970,13 @@ test("Guard 2 evaluates the command's target checkout (AC 3)", async () => {
 
 test("plan_check pass: text, details, and stamp arming when a flow is entered", async () => {
   const dir = gitPrimary().primary;
-  const { planPath, specPath, planText, specText } = writePlanFixture(dir);
+  const { planPath, specPath, planText, specText } = writePlanFixture(dir, {
+    mutatePlan: t => t.replace(/- Create: lib\/task[12]\.test\.ts\n/g, "")
+      .replace(/skipped - lib\/task[12]\.test\.ts created by this task/g, "pass"),
+  });
+  mkdirSync(join(dir, "lib"), { recursive: true });
+  writeFileSync(join(dir, "lib/task1.test.ts"), "");
+  writeFileSync(join(dir, "lib/task2.test.ts"), "");
   const h = harness({ cwd: dir, branch: readyForImplementBranch });
   await h.emit("session_start");
   const tool = h.tools.find((t) => t.name === "plan_check")!;
@@ -995,6 +1003,32 @@ test("plan_check pass: text, details, and stamp arming when a flow is entered", 
   void planText;
   void specText;
 });
+
+for (const failure of [false, true]) {
+  test(`plan_check missing baseline${failure ? " with base failure" : ""} prevents implement stamp`, async () => {
+    const dir = gitPrimary().primary;
+    const command = "node --test lib/task1.test.ts";
+    const row = `- Task 1: \`${command}\` fails on abc1234 (exit 2): assertion failed`;
+    const { planPath } = writePlanFixture(dir, {
+      mutatePlan: t => t.replace("- baseline: abc1234 skipped - lib/task1.test.ts created by this task\n", "") + (failure ? "\n## Open Questions\n" + row + "\n" : ""),
+    });
+    const h = harness({ cwd: dir, branch: readyForImplementBranch });
+    await h.emit("session_start");
+    const tool = h.tools.find(t => t.name === "plan_check")!;
+    const result = await tool.execute("baseline", { planPath }, undefined, undefined, h.ctx) as {
+      details: { status: string; findings: { check: string; reason: string }[] };
+    };
+    assert.equal(result.details.status, "fail");
+    assert.ok(result.details.findings.some(f => f.check === "baseline-line" && f.reason.includes("Task 1")));
+    if (failure) assert.ok(result.details.findings.some(f => f.reason === "plan has open questions: " + row));
+    const phase = h.tools.find(t => t.name === "phase_tracker")!;
+    const start = await phase.execute("start", { action: "start", phase: "implement" }, undefined, undefined, h.ctx) as {
+      details: { error?: string; phases: { implement: { status: string } } };
+    };
+    assert.match(start.details.error ?? "", /plan_check/);
+    assert.notEqual(start.details.phases.implement.status, "in_progress");
+  });
+}
 
 test("plan_check pass outside a flow: no stamp, plain-linter text", async () => {
   const dir = gitPrimary().primary;

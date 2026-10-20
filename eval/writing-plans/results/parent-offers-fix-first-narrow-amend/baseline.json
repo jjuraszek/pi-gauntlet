@@ -1,0 +1,34 @@
+{
+  "sample": "parent-offers-fix-first-narrow-amend",
+  "arm": "baseline",
+  "skillSha": "faa2c089ef771ff49fa5ac69144e5bd29d83c0fa1db97ea7c571dd738158e1c3",
+  "inputSha": "1c324896ccf850dc8d90cfd03e885e3af9a533d8180531bab4d6557eb5c77585",
+  "kind": "text",
+  "assembly": "concat",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "## Parent handling: writing-plans, plan phase (substep `plan-write`)\n\n**State on entry.** The phase is `plan`, `in_progress`, with substep `plan-write`. The step 3 dispatch already ran:\n\n```\nsubagent({ agent: \"plan-writer\", context: \"fresh\", async: false, cwd: \"/work/app\",\n  phase: \"plan-write\",\n  acceptance: { level: \"none\", reason: \"the parent plan_check owns acceptance\" },\n  task: \"Write the implementation plan for the approved spec. Worktree: `/work/app`. Spec: `/work/app/doc/specs/hook.md`. Plan path: `/work/app/doc/plans/hook.md`. Plan skill: `/opt/pi/skills/writing-plans/SKILL.md`. Plan contract: `/opt/pi/skills/writing-plans/reference/plan-contract.md`.\" })\n```\n\nThe child replied `OPEN QUESTIONS /work/app/doc/plans/hook.md`.\n\n**Step 4 check.** The dispatch did not error and did not return an async handle. The plan file exists and is non-empty. No stop is needed.\n\n**Step 5: stamping check.** I ran this in the parent regardless of the child's reply:\n\n```\nplan_check({ planPath: \"/work/app/doc/plans/hook.md\" })\n```\n\nIt returned `FAIL`, with two findings:\n- an `open-questions` finding naming the Task 1 row\n- a `baseline-line` finding naming the missing bullet\n\n**Step 6: branch decision.** The pair is (`OPEN QUESTIONS`, `FAIL`). This matches the \"`OPEN QUESTIONS` + any result\" branch, so the open questions take precedence over the FAIL.\n- I do not take the `PLAN WRITTEN` + `FAIL` repair branch.\n- I do not re-dispatch with the FAIL output as `Findings:`.\n- I do not clear the substep.\n- I do not call `phase_tracker complete`.\n- I do not call `plan_tracker init`. The Open-Questions halt forbids init before the answers.\n\n**Action: present the plan's `## Open Questions` section to the user and wait.**\n\n> The plan writer could not finalize `/work/app/doc/plans/hook.md` and needs your decision:\n>\n> ## Open Questions\n> - Task 1: `node --test tests/hook.test.ts` fails on abc1234 (exit 1): existing config resolution failed\n>   ```text\n>   tests 1, pass 0, fail 1: existing config resolution failed\n>   ```\n>\n> Task 1's Tests command, `node --test tests/hook.test.ts`, already fails at the base commit, before any change. How should this pre-existing failure be handled? For example, should Task 1 fix the config resolution, should it be treated as a known baseline failure, or is it out of scope? Planning is paused until you answer.\n\n**Stopped here.** No human choice has arrived, so I am waiting.\n\n**When the user answers**, I will re-dispatch per step 3. The dispatch object and five-path task text stay identical, with the user's answers appended as the `Findings:` block. Then I will re-run step 5's `plan_check` and branch again per step 6.\n",
+      "words": 365,
+      "wallMs": 12297,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "1. Run the parent stamping check:\n   ```text\n   plan_check({ planPath: \"/work/app/doc/plans/hook.md\" })\n   ```\n   Result: `FAIL`, with an `open-questions` finding naming the row and a `baseline-line` finding naming the missing bullet.\n\n2. Apply step 6: the child replied `OPEN QUESTIONS`, so **any** parent-check result takes the Open-Questions halt. Do not redispatch to repair the missing baseline bullet before receiving the user’s answer.\n\n3. Present the plan’s section to the user:\n\n   ## Open Questions\n   - Task 1: `node --test tests/hook.test.ts` fails on abc1234 (exit 1): existing config resolution failed\n     ```text\n     tests 1, pass 0, fail 1: existing config resolution failed\n     ```\n\n   **Please resolve this open question before planning continues.**\n\nPause for the human. Leave the planning phase and substep unchanged; do not complete the phase, initialize `plan_tracker`, or invoke execution.\n",
+      "words": 122,
+      "wallMs": 9126,
+      "mechanical": {}
+    }
+  },
+  "repoSha": "6760931ef6167dc9338abf6be0e20da04ebc5241"
+}

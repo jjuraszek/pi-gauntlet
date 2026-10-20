@@ -1,7 +1,7 @@
 {
   "sample": "verification-literal-drift",
   "arm": "baseline",
-  "skillSha": "63d5be7d983c4d2d9f7abb7cf276f59a23d7e33625bcafd0d5fe86a0017d5a8b",
+  "skillSha": "dd825826085e3925419b91d4be8399734af5bd6cf52ecb22f2ee2b0146b260d8",
   "inputSha": "ccbdb78c3de88c2fc2497a3ab06cb7a2ce6b1b45f37bf29998fff6981f590eb1",
   "kind": "text",
   "assembly": "headed",
@@ -17,24 +17,24 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "# Restore narration: `plan_check` FAIL stops the restore\n\nThe restore had already run `start brainstorm`, `skip brainstorm resume: /work/app/.worktrees/config-loader/doc/specs/2026-03-02-config-loader.md` and `start plan`. The next call in the implement row is `plan_check`.\n\n## Tool call\n\n`plan_check({ planPath: \"/work/app/.worktrees/config-loader/doc/plans/2026-03-02-config-loader.md\" })`\n\nResult: **FAIL**\n\n## Printed lines\n\n```\nFAIL (1 findings)\nquote-integrity @ line 130: verification header does not contain the required verbatim literal `--check`\nThe row's owner cell is `Verification`; the plan header line is `**Verification:** \\`npm test\\``.\n```\n\n## Stop\n\nThe implement row says: \"on FAIL print findings and stop with plan in_progress, no init.\" So the restore ends here, with this state:\n\n- Phase tracker: `⊘ brainstorm (resume: …)`, `→ plan`, `○ implement`, `○ verify`, `○ ship`.\n- No `skip plan`, no `start implement`, no `substep`, no `plan_tracker init`.\n- The plan file is not edited. Resume writes only tracker state.\n\n## Not done\n\n- **No second `plan_check` call.** The skill stops on FAIL and does not retry. Tool result 4 (PASS) and the success results in item 5 are never reached. A PASS on an unchanged plan would also contradict the FAIL, so retrying to get a pass would be wrong.\n- **No closing line.** `Gate history not restored; re-validating \\`W2: Wire CLI flag\\` before any stage advance` belongs only to a successful restore.\n- **No standing-grant line, and no handoff into subagent-driven-development.** Both are part of post-restore continuation, which also requires a successful restore.\n\nTo proceed, the human fixes the plan's Verification header so it contains the required literal `--check` (line 130's finding), then re-runs `/skill:gauntlet-resume`.\n",
-      "words": 236,
-      "wallMs": 10765,
+      "text": "## Restore narration: from `plan_check` FAIL to the closing line\n\n**Tool call:** `plan_check({ planPath: \"/work/app/.worktrees/config-loader/doc/plans/2026-03-02-config-loader.md\" })`\n→ `FAIL (1 findings)`: `quote-integrity @ line 130: verification header does not contain the required verbatim literal --check`\n\nThis is the call table's `implement` row on FAIL, so I enter `## Plan repair`.\n\n**Plan state before any write** (tool results 1–2):\n- `git -C /work/app/.worktrees/config-loader ls-files --error-unmatch -- doc/plans/2026-03-02-config-loader.md` exited 0.\n- `git -C /work/app/.worktrees/config-loader status --porcelain -- doc/plans/2026-03-02-config-loader.md` printed nothing.\n- The plan is therefore **tracked and clean**, so no temp copy is needed.\n\n**Classification:**\n- The finding is `quote-integrity` on a row whose owner cell is `Verification`, so it matches the `Verification`-owned row.\n- Evidence check: the row's anchor already resolves, because there is no `anchor-resolution` finding.\n- The edit is to add the missing literal to the header `**Verification:**` line, changing nothing else.\n\n**Write (round 1):** in `/work/app/.worktrees/config-loader/doc/plans/2026-03-02-config-loader.md`, the header line changes:\n- from: ``**Verification:** `npm test` ``\n- to: ``**Verification:** `npm test` `--check` ``\n\nNo task names, order, waves, owner column or other text change.\n\n**Tool call:** `plan_check({ planPath: \"/work/app/.worktrees/config-loader/doc/plans/2026-03-02-config-loader.md\" })` → `PASS`\n\nThe plan was tracked and clean before the loop, so I commit the plan alone:\n\n**Tool call:**\n```bash\ngit -C /work/app/.worktrees/config-loader add -- doc/plans/2026-03-02-config-loader.md && git -C /work/app/.worktrees/config-loader commit -q -m \"resume: plan citation repair - 1 findings\" -- doc/plans/2026-03-02-config-loader.md\n```\n→ exit 0\n\nI continue the call table from `skip plan R`. No brief file path was given, so R is the pasted-brief form.\n\n**Tool call:** `phase_tracker skip plan` with reason `resume: pasted brief` → ok\n\n**Tool call:** `phase_tracker start implement` → ok. The `plan_check` stamp is current.\n\nThere is no `substep` call, because the brief shows `→ implement` with no substep.\n\n**Feasibility check before `init`:**\n- Pending-suffix order holds: the single `○` task, [4], trails every non-pending task.\n- The tasks are not all complete or skipped, so implement will not auto-complete.\n\n**Tool call:** `plan_tracker init` with tasks:\n```json\n[\n  { \"name\": \"W1: Parse config file\",   \"status\": \"complete\" },\n  { \"name\": \"W1: Validate schema\",     \"status\": \"complete\" },\n  { \"name\": \"W2: Wire CLI flag\",       \"status\": \"in_progress\" },\n  { \"name\": \"W3: Document the loader\", \"status\": \"pending\" }\n]\n```\n→ ok\n\n**Printed:**\n```\nRepaired plan: 1 findings (quote-integrity)\nGate history not restored; re-validating `W2: Wire CLI flag` before any stage advance\n```\n",
+      "words": 340,
+      "wallMs": 20886,
       "mechanical": {
-        "f2": "fails",
-        "f4": "fails"
+        "f2": "holds",
+        "f4": "holds"
       }
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "Call:\n```text\nplan_check({ planPath: \"/work/app/.worktrees/config-loader/doc/plans/2026-03-02-config-loader.md\" })\n```\n\nPrint:\n```text\nFAIL (1 findings)\nquote-integrity @ line 130: verification header does not contain the required verbatim literal `--check`\nThe row's owner cell is `Verification`; the plan header line is `**Verification:** \\`npm test\\``.\n```\n\nStop with `plan` in_progress. Make no second `plan_check` call, no `plan_tracker init`, and no further git or tracker calls. The restore was unsuccessful, so the successful-restore closing line is not printed.\n",
-      "words": 68,
-      "wallMs": 12315,
+      "text": "1. Call:\n   ```text\n   plan_check({ planPath: \"/work/app/.worktrees/config-loader/doc/plans/2026-03-02-config-loader.md\" })\n   ```\n   Result:\n   ```text\n   FAIL (1 findings)\n   quote-integrity @ line 130: verification header does not contain the required verbatim literal `--check`\n   ```\n\n2. Enter Plan repair. The preceding git results establish that the plan was tracked and clean before repair. Classify the finding as `quote-integrity`, `Verification`-owned. Confirm that the row’s anchor already resolves before editing.\n\n3. Edit `/work/app/.worktrees/config-loader/doc/plans/2026-03-02-config-loader.md`, changing only:\n   ```markdown\n   **Verification:** `npm test`\n   ```\n   to:\n   ```markdown\n   **Verification:** `npm test` `--check`\n   ```\n\n4. Call:\n   ```text\n   plan_check({ planPath: \"/work/app/.worktrees/config-loader/doc/plans/2026-03-02-config-loader.md\" })\n   ```\n   Result: `PASS`.\n\n5. Call:\n   ```bash\n   git -C /work/app/.worktrees/config-loader add -- doc/plans/2026-03-02-config-loader.md && git -C /work/app/.worktrees/config-loader commit -q -m \"resume: plan citation repair - 1 findings\" -- doc/plans/2026-03-02-config-loader.md\n   ```\n   Result: exit 0.\n\n6. Call:\n   ```text\n   phase_tracker({ action: \"skip\", phase: \"plan\", reason: \"resume: pasted brief\" })\n   ```\n\n7. Call:\n   ```text\n   phase_tracker({ action: \"start\", phase: \"implement\" })\n   ```\n\n8. Call:\n   ```text\n   plan_tracker({\n     action: \"init\",\n     tasks: [\n       { name: \"W1: Parse config file\", status: \"complete\" },\n       { name: \"W1: Validate schema\", status: \"complete\" },\n       { name: \"W2: Wire CLI flag\", status: \"in_progress\" },\n       { name: \"W3: Document the loader\", status: \"pending\" }\n     ]\n   })\n   ```\n\n9. Call:\n   ```text\n   phase_tracker({ action: \"status\" })\n   ```\n\n10. Call:\n    ```text\n    plan_tracker({ action: \"status\" })\n    ```\n    Check that the active phase is `implement` with no substep, and that task names, order, and statuses match the brief exactly.\n\n11. Print:\n    ```text\n    Repaired plan: 1 findings (quote-integrity)\n    Gate history not restored; re-validating `W2: Wire CLI flag` before any stage advance\n    ```\n",
+      "words": 212,
+      "wallMs": 22842,
       "mechanical": {
-        "f2": "fails",
-        "f4": "fails"
+        "f2": "holds",
+        "f4": "holds"
       }
     }
   },
-  "repoSha": "afe20bc50c050ff45cd2930c2c18a787718b5d63"
+  "repoSha": "79d51968be98b18e8098e0eae8a6a3793a1aee5e"
 }

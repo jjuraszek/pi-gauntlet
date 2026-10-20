@@ -1,13 +1,16 @@
 # Stop note (subagent-driven-development companion)
 
-Emitted when no escalation model resolves, the escalated dispatch errors, or its one escalated round fails (see `SKILL.md` "Fix-Loop Rounds"); an unavailable `gauntlet_setting` tool is a configuration error - stop and report, no stop note. Inline in the reply; the turn ends; phase stays `implement`, the task stays `in_progress`; no further tasks start. Emit one note per stalled task, after the current batch returns.
+For a `NEEDS_CONTEXT`/`BLOCKED` fact ask, search the locations documented by the spec, plan, or repo: one bounded lookup per location in documented order, stopping at the first hit. Record each lookup and result, including earlier misses; re-dispatch with the found result in the task text.
+
+Emit when no escalation model resolves, the escalated dispatch errors, its one escalated round fails (see `SKILL.md` "Fix-Loop Rounds"), or a `NEEDS_CONTEXT`/`BLOCKED` fact ask exhausts documented locations, needs credentials for a remaining location, or lacks its named lookup tool; an unavailable `gauntlet_setting` tool is a configuration error - stop and report, no stop note. Inline in the reply; the turn ends; phase stays `implement`, the task stays `in_progress`; no further tasks start. Emit one note per stalled task, after the current batch returns.
 
 ## Template
 
 ```
 Stopped on task <n> (<title>)[; escalated round on <implModel> did not resolve it].
 
-Problem: <one sentence: what is wrong and why the fixes could not resolve it>
+Problem: <one sentence: what is wrong and why it remains unresolved>
+Searched: <where> - <result> [fact asks only; repeat in lookup order]
   <file:line> - <quoted finding from the final review>
   <failing test/command + 1-3 line output snippet, when present>
 
@@ -22,8 +25,10 @@ Pick one, or give another fix.
 ## Rules
 
 - Bracketed header clause only when an escalated round actually ran; omit it when no model was resolvable or the dispatch errored.
-- Residual issues from the final review report only; quote, do not summarise history.
-- When no escalated round ran, the Problem is the reason: "no escalation model resolvable", or the implementer's non-DONE status text / the dispatch error, quoted; skip the file:line and test lines.
+- For review stalls, quote only residual issues from the final review report; do not summarize history.
+- For fact asks, put one `Searched: <where> - <result>` line per lookup directly under `Problem:`, in lookup order. For an unavailable named tool, write `Searched: <tool> - not available`. Omit `Searched:` for decisions, including extra-round approval.
+- For fact asks, offer supplying the artifact or access, or amending the spec or plan task to drop the requirement. Never ask the human where the artifact is.
+- When no escalated round ran, state the reason in `Problem:`: exhausted or inaccessible fact lookups, "no escalation model resolvable", or the quoted implementer's non-DONE status text / dispatch error; skip the file:line and test lines.
 - Options are actionable edits. Spec/plan amendment is first-class - stalls are usually a slightly contradictory spec, not a capability gap.
 - Never offer "skip the task". If the task is genuinely droppable, say so and name the plan tasks that depend on it.
 - No trajectory verdicts, round history, review counts, or paths to spec/plan/review reports.

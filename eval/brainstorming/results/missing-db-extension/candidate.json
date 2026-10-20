@@ -1,0 +1,110 @@
+{
+  "sample": "missing-db-extension",
+  "arm": "candidate",
+  "skillSha": "0041f2a0bd9dd5cce0b8155c59f9fbf22eba3172b9679732dd1863e47e126fef",
+  "inputSha": "29f2ba4e8ebb3659ef75237e3ff6ecf8d758d23ed974d3112bdc1f4571773c6d",
+  "kind": "text",
+  "assembly": "headed",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "## (1) First message to the user\n\nA load-bearing premise needs correcting before the design starts. The ask says the seed names no database extension. The repro it asks us to keep does depend on one: `fixtures/search.sql:1` runs `CREATE EXTENSION IF NOT EXISTS demo_vector`, and `fixtures/search.sql:2` declares `item.embedding` as `demo_vector(3)`. `bench/query.sql:1` also orders by the `<->` operator, which that type supplies.\n\nI checked this dependency with the lookup the repo guide names, the installed-extension listing. The listing contains only `plpgsql`, so `demo_vector` is not installed. As things stand, restoring the dump will fail and the benchmark cannot run.\n\nOne related claim is unverified. The listing shows installed extensions, not the catalog of available ones, so it does not tell us whether `demo_vector` could be installed on this database. No available-extension catalog was supplied, and no live database tools are available. I am carrying this forward as an open question rather than stopping. The design continues on the corrected fact that the repro needs `demo_vector`, and you can override that in your reply.\n\nThe framing holds. I checked:\n- the repo guide's repro path, which restores `fixtures/search.sql` and runs `bench/query.sql`\n- the benchmark's dependency on the `demo_vector` type and its `<->` operator\n- the installed-extension listing, as above\n- the existing query boundary at `query/service.sql:10`, where the latency change stays\n\nThe scout produced no output, so there was no scout objection to weigh. I found no evidence that the ask is misdiagnosed or already solved.\n\nHow should the missing extension be handled so the repro stays valid?\nA) Keep the dump restore unchanged as the repro. Provisioning `demo_vector` in the local database becomes an implementation task, and brainstorming continues without waiting for it.\nB) Rewrite the fixture and benchmark so they no longer need `demo_vector`. This changes the repro itself.\nC) Other - name it.\nRecommendation: A - the ask requires keeping the current repro and benchmark, and B would change what we measure.\n\n*(Recorded answer: A. The dump restore stays the repro, the boundary at `query/service.sql:10` stays, provisioning happens during implementation, and brainstorming does not stop for it.)*\n\n## (2) Approaches message\n\nBefore the approaches, here are the dependencies that are missing or could not be checked:\n\n- **Missing:** the repro needs `demo_vector` (`fixtures/search.sql:1-2`, `bench/query.sql:1`). The installed-extension listing shows only `plpgsql`. Provisioning it is an implementation task, per your answer.\n- **Not checkable:** whether `demo_vector` can be installed on this database. No available-extension catalog was supplied.\n- **Not checkable:** whether `demo_vector` provides an index access method or any tuning settings. There is no extension documentation in the repo, and nothing can be inspected without the extension installed.\n\nThe approaches differ on one axis: whether we keep exact nearest-neighbour results or accept approximate ones in exchange for speed.\n\n**Recommended: add an approximate index on `item.embedding`.** This drops an assumption the ask makes implicitly and your answers did not settle: that results must be exact.\n\n- The index definition goes into the schema that `fixtures/search.sql` restores. The dump-based repro then measures the indexed path with no other changes.\n- `bench/query.sql:1` keeps its `ORDER BY <-> LIMIT 5` shape. A nearest-neighbour index normally serves that shape directly.\n- `query/service.sql:10` changes at most by a recall or tuning setting.\n- The cost is recall. Some true nearest neighbours may be missed.\n- This depends on `demo_vector` providing such an index. That is unverified and the first thing to confirm once the extension is provisioned.\n\nPattern: follows the existing query boundary (`query/service.sql:10`) and the fixture-owned schema (`fixtures/search.sql:2`). It adds no parallel path.\n\n**Alternative: reuse-only query tuning, with exact results.** No new construct is added. We tighten the query at `query/service.sql:10`, for example by using a typed vector literal so there is no per-row cast, and by keeping the `LIMIT` close to the sort. We then measure with the existing benchmark.\n\n- Results stay exact.\n- Without an index, the plan remains a full scan plus a top-N sort. The likely gain is small, and it grows with table size.\n\nPattern: stays entirely inside the existing boundary (`query/service.sql:10`) and touches neither schema nor fixture.\n\nI am not offering a third, exact-and-indexed option. It would depend on capabilities of `demo_vector` that none of the supplied sources show, so it is not a distinct viable approach yet.\n\n**What would flip the recommendation:** if callers need exact top-5 results, or if `demo_vector` turns out to have no index method once provisioned, the reuse-only tuning becomes the recommendation.\n\n## Draft spec excerpt\n\n```markdown\n## Problem\n\nSimilarity queries at the existing query boundary (`query/service.sql:10`) need lower\nlatency. The change stays inside that boundary.\n\nLatency is observed by restoring `fixtures/search.sql` into the local database and\nrunning `bench/query.sql`. This dump-based repro and benchmark are kept unchanged as the\nmeasurement path.\n\nCorrected premise: the ask states that no database extension is involved. The repro\ndepends on one. `fixtures/search.sql:1-2` creates and uses `demo_vector`, and\n`bench/query.sql:1` uses its `<->` operator. The repo's capability lookup, the\ninstalled-extension listing, shows only `plpgsql`, so `demo_vector` is not installed and\nthe repro cannot run as-is.\n\nDecision (user): provisioning `demo_vector` locally is an implementation task. The dump\nrestore remains the repro, and brainstorming did not stop for provisioning.\n\nUnverified, carried to Open Questions:\n- Whether `demo_vector` is available to install. Only the installed-extension listing was\n  supplied; no available-extension catalog was checked.\n- Whether `demo_vector` provides an index access method or tuning settings.\n\nFraming: kept - the ask is sized correctly and not already solved. Checked: the repro and\nbenchmark dependency chain, the installed-extension listing, and the\n`query/service.sql:10` boundary. The scout returned no output.\n```\n",
+      "words": 895,
+      "wallMs": 41001,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "### First user-facing message\n\nThe seed does not name an extension, but the retained repro does: `fixtures/search.sql:1-3` requires `demo_vector` and its vector type, and `bench/query.sql:1` uses the distance operator. The supplied installed-extension listing contains only `plpgsql`, so that prerequisite is not installed in the observed database. This does **not** establish that it is unavailable: no available-extension catalog or installation source was supplied, and live database checks are unavailable.\n\nThe framing holds: checked the dump’s extension/type dependency, the benchmark’s distance-ordering path, and the requirement to keep changes inside `query/service.sql:10`. Environment provisioning is a prerequisite to running the retained repro, not a reason to abandon the query design. One additional dependency remains unverified: the benchmark selects `id`, but the shown table declaration does not define it; the supplied excerpt does not establish whether later dump statements provide it.\n\nHow should the design handle the missing local prerequisite?\nA) Keep the dump and benchmark; provision their dependencies during implementation, then validate optimization capabilities.\nB) Replace the dump-based repro with an extension-independent fixture.\nC) Other — name the intended environment and repro contract.\nRecommendation: A - it preserves the requested measurement path without treating “not installed” as “not available.”\n\n### Separate approaches message\n\nWith your recorded answer, the design keeps the dump restore, benchmark, and existing query boundary; provisioning happens during implementation and does not block brainstorming.\n\nThe installed-extension lookup establishes that `demo_vector` is currently absent, not that it cannot be provisioned. Its availability, supported acceleration mechanisms, and operator/index compatibility remain unverified because no available-extension catalog or extension documentation was supplied. The benchmark’s `id` dependency also remains unverified from the supplied dump excerpt.\n\nI recommend a **capability-gated access-path optimization**, with a reuse-only baseline rather than an invented extension-specific index definition. The distinguishing axis is whether we change only query execution or also add a database access structure.\n\n**1. Reuse-only: profile and tune the existing query path.** Restore the unchanged dump after provisioning, run the unchanged benchmark, and examine the execution path used through `query/service.sql:10`. Optimize only demonstrated avoidable work within that boundary, retaining the existing distance ordering and limit. This introduces no new database structure and has the smallest maintenance footprint. Its limitation is important: the supplied SQL already expresses a simple top-k query, so there is no evidence yet that query-only changes will deliver a meaningful speedup.  \nPattern: preserves the existing query boundary at `query/service.sql:10` and the measurement contract in `bench/query.sql:1`.\n\n**2. Add a compatible acceleration structure, if supported.** After provisioning, verify the actual extension’s supported access methods and their semantics. If a compatible mechanism exists, introduce it as an explicit setup/migration step while retaining the original dump restore and benchmark. Do not assume a particular index syntax or silently substitute approximate results for the current query’s semantics. This can avoid forcing a rewrite of already appropriate query SQL, but adds setup, storage, and maintenance costs; its feasibility remains conditional on capability verification.  \nPattern: accelerates the operator used by `bench/query.sql:1` without introducing a second query boundary beside `query/service.sql:10`.\n\nThe recommendation flips to reuse-only if no compatible acceleration mechanism exists, or profiling demonstrates a sufficient improvement without a new structure. Neither approach has a supported latency claim until the retained benchmark runs.\n\n### Draft spec excerpt\n\n## Problem\n\nImprove similarity-query latency while retaining the dump-based repro, `bench/query.sql`, and the existing boundary at `query/service.sql:10`.\n\nFraming: kept — provisioning the retained repro’s dependencies is implementation work, not a brainstorming blocker.\n\nAlthough the seed names no extension, `fixtures/search.sql:1-3` requires `demo_vector`. The observed installed-extension listing lacks it; extension availability and acceleration capabilities remain unverified. Implementation must provision the required environment and verify capabilities before choosing an extension-specific optimization.\n\nThe supplied table declaration also does not establish the `id` column selected by the benchmark. Verify its source in the complete dump before executing the repro. Preserve existing query semantics; any acceleration proposal must be checked against them and measured using the retained benchmark.\n",
+      "words": 637,
+      "wallMs": 44952,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "9edb4dc803670594227d5d4a824f10007c3df50a9d9dddb87a6fd777f3d2f8b8",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "76a410d56e5926a3ad38a14e0ceab5cbca43ce34bae862b942c209dedc0e6ae0",
+      "baselineOutputSha": "10c17554408dd11de87272c7e9a58178e98d978543bb7599bb6e23aa301a8fe1",
+      "candidateOutputSha": "34de9d46d869d6d53579e913c13bc94c3a15c30c2d3658100d27346ac81abd19",
+      "facts": {
+        "premise": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "approaches": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "problem": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "continues": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "replay": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "After moves the approaches fact from fails to holds: its approaches message opens with an explicit 'Missing / Not checkable' block that restates demo_vector as missing and names the installed-extension listing, which Before's approaches message omitted entirely (it jumped straight to 'The approaches differ in where the speed comes from'). After also tightens the premise note: Before did state the listing contains only plpgsql, but filed it under 'Some things I could not verify', which blurs a confirmed absence with an unverified availability; After separates 'not installed (checked via the listing)' from 'installable? (no catalog supplied, unverified)', and carries both into the spec Problem, so nothing Before kept is lost. No facts regressed. If anything, keep the wording that forces the premise note to label the listing result as a corrected premise rather than an open question, and keep the 'Before the approaches, here are the dependencies that are missing or could not be checked' lead-in as the required restatement so the approaches fact stays anchored regardless of how the approaches themselves are reorganised.",
+      "wallMs": 18384,
+      "verdict": "improved"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "9edb4dc803670594227d5d4a824f10007c3df50a9d9dddb87a6fd777f3d2f8b8",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "76a410d56e5926a3ad38a14e0ceab5cbca43ce34bae862b942c209dedc0e6ae0",
+      "baselineOutputSha": "4d58d6a48ada9c7ddb9a3ad94c5696b0c503aede2f56bf63fcc3a43fe5311c04",
+      "candidateOutputSha": "0d6b4fd460a4a9befccd5bcc801edea0f78b46f8bea41164792794ef8a0fd5be",
+      "facts": {
+        "premise": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "approaches": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "problem": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "continues": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "replay": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "After moves `approaches` from fails to holds: the separate approaches message now opens with \"The installed-extension lookup establishes that `demo_vector` is currently absent, not that it cannot be provisioned\" before any approach is listed, whereas Before jumped straight to the recommendation and only mentioned provisioning inside approach 1 without naming the lookup. Premise, problem, and replay held in both, and After keeps the not-installed/unavailable distinction cleanly in all three surfaces. One risk worth tightening: After's first message ends with a labeled A/B/C question (\"How should the design handle the missing local prerequisite?\") even though the Recorded answers already settle it (keep the dump restore, provision during implementation, do not stop brainstorming); it does not ask the user to locate or verify the extension, so `continues` still holds, but a reader could see it as a stop. Wording that would keep every fact while delivering the Change: let the premise note state the traced dependency and lookup result as a corrected premise and then say the recorded answer applies (\"Your recorded answer keeps the dump restore and defers provisioning to implementation, so brainstorming continues\"), reserving the labeled-option/Recommendation layout for cases where no recorded answer exists; keep the approaches message's opening restatement of the lookup and its result exactly as After has it, and keep the spec Problem's \"installed-extension listing lacks it\" sentence.",
+      "wallMs": 21423,
+      "verdict": "improved"
+    }
+  },
+  "repoSha": "79d51968be98b18e8098e0eae8a6a3793a1aee5e"
+}

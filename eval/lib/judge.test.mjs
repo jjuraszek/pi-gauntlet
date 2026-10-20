@@ -35,18 +35,21 @@ test("label derivation table", () => {
   const r = deriveLabels("s", outcomes, moves);
   assert.equal(r.f1.label, "held");
   assert.equal(r.f2.label, "intended change");
-  assert.equal(r.f3.label, "unexplained change");
+  assert.equal(r.f3.label, "unplanned improvement");
+  assert.equal(deriveLabels("s", { f1: { before: "fails", after: "holds" } }, []).f1.label, "unplanned improvement");
+  assert.equal(deriveLabels("s", { f3: { before: "holds", after: "fails" } }, moves).f3.label, "intended change");
   assert.equal(deriveLabels("s", { f1: { before: "fails", after: "fails" } }, []).f1.label, "pre-existing");
   assert.equal(deriveLabels("s", { f1: { before: "holds", after: "fails" } }, []).f1.label, "regression");
   assert.equal(deriveLabels("s", { f3: { before: "holds", after: "fails" } }, [{ sample: "s", fact: "f3", from: "fails", to: "holds" }]).f3.label, "regression");
   assert.equal(deriveLabels("s", { f3: { before: "holds", after: "holds" } }, [{ sample: "s", fact: "f3", from: "holds", to: "fails" }]).f3.label, "intended but unchanged");
-  assert.equal(deriveLabels("other", { f3: { before: "fails", after: "holds" } }, [{ sample: "s", fact: "f3", from: "fails", to: "holds" }]).f3.label, "unexplained change");
+  assert.equal(deriveLabels("other", { f3: { before: "fails", after: "holds" } }, [{ sample: "s", fact: "f3", from: "fails", to: "holds" }]).f3.label, "unplanned improvement");
 });
 test("cell verdict", () => {
   assert.equal(cellVerdict({ f1: { label: "held" } }), "unchanged");
   assert.equal(cellVerdict({ f1: { label: "intended change" }, f2: { label: "held" } }), "improved");
   assert.equal(cellVerdict({ f1: { label: "intended change" }, f2: { label: "regression" } }), "regressed");
-  assert.equal(cellVerdict({ f1: { label: "unexplained change" } }), "regressed");
+  assert.equal(cellVerdict({ f1: { label: "unplanned improvement" } }), "improved");
+  assert.equal(cellVerdict({ f1: { label: "unplanned improvement" }, f2: { label: "regression" } }), "regressed");
   assert.equal(cellVerdict({ f1: { label: "intended but unchanged" } }), "unchanged");
 });
 test("worse-of-two order", () => {

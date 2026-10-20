@@ -1,0 +1,3 @@
+- decision: judged: Task 1 states a Decision that the host forwards callerDirectory unchanged, citing docs/harness.md:18 as its source.
+- no-question: judged: The plan contains no substantive Open Questions row about forwarding the caller directory.
+- reply: judged: The final line is PLAN WRITTEN /work/app/doc/plans/hook.md.

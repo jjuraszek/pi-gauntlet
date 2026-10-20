@@ -1,7 +1,7 @@
 {
   "sample": "clean-pass-unchanged",
   "arm": "baseline",
-  "skillSha": "63d5be7d983c4d2d9f7abb7cf276f59a23d7e33625bcafd0d5fe86a0017d5a8b",
+  "skillSha": "dd825826085e3925419b91d4be8399734af5bd6cf52ecb22f2ee2b0146b260d8",
   "inputSha": "d88436f3b8477282e2163e0e5932da60eb5deb3e755dd05bc3b38dedfe07a87e",
   "kind": "text",
   "assembly": "headed",
@@ -17,18 +17,18 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "# Restore narration: from `plan_check` to the closing line\n\nThe brief's active phase is `→ implement`, so I follow the **implement** row of the call table. The earlier calls in that row have already run: `start brainstorm`, `skip brainstorm resume: /work/app/.worktrees/config-loader/doc/specs/2026-03-02-config-loader.md`, and `start plan`.\n\n**1. Tool call:** `plan_check({ planPath: \"/work/app/.worktrees/config-loader/doc/plans/2026-03-02-config-loader.md\" })`\nThe result is **PASS**, so the plan check stamps and the restore continues.\n\n**2. Tool call:** `phase_tracker skip plan`, with reason `resume: pasted brief`\nThe brief came in pasted, with no file path, so `R` is `resume: pasted brief`.\n\n**3. Tool call:** `phase_tracker start implement`\nThis is allowed because the `plan_check` stamp is current.\n\n**4. No `substep` call.** The brief shows `→ implement` with no `(substep)` suffix.\n\n**5. Feasibility check before `init`**\n- **Pending-suffix order:** passes. The only `○` task, `W3: Document the loader`, comes after every non-pending task.\n- **Implement auto-complete edge:** passes. Not all tasks are complete or skipped, because `W2: Wire CLI flag` is in progress and `W3` is pending. Implement will therefore not auto-complete.\n\n**6. Tool call:** `plan_tracker init`, with this task list (names, order, and statuses copied from the brief):\n```\n[\n  { name: \"W1: Parse config file\",     status: \"complete\" },\n  { name: \"W1: Validate schema\",       status: \"complete\" },\n  { name: \"W2: Wire CLI flag\",         status: \"in_progress\" },\n  { name: \"W3: Document the loader\",   status: \"pending\" }\n]\n```\nThe call succeeds.\n\n**7. Printed line (closing line):**\n```\nGate history not restored; re-validating `W2: Wire CLI flag` before any stage advance\n```\n",
-      "words": 227,
-      "wallMs": 14162,
+      "text": "# Restore Narration: implement Stage, plan_check PASS Onward\n\n**Tool result 1:** `plan_check({ planPath: \"/work/app/.worktrees/config-loader/doc/plans/2026-03-02-config-loader.md\" })` → **PASS**\n\n`plan_check` passed on the first run, so the restore skips `## Plan repair`, makes no plan commit and prints no `Repaired plan:` receipt. It continues on the call table's `implement` row from `skip plan R`.\n\n**Call 1:** `phase_tracker` skip\n- phase: `plan`\n- reason: `resume: pasted brief`\n\n*Assumption:* the input gives no brief file path, so `R` uses the `\"pasted brief\"` form. If the brief came from a file, the reason would be `resume: <that file path>` instead.\n\n**Call 2:** `phase_tracker` start\n- phase: `implement`\n\n**No `substep` call.** The brief's active phase reads `→ implement` with no `(substep)` suffix.\n\nBefore the `init` call, I checked feasibility:\n- **Pending-suffix order holds.** The order is ✓, ✓, →, ○, so the only `○` task comes after every non-pending task.\n- **The implement auto-complete edge does not apply.** Task 3 is `in_progress` and task 4 is `pending`, so not every task is complete or skipped.\n\n**Call 3:** `plan_tracker` init, with the task list copied verbatim (names, order, statuses):\n```json\n[\n  { \"name\": \"W1: Parse config file\",  \"status\": \"complete\" },\n  { \"name\": \"W1: Validate schema\",    \"status\": \"complete\" },\n  { \"name\": \"W2: Wire CLI flag\",      \"status\": \"in_progress\" },\n  { \"name\": \"W3: Document the loader\",\"status\": \"pending\" }\n]\n```\n\nEvery tracker call succeeds. The restore ends with this closing line, using the brief's `Active task`:\n\n```\nGate history not restored; re-validating `W2: Wire CLI flag` before any stage advance\n```\n\nThe next printed line would be `Standing grant active: <sentence>` or `No standing grant.`. Which one depends on the result of entry check 6, and the input does not give that result. After that line, work continues in subagent-driven-development. It first re-validates `W2: Wire CLI flag` by re-running that task's `Tests:`, then enters the task loop at the first non-complete task.\n",
+      "words": 284,
+      "wallMs": 15080,
       "mechanical": {}
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "1. Call `plan_check({ planPath: \"/work/app/.worktrees/config-loader/doc/plans/2026-03-02-config-loader.md\" })` → `PASS`.\n2. Call `phase_tracker({ action: \"skip\", phase: \"plan\", reason: \"resume: pasted brief\" })` → succeeds.\n3. Call `phase_tracker({ action: \"start\", phase: \"implement\" })` → succeeds.\n4. Call `plan_tracker({ action: \"init\", tasks: [{ name: \"W1: Parse config file\", status: \"complete\" }, { name: \"W1: Validate schema\", status: \"complete\" }, { name: \"W2: Wire CLI flag\", status: \"in_progress\" }, { name: \"W3: Document the loader\", status: \"pending\" }] })` → succeeds.\n5. Print:\n   Gate history not restored; re-validating `W2: Wire CLI flag` before any stage advance\n",
+      "text": "1. Call `plan_check({ planPath: \"/work/app/.worktrees/config-loader/doc/plans/2026-03-02-config-loader.md\" })` → `PASS`.\n2. Call `phase_tracker({ action: \"skip\", phase: \"plan\", reason: \"resume: pasted brief\" })` → succeeds.\n3. Call `phase_tracker({ action: \"start\", phase: \"implement\" })` → succeeds.\n4. Call `plan_tracker({ action: \"init\", tasks: [{ name: \"W1: Parse config file\", status: \"complete\" }, { name: \"W1: Validate schema\", status: \"complete\" }, { name: \"W2: Wire CLI flag\", status: \"in_progress\" }, { name: \"W3: Document the loader\", status: \"pending\" }] })` → succeeds.\n5. Print:\n\nGate history not restored; re-validating `W2: Wire CLI flag` before any stage advance\n",
       "words": 75,
-      "wallMs": 10074,
+      "wallMs": 14133,
       "mechanical": {}
     }
   },
-  "repoSha": "0646b2adc6e1f2a9cfa2bba90e835dae5af38073"
+  "repoSha": "79d51968be98b18e8098e0eae8a6a3793a1aee5e"
 }

@@ -1,0 +1,4 @@
+- original-command: judged: Task 1 keeps Tests command node --test tests/hook.test.ts unchanged, without narrowing it.
+- failure-row: judged: A top Open Questions row identifies Task 1, original command node --test tests/hook.test.ts, base abc1234, exit 1 and the existing config resolution failure summary.
+- no-evidence-fiction: judged: The failing command has no baseline bullet and the child does not attempt repair rounds or implement a fix for the existing failure.
+- reply: judged: The last line is OPEN QUESTIONS /work/app/doc/plans/hook.md.

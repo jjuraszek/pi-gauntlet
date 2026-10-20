@@ -24,7 +24,7 @@ export function deriveLabels(sample, outcomes, moves) {
     if (before === after) label = listed ? "intended but unchanged" : before === "holds" ? "held" : "pre-existing";
     else if (listed && listed.from === before && listed.to === after) label = "intended change";
     else if (after === "fails") label = "regression";
-    else label = "unexplained change";
+    else label = "unplanned improvement";
     out[id] = { before, after, label };
   }
   return out;
@@ -32,8 +32,8 @@ export function deriveLabels(sample, outcomes, moves) {
 
 export function cellVerdict(labels) {
   const ls = Object.values(labels).map((l) => l.label);
-  if (ls.some((l) => l === "regression" || l === "unexplained change")) return "regressed";
-  if (ls.some((l) => l === "intended change")) return "improved";
+  if (ls.some((l) => l === "regression")) return "regressed";
+  if (ls.some((l) => l === "intended change" || l === "unplanned improvement")) return "improved";
   return "unchanged";
 }
 

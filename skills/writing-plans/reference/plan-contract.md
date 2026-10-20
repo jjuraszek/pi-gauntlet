@@ -20,14 +20,24 @@ A wave is a maximal set of tasks that have no ordering dependency on each other,
 
 ## Tests (`tests-block`)
 
-Every `### Task N` carries a `**Tests:**` block: the bare line `**Tests:**` directly after the last `Files:` entry (blank lines allowed). Bullets, in either form:
+Every `### Task N` carries a `**Tests:**` block: the bare line `**Tests:**` directly after the last `Files:` entry (blank lines allowed). Use command groups or the no-tests form:
 
-- `- ` + backtick + command + backtick - one scoped test command; `- via: <entry point>` - the seam the tests call directly (function, route, CLI, module - e.g. `each_finding`), zero or more
+- `- ` + backtick + command + backtick - one scoped test command; directly after it exactly one `- baseline:` bullet, then zero or more `- via: <entry point>` bullets naming the seam tests call (function, route, CLI, module).
 - `- none: <category>` - the task runs no tests; `<category>` is free text derived from the project (docs, config, fixtures, generated assets, ...); exactly one, and no `- Test:` path in `Files:`
 
 Absence is never valid. A `- [ ]` step or any non-bullet line ends the block. `via:` and `none:` are unchecked beyond form.
 
-Commands are written repo-relative and run in the worktree via `(cd "<abs worktree path>" && <command>)` - the checker never runs them; the executor does. Each command is split into segments on `&&`, `||`, `;`, `|`; every segment must contain, as a whitespace-delimited token, a `Test:` path of the same task (the path alone, or followed by `::`, `#`, or `:` and a filter). A `Test:` value containing `*`, `?`, `[` or ending in `/` never anchors; any other argument token with those shapes is a broadening selector and fails. `cd `, `sh -c`, `bash -c`, `eval `, `$(` are unsupported. Each `Test:` path must exist or be a `Create:` path of some task. A segment equal to a header `**Verification:**` or `**Happy path:**` segment is a full-suite command and fails. Runners with no file-addressable form are out of scope (`go test ./pkg -run X`, `mvn -Dtest=`).
+Baseline forms (`baseline-line`): `- baseline: <sha> pass`, `- baseline: <sha> pass via `<base command>`` (both allow ` - artifacts: <path>[, <path>]`), or `- baseline: <sha> skipped - <path>[, <path>] created by this task`. Use 7-40 lowercase hex characters for `<sha>`; every baseline SHA in the plan must match. Never put a baseline under `none:`. `skipped` is valid only when every command anchor is a listed `Create:` path and every listed path is one of those anchors. Every segment of a `pass via` base command must anchor an existing `Test:` path of the task and no `Create:` path. Obtain evidence through writing-plans Self-Review Baseline, never by editing evidence to satisfy a finding.
+
+Commands are written repo-relative and run in the worktree via `(cd "<abs worktree path>" && <command>)` - the checker never runs them; Baseline and the executor do. Each command is split into segments on `&&`, `||`, `;`, `|`; every segment must contain, as a whitespace-delimited token, a `Test:` path of the same task (the path alone, or followed by `::`, `#`, or `:` and a filter). A `Test:` value containing `*`, `?`, `[` or ending in `/` never anchors; any other argument token with those shapes is a broadening selector and fails. `cd `, `sh -c`, `bash -c`, `eval `, `$(` are unsupported. Each `Test:` path must exist or be a `Create:` path of some task. A segment equal to a header `**Verification:**` or `**Happy path:**` segment is a full-suite command and fails. Runners with no file-addressable form are out of scope (`go test ./pkg -run X`, `mvn -Dtest=`).
+
+## Open Questions (`open-questions`)
+
+Bound the section from `## Open Questions` to the next `## ` heading or EOF. Use `- ` rows with indented continuations (`ran:`, `blocked:`, fenced output). The empty sentinel is exactly one line `- none`; an absent section also passes. Every substantive row produces one finding quoting its first line. Prose and tables are malformed: normalize them to rows without changing substantive content.
+
+Baseline failure: `- Task N: `<command>` fails on <sha> (exit <n>): <summary>`. Derived runs add an indented `ran: `<base command>``; fence the last 20 output lines below it. Contamination: `- Task N: `<command>` dirtied tracked source on <sha>: <paths>` or `- Task N: `<command>` moved HEAD to <sha>`. Global rows: `- Baseline: worktree dirty on <sha>: <paths>` and `- Baseline: in-flight source edits on <sha>: <paths>`. Add indented `blocked: Task M `<command>`` continuations for every command each contamination/global row blocked. Baseline regenerates these rows; contract rows remain until answered.
+
+Only fenced output continuing a well-formed row is exempt from `placeholder-scan` (verbatim tails can contain `TODO` or `etc.`). Row first lines, `ran:`/`blocked:` and authored task prose remain scanned.
 
 ## Header-only entrypoint (`header-entrypoint`)
 

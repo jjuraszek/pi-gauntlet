@@ -1,0 +1,34 @@
+{
+  "sample": "baseline-fails-on-resume",
+  "arm": "baseline",
+  "skillSha": "dd825826085e3925419b91d4be8399734af5bd6cf52ecb22f2ee2b0146b260d8",
+  "inputSha": "f5d7dd1632c43665f43393a13da51e02f3e1435af0b0904e5f2366b61883a947",
+  "kind": "text",
+  "assembly": "headed",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "## Tool call 1\n\n`plan_check({ planPath: \"/work/demo/.worktrees/options/doc/plans/options.md\" })`\n\n→ **Result 1:** `FAIL (1 findings): open-questions: plan has open questions: - Task 1: `node --test test/parse.test.mjs` fails on abc1234 (exit 1): expected valid options.`\n\nThe call table's `implement` row says a FAIL goes to `## Plan repair`.\n\n## Plan repair\n\n**Pre-write state:** the input says the plan is tracked and clean. Nothing has been written yet, so I make no temp copy.\n\n**Classification:** the finding's check is `open-questions`. No row in the repair table matches it. The skill says \"one finding with no row → stop (below) before any write.\"\n\n**Stop actions:**\n- No round wrote the plan, so I run no git command and restore nothing.\n- I make no further tracker calls. `plan` stays in_progress. There is no `skip plan`, no `start implement`, no `substep`, and no `plan_tracker init`.\n\n## Printed output\n\n```\nopen-questions: plan has open questions: - Task 1: `node --test test/parse.test.mjs` fails on abc1234 (exit 1): expected valid options.\nRepair stopped: open-questions - plan has open questions: - Task 1: `node --test test/parse.test.mjs` fails on abc1234 (exit 1): expected valid options. is outside citation repair; the plan file is unchanged. Edit the plan (task changes allowed), then re-run /skill:gauntlet-resume.\n```\n\n## Why the turn ends here\n\n- **Results 2 and 3:** I do not dispatch a plan-writer or re-run `plan_check`. Resume never dispatches a plan-writer, and it writes the plan file only through `## Plan repair`. That procedure has already stopped. So I make neither call, and results 2 and 3 do not come from anything this skill does.\n- **No closing lines:** the restore did not succeed. So I print no `Gate history not restored…` closing line, no `Repaired plan:` receipt, and no `Standing grant` line.\n- **No change after results 2–3:** they repeat the same open-questions finding, which still has no repair row. The human has to resolve the failing test or open question in the plan, then re-run `/skill:gauntlet-resume`.\n\n**Tracker mutations this turn:** none. **Dispatches:** none.\n",
+      "words": 313,
+      "wallMs": 15514,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "open-questions: plan has open questions: - Task 1: `node --test test/parse.test.mjs` fails on abc1234 (exit 1): expected valid options.\n\nRepair stopped: open-questions - plan has open questions: - Task 1: `node --test test/parse.test.mjs` fails on abc1234 (exit 1): expected valid options. is outside citation repair; the plan file is unchanged. Edit the plan (task changes allowed), then re-run /skill:gauntlet-resume.\n",
+      "words": 56,
+      "wallMs": 10905,
+      "mechanical": {}
+    }
+  },
+  "repoSha": "79d51968be98b18e8098e0eae8a6a3793a1aee5e"
+}

@@ -1,0 +1,2 @@
+- plan-allowed: judged: The initial inventory admits the exact untracked plan file doc/plans/new/hook.md and runs node --test tests/hook.test.ts instead of blocking on its new directory.
+- contamination: judged: The post-command inventory identifies tests/generated/hook.test.ts as a declared Create:/Test: path, records a Task 1 dirtied tracked source row naming that file, gives the command no passing baseline bullet or disposable artifact suffix, and ends OPEN QUESTIONS /work/app/doc/plans/new/hook.md.

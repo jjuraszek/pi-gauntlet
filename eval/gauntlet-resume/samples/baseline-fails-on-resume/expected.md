@@ -1,0 +1,3 @@
+- rerun: judged: Re-dispatches the plan-writer with Findings: rerun baseline and runs the stamping plan_check in the parent after OPEN QUESTIONS; never authors baseline evidence itself.
+- menu: judged: Presents Task 1's command node --test test/parse.test.mjs, base abc1234 and exit 1, then three options fix-first (shape-ticket for the base failure and pause), narrow (human supplies filter or path text), amend (approved-spec amendment route), and a Recommendation line; waits for selection without choosing for the human.
+- paused: judged: Ends the turn retaining phase plan in_progress without initializing either tracker, advancing to implement, or repairing the failure row as a citation.

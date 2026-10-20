@@ -38,13 +38,13 @@ Dispatch a subagent with this prompt:
 
     Work from: [directory]
 
-    SCOPED_TEST_COMMANDS: [the task's Tests: bullets, backticks stripped, verbatim | none]
+    SCOPED_TEST_COMMANDS: [only the task's Tests: command bullets, backticks stripped, verbatim; exclude via:, baseline:, and none: metadata | none]
 
     Run ONLY these commands for verification. Never run a repo-wide suite,
     linter, or type-checker. If the value is `none`, run nothing and say so
     in your report.
 
-    TEST_CONTRACT: [the task's **Tests:** block verbatim (commands, via:, none:) and its Files: Create:/Test: paths]
+    TEST_CONTRACT: [the task's **Tests:** block verbatim (commands, via:, baseline: bullets verbatim, none:) and its Files: Create:/Test: paths]
 
     Tests call the via: seam directly - not a wrapper, not the internals behind it.
     Create every Create: path at exactly that path.

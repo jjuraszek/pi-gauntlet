@@ -58,6 +58,7 @@ interface Task {
   testsMisplacedLines: number[];
   tests: TestsBullet[];
   testsVia: TestsBullet[];
+  testsBaseline: TestsBullet[];
   testsNone: TestsBullet[];
   testsMalformed: TestsBullet[];
 }
@@ -101,6 +102,7 @@ interface ParsedPlan {
   tasks: Task[];
   coverageTableFound: boolean;
   coverageRows: CoverageRow[];
+  openQuestions: { findings: PlanCheckFinding[]; output: Set<number> };
 }
 
 interface SpecHeading {
@@ -250,6 +252,7 @@ function parsePlan(planText: string): ParsedPlan {
     const testsMisplacedLines: number[] = [];
     const tests: TestsBullet[] = [];
     const testsVia: TestsBullet[] = [];
+    const testsBaseline: TestsBullet[] = [];
     const testsNone: TestsBullet[] = [];
     const testsMalformed: TestsBullet[] = [];
 
@@ -282,10 +285,12 @@ function parsePlan(planText: string): ParsedPlan {
         const cmd = /^- `([^`]+)`$/.exec(l);
         const via = /^- via: (\S.*)$/.exec(l);
         const none = /^- none: (\S.*)$/.exec(l);
-        const bullet = { line: p + 1, text: l, value: (cmd ?? via ?? none)?.[1] ?? "" };
+        const baseline = /^- baseline: (\S.*)$/.exec(l);
+        const bullet = { line: p + 1, text: l, value: (cmd ?? via ?? none ?? baseline)?.[1] ?? "" };
         if (cmd) tests.push(bullet);
         else if (via) testsVia.push(bullet);
         else if (none) testsNone.push(bullet);
+        else if (baseline) testsBaseline.push(bullet);
         else testsMalformed.push(bullet);
       }
     }
@@ -306,6 +311,7 @@ function parsePlan(planText: string): ParsedPlan {
       testsMisplacedLines,
       tests,
       testsVia,
+      testsBaseline,
       testsNone,
       testsMalformed,
     });
@@ -367,8 +373,59 @@ function parsePlan(planText: string): ParsedPlan {
     break;
   }
 
+  const questionFindings: PlanCheckFinding[] = [];
+  const questionOutput = new Set<number>();
+  let inSection = false;
+  let row = false;
+  let inOutput = false;
+  let sentinel: number | undefined;
+  let contentCount = 0;
+  const malformed = (idx: number) => questionFindings.push({ check: "open-questions", line: idx + 1, text: lines[idx], reason: "## Open Questions malformed: expected `- ` rows or `- none`" });
+  for (let idx = 0; idx < lines.length; idx++) {
+    const line = lines[idx];
+    if (!mask[idx] && /^## /.test(line)) {
+      if (inSection && sentinel !== undefined && contentCount !== 1) malformed(sentinel);
+      inSection = line === "## Open Questions";
+      row = false;
+      inOutput = false;
+      sentinel = undefined;
+      contentCount = 0;
+      continue;
+    }
+    if (!inSection) continue;
+    if (inOutput) {
+      questionOutput.add(idx);
+      if (/^\s+```/.test(line)) inOutput = false;
+      continue;
+    }
+    if (!line.trim()) continue;
+    contentCount++;
+    if (/^- \S/.test(line)) {
+      row = line !== "- none";
+      if (row) questionFindings.push({ check: "open-questions", line: idx + 1, text: line, reason: `plan has open questions: ${line}` });
+      else sentinel = idx;
+    } else if (row && /^\s+\S/.test(line)) {
+      if (/^\s+```/.test(line)) {
+        let end = idx + 1;
+        while (end < lines.length && !/^\s+```/.test(lines[end])) {
+          if (lines[end].trim() && !/^\s+/.test(lines[end])) break;
+          end++;
+        }
+        if (end < lines.length && /^\s+```/.test(lines[end])) {
+          inOutput = true;
+          questionOutput.add(idx);
+        }
+      }
+    } else {
+      malformed(idx);
+      row = false;
+    }
+  }
+  if (inSection && sentinel !== undefined && contentCount !== 1) malformed(sentinel);
+
   return {
     lines,
+    openQuestions: { findings: questionFindings, output: questionOutput },
     header: { specPathLine, specPath, verificationLine, verificationText, happyPathLine, happyPathText, happyPathCommand, separatorLine },
     waves,
     tasks,
@@ -474,7 +531,7 @@ function checkTestsBlock(parsed: ParsedPlan, fs: FsPort): PlanCheckFinding[] {
 
     const headingText = parsed.lines[task.testsHeadingLine - 1];
     if (task.tests.length === 0 && task.testsNone.length === 0) push(task, task.testsHeadingLine, headingText, "block empty: no command bullet and no `none:`");
-    for (const b of task.testsMalformed) push(task, b.line, b.text, "malformed bullet: expected `- \\`command\\``, `- via: <seam>`, or `- none: <category>`");
+    for (const b of task.testsMalformed) push(task, b.line, b.text, "malformed bullet: expected `- \\`command\\``, `- baseline: <evidence>`, `- via: <seam>`, or `- none: <category>`");
     if (task.testsNone.length > 1 || (task.testsNone.length > 0 && (task.tests.length > 0 || task.testsVia.length > 0))) {
       push(task, task.testsNone[0].line, task.testsNone[0].text, "contradictory block: `none:` with a command or `via:`, or more than one `none:`");
     }
@@ -499,6 +556,55 @@ function checkTestsBlock(parsed: ParsedPlan, fs: FsPort): PlanCheckFinding[] {
       }
     }
   }
+  return findings;
+}
+
+function checkBaselineLines(parsed: ParsedPlan, fs: FsPort): PlanCheckFinding[] {
+  const findings: PlanCheckFinding[] = [];
+  const shas = new Set<string>();
+  const creates = new Set(parsed.tasks.flatMap(t => t.files.filter(f => f.kind === "create").map(f => stripLineSuffix(f.path))));
+  for (const task of parsed.tasks) {
+    const push = (bullet: TestsBullet, reason: string) => findings.push({ check: "baseline-line", line: bullet.line, text: bullet.text, reason: `Task ${task.number}: ${reason}` });
+    const paths = task.files.filter(f => f.kind === "test").map(f => stripLineSuffix(f.path)).filter(p => !isBroadening(p));
+    const anchors = (command: string) => commandSegments(command).flatMap(segment => segment.split(" ").flatMap(token => paths.filter(p => token === p || token.startsWith(p + "::") || token.startsWith(p + "#") || token.startsWith(p + ":"))));
+    for (const command of task.tests) {
+      if (!task.testsBaseline.some(b => b.line === command.line + 1)) push(command, `command \`${command.value}\` has no baseline: bullet`);
+    }
+    for (const bullet of task.testsBaseline) {
+      const command = task.tests.find(c => c.line + 1 === bullet.line);
+      if (task.testsNone.length) push(bullet, "baseline: under a none: task");
+      else if (!command) push(bullet, "baseline: not directly after its command");
+      const match = /^([a-f0-9]{7,40}) (?:pass(?: via `([^`]+)`)?(?: - artifacts: (\S.*))?|skipped - (\S.*) created by this task)$/.exec(bullet.value);
+      if (!match || (match[2] !== undefined && !match[2].trim()) || (match[3] !== undefined && !match[3].split(", ").every(p => p.trim().length > 0))) {
+        push(bullet, `baseline: bullet malformed: ${bullet.text}`);
+        continue;
+      }
+      shas.add(match[1]);
+      if (match[4] !== undefined && command) {
+        const listed = match[4].split(", ");
+        const expected = new Set(anchors(command.value));
+        for (const path of new Set([...expected, ...listed])) {
+          if (!creates.has(path)) push(bullet, `baseline: skipped but \`${path}\` is not a Create: path`);
+          else if (!expected.has(path) || !listed.includes(path)) push(bullet, `baseline: bullet malformed: ${bullet.text}`);
+        }
+        if (!expected.size || listed.length !== new Set(listed).size) push(bullet, `baseline: bullet malformed: ${bullet.text}`);
+      }
+      if (match[2] !== undefined) {
+        const segments = commandSegments(match[2]);
+        if (!segments.length) {
+          push(bullet, `baseline: bullet malformed: ${bullet.text}`);
+          continue;
+        }
+        for (const segment of segments) {
+          const found = anchors(segment);
+          const created = [...creates].filter(p => segment.split(" ").some(token => token === p || token.startsWith(p + "::") || token.startsWith(p + "#") || token.startsWith(p + ":")));
+          for (const path of created) push(bullet, `baseline: pass via \`${match[2]}\` segment \`${segment}\` anchors Create: path ${path}`);
+          if (!found.some(p => !creates.has(p) && fs.exists(p))) push(bullet, `baseline: pass via \`${match[2]}\` segment \`${segment}\` anchors no existing Test: path`);
+        }
+      }
+    }
+  }
+  if (shas.size > 1) findings.push({ check: "baseline-line", line: 0, text: "", reason: `baseline SHAs differ: ${[...shas].join(", ")}` });
   return findings;
 }
 
@@ -809,6 +915,7 @@ function checkPlaceholderScan(parsed: ParsedPlan, requiredLiterals: Map<number, 
     for (let ln = t.bodyStartLine; ln <= t.bodyEndLine; ln++) lineTask.set(ln, t);
   }
   parsed.lines.forEach((line, idx) => {
+    if (parsed.openQuestions.output.has(idx)) return;
     const lineNo = idx + 1;
     const lower = line.toLowerCase();
     const task = lineTask.get(lineNo);
@@ -962,7 +1069,7 @@ function checkHeaderEntrypoint(parsed: ParsedPlan): PlanCheckFinding[] {
   const entrypoints = [entrypoint, parsed.header.happyPathCommand].filter((e): e is string => Boolean(e));
   const executable = new Set<number>();
   for (const task of parsed.tasks) {
-    for (const bullet of [...task.tests, ...task.testsVia, ...task.testsNone, ...task.testsMalformed]) {
+    for (const bullet of [...task.tests, ...task.testsVia, ...task.testsBaseline, ...task.testsNone, ...task.testsMalformed]) {
       executable.add(bullet.line);
     }
   }
@@ -1057,6 +1164,8 @@ export function checkPlan(planText: string, specText: string, fs: FsPort): PlanC
     findings.push(...checkAnchorResolution(parsed, specLines));
     findings.push(...checkPathsExist(parsed, fs));
     findings.push(...checkTestsBlock(parsed, fs));
+    findings.push(...checkBaselineLines(parsed, fs));
+    findings.push(...parsed.openQuestions.findings);
     const requiredLiterals = computeRequiredLiteralsPerTask(parsed, specLines);
     findings.push(...checkPlaceholderScan(parsed, requiredLiterals));
     findings.push(...checkWaveFileDisjointness(parsed, fs));
