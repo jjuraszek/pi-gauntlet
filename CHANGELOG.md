@@ -1,5 +1,19 @@
 # Changelog
 
+## Unreleased
+
+### Changed
+
+- **Skill references are read once per session.** `/skill:brainstorming` reads `reference/ticket-acceptance.md` at first use; checklist steps 4 and 8 read it only when a restored session or a fresh-start redraw has nothing in context. The shared "Project overrides" block in all 20 skills reads the overrides file once per session and skips the read when an earlier skill already loaded it.
+- **`/skill:subagent-driven-development` fits one read.** SKILL.md drops the older-runtime plain-`tasks:` fallback and the hardcoded 7.4.0 preflight; one guard before the first wave reads the pi-cohort floor from the installed pi-gauntlet `package.json`, resolves both packages from `pi list` by their installed package name (pinned, local-path, and filtered entries resolve), and stops with `pi-cohort >= X.Y.Z required, found <version>`, `pi-cohort not installed`, `cannot read peer floor`, or `cannot parse pi-cohort version <value>` before any dispatch. The happy-path runner moves verbatim to `reference/happy-path-run.md`, read only when a plan declares a happy path.
+- **Implementer dispatch template is scope plus pointer.** `implementer-prompt.md` keeps the task paste, `SCOPED_TEST_COMMANDS`, `TEST_CONTRACT`, the met/unmet evidence lines, and the `**Status:**` enum; escalation, self-review, code-organization, and commit prose now live only in the `implementer` persona.
+- **pi-cohort floor is 7.4.3**, pinned to the newest published pi-cohort at release time; `/skill:release` refuses a release whose declared floor is behind `npm view pi-cohort version`.
+
+### Added
+
+- **`npm test` size and floor lints.** Every `skills/**/*.md` and `agents/*.md` must stay under 50,000 bytes and 2,000 lines (the `read` tool's single-call cap); `package.json`'s `peerDependencies["pi-cohort"]` must be exactly `>=X.Y.Z` and match the README install floor.
+- Eval samples for the read-once brainstorming steps, the package-derived preflight stop and late happy-path read, and the trimmed implementer template (`eval/{brainstorming,subagent-driven-development,implementer}`).
+
 ## v7.22.1 - 2026-10-20
 
 ### Fixed
