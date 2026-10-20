@@ -1,8 +1,8 @@
 {
   "sample": "heavy-json-fixture",
   "arm": "baseline",
-  "skillSha": "93ef3cc5f796c4460dde0e0532a744a111e0c73538ef82919d2e8cd93898c31c",
-  "inputSha": "671fbf39e232f1fb65c6303102dd54dfc36dbb9a86447d09ded0d1cbde7b34bf",
+  "skillSha": "4ccf26ff881c4649ab9165b559a14878d1ad9fefdac0c72a3fd4a02010eb1e0d",
+  "inputSha": "2564f21345c7c2a99744d3e58b86a86b0fe780821ea23be0d7ffdaac5481ff51",
   "kind": "text",
   "assembly": "headed",
   "thinking": "medium",
@@ -17,22 +17,22 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "```python\ndef test_rejects_posted_on_in_the_future():\n    with open(\"fixtures/ledger_400.json\") as f:\n        records = json.load(f)\n    record = dict(records[0], posted_on=\"2026-03-02\")\n    with pytest.raises(ImportRejected, match=\"posted_on is in the future\"):\n        import_record(record, TODAY)\n\n\ndef test_imports_record_posted_today():\n    with open(\"fixtures/ledger_400.json\") as f:\n        records = json.load(f)\n    record = dict(records[0], posted_on=\"2026-03-01\")\n    entry = import_record(record, TODAY)\n    assert entry.posted_on == TODAY\n```\n",
-      "words": 38,
-      "wallMs": 4117,
+      "text": "```python\ndef _record(**overrides):\n    return dict(\n        {\"account\": \"4010\", \"amount\": \"125.00\", \"posted_on\": \"2026-01-15\", \"memo\": \"opening\"},\n        **overrides,\n    )\n\n\ndef test_rejects_posted_on_in_the_future():\n    record = _record(posted_on=\"2026-03-02\")\n    with pytest.raises(ImportRejected, match=\"posted_on is in the future\"):\n        import_record(record, TODAY)\n\n\ndef test_imports_record_posted_on_today():\n    entry = import_record(_record(posted_on=\"2026-03-01\"), TODAY)\n    assert entry.posted_on == TODAY\n```\n",
+      "words": 35,
+      "wallMs": 9868,
       "mechanical": {
         "m1": "holds"
       }
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "def test_rejects_future_posted_on():\n    with open(\"fixtures/ledger_400.json\") as f:\n        records = json.load(f)\n    record = dict(records[0], posted_on=\"2026-03-02\")\n    with pytest.raises(ImportRejected, match=r\"^posted_on is in the future$\"):\n        import_record(record, TODAY)\n\n\n@pytest.mark.parametrize(\"posted_on\", [\"2026-02-28\", \"2026-03-01\"])\ndef test_imports_posted_on_or_before_today(posted_on):\n    with open(\"fixtures/ledger_400.json\") as f:\n        records = json.load(f)\n    record = dict(records[0], posted_on=posted_on)\n    entry = import_record(record, TODAY)\n    assert entry.posted_on == date.fromisoformat(posted_on)\n    assert entry.account == record[\"account\"]\n    assert entry.amount == Decimal(record[\"amount\"])\n    assert entry.memo == record[\"memo\"]\n",
-      "words": 49,
-      "wallMs": 6435,
+      "text": "def test_rejects_future_posted_on():\n    record = {\n        \"account\": \"4010\",\n        \"amount\": \"125.00\",\n        \"posted_on\": \"2026-03-02\",\n    }\n    with pytest.raises(ImportRejected, match=r\"^posted_on is in the future$\"):\n        import_record(record, TODAY)\n",
+      "words": 18,
+      "wallMs": 9498,
       "mechanical": {
         "m1": "holds"
       }
     }
   },
-  "repoSha": "2b85f3b15a9d0c55cef42fe99244e71f0ee06ca8"
+  "repoSha": "1269c2c1e3c260af57d45acd77fe38a6b19853e1"
 }

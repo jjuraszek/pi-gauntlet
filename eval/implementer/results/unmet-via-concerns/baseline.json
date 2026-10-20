@@ -1,0 +1,42 @@
+{
+  "sample": "unmet-via-concerns",
+  "arm": "baseline",
+  "skillSha": "4ccf26ff881c4649ab9165b559a14878d1ad9fefdac0c72a3fd4a02010eb1e0d",
+  "inputSha": "5574427bc0f1dae28b2f50cea8814706f57395373a4ee8bdb4dbe4f53650ec4a",
+  "kind": "text",
+  "assembly": "headed",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "**Status:** `DONE_WITH_CONCERNS`\n\n**What I implemented:** Nothing new. The task says the count change is already implemented and asks for an audit report only, so `counter/parse.py` and `counter/test_parse.py` are unchanged.\n\n**What I tested and test results:** I ran no commands; I have no tools. The evidence below was supplied by the dispatch:\n- `pytest counter/test_parse.py`: exit 0, last output line `1 passed`.\n\n**Test contract:**\n- `pytest counter/test_parse.py`: `met` (exit 0; last output line: `1 passed`). This is supplied evidence, not a run I performed.\n- via `parse_count()`: `unmet`. The only test, at `counter/test_parse.py:4`, calls `parse_count_wrapper(\" 7 \")`, not `parse_count()`. The import at `counter/test_parse.py:1` is `parse_count_wrapper` only. The contract says tests must call the via seam directly, not a wrapper. The wrapper does delegate to `parse_count`, but the seam itself is never called by a test.\n\n**Files changed:** None.\n\n**Self-review findings:**\n- The scoped command passes, but the passing test reaches the seam only through a wrapper. A change to `parse_count_wrapper` could mask or misattribute a regression in `parse_count()`.\n- I left the test unchanged because the task asks for an audit-only report.\n\n**Issues or concerns:**\n- The via obligation is unmet, which is why the status is `DONE_WITH_CONCERNS`.\n- Suggested follow-up for the parent: change `counter/test_parse.py` to import `parse_count` and assert `parse_count(\" 7 \") == 7`. Then re-run `pytest counter/test_parse.py`.\n- I made no commit because nothing changed.\n",
+      "words": 216,
+      "wallMs": 7952,
+      "mechanical": {
+        "m1": "fails",
+        "m2": "fails",
+        "m3": "holds"
+      }
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "**Status:** DONE_WITH_CONCERNS\n\n- Implementation reviewed; supplied code left unchanged.\n- Files changed: none.\n\n**Test contract**\n- `pytest counter/test_parse.py`: **met** — supplied observation: exit 0; last output line `1 passed`. I did not execute this command.\n- via `parse_count()`: **unmet** — `counter/test_parse.py:1` imports `parse_count_wrapper`, and line 4 calls that wrapper rather than calling `parse_count()` directly.\n\n**Self-review / follow-up**\nThe successful command outcome does not satisfy the direct-seam obligation. The parent should update the test to import and call `parse_count()` directly, then rerun the scoped command. No code was changed, as required for this audit.\n",
+      "words": 86,
+      "wallMs": 5848,
+      "mechanical": {
+        "m1": "holds",
+        "m2": "holds",
+        "m3": "holds"
+      }
+    }
+  },
+  "repoSha": "1269c2c1e3c260af57d45acd77fe38a6b19853e1"
+}

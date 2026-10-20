@@ -5,8 +5,8 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { spawnSync } from 'node:child_process';
 
-const skill = readFileSync(new URL('../skills/subagent-driven-development/SKILL.md', import.meta.url), 'utf8');
-const block = skill.match(/<!-- happy-path-shell -->\s*```bash\n([\s\S]*?)\n\s*```/);
+const reference = readFileSync(new URL('../skills/subagent-driven-development/reference/happy-path-run.md', import.meta.url), 'utf8');
+const block = reference.match(/<!-- happy-path-shell -->\s*```bash\n([\s\S]*?)\n\s*```/);
 const quote = value => `'${value.replaceAll("'", "'\\''")}'`;
 const bashPath = spawnSync('bash', ['-c', 'command -v bash'], { encoding: 'utf8' }).stdout.trim();
 const timeout = spawnSync('bash', ['-c', 'command -v timeout || command -v gtimeout'], { encoding: 'utf8' }).stdout.trim();
@@ -40,7 +40,7 @@ function run(command, { token = command.split(/\s+/)[0], duration = '2s', header
     if (expectFailure) {
       assert.notEqual(result.status, 0);
       assert.doesNotMatch(result.stdout, /summary:|outcome:|happy-path: passed/);
-      assert.match(skill, /block exits non-zero[^\n]*stop verification[^\n]*report[^\n]*shell error/i);
+      assert.match(reference, /block exits non-zero[^\n]*stop verification[^\n]*report[^\n]*shell error/i);
       return { stdout: result.stdout };
     }
     assert.equal(result.status, 0, result.stderr);

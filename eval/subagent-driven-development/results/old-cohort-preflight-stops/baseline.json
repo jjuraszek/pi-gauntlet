@@ -1,0 +1,34 @@
+{
+  "sample": "old-cohort-preflight-stops",
+  "arm": "baseline",
+  "skillSha": "a9425cf255898b5fa623aab054b1a80df0cbe451d09dc055ebd98eca0b1d40dc",
+  "inputSha": "aa0e62c256d5204a02636f24685ddc69987fb60e8b57fe2209f88bde4b8455ab",
+  "kind": "text",
+  "assembly": "headed",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "# Preflight stop: pi-cohort runtime check (`/workspace/project`)\n\nThese are the supplied observations. I have not run any lookup, install, or dispatch.\n\n## Primary observation: installed version is below the peer floor\n\n**Supplied observations**\n- The peer floor comes from `/opt/pi/node_modules/pi-gauntlet/package.json`, where `peerDependencies[\"pi-cohort\"]` is `\">=7.4.3\"`.\n- The installed pi-cohort `package.json` reports version `\"7.3.1\"`.\n- Comparing the three version parts as numbers: major 7 = 7, then minor 3 < 4. So 7.3.1 is below 7.4.3. A text-based comparison is not used.\n\n**Blocking diagnostic**\n```\npi-cohort 7.3.1 does not satisfy pi-gauntlet peer floor >=7.4.3 (/opt/pi/node_modules/pi-gauntlet/package.json): chain disabled; preflight blocked\n```\n\n**Dispatch boundary:** stop here, with no implementer or spec-reviewer dispatch of any kind.\n- **No chain.** A 7.3.x runtime must never receive the chain, because it would pass the literal `{outputs.impl_n.treePath}` reference to SR.\n- **No fallback fan-out.** The guard reported a peer-floor failure, so I do not route around it with the older two-fan-out path. That would be an invented fallback.\n- **No setup actions.** I do not create a `REPORT_DIR` or run any worker-worktree or snapshot shell.\n- **No new tracker writes.** I make no `plan_tracker` writes beyond whatever state already exists.\n\n**Next permitted action:** report the diagnostic to the user and end the turn. The operator must upgrade pi-cohort to 7.4.3 or later. pi-managed packages do not auto-install peers, so I do not claim that has happened. After the operator confirms the upgrade, I rerun the once-per-phase preflight from the start before any wave dispatch.\n\n## Alternative A: guard reports `pi-cohort not installed`\n\n- **Diagnostic:** `pi-cohort not installed`. Version is displayed as `unknown`, and the lookup failure is shown verbatim.\n- **Boundary:** stop before any dispatch. With no runtime there is no `subagent` chain and no fan-out. I do not assume an install happened.\n- **Next permitted action:** report it. The operator installs pi-cohort 7.4.3 or later, then the preflight reruns.\n\n## Alternative B: guard reports `cannot read peer floor`\n\n- **Diagnostic:** `cannot read peer floor`, from `/opt/pi/node_modules/pi-gauntlet/package.json`. The required range cannot be established.\n- **Boundary:** stop before any dispatch. I do not substitute a floor, neither the 7.4.0 named in SKILL.md nor any other value. Without a readable floor, no installed version can be judged as satisfying it.\n- **Next permitted action:** report it. The operator repairs or reinstalls pi-gauntlet so its `package.json` peer entry is readable, then the preflight reruns.\n\n## Alternative C: guard reports `cannot parse pi-cohort version unknown`\n\n- **Diagnostic:** `cannot parse pi-cohort version unknown`, recorded with the observed version `unknown`. An unparseable version is never treated as meeting 7.4.3 or later.\n- **Boundary:** stop before any dispatch, with no chain and no fallback fan-out.\n- **Next permitted action:** report it. The operator fixes the pi-cohort install so its `package.json` reports a valid version that is 7.4.3 or later, then the preflight reruns.\n\nIn every case, the turn ends at the preflight. No wave starts and no worker is dispatched.\n",
+      "words": 460,
+      "wallMs": 21636,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "Preflight is blocked in `/workspace/project`. These are supplied observations, not commands I executed. Each case below is an independent alternative.\n\n| Observation | Blocking diagnostic | Next permitted action |\n|---|---|---|\n| `/opt/pi/node_modules/pi-gauntlet/package.json` declares `peerDependencies[\"pi-cohort\"]` as `>=7.4.3`; installed pi-cohort is `7.3.1` | Installed `pi-cohort 7.3.1` does not satisfy the required peer floor `>=7.4.3`. | Resolve the incompatible installation, then rerun preflight. No installation success is assumed. |\n| Guard reports `pi-cohort not installed` | `pi-cohort not installed` | Resolve the missing dependency, then rerun preflight. |\n| Peer floor is unreadable; guard reports `cannot read peer floor` | `cannot read peer floor` | Restore readable peer-dependency metadata in the installed pi-gauntlet package, then rerun preflight. Do not guess the floor. |\n| Installed version is `unknown`; guard reports `cannot parse pi-cohort version unknown` | `cannot parse pi-cohort version unknown` | Resolve the missing or malformed installed-version metadata, then rerun preflight. Do not infer compatibility. |\n\n**Dispatch boundary in every case:** stop before any implementer or reviewer dispatch. No chain, fallback fan-out, or worker payload is issued.\n",
+      "words": 155,
+      "wallMs": 11380,
+      "mechanical": {}
+    }
+  },
+  "repoSha": "1269c2c1e3c260af57d45acd77fe38a6b19853e1"
+}

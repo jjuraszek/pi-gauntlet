@@ -462,7 +462,7 @@ try {
 }
 
 try {
-  execFileSync(process.execPath, ["--test", R("scripts/happy-path-run.test.mjs"), R("scripts/wave-review.test.mjs"), R("scripts/gatekeep-comment-reconcile.test.mjs"), R("scripts/brainstorming-contract.test.mjs"), ...readdirSync(R("eval/lib")).filter((f) => f.endsWith(".test.mjs")).sort().map((f) => R(`eval/lib/${f}`))], { stdio: "pipe" });
+  execFileSync(process.execPath, ["--test", R("scripts/happy-path-run.test.mjs"), R("scripts/skill-size-lint.test.mjs"), R("scripts/pi-cohort-floor-lint.test.mjs"), R("scripts/wave-review.test.mjs"), R("scripts/gatekeep-comment-reconcile.test.mjs"), R("scripts/brainstorming-contract.test.mjs"), ...readdirSync(R("eval/lib")).filter((f) => f.endsWith(".test.mjs")).sort().map((f) => R(`eval/lib/${f}`))], { stdio: "pipe" });
   ok("happy-path and wave-review shell fixtures, PR comment, brainstorming source and eval lib contracts pass");
 } catch (e) {
   fail(`happy-path, wave-review, PR comment, brainstorming or eval lib regression checks failed:\n    ${String(e.stdout || e.stderr || e).split("\n").slice(0, 30).join("\n    ")}`);
@@ -509,6 +509,19 @@ try {
   );
   if (offenders.length) fail("stage skills must carry the worktree path, not cd into it:\n    " + offenders.join("\n    "));
   else ok("stage skills carry the worktree path by value");
+}
+
+{
+  const { lintSkillSizes } = await import("./skill-size-lint.mjs");
+  const errors = lintSkillSizes(root);
+  if (errors.length) fail("instruction files exceed the single-read budget:\n    " + errors.join("\n    "));
+  else ok("instruction files fit the single-read budget");
+}
+{
+  const { lintPiCohortFloor } = await import("./pi-cohort-floor-lint.mjs");
+  const errors = lintPiCohortFloor(root);
+  if (errors.length) fail(errors.join("\n    "));
+  else ok("pi-cohort peer and README floors match");
 }
 
 // ---- no provider/model literals in skills, personas, extensions (#42) -----------

@@ -109,7 +109,7 @@ loop: tracker state is extension state no subagent can read.
 
 If a gauntlet overrides file exists - checked in order:
 `.pi/gauntlet-overrides.md`, `<repo root>/gauntlet-overrides.md`,
-`<repo root>/doc/gauntlet-overrides.md`; first found wins - read it. Read
+`<repo root>/doc/gauntlet-overrides.md`; first found wins - read it once per session - a skill that already has the file's content in context from an earlier skill's read skips the read; a restored session has nothing in context and reads it. Read
 and apply `## conventions` whenever present, without a relevance
 judgment.
 Give this skill's named section precedence over conflicting

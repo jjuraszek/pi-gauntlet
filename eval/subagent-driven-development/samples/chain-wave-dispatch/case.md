@@ -1,6 +1,6 @@
 bundle-: skills/requesting-code-review/code-reviewer.md
 
-Use pi-cohort 7.4.0 in /workspace/project for a two-task code wave at WAVE_BASE_SHA 1111111111111111111111111111111111111111. The authoritative spec is /workspace/project/doc/specs/feature.md; both tasks have unchanged Spec anchors, Files, Tests, and scoped commands available. Task 1 owns src/parse.ts; task 2 owns src/format.ts. Both implementers return DONE. SR 1 returns COMPLIANT; SR 2 returns NEEDS_REWORK (the ticket calls this FAIL).
+Use pi-cohort 7.4.3 in /workspace/project for a two-task code wave at WAVE_BASE_SHA 1111111111111111111111111111111111111111. The authoritative spec is /workspace/project/doc/specs/feature.md; both tasks have unchanged Spec anchors, Files, Tests, and scoped commands available. Task 1 owns src/parse.ts; task 2 owns src/format.ts. Both implementers return DONE. SR 1 returns COMPLIANT; SR 2 returns NEEDS_REWORK (the ticket calls this FAIL).
 
 Give a concise dispatch/decision response of at most 900 words, not executed verdicts. Use placeholders for already-supplied full task and prompt text; express schemas by allowed enum values. Give the initial dispatch shape for steps 2-3, then handling of these supplied outcomes, task 2's replacement-patch re-review, and the later code-review conditions. Include placement of isolation, stop, and cwd fields.
 

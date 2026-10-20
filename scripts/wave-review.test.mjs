@@ -41,7 +41,7 @@ test('wave chain isolates implementers then reviews their paired materialized tr
   assert.match(sr, /\{outputs.impl_1.patchPath\}/);
   assert.match(sr, /concurrency: 4/);
   assert.doesNotMatch(sr, /\b(?:worktree|stopOn):/);
-  assert.ok(blocks.some(block => block.includes('tasks:') && !block.includes('chain:')), 'retain plain fallback');
+  assert.doesNotMatch(wave, /Older-runtime fallback|two fan-outs/);
   assert.match(wave, /structured_output` injection only for implementers carrying `outputSchema`/);
   assert.match(wave, /Keep SR schema-free because no `stopOn` reads its verdict\./);
   assert.doesNotMatch(wave, /acceptance contract identical to the plain fan-out/);
@@ -69,13 +69,16 @@ test('wave schema constrains only the implementer status vocabulary', () => {
 });
 
 test('version preflight and retained-result recovery surround the initial chain', () => {
-  const preflight = wave.indexOf('COHORT_DIR=$(pi list');
-  const dispatch = wave.indexOf('subagent({');
-  assert.ok(preflight >= 0 && preflight < dispatch, 'preflight before first dispatch');
-  assert.match(wave, /three semver components numerically/);
-  assert.match(wave, /unparseable/);
-  assert.match(wave, /unknown/);
-  assert.match(wave, /two fan-outs for every wave/);
+  const preflight = wave.indexOf('<!-- pi-cohort-preflight-shell -->');
+  assert.ok(preflight >= 0 && preflight < wave.indexOf('subagent({'));
+  assert.match(wave, /peerDependencies/);
+  assert.match(wave, /pi-cohort >= /);
+  assert.match(skill.split('## Dispatch')[1].split('## The Wave Loop')[0], /dispatching-parallel-agents/);
+  const after = skill.split('## After All Tasks Complete')[1];
+  assert.ok(after.indexOf('reference/happy-path-run.md') < after.indexOf('Before marking verify complete'));
+  assert.match(after, /absolute path/);
+  assert.doesNotMatch(skill, /<!-- happy-path-shell -->/);
+  assert.match(readFileSync(new URL('../skills/subagent-driven-development/reference/happy-path-run.md', import.meta.url), 'utf8'), /<!-- happy-path-shell -->/);
   const recovery = wave.indexOf('### Chain stopped or failed');
   assert.ok(recovery > wave.indexOf('chain:'));
   assert.match(wave.slice(recovery), /successful siblings are never re-run/i);
@@ -242,4 +245,56 @@ test('missing live index fails tree capture without a SHA or scratch residue', (
   assert.notEqual(result.status, 0);
   assert.equal(result.stdout, '');
   assert.deepEqual(readdirSync(scratch), []);
+});
+
+
+test('implementer template carries task scope and evidence, not persona conduct', () => {
+  const prompt = readFileSync(new URL('../skills/subagent-driven-development/implementer-prompt.md', import.meta.url), 'utf8');
+  const ordered = ["[FULL TEXT of task from plan - paste it here, don't make subagent read file]", 'SCOPED_TEST_COMMANDS: [', 'TEST_CONTRACT: [', 'Tests call the via: seam directly', 'Create every Create: path at exactly that path.', 'one line per SCOPED_TEST_COMMANDS command', 'Any `unmet` -> `DONE_WITH_CONCERNS`.', '**Status:** DONE | DONE_WITH_CONCERNS | BLOCKED | NEEDS_CONTEXT', 'Conduct (TDD scenarios, test economy, scope discipline, escalation, report shape) is your persona; this prompt carries only the task and its test scope.'];
+  let previous = -1;
+  for (const text of ordered) { const at = prompt.indexOf(text); assert.ok(at > previous, text); previous = at; }
+  assert.match(prompt, /one line per via:/);
+  assert.match(prompt, /quote the last output line/);
+  assert.doesNotMatch(prompt, /Commit your work|Code Organization|Over Your Head|Self-Review|read the plan|OWNED_FILES|owned-files/);
+});
+
+test('shipped peer-floor guard resolves adjacent package paths and stops unsupported dispatch', () => {
+  const block = skill.match(/<!-- pi-cohort-preflight-shell -->\s*```bash\n([\s\S]*?)\n```/);
+  assert.ok(block, 'executable preflight guard');
+  const root = mkdtempSync(join(tmpdir(), 'peer guard '));
+  const cohort = join(root, 'installed packages', 'pi-cohort');
+  const own = join(root, 'installed packages', 'pi-gauntlet');
+  const bin = join(root, 'bin');
+  for (const dir of [cohort, own, bin]) mkdirSync(dir, { recursive: true });
+  const cases = [
+    ['equal', '7.4.3', '>=7.4.3', '', true],
+    ['numeric above', '7.4.10', '>=7.4.2', '', true],
+    ['pinned own', '7.4.3', '>=7.4.3', '', true],
+    ['local own', '7.4.3', '>=7.4.3', '', true],
+    ['filtered cohort', '7.4.3', '>=7.4.3', '', true],
+    ['unrelated first', '7.4.3', '>=7.4.3', '', true],
+    ['below', '7.3.1', '>=7.4.3', 'pi-cohort >= 7.4.3 required, found 7.3.1'],
+    ['numeric below', '7.4.2', '>=7.4.10', 'pi-cohort >= 7.4.10 required, found 7.4.2'],
+    ['missing cohort', '7.4.3', '>=7.4.3', 'pi-cohort not installed'],
+    ['failed list', '7.4.3', '>=7.4.3', 'pi-cohort not installed'],
+    ['unreadable own', '7.4.3', '>=7.4.3', 'cannot read peer floor'],
+    ['absent peer', '7.4.3', undefined, 'cannot read peer floor'],
+    ['malformed peer', '7.4.3', '^7.4.3', 'cannot read peer floor'],
+    ['malformed version', '7.4.3-beta', '>=7.4.3', 'cannot parse pi-cohort version 7.4.3-beta'],
+  ];
+  for (const [name, version, peer, error, supported] of cases) {
+    writeFileSync(join(cohort, 'package.json'), JSON.stringify({ name: 'pi-cohort', version }));
+    writeFileSync(join(own, 'package.json'), name === 'unreadable own' ? 'invalid json' : JSON.stringify({ name: 'pi-gauntlet', version: '1.0.0', peerDependencies: { 'pi-cohort': peer } }));
+    const unrelated = join(root, 'another package');
+    mkdirSync(unrelated, { recursive: true });
+    writeFileSync(join(unrelated, 'package.json'), JSON.stringify({ name: 'another-package', version: '1.0.0', peerDependencies: { 'pi-cohort': '>=99.0.0' } }));
+    const cohortSource = name === 'filtered cohort' ? 'npm:pi-cohort (filtered)' : 'npm:pi-cohort';
+    const ownSource = name === 'pinned own' ? 'npm:pi-gauntlet@7.19.0' : name === 'local own' ? '../pi-gauntlet' : 'npm:pi-gauntlet';
+    const listing = `User packages:\n${name === 'unrelated first' ? `  npm:another-package\n    ${unrelated}\n` : ''}${name === 'missing cohort' ? '' : `  ${cohortSource}\n    ${cohort}\n`}  ${ownSource}\n    ${own}\n`;
+    writeFileSync(join(bin, 'pi'), `#!/bin/sh\n${name === 'failed list' ? 'exit 1' : `printf %s ${quote(listing)}`}\n`, { mode: 0o755 });
+    const result = spawnSync('bash', ['-c', block[1] + '\nprintf "dispatch sentinel\n"'], { encoding: 'utf8', env: { ...process.env, PATH: `${bin}:${process.env.PATH}` } });
+    assert.equal(result.status === 0, !!supported, `${name}: ${result.stderr}`);
+    assert.equal(result.stdout.includes('dispatch sentinel'), !!supported, name);
+    if (error) assert.ok(result.stderr.includes(error), `${name}: ${result.stderr}`);
+  }
 });

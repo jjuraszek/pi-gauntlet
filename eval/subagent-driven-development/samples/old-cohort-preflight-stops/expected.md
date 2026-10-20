@@ -1,0 +1,3 @@
+- declared-floor: judged: Uses the supplied package-derived >=7.4.3 peer floor and emits pi-cohort >= 7.4.3 required, found 7.3.1, rather than a hardcoded historical threshold.
+- diagnostic-stops: judged: Preserves each independent alternative diagnostic: pi-cohort not installed, cannot read peer floor, and cannot parse pi-cohort version unknown; each blocks before dispatch rather than inventing recovery success.
+- no-fallback: judged: Dispatches no implementer, chain or older-runtime tasks fallback; reports the blocking preflight error for human resolution.

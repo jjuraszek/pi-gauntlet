@@ -55,8 +55,10 @@ test('consent precedes reset and the 13 checkpoints retain their order', () => {
   const checkpoints = [...text.matchAll(/^(\d+)\. \*\*/gm)].map((m) => Number(m[1]));
   assert.deepEqual(checkpoints, Array.from({ length: 13 }, (_, i) => i + 1));
   assert.match(text, /resume at checklist step 4 with the approved spec as the draft \(steps 2-3 skipped\)/);
-  assert.match(text, /read \[Ticket Handling\].*then follow/);
-  assert.match(text, /Read \[Ticket Handling\]\(reference\/ticket-acceptance.md\) before gathering context or step-4\/8 entry, even with no ticket/);
+  const gather = text.match(/^3\. .*/m)[0];
+  assert.match(gather, /read \[Ticket Handling\]\(#ticket-handling\), then follow \[`gatherer.md`\]/);
+  assert.match(text, /Read \[Ticket Handling\]\(reference\/ticket-acceptance.md\) at first use - before gathering context, even with no ticket/);
+  assert.match(text, /a restored session \(`gauntlet-resume` routes there\) loads it once; a same-session redraw or a second brainstorm in one session reuses the content already in context/);
   assert.match(text, /Read \[Spec Self-Review\].*before spec-writing or restored step 8/);
   assert.match(text, /unreadable -> stop with a blocking error, never reconstruct from memory/);
 });
@@ -65,7 +67,7 @@ test('restored and redraw entry load the ticket contract before questionary or l
   const text = main();
   for (const [step, action] of [[4, 'Understand the idea'], [8, 'Spec self-review']]) {
     const checkpoint = text.match(new RegExp(`^${step}\\. .*`, 'm'))[0];
-    assert.match(checkpoint, /read \[Ticket Handling\]\(#ticket-handling\)/);
+    assert.match(checkpoint, /if `reference\/ticket-acceptance.md` is not already in context this session \(restored entry, or a redraw after a fresh start\), read \[Ticket Handling\]\(#ticket-handling\) before the rest of this step/);
     assert.ok(checkpoint.indexOf('read [Ticket Handling]') < checkpoint.indexOf(step === 4 ? 'see [Understand' : 'run the inline'), action);
   }
 });

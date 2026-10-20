@@ -1,4 +1,5 @@
-- applied-snapshot: judged: Materializes each task's patch on the recorded wave base in a separate temporary checkout before spec-review dispatch, so whole-file reads contain that task's implementation, including added and deleted files.
+- applied-snapshot: judged: The parent materializes each accepted sibling task's patch on the recorded wave base in a separate temporary checkout before spec-review dispatch, so whole-file reads contain that task's implementation, including added and deleted files.
 - reviewer-cwd: judged: Gives each spec-review task its corresponding materialized snapshot cwd, without worktree:true, rather than the unchanged parent or deleted worker checkout.
 - authority-and-isolation: judged: Keeps the spec's authoritative absolute path in /workspace/project, leaves the parent unchanged, and does not dispatch code review before accepted spec verdicts.
 - cleanup-after-report: judged: Retains snapshots until their terminal review reports have been saved, then removes only those snapshots.
+- stopped-chain: judged: Uses plain snapshot-backed SR dispatches after the chain stop, retaining accepted siblings without another chain or rerunning their implementers.

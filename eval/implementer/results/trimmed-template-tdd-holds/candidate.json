@@ -1,0 +1,148 @@
+{
+  "sample": "trimmed-template-tdd-holds",
+  "arm": "candidate",
+  "skillSha": "0642b3465fecadf2520938f3cdf9b0cf0622b83444463108b83a68a583ca0d77",
+  "inputSha": "98394bbdd95448d8464492715ebc8803e1551d1dcfcc9d9c105ebc5ff9022cf3",
+  "kind": "text",
+  "assembly": "headed",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "# Task 2: Accept surrounding spaces in a count\n\nI have no tools in this session. Every command result below is a **supplied observation**, not output from a run I performed.\n\n## Work order\n\n**1. Baseline (modifying tested code, so existing tests run first)**\n- Scoped command: `pytest counter/test_parse.py`\n- Supplied observation: exit 0, last line `1 passed`.\n- This matches the contract's `baseline: synthetic pass`.\n\n**2. RED: extend the existing table, no new test function**\n- The existing `test_parse_count` already covers this behavior with the same setup and assertion shape. So I added one named row to `CASES` instead of writing a new test.\n- Supplied observation: exit 1, last line `1 failed, 1 passed`.\n- The new row raises `ValueError(\"not a count\")`. That is the right failure: `\" 7 \".isdigit()` is `False`. It is not an import or typo error.\n\n**3. GREEN: minimal production edit**\n- Strip the input before the digit check and the conversion.\n- Supplied observation: exit 0, last line `2 passed`.\n\n**4. REFACTOR / review**\n- No further cleanup was needed.\n- Supplied observation for final verification: exit 0, last line `2 passed`.\n\n## Changed code\n\n`counter/test_parse.py`:\n```python\nfrom counter.parse import parse_count\nimport pytest\n\nCASES = [\n    (\"plain\", \"7\", 7),\n    (\"surrounding spaces\", \" 7 \", 7),\n]\n\n@pytest.mark.parametrize(\"name,text,expected\", CASES)\ndef test_parse_count(name, text, expected):\n    assert parse_count(text) == expected\n```\n\n`counter/parse.py`:\n```python\ndef parse_count(text):\n    stripped = text.strip()\n    if not stripped.isdigit():\n        raise ValueError(\"not a count\")\n    return int(stripped)\n```\n\n## Report\n\n**Files changed**\n- `counter/parse.py`\n- `counter/test_parse.py`\n\n**Test-contract evidence**\n- `pytest counter/test_parse.py`: `met` (exit 0; last output line `2 passed`). This is a supplied observation for the final verification.\n- via `parse_count()`: `met counter/test_parse.py:11`. The test calls the seam directly in `assert parse_count(text) == expected`.\n\n**Deviations:** none. The `\"plain\"` row is kept, so plain counts are still covered.\n\n**Blockers / follow-ups**\n- None blocking.\n- Possible open question for the parent: should other whitespace, such as tabs and newlines, also be accepted? `str.strip()` accepts them. The plan only specified spaces, so I added no rows for them.\n\n**Status:** DONE\n",
+      "words": 308,
+      "wallMs": 13969,
+      "mechanical": {
+        "m1": "holds",
+        "m2": "holds",
+        "m3": "holds"
+      }
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "### Work order\n\nUsing the supplied observations—not commands I executed:\n\n1. **Baseline:** Before edits, `pytest counter/test_parse.py` exited 0: `1 passed`.\n2. **RED:** Added a surrounding-spaces row to the existing parameter table. The scoped command exited 1: `1 failed, 1 passed`. The new row raised `ValueError(\"not a count\")`, confirming the intended failure.\n3. **GREEN:** Stripped surrounding whitespace before validation. The scoped command exited 0: `2 passed`.\n4. **REFACTOR:** Reviewed; no further changes needed. Final verification exited 0: `2 passed`.\n\n### Changed code\n\n`counter/test_parse.py`:\n```python\nfrom counter.parse import parse_count\nimport pytest\n\nCASES = [\n    (\"plain\", \"7\", 7),\n    (\"surrounding spaces\", \" 7 \", 7),\n]\n\n@pytest.mark.parametrize(\"name,text,expected\", CASES)\ndef test_parse_count(name, text, expected):\n    assert parse_count(text) == expected\n```\n\n`counter/parse.py`:\n```python\ndef parse_count(text):\n    text = text.strip()\n    if not text.isdigit():\n        raise ValueError(\"not a count\")\n    return int(text)\n```\n\n### Final report\n\n**Status:** DONE\n\n- **Files changed:** `counter/parse.py`, `counter/test_parse.py`.\n- **Command evidence:** `pytest counter/test_parse.py` — met, supplied final exit 0; last output line: `2 passed`.\n- **Direct-seam evidence:** `parse_count()` — met, `counter/test_parse.py:11` calls it directly.\n- **Deviations:** None.\n- **Blockers / follow-ups:** None.\n- **Execution disclosure:** All test results above are supplied observations; I ran no commands.\n",
+      "words": 167,
+      "wallMs": 10276,
+      "mechanical": {
+        "m1": "holds",
+        "m2": "holds",
+        "m3": "holds"
+      }
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "40f935b93fab03b30ee71c2a7088ba14875874f9b0b18f2b15c2007c33a11532",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "d0b720e9be51d8de89d95e75679855ba354c87ba5ee9271d78e3cc2ad2cc667e",
+      "baselineOutputSha": "725e70e293f948c27666f8b02200ffe7821e718fe999cfbc018bae80d1180a17",
+      "candidateOutputSha": "f77f1fb11984aa10423d7c8c6f9db55354e748df5a6d040b555211360b3f65ce",
+      "facts": {
+        "f1": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "f2": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "f3": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "f4": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "f5": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "m1": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "m2": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "m3": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "No fact moved. Both outputs name the modifying-tested-code scenario, order baseline (1 passed) → RED table row (1 failed, 1 passed, ValueError) → GREEN (2 passed) → final (2 passed), and both frame every result as a supplied observation; After is actually crisper here with its explicit 'no tools in this session' disclaimer, whereas Before's 'I ran the existing tests first' is slightly loose before it disclaims execution. Both add one named ('surrounding spaces', ' 7 ', 7) row to CASES with no new function or fixture, both strip before isdigit, both use only pytest counter/test_parse.py and report met with exit 0 / `2 passed`. After reformatted CASES onto multiple lines, which shifted the assertion from line 8 to line 11, and it correctly updated the via evidence to counter/test_parse.py:11, so f5 still holds; to reduce this risk in future runs, the template could nudge the implementer to keep the table on one line (or to re-count the line after reformatting), but as written After delivers the Change with every fact intact. Minor stylistic note: After drops the backticks around DONE in the Status line; keep whatever exact form the template specifies so status parsing stays stable.",
+      "wallMs": 18378,
+      "verdict": "improved"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "40f935b93fab03b30ee71c2a7088ba14875874f9b0b18f2b15c2007c33a11532",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "d0b720e9be51d8de89d95e75679855ba354c87ba5ee9271d78e3cc2ad2cc667e",
+      "baselineOutputSha": "f127639bb311738cd58063b69d3a1db51d460320e120ac9ab5ba2071d54b3172",
+      "candidateOutputSha": "37184a32c69e3710be9d69dccd373fc135cb214980ffaf3c4b1cf43b1500db78",
+      "facts": {
+        "f1": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "f2": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "f3": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "f4": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "f5": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "m1": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "m2": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "m3": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "Nothing moved: After keeps the same baseline → RED (table row) → GREEN → REFACTOR ordering, attributes every result to supplied observations, extends CASES with a named spaces row while retaining the single direct parse_count assertion, makes the minimal strip-before-validation change, reports only the scoped command with exit 0 and `2 passed`, and cites counter/test_parse.py:11, which matches the shifted assertion in the full file it displays (and is in fact clearer than Before's partial snippet, since the reader can verify the line number). Two minor observations for robustness rather than correctness: neither version explicitly names 'modifying tested code' as the scenario — the Baseline step implies it, but a one-clause label (e.g., 'Modifying tested code: ran existing tests first') would make f1 unambiguous; and After dropped the 'Implemented' and 'Self-review' lines, which is consistent with the trimmed template delegating conduct to the persona, but step 4 could say 'the scoped command' instead of the bare 'Final verification' to keep the command name attached to every observation.",
+      "wallMs": 19337,
+      "verdict": "unchanged"
+    }
+  },
+  "repoSha": "1269c2c1e3c260af57d45acd77fe38a6b19853e1"
+}

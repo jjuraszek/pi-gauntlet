@@ -44,11 +44,11 @@ Work through the items below **in order**. After a user answer or completed side
 
 2. **Set up the worktree** - see [Worktree First](#worktree-first).
 3. **Gather context** - read [Ticket Handling](#ticket-handling), then follow [`gatherer.md`](gatherer.md) without a human stop.
-4. **Understand the idea against the draft** - read [Ticket Handling](#ticket-handling), then see [Understand the idea](#3-understand-the-idea).
+4. **Understand the idea against the draft** - if `reference/ticket-acceptance.md` is not already in context this session (restored entry, or a redraw after a fresh start), read [Ticket Handling](#ticket-handling) before the rest of this step; then see [Understand the idea](#3-understand-the-idea).
 5. **Propose 2-3 approaches** - see [Explore approaches](#4-explore-approaches).
 6. **Present the design** - see [Present the design in two rounds](#6-present-the-design-in-two-rounds).
 7. **Write the spec** - read [Spec Self-Review](#spec-self-review-before-user-review-gate) before writing; follow steps 1-5.
-8. **Spec self-review (lint)** - read [Ticket Handling](#ticket-handling), then run the inline checks in [Spec Self-Review](#spec-self-review-before-user-review-gate).
+8. **Spec self-review (lint)** - if `reference/ticket-acceptance.md` is not already in context this session (restored entry, or a redraw after a fresh start), read [Ticket Handling](#ticket-handling) before the rest of this step; then run the inline checks in [Spec Self-Review](#spec-self-review-before-user-review-gate).
 9. **Critique pass (auto-dispatched)** - use [Spec Council](#spec-council).
 10. **Re-run placeholder scan** - follow [Spec Self-Review](#spec-self-review-before-user-review-gate).
 11. **Generate spec summary** - follow [User Review Gate](#user-review-gate).
@@ -148,7 +148,7 @@ Use two rounds, targeting 300-500 words each, with one approval each; revisions 
 
 ## Ticket Handling
 
-Read [Ticket Handling](reference/ticket-acceptance.md) before gathering context or step-4/8 entry, even with no ticket; unreadable -> stop with a blocking error, never reconstruct from memory.
+Read [Ticket Handling](reference/ticket-acceptance.md) at first use - before gathering context, even with no ticket. Steps 4 and 8 carry the same read behind an in-context check so a restored session (`gauntlet-resume` routes there) loads it once; a same-session redraw or a second brainstorm in one session reuses the content already in context. Unreadable -> stop with a blocking error, never reconstruct from memory.
 
 ## First-Feature Oversight (Early Project Stages)
 
@@ -186,7 +186,7 @@ Classify first. Redraw test: the change alters the problem statement, adds or re
 
 Amend -> `read` `reference/amendment-surface.md` and follow it (unreadable -> stop with a blocking error; never improvise the grammar). Apply its [Standing grants](reference/amendment-surface.md#standing-grants) boundaries.
 
-Redraw: keep the worktree and the approved spec file. `plan_tracker({ action: "clear" })`, `phase_tracker({ action: "reset" })`, `phase_tracker({ action: "start", phase: "brainstorm" })`, delete the plan file, resume at checklist step 4 with the approved spec as the draft (steps 2-3 skipped). Spec-writing overwrites it; the full gate follows.
+Redraw: keep the worktree and the approved spec file. `plan_tracker({ action: "clear" })`, `phase_tracker({ action: "reset" })`, `phase_tracker({ action: "start", phase: "brainstorm" })`, delete the plan file, resume at checklist step 4 with the approved spec as the draft (steps 2-3 skipped); step 4's first-use check covers the read. Spec-writing overwrites it; the full gate follows.
 
 ## Red Flags — STOP
 
@@ -207,6 +207,6 @@ Redraw: keep the worktree and the approved spec file. `plan_tracker({ action: "c
 
 ## Project overrides
 
-If a gauntlet overrides file exists - checked in order: `.pi/gauntlet-overrides.md`, `<repo root>/gauntlet-overrides.md`, `<repo root>/doc/gauntlet-overrides.md`; first found wins - read it. Read and apply `## conventions` whenever present, without a relevance judgment. Give this skill's named section precedence over conflicting `## conventions` rules. Use other relevant sections - by name match, by topic (routing, verification, worktrees, etc.), or by workflow convention - to override or extend the instructions above. Project-local `AGENTS.md` is already in context — check it for project-specific routing tables, service paths, and verification commands.
+If a gauntlet overrides file exists - checked in order: `.pi/gauntlet-overrides.md`, `<repo root>/gauntlet-overrides.md`, `<repo root>/doc/gauntlet-overrides.md`; first found wins - read it once per session - a skill that already has the file's content in context from an earlier skill's read skips the read; a restored session has nothing in context and reads it. Read and apply `## conventions` whenever present, without a relevance judgment. Give this skill's named section precedence over conflicting `## conventions` rules. Use other relevant sections - by name match, by topic (routing, verification, worktrees, etc.), or by workflow convention - to override or extend the instructions above. Project-local `AGENTS.md` is already in context — check it for project-specific routing tables, service paths, and verification commands.
 
 The recognized headings, their readers, and the rules an override cannot change are listed in the [configuration front door](../../README.md#project-specific-overrides); an override extends or replaces the step it names and never lifts this skill's HARD CONSTRAINT or MUST text.

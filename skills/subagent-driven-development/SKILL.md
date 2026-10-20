@@ -120,6 +120,8 @@ Implementer prompt templates must instruct subagents to return one of these stat
 
 ## Dispatch
 
+For the fan-out + worktree + patch-integration + conflict mechanics, see `dispatching-parallel-agents`.
+
 Pass the implementation worktree as top-level `cwd`. For per-patch spec reviews, use [Spec-review snapshots](#spec-review-snapshots) instead.
 
 ```ts
@@ -164,7 +166,7 @@ Run every plan task through this loop in a wave of N >= 1 tasks. Run waves in se
 **Per-wave loop:**
 
 1. **Independence check.** Parse the wave's tasks' `Files:` blocks; assert pairwise-disjoint (mechanical, mirroring `wave-file-disjointness`: `Test`/`Test` on one path is not overlap, `Test` vs another task's `Create`/`Modify` is, `Modify`/`Modify` is). Runtime-resource disjointness (DB/schema, port, fixture, external service, shared temp path) is not machine-checkable here — trust the plan's wave grouping, which `writing-plans`' D5 contract guarantees. Either kind of overlap → the wave is mis-grouped; split it into one-task waves and note it.
-2. **Start, then dispatch.** Record `WAVE_BASE_SHA` with `git -C <worktree> rev-parse HEAD` before dispatch; keep it fixed through the wave's commit. Mark every wave index `in_progress` in increasing index order. Use the once-per-phase preflight below to choose exactly one initial chain (including one-task waves), or the fallback implementer fan-out.
+2. **Start, then dispatch.** Record `WAVE_BASE_SHA` with `git -C <worktree> rev-parse HEAD` before dispatch; keep it fixed through the wave's commit. Mark every wave index `in_progress` in increasing index order. Run the once-per-phase preflight below before dispatching exactly one initial chain (including one-task waves).
 3. **Read the result once.** Read statuses, verdicts, patches, and reports as specified below. All implementers `DONE` and all verdicts `COMPLIANT` -> step 4. Any other outcome -> [Chain stopped or failed](#chain-stopped-or-failed). The ticket's `FAIL` means a spec gap (`NEEDS_REWORK`), not a structured verdict or an SR `stopOn` condition.
 4. **Integrate.** Run `git -C <worktree> apply --index <patch-path>` for each accepted task's patch sequentially. This stages additions as well as tracked changes for review. On an apply failure, drop that task from the wave; finish steps 5-7 for the survivors, then re-dispatch the dropped task as a one-task wave from the new committed HEAD. With zero surviving patches, skip steps 5-7 and retry the failed task from the unchanged clean HEAD under [When a Subagent Fails](#when-a-subagent-fails)'s two-attempt limit; dispatch no empty review or commit. Keep its tracker index `in_progress` until its own wave commits.
 5. **Test gate.** Run the wave's `SCOPED_TEST_COMMANDS` (union of its tasks' `Tests:` commands) on the integrated tree as `(cd "<worktree>" && <command>)` for each command — the full verification set is the verify phase's job, run once. On failure, dispatch one plain in-place `implementer` in the branch checkout with the failing output, the owning task's full text, and the wave's `SCOPED_TEST_COMMANDS`, under [When a Subagent Fails](#when-a-subagent-fails), then rerun the scoped gate. After the repaired tree passes, stage repair deliverables with `git -C <worktree> add -A` and dispatch spec review for every affected task against the integrated checkout before the initial CR; prior SR acceptance does not cover the repair. Pass each affected task's full text, absolute spec path, `Spec:` anchors, `Tests:` block, and `- Test:` paths; record its review tree per [Fix delta](#fix-delta). Resolve SR findings through [Fix-Loop Rounds](#fix-loop-rounds), with repairs in place and the scoped gate rerun. Never dispatch a nested wave from this dirty checkout: children cannot see integrated siblings from the old HEAD.
@@ -177,17 +179,50 @@ Run every plan task through this loop in a wave of N >= 1 tasks. Run waves in se
 
 **Caveat:** each task must be independently runnable and verifiable in a fresh worktree — no reliance on uncommitted local state. `pi-cohort` symlinks `node_modules`; repos needing other per-worktree setup must account for it.
 
-Requires pi-cohort >= 7.4.0 for `treePath` (`stopOn` is 7.3.0); below it, the preflight turns the chain off and the wave runs as today's two fan-outs.
+Run this guard once per implement phase before the first wave. Stop on any error before dispatch; read the peer floor from the installed gauntlet package, not the consumer repository.
 
-Before the first wave, run this lookup once per implement phase, observing both commands' failures (use shell pipeline failure detection):
-
+<!-- pi-cohort-preflight-shell -->
 ```bash
-set -o pipefail
-COHORT_DIR=$(pi list | grep -A1 'pi-cohort$' | tail -1 | tr -d ' ')
-COHORT_VERSION=$(node -p "require('$COHORT_DIR/package.json').version")
+PI_PACKAGES=$(pi list) || { echo 'pi-cohort not installed' >&2; exit 1; }
+export PI_PACKAGES
+node <<'NODE'
+const { readFileSync } = require('node:fs');
+const { join } = require('node:path');
+const lines = process.env.PI_PACKAGES.split('\n');
+function directory(name) {
+  for (let i = 0; i < lines.length - 1; i++) {
+    const source = lines[i].match(/^(\s+)\S/);
+    const path = lines[i + 1].match(/^(\s+)\S/);
+    if (!source || !path || path[1].length <= source[1].length) continue;
+    const dir = lines[++i].trim();
+    try {
+      if (JSON.parse(readFileSync(join(dir, 'package.json'), 'utf8')).name === name) return dir;
+    } catch {}
+  }
+}
+function fail(message) { console.error(message); process.exit(1); }
+const cohort = directory('pi-cohort');
+if (!cohort) fail('pi-cohort not installed');
+let installed;
+try { installed = JSON.parse(readFileSync(join(cohort, 'package.json'), 'utf8')).version; }
+catch { fail('pi-cohort not installed'); }
+let peer;
+try {
+  peer = JSON.parse(readFileSync(join(directory('pi-gauntlet'), 'package.json'), 'utf8')).peerDependencies['pi-cohort'];
+} catch { fail('cannot read peer floor'); }
+if (typeof peer !== 'string' || !/^>=\d+\.\d+\.\d+$/.test(peer)) fail('cannot read peer floor');
+const floor = peer.slice(2);
+if (typeof installed !== 'string' || !/^\d+\.\d+\.\d+$/.test(installed)) fail(`cannot parse pi-cohort version ${installed}`);
+const minimum = floor.split('.').map(Number);
+const actual = installed.split('.').map(Number);
+for (let i = 0; i < 3; i++) {
+  if (actual[i] < minimum[i]) fail(`pi-cohort >= ${floor} required, found ${installed}`);
+  if (actual[i] > minimum[i]) break;
+}
+NODE
+PREFLIGHT_STATUS=$?
+[[ "$PREFLIGHT_STATUS" == 0 ]] || exit "$PREFLIGHT_STATUS"
 ```
-
-Compare the three semver components numerically against 7.4.0, not lexicographically. On a lower or unparseable version, or either command's failure, use the two fan-outs for every wave in this run. Note `pi-cohort <version>: chain disabled` once with the observed version; display `unknown` and the lookup failure when discovery failed. A 7.3.x runtime must never receive the chain: it passes the literal tree reference to SR. The package peer floor is declarative; pi-managed packages do not auto-install peers.
 
 Pass the implementation worktree's absolute path as top-level `cwd`. Per-task `cwd` outranks step and run `cwd`; only the SR tasks override it. Rule and rationale for editing dispatches: `dispatching-parallel-agents` "pi-cohort Integration".
 
@@ -234,28 +269,9 @@ subagent({
 
 Count the clean code-wave path as one chain plus one separate CR `subagent()` call; integration and tests remain parent actions between them. Use positional 1-based `impl_<n>` and `sr_<n>` names; map results to plan indices by wave position. Keep `context`, `async`, and top-level `cwd` invocation-level; `worktree`, `concurrency`, and `stopOn` step-level; `as`, `outputSchema`, `cwd`, `output`, `acceptance`, and `task` per-task. Give the SR step neither `worktree` nor `stopOn`, and its tasks no `outputSchema`.
 
-Tell SR to start from diff hunks carrying `file:line`, read every touched file in full from its materialized tree, read deleted files from `WAVE_BASE_SHA`, and never run tests. Pass the authoritative spec's absolute implementation-worktree path; SR reads the anchored ranges itself (never inline excerpts; authority hierarchy in `./spec-reviewer-prompt.md`; anchor-less tasks are task-text-only). Output references resolve only in `task` strings and `cwd` (`treePath` only), never `reads:`; paste no diff into the chain payload. Rely on pi-cohort's `structured_output` injection only for implementers carrying `outputSchema`; 7.4.0 orders an enabled acceptance report before that call. Keep SR schema-free because no `stopOn` reads its verdict. Disable acceptance on each initial chained SR task with `none` and a nonempty reason because the parent reads each `Verdict:` line and review trees are staged by design: risky-word inference precedes read-only inference, non-none explicit levels only raise the inferred level, and `checked` or higher requires no staged files; snapshot-backed spec reviews and code review carry no `acceptance` field. Keep prompts and persona vocabularies unchanged.
+Tell SR to start from diff hunks carrying `file:line`, read every touched file in full from its materialized tree, read deleted files from `WAVE_BASE_SHA`, and never run tests. Pass the authoritative spec's absolute implementation-worktree path; SR reads the anchored ranges itself (never inline excerpts; authority hierarchy in `./spec-reviewer-prompt.md`; anchor-less tasks are task-text-only). Output references resolve only in `task` strings and `cwd` (`treePath` only), never `reads:`; paste no diff into the chain payload. Rely on pi-cohort's `structured_output` injection only for implementers carrying `outputSchema`; the runtime orders an enabled acceptance report before that call. Keep SR schema-free because no `stopOn` reads its verdict. Disable acceptance on each initial chained SR task with `none` and a nonempty reason because the parent reads each `Verdict:` line and review trees are staged by design: risky-word inference precedes read-only inference, non-none explicit levels only raise the inferred level, and `checked` or higher requires no staged files; snapshot-backed spec reviews and code review carry no `acceptance` field. Keep prompts and persona vocabularies unchanged.
 
 Read the tool-result text, not `details`: read implementer statuses from fenced JSON in `## Outputs` and the `## Stop` line; read SR verdicts from the `Verdict:` line of each SR `output:` report, one of `COMPLIANT`, `NEEDS_REWORK`, or `OUT_OF_SCOPE_CHANGES`. Read patch locations from `Artifacts:`: `<Artifacts dir>/worktree-diffs/step-0/task-<i>-implementer.patch`, with 0-based wave position `<i>`. Use these artifact patches for integration and later repairs. Exit-0 reports are the known `output:` files. A nonzero task has no `output:` file and no bound output. Recover its prose from its session `subagent-artifacts` output file (`<runId>_implementer_<index>_output.md`, defined by pi-cohort `src/shared/artifacts.ts`), matching the run/task identity in the result or session transcript. Use the same source-defined per-agent naming for a failed reviewer. Do not use the chain's empty `parallel-0/` directories for failed prose. If artifacts are disabled, missing, or cannot be unambiguously matched, enter [When a Subagent Fails](#when-a-subagent-fails) with the visible diagnostic; never invent a status. Keep SR's large-wave `outputMode: "file-only"` hint; read the report itself, not its `Output saved to:` pointer. Carry its full contents verbatim under `## Previous review report (re-review trigger)` on re-review.
-
-**Older-runtime fallback only:** use this plain implementer fan-out, then the snapshot-backed SR fan-out below. Keep the same report-path wave/task mapping.
-
-```ts
-subagent({
-  context: "fresh",
-  async: false,
-  cwd: "/abs/path/to/this/worktree",  // REQUIRED: the worktree path, else children branch from main
-  worktree: true,        // each task in its own git worktree, branched from cwd's HEAD
-  concurrency: 4,        // default; cap = wave size
-  tasks: [
-    // do NOT set per-task cwd under worktree:true — it must equal the top-level cwd or the run errors
-    { agent: "implementer", task: "<task text + owned files + SCOPED_TEST_COMMANDS + status protocol>", output: "<REPORT_DIR>/wave1-task1.md" },
-    { agent: "implementer", task: "<task text + owned files + SCOPED_TEST_COMMANDS + status protocol>", output: "<REPORT_DIR>/wave1-task2.md" },
-  ],
-})
-```
-
-For the fan-out + worktree + patch-integration + conflict mechanics, see `dispatching-parallel-agents`.
 
 ### Chain stopped or failed
 
@@ -266,7 +282,6 @@ Route the result already read in step 3; retain all successful sibling patches a
 | Exit-0 stop (`## Stop`) with no failed siblings | Siblings finished, statuses remain in `## Outputs`, and no SR step ran. Judge `DONE_WITH_CONCERNS`, handle `NEEDS_CONTEXT` and `BLOCKED` per the status table, then snapshot accepted patches and use the ordinary SR fan-out below. |
 | Chain error, with or without `## Stop` | Identify and diagnose every failed task from the result, including prose `**Status:**` / `Verdict:` recovered through the session-artifact rule above. Completion-guard failure with no edits, rejected/missing `structured_output`, failed `treePath`, and sibling process failure all take this route. Handle a recoverable `BLOCKED` or `NEEDS_CONTEXT` through its status matrix even when that unaccepted task has no patch. Route a task with no recoverable status, or an accepted task with a missing/empty patch, to [When a Subagent Fails](#when-a-subagent-fails) with the visible diagnostic; never invent a status or review an unchanged tree. Retain exit-0 SR verdicts obtained in a materialized tree; dispatch only accepted patches without a verdict. Successful siblings are never re-run. |
 | Completed chain with `NEEDS_REWORK` or `OUT_OF_SCOPE_CHANGES` | Repair only those tasks using the spec-gap loop below. Preserve passing sibling patches/verdicts. |
-| Older-runtime fallback | Parse the plain fan-out statuses, then use the same snapshot-backed SR and fix loop below. |
 
 Parse each `DONE`/`BLOCKED`/etc. (see [Implementer Status](#implementer-status)) **first**. Then **dispatch a `spec-reviewer` per accepted patch** (`DONE`, or a `DONE_WITH_CONCERNS` you proceeded with) still missing a verdict in one parallel fan-out - `context: "fresh"`, each task's `cwd` = its [Spec-review snapshot](#spec-review-snapshots), **no `worktree` flag** (read-only) - each passed its full task text, the returned **patch diff**, the absolute spec path, and the task's `**Spec:**` anchors, plus its `**Tests:**` block and `- Test:` paths as contract. SR reads the anchored ranges itself (never inline excerpts; authority hierarchy in `./spec-reviewer-prompt.md`; anchor-less tasks are task-text-only). Review starts from the diff (its hunks carry `file:line`) and reads each touched file in full; test execution is never the reviewer's job (step 5 runs the wave's `SCOPED_TEST_COMMANDS`). Inline verdicts are fine at normal wave sizes; large waves use `output:` + `outputMode: "file-only"`; read the full report file itself.
 
@@ -274,7 +289,7 @@ Parse each `DONE`/`BLOCKED`/etc. (see [Implementer Status](#implementer-status))
 
 ## Spec-review snapshots
 
-Materialize each accepted patch for every pre-integration review not run by the chain: accepted siblings after errors/stops, replacement patches on re-review, and older-runtime fallback. Keep the implementation worktree unchanged; pi-cohort removes its worker checkouts before returning patches.
+Materialize each accepted patch for every pre-integration review not run by the chain: accepted siblings after errors/stops, replacement patches on re-review. Keep the implementation worktree unchanged; pi-cohort removes its worker checkouts before returning patches.
 
 Substitute shell-quoted literals for the implementation worktree, the recorded `WAVE_BASE_SHA`, and the absolute patch path. Run this block once per patch:
 
@@ -314,67 +329,7 @@ Record its review tree per [Fix delta](#fix-delta) before every parent-dispatche
 2. **Whole-diff code review.** Only after passing full verification, dispatch one foreground whole-diff `code-reviewer` per `/skill:requesting-code-review` against that committed HEAD, with `SCOPED_TEST_COMMANDS: none`; the reviewer does not repeat the full suite. Act on the verdict per `/skill:requesting-code-review` Fix rounds; carry the final `SHIP` report's Minor finding lines verbatim into the closure block's `whole-diff minors:` section (`verification-before-completion/reference/conformance-check.md` "Closure / conformance"), or `whole-diff minors: none`. Before dispatching a review repair, reopen (`in_progress`) every existing plan-task index whose `Files:` ownership includes its touched files; leave unowned cross-cutting repair work in the review report. Mark each reopened index `complete` only once the repair is re-verified and the re-review accepts it — this is the same completion point step 1's reopened indices wait for, not an extra gate, and the gate order stays full verification -> whole-diff CR -> conformance. Any repair invalidates prior full verification, so rerun the full set successfully before the next gate.
 3. **Close the loop — conformance check.** The review in step 2 is plan-vs-code (single-step); it inherits any requirement the plan already dropped.
 
-   **Happy-path run - first action of this step, only when the plan header carries a `**Happy path:**` line or the diff selects a row.** The overrides file's `## Happy path` table (schema in the README overrides contract) names path-prefixed rows; the plan header's line is the plan-time default.
-
-   1. Re-derive the row from `git -C "<worktree>" diff --name-only <base>..HEAD` (`<base>` = the branch point): two or more non-`cross-cutting` rows, or a path inside the `cross-cutting` row's own `Paths` and inside no other row's -> `cross-cutting`, taking precedence (no `cross-cutting` row -> no run and no outcome line); else paths inside exactly one non-`cross-cutting` row's `Paths` -> that row; none -> no run and no outcome line. Run the diff-derived row; when it differs from the header label, record `row: <diff-derived> (header: <label>)` in `summary.txt`.
-   2. Substitute shell-quoted literal values for every placeholder in this one bash block: the absolute worktree path, command verbatim, first command token after leading `NAME=value` assignments, duration (default `10m`), diff-derived row, and optional header label (use the row label when absent). Derive the token from the declared command without evaluating it or parsing general shell grammar. Run the entire block in one tool call; do not carry shell variables between calls. Read its printed summary path and outcome for subsequent tools.
-
-      <!-- happy-path-shell -->
-      ```bash
-      HP_WORKTREE={{HP_WORKTREE}}
-      HP_CMD={{HP_COMMAND}}
-      HP_TOKEN={{HP_TOKEN}}
-      HP_DURATION={{HP_DURATION}}
-      HP_ROW={{HP_ROW}}
-      HP_HEADER={{HP_HEADER}}
-      HP_DIR=$(mktemp -d) || exit 1
-      HEAD=$(git -C "$HP_WORKTREE" rev-parse HEAD) || exit 1
-      HP_LABEL=$HP_ROW
-      if [[ "$HP_HEADER" != "$HP_ROW" ]]; then HP_LABEL="$HP_ROW (header: $HP_HEADER)"; fi
-      if ! TO=$(command -v timeout || command -v gtimeout); then
-        OUTCOME='happy-path: not run - no timeout binary'
-      elif [[ -z "$HP_TOKEN" || -z "${HP_CMD//[[:space:]]/}" ]] || ! (cd "$HP_WORKTREE" && command -v "$HP_TOKEN" >/dev/null); then
-        OUTCOME='happy-path: not run - command not found'
-      else
-        BEFORE=$(git -C "$HP_WORKTREE" status --porcelain --untracked-files=all) || exit 1
-        if (cd "$HP_WORKTREE" && "$TO" -k 30s "$HP_DURATION" bash -c "$HP_CMD") >"$HP_DIR/transcript.log" 2>&1; then
-          EXIT=0
-        else
-          EXIT=$?
-        fi
-        AFTER=$(git -C "$HP_WORKTREE" status --porcelain --untracked-files=all) || exit 1
-        if [[ "$BEFORE" != "$AFTER" ]]; then
-          OUTCOME="happy-path: failed - dirtied worktree: ${AFTER//$'\n'/; }"
-        elif [[ "$EXIT" == 0 ]]; then
-          OUTCOME='happy-path: passed'
-        elif [[ "$EXIT" == 75 ]]; then
-          OUTCOME="happy-path: not run - environment unavailable: $(tail -n 1 "$HP_DIR/transcript.log")"
-        elif [[ "$EXIT" == 124 || "$EXIT" == 137 ]]; then
-          OUTCOME="happy-path: failed - timed out after $HP_DURATION"
-        elif [[ "$EXIT" == 126 ]]; then
-          OUTCOME='happy-path: not run - not executable'
-        else
-          OUTCOME="happy-path: failed (exit $EXIT)"
-        fi
-      fi
-      { printf '%s\nhead: %s\nrow: %s\n' "$OUTCOME" "$HEAD" "$HP_LABEL"; if [[ -f "$HP_DIR/transcript.log" ]]; then printf '\n'; tail -n 200 "$HP_DIR/transcript.log"; fi; } >"$HP_DIR/summary.txt" || exit 1
-      printf 'summary: %s\noutcome: %s\n' "$HP_DIR/summary.txt" "$OUTCOME"
-      ```
-
-   3. If the block exits non-zero or its printed summary is missing/unreadable, stop verification and report the shell error; never dispatch conformance with the selected run omitted. Distinguish this runner failure from a command's `failed`/`not run` outcome recorded in a readable summary. Treat any status difference (tracked or untracked residue) as failed regardless of exit code. Never stage or commit the listed paths as deliverables; remove untracked residue and restore tracked residue (`git -C "<worktree>" checkout -- <paths>`) explicitly before the conformance dispatch, so the tree is clean when the audit-time input rule runs.
-
-   | Condition | Outcome line |
-   |---|---|
-   | worktree differs after run | `happy-path: failed - dirtied worktree: <paths>` |
-   | exit 0, worktree clean | `happy-path: passed` |
-   | exit 75 | `happy-path: not run - environment unavailable: <last line of transcript.log>` |
-   | exit 124, or 137 after the `-k` kill | `happy-path: failed - timed out after <duration>` |
-   | exit 126 | `happy-path: not run - not executable` |
-   | pre-check failed | `happy-path: not run - <reason>` |
-   | any other non-zero | `happy-path: failed (exit <n>)` |
-   | no header line and no diff-derived row | no run, no outcome line |
-
-   A timeout is `failed`, not `not run`: a consumer that never receives its message hangs, and the reviewer must see it; `not run` is reserved for a command that never executed. `timeout -k 30s` sends `TERM` then `KILL`; a script that does not trap `TERM` leaves its stack up, and the next run's exit 75 surfaces that. The full `transcript.log` stays in `$HP_DIR` for the human; the reviewer receives `summary.txt` only (outcome, `head:`, `row:`, 200-line tail). A `failed` or `not run` outcome never stops the flow and never becomes a repair item at this step - it is evidence for the audit; `$HP_DIR` and the outcome carry into the fix loop per `conformance-check.md`. Never split the shell block across calls.
+   **Happy-path run:** When the plan header carries a `**Happy path:**` line or the diff selects a row, `read` `reference/happy-path-run.md` at its absolute path beside this skill and follow its instructions. On an unreadable reference, stop with a blocking error; never reconstruct the runner.
 
    Before marking verify complete, dispatch a fresh-context **`conformance-reviewer`** — its **own** dispatch, never fused into the step-2 review — to confront the deliverable (code **and** docs) against the *origin* — the spec **and** the original prompt — per `verification-before-completion/reference/conformance-check.md`. Pass the spec path, the verbatim original prompt, the full diff, and - when a run happened - `Happy path: <abs path to $HP_DIR/summary.txt> (<outcome>)` (`<outcome>` = the outcome line without its `happy-path: ` prefix). Follow that reference for the partition rule, concern decomposition, and fix-loop mechanics; do not reimplement them here. The fix loop reuses durable `Gn` gap indices as defined in conformance-check.md; it never calls `phase_tracker`. Call `phase_tracker({ action: "complete", phase: "verify" })` only when the reference says the handoff is durably complete: either a current `CONFORMS` result, or a current `## Closure / conformance` inventory whose carried-open concerns all come from valid deferred gaps, including `recommended: fix` gaps carried open because a declared precondition made the fix loop unavailable (`maxFixRounds: 0`, or no eligible named-branch worktree). A started positive-cap fix loop that blocks, fails, or exhausts its rounds with an open `fix` gap is escalation, not completion; on escalation, do not complete verify, stop and report.
 4. Summarize what was implemented (tasks completed, files changed, test counts, code-review verdict). Emit the `## Closure / conformance` block exactly as defined in `verification-before-completion/reference/conformance-check.md`: it must open with the sentinel (`status: CONFORMS (0 open)` or `status: GAPS (N open)`, then `audited-base: <full HEAD SHA>`, then - exactly when a happy-path run happened - `happy-path: <value of the reviewer's Happy path: line from the final audit, the text after Happy path: >`), then carry the exact durable concern schema by reference with no renamed or reformatted fields. `finishing-a-development-branch` Step 3.5 consumes that block verbatim.
@@ -409,6 +364,6 @@ Record its review tree per [Fix delta](#fix-delta) before every parent-dispatche
 
 ## Project overrides
 
-If a gauntlet overrides file exists - checked in order: `.pi/gauntlet-overrides.md`, `<repo root>/gauntlet-overrides.md`, `<repo root>/doc/gauntlet-overrides.md`; first found wins - read it. Read and apply `## conventions` whenever present, without a relevance judgment. Give this skill's named section precedence over conflicting `## conventions` rules. Use other relevant sections - by name match, by topic (routing, verification, worktrees, etc.), or by workflow convention - to override or extend the instructions above. Project-local `AGENTS.md` is already in context — check it for project-specific routing tables, service paths, and verification commands.
+If a gauntlet overrides file exists - checked in order: `.pi/gauntlet-overrides.md`, `<repo root>/gauntlet-overrides.md`, `<repo root>/doc/gauntlet-overrides.md`; first found wins - read it once per session - a skill that already has the file's content in context from an earlier skill's read skips the read; a restored session has nothing in context and reads it. Read and apply `## conventions` whenever present, without a relevance judgment. Give this skill's named section precedence over conflicting `## conventions` rules. Use other relevant sections - by name match, by topic (routing, verification, worktrees, etc.), or by workflow convention - to override or extend the instructions above. Project-local `AGENTS.md` is already in context — check it for project-specific routing tables, service paths, and verification commands.
 
 The recognized headings, their readers, and the rules an override cannot change are listed in the [configuration front door](../../README.md#project-specific-overrides); an override extends or replaces the step it names and never lifts this skill's HARD CONSTRAINT or MUST text.

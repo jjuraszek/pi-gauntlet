@@ -1,0 +1,8 @@
+- f1: judged: The reply identifies modifying tested code as the TDD scenario and orders the existing passing tests before edits, then the new failing row before the production edit, then passing verification; it attributes observations to the supplied record rather than claiming tool execution.
+- f2: judged: The reply extends CASES with a named spaces row expecting 7 and keeps the existing direct parse_count assertion instead of adding a new test function or fixture machinery.
+- f3: judged: The reply makes the minimal production change to strip surrounding whitespace before validation, preserving plain counts.
+- f4: judged: The reply uses only pytest counter/test_parse.py for test commands and reports that command met with exit 0 and the exact last output line 2 passed from the supplied final observation.
+- f5: judged: The reply reports via parse_count() met with counter/test_parse.py:8 as the direct call evidence, or the exact updated line if its displayed code shifts that assertion.
+- m1: mechanical: matches /^\*\*Status:\*\* DONE\s*$/m
+- m2: mechanical: lacks "DONE_WITH_CONCERNS"
+- m3: mechanical: lacks "/Users"

@@ -1,8 +1,8 @@
 {
   "sample": "snapshot-apply-failure",
   "arm": "candidate",
-  "skillSha": "79b64041bdfde6c7db1f6e174db4f16e708e57778ac3044661c2b41a718dce7a",
-  "inputSha": "11075efd07e3d3ab1c7a42cd7170d585aadacfbd53c34490ca828c98b4c6213c",
+  "skillSha": "0e07042902bfc38ecf46273ceae1e78d5a4827eb53a28825ef5f277bacadb75a",
+  "inputSha": "43fa8fb5721bf0e716a3422ef57c0b2a332adda0224794e0b569dd638a09bd94",
   "kind": "text",
   "assembly": "headed",
   "thinking": "medium",
@@ -17,16 +17,16 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "# Decision: no reviewer is dispatched\n\nThe snapshot setup failed. `git apply --index` exited 1 with `error: patch failed: src/parse.ts:8`, and no `snapshot:` path was printed. The workflow rule for this case is direct: stop dispatch, keep the failed snapshot directory and the shell output for diagnosis, dispatch no review, and do no snapshot cleanup.\n\n**No checkout is valid as a review source:**\n- **`/tmp/review-snapshot/tree`:** the patch did not apply there, so it does not hold the task's work. It may be partially populated or hold only the base. It must not be used as a spec-reviewer `cwd`.\n- **`/workspace/project`:** this still holds the old files at `WAVE_BASE_SHA`. Pointing SR at it would mean reviewing an unchanged tree, which the workflow forbids. Before integration, SR reads a materialized snapshot, never the parent.\n- **The worker's own checkout:** it has already been deleted, so it cannot be used.\n\n# Next actions\n\n1. **Halt dispatch for this task.**\n   - Do not dispatch a `spec-reviewer`.\n   - Do not record a Fix delta tree for it. Tree capture comes only after setup succeeds.\n   - Do not apply the patch into `/workspace/project`.\n\n2. **Keep the evidence. Run none of the following:**\n   ```bash\n   # NOT run:\n   # git -C /workspace/project worktree remove --force /tmp/review-snapshot/tree\n   # rm -rf /tmp/review-snapshot\n   ```\n   - The failed snapshot directory stays in place, along with its worktree registration in `/workspace/project`.\n   - The captured stderr also stays: `error: patch failed: src/parse.ts:8`, exit 1.\n\n3. **Optional read-only diagnosis.** These commands do not dispatch anything or change any state:\n   ```bash\n   git -C /workspace/project rev-parse HEAD            # should still equal the recorded WAVE_BASE_SHA\n   git -C /workspace/project worktree list             # confirm the failed snapshot is registered and retained\n   git -C /workspace/project apply --check --verbose '<abs artifact patch path>'\n   git -C /tmp/review-snapshot/tree status --short     # what, if anything, landed before the failure\n   ```\n   A patch produced by a worker that branched from `WAVE_BASE_SHA` should apply cleanly at that base. If it does not, the likely causes are:\n   - the wrong base SHA was substituted,\n   - the wrong or stale patch path was used (for example, the wrong 0-based `task-<i>` index), or\n   - the artifact itself is corrupt.\n\n4. **Report and leave state untouched.**\n   - Report the shell error and the retained snapshot path.\n   - The worker's `DONE` status does not count as acceptance. There is no materialized review tree, and no SR verdict exists.\n   - Route the task through *When a Subagent Fails* with this visible diagnostic. Do not invent a verdict, and do not review an unchanged tree.\n\n# State after this decision\n\n- **Tracker:** the task's `plan_tracker` index stays `in_progress`. There is no `complete` and no `failed` write.\n- **Wave:** this patch does not enter step 4 integration. There is no test gate, no CR, and no wave commit for it.\n- **Other tasks:** sibling patches and their verdicts in the wave are kept, not re-run. Any later commit happens only after the wave's normal gates pass.\n\nI stop here, at the failure decision.\n",
-      "words": 470,
-      "wallMs": 17369,
+      "text": "# Snapshot setup failed: no spec review is dispatched\n\nThe spec-review snapshot rule covers this case: *\"On snapshot setup or tree-capture failure, or a missing snapshot path, stop dispatch and retain the failed snapshot directory and shell output for diagnosis; dispatch no review and perform no snapshot cleanup.\"*\n\n## What the observations show\n\n- `git apply --index` exited 1 with `error: patch failed: src/parse.ts:8`.\n- The snapshot block hit `|| exit 1` before its `printf 'snapshot: ...'` line, so no snapshot path exists.\n- The worker reported `DONE`, but its own checkout is gone. The artifact patch is the only copy of its work, and that patch does not apply to `WAVE_BASE_SHA`.\n\n## Decision\n\n1. **No reviewer is dispatched.** There is no snapshot `cwd` to give a spec reviewer.\n   - Do not point a reviewer at `/workspace/project` instead. That checkout holds the wave-base files without the patch, so the review would cover an unchanged tree. The workflow forbids that (\"never ... review an unchanged tree\").\n   - Do not use the deleted worker checkout either.\n2. **No cleanup.**\n   - Do not run `git -C /workspace/project worktree remove --force /tmp/review-snapshot/tree`.\n   - Do not run `rm` on `/tmp/review-snapshot`.\n   - Keep the failed snapshot directory, any partially registered worktree, and the shell output exactly as they are for diagnosis.\n3. **Nothing moves forward for this task.**\n   - No `git apply --index` of this patch into `/workspace/project` (step 4).\n   - No scoped test gate run, no code-review dispatch, and no `reset --soft` or wave commit. A wave commit needs one spec-review verdict per accepted task, and this task has none.\n4. **Tracker:** the task's index stays `in_progress`. There is no `plan_tracker` write to `complete` or `failed`.\n5. **Report and stop.** Surface the verbatim shell error (`git apply --index` exit 1, `error: patch failed: src/parse.ts:8`) along with the retained snapshot directory, the absolute artifact patch path, and `WAVE_BASE_SHA`. A patch generated from the wave base that does not apply back onto it points to an orchestration-level problem: a wrong base SHA, the wrong patch path or wave position, or a corrupted artifact. That needs diagnosis before anything is re-dispatched.\n\nI stop at this failure decision. Whether to re-dispatch the implementer under [When a Subagent Fails](#when-a-subagent-fails) depends on that diagnosis and is not decided here.\n",
+      "words": 362,
+      "wallMs": 14730,
       "mechanical": {}
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "Stop at the snapshot-setup failure.\n\n- **No reviewer is dispatched.** There is no review dispatch payload.\n- `/tmp/review-snapshot/tree` is not a valid review source: `git apply --index` failed and no successful snapshot path was printed.\n- Do **not** substitute `/workspace/project`; it still contains the wave-base files, not the worker’s implementation. The deleted worker checkout is also unavailable.\n- Retain `/tmp/review-snapshot` and the shell output for diagnosis:\n  ```text\n  git apply --index exited 1\n  error: patch failed: src/parse.ts:8\n  ```\n- Run **no further shell commands** at this decision boundary—no tree capture, cleanup, integration, retry, staging, or commit. The worker’s `DONE` status does not bypass the snapshot requirement.\n- Keep the task `in_progress`. No wave commit or task completion occurs.\n\nA subsequent spec review would require a successfully materialized replacement snapshot and would read that snapshot’s checkout—not the unchanged parent—but resolving that failure is beyond this boundary.\n",
-      "words": 137,
-      "wallMs": 10160,
+      "text": "Stop before review dispatch. The snapshot setup failed:\n\n```text\nCheckout: /tmp/review-snapshot/tree\ngit apply --index: exit 1\nerror: patch failed: src/parse.ts:8\n```\n\n- Retain `/tmp/review-snapshot/tree`, its containing directory, the returned patch, and the shell output for diagnosis. Do not clean up the failed snapshot.\n- Dispatch **no reviewer** and run no review-tree capture: no successful snapshot path was printed.\n- Do not substitute `/workspace/project` as the review checkout—it still contains the wave-base files, not the worker’s implementation. The deleted worker checkout is also unavailable.\n- Do not integrate, commit, or mark the task complete. The worker’s `DONE` status does not establish spec compliance.\n\nNo further shell commands or dispatch payloads are issued at this failure boundary.\n",
+      "words": 110,
+      "wallMs": 8533,
       "mechanical": {}
     }
   },
@@ -34,9 +34,9 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "ffbec39d76f782585168dca20633e78d3db03c4c27531c6f59e030507e898528",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "8e20307bd67e2e0208f9a3da33df255700c820053d13041fc815ccdc841940e8",
-      "baselineOutputSha": "ca928b39a417379642d597f92d5dbfc88a936cfcdfb0e8fac705edfc4c8152c2",
-      "candidateOutputSha": "ca928b39a417379642d597f92d5dbfc88a936cfcdfb0e8fac705edfc4c8152c2",
+      "intentSha": "7dde83e5f7123318f2f94032def90ef7d40bc26909a31439c17153641cac4c2f",
+      "baselineOutputSha": "4992b4c84755cfb7caa6c2b1cad54b49bf7f8f2c0bb1227b36573feb9802d8c1",
+      "candidateOutputSha": "94398631caa73c7cde12e46f0eccc29d52f40e8bfbacbe20b2bec2be812d9fcf",
       "facts": {
         "fail-closed": {
           "before": "holds",
@@ -49,16 +49,16 @@
           "label": "held"
         }
       },
-      "feedback": "The Before and After outputs are textually identical, so nothing moved. Both stop review dispatch, explicitly refuse to use /tmp/review-snapshot/tree, /workspace/project, or the deleted worker checkout as a reviewer cwd, state that the worker's DONE is not acceptance, and report the shell error and retained snapshot path (fail-closed holds). Both also explicitly decline the worktree remove / rm -rf cleanup, keep the stderr, leave /workspace/project at WAVE_BASE_SHA, and keep the plan_tracker entry in_progress with no complete or failed write (evidence-retained holds). The After wording already delivers the Change's requirements for this case — fail closed on unmaterialized trees, retain the failed directory and shell output without cleanup, and keep the D1 in_progress lifecycle explicit — so no wording adjustment is needed here; the facts expected to move belong to other cases and are not exercised by this sample.",
-      "wallMs": 7907,
+      "feedback": "Neither fact moved. Both outputs quote the snapshot-failure rule, dispatch no reviewer, refuse to point one at /workspace/project or at the deleted worker checkout, skip apply/test/CR/commit, keep the tracker index in_progress, and explicitly forbid worktree remove/prune/rm so the failed directory and shell output survive. After is actually tighter than Before on fail-closed: Before's line 'Treat this as an accepted task whose patch is unusable' invites a reader to think DONE was accepted, while After states a wave commit needs an SR verdict this task lacks and defers any re-dispatch to diagnosis. To keep every fact while delivering the Change, After should keep its current structure and, if anything, add one explicit sentence that the worker's DONE confers no acceptance and that the failed-setup evidence (directory plus verbatim shell output) is retained without cleanup until a human decision - which it already does in substance.",
+      "wallMs": 12844,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "ffbec39d76f782585168dca20633e78d3db03c4c27531c6f59e030507e898528",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "8e20307bd67e2e0208f9a3da33df255700c820053d13041fc815ccdc841940e8",
-      "baselineOutputSha": "b662c3d768a44000c531d3757a32eae64eba0a5eb6c1897e23083d4be1f64b60",
-      "candidateOutputSha": "b662c3d768a44000c531d3757a32eae64eba0a5eb6c1897e23083d4be1f64b60",
+      "intentSha": "7dde83e5f7123318f2f94032def90ef7d40bc26909a31439c17153641cac4c2f",
+      "baselineOutputSha": "34d0cf1b7b872c1455a438cc7ee1a5c6316bc4aecc02aed1a348c23c2a7a0dde",
+      "candidateOutputSha": "25fc52c45ad57b71b7f9c2787addb332535de61aa27060ebf42f9f49c92ba370",
       "facts": {
         "fail-closed": {
           "before": "holds",
@@ -71,10 +71,10 @@
           "label": "held"
         }
       },
-      "feedback": "The After output is textually identical to Before, so nothing moved: both stop at the snapshot-setup failure, dispatch no reviewer, refuse to substitute the unchanged parent, state that the worker's DONE does not bypass the snapshot requirement, retain /tmp/review-snapshot and the shell output without cleanup, and leave the worktree and task (in_progress) untouched. This case is the preserved pi-cohort 7.3.1 patch-review-snapshot fallback, and the After wording correctly keeps it unchanged while the Change's fail-closed and retain-failed-evidence rules are already satisfied; no wording adjustment is needed for this sample, though if you want the After to visibly reflect the new rules you could add a sentence that the failure is reported as a stop with the retained directory and shell output named explicitly, without altering any of the existing bullets.",
-      "wallMs": 7473,
+      "feedback": "Nothing moved: both outputs stop before dispatch, send no reviewer, refuse /workspace/project and the worker's DONE as substitutes, and retain /tmp/review-snapshot/tree with the git apply diagnostic uncleaned. After actually strengthens evidence retention by naming the containing directory, the returned patch and the shell output explicitly, and adds the 'run no review-tree capture' line the Change asked for. One small regression in explicitness: Before said 'Keep the task in_progress', whereas After only says 'do not mark the task complete'; since the Change makes the D1 in_progress-pending-human-decision lifecycle explicit, keep the phrase 'the task stays in_progress' in After alongside 'do not integrate, commit, or mark complete' so the tracker state is stated rather than implied.",
+      "wallMs": 8976,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "72e47b648c0fffe558a64cf4284750f00a1b970d"
+  "repoSha": "4836002cc0ec830a5a0e1657e48c9e96623e22d0"
 }

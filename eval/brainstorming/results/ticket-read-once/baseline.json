@@ -1,0 +1,34 @@
+{
+  "sample": "ticket-read-once",
+  "arm": "baseline",
+  "skillSha": "45579e8c07b5ff5e2ae48f3394c1a2b96d3d0e48566fea7dc7c6bd1587515ddf",
+  "inputSha": "2bf8143231002f861bc01edb210a83a59b6d543388eebe4087fc637b8d990382",
+  "kind": "text",
+  "assembly": "headed",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "# Narrated read and stage actions: acme/widgets#77\n\nNo tools are available, so each item below describes a required action and the outcome supplied by the fixed observations. None of these are live calls, and no reference contents are reconstructed.\n\n1. **Step 1: start brainstorm tracking.** This is a fresh entry, so tracking resets before anything is read:\n   - `phase_tracker({ action: \"reset\" })`\n   - `plan_tracker({ action: \"clear\" })`\n   - `phase_tracker({ action: \"start\", phase: \"brainstorm\" })`\n\n2. **Step 2: set up the worktree.** This follows the skill's Worktree First section. The fixed observations give no worktree details, so nothing more is narrated here.\n\n3. **Step 3, required read: `reference/ticket-acceptance.md`.** Ticket Handling must be read before gathering, even when a ticket exists. The read succeeds, so there is no blocking stop. Its content stays in context.\n\n4. **Step 3, required read: `gatherer.md`.** Gathering follows this file, with no human stop. Its contents are not given in the fixed observations, so none are restated.\n\n5. **Step 3: gather context for acme/widgets#77.** The ticket fetch succeeds. The gather draft's `## Ticket acceptance criteria (verbatim)` block records one row: \"The report export includes the visible table columns.\"\n\n6. **Step 4, required read: `reference/ticket-acceptance.md`.** Step-4 entry requires Ticket Handling. Its content is still in context from step 3, so the requirement is met without a blocking stop.\n\n7. **Step 4, required read: the gathered draft.** The draft is read unconditionally before question one. It is treated as a helper, not a boundary.\n\n8. **Step 4: verify premises and framing.**\n   - The draft's `Framing:` line and the AC row are checked against primary code.\n   - Primary code confirms the row, so the premise is supported.\n   - No framing concern with a cited alternative is found.\n\n9. **Step 4: question one.**\n   - The message opens with a holds-statement: \"The framing holds: checked …\", naming the code traces that confirmed the row.\n   - It then asks the first ordinary questionary question in the labeled `A)`/`B)` format, ending with a `Recommendation:` line.\n   - Because no row is being dropped or changed, the cut question is not asked. The recorded answers keep the row in scope.\n   - The outcome is recorded in the draft under `## Appended during questionary` as `Framing: kept`.\n\n10. **Steps 5–7: approaches, design rounds, and spec writing.** These run as the skill specifies, but the case requests no narration of them.\n\n11. **Step 8, required read: `reference/ticket-acceptance.md`.** Step-8 entry requires Ticket Handling. Its content is still in context, so the requirement is met without a blocking stop.\n\n12. **Step 8: ticket lint of the spec's `## Acceptance criteria` section.** The section must:\n   - sit after `## Problem`;\n   - cite the source line \"Ticket acme/widgets#77, <heading or \"checkbox list\">, rows verbatim:\";\n   - contain exactly `- [ ] The report export includes the visible table columns.` with the text unedited;\n   - give that row the disposition `in-scope`.\n\n   The lint also confirms there are no `deviates:` or `deferred:` rows, since no cut question was asked, and no `venue:` row. The gate's `Scope cuts:` line therefore has nothing to list.\n\n13. **Stop.** The case scope ends here, so no questionary text or spec text is produced.\n",
+      "words": 498,
+      "wallMs": 18526,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "1. **Fresh entry — start tracking.** Narrate resetting the phase tracker, clearing the plan tracker, and starting the `brainstorm` phase. These are required actions, not claimed live calls.\n\n2. **Step 2 — worktree setup.** The required Worktree First instructions must be read and followed. The fixed observations provide neither that read’s outcome nor a worktree result; do not invent either.\n\n3. **Step 3 — read Ticket Handling.** Read `reference/ticket-acceptance.md`. The fixed observations explicitly establish that this read succeeds. This is the session read; the bundled reference alone is not evidence of one.\n\n4. **Step 3 — gather context.** Read and follow `gatherer.md`. Its read outcome and contents are unspecified. The supplied gathering result is the ticket row: “The report export includes the visible table columns.” Do not infer additional gathered findings.\n\n5. **Step 4 — read Ticket Handling again.** A new read of `reference/ticket-acceptance.md` is required on step-4 entry, even though the step-3 content remains in context. No outcome for this repeated read is supplied.\n\n6. **Step 4 — read the gathered draft and verify framing.** Read the draft before question one and verify its framing against primary code. The fixed observations establish that primary code confirms the quoted ticket row; they do not establish any additional traces or dependency checks.\n\n7. **Step 4 — question-one stage.** Conduct the required first-question stage without rendering an actual questionary here. The recorded answers keep the ticket row in scope; record that outcome without inventing other answers.\n\n8. **Steps 5–7 — intervening stages.** Approaches, both design-approval rounds, and spec writing precede step 8. Their completion and approvals are not supplied, so this narration does not claim they occurred.\n\n9. **Step 8 — read Ticket Handling again.** On lint entry, independently read `reference/ticket-acceptance.md` again. Retained context does not replace this required read. Its outcome is unspecified.\n\n10. **Step 8 — ticket lint.** Check that the acceptance-criteria section preserves the supplied row verbatim and gives it the disposition `in-scope`. Read and run the required Spec Self-Review checks as well; their contents and results are not supplied, so do not reconstruct them or claim lint passed.\n\n11. **Blocking rule.** No required reference is reported unreadable in these observations. If a required read returns unreadable, narrate a blocking stop at that point rather than proceeding from retained or bundled text.\n",
+      "words": 373,
+      "wallMs": 27828,
+      "mechanical": {}
+    }
+  },
+  "repoSha": "1269c2c1e3c260af57d45acd77fe38a6b19853e1"
+}

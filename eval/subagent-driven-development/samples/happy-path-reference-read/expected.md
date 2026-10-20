@@ -1,0 +1,3 @@
+- absolute-late-read: judged: Narrates read of /opt/pi/node_modules/pi-gauntlet/skills/subagent-driven-development/reference/happy-path-run.md before any runner actions, after full verification and whole-diff review.
+- saved-handoff: judged: After the successful read follows the reference and uses the supplied readable summary in a separate fresh conformance-reviewer dispatch with Happy path: /tmp/happy-run/summary.txt (passed), the authoritative spec, verbatim original prompt and full diff; does not invent an audit verdict or complete verify yet.
+- unreadable-blocks: judged: ENOENT reading the reference produces a blocking error before shell runner or conformance dispatch; never reconstructs the runner from bundled text or omits the selected run.

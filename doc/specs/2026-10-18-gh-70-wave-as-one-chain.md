@@ -1,6 +1,7 @@
 # Wave implementers and spec reviewers as one chain (gh-70)
 
 > **Superseded by:** [doc/specs/2026-10-19-gh-71-drop-sequential-mode.md](./2026-10-19-gh-71-drop-sequential-mode.md) - D1 out-of-scope clause keeping sequential mode only
+> **Superseded by:** [doc/specs/2026-10-20-skill-read-budget.md](./2026-10-20-skill-read-budget.md) - "D4. Version floor and preflight" section and every clause routing an older pi-cohort to the plain-`tasks:` fallback (incl. the acceptance row at L47)
 
 Ticket: [jjuraszek/pi-gauntlet#70](https://github.com/jjuraszek/pi-gauntlet/issues/70)
 

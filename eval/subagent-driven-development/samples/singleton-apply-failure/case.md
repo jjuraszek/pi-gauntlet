@@ -1,4 +1,4 @@
-A singleton code wave in /workspace/project starts clean at WAVE_BASE_SHA 1111111111111111111111111111111111111111. Task 1 Parse owns src/parse.mjs and tests/parse.test.mjs; its command is `node --test tests/parse.test.mjs`, with full task, Tests contract and Spec anchors /workspace/project/doc/specs/numbers.md:8-9 available. The tracker is in_progress. On pi-cohort 7.4.0 the initial implementation-to-SR chain returned DONE and COMPLIANT for its captured Artifacts patch /tmp/reports/task1.patch.
+A singleton code wave in /workspace/project starts clean at WAVE_BASE_SHA 1111111111111111111111111111111111111111. Task 1 Parse owns src/parse.mjs and tests/parse.test.mjs; its command is `node --test tests/parse.test.mjs`, with full task, Tests contract and Spec anchors /workspace/project/doc/specs/numbers.md:8-9 available. The tracker is in_progress. On pi-cohort 7.4.3 the initial implementation-to-SR chain returned DONE and COMPLIANT for its captured Artifacts patch /tmp/reports/task1.patch.
 
 The PARENT integration command `git -C /workspace/project apply --index /tmp/reports/task1.patch` actually exited 1:
 error: patch failed: src/parse.mjs:8

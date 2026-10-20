@@ -115,6 +115,15 @@ dispatch semantics change**: a skill relying on a new pi-cohort dispatch shape
 ships alongside the pi-cohort release that provides it, and the README
 peer-dependency minimum bumps in the same pi-gauntlet release.
 
+Before running the release script, run `npm view pi-cohort version`. Read the
+floor from `package.json`'s `peerDependencies["pi-cohort"]` (`>=X.Y.Z`) and
+compare its bare numeric triple with the registry's `X.Y.Z`, component by
+component numerically. Stop on lookup failure or an unparseable registry
+version or peer floor. Refuse the release when the registry version is newer
+than the declared floor; direct a bump of the package peer and README floor
+together to that newest version before resuming. Keep this live lookup in the
+release flow, not CI.
+
 ## Safety checks (enforced by the script)
 
 - clean working tree, on `main`

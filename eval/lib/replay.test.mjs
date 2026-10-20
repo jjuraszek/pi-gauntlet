@@ -137,3 +137,28 @@ test("capture reports zero lines for an empty file", (t) => {
   t.after(() => rmSync(scratch, { recursive: true, force: true }));
   assert.equal(captureEdit(scratch).tree["empty.md"].lines, 0);
 });
+
+test("brainstorming read-once assembly includes owners and the second stage", () => {
+  const root = new URL("../../", import.meta.url);
+  const read = (path) => readFileSync(new URL(path, root), "utf8");
+  const target = JSON.parse(read("eval/brainstorming/target.json"));
+  const result = assemble(target, read);
+  assert.ok(result.includes("## Ticket Handling"));
+  assert.ok(result.includes("## Project overrides"));
+  const { bundle, text } = parseCase(read("eval/brainstorming/samples/overrides-read-once/case.md"));
+  assert.deepEqual(bundle, ["skills/writing-plans/SKILL.md"]);
+  assert.ok(text.includes("## Narrated read actions"));
+  assert.ok(assemble(target, read, bundle).includes("# skills/writing-plans/SKILL.md"));
+});
+
+test("SDD assembly keeps completion and runner with candidate late read", () => {
+  const root = new URL("../../", import.meta.url).pathname;
+  const target = JSON.parse(readFileSync(join(root, "eval/subagent-driven-development/target.json"), "utf8"));
+  const candidate = assemble(target, replay.treeReader(root));
+  assert.ok(candidate.includes("## After All Tasks Complete"));
+  assert.ok(candidate.includes("Happy path: <abs path to $HP_DIR/summary.txt> (<outcome>)"));
+  assert.ok(candidate.includes("<!-- happy-path-shell -->"));
+  assert.ok(!candidate.includes("## When a Subagent Fails"));
+  assert.ok(candidate.includes("reference/happy-path-run.md` at its absolute path"));
+  assert.ok(candidate.includes("On an unreadable reference, stop with a blocking error"));
+});

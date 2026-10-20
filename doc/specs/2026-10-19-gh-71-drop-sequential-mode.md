@@ -1,5 +1,7 @@
 # Drop sequential mode: every plan task runs as a wave of N >= 1
 
+> **Superseded by:** [doc/specs/2026-10-20-skill-read-budget.md](./2026-10-20-skill-read-budget.md) - the older-runtime fallback bullet for N=1 waves (L106) only
+
 **Ticket:** #71
 **Goal:** `subagent-driven-development` runs one per-wave loop for every plan; a wave of one task is an ordinary wave. The re-review `## Fix delta` has one definition - `git diff --binary <tree-before> <tree-after>` over tree objects recorded through a scratch index - so a repair worker's commit or staging state can no longer empty it.
 **Amend-grant:** every later spec amendment in this flow (corrected facts, paths, verification lines, and scope, acceptance-criteria, or public-contract edits alike) applies without asking; only a redraw (changed problem statement, component added, removed, or re-bounded) still stops for you, and the grant never stands in for a spec approval.

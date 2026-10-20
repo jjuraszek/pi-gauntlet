@@ -1,0 +1,34 @@
+{
+  "sample": "overrides-read-once",
+  "arm": "baseline",
+  "skillSha": "785282d4fc1f98b0d3dad5b1654182d9d79efa65b6286e443ecef5ce6a821d80",
+  "inputSha": "9cfc0fa4ca1be987cb7081d39048f3c50e031282867c8fe26df787a00fdfab4d",
+  "kind": "text",
+  "assembly": "headed",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "## Trace A: brainstorming, then writing-plans in the same session\n\n1. **Brainstorming stage entry.** At entry, no overrides content is in context, so brainstorming's Project overrides rule applies: look for a gauntlet overrides file and read the first one found.\n2. **Read `.pi/gauntlet-overrides.md`.** This is the first path in the lookup order: `.pi/gauntlet-overrides.md`, then `<repo root>/gauntlet-overrides.md`, then `<repo root>/doc/gauntlet-overrides.md`. The read succeeds with the supplied content. Because the first file found wins, the other two paths are not read.\n3. **Apply `## conventions` in brainstorming.** The rule says to read and apply this section whenever present, without judging relevance. So \"Use American English in generated documents\" governs every document brainstorming produces, including the spec and draft. Nothing in brainstorming's own named sections conflicts with it.\n4. **Evaluate the other sections for brainstorming.** `## writing-plans` names a different skill, so it does not match by name, topic, or workflow convention. Brainstorming does not apply it.\n5. **Brainstorming completes.** It passes the user review gate and transitions to `/skill:writing-plans` in the same session.\n6. **Writing-plans stage entry.** The overrides content from step 2 is still in context in this session. Writing-plans does not need a second read, because it already has the same first-found file's content.\n7. **Apply `## conventions` in writing-plans.** Again this applies whenever present, with no relevance judgment. American English governs the generated plan.\n8. **Apply `## writing-plans` in writing-plans.** This section matches the skill by name, so \"Name plan examples with the prefix demo-\" extends the plan instructions. Writing-plans' own named section would take precedence over a conflicting `## conventions` rule, but these two rules do not conflict. Both apply together.\n9. **Stop narration here.** Only the overrides handling is under test, so no plan is written.\n\n## Trace B: independent writing-plans entry\n\n1. **Writing-plans stage entry.** The skill is unsure whether the overrides content is in context. It cannot rely on content it has not confirmed, so it follows the Project overrides rule and looks up the file.\n2. **Read `.pi/gauntlet-overrides.md`.** This is the first path in the lookup order. The file exists and the read succeeds with the supplied content. Because the first file found wins, the remaining paths are not read.\n3. **Apply `## conventions`.** This applies whenever present, with no relevance judgment. American English governs the generated plan.\n4. **Apply `## writing-plans`.** The section matches by name, so plan examples use the `demo-` prefix. Writing-plans' named section has precedence over conflicting `## conventions` rules, but nothing conflicts, so both rules apply.\n5. **Stop narration here.** No plan is written, since only the overrides handling is under test.\n",
+      "words": 423,
+      "wallMs": 15243,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "### Trace A\n1. **Read — brainstorming:** With no overrides content in context, read the first-found `.pi/gauntlet-overrides.md`. Observed outcome: the read succeeds with the supplied content.\n2. **Apply — brainstorming:** Apply `## conventions`: use American English in generated documents. The `## writing-plans` rule does not govern this stage.\n3. **Stage transition:** Brainstorming completes; writing-plans follows in the same session, with the overrides content still in context.\n4. **Read — writing-plans:** Read `.pi/gauntlet-overrides.md` as required by its Project overrides block; retained context does not waive the read. No separate read outcome is supplied for this step.\n5. **Apply — writing-plans:** Apply the supplied American English convention and the stage-specific rule that plan examples use the prefix `demo-`. No plan is written.\n\n### Trace B\n1. **Stage entry:** Writing-plans enters independently, unsure whether the overrides content is in context.\n2. **Read — writing-plans:** Read the first-found `.pi/gauntlet-overrides.md`. Observed outcome: the file exists and the read succeeds with the supplied content.\n3. **Apply — writing-plans:** Use American English in generated documents and prefix plan-example names with `demo-`. No plan is written.\n",
+      "words": 168,
+      "wallMs": 11542,
+      "mechanical": {}
+    }
+  },
+  "repoSha": "1269c2c1e3c260af57d45acd77fe38a6b19853e1"
+}

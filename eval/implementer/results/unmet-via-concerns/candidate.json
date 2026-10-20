@@ -1,0 +1,128 @@
+{
+  "sample": "unmet-via-concerns",
+  "arm": "candidate",
+  "skillSha": "0642b3465fecadf2520938f3cdf9b0cf0622b83444463108b83a68a583ca0d77",
+  "inputSha": "5574427bc0f1dae28b2f50cea8814706f57395373a4ee8bdb4dbe4f53650ec4a",
+  "kind": "text",
+  "assembly": "headed",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "**Status:** DONE_WITH_CONCERNS\n\n**Files changed**\n- None. This was an audit, and the supplied code is unchanged (`counter/parse.py`, `counter/test_parse.py`).\n\n**Test-contract evidence**\n- `pytest counter/test_parse.py`: `met`. The supplied observation shows exit 0 and last output line `1 passed`. I did not execute this command; it comes from the dispatch.\n- via `parse_count()`: `unmet`. The only test calls the wrapper, not the seam. At `counter/test_parse.py:4`, `assert parse_count_wrapper(\" 7 \") == 7` calls `parse_count_wrapper`, which is imported at `counter/test_parse.py:1`. No line in `counter/test_parse.py` calls `parse_count()` directly. The contract requires tests to call the via: seam directly, not a wrapper.\n\n**Deviations**\n- I did not change the test to call `parse_count()`, because the task asked for a report only with the code left unchanged.\n\n**Follow-ups for parent**\n- To meet the via: obligation, change `counter/test_parse.py`:\n  - Import `parse_count`.\n  - Change the assertion to `assert parse_count(\" 7 \") == 7`.\n  - Re-run `pytest counter/test_parse.py`.\n- Decide whether `parse_count_wrapper` in `counter/parse.py` is still needed. Once the test no longer uses it, it appears to exist only for the test.\n",
+      "words": 159,
+      "wallMs": 7112,
+      "mechanical": {
+        "m1": "holds",
+        "m2": "holds",
+        "m3": "holds"
+      }
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "**Status:** DONE_WITH_CONCERNS\n\n- Files changed: `counter/parse.py` (supplied implementation); no changes made during this audit. `counter/test_parse.py` left unchanged.\n- Command evidence: `met` — `pytest counter/test_parse.py`; supplied observation: exit 0, last output line `1 passed`. I did not execute this command.\n- Via evidence: `unmet` — `parse_count()` is not called directly. `counter/test_parse.py:1` imports `parse_count_wrapper`, and `counter/test_parse.py:4` calls that wrapper.\n- Deviation/follow-up: The passing test does not satisfy the direct-seam contract; the parent should update the test to call `parse_count()` directly and rerun the scoped command.\n",
+      "words": 77,
+      "wallMs": 5959,
+      "mechanical": {
+        "m1": "holds",
+        "m2": "holds",
+        "m3": "holds"
+      }
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "fc14f771739c1d016bbdf1113f1e7b5865944c9318fec7cb6b86685838a416bf",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "d0b720e9be51d8de89d95e75679855ba354c87ba5ee9271d78e3cc2ad2cc667e",
+      "baselineOutputSha": "df496ab14f88a5f52ad00b22342536b221d6b2c83be8db7674033d6aecd54861",
+      "candidateOutputSha": "d23185662e1a36608d5a4bbdda3a23800e7b5e3447035a8cbd74dc77359d1e34",
+      "facts": {
+        "f1": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "f2": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "f3": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "m1": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "m2": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "m3": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "Nothing moved. After keeps the scoped command met with exit 0 and the quoted `1 passed` line, states plainly that it did not execute the command, marks via `parse_count()` unmet by citing counter/test_parse.py:4 and :1 as wrapper-only, and neither fabricates a failing exit nor touches the code. The restructured headings (Test-contract evidence / Deviations / Follow-ups) deliver the trimmed template without losing any obligation. Two small notes for robustness: After does not explicitly say that the wrapper delegating to `parse_count` still fails the seam (Before said \"the wrapper does delegate to `parse_count`, but the seam itself is never called\"), which is the clearest form of f2 and worth keeping as a sentence in the via line; and Before wrapped the status token in backticks while After does not — if the template's exact `**Status:**` line specifies one form, make the wording pin it so both samples render it identically.",
+      "wallMs": 11438,
+      "verdict": "improved"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "fc14f771739c1d016bbdf1113f1e7b5865944c9318fec7cb6b86685838a416bf",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "d0b720e9be51d8de89d95e75679855ba354c87ba5ee9271d78e3cc2ad2cc667e",
+      "baselineOutputSha": "f29decb6ecd693ef7943391a10053ca9f4e1d88e7f1e58bff089120ad8de6973",
+      "candidateOutputSha": "3d31860426ab06d5e723826354be86f765a767056691446ccecbf927a7c32cae",
+      "facts": {
+        "f1": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "f2": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "f3": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "m1": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "m2": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "m3": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "No fact moved: After still marks the scoped command met with exit 0 and the exact `1 passed` line as supplied evidence (explicitly not executed), separately marks the via obligation unmet citing counter/test_parse.py:1 and :4 and the wrapper-vs-direct distinction, and neither fabricates a failing exit nor edits code. The one wording risk in After is the `Files changed: counter/parse.py (supplied implementation); no changes made during this audit` line, which lists a file under 'changed' and then retracts it; a reader could briefly take that as a claimed edit. Before's `Files changed: none` is cleaner and safer for f3 — keep that phrasing (and optionally note 'supplied implementation reviewed, unchanged' as a separate bullet) while retaining After's compact command/via/follow-up structure.",
+      "wallMs": 10754,
+      "verdict": "unchanged"
+    }
+  },
+  "repoSha": "1269c2c1e3c260af57d45acd77fe38a6b19853e1"
+}

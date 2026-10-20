@@ -1,9 +1,6 @@
-for: 14ffccf90aa4b3fc4c5836644279aa68c816036bcf351642df54124440e6c857
+for: 0642b3465fecadf2520938f3cdf9b0cf0622b83444463108b83a68a583ca0d77
 
 ## Change
-The implementer persona gains a Test economy block (extend an existing test before adding one, one scenario per test, parametrize equivalent cases, minimal hand-built input, shared expensive setup, cheapest honest tier, heavy tests reported as deviations) and the SDD self-review asks whether each added test earns its run instead of whether tests are comprehensive. The SDD template also maps a deliberately heavy test or rebuilt setup to DONE_WITH_CONCERNS.
+The persona-plus-template assembly retains the unchanged implementer persona and the short implementer template: full task and context slots, SCOPED_TEST_COMMANDS and TEST_CONTRACT, direct-seam and exact-Create requirements, met/unmet evidence, unmet -> DONE_WITH_CONCERNS, four exact statuses, and the persona conduct pointer. The template delegates TDD, test economy, escalation, and self-review to the persona instead of repeating that conduct. The trimmed-template-tdd-holds sample checks existing-test-first ordering, a table extension before the production edit, scoped-command discipline, direct-seam evidence, and DONE using fixed observations. The unmet-via-concerns sample checks that a passing command remains met while a wrapper-only test leaves the direct seam unmet and requires DONE_WITH_CONCERNS. Only these two samples permit narration and status/evidence reports; extend-existing-test and heavy-json-fixture retain test-code-only replies and their existing test-economy facts.
 
 ## Expected to move
-- extend-existing-test/f1: fails -> holds - the persona now extends CASES instead of adding a function
-- heavy-json-fixture/f1: fails -> holds - the persona now builds the one record by hand
-- heavy-json-fixture/f3: fails -> holds - no new per-test json.load

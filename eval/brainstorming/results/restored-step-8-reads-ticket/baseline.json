@@ -1,0 +1,34 @@
+{
+  "sample": "restored-step-8-reads-ticket",
+  "arm": "baseline",
+  "skillSha": "45579e8c07b5ff5e2ae48f3394c1a2b96d3d0e48566fea7dc7c6bd1587515ddf",
+  "inputSha": "3fbe8741b91dfab5503ce0cca05adee9aa558ed65b41c513c0f0d797bea2dcfd",
+  "kind": "text",
+  "assembly": "headed",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "# Narrated read and stage actions from checklist step 8\n\nThese are narrated actions, not live tool calls. The reference contents are not reconstructed.\n\n## Branch readable\n\n1. **Stage: resume at checklist step 8 (spec self-review lint).** This is a restored session, not a fresh entry, so step 1's tracker reset does not run. Brainstorm tracking stays in its current phase.\n2. **Gate check.** The `Ticket Handling` section requires reading `reference/ticket-acceptance.md` before step-8 entry, even with no ticket. That file is not in context for this restored session, so the read is required.\n3. **Read `reference/ticket-acceptance.md`.** The read succeeds, so its contents are now available from the file itself and not from memory.\n4. **Stage: apply ticket handling to the spec's `## Acceptance criteria` section** for ticket acme/widgets#77.\n   - The gathered row \"The report export includes the visible table columns\" is checked against primary code, which supports it.\n   - The row text stays unchanged, and its disposition stays `in-scope`.\n   - Nothing raises a cut, so no cut question is asked. No `deviates:` or `deferred:` disposition is proposed.\n5. **Stage: run the inline checks** in the `Spec Self-Review` section against the written spec, and fix any findings inline.\n6. **Stage: step 8 is complete.** The required read succeeded and the lint ran, so the next authorized action in the same turn is checklist step 9, the auto-dispatched critique pass through the Spec Council.\n\n## Branch unreadable\n\n1. **Stage: resume at checklist step 8 (spec self-review lint).** This is a restored session, so no tracker reset runs.\n2. **Gate check.** The `Ticket Handling` section requires reading `reference/ticket-acceptance.md` before step-8 entry. The file is not in context, so the read is required.\n3. **Attempt to read `reference/ticket-acceptance.md`.** The read returns an unreadable-file error.\n4. **Stage: blocking stop.**\n   - Per `Ticket Handling`, an unreadable reference stops the step with a blocking error. The rules are never reconstructed from memory.\n   - The acceptance-criteria handling for acme/widgets#77 is not applied, and the row's disposition is not re-checked against the reference.\n   - The `Spec Self-Review` inline checks for step 8 do not run.\n   - Nothing advances to step 9 (critique pass) or any later step.\n5. **Report to the user.** The message says that step 8 is blocked because `reference/ticket-acceptance.md` is unreadable. It names the unreadable-file error and states that work resumes at step 8 once the file is readable.\n",
+      "words": 382,
+      "wallMs": 13540,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "### readable\n1. **Read:** At checklist step 8, read `reference/ticket-acceptance.md`; the fixed observation reports success.\n2. **Stage 8 — Spec self-review:** The gathered row, “The report export includes the visible table columns,” is supported by primary code and remains in scope.\n3. **Required next read:** Consult **Spec Self-Review** for its inline checks. No read outcome or check results are supplied, so do not claim lint completion or advancement to the critique pass.\n\n### unreadable\n1. **Read:** At checklist step 8, attempt to read `reference/ticket-acceptance.md`; the fixed observation reports an unreadable-file error.\n2. **Blocking stop:** Stop at step 8. The required reference is unavailable; do not reconstruct its contents, continue lint, or advance to later stages.\n",
+      "words": 112,
+      "wallMs": 10275,
+      "mechanical": {}
+    }
+  },
+  "repoSha": "1269c2c1e3c260af57d45acd77fe38a6b19853e1"
+}
