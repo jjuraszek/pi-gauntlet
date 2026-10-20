@@ -1,5 +1,17 @@
 # Changelog
 
+## Unreleased
+
+### Added
+
+- **Plans carry base-commit test evidence.** The `plan-writer` persona gains `bash`, runs every task's `Tests:` command on the base commit, and records a `- baseline: <sha> pass | pass via <base command> | skipped - <paths> created by this task` bullet; `plan_check` gains the `baseline-line` and `open-questions` findings and refuses to stamp without that evidence or while `## Open Questions` holds a substantive row. A failing base reaches the human once, with the command and output, through the fix-first / narrow / amend menu. A boundary the spec leaves open is settled from the caller or harness contract as a `Decision:` line in the task. `/skill:gauntlet-resume` re-baselines pre-release plans without replacing task statuses. (#72)
+- **Brainstorming traces implicit dependencies.** The scout reports every unnamed file, binary, extension, or fixture the design relies on; a missing one lands in the premise note and the spec as a corrected fact instead of a stop. (#72)
+- **Lookup before asking in the implement loop.** A worker's `NEEDS_CONTEXT`/`BLOCKED` question is classified as a fact ask or a decision; fact asks are looked up in the documented spec, plan, and repo locations before any stop, and the stop note carries `Searched: <where> - <result>` lines. (#72)
+
+### Changed
+
+- **Eval runner accepts unplanned improvements.** An unlisted `fails -> holds` fact is labeled `unplanned improvement` and counts as `improved`; only same-fact regressions are confirmed; cached cells are reclassified locally with zero model calls and the report regenerates even on a zero-call run. (#72)
+
 ## v7.21.0 - 2026-10-19
 
 ### Changed
