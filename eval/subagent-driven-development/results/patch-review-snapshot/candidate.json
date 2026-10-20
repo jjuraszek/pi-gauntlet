@@ -35,7 +35,7 @@
       "factsSha": "e3ebda560f419d6f359b26facaa13282c129fb54f1c09a36485704f5aa08cb22",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
       "intentSha": "8e20307bd67e2e0208f9a3da33df255700c820053d13041fc815ccdc841940e8",
-      "baselineOutputSha": "65952628d6d5676ff1bbb3c0e8a4a09dee1f647bbbca7af286d99f052a230e19",
+      "baselineOutputSha": "4a051e6bd177db5b737ce2afc9dc88aa241a63a569e1cfce4fe6bae11b0e8e72",
       "candidateOutputSha": "4a051e6bd177db5b737ce2afc9dc88aa241a63a569e1cfce4fe6bae11b0e8e72",
       "facts": {
         "applied-snapshot": {
@@ -59,15 +59,15 @@
           "label": "held"
         }
       },
-      "feedback": "Nothing moved on this fallback case: After still materializes each patch via `git worktree add --detach` on the recorded base plus `git apply --index` in its own `mktemp -d` checkout, gives each spec-reviewer its snapshot as `cwd` with no `worktree` flag, supplies the spec only as the absolute `/workspace/project/doc/specs/feature.md` path with anchors, leaves the parent clean, defers integration/test gate/CR/commit until verdicts, and removes each snapshot only after its own `output:` report is saved and read (with no cleanup on setup or tree-capture failure). The 7.3.1 preflight gate, the tree capture before dispatch, the explicit 'no `outputSchema`/`acceptance`/`stopOn`' note, and the clear deleted-file instruction (`git show <base>:src/legacy-format.ts`) all read correctly. Two small tightenings would make After more robust without changing behavior: state `concurrency` or that the two tasks run in parallel explicitly (Before had `concurrency: 2`), and drop or justify step 3's bare `cat` of the patches, since the payload already embeds `<contents of ...patch>` and the extra step can read as an unrelated action between tree capture and dispatch.",
-      "wallMs": 11631,
+      "feedback": "Before and After are textually identical for this patch-review-snapshot case, so nothing moved: both materialize each patch on the recorded base in a detached temporary worktree (including the staged new test file and the deleted legacy file), give each spec reviewer its own snapshot cwd with no worktree flag, pass the spec as the absolute /workspace/project path with anchors, leave the parent clean with integration/CR deferred until verdicts, and remove each snapshot only after its terminal SR report is saved and read while retaining failed setup/tree-capture directories. This matches the Change's intent to preserve patch-review-snapshot as the 7.3.1 fallback sample; the added tree-capture step is already present and correctly states that it never authorizes cleanup. No wording adjustment is needed to keep these facts.",
+      "wallMs": 8858,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "e3ebda560f419d6f359b26facaa13282c129fb54f1c09a36485704f5aa08cb22",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
       "intentSha": "8e20307bd67e2e0208f9a3da33df255700c820053d13041fc815ccdc841940e8",
-      "baselineOutputSha": "936393eb78141e428fc4c6e3db39faaa94cc80d5e7b4c62971f0397f6a72f6bf",
+      "baselineOutputSha": "90c7ae7094773958e769370ff58f324df11726b0f19550ae2fe7c4029fed9bb5",
       "candidateOutputSha": "90c7ae7094773958e769370ff58f324df11726b0f19550ae2fe7c4029fed9bb5",
       "facts": {
         "applied-snapshot": {
@@ -91,10 +91,10 @@
           "label": "held"
         }
       },
-      "feedback": "Nothing moved: After still materializes each patch on the recorded base in its own detached mktemp worktree before dispatch (covering the added tests/parse.test.ts and the deleted src/legacy-format.ts via git show on the base), hands each spec-review task its snapshot as cwd with no worktree flag, keeps the authoritative spec at the absolute /workspace/project/doc/specs/feature.md path while leaving the parent untouched and explicitly deferring code review and commit, and retains each snapshot until its terminal report is saved and read, then removes only that snapshot. The additions that deliver the Change (initial tree captures per task, 'Do not clean up on setup or tree-capture failure', no chain, no acceptance/trajectory marker for initial reviews) sit alongside the preserved facts rather than displacing them. Two small things worth keeping as you iterate: After drops Before's persisted snapshot-path and tree-sha files (/tmp/reports/taskN-snapshot.path, taskN-review-tree.sha) in favor of shell variables, which is fine for the facts here but makes the later Fix-delta and cleanup steps depend on the same shell session—if you want robustness, write the SHAs and paths to /tmp/reports as Before did; and keep the explicit 'do not clean up at dispatch' phrasing from Before alongside the new failure-retention sentence so the cleanup rule covers both the success and failure branches unambiguously.",
-      "wallMs": 12792,
+      "feedback": "After is textually identical to Before for this fallback case, so no fact moved: both outputs materialize each patch on the recorded base in a separate detached mktemp worktree (git worktree add --detach + git apply --index) before dispatch, give each spec-reviewer task its own snapshot cwd with no worktree flag, keep the authoritative spec at /workspace/project/doc/specs/feature.md while leaving the parent untouched and withholding code review, and retain each snapshot until its terminal report is saved before removing only that snapshot (with explicit no-cleanup on setup/capture failure). The tree-capture step in section 2 is consistent with the Change's requirement that pre-integration SR snapshots record tree captures without permitting early cleanup. Nothing in the After wording needs adjustment to preserve these facts; the patch-review-snapshot sample is correctly preserved as the pi-cohort 7.3.1 fallback.",
+      "wallMs": 8750,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "6760931ef6167dc9338abf6be0e20da04ebc5241"
+  "repoSha": "72e47b648c0fffe558a64cf4284750f00a1b970d"
 }

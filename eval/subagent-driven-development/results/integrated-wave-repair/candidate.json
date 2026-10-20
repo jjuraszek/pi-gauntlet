@@ -35,7 +35,7 @@
       "factsSha": "d6fa89047773797b1d4e02dcf4dfe05e9166e75b91d6a3b108871cf59fd536d5",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
       "intentSha": "8e20307bd67e2e0208f9a3da33df255700c820053d13041fc815ccdc841940e8",
-      "baselineOutputSha": "789b7c8b2b898363fbc08c2fe3e0be69bbe6c99a863a7254655991193c25fab2",
+      "baselineOutputSha": "8980a3ac88d80cfc783fefff986a02c863349742dff567a955da441f44bc6f26",
       "candidateOutputSha": "8980a3ac88d80cfc783fefff986a02c863349742dff567a955da441f44bc6f26",
       "facts": {
         "working-tree-source": {
@@ -64,15 +64,15 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "After keeps every fact that Before kept: both CR dispatches use BASE_SHA 1111… with HEAD_SHA WORKTREE after `git add -A`, T0/T1/T2 are captured with the seeded scratch GIT_INDEX_FILE + add -A + write-tree block and diffed tree-to-tree with `git diff --binary`, the single plain implementer runs in /workspace/project with the FIX_FIRST report verbatim and no commit/staging instruction, the Behaviour-change: yes repair goes to an integrated-checkout SR (anchors, Tests block, fix delta) before the CR re-review, the scoped command is rerun alone, and the reset --soft fold plus tracker completion happen only after COMPLIANT and SHIP, with an empty delta treated as a failed attempt rather than an empty re-review. Nothing moved. Two small wording notes: the sentence \"The template's 'Commit your work' step is removed\" is fine but could be phrased as \"the payload omits any commit or staging step\" to avoid implying an edit to the shared template; and the After omits Before's explicit note that an empty delta would even cover a worker commit that nets to no content change—keeping that line makes the empty-delta explanation unambiguous against a HEAD move to 2222….",
-      "wallMs": 14848,
+      "feedback": "The After output is textually identical to Before, so no fact moved in either direction. Both outputs already satisfy every fact: BASE_SHA stays 1111… with HEAD_SHA WORKTREE for the initial and repeated CR after the worker's commit moves HEAD, with git add -A before each review; T0/T1/T2 are captured via a seeded scratch GIT_INDEX_FILE, add -A and write-tree, the repair-only delta is git diff --binary T0 T1 (including the new tests/error.test.mjs), commit ranges and working-tree diffs are explicitly refused, and an empty delta counts as a failed fix attempt with no re-review; exactly one plain implementer is dispatched in /workspace/project with the verbatim report and no commit/staging instruction; the Behaviour-change: yes repair goes through SR against /workspace/project with Task 1 text, spec anchors, Tests block and fix delta before the CR re-review; and the scoped command alone gates, with reset --soft to WAVE_BASE_SHA, add -A, commit and tracker completion only after COMPLIANT and SHIP. The Expected-to-move entries for integrated-wave-repair (fix-only-delta, in-place-payload, gates-preserved) predicted fails->holds, but Before already held them, so this sample does not demonstrate the Change delivering anything; if the author wants this case to show the new wording's effect, the Before sample needs to reflect the old unstaged/uncommitted-override behavior, since the current pair is unchanged.",
+      "wallMs": 14887,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "d6fa89047773797b1d4e02dcf4dfe05e9166e75b91d6a3b108871cf59fd536d5",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
       "intentSha": "8e20307bd67e2e0208f9a3da33df255700c820053d13041fc815ccdc841940e8",
-      "baselineOutputSha": "dc5e66fc427a4ab88d91ea9606d01eda7293afb9004a1755ae9da5a65bd88bbb",
+      "baselineOutputSha": "37fe66a34bca1b9b2c72e68b82962ef4864903580fceb1199b82d8069bdba370",
       "candidateOutputSha": "37fe66a34bca1b9b2c72e68b82962ef4864903580fceb1199b82d8069bdba370",
       "facts": {
         "working-tree-source": {
@@ -101,10 +101,10 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "No fact moved: After still reviews BASE_SHA 1111… against HEAD_SHA WORKTREE for both CR dispatches after staging with add -A, captures CR_TREE_1 / SR_REPAIR_TREE / CR_TREE_2 via the seeded scratch GIT_INDEX_FILE + add -A + write-tree block and diffs the tree objects with --binary (explicitly refusing the 1111…2222 range and working-tree diff, and treating an empty delta as a failed attempt rather than a re-review), dispatches one plain implementer in /workspace/project with the report verbatim and no commit/staging wording, routes the Behaviour-change: yes repair through SR against the integrated checkout before CR, and folds the worker commit with reset --soft/add -A/commit only after SHIP before the tracker update. Two robustness nits worth tightening without changing behavior: After drops the `|| exit 1` guards on the scoped rerun and `git add -A` in step 3 (Before propagated failures), and 'Repeat the entire capture block above, changing only its assignment' is less self-contained than Before's `capture_tree` helper — keeping a reusable function with failure propagation would make the three captures unambiguous while delivering the same tree-capture rule.",
-      "wallMs": 23991,
+      "feedback": "The After output is textually identical to Before, so no fact moved. Both outputs keep BASE_SHA at the recorded wave base with HEAD_SHA: WORKTORKTREE-style working-tree review (git add -A before each CR, 'current staged and unstaged checkout against BASE_SHA, not a committed HEAD range') for the initial and repeated CR even after the worker's commit 2222… moves HEAD; both capture CR_TREE_1 / SR_REPAIR_TREE / CR_TREE_2 via a seeded scratch GIT_INDEX_FILE, add -A and write-tree, diff --binary between tree objects, explicitly refuse the 1111…2222 range or a working-tree diff, and treat an empty delta as a failed attempt with no re-review; the single in-place implementer in /workspace/project carries the verbatim report and no commit/staging instruction; the Behaviour-change: yes repair goes through SR against /workspace/project with task anchors, Tests contract and Fix delta before the CR re-review; and the reset --soft / add -A / commit fold plus plan_tracker completion occur only after COMPLIANT and SHIP, with only the scoped command run. Since the Change targets this sample's wording, the After output already demonstrates the intended integrated-repair behavior; if the author intended visible wording differences (e.g., explicitly naming the scratch-index tree capture as 'not another SR dispatch', or noting that the fold applies after acceptance regardless of worker commits), those could be added without disturbing any of the five facts, but nothing in the current After text needs correction.",
+      "wallMs": 15137,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "6760931ef6167dc9338abf6be0e20da04ebc5241"
+  "repoSha": "72e47b648c0fffe558a64cf4284750f00a1b970d"
 }

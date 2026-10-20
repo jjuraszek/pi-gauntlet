@@ -35,7 +35,7 @@
       "factsSha": "0deb09ebbe6c5c699f2b1c9c18da8e1e1d0f9e6848348712bdf746eefb13b3d2",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
       "intentSha": "8e20307bd67e2e0208f9a3da33df255700c820053d13041fc815ccdc841940e8",
-      "baselineOutputSha": "ab62b51fa28e447cb992d3b930051c43eca0b84a33b0f1814957867092c97d3a",
+      "baselineOutputSha": "93a694bced287821db14a57f10a954f2648fa8b053285e73bc3e3ee64dca4701",
       "candidateOutputSha": "93a694bced287821db14a57f10a954f2648fa8b053285e73bc3e3ee64dca4701",
       "facts": {
         "singleton-dispatch": {
@@ -64,15 +64,15 @@
           "label": "held"
         }
       },
-      "feedback": "Nothing moved: After preserves every fact Before kept. Both outputs run each task as a one-entry chain in a nested worktree with one chain per wave (After says so explicitly: 'No second chain runs in any wave'), give the initial SR the implementer's treePath on 7.4.0 and a detached wave-base snapshot built with git apply --index on 7.3.1, integrate with apply --index, run only the wave's scoped command, dispatch one CR with BASE_SHA = recorded wave base and HEAD_SHA = WORKTREE, commit only after CR accepts, then mark the task complete and record the next base from the new HEAD, and keep plain in-place repair, escalation and doc-only SR-only waves. The After wording delivers the Change cleanly here; if anything, consider restoring Before's explicit 'If implModel is undefined, emit a stop note' line under escalation and the explicit 'do no cleanup' on snapshot failure, which After slightly softens to 'retain the snapshot directory' — neither affects the facts under evaluation, but keeping them would make the escalation sentinel and failed-setup-evidence requirements of the Change visible in the output.",
-      "wallMs": 12380,
+      "feedback": "The After output is textually identical to Before, so no fact moved in either direction: each wave is one chain (one-entry implementer step with worktree: true, SR step on {outputs.impl_1.treePath}, no second chain), the 7.3.1 fallback builds a detached wave-base snapshot with apply --index, each wave integrates with apply --index, runs only its scoped node --test command, dispatches one CR with BASE_SHA=WAVE_BASE_SHA_w and HEAD_SHA WORKTREE, commits only after SHIP and then marks the index complete with the next base read from the new HEAD, and in-place repair/escalation workers and doc-only SR-only waves are explicitly retained. All five facts hold in both. One small wording note for the author: the chain shape uses `parallel:` rather than a literal `tasks:` key for the one-entry step; if the skill's conformance checks match on the `tasks` term, consider having the output name the step as a one-entry tasks step (or use `tasks:`) so singleton-dispatch is satisfied verbatim rather than by equivalence. Otherwise the wording already delivers the Change for this case without losing anything Before kept.",
+      "wallMs": 14820,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "0deb09ebbe6c5c699f2b1c9c18da8e1e1d0f9e6848348712bdf746eefb13b3d2",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
       "intentSha": "8e20307bd67e2e0208f9a3da33df255700c820053d13041fc815ccdc841940e8",
-      "baselineOutputSha": "74d9892c82b72e198e937ba08bb4a27de638ad253aee2eb302829cebad4302dc",
+      "baselineOutputSha": "f6641755d5e305d39d817fbab5aad4aaa052b2d5a8e92a2b137fb315248aff95",
       "candidateOutputSha": "f6641755d5e305d39d817fbab5aad4aaa052b2d5a8e92a2b137fb315248aff95",
       "facts": {
         "singleton-dispatch": {
@@ -101,10 +101,10 @@
           "label": "held"
         }
       },
-      "feedback": "After keeps every fact Before kept: each task is still a one-entry chain with worktree: true and one initial chain per wave; SR still reads {outputs.impl_1.treePath} on 7.4.0 with the 7.3.1 fallback using git worktree add --detach plus git apply --index in a wave-base snapshot; each wave still does apply --index, the scoped command only, tree capture, and one initial CR with BASE_SHA <WAVE_w_BASE_SHA> / HEAD_SHA WORKTREE; commit follows acceptance, complete follows the durable commit, and the next base is read from the committed HEAD; repair workers and doc-only SR-only waves are retained. The one spot that drifted toward ambiguity is the exemptions bullet: After says 'Plain in-place repair workers remain allowed' and then separately 'Escalations use the configured runtime-resolved model and required review gate,' which no longer states outright that plain in-place escalation dispatches remain an allowed exception to plan-task isolation. Prefer Before's explicit phrasing—'Plain in-place repair and escalation workers remain allowed as exceptions; escalation requires runtime-resolved settings'—while keeping After's addition that doc-only commits need SR acceptance rather than CR. Also note the new 'Commit your worker changes' instruction in the implementer task is consistent with the Change's fold-worker-commits-at-wave-commit rule, but it would be clearer to state in step 3 that any worker commits are folded by the reset --soft to the wave base rather than carried through separately.",
-      "wallMs": 17966,
+      "feedback": "The After output is byte-for-byte identical to Before, so no fact moved in either direction: both show one implementer→SR chain per singleton wave in a nested worktree (worktree: true, one-entry step, repeated per wave 2 and 3), SR reading {outputs.impl_1.treePath} on 7.4.0 with the 7.3.1 fallback materialized via `git worktree add --detach <snapshot> <WAVE_BASE_SHA>` plus `git apply --index`, per-wave `git apply --index` → scoped command → one initial CR with BASE_SHA <WAVE_w_BASE_SHA> / HEAD_SHA WORKTREE, commit only after acceptance followed by marking complete with the next base recorded from the committed HEAD, and explicit retention of in-place repair/escalation workers and doc-only SR-only waves. Since the Change is behavior-changing conformance evidence, the After wording should actually surface the intended deltas on this case—e.g., state that a failed scoped gate triggers an in-place repair with scoped-union rerun and renewed affected-task SR before initial CR, that a rejected singleton patch retries from the clean base and skips tests/CR/commit when zero patches survive, and that exhausted retries leave the task in_progress pending human decision—while keeping every existing line about chain treePath SR, detached 7.3.1 snapshots, integrated CR, acceptance-gated commits and the repair/doc-only exemptions exactly as written so the five facts above continue to hold. One minor hardening: the dispatch uses `parallel:` for the one-entry step; if the harness's canonical key is `tasks`, naming it that way would make singleton-dispatch unambiguous.",
+      "wallMs": 16595,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "6760931ef6167dc9338abf6be0e20da04ebc5241"
+  "repoSha": "72e47b648c0fffe558a64cf4284750f00a1b970d"
 }

@@ -35,7 +35,7 @@
       "factsSha": "dff86c73219980a8d4d5960fe54ffa32eba32baddeee93d95cbd646369938ba6",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
       "intentSha": "8e20307bd67e2e0208f9a3da33df255700c820053d13041fc815ccdc841940e8",
-      "baselineOutputSha": "cb1121e8a4e1dca14310b788ebc795581828f8501f3c53735a29ba69d0cad553",
+      "baselineOutputSha": "509495ae126e12d04fd048b9a7c57d4e212ff069628bd9cc4d45a3b1d06a93f3",
       "candidateOutputSha": "509495ae126e12d04fd048b9a7c57d4e212ff069628bd9cc4d45a3b1d06a93f3",
       "facts": {
         "ordered-lookups": {
@@ -54,15 +54,15 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "Nothing moved on this case: both outputs record the template-store miss followed by the repo hit in documented order, both re-dispatch the implementer with archive/templates/summary-frame.tpl written into the task text alongside the original task, SCOPED_TEST_COMMANDS: none and TEST_CONTRACT: none: text-only wiring, and neither emits a stop note or a human location question while leaving task 2 in_progress. After additionally makes the fact-versus-decision classification and the stop-at-first-hit rule explicit, which is the intended Change and is delivered cleanly. One small wording improvement in After would be to tie the miss-then-hit list to the stop-note rule's 'earlier misses' phrasing (e.g., 'carrying the earlier miss and the hit into the re-dispatch') so a reader can see the ordered-lookups requirement is being satisfied by design rather than incidentally; otherwise the current wording keeps every fact Before kept.",
-      "wallMs": 7708,
+      "feedback": "Before and After are textually identical, so no fact moved. Both record the template-store summary-frames/summary-frame.tpl miss followed by the repo archive/templates/summary-frame.tpl hit in documented order, both re-dispatch the implementer with the found path written into the task text alongside the original description, SCOPED_TEST_COMMANDS: none and TEST_CONTRACT: none, and both explicitly emit no stop note, ask no human location question, and keep task 2 in_progress with no tracker write until the wave commit. The Expected-to-move list anticipated these facts flipping from fails to holds, but Before already held them; the After wording preserves that outcome and introduces no regression. No wording change is needed for this case; if the author wants stronger conformance evidence, the only optional addition would be to label the lookup record explicitly as the ordered Searched lines carried into the re-dispatch, which the After already does in substance.",
+      "wallMs": 10720,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "dff86c73219980a8d4d5960fe54ffa32eba32baddeee93d95cbd646369938ba6",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
       "intentSha": "8e20307bd67e2e0208f9a3da33df255700c820053d13041fc815ccdc841940e8",
-      "baselineOutputSha": "4ebd543716d3249747b954f686f011799fd5ed14a20406ef02df307b3255df13",
+      "baselineOutputSha": "2911b64337013cd99011f4295e442aec7e95f3c6747d2cf2320c9d2ebd28f3fb",
       "candidateOutputSha": "2911b64337013cd99011f4295e442aec7e95f3c6747d2cf2320c9d2ebd28f3fb",
       "facts": {
         "ordered-lookups": {
@@ -81,10 +81,10 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "Nothing moved on this case: both outputs record the template-store miss followed by the repo hit in documented order, both re-dispatch the implementer with archive/templates/summary-frame.tpl carried into the task text alongside the original task, SCOPED_TEST_COMMANDS: none and TEST_CONTRACT, and neither emits a stop note or asks a human where the template is—task 2 stays in_progress pending the worker and the review gates. The 'Expected to move' list predicted fails -> holds for all three, but Before already satisfied them, so this case is a no-op rather than conformance evidence for the lookup wording. One side observation unrelated to the Facts: After dropped `worktree: true` / `context: \"fresh\"` from the subagent call and dispatches directly in the parent cwd, so if an isolation fact were added later this would regress; keep the isolated-worker parameters from Before while retaining After's tighter 'Lookup record, in documented order' and 'Stop searching at the second store' phrasing, which states the stop-at-first-hit rule more explicitly than Before's 'documented fallback' sentence.",
-      "wallMs": 10539,
+      "feedback": "Before and After are textually identical on this case, so nothing moved: both record the template-store summary-frames miss followed by the repo archive/templates hit in documented order, both re-dispatch the implementer with the found path and the original task text plus the SCOPED_TEST_COMMANDS: none / TEST_CONTRACT line intact, and neither emits a stop note or asks a human where the template is (the closing 'Stop here' is the case-required halt before the worker returns, not a stop note, and task 2 is explicitly kept in_progress). The Expected list predicted these facts failing in Before, but the Before text already satisfies them, so the After wording delivers no observable change here; if the author wants evidence that the lookup-order rules are what drive this behavior, a case where the Before skill would plausibly have asked a location question (e.g. an exhausted or inaccessible lookup) would discriminate better than this one.",
+      "wallMs": 8966,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "6760931ef6167dc9338abf6be0e20da04ebc5241"
+  "repoSha": "72e47b648c0fffe558a64cf4284750f00a1b970d"
 }

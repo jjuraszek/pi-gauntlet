@@ -35,7 +35,7 @@
       "factsSha": "ffbec39d76f782585168dca20633e78d3db03c4c27531c6f59e030507e898528",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
       "intentSha": "8e20307bd67e2e0208f9a3da33df255700c820053d13041fc815ccdc841940e8",
-      "baselineOutputSha": "52ac020a8596caa9ab6705316a8b38575f884ea295348438111976c597cbb649",
+      "baselineOutputSha": "ca928b39a417379642d597f92d5dbfc88a936cfcdfb0e8fac705edfc4c8152c2",
       "candidateOutputSha": "ca928b39a417379642d597f92d5dbfc88a936cfcdfb0e8fac705edfc4c8152c2",
       "facts": {
         "fail-closed": {
@@ -49,15 +49,15 @@
           "label": "held"
         }
       },
-      "feedback": "Neither fact moved. Both outputs stop dispatch, name the failed `git apply --index` error and the un-printed `snapshot:` path as the reason, refuse to point SR at the unchanged `/workspace/project` or the half-populated `/tmp/review-snapshot/tree`, and state that the worker's DONE is not acceptance without an SR verdict; both also retain the snapshot directory, its worktree registration and the shell output, forbid applying the patch into the parent, and keep the task `in_progress` with no `complete`/`failed` tracker write. After is slightly stronger on evidence-retained by listing the not-run cleanup commands and stderr verbatim, and it adds the D1 'When a Subagent Fails' routing from the Change without re-chaining or inventing a verdict. One minor risk to watch: After's optional `git -C /workspace/project apply --check` is read-only, but if the wording ever drifts to `apply` without `--check` it would break the 'parent unchanged' half of evidence-retained; keeping the explicit 'do not apply the patch into /workspace/project' bullet alongside it, as After does, is the right guard.",
-      "wallMs": 9854,
+      "feedback": "The Before and After outputs are textually identical, so nothing moved. Both stop review dispatch, explicitly refuse to use /tmp/review-snapshot/tree, /workspace/project, or the deleted worker checkout as a reviewer cwd, state that the worker's DONE is not acceptance, and report the shell error and retained snapshot path (fail-closed holds). Both also explicitly decline the worktree remove / rm -rf cleanup, keep the stderr, leave /workspace/project at WAVE_BASE_SHA, and keep the plan_tracker entry in_progress with no complete or failed write (evidence-retained holds). The After wording already delivers the Change's requirements for this case — fail closed on unmaterialized trees, retain the failed directory and shell output without cleanup, and keep the D1 in_progress lifecycle explicit — so no wording adjustment is needed here; the facts expected to move belong to other cases and are not exercised by this sample.",
+      "wallMs": 7907,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "ffbec39d76f782585168dca20633e78d3db03c4c27531c6f59e030507e898528",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
       "intentSha": "8e20307bd67e2e0208f9a3da33df255700c820053d13041fc815ccdc841940e8",
-      "baselineOutputSha": "b7025587fa63fcc10f7edef814c1eaff846354ee31035ef8f5be0276e71d964e",
+      "baselineOutputSha": "b662c3d768a44000c531d3757a32eae64eba0a5eb6c1897e23083d4be1f64b60",
       "candidateOutputSha": "b662c3d768a44000c531d3757a32eae64eba0a5eb6c1897e23083d4be1f64b60",
       "facts": {
         "fail-closed": {
@@ -71,10 +71,10 @@
           "label": "held"
         }
       },
-      "feedback": "Nothing moved: both outputs stop review dispatch, refuse to read the unchanged /workspace/project, refuse to treat the worker's DONE as acceptance, retain the failed snapshot directory and the git apply output without cleanup, leave the parent untouched, and keep the task in_progress. After actually strengthens the evidence-retained fact by enumerating the forbidden follow-up commands (no tree capture, cleanup, integration, retry, staging, or commit) and by naming the whole /tmp/review-snapshot directory plus shell output as retained, which matches the Change's 'explicitly retain the failed directory and shell output without cleanup' wording. The only thing After softened slightly is the explicit 'Report the snapshot setup failure' sentence that Before ended with; After implies the report by quoting the output and saying stop, which a careful reader still accepts, but keeping a one-line 'Report the failed snapshot setup to the human/orchestrator and stop' alongside the closing note about a future replacement snapshot would make fail-closed unambiguous for stricter readers while preserving everything the Change asks for.",
-      "wallMs": 10177,
+      "feedback": "The After output is textually identical to Before, so nothing moved: both stop at the snapshot-setup failure, dispatch no reviewer, refuse to substitute the unchanged parent, state that the worker's DONE does not bypass the snapshot requirement, retain /tmp/review-snapshot and the shell output without cleanup, and leave the worktree and task (in_progress) untouched. This case is the preserved pi-cohort 7.3.1 patch-review-snapshot fallback, and the After wording correctly keeps it unchanged while the Change's fail-closed and retain-failed-evidence rules are already satisfied; no wording adjustment is needed for this sample, though if you want the After to visibly reflect the new rules you could add a sentence that the failure is reported as a stop with the retained directory and shell output named explicitly, without altering any of the existing bullets.",
+      "wallMs": 7473,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "6760931ef6167dc9338abf6be0e20da04ebc5241"
+  "repoSha": "72e47b648c0fffe558a64cf4284750f00a1b970d"
 }

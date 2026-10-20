@@ -35,35 +35,13 @@
       "factsSha": "86d9a0a63147adc5f666e4265b39c8501b9352c2b5b248fd694ef05eccc6b5ed",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
       "intentSha": "8e20307bd67e2e0208f9a3da33df255700c820053d13041fc815ccdc841940e8",
-      "baselineOutputSha": "06d0437679664cdf2b5b93c269a13b652fc0c3e0d9fc1ded2b590b17f9dc1222",
+      "baselineOutputSha": "bc608685b9e5e0d5a9a08e61bd94a23eff71d0a59932c77589bb9986b47d6591",
       "candidateOutputSha": "bc608685b9e5e0d5a9a08e61bd94a23eff71d0a59932c77589bb9986b47d6591",
       "facts": {
         "searched": {
-          "before": "fails",
+          "before": "holds",
           "after": "holds",
-          "label": "intended change"
-        },
-        "supply-or-amend": {
-          "before": "fails",
-          "after": "holds",
-          "label": "intended change"
-        }
-      },
-      "feedback": "After delivers the change cleanly: it classifies the ask as a fact, uses the fixed bounded lookup, and emits a stop note with a Problem: line followed directly by a Searched: line naming template-store summary-frames/summary-frame.tpl - not found, then offers supply (a), amend-to-drop (b), and amend-to-document (c) options without ever asking the human where the template lives. Before failed both facts because its reply had no Problem:/Searched: structure and its option (b) was an explicit location question (\"Give me another location\"). Nothing regressed; one small risk in After is option (c) (\"amend the spec to document a different location\"), which stays on the right side of the line because it is framed as a spec amendment rather than a question, but authors should keep that framing (amend the spec/task, not \"tell me where\") in any further rewording so it does not drift back into a location question.",
-      "wallMs": 10119,
-      "verdict": "improved"
-    },
-    "github-copilot/gpt-6.1-sol": {
-      "factsSha": "86d9a0a63147adc5f666e4265b39c8501b9352c2b5b248fd694ef05eccc6b5ed",
-      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "8e20307bd67e2e0208f9a3da33df255700c820053d13041fc815ccdc841940e8",
-      "baselineOutputSha": "dcf600ecbc81063db077f923d1d705e3b3ffb07c82080cba75c372e2fe8a31eb",
-      "candidateOutputSha": "f9802197c37b518fd236b943813b2d376c5b85c6e4ea79a11f065bcdce299a88",
-      "facts": {
-        "searched": {
-          "before": "fails",
-          "after": "holds",
-          "label": "intended change"
+          "label": "intended but unchanged"
         },
         "supply-or-amend": {
           "before": "holds",
@@ -71,10 +49,32 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "After moved `searched` to holds by adding an explicit `Searched: template-store, collection summary-frames, key summary-frame.tpl - not found` line directly under `Problem:`; Before only folded the location and result into the Problem sentence and had no Searched line, so it failed that fact. `supply-or-amend` holds in both: Before already offered a concrete supply option (add the template at the documented collection/key) and an amend-spec option without asking where the template is, though its option (b) 'identify an available source' edges toward a location prompt; After is cleaner because (b) explicitly drops the requirement and defines replacement behavior. To keep both facts, retain the exact `Problem:` then `Searched:` adjacency, name the store/collection/key with its result, and phrase amend options as removing or replacing the requirement rather than asking the human to name a source.",
-      "wallMs": 13966,
-      "verdict": "improved"
+      "feedback": "The After output is textually identical to Before, so nothing moved on this case: both classify the ask as a fact ask, perform the single documented template-store lookup without inventing other stores, and emit a stop note whose Searched: line sits directly under Problem: naming template-store summary-frames/summary-frame.tpl - not found, followed by supply (a), amend-to-drop (b), and amend-location (c) options that never ask the human where the template is. The expected fails -> holds movement for searched and supply-or-amend is not observable here because Before already satisfied both facts; if the author wants this case to demonstrate the Change, the Before sample should be one that asked a location question or omitted the Searched line, while the After wording as written already delivers the exhausted-lookup stop-note shape correctly and should be kept unchanged.",
+      "wallMs": 8643,
+      "verdict": "unchanged"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "86d9a0a63147adc5f666e4265b39c8501b9352c2b5b248fd694ef05eccc6b5ed",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "8e20307bd67e2e0208f9a3da33df255700c820053d13041fc815ccdc841940e8",
+      "baselineOutputSha": "f9802197c37b518fd236b943813b2d376c5b85c6e4ea79a11f065bcdce299a88",
+      "candidateOutputSha": "f9802197c37b518fd236b943813b2d376c5b85c6e4ea79a11f065bcdce299a88",
+      "facts": {
+        "searched": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "supply-or-amend": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        }
+      },
+      "feedback": "Before and After are textually identical here, so nothing moved: both perform the bounded template-store lookup with the documented collection/key arguments, both place a Searched: line directly under Problem: naming summary-frames/summary-frame.tpl with its not-found result, and both close with supply-or-amend options (supply the template to the documented location, or amend the spec/task to drop the requirement) without asking the human where the template is. The Change's lookup-before-ask behavior is already delivered in both outputs for this case; the After wording introduces no regression and no visible difference, so the expected fails->holds movement for this case is not evidenced by these two outputs. If you want this sample to demonstrate the Change, regenerate Before from the pre-change wording so it actually exhibits the location-question failure, or pick a case where the two wordings diverge.",
+      "wallMs": 7003,
+      "verdict": "unchanged"
     }
   },
-  "repoSha": "6760931ef6167dc9338abf6be0e20da04ebc5241"
+  "repoSha": "72e47b648c0fffe558a64cf4284750f00a1b970d"
 }

@@ -35,7 +35,7 @@
       "factsSha": "e23807c10d0b03ac1cd5542034fedd94e035f9cfa7d71682c7cc2e2c4875c7ea",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
       "intentSha": "8e20307bd67e2e0208f9a3da33df255700c820053d13041fc815ccdc841940e8",
-      "baselineOutputSha": "3ce55d05a51894963e41f22164fa49d78a161051c43175364863df0ae251a951",
+      "baselineOutputSha": "2e9055a04ce91e68ed5724f948244d8baa917a17c5c94a2b02f0df805ba2ea3a",
       "candidateOutputSha": "2e9055a04ce91e68ed5724f948244d8baa917a17c5c94a2b02f0df805ba2ea3a",
       "facts": {
         "no-empty-wave": {
@@ -59,15 +59,15 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "After keeps every fact Before kept: it skips steps 5-7 with zero survivors, voids the chain's COMPLIANT verdict for the unintegrated patch while still allowing a snapshot SR for a usable retry patch, retries from the verified clean WAVE_BASE_SHA as a plain one-entry fan-out (not a second chain, not an in-place repair, not a reapply of the rejected patch), carries the two-attempt budget across both failures, refuses a reset for a relabeled new wave, and leaves Task 1 in_progress with HEAD at the base and no commit. The one wording to watch is the terminal section listing 'marking it failed' among the human's options—that is correctly framed as a human decision, not an orchestrator write, so it does not move completion-withheld, but keeping the explicit 'not failed (requires a human decision)' table row adjacent to it, as After does, is what prevents a reader from taking it as an orchestrator action. No change is needed to deliver the Change; if anything, After could state once that the retry's SR is the pi-cohort 7.3.1-style snapshot fallback rather than re-chaining, to tie the never-re-chain rule to the runtime policy explicitly.",
-      "wallMs": 11237,
+      "feedback": "After is textually identical to Before, so no fact moved. Both outputs skip steps 5-7 with zero surviving patches, explicitly void the already-accepted chain SR rather than treating it as integration, and reserve SR for an actual usable retry patch (the completeness branch) without reviewing the empty parent. Both retry Task 1 as a plain one-entry fan-out from the verified clean HEAD at WAVE_BASE_SHA with a fresh implementer in a worktree, refuse to re-chain in the same wave, and use the snapshot SR fallback rather than an in-place dirty repair or blind reapplication of /tmp/reports/task1.patch. Both carry the two-attempt limit across retries, report each attempt's diagnostics, stop and escalate after attempt 2, and state that a 'new' one-task wave does not reset the budget. Both keep index 1 in_progress (no failed/complete/clear/re-init write), HEAD at 1111…, working tree clean, and no wave commit. The wording already delivers the Change's clean-base singleton retry, bounded attempts, and explicit D1 in_progress-pending-human-decision lifecycle; no change to After is needed to preserve these facts.",
+      "wallMs": 15917,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "e23807c10d0b03ac1cd5542034fedd94e035f9cfa7d71682c7cc2e2c4875c7ea",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
       "intentSha": "8e20307bd67e2e0208f9a3da33df255700c820053d13041fc815ccdc841940e8",
-      "baselineOutputSha": "b0aac59c8b5f273f0dbc23566a2674d42460b8dcad4c54030b76dae3998a05db",
+      "baselineOutputSha": "b6c8be989a5ba11ef15909b601af484c7f01f1b9b9eca2b052490364f8a8ddcb",
       "candidateOutputSha": "b6c8be989a5ba11ef15909b601af484c7f01f1b9b9eca2b052490364f8a8ddcb",
       "facts": {
         "no-empty-wave": {
@@ -91,10 +91,10 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "Nothing moved: both outputs skip the empty-wave gates (After names steps 5–7 explicitly and says the chain COMPLIANT covers only the original patch, which is a clearer statement of the no-empty-wave intent than Before's generic 'integration-success gates'), both retry Task 1 as a fresh singleton worktree dispatch from the verified clean HEAD/WAVE_BASE_SHA rather than repairing a dirty checkout or re-applying task1.patch, both carry the existing two-attempt budget and explicitly deny a budget reset via a new wave, and both end with Task 1 in_progress, HEAD at the base, no commit and no completion. After's wording is slightly tighter (one shell test that stops on failure, explicit 'no tracker completion', explicit 'not from attempt 1's discarded worker state'), and the one small regression risk is that After folds the Spec anchors into free-form recovery context instead of a verbatim TASK_1_SPEC_ANCHORS placeholder as Before did; keeping the explicit verbatim anchors/Tests-block insertion alongside After's steps 5–7 and budget language would preserve every fact while delivering the Change.",
-      "wallMs": 13816,
+      "feedback": "Before and After are textually identical, so nothing moved. Both skip steps 5–7 with zero surviving patches, explicitly refuse to treat the chain's COMPLIANT verdict as integration, and reserve a fresh snapshot SR for a usable replacement patch only; both retry Task 1 as an ordinary singleton fan-out branched from the verified clean HEAD/WAVE_BASE_SHA (not an in-place repair, not reapplying /tmp/reports/task1.patch); both carry the existing two-attempt budget, diagnose each failure, stop after attempt 2 and deny a budget reset by renaming the recovery a new wave; and both leave Task 1 in_progress with HEAD unchanged and no commit. The one spot worth tightening in future wording is the retry's review path: the output says 'do not run another implementation-to-SR chain' and uses the detached-snapshot SR, which the clean-base-retry fact tolerates as the older-runtime fallback, but since this is an apply failure on pi-cohort 7.4.0 rather than a chain stop/error, the Change's one-chain-per-all-DONE-wave rule would more naturally make the retry a nested implementer-to-SR chain; stating 'a retry wave on >=7.4.0 uses the chain; snapshots remain the 7.3.1 fallback' would deliver the Change more precisely while keeping every fact intact.",
+      "wallMs": 12623,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "6760931ef6167dc9338abf6be0e20da04ebc5241"
+  "repoSha": "72e47b648c0fffe558a64cf4284750f00a1b970d"
 }
