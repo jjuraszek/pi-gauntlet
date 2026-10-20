@@ -22,7 +22,8 @@ loop: tracker state is extension state no subagent can read.
 ## Boundaries
 
 - Reads: `../gauntlet-resume/reference/brief-contract.md` in full (resolve against this
-  skill's directory) before any other action; the transcript; git metadata by path.
+  skill's directory) before any other action; the transcript; git metadata by path;
+  `pi list` output; cohort's `skills/handoff/SKILL.md`.
 - Writes: only an append to the brief cohort wrote, wherever the resolved path puts it
   (a repository-local `--out` included). Never a second file, never the trackers, never
   any other repository file.
@@ -58,12 +59,15 @@ loop: tracker state is extension state no subagent can read.
      `node -p "require('os').tmpdir()"`; the authoritative path is the one cohort
      reports in step 2.
 2. **Run cohort's handoff procedure.** A skill cannot expand `/skill:handoff` (pi expands
-   skill commands on typed input only). Find `handoff` in the session skill list, `Read`
-   its `SKILL.md` at the location listed there, and follow its procedure with the output
-   option resolved in step 1 - the brief's core (six headings, ending at `## Skills loaded`)
-   is cohort's to write, by cohort's rules. Absent from the skill list -> STOP: "cohort
-   `handoff` skill not in the session skill list - install or upgrade to pi-cohort >= 7.1.0".
-   No fallback to the `/handoff` prompt.
+   skill commands on typed input only), and cohort's `handoff` is command-only
+   (`disable-model-invocation: true`), so it is absent from the session skill list.
+   Locate it by path: run `pi list`; the indented path under the `pi-cohort` entry
+   (`npm:pi-cohort`, or a local path ending in `/pi-cohort`) is the package root. `Read` `<root>/skills/handoff/SKILL.md` and follow its procedure with the
+   output option resolved in step 1 - the brief's core (six headings, ending at
+   `## Skills loaded`) is cohort's to write, by cohort's rules. No `pi-cohort` entry, or
+   the file missing -> STOP: "cohort `handoff` skill not found at
+   `<root>/skills/handoff/SKILL.md` - install or upgrade to pi-cohort >= 7.1.0". No
+   fallback to the `/handoff` prompt.
 3. **Take the path from the report.** Cohort's procedure ends with `Handoff written: <abs
    path>` or `Handoff not written: <reason>`. `Handoff not written` -> STOP with that reason.
    Otherwise that path is the brief; line 1 not starting `# Handoff:` -> STOP with the path.

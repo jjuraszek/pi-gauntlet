@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Fixed
+
+- **`/skill:gauntlet-handoff` finds cohort's `handoff` skill by path.** pi-cohort >= 7.4.3 marks `handoff` command-only, which drops it from the session skill list the skill used to search, so every run stopped with "not in the session skill list". Step 2 now resolves the pi-cohort package root from `pi list` and reads `<root>/skills/handoff/SKILL.md` directly.
+
 ## v7.22.0 - 2026-10-20
 
 ### Added
