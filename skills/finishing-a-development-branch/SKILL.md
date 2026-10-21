@@ -180,6 +180,8 @@ Omit the block when N = 0.
 
 **Normal repo and named-branch worktree — present exactly these 5 options:**
 
+Read and apply [menu-layout](../brainstorming/reference/menu-layout.md) before presenting these options and before acting on a numeric reply.
+
 ```
 Implementation complete. What would you like to do?
 
@@ -193,6 +195,8 @@ Which option?
 ```
 
 **Detached HEAD — present exactly these 4 options:**
+
+Read and apply [menu-layout](../brainstorming/reference/menu-layout.md) before presenting these options and before acting on a numeric reply.
 
 ```
 Implementation complete. You're on a detached HEAD (externally managed workspace).

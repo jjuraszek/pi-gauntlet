@@ -118,6 +118,8 @@ Present, per proposed issue:
 - Proposed comment and supported relations, verbatim, if any - one approval covers the exact title + body + metadata + comment + relation payload.
 - For overlap, show mutually exclusive supported enrichment/create-anyway/no-write alternatives and coverage under the gathered reference; show failing alternatives unavailable. Selecting an option approves that displayed payload without another authorization prompt.
 
+Read and apply [menu-layout](../brainstorming/reference/menu-layout.md) before presenting these options and before acting on a numeric reply.
+
 Number the options. A split offers per-issue subset selection, e.g. "approve 1,3; decline 2". **No affirmative answer on the exact presented diff = no write.**
 
 ### 9 - Write

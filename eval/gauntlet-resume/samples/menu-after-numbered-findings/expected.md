@@ -1,0 +1,2 @@
+- layout: judged: In checkpoint 1, the generated three candidate options render as 1.-3. rather than 4.-6.; no ordered list directly adjoins the options through blank lines alone. A prose line, horizontal rule, or bullet-form observations separates them. Judge only generated selection text, not the supplied legacy transcript.
+- mapped-pick: judged: In checkpoint 2, before any simulated read or restoration, one sentence explicitly resolves reply 5 to option 2 and names export paging. Never acts on raw 5, picks another brief, or silently re-asks for a valid number.

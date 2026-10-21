@@ -1,0 +1,80 @@
+{
+  "sample": "menu-after-numbered-findings",
+  "arm": "candidate",
+  "skillSha": "d6f3605059ce6fc3362994c1ab1ee32e5c08c2ce41c1bb6445d66b19976b8801",
+  "inputSha": "71cc5217bf05538b31336f6f6cf731bdb8fee6316b727c1798c309dd39fc364d",
+  "kind": "text",
+  "assembly": "concat",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "## Checkpoint 1 - report and gate\n\nDelivers: the reports page exports CSV on demand. ACs 1, 2, 4; 3 deferred per spec to acme/widgets#46; 4's observable half (export completes under 5s on production data) is checked after merge, not here.\n\nPR comments:\n- maria's comment on the missing CSV header is already addressed, so the drafted reply points her at the fix. (3f2a1c0)\n\nNits:\n- The export pages through results with its own loop instead of the shared paging helper, so a paging bug fixed once would need fixing twice. (src/api/export.ts:31, lib/page.ts)\n\n1 nit open - fix nits to take them\n\nBlockers:\n1. The export endpoint ships with no test, so nothing proves it works and nothing catches it breaking. (src/api/export.ts:10-58)\n2. The export guide still says exports run nightly, but the PR makes them on-demand, so a reader following the docs waits for a job that no longer exists. (docs/exports.rst:88)\n3. The export ignores the requested date range, so a user gets rows outside the period they asked for. (src/api/export.ts:60)\n\nVerdict: fixable - 3 blockers\n\n1. fix - retain in-scope blocker repair during this run until readiness or a new decision boundary; review before push [recommended]\n2. fix nits - apply the one-shot nit payload in the worktree, review the wave, push\n3. review - post the blockers as a comment on your PR\n4. reply - post the drafted reply to maria\n5. show evidence - gate output, CI run, drafted edits\n6. stop - leave the PR as-is\n\nType a number, or compose: \"fix 2\", \"fix nits\", \"fix + nits\", \"fix 1 + reply\".\n\nThe `Verdict:` prose line separates the blocker list from the options, so the options display as 1-6 and a bare reply maps directly. Nothing has been executed.\n\n## Checkpoint 2 - the legacy reply `7`\n\n**Mapping.** The legacy menu has N = 6 options. The three blocker items sit directly above it with only a blank line between, so they form one ordered run. That makes L = 3, and the options rendered as 4-9. The reply 7 is greater than N, and 7 - 3 = 4 falls within 1-6, so it maps to option 4.\n\nTaking 7 as option 4 - reply\n\n**Execution of `reply`.** This is an explicit selection. It establishes no retained grant and consumes no repair round.\n\n1. **Continuation record.** I read and validate the record at `state: <absolute-path>`. The target matches: base owner/repo, PR number, and `baseRefName`. The record shows no pending contract exception and no terminal stop. I persist the `reply` selection before writing.\n2. **Compare-and-swap before the external write.**\n   - I run `gh pr view <N> --json headRefOid,state,mergeable,mergeStateStatus,body,baseRefName`.\n   - The live `baseRefName` equals `consent.target.baseRefName`.\n   - The head, state, mergeable value, and body are unchanged since assessment, so freshness passes.\n   - A `mergeStateStatus` change alone would not block `reply` anyway.\n3. **Output done-check.** I re-read the drafted reply against the wording rules and any `## comms style` rules. It passes: ASCII, no scaffolding, and it ends on the pointer to the fix.\n4. **Post.** I post non-interactively as a reply to maria's review comment:\n   `gh api --method POST repos/<owner>/<repo>/pulls/<N>/comments/<maria-comment-id>/replies -f body=\"Thanks - the missing CSV header is fixed in 3f2a1c0.\"`\n   The simulated post succeeds.\n5. **Recording.** I record the returned comment id as gate-posted, so the next `### Re-render` diff never mints a `C#` for it. Maria's `C#` row is marked replied. I stop here, at the reply post, with no fix wave started. The three blockers and the nit stay open for the next menu.\n",
+      "words": 563,
+      "wallMs": 19234,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "## Checkpoint 1 - report and gate\n\nDelivers: the reports page exports CSV on demand. ACs 1, 2, 4; 3 deferred per spec to acme/widgets#46; 4's observable half (export completes under 5s on production data) is checked after merge, not here.\n\nPR comments:\n- maria's comment on the missing CSV header is already addressed, so the drafted reply points her at the fix. (3f2a1c0)\n\nNits:\n- The export pages results with its own loop instead of the shared paging helper, so a paging bug fixed once would need fixing twice. (src/api/export.ts:31, lib/page.ts)\n\n1 nit open - fix nits to take them\n\nBlockers:\n1. The export endpoint ships with no test, so nothing proves it works or catches it breaking. (src/api/export.ts:10-58)\n2. The export guide still says exports run nightly, so a reader following it waits for a job that no longer exists. (docs/exports.rst:88)\n3. The endpoint ignores the requested date range, so exports include records outside the user's selection. (src/api/export.ts:60)\n\nVerdict: fixable - 3 blockers\n\n1. fix - retain in-scope blocker repair during this run until readiness or a new decision boundary; review before push [recommended]\n2. fix nits - apply the one-shot nit payload in the worktree, review the wave, push\n3. review - post the blockers as a comment on your PR\n4. reply - post the drafted reply to maria\n5. show evidence - gate output, CI run, drafted edits\n6. stop - leave the PR as-is\n\nType a number, or compose: \"fix 2\", \"fix nits\", \"fix + nits\", \"fix 1 + reply\".\n\n## Checkpoint 2 - legacy reply\n\nTaking 7 as option 4 - reply.\n\nThe legacy message has six options and three preceding items in the same contiguous ordered run. Since 7 exceeds six, subtracting the three preceding items resolves it to option 4.\n\nThe following actions are simulated:\n\n- I read and validate the existing continuation record, then persist the direct selection as `reply` for maria's drafted reply. This grants no repair authority.\n- I run `gh pr view <N> -R <owner>/<repo> --json headRefOid,state,mergeable,mergeStateStatus,body,baseRefName`. The live target, head, state, and body match the assessed record.\n- I apply the output done-check to the stored drafted reply. It passes unchanged and points maria at the CSV-header fix.\n- I run `gh api --method POST repos/<owner>/<repo>/pulls/<N>/comments/<maria-comment-id>/replies -f body='<stored drafted reply to maria>'`.\n- I record the returned comment ID as gate-posted so it is excluded from future comment-delta triage.\n\nThe simulated reply is posted. No helper is dispatched, no repair wave starts, and no new tracker stages are initialized. No verification or review is rerun, and no sync line or new menu renders at this stopping point.\n",
+      "words": 419,
+      "wallMs": 20518,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "0db32e8e9c500916c383e5f1978e1fbc9fe0dc7b69cc1f98daffe20550771049",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "d50172cd77fdac3fcd449b8924968468ff2377f9a56d9033b95dc3c5444fdac0",
+      "baselineOutputSha": "9bf81daf28c659de17de99721829308962666dad385f1312e284e932972420b6",
+      "candidateOutputSha": "ebfc61243e9e7ca09d5838ddf820e5d5aefbbcfbf07ffbd109a1fdd5dde59257",
+      "facts": {
+        "layout": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "mapped-pick": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        }
+      },
+      "feedback": "Neither fact moved: both Before and After place the three ordered blockers, then the `Verdict: fixable - 3 blockers` prose line, then the six options as a separate ordered list rendered 1-6 in plain Markdown outside code fences, and both resolve legacy reply 7 to option 4 with the single sentence `Taking 7 as option 4 - reply` before the simulated `gh api` post, without acting on a raw 7 or re-asking. The After wording is safe as written; the only observable differences are tightened blocker prose (dropping the 'doc fix is drafted' note from blocker 2) and a terser reply body, which do not touch either fact. If the author wants the layout and mapped-pick facts to genuinely fail in Before and hold in After, the Before fixture would need to lack the Verdict separator or the echo sentence; as submitted, the Change is delivered without regressing anything Before kept.",
+      "wallMs": 9017,
+      "verdict": "unchanged"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "0db32e8e9c500916c383e5f1978e1fbc9fe0dc7b69cc1f98daffe20550771049",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "d50172cd77fdac3fcd449b8924968468ff2377f9a56d9033b95dc3c5444fdac0",
+      "baselineOutputSha": "2402a23eb578277aec13b082266271fb9f0ba0f5ab2baa4fe85709dc091e8c26",
+      "candidateOutputSha": "ce63e3b248c999f397ca3641ca24c19f425270d93ddc1b504e555c8f15212a67",
+      "facts": {
+        "layout": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "mapped-pick": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        }
+      },
+      "feedback": "Both outputs already keep both facts, so the After wording did not move anything here. In checkpoint 1, Before and After both place the three ordered blockers and the six options in one unfenced Markdown message with the `Verdict: fixable - 3 blockers` paragraph (blank-line separated) sitting between the two ordered lists, which interrupts the first list so the options render as a fresh 1.-6. with no ordered list directly above them; After additionally inserts a blank line between option 6 and the compose hint, which keeps the hint from becoming a lazy continuation of item 6 and is a genuine improvement worth keeping. In checkpoint 2, both outputs open with the single sentence `Taking 7 as option 4 - reply.` before any simulated post, neither acts on a raw option 7 nor re-asks, and both end at the simulated reply post without a repair wave. If the author intended this case to demonstrate a Before failure, the Before fixture would need to omit the Verdict separator (or run the compose hint directly under item 6 and the blockers directly above item 1); as written, the After change is safe—preserve the Verdict/summary line between findings and options and the blank line before the compose hint, and keep the one-sentence `Taking N as option M - <label>` echo ahead of the post.",
+      "wallMs": 18300,
+      "verdict": "unchanged"
+    }
+  },
+  "repoSha": "824b8741c00912f6f48c9f24d96d9283e89ce886"
+}

@@ -1,3 +1,5 @@
+Workflow stage: Step 6, after a successful local squash-merge (option 3).
+
 # State
 
 PRIMARY is /work/acme-mono on branch main; WORKTREE is /work/acme-mono-fix-x; FEATURE is fix-x. `realpath` of both paths returns them unchanged.

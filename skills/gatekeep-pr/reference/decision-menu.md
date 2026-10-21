@@ -8,6 +8,8 @@ Read from SKILL.md step 6. Input: the report's verdict and the PR state. Output:
 
 Render fix consequences with the applicable lifetime from `post-selection-loop.md` `### Continuation record`. For named fixes, state that authority retains only the selected stable IDs for later independent reassessments, with the same lifetime as broad fixes; link active pre-push retries to `fix-wave.md` `## Review before push`. For clarification-only fixes, state one-shot authority for the exactly selected payload; keep nit consequences one-shot.
 
+Read and apply [menu-layout](../../brainstorming/reference/menu-layout.md) before presenting these options and before acting on a numeric reply.
+
 Rows are `<n>. <verb> - <consequence>`; every row, `stop` included, carries its consequence clause. `stop` is always last, before the compose hint. `show evidence` is always offered and never `[recommended]`. A row the actor cannot execute - by `## Availability` below, or because the forge would refuse it (branch protection, a withhold) - is omitted and named in the compose line's `Not offered:` sentence; it is never `[recommended]`. Exactly one row is `[recommended]`. A **terminal overlay** is `own merge`, `merge queued` (once its read returns `MERGED` it re-renders as `own merge`), `approved`, or `merged or closed PR`; every other menu is an ordinary open-PR menu. **Landed** means the PR's `state` is `MERGED`; under `approved` and under a closed-unmerged PR nothing has landed.
 
 - `accept contract change` - invoke the concrete proposal's owning amendment process through `post-selection-loop.md` `### Contract decision`; settle the baseline only after completion

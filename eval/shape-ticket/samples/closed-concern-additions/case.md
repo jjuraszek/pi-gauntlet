@@ -1,5 +1,7 @@
 bundle+: skills/shape-ticket/reference/overlap-check.md
 
+Workflow stage: step 4 Draft followed by the AC integrity gate.
+
 ## Mode
 Create. Gathering and overlap discovery are complete. Use only the supplied evidence to recommend the ticket action, draft any useful proposed payload, and give the gate report in at most 600 words. No live search or writes are available.
 

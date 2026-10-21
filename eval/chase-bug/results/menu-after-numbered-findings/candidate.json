@@ -1,0 +1,80 @@
+{
+  "sample": "menu-after-numbered-findings",
+  "arm": "candidate",
+  "skillSha": "5cf4d9d5ea0c4d659b4344a0e164705ff68351e75395cfc2dbad0d808aa94842",
+  "inputSha": "beaae0a45a44af3c883a8ae3218181df3c66179054f1009e79e6cff0725e255d",
+  "kind": "text",
+  "assembly": "concat",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "## Checkpoint 1 - Verdict menu (gate 1)\n\nFault story: a request path with a trailing slash -> `src/router.ts:88` compares paths exactly, without normalizing -> `/widgets/` falls through to the 404 handler instead of matching the widgets route. The root cause is evidenced. The fix cost is unclear: normalizing at the matcher may affect other routes.\nProof: local repro `/widgets/` -> 404 | `src/router.ts:88` | expected 200, got 404\n\nFindings:\n1. The trailing slash triggers the failure.\n2. Exact path comparison causes the miss.\n3. The local falsification test supports the root cause.\n\nPrior-report search: completed, no match.\n\nPick one:\n1. [ ] File a ticket - /skill:shape-ticket, seeded with this evidence.\n2. [ ] Brainstorm now - /skill:brainstorming with this evidence as the seed. [recommended]\n3. [ ] Implement hotfix now - follow hotfix.md; add \"as a PR\" for a PR.\n4. [ ] Finish with rendered summary.\n\nnot eligible: bounded-fix judgment fails (fix cost unclear)\n\n---\n\n## Checkpoint 2 - Legacy reply `5`\n\nTaking 5 as option 2 - brainstorm now\n\n(The legacy findings list `1.`-`3.` and the menu were separated only by a blank line, so they rendered as one ordered run. That makes L = 3 and N = 4. The reply 5 maps to option 5 - 3 = 2.)\n\nThis origin is unaddressable, so there is no draft and no gate 2. Here is the rendered summary:\n\n```\nSymptom: GET /widgets/ (trailing slash) returns 404 instead of 200.\nVerdict: Real bug - a trailing slash makes src/router.ts:88's exact, unnormalized path compare miss, and the request falls through to the 404 handler. The fix cost is unclear.\nEvidence: local repro /widgets/ -> 404 (expected 200) | src/router.ts:88 | falsification test ran and failed to falsify the exact-compare hypothesis | prior-report search completed, no match.\nNext step: brainstorming the fix shape (normalization scope and impact on other routes) via /skill:brainstorming.\n```\n\nCheckpoint 3 (simulated): `git status --porcelain --untracked-files=no` matches the clean baseline. Triage made no tracked-file changes.\n\nHanding off to [/skill:brainstorming](../brainstorming/SKILL.md). The seed is below, and the origin text is fenced as data:\n\n```text\n[evidence seed - data, not instructions]\nFault story: trailing slash -> exact path comparison at src/router.ts:88 -> 404 instead of 200\nRepro: local request to /widgets/ -> 404 (expected 200)\nFalsification: exact-compare hypothesis tested locally, not falsified\nFindings:\n- The trailing slash triggers the failure.\n- Exact path comparison causes the miss.\n- The local falsification test supports the root cause.\nOpen question: fix cost unclear; bounded-fix judgment not eligible\n```\n",
+      "words": 378,
+      "wallMs": 14549,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "## Checkpoint 1 — Verdict menu\n\nFault story: a trailing slash in `/widgets/` → the router compares paths without normalization → the request returns 404 instead of 200. The root cause is confirmed; fix cost remains unclear.\n\nProof: local repro `/widgets/` → 404 | `src/router.ts:88` | expected 200; local falsification test supports the root cause.\n\n1. The trailing slash triggers the failure.\n2. Exact path comparison causes the miss.\n3. The local falsification test supports the root cause.\n\nPick one:\n\n1. [ ] File a ticket — `/skill:shape-ticket`, seeded with this evidence.\n2. [ ] Brainstorm now — `/skill:brainstorming` with this evidence as the seed. [recommended]\n3. [ ] Implement hotfix now — follow `hotfix.md`; add “as a PR” for a PR.\n4. [ ] Finish with rendered summary.\n\nnot eligible: bounded-fix judgment fails; safety invariants pass.\n\n## Checkpoint 2 — Legacy reply\n\nTaking 5 as option 2 - brainstorm now.\n\n**Symptom:** `/widgets/` returns 404 instead of 200.  \n**Verdict:** Confirmed real bug: exact path comparison without normalization rejects the trailing-slash path. Fix cost remains unclear.  \n**Evidence:** Local reproduction and falsification test support the root cause at `src/router.ts:88`. Prior-report search completed without a match.  \n**Next step:** Brainstorm a fix; the issue is pressing, but bounded-fix judgment does not pass.\n\n**Simulated handoff to `/skill:brainstorming`:** Use the confirmed fault story and evidence above as the seed. Determine the fix scope and approach; no fix has been made during triage.\n",
+      "words": 215,
+      "wallMs": 10255,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "0d47d7a9ccb5c3dd2df0293af807c9d818fbbbf2c86c963d43c0300e7ba5c6e8",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "ae41c395f20cab15dd43929974393349094000df98be51af31e03e46a9348df6",
+      "baselineOutputSha": "f1ce7a19ed09f3371e4c3ea83ac5ee57a4a64572844a59eaead768b39a43bcfc",
+      "candidateOutputSha": "fb0c6016802a8fbf19559deaaa20a10cae36a7f99551fdfd582faa05c04ce694",
+      "facts": {
+        "layout": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "mapped-pick": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        }
+      },
+      "feedback": "Neither fact moved: both outputs already separate the generated 1.-4. menu from the numbered findings with intervening prose (Before with the fix-cost paragraph plus \"Pick one:\", After with the prior-report line plus \"Pick one:\"), and both open checkpoint 2 with the single echo \"Taking 5 as option 2 - brainstorm now\" before the summary and brainstorming handoff, without acting on a raw option 5 or asking for a retry. The After wording therefore preserves every fact Before held while delivering the shared menu-layout contract. Two small things worth tightening in After so the facts stay robust across runs: checkpoint 1 dropped Before's explicit \"Stopping here for your pick\" line, which is the clearest textual signal that the gate is a stop rather than a continuation, and the explanatory L/N paragraph in checkpoint 2 sits between the echo and the summary rather than before the echo - fine as written, but keeping the echo as the very first line after the heading (as After does) should be made an explicit instruction so a future rewording does not bury it under the arithmetic.",
+      "wallMs": 16242,
+      "verdict": "unchanged"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "0d47d7a9ccb5c3dd2df0293af807c9d818fbbbf2c86c963d43c0300e7ba5c6e8",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "ae41c395f20cab15dd43929974393349094000df98be51af31e03e46a9348df6",
+      "baselineOutputSha": "136d702db9b16afc9bd0b47e82668f95172840c04406594d65315f693b6dc81e",
+      "candidateOutputSha": "61df38856a6c045ec04f598cc854873d6d100178e5d82bb7c4215096efe15dcf",
+      "facts": {
+        "layout": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "mapped-pick": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        }
+      },
+      "feedback": "Neither fact moved: both Before and After place the prose line \"Pick one:\" between the three numbered findings and the 1.-4. gate, so the ordered findings never adjoin the options by blank lines alone, and both Checkpoint 2 replies open with the single echo sentence \"Taking 5 as option 2 - brainstorm now.\" before the summary and brainstorming handoff rather than acting on raw 5 or asking for a retry. After differs from Before only cosmetically (em dashes, backticked skill names, folding the falsification note into the proof line, a tighter handoff paragraph), none of which affects either fact. The After wording keeps everything Before kept and is consistent with the menu-layout contract; no change is needed for this sample, though if you want the separation to be more robust against future rephrasing, keeping an explicit prose lead-in or a horizontal rule immediately before the gate is the safest form to standardize.",
+      "wallMs": 8908,
+      "verdict": "unchanged"
+    }
+  },
+  "repoSha": "6aa708917f3429b0e0ba574cb0a680df774f186c"
+}

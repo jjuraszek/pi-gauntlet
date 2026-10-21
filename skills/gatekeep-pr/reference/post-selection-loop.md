@@ -93,6 +93,8 @@ Apply per `fix-wave.md`: the local conflict check, one fresh implementer helper 
 
 After `gh pr merge` returns, read `gh pr view <N> --json state,mergeCommit`. `state: MERGED` -> write the returned `state` into `pr.state` and `mergeCommit.oid` into `pr.merge_commit` (the same two writes when a queued merge's `wait` re-read returns `MERGED`), render the `AC coverage` block once and re-render the menu under the `own merge` overlay (`decision-menu.md`); any other state (a merge queue) -> one `PR comments` line `The merge is queued, so coverage posts wait. (<state>)` and the menu `wait` (re-run the read) / `show evidence` / `stop`. The block, `<sha>` = `mergeCommit.oid`, one row per `scope.rows` entry in row order with its outcome (`covered`, `deferred per spec to <ref>`, `deviates per spec: <why>`, `elsewhere per spec: <repo>`, `venue: <env> - <observation>, checked before prod deploy`); with no rows (`source: pr`, or an empty `scope.rows`) the block has no row lines and `post coverage to ticket` is not offered. With `source: pr` the header line drops `, spec <path>`. An `in-scope` row whose observation half is `not judged here` renders `covered; observable half checked after merge`.
 
+Read and apply [menu-layout](../../brainstorming/reference/menu-layout.md) before presenting these options and before acting on a numeric reply.
+
 ```markdown
 ## AC coverage
 Informational - the ticket's rows are unchanged. PR <url>, merged <sha>, spec <path>

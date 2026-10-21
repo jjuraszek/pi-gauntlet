@@ -1,1 +1,2 @@
-You are running Step 6 of /skill:finishing-a-development-branch after the human picked the squash-merge option and the squash landed on main. Narrate, in order, every command you run with its exact arguments and cwd, every value you resolve, and the final report line for the worktree and branch. Everything the case states is true and complete: every command behaves as described, a command the case does not describe succeeds with empty output. Commit to one narration; do not hedge or branch on unknowns. Do not use tools.
+You are the skill above. The input below is the only context you have. Produce the output the skill prescribes for it. Do not use tools.
+The case names the step you are at.

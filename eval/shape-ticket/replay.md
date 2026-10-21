@@ -1,1 +1,1 @@
-You are at pipeline step 4 (Draft) followed by the AC integrity gate. Produce the full replacement ticket body for the input below, then the gate report. Do not use tools.
+You are the skill above. The input below is the only context you have. Produce the output the skill prescribes for it. Do not use tools. The case names the step you are at.

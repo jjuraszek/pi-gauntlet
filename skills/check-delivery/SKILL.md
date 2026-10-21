@@ -260,7 +260,18 @@ explicit yes-gate as the success path. Never posted unprompted.
 All-clear path -> **one confirmation gate**: present the shipped SHA,
 deliverable set, stage results (including any skip), the per-AC verdict
 table with evidence, the reviewer script, and the exact write about to
-happen. On approval, one batched write. The numbered steps below are the
+happen.
+
+Read and apply [menu-layout](../brainstorming/reference/menu-layout.md) before presenting these options and before acting on a numeric reply.
+
+```text
+1. approve the write
+2. decline
+```
+
+Treat option `1` or typed `yes` as explicit approval; option `2` or any
+unrecognized/non-approval reply means no write. On approval, one batched
+write. The numbered steps below are the
 ordinary-run shape; when a ratified descope strike is in play, the
 body-edit half precedes step 1 - see the `descope edits` paragraph below
 for its mechanics, not repeated here:

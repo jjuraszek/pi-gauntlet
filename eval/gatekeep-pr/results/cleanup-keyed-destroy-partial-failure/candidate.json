@@ -1,7 +1,7 @@
 {
   "sample": "cleanup-keyed-destroy-partial-failure",
   "arm": "candidate",
-  "skillSha": "9a2585995e2bc384210112f1dd7580d5736918ce001d5fe2a3e50fd553a22ca0",
+  "skillSha": "a98e071a2d1b469878e760529d23762f3efc04939b730f96134230757cebc380",
   "inputSha": "c20e3e33eae377835913429398281f388e2493ba3fbdd54545464e3d45be2259",
   "kind": "text",
   "assembly": "concat",
@@ -17,18 +17,18 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "# Cleanup on merged PR 733: from the `cleanup` pick to the re-rendered menu\n\n**Starting state.** PR 733 was already `MERGED` at step 1, so the `merged or closed PR` overlay rendered `cleanup` [recommended], `show evidence` and `stop`. The human picked `cleanup`, so I run `reference/cleanup.md`.\n\n- No `--rebase` was passed, so no `sync` stage exists and no `Sync:` line renders.\n- No new tracker stages are added.\n- The assessed SHA stays `9999999999999999999999999999999999999999`.\n\n**Setup.** The PR has landed, because `pr.state` is `MERGED`.\n\n1. `git -C /work/mono-pr-733 rev-parse --git-common-dir` returns `/work/mono/.git`. The primary checkout is therefore `/work/mono`.\n2. Every later git command runs as `git -C /work/mono`. I never remove the primary and never switch its branch.\n\n## Step 1: Worktree\n\nEligibility checks:\n\n- **Not the primary.** `/work/mono-pr-733` is not `/work/mono`.\n- **Tracked-clean.** `git -C /work/mono-pr-733 status --porcelain --untracked-files=no` prints nothing.\n- **No extra commits.** I run `git -C /work/mono-pr-733 log origin/main..HEAD`. Then `git -C /work/mono-pr-733 merge-base --is-ancestor HEAD 9999999999999999999999999999999999999999` succeeds, so there are no commits beyond the assessed head.\n- **Ownership match.** A keyed contract is present (`home:`, `create:`, `destroy:`), so the Step 6 ownership match applies.\n  - `home: ../mono-<name>` resolved against `/work/mono` gives `/work/mono-<name>`.\n  - `realpath /work/mono-pr-733` and the pattern both come back unchanged.\n  - The segment `mono-pr-733` matches `mono-*` and recovers `pr-733`. The match is unique.\n\nThe worktree is eligible and `worktree.created` is true, so I run the recorded destroy from `/work/mono`:\n`script/worktree destroy 'pr-733'`\n\nIt removes `/work/mono-pr-733` but exits 1. Because of the non-zero exit:\n- There is no fallback to `git worktree remove --force`.\n- `git worktree prune` does not run.\n- The branch is kept.\n\n→ `worktree: failed - error: database teardown failed for pr-733`\n\n## Step 2: Branch\n\nStep 1's destroy exited non-zero, so this step is skipped no matter what `git worktree list` now shows. No `git branch -D` runs.\n\n→ `branch: skipped - worktree destroy failed`\n\n## Step 3: Base\n\nThe PR has landed, and `/work/mono` is on `main` and tracked-clean.\n\n1. `git -C /work/mono fetch origin`\n2. `git -C /work/mono pull --ff-only`\n3. `git -C /work/mono merge-base --is-ancestor aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa HEAD` succeeds.\n4. `git -C /work/mono rev-parse HEAD` returns `aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa`.\n\n→ `base: synced aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa`\n\n## Step 4: Override steps\n\nThe merge-base overrides file has no `## cleanup` section, so only steps 1-3 run.\n\n## Wrap-up\n\n- I set `cleanup_done: true` in the continuation record.\n- I keep the consent record, helper output files and temporary bodies; `### Teardown` deletes them on terminal exit.\n- I re-render the same terminal menu without the `cleanup` row. Only `show evidence` remains besides `stop`, so `stop` takes `[recommended]`.\n\nRendered output:\n\n```\nworktree: failed - error: database teardown failed for pr-733\nbranch: skipped - worktree destroy failed\nbase: synced aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\n\nVerdict: mergeable - CI green on the assessed head (ci / test)\n\n1. show evidence - gate output, CI run\n2. stop - leave the checkout as found; local branch feature/csv-retries stays (worktree /work/mono-pr-733 was removed) [recommended]\nType a number.\n```\n",
-      "words": 458,
-      "wallMs": 25499,
+      "text": "# gatekeep-pr 733: cleanup\n\n## Narration\n\n**Entry.** PR 733 was already `MERGED` at step 1, so the `merged or closed PR` overlay rendered `cleanup` [recommended], `show evidence`, and `stop`. The human picked `cleanup`. The PR is landed because `pr.state` is `MERGED`. Verification and the brief assessed head `9999999999999999999999999999999999999999`. No new tracker stage is added for this pick.\n\n**Primary.** I run `git -C /work/mono-pr-733 rev-parse --git-common-dir`, which gives `/work/mono/.git`. The primary is therefore `/work/mono`. Every later git command runs as `git -C /work/mono`.\n\n**Step 1: worktree.**\n1. `/work/mono-pr-733` is not the primary.\n2. `git -C /work/mono-pr-733 status --porcelain --untracked-files=no` prints nothing, so the tree is tracked-clean.\n3. Because the PR is landed, I run `git -C /work/mono-pr-733 log origin/main..HEAD`. Then `git -C /work/mono-pr-733 merge-base --is-ancestor HEAD 9999999999999999999999999999999999999999` succeeds, so there are no commits beyond the assessed head.\n4. The merge-base `## using-git-worktrees` section has `home:`, `create:`, and `destroy:`, so this is the keyed contract. The ownership match applies:\n   - `home: ../mono-<name>` resolved against `/work/mono` gives `/work/mono-<name>`.\n   - `realpath` leaves both paths unchanged.\n   - Matching the segment `mono-*` against `mono-pr-733` gives one unambiguous match and recovers `pr-733`.\n5. The tree is eligible and `worktree.created` is true. I run the recorded `script/worktree destroy 'pr-733'` from `/work/mono`.\n6. It removes `/work/mono-pr-733` but exits 1 with `error: database teardown failed for pr-733`. I record `worktree: failed`. I do not fall back to `git worktree remove --force` and do not run `git worktree prune`.\n\n**Step 2: branch.** The destroy exited non-zero, so the branch step is skipped regardless of what `git worktree list` shows. No `git branch -D` runs.\n\n**Step 3: base.** The PR is landed, and the primary is on `main` with a tracked-clean tree. I run:\n- `git -C /work/mono fetch origin`\n- `git -C /work/mono pull --ff-only`\n- `git -C /work/mono merge-base --is-ancestor aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa HEAD`, which succeeds\n- `git -C /work/mono rev-parse HEAD`, which returns the fast-forwarded tip `aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa`\n\n**Step 4: override steps.** There is no `## cleanup` section, so only steps 1-3 run.\n\n**After cleanup.** I set `cleanup_done: true` in the continuation record. The consent record, helper output files, and temp body files are kept, because `post-selection-loop.md` `### Teardown` deletes them on terminal exit. I then re-render the same terminal menu without the `cleanup` row.\n\n## Rendered output\n\n```\nworktree: failed - error: database teardown failed for pr-733\nbranch: skipped - worktree destroy failed\nbase: synced aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\n```\n\nNo sync line renders, because `--rebase` was not passed.\n\nVerdict: mergeable - CI green on the assessed head (ci / test)\n\n1. show evidence - gate output, CI run\n2. stop - leave the PR as-is; local branch feature/csv-retries stays [recommended]\n\nType a number.\n",
+      "words": 419,
+      "wallMs": 25878,
       "mechanical": {
         "p3": "holds"
       }
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "1. I resume the existing continuation record, validate its PR target, and record the human's `cleanup` selection before mutation. I do not initialize a new tracker or reset the repair budget; I add and start `cleanup` in the existing tracker. No helper is dispatched.\n\n2. I use the supplied primary checkout, `/work/mono`, and the supplied clean-tree and ancestry results. I check the configured home's ownership match with:\n   ```sh\n   realpath /work/mono-pr-733\n   realpath /work/mono-pr-733\n   ```\n   The configured pattern `/work/mono-<name>` recovers the unique identifier `pr-733`. The worktree is eligible for removal.\n\n3. From `/work/mono`, I run:\n   ```sh\n   script/worktree destroy 'pr-733'\n   ```\n   The command removes the worktree but exits 1. I print:\n   ```text\n   worktree: failed - error: database teardown failed for pr-733\n   ```\n   I do not retry, fall back to forced removal, or run `git worktree prune`.\n\n4. I skip branch deletion because the destroy command failed. The worktree's disappearance does not lift that guard, so I do not run a worktree-list probe or `git branch -D`. I print:\n   ```text\n   branch: skipped - worktree destroy failed\n   ```\n\n5. The PR is merged, and the primary checkout is on `main` with a tracked-clean tree. I run:\n   ```sh\n   git -C /work/mono fetch origin\n   git -C /work/mono pull --ff-only\n   git -C /work/mono merge-base --is-ancestor aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa HEAD\n   git -C /work/mono rev-parse HEAD\n   ```\n   These commands succeed. I print `base: synced ` followed by the SHA returned by the final command. I never access the removed worktree after the destroy command.\n\n6. There are no cleanup override steps. I persist `cleanup_done: true` and mark the cleanup tracker task failed because the destroy command returned nonzero. I retain the continuation record and evidence files for `show evidence`.\n\n7. Before re-rendering, I run the read-only pre-menu refresh:\n   ```sh\n   gh pr view 733 --json headRefOid,state,mergeable,mergeStateStatus,reviewDecision,statusCheckRollup,body,baseRefName,number,title,author,isDraft,headRefName,isCrossRepository,files,additions,deletions,commits,reviews,closingIssuesReferences,headRepository,maintainerCanModify,url,mergeCommit\n   gh run list -R orchard/mono -c 9999999999999999999999999999999999999999 --json databaseId,status,conclusion,workflowName,url\n   ```\n   The assessed head remains `9999999999999999999999999999999999999999`. No verification command, new claim check, or review helper runs during cleanup; the existing exact-head CI evidence remains sufficient.\n\nNo sync line renders because the invocation did not include `--rebase`. Cleanup leaves the terminal menu even though its destroy command failed.\n\nDelivers: the CSV export retries failed attempts.\n\nVerdict: mergeable - CI green on the assessed head (ci / test)\n\n1. show evidence - display the retained gate evidence and cleanup result\n2. stop - leave the checkout as found; /work/mono-pr-733 is removed and local branch feature/csv-retries remains [recommended]\n\nType a number.\n",
-      "words": 387,
-      "wallMs": 29519,
+      "text": "1. I read and validate the existing continuation record and record the human's `cleanup` selection. I preserve its grants and round count; I do not mint a new record or initialize the tracker again. I add and start the `cleanup` tracker stage.\n\n2. I refresh the live target before executing the selection:\n   ```bash\n   gh pr view 733 --json headRefOid,state,mergeable,mergeStateStatus,body,baseRefName\n   ```\n   The target and head are unchanged, and the PR remains merged.\n\n3. I establish the primary checkout:\n   ```bash\n   git -C /work/mono-pr-733 rev-parse --git-common-dir\n   ```\n   The primary is `/work/mono`. All subsequent Git commands run from that primary; worktree-specific checks use its `-C` option.\n\n4. I check worktree eligibility:\n   ```bash\n   git -C /work/mono-pr-733 status --porcelain --untracked-files=no\n   git -C /work/mono-pr-733 log origin/main..HEAD\n   git -C /work/mono-pr-733 merge-base --is-ancestor HEAD 9999999999999999999999999999999999999999\n   realpath /work/mono-pr-733\n   ```\n   The worktree is tracked-clean and has no commits outside the assessed head's history. Its path matches the configured `/work/mono-<name>` home with the recovered identifier `pr-733`.\n\n5. I execute the recorded destroy command from the primary:\n   ```bash\n   (cd /work/mono && script/worktree destroy 'pr-733')\n   ```\n   It removes the worktree, then exits unsuccessfully. I render:\n   ```text\n   worktree: failed - error: database teardown failed for pr-733\n   ```\n   I do not retry, run a fallback removal, or run `git worktree prune`. I touch nothing under the removed worktree path afterward.\n\n6. The destroy failure controls the branch step regardless of whether a worktree still holds the branch. I do not delete the branch or run another worktree-discovery command. I render:\n   ```text\n   branch: skipped - worktree destroy failed\n   ```\n\n7. I continue to the base step:\n   ```bash\n   git -C /work/mono symbolic-ref --short HEAD\n   git -C /work/mono status --porcelain --untracked-files=no\n   git -C /work/mono fetch origin\n   git -C /work/mono pull --ff-only\n   git -C /work/mono merge-base --is-ancestor aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa HEAD\n   git -C /work/mono rev-parse HEAD\n   ```\n   The primary is tracked-clean on `main`, synchronization succeeds, and the merge commit is an ancestor of its resulting HEAD. I render `base: synced <synced-sha>`, substituting the SHA returned by the last command.\n\n8. There are no override cleanup steps. I set `cleanup_done` to `true` in the existing record and complete the `cleanup` tracker stage. I retain the record and evidence files because this is not terminal exit.\n\n9. Before re-rendering, I start the `report` stage and run the pre-menu refresh:\n   ```bash\n   gh pr view 733 --json headRefOid,state,mergeable,mergeStateStatus,reviewDecision,statusCheckRollup,body,baseRefName,number,title,author,isDraft,headRefName,isCrossRepository,files,additions,deletions,commits,reviews,closingIssuesReferences,headRepository,maintainerCanModify,url,mergeCommit\n   gh run list -R orchard/mono -c 9999999999999999999999999999999999999999 --json databaseId,status,conclusion,workflowName,url\n   ```\n   The assessed state is unchanged. I complete `report`, then start and complete `menu`.\n\nNo helpers are dispatched during cleanup. Verification and the brief remain assessed against `9999999999999999999999999999999999999999`; neither runs again, and the merge commit is not substituted for that head. No sync line renders because the invocation omitted `--rebase`.\n\nThe re-rendered terminal report and menu are:\n\nDelivers: CSV exports gain retries.\n\nVerdict: mergeable - CI green on the assessed head (ci / test)\n\n1. show evidence - display the gate evidence and drafted payloads\n2. stop - leave the checkout as found; /work/mono-pr-733 is removed and local branch feature/csv-retries remains [recommended]\n\nType a number.\n",
+      "words": 481,
+      "wallMs": 32544,
       "mechanical": {
         "p3": "holds"
       }
@@ -38,9 +38,9 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "f4fc75ddbc43da58798c06691346a7fd3a59e572b198fb20795b601709017189",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "3e64c06bd6b1282ab0bfd8e3630de084e1a7b723b7899bb414944778f7ec8ef7",
-      "baselineOutputSha": "3f6dfc25373e6c9fcfa39296654c1732a8177da9eea65830aa1c4c5ae0c29206",
-      "candidateOutputSha": "6fb8514632fab94d52ca97f9c20299e6b2d37004720d10665923090b057e4eb3",
+      "intentSha": "d50172cd77fdac3fcd449b8924968468ff2377f9a56d9033b95dc3c5444fdac0",
+      "baselineOutputSha": "1963b441d7e9724df4c35ec9599685917a6f8eb8758cc1237738ad2c3db2202a",
+      "candidateOutputSha": "12a59c953e2f96c54128044716f18866bb34714590d0cf0ec4bc35d3f89416c1",
       "facts": {
         "p1": {
           "before": "holds",
@@ -48,26 +48,26 @@
           "label": "held"
         },
         "p2": {
-          "before": "fails",
+          "before": "holds",
           "after": "holds",
-          "label": "intended change"
+          "label": "intended but unchanged"
         },
         "p3": {
-          "before": "fails",
+          "before": "holds",
           "after": "holds",
-          "label": "intended change"
+          "label": "intended but unchanged"
         }
       },
-      "feedback": "After moved p2 from fails to holds exactly as intended: Step 2 now states that because Step 1's destroy exited non-zero the branch step is skipped regardless of what `git worktree list` shows, no `git branch -D` runs, and the rendered line is `branch: skipped - worktree destroy failed`. p1 is preserved in both outputs - After still runs `script/worktree destroy 'pr-733'` from `/work/mono`, prints the exact failure line, and explicitly rules out a `git worktree remove --force` fallback. Nothing in After regressed; the added ownership-match bullet and the updated `stop` menu text (noting the branch stays while the worktree was removed) are consistent with the Change and with the recorded facts. No wording adjustment is needed to keep Before's facts.",
-      "wallMs": 5422,
-      "verdict": "improved"
+      "feedback": "Neither fact moved: both outputs run `script/worktree destroy 'pr-733'` from /work/mono, render `worktree: failed - error: database teardown failed for pr-733` on the exit-1, decline the `git worktree remove --force` fallback, and render `branch: skipped - worktree destroy failed` with no `git branch -D` (p2 already held in Before, contrary to the expected-to-move list). Two things in After are worth tightening so they do not cost facts in sibling cases: the fenced rendered block closes after the three status lines and the verdict/menu are emitted as loose prose with a `No sync line renders` aside wedged between them, which breaks the single-block menu layout that the shared menu-layout contract expects at the post-merge boundary — keep the status lines, Delivers/Verdict, numbered options, and `Type a number.` inside one fenced block as Before does, and put the `--rebase` note in the narration. After also narrates commands the digest does not record (`git log origin/main..HEAD`, `rev-parse HEAD`, `--git-common-dir` yielding `/work/mono/.git`); drop those or mark them as derived so the narration stays verifiable against the digest while still describing the `home:` ownership match and the post-destroy branch skip the Change introduces.",
+      "wallMs": 12908,
+      "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "f4fc75ddbc43da58798c06691346a7fd3a59e572b198fb20795b601709017189",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "3e64c06bd6b1282ab0bfd8e3630de084e1a7b723b7899bb414944778f7ec8ef7",
-      "baselineOutputSha": "6ce3a28d317a5747893b62992c9aaf48b6d1bf515f062dc616a3079b64f2f743",
-      "candidateOutputSha": "152ab8e2f842ce84412e598de33042233e42cbba5c759726a270a59acf336d40",
+      "intentSha": "d50172cd77fdac3fcd449b8924968468ff2377f9a56d9033b95dc3c5444fdac0",
+      "baselineOutputSha": "d3b37f0c89d81c087b4e0d74e8817c240d0b7b547f452a4bee2b83b47ed15f69",
+      "candidateOutputSha": "a4fbb4b590ce7a849c1fa619c03d9649042ea20c9b0416a28aa1475fbdbd5a90",
       "facts": {
         "p1": {
           "before": "holds",
@@ -75,20 +75,20 @@
           "label": "held"
         },
         "p2": {
-          "before": "fails",
+          "before": "holds",
           "after": "holds",
-          "label": "intended change"
+          "label": "intended but unchanged"
         },
         "p3": {
-          "before": "fails",
+          "before": "holds",
           "after": "holds",
-          "label": "intended change"
+          "label": "intended but unchanged"
         }
       },
-      "feedback": "After delivers the intended move on p2: step 4 explicitly skips branch deletion after the failed destroy, states that the checkout's disappearance does not lift the guard, prints `branch: skipped - worktree destroy failed`, and runs no `git branch -D` (Before probed `worktree list`, saw no holder, and ran `branch -D` with `branch: done`). p1 is preserved: both outputs run `script/worktree destroy 'pr-733'` from /work/mono, print the exact failure line, and never fall back to `git worktree remove --force`. The new ownership-match step also lands cleanly. Minor polish that would not affect the facts but tightens After: the `realpath` check is duplicated verbatim (one `realpath /work/mono-pr-733` plus the home comparison suffices), `base: synced ` has a stray trailing space before the SHA, and the Delivers line (\"the CSV export retries failed attempts\") reads oddly compared with Before's \"the PR adds CSV export retries\"; keep the step-4 wording as is.",
-      "wallMs": 11955,
-      "verdict": "improved"
+      "feedback": "Nothing moved: both outputs run `script/worktree destroy 'pr-733'` from /work/mono (After via a `(cd /work/mono && ...)` subshell, which still satisfies the \"from /work/mono\" requirement), print the exact `worktree: failed - error: database teardown failed for pr-733` line, explicitly refuse any fallback removal, and then print `branch: skipped - worktree destroy failed` without any branch deletion. Note that the Expected-to-move entry for p2 (fails -> holds) is not borne out by this Before text, which already skips the branch after the failed destroy; the After wording preserves that behavior and adds the home-ownership check in step 4, so no adjustment is needed to keep p1 and p2 while delivering the Change.",
+      "wallMs": 11013,
+      "verdict": "unchanged"
     }
   },
-  "repoSha": "4afc8ee9d185c8642de4e895ba26227e76458e60"
+  "repoSha": "824b8741c00912f6f48c9f24d96d9283e89ce886"
 }

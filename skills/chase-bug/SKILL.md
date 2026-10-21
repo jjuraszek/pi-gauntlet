@@ -167,6 +167,8 @@ change request, not a menu row.
 **Real bug** - four actions (all rendered unless noted), exactly one tagged
 `[recommended]`. Untracked origin:
 
+Read and apply [menu-layout](../brainstorming/reference/menu-layout.md) before presenting these options and before acting on a numeric reply.
+
 ```
 1. [ ] File a ticket - /skill:shape-ticket, seeded with this evidence.
 2. [ ] Brainstorm now - /skill:brainstorming with this evidence as the seed.
@@ -175,6 +177,8 @@ change request, not a menu row.
 ```
 
 Tracker/GitHub origin (ticket row omitted as today, renumbered):
+
+Read and apply [menu-layout](../brainstorming/reference/menu-layout.md) before presenting these options and before acting on a numeric reply.
 
 ```
 1. [ ] Brainstorm now - /skill:brainstorming with this evidence as the seed.
@@ -241,6 +245,8 @@ A verdict without its named citation is a red flag (see Red Flags - STOP).
 For a negative verdict, render the verdict with its citation, then a short
 numbered menu:
 
+Read and apply [menu-layout](../brainstorming/reference/menu-layout.md) before presenting these options and before acting on a numeric reply.
+
 ```
 Verdict: <verdict name> - <citation>
 
@@ -253,6 +259,8 @@ is dropped - the summary *is* the finish. The discovery-ticket row stays either
 way; for `cannot-replicate`, renumber the discovery-ticket row to 2.
 
 For `cannot-replicate` only, add a third row offering a discovery ticket:
+
+Read and apply [menu-layout](../brainstorming/reference/menu-layout.md) before presenting these options and before acting on a numeric reply.
 
 ```
 3. [ ] File a discovery ticket - /skill:shape-ticket, seeded with what's missing.
@@ -378,6 +386,8 @@ rendered is out of skill scope - the skill has ended.
 ## Golden examples
 
 **Real-bug example:**
+
+Read and apply [menu-layout](../brainstorming/reference/menu-layout.md) before presenting these options and before acting on a numeric reply.
 
 ```
 Fault story: user pastes a URL with a trailing slash -> the router's path

@@ -2,7 +2,7 @@
   "sample": "home-match-builtin-remove",
   "arm": "candidate",
   "skillSha": "c62e8914c9b61cc41095da4963091eb73afaeaa2fe807738747975550beb141b",
-  "inputSha": "ce0d318746779bb95b6df943b85a054d52f41977ec75cedebb44e96e54a90203",
+  "inputSha": "26437436b01f1b8de5896b1758dbdd6ab2bf9b4d65d996ff6ef72f8aed8f3656",
   "kind": "text",
   "assembly": "concat",
   "thinking": "medium",
@@ -17,18 +17,18 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "# Step 6: Cleanup Workspace\n\nThis step runs because the human picked option 3, Squash-merge.\n\n## Reading the overrides contract\n\n1. **Read the overrides file.** Command: `cat /work/acme-api/.pi/gauntlet-overrides.md` (cwd `/work/acme-api`).\n   - The file has a `## using-git-worktrees` section with one key: `- home: ../acme-api-worktrees/<name>`.\n   - The section has a `home:` key, so the **keyed contract** applies, not the legacy path.\n\n## Keyed contract\n\n2. **Resolve `home:`.**\n   - The value is relative, so it resolves against `$PRIMARY` (`/work/acme-api`). That gives `/work/acme-api/../acme-api-worktrees/<name>`.\n   - Canonicalized, the pattern is `/work/acme-api-worktrees/<name>`.\n   - `<name>` appears exactly once and fills its whole path segment, with no prefix or suffix. The pattern is valid.\n\n3. **Check ownership.**\n   - `realpath /work/acme-api-worktrees/rate-limit` returns `/work/acme-api-worktrees/rate-limit`.\n   - The parent `/work/acme-api-worktrees` matches the pattern's parent.\n   - The `<name>` segment works like `*`, which matches `rate-limit`.\n   - **Result:** it matches, and NAME = `rate-limit`.\n\n4. **No `destroy:` key**, so the default removal runs:\n   - `git -C \"/work/acme-api\" worktree remove \"/work/acme-api-worktrees/rate-limit\"` (cwd `/work/acme-api`). Succeeds with empty output.\n   - `git -C \"/work/acme-api\" worktree prune` (cwd `/work/acme-api`). Succeeds with empty output.\n\n5. **Delete the branch.** The worktree is gone, so the branch no longer has a checkout holding it.\n   - `git -C \"/work/acme-api\" branch -D \"rate-limit\"` (cwd `/work/acme-api`). Succeeds with empty output.\n\n## Final report\n\nWorktree `/work/acme-api-worktrees/rate-limit` was removed (gauntlet-owned via `home: ../acme-api-worktrees/<name>`, NAME `rate-limit`) and pruned. Branch `rate-limit` was deleted. The squash is on `main` in `/work/acme-api`.\n",
-      "words": 211,
-      "wallMs": 10913,
+      "text": "# Step 6: Cleanup Workspace\n\n**Option 3 (squash-merge), so cleanup runs.**\n\n## Overrides contract\n\n`.pi/gauntlet-overrides.md` has a `## using-git-worktrees` section with a `- home:` key. That makes it a **keyed contract**, so the legacy path does not apply.\n\n1. **Resolve `home:`.** `../acme-api-worktrees/<name>` resolved against `$PRIMARY` (`/work/acme-api`) gives `/work/acme-api-worktrees/<name>`.\n   - `<name>` appears exactly once.\n   - It fills one whole path segment, with no prefix or suffix.\n2. **Ownership match.** After `realpath`, nothing changes:\n   - Pattern: `/work/acme-api-worktrees/*`\n   - `$WORKTREE`: `/work/acme-api-worktrees/rate-limit`\n\n   The paths **match**, and `NAME = rate-limit`.\n3. **`destroy:`** is not set.\n4. **Match with no `destroy:`.** Use git's own removal, then delete the branch.\n\n## Commands\n\n```bash\ngit -C \"/work/acme-api\" worktree remove \"/work/acme-api-worktrees/rate-limit\"\ngit -C \"/work/acme-api\" worktree prune\ngit -C \"/work/acme-api\" branch -D \"rate-limit\"\n```\n\nThe worktree is removed before the branch is deleted. `git branch -D` would fail while the worktree still references `rate-limit`.\n\n`git worktree remove` runs without `--force`. If it fails, for example because of uncommitted or untracked files, stop at that point. Report the error, keep the branch, and do not escalate to `--force`.\n\n**Result:** gauntlet owned this worktree (it matches `home:`). It was removed and pruned, and the `rate-limit` branch was deleted from `/work/acme-api`. The squashed changes remain on `main`.\n",
+      "words": 193,
+      "wallMs": 8070,
       "mechanical": {
         "b3": "holds"
       }
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "All commands below run with cwd `/work/acme-api`.\n\n1. Read the current overrides file:\n   ```bash\n   cat /work/acme-api/.pi/gauntlet-overrides.md\n   ```\n   Its `## using-git-worktrees` section contains `home:`, so the **keyed contract** applies. Neither `create:` nor `destroy:` is set.\n\n2. Resolve the ownership pattern:\n   - `PRIMARY` = `/work/acme-api`\n   - `WORKTREE` = `/work/acme-api-worktrees/rate-limit`\n   - `FEATURE` = `rate-limit`\n   - `home` = `../acme-api-worktrees/<name>`\n   - Resolved against `PRIMARY`: `/work/acme-api-worktrees/<name>`\n   - `<name>` occurs exactly once, occupying one complete path segment; its literal prefix and suffix are both empty.\n   - Matching that segment to the worktree gives `NAME` = `rate-limit`.\n   - The instantiated ownership path is `/work/acme-api-worktrees/rate-limit`.\n\n3. Canonicalize the worktree path:\n   ```bash\n   realpath /work/acme-api-worktrees/rate-limit\n   ```\n   Result: `/work/acme-api-worktrees/rate-limit`.\n\n4. Canonicalize the instantiated ownership path:\n   ```bash\n   realpath /work/acme-api-worktrees/rate-limit\n   ```\n   Result: `/work/acme-api-worktrees/rate-limit`.\n\n   The canonical paths match. The keyed contract owns this worktree and supplies no `destroy:` command, so use Git cleanup.\n\n5. Remove the worktree:\n   ```bash\n   git -C /work/acme-api worktree remove /work/acme-api-worktrees/rate-limit\n   ```\n   Succeeds with empty output.\n\n6. Prune worktree metadata:\n   ```bash\n   git -C /work/acme-api worktree prune\n   ```\n   Succeeds with empty output.\n\n7. Delete the feature branch after successful worktree cleanup:\n   ```bash\n   git -C /work/acme-api branch -D rate-limit\n   ```\n   Succeeds with empty output.\n\n**Final report:** Removed worktree `/work/acme-api-worktrees/rate-limit` and deleted branch `rate-limit`; the squash merge remains on `main`.\n",
-      "words": 185,
-      "wallMs": 19649,
+      "text": "The keyed `home` pattern resolves to `/work/acme-api-worktrees/<name>` and matches `WORKTREE`, with `NAME=rate-limit`. No `destroy:` command is configured.\n\nRun in order, continuing only on success:\n\n```bash\ngit -C \"/work/acme-api\" worktree remove \"/work/acme-api-worktrees/rate-limit\"\ngit -C \"/work/acme-api\" worktree prune\ngit -C \"/work/acme-api\" branch -D \"rate-limit\"\n```\n",
+      "words": 42,
+      "wallMs": 3378,
       "mechanical": {
         "b3": "holds"
       }
@@ -38,9 +38,9 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "44c6f347b2bf43b42c43699d15859d8f3015c0d5bfd4ef77b70fa1c01395950d",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "6da9ebcd59613c789b077f310955eb7ad7fa2782ca9fd317308d8580318a0a7d",
-      "baselineOutputSha": "355622455a395e48407f711087b7b9ca644fb44c84ecbe8d397c62ee74c1a8c1",
-      "candidateOutputSha": "1d6ed60b9ec3cfbe4dbd506b0d0b3751ddbd7765588cfb0d607500b74e75a8b9",
+      "intentSha": "83dab72b8567bfbbc8e79c889211692b7ccf8006603d903aa9df5106f2950e38",
+      "baselineOutputSha": "57940c9159726a93088f11114888e56b24c2bdbe89f47cbfba72d02ac5e74453",
+      "candidateOutputSha": "46e80cd13593047701622e7e1666cf21f7b01b2980cea806c431e9b81b395b70",
       "facts": {
         "b1": {
           "before": "holds",
@@ -58,37 +58,37 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "Nothing moved on this case: both outputs match /work/acme-api-worktrees/rate-limit against the override home with name rate-limit, treat it as gauntlet-owned, and run worktree remove, then prune, then branch -D in that order against /work/acme-api. The Expected-to-move note assumes the baseline reports a sibling path host-owned, but the Before text already resolves the override, substitutes <name> = rate-limit, and claims ownership, so b1 and b2 were already satisfied before the wording change. After is clearer about the mechanics (keyed contract, <name> as a single-segment wildcard, NAME recovered, no destroy: so built-in remove + prune, explicit branch -D continuation) and keeps every fact Before kept; if you want this case to actually discriminate, add facts that Before cannot satisfy, such as the explicit segment-only <name> matching rule or the explicit 'no destroy: key, so built-in remove' decision, which only After narrates.",
-      "wallMs": 10109,
+      "feedback": "Nothing moved here: both Before and After resolve `home:` to `/work/acme-api-worktrees/<name>`, match `$WORKTREE` with `NAME = rate-limit`, state gauntlet ownership explicitly, and run `worktree remove`, `worktree prune`, then `branch -D rate-limit` in that order from `/work/acme-api`. The Expected-to-move list predicted Before would fail b1/b2 (treating the sibling path as host-owned), but Before's text already applies the keyed contract, so the Change is preserved rather than newly delivered on this case. After's one benign difference is putting all three commands in a single block with the explanatory ordering sentence afterward, which still reads unambiguously as sequential; the only wording to watch is the past-tense Result paragraph ('It was removed and pruned... was deleted'), which slightly conflicts with the preceding conditional 'If it fails... stop' - phrasing it as 'will be removed... will be deleted once removal succeeds' (as Before does) keeps the failure branch and the success continuation consistent while still delivering the explicit `branch -D` continuation.",
+      "wallMs": 11449,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "44c6f347b2bf43b42c43699d15859d8f3015c0d5bfd4ef77b70fa1c01395950d",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "6da9ebcd59613c789b077f310955eb7ad7fa2782ca9fd317308d8580318a0a7d",
-      "baselineOutputSha": "3835ce46dc0f843f99b76efbf4882c0fc59660c2b78079bda169ac460db176c3",
-      "candidateOutputSha": "1f77c1ab728be34238ba5bfbb3c4df88794d68d52a5744e6ce3224150868f594",
+      "intentSha": "83dab72b8567bfbbc8e79c889211692b7ccf8006603d903aa9df5106f2950e38",
+      "baselineOutputSha": "214858bb008fc350ed7d609b3360261b902221073251c8581783a26505d7369d",
+      "candidateOutputSha": "6451af8121c42eed5096458f8e3aef8d00cdb91a04c892efe11ad1870728f934",
       "facts": {
         "b1": {
-          "before": "fails",
+          "before": "holds",
           "after": "holds",
-          "label": "intended change"
+          "label": "intended but unchanged"
         },
         "b2": {
-          "before": "fails",
+          "before": "holds",
           "after": "holds",
-          "label": "intended change"
+          "label": "intended but unchanged"
         },
         "b3": {
-          "before": "fails",
+          "before": "holds",
           "after": "holds",
-          "label": "intended change"
+          "label": "intended but unchanged"
         }
       },
-      "feedback": "After moves both facts in the intended direction: it reads the `## using-git-worktrees` section, matches `/work/acme-api-worktrees/rate-limit` against `home:` with `<name>` occupying exactly one path segment, recovers `NAME=rate-limit`, declares the worktree gauntlet-owned, and then runs `git -C /work/acme-api worktree remove`, `git -C /work/acme-api worktree prune`, and `git -C /work/acme-api branch -D rate-limit` in that order. Before failed both because it ignored the keyed contract and reported the sibling path as host-owned with no commands run. No fact regressed; the After wording's explicit ownership-match steps (resolve `home:` against `PRIMARY`, single-segment `<name>` match, canonical-path comparison) and the explicit `branch -D` continuation after built-in remove+prune are what settle b1 and b2 and should be kept as written.",
-      "wallMs": 5698,
-      "verdict": "improved"
+      "feedback": "Nothing moved in this case: both Before and After resolve the keyed `home:` pattern to /work/acme-api-worktrees/<name>, recover NAME=rate-limit, and then run the built-in `worktree remove`, `worktree prune`, and `branch -D rate-limit` against the primary in that order, so b1 and b2 hold on both sides (the Expected-to-move entries describing a host-owned baseline do not describe this Before text, which already performs the match). The only wording differences are cosmetic — After drops the `&&` chaining in favor of separate lines plus 'continuing only on success', and says 'matches WORKTREE' without the `$`. If you want b1 to be unambiguous for a strict reader, add an explicit ownership statement such as 'the worktree is gauntlet-owned, so run the built-in cleanup' before the command block, and consider keeping the `&&` chain (or an equivalent 'stop at the first failure' sentence) so the sequential-only-on-success guarantee in b2 is encoded in the commands themselves rather than only in prose.",
+      "wallMs": 10329,
+      "verdict": "unchanged"
     }
   },
-  "repoSha": "234c4a3450da5354d259342cd53b0f1fb466241d"
+  "repoSha": "6aa708917f3429b0e0ba574cb0a680df774f186c"
 }

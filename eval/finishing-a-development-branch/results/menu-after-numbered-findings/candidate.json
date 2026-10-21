@@ -1,0 +1,80 @@
+{
+  "sample": "menu-after-numbered-findings",
+  "arm": "candidate",
+  "skillSha": "a0079c9bf12a8092ca404c9fd4373fac79afb3551a38755805378ea68199fbea",
+  "inputSha": "08630215061bbf8af18b67335f51ef83c13f49f1f41e3537e192f45505143c98",
+  "kind": "text",
+  "assembly": "concat",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "## Checkpoint 1: Step 4 gate\n\n1. Tests passed.\n2. Conformance passed.\n3. Whole-diff review passed.\n\nClosure / conformance: CONFORMS\nwhole-diff minors: none\n\nImplementation complete. What would you like to do?\n\nPick one:\n1. Push and create a Pull Request\n2. Push and create a draft Pull Request\n3. Squash-merge to main (no PR, no surviving branch)\n4. Keep the branch as-is (I'll handle it later)\n5. Discard this work\n\nWhich option?\n\n---\n\n## Checkpoint 2: Reply to `6`\n\nTaking 6 as option 3 - Squash-merge to main (no PR, no surviving branch).\n\n**Next action (simulated, not executed):** Run the strip-and-seal block on `fix-x` in the worktree. This has two parts:\n\n- Remove the plan doc if it was committed.\n- Seal the telemetry record with `gauntlet-telemetry-seal.mjs --option squash --base main`.\n\nAfter the seal succeeds, Option 3 proceeds in order:\n\n1. Check out `main` in the primary checkout.\n2. Pull.\n3. Squash-merge `fix-x`.\n4. Commit.\n5. Re-run the verification set.\n6. Run Step 6 cleanup, which deletes the branch.\n",
+      "words": 162,
+      "wallMs": 7748,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "## Checkpoint 1: Generate the gate\n\n1. Tests passed.\n2. Conformance passed.\n3. Whole-diff review passed.\n\nClosure / conformance: CONFORMS  \nwhole-diff minors: none\n\nImplementation complete. What would you like to do?\n\n1. Push and create a Pull Request\n2. Push and create a draft Pull Request\n3. Squash-merge to main (no PR, no surviving branch)\n4. Keep the branch as-is (I'll handle it later)\n5. Discard this work\n\nWhich option?\n\n## Checkpoint 2: Respond to a legacy transcript\n\nTaking 6 as option 3 - Squash-merge to main (no PR, no surviving branch).\n\nSimulated next action: strip any committed ephemeral plan and seal the telemetry record on `fix-x` before squash-merging into `main`. Then re-run verification and apply ownership-checked cleanup. No push or PR; no commands executed.\n",
+      "words": 121,
+      "wallMs": 7499,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "1fc8add11acc987a8239b920628b45dc1ad0d3ec35ec428804c7fdf1df3f2cc6",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "83dab72b8567bfbbc8e79c889211692b7ccf8006603d903aa9df5106f2950e38",
+      "baselineOutputSha": "007d43ecb89b7daa8f624c240c593aa6f7a36babe1db502315a5d319b5eed2c4",
+      "candidateOutputSha": "3c9fbeed02a474145e26af9557b711d8e8794c0ce6a49b2d862cf06e1174f0b8",
+      "facts": {
+        "layout": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "mapped-pick": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        }
+      },
+      "feedback": "Neither fact moved: both outputs already hold both. In Before, the prose line \"Implementation complete. What would you like to do?\" sits between the three numbered observations and the five options, so under CommonMark the options restart at 1 rather than continuing as 4–8; the Change's layout contract was therefore already satisfied by the baseline output, and After merely adds the \"Closure / conformance\" lines and a \"Pick one:\" lead-in. Note that After places \"Pick one:\" immediately above \"1. Push...\" with no blank line; this still renders correctly because a list starting at 1 may interrupt a paragraph, but adding a blank line after the lead-in would make the separation unambiguous for any renderer. For mapped-pick, both outputs echo \"Taking 6 as option 3 - Squash-merge to main (no PR, no surviving branch).\" as a single sentence before any simulated action, so the echo-before-acting requirement is met identically; After's more detailed ordered Option 3 sequence is fine but not needed for the fact.",
+      "wallMs": 11614,
+      "verdict": "unchanged"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "1fc8add11acc987a8239b920628b45dc1ad0d3ec35ec428804c7fdf1df3f2cc6",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "83dab72b8567bfbbc8e79c889211692b7ccf8006603d903aa9df5106f2950e38",
+      "baselineOutputSha": "e410032187feb5e6d5fe9ee4374613d8d9dddbcd7dda31368128670ca98858e2",
+      "candidateOutputSha": "42654cdd2a73ebd4ef7bde69966d86b845afecc0deb8efa0348fe15148f9d886",
+      "facts": {
+        "layout": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "mapped-pick": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        }
+      },
+      "feedback": "Nothing moved: both facts hold in Before and in After. In both outputs the checkpoint-1 observations are a numbered list followed by prose paragraphs (\"Closure / conformance: CONFORMS\", \"whole-diff minors: none\", \"Implementation complete. What would you like to do?\") before the five options, so under CommonMark the intervening paragraphs terminate the first list and the options render as 1 through 5 with a prose separator; the five labels are unchanged. In checkpoint 2 both outputs open with the single sentence \"Taking 6 as option 3 - Squash-merge to main (no PR, no surviving branch).\" before any simulated landing action, never treat 6 as a raw option or re-ask. The After wording only tightens the simulated-action prose (\"strip\" vs \"remove\", shorter cleanup sentence) and adds checkpoint titles; it delivers the Change without regressing either fact. Note that the Expected-to-move list anticipated Before failing both facts, but this Before already satisfied them, so the layout contract and mapped-pick echo were not actually exercised as a delta here; if you want these cases to demonstrate the Change, pick a baseline transcript where the observations sit directly above the options with only blank lines between them.",
+      "wallMs": 10524,
+      "verdict": "unchanged"
+    }
+  },
+  "repoSha": "6aa708917f3429b0e0ba574cb0a680df774f186c"
+}

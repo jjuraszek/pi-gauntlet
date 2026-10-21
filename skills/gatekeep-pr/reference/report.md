@@ -8,6 +8,8 @@ Render bottom-up for a terminal: least important first, verdict and menu last. E
 
 Section order is fixed:
 
+Read and apply [menu-layout](../../brainstorming/reference/menu-layout.md) before presenting these options and before acting on a numeric reply.
+
 ```
 Delivers: <one sentence: what the PR does. With source: spec, a second sentence built from these clauses in
           order, each present only when it applies, joined with semicolons: covered rows ("ACs 1, 2, 4";

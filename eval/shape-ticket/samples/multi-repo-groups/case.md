@@ -1,3 +1,5 @@
+
+Workflow stage: step 4 Draft followed by the AC integrity gate.
 ## Mode
 Create. Gathering and duplicate checks are complete. Draft one ticket.
 

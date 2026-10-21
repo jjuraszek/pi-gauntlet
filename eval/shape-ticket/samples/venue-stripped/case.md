@@ -1,3 +1,5 @@
+
+Workflow stage: step 4 Draft followed by the AC integrity gate.
 ## Mode
 Repair. The complete ticket body is below. Preserve its target, baseline, and non-blocking housekeeping. Gathering is complete; no links, tracker fields, or comments need preservation.
 

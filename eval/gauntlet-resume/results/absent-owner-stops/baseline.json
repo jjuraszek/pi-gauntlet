@@ -1,7 +1,7 @@
 {
   "sample": "absent-owner-stops",
   "arm": "baseline",
-  "skillSha": "dd825826085e3925419b91d4be8399734af5bd6cf52ecb22f2ee2b0146b260d8",
+  "skillSha": "db895a9676fcd9b94412ddabdda6dda96f2066cc9f47b7e04a8ba047609dc0f6",
   "inputSha": "64883867a392a4f6302de48b977ba876a6c861e7971db20d963f47e816ce734c",
   "kind": "text",
   "assembly": "headed",
@@ -17,22 +17,22 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "# Resume: plan repair stops on an unclassifiable finding\n\n**Recorded plan state (results 1–2):** The plan is tracked (`ls-files --error-unmatch` exited 0) and clean (`status --porcelain` printed nothing). A later rollback would therefore use `git checkout`, and no temp copy was needed.\n\n**plan_check returns FAIL (result 3).** Resume enters `## Plan repair` with one finding and the brief's task list as read-only evidence:\n\n- `✓ [1] W1: Emit the rate-limit header`\n- `→ [2] W2: Read the header in the client`\n\n**Classifying the finding**\n\n- The finding is `table-closure` with reason `row owner Task 3: no such task exists`.\n- The only `table-closure` row covers \"row anchor not in the owner's `**Spec:**` set\". Its evidence requires that \"the owner cell names an existing task\".\n- Here the owner cell names Task 3, but the plan has exactly two tasks. That fails the evidence, and the reason is not one the row covers.\n- Repair is not allowed to change the owner column, task names, or task count.\n- So this finding has no row, and repair stops before any write.\n\n**Stopping**\n\nNothing was written to the plan, so this stop runs no git command. There is no `checkout` and no commit.\n\nPrinted:\n\n```\ntable-closure @ line 98: row owner Task 3: no such task exists\nRepair stopped: table-closure - row owner Task 3: no such task exists is outside citation repair; the plan file is unchanged. Edit the plan (task changes allowed), then re-run /skill:gauntlet-resume.\n```\n\n**State left behind**\n\n- `plan` stays in_progress, and the plan file is byte-identical.\n- Resume does not run any of these:\n  - `skip plan resume: brief`\n  - `start implement`\n  - `substep`\n  - `plan_tracker init`\n- Resume prints none of these:\n  - the `Repaired plan:` receipt\n  - the `Gate history not restored; re-validating …` closing line\n  - the `Standing grant` line\n- There is no post-restore continuation into subagent-driven-development.\n- The spec is not touched, and no Open Question is written.\n",
-      "words": 298,
-      "wallMs": 11918,
+      "text": "# Narration: gauntlet-resume from tool result 3 onward\n\n## Result 3: `plan_check` FAIL\n\n`plan_check` returned FAIL with one finding. This sends the restore into `brief-contract.md` `## Plan repair`. The inputs are that finding and the brief's task snapshot, which stays verbatim and is never rewritten:\n\n- `✓ [1] W1: Emit the rate-limit header`\n- `→ [2] W2: Read the header in the client`\n\n## Pre-classification routing\n\nThe finding is `table-closure`. It is neither `baseline-line` nor `open-questions`, so the Baseline continuation does not apply. It goes straight to Citation repair.\n\n## Pre-write state (results 1 and 2, already observed)\n\n- `ls-files --error-unmatch` exited 0, so the plan is tracked.\n- `status --porcelain` printed nothing, so the plan is clean.\n- The plan is therefore **tracked and clean**. No temp copy is needed, and a restore would use `git checkout`.\n\n## Classification\n\nThe finding is `table-closure @ line 98: row owner Task 3: no such task exists`.\n\n- The only `table-closure` row in the citation table covers \"row anchor not in the owner's `**Spec:**` set\". Its required evidence is that \"the owner cell names an existing task\".\n- This finding's reason is the opposite: the owner cell names Task 3, and the plan has exactly two tasks.\n- The owner column may never change, and neither may task names, count, or order. So no edit can satisfy this finding.\n- It matches no row, which means a stop before any write.\n\n## Stop\n\n- The stop happens before the first write, so no git command runs. There is no `git checkout`, no commit, and the plan file is untouched.\n- No further tool calls are made: no `skip plan`, no `start implement`, no `substep`, no `plan_tracker init`. Phase `plan` stays in_progress.\n\n## Printed lines, in order\n\n```\ntable-closure @ line 98: row owner Task 3: no such task exists\nRepair stopped: table-closure - row owner Task 3: no such task exists is outside citation repair; the plan file is unchanged. Edit the plan (task changes allowed), then re-run /skill:gauntlet-resume.\n```\n\n## Lines deliberately not printed\n\n- **`Repaired plan: …` receipt:** the repair did not reach PASS.\n- **Closing `Gate history not restored; …` line and the `Standing grant` / `No standing grant.` line:** both belong to Post-restore continuation, which runs only after a successful restore. This restore ended at the stop.\n",
+      "words": 357,
+      "wallMs": 15156,
       "mechanical": {
         "f1": "holds"
       }
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "```text\ntable-closure @ line 98: row owner Task 3: no such task exists\nRepair stopped: table-closure - row owner Task 3: no such task exists is outside citation repair; the plan file is unchanged. Edit the plan (task changes allowed), then re-run /skill:gauntlet-resume.\n```\n",
-      "words": 41,
-      "wallMs": 10095,
+      "text": "table-closure @ line 98: row owner Task 3: no such task exists\nRepair stopped: table-closure - row owner Task 3: no such task exists is outside citation repair; the plan file is unchanged. Edit the plan (task changes allowed), then re-run /skill:gauntlet-resume.\n",
+      "words": 40,
+      "wallMs": 7064,
       "mechanical": {
         "f1": "holds"
       }
     }
   },
-  "repoSha": "79d51968be98b18e8098e0eae8a6a3793a1aee5e"
+  "repoSha": "6aa708917f3429b0e0ba574cb0a680df774f186c"
 }

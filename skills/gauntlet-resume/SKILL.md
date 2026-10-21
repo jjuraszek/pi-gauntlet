@@ -39,6 +39,8 @@ optional pasted text after the command line. Count tokens first; then first matc
 Spec dirs resolve per `reference/reconstruction.md` "Candidates" (`flowGuards.specDirs`
 precedence).
 
+Read and apply [menu-layout](../brainstorming/reference/menu-layout.md) before presenting these options and before acting on a numeric reply.
+
 | Input | Route |
 |---|---|
 | no tokens, no pasted text | discovery: `<tmpdir>` via `node -p "require('os').tmpdir()"`; candidates are the regular files directly under `<tmpdir>/pi-handoff/` ending `.md` (non-recursive) whose line 1 starts `# Handoff:`; sorted by mtime, newest first; displayed one per line as `<n>. <title line> - <worktree: field value> - <mtime ISO-8601>` with `worktree: unavailable` when the field is absent; the human picks `<n>` (a single candidate is still confirmed); none -> STOP "no handoff briefs found under <tmpdir>/pi-handoff" |

@@ -1,7 +1,7 @@
 {
   "sample": "absent-owner-stops",
   "arm": "candidate",
-  "skillSha": "5433e341a09e5011da41af62ed82883d2f7e5801f8a04a912c535f72d829e742",
+  "skillSha": "db895a9676fcd9b94412ddabdda6dda96f2066cc9f47b7e04a8ba047609dc0f6",
   "inputSha": "64883867a392a4f6302de48b977ba876a6c861e7971db20d963f47e816ce734c",
   "kind": "text",
   "assembly": "headed",
@@ -17,18 +17,18 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "# Narration from tool result 3: `plan_check` FAIL leads to a no-row stop\n\n**1. Route the FAIL to `## Plan repair`.**\n- The call table's `implement` row says: on FAIL, run `## Plan repair`.\n- Repair inputs:\n  - the finding `table-closure @ line 98: row owner Task 3: no such task exists`\n  - the brief's task snapshot, kept verbatim and never rewritten:\n    - `✓ [1] W1: Emit the rate-limit header`\n    - `→ [2] W2: Read the header in the client`\n\n**2. Check for baseline continuation.**\n- The finding is not `baseline-line` and not an `open-questions` finding.\n- Baseline continuation does not apply, so no `plan-writer` dispatch happens. This goes to citation repair.\n\n**3. Record the plan's pre-write state.**\n- Tool results 1 and 2 already did this:\n  - `ls-files --error-unmatch` exited 0.\n  - `status --porcelain` printed nothing.\n- So the plan is tracked and clean. No temp copy is needed.\n\n**4. Classify the finding.**\n- The `table-closure` row requires this evidence: \"the owner cell names an existing task whose body does the row's requirement.\"\n- The owner cell names `Task 3`. The plan has exactly two tasks, so that evidence cannot hold.\n- The edit would need to change the owner cell. The contract forbids that (\"the owner cell never changes\"), and it also forbids changing the task count.\n- Result: this finding has no row.\n\n**5. Stop before any write.**\n- No write happened, so no git command runs. There is no `checkout`, no restore of bytes, and no commit.\n- Phase `plan` stays in_progress.\n- These calls are not made:\n  - `skip plan R`\n  - `start implement`\n  - `plan_tracker init`\n- The restore ends here. Because it was not successful:\n  - no `Repaired plan:` receipt is printed\n  - the post-restore continuation does not run\n  - no `Standing grant` line is printed\n\n**Printed, in order:**\n\n```\ntable-closure @ line 98: row owner Task 3: no such task exists\nRepair stopped: table-closure - row owner Task 3: no such task exists is outside citation repair; the plan file is unchanged. Edit the plan (task changes allowed), then re-run /skill:gauntlet-resume.\n```\n",
-      "words": 314,
-      "wallMs": 15658,
+      "text": "# Resume from tool result 3: `plan_check` FAIL leads to Plan repair, which stops with no write\n\n**Tool result 3:** `plan_check` returns `FAIL (1 findings)`. The call table's `implement` row says that on FAIL, resume enters `brief-contract.md` `## Plan repair`.\n\nThe repair inputs are:\n- **Findings:** `table-closure @ line 98: row owner Task 3: no such task exists`.\n- **Task snapshot from the brief:** `✓ [1] W1: Emit the rate-limit header` and `→ [2] W2: Read the header in the client`. Resume reads these only as evidence and never rewrites them.\n\n**Pre-routing check.** The finding is neither `baseline-line` nor a substantive `open-questions` finding. Baseline continuation does not apply, so no `plan-writer` dispatch happens.\n\n**Plan state, already recorded from results 1 and 2.** `ls-files --error-unmatch` exited 0 and `status --porcelain` printed nothing. The plan is therefore tracked and clean, and resume makes no temp copy.\n\n**Classification against the citation table:**\n- The only `table-closure` row covers \"row anchor not in the owner's `**Spec:**` set\".\n- That row needs evidence that the owner cell names an existing task.\n- This finding says the owner cell names Task 3, and the plan has exactly two tasks.\n- This reason is not listed. It is an owner-column defect, and the owner column never changes under citation repair.\n- **Result:** one finding with no row. Resume stops before any write.\n\n**Stop handling:**\n- Nothing was written, so resume runs no git command. There is no `checkout` and no commit.\n- No further tool calls are made: no `plan_check` rerun, no `skip plan`, no `start implement`, no `substep`, and no `plan_tracker init`.\n- Phase `plan` stays in_progress.\n\nPrinted, in order:\n\n```\ntable-closure @ line 98: row owner Task 3: no such task exists\nRepair stopped: table-closure - row owner Task 3: no such task exists is outside citation repair; the plan file is unchanged. Edit the plan (task changes allowed), then re-run /skill:gauntlet-resume.\n```\n\n**Not printed:**\n- No `Repaired plan:` receipt, because repair did not reach PASS.\n- No closing `Gate history not restored; re-validating ...` line.\n- No `Standing grant` / `No standing grant.` line.\n\nThose lines belong only to a successful restore. This restore ended at the repair stop, so resume does not continue into subagent-driven-development.\n",
+      "words": 348,
+      "wallMs": 14826,
       "mechanical": {
         "f1": "holds"
       }
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "table-closure @ line 98: row owner Task 3: no such task exists\nRepair stopped: table-closure - row owner Task 3: no such task exists is outside citation repair; the plan file is unchanged. Edit the plan (task changes allowed), then re-run /skill:gauntlet-resume.\n",
-      "words": 40,
-      "wallMs": 6009,
+      "text": "No further tool calls. Print these lines, in order:\n\n```text\ntable-closure @ line 98: row owner Task 3: no such task exists\nRepair stopped: table-closure - row owner Task 3: no such task exists is outside citation repair; the plan file is unchanged. Edit the plan (task changes allowed), then re-run /skill:gauntlet-resume.\n```\n\nLeave `plan` in_progress, with no tracker initialization.\n",
+      "words": 57,
+      "wallMs": 12652,
       "mechanical": {
         "f1": "holds"
       }
@@ -38,9 +38,9 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "c8c6c9d7aa8cf02286a9d0573c92690d87642c5c759cff115b281ddea191aebe",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "f3c4f51e5947ae01d3d783a1a1e9a41463ca9042976611c687ebc1afc15f420f",
-      "baselineOutputSha": "e36d296e89fb2564b0d2cbfd9af11d70b3c272533f52ea1b85df61388a728e1f",
-      "candidateOutputSha": "113264eade7f241f5c6a6d6ef8ec2f1609fd7ba754b4e6cd406d14c2c179276e",
+      "intentSha": "3c9706ee9b686f0db986bd2ceb9d5ed8fbb163f69ef5746678691a124d18948b",
+      "baselineOutputSha": "a5bbcf8d3dc1b931b438702504a6fbabcabdf9526a46a9fa0f9362cdce84fe4d",
+      "candidateOutputSha": "4692371f38e2ec6687e9c8035ac8a6834a62b31425d9ca55f6400422d6ee525b",
       "facts": {
         "f2": {
           "before": "holds",
@@ -58,16 +58,16 @@
           "label": "held"
         }
       },
-      "feedback": "After keeps both facts intact: step 4 explicitly states the owner cell never changes and the task count cannot change, step 5 says no write happens so no checkout or commit runs, lists `plan_tracker init` among the calls not made, and the printed stop line states the plan file is unchanged. The new step 2 (baseline continuation check) cleanly delivers the Change by routing this non-baseline `table-closure` finding away from `plan-writer` dispatch and into citation repair without introducing any write or tracker call. One small robustness note: Before said in prose that the plan file is 'byte-identical' in the state-left-behind section, whereas After relies only on the printed line for the 'unchanged' statement; adding a one-line prose restatement (e.g. 'the plan file is byte-identical') under step 5 would make f3 hold even for a reader who skips the printed block. Otherwise no wording in After moved a fact.",
-      "wallMs": 8438,
+      "feedback": "Both outputs keep every fact: neither edits the owner cell to Task 1 or Task 2, neither adds a task, both explicitly state no git command runs (no checkout, no commit), no plan_tracker init is called, and both print the 'plan file is unchanged' stop line. After also adds the explicit 'no plan-writer dispatch happens' note under the pre-routing check, which correctly reflects the Change's new baseline routing without moving anything here. Nothing in After moved a fact; the wording is sound for this case and can be kept as is.",
+      "wallMs": 4745,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "c8c6c9d7aa8cf02286a9d0573c92690d87642c5c759cff115b281ddea191aebe",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "f3c4f51e5947ae01d3d783a1a1e9a41463ca9042976611c687ebc1afc15f420f",
-      "baselineOutputSha": "c096dcadbe50780540cae1af58a3a60a538ac8c098477179cb666aa5fca5fdca",
-      "candidateOutputSha": "e25eaff60f05dbaac27e3920b01c848f1572bbfabd72fd2554d3cc416217324f",
+      "intentSha": "3c9706ee9b686f0db986bd2ceb9d5ed8fbb163f69ef5746678691a124d18948b",
+      "baselineOutputSha": "e25eaff60f05dbaac27e3920b01c848f1572bbfabd72fd2554d3cc416217324f",
+      "candidateOutputSha": "88aee453cb18d598b455705b06c8654143f642a819c38dd25b36b1f50f3dfd2c",
       "facts": {
         "f2": {
           "before": "holds",
@@ -85,10 +85,10 @@
           "label": "held"
         }
       },
-      "feedback": "After is textually identical to Before on this case: both stop at the table-closure finding, report that it is outside citation repair, state the plan file is unchanged, and hand the author back to edit the plan with task changes allowed — no owner-cell rewrite, no added task, no plan_tracker init, and no commit. Nothing moved. The Change's new baseline-finding dispatch (fresh foreground plan-writer, parent recheck, snapshot restore, three-option menu) is not exercised here because the finding is table-closure, not baseline-line or baseline-form, and the After wording correctly keeps that finding on the existing stop path. Keep the routing rule scoped so only baseline-* findings go to the writer and every other out-of-scope finding still falls through to the 'Repair stopped … plan file is unchanged … edit the plan' outcome; that preserves f2 and f3 while delivering the Change for the baseline cases.",
-      "wallMs": 7409,
+      "feedback": "Nothing moved here. Both outputs stop citation repair on the table-closure finding, keep the row's owner cell untouched, add no task, make no tracker init or commit, and state the plan file is unchanged. After is slightly stronger on f3 because it explicitly says 'No further tool calls' and 'no tracker initialization' and names the phase state left behind ('plan in_progress'), which is exactly the retain-in-progress-without-tracker-initialization behaviour the Change asks for. Keep that explicit 'no further tool calls' line and the explicit plan-state sentence in the After wording; it makes the no-mutation guarantee checkable from the text alone rather than inferred from silence, and it does not disturb the stop-and-hand-back message that Before already delivered.",
+      "wallMs": 8368,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "79d51968be98b18e8098e0eae8a6a3793a1aee5e"
+  "repoSha": "6aa708917f3429b0e0ba574cb0a680df774f186c"
 }
