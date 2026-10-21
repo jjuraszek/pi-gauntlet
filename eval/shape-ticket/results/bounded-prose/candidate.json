@@ -1,0 +1,90 @@
+{
+  "sample": "bounded-prose",
+  "arm": "candidate",
+  "skillSha": "433f824ad6922210aeda86d688c7250766c0a51996046031d7ea6b1d2f44ebcc",
+  "inputSha": "bec76a867f45e8b54eb4be340f5b048a50c3b68110ef1a1caa55aeb11d7d4b82",
+  "kind": "text",
+  "assembly": "concat",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "**Title (new):** Report delivery: empty first emailed download, missing final row, duplicate emails, wrong date in subject\n\n## Context\n\nA customer support review prompted this ask. Reports can be downloaded or emailed today.\n\n## Problem\n\n1. **The first emailed download is empty.** Recipients get no data and have to retry. Example: a 12-row report downloads as zero rows the first time, and a later retry gives all 12 rows.\n2. **Downloads drop the final row.** Recipients see incomplete totals. Example: a four-row report downloads as three rows, even though the fourth row appears on screen.\n3. **One delivery request sends two emails.** Recipients have to check whether the two reports differ. Example: one delivery request sends two emails that contain the same file.\n4. **The email subject names the previous day's report.** Recipients misfile the current day's work. Example: a report requested on October 21 arrives with an October 20 subject, although the attached file is for October 21.\n\n## Idea\n\nThe reporter proposes fixing report delivery.\n\n## Acceptance Criteria\n\n- [ ] Given a 12-row report delivered by email, when the recipient opens the emailed download for the first time, the downloaded file contains 12 rows.\n- [ ] Given a four-row report that shows four rows on screen, when the report is downloaded, the file contains all four rows.\n- [ ] Given a single delivery request for an emailed report, when the request is processed, exactly one email is sent.\n- [ ] Given a report requested on October 21, when its delivery email is sent, the email subject names October 21.\n\n---\n\n## Proposed Reporter note\n\nProposed as the single comment for this issue. It is source material moved out of Context, kept verbatim and fenced as untrusted data:\n\n````text\nReporter note: the export job writes CSV through the mail queue before the row count is known; deliveryMux calls writeRows then sendMail.\n````\n\n---\n\n## Gate report\n\n**Displaced-detail check (step 5)**\n- **Context:** The source's internal explanation was moved out because it names a job, a queue and the identifiers `deliveryMux`, `writeRows` and `sendMail`. It is preserved verbatim in the proposed Reporter note.\n- **No causal link asserted:** The body does not claim this mechanism causes any of the four failures, because no causal link was supplied.\n- **Idea:** The Idea is the single attributed sketch line, with no overflow.\n\n**AC integrity gate (on the assembled draft)**\n\n| # | AC (abridged) | Class | Setup / action / observable | Outcome |\n|---|---|---|---|---|\n| 1 | First emailed download has 12 rows | Behavioral | 12-row emailed report / first download / 12 rows | Pass |\n| 2 | Download has all four rows | Behavioral | four-row report shown on screen / download / four rows in file | Pass |\n| 3 | One request, one email | Behavioral | one delivery request / processed / exactly one email | Pass |\n| 4 | Subject names October 21 | Behavioral | Oct 21 request / email sent / subject says Oct 21 | Pass |\n\n- **No blocking classes:** No AC is wishful, tautological, unspecified-but-binding or dependent on external input. Nothing hard-stops and nothing is parked.\n- **Deploy window:** All four ACs can be verified before production deployment with representative reports. Nothing moves to Post-deployment housekeeping, and the AC list is not empty.\n- **No invented values:** Every number and date (12, zero, four, three, two emails, October 20/21) comes from the supplied observables. Nothing was invented to pass the gate.\n\n**Evidence gate:** Each of the four failures has a plain-words lead and one supplied example.\n\n**Metadata audit:** No tracker fields were supplied, so no metadata changes are proposed.\n\n**Split detection:** The four failures are independent observations. However, no evidence was supplied that they ship independently. Per the instruction for this replay, no split is proposed, and the draft is one ticket with a flat AC list.\n\n**Roast (next step):** The draft is ready for roast with the wording contract briefed. No ambiguous findings are pending yet.\n",
+      "words": 607,
+      "wallMs": 26220,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "## Full replacement ticket body\n\n## Context\n\nA customer support review prompted this request to fix report delivery. Today, reports can be downloaded or emailed.\n\n## Problem\n\n- **The first emailed download is empty**, forcing recipients to retry. For example, a 12-row report downloads as zero rows at first, then as 12 rows on a later retry.\n- **Downloads omit the final row**, leaving recipients with incomplete totals. For example, a four-row report downloads as three rows even though the fourth row appears on screen.\n- **A delivery request sends duplicate emails**, making recipients check whether the reports differ. For example, one delivery request sends two emails containing the same file.\n- **The email subject names the previous day's report**, causing recipients to misfile today's work. For example, an October 21 request produces an October 20 subject even though the attached file is for October 21.\n\n## Idea\n\nThe reporter proposes fixing report delivery.\n\n## Acceptance Criteria\n\n- [ ] Given a 12-row report, when a recipient downloads it for the first time from its delivery email, the download contains all 12 rows without requiring a retry.\n- [ ] Given a four-row report whose fourth row is visible on screen, when a recipient downloads the report, the download contains all four rows.\n- [ ] Given one report delivery request, when email delivery completes, the recipient receives exactly one report email.\n- [ ] Given a report for October 21 requested on October 21, when its delivery email is sent, the subject names October 21.\n\n---\n\n## Gate report\n\n**AC integrity: PASS**\n\n| AC | Classification | Result |\n|---|---|---|\n| First emailed download | Behavioral | Supplied 12-row setup, first-download action, and observable 12-row result. |\n| Final row included | Behavioral | Supplied four-row set, download action, and observable four-row result. “All” refers to an enumerated set, not an undefined completeness claim. |\n| Single email | Behavioral | One supplied delivery request and an observable result of exactly one email. |\n| Correct subject date | Behavioral | Supplied report/request date, email action, and observable matching subject date. |\n\nAll criteria are verifiable before production deployment; none requires a comparative baseline. No invented measurements, hard stops, parking conditions, or post-deployment-only criteria.\n\n**Wording and displaced-detail checks: PASS**\n- Each failure has a plain-words impact and a supplied example.\n- Context describes the trigger and current capabilities.\n- Idea contains exactly one attributed sketch line.\n- The internal delivery mechanism was removed from Context and preserved verbatim in the proposed comment below.\n\n**Scope:** One ticket retained as requested; no split proposed.\n\n**Metadata:** No tracker fields were supplied; no metadata changes proposed.\n\n## Proposed Reporter note\n\nOne proposed comment, separate from the replacement body:\n\n```untrusted\nReporter note:\nthe export job writes CSV through the mail queue before the row count is known; deliveryMux calls writeRows then sendMail.\n```\n",
+      "words": 429,
+      "wallMs": 20381,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "c8a066aa4b99ace9e8bfe9e958ed1dc83f162f1485686d257897d20a63f64e94",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "fba36388ec55327e653693ee9c8acc7833084f007c27db448ae378a009168412",
+      "baselineOutputSha": "da1238c746088942de00b31866e5abe58e64f812cb6464166d9f5f74da297e68",
+      "candidateOutputSha": "9c84d0bad1abcb3dcfe7ff424c44a4a6a5e3a336e90348f4c00a04608f0b7d44",
+      "facts": {
+        "context": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "bounded-examples": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "leads": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "After moves both intended facts to holds: Context now carries only the support-review trigger and the download/email capability, with the export-job/mail-queue/deliveryMux ordering displaced verbatim into the fenced Reporter note rather than left as a 'pointer', and every example is compressed to a single sentence (Before used two-sentence examples for all four failures, and its Context leaked the queue, module and call-ordering mechanism). The leads fact survives: all four failures keep a plain-words statement of what goes wrong followed by its recipient-facing cost, and no product cause-and-effect was cut. One risk to watch: After splits the cost out of the bold lead into a trailing sentence ('Recipients get no data and have to retry'), so a stricter reader could argue the lead alone no longer states the cost; wording that keeps the 'X happens, so recipients Y' structure inside the bold lead itself (as Before did) would guard that fact while still delivering the bounded Context and one-sentence examples.",
+      "wallMs": 15546,
+      "verdict": "improved"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "c8a066aa4b99ace9e8bfe9e958ed1dc83f162f1485686d257897d20a63f64e94",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "fba36388ec55327e653693ee9c8acc7833084f007c27db448ae378a009168412",
+      "baselineOutputSha": "1a79fbfc087b013473d7b3f984f8c6d9219d3568b991d05a12347fdb2188bd11",
+      "candidateOutputSha": "e5adc25f76404e15390d9cada47634ad6af2a2af37d017e6d7bdb11ff53f90c9",
+      "facts": {
+        "context": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "bounded-examples": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "leads": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "After keeps every fact Before kept: Context names the support-review trigger and today's download/email capability with the queue/deliveryMux mechanism moved out verbatim into the Reporter note rather than left in Context; each of the four Problem bullets keeps a one-sentence supplied example (12→0→12 rows, four→three rows, two emails, Oct 21→Oct 20 subject); and each bullet keeps a plain-words lead with its cost (retry, incomplete totals, checking for differences, misfiling). The only compression worth watching is the Idea line, which shrank to 'The reporter proposes fixing report delivery' and dropped Before's four-outcome summary — that is consistent with the 'one attributed sketch line' bound, but if you want the Idea to stay useful to a repo stranger, wording like 'Reporter proposal: fix report delivery so each of the four failures above no longer occurs' keeps attribution and the single-line bound while still pointing at the concrete outcomes.",
+      "wallMs": 15501,
+      "verdict": "unchanged"
+    }
+  },
+  "repoSha": "2a4bb7f326aff40b7ba6b62a5c6ad0c313853a3c"
+}

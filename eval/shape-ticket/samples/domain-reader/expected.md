@@ -1,0 +1,2 @@
+- reader: judged: The create body leaves requester-used CSV export undefined and defines deliveryMux as the outbound-delivery dispatcher if retained, or drops deliveryMux.
+- attribution: judged: Repair A removes the definitions because reporter usage wins even for dual-use deliveryMux; repair B retains the outbound-delivery-dispatcher definition if deliveryMux remains because body-only usage is not attribution.

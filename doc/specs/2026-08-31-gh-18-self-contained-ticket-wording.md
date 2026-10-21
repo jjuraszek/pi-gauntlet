@@ -1,6 +1,7 @@
 # Self-contained ticket wording for shape-ticket
 
 > **Superseded by:** [doc/specs/2026-09-23-gh-48-conventions-override-section.md](./2026-09-23-gh-48-conventions-override-section.md) - by-topic-relevance rationale in "SKILL.md edits" item 1 only; explicit-ticket-wording restriction unchanged
+> **Superseded by:** [doc/specs/2026-10-21-gh-75-bound-ticket-prose.md](./2026-10-21-gh-75-bound-ticket-prose.md) - "The contract (ticket-wording.md)" rules 1, 5, 6 only (reader definition, example rule, jargon rule); strip test, precedence, plain-words lead, pointer demotion, exemplar, and override restriction unchanged
 
 Ticket: [jjuraszek/pi-gauntlet#18](https://github.com/jjuraszek/pi-gauntlet/issues/18)
 

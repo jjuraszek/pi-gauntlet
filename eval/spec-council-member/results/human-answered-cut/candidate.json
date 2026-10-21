@@ -34,8 +34,8 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "127f9fdae51f93fb4ce1e1c2ce18d72498a1bac8ea178181b316253a24cd34a8",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "3dbd07e3f1c1b8ca5d3f06455820f705d35c4f073064927e6fbdf56acbf1a2e6",
-      "baselineOutputSha": "2f5ccd153dc918a1fbbbefd34a92329483f6b560c71ff7e8a4ca54acbcf03d11",
+      "intentSha": "0f5e208d9f7a59e0b060e8882e3e58591271629120117cc446a771ffba0cc8d7",
+      "baselineOutputSha": "29b1c06f66bdd0fb8e9d4afe9eaeaa7dbfb07fa4ea4c068ebf86990518bb6c48",
       "candidateOutputSha": "29b1c06f66bdd0fb8e9d4afe9eaeaa7dbfb07fa4ea4c068ebf86990518bb6c48",
       "facts": {
         "f1": {
@@ -49,14 +49,15 @@
           "label": "held"
         }
       },
-      "feedback": "Neither fact moved: Before raises the deferred benchmark only as a minor ambiguity on the Design sentence, and After raises it as an over-spec cut anchored to the same Design sentence (and the matching Verification line), not to the 60s acceptance row or its deferred disposition; neither output has a finding of kind scope on the mailer row's elsewhere: acme/mailer disposition, and both addresses-problem summaries accept the deferral and the mailer routing as given. The closest risk in After is the over-spec finding citing the human's answer C as its nearest human input while cutting a clause that exists because of the deferred row — a reader could see that as pressing on the 60s row. To keep this safe while still delivering the Change, have the wording say that over-spec and shrink findings anchor to Design/Verification clauses and must not re-litigate an acceptance row's disposition (in-scope, deferred, elsewhere) chosen by the human; when the cut sentence relates to a deferred row, the finding should name the deferred ticket as the destination (as After does) rather than cite the human answer as the thing that fails to require it. Also keep the Before-style note that explicit human choices and elsewhere groupings are fixed controls so no over-spec or shrink finding ever lands on the mailer row.",
+      "feedback": "Before and After are byte-identical on this case, so no fact moved. Both outputs emit three findings (gap, ambiguity, over-spec) and none of kind scope: the 60s row is never the target of a scope finding (the over-spec finding addresses the benchmark sentence, not the row's deferral), and the mailer row's elsewhere: acme/mailer disposition is accepted in addresses-problem rather than contested. This confirms the Change's intent that ordinary spec reviews keep their existing assembly and behavior untouched; the revised wording for ticket-idea-overflow and the in-scope-excess simplifications did not leak into this review. No wording adjustment is needed for this case — keep the gating that limits the new caller-brief and wording-reference files to ticket-idea-overflow so ordinary reviews continue to produce this unchanged output.",
+      "wallMs": 6811,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "127f9fdae51f93fb4ce1e1c2ce18d72498a1bac8ea178181b316253a24cd34a8",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "3dbd07e3f1c1b8ca5d3f06455820f705d35c4f073064927e6fbdf56acbf1a2e6",
-      "baselineOutputSha": "8569764ec8075559e087c9cdfe377aadaea3115cfdc2a1e0819365d771d32e31",
+      "intentSha": "0f5e208d9f7a59e0b060e8882e3e58591271629120117cc446a771ffba0cc8d7",
+      "baselineOutputSha": "c2750d0854e96f117c2d2c28a3749c0004c38ae04178822e262afa0de84dc940",
       "candidateOutputSha": "c2750d0854e96f117c2d2c28a3749c0004c38ae04178822e262afa0de84dc940",
       "facts": {
         "f1": {
@@ -70,9 +71,10 @@
           "label": "held"
         }
       },
-      "feedback": "Neither fact moved: Before raised a single external-ref finding anchored at Design (the uninlined export-ready event contract), which is not a scope finding and targets neither the 60s row nor the mailer row's elsewhere disposition, and After raises no findings at all, so both facts hold in both outputs. The After wording keeps the scope and human-input protections intact (the deferral to acme/widgets#78 and the acme/mailer ownership are both respected in the addresses-problem line without becoming findings). One thing to watch that is outside these facts: After dropped the external-ref finding about the event contract entirely and went to verdict: sound; if that drop was unintended, the 'named sufficient alternative' language should be scoped to in-scope implementation and proof simplifications only and should not be read as excusing an uninlined external contract, so consider adding an explicit clause that external-ref findings remain in force regardless of the new in-scope-excess admissibility rules.",
+      "feedback": "Before and After are byte-identical: both return verdict sound with an empty findings list, so no scope finding targets the deferred 60s row and none targets the mailer row's elsewhere disposition; f1 and f2 hold in both and nothing moved. This case is a guard, not a case the Change was expected to alter — the expected-to-move ids (in-scope-excess/implementation-shrink and proof-shrink) belong to a different sample, and here the human's explicit choice C and the mailer-owns-notification line are respected without a finding, which is the correct outcome. No wording adjustment is needed for this case; keep the After wording as is, and confirm the implementation-shrink and proof-shrink movement on the sample that actually exercises it.",
+      "wallMs": 4906,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "76e0a818108da1d20c88f830b188a91146b9dd54"
+  "repoSha": "c646da0f13761f8967e68606dde47855c92b33a7"
 }

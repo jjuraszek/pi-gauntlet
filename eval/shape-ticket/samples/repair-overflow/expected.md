@@ -1,0 +1,6 @@
+- repair: judged: Repair reaches an old -> new body diff and confirmation gate instead of no-op; the new Idea is one attributed sketch line and the new proposed Reporter note retains the entire 300-word original Idea verbatim.
+- immutable: judged: The existing Reporter note remains untouched and newly displaced detail is proposed as a new comment, including the complete inventory sentence verbatim.
+- raw-ac: judged: The new body's complete AC text is byte-identical to the original mixed checked and numbered rows, with a byte-equality check before the gate, not normalization to unchecked boxes.
+- ac-row: mechanical: matches /- \[x\] Given a 12-row report, requesting email delivery produces a first download with 12 rows\.\n ?2\. Given one delivery request, sending the report produces one email\./
+- no-op: judged: Overflow, the attributed requester-used CSV export definition and the path/count inventory are each nonconforming; the rewrite drops the CSV export definition while defining deliveryMux if retained because body-only usage is not reporter attribution.
+- invalid: judged: The independent faster-without-baseline criterion causes the existing wishful integrity hard stop for the entire run, with no silent byte-preserving pass or write.

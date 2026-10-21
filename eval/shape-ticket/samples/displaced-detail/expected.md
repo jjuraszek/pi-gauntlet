@@ -1,0 +1,8 @@
+- prior-unit: mechanical: contains "Keep the old export switch available during the move."
+- inventory-unit: mechanical: contains "The exporter in src/export-router.ts spans 418 lines."
+- idea-units: mechanical: matches /- Move export routing to the existing dispatcher\.\n- Retain the email delivery option\.\n- Remove the obsolete adapter after callers move\./
+- accumulation: judged: At roast time the payload contains earlier demotion, the complete verbatim Idea list and the path/count sentence; after roast and no-new-match rerun it retains those units and includes the removed mechanism sentence verbatim, never clearing earlier text.
+- body: judged: The roast-time body has one attributed Idea line and retains both plain-words failures, the deletion-safe rule-7 pointer and the one-number zero-row example rather than moving those exempt units.
+- carrier: judged: The proposed payload resides in the existing draft artifact as trailing Proposed Reporter note fenced as untrusted data, with no third artifact; the combined comment places Reporter note before Overlap evidence.
+- split-routing: judged: In the independent split branch with no demoted Idea, the approved proposed Reporter note for the download issue retains "The download handler in src/download-router.ts spans 276 lines." verbatim because that issue owns the corresponding Problem failure; the notification issue has no payload and no proposed comment.
+- no-displacement: judged: The independent branch with no displaced material, earlier payload or evidence proposes only the body write and no comment.

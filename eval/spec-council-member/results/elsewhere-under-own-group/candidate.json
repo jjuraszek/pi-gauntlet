@@ -34,8 +34,8 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "2efb798eeaf73a48fdaaee0b9ef240576645f84594be81d009225919aca6f8b5",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "3dbd07e3f1c1b8ca5d3f06455820f705d35c4f073064927e6fbdf56acbf1a2e6",
-      "baselineOutputSha": "259ec6b894da2b1e646b875b17cd60f7ad673477daf19270c5588bae3c9f9071",
+      "intentSha": "0f5e208d9f7a59e0b060e8882e3e58591271629120117cc446a771ffba0cc8d7",
+      "baselineOutputSha": "d186e1a2500f231bf084e9669fc4d20bdea33c59603ad0761fe67cafcd62e91b",
       "candidateOutputSha": "d186e1a2500f231bf084e9669fc4d20bdea33c59603ad0761fe67cafcd62e91b",
       "facts": {
         "f1": {
@@ -49,14 +49,15 @@
           "label": "held"
         }
       },
-      "feedback": "Both outputs keep the blocker scope finding anchored to the column row's `elsewhere: acme/mailer` disposition and neither raises any finding against the mailer row's elsewhere disposition, so f1 and f2 hold on both sides. The After wording preserved the scope and human-input protections as intended; the only drift is cosmetic: After dropped the `probed:` evidence on the blocker (Before cited the repo-group heading check) and added a second major on the Goal sentence that largely duplicates the gap on the Design sentence. To keep the Change without weakening these facts, keep the explicit 'elsewhere is only valid when the row sits under a group naming another repo' rule and the probed citation on the scope blocker, and fold the Goal/Design/AC inconsistency into one finding rather than two.",
+      "feedback": "After is byte-for-byte identical to Before, so nothing moved: the [blocker] scope finding still quotes the column row with its `elsewhere: acme/mailer` disposition and names the `### acme/widgets` heading as the reason it is invalid (f1), and no finding targets the mailer row's `elsewhere: acme/mailer`, which is left alone as a legitimate handoff (f2). This case is an already-passing baseline acting as a guard for the Change, not a forced failure; the revised wording preserved ordinary spec-review assembly and behavior exactly as intended. Keep the current wording for ordinary spec reviews — the only thing to confirm separately is that the new caller-brief and wording-reference files are routed solely to ticket-idea-overflow, since this sample shows the member persona's spec-review path unaffected by that addition.",
+      "wallMs": 6510,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "2efb798eeaf73a48fdaaee0b9ef240576645f84594be81d009225919aca6f8b5",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "3dbd07e3f1c1b8ca5d3f06455820f705d35c4f073064927e6fbdf56acbf1a2e6",
-      "baselineOutputSha": "49b2129446c4f2c698e311008cc28efb2694946c8dc40e8fa79d59f16813c410",
+      "intentSha": "0f5e208d9f7a59e0b060e8882e3e58591271629120117cc446a771ffba0cc8d7",
+      "baselineOutputSha": "305186cfb017ed5ab3a6892188933c6191934040abea2f71e099657379ad4b4c",
       "candidateOutputSha": "305186cfb017ed5ab3a6892188933c6191934040abea2f71e099657379ad4b4c",
       "facts": {
         "f1": {
@@ -70,9 +71,10 @@
           "label": "held"
         }
       },
-      "feedback": "Neither fact moved: both outputs raise exactly one blocker scope finding anchored on the column row's “elsewhere: acme/mailer” disposition, and neither raises a finding against the mailer row (both only reference it as the row that legitimately stays elsewhere). The After wording preserves these behaviors, but two small regressions are worth noting: After reports “probed: none” while its reasoning explicitly relies on reading the Human input grouping, whereas Before recorded that probe (“probed: inlined Human input - column-order row is under acme/widgets…”); and After moved the Design quote (“Column selection is assigned to mailer”) out of the anchor into prose, weakening the clause-level anchoring the Change says to keep. To deliver the Change without loosening these, keep instructing that any claim derived from the human input is cited under probed, and that every clause contradicted by the finding (Acceptance criteria row and Design sentence) stays in the @ anchor; the in-scope-excess additions can be layered on top of that unchanged scope/human-input control.",
+      "feedback": "Before and After are textually identical, so nothing moved on this case: both carry a single blocker of kind scope quoting the column row with its “elsewhere: acme/mailer” disposition (f1), and neither raises any finding on the mailer notification row — the fix line explicitly retains it as elsewhere (f2). The Change's revised caller brief and the in-scope-excess simplifications are not exercised here, which is consistent with the instruction that ordinary spec reviews keep their existing assembly and behavior; this case functions as the intended guard. No wording adjustment is needed for these facts; just ensure the ticket-idea-overflow routing remains gated so ordinary reviews like this one continue to produce the same scope blocker and leave the legitimately-delegated mailer row untouched.",
+      "wallMs": 4877,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "76e0a818108da1d20c88f830b188a91146b9dd54"
+  "repoSha": "c646da0f13761f8967e68606dde47855c92b33a7"
 }

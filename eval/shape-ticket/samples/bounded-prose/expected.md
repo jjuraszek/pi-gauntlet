@@ -1,0 +1,3 @@
+- context: judged: Context states the support-review trigger and today's download/email capability, without internal queue, module, call or ordering explanations.
+- bounded-examples: judged: Each of the four failures retains a concrete supplied observable, with each example limited to one sentence or one number, not the source's multi-sentence example.
+- leads: judged: Each failure retains a plain-words lead stating what goes wrong and its cost; shortening does not remove any of the four failures or their product cause and effect.

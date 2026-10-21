@@ -1,6 +1,8 @@
-for: d4c4cc924193a57fa153a5e2bb98d553270039e9c7bebe9718ba78b0379d8c00
+for: c635d966f967506e4e69ac9702b02820381b270b88c9209aa0941cb93338cb5e
 
 ## Change
+Carry every Reporter-note section into implied spec requirements and scout search terms. Fetch complete comments independently in the parallel scout and context-builder tasks, including a second page after 50 ordinary comments. Quote notes verbatim in creation order regardless of author or combined-comment label order, retain contradictions without resolution, and keep AC extraction body-only. Preserve no-fetch degradation and retain body ACs with a body-only gate warning on comment-fetch failure. The two new replays prove narration and supplied-note carry-through, not live tracker integration. Retain the previously accepted moves below. Editing the ticket reference changes existing sample assemblies; cache reuse is hash-based.
+
 Trace implicit dependencies through retained loaders and repro steps, including when scout recon fails. Missing dependencies become corrected premises; not-checkable dependencies remain unverified. The premise note, separate approaches message, and spec Problem retain each lookup and result without stopping. Text replay checks this reporting from supplied observations, not live lookups.
 
 Questionary responses put the lead-in first, each labeled option on its own physical line, and Recommendation: on its own final line. The framing template and both Good examples retain their words in that layout.
@@ -69,3 +71,10 @@ The ticket-read-once, restored-step-8-reads-ticket, same-session-redraw-reuses-t
 - missing-db-extension/premise: fails -> holds - Carry the traced missing dependency and lookup result through the premise note, approaches, and spec.
 - missing-db-extension/approaches: fails -> holds - Carry the traced missing dependency and lookup result through the premise note, approaches, and spec.
 - missing-db-extension/problem: fails -> holds - Carry the traced missing dependency and lookup result through the premise note, approaches, and spec.
+- reporter-note/requirements: fails -> holds - Carry the note-only target and count into the spec's implied requirements.
+- reporter-note-fetch/paging: fails -> holds - Each parallel task fetches complete history independently.
+- reporter-note-fetch/terms: fails -> holds - Include older note terms in the scout query.
+- reporter-note-fetch/verbatim: fails -> holds - Preserve the labeled note with complete fetch accounting.
+- reporter-note-fetch/count: fails -> holds - Report full fetched comment and page counts.
+- reporter-note-fetch/multiple: fails -> holds - Preserve all authors and contradictions in creation order.
+- reporter-note-fetch/degraded: fails -> holds - Keep ACs and surface missing comments at the gate.

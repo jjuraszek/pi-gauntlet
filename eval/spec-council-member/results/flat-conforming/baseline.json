@@ -1,7 +1,7 @@
 {
   "sample": "flat-conforming",
   "arm": "baseline",
-  "skillSha": "618507101d28e17db84cf910af614e719333bfb19f58fef166b6389e801a6e46",
+  "skillSha": "8afe6505fb8b5a59ec412ea35f941a0ffa5fff87ac6126272ff08fbdbee5d1bc",
   "inputSha": "f9c163d858dbfe8e67a5c065a21ad44b2f6c9141d08461795bf3170fc2bda43a",
   "kind": "text",
   "assembly": "headed",
@@ -17,22 +17,22 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "verdict: needs-work\naddresses-problem: yes — all four widgets AC rows are carried over verbatim as in-scope with matching design. The mailer row is correctly marked `elsewhere: acme/mailer` under the `### acme/mailer` repo group, which is not acme/widgets.\nfindings:\n- [major] gap @ \"the mailer handoff reuses the existing export-ready event\" — The spec does not say whether widgets emits this event. It also does not say when it fires, given the download is a synchronous GET, or what payload it carries. Mailer's row needs \"the download link\", but no field holding that link is named. An implementer cannot tell whether widgets has any work here. → State whether widgets publishes the event and its trigger point, for example after the response completes or never because some existing producer emits it. Name the payload fields, including the download URL (presumably `/widgets/export.csv`). Add a test asserting the emission, or state explicitly that widgets emits nothing. — probed: none\n- [minor] ambiguity @ \"Run the 10000-widget benchmark for the 60s row when in-scope\" — The row is already marked in-scope, so the \"when in-scope\" conditional is dead wording. It also leaves unclear whether the benchmark is a gating automated check, and in what environment it runs. → Reword to \"Run the 10000-widget benchmark; it fails if request-start-to-complete-response exceeds 60s\". Say where it runs: a CI job or a documented manual step. — probed: none\n- [minor] gap @ \"The endpoint sits behind the existing session authentication\" — The response to an unauthenticated request is unspecified, whether a redirect to login or a 401. No test covers it, and no test covers the owner scoping, which is the data-leak guard. → Specify the unauthenticated response. Add request tests for (a) no session and (b) another user's widgets being excluded from the CSV. — probed: none\n- [minor] ambiguity @ \"Read widgets in id order in batches of 1000\" — The spec does not say whether the response streams batch by batch or buffers the whole body. It also does not choose between keyset and offset paging, so rows inserted or deleted mid-export may be duplicated or skipped. → Specify keyset pagination (`id > last_id`) and streamed output. — probed: none\nlean: nothing to cut\n",
-      "words": 347,
-      "wallMs": 18624,
+      "text": "verdict: needs-work\naddresses-problem: yes — the spec covers all four widgets ticket rows verbatim with concrete design and verification. It correctly routes the mailer row to acme/mailer, which sits under a repo-group heading naming another repo.\nfindings:\n- [major] gap @ \"the mailer handoff reuses the existing export-ready event\" — The spec does not say whether widgets emits this event, when it fires, or what payload it carries. The download is a synchronous GET, so it is unclear what \"export-ready\" means. The mailer row needs a download link, but the spec never says how mailer gets that URL. Without this, mailer cannot satisfy its row. → State the emitter (widgets or none), the trigger point, and the payload fields, including the download URL (for example, `/widgets/export.csv`). If widgets emits nothing, say so and name who does. Add a widgets-side test that the event is emitted with that payload, or state that none is required. — probed: none\n- [minor] ambiguity @ \"Run the 10000-widget benchmark for the 60s row when in-scope\" — The row is already marked in-scope, so the conditional reads as optional. The spec also never states the pass criterion. → Reword to \"Run the 10000-widget benchmark; it passes when the complete response arrives within 60s.\" — probed: none\n- [minor] gap @ \"Request tests check the download headers, column order and CSV escaping, and header-only empty output\" — The verification plan does not cover the session-auth and owner-scoping behavior the Design asserts. Examples are an unauthenticated request being rejected and another user's widgets being excluded. → Add request tests for an unauthenticated request and for a cross-user exclusion. — probed: none\nlean: nothing to cut\n",
+      "words": 262,
+      "wallMs": 12981,
       "mechanical": {
         "f2": "holds"
       }
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "verdict: sound\naddresses-problem: yes — The design delivers CSV downloads and covers all four widgets acceptance rows. The email row is correctly assigned to acme/mailer, matching the ticket’s repo grouping and ownership instruction.\nfindings:\nlean: nothing to cut\n",
-      "words": 37,
-      "wallMs": 7365,
+      "text": "verdict: sound\naddresses-problem: yes — The design covers CSV download, ordered columns, the 60-second benchmark, and header-only empty exports. The notification is correctly assigned to acme/mailer, matching the Human input repo grouping.\nfindings:\nlean: nothing to cut\n",
+      "words": 36,
+      "wallMs": 14404,
       "mechanical": {
         "f2": "holds"
       }
     }
   },
-  "repoSha": "76e0a818108da1d20c88f830b188a91146b9dd54"
+  "repoSha": "c646da0f13761f8967e68606dde47855c92b33a7"
 }

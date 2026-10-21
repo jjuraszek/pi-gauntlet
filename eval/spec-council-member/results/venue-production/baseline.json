@@ -1,7 +1,7 @@
 {
   "sample": "venue-production",
   "arm": "baseline",
-  "skillSha": "618507101d28e17db84cf910af614e719333bfb19f58fef166b6389e801a6e46",
+  "skillSha": "8afe6505fb8b5a59ec412ea35f941a0ffa5fff87ac6126272ff08fbdbee5d1bc",
   "inputSha": "484b14ce268ece8e7bdcb393c2931a74d7dbf5c686c9dbfd17a4ef8f8ba77417",
   "kind": "text",
   "assembly": "headed",
@@ -17,18 +17,18 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "verdict: needs-work\naddresses-problem: partial — the export design covers download, column order, the 10000-row target and empty output. But the \"Clicking Export downloads a CSV\" row is given a production venue, and the design never limits the export to the requesting user's widgets (\"their widgets\").\nfindings:\n- [blocker] scope @ \"Clicking Export downloads a CSV. - venue: prd - a human clicks Export on the live site\" — A `venue:` naming `prd` is not allowed. It also clashes with the Goal (\"delivers all four widgets rows\") and with Verification, which already plans request and collection-page rendering tests for this row. → Mark the row `in-scope` and verify it with the request test on headers/Content-Disposition plus the collection-page Export link test. Drop the live-site click. — probed: none\n- [major] gap @ \"Read widgets in id order in batches of 1000.\" — The problem statement says users download *their* widgets. The design reads every widget, with no ownership or authorization filter and no rule for unauthenticated requests to GET /widgets/export.csv. → State the query scope (e.g. widgets owned by or visible to the current user), the auth requirement and failure response (e.g. 401/redirect), and add a request test proving other users' widgets are excluded. — probed: none\n- [minor] ambiguity @ \"Read widgets in id order in batches of 1000\" / \"measures from request start to the complete response\" — The spec does not say whether the response is streamed as batches are read or buffered in full. This affects memory use and what the 60s benchmark measures. → State streamed or buffered output and, if streamed, how a mid-export error is handled (truncated response vs. error status). — probed: none\n- [minor] ambiguity @ \"Run the 10000-widget benchmark for the 60s row when in-scope.\" — The row is already `in-scope`, so \"when in-scope\" reads as optional. The spec also does not say where the benchmark lives or whether it gates CI. → Write \"Run the 10000-widget benchmark (location/command) and fail if the complete response exceeds 60s.\" — probed: none\nlean: nothing to cut\n",
-      "words": 319,
-      "wallMs": 11064,
+      "text": "verdict: needs-work\naddresses-problem: partial — the design covers all four widgets rows and correctly hands the email to acme/mailer, but the Export-click row is dispositioned `venue: prd`, so it is only verified on production.\nfindings:\n- [blocker] scope @ \"Clicking Export downloads a CSV. - venue: prd - a human clicks Export on the live site\" — A `venue:` naming `prd` is not allowed. It also contradicts the Goal (\"This change delivers all four widgets rows\"), because this row's proof is pushed to a human on the live site. → Change the row to `in-scope`. Verify it with the request test already listed in Verification (Content-Disposition attachment, filename=\"widgets.csv\", text/csv UTF-8) plus the collection-page rendering test that checks the Export link targets GET /widgets/export.csv. — probed: none\n- [minor] ambiguity @ \"Run the 10000-widget benchmark for the 60s row when in-scope.\" — \"when in-scope\" is conditional, yet the row is unconditionally `in-scope`. An implementer could skip the benchmark. → Change to \"Run the 10000-widget benchmark and assert the complete response arrives within 60s.\" Also name where it runs (e.g., a CI job or test file). — probed: none\n- [minor] gap @ \"Mailer owns delivery of the export-ready email and download link\" — The cross-repo contract is implicit. Mailer needs a stable download URL and needs to know whether the link requires an authenticated session, and the spec states neither. → State that GET /widgets/export.csv is the stable link mailer embeds. Also state that it requires the user's normal authenticated session, or describe the token scheme if it does not. — probed: none\nlean: nothing to cut\n",
+      "words": 248,
+      "wallMs": 13380,
       "mechanical": {}
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "verdict: needs-work\naddresses-problem: partial — The design covers CSV download, content, performance, and empty collections, but assigns the download acceptance criterion to a production venue rather than keeping it in scope.\nfindings:\n- [blocker] scope @ Acceptance criteria: “Clicking Export downloads a CSV. - venue: prd - a human clicks Export on the live site” — A `venue: prd` disposition is prohibited; the ticket places this criterion under acme/widgets and supplies no human answer authorizing a scope cut or production-only verification → Mark the row `in-scope` and specify non-production verification that the rendered Export link targets the endpoint returning the CSV attachment. — probed: none\nlean: nothing to cut\n",
-      "words": 101,
-      "wallMs": 8279,
+      "text": "verdict: needs-work\naddresses-problem: partial — The design covers CSV downloads, columns, performance, and empty output, and correctly assigns notification to acme/mailer, but the download acceptance row uses a prohibited production venue.\nfindings:\n- [blocker] scope @ Acceptance criteria: “Clicking Export downloads a CSV. - venue: prd - a human clicks Export on the live site” — A `venue: prd` disposition is prohibited and makes production verification part of acceptance without a human answer authorizing that decision → Mark this row in-scope and specify non-production verification that the rendered Export link reaches the CSV download endpoint with attachment headers. — probed: none\nlean: nothing to cut\n",
+      "words": 97,
+      "wallMs": 6082,
       "mechanical": {}
     }
   },
-  "repoSha": "76e0a818108da1d20c88f830b188a91146b9dd54"
+  "repoSha": "c646da0f13761f8967e68606dde47855c92b33a7"
 }

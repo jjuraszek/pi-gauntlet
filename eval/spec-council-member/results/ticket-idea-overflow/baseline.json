@@ -1,0 +1,38 @@
+{
+  "sample": "ticket-idea-overflow",
+  "arm": "baseline",
+  "skillSha": "9d27b5de23ea06bc47eeeffb1cd7935ecc683d2dd8b47ade37d74c5db3a9fb53",
+  "inputSha": "42e95c02e07f56f74be29fc75b9a5cb98a6371d2aed8a01162fae2b26d54cb59",
+  "kind": "text",
+  "assembly": "headed",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "verdict: needs-work\naddresses-problem: yes - the draft covers both asks: the email waits for a complete file, and failed exports become visible. The ACs and the sketch placement still need repair before the gate.\nfindings:\n- [major] other @ \"## Idea\" (all four paragraphs, from \"Start by introducing a completion record\" through \"single readiness decision shared by the customer page and email sender\") - The Idea section must keep exactly one attributed sketch line (SKILL step 4). Here the reporter's sketch fills four paragraphs: a completion record schema, a retry loop, a reconciliation task, a support view, metrics, retention and a rollout switch. Everything after the first line is overflow, but the overflow was neither cut from Idea nor moved into the single permitted comment. The ticket now carries \"how\" in its body. → Keep only the opening attributed line (\"The reporter suggests waiting until the file is complete before sending the email, then making the ready status agree with what the customer can actually download.\"). Move the remaining Idea text verbatim into the `Reporter note:` comment. The Human input asks to \"keep the implementation detail for whoever picks this up\", so relocate the text; do not delete it. The same overflow applies to the one-line Idea branch: joining the paragraphs into one physical line does not make them one sketch line, because the sentence count and content are unchanged. — probed: draft.md Idea vs source.md (\"reporter supplied ... all four Idea paragraphs ... as a proposed implementation sketch\") - sketch retained in the body, not demoted\n- [major] gap @ \"## Proposed Reporter note\" - The note keeps the displaced completion-hook sentence. It is missing the other displaced reporter material: the Idea overflow and the ExportLatch call-order sentence. Only one comment per issue is allowed, so all of it must share this body. → Append the Context ExportLatch sentence and the Idea overflow paragraphs below \"move the completion hook to exportReady; the adapter has 240 lines.\" — probed: draft.md note section - only the hook sentence present\n- [major] ambiguity @ \"The ExportLatch reads the staging ledger, calls the mail adapter, and only then commits the row counter to the completion store.\" - This sentence breaks the wording contract twice:\n  - It is a reporter-supplied mechanism that the draft states as Context fact. The source calls it part of the sketch.\n  - It uses undefined repo jargon (ExportLatch, staging ledger, mail adapter, row counter, completion store), against rule 6.\n  - Fix: remove it from Context and move it to the Reporter note. The plain-words sentence before it (\"the export email can arrive while the file is still being written\") already carries the triage meaning.\n  — probed: source.md - \"reporter supplied the Context's ExportLatch call-order sentence ... as a proposed implementation sketch\"\n- [major] not-actionable @ \"## Acceptance Criteria\" - The rows are not `- [ ]` items, and neither names a setup, action and observable result.\n  - \"sent only after its CSV file is complete\" gives no observable that shows completeness.\n  - \"show Failed\" does not say where.\n  - Suggested rows:\n    - `- [ ] Given an export whose file is still being written, no export email is sent until the write finishes; the first download from the email contains every expected row`\n    - `- [ ] Given an export whose writer fails, the customer's export status shows Failed (not Ready) and no ready email is sent`\n  — probed: none\n- [minor] other @ \"Example: 12 of 20 first downloads were empty.\" - The source and date are missing. → \"Example: support measured 12 of 20 first downloads empty on 2026-10-20.\" — probed: source.md - \"Support measured 12 of 20 empty first downloads on 2026-10-20\"\n- [minor] other @ \"a customer requested a report at noon and saw Ready\" - The UI-behavior claim has no evidence provenance, which the evidence gate requires. → Add \"(reported to support on 2026-10-20; support confirmed failed exports currently show Ready)\", or add evidence: `none (<reason>)`. — probed: source.md - date and support confirmation present, omitted in draft\nlean: nothing to cut\n",
+      "words": 621,
+      "wallMs": 25426,
+      "mechanical": {
+        "findings-shape": "holds"
+      }
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "verdict: needs-work\naddresses-problem: yes — The draft preserves both requested outcomes: wait for a complete CSV before emailing, and make failed exports visible. The implementation detail is retained, but its placement and the AC form need correction.\nfindings:\n- [major] gap @ Context, Idea, and Proposed Reporter note — The note retains “move the completion hook to exportReady; the adapter has 240 lines,” but does not yet retain the additional implementation material that must be displaced when shortening this draft. Idea contains four detailed implementation paragraphs rather than exactly one attributed sketch line; Context also embeds the reporter’s ExportLatch implementation sketch, with undefined internal terms. Source fidelity does not exempt those passages from the wording and overflow rules. The same finding applies to the **one-line Idea branch**: joining the paragraphs changes neither their content nor their overflow status. → Keep one short attributed sketch in Idea, remove the implementation call-order sentence from Context, and place all remaining displaced implementation text in the single proposed Reporter note alongside its existing completion-hook sentence. Keep that note as the gated comment payload, not part of the replacement ticket body. — probed: supplied source snapshot, draft, shape-ticket Draft/overflow rules, and ticket-wording rules 2 and 6 - the source identifies the Context sentence and all four Idea paragraphs as implementation sketch; the proposed note currently contains only the completion-hook sentence\n- [major] not-actionable @ Acceptance Criteria — Both rows state useful outcomes, but neither uses the required `- [ ]` form or explicitly names setup, action, and observable result. “Failed exports show Failed” also leaves the customer-facing observation surface implicit. → Render checkbox criteria with concrete scenarios: when an export is requested and CSV writing remains incomplete, no export email is sent; after completion, the email provides a complete download. When an export fails, the customer-facing export status displays Failed rather than Ready. Keep the criteria focused on observable outcomes, without promoting the reporter’s implementation sketch into requirements. — probed: supplied draft Acceptance Criteria and shape-ticket AC integrity gate - both rows are plain bullets and omit explicit scenario setup/action\nlean: nothing to cut\n",
+      "words": 333,
+      "wallMs": 20295,
+      "mechanical": {
+        "findings-shape": "holds"
+      }
+    }
+  },
+  "repoSha": "d2f6957c434c8c0b6e6a7a3ee03beb481635213a"
+}

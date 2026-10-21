@@ -1,7 +1,7 @@
 {
   "sample": "human-answered-cut",
   "arm": "baseline",
-  "skillSha": "618507101d28e17db84cf910af614e719333bfb19f58fef166b6389e801a6e46",
+  "skillSha": "8afe6505fb8b5a59ec412ea35f941a0ffa5fff87ac6126272ff08fbdbee5d1bc",
   "inputSha": "b283a91fbb4bccc3821ab9fbce4af854c4a0f5cc04e4beb2dbdb0e2c85c89577",
   "kind": "text",
   "assembly": "headed",
@@ -17,18 +17,18 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "verdict: needs-work\naddresses-problem: yes — the in-scope widgets rows (download, column order, header-only empty export) are designed and tested; the 60s row is deferred to acme/widgets#78 per the user's answer C, and the mailer row is correctly marked elsewhere under the acme/mailer group.\nfindings:\n- [major] gap @ \"the mailer handoff reuses the existing export-ready event\" — The spec does not say whether widgets emits this event, when it fires, or what payload it carries. The export is a synchronous GET that streams the file straight back, so no persisted artifact or download link exists for mailer's \"export-ready email with the download link\". → State whether widgets publishes the event (and at what point: request start, completion, or never) and which link it carries (e.g. the `/widgets/export.csv` URL). Otherwise state that no event emission is part of this change and mailer handles the trigger. Add a test for whichever emission is chosen. — probed: none\n- [minor] oversimplification @ \"Read widgets in id order in batches of 1000\" — The spec does not cover a database error after headers and early batches are already sent. It also does not say whether all batches must come from one consistent snapshot, given rows can be inserted or deleted between batches. → Say whether the response is buffered or streamed. If streamed, define mid-stream failure behaviour (e.g. abort the connection so the file is visibly truncated). State whether batches use a single transaction or snapshot, or keyset paging on id. — probed: none\n- [minor] ambiguity @ \"The benchmark uses 10000 local widgets and measures from request start to the complete response\" — The Design describes a benchmark for a row that is deferred to acme/widgets#78. Verification only says \"when in-scope\", which leaves an implementer unsure whether to build it now. → Mark the benchmark description as belonging to acme/widgets#78 and not delivered in this change, or drop it from the Design. — probed: none\n- [minor] gap @ \"Encode id, name, and status with standard CSV quoting\" — Widget names are user-controlled. A name starting with `=`, `+`, `-` or `@` will be run as a formula when the CSV is opened in a spreadsheet, and the spec does not decide whether to neutralise this. → Decide whether to prefix such values (e.g. with `'`) or explicitly accept the risk, and cover the decision in the CSV escaping request test. — probed: none\nlean: nothing to cut\n",
-      "words": 379,
-      "wallMs": 15487,
+      "text": "verdict: needs-work\naddresses-problem: yes — The spec delivers the three in-scope widgets rows: Export link download, id/name/status column order, and header-only empty output. The 60s row is deferred to acme/widgets#78, which the user picked by answering C to the cut question. The mailer row is routed `elsewhere: acme/mailer` and sits under the `### acme/mailer` group, which is a different repo from acme/widgets.\nfindings:\n- [major] gap @ Design: \"the mailer handoff reuses the existing export-ready event\" — The export is a synchronous GET that streams the CSV straight back. The spec never says whether widgets emits the export-ready event, when it does so (request start, after the last byte, never), or what payload it sends (download link, user id). The mailer row depends on that handoff, but no widgets-side trigger is specified. Verification also has no test that the event fires. → State whether and when `/widgets/export.csv` emits the export-ready event and list its payload fields, including the download URL. Add a request test that asserts the event is emitted with that payload, or state explicitly that widgets emits nothing and mailer subscribes some other way. — probed: none\n- [minor] ambiguity @ Design: \"Read widgets in id order in batches of 1000\" — The ticket answer says \"paging ships next sprint\" (acme/widgets#78). The spec does not say whether this batching is a server-side read detail or the paging that was deferred. An implementer could build part of #78 here. → Clarify that batching is an internal read strategy only, with no paging in the response or API, and that #78 owns paging. — probed: none\n- [minor] over-spec @ \"The benchmark uses 10000 local widgets and measures from request start to the complete response.\" — no human input requires this (closest human input: \"A: C) deferred: acme/widgets#78 - paging ships next sprint\"); adds: 0 files / 1 tests / 0 ACs; if cut, unprotected: nothing → cut (move the benchmark definition, and the matching \"Run the 10000-widget benchmark for the 60s row when in-scope\" Verification line, to acme/widgets#78)\nlean: 1 over-spec findings above\n",
+      "words": 325,
+      "wallMs": 17823,
       "mechanical": {}
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "verdict: needs-work\naddresses-problem: yes — Covers the widgets download requirements, preserves the explicitly approved timing deferral, and assigns the notification row to its ticket-designated mailer repo.\nfindings:\n- [major] external-ref @ Design: “the mailer handoff reuses the existing export-ready event” — The event contract is not inlined, and the design does not specify whether this download request emits it, when it is emitted, or how its payload supplies the authenticated download link. Mailer ownership does not define widgets’ producer responsibilities → Inline the relevant event contract and specify widgets’ emission responsibility, timing, and link construction; add a handoff test if widgets must emit the event. — probed: none\nlean: nothing to cut\n",
-      "words": 106,
-      "wallMs": 9656,
+      "text": "verdict: sound\naddresses-problem: yes — Delivers CSV downloads with the required columns and header-only empty output. The timing row is deferred to the tracker issue explicitly chosen by the user, and notification ownership correctly remains with acme/mailer.\nfindings:\nlean: nothing to cut\n",
+      "words": 41,
+      "wallMs": 6772,
       "mechanical": {}
     }
   },
-  "repoSha": "76e0a818108da1d20c88f830b188a91146b9dd54"
+  "repoSha": "c646da0f13761f8967e68606dde47855c92b33a7"
 }

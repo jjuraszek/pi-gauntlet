@@ -38,8 +38,8 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "f08ffd7f891c2e0eb30016f0aa9f8ee643b4e1a52b9a712e15c966a76a0adb0d",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "3dbd07e3f1c1b8ca5d3f06455820f705d35c4f073064927e6fbdf56acbf1a2e6",
-      "baselineOutputSha": "120ff06c0f693789d2c4220fd3e2daa0d66fe074f650d29bcfd7b18d818276b0",
+      "intentSha": "0f5e208d9f7a59e0b060e8882e3e58591271629120117cc446a771ffba0cc8d7",
+      "baselineOutputSha": "fa640095cdcb3d1abe1c714ff34c8556aa6a56b306ad2f1fa332a660fff6474f",
       "candidateOutputSha": "fa640095cdcb3d1abe1c714ff34c8556aa6a56b306ad2f1fa332a660fff6474f",
       "facts": {
         "f1": {
@@ -53,14 +53,15 @@
           "label": "held"
         }
       },
-      "feedback": "Neither output contains a finding of kind scope, and neither targets an acceptance-criteria row or its disposition; both outputs confine their findings to gap and ambiguity kinds anchored on Design and Verification clauses (the export-ready event handoff, the benchmark wording, auth/owner-scoping test coverage, and in Before the batching/paging detail). After kept f1 intact while trimming the paging ambiguity finding and merging the auth gap into a verification-anchored finding, which is consistent with the Change's intent of not treating in-scope simplifications as scope problems. No wording adjustment is needed for f1; if you want to be extra safe against future drift, keep the instruction that scope-kind findings only fire on disposition mismatches against the verbatim ticket rows, and keep implementation/proof-shrink judgments routed through gap or in-scope-excess kinds rather than scope.",
+      "feedback": "Before and After are byte-identical here: both carry three findings of kinds gap, ambiguity, and gap, none of kind scope, and none targets an acceptance-criteria row or its disposition, so f1 holds in both. The wording change produced no observable movement on this case, which is consistent with the Change's intent that ordinary spec reviews retain their existing assembly and behavior while only ticket-idea-overflow receives the new caller and wording-reference files. Nothing in After needs adjusting for this sample; if the author wants evidence that the revised brief is actually reaching the reviewer, a sample that exercises the expected-to-move ids (in-scope-excess/implementation-shrink and proof-shrink) is where the difference should surface, not this guard case.",
+      "wallMs": 5136,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "f08ffd7f891c2e0eb30016f0aa9f8ee643b4e1a52b9a712e15c966a76a0adb0d",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "3dbd07e3f1c1b8ca5d3f06455820f705d35c4f073064927e6fbdf56acbf1a2e6",
-      "baselineOutputSha": "8864601e1480160c57077b0bdf7974523f5f94e8a473470f1bf373c0a11211de",
+      "intentSha": "0f5e208d9f7a59e0b060e8882e3e58591271629120117cc446a771ffba0cc8d7",
+      "baselineOutputSha": "4e26c64bde536fd66d9d9988ac687c46575513e1ca643be246cbd257909c6d05",
       "candidateOutputSha": "4e26c64bde536fd66d9d9988ac687c46575513e1ca643be246cbd257909c6d05",
       "facts": {
         "f1": {
@@ -74,9 +75,10 @@
           "label": "held"
         }
       },
-      "feedback": "Both outputs return an empty findings list, so no scope finding targets any acceptance-criteria row or disposition in either Before or After; f1 holds on both sides. The After wording changed only the addresses-problem prose (enumerating the four rows and citing 'Human input repo grouping' instead of the ticket's ownership instruction), which does not affect f1. Nothing in After moved this fact, so no wording adjustment is needed for this case; keep the explicit 'no mailer changes belong in widgets' acknowledgment in the reasoning so the elsewhere disposition continues to be read as a protected human choice rather than a candidate for a scope finding.",
+      "feedback": "Both outputs are identical: no findings at all, so no scope finding targets any acceptance-criteria row or its disposition, and f1 holds in Before and After. The Change did not move anything on this already-passing baseline, which is the intended guard behavior for ordinary spec reviews that retain their existing assembly; keep the ticket-idea-overflow-specific wording (product-aware reader, example/Context bounds, displaced-detail recognition) scoped so it only loads for that skill, and nothing here needs adjusting.",
+      "wallMs": 3685,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "76e0a818108da1d20c88f830b188a91146b9dd54"
+  "repoSha": "c646da0f13761f8967e68606dde47855c92b33a7"
 }

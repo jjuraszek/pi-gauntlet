@@ -64,8 +64,13 @@ Scout (always dispatched):
 > instead; cite the old spec only for its unsuperseded sections (banner contract:
 > `reference/superseding.md`). Predecessor check: compose a 5-15 term keyword query
 > from the request (topic nouns, component names, file names - not stop words; if
-> the request is only a ticket reference, take the terms from the ticket title and body via
-> the tracker CLI when one is available, otherwise use the fallback below). Run
+> the request is only a ticket reference, take the terms from the ticket title, body,
+> and every `Reporter note:` labeled section in its comments via the resolved tracker
+> CLI when a fetch path exists, otherwise use the fallback below). Fetch comments
+> independently of context-builder, in pages of 50 until a short page. Match sections
+> anywhere in each comment regardless of author; accept either ordering with
+> `Overlap evidence:` and exclude that evidence part. Include every matched section's
+> terms in the query. Run
 > `node <SPEC_INDEX> --query '<keywords>' --limit 10` from the worktree root,
 > keeping the keywords inside single quotes, and treat its rows as the candidate
 > list; zero rows means the index found no evidence, not that no predecessor exists -
@@ -125,10 +130,23 @@ Context-builder (conditional):
 > `<initial prompt verbatim>`. Fetch and distill these references:
 > `<detected refs, one per line>`. For each: acceptance criteria, hard constraints,
 > linked discussion that changes scope, and contradictions with the request as
-> stated. Quote the ticket's acceptance-criteria rows, with any repo-group headings inside that section, verbatim under their own
-> `## Ticket acceptance criteria (verbatim)` heading before distilling the rest;
+> stated. Fetch the ticket body and independently fetch its full comment history
+> through the resolved tracker CLI in pages of 50 until a short page. Extract ACs
+> from the body only; comments never contribute AC rows. Quote the ticket's
+> acceptance-criteria rows, with any repo-group headings inside that section,
+> verbatim under their own `## Ticket acceptance criteria (verbatim)` heading;
 > brainstorming copies these rows unchanged into the spec and the council's
-> `Human input` block. Write ONLY the context handoff to your output path; do NOT
+> `Human input` block. After the AC rows, quote every `Reporter note:` labeled
+> section verbatim in creation order under `## Reporter notes (verbatim)`, with
+> `comments: N fetched, M pages`. Match sections anywhere in a comment regardless
+> of author, accepting either ordering with `Overlap evidence:` and excluding that
+> evidence part. Trim ordinary comments to the gather budget, never matched note
+> sections. Report later notes contradicting earlier notes as contradictions without
+> resolving them. On body success with comment failure, keep the AC rows and mark
+> the note heading's status `comments not fetched (<reason>)` or
+> `comments incomplete after page <k> (<reason>)` for a failed or budget-cut page;
+> carry this status to ticket handling's gate warning without stopping.
+> Write ONLY the context handoff to your output path; do NOT
 > produce a meta-prompt file. End with an "Open questions that matter for the spec"
 > section.
 > If a ref is unreadable, say so explicitly and continue.

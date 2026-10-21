@@ -34,8 +34,8 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "d42fe855edd3f09545a9a4d3c5c99f2282bd6cfcd1bd30ba9250858588873355",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "3dbd07e3f1c1b8ca5d3f06455820f705d35c4f073064927e6fbdf56acbf1a2e6",
-      "baselineOutputSha": "b6490174d5cc69343e29b14872123a410dd778574bc98853dbb66f5cbe94e59d",
+      "intentSha": "0f5e208d9f7a59e0b060e8882e3e58591271629120117cc446a771ffba0cc8d7",
+      "baselineOutputSha": "81471d8bba926bf4a8ab1064a7ba77cb06b27fd8c67694d14cd354f1da0d1d58",
       "candidateOutputSha": "81471d8bba926bf4a8ab1064a7ba77cb06b27fd8c67694d14cd354f1da0d1d58",
       "facts": {
         "f1": {
@@ -49,14 +49,15 @@
           "label": "held"
         }
       },
-      "feedback": "Both outputs keep every fact: each emits a blocker scope finding anchored to the deferred 60s row and a needs-work verdict, so the After wording did not disturb the scope/human-input controls on this case. The Change's new admission of in-scope simplifications is correctly not triggered here, since the deferral is a cut of required behavior with no named sufficient alternative and no human answer, and After explicitly reasons that way ('unauthorized'). The only drift is a swap of the CSV-quoting ambiguity finding for a streamed-vs-buffered oversimplification finding; neither touches a listed fact, but if you want After to track Before exactly, keep the wording 'existing scope and human-input protections remain controls' adjacent to the in-scope-excess clause so the judge keeps raising the deferral as a scope blocker rather than reclassifying it as excess.",
+      "feedback": "Before and After are textually identical for this case: both carry a [blocker] scope finding anchored on the 60s row's `deferred: acme/widgets#78` disposition (f1) and both return verdict needs-work (f2), so nothing moved here. This case is an already-passing baseline acting as a guard, and the Change (ticket-idea-overflow persona and the in-scope-excess implementation/proof-shrink simplifications) correctly left ordinary spec review assembly untouched. No wording adjustment is needed for this case; keep the unauthorized-deferral blocker logic as is and confirm the expected movement only on the in-scope-excess samples.",
+      "wallMs": 4648,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "d42fe855edd3f09545a9a4d3c5c99f2282bd6cfcd1bd30ba9250858588873355",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "3dbd07e3f1c1b8ca5d3f06455820f705d35c4f073064927e6fbdf56acbf1a2e6",
-      "baselineOutputSha": "4471cf66be1afb58bb483350caf0a7a49532237910e18c39efe417a4e8562417",
+      "intentSha": "0f5e208d9f7a59e0b060e8882e3e58591271629120117cc446a771ffba0cc8d7",
+      "baselineOutputSha": "2b59661633db92f7a95d051f4792fba360dffc22b5e093d4fcc3d6645ae68ead",
       "candidateOutputSha": "2b59661633db92f7a95d051f4792fba360dffc22b5e093d4fcc3d6645ae68ead",
       "facts": {
         "f1": {
@@ -70,9 +71,10 @@
           "label": "held"
         }
       },
-      "feedback": "Both outputs keep every fact: each has a single [blocker] scope finding that quotes the 60s row with its \"deferred: acme/widgets#78\" disposition and a needs-work verdict, so nothing moved for this case. The After wording's main visible differences are cosmetic — a slightly more precise anchor (\"from request start to complete response\") and a \"probed: none\" line replacing Before's probe note. If anything, prefer keeping Before's probe wording (\"Human input and inlined spec - performance requirement is explicit; no human answer authorizes its deferral\"), since \"probed: none\" undersells the evidence the finding actually relies on; otherwise the Change's in-scope-excess/sufficient-alternative admission did not weaken the scope and human-input protections here, which is the desired outcome.",
+      "feedback": "Before and After are textually identical: both carry a needs-work verdict and a single [blocker] scope finding that quotes the deferred 60s row and its acme/widgets#78 disposition, so f1 and f2 hold on both sides and nothing moved. This case is a passing baseline guard rather than one of the Expected-to-move samples, which is the intended outcome: the Change's reassembly for ticket-idea-overflow and the in-scope-excess simplifications did not alter how an ordinary spec review treats an unauthorized deferral of a verbatim human acceptance row. Keep the wording that anchors severity to the original clause and requires a cut question or human answer before a deferral is accepted; if the implementation-shrink and proof-shrink samples still fail elsewhere, address them with the named-sufficient-alternative language without touching the deferral rule exercised here.",
+      "wallMs": 5846,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "76e0a818108da1d20c88f830b188a91146b9dd54"
+  "repoSha": "c646da0f13761f8967e68606dde47855c92b33a7"
 }

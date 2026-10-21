@@ -1,0 +1,134 @@
+{
+  "sample": "ticket-idea-overflow",
+  "arm": "candidate",
+  "skillSha": "b9a833ac042297219e19ccb09c289e22f29d80ecd78bcbcb2b22ea03fdd9987e",
+  "inputSha": "42e95c02e07f56f74be29fc75b9a5cb98a6371d2aed8a01162fae2b26d54cb59",
+  "kind": "text",
+  "assembly": "headed",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "verdict: needs-work\naddresses-problem: yes — Problem and ACs cover both asks (email waits for a complete file; failed exports are visible), but the body breaks the wording contract and the Reporter note is missing displaced text.\nfindings:\n- [major] other @ \"## Proposed Reporter note\" — The note keeps only the completion-hook sentence (\"move the completion hook to exportReady; the adapter has 240 lines.\"). It is missing the Context ExportLatch sentence and the Idea overflow that the source says the reporter supplied. → Append both verbatim under the existing `Reporter note:`, ExportLatch sentence first, then the Idea overflow. Never summarize or drop them. — probed: draft.md note section vs source.md - only the hook sentence is present\n- [major] other @ \"## Idea\" (four paragraphs, from \"Start by introducing a completion record...\" through \"...shared by the customer page and email sender.\") — Idea is limited to one attributed sketch line. Paragraphs 2-4 are a closed-list match (second paragraph) that step 5 should have moved. Everything after the first sentence of paragraph 1 is also overflow. → Keep only \"The reporter suggests waiting until the file is complete before sending the email, then making the ready status agree with what the customer can actually download.\" Move the rest of paragraph 1 and all of paragraphs 2-4 verbatim to the Reporter note. — probed: draft.md Idea - 4 paragraphs, about 500 words\n- [major] other @ one-line Idea branch (the same four paragraphs joined into a single physical line) — The same overflow applies. A paragraph-long single line is outside the deterministic closed list, so the roast owns it. The line still carries the completion-record fields, retry and reconciliation design, support view, page states, timing metrics and switch rollout, far beyond one sketch line. → Apply the same cut: keep the one attributed sketch sentence and move the remaining words verbatim to the Reporter note. — probed: draft.md Idea words - identical content, single line\n- [major] ambiguity @ Context \"The ExportLatch reads the staging ledger, calls the mail adapter, and only then commits the row counter to the completion store.\" — This is internal call-order mechanism. It also uses repo-native terms (ExportLatch, staging ledger, mail adapter, completion store) that are undefined and not used by the requester (rule 6). It matches the step-5 closed list for Context identifiers. → Move the sentence verbatim to the Reporter note. Optionally add a rule-7 pointer to Problem, e.g. \"(Pointer for the implementer: ExportLatch.)\". Context keeps \"Today the export email can arrive while the file is still being written.\" — probed: draft.md Context; ticket-wording rule 1 bounds and rule 6\n- [major] not-actionable @ \"## Acceptance Criteria\" — The rows are not rendered as `- [ ]` items. Neither row names setup, action and observable result. \"Failed exports show Failed instead of Ready\" does not say where the status shows or how a failure is induced. → Rewrite as two items:\n  - `- [ ] Given an export still writing rows, when the customer's export email would be sent, no email is sent until the CSV is complete, and the first download from the email contains all rows.`\n  - `- [ ] Given an export whose writer fails, the customer's export page shows Failed (not Ready) and offers a new request.` — probed: draft.md AC section - plain bullets, no setup/action\n- [minor] gap @ Problem \"Example: a customer requested a report at noon and saw Ready. The first download was empty. The customer retried twice before contacting support.\" — Rule 5 limits an example to one sentence or one number, and this one runs to three sentences. It also illustrates an empty download, not a failed export showing Ready. The source fact for this failure is \"Support confirmed failed exports currently show Ready.\" → Replace with one sentence, e.g. \"Example: support confirmed exports that failed still show Ready, and one customer retried twice before contacting support.\" Move the noon transcript to the first failure if wanted. — probed: source.md - \"Support confirmed failed exports currently show Ready\"\n- [minor] gap @ Problem \"Example: 12 of 20 first downloads were empty.\" — The example drops its provenance. → Append \"(support measurement, 2026-10-20)\". — probed: source.md - \"Support measured 12 of 20 empty first downloads on 2026-10-20\"\nlean: nothing to cut\n",
+      "words": 659,
+      "wallMs": 27226,
+      "mechanical": {
+        "findings-shape": "holds"
+      }
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "verdict: needs-work\naddresses-problem: yes — The draft covers waiting for export readiness and exposing failures, but its implementation sketch exceeds the ticket wording bounds.\nfindings:\n- [major] gap @ Idea, all four paragraphs — The proposed Reporter note already retains “move the completion hook to exportReady; the adapter has 240 lines.” It does not yet retain the additional sketch that must be displaced: completion-record fields, batch updates, delivery retries, reconciliation, support tooling, instrumentation, rollout, and handoff procedures. These are source-backed proposals, not added requirements, but attribution does not exempt them from the one-sketch-line bound. The same overflow applies to the one-line Idea branch: joining paragraphs does not make this extensive implementation prescription an acceptable sketch, even though it avoids the deterministic closed-list match. → Keep one short attributed sketch sentence in Idea and accumulate the original four paragraphs verbatim in the existing proposed Reporter note, preserving its current payload. — probed: supplied draft, source snapshot, and Roast item 4 - the source identifies all four paragraphs as an implementation sketch; both branches retain identical excessive detail.\n- [major] gap @ Context, “The ExportLatch reads the staging ledger, calls the mail adapter, and only then commits the row counter to the completion store.” — This is internal call-order explanation, not the trigger or current product behavior. ExportLatch and the internal stores are also unexplained repo-native terms. The preceding sentences already explain the current failure without this mechanism. → Move this entire sentence verbatim into the accumulated Reporter note; retain the plain-words Context and Problem explanations. — probed: supplied draft and ticket-wording rules 1 and 6 - Context contains a removable implementation-mechanism sentence with undefined internal names.\n- [minor] other @ Problem, failed-export example — “Example: a customer requested a report at noon and saw Ready. The first download was empty. The customer retried twice before contacting support.” spans three sentences, exceeding rule 5’s one-sentence-or-one-number example bound. → Combine the source-backed sequence into one sentence, preserving the Ready status, empty download, and two retries before contacting support; do not cut the preceding plain-words failure and impact. — probed: supplied draft and ticket-wording rule 5 - the example contains three sentences.\n- [minor] other @ Acceptance Criteria — Both criteria remain ordinary bullets rather than the required normalized unchecked items for this create-mode draft. → Render both as `- [ ]` items before the confirmation gate, without changing their intended outcomes. — probed: supplied draft and AC integrity gate “Normalize first” - ordinary create drafts must emit checkbox criteria; neither row does.\nlean: nothing to cut\n",
+      "words": 395,
+      "wallMs": 20607,
+      "mechanical": {
+        "findings-shape": "holds"
+      }
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "396416e0c1d4c34607f10cfa16b2d9a269d74b271d173030419a038a511cea8d",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "0f5e208d9f7a59e0b060e8882e3e58591271629120117cc446a771ffba0cc8d7",
+      "baselineOutputSha": "e888465d237c5d1b125ce7ebbb3c76ed11043f8b16d5fe76111b419c1f1f17d1",
+      "candidateOutputSha": "a9df6bd76a4e7b25b00a666946a9cc68254af906ec8cca5a394b7800fdf52499",
+      "facts": {
+        "idea-overflow": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "single-line-overflow": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "reader-context": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "example-bound": {
+          "before": "fails",
+          "after": "fails",
+          "label": "pre-existing"
+        },
+        "retained-detail": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "comprehension": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "findings-shape": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "After keeps everything Before kept and improves on it: the one-line Idea branch gets its own finding, the Context ExportLatch sentence is flagged as internal mechanism with a pointer-or-note fix, the Reporter note is explicitly acknowledged as already holding the exportReady/240-line detail, and the plain-words leads and 'email promises a ready file while the export is still running' explanation are left untouched. The one fact that still fails is example-bound: After correctly identifies the three-sentence noon example as exceeding rule 5's one-sentence-or-one-number bound and shortens it, but it then adds a separate minor finding that demands appending '(support measurement, 2026-10-20)' to the concise 12-of-20 example, which is exactly the expansion the fact forbids (Before made the same demand, so this is an inherited gap, not a regression). To clear it, drop that second minor finding or reduce it to a non-demanding probed note ('provenance available in source: support, 2026-10-20'), so the only example recommendation is shrinking the oversized one. Also consider stating the Idea length consistently (the fact calls it ~400 words; After says 'about 500') so the overflow finding anchors to the same count the brief uses.",
+      "wallMs": 26530,
+      "verdict": "unchanged"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "396416e0c1d4c34607f10cfa16b2d9a269d74b271d173030419a038a511cea8d",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "0f5e208d9f7a59e0b060e8882e3e58591271629120117cc446a771ffba0cc8d7",
+      "baselineOutputSha": "d7c55c9b405636880c9fb15de56db3ee9ff41a4b3c3caabff4f83fc6a0aef7a7",
+      "candidateOutputSha": "cb5adb98dffaa63f503d3c0e55f48416aef1073b0c34659d5af1a46ac5eb6b21",
+      "facts": {
+        "idea-overflow": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "single-line-overflow": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "reader-context": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "example-bound": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "retained-detail": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "comprehension": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "findings-shape": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "After keeps everything Before kept and adds the one fact Before missed: a dedicated finding on the three-sentence failed-export example that asks for one sentence without touching the concise 12-of-20 example, while explicitly protecting the plain-words Problem leads. The split into separate Idea and Context findings is what made the reader-context and comprehension facts unambiguous — the Context finding now names the call/store ordering, calls ExportLatch an unexplained repo-native term, and sends the sentence to the note while retaining the plain explanations. Two small wording tightenings would make these facts hold even more robustly rather than by inference: have the Idea finding state the actual size (\"roughly 400 words across four paragraphs\") against the one-attributed-sketch-line bound, and have the Context finding name the reader (\"a product-aware reader who has never opened the repo\") and offer the explicit choice to define ExportLatch in one clause or drop it, so a judge cannot read \"move verbatim into the note\" as only a relocation rather than a reader-suitability call. Also note that After downgraded the AC finding from a major not-actionable to a minor formatting item; that did not move any listed fact, but if the persona's AC integrity gate is meant to stay major, keep the Before severity and scenario wording alongside the new checkbox-normalization line.",
+      "wallMs": 20469,
+      "verdict": "improved"
+    }
+  },
+  "repoSha": "2a4bb7f326aff40b7ba6b62a5c6ad0c313853a3c"
+}

@@ -38,8 +38,8 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "3426b3a82ad4ccf5e2f5dd4019b113f75f14762451cd4b67f190fd56806b56f2",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "3dbd07e3f1c1b8ca5d3f06455820f705d35c4f073064927e6fbdf56acbf1a2e6",
-      "baselineOutputSha": "e477dd009894a4e47b1f25ecbf76d1f4278be67bba85dd9531e9da88ec9d8d4c",
+      "intentSha": "0f5e208d9f7a59e0b060e8882e3e58591271629120117cc446a771ffba0cc8d7",
+      "baselineOutputSha": "40b0e3e2765200023d74c485deecdca0f8c83d62f6b3b049a25a2c26250e963b",
       "candidateOutputSha": "40b0e3e2765200023d74c485deecdca0f8c83d62f6b3b049a25a2c26250e963b",
       "facts": {
         "implementation-shrink": {
@@ -78,14 +78,15 @@
           "label": "held"
         }
       },
-      "feedback": "No fact moved: both outputs already raise over-spec findings on D1 (shrink to the direct listForOwner -> csvEncode handoff) and V1 (shrink to one row in the existing csvEncode table plus retained HTTP tests), both cut D3, and neither touches D2, V2's HTTP technique, or V3's cross-owner coverage, so the Expected-to-move entries were already holding in Before and simply remain holding in After. The only observable difference the After wording produced is in the adds: estimates—After reports 0 tests for D1's two new wrapper files and for D3's dashboard plus storage job, where Before estimated 2 and 3; since the rule says adds: should estimate the work the original clause forces, and new coordinator/adapter files and a storage job realistically force some tests, the After wording should keep the 'estimate forced work, including likely tests for new files' instruction rather than letting the model default to literal-inventory zeros. Otherwise the After wording delivers the Change without losing any protection; one small tightening would be to say the unprotected: field is assessed after the specific shrink/cut named in the same finding, which After already does correctly.",
+      "feedback": "Before and After are textually identical, so nothing moved: both already flag D1 with the direct listForOwner -> csvEncode handoff as the shrink, flag V1 with the existing csvEncode table row as the shrink, cut D3, leave D2/V2/V3 untouched, and use the full finding-format fields with major severity anchored to the original clause's file/test counts. The expected fails->holds for implementation-shrink and proof-shrink cannot be observed here because the baseline already passes; this sample acts as a guard rather than evidence of the Change. One small hardening that would make proof-shrink unambiguous under a strict reader: have the V1 shrink text explicitly say the single encoder-table row is sufficient 'together with the retained V2 and V3 HTTP tests', rather than relying on the addresses-problem line to carry that part of the justification.",
+      "wallMs": 13491,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "3426b3a82ad4ccf5e2f5dd4019b113f75f14762451cd4b67f190fd56806b56f2",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "3dbd07e3f1c1b8ca5d3f06455820f705d35c4f073064927e6fbdf56acbf1a2e6",
-      "baselineOutputSha": "63c0fc4a3dc0cd2879f1780c9f4b042dd07bb22357e18d81e1b2e45f9bb7b247",
+      "intentSha": "0f5e208d9f7a59e0b060e8882e3e58591271629120117cc446a771ffba0cc8d7",
+      "baselineOutputSha": "807a44e0f35b08094a72b191f3976468f84c146c05ef97fd8a604462f47d0df4",
       "candidateOutputSha": "807a44e0f35b08094a72b191f3976468f84c146c05ef97fd8a604462f47d0df4",
       "facts": {
         "implementation-shrink": {
@@ -124,9 +125,10 @@
           "label": "held"
         }
       },
-      "feedback": "No fact moved between Before and After: Before already targeted D1 with the direct listForOwner → csvEncode handoff as the replacement and shrank V1 to one row in the existing csvEncode table while retaining V2 and V3, so the Expected-to-move items were already holding in Before rather than failing. After preserves all of that, keeps D2/V2/V3 untouched, still cuts D3, and keeps adds/severity anchored to the original clauses; its main additions are explicit references to the supplied evidence, which strengthen the justification without changing any fact. One minor risk in After: the D1 quote is truncated to \"D1: Add ExportCoordinator and ExportRowAdapter files\" rather than the full clause, which still reads as a quoted clause but could be judged as a weakened anchor by a stricter reader; quoting the full D1 sentence (as Before did) would keep the format unambiguous while still delivering the Change's evidence-backed in-scope shrink rationale.",
+      "feedback": "Before and After are textually identical, so nothing moved. Both outputs already satisfy every fact: the D1 finding names the direct listForOwner(session.userId) -> csvEncode call as the sufficient smaller replacement, the V1 finding names one export-shaped row in the existing csvEncode table plus retained V2 and V3, D3 is cut, D2/V2/V3 are untouched, and each finding carries the quoted clause, closest human input, adds:, if cut, unprotected:, and cut/shrink fields with severities correctly set to major (2 files, 2 files, 1 file/6 tests) and unprotected: nothing after each sufficient action. The Expected-to-move list anticipated implementation-shrink and proof-shrink failing in Before, but Before's text already holds them, so this case acts as a guard rather than a demonstration of the Change; the After wording preserves everything and introduces no regression. If the author wants a case that actually exercises the Change, a baseline where the in-scope D1/V1 shrink findings are omitted would be needed; the current wording is safe to keep as-is.",
+      "wallMs": 9554,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "76e0a818108da1d20c88f830b188a91146b9dd54"
+  "repoSha": "c646da0f13761f8967e68606dde47855c92b33a7"
 }
