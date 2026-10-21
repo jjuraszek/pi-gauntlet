@@ -1,5 +1,16 @@
 # Changelog
 
+## Unreleased
+
+### Changed
+
+- **Decision menus render 1-N after a numbered list.** A numbered option menu placed directly below an ordered list, separated only by a blank line, rendered as `4.`-`6.` because CommonMark merged the two lists; a human replying `5` was then read against a three-option menu. One shared reference, `skills/brainstorming/reference/menu-layout.md`, owns the three permitted layouts (a prose line, a `---` rule, or bullets above the menu) and the reply mapping: a bare reply above the option count resolves to `R - L` when it lands in range, the agent echoes the resolved option in one sentence (`Taking 5 as option 2 - merge`) before acting, and any other out-of-range reply gets a clarifying question. Every menu site in shape-ticket, chase-bug, gatekeep-pr, check-delivery, finishing-a-development-branch, and gauntlet-resume cites it with one line; no site restates the rule. (#73)
+- **check-delivery's confirmation gate is a two-option menu** (`1. approve the write` / `2. decline`); a typed `yes` still approves. (#73)
+
+### Added
+
+- Eval target `check-delivery` and a `menu-after-numbered-findings` sample in six targets; `shape-ticket`, `gatekeep-pr`, and `check-delivery` load the shared reference through `target.json`. (#73)
+
 ## v7.24.0 - 2026-10-21
 
 ### Changed
