@@ -1,5 +1,16 @@
 # Changelog
 
+## Unreleased
+
+### Changed
+
+- **shape-ticket bodies are written for a product owner, not an implementer.** The reader is someone who knows the product and its customers but has never opened the repo: examples are one sentence or one number per failure, Context carries only the trigger and what exists today, repo-native terms are defined at first use or dropped while requester terms stay undefined, and the Idea keeps one attributed sketch line. A closed-list step-5 gate moves paths, identifiers, sizes, line counts, lists, code blocks, and Idea overflow verbatim into the gated `Reporter note:` comment - never dropped, and never the plain-words cause-and-effect sentence a triager needs. Repair mode treats an overflowing Idea as non-conforming (body rewrite plus a new note, AC section byte-identical), and the roast brief names the bounds and protects the plain-words lead from being cut. (#75)
+- **brainstorming reads the Reporter note.** The gatherer pages through every ticket comment and quotes each `Reporter note:` verbatim; `ticket-acceptance.md` names those notes beside Context/Problem/Idea as sources of implied requirements, so implementer detail moved out of the body still reaches the spec. (#75)
+
+### Added
+
+- Eval samples `domain-reader`, `bounded-prose`, `displaced-detail`, `repair-overflow` (shape-ticket), `ticket-idea-overflow` (spec-council-member, bundling the shape-ticket brief), and `reporter-note`, `reporter-note-fetch` (brainstorming). (#75)
+
 ## v7.23.0 - 2026-10-20
 
 ### Changed
