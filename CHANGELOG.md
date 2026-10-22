@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Added
+
+- **The phase widget labels the in-progress phase from the dispatches it observes.** A `subagent` call of a known persona (`scout`, `context-builder`, `spec-council-*`, `spec-reviewer`, `plan-writer`, `implementer`, `code-reviewer`, `conformance-reviewer`) or a `plan_check` call sets the phase's substep while the dispatch runs - `verify(conformance)`, `implement(implement+sr)` - and the result clears it; a repeated label in the same phase renders a widget-only ordinal, `verify(conformance #2)`. Skills are unchanged, `status` and the resume brief show the bare label, and session replay restores only labels set by an explicit `substep` call. Vocabulary in `doc/configuration.md`.
+
 ## v7.26.0 - 2026-10-22
 
 ### Changed
