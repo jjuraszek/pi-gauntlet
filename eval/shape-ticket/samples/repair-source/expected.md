@@ -1,0 +1,7 @@
+- gap: mechanical: contains "source missing:"
+- repair-constant: mechanical: contains "source: none (not recorded at filing)"
+- no-noop: mechanical: lacks "conforms, no changes proposed"
+- footer-only: judged: In checkpoint 1 the old->new body diff adds only a source: line at the end of Problem and leaves all existing prose unchanged.
+- raw-ac: judged: In checkpoint 1 the Acceptance Criteria bytes are unchanged from the supplied body.
+- accepted: judged: In checkpoint 2 yes accepts the fixed missing-at-filing constant without a source re-ask.
+- unchanged: judged: Checkpoint 2 retains Context, Problem, Idea prose and Acceptance Criteria bytes apart from the accepted footer.

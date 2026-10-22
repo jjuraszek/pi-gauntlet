@@ -1,18 +1,22 @@
 # shape-ticket eval
 
-Tests the draft and AC integrity gate render: multi-repo tickets attribute AC rows to repo groups, and repaired rows retain their measurements without naming a verification venue.
+Tests the draft, AC integrity gate, and Evidence gate render: Problem examples carry source footers, source gaps appear at the gate, multi-repo tickets attribute AC rows to repo groups, and repaired rows retain their measurements without naming a verification venue.
 
 | Skill file | Slice |
 |---|---|
 | `skills/shape-ticket/SKILL.md` | `### 4 - Draft` through before `## Roast` |
+| `skills/brainstorming/reference/menu-layout.md` | whole file |
+| `skills/shape-ticket/SKILL.md` | `## Evidence gate` through before `## Ticket wording` |
 
 The two original synthetic text samples cover create-mode repo attribution and repair-mode venue removal. Their slice omits Gather and `reference/overlap-check.md`. The third sample, `closed-concern-additions`, alone loads `skills/shape-ticket/reference/overlap-check.md` through a leading `bundle+:` line in its case. It supplies a reviewed completed ticket and compatible parity, empty-input, and documentation additions without a distinguishing new run/version. It permits useful existing-ticket additions or no write, preserves uncertainty about a new regression, and retains create-anyway as an override. This no-tool target proves supplied-evidence proposal wording and drafting/AC regressions, not live retrieval or tracker writes.
 
-Run `node eval/run.mjs shape-ticket --base 9287ab3` against the pre-fix reference text baseline; the matching `--baseline-only` form captures that baseline before the owner-sentence edit. A correct baseline is a guard, not a required failure. The candidate intent binds the unchanged bundle-free draft assembly, while the new sample's record hashes include its reference bundle. Process, commands, and record schema: `eval/README.md`.
+Run `node eval/run.mjs shape-ticket --base 9287ab3` against the pre-fix reference text baseline; the matching `--baseline-only` form captures that baseline before the owner-sentence edit. A correct baseline is a guard, not a required failure. The candidate intent binds the bundle-free Draft and Evidence gate assembly, while each bundled sample's record hashes include its reference bundle. Process, commands, and record schema: `eval/README.md`.
 
 Keep the strict historical diagnostics below separate from the first-version delivery review. Historical corpus, labels, scores, and nonzero outcomes remain unchanged. The first-version bar uses source review of four saved overlap responses, clear duplication fixes, this focused regression, and package checks; compatible useful additions do not need perfect no-write wording. The text-target `report.md` records this focused evidence separately from `replay/report.md`, the historical report.
 
 The `member-file-only` sample alone bundles the complete `skills/shape-ticket/SKILL.md` and selects Roast item 2 over the replay's default Draft stage. It checks paired file-only member outputs on initial/retry tasks, cheap `:low` effort, structural quorum, unchanged inline chair and parent-owned split-axis handling. Existing sample bundles and historical replay evidence remain separate. This sample proves prescribed dispatches, not actual file transport or tracker writes.
+
+The `source-carried`, `source-missing`, `bug-source-ack`, and `repair-source` samples each bundle `skills/shape-ticket/reference/ticket-wording.md` through `bundle+`. They check Problem source footers, named gaps, create-mode plain-yes re-asks, and repair's accepted missing-at-filing constant. Reply cases use independent checkpoints; these tool-free replays prove prescribed approval wording, not actual tracker writes.
 
 ## Read-only full-skill comparison
 

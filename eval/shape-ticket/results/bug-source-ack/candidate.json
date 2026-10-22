@@ -1,0 +1,104 @@
+{
+  "sample": "bug-source-ack",
+  "arm": "candidate",
+  "skillSha": "43a8ae8563ffae8a4a32b4f6c0a716f4bebe7cb64ae112cd8f506bb8d0dd9ad7",
+  "inputSha": "ecf20829c56799b8e57a8bd2d656b173cf9ea88d40c263e3de49fb9617984a93",
+  "kind": "text",
+  "assembly": "concat",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "# Checkpoint 1 - Confirmation gate (create, acme/records)\n\n**Source gaps**\n- `source missing: exporting a run with 12 accepted rows returns an empty file`\n\nNo URL, attachment, or screenshot was gathered for this Problem example. You can still approve the write below.\n\n**Title** (new)\n`Export accepted import rows`\n\n**Body** (new)\n\n```\n## Context\nOperators export accepted import rows for downstream review.\n## Problem\nExports omit accepted rows, so operators cannot review the imported records. For example, exporting a run with 12 accepted rows returns an empty file instead of 12 rows.\n## Idea\nThe reporter proposes exporting the accepted rows from the selected run.\n## Acceptance Criteria\n- [ ] Given a run with 12 accepted rows, when an operator exports the run, the output file contains those 12 rows.\n```\n\n**Metadata changeset**\n- No changes proposed.\n\n**Evidence** (reporter-supplied in the ask; CLI bug, no UI claim)\n- Repro: import 12 synthetic rows, then invoke export for that import run, then count the output rows.\n- Observed: zero rows.\n- Expected: 12 rows.\n\n**Roast dispositions**\n- Applied: none.\n- Surfaced-ambiguous: none.\n\n**Split proposal:** none.\n**Proposed comment / relations:** none.\n\nPick one:\n1. Approve with a link, attachment, or reason\n2. Approve and proceed without\n3. Decline (no write)\n\nApproval covers exactly the title, body, and empty metadata/comment/relation payload shown above. The only additional change is the source resolution in your reply.\n\n---\n\n# Checkpoint 2 - Continuing after reply \"yes\"\n\nA plain \"yes\" does not resolve a create-mode source gap. Nothing was written, and the gate stays open with the same payload.\n\n`source missing: exporting a run with 12 accepted rows returns an empty file - link, reason, or \"proceed without\"?`\n\nPick one:\n1. Approve with a link, attachment, or reason\n2. Approve and proceed without\n3. Decline (no write)\n",
+      "words": 277,
+      "wallMs": 10551,
+      "mechanical": {
+        "gap": "holds"
+      }
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "## Checkpoint 1 — Confirmation gate\n\n**source missing: exporting a run with 12 accepted rows returns an empty file instead of 12 rows**\n\n### Title — as new\nExport accepted import rows\n\n### Body — as new\n\n```markdown\n## Context\nOperators export accepted import rows for downstream review.\n## Problem\nExports omit accepted rows, so operators cannot review the imported records. For example, exporting a run with 12 accepted rows returns an empty file instead of 12 rows.\n## Idea\nThe reporter proposes exporting the accepted rows from the selected run.\n## Acceptance Criteria\n- [ ] Given a run with 12 accepted rows, when an operator exports the run, the output file contains those 12 rows.\n```\n\n### Metadata changeset\nNone. Target repository: `acme/records`.\n\n### Evidence\nReporter-supplied CLI reproduction:\n1. Import 12 synthetic rows.\n2. Invoke export for that import run.\n3. Count output rows: observed zero; expected 12.\n\nNo URL, attachment, or screenshot was supplied. This is a CLI bug; no UI artifact is required. The behavioral AC is pre-production verifiable.\n\n### Roast dispositions\nNo findings or edits.\n\nNo comment, relations, or split proposed.\n\nPick one:\n1. **Approve with a link, attachment, or reason** — supply it for the example above.\n2. **Approve and proceed without** — explicitly authorize proceeding without a source for that example.\n\nAwaiting consent; no simulated write performed.\n\n## Checkpoint 2 — Continue after “yes”\n\nNo simulated write performed. A plain “yes” leaves the create-mode source gap unresolved.\n\n**source missing: exporting a run with 12 accepted rows returns an empty file instead of 12 rows — link, reason, or \"proceed without\"?**\n",
+      "words": 245,
+      "wallMs": 12593,
+      "mechanical": {
+        "gap": "holds"
+      }
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "0a0edab3ba6063b3b4f0cccda4b045c8781ea4a8f4f62ba3b2ce8c8026d8fdda",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "8704e28869be8c74937ea2f47ae68f368e2781af6cf117ab3d9a27ee96f8825c",
+      "baselineOutputSha": "c830b96e8921895113da7162fcbb644db0aa237afa6a8d6aa069270ffeb742bb",
+      "candidateOutputSha": "2744fe60876167bad0408e429721b64da826a14173d6aa2d9489806d9a644eec",
+      "facts": {
+        "gate-first": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "reask": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "no-write": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "gap": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        }
+      },
+      "feedback": "After moves every fact from fails to holds: Checkpoint 1 now opens with a Source gaps block containing a named `source missing:` row ahead of the Title line, and Checkpoint 2 treats the plain \"yes\" as unresolved, re-asks with the gap name plus the link / reason / \"proceed without\" prompt, and explicitly states nothing was written. Before had none of this—no gap row, and a plain yes flowed straight into a simulated create. The one wording to tighten in After is the sentence \"You can still approve the write below,\" which sits beside the gap row and slightly undercuts the later rule that a bare yes does not approve; rephrasing it to \"Approve by supplying a link, attachment, or reason, or by choosing proceed without\" would keep the gate-first row, the re-ask, and the no-write behavior while making the source-resolution requirement unambiguous at first presentation.",
+      "wallMs": 9308,
+      "verdict": "improved"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "0a0edab3ba6063b3b4f0cccda4b045c8781ea4a8f4f62ba3b2ce8c8026d8fdda",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "8704e28869be8c74937ea2f47ae68f368e2781af6cf117ab3d9a27ee96f8825c",
+      "baselineOutputSha": "8b6ece2f6d74396eb5232c8b3fd19990ed16893beb324d04a8e51afb96ada36b",
+      "candidateOutputSha": "23dee637083ad70937e0f8f53771f6746e4d8811390ebd3968c255e1fd620c68",
+      "facts": {
+        "gate-first": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "reask": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "no-write": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "gap": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        }
+      },
+      "feedback": "After moves all three facts in the intended direction and regresses nothing: Checkpoint 1 now opens with a bold `source missing:` row naming the specific example before the Title heading, the Evidence section still carries the numbered repro steps and observed-vs-expected, and Checkpoint 2 treats the plain `yes` as insufficient, states explicitly that no simulated write was performed, and re-asks for a link, reason, or \"proceed without\" while naming the same gap. Before, by contrast, presented a plain approve/decline menu with no named gap and then simulated the creation on `yes`. One small refinement worth considering in the After wording: the gate menu dropped the explicit 'Decline; make no write' option that Before offered, so if the shared menu contract expects a decline path alongside the source-resolution options, add it as a third separately numbered item so the resolution choices and the exit choice remain distinct; this would not affect any of the facts here but keeps the menu complete.",
+      "wallMs": 10861,
+      "verdict": "improved"
+    }
+  },
+  "repoSha": "9585ac1ce6c6d6afa732d8c2e51c83d31595e282"
+}

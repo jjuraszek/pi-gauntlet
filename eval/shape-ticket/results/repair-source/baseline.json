@@ -1,0 +1,42 @@
+{
+  "sample": "repair-source",
+  "arm": "baseline",
+  "skillSha": "b1885e5f719b748399aae54eb52ea373da3ec01e0e0de53c3a7306f604abcfc7",
+  "inputSha": "29bb8703a208ce31f7b2f8a7cf7974b1392e8e177a4261f8bb879cbe4bb004b7",
+  "kind": "text",
+  "assembly": "concat",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "## Checkpoint 1: Confirmation gate (acme/records #42, repair)\n\n**Title:** `Retain import failure details` -> unchanged\n\n**Body (old -> new):** The only edit adds one provenance footer at the end of Problem. Context, Idea, and the bytes under `## Acceptance Criteria` are copied unchanged, and the AC bytes compare equal to the snapshot.\n\n```diff\n ## Context\n Support reviews failed imports in the run list.\n ## Problem\n Support cannot recover the reported failure after leaving a failed import, so each investigation starts again. For example, run 42 showed \"row 8 rejected\" before navigation and only \"failed\" after reopening.\n+source: none (not recorded at filing)\n ## Idea\n The reporter proposes retaining the failure message with the run.\n ## Acceptance Criteria\n - [ ] Given an import that reports \"row 8 rejected\", when support leaves and reopens the run, the run still displays \"row 8 rejected\".\n```\n\nWhy: #42 was filed by hand. It has no comments, no attachments, no supplied URL and no pasted image, so nothing records where the report came from. The footer states that gap explicitly as `none (<reason>)`. I have not invented a URL or a source.\n\n**Metadata changeset:** none. The audit is clean, and every field stays as it is.\n\n**Evidence list:** none attached. The body's example (run 42: \"row 8 rejected\" -> \"failed\") is carried unchanged. It passed the evidence gate.\n\n**Roast dispositions:** applied: none. Surfaced as ambiguous: none.\n\n**Split proposal:** none. This stays one ticket.\n\n**Proposed comment / relations:** none. The write is body only.\n\nOne approval covers exactly this payload: the unchanged title, the body diff above, no metadata change, no comment and no relations.\n\nPick one:\n1. Approve: write this body diff to #42\n2. Revise: tell me what to change\n3. Decline: no write\n\nNo affirmative answer to this exact diff means no write.\n\n---\n\n## Checkpoint 2: Continue after reply \"yes\"\n\n\"yes\" approves the exact diff shown, so I'm going ahead with the accepted payload (simulated):\n\n1. **Pre-write revalidation (simulated).** Immediately before mutating, I re-fetch #42's body, discussion and workflow state and compare them to the approved snapshot.\n   - Simulated result: the body matches the snapshot byte for byte. Comments are still empty, and the workflow state is unchanged.\n   - If anything had differed, I would stop and return to the confirmation gate with the delta instead of writing.\n2. **Write (simulated).** I make one body update to acme/records #42, appending `source: none (not recorded at filing)` as the last line of `## Problem`.\n   - I use the tracker's version/ETag precondition from the re-fetch where supported.\n   - The title, metadata, Context, Idea and Acceptance Criteria are untouched.\n3. **No comment or relation writes.** None were proposed, and none are made.\n\n**Result (simulated):** the body update to #42 landed. Nothing else was written, and no changes remain pending.\n",
+      "words": 444,
+      "wallMs": 19484,
+      "mechanical": {
+        "gap": "fails",
+        "repair-constant": "holds",
+        "no-noop": "holds"
+      }
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "## Checkpoint 1 — Confirmation gate\n\n**Conforms, no changes proposed.**\n\nTitle, body, and metadata remain unchanged. No comments or relations are proposed. The ordinary-repair no-op rule applies: there is no body diff, consent prompt, or simulated write.\n\n## Checkpoint 2 — Continue after “yes”\n\nThis independent transcript approved the added footer.\n\n**Simulated pre-write revalidation:** re-fetch #42’s body, discussion, and workflow; compare with the approved snapshot. In this simulation, nothing has changed.\n\n**Simulated write:** replace #42’s body with the exact approved payload below. Preserve the title and metadata; add no comments or relations.\n\n```markdown\n## Context\nSupport reviews failed imports in the run list.\n## Problem\nSupport cannot recover the reported failure after leaving a failed import, so each investigation starts again. For example, run 42 showed \"row 8 rejected\" before navigation and only \"failed\" after reopening.\nsource: none (not recorded at filing)\n## Idea\nThe reporter proposes retaining the failure message with the run.\n## Acceptance Criteria\n- [ ] Given an import that reports \"row 8 rejected\", when support leaves and reopens the run, the run still displays \"row 8 rejected\".\n```\n\n**Simulated result:** body replacement succeeded. No other changes were made.\n",
+      "words": 181,
+      "wallMs": 49710,
+      "mechanical": {
+        "gap": "fails",
+        "repair-constant": "holds",
+        "no-noop": "holds"
+      }
+    }
+  },
+  "repoSha": "ba08c352828ec7b3458ac010d08055d8d4be3003"
+}

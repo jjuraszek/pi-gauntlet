@@ -2,6 +2,7 @@
 
 > **Superseded by:** [doc/specs/2026-09-23-gh-48-conventions-override-section.md](./2026-09-23-gh-48-conventions-override-section.md) - by-topic-relevance rationale in "SKILL.md edits" item 1 only; explicit-ticket-wording restriction unchanged
 > **Superseded by:** [doc/specs/2026-10-21-gh-75-bound-ticket-prose.md](./2026-10-21-gh-75-bound-ticket-prose.md) - "The contract (ticket-wording.md)" rules 1, 5, 6 only (reader definition, example rule, jargon rule); strip test, precedence, plain-words lead, pointer demotion, exemplar, and override restriction unchanged
+> **Superseded by:** [doc/specs/2026-10-22-gh-76-ticket-source-links.md](./2026-10-22-gh-76-ticket-source-links.md) - "The contract (ticket-wording.md)" rules 7 and 8 only: the `source:` footer is exempt from pointer demotion (rule 7) and its example association is its rule 8 summary line; every other rule unchanged
 
 Ticket: [jjuraszek/pi-gauntlet#18](https://github.com/jjuraszek/pi-gauntlet/issues/18)
 

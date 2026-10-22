@@ -1,0 +1,5 @@
+- gap: mechanical: contains "source missing:"
+- no-authored-reason: mechanical: lacks "source: none"
+- empty-footer: judged: The draft body block has no source: line for the unresolved example.
+- no-invention: judged: No URL or attachment reference is fabricated.
+- offer: judged: The confirmation gate still offers the write; the missing source is not treated as a hard stop.

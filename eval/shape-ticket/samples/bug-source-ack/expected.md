@@ -1,0 +1,4 @@
+- gap: mechanical: contains "source missing:"
+- gate-first: judged: In checkpoint 1 a named source missing: row is rendered before the Title line, not only later in the gate.
+- reask: judged: In checkpoint 2 the plain yes produces a re-ask naming the unresolved gap and requesting a link, reason, or "proceed without".
+- no-write: judged: Checkpoint 2 describes no simulated tracker write.

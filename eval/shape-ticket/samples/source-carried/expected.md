@@ -1,0 +1,4 @@
+- carried: mechanical: matches /source:.*https:\/\/errors\.example\.test\/issues\/4242/
+- placement: judged: The supplied URL is a source footer inside the drafted Problem section, not only a Reporter note or gate commentary.
+- example: judged: The quoted import run 42 log line remains in Problem as the concrete example.
+- no-gap: mechanical: lacks "source missing"
