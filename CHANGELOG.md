@@ -1,5 +1,15 @@
 # Changelog
 
+## Unreleased
+
+### Changed
+
+- **shape-ticket carries every Problem example's source into the ticket body.** A URL, attachment, or pasted screenshot the reporter supplied lands as a `source:` footer line under the Problem example it supports, in every ticket type. A non-discovery example with no source renders a named `source missing:` gap at the existing approval gate; the reply supplies the link, a reason, or "proceed without" (bug tickets list the gap first and re-ask on a plain `yes`), and the drafter never authors the reason. Repair prefills `source: none (not recorded at filing)` for a hand-filed body so a plain `yes` accepts it, and never reports "conforms" for a body missing the footer. Ticket-wording rules 7 and 8 exempt the footer from pointer demotion. The Roast's inline chair call names `cwd` = repo root like the member fan-out. (#76)
+
+### Added
+
+- Eval samples `source-carried`, `source-missing`, `bug-source-ack`, and `repair-source` under `eval/shape-ticket/`; the target's SKILL.md slice now reaches `## Evidence gate`. (#76)
+
 ## v7.25.0 - 2026-10-21
 
 ### Changed
