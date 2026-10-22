@@ -46,17 +46,17 @@ type Status = "pending" | "in_progress" | "complete" | "skipped";
 const phases = (overrides: Partial<Record<Phase, Status>> = {}) =>
   Object.fromEntries(PHASES.map((phase) => [phase, { status: overrides[phase] ?? "pending" }])) as Record<
     Phase,
-    { status: Status }
+    { status: Status; substep?: string }
   >;
 
-const phaseResult = (action: string, state: Record<Phase, { status: Status }>) => ({
+const phaseResult = (action: string, state: Record<Phase, { status: Status; substep?: string }>) => ({
   type: "message",
   message: { role: "toolResult", toolName: "phase_tracker", details: { action, phases: state } },
 });
 
 const assistant = (stopReason = "stop") => ({ type: "message", message: { role: "assistant", stopReason } });
 
-const enteredBranch = (state: Record<Phase, { status: Status }>, extra: unknown[] = []) => [
+const enteredBranch = (state: Record<Phase, { status: Status; substep?: string }>, extra: unknown[] = []) => [
   phaseResult("start", phases({ brainstorm: "in_progress" })),
   phaseResult("complete", state),
   ...extra,
@@ -71,15 +71,19 @@ const resumedBranch = (rest: Partial<Record<Phase, Status>>) => [
 
 type TestModel = { provider: string; id: string };
 
-function harness(options: { cwd?: string; branch?: unknown[]; idle?: boolean; beforeSettled?: (setIdle: (idle: boolean) => void) => void; sendThrows?: boolean; model?: TestModel; thinkingLevel?: string; registry?: Record<string, TestModel>; setModelResult?: boolean | Error } = {}) {
+function harness(options: { hasUI?: boolean; cwd?: string; branch?: unknown[]; idle?: boolean; beforeSettled?: (setIdle: (idle: boolean) => void) => void; sendThrows?: boolean; model?: TestModel; thinkingLevel?: string; registry?: Record<string, TestModel>; setModelResult?: boolean | Error } = {}) {
   const handlers = new Map<string, ((event: unknown, ctx: unknown) => unknown)[]>();
   const tools: { name: string; executionMode?: string; parameters?: any; execute: (...args: any[]) => unknown }[] = [];
   const sent: { message: any; options: any }[] = [];
+  const widgets: (string | undefined)[] = [];
   let idle = options.idle ?? true;
   let branch = options.branch ?? [];
   const ctx = {
     cwd: options.cwd ?? tempCwd(),
-    hasUI: false,
+    hasUI: options.hasUI ?? false,
+    ui: { setWidget: (name: string, factory: any) => {
+      if (name === "phase_tracker") widgets.push(factory?.({}, { fg: (_color: string, text: string) => text }).text);
+    } },
     isIdle: () => idle,
     sessionManager: { getBranch: () => branch },
     model: options.model,
@@ -122,7 +126,7 @@ function harness(options: { cwd?: string; branch?: unknown[]; idle?: boolean; be
     for (const handler of handlers.get(name) ?? []) results.push(await handler(event, ctx));
     return results;
   };
-  return { pi, emit, emitEvent, sent, tools, ctx, setIdle: (next: boolean) => (idle = next), setBranch: (next: unknown[]) => (branch = next) };
+  return { pi, emit, emitEvent, sent, tools, ctx, widgets, setIdle: (next: boolean) => (idle = next), setBranch: (next: unknown[]) => (branch = next) };
 }
 
 const settle = async (h: ReturnType<typeof harness>) => {
@@ -2064,3 +2068,335 @@ test("open-task nudge: silent on an isError result, a degraded settings read, an
     process.env.PI_SUBAGENT_DEPTH = "0";
   }
 });
+
+for (const action of ["complete", "skip"] as const) {
+  for (const isError of [false, true]) {
+    test(`live dispatch clears after ${action} of a different phase, error=${isError}`, async () => {
+      const h = harness({ hasUI: true });
+      const tool = h.tools.find(t => t.name === "phase_tracker")!;
+      await startPhase(h, "verify");
+      await h.emitEvent("tool_call", subagentCall("review", { agent: "code-reviewer" }));
+      const result = await tool.execute("transition", { action, phase: "ship", reason: "not needed" }, undefined, undefined, h.ctx) as any;
+      assert.equal(result.details.error, undefined);
+      assert.match(h.widgets.at(-1)!, /verify\(code-review\)/);
+      await h.emitEvent("tool_result", { toolName: "subagent", toolCallId: "review", isError, details: {}, content: [] });
+      assert.doesNotMatch(h.widgets.at(-1)!, /verify\(/);
+      await h.emitEvent("tool_call", subagentCall("next", { agent: "code-reviewer" }));
+      assert.ok(h.widgets.at(-1)!.includes(`verify(code-review${isError ? "" : " #2"})`));
+    });
+  }
+}
+
+for (const isError of [false, true]) {
+  test(`live dispatch survives a deferred start of a different phase, error=${isError}`, async () => {
+    const h = harness({
+      hasUI: true,
+      cwd: tempCwd({ piGauntlet: { phaseModels: { ship: "p/m" } } }),
+      model: M("old"),
+      registry: { "p/m": M("m") },
+    });
+    let entered!: () => void;
+    let release!: () => void;
+    const modelEntered = new Promise<void>(resolve => { entered = resolve; });
+    const modelReleased = new Promise<void>(resolve => { release = resolve; });
+    h.pi.setModel = async () => {
+      entered();
+      await modelReleased;
+      return true;
+    };
+    const shipStart = startPhase(h, "ship");
+    await modelEntered;
+    await startPhase(h, "verify");
+    await h.emitEvent("tool_call", subagentCall("review", { agent: "code-reviewer" }));
+    release();
+    assert.equal((await shipStart).status, "in_progress");
+    assert.match(h.widgets.at(-1)!, /verify\(code-review\)/);
+    await h.emitEvent("tool_result", { toolName: "subagent", toolCallId: "review", isError, details: {}, content: [] });
+    assert.doesNotMatch(h.widgets.at(-1)!, /verify\(/);
+    const tool = h.tools.find(t => t.name === "phase_tracker")!;
+    const status = await tool.execute("status", { action: "status" }, undefined, undefined, h.ctx) as any;
+    assert.equal(status.details.phases.ship.status, "in_progress");
+    await h.emitEvent("tool_call", subagentCall("next", { agent: "code-reviewer" }));
+    assert.ok(h.widgets.at(-1)!.includes(`verify(code-review${isError ? "" : " #2"})`));
+  });
+}
+
+test("live dispatch labels repaint and keep ordinals out of status snapshots", async () => {
+  const h = harness({ hasUI: true });
+  const tool = h.tools.find(t => t.name === "phase_tracker")!;
+  const start = await tool.execute("start", { action: "start", phase: "verify" }, undefined, undefined, h.ctx) as any;
+  await h.emitEvent("tool_call", subagentCall("a", { agent: "conformance-reviewer" }));
+  assert.match(h.widgets.at(-1)!, /verify\(conformance\)/);
+  assert.equal(start.details.phases.verify.substep, undefined);
+  await h.emitEvent("tool_result", { toolName: "subagent", toolCallId: "a", details: {}, content: [] });
+  assert.doesNotMatch(h.widgets.at(-1)!, /verify\(/);
+  await h.emitEvent("tool_call", subagentCall("b", { agent: "conformance-reviewer" }));
+  assert.match(h.widgets.at(-1)!, /verify\(conformance #2\)/);
+  const status = await tool.execute("status", { action: "status" }, undefined, undefined, h.ctx) as any;
+  assert.match(status.content[0].text, /verify\(conformance\)/);
+  assert.doesNotMatch(status.content[0].text, /#2/);
+  const theme = { fg: (_color: string, text: string) => text };
+  const renderer = (tool as any).renderResult;
+  assert.doesNotMatch(renderer(status, {}, theme).text, /#2/);
+  const explicit = await tool.execute("explicit", { action: "substep", phase: "verify", substep: "conformance" }, undefined, undefined, h.ctx) as any;
+  assert.equal(renderer(explicit, {}, theme).text, "→ verify(conformance)");
+});
+
+for (const row of [
+  { phase: "implement", input: { chain: [{ parallel: [{ agent: "implementer" }] }, { parallel: [{ agent: "spec-reviewer" }] }] }, label: "implement+sr" },
+  { phase: "implement", input: { agent: "code-reviewer" }, label: "code-review" },
+  { phase: "implement", input: { agent: "implementer" }, label: "implement" },
+  { phase: "implement", input: { agent: "spec-reviewer" }, label: "spec-review" },
+  { phase: "plan", toolName: "plan_check", input: {}, label: "plan-check" },
+  { phase: "verify", toolName: "plan_check", input: {}, label: "plan-check" },
+]) {
+  test(`live vocabulary: ${row.phase}(${row.label})`, async () => {
+    const h = harness({ hasUI: true });
+    await startPhase(h, row.phase);
+    await h.emitEvent("tool_call", { toolName: row.toolName ?? "subagent", toolCallId: "a", input: row.input });
+    assert.ok(h.widgets.at(-1)!.includes(`${row.phase}(${row.label})`));
+    const paints = h.widgets.length;
+    for (const input of [{ agent: "worker" }, { action: "status", agent: "implementer" }]) {
+      await h.emitEvent("tool_call", subagentCall("ignored", input));
+    }
+    await h.emitEvent("tool_execution_end", { toolName: "plan_tracker", toolCallId: "reopen", result: { details: { tasks: [{ status: "in_progress" }] } } });
+    assert.ok(h.widgets.at(-1)!.includes(`${row.phase}(${row.label})`));
+    assert.equal(h.widgets.length, paints + 1);
+    await h.emitEvent("tool_execution_end", { toolName: row.toolName ?? "subagent", toolCallId: "a", result: { details: {} } });
+    assert.ok(!h.widgets.at(-1)!.includes(`${row.phase}(`));
+  });
+}
+
+for (const agents of [
+  ["code-reviewer", "implementer", "code-reviewer", "conformance-reviewer"],
+  ["conformance-reviewer", "implementer", "conformance-reviewer", "code-reviewer", "code-reviewer", "code-reviewer"],
+]) {
+  test(`live repair sequence: ${agents.join(" -> ")}`, async () => {
+    const h = harness({ hasUI: true });
+    await startPhase(h, "verify");
+    const counts: Record<string, number> = {};
+    for (const [i, agent] of agents.entries()) {
+      const label = ({ "code-reviewer": "code-review", implementer: "implement", "conformance-reviewer": "conformance" })[agent]!;
+      const n = counts[label] = (counts[label] ?? 0) + 1;
+      await h.emitEvent("tool_call", subagentCall(String(i), { tasks: [{ agent }] }));
+      assert.ok(h.widgets.at(-1)!.includes(`verify(${label}${n > 1 ? ` #${n}` : ""})`));
+      await h.emitEvent("tool_result", { toolName: "subagent", toolCallId: String(i), details: {}, content: [] });
+    }
+  });
+}
+
+for (const row of [
+  { name: "normal", isError: false, details: {}, refund: false },
+  { name: "executed error", isError: true, details: { results: [] }, refund: false },
+  { name: "empty error", isError: true, details: {}, refund: true },
+]) {
+  for (const endOnly of [false, true]) {
+    test(`live terminal: ${row.name}, execution-end-only=${endOnly}`, async () => {
+      const h = harness({ hasUI: true });
+      await startPhase(h, "verify");
+      await h.emitEvent("tool_call", subagentCall("a", { agent: "code-reviewer" }));
+      const paints = h.widgets.length;
+      await h.emitEvent("tool_result", { toolName: "subagent", toolCallId: "other", details: {}, content: [] });
+      assert.equal(h.widgets.length, paints);
+      const terminal = { toolName: "subagent", toolCallId: "a", isError: row.isError, details: row.details, content: [] };
+      if (!endOnly) await h.emitEvent("tool_result", terminal);
+      await h.emitEvent("tool_execution_end", { ...terminal, result: { details: row.details } });
+      assert.equal(h.widgets.length, paints + 1);
+      assert.doesNotMatch(h.widgets.at(-1)!, /verify\(/);
+      await h.emitEvent("tool_execution_end", { ...terminal, result: { details: row.details } });
+      assert.equal(h.widgets.length, paints + 1);
+      await h.emitEvent("tool_call", subagentCall("b", { agent: "code-reviewer" }));
+      assert.ok(h.widgets.at(-1)!.includes(`verify(code-review${row.refund ? "" : " #2"})`));
+    });
+  }
+}
+
+test("live overlap forgets older calls and explicit overwrite survives cleanup", async () => {
+  const h = harness({ hasUI: true });
+  await startPhase(h, "verify");
+  const tool = h.tools.find(t => t.name === "phase_tracker")!;
+  const explicit = (substep: string) => tool.execute("explicit", { action: "substep", phase: "verify", substep }, undefined, undefined, h.ctx);
+  await explicit("before");
+  for (const id of ["a", "b"]) await h.emitEvent("tool_call", subagentCall(id, { agent: "code-reviewer", async: true }));
+  assert.match(h.widgets.at(-1)!, /verify\(code-review #2\)/);
+  const paints = h.widgets.length;
+  await h.emitEvent("tool_result", { toolName: "subagent", toolCallId: "a", details: {}, content: [] });
+  assert.equal(h.widgets.length, paints);
+  await h.emitEvent("tool_result", { toolName: "subagent", toolCallId: "b", details: {}, content: [] });
+  assert.doesNotMatch(h.widgets.at(-1)!, /verify\(/);
+  await h.emitEvent("tool_call", subagentCall("c", { agent: "code-reviewer" }));
+  const snapshot = await explicit("custom") as any;
+  await h.emitEvent("tool_result", { toolName: "subagent", toolCallId: "c", isError: true, details: {}, content: [] });
+  assert.match(h.widgets.at(-1)!, /verify\(custom\)/);
+  assert.equal(snapshot.details.phases.verify.substep, "custom");
+  await h.emitEvent("tool_call", subagentCall("d", { agent: "code-reviewer" }));
+  assert.match(h.widgets.at(-1)!, /verify\(code-review #3\)/);
+});
+
+for (const action of ["start", "complete", "skip", "reset"]) {
+  test(`live transition ${action} drops terminal ownership and restart resets counts`, async () => {
+    const h = harness({ hasUI: true });
+    const tool = h.tools.find(t => t.name === "phase_tracker")!;
+    await startPhase(h, "verify");
+    await h.emitEvent("tool_call", subagentCall("old", { agent: "code-reviewer" }));
+    const rejected = await tool.execute("bad", { action: "start", phase: "plan" }, undefined, undefined, h.ctx) as any;
+    assert.ok(rejected.details.error);
+    assert.match(h.widgets.at(-1)!, /verify\(code-review\)/);
+    await tool.execute("transition", { action, phase: "verify", reason: "test" }, undefined, undefined, h.ctx);
+    if (action === "reset") assert.equal(h.widgets.at(-1), undefined);
+    if (action !== "start") await tool.execute("restart", { action: "start", phase: "verify", force: true }, undefined, undefined, h.ctx);
+    await tool.execute("label", { action: "substep", phase: "verify", substep: "custom" }, undefined, undefined, h.ctx);
+    const paints = h.widgets.length;
+    await h.emitEvent("tool_execution_end", { toolName: "subagent", toolCallId: "old", result: { details: {} } });
+    assert.equal(h.widgets.length, paints);
+    assert.match(h.widgets.at(-1)!, /verify\(custom\)/);
+    await h.emitEvent("tool_call", subagentCall("new", { agent: "code-reviewer" }));
+    assert.match(h.widgets.at(-1)!, /verify\(code-review\)/);
+  });
+}
+
+test("live plan backstop clears ownership only on actual implement completion", async () => {
+  const h = harness({ hasUI: true });
+  await startPhase(h, "implement");
+  await h.emitEvent("tool_call", subagentCall("old", { agent: "code-reviewer" }));
+  for (const tasks of [undefined, [{ status: "in_progress" }]]) {
+    await h.emitEvent("tool_execution_end", { toolName: "plan_tracker", result: { details: { tasks } } });
+    assert.match(h.widgets.at(-1)!, /implement\(code-review\)/);
+  }
+  await h.emitEvent("tool_execution_end", { toolName: "plan_tracker", result: { details: { tasks: [{ status: "complete" }] } } });
+  await startPhase(h, "verify");
+  const tool = h.tools.find(t => t.name === "phase_tracker")!;
+  await tool.execute("label", { action: "substep", phase: "verify", substep: "custom" }, undefined, undefined, h.ctx);
+  await h.emitEvent("tool_result", { toolName: "subagent", toolCallId: "old", details: {}, content: [] });
+  assert.match(h.widgets.at(-1)!, /verify\(custom\)/);
+  await h.emitEvent("tool_call", subagentCall("new", { agent: "code-reviewer" }));
+  assert.match(h.widgets.at(-1)!, /verify\(code-review\)/);
+});
+
+test("live observation is dormant without a phase and in a subagent child", async () => {
+  const dormant = harness({ hasUI: true });
+  await dormant.emitEvent("tool_call", { toolName: "plan_check", toolCallId: "a", input: {} });
+  assert.equal(dormant.widgets.length, 0);
+  const prior = process.env.PI_SUBAGENT_DEPTH;
+  let child: ReturnType<typeof harness>;
+  try {
+    process.env.PI_SUBAGENT_DEPTH = "1";
+    child = harness({ hasUI: true });
+  } finally {
+    if (prior === undefined) delete process.env.PI_SUBAGENT_DEPTH;
+    else process.env.PI_SUBAGENT_DEPTH = prior;
+  }
+  await startPhase(child, "verify");
+  const paints = child.widgets.length;
+  await child.emitEvent("tool_call", subagentCall("a", { agent: "conformance-reviewer" }));
+  await child.emitEvent("tool_call", { toolName: "plan_check", toolCallId: "b", input: {} });
+  assert.equal(child.widgets.length, paints);
+});
+
+for (const cap of [false, true]) {
+  test(`live blocked ${cap ? "cap" : "lone"} call creates no label or ordinal`, async () => {
+    const cwd = tempCwd({ piGauntlet: { closureReview: { enforce: true, maxFixRounds: cap ? 0 : 3 } } });
+    const h = harness({ hasUI: true, cwd, branch: verifyBranch([subagentResult(["conformance-reviewer"])]) });
+    await h.emit("session_start");
+    const paints = h.widgets.length;
+    assert.equal((await firstCallResult(h, "blocked", cap ? implementerWave() : loneImplementer()))?.block, true);
+    await h.emitEvent("tool_execution_end", { toolName: "subagent", toolCallId: "blocked", isError: true, result: { details: {} } });
+    assert.equal(h.widgets.length, paints);
+    writeFileSync(join(cwd, ".pi", "settings.json"), JSON.stringify({ piGauntlet: { closureReview: { enforce: false } } }));
+    await firstCallResult(h, "allowed", implementerWave());
+    assert.match(h.widgets.at(-1)!, /verify\(implement\)/);
+  });
+}
+
+const replaySnapshot = (phase: Phase, substep?: string, status: Status = "in_progress") => {
+  const state = phases({ [phase]: status });
+  if (substep !== undefined) state[phase].substep = substep;
+  return state;
+};
+
+const explicitReplay = (phase: Phase, label: string) => [
+  phaseResult("start", replaySnapshot(phase)),
+  phaseResult("substep", replaySnapshot(phase, label)),
+];
+
+for (const row of [
+  { name: "derived status only", branch: [phaseResult("start", replaySnapshot("verify")), phaseResult("status", replaySnapshot("verify", "conformance"))], phase: "verify", expected: undefined },
+  { name: "explicit before derived status", branch: [...explicitReplay("verify", "gather"), phaseResult("status", replaySnapshot("verify", "council"))], phase: "verify", expected: "gather" },
+  ...([{ phase: "brainstorm", label: "gather", agent: "scout" }, { phase: "plan", label: "plan-write", agent: "plan-writer" }] as const).map(r => ({
+    name: `unfinished ${r.agent}`, phase: r.phase, expected: r.label,
+    branch: [...explicitReplay(r.phase, r.label), assistant(), { type: "message", message: { role: "assistant", content: [{ type: "toolCall", id: "unfinished", name: "subagent", arguments: { agent: r.agent } }] } }],
+  })),
+  { name: "null or omitted clear", phase: "verify", expected: undefined, branch: [...explicitReplay("verify", "gather"), phaseResult("substep", replaySnapshot("verify")), phaseResult("status", replaySnapshot("verify", "council"))] },
+  ...["start", "complete", "skip"].map(action => ({ name: `same phase ${action}`, phase: "verify", expected: undefined, branch: [...explicitReplay("verify", "gather"), phaseResult(action, replaySnapshot("verify", undefined, action === "complete" ? "complete" : action === "skip" ? "skipped" : "in_progress"))] })),
+  ...["complete", "skip"].map(action => {
+    const state = replaySnapshot("verify", "gather");
+    state.ship.status = action === "complete" ? "complete" : "skipped";
+    return { name: `other phase ${action}`, phase: "verify", expected: "gather", branch: [...explicitReplay("verify", "gather"), phaseResult(action, state)] };
+  }),
+  { name: "reset then start", phase: "verify", expected: undefined, branch: [...explicitReplay("verify", "gather"), phaseResult("reset", phases()), phaseResult("start", replaySnapshot("verify"))] },
+  ...["substep", "start", "complete", "skip", "reset"].map(action => {
+    const rejected = phaseResult(action, phases());
+    Object.assign(rejected.message.details, { error: "rejected" });
+    return { name: `rejected ${action}`, phase: "verify", expected: "gather", branch: [...explicitReplay("verify", "gather"), rejected] };
+  }),
+  { name: "task-driven completion", phase: "implement", expected: undefined, expectedStatus: "complete", branch: [...explicitReplay("implement", "custom"), taskSnapshot([{ name: "task", status: "complete" }])] },
+  { name: "custom after clear", phase: "verify", expected: "custom", branch: [...explicitReplay("verify", "gather"), phaseResult("substep", replaySnapshot("verify")), phaseResult("substep", replaySnapshot("verify", "custom"))] },
+]) {
+  test(`replay explicit labels: ${row.name}`, async () => {
+    const original = structuredClone(row.branch);
+    const h = harness({ hasUI: true, branch: row.branch });
+    const tool = h.tools.find(t => t.name === "phase_tracker")!;
+    await h.emit("session_start");
+    const status = await tool.execute("status", { action: "status" }, undefined, undefined, h.ctx) as any;
+    assert.equal(status.details.phases[row.phase].substep, row.expected);
+    if ("expectedStatus" in row) assert.equal(status.details.phases[row.phase].status, row.expectedStatus);
+    if (row.expected) {
+      assert.ok(h.widgets.at(-1)!.includes(`${row.phase}(${row.expected})`));
+      assert.ok(status.content[0].text.includes(`${row.phase}(${row.expected})`));
+    } else {
+      assert.ok(!h.widgets.at(-1)!.includes(`${row.phase}(`));
+    }
+    assert.deepEqual(row.branch, original);
+    if (status.details.phases[row.phase].status !== "in_progress") await startPhase(h, row.phase);
+    const restarted = await tool.execute("status", { action: "status" }, undefined, undefined, h.ctx) as any;
+    assert.equal(restarted.details.phases[row.phase].substep, row.expected);
+    await h.emitEvent("tool_call", subagentCall("new", { agent: "code-reviewer" }));
+    await h.emitEvent("tool_result", { toolName: "subagent", toolCallId: "new", details: {}, content: [] });
+    assert.deepEqual(row.branch, original);
+  });
+}
+
+for (const event of ["session_start", "session_switch", "session_fork", "session_tree"]) {
+  for (const kind of ["explicit", "derived", "empty"]) {
+    test(`replay ${event} resets live ownership and ordinals: ${kind}`, async () => {
+      const h = harness({ hasUI: true });
+      const tool = h.tools.find(t => t.name === "phase_tracker")!;
+      await startPhase(h, "verify");
+      await h.emitEvent("tool_call", subagentCall("first", { agent: "code-reviewer" }));
+      await h.emitEvent("tool_result", { toolName: "subagent", toolCallId: "first", details: {}, content: [] });
+      await h.emitEvent("tool_call", subagentCall("old", { agent: "code-reviewer" }));
+      assert.match(h.widgets.at(-1)!, /verify\(code-review #2\)/);
+      const branch = kind === "empty" ? [assistant()] : kind === "explicit" ? explicitReplay("verify", "custom") : [phaseResult("start", replaySnapshot("verify")), phaseResult("status", replaySnapshot("verify", "code-review"))];
+      const original = structuredClone(branch);
+      h.setBranch(branch);
+      await h.emit(event);
+      if (kind === "empty") assert.equal(h.widgets.at(-1), undefined);
+      else if (kind === "explicit") assert.match(h.widgets.at(-1)!, /verify\(custom\)/);
+      else assert.doesNotMatch(h.widgets.at(-1)!, /verify\(/);
+      const status = await tool.execute("status", { action: "status" }, undefined, undefined, h.ctx) as any;
+      assert.equal(status.details.phases.verify.substep, kind === "explicit" ? "custom" : undefined);
+      assert.deepEqual(branch, original);
+      const paints = h.widgets.length;
+      await h.emitEvent("tool_result", { toolName: "subagent", toolCallId: "old", details: {}, content: [] });
+      await h.emitEvent("tool_execution_end", { toolName: "subagent", toolCallId: "old", result: { details: {} } });
+      assert.equal(h.widgets.length, paints);
+      if (kind === "empty") await startPhase(h, "verify");
+      await h.emitEvent("tool_call", subagentCall("next", { agent: "code-reviewer" }));
+      assert.match(h.widgets.at(-1)!, /verify\(code-review\)/);
+      await h.emitEvent("tool_result", { toolName: "subagent", toolCallId: "next", details: {}, content: [] });
+      await h.emitEvent("tool_call", subagentCall("again", { agent: "code-reviewer" }));
+      assert.match(h.widgets.at(-1)!, /verify\(code-review #2\)/);
+      assert.deepEqual(branch, original);
+    });
+  }
+}

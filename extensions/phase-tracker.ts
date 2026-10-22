@@ -31,6 +31,7 @@ import { checkoutOf, gitSync } from "./lib/checkout.ts";
 import { checkPlan, sha256, type FsPort, type PlanCheckFinding } from "./lib/plan-check.ts";
 import {
   checkSubstep,
+  dispatchLabel,
   findMarkerFile,
   flowGuardApplies,
   implementExemptDirs,
@@ -354,10 +355,11 @@ function hasActivity(phases: PhaseMap): boolean {
   return PHASES.some((p) => phases[p].status !== "pending");
 }
 
-function formatWidget(phases: PhaseMap, theme: Theme): string {
+function formatWidget(phases: PhaseMap, dispatchCounts: Record<Phase, Record<string, number>>, theme: Theme): string {
   const parts = PHASES.map((p) => {
     const icon = phaseIcon(phases[p].status, theme);
-    const labeled = phaseLabel(p, phases[p].status === "in_progress" ? phases[p].substep : undefined);
+    const substep = phases[p].status === "in_progress" ? phases[p].substep : undefined;
+    const labeled = phaseLabel(p, substep, dispatchCounts[p][substep ?? ""] ?? 0);
     const name = phases[p].status === "skipped" ? theme.fg("dim", labeled) : labeled;
     return `${icon} ${name}`;
   });
@@ -422,6 +424,31 @@ async function applyPhaseModel(
 export default function (pi: ExtensionAPI) {
   let phases: PhaseMap = emptyPhases();
   let conformanceDispatched = false;
+  let dispatchCounts = Object.fromEntries(PHASES.map((p) => [p, {}])) as Record<Phase, Record<string, number>>;
+  let liveDispatch: { toolCallId: string; phase: Phase; label: string } | undefined;
+  const observeDispatch = (toolName: string, input: unknown, toolCallId: string): boolean => {
+    if (isSubagentChild) return false;
+    const label = dispatchLabel(toolName, input);
+    const phase = PHASES.find((p) => phases[p].status === "in_progress");
+    if (label === undefined || phase === undefined) return false;
+    dispatchCounts[phase][label] = (dispatchCounts[phase][label] ?? 0) + 1;
+    phases = { ...phases, [phase]: { ...phases[phase], substep: label } };
+    liveDispatch = { toolCallId, phase, label };
+    return true;
+  };
+  const isNonDispatchResult = (isError: boolean | undefined, details: unknown): boolean =>
+    isError === true && details !== null && typeof details === "object" && Object.keys(details).length === 0;
+  const finishDispatch = (toolName: string, toolCallId: string, isError: boolean | undefined, details: unknown): boolean => {
+    if ((toolName !== "subagent" && toolName !== "plan_check") || liveDispatch?.toolCallId !== toolCallId) return false;
+    const { phase, label } = liveDispatch;
+    if (isNonDispatchResult(isError, details)) dispatchCounts[phase][label] -= 1;
+    if (phases[phase].substep === label) {
+      const { substep: _substep, ...entry } = phases[phase];
+      phases = { ...phases, [phase]: entry };
+    }
+    liveDispatch = undefined;
+    return true;
+  };
   let fixRounds = 0;
   let fixRoundCredits = 0;
   let gauntletEntered = false;
@@ -493,6 +520,7 @@ export default function (pi: ExtensionAPI) {
       tasks.every((t) => t.status === "complete" || t.status === "skipped")
     ) {
       phases = { ...phases, implement: { status: "complete" } };
+      liveDispatch = undefined;
       firedGuards.clear();
     }
   };
@@ -507,6 +535,9 @@ export default function (pi: ExtensionAPI) {
 
   const reconstructState = (ctx: ExtensionContext) => {
     phases = emptyPhases();
+    dispatchCounts = Object.fromEntries(PHASES.map((p) => [p, {}])) as Record<Phase, Record<string, number>>;
+    liveDispatch = undefined;
+    let explicitSubstep: Partial<Record<Phase, string>> = {};
     conformanceDispatched = false;
     fixRounds = 0;
     fixRoundCredits = 0;
@@ -533,6 +564,23 @@ export default function (pi: ExtensionAPI) {
       if (msg.toolName === "phase_tracker") {
         const details = msg.details as PhaseTrackerDetails | undefined;
         if (details && !details.error) {
+          if (details.action === "substep") {
+            const phase = PHASES.find((p) => details.phases[p].status === "in_progress");
+            if (phase !== undefined) {
+              const label = details.phases[phase].substep;
+              if (label !== undefined) explicitSubstep[phase] = label;
+              else delete explicitSubstep[phase];
+            }
+          } else if (details.action === "start" || details.action === "complete" || details.action === "skip") {
+            const changed = PHASES.filter((p) => phases[p].status !== details.phases[p].status);
+            if (changed.length === 0 && details.action === "start") {
+              const phase = PHASES.find((p) => details.phases[p].status === "in_progress");
+              if (phase !== undefined) delete explicitSubstep[phase];
+            }
+            for (const phase of changed) delete explicitSubstep[phase];
+          } else if (details.action === "reset") {
+            explicitSubstep = {};
+          }
           phases = details.phases;
           if (details.action === "grant_fix_rounds" && typeof details.rounds === "number") fixRoundCredits = details.rounds;
           gauntletEntered = nextGauntletEntered(gauntletEntered, details.action, details.phases.brainstorm.status);
@@ -561,9 +609,18 @@ export default function (pi: ExtensionAPI) {
         observeCadence(msg.details);
       } else if (msg.toolName === "plan_tracker") {
         const details = msg.details as { tasks?: { status: string }[]; error?: string } | undefined;
-        if (details && !details.error) applyPlanActivity(details.tasks);
+        if (details && !details.error) {
+          const wasImplementing = phases.implement.status === "in_progress";
+          applyPlanActivity(details.tasks);
+          if (wasImplementing && phases.implement.status === "complete") delete explicitSubstep.implement;
+        }
       }
     }
+    phases = Object.fromEntries(PHASES.map((phase) => {
+      const { substep: _substep, ...entry } = phases[phase];
+      const label = explicitSubstep[phase];
+      return [phase, label === undefined ? entry : { ...entry, substep: label }];
+    })) as PhaseMap;
   };
 
   const updateWidget = (ctx: ExtensionContext) => {
@@ -572,7 +629,7 @@ export default function (pi: ExtensionAPI) {
       ctx.ui.setWidget("phase_tracker", undefined);
     } else {
       ctx.ui.setWidget("phase_tracker", (_tui, theme) => {
-        return new Text(formatWidget(phases, theme), 0, 0);
+        return new Text(formatWidget(phases, dispatchCounts, theme), 0, 0);
       });
     }
   };
@@ -656,6 +713,8 @@ export default function (pi: ExtensionAPI) {
         }
       }
     }
+
+    if (observeDispatch(event.toolName, event.input, event.toolCallId)) updateWidget(ctx);
 
     // Flow guards apply only to write/edit/bash while a guard phase is active.
     // Cheap in-memory gate BEFORE any settings load: phase state is in-memory, so an
@@ -782,6 +841,7 @@ export default function (pi: ExtensionAPI) {
   });
 
   pi.on("tool_result", async (event, ctx) => {
+    if (finishDispatch(event.toolName, event.toolCallId, event.isError, event.details)) updateWidget(ctx);
     if (event.toolName === "subagent") {
       observeFixWave(event.details, event.isError, ctx);
       if (qualifiesAsClosureDispatch(event.details)) conformanceDispatched = true;
@@ -818,6 +878,8 @@ export default function (pi: ExtensionAPI) {
   });
 
   pi.on("tool_execution_end", async (event, ctx) => {
+    const resultDetails = (event.result as { details?: unknown } | undefined)?.details;
+    if (finishDispatch(event.toolName, event.toolCallId, event.isError, resultDetails)) updateWidget(ctx);
     if (event.toolName !== "plan_tracker" || event.isError) return;
     const details = (event.result as { details?: { tasks?: { status: string }[]; error?: string } } | undefined)
       ?.details;
@@ -1032,6 +1094,8 @@ export default function (pi: ExtensionAPI) {
             const target = resolved.phaseModels[phase];
             if (target) startLines.push(...(await applyPhaseModel(pi, ctx, phase, target)));
           }
+          if (liveDispatch?.phase === params.phase) liveDispatch = undefined;
+          dispatchCounts[params.phase] = {};
           phases = { ...phases, [params.phase]: transitionPhaseState("in_progress") as PhaseState };
           // A rewind must not inherit the prior verify's conformance latch.
           if (params.phase === "implement") {
@@ -1102,6 +1166,7 @@ export default function (pi: ExtensionAPI) {
               };
             }
           }
+          if (liveDispatch?.phase === params.phase) liveDispatch = undefined;
           phases = { ...phases, [params.phase]: transitionPhaseState("complete") as PhaseState };
           firedGuards.clear();
           updateWidget(ctx);
@@ -1134,6 +1199,7 @@ export default function (pi: ExtensionAPI) {
             };
           }
           const reason = params.reason;
+          if (liveDispatch?.phase === params.phase) liveDispatch = undefined;
           phases = { ...phases, [params.phase]: transitionPhaseState("skipped", reason) as PhaseState };
           firedGuards.clear();
           updateWidget(ctx);
@@ -1180,6 +1246,8 @@ export default function (pi: ExtensionAPI) {
         }
 
         case "reset": {
+          liveDispatch = undefined;
+          dispatchCounts = Object.fromEntries(PHASES.map((p) => [p, {}])) as Record<Phase, Record<string, number>>;
           phases = Object.fromEntries(
             PHASES.map((p) => [p, transitionPhaseState("pending")]),
           ) as PhaseMap;

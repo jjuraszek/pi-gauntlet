@@ -6,6 +6,8 @@ import { dirname, join } from "node:path";
 import {
   CONTEXT_DRAFT_MARKER,
   checkSubstep,
+  dispatchAgents,
+  dispatchLabel,
   closureGateBlocks,
   closureModelGuardApplies,
   flowGuardApplies,
@@ -80,6 +82,57 @@ test("checkSubstep: non-in_progress statuses -> error naming actual status", () 
 test("phaseLabel: with and without substep", () => {
   assert.equal(phaseLabel("brainstorm", "gather"), "brainstorm(gather)");
   assert.equal(phaseLabel("brainstorm", undefined), "brainstorm");
+  assert.equal(phaseLabel("brainstorm", undefined, 2), "brainstorm");
+  for (const count of [undefined, 0, 1, 2]) {
+    assert.equal(phaseLabel("verify", "conformance", count), count === 2 ? "verify(conformance #2)" : "verify(conformance)");
+  }
+});
+
+test("dispatchAgents: walks dispatch shapes in order and ignores non-string agents", () => {
+  const cases: [string, unknown, string[]][] = [
+    ["single", { agent: "scout" }, ["scout"]],
+    ["tasks", { tasks: [{ agent: "scout" }, { agent: "context-builder" }] }, ["scout", "context-builder"]],
+    ["recursive chain", { chain: [{ chain: [{ agent: "plan-writer" }] }] }, ["plan-writer"]],
+    ["root and nested", { agent: "root", tasks: [{ agent: "task" }], chain: [{ agent: "step", parallel: [{ agent: "implementer" }, { agent: "spec-reviewer" }] }] }, ["root", "task", "step", "implementer", "spec-reviewer"]],
+    ["bare top-level array", [{ agent: "scout" }], []],
+    ["nested array ignored", { tasks: [[{ agent: "scout" }]] }, []],
+    ["object nodes", { tasks: { agent: "context-builder" } }, ["context-builder"]],
+    ["malformed", { agent: 42, tasks: [null, "scout", { agent: false }, { agent: "unknown" }] }, ["unknown"]],
+    ["null", null, []],
+  ];
+  for (const [name, input, expected] of cases) assert.deepEqual(dispatchAgents(input), expected, name);
+});
+
+test("dispatchLabel: maps the vocabulary and combined implementation dispatch", () => {
+  const cases: [string, unknown, string][] = [
+    ["subagent", { agent: "scout" }, "gather"],
+    ["subagent", { agent: "context-builder" }, "gather"],
+    ["subagent", { agent: "spec-council-design" }, "council"],
+    ["subagent", { agent: "spec-council-security" }, "council"],
+    ["subagent", { agent: "spec-reviewer" }, "spec-review"],
+    ["subagent", { agent: "plan-writer" }, "plan-write"],
+    ["plan_check", {}, "plan-check"],
+    ["subagent", { agent: "implementer" }, "implement"],
+    ["subagent", { agent: "code-reviewer" }, "code-review"],
+    ["subagent", { agent: "conformance-reviewer" }, "conformance"],
+    ["subagent", { chain: [{ parallel: [{ agent: "implementer" }] }, { parallel: [{ agent: "spec-reviewer" }] }] }, "implement+sr"],
+    ["subagent", { tasks: [{ agent: "worker" }, { agent: "scout" }] }, "gather"],
+    ["subagent", { tasks: [{ agent: "scout" }, { agent: "code-reviewer" }] }, "gather"],
+    ["subagent", { tasks: [{ agent: "code-reviewer" }, { agent: "scout" }] }, "code-review"],
+    ["subagent", { tasks: [{ agent: "scout" }, { agent: "spec-reviewer" }, { agent: "implementer" }] }, "implement+sr"],
+  ];
+  for (const [tool, input, expected] of cases) assert.equal(dispatchLabel(tool, input), expected);
+});
+
+test("dispatchLabel: ignores management, unmapped agents, other tools and malformed input", () => {
+  const inputs: unknown[] = [
+    { agent: "worker" }, { agent: "spec-summarizer" }, { agent: "ad-hoc" },
+    { agent: "spec-council" }, { agent: "implementer-extra" },
+    { action: "list", agent: "scout" }, { action: undefined, agent: "scout" },
+    undefined, null, 1, "scout", {}, { agent: 1 }, { tasks: [null, false] },
+  ];
+  for (const input of inputs) assert.equal(dispatchLabel("subagent", input), undefined);
+  assert.equal(dispatchLabel("tool_result", { agent: "scout" }), undefined);
 });
 
 test("parseGitCommand: branch subcommands with and without global flags", () => {

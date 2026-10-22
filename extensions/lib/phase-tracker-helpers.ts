@@ -31,8 +31,54 @@ export function checkSubstep(phaseStatus: string): SubstepCheck {
   return { ok: false, error: `substep requires an in_progress phase (status is ${phaseStatus})` };
 }
 
-export function phaseLabel(name: string, substep?: string): string {
-  return substep ? `${name}(${substep})` : name;
+export const DISPATCH_LABELS = {
+  scout: "gather",
+  "context-builder": "gather",
+  "spec-council-": "council",
+  "spec-reviewer": "spec-review",
+  "plan-writer": "plan-write",
+  plan_check: "plan-check",
+  implementer: "implement",
+  "code-reviewer": "code-review",
+  "conformance-reviewer": "conformance",
+  "implement+sr": "implement+sr",
+} as const;
+
+export function dispatchAgents(input: unknown): string[] {
+  const agents: string[] = [];
+  const collect = (node: unknown): void => {
+    if (!node || typeof node !== "object") return;
+    const object = node as Record<string, unknown>;
+    if (typeof object.agent === "string") agents.push(object.agent);
+    for (const key of ["tasks", "chain", "parallel"] as const) {
+      const value = object[key];
+      if (Array.isArray(value)) for (const item of value) collect(item);
+      else if (value && typeof value === "object") collect(value);
+    }
+  };
+  collect(input);
+  return agents;
+}
+
+export function dispatchLabel(toolName: string, input: unknown): string | undefined {
+  if (toolName === "plan_check") return DISPATCH_LABELS.plan_check;
+  if (toolName !== "subagent") return undefined;
+  if (input && typeof input === "object" && "action" in input) return undefined;
+  const agents = dispatchAgents(input);
+  if (agents.includes("implementer") && agents.includes("spec-reviewer")) return DISPATCH_LABELS["implement+sr"];
+  for (const agent of agents) {
+    for (const name of ["scout", "context-builder", "spec-reviewer", "plan-writer", "implementer", "code-reviewer", "conformance-reviewer"] as const) {
+      if (agent === name) return DISPATCH_LABELS[name];
+    }
+    if (agent.startsWith("spec-council-")) return DISPATCH_LABELS["spec-council-"];
+  }
+  return undefined;
+}
+
+export function phaseLabel(name: string, substep?: string, count?: number): string {
+  if (!substep) return name;
+  const ordinal = count !== undefined && count >= 2 ? ` #${count}` : "";
+  return `${name}(${substep}${ordinal})`;
 }
 
 // Same statement-start anchor as the branch guards in phase-tracker.ts. Exported
