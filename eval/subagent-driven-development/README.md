@@ -16,3 +16,17 @@ The target loads `## Fix-Loop Rounds` through (excluding) `## When a Subagent Fa
 | singleton-apply-failure | Zero surviving integration patches skip empty gates and commit, retry from unchanged clean base within two attempts, then stop without completion. |
 
 All inputs are synthetic. Run `node eval/run.mjs subagent-driven-development` per `eval/README.md`. The deleted committed-sequential-review sample describes no supported plan-task execution path.
+
+Escalation and funded rounds load `reference/fix-loop.md` on both arms using preparatory baseline `828565b3b2e492005e27ec9ca3d675d51a984de6`. The reply word cap is 1800 for complete amendment aftermath and two funded fix/re-review payloads.
+
+| Sample | Must hold |
+|---|---|
+| amend-under-grant | recommended; no-question; plan-dispatch; aftermath |
+| redraw-under-grant | redraw-stop; no-apply |
+| budget-continues | two-rounds; fix-payloads; review-gates; commit-completion |
+| budget-exhausted | one-round; spent-line; no-complete |
+| stagnant-under-budget | stagnant-stop; spent-line; gate |
+| grant-no-budget | original-stop; no-budget; in-progress |
+| budget-only-value | menu; funds; gates |
+| multi-task-wave-ledger | both-ledgers; reroute; exhausted-owner; no-complete |
+| exhausted-on-resume | exhausted; suffix; refund |

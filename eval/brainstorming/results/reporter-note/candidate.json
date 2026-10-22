@@ -40,14 +40,14 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "77b5e9ca18f245780488ac9c0dbe9f9208a2f3ddb943cd5c32db752cb0722f65",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "37c6b01a1622db7452f185f1976561b66962be40989858f075338e9e3b73fc3a",
-      "baselineOutputSha": "61e11d298c91c86fe3bf06146e4d34e1ecee074c229c50d23c490c0300666ca8",
+      "intentSha": "5aa2bf78a144556c707465aa0b7081fb61f66dc61c2e759e7988b90489850f48",
+      "baselineOutputSha": "21ecdfddde164a9cd804b52efe714c032ccb669af73b7e80a7db7dfb31d42685",
       "candidateOutputSha": "21ecdfddde164a9cd804b52efe714c032ccb669af73b7e80a7db7dfb31d42685",
       "facts": {
         "requirements": {
-          "before": "fails",
+          "before": "holds",
           "after": "holds",
-          "label": "intended change"
+          "label": "intended but unchanged"
         },
         "body-acs": {
           "before": "holds",
@@ -65,21 +65,21 @@
           "label": "held"
         }
       },
-      "feedback": "Before names src/export-target.ts in the Design but explicitly disowns the line count ('The design does not depend on this figure'), so 418 lines is only recorded as a note, not carried into any requirement; After moves it into the Target module bullet ('the export logic currently in the 418-line source') alongside the move target, which satisfies the requirements fact. Both outputs keep exactly the two body AC rows verbatim with in-scope dispositions and add nothing from the reporter note. The After wording works; keep the instruction that every reporter-note section lands in implied requirements (not just the Problem narrative) and keep the AC extraction body-only sentence, since that is what preserved body-acs.",
-      "wallMs": 18661,
-      "verdict": "improved"
+      "feedback": "Before and After are textually identical, so nothing moved. Both outputs already carry the Reporter note's `src/export-target.ts` target and the 418-line count into the Problem section, the Design \"Target module\" requirement, and the Out of scope boundary, so the requirements fact holds in both despite the Expected-to-move entry predicting a fails->holds transition for this case. Both outputs also list exactly the two body AC rows verbatim with an in-scope disposition each and add no AC row from the Reporter note, so body-acs holds in both. If the author wants this replay to demonstrate the Change (note carry-through into implied requirements), the Before baseline here does not exhibit the failure the Change targets; consider a baseline or fixture where the note's target/count are genuinely absent, or keep the After wording as is since it retains every fact Before kept.",
+      "wallMs": 6770,
+      "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "77b5e9ca18f245780488ac9c0dbe9f9208a2f3ddb943cd5c32db752cb0722f65",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "37c6b01a1622db7452f185f1976561b66962be40989858f075338e9e3b73fc3a",
-      "baselineOutputSha": "8546c966bc24320dff34157e98b34c22fab77d83024661b7a5d5cd1e37dcbf09",
+      "intentSha": "5aa2bf78a144556c707465aa0b7081fb61f66dc61c2e759e7988b90489850f48",
+      "baselineOutputSha": "8234093b053e47f33e6bf3b0f43a314b31da77e492c13fded72d312e91d1ec9a",
       "candidateOutputSha": "8234093b053e47f33e6bf3b0f43a314b31da77e492c13fded72d312e91d1ec9a",
       "facts": {
         "requirements": {
-          "before": "fails",
+          "before": "holds",
           "after": "holds",
-          "label": "intended change"
+          "label": "intended but unchanged"
         },
         "body-acs": {
           "before": "holds",
@@ -92,15 +92,15 @@
           "label": "held"
         },
         "count": {
-          "before": "fails",
+          "before": "holds",
           "after": "holds",
-          "label": "unplanned improvement"
+          "label": "held"
         }
       },
-      "feedback": "After moved `requirements` from fails to holds by adding a Problem paragraph that quotes the Reporter note's two facts — the 418-line source and the `src/export-target.ts` target — and then reuses the target in Design; Before carried only the target and dropped the line count entirely. Both outputs keep `body-acs`: exactly the two verbatim checkbox rows with in-scope dispositions and no note-derived rows. The wording that delivered the change is the instruction to carry every Reporter-note section into implied requirements; it is working, and the After output also sensibly clarifies that 418 lines is a description, not a cap. To make the carry-through more robust, consider wording that asks for note facts to appear where the requirement is stated (e.g., in Design's move instruction, 'move the 418-line implementation to src/export-target.ts') rather than only in Problem, since a judge reading 'anywhere a requirement lives' strictly could discount a Problem-only mention; keep the existing body-only AC extraction wording unchanged, as it held in both runs.",
-      "wallMs": 11094,
-      "verdict": "improved"
+      "feedback": "Before and After are textually identical, so nothing moved. Both carry the Reporter note's target and count: the Problem paragraph states the reporter requested moving the 418-line implementation to `src/export-target.ts`, and the Design section turns the move target into a concrete requirement (\"Move the export implementation to `src/export-target.ts`\"), with the line count retained as context rather than dropped or listed as missing. Both keep exactly the two body ACs verbatim with in-scope dispositions and add none from the note. Since the expected fails->holds for requirements is already satisfied by Before here, the After wording needs no further adjustment for this replay; if the author wants the 418-line figure to sit more clearly inside a requirement-bearing section, a sentence in Responsibilities and boundaries such as \"The relocated implementation is the current 418-line source; relocate it whole\" would do so without changing any AC handling.",
+      "wallMs": 11153,
+      "verdict": "unchanged"
     }
   },
-  "repoSha": "d886d49438eda3b79ed054f15ab37a47b90c33db"
+  "repoSha": "889b5c13f91d905ab6f44b412922585f56be27ba"
 }

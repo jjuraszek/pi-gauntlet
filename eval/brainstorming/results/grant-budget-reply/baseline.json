@@ -1,0 +1,34 @@
+{
+  "sample": "grant-budget-reply",
+  "arm": "baseline",
+  "skillSha": "9b82f1bbfa9b2e3c17d20eb549e14cb595148c62ff325caf97465bb3b8f5dd66",
+  "inputSha": "a731f3e902424599153890305b3384134d9e9aaa88f0c58b004f134ca14e9202",
+  "kind": "text",
+  "assembly": "headed",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "# A - reply `2; fund 3 fix rounds`\n\nThis is a clean `2` with the funding suffix the gate offered. No spec change was requested, so it counts as **approval with the standing grant**. It is not a mixed approval-plus-change-request.\n\nIntended actions, in order (narrated only; nothing below has actually been executed in this replay):\n\n1. **Read the standing-grants rules.** Read `reference/amendment-surface.md#standing-grants` before acting on the grant. If it were unreadable, I would stop here with a blocking error and not proceed as granted.\n2. **Write the grant into the spec.** Edit `doc/specs/report-runner.md` and change `**Amend-grant:** none` to the grant sentence: \"approve, auto-apply amends: every later spec amendment in this flow (corrected facts, paths, verification lines, and scope, acceptance-criteria, or public-contract edits alike) applies without asking; only a redraw (changed problem statement, component added, removed, or re-bounded) still stops for you, and the grant never stands in for a spec approval.\"\n3. **Persist the grant in the existing commit.** Run `git -C <worktree> add -- doc/specs/report-runner.md`, then `git -C <worktree> commit --amend --no-edit -q`. The spec commit keeps its council-audit body (`1 applied, 0 deferred, 0 rejected`).\n4. **Verify the grant landed.** Run `git -C <worktree> show HEAD:doc/specs/report-runner.md` and check that the header reads \"grant active\" under the predicate. If the amend or this check failed, I would stop and report rather than continue as granted.\n5. **Carry the funding forward.** Record the extra rounds for the implement phase: **3 implement fix rounds past the escalated round**. This is a budget, not a spec amendment, so it does not touch the spec text. The brainstorming skill defines no storage format for it, so I'm noting it here explicitly to be honored when implement escalates.\n6. **Close the brainstorm phase.** Call `phase_tracker({ action: \"complete\", phase: \"brainstorm\" })`.\n7. **Hand off.** Invoke `/skill:writing-plans` immediately, with no further prompt.\n\n> Approved with auto-apply amends; 3 extra implement fix rounds funded. Recording the grant on the spec commit and moving to planning now.\n\n---\n\n# B - reply `fund 3 fix rounds` alone\n\nThis is **not an approval**. The gate offers funding only as a suffix to `1` or `2`, and this reply carries neither. It also asks for no spec change. So I take no action:\n\n- no grant is written,\n- no commit is made or amended,\n- the phase is not completed,\n- I do not hand off to planning.\n\nThe spec stays as committed, with `**Amend-grant:** none`.\n\n> Funding fix rounds rides on an approval. Which approval should the 3 extra fix rounds attach to?\n>\n> Report runner writes a daily summary.\n> Spec written and committed to doc/specs/report-runner.md (worktree: <worktree>).\n> Scope cuts: none\n> Council: 1 applied, 0 deferred, 0 rejected\n>\n> 1 - approve: proceed to planning under the existing amendment review; a fresh reviewer applies evidence-backed factual corrections on its own, and every other spec amendment (scope, acceptance-criteria, or contract edits, and redraws) stops for your review.\n> 2 - approve, auto-apply amends: every later spec amendment in this flow (corrected facts, paths, verification lines, and scope, acceptance-criteria, or public-contract edits alike) applies without asking; only a redraw (changed problem statement, component added, removed, or re-bounded) still stops for you, and the grant never stands in for a spec approval.\n> 3 - show council dispositions: prints the council audit verbatim, then re-presents this gate. Not an approval.\n> Add \"; fund N fix rounds\" (or \"N more fix rounds\") to 1 or 2 to fund N implement fix rounds past the escalated round.\n>\n> Or tell me what to change in the spec.\n>\n> For example, reply `1; fund 3 fix rounds` or `2; fund 3 fix rounds`.\n",
+      "words": 587,
+      "wallMs": 20663,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "### A\n\nYou’ve approved the spec with auto-apply amendments and funded **3 additional implement fix rounds past the escalated round**.\n\nIn this text-only replay, the intended next actions are:\n1. Read the required **Standing grants** reference. Stop if it is unreadable.\n2. Persist the grant in `doc/specs/report-runner.md`, replacing `**Amend-grant:** none` with the gate’s full grant description, and retain the fix-round authorization for the flow.\n3. Amend the existing spec commit without changing its message, preserving the council audit.\n4. Verify the committed spec satisfies the grant-active predicate. Stop if persistence or verification fails.\n5. Mark brainstorming complete and invoke `/skill:writing-plans` immediately, without another approval prompt.\n\nNo files or commits have actually been changed here.\n\n### B\n\nYou’ve authorized **3 additional implement fix rounds past the escalated round**, but haven’t approved the spec. The spec remains unchanged with `**Amend-grant:** none`; planning does not begin.\n\nPlease choose:\n1. **Approve** under the existing amendment review.\n2. **Approve, auto-apply amends** under the grant described at the gate.\n\nYour fix-round authorization carries forward with either choice.\n",
+      "words": 169,
+      "wallMs": 12170,
+      "mechanical": {}
+    }
+  },
+  "repoSha": "889b5c13f91d905ab6f44b412922585f56be27ba"
+}

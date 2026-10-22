@@ -1,0 +1,3 @@
+- menu: judged: In the first scene presents the amendment menu and waits without auto-applying, since the value is budget-only.
+- funds: judged: In the continuation uses funded round 1 of 2 for task 3 past escalation, without requesting round approval.
+- gates: judged: The funded fix uses configured implModel, fresh context, async false, scoped tests and CR re-review before wave commit and task completion.

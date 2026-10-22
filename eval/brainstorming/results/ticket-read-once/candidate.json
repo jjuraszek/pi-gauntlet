@@ -34,8 +34,8 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "922b94c7a20ca5c68ad98313c8728e3a84912fafaf5d21af42617f9b65e20886",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "37c6b01a1622db7452f185f1976561b66962be40989858f075338e9e3b73fc3a",
-      "baselineOutputSha": "60609c655e9c888145240a08a141392493d360e633e00ae5aa74898c4783165e",
+      "intentSha": "5aa2bf78a144556c707465aa0b7081fb61f66dc61c2e759e7988b90489850f48",
+      "baselineOutputSha": "1f840692b1e2f28356ddb04eda58041cf9d23d6f7f48c3578b7c9fbbc9baed21",
       "candidateOutputSha": "1f840692b1e2f28356ddb04eda58041cf9d23d6f7f48c3578b7c9fbbc9baed21",
       "facts": {
         "first-use": {
@@ -49,15 +49,15 @@
           "label": "held"
         }
       },
-      "feedback": "Nothing moved on this sample: both outputs narrate a single read of reference/ticket-acceptance.md at step 3 (item 3) before gatherer.md runs and before question one, and both mark the step 4 and step 8 lookups as in-context checks with no re-read while still weighing the cut question against the recorded answers at step 4 and running the ticket lint against ## Acceptance criteria at step 8. After is actually slightly crisper on the fact under test, bolding \"not re-read\" at items 5 and 9 and closing with \"Every required reference read succeeded.\" Two small wording notes for the After template: the prelude line \"The bundled reference is not treated as session context\" is a new sentence that a reader could briefly take to mean the assembled reference does not count as loaded, which would contradict item 3's \"stays in context\"; rephrasing to \"Being assembled into the prompt does not count as having read it; the step 3 read is what loads it\" keeps the read-once narrative unambiguous. Likewise item 9's aside about restored sessions is harmless here but could be tightened to \"on a restored entry this check would trigger a read before lint; here it passes\" so the restored-step-8 contract stays visibly distinct from the same-session reuse being narrated.",
-      "wallMs": 13677,
+      "feedback": "Before and After are textually identical for this case, so nothing moved: both narrate a single read of reference/ticket-acceptance.md at item 3 (step 3, before the gatherer stage and before question one), and both record items 5 and 9 as in-context checks that explicitly do not re-read, while still verifying premises for question one at step 4 and running the full step-8 ticket lint against the verbatim row. The After wording (amendment menu grammar, reporter-note carry-through, dependency tracing, questionary layout) did not perturb the Ticket Handling read-once narration; no wording adjustment is needed here, though it is worth keeping the Ticket Handling slice's 'read at first use / reuse in-context' language unchanged when the amendment-surface section 4 slice is placed ahead of ticket-acceptance.md, since that ordering is what keeps this sample stable.",
+      "wallMs": 7771,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "922b94c7a20ca5c68ad98313c8728e3a84912fafaf5d21af42617f9b65e20886",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "37c6b01a1622db7452f185f1976561b66962be40989858f075338e9e3b73fc3a",
-      "baselineOutputSha": "da2ba3ea2f9d9b18fc7416d438015ff40ca6d317e745dfdb295d45705a601ef4",
+      "intentSha": "5aa2bf78a144556c707465aa0b7081fb61f66dc61c2e759e7988b90489850f48",
+      "baselineOutputSha": "4a015826617168214e5c0e626ac05ae384a8f3398cfdd014a42416735f1eb135",
       "candidateOutputSha": "4a015826617168214e5c0e626ac05ae384a8f3398cfdd014a42416735f1eb135",
       "facts": {
         "first-use": {
@@ -71,10 +71,10 @@
           "label": "held"
         }
       },
-      "feedback": "Nothing moved on this case: both outputs narrate a single read of reference/ticket-acceptance.md at step 3 (before gatherer.md and before the step-4 draft read and question one), and both explicitly refuse a reread at steps 4 and 9 while still applying ticket handling (the row stays in-scope through the recorded answer) and running the step-8 lint (verbatim row plus in-scope disposition). After is actually slightly tighter — it states the content persists 'through steps 4 and 8' at the moment of the read and names the lint check as the required ticket check rather than a full-spec pass — so the current wording of the Ticket Handling and read-once slices is safe for this sample under the enlarged assembly; keep the 'read once at first use, reuse while rules still apply, lint at step 8' phrasing as is and avoid adding any step-8 language that could be read as 'read before lint' for non-restored sessions, since that is the only plausible way the reuse fact could regress.",
-      "wallMs": 9765,
+      "feedback": "Before and After are textually identical for this sample, so nothing moved. Both narrate exactly one read of reference/ticket-acceptance.md at step 3 (item 3) before gatherer.md and before question one, explicitly decline to re-read it at step 4 (item 5) and step 8 (item 9), and still apply ticket handling (in-scope disposition recorded in item 7) and run the step-8 ticket lint (item 10). The expanded assembly for the amendment menu, reporter-note, and dependency-trace changes did not disturb the Ticket Handling read-once/reuse behavior here; keep the current wording of the Ticket Handling slice as-is, since it already yields the desired ordering and reuse narration under the larger prompt.",
+      "wallMs": 8552,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "2a4bb7f326aff40b7ba6b62a5c6ad0c313853a3c"
+  "repoSha": "889b5c13f91d905ab6f44b412922585f56be27ba"
 }

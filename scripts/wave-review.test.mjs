@@ -1,4 +1,5 @@
 import test from 'node:test';
+import { createHash } from 'node:crypto';
 import { runInNewContext } from 'node:vm';
 import assert from 'node:assert/strict';
 import { readFileSync, writeFileSync, mkdtempSync, existsSync, mkdirSync, readdirSync, unlinkSync } from 'node:fs';
@@ -297,4 +298,44 @@ test('shipped peer-floor guard resolves adjacent package paths and stops unsuppo
     assert.equal(result.stdout.includes('dispatch sentinel'), !!supported, name);
     if (error) assert.ok(result.stderr.includes(error), `${name}: ${result.stderr}`);
   }
+});
+
+const fixReference = new URL('../skills/subagent-driven-development/reference/fix-loop.md', import.meta.url);
+const fixRules = skill.split('## Fix-Loop Rounds')[1].split('## Fix delta')[0] + (existsSync(fixReference) ? readFileSync(fixReference, 'utf8') : '');
+const stopNote = readFileSync(new URL('../skills/subagent-driven-development/stop-note.md', import.meta.url), 'utf8');
+
+test('amendment owners honor permission before fact and decision routing', () => {
+  const prerequisite = skill.split('## Prerequisites')[1].split('## Fix-Loop Rounds')[0];
+  assert.match(prerequisite, /amend permission on the `\*\*Amend-grant:\*\*` line/);
+  const status = skill.split('## Implementer Status')[1].split('## Model')[0];
+  const rows = status.split('\n').filter(line => /^\| `(NEEDS_CONTEXT|BLOCKED)`/.test(line));
+  assert.equal(rows.length, 2);
+  for (const row of rows) {
+    assert.match(row, /spec-defect citation.*amendment route.*Resolve fact asks/);
+  }
+  assert.match(status, /candidate answers are each edits to the spec, plan, or an approved rule.*amendment batch.*never a decision/);
+  assert.match(status, /changed problem statement; component added, removed, or re-bounded/);
+  assert.match(status, /another-round approval.*only.*no funded round left/);
+  for (const text of ['recommended', 'alt-n', 'amended the spec: <title> - <what>', 'plan-writer', 'plan_check', 'tracker update', 'amend:']) assert.ok(status.includes(text), text);
+  assert.match(skill, /`NEEDS_CONTEXT`, `BLOCKED`, a fix-loop escalation, a workflow warning, a redraw, or an amend with no standing grant\./);
+});
+
+test('funded rounds preserve escalated isolation, task ownership and fail-closed resume', () => {
+  assert.match(skill, /An escalated round fails with no funded round left/);
+  for (const text of ['Value decoding', 'funded round <k> of <N> for task <n>', 'context: "fresh"', 'async: false', 'one implementer, no fan-out', 'same review gate', 'spent starting at zero', 'every touched task', 'SR-to-CR', 'not recovered on resume']) assert.ok(fixRules.includes(text), text);
+  assert.match(fixRules, /non-`DONE` status or a dispatch error -> stop note/);
+  assert.match(fixRules, /funded.*`STAGNANT`.*stop/i);
+  assert.match(fixRules, /Errors and non-`DONE`.*spent.*stop/);
+  assert.match(fixRules, /review-3 convergence exception.*never re-arm/);
+  assert.match(fixRules, /no wave-level allowance/);
+  assert.match(fixRules, /recoverable.*exhausted/);
+  assert.match(skill, /continuing past `STAGNANT` instead of escalating \(or, on a funded re-review, stopping\)/);
+  assert.match(readFileSync(fixReference, 'utf8').split('## Funded rounds')[1], /escalated-round failure with no funded round left/);
+});
+
+test('funded rounds own stop-note funding rules and preserve the base stop note', () => {
+  const funded = readFileSync(fixReference, 'utf8').split('## Funded rounds')[1];
+  assert.match(funded, /While a budget token exists, include `budget: <spent> of <N> spent` in every stop note after `Problem:` and any `Searched:` lines and before the file finding/);
+  for (const text of ['pre-escalation', 'missing `implModel`', 'exhausted fact lookups at spent zero', 'only round-history exception', '(not recovered on resume)', 'omit the line without a token']) assert.ok(funded.includes(text), text);
+  assert.equal(createHash('sha256').update(stopNote).digest('hex'), '18cf2100349c29183c25929de308a7603d5c2e28e33f33ac922f017bcc743011');
 });

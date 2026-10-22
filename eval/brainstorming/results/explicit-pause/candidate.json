@@ -34,8 +34,8 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "1ef59ed2b09e738d0b9a6ea5045b93b74212aa424c64479f15220d4e31eb90e8",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "37c6b01a1622db7452f185f1976561b66962be40989858f075338e9e3b73fc3a",
-      "baselineOutputSha": "3527e8d7a524ae55dcda327b8c53bf8dbfb318f838706d43bf62ce303eb3a69d",
+      "intentSha": "5aa2bf78a144556c707465aa0b7081fb61f66dc61c2e759e7988b90489850f48",
+      "baselineOutputSha": "676136ee17a8101eb1af353ccdf1f8ce7796e55a0fe1d58b406efeafbaac44ee",
       "candidateOutputSha": "676136ee17a8101eb1af353ccdf1f8ce7796e55a0fe1d58b406efeafbaac44ee",
       "facts": {
         "f1": {
@@ -44,15 +44,15 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "Both outputs honor the pause: each records the A answer, states explicitly that it is stopping, names the single open point (filter reset on workspace change) without proposing options for it, and advances no design or approval. After stays within f1, but it edges closer to the line than Before in two places: \"I'll ask that next, unless what you find settles it\" previews the next question and \"share what you learned ... or just say 'continue'\" reads like a soft prompt for a reply. Neither is a question or an approach, so f1 holds, but to keep the margin Before had, phrase the hand-off as Before did - name the open point as a fact and say you will pick it up as the next question when the user returns - rather than describing what you will ask or instructing the user what to send. Also keep Before's explicit note that no approaches have been proposed; After's \"nothing has been designed or approved\" covers design but drops the approaches disclaimer the fact names.",
-      "wallMs": 10730,
+      "feedback": "Before and After are byte-identical on this case, so nothing moved. Both record the A answer, state the pause explicitly, confirm step 4 with no design or approval, and only name the next open decision (filter reset on workspace change) without actually asking it, listing approaches, or advancing design; the closing line is a return instruction, not a question. The expanded assembly (amendment menu grammar, reporter-note carry-through, dependency tracing) did not leak into this continuation reply, so the explicit-pause contract is preserved as expected. No wording change is needed for this sample; keep the replay exception scoped so continuation outputs stay unchanged.",
+      "wallMs": 5971,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "1ef59ed2b09e738d0b9a6ea5045b93b74212aa424c64479f15220d4e31eb90e8",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "37c6b01a1622db7452f185f1976561b66962be40989858f075338e9e3b73fc3a",
-      "baselineOutputSha": "3f15db0605e84f7b3fdced836bce23b6819c42d5d2dc0d93650801ffec3b5813",
+      "intentSha": "5aa2bf78a144556c707465aa0b7081fb61f66dc61c2e759e7988b90489850f48",
+      "baselineOutputSha": "6a003a9598202020c2856f79303d7da33bd5988f04e0049e700316fcf2b2c30a",
       "candidateOutputSha": "6a003a9598202020c2856f79303d7da33bd5988f04e0049e700316fcf2b2c30a",
       "facts": {
         "f1": {
@@ -61,10 +61,10 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "Both outputs honor the explicit pause: each confirms option A, notes the undecided reset behavior, and stops without asking a question, listing approaches, or advancing design. After's phrasing \"we won't move on to approaches or design until you're ready\" names the next stages but does not present or advance them, so the fact still holds; it is slightly riskier wording than Before's \"we'll wait for your findings before continuing\" because it hints at upcoming structure. To keep f1 safely while delivering the Change (which does not touch continuation replays), prefer neutral closure like Before's \"we'll wait for your findings before continuing\" rather than enumerating what comes next.",
-      "wallMs": 4717,
+      "feedback": "Before and After are identical: both acknowledge the pause, record the chosen ownership (A), note that the reset behavior remains undecided, and stop without asking a question, presenting approaches, or advancing design, so f1 holds in both. No wording in the Change moved this fact; keep the explicit-pause handling as is in After — any future edits to the amendment menu or questionary layout should leave the pause response free of option lists, recommendations, or follow-up questions.",
+      "wallMs": 3641,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "2a4bb7f326aff40b7ba6b62a5c6ad0c313853a3c"
+  "repoSha": "889b5c13f91d905ab6f44b412922585f56be27ba"
 }

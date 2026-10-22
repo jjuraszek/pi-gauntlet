@@ -34,8 +34,8 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "17e4c6480ca869cfd4fc391793b5e2d97bf55671eea3066f550762e8e968d37a",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "37c6b01a1622db7452f185f1976561b66962be40989858f075338e9e3b73fc3a",
-      "baselineOutputSha": "ff3545df4793780233afb2deecb7e1200251b0f6ee1c94e1ed169161e1d39c57",
+      "intentSha": "5aa2bf78a144556c707465aa0b7081fb61f66dc61c2e759e7988b90489850f48",
+      "baselineOutputSha": "4c956d69dd3c738b5368edb4f46a4a4e127206ca3462d682da87900bf28cecc3",
       "candidateOutputSha": "4c956d69dd3c738b5368edb4f46a4a4e127206ca3462d682da87900bf28cecc3",
       "facts": {
         "f1": {
@@ -49,20 +49,20 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "Nothing moved on this case. Both outputs end the first message with a lead-in question followed by exactly the three labeled options A) this repo, B) elsewhere: phase 2, C) repair the ticket (with the /skill:shape-ticket acme/widgets#77 command), each on its own physical line, and a final own-line Recommendation, which is the layout the Change asked for. Neither output assigns the phase-2 row before asking: Before explicitly names it as having no owner it can assign without asking, and After says it 'won't guess who owns it' and defers the row's disposition to the answer in the approaches message. The After wording that delivers the questionary layout (lead-in first, one option per line, Recommendation last) coexists cleanly with the ticket cut-question contract here; the only cosmetic difference is After's trailing two-space soft breaks between option lines, which still render as separate physical lines and do not affect either fact. No wording adjustment is needed for this case.",
-      "wallMs": 8800,
+      "feedback": "Before and After are textually identical for this case, so nothing moved: both first messages end with the attribution question offering exactly A) this repo, B) elsewhere: phase 2, C) repair the ticket (with the /skill:shape-ticket acme/widgets#77 reference), and both carry the phase-2 row as pending rather than assigning it, so f1 and f2 hold in each. The labeled options already sit one per physical line with the lead-in before them and Recommendation: on its own final line, which matches the new questionary layout rule, so the After wording preserved the cut-question contract here without any regression. No wording adjustment is needed for this sample; keep the scoping sentence that confines the numbered amendment-menu grammar to the amendment batch so the ticket cut question continues to render in this lettered A/B/C form with the recommendation line intact.",
+      "wallMs": 6398,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "17e4c6480ca869cfd4fc391793b5e2d97bf55671eea3066f550762e8e968d37a",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "37c6b01a1622db7452f185f1976561b66962be40989858f075338e9e3b73fc3a",
-      "baselineOutputSha": "625495d3fbca91dcf5caf67815548af6a48d72e291f6819c2ba09528ee589617",
+      "intentSha": "5aa2bf78a144556c707465aa0b7081fb61f66dc61c2e759e7988b90489850f48",
+      "baselineOutputSha": "c38d293287bf3eee7320aa25264228542df00881427c177881bc720266df122d",
       "candidateOutputSha": "c38d293287bf3eee7320aa25264228542df00881427c177881bc720266df122d",
       "facts": {
         "f1": {
-          "before": "holds",
-          "after": "holds",
+          "before": "fails",
+          "after": "fails",
           "label": "intended but unchanged"
         },
         "f2": {
@@ -71,10 +71,10 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "Nothing moved in this case: both outputs ask the three-way ownership question for the `phase 2` row (A) this repo, B) elsewhere, C) repair the ticket) with a recommendation, and neither first message assigns the row to a repository on its own; After even adds the lead-in/blank-line/own-line-recommendation layout the Change asks for without losing anything. One wording note for both versions: the B option is rendered as `elsewhere: <name>` rather than carrying the unmatched heading text (`elsewhere: phase 2`) as the fact phrases it; if you want that literal form guaranteed, have the cut-question template instruct 'label the elsewhere option with the unmatched heading verbatim, followed by a placeholder for the repository name' so the layout change in questionary responses keeps the heading visible on the option line.",
-      "wallMs": 13315,
+      "feedback": "Before and After are textually identical here, so the Change moved nothing in this case. Both outputs ask the ownership question with options A) this repo and C) repair the ticket, but option B is rendered as \"elsewhere: `<name>` — name the repository responsible\" rather than \"elsewhere: phase 2\"; the fact as written requires the B option to carry the unmatched heading name itself as the elsewhere candidate, so f1 fails in both outputs for the same reason, independent of the amendment-menu and reporter-note wording. f2 holds in both: the phase-2 row is explicitly surfaced and left unassigned pending the answer. If you want f1 to hold, the ticket-acceptance cut-question template should instruct the model to label option B with the literal heading text (\"B) elsewhere: phase 2\") instead of a `<name>` placeholder, and the scoping sentence you added for the amendment menu should restate that the cut question keeps that exact three-option form; that change would not disturb the lead-in/one-option-per-line/final Recommendation layout already shown here.",
+      "wallMs": 16392,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "2a4bb7f326aff40b7ba6b62a5c6ad0c313853a3c"
+  "repoSha": "889b5c13f91d905ab6f44b412922585f56be27ba"
 }

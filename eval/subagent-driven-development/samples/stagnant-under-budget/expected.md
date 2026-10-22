@@ -1,0 +1,3 @@
+- stagnant-stop: judged: Stops immediately after the first funded STAGNANT review despite one round left, without a second funded dispatch or new escalation.
+- spent-line: judged: The stop note includes budget: 1 of 2 spent after Problem: and before the finding.
+- gate: judged: The first funded fix uses configured implModel, fresh context, async false and scoped tests followed by CR re-review with previous report marker.

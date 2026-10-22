@@ -1,0 +1,2 @@
+- redraw-stop: judged: Classifies the added component as a redraw and stops for human approval despite amend permission.
+- no-apply: judged: Does not apply the candidate, dispatch plan-writer amend, or make an amend: commit.

@@ -1,0 +1,100 @@
+{
+  "sample": "amend-under-grant",
+  "arm": "candidate",
+  "skillSha": "189def06171f6e52e6410bef6f2f2a7921b36b6765947eeb4846e58a19dc3243",
+  "inputSha": "a77e834109d23827e7a8ad7b11fe6083a178adfeb6724a21759d9bcff68f341f",
+  "kind": "text",
+  "assembly": "headed",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "# Task 3 \"Frame validation\": granted spec amendment, through the `amend:` commit and reply\n\n## 1. Classify the review finding\n\nThe finding is a spec defect inside the existing frame component. The length rule contradicts the empty-frame rule.\n\n- **Amendment, not a decision.** Every candidate answer is an edit to an approved rule, so it is an amendment batch, not a decision or a fact ask.\n- **Not a redraw.** The problem statement is unchanged, and no component is added, removed, or re-bounded. Nothing stops for a redraw.\n- **Task state.** Task 3 stays `in_progress`. There is no `plan_tracker` write yet and no `phase_tracker` call. The phase stays `implement`.\n\n## 2. Load the amendment surface\n\nI use the `read` tool, not a shell command, on the surface's absolute path.\n\n```\nread <absolute path of the installed pi-gauntlet package>/skills/brainstorming/reference/amendment-surface.md\n```\n\n## 3. Decode the grant\n\n**Structural predicate.** The spec's header block, between the H1 and the first `##`, has exactly one line: `**Amend-grant:** auto-apply amends`. Its trimmed value is non-empty, single-line text, so the grant is active. The line is not malformed.\n\n**Value decoding:**\n- There is no `fund N fix rounds` or `N more fix rounds` token, so nothing is funded.\n- The remainder, `auto-apply amends`, is non-empty, so amend permission applies.\n\n**Result:**\n- Skip the reviewer dispatch (step 3), the human menu (step 4), and any confirmation turn.\n- Apply the item's `recommended` choice. That choice is `alt-2`, not `accept`, because a grant never defaults to `accept`.\n\n## 4. The prepared item (held, then applied)\n\n| Field | Value |\n|---|---|\n| handle | `empty` |\n| title | Empty frame rule |\n| location | Frame component spec section, empty-frame rule and length rule. Old: zero-length frames are both permitted and rejected. New: reject frames with an empty payload, but permit the existing heartbeat marker. |\n| what | Empty payloads are rejected; the existing heartbeat marker stays valid. |\n| why | Removes the length/empty-frame contradiction blocking task 3 without breaking heartbeats. |\n| example | Empty-payload frame: ambiguous → rejected. Heartbeat marker frame: ambiguous → accepted. |\n| evidence | The review's `file:line` finding quoting both contradictory rules. |\n| recommended | `alt-2` |\n| alternatives | `accept` (permit zero-length frames), `alt-1` (reject all empty frames) |\n\n**Apply the edit.** In the main loop, I `edit` `/workspace/project/<spec path>` so that both rules state the alt-2 text. Then I print:\n\n```\namended the spec: Empty frame rule - Empty payloads are rejected; the existing heartbeat marker stays valid.\n```\n\n## 5. Aftermath: the plan exists\n\nFirst I `read` amendment-surface §5 again; I never run the aftermath from memory. Then I collect the in-flight paths:\n\n```bash\ngit -C \"/workspace/project\" status --porcelain\n```\n\nI use the worktree-relative paths it reports as `In-flight:`. That list includes `<spec path>` and any staged task-3 deliverables.\n\n**Plan-writer dispatch** (per `writing-plans` \"Author the plan\" step 3):\n\n```ts\nsubagent({ agent: \"plan-writer\", context: \"fresh\", async: false, cwd: \"/workspace/project\",\n  task: `<writing-plans step-3 payload: abs spec path /workspace/project/<spec path>, abs plan path /workspace/project/<plan path>>\nAmend:\n- Frame component: empty-frame rule and length rule. Empty payloads are rejected; the existing heartbeat marker is permitted (resolves the length vs empty-frame contradiction).\nIn-flight:\n<each path from git status --porcelain, e.g. <spec path>, ...>\nRule: preserve every task title and wave position the amendment does not touch; edit only affected anchors and tasks.` })\n```\n\nThe dispatch returns the updated plan.\n\n**Plan check.** I run the parent `plan_check` (steps 5-6). It passes. I then read the amended plan once (step 7's read only), with no phase completion and no tracker init. The main loop never edits plan text.\n\n**Tracker update**, driven by what the amended plan shows:\n- Task 3 is already `in_progress`, so it stays as is.\n- Any *completed* task whose anchors changed gets `plan_tracker({ action: \"update\", index: N, status: \"in_progress\" })` and re-runs the task loop.\n- Any new task gets `plan_tracker({ action: \"add\", ... })`.\n- Only if a task was removed: one re-`init` that keeps order and statuses and puts pending tasks after non-pending ones. Never `clear`.\n\n## 6. One `amend:` commit (spec and plan together, same turn)\n\n```bash\ngit -C /workspace/project add -- \"<spec path>\" \"<plan path>\"\nprintf '%s\\n' \\\n'amend: 1 item(s) - Empty frame rule' \\\n'' \\\n'- empty | Empty frame rule | Empty payloads are rejected; the existing heartbeat marker stays valid. | granted | reviewer skipped under standing grant | <review file:line finding>' \\\n'\"auto-apply amends\"' \\\n| git -C /workspace/project commit -q -F - -- \"<spec path>\" \"<plan path>\"\n```\n\n## 7. Reply\n\n```\namended the spec: Empty frame rule - Empty payloads are rejected; the existing heartbeat marker stays valid.\nRecorded: empty=alt-2\n```\n\nThis is the boundary. The next step is to re-dispatch task 3's implementer with the amended rule in its task text, but code implementation is not requested here.\n",
+      "words": 726,
+      "wallMs": 28436,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "Apply **alt-2: reject empty payloads but permit the existing heartbeat marker**. The standing grant permits this amendment, and it does not change the problem statement or component boundaries. **Skip amendment review, the human menu, and confirmation.** Do not default to `accept`.\n\nThe spec and plan filenames were not supplied. Below, `SPEC` and `PLAN` mean their existing absolute paths from task 3’s workflow metadata—not newly invented files. All repository operations use `/workspace/project`.\n\n### 1. Parent amendment\n\nRe-read section 5, “Apply, aftermath, commit,” of the supplied amendment-surface reference before applying.\n\nThe parent edits the approved spec’s conflicting length/empty-frame rule to express:\n\n> Reject empty payloads, except that the existing heartbeat marker remains permitted.\n\nPreserve the existing heartbeat marker’s definition and all unrelated rules. Leave this header unchanged:\n\n```text\n**Amend-grant:** auto-apply amends\n```\n\nThis selects **alt-2**, not “permit zero-length frames” and not “reject all empty frames.”\n\nParent reply:\n\n```text\namended the spec: Empty frame rule - Reject empty payloads while preserving the existing heartbeat marker.\n```\n\n### 2. Collect the in-flight paths\n\nNext shell command:\n\n```bash\ngit -C /workspace/project status --porcelain\n```\n\nUse the actual output to construct the `In-flight:` list, including the amended spec and any existing staged or unstaged workflow deliverables. Do not infer or fabricate that list.\n\n### 3. Dispatch the plan amendment\n\nUse the existing plan-writer amend route, with no model override:\n\n```ts\nsubagent({\n  agent: \"plan-writer\",\n  context: \"fresh\",\n  async: false,\n  cwd: \"/workspace/project\",\n  task: `\nAmend the existing approved implementation plan.\n\nSpec: ${SPEC}\nPlan: ${PLAN}\n\nAmend:\n- Empty frame rule: the existing frame component's length rule contradicted\n  its empty-frame rule.\n- The parent has selected and applied alt-2: reject empty payloads but permit\n  the existing heartbeat marker.\n- Preserve the existing heartbeat marker definition.\n- Update the affected spec anchors and task 3 (\"Frame validation\"), including\n  its acceptance/test contract where required by this rule.\n- This is an amendment within the existing component, not a redraw.\n\nIn-flight:\n${ACTUAL_WORKTREE_RELATIVE_PATHS_FROM_STATUS}\n\nPreserve every task title and wave position the amendment does not touch;\nedit only affected anchors and tasks.\nPreserve the listed in-flight edits; do not implement code.\nReturn the updated plan for the parent's plan_check.\n`\n})\n```\n\n### 4. Validate, read, and reconcile tracking\n\nRun the parent `plan_check` against the returned plan using the existing writing-plans validation interface. Its target is `PLAN`, with `SPEC` as the authoritative spec.\n\nThe scenario supplies that **plan_check passes**. Read the updated plan once, then reconcile its affected tasks with the existing tracker:\n\n- Task 3 is already `in_progress`; keep it there. Do not mark it complete merely because its rule and plan were amended.\n- If the updated anchors affect any **completed** task, reopen that existing index as `in_progress`.\n- Do not reinitialize or clear the tracker, and do not change phase.\n- No new task is justified merely by the supplied amendment.\n\nFor task 3, the explicit state-preserving update is:\n\n```ts\nplan_tracker({ action: \"update\", index: 3, status: \"in_progress\" })\n```\n\nFor each actually affected completed task, if any:\n\n```ts\nplan_tracker({\n  action: \"update\",\n  index: affectedExistingIndex,\n  status: \"in_progress\"\n})\n```\n\nNo implementation or review dispatch follows in this bounded scenario.\n\n### 5. Commit the amendment only\n\nAfter the updated plan has passed validation, inspect the spec-and-plan delta:\n\n```bash\ngit -C /workspace/project diff HEAD -- \"$SPEC\" \"$PLAN\"\n```\n\nCommit only the amendment artifacts; do not sweep unrelated in-flight code into this commit:\n\n```bash\ngit -C /workspace/project add -- \"$SPEC\" \"$PLAN\"\n\ngit -C /workspace/project commit --only -F - -- \"$SPEC\" \"$PLAN\" <<'EOF'\namend: 1 item(s) - Empty frame rule\n\n- empty | Empty frame rule | Reject empty payloads while preserving the existing heartbeat marker. | granted | Recommended alt-2 applied under the standing amendment grant; review and menu bypassed. | Review identified a contradiction between the length rule and the empty-frame rule.\n\"auto-apply amends\"\nEOF\n```\n\nThis is the amendment commit—not a wave implementation commit. Task 3 remains `in_progress`.\n\nAfter that commit succeeds, the parent replies:\n\n```text\nRecorded: empty=alt-2\n\nUpdated the spec and approved plan to reject empty payloads while permitting the existing heartbeat marker. The amendment is committed; task 3 remains in progress. No code implementation was performed.\n```\n\nThese are the next actions and payloads, not a claim that they have been executed.\n",
+      "words": 657,
+      "wallMs": 28927,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "7d9ccc8e5899c6a591eecb72c2c956e44f862772828a2599a3c308f919dca483",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "e4d5fcbcb93f0cd09e7bb2e81b650931e36cf23edf2d60064b277e1d881f8af6",
+      "baselineOutputSha": "827be69421f8c0c5b79b2084ca98bc30d1cc98d330c958298ae05f5ceb7ae7ca",
+      "candidateOutputSha": "d80b5e4edc50f537d8218e45363a76f3d17b5fe606a91906e99873ec220dd119",
+      "facts": {
+        "recommended": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "no-question": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "plan-dispatch": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "aftermath": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        }
+      },
+      "feedback": "After keeps every fact Before kept: it decodes the grant, explicitly applies alt-2 (not accept or alt-1) and prints the `amended the spec: Empty frame rule - ...` line, skips reviewer, menu and confirmation in the same turn, includes a concrete `subagent({ agent: \"plan-writer\", ... })` amend payload with Amend/In-flight/Rule sections for the existing plan, then runs `plan_check`, performs the tracker update rules, and makes exactly one `amend:` commit after the plan update before replying. No fact moved. Minor differences worth noting but not fact-affecting: After's edit text uses a semicolon (`rejected; the existing heartbeat marker stays valid`) where Before used a comma, and After switches the commit to a `printf | git commit -F -` pipeline — both still satisfy the facts; if you want byte-stable output across arms, keep the item's `what` text identical in the print line, the commit line and the reply, as both outputs already do internally.",
+      "wallMs": 9595,
+      "verdict": "unchanged"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "7d9ccc8e5899c6a591eecb72c2c956e44f862772828a2599a3c308f919dca483",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "e4d5fcbcb93f0cd09e7bb2e81b650931e36cf23edf2d60064b277e1d881f8af6",
+      "baselineOutputSha": "c4f6ba3402b5307a51226b956c7b0f62246ef63ddaa8f30f1ee70256d6a62072",
+      "candidateOutputSha": "4269701bd9571f8095ff6cfc310ca5175d87b1d58deb59ad3eda4f53251d2f6c",
+      "facts": {
+        "recommended": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "no-question": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "plan-dispatch": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "aftermath": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        }
+      },
+      "feedback": "After keeps every fact Before kept and gains aftermath: both outputs apply alt-2 (explicitly refusing accept and alt-1), print the `amended the spec: Empty frame rule - ...` line, skip reviewer/menu/confirmation with no question to the human, and include a concrete plan-writer amend `subagent({...})` payload for the existing plan followed by plan_check and a single `amend: 1 item(s) - Empty frame rule` commit. The only difference that matters is the tracker step: Before merely asserts Task 3 'remains in_progress' and makes any `plan_tracker` call conditional on affected completed tasks, so a careful reader cannot say Before actually updates the tracker; After adds the explicit `plan_tracker({ action: \"update\", index: 3, status: \"in_progress\" })` call before the commit, which is what satisfies the aftermath fact. To keep this behavior while staying tight, retain that explicit task-3 tracker update (it is the load-bearing wording) and consider dropping the redundant `git add -- \"$SPEC\" \"$PLAN\"` before `commit --only`, since `--only` already selects those paths and the extra add could be read as staging noise; otherwise no wording in After needs to change for this case.",
+      "wallMs": 25850,
+      "verdict": "improved"
+    }
+  },
+  "repoSha": "5e92a626b844c53877c961797276c7c97b5ab21e"
+}

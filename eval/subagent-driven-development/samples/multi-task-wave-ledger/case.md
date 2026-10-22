@@ -1,0 +1,5 @@
+# Shared CR fix spends both task ledgers
+
+In /workspace/project, a two-task code wave contains task 3 owning src/frame.ts and task 4 owning src/envelope.ts, both in_progress. Header: `**Amend-grant:** fund 1 fix rounds`. Both tasks have entered Fix-Loop Rounds, spent zero, and accepted SR. Task 3 already used its review-3 convergence exception; SR-to-CR changed no ledger. Integrated CR and the one escalated repair still show FIX_FIRST, TRAJECTORY: DIVERGING, Behaviour-change: yes. The repair touches both owners' files. escalationLoop resolves implModel to <configured-impl-model>; scoped union is `node --test frame.test.mjs` and `node --test envelope.test.mjs`. Reports and payloads are available verbatim.
+
+The first funded implementer returns DONE, touches both files and passes both commands. Fixed rerouted SR for task 3 and task 4 is COMPLIANT. Fixed CR re-review is FIX_FIRST, TRAJECTORY: CONVERGING (2 -> 1, max severity Moderate), Behaviour-change: yes, residual `src/frame.ts:21 - missing guard`. The proposed next repair again touches both files. Show full first funded fix/test/SR/CR payloads and next parent action through stop. No new grant was written.

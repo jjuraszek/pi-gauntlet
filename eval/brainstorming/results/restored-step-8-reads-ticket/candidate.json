@@ -34,8 +34,8 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "046c7bb9a20ff6bf528fe609ce1a86e038962d98a587d13f5f9bdac95ac7181c",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "37c6b01a1622db7452f185f1976561b66962be40989858f075338e9e3b73fc3a",
-      "baselineOutputSha": "c646cc28167298a766796b35cafdb21048125c10652442467ccd478d7f1b83f3",
+      "intentSha": "5aa2bf78a144556c707465aa0b7081fb61f66dc61c2e759e7988b90489850f48",
+      "baselineOutputSha": "019e6496b294364cc619baa3aa4445f27d612b70281c840e889b792652db7d74",
       "candidateOutputSha": "019e6496b294364cc619baa3aa4445f27d612b70281c840e889b792652db7d74",
       "facts": {
         "restored-read": {
@@ -49,15 +49,15 @@
           "label": "held"
         }
       },
-      "feedback": "Neither fact moved. In the readable branch, After checks context (step 3), narrates `read reference/ticket-acceptance.md` (step 4), and only then runs the step 8 inline checks (step 5), so the read-before-lint order is as explicit as Before's. In the unreadable branch, After narrates the attempted read, the unreadable-file error, and a blocking stop that names the file, skips the inline checks, leaves the row untouched, does not advance to step 9, and explicitly refuses to reconstruct the reference from memory — matching Before. The only new material is the project-overrides lookup (step 2 in each branch) and the tracker-reset note, which the fixed observations give no outcome for; After correctly claims no outcome, but this is extra narration beyond the observations and could tempt a weaker run into inventing an overrides result. If you want to tighten the wording, keep the Ticket Handling slice's restored-entry rule and the 'never reconstruct from memory' line as they are, and consider telling the Narrated read actions replay to narrate only reads whose outcomes are given in the fixed observations so the overrides lookup stays out of these samples.",
-      "wallMs": 11056,
+      "feedback": "Before and After are textually identical, so nothing moved. In both outputs the readable branch explicitly treats the restored entry as having nothing in context (step 3), narrates the read of reference/ticket-acceptance.md (step 4), and only then runs the step 8 inline checks (step 5), which satisfies restored-read. In both outputs the unreadable branch narrates the attempted read, the unreadable-file error, and a blocking stop that skips lint, leaves the row untouched, does not advance to step 9, and does not reconstruct the reference; the one quoted rule ('Unreadable -> stop with a blocking error, never reconstruct from memory') is attributed to the brainstorming Ticket Handling slice in the assembled prompt, not to the unreadable reference file, so blocking-stop holds. No wording change is needed for this sample; the After assembly preserved the ordered read/stage narration contract exactly.",
+      "wallMs": 8712,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "046c7bb9a20ff6bf528fe609ce1a86e038962d98a587d13f5f9bdac95ac7181c",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "37c6b01a1622db7452f185f1976561b66962be40989858f075338e9e3b73fc3a",
-      "baselineOutputSha": "6728a688d485eeb2d717e4bb1349a0bc3f22823d1abe039b955f1bd2feabce31",
+      "intentSha": "5aa2bf78a144556c707465aa0b7081fb61f66dc61c2e759e7988b90489850f48",
+      "baselineOutputSha": "d467be2681b9da1551b4604d684a2fc4a1c7c94c3214450b0308956710a8dbf5",
       "candidateOutputSha": "d467be2681b9da1551b4604d684a2fc4a1c7c94c3214450b0308956710a8dbf5",
       "facts": {
         "restored-read": {
@@ -71,10 +71,10 @@
           "label": "held"
         }
       },
-      "feedback": "Neither fact moved: both outputs narrate the step-8 read of reference/ticket-acceptance.md ahead of lint in the readable branch, and both narrate the attempted read, the unreadable-file error, and a blocking stop with no lint, advance, or reconstruction in the unreadable branch. After is leaner but drops two protective phrases Before had: the explicit refusal to \"substitute the bundled reference\" (After only says \"do not reconstruct the reference\") and the rationale \"rather than assuming an earlier read survives\" is only implied by \"because it is not in session context\". After also places a \"Stage — spec lint\" item before the required Spec Self-Review read, which reads as lint beginning before its prerequisite; Before ordered it as resume-then-read-instructions. To keep both facts robustly held while delivering the Change's narrated-read-actions replay, keep After's compact labels but restore the explicit \"do not substitute the bundled reference text\" clause in the unreadable stop, and in the readable branch either place the Spec Self-Review read before the lint stage item or label step 2 as scope confirmation rather than lint execution.",
-      "wallMs": 12825,
+      "feedback": "Before and After are textually identical, so nothing moved. In the readable branch both outputs narrate an explicit read of reference/ticket-acceptance.md at restored step 8, justified by its absence from session context, before the spec-lint stage runs; neither assumes a prior-session read survives restoration. In the unreadable branch both narrate the attempted read, the unreadable-file error, and a blocking stop that forbids reconstruction, continued lint, or advancing to the critique pass. The After wording preserves both facts; no change is needed for this sample.",
+      "wallMs": 6003,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "2a4bb7f326aff40b7ba6b62a5c6ad0c313853a3c"
+  "repoSha": "889b5c13f91d905ab6f44b412922585f56be27ba"
 }

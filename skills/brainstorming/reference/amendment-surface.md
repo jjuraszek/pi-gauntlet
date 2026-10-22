@@ -19,6 +19,8 @@ A grant is the spec's `**Amend-grant:**` line read through the shared predicate;
 | exactly one line whose trimmed value is any other non-empty single-line text | grant active; the sentence is that value |
 | two or more lines, one line with an empty value, or a value continued onto the next physical line (any non-blank line directly below the field that is neither a `**Key:**` header line nor a `> **Superseded by:**` banner line) | malformed -> stop, print the offending line(s) |
 
+**Value decoding**. Run the structural predicate first; missing or `none` gives neither capability, and malformed lines stop with the offending lines quoted. Decode every active value: section 1 at each batch boundary, SDD Fix-Loop Rounds at each funded dispatch, and `spec-finalization.md` before writing the value. Match exactly one `fund N fix rounds` or `N more fix rounds` anywhere on the line, with N matching `[1-9][0-9]*`; no match funds nothing. Stop and quote the line before any item applies or any round is funded on two or more matches or a token-shaped invalid phrase (`fund 0 fix rounds`, `fund three fix rounds`, `-2 more fix rounds`). Remove the matched token and its `; ` / `, ` separators for amend decoding: a non-empty remainder keeps wording-agnostic amend permission (`auto-apply amends`, `apply spec fixes without asking`, or equivalent); an empty remainder is budget-only, with no amend permission. Keep grants without a budget unchanged. Decode `auto-apply amends; fund 3 fix rounds` as both capabilities and `2 more fix rounds` as budget-only. The budget is non-retroactive: rounds spent before the line was written do not count against or toward it. Write `none` on revocation such as `revoke auto-apply amends`, clearing both capabilities; retain funding alone by writing the token alone.
+
 **Writers.** Spec-writing and the spec gate are owned by `spec-finalization.md`; this file owns the mid-flow changes:
 
 | Event | Edit |
@@ -54,7 +56,7 @@ Collect every amendment pending at this decision point (same spec-review round, 
 
 The working tree stays at pre-batch HEAD until apply (section 5) - nothing is edited before the reviewer and, where needed, the human have answered. A redraw item stops alone first (`../SKILL.md` redraw path); amend items are held and re-batched after it resolves.
 
-**Standing grant active** ([boundaries](#standing-grants)): at every batch boundary re-read the spec's `**Amend-grant:**` line through the predicate; malformed stops the batch with the offending line(s). Active -> skip steps 2-4, apply every item, print one line each `amended the spec: <title> - <what>`, record `granted`, and quote the line's value in the commit body - the record kind `finishing-a-development-branch` Step 4's digest reads is unchanged.
+**Standing grant active** ([boundaries](#standing-grants)): at every batch boundary re-read the spec's `**Amend-grant:**` line through the predicate and Value decoding; malformed stops the batch with the offending line(s). Active with amend permission -> skip steps 2-4, apply every item's `recommended` choice (`accept` or its named `alt-n`, never `accept` by default) through section 5, print one line each `amended the spec: <title> - <what>`, record `granted`, and quote the line's value in the commit body - the record kind `finishing-a-development-branch` Step 4's digest reads is unchanged. Budget-only takes ordinary steps 2-4; absent or `none` follows the ordinary path.
 
 ## 2. Prefilter - no model call
 

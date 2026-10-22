@@ -34,8 +34,8 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "9edb4dc803670594227d5d4a824f10007c3df50a9d9dddb87a6fd777f3d2f8b8",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "37c6b01a1622db7452f185f1976561b66962be40989858f075338e9e3b73fc3a",
-      "baselineOutputSha": "6767934437fe3771a25bdf85ddd2551fd34e7898e406671ce3d75743939d7e03",
+      "intentSha": "5aa2bf78a144556c707465aa0b7081fb61f66dc61c2e759e7988b90489850f48",
+      "baselineOutputSha": "adc79d7d2df06f60e60886af474c4232a4c16ac6ed8688780e36edc72664de0a",
       "candidateOutputSha": "adc79d7d2df06f60e60886af474c4232a4c16ac6ed8688780e36edc72664de0a",
       "facts": {
         "premise": {
@@ -64,15 +64,15 @@
           "label": "held"
         }
       },
-      "feedback": "Nothing moved on this case: both outputs trace the dump restore to `demo_vector` via `fixtures/search.sql` and `bench/query.sql`, name the installed-extension listing as the lookup, report `plpgsql`-only as the result in the first message, restate it at the top of the separate approaches message, and carry it into the spec `## Problem`, while keeping the installed-vs-available distinction explicit and stating that no live database was queried. Note that Before already satisfied every fact here, so the expected fails->holds moves are not evidenced by this pair; the Change's dependency-tracing wording is consistent with both, and no wording regression is visible. One small point to watch in After: option A's phrasing 'continues on the assumption that it is installable' sits slightly at odds with the same message's 'unverified' label for installability; a safer wording is 'continues with installability recorded as unverified' (as Before put it) so the premise note never reads as asserting availability from an installed-only listing. After's bulleted 'Lookup / Result / Whether it can be installed' restatement before the approaches is a clear pattern worth keeping.",
-      "wallMs": 16587,
+      "feedback": "Before and After are textually identical for this case, so no fact moved: both outputs trace fixtures/search.sql:1-2 to demo_vector in the first message, state it is absent from the installed-extension listing (only plpgsql), restate the lookup and result as a prelude to the separate approaches message, carry the corrected premise and the installed-only versus available-catalog distinction into the spec ## Problem excerpt, keep going with two approaches rather than asking the user to locate the extension, and explicitly say the availability catalog and a live database were not reachable. The Expected-to-move list predicted fails -> holds for premise/approaches/problem, but the Before text already satisfies them, so the Change delivers no observable difference here; if the author wants this replay to demonstrate the new dependency-tracing wording, the Before baseline needs to be one that actually omits the lookup carry-through, otherwise the case cannot distinguish the two wordings.",
+      "wallMs": 10959,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "9edb4dc803670594227d5d4a824f10007c3df50a9d9dddb87a6fd777f3d2f8b8",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "37c6b01a1622db7452f185f1976561b66962be40989858f075338e9e3b73fc3a",
-      "baselineOutputSha": "f8807c78a4e7f682a24c7cc5ee617f1542fbe744b74a152982fd74020c082c45",
+      "intentSha": "5aa2bf78a144556c707465aa0b7081fb61f66dc61c2e759e7988b90489850f48",
+      "baselineOutputSha": "c7593403da0bc1c25045fc21926c8d156c24feae350b271ac68436bddb9b5153",
       "candidateOutputSha": "c7593403da0bc1c25045fc21926c8d156c24feae350b271ac68436bddb9b5153",
       "facts": {
         "premise": {
@@ -101,10 +101,10 @@
           "label": "held"
         }
       },
-      "feedback": "Nothing moved: both outputs trace the dump restore to demo_vector, name the installed-extension listing as the lookup, carry the result into the premise note, the approaches message, and the spec ## Problem, keep brainstorming going, and distinguish not-installed from unavailable. Two After wordings are worth tightening so the change stays safe under other samples: the opening 'I checked the fixture-to-database restore path ... the supplied installed-extension listing' reads close to a live-lookup claim and would be safer as 'I reviewed the supplied ...' with an explicit 'no live checks were possible' line as Before had; and After introduces an unresolved `item.id` schema concern inferred from the three quoted fixture lines, which goes beyond the fixed observations (only lines 1-3 were shown) and risks a replay judge reading it as invented evidence - if the wording is meant to trace dependencies, scope the instruction to dependencies visible in the supplied excerpts and flag anything not shown as 'not checkable' rather than as a reconciliation task. Otherwise the After template preserves every fact Before held while delivering the missing-dependency carry-through.",
-      "wallMs": 16194,
+      "feedback": "The Before and After outputs are textually identical, so nothing moved. Both already satisfy every fact: the first message traces fixtures/search.sql:1–3 to demo_vector and states it is absent from the supplied installed-extension listing (only plpgsql); the approaches message opens by restating that the installed-extension lookup shows demo_vector not installed before presenting A and B; the ## Problem excerpt repeats the dependency, the listing lookup, and its result; approaches are supplied without asking the user to verify the extension first; and the text consistently distinguishes 'not installed' from 'not available for installation' and relies only on supplied observations rather than a live lookup. The Expected-to-move list anticipated premise/approaches/problem going fails -> holds, but on this case the Before baseline already held, so the After wording neither gained nor lost anything here. No wording adjustment is needed for this case; if the author wants evidence that the implicit-dependency tracing change is doing work, the eval needs a baseline that actually omits the lookup result, or a case where scout recon failure more plausibly suppresses the trace.",
+      "wallMs": 11229,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "2a4bb7f326aff40b7ba6b62a5c6ad0c313853a3c"
+  "repoSha": "889b5c13f91d905ab6f44b412922585f56be27ba"
 }

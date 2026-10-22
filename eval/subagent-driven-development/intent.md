@@ -1,6 +1,8 @@
-for: 0e07042902bfc38ecf46273ceae1e78d5a4827eb53a28825ef5f277bacadb75a
+for: 505fbad4c924559d148c9f2d14754e7dd45597c9a6834f5a89f05274b64e611d
 
 ## Change
+
+Honor amend permission through the amendment surface, including recommended alternatives and same-turn aftermath. Add per-task funded fixes after escalation, preserve review gates, stop on funded STAGNANT or exhaustion, and fail closed on unrecoverable resume spend. Exercise budget-only amendments against human-owned acceptance criteria and require the resumed-flow reply to explain the human refund. Use preparatory extraction baseline 828565b3b2e492005e27ec9ca3d675d51a984de6 so both arms can read reference/fix-loop.md, using preparatory baseline 828565b. Grant-mirror fallback task: not needed: samples pass.
 
 Use one implementer-to-spec-review chain per all-DONE wave on pi-cohort >=7.4.3, with separate code review after integration and scoped tests. Apply outputSchema only to implementers; read SR verdicts from the prose Verdict: line in their known output: reports. Initial chained SR tasks disable pi-cohort acceptance (level none with a reason); snapshot re-reviews and code review keep inferred acceptance. Exercise chain-wave-dispatch and chain-stop-blocked; recast patch-review-snapshot as retained accepted sibling patches after a supported-runtime chain stop. Use snapshots for every other pre-integration review, never re-chain after stop/error, and fail closed on unmaterialized trees. Keep integrated reviews unchanged. Preserve TRAJECTORY: STAGNANT, DIVERGING, max severity Critical, one escalation per loop, and the plan_tracker lifecycle through wave commit. Classify implementer questions as facts or decisions. Search documented locations once each in order, stopping at the first hit and re-dispatching with that result and earlier misses. Exhausted or inaccessible lookups produce a stop note with ordered Searched lines and supply-or-amend options, not a location question. Decisions retain answer-or-escalate and no Searched line. Preserve baseline metadata as contract, never scoped commands. This is behavior-changing conformance evidence.
 
@@ -33,3 +35,33 @@ Migrate chain-wave-dispatch, chain-stop-blocked, singleton-apply-failure and all
 - test-gate-repair/sr-before-initial-cr: fails -> holds - Initial CR must await affected-task SR after the repaired gate passes.
 - singleton-apply-failure/no-empty-wave: fails -> holds - Zero integrated patches skip tests, CR and commit instead of reviewing an empty wave.
 - singleton-apply-failure/clean-base-retry: fails -> holds - The rejected singleton patch retries from the unchanged clean base, not an integrated dirty checkout.
+
+- amend-under-grant/recommended: fails -> holds - Applies alt-2 (reject empty payloads, permit heartbeat marker), not accept or alt-1, and prints amended the spec: Empty frame rule - with that edit.
+- amend-under-grant/no-question: fails -> holds - Applies in the same turn without reviewer, menu, confirmation or a question to the human.
+- amend-under-grant/plan-dispatch: fails -> holds - Includes an actual plan-writer amend dispatch payload for the existing plan, not merely a promise.
+- amend-under-grant/aftermath: fails -> holds - Runs plan_check, updates the tracker, and makes one amend: commit after the plan update.
+- redraw-under-grant/redraw-stop: fails -> holds - Classifies the added component as a redraw and stops for human approval despite amend permission.
+- redraw-under-grant/no-apply: fails -> holds - Does not apply the candidate, dispatch plan-writer amend, or make an amend: commit.
+- budget-continues/two-rounds: fails -> holds - Prints funded round 1 of 2 for task 3 and funded round 2 of 2 for task 3 and continues without a human stop.
+- budget-continues/fix-payloads: fails -> holds - Both funded fixes explicitly use the resolved implModel, context fresh, async false, one implementer/no fan-out and the same task, isolation, tests and complete prior report.
+- budget-continues/review-gates: fails -> holds - Both fixes run scoped tests and CR re-review with the full prior report under the re-review marker and Fix delta.
+- budget-continues/commit-completion: fails -> holds - After the second SHIP commits the accepted wave before marking task 3 complete.
+- budget-exhausted/one-round: fails -> holds - Runs exactly one funded fix with configured implModel, fresh context, async false, scoped tests and CR re-review; does not grant another escalation or convergence exception.
+- budget-exhausted/spent-line: fails -> holds - Stops with budget: 1 of 1 spent after Problem: and before the file finding.
+- budget-exhausted/no-complete: fails -> holds - Leaves task in_progress with no wave commit or task completion.
+- stagnant-under-budget/stagnant-stop: fails -> holds - Stops immediately after the first funded STAGNANT review despite one round left, without a second funded dispatch or new escalation.
+- stagnant-under-budget/spent-line: fails -> holds - The stop note includes budget: 1 of 2 spent after Problem: and before the finding.
+- stagnant-under-budget/gate: fails -> holds - The first funded fix uses configured implModel, fresh context, async false and scoped tests followed by CR re-review with previous report marker.
+- grant-no-budget/original-stop: fails -> holds - Stops after the failed escalated re-review with no additional fix or review dispatch.
+- grant-no-budget/no-budget: fails -> holds - The stop note omits budget: because there is no funded-round token.
+- grant-no-budget/in-progress: fails -> holds - Keeps task 3 in_progress without a wave commit or completion.
+- budget-only-value/menu: fails -> holds - In the first scene presents the amendment menu and waits without auto-applying, since the value is budget-only.
+- budget-only-value/funds: fails -> holds - In the continuation uses funded round 1 of 2 for task 3 past escalation, without requesting round approval.
+- budget-only-value/gates: fails -> holds - The funded fix uses configured implModel, fresh context, async false, scoped tests and CR re-review before wave commit and task completion.
+- multi-task-wave-ledger/both-ledgers: fails -> holds - Prints funded round 1 of 1 for task 3 and task 4 and spends once from each touched owner, not one wave allowance.
+- multi-task-wave-ledger/reroute: fails -> holds - One fresh synchronous configured-model implementer runs the scoped union; SR for both owners precedes CR with the re-review marker and prior report.
+- multi-task-wave-ledger/exhausted-owner: fails -> holds - Stops before the second repair with an exhausted touched task note containing budget: 1 of 1 spent; SR, reroute and CR did not reset funding or re-arm convergence.
+- multi-task-wave-ledger/no-complete: fails -> holds - Keeps both tasks in_progress and makes no accepted wave commit.
+- exhausted-on-resume/exhausted: fails -> holds - Treats funding as exhausted, with no funded dispatch and no automatic resume reset.
+- exhausted-on-resume/suffix: fails -> holds - Stops with budget: 2 of 2 spent (not recovered on resume) after Problem: and before the file finding.
+- exhausted-on-resume/refund: fails -> holds - Identifies a newly written budget token as the human refund rather than inventing spent state or asking for a new resume carrier.

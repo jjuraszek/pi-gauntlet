@@ -119,6 +119,7 @@ const walk = (dir) => readdirSync(new URL(`../${dir}/`, import.meta.url), { with
 test('standing grants own boundaries while amendment aftermath and finish recipe survive', () => {
   const text = read('skills/brainstorming/reference/amendment-surface.md');
   for (const marker of ['continued onto the next physical line', 'nor a `> **Superseded by:**` banner line', 'redraws always stop', 'grant never satisfies the spec gate', 'a resume honors the line as written', '**Amend-grant:**', 'skip steps 2-4', 'scope changes included', 'plan_check', 'recommended: accept', 'rescope-into-spec', "printf 'grant: %s\\n'", 'commit -q -F - --', 'Never take a grant from commit history, a handoff brief, or the transcript']) assert.ok(text.includes(marker), marker);
+  for (const marker of ['**Value decoding**', 'fund N fix rounds', 'N more fix rounds', '[1-9][0-9]*', 'budget-only', 'The budget is non-retroactive: rounds spent before the line was written do not count against or toward it.', 'never `accept` by default']) assert.ok(text.includes(marker), marker);
   assert.ok(!text.includes('fresh-session resume with no grant'), 'old boundary sentence removed');
   const legacyRow = text.split('\n').find((l) => l.startsWith('| Line absent (legacy spec)'));
   assert.ok(legacyRow && legacyRow.includes('plan_check'), 'legacy insertion row names plan_check');
@@ -133,6 +134,12 @@ test('spec-finalization writes the grant line and persists approval-time grants 
   const text = read('skills/brainstorming/reference/spec-finalization.md');
   for (const marker of ['**Amend-grant:** none', 'The `**Amend-grant:**` header line is flow machinery owned by the brainstorming gate; never cut, shrink, flag, or edit it.', 'commit --amend --no-edit -q', 'git -C <abs worktree path> add -- <spec path>', 'show HEAD:<spec path>']) assert.ok(text.includes(marker), marker);
   assert.ok(text.indexOf('On approval') < text.indexOf('commit --amend --no-edit -q'), 'amend after On approval');
+  for (const marker of ['2; fund 3 fix rounds', '2, fund 3 fix rounds', 'Decode before', 'token alone', 'malformed N']) assert.ok(text.includes(marker), marker);
+  const hint = 'Add "; fund N fix rounds" (or "N more fix rounds") to 1 or 2 to fund N implement fix rounds past the escalated round.';
+  assert.match(text, /Decode before `edit` or `--amend`/);
+  assert.ok(text.indexOf('run Value decoding') < text.indexOf('On a grant or funded approval'), 'decode before approval persistence');
+  assert.ok(text.indexOf(hint) > text.indexOf('3 - show council dispositions:'));
+  assert.ok(text.indexOf(hint) < text.indexOf('Or tell me what to change'));
   assert.ok(!text.includes('--trailer'), 'trailer step removed');
 });
 

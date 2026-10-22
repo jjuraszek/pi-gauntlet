@@ -1,0 +1,90 @@
+{
+  "sample": "grant-no-budget",
+  "arm": "candidate",
+  "skillSha": "505fbad4c924559d148c9f2d14754e7dd45597c9a6834f5a89f05274b64e611d",
+  "inputSha": "8d2f882c712723f23abd993bc0943b41a397b880b55d8c7bd45fcc619f01aa7f",
+  "kind": "text",
+  "assembly": "headed",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "# Next parent action: emit the stop note for task 3; no dispatch, shell, tracker write, or commit\n\n## Routing decision\n\n- **Escalation is used up.** Per `reference/fix-loop.md`, the one escalated round has already run. Its CR re-review is still issue-bearing (`FIX_FIRST`, `TRAJECTORY: DIVERGING (3 -> 3, max severity Moderate)`).\n- **The next step depends on funding.** The rule is \"a funded round while one remains for the task (below), otherwise stop note; no other second dispatch.\"\n- **No funding exists.** I decode `**Amend-grant:** auto-apply amends` through Standing grants **Value decoding**, as written in the supplied workflow. It grants amend auto-apply permission. It names no round count `N`. So no funded-round budget token exists, and nothing can be spent. Funding also never supplies another escalation grant.\n- **The convergence exception cannot apply.** It fired at most once and needs `CONVERGING`, not `DIVERGING`. It is never re-armed.\n- **Result: stop note.** There is no funded round, no second escalated round, and no re-dispatch to obtain anything.\n\n## State held at the stop\n\n- **Commands:** none. I run no `git add`, no tree capture, no `reset --soft`, and no wave commit. The integrated changes stay staged and uncommitted in `/workspace/project` against `WAVE_BASE_SHA` for the human's decision.\n- **Snapshots:** no snapshot cleanup is relevant here, because the post-integration review used the implementation worktree directly.\n- **Trackers:** no `plan_tracker` write. Task 3 stays `in_progress`, and the phase stays `implement`. No later wave or task starts.\n- **Budget line:** omitted, because no budget token exists.\n\n## Reply (inline; turn ends here)\n\n```\nStopped on task 3 (Validate frame); escalated round on <configured-impl-model> did not resolve it.\n\nProblem: frame validation still reads the frame without first checking its length, so short or truncated frames are not rejected before use.\n  src/frame.ts:21 - missing length guard\n\nFix options:\n  a) add an explicit length check at src/frame.ts:21 that rejects a frame shorter than the required header/declared length before any field is read, with a test in frame.test.mjs for a truncated frame\n  b) amend plan task 3 (and the spec's frame-validation section) to state the exact minimum-length rule and the required rejection behaviour, then re-run the task against that amended text\n\nPick one, or give another fix.\n```\n",
+      "words": 351,
+      "wallMs": 18479,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "Next parent action: stop and report. `auto-apply amends` does not fund additional fix rounds. The escalated repair remains issue-bearing, so dispatch no further worker or review and run no shell commands. Do not commit or mark task 3 complete; leave it `in_progress`.\n\nStopped on task 3 (Validate frame); escalated round on <configured-impl-model> did not resolve it.\n\nProblem: Frame validation still lacks a length guard.\n  src/frame.ts:21 - \"missing length guard\"\n\nFix options:\n  a) add the missing length guard in frame validation, with a regression test\n  b) validate and reject insufficient-length frames at the caller boundary, with a regression test establishing that protection\n\nPick one, or give another fix.\n",
+      "words": 106,
+      "wallMs": 11551,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "e2156c5b0db4824161fbfb7d78a4ebe0c4ac322fa4e6ea596fd2bfcf1d2abbff",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "e4d5fcbcb93f0cd09e7bb2e81b650931e36cf23edf2d60064b277e1d881f8af6",
+      "baselineOutputSha": "3547c194faa9780232a3d7c461175958f4140385633ccd72f48846e6f7bc9202",
+      "candidateOutputSha": "2197df427a33969e8447d435e17fa1916c858cac30a1a28bfda2114437c16be6",
+      "facts": {
+        "original-stop": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "no-budget": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "in-progress": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        }
+      },
+      "feedback": "Nothing moved: both outputs stop immediately after the failed escalated re-review with no further implementer, CR, or SR dispatch, both stop notes omit any `budget:` line, and both leave task 3 `in_progress` with no wave commit, tracker write, or phase change. After improves on Before by actually decoding the `**Amend-grant:** auto-apply amends` header through the Standing-grants value decoding (amend permission only, no round count N, hence no funded-round token) rather than declaring the header undefined, which is the intended Change behaviour and does not disturb any of the three facts. One small wording caution for the author: After says the integrated changes 'stay staged and uncommitted' while also stating no `git add` is run — if the wording elsewhere implies staging happens only at wave commit, say 'uncommitted in the worktree' to avoid implying a staging step; otherwise the After routing text (escalation spent, no funding, convergence exception not re-armable, therefore stop note) is exactly the shape that keeps original-stop, no-budget and in-progress holding while delivering the grant-decoding change.",
+      "wallMs": 9095,
+      "verdict": "unchanged"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "e2156c5b0db4824161fbfb7d78a4ebe0c4ac322fa4e6ea596fd2bfcf1d2abbff",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "e4d5fcbcb93f0cd09e7bb2e81b650931e36cf23edf2d60064b277e1d881f8af6",
+      "baselineOutputSha": "cf420d221f02492b833719ac793924a53d8c7731a4d4bcac206dba10e760308b",
+      "candidateOutputSha": "6cff92a04e360c43c0adb49f4337405bc2fa936e61175eb6fc692a0fb32f060e",
+      "facts": {
+        "original-stop": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "no-budget": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "in-progress": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        }
+      },
+      "feedback": "Nothing moved: both outputs stop immediately after the failed escalated re-review with no further fix, review, or shell dispatch, neither prints a budget: line, and both explicitly leave task 3 in_progress without a wave commit or completion. After actually strengthens the intent of the Change by stating that `auto-apply amends` is not a funded-round token and therefore funds no additional rounds, which is exactly the distinction the grant-no-budget case tests. The only substantive wording drift is in fix option (b): Before offered a spec/task amendment path while After offers a caller-boundary validation alternative; neither affects the facts here, but if the author wants the stop note to remain consistent with the amendment surface introduced by the Change, keeping an explicit amend option (as Before did) alongside the code-fix options would be the safer wording while still delivering the no-funding stop.",
+      "wallMs": 8380,
+      "verdict": "unchanged"
+    }
+  },
+  "repoSha": "5e92a626b844c53877c961797276c7c97b5ab21e"
+}

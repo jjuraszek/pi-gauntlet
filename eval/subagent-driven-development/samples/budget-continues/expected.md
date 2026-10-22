@@ -1,0 +1,4 @@
+- two-rounds: judged: Prints funded round 1 of 2 for task 3 and funded round 2 of 2 for task 3 and continues without a human stop.
+- fix-payloads: judged: Both funded fixes explicitly use the resolved implModel, context fresh, async false, one implementer/no fan-out and the same task, isolation, tests and complete prior report.
+- review-gates: judged: Both fixes run scoped tests and CR re-review with the full prior report under the re-review marker and Fix delta.
+- commit-completion: judged: After the second SHIP commits the accepted wave before marking task 3 complete.

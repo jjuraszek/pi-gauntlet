@@ -34,8 +34,8 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "b507f66538d28fd2d77d191839b86d6668710ab1b4135c72ffc0c687013c3907",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "37c6b01a1622db7452f185f1976561b66962be40989858f075338e9e3b73fc3a",
-      "baselineOutputSha": "88894e89b0535443da0a8a85efa5a626ef7feae3904a1cb06d28978da62f6d6c",
+      "intentSha": "5aa2bf78a144556c707465aa0b7081fb61f66dc61c2e759e7988b90489850f48",
+      "baselineOutputSha": "4e3e618f328dc44dc004a203ea520b9a651afb54d4a3124e3c69249e07b3d1a1",
       "candidateOutputSha": "4e3e618f328dc44dc004a203ea520b9a651afb54d4a3124e3c69249e07b3d1a1",
       "facts": {
         "premise": {
@@ -64,15 +64,15 @@
           "label": "held"
         }
       },
-      "feedback": "Nothing moved: both outputs name templates/deck.pptx from the retained loader at slides/generator.py:13, state that the templates/ directory listing (README.md, chart.pptx) does not contain it, repeat that lookup and result ahead of the approaches and again in the spec Problem, and proceed to approaches without asking the user where the file is. The Before output already satisfied the three carry-through facts this change expected to flip, so the After wording preserved rather than created them. One risk to watch in After: the openers \"My own recon found one correction\" and \"This correction comes from my own trace\" edge toward implying a live investigation; it stays on the right side of the replay fact because the lookup is attributed to \"the guide's templates/ listing\" and the Unverified line defers to that supplied scope, but safer wording would say \"tracing the supplied generator source\" and \"the supplied templates/ listing\" explicitly so the evidence source is unambiguous while still delivering the implicit-dependency trace the Change asks for.",
-      "wallMs": 16074,
+      "feedback": "Before and After are textually identical for this case, so no fact moved. Both outputs name `templates/deck.pptx` from `slides/generator.py:13` in the first message, state it is absent from the supplied `templates/` directory listing (README.md and chart.pptx only), restate that lookup and result under a 'Missing implicit dependency' heading before the approaches, and record it again in the spec `## Problem` excerpt; both continue to approaches without asking where the template is, and both attribute the result to the repository guide's listing rather than claiming a live filesystem call. The Expected-to-move list predicted premise/approaches/problem as fails -> holds, but the supplied Before already satisfies them, so this case shows the Change's implicit-dependency wording producing no regression and no visible difference here; if the author wants the replay to demonstrate the new wording's effect, a Before baseline that actually omits the lookup would be needed. No wording adjustment is required to preserve these facts.",
+      "wallMs": 10847,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "b507f66538d28fd2d77d191839b86d6668710ab1b4135c72ffc0c687013c3907",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "37c6b01a1622db7452f185f1976561b66962be40989858f075338e9e3b73fc3a",
-      "baselineOutputSha": "7d9e35017df70e4536acc7cb6c3a10710c5e09e401435ad01c8113ff7fe17150",
+      "intentSha": "5aa2bf78a144556c707465aa0b7081fb61f66dc61c2e759e7988b90489850f48",
+      "baselineOutputSha": "17f17be801113562fe9844f0f797a3e411eb9237ed742ee97f1ec2d009c8b41a",
       "candidateOutputSha": "17f17be801113562fe9844f0f797a3e411eb9237ed742ee97f1ec2d009c8b41a",
       "facts": {
         "premise": {
@@ -101,10 +101,10 @@
           "label": "held"
         }
       },
-      "feedback": "Both outputs carry the traced dependency through all three surfaces: each names templates/deck.pptx from the retained loader, names the guide-prescribed templates/ directory listing as the lookup, and states the listing contains only README.md and chart.pptx, so no fact moved on this case and After's explicit phrasing ('missing from the observed repository', 'does not contain') is a clear improvement over Before's more inferential 'contains only'. The one risk After introduces is the A/B/C questionary block appended to the first message: it does not ask where the template is and the output still proceeds to approaches, so 'continues' holds, but it reads as a pause-for-answer prompt on a question the recorded answer already settles ('supply during implementation; do not pause'), and option C ('name the template-resolution contract') edges toward asking the user to locate the asset. To keep every fact safely while delivering the Change, drop that question from the premise note (or state that the recorded answer already selects option A rather than posing it), keep the 'listing does not contain X' sentence as the lead of the approaches message as After does, and keep the Problem excerpt's 'required template is therefore missing ... correcting the gather draft's omission' wording, which pins both the lookup and the result without implying a live filesystem call.",
-      "wallMs": 20103,
+      "feedback": "Before and After are textually identical, so no fact moved between them. Both first messages name `templates/deck.pptx` from the retained loader in `slides/generator.py:12–18`, cite the guide-prescribed `templates/` directory listing as the lookup, and state the supplied complete listing contains only `README.md` and `chart.pptx` so the template is missing; both approaches messages restate this before the numbered approaches; both ## Problem excerpts record the lookup and its negative result; both continue to approaches without asking where the template lives (the question asked is about which resolution contract to carry, not the file's location); and both consistently frame the listing as a \"supplied\" replay observation rather than a live lookup. The Expected-to-move list predicted the Before text would fail the premise/approaches/problem facts, but this particular Before already carries the finding through all three surfaces, so the wording change delivers no observable movement on this case — the After wording is safe here and keeps every fact Before kept; the only caveat is that the Change's intended improvement is not demonstrated by this pair, so a Before sample that actually omits the dependency trace would be needed to show the wording's effect.",
+      "wallMs": 12418,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "2a4bb7f326aff40b7ba6b62a5c6ad0c313853a3c"
+  "repoSha": "889b5c13f91d905ab6f44b412922585f56be27ba"
 }

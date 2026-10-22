@@ -1,0 +1,3 @@
+- exhausted: judged: Treats funding as exhausted, with no funded dispatch and no automatic resume reset.
+- suffix: judged: Stops with budget: 2 of 2 spent (not recovered on resume) after Problem: and before the file finding.
+- refund: judged: Identifies a newly written budget token as the human refund rather than inventing spent state or asking for a new resume carrier.

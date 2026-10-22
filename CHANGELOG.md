@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Changed
+
+- **The implement orchestrator honors standing amend grants and per-task fix-round funding.** With amend permission on the spec's `**Amend-grant:**` line, it applies each amend-class item's recommended edit in the same turn instead of presenting an option menu; a redraw still stops. A granting sentence may include `fund N fix rounds` or `N more fix rounds`, giving each task N funded fix rounds past the escalated round. Each funded dispatch prints `funded round <k> of <N> for task <n>`, and every stop note while funding exists carries `budget: <spent> of <N> spent`. A funded `STAGNANT`, error, or non-`DONE` status still stops; unrecoverable spend on resume counts as exhausted. (#74)
+
 ## v7.25.1 - 2026-10-22
 
 ### Changed

@@ -30,7 +30,7 @@ You are the **orchestrator**. You read the plan, dispatch, review the review, de
 **Do not pause to check in with the user between tasks.** The plan is already approved. Pause only when:
 
 - A subagent returns `NEEDS_CONTEXT` or `BLOCKED` (see [Implementer Status](#implementer-status))
-- An escalated round fails (stop note per [Fix-Loop Rounds](#fix-loop-rounds))
+- An escalated round fails with no funded round left (stop note per [Fix-Loop Rounds](#fix-loop-rounds))
 - A ⚠️ workflow warning fires
 
 Reaching the end of the plan is not a pause: continue through verification and invoke `/skill:finishing-a-development-branch <abs worktree path>` as defined in [After All Tasks](#after-all-tasks-complete).
@@ -45,7 +45,7 @@ Periodic "should I continue?" prompts add latency without adding safety. The pla
 
 Extract **`SCOPED_TEST_COMMANDS`** from the task's `**Tests:**` command bullets, backticks stripped, one per line; `- none:` -> `none`; a wave = the union of its tasks' commands. Treat `via:` and `baseline:` bullets and `- Test:` paths as contract, not commands: carry them with the task text, never in `SCOPED_TEST_COMMANDS`.
 
-Keep the orchestrator as the spec's only writer during execution. On implementer `BLOCKED` citing a spec defect, or a review finding showing the spec (not the code) is wrong, pause the fix loop, read and execute brainstorming's [amendment path](../brainstorming/SKILL.md#amending-an-approved-spec) in place (it reviews first, stops only on escalation or redraw), then resume. Keep code-vs-spec mismatch in the SR loop. Require an SR unable to read the spec at a cited anchor (missing file, unresolvable heading/range) to return a blocking finding - the contract is spec+task or stop, never a silent fallback to task-only review.
+Keep the orchestrator as the spec's only writer during execution. On implementer `BLOCKED` citing a spec defect, or a review finding showing the spec (not the code) is wrong, pause the fix loop, read and execute brainstorming's [amendment path](../brainstorming/SKILL.md#amending-an-approved-spec) in place (it reviews first; with amend permission on the `**Amend-grant:**` line it applies amends without a stop and still stops on a redraw; without permission it stops on escalation or redraw), then resume. Keep code-vs-spec mismatch in the SR loop. Require an SR unable to read the spec at a cited anchor (missing file, unresolvable heading/range) to return a blocking finding - the contract is spec+task or stop, never a silent fallback to task-only review.
 
 ## Fix-Loop Rounds
 
@@ -68,7 +68,7 @@ Every fix re-dispatch (implementer) and code-review re-review carries the consum
 
 Every dispatched fix is verified by a re-review before escalation or task progression - the loop only ever exits on a clean review or an escalation.
 
-**Escalate** = one escalated round; stop only on failure. Call `gauntlet_setting({ key: "escalationLoop" })` (unavailable -> stop and report). `implModel` undefined -> stop note. Otherwise re-dispatch that fix - same payload and isolation knobs (`cwd`, `worktree`, `SCOPED_TEST_COMMANDS`, status protocol, prior patch, spec anchors) plus the prior report verbatim - overriding only `model: <implModel>`, `context: "fresh"`, `async: false`; one implementer, no fan-out. Run the normal fix-round review gate (SR then CR on `Behaviour-change: yes`, else the triggering reviewer with the re-review marker). All clean -> proceed; the escalated patch supersedes the prior one at integrate. Any review with issues, a non-`DONE` status, or a dispatch error -> stop note per `stop-note.md`; no second dispatch. Once per loop; independent of the convergence exception. No `plan_tracker` write during escalation - the task stays `in_progress` until the human decides.
+Read [reference/fix-loop.md](./reference/fix-loop.md) now for escalation and funded-round dispatch rules.
 
 **Worked examples:**
 
@@ -103,10 +103,10 @@ Every implementer dispatch returns one of:
 |---|---|---|
 | `DONE` | Implemented + tests pass + self-reviewed; work present in the worker's tree; the wave commit is step 7 | Proceed to spec review |
 | `DONE_WITH_CONCERNS` | Implemented + tests pass, but flagged a deviation or risk | Read concerns. If acceptable, proceed. If not, dispatch fix subagent. |
-| `NEEDS_CONTEXT` | Implementer needs information you have | Resolve fact asks per [lookup handling](./stop-note.md). For decisions, answer and re-dispatch with answers in the task text, or escalate to the user. |
-| `BLOCKED` | Cannot proceed (missing dependency, spec contradicts code, environment broken) | Resolve fact asks per [lookup handling](./stop-note.md). For decisions, stop and diagnose: fix the orchestration-level issue and re-dispatch, or escalate to the user. |
+| `NEEDS_CONTEXT` | Implementer needs information you have | For a spec-defect citation, take the amendment route below first. Resolve fact asks per [lookup handling](./stop-note.md). For decisions, answer and re-dispatch with answers in the task text, or escalate to the user. |
+| `BLOCKED` | Cannot proceed (missing dependency, spec contradicts code, environment broken) | For a spec-defect citation, take the amendment route below first. Resolve fact asks per [lookup handling](./stop-note.md). For decisions, stop and diagnose: fix the orchestration-level issue and re-dispatch, or escalate to the user. |
 
-Classify each question: artifact location, value, or existence is a fact ask; scope choices, option choices, and another-round approval are decisions.
+Classify each question: treat a question whose candidate answers are each edits to the spec, plan, or an approved rule as an amendment batch per [amendment-surface.md](../brainstorming/reference/amendment-surface.md), never a decision. Stop for a redraw: changed problem statement; component added, removed, or re-bounded. Decode the `**Amend-grant:**` value through that surface's Standing grants. With amend permission, apply each item's `recommended` (`accept` or named `alt-n`), print `amended the spec: <title> - <what>`, and complete section 5's plan-writer amend dispatch, `plan_check`, tracker update, and one `amend:` commit in the same turn; skip reviewer, menu, and confirmation turns. Without permission (including absent or `none`), retain the surface's menu and escalation/redraw routing. For remaining questions, classify artifact location, value, or existence as a fact ask; scope and option choices as decisions; another-round approval as a decision only with no funded round left.
 
 Implementer prompt templates must instruct subagents to return one of these statuses explicitly.
 
@@ -305,7 +305,7 @@ git -C "$SR_TREE" apply --index "$SR_PATCH" || exit 1
 printf 'snapshot: %s\n' "$SR_TREE"
 ```
 
-Record its review tree per [Fix delta](#fix-delta) before every parent-dispatched SR, keyed by task. Use the printed snapshot path as that spec-review task's `cwd` and whole-file read root. Keep the authoritative spec's absolute path in the implementation worktree. Pass the patch diff as before; the snapshot contains this task's changed and added files, with deleted files absent. Read deleted files from `WAVE_BASE_SHA` when the review needs their prior contents. Dispatch read-only, with no `worktree` flag. On snapshot setup or tree-capture failure, or a missing snapshot path, stop dispatch and retain the failed snapshot directory and shell output for diagnosis; dispatch no review and perform no snapshot cleanup. Save each snapshot-backed review's terminal report to its `output:` path, read it, then remove that review's snapshot with `git -C <implementation-worktree> worktree remove --force <snapshot-path>`. Keep every snapshot used as a reviewer `cwd` until that terminal report is saved; recording its tree never authorizes early cleanup. Remove a reconstruction used only to record tree-before after capturing its tree, since no reviewer runs there. Recreate from the replacement patch for each pre-integration re-review. Post-integration SR reviews the implementation worktree directly.
+Record its review tree per [Fix delta](#fix-delta) before every parent-dispatched SR, keyed by task. Use the printed snapshot path as that spec-review task's `cwd` and whole-file read root. Keep the authoritative spec's absolute path in the implementation worktree. Pass the patch diff as before; the snapshot contains this task's changed and added files, with deleted files absent. Read deleted files from `WAVE_BASE_SHA` when the review needs their prior contents. Dispatch read-only, with no `worktree` flag. On snapshot setup or tree-capture failure, or a missing snapshot path, stop dispatch and retain the failed snapshot directory and shell output for diagnosis; dispatch no review and perform no snapshot cleanup. Save each snapshot-backed review's terminal report to its `output:` path, read it, then remove that review's snapshot with `git -C <implementation-worktree> worktree remove --force <snapshot-path>`. Keep every snapshot used as a reviewer `cwd` until that terminal report is saved; recording its tree never authorizes early cleanup. Remove a reconstruction used only to record tree-before after capturing its tree, since no reviewer runs there. Recreate from the replacement patch for each pre-integration re-review; on a failed recreate, stop dispatch and retain that snapshot directory and shell output, like any setup failure. Post-integration SR reviews the implementation worktree directly.
 
 ## When a Subagent Fails
 
@@ -338,13 +338,13 @@ Record its review tree per [Fix delta](#fix-delta) before every parent-dispatche
 ## Red Flags — STOP
 
 - Writing code yourself instead of dispatching.
-- Pausing between tasks for anything other than `NEEDS_CONTEXT`, `BLOCKED`, a fix-loop escalation, a workflow warning, or a spec amendment.
+- Pausing between tasks for anything other than `NEEDS_CONTEXT`, `BLOCKED`, a fix-loop escalation, a workflow warning, a redraw, or an amend with no standing grant.
 - Dispatching parallel implementers on overlapping files, on a shared mutable runtime resource, or without `worktree: true`.
 - Making a subagent read the plan, inlining spec excerpts to the spec reviewer, or dispatching with a `SCOPED_TEST_COMMANDS` value missing or not copied from the plan's `Tests:` bullets.
 - Dispatching `code-reviewer` before every in-scope spec-review verdict is ✅, or per task inside a wave.
 - Moving to the next task with either review still showing issues, or skipping the `Implementer Status` parse.
 - Second chain call in the same wave after a stop or a chain error - the retained results are the fan-out result; continue on the snapshot path.
-- Dispatching fix 3 without a reviewer-emitted `CONVERGING` verdict, or continuing past `STAGNANT` instead of escalating.
+- Dispatching fix 3 without a reviewer-emitted `CONVERGING` verdict, or continuing past `STAGNANT` instead of escalating (or, on a funded re-review, stopping).
 - Running the full verification entrypoint, or any test command outside `SCOPED_TEST_COMMANDS`, during the implement phase.
 - Dispatching a repair before reopening the plan-task indices that own its files, whole-diff CR before parent verification passes, or conformance before the CR result is accepted.
 - Polling, joining, or relaunching an unexpectedly asynchronous dispatch, or starting on main without explicit user consent.

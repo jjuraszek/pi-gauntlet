@@ -1,7 +1,7 @@
 {
   "sample": "lookup-before-ask",
   "arm": "candidate",
-  "skillSha": "0e07042902bfc38ecf46273ceae1e78d5a4827eb53a28825ef5f277bacadb75a",
+  "skillSha": "505fbad4c924559d148c9f2d14754e7dd45597c9a6834f5a89f05274b64e611d",
   "inputSha": "cb66bac3ac4ee88e763e7d2225f84d88bb9f6eab0beeadf1f541f7a6674fa709",
   "kind": "text",
   "assembly": "headed",
@@ -17,16 +17,16 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "# Task 2: missing `summary-frame.tpl`\n\n## 1. Classify the implementer result\n\nTask 2 returned exit 0 with `Status: NEEDS_CONTEXT` and no edits. The question was: \"Where is the summary-frame.tpl template required by the task?\"\n\nThis asks for an artifact location, so it is a **fact ask**, not a decision. It is handled per `stop-note.md` lookup handling:\n\n- Search each documented location in documented order.\n- Make one bounded lookup per location.\n- Stop at the first hit.\n- Record every lookup and its result.\n\nThere is no patch. No spec review, code review, fix round or escalation is involved.\n\n## 2. Bounded lookup\n\nThere is exactly one documented location: the template-store tool, collection `summary-frames`, key `summary-frame.tpl`. The tool is available and no credentials are missing.\n\nThe lookup is a single template-store query for `summary-frames/summary-frame.tpl`. No shell command is used.\n\nThe fixed observation is: `summary-frames/summary-frame.tpl - not found`.\n\nNothing else is searched. The spec, task and repo document no other location, so the lookup is not extended to the filesystem or to other stores.\n\n## 3. Outcome: documented locations are exhausted, so emit a stop note\n\nThe lookup missed and was the only documented location. Per `stop-note.md`, an exhausted fact ask means a stop note:\n\n- The implementer is **not** re-dispatched, because there is no found result to put in the task text.\n- There are no `plan_tracker` writes.\n- Task 2 stays `in_progress` and the phase stays `implement`.\n- No further tasks start.\n- The turn ends after this reply.\n\nThe header has no bracketed escalation clause, because no escalated round ran.\n\n---\n\nReply (inline, turn ends here):\n\n```\nStopped on task 2 (Render a summary).\n\nProblem: the task requires the summary-frame.tpl template, but its only documented location (template-store collection summary-frames) does not contain it, so the implementer cannot proceed; documented lookups are exhausted.\nSearched: template-store summary-frames/summary-frame.tpl - not found\n\nFix options:\n  a) add summary-frame.tpl to the template-store collection summary-frames (or give me its content to supply in the task text), and I will re-dispatch task 2\n  b) amend the spec's template section / plan task 2 to drop the summary-frame.tpl requirement (e.g. render the summary without a frame template)\n\nPick one, or give another fix.\n```\n",
-      "words": 348,
-      "wallMs": 12126,
+      "text": "# Task 2: NEEDS_CONTEXT, missing template\n\n## 1. Classify the implementer's question\n\nThe implementer's question is \"Where is the summary-frame.tpl template required by the task?\" It asks where an artifact is located. That makes it a **fact ask**, not a decision.\n\nIt is also not an amendment batch:\n- The implementer did not cite a spec defect.\n- The possible answers are a location, not edits to the spec or plan.\n\nSo the route is the lookup handling in `stop-note.md`. There is no `**Amend-grant:**` decode, no amendment route, and no re-dispatch yet.\n\n## 2. Bounded lookup\n\nThe spec, task and repo document exactly one location. I search it once, and I search nothing else:\n\n| # | Location | Lookup | Result (fixed observation) |\n|---|---|---|---|\n| 1 | template-store tool, collection `summary-frames`, key `summary-frame.tpl` | one get of `summary-frames/summary-frame.tpl` | not found |\n\n- No other locations are documented, and I will not probe other stores.\n- The tool is available and no credentials are needed, so neither of those stop reasons applies.\n- The documented locations are now exhausted without a hit. This triggers a stop note, not a re-dispatch, because I have no found result to put in the task text.\n\n## 3. State at the stop\n\n- **No shell commands, no subagent dispatch.** This matches the scenario: no review or fix round has run, and there was no escalation.\n- **`plan_tracker`:** no write. Task 2 stays `in_progress`.\n- **`phase_tracker`:** no write. The phase stays `implement`.\n- **Other tasks:** none start.\n- **Escalation:** none ran, so the note's header has no bracketed escalation clause.\n- **File and test lines:** none, since there are no edits, failing test or review finding.\n- **Budget line:** omitted, because the scenario shows no budget token.\n\n## 4. Reply (inline; the turn ends here)\n\n```\nStopped on task 2 (Render a summary).\n\nProblem: the task requires the summary-frame.tpl template, but it is not at the only documented location, so the implementer cannot render the summary.\nSearched: template-store summary-frames/summary-frame.tpl - not found\n\nFix options:\n  a) add summary-frame.tpl to the template-store collection summary-frames (or supply the template contents), and I will re-dispatch task 2 with it\n  b) amend the spec's presentation section / plan task 2 to drop the summary-frame.tpl requirement (e.g. render the summary without a frame template)\n\nPick one, or give another fix.\n```\n\nThe turn ends with this stop note. Task 2 is re-dispatched only after the human picks an option.\n",
+      "words": 377,
+      "wallMs": 13832,
       "mechanical": {}
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "Next action: make the single documented lookup using the available **template-store** tool:\n```json\n{\n  \"collection\": \"summary-frames\",\n  \"key\": \"summary-frame.tpl\"\n}\n```\n\nThe supplied fixed observation is `summary-frames/summary-frame.tpl - not found`. No other lookup location is documented, so do not search elsewhere or re-dispatch the implementer. Task 2 remains `in_progress`; no shell command, review, or commit follows.\n\nParent reply:\n\nStopped on task 2 (Render a summary).\n\nProblem: The required summary-frame.tpl template is unavailable, and the only documented artifact lookup is exhausted.\nSearched: template-store, collection summary-frames, key summary-frame.tpl - not found\n\nFix options:\n  a) supply summary-frame.tpl in the documented template-store collection so the implementer can use it\n  b) amend the spec and task 2 to remove the template dependency and define the replacement rendering requirements\n\nPick one, or give another fix.\n",
-      "words": 123,
-      "wallMs": 9557,
+      "text": "The next parent action is the single documented lookup: use the **template-store** tool with collection `summary-frames` and key `summary-frame.tpl`. The fixed lookup observation is **not found**. No other lookup location is authorized, so no shell commands, implementer re-dispatch, review, or commit follows. Task 2 remains `in_progress` in `/workspace/project`; the phase remains `implement`.\n\nStopped on task 2 (Render a summary).\n\nProblem: The required summary-frame.tpl template is missing, and the only documented artifact lookup is exhausted.\nSearched: template-store, summary-frames/summary-frame.tpl - not found\n\nFix options:\n  a) supply summary-frame.tpl in the approved template-store collection summary-frames\n  b) amend the spec and task 2 to remove the external-template requirement and define an approved replacement rendering contract\n\nPick one, or give another fix.\n",
+      "words": 115,
+      "wallMs": 10629,
       "mechanical": {}
     }
   },
@@ -34,9 +34,9 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "86d9a0a63147adc5f666e4265b39c8501b9352c2b5b248fd694ef05eccc6b5ed",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "7dde83e5f7123318f2f94032def90ef7d40bc26909a31439c17153641cac4c2f",
-      "baselineOutputSha": "bbf8d32274810ad7c1585ce65fe1284bd18621670336ac9de4719d7e85bf8482",
-      "candidateOutputSha": "cb75116536c0f6c814982ff1334216f80c31e6ee6eea49bec9a6b780bc5c4961",
+      "intentSha": "e4d5fcbcb93f0cd09e7bb2e81b650931e36cf23edf2d60064b277e1d881f8af6",
+      "baselineOutputSha": "7b4b6acaad7ea1945abfc07a465af19c2b5b07e45b59ca26fae8c75b528fe503",
+      "candidateOutputSha": "649ed0804500252624d486604ac372eceba71c69802ca7c4e209eff742909bb9",
       "facts": {
         "searched": {
           "before": "holds",
@@ -49,16 +49,16 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "Neither fact moved: both Before and After run the single bounded template-store lookup, record the fixed not-found observation without extending the search to other stores or the filesystem, and emit a stop note whose Searched: line sits directly under Problem: naming template-store summary-frames/summary-frame.tpl - not found; both also offer supply-or-amend fix options and never ask the human where the template is. The Change's intent (ordered Searched lines, supply-or-amend options, no location question, no re-dispatch on an exhausted lookup) is already fully delivered in Before, so After's wording is a faithful restatement rather than a behavior shift. One small difference worth noting: After replaces Before's \"or grant access to wherever it now lives\" with \"or give me its content to supply in the task text\"; both are actionable supply options, but if the author wants the access-grant path preserved explicitly (as the fact wording lists \"template or access\"), keep both phrasings in option a) - \"add summary-frame.tpl to the template-store collection summary-frames, grant access to it, or give me its content\" - which would retain everything Before kept while matching the Change.",
-      "wallMs": 11609,
+      "feedback": "Neither fact moved: both Before and After perform exactly one bounded template-store lookup for summary-frames/summary-frame.tpl, record the fixed not-found observation, and emit a stop note whose Searched: line sits directly under Problem: with the location and result; both offer a supply option (template or access) and an amend option (drop the requirement from spec and plan task 2) without asking the human where the template lives. The After wording adds a classification step (fact vs decision, not an amendment batch), a lookup table, explicit state bookkeeping (no tracker/phase writes, no budget line because no token), and a closing sentence that re-dispatch follows the human's pick, all of which are consistent with the Change's lookup-handling and amend-surface intent while keeping every fact Before kept. If anything, tighten After's option (a) to mention access explicitly (Before's 'or grant access') so the supply-or-amend surface stays fully covered, and keep the Searched: line format and ordering as is.",
+      "wallMs": 8280,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "86d9a0a63147adc5f666e4265b39c8501b9352c2b5b248fd694ef05eccc6b5ed",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "7dde83e5f7123318f2f94032def90ef7d40bc26909a31439c17153641cac4c2f",
-      "baselineOutputSha": "c763bc49583690b3e27742aa57d361a09ed7aa46d98bcfc559f349eef01faea9",
-      "candidateOutputSha": "2a9d426329494a0b41e23a756b00b45548f6479002ea3b3c1f0001fb9c85f17d",
+      "intentSha": "e4d5fcbcb93f0cd09e7bb2e81b650931e36cf23edf2d60064b277e1d881f8af6",
+      "baselineOutputSha": "a9610fb5adfcaf0af66fb2f1acf4451a289ca0033c6c6b2b3bf21599b21df762",
+      "candidateOutputSha": "f12f6a4897d6d8fc81a4d6b1514e00bb04448589a8148f940713461a6514ecc7",
       "facts": {
         "searched": {
           "before": "holds",
@@ -71,10 +71,10 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "No fact moved: both Before and After perform the single bounded template-store lookup, place a Searched: line directly under Problem: naming collection summary-frames and key summary-frame.tpl with the not-found result, refuse to search elsewhere or re-dispatch, keep task 2 in_progress, and offer supply-or-amend options without asking the human where the template is. The After wording's small shifts ('fixed observation', 'unavailable', 'no shell command') are consistent with the Change and harmless. One optional tightening that would make the searched fact unambiguous against a strict reader: render the Searched line in the literal observed form, e.g. 'Searched: template-store summary-frames/summary-frame.tpl - not found', so the path string matches the fixed observation verbatim while keeping everything else as is.",
-      "wallMs": 7980,
+      "feedback": "Both outputs perform the single bounded template-store lookup, place Searched: directly under Problem: with the not-found result, keep task 2 in_progress, and offer supply-or-amend options without asking the human where the template is, so no fact moved. After improves on Before by rendering the Searched line in the canonical summary-frames/summary-frame.tpl path form (Before spelled it out as 'collection summary-frames, key summary-frame.tpl', which a strict reader could argue does not literally name the slash path), and by naming task 2 explicitly in the amend option; keep that path-form Searched line and the explicit 'no other lookup location is authorized' sentence, since they are what make the stop note unambiguous against the ordered-Searched-lines requirement in the Change.",
+      "wallMs": 10477,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "4836002cc0ec830a5a0e1657e48c9e96623e22d0"
+  "repoSha": "5e92a626b844c53877c961797276c7c97b5ab21e"
 }

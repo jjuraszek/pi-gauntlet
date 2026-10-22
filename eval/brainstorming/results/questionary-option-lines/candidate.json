@@ -34,8 +34,8 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "6b456a85ee947059a76668fc50e35f4c2abde2fc50e926fb6104badb197e5e61",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "37c6b01a1622db7452f185f1976561b66962be40989858f075338e9e3b73fc3a",
-      "baselineOutputSha": "0d46620b516e9a213b397c463ba217439b9ea1184cdcb8bf961a4efbd8f476ee",
+      "intentSha": "5aa2bf78a144556c707465aa0b7081fb61f66dc61c2e759e7988b90489850f48",
+      "baselineOutputSha": "268e9a27ca1e00ebc6d683c98ab71f4285f6b0296a54ebe86d32950b6a1353dc",
       "candidateOutputSha": "268e9a27ca1e00ebc6d683c98ab71f4285f6b0296a54ebe86d32950b6a1353dc",
       "facts": {
         "layout": {
@@ -49,15 +49,15 @@
           "label": "held"
         }
       },
-      "feedback": "Nothing moved in this replay: both outputs already place the lead-in question first, give A), B), and C) their own physical lines, and end with Recommendation: on its own final line, and both preserve the three supplied choices verbatim in substance while recommending B with a code-grounded reason instead of deciding or jumping to approaches. After's option lines add a short consequence after a dash, which is fine under the layout fact as long as each option stays on one line; keep that pattern, and keep the recommendation as a single final line as After does. The expected fails->holds for layout is not visible here because Before was already compliant on this input, so the wording change neither helped nor hurt this case.",
-      "wallMs": 8092,
+      "feedback": "Before and After are textually identical here, so nothing moved: both put the lead-in question first, give A), B), and C) each on its own physical line with its option text, and end with Recommendation: on its own final line; both preserve the three supplied choices verbatim in substance (clear all, preserve all active, restore each workspace's last) and recommend B with a concrete reason grounded in the ui/report-view.ts handler rather than deciding or advancing to approaches. Note that the Expected to move list predicts layout going fails -> holds, but the Before output supplied for this case already satisfies the layout fact, so this case does not demonstrate the Change's effect; if the author wants evidence the new one-option-per-line wording is doing work, the baseline for this case needs to be regenerated or a case with an inline-run Before chosen. The After wording is safe to keep as is for this case.",
+      "wallMs": 8774,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "6b456a85ee947059a76668fc50e35f4c2abde2fc50e926fb6104badb197e5e61",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "37c6b01a1622db7452f185f1976561b66962be40989858f075338e9e3b73fc3a",
-      "baselineOutputSha": "e7c76ced6b5e70f3bac05ad346351f968989efcc9c7ef46d39815d12c51aecf9",
+      "intentSha": "5aa2bf78a144556c707465aa0b7081fb61f66dc61c2e759e7988b90489850f48",
+      "baselineOutputSha": "58fa825e92fd65e62228acc44222cc50ca44e14a949b971eb65363105aecea81",
       "candidateOutputSha": "58fa825e92fd65e62228acc44222cc50ca44e14a949b971eb65363105aecea81",
       "facts": {
         "layout": {
@@ -71,10 +71,10 @@
           "label": "held"
         }
       },
-      "feedback": "Both outputs already satisfy the layout fact as written: a single-sentence lead-in precedes A), each of A), B), C) sits on its own physical line with its option text, and Recommendation: is the final own-line entry, so the expected fails -> holds move for layout is not visible in this pair (Before was already compliant). Both also keep the three supplied choices verbatim in meaning and recommend C with a reason, so content holds in both. Nothing in After moved a fact; the only differences are the lead-in phrasing and the recommendation rationale, both neutral. Keep the After wording as is; if the author wants the layout rule to be demonstrably exercised, choose a Before sample that actually ran options inline, since this Before cannot show the Change taking effect.",
-      "wallMs": 6446,
+      "feedback": "Before and After are textually identical: a lead-in question on the first line, options A–C each on their own physical line with label and text together, and Recommendation: on its own final line, so layout holds in both even though the expectation listed it as fails -> holds; the content fact also holds in both since all three supplied choices are preserved verbatim in a single question and C is recommended with a reason without deciding for the user or moving to approaches. Nothing in After moved a fact. If the author wants this replay to demonstrate the layout change, the Before baseline must actually exhibit an inline run of labeled options; otherwise the current After wording (lead-in first, one labeled option per physical line, final own-line Recommendation:) already delivers the Change while keeping every fact Before kept, and no further wording adjustment is needed.",
+      "wallMs": 6314,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "2a4bb7f326aff40b7ba6b62a5c6ad0c313853a3c"
+  "repoSha": "889b5c13f91d905ab6f44b412922585f56be27ba"
 }

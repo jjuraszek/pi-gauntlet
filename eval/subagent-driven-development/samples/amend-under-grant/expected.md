@@ -1,0 +1,4 @@
+- recommended: judged: Applies alt-2 (reject empty payloads, permit heartbeat marker), not accept or alt-1, and prints amended the spec: Empty frame rule - with that edit.
+- no-question: judged: Applies in the same turn without reviewer, menu, confirmation or a question to the human.
+- plan-dispatch: judged: Includes an actual plan-writer amend dispatch payload for the existing plan, not merely a promise.
+- aftermath: judged: Runs plan_check, updates the tracker, and makes one amend: commit after the plan update.

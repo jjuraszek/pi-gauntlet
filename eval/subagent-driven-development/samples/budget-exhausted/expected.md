@@ -1,0 +1,3 @@
+- one-round: judged: Runs exactly one funded fix with configured implModel, fresh context, async false, scoped tests and CR re-review; does not grant another escalation or convergence exception.
+- spent-line: judged: Stops with budget: 1 of 1 spent after Problem: and before the file finding.
+- no-complete: judged: Leaves task in_progress with no wave commit or task completion.

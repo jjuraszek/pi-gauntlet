@@ -1,0 +1,3 @@
+- original-stop: judged: Stops after the failed escalated re-review with no additional fix or review dispatch.
+- no-budget: judged: The stop note omits budget: because there is no funded-round token.
+- in-progress: judged: Keeps task 3 in_progress without a wave commit or completion.

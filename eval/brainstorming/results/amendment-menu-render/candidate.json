@@ -38,8 +38,8 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "72ea14ed472c465f5eff63f5735b46c2036333b1a3dc71bddc7f38dc84838a3c",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "37c6b01a1622db7452f185f1976561b66962be40989858f075338e9e3b73fc3a",
-      "baselineOutputSha": "f0c22699ab15d483f0f5134f4892cd08a373b5de0772e816192bc1b9e0eb53ab",
+      "intentSha": "5aa2bf78a144556c707465aa0b7081fb61f66dc61c2e759e7988b90489850f48",
+      "baselineOutputSha": "cd946c3f98b748dfb1f58f881c5c2e9c6949ed4273bbaddd57b916685956664c",
       "candidateOutputSha": "cd946c3f98b748dfb1f58f881c5c2e9c6949ed4273bbaddd57b916685956664c",
       "facts": {
         "f1": {
@@ -73,15 +73,15 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "After keeps every fact Before kept: both items still open with a plain-words what/why sentence (now with the concrete retry counts folded in), the crosscut item still lists A) accept and B) alt-1 with one-line consequences, both items carry an explicit letter recommendation with a reason, the reply instructions still use the `<n>. <letter or free text>` form with bare `1` taking every recommendation and no legacy `2: <handle>=<choice>` prompt, and each item has exactly one human-call sentence (reworded to the shorter 'so you decide' form, which still names the reason in plain words). Two drifts worth noting even though they move no fact: the crosscut Impact line in After now describes the recommended alt-1 outcome (coordinator owns policy) rather than the accept text, so it no longer matches option A, and the Details block dropped the parenthetical alt-1 text that Before included. To keep the menu internally consistent, make the Impact line describe the accepted new text (or label it as the recommended outcome) and restore the alt-1 note in Details; the human-call sentence wording in After is acceptable as is.",
-      "wallMs": 11330,
+      "feedback": "Before and After are textually identical for this continuation case, so nothing moved: both items open with a plain-words what/why sentence, each carries its own 'so you decide' human-call sentence, the crosscut item lists A) accept and B) alt-1 with one-line consequences, both items give 'Recommended: <letter> - reason', and the reply instructions use the numbered '<n>. <letter or free text>' form with bare 1 taking every recommendation and no legacy 'handle=choice' prompt. The After wording already delivers the amendment-menu part of the Change for this input; no rewording is needed here, though note the trailing 'Details' block restates the accept-option text (e.g. 'new: a new retry service') rather than the recommended alt-1, which does not break any listed fact but could confuse a reader and may be worth either dropping or labeling as the raw accept text.",
+      "wallMs": 9660,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "72ea14ed472c465f5eff63f5735b46c2036333b1a3dc71bddc7f38dc84838a3c",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "37c6b01a1622db7452f185f1976561b66962be40989858f075338e9e3b73fc3a",
-      "baselineOutputSha": "56c8125183e26090e66ce8e721fd1553897cd82cce3d688347c5f61d0a4cd0ff",
+      "intentSha": "5aa2bf78a144556c707465aa0b7081fb61f66dc61c2e759e7988b90489850f48",
+      "baselineOutputSha": "f6e79a8ebd8d4d45d284655a7407aa33639705683835d293a302590f2ba35a24",
       "candidateOutputSha": "f6e79a8ebd8d4d45d284655a7407aa33639705683835d293a302590f2ba35a24",
       "facts": {
         "f1": {
@@ -115,10 +115,10 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "Nothing moved: After preserves every fact Before kept. Both outputs open each numbered item with a plain-words what/why sentence, give the crosscut item A) accept and B) alt-1 with one-line consequences, state Recommended: B and Recommended: A with reasons, carry a human-call sentence per item, and close with the `<n>. <letter or free text>` reply grammar plus bare `1` for all recommendations and no legacy `2: <handle>=<choice>` prompt. The only differences are cosmetic: After's reply example uses `1. B` (which now matches the actual recommendation and is slightly clearer than Before's `1. A`), trailing periods on the Recommended lines, and tighter Impact wording. One optional tidy-up the wording could encourage: the Reviewer: line restates the human-call sentence nearly verbatim, so the template could say the human-call sentence may replace the Reviewer line when they coincide, trimming each item without touching any fact.",
-      "wallMs": 10718,
+      "feedback": "The After output is textually identical to Before, so nothing moved: both items open with a plain-words what-and-why sentence, the crosscut item lists A) accept and B) alt-1 with one-line consequences, recommendations are given as explicit letters with reasons (B for crosscut, A for exit126), the reply instructions use the `<n>. <letter or free text>` form with bare `1` taking every recommendation and no legacy `handle=choice` prompt, and each item carries a plain sentence naming why it is a human call. The only mild redundancy is that each item states the human-call reason twice (a plain sentence followed by a near-verbatim 'Reviewer:' line); if the author wants tighter output under the 1400-word cap, the wording could instruct that the reviewer's escalation reason be rendered once in plain words rather than both as a sentence and as a labeled echo, which would keep every fact intact. Otherwise the After wording delivers the intended amendment-menu grammar for this continuation sample without regressing any Before fact.",
+      "wallMs": 10982,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "2a4bb7f326aff40b7ba6b62a5c6ad0c313853a3c"
+  "repoSha": "889b5c13f91d905ab6f44b412922585f56be27ba"
 }
