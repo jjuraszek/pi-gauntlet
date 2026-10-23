@@ -1,7 +1,7 @@
 {
   "sample": "menu-after-numbered-findings",
   "arm": "candidate",
-  "skillSha": "4e1fb881fe70730b6c8f63f126e884a11cd362c1d729d2fbaa63cd663c8b324b",
+  "skillSha": "84e30532b8abe5cca69d57b9148a7a16d915afded18aba200c881f1316b0fa70",
   "inputSha": "08630215061bbf8af18b67335f51ef83c13f49f1f41e3537e192f45505143c98",
   "kind": "text",
   "assembly": "concat",
@@ -17,16 +17,16 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "## Checkpoint 1\n\n1. Tests passed.\n2. Conformance passed.\n3. Whole-diff review passed.\n\nImplementation complete. What would you like to do?\n\n1. Push and create a Pull Request\n2. Push and create a draft Pull Request\n3. Squash-merge to main (no PR, no surviving branch)\n4. Keep the branch as-is (I'll handle it later)\n5. Discard this work\n\nWhich option?\n\n## Checkpoint 2\n\nTaking 6 as option 3 - Squash-merge to main (no PR, no surviving branch).\n\n**Next action (simulated, not executed):** First, run the strip-and-seal block on `fix-x` in `$WORKTREE`:\n\n- Remove any committed ephemeral plan or ledger.\n- Seal the telemetry record with `--option squash --base main`.\n\nIf the seal exits nonzero, stop before landing. If it succeeds, continue in `$PRIMARY`:\n\n1. Check out `main` and pull.\n2. Run `git merge --squash fix-x` and commit.\n3. Re-run the Step 1 verification set on the result.\n4. Run Step 6 worktree cleanup.\n5. If Step 6 removed the worktree, delete `fix-x` with `git -C \"$PRIMARY\" branch -D fix-x`.\n\nThere is no push and no PR.\n",
-      "words": 171,
-      "wallMs": 8031,
+      "text": "## Checkpoint 1\n\n1. Tests passed.\n2. Conformance passed.\n3. Whole-diff review passed.\n\nImplementation complete. What would you like to do?\n\n1. Push and create a Pull Request\n2. Push and create a draft Pull Request\n3. Squash-merge to main (no PR, no surviving branch)\n4. Keep the branch as-is (I'll handle it later)\n5. Discard this work\n\nWhich option?\n\n---\n\n## Checkpoint 2\n\nTaking 6 as option 3 - Squash-merge to main (no PR, no surviving branch).\n\n**Next action (simulated, not executed):** Run the strip-and-seal block on `fix-x` first. This removes the ephemeral plan if it was committed, then runs `gauntlet-telemetry-seal.mjs --option squash --base main`. After that comes the Option 3 squash-merge into `main` from the primary checkout and the post-squash re-verify. Step 6 cleanup and branch deletion follow.\n",
+      "words": 126,
+      "wallMs": 8592,
       "mechanical": {}
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "## Checkpoint 1\n\n1. Tests passed.\n2. Conformance passed.\n3. Whole-diff review passed.\n\nClosure / conformance: CONFORMS  \nwhole-diff minors: none\n\nImplementation complete. What would you like to do?\n\n1. Push and create a Pull Request\n2. Push and create a draft Pull Request\n3. Squash-merge to main (no PR, no surviving branch)\n4. Keep the branch as-is (I'll handle it later)\n5. Discard this work\n\nWhich option?\n\n## Checkpoint 2\n\nTaking 6 as option 3 - Squash-merge to main (no PR, no surviving branch).\n\nSimulated next action: strip any tracked ephemeral plan and seal the telemetry record on `fix-x` before landing. If sealing succeeds, proceed with the local squash-merge to `main`, re-run verification, and apply the ownership-checked cleanup. No push or PR; no commands executed.\n",
-      "words": 121,
-      "wallMs": 11605,
+      "text": "## Checkpoint 1: Generate the gate\n\n1. Tests passed.\n2. Conformance passed.\n3. Whole-diff review passed.\n\nClosure / conformance: CONFORMS  \nwhole-diff minors: none\n\nImplementation complete. What would you like to do?\n\n1. Push and create a Pull Request\n2. Push and create a draft Pull Request\n3. Squash-merge to main (no PR, no surviving branch)\n4. Keep the branch as-is (I'll handle it later)\n5. Discard this work\n\nWhich option?\n\n## Checkpoint 2: Respond to a legacy transcript\n\nTaking 6 as option 3 — Squash-merge to main (no PR, no surviving branch).\n\nSimulated next action: strip the ephemeral plan and seal telemetry, then squash-merge `fix-x` into local `main` and re-run verification. On success, apply the cleanup ownership contract before removing any worktree or deleting the branch. No push or PR; no commands executed.\n",
+      "words": 129,
+      "wallMs": 7739,
       "mechanical": {}
     }
   },
@@ -34,9 +34,9 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "1fc8add11acc987a8239b920628b45dc1ad0d3ec35ec428804c7fdf1df3f2cc6",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "fc207f201dc308d8f88935b1a48003bf6f1482b5ece86868671cc806be813e89",
+      "intentSha": "7622411976e6b255fd30a7de352335c21295e0c82f4a8758f279141ae1eed81a",
       "baselineOutputSha": "3c9fbeed02a474145e26af9557b711d8e8794c0ce6a49b2d862cf06e1174f0b8",
-      "candidateOutputSha": "63cbbe0b2d719f7db931b8f04ae3d4f04a0848de156739f3fa897bec5652fe26",
+      "candidateOutputSha": "bbde70580e1200e519abd1e9e74d04d6fe5d0d31e5b9d0987d40499aa5fc7c29",
       "facts": {
         "layout": {
           "before": "holds",
@@ -49,16 +49,16 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "Neither fact moved: both Before and After already place a prose paragraph (\"Implementation complete. What would you like to do?\") between the three numbered observations and the five options, so under CommonMark the options restart at 1 and render 1-5 rather than continuing as 4-8; and both open Checkpoint 2 with the single sentence \"Taking 6 as option 3 - Squash-merge to main (no PR, no surviving branch).\" before any simulated landing step. After's wording is a slightly tighter version of Before (it drops the redundant \"Pick one:\" line and the conformance echo lines) and remains compliant with the shared menu-layout contract. The Expected-to-move entries for this case appear to describe a baseline that was already satisfying the layout and echo requirements, so the After wording is safe here; if you want the separation to be more robust against outputs that omit the prose line, consider having the skill emit an explicit horizontal rule or bullets for observations rather than relying on an optional prose sentence.",
-      "wallMs": 14752,
+      "feedback": "Neither fact moved: both Before and After place a prose paragraph (\"Implementation complete. What would you like to do?\") between the three numbered observations and the five options, so under CommonMark the options render as 1 through 5 in both, and both open checkpoint 2 with the single sentence \"Taking 6 as option 3 - Squash-merge to main (no PR, no surviving branch).\" before any simulated landing. The expected fails->holds movement for this case did not materialize because Before already satisfied the layout contract and the legacy-pick mapping. After is slightly leaner (it drops the \"Closure / conformance\" ledger lines and the \"Pick one:\" lead-in), which is fine since the prose question still breaks the list; if you want the separator to be unmistakable, keep an explicit lead-in like \"Pick one:\" or a horizontal rule immediately above the options, and keep the mapped-pick echo sentence exactly as it is so the Squash-merge to <base-branch> label stays verbatim before the simulated action.",
+      "wallMs": 9809,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "1fc8add11acc987a8239b920628b45dc1ad0d3ec35ec428804c7fdf1df3f2cc6",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "fc207f201dc308d8f88935b1a48003bf6f1482b5ece86868671cc806be813e89",
+      "intentSha": "7622411976e6b255fd30a7de352335c21295e0c82f4a8758f279141ae1eed81a",
       "baselineOutputSha": "42654cdd2a73ebd4ef7bde69966d86b845afecc0deb8efa0348fe15148f9d886",
-      "candidateOutputSha": "ef4eb784ee50942acfd6efe0e69a2d39d33359037430db2b94e165fc86740b71",
+      "candidateOutputSha": "1a8ce9132bf3b00275f32df271782a10a8286dd5427f9bb2dbc3605c1014db32",
       "facts": {
         "layout": {
           "before": "holds",
@@ -71,10 +71,10 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "Nothing moved between Before and After on these two facts: both outputs separate the three numbered observations from the five-option gate with the prose lines \"Closure / conformance: CONFORMS\" and \"Implementation complete. What would you like to do?\", which break the CommonMark list so the options render 1 through 5, and both open checkpoint 2 with \"Taking 6 as option 3 - Squash-merge to main (no PR, no surviving branch).\" before the simulated action. The only After differences are the shortened checkpoint headings and a slightly reordered next-action narration (\"tracked\" vs \"committed\", sealing conditional before the local squash-merge), none of which touch layout or pick mapping. Note that Before already satisfied both facts, so the Expected-to-move entries for menu-after-numbered-findings/layout and mapped-pick are not demonstrated as fails -> holds by this pair; if the author wants a case that exercises the shared menu-layout contract, the Before baseline would need a prompt that reproduces the legacy no-separator transcript rather than one that already inserts prose between the lists.",
-      "wallMs": 10240,
+      "feedback": "Nothing moved between Before and After for this case: both outputs are essentially identical. In Checkpoint 1 both place the three numbered observations, then two prose paragraphs (the CONFORMS/minors lines and \"Implementation complete. What would you like to do?\"), then the five options starting at 1; under CommonMark the intervening paragraphs terminate the first list, so the options render 1–5, satisfying layout in both. In Checkpoint 2 both open with \"Taking 6 as option 3 — Squash-merge to main (no PR, no surviving branch)\" before describing the simulated action, so mapped-pick holds in both; the only difference is an em dash instead of a hyphen and a slightly more detailed cleanup sentence, neither of which affects any fact. The Change's stated goal (shared menu-layout contract, echo of a mapped legacy pick) is already delivered by this wording, so no adjustment is needed to keep these facts; if you want After to be more obviously distinct from Before, consider an explicit separator like a horizontal rule above the options, but it is not required for the facts here.",
+      "wallMs": 10937,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "a91f1f87381adfb81b00c31d91a566d8e5ba319e"
+  "repoSha": "27eae7d476b20debb9e9e11220ce9183ac10daf5"
 }
