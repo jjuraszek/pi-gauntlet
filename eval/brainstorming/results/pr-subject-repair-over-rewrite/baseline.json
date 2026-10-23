@@ -1,7 +1,7 @@
 {
   "sample": "pr-subject-repair-over-rewrite",
   "arm": "baseline",
-  "skillSha": "759aa67c4962ca21aea1c5cff8bc57ccbeb2cd436af789309ff367349e1d6967",
+  "skillSha": "308b6e8f1f1dd4a55e5269395a8170ea7660797659e6364874842e095bbd17c2",
   "inputSha": "a09d76d529cdf4a1726439991c53c9181b3208f0b1ff1437a5cb33b27783d372",
   "kind": "text",
   "assembly": "headed",
@@ -17,18 +17,18 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "## Problem\n\nPR acme/widget#63 - Bound retries #20. Its stated intent is \"Retry requests with the existing loop.\" The PR binds ticket #20 from its title.\n\nThe base-SHA rules at `main @ aaaaaaa` require at most three retry attempts. The PR claims its attempts are already bounded to three, but that claim is false. The existing loop starts `attempts` at `1` and continues while `attempts <= 3`, so it can exceed the bound.\n\nThe loop is otherwise correct. Two edits satisfy both the base rule and ticket #20:\n\n- initialize `attempts` to `0`\n- loop while `attempts < 3`\n\nNo rewrite or replacement abstraction is required. The original commits and retry loop are preserved.\n\nFraming: kept\n\n## Acceptance criteria\n\nTicket #20, Acceptance criteria, rows verbatim:\n\n- [ ] Retry attempts never exceed three.\n  in-scope\n\n## Rework record\n\nPR: acme/widget#63 - Bound retries #20\nPre-rework head: 4444444444444444444444444444444444444444\nBase: main @ aaaaaaa - merge: no-op\nKeeps: the original commits and the existing retry loop\nChanges: two-line repair in the existing loop - initialize `attempts` to `0` instead of `1`, and use `attempts < 3` instead of `attempts <= 3`; repair over rewrite; no contract exceptions\nDropped claims:\n- attempts already bounded to three\nThreads:\n- src/retry.ts:4 RT63 - fix\n- src/retry.ts:9 RT64 - decline: existing loop plus two-line repair satisfies the rule\nScoped tests: none run (no-op merge)\n",
-      "words": 203,
-      "wallMs": 13706,
+      "text": "## Problem\n\nPR acme/widget#63 - Bound retries #20. Its stated intent is \"Retry requests with the existing loop.\" The PR title binds ticket #20.\n\nThe base-SHA rules cap retries at three attempts. The existing retry loop does not meet that cap. It starts `attempts` at 1 and loops while `attempts <= 3`. The PR's claim that attempts are \"already bounded to three\" is therefore false.\n\nThe merge was a no-op because the head already contains `origin/main`. As a result, no base-HEAD rule is absent at the fork point, and no constraints were added since the fork. The governing constraint is the current base rule of at most three attempts.\n\nThe smallest repair is two edits:\n- Start `attempts` at 0.\n- Loop while `attempts < 3`.\n\nThese two edits satisfy both the base rule and the ticket. No rewrite or replacement abstraction is needed. The original commits and the retry loop stay as they are.\n\nFraming: kept\n\n## Acceptance criteria\n\nTicket #20, checkbox list, rows verbatim:\n\n- [ ] Retry attempts never exceed three.\n  in-scope\n\n## Rework record\n\nPR: acme/widget#63 - Bound retries #20\nPre-rework head: 4444444444444444444444444444444444444444\nBase: main @ aaaaaaa - merge: no-op\nKeeps: original commits and the existing retry loop\nChanges: initialize attempts to 0 instead of 1; use attempts < 3 instead of attempts <= 3; repair over rewrite, no contract exceptions\nDropped claims:\n- attempts already bounded to three\nThreads:\n- src/retry.ts:4 RT63 - fix\n- src/retry.ts:9 RT64 - decline: existing loop plus two-line repair satisfies the rule\nScoped tests: none run (no-op merge)\n",
+      "words": 237,
+      "wallMs": 13654,
       "mechanical": {}
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "## Problem\n\nPR acme/widget#63 - Bound retries #20\n\nStated intent: “Retry requests with the existing loop.”\n\nThe base-SHA rules and bound ticket #20 require at most three retry attempts. The claim “attempts already bounded to three” is false in the pre-rework code and is dropped pending repair.\n\nThe existing retry loop needs only two edits: initialize `attempts` to `0` instead of `1`, and use `attempts < 3` instead of `attempts <= 3`. Preserve the original commits and retry loop; no rewrite or replacement abstraction is required.\n\nFraming: kept.\n\n## Acceptance criteria\n\nTicket #20, checkbox list, rows verbatim:\n\n- [ ] Retry attempts never exceed three.\n  in-scope\n\n## Rework record\n\nPR: acme/widget#63 - Bound retries #20  \nPre-rework head: 4444444444444444444444444444444444444444  \nBase: main @ aaaaaaa - merge: no-op  \nKeeps: Original commits and the existing retry loop.  \nChanges: Initialize `attempts` to `0` instead of `1` and change `attempts <= 3` to `attempts < 3`; no rewrite, replacement abstraction, or contract exceptions.  \nDropped claims:\n- attempts already bounded to three\n\nThreads:\n- src/retry.ts:4 RT63 - fix\n- src/retry.ts:9 RT64 - decline: existing loop plus two-line repair satisfies the rule.\n\nScoped tests: none run (no-op merge)\n",
-      "words": 171,
-      "wallMs": 10177,
+      "text": "## Problem\n\nPR acme/widget#63 - Bound retries #20 intends to “Retry requests with the existing loop.”\n\nThe base-SHA rules and bound ticket #20 require at most three retry attempts. The existing loop needs only two edits: initialize `attempts` to `0` instead of `1`, and use `attempts < 3` instead of `attempts <= 3`. Preserve the original commits and retry loop; no rewrite or replacement abstraction is required.\n\nThe claim “attempts already bounded to three” is false and is dropped pending repair. No contract exceptions apply.\n\nFraming: kept.\n\n## Acceptance criteria\n\nTicket #20, checkbox list, rows verbatim:\n\n- [ ] Retry attempts never exceed three.\n  in-scope\n\n## Rework record\n\nPR: acme/widget#63 - Bound retries #20\nPre-rework head: 4444444444444444444444444444444444444444\nBase: main @ aaaaaaa - merge: no-op\nKeeps: Original commits and existing retry loop.\nChanges: Initialize `attempts` to `0` instead of `1` and use `attempts < 3` instead of `attempts <= 3`; no rewrite or replacement abstraction.\nDropped claims:\n- attempts already bounded to three\n\nThreads:\n- src/retry.ts:4 RT63 - fix\n- src/retry.ts:9 RT64 - decline: existing loop plus two-line repair satisfies the rule.\n\nScoped tests: none run (no-op merge)\n",
+      "words": 168,
+      "wallMs": 9746,
       "mechanical": {}
     }
   },
-  "repoSha": "03f2a45e6cf09c8bfc0d9a675ffffba9151f6d00"
+  "repoSha": "b380377fe7af54d910e7705a7ec21db6c4198fef"
 }
