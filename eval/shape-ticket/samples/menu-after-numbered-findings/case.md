@@ -1,3 +1,4 @@
+bundle-: skills/shape-ticket/reference/repo-audit.md
 
 Workflow stage: ### 8 - Confirmation gate.
 Produce one response containing two independent checkpoints. All writes are simulated; use no tools.

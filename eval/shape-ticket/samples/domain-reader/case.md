@@ -1,3 +1,4 @@
+bundle-: skills/shape-ticket/reference/repo-audit.md
 bundle+: skills/shape-ticket/reference/ticket-wording.md
 
 Create mode; gathering complete. Requester asks: "Fix CSV export email delivery: the first download is empty." Gathered source: deliveryMux is the outbound-delivery dispatcher. The export email arrives before the file is complete, so the first download is empty. Recorded example: a 12-row report downloads as zero rows. Required outcome: requesting email delivery for that report produces a first download containing all 12 rows. Draft a body and gate report.

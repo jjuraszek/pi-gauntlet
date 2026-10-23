@@ -1,0 +1,12 @@
+anonymized: true
+- parse: judged: Comma and whitespace refs route to repair, including #N, ABC and URL; first-seen order is preserved.
+- scope: judged: Named dashboard context affects only ABC-102; common nightly context reaches briefs but is asserted only in supported ABC-101 body.
+- dedup: judged: ABC-102 and #7 duplicates collapse; one serial fetch/snapshot/audit per distinct ref under one temp root, not independent runs.
+- first-gate: judged: Only ABC-101 gate appears initially, with exact body diff and new inventory Reporter note; no later ticket disclosure before reply.
+- stop-local: judged: Wishful ABC-102 surviving recovery stops that ticket only; its turn has no approval option and ABC-103 continues.
+- unique: judged: ABC-103 splits bundled independent observations, removes the implied count-only row into a verbatim Reporter note, retains same-subject receipt result and nested setup detail.
+- audit-lines: judged: Each gate puts Audit immediately above Title after any pre-Title bug source gaps; audits precede grouped clarification/recovery.
+- off-turn: judged: Revision rechecks and re-presents the current ticket; an other-ticket reply never approves an unseen diff.
+- finish: judged: Approval prescribes re-fetch/compare then body and comment write before advancing; final statuses give exactly one line per distinct ref (declined, stopped, written).
+- terminal: judged: Partial fetch failure lists unfetched refs and continues fetched ones; all failure aborts repair and offers create from free text, not invented snapshots.
+- overlap: judged: Create clarification and parent discovery precede one scout over the clarified snapshot and candidate; findings affect payload-local alternatives, protect legacy ACs, and add no gate.

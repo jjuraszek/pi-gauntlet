@@ -1,0 +1,90 @@
+{
+  "sample": "audit-quiet-noop",
+  "arm": "candidate",
+  "skillSha": "981d07cff2aeaefb8557619c6b3ddaede2886845f4e2e5e8a5d569451f172635",
+  "inputSha": "028b948777473c13252e8cb841c150c28f47453c00769d5cb253e2639750d850",
+  "kind": "text",
+  "assembly": "concat",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "# ABC-401: repair, no-op\n\n**Run preparation (prescribed, not executed):**\n- Resolve the repo root with `git rev-parse --show-toplevel`.\n- Allocate one `mktemp -d` root. This reply calls it `<tmp>`.\n- Fetch ABC-401 and store it fenced as untrusted data in `<tmp>/ABC-401/snapshot.md`.\n- Dispatch one foreground `scout` with `context: \"fresh\"` and `outputMode: \"file-only\"`. Its output path is `<tmp>/ABC-401/audit.md`.\n- Wait for the terminal result, then judge the audit from its file.\n\nRef list: `ABC-401`. Mode: repair. Unfetched: none.\n\n## Main case: usable audit with an in-motion match\n\n**Audit fold-in:**\n\n| Audit line | Effect |\n|---|---|\n| `Claims: none` | Nothing to check |\n| `Repo-fit: kept` | Idea unchanged |\n| `AC-fit: clear` | AC unchanged |\n| `Sibling: none` | No repo groups |\n| `In-motion: https://example.test/pull/41` | Reported only. Quiet finding, no draft change. |\n| `Scenario: none (nothing to observe - new capability)` | A none footer is added only to a body already being drafted. No body is being drafted here, so it is reported only. |\n\nNo finding changes the draft.\n\n**Conformance checklist (step 6):**\n- **Strip test (rule 2):** passes. The body contains no code or doc references.\n- **Plain-words lead (rule 4):** present. \"Recipients must retry empty downloads.\"\n- **Example per failure (rule 5):** present. \"A 12-row report downloads as zero rows.\"\n- **Jargon (rule 6):** no repo-native terms.\n- **Idea:** one attributed sketch line.\n- **Step-5 closed list:** Context and Problem contain no matches.\n- **Pointers and links (rules 7 and 8):** no pointers, no spiderman hops.\n- **Sources:** the gathered URL is carried in a `source:` footer, and the non-discovery example has a footer. No source gaps.\n\n**AC integrity:**\n- The AC is behavioral and binary. It names setup (a 12-row report), action (downloading) and result (12 rows).\n- It is verifiable before production. It is already in `- [ ]` form.\n- AC uniqueness: no change.\n\n**Other checks:** metadata audit is clean. No overflow and no in-session ask, so no comment is proposed.\n\n**Result:** conforms, no changes proposed. There is no roast, no confirmation gate, no write and no question.\n\n```\nAudit:\nin-motion: https://example.test/pull/41\nscenario: none (nothing to observe - new capability)\n```\n\n`ABC-401: no-op`\n\n## Checkpoint A: empty audit file (zero bytes)\n\n- A zero-byte file is ticket-local unusable. There is no retry.\n- The ordinary path continues without invented edits or blocks.\n- The body still passes the same conformance checklist.\n- Metadata is clean, and no comment is proposed.\n\n**Result:** conforms, no changes proposed. There is no roast, gate, write, question or blocking status.\n\n```\nAudit:\naudit unavailable (empty file)\n```\n\n`ABC-401: no-op`\n\n## Checkpoint B: usable all-none audit (In-motion: none)\n\n- All six labels are present at line start, so the file is accepted.\n- `Claims: none`, `Repo-fit: kept`, `AC-fit: clear`, `Sibling: none` and `In-motion: none` produce no draft effect and no report lines.\n- `Scenario: none (...)` is a quiet finding. No body is being drafted, so no footer is added.\n- The body conforms, metadata is clean, and no comment is proposed.\n\n**Result:** conforms, no changes proposed. There is no roast, gate or write.\n\n```\nAudit:\nscenario: none (nothing to observe - new capability)\n```\n\n`ABC-401: no-op`\n",
+      "words": 470,
+      "wallMs": 16133,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "### ABC-401 — usable audit with in-motion work\n\nAudit:\n- in-motion: https://example.test/pull/41\n- scenario: none (nothing to observe - new capability)\n\n**conforms, no changes proposed**\n\nThe in-motion finding and scenario-none finding are report-only. No replacement, comment, roast, confirmation prompt, or write is prescribed.\n\nABC-401: no-op\n\n### ABC-401 — empty audit file checkpoint\n\nAudit: audit unavailable (empty file)\n\n**conforms, no changes proposed**\n\nThe unavailable audit does not itself require changes or block the ticket. No audit retry, replacement, comment, roast, confirmation prompt, or write is prescribed.\n\nABC-401: no-op\n\n### ABC-401 — usable audit with no in-motion work\n\nAudit:\n- scenario: none (nothing to observe - new capability)\n\n**conforms, no changes proposed**\n\nThe scenario-none finding alone does not trigger drafting. No replacement, comment, roast, confirmation prompt, or write is prescribed.\n\nABC-401: no-op\n",
+      "words": 119,
+      "wallMs": 6506,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "a7ef82ded4d5a5a4c73cf8813e590a8f0d407cb9b02ea0201bc4f3f591e3ad90",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "e888ce973618684c352343d6f08a28b6be86f7dd48ee20af392d08ec3fdfda4f",
+      "baselineOutputSha": "57ca6f2d55bca8417759e1f23d6db23e611c5ef8c6b27c6542ca321e1c2bae2d",
+      "candidateOutputSha": "4f56541fd4cbae628ea981fd88f1ab8e8e49e8325ef730d9bc7a878581eb9f27",
+      "facts": {
+        "active-noop": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "empty-noop": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "all-none": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "Nothing moved: After keeps all three guards. The main case still reports \"conforms, no changes proposed\" with the Audit block carrying the in-motion PR line and no roast, gate, write or question; the zero-byte checkpoint still emits \"audit unavailable (empty file)\", stays a no-op and explicitly names no edit, gate or blocking status; the all-none checkpoint still treats Scenario none as a quiet finding that adds no footer and triggers no rewrite. Two small softenings are worth guarding against in future wording changes: After dropped Before's explicit \"no relaunch\" phrasing for the empty file (it keeps \"no retry\"), and the all-none result line no longer says \"no question\" or \"no blocking status\" as the empty-file checkpoint does. Neither breaks a fact here, but keeping the full negative list (\"no roast, gate, question, write or blocking status\") on every no-op result line, and keeping \"no retry, no relaunch\" on the unusable-audit branch, would make the guards robust while still delivering the table-driven fold-in and the tightened conformance checklist that the Change introduces.",
+      "wallMs": 10925,
+      "verdict": "unchanged"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "a7ef82ded4d5a5a4c73cf8813e590a8f0d407cb9b02ea0201bc4f3f591e3ad90",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "e888ce973618684c352343d6f08a28b6be86f7dd48ee20af392d08ec3fdfda4f",
+      "baselineOutputSha": "8c825dfab858ad83043e50ef3e5763c582821e65a1b82fd9712f0288dbed788c",
+      "candidateOutputSha": "225d38c51d6812d4489e9649d314f1ab915d7a681270a14b90ebb8af4bb77d27",
+      "facts": {
+        "active-noop": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "empty-noop": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "all-none": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "No fact moved: both outputs report conforms, no changes proposed for all three checkpoints, echo the in-motion PR URL in the Audit block for checkpoint 1, label the empty file as audit unavailable without retry or blocking, and treat scenario-none as report-only with no footer, rewrite, roast, gate or write. The one wording risk in After is checkpoint 3, where the Audit block drops the explicit 'in-motion: none' line that Before printed, so a reader can no longer see from the output that the audit was usable and quiet on that label rather than silently missing it; it still holds all-none because the text states the scenario-none finding alone does not trigger drafting and ends in no-op, but if the Change later adds a Sibling/Claims/Repo-fit report, this elision could blur the 'usable all-none' distinction from an unavailable audit. Keep After's tighter phrasing ('report-only', 'prescribed' rather than 'proposed') but restore the quiet label lines (at least 'in-motion: none') in the Audit echo so every checkpoint shows the audit it acted on, which preserves all three facts while still delivering the audit-quiet-noop integration.",
+      "wallMs": 14185,
+      "verdict": "unchanged"
+    }
+  },
+  "repoSha": "4053c2f87ca3ae257f07a0fe9655fe66b7b1541e"
+}
