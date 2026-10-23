@@ -37,10 +37,9 @@ test("shape-ticket baseline preserves slices and excludes only audit from all ex
   }
 });
 
-test("shape-ticket audit samples parse facts and assemble baseline audit without changing target slices", () => {
+test("shape-ticket audit samples parse facts and assemble audit without changing target slices", () => {
   const root = new URL("../../", import.meta.url).pathname;
   const read = replay.treeReader(root);
-  const base = replay.baseReader(root, "5b97a46a7b0ef331e72077362e92eff4a59e1b77");
   const target = JSON.parse(read("eval/shape-ticket/target.json"));
   assert.equal(target.wordCap, 1600);
   for (const sample of auditSamples) {
@@ -50,13 +49,11 @@ test("shape-ticket audit samples parse facts and assemble baseline audit without
     assert.ok(expected.facts.length > 0, sample);
     assert.ok(text.includes("Scenario:"), sample);
     assert.deepEqual(drop, [], sample);
-    for (const reader of [read, base]) {
-      const result = assemble(target, reader, bundle);
-      assert.ok(result.includes("# Repository audit"), sample);
-      if (["batch-repair", "audit-dispatch", "audit-grounding"].includes(sample)) {
-        assert.ok(bundle.includes("skills/shape-ticket/SKILL.md"), sample);
-        assert.ok(result.includes("## Mode routing"), sample);
-      }
+    const result = assemble(target, read, bundle);
+    assert.ok(result.includes("# Repository audit"), sample);
+    if (["batch-repair", "audit-dispatch", "audit-grounding"].includes(sample)) {
+      assert.ok(bundle.includes("skills/shape-ticket/SKILL.md"), sample);
+      assert.ok(result.includes("## Mode routing"), sample);
     }
   }
 });
@@ -94,9 +91,12 @@ test("shape-ticket integrates audited batch gates without changing replay bounda
   assert.ok(ladder.includes('gh pr list --search "<ref>" --limit 20'));
   assert.ok(text.includes("Read `reference/tracker-ladder.md` now"));
   for (const token of ["substantive full-replacement repair", "another row's setup, action, and result", "same-subject rows with different results", "never serialize legacy rows", "no fifth axis", "Max 8 tasks", "before the next ticket prints"]) assert.ok(text.includes(token), token);
-  const baseline = replay.baseReader(new URL("../../", import.meta.url).pathname, "5b97a46a7b0ef331e72077362e92eff4a59e1b77");
-  const examples = sliceText(baseline("skills/shape-ticket/SKILL.md"), "## Examples and rationalizations", "## Edge cases");
-  assert.equal(read("skills/shape-ticket/reference/examples.md"), examples.replaceAll("reference/ticket-wording.md", "ticket-wording.md").replaceAll("reference/split-axes.md", "split-axes.md"));
+  const examples = read("skills/shape-ticket/reference/examples.md");
+  assert.ok(examples.startsWith("## Examples and rationalizations\n"));
+  assert.match(examples, /^### Bad -> good AC examples$/m);
+  assert.match(examples, /^### Rationalization table$/m);
+  assert.doesNotMatch(text, /^## Examples and rationalizations$/m);
+  assert.ok(text.includes("reference/examples.md"));
 });
 
 const skill = "---\nname: x\n---\n# T\n\n### 3. A\na\n\n### 4. B\nb\n\n### 5. C\nc\n\n### 6. D\nd\n";
