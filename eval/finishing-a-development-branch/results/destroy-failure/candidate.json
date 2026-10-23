@@ -40,7 +40,7 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "94381d8e2a080817e4e3bab7ef5fa1e4924ad2b9e69c8b9bc151a76d60e1fac8",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "83dab72b8567bfbbc8e79c889211692b7ccf8006603d903aa9df5106f2950e38",
+      "intentSha": "fc207f201dc308d8f88935b1a48003bf6f1482b5ece86868671cc806be813e89",
       "baselineOutputSha": "162ec6b9bb5ccc8582e5ecc4a41acfdfcec7699656c2b42628c5d9b7ad4d5dd8",
       "candidateOutputSha": "79439b64f7ca6f9321eebe7a12d51268e9ca8b963e4528208a8f497b6924d2f6",
       "facts": {
@@ -60,14 +60,14 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "Both outputs satisfy f1: each runs `cd /work/acme-mono && script/worktree destroy 'fix-x'`, quotes the exit-1 output verbatim, states that `git branch -D fix-x` was not run, and makes clear no built-in removal happened (the worktree is still in place). After's phrasing is slightly narrower than Before's on the removal side: it only names `git worktree remove --force` and `git worktree prune` as things it did not fall back to, whereas Before explicitly says it ran neither `git worktree remove` nor `prune`. A careful reader still infers no plain `git worktree remove` ran because the worktree is reported as still present, but to keep f1 unambiguous while delivering the Change, phrase the bullet as \"I did not run `git worktree remove` (with or without `--force`) or `git worktree prune`; the project's destroy script owns removal, and it refused.\" The rest of After — the explicit ownership match, the `git -C \"$PRIMARY\" branch -D` form, and the numbered manual-finish steps — is consistent with the Change and moves nothing.",
-      "wallMs": 10358,
+      "feedback": "Both outputs run `cd /work/acme-mono && script/worktree destroy 'fix-x'`, report the exit-1 output verbatim, and then run neither `git worktree remove` nor `git branch -D`, so f1 holds on both sides and nothing moved. One small point worth keeping in the After wording: Before explicitly states 'I did not run `git worktree remove` or `prune`' (covering the plain, non-force remove), whereas After only disclaims the `--force` fallback and `prune` while relying on 'the worktree is still in place' to imply no plain remove happened. A reader could still conclude f1 holds, but to keep the disclaimer as airtight as Before, have the Result section say explicitly that no `git worktree remove` (forced or not) and no `git worktree prune` were run after the failed `destroy:`, alongside the existing 'branch -D was not run' line; this preserves the Change's keyed-contract narration while leaving no inference to the reader.",
+      "wallMs": 8887,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "94381d8e2a080817e4e3bab7ef5fa1e4924ad2b9e69c8b9bc151a76d60e1fac8",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "83dab72b8567bfbbc8e79c889211692b7ccf8006603d903aa9df5106f2950e38",
+      "intentSha": "fc207f201dc308d8f88935b1a48003bf6f1482b5ece86868671cc806be813e89",
       "baselineOutputSha": "d9b562b41365a01ddbb356ce131918e11932cebb2ee9c9fe6f196168d68d047e",
       "candidateOutputSha": "b5b30755cc386a3efd7adf661beba7d7dc3a36ae592a34befe81ec8be6c8db2a",
       "facts": {
@@ -87,10 +87,10 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "Nothing moved: both Before and After run `script/worktree destroy 'fix-x'` from `/work/acme-mono`, quote the failure output, and then state that `git worktree remove`, prune, and branch deletion are skipped, so f1 holds in each. The only difference is After spelling out `git worktree prune` instead of bare `prune`, which is a clarity gain with no effect on the fact. The expected-to-move note claims the baseline treats the sibling path as host-owned and never runs destroy, but the Before text shown already performs the keyed match and destroy call, so the author should verify the baseline sample; the After wording is fine as-is and already delivers the Change for this case.",
-      "wallMs": 5817,
+      "feedback": "Both outputs are effectively identical for f1: each runs `script/worktree destroy 'fix-x'` from /work/acme-mono, reports the exact error output, and explicitly declines `git worktree remove`, prune, and branch deletion. The only difference is After spelling out `git worktree prune` rather than bare `prune`, which is a clarity improvement and moves nothing. The Expected-to-move entry for destroy-failure/f1 assumes a Before that treats the sibling path as host-owned, but this Before already matches the keyed `home:` contract and runs destroy, so f1 already held; no wording change in After is needed to preserve it.",
+      "wallMs": 3998,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "6aa708917f3429b0e0ba574cb0a680df774f186c"
+  "repoSha": "a91f1f87381adfb81b00c31d91a566d8e5ba319e"
 }

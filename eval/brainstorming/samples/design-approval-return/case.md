@@ -1,3 +1,4 @@
+bundle-: skills/brainstorming/reference/spec-finalization.md
 bundle+: skills/brainstorming/reference/documentation-impact.md
 replay: continuation
 

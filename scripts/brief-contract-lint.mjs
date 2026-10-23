@@ -11,6 +11,8 @@ export const CITE = "reference/brief-contract.md";
 export const GRAMMAR_PATTERNS = [
   /^## Process state\s*$/m,
   /^Active task: /m,
+  /^Ledger: /m,
+  /^Last decision: /m,
   /^Gate history not restored - re-validate before advancing\.$/m,
 ];
 

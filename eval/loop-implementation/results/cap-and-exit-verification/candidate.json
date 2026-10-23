@@ -1,0 +1,70 @@
+{
+  "sample": "cap-and-exit-verification",
+  "arm": "candidate",
+  "skillSha": "d5e46c2a218348f8350e8a8e5f10cdbc9478e966a6aff9cb08b653fc4c0eca94",
+  "inputSha": "d57c72609ffaed9678d534945aae40299b448389868743f649f9721a25a95fac",
+  "kind": "text",
+  "assembly": "concat",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "# Snapshot A: iteration cap reached, row 1 still open\n\n**Calls**\n1. Read the ledger: `read <resolved plan dir>/<spec stem>-ledger.md`. This gives `iterations: 2`, the row table and the `## Decisions` section.\n2. Check commits since the latest retry: `git -C \"<worktree>\" log --format=%H%x09%s <base>..HEAD`. There is no `loop: retry row` commit, so the window starts at the seed. The list shows one `loop: seed evidence` commit and one child `loop: row …` commit.\n\n**Ordered checks**\n\n| Order | Result |\n|---|---|\n| 1 | Row 1 is `open`, so the loop does not exit to verification. |\n| 2 | Row 1 has not reached its allowance (attempts < 3, no funding or retry grant). No stop. |\n| 3 | Only one child row commit exists (the seed is excluded), so the two-empty-commits rule cannot fire. No stop. |\n| 4 | `iterations` 2 >= `maxIterations` 2. **Human stop before verification.** |\n\n**Durable changes:** none.\n- `iterations` is not incremented.\n- No temp output file is created.\n- No `subagent` dispatch happens.\n- No commit is made.\n- No `phase_tracker` call is made, so implement stays active.\n\n**Next target:** none is dispatched. Row 1 would have been selected next as the first open row.\n\n**Human-facing output**\n```\nStopped: iteration cap reached (2 of 2 iterations consumed; seed and one row dispatch counted)\nUnresolved rows: row 1 (<row text from spec>) - open, attempts <n from ledger>\nProblem: row 1 evidence: \"<row 1 evidence cell, quoted verbatim>\"\nLast decision: \"<last decision line, quoted verbatim>\"\n\nOptions:\n1. Retry with hint - appends `row 1 retry | <hint> | allowed attempts <attempts+1>` and commits `loop: retry row 1`.\n   Iterations are never reset, so the cap still applies. This retry will stop again unless you raise the loopEngine maxIterations setting.\n2. Amend - goes through the /skill:brainstorming amendment surface. Rows are cut only by an approved disposition amendment.\n3. Stop - keeps the implement phase and the branch as they are.\n```\n\n# Snapshot B: every row closed, `make check` fails\n\n**Calls**\n1. Read the ledger. No row is `open` or `failed`, so order 1 applies: exit verification.\n2. Run the ledger's `verification:` command exactly once, in the foreground: `(cd \"<worktree>\" && make check)`.\n3. Outcome: the run fails with assertion `expected 2, got 1`.\n\n**What does not happen**\n- There is no rerun.\n- No rows are reopened.\n- `phase_tracker` complete for implement is not called.\n- Verify is not started.\n- No reviewers are dispatched.\n- `/skill:finishing-a-development-branch` is not invoked.\n\n**Durable changes:** none. The rows stay `done`/`cut`, iterations stay at 2, and implement stays active.\n\n**Next target:** none until a human decision.\n\n**Human-facing output**\n```\nStopped: verification failed with every row closed\nProblem: `make check` failed:\n  \"<failing test name and output, quoted verbatim, including: expected 2, got 1>\"\nLast decision: \"<last decision line, quoted verbatim>\"\n\nOptions:\n1. Retry with hint on a chosen row - appends `row <n> retry | <hint> | allowed attempts <attempts+1>` and commits `loop: retry row <n>`.\n   Durable status beats a decision's suggestion, so a retry on a row that is still done will not dispatch on its own.\n   Rework normally needs option 2.\n2. Amend - goes through the /skill:brainstorming amendment surface. A re-bounded done row becomes `open` with evidence \"reopened by amendment\".\n   Attempts and iterations are preserved. Spec and ledger are committed together as `loop: amend`.\n3. Stop - keeps the implement phase and the branch as they are.\n```\n",
+      "words": 527,
+      "wallMs": 23638,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "These are independent dry runs; no calls or changes have occurred. Worktree paths, row text, attempts, evidence, and last decisions were not supplied, so those must be read rather than invented.\n\n## A — cap reached, row 1 still open\n\n**Calls/checks**\n1. Read the ledger.\n2. Inspect child-commit history since the latest `loop: retry row <n>` commit to apply the attempt-limit and empty-commit checks first.\n3. If neither earlier stop applies, stop at `iterations: 2` because `maxIterations` is 2.\n\n**Do not call:** `subagent`, the verification command, reviewers, or phase completion.\n\n**Durable changes:** None. Preserve `iterations: 2`, row 1’s status and attempts, existing commits, and active implement phase.\n\n**Next target:** No dispatch is permitted. Row 1 remains unresolved; neither funding nor a retry decision bypasses the total cap.\n\n**Human-facing output**, populated with the actual ledger values:\n```text\nStopped: iteration cap 2 reached; unresolved row 1, attempts <actual attempts>.\n\nProblem: \"<row 1 evidence verbatim>\"\nLast decision: \"<last decision verbatim>\"\n\nChoose: retry with a hint, amend, or stop.\nA retry hint does not bypass the iteration cap.\n```\nInclude `budget: <spent> of <N> spent` only if row 1 is funded. Do not fabricate a failure assertion if its evidence contains none.\n\n## B — all rows closed at the cap; verification fails\n\nThe “no open or failed row” check precedes the iteration-cap check. Therefore, proceed to exit verification despite `iterations: 2`.\n\n**Command to call once, foreground**\n```sh\n(cd \"<absolute implementation worktree>\" && make check)\n```\nThis assumes `make check` is the ledger’s stored verification command, as the snapshot indicates.\n\nGiven its stipulated failure, stop immediately. Do not rerun it automatically.\n\n**Durable changes:** No driver-authored ledger change or commit. Preserve every closed row and `iterations: 2`; do not reopen rows. Preserve any changes the command itself produces. Keep implement active.\n\n**Next target:** None. Further work requires a human decision.\n\n**Do not call:** `phase_tracker` completion, verify-phase start, a child implementer, reviewers, or branch finishing.\n\n**Human-facing output**\n```text\nStopped: verification failed with every row closed\n\nProblem: \"assertion expected2 got1\"\nLast decision: \"<last decision verbatim>\"\n\nChoose: retry with a hint, amend, or stop.\nFurther work requires your decision; closed rows will not be reopened automatically.\n```\nIn an actual run, quote the command’s exact failing output rather than reconstructing it from this snapshot.\n",
+      "words": 368,
+      "wallMs": 24204,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "b92f86fd82504e366e674f418bf84f85e230a125de7f2fe4c5dcdf8cc166e8ef",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "4b5b8fb07e1a86cc56cf798029effe82600ca4e4e62d486c4041df23c7b981fe",
+      "baselineOutputSha": "8262db20483d2b7d7a2653bd6881c4ec90823b52da2103ba13a367b83a23d139",
+      "candidateOutputSha": "efa3559f9f1ff90ece8bf25634b9668ebb636533929e52e3b794f2c9c8c05d2d",
+      "facts": {
+        "contract": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "Nothing moved on this case: both outputs stop Snapshot A at the cap before any dispatch or verification, list the unresolved row with its attempts, and count the seed as an iteration ('seed and one row dispatch counted' in After matches Before's 'seed and the row dispatch both count'); both run `make check` exactly once in Snapshot B, quote the failing output verbatim, make no rerun, reopen no rows and leave implement active. The seed-recovery Change is not exercised here because neither snapshot has an interrupted seed, so the After wording is safe for this contract as long as the new seed-completion path stays gated on explicit human authorization and does not alter the ordered table (open rows -> allowance -> stagnation -> cap) or the single-run exit-verification rule; if you add the seed-contract hint text, keep it out of the cap and verification-failure human outputs so these snapshots stay as they are.",
+      "wallMs": 39106,
+      "verdict": "unchanged"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "b92f86fd82504e366e674f418bf84f85e230a125de7f2fe4c5dcdf8cc166e8ef",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "4b5b8fb07e1a86cc56cf798029effe82600ca4e4e62d486c4041df23c7b981fe",
+      "baselineOutputSha": "32f170b34d853b195627aa83e4e3d2ede7d868fe8a831623a62bf6d444c4de3c",
+      "candidateOutputSha": "9696738fa8d7fe0cf8cb4c8ad147f37ba643e2b52ec89ca6f874b32505602bb1",
+      "facts": {
+        "contract": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "Both outputs satisfy the contract: A stops at the cap with no dispatch or verification, reports row 1 with attempts, and B runs `make check` exactly once, quotes the failing output, never reopens or reruns, and keeps implement active. The one weakening in After is that A dropped Before's explicit sentence 'The seed and one row dispatch consumed both iterations' — After only implies seed-inclusiveness by accepting `iterations: 2` as the cap, which still holds but leaves a reader to infer it. To keep the seed-inclusive accounting unambiguous while delivering the seed-recovery change, keep that sentence in A's human-facing output (or a short note that the seed counted toward the cap and that authorized seed recovery would not reset the consumed count), and add the recovery rule as a separate clause rather than replacing the cap explanation.",
+      "wallMs": 11297,
+      "verdict": "unchanged"
+    }
+  },
+  "repoSha": "3c1f3274e1df8e23f0ba53657be5ca2efe9c63d2"
+}

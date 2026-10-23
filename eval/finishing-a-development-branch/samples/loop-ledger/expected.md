@@ -1,0 +1,5 @@
+- verification: judged: Uses ledger verification command before presenting options, preserving conformance gates.
+- digest: judged: Includes ordinary amendment and loop cut/amend granted body records in the digest, excluding ordinary row commits.
+- strip: judged: Reads Spec header before removal, removes and commits each tracked basename plan and ledger candidate before landing.
+- seal: judged: Passes doc/specs/run.md as --spec to telemetry seal before squash; preserves spec and telemetry, strips artifacts, and stops on seal failure.
+- jj: judged: Retains plain-jj restore counterpart without a git commit in a plain-jj workspace.

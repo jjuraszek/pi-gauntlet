@@ -1,3 +1,4 @@
+bundle-: skills/brainstorming/reference/spec-finalization.md
 bundle+: skills/brainstorming/gatherer.md
 ## Fixed observations
 Gather is starting for acme/widgets#81. The resolved tracker CLI supports comment pages of 50 in newest-first order. No live tracker operation is available in this replay. Use these fixed observations when narrating reads, not invented results.

@@ -1,0 +1,1 @@
+Act as the main-session loop driver using the supplied skill and persona contract. Tools are unavailable: describe the exact calls, durable changes, next target and human-facing output for each numbered snapshot independently. Do not pretend calls have run.

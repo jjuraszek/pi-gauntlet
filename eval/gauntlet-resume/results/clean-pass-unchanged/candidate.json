@@ -1,7 +1,7 @@
 {
   "sample": "clean-pass-unchanged",
   "arm": "candidate",
-  "skillSha": "db895a9676fcd9b94412ddabdda6dda96f2066cc9f47b7e04a8ba047609dc0f6",
+  "skillSha": "5a2dd5c7cc80080f00186d00ebab94de21148aedf5202c6d6137fc9376418f00",
   "inputSha": "d88436f3b8477282e2163e0e5932da60eb5deb3e755dd05bc3b38dedfe07a87e",
   "kind": "text",
   "assembly": "headed",
@@ -17,16 +17,16 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "# Restore narration: from plan_check PASS to the closing line\n\n**Tool result 1:** `plan_check({ planPath: \"/work/app/.worktrees/config-loader/doc/plans/2026-03-02-config-loader.md\" })` returned **PASS**.\n\n- The result is PASS, so `## Plan repair` is not entered.\n- No repair commit is made.\n- No `Repaired plan:` receipt will be printed.\n\n**Feasibility check before `init`:**\n\n- **Pending-suffix order:** the only `○` task is [4], and it trails every non-pending task. This passes.\n- **Implement auto-complete edge:** task [3] is in_progress and [4] is pending, so not every task is complete or skipped. This passes.\n- **Task lines:** all four match `^\\s*[✓→✗⊘○] \\[\\d+\\] .+$`. There is exactly one `→` phase line and no all-`○` phase block, so no parse stop applies.\n\n**Remaining call-table steps (implement row, after `plan_check` PASS), in order:**\n\n1. `phase_tracker skip` with phase `plan` and reason `resume: pasted brief`. The input does not name a brief file path. If the brief came from a file, the reason would be `resume: <that file path>` instead.\n2. `phase_tracker start` with phase `implement`.\n3. No `substep` call. The brief shows `→ implement` with no `(substep)` suffix.\n4. `plan_tracker init` with these tasks:\n   ```json\n   [\n     { \"name\": \"W1: Parse config file\",       \"status\": \"complete\" },\n     { \"name\": \"W1: Validate schema\",         \"status\": \"complete\" },\n     { \"name\": \"W2: Wire CLI flag\",           \"status\": \"in_progress\" },\n     { \"name\": \"W3: Document the loader\",     \"status\": \"pending\" }\n   ]\n   ```\n\n**Tool result 2:** all of the tracker calls above succeed.\n\n**Printed (closing line):**\n\n```\nGate history not restored; re-validating `W2: Wire CLI flag` before any stage advance\n```\n\n`<task>` is the brief's `Active task`, which is `W2: Wire CLI flag`.\n\nThe next line is exactly one of `Standing grant active: <sentence>` or `No standing grant.`, depending on the outcome of entry check 6. The input does not give that outcome, so I can't state which one. After that, continuation passes to subagent-driven-development. It first re-validates `W2: Wire CLI flag` by re-running its `Tests:`, then enters the task loop at the first non-complete task.\n",
-      "words": 301,
-      "wallMs": 14997,
+      "text": "# Restore narration: from `plan_check` to the closing line\n\n**Brief route:** The active phase is `→ implement` and the plan has task rows with no `Ledger:` field. So this restore follows the call table's **implement with task plan** row. The earlier calls in that row (`start brainstorm`, `skip brainstorm S`, `start plan`) have already run.\n\n---\n\n**Tool result 1:** `plan_check({ planPath: \"/work/app/.worktrees/config-loader/doc/plans/2026-03-02-config-loader.md\" })` returned **PASS**.\n\nBecause the check passed on the first try:\n- `## Plan repair` is not entered.\n- No commit is made.\n- No `Repaired plan:` receipt is printed.\n\n---\n\n**Call 1:** `phase_tracker skip` with phase `plan` and reason `resume: pasted brief`.\n- This is `R`. The input gives no brief file path, so the pasted-brief form applies.\n- The prior session's `(resume: brief)` reason is not copied.\n\n**Call 2:** `phase_tracker start` with phase `implement`.\n- No `substep` call follows, because the brief shows `→ implement` with no `(substep)`.\n\n**Feasibility check before `init`** (no tool call):\n- **Pending-suffix order:** the only `○` task, `[4]`, comes after every non-pending task. This passes.\n- **Implement auto-complete edge:** not triggered, because task `[3]` is in progress and `[4]` is pending.\n\n**Call 3:** `plan_tracker init`, with the brief's task list copied exactly (names, order, statuses):\n\n```\n[\n  { name: \"W1: Parse config file\",       status: \"complete\" },\n  { name: \"W1: Validate schema\",         status: \"complete\" },\n  { name: \"W2: Wire CLI flag\",           status: \"in_progress\" },\n  { name: \"W3: Document the loader\",     status: \"pending\" }\n]\n```\n\n---\n\n**Printed (closing line):**\n\n```\nGate history not restored; re-validating `W2: Wire CLI flag` before any stage advance\n```\n\n`W2: Wire CLI flag` is used because it is the brief's `Active task`.\n\n---\n\n**After the closing line:**\n- On its own line, I print the check 6 result: either `Standing grant active: <sentence>` or `No standing grant.`. The input does not give the check 6 outcome, so I cannot quote that line here.\n- Work then continues in subagent-driven-development, without its reset-bearing entry. First, `W2: Wire CLI flag` is re-validated by re-running its `Tests:`. Then the task loop resumes from the first task that is not complete.\n",
+      "words": 316,
+      "wallMs": 15755,
       "mechanical": {}
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "plan_check({ planPath: \"/work/app/.worktrees/config-loader/doc/plans/2026-03-02-config-loader.md\" })\n→ PASS\n\nphase_tracker({ action: \"skip\", phase: \"plan\", reason: \"resume: pasted brief\" })\n→ succeeds\n\nphase_tracker({ action: \"start\", phase: \"implement\" })\n→ succeeds\n\nplan_tracker({ action: \"init\", tasks: [\n  { name: \"W1: Parse config file\", status: \"complete\" },\n  { name: \"W1: Validate schema\", status: \"complete\" },\n  { name: \"W2: Wire CLI flag\", status: \"in_progress\" },\n  { name: \"W3: Document the loader\", status: \"pending\" }\n] })\n→ succeeds\n\nGate history not restored; re-validating `W2: Wire CLI flag` before any stage advance\n",
+      "text": "plan_check({ planPath: \"/work/app/.worktrees/config-loader/doc/plans/2026-03-02-config-loader.md\" }) → PASS\n\nphase_tracker({ action: \"skip\", phase: \"plan\", reason: \"resume: pasted brief\" }) → succeeds\n\nphase_tracker({ action: \"start\", phase: \"implement\" }) → succeeds\n\nplan_tracker({ action: \"init\", tasks: [\n  { name: \"W1: Parse config file\", status: \"complete\" },\n  { name: \"W1: Validate schema\", status: \"complete\" },\n  { name: \"W2: Wire CLI flag\", status: \"in_progress\" },\n  { name: \"W3: Document the loader\", status: \"pending\" }\n] }) → succeeds\n\nGate history not restored; re-validating `W2: Wire CLI flag` before any stage advance\n",
       "words": 65,
-      "wallMs": 9448,
+      "wallMs": 9275,
       "mechanical": {}
     }
   },
@@ -34,9 +34,9 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "7aac15eeb14216f578be8726850ff75d4971fcb3b767c23fa9a4c02ef7a1938c",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "3c9706ee9b686f0db986bd2ceb9d5ed8fbb163f69ef5746678691a124d18948b",
-      "baselineOutputSha": "f636e704b46305287da174e4ed99f25daadbf955dcf52237c8d1508881f6a0a0",
-      "candidateOutputSha": "06919139a50e599ab64782621fb0c9c0184f1832d6e5759a7d247b8ee2d0fd35",
+      "intentSha": "5ad1a9a3949acdf477fc8ffeb9fb9a668a2f45ff49d9763895bfdb5d5cb05d9a",
+      "baselineOutputSha": "09e0b37d7fa1dd083b0df1e3350e60161001ed8748c9a0141eb55907e4ebb379",
+      "candidateOutputSha": "7ba98e0da00353788c60f635d1fa4aa967bd93db880892bb819dce8380be2d0a",
       "facts": {
         "f1": {
           "before": "holds",
@@ -54,16 +54,16 @@
           "label": "held"
         }
       },
-      "feedback": "Nothing moved on this case: both Before and After state explicitly that plan repair is skipped, no repair commit is made, and no `Repaired plan:` receipt is printed; neither edits a file; and both perform `phase_tracker skip plan`, `phase_tracker start implement`, and `plan_tracker init` with the four brief tasks and statuses copied verbatim before printing the closing `Gate history not restored` line. After even tightens things slightly by naming the parse-stop and feasibility checks before init. The only new hedge in After — that the skip reason would be `resume: <file path>` if the brief came from a file — is harmless here since the input gives an inline brief, but if you want After to read as decisively as Before, drop the conditional and simply assert `resume: pasted brief` as Before does. The Change's baseline/open-questions routing and discovery menu contract do not touch this PASS path, so this wording is safe to keep.",
-      "wallMs": 9197,
+      "feedback": "No fact moved: After still states that PASS skips `## Plan repair`, makes no commit, and prints no `Repaired plan:` receipt; it makes the same three tracker calls (skip plan with `resume: pasted brief`, start implement, plan_tracker init with the four tasks and statuses copied verbatim) and then prints the same closing line. The new ledger-aware framing (\"no `Ledger:` field, so the implement-with-task-plan row applies\") lands cleanly and does not disturb the task-plan path. The one risk is the added \"After the closing line\" section: the input asked to narrate only up to the closing line, and that extra material speculates about a check 6 result the input never gave and about subagent-driven-development re-validation; if a future fact requires the narration to end at the closing line or forbids introducing uncited tool outcomes, that section would fail it. To keep every Before fact while delivering the Change, keep the ledger/task-plan routing sentence at the top and drop or move the post-closing-line paragraph, so the narration ends exactly where the input asked.",
+      "wallMs": 12656,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "7aac15eeb14216f578be8726850ff75d4971fcb3b767c23fa9a4c02ef7a1938c",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "3c9706ee9b686f0db986bd2ceb9d5ed8fbb163f69ef5746678691a124d18948b",
-      "baselineOutputSha": "3a1b4e7ad10d5872cb8c33c2329660265a32bd3b61b50c06244ea19b72eb8cd7",
-      "candidateOutputSha": "baf59f90dd8422af240c89c8785e77819eed01bdd351075183c391accf7536c1",
+      "intentSha": "5ad1a9a3949acdf477fc8ffeb9fb9a668a2f45ff49d9763895bfdb5d5cb05d9a",
+      "baselineOutputSha": "b7f182c7d728e6d3fafca2e8d304bbab9ee0bfc97c9f53c1bb7e72cd72f6e35a",
+      "candidateOutputSha": "c22c20d8cb7878bbffbd3baed14388b77689a2028ad235a99933a57aec447696",
       "facts": {
         "f1": {
           "before": "holds",
@@ -81,10 +81,10 @@
           "label": "held"
         }
       },
-      "feedback": "Both outputs behave identically on this case: neither prints a Repaired plan receipt, neither commits or edits a file, and both call skip plan, start implement, and plan_tracker init with the four tasks and statuses exactly as the brief lists them, followed by the closing line. After only differs in presentation (tool calls shown as unnumbered blocks with explicit → succeeds results instead of a numbered list), which does not move any fact. The Change's new baseline/findings routing and menu-layout contract correctly leave this PASS path untouched; no wording adjustment is needed for this case.",
-      "wallMs": 4412,
+      "feedback": "After preserves every fact Before kept: no Repaired plan receipt appears, no commit or file edit is narrated, and the tracker chain (skip plan, start implement, plan_tracker init with the four tasks and unchanged statuses) is followed by the closing line. The only difference is formatting — After drops the numbered-list prefixes and splits the init task array across lines — which does not move any fact. Note that neither output exercises the Change's loop-ledger, baseline-rerun, or discovery-menu paths, since this case is a plain brief restore with no ledger and a passing plan_check; both correctly use the brief-restore skip reason `resume: pasted brief` rather than the loop-engine reason, which is appropriate here. No wording adjustment is needed for this case.",
+      "wallMs": 5308,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "6aa708917f3429b0e0ba574cb0a680df774f186c"
+  "repoSha": "a91f1f87381adfb81b00c31d91a566d8e5ba319e"
 }

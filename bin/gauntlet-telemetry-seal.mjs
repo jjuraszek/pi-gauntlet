@@ -318,7 +318,7 @@ function foldAccumulators(a, b) {
   return out;
 }
 function newRecord(o) {
-  return { schema: 1, spec: o.spec, run_id: o.runId, branch: o.branch, status: "in_progress", created_at: o.now, sessions: [o.session], derived: { duration_s: 0, phases: {}, personas: {}, conformance_loops: 0, gates: { spec_rounds: 0, plan_rounds: 0, fix_round_grants: 0, task_reopens: 0 }, amendments: 0, spec_edits_after_ship: 0, spec_writes: {}, events_dropped: 0 }, accumulators: {}, events: [] };
+  return { schema: 1, spec: o.spec, run_id: o.runId, branch: o.branch, status: "in_progress", created_at: o.now, sessions: [o.session], derived: { engine: "waves", duration_s: 0, phases: {}, personas: {}, conformance_loops: 0, gates: { spec_rounds: 0, plan_rounds: 0, fix_round_grants: 0, task_reopens: 0 }, amendments: 0, spec_edits_after_ship: 0, spec_writes: {}, events_dropped: 0 }, accumulators: {}, events: [] };
 }
 var totalAccumulators = (rec) => Object.values(rec.accumulators).reduce((acc, block) => foldAccumulators(acc, block), emptyAccumulators());
 var seconds = (a, b) => Math.max(0, Math.round((Date.parse(b) - Date.parse(a)) / 1e3));
@@ -345,7 +345,7 @@ function derive(rec, now) {
   }
   for (const k of Object.keys(acc.phases)) phases[k] = compact({ ...phases[k] ?? {}, ...acc.phases[k] });
   const live = liveShipEvent(rec.events);
-  return compact({ duration_s: seconds(rec.created_at, rec.shipped_at ?? rec.abandoned_at ?? now), phases, personas: acc.personas, reviews: Object.keys(acc.reviews).length ? acc.reviews : void 0, conformance_loops: acc.conformance_loops, conformance_open_gaps: acc.conformance_open_gaps, gates: compact({ ...acc.gates, ship_option: live?.option }), plan: rec.derived.plan, tests: rec.derived.tests, amendments: acc.amendments, spec_edits_after_ship: acc.spec_edits_after_ship, diff: rec.derived.diff, modified_files: rec.derived.modified_files, council: rec.derived.council, spec_writes: acc.spec_writes, events_dropped: acc.events_dropped });
+  return compact({ engine: rec.events.findLast((e) => e.kind === "engine")?.engine ?? "waves", iterations: acc.personas["loop-implementer"]?.dispatches, duration_s: seconds(rec.created_at, rec.shipped_at ?? rec.abandoned_at ?? now), phases, personas: acc.personas, reviews: Object.keys(acc.reviews).length ? acc.reviews : void 0, conformance_loops: acc.conformance_loops, conformance_open_gaps: acc.conformance_open_gaps, gates: compact({ ...acc.gates, ship_option: live?.option }), plan: rec.derived.plan, tests: rec.derived.tests, amendments: acc.amendments, spec_edits_after_ship: acc.spec_edits_after_ship, diff: rec.derived.diff, modified_files: rec.derived.modified_files, council: rec.derived.council, spec_writes: acc.spec_writes, events_dropped: acc.events_dropped });
 }
 var stripUndefined = (v) => {
   if (Array.isArray(v)) return v.map(stripUndefined);

@@ -1,12 +1,13 @@
 # Subagent personas
 
-Deep reference for the 9 personas in [`agents/`](../agents/), dispatched via [pi-cohort](https://github.com/jjuraszek/pi-cohort). See the [README](../README.md) for the workflow overview; the frontmatter-knobs table and the rationale behind each pin are in [Frontmatter knobs](#frontmatter-knobs) below.
+Deep reference for the 10 personas in [`agents/`](../agents/), dispatched via [pi-cohort](https://github.com/jjuraszek/pi-cohort). See the [README](../README.md) for the workflow overview; the frontmatter-knobs table and the rationale behind each pin are in [Frontmatter knobs](#frontmatter-knobs) below.
 
 - `implementer` — strict RED→GREEN→REFACTOR TDD with test-economy defaults, completion-guarded.
 - `code-reviewer` — read-only review, Critical/Moderate/Minor severity, test-economy checks as Minor.
 - `spec-reviewer` — verifies an implementation against its plan/spec, per-requirement table.
 - `conformance-reviewer` — closing-loop intent gate; confronts the delivered code+docs against the *origin* (spec + verbatim prompt), skipping the plan, and emits a per-requirement coverage verdict. Spec clauses no human input required and nothing depends on are reported once as `UNAUTHORIZED` (over-spec), with `recommended: fix` only when removal is contained. Read-only; proposes remediation, never fixes or decides. Ships model-free — pin its model per preset (see [Configuration: conformance gate model](./configuration.md#conformance-gate-model)).
 - `spec-summarizer` - produces a plain-language briefing (at most 300 words) of one spec for the brainstorming user review gate. Fresh context, read-only (`tools: read`), reads only the spec it is given; output is ephemeral (rendered at the gate, never committed). Dispatched only by `brainstorming`; not for direct dispatch. Ships model-free - set `subagents.agentOverrides.spec-summarizer.model` per preset to override (unset -> inherits the main loop).
+- `loop-implementer` - guarded single-row implementation for the experimental loop engine, with evidence, one commit and one bounded decision line; seed alone covers all open rows. Fresh context; tools `read, write, edit, bash`; model and thinking unset. Pin `subagents.agentOverrides.loop-implementer.model` independently of the parent. See [Loop engine operations](configuration.md#loop-engine-operations).
 - `plan-writer` - writes, checks, and repairs the implementation plan for one approved spec in a fresh context; the plan file is its only output and its reply is one line (`PLAN WRITTEN <path>` or `OPEN QUESTIONS <path>`). Runs its own `plan_check` loop (the stamp still comes from the parent's call). Dispatched only by `writing-plans`; not for direct dispatch. Ships model-free - set `subagents.agentOverrides.plan-writer.model` per preset to override (unset -> inherits the main loop, the same as `spec-summarizer`).
 - `spec-council-member` — adversarial single-model spec critic; one per configured council model. Flags unrelated extras or sufficient in-scope simplifications as `over-spec`; every report closes with a mandatory `lean:` line; findings other than `over-spec` end with `probed: <source or check> - <result>` or `probed: none`. Dispatched by `roasting-the-spec` and `shape-ticket` (the latter at `:low` thinking via a model-suffix override, for ticket roasts), and by brainstorming's `reference/amendment-surface.md` in `Mode: amendment-review` (a task-text discriminator; one `auto-apply | escalate` line per proposed spec amendment) on the main loop's own model and reasoning level.
 - `spec-council-synthesizer` — neutral chair that consolidates and adjudicates member critiques. Preserves `over-spec:` as a cluster prefix (an over-spec cluster loses only to a finding proving the clause load-bearing) and tallies `lean:` across members; tags each suggested edit `grounded:` (member probes support every assertion) or `hypothesis:`. Dispatched only by `roasting-the-spec` and `shape-ticket` (the latter at `:low` thinking via a model-suffix override, for ticket roasts).
@@ -15,7 +16,7 @@ Deep reference for the 9 personas in [`agents/`](../agents/), dispatched via [pi
 
 ## Where personas land
 
-On a user install the nine personas in `agents/` are symlinked into `getAgentDir()/agents` (profile-scoped user dir - `$PI_CODING_AGENT_DIR/agents`, default `~/.pi/agent/agents`). On a project install they are copied into `<repo>/.pi/agents/` (project scope, isolated per repo). Override precedence is `project > user > builtin`, so a project install always shadows the user personas for that repo, and you can hand-edit or drop your own `.pi/agents/<name>.md` to shadow them further.
+On a user install the ten personas in `agents/` are symlinked into `getAgentDir()/agents` (profile-scoped user dir - `$PI_CODING_AGENT_DIR/agents`, default `~/.pi/agent/agents`). On a project install they are copied into `<repo>/.pi/agents/` (project scope, isolated per repo). Override precedence is `project > user > builtin`, so a project install always shadows the user personas for that repo, and you can hand-edit or drop your own `.pi/agents/<name>.md` to shadow them further.
 
 Target dir override: set `PI_GAUNTLET_AGENT_DIR` to force symlinking into a specific dir (leading `~` expanded; always symlink mode). See [install-internals.md](./install-internals.md) for the full symlink-vs-copy mechanics.
 
@@ -41,14 +42,14 @@ Unset → provider default thinking for that model. `conformance-reviewer` and t
 
 Body text becomes the child's system prompt (`systemPromptMode: replace`). Frontmatter knobs are **not overridable** at `subagent()` call time; the only callable knobs are `model`, `task`, `output`, `outputMode`, `reads`, `progress`, `skill`. Preset-level `subagents.agentOverrides.<agent>` fills only fields the frontmatter left unset (pi-cohort `agents.ts`), so a frontmatter pin kills the config knob. Editing a persona body or frontmatter follows `/skill:forge-skill` `## Persona rules`.
 
-| Knob | implementer | code-reviewer | spec-reviewer | conformance-reviewer | spec-council-member | spec-council-synthesizer | spec-summarizer | plan-writer | spec-council-applier |
-|---|---|---|---|---|---|---|---|---|---|
-| `tools` | `read, write, edit, bash, grep, find, ls` | `read, grep, find, ls, bash` | `read, grep, find, ls, bash` | `read, grep, find, ls, bash` | `read, grep, find, ls, bash` | `read, grep, find, ls, bash` | `read` | `read, grep, find, ls, bash, write, plan_check` | `read, grep, find, ls, bash, edit, write` |
-| `thinking` | - | - | - | `xhigh` | `xhigh` | `xhigh` | - | - | - |
-| `defaultContext` | `fork` | `fresh` | `fresh` | `fresh` | `fresh` | `fresh` | `fresh` | - | `fresh` |
-| `inheritProjectContext` | `true` | `true` | `true` | `true` | `true` | `true` | `false` | `false` | `true` |
-| `inheritSkills` | `false` | `false` | `false` | `false` | `false` | `false` | `false` | `false` | `false` |
-| `completionGuard` | `true` | `false` | `false` | `false` | `false` | `false` | `false` | `true` | `false` |
+| Knob | loop-implementer | implementer | code-reviewer | spec-reviewer | conformance-reviewer | spec-council-member | spec-council-synthesizer | spec-summarizer | plan-writer | spec-council-applier |
+|---|---|---|---|---|---|---|---|---|---|---|
+| `tools` | `read, write, edit, bash` | `read, write, edit, bash, grep, find, ls` | `read, grep, find, ls, bash` | `read, grep, find, ls, bash` | `read, grep, find, ls, bash` | `read, grep, find, ls, bash` | `read, grep, find, ls, bash` | `read` | `read, grep, find, ls, bash, write, plan_check` | `read, grep, find, ls, bash, edit, write` |
+| `thinking` | - | - | - | - | `xhigh` | `xhigh` | `xhigh` | - | - | - |
+| `defaultContext` | `fresh` | `fork` | `fresh` | `fresh` | `fresh` | `fresh` | `fresh` | `fresh` | - | `fresh` |
+| `inheritProjectContext` | `true` | `true` | `true` | `true` | `true` | `true` | `true` | `false` | `false` | `true` |
+| `inheritSkills` | `false` | `false` | `false` | `false` | `false` | `false` | `false` | `false` | `false` | `false` |
+| `completionGuard` | `true` | `true` | `false` | `false` | `false` | `false` | `false` | `false` | `true` | `false` |
 
 Why each pin:
 

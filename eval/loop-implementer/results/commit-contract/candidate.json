@@ -1,0 +1,110 @@
+{
+  "sample": "commit-contract",
+  "arm": "candidate",
+  "skillSha": "cc0bc5d3c472417d4a446e9d0c0e0b22816f9327b90a1c09b3df86ffc22f89c4",
+  "inputSha": "cce7d1f9ed8b567e85046bc3ba1b98cf6846bbf3dd0c523ea0df7fcc7b8de8d6",
+  "kind": "text",
+  "assembly": "concat",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "# Simulated loop-implementer trace: iteration 1, target row 1\n\n**1. Read the spec first**\n`cat /repo/doc/specs/label.md`\n- The single criterion is: export 'ready' from src/label.mjs.\n- The design says to change the constant only.\n- Row evidence comes from `node --test test/label.test.mjs`. The parent runs `npm test`.\n\n**2. Read the ledger**\n`cat /repo/doc/plans/label-ledger.md`\n- Row 1 is `open`, with 0 attempts. Its seeded evidence is the failing check `expected ready, got waiting`.\n- `iterations: 2` is the parent's uncommitted header bump. I keep it unchanged.\n- The previous decision says seeding is done and to take row 1. The hint is `none`.\n\n**3. Check the diff scope against the base**\n`cd /repo && git diff --stat fed4321`\n- Observed: test/label.test.mjs and doc/plans/label-ledger.md.\n\n`git diff fed4321 -- src/label.mjs test/label.test.mjs`\n- The seeded test asserts that the export equals 'ready'. src/label.mjs is unchanged from the base.\n\n`cat src/label.mjs`\n- The file exports `'waiting'`.\n\n**4. Confirm the failing check, then implement**\n`node --test test/label.test.mjs`\n- Fails with: `expected ready, got waiting`.\n\nEdit src/label.mjs to change the exported constant from `'waiting'` to `'ready'`. Nothing else in the file changes.\n\n`node --test test/label.test.mjs`\n- Passes: `tests 1; pass 1; fail 0`.\n- I do not run `npm test`. That belongs to the parent.\n\n**5. Update the target row's mutable cells**\nResulting row:\n`| 1 | done | 1 | node --test test/label.test.mjs: tests 1; pass 1; fail 0 |`\n\n**6. Append the decision under `## Decisions`**\n`row 1 done | Changed the src/label.mjs export from 'waiting' to 'ready'; node --test test/label.test.mjs now passes 1/1. | Row 1 is complete; do not redo the constant edit or reseed, and leave npm test verification to the parent.`\n\nThe existing seed decision and all headers stay unchanged. The parent's `iterations: 2` bump stays in the ledger file and is committed with it.\n\n**7. Stage explicitly, commit once, check the tree**\n- `git add src/label.mjs doc/plans/label-ledger.md`\n- `git commit -m \"loop: row 1 done\"` succeeded.\n- `git status --porcelain` returned empty, so the tree is clean.\n\n**Teammate suggestion:** I declined the suggestion to make a separate code commit and ledger commit and to add a prose summary in the reply. The contract requires exactly one commit with subject `loop: row <n> <status>`. It also requires a reply that contains only the appended decision line.\n\nFinal reply:\nrow 1 done | Changed the src/label.mjs export from 'waiting' to 'ready'; node --test test/label.test.mjs now passes 1/1. | Row 1 is complete; do not redo the constant edit or reseed, and leave npm test verification to the parent.\n",
+      "words": 398,
+      "wallMs": 13635,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "## Simulated tool trace\n\n1. Read the complete spec first:\n   ```sh\n   cat /repo/doc/specs/label.md\n   ```\n   Observed:\n   ```markdown\n   # Ready label\n   ## Acceptance criteria\n   - [ ] Export 'ready' from src/label.mjs.\n   ## Design\n   Change the constant only. Use node --test test/label.test.mjs for row evidence. The parent runs npm test later.\n   ```\n\n2. Read the ledger:\n   ```sh\n   cat /repo/doc/plans/label-ledger.md\n   ```\n   Observed row 1 is `open`, attempts `0`, with the seeded failing test evidence. Preserve `iterations: 2` and the existing decision.\n\n3. Inspect the change summary and only relevant diff hunks:\n   ```sh\n   cd /repo\n   git diff --stat fed4321\n   git diff fed4321 -- src/label.mjs test/label.test.mjs doc/plans/label-ledger.md\n   ```\n   Observed: the stat names the seeded test and ledger. The only starting uncommitted change is the parent's ledger iterations bump.\n\n4. Read the relevant code before editing:\n   ```sh\n   cat src/label.mjs\n   cat test/label.test.mjs\n   ```\n   Observed: the source exports `'waiting'`; the existing row test expects `'ready'`. No test edit is needed.\n\n5. Change only the constant:\n   ```sh\n   python3 - <<'PY'\n   from pathlib import Path\n   path = Path(\"src/label.mjs\")\n   text = path.read_text()\n   assert text.count(\"'waiting'\") == 1\n   path.write_text(text.replace(\"'waiting'\", \"'ready'\", 1))\n   PY\n   ```\n\n6. Run only the specified row evidence check:\n   ```sh\n   node --test test/label.test.mjs\n   ```\n   Observed: `tests 1; pass 1; fail 0`.\n\n7. Update only row 1's mutable cells and append one decision:\n   ```sh\n   python3 - <<'PY'\n   from pathlib import Path\n   path = Path(\"doc/plans/label-ledger.md\")\n   text = path.read_text()\n   old = \"| 1 | open | 0 | node --test test/label.test.mjs: expected ready, got waiting |\"\n   new = \"| 1 | done | 1 | node --test test/label.test.mjs: tests 1; pass 1; fail 0 |\"\n   assert text.count(old) == 1\n   text = text.replace(old, new, 1)\n   decision = \"row 1 done | Changed the exported constant to 'ready' and passed the targeted test. | Do not redo the constant change or targeted test; leave npm test to the parent.\"\n   path.write_text(text.rstrip(\"\\n\") + \"\\n\" + decision + \"\\n\")\n   PY\n   ```\n   Resulting target row:\n   ```markdown\n   | 1 | done | 1 | node --test test/label.test.mjs: tests 1; pass 1; fail 0 |\n   ```\n   Appended decision:\n   ```text\n   row 1 done | Changed the exported constant to 'ready' and passed the targeted test. | Do not redo the constant change or targeted test; leave npm test to the parent.\n   ```\n   The parent's iterations bump remains intact. The teammate's split-commit and prose-summary suggestion is not followed: the contract requires one commit and a decision-only final reply.\n\n8. Stage the target source and ledger explicitly, commit exactly once, and check cleanliness:\n   ```sh\n   git add -- src/label.mjs doc/plans/label-ledger.md\n   git commit -m \"loop: row 1 done\"\n   git status --porcelain\n   ```\n   Observed: staging and commit succeed; the status command returns empty. No whole-project verification was run.\n\nFinal reply:\nrow 1 done | Changed the exported constant to 'ready' and passed the targeted test. | Do not redo the constant change or targeted test; leave npm test to the parent.\n",
+      "words": 416,
+      "wallMs": 19720,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "d9d3fe59f91c3ecc9014cfdb9e14658a663dfb9d3d91a7e265b7fdd1e9f81487",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "5333826e625e63b214fc03313636578e510a404b6eb847475252b455d99c15c4",
+      "baselineOutputSha": "d8437fe4b2f26345863a6e9a51bd449eb9c278eee7bed9e855ef7508389af741",
+      "candidateOutputSha": "99c5807f72986a46ae037b3c87ca9a92aa48715b67778ac4bfc242c76b8b1ad5",
+      "facts": {
+        "one-commit": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "clean-tree": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "ledger-contract": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "reply-only": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "scoped-check": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "Nothing moved on this ordinary-row case: After still stages src/label.mjs and the ledger explicitly (keeping the parent's iterations: 2 bump), makes one commit with subject `loop: row 1 done`, runs `git status --porcelain` and observes empty output, updates only row 1 to done/1 with bounded passing evidence, appends exactly one decision while leaving the seed decision and headers intact, runs only the row test, and ends with a final reply that is exactly the decision line with both sentence fields under 200 characters. The re-keying of the seeding exception to target seed correctly left the non-seed target path untouched; keep the wording that ordinary row targets edit only their own row and still require the single-commit, decision-line-only reply, and the only thing left to verify is the seed-recovery case itself, which this trace does not exercise.",
+      "wallMs": 11515,
+      "verdict": "unchanged"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "d9d3fe59f91c3ecc9014cfdb9e14658a663dfb9d3d91a7e265b7fdd1e9f81487",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "5333826e625e63b214fc03313636578e510a404b6eb847475252b455d99c15c4",
+      "baselineOutputSha": "6fc5be7a27f0e647daff10dbd6ae5afce249de7f7d9704b7b9ac0ecf4ba764a5",
+      "candidateOutputSha": "5a46d3993e112d2d0412c45cfd913f3053dee3fc539e2b7f744f183e5f2cc21a",
+      "facts": {
+        "one-commit": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "clean-tree": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "ledger-contract": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "reply-only": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "scoped-check": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "Nothing moved on this case: After preserves every fact Before held. Both traces stage src/label.mjs and the whole ledger (so the parent's iterations bump rides along), make exactly one commit with subject `loop: row 1 done`, run `git status --porcelain` and observe it empty before replying, flip only row 1 to done/attempts 1 with bounded passing evidence while leaving `iterations: 2` and the seed decision intact, run only the targeted `node --test` rather than npm test, and end with a bare decision line whose two sentence fields are well under 200 characters. After is marginally better here—it explicitly states that `iterations: 2` and the existing decision are preserved and that the parent's bump remains intact, which makes ledger-contract easier to verify from the text alone. Since this case is an ordinary row target, the multirow-seed exception keyed on target `seed` is not exercised, which is the correct behavior; the wording change to key the exception on the target rather than iteration 0 did not leak into ordinary-row handling. Keep the current After wording; if anything, ensure the exception text continues to say ordinary row targets touch only their own row so future ordinary-row cases stay this clean.",
+      "wallMs": 16176,
+      "verdict": "unchanged"
+    }
+  },
+  "repoSha": "1a4aacc30ad1873dfbacd48647180d26834bc982"
+}

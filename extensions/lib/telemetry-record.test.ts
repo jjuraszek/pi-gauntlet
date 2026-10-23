@@ -209,3 +209,22 @@ test("serializeRecord writes council.chair and each member as flow maps under bl
   const plain = newRecord({ spec: "doc/specs/a.md", session: "s1", now: "2026-09-17T10:00:00Z", runId: "r2" });
   assert.equal(parseRecord(serializeRecord(plain))!.derived.council, undefined);
 });
+
+test("derive engine uses the latest event, defaults legacy runs, and counts loop dispatches across sessions", () => {
+  const rec = newRecord({ spec: "doc/specs/a.md", session: "s", now: "2026-01-01T00:00:00Z", runId: "r" });
+  const now = rec.created_at;
+  assert.equal(derive(rec, now).engine, "waves");
+  assert.equal("iterations" in derive(rec, now), false);
+  rec.events.push(ev({ kind: "engine", engine: "loop" }));
+  rec.accumulators.s = { ...emptyAccumulators(), personas: { "loop-implementer": { dispatches: 2, models: [] } } };
+  rec.accumulators.total = { ...emptyAccumulators(), personas: { "loop-implementer": { dispatches: 1, models: [] } } };
+  rec.derived = derive(rec, now);
+  const back = parseRecord(serializeRecord(rec))!;
+  assert.equal(back.derived.engine, "loop");
+  assert.equal(back.derived.iterations, 3);
+  assert.deepEqual(back.events, rec.events);
+  back.events.push(ev({ kind: "engine", engine: "waves" }));
+  assert.equal(derive(back, now).engine, "waves");
+  assert.equal(derive(back, now).iterations, 3);
+  assert.ok(capEvents(rec.events, 0).events.some((e) => e.kind === "engine"));
+});

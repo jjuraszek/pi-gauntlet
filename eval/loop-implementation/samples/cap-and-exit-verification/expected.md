@@ -1,0 +1,1 @@
+- contract: judged: Cap stops before dispatch/verification with rows and attempts, seed inclusive. Closed rows instead run exit command once; failure quotes output, never reopens/reruns and leaves implement active.

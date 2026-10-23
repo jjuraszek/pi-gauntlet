@@ -1,0 +1,3 @@
+bundle+: skills/finishing-a-development-branch/SKILL.md
+# Input
+Finish /work/app/.worktrees/loop. Ledger doc/plans/run-ledger.md line 1 is # Ledger - loop engine; **Spec:** is `doc/specs/run.md`; verification: node --test check.mjs. No verified commit is known. Both doc/plans/run.md and doc/plans/run-ledger.md are tracked. Conformance is fresh CONFORMS. History includes an ordinary amend: commit and loop: cut row 2 and loop: amend commits whose bodies carry granted records, plus a loop: row 1 done commit with no amendment record. Human selects squash merge after the normal gates. Explain verification, amendment digest, strip and seal order, what survives landing, and the plain-jj counterpart. Do not execute tools.

@@ -1,0 +1,1 @@
+- contract: judged: Third-attempt success and all-cut exit without stagnation; unresolved retry target beats previous failed decision then first failed/open; durable ledger status beats hint.

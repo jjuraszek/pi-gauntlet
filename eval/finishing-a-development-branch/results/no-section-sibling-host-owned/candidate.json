@@ -38,7 +38,7 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "8af7a37d875608fa8487e18fca111e61dac24245d10f243cb638f22713897d27",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "83dab72b8567bfbbc8e79c889211692b7ccf8006603d903aa9df5106f2950e38",
+      "intentSha": "fc207f201dc308d8f88935b1a48003bf6f1482b5ece86868671cc806be813e89",
       "baselineOutputSha": "e3a59746c808a1f83412ca0bc937f08331ad50cf180ccb3882b1ab7705ec8e97",
       "candidateOutputSha": "238461a3fc35e7e6cb40197f330dfce36b426513cf759e0e5f8a56580165e0ef",
       "facts": {
@@ -53,14 +53,14 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "Both outputs satisfy s1: each reports the sibling path as host-owned, states explicitly that no `git worktree remove` or `prune` was run, marks `branch -D rate-limit` as skipped, and says the host-owned worktree still holds `rate-limit`. After adds a helpful note about adding a `home: ../acme-api-worktrees/<name>` entry to the overrides file, which fits the Change without weakening the fact; keep that, and keep the explicit 'no remove / no prune / branch deletion skipped' lines as-is, since they are what makes the fact unambiguous.",
-      "wallMs": 4863,
+      "feedback": "Both outputs satisfy s1: each reports the sibling worktree as host-owned via the legacy three-home check, runs no `git worktree remove`/`prune`, explicitly skips `git branch -D rate-limit`, and states that the host-owned worktree still holds `rate-limit`. After preserves the fact while adding useful detail (the string-prefix clarification and the `home:` hint for future overrides). One minor note: After's ownership check says \"No `worktree` script exists at `/work/acme-api`\" and the Change says ownership is decided by the overrides section or the legacy three homes, so keep the script check phrased as a legacy-path detail rather than a fourth home; otherwise no wording change is needed for this case.",
+      "wallMs": 4976,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "8af7a37d875608fa8487e18fca111e61dac24245d10f243cb638f22713897d27",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "83dab72b8567bfbbc8e79c889211692b7ccf8006603d903aa9df5106f2950e38",
+      "intentSha": "fc207f201dc308d8f88935b1a48003bf6f1482b5ece86868671cc806be813e89",
       "baselineOutputSha": "f058b9c10428367ddeba0733eaff840d7a7ecdbe727613f621b3698cc2a34610",
       "candidateOutputSha": "020fe4726aed74b273407c27fdac11d4871a7e195de0aa27f0d9a6640c222913",
       "facts": {
@@ -75,10 +75,10 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "Nothing moved on this case: both outputs report the sibling path as host-owned, state that nothing is removed and the branch deletion is skipped, and close with the host-owned worktree still holding `rate-limit`. After's rewording (\"The host environment owns ...\", \"Do not remove the worktree or delete the branch\") preserves every element of s1 while reflecting the new ownership framing (outside the gauntlet-owned paths, no project-native script). One minor drift worth keeping in mind: Before explicitly lists \"removal, pruning, and branch deletion\" as skipped, whereas After drops the word \"pruning\"; it does not affect s1 here, but if a future fact checks that no prune runs on the host-owned path, restoring the phrase \"no removal, prune, or branch deletion\" would keep that explicit at no cost to the Change.",
-      "wallMs": 9000,
+      "feedback": "Both outputs satisfy s1: each reports the worktree as host-owned, removes nothing, skips branch deletion, and states that the host-owned worktree still holds rate-limit. After dropped the explicit \"pruning\" mention from the skip list; that doesn't break s1 as written, but if you want After to match Before's precision, keep \"Skip worktree removal, pruning, and branch deletion\" alongside the new ownership phrasing (\"outside the gauntlet-owned worktree paths, no project-native cleanup script\") so the no-section legacy path narrates exactly what it skips.",
+      "wallMs": 4317,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "6aa708917f3429b0e0ba574cb0a680df774f186c"
+  "repoSha": "a91f1f87381adfb81b00c31d91a566d8e5ba319e"
 }
