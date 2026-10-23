@@ -71,6 +71,34 @@ test("shape-ticket audit source carries six labels and foreground file-only cont
   }
 });
 
+test("shape-ticket integrates audited batch gates without changing replay boundaries", () => {
+  const read = replay.treeReader(new URL("../../", import.meta.url).pathname);
+  const text = read("skills/shape-ticket/SKILL.md");
+  const target = JSON.parse(read("eval/shape-ticket/target.json"));
+  const { bundle } = parseCase(read("eval/shape-ticket/samples/batch-repair/case.md"));
+  const result = assemble(target, read, bundle);
+  for (const token of ["reference/repo-audit.md", "reference/examples.md", "first occurrence", "current ticket", "ticket-local", "all-or-nothing", "AC uniqueness", "Audit:"]) assert.ok(text.includes(token), token);
+  assert.ok(!text.includes("### Bad -> good AC examples"));
+  const draft = sliceText(text, "### 4 - Draft", "## Roast");
+  assert.ok(draft.includes("AC uniqueness"));
+  assert.ok(result.includes("scenario: setup:"));
+  assert.ok(text.includes('outputMode: "file-only"'));
+  assert.ok(text.includes("^lean:"));
+  const overlap = read("skills/shape-ticket/reference/overlap-check.md");
+  assert.ok(overlap.includes("ticket-local"));
+  assert.ok(!overlap.includes("retain whole-run semantics"));
+  assert.ok(text.indexOf("Audit:", text.indexOf("### 8 -")) < text.indexOf("**Title**", text.indexOf("### 8 -")));
+  assert.ok(Buffer.byteLength(text) < 50000);
+  assert.ok(text.split("\n").length < 2000);
+  const ladder = text.includes("## Tracker abstraction and capability ladder") ? text : read("skills/shape-ticket/reference/tracker-ladder.md");
+  assert.ok(ladder.includes('gh pr list --search "<ref>" --limit 20'));
+  assert.ok(text.includes("Read `reference/tracker-ladder.md` now"));
+  for (const token of ["substantive full-replacement repair", "another row's setup, action, and result", "same-subject rows with different results", "never serialize legacy rows", "no fifth axis", "Max 8 tasks", "before the next ticket prints"]) assert.ok(text.includes(token), token);
+  const baseline = replay.baseReader(new URL("../../", import.meta.url).pathname, "5b97a46a7b0ef331e72077362e92eff4a59e1b77");
+  const examples = sliceText(baseline("skills/shape-ticket/SKILL.md"), "## Examples and rationalizations", "## Edge cases");
+  assert.equal(read("skills/shape-ticket/reference/examples.md"), examples.replaceAll("reference/ticket-wording.md", "ticket-wording.md").replaceAll("reference/split-axes.md", "split-axes.md"));
+});
+
 const skill = "---\nname: x\n---\n# T\n\n### 3. A\na\n\n### 4. B\nb\n\n### 5. C\nc\n\n### 6. D\nd\n";
 
 test("slice ends at the next same-or-higher heading by default", () => {

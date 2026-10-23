@@ -1,7 +1,7 @@
-for: 5560958f357cc72a255639c7ba034cf1ac66d0a468a554dceda279d40d418c48
+for: 7637551d74e3403f6e3884be588077fd5730f6a67ff7f98f79e6b5241201360a
 
 ## Change
-Add bounded batch repair and repository-audit fold-in coverage for batch-repair, audit-repo-fit, scenario-best-effort, audit-quiet-noop, audit-byte-lock, audit-dispatch and audit-grounding. Preserve singleton integrity stops and legacy sample exclusions. Seed pre-behavior evidence against the audit-reference addition before selecting evidence-backed moves.
+Integrate bounded batch repair and the repository audit into gather for batch-repair, audit-repo-fit, scenario-best-effort, audit-quiet-noop, audit-byte-lock, audit-dispatch and audit-grounding. Prepare all tickets before ref-ordered single-ticket gates, keep hard stops local while splits stay atomic, and apply audit grounding and AC uniqueness with verbatim displaced detail. Preserve raw AC bytes for quiet conformance repairs, singleton integrity stops (including repair-overflow/invalid), the 1,600-word cap, target slices and legacy audit exclusions. Extract examples and the capability ladder without changing their rules except the documented open-PR read verb. Retain baseline A=5b97a46a7b0ef331e72077362e92eff4a59e1b77 and evidence-backed moves below; never promote a post-behavior candidate into A.
 
 Require roast findings to acknowledge detail already retained in the Reporter note and preserve plain-words Problem leads and product-level cause-and-effect sentences against compression or redundancy cuts.
 Bound Context, examples and Idea for a product-aware repo stranger; preserve comprehension and accumulate verbatim displaced detail through repair and roast, retaining raw AC bytes for conformance-only repair. Retain existing move decisions below.
