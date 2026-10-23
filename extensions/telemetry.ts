@@ -450,7 +450,8 @@
           if (e) record.approved_at ??= e.ts;
           if (!replay || !record.events.some((event) => event.kind === "engine")) {
             const body = deps.fs.readFile(abs(boundSpec)) ?? "";
-            const engine = /^\*\*Engine:\*\*[ \t]+loop[ \t]*$/m.test(body) ? "loop" : "waves";
+            const header = body.split(/^## /m, 1)[0];
+            const engine = /^\*\*Engine:\*\*[ \t]+loop[ \t]*$/m.test(header) ? "loop" : "waves";
             pushEvent({ kind: "engine", engine });
           }
         }

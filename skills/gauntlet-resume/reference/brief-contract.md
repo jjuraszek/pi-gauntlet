@@ -143,7 +143,7 @@ announcement without re-resolving it.
 | verify | as implement through `skip plan R`, then `skip implement R`; `start verify`; `substep` if shown; `plan_tracker init` |
 | ship | as verify. Restoration stops at verify in_progress: `complete verify` needs a fresh conformance dispatch and `skip verify` would bypass a real gate. Announce that the closure review re-runs before ship |
 
-For a ledger brief, pair by the ledger's path-only `**Spec:**` header, not basename; require the resolved spec under `flowGuards.specDirs` and the ledger under its sibling plans directory. Keep same-repository binding and human confirmation. For verify/ship ledger briefs, use the ledger restore sequence through `skip plan`, then `skip implement R`; `start verify`, with no task tracker. Ship still stops at verify for fresh conformance.
+For a ledger brief, pair by the ledger's path-only `**Spec:**` header, not basename; require the resolved spec under `flowGuards.specDirs` and the ledger under its sibling plans directory. Keep same-repository binding and human confirmation. For verify/ship ledger briefs, use the ledger restore sequence through `skip plan`, then `skip implement R`; `start verify`, with no task tracker. Continue verify/ship ledger briefs in `/skill:loop-implementation` `After the loop` from step 1 (full ledger verification), after the already-restored `start verify`, retaining whole-diff code review, happy path when triggered, fresh conformance review and finishing without task-tracker calls. Ship still stops at verify for fresh conformance.
 
 `planPath` (task-plan implement onward): the brief carries none. Resolve as reconstruction does
 (`reconstruction.md`, "Candidates", including its `flowGuards.specDirs` resolution): the

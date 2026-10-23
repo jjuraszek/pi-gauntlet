@@ -1,11 +1,14 @@
-for: 0adfe9c686c42789f3e120ef4e9959263e329af0bd24d4b080ec5edbb6f353e0
+for: 37aef47a462a2e4de73b6bc139384b204d150bf4960c2466ebae22ebfbdd3527
 
 ## Change
 
 Restore loop runs from the existing ledger: pair by its Spec header, prefer it to a task plan, validate before implement, preserve counters/retry data, and stop on invalid or dirty state. Produce and consume the contract-owned loop brief fields. With Engine loop and no ledger, arm through brainstorm start/skip after check 6 before driver Entry steps 1-5, with ledger creation at step 4. Use the resolved spec path in the exact plan-skip reason `resume: <spec> (loop engine)`. Give valid ledger brief fields precedence over retained `No plan active.` and admit the ledger instead of phase-only restoration.
 Resume routes baseline-line and substantive baseline-form open-questions findings to a fresh foreground plan-writer with Findings: rerun baseline before citation classification. The parent rechecks, returns to the originating restore with snapshot task identities and statuses on PASS, and retains plan in_progress without tracker initialization while presenting the fix-first/narrow/amend menu or restore-and-rerun on remaining baseline failures. Contract questions use the answers path. Citation repair retains its mechanical table and rollback. Discovery applies the shared menu-layout contract when presenting candidates and resolving numeric picks.
 
+Resume verify-stage Ledger briefs, including ship-stage briefs restored at verify, in loop-implementation's After the loop from full ledger verification after the restored start verify, retaining whole-diff review, happy path when triggered, fresh conformance and finishing without task-tracker calls.
+
 ## Expected to move
+- loop-ledger-brief/verify-ledger: fails -> holds - Continue verify and ship Ledger briefs in the loop's After the loop rather than generic verification, including an interruption before whole-diff review.
 - loop-ledger-worktree/restore: fails -> holds - Both failing arms: state entry checks 1-6 and the full ordered tracker chain with the exact loop-engine ledger skip reason.
 - loop-ledger-brief/consumer: fails -> holds - Both failing arms: state the self-contained ledger restore sequence instead of deferring its calls to an omitted page.
 - loop-no-ledger/route: fails -> holds - The failing arm: route from restore to loop ledger creation with prepared inputs and no writing-plans body or task tracker.

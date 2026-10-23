@@ -146,7 +146,8 @@ owning skill **without** its reset-bearing entry:
 | plan with task engine | writing-plans body | skip its `start plan` call (already in_progress) |
 | implement with line-1 ledger | loop-implementation | complete `reference/reconstruction.md` "Spec with ledger" ordered restore, cited by `reference/brief-contract.md`'s call table: entry checks 1-6, brainstorm start/skip, plan start/check/skip with reason `resume: <spec> (loop engine)`, implement start, no task tracker; state the entire ordered sequence explicitly even when entry checks are already reported as passed; then continue at step 5 (`Before each dispatch`), preserving ledger iterations/retry data; dirty tree stops before dispatch; reuse the existing ledger |
 | implement with task plan | subagent-driven-development | re-validate `<task>` first (re-run its `Tests:`), then the task loop from the first non-complete task |
-| verify | verification-before-completion | full conformance gate; nothing carried over |
+| verify with `Ledger:` (including ship-stage ledger briefs restored at verify) | /skill:loop-implementation | read `After the loop` and its references; continue from step 1, full ledger verification, after the already-restored `start verify`; retain whole-diff code review, happy path when triggered, fresh conformance review and finishing; no task-tracker calls |
+| verify without `Ledger:` | verification-before-completion | full conformance gate; nothing carried over |
 
 ## Red flags — STOP
 

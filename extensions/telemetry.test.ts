@@ -1282,11 +1282,17 @@
     assert.equal(planPass, undefined);
   });
 
-for (const engine of ["loop", "waves", undefined]) {
-  test(`brainstorm complete records bound spec engine ${engine ?? "legacy"}, unrelated phases do not`, async () => {
+for (const { engine, example } of [
+  { engine: "loop", example: false },
+  { engine: "waves", example: false },
+  { engine: undefined, example: false },
+  { engine: "waves", example: true },
+  { engine: undefined, example: true },
+]) {
+  test(`brainstorm complete records bound spec engine ${engine ?? "legacy"}${example ? " with fenced loop example" : ""}, unrelated phases do not`, async () => {
     const h = harness();
     await h.phaseResult("start", P({ brainstorm: "in_progress" }));
-    await h.writeSpec("doc/specs/a.md", `# Spec\n${engine ? `**Engine:** ${engine}\n` : ""}`);
+    await h.writeSpec("doc/specs/a.md", `# Spec\n${engine ? `**Engine:** ${engine}\n` : ""}${example ? "\n## Design\n```markdown\n**Engine:** loop\n```\n" : ""}`);
     await h.writeSpec("doc/specs/other.md", "**Engine:** waves\n");
     await h.phaseResult("complete", P({ brainstorm: "complete" }));
     await h.phaseResult("start", P({ brainstorm: "complete", plan: "in_progress" }));
