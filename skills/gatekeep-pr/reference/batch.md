@@ -14,7 +14,7 @@ Gather each PR with `gh pr view --json number,author,headRefOid,headRefName,base
 
 ## Provision serially
 
-Fetch origin once with `git fetch origin`, plus `git fetch origin pull/<N>/head:pr-<N>` for each fork. Apply assessment's gitignore-first rule before built-in creation when the resolved home is inside the primary; sibling homes need no edit. Provision in roster order, one at a time. No concurrent primary fetch or worktree add is allowed, regardless of cohort concurrency.
+Fetch origin once with `git fetch origin`; for each fork PR, run `git fetch origin pull/<N>/head:pr-<N>` only when no worktree holds a local `pr-<N>` branch, and otherwise leave the reuse row's `git fetch origin pull/<N>/head` + `git merge --ff-only FETCH_HEAD` to that PR's provisioning step. Apply assessment's gitignore-first rule before built-in creation when the resolved home is inside the primary; sibling homes need no edit. Provision in roster order, one at a time. No concurrent primary fetch or worktree add is allowed, regardless of cohort concurrency.
 
 Reuse assessment's provisioning table unchanged: reuse an expected branch at any path, fast-forward only, stop on dirt, divergence, local-only commits, or foreign operations; never repurpose a foreign branch at the default path. Resolve keyed home/create/destroy with `<name>` = `pr-<N>`, shell-quote tokens, check the created path in `git worktree list --porcelain`, and verify `HEAD == headRefOid`. A non-zero create marks that PR failed; never fall back to worktree add. Ask unresolved create tokens in the parent once per token, never execute unresolved placeholders. Isolate `failed - provisioning - <reason>` with no child; continue siblings. A provisioning retry re-provisions only after the obstacle clears.
 
