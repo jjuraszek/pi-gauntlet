@@ -1,5 +1,17 @@
 # Changelog
 
+## Unreleased
+
+### Added
+
+- **Loop implement engine: planless iteration over the acceptance-criteria ledger.** Replying `4` or `5` at the spec approval gate skips the plan and runs a fresh, model-free `loop-implementer` persona (`agents/loop-implementer.md`, driven by `skills/loop-implementation/`) one acceptance-criteria ledger row per iteration, closing it or marking it failed with one commit and one `status|explanation|next` decision line; iteration 0 seeds evidence and may close several rows on baseline. The ledger is a plan variant at `doc/plans/<spec-stem>-ledger.md` (first line `# Ledger - loop engine`) stamped by `plan_check` and stripped at finish. `piGauntlet.loopEngine.maxIterations` (default 30) caps a run; an unresolved row at its allowance (3 attempts plus funded rounds or a human retry), two consecutive empty commits, or the cap stops at a plain-words human gate (retry / amend / stop). The loop model is pinned per repo through `subagents.agentOverrides.loop-implementer.model`; no new model key. `doc/implement-engines.md` is the contract for authoring further engines. (#68)
+- Eval targets `eval/loop-implementation` and `eval/loop-implementer`; new `eval/brainstorming` and `eval/gauntlet-resume` samples exercise the five-option gate and ledger runs. (#68)
+
+### Changed
+
+- Every approving reply at the spec gate (1/2 included) writes an `**Engine:**` line and amends the spec commit; the waves engine and options 1-3 keep their routing and grant meaning. `finishing-a-development-branch` strips a ledger beside a plan; `gauntlet-resume` consumes ledger runs; telemetry records `engine: loop|waves` and loop iterations, and `gauntlet-performance` prints both (older runs show `engine: waves`). (#68)
+- pi-cohort peer floor raised to 7.4.5.
+
 ## v7.28.0 - 2026-10-23
 
 ### Added
