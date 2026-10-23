@@ -6,6 +6,17 @@
 
 - **`gatekeep-pr` accepts a set of PRs in pi**, for example `/skill:gatekeep-pr 12 15 18 --rebase main`. One fresh `pr-gatekeeper` orchestrator and worktree per PR keep nested Verify/Review dispatch and consent isolated; the parent shows a summary and ordered per-PR menus, then runs queued picks in parallel. Sets are bounded by pi-cohort's `parallel.maxTasks` (default `8`), with one eligible-other-author rebase confirmation per set. Single-PR behavior is unchanged; multi-PR mode is pi-only. Requires pi-cohort >= 7.4.5 (a `subagent`-enabled persona could not start with inherited extensions before, [pi-cohort #26](https://github.com/jjuraszek/pi-cohort/issues/26)). (#79)
 
+## v7.30.0 - 2026-10-23
+
+### Added
+
+- **Brainstorming accepts an open PR as its subject.** `/skill:brainstorming <ref>` resolves `#N`, `owner/repo#N`, or a PR URL to a pull request first and gathers from its title, body, diff, unresolved review threads, and linked ticket; constraints are read from the base branch's HEAD docs, not the fork point, and the spec carries a `## Rework record` naming what the rework keeps and changes, proposing a repair of the original over a rewrite where one satisfies the current rules (`skills/brainstorming/reference/pr-subject.md`). `using-git-worktrees` checks out the PR's head branch at the PR head SHA (`reference/pr-head.md`; a branch already checked out, an unreachable head, or a fork head stops before any write), spec and implementation commits append to the PR branch, and `finishing-a-development-branch` offers "push to the PR branch": it saves the pre-rework head under `refs/gauntlet/pre-rework/pr-<N>`, pushes without force, appends a `## Rework` block to the PR description with one line per review thread, and stops at the menu when the push would need force. `gauntlet-handoff` and `gauntlet-resume` carry the PR reference and pre-rework head so a fresh session resumes on the PR branch in the same worktree. Ticket and free-text subjects are unchanged. (#78)
+- Eval samples `pr-subject-resolution`, `pr-subject-repair-over-rewrite`, `pr-subject-rule-added-later`, and `pr-subject-weakened-rule` under `eval/brainstorming/`, `pr-head` under `eval/using-git-worktrees/`, `pr-subject-threads` under `eval/writing-plans/`, `pr-subject-push` under `eval/finishing-a-development-branch/`, and `pr-subject-brief` under `eval/gauntlet-resume/`. (#78)
+
+### Changed
+
+- The withheld-push finishing menu reads a bare numeric reply by its displayed label (2-6), so `1` is refused while the push row is withheld. (#78)
+
 ## v7.29.0 - 2026-10-23
 
 ### Added
