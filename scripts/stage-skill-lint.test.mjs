@@ -13,6 +13,7 @@ assert.deepEqual(STAGE_SKILL_DIRS, [
   "skills/brainstorming",
   "skills/writing-plans",
   "skills/subagent-driven-development",
+  "skills/loop-implementation",
   "skills/finishing-a-development-branch",
   "skills/using-git-worktrees",
 ]);

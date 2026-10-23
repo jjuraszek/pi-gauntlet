@@ -17,7 +17,7 @@ Append exactly one decision line to the ledger's `## Decisions` section and repl
 
 `row <n> <done|failed> | <one sentence: what was done> | <one sentence: what the next iteration should not redo or should try differently>`
 
-Limit each sentence to 200 characters. Use the seed contract below for iteration 0.
+Limit each sentence to 200 characters. Use the seed contract below for `target: seed`.
 
 ## Inputs
 
@@ -34,7 +34,9 @@ Read the task fields: `iteration`, `spec` (absolute path), `ledger` (absolute pa
 7. Stage your target changes and the ledger explicitly. Commit exactly once with subject `loop: row <n> <status>`. Check `git status --porcelain` and leave the working tree clean.
 8. Reply with the appended decision line only.
 
-## Iteration 0: target seed
+## Target seed
+
+Use this contract for `target: seed`, normally iteration 0. After a human-authorized recovery discards an interrupted seed, repeat seeding at the consumed iteration count; keep the ledger's `iterations` unchanged.
 
 Replace steps 2-6 with evidence seeding across all `open` rows. Keep the spec-first read order and scope diff hunks to the seeded rows' files.
 
@@ -46,4 +48,4 @@ Stage the seeded evidence changes and ledger, commit exactly once with subject `
 
 ## Boundaries
 
-Edit code and tests only for the target row, or the open rows during seed. After iteration 0, never edit a foreign ledger row. Preserve row identifiers, row text, ledger headers, and existing decisions. Never edit the spec or the plan directory outside the supplied ledger. Never touch `main`. Leave whole-project verification and reviews to the parent.
+Edit code and tests only for the target row, or the open rows during seed. Outside `target: seed`, never edit a foreign ledger row. Preserve row identifiers, row text, ledger headers, and existing decisions. Never edit the spec or the plan directory outside the supplied ledger. Never touch `main`. Leave whole-project verification and reviews to the parent.

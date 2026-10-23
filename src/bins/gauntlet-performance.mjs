@@ -137,6 +137,8 @@ function loadRecord(file, label) {
   return {
     row: {
       run_id: d.run_id,
+      engine: str(derived.engine) ?? "waves",
+      iterations: num(derived.iterations),
       repo: label,
       spec: basename(file, ".yaml"),
       version: semver(version) ? version.trim() : "unknown",

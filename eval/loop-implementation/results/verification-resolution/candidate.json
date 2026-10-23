@@ -1,0 +1,70 @@
+{
+  "sample": "verification-resolution",
+  "arm": "candidate",
+  "skillSha": "d5e46c2a218348f8350e8a8e5f10cdbc9478e966a6aff9cb08b653fc4c0eca94",
+  "inputSha": "bb67cde1407f2ef81548524cfc2c5f4003792c5b17629854f0f208912456652f",
+  "kind": "text",
+  "assembly": "concat",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "# Verification resolution for snapshots A–E\n\n## Shared entry steps (planned, not run)\n\nThese steps come before resolution in every snapshot:\n\n1. Read the first overrides file found: `.pi/gauntlet-overrides.md`, then `<repo root>/gauntlet-overrides.md`, then `<repo root>/doc/gauntlet-overrides.md`. Apply `## conventions` if present.\n2. Call `gauntlet_setting({ key: \"loopEngine\" })` and keep `maxIterations` (default 30). If the settings tool is unavailable, stop here.\n3. Resolve verification once using the ordered table. The first matching row wins, and later rows are never consulted.\n\nDurable changes only start after a successful resolution:\n- `phase_tracker({ action: \"skip\", phase: \"plan\", reason: \"loop engine\" })`\n- writing the ledger\n- `plan_check`\n- the `loop: seed ledger` commit\n- `phase_tracker({ action: \"start\", phase: \"implement\" })`\n\nA stop during resolution happens before step 3 of Entry. So a stop means:\n- no phase_tracker call\n- no ledger\n- no commit\n- no target\n\n## A: PR gate says `make ci`, prose section says `make test`\n\n- **Rule applied:** Row 1 matches because `## PR gate` contains `- verification command:`. The `## verification-before-completion` section is never read for this decision.\n- **Printout:** `verification command: make ci (PR gate)`\n- **What happens next:**\n  - Entry continues.\n  - The ledger records `verification: make ci`.\n  - After the seed-ledger commit and implement start, the first dispatch target is `seed`.\n\n## B: No PR gate, prose says run `make ci`\n\n- **Rule applied:** Row 1 does not match. Row 2 matches: `## verification-before-completion` exists and contains exactly one backticked command.\n- **Printout:** `verification command: make ci (verification-before-completion)`\n- **What happens next:**\n  - Entry continues.\n  - The ledger records `verification: make ci`.\n  - The first target is `seed`.\n\n## C: Neither section exists, manifest test entrypoint is `make check`\n\n- **Rule applied:** Row 3 applies. The command is discovered from the project's actual manifest or build instructions. The result is a single, unambiguous entrypoint, so there is no stop.\n- **Printout:** `verification command: make check (discovery)`\n  - Naming the manifest is optional, e.g. `(discovery: Makefile)`.\n- **What happens next:**\n  - Entry continues.\n  - The ledger records `verification: make check`.\n  - The first target is `seed`.\n\n## D: Prose section says `make test` and `make lint`\n\n- **Rule applied:** Row 2 matches because the section exists. It contains two backticked commands, and row 2 requires exactly one, so this is a configuration error.\n- **No fallback:** Execution does not fall through to discovery, and it does not pick one command or chain both.\n- **Human-facing output:**\n  `Stopped: configuration error. ## verification-before-completion names 2 backticked commands (`make test`, `make lint`); exactly one is required. Add a single command there, or set \"- verification command:\" under ## PR gate.`\n- **Durable changes:** None. There is no plan skip, no ledger, no commit, and no next target.\n\n## E: Prose section exists with zero commands\n\n- **Rule applied:** Row 2 matches because the section exists. It has zero backticked commands, so this is a configuration error.\n- **No fallback:** Discovery is not used, because the section's presence takes precedence over row 3.\n- **Human-facing output:**\n  `Stopped: configuration error. ## verification-before-completion contains no backticked command; exactly one is required. Add one, or set \"- verification command:\" under ## PR gate.`\n- **Durable changes:** None. There is no plan skip, no ledger, no commit, and no next target.\n",
+      "words": 488,
+      "wallMs": 17063,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "No calls have run. **Actual entry stops because the required settings tool is unavailable**: `gauntlet_setting({ key: \"loopEngine\" })` cannot be called. No ledger, commits, phase updates, or dispatches occur.\n\nIndependently, the verification-resolution outcomes requested are:\n\n| Snapshot | Resolution | Human-facing printout or stop |\n|---|---|---|\n| **A** | PR gate wins; ignore the prose command. | `verification command: make ci (PR gate)` |\n| **B** | Use the exactly one backticked command in `## verification-before-completion`. | `verification command: make ci (verification-before-completion)` |\n| **C** | Discover the unambiguous entrypoint from the actual manifest/build instructions. A tool-enabled run must read that file before accepting the discovery. | `verification command: make check (discovery: project manifest)` |\n| **D** | Configuration error: the prose section contains two backticked commands, not exactly one. Do not choose one or combine them. | `Stopped: configuration error — verification-before-completion contains multiple backticked commands; exactly one is required.` |\n| **E** | Configuration error: the prose section exists but contains zero backticked commands. Do not fall back to discovery. | `Stopped: configuration error — verification-before-completion contains no backticked command; exactly one is required.` |\n\n**Durable changes:** none for any snapshot at this resolution step.\n\n**Next target:** none yet. If tools became available, A–C would continue with `phase_tracker({ action: \"skip\", phase: \"plan\", reason: \"loop engine\" })`, then the required clean named-branch checks and ledger admission. Their first child target would be `seed` after the stamped skeleton is committed. D–E stop before any phase update or ledger creation.\n",
+      "words": 219,
+      "wallMs": 12561,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "cde57f325ee36560345ef300a79393086d8addff9e437810737b72891a6a148f",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "4b5b8fb07e1a86cc56cf798029effe82600ca4e4e62d486c4041df23c7b981fe",
+      "baselineOutputSha": "6b2a5ea327aa17478213fa8e0826a6c31f3324afd93f92b7fba00abec4c074e1",
+      "candidateOutputSha": "665aba556435fca4d32a0e001c4279e0ec71e98a6e8b2c500a27e4fb6bd8e9f0",
+      "facts": {
+        "contract": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "Both outputs satisfy the contract: A picks the PR gate command and ignores the prose section, B uses the single prose command, C reaches discovery only because neither section exists, D and E stop on multiple/zero prose commands without falling through, and A–C print a source-tagged line. After moved nothing. One small inaccuracy in After worth tightening: 'A stop during resolution happens before step 3 of Entry' contradicts your own list where resolution *is* step 3 — say 'a stop during step 3 happens before any durable change (plan skip, ledger, commit, target)' instead. The seed-recovery change you intended (reuse target seed and seed evidence after authorized cleanup, no consumed-count reset, seed-contract hint on dispatch) is not exercised by this case at all, since no snapshot reaches a dispatch or interrupted seed; if you want that fact to move, add a snapshot where an interrupted seed is cleaned up with human authorization and show the next dispatch targeting seed with the consumed count preserved, while keeping the A–E resolution text as it is.",
+      "wallMs": 9845,
+      "verdict": "unchanged"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "cde57f325ee36560345ef300a79393086d8addff9e437810737b72891a6a148f",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "4b5b8fb07e1a86cc56cf798029effe82600ca4e4e62d486c4041df23c7b981fe",
+      "baselineOutputSha": "d22849262b6983093095acb5fb8d4f4af09f8da3525c6153b20935b1624307a1",
+      "candidateOutputSha": "978e1a162b3c92ed8511ba50db6a6a01e9d392c1022c9820afc7507fcdf8e9cd",
+      "facts": {
+        "contract": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "Both outputs satisfy the verification-resolution contract identically: A selects the PR gate over the prose command, B uses the single backticked prose command, C falls back to discovery only because no prose section exists, and D/E stop as configuration errors before any phase update, ledger creation, or dispatch (iteration zero), with each successful resolution printing its source (PR gate / verification-before-completion / discovery). The After wording did not move this fact; its changes to the C source label (`project manifest` vs `manifest test entrypoint`) and the D/E stop messages are cosmetic and still name the source and the exactly-one requirement. The seed-recovery change targeted by this edit is not exercised by this input, so nothing here confirms or contradicts it; if you want this case to also cover the Change, keep the resolution table as-is and append a line stating that after an authorized interrupted-seed cleanup the first child target remains `seed` for all open rows without resetting the consumed dispatch count, which would deliver the Change without touching any wording the contract fact depends on.",
+      "wallMs": 9888,
+      "verdict": "unchanged"
+    }
+  },
+  "repoSha": "3c1f3274e1df8e23f0ba53657be5ca2efe9c63d2"
+}

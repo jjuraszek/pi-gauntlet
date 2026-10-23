@@ -173,7 +173,7 @@
     await h.phaseResult("substep", P({ brainstorm: "in_progress" }));
     await h.phaseResult("complete", P({ brainstorm: "complete" }));
     const rec2 = h.readRecord();
-    assert.equal(rec2.approved_at, rec2.events.at(-1)!.ts);
+    assert.equal(rec2.approved_at, rec2.events.findLast((e) => e.kind === "phase")!.ts);
     assert.equal(h.gitWrites().length, 0, "the recorder never runs git add or git commit");
     assert.equal(readFileSync(h.excludeFile(), "utf8"), ".pi/gauntlet/telemetry/\n");
     await h.phaseResult("reset", P());
@@ -191,7 +191,7 @@
     assert.equal(h.readRecord("docs/specs/x.md").spec, "docs/specs/x.md");
     await h.phaseResult("complete", P({ brainstorm: "complete" }));
     const rec = h.readRecord("docs/specs/x.md");
-    assert.equal(rec.approved_at, rec.events.at(-1)!.ts);
+    assert.equal(rec.approved_at, rec.events.findLast((e) => e.kind === "phase")!.ts);
     assert.equal(h.gitWrites().length, 0);
   });
 
@@ -310,7 +310,8 @@
     const rec = parseRecord(readFileSync(first.recordPath(), "utf8"))!;
     assert.equal(rec.run_id, runId);
     assert.deepEqual(rec.sessions, ["s1", "s2"]);
-    assert.equal(rec.events.length, 1, "replay emits no duplicate events");
+    assert.equal(rec.events.filter((e) => e.kind !== "engine").length, 1, "replay emits no duplicate phase events");
+    assert.equal(rec.events.filter((e) => e.kind === "engine").length, 1);
   });
 
   test("rename at spec-writing: write to a new spec while the bound one is a draft rebinds and moves the record", async () => {
@@ -1111,7 +1112,7 @@
     const rec = parseRecord(readFileSync(first.recordPath(), "utf8"))!;
     assert.equal(rec.run_id, runId);
     assert.deepEqual(rec.sessions, ["s1", "s2"]);
-    assert.equal(rec.approved_at, rec.events.at(-1)!.ts);
+    assert.equal(rec.approved_at, rec.events.findLast((e) => e.kind === "phase")!.ts);
   });
 
   test("reset then a new spec binds a fresh run with an empty buffer; the old record is untouched", async () => {
@@ -1280,3 +1281,50 @@
     const [planPass] = await h3.emit("tool_call", { toolName: "write", toolCallId: "w3", input: { path: "doc/specs/a.md", content: "# again" } });
     assert.equal(planPass, undefined);
   });
+
+for (const engine of ["loop", "waves", undefined]) {
+  test(`brainstorm complete records bound spec engine ${engine ?? "legacy"}, unrelated phases do not`, async () => {
+    const h = harness();
+    await h.phaseResult("start", P({ brainstorm: "in_progress" }));
+    await h.writeSpec("doc/specs/a.md", `# Spec\n${engine ? `**Engine:** ${engine}\n` : ""}`);
+    await h.writeSpec("doc/specs/other.md", "**Engine:** waves\n");
+    await h.phaseResult("complete", P({ brainstorm: "complete" }));
+    await h.phaseResult("start", P({ brainstorm: "complete", plan: "in_progress" }));
+    const rec = h.readRecord();
+    assert.deepEqual(rec.events.filter((e) => e.kind === "engine").map((e) => e.engine), [engine ?? "waves"]);
+    assert.equal(rec.derived.engine, engine ?? "waves");
+    h.setBranch([
+      { type: "message", message: { role: "toolResult", toolName: "phase_tracker", details: { action: "start", phases: P({ brainstorm: "in_progress" }) } } },
+      { type: "message", message: { role: "toolResult", toolName: "phase_tracker", details: { action: "complete", phases: P({ brainstorm: "complete" }) } } },
+      { type: "message", message: { role: "toolResult", toolName: "plan_check", details: { status: "pass", specPath: "doc/specs/a.md" } } },
+    ]);
+    for (const event of ["session_start", "session_switch", "session_fork", "session_tree"]) {
+      await h.emit(event, {});
+      assert.deepEqual(h.readRecord().events.filter((e) => e.kind === "engine"), rec.events.filter((e) => e.kind === "engine"));
+    }
+  });
+}
+
+test("resume skip reads engine from bound spec live and on branch replay", async () => {
+  for (const replay of [false, true]) {
+    const h = harness();
+    writeFileSync(join(h.root, "doc/specs/a.md"), "# Spec\n**Engine:** loop\n");
+    const started = P({ brainstorm: "in_progress" });
+    const skipped = { ...P({ brainstorm: "skipped" }), brainstorm: { status: "skipped", reason: "resume: doc/specs/a.md" } };
+    if (replay) {
+      h.setBranch([started, skipped].map((phases, i) => ({ type: "message", message: { role: "toolResult", toolName: "phase_tracker", details: { action: i ? "skip" : "start", phases } } })));
+      await h.emit("session_start", {});
+    } else {
+      await h.phaseResult("start", started);
+      await h.phaseResult("skip", skipped);
+    }
+    assert.equal(h.readRecord().derived.engine, "loop");
+    assert.equal(h.readRecord().events.filter((e) => e.kind === "engine").length, 1);
+    h.setBranch([started, skipped].map((phases, i) => ({ type: "message", message: { role: "toolResult", toolName: "phase_tracker", details: { action: i ? "skip" : "start", phases } } })));
+    const events = h.readRecord().events.filter((e) => e.kind === "engine");
+    for (const event of ["session_start", "session_switch", "session_fork", "session_tree"]) {
+      await h.emit(event, {});
+      assert.deepEqual(h.readRecord().events.filter((e) => e.kind === "engine"), events);
+    }
+  }
+});

@@ -420,11 +420,16 @@
     };
 
     // ---- phase mirror ----
-    const applyPhaseDetails = async (details: { action?: string; phases?: PhaseMap; error?: string; rounds?: number } | undefined, snap: SettingsSnapshot) => {
+    const applyPhaseDetails = async (details: { action?: string; phases?: PhaseMap; error?: string; rounds?: number } | undefined, snap: SettingsSnapshot, replay = false) => {
       if (!details?.phases || details.error) return;
       const action = details.action ?? "";
       gauntletEntered = nextGauntletEntered(gauntletEntered, action, details.phases.brainstorm.status);
-      const transitions = diffPhases(phases, details.phases, action);
+      const transitions = diffPhases(replay ? emptyPhases() : phases, details.phases, action).filter((t) => !replay || t.name === "brainstorm");
+      if (action === "skip" && !boundSpec && canBind() && lastCtx) {
+        const resumed = resumeSpecOf(details.phases, snap.specDirs);
+        const loc = resumed ? await locate(lastCtx, resumed) : undefined;
+        if (loc && isSpecPath(loc.rel, snap.specDirs)) await bind(loc.rel, snap, loc.toplevel, loc.via);
+      }
       if (action === "grant_fix_rounds") {
         live().gates.fix_round_grants += 1;
         pushEvent({ kind: "gate", gate: "fix_round_grant", rounds: typeof details.rounds === "number" ? details.rounds : undefined });
@@ -432,7 +437,7 @@
       }
       for (const t of transitions) {
         const model = ctxModel();
-        const e = pushEvent(
+        const e = replay ? undefined : pushEvent(
           t.action === "start"
             ? { kind: "phase", action: "start", name: t.name, model, thinking: ctxThinking() }
             : t.action === "reset"
@@ -441,7 +446,14 @@
         );
         if (t.action === "start" && t.name === "brainstorm") councilPending = undefined;
         phases = details.phases;
-        if (record && t.name === "brainstorm" && (t.action === "complete" || t.action === "skip")) record.approved_at ??= e.ts;
+        if (record && boundSpec && t.name === "brainstorm" && (t.action === "complete" || t.action === "skip")) {
+          if (e) record.approved_at ??= e.ts;
+          if (!replay || !record.events.some((event) => event.kind === "engine")) {
+            const body = deps.fs.readFile(abs(boundSpec)) ?? "";
+            const engine = /^\*\*Engine:\*\*[ \t]+loop[ \t]*$/m.test(body) ? "loop" : "waves";
+            pushEvent({ kind: "engine", engine });
+          }
+        }
         if (record && t.name === "ship" && t.action === "complete" && checkoutVia === "jj") await onShipKeep(snap);
         flush();
         if (t.action === "reset") {
@@ -452,14 +464,6 @@
         }
       }
       phases = details.phases;
-      if (action === "skip" && !boundSpec && canBind() && lastCtx) {
-        const resumed = resumeSpecOf(details.phases, snap.specDirs);
-        const loc = resumed ? await locate(lastCtx, resumed) : undefined;
-        if (loc && isSpecPath(loc.rel, snap.specDirs)) {
-          await bind(loc.rel, snap, loc.toplevel, loc.via);
-          flush();
-        }
-      }
     };
 
     let lastCtx: ExtensionContext | undefined;
@@ -493,6 +497,10 @@
       const loc = candidate ? await locate(ctx, candidate) : undefined;
       if (loc && isSpecPath(loc.rel, snap.specDirs)) {
         await bind(loc.rel, snap, loc.toplevel, loc.via);
+        const status = replay.phases.brainstorm.status;
+        if (status === "complete" || status === "skipped") {
+          await applyPhaseDetails({ action: status === "complete" ? "complete" : "skip", phases: replay.phases }, snap, true);
+        }
         flush();
       }
     };

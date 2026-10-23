@@ -1,0 +1,1 @@
+- contract: judged: PR gate wins; single prose command used; discovery used only without section; zero/multiple prose commands stop before iteration zero, with source printout for successful resolutions.
