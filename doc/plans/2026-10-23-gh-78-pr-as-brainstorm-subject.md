@@ -91,7 +91,7 @@ Paths are worktree-relative. No file is deleted. New sample directories contain 
 - Decision: do not introduce eval/gauntlet-handoff or eval/verification-before-completion targets. The approved Tests table assigns these behaviors to gauntlet-resume and writing-plans. Use new case.md bundle+ declarations, leaving every target.json and old case.md/expected.md unchanged.
 - Task commits record `Behavior-change: yes` and #78. Task 1 also records that the references are preparatory and inactive. Generated evidence lands only in Task 7. Commit commands below use bare git in the executor's task worktree.
 - Amendment execution state: the parent reports model replays complete and accepted, with all 220 current comparisons unchanged/improved and all 100 new required assertions holding. Retain Task 7's commands as the implementation recipe; do not repeat model calls for this amendment. Source, spec, samples, and records are committed and are not edited by this plan repair. The parent folds this plan into the amendment commit.
-- Baseline execution on 44c887f: Tasks 1-7 executed 7, 41, 15, 113, 36, 15, and 46 tests respectively, each with exit 0. HEAD remained 44c887f and porcelain was empty before and after every command. No artifact suffix or baseline-failure row was needed.
+- Baseline execution on 90c593f: Tasks 1-7 executed 7, 41, 15, 113, 36, 15, and 46 tests respectively, each with exit 0. HEAD remained 90c593f and porcelain was empty before and after every command. No artifact suffix or baseline-failure row was needed.
 
 ## Wave 1 - Canonical reference contracts
 
@@ -99,7 +99,7 @@ Paths are worktree-relative. No file is deleted. New sample directories contain 
 
 **TDD scenario:** New instruction contracts - preparatory reference-only commit; baseline must contain the complete new files before model replay.
 
-**Spec:** doc/specs/2026-10-23-gh-78-pr-as-brainstorm-subject.md § "Acceptance criteria" L38-L39, § "Acceptance criteria" L40-L41, § "Acceptance criteria" L42-L43, § "Acceptance criteria" L44-L45, § "Ownership" L62-L62, § "Ownership" L63-L63, § "Ownership" L69-L69, § "Subject resolution (`pr-subject.md`, read at checklist step 2)" L73-L73, § "Subject resolution (`pr-subject.md`, read at checklist step 2)" L75-L79, § "Subject resolution (`pr-subject.md`, read at checklist step 2)" L81-L81, § "Subject resolution (`pr-subject.md`, read at checklist step 2)" L83-L83, § "Subject resolution (`pr-subject.md`, read at checklist step 2)" L85-L85, § "Subject resolution (`pr-subject.md`, read at checklist step 2)" L87-L87, § "Subject resolution (`pr-subject.md`, read at checklist step 2)" L89-L89, § "Worktree (`pr-head.md`, read from `using-git-worktrees/SKILL.md` Step 0 when the caller passes a PR)" L93-L93, § "Worktree (`pr-head.md`, read from `using-git-worktrees/SKILL.md` Step 0 when the caller passes a PR)" L95-L102, § "Worktree (`pr-head.md`, read from `using-git-worktrees/SKILL.md` Step 0 when the caller passes a PR)" L106-L106, § "Worktree (`pr-head.md`, read from `using-git-worktrees/SKILL.md` Step 0 when the caller passes a PR)" L107-L107, § "Worktree (`pr-head.md`, read from `using-git-worktrees/SKILL.md` Step 0 when the caller passes a PR)" L108-L108, § "Worktree (`pr-head.md`, read from `using-git-worktrees/SKILL.md` Step 0 when the caller passes a PR)" L109-L109, § "Worktree (`pr-head.md`, read from `using-git-worktrees/SKILL.md` Step 0 when the caller passes a PR)" L111-L111, § "Worktree (`pr-head.md`, read from `using-git-worktrees/SKILL.md` Step 0 when the caller passes a PR)" L113-L113, § "Worktree (`pr-head.md`, read from `using-git-worktrees/SKILL.md` Step 0 when the caller passes a PR)" L115-L118, § "Worktree (`pr-head.md`, read from `using-git-worktrees/SKILL.md` Step 0 when the caller passes a PR)" L119-L119, § "Worktree (`pr-head.md`, read from `using-git-worktrees/SKILL.md` Step 0 when the caller passes a PR)" L120-L120, § "Worktree (`pr-head.md`, read from `using-git-worktrees/SKILL.md` Step 0 when the caller passes a PR)" L122-L122, § "Worktree (`pr-head.md`, read from `using-git-worktrees/SKILL.md` Step 0 when the caller passes a PR)" L124-L124, § "Worktree (`pr-head.md`, read from `using-git-worktrees/SKILL.md` Step 0 when the caller passes a PR)" L127-L127, § "Worktree (`pr-head.md`, read from `using-git-worktrees/SKILL.md` Step 0 when the caller passes a PR)" L130-L130, § "Gather (`gatherer.md`)" L134-L134, § "Spec content for a PR subject" L138-L138, § "Spec content for a PR subject" L141-L151, § "Spec content for a PR subject" L154-L154, § "Errors and edge cases" L211-L212, § "Errors and edge cases" L213-L213, § "Errors and edge cases" L214-L215, § "Errors and edge cases" L216-L216, § "Errors and edge cases" L217-L218, § "Errors and edge cases" L219-L219, § "Errors and edge cases" L220-L220, § "Errors and edge cases" L221-L221, § "Errors and edge cases" L222-L222, § "Errors and edge cases" L223-L223, § "Errors and edge cases" L224-L224, § "Errors and edge cases" L225-L225, § "Errors and edge cases" L226-L227, § "Errors and edge cases" L228-L228, § "Errors and edge cases" L229-L229, § "Errors and edge cases" L230-L230, § "Errors and edge cases" L231-L231, § "Tests" L246-L248, § "Out of scope" L270-L270, § "Out of scope" L274-L274
+**Spec:** doc/specs/2026-10-23-gh-78-pr-as-brainstorm-subject.md § "Acceptance criteria" L38-L39, § "Acceptance criteria" L40-L41, § "Acceptance criteria" L42-L43, § "Acceptance criteria" L44-L45, § "Ownership" L62-L62, § "Ownership" L63-L63, § "Ownership" L69-L69, § "Subject resolution (`pr-subject.md`, read at checklist step 2)" L73-L73, § "Subject resolution (`pr-subject.md`, read at checklist step 2)" L75-L79, § "Subject resolution (`pr-subject.md`, read at checklist step 2)" L81-L81, § "Subject resolution (`pr-subject.md`, read at checklist step 2)" L83-L83, § "Subject resolution (`pr-subject.md`, read at checklist step 2)" L85-L85, § "Subject resolution (`pr-subject.md`, read at checklist step 2)" L87-L87, § "Subject resolution (`pr-subject.md`, read at checklist step 2)" L89-L89, § "Worktree (`pr-head.md`, read from `using-git-worktrees/SKILL.md` Step 0 when the caller passes a PR)" L93-L93, § "Worktree (`pr-head.md`, read from `using-git-worktrees/SKILL.md` Step 0 when the caller passes a PR)" L95-L102, § "Worktree (`pr-head.md`, read from `using-git-worktrees/SKILL.md` Step 0 when the caller passes a PR)" L106-L106, § "Worktree (`pr-head.md`, read from `using-git-worktrees/SKILL.md` Step 0 when the caller passes a PR)" L107-L107, § "Worktree (`pr-head.md`, read from `using-git-worktrees/SKILL.md` Step 0 when the caller passes a PR)" L108-L108, § "Worktree (`pr-head.md`, read from `using-git-worktrees/SKILL.md` Step 0 when the caller passes a PR)" L109-L109, § "Worktree (`pr-head.md`, read from `using-git-worktrees/SKILL.md` Step 0 when the caller passes a PR)" L111-L111, § "Worktree (`pr-head.md`, read from `using-git-worktrees/SKILL.md` Step 0 when the caller passes a PR)" L113-L113, § "Worktree (`pr-head.md`, read from `using-git-worktrees/SKILL.md` Step 0 when the caller passes a PR)" L115-L118, § "Worktree (`pr-head.md`, read from `using-git-worktrees/SKILL.md` Step 0 when the caller passes a PR)" L119-L119, § "Worktree (`pr-head.md`, read from `using-git-worktrees/SKILL.md` Step 0 when the caller passes a PR)" L120-L120, § "Worktree (`pr-head.md`, read from `using-git-worktrees/SKILL.md` Step 0 when the caller passes a PR)" L122-L122, § "Worktree (`pr-head.md`, read from `using-git-worktrees/SKILL.md` Step 0 when the caller passes a PR)" L124-L124, § "Worktree (`pr-head.md`, read from `using-git-worktrees/SKILL.md` Step 0 when the caller passes a PR)" L127-L127, § "Worktree (`pr-head.md`, read from `using-git-worktrees/SKILL.md` Step 0 when the caller passes a PR)" L130-L130, § "Gather (`gatherer.md`)" L134-L134, § "Spec content for a PR subject" L138-L138, § "Spec content for a PR subject" L141-L151, § "Spec content for a PR subject" L154-L154, § "Errors and edge cases" L211-L212, § "Errors and edge cases" L213-L213, § "Errors and edge cases" L214-L215, § "Errors and edge cases" L216-L216, § "Errors and edge cases" L217-L218, § "Errors and edge cases" L219-L219, § "Errors and edge cases" L220-L220, § "Errors and edge cases" L221-L221, § "Errors and edge cases" L222-L222, § "Errors and edge cases" L223-L223, § "Errors and edge cases" L224-L224, § "Errors and edge cases" L225-L225, § "Errors and edge cases" L226-L227, § "Errors and edge cases" L228-L228, § "Errors and edge cases" L229-L229, § "Errors and edge cases" L230-L230, § "Errors and edge cases" L231-L231, § "Tests" L248-L250, § "Out of scope" L272-L272, § "Out of scope" L276-L276
 
 **Files:**
 - Create: `skills/brainstorming/reference/pr-subject.md`
@@ -109,7 +109,7 @@ Paths are worktree-relative. No file is deleted. New sample directories contain 
 
 **Tests:**
 - `node --test scripts/stage-skill-lint.test.mjs scripts/skill-size-lint.test.mjs`
-- baseline: 44c887f pass
+- baseline: 90c593f pass
 - via: `lintStageSkill`, `lintSkillSizes`
 
 - [ ] **Step 1: Run the declared deterministic tests.** Expected: stage routing, statement-vs-example distinctions, and size fixtures pass before the new files exist.
@@ -139,7 +139,7 @@ Depends on Wave 1: all callers can read the committed references. Tasks 2-6 own 
 
 **TDD scenario:** Modifying tested instructions - existing tests first, failing routing assertions, sample definitions, then the caller change.
 
-**Spec:** doc/specs/2026-10-23-gh-78-pr-as-brainstorm-subject.md § "Acceptance criteria" L38-L39, § "Acceptance criteria" L40-L41, § "Acceptance criteria" L44-L45, § "Acceptance criteria" L50-L51, § "Ownership" L62-L62, § "Subject resolution (`pr-subject.md`, read at checklist step 2)" L73-L73, § "Subject resolution (`pr-subject.md`, read at checklist step 2)" L75-L79, § "Subject resolution (`pr-subject.md`, read at checklist step 2)" L81-L81, § "Subject resolution (`pr-subject.md`, read at checklist step 2)" L83-L83, § "Subject resolution (`pr-subject.md`, read at checklist step 2)" L85-L85, § "Subject resolution (`pr-subject.md`, read at checklist step 2)" L87-L87, § "Subject resolution (`pr-subject.md`, read at checklist step 2)" L89-L89, § "Worktree (`pr-head.md`, read from `using-git-worktrees/SKILL.md` Step 0 when the caller passes a PR)" L113-L113, § "Worktree (`pr-head.md`, read from `using-git-worktrees/SKILL.md` Step 0 when the caller passes a PR)" L119-L119, § "Worktree (`pr-head.md`, read from `using-git-worktrees/SKILL.md` Step 0 when the caller passes a PR)" L122-L122, § "Gather (`gatherer.md`)" L134-L134, § "Spec content for a PR subject" L138-L138, § "Spec content for a PR subject" L141-L151, § "Spec content for a PR subject" L154-L154, § "`brainstorming/SKILL.md` edits" L204-L204, § "Errors and edge cases" L210-L210, § "Errors and edge cases" L211-L212, § "Errors and edge cases" L213-L213, § "Errors and edge cases" L222-L222, § "Errors and edge cases" L223-L223, § "Errors and edge cases" L224-L224, § "Errors and edge cases" L226-L227, § "Errors and edge cases" L228-L228, § "Errors and edge cases" L229-L229, § "Errors and edge cases" L230-L230, § "Errors and edge cases" L240-L240, § "Tests" L246-L248, § "Tests" L252-L252, § "Tests" L253-L253, § "Tests" L254-L254, § "Tests" L255-L255
+**Spec:** doc/specs/2026-10-23-gh-78-pr-as-brainstorm-subject.md § "Acceptance criteria" L38-L39, § "Acceptance criteria" L40-L41, § "Acceptance criteria" L44-L45, § "Acceptance criteria" L50-L51, § "Ownership" L62-L62, § "Subject resolution (`pr-subject.md`, read at checklist step 2)" L73-L73, § "Subject resolution (`pr-subject.md`, read at checklist step 2)" L75-L79, § "Subject resolution (`pr-subject.md`, read at checklist step 2)" L81-L81, § "Subject resolution (`pr-subject.md`, read at checklist step 2)" L83-L83, § "Subject resolution (`pr-subject.md`, read at checklist step 2)" L85-L85, § "Subject resolution (`pr-subject.md`, read at checklist step 2)" L87-L87, § "Subject resolution (`pr-subject.md`, read at checklist step 2)" L89-L89, § "Worktree (`pr-head.md`, read from `using-git-worktrees/SKILL.md` Step 0 when the caller passes a PR)" L113-L113, § "Worktree (`pr-head.md`, read from `using-git-worktrees/SKILL.md` Step 0 when the caller passes a PR)" L119-L119, § "Worktree (`pr-head.md`, read from `using-git-worktrees/SKILL.md` Step 0 when the caller passes a PR)" L122-L122, § "Gather (`gatherer.md`)" L134-L134, § "Spec content for a PR subject" L138-L138, § "Spec content for a PR subject" L141-L151, § "Spec content for a PR subject" L154-L154, § "`brainstorming/SKILL.md` edits" L204-L204, § "Errors and edge cases" L210-L210, § "Errors and edge cases" L211-L212, § "Errors and edge cases" L213-L213, § "Errors and edge cases" L222-L222, § "Errors and edge cases" L223-L223, § "Errors and edge cases" L224-L224, § "Errors and edge cases" L226-L227, § "Errors and edge cases" L228-L228, § "Errors and edge cases" L229-L229, § "Errors and edge cases" L230-L230, § "Errors and edge cases" L240-L240, § "Tests" L246-L246, § "Tests" L248-L250, § "Tests" L254-L254, § "Tests" L255-L255, § "Tests" L256-L256, § "Tests" L257-L257. Replay-preservation anchor: meaning-preserving clarifications in `brainstorming/SKILL.md`, `gatherer.md`, `spec-finalization.md`, `amendment-surface.md`, `ticket-acceptance.md`, `writing-plans/SKILL.md`, and `gauntlet-resume/reference/brief-contract.md` restore existing sample facts without changing expected facts; commit bodies name each edit. Task 2 owns the brainstorming files and the deterministic PR markers already at `scripts/brainstorming-contract.test.mjs:330-356`; Tasks 4 and 6 own the other named files.
 
 **Files:**
 - Modify: `skills/brainstorming/SKILL.md:15-35`
@@ -168,7 +168,7 @@ Depends on Wave 1: all callers can read the committed references. Tasks 2-6 own 
 
 **Tests:**
 - `node --test scripts/brainstorming-contract.test.mjs eval/lib/lint.test.mjs`
-- baseline: 44c887f pass
+- baseline: 90c593f pass
 - via: `brainstorming checklist`, `scout task template`, `lintTarget`
 
 - [ ] **Step 1: Run existing tests and add failing routing assertions.** Extend the existing source-reading tests to assert resolution at checklist step 2 after reset, the exact named merge exception, BASE_SHA scout constraints and PR section, preservation/linting of the record, and raw PR council input. Retain numbered-checklist, framing, and grant assertions. Expected red: absent PR hooks, not a test harness failure.
@@ -193,7 +193,7 @@ Contract literals for caller edits and fixtures:
 
 **TDD scenario:** Modifying tested instructions - existing tests first, new PR-head case, then the routing change.
 
-**Spec:** doc/specs/2026-10-23-gh-78-pr-as-brainstorm-subject.md § "Acceptance criteria" L38-L39, § "Acceptance criteria" L42-L43, § "Acceptance criteria" L50-L51, § "Ownership" L63-L63, § "Worktree (`pr-head.md`, read from `using-git-worktrees/SKILL.md` Step 0 when the caller passes a PR)" L93-L93, § "Worktree (`pr-head.md`, read from `using-git-worktrees/SKILL.md` Step 0 when the caller passes a PR)" L95-L102, § "Worktree (`pr-head.md`, read from `using-git-worktrees/SKILL.md` Step 0 when the caller passes a PR)" L106-L106, § "Worktree (`pr-head.md`, read from `using-git-worktrees/SKILL.md` Step 0 when the caller passes a PR)" L107-L107, § "Worktree (`pr-head.md`, read from `using-git-worktrees/SKILL.md` Step 0 when the caller passes a PR)" L108-L108, § "Worktree (`pr-head.md`, read from `using-git-worktrees/SKILL.md` Step 0 when the caller passes a PR)" L109-L109, § "Worktree (`pr-head.md`, read from `using-git-worktrees/SKILL.md` Step 0 when the caller passes a PR)" L111-L111, § "Worktree (`pr-head.md`, read from `using-git-worktrees/SKILL.md` Step 0 when the caller passes a PR)" L113-L113, § "Worktree (`pr-head.md`, read from `using-git-worktrees/SKILL.md` Step 0 when the caller passes a PR)" L115-L118, § "Worktree (`pr-head.md`, read from `using-git-worktrees/SKILL.md` Step 0 when the caller passes a PR)" L119-L119, § "Worktree (`pr-head.md`, read from `using-git-worktrees/SKILL.md` Step 0 when the caller passes a PR)" L120-L120, § "Worktree (`pr-head.md`, read from `using-git-worktrees/SKILL.md` Step 0 when the caller passes a PR)" L122-L122, § "Worktree (`pr-head.md`, read from `using-git-worktrees/SKILL.md` Step 0 when the caller passes a PR)" L124-L124, § "Worktree (`pr-head.md`, read from `using-git-worktrees/SKILL.md` Step 0 when the caller passes a PR)" L127-L127, § "Worktree (`pr-head.md`, read from `using-git-worktrees/SKILL.md` Step 0 when the caller passes a PR)" L130-L130, § "Errors and edge cases" L214-L215, § "Errors and edge cases" L216-L216, § "Errors and edge cases" L217-L218, § "Errors and edge cases" L219-L219, § "Errors and edge cases" L220-L220, § "Errors and edge cases" L221-L221, § "Errors and edge cases" L222-L222, § "Errors and edge cases" L223-L223, § "Errors and edge cases" L225-L225, § "Errors and edge cases" L226-L227, § "Errors and edge cases" L231-L231, § "Errors and edge cases" L240-L240, § "Tests" L246-L248, § "Tests" L256-L256, § "Out of scope" L270-L270
+**Spec:** doc/specs/2026-10-23-gh-78-pr-as-brainstorm-subject.md § "Acceptance criteria" L38-L39, § "Acceptance criteria" L42-L43, § "Acceptance criteria" L50-L51, § "Ownership" L63-L63, § "Worktree (`pr-head.md`, read from `using-git-worktrees/SKILL.md` Step 0 when the caller passes a PR)" L93-L93, § "Worktree (`pr-head.md`, read from `using-git-worktrees/SKILL.md` Step 0 when the caller passes a PR)" L95-L102, § "Worktree (`pr-head.md`, read from `using-git-worktrees/SKILL.md` Step 0 when the caller passes a PR)" L106-L106, § "Worktree (`pr-head.md`, read from `using-git-worktrees/SKILL.md` Step 0 when the caller passes a PR)" L107-L107, § "Worktree (`pr-head.md`, read from `using-git-worktrees/SKILL.md` Step 0 when the caller passes a PR)" L108-L108, § "Worktree (`pr-head.md`, read from `using-git-worktrees/SKILL.md` Step 0 when the caller passes a PR)" L109-L109, § "Worktree (`pr-head.md`, read from `using-git-worktrees/SKILL.md` Step 0 when the caller passes a PR)" L111-L111, § "Worktree (`pr-head.md`, read from `using-git-worktrees/SKILL.md` Step 0 when the caller passes a PR)" L113-L113, § "Worktree (`pr-head.md`, read from `using-git-worktrees/SKILL.md` Step 0 when the caller passes a PR)" L115-L118, § "Worktree (`pr-head.md`, read from `using-git-worktrees/SKILL.md` Step 0 when the caller passes a PR)" L119-L119, § "Worktree (`pr-head.md`, read from `using-git-worktrees/SKILL.md` Step 0 when the caller passes a PR)" L120-L120, § "Worktree (`pr-head.md`, read from `using-git-worktrees/SKILL.md` Step 0 when the caller passes a PR)" L122-L122, § "Worktree (`pr-head.md`, read from `using-git-worktrees/SKILL.md` Step 0 when the caller passes a PR)" L124-L124, § "Worktree (`pr-head.md`, read from `using-git-worktrees/SKILL.md` Step 0 when the caller passes a PR)" L127-L127, § "Worktree (`pr-head.md`, read from `using-git-worktrees/SKILL.md` Step 0 when the caller passes a PR)" L130-L130, § "Errors and edge cases" L214-L215, § "Errors and edge cases" L216-L216, § "Errors and edge cases" L217-L218, § "Errors and edge cases" L219-L219, § "Errors and edge cases" L220-L220, § "Errors and edge cases" L221-L221, § "Errors and edge cases" L222-L222, § "Errors and edge cases" L223-L223, § "Errors and edge cases" L225-L225, § "Errors and edge cases" L226-L227, § "Errors and edge cases" L231-L231, § "Errors and edge cases" L240-L240, § "Tests" L248-L250, § "Tests" L258-L258, § "Out of scope" L272-L272
 
 **Files:**
 - Modify: `skills/using-git-worktrees/SKILL.md:16-46`
@@ -206,7 +206,7 @@ Contract literals for caller edits and fixtures:
 
 **Tests:**
 - `node --test scripts/stage-skill-lint.test.mjs eval/lib/lint.test.mjs`
-- baseline: 44c887f pass
+- baseline: 90c593f pass
 - via: `using-git-worktrees Step 0`, `reference/pr-head.md`, `lintTarget`
 
 - [ ] **Step 1: Run existing tests.** Expected: stage-skill and eval bundle declaration fixtures pass.
@@ -229,7 +229,7 @@ Contract literals for routing and the provisioning replay:
 
 **TDD scenario:** Modifying tested instructions - checker tests first, new PR-thread case, then the lint-only header and union-consumer policy.
 
-**Spec:** doc/specs/2026-10-23-gh-78-pr-as-brainstorm-subject.md § "Acceptance criteria" L44-L45, § "Acceptance criteria" L50-L51, § "Ownership" L64-L64, § "Ownership" L65-L65, § "Ownership" L69-L69, § "Worktree (`pr-head.md`, read from `using-git-worktrees/SKILL.md` Step 0 when the caller passes a PR)" L113-L113, § "Worktree (`pr-head.md`, read from `using-git-worktrees/SKILL.md` Step 0 when the caller passes a PR)" L119-L119, § "Spec content for a PR subject" L156-L156, § "Errors and edge cases" L223-L223, § "Tests" L244-L244, § "Tests" L246-L248, § "Tests" L257-L257
+**Spec:** doc/specs/2026-10-23-gh-78-pr-as-brainstorm-subject.md § "Acceptance criteria" L44-L45, § "Acceptance criteria" L50-L51, § "Ownership" L64-L64, § "Ownership" L65-L65, § "Ownership" L69-L69, § "Worktree (`pr-head.md`, read from `using-git-worktrees/SKILL.md` Step 0 when the caller passes a PR)" L113-L113, § "Worktree (`pr-head.md`, read from `using-git-worktrees/SKILL.md` Step 0 when the caller passes a PR)" L119-L119, § "Spec content for a PR subject" L156-L156, § "Errors and edge cases" L223-L223, § "Tests" L244-L244, § "Tests" L246-L246, § "Tests" L248-L250, § "Tests" L259-L259. Replay-preservation anchor: `writing-plans/SKILL.md` belongs to Task 4; `brainstorming/SKILL.md`, `gatherer.md`, `spec-finalization.md`, `amendment-surface.md`, `ticket-acceptance.md`, and `scripts/brainstorming-contract.test.mjs` belong to Task 2; `gauntlet-resume/reference/brief-contract.md` belongs to Task 6. The permission covers only replay-proven, meaning-preserving clarifications with unchanged expected facts and each edit named in its commit body.
 
 **Files:**
 - Modify: `skills/writing-plans/SKILL.md:184-210`
@@ -245,7 +245,7 @@ Contract literals for routing and the provisioning replay:
 
 **Tests:**
 - `node --experimental-strip-types --test extensions/lib/plan-check.test.ts`
-- baseline: 44c887f pass
+- baseline: 90c593f pass
 - via: `plan_check`, `writing-plans Task Structure`, `verification evidence paragraph`, `verify-phase run`
 
 Decision: the new case bundles the complete writing-plans SKILL and verification-before-completion SKILL, because current target.json slices omit the header and verification policy (eval/writing-plans/target.json). Keep target.json unchanged. The amended spec L156 keeps task commands outside the header, so the existing checker's header-only entrypoint rule needs no extension change.
@@ -265,7 +265,7 @@ Contract literals for the shared plan/verify rule: `skills/writing-plans/SKILL.m
 
 **TDD scenario:** Modifying tested instructions - current skip-rule tests first; new finish replay distinguishes record-bearing reworks from ordinary ticket finishes.
 
-**Spec:** doc/specs/2026-10-23-gh-78-pr-as-brainstorm-subject.md § "Acceptance criteria" L44-L45, § "Acceptance criteria" L46-L47, § "Acceptance criteria" L50-L51, § "Ownership" L65-L65, § "Ownership" L66-L66, § "Worktree (`pr-head.md`, read from `using-git-worktrees/SKILL.md` Step 0 when the caller passes a PR)" L113-L113, § "Spec content for a PR subject" L156-L156, § "Finishing" L160-L160, § "Finishing" L162-L162, § "Finishing" L167-L176, § "Finishing" L179-L179, § "Finishing" L181-L181, § "Finishing" L184-L193, § "Finishing" L196-L196, § "Errors and edge cases" L231-L231, § "Errors and edge cases" L232-L232, § "Errors and edge cases" L233-L233, § "Errors and edge cases" L234-L234, § "Errors and edge cases" L235-L235, § "Errors and edge cases" L236-L236, § "Errors and edge cases" L237-L237, § "Errors and edge cases" L238-L238, § "Errors and edge cases" L240-L240, § "Tests" L244-L244, § "Tests" L246-L248, § "Tests" L258-L258, § "Out of scope" L272-L272
+**Spec:** doc/specs/2026-10-23-gh-78-pr-as-brainstorm-subject.md § "Acceptance criteria" L44-L45, § "Acceptance criteria" L46-L47, § "Acceptance criteria" L50-L51, § "Ownership" L65-L65, § "Ownership" L66-L66, § "Worktree (`pr-head.md`, read from `using-git-worktrees/SKILL.md` Step 0 when the caller passes a PR)" L113-L113, § "Spec content for a PR subject" L156-L156, § "Finishing" L160-L160, § "Finishing" L162-L162, § "Finishing" L167-L176, § "Finishing" L179-L179, § "Finishing" L181-L181, § "Finishing" L184-L193, § "Finishing" L196-L196, § "Errors and edge cases" L231-L231, § "Errors and edge cases" L232-L232, § "Errors and edge cases" L233-L233, § "Errors and edge cases" L234-L234, § "Errors and edge cases" L235-L235, § "Errors and edge cases" L236-L236, § "Errors and edge cases" L237-L237, § "Errors and edge cases" L238-L238, § "Errors and edge cases" L240-L240, § "Tests" L244-L244, § "Tests" L248-L250, § "Tests" L260-L260, § "Out of scope" L274-L274
 
 **Files:**
 - Modify: `skills/finishing-a-development-branch/SKILL.md:33-74`
@@ -280,7 +280,7 @@ Contract literals for the shared plan/verify rule: `skills/writing-plans/SKILL.m
 
 **Tests:**
 - `node --test scripts/finish-verification.test.mjs eval/lib/lint.test.mjs`
-- baseline: 44c887f pass
+- baseline: 90c593f pass
 - via: `finishing Step 1`, `Push to the PR branch`, `finish skip rule`, `fix minors`
 
 Decision: detect reworks from the spec record, not an open PR on FEATURE. Preserve the current hard gate and telemetry-only freshness exception. Capture completion evidence before the existing strip-and-seal block removes the plan (finishing SKILL L220-L243). For a rework, Step 1 derives the task `Tests:` union plus only the header's lint/format commands; `none - PR subject, scoped` adds no command. The `fix minors` round consumes that captured executable union and requires post-fix success before returning to Step 3.5. This matches Task 4's verify consumer in `skills/verification-before-completion/SKILL.md` and needs no extension edit.
@@ -306,7 +306,7 @@ Contract literals for the finishing implementation and replay:
 
 **TDD scenario:** Modifying tested grammar - existing brief tests first, then a producer/consumer replay in the current resume target.
 
-**Spec:** doc/specs/2026-10-23-gh-78-pr-as-brainstorm-subject.md § "Acceptance criteria" L48-L49, § "Acceptance criteria" L50-L51, § "Ownership" L67-L67, § "Ownership" L69-L69, § "Handoff and resume" L200-L200, § "Errors and edge cases" L230-L230, § "Errors and edge cases" L239-L239, § "Errors and edge cases" L240-L240, § "Tests" L246-L248, § "Tests" L259-L259, § "Out of scope" L274-L274
+**Spec:** doc/specs/2026-10-23-gh-78-pr-as-brainstorm-subject.md § "Acceptance criteria" L48-L49, § "Acceptance criteria" L50-L51, § "Ownership" L67-L67, § "Ownership" L69-L69, § "Handoff and resume" L200-L200, § "Errors and edge cases" L230-L230, § "Errors and edge cases" L239-L239, § "Errors and edge cases" L240-L240, § "Tests" L246-L246, § "Tests" L248-L250, § "Tests" L261-L261, § "Out of scope" L276-L276. Replay-preservation anchor: `gauntlet-resume/reference/brief-contract.md` belongs to Task 6; `brainstorming/SKILL.md`, `gatherer.md`, `spec-finalization.md`, `amendment-surface.md`, `ticket-acceptance.md`, and `scripts/brainstorming-contract.test.mjs` belong to Task 2; `writing-plans/SKILL.md` belongs to Task 4. The permission covers only replay-proven, meaning-preserving clarifications with unchanged expected facts and each edit named in its commit body.
 
 **Files:**
 - Modify: `skills/gauntlet-handoff/SKILL.md:85-101`
@@ -321,7 +321,7 @@ Contract literals for the finishing implementation and replay:
 
 **Tests:**
 - `node --test scripts/brief-contract-lint.test.mjs eval/lib/lint.test.mjs`
-- baseline: 44c887f pass
+- baseline: 90c593f pass
 - via: `gauntlet-handoff step 6`, `Process-state restore`, `reconstruction Candidates`, `lintBriefGrammar`
 
 Decision: preserve cohort's six-heading core and Repo state fields. Only the gauntlet Process state grammar owns the optional pair, and its terminal gate-history line stays last (brief-contract L45-L60 and scripts/brief-contract-lint.mjs:1-42).
@@ -343,7 +343,7 @@ Depends on Wave 2: caller changes, cases, and intent hashes are committed. This 
 
 **TDD scenario:** Integration evidence - compare baseline/candidate at the approved preparatory baseline and require new candidate facts plus unchanged legacy behavior.
 
-**Spec:** doc/specs/2026-10-23-gh-78-pr-as-brainstorm-subject.md § "Acceptance criteria" L38-L39, § "Acceptance criteria" L40-L41, § "Acceptance criteria" L42-L43, § "Acceptance criteria" L48-L49, § "Acceptance criteria" L50-L51, § "Ownership" L69-L69, § "Errors and edge cases" L240-L240, § "Tests" L244-L244, § "Tests" L246-L248, § "Tests" L252-L252, § "Tests" L253-L253, § "Tests" L254-L254, § "Tests" L255-L255, § "Tests" L256-L256, § "Tests" L257-L257, § "Tests" L258-L258, § "Tests" L259-L259, § "Tests" L261-L261, § "Out of scope" L270-L270
+**Spec:** doc/specs/2026-10-23-gh-78-pr-as-brainstorm-subject.md § "Acceptance criteria" L38-L39, § "Acceptance criteria" L40-L41, § "Acceptance criteria" L42-L43, § "Acceptance criteria" L48-L49, § "Acceptance criteria" L50-L51, § "Ownership" L69-L69, § "Errors and edge cases" L240-L240, § "Tests" L244-L244, § "Tests" L248-L250, § "Tests" L254-L254, § "Tests" L255-L255, § "Tests" L256-L256, § "Tests" L257-L257, § "Tests" L258-L258, § "Tests" L259-L259, § "Tests" L260-L260, § "Tests" L261-L261, § "Tests" L263-L263, § "Out of scope" L272-L272
 
 **Files:**
 - Modify: `eval/brainstorming/report.md`
@@ -381,7 +381,7 @@ Depends on Wave 2: caller changes, cases, and intent hashes are committed. This 
 
 **Tests:**
 - `node --test eval/lib/replay.test.mjs eval/lib/checks.test.mjs eval/lib/records.test.mjs eval/lib/judge.test.mjs`
-- baseline: 44c887f pass
+- baseline: 90c593f pass
 - via: `assemble`, `parseCase`, `parseExpected`, `cellReusable`, `deriveLabels`
 
 Decision: for is not a Git SHA. eval/README.md:101-111 and eval/lib/replay.mjs:36-49 define sha256(assemble(target, treeReader(root))) without bundle+ files. Sample bundles affect their own identities; never widen target.json or old samples to force a result.
@@ -406,7 +406,7 @@ Depends on Wave 3: docs describe implemented behavior with current evidence. Thi
 
 **TDD scenario:** Documentation-only change - source-backed review; no Markdown formatter is configured.
 
-**Spec:** doc/specs/2026-10-23-gh-78-pr-as-brainstorm-subject.md § "Acceptance criteria" L46-L47, § "Ownership" L69-L69, § "Finishing" L196-L196, § "Documentation impact" L265-L265, § "Documentation impact" L266-L266, § "Out of scope" L270-L270, § "Out of scope" L272-L272, § "Out of scope" L274-L274
+**Spec:** doc/specs/2026-10-23-gh-78-pr-as-brainstorm-subject.md § "Acceptance criteria" L46-L47, § "Ownership" L69-L69, § "Finishing" L196-L196, § "Documentation impact" L267-L267, § "Documentation impact" L268-L268, § "Out of scope" L272-L272, § "Out of scope" L274-L274, § "Out of scope" L276-L276
 
 **Files:**
 - Modify: `README.md:34-45`
@@ -420,7 +420,7 @@ Depends on Wave 3: docs describe implemented behavior with current evidence. Thi
 - [ ] **Step 3: Update the local AGENTS exemption.** Include finishing's Rework block beside PR title/body, outside shared core markers. Preserve exact-text gates for reporter-facing tracker/Slack writes. Do not edit AGENTS.core.md or siblings.
 - [ ] **Step 4: Review and commit.** Resolve touched links, check source-backed commands and ASCII punctuation. Leave CHANGELOG.md to release as the spec directs. Run `git add README.md AGENTS.md` and `git commit -m "Document PR-subject entry and finishing (ref #78)" -m "Document the Rework description exemption and local pre-rework ref."`.
 
-Contract literals for the documented boundary: `README.md`, `AGENTS.md`, `CHANGELOG.md`, `refs/gauntlet/pre-rework/pr-<N>`, `## Rework`, `supersedes the description above`, `pr-head.md`, `still open`, `Threads: none`, `fix`, `complete`, `fixed`, `fixed (task ... complete; no single commit names ...)`, `keep open`, `decline`, `assessment.md`, `sync.md`, `verification-brief.md`, `fix-wave.md`, `eval/gatekeep-pr`, `merge base`, `agents/`, `extensions/`, `src/bins/`, `--rebase`, `/skill:gatekeep-pr`, `close`. Cite rather than duplicate the owner for resolution evidence, including its first-parent commit command, complete-task requirement, and zero/multiple-commit fallback.
+Contract literals for the documented boundary: `README.md`, `AGENTS.md`, `CHANGELOG.md`, `refs/gauntlet/pre-rework/pr-<N>`, `## Rework`, `supersedes the description above`, `pr-head.md`, `still open`, `Threads: none`, `fix`, `complete`, `fixed`, `fixed (task ... complete; no single commit names ...)`, `keep open`, `decline`, `assessment.md`, `sync.md`, `verification-brief.md`, `fix-wave.md`, `eval/gatekeep-pr`, `pr-head.md`, `merge base`, `agents/`, `extensions/`, `src/bins/`, `--rebase`, `/skill:gatekeep-pr`, `close`. Cite rather than duplicate the owner for resolution evidence, including its first-parent commit command, complete-task requirement, and zero/multiple-commit fallback.
 
 ## Spec coverage
 
@@ -488,8 +488,8 @@ Contract literals for the documented boundary: `README.md`, `AGENTS.md`, `CHANGE
 | § "Finishing" L196-L196 | Exemption documented and old actions retained | Task 5, Task 8 |
 | § "Handoff and resume" L200-L200 | Optional pair before terminal line, ordinary output same | Task 6 |
 | § "Handoff and resume" L200-L200 | Branch binding before restore and exact stop | Task 6 |
-| § "Handoff and resume" L200-L200 | Pre-head scans exclude earlier spec, no other changes | Task 6 |
-| § "`brainstorming/SKILL.md` edits" L204-L204 | Five named hooks only | Task 2 |
+| § "Handoff and resume" L200-L200 | Pre-head scans exclude earlier spec; only the Tests replay-preservation exception permits other resume clarifications | Task 6 |
+| § "`brainstorming/SKILL.md` edits" L204-L204 | Five named hooks; unnamed sections change only under the Tests replay-preservation exception | Task 2 |
 | § "Errors and edge cases" L210-L210 | Mid-sentence mention stays free text | Task 2 |
 | § "Errors and edge cases" L211-L212 | Closed/merged stops and draft-open proceeds | Task 1, Task 2 |
 | § "Errors and edge cases" L213-L213 | Foreign repository stops before provisioning | Task 1, Task 2 |
@@ -518,22 +518,24 @@ Contract literals for the documented boundary: `README.md`, `AGENTS.md`, `CHANGE
 | § "Errors and edge cases" L239-L239 | Brief/branch mismatch stops | Task 6 |
 | § "Errors and edge cases" L240-L240 | Other subjects preserve existing behavior, including amendment-menu isolation and the unchanged questionary | Task 2, Task 3, Task 5, Task 6, Task 7 |
 | § "Tests" L244-L244 | Delivery tests distinct from generated scoped workflow | Task 4, Task 5, Task 7 |
-| § "Tests" L246-L248 | Preparatory references before sites, explicit base, no target edits, full target run | Task 1, Task 2, Task 3, Task 4, Task 5, Task 6, Task 7 |
-| § "Tests" L252-L252 | Resolution sample | Task 2, Task 7 |
-| § "Tests" L253-L253 | New-base-rule sample | Task 2, Task 7 |
-| § "Tests" L254-L254 | Weakened-rule sample | Task 2, Task 7 |
-| § "Tests" L255-L255 | Repair-over-rewrite sample | Task 2, Task 7 |
-| § "Tests" L256-L256 | PR-head/merge/pagination sample | Task 3, Task 7 |
-| § "Tests" L257-L257 | Thread-task/lint-only-header sample | Task 4, Task 7 |
-| § "Tests" L258-L258 | Finishing menu/push/body/evidence sample | Task 5, Task 7 |
-| § "Tests" L259-L259 | Handoff/resume sample | Task 6, Task 7 |
-| § "Tests" L261-L261 | Old touched-target and gatekeep samples unchanged | Task 7 |
-| § "Documentation impact" L265-L265 | README entry/landing/ref and AGENTS exemption | Task 8 |
-| § "Documentation impact" L265-L265 | Changelog remains release-owned | Task 8 |
-| § "Documentation impact" L266-L266 | Replace incomplete entry framing | Task 8 |
-| § "Out of scope" L270-L270 | Gatekeep multi-PR/rebase/claim work not included | Task 1, Task 3, Task 7, Task 8 |
-| § "Out of scope" L271-L271 | No fork-hosted-head path | waived: explicitly excluded; stop only |
-| § "Out of scope" L272-L272 | No thread replies; body dispositions only | Task 5, Task 8 |
-| § "Out of scope" L273-L273 | No automatic PR merge or ticket-state write | waived: expressly excluded actions |
-| § "Out of scope" L274-L274 | No close verdict, cross-PR landing order, or disk continuation store | Task 1, Task 6, Task 8 |
-| § "Out of scope" L275-L275 | No pi-cohort change | waived: explicitly excluded dependency work |
+| § "Tests" L246-L246 | Replay-proven, meaning-preserving clarifications in the named bundled brainstorming, writing-plans, and resume files may restore existing facts in unnamed sections; expected facts stay unchanged and commit bodies name each edit | Task 2, Task 4, Task 6 |
+| § "Tests" L246-L246 | Deterministic PR-subject marker assertions in scripts/brainstorming-contract.test.mjs:330-356 pin routing, scout evidence, record preservation, and raw council input without a model call | Task 2 |
+| § "Tests" L248-L250 | Preparatory references before sites, explicit base, no target edits, full target run | Task 1, Task 2, Task 3, Task 4, Task 5, Task 6, Task 7 |
+| § "Tests" L254-L254 | Resolution sample | Task 2, Task 7 |
+| § "Tests" L255-L255 | New-base-rule sample | Task 2, Task 7 |
+| § "Tests" L256-L256 | Weakened-rule sample | Task 2, Task 7 |
+| § "Tests" L257-L257 | Repair-over-rewrite sample | Task 2, Task 7 |
+| § "Tests" L258-L258 | PR-head/merge/pagination sample | Task 3, Task 7 |
+| § "Tests" L259-L259 | Thread-task/lint-only-header sample | Task 4, Task 7 |
+| § "Tests" L260-L260 | Finishing menu/push/body/evidence sample | Task 5, Task 7 |
+| § "Tests" L261-L261 | Handoff/resume sample | Task 6, Task 7 |
+| § "Tests" L263-L263 | Old touched-target and gatekeep samples unchanged | Task 7 |
+| § "Documentation impact" L267-L267 | README entry/landing/ref and AGENTS exemption | Task 8 |
+| § "Documentation impact" L267-L267 | Changelog remains release-owned | Task 8 |
+| § "Documentation impact" L268-L268 | Replace incomplete entry framing | Task 8 |
+| § "Out of scope" L272-L272 | Gatekeep multi-PR/rebase/claim work not included | Task 1, Task 3, Task 7, Task 8 |
+| § "Out of scope" L273-L273 | No fork-hosted-head path | waived: explicitly excluded; stop only |
+| § "Out of scope" L274-L274 | No thread replies; body dispositions only | Task 5, Task 8 |
+| § "Out of scope" L275-L275 | No automatic PR merge or ticket-state write | waived: expressly excluded actions |
+| § "Out of scope" L276-L276 | No close verdict, cross-PR landing order, or disk continuation store | Task 1, Task 6, Task 8 |
+| § "Out of scope" L277-L277 | No pi-cohort change | waived: explicitly excluded dependency work |
