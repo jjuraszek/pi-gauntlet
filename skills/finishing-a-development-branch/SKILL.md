@@ -34,7 +34,7 @@ Then call `phase_tracker({ action: "start", phase: "ship" })`.
 
 **Hard verification gate.** Tests/format/lint must pass before presenting any options — including Discard. The user's stated intent to throw the branch away does not change whether the diff is in a verifiable state; verifying first surfaces accidental damage to unrelated code before the branch is gone forever. The skip rule below is the only exception.
 
-Run the plan header's `**Verification:**` set in the worktree: `(cd "$WORKTREE" && <command>)`. With no plan in this session, run the verification command(s) of the affected services from the gauntlet overrides file or `AGENTS.md` (look for "verification", "CI", or "test" sections).
+Recognize a ledger by line 1 exactly `# Ledger - loop engine`. For a ledger, use its `verification:` command in place of the task plan header's `**Verification:**` set throughout finish, including the minors round. Run that set in the worktree: `(cd "$WORKTREE" && <command>)`. With no plan in this session, run the verification command(s) of the affected services from the gauntlet overrides file or `AGENTS.md` (look for "verification", "CI", or "test" sections).
 
 **Skip rule.** Skip the run only when this set passed on a known clean commit in the verify phase of this session and no edit or write landed outside `<telemetry.dir>` since. Check the current tree: `git -C "$WORKTREE" diff --quiet <commit the run passed on> -- . ':!<telemetry.dir>'` must exit 0, and `git -C "$WORKTREE" status --porcelain --untracked-files=all -- . ':!<telemetry.dir>'` must exit 0 with empty output (`<telemetry.dir>` defaults to `.pi/gauntlet/telemetry`). These checks cover committed, staged, unstaged, and untracked changes outside telemetry. Otherwise run it once; a missing verified commit, a failed check, or uncertainty means run.
 
@@ -169,7 +169,7 @@ A **heavy** revert is not a menu toggle — say so explicitly to the user before
 
 ### Step 4: Present Options
 
-**Amendment digest (both variants).** Before the options, read `git -C "$WORKTREE" log <base-branch>..HEAD --grep '^amend:'` and take the `auto-apply` and `granted` records from those commit bodies. Render, then the options:
+**Amendment digest (both variants).** Before the options, read `git -C "$WORKTREE" log <base-branch>..HEAD --extended-regexp --grep '^(amend:|loop: cut row [0-9]+|loop: amend)'` and take the `auto-apply` and `granted` records from those commit bodies. Render, then the options:
 
 ```
 Amendments auto-applied (N):
@@ -221,11 +221,11 @@ Rows 1-2 run the Option 1/2 blocks; row 3 runs the Keep block and row 4 the Disc
 
 Run this on the feature branch before any landing path. The spec and its telemetry record (`<telemetry.dir>/<spec path with .md -> .yaml>`, default `.pi/gauntlet/telemetry/doc/specs/<spec>.yaml`) are deliverables and ship in the squash; only the plan is stripped. The record is an untracked, git-excluded file until this step commits it (in a plain jj workspace there is no commit; jj snapshots the stamped record into the working-copy change). `<bin>` is `<directory of this skill's SKILL.md>/../../bin`, resolved from the skill's `<location>` in the system prompt.
 
-Read the plan's `**Spec:**` header (repo-relative, backticks stripped) before the strip; pass that value as `--spec`. Resolve the spec dirs with `gauntlet_setting({ key: "flowGuards" })` and use their sibling `plans` dirs for plan paths.
+Read the existing artifact's path-only `**Spec:**` header (repo-relative, backticks stripped) before removal; pass that value as `--spec`, including for a line-1 ledger. Resolve the spec dirs with `gauntlet_setting({ key: "flowGuards" })` and use their sibling `plans` dirs for plan paths. Enumerate both PLAN_PATH candidates: the task plan paired by basename and `<sibling plans dir>/<spec stem>-ledger.md`. Preserve the spec and telemetry.
 
 ```bash
 # Plans are ephemeral - if one was committed on this branch, remove it before landing.
-PLAN_PATH=<sibling-plans-dir>/<plan-file>.md   # the sibling plans dir of the spec's dir
+for PLAN_PATH in <basename-task-plan-path> <sibling-plans-dir>/<spec-stem>-ledger.md; do
 if git -C "$WORKTREE" ls-files --error-unmatch "$PLAN_PATH" >/dev/null 2>&1; then
   git -C "$WORKTREE" rm "$PLAN_PATH" && git -C "$WORKTREE" commit -m "Remove ephemeral plan doc"
 elif [ -f "$WORKTREE/$PLAN_PATH" ] && jj -R "$WORKTREE" root >/dev/null 2>&1; then
@@ -233,10 +233,11 @@ elif [ -f "$WORKTREE/$PLAN_PATH" ] && jj -R "$WORKTREE" root >/dev/null 2>&1; th
   # root: anchors the path at the workspace root - jj resolves bare paths against cwd, not -R.
   jj -R "$WORKTREE" restore --from <base-branch> -- "root:\"$PLAN_PATH\""
 fi
+done
 
 # Seal the telemetry record: stamp shipped, compute the diff, commit it once.
 # The bin detects a plain jj workspace (no .git) itself: jj diff, no commit step.
-# --option is pr for Options 1-2 and squash for Option 3; --spec is the plan header's **Spec:** value (omit when no plan is known).
+# --option is pr for Options 1-2 and squash for Option 3; --spec is the artifact header's **Spec:** value (omit when no artifact is known).
 node <bin>/gauntlet-telemetry-seal.mjs --worktree "$WORKTREE" --option <pr|squash> --base <base-branch> --spec <spec path>
 ```
 

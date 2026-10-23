@@ -7,6 +7,8 @@ const contract = [
   "## Process state",
   "```text",
   "Active task: W2: producer",
+  "Ledger: doc/plans/example-ledger.md",
+  "Last decision: row 1 failed | check failed | retry",
   "Gate history not restored - re-validate before advancing.",
   "```",
 ].join("\n");
@@ -41,6 +43,13 @@ assert.deepEqual(
   ["grammar-outside-contract:skills/gauntlet-resume/SKILL.md"],
 );
 
+for (const field of ["Ledger: doc/plans/example-ledger.md", "Last decision: row 1 failed | check failed | retry"]) {
+  assert.deepEqual(
+    rules(files({ "skills/gauntlet-handoff/SKILL.md": handoff + field + "\n" })),
+    ["grammar-outside-contract:skills/gauntlet-handoff/SKILL.md"],
+  );
+}
+
 // negative: contract lost the gate-history line
 assert.deepEqual(
   rules(files({ [CONTRACT_FILE]: contract.replace("Gate history not restored - re-validate before advancing.\n", "") })),
@@ -60,6 +69,13 @@ assert.equal(hit.text, "## Process state");
 const root = fileURLToPath(new URL("..", import.meta.url));
 const realFiles = readSkillFiles(root);
 assert.deepEqual(rules(realFiles), []);
+for (const rel of [
+  "skills/gauntlet-resume/SKILL.md",
+  "skills/gauntlet-resume/reference/reconstruction.md",
+  CONTRACT_FILE,
+]) {
+  assert.ok(realFiles.find((f) => f.rel === rel).text.includes("resume: <spec> (loop engine)"), `${rel}: exact ledger skip reason`);
+}
 assert.ok(realFiles.some((f) => f.rel === "skills/gauntlet-handoff/SKILL.md"));
 const mutated = realFiles.map((f) =>
   f.rel === "skills/gauntlet-handoff/SKILL.md" ? { ...f, text: f.text + "\n## Process state\n" } : f,

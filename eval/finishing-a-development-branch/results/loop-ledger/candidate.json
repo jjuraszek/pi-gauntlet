@@ -1,0 +1,110 @@
+{
+  "sample": "loop-ledger",
+  "arm": "candidate",
+  "skillSha": "ab052fac72599c0c6251897bfcbcca1f0b3343c86b14a8fee2e1cdb51c9b5271",
+  "inputSha": "2d251c0ff99696b5bdc16e8e6ddb725bca588a10500694ecfdd4e8b0e38800df",
+  "kind": "text",
+  "assembly": "concat",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "# Finishing `/work/app/.worktrees/loop`: Squash-Merge Walkthrough\n\nI'm using the finishing-a-development-branch skill to complete this work.\n\n```\nphase_tracker({ action: \"start\", phase: \"ship\" })\n```\n\n```bash\nWORKTREE=/work/app/.worktrees/loop\nPRIMARY=$(dirname \"$(git -C \"$WORKTREE\" rev-parse --path-format=absolute --git-common-dir)\")   # -> /work/app\nFEATURE=$(git -C \"$WORKTREE\" branch --show-current)\n```\n\nThe process cwd never changes. Every command targets `$WORKTREE` or `$PRIMARY`.\n\n---\n\n## Step 1: Verification\n\n- **Which command.** `doc/plans/run-ledger.md` line 1 is exactly `# Ledger - loop engine`, so this is a ledger. Its `verification:` command, `node --test check.mjs`, replaces any plan-header `**Verification:**` set for all of finish. That includes the minors round and the post-squash re-verify.\n- **Skip rule does not apply.** No verified commit is known, so the `git diff --quiet <commit>` and `git status --porcelain` checks have nothing to compare against. The set must run once:\n\n```bash\n(cd \"$WORKTREE\" && node --test check.mjs)\n```\n\n- **If it fails** on lines inside the diff: show the failures and stop.\n- **If it fails** on files outside `git -C \"$WORKTREE\" diff <base>...HEAD --name-only`: report it as a separate, pre-existing issue and wait for acknowledgment.\n- **If it passes:** continue.\n\n## Steps 2–3: Environment and base\n\n- `git -C \"$WORKTREE\" symbolic-ref -q HEAD` prints a branch, so this is a named branch and the standard 5-option menu applies.\n- The base comes from `git -C \"$WORKTREE\" merge-base HEAD main` (falling back to `master`). Below it is written `main`.\n\n## Step 3.5: Closure / conformance (fast path)\n\nThe sentinel is fresh and valid: `status: CONFORMS (0 open)`, and `audited-base` matches the current tree. So no re-audit and no approval prompt:\n\n```\nClosure / conformance: CONFORMS\nwhole-diff minors: <rendered from the block - e.g. \"none\" or \"not recorded\">\n```\n\nAny `happy-path:`, `Deferred/deviates per spec:`, or `auto-applied fix commits:` lines in the block also print here as informational lines. The flow then goes straight into Step 4.\n\n## Step 4: Amendment digest, then menu\n\nThe digest reads the branch history:\n\n```bash\ngit -C \"$WORKTREE\" log main..HEAD --extended-regexp --grep '^(amend:|loop: cut row [0-9]+|loop: amend)'\n```\n\n| Commit | Matched? | Why |\n|---|---|---|\n| ordinary `amend:` commit | yes | matches `^amend:` |\n| `loop: cut row 2` | yes | matches `^loop: cut row [0-9]+` |\n| `loop: amend` | yes | matches `^loop: amend` |\n| `loop: row 1 done` | no | matches no pattern and carries no amendment record |\n\nFrom the matched commits' bodies, only `auto-apply` and `granted` records are taken. The `granted` records in `loop: cut row 2` and `loop: amend` are always included. The ordinary `amend:` commit contributes whatever `auto-apply`/`granted` records its body carries.\n\n```\nAmendments auto-applied (N):\n- <title> - <what changed>      (one line per collected record)\n\nImplementation complete. What would you like to do?\n\n1. Push and create a Pull Request\n2. Push and create a draft Pull Request\n3. Squash-merge to main (no PR, no surviving branch)\n4. Keep the branch as-is (I'll handle it later)\n5. Discard this work\n\nWhich option?\n```\n\nThe `fix minors` line is added under the menu only if the minors line lists findings. The human picks **3**.\n\n## Step 5, Option 3: Strip, then seal, then squash\n\nThe order is fixed. Everything runs on the feature branch before any landing command.\n\n**1. Read the spec header first.** The ledger's `**Spec:**` value, `doc/specs/run.md`, is read before the ledger is removed. It becomes `--spec`.\n\n**2. Strip both plan candidates.** The two candidates are:\n- the basename-paired task plan, `doc/plans/run.md`\n- `<plans dir>/<spec stem>-ledger.md`, which is `doc/plans/run-ledger.md`\n\nBoth are tracked, so each hits the git branch:\n\n```bash\nfor PLAN_PATH in doc/plans/run.md doc/plans/run-ledger.md; do\nif git -C \"$WORKTREE\" ls-files --error-unmatch \"$PLAN_PATH\" >/dev/null 2>&1; then\n  git -C \"$WORKTREE\" rm \"$PLAN_PATH\" && git -C \"$WORKTREE\" commit -m \"Remove ephemeral plan doc\"\nelif [ -f \"$WORKTREE/$PLAN_PATH\" ] && jj -R \"$WORKTREE\" root >/dev/null 2>&1; then\n  jj -R \"$WORKTREE\" restore --from main -- \"root:\\\"$PLAN_PATH\\\"\"\nfi\ndone\n```\n\nThis produces two \"Remove ephemeral plan doc\" commits.\n\n**3. Seal the telemetry record.**\n\n```bash\nnode <bin>/gauntlet-telemetry-seal.mjs --worktree \"$WORKTREE\" --option squash --base main --spec doc/specs/run.md\n```\n\n- The seal stamps `shipped`, computes the diff, and commits the record once.\n- Its stdout is printed verbatim in the completion message (e.g. `sealed .pi/gauntlet/telemetry/doc/specs/run.yaml`).\n- Exit 2 (`no record at …` / `unparseable record …`) or exit 1 (`seal failed …`) stops the flow before the squash. The user decides how to proceed. Nothing lands without the seal.\n\n**4. Squash into base and re-verify.**\n\n```bash\ngit -C \"$PRIMARY\" checkout main\ngit -C \"$PRIMARY\" pull\ngit -C \"$PRIMARY\" merge --squash \"$FEATURE\"\ngit -C \"$PRIMARY\" commit -m \"<imperative summary> (ref <ticket-id>)\"\n(cd \"$PRIMARY\" && node --test check.mjs)     # mandatory post-squash re-verify, same ledger set\n```\n\nNothing is pushed and no PR is opened.\n\n## Step 6: Cleanup\n\n1. Re-read the overrides file's `## using-git-worktrees` section.\n2. Determine ownership:\n   - **Keyed contract:** resolve `home:` (default `$PRIMARY/.worktrees/<name>`) and match it against `realpath $WORKTREE`. That yields `NAME=loop`.\n   - **Legacy path:** the worktree is under `$PRIMARY/.worktrees/`, so gauntlet owns it.\n3. Remove it. With no `destroy:` key:\n\n```bash\ngit -C \"$PRIMARY\" worktree remove \"$WORKTREE\"\ngit -C \"$PRIMARY\" worktree prune\ngit -C \"$PRIMARY\" branch -D \"$FEATURE\"     # only after removal succeeded\n```\n\n- If a `destroy:` key is set, run it with single-quoted `'loop'` / `'$FEATURE'` instead. If it fails, keep the branch and never fall back to `--force`.\n- If nothing matches, the worktree is host-owned: remove nothing and keep the branch.\n\n## What survives on `main`\n\n| Survives | Does not land |\n|---|---|\n| The implementation | `doc/plans/run.md` |\n| `doc/specs/run.md` (a deliverable) | `doc/plans/run-ledger.md` |\n| The sealed record `.pi/gauntlet/telemetry/doc/specs/run.yaml` (stamped shipped) | |\n\nThe two plan files existed only in the feature branch's commits. After `branch -D`, they remain reachable only via reflog or dangling objects until gc. The telemetry dir is never `git rm`'d.\n\n## Plain-jj counterpart\n\nIn a workspace with no `.git`, `ls-files` fails and the `elif` branch runs for each file that exists:\n\n```bash\njj -R \"$WORKTREE\" restore --from main -- \"root:\\\"doc/plans/run.md\\\"\"\njj -R \"$WORKTREE\" restore --from main -- \"root:\\\"doc/plans/run-ledger.md\\\"\"\n```\n\n- The `root:` prefix anchors each path at the workspace root.\n- The removal lands in the working-copy change, with no commit step.\n- The seal bin detects jj itself and uses `jj diff`. Again there is no commit; jj snapshots the stamped record into the working-copy change.\n\n## Completion\n\n```\nphase_tracker({ action: \"complete\", phase: \"ship\" })\n```\n\nOnce the squash has landed (and is deployed), `/skill:check-delivery <ticket-ref>` is the explicit follow-up to prove delivery. It does not run automatically.\n",
+      "words": 973,
+      "wallMs": 35823,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "I'm using the finishing-a-development-branch skill to complete this work.\n\nNo tools are being executed; this is the prescribed sequence for the supplied case.\n\n### 1. Verification\n\nThe ledger is recognized by its exact first line, `# Ledger - loop engine`. Its `verification:` command is authoritative:\n\n```bash\n(cd \"/work/app/.worktrees/loop\" && node --test check.mjs)\n```\n\nNo verified commit is known, so the verification run **cannot be skipped**. It must pass before the normal gates and menu. Fresh `CONFORMS` does not replace test verification.\n\n### 2. Conformance and amendment digest\n\nBefore the menu, surface:\n\n```text\nClosure / conformance: CONFORMS\nwhole-diff minors: not recorded\n```\n\nThe minors line above applies if the durable block has no minors section; otherwise render its recorded findings or `none`.\n\nRead amendment history using the prescribed filter:\n\n```bash\ngit -C \"$WORKTREE\" log <base-branch>..HEAD --extended-regexp \\\n  --grep '^(amend:|loop: cut row [0-9]+|loop: amend)'\n```\n\nBuild the digest from **`auto-apply` and `granted` records in those commit bodies**, not merely from matching subjects:\n\n- Include the granted records in `loop: cut row 2` and `loop: amend`.\n- Inspect the ordinary `amend:` commit and include any qualifying records it contains.\n- Exclude `loop: row 1 done`, which has no amendment record.\n\nRender `Amendments auto-applied (N):` with each record’s title and change. The exact count and text cannot be determined from the supplied summaries alone.\n\n### 3. Strip, then seal—on the feature branch\n\nAfter the human selects squash merge:\n\n1. Read and retain the artifact’s path-only `**Spec:**` value: `doc/specs/run.md`.\n2. Remove **both** tracked plan candidates:\n   - `doc/plans/run.md`\n   - `doc/plans/run-ledger.md`\n\n   Under the prescribed loop, each removal is committed as `Remove ephemeral plan doc`.\n3. Seal the telemetry record **after stripping the plans and before any landing command**:\n\n```bash\nnode <bin>/gauntlet-telemetry-seal.mjs \\\n  --worktree \"/work/app/.worktrees/loop\" \\\n  --option squash \\\n  --base <base-branch> \\\n  --spec doc/specs/run.md\n```\n\n`<bin>` must resolve from the skill location. A nonzero seal exit blocks landing; quote its error and let the user decide. Preserve successful seal stdout verbatim for the completion message.\n\n### 4. Squash landing and surviving artifacts\n\nFrom the derived primary checkout, check out and pull the base branch, squash-merge the feature, and commit. Then **rerun `node --test check.mjs` in the primary checkout**.\n\nThe squash tree preserves:\n\n- The implementation.\n- `doc/specs/run.md`.\n- The sealed telemetry record—by default, `.pi/gauntlet/telemetry/doc/specs/run.yaml`.\n\nNeither plan survives in the landed tree. Their prior versions remain in feature history until that history becomes unreachable. No push or PR is performed.\n\nAfter successful post-squash verification, reread the cleanup contract and apply ownership rules. Delete the feature branch only after successful owned-worktree cleanup; a host-owned workspace retains both worktree and branch.\n\n### Plain-jj counterpart\n\nFor a plain jj workspace, restore each existing plan path from the base using the root-anchored form:\n\n```bash\njj -R \"$WORKTREE\" restore --from <base-branch> -- \"root:\\\"$PLAN_PATH\\\"\"\n```\n\nThere are no Git removal commits. The seal utility detects plain jj, stamps the record, and jj snapshots it into the working-copy change without a commit step. The spec and telemetry still survive; the plans do not.\n",
+      "words": 469,
+      "wallMs": 20865,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "a4ce3f732131de016d30ee8ffc3b2b4e3288fb7746214b55169902591e15137c",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "fc207f201dc308d8f88935b1a48003bf6f1482b5ece86868671cc806be813e89",
+      "baselineOutputSha": "e5e2bab97965aeb4e2d4fc08701387532fe1cb6d59d1590f678ce079b09ffc51",
+      "candidateOutputSha": "841a2a98b6c795d39267a90e364eb0ffcce62d63a8c8bcc5325760ed08537969",
+      "facts": {
+        "verification": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "digest": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "strip": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "seal": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "jj": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "The only fact that moved is `digest`, and it moved in the intended direction: Before grepped only `^amend:` and explicitly said the `loop: amend` and `loop: cut row 2` subjects do not match, so their granted body records were admitted only if a body line happened to start with `amend:`; After's extended-regexp `^(amend:|loop: cut row [0-9]+|loop: amend)` plus the explicit statement that the granted records in those two commits are always included (and `loop: row 1 done` never is) delivers the Change cleanly. Nothing regressed: After still names the ledger's `node --test check.mjs` as the finish-wide verification set before the conformance block and menu, reads `**Spec:**` before the strip, removes and commits each tracked candidate in a per-file loop (a tighter reading of 'each' than Before's single two-file `git rm`), passes `--spec doc/specs/run.md` to the seal before the squash with the same exit-1/exit-2 stop, keeps spec and telemetry out of the strip, and retains the `jj restore --from main -- \"root:\\\"...\\\"\"` counterpart with no commit step. Two small tightenings would make After even more faithful to the Change text: in Step 6 state explicitly that a successful `destroy:` continues straight to `branch -D` with no built-in `worktree remove`/`prune` afterward, and in Step 4 show the legacy-numeric-pick echo (e.g. reply `6` maps to option 3 and is echoed before acting), since the shared menu-layout contract is part of the Change but is only implied by the current rendering.",
+      "wallMs": 17513,
+      "verdict": "improved"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "a4ce3f732131de016d30ee8ffc3b2b4e3288fb7746214b55169902591e15137c",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "fc207f201dc308d8f88935b1a48003bf6f1482b5ece86868671cc806be813e89",
+      "baselineOutputSha": "cdab9d1232bdc96984db17e9280b4425e294fbdb8bd24e520a5bcb9e37b70933",
+      "candidateOutputSha": "8319257ccb76239ec9cbc56949bbc77d680b25fccf0859d2e19adf1a6de6fe8d",
+      "facts": {
+        "verification": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "digest": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "strip": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "seal": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "jj": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "After improves on Before without regressing any fact. The digest moved because After's history filter explicitly matches `loop: cut row N` and `loop: amend` subjects and builds the digest from body `auto-apply`/`granted` records, whereas Before's `amend:`-only subject query excluded the loop grants; keep that regex and the body-record rule. The strip moved because After removes both tracked candidates (`doc/plans/run.md` and `doc/plans/run-ledger.md`) with one `Remove ephemeral plan doc` commit each after reading the `**Spec:**` header, while Before argued run.md must be kept; keep the 'both tracked basename candidates' wording. Verification, seal (`--spec doc/specs/run.md`, after strip, before squash, blocking on nonzero exit, spec/telemetry surviving), and the plain-jj restore-without-commit counterpart are retained in both; the only cosmetic risk in After is the `$PLAN_PATH` placeholder in the jj command—listing both concrete paths would make the counterpart harder to misread while still delivering the Change.",
+      "wallMs": 14233,
+      "verdict": "improved"
+    }
+  },
+  "repoSha": "a91f1f87381adfb81b00c31d91a566d8e5ba319e"
+}
