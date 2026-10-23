@@ -88,7 +88,7 @@
 
 **Tests:**
 - `node --test scripts/gatekeep-comment-reconcile.test.mjs`
-- baseline: 24f8d25 pass
+- baseline: 526135c pass
 - via: `skills/gatekeep-pr/reference/batch.md`, `agents/pr-gatekeeper.md`, existing source-contract `test()` cases
 
 Decision: Add `acceptance: { level: "none", reason: "the gatekeep child result line is the handoff contract" }` per outer task; cohort's acceptance formatter otherwise appends another contract. Keep the specified completion guard pin independently. This does not change existing inner-helper contracts.
@@ -217,10 +217,10 @@ Depends on Wave 1: both new bundled files must already be committed; this wave a
 
 **Tests:**
 - `node --test scripts/gatekeep-comment-reconcile.test.mjs`
-- baseline: 24f8d25 pass
+- baseline: 526135c pass
 - via: `skills/gatekeep-pr/SKILL.md`, `reference/batch.md`, `agents/pr-gatekeeper.md`
 - `node --test eval/lib/lint.test.mjs`
-- baseline: 24f8d25 pass
+- baseline: 526135c pass
 - via: `parseCase()`, `lintTarget()`
 
 Decision: Keep dispatch/config detail out of the short skill rule: existing Harness-notes isolation and 120-line assertions stay intact. Keep both target manifests and old cases/facts unchanged; sample-local bundles are supported by `eval/lib/replay.mjs:43-59`.
@@ -274,7 +274,7 @@ Decision: Keep dispatch/config detail out of the short skill rule: existing Harn
   node eval/run.mjs gatekeep-pr batch-failure-retry --base "$GATEKEEP_BATCH_BASE"
   node eval/run.mjs gatekeep-pr batch-rebase-answers --base "$GATEKEEP_BATCH_BASE"
   node eval/run.mjs gatekeep-pr batch-cleanup-stop --base "$GATEKEEP_BATCH_BASE"
-  node eval/run.mjs gatekeep-pr-scope cleanup-approved
+  node eval/run.mjs gatekeep-pr-scope cleanup-after-approve
   ```
 
   Expected: new facts hold in both cells, no regression/error/inconclusive. Inspect candidate JSON, not aggregate exit. Only runner writes records/reports. Repair owned routing/sample text and hashes; batch/persona defects require Task1-owned correction. Full verification replays both targets and commits observed final reports/records before finish, retaining the readable baseline commit.
