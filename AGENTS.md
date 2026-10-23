@@ -96,7 +96,7 @@ A change that alters a cross-repo contract (dispatch shape, settings keys) updat
 
 ## Gated writes to human channels
 
-An **agent-initiated** write to a human-readable channel (tracker comment, Slack, a reply on the user's behalf) is gated on explicit confirmation of the exact text. A user instruction that names the write is that confirmation (core "Authorization"). Finishing-a-development-branch's PR title/body is not reporter-facing and is not gated.
+An **agent-initiated** write to a human-readable channel (tracker comment, Slack, a reply on the user's behalf) is gated on explicit confirmation of the exact text. A user instruction that names the write is that confirmation (core "Authorization"). Finishing-a-development-branch's PR title/body, including its appended Rework block, is not reporter-facing and is not gated.
 
 ## Package rules
 
