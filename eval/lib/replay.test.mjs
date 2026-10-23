@@ -7,6 +7,9 @@ import { join } from "node:path";
 import { tmpdir } from "node:os";
 import { sliceText, stripFrontmatter, assemble, parseCase, textArgs, editArgs, prepareFixture, captureEdit, inputSha } from "./replay.mjs";
 
+import { parseExpected } from "./checks.mjs";
+
+const auditSamples = ["batch-repair", "audit-repo-fit", "scenario-best-effort", "audit-quiet-noop", "audit-byte-lock", "audit-dispatch", "audit-grounding"];
 const auditPath = "skills/shape-ticket/reference/repo-audit.md";
 const shapeTicketFiles = [
   { path: "skills/shape-ticket/SKILL.md", slice: "### 4 - Draft", sliceTo: "## Roast" },
@@ -19,7 +22,7 @@ test("shape-ticket baseline preserves slices and excludes only audit from all ex
   const read = replay.treeReader(root);
   const target = JSON.parse(read("eval/shape-ticket/target.json"));
   assert.deepEqual(target.skillFiles, [...shapeTicketFiles, { path: auditPath }]);
-  const samples = readdirSync(join(root, "eval/shape-ticket/samples"));
+  const samples = readdirSync(join(root, "eval/shape-ticket/samples")).filter((name) => !auditSamples.includes(name));
   assert.equal(samples.length, 13);
   for (const sample of samples) {
     const raw = read(`eval/shape-ticket/samples/${sample}/case.md`);
@@ -31,6 +34,30 @@ test("shape-ticket baseline preserves slices and excludes only audit from all ex
     assert.equal(result, assemble({ ...target, skillFiles: shapeTicketFiles }, read, bundle), sample);
     assert.ok(!result.includes("# Repository audit"), sample);
     for (const path of bundle) assert.ok(result.includes(read(path)), `${sample}: ${path}`);
+  }
+});
+
+test("shape-ticket audit samples parse facts and assemble baseline audit without changing target slices", () => {
+  const root = new URL("../../", import.meta.url).pathname;
+  const read = replay.treeReader(root);
+  const base = replay.baseReader(root, "5b97a46a7b0ef331e72077362e92eff4a59e1b77");
+  const target = JSON.parse(read("eval/shape-ticket/target.json"));
+  assert.equal(target.wordCap, 1600);
+  for (const sample of auditSamples) {
+    const { bundle, drop, text } = parseCase(read(`eval/shape-ticket/samples/${sample}/case.md`));
+    const expected = parseExpected(read(`eval/shape-ticket/samples/${sample}/expected.md`));
+    assert.equal(expected.anonymized, true, sample);
+    assert.ok(expected.facts.length > 0, sample);
+    assert.ok(text.includes("Scenario:"), sample);
+    assert.deepEqual(drop, [], sample);
+    for (const reader of [read, base]) {
+      const result = assemble(target, reader, bundle);
+      assert.ok(result.includes("# Repository audit"), sample);
+      if (["batch-repair", "audit-dispatch", "audit-grounding"].includes(sample)) {
+        assert.ok(bundle.includes("skills/shape-ticket/SKILL.md"), sample);
+        assert.ok(result.includes("## Mode routing"), sample);
+      }
+    }
   }
 });
 

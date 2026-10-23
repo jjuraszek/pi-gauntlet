@@ -1,6 +1,8 @@
 for: 5560958f357cc72a255639c7ba034cf1ac66d0a468a554dceda279d40d418c48
 
 ## Change
+Add bounded batch repair and repository-audit fold-in coverage for batch-repair, audit-repo-fit, scenario-best-effort, audit-quiet-noop, audit-byte-lock, audit-dispatch and audit-grounding. Preserve singleton integrity stops and legacy sample exclusions. Seed pre-behavior evidence against the audit-reference addition before selecting evidence-backed moves.
+
 Require roast findings to acknowledge detail already retained in the Reporter note and preserve plain-words Problem leads and product-level cause-and-effect sentences against compression or redundancy cuts.
 Bound Context, examples and Idea for a product-aware repo stranger; preserve comprehension and accumulate verbatim displaced detail through repair and roast, retaining raw AC bytes for conformance-only repair. Retain existing move decisions below.
 
@@ -9,6 +11,14 @@ Clarify the overlap reference's repeated-defect rule: completion plus compatible
 Carry source provenance in Problem, surface named gaps at the existing gate, require create acknowledgment, and accept repair's displayed missing-at-filing constant with plain yes. Retain baseline facts already holding as guards. Keep bug repro steps and observed-vs-expected in the gate's Evidence list and AC rows, leaving each Problem example at rule 5's one sentence or one number followed by its source footer. Name cwd = repo root on Roast item 2's inline chair Call 2, as on Call 1, preserving the existing chair working-directory requirement.
 
 ## Expected to move
+- batch-repair/stop-local: fails -> holds - The baseline still applies ABC-102's surviving wishful criterion as a run-wide stop in one reply, blocking ABC-103.
+- batch-repair/first-gate: fails -> holds - Baseline preparation discloses ABC-102 before the first gate; the batch must disclose only the current ticket.
+- audit-dispatch/foreground: fails -> holds - Both baseline replies stop on a returned async handle without polling or relaunch; retain that behavior as a guard. The first reply treats a Max 8 rejection as per-ticket audit unavailability and continues on the ordinary path; require dispatch recipe-bug classification instead.
+- audit-repo-fit/idea: holds -> holds - Both inspected baseline replies attribute the retained wrapper idea and carry the original into a Reporter note; retain this as a guard.
+- scenario-best-effort/defect: holds -> holds - Both inspected baseline replies preserve the expected 12 rows rather than substituting the observed zero; retain this as a guard.
+- audit-quiet-noop/active-noop: holds -> holds - Both inspected baseline replies leave the conforming body unchanged without roast, gate or write; retain this as a guard.
+- audit-byte-lock/quiet-bytes: holds -> holds - The clarified baseline snapshots preserve the conformance-only AC bytes; retain this as a guard.
+- audit-grounding/sibling: holds -> holds - Both inspected baseline replies distinguish grounded, not-found and unobservable sibling branches; retain this as a guard.
 - domain-reader/reader: fails -> holds - Leave requester-used domain terms undefined; define or drop internal terms.
 - domain-reader/attribution: fails -> holds - Require reporter attribution, with requester usage winning for dual-use names.
 - bounded-prose/context: fails -> holds - Keep trigger and current capability rather than internal mechanism.
