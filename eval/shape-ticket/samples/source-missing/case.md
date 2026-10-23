@@ -1,3 +1,4 @@
+bundle-: skills/shape-ticket/reference/repo-audit.md
 bundle+: skills/shape-ticket/reference/ticket-wording.md
 
 Workflow stage: ### 8 - Confirmation gate.

@@ -1,4 +1,4 @@
-for: 51eafb4bcfee748c399673f5a6c71df7e62bb01503bad967ff5a3e3e4623f523
+for: 5560958f357cc72a255639c7ba034cf1ac66d0a468a554dceda279d40d418c48
 
 ## Change
 Require roast findings to acknowledge detail already retained in the Reporter note and preserve plain-words Problem leads and product-level cause-and-effect sentences against compression or redundancy cuts.

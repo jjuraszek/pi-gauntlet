@@ -7,6 +7,43 @@ import { join } from "node:path";
 import { tmpdir } from "node:os";
 import { sliceText, stripFrontmatter, assemble, parseCase, textArgs, editArgs, prepareFixture, captureEdit, inputSha } from "./replay.mjs";
 
+const auditPath = "skills/shape-ticket/reference/repo-audit.md";
+const shapeTicketFiles = [
+  { path: "skills/shape-ticket/SKILL.md", slice: "### 4 - Draft", sliceTo: "## Roast" },
+  { path: "skills/brainstorming/reference/menu-layout.md" },
+  { path: "skills/shape-ticket/SKILL.md", slice: "## Evidence gate", sliceTo: "## Ticket wording" },
+];
+
+test("shape-ticket baseline preserves slices and excludes only audit from all existing cases", () => {
+  const root = new URL("../../", import.meta.url).pathname;
+  const read = replay.treeReader(root);
+  const target = JSON.parse(read("eval/shape-ticket/target.json"));
+  assert.deepEqual(target.skillFiles, [...shapeTicketFiles, { path: auditPath }]);
+  const samples = readdirSync(join(root, "eval/shape-ticket/samples"));
+  assert.equal(samples.length, 13);
+  for (const sample of samples) {
+    const raw = read(`eval/shape-ticket/samples/${sample}/case.md`);
+    assert.equal(raw.split("\n")[0], `bundle-: ${auditPath}`, sample);
+    const { bundle, drop } = parseCase(raw);
+    assert.deepEqual(drop, [auditPath], sample);
+    const filtered = { ...target, skillFiles: target.skillFiles.filter((f) => !drop.includes(f.path)) };
+    const result = assemble(filtered, read, bundle);
+    assert.equal(result, assemble({ ...target, skillFiles: shapeTicketFiles }, read, bundle), sample);
+    assert.ok(!result.includes("# Repository audit"), sample);
+    for (const path of bundle) assert.ok(result.includes(read(path)), `${sample}: ${path}`);
+  }
+});
+
+test("shape-ticket audit source carries six labels and foreground file-only controls", () => {
+  const text = readFileSync(new URL("../../skills/shape-ticket/reference/repo-audit.md", import.meta.url), "utf8");
+  for (const label of ["Claims:", "Repo-fit:", "AC-fit:", "Sibling:", "In-motion:", "Scenario:"]) {
+    assert.ok(text.split("\n").some((line) => line.startsWith(label)), label);
+  }
+  for (const token of ['async: false', 'context: "fresh"', 'outputMode: "file-only"', "60000", "240000", "300000"]) {
+    assert.ok(text.includes(token), token);
+  }
+});
+
 const skill = "---\nname: x\n---\n# T\n\n### 3. A\na\n\n### 4. B\nb\n\n### 5. C\nc\n\n### 6. D\nd\n";
 
 test("slice ends at the next same-or-higher heading by default", () => {
