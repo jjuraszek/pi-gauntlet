@@ -109,7 +109,7 @@ Parse stops (print the offending line, make no tracker call):
 Before any tracker write, read the optional PR identity and fetch its branch with
 `gh pr view <N> --repo <owner/repo> --json headRefName`. Compare `headRefName` with
 `git -C <worktree> branch --show-current`. A mismatch stops with
-`brief names PR #N on <headRefName>, worktree is on <branch>`; a failed fetch stops
+`brief names PR #N on <headRefName>, worktree is on <branch>`, substituting the observed PR number and both actual branch names, never literal placeholders; a failed fetch stops
 with its error. Carry the paired full pre-rework head into reconstruction's
 candidate selection. Without the optional pair, retain ordinary restoration.
 Preserve the entry checks, standing-grant validation, plan repair, and task snapshot;

@@ -1,4 +1,4 @@
-for: 6abbc8be1fd2e901790ba8727a7c8ddd166fe6e3c86b103cb9c0f9a4753effb5
+for: d4c0dc8ade5abbe83977d6e79a6ee8a3d831b48c8e252e1818dab06a22bb0502
 
 ## Change
 PR-subject baseline: `1b0f7dd2bbbf926a8ff65109414d05aa97acaa58`. Handoff carries the PR identity and full pre-rework head only for a rework spec. Resume binds that identity to the live PR branch before tracker writes and selects rework artifacts from the pre-rework head, excluding the PR's earlier spec from added candidates. Ordinary briefs and bare worktrees keep their existing behavior.

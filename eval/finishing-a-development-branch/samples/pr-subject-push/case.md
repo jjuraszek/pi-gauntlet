@@ -1,6 +1,8 @@
 bundle+: skills/finishing-a-development-branch/SKILL.md
 bundle+: skills/using-git-worktrees/reference/pr-head.md
-Simulate independent finishing checkpoints, never execute commands. Keep the response compact (800 words maximum); show the exact menu once and summarize other checkpoints in a table.
+Invocation: `/skill:finishing-a-development-branch /work/widget/.worktrees/fix-timeout`.
+
+Simulate independent finishing checkpoints, never execute commands. Use at most 750 words: shared verification/guards 100, exact six-row menu 100, push/body/thread legend 200, checkpoint delta table 350. Define full SHA aliases once and use them in commands and records. Print the exact menu once; table rows give only differences from shared actions, not repeated menus or boilerplate. Keep each thread disposition to one short clause. Include all observations below; omit introductory narration.
 
 The selected spec doc/specs/rework.md has ## Rework record: PR acme/widget#42, Pre-rework head aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa, Base main @ 1234567 - merge: bbbbbbb, Keeps: retry behavior, Changes: repair timeout, Dropped claims: none. FEATURE is fix-timeout; PR is OPEN with headRefName fix-timeout and baseRefName main. All gates passed, no concerns or amendments. Header Verification is lint and format only; tasks Tests commands are test-timeout and test-retry. They passed at known clean commit ccccccc; tree checks outside telemetry are clean. Compare a header of none - PR subject, scoped and an ordinary spec with full verification command test-all and an open PR already on the branch.
 

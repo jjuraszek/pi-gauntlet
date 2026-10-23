@@ -1,4 +1,4 @@
-for: 1662899f24e8dcef748d1251f5d75edd8ca6b4c25cbda90ef58764b79a795123
+for: a3f62b398e15074877d8692ce4be6e661c394c129e14248496e41b117a94d6ac
 
 ## Change
 Wire PR-first subject resolution, trusted base-SHA gathering, and preservation of the fixed Rework record. Compare against PR_SUBJECT_EVAL_BASE `1b0f7dd2bbbf926a8ff65109414d05aa97acaa58`, which already contains the bundled PR reference. The four synthetic acme/widget samples exercise ordered classification and single-path routing, base-added constraints, policy weakening after a clean merge, and two-line repair over rewrite with original commits kept. Their facts cover bound-title precedence, no-ticket ACs, full SHA/merge/thread/scoped-result preservation, and dropped claims. Text replay proves supplied-observation behavior, not live GitHub calls or writes. Retain all prior rationale and moves; model replay and final target evidence are pending the final wave.
