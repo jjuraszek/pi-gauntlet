@@ -611,10 +611,11 @@ try {
         else skillDirs.push(dir);
       }
       // Bundle-local reference integrity: every .md path a bundled file mentions
-      // must resolve against that file's own directory. Excluded: consumer-repo
-      // placeholders that intentionally don't exist here, plus per-run temp
-      // artifacts under mktemp that skills name but never ship.
-      const refExcludedBasenames = new Set(["REVIEW.md", "AGENTS.md", "CLAUDE.md", "SKILL.md", "gauntlet-overrides.md", "linear.md", "audit.md", "snapshot.md"]);
+      // must resolve against that file's own directory. Exempt consumer-repo
+      // placeholders and references immediately following a <...>/ placeholder;
+      // exempt temp artifacts audit.md and snapshot.md only as bare names.
+      const refExcludedBasenames = new Set(["REVIEW.md", "AGENTS.md", "CLAUDE.md", "SKILL.md", "gauntlet-overrides.md", "linear.md"]);
+      const tempArtifactNames = new Set(["audit.md", "snapshot.md"]);
       const brokenRefs = [];
       for (const dir of skillDirs) {
         for (const file of walk(dir).filter((f) => f.endsWith(".md"))) {
@@ -623,6 +624,8 @@ try {
             const ref = m[0].replace(/^\.\//, "");
             const base = ref.split("/").at(-1);
             if (refExcludedBasenames.has(base)) continue;
+            if (/<[^<>\s]+>\/$/.test(txt.slice(0, m.index))) continue;
+            if (!ref.includes("/") && tempArtifactNames.has(base)) continue;
             if (!existsSync(join(dirname(file), ref))) brokenRefs.push(`${file.replace(root + "/", "")}: "${ref}"`);
           }
         }
