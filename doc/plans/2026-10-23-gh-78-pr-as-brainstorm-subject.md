@@ -91,7 +91,7 @@ Paths are worktree-relative. No file is deleted. New sample directories contain 
 - Decision: do not introduce eval/gauntlet-handoff or eval/verification-before-completion targets. The approved Tests table assigns these behaviors to gauntlet-resume and writing-plans. Use new case.md bundle+ declarations, leaving every target.json and old case.md/expected.md unchanged.
 - Task commits record `Behavior-change: yes` and #78. Task 1 also records that the references are preparatory and inactive. Generated evidence lands only in Task 7. Commit commands below use bare git in the executor's task worktree.
 - Amendment execution state: the parent reports model replays complete and accepted, with all 220 current comparisons unchanged/improved and all 100 new required assertions holding. Retain Task 7's commands as the implementation recipe; do not repeat model calls for this amendment. Source, spec, samples, and records are committed and are not edited by this plan repair. The parent folds this plan into the amendment commit.
-- Baseline execution on 028de7f: Tasks 1-7 executed 7, 41, 15, 113, 36, 15, and 46 tests respectively, each with exit 0. HEAD remained 028de7f and porcelain was empty before and after every command. No artifact suffix or baseline-failure row was needed.
+- Baseline execution on 44c887f: Tasks 1-7 executed 7, 41, 15, 113, 36, 15, and 46 tests respectively, each with exit 0. HEAD remained 44c887f and porcelain was empty before and after every command. No artifact suffix or baseline-failure row was needed.
 
 ## Wave 1 - Canonical reference contracts
 
@@ -109,7 +109,7 @@ Paths are worktree-relative. No file is deleted. New sample directories contain 
 
 **Tests:**
 - `node --test scripts/stage-skill-lint.test.mjs scripts/skill-size-lint.test.mjs`
-- baseline: 028de7f pass
+- baseline: 44c887f pass
 - via: `lintStageSkill`, `lintSkillSizes`
 
 - [ ] **Step 1: Run the declared deterministic tests.** Expected: stage routing, statement-vs-example distinctions, and size fixtures pass before the new files exist.
@@ -117,7 +117,7 @@ Paths are worktree-relative. No file is deleted. New sample directories contain 
 - [ ] **Step 3: Write pr-subject.md's gather and record contract.** Pass number, URL, title, headRefName, headRefOid, baseRefName, isCrossRepository, and headRepository.nameWithOwner to provisioning as values without a write. Discover PR-carried specs using the resolved spec dirs, gather them as the stated contract, and mark predecessors only when superseded. Require BASE_SHA reads of AGENTS.md, first-found overrides, REVIEW.md, and cited constraint documents on every merge outcome. Treat PR policy edits as proposals. Specify smallest repair, full thread comments, new-since-fork constraints, the draft PR section, Problem content, and the exact record grammar at L138-L154, including none/not-fetched/exception/scoped-result variants.
 - [ ] **Step 4: Write pr-head.md's ordered stops and provisioning table.** Resolve ROOT/home without adopting the session tree. Fetch origin, then check fork, branch elsewhere, unreachable or moved digest head, and ahead/diverged local branch in that order, copying exact stop templates at L99-L102. Reuse only the selected home on headRefName; perform the existing dirty ask first, ff-only sync, and exact-HEAD check. For an ancestor local branch, update-ref only after proving ancestry; never use `git -C "$ROOT" branch -f`. For no local branch explain unique-remote DWIM checkout, not the generic -b create. Respect home and wrapper conventions; skip -b/-B create overrides with the exact note, use headRefName with slashes replaced as name, and verify location and head. On a post-create race leave the tree for the user and name its path and SHAs. Capture PRE_REWORK_HEAD and fetched BASE_SHA; add PR, pre-head, and base-SHA lines after Base in the report.
 - [ ] **Step 5: Write the merge/conflict recipe.** Preserve every commit reachable from `PRE_REWORK_HEAD`; forbid rebase and any reset/amend replacing that history. Leave this flow's appended spec approval amend and wave fold unchanged. Use the spec's no-ff/no-edit base merge and distinct no-op/clean markers. On conflict snapshot status and dispatch one fresh foreground implementer with only conflicted paths, fetched base, and documented scoped commands. Require both intents, staging of every listed file, and no helper commit/abort/outside-list edit. The orchestrator requires an empty unmerged index and a status delta contained in the list before completing the merge; a contract exception lands and is named in Changes. Otherwise abort and record unresolved files while continuing on the original head, with merge as the eventual plan's Task 1. Read runner/credentials from BASE_SHA overrides only; missing runner or credentials true yields none with its reason. Do not infer file scope from a full-suite script. Conflict tests are the sole pre-approval test exception; add no reviewer or push.
-- [ ] **Step 6: Commit the exact reviewThreads query once in pr-head.md.** Copy spec L124-L130 verbatim, including endCursor, pageInfo, all fields, and comment ordering. Require every page, unresolved filtering, full replies, line/originalLine/path fallback, and fetch-failure marker. Other callers cite this owner, never duplicate the query. Leave gatekeep's assessment, sync, brief, fix-wave, assembly, and all personas/extensions/bins/settings/cohort unchanged.
+- [ ] **Step 6: Commit the exact reviewThreads query once in pr-head.md.** Copy spec L124-L130 verbatim, including `pageInfo{hasNextPage endCursor}` and `totalCount` on `comments`, all fields, and comment ordering. Merge every reviewThreads page, filter unresolved threads, and fetch truncated comments separately through each thread's `id` with `node(id:)` and its own comment cursor until the last page. Follow pr-head.md's complete-connection replacement recipe: start the per-thread paginated query at its first comment page, replace the initial comments with the full connection, and keep ordered replies without duplicates or mixing thread/comment cursors. Preserve line/originalLine/path fallback and the fetch-failure marker. Other callers cite this owner, never duplicate the query. Leave gatekeep's assessment, sync, brief, fix-wave, assembly, and all personas/extensions/bins/settings/cohort unchanged.
 - [ ] **Step 7: Run scoped lint on the two references and the size check.** Review their instructions against forge-skill, and compare every query/stop/record literal to the spec. Expected: complete, lint-clean references with no active call site.
 - [ ] **Step 8: Commit the preparatory files.** Run `git add skills/brainstorming/reference/pr-subject.md skills/using-git-worktrees/reference/pr-head.md` and `git commit -m "Add PR-subject reference contracts (ref #78)" -m "Behavior-change: yes. Preparatory references; no active caller yet."`. The orchestrator records the integrated wave SHA as PR_SUBJECT_EVAL_BASE before Wave 2.
 
@@ -168,7 +168,7 @@ Depends on Wave 1: all callers can read the committed references. Tasks 2-6 own 
 
 **Tests:**
 - `node --test scripts/brainstorming-contract.test.mjs eval/lib/lint.test.mjs`
-- baseline: 028de7f pass
+- baseline: 44c887f pass
 - via: `brainstorming checklist`, `scout task template`, `lintTarget`
 
 - [ ] **Step 1: Run existing tests and add failing routing assertions.** Extend the existing source-reading tests to assert resolution at checklist step 2 after reset, the exact named merge exception, BASE_SHA scout constraints and PR section, preservation/linting of the record, and raw PR council input. Retain numbered-checklist, framing, and grant assertions. Expected red: absent PR hooks, not a test harness failure.
@@ -206,7 +206,7 @@ Contract literals for caller edits and fixtures:
 
 **Tests:**
 - `node --test scripts/stage-skill-lint.test.mjs eval/lib/lint.test.mjs`
-- baseline: 028de7f pass
+- baseline: 44c887f pass
 - via: `using-git-worktrees Step 0`, `reference/pr-head.md`, `lintTarget`
 
 - [ ] **Step 1: Run existing tests.** Expected: stage-skill and eval bundle declaration fixtures pass.
@@ -222,13 +222,14 @@ Contract literals for routing and the provisioning replay:
 - Owners/entry: `skills/using-git-worktrees/reference/pr-head.md`, `using-git-worktrees/SKILL.md`, `pr-head.md`, `reference/pr-head.md`, `reviewThreads`, `#N`, `owner/repo#N`, `eval/brainstorming`, `eval/using-git-worktrees`, `eval/finishing-a-development-branch`, `eval/gauntlet-resume`.
 - Provisioning: `git -C "$ROOT" fetch origin`, `isCrossRepository`, `headRefName`, `git worktree list --porcelain`, `headRefOid`, `-b`, `-B`, `create:`, `create: override skipped (contains -b)`, `/`, `-`, `git -C "$WORKTREE" rev-parse HEAD`, `Base:`, `.worktrees/pr-<N>`, `gh pr view`. Prohibit `git -C "$ROOT" branch -f`; only the proven-ancestor update-ref path is allowed.
 - History/merge: `PRE_REWORK_HEAD`, `WAVE_BASE_SHA`, `git rebase`, `reset`, `commit --amend`, `implementer`, `cwd`, `async: false`, `git diff --name-only --diff-filter=U`, `SCOPED_TEST_COMMANDS`, `git add`, `done`, `## Rework record`, `--diff-filter=U`, `git status --porcelain`, `git commit --no-edit`, `git merge --abort`, `merge --abort`, `BASE_SHA`, `## PR gate`, `## verification-before-completion`, `requires credentials`, `true`, `requires credentials: true`, `none`, `brainstorming/SKILL.md`, `using-git-worktrees/reference/pr-head.md`, `Changes:`, `isResolved == false`, `line`.
+- Thread pagination: `comments`, `pageInfo{hasNextPage endCursor}`, `totalCount`, `id`, `node(id:)`. The pr-head owner fetches each truncated comment connection with its own cursor through the last page, preserving ordered replies without duplicates; the existing all-replies sample assertion includes reply 101, not only reviewThreads pages.
 - Baseline and boundaries: `pr-subject.md`, `intent.md`, `eval/README.md`, `target.json`, `bundle+`, `case.md`, `skillSha`, `pr-head`, `--rebase`, `/skill:gatekeep-pr`, `gh pr create`. Copy all command/stop/result templates from pr-head.md into the fixture's expected facts with concrete synthetic identities, keeping the two no-run reasons and thread-fetch failure distinct from success.
 
 ### Task 4: Add thread-task planning and PR-scoped verification policy
 
 **TDD scenario:** Modifying tested instructions - checker tests first, new PR-thread case, then the lint-only header and union-consumer policy.
 
-**Spec:** doc/specs/2026-10-23-gh-78-pr-as-brainstorm-subject.md § "Acceptance criteria" L44-L45, § "Acceptance criteria" L50-L51, § "Ownership" L64-L65, § "Ownership" L69-L69, § "Worktree (`pr-head.md`, read from `using-git-worktrees/SKILL.md` Step 0 when the caller passes a PR)" L113-L113, § "Worktree (`pr-head.md`, read from `using-git-worktrees/SKILL.md` Step 0 when the caller passes a PR)" L119-L119, § "Spec content for a PR subject" L156-L156, § "Errors and edge cases" L223-L223, § "Tests" L244-L244, § "Tests" L246-L248, § "Tests" L257-L257
+**Spec:** doc/specs/2026-10-23-gh-78-pr-as-brainstorm-subject.md § "Acceptance criteria" L44-L45, § "Acceptance criteria" L50-L51, § "Ownership" L64-L64, § "Ownership" L65-L65, § "Ownership" L69-L69, § "Worktree (`pr-head.md`, read from `using-git-worktrees/SKILL.md` Step 0 when the caller passes a PR)" L113-L113, § "Worktree (`pr-head.md`, read from `using-git-worktrees/SKILL.md` Step 0 when the caller passes a PR)" L119-L119, § "Spec content for a PR subject" L156-L156, § "Errors and edge cases" L223-L223, § "Tests" L244-L244, § "Tests" L246-L248, § "Tests" L257-L257
 
 **Files:**
 - Modify: `skills/writing-plans/SKILL.md:184-210`
@@ -244,7 +245,7 @@ Contract literals for routing and the provisioning replay:
 
 **Tests:**
 - `node --experimental-strip-types --test extensions/lib/plan-check.test.ts`
-- baseline: 028de7f pass
+- baseline: 44c887f pass
 - via: `plan_check`, `writing-plans Task Structure`, `verification evidence paragraph`, `verify-phase run`
 
 Decision: the new case bundles the complete writing-plans SKILL and verification-before-completion SKILL, because current target.json slices omit the header and verification policy (eval/writing-plans/target.json). Keep target.json unchanged. The amended spec L156 keeps task commands outside the header, so the existing checker's header-only entrypoint rule needs no extension change.
@@ -258,13 +259,13 @@ Decision: the new case bundles the complete writing-plans SKILL and verification
 
 Decision: retain `git log` ancestry and appended-commit mechanics - Worktree L113 preserves `commit --amend --no-edit` in `brainstorming/reference/spec-finalization.md` and `reset --soft "$WAVE_BASE_SHA"` in `subagent-driven-development/SKILL.md` with `WAVE_BASE_SHA` after `PRE_REWORK_HEAD`. No executor or spec-gate history edit belongs here.
 
-Contract literals for the shared plan/verify rule: `skills/writing-plans/SKILL.md`, `reference/plan-contract.md`, `skills/verification-before-completion/SKILL.md`, `verification-before-completion/SKILL.md`, `fix`, `unresolved`, `**Verification:**`, `Tests:`, `extensions/lib/plan-check.ts:555`, `## Rework`, `Verification: scoped - <commands>; CI on this push holds the full run`. Preserve the named non-extension boundary: `assessment.md`, `sync.md`, `verification-brief.md`, `fix-wave.md`, `eval/gatekeep-pr`, `pr-head.md`, `merge base`, `agents/`, `extensions/`, `src/bins/`, `using-git-worktrees/SKILL.md`, `git rebase`, `reset`, `commit --amend`. Unresolved merge fixtures retain `implementer`, `cwd`, `async: false`, `git diff --name-only --diff-filter=U`, `SCOPED_TEST_COMMANDS`, `git add`, `done`, `--diff-filter=U`, `git status --porcelain`, `git commit --no-edit`, `git merge --abort`, `merge --abort`, `BASE_SHA`. Keep test populations separate (`scripts/ci.mjs`); baseline/sample identities are `pr-subject.md`, `intent.md`, `eval/README.md`, `target.json`, `bundle+`, `case.md`, `skillSha`, `eval/writing-plans`, `pr-subject-threads`, `eval/brainstorming`, `eval/using-git-worktrees`, `eval/finishing-a-development-branch`, `eval/gauntlet-resume`.
+Contract literals for the shared plan/verify rule: `skills/writing-plans/SKILL.md`, `reference/plan-contract.md`, `skills/verification-before-completion/SKILL.md`, `verification-before-completion/SKILL.md`, `fix`, `unresolved`, `**Verification:**`, `Tests:`, `extensions/lib/plan-check.ts:555`, `## Rework`, `Verification: scoped - <commands>; CI on this push holds the full run`. The matching `skills/finishing-a-development-branch/SKILL.md` `fix minors` consumer belongs to Task 5: `SCOPED_TEST_COMMANDS` uses the same union without the `none` sentinel. Preserve the named non-extension boundary: `assessment.md`, `sync.md`, `verification-brief.md`, `fix-wave.md`, `eval/gatekeep-pr`, `pr-head.md`, `merge base`, `agents/`, `extensions/`, `src/bins/`, `using-git-worktrees/SKILL.md`, `git rebase`, `reset`, `commit --amend`. Unresolved merge fixtures retain `implementer`, `cwd`, `async: false`, `git diff --name-only --diff-filter=U`, `SCOPED_TEST_COMMANDS`, `git add`, `done`, `--diff-filter=U`, `git status --porcelain`, `git commit --no-edit`, `git merge --abort`, `merge --abort`, `BASE_SHA`. Keep test populations separate (`scripts/ci.mjs`); baseline/sample identities are `pr-subject.md`, `intent.md`, `eval/README.md`, `target.json`, `bundle+`, `case.md`, `skillSha`, `eval/writing-plans`, `pr-subject-threads`, `eval/brainstorming`, `eval/using-git-worktrees`, `eval/finishing-a-development-branch`, `eval/gauntlet-resume`.
 
 ### Task 5: Add the PR-subject finishing menu and non-force push
 
 **TDD scenario:** Modifying tested instructions - current skip-rule tests first; new finish replay distinguishes record-bearing reworks from ordinary ticket finishes.
 
-**Spec:** doc/specs/2026-10-23-gh-78-pr-as-brainstorm-subject.md § "Acceptance criteria" L44-L45, § "Acceptance criteria" L46-L47, § "Acceptance criteria" L50-L51, § "Ownership" L66-L66, § "Worktree (`pr-head.md`, read from `using-git-worktrees/SKILL.md` Step 0 when the caller passes a PR)" L113-L113, § "Spec content for a PR subject" L156-L156, § "Finishing" L160-L160, § "Finishing" L162-L162, § "Finishing" L167-L176, § "Finishing" L179-L179, § "Finishing" L181-L181, § "Finishing" L184-L193, § "Finishing" L196-L196, § "Errors and edge cases" L231-L231, § "Errors and edge cases" L232-L232, § "Errors and edge cases" L233-L233, § "Errors and edge cases" L234-L234, § "Errors and edge cases" L235-L235, § "Errors and edge cases" L236-L236, § "Errors and edge cases" L237-L237, § "Errors and edge cases" L238-L238, § "Errors and edge cases" L240-L240, § "Tests" L244-L244, § "Tests" L246-L248, § "Tests" L258-L258, § "Out of scope" L272-L272
+**Spec:** doc/specs/2026-10-23-gh-78-pr-as-brainstorm-subject.md § "Acceptance criteria" L44-L45, § "Acceptance criteria" L46-L47, § "Acceptance criteria" L50-L51, § "Ownership" L65-L65, § "Ownership" L66-L66, § "Worktree (`pr-head.md`, read from `using-git-worktrees/SKILL.md` Step 0 when the caller passes a PR)" L113-L113, § "Spec content for a PR subject" L156-L156, § "Finishing" L160-L160, § "Finishing" L162-L162, § "Finishing" L167-L176, § "Finishing" L179-L179, § "Finishing" L181-L181, § "Finishing" L184-L193, § "Finishing" L196-L196, § "Errors and edge cases" L231-L231, § "Errors and edge cases" L232-L232, § "Errors and edge cases" L233-L233, § "Errors and edge cases" L234-L234, § "Errors and edge cases" L235-L235, § "Errors and edge cases" L236-L236, § "Errors and edge cases" L237-L237, § "Errors and edge cases" L238-L238, § "Errors and edge cases" L240-L240, § "Tests" L244-L244, § "Tests" L246-L248, § "Tests" L258-L258, § "Out of scope" L272-L272
 
 **Files:**
 - Modify: `skills/finishing-a-development-branch/SKILL.md:33-74`
@@ -279,13 +280,13 @@ Contract literals for the shared plan/verify rule: `skills/writing-plans/SKILL.m
 
 **Tests:**
 - `node --test scripts/finish-verification.test.mjs eval/lib/lint.test.mjs`
-- baseline: 028de7f pass
-- via: `finishing Step 1`, `Push to the PR branch`, `finish skip rule`
+- baseline: 44c887f pass
+- via: `finishing Step 1`, `Push to the PR branch`, `finish skip rule`, `fix minors`
 
-Decision: detect reworks from the spec record, not an open PR on FEATURE. Preserve the current hard gate and telemetry-only freshness exception. Capture completion evidence before the existing strip-and-seal block removes the plan (finishing SKILL L220-L243). For a rework, Step 1 derives the task `Tests:` union plus only the header's lint/format commands; `none - PR subject, scoped` adds no command. This matches Task 4's verify consumer and needs no extension edit.
+Decision: detect reworks from the spec record, not an open PR on FEATURE. Preserve the current hard gate and telemetry-only freshness exception. Capture completion evidence before the existing strip-and-seal block removes the plan (finishing SKILL L220-L243). For a rework, Step 1 derives the task `Tests:` union plus only the header's lint/format commands; `none - PR subject, scoped` adds no command. The `fix minors` round consumes that captured executable union and requires post-fix success before returning to Step 3.5. This matches Task 4's verify consumer in `skills/verification-before-completion/SKILL.md` and needs no extension edit.
 
-- [ ] **Step 1: Run existing tests and write the replay.** Bundle the complete finishing SKILL and pr-head.md; the default target contains only Step 6. Supply rework and ordinary specs, missing pre-head, closed PR, wrong branch, rewritten ancestry, moved-origin with/without pre-head ancestry, and unexpected git error. Facts require six-vs-five menus, correct withholding/numbering and stops, and no unsupported origin-advanced claim. Include lint-only and no-style plan headers: Step 1 must still run the task command union, while the ordinary path uses its full header set. The body checks cover the explicit `Dropped claims: none` for the supplied no-drops record and one `No longer true: <claim>` line per dropped claim; neither outcome omits the Dropped claims field. Use the accepted replay evidence for this amendment; run no new model calls.
-- [ ] **Step 2: Add record detection and PR base selection.** Read PR/pre-head from the selected spec; missing pre-head stops naming the path. Confirm number/url/headRefName/baseRefName/state, require OPEN and FEATURE equality, and use baseRefName as base. Derive the task-command union plus header lint/format as the scoped verification set. Ordinary specs never enter this path. Preserve the existing verified-commit/telemetry exclusion expressions byte-for-byte for their executable fixture tests.
+- [ ] **Step 1: Run existing tests and write the replay.** Bundle the complete finishing SKILL and pr-head.md; the default target contains only Step 6. Supply rework and ordinary specs, missing pre-head, closed PR, wrong branch, rewritten ancestry, moved-origin with/without pre-head ancestry, and unexpected git error. Facts require six-vs-five menus, correct withholding/numbering and stops, and no unsupported origin-advanced claim. Include lint-only and no-style plan headers: Step 1 must still run the task command union, while the ordinary path uses its full header set. For `fix minors F3`, require lint, format, test-timeout, and test-retry under the lint/format header, or test-timeout and test-retry under the sentinel header; never dispatch the sentinel. Require fresh successful evidence for every command after the fix, block failed test-retry or missing evidence before Step 3.5/menu return, and retain ordinary-spec header-only dispatch. The body checks cover the explicit `Dropped claims: none` for the supplied no-drops record and one `No longer true: <claim>` line per dropped claim; neither outcome omits the Dropped claims field. Use the accepted replay evidence for this amendment; run no new model calls.
+- [ ] **Step 2: Add record detection and PR base selection.** Read PR/pre-head from the selected spec; missing pre-head stops naming the path. Confirm number/url/headRefName/baseRefName/state, require OPEN and FEATURE equality, and use baseRefName as base. Derive the task-command union plus header lint/format as the scoped verification set. In the `fix minors` round, pass that Step 1 executable set as `SCOPED_TEST_COMMANDS` for a PR subject, excluding the `none` sentinel; require successful post-fix evidence for every supplied command before return to Step 3.5. Failed or missing evidence stops. Keep the ordinary header-only set, one-round budget, commit, and conformance re-audit behavior unchanged. Ordinary specs never enter the PR path. Preserve the existing verified-commit/telemetry exclusion expressions byte-for-byte for their executable fixture tests.
 - [ ] **Step 3: Add pre-menu ancestry checks and the exact menu.** Fetch origin; first prove PRE_REWORK_HEAD ancestor of HEAD, then origin/headRefName ancestor of HEAD. First exit 1 stops as rewritten history; second exit 1 withholds row 1 with both SHAs. The moved-past-base suffix needs its own proof; other exits are errors. Copy six rows and consequences from spec L167-L179, apply menu-layout to render and reply, and keep rows 2-6 numbered when push is withheld. Add no approval.
 - [ ] **Step 4: Capture task-plus-commit resolution evidence.** Before plan stripping require the thread-id task to be accepted complete, then count naming first-parent commits in the post-merge/pre-head range. One plus complete gives fixed-in; zero/multiple plus complete gives the explicit task-complete/no-single-commit fallback. Missing/incomplete stays open; path touches or grep alone prove nothing. Refetch through pr-head.md, preserve dispositions, render new threads open, omit GitHub-resolved threads, and distinguish none from failure. Add independent sample facts for each rule.
 - [ ] **Step 5: Add the non-force push action.** Use existing plan-strip/seal with option pr and origin/baseRefName; retain seal failure stops and whole-PR telemetry. Save the full before SHA at refs/gauntlet/pre-rework/pr-N, then push HEAD to refs/heads/headRefName on origin with --no-follow-tags and no force flag. Rejection is reported once, skips description edit, and returns the menu without retry. PR rows 2-6 map to unchanged old Options 1-5, including discard leaving origin untouched.
@@ -320,7 +321,7 @@ Contract literals for the finishing implementation and replay:
 
 **Tests:**
 - `node --test scripts/brief-contract-lint.test.mjs eval/lib/lint.test.mjs`
-- baseline: 028de7f pass
+- baseline: 44c887f pass
 - via: `gauntlet-handoff step 6`, `Process-state restore`, `reconstruction Candidates`, `lintBriefGrammar`
 
 Decision: preserve cohort's six-heading core and Repo state fields. Only the gauntlet Process state grammar owns the optional pair, and its terminal gate-history line stays last (brief-contract L45-L60 and scripts/brief-contract-lint.mjs:1-42).
@@ -380,7 +381,7 @@ Depends on Wave 2: caller changes, cases, and intent hashes are committed. This 
 
 **Tests:**
 - `node --test eval/lib/replay.test.mjs eval/lib/checks.test.mjs eval/lib/records.test.mjs eval/lib/judge.test.mjs`
-- baseline: 028de7f pass
+- baseline: 44c887f pass
 - via: `assemble`, `parseCase`, `parseExpected`, `cellReusable`, `deriveLabels`
 
 Decision: for is not a Git SHA. eval/README.md:101-111 and eval/lib/replay.mjs:36-49 define sha256(assemble(target, treeReader(root))) without bundle+ files. Sample bundles affect their own identities; never widen target.json or old samples to force a result.
@@ -434,7 +435,8 @@ Contract literals for the documented boundary: `README.md`, `AGENTS.md`, `CHANGE
 | § "Acceptance criteria" L50-L51 | AC7: legacy facts unchanged, new PR samples, and header repository gate | Task 2, Task 3, Task 4, Task 5, Task 6, Task 7 |
 | § "Ownership" L62-L62 | One subject/gather/record owner and narrow hooks | Task 1, Task 2 |
 | § "Ownership" L63-L63 | One worktree/merge/query owner | Task 1, Task 3 |
-| § "Ownership" L64-L65 | Thread planning, lint-only header, and task-union verification owners | Task 4 |
+| § "Ownership" L64-L64 | Thread planning and lint-only header owner | Task 4 |
+| § "Ownership" L65-L65 | Task-union verification owners, including the finishing minors round and successful-evidence return gate | Task 4, Task 5 |
 | § "Ownership" L66-L66 | Finishing detection, preflight, body, ref | Task 5 |
 | § "Ownership" L67-L67 | Process-state pair and candidate base | Task 6 |
 | § "Ownership" L69-L69 | Gatekeep text and assembly untouched | Task 1, Task 7 |
@@ -460,8 +462,8 @@ Contract literals for the documented boundary: `README.md`, `AGENTS.md`, `CHANGE
 | § "Worktree (`pr-head.md`, read from `using-git-worktrees/SKILL.md` Step 0 when the caller passes a PR)" L120-L120 | Base runner/credentials source, no invented file scope | Task 1, Task 3 |
 | § "Worktree (`pr-head.md`, read from `using-git-worktrees/SKILL.md` Step 0 when the caller passes a PR)" L122-L122 | Only named pre-approval merge/tests exception | Task 1, Task 2, Task 3 |
 | § "Worktree (`pr-head.md`, read from `using-git-worktrees/SKILL.md` Step 0 when the caller passes a PR)" L124-L124 | One query owner, gatekeep prose unchanged | Task 1, Task 3 |
-| § "Worktree (`pr-head.md`, read from `using-git-worktrees/SKILL.md` Step 0 when the caller passes a PR)" L127-L127 | Exact paginated GraphQL query | Task 1, Task 3 |
-| § "Worktree (`pr-head.md`, read from `using-git-worktrees/SKILL.md` Step 0 when the caller passes a PR)" L130-L130 | Every page, full comments, unresolved filtering, location fallback | Task 1, Task 3 |
+| § "Worktree (`pr-head.md`, read from `using-git-worktrees/SKILL.md` Step 0 when the caller passes a PR)" L127-L127 | Exact paginated GraphQL query with comment page metadata and count | Task 1, Task 3 |
+| § "Worktree (`pr-head.md`, read from `using-git-worktrees/SKILL.md` Step 0 when the caller passes a PR)" L130-L130 | Every thread page and per-thread comment page, ordered full comments, unresolved filtering, location fallback | Task 1, Task 3 |
 | § "Gather (`gatherer.md`)" L134-L134 | Scout always, ticket context-builder when bound | Task 1, Task 2 |
 | § "Gather (`gatherer.md`)" L134-L134 | Base documents and cited constraints govern every outcome | Task 1, Task 2 |
 | § "Gather (`gatherer.md`)" L134-L134 | Raw PR/specs/diff paths/full threads/merge inputs | Task 1, Task 2 |
@@ -497,7 +499,7 @@ Contract literals for the documented boundary: `README.md`, `AGENTS.md`, `CHANGE
 | § "Errors and edge cases" L219-L219 | Branch-creating override skipped and noted | Task 1, Task 3 |
 | § "Errors and edge cases" L220-L220 | Post-create race leaves tree, names SHAs/path | Task 1, Task 3 |
 | § "Errors and edge cases" L221-L221 | Successful helper commits merge with test outcome | Task 1, Task 3 |
-| § "Errors and edge cases" L222-L222 | Contract exception recorded in Changes | Task 1, Task 2, Task 3 |
+| § "Errors and edge cases" L222-L222 | Contract exception recorded in Changes | Task 1, Task 2 |
 | § "Errors and edge cases" L223-L223 | Failed helper aborts, trusted base, merge Task 1 | Task 1, Task 2, Task 3, Task 4 |
 | § "Errors and edge cases" L224-L224 | Clean merged policy weakening is not trusted | Task 1, Task 2 |
 | § "Errors and edge cases" L225-L225 | Credentials/no runner yields none with reason | Task 1, Task 3 |

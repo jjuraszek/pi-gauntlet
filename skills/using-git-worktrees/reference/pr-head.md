@@ -9,9 +9,9 @@ Run `git -C "$ROOT" fetch origin`, then check these stops in order before creati
 | Observable case | Exact stop |
 |---|---|
 | `isCrossRepository` true | `PR #N's head lives on fork <headRepository.nameWithOwner>; rework needs an in-repo branch.` |
-| `headRefName` listed by `git worktree list --porcelain` at another path, including `.worktrees/pr-<N>` | `branch <headRefName> is checked out at <path>; finish or remove that worktree first.` |
-| `git rev-parse --verify -q <headRefOid>^{commit}` fails after fetch, or `origin/<headRefName>` differs from `headRefOid` | `PR #N head <headRefOid7> is not reachable (origin/<headRefName> is at <sha7>); the branch moved.` |
-| Local branch exists and `git merge-base --is-ancestor <headRefName> origin/<headRefName>` exits 1 | `local branch <headRefName> is at <sha7>, not an ancestor of origin/<headRefName> (<sha7>); rework needs the PR head.` |
+| `headRefName` listed by `git -C "$ROOT" worktree list --porcelain` at another path, including `.worktrees/pr-<N>` | `branch <headRefName> is checked out at <path>; finish or remove that worktree first.` |
+| `git -C "$ROOT" rev-parse --verify -q <headRefOid>^{commit}` fails after fetch, or `origin/<headRefName>` differs from `headRefOid` | `PR #N head <headRefOid7> is not reachable (origin/<headRefName> is at <sha7>); the branch moved.` |
+| Local branch exists and `git -C "$ROOT" merge-base --is-ancestor <headRefName> origin/<headRefName>` exits 1 | `local branch <headRefName> is at <sha7>, not an ancestor of origin/<headRefName> (<sha7>); rework needs the PR head.` |
 
 ## Provision the exact head
 
@@ -47,13 +47,13 @@ Run `git -C "$WORKTREE" merge --no-ff --no-edit origin/<baseRefName>` and record
 | Clean merge | `merge: <sha7>`; this merge is the first rework commit. |
 | Conflicts | Follow the helper recipe below. |
 
-Snapshot `git status --porcelain` before helper dispatch. Get conflicted paths with `git diff --name-only --diff-filter=U`. Dispatch one fresh foreground `implementer`, `cwd` the worktree, `async: false`, with that exact file list, fetched base, and SCOPED_TEST_COMMANDS. Require resolution of every listed file preserving both sides' intent, exactly the supplied scoped commands, and `git add` for every resolved file. Require return `done`, or `done - contract exception: <why>` when resolution changes a PR or bound-ticket obligation. Forbid helper commits, aborts, and edits outside the list.
+Snapshot `git -C "$WORKTREE" status --porcelain` before helper dispatch. Get conflicted paths with `git -C "$WORKTREE" diff --name-only --diff-filter=U`. Dispatch one fresh foreground `implementer`, `cwd` the worktree, `async: false`, with that exact file list, fetched base, and SCOPED_TEST_COMMANDS. Require resolution of every listed file preserving both sides' intent, exactly the supplied scoped commands, and `git -C "$WORKTREE" add` for every resolved file. Require return `done`, or `done - contract exception: <why>` when resolution changes a PR or bound-ticket obligation. Forbid helper commits, aborts, and edits outside the list.
 
-Read the first-found overrides file from BASE_SHA, not the conflicted tree: `git show <BASE_SHA>:<overrides path>`. Use SCOPED_TEST_COMMANDS only from a documented file-scoped runner under `## PR gate` or `## verification-before-completion` with `requires credentials` not `true`. Missing runner or `requires credentials: true` means `none`, with the reason recorded as `none run (<reason>)`. Never infer file scope from a full-suite script such as `npm test`.
+Read the first-found overrides file from BASE_SHA, not the conflicted tree: `git -C "$ROOT" show <BASE_SHA>:<overrides path>`. Use SCOPED_TEST_COMMANDS only from a documented file-scoped runner under `## PR gate` or `## verification-before-completion` with `requires credentials` not `true`. Missing runner or `requires credentials: true` means `none`, with the reason recorded as `none run (<reason>)`. Never infer file scope from a full-suite script such as `npm test`.
 
-Continue only with an empty unmerged index (`--diff-filter=U`), every listed file staged, and the `git status --porcelain` delta contained in the listed paths. Then complete with `git commit --no-edit` and record `merge: <sha7>, <n> file(s) resolved, scoped tests <green | red in <file>: <tests> | none>`. Land a reported contract exception and name it in the spec's `## Rework record` `Changes:`.
+Continue only with an empty unmerged index (`git -C "$WORKTREE" diff --name-only --diff-filter=U`), every listed file staged (`git -C "$WORKTREE" diff --cached --name-only`), and the `git -C "$WORKTREE" status --porcelain` delta contained in the listed paths. Then complete with `git -C "$WORKTREE" commit --no-edit` and record `merge: <sha7>, <n> file(s) resolved, scoped tests <green | red in <file>: <tests> | none>`. Land a reported contract exception and name it in the spec's `## Rework record` `Changes:`.
 
-For any failed helper/completion checks, run `git merge --abort`, record `merge: unresolved - <files>`, and continue on the original unmerged head. Open the spec's Design with `merge origin/<base> and resolve <files>` as eventual Task 1. On every outcome, require the base-SHA constraint reads owned by `brainstorming/reference/pr-subject.md`.
+For any failed helper/completion checks, run `git -C "$WORKTREE" merge --abort`, record `merge: unresolved - <files>`, and continue on the original unmerged head. Open the spec's Design with `merge origin/<base> and resolve <files>` as eventual Task 1. On every outcome, require the base-SHA constraint reads owned by `brainstorming/reference/pr-subject.md`.
 
 Treat this merge, helper edits to the conflict list, and scoped conflict tests as the sole preapproval write/run exception outside spec directories. Run no other brainstorming tests, dispatch no reviewer, and push nothing; leave review of the merge to end-of-flow code review.
 
@@ -62,7 +62,13 @@ Treat this merge, helper edits to the conflict list, and scoped conflict tests a
 Run this query; callers cite this owner rather than copying it:
 
 ```
-gh api graphql --paginate -f query='query($o:String!,$r:String!,$n:Int!,$endCursor:String){repository(owner:$o,name:$r){pullRequest(number:$n){reviewThreads(first:100,after:$endCursor){pageInfo{hasNextPage endCursor} nodes{id isResolved isOutdated path line originalLine comments(first:100){nodes{url body author{login} createdAt}}}}}}}' -F o=<owner> -F r=<repo> -F n=<N>
+gh api graphql --paginate -f query='query($o:String!,$r:String!,$n:Int!,$endCursor:String){repository(owner:$o,name:$r){pullRequest(number:$n){reviewThreads(first:100,after:$endCursor){pageInfo{hasNextPage endCursor} nodes{id isResolved isOutdated path line originalLine comments(first:100){pageInfo{hasNextPage endCursor} totalCount nodes{url body author{login} createdAt}}}}}}}' -F o=<owner> -F r=<repo> -F n=<N>
 ```
 
-Merge every page and filter to `isResolved == false`. Carry all comments in order: read the first request and every reply because replies can change the request. Render location as `<path>:<line>`, else `<path>:<originalLine> (outdated)`, else `<path>`. On fetch failure carry `threads: not fetched (<reason>)` to the gather draft and `Threads: not fetched (<reason>)` to the record; continue. On successful empty fetch record `Threads: none`.
+Merge every reviewThreads page and filter to `isResolved == false`. For each thread whose comments report `hasNextPage: true` (with `totalCount` exceeding the first page), fetch the remaining pages by thread id with a separate comment cursor:
+
+```
+gh api graphql --paginate -f query='query($id:ID!,$endCursor:String){node(id:$id){... on PullRequestReviewThread{comments(first:100,after:$endCursor){pageInfo{hasNextPage endCursor} nodes{url body author{login} createdAt}}}}}' -F id=<thread id>
+```
+
+Start that thread's follow-up query at its first comment page, then replace its initial comments with the complete paginated connection to avoid duplicates. Keep each thread's comment cursor separate from the reviewThreads cursor and fetch until its last page. Carry all comments in order: read the first request and every reply because replies can change the request. Render location as `<path>:<line>`, else `<path>:<originalLine> (outdated)`, else `<path>`. On fetch failure carry `threads: not fetched (<reason>)` to the gather draft and `Threads: not fetched (<reason>)` to the record; continue. On successful empty fetch record `Threads: none`.
