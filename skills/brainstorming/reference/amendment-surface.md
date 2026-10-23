@@ -4,7 +4,7 @@
 
 ## Standing grants
 
-Honor a user sentence in this flow that waives per-diff review for later amends (`auto-apply amends`, `approve, auto-apply amends` or a bare `2` or `5` at the spec gate, `auto-apply amends, stop only for redraws`, `apply spec fixes without asking`, or the same intent in other words). The digit grants only at the spec gate, and a prose grant after a `1` approval still counts. Apply every later amend-class change without review, scope changes included; redraws always stop and the grant never satisfies the spec gate.
+Honor a user sentence in this flow that waives per-diff review for later amends (`auto-apply amends`, `approve, auto-apply amends` or a bare `2` at the spec gate (a bare `5` grants the same way), `auto-apply amends, stop only for redraws`, `apply spec fixes without asking`, or the same intent in other words). The digit grants only at the spec gate, and a prose grant after a `1` approval still counts. Apply every later amend-class change without review, scope changes included; redraws always stop and the grant never satisfies the spec gate.
 
 A grant is the spec's `**Amend-grant:**` line read through the shared predicate; `none` or a missing line means no grant. A new brainstorm writes `none`; a resume honors the line as written. Never take a grant from commit history, a handoff brief, or the transcript; the one read of a prior commit is the post-revert restore, which reads the pre-revert HEAD's spec line.
 
