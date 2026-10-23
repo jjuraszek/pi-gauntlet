@@ -1,6 +1,8 @@
-for: c635d966f967506e4e69ac9702b02820381b270b88c9209aa0941cb93338cb5e
+for: 1662899f24e8dcef748d1251f5d75edd8ca6b4c25cbda90ef58764b79a795123
 
 ## Change
+Wire PR-first subject resolution, trusted base-SHA gathering, and preservation of the fixed Rework record. Compare against PR_SUBJECT_EVAL_BASE `1b0f7dd2bbbf926a8ff65109414d05aa97acaa58`, which already contains the bundled PR reference. The four synthetic acme/widget samples exercise ordered classification and single-path routing, base-added constraints, policy weakening after a clean merge, and two-line repair over rewrite with original commits kept. Their facts cover bound-title precedence, no-ticket ACs, full SHA/merge/thread/scoped-result preservation, and dropped claims. Text replay proves supplied-observation behavior, not live GitHub calls or writes. Retain all prior rationale and moves; model replay and final target evidence are pending the final wave.
+
 Decode independent amendment and fix-round capabilities from the standing-grant value. Funded gate replies preserve the option-2 description and suffix, while a budget token alone re-presents the approval gate without writing. Keep the existing wordCap and accepted variance.
 
 Carry every Reporter-note section into implied spec requirements and scout search terms. Fetch complete comments independently in the parallel scout and context-builder tasks, including a second page after 50 ordinary comments. Quote notes verbatim in creation order regardless of author or combined-comment label order, retain contradictions without resolution, and keep AC extraction body-only. Preserve no-fetch degradation and retain body ACs with a body-only gate warning on comment-fetch failure. The two new replays prove narration and supplied-note carry-through, not live tracker integration. Retain the previously accepted moves below. Editing the ticket reference changes existing sample assemblies; cache reuse is hash-based.
@@ -14,6 +16,10 @@ The amendment human batch uses numbered problem-first items with lettered option
 The ticket-read-once, restored-step-8-reads-ticket, same-session-redraw-reuses-ticket, and overrides-read-once samples narrate ordered read and stage actions from fixed session-context observations. Ticket handling reads once at first use, restored step 8 reads before lint, same-session redraw reuses content while applying ticket rules, and unreadable references block without reconstruction. Overrides content is reused across stages while conventions still apply; unsure context requires a read. The assembly adds the brainstorming Ticket Handling and Project overrides slices while retaining existing slices and the ticket reference. Only overrides-read-once adds the real writing-plans skill via bundle+, using its overrides block only. The replay exception is limited to the Narrated read actions heading; existing continuation and questionary outputs keep their contracts. No new regression is accepted without model evidence.
 
 ## Expected to move
+- pr-subject-resolution/{ordered,open,issue,neither,mention,foreign,binding}: new -> holds - Classify once before provisioning, stop on foreign or absent subjects, and bind title before body.
+- pr-subject-rule-added-later/{constraint,repair,grammar,no-ticket}: new -> holds - Apply base-added rules through a repair while preserving original commits and the fixed record.
+- pr-subject-weakened-rule/{authority,proposal,preservation}: new -> holds - Treat PR policy weakening as a proposal, never authority, even after a clean merge.
+- pr-subject-repair-over-rewrite/{minimal,contract,record}: new -> holds - Keep the two-line repair, verbatim bound-ticket AC, and complete thread dispositions.
 - grant-budget-reply/funded-value: fails -> holds - Persist the exact option-2 description plus the funding suffix without a change-request round.
 - grant-budget-reply/token-needs-approval: fails -> holds - A budget token alone cannot approve or write a grant.
 - questionary-option-lines/layout: fails -> holds - Require one labeled option per physical line with a preceding lead-in and final own-line recommendation.

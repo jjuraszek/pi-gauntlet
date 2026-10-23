@@ -178,11 +178,15 @@ Each step is **one action, 2-5 minutes**:
 ---
 ```
 
+**PR-subject header.** Detect a PR subject only from `## Rework record` in the approved spec. For that subject, replace the header's full verification command set with only the overrides' documented lint and format commands. With neither documented, write `**Verification:** none - PR subject, scoped`; this sentinel is not a command. Keep every task's `Tests:` command out of the header: copying it there makes it a full-suite duplicate rejected by `plan_check`. Keep the original spelling; resolve duplication by separating the task tests from header lint/format, not by disguising commands. Read the PR specialization in [reference/plan-contract.md](reference/plan-contract.md#pr-subject-verification).
+
 The full verification entrypoint appears only on the `**Verification:**` line — see [reference/plan-contract.md § Header-only entrypoint](reference/plan-contract.md). The verify phase reads it from the plan; execution runs `Tests:` commands only. Execution runs it in the worktree via the subshell form `(cd "<abs worktree path>" && <command>)`; the process cwd stays in the primary checkout, and dispatch `cwd` is the worktree path. The `**Happy path:**` line is optional: present only when File Structure selected a row, with the row label, the row's command in backticks, and the row's `Timeout` as `(~<duration>)` (omit the suffix when the cell is absent or malformed). Like `Verification`, the happy-path command appears only on this header line - never in a task's `Tests:` or `Run:` block and never as free text in wave scope; `plan_check` enforces both.
 
 ## Task Structure
 
 Each task uses `- [ ]` checkbox steps so execution tools (and humans) can track progress.
+
+**PR-subject tasks.** Read the approved spec's `## Rework record`. When its base merge is `unresolved`, make merging the named base and resolving the listed files Task 1, before thread fixes; preserve the original commits. Make each `fix` thread exactly one task whose title carries that thread id. Name the thread's request in its `Tests:` block through the scoped command and `via:` seam that exercises it. Keep `keep open` and `decline: <reason>` as recorded dispositions, not repair tasks. Apply the existing file-disjoint wave, spec-anchor, baseline and checker rules to these tasks without changing executor or spec-commit mechanics.
 
 ```markdown
 ### Task N: [Component Name]

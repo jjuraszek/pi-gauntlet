@@ -2,6 +2,8 @@ import { readFileSync, existsSync, readdirSync } from 'node:fs';
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { parse } from 'yaml';
+import { fileURLToPath } from 'node:url';
+import { lintTarget } from '../eval/lib/lint.mjs';
 const read = (path) => readFileSync(new URL(`../${path}`, import.meta.url), 'utf8');
 const main = () => read('skills/brainstorming/SKILL.md');
 
@@ -323,4 +325,32 @@ test('red flags stop approaches that skip the framing question or the holds-stat
   const text = main();
   assert.match(text, /^- Approaches before the framing question or the holds-statement .*; a holds-statement that names nothing checked \(\[owner\]\(#3-understand-the-idea\)\)\.$/m);
   assert.ok(text.includes("- Approaches before the premise note states a contradicted claim's correction ([owner](#3-understand-the-idea))."), 'premise red flag retained');
+});
+
+test('brainstorming eval structure and edited instruction sizes stay valid', () => {
+  assert.deepEqual(lintTarget(fileURLToPath(new URL('../eval/brainstorming', import.meta.url))), []);
+  for (const path of ['skills/brainstorming/SKILL.md', 'skills/brainstorming/gatherer.md', 'skills/brainstorming/reference/spec-finalization.md']) {
+    const text = read(path);
+    assert.ok(Buffer.byteLength(text) < 50000, `${path}: byte limit`);
+    assert.ok(text.split('\n').length < 2000, `${path}: line limit`);
+  }
+});
+
+test('PR routing follows reset and preserves the named pre-approval merge exception', () => {
+  const text = main();
+  const step = text.match(/^2\. .*/m)[0];
+  assert.match(step, /reference\/pr-subject.md/);
+  assert.ok(text.indexOf('phase_tracker({ action: "reset" })') < text.indexOf(step));
+  for (const marker of ["its conflict helper's edits to the conflicted files", 'scoped conflict tests', 'PR-head path', "PR's diff as the ask", 'spec commit is appended', 'YYYY-MM-DD-pr-<N>-<topic>.md']) assert.ok(text.includes(marker), marker);
+});
+
+test('PR scout receives authoritative base values and emits repair evidence', () => {
+  const text = read('skills/brainstorming/gatherer.md');
+  for (const marker of ['git show <BASE_SHA>:<path>', 'git diff --name-only <BASE_SHA>...<PRE_REWORK_HEAD>', 'PR title and body verbatim', 'PR-carried specs', 'full comment threads', 'threads: not fetched (<reason>)', 'smallest repair', 'keeps:', 'changes:', 'dropped claims:', 'constraints added since fork:', 'fix | keep open | decline: <reason>', 'context-builder only for the bound ticket']) assert.ok(text.includes(marker), marker);
+  assert.match(text, /## Codebase recon[\s\S]*?## PR under rework[\s\S]*?## External context/);
+});
+
+test('PR spec replacement and lint preserve the record and raw council input', () => {
+  const text = read('skills/brainstorming/reference/spec-finalization.md');
+  for (const marker of ['## PR under rework', '## Rework record', 'after `## Acceptance criteria`', '40-character pre-rework SHA', 'merge result', 'thread dispositions', 'contract exceptions', 'scoped test results', 'absence fails inline lint', 'PR title and body verbatim', 'ticket or free-text spec']) assert.ok(text.includes(marker), marker);
 });

@@ -27,7 +27,7 @@ Headings, fixed order. A consumer keys on headings, never prose.
 | `## Repo state` | one field per line: `toplevel`, `worktree: yes <path>` or `worktree: no`, `branch` (`detached` when none), `HEAD`, `base` (`unknown` when no remote resolves), `dirty: <porcelain>` or `dirty: clean`, `diff-stat` (`unavailable` when base unknown), `test cmd`; any field `unavailable` when its command failed; heading `## Repo state: not a git repo` outside git | always |
 | `## Decisions` | bullets; rejected alternatives marked `rejected:` | always |
 | `## Skills loaded` | frontmatter `name`s; `## Skills loaded: none` when none | always |
-| `## Process state` | `phase_tracker status` then `plan_tracker status` verbatim; `Active task: <name|none>`; the line `Gate history not restored - re-validate before advancing.` | only when a phase is `in_progress` and no hotfix flow is in context |
+| `## Process state` | `phase_tracker status` then `plan_tracker status` verbatim; `Active task: <name|none>`; optional `PR: <owner/repo#N>` and `Pre-rework head: <40-char sha>` lines, present together only for a PR subject; the line `Gate history not restored - re-validate before advancing.` | only when a phase is `in_progress` and no hotfix flow is in context |
 
 Consumer rules: process state absent -> plain handoff (the consumer starts its
 own process from `## Intent`); present with `No plan active.` -> phase-only, restore no
@@ -43,7 +43,9 @@ inline. `## Repo state` is matched by prefix: `## Repo state` or
 cohort's `handoff` skill wrote, which ends at `## Skills loaded`. Layout, byte-exact:
 one blank line, the heading on its own line, a blank line, the `phase_tracker status`
 output verbatim, a blank line, the `plan_tracker status` output verbatim, a blank line,
-`Active task: <name|none>`, then the gate-history line - unfenced, nothing after.
+`Active task: <name|none>`, then, only for a PR subject, exactly two lines:
+`PR: <owner/repo#N>` and `Pre-rework head: <40-char sha>`, then the gate-history line -
+unfenced, nothing after.
 `Active task` is the first `→` task name, else `none` (also for `No plan active.`).
 
 Example appended block (the fence is documentation; the brief carries no fence):
@@ -104,6 +106,15 @@ Parse stops (print the offending line, make no tracker call):
 
 ## Process-state restore
 
+Before any tracker write, read the optional PR identity and fetch its branch with
+`gh pr view <N> --repo <owner/repo> --json headRefName`. Compare `headRefName` with
+`git -C <worktree> branch --show-current`. A mismatch stops with
+`brief names PR #N on <headRefName>, worktree is on <branch>`; a failed fetch stops
+with its error. Carry the paired full pre-rework head into reconstruction's
+candidate selection. Without the optional pair, retain ordinary restoration.
+Preserve the entry checks, standing-grant validation, plan repair, and task snapshot;
+PR identity implies no approval or gate evidence.
+
 Facts that fix the order (from the extensions):
 
 - Arming happens only on `start brainstorm`; `reset` disarms; `skip` and `complete`
@@ -121,7 +132,7 @@ Per-stage call table, keyed by the brief's active phase (`→`). Use
 `R = resume: <brief file or "pasted brief">` for plan/implement/verify skips and
 `S = resume: <spec path>` for brainstorm skips. Resolve `<spec path>` as
 `reconstruction.md` "Candidates" does, to an absolute path under the worktree: the single
-`*.md` spec added after base under `flowGuards.specDirs`, or a spec tracked from base when
+`*.md` spec added after the candidate base under `flowGuards.specDirs`, or a spec tracked from that base when
 a plan added after base pairs with it by basename. Zero specs -> stop; more than one ->
 human picks. The consumer carries this path to its entry check 6 and its post-restore
 announcement without re-resolving it.
@@ -136,7 +147,7 @@ announcement without re-resolving it.
 
 `planPath` (implement onward): the brief carries none. Resolve as reconstruction does
 (`reconstruction.md`, "Candidates", including its `flowGuards.specDirs` resolution): the
-single plan added after base, paired with `<specDir>/<same basename>` whether that
+single plan added after the candidate base, paired with `<specDir>/<same basename>` whether that
 spec was added after base or tracked from base (`reconstruction.md` "Candidates");
 resolve the selected plan to an absolute path under the worktree before `plan_check`.
 Zero pairs -> stop; more than one -> human picks.

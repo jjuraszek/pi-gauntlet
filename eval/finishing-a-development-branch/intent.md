@@ -5,6 +5,8 @@ Step 6 reads the overrides file's `## using-git-worktrees` section at finish tim
 
 Step 4 applies the shared menu-layout contract to both finishing menus, separating generated options from preceding ordered observations and echoing a mapped legacy numeric pick before acting.
 
+The PR-subject finish is detected from the selected spec record, verifies the scoped task union, proves preserved history and a non-force landing, and appends a thread-evidenced Rework block without rewriting the description. Baseline for the new sample: `1b0f7dd2bbbf926a8ff65109414d05aa97acaa58` (references committed). The default target remains the Step 6 slice, so its assembly and `for:` hash remain unchanged; the new sample bundles the full finish skill and PR-head reference.
+
 ## Expected to move
 - no-section-dot-worktrees-removed/w1: fails -> holds - the explicit branch -D continuation also settles the legacy .worktrees/ removal narration.
 - no-section-sibling-host-owned/s2: fails -> holds - same.
@@ -19,3 +21,11 @@ Step 4 applies the shared menu-layout contract to both finishing menus, separati
 - destroy-failure/f3: fails -> holds - the baseline never runs the destroy command.
 - menu-after-numbered-findings/layout: fails -> holds - the generated Step 4 menu applies the shared layout contract.
 - menu-after-numbered-findings/mapped-pick: fails -> holds - legacy reply 6 resolves to option 3, Squash-merge to <base-branch>, with an echo before simulated action.
+- pr-subject-push/menus: fails -> holds - full-skill PR-subject finishing contract is new.
+- pr-subject-push/verification: fails -> holds - full-skill PR-subject finishing contract is new.
+- pr-subject-push/guards: fails -> holds - full-skill PR-subject finishing contract is new.
+- pr-subject-push/divergence: fails -> holds - full-skill PR-subject finishing contract is new.
+- pr-subject-push/landing: fails -> holds - full-skill PR-subject finishing contract is new.
+- pr-subject-push/threads: fails -> holds - full-skill PR-subject finishing contract is new.
+- pr-subject-push/body: fails -> holds - full-skill PR-subject finishing contract is new.
+- pr-subject-push/failures: fails -> holds - full-skill PR-subject finishing contract is new.

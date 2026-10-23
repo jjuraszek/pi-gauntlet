@@ -47,6 +47,10 @@ The header value's backtick spans (else the raw value) are split on `&&`, `||`, 
 
 The optional `**Happy path:**` line's backticked command is a second header entrypoint under the same rule: its segments join the header segment set, and its whole command may not appear in wave prose.
 
+## PR-subject verification
+
+Detect this specialization only from `## Rework record` in the approved spec. Put only the overrides' documented lint and format commands in `**Verification:**`, or the literal `none - PR subject, scoped` when neither is documented. Treat the sentinel as no header command. Keep scoped tests in task `Tests:` blocks, never copy them into the header or change their spelling to evade `header-entrypoint` or `tests-block` rejection. Retain baseline evidence and all existing checker grammar. At verify, run the union of every task's `Tests:` commands plus the header's lint/format commands; omit `none:` entries and the sentinel from executable commands. This policy specializes the command set, not freshness, conformance or phase gates. Without the record, keep the ordinary full verification entrypoint.
+
 ## Happy path line (`header-happy-path`)
 
 Optional. When present, the header line reads `**Happy path:** <label> - \`<command>\`` with an optional ` (~<duration>)` suffix, `<duration>` matching `\d+(s|m|h)`. A present line that does not parse is a finding; absence is never a finding. The label names the row of the overrides file's `## Happy path` table the plan selected; the verify phase reads the line from the plan and re-derives the row from the real diff.

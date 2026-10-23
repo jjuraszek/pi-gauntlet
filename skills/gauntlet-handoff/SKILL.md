@@ -84,7 +84,10 @@ loop: tracker state is extension state no subagent can read.
      -> append the process-state section exactly as `## Producers` in
      `reference/brief-contract.md` lays it out: both status outputs verbatim
      (`No plan active.` verbatim when there is no plan), the active-task line naming
-     the first `→` task else `none`, the gate-history line. Append with a single
+     the first `→` task else `none`, the gate-history line. Read the run worktree's
+     spec; when it carries `## Rework record`, copy its PR identity (without the
+     title) and full pre-rework head into the optional fields in the contract's
+     producer layout. Without that record, use the ordinary layout. Append with a single
      `cat >> "<brief path>" <<'EOF' ... EOF` whose body is that block.
    - Re-read the file tail and confirm it ends with the gate-history line from the
      contract and nothing after.
