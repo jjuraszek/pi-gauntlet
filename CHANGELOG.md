@@ -1,5 +1,16 @@
 # Changelog
 
+## Unreleased
+
+### Added
+
+- **shape-ticket repairs a list of tickets as one batch and grounds every ticket in a repo audit.** A comma or whitespace list of refs runs as one batch repair: duplicates collapse, unfetched refs are reported and skipped, a wishful or tautological AC stops only its own ticket, and each ticket gets the single-ticket confirmation gate in ref order, written on approval before the next gate prints; splits keep their all-or-nothing gate, and batches above eight tickets dispatch in successive calls. A read-only `scout` audit runs per ticket in create and repair mode (`skills/shape-ticket/reference/repo-audit.md`): claims checked against code, repo-fit of the Idea against AGENTS.md/CLAUDE.md/REVIEW.md with a cited simpler or existing path, a sibling-repo leg from the `## shape-ticket` `- sibling:` overrides lines, in-motion work, and a best-effort replication scenario recorded as a note, never a block. Findings rewrite the Problem/Idea with citations or render as an `Audit:` block inside the existing gate; the roast stays content-only and receives the audit as untrusted data; the drafter keeps `audit.md` beside the draft only when gather produced it. The AC integrity gate gains a uniqueness rule (an implied child row folds into its parent, a bundled row splits). `## Examples and rationalizations` and the tracker ladder move to `reference/examples.md` and `reference/tracker-ladder.md`. (#80)
+- Eval samples `batch-repair`, `audit-repo-fit`, `scenario-best-effort`, `audit-quiet-noop`, `audit-byte-lock`, `audit-dispatch`, and `audit-grounding` under `eval/shape-ticket/`. (#80)
+
+### Changed
+
+- The bundle-reference lint in `scripts/ci.mjs` exempts `audit.md` and `snapshot.md` only as `<tmp>/...` path segments or bare names, so a broken `reference/audit.md` link is flagged again. (#80)
+
 ## v7.27.0 - 2026-10-22
 
 ### Added
