@@ -1,0 +1,110 @@
+{
+  "sample": "scenario-best-effort",
+  "arm": "candidate",
+  "skillSha": "3be45b2adcb9dbef1322b1e3791b2add3578d01f3e39d8610c7e0cc0c2f7056e",
+  "inputSha": "e85f52e134434e23b79c91c45e0dca5b1e2c61f0974f348c8ae7d3b706695f2e",
+  "kind": "text",
+  "assembly": "concat",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "## Checkpoint 1: create, fresh feature (Draft → gate)\n\n**Run:** mode create; temp root `<tmp>` from `mktemp -d`. The ask is stored as untrusted data in `<tmp>/create/snapshot.md`, with the audit in `<tmp>/create/audit.md`. The input names no overlap candidate, so this is a plain create. Nothing was displaced, so no Reporter note is proposed.\n\n**Roast:** a roast dispatch is required on this draft before the gate. It was not run here because tools are disabled. Its dispositions are pending, and any applied fix re-runs the step 5 checks.\n\n**Audit:**\n- `scenario: none (nothing to observe - new capability)`\n\n**Title:** (new) Add receipts to downloaded reports\n\n**Body (as-new):**\n\n```markdown\n## Context\nA support review raised this request. Today, report exports download as rows only. There is no receipt for a download.\n\n## Problem\nUsers cannot tell which report a download came from, so they cannot point support to it. Example: a downloaded report carries no report ID that a user could quote back to support.\nsource: https://example.test/receipts\nscenario: none (nothing to observe - new capability)\n\n## Idea\nThe reporter proposes receipts for downloaded reports.\n\n## Acceptance Criteria\n- [ ] Given a downloaded report, viewing its receipt shows the report ID.\n```\n\n**Metadata changeset:** none proposed. The input names no tracker fields.\n\n**Evidence:**\n- https://example.test/receipts\n- Scenario: none (new capability)\n\n**Source gaps:** none. The one example has its footer.\n\n**Roast dispositions:** pending (see above).\n\n**Proposed comment / relations:** none.\n\nPick one:\n1. Approve: write the exact title and body above\n2. Revise\n3. Decline\n\nOn approval, step 9 makes one create call with this title and body. It skips revalidation because no existing ticket underlies a plain create. No approval has been given, so nothing is written.\n\n---\n\n## Checkpoint 2: repair ABC-301 (supported scenario)\n\nThe audit's Scenario finding supplies setup and action for the row that states the failure. That is a draft-changing finding, so the AC edit takes the substantive full-replacement path with `- [ ]` normalization.\n\nThe rewritten row:\n- drops the venue (`staging`),\n- keeps the expected result (12 rows), not the current observation,\n- shows no Reporter-note comment, because the old row's text survives inside the new row.\n\nThe scenario footer goes at the end of Problem, after the `source:` footer.\n\n**Audit:**\n- `scenario: present`\n\n**Title:** unchanged\n\n**Body diff:**\n\n```diff\n ## Problem\n Recipients must retry empty downloads. Example: a 12-row report downloads as zero rows.\n source: https://example.test/report/12\n+scenario: setup: report R has 12 rows in staging; action: download R; observed: download has zero rows; inputs: https://example.test/run/R, screenshot.png\n ...\n ## Acceptance Criteria\n-- [ ] Downloading produces 12 rows.\n+- [ ] Given a 12-row report, downloading produces 12 rows.\n```\n\n**Metadata changeset:** none.\n\n**Evidence:**\n- https://example.test/report/12\n- Repro: setup is report R with 12 rows; action is download R.\n- Observed: zero rows. Expected: 12 rows.\n- Scenario inputs: https://example.test/run/R, screenshot.png\n\n**Source gaps:** none.\n\n**Roast dispositions:** a roast is required before the gate. It was not run here and its dispositions are pending.\n\n**Proposed comment:** none.\n\nPick one:\n1. Approve: write the exact diff above\n2. Revise\n3. Decline\n\nOn approval, step 9 does the following:\n1. Re-fetch ABC-301's body, discussion and workflow.\n2. Compare them with the approved snapshot, using a version or ETag precondition where the tracker supports it. Any change loops back to this gate with the delta.\n3. Make one body write.\n\nNothing is written without approval.\n\n---\n\n## Checkpoint 3: same defect, source missing at filing\n\nThe gap is collected because the title is not Discovery or Spike. It is a bug with repro steps, so its gap row renders before Title, and the Audit block follows it immediately above Title.\n\nThe scenario inputs (`https://example.test/run/R`, `screenshot.png`) stay only in the `scenario:` footer. They never fill or name the source gap.\n\nsource missing: a 12-row report downloads as zero rows\n\n**Audit:**\n- `scenario: present`\n\n**Title:** unchanged\n\n**Body diff:**\n\n```diff\n ## Problem\n Recipients must retry empty downloads. Example: a 12-row report downloads as zero rows.\n+source: none (not recorded at filing)\n+scenario: setup: report R has 12 rows in staging; action: download R; observed: download has zero rows; inputs: https://example.test/run/R, screenshot.png\n ...\n ## Acceptance Criteria\n-- [ ] Downloading produces 12 rows.\n+- [ ] Given a 12-row report, downloading produces 12 rows.\n```\n\n**Evidence:** same as Checkpoint 2, without the report/12 URL.\n\n**Roast dispositions:** pending, as above.\n\n**Proposed comment:** none.\n\nPick one:\n1. Approve with the prefilled `none (not recorded at filing)` footer, or reply with a link, an attachment or a reason to replace it\n2. Approve and proceed without\n3. Revise\n4. Decline\n\nHow each reply resolves the footer:\n\n| Reply | Footer written |\n|---|---|\n| A link, attachment or reason | Replaces only that footer: the URL, the attachment, or `none (<your reason verbatim>)` |\n| Plain \"yes\" | The displayed constant `none (not recorded at filing)`, with no re-ask |\n| \"Proceed without\" | `none (proceed without - <YYYY-MM-DD>)`, dated with `date +%F` |\n\nStep 9 is the same as Checkpoint 2: re-fetch, compare with the snapshot, then write the body. No approval has been given.\n\n---\n\n## Checkpoint 4: Scenario none (no access)\n\nNo body is drafted for this finding alone.\n\n- **Audit line:** `scenario: none (no access to staging credentials or browser)`. It is reported only and never blocks.\n- **If ABC-301 is already being drafted for another reason,** the drafted Problem ends, after its `source:` footer, with `scenario: none (no access to staging credentials or browser)`.\n- **AC setup without the scenario:** with no audit-supplied scenario, the setup gap in `Downloading produces 12 rows.` is handled through the AC integrity gate's gather-time recovery question. That question asks for the setup, here the report's row count, and invents none.\n- **If nothing else changes the draft and the body conforms,** the ticket is a no-op. The report reads \"conforms, no changes proposed\" with this Audit line. There is no roast, gate or write.\n",
+      "words": 915,
+      "wallMs": 44714,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "These are independent checkpoints. No tools, tracker calls, approvals, or writes have occurred. The gates below are proposed payloads; the prescribed content-only roast remains unexecuted.\n\n## 1. Fresh feature — create gate\n\n**Audit:**\n- Claims: none; Repo-fit: kept; AC-fit: clear; Sibling: none; In-motion: none.\n- scenario: none (nothing to observe - new capability)\n\n**Title:** ∅ → Add report receipts\n\n**Body — as new:**\n```diff\n+## Context\n+A support review triggered this request. Today exports download report rows.\n+\n+## Problem\n+Users cannot identify a download because no report receipt is available. For example, a downloaded report has no receipt showing its report ID.\n+source: https://example.test/receipts\n+scenario: none (nothing to observe - new capability)\n+\n+## Idea\n+The reporter proposes receipts so users can identify downloaded reports.\n+\n+## Acceptance Criteria\n+- [ ] Given a downloaded report, viewing its receipt shows the report ID.\n```\n\n**Metadata:** No changes proposed beyond the new title and body; tracker defaults were not supplied.\n\n**Evidence:**\n- Source: https://example.test/receipts\n- No existing receipt capability is available to observe. This is fresh-feature work, not a reproduced defect.\n- The supplied AC already names setup, action, and expected result. A scenario of `none` does not require changing it.\n\n**Source gaps:** None.\n\n**Roast dispositions:** None supplied; prescribed content-only roast pending.\n\n**Comment / relations:** None proposed. No overflow was displaced.\n\nPick one:\n1. Approve the displayed create payload.\n2. Revise.\n3. Decline.\n\nNo approval is assumed.\n\n## 2. ABC-301 — defect repair with supplied source\n\nFor the old side, use the explicitly stated current AC, `- [ ] Downloading produces 12 rows.` The longer AC in the supplied body is the intended repaired form.\n\n**Audit:**\n- scenario: present\n- Other audit labels are quiet.\n\n**Title:** Unchanged; title text was not supplied.\n\n**Body — old → new:**\n```diff\n ## Context\n A support review triggered this request. Today exports download report rows.\n ## Problem\n Recipients must retry empty downloads. Example: a 12-row report downloads as zero rows.\n source: https://example.test/report/12\n+scenario: setup: report R has 12 rows in staging; action: download R; observed: download has zero rows; inputs: https://example.test/run/R, screenshot.png\n ## Idea\n reporter proposes preserving report rows on download.\n ## Acceptance Criteria\n-- [ ] Downloading produces 12 rows.\n+- [ ] Given a 12-row report, downloading produces 12 rows.\n```\n\n**Metadata:** Unchanged.\n\n**Evidence:**\n- Setup: Report R has 12 rows in staging.\n- Action: Download R.\n- Observed: The download has zero rows.\n- Expected: The download contains 12 rows.\n- Example source: https://example.test/report/12\n- Scenario inputs: https://example.test/run/R and `screenshot.png`; capture time was not supplied.\n\nThe scenario supports the missing AC setup and action. Staging stays in the evidence footer, not in the AC. The expected result remains 12 rows.\n\n**Source gaps:** None.\n\n**Roast dispositions:** None supplied; prescribed content-only roast pending.\n\n**Comment / relations:** None proposed. Adding setup and action displaces no reporter detail.\n\nPick one:\n1. Approve the displayed ABC-301 repair.\n2. Revise.\n3. Decline.\n\n## 3. ABC-301 — independent missing-source repair\n\nsource missing: a 12-row report downloads as zero rows\n\n**Audit:**\n- scenario: present\n- Other audit labels are quiet.\n\n**Title:** Unchanged; title text was not supplied.\n\n**Body — old → new:**\n```diff\n ## Context\n A support review triggered this request. Today exports download report rows.\n ## Problem\n Recipients must retry empty downloads. Example: a 12-row report downloads as zero rows.\n+source: none (not recorded at filing)\n+scenario: setup: report R has 12 rows in staging; action: download R; observed: download has zero rows; inputs: https://example.test/run/R, screenshot.png\n ## Idea\n reporter proposes preserving report rows on download.\n ## Acceptance Criteria\n-- [ ] Downloading produces 12 rows.\n+- [ ] Given a 12-row report, downloading produces 12 rows.\n```\n\n**Metadata:** Unchanged.\n\n**Evidence:**\n- Repro: With report R containing 12 rows in staging, download R.\n- Observed: Zero rows downloaded.\n- Expected: Twelve rows downloaded.\n- Scenario inputs remain https://example.test/run/R and `screenshot.png`. They do **not** resolve or acknowledge the missing example source.\n- The source footer uses the prescribed repair constant, independently of the scenario evidence.\n\n**Roast dispositions:** None supplied; prescribed content-only roast pending.\n\n**Comment / relations:** None proposed.\n\nPick one:\n1. Approve the displayed repair, accepting `none (not recorded at filing)`, or supply a link, attachment, or reason for this named gap with approval.\n2. Approve and proceed without a source for this example.\n3. Revise.\n4. Decline.\n\nA plain approval accepts the displayed repair constant. Option 2 would replace only that footer with the prescribed dated proceed-without form, using the session date because tools are disabled. Neither choice changes the scenario footer.\n\n## 4. Access checkpoint\n\n**Audit:** scenario: none (no access to staging credentials or browser)\n\nThis is a quiet finding, not a blocker or a reason to draft another body. Do not invent a scenario, request credentials solely for this finding, or substitute the access limitation for an example’s source acknowledgment.\n\nIf the ticket otherwise conforms and has no pending comment, the disposition is **“conforms, no changes proposed”** with this Audit line; no roast, gate, or write is needed. Existing independent defects still require their normal repair.\n\n### Prescribed execution after approval\n\nFor each eligible changed body, retain snapshot, audit, draft, and any roast artifacts together; complete the content-only roast and recheck deterministic gates before an actual confirmation gate.\n\nAfter approval of the exact final payload, re-fetch an existing ticket’s body, discussion, and workflow and compare them with its gathered snapshot. A change requires a new gate showing the delta. Otherwise, write the approved body using version preconditions where supported. A plain create has no existing ticket to revalidate. No checkpoint proposes a comment write.\n",
+      "words": 851,
+      "wallMs": 49282,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "63213c16fde3c42c21da0c845af1b5566979706110028cf6ff196e42db901f29",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "e888ce973618684c352343d6f08a28b6be86f7dd48ee20af392d08ec3fdfda4f",
+      "baselineOutputSha": "74e0f30eb61ca02254c2adfb467be79702cee92cfdbd4c6fd8a945658cb409cd",
+      "candidateOutputSha": "acae842667e6d79f1443b8dc61dbbd1b37dcaf4654370160ffdb28e2c1c9023b",
+      "facts": {
+        "feature": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "footer": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "defect": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "source-independent": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "access": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "After keeps every fact Before kept: Checkpoint 1 still drafts the new-capability body and offers the numbered write approval with no park or Blocked on, and the scenario: none footer sits under the source footer; Checkpoint 2 fills the AC row with the 12-row setup and download action while holding expected 12 rows and recording the zero-row observation plus run link and screenshot in the scenario footer; Checkpoint 3 keeps the scenario inputs out of the source gap and still renders the missing-source row with the plain-yes constant; Checkpoint 4 reports the no-access scenario line without blocking, asking an access question, or parking. Two drifts worth watching even though no listed fact moved: After's Checkpoint 2 and 3 drop the verbatim Reporter note that Before carried for the replaced AC row (reasoning that the old text 'survives inside the new row'), which weakens the displaced-detail accumulation the Change asks to preserve — keep the comment with the old row bytes verbatim, or state explicitly that a strict-superset rewrite is the one case that displaces nothing. Also, After's Checkpoint 1 'Roast dispositions: pending' plus 'a roast dispatch is required ... before the gate' reads slightly as if the gate is conditional; phrase it as Before did ('prescribed, none supplied; applied: none') so the approval offer is unambiguously live. Otherwise the wording delivers the Change without losing any guard.",
+      "wallMs": 17423,
+      "verdict": "unchanged"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "63213c16fde3c42c21da0c845af1b5566979706110028cf6ff196e42db901f29",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "e888ce973618684c352343d6f08a28b6be86f7dd48ee20af392d08ec3fdfda4f",
+      "baselineOutputSha": "72921379a996cf016e5fc1c37c6ed0c20f8c67853a94e2f4540b41a3dd7ba176",
+      "candidateOutputSha": "e74edb3b36fbba87bd56601b4c15fa8f1296b341edc3357dfe13c6c3810a4b3b",
+      "facts": {
+        "feature": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "footer": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "defect": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "source-independent": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "access": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "No fact moved. Both outputs draft the fresh feature with the scenario: none footer directly under the source footer and offer a plain numbered create approval with no park or Blocked on; both repair the ABC-301 AC to a Given-12-row-report/download row that keeps 12 rows as expected, put the zero-row observation and the run URL plus screenshot only in the scenario footer, keep the missing-source checkpoint's repair constant and plain-yes acceptance independent of the scenario evidence, and treat the access limitation as a quiet audit note rather than an AC, question or park. The one substantive divergence worth watching is in checkpoint 2/3: Before carries the replaced AC row verbatim in a Reporter note comment, whereas After asserts 'Adding setup and action displaces no reporter detail' and proposes no comment. That is defensible here (the old row is a strict subset of the new one), but the new 'accumulate verbatim displaced detail' and 'acknowledge detail already retained in the Reporter note' wording is close to contradicting the no-comment choice; to keep this safe, state explicitly in the audit grounding/AC-uniqueness language that a conformance-only or superset AC rewrite displaces nothing and needs no Reporter note, so the skill does not oscillate between the two behaviors on reruns. Also, After's checkpoint 1 renders a brand-new body as an all-plus diff; the Change's 'one diff per changed body' is fine, but for a create with no old side a plain fenced body (as in Before) avoids suggesting an existing ticket is being edited.",
+      "wallMs": 17523,
+      "verdict": "unchanged"
+    }
+  },
+  "repoSha": "5e211182d27b4be6aeee79d2c7fa9993ba49556d"
+}

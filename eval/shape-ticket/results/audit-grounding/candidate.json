@@ -1,0 +1,140 @@
+{
+  "sample": "audit-grounding",
+  "arm": "candidate",
+  "skillSha": "76ea58cc2b07bf928e8c5b8e6509fd60efdf2a61a066330c3623e6f1fefd79af",
+  "inputSha": "5ced1bfc8d9ff9a0c3f26c0a18612047f22e8e2694cb2e81b0f113901254bdfe",
+  "kind": "text",
+  "assembly": "concat",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "# ABC-701: repair\n\n**Run setup.** The ref list is `ABC-701`, in repair mode. The run uses one `mktemp -d` root, `<tmp>`. The fenced, untrusted snapshot is at `<tmp>/ABC-701/snapshot.md`, as defined above.\n\n**Audit (already returned).** No `subagent()` tool is available, so the scout brief was dispatched through the harness's native facility. That fallback used fresh context and low effort. It received the same self-contained brief, the absolute snapshot path and the output path `<tmp>/ABC-701/audit.md`. All six labels are present, so the file is usable.\n\n**Roast (prescribed, not executed here).** The roast also uses the native fallback, because no `gauntlet_setting` or `subagent()` is available:\n- **Dispatch:** one fresh general-purpose subagent at low effort, running the four-axis brief: fidelity, quality, split soundness and attribution.\n- **Inputs:** the brief carries absolute paths to `reference/ticket-wording.md` and `reference/split-axes.md`. Permitted input is `<tmp>/ABC-701/draft.md`, which ends in a fenced `## Proposed Reporter note`, plus `snapshot.md` and `audit.md`. Both are fenced as untrusted data.\n- **Human input block:** the original body, passed verbatim.\n- **Content-only:** the subagent does no repository re-verification.\n- **Treated as source-grounded:** the cited premise fix, the attributed Idea, the team/viewer group, the scenario footer and the Reporter-note move.\n- **No extra gate.** If no usable output exists after one re-dispatch, the gate renders `roast unavailable (<reason>)`.\n\n---\n\n## Gate: ABC-701\n\n```\nAudit:\npremise: Export retries are disabled. -> exports retry twice (docs/retries.md:4)\npremise: My report never retries. vs configured retries twice (docs/retries.md:4)\nunverified: All users prefer email. - no preference evidence\nrepo-fit: kept (uncited alternative \"use a different wrapper\")\nac-fit: clear (uncited flag)\nsibling: team/viewer - opening a receipt shows its report ID (src/receipt.ts:9)\nsibling: ../missing - not found\nsibling: ../billing - none\nin-motion: unavailable (PR search verb)\nscenario: present\n```\n\n**Title:** unchanged. No title change is proposed.\n\n**Body diff:**\n\n```diff\n ## Context\n A support review triggered this request. Today exports download report rows.\n-Export retries are disabled.\n+Today an export retries a failed download twice.\n ## Problem\n Recipients must retry empty downloads. Example: a 12-row report downloads as zero rows.\n-My report never retries.\n+Reporter observation: \"My report never retries.\"\n All users prefer email.\n source: https://example.test/report/12\n+scenario: setup: report R has 12 rows; action: download R; observed: zero rows; inputs: screenshot.png, trace.zip\n ## Idea\n-Build a new ExportWrapper around report downloads.\n+Reporter's proposed approach: build a new ExportWrapper around report downloads in team/reports, with the receipt report-ID check observed in team/viewer.\n ## Acceptance Criteria\n+### team/reports\n - [ ] Given a 12-row report, downloading produces 12 rows.\n+### team/viewer\n - [ ] Given a report receipt, opening it in the viewer shows its report ID.\n```\n\n**Why each change was made:**\n- **Context:** the contradicted fact was replaced with the cited one. The original sentence is kept in the note.\n- **Reporter observation:** kept byte-identical and attributed by prefix. The ambiguity is surfaced here without a question or a block.\n- **Preference claim:** \"All users prefer email.\" is unverified and left unchanged.\n- **Acceptance criteria:**\n  - The expected result of 12 rows is preserved, not the observed zero.\n  - The row already names setup and action, so the scenario fills no gaps.\n  - The rows are grouped by repo, which is a substantive full-replacement repair; the rows were already in `- [ ]` form.\n  - Uniqueness removed or split no rows.\n- **Idea:** rewritten as one attributed sketch line that names both repos.\n- **Source footer:** existing `source:` lines are preserved verbatim.\n- **Scenario inputs:** they appear only in the `scenario:` footer, as named attachments that were not read.\n\n**Metadata changeset:** none. No documented taxonomy changes, and no assignee rule exists.\n\n**Evidence:**\n- Repro: report R has 12 rows; download R.\n- Observed vs expected: zero rows observed, 12 rows expected.\n- Inputs: `screenshot.png` and `trace.zip`, named but not read.\n- Source: https://example.test/report/12.\n\n**Source gaps:** none. The single example has its footer.\n\n**Roast dispositions:**\n- Applied: none yet. The fallback output is pending; it is described above, not executed.\n- Surfaced-ambiguous: none yet.\n\n**Proposed comment (new; existing comments are never edited).** The comment is persisted as the trailing `## Proposed Reporter note` in `draft.md`, fenced as untrusted:\n\n```\nReporter note: Export retries are disabled.\n```\n\nOne approval covers the exact title, body, metadata and comment shown above.\n\nPick one:\n1. Approve: write the body, then the Reporter-note comment\n2. Revise: describe the change; the ticket is rechecked and re-presented\n3. Decline: no write\n\n**On approval (step 9, before any mutation):**\n1. Re-fetch ABC-701's body, discussion and workflow.\n2. Compare them against the gathered snapshot. Any change loops back to this gate with the delta.\n3. Use a version/ETag precondition where the tracker supports it.\n4. Write the body first, then the comment. A mid-batch failure reports exactly what landed.\n\n**Run outcome line:** `ABC-701: written | declined`, depending on the reply.\n\n---\n\n## Independent degradation checkpoints\n\n1. **Create outside a git checkout.** `git rev-parse --show-toplevel` fails, so the Audit block shows `audit unavailable (no repository)`. The run continues on the ordinary create path with no invented edits, blocks or questions.\n\n2. **Missing PR-search command in the checkout.**\n   - The scout uses no invented command and does not scan `git branch -a`.\n   - It reports `In-motion: unavailable (open-PR search verb)`, and the gate line is `in-motion: unavailable (open-PR search verb)`.\n   - This is report-only: it changes nothing in the draft, adds no block, and on its own keeps a conforming ticket a no-op.\n\n3. **Sibling with a grounded observable but an unresolvable repo name.**\n   - Neither `remote get-url origin` nor any repo-documented name resolves the sibling's name.\n   - The ACs stay unchanged: no `### <repo>` group is created and no row moves.\n   - The finding is reported only by path, as `sibling: <path> - <observable> (<citation>)`.\n",
+      "words": 886,
+      "wallMs": 42290,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "## ABC-701 — repair\n\nTools are disabled. No calls or writes have been executed. The supplied audit and citations are treated as authoritative.\n\n**Prescribed native review:** use a fresh, low-effort native subagent with the same self-contained audit brief and per-ticket snapshot/audit artifacts; that audit fallback has already returned the supplied file. For the roast, use a separate fresh, low-effort native subagent with the four-axis brief: fidelity, quality, split soundness, and attribution. Permit only the draft, fenced untrusted snapshot and audit, and absolute ticket-wording/split-axes reference paths. Preserve accumulated Reporter-note text in the draft artifact. Retry an unusable review once; apply concrete fixes within the one-re-pass limit and rerun deterministic gates. This does not introduce another approval gate.\n\nBelow is the **confirmation-gate preview**, not a claim that the required roast has run.\n\nsource missing: retry observation\n\n**Audit:**\n- premise: Export retries are disabled. -> Exports retry twice. (`docs/retries.md:4`)\n- premise: My report never retries. vs configured retries twice (`docs/retries.md:4`). Preserve the reporter’s observation verbatim with attribution; configuration does not establish what happened to that report.\n- unverified: All users prefer email. - no preference evidence\n- Repo-fit: kept. The suggested different wrapper has no citation.\n- AC-fit: clear. The mechanism flag has no citation.\n- sibling: team/viewer - opening a receipt shows its report ID (`src/receipt.ts:9`)\n- sibling: ../missing - not found\n- sibling: ../billing - none\n- in-motion: unavailable (PR search verb)\n- scenario: present\n\n**Title:** unchanged; title text was not supplied.\n\n### Body — old -> new\n\nThe old side includes the additions and replacements specified as already-fetched snapshot content.\n\n```diff\n ## Context\n A support review triggered this request. Today exports download report rows.\n-Export retries are disabled.\n+Exports retry twice.\n ## Problem\n Recipients must retry empty downloads. Example: a 12-row report downloads as zero rows.\n source: https://example.test/report/12\n-My report never retries.\n+The reporter says retries do not happen, leaving them to retry an empty download themselves.\n+Reporter observation: \"My report never retries.\"\n+source: retry observation - none (not recorded at filing)\n All users prefer email.\n+scenario: setup: report R has 12 rows; action: download R; observed: zero rows; inputs: screenshot.png, trace.zip\n ## Idea\n-Build a new ExportWrapper around report downloads.\n+Reporter proposes ExportWrapper, a new wrapper around report downloads in team/reports; this ticket also retains the receipt-viewing outcome in team/viewer.\n ## Acceptance Criteria\n+### team/reports\n - [ ] Given a 12-row report, downloading produces 12 rows.\n+### team/viewer\n - [ ] Given a report receipt, opening it in the viewer shows its report ID.\n```\n\n**Metadata changeset:** no changes proposed; no documented taxonomy or requested field change was supplied. Preserve existing tracker fields.\n\n**Evidence:**\n- Primary repro: report R contains 12 rows; download R.\n- Observed: zero rows. Expected: 12 rows. The AC retains that expected result, not the current observation.\n- Existing example source: https://example.test/report/12\n- Reporter observation: “My report never retries.” Retry configuration does not disprove that observation.\n- Scenario inputs: `screenshot.png`, `trace.zip`; names retained without reading attachment content. Environment and capture time were not supplied. These audit scenario inputs remain in the scenario footer, not source footers.\n- Viewer outcome is grounded by the supplied `src/receipt.ts:9` citation.\n\n**Integrity and scope:**\n- Both ACs specify setup, action, and observable result without requiring production deployment.\n- Grounded repository attribution changes the AC groups, so this is substantive full-replacement repair, not byte-locked conformance-only repair.\n- One ticket, two repository groups; no split proposed.\n- The missing checkout and unavailable PR search do not block repair.\n\n**Roast dispositions:** pending the prescribed native review; no roast findings were supplied or invented.\n\n**Proposed comment — verbatim:**\n```text\nReporter note:\nExport retries are disabled.\n```\n\nThis newly displaced contradicted fact requires a new comment; an older Reporter note would not suppress it. No additional Idea overflow is present.\n\n**Supported relations:** none proposed.\n\nPick one, once the prescribed review is complete:\n1. Approve the displayed changes, including the new comment and the displayed missing-source constant.\n2. Revise the proposal.\n3. Decline.\n\nApproval may supply a source or human reason specifically for **retry observation**. A plain approval accepts the displayed repair constant.\n\n**Prescribed write after approval:** re-fetch the existing body, discussion, and workflow using the resolved native read commands; compare against the gathered snapshot, not the replacement. If unchanged, use supported version preconditions and write the approved body, then the approved comment. If changed, return to this ticket’s gate with the delta. No write is currently authorized.\n\n## Independent degradation checkpoints\n\n- **Create outside a git checkout:** report `audit unavailable (no repository)` and continue the ordinary create path. Missing repository access alone adds no block, draft, or clarification question.\n- **Missing PR-search command inside a checkout:** report `in-motion: unavailable (PR search verb)`. Continue available repository auditing; this quiet finding alone neither changes a conforming body nor triggers a roast or gate.\n- **Grounded sibling observable, unresolved tracker repository name:** report the grounded leg using the sibling path and citation, plus the naming limitation. Keep its existing AC unchanged; do not invent a repository name, move the row into a guessed group, or add that unresolved repository to Idea.\n\nABC-701: stopped\n",
+      "words": 795,
+      "wallMs": 50410,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "d98f96042d923b43710d683a6536f27d9e85688983ac55f7bfcb0ba6098ba262",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "e888ce973618684c352343d6f08a28b6be86f7dd48ee20af392d08ec3fdfda4f",
+      "baselineOutputSha": "48120ba56adab93246108ecb05a871f44a213c5c70e006e214b010e6e836713c",
+      "candidateOutputSha": "182cd1f56efd2742d011371f9c48b4ce612fe5b45ed318c9b4bb8ceee7e70978",
+      "facts": {
+        "claim": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "reporter": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "uncheckable": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "citations": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "sibling": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "attachments": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "degradation": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "fallback": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "No listed fact moved: After still replaces the contradicted Context fact with the cited retries-twice wording while keeping 'Export retries are disabled.' verbatim in both the premise gate line and the Reporter note; the reporter observation survives byte-identical (now prefixed 'Reporter observation:') with its ambiguity line and no question; the preference claim stays unchanged and marked unverified; repo-fit is 'kept' and ac-fit 'clear' with the uncited flags shown explicitly in the Audit block (an improvement over Before, which only showed them in the findings table); only the viewer leg becomes a team/viewer group and Idea mention while missing/billing/unresolved-name siblings add nothing; the scenario footer names the attachments unread and the AC keeps the expected 12 rows; both degradation checkpoints give 'audit unavailable (no repository)' and 'in-motion: unavailable (...)'; and the native fallback is fresh, low-effort, same brief and artifacts, no new gate, with cited fold-ins declared source-grounded for the roast. Two things to watch that sit outside the listed facts but touch the Change's 'verbatim displaced detail' intent: After's Reporter note drops the original Idea sentence ('Build a new ExportWrapper around report downloads.') that Before carried alongside the displaced Context claim, so the attributed-Idea rewrite now displaces text without accumulating it — restore that line in the note. Also, wrapping the reporter observation in quotes plus a prefix edits the Problem line rather than leaving it untouched; if byte-stability of reporter text matters for later roast/conformance checks, prefer attribution in the Evidence or Audit block and leave the sentence as-is in the body.",
+      "wallMs": 23614,
+      "verdict": "unchanged"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "d98f96042d923b43710d683a6536f27d9e85688983ac55f7bfcb0ba6098ba262",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "e888ce973618684c352343d6f08a28b6be86f7dd48ee20af392d08ec3fdfda4f",
+      "baselineOutputSha": "76ed2f0f1bf27505e1de23f4527fdac8753fb6af916d2412dd7bf1f9e712f65e",
+      "candidateOutputSha": "1215d93d79b12ca6417187cc1777a4384995e1e54d63efdd1bd13b0e1bb6a509",
+      "facts": {
+        "claim": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "reporter": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "uncheckable": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "citations": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "sibling": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "attachments": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "degradation": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "fallback": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "After keeps every fact that Before kept: the contradicted code claim becomes 'Exports retry twice' with the original retained verbatim in both the premise gate line and the Reporter note; 'My report never retries.' survives (now quoted with attribution) alongside the cited docs/retries.md:4 ambiguity line and no blocking question; the email preference stays unchanged with 'no preference evidence'; the uncited wrapper alternative is kept and the uncited AC-fit is clear; only the grounded viewer leg gains a team/viewer group and Idea mention while missing/billing/unresolved-name siblings add nothing; the scenario footer names screenshot.png and trace.zip unread with the AC still requiring 12 rows; both degradation checkpoints report 'audit unavailable (no repository)' and 'in-motion: unavailable (PR search verb)' and continue the ordinary path; and the native fallback is described as fresh, low-effort, same brief and artifacts, no new gate. The one near-miss is the Problem diff: After deletes the raw 'My report never retries.' line and substitutes a plain-words lead plus a re-quoted 'Reporter observation:' line. That still satisfies the fact because the verbatim sentence and attribution remain, but a stricter reader could read the deletion-plus-paraphrase as rewriting a reporter observation. Safer wording that still delivers the Change's plain-words lead and attribution: keep the original line untouched (' My report never retries.' as context) and only add the attributed lead above it, e.g. '+Reporter observation (not disproved by configured retries): ' prefix as a separate added line, rather than a '-'/'+' replacement. Also, 'Pick one, once the prescribed review is complete' slightly blurs whether the roast precedes the existing gate; phrase it as 'This is the existing gate; the prescribed roast adds no further approval' to avoid any hint of a second gate.",
+      "wallMs": 25737,
+      "verdict": "unchanged"
+    }
+  },
+  "repoSha": "5e211182d27b4be6aeee79d2c7fa9993ba49556d"
+}

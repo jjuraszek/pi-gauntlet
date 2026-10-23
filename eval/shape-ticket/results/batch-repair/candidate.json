@@ -1,0 +1,170 @@
+{
+  "sample": "batch-repair",
+  "arm": "candidate",
+  "skillSha": "76ea58cc2b07bf928e8c5b8e6509fd60efdf2a61a066330c3623e6f1fefd79af",
+  "inputSha": "f2fede18de717715f7c4e8f7a3282522a597919b3bb28faf047c4518826be26a",
+  "kind": "text",
+  "assembly": "concat",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "# shape-ticket: repair run\n\n**Refs (deduplicated):** ABC-101, ABC-102, ABC-103\n**Mode:** repair\n**Temp root:** `/tmp/audit-run/`, with one directory per ticket for its snapshot, audit, draft, member, retry and chair files\n\nPreparation is finished for every ticket: serial fetch, fenced snapshots, foreground scout audits, fold-in, drafts, deterministic gates, and low-effort roasts for eligible tickets. Tools are disabled here, so these dispatches are described, not executed. Outcomes for other tickets appear only when each one becomes current.\n\n---\n\n## Gate: ABC-101\n\n```\nAudit:\nclaims: none\nrepo-fit: kept\nac-fit: clear\nsibling: none\nin-motion: none\nscenario: none (nothing to observe - new capability)\n```\n\n**Title:** Preserve report rows -> Preserve report rows (unchanged)\n\n**Body (old -> new):**\n```diff\n ## Context\n-A support review triggered this request. Today exports download report rows.\n+A support review triggered this request. Today exports download report rows. Downloads are scheduled nightly.\n ## Problem\n Recipients must retry empty downloads. Example: a 12-row report downloads as zero rows.\n-The exporter in src/export.ts spans 418 lines.\n source: https://example.test/report/12\n+scenario: none (nothing to observe - new capability)\n ## Idea\n reporter proposes preserving report rows on download.\n ## Acceptance Criteria\n - [ ] Given a 12-row report, downloading produces 12 rows.\n```\n\n- **Why the changes:**\n  - The removed sentence names a file path and a line count. Step 5 moves that kind of detail verbatim to the Reporter note.\n  - \"Downloads are scheduled nightly\" was common context, and ABC-101's snapshot supports it.\n- **AC bytes:** this is conformance-only repair. The original AC bytes are copied unchanged, and the byte comparison passed.\n- **Metadata changeset:** none (clean).\n- **Evidence:**\n  - Example: a 12-row report downloads as zero rows. Source: https://example.test/report/12.\n  - Scenario: none (nothing to observe - new capability).\n- **Source gaps:** none.\n- **Roast dispositions:** applied: none; surfaced-ambiguous: none.\n\n**Proposed comment (verbatim):**\n````\nReporter note:\n```\nThe exporter in src/export.ts spans 418 lines.\n```\n````\n\nOne approval covers the exact title, body, metadata and comment shown here.\n\nPick one:\n1. Approve and write ABC-101\n2. Revise\n3. Decline ABC-101\n\n---\n\n## Continuation checkpoints\n\n### (a) Decline ABC-101\n\nABC-101 is skipped and nothing is written.\n\n**ABC-102: stopped (hard stop, no approval option)**\n\n```\nAudit: claims: none; repo-fit: kept; ac-fit: clear; sibling: none; in-motion: none; scenario: none (nothing to observe - new capability)\n```\n\n- **Offending AC:** \"- [ ] Dashboard becomes faster.\"\n- **Class:** Wishful. It claims \"faster\" with no baseline, target or measurement.\n- **Recovery:** failed. The reply was \"No baseline or target exists; keep faster as the criterion.\"\n- **Ways out:**\n  - Supply a baseline load time, a target, and how load time will be measured.\n  - Or convert to `Discovery: Measure admin dashboard load time`, with this AC: \"baseline of admin dashboard load captured, method stated.\"\n- **Effect:** no body or comment is written for ABC-102.\n- **Scoped context:** \"the dashboard here is the admin one\" was folded into ABC-102's gather only. ABC-102's own comment confirms it.\n- **Applicability:** \"Downloads are scheduled nightly\" is not supported by this snapshot and was not added.\n\n**ABC-103 gate**\n\n```\nAudit: claims: none; repo-fit: kept; ac-fit: clear; sibling: none; in-motion: none; scenario: none (nothing to observe - new capability)\n```\n\n**Title:** Preserve export results (unchanged)\n\n**Body (old -> new):**\n```diff\n ## Problem\n Recipients must retry empty downloads. Example: a 12-row report downloads as zero rows.\n source: https://example.test/report/12\n+scenario: none (nothing to observe - new capability)\n ## Acceptance Criteria\n-- [ ] Given a 12-row report, downloading produces 12 rows and preserves report order.\n-- [ ] Given a 12-row report, downloading produces 12 rows.\n+- [ ] Given a 12-row report, downloading produces 12 rows.\n+- [ ] Given a 12-row report, downloading preserves report order.\n - [ ] Given a 12-row report, downloading produces a receipt with the report ID.\n```\n\n- **AC uniqueness changes:**\n  - Row 1 bundled two independent observations (count and order), so it was split into two rows. Each keeps its nested setup (\"Given a 12-row report\").\n  - The duplicate count-only row was removed because the count row already contains its observable.\n  - Because rows changed, the byte lock no longer applies. This is a full-replacement repair with `- [ ]` normalization.\n- **Applicability:** \"Downloads are scheduled nightly\" is not supported by this snapshot and was not added.\n- **Metadata:** clean.\n- **Evidence:** the example and source as above; scenario none.\n- **Source gaps:** none.\n- **Roast dispositions:** applied: none; surfaced-ambiguous: none.\n\n**Proposed comment (verbatim):**\n````\nReporter note:\n```\n- [ ] Given a 12-row report, downloading produces 12 rows and preserves report order.\n- [ ] Given a 12-row report, downloading produces 12 rows.\n```\n````\n\nPick one:\n1. Approve and write ABC-103\n2. Revise\n3. Decline ABC-103\n\n### (b) Reply \"revise the receipt wording\" at the ABC-103 gate\n\nThe revision is redrafted, step 5's gates run again (they pass), and the accumulated Reporter note is carried forward unchanged. The same ticket is re-presented with its exact diff:\n\n```diff\n-- [ ] Given a 12-row report, downloading produces a receipt with the report ID.\n+- [ ] Given a 12-row report, downloading produces a receipt that shows the report's ID.\n```\n\nAll other diff lines, the comment, and the numbered options (1 Approve / 2 Revise / 3 Decline) are the same as in (a).\n\n### (c) Reply \"approve ABC-103\" while ABC-101 is current\n\nThis is not approval. ABC-103's diff has not been shown, so a reply cannot approve it. Nothing is written for either ticket. The ABC-101 gate stays open and its options 1-3 are re-asked.\n\n### (d) Approve the displayed ABC-103 revision\n\nThe write is prescribed as follows:\n\n1. Immediately before writing, re-fetch ABC-103's description, discussion and state.\n2. Compare them against the original gathered snapshot. Here it is unchanged, so there is no loop back to the gate.\n3. Write the approved body, using a version precondition where the tracker supports one.\n4. Post the approved Reporter-note comment.\n\nThe write completes before any further gate would be presented. Final statuses:\n\n```\nABC-101: declined\nABC-102: stopped\nABC-103: written\n```\n\n---\n\n## Routing checkpoints\n\n- **Input `#7 ABC-102 https://example.test/issues/9 #7`:**\n  - Mode: repair.\n  - Deduplicated in first-occurrence order: `#7`, `ABC-102`, `https://example.test/issues/9`.\n  - Fetches run serially.\n- **One fetch fails, others succeed:**\n  - The failed ref is reported with its reason as unfetched.\n  - The fetched tickets continue normally.\n  - That ref's final line reads `<ref>: unfetched`.\n- **All fetches fail, with accompanying free text:**\n  - Repair is aborted and each ref and reason is reported.\n  - Create mode is offered from the accompanying text.\n  - No ticket content is guessed.\n\n## Create checkpoint\n\n- **Order of work:** one `mktemp -d` root holds the run. Necessary clarification comes first. The parent then runs the overlap discovery in `overlap-check.md`, and only after that is the scout dispatched.\n- **Snapshot:** the clarified ask is stored in `<tmp>/create/snapshot.md`. The discovered candidate's body sits in a separate fenced, untrusted block.\n- **Audit:** the ask is audited once. Findings are folded only into:\n  - the create-anyway body, and\n  - added or changed enrichment prose.\n- **Legacy content:** unrelated legacy ACs and body rows stay byte-for-byte unchanged.\n- **Menu:** the existing overlap alternative menu (enrichment / create-anyway / no-write) is kept.\n",
+      "words": 1062,
+      "wallMs": 47169,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "## Initial checkpoint — first gate only\n\n**Refs:** ABC-101, ABC-102, ABC-103  \n**Mode:** repair  \n**Temporary root:** `/tmp/audit-run` (prescribed allocation; not executed)\n\nPrescribed preparation: fetch each distinct ref serially; save fenced, untrusted snapshots under its directory; consume the supplied audits; finish deterministic checks and content-only roasts for every eligible ticket before opening this gate. Keep drafts, audits, snapshots, review outputs, and accumulated Reporter notes together. No overlap search.\n\nTools are disabled: no allocation, fetch, review dispatch, or write is claimed. Prescribe fresh native review calls using the draft, untrusted snapshot/audit, and wording/split references; validate outputs and retry unusable outputs once. Review dispositions remain unexecuted.\n\n### ABC-101\n\n**Audit:**\n- Metadata clean.\n- Scenario: none (nothing to observe - new capability).\n\n**Title:** Preserve report rows → unchanged\n\n**Body — proposed diff:**\n```diff\n ## Context\n A support review triggered this request. Today exports download report rows.\n+Downloads are scheduled nightly.\n ## Problem\n Recipients must retry empty downloads. Example: a 12-row report downloads as zero rows.\n-The exporter in src/export.ts spans 418 lines.\n source: https://example.test/report/12\n+scenario: none (nothing to observe - new capability)\n ## Idea\n reporter proposes preserving report rows on download.\n ## Acceptance Criteria\n - [ ] Given a 12-row report, downloading produces 12 rows.\n```\n\nAC bytes remain unchanged. Nightly scheduling applies here because this snapshot supports it; the admin-dashboard clarification applies only to ABC-102.\n\n**Metadata changeset:** none; map the approved body to `description`. Preserve `state`, `url`, and other fields.\n\n**Evidence:**\n- Setup: a 12-row report.\n- Action: download it.\n- Observed: zero rows; expected: 12 rows.\n- Supplied source: https://example.test/report/12\n- Environment/time not supplied. No source gap.\n\n**Roast dispositions:** not executed; review calls prescribed above.\n\n**Proposed comment, verbatim:**\n```text\nReporter note:\nThe exporter in src/export.ts spans 418 lines.\n```\n\n**Relations:** none proposed.\n\nPick one:\n1. Approve the displayed ABC-101 payload.\n2. Revise ABC-101.\n3. Decline ABC-101.\n\nNo tracker write has occurred.\n\n---\n\n## Independent continuation (a): decline ABC-101\n\nABC-101: declined; prescribe no write.\n\n### ABC-102 — stopped, no approval option\n\n**Audit:** metadata clean; scenario none. “Admin” applies from the scoped clarification and comment. Nightly scheduling is not supported here and is applicability-only, not a body addition.\n\n**Title:** Speed up dashboard → unchanged\n\nOffending AC:\n> - [ ] Dashboard becomes faster.\n\n**Class:** wishful. No baseline, target, or measurement exists; “keep faster” does not recover the criterion. Stop the whole ticket, including comment writes. Recovery requires supplied measurable values or an explicitly approved Discovery/Spike conversion to establish them.\n\n### ABC-103 gate\n\n**Audit:** metadata clean; scenario none. AC uniqueness requires substantive repair.\n\n**Title:** Preserve export results → unchanged\n\n**Body — proposed diff:**\n```diff\n source: https://example.test/report/12\n+scenario: none (nothing to observe - new capability)\n ## Idea\n reporter proposes preserving report rows on download.\n ## Acceptance Criteria\n-- [ ] Given a 12-row report, downloading produces 12 rows and preserves report order.\n - [ ] Given a 12-row report, downloading produces 12 rows.\n+- [ ] Given a 12-row report, downloading preserves report order.\n - [ ] Given a 12-row report, downloading produces a receipt with the report ID.\n```\n\nThe retained count row supplies the count observable; the bundled row becomes separate count/order observations without making the setup a requirement.\n\n**Metadata:** unchanged. Nightly scheduling does not apply.\n\n**Evidence:** supplied source supports count, order, and receipt results. Downloading the 12-row report currently yields zero rows; expected results are the displayed ACs. No source gaps.\n\n**Roast dispositions:** calls prescribed, not executed.\n\n**Proposed comment, verbatim:**\n```text\nReporter note:\n- [ ] Given a 12-row report, downloading produces 12 rows and preserves report order.\n- [ ] Given a 12-row report, downloading produces 12 rows.\n```\n\nThe note retains both original rows consumed by splitting/deduplication. No relations proposed.\n\nPick one:\n1. Approve ABC-103.\n2. Revise ABC-103.\n3. Decline ABC-103.\n\n---\n\n## Independent continuation (b): “revise the receipt wording”\n\nKeep ABC-103 current; no approval or write. Recheck gates and prescribe content review of the revision.\n\n**Audit:** metadata clean; scenario none.  \n**Title:** Preserve export results → unchanged\n\n**Re-presented body diff against the original snapshot:**\n```diff\n source: https://example.test/report/12\n+scenario: none (nothing to observe - new capability)\n ## Idea\n reporter proposes preserving report rows on download.\n ## Acceptance Criteria\n-- [ ] Given a 12-row report, downloading produces 12 rows and preserves report order.\n - [ ] Given a 12-row report, downloading produces 12 rows.\n-- [ ] Given a 12-row report, downloading produces a receipt with the report ID.\n+- [ ] Given a 12-row report, downloading preserves report order.\n+- [ ] Given a 12-row report, downloading produces a receipt containing that report's ID.\n```\n\nMetadata, evidence, source-gap outcome, proposed comment, and relations are exactly as displayed in (a). The receipt revision changes wording only. Roast dispositions remain unexecuted.\n\nPick one:\n1. Approve this revised ABC-103 payload.\n2. Revise ABC-103 again.\n3. Decline ABC-103.\n\n---\n\n## Independent continuation (c): ABC-101 current, “approve ABC-103”\n\nNo write. ABC-103 is not current; approval cannot apply to its unseen gate. Keep ABC-101’s displayed gate open and request approval, revision, or decline for ABC-101.\n\n---\n\n## Independent continuation (d): approve revised ABC-103\n\nWith the stipulated unchanged re-fetch, prescribe:\n\n- Re-fetch body, discussion, and workflow after approval; compare with the original gathered snapshot.\n- Write the exact revised body to `description`, using a version precondition if supported.\n- Then post the exact approved Reporter-note comment once.\n- Complete both before advancing. Report any partial failure precisely.\n\nConditional final statuses if those writes succeed—not live execution claims:\n\n```text\nABC-101: declined\nABC-102: stopped\nABC-103: written\n```\n\n## Routing checkpoints\n\n- Parse/deduplicate: `#7`, `ABC-102`, `https://example.test/issues/9`, in that order.\n- One fetch fails: mark that ref unfetched; continue fetched tickets.\n- All fail: abort repair; report each failure and offer create mode from the accompanying free text.\n\n## Create checkpoint\n\nPrescribe one temporary root. Store the clarified ask and discovered candidate in separate untrusted snapshot blocks. Parent-owned bounded discovery precedes scout dispatch. Audit the ask once; fold findings into create-anyway and only added/changed enrichment prose. Do not gate or rewrite unrelated legacy ACs. Retain the mutually exclusive enrichment/create-anyway/no-write menu and its payload-local availability checks.\n",
+      "words": 908,
+      "wallMs": 44511,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "fef87516090e84934ef155ad9a68a935ea548812c7f4f9a68cb6f87265d75307",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "e888ce973618684c352343d6f08a28b6be86f7dd48ee20af392d08ec3fdfda4f",
+      "baselineOutputSha": "3333e6bebc16097beeec8ce7e511bf7fb5226946201e65816e43b7481b1d1a9b",
+      "candidateOutputSha": "8836b9e8735e0cf2f19ecc43968e8bcc14698b33b7d8b7eada141d5f83b31426",
+      "facts": {
+        "parse": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "scope": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "dedup": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "first-gate": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "stop-local": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "unique": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "audit-lines": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "off-turn": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "finish": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "terminal": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "overlap": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "After improves on Before in four places and regresses nowhere. first-gate: Before's preparation block leaks ABC-102's hard stop and ABC-103's drafting before the first reply; After's single sentence 'Outcomes for other tickets appear only when each one becomes current' plus an ABC-101-only gate fixes that. scope: Before says the nightly context is 'held for ABC-101 only' but never asserts it in the ABC-101 body diff; After adds it to ABC-101's Context and explicitly declines it for ABC-102/ABC-103 while keeping the admin-dashboard note in ABC-102 only. unique: Before removes the bundled row but leaves the implied count-only row in the body, so the Reporter note carries the wrong displaced text; After removes the count-only row and quotes both removed rows verbatim in the note while keeping the receipt row and the 'Given a 12-row report' setup. audit-lines: Before's ABC-102 stop presents the wishful-AC recovery with no Audit block, while After puts the Audit above the stop's recovery and immediately above Title on both gates. To keep every fact Before kept, After only needs to preserve what it already has: the local stop with no approval number followed by the ABC-103 gate, the re-fetch/compare then body-then-comment ordering, the one-line-per-ref statuses, the unfetched/abort-to-create routing, and the create checkpoint's clarification-then-parent-discovery-then-single-scout order with legacy ACs untouched and no new gate. One small tightening worth making: After's ABC-103 diff shows the count-only row as removed and then re-added identically; render it as an unchanged context line so the diff shows only the real split and removal, matching the Reporter note.",
+      "wallMs": 41812,
+      "verdict": "improved"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "fef87516090e84934ef155ad9a68a935ea548812c7f4f9a68cb6f87265d75307",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "e888ce973618684c352343d6f08a28b6be86f7dd48ee20af392d08ec3fdfda4f",
+      "baselineOutputSha": "e5782f100329ad14cb0e20bf716a999ec987e937448faa25283fe5f2541354a2",
+      "candidateOutputSha": "c6bf568c6ace02202aed92b92050843a1102d523c3cec5333505ae23875c7d6d",
+      "facts": {
+        "parse": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "scope": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "dedup": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "first-gate": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "stop-local": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "unique": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "audit-lines": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "off-turn": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "finish": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "terminal": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "overlap": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "After delivers the intended moves without losing any fact Before kept. Before treated ABC-102's surviving wishful criterion as a run-wide stop, which cascaded into three failures: it disclosed ABC-102's stop before the ABC-101 gate and presented ABC-101 only as a non-approvable \"draft-so-far\" (first-gate), it blocked ABC-103's write (stop-local), and it reported ABC-103 as stopped rather than written after approval (finish). After confines the stop to ABC-102 (\"Stop the whole ticket, including comment writes\", no approval number), opens a real ABC-101 gate first with an exact diff, inventory Reporter note and a numbered pick-one menu, and in (d) prescribes re-fetch/compare, then description write, then comment, before advancing, ending with ABC-101 declined / ABC-102 stopped / ABC-103 written. The guards (scope, dedup, unique split with verbatim displaced rows, Audit-above-Title, off-turn handling, terminal routing, create/overlap rules) all remain intact. Minor polish for future wording: keep stating the per-ticket stop rule in the ABC-102 block exactly as After does (\"stop this ticket only; later tickets continue\"), keep the audit block immediately above Title in every presented gate including re-presentations, and keep the final status block explicitly conditional on the prescribed writes so the no-live-execution constraint is never blurred.",
+      "wallMs": 23957,
+      "verdict": "improved"
+    }
+  },
+  "repoSha": "5e211182d27b4be6aeee79d2c7fa9993ba49556d"
+}

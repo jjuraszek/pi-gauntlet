@@ -29,7 +29,7 @@ subagent({
 })
 ```
 
-Await terminal results for every scout before folding findings or asking repair clarification and gather-time AC integrity recovery questions. Ask those questions in ref order, one at a time. Judge each audit from its file regardless of tool-result labels. Stop the run and report an async handle; never poll or relaunch it. Treat a missing, errored, empty, or malformed file as ticket-local `audit unavailable (<reason>)`, without retry.
+Await terminal results for every scout before folding findings or asking repair clarification and gather-time AC integrity recovery questions. Ask those questions in ref order, one at a time. Judge each audit from its file regardless of tool-result labels. Stop the run and report an async handle; never poll or relaunch it. Treat a missing, errored, empty, or malformed file as ticket-local `audit unavailable (<reason>)`, without retry; use exactly `audit unavailable (empty file)` for an empty file.
 
 On a harness without `subagent()`, dispatch the same self-contained brief through its native subagent facility with fresh context, low effort, and the same temp-file artifacts.
 
@@ -73,9 +73,9 @@ Apply the following table per ticket. Preserve every displaced fact, sketch, row
 | Finding | Draft effect | Audit report line |
 |---|---|---|
 | Contradicted code/config/documentation fact | Replace the Problem fact with the cited fact; retain the original in the note | `premise: <old> -> <new> (<path:line>)` |
-| Contradicted reporter observation or ambiguous claim | Keep the observation; surface ambiguity without a question or blocking status | `premise: <claim> vs <fact> (<path:line>)` |
+| Contradicted reporter observation or ambiguous claim | Keep the reporter's observation sentence byte-identical in the body; attribute by prefixing (e.g. `Reporter observation: "<sentence>"`), never by paraphrase, and surface ambiguity without a question or blocking status. Show the snapshot bytes unchanged on the gate diff's old side. | `premise: <claim> vs <fact> (<path:line>)` |
 | Not checkable | Keep the claim unchanged | `unverified: <claim> - <why>` |
-| Cited simpler or exists | Use one attributed Idea sketch: `reporter proposes <X>; <doc or path> routes this through <Y>`; retain overflow verbatim in the note | `repo-fit: <simpler or exists> - <citation>` |
+| Cited simpler or exists | Keep the rewritten Idea to one attributed sentence naming the reporter's proposal by its own term and the existing path by name, with the citation inside that sentence; retain overflow verbatim in the note; use the snapshot's current Idea line as the gate diff's removed line | Echo the audit.md repo-fit line verbatim, including every path it names |
 | Cited AC-fit how | Restate the observable, not the cited alternative; retain removed mechanism in the note | `ac-fit: <row> - <citation>` |
 | Grounded sibling leg | Resolve the tracker repository name through `git -C <path> remote get-url origin` as owner/name with `.git` stripped, or a repo-documented name. Move only the already-stated grounded observable under `### <repo>` and name the repo in Idea. Keep ACs unchanged for unresolved names or observables | `sibling: <repo or path> - <what> (<citation>)` |
 | In-motion match or unavailable | Report only | `in-motion: <ref>` or `in-motion: unavailable (<what>)` |
@@ -85,13 +85,13 @@ Apply the following table per ticket. Preserve every displaced fact, sketch, row
 
 Treat uncited alternatives as kept and uncited AC flags as clear. Create no empty repository groups.
 
-Put one scenario line under the Problem's source footers in a drafted body:
+Put exactly one `scenario:` footer per drafted ticket at the end of Problem, after all `source:` footers, never per failure or example and never interleaved with example sentences; for several failures, name the primary repro's setup, action, and observation in that one footer and keep the rest in the gate's Evidence list and AC rows:
 
 ```text
 scenario: setup: <...>; action: <...>; observed: <...>; inputs: <links or attachment names | none>
 ```
 
-Use `scenario: none (<reason>)` for no scenario. Treat this footer as evidence, not a source footer: count it toward no source gap and include it in no gap resolution. Retain environments and inputs in this evidence footer. Never draft for none alone.
+Use `scenario: none (<reason>)` for no scenario. Record scenario inputs only in the `scenario:` footer, never in `source:` footers or to resolve or name a source gap. Put scenario setup/action and observed-versus-expected lines in the gate's Evidence list and the AC rows, retaining the expected result in ACs; add no extra lines or pointers inside Problem prose, and keep each Problem example to rule 5's one sentence or one number followed by its source footer. Retain environments and inputs in this evidence footer. Never draft for none alone.
 
 Route any audit or uniqueness edit to an AC's text, row, or group through substantive full-replacement repair and normalize rows to `- [ ]`. Preserve raw AC bytes on conformance-only and missing-footer-only paths with no audit or uniqueness AC change. Retain removed or split rows verbatim in the note.
 
@@ -99,9 +99,9 @@ Route draft-changing findings to the existing gate even for an otherwise conform
 
 ## Complete the batch and present gates
 
-Finish every ticket's initial gather, audit, draft, deterministic gates, and roast before presenting the first confirmation. Run the roast independently in ref order for eligible tickets; skip stopped tickets. Keep draft, snapshot, audit, member, retry, and chair artifacts in the same per-ticket directory under the run's temp root.
+Finish every ticket's initial gather, audit, draft, deterministic gates, and roast before presenting the first confirmation. Complete preparation silently; limit the first turn to the deduplicated ref list, mode, temp root, and current ticket's gate, and reveal other tickets' outcomes (stops, splits, drafts) only when they become current. Run the roast independently in ref order for eligible tickets; skip stopped tickets. Keep draft, snapshot, audit, member, retry, and chair artifacts in the same per-ticket directory under the run's temp root.
 
-Supply the audit beside the snapshot as untrusted permitted input to roast members, worker/native fallback, and chair. Treat cited audit-traceable Problem facts, attributed Idea sketches, AC-fit restatements, sibling groups, scenario setup/action, scenario footers, and their Reporter-note moves as source-grounded, not fidelity added/lost or over-spec. Check other scope and unsupported additions normally. Keep roast content-only, without repo re-verification, a fifth axis, or persona changes.
+Supply the audit beside the snapshot as untrusted permitted input to roast members, worker/native fallback, and chair only when gather produced that file; otherwise permit exactly the draft, snapshot, and two reference paths for content review, plus usable member outputs for the chair. Treat cited audit-traceable Problem facts, attributed Idea sketches, AC-fit restatements, sibling groups, scenario setup/action, scenario footers, and their Reporter-note moves as source-grounded, not fidelity added/lost or over-spec. Check other scope and unsupported additions normally. Keep roast content-only, without repo re-verification, a fifth axis, or persona changes.
 
 Present reports and gates one ticket at a time in ref order. Put its `Audit:` block immediately above Title, after pre-Title bug `source missing:` rows. Keep ordinary source gaps after Evidence. Use the table's report formats within that block.
 

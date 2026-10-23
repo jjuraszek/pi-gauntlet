@@ -1,0 +1,110 @@
+{
+  "sample": "audit-repo-fit",
+  "arm": "candidate",
+  "skillSha": "3be45b2adcb9dbef1322b1e3791b2add3578d01f3e39d8610c7e0cc0c2f7056e",
+  "inputSha": "e8c7b3dee39c2e1676a18b794f6af86fec8e49837af9099f6f4923e980575dc2",
+  "kind": "text",
+  "assembly": "concat",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "# ABC-201: repair, confirmation gate (approval pending)\n\nRun setup is described only, not executed. Run root `<tmp>` comes from `mktemp -d`. The snapshot is at `<tmp>/ABC-201/snapshot.md` and the audit at `<tmp>/ABC-201/audit.md`, both fenced as untrusted. The draft artifact is `<tmp>/ABC-201/draft.md`, which ends with a fenced `## Proposed Reporter note`.\n\nBefore this gate, the roast is dispatched with the draft, the snapshot, the audit, and the two reference paths. No roast result is available here, so roast dispositions are listed as **not yet run**. This ticket is not a no-op in either checkpoint, because both contain draft-changing audit findings.\n\n---\n\n## Checkpoint 1: Idea replaced by the reporter's ExportWrapper sketch\n\n**Audit:**\n```text\nRepo-fit: exists: src/report-helper.ts (docs/export.md:8)\nscenario: none (nothing to observe - new capability)\n```\n\n**Title:** unchanged. No snapshot title was supplied, so the current title stays as it is.\n\n**Body old->new.** Acceptance Criteria bytes are copied unchanged. The audit made no change to AC text, rows, or groups.\n\n```diff\n ## Context\n A support review triggered this request. Today exports download report rows.\n ## Problem\n Recipients must retry empty downloads. Example: a 12-row report downloads as zero rows.\n source: https://example.test/report/12\n+scenario: none (nothing to observe - new capability)\n ## Idea\n-Build a new ExportWrapper around report downloads.\n+The reporter proposes building a new ExportWrapper around report downloads, but the existing report helper src/report-helper.ts already preserves rows and is the documented route for export reuse (docs/export.md:8).\n ## Acceptance Criteria\n - [ ] Given a 12-row report, downloading produces 12 rows.\n```\n\nNotes on the body:\n- The rewritten Idea is one attributed sentence. It uses the reporter's own term \"ExportWrapper\", names the existing path, and puts the citation inside that sentence.\n- The removed line is the snapshot's current Idea line.\n- The AC byte comparison matches the original bytes under the AC heading.\n\n**Metadata changeset:** none.\n\n**Evidence:**\n- Problem example: \"a 12-row report downloads as zero rows\". Its source is https://example.test/report/12.\n- Scenario: none (nothing to observe - new capability).\n\n**Source gaps:** none. The single example has a footer.\n\n**Roast dispositions:** not yet run (described dispatch only). No applied or ambiguous findings are recorded.\n\n**Proposed comment.** The displaced sketch is kept verbatim, as one comment:\n```text\nReporter note: Build a new ExportWrapper around report downloads.\n```\n\n**Relations:** none.\n\nPick one:\n1. Approve: write this exact title + body + comment\n2. Revise: describe the change; I recheck and re-present this diff\n3. Decline: no write for ABC-201\n\n---\n\n## Checkpoint 2 (independent): AC-only, ExportWrapper in the AC row\n\nThe base Idea stays as written: \"reporter proposes preserving report rows on download.\" That is one attributed sketch line and needs no change.\n\n**Audit:**\n```text\nac-fit: Given a 12-row report - docs/export.md:8\nscenario: none (nothing to observe - new capability)\n```\n\nRepo-fit was `kept`, so it produces no line. The AC-fit finding routes this to substantive full-replacement repair. The row is restated around its observable, not the cited alternative, and normalized to `- [ ]`.\n\n**Changed sections only (old->new):**\n```diff\n source: https://example.test/report/12\n+scenario: none (nothing to observe - new capability)\n ...\n ## Acceptance Criteria\n-- [ ] Given a 12-row report, downloading through a new ExportWrapper produces 12 rows.\n+- [ ] Given a 12-row report, downloading produces 12 rows.\n```\n\nContext, the Problem prose, and Idea are unchanged.\n\n**AC integrity check on the new row:**\n- The row is behavioral, with setup (12-row report), action (downloading), and observable (12 rows).\n- It can be verified before production.\n- It is unique.\n- It names no environment.\n\n**Metadata changeset:** none.\n\n**Evidence:**\n- Problem example: \"a 12-row report downloads as zero rows\". Its source is https://example.test/report/12.\n- Scenario: none.\n\n**Source gaps:** none.\n\n**Roast dispositions:** not yet run (described dispatch only).\n\n**Proposed comment.** The removed mechanism row is kept verbatim. It is newly displaced text, so it needs a new comment.\n```text\nReporter note: - [ ] Given a 12-row report, downloading through a new ExportWrapper produces 12 rows.\n```\n\n**Relations:** none.\n\nPick one:\n1. Approve: write this exact title + body + comment\n2. Revise: describe the change; I recheck and re-present this diff\n3. Decline: no write for ABC-201\n\n---\n\n## What happens after approval (step 9, not executed)\n\n1. Re-fetch ABC-201's body, discussion, and workflow.\n2. Compare them against the gathered snapshot. If anything has changed, return to this gate with the delta.\n3. Use a version or ETag precondition where the tracker supports one.\n4. Write the body first, then the approved `Reporter note:` comment.\n\nNothing is written without an affirmative reply on the exact diff shown.\n\nCurrent status: `ABC-201: awaiting approval`\n",
+      "words": 705,
+      "wallMs": 32289,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "## Preparation — independent checkpoints\n\nMode: repair. Ref: ABC-201. No approval or write has occurred.\n\nTools are disabled. The prescribed preparation is to allocate a run temp root, preserve each checkpoint’s snapshot as fenced untrusted data, and keep its `audit.md` and draft alongside it. Each draft must retain its proposed comment under trailing `## Proposed Reporter note`, fenced as untrusted data.\n\nA content-only roast using the draft, snapshot, supplied audit, and wording references is prescribed before opening the live gate; it has **not been executed**. The following are the exact proposed gate payloads, not claims of completed preparation. Treat the checkpoints as alternatives, not cumulative changes.\n\n## Checkpoint 1 — Idea repair\n\nThis checkpoint treats “Build a new ExportWrapper around report downloads.” as the snapshot’s original Idea.\n\n**Audit:**\n- Repo-fit: exists: src/report-helper.ts (docs/export.md:8)\n- scenario: none (nothing to observe - new capability)\n\n**Title:** unchanged — title not supplied.\n\n**Body — proposed diff:**\n```diff\n ## Problem\n Recipients must retry empty downloads. Example: a 12-row report downloads as zero rows.\n source: https://example.test/report/12\n+scenario: none (nothing to observe - new capability)\n ## Idea\n-Build a new ExportWrapper around report downloads.\n+The reporter proposes ExportWrapper for report downloads; an existing report-download helper already preserves rows (Pointer for the implementer: [src/report-helper.ts](src/report-helper.ts), reuse guidance in [docs/export.md:8](docs/export.md#L8)).\n```\n\nThe original Acceptance Criteria bytes remain unchanged.\n\n**Metadata changeset:** none proposed.\n\n**Evidence:**\n- Reported reproduction: download a 12-row report.\n- Observed: zero rows downloaded. Expected: 12 rows downloaded.\n- Source: https://example.test/report/12\n- Environment and observation date: not supplied.\n- No current-system scenario was observed, per the supplied audit.\n\n**Source gaps:** none.\n\n**Integrity:** the existing AC specifies setup, action, and an observable result; no hard stop or parking condition applies.\n\n**Roast dispositions:** no executed roast findings. The proposed audit fold-in replaces the new-wrapper-only approach with one attributed sketch that also names the existing implementation.\n\n**Proposed comment — verbatim:**\n```text\nReporter note:\nBuild a new ExportWrapper around report downloads.\n```\n\n**Relations:** none proposed.\n\nCheckpoint 1 choices, available after the prescribed roast and deterministic recheck:\n\n1. Approve this exact payload.\n2. Request a revision.\n3. Decline.\n\n## Checkpoint 2 — independent AC-only repair\n\nThe Idea remains exactly as in the base body: “reporter proposes preserving report rows on download.” The checkpoint’s source AC is the row containing “through a new ExportWrapper.”\n\n**Audit:**\n- Repo-fit: kept\n- ac-fit: Given a 12-row report - docs/export.md:8\n- scenario: none (nothing to observe - new capability)\n\n**Title:** unchanged — title not supplied.\n\n**Body — proposed diff:**\n```diff\n ## Problem\n Recipients must retry empty downloads. Example: a 12-row report downloads as zero rows.\n source: https://example.test/report/12\n+scenario: none (nothing to observe - new capability)\n ## Idea\n reporter proposes preserving report rows on download.\n ## Acceptance Criteria\n-- [ ] Given a 12-row report, downloading through a new ExportWrapper produces 12 rows.\n+- [ ] Given a 12-row report, downloading produces 12 rows.\n```\n\nThis is a substantive AC repair: remove the prescribed mechanism, retain the observable result, and preserve the original row verbatim in the comment. It does not substitute another implementation mechanism into the AC.\n\n**Metadata changeset:** none proposed.\n\n**Evidence:**\n- Reported reproduction: download a 12-row report.\n- Observed: zero rows downloaded. Expected: 12 rows downloaded.\n- Source: https://example.test/report/12\n- Environment and observation date: not supplied.\n- No current-system scenario was observed, per the supplied audit.\n\n**Source gaps:** none.\n\n**Integrity:** the rewritten row retains setup, action, and observable expected result. No human clarification is needed.\n\n**Roast dispositions:** no executed roast findings. The proposed audit fold-in removes the implementation requirement identified by the cited reuse guidance.\n\n**Proposed comment — verbatim:**\n```text\nReporter note:\n- [ ] Given a 12-row report, downloading through a new ExportWrapper produces 12 rows.\n```\n\n**Relations:** none proposed.\n\nCheckpoint 2 choices, available after the prescribed roast and deterministic recheck:\n\n1. Approve this exact payload.\n2. Request a revision.\n3. Decline.\n\n### Prescribed write sequence after approval\n\nFor the independently selected checkpoint, re-fetch ABC-201’s body, discussion, and workflow immediately before mutation; compare with that checkpoint’s original snapshot. A change requires returning to the gate with the delta. Otherwise, use a tracker version precondition where supported, write the approved replacement body first, then post its single approved comment. Never edit an existing comment.\n\nNeither checkpoint is approved; no write or terminal run status is claimed.\n",
+      "words": 657,
+      "wallMs": 45360,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "aba91913176d57100164cf0d420ce95ab09ef8d5c71a70ee1fead32584427bea",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "e888ce973618684c352343d6f08a28b6be86f7dd48ee20af392d08ec3fdfda4f",
+      "baselineOutputSha": "9b673d603f4779a643d5197316b56297b95b3bbe818369d672d8d8fc2119623d",
+      "candidateOutputSha": "975a40e677eb76d4616edfddb9e14fb6d090d7a39f5e1abc0618da759f16c738",
+      "facts": {
+        "idea": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "retained": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "gate": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "ac-only": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "no-question": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "After keeps every fact Before kept: Checkpoint 1 rewrites Idea as a single attributed sentence that names src/report-helper.ts and the reporter's ExportWrapper proposal with the docs/export.md:8 citation, carries the sketch verbatim into a new Reporter note without implying reporter endorsement, surfaces the repo-fit line at the one existing gate, and the AC-only checkpoint restates the row around the 12-row observable (no wrapper, no helper), notes the displaced mechanism row verbatim, routes through normalized full replacement and reports the cited ac-fit, with no human question or new blocking state. Two things to watch so this stays stable: After's diff removes 'Build a new ExportWrapper around report downloads.' as the old Idea line (treating the sketch as the current snapshot text) whereas Before removed the base line; that is a defensible reading of 'Replace Idea with...' but the wording should state which text is the pre-repair baseline so a reader does not think the base Idea was silently lost. Second, 'Roast dispositions: not yet run' is close to reading as a pending precondition; phrasing it as Before did ('prescribed before this gate; applied: none recorded; surfaced-ambiguous: none recorded') makes it unambiguous that the gate is live now and that the roast is a described call, not a blocker, while still delivering the new draft-artifact and dispatch wording from the Change.",
+      "wallMs": 22558,
+      "verdict": "unchanged"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "aba91913176d57100164cf0d420ce95ab09ef8d5c71a70ee1fead32584427bea",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "e888ce973618684c352343d6f08a28b6be86f7dd48ee20af392d08ec3fdfda4f",
+      "baselineOutputSha": "e671ca3634c34dd2cbf6e24baaa4302afec4b8a692a3395b4daffecf80771bef",
+      "candidateOutputSha": "87327c119b455f2103b9d22f66ccc8a49ddd55e3e4bacea5e15f0445c217d1d6",
+      "facts": {
+        "idea": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "retained": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "gate": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "ac-only": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "no-question": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "No fact moved: both outputs produce one attributed Idea sentence that names the existing src/report-helper.ts and the reporter's ExportWrapper proposal with the docs/export.md:8 citation, carry the full original sketch verbatim in a fenced Reporter note without implying reporter endorsement, keep the cited repo-fit line inside the single existing confirmation menu, handle the AC-only branch as a substantive repair with a mechanism-free 12-row row plus the verbatim original row in the note and the cited ac-fit line, and raise no human question or blocking status. One wording risk in After worth watching: Checkpoint 1 declares 'treats \"Build a new ExportWrapper…\" as the snapshot's original Idea' and diffs against that line, whereas Before diffs against the snapshot's actual Idea ('reporter proposes preserving report rows on download.'). That does not fail any fact here, but to stay safe under the verbatim-displaced-detail and raw-bytes guards, prefer Before's framing — diff against the real snapshot Idea and describe the sketch as the requested replacement input — while keeping After's tighter 'The reporter proposes ExportWrapper…; an existing helper already preserves rows' sentence and its explicit 'No human clarification is needed' integrity line. Also consider restoring Before's one-line 'Split: none' and the explicit note that AC bytes are byte-for-byte unchanged in Checkpoint 1, which make the quiet-bytes guard visibly satisfied.",
+      "wallMs": 21567,
+      "verdict": "unchanged"
+    }
+  },
+  "repoSha": "5e211182d27b4be6aeee79d2c7fa9993ba49556d"
+}
