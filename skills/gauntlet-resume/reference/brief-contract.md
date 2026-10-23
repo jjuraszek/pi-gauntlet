@@ -176,7 +176,7 @@ End a turn awaiting selection, restoration, or answers with phase `plan` retaine
 
 ### Citation repair
 
-Record the plan's state before any write: tracked and clean when `git -C <worktree> ls-files --error-unmatch -- <plan path>` exits 0 and `git -C <worktree> status --porcelain -- <plan path>` prints nothing (index and working copy both match HEAD; a staged edit alone makes it dirty); otherwise copy the file to a temp path outside the worktree.
+Record the plan's state before any write: tracked and clean when `git -C <worktree> ls-files --error-unmatch -- <plan path>` exits 0 and `git -C <worktree> status --porcelain -- <plan path>` prints nothing (index and working copy both match HEAD; a staged edit alone makes it dirty); otherwise copy the file to a temp path outside the repository before citation repair writes anything. Any non-empty porcelain output, including staged-only `M  <plan path>`, takes this copy path even when tracked and the working copy equals HEAD. Never substitute `git checkout` for the dirty or untracked plan's snapshot or saved-copy restore.
 
 Classify every finding against the table by its `check` and `reason`, gathering the row's evidence first. One finding with no row -> stop (below) before any write.
 
