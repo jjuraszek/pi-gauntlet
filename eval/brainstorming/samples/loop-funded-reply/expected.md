@@ -1,0 +1,4 @@
+- five: judged: A persists the full option-2 granting sentence plus ; fund 2 fix rounds, not the option-5 shorthand; C persists the option-2 sentence without funding. Both give amend permission, never redraw approval.
+- four: judged: B persists only fund 2 fix rounds, budget-only without amend permission.
+- route: judged: A/B/C write Engine loop directly below Amend-grant, amend preserving audit, check both fields in HEAD before completing brainstorm and invoking loop-implementation. Funding is extra stagnant-row attempts, not escalated-model rounds.
+- malformed: judged: D quotes malformed token, re-presents, and writes nothing, without treating the reply as a change request.

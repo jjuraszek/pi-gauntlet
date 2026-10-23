@@ -1,3 +1,4 @@
+bundle-: skills/brainstorming/reference/spec-finalization.md
 ## Ask
 Design a faster similarity query while keeping the current dump-based repro and benchmark. The seed names no database extension.
 

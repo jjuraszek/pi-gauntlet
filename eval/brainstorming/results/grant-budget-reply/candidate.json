@@ -1,8 +1,8 @@
 {
   "sample": "grant-budget-reply",
   "arm": "candidate",
-  "skillSha": "0b605864d0b7bbf5cc79d35bcb409452ff3a05d524eed217daaf8c0321c1daba",
-  "inputSha": "a731f3e902424599153890305b3384134d9e9aaa88f0c58b004f134ca14e9202",
+  "skillSha": "2b1c49a2fc308f71f5539b7440ace5e139e5831933e1cacf092d469287584ddb",
+  "inputSha": "1c0c6c2bbfebc6de05189223ddf9660b8e5e35d8bf800c0b1c7e5d280b88300a",
   "kind": "text",
   "assembly": "headed",
   "thinking": "medium",
@@ -17,16 +17,16 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "# A - reply `2; fund 3 fix rounds`\n\nApproved with the standing amend grant, plus 3 funded implement fix rounds past the escalated round. This is an approval, not a change request.\n\nPlanned actions, in order (narrated only; no tools ran in this replay):\n\n1. **Read the grant rules.** `read` [Standing grants](reference/amendment-surface.md#standing-grants). If that section is unreadable, stop with a blocking error and do not proceed as granted.\n2. **Decode the value.** Run Value decoding on the value to persist, before any edit. The value is the option-2 description followed by `; fund 3 fix rounds`:\n   `every later spec amendment in this flow (corrected facts, paths, verification lines, and scope, acceptance-criteria, or public-contract edits alike) applies without asking; only a redraw (changed problem statement, component added, removed, or re-bounded) still stops for you, and the grant never stands in for a spec approval.; fund 3 fix rounds`\n   A malformed token would never be persisted.\n3. **Update the spec header.** `edit` `doc/specs/report-runner.md` so the `**Amend-grant:**` value changes from `none` to the decoded value. The header must still carry the line exactly once.\n4. **Fold the edit into the spec commit:**\n   - `git -C <worktree> add -- doc/specs/report-runner.md`\n   - `git -C <worktree> commit --amend --no-edit -q`\n   \n   The spec commit then carries the grant line and keeps its council-audit body.\n5. **Verify the grant.** Check that `git -C <worktree> show HEAD:doc/specs/report-runner.md` reads \"grant active\" through the predicate. If the amend or this check fails, stop and report; never proceed as granted.\n6. **Close the phase.** `phase_tracker({ action: \"complete\", phase: \"brainstorm\" })`.\n7. **Hand off.** Invoke `/skill:writing-plans` immediately, with no further prompt.\n\n---\n\n# B - reply `fund 3 fix rounds` alone\n\nA fix-round budget only applies to an approval, so I need to know which one you mean. Nothing has been written, and I'm not treating this as a change request. The spec and its commit are unchanged.\n\nReport runner writes a daily summary.\nSpec written and committed to doc/specs/report-runner.md (worktree: <worktree>).\nScope cuts: none\nCouncil: 1 applied, 0 deferred, 0 rejected\n\n1 - approve: proceed to planning under the existing amendment review; a fresh reviewer applies evidence-backed factual corrections on its own, and every other spec amendment (scope, acceptance-criteria, or contract edits, and redraws) stops for your review.\n2 - approve, auto-apply amends: every later spec amendment in this flow (corrected facts, paths, verification lines, and scope, acceptance-criteria, or public-contract edits alike) applies without asking; only a redraw (changed problem statement, component added, removed, or re-bounded) still stops for you, and the grant never stands in for a spec approval.\n3 - show council dispositions: prints the council audit verbatim, then re-presents this gate. Not an approval.\nAdd \"; fund N fix rounds\" (or \"N more fix rounds\") to 1 or 2 to fund N implement fix rounds past the escalated round.\n\nOr tell me what to change in the spec.\n\nReply `1; fund 3 fix rounds` or `2; fund 3 fix rounds` to approve with the budget.\n",
-      "words": 483,
-      "wallMs": 14614,
+      "text": "## A - user replied `2; fund 3 fix rounds`\n\nThis is an approval with a standing amendment grant and a budget of 3 fix rounds. It is not a change request. Because this replay cannot run tools, the steps below describe what I would do, not things that have happened.\n\n1. **Read the grant rules.** I would `read` `skills/brainstorming/reference/amendment-surface.md` at the [Standing grants](amendment-surface.md#standing-grants) section. Then I would run its Value decoding on the value to be saved. If that file cannot be read, I stop and report a blocking error, and nothing is saved.\n\n2. **Value to save, if decoding accepts it:**\n   `every later spec amendment in this flow (corrected facts, paths, verification lines, and scope, acceptance-criteria, or public-contract edits alike) applies without asking; only a redraw (changed problem statement, component added, removed, or re-bounded) still stops for you, and the grant never stands in for a spec approval; fund 3 fix rounds`\n   If decoding rejects the token, I save nothing and show the gate again, quoting the token.\n\n3. **Edit the spec header** in `doc/specs/report-runner.md`:\n   - Change `**Amend-grant:**` from `none` to the decoded value above.\n   - Add exactly one `**Engine:** waves` line directly below it.\n\n4. **Amend the commit, keeping the council audit:**\n   - `git -C <worktree> add -- doc/specs/report-runner.md`\n   - `git -C <worktree> commit --amend --no-edit -q`\n\n5. **Check the result.** Run `git -C <worktree> show HEAD:doc/specs/report-runner.md` and confirm three things:\n   - Both fields carry the values selected above.\n   - The value satisfies the grant check.\n   - The value passes Value decoding.\n\n   If the amend or this check fails, I stop and report. I would not continue as if the grant were in place.\n\n6. **Close the phase.** Run `phase_tracker({ action: \"complete\", phase: \"brainstorm\" })`.\n\n7. **Route.** Invoke `/skill:writing-plans` right away, with no further prompt.\n\nApproved with auto-apply amends and 3 funded fix rounds. Moving to planning.\n\n---\n\n## B - user replied `fund 3 fix rounds` alone\n\nA budget token on its own is not an approval and not a change request. I save nothing: no spec edit, no amend, no phase change. Here is the gate again:\n\nReport runner writes a daily summary.\nSpec written and committed to doc/specs/report-runner.md (worktree: <worktree>).\nScope cuts: none\nCouncil: 1 applied, 0 deferred, 0 rejected\n\n1 - approve: proceed to planning under the existing amendment review; a fresh reviewer applies evidence-backed factual corrections on its own, and every other spec amendment (scope, acceptance-criteria, or contract edits, and redraws) stops for your review.\n2 - approve, auto-apply amends: every later spec amendment in this flow (corrected facts, paths, verification lines, and scope, acceptance-criteria, or public-contract edits alike) applies without asking; only a redraw (changed problem statement, component added, removed, or re-bounded) still stops for you, and the grant never stands in for a spec approval.\n3 - show council dispositions: prints the council audit verbatim, then re-presents this gate. Not an approval.\nAdd \"; fund N fix rounds\" (or \"N more fix rounds\") to 1 or 2 to fund N implement fix rounds past the escalated round.\n\nOr tell me what to change in the spec.\n\n\"fund 3 fix rounds\" needs to go with an approval. Please reply with `1; fund 3 fix rounds` or `2; fund 3 fix rounds`, or pick another option.\n",
+      "words": 526,
+      "wallMs": 17420,
       "mechanical": {}
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "## A\n\nYour reply approves the spec, grants automatic amendments except redraws, and funds 3 additional implement fix rounds.\n\nI would first read the **Standing grants** reference and run its Value decoding before changing anything. If that required reference were unreadable, I would stop and report the blocker.\n\nAfter successful decoding, I would set `**Amend-grant:**` in `doc/specs/report-runner.md` to:\n\n> every later spec amendment in this flow (corrected facts, paths, verification lines, and scope, acceptance-criteria, or public-contract edits alike) applies without asking; only a redraw (changed problem statement, component added, removed, or re-bounded) still stops for you, and the grant never stands in for a spec approval; fund 3 fix rounds\n\nI would stage the spec, amend its existing commit without changing the commit message or council-audit body, and check the committed spec using the grant predicate. A failed amend or verification would block progression. On success, I would mark brainstorming complete and immediately invoke `/skill:writing-plans`, without another approval prompt.\n\nThis text-only replay has not performed those reads, writes, commits, or transitions.\n\n## B\n\n`fund 3 fix rounds` alone does not approve the spec. Nothing would be written or changed. Please choose `1` or `2`, including the budget token—for example, `1; fund 3 fix rounds`.\n\nReport runner writes a daily summary.\nSpec written and committed to doc/specs/report-runner.md (worktree: <worktree>).\nScope cuts: none\nCouncil: 1 applied, 0 deferred, 0 rejected\n\n1 - approve: proceed to planning under the existing amendment review; a fresh reviewer applies evidence-backed factual corrections on its own, and every other spec amendment (scope, acceptance-criteria, or contract edits, and redraws) stops for your review.\n2 - approve, auto-apply amends: every later spec amendment in this flow (corrected facts, paths, verification lines, and scope, acceptance-criteria, or public-contract edits alike) applies without asking; only a redraw (changed problem statement, component added, removed, or re-bounded) still stops for you, and the grant never stands in for a spec approval.\n3 - show council dispositions: prints the council audit verbatim, then re-presents this gate. Not an approval.\nAdd \"; fund N fix rounds\" (or \"N more fix rounds\") to 1 or 2 to fund N implement fix rounds past the escalated round.\n\nOr tell me what to change in the spec.\n",
-      "words": 361,
-      "wallMs": 13793,
+      "text": "## A\n\nApproved with auto-apply amendments and **3 extra implement fix rounds**.\n\nIn this text-only replay, I would first read `skills/brainstorming/reference/amendment-surface.md` for Standing grants and Value decoding. If that required read were unavailable, I would stop before persistence or routing.\n\nAfter successful decoding, I would:\n- Set `**Amend-grant:**` to the option-2 granting sentence already shown, followed by `; fund 3 fix rounds`.\n- Set `**Engine:** waves` directly below it.\n- Stage the spec and amend its commit without changing the commit message, preserving the council audit.\n- Verify both values in the committed spec and confirm they satisfy the grant and decoding rules.\n\nOnly after successful persistence and verification would I mark brainstorming complete and invoke `/skill:writing-plans`, without another approval prompt. No writes, commits, or routing have actually occurred in this replay.\n\n## B\n\n`fund 3 fix rounds` alone does not approve the spec. Nothing is written or changed. Please choose **1 or 2**, including the funding token if you want it applied.\n\nReport runner writes a daily summary.\nSpec written and committed to doc/specs/report-runner.md (worktree: <worktree>).\nScope cuts: none\nCouncil: 1 applied, 0 deferred, 0 rejected\n\n1 - approve: proceed to planning under the existing amendment review; a fresh reviewer applies evidence-backed factual corrections on its own, and every other spec amendment (scope, acceptance-criteria, or contract edits, and redraws) stops for your review.\n2 - approve, auto-apply amends: every later spec amendment in this flow (corrected facts, paths, verification lines, and scope, acceptance-criteria, or public-contract edits alike) applies without asking; only a redraw (changed problem statement, component added, removed, or re-bounded) still stops for you, and the grant never stands in for a spec approval.\n3 - show council dispositions: prints the council audit verbatim, then re-presents this gate. Not an approval.\nAdd \"; fund N fix rounds\" (or \"N more fix rounds\") to 1 or 2 to fund N implement fix rounds past the escalated round.\n\nOr tell me what to change in the spec.\n",
+      "words": 316,
+      "wallMs": 13864,
       "mechanical": {}
     }
   },
@@ -34,14 +34,14 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "b928bbda75a12ebbd47d53028e22244912a0b069b49f7481b3dd9b37759d036a",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "5aa2bf78a144556c707465aa0b7081fb61f66dc61c2e759e7988b90489850f48",
-      "baselineOutputSha": "a81832b73e6a6fb6adcaafbe41f596334a4fed5e8b7527809d4750a48e180b86",
-      "candidateOutputSha": "2e4197b33a5f0b1fef30a66ef7a8d09c74fd3e2d761c3e36daed7fce50c6d74a",
+      "intentSha": "3602fc1dee2b339ff8266007e44048e33ea5c5f1dd5ab572b72f91846497b06c",
+      "baselineOutputSha": "bac4903882c530277ac4d74e00eb65256a45f947a5f6d6d9f7482bde70f4c798",
+      "candidateOutputSha": "64e6b88e20e043dda678d3fa1182fd38445d4d50c16713499dea890008c99e12",
       "facts": {
         "funded-value": {
-          "before": "fails",
+          "before": "holds",
           "after": "holds",
-          "label": "intended change"
+          "label": "intended but unchanged"
         },
         "token-needs-approval": {
           "before": "holds",
@@ -49,32 +49,32 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "After moved funded-value from fails to holds: Before persisted the grant with the menu label prefix (\"approve, auto-apply amends: ...\") and dropped the funding suffix into a separate, unstored note, whereas After decodes and persists exactly the option-2 description followed by \"; fund 3 fix rounds\" in the Amend-grant line, amends it into the spec commit, closes the phase, and hands off without a change-request round, all narrated without claiming execution. token-needs-approval held in both: After's B writes nothing, declines to treat the bare budget token as approval or change request, re-presents the full gate, and asks for 1 or 2 with the suffix. Nothing regressed; the only wording to keep an eye on is the \"Decode the value\" step, which should continue to state that the persisted value is the verbatim option-2 description plus the suffix (not the menu label) so the exactness remains explicit on future runs.",
-      "wallMs": 10098,
-      "verdict": "improved"
+      "feedback": "Nothing moved. In A, After still treats `2; fund 3 fix rounds` as an approval (not a change request), narrates persisting the Amend-grant value verbatim as the option-2 menu description followed by `; fund 3 fix rounds`, amends the spec commit, and routes to writing-plans; the added `**Engine:** waves` line and the HEAD check of both fields deliver the Change without altering the grant string. In B, After still refuses to approve on the budget token alone, narrates no spec edit, no amend, and no phase change, and re-presents the full gate with an explicit request for `1; fund 3 fix rounds` or `2; fund 3 fix rounds`. Keep the exact grant string with the suffix appended after the final period of the option-2 text, keep the explicit 'needs to go with 1 or 2' line adjacent to the re-presented gate, and keep the 'quote the token and re-gate on decoding rejection' clause so the invalid/malformed facts in engine-waves and loop-funded-reply stay aligned with this sample.",
+      "wallMs": 11564,
+      "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "b928bbda75a12ebbd47d53028e22244912a0b069b49f7481b3dd9b37759d036a",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "5aa2bf78a144556c707465aa0b7081fb61f66dc61c2e759e7988b90489850f48",
-      "baselineOutputSha": "c1240f5bb3dbe75c837e24b73394385ee9b1efef650825ef65fc768637d658cd",
-      "candidateOutputSha": "94b71c19cac3cf07d042e5aa556239c1e559e71d866ebff781a2f9ee0cb42bdd",
+      "intentSha": "3602fc1dee2b339ff8266007e44048e33ea5c5f1dd5ab572b72f91846497b06c",
+      "baselineOutputSha": "909e27beca353f929980f87963917b57b6633fdbbc2b6c9d264c33adc8f2cba0",
+      "candidateOutputSha": "30854e9a79f101944cdbf8a66289437e2828ef8d9b758f91533aceb0baac1d77",
       "facts": {
         "funded-value": {
-          "before": "fails",
+          "before": "holds",
           "after": "holds",
-          "label": "intended change"
+          "label": "intended but unchanged"
         },
         "token-needs-approval": {
-          "before": "fails",
+          "before": "holds",
           "after": "holds",
-          "label": "intended change"
+          "label": "intended but unchanged"
         }
       },
-      "feedback": "After moves both facts to holds and drops nothing Before kept. In A, Before only said it would replace `**Amend-grant:** none` with \"the gate's full grant description\" and separately \"retain the fix-round authorization for the flow\", so the persisted value was never shown and the `; fund 3 fix rounds` suffix was not placed in the header; After quotes the exact option-2 description with the suffix appended as the single Amend-grant value, narrates the amend-in-place commit preserving the council audit, proceeds straight to `/skill:writing-plans`, and closes with an explicit no-tools disclaimer. In B, Before told the user they had already \"authorized\" fix rounds that \"carry forward\" and offered only a two-line condensed menu, so the budget token was treated as taking effect on its own and the gate was not actually re-presented; After states the token alone approves nothing, that nothing would be written, re-renders the gate verbatim, and shows the combined `1; fund 3 fix rounds` form. Keep the verbatim block quote of the header value and the full gate re-render; if you tighten wording further, do not collapse the quoted value into a paraphrase or trim the gate back to options 1 and 2, since those are exactly what Before lost.",
-      "wallMs": 21925,
-      "verdict": "improved"
+      "feedback": "Both facts survive, but After A weakened the evidence for funded-value: Before quoted the full Amend-grant value verbatim (the option-2 sentence plus \"; fund 3 fix rounds\"), whereas After only points at \"the option-2 granting sentence already shown\" and appends the suffix, so a reader must reassemble the persisted value from the gate text rather than see it in the narration. The new Engine: waves line and the HEAD check of both fields deliver the Change without conflicting with either fact, and After B correctly re-presents the gate, names 1 or 2, and states nothing is written. To keep funded-value robust while still adding the engine field, have the After wording quote the Amend-grant value in full (as Before did) and then add the Engine: waves line and the two-field verification beneath it, rather than replacing the verbatim quote with a reference.",
+      "wallMs": 20931,
+      "verdict": "unchanged"
     }
   },
-  "repoSha": "889b5c13f91d905ab6f44b412922585f56be27ba"
+  "repoSha": "0f3440cf7c055eec7e5a35c382e0aa87a67d392a"
 }

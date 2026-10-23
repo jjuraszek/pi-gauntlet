@@ -1,3 +1,4 @@
+bundle-: skills/brainstorming/reference/spec-finalization.md
 ## Ask
 Implement acme/widgets#77.
 

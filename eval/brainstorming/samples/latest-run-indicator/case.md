@@ -1,3 +1,4 @@
+bundle-: skills/brainstorming/reference/spec-finalization.md
 ## Ask
 T-1 asks to assess a file hover showing producer revision and a badge on each top-level item. The binding outcome is a visible workspace processing date with the same run's producer revision reachable from that indicator, using persisted data only.
 

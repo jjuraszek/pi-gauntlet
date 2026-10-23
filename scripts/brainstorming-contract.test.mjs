@@ -75,6 +75,7 @@ test('restored and redraw entry load the ticket contract before questionary or l
 test('moved ticket contract retains verbatim schema and all no-ticket cases', () => {
   const text = read('skills/brainstorming/reference/ticket-acceptance.md');
   for (const marker of ['every top-level checkbox row', 'Post-deployment housekeeping', 'all written `- [ ]`', 'in-scope', 'deviates: <why>', 'deferred: <where>', 'venue: <env> - <observation>', 'elsewhere: <repo>', 'Cut question', 'Scope cuts:', 'none - no ticket', 'none - ticket has no acceptance criteria', 'none - ticket not fetched (<reason>)', 'Never author acceptance criteria']) assert.ok(text.includes(marker), marker);
+  assert.ok(text.includes('Replace `<name>` with the supplied unmatched group heading verbatim'));
   assert.doesNotMatch(text, /only when it changes what the user observes/);
   assert.doesNotMatch(text, /operates without it/);
   assert.match(text, /\*\*Write the section in every spec\*\*, after `## Problem`/);
@@ -104,7 +105,7 @@ test('finalization retains ordered write checks, verdict routing and dispatches'
 
 test('summary faults, partial coverage, commit and revisions retain their routes', () => {
   const text = read('skills/brainstorming/reference/spec-finalization.md');
-  for (const marker of ['This commit is **unconditional**', 'Coverage:', 'Applied:', 'Deferred:', 'Rejected:', 'under ~500 bytes', 'over ~45 KB', 'last content-producing tool call', 'returns 0 bytes', 'reports truncation', 'never paraphrase', 'rm "$SUMMARY_PATH"', 'fresh** temp path', 'proceed immediately to `/skill:writing-plans`', 're-dispatch the summarizer or note the discrepancy']) assert.ok(text.includes(marker), marker);
+  for (const marker of ['This commit is **unconditional**', 'Coverage:', 'Applied:', 'Deferred:', 'Rejected:', 'under ~500 bytes', 'over ~45 KB', 'last content-producing tool call', 'returns 0 bytes', 'reports truncation', 'never paraphrase', 'rm "$SUMMARY_PATH"', 'fresh** temp path', 'invoke `/skill:writing-plans` on 1/2', 're-dispatch the summarizer or note the discrepancy']) assert.ok(text.includes(marker), marker);
   assert.ok(text.indexOf('Then commit the spec') < text.indexOf('1. **From the dispatch tool result'));
   assert.ok(text.indexOf('1. **From the dispatch tool result') < text.indexOf('2. **The `Read` itself'));
   for (const marker of ['Council: <A> applied, <D> deferred, <R> rejected', '3 - show council dispositions', 'add -- <spec path>', "commit -q -F - -- <spec path>", "<<'EOF'", 'git -C <abs worktree path> show -s --format=%b HEAD', 'a reply carrying `3` never grants', '-> reverted at gate', '`-m`, `-F <file>`']) assert.ok(text.includes(marker), marker);
@@ -135,9 +136,9 @@ test('spec-finalization writes the grant line and persists approval-time grants 
   for (const marker of ['**Amend-grant:** none', 'The `**Amend-grant:**` header line is flow machinery owned by the brainstorming gate; never cut, shrink, flag, or edit it.', 'commit --amend --no-edit -q', 'git -C <abs worktree path> add -- <spec path>', 'show HEAD:<spec path>']) assert.ok(text.includes(marker), marker);
   assert.ok(text.indexOf('On approval') < text.indexOf('commit --amend --no-edit -q'), 'amend after On approval');
   for (const marker of ['2; fund 3 fix rounds', '2, fund 3 fix rounds', 'Decode before', 'token alone', 'malformed N']) assert.ok(text.includes(marker), marker);
-  const hint = 'Add "; fund N fix rounds" (or "N more fix rounds") to 1 or 2 to fund N implement fix rounds past the escalated round.';
+  const hint = 'Add "; fund N fix rounds" (or "N more fix rounds") to 1, 2, 4, or 5 to fund N extra attempts per stagnant loop row or N implement fix rounds past the escalated waves round.';
   assert.match(text, /Decode before `edit` or `--amend`/);
-  assert.ok(text.indexOf('run Value decoding') < text.indexOf('On a grant or funded approval'), 'decode before approval persistence');
+  assert.ok(text.indexOf('run Value decoding') < text.indexOf('On every approval'), 'decode before approval persistence');
   assert.ok(text.indexOf(hint) > text.indexOf('3 - show council dispositions:'));
   assert.ok(text.indexOf(hint) < text.indexOf('Or tell me what to change'));
   assert.ok(!text.includes('--trailer'), 'trailer step removed');
@@ -323,4 +324,30 @@ test('red flags stop approaches that skip the framing question or the holds-stat
   const text = main();
   assert.match(text, /^- Approaches before the framing question or the holds-statement .*; a holds-statement that names nothing checked \(\[owner\]\(#3-understand-the-idea\)\)\.$/m);
   assert.ok(text.includes("- Approaches before the premise note states a contradicted claim's correction ([owner](#3-understand-the-idea))."), 'premise red flag retained');
+});
+
+test('engine gate persists both fields before completing and dispatching the selected engine', () => {
+  const text = read('skills/brainstorming/reference/spec-finalization.md');
+  for (const line of [
+    '4 - approve, loop engine (experimental): skip the plan; iterate a fresh loop-implementer over the acceptance-criteria ledger; amendments stop for your review as under 1.',
+    "5 - approve, loop engine, auto-apply amends: as 4 with option 2's amendment grant.",
+  ]) assert.ok(text.includes(line), line);
+  for (const marker of ['asking for `1`, `2`, `4`, or `5`', '`3` plus `1`/`2`/`4`/`5`', 'a reply carrying `3` never grants', 'token with malformed N', 'write nothing', 'none -', 'render only options 1-3', 'directly below `**Amend-grant:**`', 'absent -> `waves`', 'both fields', '`4` approves without a grant', '`5` approves and grants', 'bare `5`', '`5; fund 3 fix rounds`', '`4` with a budget token', 'mixes approval with a change request']) assert.ok(text.includes(marker), marker);
+  const persistence = text.indexOf('On every approval');
+  const amend = text.indexOf('commit --amend --no-edit -q', persistence);
+  const check = text.indexOf('both fields', amend);
+  const complete = text.indexOf('phase_tracker({ action: "complete", phase: "brainstorm" })', check);
+  const dispatch = text.indexOf('invoke `/skill:writing-plans` on 1/2', complete);
+  assert.ok(persistence > 0 && amend > persistence && check > amend && complete > check && dispatch > complete);
+  assert.doesNotMatch(text, /commit is untouched/);
+  assert.match(main(), /13\. .*loop-implementation/);
+  assert.doesNotMatch(main(), /only\*\* next skill is `\/skill:writing-plans`/);
+});
+
+test('ledger amendments precede task-plan aftermath and preserve durable counts and audit', () => {
+  const text = read('skills/brainstorming/reference/amendment-surface.md');
+  const ledger = text.indexOf('Ledger exists');
+  assert.ok(ledger > 0 && ledger < text.indexOf('Plan exists ->'));
+  for (const marker of ['# Ledger - loop engine', 'skip `plan-writer`, `plan_check`, and `plan_tracker`', '`deviates:`, `deferred:`, or `elsewhere:`', '`cut`', 'evidence = the disposition', 'requirement-preserving', '`done`', '`open`', 'reopened by amendment', "Preserve every row's attempts and the ledger's iterations", 'loop: cut row <n>', 'loop: amend', 'amendment audit', 'bare `2` or `5`', 'digit `2` or `5`']) assert.ok(text.includes(marker), marker);
+  assert.match(main(), /delete the plan file and the loop ledger/);
 });

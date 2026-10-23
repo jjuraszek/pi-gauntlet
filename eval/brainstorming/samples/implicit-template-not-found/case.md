@@ -1,3 +1,4 @@
+bundle-: skills/brainstorming/reference/spec-finalization.md
 ## Ask
 Keep the existing presentation generator and add a summary slide. The seed design says the generator loads its presentation template; it never names that file. Keep the generator, do not replace it.
 

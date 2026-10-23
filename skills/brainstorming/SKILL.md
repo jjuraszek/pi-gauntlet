@@ -32,7 +32,7 @@ Treat the flag as discovery control, not harness authorization. The command reli
 
 ## Checklist
 
-Work through the items below **in order**. After a user answer or completed side task, resume the current checklist step and perform the next authorized action in the same turn, advancing once that step's required decisions and approvals are satisfied. Continue until a required question is unanswered, an existing approval is pending, the user explicitly pauses, or a failed required tool or unavailable required resource blocks progress. This is your own checklist to follow, not a `plan_tracker` plan — brainstorming is open-ended exploration, and `plan_tracker` is execution-only (the implement phase). The terminal state is the user review gate; after approval the **only** next skill is `/skill:writing-plans`. Do not jump to implementation, and do not silently drop the critique pass.
+Work through the items below **in order**. After a user answer or completed side task, resume the current checklist step and perform the next authorized action in the same turn, advancing once that step's required decisions and approvals are satisfied. Continue until a required question is unanswered, an existing approval is pending, the user explicitly pauses, or a failed required tool or unavailable required resource blocks progress. This is your own checklist to follow, not a `plan_tracker` plan — brainstorming is open-ended exploration, and `plan_tracker` is execution-only (the implement phase). The terminal state is the user review gate; after approval route 1/2 to `/skill:writing-plans` and 4/5 to `/skill:loop-implementation` per the gate. Do not jump ahead of approval, and do not silently drop the critique pass.
 
 1. **Start brainstorm tracking (fresh epoch)** - as the first action on authorized fresh entry, before reading code, the worktree, or answering the user, reset both trackers and start the phase. A new brainstorm owns a clean slate, so stale phases and tasks from earlier work are cleared; re-entering mid-brainstorm is safe (nothing to lose, same clean slate):
 
@@ -53,7 +53,7 @@ Work through the items below **in order**. After a user answer or completed side
 10. **Re-run placeholder scan** - follow [Spec Self-Review](#spec-self-review-before-user-review-gate).
 11. **Generate spec summary** - follow [User Review Gate](#user-review-gate).
 12. **User review gate** - follow [User Review Gate](#user-review-gate).
-13. **Transition** - after approval, invoke `/skill:writing-plans` per [User Review Gate](#user-review-gate).
+13. **Transition** - after approval, invoke `/skill:writing-plans` on 1/2 or `/skill:loop-implementation` on 4/5 per [User Review Gate](#user-review-gate).
 
 ## Project Routing
 
@@ -186,7 +186,7 @@ Classify first. Redraw test: the change alters the problem statement, adds or re
 
 Amend -> `read` `reference/amendment-surface.md` and follow it (unreadable -> stop with a blocking error; never improvise the grammar). Apply its [Standing grants](reference/amendment-surface.md#standing-grants) boundaries.
 
-Redraw: keep the worktree and the approved spec file. `plan_tracker({ action: "clear" })`, `phase_tracker({ action: "reset" })`, `phase_tracker({ action: "start", phase: "brainstorm" })`, delete the plan file, resume at checklist step 4 with the approved spec as the draft (steps 2-3 skipped); step 4's first-use check covers the read. Spec-writing overwrites it; the full gate follows.
+Redraw: keep the worktree and the approved spec file. `plan_tracker({ action: "clear" })`, `phase_tracker({ action: "reset" })`, `phase_tracker({ action: "start", phase: "brainstorm" })`, delete the plan file and the loop ledger (identified by line 1 `# Ledger - loop engine` in the resolved plan dir), resume at checklist step 4 with the approved spec as the draft (steps 2-3 skipped); step 4's first-use check covers the read. Spec-writing overwrites it; the full gate follows.
 
 ## Red Flags — STOP
 

@@ -1,6 +1,10 @@
-for: c635d966f967506e4e69ac9702b02820381b270b88c9209aa0941cb93338cb5e
+for: 2b1c49a2fc308f71f5539b7440ace5e139e5831933e1cacf092d469287584ddb
 
 ## Change
+Supply the existing Standing grants decoding procedure to engine-waves and the owning redraw procedure to loop-ledger-amend. Render the actual unmatched group heading in the ticket attribution option rather than its template placeholder; preserve both existing facts.
+
+Route approval options 4/5 to the loop engine, persist engine and grant together, decode loop funding independently, and reconcile approved amendments against a ledger before task-plan aftermath. The target adds the owning User Review Gate slice; old questionary samples drop it, and the ledger sample adds the actual amendment source. New samples are skipped on the baseline because they do not exist there. Text replays prove narrated ordering and values, not live git writes or tracker operations.
+
 Decode independent amendment and fix-round capabilities from the standing-grant value. Funded gate replies preserve the option-2 description and suffix, while a budget token alone re-presents the approval gate without writing. Keep the existing wordCap and accepted variance.
 
 Carry every Reporter-note section into implied spec requirements and scout search terms. Fetch complete comments independently in the parallel scout and context-builder tasks, including a second page after 50 ordinary comments. Quote notes verbatim in creation order regardless of author or combined-comment label order, retain contradictions without resolution, and keep AC extraction body-only. Preserve no-fetch degradation and retain body ACs with a body-only gate warning on comment-fetch failure. The two new replays prove narration and supplied-note carry-through, not live tracker integration. Retain the previously accepted moves below. Editing the ticket reference changes existing sample assemblies; cache reuse is hash-based.
@@ -14,6 +18,21 @@ The amendment human batch uses numbered problem-first items with lettered option
 The ticket-read-once, restored-step-8-reads-ticket, same-session-redraw-reuses-ticket, and overrides-read-once samples narrate ordered read and stage actions from fixed session-context observations. Ticket handling reads once at first use, restored step 8 reads before lint, same-session redraw reuses content while applying ticket rules, and unreadable references block without reconstruction. Overrides content is reused across stages while conventions still apply; unsure context requires a read. The assembly adds the brainstorming Ticket Handling and Project overrides slices while retaining existing slices and the ticket reference. Only overrides-read-once adds the real writing-plans skill via bundle+, using its overrides block only. The replay exception is limited to the Narrated read actions heading; existing continuation and questionary outputs keep their contracts. No new regression is accepted without model evidence.
 
 ## Expected to move
+- loop-gate/menu: fails -> holds - Render exact options 4/5.
+- loop-gate/loop: fails -> holds - Persist and HEAD-check both fields before completing brainstorm and dispatching.
+- loop-gate/no-ac: fails -> holds - Keep the three-option no-AC gate.
+- engine-waves/waves: fails -> holds - Retain waves routing and grant semantics for 1/2.
+- engine-waves/audit: fails -> holds - Audit re-gates without approval.
+- engine-waves/mixed: fails -> holds - Mixed requests re-gate without approval.
+- engine-waves/invalid: fails -> holds - Budget-only and malformed replies do not write.
+- loop-funded-reply/five: fails -> holds - Decode option 5's funded grant and stagnant-row budget.
+- loop-funded-reply/four: fails -> holds - Preserve budget-only option 4 and clean option 5.
+- loop-funded-reply/route: fails -> holds - Check both fields before completing and dispatching loop.
+- loop-funded-reply/malformed: fails -> holds - Quote invalid input and re-gate.
+- loop-ledger-amend/review: fails -> holds - Option 4 reviews while option 5 grants the same amendment scope as 2.
+- loop-ledger-amend/reconcile: fails -> holds - Reconcile cuts and re-bounds without task-plan machinery.
+- loop-ledger-amend/bypass: fails -> holds - Preserve factual evidence, attempts, iterations, and audit body.
+- loop-ledger-amend/redraw: fails -> holds - Redraw deletes the ledger, resets trackers, and requires approval.
 - grant-budget-reply/funded-value: fails -> holds - Persist the exact option-2 description plus the funding suffix without a change-request round.
 - grant-budget-reply/token-needs-approval: fails -> holds - A budget token alone cannot approve or write a grant.
 - questionary-option-lines/layout: fails -> holds - Require one labeled option per physical line with a preceding lead-in and final own-line recommendation.

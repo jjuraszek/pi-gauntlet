@@ -1,0 +1,100 @@
+{
+  "sample": "loop-funded-reply",
+  "arm": "candidate",
+  "skillSha": "dc7c25810ffb88ed1bee1cc26e325ab36465c58d11990220a84b0e2c03f2a963",
+  "inputSha": "ae53b3abcdb6305ebd642383e8e1f2c50e3d6974f927a7b678e6801675d314af",
+  "kind": "text",
+  "assembly": "headed",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "# Narrated read and stage actions: approved-ready five-option gate\n\n**Shared fixed state:**\n- Spec: `doc/specs/report.md`.\n- Acceptance criteria: two rows, so gate options 4 and 5 are available.\n- Header line: `**Amend-grant:** none`.\n- No plan file exists.\n- `<wt>` is the absolute worktree path.\n\nEach trace below is independent and starts from this same state. Nothing here has run; every step is an intended action.\n\n**Option-2 description (persisted text for the grant):**\n\n> every later spec amendment in this flow (corrected facts, paths, verification lines, and scope, acceptance-criteria, or public-contract edits alike) applies without asking; only a redraw (changed problem statement, component added, removed, or re-bounded) still stops for you, and the grant never stands in for a spec approval.\n\n---\n\n## Trace A: reply `5; fund 2 fix rounds`\n\n1. **Classify the reply** using the funded-reply table. It matches the row `5; fund N fix rounds`. That means approve, persist the option-2 description plus `; fund 2 fix rounds`, and use the loop engine. It is not a change request.\n2. **Read Standing grants (intended).** Use `read` on the absolute path `…/skills/brainstorming/reference/amendment-surface.md`, section Standing grants. If it is unreadable, stop with a blocking error and write nothing.\n3. **Run Value decoding on the candidate value before any edit.**\n   - Exactly one token, `fund 2 fix rounds`, matches, and N=2 satisfies `[1-9][0-9]*`.\n   - After removing the token and its `; ` separator, the option-2 description remains. It is non-empty, so amend permission applies.\n   - Result: amend permission plus a budget of 2.\n4. **Edit the existing `**Amend-grant:**` line** in place to:\n   `**Amend-grant:** <option-2 description>; fund 2 fix rounds`\n   - It stays one physical line.\n5. **Write exactly one `**Engine:** loop` line** directly below `**Amend-grant:**` in the header block.\n6. **Stage and amend the commit:**\n   - `git -C <wt> add -- doc/specs/report.md`\n   - `git -C <wt> commit --amend --no-edit -q`\n   - The council-audit body, if present, is kept.\n7. **Check HEAD** with `git -C <wt> show HEAD:doc/specs/report.md`. It must show:\n   - exactly one `Amend-grant` line with the value above,\n   - exactly one `**Engine:** loop` line,\n   - a grant predicate reading of \"active\",\n   - the same decoding result: amend permission and budget 2.\n\n   If the amend or this check fails, stop and report. Never proceed as granted.\n8. **Resulting capabilities:**\n   - Later amend-class spec changes apply without asking. Redraws still stop.\n   - Each stagnant loop row gets 2 extra attempts.\n   - The budget is non-retroactive.\n9. **Phase and destination:**\n   - `phase_tracker({ action: \"complete\", phase: \"brainstorm\" })`\n   - Then invoke `/skill:loop-implementation` with no further prompt.\n   - No plan is written.\n\n## Trace B: reply `4; fund 2 fix rounds`\n\n1. **Classify the reply.** It matches the row \"`4` with a budget token\". That means approve, persist the token alone (budget-only), and use the loop engine.\n2. **Read Standing grants (intended)** at the same absolute path. If it is unreadable, stop with a blocking error.\n3. **Run Value decoding on `fund 2 fix rounds`.**\n   - Exactly one match, with N=2.\n   - The remainder after removing the token is empty, so this is budget-only with no amend permission.\n4. **Edit the line** to: `**Amend-grant:** fund 2 fix rounds`.\n5. **Write `**Engine:** loop`** directly below it.\n6. **Stage and amend:** `add -- doc/specs/report.md`, then `commit --amend --no-edit -q`, keeping the audit body.\n7. **Check HEAD** with `show HEAD:doc/specs/report.md`. It must show:\n   - one `Amend-grant` line, `fund 2 fix rounds`,\n   - one `**Engine:** loop` line,\n   - a predicate reading of \"active\",\n   - a decoding result of budget-only, N=2.\n\n   On failure, stop and report.\n8. **Resulting capabilities:**\n   - No standing amend grant. Amendments go through the ordinary flow: prefilter, then reviewer, then human batch, \"as under 1\".\n   - Each stagnant loop row gets 2 extra attempts.\n9. **Phase and destination:** complete the brainstorm phase, then invoke `/skill:loop-implementation`.\n\n## Trace C: reply `5`\n\n1. **Classify the reply.** It matches bare `5`. That means approve, persist the option-2 description, and use the loop engine.\n2. **Read Standing grants (intended).** If it is unreadable, stop with a blocking error.\n3. **Run Value decoding on the option-2 description.**\n   - No funding token matches, and no invalid token-shaped phrase is present.\n   - The remainder is non-empty, so amend permission applies with no budget.\n4. **Edit the line** to: `**Amend-grant:** <option-2 description>`.\n   - The persisted text is the grant description, never the digit `5`.\n5. **Write `**Engine:** loop`** directly below it.\n6. **Stage and amend:** `add`, then `commit --amend --no-edit -q`.\n7. **Check HEAD** with `show HEAD:…`. It must show:\n   - both fields present once,\n   - a predicate reading of \"active\",\n   - a decoding result of amend permission with no funding.\n\n   On failure, stop and report.\n8. **Resulting capabilities:**\n   - Later amends auto-apply. Redraws still stop.\n   - Stagnant loop rows get no extra attempts.\n9. **Phase and destination:** complete the brainstorm phase, then invoke `/skill:loop-implementation`.\n\n## Trace D: reply `4; fund three fix rounds`\n\n1. **Classify the reply.** It matches the row \"token with malformed N\". `fund three fix rounds` is token-shaped, but N is not `[1-9][0-9]*`.\n2. **Write nothing:**\n   - The spec stays unchanged.\n   - `Amend-grant` stays `none`.\n   - No `**Engine:**` line is written.\n   - No `add`, no `--amend`, and no HEAD check.\n   - Standing grants is not read, because there is no value to persist.\n   - The reply is not treated as a change request, so there is no spec revision and no summarizer re-dispatch.\n3. **Re-present the same five-option gate**, quoting `fund three fix rounds` as invalid. Ask for `1`, `2`, `4`, or `5`, optionally with a well-formed `fund N fix rounds`.\n4. **Resulting capabilities:** none. There is no grant and no budget.\n5. **Phase and destination:**\n   - Brainstorm stays in progress at the user review gate.\n   - No phase completion and no skill invocation.\n   - Wait for the user's reply.\n",
+      "words": 901,
+      "wallMs": 31515,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "The following are independent intended traces, not live tool calls. Each starts from the approved-ready gate: two AC rows, `**Amend-grant:** none`, and no plan. Required-reference readability and command outcomes are not supplied, so successful paths below are conditional; no successful read, commit, or HEAD check is claimed.\n\n### A — `5; fund 2 fix rounds`\n\n1. **Read:** Resolve and read the absolute skill path `skills/brainstorming/reference/amendment-surface.md`, loading **Standing grants** for approval decoding. If unreadable, stop with a blocking error; do not edit or transition.\n2. **Decode and persist:** Option 5 selects the loop engine, grants amendment permission, and funds two extra stagnant-row attempts. The exact header values would be:\n   ```markdown\n   **Amend-grant:** every later spec amendment in this flow (corrected facts, paths, verification lines, and scope, acceptance-criteria, or public-contract edits alike) applies without asking; only a redraw (changed problem statement, component added, removed, or re-bounded) still stops for you, and the grant never stands in for a spec approval.; fund 2 fix rounds\n   **Engine:** loop\n   ```\n   The punctuation `approval.; fund` preserves the gate’s granting sentence verbatim before appending the budget.\n3. **Stage and amend:** Stage only `doc/specs/report.md`, then amend the existing spec commit with `--amend --no-edit -q`, preserving its body.\n4. **HEAD check:** Inspect `HEAD:doc/specs/report.md`. Require exactly one valid header grant field with the value above and exactly one `**Engine:** loop`. Decode the grant as amendment permission **plus** two funded extra attempts per stagnant loop row. A failed amend or failed check blocks further progress.\n5. **Phase and destination:** After successful persistence and checks, complete the brainstorm phase and immediately invoke `/skill:loop-implementation`. Do not create a plan.\n\n### B — `4; fund 2 fix rounds`\n\n1. **Read:** Read **Standing grants** at the resolved absolute amendment-surface path. If unreadable, stop before any edit.\n2. **Decode and persist:** This is budget-only approval, without amendment permission:\n   ```markdown\n   **Amend-grant:** fund 2 fix rounds\n   **Engine:** loop\n   ```\n   It funds two extra stagnant-row attempts; amendments retain the option-1 review policy, and redraws still require review.\n3. **Stage and amend:** Stage `doc/specs/report.md` and amend the existing commit with `--amend --no-edit -q`.\n4. **HEAD check:** Verify both exact fields in `HEAD:doc/specs/report.md`. Structural validation must succeed; value decoding must yield funding only, **not** amendment permission. Stop on any amend or verification failure.\n5. **Phase and destination:** Complete brainstorm and immediately invoke `/skill:loop-implementation`, without a plan.\n\n### C — `5`\n\n1. **Read:** Read **Standing grants** at the resolved absolute amendment-surface path. If unreadable, stop before editing.\n2. **Decode and persist:** The exact values would be:\n   ```markdown\n   **Amend-grant:** every later spec amendment in this flow (corrected facts, paths, verification lines, and scope, acceptance-criteria, or public-contract edits alike) applies without asking; only a redraw (changed problem statement, component added, removed, or re-bounded) still stops for you, and the grant never stands in for a spec approval.\n   **Engine:** loop\n   ```\n   This grants amendment permission but funds no extra attempts. Redraws still stop for review.\n3. **Stage and amend:** Stage `doc/specs/report.md` and amend the existing commit with `--amend --no-edit -q`.\n4. **HEAD check:** Require the exact grant value and exactly one loop-engine field in the committed spec. Validate amendment permission with no funding token. Stop if the amend or check fails.\n5. **Phase and destination:** Complete brainstorm and immediately invoke `/skill:loop-implementation`, without a plan.\n\n### D — `4; fund three fix rounds`\n\n1. **Read:** Read **Standing grants** at the resolved absolute amendment-surface path before approval-value decoding. If unreadable, stop with a blocking error.\n2. **Decode:** Reject `fund three fix rounds`: the funding count must be a positive decimal integer.\n3. **No persistence or staging:** Keep `**Amend-grant:** none` unchanged. Do not write an engine field, stage files, amend the commit, or perform a post-amend HEAD check.\n4. **Phase and destination:** Leave brainstorm incomplete and re-present the review gate, quoting the malformed token and requesting a valid approval reply. Do not invoke either downstream skill.\n\nFor A and B, the funding is for **extra attempts per stagnant loop row**, not escalated-model rounds.\n",
+      "words": 643,
+      "wallMs": 39978,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "048ce1cfb84e76899bf4e1de3b6d59fbd9fc4a3f5b809ef8b8c5def4206b5f5a",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "3602fc1dee2b339ff8266007e44048e33ea5c5f1dd5ab572b72f91846497b06c",
+      "baselineOutputSha": "3ef57810e45fd5cd96dc1d3efef4839a82dd896d82c186e9da8ae08357daa18a",
+      "candidateOutputSha": "2b50df7396147e688d6c111c4cfd34aa265a5d6c1d3dc6a5f84eaaabd988c514",
+      "facts": {
+        "five": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "four": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "route": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "malformed": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        }
+      },
+      "feedback": "Before rejected the premise outright (a three-option gate, no 4/5, and funding read as rounds past the escalated round), so A, B and C persisted nothing and only D held. After delivers the change cleanly: it spells out the option-2 description once and persists it plus `; fund 2 fix rounds` for A and bare for C (never the digit 5), persists only `fund 2 fix rounds` for B as budget-only without amend permission, writes `**Engine:** loop` directly below `**Amend-grant:**`, amends with `--no-edit` keeping the audit body, checks both fields in HEAD before `phase_tracker complete` and `/skill:loop-implementation`, states funding as extra attempts per stagnant row, and keeps D's quote-and-re-present-without-writing behavior and explicit not-a-change-request note. Nothing regressed. The only softness is Trace C's HEAD check wording (\"both fields present once\") versus the explicit two-line listing in A and B; naming the `Engine` and `Amend-grant` lines there too would make the route fact unambiguous across all three approval traces without altering any behavior.",
+      "wallMs": 14155,
+      "verdict": "improved"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "048ce1cfb84e76899bf4e1de3b6d59fbd9fc4a3f5b809ef8b8c5def4206b5f5a",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "3602fc1dee2b339ff8266007e44048e33ea5c5f1dd5ab572b72f91846497b06c",
+      "baselineOutputSha": "e823c183f1b872c2400db0bcd1de0f3d4cc999c0966153ea47bd5424efbbeb12",
+      "candidateOutputSha": "5c1de6b0996ea87e9f72a79d12e47ba0f170399d95727d1077506b52c2803402",
+      "facts": {
+        "five": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "four": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "route": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "malformed": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        }
+      },
+      "feedback": "After moved five, four, and route from fails to holds by actually decoding the five-option gate: A and C render the verbatim option-2 granting sentence (A with the `; fund 2 fix rounds` suffix, C bare), B renders only `fund 2 fix rounds` as budget-only without amend permission, and every successful trace places `**Engine:** loop` directly under the Amend-grant line, amends with `--amend --no-edit -q` preserving the body, checks both fields in HEAD, then completes brainstorm and invokes `/skill:loop-implementation` with no plan, with funding explicitly described as extra stagnant-row attempts rather than escalated-model rounds. Before failed these because it treated the gate mapping as unverified and persisted `none` everywhere. Malformed held in both: D quotes the token, re-presents, and writes nothing without framing it as a change request. Nothing regressed; the only wording to watch is the conditional framing (\"would be\", \"no successful read, commit, or HEAD check is claimed\"), which is correct for a narrated replay and should be kept so the trace never asserts live writes while still giving the exact values.",
+      "wallMs": 12326,
+      "verdict": "improved"
+    }
+  },
+  "repoSha": "0f3440cf7c055eec7e5a35c382e0aa87a67d392a"
+}

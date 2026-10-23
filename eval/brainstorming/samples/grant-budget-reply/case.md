@@ -1,4 +1,3 @@
-bundle+: skills/brainstorming/reference/spec-finalization.md
 replay: continuation
 
 ## Current state
