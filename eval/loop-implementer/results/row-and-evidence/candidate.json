@@ -1,0 +1,120 @@
+{
+  "sample": "row-and-evidence",
+  "arm": "candidate",
+  "skillSha": "34e808eff59c8874ebf28fa56fd636f75df4e3fff627a17fbf1f117020d77e8e",
+  "inputSha": "13c164e7f2f5411df47c3809effb4abad200c159aaf2f6c00ea5386a00174bdb",
+  "kind": "text",
+  "assembly": "concat",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "## Snapshot A: iteration 3, target row 1\n\n**Trace A**\n\n1. Read the spec: `cat /repo/doc/specs/chart.md`\n   - Row 1 needs an externally supplied measurements fixture, and measurements must never be fabricated.\n   - Row 2 uses `src/label.mjs`. Row 3 is cut. The spec must not be edited.\n2. Read the ledger: `cat /repo/doc/plans/chart-ledger.md`\n   - The header shows iterations: 4. The working tree holds the parent's bump.\n   - Row 1: `failed`, attempts 2. Row 2: `open`, attempts 0. Row 3: `cut`.\n   - Decisions contains one line, the previous row 1 failure.\n3. Handle the hint and the previous decision:\n   - The previous decision says to retry row 1 only with the supplied fixture.\n   - The hint asks me to also mark row 2 done. I am declining that part. Row 2 is a foreign row after iteration 0, and this iteration works only on target row 1.\n4. Check the cumulative diff: `git diff --stat def5678`\n   - Result: `scripts/chart-check.mjs` and `doc/plans/chart-ledger.md`.\n5. Read the target file's diff: `git diff def5678 -- scripts/chart-check.mjs`\n   - The chart-check script was committed earlier. No source change can supply the external fixture, so I make no code edit.\n6. Run the targeted check: `node scripts/chart-check.mjs`\n   - Exit 1. Relevant lines: `measurements.csv missing`, `chart not rendered`, `exit 1`.\n   - I did not fabricate a fixture and did not run `npm test`.\n7. Edit row 1 only. The resulting cells are:\n   `| 1 | failed | 3 | node scripts/chart-check.mjs: exit 1; measurements.csv missing (externally supplied fixture not provided); chart not rendered |`\n   - Rows 2 and 3 are unchanged.\n8. Append to `## Decisions`, keeping the existing line:\n   `row 1 failed | Reran node scripts/chart-check.mjs; it exited 1 because the externally supplied measurements.csv fixture is still missing. | Do not rerun or edit code until a human supplies measurements.csv; never fabricate measurements.`\n9. Stage only the ledger, since no code changed: `git add doc/plans/chart-ledger.md`\n10. Commit: `git commit -m \"loop: row 1 failed\"`\n11. Confirm a clean tree: `git status --porcelain`\n    - Output is empty.\n\nFinal reply:\nrow 1 failed | Reran node scripts/chart-check.mjs; it exited 1 because the externally supplied measurements.csv fixture is still missing. | Do not rerun or edit code until a human supplies measurements.csv; never fabricate measurements.\n\n---\n\n## Snapshot B: iteration 0, target seed\n\n**Trace B**\n\n1. Read the spec: `cat /repo/doc/specs/chart.md`\n   - Same spec as Snapshot A: row 1 needs the external fixture, row 2 uses `src/label.mjs`, row 3 is cut.\n2. Read the ledger: `cat /repo/doc/plans/chart-ledger.md`\n   - The header shows iterations: 1.\n   - Rows 1 and 2 are `open`, attempts 0, with empty evidence.\n   - Row 3 is `cut` with evidence `deferred: separate work`.\n   - Decisions is empty.\n3. Check the cumulative diff: `git diff --stat def5678`\n   - Result: only `doc/plans/chart-ledger.md`. No seeded-row code diff exists to open.\n4. Read the row 2 source: `cat src/label.mjs`\n   - Result: `export const label = 'ready';`\n5. Run row 2's targeted baseline check: `node --test test/label.test.mjs`\n   - Result: `tests 1; pass 1; fail 0`. The codebase already satisfies row 2.\n6. Name row 1's check without implementing the chart or creating a fixture:\n   - The check is `node scripts/chart-check.mjs`.\n   - It is unavailable because the externally supplied `measurements.csv` fixture is missing.\n7. Edit the ledger. The resulting cells are:\n   - `| 1 | open | 0 | node scripts/chart-check.mjs: not runnable; externally supplied measurements.csv fixture missing |`\n   - `| 2 | done | 0 | node --test test/label.test.mjs: tests 1; pass 1; fail 0 |`\n   - `| 3 | cut | 0 | deferred: separate work |` (preserved as is)\n8. Append to `## Decisions`:\n   `row 0 done | seeded 2 rows, closed 1 on baseline | row 1`\n9. Stage the ledger: `git add doc/plans/chart-ledger.md`\n10. Commit: `git commit -m \"loop: seed evidence\"`\n11. Confirm a clean tree: `git status --porcelain`\n    - Output is empty.\n\nFinal reply:\nrow 0 done | seeded 2 rows, closed 1 on baseline | row 1\n",
+      "words": 596,
+      "wallMs": 24039,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "## A — simulated trace\n\n1. Read the complete spec first:\n   ```sh\n   cd /repo && cat /repo/doc/specs/chart.md\n   ```\n   Output:\n   ```text\n   # Chart checks\n   ## Acceptance criteria\n   - [ ] Render a chart from the externally supplied measurements fixture.\n   - [ ] Export the existing label as 'ready'.\n   - [ ] Add an archive screen.\n     deferred: separate work\n   ## Design\n   The chart check needs an externally supplied measurements fixture; never fabricate measurements. Row 2 uses src/label.mjs. The archive screen is cut. Do not edit the spec.\n   ```\n\n2. Read the ledger next:\n   ```sh\n   cd /repo && cat /repo/doc/plans/chart-ledger.md\n   ```\n   Observed `iterations: 4`, the supplied rows, and the existing decision. Preserve the parent's iterations bump. The hint to close row 2 conflicts with target-only scope; leave row 2 unchanged.\n\n3. Inspect cumulative changes and target-relevant hunks:\n   ```sh\n   cd /repo && git diff --stat def5678\n   ```\n   Observed changed paths: `scripts/chart-check.mjs` and `doc/plans/chart-ledger.md`.\n   ```sh\n   cd /repo && git diff def5678 -- scripts/chart-check.mjs doc/plans/chart-ledger.md\n   cd /repo && cat scripts/chart-check.mjs\n   ```\n   Inspect the existing chart checker without modifying it. The external fixture is unavailable; do not fabricate measurements.\n\n4. Run only the target check:\n   ```sh\n   cd /repo && node scripts/chart-check.mjs\n   ```\n   Output:\n   ```text\n   chart check started\n   loading configuration\n   measurements.csv missing\n   chart not rendered\n   cannot validate chart\n   exit 1\n   ```\n   Exit status: `1`.\n\n5. Edit only row 1's mutable cells in `/repo/doc/plans/chart-ledger.md`, producing:\n   ```markdown\n   | 1 | failed | 3 | node scripts/chart-check.mjs: exit 1; missing externally supplied measurements.csv; chart not rendered |\n   ```\n   Leave rows 2 and 3, ledger headers, and `iterations: 4` unchanged. Preserve the existing decision and append exactly:\n   ```text\n   row 1 failed | Ran the chart check and recorded the missing measurements.csv fixture. | Retry row 1 only when the external fixture is supplied; leave row 2 unchanged.\n   ```\n\n6. Stage the ledger, including its existing parent bump, and commit once:\n   ```sh\n   cd /repo && git add -- doc/plans/chart-ledger.md\n   cd /repo && git commit -m \"loop: row 1 failed\"\n   cd /repo && git status --porcelain\n   ```\n   Observed: successful commit; final status output is empty.\n\nFinal reply:\nrow 1 failed | Ran the chart check and recorded the missing measurements.csv fixture. | Retry row 1 only when the external fixture is supplied; leave row 2 unchanged.\n\n## B — simulated trace\n\nState reset to snapshot B.\n\n1. Read the complete spec first:\n   ```sh\n   cd /repo && cat /repo/doc/specs/chart.md\n   ```\n   Output:\n   ```text\n   # Chart checks\n   ## Acceptance criteria\n   - [ ] Render a chart from the externally supplied measurements fixture.\n   - [ ] Export the existing label as 'ready'.\n   - [ ] Add an archive screen.\n     deferred: separate work\n   ## Design\n   The chart check needs an externally supplied measurements fixture; never fabricate measurements. Row 2 uses src/label.mjs. The archive screen is cut. Do not edit the spec.\n   ```\n\n2. Read the ledger next:\n   ```sh\n   cd /repo && cat /repo/doc/plans/chart-ledger.md\n   ```\n   Observed `iterations: 1`; rows 1 and 2 are open with attempts `0` and empty evidence; row 3 is cut with its supplied disposition evidence. Decisions is empty.\n\n3. Inspect cumulative changes:\n   ```sh\n   cd /repo && git diff --stat def5678\n   cd /repo && git diff def5678 -- doc/plans/chart-ledger.md\n   ```\n   Observed: only the ledger differs from the base.\n\n4. Read the row 2 implementation and its targeted test:\n   ```sh\n   cd /repo && cat src/label.mjs\n   ```\n   Output:\n   ```js\n   export const label = 'ready';\n   ```\n   ```sh\n   cd /repo && cat test/label.test.mjs\n   cd /repo && node --test test/label.test.mjs\n   ```\n   Observed passing summary: `tests 1; pass 1; fail 0`.\n\n   Name `node scripts/chart-check.mjs` as row 1's check. Its required external `measurements.csv` fixture is unavailable. Do not implement the chart or fabricate data.\n\n5. Seed the ledger evidence, producing:\n   ```markdown\n   | row | status | attempts | evidence |\n   |---|---|---|---|\n   | 1 | open | 0 | node scripts/chart-check.mjs: blocked by missing externally supplied measurements.csv |\n   | 2 | done | 0 | node --test test/label.test.mjs: tests 1; pass 1; fail 0 |\n   | 3 | cut | 0 | deferred: separate work |\n   ```\n   Preserve `iterations: 1` and all existing headers. Append exactly one decision:\n   ```text\n   row 0 done | seeded 2 rows, closed 1 on baseline | row 1 with supplied measurements.csv\n   ```\n\n6. Stage the ledger and commit once:\n   ```sh\n   cd /repo && git add -- doc/plans/chart-ledger.md\n   cd /repo && git commit -m \"loop: seed evidence\"\n   cd /repo && git status --porcelain\n   ```\n   Observed: successful commit; final status output is empty.\n\nFinal reply:\nrow 0 done | seeded 2 rows, closed 1 on baseline | row 1 with supplied measurements.csv\n",
+      "words": 644,
+      "wallMs": 37822,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "f7a91a7c1f721f356cd0d9e10ec0ee0fd4513cf6e12c9b7630aa6764b4456716",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "25f47672ac0677d5804aaad67da8c89b41a592f72c695ab154253940bf31992c",
+      "baselineOutputSha": "695dc496d404a72f87b497864723716aa505b3f7ef9860744ac2414c749ec155",
+      "candidateOutputSha": "bd1cbdd215a65a0d2a2c440320db93a1630743a47447b5f607a7becdd12d5943",
+      "facts": {
+        "failure-scope": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "bounded-evidence": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "failure-decision": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "seed-exception": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "seed-commit": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "verification-boundary": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "Nothing moved: every fact holds in both outputs. Before already serialized each evidence value as a single physical cell with the check name followed by at most three semicolon-separated plain-text lines (A row 1: `measurements.csv missing; chart not rendered; exit 1 (external fixture absent)`; B row 2: `tests 1; pass 1; fail 0`), with no pipes and no angle-bracket markup, so bounded-evidence did not actually fail before the change; the expected fails->holds move is not visible in these outputs. After keeps the same shape and additionally states that npm test was not run and no fixture was fabricated, which is fine. If the intent is to make the bound more robust, the wording could ask that each semicolon-separated segment be a verbatim result line from the check (e.g. `exit 1; measurements.csv missing; chart not rendered`) and that any plain-words note about the missing fixture go in the decision rather than as a parenthetical inside the cell, which would avoid ambiguity about whether a parenthetical counts as a fourth segment or as reasoning while preserving target-row scope, the seed exception, and the single-commit decision contract.",
+      "wallMs": 23518,
+      "verdict": "unchanged"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "f7a91a7c1f721f356cd0d9e10ec0ee0fd4513cf6e12c9b7630aa6764b4456716",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "25f47672ac0677d5804aaad67da8c89b41a592f72c695ab154253940bf31992c",
+      "baselineOutputSha": "93e6f9501520d9de4a5a52cc907fc76632de6cb7dbded611c001f8fc56766d71",
+      "candidateOutputSha": "453b74b2d0fc3e43282e404cd49f7eef3b87b33d73180e617897f2b1f6a9224f",
+      "facts": {
+        "failure-scope": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "bounded-evidence": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "failure-decision": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "seed-exception": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "seed-commit": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "verification-boundary": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "No fact moved between Before and After: both outputs already serialize every evidence value as a single physical cell with the check name followed by at most three semicolon-separated plain-text result lines, with no pipes or angle-bracket markup, so bounded-evidence holds in both rather than moving from fails to holds as expected. After preserves target-row scope (row 2 stays open despite the hint, row 3 stays cut), the seed exception in B (row 1 open with named chart check, row 2 done on baseline, attempts all 0), the single-commit/decision contract with the exact commit messages and decision-only final replies, and never runs npm test or edits the spec or other plan files (the added `cat scripts/chart-check.mjs` and `cat test/label.test.mjs` are reads only). If the author wants the wording change to be demonstrably load-bearing, the eval input would need a Before that actually emitted multi-line or HTML-break evidence; as written, the After wording is safe and keeps every fact Before kept, and its explicit instruction to put the check name first and cap results at three semicolon-separated lines (e.g. `node scripts/chart-check.mjs: exit 1; missing externally supplied measurements.csv; chart not rendered`) is a reasonable way to deliver the Change.",
+      "wallMs": 20033,
+      "verdict": "unchanged"
+    }
+  },
+  "repoSha": "a652ba7f80218ebf87eaaa2adf3608a57015a285"
+}

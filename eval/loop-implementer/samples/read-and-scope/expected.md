@@ -1,0 +1,5 @@
+- spec-first: judged: The simulated trace reads the full spec, including its final constraint, before reading the ledger or any code.
+- scoped-diff: judged: The trace runs git diff --stat abc1234 before opening hunks and scopes full diff reads to row 1 files; it never opens cache hunks or the unrestricted cumulative patch.
+- target-only: judged: The implementation trims the name before checking emptiness and preserves row 2, the cache code, the spec, and ledger headers.
+- targeted-check: judged: The trace runs node --test test/name.test.mjs rather than npm test or any full verification command and records passing evidence with at most three result lines.
+- decision: judged: Row 1 becomes done with attempts 2 and a single appended matching decision; its two sentence fields are each at most 200 characters.

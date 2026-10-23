@@ -11,6 +11,7 @@ export interface PiGauntlet {
   flowGuards?: { enforce?: unknown; specDirs?: unknown };
   verifyBeforeShip?: { testCommands?: unknown; warningReference?: unknown };
   escalationLoop?: { implModel?: unknown };
+  loopEngine?: { maxIterations?: unknown };
   phaseModels?: { plan?: unknown; implement?: unknown; verify?: unknown; ship?: unknown };
   telemetry?: { enabled?: unknown; dir?: unknown; buckets?: unknown };
 }
@@ -90,6 +91,13 @@ export function resolveClosureReview(g: PiGauntlet): ClosureReviewResolved {
   const raw = cr?.maxFixRounds;
   const maxFixRounds = typeof raw === "number" && Number.isInteger(raw) ? (raw < 0 ? 0 : raw) : 3;
   return { model, enforce, maxFixRounds };
+}
+
+export function resolveLoopEngine(g: PiGauntlet): { maxIterations: number; warning: string | undefined } {
+  const raw = g.loopEngine?.maxIterations;
+  if (raw === undefined) return { maxIterations: 30, warning: undefined };
+  if (typeof raw === "number" && Number.isInteger(raw)) return { maxIterations: Math.max(1, raw), warning: undefined };
+  return { maxIterations: 30, warning: "loopEngine.maxIterations must be an integer; using default 30" };
 }
 
 export interface EscalationLoopResolved {

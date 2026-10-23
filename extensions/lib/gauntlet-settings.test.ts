@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 import {
   mergeGauntlet,
   resolveSpecCouncil,
+  resolveLoopEngine,
   resolveClosureReview,
   resolveEscalationLoop,
   resolvePhaseModels,
@@ -18,6 +19,15 @@ import {
   settingsErrorWarning,
   type PiGauntlet,
 } from "./gauntlet-settings.ts";
+
+test("loopEngine resolves defaults, integers, clamps, and malformed values", () => {
+  for (const [raw, expected, warns] of [[undefined, 30, false], [7, 7, false], [0, 1, false], [-3, 1, false], [1.5, 30, true], ["5", 30, true]] as const) {
+    const result = resolveLoopEngine({ loopEngine: { maxIterations: raw } });
+    assert.equal(result.maxIterations, expected);
+    assert.equal(Boolean(result.warning), warns);
+  }
+  assert.deepEqual(resolveLoopEngine({}), { maxIterations: 30, warning: undefined });
+});
 
 const CUSTOM_TEST_COMMANDS = ["make ci", "pytest"];
 

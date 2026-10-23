@@ -1134,8 +1134,50 @@ function checkWaiverLiteral(parsed: ParsedPlan): PlanCheckFinding[] {
   return findings;
 }
 
+function checkLedger(planText: string, specText: string): PlanCheckFinding[] {
+  const findings: PlanCheckFinding[] = [];
+  const dispositions: boolean[] = [];
+  const specLines = specText.split("\n");
+  const masked = fenceMask(specLines);
+  let inAcceptance = false;
+  for (const [i, line] of specLines.entries()) {
+    if (masked[i]) continue;
+    if (/^##\s+/.test(line)) {
+      inAcceptance = /^## Acceptance criteria\s*$/i.test(line);
+      continue;
+    }
+    if (!inAcceptance) continue;
+    if (/^- \[[ xX]\]\s+/.test(line)) dispositions.push(false);
+    else if (dispositions.length && /^\s*(?:deviates|deferred|elsewhere):/.test(line)) dispositions[dispositions.length - 1] = true;
+  }
+  const lines = planText.split("\n");
+  const add = (i: number, reason: string) => findings.push({ check: "ledger", line: i + 1, text: lines[i] ?? "", reason });
+  const header = lines.findIndex(l => /^\|\s*row\s*\|\s*status\s*\|\s*attempts\s*\|\s*evidence\s*\|$/.test(l));
+  if (header < 0) {
+    add(0, "missing ledger table");
+    return findings;
+  }
+  if (!/^\|\s*-+\s*\|\s*-+\s*\|\s*-+\s*\|\s*-+\s*\|$/.test(lines[header + 1] ?? "")) add(header + 1, "missing ledger table separator");
+  let count = 0;
+  for (let i = header + 2; i < lines.length && lines[i].startsWith("|"); i++) {
+    const cells = lines[i].split(/(?<!\\)\|/).slice(1, -1).map(c => c.trim());
+    const [row, status, attempts, evidence] = cells;
+    count++;
+    if (cells.length !== 4 || !lines[i].endsWith("|")) { add(i, "expected four ledger cells"); continue; }
+    if (row !== String(count) || count > dispositions.length) add(i, "expected exactly one row per spec AC in order");
+    if (!["open", "done", "failed", "cut"].includes(status)) add(i, "invalid ledger status");
+    else if ((status === "cut") !== dispositions[count - 1]) add(i, "status does not match spec disposition");
+    if (!/^\d+$/.test(attempts) || !Number.isSafeInteger(Number(attempts))) add(i, "attempts must be a non-negative integer");
+    if (!evidence && status !== "open") add(i, "evidence is required on non-open rows");
+    if (/<[^>]*>|\b(?:TODO|TBD|probably)\b|etc\./i.test(evidence)) add(i, "placeholder in ledger evidence");
+  }
+  if (count !== dispositions.length || count === 0) add(header, "expected exactly one row per spec AC");
+  return findings;
+}
+
 export function checkPlan(planText: string, specText: string, fs: FsPort): PlanCheckFinding[] {
   try {
+    if (planText.split("\n", 1)[0] === "# Ledger - loop engine") return checkLedger(planText, specText);
     const parsed = parsePlan(planText);
     const findings: PlanCheckFinding[] = [];
 

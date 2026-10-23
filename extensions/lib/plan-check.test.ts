@@ -2,6 +2,69 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import { checkPlan, sha256, type FsPort, type PlanCheckFinding } from "./plan-check.ts";
 
+const ledgerSpec = `# Spec
+## Acceptance criteria
+- [ ] First
+- [ ] Second
+  deferred: #70
+- [ ] Third
+  venue: browser
+## Design
+- [ ] Not an AC
+`;
+const ledger = (rows = ["1 | open | 0 |", "2 | cut | 0 | deferred: #70", "3 | done | 2 | browser check passed"]) =>
+  "# Ledger - loop engine\n**Spec:** `doc/specs/test.md`\nbase: abc\nverification: check\niterations: 0\n\n| row | status | attempts | evidence |\n|---|---|---|---|\n" + rows.map(r => `| ${r} |`).join("\n") + "\n\n## Decisions\n";
+
+test("ledger admission bypasses task checks and permits empty open evidence", () => {
+  assert.deepEqual(checkPlan(ledger(), ledgerSpec, { exists: () => false, glob: () => [] }), []);
+});
+for (const [name, rows] of Object.entries({
+  missing: ["1 | open | 0 |"],
+  extra: ["1 | open | 0 |", "2 | cut | 0 | deferred: #70", "3 | open | 0 |", "4 | open | 0 |"],
+  duplicate: ["1 | open | 0 |", "1 | cut | 0 | deferred: #70", "3 | open | 0 |"],
+  order: ["3 | open | 0 |", "2 | cut | 0 | deferred: #70", "1 | open | 0 |"],
+  status: ["1 | closed | 0 | check", "2 | cut | 0 | deferred: #70", "3 | open | 0 |"],
+  cutDefault: ["1 | cut | 0 | check", "2 | cut | 0 | deferred: #70", "3 | open | 0 |"],
+  cutVenue: ["1 | open | 0 |", "2 | cut | 0 | deferred: #70", "3 | cut | 0 | check"],
+  openDeferred: ["1 | open | 0 |", "2 | open | 0 |", "3 | open | 0 |"],
+  attempts: ["1 | open | -1 |", "2 | cut | 0 | deferred: #70", "3 | open | 0 |"],
+  fractional: ["1 | open | 1.5 |", "2 | cut | 0 | deferred: #70", "3 | open | 0 |"],
+})) test(`ledger rejects ${name}`, () => {
+  assert.ok(checkPlan(ledger(rows), ledgerSpec, { exists: () => false, glob: () => [] }).length);
+});
+test("ledger discriminant is the exact first line", () => {
+  for (const prefix of ["\n", " "]) assert.ok(checkPlan(prefix + ledger(), ledgerSpec, { exists: () => false, glob: () => [] }).some(f => f.check === "input"));
+});
+for (const disposition of ["in-scope", "venue: browser", "deviates: alternate", "deferred: #70", "elsewhere: #71"]) {
+  test(`ledger disposition ${disposition}`, () => {
+    const cut = /^(deviates|deferred|elsewhere):/.test(disposition);
+    const spec = `## Acceptance criteria\n- [ ] Works\n  ${disposition}\n`;
+    assert.deepEqual(checkPlan(ledger([`1 | ${cut ? "cut" : "open"} | 0 | ${cut ? disposition : ""}`]), spec, { exists: () => false, glob: () => [] }), []);
+    assert.ok(checkPlan(ledger([`1 | ${cut ? "done" : "cut"} | 0 | check passed`]), spec, { exists: () => false, glob: () => [] }).length);
+  });
+}
+for (const status of ["done", "failed", "cut"]) test(`ledger empty evidence rejects ${status}`, () => {
+  const spec = `## Acceptance criteria\n- [ ] Works\n${status === "cut" ? "  deferred: #70\n" : ""}`;
+  assert.ok(checkPlan(ledger([`1 | ${status} | 0 |`]), spec, { exists: () => false, glob: () => [] }).some(f => /evidence is required/.test(f.reason)));
+});
+for (const evidence of ["<check>", "TODO", "TBD", "etc.", "probably"]) {
+  test(`ledger rejects non-open evidence ${JSON.stringify(evidence)}`, () => {
+    assert.ok(checkPlan(ledger([`1 | failed | 1 | ${evidence}`, "2 | cut | 0 | deferred: #70", "3 | open | 0 |"]), ledgerSpec, { exists: () => false, glob: () => [] }).length);
+  });
+}
+
+test("ledger keeps nested checkboxes and the parent disposition in one AC row", () => {
+  const spec = "## Acceptance criteria\n- [ ] Parent\n  - [ ] Nested detail\n  deferred: #70\n";
+  assert.deepEqual(checkPlan(ledger(["1 | cut | 0 | deferred: #70"]), spec, { exists: () => false, glob: () => [] }), []);
+  assert.ok(checkPlan(ledger(["1 | open | 0 |"]), spec, { exists: () => false, glob: () => [] }).some(f => /status does not match/.test(f.reason)));
+});
+
+for (const evidence of ["xxx", "[fill in]", "something like", "check; expected a\\|b; passed"]) {
+  test(`ledger permits evidence outside the placeholder vocabulary ${JSON.stringify(evidence)}`, () => {
+    assert.deepEqual(checkPlan(ledger([`1 | done | 1 | ${evidence}`, "2 | cut | 0 | deferred: #70", "3 | open | 0 |"]), ledgerSpec, { exists: () => false, glob: () => [] }), []);
+  });
+}
+
 const SPEC_TEXT = [
   "# Fixture Spec", // 1
   "", // 2

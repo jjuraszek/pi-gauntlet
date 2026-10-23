@@ -1403,6 +1403,46 @@ test("gauntlet_setting escalationLoop: setting absent -> ctx-derived main-loop m
   assert.equal(res.details.implModel, "p/strong:high");
 });
 
+test("gauntlet_setting loopEngine resolves the key", async () => {
+  const h = harness({ cwd: tempCwd({ piGauntlet: { loopEngine: { maxIterations: 8 } } }) });
+  const tool = h.tools.find(t => t.name === "gauntlet_setting")!;
+  const result = await tool.execute("loop", { key: "loopEngine" }, undefined, undefined, h.ctx) as any;
+  assert.equal(result.details.key, "loopEngine");
+  assert.equal(result.details.maxIterations, 8);
+});
+
+test("gauntlet_setting loopEngine composes settings load warnings", async () => {
+  const dir = tempCwd({});
+  writeFileSync(join(dir, ".pi/settings.json"), "{");
+  const h = harness({ cwd: dir });
+  const result = await h.tools.find(t => t.name === "gauntlet_setting")!.execute("loop", { key: "loopEngine" }, undefined, undefined, h.ctx) as any;
+  assert.equal(result.details.maxIterations, 30);
+  assert.ok(result.details.errors.length);
+  assert.match(result.details.warning, /gauntlet settings load error/);
+});
+
+test("ledger handler stamps after brainstorm and skipped plan, then admits implement", async () => {
+  const dir = gitPrimary().primary;
+  mkdirSync(join(dir, "doc/specs"), { recursive: true });
+  mkdirSync(join(dir, "doc/plans"), { recursive: true });
+  writeFileSync(join(dir, "doc/specs/loop.md"), "# Spec\n## Acceptance criteria\n- [ ] Works\n");
+  const planPath = join(dir, "doc/plans/loop-ledger.md");
+  writeFileSync(planPath, "# Ledger - loop engine\n**Spec:** `doc/specs/loop.md`\nbase: abc\nverification: check\niterations: 0\n\n| row | status | attempts | evidence |\n|---|---|---|---|\n| 1 | open | 0 | |\n\n## Decisions\n");
+  const h = harness({ cwd: dir });
+  await h.emit("session_start");
+  const phase = h.tools.find(t => t.name === "phase_tracker")!;
+  const call = (action: string, p: string, reason?: string) => phase.execute("phase", { action, phase: p, reason }, undefined, undefined, h.ctx) as Promise<any>;
+  await call("start", "brainstorm");
+  await call("complete", "brainstorm");
+  await call("skip", "plan", "loop engine");
+  const checked = await h.tools.find(t => t.name === "plan_check")!.execute("check", { planPath }, undefined, undefined, h.ctx) as any;
+  assert.equal(checked.details.status, "pass");
+  assert.equal(checked.details.planSha256, sha256Hex(readFileSync(planPath)));
+  const started = await call("start", "implement");
+  assert.equal(started.details.error, undefined);
+  assert.equal(started.details.phases.implement.status, "in_progress");
+});
+
 test("gauntlet_setting flowGuards: default dirs + derived plan dirs; repo override replaces them", async () => {
   const h = harness({ cwd: tempCwd({ piGauntlet: {} }) });
   const tool = h.tools.find((t) => t.name === "gauntlet_setting")!;
