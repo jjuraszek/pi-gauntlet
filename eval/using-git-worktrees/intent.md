@@ -1,14 +1,8 @@
-for: 3060385552f5417c4ea49a6b837844f28775e5651e008135387b8f911fe7a597
+for: 3cc812f0124fbdba4f27ebda5b3abb751587265339fe1424c16a1465c05c43bb
 
 ## Change
-The skill reads the overrides file's `## using-git-worktrees` section before any native-tool or wrapper discovery. With at least one of `home:`, `create:`, `destroy:` present it runs `create:` (tokens single-quoted, unresolved tokens asked once) or the built-in add at `home:`, checks `git worktree list` afterward, and reports that path; with no section or a keyless section it follows the legacy ladder unchanged.
+Route callers passing resolved PR values to reference/pr-head.md before Step 0's generic linked-worktree reuse and instead of Step 1's new-branch path. Keep non-PR provisioning unchanged. Keep PR history merge-forward while preserving the flow's appended-spec amend and appended-wave fold. The new pr-head sample bundles the reference; existing target.json and samples remain unchanged. Use baseline 1b0f7dd2bbbf926a8ff65109414d05aa97acaa58 (PR_SUBJECT_EVAL_BASE), where the reference exists but is inactive. The for hash binds the bundle-free target assembly, not the sample's added reference. Model replays are deferred by dispatch.
 
 ## Expected to move
-- create-with-literal-token/c1: fails -> holds - the baseline guesses a wrapper or runs git worktree add; the keyed contract runs the configured command.
-- create-with-literal-token/c2: fails -> holds - the literal-token rule is new.
-- create-with-literal-token/c3: fails -> holds - the post-create check is new.
-- home-only-sibling/h1: fails -> holds - the baseline creates under .worktrees/; home: relocates it.
-- home-only-sibling/h2: fails -> holds - the baseline gitignores .worktrees/ unconditionally.
-- home-only-sibling/h3: fails -> holds - the reported path follows home:.
-- branch-with-metacharacters/m1: fails -> holds - the quoting rule is new.
-- branch-with-metacharacters/m2: fails -> holds - the quoting rule is new.
+- pr-head/routing: fails -> holds - The Step 0 hook selects the PR-head owner before unrelated linked-worktree reuse.
+- pr-head/history: fails -> holds - Keeping current routes PR branches to merge-forward instead of the generic rebase recipe.

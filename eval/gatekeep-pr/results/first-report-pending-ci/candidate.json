@@ -39,7 +39,7 @@
       "factsSha": "c369dcdde9eced3a89b440be8bc62ba36c53d45914db9689fc7427d4cce79469",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
       "intentSha": "d50172cd77fdac3fcd449b8924968468ff2377f9a56d9033b95dc3c5444fdac0",
-      "baselineOutputSha": "5020ade0401a615bbcdbd578610b7ab111dd18c2060de571e77e9b23cccf6a8e",
+      "baselineOutputSha": "fd1031cff77a772c77ede70893e145671fc2a4df852bc9491d34fc31838c83e1",
       "candidateOutputSha": "fd1031cff77a772c77ede70893e145671fc2a4df852bc9491d34fc31838c83e1",
       "facts": {
         "f2": {
@@ -58,15 +58,15 @@
           "label": "held"
         }
       },
-      "feedback": "Neither fact moved on this case: both outputs render the first report with the Pending evidence row (source: pending, binding ci / test on run 910) and place `wait` as menu row 1 marked [recommended], and both state explicitly that no local run happens while the binding check is pending (After even names `node --test src/guard.test.ts` as not executed, which makes f3 easier to confirm than Before's bare 'no local run'). The After wording also keeps the menu-layout contract visible (numbered rows, 'Type a number.' prompt, Not offered line) without introducing a destroy/cleanup or worktree-home detail that could distract the first-report path; the only drift is the removed `## Rendered report and menu` heading and fenced block, so if a future judge is asked whether the report 'renders' as a distinct boundary, keeping an explicit rendered-report heading or fence before the `Delivers:` line would make the report boundary unambiguous while still delivering the Change.",
-      "wallMs": 8183,
+      "feedback": "After is textually identical to Before for this case, so nothing moved: the first report still renders `source: pending` evidence with `wait` as menu row 1 (f2), and both narrations state explicitly that the Pending row applies and `node --test src/guard.test.ts` is not executed while `ci / test` binds and is in progress (f3). The worktree-contract and menu-layout changes have no observable effect on a clean first report with no numbered findings, which is the expected outcome here; no wording adjustment is needed for this case.",
+      "wallMs": 4482,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "c369dcdde9eced3a89b440be8bc62ba36c53d45914db9689fc7427d4cce79469",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
       "intentSha": "d50172cd77fdac3fcd449b8924968468ff2377f9a56d9033b95dc3c5444fdac0",
-      "baselineOutputSha": "fee49bdfa48e5d89cde2d79633b20d7747de0b67f76177107b7c7a060b43802d",
+      "baselineOutputSha": "e513cd43127948e02172a9d92c9dcaa4d6e67ccae4c0d520e4931de98b3b6376",
       "candidateOutputSha": "e513cd43127948e02172a9d92c9dcaa4d6e67ccae4c0d520e4931de98b3b6376",
       "facts": {
         "f2": {
@@ -85,10 +85,10 @@
           "label": "held"
         }
       },
-      "feedback": "Neither fact moved. Both outputs render the first report with evidence Pending (ci / test binding because its Actions run is in progress) and list `wait` as row 1, and both explicitly refrain from running `node --test src/guard.test.ts` while the check is pending; After even restates the CI-first rule (\"rather than running tests automatically\") and shows the command only as the thing not run, which is clear. The After wording adds \"apply the supplied menu-layout rules\" before rendering, which is consistent with the Change and does not disturb the report's content. Keep the explicit \"does not run\" sentence and the pending-evidence resolution before the menu; if you want to make the layout-contract application more visible for the menu facts in other cases, name the numeric reply mapping in the menu stage sentence (e.g. \"persist the numbered choices so a numeric reply maps to its row before action\") without changing the rendered rows.",
-      "wallMs": 7226,
+      "feedback": "Before and After are textually identical for this case, so nothing moved: both resolve evidence to Pending because the matching Actions run is still in progress despite `CLEAN`, both explicitly decline to run `node --test src/guard.test.ts`, and both render the first report with the pending verdict and `wait` as row 1 followed by `show evidence` and `stop`, with merge listed under 'Not offered'. The Change (worktree-contract from `## using-git-worktrees`, cleanup ownership match, shared menu-layout contract) does not touch this first-report path, which is consistent with the Expected to move list not naming this case. No wording adjustment is needed here; keep the current After text, and make sure the menu-layout contract's numeric-reply mapping continues to leave this three-row first menu untouched so f2 keeps holding.",
+      "wallMs": 5853,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "824b8741c00912f6f48c9f24d96d9283e89ce886"
+  "repoSha": "03f2a45e6cf09c8bfc0d9a675ffffba9151f6d00"
 }

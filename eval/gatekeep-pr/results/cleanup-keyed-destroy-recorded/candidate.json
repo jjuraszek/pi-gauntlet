@@ -35,7 +35,7 @@
       "factsSha": "b77b1d53aa9a1b96d5de50e56d3038e15f91b1fd27707f1c8d2d34ade1c7f375",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
       "intentSha": "d50172cd77fdac3fcd449b8924968468ff2377f9a56d9033b95dc3c5444fdac0",
-      "baselineOutputSha": "a4713c6c3286d628d3ae5afcdc1ffbd535b42200c5091d093cd55cc440929fbf",
+      "baselineOutputSha": "20115f42a437a43f5388589c61828f0534f66bffc2425832d19c9195aedebd9b",
       "candidateOutputSha": "20115f42a437a43f5388589c61828f0534f66bffc2425832d19c9195aedebd9b",
       "facts": {
         "g1": {
@@ -54,15 +54,15 @@
           "label": "held"
         }
       },
-      "feedback": "No fact moved: both outputs run the home ownership match (../mono-<name> resolved to /work/mono-<name>, recovering pr-731) before any removal, both run `script/worktree destroy 'pr-731'` from /work/mono and print `worktree: done` with no `git worktree remove --force`, and both run `git -C /work/mono branch -D feature/csv-export` and print `branch: done`. Two incidental drifts in After are worth tightening even though they are outside these facts: the base line now prints the full 40-character merge commit (`base: synced 9b9b...`) where Before abbreviated to `9b9b9b9`, and After adds a `Delivers:` line inside the rendered block and shortens the `show evidence` option text; the wording should pin the abbreviated-hash form and keep the post-merge rendered block limited to the cleanup lines, verdict, and option list so the menu-layout contract does not accrete extra lines.",
-      "wallMs": 20184,
+      "feedback": "The Before and After outputs are textually identical, so no fact moved. Both narrations run the home-pattern ownership match (resolving ../mono-<name> against /work/mono, realpath-checking /work/mono-pr-731, recovering pr-731) before any removal, run the recorded `script/worktree destroy 'pr-731'` from /work/mono with no `git worktree remove --force`, print `worktree: done`, then run `git -C /work/mono branch -D feature/csv-export` and print `branch: done`. Note that the Expected to move list anticipated g1 failing in Before, but the Before text already contains the ownership match, so this case shows no delta; the After wording keeps every fact Before kept and already reflects the keyed-contract ownership gate described in the Change. Nothing needs to change in After for this case; if the author wants this case to demonstrate the Change, the Before baseline would need to be one that skips the match rather than this already-compliant text.",
+      "wallMs": 9748,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "b77b1d53aa9a1b96d5de50e56d3038e15f91b1fd27707f1c8d2d34ade1c7f375",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
       "intentSha": "d50172cd77fdac3fcd449b8924968468ff2377f9a56d9033b95dc3c5444fdac0",
-      "baselineOutputSha": "76ef486f37cdd2c89c89b579f1ceb598c5618fa2d742fa03d5691a9b8444c32e",
+      "baselineOutputSha": "c3f9fb4dfd9f997d0a98bb3b05a4067cb59197c2ba76de251f1aeb8707c29a8b",
       "candidateOutputSha": "c3f9fb4dfd9f997d0a98bb3b05a4067cb59197c2ba76de251f1aeb8707c29a8b",
       "facts": {
         "g1": {
@@ -81,10 +81,10 @@
           "label": "held"
         }
       },
-      "feedback": "Nothing moved on this case: both outputs match the worktree to the home before removal, run `script/worktree destroy 'pr-731'` from /work/mono without any forced `git worktree remove`, print `worktree: done`, then run `git branch -D feature/csv-export` and print `branch: done`. After's ownership match is the weakest link: it says only that 'the configured home resolves to `/work/mono-pr-731`, uniquely recovering the identifier `pr-731`' without naming the `../mono-<name>` pattern, whereas Before spelled out the pattern and the `<name> = pr-731` binding; a reader looking for the g1 fact has to infer the pattern from 'configured home'. To keep g1 unambiguous while delivering the Change, have After state the pattern explicitly, e.g. 'the realpath `/work/mono-pr-731` matches the `home:` pattern `../mono-<name>` (resolved against `/work/mono`) with `<name> = pr-731`, so the ownership match for `worktree.destroy` is satisfied', and keep that sentence in step 2 before the destroy command in step 3 so the before-removal ordering stays visible.",
-      "wallMs": 11194,
+      "feedback": "The After output is byte-identical to Before, so nothing moved: step 2 in both already states that the configured home resolves to /work/mono-pr-731 and uniquely recovers the identifier pr-731 before any removal (g1), step 3 runs `script/worktree destroy 'pr-731'` from /work/mono, prints `worktree: done`, and explicitly avoids `git worktree remove` (g2), and step 4 runs `git branch -D feature/csv-export` and prints `branch: done` (g3). If the author intended the new home-ownership match to be visibly distinct from the baseline, After should name the contract literally - e.g. 'I match /work/mono-pr-731 against the `home:` pattern `../mono-<name>` resolved from /work/mono, which yields `pr-731`' - and mention the skip-line fallback (`worktree: skipped - outside configured home, left at <path>`) as the alternative that did not apply; that wording would make g1 unambiguous without disturbing the destroy/branch steps that g2 and g3 depend on.",
+      "wallMs": 15407,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "824b8741c00912f6f48c9f24d96d9283e89ce886"
+  "repoSha": "03f2a45e6cf09c8bfc0d9a675ffffba9151f6d00"
 }

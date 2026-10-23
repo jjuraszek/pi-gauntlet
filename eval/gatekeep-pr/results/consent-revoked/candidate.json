@@ -35,7 +35,7 @@
       "factsSha": "6486f33dff908dccadd09f569d96f3e664a0e7ba6a28887d52521930feca4e0a",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
       "intentSha": "d50172cd77fdac3fcd449b8924968468ff2377f9a56d9033b95dc3c5444fdac0",
-      "baselineOutputSha": "7e194b48bebeb085b8a9b76a25a411b77607a33dc75c1cba6f242f80eac02e6e",
+      "baselineOutputSha": "71e13755fac96a7769f38be7ada840f0ce71ec0fb503138538a50cb0fa5db34b",
       "candidateOutputSha": "71e13755fac96a7769f38be7ada840f0ce71ec0fb503138538a50cb0fa5db34b",
       "facts": {
         "f1": {
@@ -54,15 +54,15 @@
           "label": "held"
         }
       },
-      "feedback": "Nothing moved: both outputs persist `consent.fix = null` as the first act of pick 1 before any read, helper, or push (f1); both state P1 is uncovered and not dispatched and tell the implementer not to touch it (f2); and both keep `consent.merge_base` held through revocation and `show evidence`, then use that held grant to run the merge-base course gated by a pre-push code-reviewer, with `revoke merge base` still composable at the final menu (f3). After is slightly less explicit than Before in two places worth tightening: the base-course step 6 should say the merge-base course runs \"under the held `consent.merge_base` grant\" at the moment it enters fix-wave.md (Before says so explicitly in its conflict-check step), and the final menu's `fix` option dropped \"covered\" and \"apply the drafted payload through a fresh implementer\" while `show evidence` dropped \"drafted edit\" — since P1's payload is drafted in both runs, keep Before's option text so the numeric-reply mapping the Change introduces names the same action in both. After's \"SHAs assessed\" section also says the brief assessed `1111…` whereas Before says the brief assesses the pushed head `<M>`; pick one consistently with the digest's own-push rule (Before's reading).",
-      "wallMs": 14397,
+      "feedback": "Before and After are textually identical for this case, so no fact moved: both persist `consent.fix: null` in Pick 1 step 2 before any later mutation (f1), both leave P1 undispatched after revocation and instruct the implementer not to touch it (f2), and both keep `consent.merge_base` held through revocation and `show evidence` and cite that held grant as the authorization for the helper-owned base course (f3). The Change (worktree contract from `## using-git-worktrees`, menu-layout contract with numeric reply mapping) does not surface in this case because no cleanup runs and the menu already renders as a separate numbered list with numeric input accepted; if the author wants this case to also exercise the new wording, a worktree line in the starting state (e.g. `worktree: .worktrees/pr-642, destroy: <command>`) and an explicit mapping note when the human types a number would show the Change without affecting f1–f3.",
+      "wallMs": 7747,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "6486f33dff908dccadd09f569d96f3e664a0e7ba6a28887d52521930feca4e0a",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
       "intentSha": "d50172cd77fdac3fcd449b8924968468ff2377f9a56d9033b95dc3c5444fdac0",
-      "baselineOutputSha": "509983dc678092c7bdc80ad728630fbcabfd5f52c9fe518bef600a98519509f1",
+      "baselineOutputSha": "ce418c2336cd2537576339c3eac8157d35e7ec2e0e309344dcc61206ad7cb3bb",
       "candidateOutputSha": "ce418c2336cd2537576339c3eac8157d35e7ec2e0e309344dcc61206ad7cb3bb",
       "facts": {
         "f1": {
@@ -81,10 +81,10 @@
           "label": "held"
         }
       },
-      "feedback": "Nothing moved on this case: both outputs revoke only consent.fix before any helper dispatch or push, both decline to repair P1 after revocation, and both keep consent.merge_base intact through show evidence and use it to authorize the reviewed base-conflict course. The one soft spot in After is f1: step 1 says it will \"set only consent.fix to null\" and only later says \"persist the refreshed state\" in step 2, whereas Before explicitly shows persisting \"fix\": null at the revocation step itself. A careful reader still accepts After's record edit as persistence, but to keep this unambiguous under the new wording, have the revocation step say it persists consent.fix = null to the continuation record immediately, before recording show evidence and before the refresh, rather than relying on the later generic persist line.",
-      "wallMs": 11122,
+      "feedback": "The After output is textually identical to Before, so no fact moved: both set only `consent.fix` to null in the continuation record and persist the refreshed state before dispatching the base helper (f1), both state the drafted P1 payload is never dispatched because fix authority was revoked and the implementer is told not to touch the empty-signature blocker (f2), and both carry `consent.merge_base` through revocation and `show evidence` and cite it as the authority for the base-conflict repair and push (f3). The wording change's worktree-contract and menu-layout additions did not surface in this case at all — nothing about `## using-git-worktrees`, `home:` ownership, `destroy`, or numeric reply mapping appears in After, which is fine for these facts but means the Change is not visibly exercised here; if the author wants this case to demonstrate the new contract, consider having step 3 note that `<scratch>/.worktrees/pr-642` was provisioned at the configured `home:` and that the rendered menu applies the shared layout, while keeping the explicit 'set only consent.fix to null' and 'retained merge-base grant authorizes this push' sentences that carry f1 and f3.",
+      "wallMs": 10694,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "824b8741c00912f6f48c9f24d96d9283e89ce886"
+  "repoSha": "03f2a45e6cf09c8bfc0d9a675ffffba9151f6d00"
 }

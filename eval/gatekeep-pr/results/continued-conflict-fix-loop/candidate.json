@@ -35,7 +35,7 @@
       "factsSha": "f8345590eb11adf5d2c6e36556966ea79461a7e8f26b1625edb351801b980700",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
       "intentSha": "d50172cd77fdac3fcd449b8924968468ff2377f9a56d9033b95dc3c5444fdac0",
-      "baselineOutputSha": "147b3b96f842d43386694f23fe1a52ac5f45831e72ec850e46d59523132e7456",
+      "baselineOutputSha": "b6593b5fece9aecde5c9c59b0db4e6c00ff12f5e3ec86bf1b7c2eaf75a8fe3bd",
       "candidateOutputSha": "b6593b5fece9aecde5c9c59b0db4e6c00ff12f5e3ec86bf1b7c2eaf75a8fe3bd",
       "facts": {
         "f1": {
@@ -74,15 +74,15 @@
           "label": "held"
         }
       },
-      "feedback": "No fact moved: After still increments `repair.rounds_used` to 1 before the first helper runs, counts the post-review base resolution as round 2 with a fresh implementer and fresh remerge-diff review under the retained `merge base` grant, counts P3 as round 3 under `consent.fix` scope all with no menu, runs exactly one bounded `gh pr checks --watch` only in the 2222… re-render where Blockers are empty and skips it on 3333…, reads evidence on 3333… for the final verdict, leaves P2 in the Nits list unrepaired, and renders the four-option menu without merging or approving. Two things worth tightening in After's wording: the final `Not offered:` line now lists only `fix nits (round cap reached)` and drops `fix`, which Before explicitly listed as withheld at the cap — restore `Not offered: fix, fix nits (round cap reached)` so the cap-omission rule is visible to the reader; and the claim-check helper now says `No claims were pending; the earlier dispositions carry forward`, which is a weaker statement than Before's explicit matched dispositions for the two PR-body claims — keep the explicit claim dispositions so the `source: ci` block is clearly grounded on 2222…. The menu-layout contract (fenced block, numeric options as a separate list, `Type a number.` prompt) is applied correctly and is compatible with every fact here.",
-      "wallMs": 17205,
+      "feedback": "The After output is textually identical to Before, so nothing moved: the first mixed base/file wave is counted as round 1 before any mutation, the second pre-push base resolution gets a fresh implementer plus remerge-diff review under the retained merge-base grant and increments to round 2, the source-verified P3 is repaired and reviewed under the bare fix grant at round 3, the only watch runs after Blockers are empty on 2222…, final readiness cites CI on 3333…, P2 stays an unrepaired nit, and the ready menu renders with no merge or approval executed. The Change targets the worktree contract (home:/create:/destroy: keys, ownership-gated cleanup) and the shared menu-layout contract with numeric reply mapping, but neither surfaces in this case: no cleanup runs here and the final menu already renders findings and numbered options as separate lists with a 'Type a number' prompt. If you want this case to demonstrate the new wording, add a provisioning line in the tracker section recording `create:` at `home:` with `<name>`=`pr-642` and the recorded `destroy` command, and make the final menu block explicitly state that a numeric reply is mapped to its option label before any action - without altering the round accounting, watch placement, or evidence-head lines that the seven facts depend on.",
+      "wallMs": 11938,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "f8345590eb11adf5d2c6e36556966ea79461a7e8f26b1625edb351801b980700",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
       "intentSha": "d50172cd77fdac3fcd449b8924968468ff2377f9a56d9033b95dc3c5444fdac0",
-      "baselineOutputSha": "0db1a5b161e9fa8d1f80c3d9747813535460d71f8ec33892ef29ccc7677c337d",
+      "baselineOutputSha": "86edbefeca583a3fc34183dcd06af194f0f778e2d4c20912f8420131793a75db",
       "candidateOutputSha": "86edbefeca583a3fc34183dcd06af194f0f778e2d4c20912f8420131793a75db",
       "facts": {
         "f1": {
@@ -121,8 +121,8 @@
           "label": "held"
         }
       },
-      "feedback": "Nothing moved in this case: After still persists pass 1 before the first implementer, charges pass 2 to the newly required pre-push base resolution under the retained merge-base grant with a fresh implementer and reviewer, charges pass 3 to the source-verified unsigned-array repair under the broad fix grant with no new pick, runs the single bounded watch only after the push when no blocker is open, bases the final verdict on 3333…'s own CI evidence, leaves the unused-import nit untouched, and stops at a rendered menu without merging or approving. Two small drifts worth watching though they did not break a fact here: After's final `stop` option drops Before's 'offer checkout teardown' phrasing, which is exactly the surface the new `## using-git-worktrees` cleanup contract (home ownership match, `worktree: skipped - outside configured home, left at <path>`) should expose, so keep the teardown offer in the stop option text; and After's `Delivers:` line lost the explicit mention of empty signatures and unsigned arrays, so retain the more specific summary while applying the shared menu-layout contract and numeric reply mapping.",
-      "wallMs": 13884,
+      "feedback": "Before and After are textually identical for this case, so no fact moved: pass 1 persists its round and apply checkpoint before the base-merge implementer mutates (f1); the pre-push second conflict is handled by reusing the recorded merge-base grant with a fresh implementer and read-only reviewer and persists repair pass 2 (f2); the comment-sourced P3 is source-verified, folded under the retained broad fix grant, and gets a reviewed repair as pass 3 (f3); the only `gh pr checks --watch` runs at step 17 after blockers are empty and no watch runs at step 28 (f4); final readiness cites the refresh, run list, and claim-check worker on 3333… rather than 2222… (f5); the unused import is explicitly left untouched by both file implementers (f6); and the output ends at the rendered ready menu without a merge or approval call (f7). Since the Change targets worktree-contract reading, cleanup ownership checks, and menu-layout/numeric-reply mapping, none of which this scenario exercises beyond the final menu, the After wording here already preserves everything Before kept. If you want the menu-layout contract to be visibly applied in this scenario, the only addition worth considering is a brief note at the menu boundary that generated options are rendered as a separate list and that a numeric reply is mapped to its option name before any action, without otherwise altering the ready menu's content.",
+      "wallMs": 15777,
       "verdict": "unchanged"
     }
   },
@@ -462,5 +462,5 @@
       }
     }
   },
-  "repoSha": "824b8741c00912f6f48c9f24d96d9283e89ce886"
+  "repoSha": "03f2a45e6cf09c8bfc0d9a675ffffba9151f6d00"
 }

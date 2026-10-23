@@ -35,7 +35,7 @@
       "factsSha": "974bcdf22faf0e725b78cb1379607ef72a29c85848e080d8204d5cc266053dfa",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
       "intentSha": "d50172cd77fdac3fcd449b8924968468ff2377f9a56d9033b95dc3c5444fdac0",
-      "baselineOutputSha": "f8d9c331bf1116e67b94124c13fd124bfed601b03d9911fd125d01d86f3f5d22",
+      "baselineOutputSha": "fc11132774cfac7036d19d5b4118401732e0f72cd54002a5e46f2c78fbcf3fe8",
       "candidateOutputSha": "fc11132774cfac7036d19d5b4118401732e0f72cd54002a5e46f2c78fbcf3fe8",
       "facts": {
         "f3": {
@@ -44,15 +44,15 @@
           "label": "held"
         }
       },
-      "feedback": "Neither output moved f3. Before persists the increment from rounds_used 1 to 2 and the wave checkpoint (selected_ids [P1, P2], stage apply) in step 4, ahead of the body write in step 6 and the base and file helpers in steps 8-9, and frames them as one combined round. After does the same in section 2 (increment and wave persisted before any mutation), with section 1 stating explicitly that both rows run as one combined round with one increment and one push, the body write in section 3 coming after the checkpoint, and section 8 confirming rounds_used stays at 2 after the push. The After wording is safe here; keep the explicit 'one increment and one push' sentence and the 'before any mutation' ordering as written, since they are what let a reader see that body, base and file work share the single pass. The only drift worth watching is unrelated to f3: After renames the recheck mktemp template to gatekeep-verify and adds a reviewThreads GraphQL call and a compose hint to the menu footer, none of which affect the increment or checkpoint ordering.",
-      "wallMs": 9779,
+      "feedback": "The After output is textually identical to Before for this case, so nothing moved: both increment repair.rounds_used from 1 to 2 and persist the repair.wave checkpoint (pre_wave_head 1111…, selected_ids [P1, P2], affected_claims, stage apply) in section 2, before the body write in section 3 and before any implementer dispatch in sections 4 and 5, and section 1 step 5 plus section 8 step 6 confirm body, base and file work share a single round with rounds_used staying at 2. The Change's worktree-contract and menu-layout wording did not touch the round-opening sequence here, which is the right outcome for f3; keep the 'Increment ... before any mutation' sentence and the wave persist line in section 2 as-is in any further rewording, and if you add the digest `destroy` record or the home-ownership cleanup lines, place them in the resume/cleanup sections rather than between section 2 and section 3 so the single-increment ordering stays visible.",
+      "wallMs": 8373,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "974bcdf22faf0e725b78cb1379607ef72a29c85848e080d8204d5cc266053dfa",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
       "intentSha": "d50172cd77fdac3fcd449b8924968468ff2377f9a56d9033b95dc3c5444fdac0",
-      "baselineOutputSha": "2c88828df6bfea266c284fee45fdd3a7ae3d96e45c34e00e5d903e6a279397e8",
+      "baselineOutputSha": "2becd62939e1466f1fa5add506002dd2e52c7cdaa4320fcf04d32d9665d085d2",
       "candidateOutputSha": "2becd62939e1466f1fa5add506002dd2e52c7cdaa4320fcf04d32d9665d085d2",
       "facts": {
         "f3": {
@@ -61,10 +61,10 @@
           "label": "held"
         }
       },
-      "feedback": "Fact f3 is unaffected by the wording change: Before persists round usage as 2 with one active wave (step 4) before the body write in step 7, and After persists `repair.rounds_used: 2` plus the wave checkpoint (`pre_wave_head`, selected findings, stage `apply`, body snapshots) explicitly \"before the first mutation\" in section 2, with the body, base, file, and review work stated to share that round and its single push. Nothing in the worktree-contract or menu-layout change touched this path, so the After wording keeps the fact; no adjustment is needed. If anything, After's enumerated checkpoint list is clearer than Before's prose and should be retained as-is.",
-      "wallMs": 7519,
+      "feedback": "After is textually identical to Before for this case, so nothing moved: both persist `repair.rounds_used: 2` together with the wave checkpoint (pre_wave_head, selected findings P2 and P1, stage apply, body snapshots, affected claim) in section 2, before the section 3 body write and before any implementer helper, and both state that body repair, base resolution, file repair, and pre-push review share that one round and single push. The Change concerns worktree-contract reading, cleanup ownership checks, and menu-layout rendering, none of which this resumed-repair case exercises beyond the final three-option menu, which already renders as a separate numbered list in both outputs. No wording adjustment is needed to preserve f3; keep the explicit 'Before the first mutation, I persist' block as-is when applying the worktree/menu-layout wording elsewhere.",
+      "wallMs": 7250,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "824b8741c00912f6f48c9f24d96d9283e89ce886"
+  "repoSha": "03f2a45e6cf09c8bfc0d9a675ffffba9151f6d00"
 }

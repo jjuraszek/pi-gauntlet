@@ -25,6 +25,12 @@ for a base ref before reading any artifact.
 
 A pinned spec (seed route, `seed.md`) skips this section.
 
+When the brief carries `Pre-rework head:`, use that full SHA as `<base>` for spec
+and plan candidate scans instead of the merge-base from "Base"; the PR's earlier
+spec remains input, not an added candidate, so it does not trigger a multi-spec pick.
+Keep pairing, untracked candidates, task evidence, and human confirmation below.
+Without the optional pair, including a bare worktree, use the ordinary base.
+
 Resolve with `gauntlet_setting({ key: "flowGuards" })`; `<dirs>` below is its `specDirs` plus `planDirs` (each spec dir's sibling `plans` dir), space-separated.
 
 ```bash

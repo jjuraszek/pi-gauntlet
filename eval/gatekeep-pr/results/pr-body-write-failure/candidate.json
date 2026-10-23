@@ -35,7 +35,7 @@
       "factsSha": "896f9ad372be29958e9c03857148b4ea33be39f6d71f75133e1adb1703eabe64",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
       "intentSha": "d50172cd77fdac3fcd449b8924968468ff2377f9a56d9033b95dc3c5444fdac0",
-      "baselineOutputSha": "390ae4f6b1e81048450633707f220a921f593991a818f966c6f15d5a516be930",
+      "baselineOutputSha": "14b87ba9087ff2004e8d2128540307ea7f3222fb0b9efa0b7be383b043565134",
       "candidateOutputSha": "14b87ba9087ff2004e8d2128540307ea7f3222fb0b9efa0b7be383b043565134",
       "facts": {
         "f1": {
@@ -64,15 +64,15 @@
           "label": "held"
         }
       },
-      "feedback": "No fact moved: in both outputs A reports the 503 and leaves P1 open with no retry, B marks the write unconfirmed, C and D keep P1 open on unexpected readback and surviving contradiction, and E holds P1 open until a fresh Verify claim-check at 2222... rather than closing from old-head evidence or confirming the raced write. The menu-layout contract is applied cleanly (numbered findings, separate option list, numeric reply mapping). Two wording risks in After worth tightening, though they did not flip any fact here: in case B the merge-state overlay is rendered under a 'PR comments:' heading, which misdescribes a refresh failure as a comment and could be read as a reported review thread - render it as its own status line (e.g. 'Merge state: not refreshed (HTTP 502)') so the unconfirmed-write message stays unambiguous; and in case E the Verify result states the corrected claim 'matched' without explicitly saying the readback body at 2222... was fetched and used as the claim source - add one line ('readback body at 2222... contains the corrected sentence') so the closure visibly rests on the actual body at the new head and not on the stale write.",
-      "wallMs": 16730,
+      "feedback": "The After output is textually identical to Before for this case, so nothing moved: A records the 503 as a no_progress prerequisite failure with no retry and P1 open; B treats the 502 readback as unknown rather than success and keeps P1 open; C refuses a second write on the unexpected body and leaves P1 open with a fresh proposal; D keeps P1 open on the narrow recheck's surviving contradiction; E leaves the raced write unconfirmed, discards old-head evidence, and only resolves P1 after a fresh Verify at 2222... claim-checks the actual body and matches the new sentence, with no stale write or blind closure. This case does not exercise the worktree-contract or numbered-findings menu changes, so the wording change had no observable effect here; no adjustment is needed to preserve these facts, and the author should confirm the intended movement on the cleanup-keyed and menu-after-numbered-findings cases instead.",
+      "wallMs": 11683,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "896f9ad372be29958e9c03857148b4ea33be39f6d71f75133e1adb1703eabe64",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
       "intentSha": "d50172cd77fdac3fcd449b8924968468ff2377f9a56d9033b95dc3c5444fdac0",
-      "baselineOutputSha": "cab160115c834bb0a5b9c37f4258014b28607a4524491b85a0ad1eaf4eff1d30",
+      "baselineOutputSha": "f1eb4552dccbcd8bd646703e3239b58ec90e247348f9a1ba9cb4fc2dd57412ed",
       "candidateOutputSha": "f1eb4552dccbcd8bd646703e3239b58ec90e247348f9a1ba9cb4fc2dd57412ed",
       "facts": {
         "f1": {
@@ -101,10 +101,10 @@
           "label": "held"
         }
       },
-      "feedback": "No fact moved: in every case After keeps P1 unresolved, reports the 503/502 failures verbatim without retrying, refuses to treat an unreadable or unexpected readback as confirmation, honors the narrow helper's open result in D, and in E leaves the old-head operation unconfirmed, re-verifies claims against the actual body at 2222…, and never clears the independent missing-test blocker. Two drifts are worth tightening even though they did not flip a fact: (1) in C, After dispatches a description-recheck helper against the unexpected body, whereas Before deliberately withheld the helper because the expected replacement was never established — keep Before's 'dispatch no helper; draft a fresh scope-preserving correction from the actual body' wording so the recheck duty is only invoked on a confirmed expected body; (2) After drops the `git -C \"$W\" status --porcelain --untracked-files=no` cleanliness assertion before rendering and replaces the `Type a number, or compose: \"fix 1\".` prompt with `Type a number. Not offered: merge (…)` — if the shared menu-layout contract still requires the compose hint and a tracked-cleanliness check at the report boundary, restore both lines in the rendered block while keeping the new 'Not offered' trailer, so the numeric-reply mapping and pre-menu state assertion remain visible at the same boundaries Before showed them.",
-      "wallMs": 18820,
+      "feedback": "After is textually identical to Before for this case, so no fact moved: A records the 503 failure, leaves P1 open, and explicitly does not retry or infer the body changed; B marks the write unconfirmed on the 502 readback and states API exit status is not closure; C keeps the operation unconfirmed and the blocker open on the unexpected body; D reads the narrow helper's `P1: open` and declines to close the combined finding; E leaves the old-head operation unconfirmed, refuses old-head CI as proof of the new SHA, re-runs verify and review at `2222…` with a fresh claim-check of the actual body, and keeps the missing-test blocker independent of any description edit. Since the Change targets worktree-home ownership, cleanup ordering, and menu-layout/numeric-reply mapping, none of which this description-repair entry exercises, the unchanged rendering here is the correct outcome; the menus already appear as a single numbered list separate from numbered findings with a 'Type a number.' prompt, which is consistent with the shared menu-layout contract. No wording adjustment is needed to preserve f1–f5 while delivering the Change in this case.",
+      "wallMs": 12337,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "824b8741c00912f6f48c9f24d96d9283e89ce886"
+  "repoSha": "03f2a45e6cf09c8bfc0d9a675ffffba9151f6d00"
 }

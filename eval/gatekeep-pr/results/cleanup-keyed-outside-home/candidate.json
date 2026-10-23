@@ -39,7 +39,7 @@
       "factsSha": "37f0348fbee98949cf20bc03b87996c613f4643f8df1f92ce1319c0304f393ea",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
       "intentSha": "d50172cd77fdac3fcd449b8924968468ff2377f9a56d9033b95dc3c5444fdac0",
-      "baselineOutputSha": "c902b5cd3db2804439406c998ca0d0cfd5ce0c85649678cce8c397b39cd8057e",
+      "baselineOutputSha": "bca5c4faa391e057d4725a60f6f9e4fb89c159a5df680a17c01116438874cd21",
       "candidateOutputSha": "bca5c4faa391e057d4725a60f6f9e4fb89c159a5df680a17c01116438874cd21",
       "facts": {
         "o1": {
@@ -58,15 +58,15 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "Both outputs already satisfy o1 and o2: each applies the keyed `home:` ownership match, prints `worktree: skipped - outside configured home, left at /home/dev/scratch/backoff` with no removal or prune, and prints `branch: skipped - checked out at /home/dev/scratch/backoff` with no `git branch -D`. The After wording changed nothing about these facts; it only restructured the narration (bolded step labels, a `State at entry` section, an explicit `rev-parse HEAD` in step 3, and a note on why `stop` is recommended). Nothing in After moved a fact, so the Change is delivered here without regression; if the author expected these to move from fails to holds, the Before run under test already contained the ownership match, so the baseline for this case may need to be re-recorded rather than the After wording adjusted.",
-      "wallMs": 6432,
+      "feedback": "Before and After are byte-for-byte identical for this case: both narrate the keyed `## using-git-worktrees` contract, derive the `/work/mono-*` pattern from `home: ../mono-<name>`, state that `/home/dev/scratch/backoff` does not match, run no removal/prune/destroy, and print `worktree: skipped - outside configured home, left at /home/dev/scratch/backoff`; both then observe the branch is still checked out via `git worktree list --porcelain`, run no `git branch -D`, and print `branch: skipped - checked out at /home/dev/scratch/backoff`. So o1 and o2 hold in both outputs, and nothing moved here - the 'fails -> holds' expectation is not reflected in the Before text, which already applies the ownership match. No wording change is needed in After for these facts; if the author wants this case to demonstrate the Change, the Before output would need to come from the actual pre-change skill (which should remove the tree and delete the branch) rather than a copy of the After narration.",
+      "wallMs": 9811,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "37f0348fbee98949cf20bc03b87996c613f4643f8df1f92ce1319c0304f393ea",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
       "intentSha": "d50172cd77fdac3fcd449b8924968468ff2377f9a56d9033b95dc3c5444fdac0",
-      "baselineOutputSha": "41048a0480fd28e4cf9a336b297ea6c34c59f1717895e069327a0fad0a9462bb",
+      "baselineOutputSha": "6735e80d9842171284976b42c6e59d6fdb750cba12ffde22514010a40bf75da4",
       "candidateOutputSha": "6735e80d9842171284976b42c6e59d6fdb750cba12ffde22514010a40bf75da4",
       "facts": {
         "o1": {
@@ -85,10 +85,10 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "Nothing moved here: both Before and After print the exact `worktree: skipped - outside configured home, left at /home/dev/scratch/backoff` line, run no worktree removal or destroy, print the exact `branch: skipped - checked out at /home/dev/scratch/backoff` line, and run no `git branch -D`, so o1 and o2 hold on both sides regardless of what the Expected list anticipated. After's wording is fine and actually makes the ownership check more concrete by resolving `/work/mono/../mono-pr-732` against the `home:` override with `<name>` = `pr-<N>`; keep that, and keep the explicit 'Do not remove the worktree or run a destroy command' and 'so do not delete it' sentences, since they are what make the skip-not-remove facts unambiguous. The only small drift worth tidying is that After's step 2 drops Before's `git -C /work/mono rev-parse --git-common-dir` and `realpath /work/mono` lines; harmless for these facts, but if the ownership contract depends on resolving the primary first, restore `realpath /work/mono` before computing the home so the match is traceable.",
-      "wallMs": 8397,
+      "feedback": "Before and After are textually identical for this case: both step 2 narrations resolve the configured home to /work/mono-<name>, note that /home/dev/scratch/backoff does not match, run no destroy or removal, and render `worktree: skipped - outside configured home, left at /home/dev/scratch/backoff`; both step 3 narrations run only `git worktree list --porcelain`, decline to delete the checked-out branch, and render `branch: skipped - checked out at /home/dev/scratch/backoff`. So o1 and o2 already held in Before and nothing moved - the expected fails->holds for this case is not reflected in these two outputs, which suggests either the Before sample was already produced under the new ownership-match wording or the case needs regenerating against the true baseline. No wording adjustment to After is needed to preserve these facts; if you want the eval to demonstrate the Change, re-run Before from the pre-change skill so the baseline actually shows the forced removal and `git branch -D`.",
+      "wallMs": 9458,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "824b8741c00912f6f48c9f24d96d9283e89ce886"
+  "repoSha": "03f2a45e6cf09c8bfc0d9a675ffffba9151f6d00"
 }

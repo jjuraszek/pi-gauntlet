@@ -1,9 +1,11 @@
-for: 2b1c49a2fc308f71f5539b7440ace5e139e5831933e1cacf092d469287584ddb
+for: 3b1e4896945557568e68bc42007bfacf242a9e08c28713243b323759d93687b6
 
 ## Change
 Supply the existing Standing grants decoding procedure to engine-waves and the owning redraw procedure to loop-ledger-amend. Render the actual unmatched group heading in the ticket attribution option rather than its template placeholder; preserve both existing facts.
 
 Route approval options 4/5 to the loop engine, persist engine and grant together, decode loop funding independently, and reconcile approved amendments against a ledger before task-plan aftermath. The target adds the owning User Review Gate slice; old questionary samples drop it, and the ledger sample adds the actual amendment source. New samples are skipped on the baseline because they do not exist there. Text replays prove narrated ordering and values, not live git writes or tracker operations.
+
+Wire PR-first subject resolution, trusted base-SHA gathering, and preservation of the fixed Rework record. Compare against PR_SUBJECT_EVAL_BASE `1b0f7dd2bbbf926a8ff65109414d05aa97acaa58`, which already contains the bundled PR reference. The four synthetic acme/widget samples exercise ordered classification and single-path routing, base-added constraints, policy weakening after a clean merge, and two-line repair over rewrite with original commits kept. Their facts cover bound-title precedence, no-ticket ACs, full SHA/merge/thread/scoped-result preservation, and dropped claims. Text replay proves supplied-observation behavior, not live GitHub calls or writes. Retain all prior rationale and moves; model replay and final target evidence are pending the final wave.
 
 Decode independent amendment and fix-round capabilities from the standing-grant value. Funded gate replies preserve the option-2 description and suffix, while a budget token alone re-presents the approval gate without writing. Keep the existing wordCap and accepted variance.
 
@@ -18,6 +20,23 @@ The amendment human batch uses numbered problem-first items with lettered option
 The ticket-read-once, restored-step-8-reads-ticket, same-session-redraw-reuses-ticket, and overrides-read-once samples narrate ordered read and stage actions from fixed session-context observations. Ticket handling reads once at first use, restored step 8 reads before lint, same-session redraw reuses content while applying ticket rules, and unreadable references block without reconstruction. Overrides content is reused across stages while conventions still apply; unsure context requires a read. The assembly adds the brainstorming Ticket Handling and Project overrides slices while retaining existing slices and the ticket reference. Only overrides-read-once adds the real writing-plans skill via bundle+, using its overrides block only. The replay exception is limited to the Narrated read actions heading; existing continuation and questionary outputs keep their contracts. No new regression is accepted without model evidence.
 
 ## Expected to move
+- pr-subject-resolution/ordered: fails -> holds - Classify once before provisioning, stop on foreign or absent subjects, and bind title before body.
+- pr-subject-resolution/open: fails -> holds - Classify once before provisioning, stop on foreign or absent subjects, and bind title before body.
+- pr-subject-resolution/issue: fails -> holds - Classify once before provisioning, stop on foreign or absent subjects, and bind title before body.
+- pr-subject-resolution/neither: fails -> holds - Classify once before provisioning, stop on foreign or absent subjects, and bind title before body.
+- pr-subject-resolution/mention: fails -> holds - Classify once before provisioning, stop on foreign or absent subjects, and bind title before body.
+- pr-subject-resolution/foreign: fails -> holds - Classify once before provisioning, stop on foreign or absent subjects, and bind title before body.
+- pr-subject-resolution/binding: fails -> holds - Classify once before provisioning, stop on foreign or absent subjects, and bind title before body.
+- pr-subject-rule-added-later/constraint: fails -> holds - Apply base-added rules through a repair while preserving original commits and the fixed record.
+- pr-subject-rule-added-later/repair: fails -> holds - Apply base-added rules through a repair while preserving original commits and the fixed record.
+- pr-subject-rule-added-later/grammar: fails -> holds - Apply base-added rules through a repair while preserving original commits and the fixed record.
+- pr-subject-rule-added-later/no-ticket: fails -> holds - Apply base-added rules through a repair while preserving original commits and the fixed record.
+- pr-subject-weakened-rule/authority: fails -> holds - Treat PR policy weakening as a proposal, never authority, even after a clean merge.
+- pr-subject-weakened-rule/proposal: fails -> holds - Treat PR policy weakening as a proposal, never authority, even after a clean merge.
+- pr-subject-weakened-rule/preservation: fails -> holds - Treat PR policy weakening as a proposal, never authority, even after a clean merge.
+- pr-subject-repair-over-rewrite/minimal: fails -> holds - Keep the two-line repair, verbatim bound-ticket AC, and complete thread dispositions.
+- pr-subject-repair-over-rewrite/contract: fails -> holds - Keep the two-line repair, verbatim bound-ticket AC, and complete thread dispositions.
+- pr-subject-repair-over-rewrite/record: fails -> holds - Keep the two-line repair, verbatim bound-ticket AC, and complete thread dispositions.
 - loop-gate/menu: fails -> holds - Render exact options 4/5.
 - loop-gate/loop: fails -> holds - Persist and HEAD-check both fields before completing brainstorm and dispatching.
 - loop-gate/no-ac: fails -> holds - Keep the three-option no-AC gate.

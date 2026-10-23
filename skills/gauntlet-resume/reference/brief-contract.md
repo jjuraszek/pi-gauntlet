@@ -27,7 +27,7 @@ Headings, fixed order. A consumer keys on headings, never prose.
 | `## Repo state` | one field per line: `toplevel`, `worktree: yes <path>` or `worktree: no`, `branch` (`detached` when none), `HEAD`, `base` (`unknown` when no remote resolves), `dirty: <porcelain>` or `dirty: clean`, `diff-stat` (`unavailable` when base unknown), `test cmd`; any field `unavailable` when its command failed; heading `## Repo state: not a git repo` outside git | always |
 | `## Decisions` | bullets; rejected alternatives marked `rejected:` | always |
 | `## Skills loaded` | frontmatter `name`s; `## Skills loaded: none` when none | always |
-| `## Process state` | `phase_tracker status` then `plan_tracker status` verbatim; `Active task: <name|none>`; the line `Gate history not restored - re-validate before advancing.` | only when a phase is `in_progress` and no hotfix flow is in context |
+| `## Process state` | `phase_tracker status` then `plan_tracker status` verbatim; `Active task: <name|none>`; optional `PR: <owner/repo#N>` and `Pre-rework head: <40-char sha>` lines, present together only for a PR subject; the line `Gate history not restored - re-validate before advancing.` | only when a phase is `in_progress` and no hotfix flow is in context |
 
 For a loop ledger (line 1 exactly `# Ledger - loop engine`), replace `Active task` with these two fields, retaining both tracker status outputs and the gate-history line:
 
@@ -51,8 +51,10 @@ inline. `## Repo state` is matched by prefix: `## Repo state` or
 cohort's `handoff` skill wrote, which ends at `## Skills loaded`. Layout, byte-exact:
 one blank line, the heading on its own line, a blank line, the `phase_tracker status`
 output verbatim, a blank line, the `plan_tracker status` output verbatim, a blank line,
-`Active task: <name|none>`, then the gate-history line - unfenced, nothing after.
-For a task plan, set `Active task` to the first `→` task name, else `none` (also for `No plan active.`). For a line-1 ledger, read its path and last decision and use the loop alternative above.
+`Active task: <name|none>`, then, only for a PR subject, exactly two lines:
+`PR: <owner/repo#N>` and `Pre-rework head: <40-char sha>`, then the gate-history line -
+unfenced, nothing after.
+For a task plan, set `Active task` to the first `→` task name, else `none` (also for `No plan active.`). For a line-1 ledger, read its path and last decision and use the loop alternative above, retaining the optional PR pair before the gate-history line.
 
 Example appended block (the fence is documentation; the brief carries no fence):
 
@@ -112,6 +114,15 @@ Parse stops (print the offending line, make no tracker call):
 
 ## Process-state restore
 
+Before any tracker write, read the optional PR identity and fetch its branch with
+`gh pr view <N> --repo <owner/repo> --json headRefName`. Compare `headRefName` with
+`git -C <worktree> branch --show-current`. A mismatch stops with
+`brief names PR #N on <headRefName>, worktree is on <branch>`, substituting the observed PR number and both actual branch names, never literal placeholders; a failed fetch stops
+with its error. Carry the paired full pre-rework head into reconstruction's
+candidate selection. Without the optional pair, retain ordinary restoration.
+Preserve the entry checks, standing-grant validation, plan repair, and task snapshot;
+PR identity implies no approval or gate evidence.
+
 Facts that fix the order (from the extensions):
 
 - Arming happens only on `start brainstorm`; `reset` disarms; `skip` and `complete`
@@ -129,7 +140,7 @@ Per-stage call table, keyed by the brief's active phase (`→`). Use
 `R = resume: <brief file or "pasted brief">` for plan/implement/verify skips and
 `S = resume: <spec path>` for brainstorm skips. Resolve `<spec path>` as
 `reconstruction.md` "Candidates" does, to an absolute path under the worktree: the single
-`*.md` spec added after base under `flowGuards.specDirs`, or a spec tracked from base when
+`*.md` spec added after the candidate base under `flowGuards.specDirs`, or a spec tracked from that base when
 a plan added after base pairs with it by basename. Zero specs -> stop; more than one ->
 human picks. The consumer carries this path to its entry check 6 and its post-restore
 announcement without re-resolving it.
@@ -147,7 +158,7 @@ For a ledger brief, pair by the ledger's path-only `**Spec:**` header, not basen
 
 `planPath` (task-plan implement onward): the brief carries none. Resolve as reconstruction does
 (`reconstruction.md`, "Candidates", including its `flowGuards.specDirs` resolution): the
-single plan added after base, paired with `<specDir>/<same basename>` whether that
+single plan added after the candidate base, paired with `<specDir>/<same basename>` whether that
 spec was added after base or tracked from base (`reconstruction.md` "Candidates");
 resolve the selected plan to an absolute path under the worktree before `plan_check`.
 Zero pairs -> stop; more than one -> human picks.
@@ -176,7 +187,7 @@ End a turn awaiting selection, restoration, or answers with phase `plan` retaine
 
 ### Citation repair
 
-Record the plan's state before any write: tracked and clean when `git -C <worktree> ls-files --error-unmatch -- <plan path>` exits 0 and `git -C <worktree> status --porcelain -- <plan path>` prints nothing (index and working copy both match HEAD; a staged edit alone makes it dirty); otherwise copy the file to a temp path outside the worktree.
+Record the plan's state before any write: tracked and clean when `git -C <worktree> ls-files --error-unmatch -- <plan path>` exits 0 and `git -C <worktree> status --porcelain -- <plan path>` prints nothing (index and working copy both match HEAD; a staged edit alone makes it dirty); otherwise copy the file to a temp path outside the repository before citation repair writes anything. Any non-empty porcelain output, including staged-only `M  <plan path>`, takes this copy path even when tracked and the working copy equals HEAD. Never substitute `git checkout` for the dirty or untracked plan's snapshot or saved-copy restore.
 
 Classify every finding against the table by its `check` and `reason`, gathering the row's evidence first. One finding with no row -> stop (below) before any write.
 

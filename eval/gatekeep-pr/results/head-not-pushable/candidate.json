@@ -35,7 +35,7 @@
       "factsSha": "beff4998dbe3e7c37f024fa277e4d82254b87e43fea788cbd0698f6d9ac36d51",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
       "intentSha": "d50172cd77fdac3fcd449b8924968468ff2377f9a56d9033b95dc3c5444fdac0",
-      "baselineOutputSha": "810bae9b2a4cac97f44e76a8fc9d0e763c7b4f497f1adec3447d9f02c3b27559",
+      "baselineOutputSha": "acce7ab46917ab95e4367e0dc90d602c075b7e0ffe0e8c274a0191329b6f067b",
       "candidateOutputSha": "acce7ab46917ab95e4367e0dc90d602c075b7e0ffe0e8c274a0191329b6f067b",
       "facts": {
         "f1": {
@@ -59,15 +59,15 @@
           "label": "held"
         }
       },
-      "feedback": "Nothing moved on this case: both outputs stop at precondition 2 of step 2b on the step-2 probe's `head_pushable: false`, name the non-pushable head in the rendered `Sync:` line, run no rebase and no push, dispatch no helper, and close `sync` as `failed`. The After wording's changes here are consistent with the menu-layout contract (an explicit `Pick one:` header, a plain numbered list, `[recommended]` on the single non-evidence row, an explicit note that no `Not offered:` sentence or compose forms appear) and it even clarifies that no verdict line renders because step 5 never runs, which is a reasonable tightening rather than a regression. One small drift worth watching: After says `No commands are run` as a blanket claim while Before enumerated what is skipped (`gh pr view` baseline read, fetch, ancestry checks); keep the enumeration or scope the blanket sentence to 'after the stop' so a reader does not infer that step 2's dry-run push probe itself did not run. Also, After drops the remote URL from the `Sync:` line in favour of `(head_pushable false)`; both satisfy f1, but naming both the branch and the remote, as Before did, is the safer form if other cases check that the report identifies the head unambiguously.",
-      "wallMs": 14284,
+      "feedback": "Before and After are textually identical for this case, so no fact moved: both stop at precondition 2 of step 2b with a `Sync: stopped - feature/ledger-rounding cannot be pushed by this actor (head_pushable false)` line naming the non-pushable head, both state that no rebase and no push run (fetch is not even reached), both say no helpers are dispatched and `plan_tracker` closes `sync` as `failed`. The Change is about worktree-home ownership in cleanup and the shared menu-layout contract; this terminal-stop path never reaches cleanup-keyed destroy or a numbered-findings menu, and the two-row `Pick one:` menu already renders as a separate list with a numeric prompt, so the After wording correctly left this case untouched. Nothing needs adjusting here; if you later extend the menu-layout contract to the sync terminal-stop menu, keep the `Sync: stopped - ... head_pushable false` reason sentence and the explicit \"no rebase and no push\" / \"sync as failed\" statements so f1-f4 continue to hold.",
+      "wallMs": 9715,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "beff4998dbe3e7c37f024fa277e4d82254b87e43fea788cbd0698f6d9ac36d51",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
       "intentSha": "d50172cd77fdac3fcd449b8924968468ff2377f9a56d9033b95dc3c5444fdac0",
-      "baselineOutputSha": "1c80096ba5b8fe4ea5129ce3397a938fa5274e25c9b25b33ba8fcf9527d84de2",
+      "baselineOutputSha": "4549050a2038a38f727113ee07cd6cf9dac46cae2dff9f287dbf56c74d37816f",
       "candidateOutputSha": "4549050a2038a38f727113ee07cd6cf9dac46cae2dff9f287dbf56c74d37816f",
       "facts": {
         "f1": {
@@ -91,10 +91,10 @@
           "label": "held"
         }
       },
-      "feedback": "Nothing moved: both outputs stop at the pushability precondition, name the non-pushable head as the reason, run no rebase or push, dispatch no helpers, and mark `sync` failed. After actually strengthens f1 by naming the head URL and ref in the sync record and the report line. Two things to watch in the After wording so later cases don't regress: the report dropped the `Delivers:` line that Before carried, so if the shared menu-layout contract expects the report header block to be intact at the rendering boundary, keep `Delivers:` above `Sync:`; and the 'From the end of step 2:' framing followed by a renumbered 1-4 list muddles which numbering `Step 3 never starts` refers to - say 'Step 3 (verify/menu refresh) never starts' or keep the skill's step numbers in the narrative so the stop-right-after-step-2 claim stays unambiguous.",
-      "wallMs": 11926,
+      "feedback": "The Before and After outputs are textually identical on this case, so nothing moved: both stop at step 2 of sync with a record naming the non-pushable head (`head is not pushable to git@git.example.invalid:orchard/ledger.git:feature/ledger-rounding`), both explicitly state no rebase, no push, and no helper dispatch, and both mark `sync` failed. The Change (worktree contract from `## using-git-worktrees`, cleanup ownership match, menu-layout contract) does not touch the pushability precondition path, and the After wording correctly leaves this early-stop behaviour alone. No wording adjustment is needed for this case; keep the terminal-stop block as is and confine the new menu-layout rendering rules to cases that actually reach the decision menu with generated options.",
+      "wallMs": 6230,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "824b8741c00912f6f48c9f24d96d9283e89ce886"
+  "repoSha": "03f2a45e6cf09c8bfc0d9a675ffffba9151f6d00"
 }

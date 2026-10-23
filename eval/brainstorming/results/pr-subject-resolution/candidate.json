@@ -1,0 +1,130 @@
+{
+  "sample": "pr-subject-resolution",
+  "arm": "candidate",
+  "skillSha": "73e95619ac6755bc2fc197db2164ee92019390a24bc5f6621460bf44db22ce5a",
+  "inputSha": "d0643307ee8f4a7406e7989bf70bdeaae228dad19a740b5c054e83b240968213",
+  "kind": "text",
+  "assembly": "headed",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "# Narrated read and stage actions for six PR-subject branches\n\nThese are narrated actions, not live calls. Each outcome comes from the fixed observations. The trackers are already reset, and every read below returns readable content.\n\n---\n\n## Branch A - Open (`\"  #55  \"`)\n\n1. **Start the phase.** Checklist step 1 runs `phase_tracker start brainstorm` on the reset trackers.\n2. **Read the PR-subject rules.** Step 2 reads `skills/brainstorming/reference/pr-subject.md`, which is readable.\n3. **Match the subject.** The trimmed prompt is `#55`, a leading GitHub reference with no free text after it. It goes to PR-subject resolution.\n4. **Check for a PR first.** Classification step 1 is the PR lookup for 55 in this checkout. It returns OPEN with `isDraft: true`, which is accepted.\n5. **Skip the issue lookup.** Classification is sequential, so the issue lookup never runs. That matters here, because it would also succeed for #55.\n6. **Check the repository.** The URL's repository is `acme/widget`. Origin `git@github.com:acme/widget.git` also gives `acme/widget`. They are equal, so there is no stop.\n7. **Look for a ticket to bind.** The title \"Repair retry backoff\" has no tracker reference. Neither does the body's first line, \"Keep the existing retry implementation.\" The PR is unbound.\n8. **Hand off to provisioning.** The resolution writes nothing. It passes these values to `using-git-worktrees/reference/pr-head.md`, which is read for the PR-head path:\n   - number 55\n   - url `https://github.com/acme/widget/pull/55`\n   - title \"Repair retry backoff\"\n   - headRefName `fix/retry`\n   - headRefOid `1111111111111111111111111111111111111111`\n   - baseRefName `main`\n   - isCrossRepository false\n   - headRepository `acme/widget`\n\n   The worktree is provisioned on branch `fix/retry`.\n9. **Gather context.** Step 3 reads `reference/ticket-acceptance.md` at first use, then `gatherer.md`.\n   - Constraint documents are read at BASE_SHA.\n   - Scout is dispatched with the PR title and body verbatim, the diff file list, base constraint documents, merge result and threads.\n   - No context-builder runs, because no ticket is bound.\n10. **Record the spec shape.**\n    - **Filename:** `<YYYY-MM-DD>-pr-55-repair-retry-backoff.md`. The actual date is substituted at write time.\n    - **`## Problem`:** opens with `PR acme/widget#55 - Repair retry backoff`. It states the intent \"Keep the existing retry implementation.\" It also lists each `constraints added since fork:` line and the `Framing:` line.\n    - **`## Acceptance criteria`:** `none - no ticket`. The raw title and body are stated intent, not rows.\n    - **`## Rework record`:** follows the acceptance-criteria section, with `Pre-rework head: 1111111111111111111111111111111111111111`.\n\n## Branch B - Issue (`\"#56\"`)\n\n1. **Start the phase and read the rules.** `phase_tracker start brainstorm` runs, then `reference/pr-subject.md` is read.\n2. **Match the subject.** `#56` is a leading reference.\n3. **Check for a PR first.** The PR lookup for 56 returns \"not a PR\".\n4. **Check for an issue.** Because the PR lookup returned \"not a PR\", the issue lookup for 56 runs and succeeds. The subject goes to the existing ticket path, unchanged.\n5. **Provision normally.** The worktree uses the normal ticket path through `using-git-worktrees`, not the PR-head path.\n6. **Gather context.** Step 3 reads `reference/ticket-acceptance.md`, then `gatherer.md`. Context-builder is dispatched for #56.\n7. **Extract the acceptance criteria.**\n   - The body has no acceptance-criteria heading.\n   - So every top-level checkbox row counts, which gives `- [ ] Retry delay stays bounded.`\n   - Its disposition defaults to `in-scope`.\n8. **Record the spec shape.** The filename follows the ticket shape `<YYYY-MM-DD>-56-repair-retry-backoff.md`. There is no rework record and no PR wording in `## Problem`.\n\n## Branch C - Neither (`\"#57\"`)\n\n1. **Start the phase and read the rules.** `phase_tracker start brainstorm` runs, then `reference/pr-subject.md` is read.\n2. **Check for a PR first.** The PR lookup for 57 returns not found.\n3. **Check for an issue.** The issue lookup for 57 also returns not found.\n4. **Stop before provisioning.** The message is: `#57 resolves to neither a pull request nor an issue in acme/widget.` No worktree is created and nothing is written.\n\n## Branch D - Mention (`\"make the retry logic work like #55 did\"`)\n\n1. **Start the phase and read the rules.** `phase_tracker start brainstorm` runs, then `reference/pr-subject.md` is read.\n2. **Leave the mention alone.** No leading reference matches, because `#55` appears mid-sentence. The subject stays on the existing free-text/context-builder path. No PR or issue lookup runs.\n3. **Provision normally.** The worktree uses the normal path, not the PR-head path.\n4. **Gather context.** Step 3 reads `reference/ticket-acceptance.md`, then `gatherer.md`, on the free-text path.\n5. **Record the spec shape.** `## Acceptance criteria` reads `none - no ticket`. There is no rework record.\n\n## Branch E - Foreign (`\"other/widget#55\"`)\n\n1. **Start the phase and read the rules.** `phase_tracker start brainstorm` runs, then `reference/pr-subject.md` is read.\n2. **Match the subject.** `other/widget#55` is a leading `owner/repo#N` reference.\n3. **Check for a PR first.** The PR lookup for 55 against `other/widget` returns OPEN.\n4. **Check the repository.**\n   - The URL's repository is `other/widget`.\n   - Origin's repository is `acme/widget`.\n   - They are unequal, so this is a foreign PR.\n5. **Stop before provisioning.** The message is: `PR other/widget#55 belongs to other/widget, not this checkout (acme/widget).` No worktree is created and nothing is written.\n\n## Branch F - Bound (`\"#58 keep retries\"`)\n\n1. **Start the phase and read the rules.** `phase_tracker start brainstorm` runs, then `reference/pr-subject.md` is read.\n2. **Match the subject.** `#58` is a leading reference. \"keep retries\" is carried as intent.\n3. **Check for a PR first.** The PR lookup for 58 returns OPEN. No issue lookup runs.\n4. **Check the repository.** The URL's repository is `acme/widget`, which equals origin's.\n5. **Bind the ticket.**\n   - The first tracker reference in the title \"Repair #12 retry\" is `#12`, so #12 is bound.\n   - The body's first line names `#13`, which is a different ticket. The title wins, and #13 is kept only as Problem context.\n   - The branch name `fix/issue-99` and `closingIssuesReferences` #99 are never used for binding.\n6. **Extract the acceptance criteria.** `reference/ticket-acceptance.md` is read at first use. Ticket #12 is fetched and its rows are extracted: `- [ ] Retry delay stays bounded.`\n7. **Hand off to provisioning.** `using-git-worktrees/reference/pr-head.md` is read for the PR-head path. The by-value object is passed, and the worktree is provisioned on branch `fix/issue-99`.\n8. **Gather context.** Step 3 reuses the in-context ticket-acceptance content, then reads `gatherer.md`.\n   - Scout is dispatched with base-SHA constraints and threads.\n   - Context-builder is dispatched for #12.\n9. **Record the spec shape.**\n   - **Filename:** `<YYYY-MM-DD>-12-repair-retry.md`, the bound-ticket shape.\n   - **`## Problem`:** opens with `PR acme/widget#58 - Repair #12 retry`. It states the intent, including \"keep retries.\" It names #13 as timeout context only, then lists the since-fork constraints and the `Framing:` line.\n   - **`## Acceptance criteria`:** \"Ticket #12, checkbox list\" with the row above, `in-scope`.\n   - **`## Rework record`:** follows the acceptance-criteria section.\n   - **Council input:** the PR title and body go verbatim beside the #12 rows in the council's `Human input`.\n",
+      "words": 1046,
+      "wallMs": 41089,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "Each branch is independent. The tracker resets are already recorded. The following narrates required actions and supplied outcomes—not live tool calls.\n\n### Open — `  #55  `\n\n1. Read `skills/brainstorming/reference/pr-subject.md`; the required reference is readable.\n2. Trim the prompt to `#55` and classify it as a leading GitHub reference in `acme/widget`.\n3. Resolve the PR first. The recorded result is OPEN and draft; draft status does not prevent rework. **Do not perform the issue lookup**, even though it would succeed.\n4. Compare the PR URL’s repository, `acme/widget`, with origin’s repository, `acme/widget`; they match.\n5. Check the title and first body line for a tracker reference. Neither contains one, so this is an **unbound PR**, not an issue.\n6. Read the using-git-worktrees skill and its `reference/pr-head.md`; both are readable. Choose the PR-head provisioning path for **`fix/retry`**, anchored to `1111111111111111111111111111111111111111`, with base `main`. No provisioning outcome is supplied.\n7. Read `skills/brainstorming/reference/ticket-acceptance.md` before gathering, then the gatherer instructions; both are readable. Continue along the PR-rework gathering path, without inventing gathered results.\n8. Use filename shape **`YYYY-MM-DD-pr-55-repair-retry-backoff.md`**. In `## Problem`, identify `PR acme/widget#55 - Repair retry backoff` and retain the stated intent, “Keep the existing retry implementation.” There is no bound-ticket AC source: `## Acceptance criteria` contains **`none - no ticket`**.\n\n### Issue — `#56`\n\n1. Read `skills/brainstorming/reference/pr-subject.md`; it is readable.\n2. Classify `#56` as a leading GitHub reference in `acme/widget`.\n3. Resolve the PR first. The recorded result is **not a PR**; only then take the issue lookup.\n4. The issue lookup succeeds with title “Repair retry backoff.” Choose the **unchanged ticket path**, not PR-head provisioning.\n5. Read the using-git-worktrees skill for ordinary worktree setup; it is readable. No branch or provisioning result is supplied.\n6. Read `skills/brainstorming/reference/ticket-acceptance.md` before gathering, then the gatherer instructions; both are readable.\n7. Carry the ticket body’s AC row verbatim into the ticket draft and eventual spec: **`- [ ] Retry delay stays bounded.`** Do not add a PR rework record.\n\n### Neither — `#57`\n\n1. Read `skills/brainstorming/reference/pr-subject.md`; it is readable.\n2. Classify `#57` as a leading GitHub reference in `acme/widget`.\n3. Resolve the PR first; the recorded result is not found.\n4. Resolve the issue next; the recorded result is also not found.\n5. **Stop before provisioning:** `#57 resolves to neither a pull request nor an issue in acme/widget.`\n\n### Mention — `make the retry logic work like #55 did`\n\n1. Read `skills/brainstorming/reference/pr-subject.md`; it is readable.\n2. Classify the prompt as free text: `#55` is a mid-sentence mention, not a leading reference.\n3. Choose the **existing free-text/context-builder path**. Do not run PR-subject classification lookups or select PR-head provisioning merely because the prompt mentions `#55`.\n4. Read the ordinary worktree and gathering resources, including `skills/brainstorming/reference/ticket-acceptance.md` before gathering; all are readable. No further lookup or provisioning outcomes are supplied.\n\n### Foreign — `other/widget#55`\n\n1. Read `skills/brainstorming/reference/pr-subject.md`; it is readable.\n2. Classify the prompt as a leading, explicitly qualified GitHub reference.\n3. Resolve the PR first. The recorded result is OPEN in `other/widget`; do not perform an issue lookup.\n4. Compare the PR URL’s repository, `other/widget`, with origin’s repository, `acme/widget`. They differ.\n5. **Stop before provisioning:** `PR other/widget#55 belongs to other/widget, not this checkout (acme/widget).`\n\n### Bound — `#58 keep retries`\n\n1. Read `skills/brainstorming/reference/pr-subject.md`; it is readable.\n2. Classify `#58` as the leading GitHub reference and retain **“keep retries”** as additional intent.\n3. Resolve the PR first. The recorded result is OPEN in `acme/widget`, matching this checkout. Do not perform an issue lookup for `#58`.\n4. Inspect tracker references in the required order. The title, “Repair #12 retry,” binds **ticket `#12`**. The first body line’s `#13` is separate context, not the bound ticket. Neither branch `fix/issue-99` nor `closingIssuesReferences #99` changes that binding.\n5. Read `skills/brainstorming/reference/ticket-acceptance.md`; it is readable. Use the supplied successful ticket `#12` result as the AC source. Do not substitute ticket `#13`’s timeout ACs.\n6. Read the using-git-worktrees skill and its `reference/pr-head.md`; both are readable. Choose the **PR-head path for PR `#58`**, using its recorded branch **`fix/issue-99`**. The observations do not supply its head SHA or base, so no concrete provisioning result is asserted.\n7. Read the gatherer instructions; they are readable. Choose PR-rework gathering with both the scout and the context-builder for bound ticket `#12`.\n8. Use filename shape **`YYYY-MM-DD-<ticket-12-id>-<topic>.md`**, rather than the unbound `pr-58` shape.\n9. In `## Problem`, identify `PR acme/widget#58 - Repair #12 retry`, retain “keep retries” as intent, and name **`#13` as timeout context** from the first body line. The AC source is **ticket `#12`**, carrying **`- [ ] Retry delay stays bounded.`** verbatim.\n",
+      "words": 725,
+      "wallMs": 29521,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "d9326360aab232afaf5a3b38d023420e120df50ebc689ea4371250a77627f972",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "ffd62417faca348c77eb6b4f1fe0fdf632c3d8651225ddb318dd75a07e112148",
+      "baselineOutputSha": "b51a52e32c2bc555863cf113e40496af4498a8dcab68c0bffadcd0fba50e67b3",
+      "candidateOutputSha": "b0cae6f888574217df36dc6a9eed33a54eecff6c25aeb981b95f6278cca3fbae",
+      "facts": {
+        "ordered": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "open": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "issue": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "neither": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "mention": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "foreign": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "binding": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        }
+      },
+      "feedback": "Nothing moved: both outputs satisfy all seven facts, so the Expected 'fails -> holds' entries do not match what the Before text actually shows - the Before replay already narrates sequential PR-then-issue classification, the fix/retry PR-head path with the draft accepted and a pr-55 title-derived filename, 'none - no ticket' ACs, the unchanged #56 ticket path with the verbatim AC row, the one-line #57 neither-stop and other/widget-vs-acme/widget foreign-stop before provisioning, the free-text/context-builder path for the mid-sentence #55 mention with no PR lookup, and #12 bound from title over #13 in the body with #99 ignored and the 12- filename shape. After preserves every one of these while delivering the Change's PR-first resolution and trusted base-SHA gathering more compactly (e.g. 'Skip the issue lookup', explicit BASE_SHA constraint reads, Pre-rework head in the Rework record). If anything, After drops the explicit `gh pr view` / `gh issue view` command narration and the per-branch tracker-reset narration that Before had; keeping the ordered 'gh pr view N' then 'gh issue view N' command names in each branch (as Before does) would make the 'ordered' fact more self-evident to a careful reader without changing any outcome, and the Before-style explicit 'gh issue view 55 is never called, even though it would succeed' sentence is the strongest wording for the Open branch - After's 'Skip the issue lookup' step carries the same meaning and should be retained verbatim.",
+      "wallMs": 16986,
+      "verdict": "unchanged"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "d9326360aab232afaf5a3b38d023420e120df50ebc689ea4371250a77627f972",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "ffd62417faca348c77eb6b4f1fe0fdf632c3d8651225ddb318dd75a07e112148",
+      "baselineOutputSha": "c2a958d757e9d71ad749c0471144a38d9cdd3566d93c3b0f3037211b8076f127",
+      "candidateOutputSha": "359f233acd5c60e563e3f5bd46b054d1a20fd6b27f4d08f758311224926ae75f",
+      "facts": {
+        "ordered": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "open": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "issue": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "neither": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "mention": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "foreign": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "binding": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        }
+      },
+      "feedback": "Both outputs already satisfy every fact: each branch resolves the PR before any issue lookup, a successful PR classification never also takes the issue path, Open uses the PR-head path on fix/retry with the pr-55-from-title filename and `none - no ticket` ACs, Issue reaches the ticket path only after not-a-PR with the verbatim AC row, Neither and Foreign stop before provisioning with the exact one-line errors naming #57/acme/widget and other/widget/acme/widget, Mention stays on the free-text/context-builder path, and Bound binds #12 from the title ahead of body-line #13 (kept as Problem context), ignores fix/issue-99 and closingIssuesReferences #99, and keeps the bound-ticket filename rule. After is slightly tighter than Before in places (it names the PR-head path for fix/retry explicitly with head SHA and base, and says Mention must not run PR-subject lookups at all), but it also loosens two spots without breaking a fact: the Bound filename is rendered as the placeholder `YYYY-MM-DD-<ticket-12-id>-<topic>.md` where Before rendered the concrete `YYYY-MM-DD-12-<topic>.md`, and step 6 claims the Bound PR's head SHA and base are not supplied even though the observations do give the branch (keep the concrete `12` in the filename and avoid asserting missing observations). No fact moved; to keep it that way while delivering the Change, keep the explicit 'Do not perform the issue lookup' line on every successful-PR branch, keep the exact stop sentences verbatim, and prefer concrete rendered filenames over template placeholders, matching the Change's own instruction to render actual values rather than placeholders.",
+      "wallMs": 21477,
+      "verdict": "unchanged"
+    }
+  },
+  "repoSha": "b380377fe7af54d910e7705a7ec21db6c4198fef"
+}

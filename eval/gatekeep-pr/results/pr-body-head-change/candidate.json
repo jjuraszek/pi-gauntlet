@@ -35,7 +35,7 @@
       "factsSha": "514dd6da75cd0feefeb3c49c5f38fb5146b5769953ab8a230cfbbe32c16ad7ab",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
       "intentSha": "d50172cd77fdac3fcd449b8924968468ff2377f9a56d9033b95dc3c5444fdac0",
-      "baselineOutputSha": "ddf1261eef52026b7f820844e9a47b44e02e34ef79a2aa1768698091c17c1543",
+      "baselineOutputSha": "dc8d03d970ab5b4d2efe2417c8d76b95e72d7a0f7e7a93cfad543b6f26e8cd34",
       "candidateOutputSha": "dc8d03d970ab5b4d2efe2417c8d76b95e72d7a0f7e7a93cfad543b6f26e8cd34",
       "facts": {
         "f2": {
@@ -44,15 +44,15 @@
           "label": "held"
         }
       },
-      "feedback": "f2 holds in both outputs: Before rejects the 1111 proposal at the pre-write check (\"Nothing is written\"), fast-forwards, re-verifies, then in step 5 re-proposes P1 \"with the replacement body built from the current body\" before the compare-and-swap and gh pr edit; After does the same, rejecting the stale proposal in section 2 step 4 and re-proposing from the current body at 2222 before any write, then re-checking freshness in step 16 before gh pr edit. The only drift in After is sequencing: it re-proposes P1 immediately in the pre-write section, before verify and review re-run, whereas Before re-proposes after the refreshed verify/review at the step-5 boundary; this does not break f2 but if you want After to match the menu-layout contract's rendering-boundary ordering, move the re-propose line into the step-5 integrate paragraph (as Before does) and keep the section-2 text limited to \"old proposal invalid, nothing written, rounds_used stays 0, re-enter step 3\". Nothing in the worktree/cleanup wording of the Change touched this case, so no further adjustment is needed.",
-      "wallMs": 10054,
+      "feedback": "The After output is textually identical to Before, so nothing moved: both narrations detect at step 4 that the head advanced from 1111... to 2222... since the proposal was minted, declare the stale proposal invalid, write nothing that round, and re-propose P1 from the current body at 2222... before the later external-write check and the `gh pr edit` at step 17. f2 therefore holds in both. Since this case exercises the description-repair compare-and-swap path rather than the worktree-contract or menu-layout changes, the After wording leaves it untouched; keep the compare-and-swap language as-is, and if the menu-layout contract is applied to the final rendered menu, keep the stale-head rejection and re-proposal ordering in `### Description repair` unchanged so this fact continues to hold.",
+      "wallMs": 5973,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "514dd6da75cd0feefeb3c49c5f38fb5146b5769953ab8a230cfbbe32c16ad7ab",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
       "intentSha": "d50172cd77fdac3fcd449b8924968468ff2377f9a56d9033b95dc3c5444fdac0",
-      "baselineOutputSha": "9ec036b5f16bdae598017a889911df000450b388afdaf41ca9505fc3af397002",
+      "baselineOutputSha": "4c55022f410f6735390c8d7af7861176aaf6b48da623a5732b2f5c7ebca51b28",
       "candidateOutputSha": "4c55022f410f6735390c8d7af7861176aaf6b48da623a5732b2f5c7ebca51b28",
       "facts": {
         "f2": {
@@ -61,10 +61,10 @@
           "label": "held"
         }
       },
-      "feedback": "Nothing moved on f2: both outputs explicitly refuse the description write assessed at head 1111... after the pre-write freshness check returns 2222..., re-enter Verify and Review on the new head, and only then regenerate the exact 'has a test' -> 'has no test' correction against the current actual body before running `gh pr edit`. After's section-1 heading 'Reject the stale description write' and its explicit 'I do not execute the description edit against the old proposal... the stale proposal is not applied' make the rejection even more legible than Before's bolded sentence, and section 3 clearly ties the regenerated payload to 'the current head and unchanged actual body' prior to the section-4 write. Keep that ordering (refuse stale write -> reassess -> re-propose from current body -> freshness check -> write) and the explicit 'not applied' statement in any further wording changes; the menu-layout and worktree-contract edits from the Change do not touch this path and need no adjustment for f2.",
-      "wallMs": 8692,
+      "feedback": "The After output is byte-identical to Before, so no fact moved on this case. Both outputs reject the stale 1111… proposal at the immediate pre-write fetch (section 1: 'I do not execute the description edit against the old proposal'), then regenerate the exact P1 payload against head 2222… and the re-fetched unchanged body (section 3) before the only forge write, `gh pr edit` in section 4; local state-file persistence is not a target write. The menu-layout and worktree-contract wording from the Change did not alter this flow here, and nothing in the After wording needs adjustment to keep f2 — just ensure the shared menu-layout contract keeps the rendered findings/options as a separate numbered list and leaves the stale-head rejection and current-body re-proposal ordering untouched.",
+      "wallMs": 8297,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "824b8741c00912f6f48c9f24d96d9283e89ce886"
+  "repoSha": "03f2a45e6cf09c8bfc0d9a675ffffba9151f6d00"
 }

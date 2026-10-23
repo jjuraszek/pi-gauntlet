@@ -35,7 +35,7 @@
       "factsSha": "001edf2fb665ff48dec52f119cf30479549cbc112ecbbcae552a95ce18142631",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
       "intentSha": "d50172cd77fdac3fcd449b8924968468ff2377f9a56d9033b95dc3c5444fdac0",
-      "baselineOutputSha": "5abea089fe83d6c8fcd68da7f89a029bcdd553c1bcf88ff363d0e3a6748c87bf",
+      "baselineOutputSha": "f52d486cad0b9b34a9627d8779ac35ce9422243d4dbba40df541157c3240d278",
       "candidateOutputSha": "f52d486cad0b9b34a9627d8779ac35ce9422243d4dbba40df541157c3240d278",
       "facts": {
         "f1": {
@@ -49,21 +49,21 @@
           "label": "held"
         }
       },
-      "feedback": "Neither fact moved: both outputs mint P4 with the explicit old-to-new proposal (\"The rejected path has a test.\" -> \"The rejected path has no test.\"), apply it under the retained broad fix grant in the same continuation (rounds_used 1 -> 2) through the description-repair path without returning to the human, then read back the written body with gh pr view and dispatch a fresh description-recheck helper that reports matched / P4 resolved before closing the wave. After does diverge from Before in two ways worth keeping an eye on: it dispatches an extra helper to judge the new claim before minting P4 (Before judged it inline from the Entry's supplied recheck), and it adds a compose line (\"revoke fix\", \"revoke merge base\") plus a head-pinned merge command to the final menu; neither changes f1 or f2, but if the Change intends the menu to follow the shared layout contract, the Before wording's plain three-option list with \"Type a number.\" and After's extended trailer should be reconciled so the rendered menu is identical across runs.",
-      "wallMs": 12057,
+      "feedback": "Before and After are textually identical for this case, so nothing moved: both mint P4 with the old_text/new_text pair printed under the blocker (step 5), apply the description payload under the retained `consent.fix.scope: all` in the same continuation without returning to the human (steps 6-9), read the write back (step 10), and dispatch a fresh description recheck that reports `matched`/`P4: resolved` before closing the wave and rendering the menu (step 11). The Change's worktree-contract and menu-layout wording did not touch this path, which is expected since the case has no cleanup step and no numbered findings in the final menu; keep the description-repair wording as is, and if the menu-layout contract is intended to apply here too, the only safe addition would be to note numeric reply mapping before action in the menu block without altering the P4 payload print or the readback/recheck sequence.",
+      "wallMs": 10126,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "001edf2fb665ff48dec52f119cf30479549cbc112ecbbcae552a95ce18142631",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
       "intentSha": "d50172cd77fdac3fcd449b8924968468ff2377f9a56d9033b95dc3c5444fdac0",
-      "baselineOutputSha": "21c62abc8f280a4eead568ef701871dd7b5efc130bd3b98ae4392c2e474a5399",
+      "baselineOutputSha": "67adbe727df8488f1844e3288bd8c595e21083fdcc13cbddc862c077e5ff2c2b",
       "candidateOutputSha": "67adbe727df8488f1844e3288bd8c595e21083fdcc13cbddc862c077e5ff2c2b",
       "facts": {
         "f1": {
-          "before": "fails",
+          "before": "holds",
           "after": "holds",
-          "label": "unplanned improvement"
+          "label": "held"
         },
         "f2": {
           "before": "holds",
@@ -71,10 +71,10 @@
           "label": "held"
         }
       },
-      "feedback": "After keeps every fact Before kept and adds the one Before missed: step 7 prints the exact P4 proposal as old -> new text (\"The rejected path has a test.\" -> \"The rejected path has no test.\") directly under the blocker before the write, whereas Before only showed the replacement body and never rendered the old-to-new pair, so a reader could not see what text was being changed. Both outputs apply the payload under the retained broad fix grant without a new human selection, read back the body with HEAD unchanged, and dispatch a second description-recheck worker before resolving P4, so f2 holds in both. No regression to address; if anything, keep the explicit `old -> new` block under the blocker ID as a required rendering so this does not depend on the writer's discretion, and consider having the menu's `show evidence` line mention the description repair as After does so the numbered options stay mapped to the rendered list.",
-      "wallMs": 15326,
-      "verdict": "improved"
+      "feedback": "Before and After are textually identical for this case, so nothing moved: both apply the retained P4 proposal under the held broad fix grant without a fresh human selection and print the exact old-to-new text (\"The rejected path has a test.\" -> \"The rejected path has no test.\") in step 7 alongside the blocker (f1), and both read the edited body back via `gh pr view` and dispatch a second description-recheck worker that returns `P4: resolved` before settling the wave and rendering the menu (f2). The worktree-contract and menu-layout changes did not touch this path, which is the right outcome. One thing to watch in both versions that is unrelated to the Change: step 8 increments `repair.rounds_used` from 1 to 2 for the body-only correction, which a reader could take as a new repair round rather than the same round; if the intent is that description-only corrections under a held grant do not consume a round, the wording should say so explicitly (e.g., 'I keep `repair.rounds_used` at 1; a body-only correction under the held grant does not open a new round'). Otherwise keep the step 7 proposal block, step 11 read-back, and step 12 recheck exactly as written.",
+      "wallMs": 19725,
+      "verdict": "unchanged"
     }
   },
-  "repoSha": "824b8741c00912f6f48c9f24d96d9283e89ce886"
+  "repoSha": "03f2a45e6cf09c8bfc0d9a675ffffba9151f6d00"
 }

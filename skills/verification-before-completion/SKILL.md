@@ -46,7 +46,7 @@ BEFORE claiming any status or expressing satisfaction:
 Skip any step = lying, not verifying
 ```
 
-Evidence is proportionate to the claim: a task or wave claim is proven by the commands the plan declares for it — a scoped run is **complete** evidence for a scoped claim. Phase-completion and ship claims require the project's full verification entrypoint (tests + style + format), run once at verify before the conformance gate.
+Evidence is proportionate to the claim: a task or wave claim is proven by the commands the plan declares for it - a scoped run is **complete** evidence for a scoped claim. For phase-completion and ship claims, use the project's full verification entrypoint (tests + style + format), run once at verify before the conformance gate. For an approved spec carrying `## Rework record`, instead prove the scoped claim with the union of every plan task's `Tests:` commands plus the header's documented lint and format commands; treat `none - PR subject, scoped` as no header command, not an executable command. Keep freshness, conformance and phase gates intact; an open PR without that spec record does not select this policy.
 
 ## Common Failures
 
@@ -159,6 +159,8 @@ The `verify-before-ship` extension shipped by pi-gauntlet watches `git push` and
 Defaults recognise `make ci`, `make test`, `npm test`, `pnpm test`, `yarn test`, `pytest`, `rspec`, `cargo test`, `go test`. Projects can override (or narrow) the list via `settings.json#piGauntlet.verifyBeforeShip.testCommands`.
 
 Before running the verification gate, call `phase_tracker({ action: "start", phase: "verify" })`.
+
+Run the plan header's full verification command set at verify. For an approved spec carrying `## Rework record`, instead run the union of every task's `Tests:` commands plus the header's documented lint and format commands, omitting task `none:` entries and the non-executable header sentinel `none - PR subject, scoped`. Read all task blocks, including the merge task; the lint/format-only header alone is not the verification set. Do not run the full test entrypoint on this PR-subject path or copy task commands into the header. Keep ordinary ticket/free-text verification unchanged and pass through the same freshness, conformance and phase gates; change no settings, runner or implement-phase gate.
 
 When all verification passes, finish and await the required `plan_tracker` updates before marking verify complete. Reconcile accepted work on its existing indices; never clear or reinitialize to obtain closure. In a direct verification path, complete only after those updates have actually returned.
 

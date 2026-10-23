@@ -35,7 +35,7 @@
       "factsSha": "e7ee0f703e766ca6ca43e769d4244f3f529d479fe5cbfb4cbc059c991dba8eab",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
       "intentSha": "d50172cd77fdac3fcd449b8924968468ff2377f9a56d9033b95dc3c5444fdac0",
-      "baselineOutputSha": "3b637bed90850ac15d918cd8e0c0288b7d37c4bf951fca6ff32bf545f90887e7",
+      "baselineOutputSha": "031b58c6ecd13235300bb343524d11210a73848ae624cc6b7d7490da08c3f285",
       "candidateOutputSha": "031b58c6ecd13235300bb343524d11210a73848ae624cc6b7d7490da08c3f285",
       "facts": {
         "f5": {
@@ -44,15 +44,15 @@
           "label": "held"
         }
       },
-      "feedback": "Both outputs keep f5: each aborts the selected merge on the compare-and-swap read that shows the same-head body edit (Before step 2, After step 3), runs no `gh pr merge`, dispatches a narrow `description recheck` worker scoped to P1 with the existing evidence block preserved (Before step 3, After step 4), and only then renders a fresh menu requiring a new human pick. Nothing in the Change (worktree contract, menu-layout contract, numeric reply mapping) touched this path, and After's menu rendering is consistent with the new layout contract. One divergence worth flagging even though no fact here measures it: Before uses the retained `fix` grant to re-propose and immediately apply the refreshed correction, read it back, recheck, and reach a ready menu, whereas After reads `### Description repair` as 'write nothing this round' and stops at a fixable menu with `rounds_used` unchanged. If other cases carry facts about retained-grant repair resuming after lost readiness, that reading could move them; wording that distinguishes 'invalidate the stale proposal and re-propose' from 'defer the write to the next round' (e.g. 'invalidate, re-propose from the current body, and apply under the held grant in the same round') would keep Before's behavior while preserving the abort-and-recheck sequence f5 requires.",
-      "wallMs": 10715,
+      "feedback": "The After output is textually identical to Before for this case: step 3 aborts the selected merge without running `gh pr merge` on the same-head body change, step 4 dispatches a narrow description recheck limited to the affected claim P1 (no tests, no evidence re-resolution), and step 9 renders a fresh menu for a new human selection, so f5 holds in both. The worktree-contract and menu-layout changes did not touch this path, and since no live human reply is supplied the numeric reply mapping clause is not exercised here; if you want this case to also demonstrate the new menu-layout contract, the one place to add wording is step 9 (e.g., noting that the four options are rendered as a separate list from the numbered findings and that a legacy numeric reply is mapped to the option name before any action), which would not disturb the abort-then-recheck sequence f5 depends on.",
+      "wallMs": 6878,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "e7ee0f703e766ca6ca43e769d4244f3f529d479fe5cbfb4cbc059c991dba8eab",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
       "intentSha": "d50172cd77fdac3fcd449b8924968468ff2377f9a56d9033b95dc3c5444fdac0",
-      "baselineOutputSha": "295ccda7cf5b793a3fb03443e67dfb092db5036546d38caaaa17f9dd97be30e1",
+      "baselineOutputSha": "ed865679e5973a5fe7e6ce4ecf85dc8483cbc3a7c38f626f1df8fa83debb3377",
       "candidateOutputSha": "ed865679e5973a5fe7e6ce4ecf85dc8483cbc3a7c38f626f1df8fa83debb3377",
       "facts": {
         "f5": {
@@ -61,10 +61,10 @@
           "label": "held"
         }
       },
-      "feedback": "Both outputs keep f5: each detects the same-head body restoration in the external-write freshness fetch, explicitly aborts the selected merge without running `gh pr merge`, dispatches a fresh synchronous worker with the Section B description-recheck duty scoped to the affected claim (P1) only, then repairs under the retained fix grant, rechecks again after readback, and renders a new menu that requires a fresh selection. The After wording moved nothing here; its added menu-layout application, numeric-reply framing (\"Type a number, or compose\"), and worktree-contract details do not touch the abort-then-narrow-recheck sequence. If you continue iterating on After, keep the explicit statements \"I abort the selected merge\" and the affected-only recheck constraints (\"Emit only the affected claim disposition and P1 closure line\"), since those are the sentences that make f5 unambiguous for a careful reader.",
-      "wallMs": 7861,
+      "feedback": "Before and After are textually identical for this case, so nothing moved. Both outputs abort the selected merge in step 2 upon detecting the same-head body restoration (running neither `gh pr merge` nor a merge-policy query), dispatch a narrow, read-only description recheck scoped to the affected claim P1 in step 4 (no tests, no evidence resolution, unrelated dispositions preserved), reopen and re-resolve P1 after the retained-authority description repair, and end on a fresh menu that explicitly states the old merge selection remains canceled and merging requires a new pick. The Change (worktree home ownership contract and shared menu-layout rules) did not touch the merge-abort or recheck wording here; the After output already honours the menu-layout contract by rendering a single numbered list with a compose prompt, so no wording adjustment is needed to keep f5 while delivering the Change.",
+      "wallMs": 10623,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "824b8741c00912f6f48c9f24d96d9283e89ce886"
+  "repoSha": "03f2a45e6cf09c8bfc0d9a675ffffba9151f6d00"
 }

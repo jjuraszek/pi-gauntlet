@@ -70,7 +70,8 @@ Scout (always dispatched):
 > independently of context-builder, in pages of 50 until a short page. Match sections
 > anywhere in each comment regardless of author; accept either ordering with
 > `Overlap evidence:` and exclude that evidence part. Include every matched section's
-> terms in the query. Run
+> terms in the query, keeping literal file paths intact rather than shortening them
+> to stems. Run
 > `node <SPEC_INDEX> --query '<keywords>' --limit 10` from the worktree root,
 > keeping the keywords inside single quotes, and treat its rows as the candidate
 > list; zero rows means the index found no evidence, not that no predecessor exists -
@@ -124,6 +125,29 @@ Scout (always dispatched):
 > "Open questions that matter for the spec"
 > section. Compact handoff, not a dump.
 
+For a PR subject, supply this additional scout block as values from
+`reference/pr-subject.md` (keep scout unconditional):
+
+> PR title and body verbatim: `<title>`, `<body>`.
+> PR-carried specs: `<paths and stated contracts>`.
+> Changed paths: `<git diff --name-only <BASE_SHA>...<PRE_REWORK_HEAD> output>`.
+> Read the diff itself from the worktree. Unresolved threads: `<full comment threads
+> in order, with ids and locations from using-git-worktrees/reference/pr-head.md,
+> or threads: not fetched (<reason>)>`.
+> Merge result: `<merge line, contract exceptions, scoped test results>`.
+> Authoritative base-HEAD constraints: `<git show <BASE_SHA>:<path> texts for
+> AGENTS.md, first-found overrides, REVIEW.md, and all cited constraint documents;
+> explicit missing-document results>`. These govern on every merge outcome,
+> including clean; worktree policy edits are proposals under `changes:` or
+> `dropped claims:`, never constraints.
+> The PR is the starting state, not the target. Judge every PR-stated claim against
+> the diff and supplied base rules. Name the smallest repair satisfying them;
+> propose a rewrite only where no repair can. Render `## PR under rework` with
+> `keeps:`, `changes:`, `dropped claims:`, `constraints added since fork:` (one line
+> per base rule absent at the fork point), and one proposed disposition per
+> unresolved thread: `fix | keep open | decline: <reason>`. Carry merge contract
+> exceptions into `changes:`.
+
 Context-builder (conditional):
 
 > Extract external context for an upcoming design discussion. The request:
@@ -156,7 +180,10 @@ Context-builder (conditional):
 
 ## Context-builder trigger rule
 
-Dispatch context-builder when the initial prompt (or a file it explicitly references)
+For a resolved PR subject, dispatch context-builder only for the bound ticket
+using `reference/pr-subject.md`; an unbound PR supplies intent, not ticket ACs.
+Title wins a title/body-first-line ticket conflict; carry the other reference into
+`## Problem` as context. For other subjects, dispatch context-builder when the initial prompt (or a file it explicitly references)
 contains any of:
 
 - an `http(s)://` URL;
@@ -195,6 +222,10 @@ convention; slug minted from the initial prompt):
 
 ## Codebase recon
 <scout output, or the degraded text>
+
+## PR under rework
+<PR subject only: scout rework section and supplied PR/base/merge values per
+reference/pr-subject.md; retain these values even when scout failed>
 
 ## External context
 <context-builder output, degraded text, or unfetched-ref list; omit this section

@@ -1,0 +1,7 @@
+- merge-first: judged: Makes merging origin/main and resolving src/retry.mjs Task 1 before thread repairs, preserving the original commits.
+- thread-tasks: judged: Creates exactly one fix task per THREAD_timeout and THREAD_delay, each title carrying its own id, each with a scoped Tests command and via seam matching the request (retryRequest() and retryDelay() respectively).
+- nonfix: judged: Creates no repair tasks for THREAD_metrics or THREAD_rewrite; preserves keep-open and declined dispositions.
+- header-style-only: judged: Uses only npm run lint and npm run format:check in the PR Verification header, never npm test and never either task test command; preserves baseline/checker contracts instead of disguising duplicated commands with alternate spellings.
+- verify-union: judged: Both the completion-evidence policy and verify-phase run use the union of all tasks' Tests commands (including the merge task) plus documented header lint and format commands; this is scoped evidence, not a full-suite claim.
+- sentinel: judged: The no-style subcase gives the literal Verification value none - PR subject, scoped, treats it as no header command, and still runs the task Tests union.
+- ordinary-gates: judged: Detects the PR policy from the approved spec's Rework record only; ordinary ticket/free-text work keeps full verification even with an open PR, and freshness, conformance and phase gates still apply.

@@ -35,7 +35,7 @@
       "factsSha": "3b128145697a52eb72e500232f5c448b67fc467e45167273529678535cbe3081",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
       "intentSha": "d50172cd77fdac3fcd449b8924968468ff2377f9a56d9033b95dc3c5444fdac0",
-      "baselineOutputSha": "cb5758937861be0a47def8d9c20f5814e08349c6458b020994d959f7b35c7247",
+      "baselineOutputSha": "c76e42450cb7feec543598ca49add1b0fc72c4ec8bd4eba6021e9e7d22a2f14c",
       "candidateOutputSha": "c76e42450cb7feec543598ca49add1b0fc72c4ec8bd4eba6021e9e7d22a2f14c",
       "facts": {
         "f1": {
@@ -44,15 +44,15 @@
           "label": "held"
         }
       },
-      "feedback": "Both outputs keep f1: each detects the concurrent body edit on the pre-write fetch, explicitly declines to run `gh pr edit` or write anything this round, keeps `repair.rounds_used` at 0, and re-proposes P1 with a replacement_body built from the current four-line body that preserves the reviewer note. After adds persistence of changed state fields and comment reconciliation, neither of which overwrites the live PR body, so no fact moved. The After wording is safe for this fact; to keep it that way while applying the shared menu-layout contract, keep the stale-proposal step phrased as 'write nothing this round' before any menu rendering, and avoid adding wording like 'review before push' to the fix option that could be read as a write having occurred in this round.",
-      "wallMs": 5446,
+      "feedback": "After is byte-identical to Before on this case, so nothing moved: both outputs detect the concurrent body edit at the pre-write fetch, explicitly skip `gh pr edit` and write nothing this round, run the narrow P1 recheck, and re-propose from the current four-line body with the reviewer note preserved, so f1 holds in both. The wording change did not alter this path, which is expected since the case never reaches worktree cleanup or a numeric reply; the only relevant touchpoint is the menu-layout contract, and the rendered menu already keeps the generated options as a separate list restarting at 1 after the numbered blocker. To keep this case stable while delivering the Change, leave the description-repair and compare-and-swap text untouched and confine the new wording to the worktree-contract and menu-rendering sections, making sure the layout contract does not introduce any instruction to renumber or merge the blocker list with the option list on re-render.",
+      "wallMs": 8574,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "3b128145697a52eb72e500232f5c448b67fc467e45167273529678535cbe3081",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
       "intentSha": "d50172cd77fdac3fcd449b8924968468ff2377f9a56d9033b95dc3c5444fdac0",
-      "baselineOutputSha": "c186ea60d8afea974f8bf077cf062e17924a6c431543c325654698109f063f58",
+      "baselineOutputSha": "6f92bb3fbf8a3f94d483a31beef215b5fd8f926685342a23eb60745edfa6cee2",
       "candidateOutputSha": "6f92bb3fbf8a3f94d483a31beef215b5fd8f926685342a23eb60745edfa6cee2",
       "facts": {
         "f1": {
@@ -61,10 +61,10 @@
           "label": "held"
         }
       },
-      "feedback": "Neither output moved f1: both detect the concurrent `Reviewer note` paragraph at the pre-write freshness check, explicitly decline `gh pr edit`, dispatch only a read-only description recheck, and re-propose a replacement body built from the actual current body with the reviewer paragraph preserved, while running no commit, push, or forge write. After's wording is slightly looser in two spots that an author should tighten rather than let drift: step 5's \"The refreshed head and body match the revised proposal\" reads as if the body already contains the correction (it does not; only the proposal was refreshed), so prefer \"the refreshed body still carries the stale claim and matches the body the revised proposal was built from\"; and the rule \"no replacement CI-emitting claim-check-only duty\" is garbled and should be dropped or restated as \"no claim-check-only replacement helper\". Both outputs correctly omit the sync line and keep `repair.rounds_used` at 0, so the Change's worktree/menu-layout edits did not disturb this case.",
-      "wallMs": 10108,
+      "feedback": "After is textually identical to Before for this case, so nothing moved: both detect the concurrent `Reviewer note: retain this paragraph.` edit in the immediate pre-write fetch, invalidate the stale selected replacement, run no `gh pr edit`, dispatch a read-only description recheck, and re-propose a replacement body built from the current body that keeps the added paragraph verbatim, with rounds_used left at 0 and the next menu rendered without any forge write. The worktree-contract and menu-layout wording changes do not touch this path, which is fine; keep the explicit 'I invalidate that proposal and run no gh pr edit' sentence and the 'replacement preserves the added paragraph exactly' block as-is, since those are what carry f1, and if you later apply the shared menu-layout contract here make sure the generated options stay a separate numbered list after the blocker list rather than being folded into it.",
+      "wallMs": 6348,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "824b8741c00912f6f48c9f24d96d9283e89ce886"
+  "repoSha": "03f2a45e6cf09c8bfc0d9a675ffffba9151f6d00"
 }
