@@ -1,7 +1,7 @@
 # brainstorming accepts an open PR as its subject
 
 **Goal:** `/skill:brainstorming <ref>` that resolves to an open pull request starts the gauntlet on the PR's own branch at its head SHA, merges the current base in before gather, gathers the PR's intent, diff, unresolved review threads, and bound ticket, records in the spec what the rework keeps and changes, appends every later commit to the PR branch, and finishes by pushing to that branch without force and appending a rework block to the PR description - while the ticket and free-text entry paths keep their exact current behavior.
-**Amend-grant:** every later spec amendment in this flow (corrected facts, paths, verification lines, and scope, acceptance-criteria, or public-contract edits alike) applies without asking; only a redraw (changed problem statement, component added, removed, or re-bounded) still stops for you, and the grant never stands in for a spec approval.
+**Amend-grant:** every later spec amendment in this flow (corrected facts, paths, verification lines, and scope, acceptance-criteria, or public-contract edits alike) applies without asking; only a redraw (changed problem statement, component added, removed, or re-bounded) still stops for you, and the grant never stands in for a spec approval; fund 3 fix rounds
 **Ticket:** #78
 **Predecessor:** none
 
