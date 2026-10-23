@@ -1,4 +1,4 @@
-for: c14050eab99d383e742f8c731a93a5efb0f71acb457f669c4c526cded2a94f45
+for: b8cbafa87958c9456f62cf2facbccfe7bc9b63ecaf5fc1c4b8bb77058c5580bd
 
 ## Change
 Integrate bounded batch repair and the repository audit into gather for batch-repair, audit-repo-fit, scenario-best-effort, audit-quiet-noop, audit-byte-lock, audit-dispatch and audit-grounding. Prepare all tickets before ref-ordered single-ticket gates, keep hard stops local while splits stay atomic, and apply audit grounding and AC uniqueness with verbatim displaced detail. Preserve raw AC bytes for quiet conformance repairs, singleton integrity stops (including repair-overflow/invalid), the 1,600-word cap, target slices and legacy audit exclusions. Extract examples and the capability ladder without changing their rules except the documented open-PR read verb. Retain baseline A=5b97a46a7b0ef331e72077362e92eff4a59e1b77 and evidence-backed moves below; never promote a post-behavior candidate into A.

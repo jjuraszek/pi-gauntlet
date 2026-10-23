@@ -42,7 +42,7 @@ Consume explicit invocation option `--skip-overlap` before routing and exclude i
 
 - **Argument is one or more issue refs** (`#N`, `owner/repo#N`, `ABC-123`, a ticket URL), separated by commas or whitespace -> **repair mode**. Deduplicate in first occurrence order. First action: read each full ticket (body, comments, attachments list) serially.
 - **Free text or no argument** -> **create mode**, from the argument plus surrounding conversation.
-- **Refs + extra text** -> repair mode. Fold ref-named statements into only that ref's gather. Carry requester-supplied unscoped text as common context to each scout and gather summary; include it in the Context of the ticket whose snapshot supports it even when Context is already sufficient, and surface it only as applicability at the other tickets' gates.
+- **Refs + extra text** -> repair mode. Fold ref-named statements into only that ref's gather. Carry requester-supplied unscoped text as common context to each scout and gather summary; carry it into the Context of each ticket whose snapshot or audit supports it, and surface applicability only at the other tickets' gates.
 - **Unreadable refs** -> report each ref and reason as unfetched and continue fetched tickets. When every ref is unfetched, abort repair and offer create mode from accompanying text. Never guess ticket content.
 - **Out of scope**: read-only asks (search, status lookup) and administrative writes (status transitions, standalone comment posts) - use the tracker CLI directly; gated Reporter-note and overlap-evidence comments inside this pipeline are the comment exceptions.
 
