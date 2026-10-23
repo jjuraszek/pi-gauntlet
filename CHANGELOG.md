@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Added
+
+- **`gatekeep-pr` accepts a set of PRs in pi**, for example `/skill:gatekeep-pr 12 15 18 --rebase main`. One fresh `pr-gatekeeper` orchestrator and worktree per PR keep nested Verify/Review dispatch and consent isolated; the parent shows a summary and ordered per-PR menus, then runs queued picks in parallel. Sets are bounded by pi-cohort's `parallel.maxTasks` (default `8`), with one eligible-other-author rebase confirmation per set. Single-PR behavior is unchanged; multi-PR mode is pi-only. (#79)
+
 ## v7.29.0 - 2026-10-23
 
 ### Added
