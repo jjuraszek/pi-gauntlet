@@ -1,3 +1,4 @@
+bundle-: skills/shape-ticket/reference/repo-audit.md
 bundle+: skills/shape-ticket/reference/overlap-check.md
 
 Workflow stage: step 4 Draft followed by the AC integrity gate.

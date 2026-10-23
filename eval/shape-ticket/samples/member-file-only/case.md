@@ -1,3 +1,4 @@
+bundle-: skills/shape-ticket/reference/repo-audit.md
 bundle+: skills/shape-ticket/SKILL.md
 
 Workflow stage: Roast item 2, not Draft.

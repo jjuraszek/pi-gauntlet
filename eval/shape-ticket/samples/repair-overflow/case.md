@@ -1,3 +1,4 @@
+bundle-: skills/shape-ticket/reference/repo-audit.md
 bundle+: skills/shape-ticket/reference/ticket-wording.md
 
 Select repair through the confirmation gate, NOT replay's default Draft-only response. Show the complete old -> new body diff and proposed comment; do not write. Keep the entire reply under 1400 words by showing only the unified body diff (not a second copy of the replacement body) and concise gate/branch reports; never shorten the verbatim payload or AC rows. Metadata clean. Existing immutable comment: "Reporter note: Preserve the recorded retry reproduction." Never edit that comment.

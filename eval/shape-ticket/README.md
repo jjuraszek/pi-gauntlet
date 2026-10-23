@@ -10,9 +10,21 @@ Tests the draft, AC integrity gate, and Evidence gate render: Problem examples c
 
 The two original synthetic text samples cover create-mode repo attribution and repair-mode venue removal. Their slice omits Gather and `reference/overlap-check.md`. The third sample, `closed-concern-additions`, alone loads `skills/shape-ticket/reference/overlap-check.md` through a leading `bundle+:` line in its case. It supplies a reviewed completed ticket and compatible parity, empty-input, and documentation additions without a distinguishing new run/version. It permits useful existing-ticket additions or no write, preserves uncertainty about a new regression, and retains create-anyway as an override. This no-tool target proves supplied-evidence proposal wording and drafting/AC regressions, not live retrieval or tracker writes.
 
-Run `node eval/run.mjs shape-ticket --base 9287ab3` against the pre-fix reference text baseline; the matching `--baseline-only` form captures that baseline before the owner-sentence edit. A correct baseline is a guard, not a required failure. The candidate intent binds the bundle-free Draft and Evidence gate assembly, while each bundled sample's record hashes include its reference bundle. Process, commands, and record schema: `eval/README.md`.
+Use audit baseline A (`5b97a46a7b0ef331e72077362e92eff4a59e1b77`) for batch/audit comparisons. A adds the audit reference without changing SKILL behavior. Seed with `node eval/run.mjs shape-ticket --base "$AUDIT_BASE" --baseline-only`, where `AUDIT_BASE=$(git log --diff-filter=A -1 --format=%H -- skills/shape-ticket/reference/repo-audit.md)`. Retain the original three slices plus the audit reference in target.json. All 13 legacy cases exclude the audit reference and retain their existing additional bundles. New cases include the audit reference; routing/dispatch cases also bundle the complete skill. Sample-specific assembly hashes control replay cache reuse. Process, commands, and record schema: `eval/README.md`.
 
-Keep the strict historical diagnostics below separate from the first-version delivery review. Historical corpus, labels, scores, and nonzero outcomes remain unchanged. The first-version bar uses source review of four saved overlap responses, clear duplication fixes, this focused regression, and package checks; compatible useful additions do not need perfect no-write wording. The text-target `report.md` records this focused evidence separately from `replay/report.md`, the historical report.
+| Sample | Coverage |
+|---|---|
+| batch-repair | Distinct-ref order, local hard stops, scoped context, uniqueness, one-at-a-time gates and terminal statuses |
+| audit-repo-fit | Cited attributed sketches, AC-only mechanisms and verbatim displaced detail |
+| scenario-best-effort | New features, observed defects, source-independent footer and missing access |
+| audit-quiet-noop | Active PR, empty file and quiet audits without mutation |
+| audit-byte-lock | Exact mixed AC bytes versus substantive scenario normalization and new notes |
+| audit-dispatch | Nine refs in 8+1 foreground calls, exact controls and per-ticket disk authority |
+| audit-grounding | Claims, reporter ambiguity, uncited alternatives, sibling grounding and degradation |
+
+Treat inline snapshots and audit files as tool-free evidence. Replies stay under 1200 words against the unchanged global 1600-word cap. Dispatch cases prove prescribed transport, not live subagent execution, file delivery or tracker writes. Review saved word counts and fact evidence before declaring intended moves; baseline-only does not judge facts or replace report.md.
+
+Keep the strict historical diagnostics below separate from the first-version delivery review. Historical corpus, labels, scores, and nonzero outcomes remain unchanged. The first-version bar uses source review of four saved overlap responses, clear duplication fixes, this focused regression, and package checks; compatible useful additions do not need perfect no-write wording. The generated text-target `report.md` records the baseline/candidate comparison; `replay/report.md` remains the separate historical report.
 
 The `member-file-only` sample alone bundles the complete `skills/shape-ticket/SKILL.md` and selects Roast item 2 over the replay's default Draft stage. It checks paired file-only member outputs on initial/retry tasks, cheap `:low` effort, structural quorum, unchanged inline chair and parent-owned split-axis handling. Existing sample bundles and historical replay evidence remain separate. This sample proves prescribed dispatches, not actual file transport or tracker writes.
 
