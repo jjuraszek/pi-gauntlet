@@ -16,10 +16,23 @@ The amendment human batch uses numbered problem-first items with lettered option
 The ticket-read-once, restored-step-8-reads-ticket, same-session-redraw-reuses-ticket, and overrides-read-once samples narrate ordered read and stage actions from fixed session-context observations. Ticket handling reads once at first use, restored step 8 reads before lint, same-session redraw reuses content while applying ticket rules, and unreadable references block without reconstruction. Overrides content is reused across stages while conventions still apply; unsure context requires a read. The assembly adds the brainstorming Ticket Handling and Project overrides slices while retaining existing slices and the ticket reference. Only overrides-read-once adds the real writing-plans skill via bundle+, using its overrides block only. The replay exception is limited to the Narrated read actions heading; existing continuation and questionary outputs keep their contracts. No new regression is accepted without model evidence.
 
 ## Expected to move
-- pr-subject-resolution/{ordered,open,issue,neither,mention,foreign,binding}: new -> holds - Classify once before provisioning, stop on foreign or absent subjects, and bind title before body.
-- pr-subject-rule-added-later/{constraint,repair,grammar,no-ticket}: new -> holds - Apply base-added rules through a repair while preserving original commits and the fixed record.
-- pr-subject-weakened-rule/{authority,proposal,preservation}: new -> holds - Treat PR policy weakening as a proposal, never authority, even after a clean merge.
-- pr-subject-repair-over-rewrite/{minimal,contract,record}: new -> holds - Keep the two-line repair, verbatim bound-ticket AC, and complete thread dispositions.
+- pr-subject-resolution/ordered: fails -> holds - Classify once before provisioning, stop on foreign or absent subjects, and bind title before body.
+- pr-subject-resolution/open: fails -> holds - Classify once before provisioning, stop on foreign or absent subjects, and bind title before body.
+- pr-subject-resolution/issue: fails -> holds - Classify once before provisioning, stop on foreign or absent subjects, and bind title before body.
+- pr-subject-resolution/neither: fails -> holds - Classify once before provisioning, stop on foreign or absent subjects, and bind title before body.
+- pr-subject-resolution/mention: fails -> holds - Classify once before provisioning, stop on foreign or absent subjects, and bind title before body.
+- pr-subject-resolution/foreign: fails -> holds - Classify once before provisioning, stop on foreign or absent subjects, and bind title before body.
+- pr-subject-resolution/binding: fails -> holds - Classify once before provisioning, stop on foreign or absent subjects, and bind title before body.
+- pr-subject-rule-added-later/constraint: fails -> holds - Apply base-added rules through a repair while preserving original commits and the fixed record.
+- pr-subject-rule-added-later/repair: fails -> holds - Apply base-added rules through a repair while preserving original commits and the fixed record.
+- pr-subject-rule-added-later/grammar: fails -> holds - Apply base-added rules through a repair while preserving original commits and the fixed record.
+- pr-subject-rule-added-later/no-ticket: fails -> holds - Apply base-added rules through a repair while preserving original commits and the fixed record.
+- pr-subject-weakened-rule/authority: fails -> holds - Treat PR policy weakening as a proposal, never authority, even after a clean merge.
+- pr-subject-weakened-rule/proposal: fails -> holds - Treat PR policy weakening as a proposal, never authority, even after a clean merge.
+- pr-subject-weakened-rule/preservation: fails -> holds - Treat PR policy weakening as a proposal, never authority, even after a clean merge.
+- pr-subject-repair-over-rewrite/minimal: fails -> holds - Keep the two-line repair, verbatim bound-ticket AC, and complete thread dispositions.
+- pr-subject-repair-over-rewrite/contract: fails -> holds - Keep the two-line repair, verbatim bound-ticket AC, and complete thread dispositions.
+- pr-subject-repair-over-rewrite/record: fails -> holds - Keep the two-line repair, verbatim bound-ticket AC, and complete thread dispositions.
 - grant-budget-reply/funded-value: fails -> holds - Persist the exact option-2 description plus the funding suffix without a change-request round.
 - grant-budget-reply/token-needs-approval: fails -> holds - A budget token alone cannot approve or write a grant.
 - questionary-option-lines/layout: fails -> holds - Require one labeled option per physical line with a preceding lead-in and final own-line recommendation.
