@@ -36,7 +36,7 @@ Then call `phase_tracker({ action: "start", phase: "ship" })`.
 
 Read the selected run spec before verification. Detect a PR subject only by its `## Rework record`, never by an open PR on `$FEATURE`. Read `PR:` and the full `Pre-rework head:` into `PRE_REWORK_HEAD` from that record; missing pre-head -> stop naming the spec path. Confirm with `gh pr view <N> --json number,url,headRefName,baseRefName,state` (use the record's repository): non-`OPEN` -> stop: `PR #N is <state>; the rework cannot be pushed to it.`; headRefName != `$FEATURE` -> stop naming both branches. Retain baseRefName for Step 3.
 
-For a PR subject, use the union of every plan task's `Tests:` commands plus the executable lint/format commands in the header's `**Verification:**` line; treat `none - PR subject, scoped` as no header commands, not an empty task union. Capture this set and accepted-complete task evidence before stripping the plan. Apply the hard gate and skip rule below to this set. For every other subject, run the plan header's `**Verification:**` set in the worktree: `(cd "$WORKTREE" && <command>)`. With no plan in this session, run the verification command(s) of the affected services from the gauntlet overrides file or `AGENTS.md` (look for "verification", "CI", or "test" sections).
+Recognize a ledger by line 1 exactly `# Ledger - loop engine`. For a ledger, use its `verification:` command throughout finish, including the minors round. For a PR subject with a task plan, use the union of every plan task's `Tests:` commands plus the executable lint/format commands in the header's `**Verification:**` line; treat `none - PR subject, scoped` as no header commands, not an empty task union. Capture this set and accepted-complete task evidence before stripping the plan. Apply the hard gate and skip rule below to this set. For every other subject with a task plan, run the plan header's `**Verification:**` set in the worktree: `(cd "$WORKTREE" && <command>)`. With no plan in this session, run the verification command(s) of the affected services from the gauntlet overrides file or `AGENTS.md` (look for "verification", "CI", or "test" sections).
 
 **Skip rule.** Skip the run only when this set passed on a known clean commit in the verify phase of this session and no edit or write landed outside `<telemetry.dir>` since. Check the current tree: `git -C "$WORKTREE" diff --quiet <commit the run passed on> -- . ':!<telemetry.dir>'` must exit 0, and `git -C "$WORKTREE" status --porcelain --untracked-files=all -- . ':!<telemetry.dir>'` must exit 0 with empty output (`<telemetry.dir>` defaults to `.pi/gauntlet/telemetry`). These checks cover committed, staged, unstaged, and untracked changes outside telemetry. Otherwise run it once; a missing verified commit, a failed check, or uncertainty means run.
 
@@ -173,7 +173,7 @@ A **heavy** revert is not a menu toggle — say so explicitly to the user before
 
 ### Step 4: Present Options
 
-**Amendment digest (both variants).** Before the options, read `git -C "$WORKTREE" log <base-branch>..HEAD --grep '^amend:'` and take the `auto-apply` and `granted` records from those commit bodies. Render, then the options:
+**Amendment digest (both variants).** Before the options, read `git -C "$WORKTREE" log <base-branch>..HEAD --extended-regexp --grep '^(amend:|loop: cut row [0-9]+|loop: amend)'` and take the `auto-apply` and `granted` records from those commit bodies. Render, then the options:
 
 ```
 Amendments auto-applied (N):
@@ -237,7 +237,7 @@ Rows 1-2 run the Option 1/2 blocks; row 3 runs the Keep block and row 4 the Disc
 
 **Don't add explanation** - keep options concise. When the minors line lists findings and the block has no `whole-diff minors fix:` line, add only this line under the menu: `Or reply "fix minors" (or "fix minors F3, F9") for one Minor fix round.` This line is the only addition to the exact numbered options.
 
-**Standalone extra reply - `fix minors`.** When the rendered `whole-diff minors` line lists findings, `fix minors` (all) or `fix minors F3, F9` (a subset by `Fn`) is a valid reply beside the numbered options. It dispatches one `implementer` round (`cwd` = the worktree; task = the selected finding lines verbatim; `SCOPED_TEST_COMMANDS` = for PR subjects, the executable scoped union captured in Step 1, excluding `none - PR subject, scoped`; for other subjects, the plan-header verification set). For PR subjects, require successful evidence for every supplied command after the fix; failed or missing evidence stops before returning to the menu. Commit `whole-diff minors fix` and return to Step 3.5, where the freshness rule re-audits conformance as for any working-tree change and the regenerated block records the spent round (`whole-diff minors fix: <full SHA>`); Step 4 then re-renders. No code review follows this round: the whole-diff review is an unscoped first review, so its Minors are graded Minors. A block that already carries `whole-diff minors fix:` refuses the reply with "minors round already spent". Any numbered choice ships without them.
+**Standalone extra reply - `fix minors`.** When the rendered `whole-diff minors` line lists findings, `fix minors` (all) or `fix minors F3, F9` (a subset by `Fn`) is a valid reply beside the numbered options. It dispatches one `implementer` round (`cwd` = the worktree; task = the selected finding lines verbatim; `SCOPED_TEST_COMMANDS` = for PR subjects, the executable scoped union captured in Step 1, excluding `none - PR subject, scoped`; for other subjects, the plan-header verification set). For a ledger, supply its `verification:` command instead. For PR subjects, require successful evidence for every supplied command after the fix; failed or missing evidence stops before returning to the menu. Commit `whole-diff minors fix` and return to Step 3.5, where the freshness rule re-audits conformance as for any working-tree change and the regenerated block records the spent round (`whole-diff minors fix: <full SHA>`); Step 4 then re-renders. No code review follows this round: the whole-diff review is an unscoped first review, so its Minors are graded Minors. A block that already carries `whole-diff minors fix:` refuses the reply with "minors round already spent". Any numbered choice ships without them.
 
 ### Step 5: Execute Choice
 
@@ -245,11 +245,11 @@ Rows 1-2 run the Option 1/2 blocks; row 3 runs the Keep block and row 4 the Disc
 
 Run this on the feature branch before any landing path. The spec and its telemetry record (`<telemetry.dir>/<spec path with .md -> .yaml>`, default `.pi/gauntlet/telemetry/doc/specs/<spec>.yaml`) are deliverables and ship in the squash; only the plan is stripped. The record is an untracked, git-excluded file until this step commits it (in a plain jj workspace there is no commit; jj snapshots the stamped record into the working-copy change). `<bin>` is `<directory of this skill's SKILL.md>/../../bin`, resolved from the skill's `<location>` in the system prompt.
 
-Read the plan's `**Spec:**` header (repo-relative, backticks stripped) before the strip; pass that value as `--spec`. Resolve the spec dirs with `gauntlet_setting({ key: "flowGuards" })` and use their sibling `plans` dirs for plan paths.
+Read the existing artifact's path-only `**Spec:**` header (repo-relative, backticks stripped) before removal; pass that value as `--spec`, including for a line-1 ledger. Resolve the spec dirs with `gauntlet_setting({ key: "flowGuards" })` and use their sibling `plans` dirs for plan paths. Enumerate both PLAN_PATH candidates: the task plan paired by basename and `<sibling plans dir>/<spec stem>-ledger.md`. Preserve the spec and telemetry.
 
 ```bash
 # Plans are ephemeral - if one was committed on this branch, remove it before landing.
-PLAN_PATH=<sibling-plans-dir>/<plan-file>.md   # the sibling plans dir of the spec's dir
+for PLAN_PATH in <basename-task-plan-path> <sibling-plans-dir>/<spec-stem>-ledger.md; do
 if git -C "$WORKTREE" ls-files --error-unmatch "$PLAN_PATH" >/dev/null 2>&1; then
   git -C "$WORKTREE" rm "$PLAN_PATH" && git -C "$WORKTREE" commit -m "Remove ephemeral plan doc"
 elif [ -f "$WORKTREE/$PLAN_PATH" ] && jj -R "$WORKTREE" root >/dev/null 2>&1; then
@@ -257,10 +257,11 @@ elif [ -f "$WORKTREE/$PLAN_PATH" ] && jj -R "$WORKTREE" root >/dev/null 2>&1; th
   # root: anchors the path at the workspace root - jj resolves bare paths against cwd, not -R.
   jj -R "$WORKTREE" restore --from <base-branch> -- "root:\"$PLAN_PATH\""
 fi
+done
 
 # Seal the telemetry record: stamp shipped, compute the diff, commit it once.
 # The bin detects a plain jj workspace (no .git) itself: jj diff, no commit step.
-# --option is pr for Options 1-2 and squash for Option 3; --spec is the plan header's **Spec:** value (omit when no plan is known).
+# --option is pr for Options 1-2 and squash for Option 3; --spec is the artifact header's **Spec:** value (omit when no artifact is known).
 node <bin>/gauntlet-telemetry-seal.mjs --worktree "$WORKTREE" --option <pr|squash> --base <base-branch> --spec <spec path>
 ```
 

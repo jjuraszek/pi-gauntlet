@@ -1,5 +1,12 @@
 # Changelog
 
+## Unreleased
+
+### Added
+
+- Brainstorming accepts an open PR as its subject, preserves its history through a base merge, records the rework, and finishes with a non-force push and an appended Rework description block. Handoff and resume carry the PR identity and pre-rework head. (#78)
+- Experimental loop implementation iterates fresh loop-implementers over an acceptance-criteria ledger instead of a task plan, with loop-funded replies and loop-implementation/loop-implementer eval targets. (#68, #82)
+
 ## v7.28.0 - 2026-10-23
 
 ### Added

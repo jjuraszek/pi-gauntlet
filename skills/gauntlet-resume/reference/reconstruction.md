@@ -41,7 +41,7 @@ git -C <worktree> ls-files --others --exclude-standard -- <dirs>
 Candidates are files under those directories added after base, plus untracked files
 there. Paths returned by these commands are relative to `<worktree>`; resolve them to
 absolute paths under `<worktree>` before reading artifacts, showing paths in prompts,
-or calling `plan_check`. A candidate plan pairs with
+or calling `plan_check`. Read every plan-directory candidate's first line. A line exactly `# Ledger - loop engine` pairs by its path-only `**Spec:**` header, not basename; resolve that spec under the worktree's configured spec dirs, including a spec tracked from base. Stop on a missing or foreign spec. A task-plan candidate pairs with
 `<worktree>/<specDir>/<same basename>` whether that spec is a candidate or tracked
 from base; count a base-tracked spec so paired as a spec in the route table below.
 The plan commit is the first
@@ -54,7 +54,8 @@ plan commit; treat every task as `pending`.
 | no spec | stop; offer `/skill:brainstorming` or pass the spec: `/skill:gauntlet-resume <specDir>/<name>.md`; no tracker call |
 | more than one spec | the human picks one, then continue below with that spec |
 | one spec, no plan | "Spec without plan" |
-| one spec with plan | "Spec with plan" |
+| one spec with ledger | "Spec with ledger" (takes precedence over a task plan) |
+| one spec with task plan only | "Spec with plan" |
 
 ## Spec without plan
 
@@ -62,13 +63,25 @@ Ask exactly one question: is this spec approved, or do you select `/skill:brains
 with this unapproved spec as the draft? Show the spec path (and the brief's
 `## Intent`/`## Decisions` when present).
 
-- Approved: run SKILL.md entry check 6 on `<spec path>` first (a malformed `**Amend-grant:**` line stops here, no tracker call); then `start brainstorm`; `skip brainstorm resume: <spec path>`; `start plan`;
-  continue in writing-plans (its own `start plan` is skipped - plan is already
-  in_progress).
+- Approved: run SKILL.md entry check 6 on `<spec path>` first (a malformed `**Amend-grant:**` line stops here, no tracker call). Read the spec's `**Engine:**` line and take the matching route:
+  - `loop`: call `start brainstorm`, then `skip brainstorm` with reason `resume: <spec path>` to arm the flow before `plan_check`. Carry absolute worktree/spec paths and the resolved plan directory into `/skill:loop-implementation` Entry steps 1-5: resolve settings at step 1 and verification at step 2, retain the driver's `skip plan` at step 3, create the ledger at step 4, then check/commit it and start implement at step 5. Never enter the writing-plans body or initialize a task tracker.
+  - `waves` or absent: `start brainstorm`; `skip brainstorm resume: <spec path>`; `start plan`; continue in writing-plans, skipping its `start plan` call.
 - Selected unapproved-draft brainstorming handoff: invoke [`/skill:brainstorming`](../../brainstorming/SKILL.md) with
   the spec as the draft; arm nothing. using-git-worktrees Step 0 detects the existing
   worktree and creates none. A bare "not approved" answer is not consent; wait for
   explicit handoff selection.
+
+## Spec with ledger
+
+Show the spec and ledger paths, current rows, iterations, last decision, and `git -C <worktree> status --porcelain`. Ask the human to confirm the approved spec and continuation; carry brief Intent/Decisions when present. Keep entry and same-repository checks.
+
+After confirmation:
+
+1. Read ledger line 1: require `# Ledger - loop engine`. Resolve its path-only `**Spec:**` header to an absolute spec path under the worktree's configured spec directories, not by basename. Run SKILL.md entry checks 1-6 in order, including check 6, **Grant field**, on that spec, before any tracker mutation.
+2. Call `phase_tracker({ action: "start", phase: "brainstorm" })`, then `phase_tracker({ action: "skip", phase: "brainstorm", reason: "resume: <spec path>" })`, then `phase_tracker({ action: "start", phase: "plan" })`.
+3. Call `plan_check({ planPath: <absolute ledger path> })`. On FAIL, stop with findings, retaining plan in_progress; never enter `## Plan repair` or writing-plans. On PASS, call `phase_tracker({ action: "skip", phase: "plan", reason: "resume: <spec> (loop engine)" })`, then `phase_tracker({ action: "start", phase: "implement" })`. Use the resolved absolute spec path as `<spec>` in the reason. Never call `plan_tracker init`.
+4. Read `/skill:loop-implementation`; resolve its Entry settings/maxIterations without creating or overwriting the ledger. Restore base, verification, iterations, row attempts, funding and retry allowances from the ledger/spec and branch. Render rows and last decision. A dirty tree stops before any dispatch using the driver's dirty-tree stop note; preserve changes for the human.
+5. Continue at loop step 5, the delivered driver's `Before each dispatch`, with durable iterations and retry data. Never reset counters or reseed a validated seed.
 
 ## Spec with plan
 

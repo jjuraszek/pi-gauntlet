@@ -29,9 +29,17 @@ Headings, fixed order. A consumer keys on headings, never prose.
 | `## Skills loaded` | frontmatter `name`s; `## Skills loaded: none` when none | always |
 | `## Process state` | `phase_tracker status` then `plan_tracker status` verbatim; `Active task: <name|none>`; optional `PR: <owner/repo#N>` and `Pre-rework head: <40-char sha>` lines, present together only for a PR subject; the line `Gate history not restored - re-validate before advancing.` | only when a phase is `in_progress` and no hotfix flow is in context |
 
+For a loop ledger (line 1 exactly `# Ledger - loop engine`), replace `Active task` with these two fields, retaining both tracker status outputs and the gate-history line:
+
+```text
+Ledger: <path>
+Last decision: <line>
+```
+
+Use the ledger path relative to the worktree and the last physical decision line, or `none` for an empty Decisions section. Read the ledger on disk; the brief is a pointer, not a second state carrier. Reject a block mixing these fields with `Active task`, missing either loop field, or carrying task rows with a ledger. Never initialize a task tracker for a ledger.
+
 Consumer rules: process state absent -> plain handoff (the consumer starts its
-own process from `## Intent`); present with `No plan active.` -> phase-only, restore no
-plan; loading named skills is the consumer's job.
+own process from `## Intent`). Give valid ledger fields precedence over `No plan active.` and run ledger admission. Restore phase-only state for `No plan active.` only with no `Ledger` field. Load named skills as the consumer.
 
 A brief is any text whose first line starts `# Handoff:` - a file on disk or pasted
 inline. `## Repo state` is matched by prefix: `## Repo state` or
@@ -46,7 +54,7 @@ output verbatim, a blank line, the `plan_tracker status` output verbatim, a blan
 `Active task: <name|none>`, then, only for a PR subject, exactly two lines:
 `PR: <owner/repo#N>` and `Pre-rework head: <40-char sha>`, then the gate-history line -
 unfenced, nothing after.
-`Active task` is the first `→` task name, else `none` (also for `No plan active.`).
+For a task plan, set `Active task` to the first `→` task name, else `none` (also for `No plan active.`). For a line-1 ledger, read its path and last decision and use the loop alternative above, retaining the optional PR pair before the gate-history line.
 
 Example appended block (the fence is documentation; the brief carries no fence):
 
@@ -141,11 +149,14 @@ announcement without re-resolving it.
 |---|---|
 | brainstorm | `start brainstorm`; `substep` if the brief shows one |
 | plan | `start brainstorm`; `skip brainstorm S`; `start plan`; `substep` if shown |
-| implement | `start brainstorm`; `skip brainstorm S`; `start plan`; `plan_check({ planPath })`; on FAIL run `## Plan repair`; on PASS `skip plan R`; `start implement`; `substep` if shown; `plan_tracker init` |
+| implement with ledger | Read ledger line 1; resolve its path-only `**Spec:**` header; run entry checks 1-6, naming check 6 (Grant field); `start brainstorm`; `skip brainstorm` reason `resume: <spec path>`; `start plan`; `plan_check` on the absolute ledger path; on PASS `skip plan` reason `resume: <spec> (loop engine)` using the resolved absolute spec path as `<spec>`; `start implement`; no `plan_tracker init`; render rows and last decision; continue at loop step 5. Follow `reconstruction.md` "Spec with ledger" for this self-contained ordered restore. On FAIL stop with findings, never `## Plan repair` or writing-plans. |
+| implement with task plan | `start brainstorm`; `skip brainstorm S`; `start plan`; `plan_check({ planPath })`; on FAIL run `## Plan repair`; on PASS `skip plan R`; `start implement`; `substep` if shown; `plan_tracker init` |
 | verify | as implement through `skip plan R`, then `skip implement R`; `start verify`; `substep` if shown; `plan_tracker init` |
 | ship | as verify. Restoration stops at verify in_progress: `complete verify` needs a fresh conformance dispatch and `skip verify` would bypass a real gate. Announce that the closure review re-runs before ship |
 
-`planPath` (implement onward): the brief carries none. Resolve as reconstruction does
+For a ledger brief, pair by the ledger's path-only `**Spec:**` header, not basename; require the resolved spec under `flowGuards.specDirs` and the ledger under its sibling plans directory. Keep same-repository binding and human confirmation. For verify/ship ledger briefs, use the ledger restore sequence through `skip plan`, then `skip implement R`; `start verify`, with no task tracker. Continue verify/ship ledger briefs in `/skill:loop-implementation` `After the loop` from step 1 (full ledger verification), after the already-restored `start verify`, retaining whole-diff code review, happy path when triggered, fresh conformance review and finishing without task-tracker calls. Ship still stops at verify for fresh conformance.
+
+`planPath` (task-plan implement onward): the brief carries none. Resolve as reconstruction does
 (`reconstruction.md`, "Candidates", including its `flowGuards.specDirs` resolution): the
 single plan added after the candidate base, paired with `<specDir>/<same basename>` whether that
 spec was added after base or tracked from base (`reconstruction.md` "Candidates");
@@ -225,7 +236,9 @@ Every restore ends with:
 Gate history not restored; re-validating `<task>` before any stage advance
 ```
 
-where `<task>` is the brief's `Active task`, else the first in-progress task, else `none`
+For a ledger, use `ledger rows` as `<task>` and render the current rows and last decision from disk.
+
+For a task plan, `<task>` is the brief's `Active task`, else the first in-progress task, else `none`
 (whole-deliverable re-validation). Gate history, closure-review evidence, and fix rounds
 are never inferred or restored; a ship-stage brief resumes at verify.
 

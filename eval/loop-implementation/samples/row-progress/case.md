@@ -1,0 +1,1 @@
+Evaluate independently: A row1 done on attempt3 with all others cut. B all rows cut at entry. C unresolved row1 open and row2 failed; human retry targets row1 while previous decision names row2 failed. D no retry and previous decision names row2 failed. E previous decision suggests done row1 while row2 failed.

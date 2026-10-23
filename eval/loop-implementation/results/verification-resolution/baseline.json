@@ -1,0 +1,34 @@
+{
+  "sample": "verification-resolution",
+  "arm": "baseline",
+  "skillSha": "9bd1a6997a13be3e997e8238b883e94f9e754a590d42a5635734d47b7e7c7c10",
+  "inputSha": "bb67cde1407f2ef81548524cfc2c5f4003792c5b17629854f0f208912456652f",
+  "kind": "text",
+  "assembly": "concat",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "# Verification resolution (Entry step 2), snapshots A-E\n\nNone of these calls have run. For every snapshot, Entry steps 1-2 would be:\n\n1. Read the first overrides file found in `.pi/gauntlet-overrides.md`, `<repo root>/gauntlet-overrides.md`, or `<repo root>/doc/gauntlet-overrides.md`. Apply `## conventions` if present.\n2. Call `gauntlet_setting({ key: \"loopEngine\" })` and keep `maxIterations` (default 30). Stop if the settings tool is unavailable.\n3. Resolve verification once using the ordered table. The first matching row wins and later rows are not consulted.\n\n---\n\n### A: PR gate `make ci`, plus a `## verification-before-completion` section with `make test`\n\n- **Row matched:** row 1. `## PR gate` contains `- verification command: make ci`. The prose section is never consulted, so `make test` is ignored.\n- **Printout:**\n  ```\n  verification command: make ci (PR gate)\n  ```\n- **Durable effect:** later, the ledger header line is `verification: make ci`.\n- **Next steps:**\n  - `phase_tracker({ action: \"skip\", phase: \"plan\", reason: \"loop engine\" })`\n  - Write the ledger skeleton.\n  - `plan_check`\n  - Commit `loop: seed ledger`.\n  - `phase_tracker({ action: \"start\", phase: \"implement\" })`\n  - First target is `seed`.\n\n### B: no PR gate; `## verification-before-completion` says run `make ci`\n\n- **Row matched:** row 2. The section contains exactly one backticked command.\n- **Printout:**\n  ```\n  verification command: make ci (verification-before-completion)\n  ```\n- **Durable effect:** `verification: make ci` in the ledger.\n- **Next steps:** the same as A. First target is `seed`.\n\n### C: neither section; the manifest's test entrypoint is `make check`\n\n- **Row matched:** row 3. I take the command from the project's actual manifest or build instructions. It is unambiguous here, so I proceed rather than stop.\n- **Printout:**\n  ```\n  verification command: make check (discovery)\n  ```\n- **Durable effect:** `verification: make check` in the ledger.\n- **Next steps:** the same as A. First target is `seed`.\n\n### D: `## verification-before-completion` names both `make test` and `make lint`\n\n- **Row matched:** row 2. It requires exactly one backticked command, and this section has two, which is a configuration error.\n- I do not fall through to discovery. The section exists, so row 3 (\"neither section supplies a command\") does not apply.\n- **Output (stop):**\n  ```\n  Stopped: configuration error. ## verification-before-completion contains several backticked commands (`make test`, `make lint`); exactly one is required. Add a single command (or a `## PR gate` `- verification command:` line) and restart.\n  ```\n- **Durable effect:** none. There is no `phase_tracker` skip, no ledger, no commit, and no dispatch.\n\n### E: `## verification-before-completion` contains zero commands\n\n- **Row matched:** row 2. Zero backticked commands is a configuration error. As in D, the section's presence blocks discovery.\n- **Output (stop):**\n  ```\n  Stopped: configuration error. ## verification-before-completion contains no backticked command; exactly one is required. Add one command (or a `## PR gate` `- verification command:` line) and restart.\n  ```\n- **Durable effect:** none. There are no tracker calls, no ledger, no commit, and no dispatch.\n",
+      "words": 420,
+      "wallMs": 13465,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "Tools are unavailable, so no calls or durable changes have occurred. A live run must first read applicable overrides and call `gauntlet_setting({ key: \"loopEngine\" })`; if that tool is unavailable, it must stop. The independent verification-resolution outcomes are:\n\n| Snapshot | Resolution | Human-facing output |\n|---|---|---|\n| **A** | The PR gate takes precedence; ignore the prose section’s `make test`. | `verification command: make ci (PR gate)` |\n| **B** | Use the exactly one backticked command in `## verification-before-completion`. | `verification command: make ci (verification-before-completion)` |\n| **C** | Discover the unambiguous entrypoint from the actual manifest/build instructions using `read`, then use `make check`. | `verification command: make check (discovery: manifest test entrypoint)` |\n| **D** | Stop: the prose section supplies two backticked commands. Do not combine them or fall back to discovery. | `Stopped: configuration error — ## verification-before-completion must contain exactly one backticked command; found 2.` |\n| **E** | Stop: the prose section supplies zero backticked commands. Do not fall back to discovery. | `Stopped: configuration error — ## verification-before-completion must contain exactly one backticked command; found 0.` |\n\n**Next calls and durable changes:**\n- **A–C:** After successful settings and verification resolution, the next prescribed call is `phase_tracker({ action: \"skip\", phase: \"plan\", reason: \"loop engine\" })`. No verification command runs at this stage. Ledger creation and the `loop: seed ledger` commit follow only after the required clean, named-branch worktree checks and full spec read; `plan_check` must pass before that commit. The first dispatch target is **`seed`**, not an AC row.\n- **D–E:** No phase-tracker call, ledger creation, commit, or dispatch. There is **no next target** until the configuration is corrected.\n",
+      "words": 242,
+      "wallMs": 10921,
+      "mechanical": {}
+    }
+  },
+  "repoSha": "87f8dc28853cb4f3957055030125bd6b868bba56"
+}

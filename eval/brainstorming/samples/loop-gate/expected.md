@@ -1,0 +1,3 @@
+- menu: judged: Render five numbered options with the exact option 4 and option 5 sentences from the source gate, and funding available to 1, 2, 4, or 5.
+- loop: judged: Reply 4 persists Engine loop directly below Amend-grant none, amends the spec commit preserving the audit, checks both fields from HEAD, completes brainstorm, then invokes loop-implementation without writing-plans. The driver skips plan for reason loop engine, not a task-plan write.
+- no-ac: judged: A none acceptance-criteria section excludes loop options and explains that there are no acceptance-criteria rows; it does not invent AC text.

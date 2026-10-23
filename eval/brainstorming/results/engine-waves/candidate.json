@@ -1,0 +1,100 @@
+{
+  "sample": "engine-waves",
+  "arm": "candidate",
+  "skillSha": "c77c184aac81a394d3a763eb55c7de5f9be2b0bf2305c58adb600fff947adabd",
+  "inputSha": "305b6a11e76ed5887ecb587857e17726413b5bb72346346ff55ed0ede1e42840",
+  "kind": "text",
+  "assembly": "headed",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "# Narrated read and stage actions: five-option spec gate\n\n**Shared starting state:**\n- The five-option gate is already rendered.\n- The council audit is the body of the spec commit at HEAD.\n- `## Acceptance criteria` has two rows, so options 4 and 5 are offered.\n- The header has `**Amend-grant:** none` and no `**Engine:**` field.\n- No plan file and no loop ledger exist.\n\nNothing below is a live call. Each step is the action I would take and the outcome the rules require.\n\n---\n\n### Trace A: reply `1`\n\n1. **Classify.** This is a clean approval with no grant and no budget token. It is not a change request.\n2. **Read** `reference/amendment-surface.md` § Standing grants with the `read` tool at its absolute path.\n   - If it is unreadable, stop with a blocking error. Do not persist anything or rebuild the rules from memory.\n3. **Decode.** The value to persist is `none`. The structural predicate gives no grant, and there is no budget token.\n4. **Edit the spec header.**\n   - The `**Amend-grant:**` value stays `none`, so this is a same-line write that leaves it unchanged.\n   - Insert exactly one `**Engine:** waves` directly below `**Amend-grant:**`.\n   - No plan exists, so the shifted line needs no anchor repair.\n5. **Commit.** Run `git -C <wt> add -- <spec>`, then `git -C <wt> commit --amend --no-edit -q`. The council-audit body is kept.\n6. **Verify.** `git -C <wt> show HEAD:<spec>` must contain `Amend-grant: none` and `Engine: waves`, and must pass the predicate and Value decoding.\n   - If the amend or this check fails, stop and report. Do not proceed.\n7. **Complete the phase.** Call `phase_tracker({ action: \"complete\", phase: \"brainstorm\" })`.\n8. **Destination.** Invoke `/skill:writing-plans` immediately, with no further prompt. There is no re-gate.\n\n### Trace B: reply `2`\n\n1. **Classify.** This is a bare `2`: approve and grant.\n2. **Read** § Standing grants. If it is unreadable, stop with a blocking error.\n3. **Decode.** The value to persist is the option-2 description from the gate menu, not the digit. Value decoding finds no budget token, so this is amend permission only.\n4. **Edit the spec header.**\n   - Set `**Amend-grant:**` to that sentence on one physical line.\n   - Insert `**Engine:** waves` directly below it.\n5. **Commit.** Run `add`, then `commit --amend --no-edit -q`. The audit body is kept.\n6. **Verify.** HEAD must show exactly one active grant line with that sentence, plus `Engine: waves`. If the check fails, stop and report.\n7. **Complete the phase.** Call `phase_tracker` complete `brainstorm`.\n8. **Destination.** Invoke `/skill:writing-plans`. There is no re-gate.\n\n### Trace C: reply `3 and 4`\n\n1. **Classify.** The reply carries `3`, so it prints and re-presents. A reply carrying `3` never grants or approves, so the `4` is not acted on.\n2. **Print the audit** verbatim from `git -C <wt> show -s --format=%b HEAD`, never from a held tool result.\n3. **Re-present the same gate.** It contains:\n   - the briefing text just rendered, reused verbatim;\n   - the `Council:` line and the adjacent lines;\n   - all five option rows.\n4. **What does not happen.**\n   - The summarizer is not re-dispatched, and the removed `$SUMMARY_PATH` is not read.\n   - If the briefing text is no longer in context, the one-line \"summary generation failed\" note replaces it.\n5. **Persistence.** None. The spec, the commit, the Amend-grant line (`none`) and the Engine field (still absent) are all unchanged.\n6. **Phase and destination.** Brainstorm stays in progress. Wait for a clean `1`, `2`, `4` or `5` on the re-presented gate.\n\n### Trace D: reply `3 and 5`\n\n1. **Classify.** Same as C. `3` plus `5` prints and re-presents, and the `5` grants nothing.\n2. **Print the audit** verbatim from `git show -s --format=%b HEAD`.\n3. **Re-present the same gate** verbatim, with no summarizer re-dispatch.\n4. **Persistence.** None. No `Amend-grant` sentence is written and no `**Engine:** loop` is written.\n5. **Phase and destination.** Brainstorm stays in progress. Wait for a clean reply.\n\n### Trace E: reply `4 but rename the output section`\n\n1. **Classify.** Approval mixed with a change request counts as a change request. No grant or approval is read from this reply.\n2. **Revise the spec.** Rename the output section in place.\n   - This renames a section, not the spec itself, so no predecessor banner reconciliation applies unless a predecessor spec was staged.\n3. **Recommit.** Re-run the quoted-heredoc commit (`git -C <wt> add -- <spec> && git -C <wt> commit -q -F - -- <spec> <<'EOF' … EOF`). The council audit is the body, so HEAD still carries it.\n4. **Mint a fresh temp path.** Run `SUMMARY_PATH=$(mktemp …)`. Never reuse the prior round's path.\n5. **Re-dispatch** `spec-summarizer` on a fresh context with file-only output to that path.\n6. **Check the result, stage 1.** If it is not an `Output saved to:` reference, or it is under about 500 B or over about 45 KB, take the degrade path.\n7. **Check the result, stage 2.** `Read` `$SUMMARY_PATH` as the last content-producing call before composing the gate. If it fails, is empty, or is truncated, degrade.\n8. **Clean up.** Run `rm \"$SUMMARY_PATH\"`.\n9. **Re-present the full gate.** It contains:\n   - the new summary verbatim, or the degrade note;\n   - the `Scope cuts:` line, recomputed from `## Acceptance criteria`;\n   - the `Council:` counts;\n   - all five options, since the AC rows are present.\n10. **Persistence.** Only the revised spec, recommitted with the audit body. `Amend-grant` stays `none` and no Engine field is written.\n11. **Phase and destination.** Brainstorm stays in progress. Approval is read only from the reply to the re-presented gate.\n\n### Trace F: reply `fund 2 fix rounds`\n\n1. **Classify.** This is a budget token alone, with no approval digit.\n2. **Persistence.** Nothing is written. The `Amend-grant` and Engine fields are untouched and there is no commit.\n3. **Re-present the gate.** Re-present the same gate and ask for `1`, `2`, `4` or `5`, noting the budget token can be appended to one of them (for example `4; fund 2 fix rounds`).\n   - The spec has not changed, so the summarizer is not re-dispatched.\n4. **Phase and destination.** Brainstorm stays in progress. There is no routing.\n\n### Trace G: reply `5; fund 0 fix rounds`\n\n1. **Classify.** This is approval digit `5` with a budget token whose N is malformed.\n2. **Read** § Standing grants to run Value decoding before any edit. If it is unreadable, stop with a blocking error.\n3. **Decode.** `fund 0 fix rounds` is token-shaped but invalid, because N must match `[1-9][0-9]*`. Never persist a malformed token.\n4. **Persistence.** Nothing is written. There is no option-2 sentence, no `**Engine:** loop` and no commit.\n5. **Re-present the gate** quoting the token: \"`fund 0 fix rounds` is not a valid budget (N must be 1 or more).\" Ask for a clean `1`, `2`, `4` or `5`, optionally with a valid token.\n   - This must never be framed or treated as a change request.\n6. **Phase and destination.** Brainstorm stays in progress. There is no `/skill:loop-implementation` invocation.\n",
+      "words": 1110,
+      "wallMs": 39436,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "The following are independent narrated traces from the stated gate, not live actions. No reference-read failure is specified; none is invented. If a required reference read proves unreadable, that trace stops there, before persistence or transition.\n\n### A — Reply `1`\n\n1. Interpret this as approval without an amendment grant.\n2. Required read: the **Standing grants** section of `<skills-root>/brainstorming/reference/amendment-surface.md`, before approval persistence.\n3. Keep `**Amend-grant:** none`; insert exactly one `**Engine:** waves` directly below it.\n4. Stage the spec and amend its existing commit with `--amend --no-edit`, preserving the council audit.\n5. Inspect the committed spec and confirm both header values and their validity. A failed amend or check blocks progress.\n6. Complete the brainstorm phase and immediately route to `/skill:writing-plans`. No re-gate.\n\n### B — Reply `2`\n\n1. Interpret this as approval with automatic amendment permission.\n2. Required read: **Standing grants** in the same absolute reference path; decode the proposed value before writing.\n3. Replace `none` with the gate’s option-2 grant description, verbatim on one physical line:\n   > every later spec amendment in this flow (corrected facts, paths, verification lines, and scope, acceptance-criteria, or public-contract edits alike) applies without asking; only a redraw (changed problem statement, component added, removed, or re-bounded) still stops for you, and the grant never stands in for a spec approval.\n4. Insert exactly one `**Engine:** waves` directly below the grant.\n5. Stage and amend the spec commit without changing its council-audit body. Inspect the committed spec to confirm the grant and engine satisfy the required checks.\n6. Complete brainstorm and immediately route to `/skill:writing-plans`. No re-gate.\n\n### C — Reply `3 and 4`\n\n1. Treat the reply as an audit-display request, **not approval**. A reply carrying `3` cannot grant approval.\n2. Retrieve the council audit from the current commit body using the prescribed `git show` action—not from a remembered tool result.\n3. Print that audit verbatim, then re-present the existing gate. Reuse its briefing verbatim; if unavailable, use the one-line summary-degradation note. Do not redispatch the summarizer or read the removed temporary summary.\n4. Persist nothing: grant remains `none`, Engine remains absent, and no plan is created.\n5. Remain in brainstorm, awaiting a clean approval reply. Do not route to the loop engine.\n\n### D — Reply `3 and 5`\n\n1. Follow the same audit-display and re-gate sequence as C.\n2. Neither approval nor automatic amendment permission is granted by this mixed reply.\n3. Persist nothing; remain in brainstorm. A subsequent clean `5` would require its own approval persistence and verification before loop routing.\n\n### E — Reply `4 but rename the output section`\n\n1. Treat this as a **change request**, not approval. Do not persist loop mode or an amendment grant.\n2. Revise the requested section name. If the intended replacement name cannot be determined, ask for it and pause before revision.\n3. After revision, mint a fresh absolute temporary summary path and dispatch a fresh-context, spec-only summarizer with file-only output.\n4. Recommit the revised spec with the prescribed quoted-heredoc commit form, retaining the council audit in the body. Reconcile any predecessor banner if applicable.\n5. Evaluate the summarizer’s output reference. If eligible, the final content-producing read before composing the gate is the fresh summary file; paste it verbatim. On a failed, empty, truncated, or otherwise ineligible summary, use the degradation note instead. Clean up the temporary file.\n6. Re-present the gate. The two AC rows still permit all five options unless the revision changes that fact.\n7. Remain in brainstorm. Grant remains `none`, Engine remains absent, and approval must come from the reply to this new gate.\n\n### F — Reply `fund 2 fix rounds`\n\n1. Recognize a valid budget token **without approval**.\n2. Write nothing—neither funding nor Engine is persisted.\n3. Re-present the gate asking for `1`, `2`, `4`, or `5`, optionally accompanied by the funding token.\n4. Remain in brainstorm; no destination transition.\n\n### G — Reply `5; fund 0 fix rounds`\n\n1. Recognize a malformed budget token: `fund 0 fix rounds`.\n2. Re-present the gate quoting that invalid token. Do not treat it as a spec change request or persist the otherwise approval-shaped reply.\n3. Write nothing: grant remains `none`, Engine remains absent, and no funding is recorded.\n4. Remain in brainstorm, awaiting a valid approval reply. No loop-engine transition.\n",
+      "words": 695,
+      "wallMs": 27811,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "f748186b0ae48d8bd5a9d15a6dff015941ef0733c9ab1d8bb9e048b12df88593",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "3602fc1dee2b339ff8266007e44048e33ea5c5f1dd5ab572b72f91846497b06c",
+      "baselineOutputSha": "ff880e3b0aea7cc2a9addc807bbc5cd76ae99d0bc7d463ebc2353fa444677d06",
+      "candidateOutputSha": "23e2f974ea76a5e4fa1386132163a425789fd81dd9b69dac391efd78e696edac",
+      "facts": {
+        "waves": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "audit": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "mixed": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "invalid": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        }
+      },
+      "feedback": "After moved no fact from holds to fails. Before failed `waves` because Trace A had \"Persistence: none\" and Trace B wrote only the option-2 sentence, with no `**Engine:** waves` line and no HEAD check of both fields; it failed `invalid` because Trace F and G asked only for `1` or `2` and treated `4`/`5` as undefined (the output explicitly refused to recognize them from the loaded grammar). After fixes both: A and B insert `**Engine:** waves` directly below `**Amend-grant:**`, amend with `--no-edit`, verify both fields in `git show HEAD:<spec>` before `phase_tracker` complete and `/skill:writing-plans`; F asks for `1`, `2`, `4` or `5` with nothing written; G quotes `fund 0 fix rounds` as invalid, writes nothing, grants nothing, and states it is not a change request. `audit` and `mixed` held in both: C/D print the audit from the HEAD body, re-present verbatim with no writes, and require a clean reply; E revises, recommits with the audit body, re-dispatches the summarizer and re-gates without approving or routing to any engine. The After wording is sound; one small tightening would be to have Trace G decline to read § Standing grants at all once the token is already malformed (the read is harmless but slightly contradicts \"re-present with no writes\" minimalism), and to keep the C/D closing line as \"a clean `1`, `2`, `4` or `5` without `3`\" so the no-3 rule is stated rather than implied.",
+      "wallMs": 19299,
+      "verdict": "improved"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "f748186b0ae48d8bd5a9d15a6dff015941ef0733c9ab1d8bb9e048b12df88593",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "3602fc1dee2b339ff8266007e44048e33ea5c5f1dd5ab572b72f91846497b06c",
+      "baselineOutputSha": "18edb988001ab935734c3e8bae5fc08ccf1f28f5dc9861a6a5ce7c99926be29f",
+      "candidateOutputSha": "ee238bbf1e24f47873b7838f2dfaa4fbf965ae97c7483de2f96ff2385b37a94e",
+      "facts": {
+        "waves": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "audit": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "mixed": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "invalid": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        }
+      },
+      "feedback": "After delivers the Change cleanly: traces A and B now insert exactly one `**Engine:** waves` below the grant line, amend the commit, inspect both header fields, and only then complete brainstorm and route to writing-plans; C and D attribute the non-approval to the presence of `3` (\"A reply carrying `3` cannot grant approval\") rather than to options 4/5 being undefined, and explicitly persist nothing; F now lists `1`, `2`, `4`, or `5`; G quotes the malformed token, writes nothing, and refuses the change-request reading. Note that `mixed` already held in Before (E was treated as a change request with a re-presented gate and no approval), and After keeps it while adding that no loop mode or grant is persisted. No fact that Before kept was lost, so no wording adjustment is needed; if anything, keep the explicit \"Engine remains absent\" and \"no loop-engine transition\" lines in C/D/F/G, since they are what make the no-write and no-approval claims unambiguous under the five-option gate.",
+      "wallMs": 17408,
+      "verdict": "improved"
+    }
+  },
+  "repoSha": "36ba2e8c502baf86f923e168aaabc5ad7ca2a597"
+}

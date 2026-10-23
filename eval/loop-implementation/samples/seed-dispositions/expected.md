@@ -1,0 +1,1 @@
+- contract: judged: Default/in-scope/venue rows start open; only three disposition exclusions start cut. Skeleton stamped and committed before implement start. A and B valid with partial versus complete closure; C/D/E stop without automatic seed retry. Dispatch fresh foreground file-only to loop-implementer in same worktree with no model override and explicit none acceptance.

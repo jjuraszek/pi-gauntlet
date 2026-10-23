@@ -1,0 +1,100 @@
+{
+  "sample": "seed-recovery",
+  "arm": "candidate",
+  "skillSha": "cc0bc5d3c472417d4a446e9d0c0e0b22816f9327b90a1c09b3df86ffc22f89c4",
+  "inputSha": "c3533a5b80f1a88aedaff06965e98e8d896ac473714e14d69530afed9006f667",
+  "kind": "text",
+  "assembly": "concat",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "## Seed recovery trace (iteration 1, target: seed)\n\n**1. Read the spec first**\n\n`read /repo/doc/specs/labels.md`\n\n- Two acceptance criteria: export `'ready'` from `src/label.mjs` and export `'active'` from `src/state.mjs`.\n- The Design section names the baseline checks: `node --test test/label.test.mjs` and `node --test test/state.test.mjs`.\n- `npm test` is left to the parent.\n\n**2. Read the ledger**\n\n`read /repo/doc/plans/labels-ledger.md`\n\n- Header: `iterations: 2`.\n- Rows 1 and 2 are both `open | 0 |` with empty evidence.\n- `## Decisions` is empty.\n\nRecovery context:\n\n- The human discarded the interrupted seed, so no seed commit or seed decision survives.\n- The parent's bump to `iterations: 2` counts the consumed dispatch. I keep it unchanged.\n- The target is `seed`, so this stays a seeding pass, not a row iteration. `iteration: 1` reflects the recovery count.\n\n**3. Scope the diff**\n\n`cd /repo && git diff --stat abc1234`\n\n- Only `doc/plans/labels-ledger.md` appears. That is the parent's header bump.\n- No seeded-row source or test files differ from the base, so I open no further hunks.\n\n**4. Read the code the rows cover**\n\n- `read /repo/src/label.mjs` shows `export const label = 'ready';`\n- `read /repo/src/state.mjs` shows `export const state = 'active';`\n\nBoth rows appear to be satisfied by the baseline already.\n\n**5. Run each row's named baseline check (targeted only, no `npm test`)**\n\n- `cd /repo && node --test test/label.test.mjs` gives tests 1, pass 1, fail 0.\n- `cd /repo && node --test test/state.test.mjs` gives tests 1, pass 1, fail 0.\n\n**6. Edit the ledger for seeding**\n\n- Close both rows as `done` on passing baseline evidence.\n- Keep `attempts` at 0.\n- Do not change the header, `iterations: 2`, or the row ids.\n\nResulting table:\n\n```\n| row | status | attempts | evidence |\n|---|---|---|---|\n| 1 | done | 0 | node --test test/label.test.mjs; tests 1; pass 1; fail 0 |\n| 2 | done | 0 | node --test test/state.test.mjs; tests 1; pass 1; fail 0 |\n```\n\nAppended under `## Decisions`:\n\n```\nrow 0 done | seeded 2 rows, closed 2 on baseline | none; all rows closed on baseline, parent should run npm test verification\n```\n\n**7. Stage, commit once, and verify a clean tree**\n\n- `cd /repo && git add doc/plans/labels-ledger.md` stages the seed evidence and the preserved `iterations: 2` header bump. No code or test files changed.\n- `cd /repo && git commit -m \"loop: seed evidence\"` succeeds.\n- `cd /repo && git status --porcelain` returns empty output, so the tree is clean.\n\nFinal reply:\nrow 0 done | seeded 2 rows, closed 2 on baseline | none; all rows closed on baseline, parent should run npm test verification\n",
+      "words": 384,
+      "wallMs": 17702,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "## Simulated tool trace — seed recovery\n\n1. Read the full spec before the ledger or code:\n   ```sh\n   cd /repo\n   cat /repo/doc/specs/labels.md\n   ```\n   Observed:\n   ```markdown\n   # Labels\n   ## Acceptance criteria\n   - [ ] Export 'ready' from src/label.mjs.\n   - [ ] Export 'active' from src/state.mjs.\n   ## Design\n   Both exports already exist. Use node --test test/label.test.mjs and node --test test/state.test.mjs as the respective baseline checks. The parent runs npm test later.\n   ```\n\n2. Read the ledger:\n   ```sh\n   cat /repo/doc/plans/labels-ledger.md\n   ```\n   Observed:\n   ```markdown\n   # Ledger - loop engine\n   **Spec:** `doc/specs/labels.md`\n   base: abc1234\n   verification: npm test\n   iterations: 2\n\n   | row | status | attempts | evidence |\n   |---|---|---|---|\n   | 1 | open | 0 | |\n   | 2 | open | 0 | |\n\n   ## Decisions\n   ```\n   This is an authorized seed retry, not an ordinary row iteration. Preserve `iterations: 2`; no discarded seed edits or decisions need restoration.\n\n3. Inspect the base diff and the changed file:\n   ```sh\n   git diff --stat abc1234\n   git diff abc1234 -- doc/plans/labels-ledger.md\n   ```\n   Observed: only the ledger differs, containing the retained iterations-header bump to `2`.\n\n4. Read both seeded rows’ source files:\n   ```sh\n   cat src/label.mjs\n   cat src/state.mjs\n   ```\n   Observed:\n   ```js\n   export const label = 'ready';\n   ```\n   ```js\n   export const state = 'active';\n   ```\n\n5. Run only the two specified baseline checks:\n   ```sh\n   node --test test/label.test.mjs\n   ```\n   Observed: tests 1; pass 1; fail 0.\n   ```sh\n   node --test test/state.test.mjs\n   ```\n   Observed: tests 1; pass 1; fail 0.\n\n6. Edit only the supplied ledger: close both rows with baseline evidence, leave attempts at `0`, preserve `iterations: 2`, and append exactly one decision. Resulting ledger:\n   ```markdown\n   # Ledger - loop engine\n   **Spec:** `doc/specs/labels.md`\n   base: abc1234\n   verification: npm test\n   iterations: 2\n\n   | row | status | attempts | evidence |\n   |---|---|---|---|\n   | 1 | done | 0 | node --test test/label.test.mjs; tests 1; pass 1; fail 0 |\n   | 2 | done | 0 | node --test test/state.test.mjs; tests 1; pass 1; fail 0 |\n\n   ## Decisions\n   row 0 done | seeded 2 rows, closed 2 on baseline | no open rows; parent verification next\n   ```\n\n7. Stage the ledger explicitly and commit exactly once:\n   ```sh\n   git add -- doc/plans/labels-ledger.md\n   git commit -m \"loop: seed evidence\"\n   ```\n   Observed: staging and commit succeed.\n\n8. Check the final working tree:\n   ```sh\n   git status --porcelain\n   ```\n   Observed: empty output. No whole-project verification was run.\n\nFinal reply:\nrow 0 done | seeded 2 rows, closed 2 on baseline | no open rows; parent verification next\n",
+      "words": 338,
+      "wallMs": 22953,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "c50c7aa41e7fc8eb875863c43d1d1a8e4d3361e9977195c036e3b381b44c945b",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "5333826e625e63b214fc03313636578e510a404b6eb847475252b455d99c15c4",
+      "baselineOutputSha": "e14a0e75dcd0c9d3668c6a91dfe22ecc8da33c50638b33b7d05aa171c8a862a9",
+      "candidateOutputSha": "43f0aa87f1847a2f167630941161b390d041be1166f56a4c30eb2fa9a0a9cf1f",
+      "facts": {
+        "multirow-seed": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "counted-recovery": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "seed-boundary": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "seed-commit": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "Nothing moved: both outputs seed rows 1 and 2 as done with attempts 0, keep iterations: 2, read the spec before the ledger and code, run only the two named node --test checks, change only the ledger, stage it explicitly, commit once with subject loop: seed evidence, append one row 0 done decision, confirm a clean tree, and reply with just the decision line. After does deliver the Change more cleanly by keying the exception on target: seed ('The target is seed, so this stays a seeding pass, not a row iteration') rather than Before's 'follow the iteration-0 seed contract even though iteration is 1', which is the better rationale. One minor softening: After's decision tail 'none; all rows closed on baseline, parent should run npm test verification' drops Before's explicit 'no implementation row remains'; a careful reader still infers no remaining row from 'none' plus 'all rows closed', but keeping an explicit phrase like 'no row remains to take' would make the seed-commit fact unambiguous without affecting anything else.",
+      "wallMs": 12250,
+      "verdict": "unchanged"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "c50c7aa41e7fc8eb875863c43d1d1a8e4d3361e9977195c036e3b381b44c945b",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "5333826e625e63b214fc03313636578e510a404b6eb847475252b455d99c15c4",
+      "baselineOutputSha": "6de01ddb309946fb37fbcbcd856f3edc1ca5d1a94bc0644501fdb9e958b49287",
+      "candidateOutputSha": "b87924dba5e740f93c5fabfeeb72f565b3a5ff8c3ac53d24442c9c7fb213ff6a",
+      "facts": {
+        "multirow-seed": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "counted-recovery": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "seed-boundary": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "seed-commit": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "No fact moved between Before and After: both traces read the spec first, preserve iterations: 2, run only the two named baseline checks, close both rows as done with attempts 0, stage only the ledger, commit once with subject \"loop: seed evidence\", check a clean tree, and reply with the single row 0 decision line. The only substantive difference is the decision's third cell, which After rewrote from \"none; all rows closed\" to \"no open rows; parent verification next\"; that still conveys no remaining row to take, so seed-commit holds, but if the next-step cell has a fixed grammar in the seed contract it would be safer to keep the Before phrasing (\"none; all rows closed\") and put the \"parent runs npm test later\" note in trace prose (as After already does in step 8) rather than in the decision line. The expected move for multirow-seed did not occur because Before already applied the seed contract at iteration 1; the After wording simply confirms that behavior without regressing anything.",
+      "wallMs": 12825,
+      "verdict": "unchanged"
+    }
+  },
+  "repoSha": "1a4aacc30ad1873dfbacd48647180d26834bc982"
+}

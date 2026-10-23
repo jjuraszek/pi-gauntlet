@@ -1,0 +1,4 @@
+- multirow-seed: judged: The target seed at iteration 1 uses the seed contract across both open rows: each becomes done with its passing named baseline evidence, every attempts value remains 0, and no row becomes failed.
+- counted-recovery: judged: The iterations header remains 2, preserving the interrupted dispatch count; no ordinary row attempt or row decision is substituted for seeding.
+- seed-boundary: judged: The trace reads the full spec before the ledger and code, runs only the two baseline checks rather than npm test, and changes only the supplied ledger.
+- seed-commit: judged: The trace explicitly stages the ledger and commits exactly once with subject loop: seed evidence, appends exactly one row 0 done decision reporting seeded 2 rows and closed 2 on baseline with no remaining row to take, checks a clean tree, and replies only with that decision line.

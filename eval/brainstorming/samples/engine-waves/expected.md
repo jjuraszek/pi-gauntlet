@@ -1,0 +1,4 @@
+- waves: judged: A writes Engine waves below Amend-grant none; B writes Engine waves and the option-2 granting description. Both amend and check both HEAD fields before completing brainstorm and invoking writing-plans.
+- audit: judged: C and D print the audit and re-present without writes, grants, or approval; approval needs a clean reply without 3.
+- mixed: judged: E revises and re-presents the gate rather than approving or invoking an engine.
+- invalid: judged: F asks for 1, 2, 4, or 5 with no writes; G quotes malformed funding and re-presents with no writes or approval, not a change request.

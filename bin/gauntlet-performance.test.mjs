@@ -320,12 +320,12 @@ test("text output: header, shipped* marker, - cells, by version block, skipped l
   assert.equal(r.status, 0, r.stderr);
   assert.equal(r.lines[0], `corpus: ${root.split("/").pop()}=8`);
   assert.equal(r.lines[1], "runs (8)");
-  assert.match(r.lines[2], /^run_id\s+repo\s+spec\s+version\s+status\s+wall\s+b\/p\/i\/v\/s min\s+tokens\s+cost\s+models\s+disp\s+grants\s+reopens\s+loops\s+findings\s+council\s+big$/);
+  assert.match(r.lines[2], /^run_id\s+repo\s+spec\s+version\s+status\s+engine\s+iterations\s+wall\s+b\/p\/i\/v\/s min\s+tokens\s+cost\s+models\s+disp\s+grants\s+reopens\s+loops\s+findings\s+council\s+big$/);
   const bRow = r.lines.find((l) => l.startsWith("bbbbbbbb"));
-  assert.match(bRow, /\s5\.9\.1\s+shipped\*\s+-\s+10\/-\/-\/-\/-\s/);
+  assert.match(bRow, /\s5\.9\.1\s+shipped\*\s+waves\s+-\s+10\/-\/-\/-\/-\s/);
   assert.match(bRow, /\s-\s*$/);
   const aRow = r.lines.find((l) => l.startsWith("aaaaaaaa"));
-  assert.match(aRow, /\sshipped\s+60m\s+10\/10\/10\/10\/10\s+6\.6k\s+2\.25\s+m\/alpha,m\/beta\s+7\s+1\s+0\s+2\s+1\/2\/3\s+4\s+-$/);
+  assert.match(aRow, /\sshipped\s+waves\s+60m\s+10\/10\/10\/10\/10\s+6\.6k\s+2\.25\s+m\/alpha,m\/beta\s+7\s+1\s+0\s+2\s+1\/2\/3\s+4\s+-$/);
   assert.ok(r.lines.includes("by version"));
   const v = r.lines.find((l) => l.startsWith("5.9.1"));
   assert.match(v, /^5\.9\.1\s+4\s+3\s+1\s+60m\/120m\s/);
@@ -498,4 +498,20 @@ test("council section: --since and no council data", (t) => {
   const none = invoke(empty);
   assert.match(none.lines[1], /^no records found/);
   assert.equal(none.lines.length, 2);
+});
+
+test("runs expose engine and iterations for loop and legacy records in JSON and text", (t) => {
+  const root = gitRepo();
+  cleanup(t, root);
+  write(root, `${TDIR}/old.yaml`, COMPLETE);
+  write(root, `${TDIR}/loop.yaml`, TRUNCATED.replace("derived:\n", "derived:\n  engine: loop\n  iterations: 4\n"));
+  const rows = json(root).runs;
+  assert.deepEqual(rows.map((r) => [r.engine, r.iterations]), [["waves", null], ["loop", 4]]);
+  const rendered = invoke(root);
+  assert.equal(rendered.status, 0, rendered.stderr);
+  const text = rendered.stdout;
+  assert.match(text, /engine/);
+  assert.match(text, /iterations/);
+  assert.match(text, /^aaaaaaaa\s+.*\sshipped\s+waves\s+60m\s/m);
+  assert.match(text, /^bbbbbbbb\s+.*\sshipped\*\s+loop\s+4\s+-\s/m);
 });

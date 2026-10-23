@@ -1,3 +1,4 @@
+bundle-: skills/brainstorming/reference/spec-finalization.md
 ## Ask
 T-2 asks to repair one document's invented and duplicated alarm points, preserve the point-or-linear representation, and send uncertain points to review instead of live data. It also asks to check unit conversion and avoid document-specific exceptions.
 

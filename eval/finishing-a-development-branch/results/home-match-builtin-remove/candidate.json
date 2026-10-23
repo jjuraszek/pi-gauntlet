@@ -38,7 +38,7 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "44c6f347b2bf43b42c43699d15859d8f3015c0d5bfd4ef77b70fa1c01395950d",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "65744be0c2ae3cc00d72ba876b2990435ff473733095d9688fca3dcb88117fb7",
+      "intentSha": "fc207f201dc308d8f88935b1a48003bf6f1482b5ece86868671cc806be813e89",
       "baselineOutputSha": "57940c9159726a93088f11114888e56b24c2bdbe89f47cbfba72d02ac5e74453",
       "candidateOutputSha": "46e80cd13593047701622e7e1666cf21f7b01b2980cea806c431e9b81b395b70",
       "facts": {
@@ -58,14 +58,14 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "Nothing moved in this case: both outputs match /work/acme-api-worktrees/rate-limit against the resolved home pattern, recover NAME = rate-limit, declare the worktree gauntlet-owned, and run worktree remove, worktree prune, then branch -D on /work/acme-api in that order. Note that the Before text here already satisfies b1 and b2, so the 'fails -> holds' expectation for home-match-builtin-remove is not borne out by this sample; if the author intended to show the baseline reporting a sibling path as host-owned, this Before was generated with the new contract already in effect. The After wording is fine as it stands; the only differences are cosmetic (merging the three commands into one block, adding the explicit no --force sentence and the 'worktree is removed before the branch is deleted' explanation), none of which weaken either fact. If anything, keep the After's explicit statement that branch -D follows a successful built-in remove + prune with no further remove or prune, since that is what settles b2 unambiguously.",
-      "wallMs": 10316,
+      "feedback": "Neither fact moved: both Before and After resolve `home:` to `/work/acme-api-worktrees/<name>`, match `/work/acme-api-worktrees/rate-limit` with `NAME = rate-limit`, state that gauntlet owns the worktree, and run `worktree remove`, `worktree prune`, then `branch -D rate-limit` in that order (Before splits the branch deletion into a second code block but keeps the ordering explicit with 'After those succeed, delete the branch'). The Expected-to-move entries for b1/b2 assumed the baseline reported a sibling path as host-owned, but this Before text already applies the keyed contract, so the change is preserved rather than introduced here. After's wording is fine; the only thing to watch is that it collapses the three commands into one block, which makes the 'keep the branch if `destroy:`/remove fails' rule depend on the prose below the block rather than the command sequence itself — keeping the branch-deletion step visibly gated after a success check (as Before does) would make the stop-on-failure rule harder to misread while still delivering the explicit `branch -D` continuation.",
+      "wallMs": 8783,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "44c6f347b2bf43b42c43699d15859d8f3015c0d5bfd4ef77b70fa1c01395950d",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "65744be0c2ae3cc00d72ba876b2990435ff473733095d9688fca3dcb88117fb7",
+      "intentSha": "fc207f201dc308d8f88935b1a48003bf6f1482b5ece86868671cc806be813e89",
       "baselineOutputSha": "214858bb008fc350ed7d609b3360261b902221073251c8581783a26505d7369d",
       "candidateOutputSha": "6451af8121c42eed5096458f8e3aef8d00cdb91a04c892efe11ad1870728f934",
       "facts": {
@@ -85,10 +85,10 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "Both outputs already match the sibling path against the keyed home pattern with NAME=rate-limit and run remove, prune, then branch -D in that order, so b1 and b2 hold in Before as well as After; the expected fails-to-holds movement on this case is not visible in these samples. After dropped the `&&` chaining in favour of prose (\"continuing only on success\"), which still satisfies b2 but is weaker as an executable guarantee - if a reader copies the block, the prune and branch -D will run even after a failed remove. Neither output states the ownership conclusion in words. To keep every fact robust while delivering the Change, have After say explicitly that the match makes the worktree gauntlet-owned, and either keep the `&&` chain or add `set -e`-style guarding in the block so the \"only on success\" rule is enforced by the commands themselves rather than by surrounding prose.",
-      "wallMs": 8886,
+      "feedback": "Both outputs already match the keyed home pattern with NAME=rate-limit and run remove, prune, then branch -D in order, so neither fact moved; the Before you supplied here is not the host-owned baseline the Expected list describes. After is equivalent in substance: it drops the `&&` chaining in favour of separate lines plus the prose 'continuing only on success', which still conveys the gate, though the explicit `&&` form in Before is the stronger, unambiguous encoding of 'proceed only after each command succeeds' and is worth keeping. Minor nits that do not move facts but would tighten After: `home` should read `home:` (the keyed contract field) and `WORKTREE` should be `$WORKTREE` as in Before, and stating 'gauntlet-owned' explicitly after the match would make b1 settle on wording rather than on inference from the commands.",
+      "wallMs": 9678,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "03f2a45e6cf09c8bfc0d9a675ffffba9151f6d00"
+  "repoSha": "a91f1f87381adfb81b00c31d91a566d8e5ba319e"
 }

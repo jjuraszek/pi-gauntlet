@@ -1,3 +1,4 @@
+bundle-: skills/brainstorming/reference/spec-finalization.md
 ## Ask
 T-3 asks for svc-a review visibility for parked points and containment of malformed nested records during response application. svc-b already emits parked weak-confidence points; keep producer changes out of scope.
 

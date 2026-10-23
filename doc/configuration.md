@@ -64,6 +64,58 @@ A `subagent` dispatch carries `model:` only with a string resolved at runtime; s
 
 Pin review personas (`code-reviewer`, `spec-reviewer`, `conformance-reviewer`) at least as capable as `implementer`; false negatives in review cost more than the model does.
 
+| Worker | Model pin | Dispatch behavior |
+|---|---|---|
+| `loop-implementer` | `subagents.agentOverrides.loop-implementer.model` | No dispatch `model:`; unset pin inherits the parent model. Model and thinking are unset in persona frontmatter. |
+
+## Loop engine operations
+
+The default waves engine plans tasks and reviews their implementation. At the brainstorming approval gate, experimental option 4 skips the task plan and iterates fresh workers over acceptance criteria; option 5 uses the same loop with option 2's auto-apply-amend grant. Option 4 uses option 1's amendment review: factual corrections may clear through the reviewer, while other amendments stop for approval. A redraw always stops. Specs without AC rows do not offer loop options. See [Implement engines](implement-engines.md) for the authoring and lifecycle contract.
+
+Every approval writes `**Engine:** loop` for 4/5 or `**Engine:** waves` for 1/2 directly below `**Amend-grant:**`. Missing Engine means waves. Unfunded option 4 keeps `**Amend-grant:** none`; option 5 stores the auto-apply grant, and funded replies persist their decoded budget token. Every approval, including plain 1 and 4, runs `git -C <worktree> add -- <spec path>` and `git -C <worktree> commit --amend --no-edit -q`, preserving the council audit body. The driver checks `git -C <worktree> show HEAD:<spec path>` for both selected Engine and valid grant values before continuing. Failure stops the transition.
+
+### Setting and command resolution
+
+`piGauntlet.loopEngine.maxIterations` is the only `piGauntlet.loopEngine.*` setting. `gauntlet_setting({ key: "loopEngine" })` returns it with any warning. Missing means 30. Integer values are floored at 1 (zero and negative integers become 1); fractional numbers are not rounded. Any non-integer value, including a string, falls back to 30 with `loopEngine.maxIterations must be an integer; using default 30`. The cap counts all dispatches started, including seed and interrupted dispatches.
+
+Before seeding, the driver resolves verification once and prints `verification command: <command> (<source>)`:
+
+1. Use the overrides `## PR gate` `- verification command:` value when present.
+2. Otherwise, a `## verification-before-completion` section must contain exactly one backticked command; zero or several stops as a configuration error.
+3. Otherwise discover the test entrypoint from actual project manifests/build instructions. Missing or ambiguous discovery stops, rather than guessing.
+
+The parent runs this full command after all rows close. Workers run only row evidence checks, never the full verification command or suite. A failed exit run stops with output, without reopening rows or automatically rerunning it.
+
+### Ledger and recovery
+
+The artifact is `<resolved plan dir>/<spec stem>-ledger.md` (default `doc/plans/<spec stem>-ledger.md`), not a task plan. It starts with these headers; values below illustrate the grammar and are replaced with actual paths, SHA and command:
+
+```markdown
+# Ledger - loop engine
+**Spec:** `doc/specs/example.md`
+base: <base SHA>
+verification: <resolved command>
+iterations: 0
+
+| row | status | attempts | evidence |
+|---|---|---|---|
+| 1 | open | 0 | |
+
+## Decisions
+```
+
+Line 1 is exact. Spec is a path alone. Rows index every spec AC in order, without copying row text. Explicit/absent `in-scope` and `venue:` start `open`; only `deviates:`, `deferred:`, and `elsewhere:` start `cut`, with disposition evidence. Status vocabulary is `open`, `done`, `failed`, `cut`. Only the parent cuts through approved dispositions. A child marks passing checks `done` and failed checks `failed`.
+
+Seed fills every open row's evidence and closes already-satisfied rows on passing baseline checks, leaving attempts 0. Ordinary attempts increment only the target row's counter; counters never reset. Evidence names the check plus at most three result lines in one cell, separated by semicolons with pipes escaped. No reasoning transcripts, angle markup or placeholders (`TODO`, `TBD`, `probably`, `etc.`) belong there. Empty evidence is valid only on an open row before seed.
+
+Each child appends `row <n> <done|failed> | <what was done> | <what not to redo or try differently>` under Decisions, each sentence at most 200 characters. Seed uses `row 0 done | seeded <k> rows, closed <m> on baseline | <first row to take>`. The parent increments iterations before dispatch; the child's single commit persists it. The parent validates the clean tree, exactly one commit, target-only changes and new bounded decision. Ordinary validation misses get a repair commit; two consecutive misses stop. Seed validation misses stop immediately.
+
+An unresolved row stops at 3 attempts, or 3 + funded N. `; fund N fix rounds` on 4/5 buys N extra attempts per row, never escalated-model rounds, cap extensions, or empty-commit bypasses. Spent funding is `max(0, attempts - 3)` per row. Two consecutive child row commits changing neither non-ledger files nor row status stop independently of funding. Closed rows never trigger stagnation; third-attempt success exits normally. The cap stops with unresolved rows before verification.
+
+Stop notes quote concrete evidence and the last decision, offer retry with a hint, approved spec amendment, or stop, and keep implement active. Retry appends `row <n> retry | <hint> | allowed attempts <attempts + 1>` and commits `loop: retry row <n>`. It starts a new consecutive-stagnation window but resets neither attempts nor iterations. Dirty-tree or commit-boundary recovery requires human-authorized discard/reset and retains the interrupted dispatch in the count. Funding alone does not reset stagnation.
+
+Amendments reconcile spec and ledger together: approved disposed rows become cut, requirement-preserving changes preserve rows, and a re-bounded done row reopens with `reopened by amendment`. Preserve counters; no plan writer, plan check or task tracker runs for this aftermath. Resume rechecks the ledger through `plan_check`, restores durable counters and decisions, and stops on a dirty tree before dispatch. Finish strips the ledger while the spec and telemetry ship.
+
 ## Phase models
 
 `piGauntlet.phaseModels` switches the parent session's model and thinking level when a phase starts. Keys: `plan`, `implement`, `verify`, `ship` (no `brainstorm` - the user picks the model the session starts on). Each value is `provider/id` or `provider/id:level`, where `level` is a pi thinking level (`off|minimal|low|medium|high|xhigh|max`); a trailing `:suffix` that is not a level is part of the model id (`ollama/qwen2.5-coder:7b`). A switch is persistent: pi records it in the session, replays it on resume, and nothing reverts it at phase end, so with only `implement` set the verify and ship phases keep the implement model. A phase without a key leaves the active model and thinking level unchanged, including a model the user picked by hand. Without `:level` the thinking level is pi's default for the new model. Whole-object precedence applies (repo `.pi/settings.json` replaces the preset block).

@@ -1,6 +1,10 @@
-for: a124f60dc547948ccce5ab3ed680c0888ab67f8a68ca5f04fa2cec9f548236c3
+for: 2b1c49a2fc308f71f5539b7440ace5e139e5831933e1cacf092d469287584ddb
 
 ## Change
+Supply the existing Standing grants decoding procedure to engine-waves and the owning redraw procedure to loop-ledger-amend. Render the actual unmatched group heading in the ticket attribution option rather than its template placeholder; preserve both existing facts.
+
+Route approval options 4/5 to the loop engine, persist engine and grant together, decode loop funding independently, and reconcile approved amendments against a ledger before task-plan aftermath. The target adds the owning User Review Gate slice; old questionary samples drop it, and the ledger sample adds the actual amendment source. New samples are skipped on the baseline because they do not exist there. Text replays prove narrated ordering and values, not live git writes or tracker operations.
+
 Wire PR-first subject resolution, trusted base-SHA gathering, and preservation of the fixed Rework record. Compare against PR_SUBJECT_EVAL_BASE `1b0f7dd2bbbf926a8ff65109414d05aa97acaa58`, which already contains the bundled PR reference. The four synthetic acme/widget samples exercise ordered classification and single-path routing, base-added constraints, policy weakening after a clean merge, and two-line repair over rewrite with original commits kept. Their facts cover bound-title precedence, no-ticket ACs, full SHA/merge/thread/scoped-result preservation, and dropped claims. Text replay proves supplied-observation behavior, not live GitHub calls or writes. Retain all prior rationale and moves; model replay and final target evidence are pending the final wave.
 
 Decode independent amendment and fix-round capabilities from the standing-grant value. Funded gate replies preserve the option-2 description and suffix, while a budget token alone re-presents the approval gate without writing. Keep the existing wordCap and accepted variance.
@@ -33,6 +37,21 @@ The ticket-read-once, restored-step-8-reads-ticket, same-session-redraw-reuses-t
 - pr-subject-repair-over-rewrite/minimal: fails -> holds - Keep the two-line repair, verbatim bound-ticket AC, and complete thread dispositions.
 - pr-subject-repair-over-rewrite/contract: fails -> holds - Keep the two-line repair, verbatim bound-ticket AC, and complete thread dispositions.
 - pr-subject-repair-over-rewrite/record: fails -> holds - Keep the two-line repair, verbatim bound-ticket AC, and complete thread dispositions.
+- loop-gate/menu: fails -> holds - Render exact options 4/5.
+- loop-gate/loop: fails -> holds - Persist and HEAD-check both fields before completing brainstorm and dispatching.
+- loop-gate/no-ac: fails -> holds - Keep the three-option no-AC gate.
+- engine-waves/waves: fails -> holds - Retain waves routing and grant semantics for 1/2.
+- engine-waves/audit: fails -> holds - Audit re-gates without approval.
+- engine-waves/mixed: fails -> holds - Mixed requests re-gate without approval.
+- engine-waves/invalid: fails -> holds - Budget-only and malformed replies do not write.
+- loop-funded-reply/five: fails -> holds - Decode option 5's funded grant and stagnant-row budget.
+- loop-funded-reply/four: fails -> holds - Preserve budget-only option 4 and clean option 5.
+- loop-funded-reply/route: fails -> holds - Check both fields before completing and dispatching loop.
+- loop-funded-reply/malformed: fails -> holds - Quote invalid input and re-gate.
+- loop-ledger-amend/review: fails -> holds - Option 4 reviews while option 5 grants the same amendment scope as 2.
+- loop-ledger-amend/reconcile: fails -> holds - Reconcile cuts and re-bounds without task-plan machinery.
+- loop-ledger-amend/bypass: fails -> holds - Preserve factual evidence, attempts, iterations, and audit body.
+- loop-ledger-amend/redraw: fails -> holds - Redraw deletes the ledger, resets trackers, and requires approval.
 - grant-budget-reply/funded-value: fails -> holds - Persist the exact option-2 description plus the funding suffix without a change-request round.
 - grant-budget-reply/token-needs-approval: fails -> holds - A budget token alone cannot approve or write a grant.
 - questionary-option-lines/layout: fails -> holds - Require one labeled option per physical line with a preceding lead-in and final own-line recommendation.

@@ -1,0 +1,1 @@
+All rows closed, exit verification passed at clean HEAD abc. Trace implement completion to finish, with no changes first; then a review repair; then conformance returns CONFORMS. Overrides Happy path selects CLI row. State exact closure sentinel and read references.

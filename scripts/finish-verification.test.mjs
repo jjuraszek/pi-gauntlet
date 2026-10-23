@@ -10,6 +10,14 @@ const rule = skill.match(/\*\*Skip rule\.\*\*[^\n]+/)[0];
 const commands = [...rule.matchAll(/`(git -C "\$WORKTREE"[^`]+)`/g)].map((m) => m[1]);
 assert.ok(commands.length, "skip rule must contain executable Git checks");
 
+test("ledger finish preserves verification, strip and amendment contracts", () => {
+  assert.ok(skill.includes("# Ledger - loop engine"));
+  assert.ok(skill.includes("verification:"));
+  assert.ok(skill.includes("<spec stem>-ledger.md"));
+  assert.match(skill, /--grep[^\n]*loop: cut row[^\n]*loop: amend/);
+  assert.match(skill, /take the `auto-apply` and `granted` records from those commit bodies/);
+});
+
 for (const telemetry of [".pi/gauntlet/telemetry", "records/custom telemetry"]) {
   for (const scenario of [
     ["clean tree", true, () => {}],

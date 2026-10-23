@@ -1,0 +1,5 @@
+- one-commit: judged: The trace stages src/label.mjs and the supplied ledger explicitly, including the parent header bump, then makes exactly one commit with subject loop: row 1 done; it does not create separate code and ledger commits.
+- clean-tree: judged: After the commit the trace runs git status --porcelain and observes its empty result before replying.
+- ledger-contract: judged: Only row 1 becomes done with attempts 1 and bounded passing evidence, the iterations header remains 2, the seed decision remains intact, and exactly one new row 1 done decision is appended.
+- reply-only: judged: The simulated final reply is exactly the appended row 1 done decision line, with no summary, heading, fence, or acceptance report inside that reply, and its two sentence fields are each at most 200 characters.
+- scoped-check: judged: The trace runs only the row test, not npm test, and changes only src/label.mjs and the ledger, leaving the spec and main untouched.

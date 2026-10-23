@@ -20,6 +20,7 @@ import {
   planDirsFor,
   resolveClosureReview,
   resolveEscalationLoop,
+  resolveLoopEngine,
   resolveFlowGuards,
   resolvePhaseModels,
   type PhaseModelPhase,
@@ -889,7 +890,7 @@ export default function (pi: ExtensionAPI) {
   });
 
   const GauntletSettingParams = Type.Object({
-    key: StringEnum(["specCouncil", "closureReview", "escalationLoop", "flowGuards"] as const, {
+    key: StringEnum(["specCouncil", "closureReview", "escalationLoop", "flowGuards", "loopEngine"] as const, {
       description: "Which gauntlet setting to resolve (merged repo-over-preset).",
     }),
   });
@@ -903,8 +904,11 @@ export default function (pi: ExtensionAPI) {
     async execute(_toolCallId, params, _signal, _onUpdate, ctx) {
       const { gauntlet, errors } = loadGauntletSettings(ctx.cwd);
       const fg = resolveFlowGuards(gauntlet);
+      const loop = resolveLoopEngine(gauntlet);
       const payload =
-        params.key === "specCouncil"
+        params.key === "loopEngine"
+          ? { key: "loopEngine" as const, ...loop, warning: [loop.warning, errors.length ? settingsErrorWarning(errors) : undefined].filter(Boolean).join("; ") || undefined, errors }
+          : params.key === "specCouncil"
           ? { key: "specCouncil" as const, ...resolveSpecCouncil(gauntlet), errors }
           : params.key === "closureReview"
             ? { key: "closureReview" as const, ...resolveClosureReview(gauntlet), errors }

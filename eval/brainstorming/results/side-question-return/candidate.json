@@ -1,7 +1,7 @@
 {
   "sample": "side-question-return",
   "arm": "candidate",
-  "skillSha": "a124f60dc547948ccce5ab3ed680c0888ab67f8a68ca5f04fa2cec9f548236c3",
+  "skillSha": "655f8294a90c2732ae51667cc2844f433273fa8f5f53e174ef113bda45505fc4",
   "inputSha": "4a785dcd9d8fadca18180064443d7c64f7aba75f76d398b4d121a4f01d563c56",
   "kind": "text",
   "assembly": "headed",
@@ -17,16 +17,16 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "A is the better fit because the current code already has one owner for settings, and the report view already reads from it.\n\n- **Defaults have one home.** `settings/resolver.ts:12` owns setting defaults, and existing settings already flow through it.\n- **The view already uses it.** `ui/report-view.ts:30` consumes resolved settings, and I traced that path from the resolver to the view. A new key placed in the resolver reaches the view on that path without new wiring.\n- **A view-local object would add a second settings path.** It would sit beside the resolver with its own defaults. Those defaults could drift from the resolver's, and other code would have two places to look for settings.\n- **Testing stays where it is now.** The setting's default and how it resolves get tested at the resolver, the same as every other setting. The view is tested only for how it reacts to the resolved value.\n\nI'm recording this in the draft: the setting is a new key under the existing resolver (`settings/resolver.ts:12`), consumed at `ui/report-view.ts:30`, with no view-local settings state.\n\nNext is what the setting controls. You said report filters stay active after switching workspaces, which can hide rows in the new workspace. What should happen to filters on a workspace switch?\n\nA) Filters reset on every workspace switch by default, and the setting lets users turn the reset off.\nB) Filters carry over by default, as they do today, and the setting lets users turn the reset on.\nC) Each workspace keeps its own filters, which come back when you return to that workspace, and the setting turns that behavior on or off.\nD) other - name it\n\nRecommendation: A - the reported problem is hidden rows after a switch, so the default should prevent that, while users who rely on carry-over can opt out.\n",
-      "words": 297,
-      "wallMs": 14658,
+      "text": "A is the better fit because `settings/resolver.ts:12` already owns the defaults, and `ui/report-view.ts:30` already consumes the resolved values. I traced that path end to end. A view-local object would create a second settings path beside the resolver that owns every other setting. The defaults and any overrides could then drift apart, and tests would need to cover two sources. Reusing the resolver keeps one read path, and the setting's default stays testable at the resolver boundary. I'll record that the resolver owns the new setting.\n\nNext is the behavior the setting controls. Report filters currently stay active after a workspace switch and can hide rows in the new workspace. What should happen to active filters when the workspace changes?\n\nA) Reset filters on a workspace switch by default, and let the setting opt into keeping them.\nB) Keep today's behavior by default, and let the setting opt into resetting.\nC) Always keep filters but show that they are hiding rows, so the setting toggles that notice instead.\nD) other - name it\n\nRecommendation: A - resetting by default fixes the reported hidden rows for every user, and people who rely on persistent filters can still keep them.\n",
+      "words": 195,
+      "wallMs": 12820,
       "mechanical": {}
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "Reusing the resolver keeps one source of truth: `settings/resolver.ts:12` already owns defaults, and `ui/report-view.ts:30` consumes its resolved settings. A view-local settings object would introduce a second place to define defaults and resolve values without a demonstrated need.\n\nThat settles ownership, but not filter behavior. What should the new setting default to when switching workspaces?\nA) Clear report filters so the new workspace starts unfiltered.\nB) Retain the active filters, preserving today’s behavior.\nC) Restore each workspace’s last-used filters.\nD) Other - name it.\nRecommendation: A - it directly addresses filters unexpectedly hiding rows in the new workspace.\n",
-      "words": 95,
-      "wallMs": 8217,
+      "text": "The existing resolver already owns defaults (`settings/resolver.ts:12`), and the report view consumes its resolved settings (`ui/report-view.ts:30`). Reusing that path keeps the new setting alongside the existing ones, rather than introducing a view-local source of truth with separate default handling.\n\nWhat should the new setting’s default be when switching workspaces?\nA) Clear report filters by default, with an option to retain them.\nB) Retain report filters by default, with an option to clear them.\nC) Other — name the desired behavior.\nRecommendation: A - it directly addresses filters silently hiding rows in the new workspace, while allowing users to retain the current behavior.\n",
+      "words": 100,
+      "wallMs": 15038,
       "mechanical": {}
     }
   },
@@ -34,9 +34,9 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "2e29ea03606c748ae02b9f4d57990bfd5f5ebe331e6305e399419ebc8d95e558",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "1fb8c8bc7f41547c4556b3f1eeec71f448cf1ced9404e94af9939769a5713cec",
-      "baselineOutputSha": "c9583da998acffad6295d3b078f4954cc0a0657d6db68d56a485d62b9946d878",
-      "candidateOutputSha": "7b9d9f14406c9c470ebd29cddea949f5747f304496061db82d9c6a5b8b081764",
+      "intentSha": "3602fc1dee2b339ff8266007e44048e33ea5c5f1dd5ab572b72f91846497b06c",
+      "baselineOutputSha": "58c8796e5e83aed636a39ac4c5101bc4dc8d4beb916bb3794b049f55bfe59063",
+      "candidateOutputSha": "f699998934900155734a489450c617ff228c8ebd5ae46be12b53f313acf808de",
       "facts": {
         "f1": {
           "before": "holds",
@@ -49,16 +49,16 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "Nothing moved on this continuation case. Both outputs explain the resolver fit against the supplied code (resolver.ts:12 owns defaults, report-view.ts:30 consumes the traced path, a view-local object would create a second drifting settings path), keep choice A and record it in the draft, then ask exactly one labeled-options question about the undecided reset-on-workspace-switch behavior with a lead-in first, each option on its own physical line, and Recommendation: on its own final line, without stopping at acknowledgment or starting approaches. After adds a bulleted rationale and a testing point, which stay within the gathered code and do not introduce unverified claims; its lowercase \"D) other - name it\" is a cosmetic inconsistency with the Before casing but not a fact failure. The questionary-option-lines layout requirement from the Change is satisfied by both, so the After wording can be kept as is; if you want tighter alignment with the template, capitalize the Other option label to match the other lettered lines.",
-      "wallMs": 8324,
+      "feedback": "Neither fact moved. Both Before and After explain why reusing the resolver fits the supplied code (resolver.ts:12 owns defaults, report-view.ts:30 consumes resolved values, the traced path), keep choice A, and record the resolver as owner; both then ask a single labeled A/B/C/D question about the unresolved reset-on-workspace-switch behavior with a Recommendation: A line, without stopping or launching approaches. After's layout already matches the questionary rule (lead-in first, one option per physical line, Recommendation on its own final line) and its option wording is tighter than Before's, so no change is needed here to preserve f1 and f2 while delivering the Change.",
+      "wallMs": 7445,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "2e29ea03606c748ae02b9f4d57990bfd5f5ebe331e6305e399419ebc8d95e558",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "1fb8c8bc7f41547c4556b3f1eeec71f448cf1ced9404e94af9939769a5713cec",
-      "baselineOutputSha": "975eafdc418db99178ad452d21027a5228e8c9c5d19bc57df5a88722252b3cdc",
-      "candidateOutputSha": "e6574feda4734235c81c2b1070924066f4c5d58fc5e714bae2d1ce001fa2f9fc",
+      "intentSha": "3602fc1dee2b339ff8266007e44048e33ea5c5f1dd5ab572b72f91846497b06c",
+      "baselineOutputSha": "358312ec7fb79a41268bc249d073718c689984df5e97b8ad0fec1c753ad4b08b",
+      "candidateOutputSha": "2cb3373e50e9891efe8b117e2c47b5cc9ff0c2fbdd274738587bfaf4f820e121",
       "facts": {
         "f1": {
           "before": "holds",
@@ -71,10 +71,10 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "Both outputs explain why the shared resolver fits the current code by citing settings/resolver.ts:12 owning defaults and ui/report-view.ts:30 consuming resolved settings, retain choice A, and then ask a single labeled-options question (A–D) with a recommendation about the undecided workspace-switch reset behavior without stopping at acknowledgment or starting approaches. After keeps the questionary layout the Change requires: lead-in first, each labeled option on its own physical line, and Recommendation: on its own final line. No fact moved; the After wording is sound as written, and the only cosmetic difference (the hyphen versus em dash in option D, and the shorter option descriptions) does not affect either fact.",
-      "wallMs": 4813,
+      "feedback": "Neither fact moved. Both outputs explain the resolver fit by citing settings/resolver.ts:12 owning defaults and ui/report-view.ts:30 consuming resolved values, and both follow with one labeled-options question about workspace reset behavior ending in an own-line Recommendation. After is slightly weaker on f1 only in that it never names the chosen letter (\"A fits because...\" in Before became \"The existing resolver already owns defaults...\"), so retention of choice A is inferred from \"Reusing that path\" rather than stated; keeping an explicit lead such as \"A fits because the existing resolver...\" would make the retention unambiguous. After also narrows the reset question by dropping Before's \"always clear, no setting needed\" option, presupposing that a setting exists; if the Change is meant to keep the reset decision fully open, retain that option alongside the two default-direction choices and the Other line.",
+      "wallMs": 10433,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "062a9e3ed0be79ce0b531bd3d8c451c2f96cc187"
+  "repoSha": "0f3440cf7c055eec7e5a35c382e0aa87a67d392a"
 }

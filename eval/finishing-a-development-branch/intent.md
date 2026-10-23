@@ -1,6 +1,8 @@
 for: c62e8914c9b61cc41095da4963091eb73afaeaa2fe807738747975550beb141b
 
 ## Change
+
+Finish loop ledgers using their verification command and Spec header; strip both plan candidates while preserving spec/telemetry, and include loop cut/amend grants in the amendment digest. The loop-ledger sample expands the default Step 6 cleanup slice to cover the hard gate and strip.
 Step 6 reads the overrides file's `## using-git-worktrees` section at finish time. With a keyed contract it matches `$WORKTREE` against `home:` with `<name>` matched inside one path segment, runs `destroy:` with the recovered name or the built-in `git worktree remove` + `prune`, and keeps the branch when `destroy:` fails; a non-matching path is host-owned. Without a section the legacy three homes decide, unchanged. Successful keyed cleanup explicitly continues to `git -C "$PRIMARY" branch -D "$FEATURE"`, with no built-in remove or prune after a successful `destroy:`.
 
 Step 4 applies the shared menu-layout contract to both finishing menus, separating generated options from preceding ordered observations and echoing a mapped legacy numeric pick before acting.
