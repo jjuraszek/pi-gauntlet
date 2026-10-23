@@ -7,6 +7,98 @@ import { join } from "node:path";
 import { tmpdir } from "node:os";
 import { sliceText, stripFrontmatter, assemble, parseCase, textArgs, editArgs, prepareFixture, captureEdit, inputSha } from "./replay.mjs";
 
+import { parseExpected } from "./checks.mjs";
+
+const auditSamples = ["batch-repair", "audit-repo-fit", "scenario-best-effort", "audit-quiet-noop", "audit-byte-lock", "audit-dispatch", "audit-grounding"];
+const auditPath = "skills/shape-ticket/reference/repo-audit.md";
+const shapeTicketFiles = [
+  { path: "skills/shape-ticket/SKILL.md", slice: "### 4 - Draft", sliceTo: "## Roast" },
+  { path: "skills/brainstorming/reference/menu-layout.md" },
+  { path: "skills/shape-ticket/SKILL.md", slice: "## Evidence gate", sliceTo: "## Ticket wording" },
+];
+
+test("shape-ticket baseline preserves slices and excludes only audit from all existing cases", () => {
+  const root = new URL("../../", import.meta.url).pathname;
+  const read = replay.treeReader(root);
+  const target = JSON.parse(read("eval/shape-ticket/target.json"));
+  assert.deepEqual(target.skillFiles, [...shapeTicketFiles, { path: auditPath }]);
+  const samples = readdirSync(join(root, "eval/shape-ticket/samples")).filter((name) => !auditSamples.includes(name));
+  assert.equal(samples.length, 13);
+  for (const sample of samples) {
+    const raw = read(`eval/shape-ticket/samples/${sample}/case.md`);
+    assert.equal(raw.split("\n")[0], `bundle-: ${auditPath}`, sample);
+    const { bundle, drop } = parseCase(raw);
+    assert.deepEqual(drop, [auditPath], sample);
+    const filtered = { ...target, skillFiles: target.skillFiles.filter((f) => !drop.includes(f.path)) };
+    const result = assemble(filtered, read, bundle);
+    assert.equal(result, assemble({ ...target, skillFiles: shapeTicketFiles }, read, bundle), sample);
+    assert.ok(!result.includes("# Repository audit"), sample);
+    for (const path of bundle) assert.ok(result.includes(read(path)), `${sample}: ${path}`);
+  }
+});
+
+test("shape-ticket audit samples parse facts and assemble audit without changing target slices", () => {
+  const root = new URL("../../", import.meta.url).pathname;
+  const read = replay.treeReader(root);
+  const target = JSON.parse(read("eval/shape-ticket/target.json"));
+  assert.equal(target.wordCap, 1600);
+  for (const sample of auditSamples) {
+    const { bundle, drop, text } = parseCase(read(`eval/shape-ticket/samples/${sample}/case.md`));
+    const expected = parseExpected(read(`eval/shape-ticket/samples/${sample}/expected.md`));
+    assert.equal(expected.anonymized, true, sample);
+    assert.ok(expected.facts.length > 0, sample);
+    assert.ok(text.includes("Scenario:"), sample);
+    assert.deepEqual(drop, [], sample);
+    const result = assemble(target, read, bundle);
+    assert.ok(result.includes("# Repository audit"), sample);
+    if (["batch-repair", "audit-dispatch", "audit-grounding"].includes(sample)) {
+      assert.ok(bundle.includes("skills/shape-ticket/SKILL.md"), sample);
+      assert.ok(result.includes("## Mode routing"), sample);
+    }
+  }
+});
+
+test("shape-ticket audit source carries six labels and foreground file-only controls", () => {
+  const text = readFileSync(new URL("../../skills/shape-ticket/reference/repo-audit.md", import.meta.url), "utf8");
+  for (const label of ["Claims:", "Repo-fit:", "AC-fit:", "Sibling:", "In-motion:", "Scenario:"]) {
+    assert.ok(text.split("\n").some((line) => line.startsWith(label)), label);
+  }
+  for (const token of ['async: false', 'context: "fresh"', 'outputMode: "file-only"', "60000", "240000", "300000"]) {
+    assert.ok(text.includes(token), token);
+  }
+});
+
+test("shape-ticket integrates audited batch gates without changing replay boundaries", () => {
+  const read = replay.treeReader(new URL("../../", import.meta.url).pathname);
+  const text = read("skills/shape-ticket/SKILL.md");
+  const target = JSON.parse(read("eval/shape-ticket/target.json"));
+  const { bundle } = parseCase(read("eval/shape-ticket/samples/batch-repair/case.md"));
+  const result = assemble(target, read, bundle);
+  for (const token of ["reference/repo-audit.md", "reference/examples.md", "first occurrence", "current ticket", "ticket-local", "all-or-nothing", "AC uniqueness", "Audit:"]) assert.ok(text.includes(token), token);
+  assert.ok(!text.includes("### Bad -> good AC examples"));
+  const draft = sliceText(text, "### 4 - Draft", "## Roast");
+  assert.ok(draft.includes("AC uniqueness"));
+  assert.ok(result.includes("scenario: setup:"));
+  assert.ok(text.includes('outputMode: "file-only"'));
+  assert.ok(text.includes("^lean:"));
+  const overlap = read("skills/shape-ticket/reference/overlap-check.md");
+  assert.ok(overlap.includes("ticket-local"));
+  assert.ok(!overlap.includes("retain whole-run semantics"));
+  assert.ok(text.indexOf("Audit:", text.indexOf("### 8 -")) < text.indexOf("**Title**", text.indexOf("### 8 -")));
+  assert.ok(Buffer.byteLength(text) < 50000);
+  assert.ok(text.split("\n").length < 2000);
+  const ladder = text.includes("## Tracker abstraction and capability ladder") ? text : read("skills/shape-ticket/reference/tracker-ladder.md");
+  assert.ok(ladder.includes('gh pr list --search "<ref>" --limit 20'));
+  assert.ok(text.includes("Read `reference/tracker-ladder.md` now"));
+  for (const token of ["substantive full-replacement repair", "another row's setup, action, and result", "same-subject rows with different results", "never serialize legacy rows", "no fifth axis", "Max 8 tasks", "before the next ticket prints"]) assert.ok(text.includes(token), token);
+  const examples = read("skills/shape-ticket/reference/examples.md");
+  assert.ok(examples.startsWith("## Examples and rationalizations\n"));
+  assert.match(examples, /^### Bad -> good AC examples$/m);
+  assert.match(examples, /^### Rationalization table$/m);
+  assert.doesNotMatch(text, /^## Examples and rationalizations$/m);
+  assert.ok(text.includes("reference/examples.md"));
+});
+
 const skill = "---\nname: x\n---\n# T\n\n### 3. A\na\n\n### 4. B\nb\n\n### 5. C\nc\n\n### 6. D\nd\n";
 
 test("slice ends at the next same-or-higher heading by default", () => {

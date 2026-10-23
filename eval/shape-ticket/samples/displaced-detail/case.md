@@ -1,3 +1,4 @@
+bundle-: skills/shape-ticket/reference/repo-audit.md
 bundle+: skills/shape-ticket/reference/ticket-wording.md
 
 Select the step-5 pre-roast handoff, NOT replay's default Draft-only response. Tools unavailable: show proposed artifact state and comment, not execution. Draft artifact and source snapshot are the two existing artifacts. Earlier step 4 already demoted this exact sentence into the proposed Reporter note: Keep the old export switch available during the move.
