@@ -195,6 +195,8 @@ Telemetry: the recorder pushes `{ kind: "engine", engine: "loop" | "waves" }` wh
 
 Every site that names `1`/`2` or routes to `writing-plans` changes together (the plan enumerates them with `rg -n 'writing-plans|1 or 2|1/2|`1`' skills/brainstorming`): the fund sentence ("to 1, 2, 4, or 5"); the funded-reply table (rows for bare `5`, `5; fund N`, `4` with a budget token, mirroring `2`, `2; fund N`, `1`); the budget-token re-prompt ("asking for 1, 2, 4, or 5"); the `3` rules (`3` plus `4`/`5` prints and re-presents; a reply carrying `3` never grants); mixed replies stay change requests; the approval paragraph (`4` approves without a grant, `5` approves and grants; both persist `**Engine:** loop`); the transition ("proceed immediately to `/skill:writing-plans`" becomes "to `/skill:writing-plans` on 1/2, `/skill:loop-implementation` on 4/5"); `brainstorming/SKILL.md:56` step 13 and the gate checklist. A spec with `none - ...` in `## Acceptance criteria` renders three options and the menu says why.
 
+The unmatched-group question in `reference/ticket-acceptance.md` renders the supplied repo-group heading in place of the `<name>` placeholder (`B) elsewhere: billing-api`, never `B) elsewhere: <name>`); the widened brainstorming eval bundle made one model print the placeholder literally, and the sentence keeps that existing cell holding. Ratified at the finish gate (G1).
+
 ### Resume
 
 Discovery (`reconstruction.md` Candidates): a plan-dir candidate whose line 1 is the discriminant pairs with the spec on its `**Spec:**` line, not by basename. Routes:
