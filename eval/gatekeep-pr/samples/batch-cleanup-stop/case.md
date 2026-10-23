@@ -12,6 +12,8 @@ The parent rendered menus in roster order; human selected cleanup12 then stop15.
 
 Next round PR12 stays in the roster after cleanup; human first selects show evidence, then post coverage to PR. Evidence remains at retained helper paths; PR coverage post has not succeeded before. /tmp/widgets-pr-12 no longer exists. The primary checkout and continuation record still exist. Describe terminal post/evidence handling and re-render without dispatching a child in a removed cwd.
 
+Separate queued-merge probe: PR18's selected `merge` returned OPEN (queued). Its retained record /tmp/state-18 has matching acme/widgets PR/base identity and no merge commit yet. In the next round the human selects wait18; all other PR picks are then collected. The post-merge read `gh pr view 18 --json state,mergeCommit` returns OPEN with null mergeCommit, still queued. In the following round the human again selects wait18; after all picks are collected, the same read returns MERGED with mergeCommit.oid 8888888. Describe both parent-owned re-reads and resulting menus/coverage without helpers, a child, or a CI watch.
+
 Separate ordinary open-PR probe: stop21 sees local unpushed fix commits ddddddd and eeeeeee in /tmp/widgets-pr-21. Human has not selected teardown yet. Separate stale-execute probe: queued reply24 targets assessed head fffffff but refresh sees 9999999; the fresh execute child has /tmp/state-24, /tmp/report-24 and matching worktree. No reply has been sent.
 
 ## Entry

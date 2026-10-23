@@ -91,7 +91,7 @@ for (const [sample, ids] of [
   ['batch-summary-queue', ['s1', 's2', 's3', 's4', 's5', 's6', 's7']],
   ['batch-failure-retry', ['f1', 'f2', 'f3', 'f4', 'f5', 'f6']],
   ['batch-rebase-answers', ['r1', 'r2', 'r3', 'r4', 'r5']],
-  ['batch-cleanup-stop', ['c1', 'c2', 'c3', 'c4', 'c5', 'c6']],
+  ['batch-cleanup-stop', ['c1', 'c2', 'c3', 'c4', 'c5', 'c6', 'c7']],
 ]) {
   test(`multi-PR replay assembly and facts: ${sample}`, () => {
     const input = readOrEmpty(`../eval/gatekeep-pr/samples/${sample}/case.md`);
@@ -108,6 +108,11 @@ test('multi-PR terminal picks stay parent-owned after worktree cleanup', () => {
   const round = section(batch, '## Summary and menu round\n', '## Between batches and retirement\n');
   assert.match(round, /For terminal overlays, the parent handles `post coverage to ticket`, `post coverage to PR`, and `show evidence` from the primary checkout/);
   assert.match(round, /even after cleanup removes the PR worktree/);
+  assert.match(round, /parent.*`merge queued`.*`wait`.*after all picks are collected/);
+  assert.match(round, /gh pr view <N> --json state,mergeCommit/);
+  assert.match(round, /`MERGED`.*`pr.state`.*`pr.merge_commit`.*`own merge`/);
+  assert.match(round, /otherwise re-render `merge queued`.*`wait`.*`show evidence`.*`stop`/);
+  assert.match(round, /no helper, child, or CI watch/);
   assert.match(round, /`post-selection-loop.md` `### Merge course` and `### Output done-check`/);
   assert.match(round, /direct selected post only, with no compare-and-swap or helper dispatch/);
   assert.match(round, /Queue terminal posts with all other external writes until every PR's pick is collected/);
