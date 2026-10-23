@@ -64,11 +64,12 @@
 - `eval/gatekeep-pr-scope/results/*/baseline.json`
 - `eval/gatekeep-pr-scope/results/*/candidate.json`
 
-**Modify - documentation:**
+**Modify - documentation and peer floor:**
 - `README.md`
 - `doc/personas.md`
 - `CHANGELOG.md`
 - `eval/gatekeep-pr/README.md`
+- `package.json`
 
 **Delete:** none.
 
@@ -78,7 +79,7 @@
 
 **TDD scenario:** Modifying tested code - existing tests first, failing contract assertions, implementation, green.
 
-**Spec:** doc/specs/2026-10-23-gh-79-parallel-gatekeep-prs.md § "Acceptance criteria" L30-L49, § "Entry and argument grammar" L55-L57, § "Components" L61-L66, § "Data flow" L70-L78, § "Child results" L82, § "Outcome adapter" L86-L98, § "Pre-report asks" L102-L111, § "Private handoff" L115, § "Summary" L119-L123, § "Pick round" L127-L132, § "Grants and retained authority" L136, § "Progress tracking" L140, § "Persona" L144, § "Errors and edge cases" L148-L155, § "Tests" L163, § "Tests" L166, § "Out of scope" L176, § "Out of scope" L181-L182
+**Spec:** doc/specs/2026-10-23-gh-79-parallel-gatekeep-prs.md § "Acceptance criteria" L30-L49, § "Entry and argument grammar" L55-L57, § "Components" L61-L66, § "Data flow" L70-L78, § "Child results" L82, § "Outcome adapter" L86-L98, § "Pre-report asks" L102-L111, § "Private handoff" L115, § "Summary" L119-L123, § "Pick round" L127-L133, § "Pick round" L131, § "Grants and retained authority" L137, § "Progress tracking" L141, § "Persona" L145, § "Errors and edge cases" L149-L156, § "Tests" L164, § "Tests" L167, § "Out of scope" L178, § "Out of scope" L182-L183
 
 **Files:**
 - Create: `skills/gatekeep-pr/reference/batch.md`
@@ -88,7 +89,7 @@
 
 **Tests:**
 - `node --test scripts/gatekeep-comment-reconcile.test.mjs`
-- baseline: 526135c pass
+- baseline: d96a794a pass
 - via: `skills/gatekeep-pr/reference/batch.md`, `agents/pr-gatekeeper.md`, existing source-contract `test()` cases
 
 Decision: Add `acceptance: { level: "none", reason: "the gatekeep child result line is the handoff contract" }` per outer task; cohort's acceptance formatter otherwise appends another contract. Keep the specified completion guard pin independently. This does not change existing inner-helper contracts.
@@ -144,7 +145,9 @@ Decision: Supply the workflow through task text and explicit skill injection; ke
 
   Only show evidence runs/re-asks in place. Queue every other pick until last menu. Between completed batches, parent runs cleanup guards/ordered overrides, keeps that PR and post rows with cleanup gone; stop performs rebased-local reset/assertions, human-selected ordinary teardown naming discarded commits, terminal leave-as-found, per-PR record/helper/log deletion, then retirement. Never touch a live child's tree.
 
-  Next batch mixes retry/answered-ask assess with ordinary execute. Execute refreshes first; moved head/unavailable row returns fresh report without stale action. Otherwise use existing next-action/fix-wave/retained grants scoped to that PR. Preserve caps/deadlines/no-progress. Waits are independently bounded. Await every batch, re-render non-retired roster, repeat. Parent tasks `pr-<N> state: <record path>` become in-progress on dispatch, complete on retirement, failed on un-retried failure. Child trackers remain session-local; retain checklist fallback.
+  In `batch.md` `## Summary and menu round`, run terminal `post coverage to ticket`, `post coverage to PR`, and `show evidence` in the parent from the primary checkout after cleanup removes the worktree. Require direct selection for each external post and queue it until all round picks are collected; evidence stays in-place. Run the `merge queued` overlay's `wait` in the parent after all picks: repeat `post-selection-loop.md` `### Merge course`'s `gh pr view <N> --json state,mergeCommit`, persist `pr.state` and `pr.merge_commit` on `MERGED`, and render `own merge`; otherwise re-render `merge queued`. Dispatch no child, helper, or CI watch for these terminal picks, and never use a removed worktree as cwd. Preserve successful-post suppression and failed-post rows.
+
+  Next batch mixes retry/answered-ask assess with ordinary nonterminal execute. Execute refreshes first; moved head/unavailable row returns fresh report without stale action. Otherwise use existing next-action/fix-wave/retained grants scoped to that PR. Preserve caps/deadlines/no-progress. Nonterminal waits are independently bounded. Await every batch, re-render non-retired roster, repeat. Parent tasks `pr-<N> state: <record path>` become in-progress on dispatch, complete on retirement, failed on un-retried failure. Child trackers remain session-local; retain checklist fallback.
 
 - [ ] **Step 8: Write the standalone persona and turn tests green.**
 
@@ -183,7 +186,7 @@ Depends on Wave 1: both new bundled files must already be committed; this wave a
 
 **TDD scenario:** Modifying tested code - existing tests, red routing/sample guards, minimal routing and synthetic cases, green.
 
-**Spec:** doc/specs/2026-10-23-gh-79-parallel-gatekeep-prs.md § "Acceptance criteria" L30-L49, § "Entry and argument grammar" L55-L57, § "Tests" L159-L165, § "Tests" L165, § "Tests" L166, § "Out of scope" L181-L182
+**Spec:** doc/specs/2026-10-23-gh-79-parallel-gatekeep-prs.md § "Acceptance criteria" L30-L49, § "Entry and argument grammar" L55-L57, § "Tests" L160-L166, § "Tests" L166, § "Tests" L167, § "Out of scope" L182-L183
 
 **Files:**
 - Modify: `skills/gatekeep-pr/SKILL.md:14-39`
@@ -217,10 +220,10 @@ Depends on Wave 1: both new bundled files must already be committed; this wave a
 
 **Tests:**
 - `node --test scripts/gatekeep-comment-reconcile.test.mjs`
-- baseline: 526135c pass
+- baseline: d96a794a pass
 - via: `skills/gatekeep-pr/SKILL.md`, `reference/batch.md`, `agents/pr-gatekeeper.md`
 - `node --test eval/lib/lint.test.mjs`
-- baseline: 526135c pass
+- baseline: d96a794a pass
 - via: `parseCase()`, `lintTarget()`
 
 Decision: Keep dispatch/config detail out of the short skill rule: existing Harness-notes isolation and 120-line assertions stay intact. Keep both target manifests and old cases/facts unchanged; sample-local bundles are supported by `eval/lib/replay.mjs:43-59`.
@@ -256,7 +259,7 @@ Decision: Keep dispatch/config detail out of the short skill rule: existing Harn
 
   `batch-rebase-answers`: supplied task snapshots no for12, yes for15, unpushable terminal sync18. Facts r1-r5: no child ask;12 records declined/skipped/unsynced report;15 follows existing helper/review/lease sync;18 failed-sync gets failure menu not conflict rows; same-author/no-op/merge candidates cause no extra parent question. Task snapshots do not claim one shared parent answer gave different values to equivalent candidates.
 
-  `batch-cleanup-stop`: own-merge cleanup plus rebased-local stop, records carrying grants/usage/ledger. Facts c1-c6: consequences await all results/menu picks; guarded ordered cleanup retains post rows and drops cleanup; stop resets/asserts pre-head/clean then retires; no record reset; no child after checkout removal and terminal post/evidence follows primary course; stale execute refresh returns fresh report without action. Ordinary teardown stays human-selected, naming discarded commits.
+  `batch-cleanup-stop`: own-merge cleanup plus rebased-local stop, records carrying grants/usage/ledger. Facts c1-c6: consequences await all results/menu picks; guarded ordered cleanup retains post rows and drops cleanup; stop resets/asserts pre-head/clean then retires; no record reset; no child after checkout removal and terminal post/evidence follows primary course; stale execute refresh returns fresh report without action. Ordinary teardown stays human-selected, naming discarded commits. Add c7 for queued PR18: after all picks the parent handles each merge-queued wait's state/mergeCommit read, first retaining wait/evidence/stop on OPEN, then persisting MERGED and merge commit 8888888 and rendering coverage/own-merge rows, without child/helper/CI-watch dispatch.
 
 - [ ] **Step 5: Green deterministic tests and update both intents.**
 
@@ -281,6 +284,8 @@ Decision: Keep dispatch/config detail out of the short skill rule: existing Harn
 
 - [ ] **Step 7: Hand the live failure-isolation smoke to parent verification.**
 
+  Require pi-cohort >= 7.4.5 for the smoke; 7.4.4 fails startup with duplicate `subagent` registration for inherited extensions. Task 3 owns the matching `package.json` and README floor bump.
+
   Parent creates a scratch repo with two synthetic PR heads/worktrees and isolated synthetic forge authorization/read responses. Use real pi/cohort/persona and explicit scoped verification, not text replay or fake subagent implementation. Pre-mint two existing-format records and two report destinations outside the worktrees, with neither report file present before dispatch. Run one foreground parent batch without `--rebase`: force one head's pushability probe to fail, so that child returns `FAILED - head not pushable: <head_url>:<head_ref>` before Verify, dispatches no helper, and writes no report; its sibling dispatches Verify then Review as fresh helpers, uses its session-local `plan_tracker`, writes the supplied report path, and returns `REPORT <report path>`.
 
   Capture actual dispatch/child session evidence and filesystem checks: two distinct worktrees with matching HEAD/cwd identities; only the sibling's Verify/Review calls; sibling tracker updates separate from the parent's PR tasks; exactly the sibling's report at its supplied path and no file at the failed PR's supplied path; both supplied record identities preserved with no second continuation record. After both results, assert the failed PR's menu is `retry`/`show evidence`/`stop` and the sibling's menu is its ordinary menu. Record sanitized branch verification evidence including result lines and supplied record/report/helper paths. Missing tools/models/credentials mean missing proof; do not claim live success from text evals.
@@ -295,29 +300,33 @@ Decision: Keep dispatch/config detail out of the short skill rule: existing Harn
 
 ## Wave 3 - User-facing and persona documentation
 
-Depends on Wave 2: document delivered grammar/pins and actual samples. This is the dedicated trailing doc-only wave.
+Depends on Wave 2: document delivered grammar/pins and actual samples. This is the dedicated trailing documentation wave, including its required peer-floor metadata update.
 
 ### Task 3: Document the multi-PR invocation and dispatch boundary
 
-**TDD scenario:** Trivial change - documentation-only updates from delivered source.
+**TDD scenario:** Trivial change - documentation and peer-floor metadata updates from delivered source.
 
-**Spec:** doc/specs/2026-10-23-gh-79-parallel-gatekeep-prs.md § "Documentation impact" L169-L171
+**Spec:** doc/specs/2026-10-23-gh-79-parallel-gatekeep-prs.md § "Tests" L166, § "Documentation impact" L170-L172
 
 **Files:**
 - Modify: `README.md:43-82`
+- Modify: `README.md:125`
+- Modify: `package.json:65-67`
 - Modify: `doc/personas.md:3-18`
 - Modify: `doc/personas.md:40-70`
 - Modify: `CHANGELOG.md:1-5`
 - Modify: `eval/gatekeep-pr/README.md:1-27`
 
 **Tests:**
-- none: documentation; no Markdown formatter
+- none: documentation and peer-floor metadata; no Markdown formatter; header validator checks peer/README floor agreement
 
-Decision: Existing agents allowlist/install loops include the new persona automatically; no installer/package change. Keep marketplace unchanged and single-PR Claude support while documenting pi-only sets.
+Decision: Existing agents allowlist/install loops include the new persona automatically; no installer change. Raise only the pi-cohort peer floor in `package.json` to `>=7.4.5`, matching README's requirement: spec Tests L166 identifies 7.4.4's duplicate `subagent` registration and 7.4.5's fix. Keep marketplace unchanged and single-PR Claude support while documenting pi-only sets.
 
-- [ ] **Step 1: Amend the existing README paragraph.**
+The floor enables Task 2's live smoke of `### Outcome adapter`: one child returns `FAILED - head not pushable: ...` without a report or helpers, while its sibling uses `plan_tracker` and returns `REPORT` at the supplied path. Task 2 owns the two-worktree/no-second-record evidence and failed-menu `retry`/`show evidence`/`stop` assertions; this task owns the runtime requirement and package metadata, not another smoke implementation.
 
-  Add set invocation, one child/worktree per PR, ordered summary/menus, queued parallel execution, `parallel.maxTasks` default8, and once-per-set eligible-author confirmation. Update touched nine-persona count to ten. Avoid unrelated cleanup.
+- [ ] **Step 1: Amend the existing README paragraph and matching peer floor.**
+
+  Add set invocation, one child/worktree per PR, ordered summary/menus, queued parallel execution, `parallel.maxTasks` default8, and once-per-set eligible-author confirmation. Update touched nine-persona count to ten. Set `package.json` `peerDependencies.pi-cohort` to `>=7.4.5` and README's Requirements floor to 7.4.5; explain that dispatch-enabled personas need the inherited-extension startup fix (pi-cohort #26). Avoid unrelated cleanup.
 
 - [ ] **Step 2: Add `pr-gatekeeper` to the persona guide.**
 
@@ -325,13 +334,13 @@ Decision: Existing agents allowlist/install loops include the new persona automa
 
 - [ ] **Step 3: Add changelog and refresh inventory.**
 
-  Add `## Unreleased` above current version with invocation/persona bullet ending `(#79)`; no version bump. Update eval inventory43->47, four sample names/facts, local bundles versus global manifest, readable-baseline requirement, and text-versus-live evidence distinction.
+  Add `## Unreleased` above current version with invocation/persona bullet ending `(#79)` and the pi-cohort >= 7.4.5 requirement and startup-fix reason; no version bump. Update eval inventory43->47, four sample names/facts, local bundles versus global manifest, readable-baseline requirement, and text-versus-live evidence distinction.
 
-- [ ] **Step 4: Check and commit docs.**
+- [ ] **Step 4: Check and commit docs and peer metadata.**
 
-  Run: `git diff --check -- README.md doc/personas.md CHANGELOG.md eval/gatekeep-pr/README.md`
+  Run: `git diff --check -- README.md doc/personas.md CHANGELOG.md eval/gatekeep-pr/README.md package.json`
 
-  Expected: no whitespace errors; ASCII/compact tables, working links, delivered grammar/defaults, ten personas and actual sample names. Header validator owns repo-wide style. Commit four docs with subject `Document multi-PR gatekeeping and nested dispatch (ref #79)`.
+  Expected: no whitespace errors; ASCII/compact tables, working links, delivered grammar/defaults, ten personas and actual sample names. Header validator owns repo-wide style and peer-floor agreement (`scripts/ci.mjs:520-524`). Commit four docs and package metadata with subject `Document multi-PR gatekeeping and nested dispatch (ref #79)`.
 
 ## Spec coverage
 
@@ -379,33 +388,36 @@ Decision: Existing agents allowlist/install loops include the new persona automa
 | § "Private handoff" L115 | Parent only init/picks, answers in task, fetched data never resets grants | Task 1 |
 | § "Summary" L119-L123 | Fixed ordered verdict/source/count with unknown semantics | Task 1 |
 | § "Summary" L119-L123 | Every shared path/PR list, unknown files, none, no landing schedule | Task 1 |
-| § "Pick round" L127-L132 | Queue except in-place evidence | Task 1 |
-| § "Pick round" L127-L132 | Batch-only safe retry/recommendation/omission, mixed assess+execute | Task 1 |
-| § "Pick round" L127-L132 | Parent cleanup between batches retains roster/post rows | Task 1 |
-| § "Pick round" L127-L132 | Parent stop reset/assert/teardown choice/terminal leave/deletion/retirement | Task 1 |
-| § "Pick round" L127-L132 | Stale refresh returns report; parallel waits bounded and awaited | Task 1 |
-| § "Grants and retained authority" L136 | Existing grant machinery, reentry consumption, PR-local scope/strategy | Task 1 |
-| § "Progress tracking" L140 | Parent task names/statuses, child session stages and checklist fallback | Task 1 |
-| § "Persona" L144 | Exact routing label/tools/pins, unset model/thinking, explicit skill and no UI/reset | Task 1 |
-| § "Errors and edge cases" L148-L155 | Isolate child/provision failures and safe reprovision retry | Task 1 |
-| § "Errors and edge cases" L148-L155 | All terminal: summary/terminal menus, no helpers | Task 1 |
-| § "Errors and edge cases" L148-L155 | Shared paths unchanged menus; terminal PR retained until stop | Task 1 |
-| § "Errors and edge cases" L148-L155 | Keyed home per PR, serial provision/consequences, pre-effect size refusal | Task 1 |
-| § "Tests" L159-L165 | Three-PR summary/confirmation/conflict/no-write/menu/queue sample | Task 2 |
-| § "Tests" L159-L165 | Timeout/unpushable/report isolation and mixed retry/execute sample | Task 2 |
-| § "Tests" L159-L165 | Supplied rebase answer/skipped report/sibling sync/failed-sync sample | Task 2 |
-| § "Tests" L159-L165 | Cleanup/stop/reset/retirement/no record reset sample | Task 2 |
-| § "Tests" L163 | Both new bundled files in first readable implementation commit | Task 1 |
-| § "Tests" L159-L165 | Local bundles, unchanged old assemblies/outcomes, intents and committed reports | Task 2 |
-| § "Tests" L159-L165 | Replay scope target unchanged and commit evidence | Task 2 |
-| § "Tests" L165 | Parent live scratch smoke: two worktrees; unpushable child fails before helpers with no report; sibling alone dispatches Verify/Review, tracks and reports at supplied path; no second record and correct menus | Task 2 |
-| § "Tests" L166 | Deliver persona/size/cap validator conformance and unchanged marketplace | Task 1, Task 2 |
-| § "Documentation impact" L169-L171 | Amend existing docs; no new feature guide | Task 3 |
-| § "Documentation impact" L169-L171 | README invocation/cap/confirmation and persona rationale/pins | Task 3 |
-| § "Documentation impact" L169-L171 | Unreleased invocation/persona ticket bullet and refreshed sample inventory | Task 3 |
-| § "Out of scope" L176 | No combined batch menu/verbs beyond retry | Task 1 |
-| § "Out of scope" L177 | Landing order, dependency scheduling and cross-PR close verdict | waived: expressly excluded |
-| § "Out of scope" L178 | Rework against current rules | waived: expressly excluded |
-| § "Out of scope" L179 | Claude multi-PR implementation | waived: expressly excluded |
-| § "Out of scope" L181-L182 | No single-PR reference/sync edits; adapter only batch/persona | Task 1, Task 2 |
-| § "Out of scope" L181-L182 | Enumerated asks and assess answers, not generic resume | Task 1, Task 2 |
+| § "Pick round" L127-L133 | Queue except in-place evidence | Task 1 |
+| § "Pick round" L127-L133 | Batch-only safe retry/recommendation/omission, mixed assess+execute | Task 1 |
+| § "Pick round" L127-L133 | Parent cleanup between batches retains roster/post rows | Task 1 |
+| § "Pick round" L127-L133 | Parent stop reset/assert/teardown choice/terminal leave/deletion/retirement | Task 1 |
+| § "Pick round" L131 | Parent runs post-cleanup terminal posts/evidence from primary; external posts still require direct selection and queue until all picks | Task 1 |
+| § "Pick round" L131 | Parent handles merge-queued wait after all picks: post-merge state/mergeCommit read, persist merged state/commit and render own merge or re-render queued; no child/helper/CI watch | Task 1 |
+| § "Pick round" L127-L133 | Stale refresh returns report; parallel waits bounded and awaited | Task 1 |
+| § "Grants and retained authority" L137 | Existing grant machinery, reentry consumption, PR-local scope/strategy | Task 1 |
+| § "Progress tracking" L141 | Parent task names/statuses, child session stages and checklist fallback | Task 1 |
+| § "Persona" L145 | Exact routing label/tools/pins, unset model/thinking, explicit skill and no UI/reset | Task 1 |
+| § "Errors and edge cases" L149-L156 | Isolate child/provision failures and safe reprovision retry | Task 1 |
+| § "Errors and edge cases" L149-L156 | All terminal: summary/terminal menus, no helpers | Task 1 |
+| § "Errors and edge cases" L149-L156 | Shared paths unchanged menus; terminal PR retained until stop | Task 1 |
+| § "Errors and edge cases" L149-L156 | Keyed home per PR, serial provision/consequences, pre-effect size refusal | Task 1 |
+| § "Tests" L160-L166 | Three-PR summary/confirmation/conflict/no-write/menu/queue sample | Task 2 |
+| § "Tests" L160-L166 | Timeout/unpushable/report isolation and mixed retry/execute sample | Task 2 |
+| § "Tests" L160-L166 | Supplied rebase answer/skipped report/sibling sync/failed-sync sample | Task 2 |
+| § "Tests" L160-L166 | Cleanup/stop/reset/retirement/no record reset sample | Task 2 |
+| § "Tests" L164 | Both new bundled files in first readable implementation commit | Task 1 |
+| § "Tests" L160-L166 | Local bundles, unchanged old assemblies/outcomes, intents and committed reports | Task 2 |
+| § "Tests" L160-L166 | Replay scope target unchanged and commit evidence | Task 2 |
+| § "Tests" L166 | Parent live scratch smoke: two worktrees; unpushable child fails before helpers with no report; sibling alone dispatches Verify/Review, tracks and reports at supplied path; no second record and correct menus | Task 2 |
+| § "Tests" L166 | Run smoke with pi-cohort >= 7.4.5; raise package peer and README floor together and document inherited-extension startup fix in CHANGELOG | Task 2, Task 3 |
+| § "Tests" L167 | Deliver persona/size/cap validator conformance and unchanged marketplace | Task 1, Task 2 |
+| § "Documentation impact" L170-L172 | Amend existing docs; no new feature guide | Task 3 |
+| § "Documentation impact" L170-L172 | README invocation/cap/confirmation and persona rationale/pins | Task 3 |
+| § "Documentation impact" L170-L172 | Unreleased invocation/persona ticket bullet and refreshed sample inventory | Task 3 |
+| § "Out of scope" L178 | No combined batch menu/verbs beyond retry | Task 1 |
+| § "Out of scope" L179 | Landing order, dependency scheduling and cross-PR close verdict | waived: expressly excluded |
+| § "Out of scope" L180 | Rework against current rules | waived: expressly excluded |
+| § "Out of scope" L181 | Claude multi-PR implementation | waived: expressly excluded |
+| § "Out of scope" L182-L183 | No single-PR reference/sync edits; adapter only batch/persona | Task 1, Task 2 |
+| § "Out of scope" L182-L183 | Enumerated asks and assess answers, not generic resume | Task 1, Task 2 |
