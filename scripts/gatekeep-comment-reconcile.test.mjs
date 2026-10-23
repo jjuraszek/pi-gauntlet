@@ -25,6 +25,64 @@ const delivery = read('../skills/check-delivery/SKILL.md');
 const fixWave = read('../skills/gatekeep-pr/reference/fix-wave.md');
 const assessment = read('../skills/gatekeep-pr/reference/assessment.md');
 const sync = read('../skills/gatekeep-pr/reference/sync.md');
+const batch = readOrEmpty('../skills/gatekeep-pr/reference/batch.md');
+const gatekeeper = readOrEmpty('../agents/pr-gatekeeper.md');
+
+for (const [name, text, patterns] of [
+  ['persona isolation', gatekeeper, [
+    /^name: pr-gatekeeper$/m,
+    /^description: "runs one PR of a gatekeep-pr multi-PR set to its report or executes one queued pick\. Not for direct dispatch\."$/m,
+    /^tools: read, grep, find, ls, bash, edit, write, subagent, gauntlet_setting, plan_tracker$/m,
+    /^defaultContext: fresh$/m, /^inheritProjectContext: true$/m,
+    /^inheritSkills: false$/m, /^systemPromptMode: replace$/m, /^completionGuard: false$/m,
+    /Not for direct dispatch/, /assess/, /execute/, /implementer/,
+    /supplied record and report paths/, /never re-initialize/i,
+  ]],
+  ['admission and serial provisioning', batch, [
+    /before any fetch, confirmation, provisioning, or dispatch/,
+    /positional issue/, /duplicate identities/, /origin/, /Claude Code/,
+    /parallel\.maxTasks/, /default `8`/, /never chunk/i,
+    /multi-PR mode takes at most <max> PRs \(pi-cohort parallel.maxTasks\); got <n>/,
+    /number,author,headRefOid,headRefName,baseRefName,isCrossRepository,headRepository,state,files/,
+    /roster order, one at a time/, /No concurrent primary fetch or worktree add/,
+    /non-zero.*never fall back/, /preconditions 4-5/, /rebase confirmation: yes \| no \| not asked/,
+  ]],
+  ['handoff and foreground batch', batch, [
+    /gatekeep-roster\.XXXXXX/, /grants null/, /rounds zero/, /approved_head.*null/,
+    /async: false/, /context: "fresh"/, /skill: "gatekeep-pr"/,
+    /level: "none"/, /the gatekeep child result line is the handoff contract/,
+    /skip the fetch, run no worktree add, verify HEAD/,
+    /selected skill's absolute `filePath` metadata/,
+    /procedure root: <absolute installed skill directory>/,
+    /Resolve all named procedure dependencies relative to this root, never the PR worktree or cwd/,
+    /never overwrite grants, counters, deadline, ledger, or helper paths/,
+    /REPORT <report path>/, /CONFLICTING <report path> - <sync record>/,
+    /FAILED - <reason>/, /STOPPED - <ask> - <what the user must supply>/,
+    /await all/i, /All terminal/, /no helper dispatch/,
+  ]],
+  ['recovery and authority boundaries', batch, [
+    /restore.*<pre_head>.*clean/, /unresolved stop in/, /implementer returned open/,
+    /residue outside conflicted files/, /reviewer: <top finding>/,
+    /rebase failed:/, /push rejected:/, /lease refusal/,
+    /FAILED - head not pushable/, /before Verify/, /FAILED - no verification evidence/,
+    /empty, off-contract, non-zero, or async/, /STOPPED - verification command/,
+    /STOPPED - spec candidate/, /same record/, /UNKNOWN/,
+    /parent.*menus/i, /refresh before.*execute/i, /pr-<N> state: <record path>/,
+    /session-local/, /Not offered: retry \(worktree dirty or mid-rebase: <state>\)/,
+    /#<N> <verdict line> \| evidence:/, /#<N> - files unknown/,
+  ]],
+]) {
+  test(`multi-PR contract: ${name}`, () => {
+    for (const pattern of patterns) assert.match(text, pattern);
+  });
+}
+
+test('gatekeeper leaves model knobs unset and has no skill discovery machinery', () => {
+  assert.doesNotMatch(gatekeeper, /^(?:model|thinking|extensions):/m);
+  assert.doesNotMatch(gatekeeper, /\/skill:|SKILL\.md|reference\//);
+  assert.match(gatekeeper, /Read the injected procedure's named dependencies using the caller-supplied absolute procedure root or absolute paths/);
+  assert.match(gatekeeper, /Do not discover unrelated skills or procedure files/);
+});
 
 test('assessment.md dispatches Verify and Review as fresh helpers with no inline path', () => {
   assert.ok(!/\binline\b/i.test(assessment), 'no inline path remains');
