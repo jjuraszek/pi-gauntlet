@@ -77,6 +77,33 @@ for (const [name, text, patterns] of [
   });
 }
 
+test('PR sets route before the unchanged single-PR steps', () => {
+  const args = section(skill, '## Arguments\n', '## Steps\n');
+  assert.match(args, /two or more PR tokens \(numbers or URLs, space-separated, before any `--rebase`\)/);
+  assert.match(args, /positional issue reference.*one-line error/);
+  assert.match(args, /zero or one PR token.*existing single-PR path/);
+  const rows = section(skill, '| Step | Read now | Output | Tracker stage |\n', 'Re-entry:');
+  assert.match(rows, /\| Set routing \| `reference\/batch.md` \| pi-only admission.*\| - \|/);
+  assert.ok(rows.indexOf('| Set routing |') < rows.indexOf('| 1 Gather |'));
+});
+
+for (const [sample, ids] of [
+  ['batch-summary-queue', ['s1', 's2', 's3', 's4', 's5', 's6', 's7']],
+  ['batch-failure-retry', ['f1', 'f2', 'f3', 'f4', 'f5', 'f6']],
+  ['batch-rebase-answers', ['r1', 'r2', 'r3', 'r4', 'r5']],
+  ['batch-cleanup-stop', ['c1', 'c2', 'c3', 'c4', 'c5', 'c6']],
+]) {
+  test(`multi-PR replay assembly and facts: ${sample}`, () => {
+    const input = readOrEmpty(`../eval/gatekeep-pr/samples/${sample}/case.md`);
+    assert.ok(input.startsWith('bundle+: skills/gatekeep-pr/reference/batch.md\nbundle+: agents/pr-gatekeeper.md\n'));
+    assert.match(input, /## Entry\n/);
+    assert.match(input, /acme\/widgets/);
+    assert.match(input, /narrat/i);
+    const facts = readOrEmpty(`../eval/gatekeep-pr/samples/${sample}/expected.md`);
+    assert.deepEqual([...facts.matchAll(/^- ([a-z]\d+): judged:/gm)].map((m) => m[1]), ids);
+  });
+}
+
 test('multi-PR terminal picks stay parent-owned after worktree cleanup', () => {
   const round = section(batch, '## Summary and menu round\n', '## Between batches and retirement\n');
   assert.match(round, /For terminal overlays, the parent handles `post coverage to ticket`, `post coverage to PR`, and `show evidence` from the primary checkout/);
