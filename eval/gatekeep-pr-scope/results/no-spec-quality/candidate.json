@@ -1,7 +1,7 @@
 {
   "sample": "no-spec-quality",
   "arm": "candidate",
-  "skillSha": "ef0c418ba747cd021cf50c7c3f596dc67c76f3dd4ca0c88caca86dc806aa9efd",
+  "skillSha": "41ac0349b50f7d2e8e900bfdb94ac4b06b94779ce7e72fa549866fe9b5cd2430",
   "inputSha": "3cec26539190b97d511b3ee88d31e6cb9d38a64dc3cf2558fbfb4c882a0db472",
   "kind": "text",
   "assembly": "headed",
@@ -17,16 +17,16 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "Delivers: the reports page downloads report data as CSV on demand through a new export handler.\n\nBlockers:\n1. The export handler returns any existing report's CSV without checking that the caller owns it, so one user can download another user's report data. (src/api/export.ts:14, test/api/export.test.ts)\n\nVerdict: fixable - 1 blocker\n\n1. fix - retain in-scope blocker repair during this run until readiness or a new decision boundary; review before push [recommended]\n2. review - post the blocker as a comment on your PR\n3. show evidence - gate output, CI run, drafted edit\n4. stop - leave the PR as-is\nType a number, or compose: \"fix 1\".\n",
-      "words": 101,
-      "wallMs": 12681,
+      "text": "Delivers: an on-demand CSV export handler and an Export CSV button that download report data, with the table columns and a 404 for unknown reports.\n\nBlockers:\n1. The export handler returns any existing report without checking who is asking, so any signed-in user can download another user's report data. No test covers a cross-user request, so the drafted fix adds an ownership check and a test that rejects a request for another user's report. (src/api/export.ts:14, test/api/export.test.ts)\n\nVerdict: fixable - 1 blocker\n\n1. fix - retain in-scope blocker repair during this run until readiness or a new decision boundary; review before push [recommended]\n2. review - post the blocker as a comment on your PR\n3. show evidence - gate output, CI run, drafted edit\n4. stop - leave the PR as-is\nType a number, or compose: \"fix 1\".\n",
+      "words": 133,
+      "wallMs": 12665,
       "mechanical": {}
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "Delivers: the reports page offers on-demand CSV downloads with table columns and a 404 response for unknown reports.\n\nBlockers:\n1. The export handler lets callers download another user's report without an authorization check, exposing private report data. (src/api/export.ts:14)\n\nVerdict: fixable - 1 blocker\n\n1. review - post the blocker as a comment on your PR [recommended]\n2. show evidence - show CI evidence, claim dispositions, and drafted edits\n3. stop - leave the PR as-is\n\nType a number. Not offered: fix (no helper facility), merge (authorization blocker open).\n",
-      "words": 84,
-      "wallMs": 13141,
+      "text": "Delivers: The reports page offers on-demand CSV downloads containing the table columns and returns 404 for unknown reports.\n\nBlockers:\n1. The export handler lets callers download another user's report because it does not check ownership, exposing private report data. (src/api/export.ts:14)\n\nVerdict: fixable - 1 blocker\n\n1. review - post the blocker as a comment on your PR [recommended]\n2. show evidence - show CI evidence, claim dispositions, and drafted payloads\n3. stop - leave the PR as-is\n\nType a number. Not offered: fix (no helper facility), merge (authorization check missing).\n",
+      "words": 86,
+      "wallMs": 11827,
       "mechanical": {}
     }
   },
@@ -34,9 +34,9 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "f2097ee1a9a5bf0812d207eb8d710314757324a2bee695a1551c3134b451a1aa",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "ea58ee7ec87cd97b1383c86b1bbeec03e75210853cd9a81e1110a346447723bf",
-      "baselineOutputSha": "700c97a3066446febbe32ccbb649451f5871f9281a4ede80d929b6bfc8d256ca",
-      "candidateOutputSha": "ef33bc67054bf523e92a7627fcc7a0d1f6f81938baa92e97a6f3142330a134e9",
+      "intentSha": "5fe70d4df0627d1874edc80bfee7eeeaf2cf105c9b4387b79868541baff67417",
+      "baselineOutputSha": "a9f6c3c4c06a8a5df85455552c47e031e4926df3107d474a6c31b482a6983f4b",
+      "candidateOutputSha": "d2c50ffd8fcfc33836d6994518e1119b0e17416d3ca3235c3c2c984fb2dcbf3d",
       "facts": {
         "f1": {
           "before": "holds",
@@ -64,15 +64,16 @@
           "label": "held"
         }
       },
-      "feedback": "No fact moved in this case: both outputs state the PR's own intent in Delivers without naming ticket acceptance criteria, both keep the missing-authorization check as the sole blocker per REVIEW.md and the reviewer finding, neither judges an AC row, and neither posts anything with no pick. That said, After thins content that is unrelated to the Change: the Delivers line drops the Export CSV button, the table columns, and the 404 behavior that the PR body actually claims (Before stated them), the fix row loses its concrete action ('add the ownership check and a cross-user test'), the blocker loses the note that no test asserts cross-user refusal, and 'show evidence' swaps 'claim check' for 'gate output' even though the verification evidence here is a matched claim. Since the Change only concerns terminal menus (own merge, approved, merged/closed at step 1) and this is a fixable open-PR menu, the wording should leave this non-terminal rendering untouched; scope the cleanup/stop-naming additions to the terminal-menu branch and keep Before's Delivers, blocker, fix-row, and evidence-list text as-is for fixable verdicts.",
+      "feedback": "Nothing moved: After still states the PR's own intent in the Delivers line without citing any AC row, keeps the missing ownership check as the sole blocker at src/api/export.ts:14 per REVIEW.md, judges no ticket criteria, and posts nothing without a pick. The only substantive wording differences are in the blocker body, which now describes the drafted fix (ownership check plus a cross-user test) and cites test/api/export.test.ts; that is additive and consistent with the 'show evidence - drafted edit' row, so it is safe. Two minor polish points that do not affect any fact: the Delivers line reads 'handler and an Export CSV button that download report data' (verb agreement is awkward - 'that downloads' or restructuring as in Before would read cleaner), and the batch-procedure/terminal-menu cleanup text from the Change is not exercised by this single open PR with a blocker, so this case cannot confirm that part of the wording; a case with an approved or merged PR would be needed to check the row-1 cleanup and 'stop leaves the checkout as found' behavior.",
+      "wallMs": 10103,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "f2097ee1a9a5bf0812d207eb8d710314757324a2bee695a1551c3134b451a1aa",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "ea58ee7ec87cd97b1383c86b1bbeec03e75210853cd9a81e1110a346447723bf",
-      "baselineOutputSha": "be249411a0452c8bde0e817a8f39f0b33d288c01fdcd84b8a07b43caeea16675",
-      "candidateOutputSha": "08bc4e14326e1e754b9247c70956f2dddab619a9f6f5faae1e43041767cb835d",
+      "intentSha": "5fe70d4df0627d1874edc80bfee7eeeaf2cf105c9b4387b79868541baff67417",
+      "baselineOutputSha": "19ec52310176792107f9eab94bfdb04054a1bb372ca5b9eb1728048265639d82",
+      "candidateOutputSha": "6fbf9daca00520e255974fa8406505cb70fb34c2df6ccca18a0aed457ab5201e",
       "facts": {
         "f1": {
           "before": "holds",
@@ -100,9 +101,10 @@
           "label": "held"
         }
       },
-      "feedback": "No fact moved in this case: After keeps the PR-intent Delivers line, judges no acceptance-criteria rows, keeps the authorization finding as a blocker, and still only offers 'review' as a menu row rather than posting anything. The one visible side effect of the new wording is outside these facts but worth flagging: this is a non-terminal 'fixable' verdict (own PR, OPEN, blocker present), yet After dropped the 'fix' row that Before offered as row 1 recommended and now explains 'Not offered: fix (no helper facility)', promoting 'review' to recommended. The Change only touches terminal gatekeep-pr menus (own merge, approved, merged/closed at step 1) and adds a cleanup row there; it should not reach the fixable menu. To keep Before's behavior while delivering the Change, scope the cleanup-row and stop-names-the-checkout wording explicitly to the terminal menu branch (e.g. 'When the verdict is terminal - ...') so the fixable menu's fix-first ordering and recommendation are untouched, and avoid a generic 'Not offered' line that invents a reason ('no helper facility') the skill text does not support.",
+      "feedback": "No fact moved: both outputs keep a Delivers line that restates the PR body with no AC rows, keep the missing authorization check as a blocker at src/api/export.ts:14 with a fixable verdict, judge no acceptance criterion, and post nothing without a pick. The visible difference is that After drops the 'fix' row (reporting 'Not offered: fix (no helper facility)') and promotes 'review' to recommended, which is a menu-behavior change outside the Change's stated intent of leaving the single-PR pipeline unchanged; if that was unintentional, wording such as 'the single-PR menu, including its fix row and recommended-row ordering, is unchanged for non-set runs' would make the batch routing additive and keep the Before menu intact while still delivering the batch procedure and terminal-menu cleanup behavior.",
+      "wallMs": 10621,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "6f235717ae0b38aeca15a0227eaec665c938541a"
+  "repoSha": "ce7d703e48b1eea239e19c8679ac160859af54bf"
 }

@@ -1,7 +1,7 @@
 {
   "sample": "cleanup-keyed-outside-home",
   "arm": "candidate",
-  "skillSha": "a98e071a2d1b469878e760529d23762f3efc04939b730f96134230757cebc380",
+  "skillSha": "d9a6847fb46cd065a2c7c8463cf61a573862cb8b0fddecdf73934c07c032467a",
   "inputSha": "882cab1e0e2b60f13c2bb6a50e7d6ff577c2e2a15f83a9279f54c5e19488e57e",
   "kind": "text",
   "assembly": "concat",
@@ -17,18 +17,18 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "# gatekeep-pr 732 - cleanup pick on the merged terminal menu\n\n## State at entry\n\n- **Arguments:** `732` with no `--rebase`. Step 2b never ran, so no `Sync:` line renders.\n- **PR state:** the PR was `MERGED` at step 1, so the `merged or closed PR` overlay applies.\n- **Menu shown:** `cleanup` [recommended], `show evidence`, `stop`.\n- **Pick:** the human picked `cleanup`.\n- **Tracker:** `plan_tracker` was initialized earlier with `gather, provision, verify`. Later stages were added as they started. Cleanup adds no stage.\n- **Assessed SHA:** verification and the brief both assess `8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c`.\n- **Primary checkout:** this is the parent directory of `git -C /home/dev/scratch/backoff rev-parse --git-common-dir`, which is `/work/mono`. Every git command below runs as `git -C /work/mono`, except the eligibility probes on the worktree itself.\n- **Landed:** yes, because `pr.state` is `MERGED`.\n- **Helpers:** none are dispatched. Cleanup is orchestrator-only.\n\n## Step 1 - Worktree\n\n1. **Not the primary:** `/home/dev/scratch/backoff` is not `/work/mono`.\n2. **Tracked-clean:** `git -C /home/dev/scratch/backoff status --porcelain --untracked-files=no` prints nothing.\n3. **No extra commits:** the PR landed, and `git -C /home/dev/scratch/backoff merge-base --is-ancestor HEAD 8c8c...8c` succeeds.\n4. **Ownership match fails:** the merge-base `## using-git-worktrees` has `- home:`, so it is a keyed contract and the ownership match is required.\n   - `home: ../mono-<name>` resolved against `/work/mono` gives the pattern `/work/mono-*`.\n   - `realpath` on both paths changes nothing.\n   - `/home/dev/scratch/backoff` does not match, so the tree is outside the configured home.\n   - No removal, prune, or destroy command runs.\n\n`worktree: skipped - outside configured home, left at /home/dev/scratch/backoff`\n\n## Step 2 - Branch\n\n- `worktree.destroy` is null, so there is no destroy failure.\n- The PR landed and `feature/backoff` exists locally.\n- `git -C /work/mono worktree list --porcelain` lists `branch refs/heads/feature/backoff` for `/home/dev/scratch/backoff`.\n- The branch is still checked out, so it is not deleted. No remote branch is touched.\n\n`branch: skipped - checked out at /home/dev/scratch/backoff`\n\n## Step 3 - Base\n\nThe PR landed, and the primary is on `main` with a tracked-clean tree. These commands run:\n\n1. `git -C /work/mono fetch origin`\n2. `git -C /work/mono pull --ff-only`\n3. `git -C /work/mono merge-base --is-ancestor 5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d HEAD`, which succeeds.\n4. `git -C /work/mono rev-parse HEAD`, which returns the merge commit.\n\n`base: synced 5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d`\n\n## Step 4 - Override steps\n\nThe merge-base overrides file has no `## cleanup` section, so no override steps run.\n\n## After cleanup\n\n- `cleanup_done` is set to true in the continuation record.\n- The consent record, helper output files, and temporary body files are kept. `show evidence` still needs them, and `### Teardown` deletes them on terminal exit.\n- The same terminal menu re-renders without the `cleanup` row.\n\n## Re-rendered output\n\nNo `Sync:` line renders (no `--rebase`).\n\n```\nworktree: skipped - outside configured home, left at /home/dev/scratch/backoff\nbranch: skipped - checked out at /home/dev/scratch/backoff\nbase: synced 5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d\n\nVerdict: mergeable - CI green on the assessed head (ci / test)\n\n1. show evidence - gate output, CI run\n2. stop - leave the PR as-is; /home/dev/scratch/backoff and branch feature/backoff stay [recommended]\nType a number.\n```\n\n`stop` is recommended because the only other row is `show evidence`, which is never recommended.\n",
-      "words": 470,
-      "wallMs": 25395,
+      "text": "# gatekeep-pr 732: `cleanup` pick on the merged terminal menu\n\n**Run context**\n- **Tracker:** the run initialized `gather, provision, verify`, with no `sync` stage because `--rebase` was not passed. Later stages were added as each one started.\n- **Assessed SHA:** verification and the brief assessed head `8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c`.\n- **Sync line:** none renders, because `--rebase` was not passed.\n\n**Pick:** the menu was the `merged or closed PR` overlay, since `state` was `MERGED` at step 1. The human picked `cleanup`, which runs `reference/cleanup.md`. Landed is true. The primary is the parent of `git -C /home/dev/scratch/backoff rev-parse --git-common-dir`, which is `/work/mono`. Every git command below runs as `git -C /work/mono` unless it targets the worktree.\n\n**Step 1 - Worktree**\n1. `git -C /home/dev/scratch/backoff status --porcelain --untracked-files=no` prints nothing, so the worktree is tracked-clean.\n2. `git -C /home/dev/scratch/backoff merge-base --is-ancestor HEAD 8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c` succeeds, so there are no commits beyond the assessed head.\n3. The ownership check applies because the merge-base `## using-git-worktrees` section has a `home:` key (keyed contract).\n   - `home: ../mono-<name>` resolves against `/work/mono` to the pattern `/work/mono-*`.\n   - `realpath /home/dev/scratch/backoff` returns `/home/dev/scratch/backoff`, which does not match.\n   - No match means nothing is destroyed and there is no forced removal.\n   - Line: `worktree: skipped - outside configured home, left at /home/dev/scratch/backoff`\n\n**Step 2 - Branch**\n1. `git -C /work/mono worktree list --porcelain` lists `branch refs/heads/feature/backoff` for `/home/dev/scratch/backoff`.\n2. The branch is still checked out, so no `git branch -D` runs. No remote branch is touched.\n   - Line: `branch: skipped - checked out at /home/dev/scratch/backoff`\n\n**Step 3 - Base**\n1. The primary is on `main`, which is the `baseRefName`, and it is tracked-clean.\n2. `git -C /work/mono fetch origin`\n3. `git -C /work/mono pull --ff-only` fast-forwards to the merged tip.\n4. `git -C /work/mono merge-base --is-ancestor 5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d HEAD` succeeds.\n   - Line: `base: synced 5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d`\n\n**Step 4 - Override steps:** none run, because the overrides file has no `## cleanup` section.\n\n**After cleanup**\n- I set `cleanup_done: true` in the continuation record.\n- The record, helper output files, and temporary body files stay in place so `show evidence` still works. Teardown deletes them on terminal exit.\n- No helpers were dispatched in this course.\n\nRendered output:\n\n```\nworktree: skipped - outside configured home, left at /home/dev/scratch/backoff\nbranch: skipped - checked out at /home/dev/scratch/backoff\nbase: synced 5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d\n\nVerdict: mergeable - CI green on the assessed head (ci / test)\n\n1. show evidence - print the evidence record, claim dispositions, and the CI run\n2. stop - leave the checkout as found; /home/dev/scratch/backoff and branch feature/backoff stay [recommended]\nType a number.\n```\n\n`cleanup` leaves the menu once it has run, so only `show evidence` remains. When `show evidence` is the only other row, `stop` takes `[recommended]`. I stop here, at the re-rendered menu.\n",
+      "words": 427,
+      "wallMs": 25948,
       "mechanical": {
         "o3": "holds"
       }
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "1. **Resume the recorded selection.** Read and validate the existing continuation record for `orchard/mono`, PR `732`, base `main`, then persist the human's `cleanup` selection. Do not initialize another tracker or reset grants or round usage. Start the `cleanup` tracker stage.\n\n   This entry starts after the terminal menu, so no verification or review runs and no helpers are dispatched. The assessed head remains `8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c`; the landed commit is `5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d`.\n\n2. **Check worktree ownership.** Use the supplied tracked-clean and ancestry results. Resolve the configured home relative to the primary:\n   ```sh\n   realpath /home/dev/scratch/backoff\n   realpath /work/mono/../mono-pr-732\n   ```\n   Both paths remain unchanged. The configured ownership pattern resolves to `/work/mono-<name>`; `/home/dev/scratch/backoff` does not match it. Do not remove the worktree or run a destroy command.\n\n   Render:\n   ```text\n   worktree: skipped - outside configured home, left at /home/dev/scratch/backoff\n   ```\n\n3. **Check the local branch.**\n   ```sh\n   git -C /work/mono worktree list --porcelain\n   ```\n   The branch remains checked out at `/home/dev/scratch/backoff`, so do not delete it.\n\n   Render:\n   ```text\n   branch: skipped - checked out at /home/dev/scratch/backoff\n   ```\n\n4. **Sync the primary's base branch.** The supplied primary state is `main` and tracked-clean. Run:\n   ```sh\n   git -C /work/mono fetch origin\n   git -C /work/mono pull --ff-only\n   git -C /work/mono merge-base --is-ancestor 5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d HEAD\n   git -C /work/mono rev-parse HEAD\n   ```\n   The ancestry check succeeds. Render `base: synced` followed by the SHA returned by the final command. Do not change the primary's branch.\n\n5. **Finish cleanup.** There are no override cleanup steps. Persist `cleanup_done: true` and complete the `cleanup` tracker stage. Keep the continuation record and evidence files because `show evidence` remains available.\n\n6. **Refresh before re-rendering.** Reopen the `report` stage and run:\n   ```sh\n   gh pr view 732 --json headRefOid,state,mergeable,mergeStateStatus,reviewDecision,statusCheckRollup,body,baseRefName,number,title,author,isDraft,headRefName,isCrossRepository,files,additions,deletions,commits,reviews,closingIssuesReferences,headRepository,maintainerCanModify,url,mergeCommit\n   gh run list -R orchard/mono -c 8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c --json databaseId,status,conclusion,workflowName,url\n   ```\n   Validate the unchanged target, head, and body against the continuation record. The merged terminal overlay remains active, and cleanup has left its menu permanently. Complete `report` and reopen `menu`.\n\n   No `Sync:` line renders because the invocation did not include `--rebase`.\n\nDelivers: the PR tightens retry backoff.\n\nVerdict: mergeable - CI green on the assessed head (ci / test)\n\n1. show evidence - display the gate evidence and recorded outcomes\n2. stop - leave /home/dev/scratch/backoff and branch feature/backoff in place [recommended]\n\nType a number.\n",
-      "words": 355,
-      "wallMs": 46356,
+      "text": "The entry point is the selected `cleanup` action on an already-merged PR. I retain the existing continuation record and tracker; I initialize no new stages, run no verification, and dispatch no helpers. The assessed head remains `8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c`.\n\n### Cleanup execution\n\n1. I read and validate the existing continuation record, then persist the human's explicit `cleanup` selection. This selection authorizes cleanup, not another assessment or any external post.\n\n2. I check the configured worktree ownership boundary:\n   ```bash\n   realpath /home/dev/scratch/backoff\n   realpath '/work/mono-<name>'\n   ```\n   Both paths return unchanged. The configured home pattern does not match `/home/dev/scratch/backoff`, so I leave that worktree untouched. The supplied cleanliness and ancestry results do not override the ownership boundary.\n\n   ```text\n   worktree: skipped - outside configured home, left at /home/dev/scratch/backoff\n   ```\n\n3. I inspect the local branch and its checkout:\n   ```bash\n   git -C /work/mono show-ref --verify --quiet refs/heads/feature/backoff\n   git -C /work/mono worktree list --porcelain\n   ```\n   The branch remains checked out at `/home/dev/scratch/backoff`. I run no branch deletion.\n\n   ```text\n   branch: skipped - checked out at /home/dev/scratch/backoff\n   ```\n\n4. I check and synchronize the primary checkout without switching branches:\n   ```bash\n   git -C /work/mono symbolic-ref --short HEAD\n   git -C /work/mono status --porcelain --untracked-files=no\n   git -C /work/mono fetch origin\n   git -C /work/mono pull --ff-only\n   git -C /work/mono merge-base --is-ancestor 5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d HEAD\n   git -C /work/mono rev-parse HEAD\n   ```\n   The primary is on `main`, is tracked-clean, and synchronization succeeds. I print `base: synced` followed by the SHA returned by the final command; that resulting SHA is not supplied in the exercise.\n\n5. There is no `## cleanup` section, so I run no override commands. I persist `cleanup_done: true`. I retain the continuation record and evidence files because the terminal menu still offers `show evidence`.\n\n### Pre-menu refresh\n\nBefore rendering again, I run the required read-only refresh:\n\n```bash\ngh pr view 732 --json headRefOid,state,mergeable,mergeStateStatus,reviewDecision,statusCheckRollup,body,baseRefName,number,title,author,isDraft,headRefName,isCrossRepository,files,additions,deletions,commits,reviews,closingIssuesReferences,headRepository,maintainerCanModify,url,mergeCommit\ngh run list -R orchard/mono -c 8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c --json databaseId,status,conclusion,workflowName,url\n```\n\nThe head and merged state remain unchanged, and exact-head CI remains sufficient. No helper or watch runs. The merged-terminal overlay remains active, with `cleanup` removed because it has completed. No sync line renders because the invocation did not include `--rebase`.\n\nDelivers: the PR tightens retry backoff.\n\nVerdict: mergeable - CI green on the assessed head (ci / test)\n\n1. show evidence - display the gate evidence and claim dispositions\n2. stop - leave /home/dev/scratch/backoff and branch feature/backoff in place [recommended]\n\nType a number.\n",
+      "words": 376,
+      "wallMs": 35038,
       "mechanical": {
         "o3": "holds"
       }
@@ -38,57 +38,57 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "37f0348fbee98949cf20bc03b87996c613f4643f8df1f92ce1319c0304f393ea",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "d50172cd77fdac3fcd449b8924968468ff2377f9a56d9033b95dc3c5444fdac0",
+      "intentSha": "b6d1bff3bd3b8c460ac000660830e6da1fc11564c39a2ba13d07af138a02ba48",
       "baselineOutputSha": "bca5c4faa391e057d4725a60f6f9e4fb89c159a5df680a17c01116438874cd21",
-      "candidateOutputSha": "bca5c4faa391e057d4725a60f6f9e4fb89c159a5df680a17c01116438874cd21",
+      "candidateOutputSha": "5605fca115a8d138dfadf120ed9e074c023d6213415b42e50388830a18ac1760",
       "facts": {
         "o1": {
           "before": "holds",
           "after": "holds",
-          "label": "intended but unchanged"
+          "label": "held"
         },
         "o2": {
           "before": "holds",
           "after": "holds",
-          "label": "intended but unchanged"
+          "label": "held"
         },
         "o3": {
           "before": "holds",
           "after": "holds",
-          "label": "intended but unchanged"
+          "label": "held"
         }
       },
-      "feedback": "Before and After are byte-for-byte identical for this case: both narrate the keyed `## using-git-worktrees` contract, derive the `/work/mono-*` pattern from `home: ../mono-<name>`, state that `/home/dev/scratch/backoff` does not match, run no removal/prune/destroy, and print `worktree: skipped - outside configured home, left at /home/dev/scratch/backoff`; both then observe the branch is still checked out via `git worktree list --porcelain`, run no `git branch -D`, and print `branch: skipped - checked out at /home/dev/scratch/backoff`. So o1 and o2 hold in both outputs, and nothing moved here - the 'fails -> holds' expectation is not reflected in the Before text, which already applies the ownership match. No wording change is needed in After for these facts; if the author wants this case to demonstrate the Change, the Before output would need to come from the actual pre-change skill (which should remove the tree and delete the branch) rather than a copy of the After narration.",
-      "wallMs": 9811,
+      "feedback": "Neither fact moved. Both Before and After print the exact `worktree: skipped - outside configured home, left at /home/dev/scratch/backoff` line and state explicitly that no removal, prune, or destroy command runs (After: 'nothing is destroyed and there is no forced removal'). Both print the exact `branch: skipped - checked out at /home/dev/scratch/backoff` line, with After stating directly that 'no `git branch -D` runs' and Before saying the branch 'is not deleted'. After also keeps the same single-PR flow for a single argument `732`, so the batch-routing Change did not leak into this case. No wording adjustment is needed to preserve these facts; if anything, After's explicit 'no `git branch -D` runs' phrasing is slightly tighter than Before's and worth keeping.",
+      "wallMs": 6976,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "37f0348fbee98949cf20bc03b87996c613f4643f8df1f92ce1319c0304f393ea",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "d50172cd77fdac3fcd449b8924968468ff2377f9a56d9033b95dc3c5444fdac0",
+      "intentSha": "b6d1bff3bd3b8c460ac000660830e6da1fc11564c39a2ba13d07af138a02ba48",
       "baselineOutputSha": "6735e80d9842171284976b42c6e59d6fdb750cba12ffde22514010a40bf75da4",
-      "candidateOutputSha": "6735e80d9842171284976b42c6e59d6fdb750cba12ffde22514010a40bf75da4",
+      "candidateOutputSha": "07768fefddccc92e3baa6031a11b31cdc270cef58a514b0fa8dc998bc13f86a8",
       "facts": {
         "o1": {
           "before": "holds",
           "after": "holds",
-          "label": "intended but unchanged"
+          "label": "held"
         },
         "o2": {
           "before": "holds",
           "after": "holds",
-          "label": "intended but unchanged"
+          "label": "held"
         },
         "o3": {
           "before": "holds",
           "after": "holds",
-          "label": "intended but unchanged"
+          "label": "held"
         }
       },
-      "feedback": "Before and After are textually identical for this case: both step 2 narrations resolve the configured home to /work/mono-<name>, note that /home/dev/scratch/backoff does not match, run no destroy or removal, and render `worktree: skipped - outside configured home, left at /home/dev/scratch/backoff`; both step 3 narrations run only `git worktree list --porcelain`, decline to delete the checked-out branch, and render `branch: skipped - checked out at /home/dev/scratch/backoff`. So o1 and o2 already held in Before and nothing moved - the expected fails->holds for this case is not reflected in these two outputs, which suggests either the Before sample was already produced under the new ownership-match wording or the case needs regenerating against the true baseline. No wording adjustment to After is needed to preserve these facts; if you want the eval to demonstrate the Change, re-run Before from the pre-change skill so the baseline actually shows the forced removal and `git branch -D`.",
-      "wallMs": 9458,
+      "feedback": "No fact moved: both outputs print the exact `worktree: skipped - outside configured home, left at /home/dev/scratch/backoff` line with no removal or destroy command, and both print `branch: skipped - checked out at /home/dev/scratch/backoff` with no `git branch -D`. After differs only cosmetically on this single-PR path: it resolves the literal `/work/mono-<name>` placeholder with realpath instead of substituting a concrete name as Before does (`/work/mono/../mono-pr-732`), adds a `show-ref` check before the worktree list, and adds `symbolic-ref`/`status` checks on the primary; none of these affect the sample facts. To keep single-PR behavior fully stable while delivering the batch-routing change, consider keeping the home-pattern substitution concrete (`realpath /work/mono/../mono-<name>` with the actual name filled in) so the ownership check reads as an executable command rather than a placeholder, and keep the batch routing text strictly gated on two or more PR arguments so this one-argument case stays untouched.",
+      "wallMs": 9781,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "03f2a45e6cf09c8bfc0d9a675ffffba9151f6d00"
+  "repoSha": "ce7d703e48b1eea239e19c8679ac160859af54bf"
 }

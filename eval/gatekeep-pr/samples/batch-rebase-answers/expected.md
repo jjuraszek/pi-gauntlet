@@ -1,0 +1,5 @@
+- r1: judged: Children consume the supplied yes/no/not asked values without any human question; the narration keeps A and B as separate parent-confirmation invocations, not differing answers to one shared eligible-candidate question.
+- r2: judged: Task12 records sync: declined - other author's branch, closes sync skipped, runs Verify and Review unsynced, writes only /tmp/report-12 using /tmp/state-12, and ends REPORT /tmp/report-12 without a sync write.
+- r3: judged: Task15 uses the authorized sync, fresh implementer for the conflict and fresh reviewer before the lease push, re-gathers the pushed head for sequential fresh Verify and Review, and ends REPORT /tmp/report-15 with the same supplied record.
+- r4: judged: Task18 returns FAILED - sync: <head pushability reason> before Verify with no report, not CONFLICTING; parent offers retry, show evidence, stop rather than conflict rows.
+- r5: judged: Same-author21, no-op24 and merge-commit-skipped27 trigger no other-author confirmation, so their set asks no extra question; not asked never authorizes an otherwise-required other-author sync.

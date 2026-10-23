@@ -1,6 +1,6 @@
 # Subagent personas
 
-Deep reference for the 10 personas in [`agents/`](../agents/), dispatched via [pi-cohort](https://github.com/jjuraszek/pi-cohort). See the [README](../README.md) for the workflow overview; the frontmatter-knobs table and the rationale behind each pin are in [Frontmatter knobs](#frontmatter-knobs) below.
+Deep reference for the 11 personas in [`agents/`](../agents/), dispatched via [pi-cohort](https://github.com/jjuraszek/pi-cohort). See the [README](../README.md) for the workflow overview; the frontmatter-knobs table and the rationale behind each pin are in [Frontmatter knobs](#frontmatter-knobs) below.
 
 - `implementer` — strict RED→GREEN→REFACTOR TDD with test-economy defaults, completion-guarded.
 - `code-reviewer` — read-only review, Critical/Moderate/Minor severity, test-economy checks as Minor.
@@ -14,9 +14,11 @@ Deep reference for the 10 personas in [`agents/`](../agents/), dispatched via [p
 
 - `spec-council-applier` - fresh-context scope advocate and executor dispatched only by `roasting-the-spec`; edits only the supplied spec and returns the Applied/Deferred/Rejected audit. Inherits the main loop's model and thinking unless `subagents.agentOverrides['spec-council-applier']` overrides either; not for direct dispatch.
 
+- `pr-gatekeeper` - orchestrates one PR's assessment or queued action in a multi-PR `gatekeep-pr` set; returns a result line to the parent, never a human menu. Ships with model and thinking unset, resolved through `subagents.agentOverrides.pr-gatekeeper`, else inherited from the main loop. Not for direct dispatch.
+
 ## Where personas land
 
-On a user install the ten personas in `agents/` are symlinked into `getAgentDir()/agents` (profile-scoped user dir - `$PI_CODING_AGENT_DIR/agents`, default `~/.pi/agent/agents`). On a project install they are copied into `<repo>/.pi/agents/` (project scope, isolated per repo). Override precedence is `project > user > builtin`, so a project install always shadows the user personas for that repo, and you can hand-edit or drop your own `.pi/agents/<name>.md` to shadow them further.
+On a user install the eleven personas in `agents/` are symlinked into `getAgentDir()/agents` (profile-scoped user dir - `$PI_CODING_AGENT_DIR/agents`, default `~/.pi/agent/agents`). On a project install they are copied into `<repo>/.pi/agents/` (project scope, isolated per repo). Override precedence is `project > user > builtin`, so a project install always shadows the user personas for that repo, and you can hand-edit or drop your own `.pi/agents/<name>.md` to shadow them further.
 
 Target dir override: set `PI_GAUNTLET_AGENT_DIR` to force symlinking into a specific dir (leading `~` expanded; always symlink mode). See [install-internals.md](./install-internals.md) for the full symlink-vs-copy mechanics.
 
@@ -42,16 +44,18 @@ Unset → provider default thinking for that model. `conformance-reviewer` and t
 
 Body text becomes the child's system prompt (`systemPromptMode: replace`). Frontmatter knobs are **not overridable** at `subagent()` call time; the only callable knobs are `model`, `task`, `output`, `outputMode`, `reads`, `progress`, `skill`. Preset-level `subagents.agentOverrides.<agent>` fills only fields the frontmatter left unset (pi-cohort `agents.ts`), so a frontmatter pin kills the config knob. Editing a persona body or frontmatter follows `/skill:forge-skill` `## Persona rules`.
 
-| Knob | loop-implementer | implementer | code-reviewer | spec-reviewer | conformance-reviewer | spec-council-member | spec-council-synthesizer | spec-summarizer | plan-writer | spec-council-applier |
-|---|---|---|---|---|---|---|---|---|---|---|
-| `tools` | `read, write, edit, bash` | `read, write, edit, bash, grep, find, ls` | `read, grep, find, ls, bash` | `read, grep, find, ls, bash` | `read, grep, find, ls, bash` | `read, grep, find, ls, bash` | `read, grep, find, ls, bash` | `read` | `read, grep, find, ls, bash, write, plan_check` | `read, grep, find, ls, bash, edit, write` |
-| `thinking` | - | - | - | - | `xhigh` | `xhigh` | `xhigh` | - | - | - |
-| `defaultContext` | `fresh` | `fork` | `fresh` | `fresh` | `fresh` | `fresh` | `fresh` | `fresh` | - | `fresh` |
-| `inheritProjectContext` | `true` | `true` | `true` | `true` | `true` | `true` | `true` | `false` | `false` | `true` |
-| `inheritSkills` | `false` | `false` | `false` | `false` | `false` | `false` | `false` | `false` | `false` | `false` |
-| `completionGuard` | `true` | `true` | `false` | `false` | `false` | `false` | `false` | `false` | `true` | `false` |
+| Knob | loop-implementer | implementer | code-reviewer | spec-reviewer | conformance-reviewer | spec-council-member | spec-council-synthesizer | spec-summarizer | plan-writer | spec-council-applier | pr-gatekeeper |
+|---|---|---|---|---|---|---|---|---|---|---|---|
+| `tools` | `read, write, edit, bash` | `read, write, edit, bash, grep, find, ls` | `read, grep, find, ls, bash` | `read, grep, find, ls, bash` | `read, grep, find, ls, bash` | `read, grep, find, ls, bash` | `read, grep, find, ls, bash` | `read` | `read, grep, find, ls, bash, write, plan_check` | `read, grep, find, ls, bash, edit, write` | `read, grep, find, ls, bash, edit, write, subagent, gauntlet_setting, plan_tracker` |
+| `thinking` | - | - | - | - | `xhigh` | `xhigh` | `xhigh` | - | - | - | - |
+| `defaultContext` | `fresh` | `fork` | `fresh` | `fresh` | `fresh` | `fresh` | `fresh` | `fresh` | - | `fresh` | `fresh` |
+| `inheritProjectContext` | `true` | `true` | `true` | `true` | `true` | `true` | `true` | `false` | `false` | `true` | `true` |
+| `inheritSkills` | `false` | `false` | `false` | `false` | `false` | `false` | `false` | `false` | `false` | `false` | `false` |
+| `completionGuard` | `true` | `true` | `false` | `false` | `false` | `false` | `false` | `false` | `true` | `false` | `false` |
 
 Why each pin:
+
+- **`pr-gatekeeper` is the first persona combining `subagent` with extension-tool rights for per-PR orchestration.** `plan-writer` already allows the extension tool `plan_check`; the new boundary adds nested dispatch plus `gauntlet_setting` and session-local `plan_tracker`. Each child runs fresh Verify then Review sequentially in its supplied worktree and delegates tracked source edits and commits to implementer. The parent supplies `skill: "gatekeep-pr"`, the batch contract, and an absolute installed procedure root explicitly; `inheritSkills: false` prevents unrelated discovery, not this task-scoped injection. `defaultContext: fresh`, `inheritProjectContext: true`, `systemPromptMode: replace`, and `completionGuard: false` isolate the orchestrator without treating its result-line handoff as implementation completion. Model and thinking stay unset. The parent retains human menus, confirmations, and teardown; see the [batch contract](../skills/gatekeep-pr/reference/batch.md).
 
 - **`plan-writer` runs baseline commands and writes only the plan.** It uses `bash` for git/jj provenance and task test commands on the base commit, never for source edits or VCS mutations, and validates the plan with `plan_check`, the extension tool a `tools:` allowlist would otherwise exclude; `defaultContext` is unset because `writing-plans` names `context: "fresh"` on every dispatch, `inheritProjectContext: false` because the body reads `AGENTS.md` and the overrides file itself, and `completionGuard: true` because it is an implementing persona.
 

@@ -10,6 +10,7 @@ Verify, don't trust: a PR description is a claim, and over-claimed coverage, hal
 
 ## Arguments
 
+- Route two or more PR tokens (numbers or URLs, space-separated, before any `--rebase`) through the set-routing row before steps 1-7; reject a positional issue reference in a set with a one-line error. Apply `--rebase [base]` to every PR in the set; keep zero or one PR token on the existing single-PR path below.
 - PR number or URL; omitted -> resolved from the current branch per `verification-brief.md` Section A.
 - Optional issue reference; omitted -> resolved in step 1 (`verification-brief.md` Section A) and fetched in step 2; none found -> select the scope contract in step 2 (spec at the head, else the PR's stated intent), never invent acceptance criteria.
 - Optional `--rebase [base]`, parsed after `<pr> [issue-ref]`: the token after it, when present, is the base branch name (`123 --rebase gh-45` means base `gh-45`, not an issue ref); absent, the base is the digest's `baseRefName`. Step 2b fetches `origin/<base>` and validates it: a missing ref stops with a one-line error before any rebase or push. Without `--rebase` the run performs no additional fetch, rebase, or push before a menu pick and renders no sync line.
@@ -20,6 +21,7 @@ Verify (step 3) and Review (step 4) each run as a fresh helper with `cwd` the PR
 
 | Step | Read now | Output | Tracker stage |
 |---|---|---|---|
+| Set routing | `reference/batch.md` | pi-only admission and isolated per-PR assessment, summary, queued menus, and execution for two or more PRs; return through that procedure | - |
 | 1 Gather | `verification-brief.md` Section A | PR digest: metadata, diff, checks, comments, worktree discovery | `gather` |
 | 2 Provision + configure | `reference/assessment.md` | provisioned worktree; config resolved from the merge-base; ticket fetched; the `scope` block selected (spec rows and `design`, or stated intent) | `provision` |
 | 2b Sync (only with `--rebase`) | `reference/sync.md` | the PR worktree on the rebased, pushed head with a refreshed digest, or a `sync` record and the unsynced head, or a rebased, unpushed head (`rebased locally`, `complete`) | `sync` |
