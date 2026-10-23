@@ -38,7 +38,7 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "8af7a37d875608fa8487e18fca111e61dac24245d10f243cb638f22713897d27",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "83dab72b8567bfbbc8e79c889211692b7ccf8006603d903aa9df5106f2950e38",
+      "intentSha": "65744be0c2ae3cc00d72ba876b2990435ff473733095d9688fca3dcb88117fb7",
       "baselineOutputSha": "e3a59746c808a1f83412ca0bc937f08331ad50cf180ccb3882b1ab7705ec8e97",
       "candidateOutputSha": "238461a3fc35e7e6cb40197f330dfce36b426513cf759e0e5f8a56580165e0ef",
       "facts": {
@@ -53,14 +53,14 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "Both outputs satisfy s1: each reports the sibling path as host-owned, states explicitly that no `git worktree remove` or `prune` was run, marks `branch -D rate-limit` as skipped, and says the host-owned worktree still holds `rate-limit`. After adds a helpful note about adding a `home: ../acme-api-worktrees/<name>` entry to the overrides file, which fits the Change without weakening the fact; keep that, and keep the explicit 'no remove / no prune / branch deletion skipped' lines as-is, since they are what makes the fact unambiguous.",
-      "wallMs": 4863,
+      "feedback": "Nothing moved on this case: both outputs report the sibling worktree as host-owned, state that no git worktree remove or prune was run, skip git branch -D rate-limit with the still-checked-out rationale, and say the host-owned worktree still holds rate-limit. After actually strengthens the narration by spelling out that /work/acme-api-worktrees only shares a string prefix with /work/acme-api and by suggesting the `home: ../acme-api-worktrees/<name>` override line, which is consistent with the Change's keyed contract and worth keeping. One small wording note: the overrides-file hint in After implies that without a section the legacy three homes decide unchanged, which matches the Change; just make sure the Step 6 wording keeps the legacy host-owned branch-skip (do not continue to branch -D on the legacy host-owned path, only after successful gauntlet-owned removal or keyed destroy) so s1 continues to hold while the explicit branch -D continuation lands for the .worktrees/ and keyed cases.",
+      "wallMs": 7187,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "8af7a37d875608fa8487e18fca111e61dac24245d10f243cb638f22713897d27",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "83dab72b8567bfbbc8e79c889211692b7ccf8006603d903aa9df5106f2950e38",
+      "intentSha": "65744be0c2ae3cc00d72ba876b2990435ff473733095d9688fca3dcb88117fb7",
       "baselineOutputSha": "f058b9c10428367ddeba0733eaff840d7a7ecdbe727613f621b3698cc2a34610",
       "candidateOutputSha": "020fe4726aed74b273407c27fdac11d4871a7e195de0aa27f0d9a6640c222913",
       "facts": {
@@ -75,10 +75,10 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "Nothing moved on this case: both outputs report the sibling path as host-owned, state that nothing is removed and the branch deletion is skipped, and close with the host-owned worktree still holding `rate-limit`. After's rewording (\"The host environment owns ...\", \"Do not remove the worktree or delete the branch\") preserves every element of s1 while reflecting the new ownership framing (outside the gauntlet-owned paths, no project-native script). One minor drift worth keeping in mind: Before explicitly lists \"removal, pruning, and branch deletion\" as skipped, whereas After drops the word \"pruning\"; it does not affect s1 here, but if a future fact checks that no prune runs on the host-owned path, restoring the phrase \"no removal, prune, or branch deletion\" would keep that explicit at no cost to the Change.",
-      "wallMs": 9000,
+      "feedback": "After keeps s1 intact: it names the path host-owned (\"The host environment owns…\", \"The host-owned worktree still holds `rate-limit`\"), declines to remove the worktree, and declines to delete the branch, so nothing moved on this case. One small drift worth noticing: Before explicitly listed \"removal, pruning, and branch deletion\" as skipped, while After only says \"Do not remove the worktree or delete the branch\" and drops the pruning mention; a reader checking that Step 6 runs no built-in cleanup at all would be slightly more certain with Before's wording. If you want the After phrasing (which reads more naturally and reflects the new gauntlet-owned/host-owned vocabulary), consider \"Do not remove or prune the worktree, and do not delete the branch\" so the no-section legacy path still spells out every skipped action while delivering the Change's ownership framing.",
+      "wallMs": 9343,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "6aa708917f3429b0e0ba574cb0a680df774f186c"
+  "repoSha": "03f2a45e6cf09c8bfc0d9a675ffffba9151f6d00"
 }

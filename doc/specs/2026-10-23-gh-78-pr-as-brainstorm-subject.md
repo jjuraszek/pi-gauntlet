@@ -187,7 +187,7 @@ Before: <PRE_REWORK_HEAD> (local ref `refs/gauntlet/pre-rework/pr-<N>` in the re
 Spec: <spec path> at <HEAD7>
 Keeps: <from the record>
 Changes: <from the record>
-No longer true: <one line per dropped claim; omitted when none>
+Dropped claims: <none | one "No longer true: <claim>" line per dropped claim>
 Verification: scoped - <commands>; CI on this push holds the full run. Telemetry: whole PR against <baseRefName>.
 Threads:
 - <path>:<line> - fixed in <sha7> | fixed (task "<title>" complete; no single commit names <thread id>) | still open | declined - <reason>

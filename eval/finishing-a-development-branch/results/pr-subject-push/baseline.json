@@ -1,0 +1,34 @@
+{
+  "sample": "pr-subject-push",
+  "arm": "baseline",
+  "skillSha": "dbb793968fc30a2a53828aced9bcbcfb97ade01a7407df78df5fa7dca28dac5b",
+  "inputSha": "f15f5fe53bceb45c1f144080b692d349ac72ca805d795bc7b38d866813e5ebdf",
+  "kind": "text",
+  "assembly": "concat",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "**Aliases:** `A`=aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa (pre-rework head), `B`=bbbbbbb (merge), `C`=ccccccc (verified), `D`=ddddddd.\n\n**Note:** the skill text above defines only five options and no PR-rework flow. The sixth row, the guards, the ref name and the thread rules below are simulated assumptions.\n\n## Shared verification and guards\n\n| Spec | Verification set | Result |\n|---|---|---|\n| PR-subject, Header `lint`, `format` | header plus task Tests `test-timeout`, `test-retry` | Skipped: passed at C, tree clean outside telemetry |\n| PR-subject, Header none | scoped `test-timeout`, `test-retry` only | Skipped: same evidence |\n| Ordinary spec | `test-all` | Run unless the skip rule holds |\n\nFor the ordinary spec, rows 2–3 detect the existing open PR and push to it instead of opening a duplicate.\n\nGuards for row 1:\n- PR is OPEN.\n- `headRefName` equals FEATURE (`fix-timeout`).\n- `merge-base --is-ancestor A HEAD` exits 0.\n- `origin/fix-timeout` is an ancestor of HEAD.\n\n## Menu\n\n```\nImplementation complete. What would you like to do?\n\n1. Push to PR acme/widget#42 and update its description\n2. Push and create a Pull Request\n3. Push and create a draft Pull Request\n4. Squash-merge to main (no PR, no surviving branch)\n5. Keep the branch as-is (I'll handle it later)\n6. Discard this work\n\nWhich option?\n```\n\n## Checkpoint 1: row 1\n\n```bash\n# 1. capture plan task completion and thread evidence (before the strip)\n# 2. strip the plan\nnode <bin>/gauntlet-telemetry-seal.mjs --worktree \"$WORKTREE\" --option pr --base origin/main --spec doc/specs/rework.md   # nonzero: quote the line, stop, no push\ngit -C \"$WORKTREE\" update-ref refs/gauntlet/pre-rework/fix-timeout A\ngit -C \"$WORKTREE\" push origin fix-timeout          # fast-forward only, never --force\nSCRATCH=$(mktemp \"${TMPDIR:-/tmp}/widget-pr42-body.XXXXXX\")\ngh pr view 42 --repo acme/widget --json body -q .body > \"$SCRATCH\"   # fresh: \"Original description\\n\"\n# append the Rework section and Threads list; the original bytes stay untouched\ngh pr edit 42 --repo acme/widget --body-file \"$SCRATCH\"\n```\n\nThe appended section starts with `## Rework` and lists PR, Pre-rework A, Base main @ 1234567, merge B, Keeps: retry behavior, Changes: repair timeout, Dropped claims: none.\n\n**Thread legend (refetched):**\n\n| Thread | Rendered |\n|---|---|\n| T1 | resolved in D (one first-parent naming commit after B) |\n| T2, T3 | addressed, no single citing commit (zero or two) |\n| T4 | open, task incomplete |\n| T5 | open, no task (path match is not evidence) |\n| T6 | open, keep open |\n| T7 | declined: incompatible API |\n| T8 | new since rework, open |\n| T9 | resolved upstream, omitted |\n\n**Fetch outcomes:**\n- Empty fetch: the body shows `Threads: none`.\n- Failed fetch: the body shows `Threads: not fetched (<reason>)` and the body write still proceeds.\n\n**All original claims dropped:** Keeps becomes none and Dropped claims lists every claim. The section states that the original description is superseded, but the original bytes are kept verbatim.\n\n## Checkpoints 2–4\n\n| Case | Outcome |\n|---|---|\n| 2. `origin/fix-timeout` not an ancestor of HEAD | Row 1 withheld with `PR head origin/fix-timeout <sha7> not in HEAD <sha7>`. Rows 2–6 map to options 1–5. |\n| 2a. A is an ancestor of origin (proven) | Report \"origin advanced past A\"; merge origin before row 1. |\n| 2b. A is not an ancestor of origin | Report history rewritten upstream. Divergence alone never implies advance. |\n| 3. A not an ancestor of HEAD | Stop: `pre-rework head A not in HEAD; history was rewritten.` |\n| 3a. A missing, or PR CLOSED | Stop and name it. |\n| 3b. Head branch is not fix-timeout | Stop and name both branches. |\n| 3c. Ancestry check exits 128 | Stop on the git error; this is not divergence. |\n| 4. Push rejected | Quote the rejection. No body edit, no retry; return to the menu. |\n| 4a. Push succeeds, body edit fails | Push and pre-rework ref stand. Print `gh pr edit 42 --repo acme/widget --body-file <path>`. `$SCRATCH` is preserved byte-exact. No thread replies, merge or ticket change. |\n",
+      "words": 567,
+      "wallMs": 27865,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "I'm using the finishing-a-development-branch skill to complete this work.\n\n**Blocked before presenting or acting on a shipping menu.**\n\n- The supplied skill mandates **exactly five options** for a named branch—not six. It provides no sixth row or six-row withholding/remapping rules.\n- Its required `menu-layout.md` reference is absent from the supplied context. With tools prohibited, I cannot read and apply it as required.\n- The supplied skill does not define the requested existing-PR rework workflow: prehead preservation refs, body-update format, naming-commit-based thread dispositions, or rejected-push menu behavior. Inventing these would not produce the output this skill prescribes.\n\nThe stated passing gates and clean-tree evidence do not resolve those missing instructions. No commands, pushes, body edits, thread replies, merges, or ticket mutations were executed.\n\nTo make this simulation determinate, supply the six-option PR-rework finishing reference and the required menu-layout reference.\n",
+      "words": 135,
+      "wallMs": 27147,
+      "mechanical": {}
+    }
+  },
+  "repoSha": "062a9e3ed0be79ce0b531bd3d8c451c2f96cc187"
+}

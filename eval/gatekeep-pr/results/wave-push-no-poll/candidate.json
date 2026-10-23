@@ -35,7 +35,7 @@
       "factsSha": "983e1ae87b466afa0bf8adcc7b5b07f3af50c920c4f56d822b92cdaecb09fd6c",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
       "intentSha": "d50172cd77fdac3fcd449b8924968468ff2377f9a56d9033b95dc3c5444fdac0",
-      "baselineOutputSha": "57efede232b5ce0dfb0e72f307673a79f7a83cc1815497fb010764e9333538ff",
+      "baselineOutputSha": "dbffdfe60d9f1939563c0361525afb4e6e05a0225993c30a164ca61ac756f8b3",
       "candidateOutputSha": "dbffdfe60d9f1939563c0361525afb4e6e05a0225993c30a164ca61ac756f8b3",
       "facts": {
         "f1": {
@@ -54,15 +54,15 @@
           "label": "held"
         }
       },
-      "feedback": "Nothing moved on this case: both outputs run exactly one `gh pr view` and one `gh run list` after the push, state the watch guard does not fire because P1 is an open blocker, run no `gh pr checks --watch`, and render a menu whose `fix` row re-attempts blocker 1 (with the out-of-diff edit) while `wait` stays an unexecuted option rather than something the orchestrator does. After's wording is slightly tighter on the own-push re-entry (explicit `pushed_head` persist, `poll_deadline` stays null, `rounds_used` 1 of 3) and its blocker line is more readable; the only drift is the extra `\"revoke fix\"` compose hint and `[recommended]` landing on `fix` rather than being withheld as Before did, which does not affect these facts but should be kept consistent with the shared menu-layout contract's rule for `[recommended]` when a blocker is open. Keep the two-read refresh and the explicit 'no watch while blockers are non-empty' sentence as-is when wiring in the worktree-contract and numeric-reply-mapping changes.",
-      "wallMs": 9795,
+      "feedback": "Before and After are textually identical for this case: step 3 explicitly runs no watch with an open blocker, step 2 performs exactly one `gh pr view` and one `gh run list` with no `gh pr checks --watch` anywhere, and the rendered menu offers `fix` (option 2, recommended) for blocker P1 without blocking on `ci / test`. Nothing moved, so the Change's worktree-contract and menu-layout wording did not perturb the own-push re-entry path; the menu already renders generated options as a separate numbered list with a compose line, so the shared menu-layout contract is satisfied here without further wording. Keep the watch-guard sentence ('Blockers are not empty... a CI wait with an open blocker is a red flag') and the 'exactly two reads' phrasing as-is, since they are what pin f1 and f2 in both versions.",
+      "wallMs": 7436,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "983e1ae87b466afa0bf8adcc7b5b07f3af50c920c4f56d822b92cdaecb09fd6c",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
       "intentSha": "d50172cd77fdac3fcd449b8924968468ff2377f9a56d9033b95dc3c5444fdac0",
-      "baselineOutputSha": "fc5cbf12ab4f3ae658042e5d9692169aaad7a6f0b5d3afadd5cdd7b8f26f6bf1",
+      "baselineOutputSha": "93c6825f9a2a76aaa8223474643fc374077d8c7c96f63e23da249453b1a34203",
       "candidateOutputSha": "93c6825f9a2a76aaa8223474643fc374077d8c7c96f63e23da249453b1a34203",
       "facts": {
         "f1": {
@@ -81,10 +81,10 @@
           "label": "held"
         }
       },
-      "feedback": "Nothing moved on this case. Both outputs resume the retained record without re-initializing, run exactly one `gh pr view` and one `gh run list` on the pushed head, explicitly decline `gh pr checks --watch` because P1 remains open, and render a menu whose option 2 is `fix` for the open blocker while `merge` is withheld only for pending CI, never blocking on a watch. The After wording's additions (absolute worktree path `W`, the explicit `node --test` skip, the 'explicitly retry' phrasing on option 2, and the 'drafted payloads' in show evidence) are consistent with the shared menu-layout contract and do not disturb f1–f3; one small note is that After drops the `-R meadow/events` reasoning for `gh api` paths while adding it to `gh pr view`, which is harmless here but worth keeping uniform so a reader counting reads does not mistake repo flags for extra invocations.",
-      "wallMs": 8359,
+      "feedback": "Before and After are textually identical for this case: both skip the CI watch under an open blocker (step 6), issue exactly one `gh pr view` and one `gh run list` with no `gh pr checks --watch` (step 4), and render a menu whose option 2 is `fix` for the open P1 blocker without waiting on the pending `ci / test` check. Nothing moved, so the worktree-contract and menu-layout rewording did not disturb the own-push continuation path; the menu already renders as a separate numbered list with a compose line, so no further wording is needed here to preserve these facts.",
+      "wallMs": 6393,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "824b8741c00912f6f48c9f24d96d9283e89ce886"
+  "repoSha": "03f2a45e6cf09c8bfc0d9a675ffffba9151f6d00"
 }

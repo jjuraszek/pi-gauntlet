@@ -35,7 +35,7 @@
       "factsSha": "0b6da37f04265e803a8ff93746a3923b5b1b627257fc1001fa9bfa57b1370f6d",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
       "intentSha": "d50172cd77fdac3fcd449b8924968468ff2377f9a56d9033b95dc3c5444fdac0",
-      "baselineOutputSha": "e4873940284c5772a5f0cfeb8d01fcc184aac44bcf0596d5755662a0d9166f35",
+      "baselineOutputSha": "0d62a88dc30d7e745ba13be2dcc266453bd9d5e6b95e07de1318c8df9c1f5de2",
       "candidateOutputSha": "0d62a88dc30d7e745ba13be2dcc266453bd9d5e6b95e07de1318c8df9c1f5de2",
       "facts": {
         "f1": {
@@ -59,15 +59,15 @@
           "label": "held"
         }
       },
-      "feedback": "No fact moved: both outputs re-gather on the pushed head and record `ci / test` FAILURE plus the queued `reviewer` run, neither dispatches a fix helper (After says \"Nothing is applied\" explicitly, which is good), both render a `fix` row marked [recommended] with no cap change, and both show `Verdict: fixable - 1 blocker` with the `Sync:` line. Two drifts in After are worth tightening even though they did not flip a fact: the `fix` row lost Before's concrete action phrase (\"apply the drafted test fix through a fresh implementer, review the wave before push, push\") and now reads only \"review before push\", and the `show evidence` row dropped \"drafted reply\" and \"failing assertions\" in favour of a vaguer \"gate output\"; also the verify step now invents \"all claims come back matched\" with per-claim tracker tasks where Before said no claim tasks were needed. To deliver the menu-layout contract without these drifts, keep the layout change (separate options list, numeric reply mapping) but preserve the row text verbatim from the baseline rows, and leave the verifier claim handling untouched by the wording change.",
-      "wallMs": 15255,
+      "feedback": "The Before and After outputs are textually identical, so nothing moved on this case: step 3 still records `source: ci` with the failing `ci / test` check on `<new_head>` and notes the queued `reviewer` run (outside the resolved check set), no fix helper runs before the menu (\"Nothing is applied\"), the first menu still offers `fix` as row 1 with [recommended] and no change to the fix-round cap, and the verdict is `fixable - 1 blocker` with the `Sync:` line rendered. Since the Change targets worktree-home ownership, destroy recording, and the shared menu-layout contract (separate generated-options list, numeric reply mapping), this case exercises none of those paths, which is consistent with the wording being a no-op here. If you want this case to also exhibit the menu-layout contract, consider having the narration explicitly state the numeric-reply mapping step (e.g., \"reply 1 maps to fix\") before the menu is posted, without altering the fix row, recommendation, cap, verdict, or Sync line so f1-f4 stay intact.",
+      "wallMs": 10979,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "0b6da37f04265e803a8ff93746a3923b5b1b627257fc1001fa9bfa57b1370f6d",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
       "intentSha": "d50172cd77fdac3fcd449b8924968468ff2377f9a56d9033b95dc3c5444fdac0",
-      "baselineOutputSha": "6de58b57f8e2e880f12f1bec4c24b608ffcbc5a2544d26c1efabdd5afda69302",
+      "baselineOutputSha": "29bfc9399f7772fe60fc4a6a1d886d5a95fee85559c1978773d3cc5d50283a2f",
       "candidateOutputSha": "29bfc9399f7772fe60fc4a6a1d886d5a95fee85559c1978773d3cc5d50283a2f",
       "facts": {
         "f1": {
@@ -91,10 +91,10 @@
           "label": "held"
         }
       },
-      "feedback": "After keeps every fact Before kept: the re-gather on $NEW records the failed ci / test check and the queued reviewer run, nothing dispatches a fix helper automatically (\"There is no automatic fix\"), the first menu's row 2 is `fix` marked [recommended] with zero repair rounds consumed and no change to the cap, and the verdict is `fixable - 1 blocker` with the `Sync:` line rendered. The menu-layout contract is applied cleanly (findings numbered, options as a separate list). Two small drifts worth watching though they moved no fact here: After closes `verify` as \"complete\" while Before marked it \"failed\" on the red exact-head check - if a fact ever keys on the tracker state, prefer Before's wording (\"mark `verify` failed because the exact-head check failed; the blocker carries forward\"); and the closing compose line dropped the single-item example (\"fix 1\") and reworded the check-disposition hint as \"You can also select:\", which reads like an extra menu option rather than a disposition command - keep Before's \"You can disposition the check with ...\" phrasing so the numeric reply mapping stays unambiguous.",
-      "wallMs": 13001,
+      "feedback": "The Before and After outputs are textually identical, so nothing moved: both record the failing `ci / test` check and queued reviewer run on `$NEW` during re-gather and verify (f1), both state explicitly that there is no automatic fix and dispatch no fix helper after the red check (f2), both render a `fix` row marked [recommended] with no mention of altering the fix-round cap (f3), and both end with `Verdict: fixable - 1 blocker` and an intact `Sync:` line (f4). Since this case is the sync/rebase path rather than a cleanup or legacy-numbered-menu case, the Change's worktree-ownership and menu-layout wording has no visible effect here, which is the desired outcome; keep the new wording scoped to cleanup step 2 and the menu-rendering boundaries so that the sync, verification, and verdict sections remain untouched as they are now.",
+      "wallMs": 8057,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "824b8741c00912f6f48c9f24d96d9283e89ce886"
+  "repoSha": "03f2a45e6cf09c8bfc0d9a675ffffba9151f6d00"
 }

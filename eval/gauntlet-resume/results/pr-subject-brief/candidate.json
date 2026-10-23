@@ -1,0 +1,110 @@
+{
+  "sample": "pr-subject-brief",
+  "arm": "candidate",
+  "skillSha": "112142d756a465c753d45ec0c4ea2d8c8c61775b54b4bcdc668f67be1f47c8d1",
+  "inputSha": "847eac59bd4da0fcf5a2718f89ea645c5303fb1954ae8044b0c2c1db58c7894e",
+  "kind": "text",
+  "assembly": "headed",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "# Gauntlet resume narration: brief with PR rework pair\n\n## 1. Producer (gauntlet-handoff step 6): spec with a Rework record\n\nAfter `phase_tracker({ action: \"status\" })` and `plan_tracker({ action: \"status\" })`, the producer reads the run worktree's spec. It finds `## Rework record` and copies two values into the optional fields:\n\n- the PR identity, without its title (`- Repair parsing` is dropped)\n- the full pre-rework head\n\nIt appends one `cat >> \"<brief path>\" <<'EOF' ... EOF`. The brief path is whatever cohort reported in `Handoff written:`. The appended bytes:\n\n```text\n\n## Process state\n\n<phase_tracker status output, verbatim - its in-progress line reads: → implement(W1)>\n\nPlan: 0/1 done (1 in progress, 0 pending)\n\n  → [0] W1: Repair parser\n\nActive task: W1: Repair parser\nPR: example/parser#42\nPre-rework head: 1111111111111111111111111111111111111111\nGate history not restored - re-validate before advancing.\n```\n\nThe full phase block is not supplied, so only its `→ implement(W1)` line is shown. The real block is copied verbatim from the status call.\n\nThe producer then re-reads the file tail. It confirms the file ends with the gate-history line and nothing after it.\n\n**Without a Rework record:** the producer uses the ordinary layout. The `PR:` and `Pre-rework head:` lines are both absent, and `Active task: W1: Repair parser` is followed directly by `Gate history not restored - re-validate before advancing.`. The two optional lines are always present together or not at all.\n\n## 2. Consumer: matching branch\n\n**PR identity check.** This runs before any tracker write.\n\n1. `gh pr view 42 --repo example/parser --json headRefName` returns `repair-parser`.\n2. `git -C /work/demo branch --show-current` returns `repair-parser`.\n3. The two match, so the restore continues. The consumer carries `Pre-rework head: 1111111111111111111111111111111111111111` into candidate selection.\n\n**Candidate selection** (reconstruction \"Candidates\", with the pre-rework head as `<base>`):\n\n1. `gauntlet_setting({ key: \"flowGuards\" })` resolves `<dirs>`, its specDirs plus their sibling plans dirs.\n2. `git -C /work/demo diff --diff-filter=A --name-only 1111111111111111111111111111111111111111..HEAD -- <dirs>`\n3. `git -C /work/demo ls-files --others --exclude-standard -- <dirs>`\n\nPer the supplied observations, only `doc/specs/rework.md` and `doc/plans/rework.md` were added after that SHA.\n\n- `doc/specs/original.md` predates the base. It is earlier PR input, not a candidate, so there is no multi-spec pick. The merge-base scan that would also find it is not used.\n- The plan pairs by basename with the spec.\n- Resolved paths:\n  - Spec `S`: `/work/demo/doc/specs/rework.md`\n  - `planPath`: `/work/demo/doc/plans/rework.md`\n- Both are carried forward without re-resolving.\n\n**Feasibility.** The task snapshot is `W1: Repair parser` / `in_progress`.\n- Pending-suffix order holds.\n- Not every task is complete or skipped, so the implement auto-complete edge does not apply.\n\n**Call table, implement row:**\n\n1. `phase_tracker({ action: \"start\", phase: \"brainstorm\" })`\n2. `phase_tracker({ action: \"skip\", phase: \"brainstorm\", reason: \"resume: /work/demo/doc/specs/rework.md\" })`\n3. `phase_tracker({ action: \"start\", phase: \"plan\" })`\n4. `plan_check({ planPath: \"/work/demo/doc/plans/rework.md\" })` returns PASS, so there is no plan repair, no receipt, and no commit.\n5. `phase_tracker({ action: \"skip\", phase: \"plan\", reason: \"resume: <brief file>\" })`\n6. `phase_tracker({ action: \"start\", phase: \"implement\" })`\n7. `phase_tracker({ action: \"substep\", substep: \"W1\" })`\n8. `plan_tracker({ action: \"init\", tasks: [{ name: \"W1: Repair parser\", status: \"in_progress\" }] })`\n\n**Resulting state:**\n- Phases: brainstorm `⊘ (resume: …)`, plan `⊘ (resume: …)`, `→ implement(W1)`, verify and ship `○`.\n- Plan: `→ [0] W1: Repair parser`.\n- The PR identity confers no approval and no gate evidence.\n\n**Printed lines:**\n\n```\nGate history not restored; re-validating `W1: Repair parser` before any stage advance\n```\n\nThe next line is the check-6 result: `Standing grant active: <sentence>` or `No standing grant.`. The grant outcome is not supplied, so its text is not quoted here.\n\n**Continuation.** The consumer continues in subagent-driven-development:\n1. Re-validate `W1: Repair parser` by re-running its `Tests:`.\n2. Then run the task loop from the first non-complete task.\n\nGate history, closure review, and fix rounds are not restored.\n\n## 3. Consumer: mismatched branch\n\n1. `gh pr view 42 --repo example/parser --json headRefName` returns `repair-parser`.\n2. `git -C /work/demo branch --show-current` returns `unrelated`.\n\nStop:\n\n```\nbrief names PR #42 on repair-parser, worktree is on unrelated\n```\n\nNo tracker write occurs. The check runs before any tracker call, so there is no `start`, `skip`, `plan_check`, or `init`.\n\n## 4. Candidates without the optional pair\n\n**Brief without `PR:`/`Pre-rework head:`:**\n- There is no `gh` fetch or branch comparison.\n- `<base>` is the ordinary merge-base: `git -C <worktree> merge-base HEAD origin/HEAD`, else `main`/`master`, else ask the human.\n- The diff and untracked scans then run against that base. Per the supplied note, they would find both `original.md` and `rework.md`. More than one spec means the human picks; nothing is selected automatically.\n- The plan pairs by basename with the chosen spec.\n- The ordinary flow follows: call table, `plan_check`, Plan repair on FAIL, `init` from the brief's snapshot, and the closing line.\n\n**Bare-worktree argument:**\n- There is no brief, so there is no PR pair and every prompt says \"no brief context available\".\n- Base and candidates are selected the same way, by ordinary merge-base, and the human picks among multiple specs.\n- For \"Spec with plan\", the consumer:\n  1. Shows per-task commit evidence after the plan commit, using the union of `Files:` blocks.\n  2. Shows `git status --porcelain`.\n  3. Proposes statuses and a stage.\n  4. Waits for human confirmation and validates feasibility.\n- Then it runs, in order:\n  1. Entry check 6 on the spec.\n  2. `start brainstorm`, `skip brainstorm resume: <spec>`, `start plan`.\n  3. `plan_check`, with Plan repair on FAIL.\n  4. `skip plan`, then `start <stage>`.\n  5. `init` the confirmed list.\n  6. Status cross-check.\n- It ends with the standard closing line. The task named there is the first confirmed `in_progress` task, else `none`.\n- No outcomes are asserted for these routes because none were supplied.\n",
+      "words": 872,
+      "wallMs": 35699,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "## 1. Producer: spec has a Rework record\n\nThe brief’s core is already valid. For the process-state append:\n\n1. Call `phase_tracker({ action: \"status\" })`.\n2. Call `plan_tracker({ action: \"status\" })`.\n3. Read the run-worktree spec’s Rework record. Extract the PR identity **without its title**, and the full pre-rework head.\n4. Append with one `cat >> \"<reported brief path>\" <<'EOF' … EOF`.\n\nThe appended section has this layout. The bracketed phase-output marker below must be replaced by the actual **verbatim** phase status; the input supplies its active line, `  → implement(W1)`, but not the other phase lines, so a fully byte-exact section cannot be reconstructed without inventing them.\n\n```text\n\n## Process state\n\n[verbatim phase_tracker status, including “  → implement(W1)”]\n\nPlan: 0/1 done (1 in progress, 0 pending)\n\n  → [0] W1: Repair parser\n\nActive task: W1: Repair parser\nPR: example/parser#42\nPre-rework head: 1111111111111111111111111111111111111111\nGate history not restored - re-validate before advancing.\n```\n\n5. Re-read the tail and confirm that the gate-history line is the final line.\n\nThe reported brief path was not supplied, so it cannot be substituted into the append command or final resume command here.\n\n### Independently: spec has no Rework record\n\nFollow the same procedure, but omit **both** optional lines:\n\n```text\nPR: example/parser#42\nPre-rework head: 1111111111111111111111111111111111111111\n```\n\nKeep the tracker outputs, active-task line, and final gate-history line unchanged. Do not infer PR identity from the branch or other artifacts.\n\n## 2. Consumer: matching PR branch\n\nThese are the required operations in their relative order; checks already passed in the scenario are not rerun.\n\n### Before any tracker write\n\n1. Call:\n\n   ```text\n   gh pr view 42 --repo example/parser --json headRefName\n   ```\n\n   Observed `headRefName`: `repair-parser`.\n\n2. Call:\n\n   ```text\n   git -C /work/demo branch --show-current\n   ```\n\n   Observed branch: `repair-parser`.\n\n   The branches match. This establishes branch identity, not approval or gate evidence.\n\n### Candidate selection\n\n3. Call:\n\n   ```text\n   gauntlet_setting({ key: \"flowGuards\" })\n   ```\n\n   Use its configured spec directories and sibling plan directories for the scans.\n\n4. Scan those directories with:\n\n   ```text\n   git -C /work/demo diff --diff-filter=A --name-only 1111111111111111111111111111111111111111..HEAD -- <resolved directories>\n   git -C /work/demo ls-files --others --exclude-standard -- <resolved directories>\n   ```\n\n   Here `<resolved directories>` denotes the actual settings-derived arguments, whose complete values were not supplied.\n\nUse the paired pre-rework SHA—not the merge-base—for candidate selection. The supplied added pair resolves to:\n\n```text\n/work/demo/doc/specs/rework.md\n/work/demo/doc/plans/rework.md\n```\n\n`doc/specs/original.md` predates that SHA and is not an added candidate. Its appearance in a merge-base scan does not create a multi-spec choice on this route. No additional untracked-candidate observation was supplied.\n\n### Restore the brief’s snapshot\n\nThe brief supplies one task:\n\n```text\n{name: \"W1: Repair parser\", status: \"in_progress\"}\n```\n\nIt is feasible: there is no pending-suffix violation, and implement will not auto-complete on initialization.\n\nThe call-table sequence is:\n\n1. `phase_tracker({ action: \"start\", phase: \"brainstorm\" })`\n2. `phase_tracker({ action: \"skip\", phase: \"brainstorm\", reason: \"resume: /work/demo/doc/specs/rework.md\" })`\n3. `phase_tracker({ action: \"start\", phase: \"plan\" })`\n4. `plan_check({ planPath: \"/work/demo/doc/plans/rework.md\" })`\n\n   Supplied result: **PASS**. No plan repair, repair receipt, or repair commit occurs.\n\n5. `phase_tracker({ action: \"skip\", phase: \"plan\", reason: \"resume: <brief file>\" })`\n\n   Substitute the actual input brief path; use `resume: pasted brief` if the input was pasted. The input does not supply which one.\n\n6. `phase_tracker({ action: \"start\", phase: \"implement\" })`\n7. `phase_tracker({ action: \"substep\", substep: \"W1\" })`\n8. `plan_tracker({ action: \"init\", tasks: [{ name: \"W1: Repair parser\", status: \"in_progress\" }] })`\n\nThe calls preceding `plan_check` are the prerequisite sequence; at the stated checkpoint they have already occurred, rather than being repeated.\n\nPrint:\n\n```text\nGate history not restored; re-validating `W1: Repair parser` before any stage advance\n```\n\nThen print exactly the line determined by the already-passed grant validation:\n\n- `Standing grant active: <validated sentence>`, if a grant was validated; or\n- `No standing grant.`, if none exists.\n\nThe grant result was not supplied, so neither alternative can be selected here.\n\nContinue in subagent-driven-development without its reset-bearing entry: re-run this task’s declared `Tests:` first, then continue the task loop from `W1: Repair parser`. No test command or test result was supplied. Approval, gate history, closure-review evidence, and fix rounds are not restored.\n\n## 3. Independent consumer branch-mismatch case\n\nBefore any tracker write:\n\n1. Call:\n\n   ```text\n   gh pr view 42 --repo example/parser --json headRefName\n   ```\n\n   Observed: `repair-parser`.\n\n2. Call:\n\n   ```text\n   git -C /work/demo branch --show-current\n   ```\n\n   Observed: `unrelated`.\n\n3. Print exactly:\n\n   ```text\n   brief names PR #42 on repair-parser, worktree is on unrelated\n   ```\n\nStop. **No tracker write occurs.**\n\n## 4. Candidate selection without the optional pair\n\n### Brief without the optional pair\n\nUse ordinary restoration. Do not fetch PR #42 or use the pre-rework SHA merely because another scenario supplied them.\n\nDetermine the ordinary base with:\n\n```text\ngit -C /work/demo merge-base HEAD origin/HEAD 2>/dev/null \\\n  || git -C /work/demo merge-base HEAD main 2>/dev/null \\\n  || git -C /work/demo merge-base HEAD master 2>/dev/null\n```\n\nIf no base resolves, ask the human for a base ref before reading artifacts.\n\nResolve `flowGuards`, then scan added files relative to that base and untracked files in the configured directories. Pair candidate plans with same-basename specs, including specs tracked from base.\n\nThe supplied facts say a merge-base scan also finds `original.md`; it cannot be excluded using the absent optional SHA. If the resolved scan yields multiple specs, ask the human to select one. Do not silently select `rework.md`.\n\nRetain the brief’s exact task snapshot and all ordinary entry, grant-validation, feasibility, `plan_check`, and plan-repair rules.\n\n### Bare-worktree argument\n\nUse the same ordinary base and candidate scans, with no optional PR pair. Say:\n\n```text\nno brief context available\n```\n\nDo not invent Intent or Decisions.\n\nFor multiple specs, the human selects one. For a selected spec with a plan, gather task evidence using the union of its working-copy and plan-commit `Files:` blocks, show uncommitted files, and ask the human to confirm or edit the proposed task statuses and stage in one reply.\n\nNo task-evidence results are supplied here, so no statuses or stage can be proposed as observed facts. Apply the prescribed uncommitted-plan or predates-base handling when established, validate the confirmed snapshot, and make no tracker call before the required human answers and grant validation. Then run the armed restoration sequence, including `plan_check` and any required plan repair, without treating artifacts or commits as approval.\n",
+      "words": 969,
+      "wallMs": 42321,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "9698c502d649115c88d4cb3f3bfaca07df8c4afa02ef026f090d42797d0f69f3",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "f4b5c3c08cff479650448691b1a59caf3f9c72f504fc207c35700bbc2e2a408c",
+      "baselineOutputSha": "9cff4f3aa9087bbd7066a94a53e12cf1deca4dbd22df7b5405a22204d23da4eb",
+      "candidateOutputSha": "43acd90756f9b080e19f4390692416de4e185114747c24023c6874e4ea0a1f4c",
+      "facts": {
+        "producer": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "binding": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "candidates": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "restore": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "ordinary": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "After delivers the Change cleanly: the producer now copies `PR: example/parser#42` and the full `Pre-rework head:` between `Active task` and the terminal gate-history line (and omits both when no Rework record exists), the consumer fetches headRefName and compares the live branch before any tracker call with the exact stop `brief names PR #42 on repair-parser, worktree is on unrelated`, and candidate scans use the full SHA as `<base>`, exclude `original.md`, keep basename pairing and the untracked scan, and avoid a multi-spec pick. Nothing regressed: restoration still preserves implement/W1 and the in_progress snapshot, runs ordinary entry/grant/plan_check/repair rules, fabricates no approval or gate evidence, and closes with the standard re-validation warning; the no-pair brief and bare-worktree sections retain merge-base selection, task evidence, and human confirmation. The only wording to watch is the §2 continuation phrase 'from the first non-complete task' versus Before's 'from W1' — equivalent here, but naming W1 explicitly keeps the snapshot tie unambiguous.",
+      "wallMs": 10938,
+      "verdict": "improved"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "9698c502d649115c88d4cb3f3bfaca07df8c4afa02ef026f090d42797d0f69f3",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "f4b5c3c08cff479650448691b1a59caf3f9c72f504fc207c35700bbc2e2a408c",
+      "baselineOutputSha": "c72a7987a986eb2e7d5c6b5cfed2b5b52ee9fa1503d28232dc957c2e5a42ed35",
+      "candidateOutputSha": "47ff0fc3cb0820f72ccf0f259db735c7dd3ce8a2cf13f39e8e02c8c0f5a4cf71",
+      "facts": {
+        "producer": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "binding": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "candidates": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "restore": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "ordinary": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "After delivers the Change cleanly: section 1 inserts exactly `PR: example/parser#42` and `Pre-rework head: 1111…` between `Active task:` and the terminal gate-history line, keeps the tracker blocks verbatim, and omits both lines when no Rework record exists; section 2 fetches `headRefName` and compares the live branch before any tracker write, and section 3 quotes the exact `brief names PR #42 on repair-parser, worktree is on unrelated` stop with no tracker write; section 2 also runs both `diff --diff-filter=A` and `ls-files --others` scans from the full pre-rework SHA, picks the rework pair without a multi-spec prompt, and explicitly excludes `original.md`. Nothing that Before kept was lost: restoration still preserves implement/W1 and the `in_progress` snapshot, runs plan_check with the supplied PASS, refuses to pick a grant line or fabricate approval/gate/closure/fix-round evidence, and closes with the standard re-validation warning; the no-pair brief and bare-worktree cases still use merge-base selection, task evidence, and human confirmation. Two small tidy-ups that would not move any fact but would reduce reader friction: restore the `phase: \"implement\"` argument on the substep call (Before had it, After dropped it), and in section 2 either list only the calls from `plan_check` onward or state up front that steps 1–3 are the already-completed prerequisite sequence, rather than listing all eight and then disclaiming the first three afterward.",
+      "wallMs": 20635,
+      "verdict": "improved"
+    }
+  },
+  "repoSha": "38d478be7283d7b25bd1e69d89664a9423f8d75c"
+}

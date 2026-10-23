@@ -1,0 +1,104 @@
+{
+  "sample": "pr-subject-rule-added-later",
+  "arm": "candidate",
+  "skillSha": "471718bd8a018a5ed0df20a50c9f83dba690b16cf715cdfade9248b632108973",
+  "inputSha": "af38295c4c203b91190b2b38c8be06aee30bd0cedbfa62aea41db0bbfeda1436",
+  "kind": "text",
+  "assembly": "headed",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "## Problem\n\nPR acme/widget#61 - Cache retry policy.\n\n**Stated intent (PR body, verbatim):** \"Cache retry settings without changing request behavior.\"\n\nWhen the PR forked from `main`, its cache implementation met every policy in force. Since then, the base has gained a rule the PR does not satisfy.\n\n**Constraint added since fork:** every cache key must include `tenantId`. This rule comes from `AGENTS.md` at BASE_SHA, read with `git show` from the fetched base. The fork-point `AGENTS.md` had no such rule.\n\n**Impact on the stated intent:**\n\n- Recon found the existing cache implementation sound in structure.\n- However, its keys omit `tenantId`, so cached retry settings are not isolated by tenant.\n- The PR's claim that request behavior is unchanged depends on tenant isolation. Without `tenantId` in the key, one tenant's cached settings could serve another tenant's requests.\n- The smallest repair is to add `tenantId` to the cache-key input. This keeps the original implementation and commits, and the claim then holds.\n\n**Framing:** kept\n\n## Acceptance criteria\n\nnone - no ticket\n\n## Rework record\n\nPR: acme/widget#61 - Cache retry policy\nPre-rework head: 2222222222222222222222222222222222222222\nBase: main @ aaaaaaa - merge: bbbbbbb\nKeeps: every original commit, reachable from the pre-rework head; the existing cache implementation for retry settings\nChanges: add `tenantId` to the cache-key input so every cache key includes it, per BASE_SHA `AGENTS.md`. This is a repair, not a rewrite. It restores tenant isolation so the \"request behavior is unchanged\" claim holds. No contract exceptions.\nDropped claims: none\nThreads: none\nScoped tests: none run (clean merge - no conflict-resolved files to test)\n",
+      "words": 246,
+      "wallMs": 18847,
+      "mechanical": {
+        "no-ticket": "holds"
+      }
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "## Problem\n\nPR acme/widget#61 - Cache retry policy\n\nStated intent: “Cache retry settings without changing request behavior.”\n\nThe existing cache implementation is sound and should be retained. Adding `tenantId` to the cache-key input is the smallest repair needed to preserve tenant isolation and uphold the claim that request behavior is unchanged.\n\nConstraint added since fork: fetched base-HEAD `AGENTS.md` requires every cache key to include `tenantId`. This rule was absent from the fork-point policy; the PR was compliant at that point. The governing rule was read using `git show` from the fetched base, not inferred from worktree files.\n\nPreserve the cache implementation and keep every original commit reachable from the pre-rework head. No contract exceptions apply.\n\nFraming: kept.\n\n## Acceptance criteria\n\nnone - no ticket\n\n## Rework record\n\nPR: acme/widget#61 - Cache retry policy\nPre-rework head: 2222222222222222222222222222222222222222\nBase: main @ aaaaaaa - merge: bbbbbbb\nKeeps: The original cache implementation and every original commit reachable from the pre-rework head.\nChanges: Add `tenantId` to the cache-key input to satisfy the base-HEAD policy and preserve tenant isolation; repair rather than rewrite. The clean merge is the first appended rework commit. No contract exceptions.\nDropped claims: none\nThreads: none\nScoped tests: none run (clean merge; no conflict tests ran)\n",
+      "words": 196,
+      "wallMs": 11260,
+      "mechanical": {
+        "no-ticket": "holds"
+      }
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "c3b7838fe8e99827e0ebb93d80e407a89a3ebe5c89ee8103a3e6b4104a98ccf0",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "1fb8c8bc7f41547c4556b3f1eeec71f448cf1ced9404e94af9939769a5713cec",
+      "baselineOutputSha": "ce0821bf8d7ce2aa5711403de9b41ef15d6b004c0dda468abdf050b8afb91818",
+      "candidateOutputSha": "c5188427a091056446cc3469daf411b2d1a36257321484574e7246ad5c416043",
+      "facts": {
+        "constraint": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "repair": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "grammar": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "no-ticket": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        }
+      },
+      "feedback": "Nothing moved: both outputs name PR acme/widget#61 with its cache intent, state the base-added tenantId cache-key rule as a constraint while noting fork-point compliance, keep the Rework record after the Acceptance criteria section with the full 40-character pre-rework SHA, the base/merge line, Dropped claims: none, Threads: none, and Scoped tests: none run with a clean-merge reason, and the Changes line proposes adding tenantId to the existing key as a repair while Keeps retains the original implementation and commits. After differs only in presentation (bold labels, a bulleted impact list, a 'No contract exceptions' note in Changes, and a slightly different clean-merge reason wording), none of which affect the facts. Since Before already satisfied all three facts, the expected fails→holds movement is not observed in this case; the After wording is safe to keep as is, and if the author wants the Scoped tests reason to stay closest to the gathered draft, 'none run (clean merge - no conflict tests required)' is the more direct echo than 'no conflict-resolved files to test'.",
+      "wallMs": 11808,
+      "verdict": "unchanged"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "c3b7838fe8e99827e0ebb93d80e407a89a3ebe5c89ee8103a3e6b4104a98ccf0",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "1fb8c8bc7f41547c4556b3f1eeec71f448cf1ced9404e94af9939769a5713cec",
+      "baselineOutputSha": "fe883a0298e22a4d360992b2ef889b6f097c050a6d6843ab9e4f8e2a4df18a83",
+      "candidateOutputSha": "688890ecd83cb89a04473be0eb0bebc4738b9d8aadfe3b6b8fa7fe689094ae1e",
+      "facts": {
+        "constraint": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "repair": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "grammar": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "no-ticket": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        }
+      },
+      "feedback": "Nothing moved on this case: both outputs name PR acme/widget#61 with its cache intent, state the base-added tenantId cache-key rule as a post-fork constraint while noting fork-point compliance and the git show provenance, propose adding tenantId to the existing key in Changes with Keeps covering the original implementation and commits, and keep the full fixed Rework record after the ACs with the 40-char SHA, base/merge line, Dropped claims: none, Threads: none, and Scoped tests: none run with the clean-merge reason. After is slightly tighter on the constraint fact because it labels the rule explicitly as 'Constraint added since fork' and calls the change 'repair rather than rewrite' in Changes, which makes the repair and constraint facts easier for a reader to confirm; keep that labeling, and consider also stating 'clean merge' on the Base line itself (e.g. 'merge: bbbbbbb (clean)') so the grammar fact's clean-merge result doesn't depend on the Changes or Scoped tests lines.",
+      "wallMs": 10448,
+      "verdict": "unchanged"
+    }
+  },
+  "repoSha": "062a9e3ed0be79ce0b531bd3d8c451c2f96cc187"
+}

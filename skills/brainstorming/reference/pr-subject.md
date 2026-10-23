@@ -14,7 +14,7 @@ Parse the PR base repository from `url` and this checkout's repository from `git
 
 Bind the first tracker reference in the title, then the body's first line. Never bind from branch names, commit subjects, or `closingIssuesReferences`. Fetch a bound ticket, extract its AC rows using `reference/ticket-acceptance.md`, and dispatch context-builder for it. Preserve `none - ticket not fetched (<reason>)` on fetch failure. When title and first body line name different tickets, use the title's ticket and name the other in `## Problem` as context.
 
-For an unbound PR, write `none - no ticket` under `## Acceptance criteria`; carry raw title/body as stated intent, not invented AC rows. Name its spec `YYYY-MM-DD-pr-<N>-<topic>.md`, with topic from the title. For a bound ticket keep `YYYY-MM-DD-<ticket-id>-<topic>.md`.
+For an unbound PR, write `none - no ticket` under `## Acceptance criteria`; carry raw title/body as stated intent, not invented AC rows. Name its spec `YYYY-MM-DD-pr-<N>-<topic>.md`; emit the concrete filename with the actual date, PR number, and topic slug derived from the PR title. For a bound ticket keep `YYYY-MM-DD-<ticket-id>-<topic>.md`.
 
 Pass exactly `{ number, url, title, headRefName, headRefOid, baseRefName, isCrossRepository, headRepository.nameWithOwner }` by value to provisioning in `using-git-worktrees/reference/pr-head.md`; write nothing during resolution.
 

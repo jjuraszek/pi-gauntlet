@@ -1,0 +1,38 @@
+{
+  "sample": "pr-subject-rule-added-later",
+  "arm": "baseline",
+  "skillSha": "759aa67c4962ca21aea1c5cff8bc57ccbeb2cd436af789309ff367349e1d6967",
+  "inputSha": "af38295c4c203b91190b2b38c8be06aee30bd0cedbfa62aea41db0bbfeda1436",
+  "kind": "text",
+  "assembly": "headed",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "## Problem\n\nPR acme/widget#61 - Cache retry policy. The PR states its intent as \"Cache retry settings without changing request behavior.\" No tracker reference appears in the PR title or the first line of its body, so this rework has no bound ticket. The PR title and body are the stated intent, not acceptance criteria.\n\nThe PR complied with policy at its fork point. Base policy has since added a rule the PR does not meet:\n\n- **Constraint added since fork:** every cache key must include `tenantId`. Source: `AGENTS.md` at BASE_SHA on `main`, read with `git show` from the fetched base. This rule was absent from the fork-point policy.\n\nCode recon found the existing cache implementation sound. The PR's claim that \"request behavior is unchanged\" holds only if cached retry settings are isolated per tenant. Without `tenantId` in the key, one tenant's cached retry policy could serve another tenant's requests. Adding `tenantId` to the cache-key input repairs the gap and keeps the original implementation.\n\nFraming: kept\n\n## Acceptance criteria\n\nnone - no ticket\n\n## Rework record\n\nPR: acme/widget#61 - Cache retry policy\nPre-rework head: 2222222222222222222222222222222222222222\nBase: main @ aaaaaaa - merge: bbbbbbb\nKeeps: the original cache implementation and every original commit, all reachable from the pre-rework head; the stated intent of caching retry settings without changing request behavior\nChanges: add `tenantId` to the cache-key input so every cache key satisfies the base-HEAD `AGENTS.md` rule; this is a repair, not a rewrite\nDropped claims: none\nThreads: none\nScoped tests: none run (clean merge - no conflict tests required)\n",
+      "words": 247,
+      "wallMs": 11475,
+      "mechanical": {
+        "no-ticket": "holds"
+      }
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "## Problem\n\nPR acme/widget#61 — Cache retry policy — states: “Cache retry settings without changing request behavior.”\n\nThe existing cache implementation is sound and will be retained. However, the fetched base’s `AGENTS.md` now requires every cache key to include `tenantId`. This rule was absent at the fork point, when the PR was compliant, and was verified from the fetched base using `git show`, not inferred from worktree policy files.\n\nAdd `tenantId` to the cache-key input to satisfy the current rule and ensure the claim that request behavior is unchanged holds across tenants. Preserve the cache implementation and keep every original commit reachable from the pre-rework head. No contract exceptions apply.\n\nFraming: kept.\n\n## Acceptance criteria\n\nnone - no ticket\n\n## Rework record\n\nPR: acme/widget#61 - Cache retry policy\nPre-rework head: 2222222222222222222222222222222222222222\nBase: main @ aaaaaaa - merge: bbbbbbb\nKeeps: The existing cache implementation and every original commit reachable from the pre-rework head.\nChanges: Add tenantId to the cache-key input to satisfy the fetched base’s new tenant-isolation requirement and uphold the stated request-behavior guarantee. The clean base merge is the first appended rework commit. No contract exceptions.\nDropped claims: none\nThreads: none\nScoped tests: none run (clean merge; no conflict tests ran)\n",
+      "words": 192,
+      "wallMs": 10782,
+      "mechanical": {
+        "no-ticket": "holds"
+      }
+    }
+  },
+  "repoSha": "03f2a45e6cf09c8bfc0d9a675ffffba9151f6d00"
+}

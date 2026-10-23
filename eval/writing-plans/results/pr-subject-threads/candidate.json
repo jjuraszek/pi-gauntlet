@@ -1,0 +1,130 @@
+{
+  "sample": "pr-subject-threads",
+  "arm": "candidate",
+  "skillSha": "eaf5b23bdd7170af246bf01d39def6fcdc88afa74814968c7a0d0d9bd8d56c53",
+  "inputSha": "30e74b911d8c4bdf3936b86f33d5f88b592e8e74cb5a6aaa59042ea1b61f494b",
+  "kind": "text",
+  "assembly": "concat",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "# Plan-writer description: PR-subject plan for `doc/specs/retry.md`\n\nThe approved spec carries `## Rework record`, so I apply the PR-subject specialization. The base merge is `unresolved`, so merging `main` and resolving `src/retry.mjs` comes first, as Task 1. Each `fix` thread becomes exactly one task with its thread id in the title. `THREAD_metrics` (keep open) and `THREAD_rewrite` (decline) are recorded dispositions, not repair tasks.\n\n## Header\n\n```markdown\n# Preserve retry behavior (PR rework) Implementation Plan\n\n> **REQUIRED SUB-SKILL:** Use the subagent-driven-development skill to implement this plan task-by-task.\n\n**Goal:** Merge main, then fix THREAD_timeout and THREAD_delay on example/widgets#42.\n**Architecture:** Merge first while keeping the original commits. Then make two file-disjoint fixes in retry and delay.\n**Tech Stack:** Node, node:test\n**Spec:** `doc/specs/retry.md`\n**Verification:** `npm run lint && npm run format:check`\n```\n\nNotes on the header:\n- It lists only the documented lint and format commands.\n- Neither `node --test …` task command appears in it. Copying one there would create a full-suite duplicate that `plan_check` rejects.\n- `npm test` is absent.\n- There is no `**Happy path:**` line unless the overrides carry a `## Happy path` table.\n\n## Wave 1 - Merge base\n\n**Task 1: Merge origin/main and resolve src/retry.mjs**\n\n- **Spec:** `doc/specs/retry.md § \"Design\" L<n>-L<m>`\n- **Files:**\n  - Modify: `src/retry.mjs`\n  - Test: `tests/retry.test.mjs` (read-only run anchor)\n- **Tests:**\n  - `node --test tests/retry.test.mjs`\n  - baseline: 702a851 pass\n- **Steps:**\n  1. `git merge origin/main`\n  2. Resolve the conflict in `src/retry.mjs`, keeping the retry API.\n  3. Run the scoped test and expect PASS.\n  4. Run scoped lint/format on `src/retry.mjs`.\n  5. `git add src/retry.mjs && git commit` to conclude the merge.\n- No rebase and no squash, so the original commits are preserved.\n\n## Wave 2 - Thread fixes\n\nDepends on Wave 1: both fixes apply on top of the merged tree, and Task 2 modifies `src/retry.mjs`, which Task 1 resolved.\n\n**Task 2: THREAD_timeout - retain timeout across retries**\n\n- **Spec:** the Design anchor for THREAD_timeout\n- **Files:**\n  - Modify: `src/retry.mjs`\n  - Modify: `tests/retry.test.mjs`\n  - Test: `tests/retry.test.mjs`\n- **Tests:**\n  - `node --test tests/retry.test.mjs`\n  - baseline: 702a851 pass\n  - via: `retryRequest()`\n- **Steps:**\n  1. Write a failing test asserting the timeout persists on every attempt.\n  2. Run it and confirm it fails.\n  3. Write the minimal fix.\n  4. Run it and confirm it passes.\n  5. Run scoped lint/format on the task's files.\n  6. Commit with subject `Retain timeout across retries (ref example/widgets#42 THREAD_timeout)`.\n\n**Task 3: THREAD_delay - clamp negative delay**\n\n- **Spec:** the Design anchor for THREAD_delay\n- **Files:**\n  - Modify: `src/delay.mjs`\n  - Modify: `tests/delay.test.mjs`\n  - Test: `tests/delay.test.mjs`\n- **Tests:**\n  - `node --test tests/delay.test.mjs`\n  - baseline: 702a851 pass\n  - via: `retryDelay()`\n- **Steps:** the same red → green → fmt/lint → commit cycle, asserting that a negative input is clamped.\n\n**Wave and baseline checks:**\n- Tasks 2 and 3 own pairwise-disjoint files and share no runtime resource, so they are parallel-safe.\n- Task 1's read-only `Test:` on `tests/retry.test.mjs` is in an earlier wave than Task 2's write to it, so there is no conflict.\n- The baselines use the supplied observed evidence: both commands pass at 702a851 with tests executed, and the clean-worktree and post-run provenance checks pass.\n- Every baseline SHA matches.\n\n## Spec coverage\n\n| Row | Owner |\n|---|---|\n| Merge requirement | Task 1 |\n| THREAD_timeout | Task 2 |\n| THREAD_delay | Task 3 |\n| Keeps (retry API) | Task 1, Task 2, Task 3 |\n| Lint/format literals in the header | Verification |\n| THREAD_rewrite | `waived: declined - rewriting the API is out of scope` |\n| THREAD_metrics | recorded as `keep open`; no repair task (`waived: keep open per rework record`) |\n\nThe table closes both ways:\n- Every task appears as an owner.\n- Every owner exists.\n\n## Verify phase, documented-style case\n\nVerify does not run the header alone. It runs the union of every task's `Tests:` commands plus the header's lint and format commands:\n\n1. `node --test tests/retry.test.mjs` (from Tasks 1 and 2; runs once)\n2. `node --test tests/delay.test.mjs` (from Task 3)\n3. `npm run lint`\n4. `npm run format:check`\n\n`npm test` is not run on this path.\n\nTo claim success, each command needs fresh output from after the last source edit, with exit 0 and failures counted.\n\n## No-style subcase\n\nThe record, tasks, scoped commands and baselines are the same. The header is exactly:\n\n```markdown\n**Verification:** none - PR subject, scoped\n```\n\n- **What the sentinel means:** it is a literal marker, not a command. It means \"no documented lint or format; verification is the scoped task tests.\"\n- **How `plan_check` treats it:** as no header command, so there is no duplicate-entrypoint conflict.\n- **What verify runs:** only `node --test tests/retry.test.mjs` and `node --test tests/delay.test.mjs`. It never executes the sentinel, never runs `npm test`, and never copies task commands into the header to fill the gap.\n\n## Ordinary ticket or free-text spec (no `## Rework record`)\n\nThe PR specialization is selected only by the spec's `## Rework record`. An open PR on the branch does not select it.\n\nIn this case:\n- The header's `**Verification:**` lists the full verification set: `npm test`, `npm run lint`, `npm run format:check`.\n- Task `Tests:` stay scoped and are never copied into the header.\n- Verify runs that full header set once before conformance.\n\n## Gates preserved in every case\n\n- **Freshness:** fresh evidence is required after the last source edit. The verify-before-ship advisory still applies.\n- **Phase start:** `phase_tracker` starts the verify phase.\n- **Conformance:** a fresh reviewer audits code and docs against the origin spec and prompt. Verify completes only on a current `CONFORMS` result, or a permitted durable carried-open inventory.\n- **Phase completion:** `plan_tracker` updates are awaited before verify is marked complete.\n",
+      "words": 843,
+      "wallMs": 36590,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "This is a structural outline for the delegated plan-writer, not an authored plan or an execution report. No tools are dispatched and no commands are claimed to have run here.\n\n## PR-subject header\n\nThe approved spec contains `## Rework record`, so the PR-subject verification policy applies.\n\nThe header must contain:\n\n```markdown\n**Spec:** `doc/specs/retry.md`\n**Verification:** `npm run lint`, `npm run format:check`\n```\n\nNeither scoped test command belongs in that header. `npm test` must not run on this PR-subject path.\n\nThe complete plan also needs its goal, architecture, technology stack, file inventory, valid spec anchors, and final Spec coverage table. Exact anchor line numbers must come from reading the approved spec, not invention.\n\n## Task and wave structure\n\n### Wave 1 — Resolve the base merge\n\n**Task 1: Merge origin/main and resolve src/retry.mjs**\n\nThis must precede the thread fixes because the Rework record marks the base merge unresolved.\n\nFiles:\n- Modify: `src/retry.mjs`\n- Test: `tests/retry.test.mjs` — read-only for this task.\n\nTests block:\n\n```markdown\n**Tests:**\n- `node --test tests/retry.test.mjs`\n- baseline: 702a851 pass\n- via: `retryRequest()`\n```\n\nThe supplied case provides the baseline evidence: the command passed with tests executed, and the clean-worktree and post-run provenance checks passed. This is supplied evidence, not a claim of execution in this response.\n\nCheckbox steps should cover:\n1. Merge `origin/main`, preserving the original commits rather than replacing or squashing them.\n2. Resolve `src/retry.mjs` while preserving the retry API and existing behavior.\n3. Run the declared scoped test and inspect its result.\n4. Perform applicable scoped formatting/lint checks.\n5. Commit the merge resolution.\n\nThis is a mechanical merge task, not a fabricated red-green feature task.\n\n### Wave 2 — Repair the two fix threads\n\nDepends on Wave 1: both fixes apply after the base merge is resolved.\n\n**Task 2: THREAD_timeout — retain the timeout across retries**\n\nFiles:\n- Modify: `src/retry.mjs`\n- Modify: `tests/retry.test.mjs`\n- Test: `tests/retry.test.mjs`\n\nTests block:\n\n```markdown\n**Tests:**\n- `node --test tests/retry.test.mjs`\n- baseline: 702a851 pass\n- via: `retryRequest()`\n```\n\nCheckbox steps: run existing tests first; add a regression exercising timeout retention across retries through `retryRequest()`; confirm failure; implement the minimal repair without changing the API; confirm the scoped tests pass; format/lint the owned files; commit.\n\n**Task 3: THREAD_delay — clamp negative delay**\n\nFiles:\n- Modify: `src/delay.mjs`\n- Modify: `tests/delay.test.mjs`\n- Test: `tests/delay.test.mjs`\n\nTests block:\n\n```markdown\n**Tests:**\n- `node --test tests/delay.test.mjs`\n- baseline: 702a851 pass\n- via: `retryDelay()`\n```\n\nCheckbox steps: run existing tests first; add a negative-delay regression through `retryDelay()`; confirm failure; implement clamping without rewriting the API; confirm scoped tests pass; format/lint the owned files; commit.\n\nTasks 2 and 3 are file-disjoint and should share a wave if recon confirms no shared mutable runtime resource. Any discovered resource contention requires separate waves.\n\nThe baseline bullets above use the case’s supplied evidence. Later evidence must be rerun when the command or recorded base changes; SHAs cannot simply be relabeled.\n\n`THREAD_metrics` remains **keep open**. `THREAD_rewrite` remains **decline: rewriting the API is out of scope**. Neither becomes a repair task. Each fix thread has exactly one task carrying its thread ID.\n\n## Verify-phase commands and evidence\n\nVerification uses the union of **every task’s Tests commands**, including the merge task, plus the header’s lint/format commands. Its distinct commands are:\n\n```text\nnode --test tests/retry.test.mjs\nnode --test tests/delay.test.mjs\nnpm run lint\nnpm run format:check\n```\n\nThe duplicate retry-test entry does not change the union. The header alone is insufficient. Do not run `npm test`.\n\nThe supplied baseline establishes pre-change status only. Completion requires fresh verification output after implementation, with exit codes and test summaries inspected. A fresh conformance review must compare the resulting code and documentation against the approved spec and original request—not merely the plan.\n\n## No-style subcase\n\nWith neither lint nor format documented, the exact header is:\n\n```markdown\n**Verification:** none - PR subject, scoped\n```\n\nVerification still runs both scoped test commands above, including the merge task’s contribution. The sentinel means **no executable header command**; it does not mean “skip verification.” Do not execute the sentinel or substitute `npm test`.\n\n## Ordinary ticket/free-text spec\n\nWithout `## Rework record`, use the ordinary full verification entrypoint, including the applicable tests, lint, and format checks—here, `npm test` plus the documented style commands. An already-open PR does not select scoped PR-subject verification.\n\nIn every case, preserve freshness, the verify phase’s start/completion gates, conformance review, and required tracker reconciliation on existing task indices before completion.\n",
+      "words": 685,
+      "wallMs": 35914,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "425a2e61bdd45c5606e0ab564312f05fe5a31e73bbedd5b4a9e3973ace9e9f89",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "1ccdaac359839821544af23cb9dfc7d58616cba4f5df439f2297afb3d0be3707",
+      "baselineOutputSha": "86318bb8bac7358a9c5c85f41add75b8153e7a6a8ece3b88ce164d3bb16c6212",
+      "candidateOutputSha": "54d3b673ab719f259a711d256538ba3f656cea78f57da3cb41ff4e2425df2927",
+      "facts": {
+        "merge-first": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "thread-tasks": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "nonfix": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "header-style-only": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "verify-union": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "sentinel": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "ordinary-gates": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        }
+      },
+      "feedback": "The only fact that actually moved is sentinel: Before wrote the no-style header as `none - scoped task Tests commands only`, which is not the literal `none - PR subject, scoped` value and never said the checker treats it as no header command, whereas After gives the exact literal, states plan_check reads it as no header command, and still lists the two `node --test` commands as what verify runs. Everything else (merge-first Task 1 with original commits kept, one id-titled task per fix thread with `via: retryRequest()` / `via: retryDelay()`, no tasks for THREAD_metics/THREAD_rewrite, lint/format-only header without `npm test` or task commands, verify union of all task Tests plus header style, Rework-record-only selection with full verification for ordinary specs, and the freshness/conformance/phase gates) was already present in Before and is preserved in After. After also made the union more explicit by naming Task 1 as a contributor to the deduplicated `tests/retry.test.mjs` run and by stating the completion claim requires fresh exit-0 output for each union command — keep that phrasing, and keep the exact sentinel literal plus the 'treated as no header command / never executed' gloss, since those are what distinguish After from Before.",
+      "wallMs": 20709,
+      "verdict": "improved"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "425a2e61bdd45c5606e0ab564312f05fe5a31e73bbedd5b4a9e3973ace9e9f89",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "1ccdaac359839821544af23cb9dfc7d58616cba4f5df439f2297afb3d0be3707",
+      "baselineOutputSha": "516d384ee2aacf11a5b8b53b8f40bb64abc1447aaab2fa9cd3a98d4cfa850fb1",
+      "candidateOutputSha": "decc4680da3754d232f848808fcaa3e55b3c6652cc81b40643aec478dbd007a6",
+      "facts": {
+        "merge-first": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "thread-tasks": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "nonfix": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "header-style-only": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "verify-union": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "sentinel": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "ordinary-gates": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        }
+      },
+      "feedback": "Before refused to act as the plan-writer at all (it treated the prompt as a parent-role case and stopped on missing phase status and paths), so every fact failed on absence rather than on wrong content. After actually assumes the plan-writer role and delivers every fact: Task 1 is the unresolved base merge preserving original commits, Tasks 2 and 3 are id-titled with request-specific scoped tests and via seams, keep-open/decline threads get no tasks, the header carries only the documented lint/format commands with npm test and task test commands excluded, verify and completion evidence use the task Tests union plus header commands, the no-style sentinel is the literal `none - PR subject, scoped` treated as non-executable while the task union still runs, and ordinary specs keep full verification even with an open PR with freshness/conformance/phase gates intact. Nothing regressed. Two minor points to keep in mind so the wording stays tight: the merge task's Tests block includes a `via: retryRequest()` line, which is a thread-request seam rather than something the mechanical merge task exercises—dropping that line from the merge task would avoid a reader conflating it with the THREAD_timeout seam; and the ordinary-spec paragraph could say explicitly that PR policy is detected only from the approved spec's Rework record (not from branch/PR state) rather than leaving 'only' to be inferred from the two sentences together.",
+      "wallMs": 16581,
+      "verdict": "improved"
+    }
+  },
+  "repoSha": "c0da9914985a3d52c4fdd221742bd16d326298d3"
+}

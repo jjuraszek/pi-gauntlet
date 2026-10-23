@@ -30,6 +30,8 @@ Paths are worktree-relative. No file is deleted. New sample directories contain 
 - `skills/brainstorming/SKILL.md`
 - `skills/brainstorming/gatherer.md`
 - `skills/brainstorming/reference/spec-finalization.md`
+- `skills/brainstorming/reference/amendment-surface.md`
+- `skills/brainstorming/reference/pr-subject.md`
 - `scripts/brainstorming-contract.test.mjs`
 - `eval/brainstorming/intent.md`
 
@@ -88,7 +90,8 @@ Paths are worktree-relative. No file is deleted. New sample directories contain 
 - Capture the integrated preparatory wave commit SHA after Task 1; forward it to Task 7 as PR_SUBJECT_EVAL_BASE. It is a Git baseline, not an intent hash. Each intent.md's for remains SHA-256 of the bundle-free candidate assembly; record the preparatory Git SHA in its Change paragraph.
 - Decision: do not introduce eval/gauntlet-handoff or eval/verification-before-completion targets. The approved Tests table assigns these behaviors to gauntlet-resume and writing-plans. Use new case.md bundle+ declarations, leaving every target.json and old case.md/expected.md unchanged.
 - Task commits record `Behavior-change: yes` and #78. Task 1 also records that the references are preparatory and inactive. Generated evidence lands only in Task 7. Commit commands below use bare git in the executor's task worktree.
-- Baseline execution on 702a851: Tasks 1-7 executed 7, 37, 15, 113, 36, 15, and 46 tests respectively, each with exit 0. After every command HEAD remained 702a851 and the only porcelain entry was this untracked plan. On amendment, provenance is still 702a851; only the allowed spec and plan are in flight. Retain the unchanged-command evidence below. No artifact suffix or baseline-failure row was needed.
+- Amendment execution state: the parent reports model replays complete and accepted, with all 220 current comparisons unchanged/improved and all 100 new required assertions holding. Retain Task 7's commands as the implementation recipe; do not repeat model calls for this amendment. Source, spec, samples, and records are committed and are not edited by this plan repair. The parent folds this plan into the amendment commit.
+- Baseline execution on 028de7f: Tasks 1-7 executed 7, 41, 15, 113, 36, 15, and 46 tests respectively, each with exit 0. HEAD remained 028de7f and porcelain was empty before and after every command. No artifact suffix or baseline-failure row was needed.
 
 ## Wave 1 - Canonical reference contracts
 
@@ -106,7 +109,7 @@ Paths are worktree-relative. No file is deleted. New sample directories contain 
 
 **Tests:**
 - `node --test scripts/stage-skill-lint.test.mjs scripts/skill-size-lint.test.mjs`
-- baseline: 702a851 pass
+- baseline: 028de7f pass
 - via: `lintStageSkill`, `lintSkillSizes`
 
 - [ ] **Step 1: Run the declared deterministic tests.** Expected: stage routing, statement-vs-example distinctions, and size fixtures pass before the new files exist.
@@ -148,6 +151,8 @@ Depends on Wave 1: all callers can read the committed references. Tasks 2-6 own 
 - Modify: `skills/brainstorming/gatherer.md:186-207`
 - Modify: `skills/brainstorming/reference/spec-finalization.md:5-46`
 - Modify: `skills/brainstorming/reference/spec-finalization.md:50-52`
+- Modify: `skills/brainstorming/reference/amendment-surface.md:109-109`
+- Modify: `skills/brainstorming/reference/pr-subject.md:17-17`
 - Modify: `scripts/brainstorming-contract.test.mjs`
 - Modify: `eval/brainstorming/intent.md`
 - Create: `eval/brainstorming/samples/pr-subject-resolution/case.md`
@@ -163,16 +168,16 @@ Depends on Wave 1: all callers can read the committed references. Tasks 2-6 own 
 
 **Tests:**
 - `node --test scripts/brainstorming-contract.test.mjs eval/lib/lint.test.mjs`
-- baseline: 702a851 pass
+- baseline: 028de7f pass
 - via: `brainstorming checklist`, `scout task template`, `lintTarget`
 
 - [ ] **Step 1: Run existing tests and add failing routing assertions.** Extend the existing source-reading tests to assert resolution at checklist step 2 after reset, the exact named merge exception, BASE_SHA scout constraints and PR section, preservation/linting of the record, and raw PR council input. Retain numbered-checklist, framing, and grant assertions. Expected red: absent PR hooks, not a test harness failure.
 - [ ] **Step 2: Write pr-subject-resolution.** Begin case.md with `bundle+: skills/brainstorming/reference/pr-subject.md`. Give separate observations for open PR, actual issue, neither, mid-sentence mention, and foreign owner/repo. Use synthetic acme/widget identities. Stable judged facts require lookup ordering, one selected path, headRefName/pr-N routing, unchanged issue behavior, both repositories in the foreign stop, title-before-body binding, and unbound no-ticket behavior.
 - [ ] **Step 3: Write the other three samples.** Each bundles pr-subject.md. Rule-added-later supplies a compliant fork and a new base rule; facts require the rule in Problem, repair in Changes, and original commits in Keeps. Weakened-rule supplies a clean merge with a PR edit to AGENTS.md; base policy still governs and the edit is changes/dropped claims, never a constraint. Repair-over-rewrite supplies a valid two-line fix; facts require it rather than replacement history. Keep existing expected files unchanged.
-- [ ] **Step 4: Add only the five authorized SKILL hooks.** Insert the exact merge exception, checklist resolver route, framing check against the PR diff, same-branch/spec-append sentence in Worktree First, and bound/unbound filename rule. Preserve tracker order, consent, questionary, and every unowned section. PR and issue lookups never run in parallel.
+- [ ] **Step 4: Add only the five authorized SKILL hooks.** Insert the exact merge exception, checklist resolver route, framing check against the PR diff, same-branch/spec-append sentence in Worktree First, and bound/unbound filename rule. Preserve tracker order, consent, questionary, and every unowned section. PR and issue lookups never run in parallel. Retain the behavior-preserving replay clarifications in the owned references: pr-subject.md requires the concrete date/number/title-derived filename; amendment-surface.md confines its batch menu grammar to amendment batches and preserves the questionary's labeled recommendation and full cancelled-cut re-ask. Neither clarification changes classification, grant, or approval behavior.
 - [ ] **Step 5: Wire gatherer.md by values.** Scout stays unconditional and context-builder receives a bound ticket on the PR branch. Pass raw title/body, carried specs, BASE_SHA-to-PRE_REWORK_HEAD paths, full threads/failure marker, merge result, and authoritative base constraint texts. Require claim checks, smallest repair, keeps/changes/dropped/new-constraints/thread dispositions. Place the PR section after Codebase recon; retain existing degradation and AC extraction. Title wins conflicting ticket references and the other becomes Problem context.
 - [ ] **Step 6: Preserve the record and council input.** Derive Rework record from the PR draft section and place it after Acceptance criteria. Lint loss of the record on a PR overwrite. Preserve full SHA, merge status, dispositions, exceptions, and scoped test outcomes. Council Human input receives verbatim PR title/body beside ticket rows. Ordinary specs omit the record. Leave approval-time amend behavior unchanged: it amends the flow's appended spec commit, not any commit reachable from PRE_REWORK_HEAD.
-- [ ] **Step 7: Update intent and validate.** Preserve applicable prior rationale/moves, name the preparatory SHA in Change, add new sample facts, and compute the bundle-free for with Task 7's recipe. Run declared tests, scoped lint on the three owned instruction files, and size lint. Expected: old and new deterministic assertions pass.
+- [ ] **Step 7: Update intent and validate.** Preserve applicable prior rationale/moves, name the preparatory SHA in Change, add new sample facts, and compute the bundle-free for with Task 7's recipe. Run declared tests, scoped lint on the five owned instruction files, and size lint. Expected: old and new deterministic assertions pass.
 - [ ] **Step 8: Commit.** Stage only owned instruction/test/intent/sample paths and run `git commit -m "Gather PR subjects under base-HEAD constraints (ref #78)" -m "Behavior-change: yes. PR samples and expected facts are exercised in the final eval wave."`.
 
 Decision: only the record-preservation and council-input clauses change in spec-finalization; amended Worktree L113 explicitly retains its spec-gate `commit --amend --no-edit` and the executor's `reset --soft "$WAVE_BASE_SHA"` - no commit at or below `PRE_REWORK_HEAD` may be replaced.
@@ -201,7 +206,7 @@ Contract literals for caller edits and fixtures:
 
 **Tests:**
 - `node --test scripts/stage-skill-lint.test.mjs eval/lib/lint.test.mjs`
-- baseline: 702a851 pass
+- baseline: 028de7f pass
 - via: `using-git-worktrees Step 0`, `reference/pr-head.md`, `lintTarget`
 
 - [ ] **Step 1: Run existing tests.** Expected: stage-skill and eval bundle declaration fixtures pass.
@@ -239,7 +244,7 @@ Contract literals for routing and the provisioning replay:
 
 **Tests:**
 - `node --experimental-strip-types --test extensions/lib/plan-check.test.ts`
-- baseline: 702a851 pass
+- baseline: 028de7f pass
 - via: `plan_check`, `writing-plans Task Structure`, `verification evidence paragraph`, `verify-phase run`
 
 Decision: the new case bundles the complete writing-plans SKILL and verification-before-completion SKILL, because current target.json slices omit the header and verification policy (eval/writing-plans/target.json). Keep target.json unchanged. The amended spec L156 keeps task commands outside the header, so the existing checker's header-only entrypoint rule needs no extension change.
@@ -274,17 +279,17 @@ Contract literals for the shared plan/verify rule: `skills/writing-plans/SKILL.m
 
 **Tests:**
 - `node --test scripts/finish-verification.test.mjs eval/lib/lint.test.mjs`
-- baseline: 702a851 pass
+- baseline: 028de7f pass
 - via: `finishing Step 1`, `Push to the PR branch`, `finish skip rule`
 
 Decision: detect reworks from the spec record, not an open PR on FEATURE. Preserve the current hard gate and telemetry-only freshness exception. Capture completion evidence before the existing strip-and-seal block removes the plan (finishing SKILL L220-L243). For a rework, Step 1 derives the task `Tests:` union plus only the header's lint/format commands; `none - PR subject, scoped` adds no command. This matches Task 4's verify consumer and needs no extension edit.
 
-- [ ] **Step 1: Run existing tests and write the replay.** Bundle the complete finishing SKILL and pr-head.md; the default target contains only Step 6. Supply rework and ordinary specs, missing pre-head, closed PR, wrong branch, rewritten ancestry, moved-origin with/without pre-head ancestry, and unexpected git error. Facts require six-vs-five menus, correct withholding/numbering and stops, and no unsupported origin-advanced claim. Include lint-only and no-style plan headers: Step 1 must still run the task command union, while the ordinary path uses its full header set.
+- [ ] **Step 1: Run existing tests and write the replay.** Bundle the complete finishing SKILL and pr-head.md; the default target contains only Step 6. Supply rework and ordinary specs, missing pre-head, closed PR, wrong branch, rewritten ancestry, moved-origin with/without pre-head ancestry, and unexpected git error. Facts require six-vs-five menus, correct withholding/numbering and stops, and no unsupported origin-advanced claim. Include lint-only and no-style plan headers: Step 1 must still run the task command union, while the ordinary path uses its full header set. The body checks cover the explicit `Dropped claims: none` for the supplied no-drops record and one `No longer true: <claim>` line per dropped claim; neither outcome omits the Dropped claims field. Use the accepted replay evidence for this amendment; run no new model calls.
 - [ ] **Step 2: Add record detection and PR base selection.** Read PR/pre-head from the selected spec; missing pre-head stops naming the path. Confirm number/url/headRefName/baseRefName/state, require OPEN and FEATURE equality, and use baseRefName as base. Derive the task-command union plus header lint/format as the scoped verification set. Ordinary specs never enter this path. Preserve the existing verified-commit/telemetry exclusion expressions byte-for-byte for their executable fixture tests.
 - [ ] **Step 3: Add pre-menu ancestry checks and the exact menu.** Fetch origin; first prove PRE_REWORK_HEAD ancestor of HEAD, then origin/headRefName ancestor of HEAD. First exit 1 stops as rewritten history; second exit 1 withholds row 1 with both SHAs. The moved-past-base suffix needs its own proof; other exits are errors. Copy six rows and consequences from spec L167-L179, apply menu-layout to render and reply, and keep rows 2-6 numbered when push is withheld. Add no approval.
 - [ ] **Step 4: Capture task-plus-commit resolution evidence.** Before plan stripping require the thread-id task to be accepted complete, then count naming first-parent commits in the post-merge/pre-head range. One plus complete gives fixed-in; zero/multiple plus complete gives the explicit task-complete/no-single-commit fallback. Missing/incomplete stays open; path touches or grep alone prove nothing. Refetch through pr-head.md, preserve dispositions, render new threads open, omit GitHub-resolved threads, and distinguish none from failure. Add independent sample facts for each rule.
 - [ ] **Step 5: Add the non-force push action.** Use existing plan-strip/seal with option pr and origin/baseRefName; retain seal failure stops and whole-PR telemetry. Save the full before SHA at refs/gauntlet/pre-rework/pr-N, then push HEAD to refs/heads/headRefName on origin with --no-follow-tags and no force flag. Rejection is reported once, skips description edit, and returns the menu without retry. PR rows 2-6 map to unchanged old Options 1-5, including discard leaving origin untouched.
-- [ ] **Step 6: Append the exact Rework block after successful push.** Fetch body fresh; write an outside-repo scratch body with exact original bytes, one blank line, and the spec L184-L194 template; use gh pr edit --body-file. Include keeps/changes/dropped claims, full portable pre-head/local ref, spec/head, scoped command set, whole-PR telemetry, and refreshed thread resolutions. Add the supersedes-description line only when all claims are dropped. On edit failure keep the push and print the block for manual paste. Never reply to threads, merge, change a ticket, or rewrite body text. Add Quick Reference/Red Flags entries without duplicating the recipe.
+- [ ] **Step 6: Append the exact Rework block after successful push.** Fetch body fresh; write an outside-repo scratch body with exact original bytes, one blank line, and the spec L184-L194 template; use gh pr edit --body-file. Include keeps/changes, the exact template line `Dropped claims: <none | one "No longer true: <claim>" line per dropped claim>`, full portable pre-head/local ref, spec/head, scoped command set, whole-PR telemetry, and refreshed thread resolutions. Always emit the dropped-claims status: render `Dropped claims: none` when the record drops none; otherwise name each dropped claim with `No longer true: <claim>`. Add the supersedes-description line only when all claims are dropped. On edit failure keep the push and print the block for manual paste. Never reply to threads, merge, change a ticket, or rewrite body text. Add Quick Reference/Red Flags entries without duplicating the recipe.
 - [ ] **Step 7: Update intent and validate.** Name baseline and facts; compute bundle-free for, which may be unchanged because default assembly is Step 6. Run declared tests and scoped/size lint. Keep the narrow PR branch within 500 lines using compact tables and one block template rather than duplicating old recipes.
 - [ ] **Step 8: Commit.** Stage owned SKILL/intent/sample paths; run `git commit -m "Push reworks to the existing PR without force (ref #78)" -m "Behavior-change: yes. Preserve ordinary finishing choices and original body bytes."`.
 
@@ -315,7 +320,7 @@ Contract literals for the finishing implementation and replay:
 
 **Tests:**
 - `node --test scripts/brief-contract-lint.test.mjs eval/lib/lint.test.mjs`
-- baseline: 702a851 pass
+- baseline: 028de7f pass
 - via: `gauntlet-handoff step 6`, `Process-state restore`, `reconstruction Candidates`, `lintBriefGrammar`
 
 Decision: preserve cohort's six-heading core and Repo state fields. Only the gauntlet Process state grammar owns the optional pair, and its terminal gate-history line stays last (brief-contract L45-L60 and scripts/brief-contract-lint.mjs:1-42).
@@ -375,7 +380,7 @@ Depends on Wave 2: caller changes, cases, and intent hashes are committed. This 
 
 **Tests:**
 - `node --test eval/lib/replay.test.mjs eval/lib/checks.test.mjs eval/lib/records.test.mjs eval/lib/judge.test.mjs`
-- baseline: 702a851 pass
+- baseline: 028de7f pass
 - via: `assemble`, `parseCase`, `parseExpected`, `cellReusable`, `deriveLabels`
 
 Decision: for is not a Git SHA. eval/README.md:101-111 and eval/lib/replay.mjs:36-49 define sha256(assemble(target, treeReader(root))) without bundle+ files. Sample bundles affect their own identities; never widen target.json or old samples to force a result.
@@ -437,7 +442,7 @@ Contract literals for the documented boundary: `README.md`, `AGENTS.md`, `CHANGE
 | § "Subject resolution (`pr-subject.md`, read at checklist step 2)" L73-L73 | Leading match plus suffix; mid-sentence free text | Task 1, Task 2 |
 | § "Subject resolution (`pr-subject.md`, read at checklist step 2)" L75-L79 | PR-before-issue, OPEN, neither stop | Task 1, Task 2 |
 | § "Subject resolution (`pr-subject.md`, read at checklist step 2)" L81-L81 | Lowercase origin/url identity; foreign stop | Task 1, Task 2 |
-| § "Subject resolution (`pr-subject.md`, read at checklist step 2)" L83-L83 | Other subjects unchanged; bound/unbound filename | Task 1, Task 2 |
+| § "Subject resolution (`pr-subject.md`, read at checklist step 2)" L83-L83 | Bound/unbound filename instantiated with date, number, and title slug; other subjects unchanged | Task 1, Task 2 |
 | § "Subject resolution (`pr-subject.md`, read at checklist step 2)" L85-L85 | Title/body ticket precedence and unbound AC handling | Task 1, Task 2 |
 | § "Subject resolution (`pr-subject.md`, read at checklist step 2)" L87-L87 | Gather carried specs; supersession only when replaced | Task 1, Task 2 |
 | § "Subject resolution (`pr-subject.md`, read at checklist step 2)" L89-L89 | Pass resolved fields without writing | Task 1, Task 2 |
@@ -473,7 +478,7 @@ Contract literals for the documented boundary: `README.md`, `AGENTS.md`, `CHANGE
 | § "Finishing" L167-L176 | Exact six rows and PR consequences | Task 5 |
 | § "Finishing" L179-L179 | Withheld push render, stable numbering, no extra gate | Task 5 |
 | § "Finishing" L181-L181 | Strip/seal, whole-PR telemetry, before ref, non-force/no-retry, fresh body append | Task 5 |
-| § "Finishing" L184-L193 | Exact scoped Rework template | Task 5 |
+| § "Finishing" L184-L193 | Exact scoped Rework template, including explicit Dropped claims status for none and one No longer true line per dropped claim | Task 5 |
 | § "Finishing" L196-L196 | Supersession marker only for all dropped claims | Task 5 |
 | § "Finishing" L196-L196 | Refetch: old dispositions/new open/resolved omitted/none/failure | Task 5 |
 | § "Finishing" L196-L196 | Complete task plus one naming commit yields fixed-in | Task 5 |
@@ -509,7 +514,7 @@ Contract literals for the documented boundary: `README.md`, `AGENTS.md`, `CHANGE
 | § "Errors and edge cases" L237-L237 | Edit failure leaves push and prints manual block | Task 5 |
 | § "Errors and edge cases" L238-L238 | Missing pre-head stop names spec | Task 5 |
 | § "Errors and edge cases" L239-L239 | Brief/branch mismatch stops | Task 6 |
-| § "Errors and edge cases" L240-L240 | Other subjects preserve existing behavior | Task 2, Task 3, Task 5, Task 6, Task 7 |
+| § "Errors and edge cases" L240-L240 | Other subjects preserve existing behavior, including amendment-menu isolation and the unchanged questionary | Task 2, Task 3, Task 5, Task 6, Task 7 |
 | § "Tests" L244-L244 | Delivery tests distinct from generated scoped workflow | Task 4, Task 5, Task 7 |
 | § "Tests" L246-L248 | Preparatory references before sites, explicit base, no target edits, full target run | Task 1, Task 2, Task 3, Task 4, Task 5, Task 6, Task 7 |
 | § "Tests" L252-L252 | Resolution sample | Task 2, Task 7 |

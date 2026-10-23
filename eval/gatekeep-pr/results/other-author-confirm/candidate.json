@@ -35,7 +35,7 @@
       "factsSha": "d335e747bde2fda4d8bf5209520059da08db38f6c2582b8c01da11ba284e1583",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
       "intentSha": "d50172cd77fdac3fcd449b8924968468ff2377f9a56d9033b95dc3c5444fdac0",
-      "baselineOutputSha": "171101b27dc6d627a44a2e9e7271fc76613748df538f8bb547c9b9ea971eee6e",
+      "baselineOutputSha": "52d15d4ce985d9ec16dc9af6860b33e559018e3c2a74ee7abda642db8f328152",
       "candidateOutputSha": "52d15d4ce985d9ec16dc9af6860b33e559018e3c2a74ee7abda642db8f328152",
       "facts": {
         "f1": {
@@ -59,15 +59,15 @@
           "label": "held"
         }
       },
-      "feedback": "No fact moved between Before and After on this case: both outputs keep the fetch as the only write before the other-author confirmation, print the four-part explanation (new SHAs, authorship kept, local identity as committer, outdated comments and dismissed approvals), record the declined sync, skip rebase and push, run verification on the unsynced head 7c1e9a2, and render a `Sync: declined` line in the report. One small drift worth tightening in After: the narration phrases the record as \"The sync record is `declined - other author's branch`\" rather than Before's literal \"`sync: declined - other author's branch`\"; a reader checking for the exact `sync: declined` key/value pair gets it from the rendered `Sync:` line but not from the narration itself, so keep the literal `sync: declined ...` string in the record step. The menu-layout and worktree-contract changes described in Change don't bear on this case's facts, and After's menu already keeps numbered options as a separate list with the `Type a number` prompt, so no further wording change is needed to preserve f1-f4.",
-      "wallMs": 11008,
+      "feedback": "The After output is textually identical to Before for this case, so nothing moved: the fetch remains the only write before the other-author confirmation, the explanation still lists new SHAs, preserved authorship, the local committer identity, outdated review comments, and dismissed approvals, the decline produces `declined - other author's branch` with no rebase or push, and verification assesses the unsynced head while the report's `Sync:` line reads declined. The worktree-contract and menu-layout changes do not touch the sync-decline path or this report's single findings-free menu, which is the right outcome; keep the sync.md wording and the `Sync:` line rendering untouched when applying the menu-layout contract so this behaviour stays stable.",
+      "wallMs": 8147,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "d335e747bde2fda4d8bf5209520059da08db38f6c2582b8c01da11ba284e1583",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
       "intentSha": "d50172cd77fdac3fcd449b8924968468ff2377f9a56d9033b95dc3c5444fdac0",
-      "baselineOutputSha": "435f380ede6dde60b0594cdb8f95ae5c7e9ca5e932d7429a996c6a43226b0c1b",
+      "baselineOutputSha": "ae5a16528991455ee31bb1b2f53a961546b34856c4b36268a3d843ee322c6334",
       "candidateOutputSha": "ae5a16528991455ee31bb1b2f53a961546b34856c4b36268a3d843ee322c6334",
       "facts": {
         "f1": {
@@ -91,10 +91,10 @@
           "label": "held"
         }
       },
-      "feedback": "No fact moved in this case: both outputs fetch, run only read-only baseline queries, then print the full other-author explanation (new SHAs, authorship kept, local identity as committer, outdated comments, dismissed approvals) and ask before any rewrite; both record `sync: declined - other author's branch`, run no rebase or push, verify the original head 7c1e9a2f…, and render `Sync: declined` in the report. The After wording also keeps the menu as a separate numbered list with numeric reply mapping, consistent with the menu-layout contract. Two small drifts worth watching in After that did not affect these facts but could affect neighbouring cases: the `update branch` option dropped 'and reassess', and `stop` dropped 'and offer checkout teardown' — if the cleanup-keyed facts depend on the stop option advertising teardown (and the subsequent `worktree.destroy` / `worktree: skipped - outside configured home` path), restore that phrase so the menu still signals the cleanup boundary while applying the shared layout contract.",
-      "wallMs": 14762,
+      "feedback": "The After output is textually identical to Before on this case, so no fact moved: the other-author explanation (new SHAs, authorship kept, local identity as committer, outdated comments, dismissed approvals) is printed before any rewrite with only the fetch and read-only precondition/baseline queries preceding it, the `no` answer produces the `sync: declined - other author's branch` record with no rebase or push, and Verify assesses the original head while the report's `Sync:` line reads declined. The Change (worktree contract from `## using-git-worktrees`, cleanup ownership match, menu-layout contract with numeric reply mapping) does not surface in this declined-sync scenario beyond the already-present numbered menu and `Type a number` prompt; the wording is safe here, and nothing needs adjusting to keep f1–f4 intact. If you want the menu-layout change visible in this case, add the mapping step at the decision boundary without altering the step-2 explanation text or the `sync: declined` record.",
+      "wallMs": 16638,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "824b8741c00912f6f48c9f24d96d9283e89ce886"
+  "repoSha": "03f2a45e6cf09c8bfc0d9a675ffffba9151f6d00"
 }

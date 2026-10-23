@@ -35,7 +35,7 @@
       "factsSha": "c3e86bbe72068fdfbbeb27e719459f0def60d6e460a47ecd5cc428001f6254a0",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
       "intentSha": "d50172cd77fdac3fcd449b8924968468ff2377f9a56d9033b95dc3c5444fdac0",
-      "baselineOutputSha": "9236f027e2e1c2cb62bb31be9a70fdc0df8164adc595719fb6b88a7a435a4a4a",
+      "baselineOutputSha": "b01593c1a2c2f0bb98925c227ce48de044037625845cae39c38643804f0d3fa9",
       "candidateOutputSha": "b01593c1a2c2f0bb98925c227ce48de044037625845cae39c38643804f0d3fa9",
       "facts": {
         "b1": {
@@ -59,15 +59,15 @@
           "label": "held"
         }
       },
-      "feedback": "No fact moved. After still dispatches exactly two serial implementers (steps 6 and 7), keeps N1/N2 out of the wave with no nit payload drafted or helper dispatched, carries the P1 Python runner with an explicit 'never the full verification command' rule and the 'sh scripts/run-all-tests.sh is never given to a wave helper' line, and derives the P2 rspec runner from the `dashboard` directory prefix with the path relative to the runner's own cwd. The main visible delta from the Change is the fuller first-menu rendering (Delivers / Nits / Blockers / Verdict / numbered options as a separate list); it reproduces the nit text in the menu but does not draft or dispatch anything for them, so b2 stays safe. If you want extra margin, keep the explicit sentence that nits are excluded because a bare `fix` takes blockers only (After phrases it as `fix nits` not selected, which is equivalent) and keep the 'is never given to a wave helper' sentence for the PR-gate command verbatim, since that is the wording the b3 reader keys on.",
-      "wallMs": 12462,
+      "feedback": "Before and After are textually identical for this case, so nothing moved: both dispatch exactly two implementer helpers serially (P1 in step 6, P2 in step 7), both exclude N1/N2 from the wave with no nit payload drafted, both hand P1 the scoped `uv run --group test python -m pytest projects/x/tests/test_y.py -q` and never pass `sh scripts/run-all-tests.sh`, and both route P2 to `cd dashboard && mise x -- bin/rspec spec/models/widget_spec.rb` by the `dashboard` prefix. The Change (worktree contract from `## using-git-worktrees`, cleanup ownership match, menu-layout contract) does not touch the fix-wave dispatch path exercised here, and the After wording correctly left it alone; no adjustment is needed to keep these facts, though if the menu-layout contract is meant to be visible at the decision-menu boundary, a later revision could note the numeric reply mapping in step 1 without altering the dispatch steps.",
+      "wallMs": 7921,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "c3e86bbe72068fdfbbeb27e719459f0def60d6e460a47ecd5cc428001f6254a0",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
       "intentSha": "d50172cd77fdac3fcd449b8924968468ff2377f9a56d9033b95dc3c5444fdac0",
-      "baselineOutputSha": "36077dc692647128e870fab62fdd9320c82f427c08ad56cfe32b755dd3fa18ae",
+      "baselineOutputSha": "6e9691c05dd6180e8c43f9fa1cb4c37016351014556c9fa3c6f31bfc1f939fb7",
       "candidateOutputSha": "6e9691c05dd6180e8c43f9fa1cb4c37016351014556c9fa3c6f31bfc1f939fb7",
       "facts": {
         "b1": {
@@ -91,10 +91,10 @@
           "label": "held"
         }
       },
-      "feedback": "After keeps every fact Before kept: two sequential implementer dispatches for P1 and P2, no nit payload or helper, the Python scoped command for P1, the dashboard-routed rspec command for P2, and an explicit refusal to use `sh scripts/run-all-tests.sh`. The one soft spot is b3: the P1 task rules say \"Run the resolved Python scoped command\" by reference rather than quoting `uv run --group test python -m pytest projects/x/tests/test_y.py -q` inside the task block, while the P2 task inlines its command; a fresh-context helper only receives what the task text carries, so a stricter judge could read the reference as not carrying the command. To make b3 unambiguous while keeping the new section-3 resolution step, inline the Python command in the P1 task bullet exactly as the P2 task does (\"Use only this scoped command, from the worktree root: ...\"). Also consider stating once that the `dashboard:` routing key is matched by the spec path's `dashboard/` prefix, which makes b4's 'chosen by directory prefix' explicit rather than implied.",
-      "wallMs": 17662,
+      "feedback": "Before and After are textually identical for this case, so nothing moved: both dispatch exactly two sequential implementer helpers (retry-budget, then widget-save), draft no nit payload and explicitly forbid incidental nit cleanup, keep `sh scripts/run-all-tests.sh` out of every task, and give the P2 helper the literal `cd dashboard && mise x -- bin/rspec spec/models/widget_spec.rb` resolved from `## routing`. The Change (worktree-home ownership contract, cleanup step 2, menu-layout/numeric mapping) is not exercised by a fix-wave narration that stops before the pre-push reviewer, which is why the After wording left this output untouched. Two minor robustness notes if you revise further: the P1 task only says 'run the resolved Python scoped command' rather than quoting `uv run --group test python -m pytest projects/x/tests/test_y.py -q` inline the way the P2 task does, and the routing choice is only implied ('dashboard runner from `## routing`') rather than stated as 'selected because the test path begins with `dashboard/`'; making both explicit in the task text would keep b3 and b4 holding under stricter readers without affecting the Change.",
+      "wallMs": 13463,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "824b8741c00912f6f48c9f24d96d9283e89ce886"
+  "repoSha": "03f2a45e6cf09c8bfc0d9a675ffffba9151f6d00"
 }

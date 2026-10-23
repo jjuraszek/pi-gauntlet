@@ -35,7 +35,7 @@
       "factsSha": "856069d533d5c3e852f13b079723215469f02010255440961ab0b85eca33414d",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
       "intentSha": "d50172cd77fdac3fcd449b8924968468ff2377f9a56d9033b95dc3c5444fdac0",
-      "baselineOutputSha": "fd2d0d81ba494524dba8e70279736dc1feb6f8489670becafb26447a0ee139d1",
+      "baselineOutputSha": "540198c9fd351b841cdccb9ff2aea6553e32f2096202736290c390b6400ae4f5",
       "candidateOutputSha": "540198c9fd351b841cdccb9ff2aea6553e32f2096202736290c390b6400ae4f5",
       "facts": {
         "f6": {
@@ -44,15 +44,15 @@
           "label": "pre-existing"
         }
       },
-      "feedback": "The After wording did not move f6; both outputs fail it identically. In each, step 4/5 ('Watch guard') states that no watch runs because this is the first report of the run, the poll deadline stays null, and a window opens only on an explicit `wait` pick, after which the menu immediately offers `wait` as row 1 [recommended]. That is the opposite of f6, which expects one bounded watch to run automatically on this resumed entry with no blocker and a binding pending check, and `wait` to be asked only once that window expires. The worktree-contract and menu-layout changes are orthogonal to this behaviour, so neither the 'first report' guard nor the auto-watch rule changed between versions. To deliver f6 while keeping the rest, the watch-guard text should distinguish a fresh run from a resumed record: something like 'On resumed entry with evidence `pending`, no covered blocker, and a binding pending check, run one bounded watch (open `repair.poll_deadline`) before rendering; only if the window expires with the check still pending do you render the menu with `wait` as row 1' — leaving the 'no CI wait before the first report' rule scoped to fresh (non-resumed) runs and keeping the shared menu-layout, numeric mapping, and `Not offered: merge` rendering unchanged.",
-      "wallMs": 8778,
+      "feedback": "Before and After are byte-identical on this case, so the wording change moved nothing here; f6 fails in both because each output explicitly declines the automatic bounded watch (\"A CI wait before the first report is forbidden\", \"A watch window opens only on an explicit `wait` pick\"), leaves `repair.poll_deadline` null, and renders a menu with `wait` as option 1 before any window has run. If f6 is meant to hold, the resumed-entry path in the skill needs wording that distinguishes a resumed record with a verified head, no blockers, and a binding pending check from a cold first report - e.g. in the Watch guard: \"on a resumed entry where the record holds `assessed_head` equal to the live head, no findings, and evidence `pending` on a binding check, open one bounded watch window (set `repair.poll_deadline`) before rendering; ask `wait` only after that window expires without resolution.\" That addition sits outside the worktree/menu-layout change and would not disturb the facts those edits target.",
+      "wallMs": 9080,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "856069d533d5c3e852f13b079723215469f02010255440961ab0b85eca33414d",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
       "intentSha": "d50172cd77fdac3fcd449b8924968468ff2377f9a56d9033b95dc3c5444fdac0",
-      "baselineOutputSha": "c314dc2972e41ddf54b58acc1a2386c66551378649f52660e2e84f086c07a241",
+      "baselineOutputSha": "db3d57d31b07ca59290afd4aba0810d0c2d6192233515303a4a8042904f9573d",
       "candidateOutputSha": "db3d57d31b07ca59290afd4aba0810d0c2d6192233515303a4a8042904f9573d",
       "facts": {
         "f6": {
@@ -61,8 +61,8 @@
           "label": "held"
         }
       },
-      "feedback": "f6 holds in both outputs: each resumes the record, identifies the resumed-report/no-blocker/binding-pending condition, persists a 15-minute poll_deadline, runs exactly one `gh pr checks --watch` without a human `wait` pick or repair grant, declines to renew the deadline after expiry, and only then renders a menu whose first option is `wait` to open a new window. The After wording changed nothing material for this fact, so no repair is needed for f6. Two incidental drifts in After are worth noticing even though they do not touch f6: the post-watch comment reconciliation drops the GraphQL `reviewThreads` query that Before ran, and the `stop` option no longer mentions offering checkout teardown — if the Change's worktree-contract cleanup wording is meant to surface at the menu, keep `stop - leave the PR as-is and offer checkout teardown` as Before did, and keep the three-command comment refresh so the ledger reconciliation stays complete.",
-      "wallMs": 8042,
+      "feedback": "Before and After are textually identical for this case: both resume the record, apply the continuation watch guard, run one bounded `gh pr checks --watch` under a persisted 15-minute poll deadline without a human pick, refresh after expiry, and only then render a menu whose first option is `wait`, so f6 holds in both. The Change (worktree-contract wording and shared menu-layout contract with numeric reply mapping) did not alter this path, which is the desired outcome; no wording adjustment is needed here, and the author should simply confirm that the new menu-layout contract keeps rendering the options as a separate numbered list after the expiry notice as it does in this output.",
+      "wallMs": 7451,
       "verdict": "unchanged"
     }
   },
@@ -222,5 +222,5 @@
       }
     }
   },
-  "repoSha": "824b8741c00912f6f48c9f24d96d9283e89ce886"
+  "repoSha": "03f2a45e6cf09c8bfc0d9a675ffffba9151f6d00"
 }

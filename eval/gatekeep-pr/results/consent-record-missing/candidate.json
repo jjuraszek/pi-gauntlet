@@ -35,7 +35,7 @@
       "factsSha": "35e38b8ee02cdec12dc87efffbcbcf5dc5b825c890984b65b5a3e7fd23cbc023",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
       "intentSha": "d50172cd77fdac3fcd449b8924968468ff2377f9a56d9033b95dc3c5444fdac0",
-      "baselineOutputSha": "e9f8517d20bf53a8abfdc3e231ee2bbf87b923171d11f697caeb72be9dfd55cb",
+      "baselineOutputSha": "b835537aca4f7064b5cd8dc0ec04f5413d7e4198b686544c7d1865d503901cca",
       "candidateOutputSha": "b835537aca4f7064b5cd8dc0ec04f5413d7e4198b686544c7d1865d503901cca",
       "facts": {
         "f1": {
@@ -59,15 +59,15 @@
           "label": "held"
         }
       },
-      "feedback": "Nothing moved: After keeps all four facts in both checkpoints, stating explicitly that the lost/unreadable record carries no authority, that no replacement record is minted (with the reason that minting would zero `repair.rounds_used`), that no other state file is searched and no grants are inferred from chat, and that the run pauses with `update branch` and `merge base` failing closed. Two things in After are weaker than Before and worth restoring given the Change's worktree/cleanup contract: the `stop` option no longer mentions the worktree teardown of `.worktrees/pr-642` (Before offered it, and the new `home:` ownership check is exactly what should gate that teardown), and Checkpoint B dropped Before's note that the unreadable record is left in place at terminal teardown rather than retried. Keeping a `stop - leave the PR as-is; offer worktree teardown of .worktrees/pr-642 (record left in place)` line, plus the specific evidence summary (`state path, CI run 910 on 1111111, the conflict read`) in option 1, would deliver the menu-layout contract while preserving the fuller Before narration.",
-      "wallMs": 10958,
+      "feedback": "Before and After are textually identical for this case, so nothing moved: both checkpoints pause on the missing (ENOENT) and unreadable (EACCES) record, omit `update branch` and `merge base` because no pick or round usage can be persisted and the budget is unknown, explicitly refuse to search other state files or infer grants from chat, and explicitly refuse to mint or rewrite the record because that would reset `repair.rounds_used`. The worktree-contract and menu-layout wording in the Change did not touch the continuation-record validation path exercised here, which is the desired outcome; the menus already render options as a numbered list separate from findings with a `Not offered:` line, so no further wording is needed to keep f1–f4 intact while delivering the Change.",
+      "wallMs": 6781,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "35e38b8ee02cdec12dc87efffbcbcf5dc5b825c890984b65b5a3e7fd23cbc023",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
       "intentSha": "d50172cd77fdac3fcd449b8924968468ff2377f9a56d9033b95dc3c5444fdac0",
-      "baselineOutputSha": "c7d4d6dee45742f1b63117dbf251aef3c7677b1b823e59a3b9b178015797ab6f",
+      "baselineOutputSha": "13b5090bbed971febaeb2f184929a02268efc5951e670e7e76e2939f8d8130c4",
       "candidateOutputSha": "13b5090bbed971febaeb2f184929a02268efc5951e670e7e76e2939f8d8130c4",
       "facts": {
         "f1": {
@@ -91,10 +91,10 @@
           "label": "held"
         }
       },
-      "feedback": "No fact moved: both After checkpoints still pause continuation on the ENOENT/EACCES read, explicitly decline to search for another record, mint a replacement, or reset the round budget, and state that no prior pick establishes repair authority. The one substantive addition in After is the read-only pre-menu `gh pr view` / `gh run list` refresh, which Before expressly avoided (\"I run no shell or forge commands\"); it is not a state-file search or a chat-derived permission guess, so f3 is unaffected, but if the intent is that a paused continuation run no live reads, the refresh paragraph should be dropped or qualified as read-only-and-non-authorizing (which After does say). Otherwise the menu rendering follows the shared layout contract with the numbered options list and a single 'Not offered' line, and the wording can be kept as is.",
-      "wallMs": 9695,
+      "feedback": "After is textually identical to Before for this case, so nothing moved: both checkpoints pause the continuation on ENOENT and EACCES, explicitly decline to search for another record, mint a replacement, initialize grants, change permissions, or reset the round budget, state that no prior pick establishes repair authority, and keep merge base and update branch out of the menu with the record failure as the reason. The worktree-contract and menu-layout changes have no footprint here because the continuation-record failure short-circuits before any worktree cleanup or generated-option rendering; the two-option menu with numeric reply prompt already matches the shared layout. No wording adjustment is needed to preserve f1-f4 while delivering the Change; if you later want this case to exercise the new contract, the Entry would need a cleanup or post-merge boundary, not just the missing/unreadable record.",
+      "wallMs": 7694,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "824b8741c00912f6f48c9f24d96d9283e89ce886"
+  "repoSha": "03f2a45e6cf09c8bfc0d9a675ffffba9151f6d00"
 }

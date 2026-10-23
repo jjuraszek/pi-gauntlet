@@ -39,7 +39,7 @@
       "factsSha": "f4fc75ddbc43da58798c06691346a7fd3a59e572b198fb20795b601709017189",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
       "intentSha": "d50172cd77fdac3fcd449b8924968468ff2377f9a56d9033b95dc3c5444fdac0",
-      "baselineOutputSha": "1963b441d7e9724df4c35ec9599685917a6f8eb8758cc1237738ad2c3db2202a",
+      "baselineOutputSha": "12a59c953e2f96c54128044716f18866bb34714590d0cf0ec4bc35d3f89416c1",
       "candidateOutputSha": "12a59c953e2f96c54128044716f18866bb34714590d0cf0ec4bc35d3f89416c1",
       "facts": {
         "p1": {
@@ -58,15 +58,15 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "Neither fact moved: both outputs run `script/worktree destroy 'pr-733'` from /work/mono, render `worktree: failed - error: database teardown failed for pr-733` on the exit-1, decline the `git worktree remove --force` fallback, and render `branch: skipped - worktree destroy failed` with no `git branch -D` (p2 already held in Before, contrary to the expected-to-move list). Two things in After are worth tightening so they do not cost facts in sibling cases: the fenced rendered block closes after the three status lines and the verdict/menu are emitted as loose prose with a `No sync line renders` aside wedged between them, which breaks the single-block menu layout that the shared menu-layout contract expects at the post-merge boundary — keep the status lines, Delivers/Verdict, numbered options, and `Type a number.` inside one fenced block as Before does, and put the `--rebase` note in the narration. After also narrates commands the digest does not record (`git log origin/main..HEAD`, `rev-parse HEAD`, `--git-common-dir` yielding `/work/mono/.git`); drop those or mark them as derived so the narration stays verifiable against the digest while still describing the `home:` ownership match and the post-destroy branch skip the Change introduces.",
-      "wallMs": 12908,
+      "feedback": "The Before and After outputs are byte-for-byte identical, so nothing moved: both run `script/worktree destroy 'pr-733'` from /work/mono, both report `worktree: failed - error: database teardown failed for pr-733` with an explicit refusal to fall back to `git worktree remove --force`, and both print `branch: skipped - worktree destroy failed` with no `git branch -D`. The Expected-to-move list predicts p2 going fails -> holds, but Before already skips the branch after the failed destroy \"regardless of what `git worktree list` shows\", so for this case the new step-2 wording is already satisfied by the baseline and the After wording preserves it. No wording adjustment is needed to keep p1 and p2; if you want this case to actually demonstrate the step-2 change, the Before sample would need to be regenerated from the pre-change skill text, since as captured it does not exhibit the old behavior.",
+      "wallMs": 7103,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "f4fc75ddbc43da58798c06691346a7fd3a59e572b198fb20795b601709017189",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
       "intentSha": "d50172cd77fdac3fcd449b8924968468ff2377f9a56d9033b95dc3c5444fdac0",
-      "baselineOutputSha": "d3b37f0c89d81c087b4e0d74e8817c240d0b7b547f452a4bee2b83b47ed15f69",
+      "baselineOutputSha": "a4fbb4b590ce7a849c1fa619c03d9649042ea20c9b0416a28aa1475fbdbd5a90",
       "candidateOutputSha": "a4fbb4b590ce7a849c1fa619c03d9649042ea20c9b0416a28aa1475fbdbd5a90",
       "facts": {
         "p1": {
@@ -85,10 +85,10 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "Nothing moved: both outputs run `script/worktree destroy 'pr-733'` from /work/mono (After via a `(cd /work/mono && ...)` subshell, which still satisfies the \"from /work/mono\" requirement), print the exact `worktree: failed - error: database teardown failed for pr-733` line, explicitly refuse any fallback removal, and then print `branch: skipped - worktree destroy failed` without any branch deletion. Note that the Expected-to-move entry for p2 (fails -> holds) is not borne out by this Before text, which already skips the branch after the failed destroy; the After wording preserves that behavior and adds the home-ownership check in step 4, so no adjustment is needed to keep p1 and p2 while delivering the Change.",
-      "wallMs": 11013,
+      "feedback": "Before and After are textually identical for this case, so no fact moved. Both run `(cd /work/mono && script/worktree destroy 'pr-733')`, render `worktree: failed - error: database teardown failed for pr-733`, explicitly decline any fallback removal (no `git worktree remove --force`), and in step 6 render `branch: skipped - worktree destroy failed` without running `git branch -D`. The Expected-to-move list anticipated p2 failing in Before, but Before already states that the destroy failure controls the branch step regardless of whether a worktree still holds the branch, so the After wording simply preserves behavior here rather than changing it; nothing in After needs adjustment for p1 or p2, and the author should treat this case as a regression guard rather than evidence that the step-2 change landed.",
+      "wallMs": 8901,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "824b8741c00912f6f48c9f24d96d9283e89ce886"
+  "repoSha": "03f2a45e6cf09c8bfc0d9a675ffffba9151f6d00"
 }

@@ -1,7 +1,7 @@
 {
   "sample": "side-question-return",
   "arm": "candidate",
-  "skillSha": "c635d966f967506e4e69ac9702b02820381b270b88c9209aa0941cb93338cb5e",
+  "skillSha": "a124f60dc547948ccce5ab3ed680c0888ab67f8a68ca5f04fa2cec9f548236c3",
   "inputSha": "4a785dcd9d8fadca18180064443d7c64f7aba75f76d398b4d121a4f01d563c56",
   "kind": "text",
   "assembly": "headed",
@@ -17,16 +17,16 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "A fits because the resolver already owns settings in this code. `settings/resolver.ts:12` defines the defaults, existing settings flow through it, and I traced the resolved values to `ui/report-view.ts:30`, where the report view reads them. A view-local settings object would add a second settings path beside the one that already owns every setting. Its defaults could drift from the resolver's, and the view would need to merge two sources of state. Reusing the resolver keeps one read path, one place for defaults, and no new boundary. I'm recording that the setting lives under the existing resolver as a decision in the draft.\n\nThe open question is what the setting controls. You said report filters stay active after a workspace switch and can hide rows in the new workspace. When the user switches workspaces, what should happen to the active report filters?\n\nA) A setting controls this, and it defaults to clearing filters on a workspace switch. Users who want filters to carry over can turn it off.\nB) A setting controls this, and it defaults to keeping filters, which is today's behavior. Users opt in to clearing.\nC) Filters always clear on a workspace switch, so no setting is needed for this, and the report-view setting covers something else.\nD) Other - name it.\n\nRecommendation: A - clearing by default fixes the hidden-rows problem for everyone, and the setting keeps today's carry-over behavior for anyone who relies on it.\n",
-      "words": 236,
-      "wallMs": 11845,
+      "text": "A is the better fit because the current code already has one owner for settings, and the report view already reads from it.\n\n- **Defaults have one home.** `settings/resolver.ts:12` owns setting defaults, and existing settings already flow through it.\n- **The view already uses it.** `ui/report-view.ts:30` consumes resolved settings, and I traced that path from the resolver to the view. A new key placed in the resolver reaches the view on that path without new wiring.\n- **A view-local object would add a second settings path.** It would sit beside the resolver with its own defaults. Those defaults could drift from the resolver's, and other code would have two places to look for settings.\n- **Testing stays where it is now.** The setting's default and how it resolves get tested at the resolver, the same as every other setting. The view is tested only for how it reacts to the resolved value.\n\nI'm recording this in the draft: the setting is a new key under the existing resolver (`settings/resolver.ts:12`), consumed at `ui/report-view.ts:30`, with no view-local settings state.\n\nNext is what the setting controls. You said report filters stay active after switching workspaces, which can hide rows in the new workspace. What should happen to filters on a workspace switch?\n\nA) Filters reset on every workspace switch by default, and the setting lets users turn the reset off.\nB) Filters carry over by default, as they do today, and the setting lets users turn the reset on.\nC) Each workspace keeps its own filters, which come back when you return to that workspace, and the setting turns that behavior on or off.\nD) other - name it\n\nRecommendation: A - the reported problem is hidden rows after a switch, so the default should prevent that, while users who rely on carry-over can opt out.\n",
+      "words": 297,
+      "wallMs": 14658,
       "mechanical": {}
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "The existing resolver already owns defaults (`settings/resolver.ts:12`), and the report view already consumes its resolved settings (`ui/report-view.ts:30`). Reusing that path keeps one source of truth. A view-local settings object would introduce a second settings path without a demonstrated need.\n\nThe workspace-switch behavior is still undecided. What should the new setting control?\nA) Clear report filters on workspace changes by default, with an option to preserve them.\nB) Preserve report filters by default, with an option to clear them.\nC) Remember and restore separate filters for each workspace.\nD) Other — name the desired behavior.\nRecommendation: A - it prevents carried-over filters from hiding rows by default while allowing users to retain the current behavior.\n",
-      "words": 112,
-      "wallMs": 9184,
+      "text": "Reusing the resolver keeps one source of truth: `settings/resolver.ts:12` already owns defaults, and `ui/report-view.ts:30` consumes its resolved settings. A view-local settings object would introduce a second place to define defaults and resolve values without a demonstrated need.\n\nThat settles ownership, but not filter behavior. What should the new setting default to when switching workspaces?\nA) Clear report filters so the new workspace starts unfiltered.\nB) Retain the active filters, preserving today’s behavior.\nC) Restore each workspace’s last-used filters.\nD) Other - name it.\nRecommendation: A - it directly addresses filters unexpectedly hiding rows in the new workspace.\n",
+      "words": 95,
+      "wallMs": 8217,
       "mechanical": {}
     }
   },
@@ -34,9 +34,9 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "2e29ea03606c748ae02b9f4d57990bfd5f5ebe331e6305e399419ebc8d95e558",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "5aa2bf78a144556c707465aa0b7081fb61f66dc61c2e759e7988b90489850f48",
+      "intentSha": "1fb8c8bc7f41547c4556b3f1eeec71f448cf1ced9404e94af9939769a5713cec",
       "baselineOutputSha": "c9583da998acffad6295d3b078f4954cc0a0657d6db68d56a485d62b9946d878",
-      "candidateOutputSha": "c9583da998acffad6295d3b078f4954cc0a0657d6db68d56a485d62b9946d878",
+      "candidateOutputSha": "7b9d9f14406c9c470ebd29cddea949f5747f304496061db82d9c6a5b8b081764",
       "facts": {
         "f1": {
           "before": "holds",
@@ -49,16 +49,16 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "Before and After are identical for this continuation case, so nothing moved. Both explain why the shared resolver fits the traced resolver-to-view path and record choice A, then in the same response ask one labeled-options question (A–D) about the unresolved filter-reset behavior with a Recommendation: line on its own final line, without stopping at acknowledgment or starting approaches. The After wording already delivers the questionary layout (lead-in first, one option per physical line, recommendation last) without disturbing either fact; keep that layout and the scoping sentence that confines the amendment menu grammar to the amendment batch so brainstorming's labeled recommendation question stays in this form.",
-      "wallMs": 4041,
+      "feedback": "Nothing moved on this continuation case. Both outputs explain the resolver fit against the supplied code (resolver.ts:12 owns defaults, report-view.ts:30 consumes the traced path, a view-local object would create a second drifting settings path), keep choice A and record it in the draft, then ask exactly one labeled-options question about the undecided reset-on-workspace-switch behavior with a lead-in first, each option on its own physical line, and Recommendation: on its own final line, without stopping at acknowledgment or starting approaches. After adds a bulleted rationale and a testing point, which stay within the gathered code and do not introduce unverified claims; its lowercase \"D) other - name it\" is a cosmetic inconsistency with the Before casing but not a fact failure. The questionary-option-lines layout requirement from the Change is satisfied by both, so the After wording can be kept as is; if you want tighter alignment with the template, capitalize the Other option label to match the other lettered lines.",
+      "wallMs": 8324,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "2e29ea03606c748ae02b9f4d57990bfd5f5ebe331e6305e399419ebc8d95e558",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "5aa2bf78a144556c707465aa0b7081fb61f66dc61c2e759e7988b90489850f48",
+      "intentSha": "1fb8c8bc7f41547c4556b3f1eeec71f448cf1ced9404e94af9939769a5713cec",
       "baselineOutputSha": "975eafdc418db99178ad452d21027a5228e8c9c5d19bc57df5a88722252b3cdc",
-      "candidateOutputSha": "975eafdc418db99178ad452d21027a5228e8c9c5d19bc57df5a88722252b3cdc",
+      "candidateOutputSha": "e6574feda4734235c81c2b1070924066f4c5d58fc5e714bae2d1ce001fa2f9fc",
       "facts": {
         "f1": {
           "before": "holds",
@@ -71,10 +71,10 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "Before and After are textually identical here, so nothing moved. Both explain why the shared resolver fits the supplied code (defaults at settings/resolver.ts:12 consumed by ui/report-view.ts:30, one source of truth, no demonstrated need for a second path) and retain choice A, satisfying f1. Both then, in the same response, pose a single labeled-options question (A–D) about the undecided workspace-switch reset behavior with a lead-in first, each option on its own line, and a final own-line Recommendation, without stopping at acknowledgment or starting approaches, satisfying f2. The After output also already conforms to the new questionary layout rule in the Change, so no wording adjustment is needed for this case; keep the layout instruction scoped as written and the continuation contract stays intact.",
-      "wallMs": 7038,
+      "feedback": "Both outputs explain why the shared resolver fits the current code by citing settings/resolver.ts:12 owning defaults and ui/report-view.ts:30 consuming resolved settings, retain choice A, and then ask a single labeled-options question (A–D) with a recommendation about the undecided workspace-switch reset behavior without stopping at acknowledgment or starting approaches. After keeps the questionary layout the Change requires: lead-in first, each labeled option on its own physical line, and Recommendation: on its own final line. No fact moved; the After wording is sound as written, and the only cosmetic difference (the hyphen versus em dash in option D, and the shorter option descriptions) does not affect either fact.",
+      "wallMs": 4813,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "889b5c13f91d905ab6f44b412922585f56be27ba"
+  "repoSha": "062a9e3ed0be79ce0b531bd3d8c451c2f96cc187"
 }

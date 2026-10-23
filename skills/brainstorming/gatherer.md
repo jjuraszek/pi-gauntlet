@@ -70,7 +70,8 @@ Scout (always dispatched):
 > independently of context-builder, in pages of 50 until a short page. Match sections
 > anywhere in each comment regardless of author; accept either ordering with
 > `Overlap evidence:` and exclude that evidence part. Include every matched section's
-> terms in the query. Run
+> terms in the query, keeping literal file paths intact rather than shortening them
+> to stems. Run
 > `node <SPEC_INDEX> --query '<keywords>' --limit 10` from the worktree root,
 > keeping the keywords inside single quotes, and treat its rows as the candidate
 > list; zero rows means the index found no evidence, not that no predecessor exists -

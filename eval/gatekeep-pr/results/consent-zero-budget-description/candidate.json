@@ -35,7 +35,7 @@
       "factsSha": "5f8774c3ac4218128e1bc3574f5194e49d1fb47c8b346e066ecb803489e4bf1f",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
       "intentSha": "d50172cd77fdac3fcd449b8924968468ff2377f9a56d9033b95dc3c5444fdac0",
-      "baselineOutputSha": "3348ee78479d6ba810c2ec03dcf3a677a69aa586de51dcc5d6cd305bfc9da46c",
+      "baselineOutputSha": "717d632d3e72c15e5f27a190e1c0eed9c6a26d1342d04f0822e7fa65b4064c4a",
       "candidateOutputSha": "717d632d3e72c15e5f27a190e1c0eed9c6a26d1342d04f0822e7fa65b4064c4a",
       "facts": {
         "f2": {
@@ -44,15 +44,15 @@
           "label": "held"
         }
       },
-      "feedback": "Nothing moved on f2: both outputs state explicitly that no `gh pr edit` runs, no `description recheck` helper is dispatched, `repair.rounds_used` stays 0, and no `repair.wave` is written, so the cap-0 refusal of the description write is intact in After. The After narration is slightly less tidy than Before — it runs a `gh pr view` in step 2 and then the full pre-menu refresh read in step 4, and it orders the cap gate before the refresh rather than after — but neither affects the no-write fact. If you want to keep the record tight while delivering the Change, consider collapsing the two reads into the single step-5 refresh (as Before does) and keeping the 'missing budget obstacle row' phrasing so the reason the write is skipped is named by its rule rather than only by its effect; the menu block in After already satisfies the shared layout contract (numbered rows, `[recommended]` on the first rendered row, `Not offered:` tail), so no wording change is needed there.",
-      "wallMs": 8251,
+      "feedback": "Before and After are textually identical for this case, and both satisfy f2: step 3 states that the cap of 0 disables every repair target including description-only attempts, that no `gh pr edit --body-file` runs, no helper is dispatched, rounds_used stays 0, and the payload stays drafted; the report then withholds `fix` under `Not offered:` with the cap reason. The worktree-contract and menu-layout changes did not touch this path, so nothing moved. If you later touch the resume/cap-gate wording, keep the explicit 'no `gh pr edit --body-file` runs' line and the 'description-only attempts included' clause, since those are what a reader relies on to confirm no description write happened.",
+      "wallMs": 5124,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "5f8774c3ac4218128e1bc3574f5194e49d1fb47c8b346e066ecb803489e4bf1f",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
       "intentSha": "d50172cd77fdac3fcd449b8924968468ff2377f9a56d9033b95dc3c5444fdac0",
-      "baselineOutputSha": "fa9e6e509cc370762c9542c70c1766f33b59d34e33fcb61521f9f25953aefffa",
+      "baselineOutputSha": "f74a08fbea070296855e480e938df5fa5b794e9486abd2342800bc974e344381",
       "candidateOutputSha": "f74a08fbea070296855e480e938df5fa5b794e9486abd2342800bc974e344381",
       "facts": {
         "f2": {
@@ -61,10 +61,10 @@
           "label": "held"
         }
       },
-      "feedback": "Both outputs keep f2: Before states \"I run no `gh pr edit`, dispatch no implementer, and dispatch no description-recheck helper\" and leaves the round count at zero; After states \"I therefore run no `gh pr edit`, increment no repair round, and dispatch no helper\" and explicitly says \"no description write occurred.\" Nothing in the Change's worktree-contract or menu-layout wording touched this behavior, and After's menu still renders the generated options as a separate numbered list with a numeric-reply prompt, so the shared layout contract is delivered without weakening the cap rule. One small drift unrelated to this fact worth tightening: After's \"Not offered\" line drops the explicit reason for withholding merge (\"1 blocker remains open\") that Before included; keep that reason alongside the maxFixRounds note so the menu's exclusions stay fully explained while the new revoke-grant sentence is added.",
-      "wallMs": 7237,
+      "feedback": "Before and After are textually identical for this case: both read maxFixRounds 0, explicitly run no gh pr edit, increment no round, dispatch no helper, and leave the contradicted claim open while rendering the same three-option menu with fix withheld, so f2 holds in both and nothing moved. The worktree-contract and menu-layout changes in the Change paragraph do not surface here because this continuation never reaches cleanup and the menu already renders as a separate numbered list with a numeric-reply instruction; no wording adjustment is needed to preserve f2, though if the author wants the menu-layout contract visibly exercised in this case, a line stating the numeric-to-option mapping (e.g., 'reply 1 selects review') before any action would make the After behaviour distinguishable without touching the no-write guarantee.",
+      "wallMs": 5281,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "824b8741c00912f6f48c9f24d96d9283e89ce886"
+  "repoSha": "03f2a45e6cf09c8bfc0d9a675ffffba9151f6d00"
 }

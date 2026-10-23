@@ -265,7 +265,6 @@ node <bin>/gauntlet-telemetry-seal.mjs --worktree "$WORKTREE" --option <pr|squas
 ```
 
 The seal prints one line per record (`sealed <path>`, `already sealed <path>`) or one bare outcome (`no telemetry run`, `telemetry disabled`) and exits 0; print its stdout verbatim in the ship completion message. Any nonzero exit stops the flow before the first landing command, quoting the bin's line: exit 2 (`no record at <path>`, `unparseable record <path>: <reason>`) means this gauntlet run's recorder never armed or its record is corrupt; exit 1 is a usage, environment, or git/jj failure (`seal failed <path>: <reason>` restored the pre-seal bytes). The user decides; never land without the seal.
-
 #### PR-subject row 1: Push to the PR branch
 Capture the scoped verification set and thread evidence before the strip. Refetch unresolved threads with the query owned by [pr-head](../using-git-worktrees/reference/pr-head.md); preserve recorded dispositions, use the table below, and omit threads now resolved on GitHub. Use the query's location rendering.
 | Refetched thread / evidence | Resolution |
@@ -291,7 +290,7 @@ Before: <PRE_REWORK_HEAD> (local ref `refs/gauntlet/pre-rework/pr-<N>` in the re
 Spec: <spec path> at <HEAD7>
 Keeps: <from the record>
 Changes: <from the record>
-No longer true: <one line per dropped claim; omitted when none>
+Dropped claims: <none | one "No longer true: <claim>" line per dropped claim>
 Verification: scoped - <commands>; CI on this push holds the full run. Telemetry: whole PR against <baseRefName>.
 Threads:
 - <path>:<line> - <resolution from the table>

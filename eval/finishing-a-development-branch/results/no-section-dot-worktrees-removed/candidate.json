@@ -38,7 +38,7 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "07409c225903ddcb141b7b25c26011b2c78e54700fbabe485739b2c7cfe045c3",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "83dab72b8567bfbbc8e79c889211692b7ccf8006603d903aa9df5106f2950e38",
+      "intentSha": "65744be0c2ae3cc00d72ba876b2990435ff473733095d9688fca3dcb88117fb7",
       "baselineOutputSha": "8003d1e276a7cd05ae82fa9f366af1a9dcac4f4cc6a36791490563f77c8801e8",
       "candidateOutputSha": "b7d0c8c012069ced8f75f6af773cefc5b3f54b2056d2d204ec8d47a3b505ab3f",
       "facts": {
@@ -53,14 +53,14 @@
           "label": "held"
         }
       },
-      "feedback": "Both outputs run the same three commands in the same order against the primary: `git -C \"/work/acme-web\" worktree remove \"/work/acme-web/.worktrees/login-copy\"`, then `git -C \"/work/acme-web\" worktree prune`, then `git -C \"/work/acme-web\" branch -D \"login-copy\"`, with explicit ordering rationale (removal before deletion), so w1 holds in Before as well as After; the expected fails->holds for this case did not materialize because the Before text already narrated the explicit branch -D continuation. After adds a guarded tail (stop on `worktree remove` refusal, no force, no branch deletion), which does not disturb the happy-path sequence since it is phrased as a conditional after the Result block; keep it phrased that way (as an \"if ... refuses\" aside rather than interleaved between the two code blocks) so a reader still sees the unconditional remove -> prune -> branch -D sequence that w1 requires, while the destroy-failure/no-force behavior from the Change stays visible.",
-      "wallMs": 10065,
+      "feedback": "Both outputs narrate the same three commands in the required order — `git -C \"/work/acme-web\" worktree remove \"/work/acme-web/.worktrees/login-copy\"`, then `git -C \"/work/acme-web\" worktree prune`, then `git -C \"/work/acme-web\" branch -D \"login-copy\"` — so w1 holds in Before as well as After; the Expected-to-move note that Before fails is not borne out by this Before text, which already includes the explicit `branch -D` continuation. After does not move the fact; its only substantive additions are the 'run once removal succeeds' ordering phrase and the closing no-force/no-branch-delete-on-refusal paragraph, both of which are consistent with w1 and with the Change's destroy-failure rule. Keep that wording as is; if the author wants the legacy-path narration to visibly reflect the new contract, the one thing worth adding is a sentence stating that on the legacy path the built-in remove + prune is the cleanup step (no `destroy:` applies), so a reader can see why the three commands rather than a keyed `destroy:` are run, without altering the command sequence itself.",
+      "wallMs": 8051,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "07409c225903ddcb141b7b25c26011b2c78e54700fbabe485739b2c7cfe045c3",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "83dab72b8567bfbbc8e79c889211692b7ccf8006603d903aa9df5106f2950e38",
+      "intentSha": "65744be0c2ae3cc00d72ba876b2990435ff473733095d9688fca3dcb88117fb7",
       "baselineOutputSha": "95bfe5bb4902f86d0156e5e43085121946ac13cc8954effa6765230aace84b18",
       "candidateOutputSha": "24c57c3c5294547fd26f62410dcfa9ca894418950b092b625341683a11cad3bf",
       "facts": {
@@ -75,10 +75,10 @@
           "label": "held"
         }
       },
-      "feedback": "Both outputs run the same three commands in the same order — worktree remove, worktree prune, branch -D — against /work/acme-web and login-copy, so w1 holds in Before as well as After; the expected 'fails -> holds' movement does not appear because Before's text already contained the full sequence. After's only differences are double-quoting the paths and branch name and dropping the 'stopping if a command fails' sentence; the quoting is harmless (the arguments are literal and a careful reader still sees the same commands), but if you want After to be strictly no worse than Before, keep the explicit 'run in order, stopping if a command fails' phrasing alongside the && chain so the stop-on-failure intent is stated in prose, not just implied by the operator.",
-      "wallMs": 7909,
+      "feedback": "Both outputs narrate exactly the three commands in the required order: worktree remove, worktree prune, then branch -D login-copy, each chained with && so the branch deletion follows a successful remove. After's only change is shell quoting around the paths and branch name, which does not alter the commands executed, so w1 holds in both; the Expected-to-move note that Before fails does not match Before's text, which already contains the explicit branch -D continuation. The After wording is fine as written; if the author wants the quoting to read as the new $PRIMARY/$FEATURE substitution rule, keep the command text otherwise identical so the legacy narration continues to satisfy w1.",
+      "wallMs": 5552,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "6aa708917f3429b0e0ba574cb0a680df774f186c"
+  "repoSha": "03f2a45e6cf09c8bfc0d9a675ffffba9151f6d00"
 }

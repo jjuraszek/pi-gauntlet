@@ -39,7 +39,7 @@
       "factsSha": "12d72f12eaa58c2e86989e53622e3dfff10a845e313d0fce06c0eb41de1add2f",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
       "intentSha": "d50172cd77fdac3fcd449b8924968468ff2377f9a56d9033b95dc3c5444fdac0",
-      "baselineOutputSha": "395e4f2958a57463256cd0c8f55fd9a9627b1ac7b68686ba395d6a0860db386a",
+      "baselineOutputSha": "e926e9c2caf7dd1467929f93017d6a08ef99bb9e89acbc64b5a5587a1fadf20a",
       "candidateOutputSha": "e926e9c2caf7dd1467929f93017d6a08ef99bb9e89acbc64b5a5587a1fadf20a",
       "facts": {
         "f1": {
@@ -58,15 +58,15 @@
           "label": "held"
         }
       },
-      "feedback": "Neither fact moved. Both outputs apply the P1 description write (edit, readback, recheck at 1111…) and the P2 file payload in the same round under the single bare `fix` grant, and both read the body back after `gh pr edit` and then recheck the affected claim against the pushed head 2222…, minting P3 as a fresh proposal rather than silently rewriting. The only structural difference is that Before keeps going into a retained-grant round 2 that applies P3 immediately, while After stops at the menu with P3 drafted and offers `fix` again; the latter matches the Entry's instruction to surface a new proposal, so no wording change is needed for these facts. If you want to make the same-round property harder to misread in After, consider stating explicitly at step 2 that the wave's `selected_ids: [P1, P2]` is the one selection that covers both the description text and the file payload, and keep the step 8 recheck line that names head 2222… as the assessed SHA.",
-      "wallMs": 10212,
+      "feedback": "Before and After are textually identical for this case, so nothing moved. Both land the P1 description write (step 4) and the P2 file payload (step 5) inside the single round opened by the one `fix` pick, with no second selection for the description text, satisfying f1; both read the body back immediately after `gh pr edit` and then run the affected-claim recheck against the pushed head `2222…` in step 8 (which correctly surfaces the newly contradicted sentence as a fresh P3 rather than a silent rewrite), satisfying f2. The Change here concerns the worktree contract and menu-layout rendering, neither of which this `fix`-round case exercises beyond the already-numbered option list, so the After wording introduces no regression; keep the step 4 readback bullets and the step 8 own-push recheck exception exactly as written, since those two passages are what carry f1 and f2.",
+      "wallMs": 9372,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "12d72f12eaa58c2e86989e53622e3dfff10a845e313d0fce06c0eb41de1add2f",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
       "intentSha": "d50172cd77fdac3fcd449b8924968468ff2377f9a56d9033b95dc3c5444fdac0",
-      "baselineOutputSha": "70480479e575aaaae0befc781a97ce2179a537030b2de3459afcbd112771669d",
+      "baselineOutputSha": "0863f694674272a09ed26d278937ce5688d0ff15c7e005c14ac42093a69e0229",
       "candidateOutputSha": "0863f694674272a09ed26d278937ce5688d0ff15c7e005c14ac42093a69e0229",
       "facts": {
         "f1": {
@@ -85,8 +85,8 @@
           "label": "held"
         }
       },
-      "feedback": "Both facts survive the wording change: in After, the description write and the file payload still share counted round 1 (step 2 and step 3) under the single `fix` selection, the body is read back immediately after each `gh pr edit`, and the affected claim is rechecked by a fresh description-recheck worker against the pushed head 2222…. The one drift worth watching is not in these facts but in the Entry contract: After auto-applies the new P3 proposal through retained `fix` authority (round 2) and then runs a bounded watch before rendering, whereas the Entry asks to continue through the next menu with the new proposal surfaced as its own blocker; Before renders that menu with the Old/New proposal and lets the human pick. If the intent of the retained-grant wording is to allow this, say so explicitly in the SKILL text (\"a retained fix grant covers newly minted description proposals without a menu boundary\"); otherwise, keep Before's behavior of rendering the new blocker and proposal at the decision-menu boundary, and apply the shared menu-layout contract (numbered options as a separate list, numeric reply mapping before action, the compose/revoke instruction line) to that render rather than collapsing the round into a watch-and-render step.",
-      "wallMs": 13058,
+      "feedback": "Before and After are textually identical for this case, so nothing moved: both land the P1 description write (step 2) and the P2 file payload (step 3) inside round 1 under the single `fix` pick with no second selection for the body text, and both read the body back after each `gh pr edit` and recheck the affected claim against the pushed head `2222...` in step 5, minting P3 rather than silently rewriting. The Change's worktree-home ownership and menu-layout wording did not touch this path (no cleanup runs here, and the three-option menu already renders as a separate list with numeric mapping), so no adjustment to the After wording is needed for f1/f2; keep the current structure where description rechecks are explicitly tied to the readback body and the current HEAD SHA.",
+      "wallMs": 9447,
       "verdict": "unchanged"
     }
   },
@@ -282,5 +282,5 @@
       }
     }
   },
-  "repoSha": "824b8741c00912f6f48c9f24d96d9283e89ce886"
+  "repoSha": "03f2a45e6cf09c8bfc0d9a675ffffba9151f6d00"
 }

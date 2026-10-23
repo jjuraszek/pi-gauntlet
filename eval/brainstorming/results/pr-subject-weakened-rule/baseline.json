@@ -1,0 +1,34 @@
+{
+  "sample": "pr-subject-weakened-rule",
+  "arm": "baseline",
+  "skillSha": "759aa67c4962ca21aea1c5cff8bc57ccbeb2cd436af789309ff367349e1d6967",
+  "inputSha": "ee989a8c470d9818397eada4333b418f672df1fdb2775ee3f5a079b6fbfaa095",
+  "kind": "text",
+  "assembly": "headed",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "## Problem\n\nPR acme/widget#62 - Remove audit logging requirement. Its stated intent is \"Audit events are optional; remove the emitter.\"\n\nThe PR does two things:\n\n- It edits `AGENTS.md` to say audit events are optional.\n- It removes the audit event emission from `src/update.ts`.\n\nThe governing rule is the base-HEAD `AGENTS.md`, read with `git show aaaaaaa:AGENTS.md`. That rule requires one audit event per successful update.\n\nThe worktree copy of `AGENTS.md` says audit events are optional. That is only because the clean merge (`ccccccc`) carries the PR's own edit. A PR edit to a policy document is a proposal, not a governing constraint. So the worktree text does not override the base rule.\n\nThe same rule existed at the fork point. Constraints added since fork: none.\n\nThe PR's premise is therefore contradicted by the current base rules. The smallest repair that satisfies those rules is:\n\n- restore the existing emitter call in `src/update.ts`\n- restore the governing rule text in `AGENTS.md`\n\nThe user chose this repair over adding a replacement emitter. All original commits are preserved; the rework adds commits on top and rewrites no history.\n\nFraming: kept\n\n## Acceptance criteria\n\nnone - no ticket\n\n## Rework record\n\nPR: acme/widget#62 - Remove audit logging requirement\nPre-rework head: 3333333333333333333333333333333333333333\nBase: main @ aaaaaaa - merge: ccccccc\nKeeps: every original commit, preserved in history with no rewrite or force-push. No behavioral change from the PR survives, because both of its edits conflict with the base-HEAD audit rule.\nChanges: restore the removed emitter call in `src/update.ts`, so each successful update emits one audit event again. Revert the PR's `AGENTS.md` edit to the base-HEAD rule text. This is a repair, not a rewrite: it reuses the existing emitter and adds no replacement. No contract exceptions.\nDropped claims:\n- Audit events are optional\nThreads:\n- src/update.ts:8 RT62 - fix\nScoped tests: none run (clean merge)\n",
+      "words": 294,
+      "wallMs": 11832,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "## Problem\n\nPR acme/widget#62 - Remove audit logging requirement states: “Audit events are optional; remove the emitter.”\n\nThe governing base-SHA `AGENTS.md` requires one audit event per successful update; the same rule existed at the fork point. The worktree’s optional-audit wording comes from the PR’s policy edit and is a proposal, not a governing constraint. No constraints were added since the fork.\n\nThe approved repair restores the existing emitter call in `src/update.ts` and the governing rule text in `AGENTS.md`, without introducing a replacement emitter. Preserve all original commits. The claim “Audit events are optional” is dropped.\n\nFraming: kept.\n\n## Acceptance criteria\n\nnone - no ticket\n\n## Rework record\n\nPR: acme/widget#62 - Remove audit logging requirement  \nPre-rework head: 3333333333333333333333333333333333333333  \nBase: main @ aaaaaaa - merge: ccccccc  \nKeeps: All original commits remain in history; no audit-removal behavior is retained.  \nChanges: Restore the existing emitter call and mandatory audit rule text rather than introduce a replacement emitter. No merge contract exceptions.  \nDropped claims:\n- Audit events are optional\n\nThreads:\n- src/update.ts:8 RT62 - fix: Restore audit events using the existing emitter, as confirmed in the thread.\n\nScoped tests: none run (clean merge)\n",
+      "words": 177,
+      "wallMs": 11428,
+      "mechanical": {}
+    }
+  },
+  "repoSha": "03f2a45e6cf09c8bfc0d9a675ffffba9151f6d00"
+}

@@ -35,7 +35,7 @@
       "factsSha": "0db32e8e9c500916c383e5f1978e1fbc9fe0dc7b69cc1f98daffe20550771049",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
       "intentSha": "d50172cd77fdac3fcd449b8924968468ff2377f9a56d9033b95dc3c5444fdac0",
-      "baselineOutputSha": "9bf81daf28c659de17de99721829308962666dad385f1312e284e932972420b6",
+      "baselineOutputSha": "ebfc61243e9e7ca09d5838ddf820e5d5aefbbcfbf07ffbd109a1fdd5dde59257",
       "candidateOutputSha": "ebfc61243e9e7ca09d5838ddf820e5d5aefbbcfbf07ffbd109a1fdd5dde59257",
       "facts": {
         "layout": {
@@ -49,15 +49,15 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "Neither fact moved: both Before and After place the three ordered blockers, then the `Verdict: fixable - 3 blockers` prose line, then the six options as a separate ordered list rendered 1-6 in plain Markdown outside code fences, and both resolve legacy reply 7 to option 4 with the single sentence `Taking 7 as option 4 - reply` before the simulated `gh api` post, without acting on a raw 7 or re-asking. The After wording is safe as written; the only observable differences are tightened blocker prose (dropping the 'doc fix is drafted' note from blocker 2) and a terser reply body, which do not touch either fact. If the author wants the layout and mapped-pick facts to genuinely fail in Before and hold in After, the Before fixture would need to lack the Verdict separator or the echo sentence; as submitted, the Change is delivered without regressing anything Before kept.",
-      "wallMs": 9017,
+      "feedback": "Before and After are textually identical, so nothing moved. In both, checkpoint 1 renders the three ordered blockers, then the `Verdict: fixable - 3 blockers` prose line, then the six options as a fresh 1.-6. list outside code fences, which satisfies layout; and checkpoint 2 states the N=6 / L=3 arithmetic and the one-sentence echo `Taking 7 as option 4 - reply` before the compare-and-swap and simulated post, which satisfies mapped-pick without acting on raw 7 or re-asking. Both facts already hold under Before, so the Expected-to-move entries for this case are not evidenced by the outputs; the After wording keeps everything Before kept. If you want these facts to be visibly driven by the new menu-layout contract rather than incidental, keep the prose separator line requirement and the mandatory one-sentence mapping echo exactly as they appear here.",
+      "wallMs": 8089,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "0db32e8e9c500916c383e5f1978e1fbc9fe0dc7b69cc1f98daffe20550771049",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
       "intentSha": "d50172cd77fdac3fcd449b8924968468ff2377f9a56d9033b95dc3c5444fdac0",
-      "baselineOutputSha": "2402a23eb578277aec13b082266271fb9f0ba0f5ab2baa4fe85709dc091e8c26",
+      "baselineOutputSha": "ce63e3b248c999f397ca3641ca24c19f425270d93ddc1b504e555c8f15212a67",
       "candidateOutputSha": "ce63e3b248c999f397ca3641ca24c19f425270d93ddc1b504e555c8f15212a67",
       "facts": {
         "layout": {
@@ -71,10 +71,10 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "Both outputs already keep both facts, so the After wording did not move anything here. In checkpoint 1, Before and After both place the three ordered blockers and the six options in one unfenced Markdown message with the `Verdict: fixable - 3 blockers` paragraph (blank-line separated) sitting between the two ordered lists, which interrupts the first list so the options render as a fresh 1.-6. with no ordered list directly above them; After additionally inserts a blank line between option 6 and the compose hint, which keeps the hint from becoming a lazy continuation of item 6 and is a genuine improvement worth keeping. In checkpoint 2, both outputs open with the single sentence `Taking 7 as option 4 - reply.` before any simulated post, neither acts on a raw option 7 nor re-asks, and both end at the simulated reply post without a repair wave. If the author intended this case to demonstrate a Before failure, the Before fixture would need to omit the Verdict separator (or run the compose hint directly under item 6 and the blockers directly above item 1); as written, the After change is safe—preserve the Verdict/summary line between findings and options and the blank line before the compose hint, and keep the one-sentence `Taking N as option M - <label>` echo ahead of the post.",
-      "wallMs": 18300,
+      "feedback": "Before and After are textually identical, so no fact moved. In both, checkpoint 1 renders the three blockers as a 1.-3. list, then the non-list line \"Verdict: fixable - 3 blockers\" acts as the separator, so the six options start a fresh 1.-6. list outside code fences with no ordered list directly above them; checkpoint 2 opens with the single sentence \"Taking 7 as option 4 - reply.\" before any simulated gh post, does not act on a raw option 7, and does not re-ask. The Expected-to-move list predicted fails->holds for both facts, but Before already satisfied them, so the After wording neither gained nor lost anything on this case; if the author wants the menu-layout contract to be observably exercised, a case whose Before lacks the Verdict separator or omits the echo sentence would be needed to show the Change taking effect.",
+      "wallMs": 8154,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "824b8741c00912f6f48c9f24d96d9283e89ce886"
+  "repoSha": "03f2a45e6cf09c8bfc0d9a675ffffba9151f6d00"
 }

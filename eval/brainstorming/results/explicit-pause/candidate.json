@@ -1,7 +1,7 @@
 {
   "sample": "explicit-pause",
   "arm": "candidate",
-  "skillSha": "c635d966f967506e4e69ac9702b02820381b270b88c9209aa0941cb93338cb5e",
+  "skillSha": "a124f60dc547948ccce5ab3ed680c0888ab67f8a68ca5f04fa2cec9f548236c3",
   "inputSha": "3d8c5f29b04e988b1925cd5a3b31cea4953518aae9c28a11f4ea00ada7becb63",
   "kind": "text",
   "assembly": "headed",
@@ -17,16 +17,16 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "Noted: settings ownership is **A**, so the report-view setting goes through the existing resolver (`settings/resolver.ts:12`), which `ui/report-view.ts:30` already reads. I'll record that answer in the draft.\n\nI'm pausing here as you asked. We're still at step 4, and nothing has been designed or approved.\n\nThe next open decision is whether report filters reset when the workspace changes. I'll ask that next, unless what you find settles it. When you're back, share what you learned about the reset behavior or just say \"continue.\"\n",
-      "words": 82,
-      "wallMs": 6023,
+      "text": "Got it: settings ownership is **A**. The report-view setting goes through the existing resolver (`settings/resolver.ts:12`), and `ui/report-view.ts:30` reads it from resolved settings. There will be no view-local settings object.\n\nI'm pausing here. Still open:\n\n- **Reset on workspace change:** whether report filters reset when the workspace changes is undecided. I'll ask about it after you've checked.\n- **Approaches and design:** I haven't proposed approaches or presented any design, so nothing is approved yet.\n\nWhen you're back, share what you found about the reset behavior and I'll continue from there.\n",
+      "words": 87,
+      "wallMs": 7591,
       "mechanical": {}
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "Paused here. We’ll reuse the existing settings resolver. Resetting report filters on a workspace change remains undecided; we won’t move on to approaches or design until you’re ready.\n",
-      "words": 28,
-      "wallMs": 3914,
+      "text": "Paused here. We’ll reuse the existing settings resolver; resetting report filters on workspace changes remains undecided. We won’t move on to approaches or design until you’re ready.\n",
+      "words": 27,
+      "wallMs": 4306,
       "mechanical": {}
     }
   },
@@ -34,9 +34,9 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "1ef59ed2b09e738d0b9a6ea5045b93b74212aa424c64479f15220d4e31eb90e8",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "5aa2bf78a144556c707465aa0b7081fb61f66dc61c2e759e7988b90489850f48",
+      "intentSha": "1fb8c8bc7f41547c4556b3f1eeec71f448cf1ced9404e94af9939769a5713cec",
       "baselineOutputSha": "676136ee17a8101eb1af353ccdf1f8ce7796e55a0fe1d58b406efeafbaac44ee",
-      "candidateOutputSha": "676136ee17a8101eb1af353ccdf1f8ce7796e55a0fe1d58b406efeafbaac44ee",
+      "candidateOutputSha": "d33a33e177cbd94b472a22ae430808ef58f115e49bfc96195d33a5b74692ebb4",
       "facts": {
         "f1": {
           "before": "holds",
@@ -44,16 +44,16 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "Before and After are byte-identical on this case, so nothing moved. Both record the A answer, state the pause explicitly, confirm step 4 with no design or approval, and only name the next open decision (filter reset on workspace change) without actually asking it, listing approaches, or advancing design; the closing line is a return instruction, not a question. The expanded assembly (amendment menu grammar, reporter-note carry-through, dependency tracing) did not leak into this continuation reply, so the explicit-pause contract is preserved as expected. No wording change is needed for this sample; keep the replay exception scoped so continuation outputs stay unchanged.",
-      "wallMs": 5971,
+      "feedback": "Both outputs record the A answer, state the pause explicitly, name the undecided reset-filters question without actually asking it, present no approaches, and leave design status at step 4 with nothing approved, so f1 holds in both. After stays safe, but two spots sit closer to the line than Before: \"There will be no view-local settings object\" reads as a design assertion rather than a mere restatement of option A (safer: \"so option B is off the table\" or simply omit it), and the bulleted \"Still open\" list with an \"Approaches and design\" row starts to look like an agenda; Before's single sentence \"nothing has been designed or approved\" conveys the same without that framing. After also dropped Before's resume affordance (\"or just say 'continue'\"), which is harmless for f1 but worth keeping so the pause has an unambiguous exit. Keep After's structure but phrase the resolver consequence as a recorded answer, not a decision, and restore the explicit resume instruction.",
+      "wallMs": 10570,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "1ef59ed2b09e738d0b9a6ea5045b93b74212aa424c64479f15220d4e31eb90e8",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "5aa2bf78a144556c707465aa0b7081fb61f66dc61c2e759e7988b90489850f48",
+      "intentSha": "1fb8c8bc7f41547c4556b3f1eeec71f448cf1ced9404e94af9939769a5713cec",
       "baselineOutputSha": "6a003a9598202020c2856f79303d7da33bd5988f04e0049e700316fcf2b2c30a",
-      "candidateOutputSha": "6a003a9598202020c2856f79303d7da33bd5988f04e0049e700316fcf2b2c30a",
+      "candidateOutputSha": "a38cf138a4884238d30d1b6ced2d6f1666bb0cc7daf4fc2704ee8e7c9ca4791a",
       "facts": {
         "f1": {
           "before": "holds",
@@ -61,10 +61,10 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "Before and After are identical: both acknowledge the pause, record the chosen ownership (A), note that the reset behavior remains undecided, and stop without asking a question, presenting approaches, or advancing design, so f1 holds in both. No wording in the Change moved this fact; keep the explicit-pause handling as is in After — any future edits to the amendment menu or questionary layout should leave the pause response free of option lists, recommendations, or follow-up questions.",
-      "wallMs": 3641,
+      "feedback": "Both outputs honor the explicit pause: neither asks a question, lists approaches, or advances design; each acknowledges the choice (reuse the resolver), restates the undecided reset behavior without deciding it, and defers until the user is ready. After only re-punctuates Before (merging the resolver and undecided-reset sentences with a semicolon), so no fact moved on this sample and the wording is safe to keep; nothing from the Change paragraph (amendment menu grammar, PR-subject resolution, reporter notes) bears on this continuation, and the pause contract remains intact.",
+      "wallMs": 7170,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "889b5c13f91d905ab6f44b412922585f56be27ba"
+  "repoSha": "062a9e3ed0be79ce0b531bd3d8c451c2f96cc187"
 }

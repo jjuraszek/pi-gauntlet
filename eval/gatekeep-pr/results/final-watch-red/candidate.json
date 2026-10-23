@@ -39,7 +39,7 @@
       "factsSha": "b695cda1e1116bfb67d2981319de025f48d8cf0498f0071037c5075396988166",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
       "intentSha": "d50172cd77fdac3fcd449b8924968468ff2377f9a56d9033b95dc3c5444fdac0",
-      "baselineOutputSha": "61973191fde76e2afffbae5d8ab7f3d4933063eab057c85b299b2d1b94c16614",
+      "baselineOutputSha": "f622c5281c230ec4d4101683d29a37a3a68b7f01ed519ac997448ba424326cc7",
       "candidateOutputSha": "f622c5281c230ec4d4101683d29a37a3a68b7f01ed519ac997448ba424326cc7",
       "facts": {
         "f1": {
@@ -63,15 +63,15 @@
           "label": "held"
         }
       },
-      "feedback": "No fact moved. Both outputs run a single bounded `gh pr checks 642 -R meadow/events --watch` before the post-watch re-reads, both fetch the failing line with `gh run view 910 --log-failed` and mint exactly one P1 carrying it (test name and expected-vs-actual status in the blocker line), and both draft the payload without applying it, leave `repair.rounds_used` at 0, and lead the menu with `fix`. After is actually slightly more explicit on the bounding (\"set to the remaining window\") and on persisting P1/evidence/deadline to the record, which is a good direction. The only drift worth watching is the composed-reply line: After rewrites the `check ... flaky | real | ci-broken` option into the same sentence as the compose list (\"or 'check ...'\") whereas Before kept it as a separate `record` clause; if the shared menu-layout contract treats the record verb as its own instruction, keep Before's `; or record \"check ci / test flaky | real | ci-broken\"` phrasing so the layout contract is applied verbatim while the rest of After's narration stays as is.",
-      "wallMs": 11688,
+      "feedback": "Before and After are textually identical for this case, so no fact moved: both run a single bounded `gh pr checks 642 --watch` in step 5 (pi bash timeout set to the remaining 15-minute window, exit code unread) before the single post-watch re-read in step 6; both mint exactly one blocker P1 keyed to `ci / test` and carry the `--log-failed` line (`src/guard.test.ts > rejects unsigned`, expected 401 got 200) into the rendered Blockers entry; both draft the `src/guard.ts` payload, offer `fix` as option 1, and leave `repair.rounds_used` at 0. The Change (worktree contract, menu-layout contract, numeric mapping) does not touch this resume-and-watch path, which is the intended outcome — the wording change is behaving as a no-op here. Nothing needs adjusting for this case; just confirm the shared menu-layout contract keeps rendering the generated options as the separate numbered list shown, since that is the only boundary in this flow the Change could have perturbed.",
+      "wallMs": 11182,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "b695cda1e1116bfb67d2981319de025f48d8cf0498f0071037c5075396988166",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
       "intentSha": "d50172cd77fdac3fcd449b8924968468ff2377f9a56d9033b95dc3c5444fdac0",
-      "baselineOutputSha": "e2959ca909f0b470c3560c159cd097dc08f47b1ede34d32783c9c188b3e975d2",
+      "baselineOutputSha": "aae1ddf33407b2b49d48cad2bb5a829b2c6ba71cd46f35fe390a3396de2576da",
       "candidateOutputSha": "aae1ddf33407b2b49d48cad2bb5a829b2c6ba71cd46f35fe390a3396de2576da",
       "facts": {
         "f1": {
@@ -95,10 +95,10 @@
           "label": "held"
         }
       },
-      "feedback": "Nothing moved on this case: After still runs exactly one bounded `gh pr checks --watch` between the two refreshes (step 3 persists the 15-minute poll deadline and bounds the harness timeout by it, step 4 re-runs both refresh commands), mints one stable blocker from the `--log-failed` output carrying `src/guard.test.ts > rejects unsigned` expected 401 / got 200, drafts an unapplied file repair for it, offers `fix` as option 1, and states grants and round usage are unchanged. Two small things worth keeping from Before so a stricter reader does not hesitate: name the concrete timeout value (900 seconds / 15 minutes) on the watch rather than only 'bounded by that deadline', and keep the explicit `mktemp` log allocation plus the redirect so the `--log-failed` capture location is auditable. Neither output ever renders a literal `P1` label in the Blockers list; if the author wants f2 to be unambiguous, have the rendered report tag the blocker as `P1` and reference that ID in the `fix 1` composition hint. The new menu layout (blank line before the composition line, disposition hint before the not-offered note) is consistent with the shared menu-layout contract and does not affect any fact here.",
-      "wallMs": 15406,
+      "feedback": "Before and After are textually identical for this case, so the wording change moved nothing here: step 3 runs exactly one `gh pr checks 642 --watch` bounded by the persisted 15-minute poll deadline before the step-4 refresh (f1); step 5 reads `--log-failed`, carries the `rejects unsigned (expected 401, got 200)` detail, and mints one stable blocker (f2); and a repair is drafted but not applied, `fix` leads the menu, and grants/round usage are explicitly left unchanged (f3). The only soft spot in both outputs is that the minted blocker is rendered as a plain numbered item rather than an explicit `P1` label, which a strict reader could question for f2 - if the shared menu-layout contract is meant to govern blocker rendering, consider having it require the `P#` id to appear next to the blocker line so that fact is unambiguous. Since this case does not touch worktree provisioning, destroy, or legacy numeric reply mapping, it offers no signal on the intended moves; the After wording is safe to keep as-is for this scenario.",
+      "wallMs": 14835,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "824b8741c00912f6f48c9f24d96d9283e89ce886"
+  "repoSha": "03f2a45e6cf09c8bfc0d9a675ffffba9151f6d00"
 }

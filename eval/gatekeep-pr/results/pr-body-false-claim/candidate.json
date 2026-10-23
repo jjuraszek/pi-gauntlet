@@ -35,7 +35,7 @@
       "factsSha": "a85e0643ce18b2f0bfd671ea02f44d6c7d3536aa2bf745857b2fbbd9fbc6fcc0",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
       "intentSha": "d50172cd77fdac3fcd449b8924968468ff2377f9a56d9033b95dc3c5444fdac0",
-      "baselineOutputSha": "a1c9074ab8a86494034458949cdc19f34ea7b6cb2c27fb05c270826dd09c28e5",
+      "baselineOutputSha": "5fa42374d68f8fadef78a2bd15f3065d8c93cea896d40e6f9e24ca9da48dd31a",
       "candidateOutputSha": "5fa42374d68f8fadef78a2bd15f3065d8c93cea896d40e6f9e24ca9da48dd31a",
       "facts": {
         "f1": {
@@ -79,15 +79,15 @@
           "label": "held"
         }
       },
-      "feedback": "Nothing moved on this case: After still prints the old-to-new preview under P1 in A (now prefixed with \"Description fix:\"), records no write until the fix pick, preserves unrelated body text in B, keeps actual readback plus the description-recheck helper before resolving P1, drops the blocker from the post-fix menu, states explicitly that no file implementer, commit, full suite, or push ran, keeps the local evidence block and log_path in C with no invented CI checks, and in D keeps pending evidence insufficient and renders wait with merge withheld. The menu-layout contract is applied cleanly (generated options remain a separate numbered list after the numbered blocker). Two small wording drifts worth watching: After's helper cwd is the relative `.worktrees/pr-642` where Before used the scratch-rooted path, and B's step order places the compare-and-swap read after the round count rather than before it; neither affects these facts, but keeping the freshness read before the round increment (as Before did) would make the stale-write guard unambiguous.",
-      "wallMs": 13760,
+      "feedback": "Before and After are textually identical for this case, so nothing moved: A still renders the compact old-to-new description preview under the blocker and records no write without a fix pick; B records the grant, does a stale-write freshness read, writes the body, reads it back, and dispatches the affected-only recheck helper before clearing P1, with no file implementer, commit, full suite, or push, and the unchanged-refresh final menu does not re-propose the correction; C keeps the `source: local` block including `log_path /tmp/guard-log.synthetic` and records the Fallback row without inventing CI; D keeps `source: pending`, withholds merge, and treats the `P1: resolved` helper result as a claim disposition only. None of the Expected-to-move cases are this case (no worktree cleanup or numbered-findings-then-numeric-reply boundary is exercised here), so the worktree-contract and menu-layout wording changes had no observable effect on this output; no wording adjustment is needed to keep these facts, though if you want this case to witness the new menu-layout contract you could have the entry menu explicitly note that the numbered blocker list and the numbered option list are separately rendered and that a numeric reply maps to the option list before any action.",
+      "wallMs": 11877,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "a85e0643ce18b2f0bfd671ea02f44d6c7d3536aa2bf745857b2fbbd9fbc6fcc0",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
       "intentSha": "d50172cd77fdac3fcd449b8924968468ff2377f9a56d9033b95dc3c5444fdac0",
-      "baselineOutputSha": "d190740e67db0dd67c48a5a2b85734af25446d53d32239b485cd56969eb59593",
+      "baselineOutputSha": "e6bc987c4deb3a88b2590a3a8137218847196d068de9cef1f8c2370ec9bcfdd4",
       "candidateOutputSha": "e6bc987c4deb3a88b2590a3a8137218847196d068de9cef1f8c2370ec9bcfdd4",
       "facts": {
         "f1": {
@@ -131,10 +131,10 @@
           "label": "held"
         }
       },
-      "feedback": "No fact moved: After keeps the compact old->new preview under A's blocker, makes no write in A, writes the full three-line body with only the one sentence swapped in B, reads back and runs the affected-only description recheck before resolving P1, renders a blocker-free mergeable menu on the unchanged refresh, explicitly skips implementer/commit/full-suite runs, keeps C's local run and /tmp/guard-log.synthetic verbatim with no CI invented, and keeps D on source: pending after the helper's resolved line. The only wording drift worth watching is the A menu's fix option and B step 1 now describing a 'broad in-scope repair grant' that persists 'until readiness or a new decision boundary', whereas Before scoped the grant to the exact one-shot description correction; that broader framing invites a future reading where the retained grant could authorize a file implementer or test run after a body-only repair, which would threaten f6. To deliver the menu-layout contract while keeping that fact unambiguous, keep the new numbered list and 'Type a number, or compose' footer but word option 1 as 'fix - apply the exact description correction and recheck its readback [recommended]' (retaining the narrow one-shot authority Before stated) and in B step 1 persist 'the exact description correction grant' rather than a broad in-scope grant; also consider stating in B step 4 that the final newline is preserved, as Before did, so f3 stays explicit rather than inferred from the code block.",
-      "wallMs": 19019,
+      "feedback": "After is textually identical to Before for this case, so nothing moved: A still prints the exact old-to-new correction under the blocker and makes no external write; B shows the full replacement body with only the one sentence changed, reads back head/body/base/state, dispatches the narrow description-recheck helper before closing P1, and the post-refresh menu does not re-propose the correction; B, C, and D all state no implementer, commit, push, or full-suite run; C keeps `source: local` with `/tmp/guard-log.synthetic` verbatim and no CI checks; D retains `source: pending`, explicitly says resolving the claim does not establish evidence, and withholds merge. This case never reaches cleanup and its menus were already numbered lists with numeric reply mapping, so the worktree-contract and menu-layout wording has no visible effect here; no change to the After wording is needed to keep these facts, though if you want this case to demonstrate the Change, a scenario that exercises cleanup (destroy/outside-home) or a legacy numbered reply would be required.",
+      "wallMs": 13119,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "824b8741c00912f6f48c9f24d96d9283e89ce886"
+  "repoSha": "03f2a45e6cf09c8bfc0d9a675ffffba9151f6d00"
 }

@@ -35,7 +35,7 @@
       "factsSha": "e6dde74b61fd47c551a91b7fda09f535bad0d376b98ed917bb7c65bf09f694d5",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
       "intentSha": "d50172cd77fdac3fcd449b8924968468ff2377f9a56d9033b95dc3c5444fdac0",
-      "baselineOutputSha": "2bef93199800220de123276c91937e99d325384304fb1bc969ac177faeed5da5",
+      "baselineOutputSha": "e7582163381fcb96fb74784fd5fa22c629efed49c5f4bf5ecff3d6e6d0c0d863",
       "candidateOutputSha": "e7582163381fcb96fb74784fd5fa22c629efed49c5f4bf5ecff3d6e6d0c0d863",
       "facts": {
         "f4": {
@@ -44,15 +44,15 @@
           "label": "held"
         }
       },
-      "feedback": "Neither output moved f4: Before (step 6) and After (step 2) both state that the recorded proposal's assessed_head 1111... no longer matches the pushed head 2222..., declare the old proposal invalid, write nothing, and re-propose the same exact correction from the current body at 2222.... The After wording actually reads cleaner here because it runs the stale-write check immediately after reconciling the wave and then stops at the next menu for a fresh fix selection, whereas Before went on to apply the re-proposed correction in a new round without any human selection being supplied; that overreach is outside f4 but worth preserving the After behavior. No wording change is needed to keep f4 while delivering the worktree-contract and menu-layout change; keep the explicit 'proposal recorded against 1111111 / head moved / invalid / re-propose at 2222222 / persist new payload' sequence as written.",
-      "wallMs": 11416,
+      "feedback": "Before and After are textually identical, so nothing moved. Both outputs satisfy f4 in step 2: they detect that the P1 proposal was recorded against head 1111111 while the fresh read shows 2222222, declare the old proposal invalid, run no gh pr edit, re-propose the same exact correction against the current body at 2222222, and persist the refreshed payload for the next fix round. The After wording preserves this stale-write handling intact; no adjustment is needed to keep f4 while delivering the worktree-contract and menu-layout changes, since this case exercises neither cleanup nor numbered-finding menu mapping.",
+      "wallMs": 5606,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "e6dde74b61fd47c551a91b7fda09f535bad0d376b98ed917bb7c65bf09f694d5",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
       "intentSha": "d50172cd77fdac3fcd449b8924968468ff2377f9a56d9033b95dc3c5444fdac0",
-      "baselineOutputSha": "8d5f3ffd692f7cbb69812808fd5924bd616dd99356e9472200892d9809aa0f80",
+      "baselineOutputSha": "6128d2f84b453257755204d67fc7396b906037bfff25f89583ebd6116b68b0bf",
       "candidateOutputSha": "6128d2f84b453257755204d67fc7396b906037bfff25f89583ebd6116b68b0bf",
       "facts": {
         "f4": {
@@ -61,10 +61,10 @@
           "label": "held"
         }
       },
-      "feedback": "f4 is intact in both outputs: After step 6 explicitly compares the saved description payload against the fresh head and body, declares the 1111... head snapshot stale, refuses to apply the old-head proposal, and persists a refreshed P1 proposal against 2222... that preserves the exact correction and all unrelated body text, which is the same invalidate-and-re-propose behavior Before shows in its section 4. Nothing in the worktree-contract or menu-layout change touched this fact. One unrelated observation for the layout contract you are delivering: After drops the blank line between the last option and the 'Type a number.' prompt, so if the shared menu-layout contract requires the prompt to be separated from the option list, restore that blank line; it does not affect f4 but is the only rendering drift between the two menus.",
-      "wallMs": 8322,
+      "feedback": "Before and After are textually identical for this case, so nothing moved. Both outputs satisfy f4 at step 6: the saved P1 payload is recognised as stale because its head snapshot (1111…) no longer matches the pushed head (2222…), the old-head proposal is explicitly not applied, and a refreshed proposal is re-derived from the fresh body and persisted against 2222… before the body write in step 9 is guarded by a live head/base/state/body comparison. The Change (worktree contract from the overrides file, menu-layout contract with numeric reply mapping) does not touch the stale-proposal logic, and the rendered menu here is already a separate numbered list with no legacy numbering to remap, so the After wording keeps f4 without any adjustment; no wording change is needed for this case.",
+      "wallMs": 7974,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "824b8741c00912f6f48c9f24d96d9283e89ce886"
+  "repoSha": "03f2a45e6cf09c8bfc0d9a675ffffba9151f6d00"
 }
