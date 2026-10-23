@@ -63,13 +63,13 @@ Tasks 1 and 2 own disjoint files and use per-test scratch directories or their o
 
 **Tests:**
 - `node --test extensions/lib/plan-check.test.ts`
-- baseline: f3e0df8 pass
+- baseline: 3c1f327 pass
 - via: `checkPlan(planText, specText, fs)`
 - `node --test extensions/lib/gauntlet-settings.test.ts`
-- baseline: f3e0df8 pass
+- baseline: 3c1f327 pass
 - via: `resolveLoopEngine`
 - `node --experimental-loader ./extensions/test-support/pi-stubs.mjs --test extensions/phase-tracker.test.ts`
-- baseline: f3e0df8 pass
+- baseline: 3c1f327 pass
 - via: `gauntlet_setting`, `plan_check`, `phase_tracker`
 
 Decision: the existing handler resolves `**Spec:**` before `checkPlan`; stamp admission, not an engine bypass, permits implement. Add no phase-state `engine` or `piGauntlet.loopEngine.model`. Only ledger line 1 and spec `**Engine:**` discriminate the approved new branches; any other added consumer discriminator is a `Pattern:` violation. Keep the implement-start guard and verify reviewers untouched.
@@ -110,19 +110,22 @@ Decision: floor integer values below 1 to 1, matching resolveClosureReview's low
 
 **Tests:**
 - `node --test eval/lib/lint.test.mjs`
-- baseline: f3e0df8 pass
+- baseline: 3c1f327 pass
 - via: `lintTarget`, `lintAll`
 - `node --input-type=module -e 'import("./eval/run.mjs").then(m=>m.runTarget({root:process.cwd(),target:process.argv.at(1).split("/").at(1),base:"HEAD"})).then(r=>(console.log(r.message),process.exitCode=r.exit))' eval/loop-implementer/samples/read-and-scope/case.md`
-- baseline: f3e0df8 skipped - eval/loop-implementer/samples/read-and-scope/case.md created by this task
+- baseline: 3c1f327 skipped - eval/loop-implementer/samples/read-and-scope/case.md created by this task
 - via: `agents/loop-implementer.md`, `runTarget`
 
 Decision: do not copy implementer's fork context or structured-review output. A model-free persona resolves `subagents.agentOverrides.loop-implementer.model`, else the main loop; the caller passes no model. The driver in Task 4 validates the one-line result through ledger effects.
 
+Decision: select the seeding contract by `target: seed`, not literal iteration 0 - spec Persona L99 defines recovered seeding at a consumed iteration, and Driver L141-L147 selects and validates that target. Numeric targets use the ordinary single-row contract; no new input field or ledger schema is needed.
+
 - [ ] Create text-target metadata, replay and three case/expected pairs using eval/_template and eval/implementer neighbors. Record intent and must-hold facts: spec-before-code and row-scoped diff; target-only/bounded edits plus seed exceptions; one clean commit and decision-only reply. Structural lint is red while the instruction source is absent.
+- [ ] Extend `row-and-evidence` with a recovered-seed replay: a human discarded interrupted seeding, `iteration: 1` and `target: seed` arrive with the consumed count retained. Require every open row to get evidence before ordinary work, all attempts to stay 0, cuts preserved, baseline rows closed, `row 0 done` and `loop: seed evidence` unchanged; reject the numeric iteration as a reason to select one row or use a row commit. Preserve ordinary foreign-row and bounded-evidence facts and record the recovery rule in intent/expected facts.
 - [ ] Create the persona with `tools: read, write, edit, bash`, `defaultContext: fresh`, `inheritProjectContext: true`, `inheritSkills: false`, `systemPromptMode: replace`, `completionGuard: true`, no `model`, no `thinking`. Use exactly the spec's routing description: "One loop-engine iteration: closes one acceptance-criteria ledger row with evidence, commits once, appends one decision line."
-- [ ] Put the output contract first. Accept `iteration:`, `spec:`, `ledger:`, `base:`, `target:`, `previous decision:`, `hint:`. Read the full spec then ledger, use `git diff --stat <base>` and only target-file hunks. Implement target only, run only its evidence check, never full verification/main/spec/foreign-row/other-plan-dir writes.
-- [ ] Define status `done`/`failed`, `attempts` +1, `evidence` as check name plus <=3 result lines and a concrete failure cause. Append one line in `## Decisions` with `row <n> <done|failed> | <one sentence: what was done> | <one sentence: what the next iteration should not redo or should try differently>`, <=200 characters per sentence. `git add` changes and ledger; commit once `loop: row <n> <status>`; leave clean and reply only that line.
-- [ ] Define `target: seed`: every `open` row gets a failing test/named check or passing baseline evidence and `status: done`; all attempts stay0, never seed failed. Preserve cuts, append `row 0 done | seeded <k> rows, closed <m> on baseline | <first row to take>`, commit `loop: seed evidence`.
+- [ ] Put the output contract first. Accept `iteration:`, `spec:`, `ledger:`, `base:`, `target:`, `previous decision:`, `hint:`. Read the full spec then ledger, use `git diff --stat <base>` and only target-file hunks. Implement target only, run only its evidence check, never full verification/main/spec/foreign-row/other-plan-dir writes. State the several-row exception solely for `target: seed`, at any iteration; outside that target never edit another row.
+- [ ] Define the numeric-target contract: status `done`/`failed`, `attempts` +1, `evidence` as check name plus <=3 result lines and a concrete failure cause. Append one line in `## Decisions` with `row <n> <done|failed> | <one sentence: what was done> | <one sentence: what the next iteration should not redo or should try differently>`, <=200 characters per sentence. `git add` changes and ledger; commit once `loop: row <n> <status>`; leave clean and reply only that line.
+- [ ] Define `target: seed`, normally iteration 0 and repeated after human-authorized recovery of an interrupted seed with consumed iterations retained: record a failing test or named check in `evidence` for every `open` row; a row the codebase already satisfies gets the passing baseline check and `status: done`, otherwise it stays `open`. All attempts stay0, never seed failed. Preserve cuts, append `row 0 done | seeded <k> rows, closed <m> on baseline | <first row to take>`, commit `loop: seed evidence`. Apply this contract before any numeric-target contract, independently of `iteration:`; never reset the iteration count or ordinary row attempts.
 - [ ] Run deterministic structural/model/size lints; commit initial persona/fixtures with `git commit -m "Add a fresh loop iteration persona (ref #68)"` so HEAD contains the new eval source.
 - [ ] Run the model Tests command (equivalent to `node eval/run.mjs loop-implementer --base HEAD`), inspect each must-hold fact, repair the owning instruction and rerun the full target after the last edit. Commit reports/records and repairs with `git commit -m "Record loop persona behavior checks (ref #68)"`.
 
@@ -153,13 +156,13 @@ Depends on Wave 1: the driver consumes admission/settings/persona. Task 3 alone 
 
 **Tests:**
 - `node --test extensions/lib/telemetry-record.test.ts`
-- baseline: f3e0df8 pass
+- baseline: 3c1f327 pass
 - via: `derive`, `serializeRecord`, `parseRecord`
 - `node --experimental-loader ./extensions/test-support/pi-stubs.mjs --test extensions/telemetry.test.ts`
-- baseline: f3e0df8 pass
+- baseline: 3c1f327 pass
 - via: `registerTelemetry`, `replayBranch`, `applyPhaseDetails`
 - `node --test bin/gauntlet-performance.test.mjs`
-- baseline: f3e0df8 pass
+- baseline: 3c1f327 pass
 - via: `gauntlet-performance`
 
 Decision: add to the existing phase mirror (`applyPhaseDetails` at telemetry.ts:426-479), used by live recording and replay, not phase state or a second recorder. Keep additive schema1 compatibility. Task 5 handles approval options and `; fund N fix rounds`; this task records `engine: loop`/`engine: waves` from `**Engine:**`, whose placement Task 7 documents in `doc/configuration.md`.
@@ -211,30 +214,32 @@ Decision: add to the existing phase mirror (`applyPhaseDetails` at telemetry.ts:
 
 **Tests:**
 - `node --test scripts/loop-engine-contract.test.mjs`
-- baseline: f3e0df8 skipped - scripts/loop-engine-contract.test.mjs created by this task
+- baseline: 3c1f327 skipped - scripts/loop-engine-contract.test.mjs created by this task
 - via: `skills/loop-implementation/SKILL.md`
 - `node --test scripts/stage-skill-lint.test.mjs`
-- baseline: f3e0df8 pass
+- baseline: 3c1f327 pass
 - via: `STAGE_SKILL_DIRS`, `lintStageSkills`
 - `node --input-type=module -e 'import("./eval/run.mjs").then(m=>m.runTarget({root:process.cwd(),target:process.argv.at(1).split("/").at(1),base:"HEAD"})).then(r=>(console.log(r.message),process.exitCode=r.exit))' eval/loop-implementation/samples/seed-dispositions/case.md`
-- baseline: f3e0df8 skipped - eval/loop-implementation/samples/seed-dispositions/case.md created by this task
+- baseline: 3c1f327 skipped - eval/loop-implementation/samples/seed-dispositions/case.md created by this task
 - via: `eval/loop-implementation`, `runTarget`
 
 Decision: author a pi main-session skill, not a scripted/parallel/best-of-N driver or task generator; keep waves default. Ledger admission from Task1 feeds the unchanged implement-start guard. No phase-state `engine`, `piGauntlet.loopEngine.model`, escalated-model stagnation round, or implement-phase spec/code review. `checkPlan` and spec `**Engine:**`/ledger line1 are the approved discriminants; any added consumer discriminator is a `Pattern:` violation. The cap `piGauntlet.loopEngine.maxIterations` and ledger path are documented by Task7 in `doc/configuration.md`.
 
 Decision: dispatch in the implementation worktree without nested `worktree: true`, per the spec's HEAD/commit validation boundary. Use `acceptance: { level: "none", reason: "the parent validates the ledger and the commit" }`; pi-cohort otherwise expects structured output incompatible with a decision-only reply. Keep `completionGuard: true` because every iteration edits the ledger. Model resolution remains `subagents.agentOverrides.loop-implementer.model`, else main loop, with no dispatch model override.
 
-- [ ] Create the nine fixture pairs and target metadata/intent. `seed-dispositions` covers `deviates:`, `deferred:`, `elsewhere:`, `venue:`, absent default, partial/complete baseline closure and illegal seed changes. `verification-resolution` covers PR gate, exactly-one prose command, discovery, zero/several prose commands and no dispatch on configuration failure.
+Decision: treat seed completion as existing branch evidence, not `iterations` == 0 or a new schema flag - spec Driver L141-L147 requires a validated `loop: seed evidence` commit with its `row 0 done` decision and evidence on every non-cut row. Until that proof survives on the branch, select `target: seed` after the earlier gates and validate the seed-target contract on return, even at iteration 1 or later. Task 2's target-based persona contract is the matching callee.
+
+- [ ] Create the nine fixture pairs and target metadata/intent. `seed-dispositions` covers `deviates:`, `deferred:`, `elsewhere:`, `venue:`, absent default, partial/complete baseline closure and illegal seed changes. Extend it with recovered seeding at a nonzero consumed iteration: no surviving validated seed commit requires `target: seed`; every non-cut row gets evidence, all attempts remain0, only open->done is allowed, and exactly one new `row 0 done` decision/`loop: seed evidence` commit proves completion. A surviving validated seed selects an ordinary row instead; a commit subject alone or nonzero count without seed decision/evidence does not. `verification-resolution` covers PR gate, exactly-one prose command, discovery, zero/several prose commands and no dispatch on configuration failure.
 - [ ] Add `row-progress` (third-attempt success, all-cut exit, target precedence); `stagnation-and-retry` (three unresolved attempts, two ledger-only/no-status-change child commits, evidence-based cause/no round history, human retry once, cutting an exhausted row). Include an empty-commit stop followed by explicit human retry: count only child commits after the committed `loop: retry row <n>`, permit the next eligible dispatch, preserve attempts and iterations, and still stop at the total cap; two new empty child commits stop again. `cap-and-exit-verification` covers seed-inclusive cap before verification and failed exit without reopening/rerun.
-- [ ] Add `commit-boundary` (0/2 commits, dirty return, error/async handle, interrupted count after human cleanup), `decision-repair` (foreign/wrong target, missing/malformed/new-line requirement, bounded evidence, second consecutive miss). Extend `decision-repair` with a human retry after two misses: the first miss after the retry commit repairs without stopping for the earlier misses; the second new consecutive miss stops, and attempts never reset. `funding` covers durable per-row spend, prospective grant, no empty-stop/cap bypass and no reset of either consecutive-stagnation window from funding alone; `funded round k of N` must hold. `verify-lifecycle` covers zero reviewers in implement, both reviews after complete implement/start verify.
-- [ ] Add node:test source-contract assertions in `scripts/loop-engine-contract.test.mjs`, reading actual driver/persona text for dispatch keys, acceptance reason, ledger grammar, validation order, no tracker init and verify lifecycle. Assert the explicit-human-retry commit boundary resets only the empty-child-commit and validation-miss windows, with attempts/iterations/cap preserved and no funding-only reset. Run red before authoring; add it to the existing scripts CI test list. This test is not an iteration driver.
+- [ ] Add `commit-boundary` (0/2 commits, dirty return, error/async handle, interrupted count after human cleanup). Include interrupted seeding reset by the human to `loop: seed ledger`: restore the consumed count to HEAD+1, retain it before the next bump, and dispatch seed again rather than an ordinary row; cap still stops before dispatch when exhausted. A recovered seed validation miss stops without an ordinary-row repair or automatic reseed. `decision-repair` covers foreign/wrong target, missing/malformed/new-line requirement, bounded evidence, second consecutive miss. Extend `decision-repair` with a human retry after two misses: the first miss after the retry commit repairs without stopping for the earlier misses; the second new consecutive miss stops, and attempts never reset. `funding` covers durable per-row spend, prospective grant, no empty-stop/cap bypass and no reset of either consecutive-stagnation window from funding alone; `funded round k of N` must hold. `verify-lifecycle` covers zero reviewers in implement, both reviews after complete implement/start verify.
+- [ ] Add node:test source-contract assertions in `scripts/loop-engine-contract.test.mjs`, reading actual driver/persona text for dispatch keys, acceptance reason, ledger grammar, validation order, no tracker init and verify lifecycle. Assert target-based seeding in both persona and driver at nonzero consumed iterations, branch proof from the existing seed commit/row0 decision/non-cut evidence, no new schema flag, and seed-target validation before the mutually exclusive ordinary validator. Assert the explicit-human-retry commit boundary resets only the empty-child-commit and validation-miss windows, with attempts/iterations/cap preserved and no funding-only reset. Run red before authoring; add it to the existing scripts CI test list. This test is not an iteration driver.
 - [ ] Author entry steps: `gauntlet_setting({ key: "loopEngine" })` -> `maxIterations`; resolve verification once from overrides `## PR gate` `- verification command:`, else `## verification-before-completion` with exactly one backticked command, else test discovery. Print `verification command: <command> (<source>)`; zero/ambiguous stops before iteration0. Use worktree-qualified paths/`git -C`, unchanged process cwd.
 - [ ] Skip plan with `phase_tracker({ action: "skip", phase: "plan", reason: "loop engine" })`. Create `<resolved plan dir>/<spec stem>-ledger.md`: `# Ledger - loop engine`, path-only `**Spec:**`, `base:` from HEAD before skeleton commit, resolved `verification:`, `iterations: 0`, every indexed `## Acceptance criteria` row and empty `## Decisions`. Open in-scope/absent/venue (default rule: `ticket-acceptance.md:20`); cut only deviates/deferred/elsewhere with disposition evidence. `plan_check({ planPath })` finding stops as configuration error; commit `loop: seed ledger`; `phase_tracker({ action: "start", phase: "implement" })`. Seed evidence comes from one fresh child, not a parent baseline claim.
-- [ ] Author pre-dispatch checks in order: exit when no `open`/`failed`; unresolved allowance 3+funded N or larger latest `row <n> retry` `allowed attempts <m>`; two ledger-only/no-row-status-change child commits (`loop: row ...`); total `iterations` cap including0; target. Exclude parent `loop: seed ledger`, `loop: repair ...`, `loop: retry ...`, `loop: cut ...` commits from child-commit stagnation. After an explicit human retry, consider only child commits after that `loop: retry row <n>` commit; funding alone never resets the consecutive window. Done/cut rows never stagnate. Target seed at0, eligible human hint, previous failed row, first failed, first open; durable status outranks the hint.
+- [ ] Author pre-dispatch checks in order: exit when no `open`/`failed`; unresolved allowance 3+funded N or larger latest `row <n> retry` `allowed attempts <m>`; two ledger-only/no-row-status-change child commits (`loop: row ...`); total `iterations` cap including0; target. Exclude parent `loop: seed ledger`, `loop: repair ...`, `loop: retry ...`, `loop: cut ...` commits from child-commit stagnation. After an explicit human retry, consider only child commits after that `loop: retry row <n>` commit; funding alone never resets the consecutive window. Done/cut rows never stagnate. Select seed until a validated `loop: seed evidence` commit with its `row 0 done` decision and evidence on every non-cut row survives on the branch, regardless of consumed iterations; inspect the existing commit and its committed ledger proof, not the subject or count alone. Once that proof survives, select eligible human hint, previous failed row, first failed, first open; durable status outranks the hint. Store no extra seed-completion field, file or phase state.
 - [ ] Save `HEAD_BEFORE` and ledger copy; bump iterations uncommitted. Dispatch once with `agent: "loop-implementer"`, `context: "fresh"`, `async: false`, absolute `cwd`, unique absolute temp `output:`, `outputMode: "file-only"`, exact acceptance object, task fields `iteration:`, `spec:`, `ledger:`, `base:`, `target:`, `previous decision:`, `hint:`. Pass no `model:`/diff text. Never read a child transcript, poll or relaunch after error/async handle.
-- [ ] Validate commit boundary first: `git -C <worktree> status --porcelain` empty and `git rev-list HEAD_BEFORE..HEAD --count`=1, else preserve changes and stop. Read ledger from HEAD. Seed validation: attempts all0, only open->done, every non-cut row evidenced, exactly one new `row 0 done | ... | ...` decision; miss stops without automatic retry.
-- [ ] Ordinary validation against saved copy: target only, status done/failed, attempts+1, nonempty bounded evidence, exactly one new line matching `^row <target> (done|failed) \| .{1,200} \| .{1,200}$`. An older valid line is insufficient. On miss restore foreign rows, mark target failed at saved attempts+1 with `iteration <i>: <miss>`, preserve iterations, commit `loop: repair row <n>` and carry previous decision none. Two consecutive misses stop; after an explicit human retry, count only misses after that `loop: retry row <n>` commit, not pre-retry misses. Funding alone never resets this window.
-- [ ] Author the SDD stop-note wording contract from `skills/subagent-driven-development/stop-note.md`: row text, concrete evidence cause in `Problem:`, quoted last decision, one screen/no round history. Headers are `Stopped on row <n> (<row text>)`, `Stopped: iteration cap <N> reached with rows <list> open`, `Stopped: verification failed with every row closed`, `Stopped: iteration <i> left the tree dirty`, `Stopped: iteration <i> added <k> commits`. Offer retry hint/amend/stop, never skip row. Amend follows `brainstorming/reference/amendment-surface.md`. Retry appends `row <n> retry | <hint> | allowed attempts <attempts + 1>`, commits `loop: retry row <n>`, resumes step5 with `hint:` set and starts a new consecutive-stagnation window at that commit for both empty child commits and validation misses. Preserve every row's attempts, run-wide iterations and total cap; funding alone never resets either window. Dirty/extra-commit retry needs human cleanup; set iterations to HEAD+1 before next bump so interruption remains consumed. No automatic reset/clean.
+- [ ] Validate commit boundary first: `git -C <worktree> status --porcelain` empty and `git rev-list HEAD_BEFORE..HEAD --count`=1, else preserve changes and stop. Read ledger from HEAD. For `target: seed`, including human-authorized recovery at nonzero iterations, validate attempts all0, only open->done, every non-cut row evidenced, exactly one new `row 0 done | ... | ...` decision and commit `loop: seed evidence`; miss stops without automatic retry. Seed success does not enter the ordinary-row validator; the consumed iterations remain in the seed commit.
+- [ ] For a numeric target only, validate against saved copy: target only, status done/failed, attempts+1, nonempty bounded evidence, exactly one new line matching `^row <target> (done|failed) \| .{1,200} \| .{1,200}$`. An older valid line is insufficient. On miss restore foreign rows, mark target failed at saved attempts+1 with `iteration <i>: <miss>`, preserve iterations, commit `loop: repair row <n>` and carry previous decision none. Two consecutive misses stop; after an explicit human retry, count only misses after that `loop: retry row <n>` commit, not pre-retry misses. Funding alone never resets this window.
+- [ ] Author the SDD stop-note wording contract from `skills/subagent-driven-development/stop-note.md`: row text, concrete evidence cause in `Problem:`, quoted last decision, one screen/no round history. Headers are `Stopped on row <n> (<row text>)`, `Stopped: iteration cap <N> reached with rows <list> open`, `Stopped: verification failed with every row closed`, `Stopped: iteration <i> left the tree dirty`, `Stopped: iteration <i> added <k> commits`. Offer retry hint/amend/stop, never skip row. Amend follows `brainstorming/reference/amendment-surface.md`. Retry appends `row <n> retry | <hint> | allowed attempts <attempts + 1>`, commits `loop: retry row <n>`, resumes step5 with `hint:` set and starts a new consecutive-stagnation window at that commit for both empty child commits and validation misses. Preserve every row's attempts, run-wide iterations and total cap; funding alone never resets either window. Dirty/extra-commit retry needs human cleanup; set iterations to HEAD+1 before next bump so interruption remains consumed. After a human-authorized reset discards an interrupted seed, the missing validated seed proof selects `target: seed` again before ordinary row dispatch; preserve the count, do not add a row0 retry or silently reset/clean the branch.
 - [ ] Decode `; fund N fix rounds` on4/5 through `amendment-surface.md#standing-grants`. Allow3+N per row; prior attempts>=3 prints `funded round <k> of <N> for row <n>` before dispatch, spent=`attempts - 3` durable on resume. Stops add `budget: <spent> of <N> spent`, the sole history exception (`fix-loop.md:21`). Mid-loop grants are prospective; funding never bypasses cap/empty-commit stop or buys an escalation model. Stops retain implement; resume only after human decision.
 - [ ] Exit once every row is done/cut: run ledger `verification:` once foreground. Failure stops with `Stopped: verification failed with every row closed` and quoted output, no reopen/rerun. Success `phase_tracker({ action: "complete", phase: "implement" })`, then start verify.
 - [ ] Read SDD After All Tasks Complete (`subagent-driven-development/SKILL.md:327-336`), happy-path-run.md, and conformance-check.md in full. Its `conformance-check.md:193-197` covers fix changes, not the required initial whole-diff review. Author `## After the loop` using ledger `verification:` instead of plan `**Verification:**`; reuse successful exit only under clean-commit/no-change skip rule, repairs rerun. Dispatch whole-diff `code-reviewer` per requesting-code-review and retain `whole-diff minors:`.
@@ -276,13 +281,13 @@ Depends on Wave2's driver. Model evals remain serialized across waves, avoiding 
 
 **Tests:**
 - `node --test scripts/brainstorming-contract.test.mjs`
-- baseline: f3e0df8 pass
+- baseline: 3c1f327 pass
 - via: `skills/brainstorming/reference/spec-finalization.md`, `skills/brainstorming/reference/amendment-surface.md`
 - `node --test eval/lib/lint.test.mjs`
-- baseline: f3e0df8 pass
+- baseline: 3c1f327 pass
 - via: `eval/brainstorming`
 - `node --input-type=module -e 'import("./eval/run.mjs").then(m=>m.runTarget({root:process.cwd(),target:process.argv.at(1).split("/").at(1)})).then(r=>(console.log(r.message),process.exitCode=r.exit))' eval/brainstorming/samples/loop-gate/case.md`
-- baseline: f3e0df8 skipped - eval/brainstorming/samples/loop-gate/case.md created by this task
+- baseline: 3c1f327 skipped - eval/brainstorming/samples/loop-gate/case.md created by this task
 - via: `runTarget`
 
 Decision: spec-finalization's existing approval commit and Standing grants predicate own persistence; a following `**Key:**` line already terminates a grant field. Write Engine below grant, read both back from HEAD before completing brainstorm; no new consent carrier. Task7 documents `piGauntlet.loopEngine.*` and links `README.md#configuring-the-gates`; do not move that cross-cutting doc work into this task.
@@ -353,16 +358,16 @@ Depends on Wave3's persisted selection/amendments. Retain all waves routes; run 
 
 **Tests:**
 - `node --test scripts/finish-verification.test.mjs`
-- baseline: f3e0df8 pass
+- baseline: 3c1f327 pass
 - via: `skills/finishing-a-development-branch/SKILL.md`
 - `node --test scripts/brief-contract-lint.test.mjs`
-- baseline: f3e0df8 pass
+- baseline: 3c1f327 pass
 - via: `skills/gauntlet-resume/reference/brief-contract.md`
 - `node --input-type=module -e 'import("./eval/run.mjs").then(m=>m.runTarget({root:process.cwd(),target:process.argv.at(1).split("/").at(1)})).then(r=>(console.log(r.message),process.exitCode=r.exit))' eval/gauntlet-resume/samples/loop-ledger-worktree/case.md`
-- baseline: f3e0df8 skipped - eval/gauntlet-resume/samples/loop-ledger-worktree/case.md created by this task
+- baseline: 3c1f327 skipped - eval/gauntlet-resume/samples/loop-ledger-worktree/case.md created by this task
 - via: `runTarget`, `eval/gauntlet-resume`
 - `node --input-type=module -e 'import("./eval/run.mjs").then(m=>m.runTarget({root:process.cwd(),target:process.argv.at(1).split("/").at(1)})).then(r=>(console.log(r.message),process.exitCode=r.exit))' eval/finishing-a-development-branch/samples/loop-ledger/case.md`
-- baseline: f3e0df8 skipped - eval/finishing-a-development-branch/samples/loop-ledger/case.md created by this task
+- baseline: 3c1f327 skipped - eval/finishing-a-development-branch/samples/loop-ledger/case.md created by this task
 - via: `runTarget`, `eval/finishing-a-development-branch`
 
 Decision: brief grammar remains solely in brief-contract.md, enforced by brief-contract-lint.mjs; producer/consumer cite it. No task snapshot or approval inferred from artifacts. For a loop spec without ledger, prepare the driver's step1 resolved inputs before its prescribed step2 creation continuation; restored ledgers reuse recorded verification/iterations, not new guesses.
@@ -419,9 +424,9 @@ Decision: amend existing hubs and add only the engine-author guide. `CHANGELOG.m
 | § "Components" L66 | Loop persona | Task 2 |
 | § "Persona `agents/loop-implementer.md`" L82-L99 | Fresh model-free frontmatter and task fields | Task 2 |
 | § "Persona `agents/loop-implementer.md`" L82-L99 | Spec-first, row-only, scoped diff/check, bounded evidence/decision | Task 2 |
-| § "Persona `agents/loop-implementer.md`" L82-L99 | One clean commit/reply and seed exception/hard boundaries | Task 2 |
+| § "Persona `agents/loop-implementer.md`" L82-L99 | One clean commit/reply; seeding selected by target, including recovered nonzero iteration, with all-row evidence, attempts 0 and seed decision/commit | Task 2 |
 | § "Acceptance criteria" L38-L39 | Child/parent iteration effects and model contract | Task 2, Task 4 |
-| § "Tests" L240 | Persona behavior evals | Task 2 |
+| § "Tests" L240 | Persona behavior evals, including recovered seed target at a consumed iteration | Task 2 |
 | § "Components" L73 | Recorder/derive/printer | Task 3 |
 | § "Acceptance criteria" L32-L33 | Five options and persisted/recorded selection | Task 3, Task 5 |
 | § "Acceptance criteria" L44-L45 | Engine/iterations and legacy display | Task 3 |
@@ -434,17 +439,17 @@ Decision: amend existing hubs and add only the engine-author guide. `CHANGELOG.m
 | § "Acceptance criteria" L53-L58 | Funded suffix, ledger reading, dispositions and baseline evidence | Task 4 |
 | § "Acceptance criteria" L53-L58 | Diff access/model/commit reading and literal verification stop | Task 4 |
 | § "Driver skill `skills/loop-implementation/SKILL.md`" L129-L150 | Resolve inputs; create/check/commit ledger; start implement | Task 4 |
-| § "Driver skill `skills/loop-implementation/SKILL.md`" L129-L150 | Ordered exit/allowance/empty/cap/target gates | Task 4 |
+| § "Driver skill `skills/loop-implementation/SKILL.md`" L129-L150 | Ordered exit/allowance/empty/cap/target gates; seed until validated seed commit plus row0 decision/non-cut evidence survives, independent of consumed iterations and without new schema | Task 4 |
 | § "Driver skill `skills/loop-implementation/SKILL.md`" L129-L150 | Exact foreground file-only dispatch/no transcript | Task 4 |
-| § "Driver skill `skills/loop-implementation/SKILL.md`" L129-L150 | Boundary/seed/ordinary validation, repairs, counted attempts and human stops | Task 4 |
+| § "Driver skill `skills/loop-implementation/SKILL.md`" L129-L150 | Boundary then mutually exclusive target-based seed/ordinary validation; recovered seed preserves count, evidences every row before ordinary dispatch, and stops on miss | Task 4 |
 | § "After the loop: verify continuation" L154-L165 | Verify ordering, full run reuse/repair and whole-diff review | Task 4 |
 | § "After the loop: verify continuation" L154-L165 | Happy path/conformance/fix rounds/closure/immediate finish | Task 4 |
-| § "Stop note" L169 | Evidence cause, decision/budget and human retry/amend/stop; explicit retry commit resets consecutive empty-child-commit/validation-miss windows only, preserving attempts/iterations/cap; funding alone does not reset | Task 4 |
+| § "Stop note" L169 | Evidence cause, decision/budget and human retry/amend/stop; explicit retry commit resets consecutive empty-child-commit/validation-miss windows only, preserving attempts/iterations/cap; funding alone does not reset; human reset of interrupted seed retains consumed count and selects seed again | Task 4 |
 | § "Stagnation and funding" L173 | Durable per-row prospective spend; no bypass/escalation | Task 4 |
 | § "Errors and edge cases" L214-L224 | Unresolved allowance stops; third-attempt success and empty commits | Task 4 |
-| § "Errors and edge cases" L214-L224 | Cap, dirty/commit stops, repair/seed/verification/configuration errors | Task 4 |
+| § "Errors and edge cases" L214-L224 | Cap, dirty/commit stops, repair/seed/verification/configuration errors, including recovered seed validation at a nonzero iteration | Task 4 |
 | § "Tests" L237 | Stage-skill regression | Task 4 |
-| § "Tests" L239 | Full driver behavior matrix | Task 4 |
+| § "Tests" L239 | Full driver behavior matrix plus interrupted-seed recovery, surviving seed proof and seed-target validation facts | Task 4 |
 | § "Out of scope" L253-L259 | Preserve default; no comparison/scripted/parallel/reviewer/escalation/reopen machinery | Task 4 |
 | § "Acceptance criteria" L32-L35 | Gate semantics, Engine persistence and planless route | Task 5 |
 | § "Acceptance criteria" L46-L49 | Gate eval/report and option5 semantics | Task 5 |
