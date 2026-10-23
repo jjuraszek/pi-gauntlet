@@ -38,7 +38,7 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "8af7a37d875608fa8487e18fca111e61dac24245d10f243cb638f22713897d27",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "fc207f201dc308d8f88935b1a48003bf6f1482b5ece86868671cc806be813e89",
+      "intentSha": "7622411976e6b255fd30a7de352335c21295e0c82f4a8758f279141ae1eed81a",
       "baselineOutputSha": "e3a59746c808a1f83412ca0bc937f08331ad50cf180ccb3882b1ab7705ec8e97",
       "candidateOutputSha": "238461a3fc35e7e6cb40197f330dfce36b426513cf759e0e5f8a56580165e0ef",
       "facts": {
@@ -53,14 +53,14 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "Both outputs satisfy s1: each reports the sibling worktree as host-owned via the legacy three-home check, runs no `git worktree remove`/`prune`, explicitly skips `git branch -D rate-limit`, and states that the host-owned worktree still holds `rate-limit`. After preserves the fact while adding useful detail (the string-prefix clarification and the `home:` hint for future overrides). One minor note: After's ownership check says \"No `worktree` script exists at `/work/acme-api`\" and the Change says ownership is decided by the overrides section or the legacy three homes, so keep the script check phrased as a legacy-path detail rather than a fourth home; otherwise no wording change is needed for this case.",
-      "wallMs": 4976,
+      "feedback": "Both outputs satisfy s1: each takes the legacy path, identifies the sibling directory as outside both gauntlet-owned homes and therefore host-owned, states that no worktree remove or prune ran, explicitly skips the branch -D, and reports that the host-owned worktree still holds rate-limit. After adds helpful detail (the string-prefix note and the suggestion to add a `- home: ../acme-api-worktrees/<name>` entry) without displacing any of those required statements; nothing in the Change moved this fact. If you keep tightening the legacy narration, retain the explicit 'no remove / no prune' line and the 'skipped branch deletion' line as separate statements, since those are what let a reader confirm s1 rather than inferring it from the manual-cleanup block.",
+      "wallMs": 5235,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "8af7a37d875608fa8487e18fca111e61dac24245d10f243cb638f22713897d27",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "fc207f201dc308d8f88935b1a48003bf6f1482b5ece86868671cc806be813e89",
+      "intentSha": "7622411976e6b255fd30a7de352335c21295e0c82f4a8758f279141ae1eed81a",
       "baselineOutputSha": "f058b9c10428367ddeba0733eaff840d7a7ecdbe727613f621b3698cc2a34610",
       "candidateOutputSha": "020fe4726aed74b273407c27fdac11d4871a7e195de0aa27f0d9a6640c222913",
       "facts": {
@@ -75,10 +75,10 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "Both outputs satisfy s1: each reports the worktree as host-owned, removes nothing, skips branch deletion, and states that the host-owned worktree still holds rate-limit. After dropped the explicit \"pruning\" mention from the skip list; that doesn't break s1 as written, but if you want After to match Before's precision, keep \"Skip worktree removal, pruning, and branch deletion\" alongside the new ownership phrasing (\"outside the gauntlet-owned worktree paths, no project-native cleanup script\") so the no-section legacy path narrates exactly what it skips.",
-      "wallMs": 4317,
+      "feedback": "Nothing moved here: After still reports the worktree as host-owned (both via 'The host environment owns' and the literal 'host-owned worktree' phrase), declines to remove the worktree or delete the branch, and closes with the required 'still holds `rate-limit`' statement, so s1 holds on both sides. The only drift is that After drops the explicit mention of skipping prune and the explicit reason 'no overrides' (it now says only 'no project-native cleanup script exists' and 'outside the gauntlet-owned worktree paths'); if you want the no-section legacy path to stay as self-explanatory as Before while still reflecting the new overrides-section logic, consider wording like 'No `## using-git-worktrees` section exists, so the legacy homes decide: the path is outside them and is host-owned. Skip remove, prune, and `branch -D`; the host-owned worktree still holds `rate-limit`.'",
+      "wallMs": 8234,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "a91f1f87381adfb81b00c31d91a566d8e5ba319e"
+  "repoSha": "27eae7d476b20debb9e9e11220ce9183ac10daf5"
 }

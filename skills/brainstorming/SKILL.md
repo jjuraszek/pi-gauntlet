@@ -18,6 +18,8 @@ You **may** read code/docs, run the existing system to observe current behavior,
 
 You may **not** write outside the resolved spec dirs; build, deploy, validate, or exercise the proposed change; run implementation skills; commit the spec on `main`; or start `/skill:writing-plans`.
 
+For a PR subject, the base merge in `using-git-worktrees/reference/pr-head.md` - its merge commit, its conflict helper's edits to the conflicted files, and its scoped conflict tests - is the one pre-approval write and run outside the spec dirs; nothing else moves.
+
 The line: current-system observation is research; exercising the proposed change waits for approval.
 
 ## Foreground dispatch policy
@@ -42,7 +44,7 @@ Work through the items below **in order**. After a user answer or completed side
    phase_tracker({ action: "start", phase: "brainstorm" })
    ```
 
-2. **Set up the worktree** - see [Worktree First](#worktree-first).
+2. **Set up the worktree** - resolve a tracker reference first per `reference/pr-subject.md`; pass a PR subject's head to `/skill:using-git-worktrees`' PR-head path. Then see [Worktree First](#worktree-first).
 3. **Gather context** - read [Ticket Handling](#ticket-handling), then follow [`gatherer.md`](gatherer.md) without a human stop.
 4. **Understand the idea against the draft** - if `reference/ticket-acceptance.md` is not already in context this session (restored entry, or a redraw after a fresh start), read [Ticket Handling](#ticket-handling) before the rest of this step; then see [Understand the idea](#3-understand-the-idea).
 5. **Propose 2-3 approaches** - see [Explore approaches](#4-explore-approaches).
@@ -63,7 +65,7 @@ Detection order: (1) infer from ticket labels, description, or paths; (2) use th
 
 ## Worktree First
 
-The spec is the first commit in a dedicated worktree, never a separate commit on `main`.
+The spec is the first commit in a dedicated worktree, never a separate commit on `main`. For a PR subject, the worktree is the PR's branch and the spec commit is appended to it.
 
 Invoke `/skill:using-git-worktrees`; use `.worktrees/` or the project-native location. Carry its `Worktree ready at <full-path>` value: spec path `<full-path>/<spec dir>/<filename>.md`; every dispatch uses that `cwd`; git uses `git -C <full-path>`. Keep the process cwd unchanged.
 
@@ -87,7 +89,7 @@ If any test fails, offer no split. Never split by service, package, repo, layer,
 
 ### 3. Understand the idea
 
-Clarify freely.
+Clarify freely. For a PR subject, run the framing check against the PR's diff as the ask (`reference/pr-subject.md`).
 
 `Read` the gathered draft unconditionally before question one. Treat it as a helper, not a fence: verify load-bearing claims from primary code, and confirm whether the codebase or ecosystem already solves the problem.
 
@@ -140,7 +142,7 @@ Propose 2-3 genuinely distinct approaches and name what separates them (the axis
 
 ### 5. Design for clarity and isolation
 
-Prefer clear testable boundaries, YAGNI, existing conventions when they are sound - when the convention is the debt, say so and do not extend it - the owning schema/contract rather than parallel state, and explicit errors and edge cases.
+Prefer clear testable boundaries, YAGNI, existing conventions when they are sound - when the convention is the debt, say so and do not extend it - the owning schema/contract rather than parallel state, and explicit errors and edge cases. Retain every existing user-approved design detail in approaches and design, including when drafting or replacing the spec.
 
 ### 6. Present the design in two rounds
 
@@ -161,6 +163,8 @@ Inside an opted-in flow, shared schemas, contracts, and invariants require a spe
 ## Filename Convention
 
 Write under the routed spec dir: pick the routing prose's dir (overrides file, `AGENTS.md`) when it is one of the resolved dirs, else the one resolved dir from `gauntlet_setting({ key: "flowGuards" })` that already exists in the repo, else the first resolved dir (`doc/specs` under the default). Name ticketed files `YYYY-MM-DD-<ticket-id>-<topic>.md`, otherwise `YYYY-MM-DD-<topic>.md`. Use a filename-safe tracker slug (`E-12345`, `gh-123`), but native references in plan headers and commits. `<topic>` is 3-6 kebab-case words without `-design` or another suffix.
+
+For a PR subject, apply `reference/pr-subject.md`: keep the bound-ticket filename; name an unbound spec `YYYY-MM-DD-pr-<N>-<topic>.md` from the PR title.
 
 Mint the slug once during gather and reuse it. If questionary invalidates it, write to the new path and delete the uncommitted draft.
 

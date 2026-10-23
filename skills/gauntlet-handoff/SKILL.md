@@ -83,7 +83,7 @@ loop: tracker state is extension state no subagent can read.
    - A phase `in_progress` (verify or ship included - resume stops at verify on its own)
      -> append the process-state section exactly as `## Producers` in
      `reference/brief-contract.md` lays it out: both status outputs verbatim
-     (`No plan active.` verbatim when there is no plan), the contract's artifact-specific fields, and the gate-history line. Recognize the loop alternative by ledger line 1; read the ledger from the run worktree for its durable last decision. Use only the contract's grammar; write no second state file. Append with a single
+     (`No plan active.` verbatim when there is no plan), the contract's artifact-specific fields, and the gate-history line. Recognize the loop alternative by ledger line 1; read the ledger from the run worktree for its durable last decision. Read the run worktree's spec; when it carries `## Rework record`, copy its PR identity (without the title) and full pre-rework head into the optional fields in the contract's producer layout. Without that record, use the ordinary layout. Use only the contract's grammar; write no second state file. Append with a single
      `cat >> "<brief path>" <<'EOF' ... EOF` whose body is that block.
    - Re-read the file tail and confirm it ends with the gate-history line from the
      contract and nothing after.

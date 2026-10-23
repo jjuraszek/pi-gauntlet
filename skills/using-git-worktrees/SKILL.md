@@ -17,7 +17,7 @@ Git worktrees create isolated workspaces sharing the same repository, allowing w
 
 ## Step 0 — Detect Existing Isolation (REQUIRED)
 
-Before doing anything else, check whether you are **already** inside an isolated worktree. Creating a worktree inside another worktree, or inside a submodule, produces silent corruption.
+For a caller passing resolved PR values, read [reference/pr-head.md](reference/pr-head.md) now and follow it instead of Steps 0 and 1, before generic linked-worktree reuse. For every other caller, check whether you are **already** inside an isolated worktree. Creating a worktree inside another worktree, or inside a submodule, produces silent corruption.
 
 ```bash
 read -r GIT_DIR GIT_COMMON <<<"$(git rev-parse --path-format=absolute --git-dir --git-common-dir | tr '\n' ' ')"
@@ -44,7 +44,7 @@ Use `$WORKTREE`, report it in the Step 4 shape (`Worktree ready at <that path>`)
 
 ## Step 1 — Announce, Don't Ask (skill-driven work defaults to a worktree)
 
-For gauntlet-driven work — brainstorming, plans, implementation — the worktree is the default, not a question. Announce and proceed:
+For a PR head, use [reference/pr-head.md](reference/pr-head.md) instead of this step. For gauntlet-driven work — brainstorming, plans, implementation — the worktree is the default, not a question. Announce and proceed:
 
 > "Setting up an isolated worktree at `<path>` on branch `<branch>` for this work."
 
@@ -177,7 +177,7 @@ If `git symbolic-ref -q HEAD` returns nothing, you're on a detached HEAD. Do not
 
 ## Keeping a Worktree Current
 
-For longer-running work the base branch advances:
+For a PR-subject branch, follow [reference/pr-head.md](reference/pr-head.md): merge `origin/<baseRefName>`; never rebase it. For other longer-running work the base branch advances:
 
 ```bash
 git -C "$WORKTREE" fetch origin

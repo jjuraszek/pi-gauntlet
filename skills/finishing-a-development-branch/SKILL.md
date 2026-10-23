@@ -34,7 +34,9 @@ Then call `phase_tracker({ action: "start", phase: "ship" })`.
 
 **Hard verification gate.** Tests/format/lint must pass before presenting any options — including Discard. The user's stated intent to throw the branch away does not change whether the diff is in a verifiable state; verifying first surfaces accidental damage to unrelated code before the branch is gone forever. The skip rule below is the only exception.
 
-Recognize a ledger by line 1 exactly `# Ledger - loop engine`. For a ledger, use its `verification:` command in place of the task plan header's `**Verification:**` set throughout finish, including the minors round. Run that set in the worktree: `(cd "$WORKTREE" && <command>)`. With no plan in this session, run the verification command(s) of the affected services from the gauntlet overrides file or `AGENTS.md` (look for "verification", "CI", or "test" sections).
+Read the selected run spec before verification. Detect a PR subject only by its `## Rework record`, never by an open PR on `$FEATURE`. Read `PR:` and the full `Pre-rework head:` into `PRE_REWORK_HEAD` from that record; missing pre-head -> stop naming the spec path. Confirm with `gh pr view <N> --json number,url,headRefName,baseRefName,state` (use the record's repository): non-`OPEN` -> stop: `PR #N is <state>; the rework cannot be pushed to it.`; headRefName != `$FEATURE` -> stop naming both branches. Retain baseRefName for Step 3.
+
+Recognize a ledger by line 1 exactly `# Ledger - loop engine`. For a ledger, use its `verification:` command throughout finish, including the minors round. For a PR subject with a task plan, use the union of every plan task's `Tests:` commands plus the executable lint/format commands in the header's `**Verification:**` line; treat `none - PR subject, scoped` as no header commands, not an empty task union. Capture this set and accepted-complete task evidence before stripping the plan. Apply the hard gate and skip rule below to this set. For every other subject with a task plan, run the plan header's `**Verification:**` set in the worktree: `(cd "$WORKTREE" && <command>)`. With no plan in this session, run the verification command(s) of the affected services from the gauntlet overrides file or `AGENTS.md` (look for "verification", "CI", or "test" sections).
 
 **Skip rule.** Skip the run only when this set passed on a known clean commit in the verify phase of this session and no edit or write landed outside `<telemetry.dir>` since. Check the current tree: `git -C "$WORKTREE" diff --quiet <commit the run passed on> -- . ':!<telemetry.dir>'` must exit 0, and `git -C "$WORKTREE" status --porcelain --untracked-files=all -- . ':!<telemetry.dir>'` must exit 0 with empty output (`<telemetry.dir>` defaults to `.pi/gauntlet/telemetry`). These checks cover committed, staged, unstaged, and untracked changes outside telemetry. Otherwise run it once; a missing verified commit, a failed check, or uncertainty means run.
 
@@ -61,9 +63,11 @@ No documentation prompt here: Documentation impact is decided at spec time (`/sk
 
 ### Step 2: Detect Environment
 
-Detached HEAD (`git -C "$WORKTREE" symbolic-ref -q HEAD` prints nothing) -> reduced 4-option menu (no merge), no cleanup. Otherwise the standard 5 options.
+For a PR subject, use the Step 4 PR menu. For other subjects: detached HEAD (`git -C "$WORKTREE" symbolic-ref -q HEAD` prints nothing) -> reduced 4-option menu (no merge), no cleanup. Otherwise the standard 5 options.
 
 ### Step 3: Determine Base Branch
+
+For a PR subject, set `<base-branch>` to the confirmed `baseRefName` and skip the common-base probe below.
 
 ```bash
 # Try common base branches
@@ -178,6 +182,26 @@ Amendments auto-applied (N):
 
 Omit the block when N = 0.
 
+**PR subject - preflight and six-row menu.** Fetch origin with `git -C "$WORKTREE" fetch origin`; stop on failure. Run these proofs in order, against this worktree's HEAD:
+| Proof | Exit 0 | Exit 1 |
+|---|---|---|
+| `git merge-base --is-ancestor <PRE_REWORK_HEAD> HEAD` | Continue | Stop: `PR branch history was rewritten: <PRE_REWORK_HEAD7> is not an ancestor of HEAD; the rework must be re-merged, not rebased.` |
+| `git merge-base --is-ancestor origin/<headRefName> HEAD` | Offer push | Withhold push: `push withheld: origin/<headRefName> is at <sha7>, local HEAD at <sha7>; a non-force push cannot land` |
+Run each proof with `git -C "$WORKTREE"`. Treat every exit other than 0 or 1 as a command error and stop with its output. For a withheld push only, separately prove `git -C "$WORKTREE" merge-base --is-ancestor <PRE_REWORK_HEAD> origin/<headRefName>`: exit 0 appends `(origin moved past the rework's base <PRE_REWORK_HEAD7>)`; exit 1 adds nothing; other exits stop as command errors. Divergence alone proves no origin advance.
+Read and apply [menu-layout](../brainstorming/reference/menu-layout.md) for rendering and numeric replies. Present:
+```
+Implementation complete. What would you like to do?
+
+1. Push to the PR branch (PR #N, <headRefName>; appends the rework block to its description)
+2. Push and create a Pull Request (PR #N already exists on this branch; gh refuses a second one)
+3. Push and create a draft Pull Request (same: PR #N already exists)
+4. Squash-merge to <base-branch> (no PR, no surviving branch; orphans PR #N - close it by hand)
+5. Keep the branch as-is (I'll handle it later; nothing is pushed)
+6. Discard this work (removes the worktree and local branch; the PR branch on origin is untouched)
+
+Which option?
+```
+Withhold row 1 by omitting it and placing `Withheld: push - <reason>` under the list; retain numbers 2-6. On that withheld menu read a bare reply by its displayed label: `2`-`6` select those rows; `1` or any other number gets the clarifying question naming `2`-`6` (this one menu overrides menu-layout's count-based `1`-`N` range). Recompute preflight on return to the menu. Add no approval gate. Map rows 2-6 to the existing Options 1-5 below, including their confirmation and cleanup rules; row 6 never deletes origin's branch.
 **Normal repo and named-branch worktree — present exactly these 5 options:**
 
 Read and apply [menu-layout](../brainstorming/reference/menu-layout.md) before presenting these options and before acting on a numeric reply.
@@ -213,7 +237,7 @@ Rows 1-2 run the Option 1/2 blocks; row 3 runs the Keep block and row 4 the Disc
 
 **Don't add explanation** - keep options concise. When the minors line lists findings and the block has no `whole-diff minors fix:` line, add only this line under the menu: `Or reply "fix minors" (or "fix minors F3, F9") for one Minor fix round.` This line is the only addition to the exact numbered options.
 
-**Standalone extra reply - `fix minors`.** When the rendered `whole-diff minors` line lists findings, `fix minors` (all) or `fix minors F3, F9` (a subset by `Fn`) is a valid reply beside the numbered options. It dispatches one `implementer` round (`cwd` = the worktree; task = the selected finding lines verbatim; `SCOPED_TEST_COMMANDS` = the plan-header verification set), commits `whole-diff minors fix`, and returns to Step 3.5, where the freshness rule re-audits conformance as for any working-tree change and the regenerated block records the spent round (`whole-diff minors fix: <full SHA>`); Step 4 then re-renders. No code review follows this round: the whole-diff review is an unscoped first review, so its Minors are graded Minors. A block that already carries `whole-diff minors fix:` refuses the reply with "minors round already spent". Any numbered choice ships without them.
+**Standalone extra reply - `fix minors`.** When the rendered `whole-diff minors` line lists findings, `fix minors` (all) or `fix minors F3, F9` (a subset by `Fn`) is a valid reply beside the numbered options. It dispatches one `implementer` round (`cwd` = the worktree; task = the selected finding lines verbatim; `SCOPED_TEST_COMMANDS` = for PR subjects, the executable scoped union captured in Step 1, excluding `none - PR subject, scoped`; for other subjects, the plan-header verification set). For a ledger, supply its `verification:` command instead. For PR subjects, require successful evidence for every supplied command after the fix; failed or missing evidence stops before returning to the menu. Commit `whole-diff minors fix` and return to Step 3.5, where the freshness rule re-audits conformance as for any working-tree change and the regenerated block records the spent round (`whole-diff minors fix: <full SHA>`); Step 4 then re-renders. No code review follows this round: the whole-diff review is an unscoped first review, so its Minors are graded Minors. A block that already carries `whole-diff minors fix:` refuses the reply with "minors round already spent". Any numbered choice ships without them.
 
 ### Step 5: Execute Choice
 
@@ -242,7 +266,37 @@ node <bin>/gauntlet-telemetry-seal.mjs --worktree "$WORKTREE" --option <pr|squas
 ```
 
 The seal prints one line per record (`sealed <path>`, `already sealed <path>`) or one bare outcome (`no telemetry run`, `telemetry disabled`) and exits 0; print its stdout verbatim in the ship completion message. Any nonzero exit stops the flow before the first landing command, quoting the bin's line: exit 2 (`no record at <path>`, `unparseable record <path>: <reason>`) means this gauntlet run's recorder never armed or its record is corrupt; exit 1 is a usage, environment, or git/jj failure (`seal failed <path>: <reason>` restored the pre-seal bytes). The user decides; never land without the seal.
+#### PR-subject row 1: Push to the PR branch
+Capture the scoped verification set and thread evidence before the strip. Refetch unresolved threads with the query owned by [pr-head](../using-git-worktrees/reference/pr-head.md); preserve recorded dispositions, use the table below, and omit threads now resolved on GitHub. Use the query's location rendering.
+| Refetched thread / evidence | Resolution |
+|---|---|
+| Recorded `fix`, matching task title carries id, task accepted by spec and code review and `complete`, exactly one naming commit | `fixed in <sha7>` |
+| Same accepted-complete task, zero or multiple naming commits | `fixed (task "<title>" complete; no single commit names <thread id>)` |
+| Missing or incomplete task; recorded `keep open`; newly opened thread | `still open` |
+| Recorded `decline` | `declined - <reason>` |
+| Successful fetch, empty set | `Threads: none` |
+| Fetch failure | `Threads: not fetched (<reason>)` |
+Count naming commits with `git -C "$WORKTREE" log --first-parent --format=%h --grep '<thread id>' <merge-sha | PRE_REWORK_HEAD>..HEAD` (merge SHA from the record when present). A touched file, grep match, or first-parent filter alone is not completion proof.
+Run the existing strip-and-seal block with `--option pr --base origin/<baseRefName>` and the selected spec; retain its stop-on-error behavior. This seal measures the whole PR, not rework-only; never use PRE_REWORK_HEAD as its base. Then:
+```bash
+git -C "$WORKTREE" update-ref refs/gauntlet/pre-rework/pr-<N> <PRE_REWORK_HEAD>
+git -C "$WORKTREE" push --no-follow-tags origin HEAD:refs/heads/<headRefName>
+```
+Stop on update-ref failure. Report a rejected push once, skip body editing, and return to the menu without retrying or forcing. Preserve the worktree.
+After a successful push, fetch the description fresh with `gh pr view <N> --json body` in the record's repository. Decode the JSON body without trimming or shell command substitution (which loses trailing newlines). Create a scratch body file with `mktemp` outside the repo; write the existing body bytes exactly, then one blank line, then this block:
+```markdown
+## Rework
 
+Before: <PRE_REWORK_HEAD> (local ref `refs/gauntlet/pre-rework/pr-<N>` in the rework checkout; the SHA is the portable handle and stays on origin because the push was not forced)
+Spec: <spec path> at <HEAD7>
+Keeps: <from the record>
+Changes: <from the record>
+Dropped claims: <none | one "No longer true: <claim>" line per dropped claim>
+Verification: scoped - <commands>; CI on this push holds the full run. Telemetry: whole PR against <baseRefName>.
+Threads:
+- <path>:<line> - <resolution from the table>
+```
+Put `supersedes the description above` on the block's second line only when every original claim is dropped. Use `Threads: none` or `Threads: not fetched (<reason>)` instead of the list for those outcomes. Run `gh pr edit <N> --body-file <scratch-file>` in the record's repository without another approval. On body fetch/edit failure, keep the push and print the block for manual paste with the error; never replace the description with just the block. Post no review-thread replies, merge no PR, and change no ticket state.
 #### Option 1: Push and Create PR
 
 Run the strip-and-seal block above first (plan stripped, telemetry record sealed), then:
@@ -354,6 +408,7 @@ Removal precedes branch deletion in both options; `git branch -d`/`-D` fails whi
 
 | Option | Merge | Push | Keep Worktree | Cleanup Branch | Plan strip + record seal |
 |---|---|---|---|---|---|
+| PR row 1. Push to PR branch | - | yes (non-force) | yes | - | yes (whole PR; see row 1 recipe) |
 | 1. Create PR | - | yes | yes | - | yes (guarded, on the branch before push) |
 | 2. Create draft PR | - | yes | yes | - | yes (guarded, on the branch before push) |
 | 3. Squash-merge locally | yes (squash) | - | - | yes (after Step 6 removal) | yes (guarded, on the branch before squash) |
@@ -370,7 +425,7 @@ A host-owned worktree (Step 6: no `home:` match, or the legacy "Otherwise") keep
 
 **Open-ended questions**
 - **Problem:** "What should I do next?" is ambiguous
-- **Fix:** Present exactly 5 structured options (or 4 for detached HEAD)
+- **Fix:** Use the Step 4 subject-specific menu
 
 **Cleaning up worktree for a PR option (1 or 2)**
 - **Problem:** Remove worktree user needs for PR iteration
@@ -402,7 +457,7 @@ A host-owned worktree (Step 6: no `home:` match, or the legacy "Otherwise") keep
 
 ## Completion
 
-Once the chosen option (Options 1-4 — not Discard) is executed successfully, mark the ship phase complete:
+Once the chosen option (Options 1-4 or PR-subject row 1 - not Discard) is executed successfully, mark the ship phase complete:
 
 ```
 phase_tracker({ action: "complete", phase: "ship" })
@@ -417,6 +472,7 @@ Once the merge (and any deploy) has landed, `/skill:check-delivery <ticket-ref>`
 - Merge without verifying tests on result
 - Delete work without confirmation
 - Force-push without explicit request
+- Force-push a PR-subject rework; follow its row 1 recipe
 - Remove a worktree before confirming merge success
 - Clean up worktrees you didn't create (provenance check)
 - Retry a failed `destroy:` with `git worktree remove --force`
@@ -429,7 +485,7 @@ Once the merge (and any deploy) has landed, `/skill:check-delivery <ticket-ref>`
 - Verify, or apply the Step 1 skip rule, before offering options
 - Print the `gauntlet-telemetry-seal.mjs` output verbatim in the ship completion message
 - Derive `$PRIMARY` and `$FEATURE` from `<worktree-path>` before presenting the menu
-- Present exactly 5 options (or 4 for detached HEAD)
+- Use the Step 4 subject-specific menu
 - Get typed confirmation for Option 5 (Discard)
 - Clean up worktree for Options 3 & 5 (Squash-merge, Discard) only
 - Target `$PRIMARY` with `git -C` for merge, worktree removal, and branch deletion

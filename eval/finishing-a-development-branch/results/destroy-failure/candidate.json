@@ -40,7 +40,7 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "94381d8e2a080817e4e3bab7ef5fa1e4924ad2b9e69c8b9bc151a76d60e1fac8",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "fc207f201dc308d8f88935b1a48003bf6f1482b5ece86868671cc806be813e89",
+      "intentSha": "7622411976e6b255fd30a7de352335c21295e0c82f4a8758f279141ae1eed81a",
       "baselineOutputSha": "162ec6b9bb5ccc8582e5ecc4a41acfdfcec7699656c2b42628c5d9b7ad4d5dd8",
       "candidateOutputSha": "79439b64f7ca6f9321eebe7a12d51268e9ca8b963e4528208a8f497b6924d2f6",
       "facts": {
@@ -60,14 +60,14 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "Both outputs run `cd /work/acme-mono && script/worktree destroy 'fix-x'`, report the exit-1 output verbatim, and then run neither `git worktree remove` nor `git branch -D`, so f1 holds on both sides and nothing moved. One small point worth keeping in the After wording: Before explicitly states 'I did not run `git worktree remove` or `prune`' (covering the plain, non-force remove), whereas After only disclaims the `--force` fallback and `prune` while relying on 'the worktree is still in place' to imply no plain remove happened. A reader could still conclude f1 holds, but to keep the disclaimer as airtight as Before, have the Result section say explicitly that no `git worktree remove` (forced or not) and no `git worktree prune` were run after the failed `destroy:`, alongside the existing 'branch -D was not run' line; this preserves the Change's keyed-contract narration while leaving no inference to the reader.",
-      "wallMs": 8887,
+      "feedback": "Both outputs satisfy f1: each runs `cd /work/acme-mono && script/worktree destroy 'fix-x'`, reports the exit-1 output verbatim, and then states that no `git branch -D` was run and no `git worktree remove`/`prune` fallback occurred. After adds nothing that moves the fact; its only risk is that the 'did not fall back' bullet names only `git worktree remove --force` and `git worktree prune` rather than plain `git worktree remove`, though the 'worktree is still in place' bullet makes the absence of any removal clear. To keep the fact unambiguous while delivering the keyed-contract Change, have After say explicitly 'no `git worktree remove` (forced or not) and no `prune` were run', mirroring Before's phrasing, and keep the 'branch kept / `branch -D` not run' bullet as is.",
+      "wallMs": 8485,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "94381d8e2a080817e4e3bab7ef5fa1e4924ad2b9e69c8b9bc151a76d60e1fac8",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "fc207f201dc308d8f88935b1a48003bf6f1482b5ece86868671cc806be813e89",
+      "intentSha": "7622411976e6b255fd30a7de352335c21295e0c82f4a8758f279141ae1eed81a",
       "baselineOutputSha": "d9b562b41365a01ddbb356ce131918e11932cebb2ee9c9fe6f196168d68d047e",
       "candidateOutputSha": "b5b30755cc386a3efd7adf661beba7d7dc3a36ae592a34befe81ec8be6c8db2a",
       "facts": {
@@ -87,10 +87,10 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "Both outputs are effectively identical for f1: each runs `script/worktree destroy 'fix-x'` from /work/acme-mono, reports the exact error output, and explicitly declines `git worktree remove`, prune, and branch deletion. The only difference is After spelling out `git worktree prune` rather than bare `prune`, which is a clarity improvement and moves nothing. The Expected-to-move entry for destroy-failure/f1 assumes a Before that treats the sibling path as host-owned, but this Before already matches the keyed `home:` contract and runs destroy, so f1 already held; no wording change in After is needed to preserve it.",
-      "wallMs": 3998,
+      "feedback": "Both outputs satisfy f1 as written: each runs `script/worktree destroy 'fix-x'` from `/work/acme-mono`, echoes the exit-1 error output, and then explicitly declines to run `git worktree remove`, prune, or any branch deletion, so `git branch -D` never appears. The Expected-to-move list anticipated Before failing f1, but the Before text already shows the keyed destroy path rather than the host-owned sibling behaviour, so there is no movement here. The only difference in After is spelling out `git worktree prune` instead of `prune`, which is a harmless clarification and keeps every fact Before kept; no wording adjustment is needed for this case.",
+      "wallMs": 5803,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "a91f1f87381adfb81b00c31d91a566d8e5ba319e"
+  "repoSha": "27eae7d476b20debb9e9e11220ce9183ac10daf5"
 }

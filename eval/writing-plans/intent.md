@@ -1,4 +1,4 @@
-for: 64885d13401706def80650afc59bd8889562434d889a5ffa4cb228fc3efe6331
+for: ca4f21665f12c23ac51af88da21837f99683a3ab374f31201a5bbc6b721d2046
 
 ## Change
 
@@ -6,7 +6,16 @@ Establish task-command base provenance before handoff, stop on existing failures
 
 Keep the fresh plan-writer child, parent stamping check, single finished-plan read and one verbatim Findings retry with identical second FAIL halting for the human. Treat every singleton wave as an ordinary group with no Solo or plan-time Parallel-safe requirement, initialize tasks in wave order and hand off directly to subagent-driven-development without mode selection. The all-singleton-plan sample exercises this grouping and handoff. The existing parent-fail-redispatches-once fixture now uses wave-file-disjointness for tasks modifying src/shared.ts instead of the deleted solo-line check; its retry and halt facts remain stable. This is behavior-changing conformance evidence.
 
+PR-subject behavior uses preparatory baseline `1b0f7dd2bbbf926a8ff65109414d05aa97acaa58` (`PR_SUBJECT_EVAL_BASE`). The pr-subject-threads sample bundles the complete writing-plans and verification-before-completion skills because the default target slices omit the header policy. Detect only the approved spec's Rework record, put an unresolved base merge first, map each fix thread to one id-titled task with request-specific scoped tests and seam, and preserve nonfix dispositions without repair tasks. Use documented lint/format only in the header, or the non-command sentinel; verify the task Tests union plus that header without changing ordinary full-suite verification or completion gates. This extends, rather than replaces, the baseline provenance and handoff rationale above. Model replays are deferred to the parent under the scoped implementation dispatch.
+
 ## Expected to move
+- pr-subject-threads/merge-first: fails -> holds - Resolve the outstanding base merge as Task 1.
+- pr-subject-threads/thread-tasks: fails -> holds - Preserve one task per fix thread and its test seam.
+- pr-subject-threads/nonfix: fails -> holds - Retain keep-open and decline dispositions without tasks.
+- pr-subject-threads/header-style-only: fails -> holds - Separate documented style commands from task tests and the full suite.
+- pr-subject-threads/verify-union: fails -> holds - Use the scoped task union plus style at verify and for evidence.
+- pr-subject-threads/sentinel: fails -> holds - Keep the no-style sentinel non-executable.
+- pr-subject-threads/ordinary-gates: fails -> holds - Select PR policy only from the approved record and preserve completion gates.
 
 - host-boundary-decision/decision: fails -> holds - Settle the boundary from the supplied harness contract.
 - baseline-fails-on-base/failure-row: fails -> holds - Record the failing base command and provenance as an open row.
