@@ -77,6 +77,16 @@ for (const [name, text, patterns] of [
   });
 }
 
+test('multi-PR terminal picks stay parent-owned after worktree cleanup', () => {
+  const round = section(batch, '## Summary and menu round\n', '## Between batches and retirement\n');
+  assert.match(round, /For terminal overlays, the parent handles `post coverage to ticket`, `post coverage to PR`, and `show evidence` from the primary checkout/);
+  assert.match(round, /even after cleanup removes the PR worktree/);
+  assert.match(round, /`post-selection-loop.md` `### Merge course` and `### Output done-check`/);
+  assert.match(round, /direct selected post only, with no compare-and-swap or helper dispatch/);
+  assert.match(round, /Queue terminal posts with all other external writes until every PR's pick is collected/);
+  assert.match(round, /Exclude terminal picks from child dispatch; never use a removed worktree as cwd/);
+});
+
 test('gatekeeper leaves model knobs unset and has no skill discovery machinery', () => {
   assert.doesNotMatch(gatekeeper, /^(?:model|thinking|extensions):/m);
   assert.doesNotMatch(gatekeeper, /\/skill:|SKILL\.md|reference\//);
