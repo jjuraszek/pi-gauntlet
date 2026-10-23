@@ -1,7 +1,7 @@
 {
   "sample": "elsewhere-settled",
   "arm": "candidate",
-  "skillSha": "ef0c418ba747cd021cf50c7c3f596dc67c76f3dd4ca0c88caca86dc806aa9efd",
+  "skillSha": "41ac0349b50f7d2e8e900bfdb94ac4b06b94779ce7e72fa549866fe9b5cd2430",
   "inputSha": "a506df30230611a350a2e2a18676e71f194105a51559ab113201c6b0191e3b2f",
   "kind": "text",
   "assembly": "headed",
@@ -17,16 +17,16 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "```\nDelivers: the reports page exports its table as CSV on demand with bounded paging. ACs 2, 4; 3, 5 elsewhere per spec: acme/mailer; 4's observable half (export completes under 5s on production data) is checked after merge, not here.\n\nNits:\n- The export pages results with its own loop instead of the shared paging helper, so a paging bug fixed once would need fixing twice. (src/api/export.ts:31, lib/page.ts)\n1 nit open - fix nits to take them\n\nBlockers:\n1. The Export CSV button ships with no test, so nothing proves the reports page offers it or downloads the export, and nothing catches it breaking. (src/ui/reports.tsx)\n\nVerdict: fixable - 1 blocker\n\n1. fix - retain in-scope blocker repair during this run until readiness or a new decision boundary; review before push [recommended]\n2. fix nits - apply the one-shot nit payload in the worktree, review the wave, push\n3. review - post the blocker as a comment on your PR\n4. show evidence - gate output, CI run, drafted edit\n5. stop - leave the PR as-is\nType a number, or compose: \"fix 1\", \"fix nits\", \"fix + nits\".\n```\n",
-      "words": 178,
-      "wallMs": 19905,
+      "text": "```\nDelivers: the reports page exports CSV on demand with every table column and bounded paging. ACs 1, 2, 4; 3, 5 elsewhere per spec: acme/mailer; 4's observable half (export completes under 5s on production data) is checked after merge, not here.\n\nNits:\n- The export pages results with its own loop instead of the shared paging helper, so a paging bug fixed once would need fixing twice. (src/api/export.ts:31, lib/page.ts)\n1 nit open - fix nits to take them\n\nVerdict: mergeable - CI green on the assessed head (test)\n\n1. merge - squash-merge the assessed head onto the base branch [recommended]\n2. fix nits - apply the one-shot nit payload in the worktree, review the wave, push\n3. show evidence - gate output, CI run\n4. stop - leave the PR as-is\nType a number.\n```\n",
+      "words": 127,
+      "wallMs": 16345,
       "mechanical": {}
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "Delivers: the reports page downloads on-demand CSV exports with every table column and bounded paging. ACs 1, 2, 4; 3, 5 elsewhere per spec: acme/mailer; 4's observable half (export completes under 5s on production data) is checked after merge, not here.\n\nNits:\n- The export pages results with its own loop instead of the shared paging helper, so a paging bug fixed once would need fixing twice. (src/api/export.ts:31, lib/page.ts)\n\n1 nit open - fix nits to take them\n\nVerdict: mergeable - CI green on the assessed head (test)\n\n1. merge - squash onto main [recommended]\n2. fix nits - apply the one-shot nit payload in the worktree, review the wave, then push\n3. show evidence - show the gate evidence, claim dispositions, and AC outcomes\n4. stop - leave the PR as-is\n\nType a number.\n",
-      "words": 128,
-      "wallMs": 8001,
+      "text": "Delivers: the reports page downloads CSV exports with all table columns and bounded paging. ACs 1, 2, 4; 3, 5 elsewhere per spec: acme/mailer; 4's observable half (export completes under 5s on production data) is checked after merge, not here.\n\nNits:\n- The export pages results with its own loop instead of the shared paging helper, so a paging bug fixed once would need fixing twice. (src/api/export.ts:31, lib/page.ts)\n\n1 nit open - fix nits to take them\n\nVerdict: mergeable - CI green on the assessed head (test)\n\n1. merge - squash onto main [recommended]\n2. fix nits - apply the one-shot nit payload in the worktree, review the wave, and push\n3. show evidence - show CI evidence, claim dispositions, and AC outcomes\n4. stop - leave the PR as-is\n\nType a number.\n",
+      "words": 126,
+      "wallMs": 6866,
       "mechanical": {}
     }
   },
@@ -34,9 +34,9 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "f3667a4781209fd716bc18bdea535b68c1cac13ce125f5e293699c4d74b65652",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "ea58ee7ec87cd97b1383c86b1bbeec03e75210853cd9a81e1110a346447723bf",
-      "baselineOutputSha": "b5bb0eee8ae23663a137acdc97b2f26c0845e75e2b4aed30f24fb1cb0102906d",
-      "candidateOutputSha": "abae3efcd467a14ee8470e021653891ed99c53d7f41c75fc9f96c63f34237a70",
+      "intentSha": "5fe70d4df0627d1874edc80bfee7eeeaf2cf105c9b4387b79868541baff67417",
+      "baselineOutputSha": "a048301930bc462cc6a94098eb19c238850b12c6f02cd5fb7dc3578487e55c05",
+      "candidateOutputSha": "d8eac8ad5f82f3a2359af2226a18004f395fd73d39df8be774a3fc62dca687a7",
       "facts": {
         "f1": {
           "before": "holds",
@@ -45,49 +45,25 @@
         },
         "f2": {
           "before": "holds",
-          "after": "fails",
-          "label": "regression"
+          "after": "holds",
+          "label": "held"
         },
         "f3": {
           "before": "holds",
-          "after": "fails",
-          "label": "regression"
+          "after": "holds",
+          "label": "held"
         }
       },
-      "feedback": "After kept the elsewhere attribution (f1) but lost f2 and f3: it dropped AC1 from the delivered list and raised a new blocker that src/ui/reports.tsx has no test, which turns a CLEAN, CI-green, approved PR into 'fixable - 1 blocker' and replaces the merge row with a fix row. Nothing in the Change should touch blocker detection — it only adds a cleanup row to terminal menus (own merge, approved, merged, closed) and defines stop's behaviour there — so the new wording evidently leaked a 'every delivered file needs a test' requirement or weakened the rule that an in-scope AC counts as delivered when the diff and CI evidence cover it. Keep the Before gate logic untouched (ACs 1, 2, 4 delivered; zero blockers; verdict mergeable; row 1 merge recommended) and scope the new text strictly to the post-terminal menu: 'After own merge, approve, or when step 1 finds the PR merged or closed, row 1 is cleanup [recommended] (tear down the gate worktree and local branch, ff-only pull of base, then run the overrides cleanup items in order with issue/pr/merge-sha substituted, skipping guarded steps with a reason); stop is the last row and names the leftover worktree.' Do not add any clause about untested UI files or per-file test coverage, which is what moved f2 and f3.",
-      "verdict": "inconclusive",
-      "confirmation": {
-        "status": "ok",
-        "text": "Delivers: the reports page exports CSV on demand. ACs 1, 2, 4; 3, 5 elsewhere per spec: acme/mailer; 4's observable half (export completes under 5s on production data) is checked after merge, not here.\n\nNits:\n- The export pages results with its own loop instead of the shared paging helper, so a paging bug fixed once would need fixing twice. (src/api/export.ts:31, lib/page.ts)\n1 nit open - fix nits to take them\n\nVerdict: mergeable - CI green on the assessed head (test)\n\n1. merge - squash onto main [recommended]\n2. fix nits - apply the one-shot nit payload in the worktree, review the wave, push\n3. show evidence - gate output, CI run\n4. stop - leave the PR as-is\nType a number.\n",
-        "words": 115,
-        "wallMs": 18933,
-        "mechanical": {},
-        "facts": {
-          "f1": {
-            "before": "holds",
-            "after": "holds",
-            "label": "held"
-          },
-          "f2": {
-            "before": "holds",
-            "after": "holds",
-            "label": "held"
-          },
-          "f3": {
-            "before": "holds",
-            "after": "holds",
-            "label": "held"
-          }
-        },
-        "feedback": "Nothing moved here: both outputs name 3 and 5 as elsewhere per spec: acme/mailer, list no blockers, and offer merge as row 1 recommended, which is correct since this is a pre-merge menu and the Change only touches terminal menus (own merge, approved, merged/closed at step 1), so no cleanup row should appear and none does. Two incidental differences in After are worth noting even though no fact depends on them: the Delivers line dropped the paging-cap and 4s-deadline detail that Before carried (a reader loses the concrete mechanism behind AC4's in-scope half), and the merge row now says 'squash onto main' instead of 'the base branch' - the latter is fine if the base is known to be main, but keep the mechanism detail in Delivers so the terminal-menu wording change does not quietly thin out the non-terminal summary."
-      }
+      "feedback": "No fact moved: both outputs keep the Delivers line naming ACs 3 and 5 as elsewhere per spec: acme/mailer, both show a mergeable verdict with no blockers (only one open nit), and both offer merge as row 1. The After wording is fine for these facts; the only drifts are cosmetic — the Delivers sentence gained extra detail, the fix-nits row dropped 'drafted at this pick through a fresh implementer', and show evidence dropped 'AC outcomes per row'. If the Change intended terminal menus to offer cleanup as row 1 recommended, note that this case is not terminal (step 1 is open, not merged/closed, and the pick is none), so merge correctly stays row 1; keep the terminal-menu cleanup wording scoped to merged/closed/approved states so non-terminal gates like this one keep merge as the recommended first row.",
+      "wallMs": 5140,
+      "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "f3667a4781209fd716bc18bdea535b68c1cac13ce125f5e293699c4d74b65652",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "ea58ee7ec87cd97b1383c86b1bbeec03e75210853cd9a81e1110a346447723bf",
-      "baselineOutputSha": "ef71232d0357a46a422a885257dde93fafd39c6d737855202fb24223309fc334",
-      "candidateOutputSha": "ba41c86a3c8a89a36f1652c6f6732707dd6e8fbc9ed1fcbaa380cc1ef032f069",
+      "intentSha": "5fe70d4df0627d1874edc80bfee7eeeaf2cf105c9b4387b79868541baff67417",
+      "baselineOutputSha": "de8d5863b9a50687e51133d6741f067cf6030e79911e2685b4227b5710fd6743",
+      "candidateOutputSha": "5f3c8a71e2cae63f21ab1e7c5058cd2e1818674218904e76fa16120d8224f3d3",
       "facts": {
         "f1": {
           "before": "holds",
@@ -105,9 +81,10 @@
           "label": "held"
         }
       },
-      "feedback": "Nothing moved on this case: both outputs carry the Delivers line with 3 and 5 marked elsewhere per spec: acme/mailer, neither lists any blocker (only the one nit), and both menus lead with merge. This is a pre-merge, own-PR gate, so the terminal-menu cleanup row correctly does not appear in After, which is the right outcome of the Change. Two incidental drifts in After are worth tightening even though they did not touch a fact here: row 1 now says 'squash onto main' although the case never states the base branch name, so keep 'the PR's base branch' (or substitute the actual base only when the input supplies it) to avoid inventing a branch; and 'show evidence' dropped 'drafted payloads' from its description, which may matter on cases whose facts check that the evidence row mentions payloads - restore that phrase unless the Change intentionally removed it.",
+      "feedback": "Nothing moved. Both outputs name rows 3 and 5 as elsewhere per spec: acme/mailer in the Delivers line, both report a mergeable verdict with no blockers (one open nit is not a blocker), and both offer merge as row 1. After's differences are cosmetic: 'squash onto main' instead of 'the PR's base branch' (fine, though the case does not state the base branch name, so 'main' is an inference the Before wording avoided), and 'claim dispositions' replacing 'claim and AC outcomes, and drafted payloads' in show evidence, which drops the drafted-payloads mention without affecting any fact. Neither output exercises the batch-routing or terminal-cleanup wording since this is a single open PR at a mergeable gate, so the Change is not visible here; to stay safe on single-PR cases, keep the base-branch phrasing generic unless the base name is known.",
+      "wallMs": 7844,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "6f235717ae0b38aeca15a0227eaec665c938541a"
+  "repoSha": "ce7d703e48b1eea239e19c8679ac160859af54bf"
 }
