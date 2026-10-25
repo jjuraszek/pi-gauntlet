@@ -119,7 +119,7 @@ test('drafted requirements are protected in each actual critique task and the ap
 test('approved drafted row identity routes to redraw before grants or disposition reconciliation', () => {
   for (const path of ['skills/brainstorming/SKILL.md', 'skills/brainstorming/reference/amendment-surface.md']) {
     const text = read(path);
-    for (const marker of ['approved drafted row text', 'adding a row', 'removing one', 'before any standing grant', 're-draft from the new design', 'full gate', 'never a disposition amendment']) assert.ok(text.includes(marker), `${path}: ${marker}`);
+    for (const marker of ['approved drafted acceptance-criteria row', 'its text, a row added, a row removed', 'at batch preparation', 'before any standing grant', 're-draft from the new design', 'full gate', 'never a disposition amendment', 'disposition-only change to such a row', 'keeps the cut question', 'Apply an item the human has answered by letter or custom text as recorded.']) assert.ok(text.includes(marker), `${path}: ${marker}`);
   }
   assert.ok(read('skills/brainstorming/reference/amendment-surface.md').includes('Never auto-edit ticket or approved drafted AC row texts'));
 });

@@ -27,7 +27,7 @@ Branch on the gathered result after reading the draft, before writing the spec:
 
 | Gathered result | Section body |
 |---|---|
-| Ticket rows extracted | Keep the `Ticket <ref>, <heading or "checkbox list">, rows verbatim:` header, unchanged rows, and dispositions |
+| Ticket rows extracted | Keep the `Ticket <ref>, <heading or "checkbox list">, rows verbatim:` header, rows copied character-for-character from the verbatim block, including terminal punctuation, and dispositions |
 | `none - ticket not fetched (<reason>)` | Keep that single line unchanged and the gate's paste-rows affordance |
 | `none - no ticket` | Draft under `Drafted from the design, no ticket rows:` |
 | `none - ticket has no acceptance criteria` | Draft under `Drafted from the design, ticket <ref> has no acceptance criteria:` |

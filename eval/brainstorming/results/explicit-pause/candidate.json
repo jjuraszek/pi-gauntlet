@@ -1,7 +1,7 @@
 {
   "sample": "explicit-pause",
   "arm": "candidate",
-  "skillSha": "dc07989d50e3eda24a3ab77455a73635636ced4a4f0fe171f3357c2eb9b19986",
+  "skillSha": "e00c827c4d0772caea3149c51c040f904a2b6ab894bcfd3b84d4cb24f08fbdf6",
   "inputSha": "3d8c5f29b04e988b1925cd5a3b31cea4953518aae9c28a11f4ea00ada7becb63",
   "kind": "text",
   "assembly": "headed",
@@ -17,16 +17,16 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "Noted: **A**. The report-view setting will go through the existing settings resolver (`settings/resolver.ts:12`), which `ui/report-view.ts:30` already reads.\n\nI'm pausing here. Still open, and not assumed:\n\n- Whether report filters reset when the workspace changes.\n- Every later step: the premise note, approaches, design, and spec.\n\nWhen you've checked the reset behavior, send me what you found and I'll pick up from there at step 4.\n",
-      "words": 63,
-      "wallMs": 5467,
+      "text": "Noted: **A**. The report-view setting will go through the existing resolver (`settings/resolver.ts:12` owns the default, `ui/report-view.ts:30` reads the resolved value). No view-local settings object.\n\nI'm pausing at step 4 as you asked. Nothing is approved and no approaches or design have been proposed.\n\nWhen you're back, the next question will be whether report filters reset on a workspace change. That's still open, and it decides whether the setting carries per-workspace state or a single value. Share what you find about the current reset behavior, and I'll fold it into that question.\n",
+      "words": 91,
+      "wallMs": 6676,
       "mechanical": {}
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "Paused here. We’ll reuse the existing settings resolver. Whether report filters reset on a workspace change remains undecided; we won’t move into approaches or design until you’re ready.\n",
-      "words": 28,
-      "wallMs": 4670,
+      "text": "Paused here. We’ll reuse the existing settings resolver. Whether report filters reset on a workspace change remains undecided; we won’t move on to approaches or design until you’re ready.\n",
+      "words": 29,
+      "wallMs": 8463,
       "mechanical": {}
     }
   },
@@ -34,9 +34,9 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "1ef59ed2b09e738d0b9a6ea5045b93b74212aa424c64479f15220d4e31eb90e8",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "ffd62417faca348c77eb6b4f1fe0fdf632c3d8651225ddb318dd75a07e112148",
-      "baselineOutputSha": "9d69eb9452c1bbc5fe91b7fa0746e2e1560d6524bb52939f9e3f72316297f231",
-      "candidateOutputSha": "e88e6f8e6cc21cf064d4e10a0c1f0ab8ddca315214c3b8f5c9ce7ff959f2c989",
+      "intentSha": "83efb3921f184032edfe25c4fad639e1ae2a6be3968e3b6aad1379f00b49bbce",
+      "baselineOutputSha": "e88e6f8e6cc21cf064d4e10a0c1f0ab8ddca315214c3b8f5c9ce7ff959f2c989",
+      "candidateOutputSha": "ab04a8cd0fd84dd5a43d2f6237fb1ae3e34df21f5c800264f043395263004699",
       "facts": {
         "f1": {
           "before": "holds",
@@ -44,16 +44,16 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "Both outputs honor the pause: each records choice A, states the pause, names the undecided reset question as open rather than posing it, and neither presents approaches nor advances design. Before edges closer to the line with \"The answer will settle whether the reset belongs in the setting's contract or stays out of scope\" and \"I'll check it against the code before asking,\" which pre-frame the next question and a next action, but a careful reader still sees no question asked and no design advanced. After is cleaner: it lists what remains open (reset behavior plus every later step: premise note, approaches, design, spec) as explicitly not assumed and simply says it will resume at step 4 when the user returns with findings. Nothing in After moved the fact; this wording is a safe baseline for the Change. If you want to retain Before's useful hint about what to bring back (where filters are cleared or kept on a workspace switch), add it as a parenthetical inside the first bullet without the \"before asking\" clause so it stays an invitation, not a question or a preview of the next step.",
-      "wallMs": 10828,
+      "feedback": "Both outputs honor the pause: neither poses a new question, lists approaches, or proposes a design, and both record A and stop at step 4. After is the riskier of the two, though. The sentence \"the next question will be whether report filters reset on a workspace change\" previews a question the user already said they are checking, and \"it decides whether the setting carries per-workspace state or a single value\" starts reasoning about the design consequence of that open item — a careful reader could read that as nudging design forward during a pause. Before avoided this by simply listing what is open and not assumed. To keep f1 safely while delivering the Change, keep After's confirmation of A and the resolver paths, keep the explicit \"pausing at step 4\" line, and replace the forward-looking paragraph with a neutral open-items list (reset behavior undecided; premise note, approaches, design, spec not started) plus an invitation to share findings — without stating what the reset answer would determine.",
+      "wallMs": 11434,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "1ef59ed2b09e738d0b9a6ea5045b93b74212aa424c64479f15220d4e31eb90e8",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "ffd62417faca348c77eb6b4f1fe0fdf632c3d8651225ddb318dd75a07e112148",
-      "baselineOutputSha": "98f9f7d76c1446e468d4aaf16d1b4caa0232e931341457b2df35329be0023e4b",
-      "candidateOutputSha": "ec714f85c414d642e0d682aa4d7a9b8875432f12f15fa96f33358562b15797e4",
+      "intentSha": "83efb3921f184032edfe25c4fad639e1ae2a6be3968e3b6aad1379f00b49bbce",
+      "baselineOutputSha": "ec714f85c414d642e0d682aa4d7a9b8875432f12f15fa96f33358562b15797e4",
+      "candidateOutputSha": "2f317a905d99fcff645201d16755948417feaf666603436f054cf3051ce70124",
       "facts": {
         "f1": {
           "before": "holds",
@@ -61,10 +61,10 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "Both outputs honor the explicit pause: each acknowledges the user's choice of A, states the reset behavior remains undecided, asks no question, presents no approaches, and advances no design. After's rewording (\"we won't move into approaches or design until you're ready\") only makes the pause more explicit without introducing any new prompt or content, so f1 holds in both; no wording change is needed to preserve this fact while delivering the broader Change.",
-      "wallMs": 5458,
+      "feedback": "Both outputs honor the pause identically: they record the chosen option A, restate the open filter-reset question without deciding it, and explicitly defer approaches and design until the user returns, with no new question asked. The only difference in After is \"move on to\" versus \"move into\", which does not change any fact; the After wording is fine as is for this case and no further adjustment is needed to keep f1 while delivering the Change.",
+      "wallMs": 8687,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "b380377fe7af54d910e7705a7ec21db6c4198fef"
+  "repoSha": "65af5317a4146b2cb653ed1ff1a3a97ffb4792f5"
 }

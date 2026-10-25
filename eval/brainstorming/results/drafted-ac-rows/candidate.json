@@ -1,0 +1,146 @@
+{
+  "sample": "drafted-ac-rows",
+  "arm": "candidate",
+  "skillSha": "be5ad7d10bfaebdad40f8c2073ad7a52120280093abed05b941de8a7fd2fd49e",
+  "inputSha": "5a772382d70eacbbc83896f01c08c25b478b90a93e5b7ce147acce5a51cad842",
+  "kind": "text",
+  "assembly": "headed",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "# Spec-writing branches (checklist step 7)\n\nThe fixed observations say every required reference and the context draft were already read, so no re-reads are needed. Each branch follows the \"Row production at spec-writing\" table in `reference/ticket-acceptance.md`. The `## Acceptance criteria` section goes directly after `## Problem`. Nothing below is a live write or gate execution.\n\n---\n\n## Branch A: Free-text\n\n1. **Stage: classify.** The gathered result is `none - no ticket`, which maps to the drafted branch with the header `Drafted from the design, no ticket rows:`.\n2. **Stage: draft rows.** One row covers the single observable outcome in the approved design. It is behavioral and binary: setup is an existing export, action is repeating the request, and the result is the existing download. No integrity class applies, and no values were invented.\n3. **Stage: spec-write.** Write the spec with this section after `## Problem`:\n\n```markdown\n## Acceptance criteria\n\nDrafted from the design, no ticket rows:\n\n- [ ] Repeating an export request returns its existing download instead of creating another export.\n  in-scope\n```\n\n---\n\n## Branch B: Ticket #42\n\n1. **Stage: classify.** Ticket rows were extracted under the heading `Acceptance criteria`. The ticket-rows form applies, with the header, the unchanged row, and its disposition. No drafting happens, and no Design-derived rows are appended.\n2. **Stage: dispositions.** The approved design keeps the outcome. Nobody raised a cut, so the disposition is the default `in-scope`. The chosen reading of \"bounded\" belongs in Design as a clause, never as a row edit.\n3. **Stage: spec-write.** Write the spec with this section after `## Problem`:\n\n```markdown\n## Acceptance criteria\n\nTicket #42, Acceptance criteria, rows verbatim:\n\n- [ ] Retry delay stays bounded\n  in-scope\n```\n\n---\n\n## Branch C: Not-fetched\n\n1. **Stage: classify.** The gathered result is `none - ticket not fetched (permission denied)`. That single line is kept unchanged. The spec gets no drafting and no invented rows, and the gate keeps its paste-rows affordance.\n2. **Stage: spec-write.** Write the spec with this section after `## Problem`:\n\n```markdown\n## Acceptance criteria\n\nnone - ticket not fetched (permission denied)\n```\n\n3. **Stage: note for the later gate (not executed).** There are zero `- [ ]` rows, so the gate will render only options 1-3 with \"Loop engine unavailable: this spec has no acceptance-criteria rows.\" It will also show this `none` line so the user can paste rows.\n\n---\n\n## Branch D: Empty-ticket (#43)\n\n1. **Stage: classify.** The gathered result is `none - ticket has no acceptance criteria`, which maps to the drafted branch with the header `Drafted from the design, ticket #43 has no acceptance criteria:`.\n2. **Stage: draft rows.** There is one behavioral, binary outcome from the approved design, with disposition `in-scope`.\n3. **Stage: spec-write.** Write the spec with this section after `## Problem`:\n\n```markdown\n## Acceptance criteria\n\nDrafted from the design, ticket #43 has no acceptance criteria:\n\n- [ ] Repeating an export request returns its existing download instead of creating another export.\n  in-scope\n```\n\n4. **Stage: gate drafted block (rendered from the section above, not executed).** The source says to include this block for a fetched ticket without ACs:\n\n```\nDrafted acceptance criteria (approval ratifies):\n- [ ] Repeating an export request returns its existing download instead of creating another export.\n  in-scope\n```\n\n5. **Stage: gate option rows (verbatim; rows exist, so options 4/5 render; the council path ran, so option 3 renders).**\n\n```\n1 - approve: proceed to planning under the existing amendment review; a fresh reviewer applies evidence-backed factual corrections on its own, and every other spec amendment (scope, acceptance-criteria, or contract edits, and redraws) stops for your review.\n2 - approve, auto-apply amends: every later spec amendment in this flow (corrected facts, paths, verification lines, and scope, acceptance-criteria, or public-contract edits alike) applies without asking; only a redraw (changed problem statement, component added, removed, or re-bounded) still stops for you, and the grant never stands in for a spec approval.\n3 - show council dispositions: prints the council audit verbatim, then re-presents this gate. Not an approval.\n4 - approve, loop engine (experimental): skip the plan; iterate a fresh loop-implementer over the acceptance-criteria ledger; amendments stop for your review as under 1.\n5 - approve, loop engine, auto-apply amends: as 4 with option 2's amendment grant.\n```\n\n---\n\n## Branch E: Unbound-PR (acme/widget#61)\n\n1. **Stage: classify.** No ticket is bound, so the gather-time result `none - no ticket` is retained. The drafted branch with the header `Drafted from the design, no ticket rows:` applies.\n2. **Stage: draft rows.** Rows come from the agreed rework design, not from the PR title or body. The title/body (\"Cache retry settings without changing request behavior.\") is stated intent only, so there is no row promising to cache all retry settings. The single outcome is tenant isolation.\n3. **Stage: spec-write.** Write the spec using the naming pattern `YYYY-MM-DD-pr-61-<topic>.md`, with the actual date and a slug from the PR title, such as `cache-retry-policy`. The section goes after `## Problem` and is followed by the `## Rework record`:\n\n```markdown\n## Acceptance criteria\n\nDrafted from the design, no ticket rows:\n\n- [ ] A request for one tenant never receives a cached result produced for another tenant.\n  in-scope\n```\n",
+      "words": 802,
+      "wallMs": 28524,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "1. **Free-text branch — narrated spec-write action**\n\n   The fixed observations report that the required references and draft were read and both design rounds were approved. The spec-writing action would draft one outcome from the complete approved design, with no additional requirements:\n\n   ```markdown\n   ## Acceptance criteria\n\n   Drafted from the design, no ticket rows:\n\n   - [ ] Repeating an export request returns its existing download instead of creating another export.\n     in-scope\n   ```\n\n2. **Ticket branch — narrated spec-write action**\n\n   The reported reads are complete. The spec-writing action would preserve ticket #42’s sole acceptance criterion verbatim and keep it in scope, without adding design-derived rows:\n\n   ```markdown\n   ## Acceptance criteria\n\n   Ticket #42, Acceptance criteria, rows verbatim:\n\n   - [ ] Retry delay stays bounded.\n     in-scope\n   ```\n\n3. **Not-fetched branch — narrated spec-write action**\n\n   The required reference reads are reported complete; the whole-ticket fetch failed with `permission denied`. The spec-writing action would preserve the draft’s exact fallback rather than invent ticket rows. This fetch failure does not block spec writing.\n\n   ```markdown\n   ## Acceptance criteria\n\n   none - ticket not fetched (permission denied)\n   ```\n\n   At the eventual gate, that line would remain visible with the affordance to paste missing ticket rows. With no acceptance-criteria rows, loop-engine options would be unavailable.\n\n4. **Empty-ticket branch — narrated spec-write action**\n\n   The reported reads are complete and establish that fetched ticket #43 has no acceptance criteria. The spec-writing action would draft one observable outcome from the complete approved design:\n\n   ```markdown\n   ## Acceptance criteria\n\n   Drafted from the design, ticket #43 has no acceptance criteria:\n\n   - [ ] Repeating an export request returns its existing download instead of creating another export.\n     in-scope\n   ```\n\n   The gate’s drafted block and option rows would read as follows; this is a rendering, not a claim that the gate has executed:\n\n   ```text\n   Drafted acceptance criteria (approval ratifies):\n   - [ ] Repeating an export request returns its existing download instead of creating another export.\n     in-scope\n\n   1 - approve: proceed to planning under the existing amendment review; a fresh reviewer applies evidence-backed factual corrections on its own, and every other spec amendment (scope, acceptance-criteria, or contract edits, and redraws) stops for your review.\n   2 - approve, auto-apply amends: every later spec amendment in this flow (corrected facts, paths, verification lines, and scope, acceptance-criteria, or public-contract edits alike) applies without asking; only a redraw (changed problem statement, component added, removed, or re-bounded) still stops for you, and the grant never stands in for a spec approval.\n   3 - show council dispositions: prints the council audit verbatim, then re-presents this gate. Not an approval.\n   4 - approve, loop engine (experimental): skip the plan; iterate a fresh loop-implementer over the acceptance-criteria ledger; amendments stop for your review as under 1.\n   5 - approve, loop engine, auto-apply amends: as 4 with option 2's amendment grant.\n   Add \"; fund N fix rounds\" (or \"N more fix rounds\") to 1, 2, 4, or 5 to fund N extra attempts per stagnant loop row or N implement fix rounds past the escalated waves round.\n   ```\n\n5. **Unbound-PR branch — narrated spec-write action**\n\n   The reported reads are complete. With no bound ticket, the spec-writing action would derive its row from the approved rework design—not from the raw PR title or body. It would capture tenant isolation without creating a promise to cache all retry settings. The retained cache and addition of `tenantId` to its key belong in Design; the observable outcome belongs here:\n\n   ```markdown\n   ## Acceptance criteria\n\n   Drafted from the design, no ticket rows:\n\n   - [ ] When a request uses the retained retry-policy cache, a tenant never receives another tenant's cached result.\n     in-scope\n   ```\n",
+      "words": 558,
+      "wallMs": 15403,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "2605a85220a2ef88ff6faf826257053a55100fe1eb1f116cf10bc342b2140e7e",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "83efb3921f184032edfe25c4fad639e1ae2a6be3968e3b6aad1379f00b49bbce",
+      "baselineOutputSha": "a6ba2e6e1737f72cb2a4bac366ba90134fe89de272deb806ef8f56b3a3d02623",
+      "candidateOutputSha": "990c22192948eee0e844597bffb1e9095b01063735fad71c685ffd2cc1997bd1",
+      "facts": {
+        "free-text": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "ticket": {
+          "before": "holds",
+          "after": "fails",
+          "label": "regression"
+        },
+        "not-fetched": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "empty-ticket": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "unbound-pr": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        }
+      },
+      "feedback": "After delivers the Change in the three drafted branches: Free-text and Unbound-PR carry `Drafted from the design, no ticket rows:` with a single in-scope outcome row (idempotent export download; tenant never receives another tenant's cached result, derived from the isolation rework rather than the PR title/body), and Empty-ticket uses the `ticket #43 has no acceptance criteria:` header, re-renders the identical row and disposition under `Drafted acceptance criteria (approval ratifies):`, and lists options 4 and 5. Not-fetched keeps the sentinel unchanged in both. The one regression is Ticket: Before reproduced the observed row verbatim as `- [ ] Retry delay stays bounded.` while After drops the trailing period (`- [ ] Retry delay stays bounded`), so the row is no longer the exact ticket text even though the provenance header and `in-scope` disposition are correct. The new wording's emphasis on drafting and classification stages appears to have loosened the copy-exactly instruction; keep the drafted-row procedure as is, but restate the ticket-rows form as 'copy each row character-for-character from the verbatim block, including terminal punctuation; never retype it,' so the ticket branch keeps the fact Before kept while the other branches still draft rows from the design.",
+      "wallMs": 14633,
+      "verdict": "regressed",
+      "confirmation": {
+        "status": "ok",
+        "text": "# Narrated spec-write actions for five independent branches\n\nThese are narrated actions, not live calls. Per the fixed observations, gathering, both design approvals, and all required reads (references and the context draft) are already complete. No write or gate execution is claimed.\n\n---\n\n## Branch A - Free-text\n\n1. **Read outcome (observed):** The draft records no ticket, so the gathered result is `none - no ticket`.\n2. **Stage: row production.** The `ticket-acceptance.md` table routes `none - no ticket` to drafting under `Drafted from the design, no ticket rows:`.\n   - The row comes from the approved design: repeated export returns the existing download.\n   - It is a behavioral binary outcome with setup, action, and expected result.\n   - It is not a mechanism or an artifact.\n   - The default disposition is `in-scope`.\n3. **Stage: spec-write (narrated).** The spec-write action writes this section after `## Problem`:\n\n```markdown\n## Acceptance criteria\n\nDrafted from the design, no ticket rows:\n\n- [ ] Given an export request whose export already exists, repeating that request returns the existing download and creates no additional export.\n  in-scope\n```\n\n---\n\n## Branch B - Ticket\n\n1. **Read outcome (observed):** Ticket #42 was fetched. It has the heading `Acceptance criteria` with exactly one row.\n2. **Stage: row production.** The table routes `Ticket rows extracted` as follows:\n   - The provenance header is kept.\n   - The row text is copied verbatim and never edited.\n   - The approved design keeps the row, so its disposition is `in-scope`.\n   - No Design-derived rows are appended.\n3. **Stage: spec-write (narrated).** The spec-write action writes:\n\n```markdown\n## Acceptance criteria\n\nTicket #42, Acceptance criteria, rows verbatim:\n\n- [ ] Retry delay stays bounded\n  in-scope\n```\n\n---\n\n## Branch C - Not-fetched\n\n1. **Read outcome (observed):** The whole-ticket fetch failed with permission denied. The draft's body is exactly `none - ticket not fetched (permission denied)`.\n2. **Stage: row production.** The table routes `none - ticket not fetched (<reason>)` to keeping that single line unchanged.\n   - No rows are drafted.\n   - The gate keeps its paste-rows affordance.\n   - This is the only legal zero-row body, so the gate would offer options 1-3 only.\n3. **Stage: spec-write (narrated).** The spec-write action writes:\n\n```markdown\n## Acceptance criteria\n\nnone - ticket not fetched (permission denied)\n```\n\n---\n\n## Branch D - Empty-ticket\n\n1. **Read outcome (observed):** Ticket #43 was fetched. It has no acceptance-criteria heading and no top-level checkbox rows, so the gathered result is `none - ticket has no acceptance criteria`.\n2. **Stage: row production.** The table routes this to drafting under `Drafted from the design, ticket #43 has no acceptance criteria:`.\n   - The row comes from the approved design.\n   - The default disposition is `in-scope`.\n3. **Stage: spec-write (narrated).** The spec-write action writes:\n\n```markdown\n## Acceptance criteria\n\nDrafted from the design, ticket #43 has no acceptance criteria:\n\n- [ ] Given an export request whose export already exists, repeating that request returns the existing download and creates no additional export.\n  in-scope\n```\n\n4. **Stage: gate rendering (described, not executed).** The rendering follows these rules:\n   - The drafted block is rendered from the applied section above, never from the summarizer. It is included because this is a fetched ticket without ACs.\n   - A row exists, so options 4 and 5 are rendered.\n   - The council path ran, so option 3 is kept.\n\nDrafted block:\n\n```\nDrafted acceptance criteria (approval ratifies):\n- [ ] Given an export request whose export already exists, repeating that request returns the existing download and creates no additional export.\n  in-scope\n```\n\nOption rows:\n\n```\n1 - approve: proceed to planning under the existing amendment review; a fresh reviewer applies evidence-backed factual corrections on its own, and every other spec amendment (scope, acceptance-criteria, or contract edits, and redraws) stops for your review.\n2 - approve, auto-apply amends: every later spec amendment in this flow (corrected facts, paths, verification lines, and scope, acceptance-criteria, or public-contract edits alike) applies without asking; only a redraw (changed problem statement, component added, removed, or re-bounded) still stops for you, and the grant never stands in for a spec approval.\n3 - show council dispositions: prints the council audit verbatim, then re-presents this gate. Not an approval.\n4 - approve, loop engine (experimental): skip the plan; iterate a fresh loop-implementer over the acceptance-criteria ledger; amendments stop for your review as under 1.\n5 - approve, loop engine, auto-apply amends: as 4 with option 2's amendment grant.\n```\n\n---\n\n## Branch E - Unbound-PR\n\n1. **Read outcome (observed):** PR acme/widget#61 is open, and no tracker reference is bound from its title or the first line of its body. The gather-time result `none - no ticket` is retained.\n2. **Stage: row production.** `pr-subject.md` routes an unbound PR to the drafted branch, built from the agreed rework design rather than the raw title or body.\n   - \"Cache retry settings without changing request behavior\" is carried only as stated intent in `## Problem`. It is not turned into a row promising to cache all retry settings.\n   - The row states the observable tenant-isolation outcome.\n   - The `tenantId` cache key is the mechanism, so it stays a Design clause rather than appearing in the row.\n3. **Stage: spec-write (narrated).**\n   - **Filename:** the spec is named `<date>-pr-61-cache-retry-policy.md`. The topic slug comes from the PR title. The date is the session's current date, which the fixed observations do not supply.\n   - **Section:** the spec-write action writes the section below.\n   - **Rework record:** `## Rework record` follows the section. Its head SHA, base, and threads values are not among these observations, so they are not reconstructed here.\n\n```markdown\n## Acceptance criteria\n\nDrafted from the design, no ticket rows:\n\n- [ ] With the cache retained, when tenant A's request has populated a cached result and tenant B then makes the same request, tenant B receives its own result and never tenant A's cached result.\n  in-scope\n```\n",
+        "words": 890,
+        "wallMs": 31031,
+        "mechanical": {},
+        "judgeWallMs": 13541,
+        "facts": {
+          "free-text": {
+            "before": "fails",
+            "after": "holds",
+            "label": "intended change"
+          },
+          "ticket": {
+            "before": "holds",
+            "after": "fails",
+            "label": "regression"
+          },
+          "not-fetched": {
+            "before": "holds",
+            "after": "holds",
+            "label": "intended but unchanged"
+          },
+          "empty-ticket": {
+            "before": "fails",
+            "after": "holds",
+            "label": "intended change"
+          },
+          "unbound-pr": {
+            "before": "fails",
+            "after": "holds",
+            "label": "intended change"
+          }
+        },
+        "feedback": "After delivers the Change for Free-text, Empty-ticket, and Unbound-PR (correct drafted provenance headers, observable in-scope outcome rows, verbatim drafted block at the gate with options 4 and 5, no title/body intent promoted to AC rows) and keeps the not-fetched sentinel exactly, but it regresses the Ticket branch: Before copied the ticket row as `- [ ] Retry delay stays bounded.` while After renders `- [ ] Retry delay stays bounded` without the trailing period, even as its own narration claims the row is 'copied verbatim and never edited'. The new drafting rules appear to have loosened the model's attention to byte-exact copying of fetched rows; the wording should state explicitly that ticket rows are reproduced character-for-character including terminal punctuation and that drafting rules apply only to the `none - no ticket` / `none - ticket has no acceptance criteria` routes, never touching the `Ticket rows extracted` route, so that the ticket fact is preserved alongside the new drafted-row behavior."
+      }
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "2605a85220a2ef88ff6faf826257053a55100fe1eb1f116cf10bc342b2140e7e",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "83efb3921f184032edfe25c4fad639e1ae2a6be3968e3b6aad1379f00b49bbce",
+      "baselineOutputSha": "59b7a37ba758491c5c4f9e721c59f7f6cb367806e3f04752ae76cba24f7cfac2",
+      "candidateOutputSha": "b236acff74c3a49af093d08ce001327afe1dae70c4deb583ceaada7fcf5cb886",
+      "facts": {
+        "free-text": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "ticket": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "not-fetched": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "empty-ticket": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "unbound-pr": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        }
+      },
+      "feedback": "After delivers the Change cleanly: Free-text, Empty-ticket, and Unbound-PR now open with the required drafted provenance lines (\"Drafted from the design, no ticket rows:\" / \"Drafted from the design, ticket #43 has no acceptance criteria:\"), each carries an unchecked observable outcome row with an in-scope disposition, and the Unbound-PR row is derived from the approved tenant-isolation rework rather than restating the PR title/body cache intent. The Empty-ticket gate rendering copies the drafted row and disposition verbatim under \"Drafted acceptance criteria (approval ratifies):\" and includes options 4 and 5, which Before omitted. The two preserved facts are intact: Ticket keeps the verbatim #42 heading and row with no drafted provenance, and Not-fetched keeps the exact sentinel body without invented rows (the added prose about pasting rows at the gate is outside the body and does not alter it). Nothing regressed; if anything, the Not-fetched narrative sentence \"With no acceptance-criteria rows, loop-engine options would be unavailable\" could be trimmed or anchored to the three-option gate wording to keep it from being read as a gate rendering, but it does not move any listed fact.",
+      "wallMs": 13082,
+      "verdict": "improved"
+    }
+  },
+  "repoSha": "65af5317a4146b2cb653ed1ff1a3a97ffb4792f5"
+}
