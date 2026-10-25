@@ -1,5 +1,12 @@
 # Changelog
 
+## Unreleased
+
+### Added
+
+- **Ticketless specs get drafted, gate-ratified acceptance criteria, so the loop engine is available to them.** When the ticket path yields no rows (a free-text brainstorm, a fetched ticket without acceptance criteria, or an unbound PR subject), brainstorming drafts `- [ ]` rows from the approved Design under a `Drafted from the design, ...` header, the approval gate renders them in a `Drafted acceptance criteria (approval ratifies):` block between `Scope cuts:` and `Council:`, and options 4/5 (loop engine) appear beside 1-3. A missing yardstick asks for clarification instead of inventing a value or falling back to `none`; the council and its applier never delete a drafted row except through the scope-decision procedure, and the post-council re-scan re-drafts from the applied Design when the section was erased. After ratification drafted text is frozen: dispositions move through the existing cut-question/amendment path, and any row change is a redraw with the full gate. A ticket with rows and `none - ticket not fetched (<reason>)` keep today's behavior; `checkLedger`, `loop-implementation`, and `loop-implementer` are untouched (`skills/brainstorming/reference/ticket-acceptance.md`, `spec-finalization.md`; `doc/configuration.md` names the availability rule). (#84)
+- Eval samples `drafted-ac-rows` (five cells) and `drafted-ac-recovery` under `eval/brainstorming/`, and `drafted-rows-block` under `eval/spec-gate/`; `loop-gate` and the `pr-subject-*` samples are rewritten for the drafted-row contract. (#84)
+
 ## v7.31.1 - 2026-10-25
 
 ### Changed
