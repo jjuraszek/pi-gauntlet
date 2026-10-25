@@ -1,7 +1,7 @@
 {
   "sample": "helper-unavailable",
   "arm": "candidate",
-  "skillSha": "a16fc592d5d60e3c40711d412fb06e0bda7caf670eba6aea003cc18fe274495b",
+  "skillSha": "0a76e9af09eb6811bb1cb7429a26c7dbafbd2842d4959578ee20f47fe29919a0",
   "inputSha": "746a546710c64a104fe0ce535e6f548b6a28f38af911022ca579d72352a42216",
   "kind": "text",
   "assembly": "concat",
@@ -17,16 +17,16 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "# gatekeep-pr 412: step 2b stops before any sync write\n\n## State inherited from the invocation start\n\n- **Continuation record.** It was minted before progress tracking with `mktemp \"${TMPDIR:-/tmp}/gatekeep-state.XXXXXX\"`. It holds course `null`, rounds/syncs used `0`, deadline and wave `null`, `approved_head: null` and `cleanup_done: false`. Its consent target is base repository orchard/ledger, PR `412`, base `main`.\n- **Plan tracker.** `plan_tracker init` ran with four stages because `--rebase` is present: `gather` (first task named with `state: <record path>`), `provision`, `sync`, `verify`. `gather` and `provision` are `complete`.\n- **Argument parse.** `412 --rebase` has no token after `--rebase`. The base is therefore the digest's `baseRefName`, `main`.\n\n## Step 2b: sync preconditions (`reference/sync.md`)\n\n1. **Precondition 1, helper facility.** This is checked first, before any write or fetch. The harness has no subagent dispatch facility of any kind. A sync needs that facility for the conflict-stop implementer and the pre-push reviewer. SKILL.md `## Harness notes` also makes a harness without helpers unsupported, and it stops at step 2b before any sync write when `--rebase` was passed. This is a terminal stop.\n2. **Nothing else runs.**\n   - No `git fetch origin main`.\n   - No `gh pr view 412 --json headRefOid` baseline refresh.\n   - No `gh api user` check for author confirmation. Mara is the author anyway, and this check never runs.\n   - No `git rebase`, no lease push, no re-gather.\n   - No helper is dispatched: no implementer and no code-reviewer. There is no facility to dispatch them.\n3. **Record and tracker updates.**\n   - The digest/record `sync` field is set to `stopped - no helper facility for conflict resolution and review`.\n   - `plan_tracker` closes `sync` as `failed`.\n   - `verify` stays `pending`, and steps 3-5 never run.\n\n## Assessed SHA\n\nNone. Verification (step 3) and the brief's Review (step 4) never run. The worktree stays on the unsynced head `7c1e9a2f4b0d6e8a1c3f5b7d9e0a2c4e6f8a0b1c`. It is still 4 commits behind origin/main `3f0b8d2…`, but no evidence is resolved against it.\n\n## Rendered output\n\nThe terminal stop prints the reason. No step-5 report renders, so there is no Delivers line, no Blockers section and no `Verdict:` line. The sync line prints as the stop's reason line:\n\n```text\nSync: stopped - no helper facility for conflict resolution and review.\n\nPick one:\n1. stop - remove the worktree, leave PR 412 and its branch as they are. [recommended]\n\nType a number; show evidence prints the digest's head-dependent fields and the sync record.\n```\n\nThe run stops here and waits for the pick. If the user picks stop, it takes the non-final stop path in `reference/cleanup.md` `## Non-final stop`, followed by `### Teardown`.\n",
-      "words": 403,
-      "wallMs": 23175,
+      "text": "# gatekeep-pr 412 --rebase: from the end of step 2 to the first menu\n\n**Tracker stages.** The continuation record was minted before tracker initialization (`mktemp \"${TMPDIR:-/tmp}/gatekeep-state.XXXXXX\"`, path in the first task's name). `plan_tracker` was initialized with four stages because `--rebase` is present: `gather, provision, sync, verify`. `gather` and `provision` are `complete`.\n\n**Step 2b, sync (`reference/sync.md`).** The base is `main`, the digest's `baseRefName`, because no token follows `--rebase`. The preconditions are checked in order:\n\n1. **Precondition 1 fails.** The harness has no subagent dispatch facility of any kind. Both the conflict-stop implementer and the review-before-push reviewer are required helpers, and SKILL.md `## Harness notes` says that with `--rebase` the run stops at step 2b before any sync write. This is a terminal stop, and nothing after it is evaluated:\n   - No commands ran: no `git fetch origin main`, no `merge-base` check, no baseline `gh pr view`, no rebase, no push.\n   - No helpers were dispatched.\n   - The other-author confirmation does not apply, since mara-lindqvist is the author.\n2. **Tracker after the stop.** `sync` closes `failed`. `verify` stays `pending`, and no later stage (`review`, `report`, `menu`) is added.\n3. **Verification and assessment.** Step 3 never runs, so no SHA is verified and the brief assesses nothing. The worktree stays on the unsynced head `7c1e9a2f4b0d6e8a1c3f5b7d9e0a2c4e6f8a0b1c`.\n\n**Report.** No report renders, because step 5 never runs. The terminal stop prints its reason in the sync-record form in place of the report's `Sync:` line, followed by one verdict line and the stop-only menu.\n\n```text\nSync: stopped - no helper facility for conflict resolution and review.\n\nVerdict: stopped - this harness has no helper facility, so the rebase cannot run and the PR is not assessed\n\nPick one:\n1. stop - remove the worktree, leave the PR as is. [recommended]\n\nType a number; show evidence prints the digest's head-dependent fields and the sync record.\n```\n",
+      "words": 299,
+      "wallMs": 22471,
       "mechanical": {}
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "1. **Initialization carried forward from steps 1-2.** Before tracker initialization, the invocation created its continuation record with:\n   ```sh\n   mktemp \"${TMPDIR:-/tmp}/gatekeep-state.XXXXXX\"\n   ```\n   The tracker initialized `gather`, `provision`, `sync`, and `verify`, with the returned absolute state path in the first task's name. Gather and provision are complete; sync and verify are pending.\n\n2. **Start sync.** I mark `sync` in progress and check its first precondition: whether the harness has a helper dispatch facility. The digest says none exists, so this precondition fails.\n\n3. **Stop before any sync write.** I run no shell or forge command from this point, including no fetch, rebase, review, push, or refresh. I dispatch no helpers: there is no available persona or helper cwd, and no helper task is issued.\n\n4. **Record the terminal stop.** I persist `sync: stopped - no helper facility for conflict resolution and review` and mark `sync` failed. Verify remains pending; steps 3-5 do not run.\n\n   HEAD remains `7c1e9a2f4b0d6e8a1c3f5b7d9e0a2c4e6f8a0b1c`. Neither the Verifier nor the Reviewer assesses any SHA, and the existing green check does not bypass the sync precondition.\n\nThe terminal-stop output is:\n\nSync: stopped - no helper facility for conflict resolution and review.\nVerdict: fixable - no helper facility for conflict resolution and review\n\nPick one:\n1. stop - end the gate and run non-final teardown. [recommended]\n\nType a number; `show evidence` prints the digest's head-dependent fields and the sync record.\n",
-      "words": 223,
-      "wallMs": 17751,
+      "text": "1. The invocation's initialization, before step 1, mints the continuation record with:\n   ```bash\n   mktemp \"${TMPDIR:-/tmp}/gatekeep-state.XXXXXX\"\n   ```\n   The record starts with course null, zero usage counters, null deadline/wave and approved head, and cleanup_done false. The tracker initializes `gather`, `provision`, `sync`, and `verify`, with `state: <returned absolute path>` in the first task's name. At this entry point, `gather` and `provision` are complete.\n\n2. I start `sync` because the invocation includes `--rebase`. Its target base is `main`, taken from `baseRefName`.\n\n3. The first sync precondition fails: the harness has no helper dispatch facility. I mark `sync` failed and stop before any sync write. I run no fetch, rebase, review, push, or refresh command, and dispatch no helper.\n\n4. Step 3 never starts, so `verify` remains pending. Neither verification nor review assesses a SHA. The provisioned checkout remains clean at `7c1e9a2f4b0d6e8a1c3f5b7d9e0a2c4e6f8a0b1c`.\n\n5. This terminal precondition stop does not enter step 5, so no report `Sync:` line renders. The sync procedure prints its required stop reason:\n\n```text\nsync: stopped - no helper facility for conflict resolution and review\n```\n\nVerdict: fixable - no helper facility for conflict resolution and review\n\nPick one:\n1. stop - end the run and perform non-final teardown. [recommended]\n\nType a number; show evidence prints the digest's head-dependent fields and the sync record.\n",
+      "words": 207,
+      "wallMs": 15103,
       "mechanical": {}
     }
   },
@@ -36,7 +36,7 @@
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
       "intentSha": "06f28ee72a3af6d0ccb5eb472d04acef89e765458ac60334bf896530d25f8533",
       "baselineOutputSha": "7ddee00301da976cd89ce7f443e0e11c65bae08d9f56859a2579a0039fbb47eb",
-      "candidateOutputSha": "511be6504eb89d714289e50ab6e065c446f3ef2344a16700ac2359e0d12bd519",
+      "candidateOutputSha": "8a813af2a3bbed7e8f02444b60769c88289c5ba14cdee1e07c53f42eca5af717",
       "facts": {
         "f1": {
           "before": "holds",
@@ -59,8 +59,8 @@
           "label": "held"
         }
       },
-      "feedback": "After keeps every fact Before kept: it checks precondition 1 before any fetch, names the missing helper facility as the reason, records the sync field as stopped and closes the tracker stage as failed, dispatches no implementer/reviewer/Verify worker, and leaves the head unassessed rather than attempting resolution or review in its own context. The visible deltas are consistent with the Change rather than regressions: show evidence moved from a numeric row to a hint, the stop row now says it removes the owned tracked-clean worktree (Before said it stays), and the Verdict line was dropped because no step-5 report renders. If anything, consider tightening the stop row wording so it is explicit that the removal is conditional on the cleanup.md eligibility checks (pushed ancestry, clean equality, ownership), since the head here was never rewritten and the tree is clean; that keeps the owned tracked-clean stop semantics unambiguous without reintroducing any sync/fetch/dispatch step.",
-      "wallMs": 9616,
+      "feedback": "After keeps every fact Before kept: the stop fires at precondition 1 before fetch/merge-base/baseline/rebase/push, names the missing helper facility as the reason, closes `sync` as `failed`, dispatches no helpers (so no Verify worker either), and assesses nothing locally. The visible deltas are menu-shape changes that match the Change: show evidence becomes a hint rather than a numeric row, and the single `stop` row is recommended and last. One point to watch for consistency with the new course model: After's stop row now says `remove the worktree`, whereas Before said the worktree stays; since the tree is owned, tracked-clean, and its head is unchanged/pushed, removal is defensible under owned tracked-clean stop, but the wording should state that eligibility (e.g. `stop - worktree .worktrees/pr-412 is clean and pushed, so it is removed; PR left as is`) so a reader can see the cleanup is rule-driven rather than an unexplained reversal. Keeping the explicit list of skipped commands and the 'no helpers dispatched' line is what preserves f1–f4; do not collapse those into prose.",
+      "wallMs": 12118,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
@@ -68,7 +68,7 @@
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
       "intentSha": "06f28ee72a3af6d0ccb5eb472d04acef89e765458ac60334bf896530d25f8533",
       "baselineOutputSha": "db6fe270b04c8acc99518f282d1c3cae7d2007a8f698c45a30dc738e3082709c",
-      "candidateOutputSha": "375e1375a5ff8d821034a71f226dac52b14c9b3d94ebeb7abdb9bc8ad8c1cd85",
+      "candidateOutputSha": "65558fa12c3afb810c5cacca8dd6bdf366bc9f2042494c1cb5332758e32c0fa0",
       "facts": {
         "f1": {
           "before": "holds",
@@ -91,10 +91,10 @@
           "label": "held"
         }
       },
-      "feedback": "Nothing moved: both outputs stop at the first sync precondition before any fetch/rebase/push, name the missing helper facility as the reason, persist `sync: stopped - no helper facility ...` and mark sync failed, dispatch no helpers, and do no local resolution or review. After additionally applies the Change's menu conventions (show evidence demoted to a hint, stop as the sole recommended row, non-final teardown named), which is consistent with the shared menus.md model and does not weaken any fact. Two small wording notes for the author: After's `Verdict: fixable - no helper facility ...` duplicates the Sync line and drops Before's `verification not run` qualifier, which was the clearer statement that no SHA was assessed - consider keeping `Verdict: fixable - verification not run (no helper facility)`; and After omits the `Delivers:` intent line that Before carried, which the report template may still expect even on a terminal pre-sync stop.",
-      "wallMs": 9324,
+      "feedback": "After keeps every fact Before kept: it stops at the first sync precondition before any fetch, rebase, push, or refresh (f1), explicitly names the missing helper dispatch facility and marks `sync` failed with the recorded stop line (f2), dispatches no helper (f3), and states that neither verification nor review assesses a SHA and that no review runs in-context (f4). The wording changes that deliver the Change are consistent with these facts — the stop reason is printed as the procedure's required line, show evidence is demoted to a hint rather than a numeric row, and the single stop row is recommended and last. One small drift worth watching: After says 'no report `Sync:` line renders' while still printing the sync stop reason; keep the explicit `sync: stopped - ...` line as you did, since that is what carries f2, and avoid wording that could suggest the stop reason is omitted from the terminal output entirely.",
+      "wallMs": 9773,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "d499240c083fd27bfdd1b2d1340ff2def77fb18b"
+  "repoSha": "119396895296989b15c9dbc9741bd6d3678a78c4"
 }

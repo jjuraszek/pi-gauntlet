@@ -1,7 +1,7 @@
 {
   "sample": "deferred-with-ref",
   "arm": "candidate",
-  "skillSha": "1282208418e245e88cebd27449d2e4e2e79447c67a8383e28f62fbc3c800180a",
+  "skillSha": "bb5258d12d0ae59f990265ace5bbdaaa1cbe0096f8b262dcd5c6ae34d0e8d9b1",
   "inputSha": "7b7db7e48d7b3115718e8a341b15377218ca3f4b1f60ffae8352674eb48a6d79",
   "kind": "text",
   "assembly": "headed",
@@ -17,16 +17,16 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "Delivers: the reports page exports CSV on demand. ACs 1, 2, 4; 3, 5 deferred per spec to acme/widgets#46; 4's observable half (export completes under 5s on production data) is checked after merge, not here.\n\nNits:\n- The export pages results with its own loop instead of the shared paging helper, so a paging bug fixed in one place would need fixing again in the other. (src/api/export.ts:31, lib/page.ts)\n1 nit open - fix nits to take them\n\nVerdict: mergeable - CI green on the assessed head (test)\n\nPick one:\n1. merge - squash-merge the assessed head into the base branch. [recommended]\n2. fix nits - run one repair pass for the 1 nit, then re-review and watch CI before returning here.\n3. stop - remove the worktree and leave the PR open as is.\n\nNot offered: approve (your own PR)\n\nType a number; show evidence prints the full record.\n",
-      "words": 143,
-      "wallMs": 14011,
+      "text": "```\nDelivers: the reports page exports CSV on demand. ACs 1, 2, 4; 3, 5 deferred per spec to acme/widgets#46; 4's observable half (export completes under 5s on production data) is checked after merge, not here.\n\nNits:\n- The export pages results with its own loop instead of the shared paging helper, so a paging bug fixed once would need fixing twice. (src/api/export.ts:31, lib/page.ts)\n1 nit open - fix nits to take them\n\nVerdict: mergeable - CI green on the assessed head (test)\n\nPick one:\n1. merge - squash-merge acme/widgets#210 at the assessed head. [recommended]\n2. fix nits - run one delivery iteration that folds the 1 nit into the branch, then return here.\n3. stop - leave the checkout and the PR as they are, and report the worktree path and local branch.\n\nNot offered: approve (your own PR).\nType a number; show evidence prints the full record.\n```\n\nNo pick was made, so nothing ran and nothing was posted. The course stays unset and waits for your numeric selection.\n",
+      "words": 163,
+      "wallMs": 18148,
       "mechanical": {}
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "Delivers: The reports page downloads on-demand CSV exports with all table columns and bounded paging. ACs 1, 2, 4; 3, 5 deferred per spec to acme/widgets#46; 4's observable half (completion under 5s on production data) is checked after merge, not here.\n\nNits:\n- The export pages results with its own loop instead of the shared paging helper, so a paging bug fixed once would need fixing twice. (src/api/export.ts:31, lib/page.ts)\n\n1 nit open - fix nits to take them\n\nVerdict: mergeable - CI green on the assessed head (test)\n\nPick one:\n1. merge - squash the assessed head into the base branch. [recommended]\n2. fix nits - run one delivery iteration to replace the duplicate paging loop.\n3. stop - leave the checkout and PR as they are.\n\nNot offered: approve (own PR).\n\nType a number; show evidence prints the full record.\n",
-      "words": 135,
-      "wallMs": 10407,
+      "text": "Delivers: The reports page downloads CSV with every table column and bounded paging. ACs 1, 2, 4; 3, 5 deferred per spec to acme/widgets#46; 4's observable half (completion under 5s on production data) is checked after merge, not here.\n\nNits:\n- The export pages results with its own loop instead of the shared paging helper, so a paging fix would need to be applied in two places. (src/api/export.ts:31, lib/page.ts)\n1 nit open - fix nits to take them\n\nVerdict: mergeable - CI green on the assessed head (test)\n\nPick one:\n1. merge - squash the assessed head into the base branch. [recommended]\n2. fix nits - run one delivery iteration to repair the paging-loop nit.\n3. stop - leave the checkout and local branch in place.\n\nNot offered: approve (own PR).\n\nType a number; show evidence prints the full record.\n",
+      "words": 134,
+      "wallMs": 8301,
       "mechanical": {}
     }
   },
@@ -36,7 +36,7 @@
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
       "intentSha": "7b2e3a5bfb39a71eb395266d96387edb730a79ef0afc6e33dc48f0fa35ffc691",
       "baselineOutputSha": "a5889faf95b78ff18a172bfe7d09c31641fcd31bbed5c63d3d177cb5f2b3452c",
-      "candidateOutputSha": "e1a389da7820f75df175f20614ce5ec0fd46825818c5685de6a4bf7710f24925",
+      "candidateOutputSha": "c79e49b951e52f7a0be8ffe9fd3524d71b0633c0d895e6534c2723ac3d04d2d7",
       "facts": {
         "f1": {
           "before": "holds",
@@ -69,8 +69,8 @@
           "label": "held"
         }
       },
-      "feedback": "Nothing moved on this case: After keeps the Delivers line verbatim (1, 2, 4 covered; 3, 5 deferred per spec to acme/widgets#46), lists zero blockers with a mergeable verdict, keeps the paging nit under Nits without blocking, offers merge as row 1 recommended with stop last, keeps show evidence as a hint rather than a numeric row, and posts nothing to the tracker or PR without a pick. The migrated wording is consistent with the Change (shared menu template rows, 'Pick one:', 'Not offered: approve (your own PR)', stop described as worktree removal). Two small things worth keeping an eye on so facts don't drift in other cases: the blank line between the nit bullet and '1 nit open' was dropped, which slightly muddles whether the count line is part of the nit list, and the stop row now says 'remove the worktree', which asserts a cleanup side effect that Before's 'leave the PR as-is' did not; if terminal cleanup ownership is meant to stay unchanged, phrase stop as 'leave the PR open as is' and let the cleanup path describe worktree removal.",
-      "wallMs": 10941,
+      "feedback": "After keeps every fact Before kept: the Delivers line is unchanged (ACs 1, 2, 4 covered; 3, 5 deferred per spec to acme/widgets#46), the verdict is still mergeable with no blockers, merge is row 1 and recommended, the paging nit remains under Nits with the open-nit count and does not touch the verdict, stop is last, and show evidence appears only in the hint line rather than as a numeric row. The trailing sentence explicitly confirming that no pick was made and nothing was posted makes f6 easier to verify than Before's silence and matches the Change's intent that courses stay unset until a numeric selection. Two small things to watch: the 'Not offered: approve (your own PR)' line is new and fine, but keep it out of the numbered list so the exactly-one-recommendation and stop-last invariants stay obvious; and the blank line between the nit bullet and '1 nit open' was dropped, which slightly blurs the nit list from its summary — restore it so the nit count reads as a distinct line as in Before.",
+      "wallMs": 11448,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
@@ -78,7 +78,7 @@
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
       "intentSha": "7b2e3a5bfb39a71eb395266d96387edb730a79ef0afc6e33dc48f0fa35ffc691",
       "baselineOutputSha": "af0d5e4ff5e63c0ed0202295f7be65d7de2892837423054227d1798f073045b4",
-      "candidateOutputSha": "2a4161dcc1d8dc2f83ff7ec52426a68b6178b46385bfb67e208d5e70415bab87",
+      "candidateOutputSha": "239dd4ec715f4338e354a79eb169afe0e03738f8d7040975ad6232839d21bb3f",
       "facts": {
         "f1": {
           "before": "holds",
@@ -111,10 +111,10 @@
           "label": "held"
         }
       },
-      "feedback": "Nothing moved in this case: After keeps the Delivers line naming ACs 1, 2, 4 as covered and 3, 5 as deferred per spec to acme/widgets#46, keeps the gate at zero blockers with the paging nit still a nit, still offers merge as the recommended row, and posts nothing without a pick. The Change was delivered cleanly here — show evidence left the numbered rows for the hint line, stop is last, exactly one recommendation remains, and the new 'Not offered: approve (own PR)' line adds clarity without altering any verdict. The only wording to watch is the 'fix nits' row now committing to 'one delivery iteration' rather than describing the payload/review/push steps; that is fine for the deliver-nits course as long as the course text elsewhere still makes clear the nit is optional and non-blocking, which the '1 nit open - fix nits to take them' line already does.",
-      "wallMs": 9730,
+      "feedback": "Nothing moved in this case: After keeps the Delivers line naming ACs 1, 2, 4 as covered and 3, 5 as deferred per spec to acme/widgets#46, keeps the paging-loop nit as a non-blocking nit under a mergeable verdict with no blockers, still offers merge as the recommended row, and posts nothing without a pick. The migration is visible and consistent with the Change: show evidence has moved out of the numeric rows into the hint line, stop is last, and the 'Not offered: approve (own PR)' note is new. The 'Expected to move' entries (cleanup-merged-at-step-1, cleanup-null-issue, post-merge-menu) belong to other cases, so no movement was expected or observed here. Only cosmetic note: After drops the blank line between the nit bullet and the '1 nit open' summary, which slightly crowds the block; restoring it would match Before's readability without affecting any fact.",
+      "wallMs": 10860,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "d499240c083fd27bfdd1b2d1340ff2def77fb18b"
+  "repoSha": "119396895296989b15c9dbc9741bd6d3678a78c4"
 }

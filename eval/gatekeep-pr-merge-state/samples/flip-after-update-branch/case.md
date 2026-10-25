@@ -49,4 +49,4 @@ Initial rows assess=1 recommended, deliver=2, stop=3; human picked numeric `2`, 
   - { databaseId: 7101, status: completed, conclusion: success, workflowName: "tidewatch CI", url: https://github.com/harborline/tidewatch/actions/runs/7101 }
 ```
 
-Replay contract: narrate only these hypothetical snapshots, use no tools. Initial course is null, repair rounds_used 0/rounds_cap 10, syncs_used 0/syncs_cap 10 (no-tool maxFixRounds 5); helpers available, head pushable, merge policy allowed.
+Replay contract: render only compact run-record updates, evidence lines, and menus for these hypothetical snapshots. Do not narrate each iteration or restate the inputs; use no tools. Keep the entire reply under 600 words. Initial course is null, repair rounds_used 0/rounds_cap 10, syncs_used 0/syncs_cap 10 (no-tool maxFixRounds 5); helpers available, head pushable, merge policy allowed.

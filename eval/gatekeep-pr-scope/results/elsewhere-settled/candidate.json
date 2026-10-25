@@ -1,7 +1,7 @@
 {
   "sample": "elsewhere-settled",
   "arm": "candidate",
-  "skillSha": "1282208418e245e88cebd27449d2e4e2e79447c67a8383e28f62fbc3c800180a",
+  "skillSha": "bb5258d12d0ae59f990265ace5bbdaaa1cbe0096f8b262dcd5c6ae34d0e8d9b1",
   "inputSha": "448fef7019e724dedeff2ab2740252f0d6316b964f5f78d0d3770bb3ed53d2d9",
   "kind": "text",
   "assembly": "headed",
@@ -17,16 +17,16 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "```\nDelivers: the reports page exports CSV on demand with all table columns and bounded paging. ACs 1, 2, 4; 3, 5 elsewhere per spec: acme/mailer; 4's observable half (export completes under 5s on production data) is checked after merge, not here.\n\nNits:\n- The export pages results with its own loop instead of the shared paging helper, so a paging bug fixed once would need fixing twice. (src/api/export.ts:31, lib/page.ts)\n1 nit open - fix nits to take them\n\nVerdict: mergeable - CI green on the assessed head (test)\n\nPick one:\n1. merge - squash-merge acme/widgets#210 at the assessed head. [recommended]\n2. fix nits - run one repair pass on the 1 nit, then return to this menu.\n3. stop - remove the worktree, leave the PR as is.\n\nNot offered: approve (your own PR)\n\nType a number; show evidence prints the full record.\n```\n",
-      "words": 137,
-      "wallMs": 17691,
+      "text": "Delivers: the reports page exports CSV on demand. ACs 1, 2, 4; 3, 5 elsewhere per spec: acme/mailer; 4's observable half (export completes under 5s on production data) is checked after merge, not here.\n\nNits:\n- The export pages results with its own loop instead of the shared paging helper, so a paging bug fixed once would need fixing twice. (src/api/export.ts:31, lib/page.ts)\n\n1 nit open - fix nits to take them\n\nVerdict: mergeable - CI green on the assessed head (test)\n\nPick one:\n1. merge - squash-merge the PR at the assessed head. [recommended]\n2. fix nits - run one repair iteration on the open nit, then return to this menu.\n3. stop - end the gate and leave the PR as is.\n\nNot offered: approve (your own PR)\n\nType a number; show evidence prints the full record.\n",
+      "words": 132,
+      "wallMs": 11838,
       "mechanical": {}
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "Delivers: The reports page downloads CSV exports with all table columns and bounded paging. ACs 1, 2, 4; 3, 5 elsewhere per spec: acme/mailer; 4's observable half (export completes under 5s on production data) is checked after merge, not here.\n\nNits:\n- The export pages results with its own loop instead of the shared paging helper, so a paging bug fixed once would need fixing twice. (src/api/export.ts:31, lib/page.ts)\n\n1 nit open - fix nits to take it\n\nVerdict: mergeable - CI green on the assessed head (test)\n\nPick one:\n1. merge - merge the assessed head using squash. [recommended]\n2. fix nits - run one delivery iteration to address the paging-loop nit.\n3. stop - leave the checkout and PR as they are.\n\nNot offered: approve (own PR).\n\nType a number; show evidence prints the full record.\n",
-      "words": 131,
-      "wallMs": 6988,
+      "text": "Delivers: The reports page downloads on-demand CSV exports with every table column and bounded paging. ACs 1, 2, 4; 3, 5 elsewhere per spec: acme/mailer; 4's observable half (completion under 5s on production data) is checked after merge, not here.\n\nNits:\n- The export pages results with its own loop instead of the shared paging helper, so a paging bug fixed once would need fixing twice. (src/api/export.ts:31, lib/page.ts)\n1 nit open - fix nits to take it\n\nVerdict: mergeable - CI green on the assessed head (test)\n\nPick one:\n1. merge - merge the assessed head using squash. [recommended]\n2. fix nits - repair the nit through one delivery iteration.\n3. stop - leave the checkout and local branch in place.\n\nType a number; show evidence prints the full record.\n",
+      "words": 124,
+      "wallMs": 8138,
       "mechanical": {}
     }
   },
@@ -36,7 +36,7 @@
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
       "intentSha": "7b2e3a5bfb39a71eb395266d96387edb730a79ef0afc6e33dc48f0fa35ffc691",
       "baselineOutputSha": "064f05ea865ee0407e607655ad0a690d643d332bc13fd713d2becf8bab1163cd",
-      "candidateOutputSha": "d03e4db097a93aec9a6bca1bdfada009a944065619ea5c5f5636b6da3de26b55",
+      "candidateOutputSha": "52e45ced4d567b0e448659894e138471f2d46daa3dae8e43c63afa1f23947323",
       "facts": {
         "f1": {
           "before": "holds",
@@ -54,8 +54,8 @@
           "label": "held"
         }
       },
-      "feedback": "Nothing moved on this case: both outputs keep the Delivers line naming rows 3 and 5 as elsewhere per spec (acme/mailer), both show a mergeable verdict with no blocker list, and both offer merge as row 1 recommended. After cleanly adopts the shared menu template (\"Pick one:\", PR-identified merge row, repair-pass fix-nits row, stop last with worktree cleanup, show evidence demoted to the hint line) without touching the scope verdict, and the added \"Not offered: approve (your own PR)\" line reads as a menu note rather than a blocker, so f2 is unaffected. The only drift to watch is the Delivers sentence growing to echo the PR body (\"with all table columns and bounded paging\") - that is harmless here, but keep the Delivers line to the one-sentence outcome plus the AC split so the template change stays confined to the menu rows and hint as the Change intends.",
-      "wallMs": 7405,
+      "feedback": "Nothing moved in this case: After keeps the identical Delivers line (rows 3 and 5 elsewhere per spec: acme/mailer), still surfaces no blockers with a mergeable verdict, and still offers merge as row 1 recommended with stop last and show evidence confined to the hint, so the migration to the shared menus.md template landed cleanly here. The only wording differences are cosmetic — the 'Pick one:' header, the 'Not offered: approve (your own PR)' line, and the reworded fix-nits row ('run one repair iteration ... then return to this menu') — none of which touch the three facts. If you want to tighten further, consider dropping the 'Not offered' line when it adds no decision value, but as written it does not risk any fact in this ready-report case.",
+      "wallMs": 7968,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
@@ -63,7 +63,7 @@
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
       "intentSha": "7b2e3a5bfb39a71eb395266d96387edb730a79ef0afc6e33dc48f0fa35ffc691",
       "baselineOutputSha": "75f211cc3a128518361fbf68c30afd51c2755118972c9ceb41ecd4a352a1bb16",
-      "candidateOutputSha": "036c809573dfedcbf7fd386d68bf9ef44190691535cf71b7e403cd79a399c588",
+      "candidateOutputSha": "887c45102778be20cffeedbf8aac84a832ee9d807992acddf30735cb34bd69f2",
       "facts": {
         "f1": {
           "before": "holds",
@@ -81,10 +81,10 @@
           "label": "held"
         }
       },
-      "feedback": "Nothing moved: After keeps the Delivers line with ACs 3 and 5 marked elsewhere per spec: acme/mailer, lists no blockers under a mergeable verdict, and still offers merge as the recommended row 1, so all three facts hold in both outputs. The After wording correctly delivers the Change for this case - show evidence is demoted from a numeric row to the trailing hint, stop is last, and exactly one recommendation remains - while the Delivers, Nits, and Verdict sections are substantively unchanged. Minor polish only: the row-2 description now names the specific nit (fine, but keep the generic 'one-shot nit payload' phrasing consistent across cases if other skills parse it), and 'fix nits to take it' should stay plural-agnostic ('take them') when the nit count varies.",
-      "wallMs": 9548,
+      "feedback": "Nothing moved on this case: both outputs keep the Delivers line naming 3 and 5 as elsewhere per spec (acme/mailer), both state a mergeable verdict with no blockers, and both menus offer merge as row 1 recommended. After correctly delivers the Change here - show evidence drops out of the numbered rows into the hint line, stop is last, and the fix-nits row is reworded as a delivery iteration without altering the scope verdict or the gate. The only wording drift is cosmetic ('on-demand', 'take it' vs 'take them', the trailing periods on menu rows); none of it touches a fact. Keep this shape for the ready-report case; just make sure the template keeps the 'elsewhere per spec: <repo>' phrasing verbatim so f1-style facts stay stable across the migrated menus.",
+      "wallMs": 12509,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "d499240c083fd27bfdd1b2d1340ff2def77fb18b"
+  "repoSha": "119396895296989b15c9dbc9741bd6d3678a78c4"
 }
