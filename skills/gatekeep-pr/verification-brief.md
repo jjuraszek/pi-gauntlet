@@ -65,13 +65,15 @@ provisioning, so it never re-reads; step 2 re-reads once after provisioning (`re
         isCrossRepository, mergeable, mergeStateStatus, headRefOid, headRepository, maintainerCanModify, files, additions, deletions, reviewDecision, url, merge_commit }   # pr.url from url; pr.merge_commit = mergeCommit.oid, null while unmerged
 - base_repository: <lowercase nameWithOwner from gh repo view in the resolved base context | unreadable>
 - consent.target: { base_repository, number, baseRefName }
-- consent.scope_at_grant: <selected scope; source: pr includes original_intent: { title, body }>
-- consent.fix: null | { scope: "all" or an array of stable finding IDs, granted_by: string }
-- consent.merge_base: null | { granted_by: string }   # base is consent.target.baseRefName
+- scope: <selected scope block from assessment.md, including original_intent for source: pr; replace only through Contract decision>
+- course: null | assess | deliver | deliver-nits
+- repair.rounds_cap: null | <nonnegative integer>
+- repair.syncs_used: <nonnegative integer, initially 0>
+- repair.syncs_cap: null | <nonnegative integer>
 - repair.rounds_used: <nonnegative integer, initially 0>
 - repair.poll_deadline: null | <absolute timestamp for the watch window; reference/post-selection-loop.md ### Wait course>
-- repair.wave: null | { pre_wave_head, pushed_head, selected_ids, affected_claims, stage: apply | review | push, no_progress: { failed_prerequisite, observed_value, result_path }? }
-- approved_head: null | <sha>   # set by reference/post-selection-loop.md when gh pr review --approve exits 0; triggers the approved overlay
+- repair.wave: null | { pre_wave_head, pushed_head, selected_ids, selected_payloads, sync: null | { pre_head, expected_remote_head }, action: fix-nits?, affected_claims, round_start_head, counted: false | true, counted_head, checkpoint_history: [], stage: apply | review | push, no_progress: { failed_prerequisite, observed_value, result_path }? }
+- approved_head: null | <sha>   # set by reference/post-selection-loop.md when gh pr review --approve exits 0; selects the approved template
 - cleanup_done: false | true   # set by reference/cleanup.md after the cleanup pick runs
 - viewer: { login, is_author }
 - permissions: { viewer_permission, is_cross_repository, maintainer_can_modify, merge_state_status, can_update_branch, head_url, head_ref, head_pushable }   # head_pushable is set in step 2 after provisioning (reference/assessment.md); merge_state_status is `BLOCKED`, `BEHIND`, `UNKNOWN`, `unreadable` (null), or any other GitHub value (`CLEAN`, `UNSTABLE`, `HAS_HOOKS`, `DIRTY`) and is written only from a `gh pr view` invocation that names `mergeStateStatus` (this call, the step-2 re-read, the step-2b re-gather (`reference/sync.md`), the pre-menu refresh before and after the single watch, compare-and-swap), never from an ad hoc GraphQL query or `gh pr list`, and never from a reply carrying `errors`; any field that cannot be read is the literal `unreadable`; menu availability derives from this block (reference/decision-menu.md ## Availability)
@@ -82,7 +84,7 @@ provisioning, so it never re-reads; step 2 re-reads once after provisioning (`re
 - issue: null   # shape and fill: step 2, reference/assessment.md ## Fetch the ticket
 - worktree_discovery: { expected_path, exists, branch, dirty, ahead, behind }
 - worktree: { path, branch, created, destroy }   # filled in step 2, reference/assessment.md: worktree.path; worktree.branch is the actual local branch (headRefName, pr-<N>, or whatever a worktree wrapper created); worktree.created is true when this run created it; worktree.destroy is the substituted ## using-git-worktrees destroy: command, else a legacy wrapper's exact destroy invocation, else null
-- sync: <record>   # only with --rebase; grammar: reference/sync.md ## Sync record
+- sync: <record>   # entry --rebase only; grammar: reference/sync.md ## Sync record; loop sync authority lives in repair.wave.sync
 - truncation_notes: []
 ```
 
@@ -153,12 +155,12 @@ Row precedence is top-down: the first matching row wins. The Fix wave row is an 
 | Path | Trigger | Action | Evidence recorded |
 |---|---|---|---|
 | Opt-out | `local verification: always` in `## PR gate` | Run local command unconditionally; a Failed-CI block below still applies independently | Local; `local run: local verification: always` |
-| Failed CI | Any blocking conclusion in the resolved set | Blocks: mints a `P#` (any resolved-set failure, required or not) and names the check in the evidence block; the menu re-renders with `fix` recommended only when a drafted payload exists for that failure, else per the overlays. A green local run never overrides it. Only the human `ci-infrastructure-broken` disposition - a pick, never a trigger - runs the fallback local run; merge stays withheld until that run is green | The disposition; plus the fallback run's result when the disposition triggered one |
+| Failed CI | Any blocking conclusion in the resolved set | Blocks: mints a `P#` (any resolved-set failure, required or not) and names the check in the evidence block; route the P# to the delivery wave under a set course, otherwise render initial; obstacle exits use menus.md. A green local run never overrides it. Only the human `ci-infrastructure-broken` disposition - a pick, never a trigger - runs the fallback local run; merge stays withheld until that run is green | The disposition; plus the fallback run's result when the disposition triggered one |
 | Held run | an `action_required` rollup CheckRun whose run matches an `actions_runs` entry, or an `actions_runs` entry with `action_required` and no rollup entry (a rollup CheckRun matches the `actions_runs` entry whose `databaseId` equals the run id parsed from the CheckRun's `detailsUrl`) | Pending: render `approve workflow run` when available - `viewer_permission` in `WRITE`/`MAINTAIN`/`ADMIN`, the rule `reference/decision-menu.md` `## Availability` owns; when the row is not available, or it was picked and the API returned 403 or 404, run the local command at once; the fresh Section B helper receives the resolved row `held run not approvable` in its task; an approved run that completes is re-resolved per `reference/fix-wave.md` `## Evidence after push`, which dispatches the claim-check-only helper | `local run: held run not approvable` when it fired, else n/a (waiting) |
-| Pending | >=1 **binding** pending check, no blocking conclusion | the `verification evidence pending` overlay renders (`reference/decision-menu.md` `## Overlays`); a `wait` pick runs one bounded watch per `reference/post-selection-loop.md` `### Wait course`; never a local run, never an evidence-less merge; when a later re-resolve moves this head to CI-sufficient, the orchestrator dispatches a fresh Section B helper in claim-check-only mode (no local run) so every material claim gets a disposition | n/a (waiting) |
+| Pending | >=1 **binding** pending check, no blocking conclusion | record pending evidence; run a bounded watch only at delivery step 4 through `reference/post-selection-loop.md` `### Wait course`; never a local run, never an evidence-less merge; when a later re-resolve moves this head to CI-sufficient, the orchestrator dispatches a fresh Section B helper in claim-check-only mode (no local run) so every material claim gets a disposition | n/a (waiting) |
 | CI-sufficient | >=1 `success`, zero blocking, zero binding pending | Skip local run | CI claim: check name(s), conclusion, assessed SHA, run URL |
 | Fallback | No conclusive check: no checks on the assessed head, or only inert / fail-safe conclusions or only not-binding pending checks | Run local command (protocol below) | Local command + `log_path`; `local run: no conclusive check` |
-| Fix wave | A fix-wave push by this gate (not the step-2b sync push) | Re-enter the pre-menu refresh per `reference/fix-wave.md` `## Evidence after push`; its watch guard and this table decide | The resolved row's evidence for the pushed SHA; the evidence block lists every failing and every pending binding check on the pushed head |
+| Fix wave | A fix-wave push by this gate (not the step-2b sync push) | Re-enter the pre-menu refresh per `reference/fix-wave.md` `## Evidence after push`; the delivery body owns watching and this table resolves evidence | The resolved row's evidence for the pushed SHA; the evidence block lists every failing and every pending binding check on the pushed head |
 | Stale head | Head advances since evidence was resolved (another actor's push); fires across runs - a single gather is same-head by construction | All prior evidence (CI or local) is stale; re-resolve this table for the new head before merge is offered | Fresh evidence for the new head |
 
 CI-sufficient predicate, stated once (the rows implement exactly this): **>=1
@@ -272,7 +274,7 @@ its `[View job run](<url>)` link; the result decides the row's state:
 | run `status != completed`, or no parsable URL, or `gh run view` failed | `pending` | yes |
 | run completed with any conclusion other than `success` (`failure`, `timed_out`, `cancelled`, `action_required`, ...) while the prefix persists | `reviewer failed (<conclusion>)` | no |
 | Bot-authored body whose first line starts with `**Claude encountered an error` (the producer's failure header) | `reviewer failed (error)` | no |
-| run completed `success` while the prefix persists | `pending` until the body changes or one `wait` deadline expires, then `reviewer failed (stale placeholder)` | yes, then no |
+| run completed `success` while the prefix persists | `pending` until the body changes or one bounded delivery watch deadline expires, then `reviewer failed (stale placeholder)` | yes, then no |
 
 A `pending` row renders as one `PR comments` line in `reference/report.md`'s form (`The reviewer run is still in progress, so merge waits. (<run url>)`); `reviewer failed` rows carry no reply and no label and print under `show evidence` only. A failed reviewer is information,
 never a withhold.
@@ -289,7 +291,7 @@ finished or error body), record that run's `workflowName` (from
 after every head move,
 `gh run list -w <workflowName> -c <headRefOid>` names the reviewer run on the
 new head. A run with `status != completed` renders the same `PR comments` line and
-withholds pre-composed merge exactly like a `pending` row (`wait` polls it).
+withholds pre-composed merge exactly like a `pending` row (delivery step 4 watches it).
 No such comment -> no reviewer workflow known -> no window check;
 `show evidence` says `reviewer workflow: unknown`.
 
