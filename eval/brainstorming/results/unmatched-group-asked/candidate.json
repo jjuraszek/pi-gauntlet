@@ -34,7 +34,7 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "17e4c6480ca869cfd4fc391793b5e2d97bf55671eea3066f550762e8e968d37a",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "83efb3921f184032edfe25c4fad639e1ae2a6be3968e3b6aad1379f00b49bbce",
+      "intentSha": "e59e1c506f7cc9683c93195dc2bfcdf110ab201b946bc55b5b9e3095091df773",
       "baselineOutputSha": "582b4baf368bbf71936d5335297cf193313fefe9f8a496ab94e954169bfdd424",
       "candidateOutputSha": "88bfed047d3454712be2e874f7e7bbb399393c0675bc11f7e041367ae1bbae36",
       "facts": {
@@ -49,14 +49,14 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "Neither fact moved. Both outputs render the attribution question with the three labeled options A) this repo, B) elsewhere: phase 2, C) repair the ticket (After adds a dash-separated one-line consequence after each label, which keeps the option text intact), and both first messages explicitly decline to place the `phase 2` row - Before says \"I won't guess where its row belongs,\" After says \"I can't attribute the row\" - so nothing is silently assigned. The After wording's changes here are consistent with the Change: the lead-in precedes the options, each option sits on its own physical line, the actual unmatched heading `phase 2` is rendered in option C rather than a placeholder, and Recommendation: is on its own final line. The approaches message in After also correctly notes the phase-2 answer is unrecorded and withholds the email row from scope rather than folding it into the async-job option. No wording adjustment is needed to preserve f1 and f2; if anything, keep the explicit \"matches no repo, so I can't attribute\" sentence in the lead-in, since that is what makes f2 unambiguous to a reader.",
-      "wallMs": 9002,
+      "feedback": "Neither fact moved on this case. Both outputs pose the attribution question with the exact three option tokens — \"A) this repo\", \"B) elsewhere: phase 2\", \"C) repair the ticket\" — and neither first message assigns the phase-2 email row on its own; both route it to the human and recommend C. After additionally conforms to the questionary layout change (lead-in first, each labeled option on its own physical line with its consequence after a dash, \"Recommendation:\" on its own final line) and renders the actual unmatched heading `phase 2` rather than a placeholder, without altering the option tokens. If anything to watch: After's option descriptions now follow the token with a dash (\"A) this repo - emailing becomes in-scope here\"), which is fine for f1 as long as the token text before the dash stays exactly \"this repo\" / \"elsewhere: phase 2\" / \"repair the ticket\"; keep the heading substituted verbatim and keep the repair option's /skill:shape-ticket line pointing at the ticket and the unmatched heading, and both facts remain intact while the layout change is delivered.",
+      "wallMs": 10736,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "17e4c6480ca869cfd4fc391793b5e2d97bf55671eea3066f550762e8e968d37a",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "83efb3921f184032edfe25c4fad639e1ae2a6be3968e3b6aad1379f00b49bbce",
+      "intentSha": "e59e1c506f7cc9683c93195dc2bfcdf110ab201b946bc55b5b9e3095091df773",
       "baselineOutputSha": "7e4ef52a6e76afe29e78d8820fb535b25876c69456fa0fb862843829a4bfc472",
       "candidateOutputSha": "345e05548d5d87852dfd8264e0d84beb5dd2f0d0502fff2adc08b381cf1bff3d",
       "facts": {
@@ -71,10 +71,10 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "Both outputs keep the exact three-option question (A) this repo, B) elsewhere: phase 2, C) repair the ticket) and neither silently assigns the phase-2 row, so no fact moved. After renders the actual unmatched heading `phase 2` in option B as the Change requires, puts the lead-in before the options, one labeled option per physical line, and Recommendation on its own final line, so the questionary-layout intent is delivered. One small loss relative to Before: After drops the explicit unverified-premise note about consumer paths, paging, and 10k-row timing from the first message and only loosely gestures at them in the approaches message; keeping a sentence like Before's 'I cannot verify … those remain unverified premises' ahead of the attribution question would preserve the premise-reporting behavior other samples check while leaving the gate question and options unchanged.",
-      "wallMs": 8326,
+      "feedback": "Both facts hold in both outputs: each first message poses the attribution question with options A) this repo, B) elsewhere: phase 2, C) repair the ticket, and neither assigns the phase-2 row to any repository without asking. After compresses the lead-in and drops Before's explicit premise caveat about unverified paging/timing claims and the sentence confirming the three acme/widgets rows match the configured repo; neither affects these facts, but keeping a one-sentence premise note alongside the question would preserve more of Before's content while still delivering the actual-heading rendering in option B that the Change calls for.",
+      "wallMs": 10622,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "3165af4d93b705ca57db2a902828aa9ed9aeee2c"
+  "repoSha": "541da7e7c9b6a1cfb181596e1000555709d00a93"
 }

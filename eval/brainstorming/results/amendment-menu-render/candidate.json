@@ -38,7 +38,7 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "72ea14ed472c465f5eff63f5735b46c2036333b1a3dc71bddc7f38dc84838a3c",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "83efb3921f184032edfe25c4fad639e1ae2a6be3968e3b6aad1379f00b49bbce",
+      "intentSha": "e59e1c506f7cc9683c93195dc2bfcdf110ab201b946bc55b5b9e3095091df773",
       "baselineOutputSha": "fb51e28a17b5b41ddea3f4d50435fbefc226b9301cb8adde79f24c8798e78409",
       "candidateOutputSha": "a2a43b5bd7cb122bf037df7f554414881fd26683d98bae92002b99b18d5d779d",
       "facts": {
@@ -73,14 +73,14 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "No fact moved: both outputs open each numbered item with a plain-words what/why sentence, give the crosscut item A) accept and B) alt-1 with one-line consequences, state Recommended: B / Recommended: A with reasons, instruct one `<n>. <letter or text>` line per item with bare `1` taking every recommendation and no legacy `2: <handle>=<choice>` form, and carry one human-call sentence per item. Two non-fact regressions in After are worth noting for the wording: the Details block dropped the alt-1 parenthetical for crosscut, so the alternative's exact old/new text is no longer recoverable from the summary, and the whole menu is wrapped in a code fence, which the Before output did not do; keep the Details line in the form `... (alt-1: ...)` and emit the menu as plain text so the After wording preserves everything Before showed while still delivering the lettered-option grammar and Recorded-confirmation rule.",
-      "wallMs": 11262,
+      "feedback": "No fact moved: both outputs open each numbered item with a plain-words what/why sentence, list A) accept and B) alt-1 with one-line consequences for crosscut, give explicit letter recommendations with reasons (B for crosscut, A for exit126), instruct one `<n>. <letter or free text>` line per item with bare `1` taking every recommendation and never show the legacy `2: <handle>=<choice>` form, and carry one human-call sentence per item. The only substantive drift in After is the Details line for crosscut, which drops the parenthetical alt-1 wording that Before included; none of the listed facts cover it, but if the Details block is meant to enumerate every alternative, keep the `(alt-1: ...)` suffix there. The Impact rewording ('one new retry service decides retries for every adapter') now describes only the accept option rather than the generic 'one shared owner', which is slightly less neutral toward the recommended B; the Before phrasing ('one shared owner decides retry policy for all adapters') is safer because it does not presuppose the non-recommended option.",
+      "wallMs": 10511,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "72ea14ed472c465f5eff63f5735b46c2036333b1a3dc71bddc7f38dc84838a3c",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "83efb3921f184032edfe25c4fad639e1ae2a6be3968e3b6aad1379f00b49bbce",
+      "intentSha": "e59e1c506f7cc9683c93195dc2bfcdf110ab201b946bc55b5b9e3095091df773",
       "baselineOutputSha": "eff7f427eff5008c9bf812a592f460b58e10f569dc9660e75dd87d118fc4d65b",
       "candidateOutputSha": "3dad0d65ceb4fa00053f3c438d005e0631b22cf6da6c067c9078697951764377",
       "facts": {
@@ -115,10 +115,10 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "After keeps every fact Before kept: both items open with the what/why sentence, crosscut lists A) accept / B) alt-1 with one-line consequences, recommendations read `Recommended: B -` and `Recommended: A -` with reasons, the reply block uses `<n>. <letter or free text>` with bare `1` and no legacy `2: <handle>=<choice>` form, and each item has a human-call sentence. Two drifts are worth tightening even though no fact moved: item 1's human-call sentence in After was rewritten to 'Moving ownership across component boundaries is a redraw under the workflow rules; you can override that classification', which invents a redraw classification that contradicts the header ('reopens no tasks; no phase change'), the standing-grant text, and the reviewer's actual escalation reason; the wording should restate the reviewer's reason in plain words (as Before did: 'Changing retry ownership needs a human architecture choice') rather than introduce a new rule. Second, After's Details line for crosscut drops the accept alternative and shows only alt-1 as 'new', which pre-decides the choice the menu is asking for; keep both accept and alt-1 in Details as Before did. The switch of the reply example from `1. A` to `1. B` is fine and arguably better since it matches the recommendation.",
-      "wallMs": 16817,
+      "feedback": "No fact moved: both outputs open each item with a plain what/why sentence, list A)/B) with one-line consequences for crosscut, give explicit lettered recommendations with reasons, use the `<n>. <letter or text>` reply form with bare `1`, and carry a human-call sentence plus the reviewer line. After is nevertheless fragile on f6 for item 1: it replaces the reviewer's escalation reason with an invented 'redraw under the workflow rules' classification that the prepared batch does not support (the state says no phase change, and the reviewer reason is an architecture choice), so a stricter reader could treat that sentence as a mis-stated rule rather than the human-call reason; the item only survives because the separate 'Reviewer:' line still names the escalation reason. After also pre-commits the Impact line and the Details block to alt-1 instead of showing both candidate new states as Before does, which quietly hides option A from the diff summary. To keep every fact robust while delivering the change, keep Before's human-call sentence wording ('Changing retry ownership needs a human architecture choice.' / 'Operator-visible status changes need a human decision.'), and keep the Impact/Details lines listing both accept and alt-1 end states rather than only the recommended one; the reply example `1. B` is fine and arguably clearer than Before's `1. A`.",
+      "wallMs": 17536,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "3165af4d93b705ca57db2a902828aa9ed9aeee2c"
+  "repoSha": "541da7e7c9b6a1cfb181596e1000555709d00a93"
 }

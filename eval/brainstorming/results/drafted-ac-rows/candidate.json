@@ -34,7 +34,7 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "2605a85220a2ef88ff6faf826257053a55100fe1eb1f116cf10bc342b2140e7e",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "83efb3921f184032edfe25c4fad639e1ae2a6be3968e3b6aad1379f00b49bbce",
+      "intentSha": "e59e1c506f7cc9683c93195dc2bfcdf110ab201b946bc55b5b9e3095091df773",
       "baselineOutputSha": "1cc5ca35df9b27fe4ef2c6ab59d25bfbda3477926c344a3ac93f59a5468a03e0",
       "candidateOutputSha": "6d6ee3120d687f9e8dfc6aec74b46d8df6076feb98a940d1771fa64520cba6ef",
       "facts": {
@@ -64,14 +64,14 @@
           "label": "intended change"
         }
       },
-      "feedback": "After delivers the Change cleanly: Branch A now opens with `Drafted from the design, no ticket rows:` and a single unchecked, in-scope outcome row (repeated export returns the existing download, no second export) rather than Before's `none - no ticket`; Branch D uses the exact `Drafted from the design, ticket #43 has no acceptance criteria:` header, then re-renders the same row and disposition verbatim under `Drafted acceptance criteria (approval ratifies):` and shows options 4 and 5; Branch E drafts a tenant-isolation outcome row from the approved rework and explicitly refuses to turn the title/body cache intent into a row. Nothing regressed: Branch B keeps the `Ticket #42, Acceptance criteria, rows verbatim:` header, the exact `- [ ] Retry delay stays bounded.` row and `in-scope` with no drafted provenance, and Branch C keeps the sentinel body untouched with no invented rows and correctly notes the three-option gate. No wording change is needed to retain these facts; if anything, keeping Branch C's gate note explicit about 'draft nothing' is what guards the not-fetched sentinel against the new drafting rule, so preserve that sentence in future rewordings.",
-      "wallMs": 11814,
+      "feedback": "After delivers the Change cleanly: Free-text, Empty-ticket, and Unbound-PR now draft provenance-headed, in-scope outcome rows from the approved design instead of falling back to `none - no ticket` / `none - ticket has no acceptance criteria`, while Ticket #42 keeps its verbatim provenance line, exact row text with terminal period, and in-scope disposition, and Not-fetched keeps the sentinel body untouched with no drafted rows. The Empty-ticket gate block copies the drafted row and disposition verbatim under `Drafted acceptance criteria (approval ratifies):` and the option list includes 4 and 5, which is what the fact asks for. Nothing that Before held was lost. Two minor things worth keeping as the wording settles: the Unbound-PR row's phrasing (\"each receives only a result cached for its own tenant\") correctly states the isolation outcome rather than the title/body cache intent, and it would be safer to keep the sentence \"The PR title and body are carried only as stated intent\" explicit so later edits don't drift toward promising caching of all retry settings; and in Branch C, retaining the phrase that only options 1-3 render is what preserves the three-option not-fetched gate, so don't drop that note when trimming.",
+      "wallMs": 10481,
       "verdict": "improved"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "2605a85220a2ef88ff6faf826257053a55100fe1eb1f116cf10bc342b2140e7e",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "83efb3921f184032edfe25c4fad639e1ae2a6be3968e3b6aad1379f00b49bbce",
+      "intentSha": "e59e1c506f7cc9683c93195dc2bfcdf110ab201b946bc55b5b9e3095091df773",
       "baselineOutputSha": "b7805dd82695ce73d2ef1062dee01cf1c589a849bfef55e70048e2696c598d4c",
       "candidateOutputSha": "796612101c6e6fcce5222c2f6b53f5741587a2d06a7d506749eafc4ca96fcee8",
       "facts": {
@@ -101,10 +101,10 @@
           "label": "intended change"
         }
       },
-      "feedback": "After delivers the Change cleanly: Free-text, Empty-ticket, and Unbound-PR now carry the correct drafted provenance lines with an unchecked observable-outcome row and in-scope disposition, Empty-ticket reproduces the row and disposition verbatim under the 'Drafted acceptance criteria (approval ratifies):' block and renders options 4 and 5, and the Unbound-PR row states the tenant-isolation outcome rather than lifting the PR title/body cache claim. The Ticket branch still preserves '- [ ] Retry delay stays bounded.' verbatim with no drafted provenance, and the Not-fetched body remains exactly 'none - ticket not fetched (permission denied)'. Nothing regressed; the only wording to watch is the Not-fetched narration about the gate inviting pasted rows, which does not alter the body but could be tightened to say the body is kept unchanged and the gate stays the three-option not-fetched form, so no reader mistakes it for drafted provenance.",
-      "wallMs": 10301,
+      "feedback": "After delivers the intended change cleanly: the Free-text, Empty-ticket, and Unbound-PR branches now carry the drafted provenance line (\"Drafted from the design, no ticket rows:\" / \"...ticket #43 has no acceptance criteria:\") followed by a single unchecked, in-scope observable outcome row derived from the approved design rather than from PR title/body or an implementation mechanism, and the Empty-ticket gate render copies that row and disposition verbatim under \"Drafted acceptance criteria (approval ratifies):\" and includes options 4 and 5 verbatim. Nothing regressed: the Ticket branch still preserves \"Ticket #42, Acceptance criteria, rows verbatim:\" with the exact row and in-scope disposition, and the Not-fetched branch keeps the body exactly \"none - ticket not fetched (permission denied)\" with no invented rows. The only wording that Before had and After dropped is the non-fact-bearing scaffolding around the Empty-ticket gate (summary placeholder, spec path line, council counts); if you want that context back, keep the drafted block and options 4/5 as written and simply reinsert the summary/path/council lines above them, which would not disturb any of the five facts.",
+      "wallMs": 11928,
       "verdict": "improved"
     }
   },
-  "repoSha": "3165af4d93b705ca57db2a902828aa9ed9aeee2c"
+  "repoSha": "541da7e7c9b6a1cfb181596e1000555709d00a93"
 }

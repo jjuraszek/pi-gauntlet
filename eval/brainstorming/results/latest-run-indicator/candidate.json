@@ -34,7 +34,7 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "545a160deff95ab9de7442f503bd625968a42e0c5fa94a512e5ff193513cce05",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "83efb3921f184032edfe25c4fad639e1ae2a6be3968e3b6aad1379f00b49bbce",
+      "intentSha": "e59e1c506f7cc9683c93195dc2bfcdf110ab201b946bc55b5b9e3095091df773",
       "baselineOutputSha": "6f21b3c69411022a836b371603bcaa67352661c9542375d66764caaa71b767fc",
       "candidateOutputSha": "793677696dce3a634a7d5538ea912e48f621638a8127e526844d9da98c0245b7",
       "facts": {
@@ -69,14 +69,14 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "After keeps every fact Before kept and additionally fixes surfaces: Before never mentions quiet styling or spacing (only browser-local date-time), while After's reuse-only approach states \"Badges are quiet and spaced, with the browser-local date-time beside the version.\" The expected-variance note says After moves the date concern into the approaches section, but the text does not: After's first message explicitly says \"A single workspace-wide revision on either surface would claim false provenance. A revision alone would also miss the visible date the ticket requires,\" so framing holds in both. Pivot, selection, missing, and release are all stated in both outputs (read-time joins, no stamping, persisted release identity reused, unknown-version fallback, never-borrow, never-calls-svc-b, tag only on revision match with historical runs showing producer revision alone or unknown). No wording change is needed to recover anything; if you want Before-parity guarantees under the enlarged assembly, keep the explicit two-sentence framing pair in the first message (as After does) and keep the \"quiet and spaced / browser-local date-time beside the version\" line in the recommended approach rather than relying on the recorded answer alone.",
-      "wallMs": 22709,
+      "feedback": "Contrary to the expected-to-move note, this After output does not fail the framing fact: its first-message Framing paragraph explicitly states both concerns (\"A single workspace-wide revision on either surface would claim false provenance. A revision alone would also miss the visible date the ticket requires\"), so the fact holds on the text as written; the accepted variance appears not to apply to this particular sample. The one real movement is in the author's favour: Before never mentions quiet badges or spacing anywhere (it only names browser-local date-time), so it fails the surfaces fact on its own text, whereas After's recommended approach says \"Badges are quiet and spaced, with the browser-local date-time beside the version\" and holds. Every other fact is preserved in both: both outputs reuse the run-store's existing release-identity persistence and derive provenance from placement/candidate joins without stamping, pair date and version per surface at the right grain with the id tie-break, render unknown version without borrowing and without calling svc-b, and gate the release tag on the svc-a/producer revision match with historical runs showing the producer revision alone or unknown version. To keep this stable, retain the explicit two-sentence framing concern in the first message (not just the approaches) and keep the quiet-badge/spacing/browser-local sentence in the recommended approach under the enlarged assembly.",
+      "wallMs": 25213,
       "verdict": "improved"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "545a160deff95ab9de7442f503bd625968a42e0c5fa94a512e5ff193513cce05",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "83efb3921f184032edfe25c4fad639e1ae2a6be3968e3b6aad1379f00b49bbce",
+      "intentSha": "e59e1c506f7cc9683c93195dc2bfcdf110ab201b946bc55b5b9e3095091df773",
       "baselineOutputSha": "19b98b77ddc6406c03bd7964447f9ec5088bc5a5e4006c282158b5b06688de56",
       "candidateOutputSha": "1eb9da0878735f02b6c3a3a9a4e27067392a338783af2c0f87b1fa7cb7f76d93",
       "facts": {
@@ -91,9 +91,9 @@
           "label": "intended but unchanged"
         },
         "surfaces": {
-          "before": "fails",
+          "before": "holds",
           "after": "holds",
-          "label": "unplanned improvement"
+          "label": "intended but unchanged"
         },
         "selection": {
           "before": "holds",
@@ -111,10 +111,10 @@
           "label": "unplanned improvement"
         }
       },
-      "feedback": "After is stronger than Before on every fact except framing, where both fail the fact's own rule: Before's first message only describes the per-surface data paths (\"never another placement\", completion-date ordering) and never states the two premise concerns, while After explicitly raises the false-provenance concern (\"A workspace’s latest run cannot establish provenance for every file or item\") but only states that \"the processing date must remain visible regardless of version availability\" — a requirement, not the explicit concern that a revision-only badge omits the required date — and the date-plus-revision pairing is first spelled out in the approaches. To keep framing while delivering the Change, add one sentence to After's first message alongside the provenance sentence, e.g. \"A badge showing only the producer revision would omit the processing date the outcome requires visible on the workspace indicator,\" so both concerns are raised in the first message rather than implied there and completed in the approaches. After's additions of \"unknown version\" fallback, the no-borrowing rule, the release-tag match condition with producer-revision-only fallback for historical runs, and \"quiet badges, spacing\" are what moved missing, release, and surfaces to holds; retain that wording in any further edit.",
-      "wallMs": 35294,
+      "feedback": "After is stronger than Before on the fixture-grounded facts: it names the \"unknown version\" fallback, the no-borrowing rule, the never-call-svc-b rule, and the match-only release-tag condition with the historical-run fallback, all of which Before only gestured at (\"historical missing versions\", \"release-tag eligibility\") without stating what is displayed. The one fact After does not secure is framing, and it misses on the date half: the first message explicitly states the false-provenance concern (\"A workspace's latest run cannot establish provenance for every file or item\") but only says \"The processing date must remain visible regardless of version availability\", which reads as a requirement restatement tied to version availability rather than a stated concern that a revision-only badge, as T-1 asks for, omits the required date. Neither output states that concern in the first message, so Before fails too. To keep every fact and still deliver the Change, add one sentence to the first message's premise paragraph, e.g.: \"Two premise problems: a workspace-wide revision shown on a file or root item would imply provenance it does not have, and a badge carrying only the producer revision omits the processing date that the binding outcome requires visible.\" Keep the existing \"unknown version\", match-only release-tag, and persisted-only-rendering sentences as they are, since they are what moved missing and release to holds.",
+      "wallMs": 42453,
       "verdict": "improved"
     }
   },
-  "repoSha": "3165af4d93b705ca57db2a902828aa9ed9aeee2c"
+  "repoSha": "541da7e7c9b6a1cfb181596e1000555709d00a93"
 }

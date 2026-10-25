@@ -40,14 +40,14 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "77b5e9ca18f245780488ac9c0dbe9f9208a2f3ddb943cd5c32db752cb0722f65",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "83efb3921f184032edfe25c4fad639e1ae2a6be3968e3b6aad1379f00b49bbce",
+      "intentSha": "e59e1c506f7cc9683c93195dc2bfcdf110ab201b946bc55b5b9e3095091df773",
       "baselineOutputSha": "7d4c828e32fe3c025833744b20ebe3e476ae732d92a5834c23bd31e956348102",
       "candidateOutputSha": "1a69156c97ba82bad86f309cdfb59daf816119c9503417dc0d342aa30f19d22e",
       "facts": {
         "requirements": {
-          "before": "holds",
+          "before": "fails",
           "after": "holds",
-          "label": "intended but unchanged"
+          "label": "intended change"
         },
         "body-acs": {
           "before": "holds",
@@ -65,14 +65,14 @@
           "label": "held"
         }
       },
-      "feedback": "Nothing moved. Both outputs carry the reporter note's move target (`src/export-target.ts`) into the Design's Target location section as a requirement, and both carry the 418-line count with the same clarification that it describes the input, not a size target; After actually strengthens this by placing the 418 figure under Target location alongside the move target rather than in the Problem narrative, which makes the 'implied requirements' reading unambiguous. Both outputs keep exactly the two verbatim body AC rows with in-scope dispositions, and neither promotes the reporter note (move target, line count, entry-point preservation) into an AC row — After explicitly frames entry-point preservation as a 'reporter note requirement' in Design, which is the right place. Keep that pattern: reporter-note content lands in Design/Problem as requirements and premises, the AC table stays body-only. One minor caution for After: the Tests section allows 'import-path adjustments' in tests, which slightly diverges from Before's 'tests are not edited' stance and the ticket AC 'Existing export tests pass'; it doesn't touch either fact here, but if a later fact checks test-immutability, prefer Before's stricter wording.",
-      "wallMs": 13328,
-      "verdict": "unchanged"
+      "feedback": "After moves the reporter note's 418-line count out of the Problem narrative and into the Design > Target location section alongside the src/export-target.ts move, explicitly attributing both to the reporter note and framing the count as a description of the input being split; that is what makes the requirements fact hold, since Before only mentioned 418 lines in Problem as background and never placed it where a requirement lives. Both outputs keep exactly the two verbatim body AC rows with in-scope dispositions and add no note-derived rows, so body-acs is unchanged. To keep every Before fact while delivering the Change, the wording that works is the After pattern: state the move target and the line count together in a design/requirements subsection with the phrase 'per the reporter note', and keep the AC section body-only with the verbatim rows and dispositions untouched.",
+      "wallMs": 9909,
+      "verdict": "improved"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "77b5e9ca18f245780488ac9c0dbe9f9208a2f3ddb943cd5c32db752cb0722f65",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "83efb3921f184032edfe25c4fad639e1ae2a6be3968e3b6aad1379f00b49bbce",
+      "intentSha": "e59e1c506f7cc9683c93195dc2bfcdf110ab201b946bc55b5b9e3095091df773",
       "baselineOutputSha": "4ac721142497af35872a7f0ddc16484ccc02aeb146a0ad185185ba5747b2f450",
       "candidateOutputSha": "649c095680b86ba5654109699f04744ba72d1ba2e5cbf7979d25f156ce1acfbd",
       "facts": {
@@ -97,10 +97,10 @@
           "label": "held"
         }
       },
-      "feedback": "Neither fact moved between Before and After: both outputs carry the Reporter note's move target into actual requirements (Design 'Move the export implementation to `src/export-target.ts`' and the Verification bullet that the entry point reaches that module) and both preserve the 418-line count in the Problem section as an input measurement rather than losing it, so Before already satisfied reporter-note/requirements and the expected fails->holds move is not visible in this replay. After adds the count a second time under Out of Scope ('A file-length target derived from the reported 418-line source measurement') and lists the move target again under a new Scope section, which strengthens carry-through without changing the verdict; both keep exactly the two verbatim body AC rows, each marked in-scope, with no note-derived rows. To make the 418-line carry-through unambiguously live where a requirement lives (and not only in Problem/Out of Scope), the After wording could direct the spec to restate the source line count inside the Scope or Implementation boundary bullets as context for the move (e.g., 'Move the existing 418-line implementation to `src/export-target.ts`'), while keeping the current rule that body ACs are the only source of AC rows and reporter notes never add rows.",
-      "wallMs": 18238,
+      "feedback": "Neither fact moved. Both outputs name `src/export-target.ts` as the move target in Design (and Verification) and carry the 418-line source count into the Problem statement as a measurement of the input rather than a target; After additionally restates both in its Scope and Out of Scope sections, which makes the carry-through more visible without changing it. Both outputs keep exactly the two ticket AC rows verbatim with in-scope dispositions and add no row from the Reporter note. The After wording is safe as written; if you want the requirements fact to read more unambiguously, keep the explicit 'Move the export implementation to `src/export-target.ts`' sentence in Design and the 418-line mention in Problem as After already does, and avoid any phrasing that converts the line count into a size target, since that would risk the fact's 'implied requirement' reading drifting into an invented constraint.",
+      "wallMs": 12929,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "3165af4d93b705ca57db2a902828aa9ed9aeee2c"
+  "repoSha": "541da7e7c9b6a1cfb181596e1000555709d00a93"
 }

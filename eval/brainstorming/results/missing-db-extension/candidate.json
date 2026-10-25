@@ -34,7 +34,7 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "9edb4dc803670594227d5d4a824f10007c3df50a9d9dddb87a6fd777f3d2f8b8",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "83efb3921f184032edfe25c4fad639e1ae2a6be3968e3b6aad1379f00b49bbce",
+      "intentSha": "e59e1c506f7cc9683c93195dc2bfcdf110ab201b946bc55b5b9e3095091df773",
       "baselineOutputSha": "713a97e1dff6f406f7576708cd2966779f297d3f87187d2e69b2b1befbd26c73",
       "candidateOutputSha": "2e84aed3995c2faef4f0dac201df7cda4ead2f1546460c3799537dd217113480",
       "facts": {
@@ -64,14 +64,14 @@
           "label": "held"
         }
       },
-      "feedback": "No fact moved on this case: both outputs trace the dump restore to `demo_vector` via `fixtures/search.sql`, name the installed-extension listing as the lookup, report its `plpgsql`-only result in the premise note, again at the top of the approaches message, and in the spec Problem, keep installed-vs-available distinct, and continue to approaches with provisioning routed to implementation rather than asking the user to locate the extension. One wording risk in After worth tightening: the premise note says \"I checked that listing,\" which a reader could take as a live catalog query, whereas Before explicitly stated \"I made no live database calls.\" To keep the replay fact robust while delivering the Change (retain each lookup and result without stopping), phrase the lookup as \"the supplied installed-extension listing contains only `plpgsql`\" and keep an explicit \"no live database lookups were made; this is from the supplied observation\" line, as Before did.",
-      "wallMs": 13258,
+      "feedback": "Both outputs carry the traced demo_vector dependency and the installed-extension listing result through the premise note, the top of the approaches message, and the spec Problem, and neither stops for provisioning, so no fact moved here (Before already satisfied all five despite the expected fails->holds). The one soft spot After introduces is wording: it says \"I checked that listing\" and drops Before's explicit \"I made no live database calls\" line, so the replay fact survives only because the surrounding text (\"supplied listing\", \"no available-extension catalog was supplied\") makes the source clear. To keep the fact robust under future regeneration, have the premise note state outright that the listing was a supplied observation and that no live lookup was made (e.g. \"The supplied installed-extension listing contains only plpgsql; no live database lookup was possible\"), and keep that same phrasing in the Problem excerpt's Unverified bullet rather than \"no available-extension catalog was checked\", which could read as a live check that was skipped. Otherwise After's structure (lookup named, result quoted, not-installed vs not-available split, provisioning as implementation task) delivers the Change cleanly.",
+      "wallMs": 17068,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "9edb4dc803670594227d5d4a824f10007c3df50a9d9dddb87a6fd777f3d2f8b8",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "83efb3921f184032edfe25c4fad639e1ae2a6be3968e3b6aad1379f00b49bbce",
+      "intentSha": "e59e1c506f7cc9683c93195dc2bfcdf110ab201b946bc55b5b9e3095091df773",
       "baselineOutputSha": "ab3e3ae3b582bb846e3811e59ad9f20777441aac83a6cb05d84579130aa8cf6c",
       "candidateOutputSha": "3dc592eaad932173349b958aaee136bc238527651122b575fb62f728d9fbf6e1",
       "facts": {
@@ -101,10 +101,10 @@
           "label": "held"
         }
       },
-      "feedback": "No fact moved on this case: both outputs trace fixtures/search.sql to demo_vector, name the installed-extension listing (plpgsql only) as the lookup in the premise note, the approaches lead-in, and the spec ## Problem, keep the not-installed vs not-available-to-install distinction, and deliver approaches without asking the user to locate or verify the extension. One thing worth watching in After: the first message ends with a labeled questionary (A/B/C, Recommendation) about how to handle the missing dependency even though the recorded answers already settle it; a careful reader still sees the approaches delivered and no request to verify the extension, so 'continues' holds, but the After wording would be safer if, when the recorded answers already cover provisioning, the premise note acknowledged the recorded decision ('per your recorded answer, provisioning lands in implementation') instead of re-posing the gate, which avoids any appearance of stopping before the approaches message while keeping the new lookup-and-result carry-through intact.",
-      "wallMs": 18731,
+      "feedback": "Nothing moved: both outputs trace the dump restore to demo_vector, name the installed-extension listing as the lookup, carry the missing-dependency finding into the premise note, the approaches lead-in, and the spec Problem, distinguish not-installed from unavailable, and present two approaches without asking the user to locate or verify the extension. The one risk in After is the labeled question appended to the premise note (\"How should the missing local dependency be handled...\"): it re-asks a point the recorded answers already settle (provision during implementation, do not stop brainstorming), and a stricter reader of the continues fact could see it as a pause before approaches. Since the question is about provisioning timing rather than verifying the extension, and the approaches message proceeds \"with your recorded answer\", it still holds, but the wording would be safer if the premise note simply stated that provisioning is scheduled for implementation per the recorded answers instead of re-posing the choice; keep the explicit \"installed-extension listing is not an available-extension catalog\" sentence, which cleanly protects the replay fact.",
+      "wallMs": 15315,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "3165af4d93b705ca57db2a902828aa9ed9aeee2c"
+  "repoSha": "541da7e7c9b6a1cfb181596e1000555709d00a93"
 }

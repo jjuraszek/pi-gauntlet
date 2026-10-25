@@ -34,7 +34,7 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "6f5e39723aee6ffbb30917ae4583ed657155f113e6b5baf3e27e68781ac2635d",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "83efb3921f184032edfe25c4fad639e1ae2a6be3968e3b6aad1379f00b49bbce",
+      "intentSha": "e59e1c506f7cc9683c93195dc2bfcdf110ab201b946bc55b5b9e3095091df773",
       "baselineOutputSha": "4ddb5f4b239e017e0acefe17593ab533baaada5aa7104ff645c7d169cc40fa56",
       "candidateOutputSha": "32088cb04ee29b2c686a8d4a0fa24217f44ab4ff0f49f703ad432393a0d90cbe",
       "facts": {
@@ -74,14 +74,14 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "The only fact that moved is `open`, and it moved in the intended direction: Before left the unbound Open PR's `## Acceptance criteria` as `none - no ticket` and pushed the two approved outcomes into design clauses, whereas After emits `Drafted from the design, no ticket rows:` followed by in-scope rows for bounded-delay retry on failure and no retry on success, explicitly derived from the approved rework rather than the PR title/body, while still taking the PR-head path on `fix/retry` (draft accepted), the `pr-55` title-derived filename, and PR intent in `## Problem`. Every other fact that Before kept is preserved in After: PR-before-issue ordering with no dual path, the unchanged ticket path and verbatim #56 row, the one-line neither stop naming #57 and acme/widget, the foreign stop naming both repos, the mention staying on the free-text/context-builder path with no `gh` calls, and the #12-from-title binding with #13 as context, #99 ignored, and the `YYYY-MM-DD-12-<topic>` filename. One small hardening worth considering: in Branch D, After states the gather result as `none - no ticket` and names the context-builder path but does not explicitly say the context-builder is dispatched for the #55 mention; a sentence like \"dispatch context-builder, which may read #55 as a mention\" would make the `mention` fact unambiguous without affecting any other branch.",
-      "wallMs": 14746,
+      "feedback": "Only the open fact moved, and it moved in the intended direction: Before explicitly refused to draft AC rows for the unbound PR (\"none - no ticket\", with the agreed outcomes pushed into Design clauses), while After uses the drafted branch of ticket-acceptance.md, opening the section with \"Drafted from the design, no ticket rows:\" and listing both in-scope outcome rows (bounded-delay retry on failure, no retry on success) derived from the approved rework rather than the PR title/body, while still taking the PR-head path on fix/retry, accepting the draft, keeping the pr-55 filename from the title, and carrying the PR intent into Problem. Every other fact Before kept is retained in After: PR-before-issue ordering with no dual path, the unchanged ticket path and verbatim #56 row, the one-line neither error naming #57 and acme/widget before provisioning, the foreign stop naming both repos, the mention staying on the free-text/context-builder path without lookups or PR provisioning, and bound-title precedence of #12 over body #13 with #13 as Problem context, branch/closingIssuesReferences #99 ignored, and the bound-ticket filename form. One small tightening worth keeping: Branch D in After says it stays on the \"free-text/context-builder path\" but only names scout/gatherer reads; stating that context-builder is dispatched for the #55 mention would make the mention fact unambiguous. Otherwise the After wording delivers the Change without regressing any fact.",
+      "wallMs": 14610,
       "verdict": "improved"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "6f5e39723aee6ffbb30917ae4583ed657155f113e6b5baf3e27e68781ac2635d",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "83efb3921f184032edfe25c4fad639e1ae2a6be3968e3b6aad1379f00b49bbce",
+      "intentSha": "e59e1c506f7cc9683c93195dc2bfcdf110ab201b946bc55b5b9e3095091df773",
       "baselineOutputSha": "33da237f45cc368747018e1072c11d9e6bc3050b7b1c603e5a53f9f1b084cde7",
       "candidateOutputSha": "1ece04ca57148630f1cdac730f7dfa5df8800e761c5aecc58826049aad755472",
       "facts": {
@@ -121,10 +121,10 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "After moves only the intended fact: Open's later spec-writing stage now writes `Drafted from the design, no ticket rows:` followed by the two in-scope outcome rows (failed requests retry with a bounded delay; successful requests do not retry) sourced from the approved rework design, whereas Before kept `none - no ticket` and explicitly refused to turn the approved outcomes into rows, which is why Before failed `open`. Every other branch retains Before's behavior in After: PR lookup precedes issue lookup in Issue/Neither and is skipped after a successful PR classification in Open/Foreign/Bound; Issue keeps the verbatim ticket row and ordinary worktree path; Neither and Foreign stop with the exact one-line errors naming #57/acme/widget and other/widget/acme/widget before provisioning; Mention stays free text with no PR-head provisioning; Bound binds #12 from the title ahead of the body's #13, ignores fix/issue-99 and closingIssuesReferences #99, names #13 as Problem context, and keeps the `YYYY-MM-DD-12-...` bound-ticket filename. One small drift worth watching: After's Bound AC block drops Before's `Ticket #12, checkbox list, rows verbatim:` header line; it still satisfies `binding` since the row is verbatim and the source is stated in prose, but keeping that provenance header in the bound-PR branch (mirroring the new `Drafted from the design, no ticket rows:` header in the unbound branch) would make the ticket-vs-drafted provenance contrast explicit and guard against future regressions on verbatim-ticket facts.",
-      "wallMs": 16184,
+      "feedback": "The only fact that moved is `open`, and it moved in the intended direction: Before kept the later Acceptance criteria section at `none - no ticket` and explicitly said the approved rework outcomes do not become acceptance rows, while After writes `Drafted from the design, no ticket rows:` followed by the two in-scope rows (failed requests retry with a bounded delay; successful requests do not retry) sourced from the approved design rather than the PR title/body. Every other fact that Before kept — ordered PR-then-issue classification with no issue lookup after a PR hit, the unchanged Issue ticket path with the verbatim AC row, the one-line Neither stop naming #57 and acme/widget, the Mention free-text/context-builder route with no PR-head provisioning, the Foreign stop naming both repos, and the Bound title-before-body #12 binding with #13 as Problem context, #99 ignored, and the bound-ticket filename shape — is retained in After. No wording adjustment is needed; if anything, keeping the explicit 'distinct from classification' label on the Open spec-writing step (as After does) is what preserves the early-classification facts while delivering the drafted-AC change.",
+      "wallMs": 14988,
       "verdict": "improved"
     }
   },
-  "repoSha": "3165af4d93b705ca57db2a902828aa9ed9aeee2c"
+  "repoSha": "541da7e7c9b6a1cfb181596e1000555709d00a93"
 }

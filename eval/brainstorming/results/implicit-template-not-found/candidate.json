@@ -34,7 +34,7 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "b507f66538d28fd2d77d191839b86d6668710ab1b4135c72ffc0c687013c3907",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "83efb3921f184032edfe25c4fad639e1ae2a6be3968e3b6aad1379f00b49bbce",
+      "intentSha": "e59e1c506f7cc9683c93195dc2bfcdf110ab201b946bc55b5b9e3095091df773",
       "baselineOutputSha": "08119c0a2801979c6c78ef16ad421938d0931390e2bd5c5fdbac1698927c79a1",
       "candidateOutputSha": "b886ed18f598b8e2c98c7dba69dd1017b213661df35b9b9de1d676939b6a59bb",
       "facts": {
@@ -64,14 +64,14 @@
           "label": "held"
         }
       },
-      "feedback": "No fact moved on this case: both outputs name `templates/deck.pptx` from `slides/generator.py:13`, state it is absent from the supplied `templates/` listing (`README.md`, `chart.pptx`), restate that lookup and result at the top of the approaches message and in the spec Problem, proceed without pausing or asking where the file is, and present the listing as a replayed observation rather than a live filesystem call. One thing to watch in After that the facts here do not catch: the dependency-trace wording appears to have pushed the model into a framing pivot (\"the generator already adds one\" / recommended option B) that reads the existing `append_summary` hook as evidence the ask is duplicative, and the Problem excerpt then hedges with \"completed in place or replaced as the single summary source,\" which sits uneasily with the user's \"keep the generator\" instruction. If the Change wording for implicit-dependency tracing says something like \"a traced missing dependency corrects the premise; it does not by itself reopen the framing of the ask,\" After would keep every fact it keeps now while avoiding that drift toward a pivot the recorded answer does not support.",
-      "wallMs": 19256,
+      "feedback": "No fact moved on this case: both outputs name templates/deck.pptx from the retained loader at slides/generator.py:13, say it is absent from the complete templates/ listing (README.md, chart.pptx), restate that lookup and result at the top of the approaches message, carry it into ## Problem, continue past the gate using the recorded answer, and treat the listing as a supplied observation rather than a live call. Two things in After are worth tightening even though they did not break a fact here: the trace list says \"I traced ... the template lookup in templates/\", which a stricter reader could take as a live lookup — phrasing it as \"the supplied templates/ directory listing from the repository guide\" (as Before does with \"the documented templates/ listing\") keeps the replay fact unambiguous; and After invents an unverified concern about what append_summary renders and recommends a framing pivot (B) that the recorded answer then overrides, which drifts the premise note away from the Ask's \"keep the generator\" and could in a nearby case displace the dependency finding from the first message. Keep the dependency bullet as the headline corrected premise and present the framing question as 'kept' with the recorded answer, rather than recommending a pivot the case does not support.",
+      "wallMs": 18414,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "b507f66538d28fd2d77d191839b86d6668710ab1b4135c72ffc0c687013c3907",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "83efb3921f184032edfe25c4fad639e1ae2a6be3968e3b6aad1379f00b49bbce",
+      "intentSha": "e59e1c506f7cc9683c93195dc2bfcdf110ab201b946bc55b5b9e3095091df773",
       "baselineOutputSha": "a461a6f864e1e8e2821788edf7e54425abd2f97caf1c4ae525518216cf9dc863",
       "candidateOutputSha": "98b26820903e05c7dfe0ce63dbd8c6a0a7c65d166f883289496e1e4b539cdebf",
       "facts": {
@@ -101,10 +101,10 @@
           "label": "held"
         }
       },
-      "feedback": "No fact moved: both outputs name templates/deck.pptx from the generator's loader, state it is absent from the supplied complete templates/ listing, carry that through the approaches message and the spec Problem, continue to approaches without asking where the template is, and consistently attribute the lookup to supplied observations rather than a live check. One soft spot in After: its approaches message says only \"the guide's prescribed directory listing is complete and does not contain it\" and never writes the literal path \"templates/\" in that message (the Before wording did: \"the templates/ directory listing\"). A careful reader infers the directory from the templates/deck.pptx path, so it still holds, but to keep the approaches fact robust against stricter readings, have the restatement sentence name the lookup explicitly, e.g. \"the guide's prescribed lookup is the supplied templates/ directory listing, which is complete and does not contain templates/deck.pptx.\"",
-      "wallMs": 20005,
+      "feedback": "Nothing moved on this case: both outputs trace templates/deck.pptx from the generator's loader, state it is absent from the supplied complete templates/ listing in the first message, restate the missing dependency before the approaches, record it in the spec Problem, continue without asking where the file is, and frame the listing as supplied replay evidence rather than a live lookup. The one soft spot in After is the approaches message, which says 'the guide's prescribed directory listing is complete and does not contain it' without naming templates/ — it only holds because 'remains' and 'complete' point back to the first message. To keep the approaches fact robust independent of the prior message, restate it explicitly, e.g. 'The missing dependency remains templates/deck.pptx: the guide's prescribed lookup is the supplied templates/ directory listing, which is complete and does not contain it,' mirroring the wording Before used and that After's own spec Problem already uses.",
+      "wallMs": 20399,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "3165af4d93b705ca57db2a902828aa9ed9aeee2c"
+  "repoSha": "541da7e7c9b6a1cfb181596e1000555709d00a93"
 }

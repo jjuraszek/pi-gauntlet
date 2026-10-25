@@ -34,7 +34,7 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "476425ab243566fb8ed9e48202eba3326b747b5850388dee8ff3fea5fc3926b3",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "83efb3921f184032edfe25c4fad639e1ae2a6be3968e3b6aad1379f00b49bbce",
+      "intentSha": "e59e1c506f7cc9683c93195dc2bfcdf110ab201b946bc55b5b9e3095091df773",
       "baselineOutputSha": "6779aeaa80b5aab0e77c5cb4b73a47487b5f5a97a6665ceee3a82e5f6c9f9a26",
       "candidateOutputSha": "e39a75335c23ffb8074b559d3caff4e675ced892b7d4f2b6e3332f1963912e10",
       "facts": {
@@ -59,9 +59,9 @@
           "label": "intended but unchanged"
         },
         "constraints": {
-          "before": "fails",
+          "before": "holds",
           "after": "fails",
-          "label": "intended but unchanged"
+          "label": "intended change"
         },
         "pattern": {
           "before": "holds",
@@ -69,21 +69,21 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "After keeps the framing check, the no-pivot design, ordinary per-field candidates with svc-b provenance, full containment semantics, and fixture-cited Pattern lines, but it drops the recorded backfill answer entirely: nowhere in After does the design say old candidate-less rows are fixed by rerunning processing rather than a migration, while Before states it in Approach 1 (\"Old rows are fixed by rerunning processing through the same path\") and again under rerun idempotence. After also moved the consumer-stub caveat out of the first message into the approaches message, which still satisfies the naming fact but is a weaker read. To keep constraints while delivering the amendment-menu grammar change, add one sentence to the recommended approach's summary (and ideally to the dependencies block as a rerun-idempotence item) that restates every recorded answer the design relies on, e.g. 'No migration: old rows without candidates are repaired by rerunning processing through this same path,' so the enlarged assembly does not crowd out recorded constraints from the design narrative.",
-      "wallMs": 12474,
-      "verdict": "unchanged"
+      "feedback": "After keeps the framing check, the svc-a-only approaches, the ordinary-candidate review path, per-child containment with always-stored failure detail, and fixture-cited Pattern lines, but it loses the constraints fact: Before carried the recorded Backfill answer into the design twice (\"No migration means old rows without candidates get processing rerun\" in the dependencies list and \"Old rows are fixed by rerunning processing through the same path\" in Approach 1), whereas After never mentions reruns, backfill, or migration anywhere, so a reader cannot tell the design uses reruns rather than a migration even though the two-endpoint validation contract is preserved. The amendment-menu grammar change itself does not touch this, so the regression is a detail-retention loss under the larger assembly; to keep the fact while delivering the Change, add a sentence to the questionary approaches guidance requiring every recorded answer (including backfill/migration answers) to be restated in the recommended approach's summary, e.g. append to Approach A a line like \"Old candidate-less rows are repaired by rerunning processing through this path; no migration\" and optionally an \"Unverified: rerun idempotence\" bullet in the dependencies section as Before had.",
+      "wallMs": 17966,
+      "verdict": "improved"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "476425ab243566fb8ed9e48202eba3326b747b5850388dee8ff3fea5fc3926b3",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "83efb3921f184032edfe25c4fad639e1ae2a6be3968e3b6aad1379f00b49bbce",
+      "intentSha": "e59e1c506f7cc9683c93195dc2bfcdf110ab201b946bc55b5b9e3095091df773",
       "baselineOutputSha": "5c1054ac21749443eef09b369b8bfedee003c7bb79fefbc50a511c2673bb07ad",
       "candidateOutputSha": "76270de6baedb95dff1682028b465ec694178157a9dc437f6913b6eeeceb794a",
       "facts": {
         "holds": {
-          "before": "holds",
+          "before": "fails",
           "after": "holds",
-          "label": "intended but unchanged"
+          "label": "unplanned improvement"
         },
         "no-pivot": {
           "before": "holds",
@@ -111,10 +111,10 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "After kept every fact Before kept. The expected-to-move list anticipated `constraints` failing because the design summary might drop the no-migration/rerun answer, but this After output does carry it: the first message says 'no migration—old candidate-less rows require reprocessing' alongside 'no producer changes or weakened validation', and approach A repeats 'without changing the validation contract' and 'Keep producer changes and migrations out of scope', so a careful reader finds the two-endpoint contract and rerun-over-backfill intact. After also strengthened `holds` relative to Before by explicitly listing 'the supplied producer contract' among the checked surfaces in the framing sentence, whereas Before only named the producer indirectly ('not svc-b's producer'); that explicit list is the wording to keep. Both outputs preserve two fixture-citing Pattern lines, the per-field-candidate review choice with real provenance, and apply-valid/retain-detail/fail-only-when-none containment. If the author wants to guard against the variance noted at the eval gate, the safest wording is to keep the recorded-decision recap sentence ('I'll retain the recorded decisions: ... no migration—old candidate-less rows require reprocessing') in the first message and the out-of-scope sentence in approach A, since together they make `constraints` robust even if one is trimmed under larger assemblies.",
-      "wallMs": 23021,
-      "verdict": "unchanged"
+      "feedback": "After keeps every fact Before kept and actually improves on `holds`: its opening sentence explicitly names the checked producer contract, the field-review surfaces, and the response-consumer route, whereas Before's framing sentence lists direct saving, candidate targets, provenance, parked-row controls and validation but never names the producer contract as something it checked (it only mentions svc-b's producer as out of scope), so a strict reader cannot confirm that part of the fact. On `constraints`, contrary to the expected-move note, After does retain the recorded no-migration/rerun answer — it appears in the first message (\"no migration—old candidate-less rows require reprocessing\") and again in approach A (\"Keep producer changes and migrations out of scope\") alongside the preserved two-endpoint validation contract — so nothing moved there in this run. No-pivot, review, containment and pattern are intact in both. To keep this stable under the larger assembly, the wording that protects these facts is the explicit 'I'll retain the recorded decisions' sentence in the first message plus the per-approach restatement of the migration/producer/validation constraints; keep that pattern (recorded-answers echo before the question, constraints restated inside the recommended approach, named fixture list in the framing sentence) and the amendment-menu grammar change should not disturb any of these facts.",
+      "wallMs": 23015,
+      "verdict": "improved"
     }
   },
-  "repoSha": "3165af4d93b705ca57db2a902828aa9ed9aeee2c"
+  "repoSha": "541da7e7c9b6a1cfb181596e1000555709d00a93"
 }

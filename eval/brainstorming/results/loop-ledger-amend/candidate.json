@@ -34,7 +34,7 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "2351583720a7d4a8a7c59133fd91ec051c7139a59bc46bfb00552b47f533509b",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "83efb3921f184032edfe25c4fad639e1ae2a6be3968e3b6aad1379f00b49bbce",
+      "intentSha": "e59e1c506f7cc9683c93195dc2bfcdf110ab201b946bc55b5b9e3095091df773",
       "baselineOutputSha": "e144d332c69cfa916707f25d9dd5bbbc16416a92505f44c63e533d3d33cb5663",
       "candidateOutputSha": "4c0a259224e26a5c4ac9637318d9bfbd4d38b657c98bad337bbfb68bd3098d08",
       "facts": {
@@ -59,14 +59,14 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "After keeps every fact Before kept. Trace A still routes the row 2 disposition and row 3 re-bounding to the human batch and the path correction to a fresh reviewer, now explicitly tying auto-apply to cited evidence with fail-closed escalate; Trace B still skips prefilter/reviewer/menu and applies each item's recommended choice while Trace C states the grant never covers redraws. The ledger reconciliation (row 2 cut with `deferred: #90`, row 3 open with `reopened by amendment`, attempts 2/3/1, iterations 9, AC texts untouched) and the bypass set (no plan-writer/plan_check/plan_tracker, no phase_tracker, single spec+ledger `loop: amend` commit with `granted` records and the quoted grant sentence in B) are intact, and C still clears/resets trackers, deletes plan and ledger, resumes at step 4, and demands a full gate the old grant cannot satisfy. Two small risks to watch rather than fix: Trace B's reach claim (\"covers AC and scope edits, so row 2's disposition applies without a cut question\") is a stronger statement than the fact needs and could read as the grant touching AC text, so phrasing it as \"the disposition changes, the row text does not\" would be safer; and in Trace C, stating in step 6 that the new gate requires a fresh human approval and that the prior `**Amend-grant:**` value is not carried (rather than only that spec-writing rewrites it) would make the redraw fact unambiguous without changing the Change's intended routing.",
-      "wallMs": 17411,
+      "feedback": "After keeps every fact Before kept. Trace A still routes the row-2 disposition and row-3 re-bounding to the human batch, sends only the path correction to the fresh reviewer, and now explicitly conditions auto-apply on cited evidence, which strengthens the review fact; Trace B still skips §§2-4, applies each item's recommended choice, records granted plus the quoted grant sentence, and Trace C states that the grant never covers redraws. Reconciliation values (row 2 cut / deferred: #90 / attempts 3, row 3 open / reopened by amendment / attempts 1, row 1 untouched, iterations 9, AC texts immutable) and the bypass list (plan-writer, plan_check, plan_tracker, no phase_tracker, spec+ledger commit as loop: amend) are all present, with Trace B deferring to 'the same ledger reconciliation as Trace A'. Trace C clears/resets trackers, deletes plan then ledger, resumes at step 4, and names step 12 as the new full gate. Two small robustness notes: in Trace B restate the factual-correction and AC-text-immutability outcomes explicitly rather than by reference to A, and in Trace C add one sentence saying the prior Amend-grant value is not carried into the rewritten spec's line, so the 'without carrying the grant' clause is stated outright rather than inferred from 'never stands in for spec approval'.",
+      "wallMs": 16979,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "2351583720a7d4a8a7c59133fd91ec051c7139a59bc46bfb00552b47f533509b",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "83efb3921f184032edfe25c4fad639e1ae2a6be3968e3b6aad1379f00b49bbce",
+      "intentSha": "e59e1c506f7cc9683c93195dc2bfcdf110ab201b946bc55b5b9e3095091df773",
       "baselineOutputSha": "2714c999699f63e32ab4773418a33dabd1437b76bc11d9f36808e68d4937866f",
       "candidateOutputSha": "0981ee343328ffc60643ed569dc9382c750391fc0d6ecc99beb5196e79c0f33e",
       "facts": {
@@ -91,10 +91,10 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "After keeps every fact Before kept: A still routes the row-2 deferral and human-owned row-3 re-bound to the human and only an evidence-backed scope-neutral factual correction to the fresh reviewer; B applies recommended choices under the persisted grant without reviewer or human menu, quotes the granting sentence verbatim and records items as granted; both branches produce row 2 cut with deferred: #90, row 3 open with reopened by amendment, attempts 2/3/1, iterations 9, no AC text edits, loop: amend commit, and no plan-writer/plan_check/plan_tracker; C classifies as redraw, clears/resets trackers, deletes plan and ledger, resumes at step 4, and demands a fresh gate the old grant cannot satisfy. The only soft spot is that After's B section no longer states in-line that the grant never authorizes a redraw—that assertion moved to C step 1 and A step 3; to keep the review fact robust against a reader checking B alone, add back a sentence in B step 2 such as 'The grant does not authorize a redraw and never substitutes for spec approval.' Nothing else in the new wording (the independent-trace preamble, the explicit §5 re-reads, the Recorded confirmation line, the ordered redraw operations) moved any fact.",
-      "wallMs": 15485,
+      "feedback": "No fact moved between Before and After. Both outputs route A's row-2 deferral and human-owned row-3 re-bound to the human while sending only the evidence-backed, scope-neutral path correction to the fresh reviewer; both state that B's persisted option-2 grant replaces reviewer and human-batch review for amend-class items but never authorizes a redraw or spec approval; both reconcile the ledger to done/cut/open with `deferred: #90` and `reopened by amendment`, keep attempts 2/3/1 and iterations 9, leave ticket AC text untouched, commit spec and ledger together as `loop: amend` with the audit body (B records `granted` and quotes the stored grant sentence verbatim rather than reconstructing it from the digit 5), and bypass plan-writer, plan_check, and plan_tracker because the ledger exists. C in both clears the plan tracker, resets the phase tracker, deletes the plan file and `doc/plans/report-ledger.md`, resumes at checklist step 4, and stops at a fresh review gate without carrying the grant. After adds useful tightenings (explicit §5 re-read with unreadable-blocks rule, the recommended-choice-not-always-accept clarification, the row-3 classification guard, and the `Recorded:` confirmation line) that deliver the Change without losing any kept fact; keep those additions as-is, and keep the explicit \"no phase change / remain in implement\" sentence in A and B as it anchors the bypass fact.",
+      "wallMs": 15817,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "3165af4d93b705ca57db2a902828aa9ed9aeee2c"
+  "repoSha": "541da7e7c9b6a1cfb181596e1000555709d00a93"
 }

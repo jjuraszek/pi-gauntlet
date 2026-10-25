@@ -34,7 +34,7 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "6277fb45c3d742b55ee8729481329feb0d40002b0fb2d70079065d3afb325f5d",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "83efb3921f184032edfe25c4fad639e1ae2a6be3968e3b6aad1379f00b49bbce",
+      "intentSha": "e59e1c506f7cc9683c93195dc2bfcdf110ab201b946bc55b5b9e3095091df773",
       "baselineOutputSha": "f5ec833ca6ded5111b64ed22921f63bf1ee367b87004acebf547b8d0d96d74b0",
       "candidateOutputSha": "aaae33e59837d1a7ddfc1e8e0d275ae9f7e34adc16b0ad9ee3fb03c81035bbb8",
       "facts": {
@@ -49,14 +49,14 @@
           "label": "held"
         }
       },
-      "feedback": "Both outputs keep both facts. Each narrates that reference/ticket-acceptance.md was read at step 3, remains in context, and is reused on the same-session redraw with no read call; each then applies the ticket rules to the verbatim owner-column row by asking the human cut question with the A) in-scope, B) deviates, C) deferred, and D) repair options, declining to propose deviates/deferred itself and keeping the row unedited. After is slightly more explicit than Before in separating the premise-note message from the cut question and in noting that the repair path has its own confirm gate and returns to the cut question unchanged on cancel; none of that moves a fact. The only drift worth watching in After is step 3's hedge that the draft read has no supplied contents, which is harmless here but could tempt the model to skip narrating required reads in other samples; keeping the Before phrasing that the draft read simply happens before question one, with the framing check count restarting, would preserve both facts while still delivering the Change.",
-      "wallMs": 6367,
+      "feedback": "Nothing moved on this sample: both outputs state at item 2 that reference/ticket-acceptance.md was read at step 3, is still in context, and is reused on the same-session redraw with no read call and no reconstruction from memory, and both narrate the cut question for the verbatim owner-column row with the A/in-scope, B/deviates, C/deferred, D/repair options, an A-or-D recommendation, and no self-chosen disposition. After even adds the premise-note-first ordering and the Scope cuts line, which stay consistent with the ticket rules. The only softening in After is that the option labels are terser (B) deviates, C) deferred without the <why>/<where> placeholders); if later judges tighten on the exact option grammar, keep the Before wording `B) deviates: <why>` and `C) deferred: <where>` in the narrated option list so the cut-question contract remains explicit while the amendment-menu change stays confined to the amendment batch.",
+      "wallMs": 14551,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "6277fb45c3d742b55ee8729481329feb0d40002b0fb2d70079065d3afb325f5d",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "83efb3921f184032edfe25c4fad639e1ae2a6be3968e3b6aad1379f00b49bbce",
+      "intentSha": "e59e1c506f7cc9683c93195dc2bfcdf110ab201b946bc55b5b9e3095091df773",
       "baselineOutputSha": "573233466c51b11089c65cedac692b86e6bcb17332df8ab23397804285a0aa5f",
       "candidateOutputSha": "7e87368280c6328b47ea6bd8e0f530b29a98b01bed310a549ca65889b46a23cb",
       "facts": {
@@ -71,10 +71,10 @@
           "label": "held"
         }
       },
-      "feedback": "Neither fact moved: After still states in item 1 that reference/ticket-acceptance.md is not re-read because the step-3 read remains in context, and item 3 still asks the cut question with the in-scope, deviates, deferred, and repair options, recommending repair without choosing a disposition. The one risk in After is the new item 2 labelled \"Draft read\" — it narrates a read of the approved spec as the redraw's draft, which a hurried reader could conflate with a reference read; it stayed safe only because it names the spec, not ticket-acceptance.md, and adds \"No live read is claimed here.\" To keep both facts robustly while delivering the Change, consider phrasing item 2 as \"Draft recall\" or \"Reuse the approved spec already in context as the redraw draft\" so the only read-decision wording in the output is the explicit skip of the ticket reference, and keep the `/skill:shape-ticket` route name from Before in the repair option so the cut question's four options stay as concrete as before.",
-      "wallMs": 11708,
+      "feedback": "Neither fact moved: After still declines to re-read reference/ticket-acceptance.md, cites the in-context step-3 read, and asks the full four-option cut question (in scope, deviates, deferred, repair) with a repair recommendation while leaving the disposition to the human. The one risk After introduces is the new \"Draft read\" item, which narrates that step 4 \"requires reading the approved spec\" — a read action not in the fixed observations and one a strict reader could mistake for a reference read; it also drops Before's explicit `/skill:shape-ticket` repair route and the explicit \"assign neither deviates: nor deferred:\" sentence. To keep every fact unambiguous while delivering the Change, fold the draft note into the step-4 decision line (\"step 4 reuses the in-context ticket reference and the approved spec already in context; no read is performed\"), restore the named repair route, and keep the explicit no-prefix-assignment sentence from Before.",
+      "wallMs": 9716,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "3165af4d93b705ca57db2a902828aa9ed9aeee2c"
+  "repoSha": "541da7e7c9b6a1cfb181596e1000555709d00a93"
 }
