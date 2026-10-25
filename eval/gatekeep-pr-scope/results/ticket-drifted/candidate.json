@@ -1,7 +1,7 @@
 {
   "sample": "ticket-drifted",
   "arm": "candidate",
-  "skillSha": "44733ee86c61fabc6cf3c624545c90de14750bcf8fc82745087b7f0fd35186b4",
+  "skillSha": "1282208418e245e88cebd27449d2e4e2e79447c67a8383e28f62fbc3c800180a",
   "inputSha": "9c412ae4234d8e7536bda2293bf9c1c581cf8af94423c1a5bd255ab45256b257",
   "kind": "text",
   "assembly": "headed",
@@ -17,16 +17,16 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "Delivers: the reports page exports its table as CSV on demand with bounded paging. ACs 1, 2, 4; 3, 5 deferred per spec to acme/widgets#46; 4's observable half (export completes under 5s on production data) is checked after merge, not here.\n\nNits:\n- The export pages results with its own loop instead of the shared paging helper, so a paging bug fixed once would need fixing twice. (src/api/export.ts:31, lib/page.ts)\n\n1 nit open - fix nits to take them\n\nVerdict: mergeable - CI green on the assessed head (test)\n\nPick one:\n1. merge - squash-merge the PR at the assessed head. [recommended]\n2. fix nits - run one repair iteration on the 1 nit, then return to this menu.\n3. stop - remove the worktree, leave the PR as is.\n\nNot offered: approve (your own PR)\n\nType a number; show evidence prints the full record.\n\n---\n\n**Pick: `show evidence`**\n\nThis is a hint command, not a menu row. It records no settlement and writes nothing externally. It prints:\n\n```text\nstate: <absolute path of this run's minted gatekeep-state record>\ncourse: unset\ntarget: acme/widgets #210, baseRefName as recorded at gather\nscope baseline: source spec, doc/specs/2026-09-30-csv-export.md\n  rows: AC1 in-scope; AC2 in-scope; AC3 deferred: acme/widgets#46; AC4 in-scope; AC5 deferred: acme/widgets#46\n  design: clauses 1-4 as at the assessed head\nusage: rounds 0 of unset cap, syncs 0 of unset cap (caps initialize at a course pick)\ndeadline: none\nwave checkpoints: none\nfailed-prerequisite history: none\n\nevidence (source: ci):\n- test: success on the assessed head; run url unavailable\nreviewer workflow: unknown\n\nclaim dispositions:\n- \"adds tests for the CSV handler\" - matched\n\nAC outcomes:\n- AC1 covered: Export CSV button downloads the handler response (src/ui/reports.tsx)\n- AC2 covered: every table column is serialized and tested (src/api/export.ts, test/api/export.test.ts)\n- AC3 deferred per spec to acme/widgets#46\n- AC4 covered (mechanism): 100-row page cap and 4s deadline are tested; the observable half is not judged here\n- AC5 deferred per spec to acme/widgets#46\n- Design 1-3: mechanism present; Design 4: deferred to acme/widgets#46\ncross-check: differs on row 2 - the spec governs here; /skill:check-delivery judges the ticket\n\ncheck dispositions: none\ndrafted payloads: none (nit payloads are drafted only on a fix nits pick)\ndrafted replies: none\n```\n\nThe menu re-renders unchanged:\n\nPick one:\n1. merge - squash-merge the PR at the assessed head. [recommended]\n2. fix nits - run one repair iteration on the 1 nit, then return to this menu.\n3. stop - remove the worktree, leave the PR as is.\n\nNot offered: approve (your own PR)\n\nType a number; show evidence prints the full record.\n",
-      "words": 406,
-      "wallMs": 27617,
+      "text": "Delivers: the reports page exports a report table as CSV on demand, with bounded paging. ACs 1, 2, 4; 3, 5 deferred per spec to acme/widgets#46; 4's observable half (export completes under 5s on production data) is checked after merge, not here.\n\nNits:\n1. The export pages results with its own loop instead of the shared paging helper, so a paging bug fixed once would need fixing twice. (src/api/export.ts:31, lib/page.ts)\n\n1 nit open - fix nits to take them\n\nVerdict: mergeable - CI green on the assessed head (test)\n\nPick one:\n1. merge - squash-merge acme/widgets#210 at the assessed head. [recommended]\n2. fix nits - run one repair pass for the 1 nit, then return to this menu.\n3. stop - remove the worktree, leave the PR as is.\n\nNot offered: approve (own PR)\n\nType a number; show evidence prints the full record.\n\n---\n\n**Pick: `show evidence`**\n\n`show evidence` is a typed hint command. It settles nothing and runs no external command. It prints the following:\n\n```\nstate: <absolute path of this run's gatekeep-state record>\ncourse: unset (no numeric course selection made)\ntarget: acme/widgets, PR 210, base <baseRefName from digest>\nscope baseline: source spec, doc/specs/2026-09-30-csv-export.md (rows AC1-AC5, Design 1-4)\nusage: rounds 0 of unset cap, syncs 0 of unset cap (caps initialize at a course pick)\ndeadline: none\nwave checkpoints: none\nfailed-prerequisite history: none\n\nevidence (source ci):\n- test: success on the assessed head (<headRefOid>), run URL unavailable\nreviewer workflow: unknown\n\nclaim dispositions:\n- \"adds tests for the CSV handler\" - matched (test/api/export.test.ts)\n\nAC outcomes:\n- AC1 Export CSV button - covered (src/ui/reports.tsx; Design 1)\n- AC2 every table column - covered (src/api/export.ts, test/api/export.test.ts; Design 2)\n- AC3 emailed exports - deferred per spec to acme/widgets#46\n- AC4 under 5s - mechanism covered: 100-row page cap and 4s deadline, tested with a controlled clock (Design 3); observable half not judged here\n- AC5 audit events - deferred per spec to acme/widgets#46\ncross-check: differs on row 2 - the spec governs here; /skill:check-delivery judges the ticket\n\ncheck dispositions: none\ndrafted payloads: none (nit payloads are drafted only after a fix nits pick)\ndrafted replies: none\n```\n\nRe-rendered menu (same template, nothing settled):\n\nPick one:\n1. merge - squash-merge acme/widgets#210 at the assessed head. [recommended]\n2. fix nits - run one repair pass for the 1 nit, then return to this menu.\n3. stop - remove the worktree, leave the PR as is.\n\nNot offered: approve (own PR)\n\nType a number; show evidence prints the full record.\n",
+      "words": 390,
+      "wallMs": 25295,
       "mechanical": {}
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "Delivers: The reports page offers on-demand CSV downloads with every table column and bounded paging. ACs 1, 2, 4; 3, 5 deferred per spec to acme/widgets#46; 4's observable half (completion under 5s on production data) is checked after merge, not here.\n\n## Nits\n- The export pages results with its own loop instead of the shared paging helper, so paging fixes would need to be maintained in two places. (src/api/export.ts:31, lib/page.ts)\n\n1 nit open - fix nits to take it.\n\nVerdict: mergeable - CI green on the assessed head (test)\n\nPick one:\n1. merge - squash the assessed head into the base branch. [recommended]\n2. fix nits - repair the paging-helper nit through one delivery iteration.\n3. stop - leave the checkout and local branch in place.\n\nNot offered: approve (this is your own PR).\n\nType a number; show evidence prints the full record.\n\n---\n\n## Show evidence\n\nNo external command or write is authorized by `show evidence`. Course remains unset.\n\n### Run record\n- State path: not supplied in the fixture.\n- Course: null.\n- Immutable target: repository `acme/widgets`, PR `210`; base branch not supplied.\n- Assessed head: exact SHA not supplied.\n- Stored scope: `doc/specs/2026-09-30-csv-export.md` at the assessed head.\n- Round usage: 0; cap not initialized.\n- Sync usage: 0; cap not initialized.\n- Poll deadline: null.\n- Wave: null.\n- Failed-prerequisite history: empty.\n- Helper output paths: not supplied.\n\nThe stored contract includes the spec's acceptance criteria and Design requirements: the download button, every table column in table order, a header row and escaped cells, 404 for unknown reports, and paging capped at 100 rows with a controlled-clock-tested 4s deadline. Email delivery and audit events remain deferred to `acme/widgets#46`.\n\n### Verification evidence\n- Source: CI.\n- Check: `test`.\n- Conclusion: success.\n- Head: the assessed head; exact SHA not supplied.\n- Run URL: unavailable.\n- No local verification command ran.\n\n### Claim dispositions\n- \"adds tests for the CSV handler\": matched by the handler tests. (test/api/export.test.ts)\n\n### Acceptance criteria outcomes\n1. \"AC1 The reports page offers an Export CSV button.\": covered by the button that downloads the handler response. (src/ui/reports.tsx)\n2. \"AC2 The export includes every column shown in the table.\": covered by the serializer and column-coverage tests, including the Design requirement for table order. (src/api/export.ts, test/api/export.test.ts)\n3. \"AC3 Exports are emailed to the requesting user.\": deferred per spec to `acme/widgets#46`.\n4. \"AC4 The export completes under 5s on production data.\": the paging-bound mechanism is covered by the 100-row cap, 4s deadline, and controlled-clock tests. The production-data observation is checked after merge, not here. (src/api/export.ts, test/api/export.test.ts)\n5. \"AC5 Export events appear in the audit log.\": deferred per spec to `acme/widgets#46`.\n\nCross-check: differs on row 2 - the spec governs here; /skill:check-delivery judges the ticket. The ticket explicitly includes table order; the spec carries that requirement in Design clause 2.\n\n### Check dispositions\nNo failing check requires a disposition.\n\n### Drafted payloads\nNo file payload is drafted. The paging-helper nit remains optional until a `fix nits` selection.\n\n### Drafted replies\nNo replyable PR comments were supplied.\n\n---\n\nPick one:\n1. merge - squash the assessed head into the base branch. [recommended]\n2. fix nits - repair the paging-helper nit through one delivery iteration.\n3. stop - leave the checkout and local branch in place.\n\nNot offered: approve (this is your own PR).\n\nType a number; show evidence prints the full record.\n",
-      "words": 524,
-      "wallMs": 19845,
+      "text": "Delivers: The reports page downloads on-demand CSV exports with every table column and bounded paging. ACs 1, 2, 4; 3, 5 deferred per spec to acme/widgets#46; 4's observable half (completion under 5s on production data) is checked after merge, not here.\n\n## Nits\n- The export pages results with its own loop instead of the shared paging helper, so paging fixes would need to be maintained in two places. (src/api/export.ts:31, lib/page.ts)\n\n1 nit open - fix nits to take it\n\nVerdict: mergeable - CI green on the assessed head (test)\n\nPick one:\n1. merge - merge the assessed head using squash. [recommended]\n2. fix nits - run one delivery iteration to replace the paging loop with the shared helper.\n3. stop - leave the checkout and PR as they are.\n\nNot offered: approve (own PR).\n\nType a number; show evidence prints the full record.\n\n## Show evidence\n\nState locator: not supplied in the fixture.\n- Course: unset.\n- Target: acme/widgets#210; the base branch name was not supplied.\n- Scope baseline: the spec at the assessed head governs. (doc/specs/2026-09-30-csv-export.md)\n- Repair accounting: 0 rounds and 0 syncs used; caps remain unset.\n- Watch deadline and wave checkpoint: unset.\n- Failed-prerequisite history: empty.\n\n### Verification evidence\n- Source: CI.\n- Check: test.\n- Conclusion: success.\n- Head: the assessed head; its SHA was not supplied.\n- Run URL: unavailable.\n- No local verification command ran.\n\n### Claim dispositions\n- \"adds tests for the CSV handler\": matched. The handler tests assert the header row, data rows, all table columns, paging cap, deadline, and unknown-report response. (test/api/export.test.ts)\n\n### Scope baseline and outcomes\n1. \"AC1 The reports page offers an Export CSV button.\" In-scope; covered by the button that downloads the handler response. (src/ui/reports.tsx)\n2. \"AC2 The export includes every column shown in the table.\" In-scope; covered by the serialization mechanism and column assertions. (src/api/export.ts, test/api/export.test.ts)\n3. \"AC3 Exports are emailed to the requesting user.\" Deferred per spec to acme/widgets#46.\n4. \"AC4 The export completes under 5s on production data.\" In-scope; the mechanism is covered by the 100-row paging cap, 4s deadline, and controlled-clock tests. The production-data observation is checked after merge, not here. (src/api/export.ts, test/api/export.test.ts)\n5. \"AC5 Export events appear in the audit log.\" Deferred per spec to acme/widgets#46.\n\nThe Design requires the download button, table-order serialization with headers and escaped cells, unknown-report responses, and tested paging bounds. Email delivery and audit events remain separate work under acme/widgets#46.\n\ncross-check: differs on row 2 - the spec governs here; /skill:check-delivery judges the ticket\n\n### Check dispositions\nNo failing check requires a disposition.\n\n### Drafted payloads\nNo blocker payloads exist. The nit payload is not drafted until a fix nits selection.\n\n### Drafted replies\nNo PR comments require replies.\n\nVerdict: mergeable - CI green on the assessed head (test)\n\nPick one:\n1. merge - merge the assessed head using squash. [recommended]\n2. fix nits - run one delivery iteration to replace the paging loop with the shared helper.\n3. stop - leave the checkout and PR as they are.\n\nNot offered: approve (own PR).\n\nType a number; show evidence prints the full record.\n",
+      "words": 485,
+      "wallMs": 20504,
       "mechanical": {}
     }
   },
@@ -36,7 +36,7 @@
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
       "intentSha": "7b2e3a5bfb39a71eb395266d96387edb730a79ef0afc6e33dc48f0fa35ffc691",
       "baselineOutputSha": "73e22a979873e57907d6ee2494fb286043b9a3a34909280eb5c390cbcb3a2fad",
-      "candidateOutputSha": "3cec11d00c39d804c0c717310209951d214591a053288036fec50491a052e929",
+      "candidateOutputSha": "804c54ad31a9d339af93eeeb3d7b44757312ae5cd5d70d5fe0bf9a9dc695a8ac",
       "facts": {
         "f1": {
           "before": "holds",
@@ -69,8 +69,8 @@
           "label": "held"
         }
       },
-      "feedback": "Nothing moved: After keeps every fact Before kept. Both outputs print the same cross-check line under show evidence (\"differs on row 2 - the spec governs here; /skill:check-delivery judges the ticket\"), neither raises a blocker from the ticket difference, both menus offer merge as row 1 with stop last and exactly one recommendation, both judge AC outcomes only against the spec's rows, and both state that show evidence writes nothing externally with no drafted replies. After also correctly delivers the Change: show evidence is now explicitly a hint command rather than a row, the record shows course unset with caps initializing at a course pick, the menu re-renders unchanged afterward, and the menus.md-style rows (merge/fix nits/stop plus the 'Not offered: approve' line) replace the ad-hoc wording. Keep this wording as is; if anything, you could trim the extra record fields (wave checkpoints, failed-prerequisite history) when they are all 'none', but that is cosmetic and does not affect any fact.",
-      "wallMs": 10197,
+      "feedback": "Nothing moved on this case: After still prints the cross-check line ('differs on row 2 - the spec governs here; /skill:check-delivery judges the ticket') under show evidence, keeps the verdict mergeable with merge=1 recommended and stop last, confines AC judgement to the spec's rows (scope baseline line names the spec explicitly), and declares show evidence a typed hint that settles nothing and runs no external command, so no comment is posted without a pick. The migration to the shared menus.md template ('Pick one:', 'Not offered: approve (own PR)', hint sentence 'show evidence prints the full record') and the added state lines (course: unset, usage caps unset, deadline none) deliver the Change without disturbing any fact. Keep the cross-check line verbatim and the 'settles nothing / runs no external command' sentence in the hint description in future wording passes, since those two are what f3 and f6 rest on.",
+      "wallMs": 10243,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
@@ -78,7 +78,7 @@
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
       "intentSha": "7b2e3a5bfb39a71eb395266d96387edb730a79ef0afc6e33dc48f0fa35ffc691",
       "baselineOutputSha": "2e20f2650e82592ff37a967c1365f6e2a82f00c75d2807d60f5b43ce1af2bf7d",
-      "candidateOutputSha": "5d4dac91cc7455a738a452a8030b19b31fb0167f3227293202c11dde8932ccbd",
+      "candidateOutputSha": "b0a6b802562080dd2a10ec43789c4c0477d15e9a8f953aa0eaf6d90478bc5b33",
       "facts": {
         "f1": {
           "before": "holds",
@@ -102,8 +102,8 @@
         },
         "f5": {
           "before": "holds",
-          "after": "fails",
-          "label": "regression"
+          "after": "holds",
+          "label": "held"
         },
         "f6": {
           "before": "holds",
@@ -111,51 +111,10 @@
           "label": "held"
         }
       },
-      "feedback": "After keeps the merge/fix nits/stop menu, moves show evidence to the hint, prints the cross-check line with the spec governing, and posts nothing, so f1-f4 and f6 are unchanged. It loses f5 by appending to the cross-check line: \"The ticket explicitly includes table order; the spec carries that requirement in Design clause 2.\" That sentence takes the ticket's extra wording (\"in table order\") and adjudicates it against the spec's Design, which is exactly the ticket-side judging the cross-check hands off to /skill:check-delivery. Keep the cross-check line as Before had it - \"differs on row 2 - the spec governs here; /skill:check-delivery judges the ticket\" - with no follow-on reconciliation of the ticket's text; if the author wants to surface table order, it is already covered in the AC2 outcome via the spec's Design clause and needs no reference to the ticket.",
-      "wallMs": 13704,
-      "verdict": "inconclusive",
-      "confirmation": {
-        "status": "ok",
-        "text": "Delivers: The reports page downloads on-demand CSV exports with all table columns and bounded paging. ACs 1, 2, 4; 3, 5 deferred per spec to acme/widgets#46; 4's observable half (completion under 5s on production data) is checked after merge, not here.\n\nNits:\n- Export paging uses its own loop instead of the shared paging helper, so paging fixes may need to be made twice. (src/api/export.ts:31, lib/page.ts)\n\n1 nit open - fix nits to take it.\n\nVerdict: mergeable - CI green on the assessed head (test)\n\nPick one:\n1. merge - merge the assessed head into the base branch. [recommended]\n2. fix nits - run one delivery iteration to address the paging duplication.\n3. stop - leave the checkout and PR unchanged.\n\nNot offered: approve (own PR).\n\nType a number; show evidence prints the full record.\n\n## Show evidence\n\nThe fixture does not supply the continuation-record path, assessed SHA, CI run URL, worktree path, base branch, or resolved merge policy. Those values cannot be reproduced here, and no external command runs for this hint command.\n\n### Continuation\n- Course: unset.\n- Target: acme/widgets#210; base branch not supplied.\n- Scope baseline: doc/specs/2026-09-30-csv-export.md at the assessed head. Its acceptance criteria and Design govern this assessment.\n- Repair usage: 0 rounds and 0 syncs; caps not initialized.\n- Watch deadline: none.\n- Wave checkpoints and failed-prerequisite history: none supplied.\n\n### Verification evidence\n- Source: CI.\n- Check: `test`.\n- Conclusion: success on the assessed head.\n- Assessed SHA and run URL: unavailable in the fixture.\n- No local verification command ran.\n\n### Claim dispositions\n- \"adds tests for the CSV handler\": matched by the supplied verification evidence and handler tests. (test/api/export.test.ts)\n\n### Acceptance criteria\n| Row | Outcome | Evidence or disposition |\n|---|---|---|\n| AC1 | covered | The reports page has an Export CSV button that downloads the handler response. |\n| AC2 | covered | The handler exports all table columns, with header and column coverage in the handler tests. |\n| AC3 | deferred per spec | acme/widgets#46 |\n| AC4 | covered mechanism; observable half not judged here | Paging is capped at 100 rows with a tested 4s deadline. Completion under 5s on production data is checked after merge. |\n| AC5 | deferred per spec | acme/widgets#46 |\n\ncross-check: differs on row 2 - the spec governs here; /skill:check-delivery judges the ticket. The spec's Design also requires table order.\n\n### Check dispositions\nNo failing checks were supplied.\n\n### Drafted payloads\nNo blocker payloads exist. The paging nit has no drafted payload because neither delivery with nits nor fix nits has been selected.\n\n### Drafted replies\nNo PR comments or drafted replies were supplied.\n\nPick one:\n1. merge - merge the assessed head into the base branch. [recommended]\n2. fix nits - run one delivery iteration to address the paging duplication.\n3. stop - leave the checkout and PR unchanged.\n\nNot offered: approve (own PR).\n\nType a number; show evidence prints the full record.\n",
-        "words": 441,
-        "wallMs": 18479,
-        "mechanical": {},
-        "judgeWallMs": 15071,
-        "facts": {
-          "f1": {
-            "before": "holds",
-            "after": "holds",
-            "label": "held"
-          },
-          "f2": {
-            "before": "holds",
-            "after": "holds",
-            "label": "held"
-          },
-          "f3": {
-            "before": "holds",
-            "after": "holds",
-            "label": "held"
-          },
-          "f4": {
-            "before": "holds",
-            "after": "holds",
-            "label": "held"
-          },
-          "f5": {
-            "before": "holds",
-            "after": "holds",
-            "label": "held"
-          },
-          "f6": {
-            "before": "holds",
-            "after": "holds",
-            "label": "held"
-          }
-        },
-        "feedback": "After keeps every fact Before kept: the cross-check line still says row 2 differs and the spec governs, no blocker is raised, merge stays offered as the recommended row, nothing is posted, and show evidence has correctly moved out of the numeric rows into the hint with stop last. The one wording to watch is the sentence appended to the cross-check line, \"The spec's Design also requires table order\" - it reads as reconciling the ticket's extra 'in table order' text against the spec, which edges toward judging the ticket beyond the spec's rows (f5) even though it nominally cites the spec. Keep the cross-check line to its Before form (\"differs on row 2 - the spec governs here; /skill:check-delivery judges the ticket\") and, if you want the table-order point, put it under AC2's evidence cell as a spec Design observation rather than attached to the ticket cross-check. Otherwise the continuation section (course unset, 0 rounds/0 syncs, caps not initialized) and the persistent three-row menu with the 'Not offered: approve (own PR)' note deliver the Change cleanly."
-      }
+      "feedback": "Nothing moved on this case: After keeps every fact Before kept. The cross-check line ('differs on row 2 - the spec governs here; /skill:check-delivery judges the ticket') survives verbatim inside the show evidence record, the verdict stays mergeable with merge at row 1 recommended and stop last, show evidence has correctly migrated out of the numeric rows into the 'Type a number; show evidence prints the full record' hint, the AC outcomes are judged only against the spec's five rows, and the drafted-payloads/replies sections make explicit that nothing is posted without a pick. The only thing worth watching in the After wording is that the show evidence record now opens with state-locator/course/repair-accounting lines that are all 'unset' or 'not supplied' on a first ready report; that is harmless here, but keep the cross-check line placed after the scope outcomes (as it is) so a reader still finds the spec-governs statement adjacent to the AC rows rather than buried under accounting boilerplate.",
+      "wallMs": 11002,
+      "verdict": "unchanged"
     }
   },
-  "repoSha": "46a577b6414ecec4232a5b3da4f858ddeeac8a5a"
+  "repoSha": "d499240c083fd27bfdd1b2d1340ff2def77fb18b"
 }

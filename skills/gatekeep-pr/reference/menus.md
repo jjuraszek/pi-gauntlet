@@ -15,6 +15,8 @@ Read with `decision-menu.md` at step 6. Select the template from this state map;
 | first report not ready, course unset | initial |
 | multi-PR parent round | batch summary |
 
+Render every menu in full from its template: the verdict line, every available row, and the hint line. Never narrate or summarize a menu; do not substitute "the initial template applied; the human picked 2" for its rendering. Quote a numeric pick only after the rendered menu.
+
 Render flat numbers through [menu-layout](../../brainstorming/reference/menu-layout.md); preserve its bare-numeric mapping. Put exactly one `[recommended]` on an available row and `stop` last. Put `show evidence` in every hint line, never in a row. Include every omission reason from `decision-menu.md`. A menu rendered under `deliver` before an exit condition, other than the contract-exception template, is a red flag; so is a menu not rendered from these templates, two recommendations, stop not last, or no evidence hint.
 
 Render terminal cleanup consequences through `cleanup.md`; use `skipped - needs a landed change` for merge-SHA-dependent overrides in the row text and result block.

@@ -170,6 +170,8 @@ test('multi-PR terminal picks stay parent-owned after worktree cleanup', () => {
   assert.match(round, /`post-selection-loop.md` `### Merge course` and `### Output done-check`/);
   assert.match(round, /direct selected post only, with no compare-and-swap or helper dispatch/);
   assert.match(round, /Queue terminal posts with all other external writes until every PR's pick is collected/);
+  assert.match(round, /Queue every parent-owned terminal pick.*until every roster entry's pick for the round is collected/);
+  assert.match(round, /Print `Queued until all picks are collected \(<roster summary>\)` before the execution block for each queued pick, including a single-entry roster/);
   assert.match(round, /Exclude terminal picks from child dispatch; never use a removed worktree as cwd/);
 });
 
@@ -520,7 +522,9 @@ test('watch belongs only to delivery and renews only on own push', () => {
   const wait = section(loop, '### Wait course\n', '### Output done-check\n');
   assert.match(wait, /only the gate's own push renews an existing window automatically/);
   assert.match(wait, /Base movement, refresh, repeated entry, or unrelated head\/body\/check changes never renew/);
-  assert.match(wait, /open evidence-dependent blockers do not disable the watch/);
+  assert.match(wait, /Immediately after record validation, evaluate the last helper result and retained no-progress checkpoint through `### Exit check` before minting a deadline or watching binding pending CI/);
+  assert.match(wait, /Run the deliver watch only when no blocker is open and no failed prerequisite is retained/);
+  assert.match(loop, /unchanged `open - needs <X>` prerequisite, exit `stuck - needs <X>` immediately/);
   assert.match(wait, /gh pr checks <N> -R <base-owner>\/<base-repo> --watch/);
 });
 
@@ -531,6 +535,9 @@ test('ten templates own menus and typed dispatch is not row authority', () => {
   assert.match(menus, /\+2 x maxFixRounds/);
   assert.match(loop, /every other non-numeric string is a change request/);
   assert.match(loop, /including typed `deliver`/);
+  assert.match(menus, /Render every menu in full from its template: the verdict line, every available row, and the hint line/);
+  assert.match(menus, /Quote a numeric pick only after the rendered menu/);
+  assert.match(menus, /Never narrate or summarize a menu/);
   assert.match(menus, /approved_head/);
   assert.match(menus, /failed post keeps its row/);
   for (const redFlag of ['validated action-scoped retained authority', 'without `fix` while an open blocker exists', 'A CI wait while a blocker is open', 'cleanup` rendered on an ordinary open-PR menu', 'An ordinary open-PR `stop` offers teardown', 'Blockers are empty', 'Count file, description-only, and conflict-only attempts under the same cap', 'a grant never raises the cap', '## Consent table', '## Overlays', '## Conflicts']) {

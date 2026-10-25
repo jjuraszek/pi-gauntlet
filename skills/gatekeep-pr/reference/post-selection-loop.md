@@ -35,14 +35,14 @@ First report ready -> final with course unset. Before choosing initial for a not
 1. Run `### Exit check`, then repair every source-backed and CI-minted `P#` blocker through `### Fix wave` and `fix-wave.md` `## Wave`. Under deliver-nits include all current and later nits. Preserve independent P#/L# contributor IDs; close only reviewer resolved lines.
 2. Run `### Loop sync` only for CONFLICTING, BEHIND, or local merge-tree conflict.
 3. Run pre-push review and one push through `fix-wave.md` `## Evidence after push`. Return Critical/Moderate carried findings to repair without a menu or push; at exhaustion keep unpushed commits and name the reviewer's top finding.
-4. Run one bounded `### Wait course` watch under the verifier's binding rule; open evidence-dependent blockers do not disable it.
+4. Run `### Exit check` on the last helper result and retained failed prerequisites before the bounded `### Wait course` watch; apply that section's watch admission rule.
 5. Run own-push `### Re-render`, then return to `### Exit check`.
 
 A final fix nits pick authorizes exactly one complete D3 iteration (required sync, review, push, watch and re-review included) and returns final or obstacle/cap without changing course. Before invoking the entry Exit check, persist `repair.wave.action: fix-nits` with selected_ids and payload snapshots in selected_payloads. Initialize missing accounting from fix-wave.md defaults for a course-unset final nit pick; never create a standing nit course. With course unset or deliver, dispatch the recorded nit work before readiness can return final. Keep the selection through repair/sync/review/push/watch/re-review; release the one-shot hold only after selected work and reconciliation complete, then evaluate fresh readiness. Obstacles and caps retain the checkpoint without fabricating completion. After that single iteration render final or the concrete obstacle/cap; later independent nits stay outside this selection.
 
 ### Exit check
 
-Evaluate before every iteration and after every head, digest, or record change. Take the first matching exit:
+Evaluate before every iteration and after every head, digest, or record change. Immediately after record validation, evaluate the last helper result and retained no-progress checkpoint before any binding-pending CI watch. For an unchanged `open - needs <X>` prerequisite, exit `stuck - needs <X>` immediately; name the prerequisite alone, without a CI timeout qualification. Apply the same ordering at own-push Re-render entry. Take the first matching exit:
 
 | Exit | Condition and render |
 |---|---|
@@ -175,9 +175,9 @@ A failed refresh retains prior values, classifies every pending check as binding
 
 ### Wait course
 
-Run one bounded watch only at D3 step 4, after the first report. Resolve `## PR gate` timeout minutes, default 15. Persist `repair.poll_deadline` on the first watch with a null deadline as current time plus the resolved timeout minutes; only the gate's own push renews an existing window automatically. Preserve it through re-entry and context restoration. Base movement, refresh, repeated entry, or unrelated head/body/check changes never renew it. An obstacle timeout deliver pick opens exactly one additional window without extending caps; an elapsed window otherwise exits through timeout, never a wait menu.
+Admit one bounded watch only at D3 step 4, after the first report and the admission checks below. Resolve `## PR gate` timeout minutes, default 15. Persist `repair.poll_deadline` on the first watch with a null deadline as current time plus the resolved timeout minutes; only the gate's own push renews an existing window automatically. Preserve it through re-entry and context restoration. Base movement, refresh, repeated entry, or unrelated head/body/check changes never renew it. An obstacle timeout deliver pick opens exactly one additional window without extending caps; an elapsed window otherwise exits through timeout, never a wait menu.
 
-Classify pending checks through the existing verifier binding rule; open evidence-dependent blockers do not disable the watch. With no binding check pending skip the call. Bound `gh pr checks <N> -R <base-owner>/<base-repo> --watch` by the remaining deadline through the brief's Safety contract ladder (harness timeout, else timeout/gtimeout, else background-and-kill). Ignore its exit status; refresh actual evidence. A base move queues next-iteration Loop sync (syncs_used), spending no round or renewed deadline. Do not treat an unrelated head move as an own push.
+Immediately after record validation, evaluate the last helper result and retained no-progress checkpoint through `### Exit check` before minting a deadline or watching binding pending CI. Run the deliver watch only when no blocker is open and no failed prerequisite is retained. Classify pending checks through the existing verifier binding rule. With no binding check pending skip the call. Bound `gh pr checks <N> -R <base-owner>/<base-repo> --watch` by the remaining deadline through the brief's Safety contract ladder (harness timeout, else timeout/gtimeout, else background-and-kill). Ignore its exit status; refresh actual evidence. A base move queues next-iteration Loop sync (syncs_used), spending no round or renewed deadline. Do not treat an unrelated head move as an own push.
 
 On completion or timeout, refresh then run steps 2-5 of Re-render plus step 1's comment and reviewer-run reads. Only on deadline expiry mark completed-success/prefix-persists placeholders reviewer failed (stale placeholder); before expiry preserve pending while the prefix persists. Pending checks stay pending. Return to Exit check, not a menu except at an exit.
 
