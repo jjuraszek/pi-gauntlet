@@ -1,7 +1,7 @@
 {
   "sample": "human-raised-drop",
   "arm": "candidate",
-  "skillSha": "e00c827c4d0772caea3149c51c040f904a2b6ab894bcfd3b84d4cb24f08fbdf6",
+  "skillSha": "6ba9f2cba9800b0eb73f6f52c15e8315ac7c9729ce34edfb6f73852fac69ac81",
   "inputSha": "ef2a533acdc8413125441da13b20c9ab316d57925678233e824f464c6fa1185b",
   "kind": "text",
   "assembly": "headed",
@@ -17,16 +17,16 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "Noted: the export reuses the existing CSV serializer and paging, with the button beside the report title. Before round 1 of the design, the 10k-row row needs a scope decision. Nothing in the code shows that row is wrong or impossible. Dropping it is a cut to the ticket contract, so here is how row 3 (`The export of a 10k-row report completes in under 60s.`) should be handled:\n\nA) in-scope - keep the row as written. The design adds a timed 10k-row export check against the serializer-and-paging path you chose.\nB) deviates: the under-60s target for 10k rows is not needed this sprint. The export ships without a size or time commitment.\nC) deferred: <where> - name a tracker ref (for example a new `acme/widgets#N`), a spec path, or a URL where the performance target will be delivered.\nD) repair the ticket - `/skill:shape-ticket acme/widgets#77 row 3 (\"10k-row report completes in under 60s\") - reporter says the target exceeds this sprint's need`.\n\nRecommendation: A - the row is a valid, testable outcome on the path you already picked, so keeping it costs one timed verification step. Choose D instead if the ticket itself should stop asking for it.\n",
-      "words": 194,
-      "wallMs": 10479,
+      "text": "Recorded: the export reuses the existing CSV serializer and paging, and the button sits beside the report title. Before the design, the 10k-row timing row needs a decision. The gather found no code or contract showing this row is wrong or impossible.\n\nTicket row: `The export of a 10k-row report completes in under 60s.`\n\nHow should this row be handled?\nA) in-scope - a 10k-row report exports through the reused serializer and paging in under 60s, proven by a test on a generated 10k-row report\nB) deviates: <why the sprint ships without the timing guarantee>\nC) deferred: <tracker ref, spec path, or URL where the timing work will land>\nD) repair the ticket - /skill:shape-ticket acme/widgets#77 \"The export of a 10k-row report completes in under 60s.\" - the evidence is your note that this exceeds this sprint's need\nRecommendation: A - the row is part of acme/widgets#77's contract, nothing shows it is wrong, and the paging you chose should meet it, so one generated-data test keeps the ticket intact.\n",
+      "words": 165,
+      "wallMs": 9967,
       "mechanical": {}
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "We’ll reuse the existing CSV serializer and paging, with the Export CSV button beside the report title. Before presenting the design, we need to resolve the ticket row you asked to drop:\n\n> The export of a 10k-row report completes in under 60s.\n\nA) in-scope - retain the 10k-row, under-60s requirement and verify it this sprint.\nB) deviates: omit the performance requirement because it exceeds this sprint’s needs.\nC) deferred: move the requirement to a follow-up tracker reference or spec path you provide.\nD) repair the ticket - `/skill:shape-ticket acme/widgets#77` to revise this row to reflect the sprint scope before continuing.\nRecommendation: D - align the ticket’s acceptance criteria with your intended scope rather than leave a known mismatch.\n",
-      "words": 115,
-      "wallMs": 8095,
+      "text": "We’ll reuse the existing CSV serializer and paging, with the button beside the report title. Before the first design round, we need to resolve this ticket requirement: “The export of a 10k-row report completes in under 60s.”\n\nA) in-scope - retain the 10k-row, under-60s requirement and verify it this sprint.\nB) deviates: omit the performance requirement because it exceeds this sprint’s needs; the export still includes the owner column.\nC) deferred: acme/widgets#77 - leave the performance requirement tracked there for later delivery.\nD) repair the ticket - `/skill:shape-ticket acme/widgets#77` to revise the timing row, citing your decision that it exceeds this sprint’s needs.\nRecommendation: D - update the ticket contract to match the intended sprint scope rather than silently dropping its requirement.\n",
+      "words": 118,
+      "wallMs": 10395,
       "mechanical": {}
     }
   },
@@ -36,7 +36,7 @@
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
       "intentSha": "83efb3921f184032edfe25c4fad639e1ae2a6be3968e3b6aad1379f00b49bbce",
       "baselineOutputSha": "7c9a5915ae801ead2d7f196feea7eac68b6ff06270b84a668aba471ed729614b",
-      "candidateOutputSha": "854e3d61794b8b7eddef1f4fbceebd904a4fdfe724e162089b53d2dfff53938d",
+      "candidateOutputSha": "6128c24cf6c154f8a238f5b8c9e5ec6abefe1eef02ea0570b81779737bcefd74",
       "facts": {
         "f1": {
           "before": "holds",
@@ -54,8 +54,8 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "No fact moved. After still presents the 60s row's cut question with A, B, C, D in order, recommends A (with D as the only alternative), and does not mark the row deferred or deviates before the user replies. Two drifts are worth watching though: After turns the question into a declarative lead-in (\"here is how row 3 ... should be handled:\") rather than asking it, and its D option embeds editorial text (\"row 3 (...) - reporter says the target exceeds this sprint's need\") inside the /skill:shape-ticket command, which departs from the verbatim-row repair form Before used; a stricter reader could read the former as not 'asking' and the latter as an inaccurate command. To keep every fact robustly while delivering the questionary layout change, keep an interrogative lead-in such as \"How should the spec treat `<row>`?\" above the option lines, keep D as `/skill:shape-ticket acme/widgets#77 \"<verbatim row>\"` with any rationale outside the command, and keep the Recommendation line to a single recommended letter plus its reason rather than appending a second-choice sentence.",
-      "wallMs": 16063,
+      "feedback": "Nothing moved: both outputs ask the cut question for the 60s row with A/B/C/D in order, both recommend A, and neither marks the row deferred or deviates before the user answers. After also lands the new questionary layout (lead-in first, one labeled option per physical line, Recommendation: on its own final line), so the Change is delivered without displacing the cut-question contract. One wording wrinkle worth tightening in After: option D says 'the evidence is your note that this exceeds this sprint's need', which frames a scope preference as evidence the row misstates the requirement, contradicting the preceding sentence that nothing shows the row is wrong; Before's 'correct the row on the ticket if it misstates the requirement' keeps D honest. Also consider restoring Before's explicit 'Its text stays verbatim in the spec either way' so the verbatim-row guarantee is visible at the gate.",
+      "wallMs": 8274,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
@@ -63,7 +63,7 @@
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
       "intentSha": "83efb3921f184032edfe25c4fad639e1ae2a6be3968e3b6aad1379f00b49bbce",
       "baselineOutputSha": "46e454e1a8487b14d417a12f2c742ece91131fc6dd9f30254ca38e6898e67b12",
-      "candidateOutputSha": "e09be81b8d2ce279b8b68cb6dff11751e0973a0bc60db3c78428f850a99330de",
+      "candidateOutputSha": "2fdeb74f1fd012c80b289131d2ab47c7309bfbff56f4f358a8a2e97be691db5c",
       "facts": {
         "f1": {
           "before": "holds",
@@ -81,10 +81,10 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "No fact moved in this case: both outputs present the cut question for the 60s row with options A, B, C, D in order, recommend A or D (Before A, After D), and leave the row unmarked until the user answers. The one risk in After is that it drops the explicit interrogative line (\"How should we handle ...?\") and instead quotes the row after \"we need to resolve the ticket row you asked to drop:\", relying on the option list alone to signal the question; a stricter reader could argue the cut question is implied rather than asked. To keep f1 robust while delivering the Change, keep a lead-in question sentence before the lettered options (e.g., \"How should we handle this row?\") and keep Recommendation: on its own final line as After already does.",
-      "wallMs": 8591,
+      "feedback": "After keeps every fact Before kept: the 60s row is presented with options A, B, C, D in order, the recommendation stays within A/D (now D instead of A, which is still allowed), and the row is not marked deferred or deviates ahead of the user's answer. The one softening is the lead-in: Before posed an explicit question (\"How should we handle ...?\") while After uses a declarative \"we need to resolve this ticket requirement:\" before the option lines, which a strict reader could argue is no longer phrased as asking the cut question. To stay safe under the questionary layout change, keep the lead-in interrogative — e.g. \"Before the first design round, how should we handle ‘The export of a 10k-row report completes in under 60s’?\" — then the labeled option lines and the own-line Recommendation; that delivers the lead-in-first/one-option-per-line layout without weakening f1.",
+      "wallMs": 11482,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "65af5317a4146b2cb653ed1ff1a3a97ffb4792f5"
+  "repoSha": "3165af4d93b705ca57db2a902828aa9ed9aeee2c"
 }

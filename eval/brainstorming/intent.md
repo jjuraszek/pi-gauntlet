@@ -1,4 +1,4 @@
-for: 457758062a26d8fd2459c7bbca581befc09289c0f4f55e55bcce1c43ca4157a8
+for: 06fd81101b9151e0b854c7c140d7df0b3ed3e7c863d387ec8d290bebe0e03c7c
 
 ## Change
 Draft observable acceptance rows from the approved design when no ticket rows exist, including fetched tickets without ACs and unbound PR rework. Preserve verbatim ticket rows and the not-fetched sentinel. The rewritten loop-gate/no-ac covers only not-fetched zero-row gating; pr-subject-rule-added-later/no-ticket and pr-subject-resolution/open require drafted provenance and design-derived tenant-isolation or retry outcomes. Drafted rows appear verbatim at approval, enabling loop options without a separate pre-gate approval. Text replay demonstrates supplied-observation behavior, not actual writes or live gate execution.

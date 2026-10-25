@@ -1,7 +1,7 @@
 {
   "sample": "questionary-option-lines",
   "arm": "candidate",
-  "skillSha": "e00c827c4d0772caea3149c51c040f904a2b6ab894bcfd3b84d4cb24f08fbdf6",
+  "skillSha": "6ba9f2cba9800b0eb73f6f52c15e8315ac7c9729ce34edfb6f73852fac69ac81",
   "inputSha": "ac556d1374211deb4d9a4736061b3cf2d3dde543d37276a9443dd4c5fefaee5e",
   "kind": "text",
   "assembly": "headed",
@@ -17,16 +17,16 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "Which behavior should the workspace-switch filter policy apply when the user changes workspaces in the report view?\nA) clear all filters on every workspace switch\nB) preserve all active filters across switches\nC) restore each workspace's last filters\nRecommendation: B - the workspace-change handler in ui/report-view.ts already keeps active filters, so B is a new resolver default in settings/resolver.ts:12 with no behavior change and no new per-workspace filter state, which C would need.\n",
-      "words": 72,
-      "wallMs": 7765,
+      "text": "Which behavior should the workspace-switch filter policy apply in the report view when the user changes workspace?\nA) clear all filters - every switch starts the view unfiltered\nB) preserve all active filters - filters carry across switches, as the current workspace-change handler in ui/report-view.ts already does\nC) restore each workspace's last filters - each workspace reopens with the filters it had when the user last left it\nRecommendation: B - it matches today's handler behavior, so existing users see no change, and it needs no per-workspace filter state beside the resolver-owned setting in settings/resolver.ts:12.\n",
+      "words": 91,
+      "wallMs": 8356,
       "mechanical": {}
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "What should happen to report filters when you switch workspaces?\nA) Clear all filters on every workspace switch.\nB) Preserve all active filters across switches.\nC) Restore each workspace’s last filters.\nRecommendation: C - keeps filters relevant to each workspace while preserving your previous working context.\n",
-      "words": 45,
-      "wallMs": 4709,
+      "text": "What should happen to report filters when switching workspaces?\nA) Clear all filters on every workspace switch.\nB) Preserve all active filters across switches.\nC) Restore each workspace’s last filters.\nRecommendation: B - it preserves current behavior and avoids introducing per-workspace filter state.\n",
+      "words": 42,
+      "wallMs": 2987,
       "mechanical": {}
     }
   },
@@ -36,7 +36,7 @@
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
       "intentSha": "83efb3921f184032edfe25c4fad639e1ae2a6be3968e3b6aad1379f00b49bbce",
       "baselineOutputSha": "905cdd60d5818d0ebff72ad6925973b39a67f2d7fc35e7f8fc2c5a062213b20f",
-      "candidateOutputSha": "9c95830a02809437182985ef1f726793b440dfc509d2e9932130fb7325438f6c",
+      "candidateOutputSha": "6502fd54b29271e4798aadf50f65ed5326c0ef607c14a38bd1c88f8dfc5999f2",
       "facts": {
         "layout": {
           "before": "holds",
@@ -49,8 +49,8 @@
           "label": "held"
         }
       },
-      "feedback": "Nothing moved on this case: both outputs put the lead-in first, give A/B/C each their own physical line, and end with Recommendation: on its own final line, and both preserve the three supplied choices and recommend B with a reason. After actually tightens fidelity by quoting the choices verbatim and dropping the blank separator lines, which still satisfies the one-option-per-physical-line rule; if you want the blank lines back for readability, the layout wording can say 'own physical line (blank separators permitted)' so neither form is read as an inline run. The added 'which C would need' aside in After's recommendation stays a reason for B rather than a design or approaches move, so it is safe, but keep the recommendation to a single line as it is here to avoid any future wrap that could split Recommendation: from its text.",
-      "wallMs": 8460,
+      "feedback": "Nothing moved: both outputs lead with the question, put A/B/C each on its own physical line, and end with Recommendation: on its own line, and both preserve the three supplied choices with a B recommendation grounded in the existing ui/report-view.ts handler. After drops the blank lines between the lead-in, options, and recommendation, which still satisfies the physical-line rule but reads denser; it also rewords the option labels slightly (\"clear all filters\" without \"on every workspace switch\", adding the consequence after a dash). If you want the After wording to be robust across judges, keep the user's three choice phrasings verbatim as the option text and put any consequence clause after it, and consider retaining the blank line before Recommendation: so the own-line requirement is unambiguous in rendered Markdown.",
+      "wallMs": 7412,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
@@ -58,7 +58,7 @@
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
       "intentSha": "83efb3921f184032edfe25c4fad639e1ae2a6be3968e3b6aad1379f00b49bbce",
       "baselineOutputSha": "cedcef6efa75003470be1802601c3b0f706a9776b877209dfb7fc7295c0a876e",
-      "candidateOutputSha": "e55138b14f242e29350c53f13474f748a6de4d2a02e412aa0ed25307eec741c2",
+      "candidateOutputSha": "ef771622987228b9808240d05d029e4c55e736c4ee704f408b633f8852b5fc85",
       "facts": {
         "layout": {
           "before": "holds",
@@ -71,10 +71,10 @@
           "label": "held"
         }
       },
-      "feedback": "Both outputs satisfy both facts: each puts a single lead-in question before the first labeled option, places A), B), and C) on separate physical lines, and ends with Recommendation: on its own final line, so the layout fact holds in both. Both preserve the three supplied choices verbatim and recommend one with a reason rather than deciding for the user or moving to approaches, so the content fact holds in both. The only difference in After is the recommended option (C instead of B) and a reworded lead-in; neither moves a fact. No wording adjustment is needed for this case — the After wording already keeps everything Before kept while delivering the one-option-per-line layout the Change requires.",
-      "wallMs": 4771,
+      "feedback": "Both outputs satisfy both facts: the lead-in question precedes option A, each of A/B/C sits on its own physical line with its full supplied text, and Recommendation: closes the response on its own line with a reason (B, preserving current behavior and avoiding per-workspace state) rather than deciding or moving to approaches. After differs from Before only in the lead-in phrasing (\"What should happen to report filters\" vs. \"How should the report view handle filters\") and \"introducing\" vs. \"adding\" in the rationale, neither of which moves a fact. The After wording already keeps everything Before kept while delivering the one-option-per-line layout the Change requires; no adjustment is needed for this case.",
+      "wallMs": 4679,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "65af5317a4146b2cb653ed1ff1a3a97ffb4792f5"
+  "repoSha": "3165af4d93b705ca57db2a902828aa9ed9aeee2c"
 }

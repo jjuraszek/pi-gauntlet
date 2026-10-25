@@ -1,7 +1,7 @@
 {
   "sample": "ticket-repair-return",
   "arm": "candidate",
-  "skillSha": "e00c827c4d0772caea3149c51c040f904a2b6ab894bcfd3b84d4cb24f08fbdf6",
+  "skillSha": "6ba9f2cba9800b0eb73f6f52c15e8315ac7c9729ce34edfb6f73852fac69ac81",
   "inputSha": "9b45bd622c6744fabf33250d8062c7d2cc11700a0ee72cdfd87a44fcaa82a89d",
   "kind": "text",
   "assembly": "headed",
@@ -17,16 +17,16 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "The ticket repair is saved and verified: acme/widgets#77 now carries one acceptance criterion, \"The report-view setting uses the shared settings resolver.\" That row is `in-scope` as written. It matches the path I traced from `settings/resolver.ts:12` into `ui/report-view.ts:30`, so it needs no further cut question. The framing stays as recorded (`Framing: kept`). I'm assuming the new setting is a key with its default declared in the resolver, the same way existing settings flow, and I'll record that in the draft.\n\nNext is what happens to active report filters when the user switches workspaces. Today they persist and can hide rows in the new workspace. What should the setting do by default?\n\nA) Reset all report filters on every workspace switch by default, with the setting letting users opt out and keep filters.\nB) Keep today's behavior (filters persist) by default, with the setting letting users opt in to a reset on switch.\nC) On a switch, keep only filters that still apply in the new workspace and drop the rest, with the setting choosing between this and a full reset.\nD) Other - name it.\n\nRecommendation: A - the reported problem (rows hidden after a switch) is what users hit with default settings, so the fix belongs in the default; the opt-out preserves today's behavior for anyone who relies on it.\n",
-      "words": 218,
-      "wallMs": 11779,
+      "text": "The repair to acme/widgets#77 is saved, and the re-fetched ticket now carries one acceptance criterion: \"The report-view setting uses the shared settings resolver.\" That row is in-scope as written. It matches the path I traced, from the defaults in `settings/resolver.ts:12` to the consumer in `ui/report-view.ts:30`. The framing is unchanged, so the new setting goes through the shared resolver.\n\nOne behavior is still undecided: what happens to active report filters when the user switches workspaces? The reported bug is that filters carry over and sometimes hide rows in the new workspace.\n\nA) The new setting defaults to resetting filters on workspace change, and users can opt in to keeping them.\nB) The new setting defaults to keeping filters, and users can opt in to resetting them.\nC) The new setting defaults to keeping only the filters that apply to the new workspace's data, and users can opt in to a full reset or full keep.\nRecommendation: A - resetting by default fixes the reported hidden-rows behavior without user action, and the opt-in keep preserves today's behavior for users who rely on it.\n",
+      "words": 180,
+      "wallMs": 10734,
       "mechanical": {}
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "The repair is saved and verified: acme/widgets#77 now requires the shared settings resolver. That criterion stays in scope, and the framing remains kept.\n\nWhat should the new setting do when switching workspaces?\nA) Clear report filters by default, with an option to preserve them.\nB) Preserve report filters by default, with an option to clear them.\nC) Other - name the desired behavior.\nRecommendation: A - it prevents filters from silently hiding rows in the new workspace while retaining an explicit preserve option.\n",
-      "words": 81,
-      "wallMs": 8679,
+      "text": "The repaired criterion in acme/widgets#77 now requires the shared settings resolver, matching the verified path from `settings/resolver.ts:12` to `ui/report-view.ts:30`. I’ll carry that criterion forward as in-scope.\n\nWhat should the report-view setting do by default when switching workspaces?\nA) Reset filters by default, with an option to preserve them.\nB) Preserve filters by default, with an option to reset them.\nC) Other — name the desired behavior.\nRecommendation: A - it prevents filters from silently hiding rows in the new workspace while allowing users to retain the existing behavior.\n",
+      "words": 86,
+      "wallMs": 9171,
       "mechanical": {}
     }
   },
@@ -36,7 +36,7 @@
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
       "intentSha": "83efb3921f184032edfe25c4fad639e1ae2a6be3968e3b6aad1379f00b49bbce",
       "baselineOutputSha": "fc1c7b9cce7afd1fb93d2bbe4eb7ae5e1fcf5127fb45bb972ba33990e3c178ae",
-      "candidateOutputSha": "a64dba2da627eae71f05ce9bcd7051da9f5ed5bfd08d7c0bbf0c434012586607",
+      "candidateOutputSha": "9fc6bac6391fce8fb036addb557e6ada02d8b4cdd1c32c34290e07e33689c509",
       "facts": {
         "f1": {
           "before": "holds",
@@ -49,8 +49,8 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "No fact moved. Both outputs read the repaired shared-resolver criterion directly from the verified save, treat the single row as in-scope, do not re-ask for repair approval, and claim only the verification the latest tool result reports. Both then resume the still-open reset-on-workspace-change question with a lead-in, four labeled options on their own physical lines, and a final own-line Recommendation, without drifting into approaches. After's additions ('needs no further cut question', 'Framing stays as recorded', 'I'll record that in the draft') are consistent with the state and keep the questionary layout the Change requires; the only caution is that 'I'm assuming the new setting is a key ... and I'll record that' edges toward a design decision before the reset question is settled, so if you want to tighten, phrase it as a traced observation ('existing settings declare defaults in the resolver') rather than an assumption to be recorded, which keeps f2's no-approaches rule unambiguous while delivering the same layout.",
-      "wallMs": 8905,
+      "feedback": "Nothing moved on this case. Both outputs treat the saved, re-fetched shared-resolver criterion as the in-scope row, neither asks the user to approve the repair again, and neither asserts anything beyond the supplied save/verification/re-fetch observations (Before's \"saved and verified\" and After's \"re-fetched ticket now carries\" are both backed by the recorded observations). Both then continue past the ticket-update report into the open reset-on-workspace-change question with lettered options and an explicit recommendation, and neither presents design approaches while that decision is pending. After additionally follows the new questionary layout cleanly: lead-in first, each option on its own physical line, and \"Recommendation:\" as the final own-line. The only wording differences are cosmetic — After drops the \"D) Other - name it\" escape hatch and restates the reported bug in the lead-in — and neither affects f1 or f2; keep the After wording as is.",
+      "wallMs": 11603,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
@@ -58,7 +58,7 @@
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
       "intentSha": "83efb3921f184032edfe25c4fad639e1ae2a6be3968e3b6aad1379f00b49bbce",
       "baselineOutputSha": "8ae01ae480a62fe051b0330098a5e820fcec4101b2193cc5726801f0cccb52ac",
-      "candidateOutputSha": "679a632a3c9d1ada08baf9395c0e6bab7fc6760356c851bab23b106b3260d981",
+      "candidateOutputSha": "e7cff2bffa7ce9c04ae29f09f2f4784e4e642760a6e72021d5fca5060432dc62",
       "facts": {
         "f1": {
           "before": "holds",
@@ -71,10 +71,10 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "Nothing moved on this sample: both outputs treat the repair as saved and verified against the fetched shared-resolver criterion without re-asking for approval or inventing an unfetched result, and both continue straight into the unresolved workspace-switch filter question as a labeled A/B/C(/D) list with a final Recommendation line, without presenting approaches. After is slightly thinner than Before in that it drops the concrete code anchors (settings/resolver.ts:12, ui/report-view.ts:30) from the lead-in and reframes the question as 'what should the new setting do' with default-plus-toggle options rather than the plain clear/restore/keep behaviors; neither affects f1 or f2, but if you want After to stay maximally faithful to the traced path, keep the resolver-to-view anchors in the opening sentence and keep the options as direct behaviors of the reset decision so the question reads as the deferred reset question rather than a settings-design question. The questionary layout change (lead-in first, one option per physical line, Recommendation on its own final line) is already satisfied in both outputs, so no further wording is needed here.",
-      "wallMs": 9166,
+      "feedback": "After keeps both facts: it states the repaired shared-resolver criterion as verified and carries it forward without re-asking for repair approval or inventing an unfetched result, and it resumes the open reset-behavior question with labeled options on their own lines and a final own-line Recommendation instead of stopping at a ticket-update report. The only drift worth noting is that After reframes the question as what the \"report-view setting\" should do \"by default,\" with every option bundling a user-facing toggle; that pre-decides a setting-plus-override design before the reset decision is made, whereas Before asked the bare behavior question (clear / per-workspace restore / keep / other). To keep the question neutral while still delivering the Change's layout rules, ask \"What should happen to active report filters when switching workspaces?\" and list plain behavioral options, leaving any toggle as a separate choice.",
+      "wallMs": 9473,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "65af5317a4146b2cb653ed1ff1a3a97ffb4792f5"
+  "repoSha": "3165af4d93b705ca57db2a902828aa9ed9aeee2c"
 }
