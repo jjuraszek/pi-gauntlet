@@ -28,6 +28,7 @@ const fixWave = read('../skills/gatekeep-pr/reference/fix-wave.md');
 const assessment = read('../skills/gatekeep-pr/reference/assessment.md');
 const sync = read('../skills/gatekeep-pr/reference/sync.md');
 const batch = readOrEmpty('../skills/gatekeep-pr/reference/batch.md');
+const cleanup = read('../skills/gatekeep-pr/reference/cleanup.md');
 const gatekeeper = readOrEmpty('../agents/pr-gatekeeper.md');
 
 for (const [name, text, patterns] of [
@@ -37,7 +38,7 @@ for (const [name, text, patterns] of [
     /^tools: read, grep, find, ls, bash, edit, write, subagent, gauntlet_setting, plan_tracker$/m,
     /^defaultContext: fresh$/m, /^inheritProjectContext: true$/m,
     /^inheritSkills: false$/m, /^systemPromptMode: replace$/m, /^completionGuard: false$/m,
-    /Not for direct dispatch/, /assess/, /execute/, /implementer/,
+    /Not for direct dispatch/, /In `report`/, /execute/, /implementer/,
     /supplied record and report paths/, /never re-initialize/i,
   ]],
   ['admission and serial provisioning', batch, [
@@ -50,14 +51,14 @@ for (const [name, text, patterns] of [
     /non-zero.*never fall back/, /preconditions 4-5/, /rebase confirmation: yes \| no \| not asked/,
   ]],
   ['handoff and foreground batch', batch, [
-    /gatekeep-roster\.XXXXXX/, /grants null/, /rounds zero/, /approved_head.*null/,
+    /gatekeep-roster\.XXXXXX/, /`course` null/, /`repair.rounds_used` and `repair.syncs_used` zero/, /`repair.rounds_cap` and `repair.syncs_cap` to `2 x`/, /approved_head.*null/,
     /async: false/, /context: "fresh"/, /skill: "gatekeep-pr"/,
     /level: "none"/, /the gatekeep child result line is the handoff contract/,
     /skip the fetch, run no worktree add, verify HEAD/,
     /selected skill's absolute `filePath` metadata/,
     /procedure root: <absolute installed skill directory>/,
     /Resolve all named procedure dependencies relative to this root, never the PR worktree or cwd/,
-    /never overwrite grants, counters, deadline, ledger, or helper paths/,
+    /never overwrite course, counters, caps, deadline, ledger, or helper paths/,
     /REPORT <report path>/, /CONFLICTING <report path> - <sync record>/,
     /FAILED - <reason>/, /STOPPED - <ask> - <what the user must supply>/,
     /await all/i, /All terminal/, /no helper dispatch/,
@@ -527,4 +528,37 @@ test('terminal nit selection blocks readiness until its single complete iteratio
   assert.match(next, /Obstacles and caps retain the checkpoint/);
   assert.match(section(fixWave, '## Wave\n', '## Review before push\n'), /For `action: fix-nits`, retain repair\.wave including its action and selected payloads through watch and own-push re-review; clear it only through `post-selection-loop\.md` `### Next action`'s one-shot completion rule/);
   assert.match(section(loop, '### Fix wave\n', '### Merge course\n'), /recorded selected_ids and payload snapshots/);
+});
+
+test('non-final stop removes only owned tracked-clean pushed trees without terminal consequences', () => {
+  const stop = section(cleanup, '## Non-final stop\n');
+  for (const pattern of [
+    /initial, assess-terminal, obstacle, or contract-exception/,
+    /git -C <worktree\.path> reset --hard <pre_head>.*HEAD == <pre_head>.*clean tree/,
+    /created and reused/i, /not the primary/, /status --porcelain --untracked-files=no/,
+    /merge-base --is-ancestor HEAD <last pushed head>/,
+    /repair.wave.pushed_head.*headRefOid/, /realpath/, /home:.*<name>/,
+    /unpushed commits <shas>/, /uncommitted changes/, /outside configured home/, /ambiguous home match/,
+    /worktree: kept - <reason> at <path>/, /untracked.*deleted/i,
+    /worktree.destroy/, /git -C <primary> worktree remove --force/, /git -C <primary> worktree prune/, /worktree: done/,
+    /failed.*keeps the tree.*never fall back/, /Keep the primary/,
+    /Never run terminal steps 2-4/, /branch deletion, base pull, or `## cleanup` overrides/,
+    /### Teardown/,
+  ]) assert.match(stop, pattern);
+});
+
+test('batch courses preserve two budgets and parent lifecycle ownership', () => {
+  assert.match(batch, /Supply mode `report` or `execute`/);
+  assert.doesNotMatch(batch, /mode `assess`|assess and execute task|`assess` with ordinary|grant grammar|Retained fix\/merge-base grants/);
+  assert.match(batch, /Only the first course pick may resolve.*initial D4 allowance/);
+  assert.match(batch, /re-dispatch never reinitializes usage or caps/);
+  assert.match(batch, /Record direct picks as the child's `course` or terminal verb/);
+  assert.match(batch, /under `deliver`.*readiness, obstacle, or cap.*`REPORT`/);
+  assert.match(batch, /child's template from `menus.md`/);
+  assert.match(batch, /after all children finish, never on a live child's tree/);
+  assert.match(batch, /non-final.*`cleanup.md` `## Non-final stop`/);
+  assert.match(gatekeeper, /In `report`/);
+  assert.match(gatekeeper, /under `deliver`.*readiness, obstacle, or cap.*REPORT/);
+  assert.match(gatekeeper, /course,.*repair.rounds_cap.*repair.syncs_cap/);
+  assert.doesNotMatch(gatekeeper, /In `assess`|retained grants|next-action\/fix-wave/);
 });

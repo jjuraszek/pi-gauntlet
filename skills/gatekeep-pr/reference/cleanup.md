@@ -17,3 +17,21 @@ Run the steps in order; a failing step prints its first error line and the loop 
 With no overrides file or no `## cleanup` section, run steps 1-3 only. On a closed-unmerged PR steps 2 and 3 print `PR not merged` and the landed-change guard skips release and `<merge-sha>` items before substitution. Do not delete the consent record, helper output files, or temporary body files here - `show evidence` and the post rows stay available after `cleanup`; `post-selection-loop.md` `### Teardown` deletes them on terminal exit.
 
 Consequence clause for the menu row (`decision-menu.md`): `remove <worktree.path> (untracked files there are deleted) and branch <worktree.branch>, pull <baseRefName>, then <label> (<resolved command>), ...` with every placeholder already substituted, so the tracker comment text and the release invocation are confirmed by the one pick and `/skill:release` keeps its own level gate; steps the guards would skip render as `<label> (skipped - <reason>)`; with no `## cleanup` section the clause is `tear down the gate's checkout and local branch (untracked files there are deleted)`.
+
+## Non-final stop
+
+Enter here for `stop` on the initial, assess-terminal, obstacle, or contract-exception menu. On a `rebased locally` head, run `git -C <worktree.path> reset --hard <pre_head>` first; assert `HEAD == <pre_head>` and a clean tree. Stop on a failed assertion.
+
+Reuse step 1's primary and keyed ownership computation: resolve `home:` and the `<name>` pattern against `$PRIMARY`, and pass both the pattern and `worktree.path` through `realpath`. Keep the primary even when clean; print `worktree: kept - primary at <path>`.
+
+For a path that is not the primary, apply these checks in order; created and reused trees are both eligible:
+
+| Check | On failure |
+|---|---|
+| `git -C <worktree.path> status --porcelain --untracked-files=no` is empty | Keep: `uncommitted changes` |
+| `git -C <worktree.path> merge-base --is-ancestor HEAD <last pushed head>` succeeds; use `repair.wave.pushed_head` when set, else the assessed `headRefOid` | Keep: `unpushed commits <shas>`; list commits from `<last pushed head>..HEAD` |
+| Under a keyed `## using-git-worktrees` contract, step 1's ownership match is unique | Keep: `outside configured home` for no match, or `ambiguous home match` for multiple matches |
+
+For a failed check print `worktree: kept - <reason> at <path>` and leave the tree. Untracked residue alone does not block removal and is deleted. For an eligible tree run recorded `worktree.destroy` from the primary; a failed custom destroy keeps the tree, prints `worktree: failed - <first error line>, left at <path>`, and must never fall back to forced removal. With no recorded destroy command, run `git -C <primary> worktree remove --force <worktree.path>`. After successful destruction run `git -C <primary> worktree prune` and print `worktree: done`. Touch nothing under the removed path.
+
+Never run terminal steps 2-4 here: no branch deletion, base pull, or `## cleanup` overrides. Delegate record, helper-output, and temporary body-file deletion to `post-selection-loop.md` `### Teardown`.
