@@ -40,4 +40,6 @@ Anything else (not found, inconclusive, timed out, contradicted) -> create `## O
 
 Inline an `external-ref:` cluster only from the human-input block or fetched external context carrying the reference. Otherwise defer it with `-> user supplies at gate`.
 
-Execute an applied `over-spec:` cluster by deleting or shrinking the quoted clause and every acceptance-criteria or testing-approach line that exists only for it. Keep the human-input block off-limits for over-spec. End its audit line with `-> cut (was adds: M files / N tests / K ACs)` or `-> shrunk to <replacement> (was adds: ...)`.
+Drafted rows are spec requirements, not Human input; permit pre-approval rewrites only for integrity (wishful, tautological, unspecified-but-binding, external-input, or post-deployment proof). Preserve the committed outcome and use only Design-sourced proof; leave missing values for clarification. Delete a drafted row only after its Design commitment is cut through the user's scope-decision procedure; quoting the row alone never permits deletion, and never replace the section with `none`. Never draft new rows.
+
+Subject to the drafted-row protection above, execute an applied `over-spec:` cluster by deleting or shrinking the quoted clause and every acceptance-criteria or testing-approach line that exists only for it. Keep the human-input block off-limits for over-spec. End its audit line with `-> cut (was adds: M files / N tests / K ACs)` or `-> shrunk to <replacement> (was adds: ...)`.

@@ -8,6 +8,11 @@ Spec-writing replaces the context draft, in this exact order:
    pruned questionary plus a full-replacement `write` destroys the only copy of the
    gathered context at the moment it feeds the spec.
 2. Write the spec with the `write` tool (**full replacement**) at the spec path.
+   After the mandatory draft read and before the full replacement, apply
+   `ticket-acceptance.md`'s row-production branch to the approved two-round design plus the original prompt.
+   Keep `## Acceptance criteria` after Problem; draft one observable outcome per row,
+   default `in-scope`, retaining environment-bound pre-production proof as `venue:`.
+   Apply the inline integrity recovery and cut question there before writing.
    Using `edit` at this step is a red flag. The header block (between the H1 and the
    first `##`) carries `**Amend-grant:** none` directly below `**Goal:**`; a redraw's
    rewrite carries `none` too - a redraw is a new approval, with no carry-over.
@@ -46,13 +51,15 @@ After writing the spec to `<project>/doc/specs/<filename>.md` (per [Filename Con
 - **Placeholder scan.** Any `TODO`, `TBD`, `<fill in>`, `[example]`, `xxx`? Either resolve them or convert to explicit "Open Questions" with names.
 - **Internal consistency.** Does Section 4 contradict Section 2? Does the header block carry `**Amend-grant:**` exactly once with the value `none` (the [predicate](amendment-surface.md#standing-grants))? Are component names and field names consistent throughout? If the spec replaces a prior design, confirm the predecessor carries the supersession banner and its href resolves to this spec's final filename.
 - **Documentation named.** Does the spec name all three classes (feature/user-facing introduced; materially amended; derived/memory invalidated), or an explicit "none" for each? Enforce the materiality bar in `documentation-impact.md` without restating it: each listed doc names the category it clears, none is a code-mirror, amend-over-create was applied, and skill/agent bodies are implementation surface, not doc-impact entries here.
-- **Ticket contract present.** Does `## Acceptance criteria` exist with either verbatim ticket rows plus dispositions or one `none - <reason>` line? Presence is enforced here, at authoring, and nowhere later. For a PR subject, require the complete `## Rework record` per `pr-subject.md`; absence fails inline lint, including after a full replacement or redraw.
+- **Ticket contract present.** Require `## Acceptance criteria` in exactly three forms: ticket provenance (`Ticket <ref>, <heading or "checkbox list">, rows verbatim:`) with verbatim rows and dispositions; drafted provenance (`Drafted from the design, no ticket rows:` or `Drafted from the design, ticket <ref> has no acceptance criteria:`) with at least one `- [ ]` row and a disposition on every row; or the single line `none - ticket not fetched (<reason>)`. Reject `none - no ticket` and `none - ticket has no acceptance criteria` as final bodies. For a PR subject, require the complete `## Rework record` per `pr-subject.md`; absence fails inline lint, including after a full replacement or redraw.
 - **Scope check.** Does every paragraph serve the goal? Cut filler. If something is out of scope, say it's out of scope.
 - **Ambiguity check.** Is every "we should..." backed by a concrete decision? Replace "we could probably" with "we will" or "we won't".
 
-The first four are the inline **lint**: run them here and fix what they surface. The last two are the **critique pass**, dispatched per [Spec Council](#spec-council). After it returns, re-run the placeholder scan over the applied spec and re-apply the predicate to the header block - if the critique pass removed or altered the `**Amend-grant:**` line, repair it to `none`, exactly once; if a predecessor banner exists, confirm its `<scope>` still matches and reconcile it; carry any ambiguity the critique could not resolve to the [User Review Gate](#user-review-gate).
+The first four are the inline **lint**: run them here and fix what they surface. The last two are the **critique pass**, dispatched per [Spec Council](#spec-council). After it returns, re-run the placeholder scan over the applied spec and reapply the same whole-section predicate from **Ticket contract present**: a correct provenance header with zero rows still fails. Have the main loop repair an invalid drafted section (including erased provenance, a triggering `none` line, or a header with no rows) from the applied Design by re-drafting at least one valid row using `ticket-acceptance.md`'s integrity recovery; never delegate drafting to the applier. With no valid outcome, obtain clarification or an explicit scope decision before the gate. On successful repair, append `Drafted AC repair: restored acceptance rows from the applied Design.` after the existing commit-body audit, preserving council cluster lines and counts; on the worker path append it to the otherwise empty body. Then re-apply the predicate to the header block - if the critique pass removed or altered the `**Amend-grant:**` line, repair it to `none`, exactly once; if a predecessor banner exists, confirm its `<scope>` still matches and reconcile it; carry any ambiguity the critique could not resolve to the [User Review Gate](#user-review-gate).
 
 ## Spec Council
+
+Exclude drafted rows from `Human input (verbatim; off-limits for over-spec)`; they are spec requirements, not a ticket snapshot. Keep the original prompt, ticket snapshot, PR input, and human scope answers in today's transport.
 
 Before dispatching the worker below, resolve `documentation-impact.md` relative to this loaded reference as one absolute `<DOCUMENTATION_IMPACT_GUIDELINE>` path value. Pass that value in the worker task; do not add it to the spec.
 
@@ -66,6 +73,8 @@ subagent({ agent: "worker", context: "fresh", async: false, cwd: "<abs worktree 
   "Read the spec at <abs path to doc/specs/...>. Edit ONLY that file.\n" +
   "The portable citation `reference/documentation-impact.md` in the spec is the pi-gauntlet guideline at <DOCUMENTATION_IMPACT_GUIDELINE>, not a consumer doc; do not flag it as an external reference, and preserve it - never remove it as redundant or replace it with the resolved absolute path.\n" +
   "The `**Amend-grant:**` header line is flow machinery owned by the brainstorming gate; never cut, shrink, flag, or edit it.\n" +
+  "Drafted rows are spec requirements, not Human input; permit pre-approval rewrites only for integrity. Preserve every committed outcome and rewrite only its proof using Design-sourced values; never invent a baseline, target, measurement, or missing value. Flag missing inputs for main-loop clarification before the gate rather than dropping the outcome.\n" +
+  "Delete a drafted row only after its Design commitment is cut through the user's scope-decision procedure; quoting the row alone never permits deletion, and never replace the section with `none`. Preserve the cut's `deviates:`/`deferred:` disposition and `## Out of scope` entry for gate disclosure. Never draft new rows; leave drafting and integrity recovery requiring clarification to the main loop under `ticket-acceptance.md`.\n" +
   "Apply two checks and fix what you find in place: (1) Scope - does every paragraph serve the goal? Cut filler;\n" +
   "state out-of-scope explicitly. (2) Ambiguity - is every 'we should' a concrete decision?\n" +
   "Replace 'we could probably' with 'we will'/'we won't'. Also inline any load-bearing\n" +
@@ -105,7 +114,7 @@ git -C <abs worktree path> add -- <spec path> [<predecessor path>] && git -C <ab
 EOF
 ```
 
-If the council path ran, the body is its audit (`Coverage:` when present, then `Applied:` / `Deferred:` / `Rejected:`, verbatim from `/skill:roasting-the-spec`'s return) - the durable, non-contractual record a finish-time revert and row 3 below read back; the audit is never a committed spec section. On the worker path the body is empty. `-m`, `-F <file>`, `printf | ... -F -`, and `$'...'` strings are not used for this commit. The `add` on the same line is required because the spec is untracked at its first commit and `commit -- <path>` rejects an untracked path.
+If the council path ran, the body is its audit (`Coverage:` when present, then `Applied:` / `Deferred:` / `Rejected:`, verbatim from `/skill:roasting-the-spec`'s return) - the durable, non-contractual record a finish-time revert and row 3 below read back; the audit is never a committed spec section. On the worker path the body is empty except for a main-loop drafted-AC repair audit line when a repair occurred. Append that repair line after the council audit on the council path; never alter its labels, cluster lines, or counts. `-m`, `-F <file>`, `printf | ... -F -`, and `$'...'` strings are not used for this commit. The `add` on the same line is required because the spec is untracked at its first commit and `commit -- <path>` rejects an untracked path.
 
 Evaluate the summary in two stages (the **Degrade path** referenced in each is defined just below):
 
@@ -124,6 +133,11 @@ Paste the summary verbatim, unedited in the template below; use adjacent lines f
 Spec written and committed to <project>/doc/specs/<filename>.md (worktree: <path>).
 Scope cuts: <row text, first 60 chars> - <disposition>; ... | none
 
+Drafted acceptance criteria (approval ratifies):
+- [ ] <row text verbatim>
+  <disposition verbatim>
+<every drafted row and disposition, verbatim; drafted provenance only>
+
 Council: <A> applied, <D> deferred, <R> rejected
 (council path only: A, D, R count the non-`none` lines under each label of the returned audit; append `; coverage <N> of <M>` only when the return carried a `Coverage:` line, e.g. `Council: 11 applied, 0 deferred, 0 rejected; coverage 2 of 3`; omit the whole line and row 3 on the worker path or when the council aborted before an audit existed)
 
@@ -140,7 +154,9 @@ Add "; fund N fix rounds" (or "N more fix rounds") to 1, 2, 4, or 5 to fund N ex
 Or tell me what to change in the spec, or say "revert applied council edit <X>" to undo a specific applied edit.
 ```
 
-For `none - <reason>` in `## Acceptance criteria`, render only options 1-3 and explain: "Loop engine unavailable: this spec has no acceptance-criteria rows." Keep the worker-path omission of option 3; do not invent a council audit.
+For zero `- [ ]` rows under `## Acceptance criteria`, render only options 1-3 and explain: "Loop engine unavailable: this spec has no acceptance-criteria rows." The only legal zero-row body is `none - ticket not fetched (<reason>)`; retain its paste-rows affordance. Whenever rows exist, render options 4/5. Keep the worker-path omission of option 3; do not invent a council audit.
+
+Render the drafted-only block in the template from the applied spec section, never from the summarizer: copy every row and disposition verbatim. Include it for a fetched ticket without ACs; omit it for ticket-row provenance. Approval ratifies these rows at this gate, with no pre-gate acceptance stop. On reply `3`, keep the block reused verbatim with the briefing; on a row-touching change request, render from the recommitted section; on redraw, render from the re-drafted section.
 
 If you believe the summary needs correcting, do **not** silently rewrite it - re-dispatch the summarizer or note the discrepancy as an adjacent line beneath the verbatim block.
 
