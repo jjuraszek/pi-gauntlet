@@ -76,7 +76,7 @@ test('restored and redraw entry load the ticket contract before questionary or l
 
 test('moved ticket contract retains verbatim schema and all no-ticket cases', () => {
   const text = read('skills/brainstorming/reference/ticket-acceptance.md');
-  for (const marker of ['every top-level checkbox row', 'Post-deployment housekeeping', 'all written `- [ ]`', 'in-scope', 'deviates: <why>', 'deferred: <where>', 'venue: <env> - <observation>', 'elsewhere: <repo>', 'Cut question', 'Scope cuts:', 'none - no ticket', 'none - ticket has no acceptance criteria', 'none - ticket not fetched (<reason>)', 'Never author acceptance criteria']) assert.ok(text.includes(marker), marker);
+  for (const marker of ['every top-level checkbox row', 'Post-deployment housekeeping', 'all written `- [ ]`', 'in-scope', 'deviates: <why>', 'deferred: <where>', 'venue: <env> - <observation>', 'elsewhere: <repo>', 'Cut question', 'Scope cuts:', 'none - no ticket', 'none - ticket has no acceptance criteria', 'none - ticket not fetched (<reason>)', 'Never author acceptance criteria', 'Drafted from the design']) assert.ok(text.includes(marker), marker);
   assert.ok(text.includes('Replace `<name>` with the supplied unmatched group heading verbatim'));
   assert.doesNotMatch(text, /only when it changes what the user observes/);
   assert.doesNotMatch(text, /operates without it/);
@@ -84,12 +84,54 @@ test('moved ticket contract retains verbatim schema and all no-ticket cases', ()
   assert.match(text, /\.\.\/SKILL.md#amending-an-approved-spec/);
 });
 
+test('drafted contract preserves outcomes, legal bodies, and post-council recovery', () => {
+  const ticket = read('skills/brainstorming/reference/ticket-acceptance.md');
+  for (const marker of ['Drafted from the design, no ticket rows:', 'Drafted from the design, ticket <ref> has no acceptance criteria:', 'Pasted rows are ticket rows', 'Never append `## Spec contract`', 'Wishful', 'Tautological', 'Unspecified-but-binding', 'External-input', 'Post-deployment', 'never invent', 'binary', 'before writing', 'no valid row', 'explicit scope decision', '## Out of scope']) assert.ok(ticket.includes(marker), marker);
+  const draftedCut = ticket.slice(ticket.indexOf('**Drafted cut question.**'));
+  for (const marker of ['A) in-scope - <reading>', 'B) deviates: <why>', 'C) deferred: <where>', 'omit D', 'Recommend A', 'full question']) assert.ok(draftedCut.includes(marker), marker);
+  const finalization = read('skills/brainstorming/reference/spec-finalization.md');
+  const predicate = finalization.slice(finalization.indexOf('- **Ticket contract present.**'), finalization.indexOf('- **Scope check.**'));
+  for (const marker of ['exactly three forms', 'Ticket <ref>', 'drafted provenance', 'at least one `- [ ]` row', 'disposition on every row', 'none - ticket not fetched (<reason>)', 'Reject `none - no ticket` and `none - ticket has no acceptance criteria`']) assert.ok(predicate.includes(marker), marker);
+  const recovery = finalization.slice(finalization.indexOf('After it returns'), finalization.indexOf('## Spec Council'));
+  for (const marker of ['whole-section predicate', 'zero rows', 'applied Design', 'main loop', 'clarification', 'Drafted AC repair: restored acceptance rows from the applied Design.']) assert.ok(recovery.includes(marker), marker);
+  for (const marker of ['approved two-round design plus the original prompt', 'before the full replacement', 'never from the summarizer', 'reused verbatim', 'recommitted section', 're-drafted section', 'Exclude drafted rows from']) assert.ok(finalization.includes(marker), marker);
+});
+
+test('drafted requirements are protected in each actual critique task and the applier body', () => {
+  const council = read('skills/roasting-the-spec/SKILL.md');
+  const starts = ['task: "Problem statement: <the problem', 'task: "Problem statement: <paste>', 'task: "Problem statement: <same problem'];
+  const tasks = starts.map((start) => {
+    const at = council.indexOf(start);
+    assert.ok(at >= 0, start);
+    return council.slice(at, council.indexOf('\n```', at));
+  });
+  tasks.push(read('agents/spec-council-applier.md').split('\n---\n')[1]);
+  const finalization = read('skills/brainstorming/reference/spec-finalization.md');
+  const worker = finalization.match(/subagent\(\{ agent: "worker",[\s\S]*?task:\n([\s\S]*?)\n```/);
+  assert.ok(worker, 'actual worker dispatch task');
+  tasks.push(worker[1]);
+  for (const task of tasks) {
+    for (const marker of ['Drafted rows are spec requirements', 'integrity', 'Design commitment', "user's scope-decision procedure", 'quoting the row alone', 'never replace the section with `none`', 'Never draft new rows']) assert.ok(task.includes(marker), marker);
+  }
+  for (const marker of ['pre-approval rewrites only for integrity', 'Delete a drafted row only after its Design commitment is cut', 'Preserve every committed outcome', 'clarification', 'never invent']) assert.ok(worker[1].includes(marker), `worker: ${marker}`);
+});
+
+test('approved drafted row identity routes to redraw before grants or disposition reconciliation', () => {
+  for (const path of ['skills/brainstorming/SKILL.md', 'skills/brainstorming/reference/amendment-surface.md']) {
+    const text = read(path);
+    for (const marker of ['approved drafted acceptance-criteria row', 'its text, a row added, a row removed', 'at batch preparation', 'before any standing grant', 're-draft from the new design', 'full gate', 'never a disposition amendment', 'disposition-only change to such a row', 'keeps the cut question', 'Apply an item the human has answered by letter or custom text as recorded.']) assert.ok(text.includes(marker), `${path}: ${marker}`);
+  }
+  assert.ok(read('skills/brainstorming/reference/amendment-surface.md').includes('Never auto-edit ticket or approved drafted AC row texts'));
+});
+
 test('gate template renders the Scope cuts line after the commit line', () => {
   const text = read('skills/brainstorming/reference/spec-finalization.md');
   assert.match(text, /Scope cuts: <row text, first 60 chars> - <disposition>; \.\.\. \| none/);
   const commitAt = text.indexOf('Spec written and committed to');
   const cutsAt = text.indexOf('Scope cuts: <row text');
-  assert.ok(commitAt >= 0 && cutsAt >= 0 && commitAt < cutsAt);
+  const draftedAt = text.indexOf('Drafted acceptance criteria (approval ratifies):');
+  const councilAt = text.indexOf('Council: <A>');
+  assert.ok(commitAt >= 0 && commitAt < cutsAt && cutsAt < draftedAt && draftedAt < councilAt);
 });
 
 test('finalization retains ordered write checks, verdict routing and dispatches', () => {
@@ -362,7 +404,7 @@ test('engine gate persists both fields before completing and dispatching the sel
     '4 - approve, loop engine (experimental): skip the plan; iterate a fresh loop-implementer over the acceptance-criteria ledger; amendments stop for your review as under 1.',
     "5 - approve, loop engine, auto-apply amends: as 4 with option 2's amendment grant.",
   ]) assert.ok(text.includes(line), line);
-  for (const marker of ['asking for `1`, `2`, `4`, or `5`', '`3` plus `1`/`2`/`4`/`5`', 'a reply carrying `3` never grants', 'token with malformed N', 'write nothing', 'none -', 'render only options 1-3', 'directly below `**Amend-grant:**`', 'absent -> `waves`', 'both fields', '`4` approves without a grant', '`5` approves and grants', 'bare `5`', '`5; fund 3 fix rounds`', '`4` with a budget token', 'mixes approval with a change request']) assert.ok(text.includes(marker), marker);
+  for (const marker of ['asking for `1`, `2`, `4`, or `5`', '`3` plus `1`/`2`/`4`/`5`', 'a reply carrying `3` never grants', 'token with malformed N', 'write nothing', 'zero `- [ ]` rows', 'Loop engine unavailable', 'render only options 1-3', 'directly below `**Amend-grant:**`', 'absent -> `waves`', 'both fields', '`4` approves without a grant', '`5` approves and grants', 'bare `5`', '`5; fund 3 fix rounds`', '`4` with a budget token', 'mixes approval with a change request']) assert.ok(text.includes(marker), marker);
   const persistence = text.indexOf('On every approval');
   const amend = text.indexOf('commit --amend --no-edit -q', persistence);
   const check = text.indexOf('both fields', amend);

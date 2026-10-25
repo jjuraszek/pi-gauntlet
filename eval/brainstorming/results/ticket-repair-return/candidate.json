@@ -1,7 +1,7 @@
 {
   "sample": "ticket-repair-return",
   "arm": "candidate",
-  "skillSha": "dc07989d50e3eda24a3ab77455a73635636ced4a4f0fe171f3357c2eb9b19986",
+  "skillSha": "6ba9f2cba9800b0eb73f6f52c15e8315ac7c9729ce34edfb6f73852fac69ac81",
   "inputSha": "9b45bd622c6744fabf33250d8062c7d2cc11700a0ee72cdfd87a44fcaa82a89d",
   "kind": "text",
   "assembly": "headed",
@@ -17,16 +17,16 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "The ticket repair is saved and verified. acme/widgets#77 now has one acceptance criterion: \"The report-view setting uses the shared settings resolver.\" I'm treating that row as in-scope. It matches the path I traced, where `settings/resolver.ts:12` owns the defaults and `ui/report-view.ts:30` consumes the resolved settings. The new setting will be a key under that resolver, with no view-local settings object.\n\nOne behavior decision is still open. What should happen to active report filters when the user switches workspaces?\n\nA) Reset filters on a workspace change by default. The setting lets users opt out and keep their filters across workspaces.\nB) Keep filters by default, as today. The setting lets users opt in to resetting them on a workspace change.\nC) On a workspace change, drop only filters whose values don't exist in the new workspace. The setting turns this pruning on or off.\nD) Other - name it.\n\nRecommendation: A - the reported harm is filters hiding rows in the new workspace, and resetting by default fixes that for everyone while still letting users keep filters when they want to.\n",
-      "words": 177,
-      "wallMs": 10862,
+      "text": "The repair to acme/widgets#77 is saved, and the re-fetched ticket now carries one acceptance criterion: \"The report-view setting uses the shared settings resolver.\" That row is in-scope as written. It matches the path I traced, from the defaults in `settings/resolver.ts:12` to the consumer in `ui/report-view.ts:30`. The framing is unchanged, so the new setting goes through the shared resolver.\n\nOne behavior is still undecided: what happens to active report filters when the user switches workspaces? The reported bug is that filters carry over and sometimes hide rows in the new workspace.\n\nA) The new setting defaults to resetting filters on workspace change, and users can opt in to keeping them.\nB) The new setting defaults to keeping filters, and users can opt in to resetting them.\nC) The new setting defaults to keeping only the filters that apply to the new workspace's data, and users can opt in to a full reset or full keep.\nRecommendation: A - resetting by default fixes the reported hidden-rows behavior without user action, and the opt-in keep preserves today's behavior for users who rely on it.\n",
+      "words": 180,
+      "wallMs": 10734,
       "mechanical": {}
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "The repair is saved and verified: acme/widgets#77 now requires the shared settings resolver. We’ll keep that ownership, with defaults in `settings/resolver.ts:12` and resolved settings consumed by `ui/report-view.ts:30`.\n\nWhat should happen to active report filters when switching workspaces?\nA) Clear them — show the new workspace without filters carried over.\nB) Restore the destination workspace’s previous filters — remember filters separately per workspace.\nC) Keep them — preserve the current cross-workspace behavior.\nD) Other — name it.\nRecommendation: A - it directly prevents carried-over filters from hiding rows without introducing per-workspace filter storage.\n",
-      "words": 87,
-      "wallMs": 7923,
+      "text": "The repaired criterion in acme/widgets#77 now requires the shared settings resolver, matching the verified path from `settings/resolver.ts:12` to `ui/report-view.ts:30`. I’ll carry that criterion forward as in-scope.\n\nWhat should the report-view setting do by default when switching workspaces?\nA) Reset filters by default, with an option to preserve them.\nB) Preserve filters by default, with an option to reset them.\nC) Other — name the desired behavior.\nRecommendation: A - it prevents filters from silently hiding rows in the new workspace while allowing users to retain the existing behavior.\n",
+      "words": 86,
+      "wallMs": 9171,
       "mechanical": {}
     }
   },
@@ -34,9 +34,9 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "34304835e53809fc03e28c969453a2029ba79885abd38a7f3b0c8c8b3bc82a8f",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "ffd62417faca348c77eb6b4f1fe0fdf632c3d8651225ddb318dd75a07e112148",
-      "baselineOutputSha": "e06b92b8ee0da4a279ce39fa7029d80ac6e8d60493b56fcb90252c456bfec739",
-      "candidateOutputSha": "fc1c7b9cce7afd1fb93d2bbe4eb7ae5e1fcf5127fb45bb972ba33990e3c178ae",
+      "intentSha": "e59e1c506f7cc9683c93195dc2bfcdf110ab201b946bc55b5b9e3095091df773",
+      "baselineOutputSha": "fc1c7b9cce7afd1fb93d2bbe4eb7ae5e1fcf5127fb45bb972ba33990e3c178ae",
+      "candidateOutputSha": "9fc6bac6391fce8fb036addb557e6ada02d8b4cdd1c32c34290e07e33689c509",
       "facts": {
         "f1": {
           "before": "holds",
@@ -49,16 +49,16 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "Neither fact moved. Both outputs consume the repaired shared-resolver criterion as the row's source without re-asking for repair approval or asserting anything beyond the verified save, and both resume the open reset-behavior question with A-D labeled options and an explicit Recommendation rather than stopping at a ticket-update report or jumping to approaches. After additionally satisfies the new questionary layout (lead-in first, one option per physical line, Recommendation on its own final line) and quotes the verbatim AC, which is a reasonable strengthening. The one thing to watch is that After's options fold the new setting's opt-in/opt-out semantics into each option, which slightly reshapes the question from 'what happens on switch' to 'what is the default plus toggle'; if the author wants to keep the question purely about behavior as Before did, keep the setting-interaction phrasing out of the option bodies and leave it for the design round.",
-      "wallMs": 9473,
+      "feedback": "Nothing moved on this case. Both outputs treat the verified shared-resolver row as in-scope without re-asking for repair approval, and both ground the fetch claim in the completed re-fetch/verification observations rather than inventing a result; After's \"re-fetched ticket now carries\" wording is actually slightly tighter about provenance than Before's \"saved and verified.\" Both then resume the open reset-behavior question with labeled options and an own-line Recommendation instead of stopping at a ticket-update report, and neither drifts into presenting approaches while that decision is unresolved. After's questionary layout (lead-in first, one option per line, Recommendation last) matches the new layout rule, so the Change is delivered here without cost; the only wording difference worth noting is that After drops Before's \"D) Other - name it\" escape hatch, which does not touch either fact but could be kept if other samples rely on an open option.",
+      "wallMs": 9147,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "34304835e53809fc03e28c969453a2029ba79885abd38a7f3b0c8c8b3bc82a8f",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "ffd62417faca348c77eb6b4f1fe0fdf632c3d8651225ddb318dd75a07e112148",
-      "baselineOutputSha": "60b86ed6f0847d4d36cda768bed8b5ce411d7cb7409a5aef7b30eda10b934994",
-      "candidateOutputSha": "8ae01ae480a62fe051b0330098a5e820fcec4101b2193cc5726801f0cccb52ac",
+      "intentSha": "e59e1c506f7cc9683c93195dc2bfcdf110ab201b946bc55b5b9e3095091df773",
+      "baselineOutputSha": "8ae01ae480a62fe051b0330098a5e820fcec4101b2193cc5726801f0cccb52ac",
+      "candidateOutputSha": "e7cff2bffa7ce9c04ae29f09f2f4784e4e642760a6e72021d5fca5060432dc62",
       "facts": {
         "f1": {
           "before": "holds",
@@ -71,10 +71,10 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "Neither fact moved. Both outputs use the verified shared-resolver criterion from the latest tool result without re-asking for repair approval or asserting any unfetched state, and both resume the open reset-behavior question with a lead-in, one labeled option per physical line, and a final own-line Recommendation instead of stopping at a ticket-update report or jumping to approaches. After's extra detail (the resolver.ts:12 / report-view.ts:30 path) is drawn from the gathered, already-verified draft, so it is not an unfetched claim. One thing to watch in After: option B (per-workspace filter memory) edges toward a design approach rather than a pure reset-behavior choice; keeping the options strictly about reset-vs-preserve (as Before did) would make it harder for a stricter reader to argue approaches are being presented before the reset decision is settled, while still keeping the new layout contract intact.",
-      "wallMs": 12054,
+      "feedback": "Nothing moved on this case. Both outputs take the verified shared-resolver criterion as settled from the latest tool result (Before says \"saved and verified\"; After says \"repaired criterion ... matching the verified path\") without re-asking for repair approval or asserting any fetch that did not happen, and both proceed straight to the unresolved reset-on-workspace-switch question with lettered options and an own-line Recommendation rather than stopping at a ticket-update report or jumping to approaches. After's question is framed as \"what should the setting do by default\" with reset/preserve-plus-opposite-option choices, which still squarely resumes the reset decision; the only wording worth preserving from Before is the explicit \"saved and verified\" phrasing, since it anchors f1 to the verification tool result more directly than After's \"repaired criterion\" and would keep f1 robust if a future assembly tightens the no-unfetched-claims rule.",
+      "wallMs": 10259,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "b380377fe7af54d910e7705a7ec21db6c4198fef"
+  "repoSha": "541da7e7c9b6a1cfb181596e1000555709d00a93"
 }

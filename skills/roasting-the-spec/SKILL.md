@@ -69,14 +69,14 @@ subagent({
     cwd: "<abs worktree path>",
     task: "Problem statement: <the problem the spec addresses, from its Context section and the user's stated intent>.\n" +
           "Human input (verbatim; off-limits for over-spec):\n```\n<original prompt>\n<ticket AC snapshot, if any>\n<questionary answers that changed scope>\n```\n" +
-          "Read the spec at <abs path to doc/specs/...>. The portable citation `reference/documentation-impact.md` in the spec is the pi-gauntlet guideline at <DOCUMENTATION_IMPACT_GUIDELINE>, not a consumer doc; do not flag it as an external reference. The `**Amend-grant:**` header line is flow machinery owned by the brainstorming gate; never cut, shrink, flag, or edit it. Verify the spec's load-bearing claims against the codebase, bounded per your verification-hygiene rules (rg, explicit paths, timeout 30). Critique it on your five axes and emit your template.",
+          "Read the spec at <abs path to doc/specs/...>. The portable citation `reference/documentation-impact.md` in the spec is the pi-gauntlet guideline at <DOCUMENTATION_IMPACT_GUIDELINE>, not a consumer doc; do not flag it as an external reference. The `**Amend-grant:**` header line is flow machinery owned by the brainstorming gate; never cut, shrink, flag, or edit it. Drafted rows are spec requirements, not Human input; permit pre-approval rewrites only for integrity. Delete a drafted row only after its Design commitment is cut through the user's scope-decision procedure; quoting the row alone never permits deletion, and never replace the section with `none`. Never draft new rows. Verify the spec's load-bearing claims against the codebase, bounded per your verification-hygiene rules (rg, explicit paths, timeout 30). Critique it on your five axes and emit your template.",
     output: "<tmpdir>/member-" + i + "-" + slug(model) + ".md",
     outputMode: "file-only"
   }))
 })
 ```
 
-The `Human input (verbatim; off-limits for over-spec)` block is supplied by the caller (brainstorming passes the original prompt, any ticket AC snapshot, and the questionary answers that changed scope; shape-ticket passes the raw ask). It is the only source members and the chair may quote for the over-spec predicate's leg 2; without it members correctly emit `lean: nothing to cut`.
+The `Human input (verbatim; off-limits for over-spec)` block is supplied by the caller (brainstorming passes the original prompt, any ticket AC snapshot, and the questionary answers that changed scope; shape-ticket passes the raw ask). Keep drafted rows out of this block; preserve original prompt, ticket snapshot, existing PR input, and human scope answers. It is the only source members and the chair may quote for the over-spec predicate's leg 2; without it members correctly emit `lean: nothing to cut`.
 
 `control` is a **run-level** field: it must sit beside `tasks`, not inside the `members.map(...)` task objects (the per-task schema has no `control` field and would silently drop it). The three fields together set an effective silence-kill of max(600s, 300+300) = 600s - a genuinely wedged member (e.g. stuck in one unbounded scan) is killed at 10 minutes instead of pi-cohort's 30-minute default. Record all three fields verbatim: the kill is computed as max(inFlightSilenceKillMs, inFlightSilenceCeilingMs + needsAttentionAfterMs), so leaving a field to its default lets a future pi-cohort default change silently stretch it. The 5-minute needsAttentionAfterMs reintroduces idle notices on long healthy xhigh turns - those are notices, not kills, and are acceptable.
 
@@ -109,7 +109,7 @@ subagent({
         usableMemberPaths.join("\n") + "\n" +
         "Coverage: <N> of <M> members reported<; <slug>: <one-line reason> per missing member>.\n" +
         "The portable citation `reference/documentation-impact.md` in the spec is the pi-gauntlet guideline at <DOCUMENTATION_IMPACT_GUIDELINE>, not a consumer doc; do not flag it as an external reference. The `**Amend-grant:**` header line is flow machinery owned by the brainstorming gate; never cut, shrink, flag, or edit it.\n" +
-        "Consolidate and adjudicate the member critiques. Codebase access is permitted for contested-claim checks only, bounded per your hygiene rules (rg, explicit paths, timeout 30)."
+        "Drafted rows are spec requirements, not Human input; permit pre-approval rewrites only for integrity. Delete a drafted row only after its Design commitment is cut through the user's scope-decision procedure; quoting the row alone never permits deletion, and never replace the section with `none`. Never draft new rows. Consolidate and adjudicate the member critiques. Codebase access is permitted for contested-claim checks only, bounded per your hygiene rules (rg, explicit paths, timeout 30)."
 })
 ```
 
@@ -142,7 +142,7 @@ subagent({
         "External context fetched during brainstorming: <ticket reference + body/comments, or 'none'>.\n" +
         "<Coverage: same partial-coverage line; omit at full coverage>\n" +
         "The portable citation `reference/documentation-impact.md` in the spec is the pi-gauntlet guideline at <DOCUMENTATION_IMPACT_GUIDELINE>, not a consumer doc; do not flag it as an external reference. The `**Amend-grant:**` header line is flow machinery owned by the brainstorming gate; never cut, shrink, flag, or edit it.\n" +
-        "Decide and apply the chair's clusters to the spec, then return the audit."
+        "Drafted rows are spec requirements, not Human input; permit pre-approval rewrites only for integrity. Delete a drafted row only after its Design commitment is cut through the user's scope-decision procedure; quoting the row alone never permits deletion, and never replace the section with `none`. Never draft new rows. Decide and apply the chair's clusters to the spec, then return the audit."
 })
 ```
 

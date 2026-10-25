@@ -186,7 +186,7 @@ Execute in place from any later phase; never invoke `/skill:brainstorming` for i
 
 Every skill resource in this flow (a `SKILL.md` or a `reference/*.md`) is loaded with the `read` tool at its absolute path under `skills/`, never with a shell command - pruning protection keys on `read`'s `path`.
 
-Classify first. Redraw test: the change alters the problem statement, adds or removes a component, or moves a component boundary -> redraw. A change inside one component (a persistence mechanism, a worker's HTTP client, dropping a fallback and its task) -> amend. State the call; the user overrides either way.
+Classify a change to an approved drafted acceptance-criteria row - its text, a row added, a row removed - as a redraw at batch preparation, before any standing grant, never a disposition amendment: re-draft from the new design and ratify at the full gate; keep a disposition-only change to such a row in the amendment grammar so it keeps the cut question. Apply an item the human has answered by letter or custom text as recorded. Redraw test: the change alters the problem statement, adds or removes a component, or moves a component boundary -> redraw. A change inside one component (a persistence mechanism, a worker's HTTP client, dropping a fallback and its task) -> amend. State the call; the user overrides either way.
 
 Amend -> `read` `reference/amendment-surface.md` and follow it (unreadable -> stop with a blocking error; never improvise the grammar). Apply its [Standing grants](reference/amendment-surface.md#standing-grants) boundaries.
 

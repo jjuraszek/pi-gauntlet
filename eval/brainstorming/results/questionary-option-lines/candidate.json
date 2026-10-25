@@ -1,7 +1,7 @@
 {
   "sample": "questionary-option-lines",
   "arm": "candidate",
-  "skillSha": "dc07989d50e3eda24a3ab77455a73635636ced4a4f0fe171f3357c2eb9b19986",
+  "skillSha": "6ba9f2cba9800b0eb73f6f52c15e8315ac7c9729ce34edfb6f73852fac69ac81",
   "inputSha": "ac556d1374211deb4d9a4736061b3cf2d3dde543d37276a9443dd4c5fefaee5e",
   "kind": "text",
   "assembly": "headed",
@@ -17,16 +17,16 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "Which behavior should the report view's workspace-switch filter policy use?\n\nA) Clear all filters on every workspace switch.\nB) Preserve all active filters across workspace switches.\nC) Restore each workspace's last filters when switching back to it.\n\nRecommendation: B - the workspace-change handler in `ui/report-view.ts` already keeps active filters, so the policy can match current behavior with no change for existing users and no new per-workspace filter state.\n",
-      "words": 67,
-      "wallMs": 11623,
+      "text": "Which behavior should the workspace-switch filter policy apply in the report view when the user changes workspace?\nA) clear all filters - every switch starts the view unfiltered\nB) preserve all active filters - filters carry across switches, as the current workspace-change handler in ui/report-view.ts already does\nC) restore each workspace's last filters - each workspace reopens with the filters it had when the user last left it\nRecommendation: B - it matches today's handler behavior, so existing users see no change, and it needs no per-workspace filter state beside the resolver-owned setting in settings/resolver.ts:12.\n",
+      "words": 91,
+      "wallMs": 8356,
       "mechanical": {}
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "How should the report view handle filters when switching workspaces?\nA) Clear all filters on every workspace switch.\nB) Preserve all active filters across switches.\nC) Restore each workspace’s last filters.\nRecommendation: B - it preserves current behavior and avoids adding per-workspace filter state.\n",
-      "words": 43,
-      "wallMs": 3768,
+      "text": "What should happen to report filters when switching workspaces?\nA) Clear all filters on every workspace switch.\nB) Preserve all active filters across switches.\nC) Restore each workspace’s last filters.\nRecommendation: B - it preserves current behavior and avoids introducing per-workspace filter state.\n",
+      "words": 42,
+      "wallMs": 2987,
       "mechanical": {}
     }
   },
@@ -34,9 +34,9 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "6b456a85ee947059a76668fc50e35f4c2abde2fc50e926fb6104badb197e5e61",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "ffd62417faca348c77eb6b4f1fe0fdf632c3d8651225ddb318dd75a07e112148",
-      "baselineOutputSha": "46070d5c386892d8d1a6c9aba7e598056b9e204412e792c3f727251aab031f35",
-      "candidateOutputSha": "905cdd60d5818d0ebff72ad6925973b39a67f2d7fc35e7f8fc2c5a062213b20f",
+      "intentSha": "e59e1c506f7cc9683c93195dc2bfcdf110ab201b946bc55b5b9e3095091df773",
+      "baselineOutputSha": "905cdd60d5818d0ebff72ad6925973b39a67f2d7fc35e7f8fc2c5a062213b20f",
+      "candidateOutputSha": "6502fd54b29271e4798aadf50f65ed5326c0ef607c14a38bd1c88f8dfc5999f2",
       "facts": {
         "layout": {
           "before": "holds",
@@ -49,16 +49,16 @@
           "label": "held"
         }
       },
-      "feedback": "Nothing moved on this case: both outputs put the lead-in question first, place A), B), and C) each on their own physical line, and end with Recommendation: on its own final line, and both preserve the user's three supplied choices (clear all on every switch, preserve all across switches, restore each workspace's last filters) while recommending B with a concrete reason tied to ui/report-view.ts and the resolver rather than deciding or advancing to approaches. After's wording is slightly cleaner (blank lines separating the lead-in, options, and recommendation; option text closer to the user's phrasing) and still satisfies both facts, so the questionary layout change delivered its intent here without regression; keep the per-option-line template and final own-line Recommendation as written.",
-      "wallMs": 7737,
+      "feedback": "Nothing moved on this case: both outputs put the lead-in question first, place A, B, and C on separate physical lines, and end with Recommendation: on its own final line, and both preserve the user's three supplied choices and recommend B with a reason grounded in the existing workspace-change handler. After differs only cosmetically - it drops the blank lines around the option block and expands each option with a short consequence - which still satisfies the layout fact as written, since the rule requires separate physical lines rather than blank-line separation. If the author wants extra safety against a model collapsing the options into one line, keeping Before's blank line between the lead-in and the first option and between the last option and Recommendation: is harmless and makes the one-option-per-line structure more visibly deliberate, but it is not required for either fact to hold.",
+      "wallMs": 8144,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "6b456a85ee947059a76668fc50e35f4c2abde2fc50e926fb6104badb197e5e61",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "ffd62417faca348c77eb6b4f1fe0fdf632c3d8651225ddb318dd75a07e112148",
-      "baselineOutputSha": "43106ad4e3686e8143f00ba6998b22c4296b6b3b0684dc5d6f06a4fc610c8c9b",
-      "candidateOutputSha": "cedcef6efa75003470be1802601c3b0f706a9776b877209dfb7fc7295c0a876e",
+      "intentSha": "e59e1c506f7cc9683c93195dc2bfcdf110ab201b946bc55b5b9e3095091df773",
+      "baselineOutputSha": "cedcef6efa75003470be1802601c3b0f706a9776b877209dfb7fc7295c0a876e",
+      "candidateOutputSha": "ef771622987228b9808240d05d029e4c55e736c4ee704f408b633f8852b5fc85",
       "facts": {
         "layout": {
           "before": "holds",
@@ -71,10 +71,10 @@
           "label": "held"
         }
       },
-      "feedback": "Both outputs satisfy both facts: the lead-in question comes first, options A, B, and C each sit on their own physical line with their full supplied text, and Recommendation: closes on its own final line with option B and a reason, without deciding for the user or moving to approaches. The only difference is the lead-in wording (\"What should happen to report filters\" vs \"How should the report view handle filters\"), which does not move either fact. Nothing in After needs repair for this sample; keep the one-label-per-line layout, the three verbatim choices, and the single own-line Recommendation with a stated reason when delivering the questionary layout change.",
-      "wallMs": 10903,
+      "feedback": "Nothing moved on this case: both Before and After put the lead-in question first, place each of A/B/C on its own physical line with the user's three choices verbatim, and end with a single Recommendation: line that picks B and gives a reason without deciding for the user or jumping to approaches. The only differences are cosmetic rewording of the lead-in (\"How should the report view handle filters\" vs \"What should happen to report filters\") and \"adding\" vs \"introducing\" in the recommendation reason, neither of which affects layout or content. The After wording already keeps every fact Before kept while matching the one-option-per-line layout the Change requires, so no adjustment is needed here.",
+      "wallMs": 4519,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "b380377fe7af54d910e7705a7ec21db6c4198fef"
+  "repoSha": "541da7e7c9b6a1cfb181596e1000555709d00a93"
 }

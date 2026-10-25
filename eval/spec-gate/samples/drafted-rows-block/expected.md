@@ -1,0 +1,4 @@
+- drafted: judged: In Drafted only, after Scope cuts: none and before Council:, render Drafted acceptance criteria (approval ratifies): followed by both supplied unchecked export rows and each in-scope disposition copied exactly verbatim, not summarized.
+- ticket: judged: In Ticket only, omit the Drafted acceptance criteria (approval ratifies): block; do not misclassify the supplied verbatim ticket rows as drafted.
+- menu: judged: Each independent gate renders all five numbered options including exact source sentences for options 4 and 5, then handles reply 1 as approval proceeding to planning under existing amendment review, not loop execution.
+- briefing: judged: Each gate pastes the supplied Briefing verbatim, retains Scope cuts: none, and reports Council: 1 applied, 0 deferred, 0 rejected from the audit rather than counting labels with none as findings.
