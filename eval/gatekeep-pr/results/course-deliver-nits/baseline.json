@@ -1,0 +1,34 @@
+{
+  "sample": "course-deliver-nits",
+  "arm": "baseline",
+  "skillSha": "bb03ac4797e6850286d2a14507dba215f61d9a0fa3994813a2d94682be92d6b3",
+  "inputSha": "554ba5a621661861944f762dfc21a4317292570b5416857cdb7f36fb008d3844",
+  "kind": "text",
+  "assembly": "concat",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "**Assessed head:** `1111111111111111111111111111111111111111`. Verification and the brief both assess this SHA. No push happens in this narration, so no later head (`2222...`, `3333...`) is ever assessed.\n\n**Tracker stages.** The invocation's `init` held `gather, provision, verify`. There is no `sync` stage because `--rebase` was not passed. On this re-entry I `add` `report` and then `menu`, each only when it starts.\n\n## Narration\n\n1. **Read the continuation record.** I read `/tmp/gatekeep-state.synthetic` at re-entry and validate it. `consent.target` matches the live target: `acme/widgets`, PR 42, base `main`.\n   - The record has no `consent.fix` grant and no `consent.merge_base` grant.\n   - The \"deliver-nits\" course is not a grant this skill recognizes. A `fix nits` pick is one-shot and creates no retained authority, and the Entry says no one-shot nit action is outstanding. So nothing authorizes a nit wave.\n   - The record's caps of 10/10 are ignored. A grant never raises the cap, and the resolved `closureReview.maxFixRounds` is 5. `rounds_used` stays at 0.\n\n2. **Pre-menu refresh.** The head is unchanged, so this re-enters step 5. I run two reads:\n   - `gh pr view 42 --json headRefOid,state,mergeable,mergeStateStatus,reviewDecision,statusCheckRollup,body,baseRefName,number,title,author,isDraft,headRefName,isCrossRepository,files,additions,deletions,commits,reviews,closingIssuesReferences,headRepository,maintainerCanModify,url,mergeCommit`\n   - `gh run list -R acme/widgets -c 1111111111111111111111111111111111111111 --json databaseId,status,conclusion,workflowName,url`\n   \n   Results:\n   - Head, body and `baseRefName` (`main`) are unchanged.\n   - The PR is `OPEN`, `MERGEABLE` and `CLEAN`.\n   - `ci / test` shows SUCCESS, and run 910 is completed with success.\n   - No check is pending. The Evidence resolution table gives CI-sufficient, so there is no local run.\n   - The watch guard does not fire.\n\n3. **Next action.** I check the rows in order:\n   - There is no contract exception, no no-progress obstacle and no active wave.\n   - There is no merge-base grant and no fix grant.\n   - Every merge prerequisite holds, so I render a fresh final menu.\n   - Nits N1 and N2 stay take-or-leave. No implementer, reviewer or push is dispatched, so N3 never arises.\n\n4. **Report and menu.** No `Sync:` line renders.\n\n## Rendered report\n\n```\nDelivers: rejects events that carry no signature.\n\nNits:\n- The guard module imports something it never uses, which adds noise for the next reader. (src/guard.mjs:1)\n- The same guard check appears twice, so a later fix to one copy can silently miss the other. (src/guard.mjs:6)\n2 nits open - fix nits to take them\n\nVerdict: mergeable - CI green on the assessed head (ci / test)\n\n1. merge - squash onto main at 1111111 [recommended]\n2. fix nits - apply one-shot payloads for these two nits through fresh helpers, review the wave, push (1 of 5 rounds)\n3. show evidence - gate output, CI run 910, state: /tmp/gatekeep-state.synthetic\n4. stop - leave the PR as-is\nType a number.\n```\n",
+      "words": 409,
+      "wallMs": 28747,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "### 1. Resume without carrying nit authority forward\n\nI read `/tmp/gatekeep-state.synthetic` and validate its target against `acme/widgets`, PR 42, and base `main`.\n\nThe recorded `deliver-nits` course does not authorize another repair wave. `fix nits` is one-shot, and the entry explicitly says no outstanding one-shot nit action remains. I dispatch no implementer for N1 or N2 and perform no commit or push. The simulated heads `2222222...` and `3333333...`, and therefore N3, are never reached.\n\nI do not initialize a new tracker or reset usage at this resumed entry. A new invocation without `--rebase` would initialize `gather`, `provision`, and `verify`; this continuation instead adds `report` when reporting starts and `menu` when menu construction starts. The effective fix-round cap is the configured **5**, not the record's unsupported cap of 10.\n\n### 2. Refresh before reporting\n\nI run these hypothetical commands in order:\n\n```bash\ngh pr view 42 -R acme/widgets --json headRefOid,state,mergeable,mergeStateStatus,reviewDecision,statusCheckRollup,body,baseRefName,number,title,author,isDraft,headRefName,isCrossRepository,files,additions,deletions,commits,reviews,closingIssuesReferences,headRepository,maintainerCanModify,url,mergeCommit\n```\n\n```bash\ngh run list -R acme/widgets -c 1111111111111111111111111111111111111111 --json databaseId,status,conclusion,workflowName,url\n```\n\nThese reads retain the supplied head, body, base, and exact-head successful CI. The target is unchanged, the PR remains open and mergeable, and no binding check is pending. No CI watch runs.\n\nI then confirm menu-time tracked cleanliness:\n\n```bash\ngit -C /work/widgets-pr-42 status --porcelain --untracked-files=no\n```\n\nThe output is empty.\n\n### 3. Integrate and render\n\nVerification evidence and the brief remain bound to **`1111111111111111111111111111111111111111`**. No new Verify, Review, implementer, or pre-push reviewer helper is dispatched: the entry supplies completed readiness, and neither the head nor the body changes.\n\nN1 and N2 remain optional nits. Their payloads are drafted only if the human now selects `fix nits`; the expired one-shot selection is not renewed automatically.\n\nNo `Sync:` line renders because the invocation is `42`, without `--rebase`.\n\nThe final menu is:\n\n---\n\nDelivers: the PR rejects unsigned events.\n\nNits:\n- An unused import remains, leaving an unnecessary dependency declaration. (src/guard.mjs:1)\n- The guard is duplicated, so future changes must keep both copies consistent. (src/guard.mjs:6)\n\n2 nits open - fix nits to take them\n\nVerdict: mergeable - CI green on the assessed head (ci / test)\n\n1. merge - squash onto main [recommended]\n2. fix nits - apply one-shot repairs for the two nits, review the wave, and push\n3. show evidence - display verification evidence and finding details\n4. stop - leave the PR as-is\n\nType a number.\n",
+      "words": 370,
+      "wallMs": 20409,
+      "mechanical": {}
+    }
+  },
+  "repoSha": "06b180e9d72ec362ce77f563679c1715b41ed61f"
+}

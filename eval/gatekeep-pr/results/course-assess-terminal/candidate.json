@@ -1,0 +1,100 @@
+{
+  "sample": "course-assess-terminal",
+  "arm": "candidate",
+  "skillSha": "ffd26b7b4c036d9c44a24248aa93bac9e638f57bfb4507bd18347af259f1dfae",
+  "inputSha": "6c004edc0e49185eeeb4ba1f114f5e24e990affa4354b2ec09fb99a18626edee",
+  "kind": "text",
+  "assembly": "concat",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "# gatekeep-pr 42: assess checkpoints A-D\n\n**Shared context for all four checkpoints:**\n- **Tracker.** Stages were initialized as `gather, provision, verify`, with no `sync` stage because `--rebase` was not passed. `review`, `report` and `menu` were added when each started. The `menu` stage re-opens for the assess pick.\n- **Assessed SHA.** Verification and the brief assessed head `1111111111111111111111111111111111111111`. The evidence source is CI: `ci / test` succeeded in run 910 on that head.\n- **Sync line.** None renders, because `--rebase` was not passed.\n- **Helpers.** None are dispatched in any checkpoint. Assess runs no repair, no sync, no CI watch and no fix wave.\n\n**Shared prefix, run identically in A-D before the case-specific action:**\n1. Validate the run record `/tmp/gatekeep-state.synthetic`. Its target `acme/widgets`, PR `42`, base `main` matches `consent.target`. Usage stays 0/0 with caps 10/10.\n2. Normalize the reply `1`. It is a bare number within 1-3, so it maps to `assess` with no echo.\n3. Set the course to `assess` and persist it in the record before any write.\n4. Run the boundary freshness read: `gh pr view 42 -R acme/widgets --json headRefOid,state,body,baseRefName,mergeable,mergeStateStatus`. Head, body (`Reject unsigned events.`) and base `main` are unchanged, and the state is OPEN. Nothing is invalidated.\n\n---\n\n## A - someone else's PR (viewer `delta-example`), blocker P1, drafted reply C1\n\n**Draft and check the review body**\n1. Compose one review from the open blockers, then run the output done-check. The body is ASCII, has no headings and ends on the fix:\n   > One blocker needs fixing before this can merge.\n   > 1. The guard accepts an empty signature, so an unsigned event passes as signed; reject empty signatures before verifying. (src/guard.mjs:8)\n2. Write the body to `mktemp \"${TMPDIR:-/tmp}/gatekeep-body.XXXXXX\"`.\n\n**Post the review**\n3. Run the compare-and-swap check: `gh pr view 42 -R acme/widgets --json headRefOid,state,mergeable,mergeStateStatus,body,baseRefName`. Nothing has changed.\n4. Run `gh pr review 42 -R acme/widgets --request-changes --body-file <tmp>`. It succeeds.\n5. C1 is not posted. Thread replies stay behind the `reply` row.\n\n**Re-render once**\n6. Run the pre-menu refresh:\n   - `gh pr view 42 --json headRefOid,state,mergeable,mergeStateStatus,reviewDecision,statusCheckRollup,body,baseRefName,...`\n   - `gh run list -R acme/widgets -c 1111111111111111111111111111111111111111 --json databaseId,status,conclusion,workflowName,url`\n7. The head is unchanged, so render the assess terminal template.\n\n```\nBlockers:\n1. The guard accepts an empty signature, so an unsigned event passes as signed. (src/guard.mjs:8)\n\nVerdict: fixable - 1 blocker\n\nPick one:\n1. deliver - switch course: repair the blocker, merge main into the branch, watch CI, repeat until merge is offered.\n2. reply - post the drafted reply acknowledging the unrelated test fix.\n3. stop - remove the worktree, leave the PR as is. [recommended]\n\nNot offered: approve (1 blocker open).\nType a number; show evidence prints the full record.\n```\n\n---\n\n## B - own PR (viewer `river-example`), blocker P1, no drafted reply\n\n**Post the review**\n1. Compose the same review body and run the done-check. Write it to a temporary body file.\n2. Run the compare-and-swap check with `gh pr view 42 ...`. Nothing has changed.\n3. Run `gh pr review 42 -R acme/widgets --comment --body-file <tmp>`. It uses `--comment` rather than `--request-changes` because this is the human's own PR. It succeeds.\n\n**Re-render**\n4. Run the pre-menu refresh (`gh pr view` and `gh run list` as in A). The head is unchanged, so render the assess terminal template.\n\n```\nBlockers:\n1. The guard accepts an empty signature, so an unsigned event passes as signed. (src/guard.mjs:8)\n\nVerdict: fixable - 1 blocker\n\nPick one:\n1. deliver - switch course: repair the blocker, rebase on main, watch CI, repeat until merge is offered.\n2. stop - remove the worktree, leave the PR as is. [recommended]\n\nNot offered: approve (your own PR).\nType a number; show evidence prints the full record.\n```\n\n---\n\n## C - someone else's PR, zero blockers, one binding CI check pending\n\n1. Post nothing, because there are zero blockers.\n2. Do not watch CI. A watch belongs only to step 4 of the delivery course.\n3. Run the pre-menu refresh (`gh pr view` and `gh run list`). The head is unchanged, and the pending check is still binding.\n4. Render the assess terminal template. `approve` is available because the viewer is not the author, there are zero blockers and the PR is not a draft.\n\n```\nPR comments:\n- A required CI check is still pending on the assessed head, so merge waits. (binding check on 1111111)\n\nVerdict: fixable - binding check pending\n\nPick one:\n1. deliver - switch course: watch the pending check and repair anything it surfaces until merge is offered.\n2. approve - approve the PR at 1111111.\n3. stop - remove the worktree, leave the PR as is. [recommended]\n\nType a number; show evidence prints the full record.\n```\n\n---\n\n## D - own PR, zero blockers, one binding CI check pending\n\n1. Post nothing, because there are zero blockers.\n2. Do not watch CI.\n3. Run the pre-menu refresh (`gh pr view` and `gh run list`). The head is unchanged, and the pending check is still binding.\n4. Render the assess terminal template.\n\n```\nPR comments:\n- A required CI check is still pending on the assessed head, so merge waits. (binding check on 1111111)\n\nVerdict: fixable - binding check pending\n\nPick one:\n1. deliver - switch course: watch the pending check and repair anything it surfaces until merge is offered.\n2. stop - remove the worktree, leave the PR as is. [recommended]\n\nNot offered: approve (your own PR).\nType a number; show evidence prints the full record.\n```\n\nAll four checkpoints stop at their assess terminal menu. No reply was selected and no further pick was supplied.\n",
+      "words": 884,
+      "wallMs": 38687,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "## Starting state\n\nThese are four independent checkpoints, each starting from the rendered initial menu and the human's selection `1`, meaning assess. I do not repeat gathering, provisioning, verification, or review.\n\nThe tracker's initial stages were `gather`, `provision`, and `verify`, with `state: /tmp/gatekeep-state.synthetic` in the first task name. There is no `sync` stage because the invocation is `42`, without `--rebase`. Review, report, and menu were added when they started.\n\nVerification and the review brief assess `1111111111111111111111111111111111111111`. No checkpoint dispatches another helper or runs a verification command. Usage stays at zero rounds and zero syncs, with caps of 10 each.\n\n## A. Someone else's PR, one blocker, one drafted reply\n\n1. I validate `/tmp/gatekeep-state.synthetic`, including its immutable target, and persist the direct human selection as `course: assess`.\n2. Before posting the review, I run:\n   ```sh\n   gh pr view 42 -R acme/widgets --json headRefOid,state,mergeable,mergeStateStatus,body,baseRefName\n   ```\n   The head, body, base, and open state remain unchanged.\n3. I check the drafted review against the wording rules and write it to a temporary body file outside the worktree. Its content is:\n   ```text\n   Unsigned-event rejection remains incomplete.\n\n   1. Empty signatures are accepted, so unsigned events can pass the guard. Reject empty signatures. (src/guard.mjs:8)\n   ```\n4. I run:\n   ```sh\n   gh pr review 42 -R acme/widgets --request-changes --body-file <temporary-review-body>\n   ```\n   The review succeeds. I do not post the unrelated thread reply.\n5. I add and start `report`. Before rendering, I run the pre-menu refresh:\n   ```sh\n   gh pr view 42 -R acme/widgets --json headRefOid,state,mergeable,mergeStateStatus,reviewDecision,statusCheckRollup,body,baseRefName,number,title,author,isDraft,headRefName,isCrossRepository,files,additions,deletions,commits,reviews,closingIssuesReferences,headRepository,maintainerCanModify,url,mergeCommit\n   gh run list -R acme/widgets -c 1111111111111111111111111111111111111111 --json databaseId,status,conclusion,workflowName,url\n   ```\n6. I retain the blocker and drafted reply, complete `report`, then add and start `menu`. No helper is dispatched. No sync line renders.\n\nDelivers: This PR is intended to reject unsigned events.\n\nPR comments:\n- The comment about the unrelated test fix is already addressed, so the drafted reply acknowledges the fix.\n\nBlockers:\n1. Empty signatures are accepted, so unsigned events can pass the guard. (src/guard.mjs:8)\n\nVerdict: fixable - 1 blocker\n\nPick one:\n1. deliver - repair blockers, merge main into the branch, and watch CI until readiness or an obstacle.\n2. reply - post the drafted thread reply.\n3. stop - remove the eligible gate worktree and leave the PR unchanged. [recommended]\n\nNot offered: approve (one blocker remains).\n\nType a number; show evidence prints the full record.\n\n## B. Own PR, one blocker\n\n1. I validate the existing record and persist `course: assess`.\n2. I run:\n   ```sh\n   gh pr view 42 -R acme/widgets --json headRefOid,state,mergeable,mergeStateStatus,body,baseRefName\n   ```\n3. I check and prepare the same blocker review body as in A.\n4. Because the viewer authored this PR, I run:\n   ```sh\n   gh pr review 42 -R acme/widgets --comment --body-file <temporary-review-body>\n   ```\n   The review succeeds. I do not request changes on the viewer's own PR.\n5. I add and start `report`, then run:\n   ```sh\n   gh pr view 42 -R acme/widgets --json headRefOid,state,mergeable,mergeStateStatus,reviewDecision,statusCheckRollup,body,baseRefName,number,title,author,isDraft,headRefName,isCrossRepository,files,additions,deletions,commits,reviews,closingIssuesReferences,headRepository,maintainerCanModify,url,mergeCommit\n   gh run list -R acme/widgets -c 1111111111111111111111111111111111111111 --json databaseId,status,conclusion,workflowName,url\n   ```\n6. I complete `report` and add and start `menu`. No helper is dispatched. No sync line renders.\n\nDelivers: This PR is intended to reject unsigned events.\n\nBlockers:\n1. Empty signatures are accepted, so unsigned events can pass the guard. (src/guard.mjs:8)\n\nVerdict: fixable - 1 blocker\n\nPick one:\n1. deliver - repair blockers, rebase on main, and watch CI until readiness or an obstacle.\n2. stop - remove the eligible gate worktree and leave the PR unchanged. [recommended]\n\nNot offered: approve (the viewer authored the PR, and one blocker remains).\n\nType a number; show evidence prints the full record.\n\n## C. Someone else's PR, zero blockers, binding CI pending\n\n1. I validate the existing record and persist `course: assess`.\n2. At the action boundary I run:\n   ```sh\n   gh pr view 42 -R acme/widgets --json headRefOid,state,mergeable,mergeStateStatus,body,baseRefName\n   ```\n3. There are zero blockers, so assess posts nothing. I run no `gh pr review` command.\n4. I add and start `report`, then run:\n   ```sh\n   gh pr view 42 -R acme/widgets --json headRefOid,state,mergeable,mergeStateStatus,reviewDecision,statusCheckRollup,body,baseRefName,number,title,author,isDraft,headRefName,isCrossRepository,files,additions,deletions,commits,reviews,closingIssuesReferences,headRepository,maintainerCanModify,url,mergeCommit\n   gh run list -R acme/widgets -c 1111111111111111111111111111111111111111 --json databaseId,status,conclusion,workflowName,url\n   ```\n   The checkpoint's binding pending check remains pending.\n5. I complete `report` and add and start `menu`. I dispatch no helper and start no CI watch under assess. No sync line renders.\n\nDelivers: This PR rejects unsigned events.\n\nPR comments:\n- The CI check is pending, so merge waits. (ci / test)\n\nVerdict: fixable - binding check pending\n\nPick one:\n1. deliver - watch binding CI and continue until readiness or an obstacle.\n2. approve - approve the current head without merging it.\n3. stop - remove the eligible gate worktree and leave the PR unchanged. [recommended]\n\nType a number; show evidence prints the full record.\n\n## D. Own PR, zero blockers, binding CI pending\n\n1. I validate the existing record and persist `course: assess`.\n2. At the action boundary I run:\n   ```sh\n   gh pr view 42 -R acme/widgets --json headRefOid,state,mergeable,mergeStateStatus,body,baseRefName\n   ```\n3. There are zero blockers, so assess posts nothing. I run no `gh pr review` command.\n4. I add and start `report`, then run:\n   ```sh\n   gh pr view 42 -R acme/widgets --json headRefOid,state,mergeable,mergeStateStatus,reviewDecision,statusCheckRollup,body,baseRefName,number,title,author,isDraft,headRefName,isCrossRepository,files,additions,deletions,commits,reviews,closingIssuesReferences,headRepository,maintainerCanModify,url,mergeCommit\n   gh run list -R acme/widgets -c 1111111111111111111111111111111111111111 --json databaseId,status,conclusion,workflowName,url\n   ```\n   The binding pending check remains pending.\n5. I complete `report` and add and start `menu`. I dispatch no helper and start no CI watch. No sync line renders.\n\nDelivers: This PR rejects unsigned events.\n\nPR comments:\n- The CI check is pending, so merge waits. (ci / test)\n\nVerdict: fixable - binding check pending\n\nPick one:\n1. deliver - watch binding CI and continue until readiness or an obstacle.\n2. stop - remove the eligible gate worktree and leave the PR unchanged. [recommended]\n\nNot offered: approve (the viewer authored the PR).\n\nType a number; show evidence prints the full record.\n",
+      "words": 912,
+      "wallMs": 27945,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "3571860ca2310189c3239f943005daa0dfce7560d284e5b5185f99f18ef3d44e",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "06f28ee72a3af6d0ccb5eb472d04acef89e765458ac60334bf896530d25f8533",
+      "baselineOutputSha": "022ed18b022c3ede6531a6cde6c12747c2e1bf162abea3fed720316d0111fcca",
+      "candidateOutputSha": "36f8a871464398d906b6330b86315dbf34ea37ac42d749fe6fac909bed3b2821",
+      "facts": {
+        "f1": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "f2": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "f3": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "f4": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        }
+      },
+      "feedback": "After delivers the Change cleanly: the numeric `1` now maps to a persisted assess course, A posts one --request-changes review and B one --comment review on the own PR, C and D post nothing and run no watch, approve appears only in C, stop is recommended and last everywhere, and C1 stays behind the reply row unposted. Before failed f1 and f3 only because it refused `assess` as a non-verb and fell back to review/fix/wait menus with non-stop recommendations; nothing that Before kept (no posts for zero blockers, no repair/sync, drafted reply held separately) was lost. One wording nit worth tightening in After: B's deliver row says 'rebase on main' while A's says 'merge main into the branch' — the sync mechanism should be described identically from the shared menus.md template so the course description does not read as per-checkpoint discretion; and the 'Not offered: approve' line is absent from C's menu where approve is offered, which is correct, but consider a uniform trailer so readers can see the omission rule applied in every checkpoint.",
+      "wallMs": 15186,
+      "verdict": "improved"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "3571860ca2310189c3239f943005daa0dfce7560d284e5b5185f99f18ef3d44e",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "06f28ee72a3af6d0ccb5eb472d04acef89e765458ac60334bf896530d25f8533",
+      "baselineOutputSha": "0618e6a6b625a03f3c9d7eeeff0f39072c11c6df26a5dd0b7f5974178ad5ad12",
+      "candidateOutputSha": "93d049a8736377e232ce7bf68a17016a455052ed0fbb43257e2fd40797d1d1b3",
+      "facts": {
+        "f1": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "f2": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "f3": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "f4": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        }
+      },
+      "feedback": "After moves f1, f3 and f4 from fails to holds and keeps f2: Before refused the `assess` verb entirely, posting nothing and rendering no terminal menu, so only the negative fact (no posts in C/D, no repair or sync) was satisfied. After narrates each checkpoint's assess action — A posts the blocker body once via `gh pr review --request-changes`, B posts once via `--comment` and explicitly declines request-changes on the own PR, C and D run no `gh pr review` — and renders four terminal menus where approve appears only in C, is explicitly 'Not offered' in A, B and D, stop is last and recommended everywhere, and A's drafted C1 reply stays behind a separate numeric `reply` row without being posted or treated as approval. Nothing regressed; one small polish that would not move any fact would be to state in A and B that `course: assess` persists after the post (the menu already implies it) and to keep the A menu's PR-comments line clearly labelled as a draft so a reader never mistakes it for a sent reply.",
+      "wallMs": 13107,
+      "verdict": "improved"
+    }
+  },
+  "repoSha": "06b180e9d72ec362ce77f563679c1715b41ed61f"
+}

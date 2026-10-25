@@ -1,0 +1,100 @@
+{
+  "sample": "same-head-flip",
+  "arm": "candidate",
+  "skillSha": "76be7922e42431a629601325261ffe5e80d78555a38315533043531ecbd5eafc",
+  "inputSha": "83d2d621b7da7be148a4e12d8853b0fa992b2a4a51e1e74eff06efa250463713",
+  "kind": "text",
+  "assembly": "concat",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "## Evidence resolution, first snapshot (head `9c1e4f2`)\n\n- **Resolved check set:** all checks on `9c1e4f2`, since no `ci checks:` is configured. That set is `test_unit`, `build_image`, and `e2e`.\n- **Conclusions:**\n  - `test_unit` and `build_image` are `success`.\n  - `e2e` is `in_progress`, so it is pending.\n  - No check is blocking, and no run is `action_required`.\n- **Binding classification:** `merge_state_status` is `BLOCKED`, so every pending check is binding. `e2e` is binding.\n- **Row, top-down:**\n  - Opt-out: no.\n  - Failed CI: no.\n  - Held run: no.\n  - Pending: yes. One binding pending check and no blocking conclusion select this row, so the result is `source: pending`.\n- **Local run:** none. Pending never triggers one.\n- **Claims:** \"Tests cover the retry path\" is `matched` (test/feed/client.test.ts:12-40). \"Adds one bounded retry\" is checkable from source now; with reviewer SHIP and no findings it is `matched`.\n- **Scope:** `source: pr` (`issue_ref: null`).\n- **Findings:** the reviewer reported no Critical, Moderate, or Minor findings, so there are zero blockers and zero nits.\n- **Course and template:** the course is null and the PR is not ready, so the initial template applies. The PR is someone else's (`viewer.is_author: false`), so `assess` is recommended.\n\n## First report and menu\n\n```\nDelivers: the tide-feed client retries a fetch once when it gets a 503.\n\nPR comments:\n- The e2e check is still running on the assessed head, so merge waits. (e2e)\n- GitHub reports BLOCKED, no local repair applies. (reviewDecision REVIEW_REQUIRED)\n\nVerdict: fixable - binding check pending\n\nPick one:\n1. assess - post the review to the PR; then approve or stop, no repairs. [recommended]\n2. deliver - repair blockers, merge main into the branch, watch CI, repeat until merge is offered.\n3. stop - remove the worktree, leave the PR as is.\n\nNot offered: deliver with nits (no nits)\n\nCourse holds until the final menu; `show evidence` prints the full record.\n```\n\n## Second snapshot: refresh after obstacle pick `1` (course `deliver`, same head `9c1e4f2`)\n\n- **Refresh:** the head is unchanged. Merge state, reviewDecision, `status_checks`, and `actions_runs` are replaced together.\n- **Reclassification:** `merge_state_status` is now `CLEAN`, and no check is pending.\n- **Row, top-down:**\n  - Opt-out, Failed CI, Held run, and Pending: no.\n  - CI-sufficient: yes. There are 3 `success` results, 0 blocking, and 0 binding pending.\n- **Claim check:** the move from Pending to CI-sufficient dispatches a fresh Section B helper in claim-check-only mode. It emits `source: ci` with `head_sha 9c1e4f2` and checks `test_unit`, `build_image`, and `e2e`. Both claims stay `matched`.\n- **Exit check:** readiness.\n  - No blockers, and evidence is present for the assessed head.\n  - Every claim has a disposition.\n  - `MERGEABLE` and `CLEAN`, with no binding pending check.\n  - There is no comment delta, the tree is tracked-clean and synced, and the policy is allowed.\n  - Usage is unchanged: rounds 0/10, syncs 0/10.\n- **Template:** final. The PR is someone else's, non-draft, and has zero blockers, so `approve` is available and recommended.\n\n## Second report and menu\n\n```\nDelivers: the tide-feed client retries a fetch once when it gets a 503.\n\nVerdict: mergeable - CI green on the assessed head (test_unit, build_image, e2e)\n\nPick one:\n1. merge - squash-merge PR 412 at 9c1e4f2 with --match-head-commit.\n2. approve - approve PR 412 at 9c1e4f2 as rhee-ops. [recommended]\n3. stop - remove the worktree, leave the PR as is.\n\nType a number; show evidence prints the full record.\n```\n",
+      "words": 514,
+      "wallMs": 33670,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "### Initial snapshot\n\nDelivers: adds one bounded retry to the tide-feed client on a 503 response, with tests covering the retry path.\n\nPR comments:\n- e2e is pending, so merge waits.\n- GitHub reports BLOCKED, no local repair applies.\n\nVerdict: fixable - binding check pending\n\nPick one:\n1. assess - post any open blockers to the PR; then approve or stop, no repairs. [recommended]\n2. deliver - repair blockers, merge main into the branch when needed, watch CI, and repeat until merge is offered.\n3. stop - remove the worktree, leave the PR as is.\n\nNot offered: deliver with nits (no nits); merge (e2e pending; blocked by GitHub).\n\nCourse holds until the final menu; `show evidence` prints the full record.\n\n### Same-head refresh after deliver continuation\n\nDelivers: adds one bounded retry to the tide-feed client on a 503 response, with tests covering the retry path.\n\nVerdict: mergeable - CI green on the assessed head (test_unit, build_image, e2e)\n\nPick one:\n1. merge - merge the assessed head using the resolved merge policy.\n2. approve - approve the PR at the assessed head. [recommended]\n3. stop - leave the checkout and local branch as found.\n\nType a number; `show evidence` prints the full record.\n",
+      "words": 190,
+      "wallMs": 16788,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "be4031d7f7413d29d1e8899366978e8a8721958c53912cbb003ea840007bf480",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "5d82dd30c53664bf000f34822ffc17ecb66d298ce6c5d8f23db53e37e962ee49",
+      "baselineOutputSha": "35aa4062f3c9bdcff4467ae7dae925537c23f1c4016e60ef971af6e015661f95",
+      "candidateOutputSha": "852e5dfa65149b9ee37e13768853676b1ec1749ad03fe6761eb5961abc1a9d6a",
+      "facts": {
+        "f1": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "f2": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "f3": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "f4": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "After moves f1 to holds by replacing Before's ordinary `wait` row with the persistent assess/deliver/stop initial template, exiting the BLOCKED state without a merge row, and then rendering a distinct final menu after the refresh, so the deliver continuation and the final merge/approve selection are clearly separate events; f2–f4 are unchanged because both versions re-resolve to `source: ci` on the same head and drop every BLOCKED/pending overlay from the second menu. One wording inconsistency to fix: After's first menu numbers `assess` as 1 and `deliver` as 2, yet the second-snapshot heading narrates 'obstacle pick `1` (course `deliver`)' — either label the pick as `2` or reorder so the row the human picked is the deliver row, otherwise a reader can't reconcile the numeric choice with the course that was set. Also consider stating the deliver row's sync as conditional ('merge main into the branch if behind'), since this worktree is ahead 0/behind 0, to keep the row honest without changing the template.",
+      "wallMs": 17596,
+      "verdict": "improved"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "be4031d7f7413d29d1e8899366978e8a8721958c53912cbb003ea840007bf480",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "5d82dd30c53664bf000f34822ffc17ecb66d298ce6c5d8f23db53e37e962ee49",
+      "baselineOutputSha": "f0b46caadf08037bb269104e5ca025420e29a28434a3b27399575b074f63a169",
+      "candidateOutputSha": "088fa5c8aeeeaa2f02b38fb1bcb4e29750affd149eb2cb4d641fbc5a11299f80",
+      "facts": {
+        "f1": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "f2": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "f3": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "f4": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "After moves f1 to holds because the initial BLOCKED snapshot now exits as an obstacle with the persistent assess/deliver/stop courses and an explicit 'Not offered: merge' line, and the second menu is clearly labelled as a same-head refresh after the deliver continuation with its own separate numbered final selection (merge/approve/stop) - Before had no deliver course at all, only an ordinary 'wait' row, so the continuation and final selection were not distinguished. Everything Before kept is preserved: the refresh menu still offers merge on the unchanged head, cites CI-green evidence naming test_unit, build_image and e2e from the refreshed state rather than the earlier pending e2e, and says nothing about BLOCKED. Two small wording points worth tightening without risking any fact: the initial menu says 'Pick one' while the course-hold line and the final menu say 'Type a number', so use one consistent prompt per menu; and the initial PR-comment line 'GitHub reports BLOCKED, no local repair applies' sits slightly awkwardly next to a deliver row that promises repairs - phrasing it as 'GitHub reports BLOCKED on this head; no local repair resolves that by itself' would keep the classification unchanged while making the deliver course's merge-base sync/CI watch reading clearer.",
+      "wallMs": 12599,
+      "verdict": "improved"
+    }
+  },
+  "repoSha": "06b180e9d72ec362ce77f563679c1715b41ed61f"
+}

@@ -1,8 +1,8 @@
 {
   "sample": "no-spec-quality",
   "arm": "baseline",
-  "skillSha": "a3b3cbff83b84ac446224cbbc2baef3533fe192adaebbbcb5a40ccd9188927cd",
-  "inputSha": "3cec26539190b97d511b3ee88d31e6cb9d38a64dc3cf2558fbfb4c882a0db472",
+  "skillSha": "b4724823892246c45a172fea63cce4f2e307f41525d15513de443b29f5c0ccd2",
+  "inputSha": "49976f9478850b83f20728e77923d928e43a8041bf8d3aaf5c70d4bcec582922",
   "kind": "text",
   "assembly": "headed",
   "thinking": "medium",
@@ -17,18 +17,18 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "```\nDelivers: the reports page gains an Export CSV button backed by a new on-demand CSV handler that returns the table columns and a 404 for unknown reports.\n\nBlockers:\n1. Any caller can export another user's report, because the export handler never checks that the caller owns the report it reads, so report data leaks across accounts. (src/api/export.ts:14)\n\nVerdict: fixable - 1 blocker\n\n1. fix - retain in-scope blocker repair during this run until readiness or a new decision boundary; review before push [recommended]\n2. review - post the blocker as a comment on your PR\n3. show evidence - gate output, CI run, drafted edit\n4. stop - leave the PR as-is\nType a number, or compose: \"fix 1\".\n```\n",
-      "words": 114,
-      "wallMs": 13414,
+      "text": "```\nDelivers: the reports page gets an on-demand CSV export behind an Export CSV button that returns the table's columns and a 404 for unknown reports.\n\nBlockers:\n1. The export handler returns any existing report without checking that the caller may read it, so any user can download another user's report data, and no test covers a cross-user request. (src/api/export.ts:14, test/api/export.test.ts)\n\nVerdict: fixable - 1 blocker\n\n1. fix - keep authority to repair in-scope blockers for the rest of this run, until the PR is ready or a new decision comes up; the fix is reviewed before any push [recommended]\n2. review - post the blocker as a comment on your PR\n3. stop - leave the PR as-is\nType a number, or compose: \"fix 1\". Type \"show evidence\" for the gate output, the CI run, and the drafted edit.\n```\n",
+      "words": 135,
+      "wallMs": 13672,
       "mechanical": {}
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "Delivers: the reports page offers on-demand CSV downloads with table columns and returns 404 for unknown reports.\n\nBlockers:\n1. The export handler lets a caller download another user's report without an authorization check, exposing that user's report data. (src/api/export.ts:14)\n\nVerdict: fixable - 1 blocker\n\n1. fix - retain in-scope blocker repair during this run until readiness or a new decision boundary; review before push [recommended]\n2. review - post the blocker as a comment on your PR\n3. show evidence - show the gate evidence and drafted fix\n4. stop - leave the PR as-is\n\nType a number, or compose: \"fix 1\".\n",
-      "words": 97,
-      "wallMs": 9862,
+      "text": "Delivers: the reports page offers an Export CSV button that downloads report data on demand, including table columns and a 404 response for unknown reports.\n\nBlockers:\n1. The export handler allows callers to download another user's report without an authorization check, exposing report data across users. (src/api/export.ts:14)\n\nVerdict: fixable - 1 blocker\n\n1. fix - retain in-scope blocker repair during this run until readiness or a new decision boundary; review before push [recommended]\n2. review - post the blocker as a comment on your PR\n3. show evidence - show the CI evidence, claim dispositions, and drafted repair\n4. stop - leave the PR as-is\n\nType a number, or compose: \"fix 1\".\n",
+      "words": 107,
+      "wallMs": 9476,
       "mechanical": {}
     }
   },
-  "repoSha": "ce7d703e48b1eea239e19c8679ac160859af54bf"
+  "repoSha": "06b180e9d72ec362ce77f563679c1715b41ed61f"
 }

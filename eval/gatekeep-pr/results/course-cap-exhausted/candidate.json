@@ -1,0 +1,110 @@
+{
+  "sample": "course-cap-exhausted",
+  "arm": "candidate",
+  "skillSha": "ffd26b7b4c036d9c44a24248aa93bac9e638f57bfb4507bd18347af259f1dfae",
+  "inputSha": "1083165a6ac5eef2c86c118eef3ba3224f373fb396b8a13401a8992c24445b5c",
+  "kind": "text",
+  "assembly": "concat",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "# gatekeep-pr - PR 42, resumed at the cap exit\n\n## Starting state\n\n- **Invocation:** `42`, without `--rebase`. No sync runs and no `Sync:` line renders.\n- **Tracker:** the plan tracker was initialized at invocation start with `gather, provision, verify`. The first task name carries `state: /tmp/gatekeep-state.synthetic`. Later stages (`review`, `report`, `menu`) were added as each started. This entry re-opens `report` and `menu`.\n- **Assessed SHA:** verification evidence (source `ci`, `ci / test` SUCCESS, run 910) and the report are bound to `1111111111111111111111111111111111111111`.\n\n## Narration\n\n1. **Validate the run record.** Read `/tmp/gatekeep-state.synthetic`.\n   - `consent.target` matches: base `acme/widgets`, PR `42`, base ref `main`.\n   - The course is `deliver`.\n   - `repair.rounds_used 10 / rounds_cap 10`, `repair.syncs_used 10 / syncs_cap 10`, `wave: null`.\n   - In variant C, `repair.wave.no_progress` is also present.\n   - Nothing is reset.\n2. **Pre-menu refresh (read-only).**\n   - `gh pr view 42 --json headRefOid,state,mergeable,mergeStateStatus,reviewDecision,statusCheckRollup,body,baseRefName,number,title,author,isDraft,headRefName,isCrossRepository,files,additions,deletions,commits,reviews,closingIssuesReferences,headRepository,maintainerCanModify,url,mergeCommit`\n   - `gh run list -R acme/widgets -c 1111111111111111111111111111111111111111 --json databaseId,status,conclusion,workflowName,url`\n   - Result: the head, body and base `main` are unchanged. The state is OPEN and `mergeStateStatus` is **BEHIND**. `ci / test` is green.\n3. **Exit check.**\n   - Readiness fails: blocker P1 is open and the branch is BEHIND.\n   - The obstacle rows come before the cap exit, so they are resolved first. BEHIND and the repairable P1 would only continue the D3 body, which the cap does not allow. No other obstacle applies.\n   - The cap exit is taken: `round cap reached: 10 of 10` (and `sync cap reached: 10 of 10`).\n   - The template is **obstacle**. Local commits are kept.\n4. **Done-check and render.** Run the output done-check, then render the report and the obstacle menu below.\n5. **Human reply `1`.**\n   - The reply is not one of the exact typed commands. Numeric lookup with N=4 and L=0 maps it to `deliver`.\n   - Before any write, the head, body and base are re-fetched. All are unchanged and the target matches.\n6. **Record the selection.**\n   - The course stays `deliver`, because obstacle-deliver resumes delivery.\n   - Both caps are extended by `2 x maxFixRounds = 2 x 5 = 10`: `rounds_cap 20`, `syncs_cap 20`.\n   - Usage stays at `rounds_used 10`, `syncs_used 10`.\n   - This is persisted to the record before any course work.\n   - **Narration stops here.**\n\n## Rendered report and menu\n\n```\nDelivers: the PR rejects unsigned events.\n\nBlockers:\n1. An event whose signature field is an array instead of a string passes the guard, so an unsigned event can still be accepted. (src/guard.mjs)\n\nVerdict: fixable - 1 blocker\n\nRound cap reached: 10 of 10, and sync cap reached: 10 of 10; the branch is also behind main.\n\nPick one:\n1. deliver - add 10 to both caps (rounds 20, syncs 20), then repair the open blocker and rebase on main.\n2. assess - post the open blocker as a review; then approve or stop, no repairs.\n3. stop - remove the worktree, leave the PR as is. [recommended]\n\nType a number; show evidence prints the full record.\n```\n\nThere is no `Sync:` line, because `--rebase` was not passed. `approve workflow run` is not offered because no run is held.\n\n## Accounting\n\nUsage is cumulative and is never reset by the extension.\n\n- **Rounds (10):** each of the ten reviewed source-changing waves was charged exactly once, when a dispatched payload left a new source-changing commit.\n  - The mixed source-changing wave with a sync charged one round and one sync.\n  - Conflict-only (base-only) sync commits charged a sync only, never a round.\n  - Description-only body writes, watches, re-reviews, empty waves and restored failures charged nothing.\n- **Syncs (10):** the ten loop syncs, conflict-only syncs and the mixed wave's sync included, each incremented `syncs_used` once.\n- **After the pick:** the caps are 20/20 and usage is 10/10, leaving 10 rounds and 10 syncs of headroom. The separate verify-phase phase-tracker guard (`1 x maxFixRounds`) is unchanged.\n\n## Independent variant B (runtime guard refusal)\n\n- **State:** caps 20/20, usage 10/10.\n- **What happens:** the Exit check passes and the D3 body starts. The first helper dispatch is the fresh `implementer` for P1 (cwd `/work/widgets-pr-42`; scoped test `node --test src/guard.test.mjs`; one commit only when it passes). The runtime refuses that dispatch.\n- **Result:**\n  - The refusal is surfaced verbatim as `stuck - phase-tracker fix-round guard: closureReview.enforce: maximum fix rounds reached`. The gate never bypasses it.\n  - No round is charged and no sync has run yet, so usage stays 10/10 and caps 20/20.\n  - The obstacle template re-renders with that reason, offering `deliver`, `assess`, and `stop [recommended]`.\n\n## Independent variant C (no-progress checkpoint)\n\n- **State:** caps 20/20, usage 10/10. `repair.wave.no_progress` is present, and its failed prerequisite (`node --test src/guard.test.mjs: constant-time comparison`, `failed`) is unchanged: same source, inputs and command, and the test is still red.\n- **What happens:** the checkpoint is checked before course work. The cap extension alone never clears it, so no implementer is dispatched and the unchanged payload is not retried.\n- **Result:**\n  - No round or sync is charged. Usage stays 10/10 and caps 20/20, and the checkpoint is retained.\n  - The obstacle template re-renders with: the scoped test `constant-time comparison` is still red with unchanged source, input and command, and the helper restored its edits and made no commit (`/tmp/guard-failed.synthetic`).\n  - It offers `deliver`, `assess`, and `stop [recommended]`.\n",
+      "words": 810,
+      "wallMs": 38188,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "## Entry and pre-menu refresh\n\nI resume the retained `deliver` course from `/tmp/gatekeep-state.synthetic`. I do not initialize a new record, reset accounting, or replay the ten completed waves.\n\nNo tracker `init` runs at this entry point. The invocation's initial stages were `gather`, `provision`, and `verify`; there was no entry `sync` stage because the arguments were `42`, without `--rebase`. I add `report` when reporting starts and `menu` when menu rendering starts.\n\nI run these commands in order:\n\n1. `cat /tmp/gatekeep-state.synthetic`\n\n   I validate the existing record against `acme/widgets`, PR `42`, and base `main`. I retain course `deliver`, usage `10/10` for rounds and syncs, and the recorded history.\n\n2. The required pre-menu refresh:\n\n   ```bash\n   gh pr view 42 -R acme/widgets --json headRefOid,state,mergeable,mergeStateStatus,reviewDecision,statusCheckRollup,body,baseRefName,number,title,author,isDraft,headRefName,isCrossRepository,files,additions,deletions,commits,reviews,closingIssuesReferences,headRepository,maintainerCanModify,url,mergeCommit\n   ```\n\n3. The exact-head Actions refresh:\n\n   ```bash\n   gh run list -R acme/widgets -c 1111111111111111111111111111111111111111 --json databaseId,status,conclusion,workflowName,url\n   ```\n\n4. The local-head check:\n\n   ```bash\n   git -C /work/widgets-pr-42 rev-parse HEAD\n   ```\n\n5. The tracked-cleanliness check:\n\n   ```bash\n   git -C /work/widgets-pr-42 status --porcelain --untracked-files=no\n   ```\n\nThe head and body are unchanged, CI remains green, the worktree is tracked-clean, and the forge reports `BEHIND`. Verification evidence and the brief's assessment remain bound to `1111111111111111111111111111111111111111`. I dispatch no verifier, reviewer, or implementer before this menu.\n\nThe unsigned-array bypass remains an open blocker. The ordered exit check reaches the round cap first: `10 of 10`. The sync cap is also exhausted, and being behind remains an unmet merge prerequisite.\n\nNo `Sync:` line renders: this invocation did not include `--rebase`.\n\n## Rendered report and first menu\n\nDelivers: the PR intends to reject unsigned events.\n\nBlockers:\n1. Unsigned array events bypass rejection, so unsigned input remains accepted.\n\nThe round cap is reached: 10 of 10. The sync cap is also exhausted at 10 of 10, and the branch remains behind main.\n\nVerdict: fixable - 1 blocker\n\nPick one:\n1. deliver - add 10 to each cumulative cap before resuming repairs and required synchronization.\n2. assess - switch course and post the open blocker to the PR without repairs.\n3. stop - remove the eligible gate worktree and leave the PR unchanged. [recommended]\n\nType a number; show evidence prints the full record.\n\n## Recording the selection\n\nThe human selects **1**. I map that directly to `deliver`.\n\nBefore any course-authorized write, I validate the same continuation record again and refresh the actual head, state, body, and base:\n\n```bash\ncat /tmp/gatekeep-state.synthetic\ngh pr view 42 -R acme/widgets --json headRefOid,state,mergeable,mergeStateStatus,body,baseRefName\n```\n\nI persist the selection and accounting in `/tmp/gatekeep-state.synthetic`:\n\n- Course remains `deliver`.\n- `rounds_cap` increases from 10 to **20**.\n- `syncs_cap` increases from 10 to **20**.\n- `rounds_used` remains **10**.\n- `syncs_used` remains **10**.\n- The selection does not renew a watch deadline.\n- No helper has been dispatched and no additional usage has been charged.\n\nThe history is cumulative. Each source-changing repair pass counts once; a mixed source-changing wave with a sync counts once against each budget. Conflict-only syncs consume sync usage but no repair round. Description-only writes consume neither budget. Those historical operations are already accounted for, not added again.\n\n**The main narration stops here, immediately after recording the selection.**\n\n### Independent B\n\nThe persisted caps remain **20/20**, with usage **10/10**. If dispatch is attempted, the runtime refusal stops execution:\n\n`stuck - phase-tracker fix-round guard: closureReview.enforce: maximum fix rounds reached`\n\nExtending the gate's cumulative caps does not extend or bypass the runtime guard. No refused dispatch counts as a completed source-changing round.\n\n### Independent C\n\nThe persisted caps remain **20/20**, with usage **10/10**. I inspect the retained no-progress checkpoint before dispatch and do not retry the unchanged payload.\n\nThe scoped test still fails with unchanged source, inputs, and command. The restored attempt made no commit, so it consumed no repair round. The higher caps do not clear this obstacle:\n\n`stuck - node --test src/guard.test.mjs: constant-time comparison remains red with unchanged source, inputs, and command`\n\nThe checkpoint and `/tmp/guard-failed.synthetic` remain recorded; no helper is dispatched.\n",
+      "words": 619,
+      "wallMs": 28801,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "778c8bbac48770631bd725624705338c87b6541b095a1424690347848a014d74",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "06f28ee72a3af6d0ccb5eb472d04acef89e765458ac60334bf896530d25f8533",
+      "baselineOutputSha": "991812f094955f3303d6545a95d0b8bfaf7f3cb8c5a645487f9ec5e404f55506",
+      "candidateOutputSha": "8c6b4cd7a0b775103d1078e14182347bb5ac55c867ecf3244baa48ca7b9a5a8c",
+      "facts": {
+        "f1": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "f2": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "f3": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "f4": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "f5": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        }
+      },
+      "feedback": "After moves every fact from fails to holds, and nothing regresses. The decisive wording is the explicit cap model: 'Both caps are extended by 2 x maxFixRounds = 2 x 5 = 10' plus 'Usage is cumulative and is never reset by the extension' establishes the 10/10 initial caps, the single +10 extension to 20/20, and the preserved 10/10 counters (f1, f2); the Accounting section's per-line split (mixed wave charges one round and one sync, conflict-only sync charges a sync only, description-only writes charge nothing) delivers f3 directly. Variant B now actually reaches the dispatch and quotes the runtime refusal verbatim as 'stuck - phase-tracker fix-round guard: closureReview.enforce: maximum fix rounds reached' with 'The gate never bypasses it', which is what Before lacked when it argued the guard never fired (f4). Variant C states the checkpoint is checked before course work, 'the cap extension alone never clears it', no implementer is dispatched, and no round is charged (f5). Keep these exact phrasings; one small tightening would be to state in the Accounting section that the 'ten loop syncs' total already includes the conflict-only and mixed-wave syncs so a reader does not double-count, and to make the C variant say explicitly that the obstacle rendered is the no-progress exit (not a cap exit) so the retained prerequisite is unambiguous.",
+      "wallMs": 21094,
+      "verdict": "improved"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "778c8bbac48770631bd725624705338c87b6541b095a1424690347848a014d74",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "06f28ee72a3af6d0ccb5eb472d04acef89e765458ac60334bf896530d25f8533",
+      "baselineOutputSha": "e5200f49addb5f2c23a206b0a4f62e06b5a3b266ccbd1515d47146a5ac4ceb21",
+      "candidateOutputSha": "6867ccf4d79c99be200d6c0befc7bfe90aa7c60d4b7a0dae4c99a0149e488587",
+      "facts": {
+        "f1": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "f2": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "f3": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "f4": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "f5": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        }
+      },
+      "feedback": "After delivers the Change cleanly and regresses nothing: it honors the 10/10 caps derived from maxFixRounds 5 instead of treating the resolved 5 as overriding them (f1), renders a numeric deliver row that adds ten once to each cap to 20/20 while leaving usage at 10/10 and stops before any helper result (f2), states the independent accounting for conflict-only syncs, description-only writes and mixed waves (f3), surfaces the exact `stuck - phase-tracker fix-round guard: closureReview.enforce: maximum fix rounds reached` line without bypassing it (f4), and keeps C's no-progress exit without redispatch or a spent round (f5, which Before already held). The one place After leans on the digest rather than its own text is f1's derivation: it says usage is 10/10 and the cap is 10 of 10 but never spells out that resolved maxFixRounds 5 yields ten source waves and ten syncs; adding a sentence such as 'The resolved maxFixRounds 5 doubles to the entry caps of 10 rounds and 10 syncs, both now exhausted' in the entry section would make f1 hold on the text alone. Also ensure the templates keep stop recommended and last and show evidence as a hint, which After already does.",
+      "wallMs": 17906,
+      "verdict": "improved"
+    }
+  },
+  "repoSha": "06b180e9d72ec362ce77f563679c1715b41ed61f"
+}

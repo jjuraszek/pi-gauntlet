@@ -1,0 +1,130 @@
+{
+  "sample": "menu-rows-omitted",
+  "arm": "candidate",
+  "skillSha": "ffd26b7b4c036d9c44a24248aa93bac9e638f57bfb4507bd18347af259f1dfae",
+  "inputSha": "c8fdd186bc96f53db37cfba0e0e1b698414f5eb3c0398e70f957ed3663b97f95",
+  "kind": "text",
+  "assembly": "concat",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "# gatekeep-pr #42: menu checkpoints A-J\n\n**Common frame.**\n- **Invocation:** `42`, with no issue reference and no `--rebase`.\n- **Run record:** `state: /tmp/gatekeep-state.synthetic`. Before every render I validate it against `consent.target` (acme/widgets, 42, main).\n- **Tracker:** `plan_tracker` was initialized as `gather, provision, verify`. There is no `sync` stage because `--rebase` is absent.\n- **Assessed head:** verification and the brief both assess `1111111111111111111111111111111111111111`. Evidence is `source: ci`, from check `ci / test` (run 910, success) on that exact head.\n- **Sync line:** none renders, because `--rebase` was not passed.\n- **Pre-menu refresh:** every render below is preceded by this read-only pair:\n  - `gh pr view 42 --json headRefOid,state,mergeable,mergeStateStatus,reviewDecision,statusCheckRollup,body,baseRefName,number,title,author,isDraft,headRefName,isCrossRepository,files,additions,deletions,commits,reviews,closingIssuesReferences,headRepository,maintainerCanModify,url,mergeCommit`\n  - `gh run list -R acme/widgets -c 1111111111111111111111111111111111111111 --json databaseId,status,conclusion,workflowName,url`\n  \n  Each refresh returns the unchanged head, body, base and checks.\n\n---\n\n### A - initial, own PR, P1 blocker, zero nits, helpers and push available, caps 10/10\n\n```\nBlockers:\n1. <P1 source blocker: what is wrong, why it matters>. (<file:line>)\n\nVerdict: fixable - 1 blocker\n\nPick one:\n1. assess - post the review to the PR; then approve or stop, no repairs.\n2. deliver - repair blockers, rebase on main, watch CI, repeat until merge is offered. [recommended]\n3. stop - remove the worktree, leave the PR as is.\n\nNot offered: deliver with nits (no nits).\nCourse holds until the final menu; `show evidence` prints the full record.\n```\n\nThe human types `deliver`, which is not a number. Under `### Next action`, a typed non-numeric string is a change request, even when a delivery row exists.\n- `course` stays null and nothing is persisted.\n- No write, wave or sync runs.\n- I reply that delivery is selected by typing `2`.\n- After the pre-menu refresh, the same initial menu re-renders unchanged.\n\n### B - maxFixRounds 0, caps 0/0\n\n```\nVerdict: fixable - 1 blocker\n\nPick one:\n1. assess - post the review to the PR; then approve or stop, no repairs. [recommended]\n2. stop - remove the worktree, leave the PR as is.\n\nNot offered: deliver (fix-round cap is 0), deliver with nits (fix-round cap is 0).\nCourse holds until the final menu; `show evidence` prints the full record.\n```\n\n### C - helpers missing\n\n```\nVerdict: fixable - 1 blocker\n\nPick one:\n1. assess - post the review to the PR; then approve or stop, no repairs. [recommended]\n2. stop - remove the worktree, leave the PR as is.\n\nNot offered: deliver (no helper facility to apply repairs), deliver with nits (no helper facility to apply repairs).\nCourse holds until the final menu; `show evidence` prints the full record.\n```\n\n### D - head not pushable\n\n```\nVerdict: fixable - 1 blocker\n\nPick one:\n1. assess - post the review to the PR; then approve or stop, no repairs. [recommended]\n2. stop - remove the worktree, leave the PR as is.\n\nNot offered: deliver (needs push to git@git.example.invalid:acme/widgets.git:feature/guard), deliver with nits (needs push to git@git.example.invalid:acme/widgets.git:feature/guard).\nCourse holds until the final menu; `show evidence` prints the full record.\n```\n\n### E - PR CLOSED before the first report, cleanup_done false\n\n- The state is not OPEN, so the closed PR template applies.\n- No assessment report renders, so there is no verdict line.\n- There is no `## cleanup` override.\n\n```\nPick one:\n1. cleanup - tear down the gate's checkout and local branch (untracked files there are deleted). [recommended]\n2. stop - leave the PR and the checkout as found.\n\nType a number; show evidence prints the full record.\n```\n\n### F - ready final, draft, one nit, viewer is someone else with WRITE\n\n```\nNits:\n- <nit: what, why>. (<file:line>)\n1 nit open - fix nits to take them\n\nVerdict: mergeable - CI green on the assessed head (ci / test)\n\nPick one:\n1. fix nits - run one delivery iteration on the 1 nit, then return to this menu.\n2. stop - leave the PR and the checkout as found. [recommended]\n\nNot offered: merge (draft), approve (draft).\nType a number; show evidence prints the full record.\n```\n\n### G - ready final, non-draft, viewer is someone else with READ\n\n```\nVerdict: mergeable - CI green on the assessed head (ci / test)\n\nPick one:\n1. approve - approve this PR at 1111111. [recommended]\n2. stop - leave the PR and the checkout as found.\n\nNot offered: merge (needs WRITE on acme/widgets).\nType a number; show evidence prints the full record.\n```\n\n### H - ready own final, no nits, drafted reply C1\n\n```\nPR comments:\n- <reviewer>'s comment on <topic> <verdict clause>, so the drafted reply <what it says>. (<locator>)\n\nVerdict: mergeable - CI green on the assessed head (ci / test)\n\nPick one:\n1. merge - squash-merge PR 42 at 1111111 into main. [recommended]\n2. reply - post the drafted reply to the review comment.\n3. stop - leave the PR and the checkout as found.\n\nType a number; show evidence prints the full record.\n```\n\nThe human types `2` (reply). I do the following, in order:\n1. **Compare-and-swap re-fetch:** `gh pr view 42 --json headRefOid,state,mergeable,mergeStateStatus,body,baseRefName`. It returns no change.\n2. **Output done-check:** I check the drafted reply against the wording rules.\n3. **Post:** `gh api --method POST repos/acme/widgets/pulls/42/comments/<C1 id>/replies -F body=@<tmp body file>`. The post succeeds, and I record its id as gate-posted so it is never minted as a new comment.\n4. **Comment refetch:** the pre-menu refresh, then both `--paginate` comment fetches. The only new comment is the gate's own reply, so there is no delta and no source review.\n\nThe final menu re-renders without the reply row:\n\n```\nVerdict: mergeable - CI green on the assessed head (ci / test)\n\nPick one:\n1. merge - squash-merge PR 42 at 1111111 into main. [recommended]\n2. stop - leave the PR and the checkout as found.\n\nType a number; show evidence prints the full record.\n```\n\n### I - own PR MERGED, merge_commit 9999999..., cleanup_done true, issue_ref null\n\nThe human types `1` (post coverage to PR).\n- The output done-check is exempt, because the AC coverage block posts verbatim.\n- A post runs no compare-and-swap.\n- I write the block to a temp file and run `gh pr comment 42 --body-file <tmp>`.\n\n```markdown\n## AC coverage\nInformational - the ticket's rows are unchanged. PR <pr.url>, merged 9999999999999999999999999999999999999999\n```\n\nThe post fails with permission denied. I print the error, keep the row, do not retry, and re-render the own merge menu:\n\n```\npost coverage to PR: failed - permission denied\n\nPick one:\n1. post coverage to PR - post the AC coverage block as a PR comment. [recommended]\n2. stop - leave the PR and the checkout as found.\n\nNot offered: post coverage to ticket (no issue resolved).\nType a number; show evidence prints the full record.\n```\n\n### J - same numeric post succeeds\n\nThe same `gh pr comment 42 --body-file <tmp>` succeeds. The post row is suppressed for the rest of the run, and the own merge menu re-renders:\n\n```\nPick one:\n1. stop - leave the PR and the checkout as found. [recommended]\n\nNot offered: post coverage to ticket (no issue resolved).\nType a number; show evidence prints the full record.\n```\n",
+      "words": 1080,
+      "wallMs": 56175,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "These are independent menu checkpoints. No commands run, no helpers dispatch, and no tracker stages initialize: the Entry block starts at menu selection, not step 2. The existing run record remains `/tmp/gatekeep-state.synthetic`.\n\nVerification and the brief assess `1111111111111111111111111111111111111111`. No sync line renders because the invocation has no `--rebase`. The post outcomes below are supplied simulations, not executed actions.\n\n### A. Delivery available, zero nits\n\nDelivers: Reject unsigned events.\n\nBlockers:\n1. The source blocker remains unresolved.\n\nVerdict: fixable - 1 blocker\n\nPick one:\n1. assess - post the review to the PR, without repairs.\n2. deliver - repair blockers, rebase on main, and watch CI until an exit. [recommended]\n3. stop - remove the eligible worktree and leave the PR unchanged.\n\nCourse holds until the final menu; `show evidence` prints the full record.\n\nThe human types `deliver`. This is a change request, not a numeric selection; it sets no course and authorizes no writes. Ask for a numeric selection from 1-3.\n\n### B. Delivery cap zero\n\nDelivers: Reject unsigned events.\n\nBlockers:\n1. The source blocker remains unresolved.\n\nNot offered: deliver or deliver with nits (maxFixRounds is zero).\n\nVerdict: fixable - 1 blocker\n\nPick one:\n1. assess - post the review to the PR, without repairs. [recommended]\n2. stop - remove the eligible worktree and leave the PR unchanged.\n\nCourse holds until the final menu; `show evidence` prints the full record.\n\n### C. Helpers unavailable\n\nDelivers: Reject unsigned events.\n\nBlockers:\n1. The source blocker remains unresolved.\n\nNot offered: deliver or deliver with nits (helper facility unavailable).\n\nVerdict: fixable - 1 blocker\n\nPick one:\n1. assess - post the review to the PR, without repairs. [recommended]\n2. stop - remove the eligible worktree and leave the PR unchanged.\n\nCourse holds until the final menu; `show evidence` prints the full record.\n\n### D. Head unpushable\n\nDelivers: Reject unsigned events.\n\nBlockers:\n1. The source blocker remains unresolved.\n\nNot offered: deliver (needs push to git@git.example.invalid:acme/widgets.git:feature/guard). Deliver with nits also requires push access.\n\nVerdict: fixable - 1 blocker\n\nPick one:\n1. assess - post the review to the PR, without repairs. [recommended]\n2. stop - remove the eligible worktree and leave the PR unchanged.\n\nCourse holds until the final menu; `show evidence` prints the full record.\n\n### E. PR closed before the report\n\nThe closed-PR template takes precedence. Closing the PR does not resolve the retained source blocker.\n\nDelivers: Reject unsigned events.\n\nBlockers:\n1. The source blocker remains unresolved.\n\nVerdict: fixable - 1 blocker\n\nPick one:\n1. cleanup - tear down the gate's checkout and local branch (untracked files there are deleted). [recommended]\n2. stop - leave the checkout at /work/widgets-pr-42 on feature/guard.\n\nType a number; `show evidence` prints the full record.\n\n### F. Ready draft, someone else's PR, one nit\n\nDelivers: Reject unsigned events.\n\nNits:\n- One nit remains outside the delivery course.\n\n1 nit open - fix nits to take it.\n\nNot offered: merge (draft); approve (draft).\n\nVerdict: mergeable - CI green on the assessed head (ci / test)\n\nPick one:\n1. fix nits - run one delivery iteration for the remaining nit.\n2. stop - leave the checkout at /work/widgets-pr-42 on feature/guard. [recommended]\n\nType a number; `show evidence` prints the full record.\n\n### G. Ready, someone else's PR, READ permission\n\nDelivers: Reject unsigned events.\n\nNot offered: merge (needs WRITE on acme/widgets).\n\nVerdict: mergeable - CI green on the assessed head (ci / test)\n\nPick one:\n1. approve - approve the assessed head. [recommended]\n2. stop - leave the checkout at /work/widgets-pr-42 on feature/guard.\n\nType a number; `show evidence` prints the full record.\n\n### H. Ready own PR with a drafted reply\n\nDelivers: Reject unsigned events.\n\nNot offered: approve (own PR).\n\nVerdict: mergeable - CI green on the assessed head (ci / test)\n\nPick one:\n1. merge - squash-merge the assessed head. [recommended]\n2. reply - post the drafted thread reply.\n3. stop - leave the checkout at /work/widgets-pr-42 on feature/guard.\n\nType a number; `show evidence` prints the full record.\n\nThe human selects **2**. The supplied simulation says the reply post succeeds; its returned identity is recorded as gate-posted, and the successful reply is no longer offered. No approval or merge is authorized.\n\nDelivers: Reject unsigned events.\n\nNot offered: approve (own PR).\n\nVerdict: mergeable - CI green on the assessed head (ci / test)\n\nPick one:\n1. merge - squash-merge the assessed head. [recommended]\n2. stop - leave the checkout at /work/widgets-pr-42 on feature/guard.\n\nType a number; `show evidence` prints the full record.\n\n### I. Merged PR, coverage post fails\n\nThe human selects **1** from the supplied current terminal menu. The simulated coverage post fails with `permission denied`. It is not recorded as successful and is not retried.\n\nCleanup remains suppressed because it is complete. Ticket coverage is unavailable because no issue is resolved.\n\nCoverage post failed: permission denied.\n\nPick one:\n1. post coverage to PR - post the informational AC coverage block. [recommended]\n2. stop - end the gate without further checkout changes.\n\nType a number; `show evidence` prints the full record.\n\n### J. Merged PR, coverage post succeeds\n\nIndependently, the human selects **1** from the same supplied terminal menu. The simulated coverage post succeeds and is recorded as successful, so its row disappears. Cleanup is already complete, and no ticket post is available.\n\nPick one:\n1. stop - end the gate without further checkout changes. [recommended]\n\nType a number; `show evidence` prints the full record.\n",
+      "words": 844,
+      "wallMs": 25793,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "141d14e2992948361e4be6d8dcfb37825fec376cdcf579a10955ca427a01d36e",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "06f28ee72a3af6d0ccb5eb472d04acef89e765458ac60334bf896530d25f8533",
+      "baselineOutputSha": "c010449bf50891a319b6883cdd5ee981a07389a5912c1ab223fd08a97bbc9f9a",
+      "candidateOutputSha": "640478279b74adf2762ec1dc382e1c47c16924ca20313c68c5f631b8687cc1f1",
+      "facts": {
+        "f1": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "f2": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "f3": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "f4": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "f5": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "f6": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "f7": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        }
+      },
+      "feedback": "After moves f1, f2, f3 and f5 from fails to holds and keeps f4, f6 and f7, so no fact regressed. The gains come from the shared menu template: A now shows `Not offered: deliver with nits (no nits)` and treats typed `deliver` as a change request with course null and no write; B/C/D omit both `deliver` and `deliver with nits` with per-row reasons, D naming the exact push destination; E drops the report and the numeric evidence row to a pure cleanup/stop template; and every checkpoint moves `show evidence` into the trailing hint with one `[recommended]` and stop last. Before failed these because it still exposed a numeric `show evidence` row at every checkpoint, kept a `fix` row in D (only `push` was withheld), rendered blockers plus three rows in E, and answered typed `deliver` as an unrecognized token rather than a change request. To keep the retained facts stable while delivering the Change, preserve the exact `Not offered:` phrasing in F/G, the reply-only mapping in H (After's switch to the `pulls/.../comments/<id>/replies` endpoint is fine but should stay documented as C1-only), and the I/J row numbering where the failed post remains row 1 with only an error line, not a success marker, and the successful post vanishes so stop becomes row 1.",
+      "wallMs": 29582,
+      "verdict": "improved"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "141d14e2992948361e4be6d8dcfb37825fec376cdcf579a10955ca427a01d36e",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "06f28ee72a3af6d0ccb5eb472d04acef89e765458ac60334bf896530d25f8533",
+      "baselineOutputSha": "67d1c5d2b0e25df307051975b7ea716353e1b7fe7594e09d7550ab4618ea183c",
+      "candidateOutputSha": "ff12bb534aced984dd15c8289ba1401c1f2ba6adf6784ecc6eb8843b27d07672",
+      "facts": {
+        "f1": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "f2": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "f3": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "f4": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "f5": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "f6": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "f7": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        }
+      },
+      "feedback": "After delivers the Change without regressing anything Before kept: f4 and f6 still hold (F/G omission reasons verbatim, H reply row maps only to the C1 post with no merge/approval inferred), and the course-model facts move as intended. The gains come from concrete wording choices worth keeping: treating typed `deliver` as a change request that sets no course and re-asking for a numeric pick (f1); omitting both `deliver` and `deliver with nits` in B/C/D and quoting the exact push destination `git@git.example.invalid:acme/widgets.git:feature/guard` in D (f2); reducing E to cleanup/stop with no coverage or delivery rows (f3); moving `show evidence` into a trailing hint line in every menu so each has exactly one [recommended] and stop last (f5); and in I keeping `post coverage to PR` as row 1 with stop row 2 and no success marker, while J drops the consumed row so stop becomes row 1 (f7). Two small hardening suggestions that would not cost any fact: in D, phrase the omission as a single `Not offered: deliver, deliver with nits (needs push to <dest>)` so both rows are unambiguously tied to the push destination, and in I consider stating explicitly that the row is 'retryable' rather than only 'not retried' so a reader cannot misread the failed outcome as consuming the row.",
+      "wallMs": 24003,
+      "verdict": "improved"
+    }
+  },
+  "repoSha": "06b180e9d72ec362ce77f563679c1715b41ed61f"
+}

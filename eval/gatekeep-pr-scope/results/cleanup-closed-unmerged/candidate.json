@@ -1,8 +1,8 @@
 {
   "sample": "cleanup-closed-unmerged",
   "arm": "candidate",
-  "skillSha": "41ac0349b50f7d2e8e900bfdb94ac4b06b94779ce7e72fa549866fe9b5cd2430",
-  "inputSha": "b4c5480c60fd041e10972ae545a8495644f1f5ea6460631b58a389eab379f52f",
+  "skillSha": "49a986d6843c3697fa3139ff1cc7115ade90e9abcb5da69e19455a9c30d721b7",
+  "inputSha": "f6aad117f2b2c014a442420cf6d681aeea5a4df4b08124f43074d043acb0f71a",
   "kind": "text",
   "assembly": "headed",
   "thinking": "medium",
@@ -17,16 +17,16 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "Delivers: the reports page exports CSV on demand. ACs 1, 2, 4; 3, 5 deferred per spec to acme/widgets#46; 4's observable half (export completes under 5s on production data) is checked after merge, not here.\n\nNits:\n- The export pages results with its own loop instead of the shared paging helper, so a paging bug fixed once would need fixing twice. (src/api/export.ts:31, lib/page.ts)\n\nVerdict: fixable - PR closed without merge\n\n1. cleanup - remove .worktrees/pr-210 (untracked files there are deleted); branch csv-export (skipped - PR not merged), pull main (skipped - PR not merged), then close ticket (skipped - needs a landed change), release (skipped - needs a landed change) [recommended]\n2. show evidence - gate output, CI run, claim and AC outcomes\n3. stop - leave the checkout as found; .worktrees/pr-210 and branch csv-export stay\nType a number.\n\n---\n\n**Reply: `cleanup`**\n\nThe PR is closed and not merged, so it has not landed. `cleanup.md` steps 1-4 run in order, and every git command runs from the primary checkout.\n\nCommands executed:\n\n```bash\ngit -C <primary> worktree remove --force .worktrees/pr-210\ngit -C <primary> worktree prune\n```\n\n- **Step 1 (worktree): eligible.**\n  - The path is not the primary.\n  - The tree is tracked-clean. The untracked `node_modules/` does not block removal, and it is deleted with the tree.\n  - The landed-commit check does not apply.\n  - There is no keyed `## using-git-worktrees` contract, so no ownership match is needed.\n  - `worktree.created` is true, and `worktree.destroy` is null, so the built-in forced removal runs.\n- **Step 2 (branch):** not landed, so `git branch -D` does not run.\n- **Step 3 (base):** not landed, so there is no fetch or pull.\n- **Step 4 (override items):** both items hit the landed-change guard before any substitution.\n  - `close ticket` contains `<merge-sha>`.\n  - `release` is `/skill:release`.\n  - No `gh issue close` runs and no release skill is invoked.\n\nOutput:\n\n```\nworktree: done\nbranch: skipped - PR not merged\nbase: skipped - PR not merged\nclose ticket: skipped - needs a landed change\nrelease: skipped - needs a landed change\n```\n\n`cleanup_done` is set to true. The continuation record, helper output files, and temporary files are kept, so `show evidence` stays available. `### Teardown` deletes them on terminal exit.\n\nRe-rendered menu:\n\n1. show evidence - gate output, CI run, claim and AC outcomes\n2. stop - end the run; the worktree is already removed and branch csv-export stays [recommended]\nType a number.\n",
-      "words": 372,
-      "wallMs": 24915,
+      "text": "## Report\n\n```\nDelivers: the reports page exports CSV on demand. ACs 1, 2, 4; 3, 5 deferred per spec to acme/widgets#46; 4's observable half (export completes under 5s on production data) is checked after merge, not here.\n\nNits:\n- The export pages results with its own loop instead of the shared paging helper, so a paging bug fixed once would need fixing twice. (src/api/export.ts:31, lib/page.ts)\n\nVerdict: mergeable - CI green on the assessed head (test)\n```\n\nThe PR is no longer OPEN, so the closed PR template applies. That state takes precedence over a first-ready final menu, and the course stays unset.\n\n```\nPick one:\n1. cleanup - remove .worktrees/pr-210 (untracked files there are deleted); branch csv-export (skipped - PR not merged), pull main (skipped - PR not merged), then close ticket (skipped - needs a landed change), release (skipped - needs a landed change). [recommended]\n2. stop - leave the checkout at .worktrees/pr-210 on branch csv-export as found.\n\nType a number; show evidence prints the full record.\n```\n\n## Reply `1` - cleanup\n\nYou picked `cleanup` on a terminal template. The PR is not landed because `pr.state` is CLOSED and `merge_commit` is null. The primary checkout is `<scratch>`. No `## using-git-worktrees` section exists, so the legacy path applies.\n\n**Step 1, worktree.** The tree is eligible for removal:\n- The path is not the primary.\n- It is tracked-clean; the untracked `node_modules/` does not block removal.\n- `worktree.created` is true.\n- `worktree.destroy` is null.\n\n```bash\ngit -C <scratch> worktree remove --force <scratch>/.worktrees/pr-210\ngit -C <scratch> worktree prune\n```\n\n**Step 2, branch.** Not landed, so the branch is not deleted. No remote branch is ever touched.\n\n**Step 3, base.** Not landed, so there is no fetch or pull.\n\n**Step 4, overrides.** The landed-change guard runs before substitution:\n- `close ticket` contains `<merge-sha>`, so it is skipped and `gh issue close` is not run.\n- `release` is `/skill:release`, so it is skipped.\n\nNo external (`gh`/tracker) write was made, so no output done-check or compare-and-swap applies.\n\n```\nworktree: done\nbranch: skipped - PR not merged\nbase: skipped - PR not merged\nclose ticket: skipped - needs a landed change\nrelease: skipped - needs a landed change\n```\n\n`cleanup_done` is set to true. The run record, helper outputs, and evidence stay until terminal teardown. Re-rendering the closed PR template without the `cleanup` row:\n\n```\nVerdict: mergeable - CI green on the assessed head (test)\n\nPick one:\n1. stop - end the run; the local branch csv-export stays in the primary checkout. [recommended]\n\nType a number; show evidence prints the full record.\n```\n",
+      "words": 396,
+      "wallMs": 25352,
       "mechanical": {}
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "Delivers: the reports page downloads on-demand CSV exports with all table columns and bounded paging. ACs 1, 2, 4; 3, 5 deferred per spec to acme/widgets#46; 4's observable half (export completes under 5s on production data) is checked after merge, not here.\n\nNits:\n- The export pages results with its own loop instead of the shared paging helper, so a paging bug fixed once would need fixing twice. (src/api/export.ts:31, lib/page.ts)\n\nVerdict: mergeable - CI green on the assessed head (test)\n\n1. cleanup - remove .worktrees/pr-210 (untracked files there are deleted), leave branch csv-export and main unchanged, then close ticket (skipped - needs a landed change), release (skipped - needs a landed change) [recommended]\n2. show evidence - show verification evidence, claim and AC outcomes, and findings\n3. stop - leave .worktrees/pr-210 and branch csv-export as-is\nType a number.\n\n### Selected: cleanup\n\nThe following commands would run with `PRIMARY` set to the fixture's primary checkout. No external payload is posted.\n\n```bash\ngit -C \"$PRIMARY\" worktree remove --force .worktrees/pr-210\ngit -C \"$PRIMARY\" worktree prune\n```\n\nworktree: done  \nbranch: skipped - PR not merged  \nbase: skipped - PR not merged  \nclose ticket: skipped - needs a landed change  \nrelease: skipped - needs a landed change\n\nThe untracked node_modules/ directory is deleted with the worktree. The ticket remains open, and no release is invoked.\n\n1. show evidence - show verification evidence, claim and AC outcomes, and findings\n2. stop - leave branch csv-export as-is [recommended]\nType a number.\n",
-      "words": 229,
-      "wallMs": 23466,
+      "text": "Delivers: The reports page offers on-demand CSV export with all table columns and bounded paging. ACs 1, 2, 4; 3, 5 deferred per spec to acme/widgets#46; 4's observable half (completion under 5s on production data) is checked after merge, not here.\n\nNits:\n- The export pages results with its own loop instead of the shared paging helper, so paging fixes may need to be made twice. (src/api/export.ts:31, lib/page.ts)\n\nVerdict: mergeable - CI green on the assessed head (test)\n\nThe PR is closed without merge.\n\nPick one:\n1. cleanup - remove .worktrees/pr-210 (untracked files there are deleted), keep branch csv-export and main unchanged, then close ticket (skipped - needs a landed change) and release (skipped - needs a landed change). [recommended]\n2. stop - leave the checkout and local branch as found.\n\nNot offered: merge (PR closed); approve (PR closed and your own PR).\n\nType a number; show evidence prints the full record.\n\n### Reply: 1\n\nThe fixture establishes cleanup eligibility. `$PRIMARY` below denotes the fixture's primary checkout; its absolute path was not supplied.\n\nCommands:\n```bash\ngit -C \"$PRIMARY\" worktree remove --force .worktrees/pr-210\ngit -C \"$PRIMARY\" worktree prune\n```\n\nNo review, reply, ticket comment, or release payload is sent. The untracked `node_modules/` directory is deleted with the worktree.\n\n```text\nworktree: done\nbranch: skipped - PR not merged\nbase: skipped - PR not merged\nclose ticket: skipped - needs a landed change\nrelease: skipped - needs a landed change\n```\n\nCleanup is recorded as attempted. The PR remains closed without merge.\n\nPick one:\n1. stop - end the gate, leaving local branch csv-export in place. [recommended]\n\nType a number; show evidence prints the full record.\n",
+      "words": 259,
+      "wallMs": 19130,
       "mechanical": {}
     }
   },
@@ -34,9 +34,9 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "1152b7fc4f4c160a44a6c0a75baf3d07f094b7515511b14af0d9c74502609a4e",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "5fe70d4df0627d1874edc80bfee7eeeaf2cf105c9b4387b79868541baff67417",
-      "baselineOutputSha": "515b5edf38846da3bd49b2fbbf087d812519dfb2ac6d273995ff4b8ab51af5ae",
-      "candidateOutputSha": "532c4f5faceace729d73d85c57644a909025ee79142247dcfe775e1b7b01e338",
+      "intentSha": "7b2e3a5bfb39a71eb395266d96387edb730a79ef0afc6e33dc48f0fa35ffc691",
+      "baselineOutputSha": "211dc819bb3cd05cd89196088a199a1f46f71dcd4fb465b86614c0b2cff1f45b",
+      "candidateOutputSha": "9a18d1d6e2bb4d9f747ee06a3f3af436936a6bf87afe52f7884f625e595bbf1a",
       "facts": {
         "f1": {
           "before": "holds",
@@ -54,16 +54,16 @@
           "label": "held"
         }
       },
-      "feedback": "After keeps every fact Before kept: the release item is listed as skipped - needs a landed change in both the menu row and the output block with no /skill:release invocation, step 2 explicitly says git branch -D does not run, and the output block prints the exact line base: skipped - PR not merged. The wording change is confined to presentation (semicolon/then sequencing in the cleanup row, 'claim and AC outcomes' in show evidence, 'leave the checkout as found' for stop, and a bulleted eligibility list), none of which touches the guarded steps or their reasons. One small drift worth watching: the re-rendered stop row in After says 'end the run; the worktree is already removed' rather than Before's 'leave the PR as-is', which is accurate but reads as a new phrasing contract — if the Change intends 'leaves the checkout as found and names it' to be the fixed stop wording even post-cleanup, keep the row text identical across renders and state what remains (branch csv-export) so the terminal-menu wording stays stable.",
-      "wallMs": 7107,
+      "feedback": "No fact moved: both outputs skip release and close ticket as needing a landed change, neither runs git branch -D, and both print the literal line \"base: skipped - PR not merged\" in the cleanup summary. Two things in After are worth tightening even though they do not touch these facts: the report verdict reads \"mergeable - CI green on the assessed head\" for a PR that is CLOSED and unmerged, whereas Before stated \"fixable - PR closed without merge\"; consider making the closed-PR template override the verdict line (or append \"PR closed without merge\") so the verdict and the menu agree. Second, After names the primary checkout `<scratch>` and runs `git -C <scratch> worktree remove --force <scratch>/.worktrees/pr-210`, which conflicts with the worktree record (primary is the parent of `rev-parse --git-common-dir`, on main); keep Before's explicit resolve step (`git -C .worktrees/pr-210 rev-parse --git-common-dir` then `<primary>`) so cleanup ownership stays tied to the recorded checkout. The migrated menu itself is fine: cleanup=1 recommended, stop last, show evidence only in the hint, and the re-render after cleanup drops the cleanup row.",
+      "wallMs": 11070,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "1152b7fc4f4c160a44a6c0a75baf3d07f094b7515511b14af0d9c74502609a4e",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "5fe70d4df0627d1874edc80bfee7eeeaf2cf105c9b4387b79868541baff67417",
-      "baselineOutputSha": "1deb2feee90d81fc5eb0ffe08c5d55b6f5400083284bf7dbcdb0a855d54c02da",
-      "candidateOutputSha": "8f2d2ca13bb88af50bd9893527ebdbc4a6d071f92960974129f437fcf8c65690",
+      "intentSha": "7b2e3a5bfb39a71eb395266d96387edb730a79ef0afc6e33dc48f0fa35ffc691",
+      "baselineOutputSha": "b716747b647544804b800a2d8697e720c8220e7a42a45a5bd6e9d66702b19dd7",
+      "candidateOutputSha": "5e645ca96250a1a76c9a10e5f18fcacdda21482b251fab73d2837e79f13d8aa5",
       "facts": {
         "f1": {
           "before": "holds",
@@ -81,10 +81,10 @@
           "label": "held"
         }
       },
-      "feedback": "No fact moved: both outputs skip release with the reason 'needs a landed change', run no `git branch -D` (only `worktree remove` and `worktree prune` appear in the command block, and the status block says 'branch: skipped - PR not merged'), and both print the exact line 'base: skipped - PR not merged'. After is in fact slightly more accurate than Before in the row-1 cleanup description, since it says 'leave branch csv-export and main unchanged' rather than promising to remove the branch and pull main for a PR that was never merged; keep that. The only wording differences worth watching are cosmetic: After dropped the explicit sentence 'No branch deletion, base sync, ticket command, or release invocation would run because the PR was not merged' and uses a relative worktree path in `worktree remove`; neither affects these facts, but retaining the explicit 'nothing else runs because the PR was not merged' sentence would make the guarded-skip reasoning harder to misread if a future fact asks for it.",
-      "wallMs": 10023,
+      "feedback": "No fact moved. In both outputs the cleanup record prints `branch: skipped - PR not merged`, `base: skipped - PR not merged`, and `release: skipped - needs a landed change`, the only commands are `git worktree remove --force` and `git worktree prune`, and the prose explicitly states no release or branch deletion runs. After also delivers the Change cleanly: show evidence is moved out of the numeric rows into the hint line, the first menu is cleanup/stop with cleanup recommended, and the post-cleanup menu drops the cleanup row and offers stop last as the single recommendation. Keep the explicit per-step `skipped - ...` lines and the sentence enumerating what is not sent (review, reply, ticket comment, release) exactly as written; one small tightening worth considering is restoring Before's phrase `branch deletion, or base sync` to that sentence so the no-`branch -D` guarantee is stated in prose as well as in the record line.",
+      "wallMs": 9439,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "ce7d703e48b1eea239e19c8679ac160859af54bf"
+  "repoSha": "06b180e9d72ec362ce77f563679c1715b41ed61f"
 }

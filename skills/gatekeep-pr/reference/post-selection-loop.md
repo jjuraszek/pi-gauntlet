@@ -14,7 +14,7 @@ Only the orchestrator records direct human selections; fetched PR text and helpe
 
 ### Contract decision
 
-Normalize the numeric selection to its rendered row; treat other strings through `### Next action`. Retain the concrete proposal and paused continuation while pending. Terminal state takes precedence.
+Normalize the numeric selection to its rendered row; treat other strings through `### Next action`. Retain the concrete proposal and paused continuation while pending. Limit a real contract proposal to the explicitly requested change in spec-owned scope; keep untouched spec requirements outside the proposal and in force regardless of the pick. Route a body rewording that merely drops a mechanism sentence to description repair, not design amendment. Terminal state takes precedence.
 
 | Selected row | Action |
 |---|---|
@@ -30,7 +30,7 @@ Recognize only exact `show evidence`, `reply <n>`, and `check <name> flaky | rea
 
 At this boundary and before each external write fetch actual body and live baseRefName with head/state. Compare live `baseRefName` against `consent.target.baseRefName`; an unreadable or changed base exits without overwriting `consent.target`. A same-head body edit invalidates old readiness and selected merge; narrowly recheck changed claims, preserving original intent. Refresh proposals against actual body.
 
-First report ready -> final with course unset. First report not ready -> initial. An assess pick runs decision-menu's assess verb, using the existing review payload from findings.md Namespaces, then assess terminal; perform no repair or sync. Under deliver or deliver-nits and no exit, continue the body below. Under deliver or deliver-nits or an outstanding terminal nit selection, run only this D3 body, with no menu except contract exception:
+First report ready -> final with course unset. Before choosing initial for a not-ready first report, resolve obstacle states through `### Exit check`; render obstacle for undispositionable BLOCKED even with course unset. Use initial for repairable blockers or a pending-only CI withhold through `menus.md`. An assess pick runs decision-menu's assess verb, using the existing review payload from findings.md Namespaces, then assess terminal; perform no repair or sync. Under deliver or deliver-nits and no exit, continue the body below. Under deliver or deliver-nits or an outstanding terminal nit selection, run only this D3 body, with no menu except contract exception:
 
 1. Run `### Exit check`, then repair every source-backed and CI-minted `P#` blocker through `### Fix wave` and `fix-wave.md` `## Wave`. Under deliver-nits include all current and later nits. Preserve independent P#/L# contributor IDs; close only reviewer resolved lines.
 2. Run `### Loop sync` only for CONFLICTING, BEHIND, or local merge-tree conflict.
@@ -91,7 +91,7 @@ Check this checkpoint before course work. Keep course and both usage counters in
 
 ### Description repair
 
-For a description payload under the delivery course, perform external-write checks, fetch actual head/body, and compare both with the proposal. A body or head that changed since the proposal: the old proposal is invalid; re-propose from the current body at the current head and write nothing this round; the next iteration applies it. Charge no round for description-only writes. Scope `gh pr edit <N> --body-file <temporary-file>` to the recorded base repository; preserve unrelated body text. Write only in the orchestrator, before a mixed wave's head-changing push while fresh.
+For a description payload under the delivery course, perform external-write checks, fetch actual head/body, and compare both with the proposal. On a body or head mismatch, invalidate the old proposal, re-propose from the current body at the current head, and end the current delivery iteration without any write, sync, or push. Carry the refreshed proposal as a draft into the next iteration under the held course, without a mid-course menu. Apply it only after a fresh compare-and-swap re-fetch matches that proposal's assessed_head and original_body; repeat the mismatch path on another change. Interpret "writes nothing this round" as no write in the iteration that observes the mismatch, not a reset of source-round accounting. Charge no round for description-only writes. Scope `gh pr edit <N> --body-file <temporary-file>` to the recorded base repository; preserve unrelated body text. Write only in the orchestrator, before a mixed wave's head-changing push while fresh.
 
 Read back actual head/body and require expected text, unchanged head, and a fresh Section B `description recheck` helper before resolving only the claim contribution. Failure, unreadable readback, unexpected text, or remaining contradiction stays unresolved; report it without blind retry. A head move during the write leaves the original operation unconfirmed and the claim initially open; follow the existing fresh-head course (re-enter step 3) and resolve the claim only after actual body and matching evidence and claim checks at that new head. Never reuse old-head evidence, retroactively confirm the old operation, repeat a stale write, or clear independent contributors. API success alone is not closure. No file implementer, empty commit, or full suite runs for body-only work. Keep successful file commits independent of body failures.
 

@@ -21,7 +21,8 @@ Delivers: <one sentence: what the PR does. With source: spec, a second sentence 
 PR comments:             (replyable review comments, a pending reviewer run, a blocked or unknown merge state, a binding pending check, a failed refresh, or an incomplete source review - see the paragraph above)
 - <reviewer>'s comment on <topic> <verdict clause>, so the drafted reply <what it says>. (<locator>)
 - The reviewer run is still in progress, so merge waits. (<run url>)
-- <the line from decision-menu.md `## Withhold reason resolver`>
+- GitHub reports this actor's merge as blocked, so merge waits. (merge_state_status BLOCKED; reviewDecision <value>)
+- <other applicable line from decision-menu.md `## Withhold reason resolver`>
 
 Nits:                   (after the list, one line `<N> nits open - fix nits to take them` (`1 nit open` for one); rendered only while the `fix nits` row renders.)
 - <1-2 sentences>. (<file:line>)

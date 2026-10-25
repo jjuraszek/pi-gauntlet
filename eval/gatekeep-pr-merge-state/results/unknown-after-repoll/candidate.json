@@ -1,0 +1,100 @@
+{
+  "sample": "unknown-after-repoll",
+  "arm": "candidate",
+  "skillSha": "76be7922e42431a629601325261ffe5e80d78555a38315533043531ecbd5eafc",
+  "inputSha": "d3e80476b9f114dc448ac46c0ed880846b61f68e4e88d4226de52c75cdb9f249",
+  "kind": "text",
+  "assembly": "concat",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "## Evidence resolution (Section B)\n\n**Resolved check set.** No `ci checks:` is configured, so the set is every check on `9c1e4f2`.\n\n| Check | Kind | Semantics | Binding |\n|---|---|---|---|\n| test_unit | check_run | success, satisfies | - |\n| build_image | check_run | success, satisfies | - |\n| lint | check_run | skipped, inert | - |\n| crew-approval | status_context | pending | **binding** |\n\n**Why crew-approval binds.** `merge_state_status` is `UNKNOWN` after the step-2 re-poll. That makes every pending check binding, whatever its kind.\n\n**Row walk** (first match wins):\n- **Opt-out:** not configured.\n- **Failed CI:** no blocking conclusion.\n- **Held run:** no `action_required` run.\n- **Pending:** one binding pending check and no blocking conclusion. This row matches, giving `source: pending`.\n  - No local run.\n  - No evidence-less merge.\n  - The watch is deferred to delivery step 4.\n\n**Claims** (source-checkable now):\n- \"Tests cover the retry path\" is `matched` (test/feed/client.test.ts:12-40).\n\n**Merge preconditions that fail:**\n- A binding pending check (crew-approval).\n- `merge_state_status` is `UNKNOWN`.\n\nThe Exit check row \"UNKNOWN, green CI, no other withhold\" does not apply, because a binding check is still pending. Course is null and the first report is not ready, so the **initial** template applies. The viewer is not the author, so `assess` is recommended.\n\n---\n\n```\nDelivers: the tide-feed client retries a fetch once when the feed answers 503.\n\nPR comments:\n- crew-approval is still pending, so merge waits. (crew-approval)\n- stuck - merge state unknown\n\nVerdict: fixable - binding check pending\n\nPick one:\n1. assess - no blockers, so nothing is posted; then approve or stop, no repairs. [recommended]\n2. deliver - watch CI, merge main into the branch if it falls behind, repeat until merge is offered.\n3. stop - end the run, leave the PR and the existing worktree as found.\n\nNot offered: deliver with nits (no nits)\nNot offered: merge (crew-approval pending)\nNot offered: merge (merge state unknown)\n\nCourse holds until the final menu; `show evidence` prints the full record.\n```\n",
+      "words": 285,
+      "wallMs": 27126,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "Delivers: adds one bounded retry to the tide-feed client for 503 responses.\n\nPR comments:\n- crew-approval is pending, so merge waits.\n- stuck - merge state unknown\n\nVerdict: fixable - binding check pending\n\nPick one:\n1. assess - post the review to the PR; then approve or stop, no repairs. [recommended]\n2. deliver - repair blockers, merge main into the branch, watch CI, repeat until merge is offered.\n3. stop - remove the worktree, leave the PR as is.\n\nNot offered: merge (crew-approval pending).\nNot offered: merge (merge state unknown).\nNot offered: deliver with nits (no nits).\n\nCourse holds until the final menu; `show evidence` prints the full record.\n",
+      "words": 102,
+      "wallMs": 9441,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "16d457a291a4b88486e78927944f0e611b3f0b6b14b6404085fdc15c71fafc54",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "5d82dd30c53664bf000f34822ffc17ecb66d298ce6c5d8f23db53e37e962ee49",
+      "baselineOutputSha": "62cc24026424d16352e202d1ad77f65bf6a65a29cc10006c5dd130d1512fdf4c",
+      "candidateOutputSha": "ef0eda6608234ec8568153564cf6186fcbdc099c6ac4e097e1af1b39e70b6f4b",
+      "facts": {
+        "f1": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "f2": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "f3": {
+          "before": "fails",
+          "after": "fails",
+          "label": "intended but unchanged"
+        },
+        "f4": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "After kept f1, f2 and f4 (merge withheld with the 'merge state unknown' reason, crew-approval classified as binding pending under UNKNOWN, no exemption claims), but it did not move f3: it explicitly reasons that the UNKNOWN exit row 'does not apply because a binding check is still pending' and falls through to the initial assess/deliver/stop template with assess recommended and a deliver row that promises a merge-base sync. The author's intent for this sample is the opposite - a post-repoll UNKNOWN is an undispositionable obstacle regardless of the pending check, so the wording needs to make the UNKNOWN exit precede (or override) the pending-row initial template rather than be gated on 'green CI, no other withhold'. Suggested wording: 'If merge_state_status is still UNKNOWN after the step-2 re-poll, render the obstacle template: no sync, no watch, no ordinary wait row, stop listed last and recommended, counters reported unchanged (rounds 0/10, syncs 0/10); the pending check is noted but does not select the initial template.' Keep the existing 'Not offered: merge (merge state unknown)' line and the binding-classification paragraph, which already satisfy f1/f2/f4.",
+      "wallMs": 15794,
+      "verdict": "unchanged"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "16d457a291a4b88486e78927944f0e611b3f0b6b14b6404085fdc15c71fafc54",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "5d82dd30c53664bf000f34822ffc17ecb66d298ce6c5d8f23db53e37e962ee49",
+      "baselineOutputSha": "94a9e6614178a1a167cfcffdab44408507703c11b1e6e2add09da1ee3e0b3d05",
+      "candidateOutputSha": "aee34d86f6e23b1683a21def5bf53d7011f188746ad23fb93ded469494170b36",
+      "facts": {
+        "f1": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "f2": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "f3": {
+          "before": "fails",
+          "after": "fails",
+          "label": "intended but unchanged"
+        },
+        "f4": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "After correctly binds crew-approval as a pending status_context (f2 now holds) and keeps the merge-state-unknown refusal line (f1), but it did not deliver the intended f3 move: a post-repoll UNKNOWN should exit via the obstacle template, and After instead rendered the course-unset initial menu with assess recommended, a deliver row that merges main into the branch (an automatic sync), and no counter line. To make f3 hold while keeping f1/f2/f4, route the 'still UNKNOWN after step-2 re-poll' branch to the obstacle rendering before the initial-course rendering: state the obstacle (merge state unknown after re-poll, crew-approval pending and binding), list only assess/show evidence-style non-mutating rows plus stop as the last and recommended row, omit deliver/sync and any wait row, and print the unchanged counters (rounds 0/10, syncs 0/10). Keep the two 'Not offered: merge' lines as-is since they satisfy f1 and do not contradict f4.",
+      "wallMs": 13468,
+      "verdict": "improved"
+    }
+  },
+  "repoSha": "06b180e9d72ec362ce77f563679c1715b41ed61f"
+}

@@ -1,0 +1,100 @@
+{
+  "sample": "live-checkrun-pending",
+  "arm": "candidate",
+  "skillSha": "76be7922e42431a629601325261ffe5e80d78555a38315533043531ecbd5eafc",
+  "inputSha": "763dcaf0927a0637b70419b246a24e4081b9094fc981752bc9d5fe6f8e6eb595",
+  "kind": "text",
+  "assembly": "concat",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "## Evidence resolution (Section B)\n\n**Resolved check set.** No `ci checks:` is configured, so the set is every check on `9c1e4f2`:\n\n| Check | Conclusion semantics | Binding? |\n|---|---|---|\n| `test_unit` | completed `success`, so it satisfies | n/a |\n| `build_image` | completed `success`, so it satisfies | n/a |\n| `e2e` | `in_progress`, so it is pending | **binding** |\n\n**Why `e2e` binds.** `merge_state_status` is `UNSTABLE`, not `BLOCKED`, `UNKNOWN` or `unreadable`. The check's `kind` is `check_run`. Its `detailsUrl` gives run id 7003, and `actions_runs[7003].status` is `waiting`, not `completed`. A check_run whose matched run is not completed is binding.\n\n**Held run.** None applies. Run 7003 is `waiting` with conclusion `null`, not `action_required`. No other `actions_runs` entry is `action_required`.\n\n**Row walk** (first match wins):\n1. Opt-out does not match: `local verification: always` is not set.\n2. Failed CI does not match: there is no blocking conclusion.\n3. Held run does not match.\n4. **Pending matches**: there is at least one binding pending check (`e2e`) and no blocking conclusion.\n\nThe result is `source: pending`, `head_sha: 9c1e4f2`:\n- No local run. Pending is not one of the three local-run triggers.\n- The watch is deferred to delivery step 4 (`### Wait course`).\n- The claim \"Tests cover the retry path\" is source-checkable, so it gets its disposition now: `matched` (test/feed/client.test.ts:12-40).\n- `merge` is withheld until `e2e` resolves and a claim-check-only helper runs after the watch, because pending evidence is insufficient.\n\n**Template.** This is the first report, it is not ready, and course is null, so the template is **initial**. The viewer is not the author, so `assess` is recommended. The sync wording is \"merge main into the branch\".\n\n---\n\n```\nDelivers: the tide-feed client retries a fetch once when the feed returns 503.\n\nPR comments:\n- The e2e check is still running on the assessed head, so merge waits. (e2e)\n\nVerdict: fixable - binding check pending\n\nPick one:\n1. assess - post nothing (no blockers); then approve or stop, no repairs. [recommended]\n2. deliver - merge main into the branch if needed, watch CI until e2e finishes, repeat until merge is offered.\n3. stop - remove the worktree, leave the PR as is.\n\nNot offered: deliver with nits (no nits); merge (e2e pending)\n\nCourse holds until the final menu; `show evidence` prints the full record.\n```\n",
+      "words": 354,
+      "wallMs": 21573,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "Delivers: adds one bounded retry to the tide-feed client on a 503 response.\n\nPR comments:\n- e2e is pending and binding, so merge waits.\n\nVerdict: fixable - binding check pending\n\nPick one:\n1. assess - post the review to the PR if blockers exist; then approve or stop, no repairs. [recommended]\n2. deliver - repair blockers, merge main into the branch, watch CI, repeat until merge is offered.\n3. stop - remove the worktree, leave the PR as is.\n\nNot offered: deliver with nits (no nits); merge (e2e pending).\n\nCourse holds until the final menu; `show evidence` prints the full record.\n",
+      "words": 96,
+      "wallMs": 7998,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "10b361ee8268b874914b48a1254a2a0598510d26cd3149f53a5a4635159024d6",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "5d82dd30c53664bf000f34822ffc17ecb66d298ce6c5d8f23db53e37e962ee49",
+      "baselineOutputSha": "7e2b44d63a2c500e47d3befb33d03854a57a84d73825879732f2da1ecde91566",
+      "candidateOutputSha": "379167cb059c1806a1e7ff908c5459874e88778f827e3e4a38369fc3909a62bb",
+      "facts": {
+        "f1": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "f2": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "f3": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "f4": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "After delivers the intended move on f3: the menu is now the initial assess/deliver/stop template, assess is recommended because the viewer is not the author, the watch is explicitly deferred to a numeric course selection, and the ordinary `wait` row from Before is gone. Nothing else regressed: both outputs still derive `source: pending` from e2e's `check_run` kind plus its matched run 7003 in `waiting` (f1), both state `Not offered: merge (e2e pending)` (f2), and both state that `UNSTABLE` is not a BLOCKED/UNKNOWN trigger and so does not override the live check's binding (f4). One small wording nit for the author: the Before table columns (status/conclusion, run id, `actions_runs` match) made the live-run binding slightly more traceable than After's condensed table, which folds the run match into prose; keeping the run-id and `actions_runs` status columns alongside the new course-based menu would preserve that audit trail while still delivering the Change. Also consider keeping `show evidence` as an explicitly reachable action rather than only a trailing note, so the evidence-record affordance is not weaker than Before.",
+      "wallMs": 15982,
+      "verdict": "improved"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "10b361ee8268b874914b48a1254a2a0598510d26cd3149f53a5a4635159024d6",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "5d82dd30c53664bf000f34822ffc17ecb66d298ce6c5d8f23db53e37e962ee49",
+      "baselineOutputSha": "d5a8bd9f2bc24b3ac828b7434e5e62d1f5b17abcf6ae09b6cf385ea94527bcc3",
+      "candidateOutputSha": "43a7525f28183d9a3c20c0939f52f3868cb9c677322d2ce26ef9d88e1337cee8",
+      "facts": {
+        "f1": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "f2": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "f3": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "f4": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "After moves only f3, as intended: the ordinary wait row and the pre-course CI watch are gone, replaced by the initial assess/deliver/stop course menu with assess recommended for this other-author PR. Nothing Before held was lost - the pending resolution is still attributed to the binding e2e check (f1), merge is still withheld with the reason naming e2e as pending (f2), and the UNSTABLE merge state still does not override the live check (f4). One small drift worth watching: the Delivers line dropped the 'tests cover the retry path' mention that Before carried; it is not a fact here, but if a future fact ties Delivers to the matched claim, keep the Before phrasing ('with tests covering the retry path') alongside the new course menu.",
+      "wallMs": 10204,
+      "verdict": "improved"
+    }
+  },
+  "repoSha": "06b180e9d72ec362ce77f563679c1715b41ed61f"
+}

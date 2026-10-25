@@ -1,0 +1,110 @@
+{
+  "sample": "exempt-viewer-status-pending",
+  "arm": "candidate",
+  "skillSha": "76be7922e42431a629601325261ffe5e80d78555a38315533043531ecbd5eafc",
+  "inputSha": "8d078425d649473fd9c2d84b7c84921f6d12d136fbdc81457df8f3a14e2183f4",
+  "kind": "text",
+  "assembly": "concat",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "## Evidence resolution (Section B)\n\nThere is no `ci checks:` config, so the resolved set is every check on `9c1e4f2`.\n\n| Check | Kind | Status / conclusion | Classification |\n|---|---|---|---|\n| test_unit | check_run | completed / success | satisfies |\n| build_image | check_run | completed / success | satisfies |\n| lint | check_run | completed / skipped | inert |\n| crew-approval | status_context | pending | pending, **not binding** |\n\n`crew-approval` is not binding for three reasons:\n- `merge_state_status` is `UNSTABLE`, which is not `BLOCKED`, `UNKNOWN`, or `unreadable`.\n- The pre-menu refresh is treated as successful, since the digest is the pre-menu state.\n- Its `kind` is `status_context`, not `unreadable`.\n\n**Row walk (first match wins):**\n- **Opt-out:** not configured.\n- **Failed CI:** no blocking conclusion.\n- **Held run:** no `action_required`.\n- **Pending:** zero binding pending checks, so it does not match.\n- **CI-sufficient:** matches. There are two completed successes, zero blocking, zero binding pending, and no opt-out.\n\nThe resolved row is **CI-sufficient**, with `source: ci`. No local run is needed and no credentials are needed.\n\n**Claims:** \"Tests cover the retry path\" is `matched` (test/feed/client.test.ts:12-40).\n\n**Scope:** `issue_ref: null`, so `source: pr`. There are no AC rows, and `Delivers` states the PR's intent.\n\n**Reviewer:** SHIP with no findings, so there are zero blockers and zero nits. There are no comments.\n\n**Merge preconditions:**\n- Zero blockers.\n- CI evidence on the assessed head.\n- Claims are dispositioned.\n- `mergeable == MERGEABLE`.\n- Not `BEHIND` and not `BLOCKED`.\n- No binding pending check.\n- Tracked-clean worktree at 0/0.\n- Merge policy is allowed.\n\nAll preconditions hold. The first report is ready and the course is unset, so the **final** template applies.\n\nThe viewer `rhee-ops` is not the author, so this is someone else's PR and `approve` is recommended. `merge` is also available, since the PR is non-draft and the viewer has MAINTAIN.\n\n---\n\n```\nDelivers: the tide-feed client retries a fetch once when the feed returns 503.\n\nVerdict: mergeable - CI green on the assessed head (test_unit, build_image)\n\nPick one:\n1. merge - merge tlindqvist's PR #412 at 9c1e4f2 with the repo's merge policy.\n2. approve - approve tlindqvist's PR #412 at 9c1e4f2 and leave the merge to the author. [recommended]\n3. stop - leave the PR and the checkout at .worktrees/pr-412 as found.\n\nType a number; show evidence prints the full record.\n```\n\nThe following appears only under `show evidence`:\n\n```\ncrew-approval pending - not binding this viewer (merge_state_status UNSTABLE)\n```\n",
+      "words": 356,
+      "wallMs": 19398,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "Delivers: the tide-feed client retries once on a 503 response, with tests covering the retry path.\n\nVerdict: mergeable - CI green on the assessed head (test_unit, build_image)\n\nPick one:\n1. merge - merge the assessed head into main.\n2. approve - approve the PR without merging it. [recommended]\n3. stop - leave the checkout and local branch as found.\n\nType a number; show evidence prints the full record.\n",
+      "words": 64,
+      "wallMs": 8511,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "c6591d81587d667dc60b8fa43f4e29bc902a22c2194191fb9ac11d704d0f1a4b",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "5d82dd30c53664bf000f34822ffc17ecb66d298ce6c5d8f23db53e37e962ee49",
+      "baselineOutputSha": "3ab26767279bb611fa88389fec6949e0518bd15167a96c54dc432f9593e5f410",
+      "candidateOutputSha": "05eaa203d4174b355d89c2a73c91c989e2d02be46f5321da89bebe2452f07ab1",
+      "facts": {
+        "f1": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "f2": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "f3": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "f4": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "f5": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "Nothing moved: After still resolves Section B to CI-sufficient with source ci on 9c1e4f2, offers merge with no wait row, keeps crew-approval out of comments/blockers and confines it to show evidence as not binding (merge_state_status UNSTABLE), keeps approve because rhee-ops is not the author, and never says another developer's approval is required. The shared final template is applied cleanly. Two small things worth watching so later samples stay stable: After folds `show evidence` into a footer sentence instead of a numbered row, which is fine here but means any fact that counts menu rows or expects show evidence as a row would flip; and the merge row text 'with the repo's merge policy' plus the approve row's 'leave the merge to the author' are fine for f5, but avoid any phrasing like 'awaiting approval' or 'needs another approver' in the Verdict or rows when a non-binding approval context is pending, since that is the easiest way for f5/f3 to fail under the new templates.",
+      "wallMs": 15751,
+      "verdict": "unchanged"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "c6591d81587d667dc60b8fa43f4e29bc902a22c2194191fb9ac11d704d0f1a4b",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "5d82dd30c53664bf000f34822ffc17ecb66d298ce6c5d8f23db53e37e962ee49",
+      "baselineOutputSha": "ce5a8ec22468b2ffee0a3cf0c694dfbcb70fb705cad5a8bb5f0ab52a2fdc73d7",
+      "candidateOutputSha": "fc03d8d043595d37c5a39bceb282f87707e2d23490fd43f0ec49e64d753b669f",
+      "facts": {
+        "f1": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "f2": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "f3": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "f4": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "f5": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "No fact moved: both outputs resolve the evidence to green CI on the assessed head (test_unit, build_image), offer merge with no wait row, keep an approve row for this non-author viewer, never surface the pending crew-approval status_context as a comment or blocker, and never say another developer's approval is required. The After wording changes the menu shape (merge first, approve recommended second, stop third, 'Pick one:' header) and demotes show evidence from a numbered row to a trailing sentence ('show evidence prints the full record'). That still satisfies f3, but it is the weakest point: f3 depends on the pending status being reachable only via show evidence, so if the shared menus.md template ever drops that trailing sentence the fact would fail. To keep every fact robustly while delivering the Change, have the shared final template always include show evidence either as a numbered row or as the fixed trailing sentence, and keep the verdict line's exact-head CI summary unchanged.",
+      "wallMs": 13233,
+      "verdict": "unchanged"
+    }
+  },
+  "repoSha": "06b180e9d72ec362ce77f563679c1715b41ed61f"
+}

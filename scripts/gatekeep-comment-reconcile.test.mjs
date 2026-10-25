@@ -187,6 +187,14 @@ test('assessment.md dispatches Verify and Review as fresh helpers with no inline
   assert.match(helpers, /`rebased locally`[\s\S]*local-HEAD exception[\s\S]*`sync.md` `## Re-gather`/);
 });
 
+test('undispositionable BLOCKED selects obstacle even before a course pick', () => {
+  assert.match(menus, /course unset[\s\S]*undispositionable BLOCKED[\s\S]*obstacle/);
+  assert.match(menus, /no wait row, no sync promise, and no approve row/);
+  for (const text of [findings, report]) assert.ok(text.includes("GitHub reports this actor's merge as blocked, so merge waits. (merge_state_status BLOCKED; reviewDecision <value>)"));
+  assert.match(cleanup, /both the cleanup row text and the result block/);
+  assert.match(menus, /skipped - needs a landed change/);
+});
+
 test('scope-narrowing description proposals require the contract decision for either owner', () => {
   assert.match(findings, /narrow either spec-owned or PR-owned scope[\s\S]*post-selection-loop.md` `### Continuation record`[\s\S]*independent mechanism blocker/);
 });
@@ -204,6 +212,10 @@ test('exact description selection and narrow recheck preserve independent eviden
   assert.match(loop, /gh pr edit <N> --body-file <temporary-file>/);
   assert.match(loop, /same-head body edit invalidates/);
   assert.match(loop, /re-propose from the current body/);
+  assert.match(loop, /end the current delivery iteration without any write/);
+  assert.match(loop, /next iteration[\s\S]*fresh compare-and-swap[\s\S]*original_body/);
+  assert.match(findings, /Author's statement: <assertion> \(not verified by this gate\)\. Gate evidence: <evidence>/);
+  assert.match(findings, /dropping a mechanism sentence[\s\S]*description defect[\s\S]*untouched spec requirements/);
   assert.ok(!loop.includes('requires renewed selection before writing'), 'renewed-selection clause deleted');
   assert.ok(!menu.includes('require its selection per `findings.md`'), 'fix row selection clause deleted');
 });

@@ -10,12 +10,14 @@ Read with `decision-menu.md` at step 6. Select the template from this state map;
 | PR state no longer OPEN | closed PR |
 | pending contract exception | contract exception |
 | readiness exit, including first report ready with course unset | final |
-| obstacle or cap exit | obstacle |
+| obstacle or cap exit, including course unset with undispositionable BLOCKED | obstacle |
 | assess completed | assess terminal |
 | first report not ready, course unset | initial |
 | multi-PR parent round | batch summary |
 
 Render flat numbers through [menu-layout](../../brainstorming/reference/menu-layout.md); preserve its bare-numeric mapping. Put exactly one `[recommended]` on an available row and `stop` last. Put `show evidence` in every hint line, never in a row. Include every omission reason from `decision-menu.md`. A menu rendered under `deliver` before an exit condition, other than the contract-exception template, is a red flag; so is a menu not rendered from these templates, two recommendations, stop not last, or no evidence hint.
+
+Render terminal cleanup consequences through `cleanup.md`; use `skipped - needs a landed change` for merge-SHA-dependent overrides in the row text and result block.
 
 Use `viewer.is_author` (`viewer.login == pr.author.login`) and `author_is_bot` for defaults. Treat a bot-authored head as someone else's throughout. Keep `merge policy` (`squash | merge-commit | rebase`) solely as the `gh pr merge` flag selector, never approval or sync strategy. Treat `approve (round 1) / approve (round 2)` as spec approval history, not menu configuration.
 
@@ -44,6 +46,8 @@ Offer available `merge`, `approve`, `fix nits` when nits remain and the course e
 Offer available `deliver` (switch course), `approve` only on someone else's non-draft PR with zero blockers, `reply` for drafted thread replies, then `stop` `[recommended]`. Hint: `Type a number; show evidence prints the full record.`
 
 ## obstacle
+
+For undispositionable BLOCKED with no local repair, use this template even with course unset: keep stop last and `[recommended]`, with no wait row, no sync promise, and no approve row. Describe eligible deliver only as retrying after the failed prerequisite changes; promise no automatic sync. Reserve the course-unset initial assess/deliver/stop template for a pending-only report when its sole withhold is a not-yet-resolved binding CI check; source blockers still use initial under the state map.
 
 Print the concrete obstacle and retained failed prerequisites. Offer eligible `deliver`, `approve workflow run` only for the held-run permission case, `assess` (switch course), then `stop` `[recommended]`. Explain deliver as `+2 x maxFixRounds` to each cumulative cap before work; on timeout explain exactly one additional watch window instead, with neither cap extended. An unchanged prerequisite re-exits even after extension. Include `check <name> flaky | real | ci-broken` in the hint for failing checks; flaky followed by a numeric deliver selection can resume. Hint: `Type a number; show evidence prints the full record.`
 

@@ -45,7 +45,7 @@ Resolve every actual unmet `### Merge preconditions` reason through `post-select
 
 | Observation | Render |
 |---|---|
-| BLOCKED with no local repair | `GitHub reports BLOCKED, no local repair applies`; `Not offered: merge (blocked by GitHub)`; keep reviewDecision as locator only, never attribute a named rule |
+| BLOCKED with no local repair | Use findings.md `## Dispositions` for the actor-framed PR-comments line and obstacle verdict; render obstacle even with course unset, plus `Not offered: merge (blocked by GitHub)`; never attribute a named rule |
 | UNKNOWN/unreadable after one re-poll | `stuck - merge state unknown`; `Not offered: merge (merge state unknown)` |
 | binding pending check | name the check under PR comments, `Not offered: merge (<check name> pending)`; watch only at delivery step 4 |
 | draft | `Not offered: merge (draft)` |

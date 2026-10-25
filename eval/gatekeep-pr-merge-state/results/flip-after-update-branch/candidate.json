@@ -1,0 +1,110 @@
+{
+  "sample": "flip-after-update-branch",
+  "arm": "candidate",
+  "skillSha": "76be7922e42431a629601325261ffe5e80d78555a38315533043531ecbd5eafc",
+  "inputSha": "97a2a206677db0698bdaadedd6c40a292ac65fc5c75b26d04e1b940e359de74f",
+  "kind": "text",
+  "assembly": "concat",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "## Evidence resolution, initial snapshot (head `9c1e4f2`)\n\n**Resolved check set.** No `ci checks:` is configured, so the set is every check on `9c1e4f2`.\n\n| Check | Kind | Conclusion semantics | Binding |\n|---|---|---|---|\n| test_unit | check_run | `success` satisfies | - |\n| build_image | check_run | `success` satisfies | - |\n| lint | check_run | `skipped` is inert | - |\n| crew-approval | status_context | `PENDING` means pending | not binding: a pending `status_context` while `merge_state_status` is `BEHIND`, which is not `BLOCKED`, `UNKNOWN` or `unreadable` |\n\n**Row walk** (top-down, first match wins):\n\n- **Opt-out:** no `local verification: always`.\n- **Failed CI:** no blocking conclusion.\n- **Held run:** no `action_required` anywhere.\n- **Pending:** zero binding pending checks.\n- **CI-sufficient:** matches. There are two successes, zero blocking and zero binding pending, so `source: ci` and no local run.\n\n**Claims.** \"Tests cover the retry path\" is `matched` (test/feed/client.test.ts:12-40).\n\n**Merge preconditions.** All hold except `merge_state_status` is `BEHIND`. That is a repairable gap, closed through Loop sync under delivery, so the verdict is `fixable - behind base`.\n\n**Template.** The first report is not ready and the course is unset, so the initial template applies. This is someone else's PR, so `assess` is recommended.\n\n---\n\n```\nDelivers: the tide-feed client retries a fetch once when it gets a 503.\n\nVerdict: fixable - behind base\n\nPick one:\n1. assess - post the review to the PR (no blockers, so nothing is posted); then approve or stop, no repairs. [recommended]\n2. deliver - repair blockers, merge main into the branch, watch CI, repeat until merge is offered.\n3. stop - remove the worktree, leave the PR as is.\n\nNot offered: deliver with nits (no nits)\n\nCourse holds until the final menu; `show evidence` prints the full record.\n```\n\n---\n\n## Evidence resolution, after numeric `2` (course `deliver`, head `b7d0a91`)\n\n**What changed.** The helper merged main and pushed. The pre-menu refresh then replaced the merge state, status checks and actions runs together.\n\n| Check | Conclusion semantics | Binding |\n|---|---|---|\n| test_unit (run 7101) | `success` | - |\n| build_image (run 7101) | `success` | - |\n| lint | `skipped`, inert | - |\n| crew-approval | `PENDING` | not binding: a `status_context` while `merge_state_status` is `UNSTABLE` |\n\n**Row walk.** The table resolves to **CI-sufficient** on `b7d0a91`, with `source: ci`. The claim disposition carries to the pushed SHA, since the push was own and changed no claim.\n\n**Merge preconditions.** All hold:\n\n- zero blockers\n- CI evidence on the assessed head\n- every claim dispositioned\n- `mergeable == MERGEABLE`\n- not `BEHIND`, `BLOCKED` or `UNKNOWN`\n- no binding pending check\n- the refresh succeeded\n- no comment delta\n- tracked-clean and synced\n- merge policy allowed\n\n**Template.** This is a readiness exit, so the final template applies. Merge is available because the viewer has `MAINTAIN` and the PR is not a draft. Approve is available because the viewer is not the author, there are zero blockers and the PR is not a draft. Approve is recommended for someone else's PR. There are no nits and no drafted replies, so those rows do not render.\n\n---\n\n```\nDelivers: the tide-feed client retries a fetch once when it gets a 503.\n\nVerdict: mergeable - CI green on the assessed head (test_unit, build_image)\n\nPick one:\n1. merge - merge tlindqvist's PR at b7d0a91 with the configured merge policy (gh pr merge --match-head-commit b7d0a91).\n2. approve - approve tlindqvist's PR at b7d0a91. [recommended]\n3. stop - end the run, leave the PR and the checkout at .worktrees/pr-412 as they are.\n\nType a number; show evidence prints the full record.\n```\n\nThese lines print only under `show evidence`, not in the report:\n\n- `crew-approval pending - not binding this viewer (merge_state_status UNSTABLE)`\n- lint skipped (inert)\n- the run 7101 URLs\n- `reviewDecision: REVIEW_REQUIRED`, shown as a locator only and never named as the blocking rule\n",
+      "words": 558,
+      "wallMs": 35936,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "Delivers: adds one bounded retry to the tide-feed client on a 503 response, with tests covering the retry path.\n\nVerdict: fixable - behind base\n\nPick one:\n1. assess - post any open blockers to the PR; then approve or stop, no repairs. [recommended]\n2. deliver - repair blockers, merge main into the branch, watch CI, repeat until merge is offered.\n3. stop - remove the worktree, leave the PR as is.\n\nNot offered: deliver with nits (no nits).\n\nCourse holds until the final menu; `show evidence` prints the full record.\n\n---\n\nAfter numeric selection `2` and the supplied refresh at `b7d0a91`:\n\nDelivers: adds one bounded retry to the tide-feed client on a 503 response, with tests covering the retry path.\n\nVerdict: mergeable - CI green on the assessed head (test_unit, build_image)\n\nPick one:\n1. merge - merge the assessed head using the resolved merge policy.\n2. approve - approve the assessed head of the PR. [recommended]\n3. stop - leave the checkout as found at .worktrees/pr-412, on branch tlindqvist/tw-88-retry.\n\nType a number; `show evidence` prints the full record.\n",
+      "words": 169,
+      "wallMs": 15937,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "43eb0e80d34240783ca94a8e0ba0675533e8e811b08ff35df94f93107446cf86",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "5d82dd30c53664bf000f34822ffc17ecb66d298ce6c5d8f23db53e37e962ee49",
+      "baselineOutputSha": "7c11810b9fac50dfd6259cfcff5b72e451c14bfea547926a622fa53280f58fa8",
+      "candidateOutputSha": "7ed82a1e51315969f142f87e971d7b674321d423deac0c12b4486f9e2c8f8019",
+      "facts": {
+        "f1": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "f2": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "f3": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "f4": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "f5": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "After moves f1 from fails to holds: the first not-ready report now renders the initial assess/deliver/stop template with no update-branch or merge rows, and the deliver row explicitly names merging main into the branch, so numeric 2 authorizes the merge-base sync for this other author. Every fact Before kept is preserved: both After menus carry exactly one [recommended] row and end with stop, crew-approval stays explicitly not binding under UNSTABLE, the second table resolves to CI-sufficient on b7d0a91 with test_unit and build_image as the evidence, and the final menu offers merge and approve with approve recommended. Note that f2 already held in Before (its final menu listed approve [recommended] and merge), so the 'fails -> holds' expectation for f2 reflects the author's intent rather than Before's text; the After wording delivers the Change without regressing anything. One small thing to watch: the After initial menu drops the explicit 'show evidence' row and relies on the trailing note, which is fine for these facts but keep the note so evidence remains reachable.",
+      "wallMs": 11472,
+      "verdict": "improved"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "43eb0e80d34240783ca94a8e0ba0675533e8e811b08ff35df94f93107446cf86",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "5d82dd30c53664bf000f34822ffc17ecb66d298ce6c5d8f23db53e37e962ee49",
+      "baselineOutputSha": "ef9db7fef6504a0b787d42e0b07ff39b8d723c1aaa58da2eeba90dfcbc351c15",
+      "candidateOutputSha": "da1836c725b42d0aa52d65e37b3ada929d54ae7b5f8ce534c253ef3fde6c0b9a",
+      "facts": {
+        "f1": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "f2": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "f3": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "f4": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "f5": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "After moved f1 from fails to holds: the first not-ready menu is now the persistent assess/deliver/stop template, with deliver explicitly authorizing the merge-main sync for this other-author branch, and no update-branch or merge-base rows. Nothing regressed: both menus still carry exactly one recommended row and end with stop, the second menu still resolves evidence to CI green on b7d0a91 (test_unit, build_image) rather than the pending crew-approval status, and merge/approve are offered with approve recommended. Note that f2 already held in Before (approve [recommended] and merge were both offered on the second menu), so the Expected-to-move entry for f2 overstated the gap; the only substantive gain here is f1. One small wording caution: the After stop row text differs between menus ('remove the worktree' vs 'leave the checkout as found'), which is fine for these facts but should be kept consistent with whatever terminal-cleanup ownership rule menus.md specifies so a later fact about cleanup does not move.",
+      "wallMs": 13066,
+      "verdict": "improved"
+    }
+  },
+  "repoSha": "06b180e9d72ec362ce77f563679c1715b41ed61f"
+}
