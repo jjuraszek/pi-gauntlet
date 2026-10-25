@@ -45,7 +45,7 @@ test('council applier is unpinned and carries the complete spec-only audit contr
 test('brainstorming is explicitly requested and hidden from model advertisement', () => {
   const frontmatter = main().match(/^---\n([\s\S]*?)\n---/)[1];
   assert.match(frontmatter, /^disable-model-invocation: true$/m);
-  assert.match(frontmatter, /Use only when the user explicitly requests brainstorming or selects a handoff into it\./);
+  assert.match(frontmatter, /Use only when the user explicitly requests brainstorming or selects a handoff into it[.;]/);
 });
 
 test('consent precedes reset and the 13 checkpoints retain their order', () => {

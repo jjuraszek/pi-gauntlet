@@ -1,6 +1,6 @@
 ---
 name: brainstorming
-description: "Use only when the user explicitly requests brainstorming or selects a handoff into it."
+description: "Use only when the user explicitly requests brainstorming or selects a handoff into it; the subject is a free prompt, one tracker ticket, or one open PR (`#N`, `owner/repo#N`, PR URL) reworked on its own branch."
 disable-model-invocation: true
 ---
 

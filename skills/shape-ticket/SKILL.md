@@ -1,6 +1,6 @@
 ---
 name: shape-ticket
-description: Use when asked to file, create, or shape a ticket, open a tracker issue, or repair or clean up an existing one (ticket IDs like ABC-123) - including when another skill or command routes ticket authoring here.
+description: Use when asked to file, create, or shape a ticket, open a tracker issue, or repair or clean up one or more existing ones (ticket IDs like ABC-123, or a comma- or space-separated list "ABC-123, ABC-124") - including when another skill or command routes ticket authoring here.
 ---
 
 # Shape Ticket

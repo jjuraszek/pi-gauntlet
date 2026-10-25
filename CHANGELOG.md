@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Changed
+
+- Skill descriptions advertise the input shapes their bodies already accept: `brainstorming` names a free prompt, a tracker ticket, or an open PR (`#N`, `owner/repo#N`, PR URL) as its subject; `gatekeep-pr` names a set of PRs on pi, and its `argument-hint` shows the multi-PR form; `shape-ticket` names a comma- or space-separated list of tickets to repair; `subagent-driven-development` drops "independent tasks" and names itself the task-plan engine beside `/skill:loop-implementation`. Descriptions only; no skill body changes.
+
 ## v7.31.0 - 2026-10-23
 
 ### Added
