@@ -1,7 +1,7 @@
 {
   "sample": "bound-viewer-green-ci",
   "arm": "candidate",
-  "skillSha": "76be7922e42431a629601325261ffe5e80d78555a38315533043531ecbd5eafc",
+  "skillSha": "eb883166383baa25efba8129bcd582dc0ec297492e12da09706c8ce3843fcbda",
   "inputSha": "f86caeb485e69b68cc624ed264175f0d48283c07cebe5638d8a45dce511fa670",
   "kind": "text",
   "assembly": "concat",
@@ -17,16 +17,16 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "**Evidence resolution (Section B), top-down:**\n\n- **Opt-out:** No `local verification: always` is configured, so this row does not match.\n- **Failed CI:** No check has a blocking conclusion. `test_unit` and `build_image` are `success`, and `lint` is `skipped`, which is inert. No match.\n- **Held run:** No check has `action_required`, and run 7001 is `completed/success`. No match.\n- **Pending:** No check has `status != completed`, so there is no binding pending check. The `BLOCKED` merge state would make any pending check binding, but there are none. No match.\n- **CI-sufficient:** This row matches. There are 2 successes, zero blocking checks and zero binding pending checks, so no local run is needed. The evidence is `test_unit` and `build_image`, both `success` on `9c1e4f2`, from run https://github.com/harborline/tidewatch/actions/runs/7001.\n- **Claims:** \"Tests cover the retry path\" is matched by `test/feed/client.test.ts:12-40`.\n\n**Merge preconditions:** Every precondition holds except one. `merge_state_status: BLOCKED` withholds merge. No local repair applies, and the gate attributes no rule. With course unset and the first report not ready, the menu uses the **initial** template. The PR belongs to someone else, so `assess` is recommended.\n\n```\nDelivers: one bounded retry when the tide-feed fetch returns 503.\n\nPR comments:\n- GitHub reports BLOCKED, no local repair applies.\n\nVerdict: fixable - blocked by GitHub\n\nPick one:\n1. assess - post nothing (zero blockers); then approve or stop, no repairs. [recommended]\n2. deliver - repair blockers, merge main into the branch, watch CI, repeat until merge is offered.\n3. stop - remove the worktree, leave the PR as is.\n\nNot offered: deliver with nits (no nits), merge (blocked by GitHub).\nCourse holds until the final menu; `show evidence` prints the full record.\n```\n",
-      "words": 261,
-      "wallMs": 15232,
+      "text": "**Evidence resolution (Section B)**\n\n- **Resolved check set:** no `ci checks:` is configured, so the set is every check on `9c1e4f2`.\n  - `test_unit`: success\n  - `build_image`: success\n  - `lint`: skipped, which is inert.\n- **Blocking conclusions:** none.\n- **Pending checks:** none, so nothing needs binding classification. `merge_state_status: BLOCKED` would make any pending check binding, but there are none.\n- **Held runs:** none. Run 7001 is `completed`/`success`.\n- **Opt-out:** not configured.\n- **Matching row:** CI-sufficient, with at least one success, zero blocking and zero binding pending. No local run happens.\n  - `source: ci`\n  - `head_sha: 9c1e4f2`\n  - checks `test_unit` and `build_image`, both success\n  - claim \"Tests cover the retry path\" is `matched`\n\n**Integration and exit check**\n\n- There are no blockers or nits, the only claim is matched, and `mergeable` is MERGEABLE.\n- The merge precondition `merge_state_status` is not met: it reads `BLOCKED`, with `reviewDecision: REVIEW_REQUIRED`.\n- No local repair applies, so this is an undispositionable BLOCKED. The obstacle template renders even though the course is unset.\n- Under that template, `approve` and the wait row are suppressed, and `stop` is recommended.\n\n```\nDelivers: the tide-feed client retries a fetch once when the feed returns 503.\n\nPR comments:\n- GitHub reports this actor's merge as blocked, so merge waits. (merge_state_status BLOCKED; reviewDecision REVIEW_REQUIRED)\n\nVerdict: fixable - blocked by GitHub\nGitHub reports BLOCKED, no local repair applies.\n\nPick one:\n1. deliver - retry the course once GitHub's block changes; adds 10 to each cap (rounds 0 of 20, syncs 0 of 20) before work, and an unchanged block exits again.\n2. assess - post the review to the PR; then approve or stop, no repairs.\n3. stop - remove the worktree, leave the PR as is. [recommended]\n\nNot offered: merge (blocked by GitHub); approve (GitHub reports this merge as blocked); deliver with nits (no nits)\nType a number; show evidence prints the full record.\n```\n",
+      "words": 289,
+      "wallMs": 24040,
       "mechanical": {}
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "Delivers: the tide-feed client retries once after a 503, with tests covering the retry path.\n\nPR comments:\n- GitHub reports BLOCKED, no local repair applies.\n\nVerdict: fixable - blocked by GitHub\n\nPick one:\n1. assess - with zero blockers, post nothing; then approve or stop, no repairs. [recommended]\n2. deliver - repair blockers, merge main into the branch, watch CI, repeat until merge is offered.\n3. stop - remove the worktree, leave the PR as is.\n\nNot offered: merge (blocked by GitHub); deliver with nits (no nits).\n\nCourse holds until the final menu; `show evidence` prints the full record.\n",
-      "words": 94,
-      "wallMs": 8975,
+      "text": "Delivers: the tide-feed client retries once after a 503, with tests covering the retry path.\n\nPR comments:\n- GitHub reports this actor's merge as blocked, so merge waits. (merge_state_status BLOCKED; reviewDecision REVIEW_REQUIRED)\n\nVerdict: GitHub reports BLOCKED, no local repair applies\n\nNot offered: merge (blocked by GitHub)\n\nPick one:\n1. deliver - retry after the blocked-state prerequisite changes; add 10 to each cumulative repair and sync cap before work. An unchanged prerequisite exits again.\n2. assess - post nothing because there are no open blockers, then show the assess terminal menu; no repairs or sync.\n3. stop - end this verification run and leave the PR as is. [recommended]\n\nType a number; show evidence prints the full record.\n",
+      "words": 113,
+      "wallMs": 10612,
       "mechanical": {}
     }
   },
@@ -36,7 +36,7 @@
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
       "intentSha": "5d82dd30c53664bf000f34822ffc17ecb66d298ce6c5d8f23db53e37e962ee49",
       "baselineOutputSha": "d9cc433338c7c6ff9cb5c4bdf17ee72b11883154b3d1f8853109891ea0387915",
-      "candidateOutputSha": "f35bb2593c9179b5b553fe66bdad7086955ae7c1428fcf3dcebd285976349cef",
+      "candidateOutputSha": "b8e9cdf2862ea0bd12264a47c7b2e343a5933ce24a8658880d3211dbbd30ebf3",
       "facts": {
         "f1": {
           "before": "holds",
@@ -50,13 +50,13 @@
         },
         "f3": {
           "before": "fails",
-          "after": "fails",
-          "label": "intended but unchanged"
+          "after": "holds",
+          "label": "intended change"
         },
         "f4": {
           "before": "holds",
-          "after": "fails",
-          "label": "regression"
+          "after": "holds",
+          "label": "held"
         },
         "f5": {
           "before": "holds",
@@ -64,52 +64,16 @@
           "label": "held"
         }
       },
-      "feedback": "After kept the CI evidence (f1), the withheld merge row with its 'blocked by GitHub' reason (f2), and the no-rule-attribution stance (f5), but it regressed f4 and did not actually land f3. For f4, the PR comments line shrank to 'GitHub reports BLOCKED, no local repair applies.' which neither says this actor's merge is blocked nor cites the review decision as a locator; keep Before's sentence shape: 'GitHub reports this actor's merge as blocked, so merge waits. (merge_state_status BLOCKED; reviewDecision REVIEW_REQUIRED)'. For f3, After routed the undispositionable BLOCKED state into the initial assess/deliver/stop template with assess recommended, so there is no obstacle render and stop is not the recommended row; the deliver row also promises to 'merge main into the branch, watch CI' which reads close to a sync being on offer. To deliver the Change while satisfying f3, the wording should say that when BLOCKED cannot be dispositioned the report renders the obstacle template from menus.md, with stop as the last row and marked [recommended], no wait row, no sync, and no approve row; the initial template should be reserved for pending (not-yet-resolved CI) course-unset reports, which is the distinction the Change paragraph draws but After collapsed.",
-      "wallMs": 20143,
-      "verdict": "regressed",
-      "confirmation": {
-        "status": "ok",
-        "text": "## Evidence resolution (Section B)\n\n- **Resolved check set:** No `ci checks:` is configured, so the set is every check on `9c1e4f2`.\n  - `test_unit`: completed `success`, so it satisfies.\n  - `build_image`: completed `success`, so it satisfies.\n  - `lint`: completed `skipped`, so it is inert.\n- **Binding classification:** There are no pending checks, so nothing needs classifying.\n- **Rows, top-down:**\n  - Opt-out: not configured.\n  - Failed CI: no blocking conclusion.\n  - Held run: no `action_required`.\n  - Pending: no binding pending check.\n  - **CI-sufficient** matches: 2 successes, 0 blocking, 0 binding pending. The local run is skipped.\n- **Evidence:** `source: ci`, head `9c1e4f2`, from `test_unit` and `build_image` in run 7001.\n- **Claims:** \"Tests cover the retry path\" is `matched` (test/feed/client.test.ts:12-40).\n- **Merge preconditions:** `merge_state_status: BLOCKED` fails the \"not `BLOCKED`\" precondition. No blocker or dispositionable check exists, so no local repair applies. The withhold resolver gives `GitHub reports BLOCKED, no local repair applies`.\n- **Template:** The first report is not ready and the course is unset, so the **initial** template applies.\n  - This is someone else's PR (`viewer.is_author: false`), so `assess` is recommended.\n  - `deliver with nits` is omitted because there are zero nits.\n\n## Rendered report and menu\n\n```\nDelivers: the tide-feed client retries a fetch once, bounded, when the feed returns 503.\n\nPR comments:\n- GitHub reports BLOCKED, no local repair applies. (reviewDecision REVIEW_REQUIRED)\n\nVerdict: fixable - blocked by GitHub\n\nPick one:\n1. assess - post nothing (no blockers); then approve or stop, no repairs. [recommended]\n2. deliver - repair blockers, merge main into the branch, watch CI, repeat until merge is offered.\n3. stop - remove the worktree, leave the PR as is.\n\nNot offered: deliver with nits (no nits), merge (blocked by GitHub)\n\nCourse holds until the final menu; `show evidence` prints the full record.\n```\n",
-        "words": 271,
-        "wallMs": 19066,
-        "mechanical": {},
-        "judgeWallMs": 17852,
-        "facts": {
-          "f1": {
-            "before": "holds",
-            "after": "holds",
-            "label": "held"
-          },
-          "f2": {
-            "before": "holds",
-            "after": "holds",
-            "label": "held"
-          },
-          "f3": {
-            "before": "fails",
-            "after": "fails",
-            "label": "intended but unchanged"
-          },
-          "f4": {
-            "before": "holds",
-            "after": "fails",
-            "label": "regression"
-          },
-          "f5": {
-            "before": "holds",
-            "after": "holds",
-            "label": "held"
-          }
-        },
-        "feedback": "After did not deliver the intended f3 move and regressed f4. On f3, the resolution explicitly routes an undispositionable BLOCKED head into the *initial* template (assess recommended, deliver row that 'merges main into the branch, watch CI, repeat'), rather than the bound-CI obstacle template the Change calls for; the obstacle render needs stop as the last, recommended row, no deliver/sync row, and no approve fabricated as an obstacle row. Add a precondition in Section B: when merge_state_status is BLOCKED with no blocker and no dispositionable check, render the obstacle template (e.g. assess / show evidence / stop [recommended]) before falling through to initial. On f4, the PR comments line was rewritten to the raw resolver string 'GitHub reports BLOCKED, no local repair applies' and dropped both 'this actor's merge' and the merge_state_status locator; keep Before's user-facing line verbatim ('GitHub reports this actor's merge as blocked, so merge waits. (merge_state_status BLOCKED; reviewDecision REVIEW_REQUIRED)') and keep the resolver phrase out of the rendered comment. f1, f2 and f5 are preserved and need no change."
-      }
+      "feedback": "After moves f3 from fails to holds and keeps every other fact Before kept: the Section B resolution still lands on source: ci / head_sha 9c1e4f2 with the two success checks (f1), merge is still listed under Not offered with 'blocked by GitHub' (f2), the single PR-comments line still reports the actor's merge as blocked with reviewDecision as a locator (f4), and no sentence names a rule or says someone else must approve (f5). The f3 gain comes from the 'Integration and exit check' block that classifies the state as undispositionable BLOCKED and renders the obstacle template with deliver/assess/stop, stop recommended last, no wait row, and approve only in the Not offered line rather than as a row. Two wording points to watch so this stays stable: the 'approve (GitHub reports this merge as blocked)' suppression reason is close to attributing the block to a review requirement, so consider wording it as 'approve (obstacle exits before approval is offered)' or simply omitting approve from Not offered; and the deliver row's cap-extension text ('adds 10 to each cap ... before work') should keep the explicit 'and an unchanged block exits again' clause so a reader cannot read deliver as an automatic sync or wait.",
+      "wallMs": 15548,
+      "verdict": "improved"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "b9e39ae64789f206f4deb2d600abfe2d1a56436894b8c683df500fa38a1ab0f2",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
       "intentSha": "5d82dd30c53664bf000f34822ffc17ecb66d298ce6c5d8f23db53e37e962ee49",
       "baselineOutputSha": "2eb3f22d4e9a18201f26aa97e7cc93f65bc341b659b333dcd84fa14898e27f59",
-      "candidateOutputSha": "a0bfa02c159d996f9521277125d390ea08aa1781e07789e5bb852daa07a2a064",
+      "candidateOutputSha": "7f73beba31d1ff8722e6c43085a43fc00e84d02cc87c6cc66a42b098470290ca",
       "facts": {
         "f1": {
           "before": "fails",
@@ -123,13 +87,13 @@
         },
         "f3": {
           "before": "fails",
-          "after": "fails",
-          "label": "intended but unchanged"
+          "after": "holds",
+          "label": "intended change"
         },
         "f4": {
           "before": "holds",
-          "after": "fails",
-          "label": "regression"
+          "after": "holds",
+          "label": "held"
         },
         "f5": {
           "before": "holds",
@@ -137,46 +101,10 @@
           "label": "held"
         }
       },
-      "feedback": "After correctly dropped the ordinary wait row and the fabricated approve row and switched to the shared initial assess/deliver/stop menu, but it still misses f3 because the obstacle template recommends assess rather than stop; for an undispositionable BLOCKED with zero blockers the obstacle menu should mark stop (last row) as [recommended], and deliver's blurb should not promise an automatic merge of main into the branch. After also regressed f4: the PR comments line shrank to 'GitHub reports BLOCKED, no local repair applies', losing both the actor framing and the locator. Keep Before's wording there verbatim: 'GitHub reports this actor's merge as blocked, so merge waits. (merge_state_status BLOCKED; reviewDecision REVIEW_REQUIRED)'. Finally, neither Before nor After actually renders the Section B evidence resolution (f1); add a line such as 'Evidence: CI (tidewatch CI run 7001, test_unit and build_image success on head 9c1e4f2)' so the resolved source and the exact assessed head appear in the report rather than only behind `show evidence`.",
-      "wallMs": 17705,
-      "verdict": "regressed",
-      "confirmation": {
-        "status": "ok",
-        "text": "Delivers: the tide-feed client adds one bounded retry on 503, with tests covering the retry path.\n\nPR comments:\n- GitHub reports BLOCKED, no local repair applies.\n\nVerdict: fixable - blocked by GitHub\n\nNot offered: merge (blocked by GitHub).\n\nPick one:\n1. assess - no blockers to post; then approve or stop, no repairs. [recommended]\n2. deliver - repair blockers, merge main into the branch when required, watch CI, and repeat until merge is offered or an obstacle stops delivery.\n3. stop - end the gate and leave the PR as is.\n\nCourse holds until the final menu; `show evidence` prints the full record.\n",
-        "words": 98,
-        "wallMs": 14607,
-        "mechanical": {},
-        "judgeWallMs": 26785,
-        "facts": {
-          "f1": {
-            "before": "fails",
-            "after": "fails",
-            "label": "pre-existing"
-          },
-          "f2": {
-            "before": "holds",
-            "after": "holds",
-            "label": "held"
-          },
-          "f3": {
-            "before": "fails",
-            "after": "holds",
-            "label": "intended change"
-          },
-          "f4": {
-            "before": "holds",
-            "after": "fails",
-            "label": "regression"
-          },
-          "f5": {
-            "before": "holds",
-            "after": "holds",
-            "label": "held"
-          }
-        },
-        "feedback": "After correctly delivers the Change for f3: the ordinary wait row and the fabricated approve row are gone, merge is withheld with the GitHub-blocked reason, and the menu is the shared assess/deliver/stop template with stop last (note the recommended marker sits on assess, not stop, so if the fact intends stop to carry the recommendation the template needs that marker moved for undispositionable BLOCKED). The regression is f4: the PR comments line was rewritten from \"GitHub reports this actor's merge as blocked, so merge waits. (merge_state_status BLOCKED; reviewDecision REVIEW_REQUIRED)\" to \"GitHub reports BLOCKED, no local repair applies.\", which drops both the actor's-merge phrasing and the reviewDecision locator the fact requires. Keep the Before sentence verbatim for that line - it is a locator, not a rule attribution, so f5 stays safe - and change only the menu/obstacle block. Neither output renders the Section B Evidence resolution (CI green on head 9c1e4f2), so f1 fails in both; adding a one-line \"Evidence: CI run 7001 success on 9c1e4f2 (test_unit, build_image green)\" before the verdict would make f1 hold without touching the menu templates."
-      }
+      "feedback": "After delivers the intended move on f3: the verdict names the undispositionable BLOCKED state as an obstacle, the ordinary wait row and the fabricated approve row are gone, nothing syncs automatically, and stop sits last and recommended. f2, f4 and f5 are untouched because the PR-comments line and the 'Not offered: merge (blocked by GitHub)' sentence were carried over verbatim and no row attributes the block to a rule or demands another reviewer. f1 fails in both outputs, not because of the Change: neither report renders the Section B evidence resolution, so a reader never sees that evidence resolved to CI with test_unit/build_image green on 9c1e4f2 (Before's 'show evidence - gate output, CI run' and After's 'show evidence prints the full record' only promise it on request). To keep every fact Before kept and gain f1 too, add one line above the verdict such as 'Evidence: CI - tidewatch CI run 7001, test_unit and build_image success on head 9c1e4f2 (lint skipped, not required)'. Also tighten the deliver row: 'add 10 to each cumulative repair and sync cap' conflicts with the stated cap-freeze-at-twice-entry rule and reads as an obstacle-continuation that quietly expands authority; phrase it as 'deliver - continue only once the blocked state changes; caps unchanged, an unchanged prerequisite exits again' so the obstacle template stays free of implied automatic work.",
+      "wallMs": 20261,
+      "verdict": "improved"
     }
   },
-  "repoSha": "06b180e9d72ec362ce77f563679c1715b41ed61f"
+  "repoSha": "bbc3730f66de8890a79763663579bce5f59f40c1"
 }

@@ -1,7 +1,7 @@
 {
   "sample": "no-spec-quality",
   "arm": "candidate",
-  "skillSha": "49a986d6843c3697fa3139ff1cc7115ade90e9abcb5da69e19455a9c30d721b7",
+  "skillSha": "7c5bbd98e511f6908e464048390402adf16a477c5a6b840dd2b64c756af5c672",
   "inputSha": "49976f9478850b83f20728e77923d928e43a8041bf8d3aaf5c70d4bcec582922",
   "kind": "text",
   "assembly": "headed",
@@ -17,16 +17,16 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "Delivers: the reports page gets an Export CSV button that downloads report data from a new on-demand handler, which returns the table columns and answers 404 for unknown reports.\n\nBlockers:\n1. The export handler returns any existing report without checking that the caller owns it, so any signed-in user can download another user's report data. The tests never try a cross-user request, so nothing would catch this. (src/api/export.ts:14, test/api/export.test.ts)\n\nVerdict: fixable - 1 blocker\n\nPick one:\n1. assess - post the review to the PR; then approve or stop, no repairs.\n2. deliver - repair the blocker, rebase on the base branch, watch CI, and repeat until merge is offered. [recommended]\n3. stop - remove the worktree and leave the PR as is.\n\nNot offered: deliver with nits (no nits)\n\nCourse holds until the final menu; `show evidence` prints the full record.\n",
-      "words": 138,
-      "wallMs": 10059,
+      "text": "Delivers: an on-demand CSV export handler and an Export CSV button that download report data with the table's columns, and the handler returns 404 for unknown reports.\n\nBlockers:\n1. The export handler returns the CSV for any existing report without checking that the caller owns it, so any signed-in user can download another user's report data. No test covers cross-user access, so nothing would catch the gap. (src/api/export.ts:14, test/api/export.test.ts)\n\nVerdict: fixable - 1 blocker\n\nPick one:\n1. assess - post the review to the PR; then approve or stop, no repairs.\n2. deliver - repair blockers, rebase on main, watch CI, repeat until merge is offered. [recommended]\n3. stop - remove the worktree, leave the PR as is.\n\nNot offered: deliver with nits (no nits).\n\nCourse holds until the final menu; `show evidence` prints the full record.\n",
+      "words": 133,
+      "wallMs": 15699,
       "mechanical": {}
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "Delivers: The reports page offers an Export CSV button that downloads report data on demand, including table columns and a 404 response for unknown reports.\n\nBlockers:\n1. The export handler allows callers to download another user's report without an authorization check. Check ownership before returning CSV and add a cross-user authorization test. (src/api/export.ts:14)\n\nVerdict: fixable - 1 blocker\n\nPick one:\n1. assess - post the review to the PR, with no repairs.\n2. deliver - repair the blocker, sync with the base branch, and watch CI until merge is offered. [recommended]\n3. stop - remove the gate's checkout and leave the PR as is.\n\nCourse holds until the final menu; `show evidence` prints the full record.\n",
-      "words": 112,
-      "wallMs": 8609,
+      "text": "Delivers: the reports page offers an Export CSV button that downloads report data on demand, includes the table columns, and returns 404 for unknown reports.\n\nBlockers:\n1. The export handler lets callers download another user's report because it does not check ownership. Add an authorization check and a cross-user test to prevent unauthorized disclosure. (src/api/export.ts:14, test/api/export.test.ts)\n\nVerdict: fixable - 1 blocker\n\nPick one:\n1. assess - post the review to the PR without repairs.\n2. deliver - repair blockers, sync with the base branch, and watch CI until merge is offered. [recommended]\n3. stop - remove the gate's worktree and leave the PR as is.\n\nCourse holds until the final menu; `show evidence` prints the full record.\n",
+      "words": 113,
+      "wallMs": 9925,
       "mechanical": {}
     }
   },
@@ -36,7 +36,7 @@
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
       "intentSha": "7b2e3a5bfb39a71eb395266d96387edb730a79ef0afc6e33dc48f0fa35ffc691",
       "baselineOutputSha": "1fa8993999137d5fef77283bf3b209ea6fb9644da8761a6a4e01107d5bb2b28c",
-      "candidateOutputSha": "4f8f85bfa570f7808f1931f21c4ada4ee8cdc4428c0dfa66b0b23be2dc299c47",
+      "candidateOutputSha": "08416fb153d322838639e1bc9904251f137b6480e7abd9311e78af31b4b877b4",
       "facts": {
         "f1": {
           "before": "holds",
@@ -64,8 +64,8 @@
           "label": "held"
         }
       },
-      "feedback": "Nothing moved on this case: After keeps the Delivers line anchored to the PR body (button, on-demand handler, table columns, 404) without touching AC1–AC5, keeps the REVIEW.md-backed authorization blocker as the sole blocker with the same file:line and missing-test note, judges no ticket row, and posts nothing — the 'assess' course only describes what a pick would do, and 'show evidence' is correctly demoted to the hint line with stop last and exactly one recommended row. The only wording to watch is the 'assess - post the review to the PR' row: keep it phrased as a conditional on selection (as here) so it never reads as an already-taken action, and keep the Delivers sentence sourced from the PR body rather than the ticket so f1/f3 stay intact when a spec is absent.",
-      "wallMs": 10100,
+      "feedback": "No fact moved. Both outputs keep the Delivers line on the PR's own intent with no AC rows, keep the REVIEW.md-backed authorization blocker from the reviewer finding, judge no ticket criteria, and post nothing to the PR or tracker since posting is only offered as a menu row (Before 'review', After 'assess') and no pick exists. The After wording delivers the Change cleanly: persistent assess/deliver courses, stop last, exactly one recommendation, show evidence as a hint only. One caution for the assess row: 'post the review to the PR; then approve or stop' reads as a commitment to post on selection, which is fine as a menu description, but avoid phrasing like 'posted' or 'review posted' in the row text, since that could make a reader think a comment already went out without a pick.",
+      "wallMs": 8918,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
@@ -73,7 +73,7 @@
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
       "intentSha": "7b2e3a5bfb39a71eb395266d96387edb730a79ef0afc6e33dc48f0fa35ffc691",
       "baselineOutputSha": "55d14f7d621ca96407f0d5cafc1abf881004269c08838c5753728db2091db654",
-      "candidateOutputSha": "0329bac751b969d4c20090a26ae3bc297cf0f586834938d9941617048b03400e",
+      "candidateOutputSha": "46ba22bb75461f72fafee11c711defe9b9a60b3f20344746a0dfb9921e2a30c3",
       "facts": {
         "f1": {
           "before": "holds",
@@ -101,10 +101,10 @@
           "label": "held"
         }
       },
-      "feedback": "Nothing moved on this case: both outputs state the PR's own intent in Delivers without citing ticket AC rows (no spec at head), both keep the REVIEW.md-backed authorization blocker at src/api/export.ts:14 intact regardless of scope, neither judges an AC row, and neither posts anything before a pick. After also satisfies the menu checkpoint that Before did not: show evidence has moved out of the numeric rows into the hint line, stop is last, and exactly one row (deliver) is recommended, which matches the Change's intent of persistent courses and shared menus.md templates. The only risk to watch in the After wording is the assess row's 'post the review to the PR' phrasing — it is clearly a menu option here, but keep it framed as an action the pick triggers (as it is) rather than something already done, so f5 remains unambiguous; otherwise the After wording keeps every fact Before kept while delivering the Change.",
-      "wallMs": 10473,
+      "feedback": "Nothing moved on this case: After keeps the Delivers line as the PR's own intent with no AC rows named, keeps the authorization gap as the sole blocker at src/api/export.ts:14 as the review policy requires, judges no ticket acceptance criterion, and posts nothing to the tracker or PR since the only posting path (assess=1) is an unpicked menu row. The migration also matches the menu checkpoint: show evidence is now a hint line rather than a numeric row, stop is last, and exactly one row is recommended. One minor caution: the After blocker text now appends a prescriptive remedy and a second location (test/api/export.test.ts) inside the blocker itself; that is fine here, but keep the blocker's location anchored on the handler line the reviewer cited so the finding stays traceable to the reviewer verdict rather than reading as a merged finding-plus-plan. Otherwise the After wording delivers the Change without disturbing any of the facts Before held.",
+      "wallMs": 9709,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "06b180e9d72ec362ce77f563679c1715b41ed61f"
+  "repoSha": "bbc3730f66de8890a79763663579bce5f59f40c1"
 }

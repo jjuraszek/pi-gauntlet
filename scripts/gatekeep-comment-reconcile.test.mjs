@@ -71,6 +71,14 @@ const fixWave = read('../skills/gatekeep-pr/reference/fix-wave.md');
 const assessment = read('../skills/gatekeep-pr/reference/assessment.md');
 const sync = read('../skills/gatekeep-pr/reference/sync.md');
 const batch = readOrEmpty('../skills/gatekeep-pr/reference/batch.md');
+test('UNKNOWN exit precedes pending CI and other-author explanation stays verbatim', () => {
+  assert.match(loop, /UNKNOWN\/unreadable after step 2's single re-poll, regardless of CI color or a pending binding check/);
+  assert.match(loop, /Not offered: merge \(merge state unknown\)/);
+  assert.match(loop, /let merge state own the withhold reason and the PR comments line/);
+  assert.match(sync, /print this fixed block verbatim, one line per point/);
+  assert.match(sync, /^Authorship stays, but the committer becomes this checkout's local git identity\.$/m);
+});
+
 const cleanup = read('../skills/gatekeep-pr/reference/cleanup.md');
 const gatekeeper = readOrEmpty('../agents/pr-gatekeeper.md');
 

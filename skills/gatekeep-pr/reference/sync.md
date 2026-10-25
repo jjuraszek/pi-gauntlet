@@ -26,7 +26,16 @@ Refresh `headRefOid` with `gh pr view <N> --json headRefOid` and set `<pre_head>
 
 ## Other-author confirmation
 
-When `pr.author.login` differs from `gh api user --jq .login`, or that login is `unreadable`, print one explanation before any rewrite: the rebase replays the author's commits under new SHAs (authorship stays; the committer becomes this checkout's local git identity), review comments anchored on the old commits may render as outdated on the forge, and branch protection may dismiss existing approvals. Then ask for a yes. Any other reply -> `sync: declined - other author's branch`, stage `skipped`, step 3 runs unsynced. A yes covers the whole sync (rebase, helper commits, review, lease push, and any restore). Same-author PRs run on `--rebase` alone.
+When `pr.author.login` differs from `gh api user --jq .login`, or that login is `unreadable`, print this fixed block verbatim, one line per point, before any rewrite:
+
+```text
+The rebase replays the author's commits under new SHAs.
+Authorship stays, but the committer becomes this checkout's local git identity.
+Review comments anchored on the old commits may render as outdated on the forge.
+Branch protection may dismiss existing approvals.
+```
+
+Then ask for a yes/no confirmation. Any other reply -> `sync: declined - other author's branch`, stage `skipped`, step 3 runs unsynced. A yes covers the whole sync (rebase, helper commits, review, lease push, and any restore). Same-author PRs run on `--rebase` alone.
 
 ## Rebase
 

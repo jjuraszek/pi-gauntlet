@@ -61,7 +61,7 @@ Resolve every unmet merge prerequisite; retain failed prerequisites and append c
 | Helper open - contract exception | Render contract exception through `### Contract decision`, not obstacle. |
 | HEAD equals pre_wave_head with all payloads open, or scoped test unchanged-red after restore | Persist `### No-progress obstacle`; no round spent. Extension alone never clears it. |
 | Undispositionable BLOCKED | `GitHub reports BLOCKED, no local repair applies`; invent no rule attribution. |
-| UNKNOWN/unreadable, green CI, no other withhold | One re-poll, then `stuck - merge state unknown`; spend neither budget. |
+| UNKNOWN/unreadable after step 2's single re-poll, regardless of CI color or a pending binding check | Render `stuck - merge state unknown` through `menus.md`'s obstacle template; let merge state own the withhold reason and the PR comments line. Authorize no sync, offer no ordinary wait row, keep stop last and `[recommended]`, report both usage counters unchanged, and print `Not offered: merge (merge state unknown)`. |
 | Nonzero gh or incomplete pagination during refresh/refetch | One retry, then `stuck - refresh failed: <actual reason>`. |
 | Incomplete comment source review | One fresh reviewer retry, then `stuck - comment source review incomplete`. |
 | Deadline elapsed with binding checks | `stuck - CI pending past <n> minutes`; obstacle deliver opens exactly one additional window and extends neither cap. |

@@ -1,7 +1,7 @@
 {
   "sample": "deferred-without-ref",
   "arm": "candidate",
-  "skillSha": "49a986d6843c3697fa3139ff1cc7115ade90e9abcb5da69e19455a9c30d721b7",
+  "skillSha": "7c5bbd98e511f6908e464048390402adf16a477c5a6b840dd2b64c756af5c672",
   "inputSha": "37b30a648c9df5a061645d2ff541372dc0e6e0bcd4ce77841ee0f8894edc89f3",
   "kind": "text",
   "assembly": "headed",
@@ -17,16 +17,16 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "Delivers: The reports page exports CSV on demand. ACs 1, 2, 4; 5 deferred per spec to acme/widgets#46; 4's observable half (export completes under 5s on production data) is checked after merge, not here.\n\nNits:\n- The export pages results with its own loop instead of the shared paging helper, so a paging bug fixed once would need fixing twice. (src/api/export.ts:31, lib/page.ts)\n\nBlockers:\n1. Spec row 3 defers email delivery to \"a follow-up ticket\" without naming a ticket, spec, or URL. Nothing tracks that work, and the deferral cannot be checked after merge. (doc/specs/2026-09-30-csv-export.md)\n\nVerdict: fixable - 1 blocker\n\nPick one:\n1. assess - post the review to the PR; then approve or stop, no repairs.\n2. deliver - repair blockers, rebase on main, watch CI, repeat until merge is offered. [recommended]\n3. deliver with nits - deliver, and fold the 1 nit into the repairs.\n4. stop - remove the worktree, leave the PR as is.\n\nCourse holds until the final menu; `show evidence` prints the full record.\n",
-      "words": 163,
-      "wallMs": 15971,
+      "text": "Delivers: the reports page exports CSV on demand. ACs 1, 2, 4; 5 deferred per spec to acme/widgets#46; 4's observable half (export completes under 5s on production data) is checked after merge, not here.\n\nNits:\n- The export pages results with its own loop instead of the shared paging helper, so a paging bug fixed once would need fixing twice. (src/api/export.ts:31, lib/page.ts)\n\nBlockers:\n1. Row 3 defers email delivery to a follow-up ticket that the spec never names, so nothing tracks the deferred work and the deferral cannot be checked after merge. Give the row a ticket reference, spec path, or URL. (doc/specs/2026-09-30-csv-export.md, AC3 and Design 4)\n\nVerdict: fixable - 1 blocker\n\nPick one:\n1. assess - post the review to the PR; then approve or stop, no repairs.\n2. deliver - repair blockers, rebase on main, watch CI, repeat until merge is offered. [recommended]\n3. deliver with nits - deliver, and fold the 1 nit into the repairs.\n4. stop - remove the worktree, leave the PR as is.\n\nCourse holds until the final menu; `show evidence` prints the full record.\n",
+      "words": 176,
+      "wallMs": 18304,
       "mechanical": {}
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "Delivers: The reports page downloads on-demand CSV exports with every table column and bounded paging. ACs 1, 2, 4; 5 deferred per spec to acme/widgets#46; 4's observable half (completion under 5s on production data) is checked after merge, not here.\n\nNits:\n- The export pages results with its own loop instead of the shared paging helper, so paging fixes would need to be maintained in two places. (src/api/export.ts:31, lib/page.ts)\n\nBlockers:\n1. Email delivery is deferred without a ticket, spec, or URL reference, so that deferral does not settle its scope. (doc/specs/2026-09-30-csv-export.md:14)\n\nVerdict: fixable - 1 blocker\n\nPick one:\n1. assess - post the review to the PR without repairs or sync.\n2. deliver - repair blockers, sync the base branch, and watch CI until merge is offered. [recommended]\n3. deliver with nits - deliver and include the paging-loop nit in the repairs.\n4. stop - remove the gate's eligible worktree and leave the PR unchanged.\n\nCourse holds until the final menu; `show evidence` prints the full record.\n",
-      "words": 161,
-      "wallMs": 12799,
+      "text": "Delivers: The reports page downloads on-demand CSV exports with every table column and bounded paging. ACs 1, 2, 4; 5 deferred per spec to acme/widgets#46; 4's observable half (completion under 5s on production data) is checked after merge, not here.\n\nNits:\n- Export paging uses its own loop instead of the shared paging helper, so paging fixes would need to be maintained in two places. (src/api/export.ts:31, lib/page.ts)\n\nBlockers:\n1. AC3 defers email delivery without a ticket, spec, or URL reference, so the deferral does not settle the requirement. (doc/specs/2026-09-30-csv-export.md)\n\nVerdict: fixable - 1 blocker\n\nPick one:\n1. assess - post the review to the PR; then approve or stop, no repairs.\n2. deliver - repair blockers, rebase on main, watch CI, repeat until merge is offered. [recommended]\n3. deliver with nits - deliver, and fold the 1 nit into the repairs.\n4. stop - remove the worktree, leave the PR as is.\n\nCourse holds until the final menu; `show evidence` prints the full record.\n",
+      "words": 158,
+      "wallMs": 14351,
       "mechanical": {}
     }
   },
@@ -36,7 +36,7 @@
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
       "intentSha": "7b2e3a5bfb39a71eb395266d96387edb730a79ef0afc6e33dc48f0fa35ffc691",
       "baselineOutputSha": "617a8b81fcaa72285257d888b6b001e48c8999a87ef98aca0f94ee141f3d0efc",
-      "candidateOutputSha": "7786d22ec09ab4282d86d43d6dc809af9453b4b0c2e6d3b2dc59af8b906a7c60",
+      "candidateOutputSha": "bc8e40ae9cac188d3c516af6ca3b70fc191749df60500472f136080c64cc78fe",
       "facts": {
         "f1": {
           "before": "holds",
@@ -64,8 +64,8 @@
           "label": "held"
         }
       },
-      "feedback": "No fact moved: After keeps the single row-3 blocker with the explicit 'no ticket, spec, or URL' reason, mints nothing for row 5, lists exactly one blocker, offers no merge row (assess/deliver/deliver-with-nits/stop with stop last and one recommendation), and posts nothing without a pick since 'post the review to the PR' is only the description of the assess course. The course migration lands cleanly. Two small wording notes for the author: the deliver row's phrase 'repeat until merge is offered' is safe here but is the only place a reader could squint at f3, so consider 'repeat until the PR is ready' to keep the menu free of the word merge; and After silently dropped Before's '1 nit open' tally line, which is fine for the facts but worth keeping as a one-liner under Nits if you want the nit count visible before the deliver-with-nits row references it.",
-      "wallMs": 11169,
+      "feedback": "Nothing moved in this case: both outputs mint exactly one blocker for row 3 on the named-reference ground (ticket/spec path/URL), leave row 5 alone as deferred to acme/widgets#46, offer no merge row, and post nothing without a pick. After's rewrite of the blocker ('Row 3 defers ... the spec never names ... Give the row a ticket reference, spec path, or URL') is actually crisper than Before's and still cites doc/specs/2026-09-30-csv-export.md AC3. The menu migration to assess/deliver/deliver-with-nits/stop with show evidence demoted to the hint line is consistent with the Change; the only wording to watch is the 'deliver' row's 'repeat until merge is offered' — it is a description of the course, not a merge offer, so f3 still holds, but if you want zero risk of a reader treating it as a merge row, phrase it as 'repeat until the PR is ready' and let the final menu introduce merge. Also drop the dangling 'then approve or stop' in the assess row or make it clearly a later-menu outcome, since it reads like a second action attached to pick 1.",
+      "wallMs": 11426,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
@@ -73,7 +73,7 @@
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
       "intentSha": "7b2e3a5bfb39a71eb395266d96387edb730a79ef0afc6e33dc48f0fa35ffc691",
       "baselineOutputSha": "66b8e819f64b51c49291d2714186e5a934fb95dfe40679d8990f5c42f9e46247",
-      "candidateOutputSha": "2dde97e48347153567adcd513ee81b7d08c713eed393b2ee3b9a1018433c318c",
+      "candidateOutputSha": "909fe1bdbd0ce1b8ebecf361f4b74bbc0bcc7a22f106592962cfd46d32f760de",
       "facts": {
         "f1": {
           "before": "holds",
@@ -101,10 +101,10 @@
           "label": "held"
         }
       },
-      "feedback": "Nothing moved on this case: After keeps the single email-deferral blocker for row 3, mints nothing for row 5 (deferred to acme/widgets#46), still lists exactly one blocker, offers no merge row, and posts nothing without a pick. The course migration landed cleanly — assess/deliver/deliver-with-nits/stop replace review/stop, show evidence is now a hint only, and stop is last and recommended once. Two wording cautions: the deliver row's phrase 'watch CI until merge is offered' is the only place merge is mentioned, and a hurried reader could take it as an available action; Before's explicit 'Not offered: merge (1 blocker remains)' trailer made f3 unambiguous, so consider keeping a short 'Not offered:' line (or phrasing the row as 'until the gate can offer merge'). Also, the stop row's 'remove the gate's eligible worktree' is terminal-cleanup wording that the Change says stays unchanged — fine here, but keep it identical across courses so the stop side effect does not drift.",
-      "wallMs": 11173,
+      "feedback": "No fact moved between Before and After: both outputs mint exactly one blocker for the AC3 email deferral (ticket/spec/URL missing), neither mints a blocker for AC5 (deferred to acme/widgets#46), neither offers a merge row, and neither posts anything with pick=none. The After wording delivers the Change cleanly — persistent assess/deliver/deliver-nits courses, stop last, show evidence demoted to the hint line, exactly one recommendation. One note for robustness: Before made f3 explicit with a 'Not offered: ... merge (1 blocker remains)' line, which After drops; the deliver row's phrase 'repeat until merge is offered' is the only mention of merge and a hurried reader could misread it as merge being on the menu. Consider keeping a short 'Not offered: merge (1 blocker remains)' trailer or rewording the deliver row to 'repeat until the PR is mergeable' so the absence of a merge row is stated rather than implied, while leaving the menu structure and hint as they are.",
+      "wallMs": 11949,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "06b180e9d72ec362ce77f563679c1715b41ed61f"
+  "repoSha": "bbc3730f66de8890a79763663579bce5f59f40c1"
 }
