@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Changed
+
+- `gatekeep-pr` uses one course per run: `assess` posts the blocker review without repairs; `deliver` repairs, syncs, pushes, and watches CI until readiness, an obstacle, or a cap; `deliver with nits` includes current and later nits. A ready first report goes directly to separate final merge and approval choices. The shared `closureReview.maxFixRounds` default is `5`; gatekeep initializes independent repair-round and sync budgets to `2 x` the resolved value while the verify-phase guard stays at `1 x`. Non-final `stop` removes eligible created or reused worktrees without branch deletion, base pull, or cleanup overrides, and keeps unsafe trees with a reason.
+
 ## v7.32.1 - 2026-10-26
 
 ### Changed

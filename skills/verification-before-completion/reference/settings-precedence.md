@@ -22,7 +22,7 @@ does not recurse into their leaves.
 whole-object, a repo file that sets only *one* leaf of a key silently drops the
 preset's other leaves for that key. A repo `closureReview: { "model": "..." }` with
 no `enforce`/`maxFixRounds` makes those fall back to their code defaults
-(`enforce` true, `maxFixRounds` 3), **not** to the preset's values. Define every
+(`enforce` true, `maxFixRounds` 5), **not** to the preset's values. Define every
 leaf you care about together in the file that owns the key. (Sibling keys are
 unaffected - only the key the repo redefines is replaced.)
 
