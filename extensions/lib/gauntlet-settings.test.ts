@@ -164,12 +164,12 @@ test("closureReview: enforce default true; false only when explicitly false", ()
   assert.equal(resolveClosureReview({ closureReview: { enforce: true } }).enforce, true);
 });
 
-test("closureReview: maxFixRounds default 3, <0 -> 0, non-int -> 3", () => {
-  assert.equal(resolveClosureReview({}).maxFixRounds, 3);
-  assert.equal(resolveClosureReview({ closureReview: { maxFixRounds: 5 } }).maxFixRounds, 5);
+test("closureReview: maxFixRounds default 5, <0 -> 0, non-int -> 5", () => {
+  assert.equal(resolveClosureReview({}).maxFixRounds, 5);
+  assert.equal(resolveClosureReview({ closureReview: { maxFixRounds: 3 } }).maxFixRounds, 3);
   assert.equal(resolveClosureReview({ closureReview: { maxFixRounds: 0 } }).maxFixRounds, 0);
   assert.equal(resolveClosureReview({ closureReview: { maxFixRounds: -3 } }).maxFixRounds, 0);
-  assert.equal(resolveClosureReview({ closureReview: { maxFixRounds: 1.5 } }).maxFixRounds, 3);
+  assert.equal(resolveClosureReview({ closureReview: { maxFixRounds: 1.5 } }).maxFixRounds, 5);
 });
 
 test("flowGuards: defaults + overrides + normalization", () => {

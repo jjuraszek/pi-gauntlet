@@ -28,7 +28,7 @@ Verify (step 3) and Review (step 4) each run as a fresh helper with `cwd` the PR
 | 3 Verify | `verification-brief.md` Section B | evidence record (CI-first) and one disposition per material claim | `verify` |
 | 4 Review | `verification-brief.md` Section C | reviewer findings and the internal comment ledger | `review` |
 | 5 Integrate + report | `reference/post-selection-loop.md` `### Pre-menu refresh`, then `reference/findings.md`, then `reference/report.md` | AC outcomes, blockers, nits, drafted payloads, the rendered report | `report` |
-| 6 Menu | `reference/decision-menu.md` | the menu under the verdict line, exactly one `[recommended]` | `menu` |
+| 6 Menu | `reference/decision-menu.md`, then `reference/menus.md` | the menu under the verdict line, exactly one `[recommended]` | `menu` |
 | 7 Loop | `reference/post-selection-loop.md` (a `fix` or `fix nits` pick continues in `reference/fix-wave.md`) | the executed pick; re-entry until `stop` | (re-opens the re-entered stage) |
 
 Re-entry: a fix wave's own push re-enters step 4 through the own-push sequence (`reference/fix-wave.md` `## Evidence after push`, then `reference/post-selection-loop.md` `### Re-render`); any other head move re-enters step 3; an unchanged head re-enters step 5 through `reference/post-selection-loop.md` `### Pre-menu refresh`. A loop re-entry never re-runs step 2b; the sync runs once per invocation.

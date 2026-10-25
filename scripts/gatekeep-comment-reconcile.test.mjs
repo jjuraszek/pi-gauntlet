@@ -16,7 +16,12 @@ const section = (text, start, end) => {
 
 const skill = read('../skills/gatekeep-pr/SKILL.md');
 const loop = read('../skills/gatekeep-pr/reference/post-selection-loop.md');
-const menu = read('../skills/gatekeep-pr/reference/decision-menu.md');
+const decisionMenu = read('../skills/gatekeep-pr/reference/decision-menu.md');
+const menus = readOrEmpty('../skills/gatekeep-pr/reference/menus.md');
+const menu = decisionMenu.replace(/^## (Consent table|Overlays|Fixtures)\n[\s\S]*?(?=^## |$(?![\s\S]))/gm,
+  (body, heading) => menus.includes(`## ${heading}\n`)
+    ? `## ${heading}\n${heading === 'Fixtures' ? section(menus, `## ${heading}\n`) : section(menus, `## ${heading}\n`).split(/\n## /)[0]}`
+    : body);
 const brief = read('../skills/gatekeep-pr/verification-brief.md');
 const findings = read('../skills/gatekeep-pr/reference/findings.md');
 const report = readOrEmpty('../skills/gatekeep-pr/reference/report.md');
@@ -552,9 +557,24 @@ test('decision-menu.md resolves the withhold reason once and overlays merge stat
   assert.match(report, /`binding check pending`, `blocked by GitHub`, `merge state unknown`/);
 });
 
+test('menu templates are extracted while availability and withhold resolution stay in decision-menu.md', () => {
+  for (const heading of ['Consent table', 'Overlays', 'Fixtures']) {
+    assert.match(menus, new RegExp(`^## ${heading}$`, 'm'));
+    const pointer = section(decisionMenu, `## ${heading}\n`).split(/\n## /)[0];
+    assert.match(pointer, /Read .*menus\.md.* now/);
+    assert.ok(pointer.trim().split('\n').length === 1, `${heading} retains only a read-now pointer`);
+  }
+  for (const heading of ['Availability', 'Withhold reason resolver']) {
+    assert.ok(decisionMenu.includes(`## ${heading}\n`));
+    assert.ok(!menus.includes(`## ${heading}\n`));
+  }
+  assert.match(menus, /Fixture 5[\s\S]*```\n## AC coverage[\s\S]*Type a number\.\n```/);
+  assert.match(skill, /\| 6 Menu \| `reference\/decision-menu.md`, then `reference\/menus.md` \|/);
+});
+
 test('SKILL.md names the pre-menu refresh at step 5 and in the red flags', () => {
   assert.match(skill, /\| 5 Integrate \+ report \| `reference\/post-selection-loop.md` `### Pre-menu refresh`, then `reference\/findings.md`/);
-  assert.match(skill, /\| 6 Menu \| `reference\/decision-menu.md` \|/);
+  assert.match(skill, /\| 6 Menu \| `reference\/decision-menu.md`, then `reference\/menus.md` \|/);
   assert.match(skill, /an unchanged head re-enters step 5 through `reference\/post-selection-loop.md` `### Pre-menu refresh`/);
   assert.match(skill, /or a binding pending check, or a `BLOCKED`\/`UNKNOWN`\/`unreadable` merge state/);
   assert.match(skill, /A menu rendered without the pre-menu refresh - owner: `reference\/post-selection-loop.md` `### Pre-menu refresh`/);
