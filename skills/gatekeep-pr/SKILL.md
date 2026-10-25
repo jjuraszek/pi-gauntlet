@@ -29,7 +29,7 @@ Verify (step 3) and Review (step 4) each run as a fresh helper with `cwd` the PR
 | 4 Review | `verification-brief.md` Section C | reviewer findings and the internal comment ledger | `review` |
 | 5 Integrate + report | `reference/post-selection-loop.md` `### Pre-menu refresh`, then `reference/findings.md`, then `reference/report.md` | AC outcomes, blockers, nits, drafted payloads, the rendered report | `report` |
 | 6 Menu | `reference/decision-menu.md`, then `reference/menus.md` | initial for a not-ready first report, final for first-report readiness or a readiness exit, assess terminal after assess, obstacle at obstacle/cap, or the matching terminal/contract-exception template; exactly one `[recommended]` | `menu` |
-| 7 Loop | `reference/post-selection-loop.md` (delivery continues in `reference/fix-wave.md`) | the fixed delivery body until readiness, obstacle or cap; terminal picks and contract decisions through menus.md; re-entry until stop | (re-opens the re-entered stage) |
+| 7 Loop | `reference/post-selection-loop.md` (delivery continues in `reference/fix-wave.md`) | the fixed delivery body until readiness, obstacle or cap; terminal picks and contract decisions through `reference/menus.md`; re-entry until stop | (re-opens the re-entered stage) |
 
 Re-entry: a fix wave's own push re-enters step 4 through the own-push sequence (`reference/fix-wave.md` `## Evidence after push`, then `reference/post-selection-loop.md` `### Re-render`); any other head move re-enters step 3; an unchanged head re-enters step 5 through `reference/post-selection-loop.md` `### Pre-menu refresh`. A loop re-entry never re-runs step 2b; the sync runs once per invocation.
 
@@ -64,7 +64,7 @@ These bind every rendered report, menu, and external payload (review bodies, rep
 - Judging a ticket row the spec does not carry, or treating a spec `deferred: <ref>` row as a gap - owner: `reference/findings.md` `## AC outcomes`.
 - Reading the rubric, the verification command, or any ladder source from the PR's head instead of the base branch's merge-base - owner: `reference/assessment.md` `## Configuration`.
 - Raw command output, drafted payloads except the exact description consent preview, or internal IDs in the rendered report - owner: `reference/report.md`.
-- A menu rendered under deliver before an exit condition, other than the contract-exception template; a menu not rendered from menus.md, two recommendations, stop not last or no show evidence hint - owner: `reference/menus.md`.
+- A menu rendered under deliver before an exit condition, other than the contract-exception template; a menu not rendered from `reference/menus.md`, two recommendations, stop not last or no show evidence hint - owner: `reference/menus.md`.
 - `cleanup` rendered on a non-terminal template, or cleanup steps 2-4 run on non-final stop - owner: `reference/cleanup.md` `## Non-final stop`.
 - A CI watch outside D3 step 4 or before the first report, or a second push inside one iteration - owner: `reference/post-selection-loop.md` `### Next action`.
 - The orchestrator resolving a merge conflict itself, or editing or committing a tracked file during a fix wave - owner: `reference/fix-wave.md` `## Sync` and `## Wave`.
