@@ -49,4 +49,4 @@ An approval landed and the live run completed; after an obstacle exit the human 
   - { databaseId: 7003, status: completed, conclusion: success, workflowName: "tidewatch e2e", url: https://github.com/harborline/tidewatch/actions/runs/7003 }
 ```
 
-Replay contract: narrate only these hypothetical snapshots, use no tools. Initial course is null, repair rounds_used 0/rounds_cap 10, syncs_used 0/syncs_cap 10 (no-tool maxFixRounds 5); helpers available, head pushable, merge policy allowed.
+Replay contract: render only compact evidence lines and menus for these hypothetical snapshots, with no narration; use no tools. Initial course is null, repair rounds_used 0/rounds_cap 10, syncs_used 0/syncs_cap 10 (no-tool maxFixRounds 5); helpers available, head pushable, merge policy allowed.

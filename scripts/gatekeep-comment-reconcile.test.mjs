@@ -299,6 +299,7 @@ test('assessment.md selects the scope contract from the spec at head with a harn
   assert.ok(assessment.includes('## Select the scope contract'));
   assert.match(assessment, /`doc\/specs` and `docs\/specs`/);
   assert.match(assessment, /cross_check: matched \| differs/);
+  assert.match(assessment, /End a differing-ticket cross-check line immediately after `\/skill:check-delivery judges the ticket`; append no reconciliation of the ticket's extra wording against Design clauses\./);
   assert.ok(!assessment.includes('author: unreadable'));
 });
 

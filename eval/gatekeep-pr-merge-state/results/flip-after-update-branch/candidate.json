@@ -1,7 +1,7 @@
 {
   "sample": "flip-after-update-branch",
   "arm": "candidate",
-  "skillSha": "eb883166383baa25efba8129bcd582dc0ec297492e12da09706c8ce3843fcbda",
+  "skillSha": "808df78c77e1d956f66533fcad71989d6bc944a87bc1544942e1057838dcbb97",
   "inputSha": "97a2a206677db0698bdaadedd6c40a292ac65fc5c75b26d04e1b940e359de74f",
   "kind": "text",
   "assembly": "concat",
@@ -17,16 +17,16 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "## Evidence resolution, first report (head `9c1e4f2`)\n\n- **Resolved check set:** all four checks on `9c1e4f2`, because no `ci checks:` is configured.\n- **Conclusions:**\n  - `test_unit` is `success`.\n  - `build_image` is `success`.\n  - `lint` is `skipped`, which is inert.\n  - `crew-approval` is a `status_context` that is still pending.\n- **Binding classification:** `crew-approval` is not binding.\n  - It is a `status_context`, not a `check_run`.\n  - `merge_state_status` is `BEHIND`, which is not `BLOCKED`, `UNKNOWN`, or `unreadable`.\n  - The refresh did not fail.\n  - It prints only under `show evidence`.\n- **Rows checked top-down:**\n  - Opt-out: no.\n  - Failed CI: no blocking conclusion.\n  - Held run: no `action_required`.\n  - Pending: no binding pending check.\n  - **CI-sufficient matches:** at least one success, zero blocking, zero binding pending.\n- **Result:** the local run is skipped. The evidence is `source: ci` from `test_unit` and `build_image` on `9c1e4f2`, run 7001.\n- **Claim:** \"Tests cover the retry path\" is `matched` (test/feed/client.test.ts:12-40).\n- **Remaining merge withhold:** `merge_state_status BEHIND`. This is repairable by Loop sync, so the next action is to continue the D3 body, not take an obstacle exit.\n- **Template:** first report not ready, course unset, so the initial template applies. The viewer is not the author, so `assess` is recommended. There are zero nits, so `deliver with nits` is omitted.\n\n```\nDelivers: the tide-feed client retries a fetch once when the feed returns 503.\n\nVerdict: fixable - behind base\n\nPick one:\n1. assess - post the review to the PR; then approve or stop, no repairs. [recommended]\n2. deliver - repair blockers, merge main into the branch, watch CI, repeat until merge is offered.\n3. stop - remove the worktree, leave the PR as is.\n\nNot offered: deliver with nits (no nits)\nCourse holds until the final menu; `show evidence` prints the full record.\n```\n\n## After numeric `2` (course deliver), refresh on head `b7d0a91`\n\n- **Conclusions on the new head:**\n  - `test_unit` and `build_image` are `success` (run 7101).\n  - `lint` is inert.\n  - `crew-approval` is still a pending `status_context`.\n- **Binding classification:** `merge_state_status` is now `UNSTABLE`, so `crew-approval` is still not binding. It appears only under `show evidence`, as `crew-approval pending - not binding this viewer (merge_state_status UNSTABLE)`.\n- **Evidence row:** CI-sufficient on `b7d0a91`.\n- **Claim:** the disposition was recorded before the gate's own push, so it carries to the pushed SHA.\n- **Merge preconditions:** all hold.\n  - No blockers.\n  - CI evidence exists.\n  - Every claim is dispositioned.\n  - The PR is `MERGEABLE`.\n  - It is no longer `BEHIND`.\n  - There is no binding pending check.\n  - `merge_state_status` is not `BLOCKED`, `UNKNOWN`, or `unreadable`, and the refresh succeeded.\n  - There is no comment delta.\n  - The worktree is clean and synced.\n  - The merge policy is allowed.\n  - Compare-and-swap still runs at the merge pick.\n- **`reviewDecision`:** `REVIEW_REQUIRED` is not attributed as a blocking rule. `UNSTABLE` only leaves the `merge` row available.\n- **Template:** readiness exit, so the final template applies.\n  - The PR is someone else's, non-draft, with zero blockers, so `approve` is available and recommended.\n  - The viewer has `MAINTAIN`, so `merge` is offered.\n  - There are no nits and no drafted replies, so neither `fix nits` nor `reply` renders.\n\n```\nDelivers: the tide-feed client retries a fetch once when the feed returns 503.\n\nVerdict: mergeable - CI green on the assessed head (test_unit, build_image)\n\nPick one:\n1. merge - merge the PR at b7d0a91 with the configured merge policy, guarded by --match-head-commit.\n2. approve - post an approving review on b7d0a91. [recommended]\n3. stop - leave the PR and the checkout at .worktrees/pr-412 as they are.\n\nType a number; show evidence prints the full record.\n```\n",
-      "words": 544,
-      "wallMs": 32461,
+      "text": "## Evidence resolution\n\n**Initial snapshot (head `9c1e4f2`, `merge_state_status: BEHIND`)**\n\n- **Check set.** No `ci checks:` is configured, so every check on the head is in the set.\n- **Conclusions.**\n  - `test_unit` and `build_image` are `success`.\n  - `lint` is `skipped`, which is inert.\n  - `crew-approval` is a pending `status_context`.\n- **Binding.** `BEHIND` is not `BLOCKED`, `UNKNOWN` or `unreadable`. A pending `status_context` has no run linkage. So `crew-approval` is **not binding**.\n- **Row.** No row before CI-sufficient matches: no opt-out, no failed CI, no held run, no binding pending check. The row is **CI-sufficient**: at least one success, zero blocking checks, zero binding pending checks. No local run is needed.\n- **Withhold.** `merge_state_status: BEHIND` withholds merge. That is a loop-sync condition, so the initial template applied (assess / deliver / stop). The human picked `2`, which stored course `deliver`.\n\n**Post-delivery snapshot (head `b7d0a91`, `merge_state_status: UNSTABLE`)**\n\n- **Conclusions.** `test_unit` and `build_image` are `success` on run 7101. `lint` is `skipped` (inert). `crew-approval` is still a pending `status_context`.\n- **Binding.** `UNSTABLE` does not make any pending check binding. `crew-approval` is **not binding** and appears only under `show evidence`.\n- **Row.** CI-sufficient again. The evidence is a CI claim for `test_unit` and `build_image` at `b7d0a91`.\n- **Claims.** The claim \"Tests cover the retry path\" was `matched`. Dispositions made before the gate's own push carry to the pushed SHA, so it stays matched.\n- **Exit check.** Every merge precondition holds:\n  - zero blockers\n  - CI evidence on the assessed head\n  - every claim dispositioned\n  - `MERGEABLE`\n  - not `BEHIND` or `BLOCKED`\n  - no binding pending check\n  - no comment delta\n  - a synced worktree\n  - the merge policy is allowed\n  \n  This is the **readiness** exit, so the **final** template renders. The viewer is not the author and the PR is not a draft, so `approve` is available and recommended. There are no nits and no drafted replies.\n\n## Rendered report and menu\n\n```\nDelivers: adds one bounded retry to the tide-feed client when the feed returns 503.\n\nVerdict: mergeable - CI green on the assessed head (test_unit, build_image)\n\nPick one:\n1. merge - merge b7d0a91 into main with gh pr merge --match-head-commit under the resolved merge policy.\n2. approve - approve tlindqvist's PR at b7d0a91; merging stays with the author. [recommended]\n3. stop - leave the checkout at .worktrees/pr-412 (branch tlindqvist/tw-88-retry) as found and the PR open.\n\nType a number; show evidence prints the full record.\n```\n",
+      "words": 368,
+      "wallMs": 21627,
       "mechanical": {}
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "### Initial snapshot\n\nDelivers: the tide-feed client retries once after a 503, with tests covering the retry path.\n\nVerdict: fixable - behind base\n\nPick one:\n1. assess - post the review to the PR; then approve or stop, no repairs. [recommended]\n2. deliver - repair blockers, merge main into the branch, watch CI, repeat until merge is offered.\n3. stop - remove the worktree, leave the PR as is.\n\nNot offered: merge (behind base); deliver with nits (no nits).\n\nCourse holds until the final menu; `show evidence` prints the full record.\n\n### After delivery\n\nDelivers: the tide-feed client retries once after a 503, with tests covering the retry path.\n\nVerdict: mergeable - CI green on the assessed head (test_unit, build_image)\n\nPick one:\n1. merge - merge the assessed head into main.\n2. approve - approve the assessed head. [recommended]\n3. stop - leave the checkout and local branch as found.\n\nType a number; `show evidence` prints the full record.\n",
-      "words": 149,
-      "wallMs": 10526,
+      "text": "Delivers: adds one bounded retry to the tide-feed client on a 503 response, with tests covering the retry path.\n\nVerdict: fixable - behind base\n\nPick one:\n1. assess - post any open blockers to the PR; then approve or stop, no repairs. [recommended]\n2. deliver - repair blockers, merge main into the branch, watch CI, repeat until merge is offered.\n3. stop - remove the worktree, leave the PR as is.\n\nNot offered: merge (behind base); deliver with nits (no nits).\n\nCourse holds until the final menu; `show evidence` prints the full record.\n\n---\n\nDelivers: adds one bounded retry to the tide-feed client on a 503 response, with tests covering the retry path.\n\nVerdict: mergeable - CI green on the assessed head (test_unit, build_image)\n\nPick one:\n1. merge - merge the assessed head into main using the resolved merge policy.\n2. approve - approve the assessed head without merging. [recommended]\n3. stop - leave the checkout and local branch as found.\n\nType a number; `show evidence` prints the full record.\n",
+      "words": 161,
+      "wallMs": 12020,
       "mechanical": {}
     }
   },
@@ -36,7 +36,7 @@
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
       "intentSha": "5d82dd30c53664bf000f34822ffc17ecb66d298ce6c5d8f23db53e37e962ee49",
       "baselineOutputSha": "7c11810b9fac50dfd6259cfcff5b72e451c14bfea547926a622fa53280f58fa8",
-      "candidateOutputSha": "aa51c21fe1da186bdfa22a68a17da25eddace771e2ed2e90e6f975162201a188",
+      "candidateOutputSha": "ba04a11ffb05a3d782081b798a7e85b01381802de5d34beae86d37d2269f58e9",
       "facts": {
         "f1": {
           "before": "fails",
@@ -55,8 +55,8 @@
         },
         "f4": {
           "before": "holds",
-          "after": "holds",
-          "label": "held"
+          "after": "fails",
+          "label": "regression"
         },
         "f5": {
           "before": "holds",
@@ -64,16 +64,52 @@
           "label": "held"
         }
       },
-      "feedback": "After moved f1 from fails to holds exactly as intended: the first not-ready report now renders the initial assess/deliver/stop template instead of Before's per-action `update branch`/`merge base`/`approve` rows, and the `deliver` row explicitly authorizes merging main into this other author's branch as part of the persistent course. Nothing regressed: f3, f4 and f5 hold in both outputs (crew-approval stays a non-binding status_context printed only under `show evidence`, both menus have one recommended row and end with stop, and the second resolution is CI-sufficient on `b7d0a91` via run 7101). Note that f2 already held in Before - its final menu offered `approve [recommended]` and `merge` - so the author should not expect this sample to demonstrate an f2 flip; After simply preserves it, now via the shared final template with `merge` listed first and `approve` recommended. The wording is sound; if anything, keep the explicit 'course unset -> initial template, no watch' sentence and the 'BEHIND is repairable by Loop sync, continue the body rather than obstacle-exit' sentence, since those are what carry f1 without disturbing the evidence-classification facts.",
-      "wallMs": 13476,
-      "verdict": "improved"
+      "feedback": "After correctly replaces the Before first menu (update branch / merge base / approve / show evidence / stop) with the initial assess/deliver/stop course template and keeps the second menu's CI-on-b7d0a91 evidence, non-binding crew-approval, and approve-recommended final with merge offered. What it loses is the rendering of the first menu itself: After only narrates 'the initial template applied (assess / deliver / stop). The human picked 2' and renders the post-delivery menu alone, so a reader cannot confirm that the first menu had exactly one recommended row and ended with stop, which is what f4 requires of both menus (and leaves f1 resting on a narrated claim rather than shown text). To keep f4 while delivering the Change, the wording should require the gate to render the initial-template report and menu for the first not-ready snapshot in full (Delivers line, Verdict 'fixable - behind base', rows 1. assess [recommended] / 2. deliver / 3. stop with the numeric prompt), then explicitly state that the numeric deliver selection authorizes the merge-base sync for this other-author head before rendering the second (final) menu — e.g. 'Render the initial template whenever the course is unset and the PR is not ready; after a numeric deliver selection, narrate the authorized sync and render the final template on the refreshed head.'",
+      "wallMs": 19935,
+      "verdict": "regressed",
+      "confirmation": {
+        "status": "ok",
+        "text": "## Evidence resolution (Section B)\n\n**Initial snapshot (head `9c1e4f2`, `merge_state_status: BEHIND`)**\n\n- **Resolved check set:** all checks on the head. No `ci checks:` is configured.\n- `test_unit` and `build_image` are completed with `success`.\n- `lint` is `skipped`, so it is inert.\n- `crew-approval` is a pending `status_context`. BEHIND is not BLOCKED, UNKNOWN, or unreadable, so the check is **not binding**.\n- **Resolved row: CI-sufficient.** There are two successes, zero blocking conclusions, zero binding pending checks, and no opt-out.\n- **Merge withheld by `merge_state_status: BEHIND`.** This needs Loop sync under delivery, and the course was unset, so the initial template rendered (assess / deliver / stop). The human picked `2`, so the course is `deliver`.\n\n**Second snapshot (head `b7d0a91`, `merge_state_status: UNSTABLE`, after own push)**\n\n- `test_unit` and `build_image` are `success` on run 7101.\n- `lint` is `skipped`, so it is inert.\n- `crew-approval` is still a pending `status_context`. UNSTABLE is not BLOCKED, UNKNOWN, or unreadable, so the check is **not binding**. It appears only under `show evidence`.\n- **Resolved row: CI-sufficient.** The local run is skipped.\n- **Claims:** the claim \"Tests cover the retry path\" is `matched`. It carries to the pushed SHA, because the own-push rule applies and no description repair touched it.\n- **Merge preconditions:** all hold.\n  - zero blockers\n  - CI evidence on the assessed head\n  - every claim dispositioned\n  - `mergeable: MERGEABLE`\n  - not BEHIND or BLOCKED\n  - pre-menu refresh succeeded\n  - no binding pending check\n  - no comment delta\n  - tracked-clean and synced\n  - policy allowed\n  - viewer `MAINTAIN`\n- **Exit check:** the readiness exit applies, so the **final** template renders.\n- `reviewDecision: REVIEW_REQUIRED` is not a verdict. A non-BLOCKED value only leaves the merge row available.\n\n## Rendered report and menu\n\n```\nDelivers: the tide-feed client retries a fetch once when the feed returns 503.\n\nVerdict: mergeable - CI green on the assessed head (test_unit, build_image)\n\nPick one:\n1. merge - merge the PR at b7d0a91 with the configured merge policy.\n2. approve - approve tlindqvist's PR at b7d0a91. [recommended]\n3. stop - end the run; leave the PR and the checkout at .worktrees/pr-412 as they are.\n\nNot offered: fix nits (no nits), reply (no drafted replies)\nType a number; show evidence prints the full record.\n```\n",
+        "words": 337,
+        "wallMs": 26594,
+        "mechanical": {},
+        "judgeWallMs": 20135,
+        "facts": {
+          "f1": {
+            "before": "fails",
+            "after": "holds",
+            "label": "intended change"
+          },
+          "f2": {
+            "before": "holds",
+            "after": "holds",
+            "label": "intended but unchanged"
+          },
+          "f3": {
+            "before": "holds",
+            "after": "holds",
+            "label": "held"
+          },
+          "f4": {
+            "before": "holds",
+            "after": "fails",
+            "label": "regression"
+          },
+          "f5": {
+            "before": "holds",
+            "after": "holds",
+            "label": "held"
+          }
+        },
+        "feedback": "After correctly replaces Before's update-branch/merge-base first menu with the initial assess/deliver/stop course and ties numeric deliver to the merge-base sync, and the second menu keeps crew-approval non-binding, resolves to CI on b7d0a91 with test_unit/build_image, and offers merge and approve with approve recommended. The regression is that After only narrates the first menu in prose ('the initial template rendered (assess / deliver / stop)') and never actually renders it, so a reader cannot see that the first not-ready report carries exactly one recommended row and ends with stop - Before rendered both menus and satisfied f4. Keep the new wording but require the first not-ready report to be rendered as a block (Delivers line, 'Verdict: not ready - behind base', then '1. assess [recommended] / 2. deliver / 3. stop', 'Type a number') before the course selection, and then the second menu as already shown; that keeps every fact Before kept while still delivering the course-based change."
+      }
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "43eb0e80d34240783ca94a8e0ba0675533e8e811b08ff35df94f93107446cf86",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
       "intentSha": "5d82dd30c53664bf000f34822ffc17ecb66d298ce6c5d8f23db53e37e962ee49",
       "baselineOutputSha": "ef9db7fef6504a0b787d42e0b07ff39b8d723c1aaa58da2eeba90dfcbc351c15",
-      "candidateOutputSha": "7baf6e1b50337466259c76ed0e6857a71cced1a0ae34452fe68ed559e6d33931",
+      "candidateOutputSha": "20baca8ae1dbcd3e528a529ebfbb11f56baa485e30be9834ac65b5f3277640fc",
       "facts": {
         "f1": {
           "before": "fails",
@@ -101,10 +137,10 @@
           "label": "held"
         }
       },
-      "feedback": "After moves f1 from fails to holds: the first not-ready menu is now the persistent assess/deliver/stop course set, with no update-branch or merge-base rows, and the deliver row explicitly carries the merge-main-into-branch authority for this other-author PR. Nothing regressed - both menus still carry exactly one [recommended] row and end with stop, the final menu offers merge and approve with approve recommended, the pending crew-approval status_context is not treated as binding, and the verdict resolves to green CI on the assessed head. One small tightening to protect the exact-head evidence invariant: the Before headings named the SHAs (`9c1e4f2`, `b7d0a91`) while After only says 'the assessed head' - keep the shared template wording but add the head oid to the section heading or verdict line (e.g. 'CI green on b7d0a91 (test_unit, build_image)') so a reader can confirm the evidence is on the post-sync head rather than the original one.",
-      "wallMs": 14964,
+      "feedback": "After moves f1 to holds as intended: the first not-ready report now shows the persistent assess/deliver/stop course menu with deliver explicitly carrying the merge-main sync, and update branch / merge base are gone; f2-f5 are kept, since the second menu offers merge and approve with approve recommended, treats crew-approval pending as non-binding, has exactly one recommended row per menu ending with stop, and cites the green test_unit/build_image checks. The one regression risk is exact-head evidence: Before labelled each snapshot with its SHA (`9c1e4f2`, `b7d0a91`) while After names neither head, so 'CI green on the assessed head' no longer tells the reader which head was assessed or that the second menu is on the fresh pushed head; add a snapshot heading or a verdict phrase like 'CI green on head b7d0a91 (test_unit, build_image)' to each report. Also consider keeping the 'Type a number' prompt on the first menu for consistency with the second, and spell out in the deliver row that the sync is a merge-base update authorized by the numeric selection for this other author's branch.",
+      "wallMs": 21166,
       "verdict": "improved"
     }
   },
-  "repoSha": "bbc3730f66de8890a79763663579bce5f59f40c1"
+  "repoSha": "46a577b6414ecec4232a5b3da4f858ddeeac8a5a"
 }
