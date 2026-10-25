@@ -89,7 +89,7 @@ Rebuild all three bundles; retain only actual generated differences. Do not edit
 
 ## Baseline provenance
 
-Initial provenance: `78233b2e`; `git status --porcelain --untracked-files=all` returned no entries before this plan was written. Immediately before the runs, the only entry was `?? doc/plans/2026-10-25-gatekeep-pr-persistent-disposition.md`. Admitted paths are only this plan and the approved sibling spec. Task 1 executed 194 tests; Tasks 2, 3 and 4 each executed 45 tests; Task 5 executed 59 tests, all exit 0 with zero failures. After every command HEAD remained `78233b2e` and the sole status entry remained the untracked plan. No source edits, in-flight paths, or generated artifacts were admitted.
+Amendment provenance: `08b6d35f`; initial `git status --porcelain --untracked-files=all` returned only ` M doc/specs/2026-10-25-gatekeep-pr-persistent-disposition.md`. Admitted paths are `doc/plans/2026-10-25-gatekeep-pr-persistent-disposition.md` and `doc/specs/2026-10-25-gatekeep-pr-persistent-disposition.md`; the parent-supplied In-flight path is that same spec. All five task commands were rerun because the prior evidence was on `78233b2e`. Task 1 executed 194 tests; Tasks 2, 3 and 4 each executed 45 tests; Task 5 executed 59 tests, all exit 0 with zero failures. After every command HEAD remained `08b6d35f` and the sole status entry remained the modified spec. No source edits or generated artifacts were admitted.
 
 ## Wave 1 - Independent defaults and menu extraction
 
@@ -105,6 +105,7 @@ Tasks 1 and 2 own disjoint files. Their node:test suites use isolated scratch di
 - Modify: `extensions/lib/gauntlet-settings.ts:80-94`
 - Modify: `extensions/lib/gauntlet-settings.test.ts:167-174`
 - Modify: `extensions/phase-tracker.test.ts:1552-1561`
+- Modify: `extensions/phase-tracker.test.ts:1732-1745`
 - Modify: `bin/gauntlet-telemetry-seal.mjs`
 - Modify: `bin/gauntlet-performance.mjs`
 - Modify: `bin/gauntlet-spec-index.mjs`
@@ -113,11 +114,13 @@ Tasks 1 and 2 own disjoint files. Their node:test suites use isolated scratch di
 
 **Tests:**
 - `node --experimental-loader ./extensions/test-support/pi-stubs.mjs --test extensions/lib/gauntlet-settings.test.ts extensions/phase-tracker.test.ts`
-- baseline: 78233b2e pass
+- baseline: 08b6d35f pass
 - via: `resolveClosureReview()` and the phase-tracker fix-round guard
 
 - [ ] **Step 1: Run the existing scoped command.** Expect all resolver and phase-tracker tests green before changing assertions.
-- [ ] **Step 2: Update the normalization table and guard boundary.** In `extensions/lib/gauntlet-settings.test.ts:167-172`, assert missing and `1.5` normalize to `5`, explicit `0` stays zero, `-3` clamps to `0`, and explicit `maxFixRounds: 3` stays three. In `extensions/phase-tracker.test.ts:1552-1561`, dispatch five waves successfully and assert the sixth reports `cap of 5`. Preserve the explicit three-round harness at `:1778` and its grant-credit tests.
+- [ ] **Step 2: Update the normalization table and guard boundary.** In `extensions/lib/gauntlet-settings.test.ts:167-172`, assert missing and `1.5` normalize to `5`, explicit `0` stays zero, `-3` clamps to `0`, and explicit `maxFixRounds: 3` stays three. In `extensions/phase-tracker.test.ts:1552-1561`, dispatch five waves successfully and assert the sixth reports `cap of 5`. In the grant-credit test `grant: funds extra waves and rejects another grant while credits remain` at `extensions/phase-tracker.test.ts:1732`, set its harness to `guardedHarness({ piGauntlet: { closureReview: { enforce: true, maxFixRounds: 3 } } })`. Keep its three-round exhaustion, two extra credits, rejection while credits remain, and final `cap of 3` assertions unchanged. Preserve the separate explicit three-round harness at `:1778` unchanged.
+
+  Decision: pin the grant-credit fixture to three rather than increasing its exhaustion count - `extensions/phase-tracker.test.ts:1732-1745` tests credit behavior at an exhausted configured cap, while `:1552-1561` owns the shared-default boundary. The amended spec's Tests clause requires this separation.
 - [ ] **Step 3: Run the scoped command and observe red.** The old resolver still supplies three; only the changed default/boundary assertions fail.
 - [ ] **Step 4: Change the resolver fallback.** Keep the existing expression and change only the final default to five:
 
@@ -126,7 +129,7 @@ Tasks 1 and 2 own disjoint files. Their node:test suites use isolated scratch di
   ```
 
   Decision: keep the verify-phase runtime guard at `1 x maxFixRounds` - `extensions/phase-tracker.ts` consumes this resolver and counts successful implementer dispatches; no multiplier or guard bypass belongs in that file. `closureReview.maxFixRounds` is the existing shared setting, not a new gatekeep setting.
-- [ ] **Step 5: Re-run scoped tests.** Expect five default waves allowed, sixth blocked, explicit override tests unchanged and green.
+- [ ] **Step 5: Re-run scoped tests.** Expect five default waves allowed, sixth blocked, and explicit override tests green. The grant-credit fixture must still exhaust its explicit three rounds, allow exactly two granted waves, and block the next wave without depending on the new default.
 - [ ] **Step 6: Regenerate bundles and check style.** Run: `npm run build:bins`. Run: `node --check extensions/lib/gauntlet-settings.ts`. Match existing TypeScript style; no formatter is configured. Review generated differences only; no hand-edits to `bin/`.
 - [ ] **Step 7: Commit.** Stage the three source/test files and actual regenerated bundle differences. Commit subject: `Raise the shared repair default to five`.
 
@@ -145,7 +148,7 @@ Tasks 1 and 2 own disjoint files. Their node:test suites use isolated scratch di
 
 **Tests:**
 - `node --test scripts/gatekeep-comment-reconcile.test.mjs`
-- baseline: 78233b2e pass
+- baseline: 08b6d35f pass
 - via: `SKILL.md` step 6 and the menu source-contract assertions
 
 - [ ] **Step 1: Run the scoped assertions.** Expect the current consent menus to pass.
@@ -180,7 +183,7 @@ Depends on Wave 1: Task 3 replaces the extracted old menus and uses the shared f
 
 **Tests:**
 - `node --test scripts/gatekeep-comment-reconcile.test.mjs`
-- baseline: 78233b2e pass
+- baseline: 08b6d35f pass
 - via: `### Continuation record`, `### Next action`, `### Pre-menu refresh`, `### Wait course`, `fix-wave.md` `## Wave`, `## Sync`, and the ten `menus.md` templates
 
 The `Create:` path is introduced by Task 2; replace its contents in place here, preserving the earlier addition commit for replay baseline selection.
@@ -258,7 +261,7 @@ Depends on Wave 2: Task 4 consumes the new course record and menu state map. It 
 
 **Tests:**
 - `node --test scripts/gatekeep-comment-reconcile.test.mjs`
-- baseline: 78233b2e pass
+- baseline: 08b6d35f pass
 - via: `cleanup.md` `## Non-final stop`, `batch.md`, and `pr-gatekeeper` report/execute contract
 
 - [ ] **Step 1: Run existing scoped assertions.** Expect the single-PR course contract green before updating the batch fixtures.
@@ -324,7 +327,7 @@ Depends on Waves 2-3: Task 5 records the final single-PR, cleanup and batch beha
 
 **Tests:**
 - `node --test eval/lib/lint.test.mjs scripts/gatekeep-comment-reconcile.test.mjs`
-- baseline: 78233b2e pass
+- baseline: 08b6d35f pass
 - via: `lintTarget()`, `lintAll()`, and gatekeep replay-assembly source assertions
 
 - [ ] **Step 1: Run the scoped command and add red structural checks.** In the existing gatekeep test, require all eight case/fact pairs, unique expected fact IDs and `skills/gatekeep-pr/reference/menus.md` in each target's `skillFiles`. Run again; absent new fixtures and menu entries fail. Do not add evaluator machinery.
@@ -445,7 +448,7 @@ Depends on Waves 1-4: describe the implemented state machine and shared default,
 | § "Errors and edge cases" L214 | Dirty/unpushed stop keeps tree; untracked residue alone does not | Task 4 |
 | § "Errors and edge cases" L215-L218 | Cap extension preserves usage; unchanged checkpoint re-exits; phase guard refusal surfaces; no cross-session resume | Task 3 |
 | § "Tests" L222 | Source assertions pin new fields, window renewal, ten headings and deleted red flags | Task 3 |
-| § "Tests" L223 | Resolver normalizes five; five default guard waves pass, sixth fails; explicit three stays | Task 1 |
+| § "Tests" L223 | Resolver normalizes five; five default guard waves pass, sixth fails; explicit three stays; grant-credit fixture at :1732 sets `maxFixRounds: 3` explicitly | Task 1 |
 | § "Tests" L224-L225 | Eight new named samples cover course/exits/nits/stop/omissions; old expectations rewritten | Task 5 |
 | § "Tests" L224-L225 | All three text targets include menu file and updated facts before full runs | Task 5 |
 | § "Tests" L226 | Measure every edited gatekeep file and record authoring read-back before finish | Task 6 |
