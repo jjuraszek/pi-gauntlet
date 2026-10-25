@@ -1,6 +1,8 @@
-for: 3b1e4896945557568e68bc42007bfacf242a9e08c28713243b323759d93687b6
+for: 457758062a26d8fd2459c7bbca581befc09289c0f4f55e55bcce1c43ca4157a8
 
 ## Change
+Draft observable acceptance rows from the approved design when no ticket rows exist, including fetched tickets without ACs and unbound PR rework. Preserve verbatim ticket rows and the not-fetched sentinel. The rewritten loop-gate/no-ac covers only not-fetched zero-row gating; pr-subject-rule-added-later/no-ticket and pr-subject-resolution/open require drafted provenance and design-derived tenant-isolation or retry outcomes. Drafted rows appear verbatim at approval, enabling loop options without a separate pre-gate approval. Text replay demonstrates supplied-observation behavior, not actual writes or live gate execution.
+
 Supply the existing Standing grants decoding procedure to engine-waves and the owning redraw procedure to loop-ledger-amend. Render the actual unmatched group heading in the ticket attribution option rather than its template placeholder; preserve both existing facts.
 
 Route approval options 4/5 to the loop engine, persist engine and grant together, decode loop funding independently, and reconcile approved amendments against a ledger before task-plan aftermath. The target adds the owning User Review Gate slice; old questionary samples drop it, and the ledger sample adds the actual amendment source. New samples are skipped on the baseline because they do not exist there. Text replays prove narrated ordering and values, not live git writes or tracker operations.
@@ -39,7 +41,7 @@ The ticket-read-once, restored-step-8-reads-ticket, same-session-redraw-reuses-t
 - pr-subject-repair-over-rewrite/record: fails -> holds - Keep the two-line repair, verbatim bound-ticket AC, and complete thread dispositions.
 - loop-gate/menu: fails -> holds - Render exact options 4/5.
 - loop-gate/loop: fails -> holds - Persist and HEAD-check both fields before completing brainstorm and dispatching.
-- loop-gate/no-ac: fails -> holds - Keep the three-option no-AC gate.
+- loop-gate/no-ac: fails -> holds - Keep the three-option not-fetched zero-row gate; drafted rows enable loop options.
 - engine-waves/waves: fails -> holds - Retain waves routing and grant semantics for 1/2.
 - engine-waves/audit: fails -> holds - Audit re-gates without approval.
 - engine-waves/mixed: fails -> holds - Mixed requests re-gate without approval.
@@ -120,3 +122,9 @@ The ticket-read-once, restored-step-8-reads-ticket, same-session-redraw-reuses-t
 - reporter-note-fetch/count: fails -> holds - Report full fetched comment and page counts.
 - reporter-note-fetch/multiple: fails -> holds - Preserve all authors and contradictions in creation order.
 - reporter-note-fetch/degraded: fails -> holds - Keep ACs and surface missing comments at the gate.
+- drafted-ac-rows/free-text: fails -> holds - Preserve the drafted-row provenance and approval contract while retaining ticket and not-fetched behavior.
+- drafted-ac-rows/ticket: fails -> holds - Preserve the drafted-row provenance and approval contract while retaining ticket and not-fetched behavior.
+- drafted-ac-rows/not-fetched: fails -> holds - Preserve the drafted-row provenance and approval contract while retaining ticket and not-fetched behavior.
+- drafted-ac-rows/empty-ticket: fails -> holds - Preserve the drafted-row provenance and approval contract while retaining ticket and not-fetched behavior.
+- drafted-ac-rows/unbound-pr: fails -> holds - Preserve the drafted-row provenance and approval contract while retaining ticket and not-fetched behavior.
+- loop-gate/drafted: fails -> holds - Preserve the drafted-row provenance and approval contract while retaining ticket and not-fetched behavior.
