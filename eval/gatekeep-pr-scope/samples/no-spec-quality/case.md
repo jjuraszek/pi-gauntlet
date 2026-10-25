@@ -31,3 +31,5 @@ Verdict: request changes. Critical: missing authorization check at `src/api/expo
 
 ## Pick
 none
+
+Menu checkpoint: show evidence is a hint command only; stop is last, exactly one available recommendation. Course is unset at a first ready report; no numeric course selection is implied by scope evidence.

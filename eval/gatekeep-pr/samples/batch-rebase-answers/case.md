@@ -6,7 +6,7 @@ Each independent invocation below uses a PR set with `--rebase main` in pi on or
 
 ## Observed task snapshots
 
-Every task has mode assess, skill gatekeep-pr, fresh foreground context, cwd /tmp/widgets-pr-N, record /tmp/state-N, report /tmp/report-N, installed procedure root /tmp/procedures/gatekeep-pr, and provisioned-HEAD/fetch/gitignore instruction. All records already match the PR/repo/base and retain their fields. All provisioning completed serially. No child asks the human.
+Every task has mode report, skill gatekeep-pr, fresh foreground context, cwd /tmp/widgets-pr-N, record /tmp/state-N, report /tmp/report-N, installed procedure root /tmp/procedures/gatekeep-pr, and provisioned-HEAD/fetch/gitignore instruction. All records already match the PR/repo/base and retain their fields. All provisioning completed serially. No child asks the human.
 
 A: PR12 is another author's eligible linear branch. In invocation A the parent's single eligible-candidate confirmation received no; task12 carries `rebase confirmation: no`. Tree clean, pushable, evidence ci, Review finds no blocker. No sync has run yet.
 
@@ -19,3 +19,5 @@ Additional parent eligibility reads in a separate set: same-author PR21 needs no
 ## Entry
 
 Narrate each task's sync decision and expected closing result form, then the parent menu for failed18. Describe helper/review/lease binding for yes15 and the parent confirmation eligibility for the additional set. This is request narration from snapshots, not tool execution; do not invent a different shared answer within any invocation.
+
+All supplied records retain PR-local course, repair.rounds_cap 6, repair.syncs_cap 6 and both usage fields; unspecified usage is zero. These are text-only simulated snapshots, not requests to call tools.

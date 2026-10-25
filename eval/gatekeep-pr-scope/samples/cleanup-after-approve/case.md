@@ -63,4 +63,6 @@ pr.url https://github.com/acme/widgets/pull/210; pr.state OPEN.
 - release: /skill:release
 
 ## Pick
-approve (gh pr review --approve exited 0 on the assessed head). Render the menu, then handle the reply `cleanup`.
+numeric approve row selected (gh pr review --approve exited 0 on the assessed head). Render the menu, then handle the reply numeric `1` (cleanup).
+
+Menu checkpoint: show evidence is a hint command only; stop is last, exactly one available recommendation. Course is unset at a first ready report; no numeric course selection is implied by scope evidence.

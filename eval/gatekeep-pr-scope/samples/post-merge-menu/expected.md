@@ -1,4 +1,4 @@
-- f1: judged: After merge, the menu offers cleanup as row 1 recommended, then post coverage to ticket, post coverage to PR, show evidence, and stop last.
+- f1: judged: Own-merge menu offers cleanup=1 recommended, post coverage to ticket=2, post coverage to PR=3, stop=4 last; show evidence appears only in the hint.
 - f2: judged: After stop, nothing is posted.
 - f3: judged: No blocker is minted for a row the spec defers.
 - f4: judged: The ticket's rows are not judged beyond the spec's rows.

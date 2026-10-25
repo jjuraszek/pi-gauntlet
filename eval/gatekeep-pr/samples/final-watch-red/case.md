@@ -20,7 +20,7 @@ bundle-: skills/gatekeep-pr/reference/assessment.md
 
 ## Entry
 
-One prior report rendered. Resume the same-run record at /tmp/gatekeep-state.synthetic, retained in the tracker first task, for meadow/events PR 642, main. Both repair grants are null; repair.rounds_used 0, repair.poll_deadline null; assessed_head and assessed_body match the Digest and original intent is the Digest title/body. Blockers are empty; N1 is open. At the pre-menu refresh ci / test is IN_PROGRESS. Simulated watch returns within the configured 15-minute timeout; refreshed rollup shows ci / test COMPLETED FAILURE, run 910 completed with conclusion failure. `gh run view 910 --log-failed` prints `FAIL src/guard.test.ts > rejects unsigned (expected 401, got 200)`. Continue through the next menu without selecting a repair.
+One prior report rendered. Resume the same-run record at /tmp/gatekeep-state.synthetic, retained in the tracker first task, for meadow/events PR 642, main. Course is null; repair.rounds_used 0, repair.poll_deadline null; assessed_head and assessed_body match the Digest and original intent is the Digest title/body. Blockers are empty; N1 is open. At the pre-menu refresh ci / test is IN_PROGRESS. Independent completed-failure snapshot, not the result of an authorized watch: rollup shows ci / test COMPLETED FAILURE, run 910 completed with conclusion failure. `gh run view 910 --log-failed` prints `FAIL src/guard.test.ts > rejects unsigned (expected 401, got 200)`. Continue through the next menu without selecting a repair.
 
 ## Arguments
 

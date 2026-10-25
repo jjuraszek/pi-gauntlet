@@ -1,4 +1,8 @@
-import { readFileSync } from 'node:fs';
+import { readFileSync, readdirSync } from 'node:fs';
+import { parseExpected, sha256 } from '../eval/lib/checks.mjs';
+import { assemble } from '../eval/lib/replay.mjs';
+import { parseIntent } from '../eval/lib/intent.mjs';
+import { lintTarget } from '../eval/lib/lint.mjs';
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 
@@ -13,6 +17,45 @@ const section = (text, start, end) => {
   assert.ok(body.includes(end), `Missing section boundary: ${end.trim()}`);
   return body.slice(0, body.indexOf(end));
 };
+
+const courseSamples = [
+  'course-deliver-no-mid-menu', 'course-deliver-nits',
+  'course-ready-at-first-report', 'course-assess-terminal',
+  'course-cap-exhausted', 'course-obstacle-unknown',
+  'course-stop-cleanup', 'menu-rows-omitted',
+];
+
+for (const sample of courseSamples) {
+  test(`course replay fixture: ${sample}`, () => {
+    const root = `../eval/gatekeep-pr/samples/${sample}`;
+    const input = readOrEmpty(`${root}/case.md`);
+    assert.match(input, /## Digest/);
+    assert.match(input, /## Entry/);
+    assert.match(input, /## Arguments/);
+    const facts = parseExpected(readOrEmpty(`${root}/expected.md`));
+    assert.ok(facts.facts.length > 0, 'concrete expected facts required');
+    assert.equal(new Set(facts.facts.map((f) => f.id)).size, facts.facts.length);
+  });
+}
+
+for (const target of ['gatekeep-pr', 'gatekeep-pr-scope', 'gatekeep-pr-merge-state']) {
+  test(`course replay assembly: ${target}`, () => {
+    const config = JSON.parse(read(`../eval/${target}/target.json`));
+    assert.ok(config.skillFiles.some((f) => f.path === 'skills/gatekeep-pr/reference/menus.md'));
+    const targetRoot = new URL(`../eval/${target}/`, import.meta.url);
+    assert.deepEqual(lintTarget(targetRoot.pathname), []);
+    const knownFacts = Object.fromEntries(readdirSync(new URL('samples/', targetRoot)).map((sample) => [
+      sample, parseExpected(read(`../eval/${target}/samples/${sample}/expected.md`)).facts.map((f) => f.id),
+    ]));
+    const skillSha = sha256(assemble(config, (path) => read(`../${path}`)));
+    const intent = parseIntent(read(`../eval/${target}/intent.md`), skillSha, knownFacts);
+    assert.equal(intent.status, 'ok', intent.reason);
+    for (const sample of Object.keys(knownFacts)) {
+      const input = read(`../eval/${target}/samples/${sample}/case.md`);
+      assert.doesNotMatch(input, /"(?:fix|merge_base|scope_at_grant|granted_by)"\s*:|consent\.(?:fix|merge_base|scope_at_grant)/);
+    }
+  });
+}
 
 const skill = read('../skills/gatekeep-pr/SKILL.md');
 const loop = read('../skills/gatekeep-pr/reference/post-selection-loop.md');

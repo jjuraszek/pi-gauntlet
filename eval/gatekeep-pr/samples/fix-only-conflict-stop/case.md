@@ -20,7 +20,7 @@ bundle-: skills/gatekeep-pr/reference/assessment.md
 
 ## Entry
 
-The first menu was rendered and the human selected `fix`. P1 empty-signature blocker was repaired, reviewed and pushed; rounds_used is 1. No merge-base selection occurred. The next forge refresh reports CONFLICTING and main advanced. Continue to the next menu and stop.
+Initial rows assess=1, deliver=2, stop=3 were rendered; human selected `2`. Retain course deliver, repair.rounds_used 1, rounds_cap 6, syncs_used 0, syncs_cap 6 after P1 empty-signature blocker was repaired, reviewed and pushed. Main advances and forge reports CONFLICTING. Fresh sync helper resolves, fresh review is clean, checked push yields 2222222222222222222222222222222222222222, CI succeeds and all claims match. Continue without another menu until final, then stop without selecting merge.
 
 ## Arguments
 

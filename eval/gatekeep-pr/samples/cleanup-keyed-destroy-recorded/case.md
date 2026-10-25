@@ -14,7 +14,7 @@ bundle-: skills/gatekeep-pr/reference/fix-wave.md
 
 ## Entry
 
-The merged terminal menu rendered and the human picked `cleanup`. Narrate the cleanup steps through the re-rendered menu.
+The merged terminal menu rendered and the human picked numeric `1` (cleanup from the terminal menu). Narrate the cleanup steps through the re-rendered menu.
 
 ## Arguments
 

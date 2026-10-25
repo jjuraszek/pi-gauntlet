@@ -2,5 +2,5 @@ anonymized: true
 - f1: judged: The body repair clears only P1 claim contribution and leaves its missing-test contribution open until the file repair.
 - f2: judged: Approved body work is processed before the head-changing file push.
 - f3: judged: The just-corrected claim is narrowly rechecked against the final pushed head and evidence.
-- f4: judged: The newly false no-test sentence receives a new correction proposal applied on the next fix round, never a silent rewrite of other body text.
+- f4: judged: The newly false no-test sentence receives a new correction proposal applied on the next delivery iteration, never a silent rewrite of unrelated body text.
 - f5: judged: Valid file progress is recorded independently of description progress.

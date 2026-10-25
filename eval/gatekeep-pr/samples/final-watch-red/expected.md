@@ -1,5 +1,5 @@
 anonymized: true
-- f1: judged: Exactly one `gh pr checks --watch` call runs, bounded by the timeout window, before the refresh.
-- f2: judged: The failing check mints one `P#` carrying the failing line read with `--log-failed`.
-- f3: judged: A payload is drafted for that blocker and the menu offers `fix`; rounds_used is unchanged by the watch.
+- f1: judged: With course unset and no numeric delivery selection, pending CI renders initial without a watch or repair.
+- f2: judged: The independent hypothetical completed-failure snapshot mints a P# from the supplied failing log, without conflating it with a watch actually selected.
+- f3: judged: A blocker payload is drafted and initial offers deliver, not fix; rounds_used is unchanged.
 - f4: mechanical: lacks "not fixable"

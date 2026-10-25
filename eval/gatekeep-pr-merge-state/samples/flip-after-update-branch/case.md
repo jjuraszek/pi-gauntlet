@@ -33,9 +33,9 @@ Minor: none
 claims: [ { claim: "Tests cover the retry path", disposition: matched, evidence: "test/feed/client.test.ts:12-40 exercises the 503 retry" } ]
 ```
 
-## After update branch
+## After numeric delivery selection
 
-The human picked `update branch`; the pre-menu refresh ran on the new head `b7d0a91`. Render the second menu from this digest (every field not listed is unchanged from the digest above, with `headRefOid` now `b7d0a91` and the run ids 7101 in place of 7001):
+Initial rows assess=1 recommended, deliver=2, stop=3; human picked numeric `2`, persisted course deliver, and a fresh helper merged main into this other author branch with clean review and push; the pre-menu refresh ran on the new head `b7d0a91`. Render the second menu from this digest (every field not listed is unchanged from the digest above, with `headRefOid` now `b7d0a91` and the run ids 7101 in place of 7001):
 
 ```text
 - permissions: { merge_state_status: UNSTABLE }
@@ -48,3 +48,5 @@ The human picked `update branch`; the pre-menu refresh ran on the new head `b7d0
 - actions_runs:
   - { databaseId: 7101, status: completed, conclusion: success, workflowName: "tidewatch CI", url: https://github.com/harborline/tidewatch/actions/runs/7101 }
 ```
+
+Replay contract: narrate only these hypothetical snapshots, use no tools. Initial course is null, repair rounds_used 0/rounds_cap 10, syncs_used 0/syncs_cap 10 (no-tool maxFixRounds 5); helpers available, head pushable, merge policy allowed.

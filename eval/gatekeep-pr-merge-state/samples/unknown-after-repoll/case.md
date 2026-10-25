@@ -33,3 +33,5 @@ Moderate: none
 Minor: none
 claims: [ { claim: "Tests cover the retry path", disposition: matched, evidence: "test/feed/client.test.ts:12-40 exercises the 503 retry" } ]
 ```
+
+Replay contract: narrate only these hypothetical snapshots, use no tools. Initial course is null, repair rounds_used 0/rounds_cap 10, syncs_used 0/syncs_cap 10 (no-tool maxFixRounds 5); helpers available, head pushable, merge policy allowed.

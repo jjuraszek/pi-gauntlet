@@ -57,3 +57,5 @@ Verdict: approve. Minor: `src/api/export.ts:31` pages with its own loop instead 
 
 ## Pick
 none
+
+Menu checkpoint: show evidence is a hint command only; stop is last, exactly one available recommendation. Course is unset at a first ready report; no numeric course selection is implied by scope evidence.

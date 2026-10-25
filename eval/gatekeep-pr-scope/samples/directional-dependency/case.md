@@ -60,3 +60,5 @@ none
 
 ## After the gate
 Then answer as /skill:check-delivery Stage 3 would for acme/widgets#45 once this PR is merged: no `## Delivery` block is configured, no ticket comment explains any row, acme/widgets#46 is still open. Render the per-AC verdict table; the expected verdict for AC3 and AC5 is `unexplained gap`.
+
+Menu checkpoint: show evidence is a hint command only; stop is last, exactly one available recommendation. Course is unset at a first ready report; no numeric course selection is implied by scope evidence.

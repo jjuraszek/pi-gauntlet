@@ -1,2 +1,2 @@
 anonymized: true
-- f3: judged: A single increment from rounds_used 1 to 2 and wave checkpoint are persisted before the first body write or repair helper; body, base and file work share that pass.
+- f3: judged: The mixed source-changing pass records its checkpoint before dispatch, increments rounds_used once from 1 to 2 only after a new source commit, and increments syncs_used separately for the conflict sync; body work itself costs no round.
