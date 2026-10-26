@@ -1,7 +1,7 @@
 {
   "sample": "unknown-after-repoll",
   "arm": "candidate",
-  "skillSha": "c032ae906dacd43db49b003c0267021e1eaeaf3bc82a00cdfe05ff748bbf57c8",
+  "skillSha": "b2bca93d45668aa78b0cc753844f1462fae72227a8303187ba074dafcfe2398a",
   "inputSha": "d3e80476b9f114dc448ac46c0ed880846b61f68e4e88d4226de52c75cdb9f249",
   "kind": "text",
   "assembly": "concat",
@@ -17,16 +17,16 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "**Evidence resolution (Section B)**\n\n- **Resolved check set:** all checks on `9c1e4f2`, because no `ci checks:` filter is set.\n  - `test_unit` and `build_image` are `success`.\n  - `lint` is `skipped`, so it is inert.\n  - `crew-approval` is a `status_context` that is pending.\n- **Binding classification:** `merge_state_status` is `UNKNOWN` after the step-2 re-poll, so every pending check binds. That makes `crew-approval` binding.\n- **Row precedence:**\n  - Opt-out: no.\n  - Failed CI: no blocking conclusion.\n  - Held run: no `action_required`.\n  - **Pending** applies: at least one binding pending check and no blocking conclusion. The result is `source: pending`, with no local run.\n- **Claims:** \"Tests cover the retry path\" is checkable from source now. It is `matched` (`test/feed/client.test.ts:12-40`).\n- **Exit check:** `UNKNOWN`/unreadable after the single re-poll matches before any CI watch, whatever the CI color. The result is `stuck - merge state unknown`, rendered with the obstacle template while the course is unset.\n  - Merge state owns the withhold reason and the PR comments line.\n  - No sync and no wait row.\n  - Usage stays at rounds 0/10 and syncs 0/10.\n\n---\n\n```\nDelivers: the tide-feed client retries a fetch once when the feed returns 503.\n\nPR comments:\n- GitHub reports this PR's merge state as unknown after one re-poll, so merge waits. (merge_state_status UNKNOWN; reviewDecision REVIEW_REQUIRED)\n\nEvidence: CI pending (run 7001, test_unit and build_image green on 9c1e4f2; crew-approval pending)\n\nVerdict: stuck - merge state unknown\n\nPick one:\n1. deliver - start the delivery course; merge state is re-read and the gate retries once it resolves, no round charged; add 10 to each cap (rounds 0/10 -> 0/20, syncs 0/10 -> 0/20).\n2. assess - post the review to the PR; then approve or stop, no repairs.\n3. stop - remove the worktree, leave the PR as is. [recommended]\n\nNot offered: merge (merge state unknown)\n\nType a number; show evidence prints the full record (CI pending: run 7001, test_unit and build_image green on 9c1e4f2; crew-approval pending).\n```\n",
-      "words": 298,
-      "wallMs": 25421,
+      "text": "**Evidence resolution (Section B, against head 9c1e4f2)**\n\n- **Resolved check set:** no `ci checks:` is configured, so the set is all four checks on the head.\n- **Check conclusions:**\n  - `test_unit` is `success`.\n  - `build_image` is `success`.\n  - `lint` is `skipped`, which is inert.\n  - `crew-approval` (status_context) is `PENDING`, which counts as pending.\n- **Binding classification:** `merge_state_status` is still `UNKNOWN` after step 2's re-poll. That makes every pending check binding, so `crew-approval` binds.\n- **Row walk:**\n  - Opt-out: no.\n  - Failed CI: no blocking conclusion.\n  - Held run: no `action_required`.\n  - Pending: matches, because there is one binding pending check and no blocking conclusion.\n- **Verifier output:** `source: pending`, with `head_sha: 9c1e4f2` and checks `test_unit success`, `build_image success`, `lint skipped`, `crew-approval pending`.\n  - The claim \"Tests cover the retry path\" can be checked against source now, so it is `matched` (test/feed/client.test.ts:12-40).\n- **Exit check:** the first report is not ready and no course is set, so obstacle states resolve before initial. The row \"UNKNOWN/unreadable after step 2's single re-poll, regardless of CI color or a pending binding check\" matches.\n  - It renders `stuck - merge state unknown` through the obstacle template.\n  - The merge state owns the withhold reason and the PR comments line.\n  - No sync runs, there is no wait row, and usage stays unchanged.\n\n---\n\n```\nDelivers: the tide-feed client retries a 503 fetch once before failing.\n\nPR comments:\n- GitHub still reports the merge state as unknown after one re-poll, so merge waits. (merge_state_status UNKNOWN; mergeable MERGEABLE)\n\nObstacle: stuck - merge state unknown\nFailed prerequisites: merge state UNKNOWN after the step-2 re-poll; crew-approval pending (binding while the merge state is unknown).\nUsage: rounds 0 of 10, syncs 0 of 10 - unchanged.\n\nEvidence: CI pending (run 7001, test_unit and build_image green on 9c1e4f2; crew-approval pending)\nVerdict: stuck - merge state unknown\n\nPick one:\n1. deliver - resume the course; re-reads the merge state and crew-approval once they change, no automatic sync, no round charged; add 10 to each cap (rounds 0 of 10 -> 0 of 20, syncs 0 of 10 -> 0 of 20).\n2. assess - switch course: zero blockers, so no review posts; then approve or stop, no repairs.\n3. stop - remove the worktree, leave the PR as is. [recommended]\n\nNot offered: merge (merge state unknown)\nNot offered: deliver with nits (no nits)\n\nType a number; show evidence prints the full record (CI pending: run 7001, test_unit and build_image green on 9c1e4f2; crew-approval pending)\n```\n",
+      "words": 382,
+      "wallMs": 30735,
       "mechanical": {}
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "Delivers: adds one bounded retry to the tide-feed client for 503 responses.\n\nPR comments:\n- The merge state is still unknown after the re-poll, so merge waits. (merge_state_status UNKNOWN)\n- crew-approval is pending and binding, so merge waits. (crew-approval)\n\nEvidence: pending (crew-approval pending on 9c1e4f2; no local run)\nVerdict: stuck - merge state unknown\n\nPick one:\n1. deliver - retry after the unknown merge-state prerequisite changes; add 10 to each cap (rounds 0/10 to 0/20; syncs 0/10 to 0/20), no round charged.\n2. assess - post any open blockers as a review; perform no repairs or sync.\n3. stop - remove the worktree, leave the PR as is. [recommended]\n\nNot offered: merge (merge state unknown)\n\nType a number; show evidence prints the full record (pending: crew-approval pending on 9c1e4f2; no local run).\n",
-      "words": 126,
-      "wallMs": 12583,
+      "text": "Delivers: adds one bounded retry to the tide-feed client on a 503 response, with tests covering the retry path.\n\nPR comments:\n- The merge state is still unknown after the step-2 re-poll, so merge waits. (merge_state_status UNKNOWN)\n- crew-approval is pending and binding because merge_state_status is UNKNOWN, so merge waits. (crew-approval)\n\nEvidence: pending (test_unit and build_image green in run 7001; crew-approval binding pending on 9c1e4f2; no local run)\nVerdict: stuck - merge state unknown\n\nPick one:\n1. deliver - retry after the merge-state prerequisite changes, no round charged; add 10 to each cap (rounds 0/10 to 0/20; syncs 0/10 to 0/20).\n2. assess - post nothing because there are no blockers; perform no repairs or sync, then show the assess terminal menu.\n3. stop - remove the worktree, leave the PR as is. [recommended]\n\nNot offered: merge (merge state unknown)\n\nType a number; show evidence prints the full record (pending: test_unit and build_image green in run 7001; crew-approval binding pending on 9c1e4f2; no local run).\n",
+      "words": 159,
+      "wallMs": 12745,
       "mechanical": {}
     }
   },
@@ -36,7 +36,7 @@
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
       "intentSha": "5d82dd30c53664bf000f34822ffc17ecb66d298ce6c5d8f23db53e37e962ee49",
       "baselineOutputSha": "62cc24026424d16352e202d1ad77f65bf6a65a29cc10006c5dd130d1512fdf4c",
-      "candidateOutputSha": "37f99725cb642d3a4862da9a355f2aa531ad520362a11ffab938143fb76a0de3",
+      "candidateOutputSha": "df138b8ab76426ad12206c2be4f1f382b94f6c127d002a10a3d82620d10fea24",
       "facts": {
         "f1": {
           "before": "holds",
@@ -59,8 +59,8 @@
           "label": "held"
         }
       },
-      "feedback": "After moves f3 from fails to holds exactly as intended: the post-repoll UNKNOWN now exits via the obstacle template with verdict `stuck - merge state unknown`, stop is the recommended last row, there is no wait row and no sync, and the resolution text states usage stays at rounds 0/10 and syncs 0/10. Nothing Before kept was lost: merge is still withheld with the unknown-merge-state reason (f1), every pending check is still classified binding and the row resolves to `source: pending` (f2), and no text exempts the viewer or demotes crew-approval (f4). Two small wording risks worth tightening so these stay robust: the report line `Evidence: CI pending (...)` could be misread as a CI-source resolution rather than the Pending row - prefer `Evidence: pending (crew-approval binding; test_unit and build_image green on 9c1e4f2)`; and the deliver row's `add 10 to each cap (0/10 -> 0/20)` sits close enough to the counter statement that a reader might think caps already changed - phrase it as a consequence of choosing the row (`if chosen, caps freeze at 20/20`) and keep the unchanged-counters line in the rendered report rather than only in the resolution notes.",
-      "wallMs": 13791,
+      "feedback": "After delivers the intended move on f3: the post-repoll UNKNOWN now exits through the obstacle template with stop recommended last, no sync, no ordinary wait row, and an explicit 'Usage ... unchanged' line, while keeping f1, f2 and f4 intact (merge still withheld for merge-state-unknown, every pending check still bound, crew-approval still described as binding, no viewer exemption). Two wording risks worth tightening so future samples don't drift: the 'Evidence: CI pending (run 7001 ...)' summary line could be misread as the verifier resolving to CI rather than the Pending row - prefer 'Evidence: pending (binding crew-approval on 9c1e4f2; CI run 7001 green)' so the source label matches the `source: pending` record; and the deliver row's 'add 10 to each cap' phrasing reads like a counter change inside an obstacle that claims unchanged usage - phrase it as 'caps freeze at twice entry (20/20); usage stays 0/0' so a reader distinguishes the frozen cap from the unchanged counters.",
+      "wallMs": 12921,
       "verdict": "improved"
     },
     "github-copilot/gpt-6.1-sol": {
@@ -68,7 +68,7 @@
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
       "intentSha": "5d82dd30c53664bf000f34822ffc17ecb66d298ce6c5d8f23db53e37e962ee49",
       "baselineOutputSha": "94a9e6614178a1a167cfcffdab44408507703c11b1e6e2add09da1ee3e0b3d05",
-      "candidateOutputSha": "39663f2c0ab8267d90f924c89acb398f2d6856fa20da484801a128b5cf3039b8",
+      "candidateOutputSha": "e452731812491ec8ea6ae33f47e70f1a605949dac00c65bf86f857502e378cfa",
       "facts": {
         "f1": {
           "before": "holds",
@@ -91,10 +91,10 @@
           "label": "held"
         }
       },
-      "feedback": "After delivers the Change for this sample: the ordinary wait row is gone, the verdict is stuck rather than fixable, stop is recommended last, no sync is performed, and merge remains explicitly not offered with the unknown-merge-state reason, so f1, f3 and f4 are kept while f3 moves to holds as expected. After also gains f2 by adding the explicit 'crew-approval is pending and binding' comment and the 'Evidence: pending' line, which Before never stated. One wording risk: the deliver row says 'add 10 to each cap (rounds 0/10 to 0/20; syncs 0/10 to 0/20)', which a reader could mistake for the report already altering counters; since the rendered state must show unchanged counters and caps freeze at twice the entry setting, phrase it as a conditional effect of choosing deliver (e.g. 'if chosen, caps extend to 0/20 each; current rounds 0/10, syncs 0/10 unchanged, no round charged') so the unchanged-counter fact is unambiguous.",
-      "wallMs": 15832,
+      "feedback": "After moves f3 to holds by replacing the recommended 'wait - run one bounded CI watch' row with the obstacle menu (deliver/assess/stop, stop recommended last, no sync), and it also picks up f2, which Before never actually showed: Before had no Evidence line at all and its only action row was a CI watch, so a reader could not tell that the pending crew-approval status_context was binding and that evidence resolved to pending rather than CI; After's explicit 'Evidence: pending (... crew-approval binding pending on 9c1e4f2 ...)' fixes that. Both outputs keep f1 and f4. Two wording risks in After worth tightening so f3 stays robust: the deliver row's 'add 10 to each cap (rounds 0/10 to 0/20; syncs 0/10 to 0/20)' reads like a counter mutation at render time—phrase it as a description of the frozen cap that applies only if the course is chosen (e.g. 'caps freeze at 20/20 for this course; used counts stay 0/0, no round charged') so 'unchanged counters' is unambiguous; and the trailing 'show evidence prints the full record (...)' duplicates the Evidence line verbatim—drop the parenthetical and keep the single Evidence line. The assess row's 'post nothing because there are no blockers' is also slightly confusing alongside a 'stuck' verdict; say 'no review findings to post' instead so it doesn't read as contradicting the merge-state obstacle.",
+      "wallMs": 19766,
       "verdict": "improved"
     }
   },
-  "repoSha": "62346c441fae01b206b2b2eb740709554bdd85ac"
+  "repoSha": "1ecbdc725a2e6e93ab1e8a175c1f5ed819c6f7ae"
 }
