@@ -1,7 +1,7 @@
 {
   "sample": "live-checkrun-pending",
   "arm": "candidate",
-  "skillSha": "9efd2c365290810fad1f63bb1bbdddecbdf01bf1c519e1c66fc89616655a4ba5",
+  "skillSha": "8c3f465c2b12a01348536752856b3f6cd9bd63d3ec577c4ed456923f6a2a9f30",
   "inputSha": "763dcaf0927a0637b70419b246a24e4081b9094fc981752bc9d5fe6f8e6eb595",
   "kind": "text",
   "assembly": "concat",
@@ -17,16 +17,16 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "## Evidence resolution (Section B)\n\n- **Resolved check set:** No `ci checks:` is configured, so the set is every check on head `9c1e4f2`: `test_unit`, `build_image`, `e2e`.\n- **Conclusion semantics:**\n  - `test_unit` succeeded.\n  - `build_image` succeeded.\n  - `e2e` has status `in_progress`, so it is pending.\n  - No check has a blocking conclusion and none is `action_required`, so there is no held run.\n- **Binding classification for `e2e`:**\n  - `merge_state_status` is `UNSTABLE`. That is not `BLOCKED`, `UNKNOWN` or `unreadable`.\n  - `kind` is `check_run`.\n  - The run id parsed from its `detailsUrl` is 7003. The matching `actions_runs` entry has `status: waiting`, which is not completed.\n  - Result: `e2e` is **binding**.\n- **Row precedence:**\n  - Opt-out does not apply: no `local verification: always`.\n  - Failed CI does not apply: nothing is blocking.\n  - Held run does not apply: nothing is `action_required`.\n  - **Pending applies:** one binding pending check and no blocking conclusion. There is no local run.\n- **Verifier record:**\n  - `source: pending`, with `head_sha: 9c1e4f2`.\n  - Checks: `test_unit` and `build_image` completed with success; `e2e` is in progress with no conclusion.\n  - The source-checkable claim is dispositioned now: \"Tests cover the retry path\" is `matched` (test/feed/client.test.ts:12-40). No claim depends on the `e2e` result, so none stays `pending`.\n- **Integration:**\n  - The reviewer verdict is SHIP with no Critical, Moderate or Minor findings, so there are 0 blockers and 0 nits.\n  - `issue_ref` is null, so the scope is `source: pr` with no AC rows.\n  - The sole merge withhold is the binding pending `e2e` check.\n- **Template:**\n  - The report is not ready and the course is unset.\n  - Exit check finds no obstacle; the sole withhold is a not-yet-resolved binding CI check. That selects the **initial** template.\n  - The PR is someone else's, so assess is recommended.\n\n## Report\n\n```\nDelivers: the tide-feed client now retries a fetch once when the feed returns 503.\n\nPR comments:\n- The e2e check is still running on the assessed head, so merge waits. (e2e)\n\nVerdict: fixable - binding check pending\n\nPick one:\n1. assess - post the review to the PR; then approve or stop, no repairs. [recommended]\n2. deliver - repair blockers, merge main into the branch, watch CI, repeat until merge is offered.\n3. stop - remove the worktree, leave the PR as is.\n\nNot offered: deliver with nits (no nits), merge (e2e pending)\n\nCourse holds until the final menu; `show evidence` prints the full record.\n```\n",
-      "words": 366,
-      "wallMs": 20086,
+      "text": "## Evidence resolution (Section B)\n\n**Resolved check set.** No `ci checks:` is configured, so the set is every check on `9c1e4f2`: `test_unit`, `build_image`, and `e2e`.\n\n**Conclusions.**\n- `test_unit` and `build_image` are `success`.\n- `e2e` is `status: in_progress`, so it is pending.\n- No check has a blocking conclusion.\n- No check is `action_required`, so there is no held run.\n\n**Binding classification for `e2e`.**\n- `merge_state_status` is `UNSTABLE`. That is not `BLOCKED`, `UNKNOWN` or `unreadable`.\n- Its `kind` is `check_run`. The run id parsed from its `detailsUrl` is 7003, and `actions_runs[7003].status` is `waiting`, not `completed`.\n- So `e2e` is **binding**.\n\n**Row selection, top-down.**\n- Opt-out does not match: it is not configured.\n- Failed CI does not match: nothing is blocking.\n- Held run does not match.\n- **Pending** matches: there is at least one binding pending check and no blocking conclusion.\n- Result: `source: pending`, no local run, no watch at step 5-6. The watch happens only at delivery step 4.\n\n**Claims.** Under `source: pending`, source-checkable claims get their disposition now. \"Tests cover the retry path\" is `matched` (`test/feed/client.test.ts:12-40`).\n\n**Integration.** The reviewer returned SHIP with no findings, so there are 0 blockers and 0 nits. `source: pr`: there is no issue or spec, so there are no AC rows.\n\n**Merge preconditions.** One fails: a binding pending check. The first report is not ready and the course is unset. The Exit check finds no obstacle row, because the only withhold is a binding CI check that has not resolved yet. That is the pending-only case, so the **initial** template applies.\n\n**Menu defaults.** This is someone else's PR (`viewer.is_author: false`), so:\n- `assess` is the recommended row.\n- `deliver`'s sync clause reads \"merge main into the branch\".\n- `deliver with nits` is omitted because there are zero nits.\n\n## Report and menu\n\n```\nDelivers: adds one bounded retry to the tide-feed client when the feed returns 503.\n\nPR comments:\n- The e2e check is still running on this head, so merge waits. (e2e)\n\nVerdict: not ready - e2e pending\n\nPick one:\n1. assess - no blockers to post; then approve or stop, no repairs. [recommended]\n2. deliver - repair any blockers, merge main into the branch, watch CI, repeat until merge is offered.\n3. stop - remove the worktree, leave the PR as is.\n\nNot offered: deliver with nits (no nits); merge (e2e pending)\n\nCourse holds until the final menu; `show evidence` prints the full record.\n```\n",
+      "words": 381,
+      "wallMs": 21744,
       "mechanical": {}
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "Delivers: the tide-feed client retries once on a 503, with tests covering the retry path.\n\nPR comments:\n- e2e is pending and binding because its Actions run is waiting, so merge waits. (e2e)\n\nVerdict: fixable - binding check pending\n\nPick one:\n1. assess - post the review to the PR; then approve or stop, no repairs. [recommended]\n2. deliver - repair blockers, merge main into the branch, watch CI, repeat until merge is offered.\n3. stop - remove the worktree, leave the PR as is.\n\nNot offered: deliver with nits (no nits); merge (e2e pending).\n\nCourse holds until the final menu; `show evidence` prints the full record.\n",
-      "words": 102,
-      "wallMs": 8803,
+      "text": "Delivers: adds one bounded retry to the tide-feed client on a 503 response.\n\nPR comments:\n- e2e is pending and binding because its Actions run is still waiting, so merge waits. (e2e)\n\nVerdict: not ready - e2e pending\n\nPick one:\n1. assess - post the review to the PR; then approve or stop, no repairs. [recommended]\n2. deliver - repair blockers, merge main into the branch, watch CI, repeat until merge is offered.\n3. stop - remove the worktree, leave the PR as is.\n\nNot offered: merge (e2e pending); deliver with nits (no nits).\n\nCourse holds until the final menu; `show evidence` prints the full record.\n",
+      "words": 101,
+      "wallMs": 11244,
       "mechanical": {}
     }
   },
@@ -36,7 +36,7 @@
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
       "intentSha": "5d82dd30c53664bf000f34822ffc17ecb66d298ce6c5d8f23db53e37e962ee49",
       "baselineOutputSha": "7e2b44d63a2c500e47d3befb33d03854a57a84d73825879732f2da1ecde91566",
-      "candidateOutputSha": "5d3b80563e450a825ea686b6dfb736fec4e49d012148361d067e36338ed62854",
+      "candidateOutputSha": "fae33a0d8414b5f05b08be5b2f35122ac5b16bbedbf714d1cbbe59668799e483",
       "facts": {
         "f1": {
           "before": "holds",
@@ -59,8 +59,8 @@
           "label": "held"
         }
       },
-      "feedback": "After delivers the intended move on f3: the course-unset pending report now renders the initial assess/deliver/stop template with assess recommended for someone else's PR, no watch is run before a numeric selection, and the ordinary `wait` row from Before is gone. Nothing regressed: both outputs still resolve `e2e` as binding because its matched run 7003 is `waiting` (not completed), both explicitly note that `UNSTABLE` is not a BLOCKED/UNKNOWN trigger and so does not override the check_run rule, and both withhold merge with `(e2e pending)` as the stated reason. One small wording suggestion for consistency with the evidence: the After PR-comment line says the check is \"still running\" while the resolution table says the run is `waiting`; phrasing it as \"still pending\" (or \"queued/running\") would match the binding rationale more precisely without affecting any fact.",
-      "wallMs": 10334,
+      "feedback": "After delivers the Change on this sample: the first not-ready report now uses the initial assess/deliver/stop template with assess recommended for someone else's PR, explicitly states no watch runs at step 5-6, and drops the ordinary wait row, which flips f3 from fails to holds. Nothing regressed - the binding classification still rests on the live run 7003 (`waiting`, not `completed`) for a `check_run` (f1), merge is still withheld with `(e2e pending)` as the stated reason (f2), and `UNSTABLE` is explicitly ruled out as a BLOCKED/UNKNOWN/unreadable trigger before the run-liveness rule decides binding (f4). The only wording I'd tighten is the PR-comments line: After says 'is still running on this head' while the trace itself classifies the run as `waiting`; phrasing it as 'the e2e run has not completed on this head, so merge waits' keeps the comment aligned with the evidence table without losing the binding rationale.",
+      "wallMs": 10971,
       "verdict": "improved"
     },
     "github-copilot/gpt-6.1-sol": {
@@ -68,7 +68,7 @@
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
       "intentSha": "5d82dd30c53664bf000f34822ffc17ecb66d298ce6c5d8f23db53e37e962ee49",
       "baselineOutputSha": "d5a8bd9f2bc24b3ac828b7434e5e62d1f5b17abcf6ae09b6cf385ea94527bcc3",
-      "candidateOutputSha": "672c2ad5a6273c3fe7361a5865bbb36730bd32449408e47243a138e64abe28c3",
+      "candidateOutputSha": "d03335ed2f704f071ad86c8247c39015d4028fa4ff8861fd12ad21dfaa2d61a9",
       "facts": {
         "f1": {
           "before": "holds",
@@ -91,10 +91,10 @@
           "label": "held"
         }
       },
-      "feedback": "After moved f3 from fails to holds exactly as intended: the per-action menu with a recommended `wait` row, `approve`, and `show evidence` was replaced by the initial assess/deliver/stop course menu with assess recommended for another author's PR, no ordinary wait row, and CI watching only described inside the numeric `deliver` course rather than offered before a course is chosen. Nothing regressed: the pending reason still names e2e and now explicitly ties it to the live Actions run (strengthening f1), the `Not offered: merge (e2e pending)` line is retained (f2), and the UNSTABLE/MERGEABLE state is never used to bypass the binding check (f4). Keep the explicit 'because its Actions run is waiting' phrasing and the `Not offered: ... merge (e2e pending)` footer in the shared template; the only cosmetic point is that `show evidence` is now a trailing hint rather than a numbered row, which is fine so long as it is clearly not a course selection.",
-      "wallMs": 11732,
+      "feedback": "After moves f3 as intended: the wait/approve rows are replaced by the initial assess/deliver/stop course menu with assess recommended for another author's PR, no watch is run before a numeric selection, and no ordinary wait row remains. Nothing Before kept was lost - the PR comment still ties the pending state to the binding e2e check (and now explicitly names the live Actions run, which strengthens f1), merge is still withheld with 'e2e pending' as the reason, and the UNSTABLE merge state is not treated as green. One small stylistic regression unrelated to the facts: the Delivers line dropped the matched test claim ('with tests covering the retry path'); consider keeping the matched-claim summary in Delivers so the report continues to surface independent claim closure alongside the new course menu.",
+      "wallMs": 13978,
       "verdict": "improved"
     }
   },
-  "repoSha": "fdeceddf3936e92f4907db9cc737d1ae168c4de7"
+  "repoSha": "2e4bd77585d334fe3d7c3a05219d9384f2fa1520"
 }
