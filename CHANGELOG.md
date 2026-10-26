@@ -6,6 +6,7 @@
 
 - **Breaking:** `piGauntlet.loopEngine.maxIterations` is removed, not aliased; use `piGauntlet.loopEngine.maxIterationsPerRow` (default 4, integer floor 1). The loop seeds a durable ledger `cap:` from non-cut rows times that multiplier plus one seed dispatch. Cuts and reopening preserve the cap; redraw recomputes it. Clean cap stops accept durable `cap +N` grants without resetting attempts or iterations, and resume restores the ledger cap without settings. Legacy ledgers missing `cap:` stop for a grant based on consumed iterations.
 - Drafted tree-wide or set-wide negative acceptance rows split into one row per family explicitly enumerated in Design, preserving every outcome. An absent, partial or unrelated enumeration stops spec-writing for clarification; ticket rows stay verbatim.
+- pi-cohort peer floor raised to 7.5.0.
 
 ## v7.33.0 - 2026-10-26
 
