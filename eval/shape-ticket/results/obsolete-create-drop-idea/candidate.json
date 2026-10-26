@@ -1,0 +1,104 @@
+{
+  "sample": "obsolete-create-drop-idea",
+  "arm": "candidate",
+  "skillSha": "0ff0c5ae623f0937d712727409c8abaa4badf260b178d9bad0e855e731555c8d",
+  "inputSha": "80bc7628c49aded9ca3270a4747bf6ae56b85f4dffc565d6d0b0c613e6ce58cf",
+  "kind": "text",
+  "assembly": "concat",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "# shape-ticket: create gate\n\n**Mode:** create (one ask, no tracker ref)\n**Overlap:** bounded discovery found no candidate. This does not prove there is no match; coverage details are in the menu note below.\n\n---\n\n**Audit:**\n- `obsolete: delivered: src/report-download.ts:12`\n- `repo-fit: exists - src/report-download.ts:12`\n- `unverified: Reviewers need a local copy - user need`\n- `scenario: none (fresh feature ask)`\n\n**Title** (new)\n`Let reviewers download report rows without losing any rows`\n\n**Body** (as-new, create-anyway alternative)\n\n```markdown\n## Context\nReviewers look at reports in the product and sometimes need a local copy of the report they are viewing.\n\n## Problem\nReviewers want to take the rows of the report they are viewing away as a file, and every row on screen must still be in that file.\nExample: a report with two rows should download as a file with the same two rows.\n\nscenario: none (fresh feature ask)\n\n## Idea\nreporter proposes a download action; src/report-download.ts:12 routes this through downloadReport\n\n## Acceptance Criteria\n- [ ] Given a report containing two rows, when a reviewer downloads it, the downloaded file contains those same two rows.\n```\n\n**Idea diff** (repo-fit fold):\n```diff\n- Reporter proposes a download action.\n+ reporter proposes a download action; src/report-download.ts:12 routes this through downloadReport\n```\n\n**Metadata changeset:** none (metadata audit clean)\n\n**Evidence:**\n- `src/report-download.ts:12`: `downloadReport(report)` saves `report.csv` from `encodeRows(report.rows)`.\n- The opened callers show this action to reviewers.\n- `encodeRows` keeps every input row in the downloaded file.\n- The requested two-row behavior is already implemented.\n- Scenario: none (fresh feature ask). The AC row carries the setup, action, and expected result.\n\n**Source gaps:**\n- `source missing: a report with two rows should download as a file with the same two rows`\n\n**Roast dispositions:** applied: none · surfaced-ambiguous: none (no blockers)\n\n**Proposed comment** (one per issue, posted with create-anyway only):\n\n```untrusted\nReporter note: Reporter proposes a download action.\n```\n\n**Overlap coverage (menu-only):**\n- Bounded discovery stopped with no supported candidate.\n- No enrichment or relation is proposed.\n- Exhausted or incomplete coverage is not proof that no match exists.\n\n---\n\n**Closing evidence for the exit option** (not part of the body or comment):\n\n`Audit: obsolete: delivered: src/report-download.ts:12`\n\n---\n\nPick one:\n1. Create anyway: approve with a link, attachment, or reason for the source gap\n2. Create anyway: approve and proceed without a source\n3. Revise\n4. Drop the idea - delivered: src/report-download.ts:12 [recommended]\n\nOption 1 needs your link, attachment, or reason in the reply. Option 4 writes nothing. Nothing has been created or written.\n",
+      "words": 384,
+      "wallMs": 26641,
+      "mechanical": {
+        "no-commands": "holds"
+      }
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "Mode: create. No existing ticket selected; temp root not supplied.\n\n**Audit:**\n- unverified: Reviewers need a local copy — user need is not checkable from the repository.\n- repo-fit: exists — src/report-download.ts:12\n- obsolete: delivered: src/report-download.ts:12\n- scenario: none (fresh feature ask)\n\n## Title\nAs-new: **Let reviewers download report rows without losing any rows**\n\n## Body — as-new\n```markdown\n## Context\n\nReviewers need a local copy of the report they are viewing.\n\n## Problem\n\nThe requested row-preserving download is already available to reviewers.\n\nFor a report containing two rows, downloading it produces a file containing those same two rows.\n\nscenario: none (fresh feature ask)\n\n## Idea\n\nReporter proposes a download action; the existing report download already provides it (src/report-download.ts:12).\n\n## Acceptance Criteria\n\n- [ ] Given a report containing two rows, when a reviewer downloads the report, the resulting file contains those same two rows.\n```\n\n**Metadata changeset:** None proposed.\n\n**Evidence**\n- The opened implementation at `src/report-download.ts:12` saves a file using the report’s rows.\n- Already-opened callers expose the action to reviewers, and the encoder preserves every input row. Together, these confirm the requested two-row behavior is implemented.\n- No source URL or attachment was supplied. The draft’s source-footer slot remains absent pending your selection.\n\n**source missing:** For a report containing two rows, downloading it produces a file containing those same two rows.\n\n**Roast dispositions:** No blocking findings or ambiguous findings supplied; no roast-applied changes.\n\n**Proposed comment:** None.  \n**Proposed relations:** None.\n\n**Overlap coverage:** Bounded discovery found no candidate. Query details, counts, timing, and truncation information were not supplied. This is not a uniqueness guarantee; the repository evidence independently confirms the requested capability exists.\n\n## Selection\n\nCreation and dropping are mutually exclusive. Creating would file the exact payload above, with only the source-footer resolution authorized by your reply; it would not change the existing implementation.\n\nPick one:\n\n1. **Approve with a link, attachment, or reason** — create the displayed ticket; include the source or reason for the named gap.\n2. **Approve and proceed without** — create the displayed ticket without a supplied source, recording your explicit choice in its source footer.\n3. **Revise** — specify changes; the revised payload will be presented again before any write.\n4. **Drop the idea — the requested capability is already implemented** **[recommended]** — write nothing.\n\n   Audit: obsolete: delivered: src/report-download.ts:12\n\nNo creation or other live write has occurred.\n",
+      "words": 366,
+      "wallMs": 25054,
+      "mechanical": {
+        "no-commands": "holds"
+      }
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "91acebaee327d3938e2d4504b6d9063812ef9119e3f39d79e6d8fd097c809f7c",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "600e013b6b642672652379e3f824fc2ca9b3a1d939a93353576b3b53451c6051",
+      "baselineOutputSha": "b15b232299181fbd9739b396ee786782ff266032cc951fa07e9b5108b0dead24",
+      "candidateOutputSha": "4a5c6cbcc550822f11847e9e39f3ae2a20113b1923b90b829e7f4fec8a1f8769",
+      "facts": {
+        "verdict": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "drop": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "no-write": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "no-commands": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "After delivers the Change without regressing anything: the Audit block now opens with `obsolete: delivered: src/report-download.ts:12` above the Title, the menu has exactly one `[recommended]` row (option 4, Drop the idea, citing the delivered capability) while options 1-2 remain explicit create-anyway choices backed by the as-new body, and the closing line still states nothing has been created or written with the gate stopped for a selection. Before lacked the obsolete verdict and marked no option as recommended, so both moves are attributable to the new wording. Two small things worth watching in future samples rather than fixing here: After's Title reuses the raw ask verbatim (Before had a shaped title), and the 'Idea diff (repo-fit fold)' shows a minus line that never existed in any ticket, which a careful reader could mistake for an existing-ticket diff in create mode; labeling it 'reporter sketch -> folded Idea line' would avoid that without touching any of the three facts.",
+      "wallMs": 11145,
+      "verdict": "improved"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "91acebaee327d3938e2d4504b6d9063812ef9119e3f39d79e6d8fd097c809f7c",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "600e013b6b642672652379e3f824fc2ca9b3a1d939a93353576b3b53451c6051",
+      "baselineOutputSha": "24de8f4cebdf0dcec2c8f790d62debb5611c800f6dacd4e11d963cc29b2ace3d",
+      "candidateOutputSha": "c04de202bc256eb43cae36ddaa3ce4a09e3828522e96e3fd8fc5c1ebf855dba5",
+      "facts": {
+        "verdict": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "drop": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "no-write": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "no-commands": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "After delivers the Change without regressing anything Before held: the Audit block now carries the explicit `obsolete: delivered: src/report-download.ts:12` line above Title, exactly one menu row (option 4, Drop the idea) bears `[recommended]` while options 1 and 2 remain as create-anyway choices alongside the as-new body, and the closing line still states that no creation or live write has occurred before stopping for a selection. Before lacked the obsolete verdict entirely and expressed the recommendation only in prose (\"Declining creation is recommended\") with a generic \"Decline creation\" row, so both verdict and drop moved from fails to holds as intended. One small robustness note: After repeats the `Audit: obsolete: delivered:` citation under the recommended row, which is fine, but keep the rows separately numbered as they are and resist folding the citation into the row label so the single-recommended-row contract stays unambiguous across other obsolete samples.",
+      "wallMs": 11444,
+      "verdict": "improved"
+    }
+  },
+  "repoSha": "fe29e949ffb100ccf53351ef08955b2e3450f9ac"
+}

@@ -408,6 +408,37 @@ tracker selection; free-form verb mappings keep working both without a `tracker:
 key (ladder rung 1, as today) and as the mechanics source when `tracker:` names an
 unknown value.
 
+### Close verb defaults and overrides
+
+`shape-ticket` resolves `close:` as a free-form command mapping under
+`## Issue tracker`, not a sixth Linear configuration key. Its defaults are:
+
+| Audit reason | GitHub reason | Linear status |
+|---|---|---|
+| Delivered | `completed` | `Done` |
+| Superseded, premise contradicted, not reproduced | `not planned` | `Canceled` |
+| Duplicate with a tracker-native target | `duplicate` | `Duplicate` |
+
+GitHub uses one close-with-evidence command:
+`gh issue close <n> --reason "<reason>" [--duplicate-of <ref>] --comment "<evidence>"`.
+Linear posts evidence first with `linearis issues discuss <id> --body "<evidence>"`,
+then closes with `linearis issues update <id> --status <Done|Canceled|Duplicate>
+[--duplicate-of <ref>]`. A native duplicate target is a GitHub issue number or URL,
+or a Linear identifier such as `ABC-123`, for the selected tracker. Only that
+mapping includes `--duplicate-of`; a nonnative target uses `not planned` /
+`Canceled` and keeps the reference in the evidence.
+
+Add `- close: <command>` under `## Issue tracker` to replace the entire close
+sequence, including evidence posting. Override renamed Linear workflows there.
+Section prose also applies: if a mapped state is reserved for humans, the menu
+shows `Close as <reason> - run by hand: <operations>`; selecting it writes nothing.
+Selecting an executable close row authorizes only its displayed operations and
+evidence, not a body edit or Reporter note. This explicit close gate still applies
+when ordinary status changes are described as "announced, not gated". This mapping
+is separate from the `## cleanup` `close ticket` convention in the example above.
+See the [tracker resolution ladder](skills/shape-ticket/reference/tracker-ladder.md)
+for resolution details.
+
 ### Worked example: wrapper-managed worktrees (acme-mono)
 
 Complete `.pi/settings.json`:

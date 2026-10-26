@@ -1,12 +1,13 @@
 # shape-ticket eval
 
-Tests the draft, AC integrity gate, and Evidence gate render: Problem examples carry source footers, source gaps appear at the gate, multi-repo tickets attribute AC rows to repo groups, and repaired rows retain their measurements without naming a verification venue.
+Tests the draft, parent obsolete verdict, gated close/drop choices, single recommended menu row, AC integrity gate, and Evidence gate render: Problem examples carry source footers, source gaps appear at the gate, multi-repo tickets attribute AC rows to repo groups, and repaired rows retain their measurements without naming a verification venue.
 
 | Skill file | Slice |
 |---|---|
 | `skills/shape-ticket/SKILL.md` | `### 4 - Draft` through before `## Roast` |
 | `skills/brainstorming/reference/menu-layout.md` | whole file |
 | `skills/shape-ticket/SKILL.md` | `## Evidence gate` through before `## Ticket wording` |
+| `skills/shape-ticket/reference/repo-audit.md` | whole file, except sample-specific exclusions |
 
 The two original synthetic text samples cover create-mode repo attribution and repair-mode venue removal. Their slice omits Gather and `reference/overlap-check.md`. The third sample, `closed-concern-additions`, alone loads `skills/shape-ticket/reference/overlap-check.md` through a leading `bundle+:` line in its case. It supplies a reviewed completed ticket and compatible parity, empty-input, and documentation additions without a distinguishing new run/version. It permits useful existing-ticket additions or no write, preserves uncertainty about a new regression, and retains create-anyway as an override. This no-tool target proves supplied-evidence proposal wording and drafting/AC regressions, not live retrieval or tracker writes.
 
@@ -21,6 +22,11 @@ Use audit baseline A (`5b97a46a7b0ef331e72077362e92eff4a59e1b77`) for batch/audi
 | audit-byte-lock | Exact mixed AC bytes versus substantive scenario normalization and new notes |
 | audit-dispatch | Nine refs in 8+1 foreground calls, exact controls and per-ticket disk authority |
 | audit-grounding | Claims, reporter ambiguity, uncited alternatives, sibling grounding and degradation |
+| obsolete-premise-contradicted | Confirmed premise contradiction before not reproduced, close operation/evidence, sole recommended exit and ordinary body diff |
+| quiet-audit-no-close-row | Footer-only repair with no obsolete verdict or close row and exactly one recommended approve row |
+| obsolete-create-drop-idea | Delivered capability, recommended Drop the idea and create-anyway body without tracker commands |
+
+The obsolete repair and quiet-audit samples bundle `reference/tracker-ladder.md`; the obsolete create sample bundles `reference/overlap-check.md`. Their already-opened synthetic source evidence proves rendered verdicts and menu choices, not live evidence retrieval, successful remote writes, or atomicity. Keep these text replays separate from the historical replay below.
 
 Treat inline snapshots and audit files as tool-free evidence. Replies stay under 1200 words against the unchanged global 1600-word cap. Dispatch cases prove prescribed transport, not live subagent execution, file delivery or tracker writes. Review saved word counts and fact evidence before declaring intended moves; baseline-only does not judge facts or replace report.md.
 

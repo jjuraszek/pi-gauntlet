@@ -1,6 +1,8 @@
-for: 61de3ef1ba5aa59b69cdd5ebcd978099d35e16a635360a138edb09bfc2e29912
+for: 76620e28c78931450dc2972a393ff473c1b4318e6d42951f6ac30e8395f6fad7
 
 ## Change
+Add parent-owned obsolete judgments with confirmed citations, gated repair close/create drop choices, and exactly one recommended selectable menu row. Preserve the ordinary body diff and all existing accepted moves; keep target slices and word cap unchanged. Observe the three obsolete/quiet samples before editing instructions and retain genuine baseline failures.
+
 Integrate bounded batch repair and the repository audit into gather for batch-repair, audit-repo-fit, scenario-best-effort, audit-quiet-noop, audit-byte-lock, audit-dispatch and audit-grounding. Prepare all tickets before ref-ordered single-ticket gates, keep hard stops local while splits stay atomic, and apply audit grounding and AC uniqueness with verbatim displaced detail. Preserve raw AC bytes for quiet conformance repairs, singleton integrity stops (including repair-overflow/invalid), the 1,600-word cap, target slices and legacy audit exclusions. Extract examples and the capability ladder without changing their rules except the documented open-PR read verb. Retain baseline A=5b97a46a7b0ef331e72077362e92eff4a59e1b77 and evidence-backed moves below; never promote a post-behavior candidate into A.
 
 Require roast findings to acknowledge detail already retained in the Reporter note and preserve plain-words Problem leads and product-level cause-and-effect sentences against compression or redundancy cuts.
@@ -11,6 +13,13 @@ Clarify the overlap reference's repeated-defect rule: completion plus compatible
 Carry source provenance in Problem, surface named gaps at the existing gate, require create acknowledgment, and accept repair's displayed missing-at-filing constant with plain yes. Retain baseline facts already holding as guards. Keep bug repro steps and observed-vs-expected in the gate's Evidence list and AC rows, leaving each Problem example at rule 5's one sentence or one number followed by its source footer. Name cwd = repo root on Roast item 2's inline chair Call 2, as on Call 1, preserving the existing chair working-directory requirement.
 
 ## Expected to move
+- obsolete-premise-contradicted/verdict: fails -> holds - Both pre-edit replies omit the obsolete line; require confirmed premise contradiction before not reproduced.
+- obsolete-premise-contradicted/close: fails -> holds - Both pre-edit replies omit the close operation and its evidence.
+- obsolete-premise-contradicted/recommended: fails -> holds - Both pre-edit replies omit a recommended close row.
+- obsolete-premise-contradicted/diff: fails -> holds - Both pre-edit replies lack a mutually exclusive close choice beside the body diff.
+- quiet-audit-no-close-row/recommended: fails -> holds - Both pre-edit replies omit the approve tag; preserve no-verdict, no-close and footer-only as holding guards.
+- obsolete-create-drop-idea/verdict: fails -> holds - Both pre-edit replies render repo-fit without a delivered verdict.
+- obsolete-create-drop-idea/drop: fails -> holds - Both pre-edit replies omit a recommended Drop the idea row; preserve no-commands and no-write as holding guards.
 - batch-repair/stop-local: fails -> holds - The baseline still applies ABC-102's surviving wishful criterion as a run-wide stop in one reply, blocking ABC-103.
 - batch-repair/first-gate: fails -> holds - Baseline preparation discloses ABC-102 before the first gate; the batch must disclose only the current ticket.
 - audit-dispatch/foreground: fails -> holds - Both baseline replies stop on a returned async handle without polling or relaunch; retain that behavior as a guard. The first reply treats a Max 8 rejection as per-ticket audit unavailability and continues on the ordinary path; require dispatch recipe-bug classification instead.
