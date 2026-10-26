@@ -1,7 +1,7 @@
 {
   "sample": "pr-subject-rule-added-later",
   "arm": "candidate",
-  "skillSha": "27f928f31db9034c7dd6f5fdff5450bdaabea86ded474162234534a6a0fe980d",
+  "skillSha": "7081db2f7043413dbdda17d2d8b22eaca4bf4432ee6d327b745d599005a17eb6",
   "inputSha": "4c341e95938c3f9b7ad82be961afaa8542d24829c5991667859ab685febd4fcc",
   "kind": "text",
   "assembly": "headed",
@@ -17,16 +17,16 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "## Problem\n\nPR acme/widget#61 - Cache retry policy. The PR's stated intent is to \"Cache retry settings without changing request behavior.\" No ticket is bound to this PR, so the title and body are carried as stated intent rather than as acceptance rows.\n\nAt the fork point the PR met the policy in effect. Since then, a new constraint has landed in the base.\n\n- **Constraint added since fork:** `AGENTS.md` at `BASE_SHA` (`main @ aaaaaaa`, read with `git show` from the fetched base) requires every cache key to include `tenantId`. The fork-point policy had no such rule.\n\nThe PR's cache keys omit `tenantId`, so they violate the current base rule. The same gap undermines the PR's claim that request behavior is unchanged. That claim holds only if tenant isolation holds. Without `tenantId` in the key, one tenant could be served another tenant's cached retry settings.\n\nCode recon found the existing cache implementation sound. Adding `tenantId` to the cache-key input satisfies the base rule and keeps the PR's claim true. This is a repair, not a rewrite.\n\nFraming: kept\n\n## Acceptance criteria\n\nDrafted from the design, no ticket rows:\n\n- [ ] With retry settings cached for tenant A, a retry-settings request from tenant B returns tenant B's own settings and never tenant A's cached result.\n  in-scope\n\n## Rework record\n\nPR: acme/widget#61 - Cache retry policy\nPre-rework head: 2222222222222222222222222222222222222222\nBase: main @ aaaaaaa - merge: bbbbbbb\nKeeps: the original cache implementation for retry settings, and every original commit, reachable from the pre-rework head\nChanges: add `tenantId` to the cache-key input so every cache key includes it, per base `AGENTS.md`; this repairs the existing implementation rather than rewriting it; no contract exceptions\nDropped claims: none\nThreads: none\nScoped tests: none run (clean merge; no conflict tests ran)\n",
+      "text": "## Problem\n\nPR acme/widget#61 - Cache retry policy. Its stated intent is \"Cache retry settings without changing request behavior.\" The PR was compliant when it forked, and code recon found its cache implementation sound. This rework keeps that implementation and repairs it against the base branch's current rules rather than rewriting it.\n\nConstraints added since fork:\n\n- The fetched base's `AGENTS.md` at `BASE_SHA` now requires every cache key to include `tenantId`.\n    - The fork-point policy lacked this rule.\n    - The rule was read with `git show` from the fetched base, not from worktree files.\n    - The PR's cache key omits `tenantId`, so the PR no longer complies.\n\nThe PR's claim that \"request behavior is unchanged\" depends on tenant isolation holding. If cached results are shared across tenants, one tenant could receive another tenant's result. That is a change in request behavior.\n\nThe repair adds `tenantId` to the cache-key input. This satisfies the base rule and makes the claim true again. No unresolved threads exist. No contract exceptions were found.\n\nFraming: kept.\n\n## Acceptance criteria\n\nDrafted from the design, no ticket rows:\n\n- [ ] Given two tenants that request the same retry settings, when the second tenant's request is served after the first tenant's result is cached, the second tenant receives its own result and never the first tenant's cached result.\n  in-scope\n\n## Rework record\n\nPR: acme/widget#61 - Cache retry policy\nPre-rework head: 2222222222222222222222222222222222222222\nBase: main @ aaaaaaa - merge: bbbbbbb\nKeeps: the original retry-settings cache implementation and every original commit, all reachable from the pre-rework head\nChanges: add `tenantId` to the cache-key input so every cache key includes it, per the base `AGENTS.md` rule added since fork (repair, not rewrite)\nDropped claims: none\nThreads: none\nScoped tests: none run (clean merge - no conflict-resolution files to scope)\n",
       "words": 283,
-      "wallMs": 15866,
+      "wallMs": 16245,
       "mechanical": {}
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "## Problem\n\nPR acme/widget#61 — Cache retry policy.\n\nStated intent: “Cache retry settings without changing request behavior.”\n\nThe PR was compliant at its fork point. Since then, the fetched base’s `AGENTS.md` has added a requirement that every cache key include `tenantId`; the fork-point policy lacked that rule. This constraint was verified with `git show` at the fetched base SHA, not inferred from worktree files.\n\nThe existing cache implementation is sound. Adding `tenantId` to its cache-key input is the smallest repair that satisfies the current rule and ensures a tenant never receives another tenant’s cached result. The claim that request behavior is unchanged must be qualified by this tenant-isolation correction.\n\nRetain the cache implementation and keep every original commit reachable from the pre-rework head. Both design rounds are approved, with no unresolved inputs.\n\nFraming: kept.\n\n## Acceptance criteria\n\nDrafted from the design, no ticket rows:\n\n- [ ] When tenants use the cache, a tenant never receives another tenant’s cached result.\n  in-scope\n\n## Rework record\n\nPR: acme/widget#61 - Cache retry policy\nPre-rework head: 2222222222222222222222222222222222222222\nBase: main @ aaaaaaa - merge: bbbbbbb\nKeeps: The original cache implementation and every original commit reachable from the pre-rework head.\nChanges: Add `tenantId` to the existing cache-key input to satisfy the fetched base’s tenant-key requirement and prevent cross-tenant cache results. Preserve the implementation rather than rewrite it. No contract exceptions.\nDropped claims:\n- The unqualified claim “request behavior is unchanged”; tenant isolation requires the approved cache-key correction.\nThreads: none\nScoped tests: none run (clean merge; no conflict tests ran)\n",
-      "words": 242,
-      "wallMs": 11775,
+      "text": "## Problem\n\nPR acme/widget#61 - Cache retry policy states: “Cache retry settings without changing request behavior.”\n\nThe PR was compliant at its fork point. The fetched base’s `AGENTS.md` now requires every cache key to include `tenantId`; the fork-point policy lacked that rule. This governing constraint was verified with `git show` against the fetched base, not inferred from worktree files.\n\nThe existing cache implementation is sound. Adding `tenantId` to its cache-key input is the smallest repair that satisfies the new constraint and ensures a tenant never receives another tenant’s cached result. The claim that request behavior is unchanged is retained only subject to this tenant-isolation correction. Preserve the cache implementation and keep every original commit reachable from the pre-rework head.\n\nFraming: kept.\n\n## Acceptance criteria\n\nDrafted from the design, no ticket rows:\n\n- [ ] Given a cached result for one tenant, a request from another tenant does not receive that cached result.\n  in-scope\n\n## Rework record\n\nPR: acme/widget#61 - Cache retry policy\nPre-rework head: 2222222222222222222222222222222222222222\nBase: main @ aaaaaaa - merge: bbbbbbb\nKeeps: The original cache implementation and every original commit reachable from the pre-rework head.\nChanges: Add tenantId to the cache-key input to satisfy the fetched base’s new AGENTS.md requirement and enforce tenant isolation; otherwise retain the original implementation. No contract exceptions.\nDropped claims:\n- Request behavior is unchanged without a tenant-isolation qualification.\nThreads: none\nScoped tests: none run (clean merge; no conflict tests ran).\n",
+      "words": 225,
+      "wallMs": 10943,
       "mechanical": {}
     }
   },
@@ -34,9 +34,9 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "c06504948008420f2de239bdba76490dde7dd45f595407b9607b543500e3c51b",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "e59e1c506f7cc9683c93195dc2bfcdf110ab201b946bc55b5b9e3095091df773",
-      "baselineOutputSha": "831e17e8ce836a2bf9973710041ebf97f35aa7e9652e73332f497aa170e55149",
-      "candidateOutputSha": "164f54ba69d86e741f4b92da6d29c5e2b7280e63ff3a13e8ad750cbd1c7eab44",
+      "intentSha": "31bca57f020d54af8c057f52a55b0ccd9da784e8f0a1472f3f0bfc3ea7aaff95",
+      "baselineOutputSha": "164f54ba69d86e741f4b92da6d29c5e2b7280e63ff3a13e8ad750cbd1c7eab44",
+      "candidateOutputSha": "3d2cc04826e561b0e2595de23e5456f5ce49f80e73b8e374802383d0da22077e",
       "facts": {
         "constraint": {
           "before": "holds",
@@ -54,21 +54,21 @@
           "label": "intended but unchanged"
         },
         "no-ticket": {
-          "before": "fails",
+          "before": "holds",
           "after": "holds",
-          "label": "intended change"
+          "label": "intended but unchanged"
         }
       },
-      "feedback": "After delivers the intended move on no-ticket: it replaces the obsolete 'none - no ticket' sentinel with 'Drafted from the design, no ticket rows:' and an unchecked, in-scope row that requires tenant B never to receive tenant A's cached result, clearly derived from the approved tenant-isolation rework rather than the PR title/body. Nothing regressed: Problem still names acme/widget#61 and its cache intent and states the base-added tenantId rule as a constraint despite fork-point compliance; the Rework record follows the ACs, keeps the full SHA, base and merge, 'Dropped claims: none', 'Threads: none', and 'Scoped tests: none run (clean merge; ...)'; Changes adds tenantId to the existing key while Keeps retains the implementation and commits. One optional tightening: After's Problem dropped Before's explicit sentence that the approved user-observable outcome is tenant isolation with no unresolved inputs; restoring that line would make the drafted row's provenance visible in the Problem as well as in the AC header, without affecting any fact here.",
-      "wallMs": 11229,
-      "verdict": "improved"
+      "feedback": "Nothing moved: After keeps every fact Before kept. Both Problems name acme/widget#61 with its cache intent and state the base-added tenantId cache-key rule as a constraint despite fork-point compliance (After's nested bullet makes the git-show provenance and the compliance gap explicit, which is a mild improvement). Both Rework records follow the ACs, carry the full 40-char pre-rework SHA, base/merge SHAs, 'Dropped claims: none', 'Threads: none', and 'Scoped tests: none run' with a clean-merge reason; Changes adds tenantId to the existing key and Keeps retains the original implementation and commits. Both ACs use the 'Drafted from the design, no ticket rows:' lead-in with one unchecked in-scope tenant-isolation row and no obsolete 'none - no ticket' sentinel. One small watch item: After dropped the explicit 'no contract exceptions' phrase from the Changes line and moved it to the Problem; if a future fact checks contract-exception disposition inside the Rework record, keeping that clause on the Changes line (as Before did) would be safer while still delivering the clearer constraint enumeration.",
+      "wallMs": 10819,
+      "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "c06504948008420f2de239bdba76490dde7dd45f595407b9607b543500e3c51b",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "e59e1c506f7cc9683c93195dc2bfcdf110ab201b946bc55b5b9e3095091df773",
-      "baselineOutputSha": "81624448c158f7f88e8be458a32da86999257faeaf7ddc654793b11937db2dd0",
-      "candidateOutputSha": "3f1410802ea2f502aac7a1694c4e2785563cfaf30985051ca0eaeebc30f29e06",
+      "intentSha": "31bca57f020d54af8c057f52a55b0ccd9da784e8f0a1472f3f0bfc3ea7aaff95",
+      "baselineOutputSha": "3f1410802ea2f502aac7a1694c4e2785563cfaf30985051ca0eaeebc30f29e06",
+      "candidateOutputSha": "e8f2334179b07eb89c7853b769aa793b96997f47b8954d0ec649229d9f9fb264",
       "facts": {
         "constraint": {
           "before": "holds",
@@ -86,15 +86,15 @@
           "label": "intended but unchanged"
         },
         "no-ticket": {
-          "before": "fails",
+          "before": "holds",
           "after": "holds",
-          "label": "intended change"
+          "label": "intended but unchanged"
         }
       },
-      "feedback": "After moved only no-ticket, from fails to holds: Before emitted the obsolete 'none - no ticket' sentinel, while After uses the 'Drafted from the design, no ticket rows:' header with a single unchecked, in-scope row whose outcome (a tenant never receives another tenant's cached result) is clearly taken from the approved tenant-isolation rework rather than the PR title/body. Nothing regressed: the Problem still names acme/widget#61 and its cache intent and frames the base-added tenantId rule as a constraint despite fork-point compliance; the Rework record still follows the ACs, keeps the full 40-char pre-rework SHA, the base/merge line, a dropped-claim disposition, 'Threads: none', and 'Scoped tests: none run (clean merge; ...)'; and Changes still adds tenantId to the existing key with Keeps covering implementation and commits. One small drift to watch: After dropped Before's explicit Changes sentence 'The clean merge bbbbbbb is the first appended rework commit', so the clean-merge result now rests only on the Scoped tests parenthetical — keeping that sentence (or putting 'clean merge' on the Base line) would make the grammar fact more robust to judges reading the merge line in isolation. Otherwise the After wording delivers the Change without losing anything Before kept.",
-      "wallMs": 11831,
-      "verdict": "improved"
+      "feedback": "No fact moved. Both outputs name PR acme/widget#61 and its cache intent, state the base-added tenantId cache-key rule as a constraint despite fork-point compliance, propose adding tenantId to the existing key while keeping the original implementation and commits, follow the fixed Rework record grammar (full SHA, base/merge line, dropped-claim disposition, Threads: none, Scoped tests: none run with the clean-merge reason), and use the 'Drafted from the design, no ticket rows:' provenance with an unchecked in-scope tenant-isolation row and no obsolete sentinel. After's Problem is slightly tighter (merges the PR name and body into one sentence, says 'now requires' rather than 'has added'), and its AC row rephrases the isolation outcome as a Given/when-style negative; both remain within the facts. If anything, keep the explicit phrase 'added' or 'base-added' in the Problem so the despite-fork-point-compliance constraint stays unmistakable under future tightening, and keep 'Scoped tests: none run (clean merge...)' without a trailing period if the record grammar is ever checked verbatim.",
+      "wallMs": 10065,
+      "verdict": "unchanged"
     }
   },
-  "repoSha": "541da7e7c9b6a1cfb181596e1000555709d00a93"
+  "repoSha": "d02d17b6f2a134dd65b73f11a80720663a986416"
 }

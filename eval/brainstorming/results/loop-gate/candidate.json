@@ -34,8 +34,8 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "56c2c912aaa8f94ccad98364431e6403da1276a12b73aff52e8e14d01c1ae60c",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "e59e1c506f7cc9683c93195dc2bfcdf110ab201b946bc55b5b9e3095091df773",
-      "baselineOutputSha": "b244295fcf2d4d20784d002abc66b5e22619413150318b5a8ee53fdf9a8e2681",
+      "intentSha": "31bca57f020d54af8c057f52a55b0ccd9da784e8f0a1472f3f0bfc3ea7aaff95",
+      "baselineOutputSha": "b5bdd2002162e9673e9a200a59bd84e31c525f8ee7cbd3d8f2b19dc7c282bbb6",
       "candidateOutputSha": "b5bdd2002162e9673e9a200a59bd84e31c525f8ee7cbd3d8f2b19dc7c282bbb6",
       "facts": {
         "menu": {
@@ -50,55 +50,24 @@
         },
         "no-ac": {
           "before": "holds",
-          "after": "fails",
-          "label": "regression"
+          "after": "holds",
+          "label": "intended but unchanged"
         },
         "drafted": {
-          "before": "fails",
+          "before": "holds",
           "after": "holds",
-          "label": "intended change"
+          "label": "intended but unchanged"
         }
       },
-      "feedback": "After delivers the drafted change cleanly: Branch C now uses the exact heading `Drafted acceptance criteria (approval ratifies):`, copies the row and `in-scope` verbatim, and keeps all five options (Before used the non-canonical heading `Acceptance criteria drafted from the design, no ticket rows:` and so failed `drafted`). The main gate and the reply-`4` continuation are equivalent in both outputs (exact options 4/5, funding to 1/2/4/5, Engine line below Amend-grant, `--amend --no-edit` preserving the audit, HEAD check of both fields, brainstorm complete, direct `/skill:loop-implementation` with no writing-plans). The regression is in the not-fetched branch: Before rendered the sentinel inside the gate as `Acceptance criteria: none - ticket not fetched (permission denied). Paste the ticket's acceptance-criteria rows here...`, whereas After only mentions the literal `none - ticket not fetched (permission denied)` in the narration bullet and paraphrases it in the rendered gate as `The ticket was not fetched (permission denied)`. To keep `no-ac` while preserving the new layout, have the not-fetched gate render the acceptance-criteria section verbatim (`Acceptance criteria: none - ticket not fetched (permission denied)`) immediately before or as the lead of the paste-rows affordance, rather than rewriting it into prose; the `Loop engine unavailable...` line, options 1-3, and the 1-or-2 funding suffix can stay as After has them.",
-      "wallMs": 32757,
-      "verdict": "inconclusive",
-      "confirmation": {
-        "status": "ok",
-        "text": "# Narrated read and stage actions: approval gates and the reply-`4` continuation\n\nNo tools are available. Each step below describes an intended action and the case's fixed observation. None of them is a live call.\n\n---\n\n## Branch A: approval gate for `doc/specs/report.md`\n\n1. **Dispatch the summarizer (intended).** Send the `spec-summarizer` subagent the spec at `<abs worktree>/doc/specs/report.md`, with file-only output to a fresh `$SUMMARY_PATH`.\n2. **Commit the spec (fixed observation).** The spec is already committed on the worktree branch. The commit body holds the council audit, written through the quoted-heredoc form.\n3. **Check the dispatch result, stage 1 (fixed observation).** The `Output saved to:` reference came back within bounds, so the `Read` goes ahead.\n4. **`read` `$SUMMARY_PATH`, stage 2 (fixed observation).** The read succeeded. It is the last content-producing call before the gate is composed.\n5. **Clean up (intended).** Run `rm \"$SUMMARY_PATH\"`.\n6. **Render the gate.**\n   - Both ticket acceptance-criteria rows are ticket-provenance, so the drafted-AC block is omitted.\n   - Both rows are `in-scope`, so `Scope cuts:` is `none`.\n   - Rows exist, so options 4 and 5 are rendered.\n\n```\nDaily report\n\nSpec written and committed to <project>/doc/specs/report.md (worktree: <abs worktree path>).\nScope cuts: none\n\nCouncil: 1 applied, 0 deferred, 0 rejected\n\n1 - approve: proceed to planning under the existing amendment review; a fresh reviewer applies evidence-backed factual corrections on its own, and every other spec amendment (scope, acceptance-criteria, or contract edits, and redraws) stops for your review.\n2 - approve, auto-apply amends: every later spec amendment in this flow (corrected facts, paths, verification lines, and scope, acceptance-criteria, or public-contract edits alike) applies without asking; only a redraw (changed problem statement, component added, removed, or re-bounded) still stops for you, and the grant never stands in for a spec approval.\n3 - show council dispositions: prints the council audit verbatim, then re-presents this gate. Not an approval.\n4 - approve, loop engine (experimental): skip the plan; iterate a fresh loop-implementer over the acceptance-criteria ledger; amendments stop for your review as under 1.\n5 - approve, loop engine, auto-apply amends: as 4 with option 2's amendment grant.\nAdd \"; fund N fix rounds\" (or \"N more fix rounds\") to 1, 2, 4, or 5 to fund N extra attempts per stagnant loop row or N implement fix rounds past the escalated waves round.\n\nOr tell me what to change in the spec, or say \"revert applied council edit <X>\" to undo a specific applied edit.\n```\n\n---\n\n## Branch B: continuation after the user replies `4`\n\n1. **Classify the reply.** A bare `4` is an approval with no grant and no budget token. It selects the loop engine and is not a change request.\n2. **`read` the Standing grants section (required).** The file is `skills/brainstorming/reference/amendment-surface.md#standing-grants`, loaded with the `read` tool at its absolute path.\n   - The case gives no observation for this read, so its outcome is not assumed.\n   - **If it is unreadable:** stop with a blocking error, persist nothing, and do not proceed. The steps below run only once it reads successfully.\n3. **Decode the value (intended).** Run Value decoding on the value to persist, which is `none`.\n4. **`edit` the spec header (intended).**\n   - Set `**Amend-grant:** none`. The `Amend-grant:` value persisted is exactly `none`.\n   - Write exactly one `**Engine:** loop` directly below it.\n5. **Stage and amend the commit (intended).**\n   - `git -C <abs worktree path> add -- doc/specs/report.md`\n   - `git -C <abs worktree path> commit --amend --no-edit -q`\n   - `--no-edit` keeps the council-audit body.\n6. **Check HEAD (intended).**\n   - Run `git -C <abs worktree path> show HEAD:doc/specs/report.md`.\n   - Confirm it contains `**Amend-grant:** none` with `**Engine:** loop` directly below.\n   - Confirm it satisfies the grant predicate and Value decoding.\n   - **If the amend or the check fails:** stop and report, and never proceed as approved.\n7. **Mark the phase complete (intended).** `phase_tracker({ action: \"complete\", phase: \"brainstorm\" })`.\n8. **Hand off (intended).** Invoke `/skill:loop-implementation` immediately, with no further prompt. The destination is the loop engine, not `/skill:writing-plans`.\n\n---\n\n## Branch C: gate for the drafted spec\n\n1. **Summary and commit (fixed observation).** The summary read succeeded. The spec is committed with its audit body, and `rm \"$SUMMARY_PATH\"` follows.\n2. **Render the gate.**\n   - The drafted block is copied verbatim from the applied `## Acceptance criteria` section, not from the summarizer.\n   - All five options are rendered.\n\n```\n<spec-only summary read back from the temp file - pasted verbatim, unedited>\n\nSpec written and committed to <project>/doc/specs/<drafted-spec>.md (worktree: <abs worktree path>).\nScope cuts: none\n\nDrafted acceptance criteria (approval ratifies):\n- [ ] Repeating an export request returns its existing download instead of creating another export.\n  in-scope\n\nCouncil: 1 applied, 0 deferred, 0 rejected\n\n1 - approve: proceed to planning under the existing amendment review; a fresh reviewer applies evidence-backed factual corrections on its own, and every other spec amendment (scope, acceptance-criteria, or contract edits, and redraws) stops for your review.\n2 - approve, auto-apply amends: every later spec amendment in this flow (corrected facts, paths, verification lines, and scope, acceptance-criteria, or public-contract edits alike) applies without asking; only a redraw (changed problem statement, component added, removed, or re-bounded) still stops for you, and the grant never stands in for a spec approval.\n3 - show council dispositions: prints the council audit verbatim, then re-presents this gate. Not an approval.\n4 - approve, loop engine (experimental): skip the plan; iterate a fresh loop-implementer over the acceptance-criteria ledger; amendments stop for your review as under 1.\n5 - approve, loop engine, auto-apply amends: as 4 with option 2's amendment grant.\nAdd \"; fund N fix rounds\" (or \"N more fix rounds\") to 1, 2, 4, or 5 to fund N extra attempts per stagnant loop row or N implement fix rounds past the escalated waves round.\n\nOr tell me what to change in the spec, or say \"revert applied council edit <X>\" to undo a specific applied edit.\n```\n\n---\n\n## Branch D: gate for the not-fetched spec\n\n1. **Summary and commit (fixed observation).** The summary read succeeded. The spec is committed with its audit body, and `rm \"$SUMMARY_PATH\"` follows.\n2. **Render the gate.**\n   - The spec has zero `- [ ]` rows, so only options 1–3 are rendered, with the explanation that the loop engine is unavailable.\n   - The body is the legal zero-row form `none - ticket not fetched (permission denied)`, so the paste-rows affordance is kept.\n   - No drafted block is shown, because the ticket was not fetched.\n   - Option 3 stays, because the council path ran.\n\n```\n<spec-only summary read back from the temp file - pasted verbatim, unedited>\n\nSpec written and committed to <project>/doc/specs/<not-fetched-spec>.md (worktree: <abs worktree path>).\nScope cuts: none\n\nAcceptance criteria: none - ticket not fetched (permission denied). Paste the ticket's acceptance-criteria rows here to add them to the spec.\n\nCouncil: 1 applied, 0 deferred, 0 rejected\n\nLoop engine unavailable: this spec has no acceptance-criteria rows.\n\n1 - approve: proceed to planning under the existing amendment review; a fresh reviewer applies evidence-backed factual corrections on its own, and every other spec amendment (scope, acceptance-criteria, or contract edits, and redraws) stops for your review.\n2 - approve, auto-apply amends: every later spec amendment in this flow (corrected facts, paths, verification lines, and scope, acceptance-criteria, or public-contract edits alike) applies without asking; only a redraw (changed problem statement, component added, removed, or re-bounded) still stops for you, and the grant never stands in for a spec approval.\n3 - show council dispositions: prints the council audit verbatim, then re-presents this gate. Not an approval.\nAdd \"; fund N fix rounds\" (or \"N more fix rounds\") to 1 or 2 to fund N implement fix rounds past the escalated waves round.\n\nOr tell me what to change in the spec, or say \"revert applied council edit <X>\" to undo a specific applied edit.\n```\n",
-        "words": 1232,
-        "wallMs": 33725,
-        "mechanical": {},
-        "judgeWallMs": 20538,
-        "facts": {
-          "menu": {
-            "before": "holds",
-            "after": "holds",
-            "label": "intended but unchanged"
-          },
-          "loop": {
-            "before": "holds",
-            "after": "holds",
-            "label": "intended but unchanged"
-          },
-          "no-ac": {
-            "before": "holds",
-            "after": "holds",
-            "label": "intended but unchanged"
-          },
-          "drafted": {
-            "before": "fails",
-            "after": "holds",
-            "label": "intended change"
-          }
-        },
-        "feedback": "After regresses nothing and fixes the only failing fact: Before labeled the drafted block \"Acceptance criteria drafted from the design, no ticket rows:\" whereas After uses the required heading \"Drafted acceptance criteria (approval ratifies):\" with the row and its in-scope disposition copied verbatim and all five options rendered. Both outputs render the five numbered options with the exact option 4/5 sentences and the 1, 2, 4, or 5 funding line; both narrate reply 4 as persisting Engine: loop directly below Amend-grant: none, amending with --no-edit to keep the audit, checking both fields from HEAD, completing brainstorm, and invoking /skill:loop-implementation (After adds the explicit \"not /skill:writing-plans\" sentence, which is a useful clarification but Before already reached the same destination with no plan write); and both keep the not-fetched branch to options 1-3 with the exact \"Loop engine unavailable\" line, the preserved sentinel, and the paste-rows affordance. Two small things to watch in After so they do not drift into fact failures later: the Council count line now appears after the drafted/AC block rather than before it as in Before and Branch A, and the \"Loop engine unavailable\" line moved above the numbered options instead of directly after option 3 - keep the wording exact (it is) and consider pinning the block order in the gate template so renders stay consistent across branches."
-      }
+      "feedback": "Before and After are textually identical for this case, so nothing moved: both render Trace A with five numbered options, the option 4/5 sentences, and the funding suffix scoped to 1, 2, 4, or 5; Trace B persists `**Engine:** loop` directly below `**Amend-grant:** none`, amends with `--no-edit` to keep the council audit, checks both fields from `HEAD`, completes brainstorm, and dispatches `/skill:loop-implementation` with no writing-plans step; Branch C copies the drafted row and its in-scope disposition verbatim under `Drafted acceptance criteria (approval ratifies):` with all five options; Branch D keeps options 1-3, the exact `Loop engine unavailable: this spec has no acceptance-criteria rows.` line, the `none - ticket not fetched (permission denied)` sentinel, and the paste-rows affordance without inventing rows. One soft spot shared by both outputs that the author may want to tighten in the wording: Trace B never states the plan-skip reason explicitly (e.g., a narrated `phase_tracker` skip of `plan` with reason `loop engine`), relying instead on the option 4 text and the direct dispatch to imply it; adding a sentence requiring the continuation to narrate that skip-with-reason would make the loop fact unambiguous without touching the other three facts.",
+      "wallMs": 15242,
+      "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "56c2c912aaa8f94ccad98364431e6403da1276a12b73aff52e8e14d01c1ae60c",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "e59e1c506f7cc9683c93195dc2bfcdf110ab201b946bc55b5b9e3095091df773",
-      "baselineOutputSha": "ae89c56303f2bc4aa8dd72af9d342911c51f57db5ec1e14a6e5ac861b1adfd74",
+      "intentSha": "31bca57f020d54af8c057f52a55b0ccd9da784e8f0a1472f3f0bfc3ea7aaff95",
+      "baselineOutputSha": "d399d85e87e714356945b9cdade53d5f7d492b767dd5a0b05371cd14d05d2e08",
       "candidateOutputSha": "d399d85e87e714356945b9cdade53d5f7d492b767dd5a0b05371cd14d05d2e08",
       "facts": {
         "menu": {
@@ -117,15 +86,15 @@
           "label": "intended but unchanged"
         },
         "drafted": {
-          "before": "fails",
+          "before": "holds",
           "after": "holds",
-          "label": "intended change"
+          "label": "intended but unchanged"
         }
       },
-      "feedback": "After keeps everything Before kept and gains the drafted fact: Trace 1 and Branch A both render all five options with the exact option 4/5 sentences and the 1, 2, 4, or 5 funding suffix; Trace 2 narrates Engine loop adjacent below Amend-grant none, the --amend --no-edit commit preserving the audit body, a HEAD check of both header values, brainstorm completion, and dispatch to /skill:loop-implementation with writing-plans explicitly excluded; Branch B keeps the verbatim 'Loop engine unavailable: this spec has no acceptance-criteria rows.' line, options 1-3 only, the 'none - ticket not fetched (permission denied)' sentinel, the paste-rows affordance, and no invented rows. The move on drafted comes from After's Branch A heading 'Drafted acceptance criteria (approval ratifies):' with the row and its in-scope disposition copied verbatim, where Before used a different heading ('## Drafted spec Acceptance criteria / Drafted from the design, no ticket rows:'). One small hardening worth adding to the After wording: Trace 2 no longer states in its own words that the plan phase is skipped because the loop engine was selected (Before had 'This route skips the plan' and 'do not insert a planning phase'); a sentence such as 'The plan phase is skipped for reason loop engine; no task-plan is written' in the destination step would make the loop fact's last clause explicit rather than inferred from the option 4 text.",
-      "wallMs": 25320,
-      "verdict": "improved"
+      "feedback": "Before and After are textually identical for this case, so no fact moved. Both render the ticket-backed gate with five numbered options, the exact option 4 and 5 sentences, and the funding suffix scoped to 1, 2, 4, or 5; the continuation on `4` writes `**Engine:** loop` directly under `**Amend-grant:** none`, amends the spec commit while preserving the council audit, verifies both fields via `git show HEAD:doc/specs/report.md`, completes brainstorm, and invokes `/skill:loop-implementation` while explicitly refusing `/skill:writing-plans`. The drafted branch copies the export-request row and its `in-scope` disposition verbatim under `Drafted acceptance criteria (approval ratifies):` with all five options, and the not-fetched branch keeps options 1-3 only, the exact `Loop engine unavailable: this spec has no acceptance-criteria rows.` line, the `none - ticket not fetched (permission denied)` sentinel, and the paste-rows affordance without inventing rows. The After wording delivers the Change without disturbing any of these; nothing in this case needs adjustment, though note that the loop fact's phrase 'skips plan for reason loop engine' is only implicitly covered (option 4's 'skip the plan' plus the explicit non-invocation of writing-plans) rather than stated as a named skip reason in the continuation, so if a stricter reading is desired, the After wording could have the continuation name the skip reason explicitly.",
+      "wallMs": 13772,
+      "verdict": "unchanged"
     }
   },
-  "repoSha": "541da7e7c9b6a1cfb181596e1000555709d00a93"
+  "repoSha": "d02d17b6f2a134dd65b73f11a80720663a986416"
 }

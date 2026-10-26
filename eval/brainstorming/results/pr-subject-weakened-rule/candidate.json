@@ -1,7 +1,7 @@
 {
   "sample": "pr-subject-weakened-rule",
   "arm": "candidate",
-  "skillSha": "27f928f31db9034c7dd6f5fdff5450bdaabea86ded474162234534a6a0fe980d",
+  "skillSha": "7081db2f7043413dbdda17d2d8b22eaca4bf4432ee6d327b745d599005a17eb6",
   "inputSha": "ee989a8c470d9818397eada4333b418f672df1fdb2775ee3f5a079b6fbfaa095",
   "kind": "text",
   "assembly": "headed",
@@ -17,16 +17,16 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "## Problem\n\nPR acme/widget#62 - Remove audit logging requirement. Its stated intent: \"Audit events are optional; remove the emitter.\" The PR makes two changes. It edits `AGENTS.md` to call audit events optional, and it removes the event emission in `src/update.ts`.\n\nThe governing rule is the base-HEAD `AGENTS.md`, fetched with `git show` at `main @ aaaaaaa`. It requires one audit event per successful update. The same rule existed at the fork point, so this rework adds no constraints since fork.\n\nThe worktree's `AGENTS.md` says \"optional\" after the clean merge. That copy includes the PR's own edit, so it is a proposal, not a governing constraint. The PR therefore contradicts a standing repo rule: successful updates would stop emitting the required audit event.\n\nThe smallest repair that satisfies base rules is to restore the existing emitter call and the governing rule text. The user chose that repair over a replacement emitter. All original commits are preserved, so the pre-rework history stays checkable.\n\nFraming: kept\n\n## Acceptance criteria\n\nDrafted from the design, no ticket rows:\n\n- [ ] A successful update through `src/update.ts` emits exactly one audit event through the existing emitter.\n  in-scope\n- [ ] The `AGENTS.md` audit rule on the PR branch matches the base-HEAD text, which requires one audit event per successful update.\n  in-scope\n- [ ] The PR branch history contains every original commit, with pre-rework head `3333333333333333333333333333333333333333` as an ancestor of the reworked head.\n  in-scope\n\n## Rework record\n\nPR: acme/widget#62 - Remove audit logging requirement\nPre-rework head: 3333333333333333333333333333333333333333\nBase: main @ aaaaaaa - merge: ccccccc\nKeeps: the original commits, preserved in history; none of the PR's behavioral or policy change survives\nChanges: restore the existing audit emitter call in `src/update.ts` and the base-HEAD `AGENTS.md` rule text requiring one audit event per successful update. This repairs the PR rather than rewriting it, with no replacement emitter and no merge contract exceptions.\nDropped claims:\n- Audit events are optional\nThreads:\n- src/update.ts:8 RT62 - fix\nScoped tests: none run (clean merge)\n",
-      "words": 311,
-      "wallMs": 16045,
+      "text": "## Problem\n\nPR acme/widget#62 - Remove audit logging requirement. Its stated intent (verbatim body): \"Audit events are optional; remove the emitter.\" The PR does two things: it edits `AGENTS.md` to say audit events are optional, and it removes the audit event emission in `src/update.ts`.\n\nThe governing rule comes from the fetched base, not the worktree. `git show aaaaaaa:AGENTS.md` (base `main` @ `aaaaaaa`) requires one audit event per successful update. The same rule existed at the fork point.\n\nThe worktree `AGENTS.md` says audit events are optional only because the clean merge (`ccccccc`) carries the PR's own edit. That copy is not a governing constraint. The PR's policy edit is treated as a proposal and is recorded under `Dropped claims:`.\n\nNo constraints were added since the fork. The PR's claim conflicts with a rule that predates it.\n\nThe PR therefore violates the base rule: removing the emitter means a successful update emits no audit event. The rework is the smallest repair that satisfies the base rule:\n- Restore the existing emitter call in `src/update.ts`.\n- Restore the governing rule text in `AGENTS.md`.\n\nThe user chose this repair over a replacement emitter. The PR's original commits are preserved, not rewritten.\n\nFraming: kept\n\n## Acceptance criteria\n\nDrafted from the design, no ticket rows:\n\n- [ ] After a successful update through `src/update.ts`, exactly one audit event is emitted by the existing emitter.\n  in-scope\n- [ ] `AGENTS.md` at the reworked PR head states the base rule requiring one audit event per successful update, matching `git show aaaaaaa:AGENTS.md`.\n  in-scope\n- [ ] The pre-rework head `3333333333333333333333333333333333333333` remains an ancestor of the reworked PR head, with no original commit rewritten or dropped.\n  in-scope\n\n## Rework record\n\nPR: acme/widget#62 - Remove audit logging requirement\nPre-rework head: 3333333333333333333333333333333333333333\nBase: main @ aaaaaaa - merge: ccccccc\nKeeps: the PR's original commits, preserved unrewritten in branch history; none of the PR's behavioral or policy change survives\nChanges: restores the existing audit emitter call in `src/update.ts` and the base `AGENTS.md` rule text (one audit event per successful update), repair over rewrite; no replacement emitter; no merge contract exceptions\nDropped claims:\n- Audit events are optional\nThreads:\n- src/update.ts:8 RT62 - fix\nScoped tests: none run (clean merge; no scoped tests ran during gather)\n",
+      "words": 350,
+      "wallMs": 17689,
       "mechanical": {}
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "## Problem\n\nPR acme/widget#62 - Remove audit logging requirement intends to make audit events optional and remove the emitter.\n\nThe governing `AGENTS.md` at fetched base HEAD requires one audit event per successful update. That rule also existed at the fork point; no constraints were added since the fork. The worktree’s optional-audit wording comes from the PR’s proposed policy edit and does not replace the governing base rule.\n\nThe approved repair restores the existing emitter call in `src/update.ts` and the governing rule text in `AGENTS.md`, without introducing a replacement emitter. All original commits must be preserved. The PR’s claim “Audit events are optional” is dropped.\n\nFraming: kept.\n\n## Acceptance criteria\n\nDrafted from the design, no ticket rows:\n\n- [ ] Each successful update emits exactly one audit event through the existing emitter.\n  in-scope\n- [ ] `AGENTS.md` requires one audit event per successful update rather than describing audit events as optional.\n  in-scope\n- [ ] All original PR commits remain in the reworked branch’s history.\n  in-scope\n\n## Rework record\n\nPR: acme/widget#62 - Remove audit logging requirement  \nPre-rework head: 3333333333333333333333333333333333333333  \nBase: main @ aaaaaaa - merge: ccccccc  \nKeeps: All original commits.  \nChanges: Restore the existing emitter call in `src/update.ts` and the governing audit requirement in `AGENTS.md`; do not introduce a replacement emitter. No merge contract exceptions.  \nDropped claims:\n- Audit events are optional\n\nThreads:\n- src/update.ts:8 RT62 - fix: restore audit events using the existing emitter, which the thread reply confirms is sufficient.\n\nScoped tests: none run (clean merge)\n",
-      "words": 228,
-      "wallMs": 12437,
+      "text": "## Problem\n\nPR acme/widget#62 - Remove audit logging requirement states: “Audit events are optional; remove the emitter.”\n\nThat premise conflicts with the governing base-SHA `AGENTS.md`, fetched via `git show`, which requires one audit event per successful update. The same rule existed at the fork point; it is not a constraint added since fork. The merged worktree’s optional wording comes from the PR’s policy edit and is a proposal, not the governing constraint.\n\nThe approved repair restores the existing emitter call in `src/update.ts` and the mandatory rule text in `AGENTS.md`, rather than introducing a replacement emitter. All original commits must be preserved. Thread RT62 confirms that the existing emitter is sufficient.\n\nFraming: kept.\n\n## Acceptance criteria\n\nDrafted from the design, no ticket rows:\n\n- [ ] Each successful update emits one audit event through the existing emitter.\n  in-scope\n- [ ] `AGENTS.md` retains the governing requirement for one audit event per successful update.\n  in-scope\n- [ ] All original PR commits remain in the reworked branch’s history.\n  in-scope\n\n## Rework record\n\nPR: acme/widget#62 - Remove audit logging requirement  \nPre-rework head: 3333333333333333333333333333333333333333  \nBase: main @ aaaaaaa - merge: ccccccc  \nKeeps: All original commits and the existing emitter implementation.  \nChanges: Restore the existing emitter call in `src/update.ts` and the governing mandatory audit rule in `AGENTS.md`; no replacement emitter and no merge contract exceptions.  \nDropped claims:\n- Audit events are optional.\n\nThreads:\n- src/update.ts:8 RT62 - fix: restore audit events using the existing emitter, which the thread reply confirms is sufficient.\n\nScoped tests: none run (clean merge)\n",
+      "words": 234,
+      "wallMs": 11856,
       "mechanical": {}
     }
   },
@@ -34,9 +34,9 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "51e239f263693062667180d47352acc6fc0bac6360f1beb997cd4532c2e8d2d4",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "e59e1c506f7cc9683c93195dc2bfcdf110ab201b946bc55b5b9e3095091df773",
-      "baselineOutputSha": "0f1a71243838e9314a5fdcf61dbe2473263228ad1e3a26c273703f8c629b91ee",
-      "candidateOutputSha": "4f0a584a31f7e66757eec5a54ebf471853262a3d4f7966679bf1fd716d8eaa2d",
+      "intentSha": "31bca57f020d54af8c057f52a55b0ccd9da784e8f0a1472f3f0bfc3ea7aaff95",
+      "baselineOutputSha": "4f0a584a31f7e66757eec5a54ebf471853262a3d4f7966679bf1fd716d8eaa2d",
+      "candidateOutputSha": "556cde5166f67df6acd0e466e014106da05b99118b0e57faa6f7ba24ec3901f9",
       "facts": {
         "authority": {
           "before": "holds",
@@ -54,16 +54,16 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "Nothing moved on these three facts: both outputs judge the Problem against the base-SHA `AGENTS.md` fetched via `git show` at `main @ aaaaaaa`, treat the post-merge worktree 'optional' text as the PR's own edit and therefore a proposal rather than a constraint, restore the existing emitter call and rule text in Changes without a replacement emitter, drop the 'Audit events are optional' claim, and preserve the full pre-rework SHA, base/merge SHAs, the RT62 fix disposition, and the 'none run (clean merge)' scoped result. The visible After change is in Acceptance criteria, where drafted in-scope rows replace 'none - no ticket', plus a tightened Keeps line ('none of the PR's behavioral or policy change survives') that actually names the policy change more explicitly than Before did. If the author wants the proposal fact to be unambiguous in the record itself rather than only via the Problem's cross-reference, keep After's Keeps/Changes phrasing ('repairs the PR rather than rewriting it', 'policy change' named) and consider adding the word 'proposed' directly beside the Dropped claims entry (e.g., 'Audit events are optional - proposed policy change, dropped'); otherwise the After wording already delivers the drafted-AC change while retaining every fact Before kept.",
-      "wallMs": 16440,
+      "feedback": "Nothing moved: both outputs satisfy all three facts. Before already treated the base-HEAD `AGENTS.md` fetched via `git show` as the governing rule, called the merged worktree copy a proposal, listed `Audit events are optional` under Dropped claims, restored the existing emitter and rule text rather than rewriting, and carried the full pre-rework SHA, base/merge line, RT62 fix disposition, and no-run scoped result. After keeps every one of those and strengthens the proposal fact by stating in Problem that the PR's policy edit is treated as a proposal recorded under `Dropped claims:`, by naming the exact `git show aaaaaaa:AGENTS.md` command, and by making Keeps say the commits are preserved unrewritten. The After wording is safe to keep as-is; if anything, consider making the Rework record itself (not only Problem) say 'proposal' explicitly in the Dropped claims or Keeps line so the proposal fact is anchored in the record even when Problem is read separately.",
+      "wallMs": 12277,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "51e239f263693062667180d47352acc6fc0bac6360f1beb997cd4532c2e8d2d4",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "e59e1c506f7cc9683c93195dc2bfcdf110ab201b946bc55b5b9e3095091df773",
-      "baselineOutputSha": "9de9a800ab0f7d671e0214325ab4a856155680b41b6fd7bdb7b3b20bac638caf",
-      "candidateOutputSha": "922006d8fd729f63a9f68d413757333d5b8efc8efbb5a5f7676c7b6437e637d5",
+      "intentSha": "31bca57f020d54af8c057f52a55b0ccd9da784e8f0a1472f3f0bfc3ea7aaff95",
+      "baselineOutputSha": "922006d8fd729f63a9f68d413757333d5b8efc8efbb5a5f7676c7b6437e637d5",
+      "candidateOutputSha": "8c5bcc792337350f62ccd581c7edd7660f726c8a1fa41bbbb105c61dad6f0391",
       "facts": {
         "authority": {
           "before": "holds",
@@ -81,10 +81,10 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "Nothing moved on this case: both outputs judge the Problem against the base-SHA AGENTS.md rule requiring one audit event per successful update, call the worktree's optional wording a PR proposal that does not replace the governing rule, keep the Rework record's Changes as a restore of the existing emitter and rule rather than a replacement, list \"Audit events are optional\" under Dropped claims, and preserve the full pre-rework SHA, base/merge line, RT62 fix disposition, and the none-run scoped result. After additionally replaces the 'none - no ticket' AC line with design-drafted rows labeled 'Drafted from the design, no ticket rows', which is what the Change intended for unbound PR rework. Two small wording notes if you want to keep the authority fact maximally robust under larger assemblies: After says 'the governing AGENTS.md at fetched base HEAD' where Before said 'the governing base-SHA AGENTS.md, fetched with git show' — the Before phrasing names the base SHA and the fetch mechanism explicitly, so consider keeping 'base-SHA ... fetched with git show' in the Problem; and neither Rework record literally uses the word 'proposed' for the PR policy edit, so adding 'proposed policy edit' to the Changes or Dropped claims line (e.g. 'Dropped claims (PR proposals): ...') would make the proposal fact hold by explicit text rather than by structure.",
-      "wallMs": 18225,
+      "feedback": "After keeps every fact that Before kept: the Problem still judges against the base-SHA AGENTS.md rule fetched via git show, explicitly calls the merged worktree's optional wording a proposal rather than the governing constraint, and notes the rule predates the fork; the Rework record still lists the dropped 'Audit events are optional' claim, frames Changes as restoring the existing emitter call and governing rule with no replacement emitter, and preserves the full pre-rework SHA, base/merge line, RT62 fix disposition, and the no-run scoped result. The only wording shifts are cosmetic — quoting the PR body verbatim in the Problem, saying 'is a proposal, not the governing constraint' instead of 'does not replace the governing base rule', and extending Keeps to 'and the existing emitter implementation' — none of which moves a fact. If anything, the After wording is slightly stronger on the proposal/authority distinction; keep the explicit 'proposal, not the governing constraint' phrasing and the dropped-claims entry, and avoid letting the expanded Keeps line drift into implying code beyond the original commits is being preserved as-is.",
+      "wallMs": 13963,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "541da7e7c9b6a1cfb181596e1000555709d00a93"
+  "repoSha": "d02d17b6f2a134dd65b73f11a80720663a986416"
 }
