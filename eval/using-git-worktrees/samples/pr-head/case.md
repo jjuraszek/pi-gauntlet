@@ -4,7 +4,7 @@ bundle+: skills/using-git-worktrees/reference/pr-head.md
 
 Override the replay's primary-checkout premise only where a row says linked. These are independent synthetic runs, not successive mutations. Use only compact tables and shared command/record legends, at most 1100 words total. Budget: discovery and success legend 220 words; provisioning rows 300 (at most 25 per row); merge legend and rows 350 (at most 25 per row); threads 230. Define ROOT/W and full SHA aliases once; use aliases in commands and records. Each row gives only its delta from the shared legend, including exact stop text and write boundary; do not repeat shared commands, reports, dispatch checks, or prose introductions. No real tools or tracker calls.
 
-Caller passes resolved PR values: acme/widget#82, headRefName=fix/retry, headRefOid=aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa, baseRefName=main, isCrossRepository=false, headRepository.nameWithOwner=acme/widget. ROOT=/work/widget; selected default home=/work/widget/.worktrees/fix-retry. Fetched origin/fix/retry equals the head; origin/main has full SHA bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb. No submodule, dirt, native tool, wrapper, or overrides except where stated. Status commands succeed. Post-create worktree list includes the selected home; HEAD equals headRefOid except in race. Both SHAs exist. No local branch or PR worktree unless stated. Every listed observation overrides the replay's empty-output default.
+This is an N=1 independent singleton PR run. Caller passes resolved PR values: acme/widget#82, headRefName=fix/retry, headRefOid=aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa, baseRefName=main, isCrossRepository=false, headRepository.nameWithOwner=acme/widget. ROOT=/work/widget; selected default home=/work/widget/.worktrees/fix-retry. Fetched origin/fix/retry equals the head; origin/main has full SHA bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb. No submodule, dirt, native tool, wrapper, or overrides except where stated. Status commands succeed. Post-create worktree list includes the selected home; HEAD equals headRefOid except in race. Both SHAs exist. No local branch or PR worktree unless stated. Every listed observation overrides the replay's empty-output default.
 
 ## Provisioning rows
 
@@ -23,6 +23,8 @@ Caller passes resolved PR values: acme/widget#82, headRefName=fix/retry, headRef
 For every stop quote the exact one-line error and identify the pre-write boundary. For successful rows show exact checkout arguments (distinguish Git's DWIM from caller -b), head verification, captured full PRE_REWORK_HEAD/BASE_SHA, and report fields. Show merge-forward behavior without outlawing the flow's appended-spec amend or appended-wave fold.
 
 ## Independent base-merge rows after provisioning
+
+Successful helper completion commits have HEAD=eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee (E); post-commit HEAD reads return E, or eeeeeee for --short=7. Shared helper dispatch inputs, except row deltas: (conflict-list=[src/retry.ts], fetched-base=origin/main@bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb, SCOPED_TEST_COMMANDS=['node --test test/retry.test.mjs']). Encode this exact tuple once in the compact helper legend.
 
 - noop: fetched base already ancestor.
 - clean: merge succeeds with first rework commit eeeeeee.
