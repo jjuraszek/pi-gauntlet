@@ -1,0 +1,4 @@
+- boundary: judged: All implement/verify/ship restores including this completed ledger stop before dispatch/verification with ledger has no cap: line - seeded under the old loopEngine contract; never derive cap from settings.
+- grant: judged: Clean legacy grant cap +5 writes cap:12 and cap +5 | in one loop: raise cap parent commit, preserving iterations7 and attempts2; renders cap and history.
+- continue: judged: After grant implement continues Before each dispatch (then rule1 exit); verify/ship continue After the loop step1 after restored start verify, full verification/reviews/fresh conformance/finish, no reseed or task tracker; ship does not skip directly to ship.
+- dirty: judged: Dirty tree stops without cap grant, preserves changes and requires human cleanup authorization.

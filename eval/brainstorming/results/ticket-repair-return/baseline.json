@@ -1,7 +1,7 @@
 {
   "sample": "ticket-repair-return",
   "arm": "baseline",
-  "skillSha": "dc07989d50e3eda24a3ab77455a73635636ced4a4f0fe171f3357c2eb9b19986",
+  "skillSha": "6ba9f2cba9800b0eb73f6f52c15e8315ac7c9729ce34edfb6f73852fac69ac81",
   "inputSha": "9b45bd622c6744fabf33250d8062c7d2cc11700a0ee72cdfd87a44fcaa82a89d",
   "kind": "text",
   "assembly": "headed",
@@ -17,18 +17,18 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "The ticket repair is saved and verified. acme/widgets#77 now has one acceptance criterion: \"The report-view setting uses the shared settings resolver.\" I'm treating that row as in-scope. It matches the path I traced, where `settings/resolver.ts:12` owns the defaults and `ui/report-view.ts:30` consumes the resolved settings. The new setting will be a key under that resolver, with no view-local settings object.\n\nOne behavior decision is still open. What should happen to active report filters when the user switches workspaces?\n\nA) Reset filters on a workspace change by default. The setting lets users opt out and keep their filters across workspaces.\nB) Keep filters by default, as today. The setting lets users opt in to resetting them on a workspace change.\nC) On a workspace change, drop only filters whose values don't exist in the new workspace. The setting turns this pruning on or off.\nD) Other - name it.\n\nRecommendation: A - the reported harm is filters hiding rows in the new workspace, and resetting by default fixes that for everyone while still letting users keep filters when they want to.\n",
-      "words": 177,
-      "wallMs": 10862,
+      "text": "The repair to acme/widgets#77 is saved, and the re-fetched ticket now carries one acceptance criterion: \"The report-view setting uses the shared settings resolver.\" That row is in-scope as written. It matches the path I traced, from the defaults in `settings/resolver.ts:12` to the consumer in `ui/report-view.ts:30`. The framing is unchanged, so the new setting goes through the shared resolver.\n\nOne behavior is still undecided: what happens to active report filters when the user switches workspaces? The reported bug is that filters carry over and sometimes hide rows in the new workspace.\n\nA) The new setting defaults to resetting filters on workspace change, and users can opt in to keeping them.\nB) The new setting defaults to keeping filters, and users can opt in to resetting them.\nC) The new setting defaults to keeping only the filters that apply to the new workspace's data, and users can opt in to a full reset or full keep.\nRecommendation: A - resetting by default fixes the reported hidden-rows behavior without user action, and the opt-in keep preserves today's behavior for users who rely on it.\n",
+      "words": 180,
+      "wallMs": 10734,
       "mechanical": {}
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "The repair is saved and verified: acme/widgets#77 now requires the shared settings resolver. We’ll keep that ownership, with defaults in `settings/resolver.ts:12` and resolved settings consumed by `ui/report-view.ts:30`.\n\nWhat should happen to active report filters when switching workspaces?\nA) Clear them — show the new workspace without filters carried over.\nB) Restore the destination workspace’s previous filters — remember filters separately per workspace.\nC) Keep them — preserve the current cross-workspace behavior.\nD) Other — name it.\nRecommendation: A - it directly prevents carried-over filters from hiding rows without introducing per-workspace filter storage.\n",
-      "words": 87,
-      "wallMs": 7923,
+      "text": "The repaired criterion in acme/widgets#77 now requires the shared settings resolver, matching the verified path from `settings/resolver.ts:12` to `ui/report-view.ts:30`. I’ll carry that criterion forward as in-scope.\n\nWhat should the report-view setting do by default when switching workspaces?\nA) Reset filters by default, with an option to preserve them.\nB) Preserve filters by default, with an option to reset them.\nC) Other — name the desired behavior.\nRecommendation: A - it prevents filters from silently hiding rows in the new workspace while allowing users to retain the existing behavior.\n",
+      "words": 86,
+      "wallMs": 9171,
       "mechanical": {}
     }
   },
-  "repoSha": "65af5317a4146b2cb653ed1ff1a3a97ffb4792f5"
+  "repoSha": "d02d17b6f2a134dd65b73f11a80720663a986416"
 }

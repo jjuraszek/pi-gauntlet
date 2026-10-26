@@ -1,7 +1,7 @@
 {
   "sample": "human-raised-drop",
   "arm": "candidate",
-  "skillSha": "6ba9f2cba9800b0eb73f6f52c15e8315ac7c9729ce34edfb6f73852fac69ac81",
+  "skillSha": "7aa9ae375ddffd0cc2ed4e634478d8f8555c55415d74a20ccf019fe78da07465",
   "inputSha": "ef2a533acdc8413125441da13b20c9ab316d57925678233e824f464c6fa1185b",
   "kind": "text",
   "assembly": "headed",
@@ -17,16 +17,16 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "Recorded: the export reuses the existing CSV serializer and paging, and the button sits beside the report title. Before the design, the 10k-row timing row needs a decision. The gather found no code or contract showing this row is wrong or impossible.\n\nTicket row: `The export of a 10k-row report completes in under 60s.`\n\nHow should this row be handled?\nA) in-scope - a 10k-row report exports through the reused serializer and paging in under 60s, proven by a test on a generated 10k-row report\nB) deviates: <why the sprint ships without the timing guarantee>\nC) deferred: <tracker ref, spec path, or URL where the timing work will land>\nD) repair the ticket - /skill:shape-ticket acme/widgets#77 \"The export of a 10k-row report completes in under 60s.\" - the evidence is your note that this exceeds this sprint's need\nRecommendation: A - the row is part of acme/widgets#77's contract, nothing shows it is wrong, and the paging you chose should meet it, so one generated-data test keeps the ticket intact.\n",
-      "words": 165,
-      "wallMs": 9967,
+      "text": "Recorded: the export reuses the existing CSV serializer and paging, with the button beside the report title. Before the design rounds, the ticket's third row needs a scope decision. The row is part of the acme/widgets#77 contract, so its text stays verbatim whatever you pick. The chosen approach does not appear to rule it out: `src/export/csv.ts:40` defines a three-column table (title, status, owner), and paging is already in place.\n\nHow should the row \"The export of a 10k-row report completes in under 60s.\" be handled?\n\nA) in-scope - the row ships as written, and a timed test exports a 10k-row report fixture through the reused serializer and paging and checks that it finishes in under 60s\nB) deviates: <why the row no longer applies to this ticket>\nC) deferred: <tracker ref, spec path, or URL where it will be delivered, e.g. a follow-up acme/widgets issue>\nD) repair the ticket - /skill:shape-ticket acme/widgets#77 row 3 (\"The export of a 10k-row report completes in under 60s.\") - evidence: the 60s target is not needed this sprint\nRecommendation: A - The ticket commits to this outcome. Proving it costs one timed fixture test on the approach you already chose, and there is no code or contract evidence that it is wrong or impossible. Keeping it means the reports export ships with the performance bound the ticket promised.\n",
+      "words": 220,
+      "wallMs": 11532,
       "mechanical": {}
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "We’ll reuse the existing CSV serializer and paging, with the button beside the report title. Before the first design round, we need to resolve this ticket requirement: “The export of a 10k-row report completes in under 60s.”\n\nA) in-scope - retain the 10k-row, under-60s requirement and verify it this sprint.\nB) deviates: omit the performance requirement because it exceeds this sprint’s needs; the export still includes the owner column.\nC) deferred: acme/widgets#77 - leave the performance requirement tracked there for later delivery.\nD) repair the ticket - `/skill:shape-ticket acme/widgets#77` to revise the timing row, citing your decision that it exceeds this sprint’s needs.\nRecommendation: D - update the ticket contract to match the intended sprint scope rather than silently dropping its requirement.\n",
-      "words": 118,
-      "wallMs": 10395,
+      "text": "We’ll reuse the existing CSV serializer and paging, with the button beside the report title. Before the design rounds, we need to resolve this ticket row explicitly:\n\n> The export of a 10k-row report completes in under 60s.\n\nHow should this sprint handle that requirement?\nA) in-scope - retain the 10k-row, under-60s requirement and verify it.\nB) deviates: omit the performance requirement from this sprint’s implementation.\nC) deferred: acme/widgets#77 - leave the performance requirement tracked on the ticket for later delivery.\nD) repair the ticket - `/skill:shape-ticket acme/widgets#77` to revise this row because you’ve said its performance target exceeds this sprint’s needs.\nRecommendation: D - align the ticket with the intended sprint scope before proceeding.\n",
+      "words": 110,
+      "wallMs": 9814,
       "mechanical": {}
     }
   },
@@ -34,9 +34,9 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "355f9d880bd23ccc723dd321edace8c333f901720484f4ee512817b9ecbed11b",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "e59e1c506f7cc9683c93195dc2bfcdf110ab201b946bc55b5b9e3095091df773",
-      "baselineOutputSha": "7c9a5915ae801ead2d7f196feea7eac68b6ff06270b84a668aba471ed729614b",
-      "candidateOutputSha": "6128c24cf6c154f8a238f5b8c9e5ec6abefe1eef02ea0570b81779737bcefd74",
+      "intentSha": "31bca57f020d54af8c057f52a55b0ccd9da784e8f0a1472f3f0bfc3ea7aaff95",
+      "baselineOutputSha": "6128c24cf6c154f8a238f5b8c9e5ec6abefe1eef02ea0570b81779737bcefd74",
+      "candidateOutputSha": "17a558884ac7315e72f5ac77b4c7a4c63e6f67141d76a61db88d72ef102ceb8c",
       "facts": {
         "f1": {
           "before": "holds",
@@ -54,16 +54,16 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "After keeps every fact Before kept: it asks the cut question for the 60s row with A, B, C, D in order, each option on its own physical line with the lead-in first and Recommendation: on its own final line, recommends A, and nowhere marks the row deferred or deviates before the user answers. The only wording worth tightening is option D's rationale (\"the evidence is your note that this exceeds this sprint's need\"), which reads as if the user's sprint preference were evidence the row misstates the requirement, contradicting the lead-in's statement that nothing shows the row is wrong; Before's \"correct the row on the ticket if it misstates the requirement\" is safer and keeps D clearly a repair path rather than a soft drop. Also consider restoring Before's explicit \"Its text stays verbatim in the spec either way\" so the no-silent-cut guarantee remains visible in the reply.",
-      "wallMs": 7689,
+      "feedback": "No fact moved. Both outputs ask the cut question for the 60s row with options A, B, C, D in that order, each labeled option on its own line with the lead-in before and Recommendation: on its own final line; both recommend A; neither marks the row deferred or deviates before the user answers (B and C remain unfilled placeholders). After additionally restates the row verbatim in the question stem and states explicitly that its text stays verbatim whatever the user picks, which strengthens f3's intent. If you want to tighten After further without risk, keep the row quoted once in a dedicated `Ticket row:` line as Before did (so the verbatim contract is visually isolated from the question wording) and keep the repair command's quoted row exactly matching the ticket text, which After already does.",
+      "wallMs": 5920,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "355f9d880bd23ccc723dd321edace8c333f901720484f4ee512817b9ecbed11b",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "e59e1c506f7cc9683c93195dc2bfcdf110ab201b946bc55b5b9e3095091df773",
-      "baselineOutputSha": "46e454e1a8487b14d417a12f2c742ece91131fc6dd9f30254ca38e6898e67b12",
-      "candidateOutputSha": "2fdeb74f1fd012c80b289131d2ab47c7309bfbff56f4f358a8a2e97be691db5c",
+      "intentSha": "31bca57f020d54af8c057f52a55b0ccd9da784e8f0a1472f3f0bfc3ea7aaff95",
+      "baselineOutputSha": "2fdeb74f1fd012c80b289131d2ab47c7309bfbff56f4f358a8a2e97be691db5c",
+      "candidateOutputSha": "e49cb48586d8310f51d715c361191266c98f84e85bee16ba180baf50a361ba8b",
       "facts": {
         "f1": {
           "before": "holds",
@@ -81,10 +81,10 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "After keeps every fact Before kept: the 60s row is presented with options A, B, C, D in order, the recommendation is D (allowed alongside A), and the row is not marked deviates or deferred ahead of the user's answer. The one wording risk in After is the lead-in: Before literally asked \"How should we handle …?\", whereas After replaces it with the declarative \"we need to resolve this ticket requirement: …\" followed by the options, so f1's \"asks the cut question\" survives only because the option block reads as the question itself. To deliver the Change without that exposure, keep an interrogative lead-in on its own line before the options (e.g., \"How should we handle “The export of a 10k-row report completes in under 60s”?\") and then the four labeled options and the final Recommendation: line; the extra clause appended to option B about the owner column is harmless but unnecessary and could be trimmed to keep each option a single-purpose one-liner.",
-      "wallMs": 11001,
+      "feedback": "No fact moved. Both outputs pose the cut question for the 60s row with options A, B, C, D in that order, both recommend D, and neither pre-marks the row as deferred or deviates before the user answers - the row is quoted verbatim and left open pending the reply. After's wording changes (blockquoted row, explicit lead-in question line, shorter option descriptions, dropping Before's stray owner-column remark from option B) are consistent with the questionary layout rules in the Change and keep every fact Before kept; no adjustment is needed for this sample.",
+      "wallMs": 6138,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "541da7e7c9b6a1cfb181596e1000555709d00a93"
+  "repoSha": "d02d17b6f2a134dd65b73f11a80720663a986416"
 }

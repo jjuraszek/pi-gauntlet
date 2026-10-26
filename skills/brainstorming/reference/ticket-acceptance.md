@@ -42,6 +42,7 @@ Apply these integrity classes inline without invoking ticket shaping. Preserve e
 |---|---|
 | Wishful | Rewrite to the design's observable with design-sourced baseline, target, and measurement |
 | Tautological | Rewrite to a design-sourced, already-enumerated set or observable |
+| Tree-wide | Split a drafted row requiring zero/no findings of one or several kinds anywhere in or across a tree or set into one row per family from the explicit complete enumeration in Design for that row, covering every kind it names; give each family's own observable and preserve every outcome across the resulting rows. For an absent, partial, or unrelated enumeration, stop before writing, quote the row, and request the complete enumeration in Design. Keep this recovery drafted-only: a ticket row of this shape stays one verbatim row; require human ticket repair through `/skill:shape-ticket` before approval to split it |
 | Unspecified-but-binding | Resolve the value from Design and record the resolution there; ask the user for a missing value |
 | External-input | Ask the user for the external yardstick before writing |
 | Post-deployment | Rewrite to a pre-production observation when available, retaining `venue:`; move production-only observations to a tracked, non-blocking `Post-deployment housekeeping` Design clause, never an AC row |

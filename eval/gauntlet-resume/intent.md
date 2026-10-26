@@ -1,6 +1,8 @@
-for: be8400f4f8aa7e7275fd4d823915097b912a258d06f317bad68f3970ff387489
+for: 2f4ee50df2f75271ed0cea1d7fcbf0755a9646c7471921f70dff13ff2f75dae5
 
 ## Change
+
+Restore cap from every admitted ledger at one shared boundary before implement or verify/ship continuation, without re-resolving loopEngine settings. Stop even completed legacy ledgers there; a durable grant resumes the original phase. Render cap, iterations, attempts, funding/retry allowances and decision history, distinguishing operational row decisions. New durable-cap and legacy-cap-brief samples are baseline-skipped: new sample, no pre-edit sample evidence; the runner still generates genuine baseline and candidate evidence.
 
 Restore loop runs from the existing ledger: pair by its Spec header, prefer it to a task plan, validate before implement, preserve counters/retry data, and stop on invalid or dirty state. Produce and consume the contract-owned loop brief fields. With Engine loop and no ledger, arm through brainstorm start/skip after check 6 before driver Entry steps 1-5, with ledger creation at step 4. Use the resolved spec path in the exact plan-skip reason `resume: <spec> (loop engine)`. Give valid ledger brief fields precedence over retained `No plan active.` and admit the ledger instead of phase-only restoration.
 
@@ -19,7 +21,7 @@ Resume verify-stage Ledger briefs, including ship-stage briefs restored at verif
 - loop-ledger-brief/consumer: fails -> holds - Both failing arms: state the self-contained ledger restore sequence instead of deferring its calls to an omitted page.
 - loop-no-ledger/route: fails -> holds - The failing arm: route from restore to loop ledger creation with prepared inputs and no writing-plans body or task tracker.
 - loop-no-ledger/create: fails -> holds - Arm the fresh flow before driver admission, retaining driver plan skip and implement start.
-- loop-no-ledger/inputs: fails -> holds - Cite actual Entry steps for settings, verification and ledger creation.
+- loop-no-ledger/inputs: fails -> holds - Cite actual Entry steps for fresh-seed maxIterationsPerRow:12, verification and ledger creation.
 - baseline-upgrade-preserves-statuses/rerun: fails -> holds - Baseline evidence belongs to the dispatched writer, not citation repair.
 - baseline-upgrade-preserves-statuses/parent-check: fails -> holds - The parent stamps the regenerated plan before restoration continues.
 - baseline-upgrade-preserves-statuses/snapshot: fails -> holds - The resumed verify route initializes from the complete snapshot, not a fresh plan.
@@ -27,3 +29,5 @@ Resume verify-stage Ledger briefs, including ship-stage briefs restored at verif
 - baseline-fails-on-resume/menu: fails -> holds - Remaining failures use the named three-option menu.
 - menu-after-numbered-findings/layout: fails -> holds - Discovery candidate options stay separate from preceding ordered observations.
 - menu-after-numbered-findings/mapped-pick: fails -> holds - A legacy rendered pick names the resolved brief before restoration.
+- loop-ledger-worktree/durable: fails -> holds - Explicit cap:97 is restored beside iterations7, attempts3 and retry allowance4 without settings resolution.
+- loop-ledger-brief/continuation: fails -> holds - Explicit cap:97 is restored beside iterations5 and row attempts before phase continuation.

@@ -32,3 +32,18 @@ test('driver dispatch matches fresh persona and durable ledger contract', () => 
   assert.ok(STAGE_SKILL_DIRS.includes('skills/loop-implementation'));
   assert.deepEqual(lintStageSkillDirs(root.pathname, ['skills/loop-implementation']), []);
 });
+
+test('ledger cap is durable across grants, child validation and legacy admission', () => {
+  const driver = readFileSync(new URL('skills/loop-implementation/SKILL.md', root), 'utf8');
+  assert.match(driver, /iterations: 0\ncap: <n>/);
+  for (const fact of ['maxIterationsPerRow', '`iterations` >= `cap`', 'loop: raise cap', 'ledger has no cap: line - seeded under the old loopEngine contract', 'latest operational `row <n> ...` decision', 'including cap', 'cap +50 |', '[1-9][0-9]*', 'cap +50x', 'separate replies', 'cap grant resets neither window']) assert.ok(driver.includes(fact), fact);
+  const entry = driver.split('## Entry')[1].split('## Before each dispatch')[0];
+  assert.match(entry, /\(rows not initialized cut\) \* maxIterationsPerRow \+ 1/);
+  assert.match(entry, /Later cuts, reopens and requirement-preserving amendments leave cap unchanged/);
+  assert.doesNotMatch(entry, /`maxIterations`/);
+  const stop = driver.split('## Human stop')[1].split('## After the loop')[0];
+  for (const token of ['durable iterations + N', 'leaving iterations and all attempts unchanged', 'return to the ordered table', 'a second invalid reply holds the same stop with no commit', 'Only retry starts new windows']) assert.ok(stop.includes(token), token);
+  assert.match(driver, /dirty-tree and commit-boundary stops.*never offer `cap \+N`/);
+  assert.match(driver, /before.*rule 1/);
+  assert.match(driver, /every stop.*Preserve every row's attempts and the total iteration cap\./);
+});

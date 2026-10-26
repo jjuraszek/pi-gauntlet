@@ -97,6 +97,15 @@ test('drafted contract preserves outcomes, legal bodies, and post-council recove
   for (const marker of ['approved two-round design plus the original prompt', 'before the full replacement', 'never from the summarizer', 'reused verbatim', 'recommitted section', 're-drafted section', 'Exclude drafted rows from']) assert.ok(finalization.includes(marker), marker);
 });
 
+test('tree-wide integrity splits only drafted rows using complete Design families', () => {
+  const text = read('skills/brainstorming/reference/ticket-acceptance.md');
+  const row = text.split('\n').find((line) => line.startsWith('| Tree-wide |'));
+  assert.ok(row, 'Tree-wide integrity class exists');
+  for (const marker of ['drafted', 'zero/no findings', 'one or several kinds', 'tree or set', 'explicit complete enumeration in Design', 'one row per family', "family's own observable", 'every outcome', 'absent, partial, or unrelated', 'stop before writing', 'quote the row', 'request the complete enumeration in Design']) assert.ok(row.includes(marker), marker);
+  assert.ok(text.includes('ticket row of this shape stays one verbatim row'));
+  assert.ok(text.includes('human ticket repair through `/skill:shape-ticket` before approval'));
+});
+
 test('drafted requirements are protected in each actual critique task and the applier body', () => {
   const council = read('skills/roasting-the-spec/SKILL.md');
   const starts = ['task: "Problem statement: <the problem', 'task: "Problem statement: <paste>', 'task: "Problem statement: <same problem'];

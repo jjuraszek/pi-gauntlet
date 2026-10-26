@@ -21,12 +21,36 @@ import {
 } from "./gauntlet-settings.ts";
 
 test("loopEngine resolves defaults, integers, clamps, and malformed values", () => {
-  for (const [raw, expected, warns] of [[undefined, 30, false], [7, 7, false], [0, 1, false], [-3, 1, false], [1.5, 30, true], ["5", 30, true]] as const) {
-    const result = resolveLoopEngine({ loopEngine: { maxIterations: raw } });
-    assert.equal(result.maxIterations, expected);
-    assert.equal(Boolean(result.warning), warns);
+  const warning = "loopEngine.maxIterationsPerRow must be an integer; using default 4";
+  for (const [raw, expected, expectedWarning] of [
+    [undefined, 4, undefined], [7, 7, undefined], [0, 1, undefined], [-3, 1, undefined],
+    ["4", 4, warning], [4.5, 4, warning], [true, 4, warning], [null, 4, warning],
+  ] as const) {
+    assert.deepEqual(resolveLoopEngine({ loopEngine: { maxIterationsPerRow: raw } }), {
+      maxIterationsPerRow: expected, warning: expectedWarning,
+    });
   }
-  assert.deepEqual(resolveLoopEngine({}), { maxIterations: 30, warning: undefined });
+  assert.deepEqual(resolveLoopEngine({}), { maxIterationsPerRow: 4, warning: undefined });
+});
+
+test("loopEngine ignores the removed key by own-property presence and orders warnings", () => {
+  const removed = "loopEngine.maxIterations is removed; set loopEngine.maxIterationsPerRow";
+  for (const raw of [30, undefined, null, false]) {
+    assert.deepEqual(resolveLoopEngine({ loopEngine: { maxIterations: raw } }), {
+      maxIterationsPerRow: 4, warning: removed,
+    });
+  }
+  for (const [raw, expected, warning] of [
+    [7, 7, removed],
+    ["4", 4, removed + "; loopEngine.maxIterationsPerRow must be an integer; using default 4"],
+  ] as const) {
+    assert.deepEqual(resolveLoopEngine({ loopEngine: { maxIterations: 99, maxIterationsPerRow: raw } }), {
+      maxIterationsPerRow: expected, warning,
+    });
+  }
+  assert.deepEqual(resolveLoopEngine({ loopEngine: Object.create({ maxIterations: 99 }) }), {
+    maxIterationsPerRow: 4, warning: undefined,
+  });
 });
 
 const CUSTOM_TEST_COMMANDS = ["make ci", "pytest"];
