@@ -15,14 +15,22 @@ Auth failure at detection time makes that rung dead; continue down the ladder (u
 
 | Verb | `gh` |
 |---|---|
-| read (full, incl. comments) | `gh issue view <n> --json title,body,labels,assignees,milestone,comments` |
+| read (full, incl. comments) | `gh issue view <n> --json title,body,labels,assignees,milestone,comments,state` |
 | search (bounded overlap) | `gh search issues` / `gh issue list --search` (incl. `state:closed`) |
 | read open PRs (bounded in-motion search) | `gh pr list --search "<ref>" --limit 20` |
+| read linked PR state and diff (parent) | `gh pr view <n> --json state,mergedAt` then `gh pr diff <n>` |
+| close (approved evidence, no body write) | `gh issue close <n> --reason "<reason>" [--duplicate-of <ref>] --comment "<evidence>"` |
 | create | `gh issue create --title --body [--label]` |
 | update | `gh issue edit <n> --title --body [--add-label/--remove-label]` |
 | post comment (approved Reporter note/evidence) | `gh issue comment <n> --body ...` |
 
-**Tracker-agnostic contract** required of whatever resolves: read the full ticket incl. comments; write title + body + metadata; post a comment; bounded search (overlap check); tracker-native reference form for links. Field names, states, and taxonomies come from steps 1-2 of the ladder, never hardcoded in this skill. If an approved comment has no resolvable post-comment verb, the body write still proceeds; the comment text is emitted for manual posting and reported as not performed - never silently dropped.
+**Tracker-agnostic contract** required of whatever resolves: read the full ticket incl. comments; write title + body + metadata; post a comment; bounded search (overlap check); tracker-native reference form for links. Field names, states, and taxonomies come from steps 1-2 of the ladder, never hardcoded in this skill except the zero-config close state names below, which overrides replace. If an approved comment has no resolvable post-comment verb, the body write still proceeds; the comment text is emitted for manual posting and reported as not performed - never silently dropped.
+
+**Close resolution:** Resolve capabilities before rendering executable ID-bearing operations. Map delivered to GitHub `completed` / Linear `Done`; superseded, premise contradicted, and not reproduced to `not planned` / `Canceled`; duplicate to `duplicate` / `Duplicate` only for a tracker-native target (GitHub number or URL, Linear `ABC-123`). For a nonnative duplicate target, use `not planned` / `Canceled` and retain the reference in evidence. Include `--duplicate-of <ref>` only for the native duplicate mapping.
+
+For Linear, resolve reads through `/skill:linear`, including linked ticket bodies and state plus workflow type; read linked PR state and diff through its host. Execute close as `linearis issues discuss <id> --body "<evidence>"` then `linearis issues update <id> --status <Done|Canceled|Duplicate> [--duplicate-of <ref>]`. Treat GitHub `CLOSED` and Linear workflow types `completed` or `canceled` as terminal.
+
+Apply `- close: <command>` under `## Issue tracker` as a replacement for the whole close sequence, like read/update overrides. Apply section prose too: a forbidden mapped state renders `Close as <reason> - run by hand: <operations>`; selecting it runs nothing and retains its recommendation. Never let ordinary status prose such as "announced, not gated" waive the close gate.
 
 **States:** generalized routing - ready (gates pass), not-ready/triage-equivalent (parked, blocker named). **Zero-config GitHub park fallback:** GitHub Issues have no native not-ready state, and this skill never invents labels - so parking writes no state/label; instead the blocker is recorded in the body (a `Blocked on: <missing value / external input>` line under the ACs), and the run report states the ticket is parked-by-convention. A repo-documented triage/not-ready label or status overrides this. Never auto-assign to an active cycle/sprint unless asked.
 

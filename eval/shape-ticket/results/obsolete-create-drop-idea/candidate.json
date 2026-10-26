@@ -1,0 +1,104 @@
+{
+  "sample": "obsolete-create-drop-idea",
+  "arm": "candidate",
+  "skillSha": "3f01b3e54746d567c3c12e8c2bebf2ba8fffbba2f4c22b1fbc366f2737af03e8",
+  "inputSha": "80bc7628c49aded9ca3270a4747bf6ae56b85f4dffc565d6d0b0c613e6ce58cf",
+  "kind": "text",
+  "assembly": "concat",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "Ref list: create (no tracker ref) · Mode: create · Temp root: per-run temp directory\n\n## Report download for reviewers\n\n**Audit:**\n```text\nAudit: obsolete: delivered: src/report-download.ts:12 (src/report-download.ts:12; callers expose it to reviewers; encodeRows preserves every input row)\nrepo-fit: exists - src/report-download.ts:12\nunverified: Reviewers need a local copy - user need\nscenario: none (fresh feature ask)\n```\n\n**Title** (new): `Reviewers can download the report they are viewing with every row intact`\n\n**Body** (as-new, create anyway):\n```markdown\n## Context\n\nReviewers need a local copy of the report they are viewing.\n\n## Problem\n\nReviewers ask for a download that keeps every row of the report. Example: a report with two rows downloads as a file containing those same two rows.\n\nscenario: none (fresh feature ask)\n\n## Idea\n\nreporter proposes a download action; src/report-download.ts:12 routes this through the existing downloadReport action.\n\n## Acceptance Criteria\n\n- [ ] Given a report containing two rows, when a reviewer downloads it, the downloaded file contains those same two rows.\n```\n\n**Metadata changeset:** none. The audit is clean.\n\n**Evidence:**\n- `src/report-download.ts:12` defines `downloadReport(report)`, which returns `saveFile(\"report.csv\", encodeRows(report.rows))`. I opened this file.\n- The existing callers already expose this action to reviewers. I opened them.\n- `encodeRows` keeps every input row in the downloaded file. I opened it.\n- The requested two-row behavior is already implemented.\n- Scenario: none (fresh feature ask).\n\n**Source gaps:**\n- `source missing: a report with two rows downloads as a file containing those same two rows`\n\n**Overlap:** Bounded discovery found no candidate. Coverage is incomplete, so this is not proof that no overlap exists.\n\n**Roast dispositions:**\n- Applied: none.\n- Surfaced-ambiguous: none.\n- No blockers.\n\n**Proposed comment / relations:** none. No detail was displaced.\n\n---\n\nPick one:\n1. Approve with a link, attachment, or reason (create anyway)\n2. Approve and proceed without (create anyway)\n3. Revise\n4. Decline\n5. Drop the idea - delivered: src/report-download.ts:12 [recommended]\n\nClosing evidence for option 5:\n```text\nAudit: obsolete: delivered: src/report-download.ts:12 (src/report-download.ts:12; callers expose it to reviewers; encodeRows preserves every input row)\n```\n\nOption 5 runs nothing and files nothing. If you choose option 1, include the link, attachment, or reason in your reply.\n",
+      "words": 328,
+      "wallMs": 22940,
+      "mechanical": {
+        "no-commands": "holds"
+      }
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "Mode: **Create**. No approval or write has occurred.\n\n**Overlap:** Bounded discovery found no candidate; this does not guarantee uniqueness. Query counts, elapsed time, and truncation details were not supplied.\n\n## Audit\n- obsolete: delivered: src/report-download.ts:12 (the opened implementation and callers provide the requested download, and encoding preserves every input row)\n- unverified: Reviewers need a local copy — user need is not checkable from the repository.\n- repo-fit: exists — src/report-download.ts:12\n- scenario: none (fresh feature ask)\n\n**Title — as new:** Let reviewers download report rows without losing any rows\n\n**Body — as new:**\n```markdown\n## Context\nReviewers need a local copy of the report they are viewing.\n\n## Problem\nThe requested row-preserving download is already implemented; no missing download capability has been established.\n\nFor a report containing two rows, downloading it produces a file containing those same two rows.\n\nscenario: none (fresh feature ask)\n\n## Idea\nReporter proposes a download action; src/report-download.ts:12 routes this through the existing downloadReport action.\n\n## Acceptance Criteria\n- [ ] Given a report containing two rows, when a reviewer downloads it, the resulting file contains those same two rows.\n```\n\n**Metadata changeset:** None proposed beyond creating the displayed title and body.\n\n**Evidence**\n- Expected behavior: download a report containing two rows and receive a file containing those same two rows.\n- Repository evidence: `downloadReport` saves the encoded report rows; the already-opened callers expose the action to reviewers, and `encodeRows` preserves every input row.\n- No runtime scenario, source URL, attachment, or screenshot was supplied.\n\n**Source gaps**\n- source missing: For a report containing two rows, downloading it produces a file containing those same two rows.\n\nThe missing source footer remains absent from the proposed body until resolved by an approving reply.\n\n**Roast dispositions:** No blocking findings; no ambiguous findings supplied.\n\n**Proposed comment / relations:** None.\n\n## Selection\n\nThese options are mutually exclusive. Creating anyway would file an ask whose requested behavior is already implemented. Approval covers only the displayed payload and source-footer resolution supplied in that reply.\n\nPick one:\n\n1. **Approve create anyway with a link, attachment, or reason** — supply it for the named source gap.\n2. **Approve create anyway and proceed without** — explicitly acknowledge the named source gap.\n3. **Revise** the proposal.\n4. **Decline** — skip this proposal without writing.\n5. **Drop the idea — requested behavior is already implemented** **[recommended]** — no ticket or comment will be created.\n\nClosing evidence for option 5:\n\nAudit: obsolete: delivered: src/report-download.ts:12 (the opened implementation and callers provide the requested download, and encoding preserves every input row)\n",
+      "words": 394,
+      "wallMs": 22976,
+      "mechanical": {
+        "no-commands": "holds"
+      }
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "91acebaee327d3938e2d4504b6d9063812ef9119e3f39d79e6d8fd097c809f7c",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "600e013b6b642672652379e3f824fc2ca9b3a1d939a93353576b3b53451c6051",
+      "baselineOutputSha": "b15b232299181fbd9739b396ee786782ff266032cc951fa07e9b5108b0dead24",
+      "candidateOutputSha": "4d3ca6aa585ba6746fd713f492cfe12b374df21ed39c55c399916f80ea645c0b",
+      "facts": {
+        "verdict": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "drop": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "no-write": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "no-commands": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "After delivers the Change on this case: the Audit block above Title now opens with `Audit: obsolete: delivered: src/report-download.ts:12 (...)` carrying the confirmed citation, and the menu adds a single `Drop the idea - delivered: ... [recommended]` row while options 1 and 2 are explicitly tagged `(create anyway)` with the as-new body still rendered, so verdict and drop both move from fails to holds. no-write still holds, but After dropped Before's explicit closing line `Nothing has been written. Waiting for your selection.` and now relies on `Option 5 runs nothing and files nothing` plus `Pick one:` to imply the stop; to keep that guard robust, have the obsolete-menu wording end with the same explicit `Nothing has been written. Waiting for your selection.` sentence Before used. Also consider whether a plain `Decline` row (4) should remain alongside `Drop the idea` (5), since two no-write exits with only one recommended may read as redundant; if the contract wants exactly one drop choice, fold 4 into 5 or label 4 as a non-obsolete decline.",
+      "wallMs": 13002,
+      "verdict": "improved"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "91acebaee327d3938e2d4504b6d9063812ef9119e3f39d79e6d8fd097c809f7c",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "600e013b6b642672652379e3f824fc2ca9b3a1d939a93353576b3b53451c6051",
+      "baselineOutputSha": "24de8f4cebdf0dcec2c8f790d62debb5611c800f6dacd4e11d963cc29b2ace3d",
+      "candidateOutputSha": "8d4aa971ce159dfbee31d54e12aaf91892a103661331c7f10ff67ef47a3b0daa",
+      "facts": {
+        "verdict": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "drop": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "no-write": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "no-commands": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "After delivers the Change without regressing anything: the Audit block now opens with `obsolete: delivered: src/report-download.ts:12` above Title (verdict moves to holds), the Selection menu adds exactly one `Drop the idea … [recommended]` row while keeping create-anyway options 1–2 and the as-new body available and explicitly mutually exclusive (drop moves to holds), and the gate still ends at 'Pick one' with 'No approval or write has occurred' (no-write preserved). Two small wording points worth tightening so no-write stays unambiguous: 'Metadata changeset: None proposed beyond creating the displayed title and body' reads as if creation were part of the changeset — prefer 'None proposed' as in Before — and options 4 ('Decline — skip without writing') and 5 ('Drop the idea') are near-duplicates as no-write outcomes; if the contract wants one recommended drop row, consider folding Decline into Drop or clarifying that Decline merely ends the session while Drop records the obsolete judgment, so the recommended row is the single clearly-distinct no-write choice.",
+      "wallMs": 13083,
+      "verdict": "improved"
+    }
+  },
+  "repoSha": "31ccfcbfdd588e6cfb7d19614f38c87d8bfb1474"
+}

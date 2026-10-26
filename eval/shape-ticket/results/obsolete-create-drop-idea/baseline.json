@@ -1,0 +1,38 @@
+{
+  "sample": "obsolete-create-drop-idea",
+  "arm": "baseline",
+  "skillSha": "0a95457ef23d35798a5cee14282ce5c4bb681ab978b6f3f0c350158f1d9ebc80",
+  "inputSha": "80bc7628c49aded9ca3270a4747bf6ae56b85f4dffc565d6d0b0c613e6ce58cf",
+  "kind": "text",
+  "assembly": "concat",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "**Mode:** create. There are no ticket refs. Artifacts are in the run temp root under `create/`.\n\n**Overlap coverage:** Bounded discovery found no candidate tracker ticket. This is not proof that no matching ticket exists. Coverage details are menu-only and do not go in the ticket body.\n\n---\n\n**Audit:**\n- repo-fit: exists - src/report-download.ts:12\n- unverified: Reviewers need a local copy - user need\n- scenario: none (fresh feature ask)\n\n**Title** (new): `Reviewers can download the report they are viewing with every row kept`\n\n**Body** (as-new):\n\n```markdown\n## Context\n\nReviewers sometimes need a local copy of the report they are viewing.\n\n## Problem\n\nReviewers ask for a download of the report that keeps every row, so their local copy matches what they were viewing. A download that drops rows would leave them with an incomplete copy.\n\nA report with two rows should download as a file containing those same two rows.\n\nscenario: none (fresh feature ask)\n\n## Idea\n\nreporter proposes a download action; src/report-download.ts:12 routes this through downloadReport\n\n## Acceptance Criteria\n\n- [ ] Given a report containing two rows, when a reviewer downloads it, the downloaded file contains those same two rows.\n```\n\n**Metadata changeset:** none (audit clean).\n\n**Evidence:**\n- `src/report-download.ts:12`: `downloadReport(report)` saves `report.csv` from `encodeRows(report.rows)`.\n- Callers that were already opened expose this download action to reviewers.\n- `encodeRows` keeps every input row in the downloaded file.\n- **This ask's two-row behavior appears to be implemented already.** Consider declining.\n- Repro steps: not applicable (feature ask). The AC row above covers setup, action and result.\n\n**Source gaps:**\n- source missing: A report with two rows should download as a file containing those same two rows\n\nThe footer slot for this gap stays empty until you reply. You can still approve the write with the gap open.\n\n**Roast dispositions:**\n- Applied: none\n- Surfaced-ambiguous: none\n\n**Split proposal:** none (single concern).\n\n**Proposed comment:** none. No displaced detail overflowed, because the reporter's sketch is kept in the attributed Idea line.\n\n**Relations:** none.\n\nThe approval covers the exact title, body and metadata shown above. The only change it allows is the `source:` footer your approving reply supplies.\n\nPick one:\n1. Approve with a link, attachment, or reason\n2. Approve and proceed without\n3. Revise (tell me what to change, and I'll re-present the exact diff)\n4. Decline (no write; the behavior appears to exist already in src/report-download.ts:12)\n\nNothing has been written. Waiting for your selection.\n",
+      "words": 380,
+      "wallMs": 25409,
+      "mechanical": {
+        "no-commands": "holds"
+      }
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "Mode: create. Overlap discovery found no candidate; this is not a uniqueness guarantee. Temp root: unavailable (tools disabled).\n\n## Audit:\n- unverified: Reviewers need a local copy — user need cannot be checked against the repository.\n- repo-fit: exists — `src/report-download.ts:12`; the action is already exposed to reviewers, and encoding preserves every input row.\n- scenario: none (fresh feature ask)\n\n## Title\nAs new: **Download report rows without losing rows**\n\n## Body — as new\n```markdown\n## Context\nReviewers need a local copy of the report they are viewing.\n\n## Problem\nReviewers want the downloaded copy to retain the report’s rows. The requested behavior is already implemented; no missing capability or observed row loss has been established.\n\nFor a report containing two rows, the requested download contains those same two rows.\n\nscenario: none (fresh feature ask)\n\n## Idea\nReporter proposes a download action; the existing implementation routes this through downloadReport (src/report-download.ts:12).\n\n## Acceptance Criteria\n- [ ] Given a report containing two rows, when a reviewer downloads it, the downloaded file contains those same two rows.\n```\n\n## Metadata changeset\nNone proposed.\n\n## Evidence\n- Repository evidence confirms that the download action is already available to reviewers and preserves every input row.\n- The two-row example describes the requested result, not an observed failure.\n- No source URL or attachment was supplied.\n- No current-system scenario was performed.\n\nsource missing: For a report containing two rows, the requested download contains those same two rows.\n\n## Roast dispositions\nNo blockers or edits.\n\n## Proposed comment and relations\nNone.\n\nThe requested behavior already exists. **Declining creation is recommended** unless you want a ticket recording an already-implemented requirement. No write has occurred.\n\nPick one:\n1. **Approve with a link, attachment, or reason** — supply it for the named source gap; approve the displayed create payload with only that source-footer addition.\n2. **Approve and proceed without** — approve the displayed create payload and acknowledge the named source gap without supplying a source.\n3. **Revise** — describe the unmet behavior or another change to the proposal.\n4. **Decline creation** — make no write.\n",
+      "words": 319,
+      "wallMs": 17186,
+      "mechanical": {
+        "no-commands": "holds"
+      }
+    }
+  },
+  "repoSha": "31ccfcbfdd588e6cfb7d19614f38c87d8bfb1474"
+}

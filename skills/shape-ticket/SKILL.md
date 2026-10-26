@@ -12,7 +12,8 @@ description: Use when asked to file, create, or shape a ticket, open a tracker i
 | Free text / vague ask, no ticket ref | Create mode: gather -> bounded overlap check -> draft -> gates -> roast -> confirm -> write (9-step pipeline below) |
 | Issue refs (`#N`, `ABC-123`, URL), comma/whitespace list | Repair mode: fetch full ticket + 1-hop links -> diff old->new -> gates -> roast -> confirm -> re-fetch and re-diff before write (9-step pipeline below) |
 | Ref + extra text | Repair mode, extra text folded into gather |
-| Ordinary repair already conforms + metadata clean + no comment proposed | No-op: report and stop, no gate, no write |
+| Audit shows the ticket should not stand | Obsolete line above Title; close row (repair) or drop-the-idea row (create), tagged recommended |
+| Ordinary repair already conforms + metadata clean + no comment proposed, unless the audit carries an obsolete line | No-op: report and stop, no gate, no write |
 | AC is wishful/tautological | Ticket-local hard stop or affected overlap alternative; source-ticket split stays atomic - fix or split to discovery |
 | AC is unspecified-but-binding or needs external input | Ticket filed, parked in not-ready state, blocker named |
 | Independent shippable slices detected | Split proposed at the gate, one approval, per-issue subset selection |
@@ -34,7 +35,7 @@ It is a tool, not a phase: no `plan_tracker`, no `phase_tracker`, no worktree re
 
 ## Hard constraint
 
-**Every tracker write sits behind exactly one confirmation gate, presented as an explicit old->new (or as-new) diff. No affirmative answer on that exact diff = no write.** Approve the exact presented diff plus only the `source:` footer substitutions resolved by that same approving reply under step 8; make no other post-approval edit and add no second gate. This includes create, repair, split writes, and discovery-conversion writes - one gate covers a source-ticket split's N bodies, with subset selection. A repair batch has one exact-diff gate per ticket; never approve an unseen ticket. A headless or unattended run (no interactive response available) stops at the gate. There is no timeout-approve, no "the user implied yes earlier," no partial write before the gate.
+**Every tracker write sits behind exactly one confirmation gate, presented as an explicit old->new (or as-new) diff. No affirmative answer on that exact diff (or, for the close row, the displayed operation sequence and evidence) = no write.** Approve the exact presented diff plus only the `source:` footer substitutions resolved by that same approving reply under step 8; make no other post-approval edit and add no second gate. This includes create, repair, split writes, and discovery-conversion writes - one gate covers a source-ticket split's N bodies, with subset selection. A repair batch has one exact-diff gate per ticket; never approve an unseen ticket. A headless or unattended run (no interactive response available) stops at the gate. There is no timeout-approve, no "the user implied yes earlier," no partial write before the gate.
 
 ## Mode routing
 
@@ -44,7 +45,7 @@ Consume explicit invocation option `--skip-overlap` before routing and exclude i
 - **Free text or no argument** -> **create mode**, from the argument plus surrounding conversation.
 - **Refs + extra text** -> repair mode. Fold ref-named statements into only that ref's gather. Carry requester-supplied unscoped text as common context to each scout and gather summary; carry it into the Context of each ticket whose snapshot or audit supports it, and surface applicability only at the other tickets' gates.
 - **Unreadable refs** -> report each ref and reason as unfetched and continue fetched tickets. When every ref is unfetched, abort repair and offer create mode from accompanying text. Never guess ticket content.
-- **Out of scope**: read-only asks (search, status lookup) and administrative writes (status transitions, standalone comment posts) - use the tracker CLI directly; gated Reporter-note and overlap-evidence comments inside this pipeline are the comment exceptions.
+- **Out of scope**: read-only asks (search, status lookup) and administrative writes (status transitions, standalone comment posts) - use the tracker CLI directly; gated Reporter-note and overlap-evidence comments inside this pipeline are the comment exceptions; except the close row the step 8 template renders, keep status transitions outside this pipeline.
 
 ## The pipeline
 
@@ -99,7 +100,7 @@ Exempt one deletion-safe rule-7 pointer per failure, rule-5 one-sentence/one-num
 
 ### 6 - No-op check
 
-For ordinary repair only, if the body already conforms AND the metadata audit is clean AND no comment is proposed: report "conforms, no changes proposed" and stop. No write, no confirmation prompt, no roast. A conforming ticket never pays for a roast dispatch; the gather audit already ran and its Audit lines ride on the no-op report. Treat draft-changing audit findings under `reference/repo-audit.md` as non-conforming; quiet findings alone keep the no-op. A conforming body with pending overflow still reaches the gate.
+For ordinary repair only, if the body already conforms AND the metadata audit is clean AND no comment is proposed AND the audit carries no obsolete line: report "conforms, no changes proposed" and stop. No write, no confirmation prompt, no roast. A conforming ticket without an obsolete line never pays for a roast dispatch; the gather audit already ran and its Audit lines ride on the no-op report. Treat the obsolete line and other draft-changing audit findings under `reference/repo-audit.md` as non-conforming; quiet findings alone keep the no-op. A conforming body with pending overflow still reaches the gate.
 
 "Conforms" includes the ticket wording contract (`reference/ticket-wording.md`, resolved against this skill's own directory), applied inline as a short checklist over Context/Problem/Idea: strip test passes (rule 2)? plain-words lead per asserted failure (rule 4)? example or `none (<reason>)` per failure (rule 5)? repo-native terms defined or dropped and requester-used terms left undefined under rule 6's attribution test? Idea within one attributed sketch line? Context/Problem free of step-5 closed-list matches? references parenthetical and deletion-safe (rule 7)? links summarized, no spiderman hops (rule 8, with the named example serving as a source footer's summary)? every gathered URL, attachment, or pasted screenshot is carried in a source: footer under its example (Evidence gate carry rule)? every non-discovery Problem example has a source: footer (Evidence gate gap rule)? Any "no" makes the body non-conforming: repair proposes a rewrite through the normal draft -> gates -> roast -> gate path instead of reporting "conforms" - the contract-briefed roast backstops this inline judgment. Route each failure through draft -> step 5 -> roast -> old/new gate, with a new comment for newly displaced detail. For a conformance-only rewrite with no audit or uniqueness change to AC text, rows, or groups, touch Context/Problem/Idea prose only: copy the original bytes under the AC heading unchanged and compare bytes before presenting the gate; any mismatch stops that ticket. Any AC text, row, or group change from audit or uniqueness instead takes substantive full-replacement repair with `- [ ]` normalization; retain displaced text verbatim in the Reporter note. Check source carrying for every title; check source gaps only for non-discovery bodies. Preserve existing `source:` lines verbatim. For missing-footer-only repair, add only the footer under step 8 and leave existing prose and AC bytes unchanged; never report "conforms, no changes proposed".
 
@@ -109,7 +110,7 @@ See Roast below. Surface source-gap findings at step 8; never apply them by inve
 
 ### 8 - Confirmation gate
 
-Finish initial preparation and roasts for all eligible tickets before the first gate. Present only the current ticket in ref order: decline skips it; revision rechecks and re-presents its exact diff; approval completes step 9 before the next ticket prints. Never treat a reply as approval of an unseen ticket. Present stopped tickets' draft/report at their turn with no approval option; preserve a split's N-body subset-selection gate. End with one line per ref: `<ref>: written | declined | stopped | no-op | unfetched`.
+Finish initial preparation and roasts for all eligible tickets before the first gate. Present only the current ticket in ref order: decline skips it; revision rechecks and re-presents its exact diff; approval completes step 9 before the next ticket prints. Never treat a reply as approval of an unseen ticket. Present stopped tickets' draft/report at their turn with no approval option; preserve a split's N-body subset-selection gate. End with one line per ref: `<ref>: written | closed | close failed (<operation>: <reason>) | close by hand | dropped | declined | stopped | no-op | unfetched` (use the drafted title for create).
 
 Present, per proposed issue:
 
@@ -137,11 +138,11 @@ Keep partially resolved create gates open with only unresolved rows; never fill 
 
 Read and apply [menu-layout](../brainstorming/reference/menu-layout.md) before presenting these options and before acting on a numeric reply.
 
-Number the options. A split offers per-issue subset selection, e.g. "approve 1,3; decline 2". **No affirmative answer on the exact presented diff plus only the `source:` substitutions resolved by that same approving reply = no write; make no other post-approval edit and add no second gate.**
+Render the options from the gate menu template in `reference/repo-audit.md`, including its mode's exit row and `[recommended]` tag. Number the options. A split offers per-issue subset selection, e.g. "approve 1,3; decline 2". **No affirmative answer on the exact presented diff (or the close row's displayed operations and evidence) plus only the `source:` substitutions resolved by that same approving reply = no write; make no other post-approval edit and add no second gate.**
 
 ### 9 - Write
 
-Complete the current ticket's write before presenting the next ticket. Immediately before any mutation, including comments - after approval, not at gate-open - re-fetch the relevant body, discussion, and workflow of any existing ticket underlying the selected changeset (repair, enrichment, or override-create). Write the resolved source footers in the approved payload. Compare against the original gathered ticket snapshot the user approved, not the pending footer-bearing replacement; only a change loops back to step 8 with the delta. Use tracker version/ETag preconditions where supported. Treat unrelated hits listed as rejected coverage as non-sources; a plain create with no underlying existing ticket has nothing to revalidate. For overlap, follow the gathered reference's selected-operation rules. Then one batched write per approved issue, body first, then the approved Reporter-note comment if any; a split is N gated writes under the one approval, honoring subset selection. Mid-batch failure: report exactly what landed; the remaining changeset is preserved for retry.
+Complete the current ticket's write before presenting the next ticket. Immediately before any mutation, including comments - after approval, not at gate-open - re-fetch the relevant body, discussion, and workflow, including state before a close, of any existing ticket underlying the selected changeset (repair, enrichment, or override-create). Write the resolved source footers in the approved payload. Compare against the original gathered ticket snapshot the user approved, not the pending footer-bearing replacement; only a change loops back to step 8 with the delta. Use tracker version/ETag preconditions where supported. Treat unrelated hits listed as rejected coverage as non-sources; a plain create with no underlying existing ticket has nothing to revalidate. For close/drop, apply the selected-exit recipe in `reference/repo-audit.md` before the body-first branch; never fall through to body writing. For overlap, follow the gathered reference's selected-operation rules. Then one batched write per approved issue, body first, then the approved Reporter-note comment if any; a split is N gated writes under the one approval, honoring subset selection. Mid-batch failure: report exactly what landed; the remaining changeset is preserved for retry.
 
 ## AC integrity gate
 
@@ -277,7 +278,7 @@ Read `reference/examples.md` now for the built-in bad->good Discovery pair exemp
 - Unreadable tickets -> report unfetched refs and continue healthy tickets; all unfetched -> abort repair, offer create mode.
 - Ticket changed between gather and write -> re-fetch, diff, re-present, re-ask.
 - Write fails mid-batch -> report exactly what landed; remaining changeset preserved for retry.
-- Ordinary conforming repair -> early no-op (metadata clean, no comment proposed); overlap no-op still presents the create-anyway alternative at the menu.
+- Ordinary conforming repair -> early no-op (metadata clean, no comment proposed), unless the audit carries an obsolete line; overlap no-op still presents the create-anyway alternative at the menu.
 - Headless run -> stops at the confirmation gate.
 - Ref with no fetch path -> ask; never guess.
 - Split declined -> single ticket with phased AC groups.
