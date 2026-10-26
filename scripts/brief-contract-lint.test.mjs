@@ -98,6 +98,10 @@ for (const route of ["implement with line-1 ledger", "verify with `Ledger:`"]) {
   const row = routes.split("\n").find(line => line.startsWith("| " + route));
   assert.ok(row.includes("shared cap boundary"), route);
 }
+const noLedgerRow = routes.split("\n").find(line => line.startsWith('| approved spec with `**Engine:** loop`, no ledger'));
+assert.match(noLedgerRow, /label Entry steps 1-5 explicitly in the response/);
+assert.match(noLedgerRow, /Entry step 1: resolved settings; Entry step 2: verification; Entry step 3: driver's plan skip; Entry step 4: clean named-branch check and ledger creation; Entry step 5: `plan_check`, commit and implement start/);
+for (const token of ["after check 6", "start brainstorm", "skip brainstorm resume: <spec path>", "absolute worktree/spec paths and plan directory", "no writing-plans body or task tracker"]) assert.ok(noLedgerRow.includes(token), token);
 const actualContract = realFiles.find(f => f.rel === CONTRACT_FILE).text;
 const implementRow = actualContract.split("\n").find(line => line.startsWith("| implement with ledger"));
 assert.ok(implementRow.includes("shared cap boundary"));

@@ -448,11 +448,24 @@ test('PR-head provisioning validates and recovers admitted member heads before b
     'status --porcelain --untracked-files=all', 'manual recovery before rerunning',
     'Never reset or clean',
   ]) assert.ok(text.includes(marker), marker);
+  const recoveryRow = text.split('\n').find((line) => line.startsWith('| List recovery validated'));
+  for (const marker of ['git -C "$ROOT" worktree add "$WORKTREE" <headRefName>', 'git -C "$WORKTREE" rev-parse HEAD', 'validated local tip', 'Never use update-ref, -b, reset, clean, or deletion']) assert.ok(recoveryRow.includes(marker), marker);
   assert.ok(text.indexOf('every admitted PR') < text.indexOf('## Provision'));
   assert.ok(text.indexOf('## Merge admitted member heads') < text.indexOf('## Merge the fetched base'));
   assert.ok(text.indexOf('BASE_SHA=$(git') < text.indexOf('## Merge admitted member heads'));
   assert.doesNotMatch(text, /On fetch failure carry/);
   assert.doesNotMatch(text, /For members whose original heads are already ancestors without a recognized merge/);
+});
+
+test('PR conflict helpers and completion explicitly target the selected tree without changing process cwd', () => {
+  const text = read('skills/using-git-worktrees/reference/pr-head.md');
+  const base = text.slice(text.indexOf('## Merge the fetched base'), text.indexOf('## Fetch unresolved review threads'));
+  assert.ok(base.includes('Keep the process cwd unchanged; explicitly target the selected worktree in every helper discovery, status, staging, completion, commit, and abort command.'));
+  for (const command of [
+    'status --porcelain', 'diff --name-only --diff-filter=U', 'add',
+    'diff --cached --name-only', 'commit --no-edit', 'merge --abort',
+  ]) assert.ok(base.includes('`git -C "$WORKTREE" ' + command + '`'), command);
+  assert.doesNotMatch(base, /`git (?:diff|status|add|commit|merge)\b/);
 });
 
 test('leading PR lists admit in order and keep every retained contract', () => {
