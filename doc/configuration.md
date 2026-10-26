@@ -76,7 +76,7 @@ Every approval writes `**Engine:** loop` for 4/5 or `**Engine:** waves` for 1/2 
 
 ### Setting and command resolution
 
-`piGauntlet.loopEngine.maxIterations` is the only `piGauntlet.loopEngine.*` setting. `gauntlet_setting({ key: "loopEngine" })` returns it with any warning. Missing means 30. Integer values are floored at 1 (zero and negative integers become 1); fractional numbers are not rounded. Any non-integer value, including a string, falls back to 30 with `loopEngine.maxIterations must be an integer; using default 30`. The cap counts all dispatches started, including seed and interrupted dispatches.
+`piGauntlet.loopEngine.maxIterationsPerRow` is the only active `piGauntlet.loopEngine.*` setting. `gauntlet_setting({ key: "loopEngine" })` returns `maxIterationsPerRow` with any warning. Missing means 4. Integer values are floored at 1 (zero and negative integers become 1); fractional numbers are not rounded. Any non-integer value, including a string, falls back to 4 with `loopEngine.maxIterationsPerRow must be an integer; using default 4`. The removed key `loopEngine.maxIterations` is not an alias: its presence adds `loopEngine.maxIterations is removed; set loopEngine.maxIterationsPerRow`, and its value is ignored. When both warnings apply, they are joined with `; `, removed-key warning first.
 
 Before seeding, the driver resolves verification once and prints `verification command: <command> (<source>)`:
 
@@ -96,6 +96,7 @@ The artifact is `<resolved plan dir>/<spec stem>-ledger.md` (default `doc/plans/
 base: <base SHA>
 verification: <resolved command>
 iterations: 0
+cap: 97
 
 | row | status | attempts | evidence |
 |---|---|---|---|
@@ -104,17 +105,23 @@ iterations: 0
 ## Decisions
 ```
 
+Compute `cap:` once at entry as the number of rows not initialized `cut` times `maxIterationsPerRow`, plus 1 for the seed dispatch. The example cap of 97 assumes 24 non-cut rows at default 4; an all-cut ledger gets 1 and exits without a seed dispatch. Count every started dispatch, including seed and interrupted dispatches. Later cuts, reopening and requirement-preserving amendments leave the cap fixed; only a redraw deletes the ledger and recomputes it on reseeding.
+
 Line 1 is exact. Spec is a path alone. Rows index every spec AC in order, without copying row text. Explicit/absent `in-scope` and `venue:` start `open`; only `deviates:`, `deferred:`, and `elsewhere:` start `cut`, with disposition evidence. Status vocabulary is `open`, `done`, `failed`, `cut`. Only the parent cuts through approved dispositions. A child marks passing checks `done` and failed checks `failed`.
 
 Seed fills every open row's evidence and closes already-satisfied rows on passing baseline checks, leaving attempts 0. Ordinary attempts increment only the target row's counter; counters never reset. Evidence names the check plus at most three result lines in one cell, separated by semicolons with pipes escaped. No reasoning transcripts, angle markup or placeholders (`TODO`, `TBD`, `probably`, `etc.`) belong there. Empty evidence is valid only on an open row before seed.
 
 Each child appends `row <n> <done|failed> | <what was done> | <what not to redo or try differently>` under Decisions, each sentence at most 200 characters. Seed uses `row 0 done | seeded <k> rows, closed <m> on baseline | <first row to take>`. The parent increments iterations before dispatch; the child's single commit persists it. The parent validates the clean tree, exactly one commit, target-only changes and new bounded decision. Ordinary validation misses get a repair commit; two consecutive misses stop. Seed validation misses stop immediately.
 
-An unresolved row stops at 3 attempts, or 3 + funded N. `; fund N fix rounds` on 4/5 buys N extra attempts per row, never escalated-model rounds, cap extensions, or empty-commit bypasses. Spent funding is `max(0, attempts - 3)` per row. Two consecutive child row commits changing neither non-ledger files nor row status stop independently of funding. Closed rows never trigger stagnation; third-attempt success exits normally. The cap stops with unresolved rows before verification.
+An unresolved row stops at 3 attempts, or 3 + funded N. `; fund N fix rounds` on 4/5 buys N extra attempts per row, never escalated-model rounds, cap extensions, or empty-commit bypasses. Spent funding is `max(0, attempts - 3)` per row. Two consecutive child row commits changing neither non-ledger files nor row status stop independently of funding. Closed rows never trigger stagnation; third-attempt success exits normally. With unresolved rows at `iterations >= cap`, the driver stops before dispatch and verification, naming the cap and every unresolved row with its attempts.
 
 Stop notes quote concrete evidence and the last decision, offer retry with a hint, approved spec amendment, or stop, and keep implement active. Retry appends `row <n> retry | <hint> | allowed attempts <attempts + 1>` and commits `loop: retry row <n>`. It starts a new consecutive-stagnation window but resets neither attempts nor iterations. Dirty-tree or commit-boundary recovery requires human-authorized discard/reset and retains the interrupted dispatch in the count. Funding alone does not reset stagnation.
 
-Amendments reconcile spec and ledger together: approved disposed rows become cut, requirement-preserving changes preserve rows, and a re-bounded done row reopens with `reopened by amendment`. Preserve counters; no plan writer, plan check or task tracker runs for this aftermath. Resume rechecks the ledger through `plan_check`, restores durable counters and decisions, and stops on a dirty tree before dispatch. Finish strips the ledger while the spec and telemetry ship.
+At a clean cap stop, offer `cap +N` beside retry, amend and stop. Accept only an anchored `cap +<n>` token with a positive integer matching `[1-9][0-9]*` and an end, whitespace or pipe boundary. Append `cap +<n> | <decision>` under `## Decisions`, trimming the optional remainder and optional leading pipe into the decision cell; bare `cap +50` writes `cap +50 |`. Add N to the header cap and commit both changes once as parent `loop: raise cap`, preserving all attempts and iterations, then return to the ordered checks. Invalid tokens such as `cap +0`, `cap +x`, `cap -5` or `cap +50x` ask once; a second invalid reply leaves the same stop with no commit. Grants reset neither stagnation nor validation-miss windows and do not count as child commits. Funding and cap grants are independent; when both allowances are exhausted, offer both but take separate replies. Dirty-tree and commit-boundary stops never offer cap grants; discard authorization comes first.
+
+A legacy ledger missing `cap:` stops with `ledger has no cap: line - seeded under the old loopEngine contract`, even if every row is closed. On a clean tree, `cap +N` writes `cap: <iterations + N>` immediately after `iterations:` with the same decision and commit contract. Never derive a legacy cap from settings.
+
+Amendments reconcile spec and ledger together: approved disposed rows become cut, requirement-preserving changes preserve rows, and a re-bounded done row reopens with `reopened by amendment`. Preserve counters; no plan writer, plan check or task tracker runs for this aftermath. Resume rechecks the ledger through `plan_check` and restores its cap, counters and decisions without resolving loop settings. Every ledger restore, including verify/ship, applies the missing-cap stop before phase continuation and stops on a dirty tree before dispatch. Finish strips the ledger while the spec and telemetry ship.
 
 ## Phase models
 
