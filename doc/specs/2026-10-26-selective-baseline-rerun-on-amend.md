@@ -108,6 +108,8 @@ New sample `eval/writing-plans/samples/baseline-equivalent-restamp/` with one `c
 
 `eval/writing-plans/intent.md` gains a paragraph for the rule and `## Expected to move` lines for the new facts. `node eval/run.mjs writing-plans` runs before finish; `eval/writing-plans/report.md` is committed. `npm test` covers skill lint, instruction size, and the model-literal ban.
 
+Repair two existing eval-contract ambiguities without changing their required outcomes: in `eval/writing-plans/samples/fresh-child-authors-plan/case.md`, extend the narration endpoint through the immediate SDD invocation required by fact `f6`, overriding the generic replay endpoint; in `eval/writing-plans/samples/pr-subject-threads/expected.md`, clarify that checker-valid command segmentation, including `&&`, preserves the header-style-only fact. The plan contract permits that separator and the checker extracts the same two commands. Keep both facts and the production handoff/header rules unchanged. Regenerate both replay arms for the changed case; use the documented single-sample judgment refresh for the clarified fact on reusable replies, then run the full target. Add no accepted-variance entries and hand-edit no generated verdicts.
+
 ## Documentation impact
 - Feature / user-facing docs introduced: none
 - Materially amended existing docs: CHANGELOG.md - deferred: release

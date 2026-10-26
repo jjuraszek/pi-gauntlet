@@ -27,9 +27,11 @@
 - `eval/writing-plans/results/baseline-equivalent-restamp/candidate.json` - generated evidence.
 
 **Modify - target-local eval documentation and evidence:**
+- `eval/writing-plans/samples/fresh-child-authors-plan/case.md` - extend only the narration endpoint to match the existing immediate-handoff fact.
+- `eval/writing-plans/samples/pr-subject-threads/expected.md` - clarify only header-style-only command segmentation without weakening the fact.
 - `eval/writing-plans/intent.md`
 - `eval/writing-plans/report.md`
-- `eval/writing-plans/results/*/baseline.json` and `eval/writing-plans/results/*/candidate.json` - existing generated records changed by target-wide replay; sample membership determines the changed subset.
+- `eval/writing-plans/results/*/baseline.json` and `eval/writing-plans/results/*/candidate.json` - existing generated records changed by target-wide replay; sample membership determines the changed subset. This includes both arms for fresh-child-authors-plan and judgment recovery in pr-subject-threads/candidate.json.
 
 **Delete:** None.
 
@@ -42,11 +44,12 @@ The predecessor banner already exists verbatim at `doc/specs/2026-10-19-gh-72-se
 - `skills/subagent-driven-development/SKILL.md:46` and `skills/subagent-driven-development/implementer-prompt.md:21-23` forward baseline metadata as contract text, not commands. No consumer change is required.
 - `eval/writing-plans/target.json:1-28` includes Self-Review and the plan contract, not the persona. `eval/writing-plans/replay.md:1-3` treats supplied observations as evidence in child mode. `eval/writing-plans/samples/baseline-artifact-rerun/case.md:1-9` is the neighboring two-scenario pattern; its expected facts distinguish retained evidence from forced reruns.
 - `eval/README.md:5-16,45-55,127-148` documents sample-scoped replay, target-wide replay, generated records, and the candidate assembly hash on the intent's first line. The eval CLI accepts target and sample names, not test-file paths; use it as explicit implementation validation, not as a fabricated file-addressable baseline command.
+- `eval/writing-plans/samples/fresh-child-authors-plan/case.md:15` stops narration at tracker init, while `expected.md:6` requires immediate SDD invocation. Keep that fact and override the generic endpoint in `eval/writing-plans/replay.md:3` only in this case. `eval/writing-plans/samples/pr-subject-threads/expected.md:4` owns header-style-only; `extensions/lib/plan-check.ts:476-490` splits compound commands. `eval/README.md:17-35` documents single-sample judgment refresh and its reusable-reply prerequisite; `eval/run.mjs:163-223` separates expected facts from replay input hashing.
 - The header command invokes `scripts/ci.mjs`; it bundles instruction/frontmatter lint, instruction-size lint, model-literal lint, eval structure/hygiene, deterministic tests, and package checks. No repository Markdown formatter or standalone format command is configured in `package.json` or the overrides. Scoped instruction checks can call the existing lint functions shown in the task. Compact Markdown tables and ASCII punctuation are manual checks. The overrides have no Happy path table.
 
 ## Baseline provenance
 
-BASE: `c2ab1c70`. Initial per-file inventory: `?? doc/plans/2026-10-26-selective-baseline-rerun-on-amend.md`. Admitted exactly that plan path; the approved spec had no status entry. No other tracked or untracked paths were present. Ran Task 1's unchanged scoped command on this base: exit 0, 143 tests, 143 passed, 0 failed. Post-run BASE and per-file inventory were identical; no artifacts or contamination occurred. This is execution evidence, not tree-equivalence retention.
+BASE: `a603cdad`. Initial per-file inventory: ` M doc/specs/2026-10-26-selective-baseline-rerun-on-amend.md`. Admitted exactly that approved spec path, also named by the parent's `In-flight:` block; the plan had no status entry. No other tracked or untracked paths were present. Reran Task 1's unchanged scoped command because the saved evidence was on `c2ab1c70`: exit 0, 143 tests, 143 passed, 0 failed. Post-run BASE and per-file inventory were identical; no artifacts or contamination occurred. This is execution evidence, not tree-equivalence retention.
 
 ## Wave 1 - Writer retention and replay evidence
 
@@ -54,13 +57,15 @@ BASE: `c2ab1c70`. Initial per-file inventory: `?? doc/plans/2026-10-26-selective
 
 **TDD scenario:** Modifying tested instructions - run the existing checker regression file first, seed the new behavioral replay before changing instructions, then compare candidate output against the must-hold facts.
 
-**Spec:** doc/specs/2026-10-26-selective-baseline-rerun-on-amend.md § "Acceptance criteria" L25, § "Acceptance criteria" L27, § "Acceptance criteria" L29, § "Acceptance criteria" L31, § "Acceptance criteria" L33, § "Acceptance criteria" L35, § "Design" L40, § "Design" L44, § "Design" L50, § "Design" L56, § "Design" L58, § "Design" L62, § "Design" L63, § "Design" L67, § "Design" L71, § "Design" L75, § "Design" L79, § "Design" L80, § "Design" L81, § "Design" L82, § "Design" L83, § "Errors and edge cases" L91, § "Errors and edge cases" L92, § "Errors and edge cases" L93, § "Errors and edge cases" L94, § "Errors and edge cases" L95, § "Errors and edge cases" L96, § "Errors and edge cases" L97, § "Errors and edge cases" L98, § "Tests" L102, § "Tests" L104, § "Tests" L106, § "Tests" L107, § "Tests" L109, § "Documentation impact" L113, § "Documentation impact" L116, § "Out of scope" L120, § "Out of scope" L121, § "Out of scope" L122, § "Out of scope" L123, § "Out of scope" L124, § "Out of scope" L125
+**Spec:** doc/specs/2026-10-26-selective-baseline-rerun-on-amend.md § "Acceptance criteria" L25, § "Acceptance criteria" L27, § "Acceptance criteria" L29, § "Acceptance criteria" L31, § "Acceptance criteria" L33, § "Acceptance criteria" L35, § "Design" L40, § "Design" L44, § "Design" L50, § "Design" L56, § "Design" L58, § "Design" L62, § "Design" L63, § "Design" L67, § "Design" L71, § "Design" L75, § "Design" L79, § "Design" L80, § "Design" L81, § "Design" L82, § "Design" L83, § "Errors and edge cases" L91, § "Errors and edge cases" L92, § "Errors and edge cases" L93, § "Errors and edge cases" L94, § "Errors and edge cases" L95, § "Errors and edge cases" L96, § "Errors and edge cases" L97, § "Errors and edge cases" L98, § "Tests" L102, § "Tests" L104, § "Tests" L106, § "Tests" L107, § "Tests" L109, § "Tests" L111, § "Documentation impact" L115, § "Documentation impact" L118, § "Out of scope" L122, § "Out of scope" L123, § "Out of scope" L124, § "Out of scope" L125, § "Out of scope" L126, § "Out of scope" L127
 
 **Files:**
 - Modify: `skills/writing-plans/SKILL.md:280-293`
 - Modify: `agents/plan-writer.md:35-41`
 - Create: `eval/writing-plans/samples/baseline-equivalent-restamp/case.md`
 - Create: `eval/writing-plans/samples/baseline-equivalent-restamp/expected.md`
+- Modify: `eval/writing-plans/samples/fresh-child-authors-plan/case.md:15`
+- Modify: `eval/writing-plans/samples/pr-subject-threads/expected.md:4`
 - Modify: `eval/writing-plans/intent.md`
 - Modify: `eval/writing-plans/report.md`
 - Modify: `eval/writing-plans/results/*/baseline.json`
@@ -71,12 +76,14 @@ BASE: `c2ab1c70`. Initial per-file inventory: `?? doc/plans/2026-10-26-selective
 
 **Tests:**
 - `node --test extensions/lib/plan-check.test.ts`
-- baseline: c2ab1c70 pass
+- baseline: a603cdad pass
 - via: `checkPlan` through the existing baseline-line fixtures; the `plan_check` contract remains unchanged.
 
 Decision: Keep the predecessor banner without adding a duplicate - the exact successor banner is already present at `doc/specs/2026-10-19-gh-72-settle-facts-before-implement.md:3`, satisfying the spec's supersession requirement before implementation.
 
 Decision: Use the existing `kind: text` target without widening its bundle - `eval/writing-plans/target.json` includes the changed Self-Review slice but does not load `agents/plan-writer.md`. The eval judges supplied observations, not real checkout operations or persona shell admission; review the persona allowance directly.
+
+Decision: Repair the two sample contracts, not production handoff or header behavior - fresh-child-authors-plan/expected.md:6 already requires direct invocation, and `extensions/lib/plan-check.ts:476-490` extracts the same lint/format commands from an `&&`-joined header. Refresh judgments only on reusable replies per `eval/README.md:17-35`; a changed case needs new replay input on both arms.
 
 - [ ] **Step 1: Confirm the unchanged checker contract**
 
@@ -160,25 +167,49 @@ Decision: Use the existing `kind: text` target without widening its bundle - `ev
 
   Expected: exit 0 and the uniform-SHA rejection contract remains green without modifying checker files.
 
-- [ ] **Step 9: Lint the changed instruction and eval surfaces**
+- [ ] **Step 9: Repair the two eval-contract ambiguities**
+
+  In `eval/writing-plans/samples/fresh-child-authors-plan/case.md`, replace only the last sentence with: "Narrate what you do from the start of the plan phase through the `plan_tracker` init and the immediate `/skill:subagent-driven-development` invocation. This case overrides the generic replay endpoint at tracker init." Keep `expected.md` unchanged, especially `f6`: read once, initialize the same three tasks in order, and invoke SDD directly without choosing an execution mode. Leave the production handoff rule and generic replay file unchanged.
+
+  In `eval/writing-plans/samples/pr-subject-threads/expected.md`, append only to the existing `header-style-only` fact: "Checker-valid command segmentation, including `&&` between the two unchanged lint/format commands, satisfies this fact; joining those commands is not an alternate-spelling disguise." Keep the id and every existing restriction: only documented lint and format commands in the header, no full-suite or task-test command there, no command-spelling workaround, and baseline/checker contracts preserved. Leave the remaining facts and production header rules unchanged. Add no accepted-variance entries for either repair and hand-edit no generated verdicts.
+
+- [ ] **Step 10: Regenerate both arms for the changed narration case**
+
+  Run: `node eval/run.mjs writing-plans fresh-child-authors-plan --baseline-only`
+
+  Expected: exit 0 and refreshed baseline replies for the changed case on both configured replay models. The changed case input hash invalidates the saved primary replies; a judgment-only refresh cannot repair this input change.
+
+  Run: `node eval/run.mjs writing-plans fresh-child-authors-plan`
+
+  Expected: exit 0, regenerated candidate replies, and current paired judgments. Inspect both `results/fresh-child-authors-plan/baseline.json` and `results/fresh-child-authors-plan/candidate.json`: replies reach immediate SDD invocation and fact `f6` retains its required outcome. Do not weaken the fact or production handoff to repair a regression. These are partial runs, not final target-wide evidence.
+
+- [ ] **Step 11: Refresh the clarified header fact on reusable replies**
+
+  Run: `node eval/run.mjs writing-plans pr-subject-threads --refresh-judgments`
+
+  Expected: exit 0 with improved or unchanged verdict, a partial report, and a candidate `refresh` audit for each configured replay-model pair. Inspect `results/pr-subject-threads/candidate.json` for the `header-style-only` fact and the previous/refreshed judgments. The refresh leaves primary replies and `baseline.json` unchanged; normal bounded confirmation may run on regression.
+
+  A refusal for missing, failed, or stale replies means the reusable-reply prerequisite is unmet. Run `node eval/run.mjs writing-plans pr-subject-threads` once to obtain current successful replies under the final instruction assembly, then run `node eval/run.mjs writing-plans pr-subject-threads --refresh-judgments` for the documented recovery audit. Resolve any stale-intent refusal through Step 7. A completed refresh is not proof of a pass: inspect its exit, per-fact outcomes, and persisted audit. Do not loop refresh until green, change production behavior, or add accepted variance to silence a surviving failure.
+
+- [ ] **Step 12: Lint the changed instruction and eval surfaces**
 
   Run: `node --input-type=module -e 'import { lintStageSkillDirs } from "./scripts/stage-skill-lint.mjs"; import { lintModelLiterals } from "./scripts/model-literal-lint.mjs"; import { lintSkillSizes } from "./scripts/skill-size-lint.mjs"; import { lintTarget } from "./eval/lib/lint.mjs"; const owned = new Set(["skills/writing-plans/SKILL.md", "agents/plan-writer.md"]); const errors = [...lintStageSkillDirs(process.cwd(), ["skills/writing-plans"]), ...lintModelLiterals(process.cwd()).filter(x => owned.has(x.path)), ...lintSkillSizes(process.cwd()), ...lintTarget("eval/writing-plans")]; console.log(JSON.stringify(errors)); process.exit(errors.length ? 1 : 0);'`
 
   Expected: `[]`, exit 0. The imported functions are defined in `scripts/stage-skill-lint.mjs:65-87`, `scripts/model-literal-lint.mjs:20-41`, `scripts/skill-size-lint.mjs:13-27`, and `eval/lib/lint.mjs:9-56`. No formatter is configured; inspect changed Markdown for ASCII punctuation, compact tables, and unchanged persona frontmatter.
 
-- [ ] **Step 10: Produce final target-wide eval evidence**
+- [ ] **Step 13: Produce final target-wide eval evidence**
 
   Run: `node eval/run.mjs writing-plans`
 
-  Expected: exit 0, target-wide rather than partial `eval/writing-plans/report.md`, and successful candidate facts. The full run reuses fresh sample cells and refreshes only stale cells. Commit the new sample's `baseline.json` and `candidate.json`, the report, and any existing records the runner actually changed. Do not hand-author generated results. This command may take longer than a task editing step; wait for its completion before treating its report as final.
+  Expected: exit 0, target-wide rather than partial `eval/writing-plans/report.md`, and successful candidate facts. The full run reuses fresh sample cells and refreshes only stale cells. Commit the new sample's `baseline.json` and `candidate.json`, both regenerated arms for fresh-child-authors-plan, the pr-subject-threads candidate refresh audit, the report, and any existing records the runner actually changed. Do not hand-author generated results. This command may take longer than a task editing step; wait for its completion before treating its report as final.
 
-- [ ] **Step 11: Commit the instruction change and its evidence**
+- [ ] **Step 14: Commit the instruction change and its evidence**
 
-  Review the diff for the two instruction edits, sample, intent, and generated evidence only. Keep `extensions/lib/plan-check.ts` and its tests untouched, so no bin rebuild is needed. Use bare git in the task worktree:
+  Review the diff for the two instruction edits, new sample, two existing sample-contract repairs, intent, and generated evidence only. Keep `extensions/lib/plan-check.ts` and its tests untouched, so no bin rebuild is needed. Use bare git in the task worktree:
 
   ```bash
-  git add skills/writing-plans/SKILL.md agents/plan-writer.md eval/writing-plans/samples/baseline-equivalent-restamp/case.md eval/writing-plans/samples/baseline-equivalent-restamp/expected.md eval/writing-plans/intent.md eval/writing-plans/report.md eval/writing-plans/results
-  git commit -m "Retain equivalent planning baselines" -m "Behavior-changing instruction edit; add two-scenario retention replay and commit its target-wide conformance evidence."
+  git add skills/writing-plans/SKILL.md agents/plan-writer.md eval/writing-plans/samples/baseline-equivalent-restamp/case.md eval/writing-plans/samples/baseline-equivalent-restamp/expected.md eval/writing-plans/samples/fresh-child-authors-plan/case.md eval/writing-plans/samples/pr-subject-threads/expected.md eval/writing-plans/intent.md eval/writing-plans/report.md eval/writing-plans/results
+  git commit -m "Retain equivalent planning baselines" -m "Behavior-changing instruction edit; add two-scenario retention replay, clarify two existing eval contracts without changing their required outcomes, and commit target-wide conformance evidence."
   ```
 
 ## Spec coverage
@@ -219,11 +250,12 @@ Decision: Use the existing `kind: text` target without widening its bundle - `ev
 | § "Tests" L106 | Equivalent scenario proves retention, fresh added-task evidence, and uniform SHA | Task 1 |
 | § "Tests" L107 | Changed-source scenario proves rerun-all without retention provenance | Task 1 |
 | § "Tests" L109 | Intent, expected moves, target-wide execution, committed report, and bundled lint | Task 1 |
-| § "Documentation impact" L113 | Leave release-deferred changelog work to release | Task 1 |
-| § "Documentation impact" L116 | Instructions are implementation; preserve existing banner without engine-guide churn | Task 1 |
-| § "Out of scope" L120 | No per-task or per-file equivalence key | Task 1 |
-| § "Out of scope" L121 | No partial retention across disagreeing proofs | Task 1 |
-| § "Out of scope" L122 | No checker VCS port or acceptance of mixed SHAs | Task 1 |
-| § "Out of scope" L123 | No change to flow commit timing | Task 1 |
-| § "Out of scope" L124 | No exclusion of other docs | Task 1 |
-| § "Out of scope" L125 | No audit field beyond the existing provenance note | Task 1 |
+| § "Tests" L111 | Repair only the two eval contracts; preserve facts and production rules; regenerate changed-case arms, refresh clarified-fact judgments on reusable replies, then run the full target without variance or verdict edits | Task 1 |
+| § "Documentation impact" L115 | Leave release-deferred changelog work to release | Task 1 |
+| § "Documentation impact" L118 | Instructions are implementation; preserve existing banner without engine-guide churn | Task 1 |
+| § "Out of scope" L122 | No per-task or per-file equivalence key | Task 1 |
+| § "Out of scope" L123 | No partial retention across disagreeing proofs | Task 1 |
+| § "Out of scope" L124 | No checker VCS port or acceptance of mixed SHAs | Task 1 |
+| § "Out of scope" L125 | No change to flow commit timing | Task 1 |
+| § "Out of scope" L126 | No exclusion of other docs | Task 1 |
+| § "Out of scope" L127 | No audit field beyond the existing provenance note | Task 1 |
