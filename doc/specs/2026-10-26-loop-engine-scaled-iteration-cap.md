@@ -42,7 +42,7 @@ Drafted from the design, no ticket rows:
 - [ ] `doc/configuration.md` "Loop engine operations" documents `maxIterationsPerRow` (default, floor, non-integer fallback, removed-key warning), the `cap:` header and its derivation, and the `cap +N` grant; `doc/implement-engines.md` names the row-scaled cap where it names the total iteration bound; neither document mentions `loopEngine.maxIterations` except as the removed key.
   in-scope
 - [ ] `npm test` passes, and `node eval/run.mjs loop-implementation`, `node eval/run.mjs gauntlet-resume`, and `node eval/run.mjs brainstorming` pass with their committed `report.md`, each target carrying at least one sample added for this change (cap stop and `cap +N` grant; legacy ledger without `cap:`; `cap:` read on resume; tree-wide drafted row split).
-  in-scope
+  deviates: `node eval/run.mjs brainstorming` exits 1 only on `grant-budget-reply/funded-value`, a pre-existing trailing-period judge flip on a sample this change does not touch (the base report at def71189 shows the same fact flipping on the other model); `loop-implementation`, `gauntlet-resume`, and every sample added for this change hold
 
 ## Design
 
