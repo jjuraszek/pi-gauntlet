@@ -1,7 +1,7 @@
 {
   "sample": "deferred-without-ref",
   "arm": "candidate",
-  "skillSha": "c2a55d79536209271cff0bf58299639ae4234de2f91431f081ddf6be8adf5cf2",
+  "skillSha": "55dd284a5f807216f6e0f9ab1a808a744a50b34441353fb2fab51f5c73473eb6",
   "inputSha": "37b30a648c9df5a061645d2ff541372dc0e6e0bcd4ce77841ee0f8894edc89f3",
   "kind": "text",
   "assembly": "headed",
@@ -17,16 +17,16 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "Delivers: the reports page exports CSV on demand. ACs 1, 2, 4; 5 deferred per spec to acme/widgets#46; 4's observable half (export completes under 5s on production data) is checked after merge, not here.\n\nNits:\n- The export pages results with its own loop instead of the shared paging helper, so a paging bug fixed once would need fixing twice. (src/api/export.ts:31, lib/page.ts)\n\nBlockers:\n1. The spec defers email delivery to \"a follow-up ticket\" without naming a ticket, spec, or URL, so nothing records where that row lands and it cannot be traced after merge. (doc/specs/2026-09-30-csv-export.md)\n\nVerdict: fixable - 1 blocker\n\nPick one:\n1. assess - post the review to the PR; then approve or stop, no repairs.\n2. deliver - repair blockers, rebase on main, watch CI, repeat until merge is offered. [recommended]\n3. deliver with nits - deliver, and fold the 1 nit into the repairs.\n4. stop - remove the worktree, leave the PR as is.\n\nCourse holds until the final menu; `show evidence` prints the full record.\n",
-      "words": 164,
-      "wallMs": 22374,
+      "text": "Delivers: the reports page exports CSV on demand. ACs 1, 2, 4; 5 deferred per spec to acme/widgets#46; 4's observable half (export completes under 5s on production data) is checked after merge, not here.\n\nNits:\n- The export pages results with its own loop instead of the shared paging helper, so a paging bug fixed once would need fixing twice. (src/api/export.ts:31, lib/page.ts)\n\nBlockers:\n1. The spec defers email delivery to an unnamed follow-up ticket rather than a ticket number, spec path, or URL, so nothing records where that work lands. Leaving AC 3 without a destination also means nobody can check the deferral after merge. (doc/specs/2026-09-30-csv-export.md)\n\nVerdict: fixable - 1 blocker\n\nPick one:\n1. assess - post the review to the PR; then approve or stop, no repairs.\n2. deliver - repair blockers, rebase on main, watch CI, repeat until merge is offered. [recommended]\n3. deliver with nits - deliver, and fold the 1 nit into the repairs.\n4. stop - remove the worktree, leave the PR as is.\n\nCourse holds until the final menu; `show evidence` prints the full record.\n",
+      "words": 175,
+      "wallMs": 18029,
       "mechanical": {}
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "Delivers: On-demand CSV downloads from the reports page with bounded paging. ACs 1, 2, 4; 5 deferred per spec to acme/widgets#46; 4's observable half (completion under 5s on production data) is checked after merge, not here.\n\nNits:\n- The export pages results with its own loop instead of the shared paging helper, so a paging bug fixed once would need fixing twice. (src/api/export.ts:31, lib/page.ts)\n\nBlockers:\n1. Email delivery is deferred without a concrete ticket, spec, or URL, so the deferral does not settle the promised behavior. (doc/specs/2026-09-30-csv-export.md, AC3)\n\nVerdict: fixable - 1 blocker\n\nPick one:\n1. assess - post the review to the PR; then approve or stop, no repairs.\n2. deliver - repair blockers, rebase on main, watch CI, repeat until merge is offered. [recommended]\n3. deliver with nits - deliver, and fold the 1 nit into the repairs.\n4. stop - remove the worktree, leave the PR as is.\n\nCourse holds until the final menu; `show evidence` prints the full record.\n",
-      "words": 157,
-      "wallMs": 11265,
+      "text": "Delivers: The reports page downloads on-demand CSV exports with bounded paging. ACs 1, 2, 4; 5 deferred per spec to acme/widgets#46; 4's observable half (completion under 5s on production data) is checked after merge, not here.\n\nNits:\n- The export pages results with its own loop instead of the shared paging helper, so a paging bug fixed once would need fixing twice. (src/api/export.ts:31, lib/page.ts)\n\nBlockers:\n1. Email delivery is deferred without a ticket, spec, or URL reference, so AC3 remains an unsettled requirement. (doc/specs/2026-09-30-csv-export.md)\n\nVerdict: fixable - 1 blocker\n\nPick one:\n1. assess - post the review to the PR; then approve or stop, no repairs.\n2. deliver - repair blockers, rebase on main, watch CI, repeat until merge is offered. [recommended]\n3. deliver with nits - deliver, and fold the 1 nit into the repairs.\n4. stop - remove the worktree, leave the PR as is.\n\nCourse holds until the final menu; `show evidence` prints the full record.\n",
+      "words": 153,
+      "wallMs": 11202,
       "mechanical": {}
     }
   },
@@ -36,7 +36,7 @@
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
       "intentSha": "7b2e3a5bfb39a71eb395266d96387edb730a79ef0afc6e33dc48f0fa35ffc691",
       "baselineOutputSha": "617a8b81fcaa72285257d888b6b001e48c8999a87ef98aca0f94ee141f3d0efc",
-      "candidateOutputSha": "6b2d3d04b335376d3ad60f1a85798b9928c5d2c30a7750533018509a509cd8c0",
+      "candidateOutputSha": "95f4d8e2375394a25862eef5178919c9f00eec7306b275a91e613a0154eb348a",
       "facts": {
         "f1": {
           "before": "holds",
@@ -64,8 +64,8 @@
           "label": "held"
         }
       },
-      "feedback": "No fact moved: After keeps the single AC3 deferral blocker, mints nothing for AC5 (deferred to acme/widgets#46), offers no merge row, and posts nothing without a pick, while delivering the Change (assess/deliver/deliver-with-nits/stop courses, show evidence demoted to the hint line, stop last, exactly one recommendation). One small regression in traceability rather than in facts: Before's blocker citation ended with \", AC3\" while After cites only the spec path, so a reader has to infer the row from the phrase \"email delivery\"; keep the \"(doc/specs/..., AC3)\" citation form in the blocker line so row identity stays explicit. Also note After's stop row says \"remove the worktree\" where Before said \"leave the PR as-is\" — fine for terminal cleanup ownership, but make sure that wording does not imply branch deletion or base pull, which the Change reserves for post-merge cleanup.",
-      "wallMs": 11600,
+      "feedback": "Nothing moved on this case: After keeps the single AC3 blocker worded as a missing ticket number/spec path/URL, mints nothing for AC5 (deferred to acme/widgets#46), offers no merge row, and posts to the PR only via an explicit pick (assess=1), with show evidence demoted to the hint line as the Change intends. Two small wording notes: After drops the Before line '1 nit open - fix nits to take them' under Nits while still saying 'the 1 nit' in row 3, so consider keeping a one-line nit tally under the Nits heading so the count is grounded in the same section; and row 2's 'repeat until merge is offered' is fine for f3 as written, but if you want to avoid any reader mistaking it for a merge offer, phrase it as 'until the PR is ready to merge' so the menu text itself never contains the word merge as an action.",
+      "wallMs": 14991,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
@@ -73,7 +73,7 @@
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
       "intentSha": "7b2e3a5bfb39a71eb395266d96387edb730a79ef0afc6e33dc48f0fa35ffc691",
       "baselineOutputSha": "66b8e819f64b51c49291d2714186e5a934fb95dfe40679d8990f5c42f9e46247",
-      "candidateOutputSha": "20d43c1b42a1ab02ff780a759907d1fc4ae191c89c4af95dd1d2b4dcfce52ed5",
+      "candidateOutputSha": "2f84182a7cccd81c06a31480d5425000075226d178b0f874090b1575fce27e8f",
       "facts": {
         "f1": {
           "before": "holds",
@@ -101,10 +101,10 @@
           "label": "held"
         }
       },
-      "feedback": "No fact moved between Before and After. Both outputs mint exactly one blocker for the ticketless email-delivery deferral (AC3), leave AC5 untouched as deferred to acme/widgets#46, offer no merge row while a blocker remains, and post nothing to the PR or tracker before a pick is made. After successfully delivers the Change: the per-action review/stop menu is replaced by persistent assess/deliver/deliver-with-nits/stop courses, show evidence is demoted to the hint line, and stop stays last with exactly one recommended row. Two small cautions for the author: the After blocker now cites AC3 explicitly, which is a helpful addition, but keep the phrasing of the deferral rule anchored on the three concrete reference kinds (ticket, spec path, URL) rather than the looser term concrete ticket so f1 remains a mechanical check; and the deliver row promises to repeat until merge is offered, which is fine here because merge is correctly absent now, but the template should keep that promise conditional on zero remaining blockers so f3 cannot drift in a future wording round.",
-      "wallMs": 21986,
+      "feedback": "No fact moved: After keeps the single AC3 blocker (deferral with no ticket/spec/URL), mints nothing for AC5 (deferred to acme/widgets#46), offers no merge row, posts nothing with pick=none, and correctly migrates show evidence from a numeric row to the hint line with stop last and exactly one recommendation. One thing to watch: the 'deliver' row's text 'repeat until merge is offered' is the only place the word merge appears in the menu, and a reader skimming for 'merge' could misread it as an available action; consider phrasing it as 'repeat until the PR is mergeable' so f3 stays unambiguous. Also, Before's 'Not offered: ... merge (1 blocker remains)' line made the non-offer explicit; if the shared menus.md template allows a short 'merge not offered: 1 blocker' note in the hint, that would preserve that explicit signal while still delivering the course-based menu.",
+      "wallMs": 11874,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "62346c441fae01b206b2b2eb740709554bdd85ac"
+  "repoSha": "396177d42875726eb2b914565001b40b286439fa"
 }

@@ -1,7 +1,7 @@
 {
   "sample": "deviates",
   "arm": "candidate",
-  "skillSha": "c2a55d79536209271cff0bf58299639ae4234de2f91431f081ddf6be8adf5cf2",
+  "skillSha": "55dd284a5f807216f6e0f9ab1a808a744a50b34441353fb2fab51f5c73473eb6",
   "inputSha": "dd306c9a781c4cf16c8a5fa51f5e6253f1e28fa82e1120fde0c22501e63e7e93",
   "kind": "text",
   "assembly": "headed",
@@ -17,16 +17,16 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "Delivers: the reports page exports a 12-column CSV on demand, emails it to the requesting user, and records an export audit event. ACs 1, 3, 4, 5; 2 deviates per spec: the table has 40 columns, so the export includes the 12 visible-by-default columns (Design clause 3); 4's observable half (export completes under 5s on production data) is checked after merge, not here.\n\nNits:\n- The export pages results with its own loop instead of the shared paging helper, so a paging bug fixed once would need fixing twice. (src/api/export.ts:31, lib/page.ts)\n1 nit open - fix nits to take them\n\nVerdict: mergeable - CI green on the assessed head (test)\n\nPick one:\n1. merge - squash-merge the PR on the assessed head. [recommended]\n2. fix nits - take the 1 nit in one repair pass, then return to this menu.\n3. stop - end the gate and leave the PR open as is.\n\nNot offered: approve (own PR)\n\nType a number; show evidence prints the full record.\n",
-      "words": 161,
-      "wallMs": 13369,
+      "text": "Delivers: the reports page exports a 12-column CSV on demand, emails it to the requesting user, and writes an export audit event. ACs 1, 3, 4, 5; 2 deviates per spec: the table has 40 columns, so the export includes the 12 visible-by-default columns (Design clause 3); 4's observable half (export completes under 5s on production data) is checked after merge, not here.\n\nNits:\n- The export pages results with its own loop instead of the shared paging helper, so a paging bug fixed once would need fixing twice. (src/api/export.ts:31, lib/page.ts)\n\n1 nit open - fix nits to take them\n\nVerdict: mergeable - CI green on the assessed head (test)\n\nPick one:\n1. merge - squash-merge acme/widgets#210 at the assessed head. [recommended]\n2. fix nits - repair the 1 nit in one delivery iteration with review, push, and CI watch, then return here.\n3. stop - remove the worktree and leave the PR as is.\n\nNot offered: approve (your own PR)\n\nType a number; show evidence prints the full record.\n",
+      "words": 164,
+      "wallMs": 14120,
       "mechanical": {}
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "Delivers: The reports page downloads and emails CSV exports with audit events. ACs 1, 3, 4, 5; 2 deviates per spec: the export includes the 12 visible-by-default columns rather than all 40 table columns, as Design clause 3 specifies; 4's observable half (completion under 5s on production data) is checked after merge, not here.\n\nNits:\n- The export pages results with its own loop instead of the shared paging helper, so a paging fix would need to be made twice. (src/api/export.ts:31, lib/page.ts)\n\n1 nit open - fix nits to take them\n\nVerdict: mergeable - CI green on the assessed head (test)\n\nPick one:\n1. merge - squash and merge the assessed head. [recommended]\n2. fix nits - run one delivery iteration to address the paging nit.\n3. stop - leave the checkout and PR as they are.\n\nNot offered: approve (own PR).\n\nType a number; show evidence prints the full record.\n",
-      "words": 145,
-      "wallMs": 9996,
+      "text": "Delivers: The reports page downloads CSV exports, emails them to the requesting user, and records export audit events. ACs 1, 3, 4, 5; 2 deviates per spec: exports include the 12 visible-by-default columns rather than all 40 table columns; 4's observable half (completion under 5s on production data) is checked after merge, not here.\n\n## Nits\n- The export pages results with its own loop instead of the shared paging helper, so a paging bug fixed once would need fixing twice. (src/api/export.ts:31, lib/page.ts)\n\n1 nit open - fix nits to take it\n\nVerdict: mergeable - CI green on the assessed head (test)\n\nPick one:\n1. merge - merge the assessed head using squash. [recommended]\n2. fix nits - run one repair iteration for the paging-loop nit.\n3. stop - leave the checkout and PR as is.\n\nNot offered: approve (own PR).\n\nType a number; show evidence prints the full record.\n",
+      "words": 143,
+      "wallMs": 8565,
       "mechanical": {}
     }
   },
@@ -36,7 +36,7 @@
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
       "intentSha": "7b2e3a5bfb39a71eb395266d96387edb730a79ef0afc6e33dc48f0fa35ffc691",
       "baselineOutputSha": "bbe9835fbb14118d42afda78699503d5bcf142cc05b3470f1e57ebce2758f338",
-      "candidateOutputSha": "4c26c8b21d9304f9bf8430a73a4c62f3c39f08f31fd3148588bc3655137f94ab",
+      "candidateOutputSha": "80e5407e87b3d3c8f62027bfea882880a9f45357ea6a5b0bd948106d99d8bdee",
       "facts": {
         "f1": {
           "before": "holds",
@@ -64,8 +64,8 @@
           "label": "held"
         }
       },
-      "feedback": "After keeps every fact Before kept: the Delivers line still reports AC2 as deviating per spec with the 40-vs-12 column rationale and Design clause 3 citation, no blocker is minted for row 2, the gate shows a mergeable verdict with zero blockers, merge remains row 1 and recommended, stop remains last, show evidence is relegated to the hint line rather than a numeric row, and nothing is posted to the ticket or PR without a pick. The migrated menu wording ('Pick one:', the shared-template row descriptions, the 'Not offered: approve (own PR)' line) delivers the Change without touching the scope verdict or side effects. One small drift unrelated to the facts: 'records an export audit event' replaced 'writes an export audit event'; keeping the spec's verb 'writes' would make the Delivers line track Design clause 4 more literally, but it moves no fact.",
-      "wallMs": 9463,
+      "feedback": "Nothing moved on this case: the After keeps the identical Delivers line (row 2 named as deviating per spec with the 40-vs-12 column rationale), lists no blockers, offers merge at 1 as the sole recommendation with stop last, and posts nothing since there is no pick. The migration to the shared menus.md shape shows cleanly - 'Pick one:', the 'Not offered: approve (your own PR)' line, and show evidence demoted to the hint sentence rather than a numeric row. One wording point to watch for other cases: the After's stop row now says 'remove the worktree and leave the PR as is', which introduces a cleanup side effect into a non-terminal first-ready menu that Before described as plain 'leave the PR as-is'; since the Change says terminal cleanup side effects stay unchanged and post-merge cleanup remains the sole path to branch deletion and base pull, consider keeping stop's description to worktree removal only (or matching Before's phrasing) so a reader cannot infer that stop performs any cleanup beyond the local worktree.",
+      "wallMs": 11022,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
@@ -73,7 +73,7 @@
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
       "intentSha": "7b2e3a5bfb39a71eb395266d96387edb730a79ef0afc6e33dc48f0fa35ffc691",
       "baselineOutputSha": "3a4053fb4181e6ffc4f3797e285e4a68d3e70a1b5bfa8536ba6306f5ff13eeb1",
-      "candidateOutputSha": "d9ba01a06080413f13495fa31cd57ed937d80e9d4566e91e8b12c9cd8ecb080b",
+      "candidateOutputSha": "75d586c3997f7d5767b8721dd92c23fbe8d84fbc6bd10f9197d5657ad9b4c051",
       "facts": {
         "f1": {
           "before": "holds",
@@ -101,10 +101,10 @@
           "label": "held"
         }
       },
-      "feedback": "Nothing moved on this case: After still names row 2 as deviating per spec with the 12-vs-40 column reason (now with the Design clause 3 citation, which is a small improvement), lists no blockers, offers merge as the recommended row 1, mints no blocker for row 2, and posts no comment before a pick. The migration the Change asked for is visible and clean - show evidence has left the numeric rows for the hint line, stop is last, and the 'Not offered: approve (own PR)' note is a reasonable shared-template addition. The only wording I would tighten is the opening Delivers sentence, which dropped Before's '12-column CSV' phrasing; keeping something like 'downloads a 12-column CSV, emails it to the requesting user, and records an audit event' before the AC list would make the deviation reason self-evident from the first sentence rather than only from the AC2 clause, which guards f1 against template edits that trim the AC line later.",
-      "wallMs": 10668,
+      "feedback": "Nothing moved on this case: After keeps the Delivers line with AC 2 marked as deviating per spec (12 visible-by-default columns rather than all 40), lists no blockers, offers merge as the recommended first row, mints no blocker for the deviating row, and posts no tracker or PR comment since Pick is none. The migration to the shared menus.md template is visible and correct here — show evidence has moved out of the numbered rows into the hint line, stop is last, and the 'Not offered: approve (own PR)' note is a reasonable addition. One small thing to watch: the new '1 nit open - fix nits to take it' summary line sits between the Nits section and the Verdict, which a reader could skim as a gate status; keeping that count inside or directly under the Nits heading (e.g. '## Nits (1 open)') would avoid any chance of it being read as a blocker count while still delivering the course-based menu wording.",
+      "wallMs": 10204,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "62346c441fae01b206b2b2eb740709554bdd85ac"
+  "repoSha": "396177d42875726eb2b914565001b40b286439fa"
 }
