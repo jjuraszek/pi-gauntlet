@@ -24,7 +24,7 @@
 - Read each whole instruction file before editing; use imperative voice, compact tables and minimal owner-local edits. The finish skill is exactly 500 lines. Keep its modified units concise and the resulting file at or below 500 lines without dropping obligations or reflowing unrelated sections. This avoids introducing a reference absent from the eval baseline: `eval/run.mjs:185-217` reads every bundled path on both arms and refuses missing paths.
 - Evals use synthetic narrated observations, not live tracker operations. Model calls and committed evidence generation belong to Task 5, not Baseline. `eval/README.md:35-145` owns assembly, intent SHA and runner rules. Do not perform live PR merges, pushes or closes while implementing instructions.
 - The predecessor already has the approved partial supersession banner at `doc/specs/2026-10-23-gh-78-pr-as-brainstorm-subject.md:3`. Verify and preserve it rather than appending a duplicate. No new feature documentation, bin, extension, dependency or AGENTS edit is needed.
-- Amendment continuation: Tasks 1, 3 and 4 reopen only for the regression-safety clarifications below; preserve their completed list behavior. Task 5 remains in progress and owns all four targets' raw results as well as intents and reports. Task 6 remains pending. Keep all task titles and wave positions unchanged.
+- Amendment continuation: Task 1 reopens only for the fixture partition in Step 8a; its accepted instruction and deterministic-test changes stay unchanged. Tasks 3 and 4 remain accepted with their code unchanged. Task 5 remains in progress and owns all four targets' raw results as well as intents and reports. Task 6 remains pending. Preserve every task title, wave position and unaffected step. The other three targets' successful evidence patches remain external during this fixture repair; do not stage them with Task 1 or the plan. Task 5 admits evidence through ordinary freshness checks before its evidence commit.
 
 ## Baseline provenance
 
@@ -33,6 +33,8 @@ Initial BASE: `1dbc90b5`. Initial per-file inventory: `?? doc/plans/2026-10-26-g
 Amendment BASE: `c23c02fe`. Initial per-file inventory: empty (clean worktree); only `doc/plans/2026-10-26-gh-89-pr-list-rework-subject.md` and `doc/specs/2026-10-26-gh-89-pr-list-rework-subject.md` were admitted, with no in-flight paths. The endpoint-tree proof `git diff --quiet 1dbc90b5 c23c02fe -- . ':!doc/specs/' ':!doc/plans/'` exited 1, so no evidence was retained. Reran all six task Tests commands unchanged: Tasks 1, 4 and 6 each ran 34 tests; Task 2 ran 37; Task 3 ran 1; Task 5 ran 14. Every execution exited 0 with tests executed. After each run HEAD remained `c23c02fe` and status was empty; no generated artifacts or contamination occurred.
 
 Regression-safety amendment BASE: `6f144da7`. Initial per-file inventory: ` M doc/specs/2026-10-26-gh-89-pr-list-rework-subject.md`. Admitted exactly that parent-supplied in-flight spec path and `doc/plans/2026-10-26-gh-89-pr-list-rework-subject.md`; no other path was dirty or admitted. The endpoint-tree proof `git diff --quiet c23c02fe HEAD -- . ':!doc/specs/' ':!doc/plans/'` at HEAD `6f144da7` exited 1, so no evidence was retained. Reran all six task Tests commands unchanged: Tasks 1, 4 and 6 each ran 39 tests; Task 2 ran 37; Task 3 ran 1; Task 5 ran 14. All six executions exited 0 with tests executed. After each execution HEAD remained `6f144da7` and status remained only the admitted modified spec; no generated artifacts or contamination occurred. Before checker repair, status listed only the same spec and plan, both modified and admitted; HEAD remained `6f144da7`. The proof `git diff --quiet 6f144da7 HEAD -- . ':!doc/specs/' ':!doc/plans/'` exited 0. All six unchanged commands retain their executed evidence at the same SHA; no re-stamping was needed.
+
+Fixture-partition amendment BASE: `a3d0cd1d`. Initial per-file inventory: ` M doc/specs/2026-10-26-gh-89-pr-list-rework-subject.md`. Admitted exactly that parent-supplied in-flight spec path and `doc/plans/2026-10-26-gh-89-pr-list-rework-subject.md`; no other path was dirty or admitted. The endpoint-tree proof `git diff --quiet 6f144da7 a3d0cd1 -- . ':!doc/specs/' ':!doc/plans/'` exited 1, so no evidence was retained. Reran all six task Tests commands unchanged: Tasks 1, 4 and 6 each ran 40 tests; Task 2 ran 37; Task 3 ran 1; Task 5 ran 14. All six executions exited 0 with tests executed. After each execution HEAD remained `a3d0cd1d` and status remained only the admitted modified spec; no generated artifacts or contamination occurred. Before checker repair, status listed only the admitted modified spec and plan; HEAD remained `a3d0cd1d`. The proof `git diff --quiet a3d0cd1d HEAD -- . ':!doc/specs/' ':!doc/plans/'` exited 0. All six unchanged commands retain their executed evidence at the same SHA; no re-stamping was needed.
 
 ## Files
 
@@ -66,7 +68,7 @@ Regression-safety amendment BASE: `6f144da7`. Initial per-file inventory: ` M do
 
 | Target directory | New sample directories under samples/ |
 |---|---|
-| `eval/using-git-worktrees` | `pr-list-member-merge-order`, `pr-list-member-conflict-unresolved`, `pr-list-member-conflict-repaired`, `pr-list-interrupted-recovery` |
+| `eval/using-git-worktrees` | `pr-list-member-merge-order`, `pr-list-member-conflict-unresolved`, `pr-list-member-conflict-repaired`, `pr-list-interrupted-recovery`, `pr-head-base-merge`, `pr-head-threads` |
 | `eval/finishing-a-development-branch` | `pr-list-push-and-close`, `pr-list-push-rejected`, `pr-list-body-edit-failed`, `pr-list-member-advanced` |
 | `eval/gauntlet-resume` | `pr-list-brief` |
 | `eval/brainstorming` | `pr-list-admission-mixed-base`, `pr-list-admission-issue-in-list`, `pr-list-relatedness-split`, `pr-list-per-pr-attribution`, `pr-list-record-missing-member` |
@@ -85,13 +87,17 @@ Tasks 1-3 own disjoint files and test fixtures. They use no shared mutable runti
 
 **TDD scenario:** Modifying tested code - run existing tests, add wording regressions, then change the instructions.
 
-**Spec:** doc/specs/2026-10-26-gh-89-pr-list-rework-subject.md § "Acceptance criteria" L31-L32, § "Acceptance criteria" L33-L34, § "Acceptance criteria" L37-L38, § "Acceptance criteria" L39-L40, § "Design" L87, § "Design" L89, § "Design" L91-L95, § "Design" L97, § "Design" L99, § "Design" L101, § "Design" L166, § "Errors and edge cases" L175, § "Errors and edge cases" L176, § "Errors and edge cases" L177, § "Out of scope" L224
+**Spec:** doc/specs/2026-10-26-gh-89-pr-list-rework-subject.md § "Acceptance criteria" L31-L32, § "Acceptance criteria" L33-L34, § "Acceptance criteria" L37-L38, § "Acceptance criteria" L39-L40, § "Design" L87, § "Design" L89, § "Design" L91-L95, § "Design" L97, § "Design" L99, § "Design" L101, § "Design" L166, § "Errors and edge cases" L175, § "Errors and edge cases" L176, § "Errors and edge cases" L177, § "Tests" L209, § "Out of scope" L226
 
 **Files:**
 - Modify: `skills/using-git-worktrees/reference/pr-head.md:3-100`
 - Modify: `scripts/brainstorming-contract.test.mjs:123-150`
 - Modify: `eval/using-git-worktrees/samples/pr-head/case.md`
 - Modify: `eval/using-git-worktrees/samples/pr-head/expected.md`
+- Create: `eval/using-git-worktrees/samples/pr-head-base-merge/case.md`
+- Create: `eval/using-git-worktrees/samples/pr-head-base-merge/expected.md`
+- Create: `eval/using-git-worktrees/samples/pr-head-threads/case.md`
+- Create: `eval/using-git-worktrees/samples/pr-head-threads/expected.md`
 - Create: `eval/using-git-worktrees/samples/pr-list-member-merge-order/case.md`
 - Create: `eval/using-git-worktrees/samples/pr-list-member-merge-order/expected.md`
 - Create: `eval/using-git-worktrees/samples/pr-list-member-conflict-unresolved/case.md`
@@ -104,12 +110,14 @@ Tasks 1-3 own disjoint files and test fixtures. They use no shared mutable runti
 
 **Tests:**
 - `node --test scripts/brainstorming-contract.test.mjs`
-- baseline: 6f144da7 pass
+- baseline: a3d0cd1d pass
 - via: `skills/using-git-worktrees/reference/pr-head.md` provisioning, recovery and unresolved-threads recipe
 
 Decision: reuse `pr-head.md`'s "Merge the fetched base" helper/completion checks and documented scoped-runner selection. Resolve BASE_SHA before any member helper needs fetched-base overrides. Member failure stops; base failure retains the existing unresolved-merge plan continuation. The selected home path is carried as WORKTREE; the validated no-worktree branch is attached with `git -C "$ROOT" worktree add "$WORKTREE" <headRefName>`, without updating that branch ref (`pr-head.md` "Provision the exact head").
 
 L166 boundary: this task owns recovery/helper commands. Task 4 owns `brainstorming/reference/ticket-acceptance.md` enumeration provenance and `brainstorming/reference/amendment-surface.md` human review plus `loop: amend` versus `loop: cut row N`; Task 3 owns `gauntlet-resume/SKILL.md` continuation. Task 5 checks their combined regression safety without expanding this task's file ownership.
+
+Decision: partition fixtures only - `eval/using-git-worktrees/samples/pr-head/expected.md:1-13` has exactly 13 judged rows; `case.md:1-51` already separates provisioning, base-merge and threads. Keep `bundle+: skills/using-git-worktrees/reference/pr-head.md` in each case. `eval/using-git-worktrees/target.json:1-6` fixes the target cap at 1200; do not change it, target selection, replay instructions, source behavior or any must-hold row. For this continuation execute Step 8a and fixture validation/commit only; the earlier source and test steps remain the accepted implementation contract, not reopened work.
 
 - [ ] **Step 1: Run existing tests.** Run the Tests command; expect green.
 - [ ] **Step 2: Write failing provisioning assertions.** In `scripts/brainstorming-contract.test.mjs`, assert the member loop, recovery subject/second-parent checks, already-landed report, stop-before-base behavior and widened exception. Check member reachability stops occur before worktree writes. Add regression assertions for the explicit no-worktree recovery command and selected-worktree targeting of helper/completion commands. Run the Tests command; expect the new assertions to fail.
@@ -119,14 +127,15 @@ L166 boundary: this task owns recovery/helper commands. Task 4 owns `brainstormi
 - [ ] **Step 6: Add member failure and report recipes.** On helper/completion failure run `git -C "$WORKTREE" merge --abort`, leaving last-good home state. Preserve the existing abort-exit, branch, HEAD and clean-status proofs before claiming restoration; a failed proof requires manual recovery, not reset or clean. Transcribe the spec's stop naming PR, paths, worktree, branch, last-good SHA, earlier merged members and manual merge/rerun or drop-member recovery. Stop before base/spec/plan/later merges/push/close. A manual resolution must retain the canonical merge subject to satisfy the specified recovery walk. On success run the existing base merge; report one `PR:`/`Pre-rework head:` pair per PR home first, member lines then base outcome. Preserve all-original-head ancestry checks after every base outcome. Carry `MEMBER_HEADS` as `{ number, url, title, headRefName, headRefOid }`.
 - [ ] **Step 7: Widen the exception and fail closed on gather thread fetch.** Match `brainstorming/SKILL.md`'s future owner text: "the base merge and each admitted member-head merge, their conflict helpers' edits to the conflicted files, and their scoped conflict tests". Preserve thread pagination, comment ordering and location fallback. Replace the gather continuation on fetch failure with the per-PR stop before gather, including N=1. Finish still owns its distinct post-verification fetch-failure reporting.
 - [ ] **Step 8: Add four eval samples.** Follow existing `pr-head` bundle loading. Assert #13 then #14 then origin/main; helper/abort and no base/spec for unresolved #14 after #13; `commit --no-edit` and base after repaired #14; and validated #13 recovery with #14 next plus a stray-non-merge refusal variant. Cover all-head ancestry and report order. Extend existing `pr-head` input/expected facts only for the intentional N=1 thread-fetch stop; preserve its other guards. Retain all current recovery/helper must-hold facts when applying the small command clarifications.
+- [ ] **Step 8a: Partition the singleton replay without changing outcomes.** Modify `pr-head/case.md` to retain the singleton setup, provisioning observations and routing/checkout/report/stops/override-race/history requests. Move the seven independent base outcomes and their necessary setup into `pr-head-base-merge/case.md`; retain full E=`eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee` and short `eeeeeee` completed-helper HEAD observations, the exact conflict-list/fetched-base/SCOPED_TEST_COMMANDS tuple, unrelated linked caller cwd, credential and missing-runner cases, and authoritative-base failure/continuation observations. Move the complete three-page thread response, nested T1 comment pagination and correction, metadata, location fallbacks, failed-fetch stop and successful empty set into `pr-head-threads/case.md`. Keep the resolved acme/widget#82 N=1 values and necessary original observations in each independent case; remove only unrelated scenario material and obsolete shared-budget allocations. Preserve the target's 1200-word cap and compact output. Redistribute the original 13 expected rows byte-for-byte: six IDs `routing`, `checkout`, `report`, `stops`, `override-race`, `history` stay in `pr-head/expected.md`; five IDs `merge`, `helper`, `outcomes`, `authority`, `boundaries` move to `pr-head-base-merge/expected.md`; two IDs `threads`, `locations-failure` move to `pr-head-threads/expected.md`. Compare the union against the pre-edit file: exactly 13 original rows, each once, with no rewrite, addition or deletion. Keep source files, deterministic tests, target.json and the four list samples unchanged. This changed-input repair replaces the overcompressed replay; do not rerun its unchanged failed cell. Task 5 owns model calls and raw results for the three resulting cases.
 - [ ] **Step 9: Confirm green and style.** Run the Tests command, `node --check scripts/brainstorming-contract.test.mjs`, and `git diff --check`; expect pass, valid syntax and no whitespace errors. Review instructions against forge-skill.
-- [ ] **Step 10: Commit.** Stage only declared writes and run `git commit -m "Merge admitted PR members on home (ref #89)"`. State that this changes agent behavior and name the worktree samples whose reports Task 5 supplies.
+- [ ] **Step 10: Commit.** Stage only declared writes and run `git commit -m "Merge admitted PR members on home (ref #89)"`. State that this changes agent behavior and name the worktree samples whose reports Task 5 supplies. For the fixture-only continuation, stage only the six partition case/expected paths, describe the 13-row preservation, and leave accepted source and externally retained evidence patches out of this commit.
 
 ### Task 2: Gate absorbed-member closure after a successful home update
 
 **TDD scenario:** Modifying tested code - add ordering and failure checks before changing the finish recipe.
 
-**Spec:** doc/specs/2026-10-26-gh-89-pr-list-rework-subject.md § "Acceptance criteria" L45-L46, § "Acceptance criteria" L47-L48, § "Design" L134, § "Design" L140, § "Design" L142, § "Design" L144, § "Design" L146, § "Design" L148-L154, § "Design" L156, § "Errors and edge cases" L178, § "Errors and edge cases" L180, § "Out of scope" L223
+**Spec:** doc/specs/2026-10-26-gh-89-pr-list-rework-subject.md § "Acceptance criteria" L45-L46, § "Acceptance criteria" L47-L48, § "Design" L134, § "Design" L140, § "Design" L142, § "Design" L144, § "Design" L146, § "Design" L148-L154, § "Design" L156, § "Errors and edge cases" L178, § "Errors and edge cases" L180, § "Out of scope" L225
 
 **Files:**
 - Modify: `skills/finishing-a-development-branch/SKILL.md:35-46`
@@ -147,7 +156,7 @@ L166 boundary: this task owns recovery/helper commands. Task 4 owns `brainstormi
 
 **Tests:**
 - `node --test scripts/finish-verification.test.mjs`
-- baseline: 6f144da7 pass
+- baseline: a3d0cd1d pass
 - via: `skills/finishing-a-development-branch/SKILL.md` Step 1, preflight and PR-subject row 1
 
 Decision: retain the existing inline recipe and sample's full-skill `bundle+` loading. Keep the modified paragraphs and close-question block within 500 total lines by removing blank-line padding inside the touched units, not by deleting rules. This preserves a baseline-loadable assembly (`eval/run.mjs:185-217`).
@@ -181,7 +190,7 @@ Decision: retain the existing inline recipe and sample's full-skill `bundle+` lo
 
 **Tests:**
 - `node --test scripts/brief-contract-lint.test.mjs`
-- baseline: 6f144da7 pass
+- baseline: a3d0cd1d pass
 - via: `skills/gauntlet-resume/reference/brief-contract.md` Producers and Process-state restore; `skills/gauntlet-resume/SKILL.md` Post-restore continuation
 
 Decision: grammar remains solely in `brief-contract.md`, as `scripts/brief-contract-lint.test.mjs:7-48` requires; handoff links it rather than inlining the layout. Reconstruction reads candidate contents before choosing (`reconstruction.md:33-45`); use their record and Problem metadata to filter member-carried paths before the multi-spec prompt, without treating artifact presence as approval. The no-ledger call-table mapping comes from `skills/loop-implementation/SKILL.md` Entry steps 1-5, not the existing-ledger continuation.
@@ -205,7 +214,7 @@ Depends on Wave 1: Task 4 consumes the ordered provisioning/report contract and 
 
 **TDD scenario:** Modifying tested code - write wording and input-sensitive record tests before replacing scalar instructions.
 
-**Spec:** doc/specs/2026-10-26-gh-89-pr-list-rework-subject.md § "Acceptance criteria" L31-L32, § "Acceptance criteria" L33-L34, § "Acceptance criteria" L35-L36, § "Acceptance criteria" L37-L38, § "Acceptance criteria" L41-L42, § "Acceptance criteria" L43-L44, § "Acceptance criteria" L51-L52, § "Acceptance criteria" L56, § "Design" L62, § "Design" L64, § "Design" L66-L75, § "Design" L77, § "Design" L79, § "Design" L83, § "Design" L101, § "Design" L105, § "Design" L109-L132, § "Design" L134, § "Design" L136, § "Design" L162, § "Design" L166, § "Errors and edge cases" L174, § "Errors and edge cases" L177, § "Errors and edge cases" L180, § "Errors and edge cases" L181, § "Tests" L185, § "Tests" L187, § "Out of scope" L221, § "Out of scope" L222
+**Spec:** doc/specs/2026-10-26-gh-89-pr-list-rework-subject.md § "Acceptance criteria" L31-L32, § "Acceptance criteria" L33-L34, § "Acceptance criteria" L35-L36, § "Acceptance criteria" L37-L38, § "Acceptance criteria" L41-L42, § "Acceptance criteria" L43-L44, § "Acceptance criteria" L51-L52, § "Acceptance criteria" L56, § "Design" L62, § "Design" L64, § "Design" L66-L75, § "Design" L77, § "Design" L79, § "Design" L83, § "Design" L101, § "Design" L105, § "Design" L109-L132, § "Design" L134, § "Design" L136, § "Design" L162, § "Design" L166, § "Errors and edge cases" L174, § "Errors and edge cases" L177, § "Errors and edge cases" L180, § "Errors and edge cases" L181, § "Tests" L185, § "Tests" L187, § "Out of scope" L223, § "Out of scope" L224
 
 **Files:**
 - Modify: `skills/brainstorming/SKILL.md:3-19`
@@ -237,7 +246,7 @@ Depends on Wave 1: Task 4 consumes the ordered provisioning/report contract and 
 
 **Tests:**
 - `node --test scripts/brainstorming-contract.test.mjs`
-- baseline: 6f144da7 pass
+- baseline: a3d0cd1d pass
 - via: `skills/brainstorming/reference/pr-subject.md` leading-run grammar and record; `skills/brainstorming/reference/spec-finalization.md` input-sensitive inline lint; `ticket-acceptance.md` Tree-wide integrity; `amendment-surface.md` prefilter and ledger aftermath
 
 L162 ownership here is limited to the gather/record producer paths for member-carried specs in `## Problem`; Task 3 retains consumer ownership of `## Process-state restore` and reconstruction. For L166, Task 3 owns the `gauntlet-resume/SKILL.md` continuation clarification and Task 1 owns recovery/helper commands; this task owns the brainstorming rules and compact sample.
@@ -267,7 +276,7 @@ Depends on Waves 1-2: all instructions and sample contracts must exist before as
 
 **TDD scenario:** Modifying tested fixtures - validate structure, run focused replays, then full targets.
 
-**Spec:** doc/specs/2026-10-26-gh-89-pr-list-rework-subject.md § "Acceptance criteria" L53-L54, § "Design" L166, § "Tests" L189-L199, § "Tests" L200-L203, § "Tests" L204-L207, § "Tests" L208, § "Tests" L209, § "Out of scope" L220, § "Out of scope" L225
+**Spec:** doc/specs/2026-10-26-gh-89-pr-list-rework-subject.md § "Acceptance criteria" L53-L54, § "Design" L166, § "Tests" L189-L199, § "Tests" L200-L203, § "Tests" L204-L207, § "Tests" L208, § "Tests" L209, § "Tests" L211, § "Out of scope" L222, § "Out of scope" L227
 
 **Files:**
 - Modify: `eval/brainstorming/intent.md`
@@ -282,8 +291,13 @@ Depends on Waves 1-2: all instructions and sample contracts must exist before as
 - Modify: `eval/using-git-worktrees/results/**/*.json`
 - Modify: `eval/finishing-a-development-branch/results/**/*.json`
 - Modify: `eval/gauntlet-resume/results/**/*.json`
+- Create: `eval/using-git-worktrees/results/pr-head-base-merge/baseline.json`
+- Create: `eval/using-git-worktrees/results/pr-head-base-merge/candidate.json`
+- Create: `eval/using-git-worktrees/results/pr-head-threads/baseline.json`
+- Create: `eval/using-git-worktrees/results/pr-head-threads/candidate.json`
 - Create: `eval/brainstorming/results/pr-list-admission-mixed-base/baseline.json`
 - Create: `eval/brainstorming/results/pr-list-admission-mixed-base/candidate.json`
+- Create: `eval/brainstorming/results/pr-list-admission-mixed-base/baseline.json`
 - Create: `eval/brainstorming/results/pr-list-admission-issue-in-list/baseline.json`
 - Create: `eval/brainstorming/results/pr-list-admission-issue-in-list/candidate.json`
 - Create: `eval/brainstorming/results/pr-list-relatedness-split/baseline.json`
@@ -314,21 +328,23 @@ Depends on Waves 1-2: all instructions and sample contracts must exist before as
 
 **Tests:**
 - `node --test eval/lib/lint.test.mjs`
-- baseline: 6f144da7 pass
+- baseline: a3d0cd1d pass
 - via: `lintTarget()` and the existing `eval/run.mjs` text-target assembly contract
 
 Decision: keep existing target.json selections and use sample-local `bundle+` for already-existing owners, matching current PR samples. `for:` binds the bundle-free assembly SHA, not a commit; the runner's mismatch refusal prints the current value before model calls. No preparatory `--base` commit is needed. A text replay demonstrates instruction following on supplied observations, not live GitHub correctness. The prior eight-path restriction is not the ownership contract: all four `results/**/*.json` sets above are deliverables. The existing raw cache at `/var/folders/ww/xlm_qdzd2vn1k7gb4gs8kh8w0000gn/T/tmp.OCaWGNOqFB/tree` may supply cells only when the normal runner freshness checks accept them (`eval/lib/records.mjs:18-34`); never hand-edit hashes, outcomes or judgments to make a cell current.
 
 L166 evidence covers `pr-head.md` recovery/helper commands (Task 1), `brainstorming/reference/ticket-acceptance.md` enumeration provenance and `brainstorming/reference/amendment-surface.md` human review with `loop: amend` versus `loop: cut row N` (Task 4), and `gauntlet-resume/SKILL.md` Entry mapping (Task 3). Return failed observations to those owners; this task writes evidence, not instructions or must-hold facts.
 
+Decision: partitioning `eval/using-git-worktrees/samples/pr-head` changes input hashes, not accepted source behavior - `eval/run.mjs:217-227` assembles each case independently and `eval/lib/records.mjs:18-34` binds replay reuse to its input and skill hashes. Regenerate both arms for changed `pr-head` and new `pr-head-base-merge`/`pr-head-threads` through the normal runner; never relabel or transplant the old combined output as a split case. Existing `results/pr-head/baseline.json` and `results/pr-head/candidate.json` are owned by the Modify glob. Preserve external successful evidence patches for brainstorming, finishing and resume until Task 5's evidence integration; the fixture-only amendment does not authorize staging them with Task 1 or modifying accepted Tasks 3/4 code.
+
 - [ ] **Step 1: Check deterministic structure.** Run Tests; expect 14 baseline tests or more after implementation. Run `node --input-type=module -e 'import {lintTarget} from "./eval/lib/lint.mjs"; const targets=["brainstorming","using-git-worktrees","finishing-a-development-branch","gauntlet-resume"]; const errors=targets.flatMap(t=>lintTarget("eval/"+t).map(e=>t+": "+e)); if(errors.length){console.error(errors.join("\n"));process.exitCode=1;}'`; expect no errors. Keep the valid existing `eval/lib/lint.test.mjs` command; do not substitute nonexistent suite paths.
-- [ ] **Step 2: Update four intents.** In each `intent.md`, update Change and `## Expected to move` with every corresponding new sample/fact id, the `pr-subject-resolution` trailing-context fact and the intentional N=1 fetch-stop change. Get each `for:` SHA from the runner's pre-model mismatch refusal and write that value. Preserve meaningful unrelated intent entries; never widen intent to excuse an unexplained regression. Preserve existing must-hold outcomes for enumeration, recap details, amendment review/ledger subjects, recovery/helper commands and no-ledger resume; the clarifications restore those outcomes, not authorize new failures.
-- [ ] **Step 2a: Admit reusable raw evidence.** Inspect the supplied cache's four target results and copy only saved baseline/candidate JSON into the declared corresponding results paths when absent or needed for reuse. Let the subsequent ordinary runner calls decide reuse from skill/input hashes, kind, assembly, replay-model membership, thinking and successful status, then judgment currency. Rerun stale/failed cells; keep failed observations and confirmation evidence in runner-written records. Copying a cache or a report alone is not verification, and the cache stays outside the shipped checkout.
+- [ ] **Step 2: Update four intents.** In each `intent.md`, update Change and `## Expected to move` with every corresponding new sample/fact id, the `pr-subject-resolution` trailing-context fact and the intentional N=1 fetch-stop change. Get each `for:` SHA from the runner's pre-model mismatch refusal and write that value. Preserve meaningful unrelated intent entries; never widen intent to excuse an unexplained regression. Preserve existing must-hold outcomes for enumeration, recap details, amendment review/ledger subjects, recovery/helper commands and no-ledger resume; the clarifications restore those outcomes, not authorize new failures. In the worktree intent, name the three independent singleton cases and their relocated facts: keep `pr-head/routing` and `pr-head/history` and any other retained provisioning entries; use `pr-head-base-merge/merge`, `pr-head-base-merge/helper`, `pr-head-base-merge/outcomes`, `pr-head-base-merge/authority`, `pr-head-base-merge/boundaries`, `pr-head-threads/threads` and `pr-head-threads/locations-failure` for moved rows. Remove stale old-sample references to moved IDs. Describe partitioning as fixture-only pressure relief with all 13 outcomes preserved, not permission for fails. Keep the intentional N=1 fetch-stop change attached to `pr-head-threads/locations-failure`.
+- [ ] **Step 2a: Admit reusable raw evidence.** Inspect the supplied cache's four target results and copy only saved baseline/candidate JSON into the declared corresponding results paths when absent or needed for reuse. Let the subsequent ordinary runner calls decide reuse from skill/input hashes, kind, assembly, replay-model membership, thinking and successful status, then judgment currency. Rerun stale/failed cells; keep failed observations and confirmation evidence in runner-written records. Copying a cache or a report alone is not verification, and the cache stays outside the shipped checkout. The other three targets' externally retained successful patches are evidence inputs to this task only; retain their raw records and reports together, then check freshness against current assemblies before staging the final evidence deliverables. Do not transplant the old combined `pr-head` replies into the new cases or retry the unchanged failed combined cell.
 - [ ] **Step 3: Replay brainstorming cases.** Run `node eval/run.mjs brainstorming pr-list-admission-mixed-base`, `node eval/run.mjs brainstorming pr-list-admission-issue-in-list`, `node eval/run.mjs brainstorming pr-list-relatedness-split`, `node eval/run.mjs brainstorming pr-list-per-pr-attribution`, `node eval/run.mjs brainstorming pr-list-record-missing-member`, and `node eval/run.mjs brainstorming pr-subject-resolution` separately. Check mandated `#13`, `release-2`, `main`, `gh pr diff`, `### PR #13`, `#14`, and `#12 fix the retry path, see #13 for context` facts, including combined `<BASE_SHA>...HEAD` input. Report failed cells rather than authoring evidence. The compact attribution reply must retain all facts under the unchanged word cap.
-- [ ] **Step 4: Replay worktree cases.** Run `node eval/run.mjs using-git-worktrees pr-list-member-merge-order`, `node eval/run.mjs using-git-worktrees pr-list-member-conflict-unresolved`, `node eval/run.mjs using-git-worktrees pr-list-member-conflict-repaired`, and `node eval/run.mjs using-git-worktrees pr-list-interrupted-recovery`. Require `merge --no-ff`, `origin/main`, three `Pre-rework head:` lines, `merge --abort` and no base/spec on failure; `commit --no-edit` and `Member merge:` before base on repair; and `(already landed)` with stray-commit refusal on recovery.
+- [ ] **Step 4: Replay worktree cases.** Run `node eval/run.mjs using-git-worktrees pr-list-member-merge-order`, `node eval/run.mjs using-git-worktrees pr-list-member-conflict-unresolved`, `node eval/run.mjs using-git-worktrees pr-list-member-conflict-repaired`, and `node eval/run.mjs using-git-worktrees pr-list-interrupted-recovery`. Require `merge --no-ff`, `origin/main`, three `Pre-rework head:` lines, `merge --abort` and no base/spec on failure; `commit --no-edit` and `Member merge:` before base on repair; and `(already landed)` with stray-commit refusal on recovery. After Task 1's fixture repair, run `node eval/run.mjs using-git-worktrees pr-head`, `node eval/run.mjs using-git-worktrees pr-head-base-merge` and `node eval/run.mjs using-git-worktrees pr-head-threads` separately. Check all six/five/two preserved facts in their new cases, completed-helper E HEAD observations and the N=1 setup. Keep the target cap and source behavior unchanged. Save both raw arms for each case, including runner-written failures and confirmations; a partial pass alone does not complete this task.
 - [ ] **Step 5: Replay finish and resume cases.** Run `node eval/run.mjs finishing-a-development-branch pr-list-push-and-close`, `node eval/run.mjs finishing-a-development-branch pr-list-push-rejected`, `node eval/run.mjs finishing-a-development-branch pr-list-body-edit-failed`, `node eval/run.mjs finishing-a-development-branch pr-list-member-advanced`, and `node eval/run.mjs gauntlet-resume pr-list-brief`. Require `Absorbs:`, per-member `#<N>:` threads, successful `gh pr edit` before the question, `1 - yes, close #13, #14`, exact `gh pr close` with no `--delete-branch`, `Closed: #13, #14`, and `Member PRs #13, #14 left open.` on failed paths. Require moved #14 exclusion and both `pr-list-brief-mismatch` and `pr-list-brief-order` stops.
 - [ ] **Step 6: Generate full reports.** Run `node eval/run.mjs brainstorming`, `node eval/run.mjs using-git-worktrees`, `node eval/run.mjs finishing-a-development-branch`, and `node eval/run.mjs gauntlet-resume`, one target at a time. Require exit 0 and complete current reports without regressions, inconclusive cells or errors. Credentials/runner failures block evidence; never manufacture reports. Return instruction regressions to their owning task for repair before rerunning affected targets. Read each full report with its candidate JSON, retain failed observations in the raw evidence and preserve all must-hold facts. No partial report substitutes for a full target report.
-- [ ] **Step 7: Review and commit evidence.** Run Tests and `git diff --check`; confirm reports cover every sample and records match current observations. Add no `close` verdict, disk-backed continuation, `/skill:gatekeep-pr`, pi-cohort, `extensions/`, `bin/`, `writing-plans` or `verification-before-completion` changes. Stage all four intents, full reports and owned raw baseline/candidate results in the checkout, not just the eight intent/report files, and run `git commit -m "Record PR-list behavioral eval evidence (ref #89)"`. Describe replay limitations and unrelated pre-existing notes in the body.
+- [ ] **Step 7: Review and commit evidence.** Run Tests and `git diff --check`; confirm reports cover every sample and records match current observations. Add no `close` verdict, disk-backed continuation, `/skill:gatekeep-pr`, pi-cohort, `extensions/`, `bin/`, `writing-plans` or `verification-before-completion` changes. Stage all four intents, full reports and owned raw baseline/candidate results in the checkout, not just the eight intent/report files, and run `git commit -m "Record PR-list behavioral eval evidence (ref #89)"`. Include regenerated `results/pr-head/{baseline,candidate}.json` and the four new `pr-head-base-merge`/`pr-head-threads` raw files; verify the full worktree report names all three partition cases. Describe replay limitations and unrelated pre-existing notes in the body.
 
 ## Wave 4 - Public workflow documentation
 
@@ -338,7 +354,7 @@ Depends on Waves 1-3: Task 6 describes the implemented workflow and closes READM
 
 **TDD scenario:** Modifying tested docs - assert new README wording before editing it.
 
-**Spec:** doc/specs/2026-10-26-gh-89-pr-list-rework-subject.md § "Design" L170, § "Tests" L185, § "Documentation impact" L212, § "Documentation impact" L213, § "Documentation impact" L214
+**Spec:** doc/specs/2026-10-26-gh-89-pr-list-rework-subject.md § "Design" L170, § "Tests" L185, § "Documentation impact" L214, § "Documentation impact" L215, § "Documentation impact" L216
 
 **Files:**
 - Modify: `README.md:20-30`
@@ -348,7 +364,7 @@ Depends on Waves 1-3: Task 6 describes the implemented workflow and closes READM
 
 **Tests:**
 - `node --test scripts/brainstorming-contract.test.mjs`
-- baseline: 6f144da7 pass
+- baseline: a3d0cd1d pass
 - via: `README.md` What a run looks like and the predecessor supersession banner
 
 Decision: the predecessor banner already satisfies the spec (`doc/specs/2026-10-23-gh-78-pr-as-brainstorm-subject.md:3`); assert and preserve without another write. Design explicitly requires an Unreleased note now; Documentation impact defers release, not the note. No version bump.
@@ -423,13 +439,16 @@ Decision: the predecessor banner already satisfies the spec (`doc/specs/2026-10-
 | § "Tests" L200-L203 | Evaluate four provisioning cases: order, conflicts, recovery | Task 5 |
 | § "Tests" L204-L207 | Evaluate four finish cases: push, edit and advancement failures | Task 5 |
 | § "Tests" L208 | Evaluate list brief including branch/order mismatch variants | Task 5 |
-| § "Tests" L209 | Current intents and complete committed eval reports | Task 5 |
-| § "Documentation impact" L212 | No new feature documentation | Task 6 |
-| § "Documentation impact" L213 | Amend README procedure; defer release | Task 6 |
-| § "Documentation impact" L214 | Preserve scoped supersession; no AGENTS routing edit | Task 6 |
-| § "Out of scope" L220 | No landing-order feature, close verdict or disk continuation | Task 5 |
-| § "Out of scope" L221 | Fork-hosted and mixed-base members remain rejected | Task 4 |
-| § "Out of scope" L222 | No AC rows from member tickets | Task 4 |
-| § "Out of scope" L223 | No early closure, retry, branch deletion or implicit new merge | Task 2 |
-| § "Out of scope" L224 | No reset/rebase recovery | Task 1 |
-| § "Out of scope" L225 | Leave gatekeep, cohort, runtime, bins, planning and verification untouched | Task 5 |
+| § "Tests" L209 | Partition singleton replay into provisioning, base-merge and threads; preserve the original 13 rows verbatim exactly once with six/five/two ownership | Task 1 |
+| § "Tests" L209 | Keep necessary observations, completed-helper HEAD, N=1 setup, target cap and source behavior; remove only unrelated scenario material | Task 1 |
+| § "Tests" L209 | Replay changed partition inputs rather than retrying unchanged failed cells; retain raw results for all three cases without weakening outcomes | Task 5 |
+| § "Tests" L211 | Current intents name partition samples and complete committed eval reports include raw cells | Task 5 |
+| § "Documentation impact" L214 | No new feature documentation | Task 6 |
+| § "Documentation impact" L215 | Amend README procedure; defer release | Task 6 |
+| § "Documentation impact" L216 | Preserve scoped supersession; no AGENTS routing edit | Task 6 |
+| § "Out of scope" L222 | No landing-order feature, close verdict or disk continuation | Task 5 |
+| § "Out of scope" L223 | Fork-hosted and mixed-base members remain rejected | Task 4 |
+| § "Out of scope" L224 | No AC rows from member tickets | Task 4 |
+| § "Out of scope" L225 | No early closure, retry, branch deletion or implicit new merge | Task 2 |
+| § "Out of scope" L226 | No reset/rebase recovery | Task 1 |
+| § "Out of scope" L227 | Leave gatekeep, cohort, runtime, bins, planning and verification untouched | Task 5 |

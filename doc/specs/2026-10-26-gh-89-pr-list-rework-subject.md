@@ -206,6 +206,8 @@ Eval samples (synthetic PRs, narrated observations, no live tracker), one per be
 | `eval/finishing-a-development-branch` | `pr-list-member-advanced` | #14's current head is outside the pushed home history: excluded from the question with `#14 skipped: head moved to <sha7>, not in home`; #13 still offered |
 | `eval/gauntlet-resume` | `pr-list-brief` | three pairs home first; branch equal to home resumes; `pr-list-brief-mismatch` variant stops with both names; `pr-list-brief-order` variant stops with both orders |
 
+Partition the existing `eval/using-git-worktrees/samples/pr-head` replay into independent provisioning (`pr-head`), base-merge (`pr-head-base-merge`), and review-thread (`pr-head-threads`) cases. Preserve its 13 must-hold rows verbatim, exactly once across the three expected files: routing/checkout/report/stops/override-race/history stay in `pr-head`; merge/helper/outcomes/authority/boundaries move to `pr-head-base-merge`; threads/locations-failure move to `pr-head-threads`. Keep each case's necessary original observations, completed-helper HEAD observations, singleton N=1 setup, and target cap; remove only unrelated scenario material from each case. This reduces compression pressure without weakening an outcome or retrying an unchanged failed cell.
+
 Each target's `intent.md` names these samples under `## Expected to move`; `node eval/run.mjs <target>` reports are committed; `npm test` is green.
 
 ## Documentation impact
