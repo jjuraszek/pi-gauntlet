@@ -160,6 +160,7 @@ for (const [sample, ids] of [
 
 test('batch rendering preserves child reports and confines pending checks to menus', () => {
   const round = section(batch, '## Summary and menu round\n', '## Between batches and retirement\n');
+  assert.match(round, /Substitute `<observed state>` with the concrete observation - the porcelain line\(s\) or the rebase directory name - one line per snapshot, never the placeholder text/);
   assert.match(round, /Print each supplied child report file verbatim in roster order/);
   assert.match(round, /child's supplied Verdict text unchanged/);
   assert.match(round, /Never rewrite, correct, or reconcile a child's report/);
@@ -170,6 +171,7 @@ test('batch rendering preserves child reports and confines pending checks to men
 
 test('obstacle menus extend both caps even below their limits', () => {
   const obstacle = section(menus, '## obstacle\n', '## contract exception\n');
+  assert.match(obstacle, /Feed the `Evidence:` line from the verifier record's resolved source, never from the raw check or run rollup[\s\S]*source: pending[\s\S]*Evidence: pending \(<binding check> binding; head <sha>\)[\s\S]*course` is unset[\s\S]*deliver - set course to deliver;/);
   assert.match(obstacle, /Keep the `Delivers:` line/);
   assert.match(obstacle, /Evidence: CI \(run 7001, test_unit and build_image green on 9c1e4f2\)/);
   assert.match(obstacle, /show evidence prints the full record \(<source summary>\)/);
@@ -238,6 +240,7 @@ test('exact description selection and narrow recheck preserve independent eviden
   const exclusions = section(report, '## What stays out\n', '## Worked example\n');
   assert.match(exclusions, /drafted file edits and full description bodies[^\n]*only under the `show evidence` command/, 'keep file edits and full description bodies evidence-only');
   assert.match(exclusions, /Print the compact exact old-to-new description preview under its blocker; keep the full replacement body under `show evidence`/);
+  assert.match(exclusions, /Keep a declined correction's proposal open and its preview line under the blocker on every re-render until the claim resolves/);
   assert.ok(!exclusions.includes('before selection at the rendered consent menu'), 'consent-menu clause deleted');
   assert.match(findings, /independent contributions/);
   assert.match(loop, /gh pr edit <N> --body-file <temporary-file>/);
@@ -472,6 +475,7 @@ test('verification-brief.md classifies pending checks as binding from merge_stat
 });
 
 test('sync.md re-gather resolves pending checks through the binding rule', () => {
+  assert.match(sync, /Write out the dispatch as the harness call[\s\S]*subagent\(\{ agent: "implementer", context: "fresh", async: false, cwd: <worktree> \}\)[\s\S]*name each conflicted file by path in the task text[\s\S]*Write out the dispatch as the harness call[\s\S]*subagent\(\{ agent: "code-reviewer", context: "fresh", async: false, cwd: <worktree> \}\)/);
   assert.match(sync, /a binding check still pending routes to the initial or terminal template/);
 });
 
