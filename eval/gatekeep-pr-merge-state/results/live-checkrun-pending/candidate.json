@@ -1,7 +1,7 @@
 {
   "sample": "live-checkrun-pending",
   "arm": "candidate",
-  "skillSha": "272bcfd81faa093f28e1704974e52b05496668f44798f16d167623eef014ab43",
+  "skillSha": "124b4f8717ce2f5e1e36caee0d780fce359d6508bfe156399cf44818b85f6448",
   "inputSha": "763dcaf0927a0637b70419b246a24e4081b9094fc981752bc9d5fe6f8e6eb595",
   "kind": "text",
   "assembly": "concat",
@@ -17,16 +17,16 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "**Evidence resolution (Section B)**\n\n- Resolved check set: all checks on `9c1e4f2`, since no `ci checks:` is configured.\n- `test_unit` and `build_image` are completed `success`.\n- `e2e` is pending, and it is **binding**:\n  - `merge_state_status` is `UNSTABLE`, which on its own would not make it bind.\n  - It is a `check_run`, and the run id parsed from its `detailsUrl` (7003) matches `actions_runs` entry 7003.\n  - That run's status is `waiting`, which is not `completed`, so the check binds.\n- No row matches above Pending (precedence top-down):\n  - Opt-out: not configured.\n  - Failed CI: no blocking conclusion.\n  - Held run: no `action_required`.\n- The **Pending** row wins. CI-sufficient fails because one binding check is pending.\n- Verifier result: `source: pending`, `head_sha: 9c1e4f2`.\n- Claim \"Tests cover the retry path\" is source-checkable now: `matched` (test/feed/client.test.ts:12-40).\n- No local run.\n\n**Merge preconditions and template**\n\n- Merge is withheld only by the binding pending `e2e`. The reviewer returned SHIP with no findings, so there are 0 blockers and 0 nits.\n- This is a first report, not ready, with course unset, and its only withhold is a binding CI check. That selects the **initial** template.\n- The PR is someone else's (`is_author: false`), so `assess` is recommended and the sync wording becomes \"merge main into the branch\".\n- `deliver with nits` is omitted because there are zero nits.\n\n---\n\n```\nDelivers: the tide-feed client retries a fetch once, bounded, when the feed returns 503.\n\nPR comments:\n- The e2e check is still running on the assessed head, so merge waits. (e2e)\n\nVerdict: not ready - e2e pending\n\nPick one:\n1. assess - post the review to the PR (no blockers, so nothing is posted); then approve or stop, no repairs. [recommended]\n2. deliver - repair blockers, merge main into the branch, watch CI, repeat until merge is offered.\n3. stop - remove the worktree, leave the PR as is.\n\nNot offered: merge (e2e pending); deliver with nits (no nits)\nCourse holds until the final menu; `show evidence` prints the full record.\n```\n",
-      "words": 312,
-      "wallMs": 18779,
+      "text": "## Evidence resolution (Section B)\n\n- **Resolved check set:** no `ci checks:` is configured, so every check on `9c1e4f2` counts: `test_unit`, `build_image`, `e2e`.\n- **Conclusions:**\n  - `test_unit` is `success`.\n  - `build_image` is `success`.\n  - `e2e` is `status: in_progress`, so it is pending.\n  - Nothing is blocking.\n- **Binding classification for `e2e`:**\n  - `merge_state_status` is `UNSTABLE`, so merge state alone would not make it binding.\n  - Its kind is `check_run`. Its `detailsUrl` points to run 7003, which matches the `actions_runs` entry with `status: waiting`. That status is not `completed`, so **`e2e` is binding**.\n- **Row precedence:**\n  - Opt-out does not apply: `local verification: always` is not set.\n  - Failed CI does not apply: there is no blocking conclusion.\n  - Held run does not apply: 7003 is `waiting`, not `action_required`.\n  - **Pending applies:** there is at least one binding pending check and no blocking conclusion.\n- **Verifier record:** `source: pending`, `head_sha: 9c1e4f2`.\n  - No local run happens.\n  - The claim \"Tests cover the retry path\" can be checked against source now, so it is `matched` (test/feed/client.test.ts:12-40).\n- **Integration:**\n  - Zero blockers and zero nits (reviewer SHIP).\n  - No issue reference was found, so the scope is `source: pr` and there are no AC rows.\n  - Merge is withheld only by the binding pending `e2e` check.\n- **Template:** the course is unset and the first report is not ready only because of a pending CI check, so the **initial** template applies. The viewer is not the author, so `assess` is recommended and the sync wording is \"merge main into the branch\".\n\n---\n\n```text\nDelivers: the tide-feed client retries a fetch once when the feed returns 503.\n\nPR comments:\n- The e2e check is still running on the assessed head, so merge waits. (e2e)\n\nVerdict: not ready - e2e pending\n\nPick one:\n1. assess - post the review to the PR; then approve or stop, no repairs. [recommended]\n2. deliver - repair blockers, merge main into the branch, watch CI, repeat until merge is offered.\n3. stop - remove the worktree, leave the PR as is.\n\nNot offered: deliver with nits (no nits), merge (e2e pending)\n\nCourse holds until the final menu; `show evidence` prints the full record.\n```\n",
+      "words": 335,
+      "wallMs": 20760,
       "mechanical": {}
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "Delivers: adds one bounded retry to the tide-feed client on a 503 response, with a test covering the retry path.\n\nPR comments:\n- e2e is pending and binding because its matching Actions run is waiting, so merge waits. (e2e)\n\nVerdict: not ready - e2e pending\n\nPick one:\n1. assess - post the review to the PR; then approve or stop, no repairs. [recommended]\n2. deliver - repair blockers, merge main into the branch, watch CI, repeat until merge is offered.\n3. stop - remove the worktree, leave the PR as is.\n\nNot offered: deliver with nits (no nits); merge (e2e pending).\n\nCourse holds until the final menu; `show evidence` prints the full record.\n",
-      "words": 108,
-      "wallMs": 11259,
+      "text": "Delivers: adds one bounded retry to the tide-feed client on a 503 response.\n\nPR comments:\n- e2e is pending and binding: its linked Actions run is waiting, so merge waits despite merge_state_status UNSTABLE. (e2e)\n\nVerdict: not ready - e2e pending\n\nPick one:\n1. assess - post the review to the PR; then approve or stop, no repairs. [recommended]\n2. deliver - repair blockers, merge main into the branch, watch CI, repeat until merge is offered.\n3. stop - remove the worktree, leave the PR as is.\n\nNot offered: merge (e2e pending); deliver with nits (no nits).\n\nCourse holds until the final menu; `show evidence` prints the full record.\n",
+      "words": 103,
+      "wallMs": 11149,
       "mechanical": {}
     }
   },
@@ -36,7 +36,7 @@
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
       "intentSha": "5d82dd30c53664bf000f34822ffc17ecb66d298ce6c5d8f23db53e37e962ee49",
       "baselineOutputSha": "7e2b44d63a2c500e47d3befb33d03854a57a84d73825879732f2da1ecde91566",
-      "candidateOutputSha": "9c16052bdbe8bb677996864e7422735aa5bf79dfe37fadd3e6b32e21183220a4",
+      "candidateOutputSha": "b3fa04a040c667982c9a18cc08d5d08eea75912e6bb68e521ad4eb58a56f92a4",
       "facts": {
         "f1": {
           "before": "holds",
@@ -59,8 +59,8 @@
           "label": "held"
         }
       },
-      "feedback": "After delivers the intended move on f3: the Before menu led with a `[recommended]` wait row that ran a CI watch before any numeric course selection, whereas After renders the initial assess/deliver/stop template with assess recommended for someone else's PR, no wait row, and the watch only described inside the deliver course rather than executed. It kept f1, f2 and f4 intact: the Section B resolution still binds e2e via the live `waiting` run 7003 (check_run classification unchanged), still states that `UNSTABLE` alone would not bind so the live check is not overridden, and the menu still says `Not offered: merge (e2e pending)`. One small sharpening for the author: the `PR comments` line changed from \"A check that binds this actor is still pending\" to \"The e2e check is still running on the assessed head\" - both satisfy f2, but keeping the word \"binds\"/\"binding\" in the comment line would make the binding-to-viewer reasoning of f1 visible in the rendered report as well as in Section B. Otherwise no wording change is needed.",
-      "wallMs": 12926,
+      "feedback": "After delivers the Change cleanly on this sample: f3 moves from fails to holds because the menu now uses the initial assess/deliver/stop course with assess recommended for a non-author viewer, the old `wait [recommended]` row is gone, and no watch is run before a numeric selection (the `deliver` row only describes watching CI as part of that course, which is fine). Nothing regressed — the Section B record still binds e2e via run 7003's `waiting` status (f1), still withholds merge with `merge (e2e pending)` in the Not offered line (f2), and still states explicitly that `UNSTABLE` merge state does not on its own decide binding while the check remains binding anyway (f4). Two small wording suggestions to keep these facts robust under further edits: keep the explicit sentence that the `actions_runs` run status (`waiting`, not `completed`) is the reason e2e binds rather than relying on the `in_progress` check status alone, since that is what f1 rests on; and keep the merge-state line phrased as a non-override (\"would not make it binding\" / \"does not override\") rather than dropping it into the integration bullet, so f4 stays visible in the evidence record rather than only implied.",
+      "wallMs": 12340,
       "verdict": "improved"
     },
     "github-copilot/gpt-6.1-sol": {
@@ -68,7 +68,7 @@
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
       "intentSha": "5d82dd30c53664bf000f34822ffc17ecb66d298ce6c5d8f23db53e37e962ee49",
       "baselineOutputSha": "d5a8bd9f2bc24b3ac828b7434e5e62d1f5b17abcf6ae09b6cf385ea94527bcc3",
-      "candidateOutputSha": "45d3dde7df2e987d15c186aa113b79bafcaab7935c548717b04971f4ce419b25",
+      "candidateOutputSha": "eb250c6a1700085709261597063e8935248cdddc20725244bda8e7d74d3ae755",
       "facts": {
         "f1": {
           "before": "holds",
@@ -91,10 +91,10 @@
           "label": "held"
         }
       },
-      "feedback": "After delivers the intended move on f3: the course-unset pending report now renders the initial assess/deliver/stop menu with assess recommended for another author's PR, no wait row, and no watch before a numeric selection, whereas Before offered an ordinary 'wait - run one bounded CI watch' row as the recommendation plus a premature approve. Nothing regressed: After still names e2e as pending and binding in the comment and in the 'Not offered: merge (e2e pending)' line (f1, f2), and the UNSTABLE merge state is not used to override the live check (f4). After's comment is actually stronger than Before on f1 because it explicitly ties the binding to the still-waiting Actions run; keep that phrasing. One small caution for the template: the deliver row says 'merge main into the branch' unconditionally — on this sample the branch is 0 behind, so consider conditioning that clause on can_update_branch/behind>0 to avoid implying an unneeded sync, but it does not affect any listed fact.",
-      "wallMs": 14332,
+      "feedback": "After moves f3 as intended: the wait row and the recommended CI watch are gone, replaced by the initial assess/deliver/stop course menu with assess recommended for another author's PR, and nothing in After watches CI before a numeric selection. Every fact Before kept still holds in After - the e2e row still says the binding check is pending, now with the explicit 'linked Actions run is waiting' detail that makes f1 stronger than Before's vaguer 'still pending', and the 'despite merge_state_status UNSTABLE' clause makes f4 explicit rather than merely implied. Merge remains in Not offered with the e2e pending reason, so f2 is intact. Nothing needs to change to preserve the facts; if anything, the Delivers line dropped Before's mention of test coverage of the retry path (a matched claim in the reviewer output), which is not a graded fact here but is worth restoring in the summary wording so the PR body's verified claim stays visible.",
+      "wallMs": 13669,
       "verdict": "improved"
     }
   },
-  "repoSha": "c3ff2b163ec7c5c7ba230ad47594007afa771c51"
+  "repoSha": "cc0a65f05c826c32b59ddd6cf7fa655a9aa91d24"
 }
