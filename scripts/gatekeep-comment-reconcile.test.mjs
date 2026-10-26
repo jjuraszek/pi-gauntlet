@@ -510,6 +510,7 @@ test('course state replaces grants and preserves immutable target and original i
   assert.match(assessment, /original_intent/);
   assert.match(brief, /no_progress: \{ failed_prerequisite, observed_value, result_path \}\?/);
   assert.match(loop, /higher round cap is not permission to repeat/);
+  assert.ok(loop.includes('stuck - no progress: <failed prerequisite>'));
   assert.match(fixWave, /scoped test fails[\s\S]*### No-progress obstacle/);
   assert.match(fixWave, /every payload returned `open`[\s\S]*### No-progress obstacle/);
   for (const token of ['consent.target', 'course: null | assess | deliver | deliver-nits', 'repair.rounds_used', 'repair.rounds_cap', 'repair.syncs_used', 'repair.syncs_cap', 'repair.poll_deadline', 'repair.wave', 'counted']) assert.ok(brief.includes(token), token);
