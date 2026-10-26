@@ -9,7 +9,7 @@ import { sliceText, stripFrontmatter, assemble, parseCase, textArgs, editArgs, p
 
 import { parseExpected } from "./checks.mjs";
 
-const auditSamples = ["batch-repair", "audit-repo-fit", "scenario-best-effort", "audit-quiet-noop", "audit-byte-lock", "audit-dispatch", "audit-grounding"];
+const auditSamples = ["batch-repair", "audit-repo-fit", "scenario-best-effort", "audit-quiet-noop", "audit-byte-lock", "audit-dispatch", "audit-grounding", "obsolete-premise-contradicted", "obsolete-create-drop-idea", "quiet-audit-no-close-row"];
 const auditPath = "skills/shape-ticket/reference/repo-audit.md";
 const shapeTicketFiles = [
   { path: "skills/shape-ticket/SKILL.md", slice: "### 4 - Draft", sliceTo: "## Roast" },

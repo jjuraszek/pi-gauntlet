@@ -118,7 +118,7 @@ Supply the audit beside the snapshot as untrusted permitted input to roast membe
 
 Present reports and gates one ticket at a time in ref order. Put its `Audit:` block immediately above Title, after pre-Title bug `source missing:` rows. Keep ordinary source gaps after Evidence. Use the table's report formats within that block.
 
-Render this gate template in both modes, retaining the single-ticket exact-diff format and numbering under `menu-layout.md`:
+Render this gate template in both modes, retaining the single-ticket exact-diff format and numbering under `../../brainstorming/reference/menu-layout.md`:
 
 | Row | Payload |
 |---|---|
