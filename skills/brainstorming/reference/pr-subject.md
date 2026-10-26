@@ -2,7 +2,7 @@
 
 ## Resolve before provisioning
 
-Parse only a trimmed leading run of one or more GitHub references: `#N`, `owner/repo#N`, or a GitHub `/pull/N` or `/issues/N` URL, separated by whitespace or commas. The first token that is not a ref starts intent text; carry it verbatim without looking up later references. Read `#12 #13 #14` as three PRs, `#12, #13 tighten the retry path` as two plus intent, and `#12 fix the retry path, see #13 for context` as one plus intent. Keep mid-sentence mentions, Linear/Jira, and other free-text subjects on their existing paths.
+Parse only a trimmed leading run of one or more GitHub references: `#N`, `owner/repo#N`, or a GitHub `/pull/N` or `/issues/N` URL, separated by whitespace or commas. The first token that is not a ref starts intent text; carry it verbatim without looking up later references. Read `#12 #13 #14` as three PRs, `#12, #13 tighten the retry path` as two plus intent, and `#12 fix the retry path, see #13 for context` as one plus intent. Route mid-sentence mentions through the free-text path with context-builder: for `make the retry logic work like #55 did`, gather #55 as context, not a PR subject; skip PR classification and PR-head provisioning. Keep Linear/Jira and other free-text subjects on their existing paths.
 
 Resolve and admit in listed order before any write; stop at the first failing ref with its observed reason. Create no worktree and leave existing worktrees unchanged on admission failure. Complete classification in order, never in parallel: `gh issue view` can return a PR as an issue.
 

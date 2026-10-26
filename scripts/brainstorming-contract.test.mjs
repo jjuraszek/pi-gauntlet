@@ -491,6 +491,27 @@ test('leading PR lists admit in order and keep every retained contract', () => {
   for (const marker of ['Step 4 report', 'MEMBER_HEADS', 'not from the record', 'missing PR', '### PR #<N>']) assert.ok(lint.includes(marker), marker);
 });
 
+test('mid-sentence mentions explicitly use context-builder without classifying trailing PR intent', () => {
+  const text = read('skills/brainstorming/reference/pr-subject.md');
+  const parser = text.slice(text.indexOf('Parse only'), text.indexOf('\n\nResolve and admit'));
+  assert.match(parser, /Route mid-sentence mentions through the free-text path with context-builder/);
+  assert.match(parser, /make the retry logic work like #55 did/);
+  assert.match(parser, /#55 as context, not a PR subject/);
+  assert.match(parser, /carry it verbatim without looking up later references/);
+  assert.ok(parser.includes('`#12 fix the retry path, see #13 for context` as one plus intent'));
+});
+
+test('all original heads are proven against final HEAD after every base-merge outcome', () => {
+  const text = read('skills/using-git-worktrees/reference/pr-head.md');
+  const members = text.slice(text.indexOf('## Merge admitted member heads'), text.indexOf('## Merge the fetched base'));
+  assert.doesNotMatch(members, /merge-base --is-ancestor/);
+  const base = text.slice(text.indexOf('## Merge the fetched base'), text.indexOf('## Fetch unresolved review threads'));
+  const proof = base.indexOf('merge-base --is-ancestor <each original head> HEAD');
+  assert.ok(proof > base.indexOf('merge: unresolved - <files>'), 'proof follows clean, no-op, resolved and aborted outcomes');
+  assert.match(base, /After every base-merge outcome, including clean, no-op, resolved, and aborted unresolved, prove home and every member's original head against final HEAD/);
+  assert.match(base.slice(proof), /Stop on any nonzero exit/);
+});
+
 test('record completeness is checked against provisioning inputs, not its own groups', () => {
   const head = '1'.repeat(40);
   const group = (n) => `PR: acme/widget#${n} - Retry\nPre-rework head: ${head}\nThreads: none\n`;
