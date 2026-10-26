@@ -483,6 +483,7 @@ test('post-selection-loop.md refreshes merge state before every menu and binds t
   assert.match(refresh, /classifies every pending check as binding/);
   const pre = section(loop, '### Merge preconditions\n', '### Compare-and-swap\n');
   assert.match(pre, /reuse nothing recorded at a prior head/);
+  assert.match(pre, /never record a CI conclusion the API did not return/);
   assert.match(pre, /no \*\*binding\*\* pending check/);
   assert.match(pre, /`merge_state_status` is not `BLOCKED`, `UNKNOWN`, or `unreadable`, and the pre-menu refresh succeeded/);
   assert.ok(!pre.includes('no pending required check'));
