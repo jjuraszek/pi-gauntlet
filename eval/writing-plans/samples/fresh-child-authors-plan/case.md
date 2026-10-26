@@ -10,4 +10,4 @@ Tool results, in order, as you call them:
 2. `plan_check({ planPath: "/work/app/.worktrees/rate-limit/doc/plans/2026-03-16-rate-limit-header.md" })` returns `PASS — plan verified and stamped for implement-start`.
 3. Reading the plan shows `## Wave 1 — Server` with `### Task 1: Emit the rate-limit header` and `### Task 2: Count requests per key`, then `## Wave 2 — Client` with `### Task 3: Read the header in the client`, and no `## Open Questions` section.
 
-Narrate what you do from the start of the plan phase through the `plan_tracker` init.
+Narrate what you do from the start of the plan phase through the `plan_tracker` init and the immediate `/skill:subagent-driven-development` invocation. This case overrides the generic replay endpoint at tracker init.

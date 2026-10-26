@@ -1,4 +1,4 @@
-for: ca4f21665f12c23ac51af88da21837f99683a3ab374f31201a5bbc6b721d2046
+for: 36494548afbe88d6f941384c120f668b921fd079899858a11098947d6de0268d
 
 ## Change
 
@@ -8,7 +8,11 @@ Keep the fresh plan-writer child, parent stamping check, single finished-plan re
 
 PR-subject behavior uses preparatory baseline `1b0f7dd2bbbf926a8ff65109414d05aa97acaa58` (`PR_SUBJECT_EVAL_BASE`). The pr-subject-threads sample bundles the complete writing-plans and verification-before-completion skills because the default target slices omit the header policy. Detect only the approved spec's Rework record, put an unresolved base merge first, map each fix thread to one id-titled task with request-specific scoped tests and seam, and preserve nonfix dispositions without repair tasks. Use documented lint/format only in the header, or the non-command sentinel; verify the task Tests union plus that header without changing ordinary full-suite verification or completion gates. This extends, rather than replaces, the baseline provenance and handoff rationale above. Model replays are deferred to the parent under the scoped implementation dispatch.
 
+All-or-nothing endpoint equivalence outside the dispatched spec and plan directories permits retaining valid unchanged-command evidence across planning-only commits and re-stamping it to BASE, even when task steps change. Any failed proof reruns all commands, and the explicit forced-rerun override always wins. The baseline-equivalent-restamp supplied-observation scenarios exercise retention plus fresh evidence for an added task, and rerun-all after a source diff. The existing provenance note records retained evidence.
+
 ## Expected to move
+- baseline-equivalent-restamp/restamp: fails -> holds - Retain unchanged commands across planning-only commits.
+- baseline-equivalent-restamp/provenance: fails -> holds - Record tree-equivalent retention in the existing provenance note.
 - pr-subject-threads/merge-first: fails -> holds - Resolve the outstanding base merge as Task 1.
 - pr-subject-threads/thread-tasks: fails -> holds - Preserve one task per fix thread and its test seam.
 - pr-subject-threads/nonfix: fails -> holds - Retain keep-open and decline dispositions without tasks.
