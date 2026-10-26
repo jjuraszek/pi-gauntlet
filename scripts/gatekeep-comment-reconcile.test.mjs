@@ -553,6 +553,8 @@ test('watch belongs only to delivery and renews only on own push', () => {
   assert.match(wait, /Immediately after record validation, evaluate the last helper result and retained no-progress checkpoint through `### Exit check` before minting a deadline or watching binding pending CI/);
   assert.match(wait, /Admit the watch with a retained CI `P#` only when its authorized re-run is in progress and that CI result is the sole remaining blocker/);
   assert.match(wait, /do not dispatch another repair while awaiting that result/);
+  assert.doesNotMatch(loop, /admit the watch only with no open blocker/);
+  assert.match(wait, /never let an open evidence-dependent blocker \(a blocker whose closure depends on CI evidence\) disable the step-4 watch/);
   assert.match(loop, /unchanged `open - needs <X>` prerequisite, exit `stuck - needs <X>` immediately/);
   assert.match(wait, /gh pr checks <N> -R <base-owner>\/<base-repo> --watch/);
 });
