@@ -142,7 +142,7 @@ Propose 2-3 genuinely distinct approaches and name what separates them (the axis
 
 ### 5. Design for clarity and isolation
 
-Prefer clear testable boundaries, YAGNI, existing conventions when they are sound - when the convention is the debt, say so and do not extend it - the owning schema/contract rather than parallel state, and explicit errors and edge cases. Retain every existing user-approved design detail in approaches and design, including when drafting or replacing the spec.
+Prefer clear testable boundaries, YAGNI, existing conventions when they are sound - when the convention is the debt, say so and do not extend it - the owning schema/contract rather than parallel state, and explicit errors and edge cases. Retain every existing user-approved design detail in approaches and design, including supplied presentation details in the design recap and when drafting or replacing the spec.
 
 ### 6. Present the design in two rounds
 

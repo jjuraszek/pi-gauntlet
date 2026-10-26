@@ -102,6 +102,7 @@ test('tree-wide integrity splits only drafted rows using complete Design familie
   const row = text.split('\n').find((line) => line.startsWith('| Tree-wide |'));
   assert.ok(row, 'Tree-wide integrity class exists');
   for (const marker of ['drafted', 'zero/no findings', 'one or several kinds', 'tree or set', 'explicit complete enumeration in Design', 'one row per family', "family's own observable", 'every outcome', 'absent, partial, or unrelated', 'stop before writing', 'quote the row', 'request the complete enumeration in Design']) assert.ok(row.includes(marker), marker);
+  for (const marker of ['from the human or Design', 'never invent the list in question options or recommendations or infer completion of a partial list']) assert.ok(row.includes(marker), marker);
   assert.ok(text.includes('ticket row of this shape stays one verbatim row'));
   assert.ok(text.includes('human ticket repair through `/skill:shape-ticket` before approval'));
 });
@@ -371,6 +372,7 @@ test('section 4 demands distinct, pattern-judged approaches and section 5 refuse
   for (const marker of ['(the axis)', 'reuse-only option (no new construct)', 'drops an assumption the ask makes', 'not viable -', 'does not count toward the 2-3', 'Pattern: <what it follows or cuts across, cited to a repo location>', 'sound engineering practice first, then repo rules', 'never recommend an approach that extends it', 'kept the ask as framed', 'the condition that would flip it']) assert.ok(four.includes(marker), marker);
   const five = text.slice(text.indexOf('### 5. Design for clarity and isolation'), text.indexOf('### 6. Present the design in two rounds'));
   assert.ok(five.includes('when the convention is the debt, say so and do not extend it'), 'section 5 clause');
+  assert.ok(five.includes('including supplied presentation details in the design recap'), 'presentation detail preservation');
 });
 
 test('red flags stop approaches that skip the framing question or the holds-statement', () => {
@@ -430,6 +432,7 @@ test('ledger amendments precede task-plan aftermath and preserve durable counts 
   const ledger = text.indexOf('Ledger exists');
   assert.ok(ledger > 0 && ledger < text.indexOf('Plan exists ->'));
   for (const marker of ['# Ledger - loop engine', 'skip `plan-writer`, `plan_check`, and `plan_tracker`', '`deviates:`, `deferred:`, or `elsewhere:`', '`cut`', 'evidence = the disposition', 'requirement-preserving', '`done`', '`open`', 'reopened by amendment', "Preserve every row's attempts and the ledger's iterations", 'loop: cut row <n>', 'loop: amend', 'amendment audit', 'a bare `5` grants the same way', 'digit `2` or `5`']) assert.ok(text.includes(marker), marker);
+  for (const marker of ['Without a standing amend grant, send a re-bounded row to human review before applying it', 'for a batch containing only one cut, otherwise `loop: amend` (including mixed batches)']) assert.ok(text.includes(marker), marker);
   assert.match(main(), /delete the plan file and the loop ledger/);
 });
 
@@ -489,6 +492,7 @@ test('leading PR lists admit in order and keep every retained contract', () => {
   assert.ok(subject.includes('attributed original-head text separately from the combined worktree code input'), 'scout receives distinct claim and code inputs');
   const attributionCase = read('eval/brainstorming/samples/pr-list-per-pr-attribution/case.md');
   const attributionExpected = read('eval/brainstorming/samples/pr-list-per-pr-attribution/expected.md');
+  assert.ok(attributionCase.includes('Use compact checkpoint output, retaining every fixed observation and required fact within the existing word cap.'));
   for (const marker of ['doc/specs/retry-cap.md', 'at most five attempts', 'at most three attempts']) {
     assert.ok(attributionCase.includes(marker), `attribution setup: ${marker}`);
     assert.ok(attributionExpected.includes(marker), `attribution expectation: ${marker}`);
