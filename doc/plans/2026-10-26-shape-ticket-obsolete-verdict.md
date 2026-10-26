@@ -72,6 +72,8 @@ The record globs declare generated-file ownership, not permission to hand-edit o
 
 Initial BASE: `7cb2bc76`. Initial per-file inventory: `?? doc/plans/2026-10-26-shape-ticket-obsolete-verdict.md`. Admit exactly that plan path and `doc/specs/2026-10-26-shape-ticket-obsolete-verdict.md`; the spec has no status entry. No in-flight paths were supplied. The scoped structural command executed with exit 0: 14 tests, 14 pass, 0 fail. Post-run HEAD and inventory were unchanged; no generated artifacts or source contamination appeared. Header verification and model replay steps were not run during planning.
 
+Amendment BASE: `0e657c2a`. Initial per-file inventory: ` M doc/specs/2026-10-26-shape-ticket-obsolete-verdict.md`. Admit exactly `doc/plans/2026-10-26-shape-ticket-obsolete-verdict.md` and `doc/specs/2026-10-26-shape-ticket-obsolete-verdict.md`; the supplied In-flight path is the same spec. Endpoint-tree proof from `7cb2bc76` to `0e657c2a`, excluding `doc/specs/` and `doc/plans/`, exited 1, so no evidence was retained. Reran the unchanged Task 1 Tests command on `0e657c2a`: exit 0, 14 tests, 14 pass, 0 fail. Post-run HEAD and per-file inventory were unchanged; no artifacts or source contamination appeared. Task 2 has no Tests command. Header verification and model replay steps were not run during this amendment.
+
 ## Wave 1 - Obsolete verdict and gated choices
 
 ### Task 1: Implement the obsolete verdict, close/drop menu and replay cases
@@ -107,7 +109,7 @@ Initial BASE: `7cb2bc76`. Initial per-file inventory: `?? doc/plans/2026-10-26-s
 
 **Tests:**
 - `node --test eval/lib/lint.test.mjs`
-- baseline: 7cb2bc76 pass
+- baseline: 0e657c2a pass
 - via: `lintAll()` and `lintTarget()` validate the three new sample files; behavioral replays exercise `/skill:shape-ticket`, `reference/repo-audit.md` fold-in/menu and `reference/tracker-ladder.md` close resolution.
 
 Decision: Use the existing text target, not a new live-tracker test harness - `eval/shape-ticket/replay.md:1` and `eval/lib/replay.mjs:61-63` explicitly disable tools; the spec requires inlined already-opened source evidence. These cases prove rendered verdicts and choices, not successful remote writes. Review the selected-close instruction path separately against the transition table in Step 10.
@@ -217,7 +219,7 @@ Decision: Implement the create obsolete reason in `repo-audit.md`'s shared menu,
 
   Extend "Complete the batch and present gates" in `reference/repo-audit.md` as the menu owner for both modes. Put the Audit block immediately above Title, after pre-Title source gaps. Keep the exact body diff and existing comment separate from closing evidence; never append closing evidence to the Reporter note.
 
-  Number rows using `menu-layout.md`: approve exact diff (create anyway in create), revise, decline, and the conditional exit. Repair's row is `Close as <reason> - <resolved operation sequence>`; create's is `Drop the idea - <reason>`. Beneath the exit show the `Audit: obsolete:` line verbatim, with citations, once as closing evidence. This is the same verdict already carried above Title, not a new rationale or Reporter-note payload.
+  Number rows using `menu-layout.md`: approve exact diff (create anyway in create), revise, decline, and the conditional exit. Repair retains decline and adds `Close as <reason> - <resolved operation sequence>`; create replaces decline with `Drop the idea - <reason>` when the obsolete exit renders, since both write nothing and the menu carries one no-write row. Beneath the exit show the `Audit: obsolete:` line verbatim, with citations, once as closing evidence. This is the same verdict already carried above Title, not a new rationale or Reporter-note payload.
 
   Resolve eligibility before tagging. Stopped tickets have no exit/approval option and no tag; they still show the obsolete audit line. A terminal repair snapshot has no close option. A missing/unavailable audit has no verdict/exit. Otherwise an obsolete finding renders the exit. Put exactly one `[recommended]` tag on the rendered exit; otherwise use the approve row or the alternative named by overlap's `Recommended option` table. Retain source-gap approval alternatives and tag only one eligible approve row. Keep stopped reports untagged.
 
@@ -354,7 +356,7 @@ Decision: Add close mapping documentation adjacent to the existing `## Issue tra
 | § "Design" L45 | Repair duplicate requires read body and same failure; create stays with overlap | Task 1 |
 | § "Design" L47 | No uncited no-longer-wanted shape | Task 1 |
 | § "Design" L49 | Parent owns reads/citation checks; scout and search unchanged; keep draft/roast/diff and gate routing | Task 1 |
-| § "Design" L53 | Shared numbered template, eligibility before tag, combined no-write reasons, separate evidence and native duplicate mapping | Task 1 |
+| § "Design" L53 | Shared numbered template, create drop replaces decline, eligibility before tag, combined no-write reasons, separate evidence and native duplicate mapping | Task 1 |
 | § "Design" L55 | Selection authorizes one payload; drop writes nothing; revisions rerender and override prose cannot waive gate | Task 1 |
 | § "Design" L57 | Small skill clauses, size budget, non-conforming routing and matching terminal report lines | Task 1 |
 | § "Design" L61 | Add reason map and parent-owned reads | Task 1 |
