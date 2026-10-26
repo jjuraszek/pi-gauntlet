@@ -168,15 +168,15 @@ test('batch rendering preserves child reports and confines pending checks to men
   assert.match(round, /Not offered: merge \(<check> pending\)/);
 });
 
-test('obstacle menus resume without cap extension below both caps', () => {
+test('obstacle menus extend both caps even below their limits', () => {
   const obstacle = section(menus, '## obstacle\n', '## contract exception\n');
   assert.match(obstacle, /Keep the `Delivers:` line/);
   assert.match(obstacle, /Evidence: CI \(run 7001, test_unit and build_image green on 9c1e4f2\)/);
   assert.match(obstacle, /show evidence prints the full record \(<source summary>\)/);
   assert.match(report, /For obstacle reports, print exactly one `Evidence:` line naming the resolved evidence source and the assessed head/);
   assert.match(obstacle, /deliver - resume the retained course; <one clause naming what retries>, no round charged/);
-  assert.match(obstacle, /Append.*only when.*counter is at its cap/);
-  assert.match(obstacle, /otherwise extend neither cap/);
+  assert.match(obstacle, /For every non-timeout deliver selection, add exactly/);
+  assert.match(obstacle, /cumulative usage\/caps/);
 });
 
 test('multi-PR terminal picks stay parent-owned after worktree cleanup', () => {
@@ -343,7 +343,10 @@ test('conformance-check.md sentinel names the deferred/deviates line', () => {
   assert.ok(cc.includes('Deferred/deviates per spec:'));
 });
 
-test('report.md renders bottom-up and ends on a two-state verdict', () => {
+test('report.md renders bottom-up and delegates exit and menu verdicts', () => {
+  assert.match(report, /For ordinary assessments, use `mergeable`, `fixable`, or `not ready`/);
+  assert.match(report, /Delegate obstacle\/cap verdicts to `post-selection-loop.md` `### Exit check` and menu verdicts to `menus.md`/);
+  assert.doesNotMatch(report, /Two states:/);
   const order = ['Delivers', 'PR comments', 'Nits', 'Blockers', 'Verdict:'];
   const orderSection = section(report, '## Order\n');
   const fence = orderSection.match(/```[^\n]*\n([\s\S]*?)\n```/);
@@ -547,7 +550,8 @@ test('watch belongs only to delivery and renews only on own push', () => {
   assert.match(wait, /only the gate's own push renews an existing window automatically/);
   assert.match(wait, /Base movement, refresh, repeated entry, or unrelated head\/body\/check changes never renew/);
   assert.match(wait, /Immediately after record validation, evaluate the last helper result and retained no-progress checkpoint through `### Exit check` before minting a deadline or watching binding pending CI/);
-  assert.match(wait, /Run the deliver watch only when no blocker is open and no failed prerequisite is retained/);
+  assert.match(wait, /Admit the watch with a retained CI `P#` only when its authorized re-run is in progress and that CI result is the sole remaining blocker/);
+  assert.match(wait, /do not dispatch another repair while awaiting that result/);
   assert.match(loop, /unchanged `open - needs <X>` prerequisite, exit `stuck - needs <X>` immediately/);
   assert.match(wait, /gh pr checks <N> -R <base-owner>\/<base-repo> --watch/);
 });
@@ -563,6 +567,8 @@ test('ten templates own menus and typed dispatch is not row authority', () => {
   assert.match(menus, /Quote a numeric pick only after the rendered menu/);
   assert.match(menus, /Never narrate or summarize a menu/);
   assert.match(menus, /approved_head/);
+  assert.match(menus, /For a recovered `CONFLICTING` child, offer only safe `retry` and `stop`/);
+  assert.match(batch, /conflicts through `menus.md` `## batch summary`'s recovered CONFLICTING template/);
   assert.match(menus, /failed post keeps its row/);
   for (const redFlag of ['validated action-scoped retained authority', 'without `fix` while an open blocker exists', 'A CI wait while a blocker is open', 'cleanup` rendered on an ordinary open-PR menu', 'An ordinary open-PR `stop` offers teardown', 'Blockers are empty', 'Count file, description-only, and conflict-only attempts under the same cap', 'a grant never raises the cap', '## Consent table', '## Overlays', '## Conflicts']) {
     for (const text of [skill, loop, fixWave, brief, decisionMenu, menus, findings, report, sync]) assert.ok(!text.includes(redFlag), redFlag);

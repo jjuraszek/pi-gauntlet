@@ -34,7 +34,7 @@ Description: <optional concise non-blocking uncertainty: author assertion versus
 
 Sync: <digest's sync field value verbatim; optional explanation after it as a second clause or sentence; only when --rebase was passed>
 
-Verdict: mergeable - <evidence clause> | fixable - <N> blockers | fixable - <withhold reason>
+Verdict: mergeable - <evidence clause> | fixable - <N> blockers | not ready - <withhold reason>
 
 <menu>
 ```
@@ -45,7 +45,7 @@ For obstacle reports, print exactly one `Evidence:` line naming the resolved evi
 
 ## Verdict
 
-Two states: `mergeable` or `fixable`. `mergeable` carries the evidence clause from `findings.md` `## Provenance`: `CI green on the assessed head (<check name>)` or `verification command passed locally`. `fixable - <N> blockers` when `Blockers` is non-empty; `fixable - <withhold reason>` when it is empty but a merge prerequisite is unmet: `reviewer run in progress`, `binding check pending`, `blocked by GitHub`, `merge state unknown`, `failed gate` (listed for spec parity; a red gate mints a blocker per `findings.md` `## Namespaces`, so `Blockers` is non-empty), `comments not refreshed`, `comment source review incomplete`, `verification not run` (the command needed credentials or no command resolved, with nothing else blocking), `mergeable unknown`, `behind base`, `merge conflict` (for `mergeable == CONFLICTING`).
+For ordinary assessments, use `mergeable`, `fixable`, or `not ready`. Carry the mergeable evidence clause from `findings.md` `## Provenance`: `CI green on the assessed head (<check name>)` or `verification command passed locally`. Name the blocker count or concrete unmet prerequisite for fixable/not-ready assessments. Delegate obstacle/cap verdicts to `post-selection-loop.md` `### Exit check` and menu verdicts to `menus.md`.
 
 `<N> blockers` reads `1 blocker` for one.
 

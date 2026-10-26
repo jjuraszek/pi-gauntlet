@@ -17,7 +17,7 @@ Initial source review has P1: src/guard.mjs:8 accepts an empty signature. Initia
 
 Independent checkpoint B: restore course deliver, rounds_used 2, syncs_used 1, both caps 10 at head 3333333333333333333333333333333333333333. ci / test is red twice with no intervening pushed repair-wave source commit; the only intervening SHA movement is a base sync. Logs give no source lead. Record the exit, not another repair.
 
-Independent checkpoint C: restore course deliver, usage 0/0, caps 10/10 at gathered head. ci / test fails, `--log-failed` gives no evidence and source review no lead. One requested run re-run completes red again, same source; record the next menu with no second re-run.
+Independent checkpoint C: restore course deliver, usage 0/0, caps 10/10 at gathered head. ci / test fails, `--log-failed` gives no evidence and source review no lead. The one authorized re-run is in progress with a binding check pending and its CI P1 still open; no helper/no-progress prerequisite or other blocker remains. Watch within the retained 15-minute window; the next snapshot completes SUCCESS on the same head, fresh claim-check closure resolves P1, all merge prerequisites hold. Render final with no additional repair dispatch or re-run.
 
 Independent checkpoint D: course deliver, remote head A=1111111111111111111111111111111111111111, reviewed local repair commit B=aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa, clean tree. Required rebase produces C=2222222222222222222222222222222222222222. The checked push is rejected. Show the persisted sync restore/lease heads and resulting local head; retain the unpushed B repair, make no second push and render obstacle.
 

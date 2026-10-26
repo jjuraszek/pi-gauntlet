@@ -1,4 +1,4 @@
-for: ac9bb5f989677c0764b829d13b666bec2b09da4ec99b68c9a922f619097b6e32
+for: bddfc4bae80daae2d7100a6805685d36ce29cad65728ab357fa6306edf83ba96
 
 ## Change
 
@@ -69,7 +69,7 @@ These are predictions against the extracted-menu baseline 40d6c9e4, not observed
 - course-assess-terminal/f3: fails -> holds - New course scenario, absent from the previous target: Assess terminal offers approve only for someone else with zero blockers (C), not A, B or D; stop is recommended and last.
 - course-assess-terminal/f4: fails -> holds - New course scenario, absent from the previous target: Drafted C1 thread replies stay separate behind a reply pick; assess does not post them or infer approval.
 - course-cap-exhausted/f1: fails -> holds - New course scenario, absent from the previous target: Resolved maxFixRounds five yields ten source waves and ten syncs initially; exhausted usage survives the cap obstacle.
-- course-cap-exhausted/f2: fails -> holds - New course scenario, absent from the previous target: Numeric deliver adds ten once to each cumulative cap, to 20/20, preserving counters at 10/10 before work; no unselected extension is invented.
+- course-cap-exhausted/f2: fails -> holds - New course scenario, absent from the previous target: Numeric deliver adds ten once to each cumulative cap, to 20/20, preserving counters at 10/10 before work; no unselected extension is invented. D shows the same cumulative extension below both caps and persists 20/20 with unchanged usage 2/1 before work.
 - course-cap-exhausted/f3: fails -> holds - New course scenario, absent from the previous target: Conflict-only sync consumes no source round; description-only work consumes neither; mixed source/sync work counts each budget independently.
 - course-cap-exhausted/f4: fails -> holds - New course scenario, absent from the previous target: B surfaces stuck - phase-tracker fix-round guard: closureReview.enforce: maximum fix rounds reached and does not bypass it with higher skill caps.
 - course-cap-exhausted/f5: fails -> holds - New course scenario, absent from the previous target: C retains the unchanged failed prerequisite and exits no-progress without dispatch or another spent round; extension alone cannot clear it.
@@ -80,7 +80,7 @@ These are predictions against the extracted-menu baseline 40d6c9e4, not observed
 - course-deliver-no-mid-menu/f2: fails -> holds - New course scenario, absent from the previous target: Own pushes renew the 15-minute watch window from 12:02 to 12:17, 12:10 to 12:25 and the actual 12:12 sync push to 12:27; observing main move at 12:11 alone does not renew it.
 - course-deliver-no-mid-menu/f3: fails -> holds - New course scenario, absent from the previous target: BEHIND triggers sync without a separate decision; final offers merge but executes neither merge nor approval without a new numeric selection.
 - course-deliver-no-mid-menu/f4: fails -> holds - New course scenario, absent from the previous target: B exits on repeated red without source change; base-only SHA movement cannot satisfy the repair-wave source-change rule.
-- course-deliver-no-mid-menu/f5: fails -> holds - New course scenario, absent from the previous target: C requests exactly one re-run, then exits on repeated red, never inventing a source repair or repeated re-runs.
+- course-deliver-no-mid-menu/f5: fails -> holds - New course scenario, absent from the previous target: C watches one authorized in-progress re-run despite its retained CI blocker, then resolves it on success with fresh closure and renders final without another repair dispatch, re-run, intermediate menu, or spent round.
 - course-deliver-no-mid-menu/f6: fails -> holds - New course scenario, absent from the previous target: D persists repair.wave.sync.pre_head B and expected_remote_head A before rebase, leases against remote A rather than local repair B, and restores clean B after rejection without losing B or replaying a push.
 - course-obstacle-unknown/f1: fails -> holds - New course scenario, absent from the previous target: A re-polls once then exits stuck - merge state unknown, spending neither budget, with no repair or sync.
 - course-obstacle-unknown/f2: fails -> holds - New course scenario, absent from the previous target: B exits stuck - run record unreadable, does not reset counters or infer authority from chat or search another record.

@@ -17,6 +17,8 @@ Independent B: same extended caps 20/20 and usage 10/10, but if a helper dispatc
 
 Independent C: same extended caps 20/20, usage 10/10 and repair.wave.no_progress { failed_prerequisite: "node --test src/guard.test.mjs: constant-time comparison", observed_value: "failed", result_path: "/tmp/guard-failed.synthetic" }. The helper had restored edits and made no commit; source/input/command unchanged and the same test is still red.
 
+Independent D: restore course deliver, rounds_used 2/rounds_cap 10 and syncs_used 1/syncs_cap 10. The obstacle is `stuck - workflow run awaiting approval` because the viewer cannot approve the held run. Render the obstacle menu showing the cumulative extension before the pick. The human clears the held-run prerequisite externally and selects numeric `deliver` once. Record caps 20/20 and unchanged usage 2/1 before work; stop before another helper result.
+
 ## Arguments
 
 `42`
