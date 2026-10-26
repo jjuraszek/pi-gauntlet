@@ -1,0 +1,6 @@
+- restamp: judged: In scenario 1, retain the existing unchanged command's evidence without rerunning it and rewrite its bullet to def5678 even though the task's steps changed.
+- provenance: judged: In scenario 1, append `retained 1 bullets: abc1234 -> def5678, tree-equivalent outside doc/specs, doc/plans` to the baseline provenance note, not to a task or a new audit field.
+- fresh-evidence: judged: In scenario 1, run the added task's command using the supplied observation and give it fresh passing evidence at def5678.
+- one-sha: judged: In scenario 1, every written baseline bullet uses def5678 and the plan ends with PLAN WRITTEN /work/app/doc/plans/hook.md.
+- rerun-all: judged: In scenario 2, rerun both commands and write their passing evidence at def5678.
+- no-retained: judged: In scenario 2 only, write no retained-provenance line and do not report failed equivalence as an Open Questions finding. Ignore scenario 1's provenance for this check.
