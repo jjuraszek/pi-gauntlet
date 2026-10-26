@@ -11,7 +11,7 @@ export interface PiGauntlet {
   flowGuards?: { enforce?: unknown; specDirs?: unknown };
   verifyBeforeShip?: { testCommands?: unknown; warningReference?: unknown };
   escalationLoop?: { implModel?: unknown };
-  loopEngine?: { maxIterations?: unknown };
+  loopEngine?: { maxIterationsPerRow?: unknown; maxIterations?: unknown };
   phaseModels?: { plan?: unknown; implement?: unknown; verify?: unknown; ship?: unknown };
   telemetry?: { enabled?: unknown; dir?: unknown; buckets?: unknown };
 }
@@ -93,11 +93,19 @@ export function resolveClosureReview(g: PiGauntlet): ClosureReviewResolved {
   return { model, enforce, maxFixRounds };
 }
 
-export function resolveLoopEngine(g: PiGauntlet): { maxIterations: number; warning: string | undefined } {
-  const raw = g.loopEngine?.maxIterations;
-  if (raw === undefined) return { maxIterations: 30, warning: undefined };
-  if (typeof raw === "number" && Number.isInteger(raw)) return { maxIterations: Math.max(1, raw), warning: undefined };
-  return { maxIterations: 30, warning: "loopEngine.maxIterations must be an integer; using default 30" };
+export function resolveLoopEngine(g: PiGauntlet): { maxIterationsPerRow: number; warning: string | undefined } {
+  const loop = g.loopEngine;
+  const raw = loop?.maxIterationsPerRow;
+  const valid = typeof raw === "number" && Number.isInteger(raw);
+  const maxIterationsPerRow = valid ? Math.max(1, raw) : 4;
+  const warnings: string[] = [];
+  if (loop && Object.hasOwn(loop, "maxIterations")) {
+    warnings.push("loopEngine.maxIterations is removed; set loopEngine.maxIterationsPerRow");
+  }
+  if (raw !== undefined && !valid) {
+    warnings.push("loopEngine.maxIterationsPerRow must be an integer; using default 4");
+  }
+  return { maxIterationsPerRow, warning: joinWarn(warnings) };
 }
 
 export interface EscalationLoopResolved {

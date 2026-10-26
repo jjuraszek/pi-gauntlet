@@ -9,7 +9,7 @@ Run this driver in the main session. Carry the absolute implementation worktree 
 
 ## Entry
 
-1. Read project overrides below. Resolve `gauntlet_setting({ key: "loopEngine" })` and retain `maxIterations` (default 30). Stop on an unavailable settings tool.
+1. Read project overrides below. Resolve `gauntlet_setting({ key: "loopEngine" })` and retain `maxIterationsPerRow` (default 4). Stop on an unavailable settings tool.
 2. Resolve verification once using this ordered table. Print `verification command: <command> (<source>)`.
 
 | Observed configuration | Action |
@@ -27,6 +27,7 @@ Run this driver in the main session. Carry the absolute implementation worktree 
 base: <HEAD SHA before skeleton>
 verification: <resolved command>
 iterations: 0
+cap: <n>
 
 | row | status | attempts | evidence |
 |---|---|---|---|
@@ -35,26 +36,26 @@ iterations: 0
 ## Decisions
 ```
 
-Use the actual repo-relative spec path alone in the Spec header. Read base with `git -C "<worktree>" rev-parse HEAD`. Index every spec AC in order, including nested disposition lines without treating them as extra ACs; keep row text only in the spec. Initialize explicit/absent `in-scope` and `venue:` rows `open`, attempts 0, evidence empty. Initialize only `deviates:`, `deferred:`, `elsewhere:` rows `cut`, attempts 0, disposition text as evidence. Serialize evidence in one physical table cell, result lines separated by semicolons, pipes escaped, plain text without angle markup.
+Use the actual repo-relative spec path alone in the Spec header. Read base with `git -C "<worktree>" rev-parse HEAD`. Index every spec AC in order, including nested disposition lines without treating them as extra ACs; keep row text only in the spec. Initialize explicit/absent `in-scope` and `venue:` rows `open`, attempts 0, evidence empty. Initialize only `deviates:`, `deferred:`, `elsewhere:` rows `cut`, attempts 0, disposition text as evidence. Compute cap once as (rows not initialized cut) * maxIterationsPerRow + 1, including the seed dispatch. Write `cap:` immediately after `iterations: 0`: 24 non-cut rows at default 4 yield 97; all-cut yields 1 and exits through rule 1 without a seed dispatch. Later cuts, reopens and requirement-preserving amendments leave cap unchanged; redraw deletes the ledger and reseeds it. Serialize evidence in one physical table cell, result lines separated by semicolons, pipes escaped, plain text without angle markup.
 5. Call `plan_check({ planPath: <ledger path> })`. Stop with findings as a configuration error. Commit the stamped skeleton as `loop: seed ledger`; call `phase_tracker({ action: "start", phase: "implement" })`.
 
-For resume, use the admitted ledger, its base and verification command, and durable iterations instead of overwriting it. Render rows and last decision; stop on a dirty tree before dispatch.
+For resume, use the admitted ledger, its base and verification command, and durable iterations and cap instead of overwriting it. Skip Entry step 1 for an admitted ledger; settings apply only to fresh seeding. Render rows, cap and decision history; stop on a dirty tree before dispatch.
 
 ## Before each dispatch
 
-Read the ledger. Count empty child commits and validation misses only after the latest `loop: retry row <n>` commit. Funding alone resets neither window. Preserve every row's attempts and the total iteration cap. Apply this ordered table, starting here after each return or human decision:
+Read the ledger and require its `cap:` header before the ordered table, including before rule 1. On a missing header stop with `ledger has no cap: line - seeded under the old loopEngine contract`, even for a completed ledger; use the legacy grant below, never derive cap from settings. Count empty child commits and validation misses only after the latest `loop: retry row <n>` commit. Funding alone resets neither window. Preserve every row's attempts and the total iteration cap. Apply this ordered table, starting here after each return or human decision:
 
 | Order | Observed state | Action |
 |---|---|---|
 | 1 | No `open` or `failed` row | Exit verification. All-cut and baseline-complete ledgers exit normally. |
 | 2 | Unresolved row attempts at its allowance | Human stop. Exempt `done` and `cut`, including third-attempt success. |
 | 3 | Last two child row commits both changed no file outside the ledger and no row status | Human stop, regardless of funding. Count child `loop: row ...` commits only, excluding seed and parent repair/retry/cut commits. A decision alone is not progress. |
-| 4 | `iterations` >= `maxIterations` | Human stop naming cap, unresolved rows and attempts, before verification. Seed and interrupted dispatches count. |
+| 4 | `iterations` >= `cap` | Human stop naming the header cap value and every open/failed row with its attempts, before dispatch and before verification. Seed and interrupted dispatches count. |
 | 5 | Dispatch allowed | Select target by the priority below. |
 
 Set row allowance to 3 + funded N, increased to the latest `row <n> retry` decision's `allowed attempts <m>` when larger. Recover spent funding per row as `max(0, attempts - 3)`; a mid-loop grant applies prospectively. Before dispatch on a funded row with attempts >= 3 and spent < N print `funded round <k> of <N> for row <n>`, with k = attempts - 3 + 1. Funding buys neither cap bypass nor empty-commit bypass nor an escalated model. Include `budget: <spent> of <N> spent` in funded stops.
 
-Select `seed` until a validated `loop: seed evidence` commit with its `row 0 done` decision and evidence on every non-cut row survives on the branch, independently of `iterations`; otherwise select the still-unresolved human retry target, then the still-failed row named by the previous decision, then first failed row, then first open row. Durable status beats a decision's suggestion. Keep the retry hint only for its target.
+Select `seed` until a validated `loop: seed evidence` commit with its `row 0 done` decision and evidence on every non-cut row survives on the branch, independently of `iterations`; otherwise select the still-unresolved human retry target, then the still-failed row named by the previous decision, then first failed row, then first open row. Use the latest operational `row <n> ...` decision for targeting and the child's `previous decision:` input, skipping cap grant history while retaining the entire Decisions section. Durable status beats a decision's suggestion. Keep the retry hint only for its target.
 
 ## Dispatch
 
@@ -75,7 +76,7 @@ Omit the model override; let the persona override or parent inheritance resolve 
 ## Validate the return
 
 1. Require empty `git -C "<worktree>" status --porcelain` and exactly 1 from `git -C "<worktree>" rev-list HEAD_BEFORE..HEAD --count`. On dirty/zero/multiple commits stop, preserving changes and commits. Use `Stopped: iteration <i> left the tree dirty` or `Stopped: iteration <i> added <k> commits`. Read the ledger from HEAD only after this boundary passes.
-2. Validate by dispatched `target`, not iteration number, against the saved copy using this table. Preserve headers including the bumped iterations, row identifiers and prior decisions.
+2. Validate by dispatched `target`, not iteration number, against the saved copy using this table. Preserve headers including cap and the bumped iterations, row identifiers and prior decisions.
 
 | Target | Required changes | Miss |
 |---|---|---|
@@ -84,7 +85,7 @@ Omit the model override; let the persona override or parent inheritance resolve 
 
 Require ordinary decision grammar `^row <target> (done|failed) \| .{1,200} \| .{1,200}$`; an old conforming line is not a new line. Require check name plus at most three result lines in evidence, serialized with semicolons and escaped pipes as in the persona. Reject wrong targets, foreign cells, missing/malformed/new-extra decisions and changed headers.
 
-On an ordinary miss restore every non-target row, headers and prior decisions from the saved copy, retaining the incremented iterations. Set the target `failed`, attempts = saved attempts +1, evidence = `iteration <i>: <concrete miss>`. Remove malformed appended decisions and commit `loop: repair row <n>`. Set previous decision to `none`; otherwise use the new conforming line. Two consecutive validation misses stop because the child is not following the contract. A conforming return resets the consecutive-miss count; parent repair commits do not count toward child-only empty stagnation.
+On an ordinary miss restore every non-target row, headers (including the saved cap) and prior decisions from the saved copy, retaining the incremented iterations. Set the target `failed`, attempts = saved attempts +1, evidence = `iteration <i>: <concrete miss>`. Remove malformed appended decisions and commit `loop: repair row <n>`. Set previous decision to `none`; otherwise use the new conforming line. Two consecutive validation misses stop because the child is not following the contract. A conforming return resets the consecutive-miss count; parent repair commits do not count toward child-only empty stagnation.
 
 ## Exit verification
 
@@ -92,19 +93,22 @@ Run the ledger's `verification:` command exactly once foreground in the worktree
 
 ## Human stop
 
-Leave implement active. Use one screen of plain words: `Stopped on row <n> (<row text>)` for row failures, or the concrete boundary/cap/verification header above. `Problem:` quotes the evidence cell verbatim, identifying the actual spec/code contradiction, failing assertion/output or missing capability, and quotes the last decision line. Include funding budget only when funded. Omit round history, model escalation and reasoning traces.
+Leave implement active. Use one screen of plain words: `Stopped on row <n> (<row text>)` for row failures, or the concrete boundary/cap/verification header above. `Problem:` quotes the evidence cell verbatim, identifying the actual spec/code contradiction, failing assertion/output or missing capability, and quotes the last decision line. Include funding budget only when funded. At every stop print `Preserve every row's attempts and the total iteration cap.` Omit round history, model escalation and reasoning traces.
 
-Offer these concrete actions:
+Offer these concrete actions. Offer `cap +N` only at a clean cap or legacy missing-cap stop; dirty-tree and commit-boundary stops keep discard authorization and never offer `cap +N`. When both the row allowance and total cap are exhausted, list independent funding and cap offers despite rule 2 priority. Take separate replies: funding follows the spec's `**Amend-grant:**` contract, cap follows the row below; define no combined syntax.
 
 | Human choice | Durable action |
 |---|---|
+| Raise cap (`cap +N`) | Parse anchored `cap +<n>` with `<n>` matching `[1-9][0-9]*` and a token boundary (end, whitespace or `\|`); reject `cap +50x`. Trim the optional remainder and optional leading pipe into the words cell. Append `cap +<n> \| <words>` under `## Decisions`; bare `cap +50` writes `cap +50 \|`. Raise the old header cap by N, or set a missing cap to durable iterations + N. Write a missing `cap:` directly after `iterations:`. Commit both changes exactly once as parent `loop: raise cap`, leaving iterations and all attempts unchanged; return to the ordered table. Malformed `cap +0`, `cap +x`, `cap -5` asks once; a second invalid reply holds the same stop with no commit. |
 | Retry with hint | Append `row <n> retry | <hint> | allowed attempts <attempts + 1>`, commit `loop: retry row <n>`, resume checks with that target/hint. Never reset attempts or iterations. |
 | Amend | Follow `/skill:brainstorming` amendment surface; cut only through an approved disposition amendment. Reconcile ledger and spec in one commit. |
 | Stop | Keep phase implement and preserve branch state. |
 
+Serialize the bare decision as `cap +50 |` with an empty words cell. A cap grant resets neither window (empty-child or validation-miss); exclude `loop: raise cap` from child-commit counting. Only retry starts new windows.
+
 For dirty/commit-boundary retry, ask the human to authorize discarding uncommitted changes/resetting to last valid commit. Preserve consumed dispatch count: set iterations to restored HEAD's value +1 before the next normal bump. An interrupted dispatch consumes the same count; recover it from disk/branch rather than silently repeating iteration 0.
 
-For ledger amendments use its line-1 discriminant: no plan writer, plan_check or task-tracker lifecycle. Approved deviates/deferred/elsewhere becomes `cut` with disposition evidence; requirement-preserving amendments leave rows unchanged; a re-bounded done row becomes `open` with `reopened by amendment`. Preserve attempts and iterations. Commit spec + ledger as `loop: cut row <n>` or `loop: amend`. Option 4 stops for amendments, option 5 auto-applies amends, redraw always stops and deletes the ledger with the plan. Never cut automatically.
+For ledger amendments use its line-1 discriminant: no plan writer, plan_check or task-tracker lifecycle. Approved deviates/deferred/elsewhere becomes `cut` with disposition evidence; requirement-preserving amendments leave rows unchanged; a re-bounded done row becomes `open` with `reopened by amendment`. Preserve attempts, iterations and cap. Commit spec + ledger as `loop: cut row <n>` or `loop: amend`. Option 4 stops for amendments, option 5 auto-applies amends, redraw always stops and deletes the ledger with the plan. Never cut automatically.
 
 ## After the loop
 

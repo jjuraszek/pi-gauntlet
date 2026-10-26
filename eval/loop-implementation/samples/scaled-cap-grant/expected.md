@@ -1,0 +1,7 @@
+- stop: judged: At cap97 and iterations97, stops before dispatch and verification, names row24 attempts1 and cap97, offers cap +N beside retry/amend/stop.
+- grant: judged: Bare cap +50 appends exactly cap +50 | with empty words, writes cap:147 in exactly one parent loop: raise cap commit, keeps iterations97 and every attempt unchanged, returns to ordered table with operational row decision still row24 failed.
+- parse: judged: Both reason forms produce cap +50 | because more rounds; all four malformed tokens ask once, a second invalid holds the stop, no commits or counter changes.
+- independent: judged: Both exhausted limits list funding and cap despite row priority, separate replies/no combined syntax; funding follows Amend-grant and changes only row allowance, cap only total.
+- windows: judged: Grant is not a child row commit and resets neither empty-child nor validation-miss window; after grant the two empty child commits still stop dispatch. Only retry starts fresh windows.
+- entry: judged: Fresh cap is non-cut rows times maxIterationsPerRow plus1: 24 default rows gives97, all-cut gives1 and rule1 exit without seed; later cuts/reopens/requirement-preserving amendments keep cap, redraw deletes/reseeds.
+- validation: judged: A child changing cap is a changed-header miss; ordinary repair restores saved cap, keeps consumed iteration, marks target failed with attempts+1 and repair commit; no automatic seed retry.

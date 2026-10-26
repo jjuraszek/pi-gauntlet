@@ -1,0 +1,3 @@
+- legacy: judged: Before any ordered-table rule, including all-closed rule1, prints ledger has no cap: line - seeded under the old loopEngine contract; no settings recomputation or verification.
+- grant: judged: Clean legacy stop offers cap +N; cap +5 writes cap:12 immediately after iterations:7, appends cap +5 |, exactly one loop: raise cap commit, preserves iterations7 and attempts1, returns ordered table.
+- dirty: judged: Dirty and commit-boundary stops preserve state, never offer cap +N, require explicit human discard/reset authorization; no auto-clean.

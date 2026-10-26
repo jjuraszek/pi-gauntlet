@@ -1,1 +1,1 @@
-- contract: judged: Cap stops before dispatch/verification with rows and attempts, seed inclusive. Closed rows instead run exit command once; failure quotes output, never reopens/reruns and leaves implement active.
+- contract: judged: The durable cap:2 at iterations2 stops before dispatch/verification with row1 and attempts and offers cap +N, seed inclusive. Closed rows instead run exit command once; failure quotes output, never reopens/reruns and leaves implement active.

@@ -16,7 +16,9 @@ const ledger = (rows = ["1 | open | 0 |", "2 | cut | 0 | deferred: #70", "3 | do
   "# Ledger - loop engine\n**Spec:** `doc/specs/test.md`\nbase: abc\nverification: check\niterations: 0\n\n| row | status | attempts | evidence |\n|---|---|---|---|\n" + rows.map(r => `| ${r} |`).join("\n") + "\n\n## Decisions\n";
 
 test("ledger admission bypasses task checks and permits empty open evidence", () => {
-  assert.deepEqual(checkPlan(ledger(), ledgerSpec, { exists: () => false, glob: () => [] }), []);
+  for (const input of [ledger(), ledger().replace("iterations: 0\n", "iterations: 0\ncap: 97\n")]) {
+    assert.deepEqual(checkPlan(input, ledgerSpec, { exists: () => false, glob: () => [] }), []);
+  }
 });
 for (const [name, rows] of Object.entries({
   missing: ["1 | open | 0 |"],

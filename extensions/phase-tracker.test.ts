@@ -1404,11 +1404,18 @@ test("gauntlet_setting escalationLoop: setting absent -> ctx-derived main-loop m
 });
 
 test("gauntlet_setting loopEngine resolves the key", async () => {
-  const h = harness({ cwd: tempCwd({ piGauntlet: { loopEngine: { maxIterations: 8 } } }) });
-  const tool = h.tools.find(t => t.name === "gauntlet_setting")!;
-  const result = await tool.execute("loop", { key: "loopEngine" }, undefined, undefined, h.ctx) as any;
-  assert.equal(result.details.key, "loopEngine");
-  assert.equal(result.details.maxIterations, 8);
+  for (const [loopEngine, expected, warning] of [
+    [undefined, 4, undefined],
+    [{ maxIterationsPerRow: 8 }, 8, undefined],
+    [{ maxIterations: 99, maxIterationsPerRow: "4" }, 4,
+      "loopEngine.maxIterations is removed; set loopEngine.maxIterationsPerRow; loopEngine.maxIterationsPerRow must be an integer; using default 4"],
+  ] as const) {
+    const h = harness({ cwd: tempCwd({ piGauntlet: { loopEngine } }) });
+    const tool = h.tools.find(t => t.name === "gauntlet_setting")!;
+    const result = await tool.execute("loop", { key: "loopEngine" }, undefined, undefined, h.ctx) as any;
+    assert.deepEqual(result.details, { key: "loopEngine", maxIterationsPerRow: expected, warning, errors: [] });
+    assert.equal(Object.hasOwn(result.details, "maxIterations"), false);
+  }
 });
 
 test("gauntlet_setting loopEngine composes settings load warnings", async () => {
@@ -1416,9 +1423,11 @@ test("gauntlet_setting loopEngine composes settings load warnings", async () => 
   writeFileSync(join(dir, ".pi/settings.json"), "{");
   const h = harness({ cwd: dir });
   const result = await h.tools.find(t => t.name === "gauntlet_setting")!.execute("loop", { key: "loopEngine" }, undefined, undefined, h.ctx) as any;
-  assert.equal(result.details.maxIterations, 30);
+  assert.equal(result.details.key, "loopEngine");
+  assert.equal(result.details.maxIterationsPerRow, 4);
+  assert.equal(Object.hasOwn(result.details, "maxIterations"), false);
   assert.ok(result.details.errors.length);
-  assert.match(result.details.warning, /gauntlet settings load error/);
+  assert.equal(result.details.warning, `⚠️ gauntlet settings load error (using defaults): ${result.details.errors.join("; ")}`);
 });
 
 test("ledger handler stamps after brainstorm and skipped plan, then admits implement", async () => {

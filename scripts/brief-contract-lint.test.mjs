@@ -83,3 +83,22 @@ const mutated = realFiles.map((f) =>
 assert.deepEqual(rules(mutated), ["grammar-outside-contract:skills/gauntlet-handoff/SKILL.md"]);
 
 console.log("brief-contract lint fixtures pass");
+
+const reconstruction = realFiles.find(f => f.rel === "skills/gauntlet-resume/reference/reconstruction.md").text;
+const ledgerRestore = reconstruction.split("## Spec with ledger")[1].split("## Spec with plan")[0];
+for (const token of ["Shared cap boundary", "cap:", "Skip Entry step 1 entirely", "ledger has no cap: line - seeded under the old loopEngine contract", "After the loop", "latest operational"]) assert.ok(ledgerRestore.includes(token), token);
+assert.doesNotMatch(ledgerRestore, /resolve its Entry settings|maxIterations|gauntlet_setting/);
+for (const rel of ["skills/gauntlet-resume/SKILL.md", CONTRACT_FILE]) {
+  const text = realFiles.find(f => f.rel === rel).text;
+  assert.ok(text.includes("shared cap boundary"), rel);
+}
+
+const routes = realFiles.find(f => f.rel === "skills/gauntlet-resume/SKILL.md").text;
+for (const route of ["implement with line-1 ledger", "verify with `Ledger:`"]) {
+  const row = routes.split("\n").find(line => line.startsWith("| " + route));
+  assert.ok(row.includes("shared cap boundary"), route);
+}
+const actualContract = realFiles.find(f => f.rel === CONTRACT_FILE).text;
+const implementRow = actualContract.split("\n").find(line => line.startsWith("| implement with ledger"));
+assert.ok(implementRow.includes("shared cap boundary"));
+assert.match(actualContract, /For every ledger brief apply the shared cap boundary[^\n]+before dispatch or verification/);
