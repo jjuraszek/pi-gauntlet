@@ -171,6 +171,9 @@ test('batch rendering preserves child reports and confines pending checks to men
 test('obstacle menus resume without cap extension below both caps', () => {
   const obstacle = section(menus, '## obstacle\n', '## contract exception\n');
   assert.match(obstacle, /Keep the `Delivers:` line/);
+  assert.match(obstacle, /Evidence: CI \(run 7001, test_unit and build_image green on 9c1e4f2\)/);
+  assert.match(obstacle, /show evidence prints the full record \(<source summary>\)/);
+  assert.match(report, /For obstacle reports, print exactly one `Evidence:` line naming the resolved evidence source and the assessed head/);
   assert.match(obstacle, /deliver - resume the retained course; <one clause naming what retries>, no round charged/);
   assert.match(obstacle, /Append.*only when.*counter is at its cap/);
   assert.match(obstacle, /otherwise extend neither cap/);
@@ -354,6 +357,9 @@ test('report.md renders bottom-up and ends on a two-state verdict', () => {
   assert.match(fence[1], /1\. <1-2 sentences: what is wrong, why it matters>\. \(<file:line and exact supplied test name for a failing test; file only when no test name was supplied> \| <check name> \| <doc path>\)/);
   assert.match(report, /[Ee]mpty sections are omitted/);
   assert.match(report, /show evidence: <log_path>/);
+  assert.match(report, /Open the `Sync:` line with the digest's `sync` field value verbatim/);
+  assert.match(report, /Sync: declined - other author's branch/);
+  assert.match(report, /Never paraphrase the status value into prose/);
   assert.ok(!report.includes('captured tail'));
   const examples = section(report, '## Worked example\n');
   for (const text of ['Delivers: the reports page exports CSV on demand. ACs 1, 2, 4;', "maria's comment on the missing CSV header", 'src/api/export.ts:31, lib/page.ts', 'src/api/export.ts:10-58', 'docs/exports.rst:88', 'Verdict: fixable - 2 blockers', 'Delivers: the reports page exports CSV on demand. ACs 1-5.', 'Verdict: mergeable - CI green on the assessed head (test)']) assert.ok(examples.includes(text), text);

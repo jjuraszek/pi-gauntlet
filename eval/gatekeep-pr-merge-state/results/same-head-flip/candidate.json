@@ -1,7 +1,7 @@
 {
   "sample": "same-head-flip",
   "arm": "candidate",
-  "skillSha": "94c152c27e8ea9812cecfb7555529c992b5fbf5e89e7dcc7da9fd76acb23a54a",
+  "skillSha": "538700afb64d81e8e9b310a8d79061aa70c94114506b70e1d58417bfdf44e6f1",
   "inputSha": "cab771495bf1c1311f532342ee090756358249679466ad9b761629fa9959b53d",
   "kind": "text",
   "assembly": "concat",
@@ -17,16 +17,16 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "**Snapshot 1: initial digest, head 9c1e4f2**\n\n```text\nevidence: source: pending - Pending row; e2e in_progress (run 7003 in_progress; merge_state_status BLOCKED) -> binding; test_unit, build_image success; zero blocking\nclaims: \"Tests cover the retry path\" - matched (test/feed/client.test.ts:12-40)\nscope: source: pr (issue_ref null); course: null; rounds 0/10, syncs 0/10\nexit: obstacle - undispositionable BLOCKED, course unset\n```\n\n```text\nDelivers: the tide-feed client retries a fetch once when the feed returns 503.\n\nPR comments:\n- The e2e check is still running, so merge waits. (e2e)\n- GitHub reports this actor's merge as blocked, so merge waits. (merge_state_status BLOCKED; reviewDecision REVIEW_REQUIRED)\n\nVerdict: fixable - GitHub reports BLOCKED, no local repair applies\n\nPick one:\n1. deliver - add 2 x maxFixRounds (+10) to each cumulative cap before work, then retry once the failed prerequisite (merge_state_status BLOCKED) changes; no automatic sync.\n2. assess - switch course: post the review to the PR, with no repairs.\n3. stop - end the run and leave the PR as is. [recommended]\n\nNot offered: merge (blocked by GitHub)\nType a number; show evidence prints the full record.\n```\n\n**Snapshot 2: after numeric `1` (deliver) and the pre-menu refresh, same head 9c1e4f2**\n\n```text\nevidence: source: ci - CI-sufficient row; test_unit, build_image, e2e success on 9c1e4f2; zero blocking; zero binding pending\nclaims (claim-check-only helper): \"Tests cover the retry path\" - matched (test/feed/client.test.ts:12-40)\nmerge state: MERGEABLE, CLEAN, reviewDecision APPROVED; refresh succeeded\ncourse: deliver; rounds 0/20, syncs 0/20\nexit: readiness\n```\n\n```text\nDelivers: the tide-feed client retries a fetch once when the feed returns 503.\n\nVerdict: mergeable - CI green on the assessed head (test_unit, build_image, e2e)\n\nPick one:\n1. merge - merge PR #412 at 9c1e4f2 with the resolved merge policy (--match-head-commit 9c1e4f2).\n2. approve - approve PR #412 as rhee-ops at 9c1e4f2. [recommended]\n3. stop - end the run and leave the checkout at .worktrees/pr-412 (tlindqvist/tw-88-retry) as found.\n\nType a number; show evidence prints the full record.\n```\n",
-      "words": 296,
-      "wallMs": 34284,
+      "text": "**Snapshot 1 - first report, course unset**\n\nEvidence: Pending row applies. `e2e` is in progress, and it binds because `merge_state_status` is `BLOCKED`. Source is `pending`. \"Tests cover the retry path\" is matched (test/feed/client.test.ts:12-40).\n\n```\nDelivers: the tide-feed client retries a fetch once when it gets a 503.\n\nPR comments:\n- e2e is still running, so merge waits. (e2e)\n- GitHub reports this actor's merge as blocked, so merge waits. (merge_state_status BLOCKED; reviewDecision REVIEW_REQUIRED)\n\nVerdict: fixable - blocked by GitHub (GitHub reports BLOCKED, no local repair applies)\n\nPick one:\n1. deliver - start the delivery course; it retries only after merge_state_status leaves BLOCKED, with no round charged and no automatic sync.\n2. assess - post the review to the PR; then approve or stop, no repairs.\n3. stop - remove the worktree, leave the PR as is. [recommended]\n\nNot offered: merge (blocked by GitHub; e2e pending), approve (GitHub reports BLOCKED), deliver with nits (no nits).\nType a number; show evidence prints the full record.\n```\n\n**Snapshot 2 - after numeric `1` (course: deliver), pre-menu refresh on the same head 9c1e4f2**\n\nEvidence: CI-sufficient row applies. `test_unit`, `build_image` and `e2e` all succeeded, with zero blocking and zero binding pending checks. A claim-check-only helper confirmed the claim is still matched. Readiness exit, so the final template applies. Usage is rounds 0 of 10 and syncs 0 of 10.\n\n```\nDelivers: the tide-feed client retries a fetch once when it gets a 503.\n\nVerdict: mergeable - CI green on the assessed head (test_unit, build_image, e2e)\n\nPick one:\n1. merge - merge PR #412 at 9c1e4f2 with the resolved merge policy.\n2. approve - approve tlindqvist's PR #412 at 9c1e4f2. [recommended]\n3. stop - remove the worktree, leave the PR as is.\n\nType a number; show evidence prints the full record.\n```\n",
+      "words": 280,
+      "wallMs": 27646,
       "mechanical": {}
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "Delivers: the tide-feed client retries once after a 503, with tests covering the retry path.\n\nPR comments:\n- e2e is pending and binding, so merge waits. (e2e)\n- GitHub reports this actor's merge as blocked, so merge waits. (merge_state_status BLOCKED; reviewDecision REVIEW_REQUIRED)\n\nVerdict: fixable - blocked by GitHub\n\nGitHub reports BLOCKED, no local repair applies.\nRounds: 0 of 10; syncs: 0 of 10.\n\nPick one:\n1. deliver - add 10 to each cumulative cap, making both 20; retry after the failed prerequisite changes, with no automatic sync.\n2. assess - post nothing because there are no blockers; perform no repair or sync.\n3. stop - remove the worktree, leave the PR as is. [recommended]\n\nNot offered: merge (blocked by GitHub; e2e pending).\n\nType a number; show evidence prints the full record.\n\n---\n\nDelivers: the tide-feed client retries once after a 503, with tests covering the retry path.\n\nVerdict: mergeable - CI green on the assessed head (test_unit, build_image, e2e)\n\nPick one:\n1. merge - merge the assessed head using the resolved merge policy.\n2. approve - approve this PR. [recommended]\n3. stop - leave the checkout at .worktrees/pr-412 and local branch tlindqvist/tw-88-retry as found.\n\nType a number; show evidence prints the full record.\n",
-      "words": 192,
-      "wallMs": 14170,
+      "text": "Delivers: adds one bounded retry to the tide-feed client on HTTP 503.\n\nPR comments:\n- GitHub reports this actor's merge as blocked, so merge waits. (merge_state_status BLOCKED; reviewDecision REVIEW_REQUIRED)\n- e2e is pending and binding, so merge waits. (e2e)\n\nEvidence: Pending; e2e binds because merge_state_status is BLOCKED and run 7003 is in progress. No local command runs.\nRepair usage: rounds 0/10; syncs 0/10, unchanged.\n\nVerdict: GitHub reports BLOCKED, no local repair applies\n\nPick one:\n1. deliver - resume the retained course; retry after the blocking prerequisite changes, no round charged.\n2. assess - post open blockers as a review, if any; perform no repairs or sync.\n3. stop - leave the PR as is. [recommended]\n\nNot offered: merge (blocked by GitHub); approve (blocked obstacle); deliver with nits (no nits).\n\nType a number; show evidence prints the full record.\n\n---\n\nDelivers: adds one bounded retry to the tide-feed client on HTTP 503.\n\nEvidence: CI-sufficient on 9c1e4f2; test_unit, build_image, and e2e completed successfully, with no blocking or binding pending checks. No local command runs.\n\nVerdict: mergeable - CI green on the assessed head (test_unit, build_image, e2e)\n\nPick one:\n1. merge - squash-merge the assessed head after the final precondition checks.\n2. approve - approve this PR at the assessed head. [recommended]\n3. stop - leave the checkout as found at .worktrees/pr-412, branch tlindqvist/tw-88-retry.\n\nNot offered: fix nits (no nits); reply (no drafted replies).\n\nType a number; show evidence prints the full record.\n",
+      "words": 230,
+      "wallMs": 11195,
       "mechanical": {}
     }
   },
@@ -36,7 +36,7 @@
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
       "intentSha": "5d82dd30c53664bf000f34822ffc17ecb66d298ce6c5d8f23db53e37e962ee49",
       "baselineOutputSha": "395c8f9979e90f60329dbb296e3e0cdd1eebeffa041e5333cb6b817d2ca9ba17",
-      "candidateOutputSha": "2745b3a5dba3845a472b56fa4daa111471cf37fff42f171ec2fcc66d62c63339",
+      "candidateOutputSha": "39b4ef616b73b50fd5ccf346dec69528629fa93637516d161dffaf444fbd568a",
       "facts": {
         "f1": {
           "before": "fails",
@@ -59,8 +59,8 @@
           "label": "held"
         }
       },
-      "feedback": "After moves f1 from fails to holds as intended: Snapshot 1 now carries an explicit `exit: obstacle - undispositionable BLOCKED, course unset`, withholds merge (`Not offered: merge (blocked by GitHub)`), offers numeric `deliver` as a continuation rather than an ordinary wait row, and Snapshot 2 is a clearly separate readiness menu where the final selection (merge/approve/stop) is made. Before failed f1 because its first menu was an ordinary wait menu (`1. wait - run one bounded CI watch`) with approve recommended and no obstacle exit or deliver course. Nothing Before kept was lost: Snapshot 2 still reports `source: ci - CI-sufficient row` with the refreshed `e2e success` (f3), still offers merge on the unchanged head 9c1e4f2 (f2), and states `merge state: MERGEABLE, CLEAN` with no residual BLOCKED language (f4). The current After wording already satisfies every fact; the only cosmetic suggestion is to keep the Snapshot 1 PR-comment list consistent with the obstacle framing (the `e2e check is still running` line is fine, but ensure it never reads as a wait prompt), and to keep the `exit: readiness` line in Snapshot 2 so the separation from the obstacle continuation stays explicit.",
-      "wallMs": 13485,
+      "feedback": "After moves f1 to holds: Snapshot 1 renders the BLOCKED state as an obstacle exit with deliver/assess/stop (no merge, no ordinary wait row, approve correctly withheld rather than fabricated), and Snapshot 2 is a clearly separate final selection reached via numeric `1` and the same-head refresh. Before failed f1 because it had no deliver continuation at all - it offered a `wait` row and `approve` directly in the blocked state, so the obstacle exit and final selection were not distinct courses. f2-f4 are preserved: the second menu offers merge on the unmoved head 9c1e4f2, cites CI-sufficient evidence from the refreshed checks/runs, and never mentions BLOCKED. One small hardening for After's second snapshot: state the source explicitly (e.g. `Source is ci`) as Snapshot 1 does with `Source is pending`, and include `merge_state_status CLEAN` in the evidence line as Before did - that makes f3's 'not the earlier pending classification' unambiguous on the text alone while keeping the shared final template intact.",
+      "wallMs": 19012,
       "verdict": "improved"
     },
     "github-copilot/gpt-6.1-sol": {
@@ -68,7 +68,7 @@
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
       "intentSha": "5d82dd30c53664bf000f34822ffc17ecb66d298ce6c5d8f23db53e37e962ee49",
       "baselineOutputSha": "2907244907b53baca402929c6a7bc38fa8b68e94a526bad65a2b86df106bc756",
-      "candidateOutputSha": "f79e75457f7756521280469ec8c0d9a523659b32fa3e6f4e71e838c5b5b53292",
+      "candidateOutputSha": "aabd44955219ee07342a0dd132a09c4a2cea5f905dde7d5e58c92ac09d3d1a21",
       "facts": {
         "f1": {
           "before": "fails",
@@ -91,10 +91,10 @@
           "label": "held"
         }
       },
-      "feedback": "After delivers the Change for f1: the initial BLOCKED snapshot now renders as an obstacle exit (fixable - blocked by GitHub, no local repair applies, counters shown) with assess/deliver/stop and merge explicitly not offered, and the numeric deliver row is a continuation distinct from the later final menu, which still offers merge and approve on the unchanged head with refreshed CI evidence, so f2-f4 are preserved. Before failed f1 only because it rendered an ordinary wait menu with no deliver continuation. Two wording issues in After are worth tightening even though they do not flip a fact here: the PR-comments line calls e2e 'pending and binding' although the digest marks it required: false (keep the BLOCKED classification as the sole binding obstacle and list e2e as non-blocking), and the assess row says 'post nothing because there are no blockers' while the same menu lists blockers above it - phrase assess as 'post the assessment, no repair or sync' so the row does not contradict the comment list. The deliver row's cap text ('add 10 to each cumulative cap, making both 20') should state the freeze-at-twice rule directly, e.g. 'caps freeze at 20/20 on continuation; retry after the prerequisite changes, no automatic sync', which keeps the same obstacle structure while reading as a bounded continuation rather than an arithmetic note.",
-      "wallMs": 15400,
+      "feedback": "After delivers the intended move on f1: the first menu is now a genuine obstacle exit (no merge, no ordinary wait row, stop recommended) with a numeric deliver continuation that is clearly distinct from the second menu's final merge/approve selection, whereas Before used an ordinary wait menu with no deliver course at all. Facts f2-f4 are preserved: the second menu still offers merge on the unmoved head 9c1e4f2, its evidence line is CI-sufficient built from the refreshed check and run state, and nothing in it mentions BLOCKED. Two wording nits to tighten without affecting any fact: the deliver row says 'resume the retained course' even though the initial course is null in this sample, so consider 'select deliver as the course' phrasing for course-unset obstacles; and the PR-comments block repeats the blocked explanation in two bullets (BLOCKED and e2e pending) that could be collapsed to one line keyed on the binding check to keep the evidence compact.",
+      "wallMs": 12432,
       "verdict": "improved"
     }
   },
-  "repoSha": "119396895296989b15c9dbc9741bd6d3678a78c4"
+  "repoSha": "366985024db3a55cf466b044282aff6eb39e0624"
 }

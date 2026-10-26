@@ -32,14 +32,16 @@ Blockers:                (numbered; menu picks reference these numbers)
 
 Description: <optional concise non-blocking uncertainty: author assertion versus what the gate cannot verify>
 
-Sync: <one whole sentence from the digest's sync field; only when --rebase was passed>
+Sync: <digest's sync field value verbatim; optional explanation after it as a second clause or sentence; only when --rebase was passed>
 
 Verdict: mergeable - <evidence clause> | fixable - <N> blockers | fixable - <withhold reason>
 
 <menu>
 ```
 
-The `Sync:` line renders only when `--rebase` was passed, as one whole sentence built from the digest's `sync` field (for example `Sync: rebased a1b2c3d..e4f5a6b onto origin/main, one stop resolved in src/parser.ts and src/parser.test.ts.`). SKILL.md wording rule 5 (passing facts only under `show evidence`) does not apply to it: it names the resolved files even when the sync succeeded.
+Render `Sync:` only when `--rebase` was passed. Open the `Sync:` line with the digest's `sync` field value verbatim (for example `Sync: declined - other author's branch`). Put any explanation after that value as a second clause or sentence. Never paraphrase the status value into prose. Exempt this line from SKILL.md wording rule 5 (passing facts only under `show evidence`): name the resolved files even when the sync succeeded.
+
+For obstacle reports, print exactly one `Evidence:` line naming the resolved evidence source and the assessed head, immediately before the verdict (for example `Evidence: CI (run 7001, test_unit and build_image green on 9c1e4f2)`). Use the resolved local verification summary instead when local evidence owns the assessment; do not invent a passing result when evidence is unavailable. Carry the same source summary into the obstacle menu's evidence hint. Exempt this compact source summary from the evidence-only rules below and SKILL.md wording rule 5; keep the full record under `show evidence`.
 
 ## Verdict
 
