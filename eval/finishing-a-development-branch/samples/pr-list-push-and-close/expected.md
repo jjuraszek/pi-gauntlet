@@ -1,0 +1,4 @@
+- ordering: judged: Proves all three original heads, saves each original SHA ref, pushes only home non-force after evidence capture and strip/seal, edits body successfully before any close question.
+- attribution: judged: Absorbs names #13 and #14; Threads lists are attributed #12/#13/#14; home HOME uses accepted-complete first-parent proof; member dispositions and NEW13/newly resolved MEMBER14 are retained without home-history fix inference.
+- question: judged: Displays one exact spec comment per target linking #12 with home URL and that member's bbbbbbb or ccccccc recorded head, and option 1 - yes, close #13, #14; closes only displayed targets/comments/repo after immediate checks with no branch deletion.
+- outcomes: judged: Success reports Closed: #13, #14 then completes ship; decline leaves both open; stale #14 is skipped; already CLOSED #14 is excluded; failed close is reported once without retry; row 5 never offers closure and names both untouched members.

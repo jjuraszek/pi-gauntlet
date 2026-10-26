@@ -27,7 +27,7 @@ Headings, fixed order. A consumer keys on headings, never prose.
 | `## Repo state` | one field per line: `toplevel`, `worktree: yes <path>` or `worktree: no`, `branch` (`detached` when none), `HEAD`, `base` (`unknown` when no remote resolves), `dirty: <porcelain>` or `dirty: clean`, `diff-stat` (`unavailable` when base unknown), `test cmd`; any field `unavailable` when its command failed; heading `## Repo state: not a git repo` outside git | always |
 | `## Decisions` | bullets; rejected alternatives marked `rejected:` | always |
 | `## Skills loaded` | frontmatter `name`s; `## Skills loaded: none` when none | always |
-| `## Process state` | `phase_tracker status` then `plan_tracker status` verbatim; `Active task: <name|none>`; optional `PR: <owner/repo#N>` and `Pre-rework head: <40-char sha>` lines, present together only for a PR subject; the line `Gate history not restored - re-validate before advancing.` | only when a phase is `in_progress` and no hotfix flow is in context |
+| `## Process state` | `phase_tracker status` then `plan_tracker status` verbatim; `Active task: <name|none>`; optional one or more consecutive `PR: <owner/repo#N>` / `Pre-rework head: <40-char sha>` pairs, one per record group, home first, in record order, only for a PR subject; the line `Gate history not restored - re-validate before advancing.` | only when a phase is `in_progress` and no hotfix flow is in context |
 
 For a loop ledger (line 1 exactly `# Ledger - loop engine`), replace `Active task` with these two fields, retaining both tracker status outputs and the gate-history line:
 
@@ -51,10 +51,11 @@ inline. `## Repo state` is matched by prefix: `## Repo state` or
 cohort's `handoff` skill wrote, which ends at `## Skills loaded`. Layout, byte-exact:
 one blank line, the heading on its own line, a blank line, the `phase_tracker status`
 output verbatim, a blank line, the `plan_tracker status` output verbatim, a blank line,
-`Active task: <name|none>`, then, only for a PR subject, exactly two lines:
-`PR: <owner/repo#N>` and `Pre-rework head: <40-char sha>`, then the gate-history line -
+`Active task: <name|none>`, then, only for a PR subject, one or more consecutive
+`PR: <owner/repo#N>` / `Pre-rework head: <40-char sha>` pairs, one per record group,
+home first, in record order, then the gate-history line after the last pair -
 unfenced, nothing after.
-For a task plan, set `Active task` to the first `→` task name, else `none` (also for `No plan active.`). For a line-1 ledger, read its path and last decision and use the loop alternative above, retaining the optional PR pair before the gate-history line.
+For a task plan, set `Active task` to the first `→` task name, else `none` (also for `No plan active.`). For a line-1 ledger, read its path and last decision and use the loop alternative above, retaining the optional PR pairs before the gate-history line. Copy only top-level record pairs, without titles; `Threads:` and record `### PR #<N>` subsections are not brief fields. For N=1 emit one pair; without a Rework record use the ordinary layout.
 
 Example appended block (the fence is documentation; the brief carries no fence):
 
@@ -114,12 +115,20 @@ Parse stops (print the offending line, make no tracker call):
 
 ## Process-state restore
 
-Before any tracker write, read the optional PR identity and fetch its branch with
+Before any tracker write, read the optional ordered PR pairs. Fetch branch identity
+from the first pair only (home) with
 `gh pr view <N> --repo <owner/repo> --json headRefName`. Compare `headRefName` with
 `git -C <worktree> branch --show-current`. A mismatch stops with
 `brief names PR #N on <headRefName>, worktree is on <branch>`, substituting the observed PR number and both actual branch names, never literal placeholders; a failed fetch stops
-with its error. Carry the paired full pre-rework head into reconstruction's
-candidate selection. Without the optional pair, retain ordinary restoration.
+with its error. Do not fetch later pairs' branches for this identity check.
+Read the worktree spec's `## Rework record` and compare its top-level `PR:` identities
+(without titles) with the brief identities in order. A mismatch stops with
+`brief lists <brief order>, record lists <record order>`, substituting both observed
+ordered lists, before any tracker call. Resolve the spec through reconstruction's
+candidate rules below before this comparison; artifact presence supplies no approval.
+Carry all paired full pre-rework heads downstream in their original order;
+reconstruction uses the first pair's head as its scan base. Without optional pairs,
+retain ordinary restoration.
 Preserve the entry checks, standing-grant validation, plan repair, and task snapshot;
 PR identity implies no approval or gate evidence.
 

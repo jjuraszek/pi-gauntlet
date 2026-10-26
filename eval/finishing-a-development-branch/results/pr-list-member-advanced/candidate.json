@@ -1,0 +1,90 @@
+{
+  "sample": "pr-list-member-advanced",
+  "arm": "candidate",
+  "skillSha": "7515c6456d80469e7fa98eb9d7f643ce8f33e98ee4fe297d2f0a29cf997cb2e0",
+  "inputSha": "3aa29f7ecddb1499173a2d53adb985ece4f5e63ab7181ff2c273caf3ba5d29c7",
+  "kind": "text",
+  "assembly": "concat",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "# Finishing PR #12 rework: push home, refresh threads, close #13\n\nI'm using the finishing-a-development-branch skill to complete this work.\n\n**Aliases:** A=aaaa…, B=bbbb…, C=cccc…, E=eeee… (HEAD), N9=9999…\n\n**CP0 - Input.** WORKTREE=/work/widget/.worktrees/retry, PRIMARY=/work/widget, FEATURE=retry. `phase_tracker start ship`.\n\n**CP1 - Rework record.**\n- The record lists three pairs: #12/A (home), #13/B, #14/C.\n- `PRE_REWORK_HEAD` = A.\n- The combined fields are Base main @ 1234567, Keeps, Changes, Dropped claims none, Scoped tests test-retry. Lowercase provenance is ignored.\n- Home is OPEN, headRefName retry, baseRefName main.\n\n**CP2 - Verify.** The verification set is test-retry. The skip rule applies: it passed on a known clean commit, and both telemetry-excluding checks are clean. I captured the evidence (HOME task accepted complete) before the strip.\n\n**CP3 - Base and conformance.** `<base-branch>`=main. I'm assuming the closure block is valid `CONFORMS`; the case gives no sentinel.\n\n**CP4 - Preflight.** `fetch origin` succeeds.\n- A, B and C are each ancestors of E, so all three proofs exit 0.\n- origin/retry is an ancestor of E, so push is offered.\n\n**CP5 - Menu (six rows).** Option 1 selected: Push to the PR branch (PR #12, retry; appends the rework block to its description).\n\n**CP6 - Threads, refreshed per PR.**\n\n| PR | Thread | Status |\n|---|---|---|\n| #12 | src/retry.ts:1 HOME | fixed in fffffff |\n| #13 | src/delay.ts:2 MEMBER13 | fix (recorded; lives on #13's history, not home's first-parent walk) |\n| #13 | NEW13 | still open (newly opened) |\n| #14 | src/cap.ts:3 MEMBER14 | resolved on GitHub (recorded: keep open) |\n\n**CP7 - Strip and seal.**\n`node <bin>/gauntlet-telemetry-seal.mjs --worktree \"$WORKTREE\" --option pr --base origin/main --spec <spec>`\nOutput: `sealed <telemetry record path>`. This measures the whole PR, not just the rework.\n\n**CP8 - Refs.**\n`update-ref refs/gauntlet/pre-rework/pr-12 A`, `…/pr-13 B`, `…/pr-14 C`\n\n**CP9 - Push.**\n`git -C \"$WORKTREE\" push --no-follow-tags origin HEAD:refs/heads/retry`\nPush is OK; pushed home head = E.\n\n**CP10 - Description.**\n- `gh pr view 12 --repo acme/widget --json body` returns `Original description\\n`.\n- `SCRATCH=$(mktemp)` is created outside the repo.\n- Scratch holds those bytes exactly, then a blank line, then:\n\n```markdown\n## Rework\n\nBefore: A (local ref `refs/gauntlet/pre-rework/pr-12` in the rework checkout; the SHA is the portable handle and stays on origin because the push was not forced)\nAbsorbs: #13 (https://github.com/acme/widget/pull/13), #14 (https://github.com/acme/widget/pull/14)\nSpec: <spec path> at eeeeeee\nKeeps: retry behavior\nChanges: repair retries\nDropped claims: none\nVerification: scoped - test-retry; CI on this push holds the full run. Telemetry: whole PR against main.\nThreads:\n#12:\n- src/retry.ts:1 - fixed in fffffff\n#13:\n- src/delay.ts:2 - fix (recorded; on #13's own history)\n- NEW13 - still open\n#14:\n- src/cap.ts:3 - resolved on GitHub (recorded: keep open)\n```\n\n`gh pr edit 12 --repo acme/widget --body-file \"$SCRATCH\"` succeeds.\n\n**CP11 - Member eligibility.**\n- **#13:** OPEN at B, and B is an ancestor of E (exit 0), so it is eligible.\n- **#14:** OPEN at N9. Ran `git -C \"$WORKTREE\" fetch origin N9` (OK). Ancestry of N9 in E exits 1. Result: `#14 skipped: head moved to 9999999, not in home`.\n\n**CP12 - Question.**\n```text\nClose the absorbed PRs with these comments?\n#13: \"Reworked into #12 (https://github.com/acme/widget/pull/12) by the gauntlet; this PR's commits are merged there and remain reachable as bbbbbbb.\"\n1 - yes, close #13\n2 - no, leave them open\n```\n- Answer: `1`.\n- The #13 recheck is unchanged (OPEN, B).\n- Ran `gh pr close 13 --comment \"<text above>\" -R acme/widget`, without `--delete-branch`.\n\n**CP13 - Completion.** `phase_tracker complete ship`. Summary:\n- `sealed <telemetry record path>`\n- Pushed retry @ eeeeeee\n- Description updated\n- `Closed: #13; #14 skipped: head moved to 9999999, not in home.`\n- Worktree preserved\n\n**Variant X - #14 advanced to N9, but N9 is in E.**\n- After the fetch, ancestry exits 0 and the state is OPEN, so #14 is eligible.\n- The question lists both members:\n  - `#13: \"...remain reachable as bbbbbbb.\"`\n  - `#14: \"Reworked into #12 (https://github.com/acme/widget/pull/12) by the gauntlet; this PR's commits are merged there and remain reachable as ccccccc.\"`\n  - `1 - yes, close #13, #14`\n  - `2 - no, leave them open`\n- The comment uses the recorded pre-rework head C, not N9.\n- On `1`, each target is rechecked before its close. Result: `Closed: #13, #14`.\n\n**Variant Y - no eligible members.**\n- No question is asked.\n- Each skip reason is named.\n- Report: `Member PRs #13, #14 left open.`\n- Ship is marked complete.\n",
+      "words": 648,
+      "wallMs": 25991,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "### Shared checkpoint\n\nAliases: `A` = `aaaaaaaa…` (#12 original full SHA), `B` = `bbbbbbbb…` (#13), `C` = `cccccccc…` (#14), `E` = `eeeeeeee…` (supplied HEAD), `X` = `99999999…` (#14 advanced head). Aliases denote the full supplied SHAs.\n\n- Home: `acme/widget#12`, branch `retry`, base `main`.\n- Verification skipped: `test-retry` passed on a known clean commit; both telemetry-excluding checks are clean.\n- Gates and ancestry proofs passed for **all three original heads**, then `origin/retry`.\n- Captured scoped command `test-retry` and accepted-complete HOME task evidence before plan stripping.\n- Refreshed threads separately per PR, including all comment pages:\n  - #12 HOME: `fixed in fffffff`.\n  - #13 MEMBER13: retain recorded `fix: retain delay`; NEW13: `still open`. No member-fix inference from home’s first-parent history.\n  - #14 MEMBER14: recorded `keep open: cap discussion`, now newly resolved.\n\n### Landing checkpoint — simulated success\n\n- Strip ephemeral plans; preserve spec and telemetry.\n- Seal with `--option pr --base origin/main --spec <selected spec path>`.\n- Preserve original heads:\n  - `refs/gauntlet/pre-rework/pr-12` → `A`\n  - `refs/gauntlet/pre-rework/pr-13` → `B`\n  - `refs/gauntlet/pre-rework/pr-14` → `C`\n- Push only home, non-force: `HEAD:refs/heads/retry`. Save the actual pushed head as `P`.\n- Fetch home’s fresh description. Outside-repo `$SCRATCH` begins with exact bytes `Original description\\n\\n`, followed by:\n\n```markdown\n## Rework\n\nBefore: A (local ref `refs/gauntlet/pre-rework/pr-12` in the rework checkout; the SHA is the portable handle and stays on origin because the push was not forced)\nAbsorbs: #13 (https://github.com/acme/widget/pull/13), #14 (https://github.com/acme/widget/pull/14)\nSpec: <selected spec path> at <P7>\nKeeps: retry behavior\nChanges: repair retries\nDropped claims: none\nVerification: scoped - test-retry; CI on this push holds the full run. Telemetry: whole PR against main.\nThreads:\n#12:\n- src/retry.ts:1 - fixed in fffffff\n#13:\n- src/delay.ts:2 - fix: retain delay (recorded disposition)\n- <NEW13 refreshed location> - still open\n#14:\n- src/cap.ts:3 - keep open: cap discussion (recorded; newly resolved)\n```\n\nExecute simulated successful write:\n\n```bash\ngh pr edit 12 --repo acme/widget --body-file \"$SCRATCH\"\n```\n\n### Main eligibility checkpoint\n\n#13: OPEN at `B`, contained in `P`. Fetch #14’s missing `X` successfully before testing ancestry.\n\n`#14 skipped: head moved to 9999999, not in home`\n\nClose the absorbed PRs with these comments?\n#13: \"Reworked into #12 (https://github.com/acme/widget/pull/12) by the gauntlet; this PR's commits are merged there and remain reachable as bbbbbbb.\"\n1 - yes, close #13\n2 - no, leave them open\n\n**Answer: 1.** Immediately recheck #13: unchanged. Simulate closing #13 with exactly that comment in `acme/widget`, without `--delete-branch`.\n\n**Closed: #13. Member PR #14 left open.** Ship complete; worktree preserved.\n\n### Independent variant: advanced #14 contained\n\nBoth qualify. Exact question:\n\nClose the absorbed PRs with these comments?\n#13: \"Reworked into #12 (https://github.com/acme/widget/pull/12) by the gauntlet; this PR's commits are merged there and remain reachable as bbbbbbb.\"\n#14: \"Reworked into #12 (https://github.com/acme/widget/pull/12) by the gauntlet; this PR's commits are merged there and remain reachable as ccccccc.\"\n1 - yes, close #13, #14\n2 - no, leave them open\n\n### Independent variant: no eligible members\n\nAsk nothing; close nothing. **Member PRs #13, #14 left open.** Ship complete; worktree preserved.\n",
+      "words": 447,
+      "wallMs": 21594,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "44fbaec8915683a30cdb4898a3bb3cd23f0427d8965e45e12714bf0c871a399c",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "3ebee3d81b5a2930d37873e74768a137538b829572f8239c1a7c5419b35db4fe",
+      "baselineOutputSha": "9894accfe84d571040674eb5faf413f20245b66dd3dd498eca9c16b4195a2f36",
+      "candidateOutputSha": "976f88d9e3af3e5af58bfaa0d9011f97a30a8273f621d2f3934f034651585859",
+      "facts": {
+        "eligibility": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "targets": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "variants": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "After delivers the Change cleanly: CP11 refreshes member state only after the CP10 body edit succeeds, fetches N9 before the ancestry test against the saved pushed home E, and emits the literal `#14 skipped: head moved to 9999999, not in home` without merging; CP12 renders the eligible-only close question with #13's spec comment (bbbbbbb plus the #12 link), option 1 names only #13, the recheck precedes the close, and the completion summary reports #13 closed with #14's reason. Before failed both eligibility and targets because it treated members as a 'append note' extension rather than the close-with-comment contract, so it never named the skip in the required form or offered a close. The variants fact held in both arms and still does in After: Variant X keeps a contained advanced head eligible (using the recorded head C in the comment), Variant Y asks no question and names skip reasons, there is no `--delete-branch`, and the MEMBER13 fix is recorded on #13's own history rather than proven on home's first-parent walk. One caution for the After wording: the CP6 threads table and body block label MEMBER13 as `fix (recorded; ...)` rather than Before's conditional `fixed`/`still open` phrasing — keep that as a recorded member resolution (not a home-history proof) so the variants fact stays intact, which it currently does.",
+      "wallMs": 16891,
+      "verdict": "improved"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "44fbaec8915683a30cdb4898a3bb3cd23f0427d8965e45e12714bf0c871a399c",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "3ebee3d81b5a2930d37873e74768a137538b829572f8239c1a7c5419b35db4fe",
+      "baselineOutputSha": "649c8616ac167a8c20d5e079782b87cc9ab5ba44f88cc0f2c6646a170e19beea",
+      "candidateOutputSha": "b7f501ff937c8699d78645e308f070c7bcff43ec3ce9b518335df4c9d5c19450",
+      "facts": {
+        "eligibility": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "targets": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "variants": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "After delivers the Change without regressing anything Before kept: it saves the pushed head as `P`, refreshes member state only after the simulated body-edit success, fetches `X` before the ancestry test, prints the literal `#14 skipped: head moved to 9999999, not in home` line, renders the exact eligible-only question naming only #13 with the `bbbbbbb` comment and home link, rechecks #13 immediately before closing, and reports `Closed: #13` with #14 left open, while the contained-head variant keeps #14 eligible, the no-eligible variant asks nothing, closing uses no `--delete-branch`, and member-fix completion is not inferred from home's first-parent walk. Before failed eligibility and targets only because the prior skill text had no member-eligibility rule or close question, so it correctly declined to invent one. To keep this stable, the After wording should continue to state the skip line, the saved-pushed-SHA ancestry check, and the fetch-before-ancestry step as explicit required outputs rather than leaving them implicit, and should keep the `Both qualify` / `Ask nothing; close nothing` phrasing for the two independent variants so the variants fact remains unambiguous.",
+      "wallMs": 21855,
+      "verdict": "improved"
+    }
+  },
+  "repoSha": "22faace69c99661c1304e7a3cedfb52f1d97d54c"
+}

@@ -38,8 +38,8 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "8c4e44f07ae027025e59c5d061cc5762d9ccd80022d29bfd412feba1a898c4b6",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "196890e461aed891003ce84329fecae00ed0408109aed53b099333ba411bcdc7",
-      "baselineOutputSha": "4e78f6c0b5c757915e58960236f95a967e30fa4d63fee5f07b8c71ae6c412852",
+      "intentSha": "94074f513938f6d5b90a8c47ce92cbd629c74e1f228b6c58d2567427c2164ad7",
+      "baselineOutputSha": "bfaaed9abe2c5e06a6c4f9f79130c0768139ba6e15fc6a02dfd8d5f690d56a24",
       "candidateOutputSha": "bfaaed9abe2c5e06a6c4f9f79130c0768139ba6e15fc6a02dfd8d5f690d56a24",
       "facts": {
         "c1": {
@@ -63,15 +63,15 @@
           "label": "held"
         }
       },
-      "feedback": "No fact moved: After still runs `script/worktree create 'csv-export' 'reports' --branch 'csv-export'` from `/work/acme-mono` with every token single-quoted, resolves `<subproject>` to `reports` from the plan without an ask, checks `git worktree list --porcelain` for the expected line, and prints `Worktree ready at /work/acme-mono-csv-export`. The one weakening worth noting is that After dropped Before's explicit sentence \"No `git worktree add` is run\" after the create command; the fact still holds because no such command appears, but keeping that line (e.g. \"It exits 0, so creation succeeded. No `git worktree add` is run.\") makes c1 robust to readers who want an affirmative statement, and it costs nothing against the PR-head routing change, which does not touch this non-PR provisioning path.",
-      "wallMs": 8848,
+      "feedback": "The Before and After narrations are textually identical for this case, so nothing moved: both run `script/worktree create 'csv-export' 'reports' --branch 'csv-export'` from cwd /work/acme-mono with each value quoted as one shell word and never invoke `git worktree add` (c1); both resolve `<subproject>` to `reports` from the approved plan's single top-level directory without asking (c2); and both run `git -C /work/acme-mono worktree list --porcelain` after create, confirm the expected line, and report `Worktree ready at /work/acme-mono-csv-export` (c3). The Change targets PR-head routing, merge ordering, conflict repair and interrupted recovery, none of which this non-PR fresh-provisioning case exercises, so the After wording appropriately leaves the keyed-contract create path untouched; keep the Step 0 pr-head hook and the merge-forward/base-merge wording gated on resolved PR values so that this non-PR, keyed-contract path continues to produce exactly this narration.",
+      "wallMs": 7864,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "8c4e44f07ae027025e59c5d061cc5762d9ccd80022d29bfd412feba1a898c4b6",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "196890e461aed891003ce84329fecae00ed0408109aed53b099333ba411bcdc7",
-      "baselineOutputSha": "6b955ca289a344e3c5b343d8c293dc9cfdb8e6dda1af60e03927ca1591011d53",
+      "intentSha": "94074f513938f6d5b90a8c47ce92cbd629c74e1f228b6c58d2567427c2164ad7",
+      "baselineOutputSha": "3a1e5f207691e02b2fa5a3adaace043f87420ca412e85889563b3388c9ba42e6",
       "candidateOutputSha": "3a1e5f207691e02b2fa5a3adaace043f87420ca412e85889563b3388c9ba42e6",
       "facts": {
         "c1": {
@@ -95,10 +95,10 @@
           "label": "held"
         }
       },
-      "feedback": "No fact moved. Both outputs run `script/worktree create 'csv-export' 'reports' --branch 'csv-export'` from /work/acme-mono with each value single-quoted as one shell word, explicitly decline `git worktree add`, resolve `<subproject>` to `reports` from the plan's single top-level directory without asking, and check `git worktree list --porcelain` after creation before reporting `Worktree ready at /work/acme-mono-csv-export`. After adds a submodule guard, shell-variable parsing, and a rendered destroy command, none of which affect the facts; this non-PR provisioning path stays unchanged as the Change intended. If the pr-head routing hook is added to Step 0, keep it gated on resolved PR values so the plain-branch path continues to reach the keyed-contract create command and the post-create worktree-list check exactly as both outputs show.",
-      "wallMs": 5834,
+      "feedback": "Before and After are textually identical for this non-PR provisioning case, so nothing moved: both run `script/worktree create 'csv-export' 'reports' --branch 'csv-export'` from /work/acme-mono with each value single-quoted, explicitly decline `git worktree add`, resolve `<subproject>=reports` from the approved plan without consulting the user, run `git -C \"/work/acme-mono\" worktree list --porcelain` after creation, and print `Worktree ready at /work/acme-mono-csv-export`. This confirms the Change's claim that non-PR provisioning is preserved; the pr-head routing hook and merge-forward/member-merge additions did not leak into the plain feature-branch path. Keep the Step 0 PR-head routing conditioned on a resolved PR value so that cases like this one, with a plain branch name and no PR, continue to fall through to the unchanged overrides-ladder create recipe exactly as shown here.",
+      "wallMs": 7262,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "03f2a45e6cf09c8bfc0d9a675ffffba9151f6d00"
+  "repoSha": "deb4f43410cbd616e18f8610ab6b81e822653d4c"
 }

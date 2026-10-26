@@ -34,8 +34,8 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "056f784fb50da320b0a2bdcc8525f11e59c28b518991d887cdd772f64d5ccb78",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "196890e461aed891003ce84329fecae00ed0408109aed53b099333ba411bcdc7",
-      "baselineOutputSha": "957d34a41902c8193afade21bcf7d1c018b433a6f1fd78eaf0f72c01fb9685c9",
+      "intentSha": "94074f513938f6d5b90a8c47ce92cbd629c74e1f228b6c58d2567427c2164ad7",
+      "baselineOutputSha": "258ba0d336646f63e87b5377ec9bdba47399fa6573053811a528786e82ad5178",
       "candidateOutputSha": "258ba0d336646f63e87b5377ec9bdba47399fa6573053811a528786e82ad5178",
       "facts": {
         "h1": {
@@ -54,15 +54,15 @@
           "label": "held"
         }
       },
-      "feedback": "No fact moved. Both narrations run `git -C /work/acme-api worktree add \"/work/acme-api-worktrees/rate-limit\" -b \"rate-limit\"` with `create:` absent and no wrapper, both state HOME is outside ROOT so no gitignore step runs and nothing is committed, and both end with `Worktree ready at /work/acme-api-worktrees/rate-limit`. The After wording differs only cosmetically (restructured Step 0 detached-HEAD check, a consent note in Step 1, an explicit `## conventions` remark, and slightly different phrasing of the HOME resolution and Step 2 skip), none of which touches the non-PR provisioning path. This is consistent with the Change's intent to keep non-PR provisioning unchanged; the pr-head routing hook is not exercised here since no resolved PR values are passed, so this case can't confirm pr-head/routing or pr-head/history. Keep the After wording as is for this scenario; just ensure the new pr-head hook is gated strictly on resolved PR inputs so plain feature-branch cases continue down this exact keyed-contract path.",
-      "wallMs": 6827,
+      "feedback": "Before and After are textually identical for this non-PR provisioning case, so nothing moved: both run `git -C /work/acme-api worktree add /work/acme-api-worktrees/rate-limit -b rate-limit` with no wrapper (h1), both skip the gitignore step because the home is outside ROOT and commit nothing (h2), and both report `Worktree ready at /work/acme-api-worktrees/rate-limit` (h3). This is the desired outcome for the Change, which promised to preserve non-PR provisioning while adding the pr-head routing hook; the Step 0 hook correctly has no visible effect here since no PR value was resolved. No wording adjustment is needed for this case — keep the keyed-contract path (overrides-first search, `home:` validation, built-in create, post-create `worktree list --porcelain` check, and the fixed report block) exactly as it is.",
+      "wallMs": 7522,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "056f784fb50da320b0a2bdcc8525f11e59c28b518991d887cdd772f64d5ccb78",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "196890e461aed891003ce84329fecae00ed0408109aed53b099333ba411bcdc7",
-      "baselineOutputSha": "7d74a6076479488c6cc972f8d41b397a3dcf496bbb29b1230f99ce25a1d34797",
+      "intentSha": "94074f513938f6d5b90a8c47ce92cbd629c74e1f228b6c58d2567427c2164ad7",
+      "baselineOutputSha": "cf7cbe35085d863d42b3826754019755f0c7e81b038319e20bfebf27afc12bdf",
       "candidateOutputSha": "cf7cbe35085d863d42b3826754019755f0c7e81b038319e20bfebf27afc12bdf",
       "facts": {
         "h1": {
@@ -81,10 +81,10 @@
           "label": "held"
         }
       },
-      "feedback": "Both narrations run the built-in `git worktree add /work/acme-api-worktrees/rate-limit -b rate-limit` with no wrapper, state that HOME is outside the primary checkout so no .gitignore change is needed, commit nothing, and end with the exact `Worktree ready at /work/acme-api-worktrees/rate-limit` line, so no fact moved. After adds a `git rev-parse --show-superproject-working-tree` submodule check and restructures steps, but these are harmless to the non-PR provisioning path, which the Change says must stay unchanged; the pr-head routing hook is correctly not visible here since no PR values are passed. Keep the explicit 'outside the primary checkout, no gitignore change' sentence and the verbatim report line as in After, and ensure the Step 0 PR-head hook wording only fires when resolved PR values are present so non-PR cases like this one continue to reach the built-in creation unchanged.",
-      "wallMs": 5782,
+      "feedback": "The Before and After narrations are textually identical for this non-PR provisioning case, so no fact moved: both run `git -C /work/acme-api worktree add /work/acme-api-worktrees/rate-limit -b rate-limit` with no wrapper, both note the home is outside the primary checkout and touch no .gitignore and commit nothing, and both report `Worktree ready at /work/acme-api-worktrees/rate-limit`. This is the desired outcome for the Change, which promises non-PR provisioning is preserved while the pr-head routing, member-merge ordering, conflict repair/abort and interrupted-recovery behaviour are added; the PR-specific wording (Step 0 pr-head hook, merge-forward, --no-ff subjects, scoped conflict repair) does not surface here because no PR value is resolved, which is exactly the right scoping. Keep the keyed-contract path as-is: route PR inputs through reference/pr-head.md only when a PR value is actually resolved, so a plain branch request like rate-limit continues to bypass that hook and produce this same narration.",
+      "wallMs": 8054,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "03f2a45e6cf09c8bfc0d9a675ffffba9151f6d00"
+  "repoSha": "deb4f43410cbd616e18f8610ab6b81e822653d4c"
 }

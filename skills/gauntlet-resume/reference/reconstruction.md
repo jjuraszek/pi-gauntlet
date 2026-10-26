@@ -25,7 +25,7 @@ for a base ref before reading any artifact.
 
 A pinned spec (seed route, `seed.md`) skips this section.
 
-When the brief carries `Pre-rework head:`, use that full SHA as `<base>` for spec
+When the brief carries PR pairs, use the first pair's full `Pre-rework head:` SHA as `<base>` for spec
 and plan candidate scans instead of the merge-base from "Base"; the PR's earlier
 spec remains input, not an added candidate, so it does not trigger a multi-spec pick.
 Keep pairing, untracked candidates, task evidence, and human confirmation below.
@@ -41,7 +41,13 @@ git -C <worktree> ls-files --others --exclude-standard -- <dirs>
 Candidates are files under those directories added after base, plus untracked files
 there. Paths returned by these commands are relative to `<worktree>`; resolve them to
 absolute paths under `<worktree>` before reading artifacts, showing paths in prompts,
-or calling `plan_check`. Read every plan-directory candidate's first line. A line exactly `# Ledger - loop engine` pairs by its path-only `**Spec:**` header, not basename; resolve that spec under the worktree's configured spec dirs, including a spec tracked from base. Stop on a missing or foreign spec. A task-plan candidate pairs with
+or calling `plan_check`. Read candidate contents before choosing. For a PR-list brief,
+read the rework candidate's `## Rework record` and the member-carried spec paths listed
+under each member in `## Problem`; exclude exactly those paths from new-rework spec
+candidates before the multi-spec prompt. Keep this explicit exclusion set authoritative through plan/ledger pairing: when a task plan's basename or a ledger's `**Spec:**` header resolves to an excluded member spec, skip that pair in route candidates. Never promote an excluded member spec through its carried plan or ledger. Keep all other plan/spec pairing below, including
+base-tracked specs. Artifact presence never supplies approval. Never choose by filename
+when remaining candidates are genuinely ambiguous; ask the human.
+Read every plan-directory candidate's first line. A line exactly `# Ledger - loop engine` pairs by its path-only `**Spec:**` header, not basename; resolve that spec under the worktree's configured spec dirs, including a spec tracked from base. Stop on a missing or foreign spec. A task-plan candidate pairs with
 `<worktree>/<specDir>/<same basename>` whether that spec is a candidate or tracked
 from base; count a base-tracked spec so paired as a spec in the route table below.
 The plan commit is the first

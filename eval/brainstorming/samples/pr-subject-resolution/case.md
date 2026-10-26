@@ -12,5 +12,7 @@ Mention: prompt "make the retry logic work like #55 did". The reference is only 
 Foreign: prompt "other/widget#55". PR lookup returns OPEN, URL https://github.com/other/widget/pull/55, branch fix/retry, in-repo in other/widget.
 Bound: prompt "#58 keep retries". PR lookup returns OPEN in acme/widget, title "Repair #12 retry", first body line "Follow #13 for timeout context"; ticket #12 has one AC row "- [ ] Retry delay stays bounded." Ticket #13 is readable but has different timeout ACs. Branch fix/issue-99 and closingIssuesReferences #99 exist.
 
+Trailing context: prompt "#12 fix the retry path, see #13 for context". #12 is OPEN in acme/widget, non-fork, base main; all required fetches succeed. #13 is context text only, with no lookup observation.
+
 ## Narrated read actions
 Label each independent branch. Narrate ordered classification and the single chosen path, including stops before provisioning. For open and bound, name branch and filename shape, Problem intent/context and AC source. For Open, distinguish early classification from later spec-writing and supply the later Acceptance criteria section from the approved rework design. For issue, describe the unchanged ticket path. Do not execute tools or invent a human gate. These are narrated actions, not live integration evidence.

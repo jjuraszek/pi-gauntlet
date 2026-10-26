@@ -34,8 +34,8 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "7cc8f0793450e18346d8ab523d8a1f626bbe0f8d083b38c5d3f2e0961c9ec230",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "196890e461aed891003ce84329fecae00ed0408109aed53b099333ba411bcdc7",
-      "baselineOutputSha": "2750d0f46f62de8a8896d9ceb30162d7d6ad41c96622986c2ab35e31cd608a41",
+      "intentSha": "94074f513938f6d5b90a8c47ce92cbd629c74e1f228b6c58d2567427c2164ad7",
+      "baselineOutputSha": "a6331dbc9d2a4d0efc577c92de4be160cf5efd7460145d3120027557b0c9fe39",
       "candidateOutputSha": "a6331dbc9d2a4d0efc577c92de4be160cf5efd7460145d3120027557b0c9fe39",
       "facts": {
         "k1": {
@@ -49,15 +49,15 @@
           "label": "held"
         }
       },
-      "feedback": "Neither fact moved. Both outputs invoke exactly `script/worktree create alerts` and never run `git worktree add` (After's only other worktree command is the read-only `git -C /work/acme-ops worktree list --porcelain` confirmation, which is a list, not an add, and is consistent with the repository state), and both end with the same Step 4 block reporting `Worktree ready at /work/acme-ops-alerts`. This case passes no resolved PR values, so the new pr-head routing hook is correctly never triggered and the non-PR provisioning path is unchanged as the Change requires. One wording note: After omits Before's `git symbolic-ref -q HEAD` detached-HEAD guard in Step 0; it does not affect k1/k2 here but if the Step 0 hook now inserts a PR-head branch before linked-worktree reuse, keep the detached-HEAD check listed explicitly in the non-PR path so the generic provisioning narration stays byte-for-byte equivalent to Before.",
-      "wallMs": 8840,
+      "feedback": "Before and After are textually identical for this case: both run `script/worktree create alerts` from /work/acme-ops, explicitly rule out `git worktree add`, confirm via `git worktree list --porcelain`, and report \"Worktree ready at /work/acme-ops-alerts\". No fact moved. The Change (PR-head routing, member merge ordering, conflict repair scoping, interrupted recovery) does not touch this non-PR wrapper-provisioning path, which is the intended preservation of non-PR provisioning; nothing in the After wording needs adjustment for this case, and the current wording keeps both facts intact.",
+      "wallMs": 4419,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "7cc8f0793450e18346d8ab523d8a1f626bbe0f8d083b38c5d3f2e0961c9ec230",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "196890e461aed891003ce84329fecae00ed0408109aed53b099333ba411bcdc7",
-      "baselineOutputSha": "88b5df174cce6b81dd8798524852582044d0895dcede9f9781defc57d8ae929e",
+      "intentSha": "94074f513938f6d5b90a8c47ce92cbd629c74e1f228b6c58d2567427c2164ad7",
+      "baselineOutputSha": "b46e2d39156ded5159e9e5c7c3793d114828d5174a6f4902d0fa8f85fa8395d8",
       "candidateOutputSha": "b46e2d39156ded5159e9e5c7c3793d114828d5174a6f4902d0fa8f85fa8395d8",
       "facts": {
         "k1": {
@@ -71,10 +71,10 @@
           "label": "held"
         }
       },
-      "feedback": "Both outputs run `script/worktree create alerts` exactly once, explicitly state no direct `git worktree add` is run, and report the worktree ready at /work/acme-ops-alerts, so neither k1 nor k2 moved. The After wording restructured the narration (merged the isolation checks into one step, added a `git rev-parse --show-superproject-working-tree` submodule check, moved the `test -x script/worktree` check next to the wrapper invocation) but none of these changes affect the facts; the non-PR provisioning path is unchanged as the Change intended. Nothing in After needs reverting for this case; if the PR-head routing hook is added to Step 0, keep it gated on resolved PR values so this non-PR flow continues to fall straight through to the override-directed wrapper without any `git worktree add`.",
-      "wallMs": 5353,
+      "feedback": "Before and After are textually identical for this case: both run `script/worktree create alerts`, explicitly state that no direct `git worktree add` is run, confirm the path via `git worktree list --porcelain`, and report the worktree ready at /work/acme-ops-alerts. Neither fact moved, so nothing in the After wording regressed this non-PR legacy-override path; the Change's pr-head routing and merge-order work left the wrapper-based provisioning narration untouched, which is the desired outcome for this input. No wording adjustment is needed here—keep the Step 0 pr-head hook scoped so it only engages when a PR value is resolved, as it evidently already does for a plain branch request like `alerts`.",
+      "wallMs": 5004,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "03f2a45e6cf09c8bfc0d9a675ffffba9151f6d00"
+  "repoSha": "deb4f43410cbd616e18f8610ab6b81e822653d4c"
 }

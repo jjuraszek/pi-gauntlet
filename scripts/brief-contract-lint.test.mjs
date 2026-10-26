@@ -98,7 +98,27 @@ for (const route of ["implement with line-1 ledger", "verify with `Ledger:`"]) {
   const row = routes.split("\n").find(line => line.startsWith("| " + route));
   assert.ok(row.includes("shared cap boundary"), route);
 }
+const noLedgerRow = routes.split("\n").find(line => line.startsWith('| approved spec with `**Engine:** loop`, no ledger'));
+assert.match(noLedgerRow, /label Entry steps 1-5 explicitly in the response/);
+assert.match(noLedgerRow, /Entry step 1: resolved settings; Entry step 2: verification; Entry step 3: driver's plan skip; Entry step 4: clean named-branch check and ledger creation; Entry step 5: `plan_check`, commit and implement start/);
+for (const token of ["after check 6", "start brainstorm", "skip brainstorm resume: <spec path>", "absolute worktree/spec paths and plan directory", "no writing-plans body or task tracker"]) assert.ok(noLedgerRow.includes(token), token);
 const actualContract = realFiles.find(f => f.rel === CONTRACT_FILE).text;
 const implementRow = actualContract.split("\n").find(line => line.startsWith("| implement with ledger"));
 assert.ok(implementRow.includes("shared cap boundary"));
 assert.match(actualContract, /For every ledger brief apply the shared cap boundary[^\n]+before dispatch or verification/);
+
+const producer = actualContract.split("## Producers")[1].split("## Tracker output grammar")[0];
+const processRow = actualContract.split("\n").find(line => line.startsWith("| `## Process state`"));
+for (const [name, text] of [["process table", processRow], ["producer and loop", producer]]) {
+  assert.match(text, /one or more consecutive/ , name);
+  assert.match(text, /home first/ , name);
+  assert.match(text, /record order/ , name);
+}
+assert.match(producer, /optional PR pairs before the gate-history line/);
+const identityRestore = actualContract.split("## Process-state restore")[1].split("Facts that fix the order")[0];
+for (const token of ["first pair only", "later pairs", "brief lists <brief order>, record lists <record order>", "top-level", "all paired full pre-rework heads", "Before any tracker write"]) assert.ok(identityRestore.includes(token), token);
+assert.ok(identityRestore.includes("brief names PR #N on <headRefName>, worktree is on <branch>"));
+const candidateRules = reconstruction.split("## Candidates")[1].split("## Spec without plan")[0];
+for (const token of ["first pair's", "## Problem", "Read candidate contents before choosing", "exclude exactly those paths", "before the multi-spec prompt", "Keep this explicit exclusion set authoritative through plan/ledger pairing", "skip that pair", "Never promote an excluded member spec", "Never choose by filename"]) assert.ok(candidateRules.includes(token), token);
+const realHandoff = realFiles.find(f => f.rel === "skills/gauntlet-handoff/SKILL.md").text;
+assert.ok(realHandoff.includes("every top-level PR identity"));

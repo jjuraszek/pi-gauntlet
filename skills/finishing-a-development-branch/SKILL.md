@@ -31,21 +31,12 @@ Then call `phase_tracker({ action: "start", phase: "ship" })`.
 ## The Process
 
 ### Step 1: Verify Tests
-
 **Hard verification gate.** Tests/format/lint must pass before presenting any options — including Discard. The user's stated intent to throw the branch away does not change whether the diff is in a verifiable state; verifying first surfaces accidental damage to unrelated code before the branch is gone forever. The skip rule below is the only exception.
-
-Read the selected run spec before verification. Detect a PR subject only by its `## Rework record`, never by an open PR on `$FEATURE`. Read `PR:` and the full `Pre-rework head:` into `PRE_REWORK_HEAD` from that record; missing pre-head -> stop naming the spec path. Confirm with `gh pr view <N> --json number,url,headRefName,baseRefName,state` (use the record's repository): non-`OPEN` -> stop: `PR #N is <state>; the rework cannot be pushed to it.`; headRefName != `$FEATURE` -> stop naming both branches. Retain baseRefName for Step 3.
-
+Read the selected run spec before verification. Detect a PR subject only by its `## Rework record`, never by an open PR on `$FEATURE`. Read every top-level `PR:`/`Pre-rework head:` pair, home first, retaining each full SHA; missing pre-head -> stop naming the spec path. Set `PRE_REWORK_HEAD` to home's SHA. Read only combined capitalized `Base:`, `Keeps:`, `Changes:`, `Dropped claims:`, `Scoped tests:` fields; ignore lowercase provenance under `### PR #<N>`. For N=1, read `Threads:` directly after `Pre-rework head:` and retain the provenance subsection without changing finish output. Confirm only home with `gh pr view <N> --json number,url,headRefName,baseRefName,state` (use the record's repository): non-`OPEN` -> stop: `PR #N is <state>; the rework cannot be pushed to it.`; headRefName != `$FEATURE` -> stop naming both branches. Retain baseRefName for Step 3.
 Recognize a ledger by line 1 exactly `# Ledger - loop engine`. For a ledger, use its `verification:` command throughout finish, including the minors round. For a PR subject with a task plan, use the union of every plan task's `Tests:` commands plus the executable lint/format commands in the header's `**Verification:**` line; treat `none - PR subject, scoped` as no header commands, not an empty task union. Capture this set and accepted-complete task evidence before stripping the plan. Apply the hard gate and skip rule below to this set. For every other subject with a task plan, run the plan header's `**Verification:**` set in the worktree: `(cd "$WORKTREE" && <command>)`. With no plan in this session, run the verification command(s) of the affected services from the gauntlet overrides file or `AGENTS.md` (look for "verification", "CI", or "test" sections).
-
 **Skip rule.** Skip the run only when this set passed on a known clean commit in the verify phase of this session and no edit or write landed outside `<telemetry.dir>` since. Check the current tree: `git -C "$WORKTREE" diff --quiet <commit the run passed on> -- . ':!<telemetry.dir>'` must exit 0, and `git -C "$WORKTREE" status --porcelain --untracked-files=all -- . ':!<telemetry.dir>'` must exit 0 with empty output (`<telemetry.dir>` defaults to `.pi/gauntlet/telemetry`). These checks cover committed, staged, unstaged, and untracked changes outside telemetry. Otherwise run it once; a missing verified commit, a failed check, or uncertainty means run.
-
 **Scoping caveat — pre-existing findings.** Some services carry lint findings unrelated to the diff. If verification fails on lines you didn't touch:
-
-1. Confirm with `git -C "$WORKTREE" diff <base>...HEAD --name-only` that the offending file isn't in your diff.
-2. Surface the pre-existing finding to the user as a separate issue — do **not** auto-fix it in this completion ("surface, don't auto-fix").
-3. Proceed only after the user acknowledges.
-
+Confirm with `git -C "$WORKTREE" diff <base>...HEAD --name-only` that the offending file isn't in your diff. Surface the pre-existing finding to the user as a separate issue - do **not** auto-fix it in this completion ("surface, don't auto-fix"). Proceed only after the user acknowledges.
 **If tests fail (within your diff):**
 ```
 Tests failing (<N> failures). Must fix before completing:
@@ -54,13 +45,7 @@ Tests failing (<N> failures). Must fix before completing:
 
 Cannot proceed until tests pass.
 ```
-
-Stop. Don't proceed to Step 2.
-
-**If tests pass:** Continue to Step 2.
-
-No documentation prompt here: Documentation impact is decided at spec time (`/skill:brainstorming` section 6, gated by `brainstorming/reference/documentation-impact.md`) and has already shipped in the diff by the time you reach finishing.
-
+Stop. Don't proceed to Step 2. **If tests pass:** Continue to Step 2. No documentation prompt here: Documentation impact is decided at spec time (`/skill:brainstorming` section 6, gated by `brainstorming/reference/documentation-impact.md`) and has already shipped in the diff by the time you reach finishing.
 ### Step 2: Detect Environment
 
 For a PR subject, use the Step 4 PR menu. For other subjects: detached HEAD (`git -C "$WORKTREE" symbolic-ref -q HEAD` prints nothing) -> reduced 4-option menu (no merge), no cleanup. Otherwise the standard 5 options.
@@ -187,7 +172,7 @@ Omit the block when N = 0.
 |---|---|---|
 | `git merge-base --is-ancestor <PRE_REWORK_HEAD> HEAD` | Continue | Stop: `PR branch history was rewritten: <PRE_REWORK_HEAD7> is not an ancestor of HEAD; the rework must be re-merged, not rebased.` |
 | `git merge-base --is-ancestor origin/<headRefName> HEAD` | Offer push | Withhold push: `push withheld: origin/<headRefName> is at <sha7>, local HEAD at <sha7>; a non-force push cannot land` |
-Run each proof with `git -C "$WORKTREE"`. Treat every exit other than 0 or 1 as a command error and stop with its output. For a withheld push only, separately prove `git -C "$WORKTREE" merge-base --is-ancestor <PRE_REWORK_HEAD> origin/<headRefName>`: exit 0 appends `(origin moved past the rework's base <PRE_REWORK_HEAD7>)`; exit 1 adds nothing; other exits stop as command errors. Divergence alone proves no origin advance.
+Run the first proof for every recorded original head, home first; the first exit 1 stops with the table's exact message naming that PR's SHA. Run the second proof only for home. Run each proof with `git -C "$WORKTREE"`. Treat every exit other than 0 or 1 as a command error and stop with its output. For a withheld push only, separately prove `git -C "$WORKTREE" merge-base --is-ancestor <PRE_REWORK_HEAD> origin/<headRefName>`: exit 0 appends `(origin moved past the rework's base <PRE_REWORK_HEAD7>)`; exit 1 adds nothing; other exits stop as command errors. Divergence alone proves no origin advance.
 Read and apply [menu-layout](../brainstorming/reference/menu-layout.md) for rendering and numeric replies. Present:
 ```
 Implementation complete. What would you like to do?
@@ -267,7 +252,7 @@ node <bin>/gauntlet-telemetry-seal.mjs --worktree "$WORKTREE" --option <pr|squas
 
 The seal prints one line per record (`sealed <path>`, `already sealed <path>`) or one bare outcome (`no telemetry run`, `telemetry disabled`) and exits 0; print its stdout verbatim in the ship completion message. Any nonzero exit stops the flow before the first landing command, quoting the bin's line: exit 2 (`no record at <path>`, `unparseable record <path>: <reason>`) means this gauntlet run's recorder never armed or its record is corrupt; exit 1 is a usage, environment, or git/jj failure (`seal failed <path>: <reason>` restored the pre-seal bytes). The user decides; never land without the seal.
 #### PR-subject row 1: Push to the PR branch
-Capture the scoped verification set and thread evidence before the strip. Refetch unresolved threads with the query owned by [pr-head](../using-git-worktrees/reference/pr-head.md); preserve recorded dispositions, use the table below, and omit threads now resolved on GitHub. Use the query's location rendering.
+Capture the scoped verification set and accepted-complete task/thread evidence before the strip. Refetch threads per recorded PR using the paginated single-`$n` query (one invocation per PR) owned by [pr-head](../using-git-worktrees/reference/pr-head.md); retain PR attribution and use the query's location rendering. For home, use the table below and omit threads now resolved on GitHub. For members, copy recorded dispositions and mark newly resolved or newly opened states from the refresh; never use home's first-parent history as member-fix proof.
 | Refetched thread / evidence | Resolution |
 |---|---|
 | Recorded `fix`, matching task title carries id, task accepted by spec and code review and `complete`, exactly one naming commit | `fixed in <sha7>` |
@@ -280,23 +265,39 @@ Count naming commits with `git -C "$WORKTREE" log --first-parent --format=%h --g
 Run the existing strip-and-seal block with `--option pr --base origin/<baseRefName>` and the selected spec; retain its stop-on-error behavior. This seal measures the whole PR, not rework-only; never use PRE_REWORK_HEAD as its base. Then:
 ```bash
 git -C "$WORKTREE" update-ref refs/gauntlet/pre-rework/pr-<N> <PRE_REWORK_HEAD>
-git -C "$WORKTREE" push --no-follow-tags origin HEAD:refs/heads/<headRefName>
 ```
-Stop on update-ref failure. Report a rejected push once, skip body editing, and return to the menu without retrying or forcing. Preserve the worktree.
-After a successful push, fetch the description fresh with `gh pr view <N> --json body` in the record's repository. Decode the JSON body without trimming or shell command substitution (which loses trailing newlines). Create a scratch body file with `mktemp` outside the repo; write the existing body bytes exactly, then one blank line, then this block:
+Write this ref for every recorded PR with its own number and original SHA; stop on update-ref failure. Push only home, non-force:
+```bash
+git -C "$WORKTREE" push --no-follow-tags origin HEAD:refs/heads/<home headRefName>
+```
+Save the pushed home head SHA on success. Report a rejected push once, skip body editing and closure, name members left open, and return to the menu without retrying or forcing. Preserve the worktree.
+After a successful push, fetch only home's description fresh with `gh pr view <N> --json body` in the record's repository. Decode the JSON body without trimming or shell command substitution (which loses trailing newlines). Create a scratch body file with `mktemp` outside the repo; write the existing body bytes exactly, then one blank line, then this block:
 ```markdown
 ## Rework
 
 Before: <PRE_REWORK_HEAD> (local ref `refs/gauntlet/pre-rework/pr-<N>` in the rework checkout; the SHA is the portable handle and stays on origin because the push was not forced)
+Absorbs: #13 (<url>), #14 (<url>)
 Spec: <spec path> at <HEAD7>
 Keeps: <from the record>
 Changes: <from the record>
 Dropped claims: <none | one "No longer true: <claim>" line per dropped claim>
 Verification: scoped - <commands>; CI on this push holds the full run. Telemetry: whole PR against <baseRefName>.
 Threads:
-- <path>:<line> - <resolution from the table>
+#<N>:
+- <path>:<line> - <resolution for this PR>
 ```
-Put `supersedes the description above` on the block's second line only when every original claim is dropped. Use `Threads: none` or `Threads: not fetched (<reason>)` instead of the list for those outcomes. Run `gh pr edit <N> --body-file <scratch-file>` in the record's repository without another approval. On body fetch/edit failure, keep the push and print the block for manual paste with the error; never replace the description with just the block. Post no review-thread replies, merge no PR, and change no ticket state.
+Instantiate `Absorbs:` from every non-home pair in record order; omit it for N=1. Label each PR Threads list `#<N>:` for N>1; retain the unchanged unlabeled list for N=1. Put `supersedes the description above` on the block's second line only when every original claim is dropped. Use `Threads: none` or `Threads: not fetched (<reason>)` instead of the list for those outcomes. Run `gh pr edit <N> --body-file <scratch-file>` in the record's repository without another approval. On body fetch/edit failure, keep the push and print the block for manual paste with the error; never replace the description with just the block. Skip closure on body fetch/edit failure and name members left open.
+Only after a successful push and successful home body edit, refresh each member with `gh pr view <N> -R <owner/repo> --json state,headRefOid`. Fetch each refreshed head that is not yet local (`git -C "$WORKTREE" fetch origin <current headRefOid>`; for a fork member use its head repository URL) before the ancestry test. Skip and name a member whose head fetch fails: `#14 skipped: head <sha7> not fetchable`. Require state `OPEN` and `git -C "$WORKTREE" merge-base --is-ancestor <current headRefOid> <pushed home head>` exit 0. Exclude and name ineligible members: `#14 skipped: head moved to <sha7>, not in home` or `#14 skipped: state CLOSED`. Treat unexpected Git exits and failed refreshes as errors, withhold closure and report the reason; merge nothing implicitly.
+Ask nothing when none qualify or N=1. Otherwise render one gated question before marking ship complete. Instantiate each actual eligible target and its exact comment using its recorded pre-rework SHA7 and home's number/URL; the two-member rendering is:
+```text
+Close the absorbed PRs with these comments?
+#13: "Reworked into #12 (<home url>) by the gauntlet; this PR's commits are merged there and remain reachable as <#13 pre-rework sha7>."
+#14: "Reworked into #12 (<home url>) by the gauntlet; this PR's commits are merged there and remain reachable as <#14 pre-rework sha7>."
+1 - yes, close #13, #14
+2 - no, leave them open
+```
+On `1`, re-fetch state/head immediately before each `gh pr close <N> --comment "<that line's text>" -R <owner/repo>`. Execute only the displayed target/text pairs in the displayed repository; never pass `--delete-branch`. Skip and report any target whose state or head changed after approval, or whose refresh fails, rather than acting under stale authorization. Report a failed close once, never retry. On `2`, leave members open. Then mark ship complete and report each member outcome: `Closed: #13, #14`, `Closed: #13; #14 close failed (<error>)`, or `Member PRs #13, #14 left open.` Instantiate actual members in all summaries, including partial outcomes and skipped members; for N=1 omit every member line and question.
+Rows 2-6, withheld/failed ancestry, withheld/rejected push, and failed body fetch/edit never offer closure; name untouched members with `Member PRs #13, #14 left open.` Post no review-thread replies, merge no PR, change no ticket state, and close no PR other than the absorbed members through the question above.
 #### Option 1: Push and Create PR
 
 Run the strip-and-seal block above first (plan stripped, telemetry record sealed), then:
@@ -456,7 +457,6 @@ A host-owned worktree (Step 6: no `home:` match, or the legacy "Otherwise") keep
 - **Fix:** Never `git rm` under the telemetry dir. Until the seal the record is untracked and git-excluded, so a plan strip cannot reach it; after the seal it is a committed deliverable.
 
 ## Completion
-
 Once the chosen option (Options 1-4 or PR-subject row 1 - not Discard) is executed successfully, mark the ship phase complete:
 
 ```

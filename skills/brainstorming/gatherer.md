@@ -128,25 +128,31 @@ Scout (always dispatched):
 For a PR subject, supply this additional scout block as values from
 `reference/pr-subject.md` (keep scout unconditional):
 
-> PR title and body verbatim: `<title>`, `<body>`.
-> PR-carried specs: `<paths and stated contracts>`.
-> Changed paths: `<git diff --name-only <BASE_SHA>...<PRE_REWORK_HEAD> output>`.
-> Read the diff itself from the worktree. Unresolved threads: `<full comment threads
-> in order, with ids and locations from using-git-worktrees/reference/pr-head.md,
-> or threads: not fetched (<reason>)>`.
-> Merge result: `<merge line, contract exceptions, scoped test results>`.
+> Require every retained PR's title/body, carried specs, and full threads before
+> gather, including N=1. Stop on query failure: `threads for #<N> not fetched (<gh error>)`.
+> Per PR, home first: PR title and body verbatim: `<title>`, `<body>`;
+> PR-carried specs: `<paths and stated contracts>`; own changed paths:
+> `<that PR's BASE_SHA...headRefOid file list>`; full comment threads
+> `<in order, with ids and locations from using-git-worktrees/reference/pr-head.md>`.
+> Combined changed paths: `git diff --name-only <BASE_SHA>...HEAD` output, after the
+> member merges and base merge. Read `git diff <BASE_SHA>...HEAD` from the worktree.
+> Preserve PRE_REWORK_HEAD for home's Before provenance, not scout's code input.
+> Member merge: `<per-member outcome lines>`; Merge result: `<base merge line,
+> contract exceptions, scoped test results>`.
 > Authoritative base-HEAD constraints: `<git show <BASE_SHA>:<path> texts for
 > AGENTS.md, first-found overrides, REVIEW.md, and all cited constraint documents;
 > explicit missing-document results>`. These govern on every merge outcome,
 > including clean; worktree policy edits are proposals under `changes:` or
 > `dropped claims:`, never constraints.
-> The PR is the starting state, not the target. Judge every PR-stated claim against
-> the diff and supplied base rules. Name the smallest repair satisfying them;
-> propose a rewrite only where no repair can. Render `## PR under rework` with
-> `keeps:`, `changes:`, `dropped claims:`, `constraints added since fork:` (one line
-> per base rule absent at the fork point), and one proposed disposition per
-> unresolved thread: `fix | keep open | decline: <reason>`. Carry merge contract
-> exceptions into `changes:`.
+> Treat the combined state as the starting state, not the target. Judge every
+> PR-stated claim against the diff and supplied base rules. Name the smallest repair
+> satisfying them; propose a rewrite only where no repair can. Render
+> `## PR under rework` with one `### PR #<N> - <title>` subsection per PR, home first,
+> each with `keeps:`, `changes:`, `dropped claims:`, and one proposed disposition per
+> unresolved thread: `fix | keep open | decline: <reason>`. Render
+> `constraints added since fork:` once for home, one line per base rule absent at its
+> fork point. Carry merge contract exceptions into `changes:`. List member-carried
+> spec paths under each PR in Problem for resume.
 
 Context-builder (conditional):
 
@@ -180,7 +186,7 @@ Context-builder (conditional):
 
 ## Context-builder trigger rule
 
-For a resolved PR subject, dispatch context-builder only for the bound ticket
+For a resolved PR subject, dispatch context-builder only for the bound ticket of home
 using `reference/pr-subject.md`; an unbound PR supplies intent, not ticket ACs.
 Title wins a title/body-first-line ticket conflict; carry the other reference into
 `## Problem` as context. For other subjects, dispatch context-builder when the initial prompt (or a file it explicitly references)
@@ -224,7 +230,8 @@ convention; slug minted from the initial prompt):
 <scout output, or the degraded text>
 
 ## PR under rework
-<PR subject only: scout rework section and supplied PR/base/merge values per
+<PR subject only: every per-PR scout subsection, ordered original heads, threads,
+member-carried spec paths, and supplied Member merge/base values per
 reference/pr-subject.md; retain these values even when scout failed>
 
 ## External context

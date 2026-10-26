@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Added
+
+- Brainstorming accepts a leading list of related open, same-repository, non-fork PRs on one base as one rework subject. Admission and relatedness checks precede provisioning; member heads merge into the first retained PR's branch before the base, and each PR retains its claims, threads, and original-head provenance through the spec and handoff. Finish offers gated close comments for absorbed members only after a successful home push and description update, without deleting branches. (#89)
+
 ## v7.35.0 - 2026-10-26
 
 ### Added

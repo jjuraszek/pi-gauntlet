@@ -34,8 +34,8 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "0ee0c9ce40344d38f27f8601fa91e91d7cf84bf489fef2ccef1f87ab9ec01934",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "196890e461aed891003ce84329fecae00ed0408109aed53b099333ba411bcdc7",
-      "baselineOutputSha": "f4bde624a5a56d93c15aa27bf05444a98ab7a346cce5dce34c931254bb7646f1",
+      "intentSha": "94074f513938f6d5b90a8c47ce92cbd629c74e1f228b6c58d2567427c2164ad7",
+      "baselineOutputSha": "77435c052c3b7660cb58b84f1ea31083d2600494402a5d593b8187022a36dbd4",
       "candidateOutputSha": "77435c052c3b7660cb58b84f1ea31083d2600494402a5d593b8187022a36dbd4",
       "facts": {
         "d1": {
@@ -54,15 +54,15 @@
           "label": "held"
         }
       },
-      "feedback": "This is a non-PR case, so the pr-head routing change should be invisible here, and it is: After still appends `.worktrees/` to .gitignore, adds and commits it (steps 10-12) before `git worktree add /work/acme-web/.worktrees/login-copy -b login-copy` (step 13), and reports `Worktree ready at /work/acme-web/.worktrees/login-copy` in Step 4. No fact moved. The only drift from Before is cosmetic: After drops the `git symbolic-ref -q HEAD` detached-HEAD check from Step 0 and runs the provenance `git symbolic-ref`/`git branch` commands without `git -C /work/acme-web` even though it asserts the cwd never changes; neither affects d1-d3, but if the Step 0 hook now consults PR values before linked-worktree reuse, keep the detached-HEAD probe and the explicit `-C` form in the non-PR narration so the generic path stays byte-equivalent to Before.",
-      "wallMs": 5912,
+      "feedback": "The Before and After narrations are textually identical for this case, so nothing moved: both append `.worktrees/` to .gitignore and commit it (steps 10–12) before `git worktree add /work/acme-web/.worktrees/login-copy -b login-copy` (step 13), and both close with `Worktree ready at /work/acme-web/.worktrees/login-copy`. This is a non-PR primary-checkout provisioning case, so the Change's PR-head routing, merge-forward history, member-merge ordering and conflict-repair wording are never exercised here; the After wording has preserved non-PR provisioning exactly as the Change requires. No adjustment is needed for this case — keep the Step 0 hook and pr-head routing gated so that paths without a resolved PR value continue to fall through to the existing Step 2b gitignore-then-add recipe and the Step 4 report unchanged.",
+      "wallMs": 7143,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "0ee0c9ce40344d38f27f8601fa91e91d7cf84bf489fef2ccef1f87ab9ec01934",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "196890e461aed891003ce84329fecae00ed0408109aed53b099333ba411bcdc7",
-      "baselineOutputSha": "a1b3101dacdd1fc3af72a53405283b03bbb53a5905760910d09d82e32c231917",
+      "intentSha": "94074f513938f6d5b90a8c47ce92cbd629c74e1f228b6c58d2567427c2164ad7",
+      "baselineOutputSha": "fa8d90eb01808bb0d650f9560b4c9b06f0c7d9392b41ce3d8404e3d2c234ed14",
       "candidateOutputSha": "fa8d90eb01808bb0d650f9560b4c9b06f0c7d9392b41ce3d8404e3d2c234ed14",
       "facts": {
         "d1": {
@@ -81,10 +81,10 @@
           "label": "held"
         }
       },
-      "feedback": "Nothing moved on this non-PR case: both outputs append `.worktrees/` to .gitignore and commit it before `git worktree add /work/acme-web/.worktrees/login-copy -b login-copy`, and both end with the exact `Worktree ready at /work/acme-web/.worktrees/login-copy` line, so the 'keep non-PR provisioning unchanged' half of the Change is delivered. Two side-effects of the After wording are worth noting though they do not touch these facts: After dropped the post-creation `git worktree list --porcelain` confirmation that Before used to verify the created path matches the resolved destination (the case explicitly states the list shows the added path afterward, so this check is cheap and worth keeping as an explicit verify step in the fallback path), and After's opening line 'I am not executing tools' plus the batched multi-command blocks read as a committed script rather than a narrated run, which weakens the per-command success reporting Before had. To preserve Before's verification posture while adding the PR-head hook, insert the pr-head routing check at the top of Step 0 as a conditional on resolved PR values only, leave the Step 1/3/4 manual-fallback sequence (check-ignore → gitignore commit → worktree add → worktree list confirmation) verbatim, and avoid rewording the narration framing.",
-      "wallMs": 11942,
+      "feedback": "The Before and After narrations are textually identical for this case: both append `.worktrees/` to .gitignore and commit it before `git worktree add`, both run `git -C /work/acme-web worktree add /work/acme-web/.worktrees/login-copy -b login-copy`, and both close with the exact `Worktree ready at /work/acme-web/.worktrees/login-copy` report. No fact moved in either direction, which is consistent with the Change note that non-PR provisioning is preserved and that the pr-head/member-merge wording only affects PR-list and PR-head cases. No wording adjustment is needed for this case; keep the non-PR branch of Step 0 and Step 4 untouched so plain feature-branch provisioning continues to produce this exact ignore-commit-then-add sequence and report line.",
+      "wallMs": 6352,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "03f2a45e6cf09c8bfc0d9a675ffffba9151f6d00"
+  "repoSha": "deb4f43410cbd616e18f8610ab6b81e822653d4c"
 }

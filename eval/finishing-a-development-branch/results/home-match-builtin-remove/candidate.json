@@ -38,7 +38,7 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "44c6f347b2bf43b42c43699d15859d8f3015c0d5bfd4ef77b70fa1c01395950d",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "7622411976e6b255fd30a7de352335c21295e0c82f4a8758f279141ae1eed81a",
+      "intentSha": "3ebee3d81b5a2930d37873e74768a137538b829572f8239c1a7c5419b35db4fe",
       "baselineOutputSha": "57940c9159726a93088f11114888e56b24c2bdbe89f47cbfba72d02ac5e74453",
       "candidateOutputSha": "46e80cd13593047701622e7e1666cf21f7b01b2980cea806c431e9b81b395b70",
       "facts": {
@@ -58,14 +58,14 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "Nothing moved on this case: both Before and After resolve `home:` to `/work/acme-api-worktrees/<name>`, match `$WORKTREE` with `NAME = rate-limit`, declare the worktree gauntlet-owned, and run `worktree remove`, `worktree prune`, then `branch -D rate-limit` in that order from `/work/acme-api`. The Expected-to-move entries for b1/b2 (fails -> holds) do not describe this Before text, which already satisfied both facts; the baseline comparison may have been taken from a different run. After's single combined command block is slightly crisper than Before's split blocks, and its explicit no-`--force` / keep-branch-on-failure note matches the Change's intent, so no wording adjustment is needed to preserve these facts.",
-      "wallMs": 7255,
+      "feedback": "Both outputs satisfy both facts: each resolves `home:` to `/work/acme-api-worktrees/<name>`, matches `$WORKTREE` with `NAME = rate-limit`, declares the worktree gauntlet-owned, and runs `worktree remove`, `worktree prune`, then `branch -D` in that order against `/work/acme-api`. The Expected-to-move list predicted b1/b2 failing in Before, but the Before text already shows the keyed match and the ordered three-command cleanup, so nothing moved here. After's wording is a mild improvement: it consolidates the three commands into one block (making the order unambiguous), explicitly states `branch -D` continues after a successful built-in removal, and adds the no-`--force` rule; the only cosmetic drift is that the Result section narrates the cleanup in past tense ('was removed', 'was deleted') while the commands are still prospective, so keeping the future-tense framing from Before ('will be removed', 'will be deleted after removal succeeds') would avoid implying execution already happened without affecting any fact.",
+      "wallMs": 8762,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "44c6f347b2bf43b42c43699d15859d8f3015c0d5bfd4ef77b70fa1c01395950d",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "7622411976e6b255fd30a7de352335c21295e0c82f4a8758f279141ae1eed81a",
+      "intentSha": "3ebee3d81b5a2930d37873e74768a137538b829572f8239c1a7c5419b35db4fe",
       "baselineOutputSha": "214858bb008fc350ed7d609b3360261b902221073251c8581783a26505d7369d",
       "candidateOutputSha": "6451af8121c42eed5096458f8e3aef8d00cdb91a04c892efe11ad1870728f934",
       "facts": {
@@ -85,10 +85,10 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "Nothing moved on this case: both outputs match /work/acme-api-worktrees/rate-limit against the keyed home pattern with NAME=rate-limit, treat it as gauntlet-owned, and run worktree remove, worktree prune, then branch -D on /work/acme-api in that order, so b1 and b2 hold in Before and After alike (the expected fails->holds for b1/b2 is not visible here because this Before already does the keyed match). The only drift in After is dropping the `&&` chaining in favor of separate lines plus the prose 'continuing only on success'; that still satisfies the ordering fact, but if you want the sequencing to be unambiguous to a reader who copies the block, keep the `&&` chain (or a `set -e` note) alongside the prose so the stop-on-failure rule is enforced by the commands themselves, not only by the sentence above them.",
-      "wallMs": 8109,
+      "feedback": "Both outputs keep every fact: each resolves the keyed home to /work/acme-api-worktrees/<name>, recovers NAME=rate-limit, treats the worktree as gauntlet-owned by running the built-in cleanup, and issues worktree remove, then prune, then branch -D in that order. The only material difference is that After replaces the `&&` chain with three separate lines and relies on the prose 'continuing only on success' to carry the stop-on-failure gate; that does not move b1 or b2 here, but it weakens the self-evident ordering/gating that Before encoded in the command text. To deliver the Change without any risk on this case, keep the `&&` chaining (or an explicit `set -e`-style note) alongside the new wording so the hard gate between remove, prune, and branch deletion remains visible in the script itself, and consider stating explicitly that the path is gauntlet-owned to make the ownership determination unambiguous rather than implied.",
+      "wallMs": 9375,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "27eae7d476b20debb9e9e11220ce9183ac10daf5"
+  "repoSha": "6f144da74a18e3dcd162d0a0ece5ce791fd7dc7c"
 }

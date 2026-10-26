@@ -1,0 +1,2 @@
+- rejection: judged: Reports rejected push once, preserves worktree, returns to menu without retry/force, skips body editing and close question, and says Member PRs #13, #14 left open.
+- guards: judged: Divergence withholds row 1; original #14 ancestry exit 1 stops naming ccccccc with rewritten-history message; exit 128 is an error rather than divergence; rows 2-6 never close members and name them untouched.

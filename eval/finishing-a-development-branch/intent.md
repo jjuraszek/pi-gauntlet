@@ -9,7 +9,13 @@ Step 4 applies the shared menu-layout contract to both finishing menus, separati
 
 The PR-subject finish is detected from the selected spec record, verifies the scoped task union, proves preserved history and a non-force landing, and appends a thread-evidenced Rework block without rewriting the description. Baseline for the new sample: `1b0f7dd2bbbf926a8ff65109414d05aa97acaa58` (references committed). The default target remains the Step 6 slice, so its assembly and `for:` hash remain unchanged; the new sample bundles the full finish skill and PR-head reference.
 
+Extend rework finishing to ordered PR lists: prove every original head before non-force push, append Absorbs and per-PR thread lists without altering the description, and require successful body editing before eligibility refresh and the exact per-target close-with-comment question. Recheck displayed targets immediately, exclude moved heads outside pushed history, and leave members open on failed push or body edit. Preserve untouched single-PR verification, ancestry, thread evidence and no-member-close behavior, plus ordinary cleanup and menus. New narrated samples are setup-only coverage; both-arm held/pre-existing facts do not establish a behavior improvement, and no must-hold fact is relaxed. The current run uses the runner's merge-base baseline; the earlier explicit baseline describes the historical single-PR addition.
+
 ## Expected to move
+- pr-list-push-and-close/ordering: fails -> holds - Prove all three original heads and preserve refs before strip/seal and home push, then edit body before asking; retain exact comments, attributed threads, immediate rechecks and all success/decline/stale/closed/failed-close variants.
+- pr-list-push-rejected/rejection: fails -> holds - Preserve worktree and open members after one rejected push, without force, retry, body edit or close question; retain guard variants.
+- pr-list-body-edit-failed/failure: fails -> holds - Preserve successful push and original description, print attributed block for manual paste, and leave both members open; fetch failure likewise cannot trigger edit or closure.
+- pr-list-member-advanced/eligibility: fails -> holds - Refresh after body success against saved pushed home, exclude #14 moved outside that history, and offer only #13; contained-head and no-eligible variants retain their facts.
 - no-section-dot-worktrees-removed/w1: fails -> holds - the explicit branch -D continuation also settles the legacy .worktrees/ removal narration.
 - no-section-sibling-host-owned/s2: fails -> holds - same.
 - home-match-builtin-remove/b1: fails -> holds - the ownership match is new.

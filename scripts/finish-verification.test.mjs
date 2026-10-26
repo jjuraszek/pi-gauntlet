@@ -63,3 +63,42 @@ for (const telemetry of [".pi/gauntlet/telemetry", "records/custom telemetry"]) 
     });
   }
 }
+
+// Wording checks pin the finish-owned contract, not a live GitHub boundary.
+for (const [name, pattern] of [
+  ["ordered record pairs", /every top-level `PR:`\/`Pre-rework head:` pair, home first/],
+  ["all original heads", /first proof for every recorded original head, home first/],
+  ["per-PR refs", /update-ref[^\n]+\n[^\n]*```\n[^\n]*every recorded PR/],
+  ["home-only push", /Push only home/],
+  ["body prerequisite", /Only after a successful push and successful home body edit/],
+  ["member eligibility", /--json state,headRefOid/],
+  ["pushed ancestry", /--is-ancestor <current headRefOid> <pushed home head>/],
+  ["exact authorization", /only the displayed target\/text pairs/],
+  ["no deletion", /never pass `--delete-branch`/],
+  ["stale authorization", /state or head changed after approval/],
+  ["failure no retry", /failed close once, never retry/],
+  ["final closing rule", /Post no review-thread replies, merge no PR, change no ticket state, and close no PR other than the absorbed members through the question above\./],
+]) {
+  test(`PR-list finish: ${name}`, () => assert.match(skill, pattern));
+}
+
+test("finish preserves rendered template whitespace and the skill line budget", () => {
+  for (const fragment of [
+    "Tests failing (<N> failures). Must fix before completing:\n\n[Show failures]\n\nCannot proceed until tests pass.",
+    "Implementation complete. What would you like to do?\n\n1. Push to the PR branch",
+    "6. Discard this work (removes the worktree and local branch; the PR branch on origin is untouched)\n\nWhich option?",
+    "```markdown\n## Rework\n\nBefore:",
+  ]) {
+    assert.ok(skill.includes(fragment), `missing preserved template: ${fragment}`);
+  }
+  assert.ok(skill.trimEnd().split("\n").length <= 500);
+});
+
+test("PR-list close question follows body edit and precedes completion", () => {
+  const row = skill.slice(skill.indexOf("#### PR-subject row 1:"), skill.indexOf("#### Option 1:"));
+  assert.ok(row.indexOf("gh pr edit") < row.indexOf("Close the absorbed PRs with these comments?"));
+  assert.match(row, /#13: "Reworked into #12/);
+  assert.match(row, /#14: "Reworked into #12/);
+  assert.match(row, /1 - yes, close #13, #14/);
+  assert.match(row, /Rows 2-6[\s\S]*never offer/);
+});
