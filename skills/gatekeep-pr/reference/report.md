@@ -41,7 +41,7 @@ Verdict: mergeable - <evidence clause> | fixable - <N> blockers | not ready - <w
 
 Render `Sync:` only when `--rebase` was passed. Open the `Sync:` line with the digest's `sync` field value verbatim (for example `Sync: declined - other author's branch`). Put any explanation after that value as a second clause or sentence. Never paraphrase the status value into prose. Exempt this line from SKILL.md wording rule 5 (passing facts only under `show evidence`): name the resolved files even when the sync succeeded.
 
-For obstacle reports, print exactly one `Evidence:` line naming the resolved evidence source and the assessed head, immediately before the verdict (for example `Evidence: CI (run 7001, test_unit and build_image green on 9c1e4f2)`). Use the resolved local verification summary instead when local evidence owns the assessment; do not invent a passing result when evidence is unavailable. Carry the same source summary into the obstacle menu's evidence hint. Exempt this compact source summary from the evidence-only rules below and SKILL.md wording rule 5; keep the full record under `show evidence`.
+For obstacle reports, print exactly one `Evidence:` line naming the resolved evidence source and the assessed head, immediately before the verdict (for example `Evidence: CI (run 7001, test_unit and build_image green on 9c1e4f2)`). Use the resolved local verification summary instead when local evidence owns the assessment; do not invent a passing result when evidence is unavailable. Carry the same source summary into the obstacle menu's evidence hint. Exempt this compact source summary and the final template's `Evidence:` line from the evidence-only rules below and SKILL.md wording rule 5; keep the full record under `show evidence`.
 
 ## Verdict
 

@@ -59,7 +59,7 @@ Resolve every unmet merge prerequisite; retain failed prerequisites and append c
 | No --log-failed evidence and no source lead | Request one run re-run inside the wave; the repeated-red rule owns its result. |
 | Helper open - needs <what> | `stuck - needs <what>`. |
 | Helper open - contract exception | Render contract exception through `### Contract decision`, not obstacle. |
-| HEAD equals pre_wave_head with all payloads open, or scoped test unchanged-red after restore | Render `stuck - no progress: <failed prerequisite>`. Persist `### No-progress obstacle`; no round spent. Extension alone never clears it. |
+| HEAD equals pre_wave_head with all payloads open, or scoped test unchanged-red after restore | render per ### No-progress obstacle |
 | Undispositionable BLOCKED | `GitHub reports BLOCKED, no local repair applies`; invent no rule attribution. |
 | UNKNOWN/unreadable after step 2's single re-poll, regardless of CI color or a pending binding check | Render `stuck - merge state unknown` through `menus.md`'s obstacle template; let merge state own the withhold reason and the PR comments line. Authorize no sync, offer no ordinary wait row, keep stop last and `[recommended]`, report both usage counters unchanged, and print `Not offered: merge (merge state unknown)`. |
 | Nonzero gh or incomplete pagination during refresh/refetch | One retry, then `stuck - refresh failed: <actual reason>`. |
@@ -104,7 +104,7 @@ Treat pre-write comparison and readback as stale-write checks, not atomic compar
 All must hold before `merge` executes; a `merge` pick while one fails is refused naming it, and the menu re-renders:
 
 - every blocker fixed and pushed, or dispositioned `flaky` by the user
-- verification evidence present for the assessed head per the brief's Evidence resolution table - a CI claim or a green local run; a table-sanctioned CI skip is evidence, and `not run` blocks only when the table required a fallback run that did not happen. Key evidence to the exact head SHA it was gathered on; after any head move, re-resolve every evidence item for the new head and reuse nothing recorded at a prior head (a CI run that checked the old head is not evidence for the new one). When no check run is bound to the new head, apply the Evidence resolution table's fallback row - run the local verification command on the new head, record it with `head_sha <sha>` and the log path, and never record a CI conclusion the API did not return for that exact SHA.
+- verification evidence present for the assessed head per the brief's Evidence resolution table - a CI claim or a green local run; a table-sanctioned CI skip is evidence, and `not run` blocks only when the table required a fallback run that did not happen. Key evidence to the exact head SHA it was gathered on; after any head move, re-resolve evidence through `../verification-brief.md` Section B's Evidence resolution table for the new head only; a check run or local result bound to any other head is not an input.
 - a disposition for every material claim (`findings.md`); dispositions recorded before an own push carry to the pushed SHA except mixed-pass affected claims rechecked under `### Description repair`; `source: pending` evidence that never had a claim check withholds `merge`
 - evidence provenance clean (`findings.md` `## Provenance`): `worktree_root`, every `run_cwd`, and `head_sha` match on the local path
 - `mergeable == MERGEABLE` (`UNKNOWN` after step 2's single re-poll withholds like `CONFLICTING`)

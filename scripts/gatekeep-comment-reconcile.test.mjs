@@ -176,6 +176,7 @@ test('obstacle menus extend both caps even below their limits', () => {
   assert.match(obstacle, /Evidence: CI \(run 7001, test_unit and build_image green on 9c1e4f2\)/);
   assert.match(obstacle, /show evidence prints the full record \(<source summary>\)/);
   assert.match(report, /For obstacle reports, print exactly one `Evidence:` line naming the resolved evidence source and the assessed head/);
+  assert.match(report, /Exempt this compact source summary and the final template's `Evidence:` line from the evidence-only rules below and SKILL.md wording rule 5/);
   assert.match(obstacle, /deliver - resume the retained course; <one clause naming what retries>, no round charged/);
   assert.match(obstacle, /For every non-timeout deliver selection, add exactly/);
   assert.match(obstacle, /cumulative usage\/caps/);
@@ -442,6 +443,8 @@ test('fix-wave.md owns the wave: fresh helpers, pre-push review, local conflict 
   assert.match(fixWave, /2 x 5/);
   assert.match(fixWave, /stops the round: dispatch no further implementer/);
   assert.match(fixWave, /Never the resolved `verification command`/);
+  assert.ok(fixWave.includes("insert each path made only of `[A-Za-z0-9/._-]` bare; insert any other path single-quoted with embedded `'` escaped as `'\\''`"));
+  assert.match(fixWave, /keep each path relative to the runner's working directory \(strip the `cd <dir> &&` prefix's directory from the path\)/);
   assert.match(fixWave, /for a `P#` carried by a `rebased locally` sync record the failing test file named in that record/);
   assert.match(fixWave, /`<finding id>: resolved`/);
   assert.match(fixWave, /Push only when the carried set holds no Critical or Moderate/);
@@ -487,8 +490,9 @@ test('post-selection-loop.md refreshes merge state before every menu and binds t
   assert.match(refresh, /never mints `C#` rows/);
   assert.match(refresh, /classifies every pending check as binding/);
   const pre = section(loop, '### Merge preconditions\n', '### Compare-and-swap\n');
-  assert.match(pre, /reuse nothing recorded at a prior head/);
-  assert.match(pre, /never record a CI conclusion the API did not return/);
+  assert.match(pre, /after any head move, re-resolve evidence through `\.\.\/verification-brief\.md` Section B's Evidence resolution table for the new head only/);
+  assert.match(pre, /a check run or local result bound to any other head is not an input/);
+  assert.doesNotMatch(pre, /When no check run is bound to the new head/);
   assert.match(pre, /no \*\*binding\*\* pending check/);
   assert.match(pre, /`merge_state_status` is not `BLOCKED`, `UNKNOWN`, or `unreadable`, and the pre-menu refresh succeeded/);
   assert.ok(!pre.includes('no pending required check'));
@@ -518,6 +522,7 @@ test('course state replaces grants and preserves immutable target and original i
   assert.match(brief, /no_progress: \{ failed_prerequisite, observed_value, result_path \}\?/);
   assert.match(loop, /higher round cap is not permission to repeat/);
   assert.ok(loop.includes('stuck - no progress: <failed prerequisite>'));
+  assert.match(loop, /^\| HEAD equals pre_wave_head with all payloads open, or scoped test unchanged-red after restore \| render per ### No-progress obstacle \|$/m);
   assert.match(fixWave, /scoped test fails[\s\S]*### No-progress obstacle/);
   assert.match(fixWave, /every payload returned `open`[\s\S]*### No-progress obstacle/);
   for (const token of ['consent.target', 'course: null | assess | deliver | deliver-nits', 'repair.rounds_used', 'repair.rounds_cap', 'repair.syncs_used', 'repair.syncs_cap', 'repair.poll_deadline', 'repair.wave', 'counted']) assert.ok(brief.includes(token), token);
