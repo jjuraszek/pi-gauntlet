@@ -432,3 +432,25 @@ test('ledger amendments precede task-plan aftermath and preserve durable counts 
   for (const marker of ['# Ledger - loop engine', 'skip `plan-writer`, `plan_check`, and `plan_tracker`', '`deviates:`, `deferred:`, or `elsewhere:`', '`cut`', 'evidence = the disposition', 'requirement-preserving', '`done`', '`open`', 'reopened by amendment', "Preserve every row's attempts and the ledger's iterations", 'loop: cut row <n>', 'loop: amend', 'amendment audit', 'a bare `5` grants the same way', 'digit `2` or `5`']) assert.ok(text.includes(marker), marker);
   assert.match(main(), /delete the plan file and the loop ledger/);
 });
+
+
+test('PR-head provisioning validates and recovers admitted member heads before base', () => {
+  const text = read('skills/using-git-worktrees/reference/pr-head.md');
+  for (const marker of [
+    'ordered array', 'every admitted PR', 'before any worktree write',
+    "--first-parent --format='%H %P %s'", 'second parent', 'actual local home branch tip',
+    'merge PR #<N> head <sha7> into PR #<home>', '(already landed)',
+    'an ancestor no-op records no new commit', 'MEMBER_HEADS',
+    'Stop before the base merge, spec, plan, later member merges, push, or close',
+    "the base merge and each admitted member-head merge, their conflict helpers' edits to the conflicted files, and their scoped conflict tests",
+    'threads for #<N> not fetched (<gh error>)',
+    "require abort exit status 0", 'rev-parse HEAD` equal to the saved last-good full SHA',
+    'status --porcelain --untracked-files=all', 'manual recovery before rerunning',
+    'Never reset or clean',
+  ]) assert.ok(text.includes(marker), marker);
+  assert.ok(text.indexOf('every admitted PR') < text.indexOf('## Provision'));
+  assert.ok(text.indexOf('## Merge admitted member heads') < text.indexOf('## Merge the fetched base'));
+  assert.ok(text.indexOf('BASE_SHA=$(git') < text.indexOf('## Merge admitted member heads'));
+  assert.doesNotMatch(text, /On fetch failure carry/);
+  assert.doesNotMatch(text, /For members whose original heads are already ancestors without a recognized merge/);
+});

@@ -1,0 +1,3 @@
+- eligibility: judged: Refreshes member state/head only after push/body success and checks current head ancestry against saved pushed home SHA; names #14 skipped: head moved to 9999999, not in home and excludes it without merging.
+- targets: judged: Offers only #13 with its exact spec comment carrying bbbbbbb and home link, option 1 naming only #13; immediately rechecks before closing, reports #13 closed and #14 skipped with reason.
+- variants: judged: Advanced head contained in pushed home remains eligible; no eligible members produces no question; no branch deletion or home-history member-fix proof.

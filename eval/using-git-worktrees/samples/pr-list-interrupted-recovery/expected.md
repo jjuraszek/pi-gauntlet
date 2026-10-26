@@ -1,0 +1,4 @@
+- validation: judged: Reads actual local home branch tip rather than caller HEAD, proves home ancestry, walks first-parent %H %P %s after supplied home head, and validates two-parent canonical member identity and original second parent.
+- resume: judged: A reports Member merge: #13 eeeeeee (already landed), skips remerging #13, merges #14 next then origin/main, and keeps all original head provenance home first.
+- refusal: judged: B stops before writes with selected path, fix/retry, home #12 original aaaaaaa and not-member-merges reason; no reset, rebase, deletion, base merge, spec or plan.
+- no-worktree: judged: Validates existing local home branch without using caller HEAD or overwriting that branch, then adds selected home on validated tip; ancestor no-op creates no invented merge commit.

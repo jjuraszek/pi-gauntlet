@@ -1,0 +1,2 @@
+- failure: judged: Preserves successful push and original description bytes, reports body edit HTTP 503, prints attributed Rework block for manual paste, skips closure and says Member PRs #13, #14 left open.
+- fetch: judged: Body-fetch failure also prints manual block, skips edit/close and names both members left open; no retry, branch deletion, thread replies, PR merge or ticket change.

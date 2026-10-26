@@ -1,0 +1,4 @@
+- order: judged: Merges original #13 head then #14 with --no-ff and canonical merge PR subjects into PR #12, before origin/main.
+- preflight: judged: Fetches and checks all three original objects and matching remote heads before worktree writes; a moved or unreachable #14 stops naming #14 before checkout.
+- ancestry: judged: Requires merge-base --is-ancestor for each of the three original heads against final HEAD.
+- report: judged: Reports three PR/Pre-rework head pairs with full original SHAs home #12 then #13 then #14, then member lines eeeeeee and fffffff and base outcome 1111111.
