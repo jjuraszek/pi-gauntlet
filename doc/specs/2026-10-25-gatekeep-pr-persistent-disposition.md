@@ -77,7 +77,7 @@ Obstacle resolver - exhaustive and fail-closed; a state not listed here that wit
 | Implementer returns `open - needs <what>` or `open - contract exception` | contract exception -> D6 overlay; any other `open - needs` -> obstacle | `stuck - needs <what>` |
 | Completed wave with every payload `open` (HEAD equals `pre_wave_head`) or a scoped test unchanged-red after restored edits | obstacle through the existing `### No-progress obstacle` checkpoint; no round spent | `stuck - no progress: <failed prerequisite>` |
 | `mergeStateStatus` `BLOCKED` with nothing dispositionable | obstacle; never attributed to a named rule | `GitHub reports BLOCKED, no local repair applies` |
-| `mergeStateStatus` `UNKNOWN` or `unreadable` after one re-poll with green CI and no other withhold | obstacle | `stuck - merge state unknown` |
+| `mergeStateStatus` `UNKNOWN` or `unreadable` after one re-poll, regardless of CI color or a pending binding check | obstacle | `stuck - merge state unknown` |
 | Pre-menu refresh or comment refetch fails (`gh` non-zero, pagination incomplete) | one retry, then obstacle | `stuck - refresh failed: <reason>` |
 | Comment-delta source review did not finish | one retry with a fresh reviewer, then obstacle | `stuck - comment source review incomplete` |
 | `timeout minutes` elapsed with a binding check pending | obstacle; `deliver` on the obstacle menu opens exactly one more window | `stuck - CI pending past <n> minutes` |
@@ -194,7 +194,9 @@ Existing rules the course model replaces, each with its new owner - the implemen
 - Child dispatch mode `assess | execute` is renamed `report | execute` so the dispatch mode and the `assess` course do not share a word; a queued pick is a course or a terminal verb, and "Record direct picks with existing grant grammar" becomes "Record direct picks as the child's `course` or terminal verb".
 - A child under `deliver` runs D3 with its three exits and returns `REPORT` at each; the parent renders that child's template from `menus.md`.
 - The parent keeps the `merge queued` re-read (`wait` row) and terminal posts; "For ordinary open PRs offer human-selected teardown ... never auto-destroy" becomes the D7 non-final stop, run by the parent after all children finish.
-- Budget sentences name `repair.rounds_cap`/`repair.syncs_cap` instead of grants; everything else (admission, serial provisioning, roster, result lines, recovery adapter) is unchanged.
+- Budget sentences name `repair.rounds_cap`/`repair.syncs_cap` instead of grants.
+- Parent rendering: the summary renders once, after the children's closing lines and before the first menu; each child report prints verbatim in roster order under its own `#<N>` heading directly above that PR's queued menu, with no synthetic `Verdict:` restatement; a pending binding check is expressed only in that PR's queued menu (`Not offered: merge (<check> pending)`); every parent-owned terminal pick is queued until all picks are collected, announced by `Queued until all picks are collected (<roster summary>)`.
+- Everything else (admission, serial provisioning, roster, result lines, recovery adapter) is unchanged.
 
 ## Errors and edge cases
 

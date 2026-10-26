@@ -90,7 +90,7 @@ Rebuild all three bundles; retain only actual generated differences. Do not edit
 
 ## Baseline provenance
 
-Amendment provenance: `40d6c9e4`; initial `git status --porcelain --untracked-files=all` returned only ` M doc/specs/2026-10-25-gatekeep-pr-persistent-disposition.md`. Admitted paths are `doc/plans/2026-10-25-gatekeep-pr-persistent-disposition.md` and `doc/specs/2026-10-25-gatekeep-pr-persistent-disposition.md`; the parent-supplied In-flight path is that same spec. All five task commands were rerun because the prior evidence was on `08b6d35f`. Task 1 executed 194 tests; Tasks 2, 3 and 4 each executed 46 tests; Task 5 executed 60 tests, all exit 0 with zero failures. After every command HEAD remained `40d6c9e4` and the sole status entry remained the modified spec. No source edits or generated artifacts were admitted.
+Amendment provenance: `0e50307a`; initial `git status --porcelain --untracked-files=all` returned only ` M doc/specs/2026-10-25-gatekeep-pr-persistent-disposition.md`. Admitted paths are `doc/plans/2026-10-25-gatekeep-pr-persistent-disposition.md` and `doc/specs/2026-10-25-gatekeep-pr-persistent-disposition.md`; the parent-supplied In-flight path is that same spec. All five task commands were rerun because the prior evidence was on `40d6c9e4`, despite unchanged command text. Task 1 executed 194 tests; Tasks 2, 3 and 4 each executed 60 tests; Task 5 executed 74 tests, all exit 0 with zero failures. After every command HEAD remained `0e50307a` and the sole status entry remained the modified spec. No source edits or generated artifacts were admitted.
 
 ## Wave 1 - Independent defaults and menu extraction
 
@@ -100,7 +100,7 @@ Tasks 1 and 2 own disjoint files. Their node:test suites use isolated scratch di
 
 **TDD scenario:** Modifying tested code - run existing tests first.
 
-**Spec:** doc/specs/2026-10-25-gatekeep-pr-persistent-disposition.md § "D0 Authoring constraints" L35, § "Tests" L223, § "Out of scope" L243
+**Spec:** doc/specs/2026-10-25-gatekeep-pr-persistent-disposition.md § "D0 Authoring constraints" L35, § "Tests" L225, § "Out of scope" L245
 
 **Files:**
 - Modify: `extensions/lib/gauntlet-settings.ts:80-94`
@@ -115,7 +115,7 @@ Tasks 1 and 2 own disjoint files. Their node:test suites use isolated scratch di
 
 **Tests:**
 - `node --experimental-loader ./extensions/test-support/pi-stubs.mjs --test extensions/lib/gauntlet-settings.test.ts extensions/phase-tracker.test.ts`
-- baseline: 40d6c9e4 pass
+- baseline: 0e50307a pass
 - via: `resolveClosureReview()` and the phase-tracker fix-round guard
 
 - [ ] **Step 1: Run the existing scoped command.** Expect all resolver and phase-tracker tests green before changing assertions.
@@ -149,7 +149,7 @@ Tasks 1 and 2 own disjoint files. Their node:test suites use isolated scratch di
 
 **Tests:**
 - `node --test scripts/gatekeep-comment-reconcile.test.mjs`
-- baseline: 40d6c9e4 pass
+- baseline: 0e50307a pass
 - via: `SKILL.md` step 6 and the menu source-contract assertions
 
 - [ ] **Step 1: Run the scoped assertions.** Expect the current consent menus to pass.
@@ -167,7 +167,7 @@ Depends on Wave 1: Task 3 replaces the extracted old menus and uses the shared f
 
 **TDD scenario:** Modifying tested instructions - change source-contract assertions before the owning instructions.
 
-**Spec:** doc/specs/2026-10-25-gatekeep-pr-persistent-disposition.md § "D0 Authoring constraints" L33-L34, § "D0 Authoring constraints" L35, § "D0 Authoring constraints" L33-L36, § "D1 Course" L40-L44, § "D2 assess" L48, § "D3 deliver" L52-L58, § "Exit check" L62-L92, § "Loop sync" L96-L105, § "D4 Round accounting" L109-L115, § "D5 Menus" L119-L138, § "D5 Menus" L143-L151, § "D5 Menus" L154, § "D5 Menus" L156, § "D5 Menus" L158, § "D6 Drift guard" L162-L177, § "Errors and edge cases" L203-L213, § "Errors and edge cases" L215-L218, § "Tests" L222, § "Out of scope" L238-L243
+**Spec:** doc/specs/2026-10-25-gatekeep-pr-persistent-disposition.md § "D0 Authoring constraints" L33-L34, § "D0 Authoring constraints" L35, § "D0 Authoring constraints" L33-L36, § "D1 Course" L40-L44, § "D2 assess" L48, § "D3 deliver" L52-L58, § "Exit check" L62-L92, § "Exit check" L80, § "Loop sync" L96-L105, § "D4 Round accounting" L109-L115, § "D5 Menus" L119-L138, § "D5 Menus" L143-L151, § "D5 Menus" L154, § "D5 Menus" L156, § "D5 Menus" L158, § "D6 Drift guard" L162-L177, § "Errors and edge cases" L205-L215, § "Errors and edge cases" L217-L220, § "Tests" L224, § "Out of scope" L240-L245
 
 **Files:**
 - Modify: `skills/gatekeep-pr/SKILL.md`
@@ -185,7 +185,7 @@ Depends on Wave 1: Task 3 replaces the extracted old menus and uses the shared f
 
 **Tests:**
 - `node --test scripts/gatekeep-comment-reconcile.test.mjs`
-- baseline: 40d6c9e4 pass
+- baseline: 0e50307a pass
 - via: `### Continuation record`, `### Next action`, `### Pre-menu refresh`, `### Wait course`, `fix-wave.md` `## Wave`, `## Sync`, `assessment.md` `## Select the scope contract`, and the ten `menus.md` templates
 
 The `Create:` path is introduced by Task 2; replace its contents in place here, preserving the earlier addition commit for replay baseline selection.
@@ -208,7 +208,7 @@ The `Create:` path is introduced by Task 2; replace its contents in place here, 
   | Helper cannot repair | `open - needs` returns the concrete needs obstacle; `open - contract exception` enters the contract template instead of an obstacle. |
   | No-progress result | HEAD equals `pre_wave_head` with all payloads `open`, or scoped test unchanged-red after restore: append `### No-progress obstacle` evidence and exit without spending a round. Extension alone never clears that checkpoint. |
   | Undispositionable `mergeStateStatus` `BLOCKED` | Render `GitHub reports BLOCKED, no local repair applies`, with no invented rule attribution. |
-  | `UNKNOWN` or `unreadable`, green CI, no other withhold | One re-poll, then `stuck - merge state unknown`; spend neither budget. |
+  | `UNKNOWN` or `unreadable`, regardless of CI color or a pending binding check | One re-poll, then `stuck - merge state unknown`; spend neither budget. |
   | Refresh/refetch failure | One retry for nonzero `gh` or incomplete pagination, then a refresh-failed obstacle with the actual reason. |
   | Incomplete comment source review | One fresh reviewer retry, then `stuck - comment source review incomplete`. |
   | Deadline exhausted with binding checks | Exit with the elapsed `timeout minutes`; an obstacle deliver pick opens one additional window only. |
@@ -256,7 +256,7 @@ Depends on Wave 2: Task 4 consumes the new course record and menu state map. It 
 
 **TDD scenario:** Modifying tested instructions - run existing tests first.
 
-**Spec:** doc/specs/2026-10-25-gatekeep-pr-persistent-disposition.md § "D0 Authoring constraints" L33-L34, § "D7 stop on a non-final menu" L181-L187, § "D8 Batch mode" L191-L197, § "Errors and edge cases" L214
+**Spec:** doc/specs/2026-10-25-gatekeep-pr-persistent-disposition.md § "D0 Authoring constraints" L33-L34, § "D7 stop on a non-final menu" L181-L187, § "D8 Batch mode" L191-L199, § "D8 Batch mode" L198, § "Errors and edge cases" L216
 
 **Files:**
 - Modify: `skills/gatekeep-pr/reference/cleanup.md`
@@ -267,7 +267,7 @@ Depends on Wave 2: Task 4 consumes the new course record and menu state map. It 
 
 **Tests:**
 - `node --test scripts/gatekeep-comment-reconcile.test.mjs`
-- baseline: 40d6c9e4 pass
+- baseline: 0e50307a pass
 - via: `cleanup.md` `## Non-final stop`, `batch.md`, and `pr-gatekeeper` report/execute contract
 
 - [ ] **Step 1: Run existing scoped assertions.** Expect the single-PR course contract green before updating the batch fixtures.
@@ -276,6 +276,8 @@ Depends on Wave 2: Task 4 consumes the new course record and menu state map. It 
 
   Decision: reuse the existing cleanup step 1's primary and ownership computation, custom-destroy failure rule and terminal step order (`cleanup.md:5-23`); change eligibility only for the new entry mode. `post-selection-loop.md` calls this entry mode, not terminal steps 1-4. The read-only primary guard is an existing safety boundary, not a new terminal course.
 - [ ] **Step 4: Patch only the D8 batch sentences and matching persona body.** Initialize `course` null, `repair.rounds_used`/`repair.syncs_used` zero, and `repair.rounds_cap`/`repair.syncs_cap` at twice the resolved shared value under D4. Retain the parent-owned pre-minted record/report paths. Parent mode becomes `report | execute`; course `assess` still means assessment posting, not dispatch mode. Record queued picks as the child's course or terminal verb, never grant grammar. A deliver child runs through a D3 readiness/obstacle/cap exit and returns `REPORT`; the parent renders the child's `menus.md` template. Keep admission, serial provisioning, roster, recovery adapter, result strings, confirmations, procedure-root resolution and helper isolation unchanged. Replace only the old budget/teardown phrases; parent runs non-final stop after every child has completed. Retain parent ownership of terminal posts and `merge queued` `wait`, even after worktree removal, with successful-post suppression and no removed cwd dispatch.
+
+  Render the summary once after the children's closing lines and before the first menu. Print each child report verbatim in roster order under its own `#<N>` heading directly above that PR's queued menu, with no synthetic `Verdict:` restatement. Express a pending binding check only in that PR's queued menu with `Not offered: merge (<check> pending)`. Queue every parent-owned terminal pick until all picks are collected and announce it with `Queued until all picks are collected (<roster summary>)`. These amended D8 clauses already have their owner in `batch.md:75-83`; preserve that implementation.
 
   Decision: change `agents/pr-gatekeeper.md:17-22` because it explicitly distinguishes current assess and execute modes; its caller is `batch.md` `## Foreground dispatch`. Leave all frontmatter and the `REPORT`, `CONFLICTING`, `FAILED`, `STOPPED` closing-line contract byte-identical. Batch supplies the initial numeric caps; only the first course pick may resolve its initial D4 allowance, and re-dispatch never reinitializes usage or caps.
 - [ ] **Step 5: Re-run tests and read back.** Expect scoped tests green, including unchanged admission and terminal-post checks. Read every changed instruction against forge-skill `## Authoring rules` and `## Persona rules`.
@@ -290,7 +292,7 @@ Depends on Waves 2-3: Task 5 records the final single-PR, cleanup and batch beha
 
 **TDD scenario:** New behavior fixtures - assert structure first, then author concrete replay cases and facts.
 
-**Spec:** doc/specs/2026-10-25-gatekeep-pr-persistent-disposition.md § "Tests" L224-L225, § "D5 Menus" L158
+**Spec:** doc/specs/2026-10-25-gatekeep-pr-persistent-disposition.md § "Tests" L226-L227, § "D5 Menus" L158
 
 **Files:**
 - Modify: `scripts/gatekeep-comment-reconcile.test.mjs`
@@ -333,7 +335,7 @@ Depends on Waves 2-3: Task 5 records the final single-PR, cleanup and batch beha
 
 **Tests:**
 - `node --test eval/lib/lint.test.mjs scripts/gatekeep-comment-reconcile.test.mjs`
-- baseline: 40d6c9e4 pass
+- baseline: 0e50307a pass
 - via: `lintTarget()`, `lintAll()`, and gatekeep replay-assembly source assertions
 
 - [ ] **Step 1: Run the scoped command and add red structural checks.** In the existing gatekeep test, require all eight case/fact pairs, unique expected fact IDs and `skills/gatekeep-pr/reference/menus.md` in each target's `skillFiles`. Run again; absent new fixtures and menu entries fail. Do not add evaluator machinery.
@@ -363,7 +365,7 @@ Depends on Waves 1-4: describe the implemented state machine and shared default,
 
 **TDD scenario:** Documentation-only change - source parity and authoring read-back.
 
-**Spec:** doc/specs/2026-10-25-gatekeep-pr-persistent-disposition.md § "D0 Authoring constraints" L35, § "D4 Round accounting" L113, § "Documentation impact" L231-L232, § "Tests" L226
+**Spec:** doc/specs/2026-10-25-gatekeep-pr-persistent-disposition.md § "D0 Authoring constraints" L35, § "D4 Round accounting" L113, § "Documentation impact" L233-L234, § "Tests" L228
 
 **Files:**
 - Modify: `README.md:74-82`
@@ -407,7 +409,8 @@ Depends on Waves 1-4: describe the implemented state machine and shared default,
 | § "Exit check" L62-L92 | Missing record exits without resetting state | Task 3 |
 | § "Exit check" L62-L92 | Repeated red compares intervening pushed repair commit; no-source failures get one re-run | Task 3 |
 | § "Exit check" L62-L92 | Needs input, empty wave and unchanged-red restored tests stop without spending rounds | Task 3 |
-| § "Exit check" L62-L92 | Blocked or unknown forge state fails closed without invented rule attribution | Task 3 |
+| § "Exit check" L62-L92 | Blocked forge state fails closed without invented rule attribution | Task 3 |
+| § "Exit check" L80 | UNKNOWN or unreadable after one re-poll exits as `stuck - merge state unknown`, regardless of CI color or a pending binding check; spend neither budget | Task 3 |
 | § "Exit check" L62-L92 | Refresh and source-review failures retry once, then stop | Task 3 |
 | § "Exit check" L62-L92 | Timeout needs one explicit extra window; own permitted held run auto-approves, other runs stop | Task 3 |
 | § "Exit check" L62-L92 | Lost push permission, refused lease and sync failure preserve or restore safe local state | Task 3 |
@@ -442,27 +445,31 @@ Depends on Waves 1-4: describe the implemented state machine and shared default,
 | § "D7 stop on a non-final menu" L181-L187 | Keep unpushed/dirty/foreign/ambiguous trees with path and reason | Task 4 |
 | § "D7 stop on a non-final menu" L181-L187 | Custom destroy or forced untracked-only removal; no branch/base/override cleanup | Task 4 |
 | § "D7 stop on a non-final menu" L181-L187 | Delete record/helper/body files through existing teardown | Task 4 |
-| § "D8 Batch mode" L191-L197 | Initialize course and both budgets without resetting ongoing records | Task 4 |
-| § "D8 Batch mode" L191-L197 | Rename report/execute mode in caller and persona; picks are course or terminal verb | Task 4 |
-| § "D8 Batch mode" L191-L197 | Deliver child returns at each exit; parent renders corresponding menu | Task 4 |
-| § "D8 Batch mode" L191-L197 | Parent retains queued read/posts and non-final stop after children finish | Task 4 |
-| § "D8 Batch mode" L191-L197 | Preserve admission, provisioning, roster, result lines and recovery adapter | Task 4 |
-| § "Errors and edge cases" L203-L213 | Missing record never resets; BLOCKED and UNKNOWN stop without spinning | Task 3 |
-| § "Errors and edge cases" L203-L213 | Source-less failure one re-run, then repeated-red obstacle | Task 3 |
-| § "Errors and edge cases" L203-L213 | Rebase conflict helper, remote-expectation lease and local-head recovery, and merge-history fallback preserve safe sync | Task 3 |
-| § "Errors and edge cases" L203-L213 | Base movement does not renew watch; timeout needs one explicit window | Task 3 |
-| § "Errors and edge cases" L203-L213 | Contract exception resumes course; typed omitted deliver is change request; opted-in nits block readiness | Task 3 |
-| § "Errors and edge cases" L214 | Dirty/unpushed stop keeps tree; untracked residue alone does not | Task 4 |
-| § "Errors and edge cases" L215-L218 | Cap extension preserves usage; unchanged checkpoint re-exits; phase guard refusal surfaces; no cross-session resume | Task 3 |
-| § "Tests" L222 | Source assertions pin new fields, window renewal, ten headings and deleted red flags | Task 3 |
-| § "Tests" L223 | Resolver normalizes five; five default guard waves pass, sixth fails; explicit three stays; grant-credit fixture at :1732 sets `maxFixRounds: 3` explicitly | Task 1 |
-| § "Tests" L224-L225 | Eight new named samples cover course/exits/nits/stop/omissions; old expectations rewritten | Task 5 |
-| § "Tests" L224-L225 | All three text targets include menu file and updated facts before full runs | Task 5 |
-| § "Tests" L226 | Measure every edited gatekeep file and record authoring read-back before finish | Task 6 |
-| § "Tests" L227 | Repository structural lint, runtime checks and packed install pass | Verification |
-| § "Documentation impact" L231-L232 | README Architecture/blurb/settings/merge policy describe course and tunables | Task 6 |
-| § "Documentation impact" L231-L232 | Configuration examples, default normalization and both budget multipliers updated | Task 6 |
-| § "Documentation impact" L231-L232 | Unreleased changelog and verification instruction defaults agree with implementation | Task 6 |
-| § "Out of scope" L238-L243 | No new gatekeep setting, letter sub-options or preset course key | Task 3 |
-| § "Out of scope" L238-L243 | No cross-session continuation; entry rebase mechanics and verify guard counting unchanged | Task 3 |
-| § "Out of scope" L243 | Runtime guard stays single-multiplier; only shared default changes | Task 1 |
+| § "D8 Batch mode" L191-L199 | Initialize course and both budgets without resetting ongoing records | Task 4 |
+| § "D8 Batch mode" L191-L199 | Rename report/execute mode in caller and persona; picks are course or terminal verb | Task 4 |
+| § "D8 Batch mode" L191-L199 | Deliver child returns at each exit; parent renders corresponding menu | Task 4 |
+| § "D8 Batch mode" L191-L199 | Parent retains queued read/posts and non-final stop after children finish | Task 4 |
+| § "D8 Batch mode" L198 | Summary renders once after child closing lines and before the first menu | Task 4 |
+| § "D8 Batch mode" L198 | Print child reports verbatim in roster order under each PR heading directly above its queued menu; no synthetic `Verdict:` restatement | Task 4 |
+| § "D8 Batch mode" L198 | Express pending binding checks only in that PR's queued menu with `Not offered: merge (<check> pending)` | Task 4 |
+| § "D8 Batch mode" L198 | Queue every parent-owned terminal pick until all picks are collected; announce `Queued until all picks are collected (<roster summary>)` | Task 4 |
+| § "D8 Batch mode" L191-L199 | Preserve admission, provisioning, roster, result lines and recovery adapter | Task 4 |
+| § "Errors and edge cases" L205-L215 | Missing record never resets; BLOCKED and UNKNOWN stop without spinning | Task 3 |
+| § "Errors and edge cases" L205-L215 | Source-less failure one re-run, then repeated-red obstacle | Task 3 |
+| § "Errors and edge cases" L205-L215 | Rebase conflict helper, remote-expectation lease and local-head recovery, and merge-history fallback preserve safe sync | Task 3 |
+| § "Errors and edge cases" L205-L215 | Base movement does not renew watch; timeout needs one explicit window | Task 3 |
+| § "Errors and edge cases" L205-L215 | Contract exception resumes course; typed omitted deliver is change request; opted-in nits block readiness | Task 3 |
+| § "Errors and edge cases" L216 | Dirty/unpushed stop keeps tree; untracked residue alone does not | Task 4 |
+| § "Errors and edge cases" L217-L220 | Cap extension preserves usage; unchanged checkpoint re-exits; phase guard refusal surfaces; no cross-session resume | Task 3 |
+| § "Tests" L224 | Source assertions pin new fields, window renewal, ten headings and deleted red flags | Task 3 |
+| § "Tests" L225 | Resolver normalizes five; five default guard waves pass, sixth fails; explicit three stays; grant-credit fixture at :1732 sets `maxFixRounds: 3` explicitly | Task 1 |
+| § "Tests" L226-L227 | Eight new named samples cover course/exits/nits/stop/omissions; old expectations rewritten | Task 5 |
+| § "Tests" L226-L227 | All three text targets include menu file and updated facts before full runs | Task 5 |
+| § "Tests" L228 | Measure every edited gatekeep file and record authoring read-back before finish | Task 6 |
+| § "Tests" L229 | Repository structural lint, runtime checks and packed install pass | Verification |
+| § "Documentation impact" L233-L234 | README Architecture/blurb/settings/merge policy describe course and tunables | Task 6 |
+| § "Documentation impact" L233-L234 | Configuration examples, default normalization and both budget multipliers updated | Task 6 |
+| § "Documentation impact" L233-L234 | Unreleased changelog and verification instruction defaults agree with implementation | Task 6 |
+| § "Out of scope" L240-L245 | No new gatekeep setting, letter sub-options or preset course key | Task 3 |
+| § "Out of scope" L240-L245 | No cross-session continuation; entry rebase mechanics and verify guard counting unchanged | Task 3 |
+| § "Out of scope" L245 | Runtime guard stays single-multiplier; only shared default changes | Task 1 |
