@@ -1,7 +1,7 @@
 {
   "sample": "exempt-viewer-status-pending",
   "arm": "candidate",
-  "skillSha": "b2bca93d45668aa78b0cc753844f1462fae72227a8303187ba074dafcfe2398a",
+  "skillSha": "272bcfd81faa093f28e1704974e52b05496668f44798f16d167623eef014ab43",
   "inputSha": "8d078425d649473fd9c2d84b7c84921f6d12d136fbdc81457df8f3a14e2183f4",
   "kind": "text",
   "assembly": "concat",
@@ -17,16 +17,16 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "## Evidence resolution (Section B)\n\n**Resolved check set.** No `ci checks:` is configured, so the set is every check on `9c1e4f2`.\n\n| Check | Kind | Conclusion semantics | Binding |\n|---|---|---|---|\n| test_unit | check_run | `success`, satisfies | n/a (completed) |\n| build_image | check_run | `success`, satisfies | n/a (completed) |\n| lint | check_run | `skipped`, inert | n/a (completed) |\n| crew-approval | status_context | `PENDING`, pending | **not binding** |\n\n**Why `crew-approval` is not binding:**\n- `merge_state_status` is `UNSTABLE`. That is not `BLOCKED`, `UNKNOWN`, or `unreadable`.\n- The digest is the pre-menu state, so the refresh succeeded.\n- Its `kind` is `status_context`, not `unreadable`, and not a `check_run` that needs a completed matched run.\n- This is the exempt-viewer case: the viewer reads `UNSTABLE` on a `REVIEW_REQUIRED` PR.\n\n**Row walk (top-down):**\n- Opt-out: not configured.\n- Failed CI: zero blocking conclusions.\n- Held run: no `action_required` in the rollup or in `actions_runs`.\n- Pending: zero binding pending checks.\n- **CI-sufficient: matches.** There is at least one `success`, zero blocking conclusions, and zero binding pending checks.\n- Result: skip the local run. `source: ci`, `head_sha: 9c1e4f2`, checks test_unit and build_image `success` in run 7001.\n\n**Claims.** I took the supplied claim record as the complete step-3 disposition set. \"Tests cover the retry path\" is `matched` (test/feed/client.test.ts:12-40).\n\n**Reviewer.** SHIP with no Critical, Moderate, or Minor findings. That gives zero blockers and zero nits.\n\n**Scope.** `issue_ref: null` means `source: pr`, so there are no AC rows.\n\n**Merge preconditions:**\n- Non-draft, `MERGEABLE`, and not `BEHIND`, `BLOCKED`, or `UNKNOWN`.\n- No undispositioned failing check and no binding pending check.\n- Evidence is present for the exact head.\n- Viewer permission is `MAINTAIN`.\n- The merge policy is allowed.\n- The worktree is clean and synced.\n- No comment delta.\n\n`reviewDecision: REVIEW_REQUIRED` is not a gate precondition, and a non-`BLOCKED` value only leaves the row satisfied.\n\n**Template.** The first report is ready with course unset, so the final template applies. The PR belongs to someone else, so `approve` is available and recommended.\n\n---\n\n## Report and menu\n\n```\nDelivers: the tide-feed client retries a fetch once, bounded, when the feed returns 503.\n\nVerdict: mergeable - CI green on the assessed head (test_unit, build_image)\n\nPick one:\n1. merge - merge 9c1e4f2 with gh pr merge --match-head-commit using the resolved merge policy.\n2. approve - post an approving review on 9c1e4f2 for tlindqvist. [recommended]\n3. stop - remove the worktree, leave the PR as is.\n\nType a number; show evidence prints the full record.\n```\n\nThe following prints only under `show evidence`:\n- `crew-approval pending - not binding this viewer (merge_state_status UNSTABLE)`\n- `lint skipped - inert`\n- The CI record: test_unit and build_image `success` on 9c1e4f2, run https://github.com/harborline/tidewatch/actions/runs/7001\n- The matched claim\n",
-      "words": 402,
-      "wallMs": 22958,
+      "text": "## Evidence resolution (Section B)\n\n- **Resolved check set:** all checks on `9c1e4f2`, because no `ci checks:` filter is configured.\n  - `test_unit`: success\n  - `build_image`: success\n  - `lint`: skipped, which is inert\n  - `crew-approval`: pending\n- **Binding classification for `crew-approval`:** it is a `status_context`, and `merge_state_status` is `UNSTABLE`, not `BLOCKED`, `UNKNOWN` or `unreadable`. So it is **not binding** and withholds nothing. It prints only under `show evidence` as `crew-approval pending - not binding this viewer (merge_state_status UNSTABLE)`.\n- **Row walk:**\n  - Opt-out does not apply because no `local verification: always` is set.\n  - Failed CI does not apply because no check has a blocking conclusion.\n  - Held run does not apply because nothing is `action_required`.\n  - Pending does not apply because no check is binding and pending.\n- **Result: CI-sufficient.** There are 2 completed `success` checks, 0 blocking and 0 binding pending. No local run is needed: `source: ci`, head `9c1e4f2`, run 7001.\n- **Claims:** \"Tests cover the retry path\" is `matched` (test/feed/client.test.ts:12-40). Every material claim has a disposition.\n- **Scope:** `source: pr`, because `issue_ref` is null and there are no spec rows.\n- **Merge preconditions:** all hold.\n  - The reviewer verdict is SHIP with no Critical, Moderate or Minor findings, so there are 0 blockers and 0 nits.\n  - `mergeable` is `MERGEABLE`, and `UNSTABLE` is neither `BLOCKED` nor `BEHIND`.\n  - There is no comment delta.\n  - The viewer has `MAINTAIN`, and the merge policy is allowed.\n- **Template:** the first report is ready, so the gate uses **final** with the course unset. The viewer is not the author, so `approve` is available and recommended.\n\n---\n\n```\nEvidence: CI (source: ci) on 9c1e4f2 - run 7001 (tidewatch CI): test_unit success, build_image success, lint skipped; 0 binding pending; merge_state_status UNSTABLE\nDelivers: the tide-feed client retries a fetch once, bounded, when the feed returns 503.\n\nVerdict: mergeable - CI green on the assessed head (test_unit, build_image)\n\nPick one:\n1. merge - merge PR #412 at 9c1e4f2 with the configured merge policy.\n2. approve - approve PR #412 at 9c1e4f2 as rhee-ops; then cleanup or stop. [recommended]\n3. stop - leave the PR and the checkout at .worktrees/pr-412 (tlindqvist/tw-88-retry) as found.\n\nType a number; show evidence prints the full record (CI run 7001 on 9c1e4f2: test_unit success, build_image success, lint skipped; 0 binding pending; merge_state_status UNSTABLE).\n```\n",
+      "words": 354,
+      "wallMs": 24327,
       "mechanical": {}
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "Delivers: adds one bounded retry to the tide-feed client on HTTP 503, with tests covering the retry path.\n\nVerdict: mergeable - CI green on the assessed head (test_unit, build_image)\n\nPick one:\n1. merge - merge the assessed head into main.\n2. approve - approve this PR. [recommended]\n3. stop - leave .worktrees/pr-412 and local branch tlindqvist/tw-88-retry as found.\n\nType a number; show evidence prints the full record.\n",
-      "words": 63,
-      "wallMs": 8665,
+      "text": "Evidence: CI (source: ci), head 9c1e4f2, run 7001: test_unit success, build_image success, lint skipped; binding-pending count 0; merge_state_status UNSTABLE.\n\nDelivers: the tide-feed client retries once on a 503, with tests covering the retry path.\n\nVerdict: mergeable - CI green on the assessed head (test_unit, build_image)\n\nPick one:\n1. merge - merge the assessed head into main using the resolved merge policy.\n2. approve - approve this PR at the assessed head. [recommended]\n3. stop - leave the checkout and local branch as found.\n\nType a number; show evidence prints the full record (CI, head 9c1e4f2, run 7001: test_unit success, build_image success, lint skipped; binding-pending count 0; merge_state_status UNSTABLE).\n",
+      "words": 104,
+      "wallMs": 8901,
       "mechanical": {}
     }
   },
@@ -36,7 +36,7 @@
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
       "intentSha": "5d82dd30c53664bf000f34822ffc17ecb66d298ce6c5d8f23db53e37e962ee49",
       "baselineOutputSha": "3ab26767279bb611fa88389fec6949e0518bd15167a96c54dc432f9593e5f410",
-      "candidateOutputSha": "1796fc577fd81286862e0d5592f9c8874f7514a21809ddfdb0b0b2d46562f1b6",
+      "candidateOutputSha": "85b7ece937c99f5f18ab6ce47efcd19835d08dd13b104ef6251371f7dbc70083",
       "facts": {
         "f1": {
           "before": "holds",
@@ -64,8 +64,8 @@
           "label": "held"
         }
       },
-      "feedback": "No fact moved on this sample: both outputs resolve evidence to `source: ci` on 9c1e4f2 with test_unit and build_image green, offer merge with no wait row, keep crew-approval out of the report body and out of any blocker list (surfacing it only under `show evidence` as not binding this viewer), include approve for the non-author viewer, and never say another developer's approval is required. After is in fact slightly stronger on f4 and f5 because it states explicitly that approve is available because the PR belongs to someone else and that `reviewDecision: REVIEW_REQUIRED` is not a gate precondition; Before leaves the approve rationale implicit. Keep that explicit non-author sentence and the REVIEW_REQUIRED disclaimer in the final-template wording, and keep the `show evidence`-only line for the pending status_context exactly as both versions phrase it, so the exempt-viewer path stays stable while the shared menus.md final template is used.",
-      "wallMs": 20193,
+      "feedback": "No fact moved on this sample: both outputs resolve the evidence to CI on 9c1e4f2 via the CI-sufficient row, classify crew-approval as a non-binding status_context that surfaces only under show evidence, offer merge with no wait row, keep approve present and recommended for the non-author viewer, and never claim another developer's approval is required. The After wording does drift slightly toward risking f3: the rendered report now carries an inline 'Evidence:' line and a footer parenthetical that enumerate the check rollup ('0 binding pending; merge_state_status UNSTABLE') without naming crew-approval, while the Section B prose still says the 'crew-approval pending - not binding this viewer' line prints under show evidence; the two descriptions of show evidence's content are inconsistent. To keep f3 unambiguous under the shared final template, either have the footer's show-evidence summary include the crew-approval line verbatim or drop the parenthetical enumeration and say only 'show evidence prints the full record', so the pending status is described in exactly one place. The reordering to merge first with approve recommended second is fine for f2/f4 but consider matching menus.md's stated row order so the recommended row and the first row are not visibly split.",
+      "wallMs": 15986,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
@@ -73,7 +73,7 @@
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
       "intentSha": "5d82dd30c53664bf000f34822ffc17ecb66d298ce6c5d8f23db53e37e962ee49",
       "baselineOutputSha": "ce5a8ec22468b2ffee0a3cf0c694dfbcb70fb705cad5a8bb5f0ab52a2fdc73d7",
-      "candidateOutputSha": "aee974d8dc415667c329e4c86b7f798a20076dc69bbe917bc16dceea97982636",
+      "candidateOutputSha": "2eddd50cf51e47d3bc304041fb1cd4a3b103c342adb2f041e9bd031a0bbcfec9",
       "facts": {
         "f1": {
           "before": "holds",
@@ -101,10 +101,10 @@
           "label": "held"
         }
       },
-      "feedback": "After keeps every fact Before kept: the verdict line still resolves evidence to green CI on the assessed head (test_unit, build_image) rather than to the pending crew-approval status_context; the menu offers merge with no wait row placed first; approve is present and recommended for the non-author viewer; and no sentence anywhere claims another developer's approval is required. The crew-approval pending status is not surfaced as a blocker or under comments in either output. The one structural difference worth noting is that After demotes 'show evidence' from a numbered row (Before's row 3, which enumerated 'gate output, CI run, claim dispositions') to a trailing keyword hint; this does not break f3 as written, but it makes the 'appears only under show evidence as not binding this viewer' clause harder to verify from the rendered text alone. If you want f3 to stay robustly checkable under the shared menus.md templates, consider keeping a short descriptor on the show evidence hint (e.g. 'show evidence prints the full record, including non-binding status contexts') so a reader can see where the pending status lives without having to assume it. Otherwise the After wording delivers the Change cleanly here.",
-      "wallMs": 16125,
+      "feedback": "After keeps every fact Before kept: evidence resolves to CI on head 9c1e4f2 with the green required checks, merge is offered with no wait row ahead of it, crew-approval is never surfaced as a blocker or under comments (only reflected as 'binding-pending count 0' in the evidence record), approve is present and recommended for this non-author viewer, and nothing says another developer's approval is required. Two wording points worth tightening so the shared template stays robust: the full evidence record is printed twice (as the top 'Evidence:' line and again inside the 'show evidence' hint), which both clutters the report and drifts from the 'appears only under show evidence' intent of f3 - keep a single summary line in the verdict and reserve the full record (including an explicit 'crew-approval pending - not binding this viewer' entry) for the show evidence output; and the numbered 'show evidence' row from Before was demoted to a trailing sentence, so if the template relies on 'Type a number' alone, consider restoring it as a numbered row so the evidence path is selectable the same way as merge/approve/stop.",
+      "wallMs": 23837,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "1ecbdc725a2e6e93ab1e8a175c1f5ed819c6f7ae"
+  "repoSha": "c3ff2b163ec7c5c7ba230ad47594007afa771c51"
 }

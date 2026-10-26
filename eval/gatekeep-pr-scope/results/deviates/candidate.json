@@ -1,7 +1,7 @@
 {
   "sample": "deviates",
   "arm": "candidate",
-  "skillSha": "7cf05146e00f92775a89e33623dce5b345daae79b04ff1e65cc9e4b6d810912d",
+  "skillSha": "ba599d20cb6feb8cedec99b86e59685b0433d18715a635563ae986351037895a",
   "inputSha": "dd306c9a781c4cf16c8a5fa51f5e6253f1e28fa82e1120fde0c22501e63e7e93",
   "kind": "text",
   "assembly": "headed",
@@ -17,16 +17,16 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "Delivers: the reports page exports a compact CSV on demand, emails it to the requesting user, and records an export audit event. ACs 1, 3, 4, 5; 2 deviates per spec: the table has 40 columns, so the export includes the 12 visible-by-default columns (Design clause 3); 4's observable half (export completes under 5s on production data) is checked after merge, not here.\n\nNits:\n- The export pages results with its own loop instead of the shared paging helper, so a paging bug fixed once would need fixing twice. (src/api/export.ts:31, lib/page.ts)\n1 nit open - fix nits to take them\n\nVerdict: mergeable - CI green on the assessed head (test)\n\nPick one:\n1. merge - squash-merge PR 210 at the assessed head. [recommended]\n2. fix nits - run one repair pass on the 1 nit, push it, then return to this menu.\n3. stop - remove the worktree, leave the PR as is.\n\nNot offered: approve (your own PR)\nType a number; show evidence prints the full record.\n",
-      "words": 162,
-      "wallMs": 14403,
+      "text": "```\nEvidence: CI (source: ci) - check test success on the assessed head; 0 binding pending checks; merge_state_status CLEAN.\nDelivers: the reports page exports the 12 visible-by-default report columns as CSV on demand, emails the file to the requesting user, and writes an export audit event. ACs 1, 3, 4, 5; 2 deviates per spec: the table has 40 columns, so the export includes the 12 visible-by-default columns (Design clause 3); 4's observable half (export completes under 5s on production data) is checked after merge, not here.\n\nNits:\n- The export pages results with its own loop instead of the shared paging helper, so a paging bug fixed once would need fixing twice. (src/api/export.ts:31, lib/page.ts)\n1 nit open - fix nits to take them\n\nVerdict: mergeable - CI green on the assessed head (test)\n\nPick one:\n1. merge - squash-merge the PR at the assessed head. [recommended]\n2. fix nits - repair the 1 nit, push, re-check CI, then return to this menu.\n3. stop - remove the worktree, leave the PR as is.\n\nNot offered: approve (your own PR).\n\nType a number; show evidence prints the full record (CI: test success on the assessed head; 0 binding pending; merge_state_status CLEAN).\n```\n",
+      "words": 193,
+      "wallMs": 14119,
       "mechanical": {}
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "Delivers: The reports page downloads a 12-column CSV, emails it to the requesting user, and records an export audit event. ACs 1, 3, 4, 5; 2 deviates per spec: the table has 40 columns, so the export includes the 12 visible-by-default columns (Design clause 3); 4's observable half (completion under 5s on production data) is checked after merge, not here.\n\nNits:\n- The export pages results with its own loop instead of the shared paging helper, so a paging bug fixed once would need fixing twice. (src/api/export.ts:31, lib/page.ts)\n\n1 nit open - fix nits to take it\n\nVerdict: mergeable - CI green on the assessed head (test)\n\nPick one:\n1. merge - merge the assessed head into the base branch. [recommended]\n2. fix nits - repair the paging-loop nit through one delivery iteration.\n3. stop - leave the checkout and local branch as found.\n\nNot offered: approve (own PR).\n\nType a number; show evidence prints the full record.\n",
-      "words": 152,
-      "wallMs": 9431,
+      "text": "Evidence: CI (source: ci), assessed head (SHA not supplied), test success, 0 binding pending checks, merge_state_status CLEAN.\n\nDelivers: The reports page downloads and emails a 12-column CSV and records an export audit event. ACs 1, 3, 4, 5; 2 deviates per spec: the table has 40 columns, so the export includes the 12 visible-by-default columns (Design clause 3); 4's observable half (completion under 5s on production data) is checked after merge, not here.\n\nNits:\n- The export pages results with its own loop instead of the shared paging helper, so a paging bug fixed once would need fixing twice. (src/api/export.ts:31, lib/page.ts)\n\n1 nit open - fix nits to take it\n\nVerdict: mergeable - CI green on the assessed head (test)\n\nPick one:\n1. merge - merge the assessed head into the base branch. [recommended]\n2. fix nits - repair the paging-helper nit through one delivery iteration.\n3. stop - leave the checkout and PR as they are.\n\nType a number; show evidence prints the full record (CI (source: ci), assessed head (SHA not supplied), test success, 0 binding pending checks, merge_state_status CLEAN).\n",
+      "words": 176,
+      "wallMs": 9178,
       "mechanical": {}
     }
   },
@@ -36,7 +36,7 @@
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
       "intentSha": "7b2e3a5bfb39a71eb395266d96387edb730a79ef0afc6e33dc48f0fa35ffc691",
       "baselineOutputSha": "bbe9835fbb14118d42afda78699503d5bcf142cc05b3470f1e57ebce2758f338",
-      "candidateOutputSha": "28a42c52c0ce84a63993b2db4564e1b8f29f2bb40bdb79c3df833aa78cfb1134",
+      "candidateOutputSha": "4bf90065937ea2d5b1bc523622529f11547510b829e0aa3d6ed922ec54f87d5d",
       "facts": {
         "f1": {
           "before": "holds",
@@ -64,8 +64,8 @@
           "label": "held"
         }
       },
-      "feedback": "Nothing moved: After keeps the explicit row-2 deviation clause ('the table has 40 columns, so the export includes the 12 visible-by-default columns (Design clause 3)'), lists no blockers, still offers merge as the recommended row 1 with stop last, mints no blocker for the spec-deviating row, and posts nothing without a pick; show evidence correctly moved out of the numbered rows into the hint line, and 'Not offered: approve (your own PR)' is a sensible addition. One minor wording regression worth reverting: the Delivers opening sentence changed from 'exports a 12-column CSV' to 'exports a compact CSV', which drops the concrete column count from the summary and makes the reader rely on the later deviation clause to learn it—keep '12-column CSV' in the first sentence so the deviation is visible both in the summary and in the per-AC clause, while retaining the new shared-menu rows and hint exactly as written.",
-      "wallMs": 9817,
+      "feedback": "Nothing moved on this case: both outputs carry the same Delivers sentence naming AC2 as deviating per spec (40 table columns vs. the 12 visible-by-default columns, Design clause 3), neither lists a blocker or mints one for row 2, both offer merge=1 recommended with stop last and exactly one recommendation, show evidence stays in the hint rather than as a numeric row, and neither posts a tracker or PR comment before a pick. The After wording successfully migrated to the shared menu template (\"Pick one:\", the \"Not offered: approve (your own PR)\" line, and the evidence header) without disturbing scope verdicts; the only cosmetic drift worth watching is that the hint now restates the CI record inline, which slightly duplicates the Evidence line - trimming the hint to \"show evidence prints the full record\" would keep it a pure hint command and reduce the chance of it being read as a second evidence claim.",
+      "wallMs": 10655,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
@@ -73,7 +73,7 @@
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
       "intentSha": "7b2e3a5bfb39a71eb395266d96387edb730a79ef0afc6e33dc48f0fa35ffc691",
       "baselineOutputSha": "3a4053fb4181e6ffc4f3797e285e4a68d3e70a1b5bfa8536ba6306f5ff13eeb1",
-      "candidateOutputSha": "95760c8d26874eda7fbcd8063621c223e7bf2a700f74d8bd2adacd5790544027",
+      "candidateOutputSha": "7f643f1287cab97379c7f39c6e2989c2a92bf97e8f586c1520d00bb1f5c88ac9",
       "facts": {
         "f1": {
           "before": "holds",
@@ -101,10 +101,10 @@
           "label": "held"
         }
       },
-      "feedback": "Nothing moved on this case: After keeps the Delivers line naming row 2 as deviating per spec with the 12-vs-40 column reasoning (now quoting the spec's own wording plus the Design clause 3 pointer, which is a clean improvement), lists no blockers, keeps merge as the recommended numeric row, mints nothing for the deviated row, and posts no tracker or PR comment before a pick. The migration of show evidence out of the numeric menu into the trailing hint and the 'Not offered: approve (own PR)' line both land as the Change intended, and stop remains last. The only wording worth watching is the new '1 nit open - fix nits to take it' line between Nits and Verdict: it reads as a status hint rather than a blocker here, but keep it phrased so a reader never confuses an open nit count with a gate blocker (e.g. keep 'nit' in the line and never put it inside the Verdict line).",
-      "wallMs": 9486,
+      "feedback": "Nothing moved on this case: both outputs keep the Delivers line marking AC2 as deviating per spec (12 visible-by-default columns instead of all 40), list no blockers, offer merge as the recommended row, mint no blocker for row 2, and post nothing without a pick. After correctly applies the Change here - show evidence is demoted to the hint line, stop is last, and exactly one recommended row remains - so the menu migration preserved every fact Before held. Two small wording notes that do not affect facts: the full evidence record is printed twice (once as an Evidence line and again inside the hint), which you could collapse to a single Evidence line with the hint simply saying 'show evidence prints the full record'; and the standalone '1 nit open - fix nits to take it' line duplicates the Nits block and the fix-nits row, so it could be dropped or folded into the Nits heading without changing any fact.",
+      "wallMs": 10532,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "1ecbdc725a2e6e93ab1e8a175c1f5ed819c6f7ae"
+  "repoSha": "c3ff2b163ec7c5c7ba230ad47594007afa771c51"
 }

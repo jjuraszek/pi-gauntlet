@@ -1,7 +1,7 @@
 {
   "sample": "head-not-pushable",
   "arm": "candidate",
-  "skillSha": "855e6767472392928f9516b29cad11696b4c27e85aea07be2241858100f6e458",
+  "skillSha": "7000249ae090386f8ac8ecec04caa381acca801748789f61e7ff11a6f2b0cf89",
   "inputSha": "1f48c1c5e5f34bff4d77a384ba297186d636f529a9fe4494234b9b9374664c7a",
   "kind": "text",
   "assembly": "concat",
@@ -17,16 +17,16 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "# gatekeep-pr: PR 412, step 2b terminal stop\n\n## State at entry\n\nSteps 1 and 2 are done.\n\n- **Run record:** the continuation record was already minted before tracker initialization, via `mktemp \"${TMPDIR:-/tmp}/gatekeep-state.XXXXXX\"`. Its absolute path is in the first tracker task's name. Course is null and both usage counters are zero.\n- **Tracker init:** `plan_tracker init` created four stages because `--rebase` is present: `gather`, `provision`, `sync`, `verify`.\n- **Tracker status:** `gather` and `provision` are `complete`.\n- **Argument parse:** `412 --rebase` has no token after `--rebase`, so `<base>` is the digest's `baseRefName`, which is `main`.\n\n## Step 2b: sync preconditions (`reference/sync.md`), checked in order\n\n1. **Helper facility:** pi has the subagent facility, so this passes.\n2. **`permissions.head_pushable`:** the value is `false`. This is a terminal stop, and nothing else runs:\n   - No `git fetch origin main` runs. Precondition 3 is never reached, and the fetch is the only write allowed before this point.\n   - No rebase, no conflict-stop `implementer`, no sync `code-reviewer`, and no lease push.\n   - `## Baseline` (`gh pr view 412 --json headRefOid`) and the other-author confirmation are never reached. The author is the viewer, so that confirmation would not have applied anyway.\n\nTerminal-stop handling:\n\n- `plan_tracker`: the `sync` stage closes as `failed`.\n- Step 3 does not run. The `verify` stage stays pending, and no `review`, `report`, or `menu` stage is added.\n- No helper is dispatched. No `worker` (Verify) and no `code-reviewer` (Review) run.\n- **Verification SHA:** none. Verification never runs and no brief assesses any SHA. The worktree stays on the unsynced, unassessed head `7c1e9a2f4b0d6e8a1c3f5b7d9e0a2c4e6f8a0b1c`, tracked-clean.\n- The stop prints its reason and offers only `stop`, with `show evidence` in the hint line. `show evidence` would print the digest's head-dependent fields and the `sync` record.\n\n## Rendered output\n\n```text\nSync: stopped - head not pushable; this checkout cannot push to git@git.example.invalid:orchard/ledger.git:feature/ledger-rounding, so no rebase onto origin/main was attempted.\n\nVerdict: not ready - sync stopped before verification (cannot push to git@git.example.invalid:orchard/ledger.git:feature/ledger-rounding)\n\nPick one:\n1. stop - end the run, remove the gate's worktree if it is clean, and leave the PR as is. [recommended]\n\nType a number; show evidence prints the full record.\n```\n",
-      "words": 337,
-      "wallMs": 19634,
+      "text": "## Narration from the end of step 2\n\n**Tracker.** The continuation record was minted at invocation start. The tracker was then initialized with `plan_tracker init`: `gather, provision, sync, verify`. There are four stages because `--rebase` is present. `gather` and `provision` are `complete`.\n\n**Step 2b - sync** (`reference/sync.md`). Arguments `412 --rebase` name no base, so `<base>` is `baseRefName` = `main`.\n\nThe preconditions are checked in order:\n\n1. **Helper facility.** pi has the subagent facility, so this passes. No command runs.\n2. **`permissions.head_pushable`.** Step 2's dry-run push probe recorded it as `false`. That is a terminal stop: no rebase and no push.\n   - Precondition 3's `git fetch origin main` never runs. It is the only write allowed before this point, and it follows precondition 2.\n   - `## Baseline`, the other-author confirmation, `## Rebase`, `## Review before push`, `## Push` and `## Re-gather` are all skipped. The viewer is the author, so no confirmation would have been needed anyway.\n\nThe `sync` stage closes `failed`.\n\n**Commands run from here:** none. No `git`, `gh` or tracker-write command runs after step 2.\n\n**Helpers dispatched:** none.\n- No sync `implementer`, because there is no conflict stop.\n- No sync `code-reviewer`, because no head was rewritten.\n- No step-3 `worker`, because a terminal stop runs no step 3.\n- No step-4 `code-reviewer`.\n\n**Assessed SHA.** Verification and the brief assess nothing. Steps 3-5 do not run. The PR head stays `7c1e9a2f4b0d6e8a1c3f5b7d9e0a2c4e6f8a0b1c`, unsynced and 4 commits behind `origin/main` (`3f0b8d2`). `verify` stays `pending` and is never started. No later stage is added.\n\n**Rendered output.** Under a terminal stop, the menu offers only `stop`, and `show evidence` stays in the hint line.\n\n```text\nSync: stopped - head not pushable; this checkout cannot push to git@git.example.invalid:orchard/ledger.git:feature/ledger-rounding, so no rebase ran.\n\nVerdict: not ready - sync stopped: cannot push to git@git.example.invalid:orchard/ledger.git:feature/ledger-rounding\n\nPick one:\n1. stop - remove the worktree, leave the PR as is. [recommended]\n\nType a number; show evidence prints the digest's head-dependent fields and the sync record.\n```\n",
+      "words": 308,
+      "wallMs": 19665,
       "mechanical": {}
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "1. The invocation's continuation record was minted before tracker initialization with `mktemp \"${TMPDIR:-/tmp}/gatekeep-state.XXXXXX\"`. The tracker initialized `gather`, `provision`, `sync`, and `verify`, with the absolute state path in the first task's name. Gather and provision are complete; I start sync now.\n\n2. I check the sync preconditions in order. The pi helper facility is available. The next precondition fails: `permissions.head_pushable` is `false`. I record:\n   ```text\n   sync: stopped - cannot push to git@git.example.invalid:orchard/ledger.git:feature/ledger-rounding\n   ```\n   I close the `sync` tracker stage as `failed`.\n\n3. I run no commands from this point and dispatch no helpers. In particular, I do not fetch `origin/main`, check ancestry, rebase, review a rewritten head, or push. The failed pushability precondition stops the procedure before those operations. Same-author status and green CI do not bypass it.\n\n4. Step 3 never starts, and `verify` remains pending. Neither Verify nor Review assesses a SHA. The worktree remains clean at `7c1e9a2f4b0d6e8a1c3f5b7d9e0a2c4e6f8a0b1c`.\n\nNo report `Sync:` line renders because this terminal stop occurs before steps 3-5. The sync reason is recorded above.\n\nVerdict: not ready - cannot push to git@git.example.invalid:orchard/ledger.git:feature/ledger-rounding\n\nPick one:\n1. stop - end the gate without changing the PR. [recommended]\n\nType a number; `show evidence` prints the digest's head-dependent fields and the sync record.\n",
-      "words": 199,
-      "wallMs": 18845,
+      "text": "1. The continuation record was minted before tracker initialization with:\n   ```sh\n   mktemp \"${TMPDIR:-/tmp}/gatekeep-state.XXXXXX\"\n   ```\n   Its returned absolute path is recorded in the first tracker task as `state: <absolute-path>`. The initialized stages are `gather`, `provision`, `sync`, and `verify`. Gather and provision are complete; sync now starts.\n\n2. I check the sync preconditions in order. The pi helper facility is available. The next precondition fails: `permissions.head_pushable` is `false`, so the branch cannot be pushed to `git@git.example.invalid:orchard/ledger.git:feature/ledger-rounding`.\n\n3. I record `sync: stopped - cannot push to git@git.example.invalid:orchard/ledger.git:feature/ledger-rounding` and mark the sync stage `failed`. This is a terminal sync stop. I run no fetch, rebase, review, push, or pre-menu refresh, and dispatch no helpers. Verify remains pending; review and report tracker stages do not start.\n\nNeither verification nor the brief assesses a SHA. The checkout remains at `7c1e9a2f4b0d6e8a1c3f5b7d9e0a2c4e6f8a0b1c`; the existing successful CI check does not bypass the failed sync precondition.\n\nDelivers: The PR's stated intent is to round ledger totals half-up.\n\nSync: stopped - cannot push to git@git.example.invalid:orchard/ledger.git:feature/ledger-rounding\nVerdict: not ready - sync requires push permission on the PR branch\n\nPick one:\n1. stop - end the gate without changing the PR. [recommended]\n\nType a number; show evidence prints the digest's head-dependent fields and the sync record.\n",
+      "words": 198,
+      "wallMs": 17125,
       "mechanical": {}
     }
   },
@@ -36,7 +36,7 @@
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
       "intentSha": "f4ed3e4a436e10b2df2b57d7f97b1eac9883c1734659108e4721f92aae4ce52d",
       "baselineOutputSha": "601eff653c2f71c2d5ae625962e5c4607dcf1abe9e853b6f22b054f1a15151bd",
-      "candidateOutputSha": "7fa3cfa975cacae26cf685bc9a7c5c371e813c4963458184da4a8a2792739afb",
+      "candidateOutputSha": "29bd10a6a5d05d64da10d31ffe7a9b6aed077c390ac5ca56899128c4ba1f050c",
       "facts": {
         "f1": {
           "before": "holds",
@@ -59,8 +59,8 @@
           "label": "held"
         }
       },
-      "feedback": "No fact moved: After still stops at precondition 2 of step 2b, names the non-pushable head (with the exact push destination) as the reason, states explicitly that no rebase and no lease push run, dispatches no worker/code-reviewer, and closes the sync stage as failed with verify left pending. The Change is delivered in the menu shape: the ordinary two-row menu with a numeric show evidence row is replaced by a single stop row with show evidence in the hint line, matching the shared menus.md template and the menu-rows-omitted expectations. One thing to watch: After renders a `Verdict:` line even though it says no verification or report step ran, whereas Before deliberately omitted it; if the skill's report contract still ties `Verdict:` to a completed step-5 report, keep the `Sync: stopped - ...` line as the sole record and drop the Verdict line, which would preserve all four facts and the new menu template without implying a report that never ran.",
-      "wallMs": 10374,
+      "feedback": "After keeps every fact Before kept: the run still halts at precondition 2 with the non-pushable head (and its exact push destination) named as the reason, no rebase or push runs, no helper is dispatched, and `sync` closes `failed`. The new menu shape also delivers the Change correctly - `show evidence` moved to the hint line, `stop` is the single recommended row, no ordinary wait or delivery rows appear. Two small wording tensions worth tightening so later judges do not trip: After states 'no ... tracker-write command runs after step 2' and in the same breath says the `sync` stage closes `failed`, which is itself a tracker write - phrase it as 'no tracker write other than closing `sync` as `failed`'; and After now prints a `Verdict:` line where Before explicitly said none renders because step 5 never ran - either drop the `Verdict:` line or label it as a synthesized terminal-stop summary rather than a step-5 verdict. Also consider stating the stop row's worktree removal as conditioned on the tree being owned, tracked-clean and fully pushed (it is here), so the cleanup-ownership rules in the Change read as preserved rather than assumed.",
+      "wallMs": 11537,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
@@ -68,7 +68,7 @@
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
       "intentSha": "f4ed3e4a436e10b2df2b57d7f97b1eac9883c1734659108e4721f92aae4ce52d",
       "baselineOutputSha": "ab28aaf65c0a9108bd18a1bd48c52ad42d2017adb0cc69dde68b8466f9a7c2d8",
-      "candidateOutputSha": "c6d6db051eda7eff66f839f359db2b65b8bcbd7f72f2cb5f1414f8406d7439f0",
+      "candidateOutputSha": "cd5703e14d2f16fe5add1b3f1805c9e5982487bc9dd259130603fa8096aa9dc9",
       "facts": {
         "f1": {
           "before": "holds",
@@ -91,10 +91,10 @@
           "label": "held"
         }
       },
-      "feedback": "Nothing moved: both outputs stop at the sync precondition check, record the sync stage as failed with a reason naming the non-pushable head (After adds the exact push destination, which matches the menu-rows-omitted/f2 intent), and run no fetch, rebase, push, or helper dispatch. After also correctly moves show evidence into a hint and leaves stop as the only numeric, recommended row, consistent with the shared menus.md model. Two small points to watch so later cases keep their facts: After states 'No report Sync: line renders' even though it does print a verdict and menu — consider rendering the recorded `sync: stopped - ...` line in the report itself rather than only in a prior step, so readers find the reason in one place; and the verdict wording changed from 'fixable' to 'not ready' — that is fine here, but make sure the wording in the skill ties the verdict label to a defined vocabulary so it does not drift across cases.",
-      "wallMs": 12272,
+      "feedback": "After keeps every fact Before kept: the stop lands immediately after the precondition pass in step 2, the record names the non-pushable head (now with the exact push destination, which is stronger evidence for f1 than Before's bare 'head is not pushable'), no fetch/rebase/push runs, no helper is dispatched, and the sync stage is explicitly marked failed. The visible deltas from the Change are the shared-menu shape: show evidence demoted to a hint, stop as the single numeric row and recommended last, and a 'Delivers:' line. One minor softening worth tightening: Before said 'verify never starts' while After says 'Verify remains pending', which a careful reader could read as a deferred-not-cancelled stage; stating 'verify does not start on this terminal sync stop' would keep f4 unambiguous while preserving the new tracker wording. Otherwise no wording change is needed to retain these facts.",
+      "wallMs": 11176,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "1ecbdc725a2e6e93ab1e8a175c1f5ed819c6f7ae"
+  "repoSha": "c3ff2b163ec7c5c7ba230ad47594007afa771c51"
 }

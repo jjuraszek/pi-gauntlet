@@ -1,7 +1,7 @@
 {
   "sample": "deferred-without-ref",
   "arm": "candidate",
-  "skillSha": "7cf05146e00f92775a89e33623dce5b345daae79b04ff1e65cc9e4b6d810912d",
+  "skillSha": "ba599d20cb6feb8cedec99b86e59685b0433d18715a635563ae986351037895a",
   "inputSha": "37b30a648c9df5a061645d2ff541372dc0e6e0bcd4ce77841ee0f8894edc89f3",
   "kind": "text",
   "assembly": "headed",
@@ -17,16 +17,16 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "Delivers: the reports page exports CSV on demand. ACs 1, 2, 4; 5 deferred per spec to acme/widgets#46; 4's observable half (export completes under 5s on production data) is checked after merge, not here.\n\nNits:\n- The export pages through results with its own loop instead of the shared paging helper, so a paging bug fixed once would need fixing twice. (src/api/export.ts:31, lib/page.ts)\n\nBlockers:\n1. The spec defers email delivery only to \"a follow-up ticket\" without naming a ticket, spec, or URL, so nothing records where that row will land and no later delivery check can confirm it ships. The fix is to give that row and its Design clause a real tracker reference. (doc/specs/2026-09-30-csv-export.md, Acceptance criteria row 3 and Design item 4)\n\nVerdict: fixable - 1 blocker\n\nPick one:\n1. assess - post the review to the PR; then approve or stop, no repairs.\n2. deliver - repair the blocker, rebase on the base branch, watch CI, and repeat until merge is offered. [recommended]\n3. deliver with nits - deliver, and fold the 1 nit into the repairs.\n4. stop - remove the worktree and leave the PR as is.\n\nCourse holds until the final menu; `show evidence` prints the full record.\n\n---\n\nNotes on how I applied the skill:\n\n- **Why this is not the final menu.** The first report is not ready, so the course stays unset and the initial template applies.\n  - Row 3 is `deferred: a follow-up ticket for email delivery`. That is prose, not a tracker reference, spec path, or URL, so its `ref` is empty.\n  - Under `findings.md` `## AC outcomes`, a deferral with an empty `ref` is a `gap` blocker.\n  - Design item 4 repeats the same defect. I rendered it as one blocker with both locators.\n- **Row 5 is settled.** It defers to acme/widgets#46, so it counts as `deferred per spec`.\n- **Row 4 is covered.** The 100-row page cap and 4s deadline are tested with a controlled clock, which covers the mechanism half. The production-data half is checked after merge and blocks nothing.\n- **Recommendation.** You are the author, so `deliver` is recommended.\n- **Omitted lines.** The `1 nit open - fix nits to take them` line is left out because the `fix nits` row renders only on the final template.\n- **Evidence-only details.** These print only under `show evidence`:\n  - the CI `test` success on the assessed head;\n  - the matched claim \"adds tests for the CSV handler\";\n  - the per-row AC outcomes;\n  - `cross-check: matched` (the ticket rows equal the spec rows).\n- **The fix may stop early.** The blocker's payload needs a real ticket reference. If none exists yet, a delivery wave would return `open - needs a tracker reference for the email-delivery follow-up` and exit as an obstacle rather than invent one.\n\nPick: none. No external command runs.\n",
-      "words": 449,
-      "wallMs": 25047,
+      "text": "Delivers: the reports page exports CSV on demand. ACs 1, 2, 4; 5 deferred per spec to acme/widgets#46; 4's observable half (export completes under 5s on production data) is checked after merge, not here.\n\nNits:\n- The export pages results with its own loop instead of the shared paging helper, so a paging bug fixed once would need fixing twice. (src/api/export.ts:31, lib/page.ts)\n\nBlockers:\n1. The spec defers email delivery to a follow-up ticket without naming a ticket, spec, or URL. Nothing records where that requirement went, so it can be dropped without anyone noticing. (doc/specs/2026-09-30-csv-export.md)\n\nVerdict: fixable - 1 blocker\n\nPick one:\n1. assess - post the review to the PR; then approve or stop, no repairs.\n2. deliver - repair blockers, rebase on main, watch CI, repeat until merge is offered. [recommended]\n3. deliver with nits - deliver, and fold the 1 nit into the repairs.\n4. stop - remove the worktree, leave the PR as is.\n\nCourse holds until the final menu; `show evidence` prints the full record.\n",
+      "words": 164,
+      "wallMs": 16110,
       "mechanical": {}
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "Delivers: The reports page downloads on-demand CSV exports with every table column and bounded paging. ACs 1, 2, 4; 5 deferred per spec to acme/widgets#46; 4's observable half (completion under 5s on production data) is checked after merge, not here.\n\nNits:\n- Export paging uses its own loop instead of the shared paging helper, so paging fixes would need to be maintained twice. (src/api/export.ts:31, lib/page.ts)\n\nBlockers:\n1. Email delivery is deferred without a ticket, spec, or URL reference, so the deferral does not settle that requirement. Name a concrete deferral reference in the spec. (doc/specs/2026-09-30-csv-export.md:14)\n\nVerdict: fixable - 1 blocker\n\nPick one:\n1. assess - post the review to the PR; then approve or stop, no repairs.\n2. deliver - repair blockers, rebase on main, watch CI, repeat until merge is offered. [recommended]\n3. deliver with nits - deliver, and fold the 1 nit into the repairs.\n4. stop - remove the worktree, leave the PR as is.\n\nCourse holds until the final menu; `show evidence` prints the full record.\n",
-      "words": 164,
-      "wallMs": 14051,
+      "text": "Delivers: The reports page offers on-demand CSV downloads with bounded paging and a deadline. ACs 1, 2, 4; 5 deferred per spec to acme/widgets#46; 4's observable half (completion under 5s on production data) is checked after merge, not here.\n\nNits:\n- The export pages results with its own loop instead of the shared paging helper, so a paging bug fixed once would need fixing twice. (src/api/export.ts:31, lib/page.ts)\n\nBlockers:\n1. Email delivery is deferred without a ticket, spec path, or URL, so the deferral needs a concrete reference before merge. (doc/specs/2026-09-30-csv-export.md, AC3)\n\nVerdict: fixable - 1 blocker\n\nPick one:\n1. assess - post the review to the PR without repairs.\n2. deliver - repair blockers, sync the branch, and watch CI until merge is offered. [recommended]\n3. deliver with nits - deliver and include the paging-helper nit in the repairs.\n4. stop - remove the eligible worktree and leave the PR as is.\n\nCourse holds until the final menu; `show evidence` prints the full record.\n",
+      "words": 158,
+      "wallMs": 12823,
       "mechanical": {}
     }
   },
@@ -36,7 +36,7 @@
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
       "intentSha": "7b2e3a5bfb39a71eb395266d96387edb730a79ef0afc6e33dc48f0fa35ffc691",
       "baselineOutputSha": "617a8b81fcaa72285257d888b6b001e48c8999a87ef98aca0f94ee141f3d0efc",
-      "candidateOutputSha": "0d25246dd5ccec9494e4d836bac69011ca54d59784c20f744a861076e9c75a06",
+      "candidateOutputSha": "854e988bbc784f9727295770dc120a33fec794dcf36a41da025871abe6dba6c1",
       "facts": {
         "f1": {
           "before": "holds",
@@ -64,8 +64,8 @@
           "label": "held"
         }
       },
-      "feedback": "No fact moved: After still mints exactly one gap blocker for row 3 (naming the missing ticket/spec/URL, now with both the AC row and Design item 4 as locators), leaves row 5 settled as deferred to acme/widgets#46, offers no merge row, and posts nothing with pick none. The migration to the persistent assess/deliver/deliver-nits/stop courses with show evidence demoted to the hint line and stop last is delivered cleanly. Two wording notes for the author: the long 'Notes on how I applied the skill' block after the menu is useful rationale but lives outside the template and could confuse a reader about where the report ends - consider folding it under show evidence or dropping it; and the deliver row's 'repeat until merge is offered' is fine as a description of the course, but keep it phrased as a future offer so f3 stays unambiguous.",
-      "wallMs": 9643,
+      "feedback": "No fact moved: both outputs mint exactly one blocker for the AC3 email deferral (unnamed follow-up, no ticket/spec/URL), none for AC5 which is correctly attributed to acme/widgets#46, neither menu offers merge, and nothing is posted with no pick. The After menu migration to assess/deliver/deliver-with-nits/stop with `show evidence` demoted to the hint line is consistent with the Change. Two small wording regressions worth restoring: the After blocker citation dropped the explicit `AC3` tag that Before carried next to the spec path, which is what lets a reader tie the gap to row 3 at a glance, and the nits section lost the `1 nit open` count that the `deliver with nits` row now references by number. Also consider rephrasing row 2's `repeat until merge is offered` to something like `repeat until the PR is ready` so a hurried reader does not mistake the menu for offering merge.",
+      "wallMs": 12849,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
@@ -73,7 +73,7 @@
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
       "intentSha": "7b2e3a5bfb39a71eb395266d96387edb730a79ef0afc6e33dc48f0fa35ffc691",
       "baselineOutputSha": "66b8e819f64b51c49291d2714186e5a934fb95dfe40679d8990f5c42f9e46247",
-      "candidateOutputSha": "f2662881dc78ea72b42bf87e7567c155ec8e7b9c20ffda0c67beb524389cf377",
+      "candidateOutputSha": "70afd47a0837cf3ea68c6bb54f26a9cb9258db0b65dad44f40d434bca697301c",
       "facts": {
         "f1": {
           "before": "holds",
@@ -101,10 +101,10 @@
           "label": "held"
         }
       },
-      "feedback": "Nothing moved: both outputs mint exactly one blocker for the email deferral (row 3) and none for row 5, the gate reads \"1 blocker\", neither menu offers merge, and no comment is posted before a pick. After delivers the Change cleanly — the review/show-evidence/stop wait menu becomes the persistent assess/deliver/deliver-with-nits/stop courses, stop is last, exactly one row is recommended, and show evidence is demoted to the trailing hint line rather than a numeric row. The only wording worth keeping an eye on is the Before menu's explicit \"Not offered: merge (1 blocker remains)\" footer, which After drops; f3 still holds because merge simply isn't listed, but if you want the absence of merge to remain explicit for readers, append a short \"merge is not offered while a blocker remains\" clause to the hint line without reintroducing it as a numeric row.",
-      "wallMs": 11628,
+      "feedback": "Nothing moved: After keeps the single AC3 blocker (now helpfully tagged with AC3), keeps row 5 deferred to acme/widgets#46 without minting a blocker, posts nothing before a pick, and the migrated menu has no merge row, with show evidence demoted to the hint and stop last with exactly one recommendation, as the Change intended. One wording risk worth tightening: the deliver row's phrase 'watch CI until merge is offered' is the only place 'merge' appears, and a hurried reader could take it as merge being on the menu; consider 'watch CI until the branch is mergeable' or keep a short 'Not offered: merge (1 blocker remains)' line after the hint so f3 stays unambiguous while the persistent-course menu and menus.md template are preserved.",
+      "wallMs": 10228,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "1ecbdc725a2e6e93ab1e8a175c1f5ed819c6f7ae"
+  "repoSha": "c3ff2b163ec7c5c7ba230ad47594007afa771c51"
 }
