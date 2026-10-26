@@ -72,11 +72,11 @@ Re-assess from steps 1-5 with the same record; substitute the answer at that ask
 
 ## Summary and menu round
 
-The parent alone renders menus, prints reports verbatim, gathers answers, and runs cleanup/stop consequences. Render in roster order:
+The parent alone renders menus, gathers answers, and runs cleanup/stop consequences. Print each supplied child report file verbatim in roster order. Never rewrite, correct, or reconcile a child's report: preserve spelling, counts, verdict wording, missing lines, and off-contract lines, including under show evidence; add no corrections block or inserted report lines. Render summary rows in roster order:
 
 `#<N> <verdict line> | evidence: <ci | local | pending | unknown> | blockers: <count | unknown>`
 
-Use report Verdict text, `conflicting - <sync record>`, `failed - <reason>`, or `stopped - <ask>`. Evidence is the record's resolved source; use unknown before Verify. Count open P# findings; use unknown without review. Follow with `Shared files:` and every changed path shared by two or more PRs, `<path> - #<N>, #<M>`. Include `#<N> - files unknown` for missing gathered files; print `none` when no path overlaps. Never schedule merges or choose landing order.
+Use the child's supplied Verdict text unchanged, `conflicting - <sync record>`, `failed - <reason>`, or `stopped - <ask>`. Express a pending binding check only in that PR's queued menu: describe watching the check in its deliver row and print `Not offered: merge (<check> pending)`; leave the supplied verdict unchanged. Evidence is the record's resolved source; use unknown before Verify. Count open P# findings; use unknown without review. Follow with `Shared files:` and every changed path shared by two or more PRs, `<path> - #<N>, #<M>`. Include `#<N> - files unknown` for missing gathered files; print `none` when no path overlaps. Never schedule merges or choose landing order.
 
 Render each child's template from `menus.md` in roster order: report plus its template rows, conflicts with existing conflict rows and evidence, failures with retry/evidence/stop, STOPPED with the recorded ask and stop last. For retry use exactly `retry - re-dispatch this PR's assessment with the same record`, recommended only after clean recovery and no rebase. Resolve the actual gitdir with git (a worktree .git can be a file); require empty `git -C <worktree> status --porcelain` and neither rebase-merge nor rebase-apply there. Otherwise omit the row and print `Not offered: retry (worktree dirty or mid-rebase: <state>)`.
 

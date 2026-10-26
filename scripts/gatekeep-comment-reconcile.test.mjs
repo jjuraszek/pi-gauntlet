@@ -158,6 +158,24 @@ for (const [sample, ids] of [
   });
 }
 
+test('batch rendering preserves child reports and confines pending checks to menus', () => {
+  const round = section(batch, '## Summary and menu round\n', '## Between batches and retirement\n');
+  assert.match(round, /Print each supplied child report file verbatim in roster order/);
+  assert.match(round, /child's supplied Verdict text unchanged/);
+  assert.match(round, /Never rewrite, correct, or reconcile a child's report/);
+  assert.match(round, /off-contract lines.*show evidence/);
+  assert.match(round, /pending binding check only in that PR's queued menu/);
+  assert.match(round, /Not offered: merge \(<check> pending\)/);
+});
+
+test('obstacle menus resume without cap extension below both caps', () => {
+  const obstacle = section(menus, '## obstacle\n', '## contract exception\n');
+  assert.match(obstacle, /Keep the `Delivers:` line/);
+  assert.match(obstacle, /deliver - resume the retained course; <one clause naming what retries>, no round charged/);
+  assert.match(obstacle, /Append.*only when.*counter is at its cap/);
+  assert.match(obstacle, /otherwise extend neither cap/);
+});
+
 test('multi-PR terminal picks stay parent-owned after worktree cleanup', () => {
   const round = section(batch, '## Summary and menu round\n', '## Between batches and retirement\n');
   assert.match(round, /For terminal overlays, the parent handles `post coverage to ticket`, `post coverage to PR`, and `show evidence` from the primary checkout/);
