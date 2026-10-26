@@ -29,6 +29,8 @@
 
 Initial BASE: `1dbc90b5`. Initial per-file inventory: `?? doc/plans/2026-10-26-gh-89-pr-list-rework-subject.md`; this exact plan path was admitted. The approved spec path was also allowed but had no status entry. No other path was dirty or admitted. Executed every task's Tests command unchanged: Tasks 1, 4 and 6 each ran 33 tests; Task 2 ran 23; Task 3 ran 1; Task 5 ran 14. All six executions exited 0 with tests executed. After each execution, HEAD remained `1dbc90b5` and status remained only the untracked plan; no generated artifacts or contamination occurred.
 
+Amendment BASE: `c23c02fe`. Initial per-file inventory: empty (clean worktree); only `doc/plans/2026-10-26-gh-89-pr-list-rework-subject.md` and `doc/specs/2026-10-26-gh-89-pr-list-rework-subject.md` were admitted, with no in-flight paths. The endpoint-tree proof `git diff --quiet 1dbc90b5 c23c02fe -- . ':!doc/specs/' ':!doc/plans/'` exited 1, so no evidence was retained. Reran all six task Tests commands unchanged: Tasks 1, 4 and 6 each ran 34 tests; Task 2 ran 37; Task 3 ran 1; Task 5 ran 14. Every execution exited 0 with tests executed. After each run HEAD remained `c23c02fe` and status was empty; no generated artifacts or contamination occurred.
+
 ## Files
 
 **Modify - instructions:**
@@ -96,7 +98,7 @@ Tasks 1-3 own disjoint files and test fixtures. They use no shared mutable runti
 
 **Tests:**
 - `node --test scripts/brainstorming-contract.test.mjs`
-- baseline: 1dbc90b5 pass
+- baseline: c23c02fe pass
 - via: `skills/using-git-worktrees/reference/pr-head.md` provisioning, recovery and unresolved-threads recipe
 
 Decision: reuse `pr-head.md:48-63` helper/completion checks and documented scoped-runner selection. Resolve BASE_SHA before any member helper needs fetched-base overrides. Member failure stops; base failure retains the existing unresolved-merge plan continuation.
@@ -137,7 +139,7 @@ Decision: reuse `pr-head.md:48-63` helper/completion checks and documented scope
 
 **Tests:**
 - `node --test scripts/finish-verification.test.mjs`
-- baseline: 1dbc90b5 pass
+- baseline: c23c02fe pass
 - via: `skills/finishing-a-development-branch/SKILL.md` Step 1, preflight and PR-subject row 1
 
 Decision: retain the existing inline recipe and sample's full-skill `bundle+` loading. Keep the modified paragraphs and close-question block within 500 total lines by removing blank-line padding inside the touched units, not by deleting rules. This preserves a baseline-loadable assembly (`eval/run.mjs:185-217`).
@@ -170,7 +172,7 @@ Decision: retain the existing inline recipe and sample's full-skill `bundle+` lo
 
 **Tests:**
 - `node --test scripts/brief-contract-lint.test.mjs`
-- baseline: 1dbc90b5 pass
+- baseline: c23c02fe pass
 - via: `skills/gauntlet-resume/reference/brief-contract.md` Producers and Process-state restore
 
 Decision: grammar remains solely in `brief-contract.md`, as `scripts/brief-contract-lint.test.mjs:7-48` requires; handoff links it rather than inlining the layout. Reconstruction reads candidate contents before choosing (`reconstruction.md:33-45`); use their record and Problem metadata to filter member-carried paths before the multi-spec prompt, without treating artifact presence as approval.
@@ -191,7 +193,7 @@ Depends on Wave 1: Task 4 consumes the ordered provisioning/report contract and 
 
 **TDD scenario:** Modifying tested code - write wording and input-sensitive record tests before replacing scalar instructions.
 
-**Spec:** doc/specs/2026-10-26-gh-89-pr-list-rework-subject.md § "Acceptance criteria" L31-L32, § "Acceptance criteria" L33-L34, § "Acceptance criteria" L35-L36, § "Acceptance criteria" L37-L38, § "Acceptance criteria" L41-L42, § "Acceptance criteria" L43-L44, § "Acceptance criteria" L51-L52, § "Acceptance criteria" L56, § "Design" L62, § "Design" L64, § "Design" L66-L75, § "Design" L77, § "Design" L79, § "Design" L83, § "Design" L101, § "Design" L105, § "Design" L109-L132, § "Design" L134, § "Design" L136, § "Errors and edge cases" L170, § "Errors and edge cases" L173, § "Errors and edge cases" L176, § "Errors and edge cases" L177, § "Tests" L181, § "Tests" L183, § "Out of scope" L217, § "Out of scope" L218
+**Spec:** doc/specs/2026-10-26-gh-89-pr-list-rework-subject.md § "Acceptance criteria" L31-L32, § "Acceptance criteria" L33-L34, § "Acceptance criteria" L35-L36, § "Acceptance criteria" L37-L38, § "Acceptance criteria" L41-L42, § "Acceptance criteria" L43-L44, § "Acceptance criteria" L51-L52, § "Acceptance criteria" L56, § "Design" L62, § "Design" L64, § "Design" L66-L75, § "Design" L77, § "Design" L79, § "Design" L83, § "Design" L101, § "Design" L105, § "Design" L109-L132, § "Design" L134, § "Design" L136, § "Design" L162, § "Errors and edge cases" L170, § "Errors and edge cases" L173, § "Errors and edge cases" L176, § "Errors and edge cases" L177, § "Tests" L181, § "Tests" L183, § "Out of scope" L217, § "Out of scope" L218
 
 **Files:**
 - Modify: `skills/brainstorming/SKILL.md:3-19`
@@ -219,8 +221,10 @@ Depends on Wave 1: Task 4 consumes the ordered provisioning/report contract and 
 
 **Tests:**
 - `node --test scripts/brainstorming-contract.test.mjs`
-- baseline: 1dbc90b5 pass
+- baseline: c23c02fe pass
 - via: `skills/brainstorming/reference/pr-subject.md` leading-run grammar and record; `skills/brainstorming/reference/spec-finalization.md` input-sensitive inline lint
+
+L162 ownership here is limited to the gather/record producer paths for member-carried specs in `## Problem`; Task 3 retains consumer ownership of `## Process-state restore` and reconstruction.
 
 Decision: no production parser module is required. These are model-read contracts: use `text.includes`/regex wording checks plus a test-local set-completeness fixture, not new runtime machinery. Preserve ordered `gh pr view` then `gh issue view`; an isolated issue keeps the ticket path.
 
@@ -291,7 +295,7 @@ Depends on Waves 1-2: all instructions and sample contracts must exist before as
 
 **Tests:**
 - `node --test eval/lib/lint.test.mjs`
-- baseline: 1dbc90b5 pass
+- baseline: c23c02fe pass
 - via: `lintTarget()` and the existing `eval/run.mjs` text-target assembly contract
 
 Decision: keep existing target.json selections and use sample-local `bundle+` for already-existing owners, matching current PR samples. `for:` binds the bundle-free assembly SHA, not a commit; the runner's mismatch refusal prints the current value before model calls. No preparatory `--base` commit is needed. A text replay demonstrates instruction following on supplied observations, not live GitHub correctness.
@@ -322,7 +326,7 @@ Depends on Waves 1-3: Task 6 describes the implemented workflow and closes READM
 
 **Tests:**
 - `node --test scripts/brainstorming-contract.test.mjs`
-- baseline: 1dbc90b5 pass
+- baseline: c23c02fe pass
 - via: `README.md` What a run looks like and the predecessor supersession banner
 
 Decision: the predecessor banner already satisfies the spec (`doc/specs/2026-10-23-gh-78-pr-as-brainstorm-subject.md:3`); assert and preserve without another write. Design explicitly requires an Unreleased note now; Documentation impact defers release, not the note. No version bump.
@@ -373,7 +377,7 @@ Decision: the predecessor banner already satisfies the spec (`doc/specs/2026-10-
 | § "Design" L148-L154 | One instantiated close question and exact target comments | Task 2 |
 | § "Design" L156 | Fresh authorization, no retry/delete, per-member outcomes and N=1 | Task 2 |
 | § "Design" L160 | Canonical plural brief grammar and producer copy order | Task 3 |
-| § "Design" L162 | Home-only branch lookup, ordered identity check and member-spec exclusion | Task 3 |
+| § "Design" L162 | Home-only branch lookup, ordered identity check and member-spec exclusion (Task 3 consumer); gather/record member-carried spec paths in Problem (Task 4 producer only) | Task 3, Task 4 |
 | § "Design" L166 | README steps, scoped predecessor banner and Unreleased note | Task 6 |
 | § "Errors and edge cases" L170 | No writes on preflight failure and appropriate remedy | Task 4 |
 | § "Errors and edge cases" L171 | Repaired/unresolved conflicts and interrupted-run recovery | Task 1 |

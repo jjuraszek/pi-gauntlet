@@ -1,6 +1,6 @@
 ---
 name: brainstorming
-description: "Use only when the user explicitly requests brainstorming or selects a handoff into it; the subject is a free prompt, one tracker ticket, or one open PR (`#N`, `owner/repo#N`, PR URL) reworked on its own branch."
+description: "Use only when the user explicitly requests brainstorming or selects a handoff into it; the subject is a free prompt, one tracker ticket, or one open PR or a leading list of related open PRs reworked on the home PR's branch."
 disable-model-invocation: true
 ---
 
@@ -18,7 +18,7 @@ You **may** read code/docs, run the existing system to observe current behavior,
 
 You may **not** write outside the resolved spec dirs; build, deploy, validate, or exercise the proposed change; run implementation skills; commit the spec on `main`; or start `/skill:writing-plans`.
 
-For a PR subject, the base merge in `using-git-worktrees/reference/pr-head.md` - its merge commit, its conflict helper's edits to the conflicted files, and its scoped conflict tests - is the one pre-approval write and run outside the spec dirs; nothing else moves.
+For a PR subject, the base merge and each admitted member-head merge, their conflict helpers' edits to the conflicted files, and their scoped conflict tests in `using-git-worktrees/reference/pr-head.md` are the sole pre-approval writes and runs outside the spec dirs; nothing else moves.
 
 The line: current-system observation is research; exercising the proposed change waits for approval.
 
@@ -44,7 +44,7 @@ Work through the items below **in order**. After a user answer or completed side
    phase_tracker({ action: "start", phase: "brainstorm" })
    ```
 
-2. **Set up the worktree** - resolve a tracker reference first per `reference/pr-subject.md`; pass a PR subject's head to `/skill:using-git-worktrees`' PR-head path. Then see [Worktree First](#worktree-first).
+2. **Set up the worktree** - resolve the leading run per `reference/pr-subject.md`; pass the ordered per-PR array (home first) to `/skill:using-git-worktrees`' PR-head path. Then see [Worktree First](#worktree-first).
 3. **Gather context** - read [Ticket Handling](#ticket-handling), then follow [`gatherer.md`](gatherer.md) without a human stop.
 4. **Understand the idea against the draft** - if `reference/ticket-acceptance.md` is not already in context this session (restored entry, or a redraw after a fresh start), read [Ticket Handling](#ticket-handling) before the rest of this step; then see [Understand the idea](#3-understand-the-idea).
 5. **Propose 2-3 approaches** - see [Explore approaches](#4-explore-approaches).

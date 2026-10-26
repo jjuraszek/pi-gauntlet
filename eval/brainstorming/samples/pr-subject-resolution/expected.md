@@ -6,3 +6,4 @@ anonymized: true
 - mention: judged: Mention stays free text with context-builder for #55 and never takes PR provisioning.
 - foreign: judged: Foreign stops before provisioning and names both other/widget and acme/widget.
 - binding: judged: Bound selects #12 from title before body's first line, preserves #12 ACs, names #13 as Problem context, ignores branch and closingIssuesReferences #99 for binding, and retains the bound-ticket filename rule.
+- trailing-context: judged: Resolve only #12; carry fix the retry path, see #13 for context as intent and perform no lookup of #13.

@@ -393,12 +393,12 @@ test('PR routing follows reset and preserves the named pre-approval merge except
   const step = text.match(/^2\. .*/m)[0];
   assert.match(step, /reference\/pr-subject.md/);
   assert.ok(text.indexOf('phase_tracker({ action: "reset" })') < text.indexOf(step));
-  for (const marker of ["its conflict helper's edits to the conflicted files", 'scoped conflict tests', 'PR-head path', "PR's diff as the ask", 'spec commit is appended', 'YYYY-MM-DD-pr-<N>-<topic>.md']) assert.ok(text.includes(marker), marker);
+  for (const marker of ['scoped conflict tests', 'PR-head path', "PR's diff as the ask", 'spec commit is appended', 'YYYY-MM-DD-pr-<N>-<topic>.md']) assert.ok(text.includes(marker), marker);
 });
 
 test('PR scout receives authoritative base values and emits repair evidence', () => {
   const text = read('skills/brainstorming/gatherer.md');
-  for (const marker of ['git show <BASE_SHA>:<path>', 'git diff --name-only <BASE_SHA>...<PRE_REWORK_HEAD>', 'PR title and body verbatim', 'PR-carried specs', 'full comment threads', 'threads: not fetched (<reason>)', 'smallest repair', 'keeps:', 'changes:', 'dropped claims:', 'constraints added since fork:', 'fix | keep open | decline: <reason>', 'context-builder only for the bound ticket']) assert.ok(text.includes(marker), marker);
+  for (const marker of ['git show <BASE_SHA>:<path>', 'git diff --name-only <BASE_SHA>...HEAD', 'PR title and body verbatim', 'PR-carried specs', 'full comment threads', 'threads for #<N> not fetched (<gh error>)', 'smallest repair', 'keeps:', 'changes:', 'dropped claims:', 'constraints added since fork:', 'fix | keep open | decline: <reason>', 'context-builder only for the bound ticket']) assert.ok(text.includes(marker), marker);
   assert.match(text, /## Codebase recon[\s\S]*?## PR under rework[\s\S]*?## External context/);
 });
 
@@ -453,4 +453,62 @@ test('PR-head provisioning validates and recovers admitted member heads before b
   assert.ok(text.indexOf('BASE_SHA=$(git') < text.indexOf('## Merge admitted member heads'));
   assert.doesNotMatch(text, /On fetch failure carry/);
   assert.doesNotMatch(text, /For members whose original heads are already ancestors without a recognized merge/);
+});
+
+test('leading PR lists admit in order and keep every retained contract', () => {
+  const subject = read('skills/brainstorming/reference/pr-subject.md');
+  for (const marker of ['leading run', 'whitespace or commas', 'first token that is not a ref',
+    '#12 #13 #14', '#12, #13 tighten the retry path', '#12 fix the retry path, see #13 for context',
+    '#13 is MERGED; only an open PR can be reworked.',
+    '#13 is an issue, not a pull request; a list admits only PRs. Drop #13 from the list, or brainstorm it alone as a ticket.',
+    '#13 targets release-2 but home #12 targets main; mixed bases are not admitted.',
+    '#13 is listed twice; list each PR once.',
+    'To rework these together anyway, merge the heads into one branch by hand, open one PR, and brainstorm that PR.',
+    'gh pr diff <N> -R <owner/repo>', 'Recommendation:', 're-ask once',
+    'MEMBER_HEADS', 'Threads: none', '### PR #<N>', 'lowercase', 'N=1']) assert.ok(subject.includes(marker), marker);
+  assert.match(subject, /PR: <owner\/repo#N> - <title>\nPre-rework head: <40-char sha>\nThreads:\n/);
+  assert.ok(subject.indexOf('Threads: none\nBase:') < subject.indexOf('### PR #<N> - <title>\nkeeps:'));
+  assert.match(subject, /only for foreign-repository, fork, and mixed-base failures/);
+  assert.match(subject, /lowercase owner\/repo identities/);
+  assert.match(subject, /resolved repository and number, including URL\/bare duplicates/);
+  assert.match(subject, /extract no member AC rows/);
+  assert.ok(subject.includes("git show <that PR's headRefOid>:<path>"), 'carried-spec contents use their owning original head');
+  assert.ok(subject.includes('attributed original-head text separately from the combined worktree code input'), 'scout receives distinct claim and code inputs');
+  const attributionCase = read('eval/brainstorming/samples/pr-list-per-pr-attribution/case.md');
+  const attributionExpected = read('eval/brainstorming/samples/pr-list-per-pr-attribution/expected.md');
+  for (const marker of ['doc/specs/retry-cap.md', 'at most five attempts', 'at most three attempts']) {
+    assert.ok(attributionCase.includes(marker), `attribution setup: ${marker}`);
+    assert.ok(attributionExpected.includes(marker), `attribution expectation: ${marker}`);
+  }
+  assert.match(main(), /one open PR or a leading list of related open PRs reworked on the home PR's branch/);
+  assert.match(main(), /ordered per-PR array \(home first\)/);
+  const exception = "the base merge and each admitted member-head merge, their conflict helpers' edits to the conflicted files, and their scoped conflict tests";
+  for (const path of ['skills/brainstorming/SKILL.md', 'skills/using-git-worktrees/reference/pr-head.md']) assert.ok(read(path).includes(exception), path);
+  const gather = read('skills/brainstorming/gatherer.md');
+  for (const marker of ['### PR #<N>', 'Member merge:', 'own changed paths', 'home']) assert.ok(gather.includes(marker), marker);
+  assert.ok(!gather.includes('or threads: not fetched'));
+  const lint = read('skills/brainstorming/reference/spec-finalization.md');
+  for (const marker of ['Step 4 report', 'MEMBER_HEADS', 'not from the record', 'missing PR', '### PR #<N>']) assert.ok(lint.includes(marker), marker);
+});
+
+test('record completeness is checked against provisioning inputs, not its own groups', () => {
+  const head = '1'.repeat(40);
+  const group = (n) => `PR: acme/widget#${n} - Retry\nPre-rework head: ${head}\nThreads: none\n`;
+  const subsection = (n) => `### PR #${n} - Retry\nkeeps: bounded delay\nchanges: none\ndropped claims: none\n`;
+  const validate = (record, expected) => expected.filter((n) =>
+    !new RegExp(`^PR: acme/widget#${n} - .*\\nPre-rework head: [a-f0-9]{40}\\nThreads:`, 'm').test(record) ||
+    !record.includes(`### PR #${n} - `)).map((n) => `missing PR #${n}`);
+  const partial = group(12) + group(13) + subsection(12) + subsection(13);
+  assert.deepEqual(validate(partial, [12, 13, 14]), ['missing PR #14']);
+  assert.deepEqual(validate(partial + group(14) + subsection(14), [12, 13, 14]), []);
+  assert.deepEqual(validate(partial + group(14), [12, 13, 14]), ['missing PR #14']);
+});
+
+test('receivers retain plural closure and brief contracts', () => {
+  const finish = read('skills/finishing-a-development-branch/SKILL.md');
+  for (const marker of ['successful push and successful home body edit', 'close no PR other than the absorbed members through the question above', '--json state,headRefOid', '<current headRefOid> <pushed home head>', '#13: "Reworked into #12', '#14: "Reworked into #12']) assert.ok(finish.includes(marker), marker);
+  const brief = read('skills/gauntlet-resume/reference/brief-contract.md');
+  assert.ok(brief.includes('optional one or more consecutive'));
+  assert.ok(brief.includes('pairs, one per record group,'));
+  assert.ok(read('skills/gauntlet-handoff/SKILL.md').includes('home first'));
 });
