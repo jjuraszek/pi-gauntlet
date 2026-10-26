@@ -1,5 +1,7 @@
 # Loop implement engine: planless iteration over the acceptance-criteria ledger
 
+> **Superseded by:** [doc/specs/2026-10-26-loop-engine-scaled-iteration-cap.md](./2026-10-26-loop-engine-scaled-iteration-cap.md) - iteration cap and `loopEngine` config only (`maxIterations` AC clause, Driver `Cap:` step, funding's `maxIterations` clause, `Settings and telemetry` key, `maxIterations reached` edge row)
+
 **Goal:** Add an experimental second implement engine, selected at the brainstorming approval gate, that skips the plan and runs one fresh, context-guarded `loop-implementer` dispatch per iteration over a ledger seeded from the spec's acceptance criteria, stopping at a plain-words human gate on stagnation.
 **Amend-grant:** every later spec amendment in this flow (corrected facts, paths, verification lines, and scope, acceptance-criteria, or public-contract edits alike) applies without asking; only a redraw (changed problem statement, component added, removed, or re-bounded) still stops for you, and the grant never stands in for a spec approval.
 **Ticket:** jjuraszek/pi-gauntlet#68
