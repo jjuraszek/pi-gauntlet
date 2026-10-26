@@ -1,7 +1,7 @@
 {
   "sample": "menu-after-numbered-findings",
   "arm": "candidate",
-  "skillSha": "3ea4ab912b5d887e3bfe458fb45f5e34fb1ef7cd67fa1cdb1ebc658f093b7b68",
+  "skillSha": "7d8ee521fe9ea23894da36c2894b3c2dcacec4113aac86038426c01685cac9c8",
   "inputSha": "4a8fdb8af69a76daae4c15d9d5a2a72318597352d34a872bd1704931a9fa715f",
   "kind": "text",
   "assembly": "headed",
@@ -17,16 +17,16 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "## Checkpoint 1\n\nI'm using the gauntlet-resume skill to continue an interrupted flow.\n\n1. The handoff directory exists.\n2. Three regular Markdown files have valid handoff title lines.\n3. Candidates are sorted newest first.\n\nPick one:\n1. `# Handoff: parser retry` - /work/app/.worktrees/parser-retry - 2026-10-21T12:00:00Z\n2. `# Handoff: export paging` - /work/app/.worktrees/export-paging - 2026-10-21T11:00:00Z\n3. `# Handoff: cache expiry` - /work/app/.worktrees/cache-expiry - 2026-10-21T10:00:00Z\n\nReply with a number from 1 to 3. Nothing is restored until you pick.\n\n---\n\n## Checkpoint 2\n\nTaking 5 as option 2 - export paging\n\n**Next step (simulated, nothing restored):**\n\n1. **Read the brief.** `Read` the selected brief, the `# Handoff: export paging` file under `<tmpdir>/pi-handoff/`. Confirm that line 1 starts with `# Handoff:`, which routes it as a brief. Take its `worktree:` field (`/work/app/.worktrees/export-paging`) and its `## Repo state`, `## Skills loaded` and `## Process state` sections.\n2. **Entry check 1: idle session.** `phase_tracker({ action: \"status\" })`. If any phase is not pending, stop with: \"session already carries flow state - reset is your call\".\n3. **Entry checks 2-6.** If check 1 passes, entry checks 2-6 follow against the export-paging worktree. These run before any tracker mutation.\n",
-      "words": 172,
-      "wallMs": 11106,
+      "text": "## Checkpoint 1\n\nI'm using the gauntlet-resume skill to continue an interrupted flow.\n\n1. The handoff directory exists.\n2. Three regular Markdown files have valid handoff title lines.\n3. Candidates are sorted newest first.\n\nPick one:\n\n1. # Handoff: parser retry - /work/app/.worktrees/parser-retry - 2026-10-21T12:00:00Z\n2. # Handoff: export paging - /work/app/.worktrees/export-paging - 2026-10-21T11:00:00Z\n3. # Handoff: cache expiry - /work/app/.worktrees/cache-expiry - 2026-10-21T10:00:00Z\n\nReply with `1`-`3`. I'll wait for your pick before reading or restoring anything.\n\n---\n\n## Checkpoint 2\n\nTaking 5 as option 2 - export paging\n\nThe legacy message put the three observations directly before the three options, with only a blank line between them. CommonMark merges those into one list, so the options displayed as `4.`-`6.`. In that run there were 3 preceding items (L = 3) and 3 options (N = 3). Your reply `5` is greater than 3, and 5 − 3 = 2 falls within `1`-`3`, so it maps to option 2: `# Handoff: export paging` (worktree `/work/app/.worktrees/export-paging`, mtime `2026-10-21T11:00:00Z`).\n\n**Next simulated step:**\n\n1. `Read` the selected brief file `<tmpdir>/pi-handoff/<export-paging brief>.md`.\n2. Confirm that line 1 starts `# Handoff:`.\n3. Determine the Dispatch route from its sections: `## Process state` present or absent, `## Skills loaded`, and the `worktree:` field.\n4. Run entry check 1, which is read-only: `phase_tracker({ action: \"status\" })`.\n   - If any phase is not pending, stop with \"session already carries flow state - reset is your call\".\n   - Otherwise continue to entry check 2 against `/work/app/.worktrees/export-paging`.\n\nNo tracker mutation happens until entry checks 1-6 pass and every human question is answered.\n",
+      "words": 236,
+      "wallMs": 12450,
       "mechanical": {}
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "## Checkpoint 1\n\nI'm using the gauntlet-resume skill to continue an interrupted flow.\n\n1. The handoff directory exists.\n2. Three regular Markdown files have valid handoff title lines.\n3. Candidates are sorted newest first.\n\nPick one:\n\n1. # Handoff: parser retry - /work/app/.worktrees/parser-retry - 2026-10-21T12:00:00Z\n2. # Handoff: export paging - /work/app/.worktrees/export-paging - 2026-10-21T11:00:00Z\n3. # Handoff: cache expiry - /work/app/.worktrees/cache-expiry - 2026-10-21T10:00:00Z\n\n## Checkpoint 2\n\nTaking 5 as option 2 - export paging\n\nNext simulated step: read the selected discovery file whose title is `# Handoff: export paging`, then run entry check 1, **Idle session**, with `phase_tracker({ action: \"status\" })`. No tools are called or state restored here.\n",
-      "words": 95,
-      "wallMs": 11384,
+      "text": "## Checkpoint 1\n\nI'm using the gauntlet-resume skill to continue an interrupted flow.\n\n1. The handoff directory exists.\n2. Three regular Markdown files have valid handoff title lines.\n3. Candidates are sorted newest first.\n\nPick one:\n1. # Handoff: parser retry - /work/app/.worktrees/parser-retry - 2026-10-21T12:00:00Z\n2. # Handoff: export paging - /work/app/.worktrees/export-paging - 2026-10-21T11:00:00Z\n3. # Handoff: cache expiry - /work/app/.worktrees/cache-expiry - 2026-10-21T10:00:00Z\n\n## Checkpoint 2\n\nTaking 5 as option 2 - export paging\n\nNext simulated step: read the selected discovery file titled `# Handoff: export paging`, using its discovered file path, then run entry check 1 with `phase_tracker({ action: \"status\" })`. No tracker mutation or restoration occurs.\n",
+      "words": 94,
+      "wallMs": 8885,
       "mechanical": {}
     }
   },
@@ -36,7 +36,7 @@
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
       "intentSha": "b83fab2f131f305f2e8a3fff7cee96a62b8433af50c679887efc80e761d1886b",
       "baselineOutputSha": "f11c57d6f28ab5b37fce4bbe256cd0448dacf6bf07d7383862bce1547178ff6f",
-      "candidateOutputSha": "c9be8f341587dede6fdde71d337b7c7b3db41d48a97896d8f205f20a073be931",
+      "candidateOutputSha": "bc134299143bbe34f2f320be8944f481698502b5ed43a810457c4340736462d6",
       "facts": {
         "layout": {
           "before": "holds",
@@ -49,8 +49,8 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "Both facts hold in both outputs. In checkpoint 1, After switched the three discovery observations from bullets (Before) to an ordered list 1.-3., so the only thing preventing the observations and the candidate options from merging into one 1.-6. list is the single prose line `Pick one:`; that is enough under the fact as written, but it is a thinner margin than Before's bullet form, and a minor rewording that dropped or indented that prose line would cause the options to render as 4.-6. If the Change requires numbered observations, consider also inserting a horizontal rule or keeping the bullet form so the separation does not depend on one line. In checkpoint 2, both outputs open with the single sentence `Taking 5 as option 2 - export paging` before any simulated read, satisfying mapped-pick; After dropped the L/N mapping explanation Before gave, which the fact does not require but which helps a reader see why 5 maps to 2 rather than being an out-of-range reply.",
-      "wallMs": 13985,
+      "feedback": "Neither fact moved. In After, Checkpoint 1 switches the discovery observations from bullets to an ordered 1.-3. list, which is the exact pattern that caused the legacy 4.-6. merge; it still holds only because the un-indented prose line `Pick one:` (plus blank lines) sits between the observation list and the option list, so CommonMark closes the first list and the options restart at 1. That is a fragile dependency on a single separator line, so the safer wording that still delivers the Change's shared menu-layout contract is to keep Before's bullet-form observations (or add a horizontal rule) rather than numbering the observations. Checkpoint 2 in both outputs opens with the single sentence `Taking 5 as option 2 - export paging` before any read step, so mapped-pick holds in both; After's merging of the selected-brief identity into the explanation paragraph is fine, but keep that leading resolution sentence first and intact.",
+      "wallMs": 14178,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
@@ -58,7 +58,7 @@
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
       "intentSha": "b83fab2f131f305f2e8a3fff7cee96a62b8433af50c679887efc80e761d1886b",
       "baselineOutputSha": "91a04c9448eb01940121bda00d40264e7949be005bd938d20094569f8e7e8963",
-      "candidateOutputSha": "c32ae8718ccb9772e688d66421a05f9397d06a1076fd3c860b7a2fafd9f91f94",
+      "candidateOutputSha": "c1bbf3473b0f3cd12a9661e62c1f0fb4b7f90ce57aa80f73336627e33172bff5",
       "facts": {
         "layout": {
           "before": "holds",
@@ -71,10 +71,10 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "Nothing moved. In both outputs Checkpoint 1 renders the three observations as 1.-3., then a prose line \"Pick one:\" separates them from the candidate options, which are themselves numbered 1.-3. (not 4.-6.), so the layout fact holds; in Checkpoint 2 both outputs open with the single sentence \"Taking 5 as option 2 - export paging\" before any simulated read, so the mapped-pick fact holds. The After wording only changed the phrasing of the next simulated step (naming the entry check \"Idle session\" and describing the file by its title line) and the closing no-tools note, neither of which touches the menu layout or pick resolution. Keep the \"Pick one:\" prose separator and the explicit \"Taking N as option M - <title>\" sentence as-is while delivering the broader Change; those two elements are what preserve these facts.",
-      "wallMs": 7406,
+      "feedback": "Neither fact moved between Before and After. Both render the candidate options as 1.-3. with the prose line \"Pick one:\" separating them from the three ordered observations, and both resolve reply 5 to option 2 naming export paging in one sentence before stating the next simulated read. The only layout-relevant difference is that After drops the blank line between \"Pick one:\" and the options list; because the list starts at 1 it still interrupts the paragraph and renders as a fresh list, so the fact still holds, but this is fragile — a list not starting at 1, or a renderer that does not allow list interruption, would fold the options into the \"Pick one:\" paragraph. Keep the blank line after the prose separator (as Before had) to deliver the shared menu-layout contract robustly. The Checkpoint 2 rewording (\"discovery file titled `# Handoff: export paging`\") is fine and keeps the mapped-pick sentence intact.",
+      "wallMs": 10902,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "e198e6a9591ef76d082ecc6cc72fb34a32af6fa4"
+  "repoSha": "ed29c5be99e44e8812f4d15de9e4c8f45a6d443f"
 }
