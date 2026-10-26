@@ -1,10 +1,10 @@
-for: a4deb90a94089b1468b65045591dd8721a461b593aa61fa2aa2df33f9be358a0
+for: ada58df3be9d984d0690237cce7a9f14b440d987d28d81f688ccaf4be5510483
 
 ## Change
 
 Replace per-action repair authority and ordinary wait menus with persistent assess/deliver/deliver-nits courses and the shared menus.md templates. Preserve identity validation, independent claim/mechanism closure, exact-head evidence and terminal cleanup ownership. Source rounds count new repair-wave commits; body-only work and conflict-only syncs have independent accounting. Caps freeze at twice the entry setting, timeout renews only on own push or explicit obstacle continuation, and resumed sync preserves separate restore and lease heads.
 
-Exercise eight course exit/menu scenarios, including successive nit closure, selected one-shot nit readiness, cumulative cap extension, UNKNOWN quarantine, phase guard visibility, owned tracked-clean stop, and batch helper/main-thread agreement. Preserve comment and description snapshot safety under the new course model.
+Exercise eight course exit/menu scenarios, including successive nit closure, selected one-shot nit readiness, cumulative cap extension, UNKNOWN quarantine, phase guard visibility, owned tracked-clean stop, and batch helper/main-thread agreement. Preserve comment and description snapshot safety under the new course model. Exercise reviewer-placeholder: admit a reviewer-only delivery watch under the persisted deadline, expire a completed-success placeholder as stale, and reach readiness without a new course pick.
 
 ## Comparison scope
 
