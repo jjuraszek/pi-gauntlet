@@ -1,28 +1,5 @@
 ## Entry
 
-Start directly at the fixture-1 report/menu boundary, not PR gather. Produce one response with two independent checkpoints. All posts and handoffs are simulated; use no tools.
+Start at a report/menu boundary, use no tools. Helpers, push permission, course budget available; course unset, rounds_used 0/rounds_cap 6, syncs_used 0/syncs_cap 6. Checkpoint 1: author three ordered blockers for missing export test (src/api/export.ts:10-58), false nightly guide (docs/exports.rst:88), ignored date range (src/api/export.ts:60), then the initial assess=1, deliver=2 recommended, deliver with nits=3, stop=4 menu. One nit is duplicate paging; one drafted reply to maria concerns the CSV header. Render Markdown outside fences with a separator preventing adjoining ordered-list renumbering. Evidence belongs in the hint, no compose syntax.
 
-## Checkpoint 1 - author the report and gate
-
-This is your own open PR, fixable, with one nit and one drafted reply to maria, as in fixture 1. Helpers, push permission, and repair budget are available; no overlay applies. Author three ordered blockers in the same message before the six-option gate: the export endpoint has no test (src/api/export.ts:10-58), the guide wrongly says exports run nightly (docs/exports.rst:88), and the endpoint ignores the requested date range (src/api/export.ts:60). The one nit is the duplicate paging loop; the drafted reply points maria at the CSV-header fix. Render the report and the unchanged fixture-1 six options and compose hint as user-facing Markdown, outside code fences. Do not act yet.
-
-## Checkpoint 2 - handle the legacy reply
-
-Independently, the prior assistant message below was already sent. Treat its three items and six menu rows as adjoining ordered content separated only by a blank line, exactly as shown. The human then replies `7`. Respond to that pick through the point of the simulated reply post, not through a new repair wave. Freshness and output done-checks pass.
-
-Legacy assistant message:
-
-Blockers:
-1. The export endpoint has no test. (src/api/export.ts:10-58)
-2. The guide wrongly says exports run nightly. (docs/exports.rst:88)
-3. The endpoint ignores the requested date range. (src/api/export.ts:60)
-
-1. fix - retain in-scope blocker repair during this run until readiness or a new decision boundary; review before push [recommended]
-2. fix nits - apply the one-shot nit payload in the worktree, review the wave, push
-3. review - post the blockers as a comment on your PR
-4. reply - post the drafted reply to maria
-5. show evidence - gate output, CI run
-6. stop - leave the PR as-is
-Type a number, or compose: "fix 2", "fix nits", "fix + nits", "fix 1 + reply".
-
-Human: 7
+Independent checkpoint 2: a prior final assistant message had three numbered resolved findings adjoining four final rows, so the rendered menu appeared numbered 4-7: merge (raw 1), fix nits (raw 2), reply (raw 3), stop (raw 4). Human replies `6`. Freshness and done-check pass; simulated C1 reply post succeeds. Resolve the displayed number to raw option 3 and echo its consequence before the post. No new repair selection exists.

@@ -1,5 +1,5 @@
 - f1: judged: Invoked with `--rebase release/2`, the orchestrator rebases the worktree onto `origin/release/2`, not origin/main, before any verification helper runs.
 - f2: judged: A fresh code-reviewer helper reviews the rewritten head (range-diff against the pre-sync head) before the push, even though no conflict occurred.
 - f3: judged: The push uses --force-with-lease with the head ref and the pre-sync head SHA, to the digest's head_url and head_ref.
-- f4: judged: No CI watch runs inside the sync; the first report renders the pushed head's checks as resolved when they finished, else as pending with `wait` as row 1.
+- f4: judged: No watch runs inside entry sync; first report binds evidence to the pushed head, rendering final if ready or initial if binding checks remain pending, never an ordinary wait row.
 - f5: judged: The narration states that verification and the brief use the pushed SHA as the assessed head, and a `Sync:` line is rendered immediately before the verdict.

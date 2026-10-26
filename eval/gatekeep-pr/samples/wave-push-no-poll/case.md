@@ -20,7 +20,7 @@ bundle-: skills/gatekeep-pr/reference/assessment.md
 
 ## Entry
 
-A prior report rendered. A `fix` round pushed head 2222222222222222222222222222222222222222. The same-run record at /tmp/gatekeep-state.synthetic is retained in the tracker first task for meadow/events PR 642, main, with fix scope all granted by `fix`, merge_base null, repair.rounds_used 1, repair.poll_deadline null, and assessed_head equal to the new pushed head. Original intent is the Digest title/body. Blockers: P1 remains open; the implementer returned `open - needs src/guard.ts outside the diff` and the reviewer's closure line carried it unchanged. All other findings closed. CI is IN_PROGRESS on the new head. Continue through the next menu.
+A prior report rendered. A delivery iteration pushed head 2222222222222222222222222222222222222222. The same-run record at /tmp/gatekeep-state.synthetic is retained in the tracker first task for meadow/events PR 642, main, with course deliver, repair.rounds_cap 6, repair.syncs_used 0, repair.syncs_cap 6, repair.rounds_used 1, repair.poll_deadline null, and assessed_head equal to the new pushed head. Original intent is the Digest title/body. Blockers: P1 remains open; the implementer returned `open - needs src/guard.ts outside the diff` and the reviewer's closure line carried it unchanged. All other findings closed. CI is IN_PROGRESS on the new head. Continue through the next menu.
 
 ## Arguments
 

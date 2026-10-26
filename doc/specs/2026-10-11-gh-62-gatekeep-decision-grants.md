@@ -1,6 +1,7 @@
 # gatekeep-pr: persistent repair consent and description corrections
 
 > **Superseded by:** [doc/specs/2026-10-13-gatekeep-pr-speed-and-fixability.md](./2026-10-13-gatekeep-pr-speed-and-fixability.md) - D5/D6 per-proposal exact-text selection and renewed selection on snapshot change, and the `### Wait course` 30 s poll loop only
+> **Superseded by:** [doc/specs/2026-10-25-gatekeep-pr-persistent-disposition.md](./2026-10-25-gatekeep-pr-persistent-disposition.md) - the retained-consent grant model (`consent.fix`, `consent.merge_base`, revoke grammar, grant-covered Next-action rows)
 
 **Goal:** Keep authorized blocker fixes and base-conflict resolutions moving through one gatekeep-pr run until a freshly assessed merge-ready menu, and repair false PR-description claims through the same fix course without changing scope or inventing verification status.
 **Amend-grant:** every later spec amendment in this flow (corrected facts, paths, verification lines, and scope, acceptance-criteria, or public-contract edits alike) applies without asking; only a redraw (changed problem statement, component added, removed, or re-bounded) still stops for you, and the grant never stands in for a spec approval.

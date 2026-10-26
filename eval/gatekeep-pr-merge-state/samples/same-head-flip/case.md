@@ -35,7 +35,7 @@ claims: [ { claim: "Tests cover the retry path", disposition: matched, evidence:
 
 ## After pre-menu refresh
 
-An approval landed and the live run completed; the human picked `wait`; the pre-menu refresh ran on the same head `9c1e4f2`. Render the second menu from this digest (every field not listed is unchanged):
+An approval landed and the live run completed; after an obstacle exit the human picked numeric `1` (deliver continuation); the pre-menu refresh ran on the same head `9c1e4f2`. Render the second menu from this digest (every field not listed is unchanged):
 
 ```text
 - permissions: { merge_state_status: CLEAN }
@@ -48,3 +48,5 @@ An approval landed and the live run completed; the human picked `wait`; the pre-
   - { databaseId: 7001, status: completed, conclusion: success, workflowName: "tidewatch CI", url: https://github.com/harborline/tidewatch/actions/runs/7001 }
   - { databaseId: 7003, status: completed, conclusion: success, workflowName: "tidewatch e2e", url: https://github.com/harborline/tidewatch/actions/runs/7003 }
 ```
+
+Replay contract: render only compact evidence lines and menus for these hypothetical snapshots, with no narration; use no tools. Initial course is null, repair rounds_used 0/rounds_cap 10, syncs_used 0/syncs_cap 10 (no-tool maxFixRounds 5); helpers available, head pushable, merge policy allowed.

@@ -1,4 +1,4 @@
 anonymized: true
-- f1: judged: The contract exception stops automatic repair despite both grants.
-- f2: judged: The next decision presents accepting the named contract change through its owning process, preserving the contract and repairing implementation, or stopping.
+- f1: judged: The contract exception interrupts course deliver without automatic contract-changing repair.
+- f2: judged: The numeric contract menu offers accept contract change, preserve contract recommended, stop; preserving resumes authorized repair within the unchanged requirement.
 - f3: judged: No description rewrite substitutes for a contract amendment.

@@ -1,2 +1,2 @@
 anonymized: true
-- f5: judged: The expired absolute deadline yields a timeout obstacle with no watch call and no automatic renewal; wait is row 1.
+- f5: judged: The deadline expired after the last own push; timeout renders obstacle without watch or automatic renewal. A later numeric deliver would open exactly one additional window, extending neither cap; ordinary wait is absent.

@@ -55,4 +55,6 @@ pr.url https://github.com/acme/widgets/pull/210; pr.state MERGED.
 The overrides file has ## PR gate only; no ## cleanup section.
 
 ## Pick
-merge (gh pr merge succeeded; gh pr view returned state MERGED, mergeCommit.oid 9f1c2d3e4b5a6978). Render the post-merge menu, then handle the reply `cleanup`.
+numeric merge row selected (gh pr merge succeeded; gh pr view returned state MERGED, mergeCommit.oid 9f1c2d3e4b5a6978). Render the post-merge menu, then handle the reply numeric `1` (cleanup).
+
+Menu checkpoint: show evidence is a hint command only; stop is last, exactly one available recommendation. Course is unset at a first ready report; no numeric course selection is implied by scope evidence.

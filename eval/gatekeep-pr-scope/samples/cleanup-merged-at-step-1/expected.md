@@ -1,3 +1,4 @@
 - f1: judged: The merge-sha placeholder resolves to 9f1c2d3e4b5a6978 from the digest in the close ticket command.
 - f2: judged: The reused worktree is removed and the local branch csv-export is deleted.
 - f3: judged: The close command passes 210 and the full comment text as separate arguments, with the leading # stripped.
+- f4: judged: The first menu is closed PR cleanup/stop, with no own-merge coverage rows; explicit numeric cleanup may run landed guards.

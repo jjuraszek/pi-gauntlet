@@ -179,7 +179,7 @@ Per round:
 6. **Converge or continue**: verdict `CONFORMS` → Convergence below. Open gaps
    within the cap → re-partition (per the rule above) and start the next
    round. Cap (`gauntlet_setting({ key: "closureReview" }).maxFixRounds`,
-   default `3`, floors negatives at `0`, coerces non-integers to `3`) reached
+   default `5`, floors negatives at `0`, normalizes missing or non-integer values to `5`) reached
    with an open `fix` gap or repair item → **escalate to the human** with the per-gap
    round-by-round verdict trail. Escalation is the sole non-completing
    terminal state — no silent re-loop, no auto-ship. If the human explicitly

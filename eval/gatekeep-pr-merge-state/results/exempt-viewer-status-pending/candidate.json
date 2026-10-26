@@ -1,0 +1,110 @@
+{
+  "sample": "exempt-viewer-status-pending",
+  "arm": "candidate",
+  "skillSha": "124b4f8717ce2f5e1e36caee0d780fce359d6508bfe156399cf44818b85f6448",
+  "inputSha": "8d078425d649473fd9c2d84b7c84921f6d12d136fbdc81457df8f3a14e2183f4",
+  "kind": "text",
+  "assembly": "concat",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "**Section B resolution**\n\n- **Resolved check set.** No `ci checks:` filter is configured, so the set is every check on `9c1e4f2`.\n  - `test_unit`: completed `success`, so it satisfies.\n  - `build_image`: completed `success`, so it satisfies.\n  - `lint`: `skipped`, so it is inert.\n  - `crew-approval`: `status_context`, `PENDING`, so it is pending.\n- **Binding classification.** `crew-approval` is not binding.\n  - `merge_state_status` is `UNSTABLE`, which is not `BLOCKED`, `UNKNOWN` or `unreadable`.\n  - The pre-menu refresh did not fail.\n  - `kind` is `status_context`, so the run-linkage clauses do not apply.\n- **Held run.** No `action_required` appears in the rollup or in `actions_runs`, so there is no held run.\n- **Row match.** Taking the rows top-down:\n  - Opt-out: no.\n  - Failed CI: no blocking conclusion.\n  - Held run: no.\n  - Pending: zero binding pending checks.\n  - CI-sufficient: yes. There are at least one success, zero blocking and zero binding pending. The local run is skipped and `source: ci`.\n- **Claims.** \"Tests cover the retry path\" is `matched` (`test/feed/client.test.ts:12-40`).\n- **Scope.** `issue_ref: null`, so the scope is `source: pr` with no AC rows.\n- **Blockers and nits.** The reviewer returned SHIP with no Critical, Moderate or Minor findings. That gives 0 blockers and 0 nits. There are no comments.\n- **Exit check.** Every merge precondition holds:\n  - `MERGEABLE`, `UNSTABLE`, non-draft, `MAINTAIN`.\n  - Tracked-clean, ahead 0 and behind 0.\n  - The merge policy is allowed.\n  \n  This is readiness on the first report with the course unset, so the **final** template applies. The viewer is not the author, so `approve` is recommended.\n\n---\n\n```\nEvidence: CI (source: ci) on 9c1e4f2 - run 7001 (tidewatch CI): test_unit success, build_image success, lint skipped; 0 binding pending; merge_state_status UNSTABLE\nDelivers: adds one bounded retry to the tide-feed client when the feed returns 503.\n\nVerdict: mergeable - CI green on the assessed head (test_unit, build_image)\n\nPick one:\n1. merge - merge the PR at 9c1e4f2 with gh pr merge --match-head-commit 9c1e4f2 and the resolved merge-policy flag.\n2. approve - post an approving review on tlindqvist's PR at 9c1e4f2. [recommended]\n3. stop - end the run; leave the PR as is and the checkout at .worktrees/pr-412 (branch tlindqvist/tw-88-retry) as found.\n\nType a number; show evidence prints the full record (CI run 7001: test_unit success, build_image success, lint skipped on 9c1e4f2; 0 binding pending; merge_state_status UNSTABLE).\n```\n\n`show evidence` would also print `crew-approval pending - not binding this viewer (merge_state_status UNSTABLE)`. That line never prints in the report and never withholds merge.\n",
+      "words": 376,
+      "wallMs": 21770,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "Evidence: CI (source: ci); head 9c1e4f2; run 7001: test_unit success, build_image success, lint skipped; binding-pending count 0; merge_state_status UNSTABLE.\n\nDelivers: the tide-feed client retries once on a 503, with tests covering the retry path.\n\nVerdict: mergeable - CI green on the assessed head (test_unit, build_image)\n\nPick one:\n1. merge - merge the assessed head into main.\n2. approve - approve the assessed head. [recommended]\n3. stop - leave the checkout at .worktrees/pr-412 on branch tlindqvist/tw-88-retry as found.\n\nType a number; show evidence prints the full record (CI (source: ci); head 9c1e4f2; run 7001: test_unit success, build_image success, lint skipped; binding-pending count 0; merge_state_status UNSTABLE).\n",
+      "words": 100,
+      "wallMs": 10081,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "c6591d81587d667dc60b8fa43f4e29bc902a22c2194191fb9ac11d704d0f1a4b",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "5d82dd30c53664bf000f34822ffc17ecb66d298ce6c5d8f23db53e37e962ee49",
+      "baselineOutputSha": "3ab26767279bb611fa88389fec6949e0518bd15167a96c54dc432f9593e5f410",
+      "candidateOutputSha": "a4423e2f514de47032f12ecca186b8412ef1b37ef400e100609f0eec761a3419",
+      "facts": {
+        "f1": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "f2": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "f3": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "f4": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "f5": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "After keeps every fact Before kept: evidence still resolves to `source: ci` on 9c1e4f2 with the green checks, the final template offers merge first with no wait row, approve is present and recommended because the viewer is not the author, crew-approval is confined to the `show evidence` line as not binding, and nothing claims another developer's approval is required. One thing to watch for f3: the new Evidence line and the menu's show-evidence hint both print `0 binding pending; merge_state_status UNSTABLE` in the report itself, which does not name crew-approval but does surface the pending state near the report; if you want to stay clearly on the right side of f3, keep the pending count and merge_state_status out of the report body and the hint, and leave them (with the crew-approval line) only in the full `show evidence` record.",
+      "wallMs": 10907,
+      "verdict": "unchanged"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "c6591d81587d667dc60b8fa43f4e29bc902a22c2194191fb9ac11d704d0f1a4b",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "5d82dd30c53664bf000f34822ffc17ecb66d298ce6c5d8f23db53e37e962ee49",
+      "baselineOutputSha": "ce5a8ec22468b2ffee0a3cf0c694dfbcb70fb705cad5a8bb5f0ab52a2fdc73d7",
+      "candidateOutputSha": "72831f47301ba23866da6b4ae9ef34ce78c59697be079bb65b13442b97c4431e",
+      "facts": {
+        "f1": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "f2": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "f3": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "f4": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "f5": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "No fact moved: After still resolves evidence to CI on head 9c1e4f2 with green required checks, leads with merge and approve (approve recommended for a non-author viewer), has no wait row, never names crew-approval as a blocker or comment, and never says another developer's approval is required. Two wording risks worth tightening though: the full evidence record is rendered twice (an 'Evidence:' header line and again verbatim inside the 'show evidence' footnote), which drifts from f3's 'appears only under show evidence' spirit — keep the record behind show evidence only, and have that record name the pending status explicitly ('crew-approval pending: not binding for this viewer') rather than the opaque 'binding-pending count 0', so a reader can see the pending context was classified and dismissed rather than omitted. Also consider restoring show evidence as a numbered row (as Before did) so the menu is self-contained when rendered from the shared menus.md template.",
+      "wallMs": 19089,
+      "verdict": "unchanged"
+    }
+  },
+  "repoSha": "cc0a65f05c826c32b59ddd6cf7fa655a9aa91d24"
+}

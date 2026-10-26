@@ -1,5 +1,7 @@
 # gatekeep-pr: one CI watch, fix-applied description corrections, smallest-edit payloads
 
+> **Superseded by:** [doc/specs/2026-10-25-gatekeep-pr-persistent-disposition.md](./2026-10-25-gatekeep-pr-persistent-disposition.md) - D1 (the "Blockers empty" watch guard, the single end-of-step watch, the "menu omits fix at maxFixRounds" rule) and D5/D6 (per-proposal exact-text selection, the 30 s poll loop as the only wait)
+
 **Goal:** Cut gatekeep-pr's per-run time and its unfixable-blocker loops by replacing the inline CI poll with one bounded `gh pr checks --watch` call at the last step before merge, applying PR-description corrections on `fix` like any payload, and bounding every payload to the smallest in-repo edit.
 **Amend-grant:** every later spec amendment in this flow (corrected facts, paths, verification lines, and scope, acceptance-criteria, or public-contract edits alike) applies without asking; only a redraw (changed problem statement, component added, removed, or re-bounded) still stops for you, and the grant never stands in for a spec approval.
 

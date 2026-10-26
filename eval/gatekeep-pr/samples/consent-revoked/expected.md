@@ -1,4 +1,4 @@
 anonymized: true
-- f1: judged: The orchestrator persists fix revocation before another mutation.
-- f2: judged: No automatic P1 fix runs after revocation.
-- f3: judged: The merge-base grant survives revocation and show evidence and authorizes the reviewed base course.
+- f1: judged: Numeric 2 persists the course switch to assess before another mutation.
+- f2: judged: No automatic P1 repair or base sync runs after the switch.
+- f3: judged: Show evidence grants no authority; caps and usage survive and assess posts a comment review once, not a request-changes review on the own PR.

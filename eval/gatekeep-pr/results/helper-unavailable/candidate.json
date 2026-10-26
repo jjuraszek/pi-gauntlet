@@ -1,7 +1,7 @@
 {
   "sample": "helper-unavailable",
   "arm": "candidate",
-  "skillSha": "af272b689e49c1f1df94c7138d0d68f77a5f0b3416816d62c6138e70339315ed",
+  "skillSha": "3efcd432d83f92d0036c207487f8e698cfb90f385655e5182a2e36f83fc3bd33",
   "inputSha": "746a546710c64a104fe0ce535e6f548b6a28f38af911022ca579d72352a42216",
   "kind": "text",
   "assembly": "concat",
@@ -17,16 +17,16 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "# gatekeep-pr: PR 412, step 2b sync stopped (no helper facility)\n\n## Narration from the end of step 2\n\n1. **Parse the arguments.** `412 --rebase` has no token after `--rebase`, so the base is the digest's `baseRefName`: `main`. There is no issue argument; `gh-388` comes from the digest.\n\n2. **Tracker stages.** `plan_tracker` was initialized with four stages because `--rebase` is present: `gather, provision, sync, verify`.\n   - `gather` and `provision` are `complete`.\n   - `sync` is now open.\n\n3. **Step 2b, precondition 1 (helper facility).** The harness has no subagent dispatch facility. `sync.md` and SKILL.md `## Harness notes` require a terminal stop at step 2b before any sync write.\n   - This check comes before precondition 3's `git fetch origin main`.\n   - **No command runs:** no fetch, no `gh pr view` baseline refresh, no rebase, no push.\n   - **No helper is dispatched:** no conflict-stop `implementer`, no sync `code-reviewer`, no Verify `worker`, no Review `code-reviewer`.\n\n4. **Tracker after the stop.**\n   - The `sync` stage closes `failed`.\n   - Step 3 does not run, so `verify` stays `pending` and gets no claim tasks.\n   - `review`, `report`, and `menu` are never added as stages.\n\n5. **SHA assessed.** None. Verification and the brief never run. The head stays unsynced at `7c1e9a2f4b0d6e8a1c3f5b7d9e0a2c4e6f8a0b1c`, but no evidence or claim check is recorded against it.\n\n6. **Rendered output.** The reason prints as the `Sync:` line, then the verdict, then the terminal menu. That menu offers only `show evidence` and `stop`, with `stop` recommended because `show evidence` never is.\n\n## Rendered output\n\n```\nSync: stopped - no helper facility for conflict resolution and review.\n\nVerdict: fixable - verification not run\n\n1. show evidence - print the digest's head-dependent fields and the sync record\n2. stop - leave the PR as-is; nothing was fetched, rebased, or pushed [recommended]\nType a number.\n```\n",
-      "words": 280,
-      "wallMs": 20138,
+      "text": "# gatekeep-pr 412 --rebase: step 2b stops before any write\n\n**Base resolution.** `--rebase` has no following token, so the base is the digest's `baseRefName`, `main`. `origin/release/2` plays no part.\n\n**Tracker stages.** The continuation record was minted before tracker initialization. Its `state:` path sits in the first task's name. `plan_tracker` was initialized with four stages because `--rebase` is present: `gather, provision, sync, verify`.\n\n- `gather` is closed `complete`.\n- `provision` is closed `complete`, since step 2 has finished.\n- `sync` is now open.\n\n**Step 2b preconditions** (`reference/sync.md` `## Preconditions`, checked in order):\n\n1. **Helper facility.** The digest says this harness has no subagent dispatch facility of any kind. Precondition 1 is a terminal stop before any write.\n   - I run no `git fetch origin main`.\n   - I run no `gh pr view 412 --json headRefOid` baseline.\n   - There is no other-author confirmation; it would not apply anyway, since the viewer `mara-lindqvist` is the author.\n   - There is no `git rebase`, no conflict-stop or sync-review helper dispatch, and no lease push.\n   - SKILL.md `## Harness notes` agrees: on a harness with neither facility, stop at step 2b before any sync write when `--rebase` was passed.\n\n**Commands run in this step:** none. **Helpers dispatched:** none.\n\n**After the stop:**\n- The `sync` stage is closed `failed`. `verify` stays `pending` and is never started.\n- Step 3 does not run, so no verification command executes and no brief Verify or Review runs. No SHA is verified or assessed.\n- The worktree `.worktrees/pr-412` stays on the unsynced head `7c1e9a2f4b0d6e8a1c3f5b7d9e0a2c4e6f8a0b1c`, tracked-clean and still 4 commits behind `origin/main`.\n- The terminal stop renders `stop` only, with `show evidence` in the hint.\n\n---\n\nSync: stopped - no helper facility for conflict resolution and review\n\nVerdict: not ready - the sync stopped before any write because this harness cannot dispatch helpers\n\nPick one:\n1. stop - remove the worktree, leave the PR as is. [recommended]\n\nType a number; show evidence prints the digest's head-dependent fields and the sync record.\n",
+      "words": 310,
+      "wallMs": 15858,
       "mechanical": {}
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "### Initialization\n\nBefore progress initialization, I mint the continuation record with:\n\n```sh\nmktemp \"${TMPDIR:-/tmp}/gatekeep-state.XXXXXX\"\n```\n\nI write the invocation's continuation JSON to the returned absolute path, with grants null, rounds zero, `approved_head: null`, and `cleanup_done: false`.\n\nI initialize these tracker stages: `gather`, `provision`, `sync`, and `verify`. The gather task names the continuation-record path. At the supplied starting point, `gather` and `provision` are complete.\n\n### Step 2b: Sync\n\nI start `sync` and check its first precondition: a helper facility must exist before any sync write.\n\nThe digest states that no subagent dispatch facility exists. I stop immediately with:\n\n```text\nsync: stopped - no helper facility for conflict resolution and review\n```\n\nI record that reason in the continuation record and close `sync` as `failed`. `verify` never starts.\n\nFrom the supplied starting point, I run **no shell commands** and dispatch **no helpers**. In particular, I do not fetch, rebase, review, push, refresh forge metadata, or watch CI. The existing successful check does not bypass the sync precondition.\n\nNo SHA receives verification or a Section B or Section C assessment. The unassessed head remains `7c1e9a2f4b0d6e8a1c3f5b7d9e0a2c4e6f8a0b1c`.\n\nThis is a sync terminal stop, so steps 3-5 and the ordinary open-PR menu do not run. The first report and terminal menu are:\n\nDelivers: the PR's stated intent is to round ledger totals half-up.\n\nSync: stopped - no helper facility for conflict resolution and review.\n\nVerdict: fixable - verification not run\n\n1. show evidence - display the digest's head-dependent fields and sync record\n2. stop - leave the PR and provisioned checkout unchanged [recommended]\n\nType a number.\n",
-      "words": 251,
-      "wallMs": 16433,
+      "text": "### Initialization and tracker\n\nBefore progress initialization, the invocation mints its continuation record with:\n\n```sh\nmktemp \"${TMPDIR:-/tmp}/gatekeep-state.XXXXXX\"\n```\n\nIt initializes the record with course unset, zero usage counters, and the immutable PR/base identity. The first tracker task includes `state: <absolute path returned by mktemp>`.\n\nThe tracker initializes these stages: `gather`, `provision`, `sync`, and `verify`. Gather and provision are complete at the supplied starting point.\n\n### Step 2b: sync\n\n1. Start the `sync` tracker stage.\n2. Check the first sync precondition: the harness has no helper facility. Stop immediately, before any sync write.\n3. Mark `sync` failed and record exactly:\n\n   ```text\n   stopped - no helper facility for conflict resolution and review\n   ```\n\nNo shell commands run after step 2. In particular, there is no fetch, baseline read, rebase, review, push, or refresh. No helpers are dispatched, so there is no helper persona, cwd, or task to supply.\n\nStep 3 does not start; `verify` remains pending. Neither Verify nor Review assesses a SHA. The worktree remains clean at `7c1e9a2f4b0d6e8a1c3f5b7d9e0a2c4e6f8a0b1c`.\n\n### First report and menu\n\nDelivers: The PR's stated intent is to round ledger totals half-up.\n\nSync: stopped - no helper facility for conflict resolution and review\nVerdict: not ready - no helper facility for conflict resolution and review\n\nPick one:\n1. stop - end the run without changing the PR. [recommended]\n\nType a number; show evidence prints the digest's head-dependent fields and the sync record.\n",
+      "words": 224,
+      "wallMs": 19846,
       "mechanical": {}
     }
   },
@@ -34,9 +34,9 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "dfda00b2319b98ee317880eba825e3be956df7242c4e83b677e5cc733e95d27d",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "b6d1bff3bd3b8c460ac000660830e6da1fc11564c39a2ba13d07af138a02ba48",
-      "baselineOutputSha": "bc26e95a2c59cd9c8ed0b4b05a0e5962ec82a8536670674b34f8e793f91383fc",
-      "candidateOutputSha": "9f3bec7d5b4a8e7950538cd1b8af613f2b22c8521a40ec494de0ac5ffba49324",
+      "intentSha": "f4ed3e4a436e10b2df2b57d7f97b1eac9883c1734659108e4721f92aae4ce52d",
+      "baselineOutputSha": "7ddee00301da976cd89ce7f443e0e11c65bae08d9f56859a2579a0039fbb47eb",
+      "candidateOutputSha": "ef0bfca098b33167ceec1ccbd944bc6999e2900a37c5f5dfa442a00c1bbe479f",
       "facts": {
         "f1": {
           "before": "holds",
@@ -59,16 +59,16 @@
           "label": "held"
         }
       },
-      "feedback": "No fact moved: After still stops at precondition 1 before any fetch/rebase/push, names the missing helper facility as the reason, closes `sync` as `failed`, dispatches no Verify `worker` or other helper, and does not resolve or review anything itself. The one substantive drift is the rendered output: Before explicitly omits a `Verdict:` line because steps 3-5 never ran, while After prints `Verdict: fixable - verification not run` and narrates 'then the verdict'. That line is not an in-context review so f4 survives, but it is an assessment claim produced with nothing assessed, and it is the kind of wording a stricter fact (e.g. 'no verdict is stated when verification did not run') would catch. If the batch-routing change touched the terminal-stop template, keep the single-PR path on Before's rule - terminal stop prints only the `Sync:` line plus the two-item `show evidence`/`stop` menu, no `Verdict:` - so the zero/one-PR behavior stays byte-identical while the batch procedure is added ahead of it.",
-      "wallMs": 12245,
+      "feedback": "After keeps every fact Before kept: it stops at precondition 1 before any fetch, baseline refresh, rebase, or push, names the missing helper facility as the reason, closes `sync` as `failed`, dispatches no Verify/Review helper, and does nothing in its own context. The menu change to a single `stop` row with `show evidence` as a hint delivers the shared-menus.md shape without disturbing the facts. Two unlisted divergences from Before are worth a second look so they do not surprise later scenarios: After's stop row says `remove the worktree`, whereas Before said the worktree and branch stay (the terminal-cleanup rules in the Change only authorize removal for owned, tracked-clean, fully pushed trees - this head is unsynced but was never rewritten, so state the eligibility reason explicitly or keep `kept` wording), and the verdict changed from `fixable - verification not run` to `not ready`; if the verdict vocabulary is meant to stay stable, reuse Before's line while keeping the new menu.",
+      "wallMs": 10956,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "dfda00b2319b98ee317880eba825e3be956df7242c4e83b677e5cc733e95d27d",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "b6d1bff3bd3b8c460ac000660830e6da1fc11564c39a2ba13d07af138a02ba48",
-      "baselineOutputSha": "98b7bd8f8410786e17204e8f54d801cc7e54a9a9ca8add7f396972fea9b95f34",
-      "candidateOutputSha": "39cd4bb48fe97d23b58c333874a8f707dbbf15517125f25dbd1c769a9a4d2b2b",
+      "intentSha": "f4ed3e4a436e10b2df2b57d7f97b1eac9883c1734659108e4721f92aae4ce52d",
+      "baselineOutputSha": "db6fe270b04c8acc99518f282d1c3cae7d2007a8f698c45a30dc738e3082709c",
+      "candidateOutputSha": "e3353a939b641a7af2814086d07de40ee6a84a87c40a2696d953583d280fa5ee",
       "facts": {
         "f1": {
           "before": "holds",
@@ -91,10 +91,10 @@
           "label": "held"
         }
       },
-      "feedback": "Nothing moved: After still stops at the sync precondition before any fetch, rebase, or push, names the missing helper facility as the reason, closes `sync` as failed, dispatches no helpers, and does no in-context resolution or review, so all four facts hold on both sides. One wording inconsistency worth tightening, though it does not affect any fact here: After shows a `mktemp` invocation in Initialization and then asserts it runs 'no shell commands' from the starting point; since the continuation-record mint happens before the starting point this is technically reconcilable, but a reader could read it as a contradiction. Either phrase the mktemp as part of pre-start setup explicitly ('the only command run was the pre-start continuation-record mint') or drop the fenced command and say the record is minted, so the batch-routing change does not introduce an apparent 'no commands' claim that the output itself undercuts.",
-      "wallMs": 10951,
+      "feedback": "No fact moved. Both outputs stop at the first sync precondition before any fetch, rebase, or push, name the missing helper facility as the reason, mark `sync` failed with the recorded line, dispatch no helpers, and run no resolution or review in the orchestrator's own context. After additionally delivers the intended menu changes: show evidence is demoted to a hint, stop is the single recommended numeric row, and the delivery rows are omitted (consistent with the 'missing helpers' omission rule), while the continuation record now carries course unset and zero usage counters. The one divergence worth noting is the verdict line: Before says 'fixable - verification not run' while After says 'not ready - no helper facility...'; neither affects the four facts, but if the skill's menus.md template specifies a verdict vocabulary, align After's verdict with it and consider adding the explicit 'Not offered: deliver (missing helpers)' reason that the Change's menu-rows-omitted scenarios expect, so the omission is visible rather than silent.",
+      "wallMs": 12338,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "ce7d703e48b1eea239e19c8679ac160859af54bf"
+  "repoSha": "cc0a65f05c826c32b59ddd6cf7fa655a9aa91d24"
 }

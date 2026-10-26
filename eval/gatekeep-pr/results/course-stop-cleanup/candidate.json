@@ -1,0 +1,100 @@
+{
+  "sample": "course-stop-cleanup",
+  "arm": "candidate",
+  "skillSha": "a978c00846c0c57bfd2d99820b252a1c7568d502d60914288dd028fd37eaa400",
+  "inputSha": "fde22fdf427d6314101fcde0b8e4b93e50002502f6828395c6530c109dc62b84",
+  "kind": "text",
+  "assembly": "concat",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "# gatekeep-pr: PR 42, six non-final `stop` checkpoints\n\nEverything below is narration of hypothetical operations; no live tool runs.\n\n## Common state at entry (all six checkpoints)\n\n- **Invocation:** `42`, a single PR with no issue ref and no `--rebase`.\n- **Tracker:** initialized as `gather, provision, verify`. `review`, `report` and `menu` were added as each stage started. Each checkpoint now sits at the `menu` stage.\n- **Assessed SHA:** verification and the brief assess `1111111111111111111111111111111111111111`. The evidence is `source: ci` (`ci / test` SUCCESS, run 910) on that exact head.\n- **Sync line:** none renders, because `--rebase` was not passed.\n- **Rendered menu:** the initial template, course unset. Its verdict line is the checkpoint's not-ready verdict. The digest supplies no blocker list, so I invent no blocker text.\n\n```text\nVerdict: fixable - <checkpoint's blocker count> blockers\n\nPick one:\n1. assess - post the review to the PR; then approve or stop, no repairs.\n2. deliver - repair blockers, rebase on main, watch CI, repeat until merge is offered. [recommended]\n3. stop - remove the worktree, leave the PR as is.\n\nNot offered: deliver with nits (no nits).\nCourse holds until the final menu; `show evidence` prints the full record.\n```\n\n## Handling the pick (same in every checkpoint)\n\n1. **Validate the run record.** `/tmp/gatekeep-state.synthetic` matches `consent.target`: `{ acme/widgets, 42, main }`.\n   - The course stays null.\n   - Usage stays 0/0 against caps 10/10.\n2. **Boundary refresh.** `gh pr view 42 --json headRefOid,state,body,baseRefName` returns:\n   - head `1111…`, state `OPEN`, the same body, base `main`.\n   - The live base equals `consent.target.baseRefName`, so nothing is invalidated.\n3. **Map the pick.** The reply `3` is in the range 1-3, so it is taken unchanged with no echo: `stop`.\n4. **Route the stop.** `### Teardown` delegates a stop on the initial template to `cleanup.md` `## Non-final stop`.\n   - There is no `rebased locally` head, so no reset runs.\n   - `/work/widgets-pr-42` is not the primary (`/work/widgets`), so the three ordered checks apply.\n   - The last pushed head is `1111…`, because `repair.wave` is null.\n   - Ownership uses the keyed home `/work/widgets-pr-<N>`. That pattern and the path are each passed through `realpath`.\n5. **Never in any case:**\n   - No terminal steps 2-4: no branch deletion and no base pull.\n   - No `## cleanup` override, so the release and close-ticket items do not run.\n   - No `gh` write. The PR stays OPEN, unmerged and unapproved.\n\n## Per-checkpoint consequence\n\n**A - created tree, safe state**\n- `git -C /work/widgets-pr-42 status --porcelain --untracked-files=no` is empty.\n- `git -C /work/widgets-pr-42 merge-base --is-ancestor HEAD 1111…` succeeds.\n- The ownership match is unique.\n- Run the recorded destroy from the primary: `git -C /work/widgets worktree remove --force /work/widgets-pr-42`. The untracked `tmp.out` is deleted with the tree.\n- Then run `git -C /work/widgets worktree prune`.\n- Result: `worktree: done`.\n\n**B - reused tree, same safe state**\n- Reused trees are equally eligible on a non-final stop.\n- The same three checks pass, and the same destroy and prune run.\n- Result: `worktree: done`.\n\n**C - local commit `2222…` unpushed**\n- The status check is clean.\n- `git -C /work/widgets-pr-42 merge-base --is-ancestor HEAD 1111…` fails.\n- `git -C /work/widgets-pr-42 log --format=%h 1111…..HEAD` lists `2222222`.\n- Result: `worktree: kept - unpushed commits 2222222 at /work/widgets-pr-42`.\n- Discarding those commits is a separate, explicit human decision. It is never a consequence of `stop`, and this run neither offers nor performs it.\n- No destroy runs, and branch `feature/guard` stays.\n\n**D - tracked `src/guard.mjs` dirty**\n- The status check reports ` M src/guard.mjs`, so the first check fails and checking stops there.\n- Result: `worktree: kept - uncommitted changes at /work/widgets-pr-42`.\n- No destroy runs.\n\n**E - expected branch at `/work/scratch/foreign`**\n- The tree is clean and pushed.\n- The keyed ownership match against `realpath(/work/widgets-pr-<N>)` finds no match.\n- Result: `worktree: kept - outside configured home at /work/scratch/foreign`.\n- No destroy runs, and there is no forced fallback.\n\n**F - two worktree matches**\n- The tree is clean and pushed, but the ownership match is ambiguous.\n- Result: `worktree: kept - ambiguous home match at /work/widgets-pr-42`.\n- No destroy runs, and there is no forced fallback.\n\n## Teardown (all six checkpoints)\n\n- Delete the run record `/tmp/gatekeep-state.synthetic`.\n- Delete the `gatekeep-verify.*` and `gatekeep-review.*` helper outputs and every `log_path`. No temporary description body file exists.\n- Drop any unapplied drafts.\n- Close the `menu` stage.\n- The run ends. No further report, verdict or menu renders.\n",
+      "words": 662,
+      "wallMs": 38809,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "These are six independent continuations from an already-rendered initial menu, not six new assessments. I do not initialize a tracker, repeat provisioning, dispatch helpers, run verification, or reassess either SHA. The existing record remains `/tmp/gatekeep-state.synthetic`; course stays null and usage stays 0 rounds and 0 syncs, with caps 10/10.\n\nThe common entry menu is:\n\nVerdict: not ready - initial assessment checkpoint\n\nPick one:\n1. assess - post the review to the PR; then approve or stop, no repairs.\n2. deliver - repair blockers, rebase on main, watch CI, repeat until merge is offered. [recommended]\n3. stop - remove an eligible worktree, retaining dirty trees and unpushed commits.\n\nCourse holds until the final menu; `show evidence` prints the full record.\n\nIn each independent case, the human selects **3**. This authorizes non-final stop, not terminal cleanup. No sync line renders: the invocation has no `--rebase`, and no new assessment report is produced.\n\n## Common stop procedure\n\nFor each case, I first validate the existing continuation record against `acme/widgets`, PR 42, and base `main`. I do not replace the record or infer delivery authority from the entry checkpoint.\n\nI then determine the primary checkout:\n\n```sh\ngit -C <case-worktree> rev-parse --git-common-dir\n```\n\nIts parent identifies `/work/widgets`. The worktree is non-primary, so I apply the non-final-stop checks in order. The last pushed head is `1111111111111111111111111111111111111111`; no wave supplies another pushed head.\n\nNo helper is dispatched in any case.\n\n## A. Created tree, pushed commits, untracked `tmp.out`\n\nAfter the common primary-discovery command, I run:\n\n```sh\ngit -C /work/widgets-pr-42 status --porcelain --untracked-files=no\ngit -C /work/widgets-pr-42 merge-base --is-ancestor HEAD 1111111111111111111111111111111111111111\nrealpath /work/widgets-pr-42\nrealpath /work/widgets-pr-42\n```\n\nThe two `realpath` calls normalize the actual path and the configured home with PR 42 substituted. The tracked tree is clean, HEAD is contained in the pushed head, and the ownership match is unique.\n\nI validate the record again before destruction, then execute the recorded destroy command and prune:\n\n```sh\ngit -C /work/widgets worktree remove --force /work/widgets-pr-42\ngit -C /work/widgets worktree prune\n```\n\n`tmp.out` does not block removal and is deleted with the worktree. I touch nothing beneath the removed path afterward.\n\n```text\nworktree: done\n```\n\n## B. Reused tree with the same safe state\n\nI run the same checks, in the same order:\n\n```sh\ngit -C /work/widgets-pr-42 status --porcelain --untracked-files=no\ngit -C /work/widgets-pr-42 merge-base --is-ancestor HEAD 1111111111111111111111111111111111111111\nrealpath /work/widgets-pr-42\nrealpath /work/widgets-pr-42\n```\n\nThe tree passes all three checks. Reuse does not protect an otherwise eligible worktree from a non-final stop.\n\nAfter validating the record again, I run:\n\n```sh\ngit -C /work/widgets worktree remove --force /work/widgets-pr-42\ngit -C /work/widgets worktree prune\n```\n\n```text\nworktree: done\n```\n\n## C. Local commit `2222222` is unpushed\n\nI run:\n\n```sh\ngit -C /work/widgets-pr-42 status --porcelain --untracked-files=no\ngit -C /work/widgets-pr-42 merge-base --is-ancestor HEAD 1111111111111111111111111111111111111111\ngit -C /work/widgets-pr-42 log --format=%H 1111111111111111111111111111111111111111..HEAD\n```\n\nThe tracked tree is clean, but the ancestry check fails. The log identifies the unpushed commit. I stop eligibility checking here; I run no destroy, prune, reset, or commit-discard command.\n\n```text\nworktree: kept - unpushed commits 2222222222222222222222222222222222222222 at /work/widgets-pr-42\n```\n\nDiscarding that commit requires a separate explicit human decision. This run neither offers nor performs that discard.\n\n## D. Tracked `src/guard.mjs` is dirty\n\nI run:\n\n```sh\ngit -C /work/widgets-pr-42 status --porcelain --untracked-files=no\n```\n\nThe first eligibility check fails because `src/guard.mjs` has an uncommitted tracked change. I run no ancestry check, ownership check, destroy, prune, or restoration command.\n\n```text\nworktree: kept - uncommitted changes at /work/widgets-pr-42\n```\n\n## E. Reused branch at `/work/scratch/foreign`\n\nHere the common primary-discovery command uses `/work/scratch/foreign`. I then run:\n\n```sh\ngit -C /work/scratch/foreign status --porcelain --untracked-files=no\ngit -C /work/scratch/foreign merge-base --is-ancestor HEAD 1111111111111111111111111111111111111111\nrealpath /work/scratch/foreign\nrealpath /work/widgets-pr-42\n```\n\nThe tracked-clean and pushed-history checks pass. The actual path does not match the configured home, so ownership fails. Holding the expected branch does not authorize deleting a checkout outside that home.\n\nI run no destroy or prune command.\n\n```text\nworktree: kept - outside configured home at /work/scratch/foreign\n```\n\n## F. Two ownership matches\n\nAfter primary discovery, I run:\n\n```sh\ngit -C /work/widgets-pr-42 status --porcelain --untracked-files=no\ngit -C /work/widgets-pr-42 merge-base --is-ancestor HEAD 1111111111111111111111111111111111111111\ngit -C /work/widgets worktree list --porcelain\n```\n\nI normalize the configured home and candidate worktree paths through `realpath` during ownership matching. The supplied result is two matches, so ownership is ambiguous. I do not choose one or invoke the recorded destroy command.\n\n```text\nworktree: kept - ambiguous home match at /work/widgets-pr-42\n```\n\n## Teardown in each independent case\n\nAfter the case's keep/remove result, I drop unapplied drafts and delete its run record:\n\n```sh\nrm -- /tmp/gatekeep-state.synthetic\n```\n\nThe digest names no helper outputs, captured logs, or temporary description-body files to delete.\n\nI run **no branch deletion, base fetch or pull, release invocation, or close-ticket override**. Those are terminal cleanup steps, and a stop from the initial menu does not authorize them. The PR remains open, and no further menu renders.\n",
+      "words": 773,
+      "wallMs": 37644,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "7c09683060b9f8d1f0e798ca0a5bfeb55f1c7439bebcc6ba8a889dac7ba595ba",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "f4ed3e4a436e10b2df2b57d7f97b1eac9883c1734659108e4721f92aae4ce52d",
+      "baselineOutputSha": "7303b8c1837f13d51925fd64e36c82b52d533c023499307c100964abbe7de3e6",
+      "candidateOutputSha": "fa487b2df02d2327cadbfbaed762a8eb7bbbedf85a75dd889265d542246965bb",
+      "facts": {
+        "f1": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "f2": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "f3": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "f4": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        }
+      },
+      "feedback": "After moved f1 from fails to holds: Before only offered teardown in A (tree kept pending an answer) and left the reused tree B as found, whereas After runs the three ordered non-final-stop checks (tracked-clean status, pushed ancestry, unique keyed ownership match) and then executes the recorded destroy from the primary for both the created and the reused tree, explicitly deleting untracked tmp.out and pruning. Every fact Before kept still holds in After: C/D/E/F each print a `worktree: kept - <reason>` line with the path, C names the discard decision as a separate explicit human choice that stop never offers or performs, the 'Never in any case' block rules out branch deletion, base pull, release/close-ticket overrides and any gh write so the PR stays OPEN with no merge consequence, and the teardown list retires only the run record, helper outputs and log paths without touching sibling or primary checkouts. Keep that structure; the only wording to watch is the A/B eligibility statement ('Reused trees are equally eligible on a non-final stop'), which should stay tied to the ownership/tracked-clean/pushed checks so it cannot be read as a blanket removal of any reused tree.",
+      "wallMs": 12038,
+      "verdict": "improved"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "7c09683060b9f8d1f0e798ca0a5bfeb55f1c7439bebcc6ba8a889dac7ba595ba",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "f4ed3e4a436e10b2df2b57d7f97b1eac9883c1734659108e4721f92aae4ce52d",
+      "baselineOutputSha": "9210d4bdcaba61cfd36982c89acf58c48e61f78ce2736853bcbcb69b84be41bf",
+      "candidateOutputSha": "ac11b016d14adc995623c619dff136bf580074350e30c6e258f7a2499f80757f",
+      "facts": {
+        "f1": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "f2": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "f3": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "f4": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        }
+      },
+      "feedback": "After moves f1 and f4 to holds while keeping f2 and f3: A and B now run the eligibility checks (tracked-clean via status --untracked-files=no, pushed ancestry against 1111111, unique realpath home match) and then execute the recorded `git -C /work/widgets worktree remove --force /work/widgets-pr-42` from primary with tmp.out deleted, whereas Before only offered teardown in A and left B as found. Before also never retired the record in cases A and C, so retirement was inconsistent; After's shared teardown section removes `/tmp/gatekeep-state.synthetic` in every case and explicitly names nothing else. C still names the separate discard decision, D/E/F each print a `worktree: kept - <reason>` line, and the closing paragraph preserves the no-branch-deletion/base-sync/release/close-ticket and open-PR statements that Before had. Two small wording points to watch: the duplicated `realpath /work/widgets-pr-42` line in A/B reads as a typo rather than 'actual path vs configured home' (write the second as the substituted home template or annotate it), and the teardown section should say 'in each case, including kept trees' so a reader does not think record retirement is conditional on removal.",
+      "wallMs": 22308,
+      "verdict": "improved"
+    }
+  },
+  "repoSha": "cc0a65f05c826c32b59ddd6cf7fa655a9aa91d24"
+}

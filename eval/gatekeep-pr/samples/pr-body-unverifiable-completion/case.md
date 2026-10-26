@@ -21,7 +21,7 @@ bundle-: skills/gatekeep-pr/reference/assessment.md
 
 ## Entry
 
-The digest body asserts production completion. The diff and exact-head CI establish unsigned rejection, not deployment or production observation. The linked ticket and supplied deployment observation record conflict, and neither gives verifiable production results. A: no human clarification request. B: human requests "clarify what verification the description has evidence for", then selects the exact proposed factual clarification if presented; readback confirms it. Narrate A and B independently to their next menus.
+The digest body asserts production completion. The diff and exact-head CI establish unsigned rejection, not deployment or production observation. The linked ticket and supplied deployment observation record conflict, and neither gives verifiable production results. A: no human clarification request. B: human requests "clarify what verification the description has evidence for", then selects numeric 2 from initial assess=1, deliver=2, stop=3 after seeing the exact proposed factual clarification; readback confirms it. Narrate A and B independently to their next menus.
 
 ## Arguments
 

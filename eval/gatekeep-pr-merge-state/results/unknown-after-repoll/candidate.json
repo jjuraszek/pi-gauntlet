@@ -1,0 +1,100 @@
+{
+  "sample": "unknown-after-repoll",
+  "arm": "candidate",
+  "skillSha": "124b4f8717ce2f5e1e36caee0d780fce359d6508bfe156399cf44818b85f6448",
+  "inputSha": "d3e80476b9f114dc448ac46c0ed880846b61f68e4e88d4226de52c75cdb9f249",
+  "kind": "text",
+  "assembly": "concat",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "## Evidence resolution (Section B)\n\n- **Resolved check set:** all four checks on `9c1e4f2`, since no `ci checks:` is configured.\n  - `test_unit` and `build_image` are `success`.\n  - `lint` is `skipped`, which is inert.\n  - `crew-approval` is a `status_context` with `PENDING`, so it is pending.\n- **Binding classification:** `merge_state_status` is `UNKNOWN` after the step-2 re-poll, so `crew-approval` is **binding**.\n- **Rows, checked top-down:**\n  - Opt-out: no.\n  - Failed CI: no blocking conclusion.\n  - Held run: no `action_required`.\n  - **Pending:** at least one binding pending check and no blocking conclusion. This row wins.\n- **Result:** `source: pending`, head `9c1e4f2`. No local run.\n- **Claims:** \"Tests cover the retry path\" is `matched` from `test/feed/client.test.ts:12-40`. No claim depends on a check result.\n- **Exit check:** the row \"UNKNOWN/unreadable after step 2's single re-poll, regardless of CI color or a pending binding check\" matches. That gives `stuck - merge state unknown` and the obstacle template, even though the course is unset.\n  - The merge state owns the withhold reason and the `PR comments` line.\n  - No sync, no wait row, `stop` last and recommended.\n  - Usage stays unchanged at rounds 0 of 10 and syncs 0 of 10.\n\n## Report and menu\n\n```text\nDelivers: adds one bounded retry to the tide-feed client when a fetch returns 503.\n\nPR comments:\n- GitHub reports this actor's merge state as unknown even after a re-poll, so merge waits. (merge_state_status UNKNOWN; reviewDecision REVIEW_REQUIRED)\n\nEvidence: pending (crew-approval binding; head 9c1e4f2)\n\nVerdict: not ready - stuck - merge state unknown\n\nPick one:\n1. deliver - set course to deliver; retries once GitHub reports a known merge state, no round charged; add 10 to each cap (rounds 0 of 20, syncs 0 of 20).\n2. assess - post the review to the PR (no blockers, so nothing posts); then approve or stop, no repairs.\n3. stop - remove the worktree, leave the PR as is. [recommended]\n\nNot offered: merge (merge state unknown)\n\nType a number; show evidence prints the full record (pending (crew-approval binding; head 9c1e4f2)).\n```\n",
+      "words": 309,
+      "wallMs": 27157,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "Delivers: adds one bounded retry to the tide-feed client on a 503 response, with tests covering the retry path.\n\nPR comments:\n- The merge state is still unknown after the re-poll, so merge waits. (merge_state_status UNKNOWN)\n\nEvidence: pending (crew-approval binding; head 9c1e4f2)\n\nVerdict: stuck - merge state unknown\n\nPick one:\n1. deliver - set course to deliver; retry the merge-state prerequisite, no round charged; add 10 to each cap (rounds 0/10 -> 0/20; syncs 0/10 -> 0/20).\n2. assess - post any open blockers as a review; perform no repairs or sync.\n3. stop - remove the worktree, leave the PR as is. [recommended]\n\nNot offered: merge (merge state unknown)\n\nType a number; show evidence prints the full record (pending; crew-approval binding; head 9c1e4f2).\n",
+      "words": 117,
+      "wallMs": 10835,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "16d457a291a4b88486e78927944f0e611b3f0b6b14b6404085fdc15c71fafc54",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "5d82dd30c53664bf000f34822ffc17ecb66d298ce6c5d8f23db53e37e962ee49",
+      "baselineOutputSha": "62cc24026424d16352e202d1ad77f65bf6a65a29cc10006c5dd130d1512fdf4c",
+      "candidateOutputSha": "98f4559a0a4d970049c89339248d10fa949746fabb441fa223951178cb91309c",
+      "facts": {
+        "f1": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "f2": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "f3": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "f4": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "After delivers the intended move on f3: the post-repoll UNKNOWN now exits through the obstacle template with `stuck - merge state unknown`, no sync, no ordinary wait row, `stop` last and recommended, and an explicit statement that usage stays at rounds 0/10 and syncs 0/10, while merge remains withheld with the unknown-state reason (f1) and crew-approval is still classified binding with `source: pending` (f2, f4). Two spots are worth tightening so later readers don't misread them: the `deliver` row's wording 'retries once GitHub reports a known merge state, no round charged; add 10 to each cap (rounds 0 of 20, syncs 0 of 20)' can look like a wait/poll row and like counters moving in this report, so phrase it as a course selection only (e.g. 'set course to deliver; continuation resumes when GitHub reports a known merge state; caps would freeze at 20/20 on entry') and keep the unchanged 0/10 figures as the only counters shown; and the binding classification should keep Before's general statement ('UNKNOWN makes every pending check binding, so crew-approval is binding') rather than only the single-check conclusion, so f2's 'every pending check' rule is visibly preserved.",
+      "wallMs": 14267,
+      "verdict": "improved"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "16d457a291a4b88486e78927944f0e611b3f0b6b14b6404085fdc15c71fafc54",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "5d82dd30c53664bf000f34822ffc17ecb66d298ce6c5d8f23db53e37e962ee49",
+      "baselineOutputSha": "94a9e6614178a1a167cfcffdab44408507703c11b1e6e2add09da1ee3e0b3d05",
+      "candidateOutputSha": "01cc7f509835d7ff06cfdeb1ff1557b63110142bdd246dfae04a2e14b9975b6f",
+      "facts": {
+        "f1": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "f2": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "f3": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "f4": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "After keeps everything Before kept (merge withheld with the unknown-state reason, no exemption or non-binding claim) and gains two facts: the explicit 'Evidence: pending (crew-approval binding; head 9c1e4f2)' line makes the pending status_context resolve to pending rather than CI, and replacing the recommended 'wait - run one bounded CI watch' row with the stuck verdict, stop-recommended last, and no sync satisfies the post-repoll obstacle exit. One wording risk: the deliver row's 'add 10 to each cap (rounds 0/10 -> 0/20; syncs 0/10 -> 0/20)' sits close to reading as a counter change at exit time; keep the current counters stated plainly as unchanged (rounds 0/10, syncs 0/10) in the report body and describe the cap freeze as a consequence of choosing deliver ('caps freeze at 20 on continuation') so a reader cannot mistake it for the obstacle exit itself charging or resizing anything. Also retain 'no round charged' and the binding note on the evidence line, since those are what carry f2 and f3.",
+      "wallMs": 19516,
+      "verdict": "improved"
+    }
+  },
+  "repoSha": "24efb167212ca00be8c63a08556865b760a19549"
+}

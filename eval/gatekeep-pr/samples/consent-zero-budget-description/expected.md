@@ -1,2 +1,2 @@
 anonymized: true
-- f2: judged: No description write occurs under cap 0 despite selection of the exact available correction.
+- f2: judged: Cap zero omits delivery rows and no description write occurs despite a typed request for the exact correction; neither budget resets.

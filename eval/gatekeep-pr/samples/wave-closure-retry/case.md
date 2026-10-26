@@ -12,7 +12,7 @@ bundle-: skills/gatekeep-pr/reference/assessment.md
 - scope: source pr; the PR body states the intent "reject webhooks whose signature does not match"
 - worktree: .worktrees/pr-531 provisioned, HEAD == headRefOid, clean
 - harness: pi with the subagent facility; closureReview.maxFixRounds 3; timeout minutes 15
-- pre-wave findings: P1 blocker - signature compare is not constant-time (src/webhooks/verify.ts:22), payload drafted; P2 blocker - the rejected path has no test (src/webhooks/verify.test.ts), payload drafted; P3 blocker - handler logs the raw secret (src/webhooks/handler.ts:40), payload drafted but not selected by the pick `fix 1 2`
+- pre-wave findings: P1 blocker - signature compare is not constant-time (src/webhooks/verify.ts:22), payload drafted; P2 blocker - the rejected path has no test (src/webhooks/verify.test.ts), payload drafted; P3 blocker - handler logs the raw secret (src/webhooks/handler.ts:40), newly recorded after P1/P2 dispatch and not part of this dispatched set; retained course deliver, rounds_used 1/rounds_cap 6, syncs_used 0/syncs_cap 6
 
 ## Entry
 

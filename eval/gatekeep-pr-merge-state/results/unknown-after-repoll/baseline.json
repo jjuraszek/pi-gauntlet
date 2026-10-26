@@ -1,8 +1,8 @@
 {
   "sample": "unknown-after-repoll",
   "arm": "baseline",
-  "skillSha": "a152125ee331afcb38cb7fc73eb309af008b0535e314f4c16da60719d67cb96f",
-  "inputSha": "3a9962aa4a3bde3562fa3d35d4f9bb591ffe69c3f2ea09a5e4a4ddf532adf8cf",
+  "skillSha": "6041ed84fc59504cab924cdee16409bc5266884b61e4fb9053a2c30f15178c14",
+  "inputSha": "d3e80476b9f114dc448ac46c0ed880846b61f68e4e88d4226de52c75cdb9f249",
   "kind": "text",
   "assembly": "concat",
   "thinking": "medium",
@@ -17,18 +17,18 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "## Evidence resolution (Section B)\n\n**Resolved check set.** No `ci checks:` is configured, so the set is every check on `9c1e4f2`:\n\n| Check | Kind | Semantics | Binding |\n|---|---|---|---|\n| test_unit | check_run | `success`, satisfies | - |\n| build_image | check_run | `success`, satisfies | - |\n| lint | check_run | `skipped`, inert | - |\n| crew-approval | status_context | `PENDING`, pending | **binding** |\n\ncrew-approval is binding because `merge_state_status` is `UNKNOWN` after the step-2 re-poll. That condition binds every pending check, whatever its kind.\n\n**Row resolution, top-down:**\n- **Opt-out:** not configured.\n- **Failed CI:** no blocking conclusion.\n- **Held run:** no `action_required` in either the rollup or `actions_runs`.\n- **Pending:** matches. There is one binding pending check, no blocking conclusion, and the poll window has elapsed (the digest is the pre-menu state).\n\n**Result:** `source: pending`, `head_sha: 9c1e4f2`, no local run, no claims.\n\nA pending result carries no claim dispositions. The `claims` line in the step-4 output is outside the Reviewer's native contract and does not count. That means \"Tests cover the retry path\" still needs a claim-check-only Verifier pass. The pass runs once a later re-resolve reaches CI-sufficient. Until then, merge stays withheld on that precondition as well.\n\n**Integration:**\n- **Scope:** `issue_ref: null`, so `source: pr` and there are no AC rows. `Delivers` restates the PR's intent.\n- **Findings:** the reviewer verdict is SHIP with no findings, so there are no blockers and no nits.\n\n**Overlays that fire:**\n- `merge state` (UNKNOWN)\n- `verification evidence pending`\n- `CI check` (binding pending check)\n\n`merge state` is the highest, so it owns the reason and the single `PR comments` line. The line comes from Withhold reason resolver reason 2.\n\n**Menu:** the PR belongs to someone else and has zero blockers, so the menu uses the mergeable rows with `merge` omitted.\n- `wait` is row 1.\n- `[recommended]` goes to `wait`. The resolver reason is 2, not 1, so `approve` does not take it.\n\n## Report and menu\n\n```\nDelivers: the tide-feed client retries a fetch once when it gets a 503.\n\nPR comments:\n- GitHub has not reported this actor's merge state, so merge waits. (merge_state_status UNKNOWN)\n\nVerdict: fixable - merge state unknown\n\n1. wait - poll crew-approval and the merge state, then re-render          [recommended]\n2. approve - approve tlindqvist's PR\n3. fix - name the change to apply in the worktree, review the wave, push\n4. show evidence - pending CI evidence, check states\n5. stop - leave the PR as-is\nType a number. Not offered: merge (merge state unknown).\n```\n",
-      "words": 376,
-      "wallMs": 28497,
+      "text": "**Evidence resolution (Section B), assessed head `9c1e4f2`**\n\n- **Resolved check set:** no `ci checks:` is configured, so the set is all four checks on the head.\n  - `test_unit` and `build_image` are `success`.\n  - `lint` is `skipped`, which is inert.\n  - `crew-approval` is a `status_context` that is pending.\n- **Blocking conclusions:** none.\n- **Held runs:** none. No `action_required` appears in the rollup or in `actions_runs`.\n- **Binding classification:** `merge_state_status` is still `UNKNOWN` after the step-2 re-poll. That makes every pending check binding, so `crew-approval` is pending and binding.\n- **Row selection, top-down:**\n  - Opt-out does not match.\n  - Failed CI does not match.\n  - Held run does not match.\n  - **Pending matches.** There is one binding pending check and no blocking conclusion.\n- **Verifier record:**\n  - `source: pending`\n  - `head_sha: 9c1e4f2`\n  - No local run. The Pending row never runs one.\n  - The claim \"Tests cover the retry path\" is source-checkable now, so it is dispositioned `matched` (`test/feed/client.test.ts:12-40`).\n- **Overlays that fire:**\n  - `merge state` (`UNKNOWN`)\n  - `verification evidence pending`\n  - `CI check` (binding pending check)\n  - `merge state` sits highest in the table, so it owns the withhold reason and the single `PR comments` line. That is resolver reason 2.\n- **Step 4 reviewer output:** no Critical, Moderate or Minor findings. That means no blockers and no nits.\n- **Scope:** `issue_ref: null`, so the scope source is `pr`. There are no AC rows.\n\n---\n\n```\nDelivers: the tide-feed client retries a fetch once when the feed returns a 503.\n\nPR comments:\n- GitHub has not reported this actor's merge state, so merge waits. (merge_state_status UNKNOWN)\n\nVerdict: fixable - merge state unknown\n\n1. wait - run one bounded CI watch on crew-approval, then re-render [recommended]\n2. approve - approve the PR\n3. show evidence - gate output, CI run\n4. stop - leave the PR as-is\nType a number. Not offered: merge (merge state unknown).\n```\n",
+      "words": 282,
+      "wallMs": 23044,
       "mechanical": {}
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "Delivers: the tide-feed client retries once after a 503 response.\n\nPR comments:\n- GitHub has not reported this actor's merge state, so merge waits. (merge_state_status UNKNOWN)\n\nVerdict: fixable - merge state unknown\n\n1. wait - poll the merge state and binding pending check, then re-render [recommended]\n2. approve - approve the PR\n3. fix - name the change to apply in the worktree, review the wave, push\n4. show evidence - show the evidence record and check states\n5. stop - leave the PR as-is\n\nType a number. Not offered: merge (merge state unknown).\n",
-      "words": 87,
-      "wallMs": 11816,
+      "text": "Delivers: the tide-feed client retries once after a 503 response.\n\nPR comments:\n- GitHub has not reported this actor's merge state, so merge waits. (merge_state_status UNKNOWN)\n\nVerdict: fixable - merge state unknown\n\n1. wait - run one bounded CI watch, then re-render [recommended]\n2. approve - approve the PR\n3. show evidence - gate output, pending checks, claim dispositions\n4. stop - leave the PR as-is\n\nType a number. Not offered: merge (merge state unknown).\n",
+      "words": 69,
+      "wallMs": 7325,
       "mechanical": {}
     }
   },
-  "repoSha": "9932ea84fb0c04cbf4e1807b9905241bcfbf4402"
+  "repoSha": "06b180e9d72ec362ce77f563679c1715b41ed61f"
 }

@@ -20,7 +20,7 @@ bundle-: skills/gatekeep-pr/reference/sync.md
 
 ## Entry
 
-The first menu rendered with verdict `fixable - 2 blockers` and `2 nits open - fix nits to take them`; the human typed `fix`. Narrate the wave from the pick through the dispatch of every implementer helper, then stop before the pre-push reviewer is dispatched.
+The first menu rendered with verdict `fixable - 2 blockers` and `2 nits open - fix nits to take them`; the human selected numeric `2` (deliver; assess=1, deliver=2, deliver with nits=3, stop=4). Narrate the wave from the pick through the dispatch of every implementer helper, then stop before the pre-push reviewer is dispatched.
 
 ## Arguments
 

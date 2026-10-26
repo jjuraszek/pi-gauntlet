@@ -1549,16 +1549,16 @@ const okWave = (id: string) => waveResult(id, [{ agent: "implementer", exitCode:
 const guardedHarness = (settings: unknown, extra: unknown[] = []) =>
   harness({ cwd: tempCwd(settings), branch: verifyBranch([subagentResult(["conformance-reviewer"]), ...extra]) });
 
-test("cap guard: default 3 waves pass, the fourth is blocked with the escalation text", async () => {
+test("cap guard: default 5 waves pass, the sixth is blocked with the escalation text", async () => {
   const h = guardedHarness({ piGauntlet: { closureReview: { enforce: true } } });
   await h.emit("session_start");
-  for (let i = 1; i <= 3; i++) {
+  for (let i = 1; i <= 5; i++) {
     assert.equal(await firstCallResult(h, `c${i}`, implementerWave(2)), undefined, `round ${i} passes`);
     await h.emitEvent("tool_result", okWave(`c${i}`));
   }
-  const blocked = await firstCallResult(h, "c4", implementerWave(1));
+  const blocked = await firstCallResult(h, "c6", implementerWave(1));
   assert.equal(blocked?.block, true);
-  assert.match(blocked?.reason ?? "", /3 fix round\(s\) used against a cap of 3 \(granted rounds included\); escalate to the human/);
+  assert.match(blocked?.reason ?? "", /5 fix round\(s\) used against a cap of 5 \(granted rounds included\); escalate to the human/);
 });
 
 test("cap guard: maxFixRounds 0 blocks the first wave; 1 blocks the second; a chain implementer is cap-checked and counted", async () => {
@@ -1730,7 +1730,7 @@ const exhaust = async (h: ReturnType<typeof harness>, rounds: number, prefix = "
 };
 
 test("grant: funds extra waves and rejects another grant while credits remain", async () => {
-  const h = guardedHarness({ piGauntlet: { closureReview: { enforce: true } } });
+  const h = guardedHarness({ piGauntlet: { closureReview: { enforce: true, maxFixRounds: 3 } } });
   await h.emit("session_start");
   await exhaust(h, 3);
   const res = await grant(h, "g1", { rounds: 2, reason: "I'm approving 2 more rounds" });

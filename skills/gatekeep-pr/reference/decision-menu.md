@@ -1,175 +1,53 @@
 # gatekeep-pr: step 6 - menu
 
-Read from SKILL.md step 6. Input: the report's verdict and the PR state. Output: the menu appended under the verdict line. Execute a pick or validated retained action only through `post-selection-loop.md` `### Next action`; the menu grants no authority by recommendation.
+Read from SKILL.md step 6 with `menus.md`. Execute through `post-selection-loop.md` `### Next action`; recommendations confer no authority.
 
 ## Verbs
 
-`accept contract change`, `preserve contract`, `fix`, `fix nits`, `push`, `review`, `approve`, `approve workflow run`, `update branch`, `merge base`, `merge`, `merge anyway`, `reply`, `post coverage to ticket`, `post coverage to PR`, `cleanup`, `show evidence`, `wait`, `stop`.
+Read and apply [menu-layout](../../brainstorming/reference/menu-layout.md) before presenting rows and before numeric lookup. Render `<n>. <verb> - <consequence>` using the selected `menus.md` template. Keep `show evidence` hint-only and queued wait solely in the merge queued template.
 
-Render fix consequences with the applicable lifetime from `post-selection-loop.md` `### Continuation record`. For named fixes, state that authority retains only the selected stable IDs for later independent reassessments, with the same lifetime as broad fixes; link active pre-push retries to `fix-wave.md` `## Review before push`. For clarification-only fixes, state one-shot authority for the exactly selected payload; keep nit consequences one-shot.
-
-Read and apply [menu-layout](../../brainstorming/reference/menu-layout.md) before presenting these options and before acting on a numeric reply.
-
-Rows are `<n>. <verb> - <consequence>`; every row, `stop` included, carries its consequence clause. `stop` is always last, before the compose hint. `show evidence` is always offered and never `[recommended]`. A row the actor cannot execute - by `## Availability` below, or because the forge would refuse it (branch protection, a withhold) - is omitted and named in the compose line's `Not offered:` sentence; it is never `[recommended]`. Exactly one row is `[recommended]`. A **terminal overlay** is `own merge`, `merge queued` (once its read returns `MERGED` it re-renders as `own merge`), `approved`, or `merged or closed PR`; every other menu is an ordinary open-PR menu. **Landed** means the PR's `state` is `MERGED`; under `approved` and under a closed-unmerged PR nothing has landed.
-
-- `accept contract change` - invoke the concrete proposal's owning amendment process through `post-selection-loop.md` `### Contract decision`; settle the baseline only after completion
-- `preserve contract` - reject the concrete proposal and resume only permitted scope-preserving repair through `post-selection-loop.md` `### Contract decision`; keep independent blockers open
-- `fix` - retain covered blocker repair during this run until readiness or a new decision boundary (`post-selection-loop.md`); apply description targets through the loop's Description repair and file payloads for the named blockers (open blockers by default) through fresh implementer helpers in the provisioned worktree, review the wave before any push, push when `push` is available (`fix-wave.md`); on a `rebased locally` head, lease-push once every carried blocker is resolved (`fix-wave.md` `## Evidence after push`); `fix + nits` composes this verb with `fix nits`
-- `fix nits` - apply one-shot nit payloads drafted at this pick (`findings.md` `## Drafted payloads`) through fresh implementer helpers in the provisioned worktree, review the wave before any push, push when `push` is available (`fix-wave.md`); `fix + nits` typed with zero open blockers runs as this verb
-- `push` - push local fix commits (renders only when unpushed commits exist)
-- `review` - post the blockers as a GitHub review: request-changes on someone else's PR, a comment on your own
-- `approve` - approve the PR (never your own)
-- `approve workflow run` - `gh api --method POST repos/<base-owner>/<base-repo>/actions/runs/<id>/approve` for a held run on the assessed head, then re-enter the refresh (`post-selection-loop.md` `### Pre-menu refresh`)
-- `update branch` - `gh pr update-branch <N>`, then fast-forward the worktree to the new head (`fix-wave.md` `## Conflicts`); renders on a conflict with no wave commit, or when `merge_state_status` is `BEHIND` at the merge preconditions
-- `merge base` - retain merging the recorded base and resolving conflicts through reviewed helper work and push during this run until readiness or a new decision boundary (`fix-wave.md`)
-- `merge` - `gh pr merge --match-head-commit <assessed-sha>` with the flag of the resolved `merge policy` (`squash` -> `--squash`, `merge-commit` -> `--merge`, `rebase` -> `--rebase`; default squash); preconditions per `post-selection-loop.md` `### Merge preconditions`, including the repo allowing that method
-- `merge anyway` - merge while the pending-reviewer overlay withholds it; prints what it overrode
-- `reply` - post the drafted replies under `PR comments` (`reply <n>` for one)
-- `post coverage to ticket` - post the rendered `AC coverage` block as a comment on the source ticket via the resolved tracker verb (`gh issue comment`, the overrides' tracker mapping, or `/skill:linear`); renders only under the `own merge` overlay
-- `post coverage to PR` - post the same block with `gh pr comment <N> --body-file`; renders only under the `own merge` overlay
-- `cleanup` - tear down the gate's checkout and local branch per `cleanup.md`, then run the repo's `## cleanup` steps in order; the consequence clause names each override step as `<label> (<resolved command>)` with placeholders already substituted, so the exact tracker comment or release invocation is visible before the pick; with no `## cleanup` section the clause reads `tear down the gate's checkout and local branch (untracked files there are deleted)`
-- `show evidence` - print the evidence record, claim and AC outcomes, dispositions, drafted payloads and replies (`report.md` `## What stays out`)
-- `wait` - run one bounded `gh pr checks --watch` on every **binding** pending check in the resolved set (required or not), then re-render
-- `stop` - leave the PR as-is; under a terminal overlay leave the checkout as found and print one line naming the leftover worktree path and local branch; on an ordinary open-PR menu with a `rebased locally` head run `git reset --hard <pre_head>` before `### Teardown`, discarding the rewrite and any unpushed fix commits, and assert `HEAD == <pre_head>` with a clean tree; a mismatch is the existing hard stop with the error, and the remote stays untouched
-
-Compose hint: `Type a number, or compose: "fix 2", "fix nits", "fix + nits", "fix 1 + reply". Not offered: push (needs push to <head_url>:<head_ref>), merge (needs WRITE on <owner>/<repo>).` The first sentence lists only compositions whose every verb is a rendered row: `fix nits` and `fix + nits` appear only when both the `fix` and `fix nits` rows render; no `reply` row, no `fix 1 + reply`; no composable row, `Type a number.` alone. The second sentence names every omitted row as `<verb> (<why it is omitted>)` and is dropped when nothing is omitted. `merge anyway` renders as its own row when `## Availability` allows it, so the rendered-row rule does not apply to it. Offer `revoke fix` and `revoke merge base` compose forms for held grants, persisting only the named revocation through the loop. A composed line never bundles a push-producing verb (`fix`, `fix nits`, `push`, `merge base`) with `merge`. When a failing check withholds `merge`, the hint line also offers `check <name> flaky | real | ci-broken`, which records the disposition on that check (`findings.md` `## Dispositions`): `flaky` lifts the blocker, `real` keeps it until green, `ci-broken` triggers the fallback local run (`ci-broken` records `ci-infrastructure-broken`).
-
-A composed line naming an omitted row is refused by name and the menu re-renders; the `merge anyway` row is the only override.
+- `assess` - post the current open Blockers with locators as one review through `review`; use `gh pr review --request-changes` for someone else's/bot PR and `--comment` on the human's own PR; with zero blockers post nothing, then render assess terminal. Perform no repair or sync. Keep C# thread replies behind reply.
+- `deliver` - run the persistent delivery course through readiness, obstacle, or cap; at an obstacle continue under the cumulative accounting rules in `fix-wave.md` `## Wave`.
+- `deliver with nits` - store deliver-nits and include every current and subsequently minted nit in delivery.
+- `fix nits` - authorize exactly one delivery iteration without changing course; initialize missing accounting from `fix-wave.md` `## Wave` before work.
+- `accept contract change` - invoke the proposal's owning amendment through `### Contract decision`; update the baseline only after completion.
+- `preserve contract` - keep the baseline and independent blockers; resume scope-preserving course work without the rejected payload on that re-run.
+- `approve` - approve someone else's non-draft PR with zero blockers; persist approved_head only after success.
+- `approve workflow run` - execute `gh api --method POST repos/<base-owner>/<base-repo>/actions/runs/<id>/approve`, then refresh and watch under the course.
+- `merge` - execute `gh pr merge --match-head-commit <assessed-sha>` with the resolved policy flag and all merge preconditions; never infer approval from a setting.
+- `reply` - post drafted replyable C# replies; exact `reply <n>` selects one.
+- `post coverage to ticket` - post the rendered AC coverage block through the resolved tracker verb; renders only under the `own merge` template with issue and rows.
+- `post coverage to PR` - post the same block with `gh pr comment <N> --body-file`; renders only under the `own merge` template.
+- `cleanup` - run `cleanup.md` behind a terminal pick; name each resolved cleanup override command in the consequence, or say "tear down the gate's checkout and local branch (untracked files there are deleted)" with no override.
+- `stop` - run `### Teardown`; delegate non-final stop to `cleanup.md` `## Non-final stop`, keeping terminal behavior distinct.
 
 ## Availability
 
-Rows derive from the digest's `permissions` block (`../verification-brief.md` Section A; `head_pushable` from step 2, `assessment.md`). A field that reads `unreadable` fails closed: its rows are omitted.
+Derive availability from the digest's permissions; `unreadable` fails closed. Omit unavailable rows and name concrete reasons in `Not offered:`; never render an unavailable row with a suffix.
 
 | Row | Available when |
 |---|---|
-| `accept contract change`, `preserve contract` | a recorded contract exception is pending and no terminal/sync stop applies; route numeric and typed selections through `post-selection-loop.md` `### Contract decision` |
-| `fix` | an open blocker or explicitly requested exact clarification payload exists (a failing-check `P#` included), a helper facility exists (`../SKILL.md` `## Harness notes`), and the fix-round cap is neither `0` nor reached (`fix-wave.md` `## Wave`) |
-| `fix nits` | a nit exists, a helper facility exists (`../SKILL.md` `## Harness notes`), and the fix-round cap is neither `0` nor reached (`fix-wave.md` `## Wave`); a `fix` with neither blocker nor requested clarification, or a `fix nits` with no nit, is dropped from the row set and never named in `Not offered:` |
-| `merge base` | open PR with `mergeable: CONFLICTING` or `mergeStateStatus: BEHIND`, even with zero code blockers; head_pushable true, helpers, remaining budget, and no terminal/sync stop; preserve rebased-locally lease-only restrictions |
-| `push` | `head_pushable` is true and unpushed wave commits exist and the last pre-push review's carried set (`fix-wave.md` `## Review before push`) held no Critical or Moderate |
-| `merge` | `viewer_permission` is `WRITE`, `MAINTAIN`, or `ADMIN`, and the merge preconditions hold (`post-selection-loop.md`) |
-| `merge anyway` | its own overlay's withhold is the only unmet merge prerequisite (`post-selection-loop.md` `### Merge preconditions`) and `viewer_permission` is `WRITE`, `MAINTAIN`, or `ADMIN`; otherwise omitted and named in `Not offered:` |
-| `approve workflow run` | `viewer_permission` is `WRITE`, `MAINTAIN`, or `ADMIN`, and a held run exists on the assessed head |
-| `update branch` | `can_update_branch` is true and no unpushed wave commit exists |
-| `update branch`, `review`, `merge`, `merge anyway`, `push`, `wait` | omitted while the sync record is `rebased locally`, named in `Not offered:` as `(head not pushed)`; the fix wave's lease push is the only write to the PR head |
-| `cleanup` | only under a terminal overlay, never on an ordinary open-PR menu; it leaves the menu after it runs, success or not (`cleanup.md`) |
-| `approve`, `review`, `reply`, `post coverage to ticket`, `post coverage to PR`, `show evidence`, `wait`, `stop` | per the consent table and overlays below |
-
-## Consent table
-
-Authorship moves only `[recommended]`, never which rows are offered. The first rendered row is `[recommended]`; when every other row is `show evidence`, `stop` is `[recommended]`.
-
-A `fixable` verdict with zero blockers (a withhold reason) uses the mergeable rows with `merge` omitted; the reason stays in the verdict line (`report.md`) and in the `Not offered:` sentence. On such a withhold, `[recommended]` goes to `approve workflow run` under the held-run overlay, else to `approve` or `wait` under the merge state overlay, else to `wait` under the verification-evidence-pending, pending-reviewer, or binding-pending-check overlay, else to `stop`.
-
-| Author | Verdict | Rows |
-|---|---|---|
-| you | mergeable | `merge`; `fix nits`; `reply` (when a drafted reply exists); `show evidence`; `stop` |
-| you | fixable | `fix`; `fix nits`; `review`; `reply` (when a drafted reply exists); `show evidence`; `stop` |
-| someone else | mergeable | `approve`; `fix nits`; `merge`; `reply` (when a drafted reply exists); `show evidence`; `stop` |
-| someone else | fixable | `review`; `fix`; `fix nits`; `reply` (when a drafted reply exists); `show evidence`; `stop` |
-
-Add `fix` to mergeable rows only for an explicitly requested exact clarification; a clarification-only selection grants that payload and no ongoing blocker grant. Add available `merge base` to applicable main row sets without a fake blocker or empty fix. With no held strategy, prefer available `update branch`, otherwise recommend available `merge base`; higher safety overlays keep their recommendation. Preserve a held merge-base strategy, never replace it with update branch or rerun --rebase step 2b.
-
-`push` joins any row set after `fix` or `fix nits` when unpushed fix commits sit in the worktree.
+| `assess` | initial or obstacle course selection |
+| `deliver`, `deliver with nits` | helpers exist, maxFixRounds is positive, head_pushable is true; deliver with nits additionally needs nits; use the template's continuation rules at an obstacle |
+| `fix nits` | final template, nits remain outside the course, helpers and head_pushable true, accounting permits one iteration |
+| `accept contract change`, `preserve contract` | pending recorded contract exception |
+| `merge` | non-draft, viewer_permission `WRITE`, `MAINTAIN`, or `ADMIN`, all `### Merge preconditions` hold |
+| `approve` | viewer.is_author false, zero blockers, non-draft |
+| `approve workflow run` | held run on assessed head and viewer_permission `WRITE`, `MAINTAIN`, or `ADMIN` |
+| `reply` | drafted reply exists and source review complete |
+| `cleanup` | terminal template and cleanup_done false |
+| `post coverage to ticket`, `post coverage to PR` | own merge template, not previously successful; ticket also needs issue and rows |
+| `stop` | every template |
 
 ## Withhold reason resolver
 
-The single source for the merge-withhold reason, the `PR comments` line, and the `Not offered: merge (...)` text, in this precedence; overlays above `merge state` (merged or closed PR, draft PR, held run) keep their own reasons, and under two firing overlays the higher one owns the reason and the single `PR comments` line - the first matching reason renders, and `report.md`'s `fixable - <withhold reason>` carries the same word:
+Resolve every actual unmet `### Merge preconditions` reason through `post-selection-loop.md` `### Exit check`. Keep repairable gaps in the course, not a false readiness caused by missing WRITE permission. Render one concrete reason and locator rather than spinning.
 
-1. `merge_state_status` is `BLOCKED` -> line `GitHub reports this actor's merge as blocked, so merge waits. (merge_state_status BLOCKED; reviewDecision <value>)`, `Not offered: merge (blocked by GitHub)`, reason `blocked by GitHub`. `reviewDecision` rides as a locator only - never as a claim about which rule blocks, and no rendered sentence says another developer's approval is required.
-2. `merge_state_status` is `UNKNOWN` or `unreadable`, or the pre-menu refresh failed -> line `GitHub has not reported this actor's merge state, so merge waits. (merge_state_status <value>)` (on a failed refresh the locator is `merge state not refreshed (<reason>)`), `Not offered: merge (merge state unknown)`, reason `merge state unknown`.
-3. a binding pending check (`../verification-brief.md` Section B, binding classification) -> line `A check that binds this actor is still pending, so merge waits. (<check name>)`, `Not offered: merge (<check name> pending)`, reason `binding check pending`.
-
-## Overlays
-
-For a pending contract exception, print the concrete proposed contract change before the rows, using the recorded proposal; numeric and typed picks select these actual rows and route to `post-selection-loop.md` `### Contract decision`. Render the `preserve contract` consequence as "reject the proposal, keep <named requirement>, and resume authorized implementation repair within it". Existing terminal/sync stops take precedence; otherwise the contract-exception overlay replaces ordinary rows, and lower overlays cannot discard its decision rows.
-
-Apply overlays to the consent row; take additional rows only from a terminal overlay (`cleanup` and the post-coverage rows) or the pending `contract exception` (contract-decision rows). When two apply, the one higher in this table wins the `merge` reason and `[recommended]`.
-
-| Overlay | Trigger | Effect |
-|---|---|---|
-| own merge | this run's `merge` pick ran and the post-merge read (`post-selection-loop.md` `### Merge course`) returned `state: MERGED` | the menu is `cleanup` `[recommended]`, `post coverage to ticket` (when `issue` is non-null and `scope.rows` is non-empty), `post coverage to PR`, `show evidence`, `stop`; each post row renders once and leaves the menu after its post succeeds, and a successful post re-renders this menu - posting never tears down and never ends the run; a failed post keeps its row and prints the `gh` error; no compare-and-swap runs before a post |
-| merge queued | this run's `merge` pick ran and the post-merge read returned a state other than `MERGED` | the menu is `wait` (re-run the post-merge read, then re-render), `show evidence`, `stop`, with `wait` `[recommended]`; one `PR comments` line `The merge is queued, so coverage posts wait. (<state>)` |
-| approved | the continuation record's `approved_head` equals the assessed head (`post-selection-loop.md` sets it only when `gh pr review --approve` exits 0, before the re-render; a non-zero exit prints the `gh` error and the ordinary menu re-renders) | the menu is `cleanup` `[recommended]`, `show evidence`, `stop` |
-| merged or closed PR | `state` was not `OPEN` at step 1 | the report renders; the menu is `cleanup` `[recommended]`, `show evidence`, `stop` |
-| contract exception | a recorded contract exception is pending, with no terminal/sync stop | replace the ordinary menu with `accept contract change`, `preserve contract`, `show evidence`, `stop`; recommend `preserve contract`; use `post-selection-loop.md` `### Contract decision` for every selection |
-| draft PR | `isDraft` | `merge` and `approve` are omitted (`Not offered: merge (draft)`, plus `approve (draft)` when the consent row holds `approve`) and never carry `[recommended]`; `review` is recommended on someone else's fixable draft, `fix nits` on their mergeable draft when a nit exists, else `stop`; on your own, `fix` when a blocker exists, else `stop` |
-| held run | an `action_required` conclusion on an Actions run of the assessed head (`../verification-brief.md` Evidence resolution, Held run) with no `local run: held run not approvable` evidence yet for that head | `approve workflow run` renders as row 1 when available (`## Availability`) and is `[recommended]` when `Blockers` is empty, else `[recommended]` stays on the consent row's first row; `merge` is omitted (`Not offered: merge (workflow run awaiting approval)`); once the held-run-not-approvable local run exists, this overlay no longer applies and `merge` follows the preconditions |
-| merge state | `merge_state_status` is `BLOCKED`, `UNKNOWN`, or `unreadable`, or the pre-menu refresh failed (`post-selection-loop.md` `### Pre-menu refresh`) - independent of any pending check, so a green-CI state-only block fires it | one `PR comments` line from `## Withhold reason resolver` (reason 1 or 2); `wait` as row 1; `[recommended]` goes to `approve` when the consent row renders it (someone else's PR, resolver reason 1, `reviewDecision` `REVIEW_REQUIRED`) - recommending a row attributes nothing to a rule - else to `wait` when `Blockers` is empty; `merge` omitted with the resolver's `Not offered` text; no `anyway` row |
-| verification evidence pending | the Evidence resolution table resolved Pending for the assessed head (`../verification-brief.md` Section B) | puts `wait` as row 1 and, when `Blockers` is empty, `[recommended]`; `merge` is omitted with `## Withhold reason resolver` reason 3's text; consent rows otherwise unchanged |
-| CI check | an undispositioned failing check in the resolved set, or a binding pending check (`findings.md` `## Dispositions`); a held run is not a binding pending check here (the `held run` overlay owns it) | on a failing check, the hint line offers `check <name> flaky \| real \| ci-broken`; `merge` is omitted (`Not offered: merge (<check name> failing)`); `flaky` restores `merge` on the next render; `real` and `ci-infrastructure-broken` keep it omitted until green; a binding pending check renders one `PR comments` line and omits `merge` with the text of `## Withhold reason resolver` reason 3, and puts `wait` as row 1 and, when `Blockers` is empty, `[recommended]`; under both this and the `merge state` overlay the higher one owns the reason and the single `PR comments` line; it mints no disposition hint (not dispositionable) |
-| pending reviewer | a `pending` ledger row, a queued or in-progress reviewer run on the assessed head, or a failed comment refetch (`post-selection-loop.md` `### Re-render`) | puts `wait` as row 1 and, when `Blockers` is empty, `[recommended]`; `merge` is omitted (`Not offered: merge (reviewer still running)` or `merge (comments not refreshed)`); `merge anyway` renders as its own row when `## Availability` allows it, overrides only this overlay, and does not bypass an unreviewed delta or a blocker; a `reviewer failed (<conclusion>)` row changes nothing |
-| comment source review incomplete | the `### Re-render` step-4 source review of a comment delta did not finish (`post-selection-loop.md`) | one `PR comments` line `The comment source review did not finish, so merge waits. (<reason>)`; `merge` is omitted (`Not offered: merge (comment source review incomplete)`) with no `anyway` row; `reply` and `review` are dropped (the delta is unreviewed); `fix`, `fix nits`, `show evidence`, `stop` stay; `stop` is `[recommended]` |
-| head not pushable | `head_pushable` is false or `unreadable` (a fork head, a branch this actor cannot push, or an unreadable head) | `push` is omitted (`Not offered: push (needs push to <head_url>:<head_ref>)`); `fix` and `fix nits` stay and apply to the local worktree branch (`assessment.md` provisioning), their consequence clauses reading "open a PR from that branch, or hand the patch to the author"; `merge` follows `## Availability` |
-| bot author | `author_is_bot` | the someone-else rows |
-
-## Fixtures
-
-Fixture 1 - own PR, fixable, one nit, one drafted reply: the menu in `report.md` `## Worked example`.
-
-Fixture 2 - the re-render after fixture 1's `fix` pushed; the reviewer bot is mid-run on the new head:
-
-```
-Delivers: the reports page exports CSV on demand. ACs 1, 2, 4; 3 deferred per spec to acme/widgets#46; 4's observable half (export completes under 5s on production data) is checked after merge, not here.
-
-PR comments:
-- maria's comment on the missing CSV header is already addressed, so the drafted reply points her at the fix. (3f2a1c0)
-- The reviewer run is still in progress, so merge waits. (https://github.com/<owner>/<repo>/actions/runs/<run-id>)
-
-Nits:
-- The export pages results with its own loop instead of the shared paging helper, so a paging bug fixed once would need fixing twice. (src/api/export.ts:31, lib/page.ts)
-1 nit open - fix nits to take them
-
-Verdict: fixable - reviewer run in progress
-
-1. wait - run one bounded CI watch, then re-render [recommended]
-2. fix nits - apply the one-shot nit payload in the worktree, review the wave, push
-3. reply - post the drafted reply to maria
-4. show evidence - gate output, CI run
-5. stop - leave the PR as-is
-Type a number. Not offered: merge (reviewer still running).
-```
-
-Fixture 3 - a different PR: your own, every spec row covered, no nits, no drafted replies; the reviewer bot's run was the only withhold and `wait` just returned.
-
-(a) The run concluded `failure`: the `PR comments` line disappears, the reviewer check is inert, the verdict is `mergeable - CI green on the assessed head (test)`, and the menu is `merge` [recommended], `show evidence`, `stop`.
-
-(b) The run concluded `success` and the verdict comment raises a retry bug; source review confirms it and mints a blocker:
-
-```
-PR comments:
-- The reviewer bot's retry concern holds up against the source, so the drafted reply confirms it. (src/retry.ts)
-
-Blockers:
-1. Retries never count up, so a failing call retries forever instead of giving up
-   after the limit. (src/retry.ts:41)
-
-Verdict: fixable - 1 blocker
-
-1. fix - retain in-scope blocker repair during this run until readiness or a new decision boundary; review before push [recommended]
-2. review - post the blocker as a comment on your PR
-3. reply - post the drafted reply
-4. show evidence - gate output, CI run, drafted edit
-5. stop - leave the PR as-is
-Type a number, or compose: "fix 1 + reply".
-```
-
-When source review disproves the comment, no blocker is minted; the mergeable menu renders with `reply` for the drafted reply.
-
-Fixture 4 - the pre-merge refetch finds a new human comment after a `merge` pick: the merge aborts even when the concern is false, the comment is reviewed against source, and the menu re-renders for a fresh pick. A same-head identical-body timestamp edit mints a ledger row but triggers no source review or test run.
-
-Fixture 5 - this run's `merge` pick succeeded (`state: MERGED`):
-
-```
-## AC coverage
-Informational - the ticket's rows are unchanged. PR https://github.com/acme/widgets/pull/210, merged 9f1c2d3, spec <path>
-- [ ] The reports page offers an Export CSV button. - covered
-- [ ] Exports are emailed to the requesting user. - deferred per spec to acme/widgets#46
-
-1. cleanup - remove .worktrees/pr-210 and branch csv-export, pull main, then close ticket (gh issue close 45 --comment "Delivered in https://github.com/acme/widgets/pull/210, merged 9f1c2d3e4b5a6978.") [recommended]
-2. post coverage to ticket - comment the block above on acme/widgets#45
-3. post coverage to PR - comment the block above on the PR
-4. show evidence - gate output, CI run
-5. stop - leave the PR as-is; .worktrees/pr-210 and branch csv-export stay
-Type a number.
-```
+| Observation | Render |
+|---|---|
+| BLOCKED with no local repair | Use findings.md `## Dispositions` for the actor-framed PR-comments line and obstacle verdict; render obstacle even with course unset, plus `Not offered: merge (blocked by GitHub)`; never attribute a named rule |
+| UNKNOWN/unreadable after one re-poll | `stuck - merge state unknown`; `Not offered: merge (merge state unknown)` |
+| binding pending check | name the check under PR comments, `Not offered: merge (<check name> pending)`; watch only at delivery step 4 |
+| draft | `Not offered: merge (draft)` |
+| below WRITE | `Not offered: merge (needs WRITE on <owner>/<repo>)` |
+| other failed prerequisite | name its actual missing evidence/input or unsafe-state obstacle from Exit check |

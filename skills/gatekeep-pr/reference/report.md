@@ -21,7 +21,8 @@ Delivers: <one sentence: what the PR does. With source: spec, a second sentence 
 PR comments:             (replyable review comments, a pending reviewer run, a blocked or unknown merge state, a binding pending check, a failed refresh, or an incomplete source review - see the paragraph above)
 - <reviewer>'s comment on <topic> <verdict clause>, so the drafted reply <what it says>. (<locator>)
 - The reviewer run is still in progress, so merge waits. (<run url>)
-- <the line from decision-menu.md `## Withhold reason resolver`>
+- GitHub reports this actor's merge as blocked, so merge waits. (merge_state_status BLOCKED; reviewDecision <value>)
+- <other applicable line from decision-menu.md `## Withhold reason resolver`>
 
 Nits:                   (after the list, one line `<N> nits open - fix nits to take them` (`1 nit open` for one); rendered only while the `fix nits` row renders.)
 - <1-2 sentences>. (<file:line>)
@@ -31,28 +32,30 @@ Blockers:                (numbered; menu picks reference these numbers)
 
 Description: <optional concise non-blocking uncertainty: author assertion versus what the gate cannot verify>
 
-Sync: <one whole sentence from the digest's sync field; only when --rebase was passed>
+Sync: <digest's sync field value verbatim; optional explanation after it as a second clause or sentence; only when --rebase was passed>
 
-Verdict: mergeable - <evidence clause> | fixable - <N> blockers | fixable - <withhold reason>
+Verdict: mergeable - <evidence clause> | fixable - <N> blockers | not ready - <withhold reason>
 
 <menu>
 ```
 
-The `Sync:` line renders only when `--rebase` was passed, as one whole sentence built from the digest's `sync` field (for example `Sync: rebased a1b2c3d..e4f5a6b onto origin/main, one stop resolved in src/parser.ts and src/parser.test.ts.`). SKILL.md wording rule 5 (passing facts only under `show evidence`) does not apply to it: it names the resolved files even when the sync succeeded.
+Render `Sync:` only when `--rebase` was passed. Open the `Sync:` line with the digest's `sync` field value verbatim (for example `Sync: declined - other author's branch`). Put any explanation after that value as a second clause or sentence. Never paraphrase the status value into prose. Exempt this line from SKILL.md wording rule 5 (passing facts only under `show evidence`): name the resolved files even when the sync succeeded.
+
+For obstacle reports, print exactly one `Evidence:` line naming the resolved evidence source and the assessed head, immediately before the verdict (for example `Evidence: CI (run 7001, test_unit and build_image green on 9c1e4f2)`). Use the resolved local verification summary instead when local evidence owns the assessment; do not invent a passing result when evidence is unavailable. Carry the same source summary into the obstacle menu's evidence hint. Exempt this compact source summary and the final template's `Evidence:` line from the evidence-only rules below and SKILL.md wording rule 5; keep the full record under `show evidence`.
 
 ## Verdict
 
-Two states: `mergeable` or `fixable`. `mergeable` carries the evidence clause from `findings.md` `## Provenance`: `CI green on the assessed head (<check name>)` or `verification command passed locally`. `fixable - <N> blockers` when `Blockers` is non-empty; `fixable - <withhold reason>` when it is empty but a merge prerequisite is unmet: `reviewer run in progress`, `binding check pending`, `blocked by GitHub`, `merge state unknown`, `failed gate` (listed for spec parity; a red gate mints a blocker per `findings.md` `## Namespaces`, so `Blockers` is non-empty), `comments not refreshed`, `comment source review incomplete`, `verification not run` (the command needed credentials or no command resolved, with nothing else blocking), `mergeable unknown`, `behind base`, `merge conflict` (for `mergeable == CONFLICTING`).
+For ordinary assessments, use `mergeable`, `fixable`, or `not ready`. Carry the mergeable evidence clause from `findings.md` `## Provenance`: `CI green on the assessed head (<check name>)` or `verification command passed locally`. Name the blocker count or concrete unmet prerequisite for fixable/not-ready assessments. Delegate obstacle/cap verdicts to `post-selection-loop.md` `### Exit check` and menu verdicts to `menus.md`.
 
 `<N> blockers` reads `1 blocker` for one.
 
 ## What stays out
 
-Verbatim command output stays in its `log_path` file and never prints; `show evidence` prints its `show evidence: <log_path>` line instead. CI run URLs and conclusions (the pending-reviewer locator in `PR comments` is the one URL that prints in the report), drafted file edits and full description bodies, drafted replies, matched claims, per-row AC outcomes, internal IDs, and disposition annotations print only under the `show evidence` pick. A clean run with a spec renders `Delivers`, the verdict line, and the menu - about four lines.
+Verbatim command output stays in its `log_path` file and never prints; `show evidence` prints its `show evidence: <log_path>` line instead. CI run URLs and conclusions (the pending-reviewer locator in `PR comments` is the one URL that prints in the report), drafted file edits and full description bodies, drafted replies, matched claims, per-row AC outcomes, internal IDs, and disposition annotations print only under the `show evidence` command. A clean run with a spec renders `Delivers`, the verdict line, and the menu - about four lines.
 
-Print the compact exact old-to-new description preview under its blocker; keep the full replacement body under `show evidence`. Uncertainty alone preserves the mergeable verdict.
+Print the compact exact old-to-new description preview under its blocker; keep the full replacement body under `show evidence`. Keep a declined correction's proposal open and its preview line under the blocker on every re-render until the claim resolves. Uncertainty alone preserves the mergeable verdict.
 
-`show evidence` prints `state: <absolute-path>` for the authoritative continuation record, then, in this order: the evidence record (CI: each satisfying check's name, conclusion, SHA, run URL; local: each run's command, `result`, `exit_code`, and one `show evidence: <log_path>` line pointing at its captured output - never the output itself); claim dispositions; AC outcomes per row and the `cross-check:` line (`assessment.md` `## Select the scope contract`); check dispositions; drafted payloads keyed by the blocker or nit number they fix; drafted replies keyed by the `PR comments` item they answer.
+Print `state: <absolute-path>` under `show evidence`, followed by the run record's course, immutable target, stored scope baseline, cumulative round/sync usage and caps, deadline, wave checkpoints and failed-prerequisite history. Then print, in this order: the evidence record (CI: each satisfying check's name, conclusion, SHA, run URL; local: each run's command, `result`, `exit_code`, and one `show evidence: <log_path>` line pointing at its captured output - never the output itself); claim dispositions; AC outcomes per row and the `cross-check:` line (`assessment.md` `## Select the scope contract`); check dispositions; drafted payloads keyed by the blocker or nit number they fix; drafted replies keyed by the `PR comments` item they answer.
 
 ## Worked example
 
@@ -77,13 +80,6 @@ Blockers:
 
 Verdict: fixable - 2 blockers
 
-1. fix - retain in-scope blocker repair during this run until readiness or a new decision boundary; review before push [recommended]
-2. fix nits - apply the one-shot nit payload in the worktree, review the wave, push
-3. review - post the blockers as a comment on your PR
-4. reply - post the drafted reply to maria
-5. show evidence - gate output, CI run, drafted edits
-6. stop - leave the PR as-is
-Type a number, or compose: "fix 2", "fix nits", "fix + nits", "fix 1 + reply".
 ```
 
 A clean own PR with ticket gh-45 and CI green:
@@ -93,8 +89,6 @@ Delivers: the reports page exports CSV on demand. ACs 1-5.
 
 Verdict: mergeable - CI green on the assessed head (test)
 
-1. merge - squash onto main                                               [recommended]
-2. show evidence - gate output, CI run
-3. stop - leave the PR as-is
-Type a number.
 ```
+
+Render the initial example and every later menu from `menus.md`; keep all evidence-only details under the hint command. Preserve bottom-up report order before the selected template.

@@ -1,0 +1,100 @@
+{
+  "sample": "course-obstacle-unknown",
+  "arm": "candidate",
+  "skillSha": "a978c00846c0c57bfd2d99820b252a1c7568d502d60914288dd028fd37eaa400",
+  "inputSha": "9cc918f83af9076d9f552bed8cdeba5622f4c9ab813e9530fe97b0ffd1c5b22f",
+  "kind": "text",
+  "assembly": "concat",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "# gatekeep-pr - PR 42, re-entry under a retained `deliver` course\n\nCommon entry state for all three cases:\n\n- Arguments are `42`, with no `--rebase`, so no sync runs and no `Sync:` line renders.\n- The assessed head is `1111111111111111111111111111111111111111` (short `1111111`). Verification evidence and the brief are both bound to that SHA: CI is the source, with run 910 and `ci / test` green on that exact head.\n- The tracker stages were initialized earlier as `gather, provision, verify`, with `review` added when it started. On this re-entry I re-open `report`, then add `menu` when the menu starts.\n- No helper is dispatched in any case:\n  - The head did not move, so step 3 is not re-run and no Verify or Review helper is needed.\n  - There is no comment delta, so no comment-delta reviewer is needed.\n  - The body is unchanged, so no description-recheck helper is needed.\n  - The exit fires before D3 step 1 dispatches any implementer.\n\n---\n\n## Case A - merge state UNKNOWN after the single re-poll\n\n1. **Validate the run record.** I read `/tmp/gatekeep-state.synthetic` and confirm:\n   - It is readable and well-formed.\n   - `consent.target` is `{ acme/widgets, 42, main }`.\n   - `course: deliver`.\n   - Usage is `rounds_used 1` and `syncs_used 2`, against caps 10 and 10.\n2. **Exit check, first pass.** There is no `open - needs <X>` helper result and no `repair.wave.no_progress` checkpoint, so there is no early exit.\n3. **Pre-menu refresh** (read-only). This folds in the Next-action check of target and body freshness:\n   - `gh pr view 42 --json headRefOid,state,mergeable,mergeStateStatus,reviewDecision,statusCheckRollup,body,baseRefName,number,title,author,isDraft,headRefName,isCrossRepository,files,additions,deletions,commits,reviews,closingIssuesReferences,headRepository,maintainerCanModify,url,mergeCommit`\n   - `gh run list -R acme/widgets -c 1111111111111111111111111111111111111111 --json databaseId,status,conclusion,workflowName,url`\n   - Results:\n     - The head is unchanged at `1111111`.\n     - The body is unchanged.\n     - `baseRefName main` matches `consent.target`.\n     - The state is OPEN.\n     - `ci / test` is SUCCESS, and run 910 completed with success.\n     - `mergeStateStatus` is UNKNOWN.\n4. **Single re-poll.** I run `gh pr view 42 --json mergeable,mergeStateStatus`, and it is still UNKNOWN. I write that value to `permissions.merge_state_status`.\n5. **Evidence resolution.** The result is CI-sufficient on `1111111`. The earlier claim dispositions carry, because the head and body are unchanged. No pending check exists, so there is no binding check and no watch.\n6. **Exit check.** Readiness fails on the merge-state precondition. The matching row is `stuck - merge state unknown`, which leads to the obstacle template. As a result:\n   - No Loop sync runs: the merge-tree check and the D3 body are not entered.\n   - No round or sync is charged.\n   - The record is unchanged: usage is 1 and 2 against caps 10 and 10.\n7. **Render** the obstacle template from `menus.md`.\n\nNo `Sync:` line renders.\n\n```\nDelivers: the PR rejects unsigned events.\n\nPR comments:\n- GitHub still reports the merge state as unknown after one re-poll, so merge waits. (merge_state_status UNKNOWN)\n\nEvidence: CI (run 910, ci / test green on 1111111)\nVerdict: stuck - merge state unknown\n\nPick one:\n1. deliver - resume the retained course; re-reads the merge state and retries once GitHub resolves it, no round charged; add 10 to each cap (rounds 1 of 10 -> 1 of 20, syncs 2 of 10 -> 2 of 20).\n2. assess - switch course; with zero blockers nothing posts, then the assess menu.\n3. stop - remove the worktree, leave the PR as is. [recommended]\n\nNot offered: merge (merge state unknown)\nType a number; show evidence prints the full record (CI run 910, ci / test green on 1111111).\n```\n\n---\n\n## Case B - run record missing (ENOENT)\n\n1. **Validate the run record.** Reading `/tmp/gatekeep-state.synthetic` returns ENOENT. That is the `Missing/malformed/mismatched record` row, so the exit is `stuck - run record unreadable`. Because of that:\n   - I do not recreate the file.\n   - I do not reset `repair.*` to zero.\n   - I do not discover another record.\n   - I do not infer course authority from chat.\n   - Usage stays as it was. The usage is unknown to this run and is reported as such, not as 0.\n2. **Pre-menu refresh** (read-only, required before any menu). I run the same `gh pr view 42 --json ...` and `gh run list -R acme/widgets -c 1111111111111111111111111111111111111111 ...` as in case A. The observations are the same green ones: head `1111111`, body and base unchanged, run 910 green. The record row has already matched first, so no merge-state re-poll decides anything.\n3. **No writes and no persistence.** No course row can run, because each one would have to persist course and accounting into a record that does not exist. Deliver and assess are therefore withheld.\n4. **Render** the obstacle template.\n\nNo `Sync:` line renders.\n\n```\nDelivers: the PR rejects unsigned events.\n\nEvidence: CI (run 910, ci / test green on 1111111)\nVerdict: stuck - run record unreadable\n\nPick one:\n1. stop - remove the worktree, leave the PR as is. [recommended]\n\nNot offered: deliver (run record unreadable), assess (run record unreadable), merge (run record unreadable)\nType a number; show evidence prints the full record (CI run 910, ci / test green on 1111111; state: /tmp/gatekeep-state.synthetic missing).\n```\n\n---\n\n## Case C - mergeStateStatus BLOCKED, no local repair applies\n\n1. **Validate the run record.** It is valid, with `course: deliver`, usage 1 and 2, and caps 10 and 10.\n2. **Exit check, first pass.** There is no helper `open` result and no no-progress checkpoint.\n3. **Pre-menu refresh.** I run the same `gh pr view 42 --json ...` and `gh run list -R acme/widgets -c 1111111111111111111111111111111111111111 ...`. Results:\n   - Head `1111111`, body and base unchanged.\n   - `ci / test` is SUCCESS.\n   - `mergeStateStatus` is BLOCKED.\n   - `reviewDecision` is REVIEW_REQUIRED.\n4. **Evidence resolution.** The result is CI-sufficient on `1111111`. There is no pending check and no failing check to disposition.\n5. **Exit check.** The matching row is `Undispositionable BLOCKED`, with the verdict `GitHub reports BLOCKED, no local repair applies`.\n   - `REVIEW_REQUIRED` is cited only as a locator, and no named rule is attributed.\n   - No sync is promised, there is no wait row, and there is no approve row.\n   - No round or sync is charged, and the record is unchanged.\n6. **Render** the obstacle template.\n\nNo `Sync:` line renders.\n\n```\nDelivers: the PR rejects unsigned events.\n\nPR comments:\n- GitHub reports this actor's merge as blocked, so merge waits. (merge_state_status BLOCKED; reviewDecision REVIEW_REQUIRED)\n\nEvidence: CI (run 910, ci / test green on 1111111)\nVerdict: GitHub reports BLOCKED, no local repair applies\n\nPick one:\n1. deliver - resume the retained course; retries only after GitHub's merge block changes, no round charged; add 10 to each cap (rounds 1 of 10 -> 1 of 20, syncs 2 of 10 -> 2 of 20).\n2. assess - switch course; with zero blockers nothing posts, then the assess menu.\n3. stop - remove the worktree, leave the PR as is. [recommended]\n\nNot offered: merge (blocked by GitHub)\nType a number; show evidence prints the full record (CI run 910, ci / test green on 1111111).\n```\n",
+      "words": 1067,
+      "wallMs": 57758,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "These are three separate retained-course checkpoints, not consecutive states. All commands below are hypothetical; I run no tools.\n\nNo tracker is initialized again. The existing run record and cumulative accounting must be retained. No rebase, repair, push, CI watch, or helper dispatch is authorized or needed before these obstacle menus. Existing verification and review assess `1111111111111111111111111111111111111111`; green CI does not override any of these obstacles.\n\n## A. Merge state remains UNKNOWN\n\n1. Read and validate `/tmp/gatekeep-state.synthetic`, including its immutable target. Retain course `deliver`, rounds `1/10`, and syncs `2/10`.\n2. Run the single merge-state re-poll:\n   ```text\n   gh pr view 42 --json mergeable,mergeStateStatus\n   ```\n   `mergeStateStatus` remains `UNKNOWN`.\n3. Start tracker stage `report`. Before integration, run the required read-only pre-menu refresh:\n   ```text\n   gh pr view 42 --json headRefOid,state,mergeable,mergeStateStatus,reviewDecision,statusCheckRollup,body,baseRefName,number,title,author,isDraft,headRefName,isCrossRepository,files,additions,deletions,commits,reviews,closingIssuesReferences,headRepository,maintainerCanModify,url,mergeCommit\n   gh run list -R acme/widgets -c 1111111111111111111111111111111111111111 --json databaseId,status,conclusion,workflowName,url\n   ```\n   The head, body, and base remain unchanged. The check remains green, and merge state remains `UNKNOWN`.\n4. Apply Exit check: exit immediately with `stuck - merge state unknown`. Do not dispatch a helper, create a watch deadline, watch CI, or charge either counter.\n5. Complete `report` and start tracker stage `menu`. Render the obstacle menu, then complete `menu`.\n\nNo `Sync:` line renders because the invocation contains no `--rebase`.\n\nDelivers: Rejects unsigned events.\n\nPR comments:\n- GitHub's merge state remains unknown after the re-poll, so merge waits. (merge_state_status UNKNOWN)\n\nEvidence: CI (source: ci; run 910, ci / test success on 1111111; binding pending: 0; merge_state_status UNKNOWN)\n\nVerdict: not ready - stuck - merge state unknown\n\nPick one:\n1. deliver - resume the retained course; retry after merge state becomes readable, no round charged; add 10 to each cap (rounds 1/10 to 1/20, syncs 2/10 to 2/20).\n2. assess - switch to assessment; post no review because there are no blockers.\n3. stop - remove the eligible gate worktree and leave the PR unchanged. [recommended]\n\nNot offered: merge (merge state unknown).\n\nType a number; show evidence prints the full record (CI, run 910, ci / test success on 1111111; binding pending: 0; merge_state_status UNKNOWN).\n\n## B. The retained run record is missing\n\n1. Attempt to read and validate `/tmp/gatekeep-state.synthetic`. The read returns `ENOENT`.\n2. Exit immediately with `stuck - run record unreadable`. Do not create a replacement record, discover another record, initialize accounting, or infer authority from the earlier course.\n3. Run no forge commands, helpers, writes, or CI watch. A refresh cannot repair lost authority.\n4. Add `report` and then `menu` to the existing tracker as those stages start. Record the missing-record obstacle without recreating continuation state. The last observed usage remains rounds `1/10` and syncs `2/10`; neither is reset or incremented.\n\nNo new verification or review runs. Their last assessed SHA remains `1111111111111111111111111111111111111111`, but that evidence cannot restore the missing run record.\n\nNo `Sync:` line renders.\n\nDelivers: Rejects unsigned events.\n\nPR comments:\n- The retained run record is missing, so authorized work cannot continue. (/tmp/gatekeep-state.synthetic)\n\nEvidence: CI (source: ci; run 910, ci / test success on 1111111; last supplied green observations)\n\nVerdict: not ready - stuck - run record unreadable\n\nPick one:\n1. deliver - resume the retained course only after the original record validates; retry record validation, no round charged; add 10 to each cap after validation (last observed rounds 1/10 to 1/20, syncs 2/10 to 2/20).\n2. assess - select assessment; posting remains blocked until the original record validates.\n3. stop - end this invocation without reconstructing the missing record. [recommended]\n\nNot offered: merge (run record unreadable).\n\nType a number; show evidence prints the available retained evidence and the missing-record error (CI, run 910, ci / test success on 1111111).\n\n## C. GitHub reports BLOCKED with no local repair\n\n1. Read and validate `/tmp/gatekeep-state.synthetic`, including its immutable target. Retain course `deliver`, rounds `1/10`, and syncs `2/10`.\n2. Start tracker stage `report`. Run the required pre-menu refresh:\n   ```text\n   gh pr view 42 --json headRefOid,state,mergeable,mergeStateStatus,reviewDecision,statusCheckRollup,body,baseRefName,number,title,author,isDraft,headRefName,isCrossRepository,files,additions,deletions,commits,reviews,closingIssuesReferences,headRepository,maintainerCanModify,url,mergeCommit\n   gh run list -R acme/widgets -c 1111111111111111111111111111111111111111 --json databaseId,status,conclusion,workflowName,url\n   ```\n   The head, body, and base remain unchanged. CI remains green. GitHub reports `BLOCKED` and `REVIEW_REQUIRED`.\n3. Apply Exit check: no local source repair or check disposition applies. Exit without attributing the block to any named rule.\n4. Dispatch no helper, perform no sync, and watch no CI. Preserve both counters.\n5. Complete `report` and start tracker stage `menu`. Render the obstacle menu, then complete `menu`.\n\nNo `Sync:` line renders.\n\nDelivers: Rejects unsigned events.\n\nPR comments:\n- GitHub reports this actor's merge as blocked, so merge waits. (merge_state_status BLOCKED; reviewDecision REVIEW_REQUIRED)\n\nEvidence: CI (source: ci; run 910, ci / test success on 1111111; binding pending: 0; merge_state_status BLOCKED)\n\nVerdict: not ready - GitHub reports BLOCKED, no local repair applies\n\nPick one:\n1. deliver - resume the retained course; retry after GitHub's blocked prerequisite changes, no round charged; add 10 to each cap (rounds 1/10 to 1/20, syncs 2/10 to 2/20).\n2. assess - switch to assessment; post no review because there are no blockers.\n3. stop - remove the eligible gate worktree and leave the PR unchanged. [recommended]\n\nNot offered: merge (blocked by GitHub).\n\nType a number; show evidence prints the full record (CI, run 910, ci / test success on 1111111; binding pending: 0; merge_state_status BLOCKED).\n",
+      "words": 825,
+      "wallMs": 31413,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "abf5d98099d85a9ecc1e105755d26b240a938cbe1507cb291ce3765e2c411f8a",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "f4ed3e4a436e10b2df2b57d7f97b1eac9883c1734659108e4721f92aae4ce52d",
+      "baselineOutputSha": "5498f7c6177427e4bec25debb565b489f4ce98d433139cbc77b7c39f4afd8180",
+      "candidateOutputSha": "eac03629a2f45600bfcaaac6328815bb0ffb6a7280960be5ffa79c001b6490c3",
+      "facts": {
+        "f1": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "f2": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "f3": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "f4": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        }
+      },
+      "feedback": "After delivers the Change cleanly for this case: A re-polls exactly once and exits `stuck - merge state unknown` with usage unchanged at 1/2 against 10/10; B hits the missing-record row first, refuses to recreate/reset/discover/infer, and exits `stuck - run record unreadable`; C uses the `Undispositionable BLOCKED` row with REVIEW_REQUIRED cited only as a locator and no approve row; all three render the menus.md obstacle template with stop recommended and last, show evidence demoted to the hint line, and no wait row or automatic merge. Before failed every fact because it still used the old per-action model: `fixable` verdicts, a recommended ordinary `wait` row in A and C, a numeric show-evidence row, stop never recommended, and the retained `deliver` course dismissed as unrecognized. Nothing regressed in After. One wording caution unrelated to these facts: the A and C `deliver` rows promise `add 10 to each cap` even though usage (1/2) is nowhere near exhausted; consider reserving the cumulative-extension clause for the cap-exhausted obstacle so the UNKNOWN/BLOCKED obstacle's deliver row reads as a plain course resumption with no round charged.",
+      "wallMs": 21309,
+      "verdict": "improved"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "abf5d98099d85a9ecc1e105755d26b240a938cbe1507cb291ce3765e2c411f8a",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "f4ed3e4a436e10b2df2b57d7f97b1eac9883c1734659108e4721f92aae4ce52d",
+      "baselineOutputSha": "96d12da71b752d7d3763f670e5b5ae43f6093a17832fe6cb5c8bcca001d6d3e3",
+      "candidateOutputSha": "1b1bdc2f732f7002658684ed670ede4de7fbf103bd313553bfc95e4425740a9d",
+      "facts": {
+        "f1": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "f2": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "f3": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "f4": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        }
+      },
+      "feedback": "After delivers the Change cleanly: all three checkpoints now exit with explicit `stuck - ...` verdicts (A after exactly one re-poll, B on ENOENT without reconstructing or searching for a record), render the obstacle template with deliver/assess rows, stop recommended and last, show evidence demoted to a hint, no ordinary wait row, no helper dispatch, and both counters untouched. Before failed f1/f2/f4 because it labeled these as `fixable` and offered a recommended `wait` row plus a numeric `show evidence` row, which the new menus.md obstacle template removes. f3 was already kept in Before (no rule attribution, no own-approval demand) and After preserves it while adding the explicit `no local repair applies` verdict wording. One thing to keep an eye on in B: the deliver row's cap-extension text (`add 10 to each cap after validation`) and the `last observed rounds 1/10` phrasing walk close to reconstructing authority from chat; it stays on the right side because it conditions everything on the original record validating, but tightening it to something like `deliver - unavailable until /tmp/gatekeep-state.synthetic validates; no caps or counters are inferred` would make the no-inference guarantee unmistakable without losing the obstacle-menu shape.",
+      "wallMs": 18712,
+      "verdict": "improved"
+    }
+  },
+  "repoSha": "cc0a65f05c826c32b59ddd6cf7fa655a9aa91d24"
+}

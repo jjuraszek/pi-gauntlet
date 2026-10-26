@@ -1,6 +1,6 @@
 anonymized: true
 - f1: judged: A prints the compact old-to-new description preview under its blocker.
-- f2: judged: A writes nothing until a fix pick or a retained fix grant.
+- f2: judged: A writes nothing without a numeric course selection or retained deliver course.
 - f3: judged: B preserves all unrelated body text.
 - f4: judged: B requires actual readback and a narrow claim recheck before clearing P1.
 - f5: judged: B does not propose the same resolved correction again on unchanged refresh.

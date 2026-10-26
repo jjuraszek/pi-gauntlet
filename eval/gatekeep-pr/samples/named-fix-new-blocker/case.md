@@ -20,7 +20,7 @@ bundle-: skills/gatekeep-pr/reference/assessment.md
 
 ## Entry
 
-The human selected `fix 1` when display row 1 was P1 empty-signature blocker. P1 repaired, reviewed, pushed to 2222222222222222222222222222222222222222. Source review now confirms P4 blocker for an unsigned-array bypass at src/guard.ts:18, displayed as row 1; P5 nit is an unused import. No other fix selection occurred. Continue to the next menu and stop.
+At an initial menu assess=1, deliver=2, stop=3, human types `fix 1` naming stable P1 empty-signature blocker. Course is null; repair rounds_used 0/rounds_cap 6, syncs_used 0/syncs_cap 6. Before any action, fresh review reports P4 unsigned-array bypass as display row 1 and P5 unused-import nit. P1 retains its original stable ID and evidence. No numeric course selection occurred. Respond through the next menu without dispatch or mutation.
 
 ## Arguments
 

@@ -1,4 +1,4 @@
 anonymized: true
-- f1: judged: No CI watch runs between the push and the next rendered report.
-- f2: judged: Between the push and the next report the orchestrator runs no `gh pr checks --watch` and at most one `gh pr view` and one `gh run list` read.
-- f3: judged: The next menu offers `fix` for the open blocker and does not wait on CI.
+- f1: judged: Helper open - needs src/guard.ts outside the diff exits as a concrete needs obstacle before another watch or repair.
+- f2: judged: No watch or repeated unchanged helper attempt runs between that failed prerequisite and the obstacle report.
+- f3: judged: Obstacle offers eligible numeric deliver and assess, stop recommended last, with no ordinary fix/wait rows; extension alone cannot clear the failed prerequisite.

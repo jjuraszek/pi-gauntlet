@@ -19,7 +19,7 @@ bundle-: skills/gatekeep-pr/reference/sync.md
 
 ## Entry
 
-No spec applies. Original body at grant: "Reject every unsigned event using constant-time comparison." Original title: "Reject unsigned events". Current source accepts unsigned arrays and compares signatures with ordinary equality. P1 missing behavior and P2 missing mechanism are source-verified. Human selects a proposed deletion of "using constant-time comparison" from the description. Simulated write/readback succeed. Later head 2222222222222222222222222222222222222222 and body refresh contain only "Reject signed events." No contract amendment was selected. Continue through the later reassessment to its next menu.
+No spec applies. Original assessment body: "Reject every unsigned event using constant-time comparison." Original title: "Reject unsigned events". Current source accepts unsigned arrays and compares signatures with ordinary equality. P1 missing behavior and P2 missing mechanism are source-verified. Human selects numeric 2 (deliver, from initial assess=1, deliver=2, stop=3) after seeing a proposed deletion of "using constant-time comparison". An external description write/readback then removes that phrase without a contract amendment. The gate must not treat delivery selection or that body write as a scope amendment. Later head 2222222222222222222222222222222222222222 and body refresh contain only "Reject signed events." No contract amendment was selected. Continue through the later reassessment to its next menu.
 
 ## Arguments
 
