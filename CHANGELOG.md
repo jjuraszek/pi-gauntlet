@@ -1,5 +1,12 @@
 # Changelog
 
+## Unreleased
+
+### Changed
+
+- **The plan-writer retains baseline evidence across spec- and plan-only amendments instead of rerunning every `Tests:` command.** On a Findings or Amend re-dispatch, Baseline step 2 proves once per recorded SHA that the tree outside the spec and plan directories is unchanged (`git diff --quiet <recorded> <BASE> -- . ':!<spec dir>/' ':!<plan dir>/'`, or the jj `diff --from --to --summary` equivalent with an empty filtered summary), then re-stamps unchanged commands' bullets to the current base and appends one `retained <n> bullets: <recorded> -> <BASE>, ...` line to the step-1 provenance note. Any proof failure, a changed command, missing or invalid evidence, an admitted in-flight path outside those directories, or `Findings: rerun baseline` reruns everything and retains nothing; `plan_check` and the one-SHA rule are untouched. Supersedes only the "same base" retention condition of the gh-72 spec (`skills/writing-plans/SKILL.md` Baseline step 2, `agents/plan-writer.md` step 5; spec `doc/specs/2026-10-26-selective-baseline-rerun-on-amend.md`). (#85)
+- Eval sample `baseline-equivalent-restamp` (two scenarios) under `eval/writing-plans/`; `fresh-child-authors-plan` and `pr-subject-threads` expectations clarified. (#85)
+
 ## v7.32.0 - 2026-10-25
 
 ### Added
