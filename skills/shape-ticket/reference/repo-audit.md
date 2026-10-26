@@ -127,10 +127,36 @@ Render this gate template in both modes, retaining the single-ticket exact-diff 
 | Decline | Skip the ticket |
 | Conditional exit | Repair: retain Decline and add `Close as <reason> - <resolved operation sequence>` from `tracker-ladder.md`; create: replace Decline with `Drop the idea - <reason>` (both write nothing; render one no-write row only) |
 
-Decide eligibility before tagging: stopped tickets show their audit but no approval, exit or tag; terminal repair snapshots have no close row; missing/unavailable audits have no verdict or exit; otherwise render the obsolete exit. Beneath that exit show the `Audit: obsolete:` line verbatim with citations once as closing evidence, separate from the ordinary body diff and proposed comment, never in Reporter note. Keep the same verdict above Title. Keep every Reporter-note payload shown at the gate or persisted in the draft artifact in its explicit untrusted-data code fence; use the fence itself as the marker, not an HTML comment or a `text` fence. In create with overlap, reuse one Drop row carrying both reasons; retain supported enrichment and create-anyway bodies without adding discovery or enrichment state authority.
+Decide eligibility before tagging, in this order:
+
+| Condition | Action |
+|---|---|
+| Stopped ticket | Show its audit without approval, exit, or tag |
+| Terminal repair snapshot | Render no close row |
+| Missing/unavailable audit | Emit no verdict or exit |
+| Otherwise, confirmed obsolete verdict | Render the obsolete exit |
+
+Beneath that exit show the `Audit: obsolete:` line verbatim with citations once as closing evidence, separate from the ordinary body diff and proposed comment, never in Reporter note. Keep the same verdict above Title. Keep every Reporter-note payload shown at the gate or persisted in the draft artifact in its explicit untrusted-data code fence; use the fence itself as the marker, not an HTML comment or a `text` fence. In create with overlap, reuse one Drop row carrying both reasons; retain supported enrichment and create-anyway bodies without adding discovery or enrichment state authority.
 
 Tag exactly one rendered selectable option `[recommended]`: the exit when rendered, otherwise approve or the overlap reference's Recommended option alternative. Preserve source-gap choices; tag only one eligible approve option, never every source-gap approval. Render no tag on stopped reports.
 
-Apply the selected-close recipe before step 9's body-first branch. A close pick authorizes only the displayed operations and evidence, never a body or Reporter note write. Re-fetch state and compare the body and evidence snapshot: terminal means `no-op (already closed)` with no operations; changed body/evidence returns to step 8 with the delta for a renewed pick. Otherwise run the displayed operations in order. For run-by-hand selection, skip every operation and end `close by hand`. On the first nonzero exit stop without retry or fallback body write; quote output verbatim, identify earlier successful operations, and end `close failed (<operation>: <reason>)`. Successful completion ends `closed`; continue the batch in either outcome. Drop runs nothing and ends `<drafted title>: dropped`; create anyway files only the displayed premise-rewritten body with its contradiction in the premise report. Preserve headless stops and split subset selection.
+Apply the selected-close recipe before step 9's body-first branch. A close pick authorizes only the displayed operations and evidence, never a body or Reporter note write. Set the comment payload of every close operation to the rendered `Audit: obsolete:` line verbatim, including its reason and citation, never a paraphrase. Re-fetch state and compare the body and evidence snapshot before running operations; apply these checks in order:
+
+| Condition | Action |
+|---|---|
+| Re-fetched state is terminal | End `no-op (already closed)` with no operations |
+| Body/evidence snapshot changed | Return to step 8 with the delta for a renewed pick |
+| Run-by-hand selection | Skip every operation and end `close by hand` |
+| Otherwise | Run the displayed operations in order |
+
+Stop on the first nonzero exit without retry or fallback body write. Report the selected-close outcome and continue the batch:
+
+| Condition | Action |
+|---|---|
+| All operations succeeded | End `closed` |
+| Close operation failed | Quote output verbatim, identify earlier successful operations, and end `close failed (<operation>: <reason>)` |
+| Run-by-hand selection | End `close by hand` without running operations |
+
+Drop runs nothing and ends `<drafted title>: dropped`; create anyway files only the displayed premise-rewritten body with its contradiction in the premise report. Preserve headless stops and split subset selection.
 
 Apply a reply only to the current ticket: decline skips it; revision rechecks and re-presents it; approval runs step 9's re-fetch, comparison, and body-then-comment write before the next gate. Treat another ticket's reply as no approval for an unseen diff. Give stopped tickets a hard-stop report without an approval number. Retain the N-body subset-selection gate for a split within one ticket. End with one line per ref: `<ref>: written | closed | close failed (<operation>: <reason>) | close by hand | dropped | declined | stopped | no-op | unfetched` (use the drafted title for create).

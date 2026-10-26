@@ -1,4 +1,4 @@
-for: e1ac7f3b6b16f05298d488ad8d7efd92cc52515d8834470c95021650d1669d30
+for: 76620e28c78931450dc2972a393ff473c1b4318e6d42951f6ac30e8395f6fad7
 
 ## Change
 Add parent-owned obsolete judgments with confirmed citations, gated repair close/create drop choices, and exactly one recommended selectable menu row. Preserve the ordinary body diff and all existing accepted moves; keep target slices and word cap unchanged. Observe the three obsolete/quiet samples before editing instructions and retain genuine baseline failures.

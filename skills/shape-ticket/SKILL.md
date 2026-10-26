@@ -19,7 +19,7 @@ description: Use when asked to file, create, or shape a ticket, open a tracker i
 | Independent shippable slices detected | Split proposed at the gate, one approval, per-issue subset selection |
 | Headless / no interactive response available | Stops at the confirmation gate |
 
-Every ticket that writes ends at its **own single confirmation gate** - no write happens without an explicit yes on the exact presented diff. Ordinary repair no-op stops before the gate; overlap alternatives use the payload-local gates in the overlap reference.
+Apply the [hard constraint](#hard-constraint) at every ticket's **own single confirmation gate**. Ordinary repair no-op stops before the gate; overlap alternatives use the payload-local gates in the overlap reference.
 
 Model-initiated invocation is allowed: another skill, a command, or an ask matching the description starts this pipeline without a human typing the command. That changes who starts the pipeline, never who approves the write - the human answers the gate.
 
@@ -286,7 +286,7 @@ Read `reference/examples.md` now for the built-in bad->good Discovery pair exemp
 
 ## Red flags - STOP
 
-- About to write without the gate's explicit approval of the exact displayed diff plus only the `source:` substitutions resolved by that same approving reply, or making another post-approval edit or adding a second gate
+- About to violate the [hard constraint](#hard-constraint) on write approval, post-approval edits, or a second gate
 - Inventing a number, list, label, assignee, or URL to pass a gate
 - An AC gated on a set this ticket itself will produce
 - A prod-only observation left in the AC list
