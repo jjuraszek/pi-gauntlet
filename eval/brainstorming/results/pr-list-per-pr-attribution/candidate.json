@@ -1,0 +1,110 @@
+{
+  "sample": "pr-list-per-pr-attribution",
+  "arm": "candidate",
+  "skillSha": "6de91269c2d25c765cd525fdd173c25dfe847ebd8a3bba7f29891fa63cfad856",
+  "inputSha": "d602581b221bc27476b4b7690136b0c66256e44b8d443a5120e155ee2d95b762",
+  "kind": "text",
+  "assembly": "headed",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "# Narrated read and stage actions: PR rework of #12 #13\n\nNo live calls were made. Each step names the required action and the outcome from the fixed observations. Every skill resource is loaded with `read` at its absolute path under `skills/`.\n\n## Trace A: #12 #13, N=2\n\n**A1. Fresh entry**\n- `phase_tracker reset`\n- `plan_tracker clear`\n- `phase_tracker start brainstorm`\n\n**A2. Reads**\n- `read skills/brainstorming/reference/pr-subject.md`: readable.\n- `read skills/brainstorming/reference/ticket-acceptance.md`: readable. This is the first use, before gather.\n- If either were unreadable, the brainstorm stops with a blocking error.\n\n**A3. Resolve the leading run**\n- `#12 #13` is two PRs with no intent text.\n- `gh pr view` runs in order:\n  - #12: OPEN, acme/widget, `isCrossRepository` false, base main.\n  - #13: OPEN, acme/widget, `isCrossRepository` false, base main.\n- No duplicates. Both are admitted, so no `gh issue view` is needed.\n\n**A4. Relatedness**\n- Fetched title/body and diff for both PRs. Both succeeded.\n- Both PRs share one concern: bounded retry behavior. #12 adds the delay; #13 adds the cap.\n- Result is one group, so no group question. Home is #12.\n\n**A5. Provisioning**\n- `read skills/using-git-worktrees/...` for its PR-head path.\n- Passed `[#12 home, #13]` by value.\n- Member merge: #13 aaaaaaa.\n- Base: main @ bbbbbbb, merge no-op.\n\n**A6. Carried-spec discovery and original-head reads**\n- `git diff --name-only <BASE_SHA>...1111111111111111111111111111111111111111 -- doc/specs` returns `doc/specs/retry-cap.md`.\n- `git show 1111…:doc/specs/retry-cap.md` returns \"Retries use at most five attempts.\" This is #12's stated contract.\n- `git diff --name-only <BASE_SHA>...2222222222222222222222222222222222222222 -- doc/specs` returns `doc/specs/retry-cap.md`.\n- `git show 2222…:doc/specs/retry-cap.md` returns \"Retries use at most three attempts.\" This is #13's stated contract.\n- Both versions of the same path are kept, each with its owning PR and original head.\n- The combined worktree copy states only the three-attempt cap. That is the starting state, not attribution.\n\n**A7. Threads and base constraints**\n- Threads: #12 has none. #13 has RT13 at `src/cap.ts:9`, \"Please preserve the three-attempt cap.\"\n- Base constraints were read with `git show bbbbbbb:` for `AGENTS.md`, the first-found overrides file, `REVIEW.md`, and cited documents. No constraints were added since fork.\n\n**A8. Gather**\n- `read skills/brainstorming/gatherer.md`.\n- Substep set to `gather`.\n- Scout is dispatched. Context-builder is not: home has no ticket, and #13's binding to #90 is context only.\n\n**A9. Scout inputs, after merges**\n- Per PR, home first:\n  - Verbatim title/body.\n  - Own changed paths: #12 `src/retry.ts`, `doc/specs/retry-cap.md`; #13 `src/cap.ts`, `doc/specs/retry-cap.md`.\n  - The attributed carried-spec text from A6.\n  - Threads.\n- Combined changed paths from `git diff --name-only <BASE_SHA>...HEAD`: `src/retry.ts`, `src/cap.ts`, `doc/specs/retry-cap.md`.\n- Scout reads the full `git diff <BASE_SHA>...HEAD`.\n- Also supplied:\n  - `Member merge: #13 aaaaaaa`\n  - The base no-op line\n  - Scoped tests: none run (no conflict)\n  - The base-SHA constraints\n- `PRE_REWORK_HEAD` stays #12's provenance anchor, not the scout's code input.\n\n**A10. `## PR under rework` written in the draft**\n- `### PR #12 - Retry delay`\n  - keeps: bounded retry delays\n  - changes: align the retry path to the three-attempt cap\n  - dropped claims: \"Retries use at most five attempts.\" (`doc/specs/retry-cap.md` @1111111)\n  - threads: none\n- `### PR #13 - Retry cap`\n  - keeps: \"Retries never exceed three attempts.\"\n  - changes: none\n  - dropped claims: none\n  - RT13: fix\n- `constraints added since fork:` none\n- Draft written to the spec path with line 1 as the marker.\n- `rm -rf $GATHER_DIR`; substep cleared.\n\n**A11. Steps 4–6**\n- Read the draft.\n- `Framing: kept`. The holds-statement names the traces and implicit dependencies.\n- Both design rounds approve bounded delays and the three-attempt cap as the smallest repair.\n\n**A12. Spec-writing**\n- `read skills/brainstorming/reference/spec-finalization.md`.\n- Read the draft in full.\n- Full `write` to `doc/specs/YYYY-MM-DD-pr-12-retry-delay.md`.\n- Confirmed line 1 is no longer the marker.\n\n**A13. `## Problem` contents**\n- `PR acme/widget#12 - Retry delay`, stated intent \"Keep bounded retries\".\n- `PR acme/widget#13 - Retry cap`, stated intent \"Retries never exceed three attempts\".\n- `PR #13 binds #90 (context)`.\n- Carried spec paths:\n  - #12: `doc/specs/retry-cap.md` @1111…\n  - #13: `doc/specs/retry-cap.md` @2222…\n- constraints added since fork: none\n- `Framing: kept`\n\n**A14. `## Acceptance criteria`**\n- Header: \"Drafted from the design, no ticket rows:\"\n- Rows, each `in-scope`:\n  - Retries use bounded delays.\n  - No retry sequence exceeds three attempts.\n\n**A15. `## Rework record`**\n```\nPR: acme/widget#12 - Retry delay\nPre-rework head: 1111111111111111111111111111111111111111\nThreads: none\nPR: acme/widget#13 - Retry cap\nPre-rework head: 2222222222222222222222222222222222222222\nThreads:\n- src/cap.ts:9 RT13 - fix\nBase: main @ bbbbbbb - merge: no-op\nKeeps: bounded retry delays (#12); three-attempt cap (#13)\nChanges: #12's retry path holds the three-attempt cap; RT13 fixed - repair, not rewrite\nDropped claims:\n- Retries use at most five attempts. (PR #12, doc/specs/retry-cap.md)\nScoped tests: none run (no conflict)\n\n### PR #12 - Retry delay\nkeeps: bounded retry delays\nchanges: align to three-attempt cap\ndropped claims: Retries use at most five attempts.\n\n### PR #13 - Retry cap\nkeeps: Retries never exceed three attempts.\nchanges: none\ndropped claims: none\n```\n\n**A16. Lint and council input**\n- Lint checks the record against provisioning Step 4's home plus `MEMBER_HEADS`. Both groups and both subsections are present.\n- Both PR titles/bodies go verbatim into the council's `Human input`. The drafted rows are excluded from that block.\n\n## Trace B: independent N=1 variant, #12 alone\n\n- **B1. Entry, reads, and admission:** same as A1–A3 for #12. It is admitted with no relatedness question, and a one-element array goes to provisioning.\n- **B2. Review-thread query:** #12's query fails with permission denied.\n- **B3. Blocking stop** with `threads for #12 not fetched (permission denied)`.\n  - No gather runs: no scout and no draft.\n  - No questionary and no spec-writing.\n  - No `Threads: not fetched` record is ever written.\n  - Brainstorm stays started and incomplete.\n",
+      "words": 829,
+      "wallMs": 42576,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "### Main trace — #12 and #13\n\n1. **Start the fresh brainstorm epoch.** Required stage actions: reset the phase tracker, clear the plan tracker, then start `brainstorm`. These are narrated requirements, not live calls.\n\n2. **Resolve and provision the ordered PR set.** Fixed observations admit #12, then #13: both OPEN, in-repo `acme/widget`, non-fork, targeting `main`. Their shared concern is bounded retries. Home is #12; #13 remains a member.\n   - #12: title “Retry delay”; body “Keep bounded retries.”\n   - #13: title “Retry cap”; body “Retries never exceed three attempts.”\n   - Home has no bound ticket. Member #13 binds #90 **as context only**, supplying no acceptance-criteria rows.\n\n3. **Read each carried spec at its own original head.** Both successful reads must remain separately attributed despite sharing a path:\n   - #12, `1111111111111111111111111111111111111111:doc/specs/retry-cap.md`: “Retries use at most five attempts.”\n   - #13, `2222222222222222222222222222222222222222:doc/specs/retry-cap.md`: “Retries use at most three attempts.”\n   \n   #12 changes `src/retry.ts` and `doc/specs/retry-cap.md`; #13 changes `src/cap.ts` and `doc/specs/retry-cap.md`. All required fetches succeed. Home threads are empty. Member thread `RT13`, at `src/cap.ts:9`, says “Please preserve the three-attempt cap”; disposition: **fix**.\n\n4. **Gather after member and base merges.** Member merge: `#13 aaaaaaa`. Base: `main @ bbbbbbb`, merge **no-op**. Read governing constraint documents from fetched base HEAD, not PR-edited policy copies; the fixed result reports no base-added constraints. No scoped tests ran, with recorded reason **no conflict**.\n\n   Scout receives both verbatim title/body pairs, separately attributed original-head specs, each PR’s changed paths and full threads, merge outcomes, and base constraints. Its code input is the combined worktree diff against fetched base—not home’s original head. The combined spec read yields only “Retries use at most three attempts”; that does not erase either original claim.\n\n5. **Retain scout’s `PR under rework` subsections.**\n   - **#12 — Retry delay**\n     - `keeps:` bounded retries.\n     - `changes:` preserve bounded delays with the smallest repair and reconcile its carried contract to three attempts.\n     - `dropped claims:` the original five-attempt contract.\n     - Threads: none.\n   - **#13 — Retry cap**\n     - `keeps:` retries never exceed three attempts.\n     - `changes:` preserve that cap through the smallest repair.\n     - `dropped claims:` none.\n     - `RT13`: fix.\n   - `constraints added since fork:` none.\n\n6. **Carry approved decisions into Problem.** Name both `acme/widget` PRs, their stated intents, both attributed carried-spec versions, and `PR #13 binds #90 (context)`. Record `Framing: kept`. Both approved design rounds require bounded delays and a three-attempt cap, preserved through the smallest repair. Since home is unbound, acceptance criteria are drafted from that approved design—not extracted from PR prose.\n\n7. **Preserve this Rework record at spec-writing:**\n   ```markdown\n   ## Rework record\n\n   PR: acme/widget#12 - Retry delay\n   Pre-rework head: 1111111111111111111111111111111111111111\n   Threads: none\n   PR: acme/widget#13 - Retry cap\n   Pre-rework head: 2222222222222222222222222222222222222222\n   Threads:\n   - src/cap.ts:9 RT13 - fix: preserve the three-attempt cap\n   Base: main @ bbbbbbb - merge: no-op\n   Keeps: bounded retries, bounded delays, and the three-attempt cap\n   Changes: smallest repair preserving the approved behaviors\n   Dropped claims:\n   - #12: “Retries use at most five attempts.”\n   Scoped tests: none run (no conflict)\n\n   ### PR #12 - Retry delay\n   keeps: bounded retries\n   changes: preserve bounded delays; reconcile the carried contract to three attempts\n   dropped claims: “Retries use at most five attempts.”\n\n   ### PR #13 - Retry cap\n   keeps: retries never exceed three attempts\n   changes: preserve the three-attempt cap with the smallest repair\n   dropped claims: none\n   ```\n\n### Independent N=1 variant — #12 alone\n\n1. **Read the required review-thread query result:** permission denied.\n2. **Blocking stop:** `threads for #12 not fetched (permission denied)`.\n3. **Do not gather or write a spec.** A failed thread fetch is not an empty thread list; the N=1 run cannot proceed past this pre-gather requirement.\n",
+      "words": 558,
+      "wallMs": 25861,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "86a6c4a1a80d632cd0a2b66798c9f825122ebe9f639e1c496e3d8e8c40cfe68e",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "4e6be85ccaf2e78e0b849357172a1ec8915a65e30ff9b8f2116048d8e7862194",
+      "baselineOutputSha": "64c1be8b59e9bbcdbe0b8f164e3a3b6b1a8d353046cdbfedbeb70962f5ad04ce",
+      "candidateOutputSha": "9ffb74d3b1e6e904ae5bcd1afa39b45c1a93d50c460ea64edc5ee488367292e9",
+      "facts": {
+        "combined": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "original-specs": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "attribution": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "record": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "single-fetch-stop": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        }
+      },
+      "feedback": "After keeps every fact Before kept and moves three to holds. Before already read both carried-spec versions at their original heads and supplied verbatim title/body, per-PR paths, attributed claims and threads to the scout after the merges, so combined and original-specs held in both; After strengthens this by naming the `git diff <BASE_SHA>...HEAD` input and stating PRE_REWORK_HEAD is provenance only. Before failed attribution because its `## PR under rework` was a single flat keeps/changes/dropped list with parenthetical PR tags rather than `### PR #12` then `### PR #13` subsections, and its Problem omitted the member spec path; After's A10 and A13 fix both. Before failed record by collapsing both PRs into one `PR:`/`Pre-rework head:` line pair with a combined Threads block, no lowercase provenance subsections, and a member merge SHA inside Changes; After's A15 emits ordered #12/1111/Threads: none then #13/2222/RT13 fix groups, one combined Base/Keeps/Changes/Dropped claims/Scoped tests set, and per-PR subsections without a merge-SHA field. Before failed single-fetch-stop by continuing with `Threads: not fetched`; After's Trace B stops on `threads for #12 not fetched (permission denied)` before gather and spec-writing. No wording change is needed to recover a lost fact; the After wording delivers the Change without regression.",
+      "wallMs": 21716,
+      "verdict": "improved"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "86a6c4a1a80d632cd0a2b66798c9f825122ebe9f639e1c496e3d8e8c40cfe68e",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "4e6be85ccaf2e78e0b849357172a1ec8915a65e30ff9b8f2116048d8e7862194",
+      "baselineOutputSha": "9add79b05220b243fee2ce961b906faa0d7f196fc26b0f8ceaa6e4ad629bd0e7",
+      "candidateOutputSha": "dd3a1e2927e46e0cdb4929a6ae0d8929507378ee578ae95bb9b85b1bce094c2b",
+      "facts": {
+        "combined": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "original-specs": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "attribution": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "record": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "single-fetch-stop": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        }
+      },
+      "feedback": "After moved every failing fact to holds without losing anything Before kept. Before never stated that scout's code input is the combined worktree diff (it listed 'original SHAs' and 'changed-path lists' and said only 'Scout reads the diffs'), used flat keeps/changes/dropped/threads subsections instead of #12-then-#13 groups, split the Rework record into two full per-PR blocks including a 'merge: aaaaaaa' member-SHA field with no lowercase provenance subsections, and explicitly let the N=1 run continue past the permission-denied thread query. After fixes all four: step 4 says the code input is 'the combined worktree diff against fetched base—not home's original head', step 5 nests the subsections under #12 then #13 with RT13 and the three-attempt claim under #13, the record has ordered PR/head/Threads groups, one shared Base/Keeps/Changes/Dropped claims/Scoped tests set, and '### PR #12'/'### PR #13' provenance subsections with no member merge SHA, and the N=1 variant stops before gather naming #12 and permission denied. Both outputs keep original-specs by reading each SHA:doc/specs/retry-cap.md separately and attributing five attempts to #12 and three to #13. Two small hardening suggestions for After: name the member spec path `doc/specs/retry-cap.md` and the `git show <sha>:<path>` form explicitly in the Problem/read steps rather than relying on the earlier `sha:path` notation, and keep the Problem's 'not extracted from PR prose' line so the #90 context-only/no-AC-extraction point stays unambiguous.",
+      "wallMs": 28993,
+      "verdict": "improved"
+    }
+  },
+  "repoSha": "71b39d7e6134b0f5487695cd123c4948adbb75c5"
+}

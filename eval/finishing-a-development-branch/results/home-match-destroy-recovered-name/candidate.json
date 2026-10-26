@@ -38,7 +38,7 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "c1ba8a24eb5c6751c42f0606cf4aaa7998a5664b303712a0fb2ed4e676d715d5",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "7622411976e6b255fd30a7de352335c21295e0c82f4a8758f279141ae1eed81a",
+      "intentSha": "3ebee3d81b5a2930d37873e74768a137538b829572f8239c1a7c5419b35db4fe",
       "baselineOutputSha": "0cca761aa20a4f8ba2483071b20d3acb86531d0556abe1ba06a4b794947d083c",
       "candidateOutputSha": "4e212bd372228c7a4c7fcbe281270d15385e72ad8a2aedebeb0ebefecc32d746",
       "facts": {
@@ -58,14 +58,14 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "Both outputs satisfy r1 and r2: each recovers NAME = fix-x from the matched `acme-mono-*` segment (explicitly not the full basename), runs `cd /work/acme-mono && script/worktree destroy 'fix-x'`, reports exit 0, declines any `git worktree remove`/`prune`, and then runs `git -C /work/acme-mono branch -D fix-x` (Before quotes the arguments, After does not; same command). Nothing moved. After is slightly clearer than Before in stating that `<subproject>` lives only in `create:` and that the override file is re-read at finish time rather than carried from creation, which supports the Change's 'reads at finish time' intent; keep that. The only wording worth tightening in After is the result bullet 'The local branch `fix-x` was deleted after removal succeeded' — it already conveys the ordering, but phrasing it as 'after `destroy:` succeeded, with no built-in remove or prune' would make the r2 chain unambiguous at a glance.",
-      "wallMs": 7419,
+      "feedback": "Both facts hold in Before and After: each output resolves `../acme-mono-<name>` against /work/acme-mono, matches `acme-mono-*` within the single segment of /work/acme-mono-fix-x, recovers NAME = fix-x (not the full basename), runs `cd /work/acme-mono && script/worktree destroy 'fix-x'`, notes exit 0, explicitly declines to run `git worktree remove`/`prune`, and then runs `git -C /work/acme-mono branch -D fix-x`. The Expected to move list predicted Before would fail r1 and r2, but the Before text already delivers the keyed-contract behavior, so this case shows no movement; After did not regress anything. After's wording is slightly cleaner (it names the segment-level comparison `acme-mono-*` vs `acme-mono-fix-x` and states the single-quoted substitution explicitly), which is the right emphasis for the Change; keep that explicit segment-match sentence and the 'exited 0 → no built-in remove/prune → branch -D' sequencing as written.",
+      "wallMs": 8760,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "c1ba8a24eb5c6751c42f0606cf4aaa7998a5664b303712a0fb2ed4e676d715d5",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "7622411976e6b255fd30a7de352335c21295e0c82f4a8758f279141ae1eed81a",
+      "intentSha": "3ebee3d81b5a2930d37873e74768a137538b829572f8239c1a7c5419b35db4fe",
       "baselineOutputSha": "23dfa582bc3ebcd6c18a682b5b69822646399b7cbbaaceb21b8558d43d8836ce",
       "candidateOutputSha": "5bf13d3a7719626aa705865883afb5ae16257370ceb9e8aa0535369730d1e160",
       "facts": {
@@ -85,10 +85,10 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "Both outputs recover NAME=fix-x from the matched <name> segment, run script/worktree destroy 'fix-x' from /work/acme-mono, state that destroy succeeded, explicitly forbid git worktree remove/prune, and continue to git -C \"/work/acme-mono\" branch -D \"fix-x\"; neither fact moved. The After wording is at least as clear as Before: it separates the command from its output and adds an explicit 'Destroy succeeded' before the branch -D continuation, which makes the ordering (destroy success, then branch deletion, no built-in remove) unambiguous. No wording adjustment is needed to preserve r1 or r2 while delivering the Change; the Expected-to-move entries for r1/r2 claimed a fails->holds transition, but the Before text already satisfied them, so the author should not rely on this case as evidence of the recovered-name fix.",
-      "wallMs": 6646,
+      "feedback": "Nothing moved: both Before and After recover NAME=fix-x from the matched `<name>` segment, run `script/worktree destroy 'fix-x'` from /work/acme-mono, explicitly refuse `git worktree remove`/`prune`, and continue to `git -C \"/work/acme-mono\" branch -D \"fix-x\"` only after the destroy succeeds. The expected fails->holds movement for r1/r2 is not visible in this sample's Before text, which already reports the keyed-contract behavior; if the author wants the sample to demonstrate the Change, the baseline run for this case needs to be regenerated so Before actually shows the old basename/host-owned behavior. The After wording is fine as is; splitting the command from its output and the explicit 'Destroy succeeded. ... Continue with branch deletion' sentence makes the ordering (destroy, then branch -D, no built-in remove) even clearer without losing anything Before had.",
+      "wallMs": 7164,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "27eae7d476b20debb9e9e11220ce9183ac10daf5"
+  "repoSha": "6f144da74a18e3dcd162d0a0ece5ce791fd7dc7c"
 }

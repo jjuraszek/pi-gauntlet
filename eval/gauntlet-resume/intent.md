@@ -1,10 +1,10 @@
-for: 2f4ee50df2f75271ed0cea1d7fcbf0755a9646c7471921f70dff13ff2f75dae5
+for: d63765608d6d5a8cf086513194f496122b4f10c37b343ffd7c0169bc1c85dbe8
 
 ## Change
 
 Restore cap from every admitted ledger at one shared boundary before implement or verify/ship continuation, without re-resolving loopEngine settings. Stop even completed legacy ledgers there; a durable grant resumes the original phase. Render cap, iterations, attempts, funding/retry allowances and decision history, distinguishing operational row decisions. New durable-cap and legacy-cap-brief samples are baseline-skipped: new sample, no pre-edit sample evidence; the runner still generates genuine baseline and candidate evidence.
 
-Restore loop runs from the existing ledger: pair by its Spec header, prefer it to a task plan, validate before implement, preserve counters/retry data, and stop on invalid or dirty state. Produce and consume the contract-owned loop brief fields. With Engine loop and no ledger, arm through brainstorm start/skip after check 6 before driver Entry steps 1-5, with ledger creation at step 4. Use the resolved spec path in the exact plan-skip reason `resume: <spec> (loop engine)`. Give valid ledger brief fields precedence over retained `No plan active.` and admit the ledger instead of phase-only restoration.
+Restore loop runs from the existing ledger: pair by its Spec header, prefer it to a task plan, validate before implement, preserve counters/retry data, and stop on invalid or dirty state. Produce and consume the contract-owned loop brief fields. With Engine loop and no ledger, arm through brainstorm start/skip after check 6 before driver Entry steps 1-5. Keep the unchanged Entry mapping explicit: settings and maxIterationsPerRow at step 1, verification at step 2, driver plan skip at step 3, ledger creation at step 4, then ledger check, seed commit and implement start at step 5. Use the resolved spec path in the exact plan-skip reason `resume: <spec> (loop engine)`. Give valid ledger brief fields precedence over retained `No plan active.` and admit the ledger instead of phase-only restoration.
 
 PR-subject baseline: `1b0f7dd2bbbf926a8ff65109414d05aa97acaa58`. Handoff carries the PR identity and full pre-rework head only for a rework spec. Resume binds that identity to the live PR branch before tracker writes and selects rework artifacts from the pre-rework head, excluding the PR's earlier spec from added candidates. Ordinary briefs and bare worktrees keep their existing behavior.
 
@@ -12,7 +12,14 @@ Resume routes baseline-line and substantive baseline-form open-questions finding
 
 Resume verify-stage Ledger briefs, including ship-stage briefs restored at verify, in loop-implementation's After the loop from full ledger verification after the restored start verify, retaining whole-diff review, happy path when triggered, fresh conformance and finishing without task-tracker calls.
 
+Carry all PR/head pairs consecutively in record order, home first, while retaining terminal gate history. Validate actual worktree branch against home before tracker writes and reject branch or pair-order mismatch with both observations. Reconstruct from home's original head; member-spec exclusions remain authoritative through plan pairing. Preserve untouched single-PR and ordinary no-pair reconstruction, grants, snapshots and gate-history checks. The named pr-list-brief sample contains pr-list-brief-mismatch and pr-list-brief-order variants. New narrated cases are setup-only coverage until genuine before/after outcomes establish a move; held/pre-existing facts are not wording improvements and must-hold facts are not relaxed. The current run uses the runner's merge-base baseline; the explicit baseline above describes the earlier single-PR edit.
+
 ## Expected to move
+- pr-list-brief/producer: fails -> holds - Carry all three ordered pairs home first, preserving tracker output, Active task and terminal gate history; N=1 and no-record remain intact.
+- pr-list-brief/binding: fails -> holds - Validate only home's live branch identity against the actual worktree before tracker calls, preserving downstream entry and grant checks.
+- pr-list-brief/mismatch: fails -> holds - Stop pr-list-brief-mismatch with both observed branch names and no tracker writes.
+- pr-list-brief/order: fails -> holds - Stop pr-list-brief-order with both complete pair orders before tracker calls.
+- pr-list-brief/candidates: fails -> holds - Retain member-spec exclusion through same-basename plan pairing while using home's original head; preserve ordinary no-pair reconstruction and genuine ambiguity handling.
 - pr-subject-brief/producer: fails -> holds - The producer carries the optional PR pair while retaining the terminal gate-history line.
 - pr-subject-brief/binding: fails -> holds - Resume rejects a mismatched branch before tracker writes.
 - pr-subject-brief/candidates: fails -> holds - Pre-rework candidate scans exclude the earlier PR spec.

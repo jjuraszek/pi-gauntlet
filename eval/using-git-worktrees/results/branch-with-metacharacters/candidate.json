@@ -38,8 +38,8 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "c1bc7a968a1fd40ba84cd1491d298885f0d2f2213cc146e3d774f9dd4ad78e33",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "196890e461aed891003ce84329fecae00ed0408109aed53b099333ba411bcdc7",
-      "baselineOutputSha": "c937367359ff05ff7084a73371ae6e59065b0a050ae2fe3fe1b6416df6c9215c",
+      "intentSha": "94074f513938f6d5b90a8c47ce92cbd629c74e1f228b6c58d2567427c2164ad7",
+      "baselineOutputSha": "0eb60e3138b96753043c0f565985b3c435c2c2fba7f071b8fab6d38f3296cf21",
       "candidateOutputSha": "0eb60e3138b96753043c0f565985b3c435c2c2fba7f071b8fab6d38f3296cf21",
       "facts": {
         "m1": {
@@ -53,15 +53,15 @@
           "label": "held"
         }
       },
-      "feedback": "Both outputs keep m1: each inserts the branch value as one single-quoted shell word and shows the literal command `script/worktree create 'topic;id' 'billing' --branch 'topic;id'`, with an explicit note that the `;` stays inside the quotes and is never a command separator. The After wording did not move this fact, and nothing in this case exercises the PR-head routing or merge-forward history paths named in Expected to move, since the input is a plain non-PR branch; the After output correctly leaves non-PR provisioning unchanged. If you want the PR-head routing hook to be visible in After even on non-PR inputs, add a short Step 0 line such as \"No resolved PR value was passed, so the reference/pr-head.md owner does not apply; continuing with generic isolation detection\" — this would show the hook firing before linked-worktree reuse without altering the quoting, the create command, or the report.",
-      "wallMs": 6112,
+      "feedback": "Before and After are textually identical for this case, so no fact moved. Both outputs resolve `<branch>` to `topic;id`, state explicitly that each value is inserted as one single-quoted shell word so the `;` is never a command separator, and show the literal invocation `script/worktree create 'topic;id' 'billing' --branch 'topic;id'`, which satisfies m1 in each. The Change paragraph concerns pr-head routing, member-merge ordering, conflict repair, and interrupted recovery, none of which this non-PR fresh-provisioning input exercises; the After wording leaves the non-PR provisioning path untouched, which is the right outcome here. Keep the explicit single-quote sentence and the literal quoted command line in any further revision, since those are what make m1 verifiable from the text alone.",
+      "wallMs": 5651,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "c1bc7a968a1fd40ba84cd1491d298885f0d2f2213cc146e3d774f9dd4ad78e33",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "196890e461aed891003ce84329fecae00ed0408109aed53b099333ba411bcdc7",
-      "baselineOutputSha": "0023169bf87dc1006a311c22892bcb2ac9b36d69042c80c73bc0464faf9bd7f3",
+      "intentSha": "94074f513938f6d5b90a8c47ce92cbd629c74e1f228b6c58d2567427c2164ad7",
+      "baselineOutputSha": "5821d6f7303edcf8dd0f23d447bbbb0dcd117e53fa25669888a68a78a2ac2d57",
       "candidateOutputSha": "5821d6f7303edcf8dd0f23d447bbbb0dcd117e53fa25669888a68a78a2ac2d57",
       "facts": {
         "m1": {
@@ -75,10 +75,10 @@
           "label": "held"
         }
       },
-      "feedback": "Both outputs run `script/worktree create 'topic;id' 'billing' --branch 'topic;id'` and explicitly state that each substituted token is a single-quoted shell word with the semicolon as literal argument content, so m1 holds in Before and After alike; nothing in the After wording moved this fact. The Change (routing PR-head callers before Step 0 reuse and keeping merge-forward history) is not exercised by this non-PR case, so the After output correctly leaves non-PR provisioning unchanged. One observation for the author: After skips the Step 0 discovery commands (`git rev-parse`, `git branch --show-current`) in favor of 'using the case's established facts' — if the intent is for the skill to still run those commands in non-PR flows, the After wording should preserve that explicit command narration as Before did, while the PR-head routing hook sits ahead of it only when resolved PR values are supplied.",
-      "wallMs": 4860,
+      "feedback": "Before and After are textually identical for this case, and both pass the branch value as a single single-quoted argument (`--branch 'topic;id'`) while explicitly noting that the semicolons are literal argument characters rather than command separators, so m1 holds in both and nothing moved. The Change description (PR-head routing, member merge ordering, conflict repair, interrupted recovery) is not exercised by this non-PR provisioning input, which is consistent with the stated intent to preserve non-PR provisioning unchanged; no wording adjustment is needed for this case, but confirm the PR-path cases listed under Expected to move with inputs that actually reach those branches of the skill.",
+      "wallMs": 4168,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "03f2a45e6cf09c8bfc0d9a675ffffba9151f6d00"
+  "repoSha": "deb4f43410cbd616e18f8610ab6b81e822653d4c"
 }

@@ -1,0 +1,80 @@
+{
+  "sample": "pr-list-body-edit-failed",
+  "arm": "candidate",
+  "skillSha": "9553dd3d20b34fc7b2f6ee607f2830580c1194f1a621ca771c743ea426f43775",
+  "inputSha": "fd177c3a0353a276d6fdeeec7874b985d6aa6f4609099ed6e6462a11758d3c2c",
+  "kind": "text",
+  "assembly": "concat",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "I'm using the finishing-a-development-branch skill to complete this work.\n\n`phase_tracker({ action: \"start\", phase: \"ship\" })`\n\n**Aliases:** A=aaaa…, B=bbbb…, C=cccc…, E=eeee… (HEAD), F=fffffff. `WORKTREE=/work/widget/.worktrees/retry`, `PRIMARY=/work/widget`, `FEATURE=retry`.\n\n**Checkpoint 1: Step 1, verify**\n- The PR subject is detected from the Rework record.\n- The PR/pre-head pairs are #12→A (home), #13→B, and #14→C.\n- `PRE_REWORK_HEAD=A`.\n- Home #12 is `OPEN`, `headRefName=retry`, and `baseRefName=main`.\n- The skip rule applies. `test-retry` passed on a clean commit, and the diff and status checks outside telemetry are clean.\n\n**Checkpoint 2: Steps 3–4, preflight**\n- The base is `main`.\n- The ancestry checks for A, B, and C against HEAD all pass.\n- `origin/retry` is an ancestor of HEAD, so row 1 is offered.\n- Row 1 is chosen.\n\n**Checkpoint 3: evidence and thread refresh**\n- HOME is recorded as `fix`. Its task is accepted and complete, with exactly one naming commit, F, so it resolves as `fixed in F`.\n- MEMBER13 keeps its recorded disposition. Home's first-parent walk is not used as proof of member fixes.\n- NEW13 is newly opened, so it is `still open`.\n- MEMBER14 is newly resolved on GitHub.\n\n**Checkpoint 4: strip, seal, refs, push**\n```\nnode <bin>/gauntlet-telemetry-seal.mjs --worktree \"$WORKTREE\" --option pr --base origin/main --spec <spec path>\ngit -C \"$WORKTREE\" update-ref refs/gauntlet/pre-rework/pr-12 A\ngit -C \"$WORKTREE\" update-ref refs/gauntlet/pre-rework/pr-13 B\ngit -C \"$WORKTREE\" update-ref refs/gauntlet/pre-rework/pr-14 C\ngit -C \"$WORKTREE\" push --no-follow-tags origin HEAD:refs/heads/retry\n```\n- The seal produced `sealed <telemetry record path>`.\n- The push succeeded without force. The pushed home head is E.\n\n**Checkpoint 5a: body fetch OK, edit fails**\n- The fresh `gh pr view 12 --repo acme/widget --json body` returned the bytes `Original description\\n`.\n- `SCRATCH=$(mktemp)` was created outside the repo, containing the original bytes, a blank line, and the block below.\n- `gh pr edit 12 --repo acme/widget --body-file \"$SCRATCH\"` failed with **HTTP 503**.\n- The push stays in place. The description is not replaced. Paste the block manually at the end of PR #12's description:\n\n```markdown\n## Rework\n\nBefore: A (local ref `refs/gauntlet/pre-rework/pr-12` in the rework checkout; the SHA is the portable handle and stays on origin because the push was not forced)\nAbsorbs: #13 (https://github.com/acme/widget/pull/13), #14 (https://github.com/acme/widget/pull/14)\nSpec: <spec path> at eeeeeee\nKeeps: retry behavior\nChanges: repair retries\nDropped claims: none\nVerification: scoped - test-retry; CI on this push holds the full run. Telemetry: whole PR against main.\nThreads:\n#12:\n- src/retry.ts:1 - fixed in F\n#13:\n- src/delay.ts:2 - fix: retain delay (recorded)\n- <NEW13 location> - still open\n#14:\n- src/cap.ts:3 - resolved on GitHub (recorded: keep open)\n```\n\n- Closure is withheld because the body edit failed. No member refresh is run and no close question is asked.\n\n**Member PRs #13, #14 left open.**\n\n**Checkpoint 5b (compare): body fetch fails after a successful push**\n- `gh pr view 12 --json body` fails, so no scratch file is written and no edit is attempted.\n- The push stays in place. The same block is printed for manual paste, along with the fetch error.\n- Closure is withheld the same way, and no close question is asked.\n\n**Member PRs #13, #14 left open.**\n\n**Common to both checkpoints**\n- No review-thread replies were posted, no PR was merged or closed, and no ticket state changed.\n- The worktree is preserved at `/work/widget/.worktrees/retry`.\n\n`phase_tracker({ action: \"complete\", phase: \"ship\" })`\n\nOnce the merge lands, follow up with `/skill:check-delivery <ticket-ref>`.\n",
+      "words": 519,
+      "wallMs": 24115,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "### Shared checkpoint — PR-subject row 1\n\nSimulation only; no commands executed or writes made.\n\nSHA aliases: `A = a×40`, `B = b×40`, `C = c×40`, `E = e×40`; `H` denotes the pushed head after strip/seal.\n\n- Verification skipped legitimately: `test-retry` passed on a known clean commit; telemetry-excluding diff and status checks are clean.\n- Home confirmed: `acme/widget#12`, OPEN, branch `retry`, base `main`.\n- Fetch and ancestry proofs pass for `A`, `B`, `C`, and `origin/retry`.\n- Captured scoped verification and accepted-complete HOME task evidence before stripping. HOME resolves to `fixed in fffffff`.\n- Refreshed threads separately for #12, #13, and #14. Retained member dispositions without treating home’s first-parent history as member completion proof.\n- Stripped the ephemeral plan; preserved the spec and sealed telemetry with option `pr`, base `origin/main`—whole PR, not rework-only. Actual seal stdout is not supplied, so no output is fabricated.\n- Preserved original heads:\n  - `refs/gauntlet/pre-rework/pr-12 → A`\n  - `refs/gauntlet/pre-rework/pr-13 → B`\n  - `refs/gauntlet/pre-rework/pr-14 → C`\n- Non-force push of home only succeeds: `HEAD:refs/heads/retry`, pushed head `H`.\n\n### Checkpoint A — description edit fails\n\nFresh body fetch succeeds. Outside-repo `$SCRATCH` preserves the exact bytes `Original description\\n`, followed by one blank line and the block below.\n\nSimulated edit:\n```bash\ngh pr edit 12 --repo acme/widget --body-file \"$SCRATCH\"\n```\n\nResult: **HTTP 503**. Push remains successful; description update failed. No retry or member-closure question. Paste this block manually after the existing description:\n\n```markdown\n## Rework\n\nBefore: A (local ref `refs/gauntlet/pre-rework/pr-12` in the rework checkout; the SHA is the portable handle and stays on origin because the push was not forced)\nAbsorbs: #13 (<recorded #13 URL>), #14 (<recorded #14 URL>)\nSpec: <spec path> at <H7>\nKeeps: retry behavior\nChanges: repair retries\nDropped claims: none\nVerification: scoped - test-retry; CI on this push holds the full run. Telemetry: whole PR against main.\nThreads:\n#12:\n- src/retry.ts:1 - fixed in fffffff\n#13:\n- src/delay.ts:2 - fix: retain delay (recorded disposition retained)\n- <NEW13 refreshed location> - still open (newly opened)\n#14:\n- src/cap.ts:3 - keep open: cap discussion (recorded disposition; now resolved on GitHub)\n```\n\nReplace SHA aliases and unavailable path/URL placeholders with their captured values before pasting. Lowercase provenance is not copied.\n\n**Member PRs #13, #14 left open.** Worktree and branch preserved. Ship completion withheld.\n\n### Checkpoint B — independent body-fetch failure\n\nSame successful verification, strip/seal, refs, thread refresh, and push checkpoint. Fresh home-description fetch fails instead.\n\n- Keep the successful push.\n- Do not attempt a description edit or replace the description with only the rework block.\n- Report the fetch error and provide the same block above for manual paste after the existing description.\n- Skip member eligibility refresh and closure; ask no close question.\n\n**Member PRs #13, #14 left open.** Worktree and branch preserved. Ship completion withheld.\n",
+      "words": 418,
+      "wallMs": 20952,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "daf05c0546433fc83d8e84be58c525efec5bbfdb9b297ac3499509dd0855f8d3",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "3ebee3d81b5a2930d37873e74768a137538b829572f8239c1a7c5419b35db4fe",
+      "baselineOutputSha": "4d411d9574c027495fc844f54e5a4a5bf14f9929db6890502747cf5b3e13d7aa",
+      "candidateOutputSha": "02f9926889ca08e8219cc5ce8467a1944875c9a65177758a78087cd1b769ab48",
+      "facts": {
+        "failure": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "fetch": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "Neither fact moved: both Before and After keep the successful push and the untouched `Original description\\n` bytes, report the `gh pr edit ... --body-file \"$SCRATCH\"` HTTP 503, print a per-PR-attributed Rework block for manual paste, withhold closure, and state that #13 and #14 remain open (Before phrases it as \"#13 and #14 stay OPEN at their recorded heads\", After uses the literal \"Member PRs #13, #14 left open\"); both also handle the body-fetch comparison with no edit, no close, no retry, no branch deletion, no thread replies, merges or ticket changes. The After wording does improve fidelity to the Change (an `Absorbs:` line, grouped `#12:/#13:/#14:` thread lists, the explicit \"no member refresh is run and no close question is asked\" line, and the recorded disposition for MEMBER13 instead of Before's reinterpretation as \"still open\"), so it delivers the ordered-PR-list behavior without losing anything Before kept. If you want the move to register on these facts, tighten the fact text to require the `Absorbs` line and the per-PR grouped thread list rather than just \"attributed\", since Before already satisfies the facts as written.",
+      "wallMs": 19295,
+      "verdict": "unchanged"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "daf05c0546433fc83d8e84be58c525efec5bbfdb9b297ac3499509dd0855f8d3",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "3ebee3d81b5a2930d37873e74768a137538b829572f8239c1a7c5419b35db4fe",
+      "baselineOutputSha": "e9e64b1627f8277af3f4f36690464142d96ac810e0405aed08375f24b83ef9c3",
+      "candidateOutputSha": "cdc8d0708716bbe14d2585261a02b2066c8dc2290a82775bb4b6df9dd837fc18",
+      "facts": {
+        "failure": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "fetch": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "Neither fact moved: both Before and After keep the successful push and the `Original description\\n` bytes, report the HTTP 503 on `gh pr edit`, print an attributed Rework block for manual paste, withhold closure, and state members #13 and #14 remain open; both also handle the independent body-fetch failure by skipping the edit and closure while providing the same block. After is slightly stronger on the exact phrasing (\"Member PRs #13, #14 left open\", \"No retry or member-closure question\", \"Absorbs\" and per-PR thread lists), but it dropped Before's explicit closing line \"no review replies, merges, or ticket changes\" — Checkpoint B only says worktree and branch preserved. To keep every Before fact unambiguously while delivering the Change, add one sentence to the shared or Checkpoint B section such as \"No retry, branch deletion, review-thread replies, PR merge, or ticket change occurs,\" so the negative guarantees are stated rather than inferred from silence.",
+      "wallMs": 15202,
+      "verdict": "unchanged"
+    }
+  },
+  "repoSha": "71b39d7e6134b0f5487695cd123c4948adbb75c5"
+}

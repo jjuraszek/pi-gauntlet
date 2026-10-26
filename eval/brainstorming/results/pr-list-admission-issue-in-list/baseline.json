@@ -1,0 +1,34 @@
+{
+  "sample": "pr-list-admission-issue-in-list",
+  "arm": "baseline",
+  "skillSha": "7081db2f7043413dbdda17d2d8b22eaca4bf4432ee6d327b745d599005a17eb6",
+  "inputSha": "966ce8e69a1e4794284e2d26c3cc093589000edec70ebd5d06b66615467d0967",
+  "kind": "text",
+  "assembly": "headed",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "# Narrated resolution: `#12 #13`\n\nNo tools are available, so none of the calls below were run live. Each step names the action the skill requires and the outcome from the fixed observations. Where the observations say nothing, I say so rather than invent a result.\n\n## Stage actions, in order\n\n1. **Step 1: start brainstorm tracking (fresh epoch).** This is a fresh, authorized entry, so the first action resets both trackers and starts the phase:\n   - `phase_tracker({ action: \"reset\" })`\n   - `plan_tracker({ action: \"clear\" })`\n   - `phase_tracker({ action: \"start\", phase: \"brainstorm\" })`\n\n   These are narrated only; no tracker state was observed.\n\n2. **Step 2: read the PR-subject reference.** Before any provisioning, `read` `skills/brainstorming/reference/pr-subject.md` at its absolute path. The bundled copy is not treated as already in context. The fixed observations do not report it as unreadable, so resolution continues under its rules.\n\n3. **Match the leading reference.** The trimmed prompt starts with `#12`, so `#12` is the candidate subject.\n   - The rest of the prompt, `#13`, is free text carried as intent.\n   - A second, non-leading reference stays on the free-text path and is never classified as a subject.\n   - The observed lookups for `#13` (not-a-PR, then an issue in acme/widget) are therefore not used to pick a subject.\n\n4. **Classify `#12`, one step at a time.** Run `gh pr view 12 --json number,url,state,isDraft,title,body,headRefName,headRefOid,headRepository,isCrossRepository,baseRefName` first.\n   - Observed result: `OPEN`, non-fork, acme/widget, base `main`.\n   - The state is accepted, so `gh issue view 12` is never reached.\n\n5. **Check the repository identity.** The PR base parsed from `url` is `acme/widget`. The origin `git@github.com:acme/widget.git` gives `acme/widget`. They match, so there is no cross-repository stop.\n\n6. **Bind a ticket.** A ticket may be bound only from the PR title, then the first line of the body.\n   - `#13` in the prompt is not a binding source.\n   - The observations do not supply the title or body, so no binding can be determined. The default would be `none - no ticket`.\n\n7. **Prepare the provisioning hand-off.** Provisioning needs this exact object, passed by value:\n   `{ number, url, title, headRefName, headRefOid, baseRefName, isCrossRepository, headRepository.nameWithOwner }`\n   It is passed to `skills/using-git-worktrees/reference/pr-head.md`, which would be `read` next. No worktree exists yet, so this path must create one.\n\n## Blocking failure\n\n**Stop at checklist step 2, before provisioning.**\n\n> Cannot provision the PR-head worktree for acme/widget#12: no live CLI is available.\n>\n> The PR-head path needs `headRefOid`, `headRefName`, and `title` from `gh pr view`, and it needs `git` to fetch and check out the head. The fixed observations give only state, fork status, repo, and base. These fields cannot be supplied by value, and inventing them is not allowed.\n\nNothing was written: no worktree, no draft, no spec.\n\n**Remedy:** rerun `/skill:brainstorming #12 #13` in a session where `gh` and `git` are available and authenticated for acme/widget. Resolution will then pass the full field set to `using-git-worktrees/reference/pr-head.md` and continue to step 3.\n\nOn that rerun:\n- `#13` remains free-text intent, not a second subject.\n- If you meant #13 to be the bound ticket, put it in the PR title or the first line of its body. That is the only place binding reads from.\n",
+      "words": 504,
+      "wallMs": 29160,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "1. **Brainstorm initialization — required, not executed:** reset the phase tracker, clear the plan tracker, then start the brainstorm phase. No live tracker calls are available.\n\n2. **Resolution reference — required read:** `skills/brainstorming/reference/pr-subject.md` must be read in-session. Its bundled text is not evidence that this read occurred.\n\n3. **#12 resolution trace — supplied observations only:** origin identifies this checkout as `acme/widget`. The PR lookup returns an open, non-fork PR in that repository, targeting `main`. The leading subject therefore resolves to PR #12, not a ticket.\n\n4. **#13 classification trace — supplied observations only:** its PR lookup returns not-a-PR; **only afterward** does its issue lookup succeed in `acme/widget`. This does not convert the prompt into a ticket-list brainstorm. Under the leading-reference rule, #12 remains the subject; the trailing `#13` is carried as intent.\n\n5. **Worktree stage — blocked:** PR #12 requires the PR-head provisioning path in `skills/using-git-worktrees/SKILL.md` and its required references. No session reads or live CLI operations can be performed, and no worktree exists. Their contents and provisioning outcome cannot be reconstructed from the observations.\n\n   **Blocking failure:** the required session reads and PR-head worktree setup are unavailable. Restore access to the skill files, the required tools, and Git/GitHub CLI operations, then perform the required reads and provision PR #12’s head. Do not advance to gathering or a ticket brainstorm.\n",
+      "words": 214,
+      "wallMs": 35857,
+      "mechanical": {}
+    }
+  },
+  "repoSha": "6f144da74a18e3dcd162d0a0ece5ce791fd7dc7c"
+}

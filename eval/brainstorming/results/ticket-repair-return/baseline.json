@@ -1,7 +1,7 @@
 {
   "sample": "ticket-repair-return",
   "arm": "baseline",
-  "skillSha": "6ba9f2cba9800b0eb73f6f52c15e8315ac7c9729ce34edfb6f73852fac69ac81",
+  "skillSha": "7aa9ae375ddffd0cc2ed4e634478d8f8555c55415d74a20ccf019fe78da07465",
   "inputSha": "9b45bd622c6744fabf33250d8062c7d2cc11700a0ee72cdfd87a44fcaa82a89d",
   "kind": "text",
   "assembly": "headed",
@@ -17,18 +17,18 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "The repair to acme/widgets#77 is saved, and the re-fetched ticket now carries one acceptance criterion: \"The report-view setting uses the shared settings resolver.\" That row is in-scope as written. It matches the path I traced, from the defaults in `settings/resolver.ts:12` to the consumer in `ui/report-view.ts:30`. The framing is unchanged, so the new setting goes through the shared resolver.\n\nOne behavior is still undecided: what happens to active report filters when the user switches workspaces? The reported bug is that filters carry over and sometimes hide rows in the new workspace.\n\nA) The new setting defaults to resetting filters on workspace change, and users can opt in to keeping them.\nB) The new setting defaults to keeping filters, and users can opt in to resetting them.\nC) The new setting defaults to keeping only the filters that apply to the new workspace's data, and users can opt in to a full reset or full keep.\nRecommendation: A - resetting by default fixes the reported hidden-rows behavior without user action, and the opt-in keep preserves today's behavior for users who rely on it.\n",
-      "words": 180,
-      "wallMs": 10734,
+      "text": "The ticket repair is saved and verified: acme/widgets#77 now carries one acceptance criterion, \"The report-view setting uses the shared settings resolver.\" That row is in-scope as written, and it matches the path already traced from `settings/resolver.ts:12` into `ui/report-view.ts:30`. The earlier view-local criterion is gone, so it needs no `deviates:` disposition, and `Framing: kept` stands.\n\nThe remaining open point is what users see when they switch workspaces, which is the behavior behind the rows disappearing. When a user switches workspaces with report filters active, what should the new workspace's report show?\n\nA) Filters always clear on a workspace change, with no user control. The new setting governs only other report-view behavior.\nB) A resolver-backed setting controls whether filters reset, and it defaults to reset. Rows are no longer hidden unless a user opts to keep filters.\nC) A resolver-backed setting controls whether filters reset, and it defaults to keep, which is today's behavior. Only users who opt in get the reset.\nD) Other - name it.\n\nRecommendation: B - the default fixes the reported hidden rows, and the one new setting flows through the shared resolver as the repaired criterion requires.\n",
+      "words": 188,
+      "wallMs": 12460,
       "mechanical": {}
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "The repaired criterion in acme/widgets#77 now requires the shared settings resolver, matching the verified path from `settings/resolver.ts:12` to `ui/report-view.ts:30`. I’ll carry that criterion forward as in-scope.\n\nWhat should the report-view setting do by default when switching workspaces?\nA) Reset filters by default, with an option to preserve them.\nB) Preserve filters by default, with an option to reset them.\nC) Other — name the desired behavior.\nRecommendation: A - it prevents filters from silently hiding rows in the new workspace while allowing users to retain the existing behavior.\n",
+      "text": "The repaired criterion in acme/widgets#77 is now in scope: the report-view setting will use the shared resolver, with defaults owned by `settings/resolver.ts:12` and resolved settings consumed by `ui/report-view.ts:30`.\n\nWhat should the setting’s default behavior be when switching workspaces?\nA) Reset active report filters, so filters from the previous workspace do not hide rows.\nB) Preserve active report filters, keeping current behavior unless the user enables resetting.\nC) Other - name it.\nRecommendation: A - it addresses the reported hidden-row problem by default while allowing users to choose preservation.\n",
       "words": 86,
-      "wallMs": 9171,
+      "wallMs": 9036,
       "mechanical": {}
     }
   },
-  "repoSha": "d02d17b6f2a134dd65b73f11a80720663a986416"
+  "repoSha": "6f144da74a18e3dcd162d0a0ece5ce791fd7dc7c"
 }

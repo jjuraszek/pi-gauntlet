@@ -1,0 +1,100 @@
+{
+  "sample": "pr-list-push-and-close",
+  "arm": "candidate",
+  "skillSha": "9553dd3d20b34fc7b2f6ee607f2830580c1194f1a621ca771c743ea426f43775",
+  "inputSha": "38ef77de1b26bf5a8a0cb570e8f94eab48d0365e91b1ad1186ff5470e50e4a90",
+  "kind": "text",
+  "assembly": "concat",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "**Announce:** I'm using the finishing-a-development-branch skill to complete this work. `phase_tracker({action:\"start\",phase:\"ship\"})`\n\nAliases: A/B/C are the original heads of #12/#13/#14, E is HEAD, F is `fffffff`.\n\n**Step 1:** The Rework record lists home #12 (A), then #13 (B), then #14 (C). Combined fields come from the top-level record only. `gh pr view 12` reports OPEN, branch `retry` matching `$FEATURE`, base `main`. The scoped set is `test-retry`. The skip rule applies because tests passed on a known clean commit and the tree checks are clean. Evidence is captured.\n\n**Step 2/3:** PR menu. Base is `main`.\n\n**Step 3.5:** Closure / conformance is applied as carried. There are no amendments.\n\n**Step 4 preflight:** fetch origin succeeds. A, B and C are all ancestors of E. `origin/retry` is also an ancestor, so push is offered. Row 1 is chosen.\n\n**Row 1 (Push to the PR branch)**\n- Threads are refetched per PR with the paginated `pr-head` query:\n  - **#12:** `src/retry.ts:1` - fixed in F (accepted-complete, one naming commit).\n  - **#13:** `src/delay.ts:2` - fix (recorded disposition, on #13's own history). `NEW13 <location>` - still open (newly opened).\n  - **#14:** `src/cap.ts:3` - still open (recorded keep open). It is now resolved on GitHub.\n- Strip and seal: `gauntlet-telemetry-seal.mjs --option pr --base origin/main --spec <spec>`. The output `sealed <record>` is printed verbatim.\n- `update-ref refs/gauntlet/pre-rework/pr-12 A`, then `pr-13 B`, then `pr-14 C`.\n- `git -C \"$WORKTREE\" push --no-follow-tags origin HEAD:refs/heads/retry` succeeds. The pushed head is E.\n- `gh pr view 12 --repo acme/widget --json body` is decoded untrimmed. `SCRATCH=$(mktemp)` is created outside the repo. It receives `Original description\\n`, then `\\n`, then this block:\n\n```markdown\n## Rework\n\nBefore: A (local ref `refs/gauntlet/pre-rework/pr-12` in the rework checkout; the SHA is the portable handle and stays on origin because the push was not forced)\nAbsorbs: #13 (https://github.com/acme/widget/pull/13), #14 (https://github.com/acme/widget/pull/14)\nSpec: <spec path> at eeeeeee\nKeeps: retry behavior\nChanges: repair retries\nDropped claims: none\nVerification: scoped - test-retry; CI on this push holds the full run. Telemetry: whole PR against main.\nThreads:\n#12:\n- src/retry.ts:1 - fixed in fffffff\n#13:\n- src/delay.ts:2 - fix (recorded; #13 history)\n- <NEW13 location> - still open (newly opened)\n#14:\n- src/cap.ts:3 - still open (recorded keep open; now resolved on GitHub)\n```\n\n- `gh pr edit 12 --repo acme/widget --body-file \"$SCRATCH\"` succeeds.\n- Eligibility check: #13 is OPEN at B, and B is an ancestor of E. #14 is OPEN at C, and C is an ancestor of E. Both are eligible.\n\n```text\nClose the absorbed PRs with these comments?\n#13: \"Reworked into #12 (https://github.com/acme/widget/pull/12) by the gauntlet; this PR's commits are merged there and remain reachable as bbbbbbb.\"\n#14: \"Reworked into #12 (https://github.com/acme/widget/pull/12) by the gauntlet; this PR's commits are merged there and remain reachable as ccccccc.\"\n1 - yes, close #13, #14\n2 - no, leave them open\n```\n\n**Answer 1:** The immediate rechecks are unchanged. `gh pr close 13 --comment \"<#13 text>\" -R acme/widget` runs, then `gh pr close 14 --comment \"<#14 text>\" -R acme/widget`. Neither uses `--delete-branch`. Both succeed.\n- After the closes, `phase_tracker({action:\"complete\",phase:\"ship\"})` runs.\n- Completion message: `sealed <record>`. Closed: #13, #14. The worktree is preserved.\n\n**Independent deltas** (each one ends with ship marked complete only after its outcome is reported):\n- **Answer 2:** Nothing is closed. Ship is complete. `Member PRs #13, #14 left open.`\n- **#14 head changes after approval:** #13 is closed. #14 is skipped under stale authorization. Ship is complete. `Closed: #13; #14 skipped: head moved to <g7> after approval (left open).`\n- **#14 CLOSED before eligibility:** The question renders only #13, as `#13: \"<#13 text>\"` with `1 - yes, close #13` and `2 - no, leave it open`. On 1, ship is complete. `Closed: #13; #14 skipped: state CLOSED.`\n- **#14 close fails once:** There is no retry. Ship is complete. `Closed: #13; #14 close failed (<error>).`\n- **Row 5 (Keep) instead:** No push, seal, ref writes, body edit, or question happens. \"Keeping branch retry. Worktree preserved at /work/widget/.worktrees/retry.\" The record stays in_progress. `Member PRs #13, #14 left open.` Ship is marked complete after this report.\n",
+      "words": 633,
+      "wallMs": 30861,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "### Baseline — PR-subject row 1\n\nSHA aliases: A = `a×40`, B = `b×40`, C = `c×40`, E = `e×40`. `SPEC` denotes the selected spec path, not supplied here. All actions below are simulated.\n\n- Retain original heads: #12 → A, #13 → B, #14 → C. Use combined fields only; omit lowercase provenance.\n- Capture `test-retry` and accepted-complete HOME task evidence before stripping. Verification skipped: known-clean passing commit and both telemetry-excluding checks clean.\n- Home confirmed OPEN on `retry`, base `main`. Fetch and all ancestry proofs pass.\n- Refresh threads separately for each PR:\n  - #12 `src/retry.ts:1`: `fixed in fffffff`.\n  - #13 MEMBER13: retain recorded `fix: retain delay`; NEW13: newly opened, `still open`. Do not infer member completion from home’s history.\n  - #14 MEMBER14: recorded `keep open: cap discussion`, now newly resolved.\n- Strip ephemeral plans; preserve spec and telemetry. Seal with option `pr`, base `origin/main`, spec `SPEC`—whole-PR scope. Actual seal stdout is unspecified; do not fabricate it.\n- Preserve refs `refs/gauntlet/pre-rework/pr-12` → A, `/pr-13` → B, `/pr-14` → C.\n- Push only `retry`, non-force; pushed home head E.\n\nFetch home’s description fresh. Outside-repo scratch begins with exactly `Original description\\n`, followed by one blank line and:\n\n```markdown\n## Rework\n\nBefore: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa (local ref `refs/gauntlet/pre-rework/pr-12` in the rework checkout; the SHA is the portable handle and stays on origin because the push was not forced)\nAbsorbs: #13 (https://github.com/acme/widget/pull/13), #14 (https://github.com/acme/widget/pull/14)\nSpec: SPEC at eeeeeee\nKeeps: retry behavior\nChanges: repair retries\nDropped claims: none\nVerification: scoped - test-retry; CI on this push holds the full run. Telemetry: whole PR against main.\nThreads:\n#12:\n- src/retry.ts:1 - fixed in fffffff\n#13:\n- src/delay.ts:2 - fix: retain delay\n- NEW13 - still open (newly opened; location unspecified)\n#14:\n- src/cap.ts:3 - keep open: cap discussion (newly resolved)\n```\n\nBody edit succeeds using:\n`gh pr edit 12 --repo acme/widget --body-file \"$SCRATCH\"`.\n\nBoth members refresh OPEN at their recorded heads and pass ancestry against E. Ship remains incomplete pending:\n\nClose the absorbed PRs with these comments?\n#13: \"Reworked into #12 (https://github.com/acme/widget/pull/12) by the gauntlet; this PR's commits are merged there and remain reachable as bbbbbbb.\"\n#14: \"Reworked into #12 (https://github.com/acme/widget/pull/12) by the gauntlet; this PR's commits are merged there and remain reachable as ccccccc.\"\n1 - yes, close #13, #14\n2 - no, leave them open\n\n**Answer 1:** Immediate rechecks unchanged; close both with those comments, without deleting branches. Closed: #13, #14. Then mark ship complete. Preserve worktree.\n\n### Independent checkpoint deltas\n\n- **Answer 2:** Member PRs #13, #14 left open. Then mark ship complete.\n- **#14 head changes after approval:** Close #13. Skip #14: head changed after approval; leave open. Then mark ship complete.\n- **#14 already CLOSED before eligibility:** `#14 skipped: state CLOSED`. Ask only about #13; answer 1 closes #13. Then mark ship complete.\n- **#14 close fails once:** Closed: #13; #14 close failed (error unspecified), left open. No retry. Then mark ship complete.\n- **Choose row 5 instead:** Keeping branch retry. Worktree preserved at /work/widget/.worktrees/retry. No strip, seal, push, body edit, or closure. Member PRs #13, #14 left open. Mark ship complete.\n",
+      "words": 470,
+      "wallMs": 20456,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "72e805b489408e92cdf03ebdd6ec91d2895b19be5bfbebf19fa3a284a12b5a48",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "3ebee3d81b5a2930d37873e74768a137538b829572f8239c1a7c5419b35db4fe",
+      "baselineOutputSha": "ae778b35f4a3e77fc21e7968dd4a561abd5cb94adf45aeb64b1f6d0e944c4202",
+      "candidateOutputSha": "1dae533bb3978eb2dc4bd8e400191df30a6c51d667376e8506493f837dbe3f4d",
+      "facts": {
+        "ordering": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "attribution": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "question": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "outcomes": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        }
+      },
+      "feedback": "After moves all four facts to holds: it proves A, B and C as ancestors before push, writes pr-12/pr-13/pr-14 refs, pushes only home non-force after seal, edits the body before the question, adds Absorbs and per-PR Threads with HOME's accepted-complete naming commit and #13's fix kept on its own history, renders the exact per-target comments with bbbbbbb/ccccccc and the `1 - yes, close #13, #14` option, closes with comments and no `--delete-branch` after immediate rechecks, and names every variant outcome. Two small wording risks remain: in the Answer 1 path, `phase_tracker complete` is stated to run before the `Closed: #13, #14` completion message is printed, which contradicts the delta header's 'ship marked complete only after its outcome is reported' — swap those two bullets so the report precedes completion; and the HOME line should say 'first-parent walk A..HEAD' explicitly rather than only 'one naming commit', so the first-parent proof is visible in the text.",
+      "wallMs": 17309,
+      "verdict": "improved"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "72e805b489408e92cdf03ebdd6ec91d2895b19be5bfbebf19fa3a284a12b5a48",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "3ebee3d81b5a2930d37873e74768a137538b829572f8239c1a7c5419b35db4fe",
+      "baselineOutputSha": "077735cd057e7bdb22484868a2223fb13829a830c98821ec22df80d4c4f84eb6",
+      "candidateOutputSha": "aaa52ec6235b08c5f70601137456cb1e7f51c51a503a63d36461376471a25ebf",
+      "facts": {
+        "ordering": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "attribution": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "question": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "outcomes": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        }
+      },
+      "feedback": "After delivers the Change on every fact: it names all three original heads, preserves each pre-rework ref, captures evidence before stripping, pushes only `retry` non-force, succeeds the body edit, and only then renders the exact per-target close question with the home URL and bbbbbbb/ccccccc handles, followed by immediate rechecks, `Closed: #13, #14`, and ship completion; the Rework block carries `Absorbs: #13, #14`, per-PR attributed Threads, the accepted-complete `fixed in fffffff` for HOME, retained MEMBER13 disposition, NEW13 still open, and MEMBER14 newly resolved without home-history inference, and all five deltas (decline, stale #14 skipped, pre-closed #14 excluded, single failed close without retry, row 5 Keep with both members named) are present. Before failed because it declared no closure protocol existed, dropped MEMBER14, rewrote MEMBER13 as `still open`, omitted Absorbs, and never rendered the question. Two small hardenings would make After more robust against a strict reader: state the ancestry proof per head (A, B, C each ancestor of E) rather than a collective 'all ancestry proofs pass', and spell the simulated close as `gh pr close <n> --repo acme/widget --comment ...` so the repo scoping of the close is explicit rather than implied by 'with those comments'.",
+      "wallMs": 18498,
+      "verdict": "improved"
+    }
+  },
+  "repoSha": "71b39d7e6134b0f5487695cd123c4948adbb75c5"
+}

@@ -38,7 +38,7 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "8af7a37d875608fa8487e18fca111e61dac24245d10f243cb638f22713897d27",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "7622411976e6b255fd30a7de352335c21295e0c82f4a8758f279141ae1eed81a",
+      "intentSha": "3ebee3d81b5a2930d37873e74768a137538b829572f8239c1a7c5419b35db4fe",
       "baselineOutputSha": "e3a59746c808a1f83412ca0bc937f08331ad50cf180ccb3882b1ab7705ec8e97",
       "candidateOutputSha": "238461a3fc35e7e6cb40197f330dfce36b426513cf759e0e5f8a56580165e0ef",
       "facts": {
@@ -53,14 +53,14 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "Both outputs satisfy s1: each takes the legacy path, identifies the sibling directory as outside both gauntlet-owned homes and therefore host-owned, states that no worktree remove or prune ran, explicitly skips the branch -D, and reports that the host-owned worktree still holds rate-limit. After adds helpful detail (the string-prefix note and the suggestion to add a `- home: ../acme-api-worktrees/<name>` entry) without displacing any of those required statements; nothing in the Change moved this fact. If you keep tightening the legacy narration, retain the explicit 'no remove / no prune' line and the 'skipped branch deletion' line as separate statements, since those are what let a reader confirm s1 rather than inferring it from the manual-cleanup block.",
-      "wallMs": 5235,
+      "feedback": "After keeps s1 intact: it reports the sibling path as host-owned, states no `git worktree remove` or `prune` ran, explicitly skips `git branch -D rate-limit`, and the report says the host-owned worktree still holds the branch. Nothing moved. The added `home: ../acme-api-worktrees/<name>` hint is a reasonable extension of the Change and does not undercut any held fact; keep the explicit 'no remove, no prune, branch deletion skipped' lines as they are, since those sentences are what anchor the fact in both arms.",
+      "wallMs": 4158,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "8af7a37d875608fa8487e18fca111e61dac24245d10f243cb638f22713897d27",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "7622411976e6b255fd30a7de352335c21295e0c82f4a8758f279141ae1eed81a",
+      "intentSha": "3ebee3d81b5a2930d37873e74768a137538b829572f8239c1a7c5419b35db4fe",
       "baselineOutputSha": "f058b9c10428367ddeba0733eaff840d7a7ecdbe727613f621b3698cc2a34610",
       "candidateOutputSha": "020fe4726aed74b273407c27fdac11d4871a7e195de0aa27f0d9a6640c222913",
       "facts": {
@@ -75,10 +75,10 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "Nothing moved here: After still reports the worktree as host-owned (both via 'The host environment owns' and the literal 'host-owned worktree' phrase), declines to remove the worktree or delete the branch, and closes with the required 'still holds `rate-limit`' statement, so s1 holds on both sides. The only drift is that After drops the explicit mention of skipping prune and the explicit reason 'no overrides' (it now says only 'no project-native cleanup script exists' and 'outside the gauntlet-owned worktree paths'); if you want the no-section legacy path to stay as self-explanatory as Before while still reflecting the new overrides-section logic, consider wording like 'No `## using-git-worktrees` section exists, so the legacy homes decide: the path is outside them and is host-owned. Skip remove, prune, and `branch -D`; the host-owned worktree still holds `rate-limit`.'",
-      "wallMs": 8234,
+      "feedback": "Both outputs report the worktree as host-owned, remove nothing, skip the branch deletion, and state that the host-owned worktree still holds rate-limit, so s1 holds in Before and After. After drops the explicit mention of skipping pruning and of the absence of an overrides file (it only says no native cleanup script exists), which does not move s1 but narrows the narration; to keep the sibling-host-owned facts robust while delivering the Change, After should still name the missing overrides section as the reason the legacy homes decide, list removal, prune, and branch deletion all as skipped, and keep the closing sentence that the host-owned worktree still holds the feature branch.",
+      "wallMs": 4238,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "27eae7d476b20debb9e9e11220ce9183ac10daf5"
+  "repoSha": "6f144da74a18e3dcd162d0a0ece5ce791fd7dc7c"
 }

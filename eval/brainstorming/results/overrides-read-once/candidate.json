@@ -1,7 +1,7 @@
 {
   "sample": "overrides-read-once",
   "arm": "candidate",
-  "skillSha": "d2a3e0e3682390866e928b52afb6d549ec75722e96925d865eeaef84f7819e72",
+  "skillSha": "f81cd74be3c43fce89939762c7fbcfbd01c5713f0a5ca0879dfe87df326a97cf",
   "inputSha": "9cfc0fa4ca1be987cb7081d39048f3c50e031282867c8fe26df787a00fdfab4d",
   "kind": "text",
   "assembly": "headed",
@@ -17,16 +17,16 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "# Narrated read actions\n\nThese steps follow the writing-plans Project overrides block. No tools were called; each read outcome below comes from the fixed observations.\n\n## Trace A: brainstorming, then writing-plans in the same session\n\n1. **Brainstorming enters.** No overrides content is in context yet.\n2. **Locate the overrides file.** The lookup order is `.pi/gauntlet-overrides.md`, then `<repo root>/gauntlet-overrides.md`, then `<repo root>/doc/gauntlet-overrides.md`. The first file found is `.pi/gauntlet-overrides.md`, so the other two paths are not used.\n3. **`read` `.pi/gauntlet-overrides.md`.** Per the fixed observation, the read succeeds and returns the supplied content. This is the session's one read of the file.\n4. **Apply `## conventions` in brainstorming.** The rule \"Use American English in generated documents\" applies to everything brainstorming generates. It applies whenever present, without a relevance judgment.\n5. **Check brainstorming's named section.** The file has no `## brainstorming` section. The `## writing-plans` section does not match brainstorming by name or topic, so brainstorming does not apply it.\n6. **Brainstorming completes its stage.** The flow moves to writing-plans in the same session.\n7. **Writing-plans enters.** The overrides content is still in context from brainstorming's read. Writing-plans skips the read because an earlier skill already loaded the content.\n8. **Apply `## conventions` in writing-plans.** \"Use American English in generated documents\" applies without a relevance judgment.\n9. **Apply `## writing-plans` by name match.** \"Name plan examples with the prefix demo-\" extends the writing-plans instructions.\n10. **Check for conflicts.** If this section conflicted with `## conventions`, it would take precedence. These two rules do not conflict, so both apply.\n11. **Stop.** Only overrides handling is under test, so no plan is written.\n\n## Trace B: independent writing-plans entry, unsure whether the content is in context\n\n1. **Writing-plans enters.** It cannot confirm that the overrides content is in context. The skip-read exception covers only content that is actually present. With no confirmed prior read, this entry is treated like a restored session, which has nothing in context and reads the file. The content is never reconstructed from memory.\n2. **Locate the overrides file.** The same lookup order applies. The first file found is `.pi/gauntlet-overrides.md`.\n3. **`read` `.pi/gauntlet-overrides.md`.** Per the fixed observation, the read succeeds and returns the supplied content.\n4. **Apply `## conventions`.** \"Use American English in generated documents\" applies without a relevance judgment.\n5. **Apply `## writing-plans` by name match.** \"Name plan examples with the prefix demo-\" applies. It would take precedence over any conflicting conventions rule, but there is no conflict.\n6. **Stop.** Only overrides handling is under test, so no plan is written.\n",
-      "words": 409,
-      "wallMs": 13715,
+      "text": "# Overrides handling: narrated read actions\n\nThese narrations use only the fixed observations above. No tool calls were made.\n\n## Trace A: brainstorming, then writing-plans in the same session\n\n1. **Brainstorming enters.**\n   - No overrides content is in context, so the once-per-session read is required.\n2. **Brainstorming resolves the overrides file in the fixed order.**\n   - The first candidate, `.pi/gauntlet-overrides.md`, exists, so the search stops there.\n   - `<repo root>/gauntlet-overrides.md` and `<repo root>/doc/gauntlet-overrides.md` are not consulted.\n3. **`read` `.pi/gauntlet-overrides.md`.**\n   - Observed outcome: success, with the supplied content (`## conventions`, `## writing-plans`).\n4. **Brainstorming applies the overrides.**\n   - It applies `## conventions` unconditionally, with no relevance judgment. Documents it generates, such as the spec, use American English.\n   - The `## writing-plans` section matches neither brainstorming by name nor by topic, so brainstorming does not apply it.\n   - The file has no `## brainstorming` section, so there is no precedence conflict.\n5. **Brainstorming completes its stage.**\n   - Control passes to writing-plans in the same session, with the overrides content still in context.\n6. **Writing-plans enters.**\n   - It checks whether the overrides content is in context. It is, from brainstorming's read earlier in this session.\n   - Writing-plans therefore skips the read, and no second `read` happens.\n7. **Writing-plans applies the overrides from context.**\n   - `## conventions`: generated documents, including the plan, use American English. This is applied without a relevance judgment.\n   - `## writing-plans` matches the skill by name, so plan examples are named with the `demo-` prefix.\n   - This section takes precedence over `## conventions` on any conflict. None exists here, so both apply together.\n8. **The overrides handling for Trace A ends here.**\n   - Per the case, no plan is written and no further workflow is narrated.\n\n## Trace B: independent writing-plans entry, unsure what is in context\n\n1. **Writing-plans enters on its own.**\n   - It cannot confirm that the overrides content is in context.\n   - The skip applies only when an earlier skill's read is actually in context. This entry is treated like a restored session with nothing in context, so the read is required.\n2. **Writing-plans resolves the overrides file in the fixed order.**\n   - `.pi/gauntlet-overrides.md` exists and wins, so the search stops.\n3. **`read` `.pi/gauntlet-overrides.md`.**\n   - Observed outcome: success, with the supplied content.\n   - Because the read succeeded, there is no blocking stop.\n4. **Writing-plans applies the overrides.**\n   - `## conventions`: American English in generated documents, applied unconditionally.\n   - `## writing-plans`: plan examples use the `demo-` prefix. This section takes precedence over `## conventions` on conflict, and there is no conflict.\n5. **The overrides handling for Trace B ends here.**\n   - Per the case, no plan is written and no tools are invoked.\n",
+      "words": 408,
+      "wallMs": 14494,
       "mechanical": {}
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "### Trace A\n1. **Brainstorming — read:** No overrides content is in context. Read `.pi/gauntlet-overrides.md`; the supplied observation records success. As the first found overrides file, it wins.\n2. **Brainstorming — apply:** Apply `## conventions`: use American English in generated documents. The `## writing-plans` example-naming rule does not apply to this stage.\n3. **Stage transition:** Brainstorming completes; writing-plans follows in the same session with the overrides content still in context.\n4. **Writing-plans — reuse and apply:** Skip rereading the file. Continue applying American English and apply the writing-plans-specific rule: name plan examples with the prefix `demo-`. No plan is produced here.\n\n### Trace B\n1. **Writing-plans — context check:** This independent entry cannot establish that the overrides content is already in context, so it must not assume the read can be skipped.\n2. **Writing-plans — read:** Read the first found overrides file, `.pi/gauntlet-overrides.md`; the supplied observation records success.\n3. **Writing-plans — apply:** Use American English in generated documents and name plan examples with the prefix `demo-`.\n4. **Stage boundary:** Overrides handling is complete. Stop this narration without producing a plan or entering the planning workflow.\n",
-      "words": 175,
-      "wallMs": 9183,
+      "text": "### Trace A\n\n1. **Brainstorming — read:** With no overrides content in session context, read `.pi/gauntlet-overrides.md`, the first found overrides file. The supplied observation records a successful read.\n2. **Brainstorming — apply:** Apply `## conventions`: use American English in generated documents. The `## writing-plans` rule does not govern this stage.\n3. **Stage transition:** Brainstorming completes; writing-plans follows in the same session, with the overrides content still in context.\n4. **Writing-plans — skip reread and apply:** Reuse the content already read. Continue applying American English, and apply the named `## writing-plans` rule: name any plan examples with the prefix `demo-`. No plan is written.\n\n### Trace B\n\n1. **Writing-plans — read:** Because this independent entry cannot establish that the overrides content is already in context, read `.pi/gauntlet-overrides.md` rather than assuming it is loaded. The supplied observation records a successful read.\n2. **Writing-plans — apply:** Apply `## conventions`: use American English in generated documents. Apply `## writing-plans`: name any plan examples with the prefix `demo-`.\n3. **Stage boundary:** Overrides handling is complete. Stop this trace without entering the planning workflow or writing a plan.\n",
+      "words": 170,
+      "wallMs": 7448,
       "mechanical": {}
     }
   },
@@ -34,9 +34,9 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "0bda7ffbeb62738050132cb7af7848b668a27bd11721b942148c4e8b29519ca8",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "31bca57f020d54af8c057f52a55b0ccd9da784e8f0a1472f3f0bfc3ea7aaff95",
-      "baselineOutputSha": "075cc38f3717abec16e26220d849e6b100aa51e1680a207b5ffe4b020ad2976d",
-      "candidateOutputSha": "173a3f1e7ac517e4f5b3ec8fb24e8f17d8f1875989c49ba2a5500f3f67408884",
+      "intentSha": "4e6be85ccaf2e78e0b849357172a1ec8915a65e30ff9b8f2116048d8e7862194",
+      "baselineOutputSha": "173a3f1e7ac517e4f5b3ec8fb24e8f17d8f1875989c49ba2a5500f3f67408884",
+      "candidateOutputSha": "ade933cedea8d4f232658612cb46e8c7cd7096157c66e708b30d1b66ce167f60",
       "facts": {
         "cross-stage-reuse": {
           "before": "holds",
@@ -54,16 +54,16 @@
           "label": "held"
         }
       },
-      "feedback": "Nothing moved. In both outputs Trace A issues exactly one `read` of `.pi/gauntlet-overrides.md` in brainstorming (Before step 3, After step 3), skips the duplicate read in writing-plans because the content is still in context (Before step 8, After step 7), applies American English in both stages, and applies the `demo-` prefix from the named `## writing-plans` section in the second stage. Trace B in both outputs reads the file when context possession is unsure and then applies both rules, explicitly framing the skip as an exception limited to content actually present rather than a ban on reading. After additionally labels the whole response under a 'Narrated read actions' heading, states the read is 'the session's one read of the file', and notes content is never reconstructed from memory, which makes the facts easier to verify. The After wording keeps every fact Before kept; no adjustment is needed for this sample.",
-      "wallMs": 8820,
+      "feedback": "No fact moved. Both outputs narrate Trace A with exactly one read of .pi/gauntlet-overrides.md during brainstorming (Before step 3 \"the session's one read\"; After step 3 plus step 6 \"no second read happens\"), skip the duplicate in writing-plans because the content remains in context, apply American English in both stages and the demo- prefix in writing-plans despite the skipped read, and in Trace B read the file when context possession is unsure before applying both rules, explicitly framing the skip as an exception for content actually present rather than a ban on reading. After's wording is slightly tighter on the under-test behavior (it states the skip condition and the \"no second read\" outcome directly, and notes the successful read means no blocking stop in Trace B), so the Change delivered without cost here; keep the explicit \"no second `read` happens\" line and the \"skip applies only when an earlier skill's read is actually in context\" sentence, since those are what make the cross-stage-reuse and unsure-read facts unambiguous for a careful reader.",
+      "wallMs": 6583,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "0bda7ffbeb62738050132cb7af7848b668a27bd11721b942148c4e8b29519ca8",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "31bca57f020d54af8c057f52a55b0ccd9da784e8f0a1472f3f0bfc3ea7aaff95",
-      "baselineOutputSha": "d4593e64c1adb82a7d0733d7b1749ddbe1e5298f05e8b9e63c672cd9205bc894",
-      "candidateOutputSha": "f04507bbe3f0dd0b3ec584bba6fec6097a77e0dff5a8d70449e226c6815a709f",
+      "intentSha": "4e6be85ccaf2e78e0b849357172a1ec8915a65e30ff9b8f2116048d8e7862194",
+      "baselineOutputSha": "f04507bbe3f0dd0b3ec584bba6fec6097a77e0dff5a8d70449e226c6815a709f",
+      "candidateOutputSha": "983de2a99a3ab8a5380d388e29cf12c083d03f79721619e1722bae118871d219",
       "facts": {
         "cross-stage-reuse": {
           "before": "holds",
@@ -81,10 +81,10 @@
           "label": "held"
         }
       },
-      "feedback": "Nothing moved. After's Trace A still narrates exactly one read of .pi/gauntlet-overrides.md (step 1) and explicitly skips the reread in writing-plans (step 4) with the content noted as still in context (step 3); American English is applied in both stages and the demo- prefix is applied only in the writing-plans stage despite the skipped read. Trace B still treats uncertain context possession as requiring a read (steps 1–2) and then applies both the conventions rule and the demo- prefix, so the skip clause is not read as a ban. The compression of Before's six steps into four is safe because the skip, the in-context justification, and both rule applications remain stated in their own sentences; if you compress further, keep the phrase 'with the overrides content still in context' adjacent to the skip and keep the demo- application in the second-stage step, since those are the two sentences the facts hinge on.",
-      "wallMs": 9980,
+      "feedback": "No fact moved. Both outputs narrate exactly one read of .pi/gauntlet-overrides.md in Trace A's brainstorming stage, an explicit skip of the reread in writing-plans because the content remains in context, continued American English plus the demo- prefix in the second stage, and in Trace B an explicit read when context possession is unsure followed by both conventions. After folds Before's separate Trace B 'context check' step into the read step, which still states the reason for reading and does not read the skip clause as a ban; it also names the `## writing-plans` section when applying the prefix, which if anything makes conventions-apply more explicit. Keep the current wording; if the author wants extra safety on unsure-read, retaining a short standalone sentence like 'unsure possession means read, never skip' would make the anti-ban reading unmistakable without changing any outcome.",
+      "wallMs": 6225,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "d02d17b6f2a134dd65b73f11a80720663a986416"
+  "repoSha": "71b39d7e6134b0f5487695cd123c4948adbb75c5"
 }
