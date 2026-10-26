@@ -254,6 +254,7 @@ test('exact description selection and narrow recheck preserve independent eviden
 test('head movement leaves a body write unconfirmed until fresh matching assessment', () => {
   const repair = section(loop, '### Description repair\n', '### Merge preconditions\n');
   assert.match(repair, /Failure, unreadable readback, unexpected text, or remaining contradiction stays unresolved/);
+  assert.match(repair, /never resolving it or minting a replacement ID/);
   assert.match(repair, /head move during the write leaves the original operation unconfirmed and the claim initially open/);
   assert.match(repair, /fresh-head course[^\n]*actual body[^\n]*matching evidence[^\n]*claim checks/);
   assert.match(repair, /Never reuse old-head evidence, retroactively confirm the old operation, repeat a stale write, or clear independent contributors/);
