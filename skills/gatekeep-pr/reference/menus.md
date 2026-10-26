@@ -41,7 +41,7 @@ Course holds until the final menu; `show evidence` prints the full record.
 
 ## final
 
-Offer available `merge`, `approve`, `fix nits` when nits remain and the course excluded them, `reply` when drafted replies exist, then `stop`. Recommend merge for own PR; recommend approve for someone else's when available, else merge; with neither available recommend stop. Omit merge on a draft with `Not offered: merge (draft)` or below WRITE with `Not offered: merge (needs WRITE on <owner>/<repo>)`. Omit approve on drafts and own PRs. Authorize exactly one delivery iteration for fix nits, leaving course unchanged (`post-selection-loop.md` `### Next action`). Hint: `Type a number; show evidence prints the full record.`
+Offer available `merge`, `approve`, `fix nits` when nits remain and the course excluded them, `reply` when drafted replies exist, then `stop`. Recommend merge for own PR; recommend approve for someone else's when available, else merge; with neither available recommend stop. Omit merge on a draft with `Not offered: merge (draft)` or below WRITE with `Not offered: merge (needs WRITE on <owner>/<repo>)`. Omit approve on drafts and own PRs. Authorize exactly one delivery iteration for fix nits, leaving course unchanged (`post-selection-loop.md` `### Next action`). Hint: `Type a number; show evidence prints the full record.` Print one compact `Evidence:` line above the `Delivers:` line naming the source (`CI (source: ci)` or the local run), the head SHA, each run and its checks with their conclusions, the binding-pending count, and `merge_state_status`; put the same record in the `show evidence` hint's parenthetical.
 
 ## assess terminal
 

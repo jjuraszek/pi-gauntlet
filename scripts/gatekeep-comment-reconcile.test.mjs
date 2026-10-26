@@ -576,6 +576,7 @@ test('ten templates own menus and typed dispatch is not row authority', () => {
   assert.match(menus, /For a recovered `CONFLICTING` child, offer only safe `retry` and `stop`/);
   assert.match(batch, /conflicts through `menus.md` `## batch summary`'s recovered CONFLICTING template/);
   assert.match(menus, /failed post keeps its row/);
+  assert.match(section(menus, '## final\n', '## assess terminal\n'), /Print one compact `Evidence:` line above the `Delivers:` line/);
   for (const redFlag of ['validated action-scoped retained authority', 'without `fix` while an open blocker exists', 'A CI wait while a blocker is open', 'cleanup` rendered on an ordinary open-PR menu', 'An ordinary open-PR `stop` offers teardown', 'Blockers are empty', 'Count file, description-only, and conflict-only attempts under the same cap', 'a grant never raises the cap', '## Consent table', '## Overlays', '## Conflicts']) {
     for (const text of [skill, loop, fixWave, brief, decisionMenu, menus, findings, report, sync]) assert.ok(!text.includes(redFlag), redFlag);
   }
@@ -639,6 +640,7 @@ test('terminal nit selection blocks readiness until its single complete iteratio
 
 test('non-final stop removes only owned tracked-clean pushed trees without terminal consequences', () => {
   const stop = section(cleanup, '## Non-final stop\n');
+  assert.match(stop, /discarding those commits is a separate explicit human decision - never a consequence of `stop`/);
   for (const pattern of [
     /initial, assess-terminal, obstacle, or contract-exception/,
     /git -C <worktree\.path> reset --hard <pre_head>.*HEAD == <pre_head>.*clean tree/,
