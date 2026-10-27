@@ -1,0 +1,34 @@
+{
+  "sample": "moving-parts-design-return",
+  "arm": "baseline",
+  "skillSha": "7a9aaf28d6ecba07eecbbb0e904239471521d04d046f807ffb8e1d063752a013",
+  "inputSha": "90d91811862611f71def56a33b4cf64bf739f48f348d46e48951219e97487ece",
+  "kind": "text",
+  "assembly": "headed",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "**Recap of the chosen design commitments**\n\n- **Approach:** We extend `lib/notify.ts#post` with one optional parameter, `post(message, channel = \"general\")`. This is the reuse-only option, so no new construct is added.\n- **Ownership:** `post` remains the only owner of message formatting and retries. It rejects an empty channel before sending.\n- **Report job:** `jobs/report.ts` drops its inline fetch, along with the formatting and retry logic copied into it. It calls `post` with its requested channel.\n- **Digest job:** `jobs/digest.ts` keeps its existing `post(message)` call and gets the general default unchanged.\n- **Pattern:** This follows the shared notification ownership in `lib/notify.ts#post`. The rejected alternative was a required channel argument on every call, which would also change digest. That choice would only flip if explicit channel selection became a requirement.\n\n---\n\n**Round two: errors, edges, tests, and documentation impact**\n\n*Errors*\n- An empty channel is rejected inside `post` before any send is attempted. No network call is made and no retry is consumed.\n- The rejection is an explicit error raised to the caller, so a report job with a bad channel fails visibly rather than silently posting to general.\n- Every other failure, such as a transport error or exhausted retries, keeps `post`'s existing retry and error behavior. Report delivery gets that behavior by delegation, so it is no longer re-implemented in `jobs/report.ts`.\n\n*Edges*\n- **Channel omitted:** `post` sends to `\"general\"`, exactly as today. `jobs/digest.ts` is the traced caller that depends on this, and it needs no edit.\n- **Channel supplied:** `post` sends to that channel with the same formatting and retries the general path uses. Report output therefore stays identical apart from where the delivery code lives.\n- **Report's requested channel:** it passes through unchanged. `jobs/report.ts` does no channel defaulting or validation of its own, so the empty-channel rule has one home.\n- **Other callers:** all caller paths were traced. Only report and digest call into this delivery path, so no other call site changes.\n\n*Tests* (named per the project convention, one per committed observable)\n- `post_uses_requested_channel`: calling `post` with a channel override delivers to that channel.\n- `post_keeps_default_channel`: calling `post(message)` with no channel delivers to `\"general\"`.\n- `post_rejects_empty_channel`: calling `post` with an empty channel raises an error, and no send is attempted.\n\nThe two acceptance criteria map to the first two tests. The design's error clause maps to the third.\n\n*Documentation impact*\n\nThis applies the materiality bar in `reference/documentation-impact.md`. The draft's `Docs touched:` list is empty, so there are no candidates to admit or drop.\n- The change adds an optional argument to a private helper, and the code and tests already state its default.\n- No product-facing doc, user guide, or external contract covers this helper.\n- No router or topic guide becomes wrong because of the change.\n\n```markdown\n## Documentation impact\n- Feature / user-facing docs introduced: none\n- Materially amended existing docs: none\n- Derived / memory docs invalidated: none\n```\n\nDo you approve round two?\n",
+      "words": 462,
+      "wallMs": 17230,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "### Chosen design commitments\n\n- `lib/notify.ts#post` remains the single owner of notification formatting and retries.\n- Extend its signature to `post(message, channel = \"general\")`.\n- Replace the inline fetch in `jobs/report.ts` with a call to `post` using the requested channel.\n- Leave `jobs/digest.ts` unchanged: `post(message)` continues to use `\"general\"`.\n- Reject an empty channel before sending.\n\n### Round two: errors, edges, tests, and documentation\n\nChannel selection changes the delivery destination, not the formatting or retry behavior. Both report and digest delivery use the existing shared implementation, so report no longer maintains a separate copy of that logic.\n\nAn explicitly empty channel is invalid and must be rejected before any send occurs. It must not silently fall back to `\"general\"`: the default applies when the argument is omitted, whereas an empty argument represents an invalid supplied value. This design adds no channel registry, channel-existence check, or new retry policy. Delivery failures remain governed by the helper’s existing retry and error behavior.\n\nThe tests will cover the three committed observables using the supplied naming convention:\n\n- **`post_uses_requested_channel`** — supply an override and verify that delivery targets that channel.\n- **`post_keeps_default_channel`** — omit the channel argument and verify that delivery targets `\"general\"`, preserving the behavior on which digest relies.\n- **`post_rejects_empty_channel`** — supply an empty channel and verify rejection before any outbound send.\n\nVerification will also check that report delegates to the shared helper with its requested channel and that digest retains its existing call. These integration checks complement the helper tests: they establish that report actually uses the override path and that the default-dependent caller remains unchanged.\n\nThe draft records `Docs touched: none`, and no user guide covers this private helper. No product-facing documentation change is warranted under `reference/documentation-impact.md`: the signature and tests express the behavior, and no existing documented contract or routing guidance has been identified as becoming stale. The implementation files are the deliverable, not documentation-impact entries.\n\n## Documentation impact\n- Feature / user-facing docs introduced: none\n- Materially amended existing docs: none\n- Derived / memory docs invalidated: none\n\nDo you approve round two?\n",
+      "words": 325,
+      "wallMs": 10916,
+      "mechanical": {}
+    }
+  },
+  "repoSha": "e85ad8c4e58d6f8cc0716ab1199fef2e7d45f902"
+}

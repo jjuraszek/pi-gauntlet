@@ -1,0 +1,3 @@
+anonymized: true
+- carry-forward: judged: The generated response itself, not just the recorded conversation, recaps the chosen inventory as Design imperatives Remove: the inline fetch in jobs/report.ts and Add: one optional parameter on post (backticks around names are allowed).
+- test-per-observable: judged: The generated round two includes a spec ## Tests mapping in <observable> - <test name or file> form for each acceptance criterion and the Design error clause: requested channel - post_uses_requested_channel; preserved general default - post_keeps_default_channel; rejected empty channel - post_rejects_empty_channel. Equivalent observable wording is allowed; all three named tests must be mapped.

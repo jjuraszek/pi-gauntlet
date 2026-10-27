@@ -1,5 +1,12 @@
 # Changelog
 
+## Unreleased
+
+### Changed
+
+- Brainstorming favors changes to an existing shared path over caller-side copies, names the shared helper and its gap, and orders each approach's `Removes:` before `Adds:`. The chosen removals and additions become Design imperatives, and round two maps each acceptance observable and Design edge or error clause to a test.
+- Code review flags a test that proves no spec-named observable with a `[Moderate]` `delete:` finding citing the spec section. Acceptance rows and Design clauses, including preservation obligations, justify tests; task-summary-only behavior does not. Without a supplied spec, the check reports unverified rather than recommending deletion on spec grounds.
+
 ## v7.36.1 - 2026-10-27
 
 ### Fixed

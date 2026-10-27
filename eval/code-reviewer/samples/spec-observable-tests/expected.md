@@ -1,0 +1,3 @@
+- uncommitted-delete: judged: The reviewer reports test_label_keeps_mixed_case as a Moderate delete: finding because mixed-case preservation appears only in DESCRIPTION, not a spec commitment, and cites the Acceptance criteria or Design section searched.
+- acceptance-kept: judged: No delete: finding targets test_label_trims_outer_space, whose justification cites Acceptance criteria AC1.
+- preservation-kept: judged: No delete: finding targets test_label_keeps_empty, whose justification cites the Design Keep preservation clause.
