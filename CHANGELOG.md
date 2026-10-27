@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Fixed
+
+- Claude Code marketplace installs no longer register pi-only personas. A versionless plugin manifest disables default agent discovery while the marketplace retains the six portable skills and owns the release version. Real Claude startup and cached-upgrade tests gate releases; pi persona files and installation behavior are unchanged.
+
 ## v7.36.0 - 2026-10-26
 
 ### Added

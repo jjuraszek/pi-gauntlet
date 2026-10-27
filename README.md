@@ -229,7 +229,9 @@ Invocation: `/gauntlet:shape-ticket` (or bare `/shape-ticket` when unambiguous).
 
 Updates: the plugin's marketplace `version` equals the npm version; the release
 script writes it on every release, so Claude Code sees each release as a new
-plugin version. Third-party marketplaces do not auto-update by default - run
+plugin version. `.claude-plugin/plugin.json` intentionally omits `version`, so
+it cannot override the marketplace's release version. Third-party marketplaces
+do not auto-update by default - run
 `claude plugin update gauntlet@pi-gauntlet` or turn on auto-update for the
 marketplace in `/plugin`. `claude update` updates Claude Code itself, not plugins.
 
@@ -245,6 +247,20 @@ exact repo folder* in interactive Claude Code. Trusting a parent folder,
 `extraKnownMarketplaces` with no error.
 
 ### Smoke test
+
+`npm test` runs the pinned Claude Code development dependency against disposable
+Git marketplaces and isolated homes. It checks actual session inventories for
+fresh installs and cached upgrades: zero gauntlet agents, exactly the six skills,
+and native helper availability. Negative controls reproduce the agent leak,
+manifest conflict, and full-skill scan. No credentials or model responses are
+used; artifacts remain under the printed temp directory. Run it separately with
+`node scripts/claude-plugin-smoke.test.mjs`; `CLAUDE_BIN` selects another binary
+for compatibility testing. This test gates local releases and CI publication.
+
+Use the interactive smoke below to check model-driven skill behavior and helper
+execution before a Claude packaging release. For a candidate that is not yet
+published, add its local marketplace checkout in an isolated `CLAUDE_CONFIG_DIR`
+instead of the GitHub source. Stop before tracker writes.
 
 1. Create a scratch repo and add the marketplace config:
 
@@ -289,8 +305,12 @@ exact repo folder* in interactive Claude Code. Trusting a parent folder,
     pi-gauntlet (strict mode if available). Expected: no schema errors.
 11. Agent check: type `@gauntlet:` in the mention typeahead (or open the
     plugin's details). Expected: the plugin registers no agents - `"agents": []`
-    in the marketplace entry suppresses the default `agents/` scan of the
-    repo's pi personas.
+    in `.claude-plugin/plugin.json` suppresses the default `agents/` scan of the
+    repo's pi personas. The marketplace uses `strict: true` so its skill allowlist
+    can coexist with that manifest. Keep the skill allowlist in the marketplace:
+    a manifest `skills` field adds to the default scan rather than restricting it.
+    Direct `--plugin-dir` loading of the repository bypasses the marketplace's
+    skill allowlist and is not the supported installation path.
 
 ## Project-specific overrides
 

@@ -1,16 +1,20 @@
 #!/usr/bin/env node
 // Packed-install smoke (gh-39): the npm tarball, unpacked into a scratch
 // node_modules/pi-gauntlet, runs the bundled bins without
-// ERR_UNSUPPORTED_NODE_MODULES_TYPE_STRIPPING. Never npm-installs the tarball -
-// its postinstall would re-point persona links in the real ~/.pi/agent* dirs.
+// ERR_UNSUPPORTED_NODE_MODULES_TYPE_STRIPPING. Installer checks use isolated
+// homes and profiles so they cannot re-point the user's persona links.
 import { after, test } from "node:test";
 import assert from "node:assert/strict";
 import { execFileSync, spawnSync } from "node:child_process";
 import {
+  cpSync,
   existsSync,
+  lstatSync,
   mkdirSync,
   mkdtempSync,
   readFileSync,
+  readdirSync,
+  realpathSync,
   renameSync,
   rmSync,
   symlinkSync,
@@ -99,6 +103,41 @@ test("spec-index: runs from the packed install (usage error, no crash)", () => {
   const r = run("bin/gauntlet-spec-index.mjs", []);
   assert.equal(r.status, 1);
   assert.ok(!r.stderr.includes(CRASH), r.stderr);
+});
+
+test("packed personas retain their bytes and install as user links or project copies", () => {
+  const names = readdirSync(join(root, "agents")).filter((name) => name.endsWith(".md")).sort();
+  assert.deepEqual(readdirSync(join(pkgDir, "agents")).sort(), names);
+  for (const name of names) {
+    assert.equal(readFileSync(join(pkgDir, "agents", name), "utf8"), readFileSync(join(root, "agents", name), "utf8"));
+  }
+  for (const mode of ["user", "project", "override"]) {
+    const home = join(scratch, `home-${mode}`);
+    const profile = join(home, ".pi", "test-profile");
+    let source = pkgDir;
+    let target = join(profile, "agents");
+    const env = { ...process.env, HOME: home, PI_CODING_AGENT_DIR: profile };
+    delete env.PI_GAUNTLET_AGENT_DIR;
+    mkdirSync(home, { recursive: true });
+    if (mode === "project") {
+      source = join(scratch, "project", ".pi", "npm", "node_modules", "pi-gauntlet");
+      cpSync(pkgDir, source, { recursive: true });
+      target = join(scratch, "project", ".pi", "agents");
+    } else if (mode === "override") {
+      target = join(scratch, "override-agents");
+      env.PI_GAUNTLET_AGENT_DIR = target;
+    }
+    for (let install = 0; install < 2; install++) {
+      execFileSync(process.execPath, [join(source, "bin/install-agents.mjs")], { env, stdio: "pipe" });
+      assert.deepEqual(readdirSync(target).sort(), names);
+      for (const name of names) {
+        const dest = join(target, name);
+        assert.equal(lstatSync(dest).isSymbolicLink(), mode !== "project");
+        assert.equal(readFileSync(dest, "utf8"), readFileSync(join(root, "agents", name), "utf8"));
+        if (mode !== "project") assert.equal(realpathSync(dest), realpathSync(join(source, "agents", name)));
+      }
+    }
+  }
 });
 
 test("negative control: a planted relative .ts import still crashes", () => {

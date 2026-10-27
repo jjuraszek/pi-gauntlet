@@ -555,8 +555,8 @@ try {
 // ---- Claude Code marketplace (.claude-plugin/) -------------------------------
 // Guards the gh-11 allowlist: entries must be specific existing skill dirs with
 // valid SKILL.md (existence-checked, not count-hardcoded); scan-leak paths
-// (".", "./", "./skills", "./skills/") are banned; exclusivity rests on
-// source:"./" + strict:false.
+// (".", "./", "./skills", "./skills/") are banned. The root-source marketplace
+// allowlist restricts skills; plugin.json suppresses default agent discovery.
 {
   const mpErrorsBefore = errors.length;
   const mpPath = R(".claude-plugin/marketplace.json");
@@ -584,9 +584,18 @@ try {
       const plugin = plugins[0] || {};
       if (plugin.name !== "gauntlet") fail(`marketplace.json: plugin name must be "gauntlet" (got ${JSON.stringify(plugin.name)})`);
       if (plugin.source !== "./") fail(`marketplace.json: plugin source must be "./" (got ${JSON.stringify(plugin.source)})`);
-      if (plugin.strict !== false) fail("marketplace.json: plugin strict must be false");
+      if (plugin.strict !== true) fail("marketplace.json: plugin strict must be true (plugin.json and the marketplace skill allowlist coexist)");
       if (plugin.version !== pkg.version) fail(`marketplace.json: plugin version must equal package.json version ${pkg.version} (got ${JSON.stringify(plugin.version)}) - release.sh writes it`);
-      if (!Array.isArray(plugin.agents) || plugin.agents.length !== 0) fail("marketplace.json: plugin agents must be [] (suppresses the default agents/ scan - pi personas are not CC plugin agents)");
+      if ("agents" in plugin) fail("marketplace.json: declare agents only in plugin.json; marketplace agents do not suppress discovery");
+      try {
+        const manifest = JSON.parse(readFileSync(R(".claude-plugin/plugin.json"), "utf8"));
+        if (JSON.stringify(Object.keys(manifest).sort()) !== JSON.stringify(["agents", "name"]) ||
+            manifest.name !== "gauntlet" || !Array.isArray(manifest.agents) || manifest.agents.length !== 0) {
+          fail('plugin.json: expected only name "gauntlet" and agents []; version and skills belong to the marketplace');
+        }
+      } catch (e) {
+        fail(`plugin.json: missing or invalid manifest (${e.message})`);
+      }
       const mpSkills = Array.isArray(plugin.skills) ? plugin.skills : [];
       if (mpSkills.length === 0) fail("marketplace.json: plugin skills must be a non-empty array");
       // These entries re-enable Claude Code's full scan and would leak all skills.
@@ -637,6 +646,13 @@ try {
       }
     }
   }
+}
+
+try {
+  execFileSync(process.execPath, [R("scripts/claude-plugin-smoke.test.mjs")], { stdio: "pipe", timeout: 300000 });
+  ok("real Claude Git-marketplace loading, cached upgrade and negative controls pass");
+} catch (e) {
+  fail(`Claude plugin loading failed:\n    ${String(e.stdout || "")}\n${String(e.stderr || e)}`);
 }
 
 // ---- npm pack contents -----------------------------------------------------
