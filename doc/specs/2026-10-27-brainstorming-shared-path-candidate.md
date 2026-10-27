@@ -113,6 +113,7 @@ Waves (planning): `writing-plans` rows each Remove/Add imperative into `## Spec 
 - Redraw and amend are unchanged: `Removes:`/`Adds:` live in chat during approaches and become Design imperatives, which the amendment grammar already classifies (inside one component -> amend; boundary moved -> redraw).
 - A PR subject runs the same approaches step against the rework diff; no PR-specific wording.
 - `npm test` stays green: contract substrings kept verbatim, SKILL.md well under the 50,000-byte / 2,000-line lint.
+- An existing-sample regression that the runner's confirmation replay does not reproduce (cell verdict `inconclusive`, both observations kept in the committed record) is not a regression for the acceptance row on eval results; the runner's exit 1 on that verdict is not re-rolled, and the row's "no existing sample regressed" reads against reproduced regressions only.
 
 ## Tests
 
