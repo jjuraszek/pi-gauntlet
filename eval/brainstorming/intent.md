@@ -1,6 +1,8 @@
-for: 557567850c9bbea4e013995e76e883548eae52636a634475385a4fef46e097a5
+for: 92db3a6a23fd66e6a24b215a62a2759785ada3958f9ff85f3071e11d930010d9
 
 ## Change
+Ground the reuse-only candidate in gathered shared-path and caller evidence, change the nearly-fitting path instead of copying it, and disclose each approach's Removes/Adds inventory before Pattern. Carry the chosen inventory into Design imperatives and map every acceptance row and Design edge/error observable to a test in round two. The shared-helper-option and moving-parts-design-return samples add five judged facts; the continuation judges the generated recap, not its transcript. Preserve all earlier accepted moves and variance below without widening them, and retain wordCap 1400. Model baseline/candidate evidence is produced by parent verification against merge-base 812d46fa, not by these text fixtures.
+
 Evaluate source commit 71b39d7e6134b0f5487695cd123c4948adbb75c5 against the runner merge-base baseline, retaining all prior accepted variance and the 1400-word cap. Regression-safety clarifications require Design or human-supplied complete family enumeration without invented options, retention of approved presentation details, explicit human review of re-bounded rows without a grant, and loop: amend for mixed ledger batches. These preserve existing must-hold outcomes rather than accepting new regressions.
 
 Split drafted tree-wide and set-wide negative rows by the explicit complete Design family enumeration, retaining each family's observable and the full union. Stop on absent, partial, or unrelated enumeration; preserve ticket rows verbatim pending human ticket repair. The synthetic tree-wide-drafted-row sample is baseline-skipped: new sample, no pre-edit sample evidence; normal actual both-arm records still run. Contract and expected facts add split, set-wide, missing, partial, unrelated, and ticket coverage without weakening existing facts.
@@ -30,6 +32,11 @@ The ticket-read-once, restored-step-8-reads-ticket, same-session-redraw-reuses-t
 Admit a leading ordered list of same-base PRs, stop invalid membership before provisioning, and use per-PR diffs for relatedness even when paths overlap. Carry original-head specs and claims separately from combined BASE_SHA...HEAD scout code input; attribute shared-path claims and threads to their own PR groups and provenance subsections. Check record completeness against provisioned membership, not the record itself. Trailing context remains intent, not another lookup. Preserve untouched single-PR routing, ticket binding, thread-fetch failure stops and existing questionary behavior. New samples add synthetic narrated coverage, not a baseline skill improvement by themselves; setup-only both-arm outcomes remain held/pre-existing or intended but unchanged, never a reason to weaken must-hold facts. This comparison uses the runner's merge-base baseline; historical baseline references above describe prior edits only.
 
 ## Expected to move
+- shared-helper-option/reuse-path: fails -> holds - Name lib/notify.ts#post, its missing channel override, and a change to that shared path.
+- shared-helper-option/moving-parts: fails -> holds - Put Removes and Adds directly before Pattern on every viable approach.
+- shared-helper-option/no-copy: fails -> holds - Recommend changing the helper rather than copying formatting and retries beside the report caller.
+- moving-parts-design-return/carry-forward: fails -> holds - Generate the chosen Remove/Add imperatives in the design recap, not merely in recorded conversation.
+- moving-parts-design-return/test-per-observable: fails -> holds - Map requested channel, preserved default, and empty-channel rejection to their three named tests in spec Tests.
 - pr-list-admission-mixed-base/mixed-base: fails -> holds - Refuse mixed bases with the named home/member/base and umbrella remedy before writes; duplicate identity still stops without the remedy.
 - pr-list-admission-issue-in-list/issue: fails -> holds - Reject the issue member with the direct correction and no umbrella or ticket contract.
 - pr-list-relatedness-split/groups: fails -> holds - Separate unrelated shared-file concerns from per-PR diffs before provisioning; valid retry selection promotes its first PR, excludes dropped PRs downstream and retains the later framing question.
