@@ -1,4 +1,4 @@
-for: 92db3a6a23fd66e6a24b215a62a2759785ada3958f9ff85f3071e11d930010d9
+for: b050f795f355ec714b9a547eae7f6ddb3164d20da1b86f9cb90fac65ea12c188
 
 ## Change
 Ground the reuse-only candidate in gathered shared-path and caller evidence, change the nearly-fitting path instead of copying it, and disclose each approach's Removes/Adds inventory before Pattern. Carry the chosen inventory into Design imperatives and map every acceptance row and Design edge/error observable to a test in round two. The shared-helper-option and moving-parts-design-return samples add five judged facts; the continuation judges the generated recap, not its transcript. Preserve all earlier accepted moves and variance below without widening them, and retain wordCap 1400. Model baseline/candidate evidence is produced by parent verification against merge-base 812d46fa, not by these text fixtures.

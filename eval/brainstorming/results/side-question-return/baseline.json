@@ -1,7 +1,7 @@
 {
   "sample": "side-question-return",
   "arm": "baseline",
-  "skillSha": "7aa9ae375ddffd0cc2ed4e634478d8f8555c55415d74a20ccf019fe78da07465",
+  "skillSha": "5b2ce36b5873fbd34badf7cd304fb732b352839191e9459dc23bc0782f20cfd3",
   "inputSha": "4a785dcd9d8fadca18180064443d7c64f7aba75f76d398b4d121a4f01d563c56",
   "kind": "text",
   "assembly": "headed",
@@ -17,18 +17,18 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "**Why the resolver fits better:** the report view already gets its settings from that path. `settings/resolver.ts:12` owns the defaults, and `ui/report-view.ts:30` consumes the resolved values. Other settings already flow through this resolver, and I traced the path from the resolver to the view.\n\nA view-local settings object would create a second settings path beside the one that owns every other setting. Its defaults could drift from the resolver's, and every future reader would have to check two places. Keeping the new setting in the resolver gives you one read path and one place to test defaults. The view stays a consumer, as it is today. The settings will be owned by the existing resolver, and I'll note that decision in the draft for the design.\n\nThe open question is what the setting controls when the workspace changes. Your report describes filters that stay active after a switch and hide rows in the new workspace. What should happen to active report filters on a workspace change?\nA) Reset filters by default; the setting lets users keep them across workspaces.\nB) Keep filters by default, as today; the setting lets users opt into a reset.\nC) Remember filters per workspace, so switching restores that workspace's own filters; the setting turns this on or off.\nD) Other - name it.\nRecommendation: A - resetting by default fixes the hidden-rows problem for everyone, and the setting still lets users who rely on today's carry-over keep it.\n",
-      "words": 240,
-      "wallMs": 12739,
+      "text": "A is the better fit because the report view already reads its settings from the shared resolver:\n\n- `settings/resolver.ts:12` owns the defaults.\n- `ui/report-view.ts:30` already consumes the resolved values. I traced that path end to end.\n\nSo the new setting gets its default, its override handling, and its delivery to the view without any new plumbing. A view-local settings object would create a second settings path beside the one that owns every other setting. Its defaults could drift from the resolver's, and anything that reads or overrides settings centrally would not see it. I've recorded resolver ownership as decided.\n\nNext question: when a user switches workspaces, what should happen to active report filters by default?\n\nA) Clear them on workspace change. The setting lets users opt into keeping them.\nB) Keep them, as today. The setting lets users opt into clearing them.\nC) Other - name it.\n\nRecommendation: A - filters carried into the new workspace are what hide rows today, so the default should stop that, and the setting keeps the old behavior for anyone who relies on it.\n",
+      "words": 176,
+      "wallMs": 11379,
       "mechanical": {}
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "A is the better fit because `settings/resolver.ts:12` already owns defaults, and `ui/report-view.ts:30` already consumes its resolved settings. Reusing that path gives the new setting one source of truth; a view-local object would introduce a second settings path and require keeping its defaults consistent.\n\nThat settles ownership, but not what should happen to filters when switching workspaces. Which behavior should the setting provide?\nA) Always clear filters when switching workspaces.\nB) Let users choose whether filters clear, defaulting to today’s behavior of retaining them.\nC) Remember a separate set of filters for each workspace.\nD) Other - name it.\nRecommendation: B - it addresses hidden rows without changing existing behavior by default.\n",
-      "words": 109,
-      "wallMs": 4851,
+      "text": "The existing resolver is the better fit because `settings/resolver.ts:12` already owns defaults, and `ui/report-view.ts:30` already consumes its resolved settings. Reusing that path keeps one source of truth; a view-local object would create a second place to define and resolve settings.\n\nThat settles settings ownership, but not what happens to filters. When switching workspaces, what behavior should the setting enable?\nA) Clear active report filters so the new workspace starts unfiltered.\nB) Restore each workspace’s previous filters, keeping filter state separate by workspace.\nC) Keep carrying active filters across workspaces, as today.\nD) Other - name it.\nRecommendation: A - it directly addresses hidden rows without introducing per-workspace filter storage.\n",
+      "words": 107,
+      "wallMs": 9535,
       "mechanical": {}
     }
   },
-  "repoSha": "6f144da74a18e3dcd162d0a0ece5ce791fd7dc7c"
+  "repoSha": "e85ad8c4e58d6f8cc0716ab1199fef2e7d45f902"
 }

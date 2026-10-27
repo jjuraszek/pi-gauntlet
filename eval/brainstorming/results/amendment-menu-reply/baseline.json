@@ -1,7 +1,7 @@
 {
   "sample": "amendment-menu-reply",
   "arm": "baseline",
-  "skillSha": "7aa9ae375ddffd0cc2ed4e634478d8f8555c55415d74a20ccf019fe78da07465",
+  "skillSha": "5b2ce36b5873fbd34badf7cd304fb732b352839191e9459dc23bc0782f20cfd3",
   "inputSha": "8f4082006f803aa6f314147c6b6a600eec45f09c1691c03a1600bc1a62ef6a17",
   "kind": "text",
   "assembly": "headed",
@@ -17,18 +17,18 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "Both items are resolved, so the batch applies as follows. This text-only replay can't run tools, so nothing has been written to `doc/specs/report-runner.md` or committed yet.\n\n**1. Share retry policy (crosscut), option B (alt-1)**\n- Design / retries changes from \"each report adapter owns its retry policy\" to \"the existing report coordinator owns the shared retry policy; adapters keep execution.\"\n- No new retry service is introduced.\n- This resolves the disagreement between `adapters/alpha.ts:18` (two retries) and `adapters/beta.ts:22` (four retries): both will follow the coordinator's single limit.\n\n**2. Classify blocked execution (exit126), your custom answer**\n- This is a spec edit, not a redirect.\n- Design / run status keeps \"exit 126 is failed\" unchanged.\n- It gains a documenting clause: exit 126 stays classified as failed, even though it signals a launch problem before report execution (the synthetic launch test returns 126 before the report runs). No `blocked` status is added.\n- The batch commit body will record this as `custom(keep exit 126 as failed; document the retained classification in Design / run status)`.\n\nThere is no plan yet, so this reopens no tasks and causes no phase change. The spec review continues on the amended spec.\n\nRecorded: crosscut=alt-1, exit126=custom(keep 126 as failed, document it)\n",
-      "words": 196,
-      "wallMs": 10581,
+      "text": "Both items are resolved: item 1 takes alt-1, and item 2 is a custom instruction within the spec. These are the spec edits for `doc/specs/report-runner.md`:\n\n**Design / retries (crosscut, alt-1)**\n- Old: each report adapter owns its retry policy.\n- New: the existing report coordinator owns the shared retry policy, and adapters keep execution.\n- This replaces the different adapter limits (two retries at `adapters/alpha.ts:18` and four at `adapters/beta.ts:22`) with one retry limit owned by the coordinator.\n- No new retry service is added.\n\n**Design / run status (exit126, custom)**\n- Exit 126 stays classified as **failed**. The design does not change.\n- The section now documents this explicitly. Exit 126 means the launch failed before the report ran, and the runner reports that case as a failed run, not a separate blocked status.\n\nThere is no plan, so no tasks reopen and the phase does not change. Because this is a text-only replay, these edits are described here and have not been written to disk or committed. Next, the amended spec returns to the spec review.\n\nRecorded: crosscut=alt-1, exit126=custom(keep 126 as failed, document it)\n",
+      "words": 177,
+      "wallMs": 11535,
       "mechanical": {}
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "Selected spec edits for `doc/specs/report-runner.md` (not written in this text-only replay):\n\n- **Design / retries:** The existing report coordinator owns the shared retry policy; adapters retain execution. No new retry service.\n- **Design / run status:** Keep exit 126 classified as **failed** and explicitly document that classification.\n\nNo tasks reopen; no phase change. No standing grant was given.\n\nRecorded: crosscut=alt-1, exit126=custom(keep 126 as failed, document it)\n",
+      "text": "Selected edits for `doc/specs/report-runner.md`:\n\n- **Design / retries:** The existing report coordinator owns the shared retry policy; adapters retain execution. No new retry service.\n- **Design / run status:** Keep exit 126 classified as **failed** and explicitly document that classification.\n\nRecorded: crosscut=alt-1, exit126=custom(keep 126 as failed, document it)\n\nNo disk writes or commits were performed in this text-only replay. No tasks reopen and no phase changes.\n",
       "words": 62,
-      "wallMs": 9274,
+      "wallMs": 6595,
       "mechanical": {}
     }
   },
-  "repoSha": "6f144da74a18e3dcd162d0a0ece5ce791fd7dc7c"
+  "repoSha": "e85ad8c4e58d6f8cc0716ab1199fef2e7d45f902"
 }

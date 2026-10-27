@@ -1,0 +1,90 @@
+{
+  "sample": "spec-observable-tests",
+  "arm": "candidate",
+  "skillSha": "59784facd665ba809bf0c51e9deebcf8df21e74ee5d874a5e42d27e7233d24e1",
+  "inputSha": "49a5705e836b862754f7b688b6cdadda3757a09b487b2e913cc09ba51afa3453",
+  "kind": "text",
+  "assembly": "headed",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "Verdict: FIX_FIRST\nReasoning: `test_label_keeps_mixed_case` proves a behavior that neither the spec's `## Acceptance criteria` nor its `## Design` section names, which is a Moderate finding.\nConfidence: medium (I read the full inlined diff; no commands were supplied, so I ran no tests)\n\nFindings:\n  - [Moderate] F1: [delete] test_labels.py:14 — `test_label_keeps_mixed_case` proves no observable that the supplied spec names, so it costs a run without proving any approved commitment.\n        - I searched `## Acceptance criteria` (AC1: outer whitespace stripped) and `## Design` (Keep: empty label remains empty). Neither commits to mixed-case preservation.\n        - Only the DESCRIPTION summary mentions mixed case, so I treat it as uncommitted.\n        - Unlike the other two tests, this test has no justification comment citing an approved row or clause.\n        - It is not the single smoke test or an `assert`-based self-check, so no exemption applies.\n        Fix: Delete `test_label_keeps_mixed_case`. If mixed-case preservation is a real requirement, send it through the scope decision so it is added to the spec as an acceptance row or Design clause. Then restore the test with a comment citing that row.\n        touched-files: test_labels.py\n        touched-resources: none\n\nNotes (no findings):\n- Correctness: `name.strip()` meets AC1 and the Design Keep rule (`\"\".strip() == \"\"`).\n- `str.strip()` also trims tabs and newlines. That is consistent with \"outer whitespace\" in AC1.\n- The spec does not specify behavior for non-`str` input such as `None`, so I raise no finding on it.\n- Tests: `test_label_trims_outer_space` proves AC1 and `test_label_keeps_empty` proves the Design Keep rule. Each cites its commitment, and they are not equivalent cases, so they do not need to become a table. Both use minimal input.\n- Security, error handling, performance: none apply to a one-line pure function.\n\nComplexity: net -4 lines\n\nVerification: Not run. `SCOPED_TEST_COMMANDS` was `none`, so the orchestrator gate owns test execution.\n\nParallel-safe: F1 disjoint\nBehaviour-change: no\n",
+      "words": 286,
+      "wallMs": 13686,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "Verdict: FIX_FIRST\nReasoning: The mixed-case test asserts summary-only behavior not committed in the approved Acceptance criteria or Design.\nConfidence: high\n\nFindings:\n  - [Moderate] F1: test_labels.py:14 — delete: `test_label_keeps_mixed_case` proves neither outer-whitespace removal (Acceptance criteria AC1) nor empty-label preservation (Design Keep); mixed-case preservation appears only in the description, not the approved scope.\n        Fix: Delete this test. If mixed-case preservation needs dedicated coverage, route that behavior through the scope decision and obtain an approved commitment first.\n        touched-files: test_labels.py\n        touched-resources: none\n\nComplexity: net -4 lines\n\nVerification: No commands run; SCOPED_TEST_COMMANDS is `none`. Review was limited to the supplied diff.\n\nParallel-safe: F1 disjoint\nBehaviour-change: no\n",
+      "words": 99,
+      "wallMs": 11645,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "6a586af89a0ec16c0b282a12cd3d8d03d275cadcefd828e41990f2fc9a025c20",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "d9e785e9a7abb37e46ae31049516cf9eedc48f66bad759810155ba389d5865f0",
+      "baselineOutputSha": "76e9c920da858df2849d0d8beab1ceb36827d698f9a7c54b6cdfac5009809ae1",
+      "candidateOutputSha": "d70a261e26ccb3db1592f94c72dec6e0492100e9ce239f76416f360a7887bcff",
+      "facts": {
+        "uncommitted-delete": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "acceptance-kept": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "preservation-kept": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        }
+      },
+      "feedback": "After delivers the Change on this case: F1 is a Moderate delete finding on test_label_keeps_mixed_case, it explicitly names the `## Acceptance criteria` and `## Design` sections it searched, and it attributes the mixed-case claim to the DESCRIPTION summary only, which is exactly what uncommitted-delete asks for; Before had the same reasoning but filed it as Minor, so it failed on severity. Both outputs leave test_label_trims_outer_space and test_label_keeps_empty free of delete findings — Before's F1 is a shrink that folds them into a parametrized table while keeping the AC1 and Design Keep rows and citations, and After explicitly notes each cites its commitment and need not become a table — so acceptance-kept and preservation-kept hold in both. No fact regressed. One caution for the After wording: the parametrize-consolidation Before proposed is still a legitimate Minor shrink under the new check list (split-assertion repeats on one operation), and After now omits it entirely with the rationale 'they are not equivalent cases'; if the author wants the Minor shrink to survive alongside the Moderate spec-observable delete, the template should say the spec-observable check runs first and the economy check still applies to the tests that survive it, rather than implying that distinct cited commitments exempt tests from consolidation.",
+      "wallMs": 15956,
+      "verdict": "improved"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "6a586af89a0ec16c0b282a12cd3d8d03d275cadcefd828e41990f2fc9a025c20",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "d9e785e9a7abb37e46ae31049516cf9eedc48f66bad759810155ba389d5865f0",
+      "baselineOutputSha": "d0b6e05d8bb2b1836efc6fb10b484476eaccc70dd3f61f6454311fdf2ea45fa2",
+      "candidateOutputSha": "39bd48f58e651773f9fb88e9a9a0942d5ee2296ce0fe4bcf9abf438c0c166a70",
+      "facts": {
+        "uncommitted-delete": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "acceptance-kept": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "preservation-kept": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        }
+      },
+      "feedback": "After delivers the intended move: F1 is a Moderate delete on test_label_keeps_mixed_case, states that mixed-case preservation appears only in the description, and names the Acceptance criteria (AC1) and Design Keep sections it checked against, while leaving the AC1-justified and Design-Keep-justified tests untouched. Note that acceptance-kept and preservation-kept already held in Before (a review with no findings issues no delete), so they are not actually moved by this wording; the only real gain is uncommitted-delete. One small wording risk: the Reasoning line says 'summary-only behavior' while the finding says 'appears only in the description' — align both on the spec's own field name (DESCRIPTION) so a reader can trace the citation unambiguously, and consider having the finding say explicitly 'searched: Acceptance criteria, Design' rather than embedding the searched sections inside the negative clause, which makes the searched-section citation easier to verify without weakening any kept fact.",
+      "wallMs": 9243,
+      "verdict": "improved"
+    }
+  },
+  "repoSha": "e85ad8c4e58d6f8cc0716ab1199fef2e7d45f902"
+}

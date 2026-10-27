@@ -1,0 +1,34 @@
+{
+  "sample": "spec-observable-tests",
+  "arm": "baseline",
+  "skillSha": "183e4158913a00b7ca305ce371c5d6aa9a864b3e82bdeaf16cb8800a2e4bcc6e",
+  "inputSha": "49a5705e836b862754f7b688b6cdadda3757a09b487b2e913cc09ba51afa3453",
+  "kind": "text",
+  "assembly": "headed",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "Verdict: SHIP\nReasoning: `name.strip()` meets AC1 and the empty-label Keep. The only findings are Minor test-economy issues.\nConfidence: high (the full diff is two trivial files; no commands were supplied, so I ran nothing)\n\nFindings:\n  - [Minor] F1: [shrink] test_labels.py:4-15 — The three tests share one operation (`render_label(x) == y`) and are just equivalent input/output cases split across separate functions.\n        Fix: Collapse them into one parametrized table with named rows that keep the spec citations, e.g.\n        ```python\n        import pytest\n        from labels import render_label\n\n        @pytest.mark.parametrize(\"raw, expected\", [\n            (\" MiXeD \", \"MiXeD\"),  # AC1: strip outer whitespace (case untouched)\n            (\"\", \"\"),              # Design Keep: empty label remains empty\n        ], ids=[\"trim\", \"empty\"])\n        def test_render_label(raw, expected):\n            assert render_label(raw) == expected\n        ```\n        touched-files: test_labels.py\n        touched-resources: none\n  - [Minor] F2: [delete] test_labels.py:14-15 — `test_label_keeps_mixed_case` cites no approved commitment.\n        Plan deviation: the DESCRIPTION claims \"preserving mixed case\", but neither AC1 nor the Design section commits to it. The code does preserve case, since `str.strip` never alters case, so the deviation is acceptable and harmless. Even so, the standalone test proves no spec item.\n        Fix: Delete the test, or fold the case check into the AC1 trim row (`\" MiXeD \" -> \"MiXeD\"`) as F1 shows. If mixed-case preservation is meant to be a commitment, add it to the spec first.\n        touched-files: test_labels.py\n        touched-resources: none\n\nComplexity: net -5 lines\nParallel-safe: F2 conflicts F1 (both touch test_labels.py)\n\nVerification: not run. SCOPED_TEST_COMMANDS was `none`, so the orchestrator gate owns test execution.\n\nBehaviour-change: no\n",
+      "words": 225,
+      "wallMs": 16899,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "Verdict: SHIP\nReasoning: The implementation strips outer whitespace, preserves empty labels and mixed case, and the tests cover each stated behavior without unnecessary duplication.\nConfidence: high\n\nFindings: none.\n\nVerification: No commands run; SCOPED_TEST_COMMANDS is `none`, and the dispatch prohibits git and test execution. Review is based solely on the supplied diff.\n\nBehaviour-change: no\n",
+      "words": 53,
+      "wallMs": 7832,
+      "mechanical": {}
+    }
+  },
+  "repoSha": "e85ad8c4e58d6f8cc0716ab1199fef2e7d45f902"
+}
