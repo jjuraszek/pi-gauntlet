@@ -35,7 +35,7 @@ Immediately after ordered admission and before binding, classify N=1 read-only. 
 
 ## Relatedness before provisioning
 
-Write exactly `gauntlet: question` alone at column zero on the first physical line, followed by a newline, when asking the relatedness question, before premise correction or framing. Never append a colon to the marker. Follow the [first-line rule](menu-layout.md).
+Start the message with `gauntlet: question` alone at column zero on the first physical line, followed by a newline, when asking the relatedness question, before premise correction or framing. Never append a colon to the marker. Follow the [first-line rule](menu-layout.md).
 
 For N>1, fetch every admitted PR's title/body with `gh pr view <N> -R <owner/repo> --json title,body` and actual diff with `gh pr diff <N> -R <owner/repo>`. On failure stop before provisioning naming the ref and observed reason: `<ref>: title/body not fetched (<gh error>)` or `<ref>: diff not fetched (<gh error>)`.
 

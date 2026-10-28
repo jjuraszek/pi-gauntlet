@@ -289,7 +289,7 @@ in step 5. Delegated skills' gates (e.g. shape-ticket's) are not counted.
 
 Start the message with `gauntlet: gate=chase-bug/response-to-origin` before the channel and exact draft when awaiting `send it`. Apply [menu-layout](../brainstorming/reference/menu-layout.md), preserving that exact confirmation token. Keep the marker outside the response payload.
 
-For an ending turn, start the message with `gauntlet: done responded` after sending, `gauntlet: done summary` for the terminal summary, or `gauntlet: done draft` for the terminal copy-paste draft, including a push-failure fallback. A handoff to brainstorming, shape-ticket, or hotfix is not an ending: continue into its next gate without an intermediate terminal marker.
+Start the message with `gauntlet: done responded` after sending. Start the message with `gauntlet: done summary` for the terminal summary. Start the message with `gauntlet: done draft` for the terminal copy-paste draft, including a push-failure fallback. A handoff to brainstorming, shape-ticket, or hotfix is not an ending: continue into its next gate without an intermediate terminal marker.
 
 Branch on the response target recorded in step 1 (possibly set mid-chase by an
 explicit ask).

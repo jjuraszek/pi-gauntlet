@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Added
+
+- Skill-owned turns carry machine-readable `gate`, `question`, `done`, and `stuck` first lines, with a gate inventory and reply contract for programmatic callers. (#92)
+
 ## v7.39.0 - 2026-10-28
 
 ### Added

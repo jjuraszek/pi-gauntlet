@@ -477,7 +477,7 @@ Start the final outcome message with exactly one terminal line before summaries:
 - Start the message with `gauntlet: done discarded` only after typed discard authorization and successful discard.
 - Start the message with `gauntlet: done pushed` after successful PR-subject push and body edit, only after the close-member gate is answered or no members qualify.
 
-For an executed operation that fails, start the message with `gauntlet: stuck <reason>` using a short concrete reason, before error evidence or a return menu. Do not combine a terminal marker with a gate marker in one message; a subsequent menu starts a new gate message. Pending choices, implementation stalls and conformance escalation are not terminal outcomes. Read and apply [menu-layout](../brainstorming/reference/menu-layout.md). Preserve strip, seal, cleanup and ship-state rules below; terminal reporting does not complete ship after Discard or failure.
+Start the message with `gauntlet: stuck` followed on that line by a short concrete reason for an executed operation that fails, before error evidence or a return menu. Do not combine a terminal marker with a gate marker in one message; a subsequent menu starts a new gate message. Pending choices, implementation stalls and conformance escalation are not terminal outcomes. Read and apply [menu-layout](../brainstorming/reference/menu-layout.md). Preserve strip, seal, cleanup and ship-state rules below; terminal reporting does not complete ship after Discard or failure.
 
 Once the chosen option (Options 1-4 or PR-subject row 1 - not Discard) is executed successfully, mark the ship phase complete:
 

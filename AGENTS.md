@@ -127,6 +127,7 @@ Bin sources live in `src/bins/`; the shipped `bin/gauntlet-telemetry-seal.mjs`, 
 
 | Want to ... | Read |
 |---|---|
+| Answer gauntlet gates from a program | [`doc/gate-contract.md`](doc/gate-contract.md) |
 | Author an implement engine | [`doc/implement-engines.md`](doc/implement-engines.md) |
 | Workflow overview, install, Claude Code setup, overrides-file contract, lineage | [`README.md`](README.md) |
 | Search the spec and docs corpora | [`README.md#spec-search-index`](README.md#spec-search-index) |

@@ -71,7 +71,7 @@ On a `rebased locally` head the forge re-read returns `<pre_head>` as `headRefOi
 
 ## Failure path
 
-On a restore/assert mismatch, start the terminal message with `gauntlet: stuck <error>`, substituting the actual error, and end the run. Keep ordinary recovered failures on their existing continuation path.
+Start the message with `gauntlet: stuck` followed on that line by the actual error on a restore/assert mismatch, and end the run. Keep ordinary recovered failures on their existing continuation path.
 
 Triggers: an unresolved stop, `open` for any reason other than a failing scoped test in a file outside the list, residue, a non-zero `rebase` or `--continue` without unmerged paths, a reviewer Critical or Moderate finding, a push rejected by server policy. Restore `<pre_head>`: `git rebase --abort` while the rebase is in progress, `git reset --hard <pre_head>` after it completed; assert `HEAD == <pre_head>` and a clean `git status --porcelain` - a mismatch is a hard stop with the error, never a silent continue. Record `sync: failed - <reason>` with reason one of `unresolved stop in <commit7>`, `implementer returned open`, `residue outside conflicted files`, `rebase failed: <first line>`, `reviewer: <top finding>`, `push rejected: <first server line>`. Close the `sync` stage `skipped` and continue to step 3 on the unsynced head; step 5 records what remains and renders the initial or terminal template from `menus.md`.
 

@@ -89,7 +89,9 @@ Apply the first-line grammar in [menu-layout](../brainstorming/reference/menu-la
      `cat >> "<brief path>" <<'EOF' ... EOF` whose body is that block.
    - Re-read the file tail and confirm it ends with the gate-history line from the
      contract and nothing after.
-7. **Report.** Start the message with `gauntlet: done brief-written`. Print the path and `/skill:gauntlet-resume <path>`. When a section was
+7. **Report.**
+
+   Start the message with `gauntlet: done brief-written`. Print the path and `/skill:gauntlet-resume <path>`. When a section was
    appended and the brief's `worktree:` field is `no`, resume's entry check 2 needs an
    override: print `/skill:gauntlet-resume <path> <override>` where `<override>` is the
    run worktree from step 1 when one was found, else the session checkout root,

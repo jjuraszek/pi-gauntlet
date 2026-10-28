@@ -580,6 +580,8 @@ Anything a wrapper skill contains beyond trigger phrases is misplaced - move it 
 
 ## Configuring the gates
 
+Settled skill-owned turns carry a machine-readable first line identifying a gate, question, or terminal outcome. Programs answering these turns use the [gate inventory and reply contract](doc/gate-contract.md); the rendered row bodies define valid replies.
+
 Choose experimental loop options 4/5, configure the iteration cap and worker model, and operate the planless ledger through [Loop engine operations](doc/configuration.md#loop-engine-operations). Waves remains the default.
 
 | Want to ... | Read |
