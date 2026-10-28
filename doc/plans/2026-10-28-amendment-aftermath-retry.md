@@ -73,7 +73,7 @@ For wording iteration before the final full-target run, use one optional partial
 - `node eval/run.mjs brainstorming aftermath-unchanged-command`
 - `node eval/run.mjs brainstorming aftermath-budget-exhausted`
 
-Batch wording repairs before another iteration. Commit the generated full-target report and all changed baseline/candidate records with this change; never manufacture or hand-edit replay evidence. Preserve existing intent variance without widening it to silence a new regression. Keep replay failures visible at verification. Do not introduce a `Replays:` task contract or change replay bundling to reduce the approved full-target scope.
+Batch wording repairs before another iteration. Commit the generated full-target report and all changed baseline/candidate records with this change; never manufacture or hand-edit replay evidence. Preserve existing intent variance without widening it to silence a new regression. Accept the repo-owner-approved eval-gate variance for `moving-parts-design-return/carry-forward`, `moving-parts-design-return/test-per-observable`, and `pr-subject-weakened-rule/preservation` as the one exception to this no-widening rule. Keep replay failures visible at verification. Do not introduce a `Replays:` task contract or change replay bundling to reduce the approved full-target scope.
 
 ## Baseline provenance
 
