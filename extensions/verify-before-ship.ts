@@ -26,7 +26,7 @@
  */
 
 import { resolve, dirname } from "node:path";
-import { existsSync, realpathSync } from "node:fs";
+import { existsSync, realpathSync, readFileSync } from "node:fs";
 import { spawnSync } from "node:child_process";
 import type { ExtensionAPI } from "@earendil-works/pi-coding-agent";
 import {
@@ -37,6 +37,8 @@ import {
 } from "./lib/gauntlet-settings.ts";
 import { loadGauntletSettings } from "./lib/gauntlet-settings-loader.ts";
 import { matchShipStatement } from "./lib/telemetry-paths.ts";
+import { checkoutOfSync, gitSync } from "./lib/checkout.ts";
+import { parseLegs } from "./lib/plan-check.ts";
 
 const SOURCE_EXT = /\.(ts|tsx|js|jsx|py|rb|go|rs|java|swift|kt)$/;
 const TEST_PATH = /(^|\/)(tests?|__tests__)\/|\.(test|spec)\.|_test\.(py|go|rb)$/;
@@ -165,6 +167,52 @@ const statements = (command: string, cwd: string): { command: string; testComman
 
 export default function (pi: ExtensionAPI) {
   const verified = new Set<string>();
+  let homeSpec: string | undefined;
+  const rememberPlan = (event: { toolName: string; isError?: boolean; details?: unknown }, cwd: string) => {
+    if (event.toolName === "phase_tracker" && !homeSpec && !event.isError) {
+      const details = event.details as { action?: string; error?: string; phases?: Record<string, { status?: string; reason?: string }> } | undefined;
+      if (details?.action === "skip" && !details.error) {
+        for (const phase of ["brainstorm", "plan"]) {
+          const state = details.phases?.[phase];
+          const spec = state?.status === "skipped" ? /^resume: (.+?)(?: \(loop engine\))?$/.exec(state.reason ?? "")?.[1] : undefined;
+          if (spec) {
+            homeSpec = resolve(cwd, spec);
+            break;
+          }
+        }
+      }
+    }
+    if (event.toolName !== "plan_check") return;
+    const details = event.details as { status?: string; specPath?: string } | undefined;
+    homeSpec = !event.isError && details?.status === "pass" ? details.specPath : undefined;
+  };
+  pi.on("session_start", async (_event, ctx) => {
+    homeSpec = undefined;
+    for (const entry of ctx.sessionManager.getBranch()) {
+      if (entry.type === "message" && entry.message.role === "toolResult") rememberPlan(entry.message, ctx.cwd);
+    }
+  });
+  const coordinatedMember = (target: string, primary: string): boolean => {
+    if (!homeSpec) return false;
+    let legs: ReturnType<typeof parseLegs>;
+    try { legs = parseLegs(readFileSync(homeSpec, "utf8")); } catch { return false; }
+    if (legs.length < 2) return false;
+    if (target === checkout(dirname(homeSpec))) return true;
+    const remote = gitSync(["remote", "get-url", "origin"], primary);
+    let repo = remote.stdout.trim().replace(/\.git$/, "").replace(/^.*[:/]([^/:]+\/[^/]+)$/, "$1").toLowerCase();
+    if (remote.code !== 0) {
+      const overridesPath = [".pi/gauntlet-overrides.md", "gauntlet-overrides.md", "doc/gauntlet-overrides.md"].map(p => resolve(primary, p)).find(p => existsSync(p));
+      const overrides = overridesPath ? readFileSync(overridesPath, "utf8") : "";
+      const tracker = /^## Issue tracker\s*\n([\s\S]*?)(?=^## |$(?![\s\S]))/m.exec(overrides)?.[1] ?? "";
+      repo = (/^- repo:\s*(\S+)\s*$/m.exec(tracker)?.[1] ?? primary.split("/").at(-1) ?? "").toLowerCase();
+    }
+    return legs.slice(1).some(leg => {
+      const branch = /^branch:\s*(\S+)\s*$/m.exec(leg.body)?.[1];
+      const home = /^(?:contract:\s*)?(?:-\s*)?home:\s*(\S+)\s*$/m.exec(leg.body)?.[1];
+      return leg.repo === repo && !!branch && !!home && home.split("<name>").length === 2 &&
+        target === checkout(resolve(primary, home.replace("<name>", branch.replaceAll("/", "-"))));
+    });
+  };
   const pendingTests = new Map<string, Set<string>>();
   const pendingShipWarnings = new Map<string, string>();
 
@@ -196,7 +244,13 @@ export default function (pi: ExtensionAPI) {
     const targets = new Set<string>();
     let settingsErrShown = false;
     for (const statement of statements(command, ctx.cwd)) {
-      const { gauntlet, errors } = loadGauntletSettings(statement.target);
+      const targetCheckout = checkoutOfSync(statement.target);
+      let settingsRoot = statement.target;
+      if (targetCheckout?.via === "git" && !targetCheckout.isPrimary) {
+        const common = gitSync(["rev-parse", "--path-format=absolute", "--git-common-dir"], statement.target);
+        if (common.code === 0 && coordinatedMember(statement.target, dirname(common.stdout.trim()))) settingsRoot = dirname(common.stdout.trim());
+      }
+      const { gauntlet, errors } = loadGauntletSettings(settingsRoot);
       const { testCommands, warningReference } = resolveVerifyBeforeShip(gauntlet, DEFAULT_TEST_COMMANDS);
       const isTest = buildTestCmdRegex(testCommands).test(statement.testCommand) && !/^(?:echo|printf|rg|grep)\b/.test(statement.command);
       if (isTest && statement.trusted) targets.add(statement.target);
@@ -212,7 +266,8 @@ export default function (pi: ExtensionAPI) {
     return undefined;
   });
 
-  pi.on("tool_result", async (event) => {
+  pi.on("tool_result", async (event, ctx) => {
+    rememberPlan(event, ctx.cwd);
     if (event.toolName !== "bash") return undefined;
 
     const targets = pendingTests.get(event.toolCallId);
