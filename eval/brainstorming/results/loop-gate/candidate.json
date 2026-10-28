@@ -34,7 +34,7 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "56c2c912aaa8f94ccad98364431e6403da1276a12b73aff52e8e14d01c1ae60c",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "b91bd8dfa507c4b4fd6eb7c807d7a687d6c6f3eeb488fa85a6a346489513b442",
+      "intentSha": "8f08e58746936d2778d8da036a0dbd3d9211a21c40d2021e7070004b0e1c3815",
       "baselineOutputSha": "2f35e64f146f7c4a4ade098f8270f754fddec17e4e4a43fb24045ded8f70cf8d",
       "candidateOutputSha": "2f35e64f146f7c4a4ade098f8270f754fddec17e4e4a43fb24045ded8f70cf8d",
       "facts": {
@@ -59,14 +59,14 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "The Before and After outputs are textually identical for this case, so no fact moved: Branch A renders five numbered options with the option 4/5 sentences and the \"1, 2, 4, or 5\" funding line; the reply-4 continuation writes `**Engine:** loop` directly below `**Amend-grant:** none`, amends with `--no-edit` to keep the council audit, checks both fields via `git show HEAD:doc/specs/report.md`, completes brainstorm, and invokes `/skill:loop-implementation` with no writing-plans step; Branch B copies the drafted row and its in-scope disposition verbatim under the ratifies heading with all five options; Branch C keeps the three-option gate, the exact unavailable line, the not-fetched sentinel and the paste-rows affordance without inventing rows. The expected fails->holds moves for loop-gate are already satisfied by Before in this trace, so the After wording preserved rather than created them. One soft spot worth tightening: neither output narrates the driver's plan skip with reason `loop engine`; if that narration is meant to be required at this gate, the After wording should say so explicitly in the continuation steps (e.g., a `phase_tracker` skip call with the reason) so the loop fact keys on something the text actually shows.",
-      "wallMs": 17139,
+      "feedback": "Before and After are textually identical for this case, so no fact moved. Both render the five-option gate with the exact option 4 and option 5 sentences and the funding affix bound to 1, 2, 4, or 5; the reply-4 continuation writes Engine: loop directly below Amend-grant: none, amends with --no-edit to keep the council audit, verifies both header lines via git show HEAD, completes the brainstorm phase, and invokes loop-implementation with no writing-plans step; Branch C keeps only options 1-3 with the exact 'Loop engine unavailable: this spec has no acceptance-criteria rows.' line, the verbatim not-fetched sentinel, and the paste-rows affordance; Branch B copies the drafted row and its in-scope disposition verbatim under 'Drafted acceptance criteria (approval ratifies):' with all five options. The section-5 amendment-surface addition did not disturb the approval-gate or continuation rendering here. One minor robustness note for the author: the continuation never states in its own words that the plan is skipped because the engine is loop (it relies on option 4's 'skip the plan' text); adding a one-line 'plan skipped: reason loop engine, no task-plan write' to the continuation contract would make the loop fact's second sentence explicit rather than inferred.",
+      "wallMs": 16863,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "56c2c912aaa8f94ccad98364431e6403da1276a12b73aff52e8e14d01c1ae60c",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "b91bd8dfa507c4b4fd6eb7c807d7a687d6c6f3eeb488fa85a6a346489513b442",
+      "intentSha": "8f08e58746936d2778d8da036a0dbd3d9211a21c40d2021e7070004b0e1c3815",
       "baselineOutputSha": "4eec736cff14ef5206ba270111bf6f4498025a03af7e8b00afdb333b79e10fb3",
       "candidateOutputSha": "4eec736cff14ef5206ba270111bf6f4498025a03af7e8b00afdb333b79e10fb3",
       "facts": {
@@ -91,10 +91,10 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "The Before and After outputs for this continuation are textually identical, so no fact moved. Both render the five numbered options with the exact option 4 and 5 sentences and the funding suffix scoped to 1, 2, 4, or 5; both continuations on reply 4 place `**Engine:** loop` directly under `**Amend-grant:** none`, amend with `--no-edit` to preserve the council audit, check both header fields via `git show HEAD:doc/specs/report.md`, complete the brainstorm phase, and invoke `/skill:loop-implementation` while explicitly refusing `/skill:writing-plans`; Branch B copies the drafted row and its `in-scope` disposition verbatim under `Drafted acceptance criteria (approval ratifies):` with all five options; Branch C keeps the three-option gate, the exact `Loop engine unavailable: this spec has no acceptance-criteria rows.` line, the `none - ticket not fetched (permission denied)` sentinel, and the paste-rows affordance without inventing rows. The After wording (amendment-surface section 5 insertion) did not disturb this gate or continuation, so nothing needs changing here; if you want the loop fact to be unmistakable, the continuation could additionally state the plan-skip reason as 'loop engine' in so many words, but the current text already satisfies it.",
-      "wallMs": 13227,
+      "feedback": "Before and After are textually identical for this case, so nothing moved: Trace A renders all five options with the option 4/5 sentences and the 1, 2, 4, or 5 funding line; the reply-4 continuation sets `**Engine:** loop` directly under `**Amend-grant:** none`, amends with `--no-edit` to keep the council audit, inspects HEAD for both fields, completes brainstorm, and invokes loop-implementation while explicitly not invoking writing-plans; Branch B copies the drafted row and its in-scope disposition verbatim under `Drafted acceptance criteria (approval ratifies):` with options 4 and 5 present; Branch C keeps options 1-3, the exact `Loop engine unavailable` line, the not-fetched sentinel, and the paste-rows affordance without inventing rows. The one soft spot shared by both outputs is that the continuation never narrates the plan phase being skipped with reason `loop engine` (it only says 'without a separate plan'); if the loop fact is meant to key on that tracker call, add a line to the continuation contract requiring an explicit `phase_tracker skip plan, reason: loop engine` narration between the brainstorm complete and the loop-implementation invocation, which the amendment-surface section 5 addition does not otherwise disturb.",
+      "wallMs": 18632,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "c716bb89c931da9b0ee455556cc3db987a894f1e"
+  "repoSha": "d4814ffcb1e33ce30033dcc40e52aa9c31f29340"
 }
