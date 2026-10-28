@@ -1,4 +1,4 @@
-for: 1678ee6e6b27214d5fa9f1c4671e93207803907ea4025e54de5845d1196d89d2
+for: 85857677a59444256772a0801dea8590897a67d0dcf7c2699228c20b9d63a124
 
 ## Change
 Check the two-item bound and repeated evidence before any tracked-path admission check or restoration; render rejected outcomes' step-6 exits in full without restoring paths.
@@ -41,7 +41,15 @@ Add spec-pr-regate, spec-pr-unmarked and pr-subject-gate with sample-local workf
 
 The approval gate now renders row 6 (approve, hand off as draft PR) beside rows 1-5, so loop-gate's menu facts count six options and its Not-fetched zero-row branch renders 1, 2, 3, and 6 without 4/5; the drafted-row disclosure, the exact option 4/5 sentences, the loop routing, and the grant decoding are unchanged. The target's wordCap rises from 1400 to 1600 for this edit only: loop-gate renders the gate three times and row 6 adds about 120 words across those renders, which pushed the measured long-model output to 1463-1512 words (the two cells the old cap rejected and the two it now admits); the shorter model stays at 1207-1243. No behavioral fact is dropped or weakened to fit; the cap bounds generated output, not the assembled prompt, and every other sample keeps its existing budget.
 
+The unmarked spec-only route now provisions through pr-head without a thread fetch, skips binding, context-builder, the PR scout block, and gather, resumes at checklist step 4 with the carried spec at its carried path, writes no Rework record, withholds 6, and persists Engine/Amend-grant/PR as a new commit on approval; spec-pr-unmarked adds the provision, skips, carried-path, no-record, withheld, and persist facts and bundles spec-finalization.md so the replay reads the rework-only wording, compared against `--base HEAD` (f7b7f3d1, the staged skill edits uncommitted).
+
 ## Expected to move
+- spec-pr-unmarked/provision: fails -> holds - Provision via pr-head with no thread fetch on the unmarked route.
+- spec-pr-unmarked/skips: fails -> holds - Skip binding, context-builder, the PR scout block, and gather on the unmarked route.
+- spec-pr-unmarked/carried-path: fails -> holds - Keep the carried spec path as the draft; mint no pr-42 filename.
+- spec-pr-unmarked/no-record: fails -> holds - Write and require no Rework record on the unmarked route.
+- spec-pr-unmarked/withheld: fails -> holds - Withhold 6 naming the existing PR.
+- spec-pr-unmarked/persist: fails -> holds - Persist Engine, Amend-grant, and PR as a new commit on approval 1.
 - aftermath-budget-exhausted/no-restore: fails -> holds - Stop the attributable third dirty-row outcome before restoration and take its named paths and cause to the human to commit, discard, or move without re-dispatch.
 - aftermath-retry-grant/restore: fails -> holds - Restore exactly three tracked unprotected row paths before applying, preserve artifacts/parent paths, and root plain-jj filesets.
 - aftermath-retry-grant/grant: fails -> holds - Attribute through changed Tests/anchors, hold evidence/recommendation/location and apply under amend permission without a human question.

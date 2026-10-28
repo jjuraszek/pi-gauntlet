@@ -178,6 +178,17 @@ test('spec publication and re-entry share shape proof and published persistence'
   const classifier = read('skills/brainstorming/reference/pr-subject.md');
   assert.ok(classifier.indexOf('## Spec-PR classifier') < classifier.indexOf('## Bind and pass'));
   for (const marker of ['spec-pr.md', 'spec-only PR without the gate marker - running lint and council', 'git show', 'N>1', 'Derive ROOT']) assert.ok(classifier.includes(marker), marker);
+  const unmarked = classifier.match(/^\| Shape passes, marker absent \|.*$/m)[0];
+  for (const marker of ['Step 4 report with no thread fetch', 'Skip ticket binding, context-builder, the PR scout block, and gather', 'never write a `## Rework record`', 'Resume at checklist step 4 with the carried spec file at `<worktree>/<path>` as the draft', 'recon falls to the questionary', 'overwrites that file at its carried path', 'Withheld: draft PR - #N already exists', '`**PR:** <owner/repo#N>` as a new commit']) assert.ok(unmarked.includes(marker), marker);
+  assert.match(classifier, /## Gather from the PR and fetched base\n\nApply this section's thread fetch, carried-spec discovery, scout dispatch, and `## PR under rework` rendering to the rework route only/);
+  assert.match(gate, /For a rework PR subject \(a draft carrying `## PR under rework`\), follow `pr-subject.md`'s spec contract/);
+  assert.match(gate, /For a rework PR subject \(a draft carrying `## PR under rework`\), require the complete `## Rework record`/);
+  assert.match(main(), /the unmarked spec-only route keeps the carried spec path/);
+  assert.match(ref, /The unmarked route's gate approval \(1\/2\/4\/5\) applies this same new-commit persistence/);
+  assert.ok(gate.includes('its published-branch persistence replaces the local amend recipe below on the marked re-gate and the unmarked spec-only route only; a rework PR subject keeps the amend recipe'));
+  const gather = read('skills/brainstorming/gatherer.md');
+  assert.match(gather, /For a rework PR subject \(shape fails\), supply this additional scout block/);
+  assert.match(gather, /<rework PR subject only: every per-PR scout subsection/);
   for (const marker of ['--body-file -', "<<'EOF'", 'Create fails after push', 'no push, no amend', 'both full SHAs', 'removes nothing', 'skip its unconditional initial spec commit']) assert.ok(ref.includes(marker), marker);
   assert.ok(gate.indexOf('5 - approve, loop engine') < gate.indexOf('6 - approve, hand off'));
   assert.ok(gate.indexOf('6 - approve, hand off') < gate.indexOf('Add "; fund N fix rounds"'));

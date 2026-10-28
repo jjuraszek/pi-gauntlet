@@ -1,12 +1,12 @@
 # eval report: brainstorming
 
-for: 1678ee6e6b27214d5fa9f1c4671e93207803907ea4025e54de5845d1196d89d2
+for: 85857677a59444256772a0801dea8590897a67d0dcf7c2699228c20b9d63a124
 
 wall: not measured (combined saved runs)
 
 ## Resolution provenance
 
-This report combines saved runs, not a fresh evaluation of the merged assembly. Shared samples retain origin/main (HEAD, for: 42204e290c123c18bfc0409f65daf875501c02acfce03acc901aade66322a672, wall: 385s), except loop-gate, which retains the stopped commit d9908616 (for: 9ecaf2239573c0fb34fed32854d47aaa507615eb426945269bd251efeb6440e4, wall: 328s) because its facts now include option 6. Samples unique to either run retain that run. Each selected baseline/candidate pair and its cells/feedback come from the same side. The for: line identifies the merged assembly; saved records still identify their original assemblies and intents. A fresh target run is needed to establish merged-assembly behavior. The retained origin/main pr-list-per-pr-attribution cell is inconclusive, so exit remains 1.
+This report combines saved runs, not a fresh evaluation of the merged assembly. Shared samples retain origin/main (HEAD, for: 42204e290c123c18bfc0409f65daf875501c02acfce03acc901aade66322a672, wall: 385s), except loop-gate, which retains the stopped commit d9908616 (for: 9ecaf2239573c0fb34fed32854d47aaa507615eb426945269bd251efeb6440e4, wall: 328s) because its facts now include option 6. Samples unique to either run retain that run. Each selected baseline/candidate pair and its cells/feedback come from the same side. The for: line identifies the merged assembly; saved records still identify their original assemblies and intents. A fresh target run is needed to establish merged-assembly behavior. The retained origin/main pr-list-per-pr-attribution cell is inconclusive, so exit remains 1. At stop 3 (4caef1cb), the 43 conflicted shared candidate records retain HEAD's prior selections rather than the incoming branch refresh, the unmarked spec-only route intent is merged, and the for: line is recomputed without a fresh evaluation.
 
 ## Change
 

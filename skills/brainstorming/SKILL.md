@@ -164,7 +164,7 @@ Inside an opted-in flow, shared schemas, contracts, and invariants require a spe
 
 Write under the routed spec dir: pick the routing prose's dir (overrides file, `AGENTS.md`) when it is one of the resolved dirs, else the one resolved dir from `gauntlet_setting({ key: "flowGuards" })` that already exists in the repo, else the first resolved dir (`doc/specs` under the default). Name ticketed files `YYYY-MM-DD-<ticket-id>-<topic>.md`, otherwise `YYYY-MM-DD-<topic>.md`. Use a filename-safe tracker slug (`E-12345`, `gh-123`), but native references in plan headers and commits. `<topic>` is 3-6 kebab-case words without `-design` or another suffix.
 
-For a PR subject, apply `reference/pr-subject.md`: keep the bound-ticket filename; name an unbound spec `YYYY-MM-DD-pr-<N>-<topic>.md` from the PR title.
+For a PR subject, apply `reference/pr-subject.md`: keep the bound-ticket filename; name an unbound rework spec `YYYY-MM-DD-pr-<N>-<topic>.md` from the PR title; the unmarked spec-only route keeps the carried spec path.
 
 Mint the slug once during gather and reuse it. If questionary invalidates it, write to the new path and delete the uncommitted draft.
 
