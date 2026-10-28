@@ -1,3 +1,4 @@
+anonymized: true
 - hint: judged: Missing viewer reports expected at /repos/viewer and git clone 'git@github.com:acme/viewer.git' '/repos/viewer'; the command is a hint, never executed.
 - wrong-repo: judged: Reports /repos/billing is github.com/acme/billing-legacy, expected github.com/acme/billing; billing is absent from scout read paths, even though its path appears in report text.
 - not-checkout: judged: Reports /repos/docs is not a git checkout and supplies no docs read path.

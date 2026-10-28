@@ -1,3 +1,4 @@
+anonymized: true
 - primary: judged: First checkpoint scout brief reads /repos/viewer as the found sibling despite ssh config and https stored origin.
 - home: judged: First checkpoint home cwd remains /repos/pi-gauntlet/.worktrees/x, not the primary checkout.
 - external-git-dir: judged: External Git directory checkpoint selects /repos/viewer beside /repos/app, independent of Git metadata location.

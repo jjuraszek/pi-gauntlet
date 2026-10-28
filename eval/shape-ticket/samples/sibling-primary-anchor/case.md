@@ -10,5 +10,7 @@ Independent external Git directory checkpoint: cwd and top level /repos/app, Git
 
 Independent submodule checkpoint: cwd and top level /repos/app/vendor/lib, Git directory /repos/app/.git/modules/lib; first entry `worktree /repos/app/vendor/lib`. /repos/app/vendor/viewer is a checkout with stored origin https://github.com/acme/viewer.git.
 
+Scenario: resolve sibling read paths from supplied Git facts without live execution.
+
 Independent no-primary checkpoint: cwd and top level /repos/app. `git worktree list --porcelain` succeeds but has no `worktree` entry. State the sibling report and continuing audit disposition.
 anonymized: true
