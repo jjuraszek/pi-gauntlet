@@ -1,5 +1,7 @@
 # brainstorming accepts a list of related open PRs as one rework subject
 
+> **Superseded by:** [doc/specs/2026-10-28-pr-subject-rebase-sync.md](./2026-10-28-pr-subject-rebase-sync.md) - `--no-ff` member-head merges, the member-merge recovery walk, the all-original-heads ancestry proof at finish, and the "remain reachable as <sha7>" closure comment
+
 **Goal:** `/skill:brainstorming #12 #13 #14` provisions PR 12's branch as home, merges the heads of 13 and 14 into it with `--no-ff` in listed order, treats the result as one combined PR under rework (its code, carried specs, and every member's threads and claims, attributed per PR), finishes by pushing to the home branch without force, appends the `## Rework` block to the home PR, and then offers - behind one gated confirmation showing every target with its exact comment text - to close the absorbed PRs with a comment linking home; a single PR stays the N=1 case, differing from today only in the record's `Threads:` position and in a thread-fetch failure stopping before the spec (AC7).
 **Amend-grant:** every later spec amendment in this flow (corrected facts, paths, verification lines, and scope, acceptance-criteria, or public-contract edits alike) applies without asking; only a redraw (changed problem statement, component added, removed, or re-bounded) still stops for you, and the grant never stands in for a spec approval.
 **Engine:** waves
