@@ -190,14 +190,14 @@ created legs. Never auto-remove earlier members.
 ## Step 4 — Report Location
 
 Retain Step 1a's mandatory keyed-contract post-create path check. After every
-creation path (keyed, native, wrapper or built-in), read back
-`git -C "$ROOT" worktree list --porcelain` for `worktree $WORKTREE` and
-`git -C "$WORKTREE" branch --show-current` for `$BRANCH`; stop only on an
-observed path or branch mismatch, naming repo, requested branch and actual result.
-Treat an absent or undescribed read-back result as unobserved, not a mismatch;
-report `Worktree ready at <full-path>` after successful creation with no observed
-mismatch. Reserve the `Preserved created legs:` listing for coordinated
-multi-member aborts. Carry every verified result home first.
+creation path (keyed, native, wrapper or built-in), apply the caller's row:
+
+| Caller supplied `$ROOT` | Read-back and ready condition |
+|---|---|
+| Yes (coordinated member) | Require `git -C "$ROOT" worktree list --porcelain` to print `worktree $WORKTREE` and `git -C "$WORKTREE" branch --show-current` to print exactly `$BRANCH`. On an absent, empty, or different result, stop this member, name repo, requested branch and actual result, and list `Preserved created legs:`; emit no `Worktree ready at` line for this member. Report `Worktree ready at <full-path>` only after both read-backs match. |
+| No (single-member run) | Use successful creation as the ready condition; read back the path and branch with the commands above as advisory checks, stopping only on an observed different path or branch and naming repo, requested branch and actual result. Treat an absent or undescribed result as unobserved, not a mismatch; report `Worktree ready at <full-path>` after successful creation with no observed mismatch. |
+
+Carry every verified result home first.
 
 ```
 Worktree ready at <full-path>

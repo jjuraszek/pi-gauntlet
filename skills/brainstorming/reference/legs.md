@@ -64,7 +64,9 @@ Record portable templates, not expanded absolute paths:
   describing execution against the leg's worktree or primary.
 
 Invoke using-git-worktrees once per member with explicit `$ROOT` = primary and
-`$BRANCH` = shared branch. Carry every `Worktree ready at <path>` result, home
+`$BRANCH` = shared branch; require the affirmative read-back in
+[Step 4](../../using-git-worktrees/SKILL.md#step-4--report-location).
+Carry every `Worktree ready at <path>` result, home
 first. On any failure stop naming repo and branch and list already-created legs;
 leave them preserved, never auto-remove them.
 
