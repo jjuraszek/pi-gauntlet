@@ -43,6 +43,34 @@ Amendment provenance: BASE `b00359ff`; initial per-file inventory ` M doc/specs/
 
 Scope-syntax amendment provenance: BASE `d24c8c8f`; initial per-file inventory ` M doc/specs/2026-10-28-multi-repo-coordinated-flow.md`, admitted as the dispatched spec and sole parent-supplied In-flight path. The dispatched plan path is also admitted. No source edits are present. `git -C "/Users/jacek/repos/pi-gauntlet/.worktrees/multi-repo-flow" diff --quiet b00359ff d24c8c8f -- . ':!doc/specs/' ':!doc/plans/'` exited 0. Retained 7 bullets: `b00359ff` -> `d24c8c8f`, tree-equivalent outside `doc/specs`, `doc/plans`. Every task command is unchanged, including Task 3's derived existing-anchor command; no task or header command reran. After the amendment write, HEAD remained `d24c8c8f` and status held only the admitted modified plan and spec; the literal repair retains the unchanged commands at BASE.
 
+Repo-identity amendment provenance: BASE `27b747d8`. Initial per-file inventory:
+
+```text
+ M bin/gauntlet-telemetry-seal.mjs
+M  extensions/lib/plan-check.test.ts
+M  extensions/lib/plan-check.ts
+M  extensions/lib/telemetry-record.test.ts
+M  extensions/lib/telemetry-record.ts
+M  extensions/phase-tracker.test.ts
+M  extensions/phase-tracker.ts
+MM extensions/verify-before-ship.test.ts
+MM extensions/verify-before-ship.ts
+M  scripts/brainstorming-contract.test.mjs
+M  skills/brainstorming/SKILL.md
+M  skills/brainstorming/gatherer.md
+M  skills/brainstorming/reference/amendment-surface.md
+A  skills/brainstorming/reference/legs.md
+M  skills/brainstorming/reference/spec-finalization.md
+M  skills/brainstorming/reference/ticket-acceptance.md
+M  skills/using-git-worktrees/SKILL.md
+MM src/bins/gauntlet-telemetry-seal.mjs
+AM src/bins/gauntlet-telemetry-seal.test.mjs
+```
+
+Every inventoried path was parent-supplied In-flight; the dispatched plan and spec paths were also admitted, and the spec was clean. The recorded-SHA proof `git -C "/Users/jacek/repos/pi-gauntlet/.worktrees/multi-repo-flow" diff --quiet d24c8c8f 27b747d8 -- . ':!doc/specs/' ':!doc/plans/'` exited 0. Baseline step 1 nevertheless blocked commands for admitted in-flight source edits outside the spec and plan directories; endpoint equivalence did not admit those working-tree edits. No task or header command ran, and no SHA was re-stamped. The seven prior bullets remained historical evidence at `d24c8c8f`, not evidence for that dirty tree.
+
+Post-Wave-1 rerun provenance: BASE `ab71c12f`; initial per-file inventory ` M doc/plans/2026-10-28-multi-repo-coordinated-flow.md`, admitted as the dispatched plan and sole parent-supplied In-flight path. The dispatched spec path was also admitted but clean; no source edits were present. Before execution, `git -C "/Users/jacek/repos/pi-gauntlet/.worktrees/multi-repo-flow" diff --quiet d24c8c8f ab71c12f -- . ':!doc/specs/' ':!doc/plans/'` exited 1. Retained no evidence; `Findings: rerun baseline` also required every command to rerun. Tasks 1, 2, 4, 5, 6, 7 ran their unchanged commands: 46, 358, 16, 1, 37, 45 tests respectively, all exit 0. Task 3's mixed-anchor derivation still drops its declared Create anchor and ran 63 tests, exit 0; its full unchanged command was also executed now that Wave 1 committed that file, running 65 tests, exit 0. Its bullet records the contract-required derived evidence. After each of these eight runs, HEAD was `ab71c12f` and the inventory was exactly the same admitted modified plan path. No command dirtied source, created a repository artifact, or moved HEAD. Every baseline bullet below comes from this execution; the previous blocked row is resolved. No header verification ran.
+
 ## Wave 1 - Independent foundations
 
 Tasks own disjoint files and independently allocated temporary repositories. Shared bin outputs are rebuilt only in Task 7.
@@ -63,17 +91,18 @@ Tasks own disjoint files and independently allocated temporary repositories. Sha
 - Test: `scripts/brainstorming-contract.test.mjs`
 **Tests:**
 - `node --test scripts/brainstorming-contract.test.mjs`
-- baseline: d24c8c8f pass
+- baseline: ab71c12f pass
 - via: `/skill:using-git-worktrees`, Worktree First, gather, spec-writing, amendments
 
-Decision: use the new reference as the sole portable leg grammar; retain existing tracker and dispatch APIs. Match shape-ticket's identity rule in `repo-audit.md:81` and its existing ticket-group handling in `reference/ticket-acceptance.md`.
+Decision: use the new reference as the sole portable leg grammar; retain existing tracker and dispatch APIs. Resolve leg identity origin-first per spec L57 and shape-ticket's `repo-audit.md:81`; without origin use that member's own overrides `## Issue tracker` `repo:` value, else its primary directory basename. `reference/ticket-acceptance.md:7` establishes the documented-name source for "this repo", not a change to the spec's origin-first precedence. Retain its existing ticket-group handling.
 
 Decision: `scope:` declares original AC ownership, not ledger state, per spec L104. Task 2 admits `row | status | attempts | evidence`, `## Leg mapping` with `row | ac | leg`, home `base:` and `pending:`; Task 4's `/skill:loop-implementation` and `agents/loop-implementer.md` consume that mapping with leg-local `cwd`, `git -C`, `Rules:` and `Leg:`, set seeded to `yes` after validation, and compute cap using `maxIterationsPerRow`. Keep these consumers separate from the portable spec producer.
 
 - [ ] Run the scoped command to establish existing contract behavior.
 - [ ] Add failing contract cases for selected/unselected siblings, ambiguous basename and bad selected path; run red.
+- [ ] Add a companion fixture to `scripts/brainstorming-contract.test.mjs` beside the membership cases: primary basename `repo-b`, no origin remote, and its own first-found overrides containing `## Issue tracker` with `- repo: example/companion-api`. Assert the reference explicitly resolves the portable identifier to `example/companion-api`, not `repo-b` or the home's tracker repo, and uses that identifier consistently in the leg heading and brief `repo:`. Add the paired no-origin/no-documented-name case resolving to `repo-b`, and an origin-present case proving origin wins over a differing documented name. Couple the fixtures to source-contract assertions for the ordered fallback in `reference/legs.md`; run red before changing the reference, without introducing a production resolver or duplicating ticket-attribution precedence.
 - [ ] Add creation cases for collisions, dirty-primary decline and wrapper branch mismatch, asserting caller roots and mandatory branch read-back.
-- [ ] Define `repo`, `primary`, `worktree`, `branch`, `name`, `Rules:` in the reference. Derive `owner/name` from origin with `.git` stripped, else documented repo name; compare case-insensitively. Carry the same identifier in `repo:` brief fields. Keep machine paths out of committed blocks, using synthetic `repo-a`, `repo-b`, `repo-a/pkg-x` examples.
+- [ ] Define `repo`, `primary`, `worktree`, `branch`, `name`, `Rules:` in the reference. Derive `owner/name` from origin with `.git` stripped; with no origin, use the `repo:` value in that member's own first-found overrides `## Issue tracker` section, else that member's primary directory basename. Preserve one spelling everywhere and compare case-insensitively. Carry the same identifier in `repo:` brief fields. Keep machine paths out of committed blocks, using synthetic `repo-a`, `repo-b`, `repo-a/pkg-x` examples.
 - [ ] Define activation: only ask/ticket matches to `## shape-ticket` `- sibling:` declarations, identifier before basename. Ask once on ambiguity before creation; home first, siblings in declared order. Validate only selected paths (missing, nonrepo or home-equal stop). An existing PR alone never activates membership.
 - [ ] Define per-primary config reads: first `.pi/gauntlet-overrides.md`, `gauntlet-overrides.md`, `doc/gauntlet-overrides.md`; `.pi/settings.json` by file with existing preset rules in `extensions/lib/gauntlet-settings.ts`. Home `.pi/settings.json#piGauntlet` owns flow policy; never use `gauntlet_setting` for companions or add a `piGauntlet.*` key.
 - [ ] Define portable `contract:` create/destroy/`home:`/spec-dir/plan-dir/verification templates, not expanded absolute paths. Use `flowGuards.specDirs` and `planDirsFor` (`extensions/lib/gauntlet-settings.ts:175`), never input `planDirs`. Missing configuration uses defaults.
@@ -101,7 +130,7 @@ Decision: `scope:` declares original AC ownership, not ledger state, per spec L1
 - Test: `extensions/phase-tracker.test.ts`
 **Tests:**
 - `node --experimental-loader ./extensions/test-support/pi-stubs.mjs --test extensions/lib/plan-check.test.ts extensions/phase-tracker.test.ts`
-- baseline: d24c8c8f pass
+- baseline: ab71c12f pass
 - via: `plan_check`, `checkPlan`, `FsPort`, ledger admission
 
 Decision: extend `FsPort.exists(path, leg?)` and `FsPort.glob(pattern, leg?)` with an optional normalized repo argument, retaining one-argument callers. Parse membership in the pure checker, resolve roots only in the phase-tracker port, and preserve `checkPlan(planText, specText, fs)`.
@@ -139,7 +168,7 @@ Decision: extend `checkLedger` in `extensions/lib/plan-check.ts:1137-1176` only 
 - Test: `src/bins/gauntlet-telemetry-seal.test.mjs`
 **Tests:**
 - `node --experimental-loader ./extensions/test-support/pi-stubs.mjs --test extensions/verify-before-ship.test.ts extensions/lib/telemetry-record.test.ts bin/gauntlet-telemetry-seal.test.mjs src/bins/gauntlet-telemetry-seal.test.mjs`
-- baseline: d24c8c8f pass via `node --experimental-loader ./extensions/test-support/pi-stubs.mjs --test extensions/verify-before-ship.test.ts extensions/lib/telemetry-record.test.ts bin/gauntlet-telemetry-seal.test.mjs`
+- baseline: ab71c12f pass via `node --experimental-loader ./extensions/test-support/pi-stubs.mjs --test extensions/verify-before-ship.test.ts extensions/lib/telemetry-record.test.ts bin/gauntlet-telemetry-seal.test.mjs`
 - via: `serializeRecord`, `parseRecord`, `--leg`, seal retry, advisory
 
 Decision: add source-CLI cases at the named src path and retain bundled regressions in bin. Add optional top-level `legs` to schema 1, not a schema version. New tests invoke source; Task 7 rebuilds bundles.
@@ -177,7 +206,7 @@ Depends on Wave 1: consume Task 1's grammar, Task 2's admission model and Task 3
 - Test: `scripts/loop-engine-contract.test.mjs`
 **Tests:**
 - `node --test scripts/wave-review.test.mjs scripts/loop-engine-contract.test.mjs`
-- baseline: d24c8c8f pass
+- baseline: ab71c12f pass
 - via: `/skill:subagent-driven-development`, `/skill:loop-implementation`, writer and loop personas
 
 Decision: keep flat tracker and numeric ledger entry IDs; implement the coordinated grammar from spec L104 and Task 2 in the loop driver's Entry, Dispatch and Validate the return sections. Preserve `agents/loop-implementer.md:14-63` one-commit child boundary and bounded result format: for companions the child's commit carries the result and the parent alone writes the home ledger. Keep legacy/single-member bytes and persona frontmatter byte-identical; Rules inputs are additive. Use `reference/legs.md` from Task 1 as the skill grammar owner for `scope:`; admit ownership through Task 2's checker and never infer it from `design:` prose. Personas consume the mapped original AC and leg from the caller, not a second ownership grammar.
@@ -218,7 +247,7 @@ Decision: reuse the driver's existing `target` and `iteration` inputs and the pe
 - Test: `scripts/brief-contract-lint.test.mjs`
 **Tests:**
 - `node --test scripts/brief-contract-lint.test.mjs`
-- baseline: d24c8c8f pass
+- baseline: ab71c12f pass
 - via: `/skill:gauntlet-handoff`, `/skill:gauntlet-resume`, `legs:`, entry checks 3/3b/4
 
 Decision: extend only the existing brief contract, not cohort's six-heading core. Receipt transport is not proof; Task 6's live validation governs. Recover Task 4's pending loop boundary before dispatch.
@@ -243,7 +272,7 @@ Decision: extend only the existing brief contract, not cohort's six-heading core
 - Test: `scripts/finish-verification.test.mjs`
 **Tests:**
 - `node --test scripts/finish-verification.test.mjs`
-- baseline: d24c8c8f pass
+- baseline: ab71c12f pass
 - via: finish Steps 1/3.5/4/5/6, receipts, home strip-and-seal
 
 Decision: new finish reference owns coordinated mechanics; gate calls it once. `## Legs` uses recorded `contract:` lines; legacy no-section retains rereading. Receipts are untracked flow artifacts, not telemetry or approval evidence.
@@ -337,7 +366,7 @@ Depends on Waves 1-2: all behavior surfaces exist. This task alone owns eval ass
 - Test: `bin/gauntlet-telemetry-seal.test.mjs`
 **Tests:**
 - `node --test eval/lib/lint.test.mjs bin/gauntlet-telemetry-seal.test.mjs`
-- baseline: d24c8c8f pass
+- baseline: ab71c12f pass
 - via: `lintAll`, `plan_check`, changed instruction assemblies, built CLI
 
 Decision: use text replay cases with embedded synthetic file/tool observations as existing targets do, not another harness. Broad Modify globs permit only needed assembly/intent repairs and single-member spec-body expectation changes from the all-target run.
@@ -392,7 +421,7 @@ Depends on Waves 1-3: document implemented contracts. Cross-cutting docs are del
 | § "Acceptance criteria" L44-L45 | One menu choice, links, failure inventory and retry | Task 6 |
 | § "Acceptance criteria" L46-L49 | Home telemetry validation and single-member absence | Task 3 |
 | § "Acceptance criteria" L48-L49 | Single-member/legacy identity and eval preservation | Task 1, Task 2, Task 4, Task 5, Task 6, Task 7 |
-| § "Design" L57-L64 | Portable case-insensitive repo identity | Task 1 |
+| § "Design" L57-L64 | Portable case-insensitive repo identity: origin, else member overrides `## Issue tracker` `repo:`, else primary basename | Task 1 |
 | § "Design" L57-L64 | Local primary stays outside committed blocks | Task 1 |
 | § "Design" L57-L64 | Local worktree transported/re-resolved | Task 1 |
 | § "Design" L57-L64 | Shared branch in every leg | Task 1 |
