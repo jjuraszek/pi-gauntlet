@@ -98,6 +98,7 @@
 
 - Gate owner: `skills/brainstorming/reference/spec-finalization.md:107-249`; it currently amends all approvals and reads HEAD for council replies. Checklist routes are `skills/brainstorming/SKILL.md:37-65`; gate red flags are at `:229-248`.
 - Admission and binding: `skills/brainstorming/reference/pr-subject.md:3-49`; carried-spec discovery and record production follow at `:51-105`. Reuse `skills/using-git-worktrees/reference/pr-head.md:3-102` for checkout/base merge only; thread collection is the separate pre-gather section at `:104-119`.
+- Unmarked-route sites in the accepted Wave 1 tree: the classifier route table at `skills/brainstorming/reference/pr-subject.md:30-34`, whose `Shape passes, marker absent` row reads `take normal steps 3-12 with the carried spec as the draft` and names no provisioning, skip list, carried path, or record rule; the gather/scout section `## Gather from the PR and fetched base` at `:52-58` (no `gatherer.md` exists under `skills/brainstorming/reference/`; the PR gather and scout clauses live in `pr-subject.md`); the PR-subject spec contract at `skills/brainstorming/reference/spec-finalization.md:19-27`, which carries `## PR under rework` into `## Rework record` for every PR subject; the PR-subject filename sentence at `skills/brainstorming/SKILL.md:167`; and the re-gate persistence paragraph at `skills/brainstorming/reference/spec-pr.md:43-62`. Classifier markers in the deterministic test are at `scripts/brainstorming-contract.test.mjs:170-184`.
 - Banner owner: `skills/brainstorming/reference/superseding.md:5-21`. Syntax can be overridden; placement and append-only semantics cannot.
 - Finish starts ship at `skills/finishing-a-development-branch/SKILL.md:25-29` before resolving the selected spec at `:35`. Its Step 6 ownership/cleanup recipe is at `:390-430`; preserve it rather than copying it.
 - Resume resolves the selected spec at entry check 6, `skills/gauntlet-resume/SKILL.md:105-125`; reconstruction's approved route is `skills/gauntlet-resume/reference/reconstruction.md:66-78`, and process-state calls are `skills/gauntlet-resume/reference/brief-contract.md:147-166`.
@@ -109,7 +110,7 @@
 
 ## Baseline provenance
 
-Initial inventory on `c3dcb1c5`: `?? doc/plans/2026-10-28-spec-only-draft-pr.md`. Admit only this plan and `doc/specs/2026-10-28-spec-only-draft-pr.md`; the spec has no status entry. Amend re-dispatch inventory on `43b5ec3f`: ` M doc/specs/2026-10-28-spec-only-draft-pr.md`, the parent-supplied in-flight spec under `doc/specs/`; no other dirty or untracked path exists. Tree-equivalence proof `git diff --quiet c3dcb1c5 43b5ec3f -- . ':!doc/specs/' ':!doc/plans/'` exited 1 (Task 1's accepted commit changed source), so nothing is retained and every command reran. Execute the same declared command separately for Tasks 1 and 2: each exits 0 with 43 tests, 43 pass, 0 fail. After each run HEAD remains `43b5ec3f` and the inventory is unchanged. No generated artifacts or source edits occurred. The task command text is unchanged by plan repairs. Findings re-dispatch inventory on `43b5ec3f`: ` M doc/plans/2026-10-28-spec-only-draft-pr.md` and ` M doc/specs/2026-10-28-spec-only-draft-pr.md`, both parent-supplied in-flight paths inside the plan and spec directories; no other entry. Proof `git diff --quiet 43b5ec3f 43b5ec3f -- . ':!doc/specs/' ':!doc/plans/'` exited 0. retained 2 bullets: 43b5ec3f -> 43b5ec3f, tree-equivalent outside doc/specs, doc/plans.
+Initial inventory on `c3dcb1c5`: `?? doc/plans/2026-10-28-spec-only-draft-pr.md`. Admit only this plan and `doc/specs/2026-10-28-spec-only-draft-pr.md`; the spec has no status entry. Amend re-dispatch inventory on `43b5ec3f`: ` M doc/specs/2026-10-28-spec-only-draft-pr.md`, the parent-supplied in-flight spec under `doc/specs/`; no other dirty or untracked path exists. Tree-equivalence proof `git diff --quiet c3dcb1c5 43b5ec3f -- . ':!doc/specs/' ':!doc/plans/'` exited 1 (Task 1's accepted commit changed source), so nothing is retained and every command reran. Execute the same declared command separately for Tasks 1 and 2: each exits 0 with 43 tests, 43 pass, 0 fail. After each run HEAD remains `43b5ec3f` and the inventory is unchanged. No generated artifacts or source edits occurred. The task command text is unchanged by plan repairs. Findings re-dispatch inventory on `43b5ec3f`: ` M doc/plans/2026-10-28-spec-only-draft-pr.md` and ` M doc/specs/2026-10-28-spec-only-draft-pr.md`, both parent-supplied in-flight paths inside the plan and spec directories; no other entry. Proof `git diff --quiet 43b5ec3f 43b5ec3f -- . ':!doc/specs/' ':!doc/plans/'` exited 0. retained 2 bullets: 43b5ec3f -> 43b5ec3f, tree-equivalent outside doc/specs, doc/plans. Amend re-dispatch (unmarked route) inventory on `e47bd596`: ` M doc/specs/2026-10-28-spec-only-draft-pr.md`, the parent-supplied in-flight spec under `doc/specs/`; no other dirty or untracked path exists. Proof `git diff --quiet 43b5ec3f e47bd596 -- . ':!doc/specs/' ':!doc/plans/'` exited 1 (the accepted Task 2, Task 3 and finishing-budget commits changed source), so nothing is retained and the declared command reran separately for Tasks 1 and 2: each exits 0 with 44 tests, 44 pass, 0 fail. After each run HEAD remains `e47bd596` and the inventory is unchanged; no generated artifacts appeared.
 
 ## Wave 1 - Workflow contract
 
@@ -134,12 +135,14 @@ Initial inventory on `c3dcb1c5`: `?? doc/plans/2026-10-28-spec-only-draft-pr.md`
 
 **Tests:**
 - `node --test scripts/brainstorming-contract.test.mjs`
-- baseline: 43b5ec3f pass
+- baseline: e47bd596 pass
 - via: User Review Gate in `spec-finalization.md`, classifier in `pr-subject.md`, finish pre-ship entry, and resume entry check 6
 
 Decision: Keep the branches as instructions, not runtime code - the approved Moving parts list and Markdown gate own the contract. Follow `/skill:forge-skill`: imperative wording, compact outcome tables, unchanged frontmatter, and extraction into the two named references. Do not grow the near-limit finishing body with an inline menu recipe.
 
-Decision: Reuse pr-head's checkout/base-merge/Step 4 contract; bypass its separate before-gather thread section on the marked route (`skills/using-git-worktrees/reference/pr-head.md:104-119`). A shape-valid unmarked spec uses the carried spec as a normal brainstorm draft, not a rework-record shortcut.
+Decision: Reuse pr-head's checkout/base-merge/Step 4 contract; bypass its separate before-gather thread section on both the marked and the unmarked route (`skills/using-git-worktrees/reference/pr-head.md:104-119`). A shape-valid unmarked spec uses the carried spec as a normal brainstorm draft from checklist step 4 on, as a redraw does, not a rework-record shortcut and not an instant re-gate.
+
+Decision: The unmarked route's gather/scout/record skips live in `pr-subject.md` (the classifier table row and a route condition on `## Gather from the PR and fetched base`) and in `spec-finalization.md:19-27`'s PR-subject spec contract; there is no `gatherer.md` under `skills/brainstorming/reference/` to condition. The unmarked approval reuses `spec-pr.md`'s re-gate persistence (new commit `spec: select engine and grant for PR #N`, `**PR:**` below `**Engine:**`) because the branch is already published, so the gate's `--amend` persistence applies only to unpublished and rework spec commits.
 
 Decision: Design fixes the finish menu wording. Acceptance's shorter labels `Push to PR #N and mark ready for review` and `Push to PR #N, keep draft` describe the same actions; use `Push to PR #N and mark it ready for review` and `Push to PR #N, keep it a draft` in the menu.
 
@@ -152,7 +155,7 @@ Cross-task delivery of Moving parts: this task owns workflow and text markers; T
 
 - [ ] **Step 2: Add failing gate and classifier assertions**
 
-  Extend gate/engine tests, retaining preservation checks. Assert `6 - approve, hand off as draft PR`, the withheld line, `deferred`, `**PR:**`, and the step-13 sentence beside its existing `loop-implementation` match. Distinguish normal zero-row 1/2/3/6 from PR zero-row 1/2/3; retain worker omission of 3. Add a test reading the new brainstorming reference for default-base proof before push, retry-only state, pinned audit and new-commit persistence. Missing files/markers must fail now.
+  Extend gate/engine tests, retaining preservation checks. Assert `6 - approve, hand off as draft PR`, the withheld line, `deferred`, `**PR:**`, and the step-13 sentence beside its existing `loop-implementation` match. Distinguish normal zero-row 1/2/3/6 from PR zero-row 1/2/3; retain worker omission of 3. Add a test reading the new brainstorming reference for default-base proof before push, retry-only state, pinned audit and new-commit persistence. In the classifier test, assert that `pr-subject.md`'s `Shape passes, marker absent` row contains `checklist step 4`, `carried path`, and `never write a `## Rework record``, and that `spec-pr.md`'s persistence paragraph contains `unmarked route`. Missing files/markers must fail now.
 
 - [ ] **Step 3: Add failing finish/resume ordering assertions**
 
@@ -161,7 +164,7 @@ Cross-task delivery of Moving parts: this task owns workflow and text markers; T
 - [ ] **Step 4: Confirm red**
 
   Run: `node --test scripts/brainstorming-contract.test.mjs`
-  Expected: new assertions fail for missing references, row 6 and deferred boundaries; unrelated assertions remain intact.
+  Expected: new assertions fail for missing references, row 6, the unmarked-route markers and deferred boundaries; unrelated assertions remain intact.
 
 - [ ] **Step 5: Write the shared predicate and marker**
 
@@ -201,29 +204,35 @@ Cross-task delivery of Moving parts: this task owns workflow and text markers; T
 
   Immediately after ordered `gh pr view` admission and before `## Bind and pass the retained list` in `skills/brainstorming/reference/pr-subject.md`, for N=1 fetch PR base/head in `$ROOT`, resolve `BASE_SHA`, and inspect name-status against admitted `headRefOid`. Read added spec from the pinned head, not the primary checkout. Preserve admission failures before this branch.
 
-  Failed shape retains bind/gather/scout/`## Rework record`, including code pushed later by `gatekeep-pr` `deliver`. Valid unmarked shape prints `spec-only PR without the gate marker - running lint and council`; normal steps 3-12 use the carried draft. Valid marked shape skips ticket binding, context-builder, threads, gather, questionary, writing, lint, council/worker and second predecessor pass. Draft/ready PRs classify identically.
+  Failed shape retains bind/gather/scout/`## Rework record`, including code pushed later by `gatekeep-pr` `deliver`. Valid unmarked shape prints `spec-only PR without the gate marker - running lint and council` and takes the unmarked route written in Step 12. Valid marked shape skips ticket binding, context-builder, threads, gather, questionary, writing, lint, council/worker and second predecessor pass. Draft/ready PRs classify identically.
 
-- [ ] **Step 12: Implement provisioning and audit selection**
+- [ ] **Step 12: Write the unmarked route**
+
+  Rewrite the `Shape passes, marker absent` row of the classifier table in `skills/brainstorming/reference/pr-subject.md` so it carries the whole route: print the notice; provision the one-element admitted PR array through pr-head's checkout, base merge, and Step 4 report with no thread fetch (`skills/using-git-worktrees/reference/pr-head.md:104-119` is bypassed as on the marked route); skip ticket binding, context-builder, the PR scout block, and gather; `never write a `## Rework record``; `resume at checklist step 4` with the carried spec file at `<worktree>/<path>` as the draft, as a redraw does (recon falls to the questionary); spec-writing overwrites that file at its `carried path`; lint, council, and the gate run as for any spec with 6 withheld (`Withheld: draft PR - #N already exists`); approval persists `**Engine:**`, `**Amend-grant:**`, and `**PR:** <owner/repo#N>` as a new commit per `spec-pr.md`'s re-gate persistence. Keep the `Shape fails` and `Shape and marker pass` rows as they are.
+
+  Condition the rework-only clauses to the failed-shape route so the unmarked route is excluded: open `## Gather from the PR and fetched base` in `pr-subject.md` with one sentence limiting its thread fetch, carried-spec discovery, scout dispatch and `## PR under rework` rendering to the rework route; qualify `skills/brainstorming/reference/spec-finalization.md:19`'s `For a PR subject, follow `pr-subject.md`'s spec contract` sentence to the rework route (a PR subject with a `## PR under rework` draft section) so spec-writing omits `## Rework record` on the unmarked route; qualify `skills/brainstorming/SKILL.md:167`'s PR-subject filename sentence so the unmarked route keeps the carried path instead of minting `YYYY-MM-DD-pr-<N>-<topic>.md`. In `skills/brainstorming/reference/spec-pr.md`'s approval-persistence paragraph, add one sentence that the `unmarked route`'s gate approval (1/2/4/5) applies this same new-commit persistence with `waves` or `loop` as the engine, the decoded grant, and `**PR:**` below `**Engine:**`, and never `--amend`. Add no second notice, no new reference file, and no change to the marked re-gate.
+
+- [ ] **Step 13: Implement provisioning and audit selection**
 
   Use unchanged `using-git-worktrees/reference/pr-head.md` checkout/base merge/Step 4; retain checked-out-elsewhere stop. On `merge: unresolved - <files>`, print Design's base-merge-unresolved message with observed PR/files/base/worktree, render no gate and create no repair task.
 
   Carry `Intent carried from the command: <text>`. Pin `AUDIT_SHA=$(git log -1 --diff-filter=A --format=%H -- <spec path>)` once on the PR branch. Read `git show -s --format=%b $AUDIT_SHA`; only a body with `Applied:` / `Deferred:` / `Rejected:` enables `Council:` and 3; worker repair prose alone does not. Reply 3 reads that pinned body, never HEAD.
 
-- [ ] **Step 13: Implement re-gate rendering**
+- [ ] **Step 14: Implement re-gate rendering**
 
   Dispatch the existing summarizer over the carried spec using fresh temp path, last-content-read, verbatim/degrade and cleanup rules. Do not run the initial gate's unconditional commit again. Render `Scope cuts:` and drafted rows from `## Acceptance criteria`. Offer 1/2/4/5, 3 only with audit, and withhold 6. Zero `- [ ]` rows omit loop choices with `Loop engine unavailable`; keep worker omission of 3. A re-gate 6 clarifies actually rendered rows.
 
-- [ ] **Step 14: Implement published-branch writes**
+- [ ] **Step 15: Implement published-branch writes**
 
   Change requests create a new spec commit without the old audit body, summarize with a fresh path and re-present. Approval applies existing grant decoding, replaces deferred with `waves` or `loop`, and writes `**PR:** <owner/repo#N>` directly below `**Engine:**`, lowercasing repository from PR `url`. Commit `spec: select engine and grant for PR #N`, never `--amend`; verify all three header lines in HEAD, complete brainstorm, then enter the selected engine. Retain `**Amend-grant:**` funding semantics.
 
-- [ ] **Step 15: Move finish header admission before ship start**
+- [ ] **Step 16: Move finish header admission before ship start**
 
   Move selected-spec resolution/read ahead of announce and ship-start, adding one pointer to `skills/finishing-a-development-branch/reference/spec-pr.md`. Keep the marker check and exact `spec approved for handoff only - run brainstorming #N` stop visible in the skill before phase changes, verification, strip/seal/push. Reuse selected-spec resolution, not a second discovery mechanism.
 
   The reference handles `**PR:**` only without `## Rework record`; the record wins. Fetch `number,url,state,isDraft,headRefName,baseRefName` in the header repository. Stop for non-`OPEN` with Design's message; `headRefName != $FEATURE` names both branches. Retain baseRefName for Step 3, seal `--option pr --base origin/<baseRefName>` and squash. Header-only PRs retain full ordinary verification/conformance, not rework's scoped policy.
 
-- [ ] **Step 16: Write finish menu and ancestry preflight**
+- [ ] **Step 17: Write finish menu and ancestry preflight**
 
   After `git -C "$WORKTREE" fetch origin`, prove origin head ancestry. Exit 1 withholds rows 1-2 with `Withheld: push - origin/<headRefName> is at <sha7>, local HEAD at <sha7>; a non-force push cannot land`; preserve 3-5 numbering and clarify 1/2. Other errors stop; rerun preflight on menu return.
 
@@ -241,20 +250,20 @@ Cross-task delivery of Moving parts: this task owns workflow and text markers; T
 
   Row 2 is `Push to PR #N, keep it a draft` for draft and `Push to PR #N (already ready for review)` otherwise. No action converts ready to draft. Rows 3-5 retain squash/keep/discard, typed confirmation, origin untouched and ownership cleanup by reference to existing mechanics.
 
-- [ ] **Step 17: Write finish push/ready actions**
+- [ ] **Step 18: Write finish push/ready actions**
 
   Rows 1/2 strip-and-seal, then `git -C "$WORKTREE" push --no-follow-tags origin HEAD:refs/heads/<headRefName>`. Only successful row 1 runs `gh pr ready <N> -R <owner/repo>`. A rejected push reports once, skips `gh pr ready`, returns to menu and never forces/retries automatically. Ready failure reports the completed push and draft state for manual or later row retry. Both preserve checkout and original PR body, with no Rework block.
 
-- [ ] **Step 18: Add resume boundary**
+- [ ] **Step 19: Add resume boundary**
 
   Add `**Engine:** deferred` and `spec approved for handoff only - run brainstorming #N` at `skills/gauntlet-resume/SKILL.md` entry check 6 before grant validation/arming continuation; no `phase_tracker` or `plan_tracker` mutation follows. Add one sentence to reconstruction's Approved branch and one before the process-state call table pointing to check 6 before `start brainstorm`. Preserve seed routing, brief grammar and `loop`, `waves` or absent routes; no PR-seed route or PR handoff brief.
 
-- [ ] **Step 19: Confirm green**
+- [ ] **Step 20: Confirm green**
 
   Run: `node --test scripts/brainstorming-contract.test.mjs`
-  Expected: new markers/order and old rework/checklist tests pass. Remove no old assertion except specifically superseded zero-row or universal-approval wording. The replay's ordered-call checks include no `start ship` before deferred admission.
+  Expected: new markers/order, the unmarked-route markers and old rework/checklist tests pass. Remove no old assertion except specifically superseded zero-row or universal-approval wording. The replay's ordered-call checks include no `start ship` before deferred admission.
 
-- [ ] **Step 20: Lint syntax and instructions**
+- [ ] **Step 21: Lint syntax and instructions**
 
   Run: `node --check scripts/brainstorming-contract.test.mjs`
 
@@ -262,7 +271,7 @@ Cross-task delivery of Moving parts: this task owns workflow and text markers; T
 
   Expected: syntax success and empty findings. Read changed lines against forge-skill; compact tables, ASCII, no formatter. Leave extensions, bins, `piGauntlet.*`, and `gatekeep-pr` untouched; no telemetry recognition of `deferred`.
 
-- [ ] **Step 21: Commit workflow contract**
+- [ ] **Step 22: Commit workflow contract**
 
   Commit declared workflow paths and deterministic test with subject `Add spec-only PR handoff and re-entry` and body `Behavior change: add spec-only draft publication, re-gating, and deferred-entry stops; behavioral evals follow in the next wave.` Preserve the accepted commit as Task 2's explicit eval base for the new files.
 
@@ -338,7 +347,7 @@ Depends on Wave 1: new references must exist in a committed base for both eval a
 
 **Tests:**
 - `node --test scripts/brainstorming-contract.test.mjs`
-- baseline: 43b5ec3f pass
+- baseline: e47bd596 pass
 - via: the declared sample directories and `lintTarget`
 
 Decision: Keep target-wide assemblies unchanged; use sample-local `bundle+` as existing PR samples do (`eval/brainstorming/samples/pr-subject-resolution/case.md:1`). `bundle+` adds whole files only (`eval/lib/replay.mjs:36-45`), and the hygiene scan refuses an assembly that hits the target `denylist`; `eval/brainstorming/target.json` lists `\bE-[0-9]{3,}` and `skills/brainstorming/SKILL.md:165` carries the generic slug `E-12345`, so no brainstorming sample bundles the whole `SKILL.md` - the target's existing headed slices (`## Checklist`, `### 3`-`### 6`, `## Ticket Handling`, `## Amending an approved spec`, `## User Review Gate`) supply the skill body, and samples add only denylist-clean reference files (`spec-pr.md`, `pr-subject.md`, `pr-head.md`). New references lack pre-edit Git versions; `eval/lib/replay.mjs:69-70` uses `git show` with no missing-file fallback. Use the accepted Wave 1 commit as `--base HEAD` during this wave, record its concrete SHA in each intent, and make no before/after improvement claim from identical instructions. Require every new candidate fact to hold, regardless of aggregate unchanged verdict. Existing scenarios provide preservation evidence; Task 1 supplies original-base textual red/green proof.
@@ -389,7 +398,7 @@ Cross-task delivery of Moving parts: bundle Task 1's `skills/brainstorming/refer
 
 - [ ] **Step 8: Create unmarked and PR-gate scenarios**
 
-  Write `eval/brainstorming/samples/spec-pr-unmarked` with the exact notice and normal gather/lint/council from the carried draft. Include non-shape variants (non-spec file, multiple additions, deletion, non-banner modification) retaining rework. Write `eval/brainstorming/samples/pr-subject-gate` asserting `Withheld:` and `Withheld: draft PR - #N already exists` plus no action for `6`. Preserve existing `pr-subject-*` resolution samples.
+  Write `eval/brainstorming/samples/spec-pr-unmarked` with the same sample-local `bundle+` lines as `spec-pr-regate` (`spec-pr.md`, `pr-subject.md`, `pr-head.md`). Its unmarked turn supplies an open same-repo PR whose diff is exactly `A doc/specs/export.md` with no `**Engine:**` line in the header, and requests an ordered narration: the exact notice `spec-only PR without the gate marker - running lint and council`; pr-head provisioning (checkout, base merge, Step 4 report) with no thread fetch; no ticket binding, context-builder, scout, or gather; the carried spec used as the draft from checklist step 4 on, with the questionary, lint, and council run before the gate; the gate rendered with 6 withheld and no automatic approval. Add two must-hold facts beside `notice`, `unmarked`, and `bad-shapes`: `carried-path` - spec-writing overwrites the spec at `doc/specs/export.md` and no `YYYY-MM-DD-pr-<N>-<topic>.md` rename or second spec file appears; `no-rework-record` - the written spec contains no `## Rework record` section and the narration names no Rework record, `PRE_REWORK_HEAD`, or thread dispositions. Include non-shape variants (non-spec file, multiple additions, deletion, non-banner modification) retaining rework. Write `eval/brainstorming/samples/pr-subject-gate` asserting `Withheld:` and `Withheld: draft PR - #N already exists` plus no action for `6`. Preserve existing `pr-subject-*` resolution samples.
 
 - [ ] **Step 9: Create finish menu scenario**
 
@@ -401,7 +410,7 @@ Cross-task delivery of Moving parts: bundle Task 1's `skills/brainstorming/refer
 
 - [ ] **Step 11: Write intents and run structural green**
 
-  Update each `intent.md` with the `for:` assembly hash, actual accepted Wave 1 base SHA and setup-only comparison limitation. Preserve valid existing fact IDs/directions and add only authorized moves, listing the menu-membership facts rewritten in Step 3 (`full-council/f4`, `worker-path/f3`, `row-3-reply/f2`, `loop-gate/menu`, `loop-gate/no-ac`, `loop-gate/drafted`) as fails -> holds moves, and name the added acceptance-criteria observation in the three spec-gate `case.md` files as the input change that fixes the row count. In `eval/brainstorming/intent.md` disclose the `wordCap` change from 1400 to 1600 and its reason (three `loop-gate` gate renders, row 6 adds about 120 words). Generate rather than hand-author result records.
+  Update each `intent.md` with the `for:` assembly hash, actual accepted Wave 1 base SHA and setup-only comparison limitation. Preserve valid existing fact IDs/directions and add only authorized moves, listing the menu-membership facts rewritten in Step 3 (`full-council/f4`, `worker-path/f3`, `row-3-reply/f2`, `loop-gate/menu`, `loop-gate/no-ac`, `loop-gate/drafted`) as fails -> holds moves, and name the added acceptance-criteria observation in the three spec-gate `case.md` files as the input change that fixes the row count. In `eval/brainstorming/intent.md` disclose the `wordCap` change from 1400 to 1600 and its reason (three `loop-gate` gate renders, row 6 adds about 120 words), and list `spec-pr-unmarked/carried-path` and `spec-pr-unmarked/no-rework-record` among the sample's must-hold facts. Generate rather than hand-author result records.
 
   Run: `node --test scripts/brainstorming-contract.test.mjs`
   Expected: inventories, structural lint, gate and preservation tests pass.
@@ -521,7 +530,8 @@ Cross-task delivery of Moving parts: document Task 1's contract at `skills/brain
 | § "Option 6 at the User Review Gate" L59 | URL, complete, then owned cleanup with local branch retained | Task 1 |
 | § "Option 6 at the User Review Gate" L61 | No execution/brief; local telemetry superseded by re-entry | Task 1 |
 | § "Option 6 at the User Review Gate" L63 | Single template/reference owner and checklist routes | Task 1 |
-| § "Classifier in `pr-subject.md`" L67 | N=1 shape/marker check before binding; preserve admission, fallback and skips | Task 1 |
+| § "Classifier in `pr-subject.md`" L67 | N=1 shape/marker check before binding; preserve admission, rework fallback and marked skips | Task 1 |
+| § "Classifier in `pr-subject.md`" L67 | Unmarked route: notice, pr-head provisioning without threads, skip binding/context-builder/scout/gather, no Rework record, checklist step 4 with the carried draft, overwrite at the carried path, lint/council/gate with 6 withheld, new-commit approval persistence | Task 1 |
 | § "Re-gate (spec PR path)" L71-L73 | Provisioning conflicts stop before gate and repair tasks | Task 1 |
 | § "Re-gate (spec PR path)" L71-L73 | Skip stages; carry intent, pin audit, render summary and zero-row gate | Task 1 |
 | § "Re-gate (spec PR path)" L71-L73 | Published change requests and approvals create new commits before continuation | Task 1 |
@@ -551,7 +561,7 @@ Cross-task delivery of Moving parts: document Task 1's contract at `skills/brain
 | § "Tests" L124-L131 | Option-6 render/publication/completion replay | Task 2 |
 | § "Tests" L124-L131 | Persistence/default-base/owned-cleanup replay | Task 2 |
 | § "Tests" L124-L131 | Marked gate skips, audit, zero rows and conflict replay | Task 2 |
-| § "Tests" L124-L131 | Unmarked path and existing non-spec rework preservation | Task 2 |
+| § "Tests" L124-L131 | Unmarked path runs questionary, lint and council, keeps the carried spec path, writes no Rework record; existing non-spec rework preservation | Task 2 |
 | § "Tests" L124-L131 | New-commit engine/grant/PR replay | Task 2 |
 | § "Tests" L124-L131 | Live identity, menu, ancestry, push and ready replay | Task 2 |
 | § "Tests" L124-L131 | Both deferred-entry ordered stops and deterministic markers | Task 1, Task 2 |
