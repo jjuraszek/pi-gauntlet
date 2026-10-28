@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Changed
+
+- `chase-bug` renders its step-4 verdict, the reporter-facing draft, and the closing summary as three plain sentences for a reader who does not know the code - what happened, what it means with one visible proof, what to do next - under one `Verdict shape` rule; the code-fenced `Symptom:`/`Verdict:`/`Evidence:`/`Next step:` templates are gone, identifiers trail the sentence they support, and the numbered menu is unchanged. The hotfix handoff's fault story carries sentences one and two of that shape.
+
 ## v7.37.0 - 2026-10-27
 
 ### Changed
