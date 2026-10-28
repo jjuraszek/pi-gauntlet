@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Changed
+
+- **Breaking:** `shape-ticket` sibling configuration now accepts clone URLs in `- sibling: <clone url>` lines under `## shape-ticket`. Replace relative paths with clone URLs; path values are rejected with `not a clone url`. Siblings are expected beside the primary checkout under the repository name. Missing or wrong siblings remain report-only and never block; missing siblings include a clone hint, which is never executed.
+
 ## v7.37.1 - 2026-10-28
 
 ### Changed

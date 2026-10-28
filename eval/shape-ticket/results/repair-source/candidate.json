@@ -42,8 +42,8 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "93f546ec2264d46bb04ec43b9b5944266956672b69c03842ee53ee5a00d43ea2",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "600e013b6b642672652379e3f824fc2ca9b3a1d939a93353576b3b53451c6051",
-      "baselineOutputSha": "7162ef914a5c640edcb40a9a51234781adae1e856b93e67d3986a8f5bfe95cef",
+      "intentSha": "37c01603ac4620d1f1596beac660de51a9a2f55024a55e0349f68590987ec325",
+      "baselineOutputSha": "b5d54ce362f0aa2a561bd3ca0761a64b3261f1c187d61e8b0047c71b165223e0",
       "candidateOutputSha": "b5d54ce362f0aa2a561bd3ca0761a64b3261f1c187d61e8b0047c71b165223e0",
       "facts": {
         "footer-only": {
@@ -82,15 +82,15 @@
           "label": "held"
         }
       },
-      "feedback": "After keeps every fact Before kept: the checkpoint 1 diff still adds only the `source:` footer at the end of Problem with all prose and AC bytes byte-identical, checkpoint 2 accepts plain \"yes\" without re-asking for a source, and the write step states that Context, Idea and AC bytes are unchanged apart from the footer. Two things slipped that are worth tightening without affecting these facts: After's Evidence list dropped Before's explicit observed-vs-expected pair (the `Expected (AC row): ...` line), which the Change says should stay in the gate's Evidence list alongside repro/observation, so restore that row; and checkpoint 2 now describes the written body in prose rather than reproducing it verbatim as Before did, which makes the `unchanged` claim harder to verify at a glance — consider keeping the full accepted body block after the step list so the reader can confirm AC bytes directly. The added `[recommended]` tag on the plain-yes row and the separate 'Request a revision' option are consistent with the shared menu contract and did not move anything.",
-      "wallMs": 11556,
+      "feedback": "Before and After are byte-identical for this case, so no fact moved. In both, Checkpoint 1's diff adds exactly one `+source: none (not recorded at filing)` line at the end of Problem with every other line (including the Acceptance Criteria row) carried verbatim as context, and Checkpoint 2 treats the plain \"yes\" as acceptance of the displayed repair constant, lists the payload as original snapshot plus footer, and explicitly states Context, Idea and AC bytes are unchanged in the simulated write. The After wording delivers the Change's repair-source behavior without disturbing footer-only, raw-ac, accepted or unchanged; keep the current phrasing that names the constant in menu option 1 and restates in Checkpoint 2 that a repair-mode gap needs no re-ask, since that is what keeps all four facts holding.",
+      "wallMs": 7530,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "93f546ec2264d46bb04ec43b9b5944266956672b69c03842ee53ee5a00d43ea2",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "600e013b6b642672652379e3f824fc2ca9b3a1d939a93353576b3b53451c6051",
-      "baselineOutputSha": "227c656ac4c33cf6e88715ce80d66222055d6736cb32a8f981ea0a84ce3652a3",
+      "intentSha": "37c01603ac4620d1f1596beac660de51a9a2f55024a55e0349f68590987ec325",
+      "baselineOutputSha": "d6205e30b20971b936492a7099b4889fde03599a380f8b30dc856772f2b85498",
       "candidateOutputSha": "d6205e30b20971b936492a7099b4889fde03599a380f8b30dc856772f2b85498",
       "facts": {
         "footer-only": {
@@ -129,10 +129,10 @@
           "label": "held"
         }
       },
-      "feedback": "Nothing moved on this case: both outputs show an old->new diff whose only change is the `source: none (not recorded at filing)` footer appended at the end of Problem, both leave Context/Problem/Idea prose and the Acceptance Criteria line byte-identical to the supplied snapshot, and both treat the plain \"yes\" in checkpoint 2 as acceptance of the displayed constant with no further source question (After even states this explicitly). After additionally delivers the Change's `[recommended]` tag on exactly one menu row and keeps the options separately numbered after the Evidence and Roast sections, so the wording is compatible with every fact Before kept. Keep the current pattern — a diff restricted to the single `+source:` line, verbatim quoting of the AC bytes in the replacement body, and an explicit sentence in checkpoint 2 that the reply accepts the footer without re-asking — and avoid any temptation to let the recommended-row logic re-render or normalize the AC or Problem text when the body is otherwise clean.",
-      "wallMs": 11626,
+      "feedback": "Before and After are byte-identical on this case, so nothing moved: checkpoint 1's diff adds exactly one line (`+source: none (not recorded at filing)`) at the end of Problem with every existing line shown as context, the Acceptance Criteria row is reproduced verbatim from the supplied body, checkpoint 2 treats the plain \"yes\" as acceptance of the displayed constant with no further source question, and the accepted payload differs from the snapshot only by that footer. The After wording therefore preserves every fact Before held on this repair-source case; keep the footer-only diff rendering, the explicit \"plain yes accepts `source: none (not recorded at filing)`\" sentence on the recommended menu row, and the \"Preserve the title, metadata, and Acceptance Criteria bytes\" line in the simulated write, since those are the phrases that anchor footer-only, accepted and raw-ac/unchanged respectively while the Change's broader additions (sibling resolution, batch repair, obsolete judgments) land elsewhere.",
+      "wallMs": 8109,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "bc6423b590d8cabd9e7ab11316255259663ad496"
+  "repoSha": "cf6e53b2e787b134805384690e0737cee2e7087c"
 }

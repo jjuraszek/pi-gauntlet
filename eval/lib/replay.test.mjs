@@ -37,7 +37,7 @@ test("chase-bug prose samples preserve slices and reject label leaks", () => {
   }
 });
 
-const auditSamples = ["batch-repair", "audit-repo-fit", "scenario-best-effort", "audit-quiet-noop", "audit-byte-lock", "audit-dispatch", "audit-grounding", "obsolete-premise-contradicted", "obsolete-create-drop-idea", "quiet-audit-no-close-row"];
+const auditSamples = ["batch-repair", "audit-repo-fit", "scenario-best-effort", "audit-quiet-noop", "audit-byte-lock", "audit-dispatch", "audit-grounding", "obsolete-premise-contradicted", "obsolete-create-drop-idea", "quiet-audit-no-close-row", "sibling-not-found-hint", "sibling-primary-anchor"];
 const auditPath = "skills/shape-ticket/reference/repo-audit.md";
 const shapeTicketFiles = [
   { path: "skills/shape-ticket/SKILL.md", slice: "### 4 - Draft", sliceTo: "## Roast" },

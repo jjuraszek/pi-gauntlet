@@ -1,5 +1,7 @@
 # shape-ticket: batch repair and repo-grounded audit
 
+> **Superseded by:** [doc/specs/2026-10-28-sibling-checkout-resolution.md](./2026-10-28-sibling-checkout-resolution.md) - "Overrides contract" `- sibling:` grammar and the `Sibling: <path> - not found` line in "Errors and edge cases" only
+
 **Goal:** `/skill:shape-ticket` accepts N issue refs in one run and, for every ticket it creates or repairs, grounds the draft in the repository: claims checked against code, the Idea and the AC rows judged against the repo's own standards for a simpler or existing path, a sibling-repo leg detected, in-motion work named, and a best-effort replication scenario attached - all under the one existing confirmation gate.
 **Amend-grant:** every later spec amendment in this flow (corrected facts, paths, verification lines, and scope, acceptance-criteria, or public-contract edits alike) applies without asking; only a redraw (changed problem statement, component added, removed, or re-bounded) still stops for you, and the grant never stands in for a spec approval.
 

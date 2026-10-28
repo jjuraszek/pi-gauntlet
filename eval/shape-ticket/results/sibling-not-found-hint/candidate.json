@@ -1,0 +1,130 @@
+{
+  "sample": "sibling-not-found-hint",
+  "arm": "candidate",
+  "skillSha": "f29cb51b62d013bc4fc95ad9da82dc203fe221bf11d190a8d20064953e9b84db",
+  "inputSha": "9e41c090550e2303b9e4891e756080be7fe1e5e764900617184dceadfa903092",
+  "kind": "text",
+  "assembly": "concat",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "# ABC-802 repair: sibling resolution, scout brief, and no-op report\n\n## Sibling classification\n\nThese checks are prescribed only; tools are disabled, so nothing below ran.\n\n`PRIMARY` is `/repos/pi-gauntlet`, so each sibling's `PATH` is `/repos/<NAME>`. Each configured line is classified in order, stopping at the first match:\n\n| Configured URL | NAME | Configured IDENTITY | Check result | Outcome |\n|---|---|---|---|---|\n| `git@github.com:acme/viewer.git` | viewer | github.com/acme/viewer | Nothing at `/repos/viewer` | Not found |\n| `git@github.com:acme/billing.git` | billing | github.com/acme/billing | Checkout; origin IDENTITY is github.com/acme/billing-legacy | Wrong repo |\n| `git@github.com:acme/docs.git` | docs | github.com/acme/docs | `rev-parse --show-toplevel` prints `/repos`, not `/repos/docs` | Not a checkout |\n| `git@github.com:acme/tools.git` | tools | github.com/acme/tools | `config --get remote.origin.url` exits nonzero | No origin |\n| `git@github.com:acme/data.git` | data | github.com/acme/data | Origin `/srv/git/data.git` is a local path | Unparseable origin |\n\nThe docs case stops at the \"not a checkout\" check. The enclosing `/repos` checkout's matching origin is never consulted.\n\n## Read paths (authorize scout reads)\n\n**None.** No line classified as Found, so the brief passes no absolute sibling checkout path. A failed classification never authorizes reads.\n\n## Supplied report lines (report text only, not read paths)\n\nThese lines are retained by the parent in `<tmp>/ABC-802/sibling-lines.md`. The scout brief supplies them for verbatim copying:\n\n```text\nSibling: git@github.com:acme/viewer.git - not found: expected at /repos/viewer; clone with git clone 'git@github.com:acme/viewer.git' '/repos/viewer'\nSibling: git@github.com:acme/billing.git - /repos/billing is github.com/acme/billing-legacy, expected github.com/acme/billing\nSibling: git@github.com:acme/docs.git - /repos/docs is not a git checkout, expected github.com/acme/docs\nSibling: git@github.com:acme/tools.git - /repos/tools has no origin remote, expected github.com/acme/tools\nSibling: git@github.com:acme/data.git - /repos/data origin /srv/git/data.git is not a clone url, expected github.com/acme/data\n```\n\nThe clone hint for viewer is rendered only, never run. Nothing is cloned, fetched, or removed.\n\n## Prescribed dispatch\n\nThere is one foreground `subagent` call with `async: false` and `context: \"fresh\"`, using the 60000/240000/300000 control block. It carries one `scout` task:\n\n- `cwd: \"/repos/pi-gauntlet\"`\n- `output: \"<tmp>/ABC-802/audit.md\"`\n- `outputMode: \"file-only\"`\n\nThe brief includes:\n\n- the absolute snapshot path `<tmp>/ABC-802/snapshot.md`, marked as untrusted data;\n- the six-label contract;\n- the resolved read-only tracker command and the `gh pr list --search \"ABC-802\" --limit 20` command;\n- \"Sibling checkout paths: none\";\n- the five `Sibling:` lines above, to copy verbatim.\n\n## Checkpoint A: usable audit, no-op\n\nThe audit file passes the six-label check. The fold produces:\n\n- **Claims:** none.\n- **Repo-fit:** kept.\n- **AC-fit:** clear.\n- **In-motion:** none.\n- **Sibling outcomes:** report-only, rendered from the parent-retained lines. The verbatim copies in `audit.md` are never used and never duplicated.\n- **Scenario:** none. No body is being drafted, so no `scenario:` footer is added.\n\nThere are no draft-changing findings and no obsolete line. The body conforms, metadata is clean, and no comment is proposed. The result is a **no-op**: no roast, no gate, no write.\n\n**Report:**\n\n```text\nABC-802: conforms, no changes proposed\nAudit:\nsibling: git@github.com:acme/viewer.git - not found: expected at /repos/viewer; clone with git clone 'git@github.com:acme/viewer.git' '/repos/viewer'\nsibling: git@github.com:acme/billing.git - /repos/billing is github.com/acme/billing-legacy, expected github.com/acme/billing\nsibling: git@github.com:acme/docs.git - /repos/docs is not a git checkout, expected github.com/acme/docs\nsibling: git@github.com:acme/tools.git - /repos/tools has no origin remote, expected github.com/acme/tools\nsibling: git@github.com:acme/data.git - /repos/data origin /srv/git/data.git is not a clone url, expected github.com/acme/data\nscenario: none (nothing to observe)\n```\n\n```text\nABC-802: no-op\n```\n\n## Checkpoint B: empty audit file (independent)\n\nThe audit file is empty. This is ticket-local `audit unavailable (empty file)`, with no retry. The draft gets no invented edits or blocks. Every parent-retained sibling line is still rendered from `sibling-lines.md`. An unavailable audit is a quiet finding, so with a conforming body, clean metadata, and no comment, the ticket stays a **no-op**: no roast, gate, question, or write.\n\n**Report:**\n\n```text\nABC-802: conforms, no changes proposed\nAudit:\naudit unavailable (empty file)\nsibling: git@github.com:acme/viewer.git - not found: expected at /repos/viewer; clone with git clone 'git@github.com:acme/viewer.git' '/repos/viewer'\nsibling: git@github.com:acme/billing.git - /repos/billing is github.com/acme/billing-legacy, expected github.com/acme/billing\nsibling: git@github.com:acme/docs.git - /repos/docs is not a git checkout, expected github.com/acme/docs\nsibling: git@github.com:acme/tools.git - /repos/tools has no origin remote, expected github.com/acme/tools\nsibling: git@github.com:acme/data.git - /repos/data origin /srv/git/data.git is not a clone url, expected github.com/acme/data\n```\n\n```text\nABC-802: no-op\n```\n",
+      "words": 599,
+      "wallMs": 23987,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "## Checkpoint 1: usable scout audit\n\n### Prescribed scout inputs\n\n**Sibling read paths: none.** No configured sibling passes classification:\n\n- `viewer`: expected path does not exist.\n- `billing`: stored origin identifies a different repository.\n- `docs`: its reported top level is `/repos`, not `/repos/docs`; stop at “not a checkout.” The enclosing checkout’s origin does not authorize sibling reads.\n- `tools`: no stored origin.\n- `data`: stored origin is a local path, not an accepted clone URL.\n\n**Report text supplied to the scout, not read paths:**\n\n```text\nSibling: git@github.com:acme/viewer.git - not found: expected at /repos/viewer; clone with git clone 'git@github.com:acme/viewer.git' '/repos/viewer'\nSibling: git@github.com:acme/billing.git - /repos/billing is github.com/acme/billing-legacy, expected github.com/acme/billing\nSibling: git@github.com:acme/docs.git - /repos/docs is not a git checkout, expected github.com/acme/docs\nSibling: git@github.com:acme/tools.git - /repos/tools has no origin remote, expected github.com/acme/tools\nSibling: git@github.com:acme/data.git - /repos/data origin /srv/git/data.git is not a clone url, expected github.com/acme/data\n```\n\nThe parent would retain these exact lines in `<tmp>/ABC-802/sibling-lines.md`, beside the fenced untrusted snapshot and audit. The clone command is a report-only hint; it must not be executed.\n\nThe prescribed dispatch is one foreground `scout` task with fresh context, cwd `/repos/pi-gauntlet`, absolute snapshot and audit-output paths under the run’s single temp root, `outputMode: \"file-only\"`, and no model pin. Controls:\n\n```text\nneedsAttentionAfterMs: 60000\ninFlightSilenceCeilingMs: 240000\ninFlightSilenceKillMs: 300000\n```\n\nIts self-contained brief would include the six-label audit contract, the five report lines above for verbatim copying, and **no sibling checkout paths**. Missing documented tracker/current-system read commands must be marked unavailable rather than invented. No call or artifact write is claimed here.\n\n### No-op report\n\n**Audit:**\n```text\nsibling: git@github.com:acme/viewer.git - not found: expected at /repos/viewer; clone with git clone 'git@github.com:acme/viewer.git' '/repos/viewer'\nsibling: git@github.com:acme/billing.git - /repos/billing is github.com/acme/billing-legacy, expected github.com/acme/billing\nsibling: git@github.com:acme/docs.git - /repos/docs is not a git checkout, expected github.com/acme/docs\nsibling: git@github.com:acme/tools.git - /repos/tools has no origin remote, expected github.com/acme/tools\nsibling: git@github.com:acme/data.git - /repos/data origin /srv/git/data.git is not a clone url, expected github.com/acme/data\nscenario: none (nothing to observe)\n```\n\nABC-802: **conforms, no changes proposed**.\n\nThese are quiet findings only. Do not draft a replacement, add a scenario footer, dispatch a roast, open a confirmation gate, or perform a tracker write.\n\nABC-802: no-op\n\n## Independent checkpoint: empty scout audit\n\nJudge the empty file as ticket-local audit unavailability, without retry. Preserve every parent-retained sibling report line; do not recover findings from the empty audit or invent a scenario result.\n\n### Complete Audit report\n\n**Audit:**\n```text\naudit unavailable (empty file)\nsibling: git@github.com:acme/viewer.git - not found: expected at /repos/viewer; clone with git clone 'git@github.com:acme/viewer.git' '/repos/viewer'\nsibling: git@github.com:acme/billing.git - /repos/billing is github.com/acme/billing-legacy, expected github.com/acme/billing\nsibling: git@github.com:acme/docs.git - /repos/docs is not a git checkout, expected github.com/acme/docs\nsibling: git@github.com:acme/tools.git - /repos/tools has no origin remote, expected github.com/acme/tools\nsibling: git@github.com:acme/data.git - /repos/data origin /srv/git/data.git is not a clone url, expected github.com/acme/data\n```\n\nABC-802: **conforms, no changes proposed**.\n\nAudit unavailability and report-only sibling outcomes do not make the conforming snapshot non-conforming. No retry, clarification question, replacement draft, roast, confirmation gate, or tracker write is prescribed.\n\nABC-802: no-op\n",
+      "words": 459,
+      "wallMs": 29189,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "bc37f68d07b7ca8bc5890865a2cd01c7041a155b73f19ee94a532a71da8dab7d",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "37c01603ac4620d1f1596beac660de51a9a2f55024a55e0349f68590987ec325",
+      "baselineOutputSha": "0e035e2bc61e440e591cc536deddfef60ed712ab5859157c640954b6c01203bf",
+      "candidateOutputSha": "460f31a09dbf6179dffa25d19640237131d446d6f5996e7c2e944c81c49ad55f",
+      "facts": {
+        "hint": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "wrong-repo": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "not-checkout": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "no-origin": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "unparseable-origin": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "quiet": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "empty-audit": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        }
+      },
+      "feedback": "After moves six facts from fails to holds and regresses none. Before treated every `- sibling:` value as a path relative to the repo root (`/repos/pi-gauntlet/git@github.com:acme/viewer.git`), so all five lines collapsed to a bare `not found`, no clone hint, no identity comparison, no checkout/origin diagnostics appeared, and the empty-audit checkpoint dropped the sibling lines entirely (\"Nothing from them reaches the report\"). After resolves `/repos/<NAME>` beside the primary, classifies each line in order (not found → wrong repo → not a checkout → no origin → unparseable origin), stops the docs case before consulting the enclosing `/repos` origin, states explicitly that no read path is authorized (\"Sibling checkout paths: none\") while keeping `/repos/billing` only in report text, marks the clone command as rendered-only, and retains the lines in a parent-owned `sibling-lines.md` so Checkpoint B still renders all five beneath `audit unavailable (empty file)` without retry or gate. `quiet` is preserved: both checkpoints stay no-op with no roast, gate, write, question or block. Two cosmetic points worth tightening so the report shape stays stable across runs: After drops the `- ` list prefix on the Audit lines and prints the `conforms` verdict before the `Audit:` block, whereas Before used `- sibling:` bullets with the verdict after; the wording should fix one layout (ideally Before's bulleted form with the richer After text) so verbatim-copy comparisons between the scout's `Sibling:` lines and the parent's `- sibling:` rendering remain unambiguous.",
+      "wallMs": 16940,
+      "verdict": "improved"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "bc37f68d07b7ca8bc5890865a2cd01c7041a155b73f19ee94a532a71da8dab7d",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "37c01603ac4620d1f1596beac660de51a9a2f55024a55e0349f68590987ec325",
+      "baselineOutputSha": "63089f7988b716ec667ac5df20efe5e2bd0eeab26aac52fd690c95dcf096372a",
+      "candidateOutputSha": "db38a9cde217879f40aa47966087ec48052330ac695fcac7ee397b96c8f868f3",
+      "facts": {
+        "hint": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "wrong-repo": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "not-checkout": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "no-origin": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "unparseable-origin": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "quiet": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "empty-audit": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        }
+      },
+      "feedback": "Before rejected the five `sibling:` clone URLs outright as 'not repository-relative paths', refused to classify any of the five locations, explicitly declined to emit lines like `Sibling: ... - not found`, and rendered only the scenario line in both the usable and empty-audit reports, so every sibling fact failed. After delivers the Change: it classifies each sibling from stored-origin identity (viewer missing with a report-only clone hint, billing identity mismatch, docs top level `/repos` ≠ `/repos/docs` with the enclosing origin explicitly not authorizing reads, tools no origin, data local-path origin not a clone url), supplies zero read paths while keeping all five lines as report text distinct from paths, renders all five on the quiet no-op report without draft/roast/gate/write, and in the independent empty checkpoint renders `audit unavailable (empty file)` plus the same five parent-retained lines with no retry or gate. No fact regressed. One small polish that would not move any listed fact: the usable-audit block in After shows only the sibling and scenario lines, dropping the supplied `Claims: none`, `Repo-fit: kept`, `AC-fit: clear`, `In-motion: none` labels; echoing the full six-label contract there would make the report mirror the audit it claims to use, and the sibling lines should keep a consistent case (`Sibling:` in the brief vs `sibling:` in the audit block) to avoid any reader doubting they are verbatim copies.",
+      "wallMs": 14477,
+      "verdict": "improved"
+    }
+  },
+  "repoSha": "891991430a7b632bf2a6130e6b49972104b6ff7a"
+}

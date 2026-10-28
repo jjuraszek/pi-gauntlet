@@ -34,8 +34,8 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "448351d40c9d682ff29e24f421ef519ec9b1455ddb4e39760068708be93aadf8",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "600e013b6b642672652379e3f824fc2ca9b3a1d939a93353576b3b53451c6051",
-      "baselineOutputSha": "52e3a3ac47ebf87c8a521dfe2ae9fcdcf0fa0064c1e4f3c6dcbb55b6e340cc81",
+      "intentSha": "37c01603ac4620d1f1596beac660de51a9a2f55024a55e0349f68590987ec325",
+      "baselineOutputSha": "c34fa63c3333eab78b941d188cc688c227b9e9c26e5dc8242c152c61edf6d7cb",
       "candidateOutputSha": "c34fa63c3333eab78b941d188cc688c227b9e9c26e5dc8242c152c61edf6d7cb",
       "facts": {
         "f1": {
@@ -49,15 +49,15 @@
           "label": "held"
         }
       },
-      "feedback": "Neither fact moved: both outputs render a single repaired AC row that keeps the <= 2s target and the 5s baseline and names no environment, and no AC row in either body mentions production, staging, UAT or experimental (Before quotes 'in staging' only inside the proposed Reporter note, outside the AC list). One wording difference worth watching for other facts: After declares 'Reporter-note comment: none proposed' on the grounds that the measurement content was folded into the AC row, whereas Before preserved the original AC bytes and the removed Measurement clarification section verbatim in a Reporter note; if the Change's 'accumulate verbatim displaced detail through repair' is meant to cover removed sections and rewritten AC rows, keep the Before note wording in After (e.g. 'the repair displaces the original AC text and the removed section, so a Reporter note carries both verbatim') while still adding the new deploy-window and source-gap explanations.",
-      "wallMs": 8629,
+      "feedback": "Before and After are byte-identical for this case, so no fact moved. In both, the repaired AC row keeps the <= 2s target and the 5s baseline and names no environment (the only mention of \"staging\" is in the change notes explaining that it was removed from the old row, not in an AC row), so f1 and f3 hold on each side. The After wording's additions (sibling resolution, batch repair, obsolete judgments, source provenance) did not alter this Draft/AC-gate output; nothing in the current wording needs adjusting to keep f1 and f3, and the carried-to-step-8 source-gap note already reflects the source-provenance part of the Change without affecting the AC row.",
+      "wallMs": 7064,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "448351d40c9d682ff29e24f421ef519ec9b1455ddb4e39760068708be93aadf8",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "600e013b6b642672652379e3f824fc2ca9b3a1d939a93353576b3b53451c6051",
-      "baselineOutputSha": "ba89b4a732ca9c9885f90746f18533c3bc4ac578c0ee92982293c915e0ca6df3",
+      "intentSha": "37c01603ac4620d1f1596beac660de51a9a2f55024a55e0349f68590987ec325",
+      "baselineOutputSha": "d69986ae2245ab5152e538507d123f14a425a16832b0ba934bf6aabdae36c0f7",
       "candidateOutputSha": "d69986ae2245ab5152e538507d123f14a425a16832b0ba934bf6aabdae36c0f7",
       "facts": {
         "f1": {
@@ -71,10 +71,10 @@
           "label": "held"
         }
       },
-      "feedback": "Nothing moved on this case: both outputs rewrite the single AC row as a comparative criterion that keeps the 2s target and the 5s baseline and names no environment, and neither AC row mentions production, staging, UAT, or experimental. After's rephrasing (\"at most 2s, compared with the recorded 5s baseline\") is equivalent to Before's for f1 and f3, and the Context expansion plus the fenced \"Replacement body\" wrapper do not touch AC content. One caution for future wording: After's gate prose still says \"verifiable before production deployment\" and \"The staging restriction is removed from the AC\"; those strings sit outside the AC row so f3 holds, but if the fenced body ever absorbed the gate commentary, or a judge keyed on environment names anywhere in the output, they would become a risk. A safer phrasing that delivers the same Change is \"verifiable before release\" and \"the environment restriction is removed from the AC; the verification venue belongs in the implementation specification,\" which keeps every fact Before kept without naming any environment.",
-      "wallMs": 10224,
+      "feedback": "Before and After are byte-identical for this case, so nothing moved: the single AC row keeps the 2s target and the recorded 5s baseline, and names no environment (staging was stripped from the original row and the words production/staging/UAT/experimental appear only in the gate commentary, not in any AC row). The sweeping Change (sibling clone resolution, batch repair, obsolete judgments, menu contract, source provenance) has no footprint on this quiet single-ticket repair, which is the right outcome for a case whose facts are already guards. Keep the After wording as is for this path; the only risk to watch is that new source-provenance or displaced-detail rules do not start injecting a venue or a Reporter note into the AC row or Problem for tickets like this where no gap or displaced detail exists.",
+      "wallMs": 7967,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "bc6423b590d8cabd9e7ab11316255259663ad496"
+  "repoSha": "cf6e53b2e787b134805384690e0737cee2e7087c"
 }

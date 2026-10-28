@@ -1,7 +1,7 @@
 {
   "sample": "quiet-audit-no-close-row",
   "arm": "candidate",
-  "skillSha": "56576257a3091fa4e1104c87ad1bbb5eba8fc977ee529c8121f5bb07b43069f9",
+  "skillSha": "c0c1264b82fac9ba0f3969e4375a19984c71ae5586ce415b1e30de797e2a9201",
   "inputSha": "1be8be576004018fd3415768e2ae2b93c1aca9ac08903e8229b83114ac36aef6",
   "kind": "text",
   "assembly": "concat",
@@ -17,16 +17,16 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "**shape-ticket - repair - acme/records #42 (1 of 1)**\n\nsource missing: import run 42 displays \"row 8 rejected\" before navigation and only \"failed\" on return\n\nAudit:\n- scenario: none (missing current-system access)\n\n**Title** (unchanged)\nPreserve import failure details on return -> Preserve import failure details on return\n\n**Body** old -> new (missing-footer-only repair; all existing prose and AC bytes unchanged)\n\n```diff\n ## Context\n Support reviews saved import failures.\n \n ## Problem\n Reopening a failed import drops its failure details, leaving support unable to explain the failure. Import run 42 displays \"row 8 rejected\" before navigation and only \"failed\" on return.\n+source: none (not recorded at filing)\n \n ## Idea\n Reporter proposes retaining failure details.\n \n ## Acceptance Criteria\n 1. Given failed import 42, when support leaves and reopens it, the view still displays \"row 8 rejected\".\n```\n\nThe AC block is a byte-for-byte copy of the original and stays in its numbered form. Because this path makes no AC change, it is not normalized to `- [ ]`. No `scenario:` footer is added, because scenario none alone does not trigger a draft.\n\n**Metadata changeset:** none (state OPEN, metadata clean)\n\n**Evidence**\n- Repro setup: failed import run 42.\n- Repro action: support leaves the import view and reopens it.\n- Observed: the view shows only \"failed\".\n- Expected: the view still shows \"row 8 rejected\".\n- Claim verified: \"Reopening a failed import drops its failure details\" (src/import-history.ts:18). Source opened by the parent confirms the current return view still loses the details.\n- Provenance: reporter's ticket text. No URL, attachment, or pasted screenshot was gathered.\n\n**Source gaps**\n- source missing: import run 42 displays \"row 8 rejected\" before navigation and only \"failed\" on return\n- This gap is prefilled as `source: none (not recorded at filing)` and shown in the diff above.\n\n**Roast dispositions**\n- Applied: none.\n- Surfaced-ambiguous: none. The only surfaced finding is the source gap above, which is not auto-applied.\n\n**Split proposal:** none\n**Proposed comment / relations:** none (no overflow, no overlap evidence, no in-session ask)\n\nHow to resolve the source gap in your reply:\n- A plain \"yes\" accepts the displayed `none (not recorded at filing)`.\n- A link, an attachment name, or a reason replaces that footer with the URL/attachment or `none (<your reason verbatim>)`.\n- \"proceed without\" replaces it with `none (proceed without - <today's date>)`.\n\nPick one:\n1. Approve exact diff [recommended]\n2. Revise\n3. Decline\n\nWaiting for your selection. Nothing has been written.\n",
-      "words": 378,
-      "wallMs": 22421,
+      "text": "Ref `#42` (acme/records) · mode: repair · single ticket · gate 1 of 1\n\nsource missing: Import run 42 displays \"row 8 rejected\" before navigation\n\nAudit:\n- scenario: none (missing current-system access)\n\n**Title** (unchanged)\nPreserve import failure details on return\n\n**Body** old -> new (missing-footer-only repair; all existing prose and AC bytes unchanged)\n\n```diff\n ## Context\n Support reviews saved import failures.\n\n ## Problem\n Reopening a failed import drops its failure details, leaving support unable to explain the failure. Import run 42 displays \"row 8 rejected\" before navigation and only \"failed\" on return.\n+source: none (not recorded at filing)\n\n ## Idea\n Reporter proposes retaining failure details.\n\n ## Acceptance Criteria\n 1. Given failed import 42, when support leaves and reopens it, the view still displays \"row 8 rejected\".\n```\n\n**Metadata changeset**\n- none (metadata audit clean)\n\n**Evidence**\n- Claim \"Reopening a failed import drops its failure details\": verified at `src/import-history.ts:18`.\n- Repro (from the AC): open failed import 42, which shows \"row 8 rejected\". Leave the view and reopen it. Observed: only \"failed\". Expected: \"row 8 rejected\" still displays.\n- No gathered URL, attachment, or pasted screenshot.\n- Current-system scenario: none (missing current-system access).\n\n**Source gaps**\n- source missing: Import run 42 displays \"row 8 rejected\" before navigation. The gap is prefilled in the diff above as `source: none (not recorded at filing)`. The write is offered despite the gap.\n\n**Roast dispositions**\n- applied: none\n- surfaced-ambiguous: none\n\n**Split proposal:** none\n\n**Proposed comment / relations:** none. There is no overflow, no displaced detail, no overlap evidence, and no in-session ask.\n\nRead [menu-layout](../brainstorming/reference/menu-layout.md) and applied it.\n\nPick one:\n1. Approve the exact diff above with the displayed `source: none (not recorded at filing)` footer [recommended]\n2. Approve with a link, attachment, or reason. Reply with it, and it replaces only that footer's value.\n3. Approve and proceed without. The footer becomes `source: none (proceed without - <YYYY-MM-DD>)`.\n4. Revise. Say what to change, and the exact diff is rechecked and re-presented.\n5. Decline. This ticket is skipped and nothing is written.\n\nAwaiting your selection. No write has been made.\n",
+      "words": 326,
+      "wallMs": 21258,
       "mechanical": {}
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "# #42 — Repair confirmation\n\nsource missing: Import run 42 displays \"row 8 rejected\" before navigation and only \"failed\" on return.\n\n**Audit:**\n- Verified: reopening a failed import drops its failure details (`src/import-history.ts:18`); the reported failure still occurs.\n- Repo-fit: kept. AC-fit: clear.\n- Sibling: none. In-motion: none.\n- Scenario: none (missing current-system access). This finding alone adds no scenario footer.\n\n**Title — unchanged**  \nPreserve import failure details on return → Preserve import failure details on return\n\n**Body — exact proposed diff**\n\n```diff\n ## Context\n Support reviews saved import failures.\n \n ## Problem\n Reopening a failed import drops its failure details, leaving support unable to explain the failure. Import run 42 displays \"row 8 rejected\" before navigation and only \"failed\" on return.\n \n+source: none (not recorded at filing)\n+\n ## Idea\n Reporter proposes retaining failure details.\n \n ## Acceptance Criteria\n 1. Given failed import 42, when support leaves and reopens it, the view still displays \"row 8 rejected\".\n```\n\nAll existing prose and Acceptance Criteria bytes remain unchanged. The missing source footer is the only proposed addition.\n\n**Metadata changeset:** None; state remains OPEN.\n\n**Evidence**\n- Reproduction: view failed import 42, navigate away, then reopen it.\n- Observed: `\"row 8 rejected\"` appears before navigation; only `\"failed\"` appears on return.\n- Expected: the reopened view still displays `\"row 8 rejected\"`.\n- The opened repository source confirms the failure remains present. No gathered URL or attachment supplies a source for the example.\n\n**Roast dispositions:** No changes applied; no ambiguous findings.\n\n**Proposed comment:** None.  \n**Relations:** No changes.\n\nPick one:\n1. **Approve exact diff [recommended]** — accept the displayed missing-source constant, or supply a link, attachment, or reason to replace it. Explicit “proceed without” instead authorizes a dated footer.\n2. **Revise** — request a change and review the revised exact diff.\n3. **Decline** — skip #42 without writing.\n\nNo write has been performed.\n",
-      "words": 284,
-      "wallMs": 17029,
+      "text": "## #42 — Repair confirmation\n\nsource missing: Import run 42 displays \"row 8 rejected\" before navigation and only \"failed\" on return.\n\n**Audit:**\n- Failure verified: the return view loses failure details (`src/import-history.ts:18`).\n- Repo-fit: kept. AC-fit: clear.\n- Sibling: none. In-motion: none.\n- Scenario: none (missing current-system access). This finding adds no scenario footer on this missing-footer-only repair.\n\n**Title:** Preserve import failure details on return → unchanged\n\n### Body — old → new\n\nThe only change is the added `source:` footer. All existing prose and Acceptance Criteria bytes remain unchanged.\n\n```diff\n ## Context\n Support reviews saved import failures.\n \n ## Problem\n Reopening a failed import drops its failure details, leaving support unable to explain the failure. Import run 42 displays \"row 8 rejected\" before navigation and only \"failed\" on return.\n+source: none (not recorded at filing)\n \n ## Idea\n Reporter proposes retaining failure details.\n \n ## Acceptance Criteria\n 1. Given failed import 42, when support leaves and reopens it, the view still displays \"row 8 rejected\".\n```\n\n**Metadata changeset:** None. State remains OPEN.\n\n**Evidence:**\n- Repro: open failed import 42, leave, then reopen it.\n- Observed: `\"row 8 rejected\"` appears before navigation; only `\"failed\"` appears on return.\n- Expected: reopening still displays `\"row 8 rejected\"`.\n- Repository confirmation: `src/import-history.ts:18` confirms the reported failure still occurs.\n- No gathered URL or attachment exists. The proposed footer records that the source was not recorded at filing; it does not assert current-system verification.\n\n**Roast dispositions:** Applied: none. Surfaced-ambiguous: none. Gates pass.\n\n**Proposed comment:** None.\n\nPick one:\n1. **Approve exact diff [recommended]** — add only the displayed footer. A plain “yes” accepts `none (not recorded at filing)`; you may instead supply a source or reason with approval.\n2. **Revise** — specify the requested change.\n3. **Decline** — leave #42 unchanged.\n\nNo write has been performed.\n",
+      "words": 275,
+      "wallMs": 25984,
       "mechanical": {}
     }
   },
@@ -34,9 +34,9 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "f69a4760c18662a06959deea86ad5d832ad736e6857898941bc0604154abecc8",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "600e013b6b642672652379e3f824fc2ca9b3a1d939a93353576b3b53451c6051",
-      "baselineOutputSha": "90dffcb18163bb605a02ad967fe3615c4db7c522e22b70ddaefb87a901087abd",
-      "candidateOutputSha": "f4eff36753581d4ebce4a293468d8a745caace39da1df5b4710c3c26c06da015",
+      "intentSha": "37c01603ac4620d1f1596beac660de51a9a2f55024a55e0349f68590987ec325",
+      "baselineOutputSha": "f4eff36753581d4ebce4a293468d8a745caace39da1df5b4710c3c26c06da015",
+      "candidateOutputSha": "918687b23f5e263fc4a4c17ba9d3b053b8edcc98215afe2d8620516cd5dd94bb",
       "facts": {
         "no-verdict": {
           "before": "holds",
@@ -49,9 +49,9 @@
           "label": "held"
         },
         "recommended": {
-          "before": "fails",
+          "before": "holds",
           "after": "holds",
-          "label": "intended change"
+          "label": "intended but unchanged"
         },
         "footer-only": {
           "before": "holds",
@@ -59,16 +59,16 @@
           "label": "held"
         }
       },
-      "feedback": "After moves only the intended fact: option 1 now reads \"Approve exact diff [recommended]\" and is the sole tagged row, and it approves the displayed footer-only diff, so recommended goes from fails to holds. All three guards survive: there is no Audit: obsolete: line, the menu is Approve/Revise/Decline with no close row or close operation, and the body diff still adds exactly the single `source: none (not recorded at filing)` line while every Context, Problem, Idea and AC byte is unchanged (After even says so explicitly and keeps the numbered AC form). Two small wording nits worth tightening so the quiet path stays clean on reruns: the unchanged-title line now renders as \"X -> X\", which reads as a change where Before simply said (unchanged), and the Evidence Observed line dropped the before-navigation half of the observed-vs-expected pair (\"row 8 rejected\" before navigation, only \"failed\" on return) that Before carried; keep that full observed sentence in Evidence so the bug's observed-vs-expected stays intact while still folding the plain-yes/link/proceed-without instructions above the three-row menu as After does.",
-      "wallMs": 11691,
-      "verdict": "improved"
+      "feedback": "After keeps every guard: no Audit: obsolete: line is emitted, the five-row menu contains no close operation, exactly one row (option 1) carries [recommended] and it approves the exact displayed diff, and the body diff adds only the `source: none (not recorded at filing)` footer while prose and the numbered AC line stay byte-identical. Two wording regressions are worth fixing even though they move no fact: After leaks an internal step into the user-facing gate (\"Read [menu-layout](...) and applied it.\" with a relative path), which should be silent process rather than report text; and the source-gap line was truncated to \"Import run 42 displays \\\"row 8 rejected\\\" before navigation\", dropping the \"and only \\\"failed\\\" on return\" half that Before quoted in full, so the named gap no longer matches the Problem sentence it points at. Keep the menu-contract wording (separately numbered resolution options, single [recommended] approve row, plain-yes accepting the displayed constant) but quote the gapped sentence verbatim and suppress the reference-read acknowledgment from rendered output.",
+      "wallMs": 10573,
+      "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "f69a4760c18662a06959deea86ad5d832ad736e6857898941bc0604154abecc8",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "600e013b6b642672652379e3f824fc2ca9b3a1d939a93353576b3b53451c6051",
-      "baselineOutputSha": "b4e6daa23743b3ee2e661aa2225c111462920175ce13dac0615d6790366418c1",
-      "candidateOutputSha": "95c50c875a06a81d9f5d4ebc01a6cc12851ecfce85ba4f84b741a5c115f42f08",
+      "intentSha": "37c01603ac4620d1f1596beac660de51a9a2f55024a55e0349f68590987ec325",
+      "baselineOutputSha": "95c50c875a06a81d9f5d4ebc01a6cc12851ecfce85ba4f84b741a5c115f42f08",
+      "candidateOutputSha": "629ccac8860e7bdc1460c5ab9ca78acc0a1c29ee3e0b69294863c486a164eef5",
       "facts": {
         "no-verdict": {
           "before": "holds",
@@ -81,9 +81,9 @@
           "label": "held"
         },
         "recommended": {
-          "before": "fails",
+          "before": "holds",
           "after": "holds",
-          "label": "intended change"
+          "label": "intended but unchanged"
         },
         "footer-only": {
           "before": "holds",
@@ -91,10 +91,10 @@
           "label": "held"
         }
       },
-      "feedback": "After delivers the intended change: option 1 now carries the single [recommended] tag and approves the displayed repair diff, while no Audit: obsolete: line appears and no close option or close operation is offered, so no-verdict, no-close and footer-only all remain as guards. Two things to tighten so the guards stay robust: the After diff inserts an extra blank line (`+`) around the footer rather than adding only the `source: none (not recorded at filing)` line directly beneath the Problem example as Before did — a stricter reader could call that more than a footer-only addition, so keep the footer immediately after the example line with no surrounding added blank lines; and option 1's text blends approval with revision instructions ('or supply a link, attachment, or reason to replace it' plus the 'proceed without' dated-footer clause), which blurs the approve/revise boundary — keep option 1 as a plain 'Approve the displayed diff [recommended] — accepts none (not recorded at filing)' and leave supplying a source or reason to the Revise row, as Before's closing paragraph did.",
-      "wallMs": 15290,
-      "verdict": "improved"
+      "feedback": "After moved nothing: it still emits no Audit: obsolete: line, its menu is Approve/Revise/Decline with no close operation, exactly one row carries [recommended] and it approves the displayed repair diff, and the body diff inserts only the `source: none (not recorded at filing)` footer while leaving every existing prose and AC byte untouched. If anything, After is a slight improvement for the source-carried intent because it places the footer directly beneath the Problem example rather than after an added blank line, matching the 'one sentence or one number followed by its source footer' rule, and it explicitly states that a plain 'yes' accepts the missing-at-filing constant, which supports the repair-source/accepted move without introducing a close or drop row on this quiet conformance repair. Keep the current wording; just make sure the audit-driven close/drop rows stay conditional on a confirmed obsolete citation so they never appear on footer-only repairs like this one.",
+      "wallMs": 11221,
+      "verdict": "unchanged"
     }
   },
-  "repoSha": "fe29e949ffb100ccf53351ef08955b2e3450f9ac"
+  "repoSha": "891991430a7b632bf2a6130e6b49972104b6ff7a"
 }
