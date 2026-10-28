@@ -228,3 +228,14 @@ test("derive engine uses the latest event, defaults legacy runs, and counts loop
   assert.equal(derive(back, now).iterations, 3);
   assert.ok(capEvents(rec.events, 0).events.some((e) => e.kind === "engine"));
 });
+
+test("legs round-trip and malformed stored legs are rejected", () => {
+  const rec = newRecord({ spec: "x", session: "s", now: "now", runId: "r" });
+  for (const legs of [[{ repo: "one", sha: "abc" }, { repo: "two", pr: "https://example.test/pull/1" }]]) {
+    (rec as any).legs = legs;
+    assert.deepEqual((parseRecord(serializeRecord(rec)) as any).legs, legs);
+  }
+  for (const legs of [null, {}, [{ repo: "" , sha: "abc" }], [{ repo: "one" }], [{ repo: "one", sha: "" }]]) {
+    assert.equal(parseRecord(serializeRecord({ ...rec, legs } as any)), undefined);
+  }
+});

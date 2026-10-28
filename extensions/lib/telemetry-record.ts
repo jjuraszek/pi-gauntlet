@@ -97,7 +97,13 @@ export interface Derived {
   spec_edits_after_ship: number; diff?: DiffSummary; modified_files?: string[]; council?: CouncilBlock; spec_writes: Accumulators["spec_writes"]; events_dropped: number;
 }
 export type RecordStatus = "in_progress" | "shipped" | "abandoned";
+export type TelemetryLeg = { repo: string; sha: string; pr?: never } | { repo: string; pr: string; sha?: never };
+export const validLegs = (legs: unknown): legs is TelemetryLeg[] => Array.isArray(legs) && legs.every((leg) =>
+  leg && typeof leg.repo === "string" && leg.repo.trim().length > 0 &&
+  ((typeof leg.sha === "string" && leg.sha.trim().length > 0 && leg.pr === undefined) ||
+   (typeof leg.pr === "string" && /^https?:\/\/\S+$/.test(leg.pr) && leg.sha === undefined)));
 export interface TelemetryRecord {
+  legs?: TelemetryLeg[];
   schema: 1; spec: string; run_id: string; branch?: string; status: RecordStatus; created_at: string; approved_at?: string; shipped_at?: string; abandoned_at?: string;
   supersedes?: string[]; fixes?: string[]; versions?: Record<string, string>; author?: { name?: string; email?: string }; agent_overrides?: Record<string, unknown>;
   sessions: string[]; derived: Derived; accumulators: Record<string, Accumulators>; events: TelemetryEvent[];
@@ -179,6 +185,7 @@ export function parseRecord(text: string): TelemetryRecord | undefined {
   if (!doc || typeof doc !== "object") return undefined;
   const d = doc as Partial<TelemetryRecord>;
   if (d.schema !== 1 || typeof d.spec !== "string" || typeof d.run_id !== "string") return undefined;
+  if (d.legs !== undefined && !validLegs(d.legs)) return undefined;
   const accumulators = Object.fromEntries(Object.entries(d.accumulators ?? {}).flatMap(([session, block]) =>
     block && typeof block === "object" && !Array.isArray(block)
       ? [[session, { ...emptyAccumulators(), ...block }]]

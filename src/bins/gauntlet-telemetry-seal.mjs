@@ -11,7 +11,7 @@ import process from "node:process";
 import { mergeGauntlet, planDirsFor, resolveFlowGuards, resolveTelemetry } from "../../extensions/lib/gauntlet-settings.ts";
 import { recordPathFor, repoRelativeToolPath, toPosix } from "../../extensions/lib/telemetry-paths.ts";
 import { changedNames, commitRecordFile, computeShipDiff, recordSealed, validateBase, vcsFor } from "../../extensions/lib/vcs.ts";
-import { derive, parseRecord, serializeRecord } from "../../extensions/lib/telemetry-record.ts";
+import { derive, parseRecord, serializeRecord, validLegs } from "../../extensions/lib/telemetry-record.ts";
 
 const OPTIONS = new Set(["pr", "squash"]);
 
@@ -22,7 +22,7 @@ const fail = (code, message) => {
 const usage = () => fail(1, "usage: gauntlet-telemetry-seal --worktree <abs path> --option <pr|squash> --base <ref> [--spec <spec path inside the checkout>] [--dir <telemetry dir>]");
 
 function parseArgs(argv) {
-  const opts = { worktree: undefined, option: undefined, base: undefined, spec: undefined, dir: undefined };
+  const opts = { worktree: undefined, option: undefined, base: undefined, spec: undefined, dir: undefined, legs: [] };
   for (let i = 0; i < argv.length; i++) {
     const a = argv[i];
     const value = argv[i + 1];
@@ -34,6 +34,15 @@ function parseArgs(argv) {
     else if (a === "--option") takes("option");
     else if (a === "--base") takes("base");
     else if (a === "--spec") takes("spec");
+    else if (a === "--leg") {
+      if (!value || value.startsWith("--")) fail(1, "invalid --leg " + value);
+      i++;
+      const split = value.indexOf("=");
+      const repo = value.slice(0, split), result = value.slice(split + 1);
+      const leg = /^https?:\/\//.test(result) ? { repo, pr: result } : { repo, sha: result };
+      if (split < 1 || !validLegs([leg])) fail(1, "invalid --leg " + value);
+      opts.legs.push(leg);
+    }
     else if (a === "--dir") takes("dir");
     else usage();
   }
@@ -80,11 +89,16 @@ async function seal(vcs, rec, o) {
   const prior = readFileSync(abs);
   const parsed = parseRecord(prior.toString("utf8"));
   if (!parsed) fail(2, `unparseable record ${rec}: schema 1 with spec and run_id required`);
+  const normalized = (legs) => [...new Set(legs.map((leg) => JSON.stringify([leg.repo.toLowerCase(), leg.sha ?? leg.pr])))].sort();
+  if (parsed.status !== "in_progress" && JSON.stringify(normalized(parsed.legs ?? [])) !== JSON.stringify(normalized(o.legs))) {
+    fail(1, `seal legs differ: stored ${JSON.stringify(parsed.legs ?? [])}; supplied ${JSON.stringify(o.legs)}`);
+  }
   if (parsed.status !== "in_progress") {
     if (parsed.status !== "shipped" || recordSealed(vcs, rec)) return console.log(`already sealed ${rec}`);
     // A previous seal stamped the file but its commit failed: commit the bytes as they are.
   } else {
     const now = isoNow();
+    if (o.legs.length) parsed.legs = o.legs;
     parsed.status = "shipped";
     parsed.shipped_at = now;
     parsed.events.push({ ts: now, session: parsed.sessions.at(-1) ?? "seal", phase: "ship", kind: "ship", option: o.option });
@@ -123,7 +137,7 @@ async function main() {
   if (!telemetry.enabled) return console.log("telemetry disabled");
   const dir = override?.dir ?? telemetry.dir;
   if (!validateBase(vcs, opts.base)) fail(1, `no base ref ${opts.base}`);
-  const o = { option: opts.option, base: opts.base, dir, buckets: telemetry.buckets, planDirs };
+  const o = { legs: opts.legs, option: opts.option, base: opts.base, dir, buckets: telemetry.buckets, planDirs };
   if (opts.spec) return seal(vcs, recordPathFor(dir, rel), o);
   const diff = changedNames(vcs, opts.base);
   if (!diff.ok) fail(1, `${vcs.kind} diff failed: ${diff.stderr}`);

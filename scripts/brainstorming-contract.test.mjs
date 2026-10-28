@@ -690,3 +690,81 @@ test('planning completes interrupted sync and persists pending outcomes before f
   assert.ok(read('skills/subagent-driven-development/SKILL.md').includes("For an `in-place` wave, dispatch one `implementer` with `cwd` the branch checkout and no `worktree: true`; skip step 4 integration and step 7's `reset --soft` fold, retain the test gate, SR against the branch checkout, and CR, and record the next wave's `WAVE_BASE_SHA` after completion. Repair every SR gap (including initial `NEEDS_REWORK` / `OUT_OF_SCOPE_CHANGES`), stopped chain, test-gate failure, and CR finding with a plain in-place `implementer` in the branch checkout; record Fix-delta trees from that checkout, never use the snapshot/patch-replacement path, and after the gates accept, commit any remaining changes as one new descendant commit on the branch before marking indices `complete`, without amending or running `reset --soft` across the recorded rework base."));
   for (const marker of ['merge: unresolved', 'preserve the original commits', 'sync: unresolved', 'rebase --no-rebase-merges origin/<base>', 'Member replay: #<N> unresolved', 'every `pending` member in listed order', 'update-ref refs/gauntlet/rework-base/pr-<home> HEAD', 'Rework base: <sha>', 'final `Member replay:` outcomes', 'amendment path', 'before finishing', '../using-git-worktrees/reference/pr-head.md']) assert.ok(plan.includes(marker), marker);
 });
+
+const legsPath = 'skills/brainstorming/reference/legs.md';
+const legContract = () => readFileSync(new URL(`../${legsPath}`, import.meta.url), 'utf8');
+
+test('membership selects declared siblings before resolving paths or creating trees', () => {
+  const text = legContract();
+  for (const clause of [
+    'identifier before basename', 'ask once before any creation',
+    'home first, then selected siblings in declared order',
+    'Never resolve or validate unselected sibling paths',
+    'missing, not a git repository, or equal to home',
+    'An existing PR alone never activates membership',
+  ]) assert.ok(text.includes(clause), clause);
+});
+
+test('portable identifiers prefer origin, then own tracker overrides, then primary basename', () => {
+  const text = legContract().replace(/\s+/g, ' ');
+  assert.match(text, /Derive the portable identifier from `git -C <primary> remote get-url origin`'s `owner\/name`, stripping `\.git`; without origin use `repo:` from that member's own first-found overrides `## Issue tracker` section; without that value use the member's primary directory basename\./);
+  assert.match(text, /Compare case-insensitively, identifier before basename/);
+  assert.match(text, /Use the same identifier in `### Leg:`, task `Leg:`, and brief `repo:` fields/);
+});
+
+test('rooted creation preserves failed runs without renaming or session fallback', () => {
+  const text = readFileSync(new URL('../skills/using-git-worktrees/SKILL.md', import.meta.url), 'utf8');
+  for (const clause of [
+    'caller-supplied `$ROOT` and `$BRANCH`',
+    'git -C "$ROOT" worktree list --porcelain',
+    'git -C "$WORKTREE" branch --show-current',
+    'never suffix', 'dirty-primary decline', 'Preserved created legs:',
+    'never branch the session cwd',
+  ]) assert.ok(text.includes(clause), clause);
+});
+
+test('portable leg grammar owns rules, recorded authority and companion artifacts', () => {
+  const text = legContract();
+  for (const clause of [
+    '### Leg: repo-a', 'branch:', 'contract:', 'Rules:',
+    'planDirsFor', 'flowGuards.specDirs', 'subagents.worktreeTeardownHook',
+    '**Home:**', '## Decisions', 'repo-a/pkg-x/AGENTS.md',
+    'realpath', 'root only - paths unresolved', 'Rules: missing:',
+    'legacy specs without `## Legs`', 'no companion artifact',
+  ]) assert.ok(text.includes(clause), clause);
+  for (const path of ['SKILL.md', 'gatherer.md', 'reference/spec-finalization.md', 'reference/amendment-surface.md', 'reference/ticket-acceptance.md']) {
+    assert.match(readFileSync(new URL(`../skills/brainstorming/${path}`, import.meta.url), 'utf8'), /legs\.md/);
+  }
+});
+
+test('built-in homes use branch-derived names and sandbox fallback stays caller-scoped', () => {
+  const text = read('skills/using-git-worktrees/SKILL.md');
+  assert.doesNotMatch(text, /\.worktrees\/<branch>/);
+  assert.match(text, /With an explicit caller root, stop/);
+  assert.match(text, /Without a caller root, announce the failure and continue in the current directory on a feature branch/);
+  assert.match(text, /sandbox can't support multiple checkouts.*without a caller root/);
+});
+
+test('scope grammar pins original AC ownership independently of design and disposition', () => {
+  const text = legContract();
+  const template = text.match(/```markdown\n## Legs\n([\s\S]*?)```/)[1];
+  assert.equal(template.match(/^scope:/gm)?.length, 1);
+  assert.match(template, /^scope: AC 1, AC 3$/m);
+  for (const clause of [
+    'exactly one `scope:` line', 'one-based original AC indices, including cut rows',
+    'Repeat shared indices in each owning leg', 'unlisted across all legs default home',
+    'all legs say `scope: none`', 'Never infer ownership from `design:` prose or paths',
+    'Before committing home or companion artifacts, validate',
+    'missing or duplicate scope lines', 'duplicate indices within one leg',
+    'nonexistent original indices', 'same index in different legs is valid',
+    'scope: AC 0', 'scope: AC 1.5', 'scope: AC 1-3', 'scope: 1',
+    'scope: AC 1,', 'scope: none, AC 1', 'scope: AC 1, AC 1',
+    'design: implements AC 2',
+  ]) assert.ok(text.includes(clause), clause);
+  const finalization = read('skills/brainstorming/reference/spec-finalization.md');
+  assert.match(finalization, /Validate every block using \[legs.md\]\(legs.md\)'s scope grammar before committing/);
+  const amendment = read('skills/brainstorming/reference/amendment-surface.md');
+  assert.match(amendment, /Preserve scope indices on disposition-only amendments/);
+  assert.match(amendment, /validate\s+all blocks using \[legs.md\]\(legs.md\)'s scope grammar before committing/);
+  assert.match(text, /entire block verbatim/);
+});

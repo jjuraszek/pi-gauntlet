@@ -317,6 +317,7 @@ function foldAccumulators(a, b) {
   out.events_dropped = a.events_dropped + b.events_dropped;
   return out;
 }
+var validLegs = (legs) => Array.isArray(legs) && legs.every((leg) => leg && typeof leg.repo === "string" && leg.repo.trim().length > 0 && (typeof leg.sha === "string" && leg.sha.trim().length > 0 && leg.pr === void 0 || typeof leg.pr === "string" && /^https?:\/\/\S+$/.test(leg.pr) && leg.sha === void 0));
 function newRecord(o) {
   return { schema: 1, spec: o.spec, run_id: o.runId, branch: o.branch, status: "in_progress", created_at: o.now, sessions: [o.session], derived: { engine: "waves", duration_s: 0, phases: {}, personas: {}, conformance_loops: 0, gates: { spec_rounds: 0, plan_rounds: 0, fix_round_grants: 0, task_reopens: 0 }, amendments: 0, spec_edits_after_ship: 0, spec_writes: {}, events_dropped: 0 }, accumulators: {}, events: [] };
 }
@@ -403,6 +404,7 @@ function parseRecord(text) {
   if (!doc || typeof doc !== "object") return void 0;
   const d = doc;
   if (d.schema !== 1 || typeof d.spec !== "string" || typeof d.run_id !== "string") return void 0;
+  if (d.legs !== void 0 && !validLegs(d.legs)) return void 0;
   const accumulators = Object.fromEntries(Object.entries(d.accumulators ?? {}).flatMap(
     ([session, block]) => block && typeof block === "object" && !Array.isArray(block) ? [[session, { ...emptyAccumulators(), ...block }]] : []
   ));
@@ -417,7 +419,7 @@ var fail = (code, message) => {
 };
 var usage = () => fail(1, "usage: gauntlet-telemetry-seal --worktree <abs path> --option <pr|squash> --base <ref> [--spec <spec path inside the checkout>] [--dir <telemetry dir>]");
 function parseArgs(argv) {
-  const opts = { worktree: void 0, option: void 0, base: void 0, spec: void 0, dir: void 0 };
+  const opts = { worktree: void 0, option: void 0, base: void 0, spec: void 0, dir: void 0, legs: [] };
   for (let i = 0; i < argv.length; i++) {
     const a = argv[i];
     const value = argv[i + 1];
@@ -429,7 +431,15 @@ function parseArgs(argv) {
     else if (a === "--option") takes("option");
     else if (a === "--base") takes("base");
     else if (a === "--spec") takes("spec");
-    else if (a === "--dir") takes("dir");
+    else if (a === "--leg") {
+      if (!value || value.startsWith("--")) fail(1, "invalid --leg " + value);
+      i++;
+      const split = value.indexOf("=");
+      const repo = value.slice(0, split), result = value.slice(split + 1);
+      const leg = /^https?:\/\//.test(result) ? { repo, pr: result } : { repo, sha: result };
+      if (split < 1 || !validLegs([leg])) fail(1, "invalid --leg " + value);
+      opts.legs.push(leg);
+    } else if (a === "--dir") takes("dir");
     else usage();
   }
   if (!opts.worktree || !isAbsolute2(opts.worktree) || !opts.base || !OPTIONS.has(opts.option)) usage();
@@ -469,10 +479,15 @@ async function seal(vcs, rec, o) {
   const prior = readFileSync(abs);
   const parsed = parseRecord(prior.toString("utf8"));
   if (!parsed) fail(2, `unparseable record ${rec}: schema 1 with spec and run_id required`);
+  const normalized = (legs) => [...new Set(legs.map((leg) => JSON.stringify([leg.repo.toLowerCase(), leg.sha ?? leg.pr])))].sort();
+  if (parsed.status !== "in_progress" && JSON.stringify(normalized(parsed.legs ?? [])) !== JSON.stringify(normalized(o.legs))) {
+    fail(1, `seal legs differ: stored ${JSON.stringify(parsed.legs ?? [])}; supplied ${JSON.stringify(o.legs)}`);
+  }
   if (parsed.status !== "in_progress") {
     if (parsed.status !== "shipped" || recordSealed(vcs, rec)) return console.log(`already sealed ${rec}`);
   } else {
     const now = isoNow();
+    if (o.legs.length) parsed.legs = o.legs;
     parsed.status = "shipped";
     parsed.shipped_at = now;
     parsed.events.push({ ts: now, session: parsed.sessions.at(-1) ?? "seal", phase: "ship", kind: "ship", option: o.option });
@@ -509,7 +524,7 @@ async function main() {
   if (!telemetry.enabled) return console.log("telemetry disabled");
   const dir = override?.dir ?? telemetry.dir;
   if (!validateBase(vcs, opts.base)) fail(1, `no base ref ${opts.base}`);
-  const o = { option: opts.option, base: opts.base, dir, buckets: telemetry.buckets, planDirs };
+  const o = { legs: opts.legs, option: opts.option, base: opts.base, dir, buckets: telemetry.buckets, planDirs };
   if (opts.spec) return seal(vcs, recordPathFor(dir, rel), o);
   const diff = changedNames(vcs, opts.base);
   if (!diff.ok) fail(1, `${vcs.kind} diff failed: ${diff.stderr}`);

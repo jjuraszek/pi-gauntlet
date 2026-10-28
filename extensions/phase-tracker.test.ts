@@ -2451,3 +2451,50 @@ for (const event of ["session_start", "session_switch", "session_fork", "session
     });
   }
 }
+
+for (const { pattern, identity } of [
+  { pattern: ".worktrees/<name>", identity: "origin" },
+  { pattern: "../companion-<name>", identity: "origin" },
+  { pattern: ".worktrees/<name>", identity: "overrides" },
+  { pattern: ".worktrees/<name>", identity: "basename" },
+]) test(`plan_check resolves selected companion roots with ${pattern} and ${identity}`, async () => {
+  const primary = gitPrimary().primary;
+  const companion = gitPrimary().primary;
+  const repo = identity === "basename" ? companion.split("/").at(-1)! : identity === "overrides" ? "acme/widgets" : "team/repo-b";
+  if (identity === "origin") execFileSync("git", ["remote", "add", "origin", "https://example.test/team/repo-b.git"], { cwd: companion });
+  else {
+    mkdirSync(join(companion, ".pi"), { recursive: true });
+    writeFileSync(join(companion, ".pi/gauntlet-overrides.md"), `## Issue tracker\n${identity === "overrides" ? "- repo: Acme/Widgets\n" : "- provider: github\n"}## Other\n- repo: wrong/repo\n`);
+  }
+  const branch = "feature/legs";
+  const companionRoot = join(companion, pattern.replace("<name>", "feature-legs"));
+  execFileSync("git", ["worktree", "add", "-b", branch, companionRoot], { cwd: companion, stdio: "pipe" });
+  if (pattern.startsWith("..")) tempDirs.push(companionRoot);
+  mkdirSync(join(primary, ".pi"), { recursive: true });
+  writeFileSync(join(primary, ".pi/gauntlet-overrides.md"), `## shape-ticket\n- sibling: ${companion}\n- sibling: /missing-unselected\n`);
+  const { planPath } = writePlanFixture(primary, {
+    mutateSpec: s => s + `\n## Legs\n### Leg: team/repo-a\nscope: none\nbranch: ${branch}\n### Leg: ${repo}\nscope: none\nbranch: ${branch}\ncontract: home: ${pattern}\n`,
+    mutatePlan: s => s.replace("---", `Baseline team/repo-a: abc1234\nBaseline ${repo}: def5678\n---`).replace("### Task 2: Implement naming", `## Wave 2 - Companion\n\n### Task 2: Implement naming\nLeg: ${repo.toUpperCase()}`).replace("abc1234 skipped - lib/task2", "def5678 skipped - lib/task2"),
+  });
+  rmSync(join(primary, "file-b.ts"));
+  writeFileSync(join(companionRoot, "file-b.ts"), "companion only\n");
+  const h = harness({ cwd: primary });
+  await h.emit("session_start");
+  const tool = h.tools.find(t => t.name === "plan_check")!;
+  const result = await tool.execute("legs", { planPath }, undefined, undefined, h.ctx) as { details: { status: string; findings?: unknown } };
+  assert.equal(result.details.status, "pass", JSON.stringify(result.details.findings));
+  const originalPlan = readFileSync(planPath, "utf8");
+  const foreignSpec = join(companionRoot, "foreign-spec.md");
+  writeFileSync(foreignSpec, readFileSync(join(primary, "doc/specs/spec.md")));
+  writeFileSync(planPath, originalPlan.replace("doc/specs/spec.md", foreignSpec));
+  const foreign = await tool.execute("foreign-spec", { planPath }, undefined, undefined, h.ctx) as { details: { status: string; findings: { check: string }[] } };
+  assert.equal(foreign.details.status, "fail");
+  assert.ok(foreign.details.findings.some(f => f.check === "input"));
+  writeFileSync(planPath, originalPlan);
+  rmSync(join(companionRoot, "file-b.ts"));
+  const failure = await tool.execute("legs-missing", { planPath }, undefined, undefined, h.ctx) as { details: { status: string; findings: { check: string }[] } };
+  assert.equal(failure.details.status, "fail");
+  execFileSync("git", ["worktree", "remove", "--force", companionRoot], { cwd: companion, stdio: "pipe" });
+  const missing = await tool.execute("legs-missing-root", { planPath }, undefined, undefined, h.ctx) as { details: { findings: { check: string }[] } };
+  assert.ok(missing.details.findings.some(f => f.check === "input"));
+});

@@ -10,7 +10,7 @@
  */
 
 import { existsSync, globSync, readdirSync, readFileSync, readFileSync as readFileBytes } from "node:fs";
-import { isAbsolute, join, resolve } from "node:path";
+import { dirname, isAbsolute, join, relative, resolve } from "node:path";
 import { StringEnum } from "@earendil-works/pi-ai";
 import type { ExtensionAPI, ExtensionContext, Theme } from "@earendil-works/pi-coding-agent";
 import { Text } from "@earendil-works/pi-tui";
@@ -29,7 +29,7 @@ import {
 } from "./lib/gauntlet-settings.ts";
 import { loadGauntletSettings } from "./lib/gauntlet-settings-loader.ts";
 import { checkoutOf, gitSync } from "./lib/checkout.ts";
-import { checkPlan, sha256, type FsPort, type PlanCheckFinding } from "./lib/plan-check.ts";
+import { checkPlan, legOwnership, sha256, type FsPort, type PlanCheckFinding } from "./lib/plan-check.ts";
 import {
   checkSubstep,
   dispatchLabel,
@@ -982,9 +982,48 @@ export default function (pi: ExtensionAPI) {
           return fail([{ check: "input", line: 0, text: "", reason: `spec file unreadable at ${specAbs}` }], planAbs);
         }
         const specText = specBytes.toString("utf8");
+        const ownership = legOwnership(specText);
+        if (ownership.findings.length) return fail(ownership.findings, planAbs);
+        const specRelative = relative(root, specAbs);
+        if (ownership.legs.length && (specRelative === ".." || specRelative.startsWith("../") || isAbsolute(specRelative))) return fail([{ check: "input", line: 0, text: specPathRaw, reason: "coordinated spec must stay in the home checkout" }], planAbs);
+        const roots = new Map<string, string>();
+        if (ownership.legs.length) roots.set(ownership.legs[0].repo, root);
+        if (ownership.legs.length > 1) {
+          const inputFailure = (reason: string) => fail([{ check: "input", line: 0, text: "", reason }], planAbs);
+          const common = gitSync(["rev-parse", "--path-format=absolute", "--git-common-dir"], root);
+          if (common.code !== 0) return inputFailure("cannot resolve home primary");
+          const primary = dirname(common.stdout.trim());
+          const overridesPath = [".pi/gauntlet-overrides.md", "gauntlet-overrides.md", "doc/gauntlet-overrides.md"].map(p => resolve(primary, p)).find(p => existsSync(p));
+          const overrides = overridesPath ? readFileSync(overridesPath, "utf8") : "";
+          const section = /^## shape-ticket\s*\n([\s\S]*?)(?=^## |$(?![\s\S]))/m.exec(overrides)?.[1] ?? "";
+          const siblings = [...section.matchAll(/^- sibling: (.+)$/gm)].map(m => resolve(primary, m[1].trim()));
+          for (const leg of ownership.legs.slice(1)) {
+            const candidates = siblings.filter(path => {
+              if (!existsSync(path)) return false;
+              const remote = gitSync(["remote", "get-url", "origin"], path);
+              const repo = remote.stdout.trim().replace(/\.git$/, "").replace(/^.*[:/]([^/:]+\/[^/]+)$/, "$1").toLowerCase();
+              if (remote.code === 0) return repo === leg.repo;
+              const memberOverridesPath = [".pi/gauntlet-overrides.md", "gauntlet-overrides.md", "doc/gauntlet-overrides.md"].map(p => resolve(path, p)).find(p => existsSync(p));
+              const memberOverrides = memberOverridesPath ? readFileSync(memberOverridesPath, "utf8") : "";
+              const tracker = /^## Issue tracker\s*\n([\s\S]*?)(?=^## |$(?![\s\S]))/m.exec(memberOverrides)?.[1] ?? "";
+              const documentedRepo = /^- repo:\s*(\S+)\s*$/m.exec(tracker)?.[1];
+              return (documentedRepo ?? path.split("/").at(-1))?.toLowerCase() === leg.repo;
+            });
+            if (candidates.length !== 1) return inputFailure(`cannot resolve selected sibling ${leg.repo}`);
+            const branch = /^branch:\s*(\S+)\s*$/m.exec(leg.body)?.[1];
+            const home = /^(?:contract:\s*)?(?:-\s*)?home:\s*(\S+)\s*$/m.exec(leg.body)?.[1];
+            if (!branch || !home || home.split("<name>").length !== 2 || /<[^>]+>/.test(home.replace("<name>", ""))) return inputFailure(`invalid recorded branch or home pattern for ${leg.repo}`);
+            const legRoot = resolve(candidates[0], home.replace("<name>", branch.replaceAll("/", "-")));
+            const checkout = existsSync(legRoot) ? await checkoutOf(legRoot, gitSync) : undefined;
+            const expected = gitSync(["rev-parse", "--path-format=absolute", "--git-common-dir"], candidates[0]);
+            const actual = checkout ? gitSync(["rev-parse", "--path-format=absolute", "--git-common-dir"], legRoot) : undefined;
+            if (!checkout || checkout.toplevel !== legRoot || expected.code !== 0 || actual?.code !== 0 || actual.stdout.trim() !== expected.stdout.trim()) return inputFailure(`cannot resolve worktree for ${leg.repo}`);
+            roots.set(leg.repo, legRoot);
+          }
+        }
         const port: FsPort = {
-          exists: (p) => existsSync(resolve(root, p)),
-          glob: (pattern) => globSync(pattern, { cwd: root }),
+          exists: (p, leg) => existsSync(resolve(leg ? roots.get(leg)! : root, p)),
+          glob: (pattern, leg) => globSync(pattern, { cwd: leg ? roots.get(leg)! : root }),
         };
         const findings = checkPlan(planText, specText, port);
         if (findings.length > 0) return fail(findings, planAbs);
