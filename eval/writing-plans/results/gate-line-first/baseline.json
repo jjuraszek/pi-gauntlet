@@ -15,6 +15,15 @@
     "thinking": "medium"
   },
   "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "The plan is paused at baseline.\n\n**Task 1** fails before any change is made:\n\n- Command: `node --test tests/timeout.test.ts`\n- Base: `def5678`\n- Result: exit 1, `tests 1, pass 0, fail 1: existing timeout lookup failed`\n\nTask 1 needs a passing starting point, but this test already fails on the base commit. How do you want to proceed?\n\n- `fix-first`: shape a separate ticket for the base failure with `/skill:shape-ticket`. After that fix lands, I bring the advanced base into this worktree, rerun the baseline and continue the plan.\n- `narrow`: give me filter or path text that limits Task 1's command to tests that currently pass. I then rerun the baseline with the narrowed command.\n- `amend`: change the approved spec through the amendment flow, then rerun the baseline against the amended plan.\n\nRecommendation: `fix-first`. The failing test is the existing timeout lookup this change builds on. Narrowing would hide a real regression, and amending the spec would not fix it.\n",
+      "words": 156,
+      "wallMs": 6845,
+      "mechanical": {
+        "first-line": "fails"
+      }
+    },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
       "text": "Task 1’s baseline command `node --test tests/timeout.test.ts` failed on `def5678` (exit 1): existing timeout lookup failed. The runner reported 1 test, 0 passed, 1 failed. Planning is paused.\n\nHow would you like to proceed?\n\n- **fix-first** — Run `/skill:shape-ticket` for the base failure, subject to its own gate; this plan remains paused.\n- **narrow** — Supply filter or path text to narrow Task 1’s test command.\n- **amend** — Amend the approved spec through brainstorming’s amendment process.\n\nRecommendation: **fix-first** — repair the existing baseline failure before proceeding with the timeout change.\n",
@@ -25,5 +34,5 @@
       }
     }
   },
-  "repoSha": "2eb4429b4dd687432969f427f82d45d7840d7c63"
+  "repoSha": "50dd29dfd3066c986f17ea1dfffbf4e54fc40ebd"
 }

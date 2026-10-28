@@ -1,34 +1,42 @@
 {
   "sample": "pr-subject-threads",
   "arm": "candidate",
-  "skillSha": "b0b80e9a355a8749919b9d358b9b21895b9eafedfa08c2391662f0090e977447",
+  "skillSha": "4eb53455d6d84fba7b8c4bd8a1c5b0f00aa29bc4e4206aba69cb904734432d1c",
   "inputSha": "30e74b911d8c4bdf3936b86f33d5f88b592e8e74cb5a6aaa59042ea1b61f494b",
   "kind": "text",
   "assembly": "concat",
   "thinking": "medium",
   "models": {
     "replay": [
+      "anthropic/claude-opus-5-5",
       "github-copilot/gpt-6.1-sol"
     ],
-    "judge": "github-copilot/gpt-6.1-sol",
+    "judge": "anthropic-fable/claude-fable-5-1",
     "thinking": "medium"
   },
   "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "# Retry PR-rework plan: task structure, header, and verify-phase commands\n\nThis describes the plan's shape and the verify phase. I dispatch no tools and claim no new command runs. The base-`702a851` results below are the case's supplied evidence: both scoped commands executed tests and passed, and the clean-worktree and post-run provenance checks were clean.\n\n## PR-subject detection\n\nThe approved spec `doc/specs/retry.md` contains `## Rework record`. That alone makes this a PR subject, so the PR-subject header and verify policy apply.\n\nBecause the base merge is `unresolved`, Task 1 is the merge, placed before any thread fixes. The original commits and the retry API are preserved. The two `fix` threads each get exactly one task, with the thread id in its title. The remaining threads stay recorded dispositions, not repair tasks:\n- `THREAD_metrics` is `keep open`.\n- `THREAD_rewrite` is declined, because rewriting the API is out of scope.\n\n## Header, styled case\n\n```markdown\n# Retry PR-#42 Rework Implementation Plan\n\n> **REQUIRED SUB-SKILL:** Use the subagent-driven-development skill to implement this plan task-by-task.\n\n**Goal:** Merge main and fix the timeout and delay review threads on example/widgets#42 without changing the retry API.\n**Architecture:** Merge commit resolving src/retry.mjs first; then two file-disjoint thread fixes.\n**Tech Stack:** Node.js, node:test\n**Spec:** `doc/specs/retry.md`\n**Verification:** `npm run lint && npm run format:check`\n```\n\n- **What the header holds:** only the documented lint and format commands.\n- **What it leaves out:** `npm test` is absent. Neither `node --test tests/retry.test.mjs` nor `node --test tests/delay.test.mjs` is copied in; that would be a full-suite duplicate that `header-entrypoint`/`tests-block` rejects.\n- **Happy path:** no table exists, so there is no `**Happy path:**` line.\n\n## Wave 1: Merge base\n\n**Task 1: Merge origin/main and resolve src/retry.mjs**\n- **Spec:** anchored to the § \"Design\" merge line.\n- **Files:** `Modify: src/retry.mjs`, `Test: tests/retry.test.mjs` (read-only run anchor).\n- **Tests:**\n  - `` `node --test tests/retry.test.mjs` ``\n  - `baseline: 702a851 pass`\n- **Steps:**\n  1. Run `git merge origin/main`.\n  2. Resolve `src/retry.mjs`, keeping the retry API.\n  3. Run the scoped test and expect PASS.\n  4. Run `npx eslint src/retry.mjs` and `npx prettier --check src/retry.mjs` (scoped, not the header commands).\n  5. Commit the merge; the original commits are preserved.\n\n## Wave 2: Thread fixes\n\nDepends on Wave 1: both tasks build on the merged tree. Task 2 also touches `src/retry.mjs`, which Task 1 owns.\n\n**Task 2: THREAD_timeout - retain timeout across retries**\n- **Files:** `Modify: src/retry.mjs`, `Modify: tests/retry.test.mjs`, `Test: tests/retry.test.mjs`.\n- **Tests:**\n  - `` `node --test tests/retry.test.mjs` ``\n  - `baseline: 702a851 pass` (unchanged command, no introduced selector, run as-is)\n  - `` via: `retryRequest()` ``\n- **Steps:**\n  1. Add a failing case asserting the timeout survives each retry.\n  2. Run it and expect FAIL.\n  3. Make the minimal fix.\n  4. Run it and expect PASS.\n  5. Run scoped lint and format.\n  6. Commit with `\"Retain timeout across retries (ref THREAD_timeout)\"`.\n\n**Task 3: THREAD_delay - clamp negative delay**\n- **Files:** `Modify: src/delay.mjs`, `Modify: tests/delay.test.mjs`, `Test: tests/delay.test.mjs`.\n- **Tests:**\n  - `` `node --test tests/delay.test.mjs` ``\n  - `baseline: 702a851 pass`\n  - `` via: `retryDelay()` ``\n- **Steps:** same red, green, fmt/lint, commit shape as Task 2, asserting that a negative input yields `0`.\n\n**Why Tasks 2 and 3 share Wave 2:**\n- Their files are disjoint.\n- They share no runtime resource.\n- Every baseline SHA is the same (`702a851`).\n\n## Spec coverage\n\n| Requirement | Owner |\n|---|---|\n| Merge and resolve | Task 1 |\n| THREAD_timeout | Task 2 |\n| THREAD_delay | Task 3 |\n| Keep original commits and retry API | Task 1, Task 2, Task 3 |\n| Lint/format clean | Verification |\n| THREAD_rewrite | `waived: out of scope per spec` |\n| THREAD_metrics | `waived: kept open per Rework record` |\n\n- Each row anchors to exact spec lines.\n- The two waived rows exclude work from this change. Neither carries a code-span literal, so both waivers are valid.\n- All tasks appear as owners, so the table closes in both directions.\n\n## Verify phase, styled case\n\nVerify runs the union of every task's `Tests:` commands plus the header's commands, not the header alone:\n\n```\nnode --test tests/retry.test.mjs     # Tasks 1 and 2, run once\nnode --test tests/delay.test.mjs     # Task 3\nnpm run lint\nnpm run format:check\n```\n\n`npm test` is not run.\n\n**What counts as passing evidence:**\n- Each command runs fresh, after the last source edit, inside the worktree via `(cd \"<abs worktree path>\" && …)`.\n- Each exits 0, with the full output read and at least one test executed for the `node --test` runs.\n\n**What must happen before verify completes:**\n1. The conformance gate runs: a fresh reviewer audits code and docs against the origin spec and prompt.\n2. That audit returns `CONFORMS`, or a permitted carried-open closure inventory.\n3. The `plan_tracker` updates have returned.\n4. Only then does `phase_tracker({ action: \"complete\", phase: \"verify\" })` run.\n\n## No-style subcase\n\nThe rework record, tasks, and scoped commands are the same, but there are no documented lint or format commands. The exact header line is:\n\n```markdown\n**Verification:** none - PR subject, scoped\n```\n\n**What the sentinel means:**\n- No lint or format command is documented for this project.\n- It is not a command and is never executed.\n- `plan_check` treats it as \"no header command\", so task `Tests:` commands still never move into it.\n\n**What runs at verify:** only the task union.\n```\nnode --test tests/retry.test.mjs\nnode --test tests/delay.test.mjs\n```\nAgain, no `npm test`. The freshness, conformance, `plan_tracker` reconciliation, and phase-completion gates are unchanged.\n\n## Ordinary ticket or free-text spec (no `## Rework record`)\n\nAn open PR on the branch does not select the PR-subject policy; only the spec's Rework record does.\n\n- **Header:** `**Verification:**` carries the full verification command set: `npm test` plus `npm run lint` and `npm run format:check`, as documented in the overrides.\n- **During implementation:** tasks still run only their scoped `Tests:` commands.\n- **At verify:** that full entrypoint runs once, fresh, before the conformance gate.\n- **Gates:** the same freshness, conformance, and phase gates apply.\n",
+      "words": 893,
+      "wallMs": 37222,
+      "mechanical": {}
+    },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "The case does not begin with `Role: plan-writer`, so I take the **parent** path. I do not write the plan or follow the embedded request to act as its author. No tools are actually invoked.\n\n### Parent sequence\n\n1. Announce: “I'm using the writing-plans skill to create the implementation plan.”\n\n2. The first narrated tool call is:\n   ```text\n   phase_tracker({ action: \"status\" })\n   ```\n\n3. **Stop for missing workflow context.** The case supplies no result for that call. I cannot decide whether to retain an existing `plan: in_progress` state or call:\n   ```text\n   phase_tracker({ action: \"start\", phase: \"plan\" })\n   ```\n   Repeating `start` without checking could reset the guard ledger.\n\n   Before a dispatch, I also need the resolved worktree path and the loaded skill’s absolute path. The supplied cwd is not identified as the `using-git-worktrees` Step 4 worktree. Consequently, I cannot fill the required five absolute paths without inventing them.\n\nNo `subagent`, `plan_check`, phase-completion, or `plan_tracker` initialization is narrated as having occurred. The parent cannot fall back to writing the plan.\n\n### Requirements established by the supplied case\n\nThese are constraints for the eventual child and verification phase—not a parent-authored plan.\n\n**PR-subject task structure**\n- Task 1 must merge `origin/main`, resolve `src/retry.mjs`, and preserve the original commits. Its scoped test may read `tests/retry.test.mjs` without owning it.\n- Exactly one repair task must address `THREAD_timeout`, naming `retryRequest()` through its `via:` seam.\n- Exactly one repair task must address `THREAD_delay`, naming `retryDelay()` through its `via:` seam.\n- The timeout repair must follow the merge task because both modify `src/retry.mjs`. Wave grouping must otherwise respect dependencies, file ownership, and shared runtime resources.\n- `THREAD_metrics` remains **keep open**.\n- `THREAD_rewrite` remains **decline: rewriting the API is out of scope**. Neither disposition becomes a repair task.\n- Task tests, spec anchors, baseline provenance, and the final Spec coverage table remain required.\n\nThe supplied observations support baseline evidence at `702a851` for the two scoped commands: both passed with tests executed, and provenance checks passed. This does not constitute fresh verification of future edits.\n\n### PR-subject verification with documented style commands\n\nThe exact header is:\n\n```markdown\n**Verification:** `npm run lint` && `npm run format:check`\n```\n\nNeither scoped test command belongs in that header.\n\nAt verify, execute the union of **all task `Tests:` commands**, including the merge task, plus the header’s lint/format commands. For the supplied tasks, the distinct commands are:\n\n```text\nnode --test tests/retry.test.mjs\nnode --test tests/delay.test.mjs\nnpm run lint\nnpm run format:check\n```\n\nDo **not** run `npm test` on this PR-subject path. The supplied baseline results are not evidence that these commands pass after implementation.\n\n### No-style subcase\n\nThe exact header is:\n\n```markdown\n**Verification:** none - PR subject, scoped\n```\n\nThe sentinel is non-executable and means there are no documented header lint/format commands. It does **not** mean verification is omitted. Verify still runs the union of every task’s scoped tests, yielding:\n\n```text\nnode --test tests/retry.test.mjs\nnode --test tests/delay.test.mjs\n```\n\n### Ordinary ticket/free-text spec\n\nWithout `## Rework record`, use the ordinary full verification entrypoint—even if the branch already has an open PR. For the documented commands in this case, that includes `npm test`, `npm run lint`, and `npm run format:check`.\n\nIn every case, verification requires fresh observed results, the conformance gate, accepted-work tracker reconciliation, and phase gates. Start verify before running its commands; complete it only after the required evidence, conformance outcome, and tracker updates are available.\n",
-      "words": 534,
-      "wallMs": 22508,
+      "text": "This is a description of the required plan structure and verification policy—not a written plan, tool dispatch, or claim that commands ran.\n\n## PR-subject plan structure\n\nThe approved spec’s `## Rework record` selects PR-subject verification. Preserve the original commits and retry API.\n\nUse three ordered waves:\n\n| Wave | Task | Files and test anchor |\n|---|---|---|\n| 1 | **Task 1: Merge origin/main and resolve src/retry.mjs** | Modify `src/retry.mjs`; use `tests/retry.test.mjs` as a read-only `Test:` anchor. |\n| 2 | **Task 2: THREAD_timeout — retain timeout across retries** | Modify `src/retry.mjs` and `tests/retry.test.mjs`; declare the latter as `Test:`. |\n| 3 | **Task 3: THREAD_delay — clamp negative delay** | Modify `src/delay.mjs` and `tests/delay.test.mjs`; declare the latter as `Test:`. |\n\nTask 1 must precede the thread fixes because the recorded base merge is unresolved. Task 2 belongs in a later wave because it modifies the same source file as Task 1. Task 3 also follows the merge: the delay fix is in a file from the incoming base, so it must be based on the resolved merge rather than planned as an independent pre-merge change.\n\nEach task gets checkbox steps:\n\n- **Task 1:** merge `origin/main` without replacing the original history; resolve `src/retry.mjs` while preserving retry behavior and the API; run the scoped retry tests; apply scoped formatting/linting where documented; commit the merge.\n- **Task 2:** run existing retry tests; add a regression demonstrating timeout retention across retries through `retryRequest()`; confirm failure; implement the minimal fix; confirm the scoped tests pass; format/lint the owned files; commit.\n- **Task 3:** run existing delay tests; add a negative-delay regression through `retryDelay()`; confirm failure; implement clamping; confirm the scoped tests pass; format/lint the owned files; commit.\n\nThe task test blocks use these commands and the supplied baseline evidence:\n\n- Tasks 1 and 2: `node --test tests/retry.test.mjs`\n  - `baseline: 702a851 pass`\n  - Task 2 names `retryRequest()` in `via:`.\n- Task 3: `node --test tests/delay.test.mjs`\n  - `baseline: 702a851 pass`\n  - Names `retryDelay()` in `via:`.\n\nThe supplied results establish that both commands passed with tests executed and that provenance checks passed. They are baseline evidence, **not verification evidence for the eventual changed tree**.\n\nRetain `THREAD_metrics` as **keep open** and `THREAD_rewrite` as **decline: rewriting the API is out of scope**. Neither becomes a repair task.\n\nThe finished plan still requires exact spec-line anchors and an extraction-first `## Spec coverage` table, including ownership for the merge requirement, both fixes, and the recorded scope constraints. No line numbers should be invented from this summary.\n\n## Header with documented style commands\n\nThe header’s verification line is exactly:\n\n```markdown\n**Verification:** `npm run lint && npm run format:check`\n```\n\nNeither scoped test command belongs in that header. Do not put `npm test` there or run it on this PR-subject path.\n\n### Verify-phase command union\n\nVerification uses **every task’s `Tests:` commands plus the header’s lint/format commands**, including the merge task’s test block. The distinct executable commands are:\n\n```text\nnode --test tests/retry.test.mjs\nnode --test tests/delay.test.mjs\nnpm run lint\nnpm run format:check\n```\n\nThe shared retry command covers both task declarations; the header alone is not the verification set.\n\n## No-style subcase\n\nWith no documented lint or format commands, the exact header is:\n\n```markdown\n**Verification:** none - PR subject, scoped\n```\n\nThe sentinel is a non-executable declaration that there are no header commands. It does **not** mean verification is skipped.\n\nVerify still runs the union of task tests:\n\n```text\nnode --test tests/retry.test.mjs\nnode --test tests/delay.test.mjs\n```\n\nIt does not run the sentinel or `npm test`.\n\n## Ordinary ticket/free-text spec\n\nWithout `## Rework record`, use the ordinary full verification entrypoint, even when the branch already has an open PR. For the documented commands in this case, that means the full suite plus lint and format checks:\n\n```text\nnpm test\nnpm run lint\nnpm run format:check\n```\n\nAn open PR alone never selects scoped PR-subject verification.\n\n## Evidence and gates\n\nIn every case, start the verify phase before verification. Require fresh results on the changed tree, inspect complete output and exit codes, and report only what that evidence proves. Baseline results do not establish post-change success.\n\nPreserve origin-based conformance review and all phase gates. Reconcile and await required `plan_tracker` updates on existing indices before completing verify; do not clear or reinitialize tracking to manufacture closure. No final verification or conformance result has been supplied here.\n",
+      "words": 674,
+      "wallMs": 27808,
       "mechanical": {}
     }
   },
   "judge": {
-    "github-copilot/gpt-6.1-sol": {
+    "anthropic/claude-opus-5-5": {
       "factsSha": "f182cb9fb041242ae2964f598f0f8b812151ffde30102ab896e2daf20fa4904a",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
       "intentSha": "eb7907b4da4219a623a0c1f3850443618e8f98ebaa6fa840d691ef24978d5aca",
-      "baselineOutputSha": "bd36261a7cfcb1ed30ad8ce32df4ecae1a53b4d128b0d4bd69e52691867e6890",
-      "candidateOutputSha": "c1546c32de5cc9b502e10bfe699c2fbdc1d0b056594756e0b08411bdc3b9dea5",
+      "baselineOutputSha": "61b2d77f5e2afce2c0d528bb69c6391b4a71da67e41eb9efc9f0dad06b9eb351",
+      "candidateOutputSha": "d0b4175115c6e2db1c09c9045e053ca527529e16c515df399c68b29972bb6187",
       "facts": {
         "merge-first": {
           "before": "holds",
@@ -36,8 +44,8 @@
           "label": "intended but unchanged"
         },
         "thread-tasks": {
-          "before": "fails",
-          "after": "fails",
+          "before": "holds",
+          "after": "holds",
           "label": "intended but unchanged"
         },
         "nonfix": {
@@ -66,9 +74,56 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "No listed fact changes status. After preserves the merge-first requirement, nonfix dispositions, style-only header, scoped verification union, sentinel, and ordinary verification gates. Both outputs fail to require task titles carrying their respective thread IDs; After also drops Before’s explicit per-thread test-command assignments, leaving those commands only in the verification inventory. State concrete task blocks such as “Task 2: THREAD_timeout — retain timeout across retries; Tests: node --test tests/retry.test.mjs; via: retryRequest()” and the corresponding THREAD_delay block using tests/delay.test.mjs and retryDelay(). Keep the existing merge-first ordering and verification policies, and explicitly require the same command union as completion evidence. Describe this structure directly rather than stopping on parent-dispatch context, since the requested deliverable is a description without tool execution.",
-      "wallMs": 14707,
+      "feedback": "No fact moved: After keeps every fact Before kept. The merge is Task 1 with original commits preserved, THREAD_timeout and THREAD_delay each get one id-titled task with the matching scoped test and via seam, the keep-open and declined threads stay dispositions without repair tasks, the header carries only `npm run lint && npm run format:check` (checker-valid `&&` segmentation, no npm test, no task test commands), verify runs the task union including Task 1 plus the header commands and explicitly excludes npm test, the no-style sentinel is the literal `none - PR subject, scoped` treated as a non-command with the task union still running, and PR policy is selected only from the Rework record while ordinary specs keep full verification and gates. Two small risks to watch in After's wording: the Task 1 step names `npx eslint`/`npx prettier` as scoped style commands, which are not in the input and could be read as alternate spellings of the documented commands if they ever migrated toward the header; and the verify section says the union is run and defines passing evidence but does not state as plainly as Before that this union is also the completion-evidence policy (Before's 'Run the union… Task 1 is included' plus 'Count evidence only if…' is slightly more explicit). Keeping Before's phrasing 'the union of every task's Tests commands plus the header commands, deduplicated, is the verify set and the completion evidence; the header alone is not the verification set' would lock verify-union down while still delivering the Change.",
+      "wallMs": 18970,
       "verdict": "unchanged"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "f182cb9fb041242ae2964f598f0f8b812151ffde30102ab896e2daf20fa4904a",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "eb7907b4da4219a623a0c1f3850443618e8f98ebaa6fa840d691ef24978d5aca",
+      "baselineOutputSha": "bd36261a7cfcb1ed30ad8ce32df4ecae1a53b4d128b0d4bd69e52691867e6890",
+      "candidateOutputSha": "e941559eae4533c5ee49b855db925ba1a67f4baaa266045228b32a0b3733f036",
+      "facts": {
+        "merge-first": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "thread-tasks": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "nonfix": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "header-style-only": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "verify-union": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "sentinel": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "ordinary-gates": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        }
+      },
+      "feedback": "After moved merge-first and thread-tasks from fails to holds without losing anything: Before explicitly refused to act as plan-writer (\"These are workflow requirements, not an authored plan\") and never gave a task structure, titles, or via seams, so it only restated constraints; After actually lays out Task 1 as the origin/main merge resolving src/retry.mjs with preserved history, then Task 2 (THREAD_timeout, retryRequest() via, node --test tests/retry.test.mjs) and Task 3 (THREAD_delay, retryDelay() via, node --test tests/delay.test.mjs), with id-bearing titles. Both outputs already kept header-style-only (After's `npm run lint && npm run format:check` is checker-valid segmentation, not a disguise), verify-union (task Tests union incl. merge task plus header, no npm test), sentinel (exact `none - PR subject, scoped`, non-executable, union still runs), nonfix, and ordinary-gates. The After wording is sound; the only thing to watch is that the description-mode framing (\"not a written plan\") stays clearly a description of the plan rather than tipping back into Before's refusal-to-author posture, and that the Task 1 step \"apply scoped formatting/linting where documented\" is not read as adding lint/format to the task Tests block — keep those strictly in the header.",
+      "wallMs": 28968,
+      "verdict": "improved"
     }
   },
   "refresh": {
@@ -361,5 +416,5 @@
       }
     }
   },
-  "repoSha": "2eb4429b4dd687432969f427f82d45d7840d7c63"
+  "repoSha": "50dd29dfd3066c986f17ea1dfffbf4e54fc40ebd"
 }
