@@ -72,12 +72,12 @@ that repo before any creator runs: use `git -C "$ROOT" show-ref --verify
 refs/heads/"$BRANCH"`, `git -C "$ROOT" worktree list --porcelain`, and the
 resolved path's existence. A branch, name, or path collision stops naming repo
 and branch; never suffix or reuse an unrelated tree. On dirty-primary decline,
-abort creation. On every failure list `Preserved created legs: <repo> <branch>
-<path>; ...` for already-created members; leave them intact.
+abort creation. On every failure, preserve created trees and list them using
+[Step 4's coordinated-member inventory](#step-4--report-location).
 
 ## Step 1a - Read the `## using-git-worktrees` contract
 
-Read the gauntlet overrides file under `$ROOT` (ladder in Project overrides) before any tool or wrapper discovery. Read `$ROOT/.pi/settings.json` by file for checkout configuration using existing preset rules; never use the session-scoped `gauntlet_setting` for another member. Resolve wrapper discovery under `$ROOT`, including its `AGENTS.md`, root, `script/`, and `bin/`. Its `## using-git-worktrees` section carries up to three key lines, written like `## cleanup` items; prose before, between, or after them is instruction too:
+Read the gauntlet overrides file under `$ROOT` (ladder in Project overrides) before any tool or wrapper discovery. With a caller-supplied `$ROOT` (a coordinated member), read that member's overrides file and `$ROOT/.pi/settings.json` by file for its checkout configuration using existing preset rules - never the session-scoped `gauntlet_setting` - and run wrapper discovery under `$ROOT`. Its `## using-git-worktrees` section carries up to three key lines, written like `## cleanup` items; prose before, between, or after them is instruction too:
 
 | Key | Meaning | Absent (keyed contract active) |
 |---|---|---|
@@ -164,7 +164,7 @@ The process cwd never changes. `$WORKTREE` is the value every later step carries
 
 On a permission failure (read-only filesystem or container sandbox without write to parent dirs), use the caller-root boundary:
 
-- With an explicit caller root, stop naming the repo, requested branch and error; never branch the session cwd. Preserve already-created member trees and list them as `Preserved created legs: <repo> <branch> <path>; ...`.
+- With an explicit caller root, stop naming the repo, requested branch and error; never branch the session cwd. Preserve created trees and list them using [Step 4's coordinated-member inventory](#step-4--report-location).
 - Without a caller root, announce the failure and continue in the current directory on a feature branch after the Step 1 consent. Treat this as degraded in-place mode: `/skill:finishing-a-development-branch` requires a worktree path and does not finish an in-place branch.
 
 ## Step 3 — Verify Clean Base
@@ -194,7 +194,7 @@ creation path (keyed, native, wrapper or built-in), apply the caller's row:
 
 | Caller supplied `$ROOT` | Read-back and ready condition |
 |---|---|
-| Yes (coordinated member) | Require `git -C "$ROOT" worktree list --porcelain` to print `worktree $WORKTREE` and `git -C "$WORKTREE" branch --show-current` to print exactly `$BRANCH`. On an absent, empty, or different result, stop this member, name repo, requested branch and actual result, and list `Preserved created legs:`; emit no `Worktree ready at` line for this member. Report `Worktree ready at <full-path>` only after both read-backs match. |
+| Yes (coordinated member) | Require `git -C "$ROOT" worktree list --porcelain` to print `worktree $WORKTREE` and `git -C "$WORKTREE" branch --show-current` to print exactly `$BRANCH`. On an absent, empty, or different result, stop this member, name repo, requested branch and actual result, and emit no `Worktree ready at` line for this member. In `Preserved created legs:`, list every tree created so far in this run, including the stopped member's own tree when its create command succeeded, each as `<repo> <branch or "branch unverified"> <path>`. Report `Worktree ready at <full-path>` only after both read-backs match. |
 | No (single-member run) | Use successful creation as the ready condition; read back the path and branch with the commands above as advisory checks, stopping only on an observed different path or branch and naming repo, requested branch and actual result. Treat an absent or undescribed result as unobserved, not a mismatch; report `Worktree ready at <full-path>` after successful creation with no observed mismatch. |
 
 Carry every verified result home first.
