@@ -65,6 +65,15 @@
 - `eval/gauntlet-resume/results/deferred-spec-stop/candidate.json`
 
 **Modify:**
+- `eval/brainstorming/target.json` (`wordCap` 1400 -> 1600)
+- `eval/spec-gate/samples/full-council/case.md` (add an explicit synthetic ticket AC-row observation section)
+- `eval/spec-gate/samples/full-council/expected.md` (menu membership fact `f4` becomes six rows 1-6)
+- `eval/spec-gate/samples/worker-path/case.md` (add the same AC-row observation section)
+- `eval/spec-gate/samples/worker-path/expected.md` (menu membership fact `f3` becomes five rows 1/2/4/5/6)
+- `eval/spec-gate/samples/row-3-reply/case.md` (add the AC-row observation section; shrink the synthetic briefing for two gate renders)
+- `eval/spec-gate/samples/row-3-reply/expected.md` (re-presented menu fact `f2` becomes six rows 1-6)
+- `eval/brainstorming/samples/loop-gate/expected.md` (`menu` six options; `no-ac` 1/2/3/6; `drafted` six options)
+- `eval/brainstorming/samples/loop-gate/case.md` (size the briefing input for three gate renders)
 - `eval/spec-gate/intent.md`
 - `eval/brainstorming/intent.md`
 - `eval/finishing-a-development-branch/intent.md`
@@ -93,12 +102,14 @@
 - Finish starts ship at `skills/finishing-a-development-branch/SKILL.md:25-29` before resolving the selected spec at `:35`. Its Step 6 ownership/cleanup recipe is at `:390-430`; preserve it rather than copying it.
 - Resume resolves the selected spec at entry check 6, `skills/gauntlet-resume/SKILL.md:105-125`; reconstruction's approved route is `skills/gauntlet-resume/reference/reconstruction.md:66-78`, and process-state calls are `skills/gauntlet-resume/reference/brief-contract.md:147-166`.
 - Existing deterministic seams: `scripts/brainstorming-contract.test.mjs:45-76` (checklist), `:159-203` (gate), `:384-428` (size and engine gate), `:485-552` (rework). One-file runner: `node --test scripts/brainstorming-contract.test.mjs`.
+- Existing menu-membership facts made obsolete by row 6: `eval/spec-gate/samples/full-council/expected.md:4` (`f4`, three numbered rows), `eval/spec-gate/samples/worker-path/expected.md:3` (`f3`, exactly two numbered rows), `eval/spec-gate/samples/row-3-reply/expected.md:2` (`f2`, three numbered rows after re-presenting), `eval/brainstorming/samples/loop-gate/expected.md:1` (`menu`, five numbered options), `:3` (`no-ac`, options 1-3) and `:4` (`drafted`, all five options). The three spec-gate `case.md` files (`full-council`, `worker-path`, `row-3-reply`) carry `## Briefing`, `## Critique pass return`, `## Spec commit` and `## User reply` only - no acceptance-criteria observation - so under the gate's zero-row rule (`spec-finalization.md`: zero `- [ ]` rows render 1, 2, 3, 6; rows exist render 4/5) their row count is undetermined by the input. `eval/brainstorming/samples/loop-gate/case.md:5` shows the observation form that settles it: `has two verbatim ticket AC rows, both in-scope`. Every other fact on those lines (verbatim briefing, counts line, option 4/5 sentences, funding to 1/2/4/5, `Loop engine unavailable`, paste-rows affordance, no dispositions row on the worker path) is behavioral and stays. `eval/spec-gate/target.json` caps at 1200 words with a 621-word `row-3-reply` input rendered twice; `eval/brainstorming/target.json:13` caps at 1400 with `loop-gate` rendering the gate three times.
+- `eval/brainstorming/target.json` assembles headed slices of `skills/brainstorming/SKILL.md` (`## Checklist`, `### 3`-`### 6`, `## Ticket Handling`, `## Project overrides`, `## Amending an approved spec`) plus `spec-finalization.md`'s `## User Review Gate`; its `denylist` carries `\bE-[0-9]{3,}`, and `skills/brainstorming/SKILL.md:165` (`## Filename Convention`) contains the generic slug `E-12345`, so a sample-local `bundle+` of the whole `SKILL.md` is refused by the hygiene scan before any model call. `bundle+` adds whole files with no slice (`eval/lib/replay.mjs:36-45`); `skills/brainstorming/reference/spec-pr.md`, `skills/brainstorming/reference/pr-subject.md`, `skills/using-git-worktrees/reference/pr-head.md` and `skills/finishing-a-development-branch/reference/spec-pr.md` have zero denylist hits.
 - `package.json` has no formatter or separate lint scripts. The header entrypoint bundles style/structural checks with tests through `scripts/ci.mjs`: instruction size, model literals, eval structure/hygiene, and bundle freshness. Scoped syntax is `node --check scripts/brainstorming-contract.test.mjs`; task steps use exported lint functions for their surfaces. Preserve neighboring Markdown/JavaScript formatting and apply forge-skill manually.
 - No Happy path table exists in `.pi/gauntlet-overrides.md`; no happy-path header applies. No deployment or review-risk split applies. Waves are a dependency chain, not parallel work.
 
 ## Baseline provenance
 
-Initial inventory on `c3dcb1c5`: `?? doc/plans/2026-10-28-spec-only-draft-pr.md`. Admit only this plan and `doc/specs/2026-10-28-spec-only-draft-pr.md`; the spec has no status entry. No other dirty or untracked path exists. Execute the same declared command separately for Tasks 1 and 2: each exits 0 with 40 tests, 40 pass, 0 fail. After each run HEAD remains `c3dcb1c5` and the inventory is unchanged. No generated artifacts or source edits occurred. The task command text is unchanged by plan repairs.
+Initial inventory on `c3dcb1c5`: `?? doc/plans/2026-10-28-spec-only-draft-pr.md`. Admit only this plan and `doc/specs/2026-10-28-spec-only-draft-pr.md`; the spec has no status entry. Amend re-dispatch inventory on `43b5ec3f`: ` M doc/specs/2026-10-28-spec-only-draft-pr.md`, the parent-supplied in-flight spec under `doc/specs/`; no other dirty or untracked path exists. Tree-equivalence proof `git diff --quiet c3dcb1c5 43b5ec3f -- . ':!doc/specs/' ':!doc/plans/'` exited 1 (Task 1's accepted commit changed source), so nothing is retained and every command reran. Execute the same declared command separately for Tasks 1 and 2: each exits 0 with 43 tests, 43 pass, 0 fail. After each run HEAD remains `43b5ec3f` and the inventory is unchanged. No generated artifacts or source edits occurred. The task command text is unchanged by plan repairs. Findings re-dispatch inventory on `43b5ec3f`: ` M doc/plans/2026-10-28-spec-only-draft-pr.md` and ` M doc/specs/2026-10-28-spec-only-draft-pr.md`, both parent-supplied in-flight paths inside the plan and spec directories; no other entry. Proof `git diff --quiet 43b5ec3f 43b5ec3f -- . ':!doc/specs/' ':!doc/plans/'` exited 0. retained 2 bullets: 43b5ec3f -> 43b5ec3f, tree-equivalent outside doc/specs, doc/plans.
 
 ## Wave 1 - Workflow contract
 
@@ -106,7 +117,7 @@ Initial inventory on `c3dcb1c5`: `?? doc/plans/2026-10-28-spec-only-draft-pr.md`
 
 **TDD scenario:** Modifying tested code - run existing tests first, add failing text-contract assertions, then implement instructions.
 
-**Spec:** doc/specs/2026-10-28-spec-only-draft-pr.md § "Acceptance criteria" L25-L40, § "Option 6 at the User Review Gate" L46, § "Option 6 at the User Review Gate" L49, § "Option 6 at the User Review Gate" L52, § "Option 6 at the User Review Gate" L54, § "Option 6 at the User Review Gate" L56, § "Option 6 at the User Review Gate" L57, § "Option 6 at the User Review Gate" L58, § "Option 6 at the User Review Gate" L59, § "Option 6 at the User Review Gate" L61, § "Option 6 at the User Review Gate" L63, § "Classifier in `pr-subject.md`" L67, § "Re-gate (spec PR path)" L71-L73, § "Finishing with `**PR:**`" L77, § "Finishing with `**PR:**`" L80-L86, § "Finishing with `**PR:**`" L89, § "`gauntlet-resume`" L93, § "Moving parts" L97-L101, § "Errors and edge cases" L105-L118, § "Tests" L122-L129, § "Out of scope" L140-L144, § "Open questions" L148
+**Spec:** doc/specs/2026-10-28-spec-only-draft-pr.md § "Acceptance criteria" L25-L40, § "Option 6 at the User Review Gate" L46, § "Option 6 at the User Review Gate" L49, § "Option 6 at the User Review Gate" L52, § "Option 6 at the User Review Gate" L54, § "Option 6 at the User Review Gate" L56, § "Option 6 at the User Review Gate" L57, § "Option 6 at the User Review Gate" L58, § "Option 6 at the User Review Gate" L59, § "Option 6 at the User Review Gate" L61, § "Option 6 at the User Review Gate" L63, § "Classifier in `pr-subject.md`" L67, § "Re-gate (spec PR path)" L71-L73, § "Finishing with `**PR:**`" L77, § "Finishing with `**PR:**`" L80-L86, § "Finishing with `**PR:**`" L89, § "`gauntlet-resume`" L93, § "Moving parts" L97-L99, § "Moving parts" L103, § "Errors and edge cases" L107-L120, § "Tests" L124-L131, § "Out of scope" L142-L146, § "Open questions" L150
 
 **Files:**
 - Create: `skills/brainstorming/reference/spec-pr.md`
@@ -123,7 +134,7 @@ Initial inventory on `c3dcb1c5`: `?? doc/plans/2026-10-28-spec-only-draft-pr.md`
 
 **Tests:**
 - `node --test scripts/brainstorming-contract.test.mjs`
-- baseline: c3dcb1c5 pass
+- baseline: 43b5ec3f pass
 - via: User Review Gate in `spec-finalization.md`, classifier in `pr-subject.md`, finish pre-ship entry, and resume entry check 6
 
 Decision: Keep the branches as instructions, not runtime code - the approved Moving parts list and Markdown gate own the contract. Follow `/skill:forge-skill`: imperative wording, compact outcome tables, unchanged frontmatter, and extraction into the two named references. Do not grow the near-limit finishing body with an inline menu recipe.
@@ -132,7 +143,7 @@ Decision: Reuse pr-head's checkout/base-merge/Step 4 contract; bypass its separa
 
 Decision: Design fixes the finish menu wording. Acceptance's shorter labels `Push to PR #N and mark ready for review` and `Push to PR #N, keep draft` describe the same actions; use `Push to PR #N and mark it ready for review` and `Push to PR #N, keep it a draft` in the menu.
 
-Cross-task delivery of Moving parts: this task owns workflow and text markers; Task 2 owns `eval/spec-gate/samples/option-6-handoff`, `eval/brainstorming/samples/spec-pr-regate`, `eval/brainstorming/samples/spec-pr-unmarked`, `eval/brainstorming/samples/pr-subject-gate`, `eval/finishing-a-development-branch/samples/spec-pr-menu`, `eval/finishing-a-development-branch/samples/deferred-spec-stop`, and `eval/gauntlet-resume/samples/deferred-spec-stop` plus their `intent.md` updates. Preserve `eval/brainstorming/samples/pr-subject-*`. Task 3 owns `CHANGELOG.md` `## Unreleased`, README, `doc/configuration.md`, and `doc/implement-engines.md`.
+Cross-task delivery of Moving parts: this task owns workflow and text markers; Task 2 owns `eval/spec-gate/samples/option-6-handoff`, `eval/brainstorming/samples/spec-pr-regate`, `eval/brainstorming/samples/spec-pr-unmarked`, `eval/brainstorming/samples/pr-subject-gate`, `eval/finishing-a-development-branch/samples/spec-pr-menu`, `eval/finishing-a-development-branch/samples/deferred-spec-stop`, and `eval/gauntlet-resume/samples/deferred-spec-stop` plus their `intent.md` updates, the `eval/brainstorming/target.json` cap and the existing menu-membership fixtures. Preserve `eval/brainstorming/samples/pr-subject-*`. Task 3 owns `CHANGELOG.md` `## Unreleased`, README, `doc/configuration.md`, and `doc/implement-engines.md`.
 
 - [ ] **Step 1: Run the existing file**
 
@@ -263,7 +274,7 @@ Depends on Wave 1: new references must exist in a committed base for both eval a
 
 **TDD scenario:** Modifying tested code - add structural assertions and fixed must-hold scenarios, then generate actual replay evidence.
 
-**Spec:** doc/specs/2026-10-28-spec-only-draft-pr.md § "Moving parts" L97-L101, § "Tests" L122-L129
+**Spec:** doc/specs/2026-10-28-spec-only-draft-pr.md § "Moving parts" L97-L99, § "Moving parts" L101, § "Moving parts" L103, § "Tests" L124-L131
 
 **Files:**
 - Modify: `scripts/brainstorming-contract.test.mjs`
@@ -302,6 +313,15 @@ Depends on Wave 1: new references must exist in a committed base for both eval a
 - Create: `eval/finishing-a-development-branch/results/deferred-spec-stop/candidate.json`
 - Create: `eval/gauntlet-resume/results/deferred-spec-stop/baseline.json`
 - Create: `eval/gauntlet-resume/results/deferred-spec-stop/candidate.json`
+- Modify: `eval/brainstorming/target.json`
+- Modify: `eval/spec-gate/samples/full-council/case.md`
+- Modify: `eval/spec-gate/samples/full-council/expected.md`
+- Modify: `eval/spec-gate/samples/worker-path/case.md`
+- Modify: `eval/spec-gate/samples/worker-path/expected.md`
+- Modify: `eval/spec-gate/samples/row-3-reply/case.md`
+- Modify: `eval/spec-gate/samples/row-3-reply/expected.md`
+- Modify: `eval/brainstorming/samples/loop-gate/expected.md`
+- Modify: `eval/brainstorming/samples/loop-gate/case.md`
 - Modify: `eval/spec-gate/intent.md`
 - Modify: `eval/brainstorming/intent.md`
 - Modify: `eval/finishing-a-development-branch/intent.md`
@@ -318,14 +338,16 @@ Depends on Wave 1: new references must exist in a committed base for both eval a
 
 **Tests:**
 - `node --test scripts/brainstorming-contract.test.mjs`
-- baseline: c3dcb1c5 pass
+- baseline: 43b5ec3f pass
 - via: the declared sample directories and `lintTarget`
 
-Decision: Keep target-wide assemblies unchanged; use sample-local `bundle+` as existing PR samples do (`eval/brainstorming/samples/pr-subject-resolution/case.md:1`). New references lack pre-edit Git versions; `eval/lib/replay.mjs:69-70` uses `git show` with no missing-file fallback. Use the accepted Wave 1 commit as `--base HEAD` during this wave, record its concrete SHA in each intent, and make no before/after improvement claim from identical instructions. Require every new candidate fact to hold, regardless of aggregate unchanged verdict. Existing scenarios provide preservation evidence; Task 1 supplies original-base textual red/green proof.
+Decision: Keep target-wide assemblies unchanged; use sample-local `bundle+` as existing PR samples do (`eval/brainstorming/samples/pr-subject-resolution/case.md:1`). `bundle+` adds whole files only (`eval/lib/replay.mjs:36-45`), and the hygiene scan refuses an assembly that hits the target `denylist`; `eval/brainstorming/target.json` lists `\bE-[0-9]{3,}` and `skills/brainstorming/SKILL.md:165` carries the generic slug `E-12345`, so no brainstorming sample bundles the whole `SKILL.md` - the target's existing headed slices (`## Checklist`, `### 3`-`### 6`, `## Ticket Handling`, `## Amending an approved spec`, `## User Review Gate`) supply the skill body, and samples add only denylist-clean reference files (`spec-pr.md`, `pr-subject.md`, `pr-head.md`). New references lack pre-edit Git versions; `eval/lib/replay.mjs:69-70` uses `git show` with no missing-file fallback. Use the accepted Wave 1 commit as `--base HEAD` during this wave, record its concrete SHA in each intent, and make no before/after improvement claim from identical instructions. Require every new candidate fact to hold, regardless of aggregate unchanged verdict. Existing scenarios provide preservation evidence; Task 1 supplies original-base textual red/green proof.
 
 Decision: These are no-tool text replays, not live pushes/deletions (`eval/README.md` Text targets). Narrate calls in order, use judged exclusions rather than a naive ban on words like push, and explicitly override inherited replay checkpoints. Resume's new case starts before check 6, not after all entry checks as its default preamble assumes.
 
-Cross-task delivery of Moving parts: bundle Task 1's `skills/brainstorming/reference/spec-finalization.md`, `skills/brainstorming/reference/spec-pr.md`, `skills/brainstorming/SKILL.md`, `skills/brainstorming/reference/pr-subject.md`, `skills/finishing-a-development-branch/reference/spec-pr.md`, `skills/gauntlet-resume/SKILL.md`, `skills/gauntlet-resume/reference/reconstruction.md`, and `skills/gauntlet-resume/reference/brief-contract.md` where exercised. Preserve the step-13 `loop-implementation` seam and `deferred` versus `loop`/`waves`, with no `piGauntlet.*` key. Task 3 covers `CHANGELOG.md` `## Unreleased`, `doc/configuration.md` and `doc/implement-engines.md`; this task owns the named sample/`intent.md` evidence, not those docs.
+Decision: Existing menu-membership facts change by membership only, never by ID or behavior - the amended Moving parts paragraph fixes this. The gate's row count is a function of an observation the three spec-gate `case.md` files (`full-council`, `worker-path`, `row-3-reply`) never supply: `spec-finalization.md` renders 1, 2, 3, 6 for zero `- [ ]` rows under `## Acceptance criteria` and adds 4/5 whenever rows exist, and the spec mandates the no-loop render only at an observed zero. A missing acceptance-criteria section in a `case.md` observes nothing, so the pre-change three-row and two-row facts were never proof of zero rows, and leaving the input silent would make the six-versus-four count a model guess. Settle it in the input, as `eval/brainstorming/samples/loop-gate/case.md:5` already does (`has two verbatim ticket AC rows, both in-scope`): each of the three `case.md` files gains one short section stating that the committed synthetic spec carries two verbatim ticket acceptance-criteria rows, both in-scope, so the drafted-rows block is omitted; the briefing, critique return, spec commit, user reply and the sample's purpose (verbatim briefing, audit counts, reply 1 or 3 handling) are untouched. With rows observed: `full-council/f4` becomes six numbered rows (1 approves, 2 approves with auto-apply amends, 3 shows council dispositions, 4 approves on the loop engine, 5 approves on the loop engine with auto-apply amends, 6 approves content only and hands off as a draft PR); `worker-path/f3` becomes exactly five numbered rows (1, 2, 4, 5, 6) with `f4` still forbidding a dispositions row; `row-3-reply/f2` re-presents six rows; `loop-gate/menu` renders six numbered options with the exact option 4/5 sentences and funding to 1/2/4/5 unchanged; `loop-gate/no-ac` stays the explicit zero-row branch and renders 1/2/3/6 with the exact `Loop engine unavailable: this spec has no acceptance-criteria rows.` line, `none - ticket not fetched (permission denied)` and the paste-rows affordance unchanged; `loop-gate/drafted` renders six options including 4 and 5 with its verbatim drafted row unchanged. `eval/brainstorming/target.json` `wordCap` moves from 1400 to 1600 because `loop-gate` keeps all three gate renders and row 6 adds about 120 words; `eval/spec-gate/target.json` stays at 1200, so `row-3-reply/case.md`'s synthetic briefing shrinks (same `## Briefing` sections and audit counts, fewer words) and `loop-gate/case.md`'s briefing input is sized so three renders fit the new cap. The three `case.md` edits are this task's fixture ownership, not a new component.
+
+Cross-task delivery of Moving parts: bundle Task 1's `skills/brainstorming/reference/spec-finalization.md`, `skills/brainstorming/reference/spec-pr.md`, `skills/brainstorming/SKILL.md`, `skills/brainstorming/reference/pr-subject.md`, `skills/finishing-a-development-branch/reference/spec-pr.md`, `skills/gauntlet-resume/SKILL.md`, `skills/gauntlet-resume/reference/reconstruction.md`, and `skills/gauntlet-resume/reference/brief-contract.md` where exercised. Preserve the step-13 `loop-implementation` seam and `deferred` versus `loop`/`waves`, with no `piGauntlet.*` key. Task 3 covers `CHANGELOG.md` `## Unreleased`, `doc/configuration.md` and `doc/implement-engines.md`; this task owns the named sample/`intent.md` evidence, the `eval/brainstorming/target.json` cap and the existing menu-membership fixtures, not those docs.
 
 - [ ] **Step 1: Run existing structural tests**
 
@@ -339,44 +361,62 @@ Cross-task delivery of Moving parts: bundle Task 1's `skills/brainstorming/refer
   Run: `node --test scripts/brainstorming-contract.test.mjs`
   Expected: missing samples fail before their creation.
 
-- [ ] **Step 3: Create option-6 gate and success scenario**
+- [ ] **Step 3: Update obsolete menu-membership fixtures and the brainstorming word cap**
+
+  Edit `eval/brainstorming/target.json` so `"wordCap": 1400` reads `"wordCap": 1600`; change nothing else in the file.
+
+  Add an explicit acceptance-criteria observation to each of `eval/spec-gate/samples/full-council/case.md`, `eval/spec-gate/samples/worker-path/case.md` and `eval/spec-gate/samples/row-3-reply/case.md`: one new `## Acceptance criteria observation` section, placed after `## Spec commit` and before `## User reply`, stating that the committed synthetic spec's `## Acceptance criteria` section carries two verbatim ticket rows, both in-scope, so rows exist and the drafted-rows block is omitted. Keep the `## Briefing`, `## Critique pass return`, `## Spec commit` and `## User reply` sections and their content as they are (the `row-3-reply` briefing shrink below is the only briefing edit); do not add the synthetic rows' text to the output expectations, and do not alter the audit lines or the council counts.
+
+  In `eval/spec-gate/samples/full-council/expected.md` rewrite only `f4` to six numbered rows (1 approves, 2 approves with auto-apply amends, 3 shows council dispositions, 4 approves on the loop engine, 5 approves on the loop engine with auto-apply amends, 6 approves content only and hands off as a draft PR). In `eval/spec-gate/samples/worker-path/expected.md` rewrite only `f3` to exactly five numbered rows (1, 2, 4, 5, 6); keep `f4` forbidding a dispositions row. In `eval/spec-gate/samples/row-3-reply/expected.md` rewrite only `f2` so the re-presented gate carries six numbered rows including the loop-engine rows and the draft-PR handoff. In `eval/brainstorming/samples/loop-gate/expected.md` rewrite `menu` to six numbered options (keeping the exact option 4 and option 5 sentences and funding to 1, 2, 4, or 5), `no-ac` to options 1, 2, 3 and 6 without loop options (keeping the exact `Loop engine unavailable` line, the not-fetched text and the paste-rows affordance), and `drafted` to all six options including 4 and 5 (keeping its verbatim drafted row and disposition). Keep every fact ID, the `loop` fact, and all three loop-gate renders.
+
+  Shrink the `## Briefing` prose in `eval/spec-gate/samples/row-3-reply/case.md` (shorter sentences under the same headings; the critique pass return, 11/0/0 counts and audit lines stay verbatim) so two six-row gate renders plus the printed audit fit the 1200-word spec-gate cap. Size `eval/brainstorming/samples/loop-gate/case.md`'s summary/briefing input so three renders of the six-row gate fit 1600 words; keep its narrated-read instructions, both AC branches and the reply-4 continuation.
+
+- [ ] **Step 4: Create option-6 gate and success scenario**
 
   In `eval/spec-gate/samples/option-6-handoff`, use synthetic `acme/widget` observations and sample-local gate/new spec-pr/finishing Step 6 instructions. Supply initial gate, bare `6`, zero AC rows and fixed successful calls. Assert `**Engine:** deferred` below `**Amend-grant:** none`, `origin/$DEFAULT` proof before push, draft creation, URL before completion, owned cleanup without branch deletion and no planning.
 
-- [ ] **Step 4: Add publication failure turns**
+- [ ] **Step 5: Add publication failure turns**
 
   In that same sample, add compact labeled turns for funded/change-request/council mixed 6 replies, reused non-spec branch, rejected push, create failure after push and equal/moved-head retry, wrapper/host-owned/failed cleanup. Judge explicit requested facts per turn; keep within the target word cap and do not narrate redundant successful calls in every turn.
 
-- [ ] **Step 5: Create marked re-gate scenario**
+- [ ] **Step 6: Create marked re-gate scenario**
 
-  Write `eval/brainstorming/samples/spec-pr-regate` with required full skill and spec-pr/pr-subject/pr-head files bundled. Supply PR identity, added spec, actual banner hunks, base/head values and add-commit audit distinct from HEAD. Cover draft/ready, ticket title and unavailable threads that must not be fetched, pasted marker, worker body without audit, pinned `Applied:` / `Deferred:` / `Rejected:` and `Council:`, zero rows and intent. Include unresolved merge stopping before gate.
+  Write `eval/brainstorming/samples/spec-pr-regate` on the target's existing headed slices of `skills/brainstorming/SKILL.md` and `spec-finalization.md`'s `## User Review Gate`, adding sample-local `bundle+: skills/brainstorming/reference/spec-pr.md`, `bundle+: skills/brainstorming/reference/pr-subject.md` and `bundle+: skills/using-git-worktrees/reference/pr-head.md` lines at the top of `case.md`; drop `skills/brainstorming/reference/amendment-surface.md` and `skills/brainstorming/reference/ticket-acceptance.md` with `bundle-` lines as `loop-gate/case.md:1-2` does when no fact reads them. Never `bundle+` the whole `skills/brainstorming/SKILL.md`: its `## Filename Convention` slug `E-12345` hits the target denylist `\bE-[0-9]{3,}` and the driver refuses the assembly. Supply PR identity, added spec, actual banner hunks, base/head values and add-commit audit distinct from HEAD. Cover draft/ready, ticket title and unavailable threads that must not be fetched, pasted marker, worker body without audit, pinned `Applied:` / `Deferred:` / `Rejected:` and `Council:`, zero rows and intent. Include unresolved merge stopping before gate.
 
-- [ ] **Step 6: Add re-gate approval and edit turns**
+- [ ] **Step 7: Add re-gate approval and edit turns**
 
   In that sample, assert a change-request new commit and fresh summary; approvals 1/2/4/5 write Engine, Amend-grant and `**PR:**` as a new commit, never `--amend`, then chain. Require hidden-row 6 clarification. Keep new header order and selected grant values observable in fixed output requests.
 
-- [ ] **Step 7: Create unmarked and PR-gate scenarios**
+- [ ] **Step 8: Create unmarked and PR-gate scenarios**
 
   Write `eval/brainstorming/samples/spec-pr-unmarked` with the exact notice and normal gather/lint/council from the carried draft. Include non-shape variants (non-spec file, multiple additions, deletion, non-banner modification) retaining rework. Write `eval/brainstorming/samples/pr-subject-gate` asserting `Withheld:` and `Withheld: draft PR - #N already exists` plus no action for `6`. Preserve existing `pr-subject-*` resolution samples.
 
-- [ ] **Step 8: Create finish menu scenario**
+- [ ] **Step 9: Create finish menu scenario**
 
   In `eval/finishing-a-development-branch/samples/spec-pr-menu`, bundle full finishing and its new reference. Supply OPEN/head/base/isDraft observations. Require checks before full ordinary verification, correct strip/seal base, status labels, retained 3-5 numbering, withheld 1/2 clarification, rejected push return, no force/body edit, successful push then `gh pr ready` on row 1, push only on row 2, ready failure after successful push, and Rework-record precedence.
 
-- [ ] **Step 9: Create both deferred-entry scenarios**
+- [ ] **Step 10: Create both deferred-entry scenarios**
 
   Write `eval/finishing-a-development-branch/samples/deferred-spec-stop` and `eval/gauntlet-resume/samples/deferred-spec-stop` with resolved `**Engine:** deferred` specs and owning files bundled. Resume includes bare-tree, brief/process-state and seed pre-mutation checkpoints. Assert `spec approved for handoff only - run brainstorming #N` and no actual `phase_tracker`, `plan_tracker`, `start ship`, verification, strip/seal or push calls after rejection.
 
-- [ ] **Step 10: Write intents and run structural green**
+- [ ] **Step 11: Write intents and run structural green**
 
-  Update each `intent.md` with the `for:` assembly hash, actual accepted Wave 1 base SHA and setup-only comparison limitation. Preserve valid existing fact IDs/directions and add only authorized moves. Generate rather than hand-author result records.
+  Update each `intent.md` with the `for:` assembly hash, actual accepted Wave 1 base SHA and setup-only comparison limitation. Preserve valid existing fact IDs/directions and add only authorized moves, listing the menu-membership facts rewritten in Step 3 (`full-council/f4`, `worker-path/f3`, `row-3-reply/f2`, `loop-gate/menu`, `loop-gate/no-ac`, `loop-gate/drafted`) as fails -> holds moves, and name the added acceptance-criteria observation in the three spec-gate `case.md` files as the input change that fixes the row count. In `eval/brainstorming/intent.md` disclose the `wordCap` change from 1400 to 1600 and its reason (three `loop-gate` gate renders, row 6 adds about 120 words). Generate rather than hand-author result records.
 
   Run: `node --test scripts/brainstorming-contract.test.mjs`
   Expected: inventories, structural lint, gate and preservation tests pass.
 
-- [ ] **Step 11: Run partial replays for gate and brainstorming**
+- [ ] **Step 12: Run partial replays for gate and brainstorming**
 
   Run: `node eval/run.mjs spec-gate option-6-handoff --base HEAD`
+
+  Run: `node eval/run.mjs spec-gate full-council --base HEAD`
+
+  Run: `node eval/run.mjs spec-gate worker-path --base HEAD`
+
+  Run: `node eval/run.mjs spec-gate row-3-reply --base HEAD`
+
+  Run: `node eval/run.mjs brainstorming loop-gate --base HEAD`
 
   Run: `node eval/run.mjs brainstorming spec-pr-regate --base HEAD`
 
@@ -384,9 +424,9 @@ Cross-task delivery of Moving parts: bundle Task 1's `skills/brainstorming/refer
 
   Run: `node eval/run.mjs brainstorming pr-subject-gate --base HEAD`
 
-  Expected: exit 0 and all new candidate facts hold. A both-arm failure labeled unchanged is insufficient. Fix case ambiguity without relaxing facts; real instruction defects return to Task 1's owners through executor repair, followed by renewed tests and replay.
+  Expected: exit 0 and all new candidate facts hold, including the rewritten membership facts and every retained behavioral fact beside them; no cell is cut by the word cap. A both-arm failure labeled unchanged is insufficient. Fix case ambiguity without relaxing facts; real instruction defects return to Task 1's owners through executor repair, followed by renewed tests and replay.
 
-- [ ] **Step 12: Run partial finish/resume replays**
+- [ ] **Step 13: Run partial finish/resume replays**
 
   Run: `node eval/run.mjs finishing-a-development-branch spec-pr-menu --base HEAD`
 
@@ -396,7 +436,7 @@ Cross-task delivery of Moving parts: bundle Task 1's `skills/brainstorming/refer
 
   Expected: exit 0 and all new candidate facts hold, not merely an unchanged aggregate.
 
-- [ ] **Step 13: Run full targets once after the new cases hold**
+- [ ] **Step 14: Run full targets once after the new cases hold**
 
   Run: `node eval/run.mjs spec-gate --base HEAD`
 
@@ -408,7 +448,7 @@ Cross-task delivery of Moving parts: bundle Task 1's `skills/brainstorming/refer
 
   Expected: exit 0, non-partial reports, no regression/error/inconclusive result. Inspect candidate facts as well as verdicts. Keep generated old/new records. Model calls occur during implementation, not deterministic plan Baseline or repository CI. Do not commit between partial and full runs; HEAD remains the chosen accepted base.
 
-- [ ] **Step 14: Lint syntax and four eval targets**
+- [ ] **Step 15: Lint syntax and four eval targets**
 
   Run: `node --check scripts/brainstorming-contract.test.mjs`
 
@@ -416,9 +456,9 @@ Cross-task delivery of Moving parts: bundle Task 1's `skills/brainstorming/refer
 
   Expected: syntax success and no structure/hygiene findings. Apply neighboring formatting; no formatter is configured.
 
-- [ ] **Step 15: Commit evidence**
+- [ ] **Step 16: Commit evidence**
 
-  Commit samples, intents, reports, generated results and test with subject `Cover spec-only PR lifecycle in behavioral evals`. Body identifies behavior-change evals, actual base SHA and narrated rather than live GitHub evidence.
+  Commit samples, intents, reports, generated results, `eval/brainstorming/target.json`, the rewritten membership fixtures (the three spec-gate `case.md` observation sections and their `expected.md` rows, `loop-gate`) and test with subject `Cover spec-only PR lifecycle in behavioral evals`. Body identifies behavior-change evals, actual base SHA, the word-cap change and narrated rather than live GitHub evidence.
 
 ## Wave 3 - User-facing contract
 
@@ -428,7 +468,7 @@ Depends on Waves 1-2: document the implemented paths and evidence-backed boundar
 
 **TDD scenario:** Trivial change - documentation-only; compare final workflow with current text.
 
-**Spec:** doc/specs/2026-10-28-spec-only-draft-pr.md § "Moving parts" L97-L101, § "Documentation impact" L133-L134
+**Spec:** doc/specs/2026-10-28-spec-only-draft-pr.md § "Moving parts" L97-L99, § "Moving parts" L103, § "Documentation impact" L135-L136
 
 **Files:**
 - Modify: `README.md:39-72`
@@ -441,7 +481,7 @@ Depends on Waves 1-2: document the implemented paths and evidence-backed boundar
 
 Decision: Add `## Unreleased` without a version bump. Design explicitly names that section; `CHANGELOG.md - deferred: release` defers release promotion, not the feature entry. The validator matches the first versioned heading (`scripts/ci.mjs:103-115`), preserving the released version.
 
-Cross-task delivery of Moving parts: document Task 1's contract at `skills/brainstorming/reference/spec-finalization.md`, `skills/brainstorming/reference/spec-pr.md`, `skills/brainstorming/SKILL.md`, `skills/brainstorming/reference/pr-subject.md`, `skills/finishing-a-development-branch/reference/spec-pr.md`, `skills/gauntlet-resume/SKILL.md`, `skills/gauntlet-resume/reference/reconstruction.md` and `skills/gauntlet-resume/reference/brief-contract.md`, with markers in `scripts/brainstorming-contract.test.mjs`. Task 2 owns `eval/spec-gate/samples/option-6-handoff`, `eval/brainstorming/samples/spec-pr-regate`, `eval/brainstorming/samples/pr-subject-gate`, `eval/finishing-a-development-branch/samples/spec-pr-menu`, `eval/finishing-a-development-branch/samples/deferred-spec-stop`, `eval/gauntlet-resume/samples/deferred-spec-stop` and their `intent.md` evidence. This task owns only cross-cutting docs, not another `loop-implementation` path or `piGauntlet.*` key.
+Cross-task delivery of Moving parts: document Task 1's contract at `skills/brainstorming/reference/spec-finalization.md`, `skills/brainstorming/reference/spec-pr.md`, `skills/brainstorming/SKILL.md`, `skills/brainstorming/reference/pr-subject.md`, `skills/finishing-a-development-branch/reference/spec-pr.md`, `skills/gauntlet-resume/SKILL.md`, `skills/gauntlet-resume/reference/reconstruction.md` and `skills/gauntlet-resume/reference/brief-contract.md`, with markers in `scripts/brainstorming-contract.test.mjs`. Task 2 owns `eval/spec-gate/samples/option-6-handoff`, `eval/brainstorming/samples/spec-pr-regate`, `eval/brainstorming/samples/pr-subject-gate`, `eval/finishing-a-development-branch/samples/spec-pr-menu`, `eval/finishing-a-development-branch/samples/deferred-spec-stop`, `eval/gauntlet-resume/samples/deferred-spec-stop`, their `intent.md` evidence, `eval/brainstorming/target.json` and the existing menu-membership fixtures. This task owns only cross-cutting docs, not another `loop-implementation` path or `piGauntlet.*` key.
 
 - [ ] **Step 1: Update README workflow**
 
@@ -490,35 +530,37 @@ Cross-task delivery of Moving parts: document Task 1's contract at `skills/brain
 | § "Finishing with `**PR:**`" L80-L86 | Exact five-row menu | Task 1 |
 | § "Finishing with `**PR:**`" L89 | Status-aware strip/seal then push/ready, failures and preservation | Task 1 |
 | § "`gauntlet-resume`" L93 | Check-6 stop and both pre-arming pointers | Task 1 |
-| § "Moving parts" L97-L101 | Remove none; named workflow components, tests, evals and docs only | Task 1, Task 2, Task 3 |
-| § "Moving parts" L97-L101 | No extension/bin/settings change; telemetry fallback preserved | Task 1, Task 2, Task 3 |
-| § "Errors and edge cases" L105-L118 | Invalid default-base diff withholds publication | Task 1 |
-| § "Errors and edge cases" L105-L118 | Rejected publication push remains retryable | Task 1 |
-| § "Errors and edge cases" L105-L118 | Post-push create failure uses retry-only menu and remote equality guard | Task 1 |
-| § "Errors and edge cases" L105-L118 | Failed/host-owned cleanup reports preserved checkout after completion | Task 1 |
-| § "Errors and edge cases" L105-L118 | Existing admission failures precede classifier | Task 1 |
-| § "Errors and edge cases" L105-L118 | Code added to branch restores rework classification | Task 1 |
-| § "Errors and edge cases" L105-L118 | Ready PR classifies identically to draft | Task 1 |
-| § "Errors and edge cases" L105-L118 | Unresolved base merge stops before re-gate | Task 1 |
-| § "Errors and edge cases" L105-L118 | Gatekeep delivery may exit spec shape; no refusal added | Task 1 |
-| § "Errors and edge cases" L105-L118 | Rejected finish push skips ready and refreshes menu proof | Task 1 |
-| § "Errors and edge cases" L105-L118 | Re-gate 6 clarifies rendered choices | Task 1 |
-| § "Errors and edge cases" L105-L118 | Handoff never chains to planning; restored deferred stops | Task 1 |
-| § "Errors and edge cases" L105-L118 | Pasted marker requires no council proof | Task 1 |
-| § "Errors and edge cases" L105-L118 | Ready failure preserves push and reports recovery | Task 1 |
-| § "Tests" L122-L129 | Option-6 render/publication/completion replay | Task 2 |
-| § "Tests" L122-L129 | Persistence/default-base/owned-cleanup replay | Task 2 |
-| § "Tests" L122-L129 | Marked gate skips, audit, zero rows and conflict replay | Task 2 |
-| § "Tests" L122-L129 | Unmarked path and existing non-spec rework preservation | Task 2 |
-| § "Tests" L122-L129 | New-commit engine/grant/PR replay | Task 2 |
-| § "Tests" L122-L129 | Live identity, menu, ancestry, push and ready replay | Task 2 |
-| § "Tests" L122-L129 | Both deferred-entry ordered stops and deterministic markers | Task 1, Task 2 |
-| § "Tests" L122-L129 | PR row-6 withholding/clarification markers and preservation replay | Task 1, Task 2 |
-| § "Documentation impact" L133-L134 | README workflow and deferred-release changelog entry | Task 3 |
-| § "Documentation impact" L133-L134 | Engine/PR header docs and deferred value | Task 3 |
-| § "Out of scope" L140-L144 | No draft/label/body/telemetry/audit admission proof | Task 1 |
-| § "Out of scope" L140-L144 | No resume PR seed or PR brief | Task 1 |
-| § "Out of scope" L140-L144 | No gatekeep change or refusal | Task 1 |
-| § "Out of scope" L140-L144 | No telemetry extension change | Task 1 |
-| § "Out of scope" L140-L144 | Lists remain rework subjects | Task 1 |
-| § "Open questions" L148 | Settled summary-or-Goal publication body fallback | Task 1 |
+| § "Moving parts" L97-L99 | Remove none; named workflow components, tests, evals and docs only | Task 1, Task 2, Task 3 |
+| § "Moving parts" L101 | Keep eval fact IDs; update only obsolete menu membership to include 6, incl. no-AC 1/2/3/6; supply an explicit AC-row observation so the count is observed, not guessed; size briefing input for repeated renders | Task 2 |
+| § "Moving parts" L101 | `eval/brainstorming/target.json` `wordCap` 1400 -> 1600; keep all facts and three `loop-gate` renders; disclose in intent | Task 2 |
+| § "Moving parts" L103 | No extension/bin/settings change; telemetry fallback preserved | Task 1, Task 2, Task 3 |
+| § "Errors and edge cases" L107-L120 | Invalid default-base diff withholds publication | Task 1 |
+| § "Errors and edge cases" L107-L120 | Rejected publication push remains retryable | Task 1 |
+| § "Errors and edge cases" L107-L120 | Post-push create failure uses retry-only menu and remote equality guard | Task 1 |
+| § "Errors and edge cases" L107-L120 | Failed/host-owned cleanup reports preserved checkout after completion | Task 1 |
+| § "Errors and edge cases" L107-L120 | Existing admission failures precede classifier | Task 1 |
+| § "Errors and edge cases" L107-L120 | Code added to branch restores rework classification | Task 1 |
+| § "Errors and edge cases" L107-L120 | Ready PR classifies identically to draft | Task 1 |
+| § "Errors and edge cases" L107-L120 | Unresolved base merge stops before re-gate | Task 1 |
+| § "Errors and edge cases" L107-L120 | Gatekeep delivery may exit spec shape; no refusal added | Task 1 |
+| § "Errors and edge cases" L107-L120 | Rejected finish push skips ready and refreshes menu proof | Task 1 |
+| § "Errors and edge cases" L107-L120 | Re-gate 6 clarifies rendered choices | Task 1 |
+| § "Errors and edge cases" L107-L120 | Handoff never chains to planning; restored deferred stops | Task 1 |
+| § "Errors and edge cases" L107-L120 | Pasted marker requires no council proof | Task 1 |
+| § "Errors and edge cases" L107-L120 | Ready failure preserves push and reports recovery | Task 1 |
+| § "Tests" L124-L131 | Option-6 render/publication/completion replay | Task 2 |
+| § "Tests" L124-L131 | Persistence/default-base/owned-cleanup replay | Task 2 |
+| § "Tests" L124-L131 | Marked gate skips, audit, zero rows and conflict replay | Task 2 |
+| § "Tests" L124-L131 | Unmarked path and existing non-spec rework preservation | Task 2 |
+| § "Tests" L124-L131 | New-commit engine/grant/PR replay | Task 2 |
+| § "Tests" L124-L131 | Live identity, menu, ancestry, push and ready replay | Task 2 |
+| § "Tests" L124-L131 | Both deferred-entry ordered stops and deterministic markers | Task 1, Task 2 |
+| § "Tests" L124-L131 | PR row-6 withholding/clarification markers and preservation replay | Task 1, Task 2 |
+| § "Documentation impact" L135-L136 | README workflow and deferred-release changelog entry | Task 3 |
+| § "Documentation impact" L135-L136 | Engine/PR header docs and deferred value | Task 3 |
+| § "Out of scope" L142-L146 | No draft/label/body/telemetry/audit admission proof | Task 1 |
+| § "Out of scope" L142-L146 | No resume PR seed or PR brief | Task 1 |
+| § "Out of scope" L142-L146 | No gatekeep change or refusal | Task 1 |
+| § "Out of scope" L142-L146 | No telemetry extension change | Task 1 |
+| § "Out of scope" L142-L146 | Lists remain rework subjects | Task 1 |
+| § "Open questions" L150 | Settled summary-or-Goal publication body fallback | Task 1 |
