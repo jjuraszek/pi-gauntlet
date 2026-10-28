@@ -1,34 +1,42 @@
 {
   "sample": "ticket-read-once",
   "arm": "candidate",
-  "skillSha": "6a0db67c59ebae3ac123d1c5e851d092a8f782cdbb5e1717134144d084979689",
+  "skillSha": "42074ed487649c5ea2ea60d5d2c117a4ad21a2af873bcde051774d16de990c56",
   "inputSha": "2bf8143231002f861bc01edb210a83a59b6d543388eebe4087fc637b8d990382",
   "kind": "text",
   "assembly": "headed",
   "thinking": "medium",
   "models": {
     "replay": [
+      "anthropic/claude-opus-5-5",
       "github-copilot/gpt-6.1-sol"
     ],
-    "judge": "github-copilot/gpt-6.1-sol",
+    "judge": "anthropic-fable/claude-fable-5-1",
     "thinking": "medium"
   },
   "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "# Narrated read and stage actions: acme/widgets#77\n\n**Scope:** This case is a fresh brainstorming entry. No tool calls are claimed. Each step below is a required action, paired with the outcome that the fixed observations supply. Reference contents are not reconstructed. The bundled reference text is not treated as already read in this session.\n\n## Fresh entry (before step 3)\n\n1. **Step 1, start brainstorm tracking.** This is the first action, before any read:\n   - `phase_tracker({ action: \"reset\" })`\n   - `plan_tracker({ action: \"clear\" })`\n   - `phase_tracker({ action: \"start\", phase: \"brainstorm\" })`\n2. **Step 2, set up the worktree.** Follow `reference/pr-subject.md` and `/skill:using-git-worktrees`. The fixed observations give no outcome for this step, so none is narrated.\n\n## Step 3: gather context\n\n3. **`read` `skills/brainstorming/reference/ticket-acceptance.md`.** This is its first use, so it is read before gathering, as Ticket Handling requires.\n   - **Outcome: the read succeeds.** The content now stays in context for the rest of the session.\n   - Had this read failed, the flow would stop with a blocking error and never reconstruct the content from memory.\n4. **`read` `skills/brainstorming/gatherer.md`, then follow it without a human stop.**\n   - The fixed observations give no separate outcome for this read.\n   - **Gather outcome:** the ticket row for acme/widgets#77 is \"The report export includes the visible table columns.\" It is carried into the draft's verbatim acceptance-criteria block.\n\n## Step 4: understand the idea (question one)\n\n5. **In-context check for `reference/ticket-acceptance.md`.** It is already in context from step 3 in this same session, so **no re-read** happens.\n6. **`read` the gathered draft.** This read is unconditional before question one.\n7. **Verify the draft's `Framing:` line and load-bearing claims against primary code.**\n   - **Outcome:** primary code confirms the row.\n   - No cited misdiagnosis, wrong sizing, existing solution, band-aid, or pattern conflict is observed, so there is no framing concern.\n8. **Compose question one.**\n   - The first physical line is `gauntlet: question`.\n   - Next comes the holds-statement in the form `The framing holds: checked <x>, <y>`.\n   - Then comes the first ordinary questionary question: labeled options on separate lines, followed by a `Recommendation:` line.\n   - No cut question is asked, because nothing raises dropping or changing the row.\n   - Per the case, the actual question text is not produced.\n9. **Recorded answers** keep the row in scope.\n\n## Steps 5–7 (between the requested checkpoints)\n\n10. Steps 5–7 run as normal: approaches, the two-round design, and writing the spec.\n    - At step 7, the Spec Self-Review section of `SKILL.md` is consulted before writing.\n    - No new reference reads are required by the fixed observations here.\n\n## Step 8: spec self-review (ticket lint)\n\n11. **In-context check for `reference/ticket-acceptance.md`.** It is still in context from step 3, so **no re-read** happens.\n12. **Run the Spec Self-Review inline checks, including the ticket lint.**\n    - **Header:** `## Acceptance criteria` comes after `## Problem` and carries the `Ticket acme/widgets#77, <heading or \"checkbox list\">, rows verbatim:` header. The source heading is not given in the observations, so it is not invented here.\n    - **Row text:** the row reads `- [ ] The report export includes the visible table columns.`, copied character for character, including the terminal period.\n    - **Disposition:** `in-scope`, which matches the recorded answers.\n    - **No drafting:** no `deviates:` or `deferred:` disposition is present, and no Design-derived rows are appended to the ticket-row section.\n    - **Outcome:** the lint passes, and the flow proceeds to step 9 (the critique pass).\n",
+      "words": 530,
+      "wallMs": 20663,
+      "mechanical": {}
+    },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "1. **Fresh entry — tracking actions:** Narrate resetting the phase tracker, clearing the plan tracker, and starting the brainstorm phase, in that order. These are required actions, not live calls.\n\n2. **Step 2 — worktree setup:** The workflow requires reading `reference/pr-subject.md` and the worktree skill before the applicable setup actions. The fixed observations supply neither their contents nor setup outcomes; none are reconstructed here.\n\n3. **Step 3 — ticket-handling read:** Read `skills/brainstorming/reference/ticket-acceptance.md` before gathering. **Observed outcome: the read succeeds.** Its contents now remain in session context. This is the narrated successful read—not an assumption that the bundled reference was already loaded.\n\n4. **Step 3 — gathering:** The workflow requires reading and following `gatherer.md`; its contents and read outcome are not supplied. The fixed gathering result is ticket `acme/widgets#77`, with this acceptance row:\n   > The report export includes the visible table columns.\n\n5. **Step 4 — question-one preparation:** Check whether the ticket-handling reference is in context. **It is, from step 3; do not read it again.** Read the gathered draft unconditionally before question one. The supplied primary-code observation confirms the acceptance row. Other draft contents, traces, and lookup results are not supplied and are not invented.\n\n6. **Step 4 — question one:** Narrate the question-one stage without rendering an actual questionary. Apply the recorded answer: the acceptance row remains **in scope**. No scope cut is introduced.\n\n7. **Intervening design and specification stages:** These precede step 8. Before writing, the workflow requires reading the Spec Self-Review instructions. No contents or read outcome for that resource are supplied; this narration does not reconstruct them or claim that a spec was written or approved.\n\n8. **Step 8 — ticket lint:** Check the ticket-reference context again. **It remains available from step 3; do not read it again.** For the supplied row, the ticket lint checks preservation of the verbatim wording and the recorded `in-scope` disposition. The row is supported by the supplied primary-code observation; it must not be replaced with a drafted outcome. This does not establish that the remaining spec lint passed.\n\nNo required reference is reported unreadable in the fixed observations, so no unreadability-based blocking stop is asserted. An observed unreadable required reference would stop the sequence at that read.\n",
-      "words": 359,
-      "wallMs": 25098,
+      "text": "1. **Fresh-entry tracking:** Narrate resetting the phase tracker, clearing the plan tracker, and starting the `brainstorm` phase. These are prescribed actions, not live calls.\n\n2. **Step 2 — worktree setup:** Worktree provisioning precedes gathering. The case supplies no provisioning observations, so do not claim a particular worktree was created or inspected.\n\n3. **Step 3 — first-use ticket read:** Narrate a `read` of `skills/brainstorming/reference/ticket-acceptance.md`. **Observed outcome: succeeds.** Its content now remains in session context; the bundled reference alone did not establish that context.\n\n4. **Step 3 — gathering:** Narrate the required `read` of `gatherer.md` and the gathering stage, without reconstructing the reference’s contents or inventing a read outcome. The fixed gathering observation is ticket `acme/widgets#77`’s row:\n   > The report export includes the visible table columns.\n\n5. **Step 4 — context check and draft read:** The ticket-handling reference is already in context from step 3, so **do not read it again**. Narrate the unconditional read of the gathered draft before question one. The supplied primary-code observation confirms the ticket row; do not invent file paths or additional findings.\n\n6. **Step 4 — question one:** Narrate the framing check and first question stage without rendering a questionary. Record the supplied answer as keeping the confirmed ticket outcome **in scope**. Do not invent further questions or answers.\n\n7. **Intervening design and specification stages:** Approaches, both design approvals, and spec writing must precede step 8. Their contents and outcomes are not supplied, so do not fabricate them or claim approvals occurred. The required Spec Self-Review guidance must be read before writing; its contents are not reconstructed here.\n\n8. **Step 8 — ticket context check:** The successful step-3 ticket-reference read still remains in context, so **skip another read** at lint.\n\n9. **Step 8 — ticket lint:** Narrate checking that the spec retains the ticket row verbatim, with an `in-scope` disposition. Primary code supports that disposition, and the recorded answer retains it. No spec text is supplied, so report this as the required lint check—not an observed lint pass.\n\n10. **Blocking-read rule:** No required-reference read is reported as unreadable in the fixed observations. If one were unreadable, narrate a blocking stop at that read rather than reconstructing its contents or advancing the stage.\n",
+      "words": 358,
+      "wallMs": 18141,
       "mechanical": {}
     }
   },
   "judge": {
-    "github-copilot/gpt-6.1-sol": {
+    "anthropic/claude-opus-5-5": {
       "factsSha": "922b94c7a20ca5c68ad98313c8728e3a84912fafaf5d21af42617f9b65e20886",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "5b9f462cd6caec9a4a8e3a28a3c0ba61583e1b400c8edb5164d32bba075fea39",
-      "baselineOutputSha": "2a6e46dd87c7b2186de708f438eeae903ce682647407d262879e3bfc33e15c76",
-      "candidateOutputSha": "f0372be7cd0611f1c9641ddb71066c4b125a40c52140dc16c9ed18854596a54a",
+      "intentSha": "460f2afd63946ca28e753d98ec02c2b198f7bed5ff1b4bf05820058c4477df90",
+      "baselineOutputSha": "d8ddb9033830399b93df6fee668d03419d6a6357fbd8de83e4af7fb149241777",
+      "candidateOutputSha": "2a7f6acb2eb04010d55df8b04f172fad848c396af682ff6ca6c227d2ac8caa03",
       "facts": {
         "first-use": {
           "before": "holds",
@@ -41,8 +49,30 @@
           "label": "held"
         }
       },
-      "feedback": "Neither fact moved: After still narrates exactly one ticket-reference read at step 3 before gathering and question one, then explicitly reuses that loaded reference at steps 4 and 8 while preserving ticket handling and the ticket lint. Keep those explicit read-once and reuse statements when implementing the broader Change; the added setup and intervening-stage narration does not alter either judged fact.",
-      "wallMs": 3648,
+      "feedback": "Neither fact moved. Both outputs narrate a single `read` of reference/ticket-acceptance.md at step 3 before gathering and before question one, then explicit in-context checks with \"no re-read\" at steps 4 and 8, and both still apply ticket handling (cut-question consideration, in-scope disposition) and run the step-8 ticket lint. After additionally delivers the Change by putting `gauntlet: question` on the first physical line before the holds-statement, which does not disturb the read ordering. One small wording difference worth keeping in mind: Before's step-8 heading said \"ticket lint, using the in-context Ticket Handling rules\", tying the reuse to the application of the rules explicitly, whereas After relies on the reader connecting item 11 (no re-read) with item 12 (lint); retaining a phrase like \"using the in-context Ticket Handling rules\" in the step-8 lint item would make the reuse fact unambiguous under stricter judging while changing nothing about the gate-line-first delivery.",
+      "wallMs": 11425,
+      "verdict": "unchanged"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "922b94c7a20ca5c68ad98313c8728e3a84912fafaf5d21af42617f9b65e20886",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "460f2afd63946ca28e753d98ec02c2b198f7bed5ff1b4bf05820058c4477df90",
+      "baselineOutputSha": "1c163e48f2abb5116ab8232fc12fcc9f3b2aba9f0ea2cfe5d2ff61c7780d3cfe",
+      "candidateOutputSha": "0c30b5631428bd2f8aab312ccfed4e46d03f6ba4f26aa1dc90ea8237e613a861",
+      "facts": {
+        "first-use": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "reuse": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "Neither fact moved. Both outputs narrate exactly one read of reference/ticket-acceptance.md at step 3, placed before the gatherer read and before question one (Before item 2, After item 3), and both explicitly refuse a reread at step 4 (Before item 4, After item 5) and at step 8 (Before item 7, After item 8) while still applying ticket handling to question one (recording the row in scope) and narrating the step-8 ticket lint as a required check rather than an observed pass (Before item 8, After item 9). After's additions—the step-2 worktree note, the bolded 'do not read it again'/'skip another read' phrasing, and the explicit 'first-use' label—make the reuse behavior easier to verify without altering it. Keep that wording; the only caution is that After item 9's 'report this as the required lint check—not an observed lint pass' should continue to narrate the lint as an action taken at step 8 (as it does) rather than drifting into saying the lint was not run, which would put the reuse fact at risk.",
+      "wallMs": 11509,
       "verdict": "unchanged"
     }
   },
@@ -133,5 +163,5 @@
       }
     }
   },
-  "repoSha": "2eb4429b4dd687432969f427f82d45d7840d7c63"
+  "repoSha": "657f24585c1a6c2182a26df3d0d0691c8e67e59a"
 }

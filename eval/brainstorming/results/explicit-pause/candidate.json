@@ -1,34 +1,42 @@
 {
   "sample": "explicit-pause",
   "arm": "candidate",
-  "skillSha": "6a0db67c59ebae3ac123d1c5e851d092a8f782cdbb5e1717134144d084979689",
+  "skillSha": "42074ed487649c5ea2ea60d5d2c117a4ad21a2af873bcde051774d16de990c56",
   "inputSha": "3d8c5f29b04e988b1925cd5a3b31cea4953518aae9c28a11f4ea00ada7becb63",
   "kind": "text",
   "assembly": "headed",
   "thinking": "medium",
   "models": {
     "replay": [
+      "anthropic/claude-opus-5-5",
       "github-copilot/gpt-6.1-sol"
     ],
-    "judge": "github-copilot/gpt-6.1-sol",
+    "judge": "anthropic-fable/claude-fable-5-1",
     "thinking": "medium"
   },
   "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "Noted: settings ownership is **A**. The report-view setting will live under the existing resolver (`settings/resolver.ts:12`), and `ui/report-view.ts:30` keeps reading it from the resolved settings. No view-local settings object will be added.\n\nI'm pausing here as you asked. Nothing has moved past checklist step 4. There is no premise note, no approaches, and no design yet.\n\nOne open point remains: whether report filters reset when the workspace changes. That has not been decided. It will be my next question when you're back, unless your check settles it. In that case, tell me what you found and I'll treat it as a premise for the design.\n",
+      "words": 104,
+      "wallMs": 6370,
+      "mechanical": {}
+    },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "Paused here. We’ll reuse the existing settings resolver. Whether report filters reset on a workspace change remains undecided; I won’t proceed to approaches until you’re ready.\n",
-      "words": 26,
-      "wallMs": 4364,
+      "text": "Paused here. We’ll reuse the existing settings resolver. Whether report filters reset on workspace changes remains undecided; I won’t advance until you’re ready.\n",
+      "words": 23,
+      "wallMs": 3566,
       "mechanical": {}
     }
   },
   "judge": {
-    "github-copilot/gpt-6.1-sol": {
+    "anthropic/claude-opus-5-5": {
       "factsSha": "1ef59ed2b09e738d0b9a6ea5045b93b74212aa424c64479f15220d4e31eb90e8",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "5b9f462cd6caec9a4a8e3a28a3c0ba61583e1b400c8edb5164d32bba075fea39",
-      "baselineOutputSha": "8ba346a5873222615ed4c41c5091e475e667ad1808d003275ed64d1c0d53e463",
-      "candidateOutputSha": "cb1926c59863966695e060db63396be8229512d90bf30754ef029c23c852ebb4",
+      "intentSha": "460f2afd63946ca28e753d98ec02c2b198f7bed5ff1b4bf05820058c4477df90",
+      "baselineOutputSha": "d9825b03b03ffb428a48ab41541bac65eb6db0cdada659aa7447c8ee0073519a",
+      "candidateOutputSha": "aca1dc7029cbb6a0019b805b062ab96a1c06eb0a3e9b7c895554583811c039c2",
       "facts": {
         "f1": {
           "before": "holds",
@@ -36,8 +44,25 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "After preserves the pause, acknowledges the selected resolver, and leaves reset behavior undecided without asking a question, presenting approaches, or advancing design. No fact moved. To retain Before’s explicit protection against design advancement, keep “I won’t proceed to approaches or design until you’re ready.” The broader evidence and inventory changes should wait until the user resumes.",
-      "wallMs": 4441,
+      "feedback": "Nothing moved on this case: both outputs honor the pause. Before records the A decision, states the pause, and gives a resume instruction without asking anything; After does the same, confirms no premise note/approaches/design exist, names the still-open filter-reset point as a future question rather than asking it, and offers to take the user's finding as a premise on return. Neither text poses a new question, lists approaches, or advances design. The After wording is slightly more verbose but adds useful state (\"Nothing has moved past checklist step 4\") that reinforces the fact; keep the deferred phrasing (\"It will be my next question when you're back\") rather than ever rendering the reset question inline, and avoid any \"A) / B)\" options in the pause reply, which would be the only way to break f1 under the new assembly.",
+      "wallMs": 11240,
+      "verdict": "unchanged"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "1ef59ed2b09e738d0b9a6ea5045b93b74212aa424c64479f15220d4e31eb90e8",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "460f2afd63946ca28e753d98ec02c2b198f7bed5ff1b4bf05820058c4477df90",
+      "baselineOutputSha": "47cf3005891ad8be4765daec50b7a17cb530721c9d1b8d641741266f3ee98a72",
+      "candidateOutputSha": "ff2a1f5620183a15968aa591f71f008d3ecb3ea2cdc9558429da0167cc770d92",
+      "facts": {
+        "f1": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        }
+      },
+      "feedback": "Both outputs honor the explicit pause: neither asks a follow-up question, lists approaches, or advances the design; each records option A, names the undecided reset behavior, and defers to the user. After moves nothing on f1 — it reorders to lead with 'Paused here.' and swaps the resumption phrasing for 'I won't advance until you're ready', which is still a clean pause acknowledgement. No wording change is needed to keep f1; if anything, keep the single-sentence acknowledgement of the chosen option (A) and the open item as After does, and avoid any trailing prompt such as 'Shall I continue?' that would convert the pause into another question.",
+      "wallMs": 4495,
       "verdict": "unchanged"
     }
   },
@@ -118,5 +143,5 @@
       }
     }
   },
-  "repoSha": "2eb4429b4dd687432969f427f82d45d7840d7c63"
+  "repoSha": "657f24585c1a6c2182a26df3d0d0691c8e67e59a"
 }

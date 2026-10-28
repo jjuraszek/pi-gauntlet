@@ -1,34 +1,42 @@
 {
   "sample": "clarification-keeps-gate",
   "arm": "candidate",
-  "skillSha": "6a0db67c59ebae3ac123d1c5e851d092a8f782cdbb5e1717134144d084979689",
+  "skillSha": "42074ed487649c5ea2ea60d5d2c117a4ad21a2af873bcde051774d16de990c56",
   "inputSha": "7f60ce82e65026adf6ebc58fe496308f94b69693537ceba4f9362ded14f5b9cb",
   "kind": "text",
   "assembly": "headed",
   "thinking": "medium",
   "models": {
     "replay": [
+      "anthropic/claude-opus-5-5",
       "github-copilot/gpt-6.1-sol"
     ],
-    "judge": "github-copilot/gpt-6.1-sol",
+    "judge": "anthropic-fable/claude-fable-5-1",
     "thinking": "medium"
   },
   "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "gauntlet: question\nNo, this adds no new settings file. `settings/resolver.ts:12` owns the defaults and the only settings file. The private report-view setting becomes one more key under that resolver, and nothing new is created alongside it.\n\nHere is round one with that point stated explicitly:\n\n**Architecture and ownership.** The existing resolver in `settings/resolver.ts` stays the single owner of settings. It holds the new key's default and resolves its value the same way it does for every other setting. The approach you chose was shared-resolver ownership, so there is no parallel settings path, no second file, and no separate loader.\n\n**Responsibilities.**\n- The resolver declares the private report-view key and its default, and returns the resolved value with the rest of the settings.\n- `ui/report-view.ts:30` already consumes resolved settings. It reads the new key from that same resolved object, and nothing in the view reads settings files directly.\n- As you chose, report filters persist across workspace changes. The view takes its filter state from the resolved setting, so switching workspaces does not reset it.\n\n**Data flow.** The flow is settings file → `settings/resolver.ts` (defaults plus resolution) → resolved settings → `ui/report-view.ts`. This is the path every existing setting already uses, and I traced it end to end during gathering.\n\n**Moving parts.**\n- Remove: none.\n- Add: a private report-view key with its default, declared in `settings/resolver.ts`.\n- Add: a read of that key, and use of the resolved value to keep report filters across workspace changes, in `ui/report-view.ts`.\n\nNo existing design is superseded.\n\nDo you approve round one?\n",
+      "words": 249,
+      "wallMs": 9953,
+      "mechanical": {}
+    },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "gauntlet: question\nNo. The design keeps the **single existing settings file** owned by `settings/resolver.ts:12`; it adds the private report-view setting there, not a second file or settings path. `ui/report-view.ts:30` consumes it through the existing resolved-settings flow. Report filters remain preserved across workspace changes, as you selected.\n\nDo you approve round one’s architecture and data flow?\n",
-      "words": 55,
-      "wallMs": 4511,
+      "text": "gauntlet: question\nNo. The design keeps the single existing settings file owned by `settings/resolver.ts:12`. It adds the private report-view setting to that resolver, and `ui/report-view.ts:30` consumes it through the existing resolved-settings path. Report filters remain preserved across workspace changes.\n\nDo you approve round one?\n",
+      "words": 44,
+      "wallMs": 3004,
       "mechanical": {}
     }
   },
   "judge": {
-    "github-copilot/gpt-6.1-sol": {
+    "anthropic/claude-opus-5-5": {
       "factsSha": "02abcc2002c91ea908ff68db76139f5e71c07af0d6cc1e443734542a20cb559d",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "5b9f462cd6caec9a4a8e3a28a3c0ba61583e1b400c8edb5164d32bba075fea39",
-      "baselineOutputSha": "ed857c8546006a2f1adb1d213bca134493dc508201df425be268f1816f6c156d",
-      "candidateOutputSha": "28f59ab16000dc6ac75221e9db0eec9deba8d7da4abffd5df0298e61bd9445d8",
+      "intentSha": "460f2afd63946ca28e753d98ec02c2b198f7bed5ff1b4bf05820058c4477df90",
+      "baselineOutputSha": "2f3a3882b31b4f94eaa6cf95ed155ce0a37a90f62c73bc7b25a18739d192514f",
+      "candidateOutputSha": "486c53038c153a7ca5dba45cceaf2020b604c10a0a26f5e77d996e64deddb448",
       "facts": {
         "f1": {
           "before": "holds",
@@ -41,8 +49,30 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "After preserves both facts: it explicitly reuses the single existing settings file and asks for round-one approval without claiming approval or presenting round two. The added first-line question marker delivers the relevant formatting change without altering those outcomes. Retain the explicit reuse statement and pending approval question; no corrective wording is needed for these facts.",
-      "wallMs": 4311,
+      "feedback": "Neither fact moved. Both outputs answer directly that no new settings file is added and that `settings/resolver.ts:12` keeps the only settings file with the new key living under it (f1), and both restate round one unchanged and close with \"Do you approve round one?\" without claiming approval or advancing to round two (f2). The only visible difference from the Change is the new column-zero `gauntlet: question` marker as After's first line, which comes from the gate-line-first requirement and does not disturb either fact; After also spells out the Removes/Adds inventory under a \"Moving parts\" heading and adds \"No existing design is superseded,\" which stays within the restated-round-one frame. If you want to tighten the wording, keep the marker and the inventory as is, but consider labeling the recap block explicitly (e.g. \"Round one, unchanged:\") so a reader cannot mistake the expanded restatement for a revised proposal — that preserves f2 while delivering the inventory disclosure the Change asks for.",
+      "wallMs": 9046,
+      "verdict": "unchanged"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "02abcc2002c91ea908ff68db76139f5e71c07af0d6cc1e443734542a20cb559d",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "460f2afd63946ca28e753d98ec02c2b198f7bed5ff1b4bf05820058c4477df90",
+      "baselineOutputSha": "1433e9164cf515b54fb88c37dcedc33000432dbc527595100d751c66c2211d9e",
+      "candidateOutputSha": "2ebe8428c36babdf0115e5b19f329eabe72893569dc37910496aa7c001ebaac0",
+      "facts": {
+        "f1": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "f2": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        }
+      },
+      "feedback": "Both outputs answer the side question directly (no new settings file; the existing resolver at settings/resolver.ts:12 owns it) and then re-ask for round-one approval without presenting round two or claiming approval, so f1 and f2 hold in both. After adds the `gauntlet: question` first-line classifier marker at column zero before any prose, which is the intended gate-line-first change and does not displace either fact; the body wording is otherwise equivalent to Before (it drops the bold emphasis and the 'with that clarification' tail, neither of which a fact keys on). No fact moved; keep the marker as the literal first line followed by the answer and the unchanged approval question, and avoid inserting any additional mandated prose above the marker.",
+      "wallMs": 5078,
       "verdict": "unchanged"
     }
   },
@@ -133,5 +163,5 @@
       }
     }
   },
-  "repoSha": "2eb4429b4dd687432969f427f82d45d7840d7c63"
+  "repoSha": "657f24585c1a6c2182a26df3d0d0691c8e67e59a"
 }

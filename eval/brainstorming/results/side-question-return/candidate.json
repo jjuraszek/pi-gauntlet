@@ -1,34 +1,42 @@
 {
   "sample": "side-question-return",
   "arm": "candidate",
-  "skillSha": "6a0db67c59ebae3ac123d1c5e851d092a8f782cdbb5e1717134144d084979689",
+  "skillSha": "42074ed487649c5ea2ea60d5d2c117a4ad21a2af873bcde051774d16de990c56",
   "inputSha": "4a785dcd9d8fadca18180064443d7c64f7aba75f76d398b4d121a4f01d563c56",
   "kind": "text",
   "assembly": "headed",
   "thinking": "medium",
   "models": {
     "replay": [
+      "anthropic/claude-opus-5-5",
       "github-copilot/gpt-6.1-sol"
     ],
-    "judge": "github-copilot/gpt-6.1-sol",
+    "judge": "anthropic-fable/claude-fable-5-1",
     "thinking": "medium"
   },
   "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "gauntlet: question\nA is the better fit because the codebase already has one settings path, and it reaches this view:\n\n- **Defaults live in the resolver.** `settings/resolver.ts:12` owns setting defaults, and existing settings already flow through it.\n- **The view already reads resolved settings.** `ui/report-view.ts:30` consumes the resolver's output. I traced that path from the resolver to the view, so a new key arrives with no new wiring.\n- **A view-local object would split ownership.** It would add a second place where defaults live. It would also add a second read path in the view and a value that bypasses the resolver's handling. Any later change to how settings resolve would then miss this one.\n\nI'm recording \"report-view setting is a key under the existing resolver\" as a decided constraint in the draft.\n\nNext is the behavior the setting controls. Report filters currently stay active across a workspace switch and can hide rows in the new workspace. How should filters behave on a workspace change?\nA) A new setting controls it, defaulting to reset filters on switch. Users who want the current carry-over can opt back in.\nB) A new setting controls it, defaulting to keep filters, which is today's behavior. Users who are bitten by hidden rows opt into resetting.\nC) Filters always reset on workspace switch, with no setting. Ship the fix and drop the new key.\nD) other - name it\nRecommendation: A - the reported defect is stale filters hiding rows, so the default should prevent it, while the setting keeps the current carry-over available to anyone who relies on it.\n",
+      "words": 260,
+      "wallMs": 12190,
+      "mechanical": {}
+    },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "gauntlet: question\nReusing the resolver fits because `settings/resolver.ts:12` already owns defaults, and `ui/report-view.ts:30` already consumes its resolved settings. Adding the setting there preserves one source of truth; a view-local settings object would introduce a second ownership path for the same view.\n\nWith that ownership settled, what should the new setting’s default behavior be when switching workspaces?\nA) reset report filters — filters from the previous workspace no longer hide rows.\nB) preserve report filters — keep today’s behavior unless the user enables resetting.\nC) other — name the desired behavior.\nRecommendation: A - it addresses the hidden-row problem by default while letting users choose preservation.\n",
-      "words": 101,
-      "wallMs": 11874,
+      "text": "gauntlet: question\nReusing the resolver fits because `settings/resolver.ts:12` already owns defaults, and `ui/report-view.ts:30` already consumes its resolved settings. Adding the setting there preserves one defaults owner and the existing resolver-to-view path; a view-local settings object would introduce a second ownership path unnecessarily.\n\nThat settles settings ownership, but not filter behavior. What should happen to active report filters when switching workspaces?\nA) Always clear them so filters from the previous workspace cannot hide rows.\nB) Always retain them, preserving the current behavior.\nC) Make clearing versus retaining configurable through the report-view setting.\nD) Other - name it.\nRecommendation: C - it addresses the hidden-row problem while allowing users to retain filters when that is intentional.\n",
+      "words": 112,
+      "wallMs": 11012,
       "mechanical": {}
     }
   },
   "judge": {
-    "github-copilot/gpt-6.1-sol": {
+    "anthropic/claude-opus-5-5": {
       "factsSha": "2e29ea03606c748ae02b9f4d57990bfd5f5ebe331e6305e399419ebc8d95e558",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "5b9f462cd6caec9a4a8e3a28a3c0ba61583e1b400c8edb5164d32bba075fea39",
-      "baselineOutputSha": "7cfe97c333e9db6e8b8d42c3e37e5d57e52849085a551b72e17a068b27decd14",
-      "candidateOutputSha": "c3259d9ae694f0346fcb23f53623a164035fa30f13e53d8c86613d0cf04b92a5",
+      "intentSha": "460f2afd63946ca28e753d98ec02c2b198f7bed5ff1b4bf05820058c4477df90",
+      "baselineOutputSha": "df342dfd5e16d1462c9b4dc2278aa80b3c02327a1ca2eda0e1ba2aaf3d0217dc",
+      "candidateOutputSha": "ecb122ac99bda0ca0583538a6bef17615eb08ef82e49ceed90823436194d4de2",
       "facts": {
         "f1": {
           "before": "holds",
@@ -41,8 +49,30 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "Neither judged fact changed: After retains the shared-resolver choice with both code references and immediately asks one labeled-options question with a recommendation about reset behavior. The opening marker and option layout preserve those facts. However, After drops the explicit per-workspace restoration option and makes the reset-default option’s preservation override less explicit. To retain Before’s full choice surface while delivering the formatting change, keep all four behavior options, state the override in each default option, and retain the opening marker and final own-line recommendation.",
-      "wallMs": 8336,
+      "feedback": "Neither fact moved. Both outputs explain why reusing the resolver fits the traced resolver.ts:12 -> report-view.ts:30 path, keep A, and then ask one labeled-options question about the undecided workspace-switch reset behavior with a Recommendation line, so f1 and f2 hold in Before and After. The only visible wording effects of the Change in After are the leading `gauntlet: question` classification line at column zero, the bullet-form rationale, and the questionary layout (lead-in, one option per physical line, Recommendation on its own final line); none of these touch the facts here. Two things worth watching: the `gauntlet: question` marker is rendered in a continuation sample that is not the gate-line-first replay, so if the first-line rule is meant only for that replay, scope its wording to that sample; and option C in After ('drop the new key') quietly reopens the just-decided 'add a setting' premise, so if you want the reset question to stay strictly downstream of A, phrase the options as variants of the resolver-owned key (or keep Before's framing where only one option forgoes the setting and says so explicitly).",
+      "wallMs": 11427,
+      "verdict": "unchanged"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "2e29ea03606c748ae02b9f4d57990bfd5f5ebe331e6305e399419ebc8d95e558",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "460f2afd63946ca28e753d98ec02c2b198f7bed5ff1b4bf05820058c4477df90",
+      "baselineOutputSha": "686bbf5c950bbfc36bc0b6d640198a81b48df2a806672bfc8869ed2455ccb5c7",
+      "candidateOutputSha": "53e9eaaa8949f8ff040c9e3490734188ef6ef98a3574dad86d9ae94f0da66554",
+      "facts": {
+        "f1": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "f2": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        }
+      },
+      "feedback": "Neither fact moved. After keeps f1: it names settings/resolver.ts:12 as the defaults owner and ui/report-view.ts:30 as the consumer, explains the one-owner/existing-path rationale, and stays with reuse rather than reopening the choice. It keeps f2: the same response asks exactly one labeled A-D question about the undecided workspace-change filter behavior with a Recommendation: line, and does not stop at acknowledgment or begin approaches. The only new element is the leading `gauntlet: question` classification line at column zero, which delivers the Change without displacing the lead-in, option lines, or the final own-line recommendation; the shift of the recommended letter from B to C and the reworded options are within the fact's scope since the fact requires a recommendation, not a particular one. No wording adjustment is needed for this case; if you want the marker to look less like stray output, consider the skill wording requiring a blank line after the classification line before the prose.",
+      "wallMs": 9321,
       "verdict": "unchanged"
     }
   },
@@ -133,5 +163,5 @@
       }
     }
   },
-  "repoSha": "2eb4429b4dd687432969f427f82d45d7840d7c63"
+  "repoSha": "657f24585c1a6c2182a26df3d0d0691c8e67e59a"
 }

@@ -1,34 +1,42 @@
 {
   "sample": "questionary-option-lines",
   "arm": "candidate",
-  "skillSha": "6a0db67c59ebae3ac123d1c5e851d092a8f782cdbb5e1717134144d084979689",
+  "skillSha": "42074ed487649c5ea2ea60d5d2c117a4ad21a2af873bcde051774d16de990c56",
   "inputSha": "ac556d1374211deb4d9a4736061b3cf2d3dde543d37276a9443dd4c5fefaee5e",
   "kind": "text",
   "assembly": "headed",
   "thinking": "medium",
   "models": {
     "replay": [
+      "anthropic/claude-opus-5-5",
       "github-copilot/gpt-6.1-sol"
     ],
-    "judge": "github-copilot/gpt-6.1-sol",
+    "judge": "anthropic-fable/claude-fable-5-1",
     "thinking": "medium"
   },
   "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "gauntlet: question\nWhich filter policy should the report view apply on a workspace switch? The workspace-change handler in `ui/report-view.ts` currently keeps active filters, and `settings/resolver.ts:12` would own the chosen default.\nA) clear all filters on every workspace switch\nB) preserve all active filters across switches\nC) restore each workspace's last filters\nRecommendation: B - it matches the handler's current behavior, so existing users see no change, and it needs no new per-workspace filter state.\n",
+      "words": 73,
+      "wallMs": 5495,
+      "mechanical": {}
+    },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "gauntlet: question\nWhat should happen to the report view’s filters when switching workspaces?\nA) Clear all filters on every workspace switch.\nB) Preserve all active filters across workspace switches.\nC) Restore each workspace’s last filters.\nRecommendation: B - it preserves current behavior and avoids adding per-workspace filter state.\n",
-      "words": 47,
-      "wallMs": 3189,
+      "text": "gauntlet: question\nHow should the report view handle filters when switching workspaces?\nA) Clear all filters on every workspace switch.\nB) Preserve all active filters across switches.\nC) Restore each workspace’s last filters.\nRecommendation: B - preserves current behavior while making the policy explicit through the existing settings resolver.\n",
+      "words": 48,
+      "wallMs": 2549,
       "mechanical": {}
     }
   },
   "judge": {
-    "github-copilot/gpt-6.1-sol": {
+    "anthropic/claude-opus-5-5": {
       "factsSha": "6b456a85ee947059a76668fc50e35f4c2abde2fc50e926fb6104badb197e5e61",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "5b9f462cd6caec9a4a8e3a28a3c0ba61583e1b400c8edb5164d32bba075fea39",
-      "baselineOutputSha": "8d7d73d2f0f15aba6124d3bab76a83f3b4dd0365ee069398576fb6f0ee051444",
-      "candidateOutputSha": "491734d969a52aeea21b60486ac67c8e8ede7b7804d38b5b99a8e686f4aea399",
+      "intentSha": "460f2afd63946ca28e753d98ec02c2b198f7bed5ff1b4bf05820058c4477df90",
+      "baselineOutputSha": "deb77334f25c72357b81c9b878c86452f7ad224149f4a9c33008caf80878f3c2",
+      "candidateOutputSha": "97eb4f54a856700f6e06e1dd9c7b1493e79ba18df06adfd76ab071db25fb05bb",
       "facts": {
         "layout": {
           "before": "holds",
@@ -41,8 +49,30 @@
           "label": "held"
         }
       },
-      "feedback": "After preserves both facts: the question precedes three separately labeled option lines, Recommendation: remains on the final line, and B is recommended with a reason without deciding for the user. The added first-line “gauntlet: question” marker delivers the relevant classification change without disrupting the layout. Keep this structure and all three choices; optionally retain Before’s reference to making the policy explicit through the existing settings resolver to preserve that grounding.",
-      "wallMs": 4506,
+      "feedback": "Neither fact moved. After adds the `gauntlet: question` marker at column zero as the first line, which the layout fact tolerates because the lead-in still precedes the first labeled option, each of A/B/C sits on its own physical line, and `Recommendation:` is the final own-line entry; the lead-in now also folds in the recon context (handler keeps filters, resolver owns the default) without disturbing that structure. Content holds too: one question, all three supplied choices verbatim, and a single recommendation (B) with a stated reason rather than a decision or a jump to approaches. The only drift worth watching is that After's option lines drop the per-option consequence clauses Before carried and its recommendation flips from C to B; neither is judged here, but if the author wants the marker line and the richer lead-in without losing option-level consequences, keep the one-line consequence after each label (as the amendment-menu grammar already requires) and leave the gate marker as the sole line above the lead-in.",
+      "wallMs": 12499,
+      "verdict": "unchanged"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "6b456a85ee947059a76668fc50e35f4c2abde2fc50e926fb6104badb197e5e61",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "460f2afd63946ca28e753d98ec02c2b198f7bed5ff1b4bf05820058c4477df90",
+      "baselineOutputSha": "d5a09ff053fdbb4688ae4b00cd30c031565b7ba50e63a85c6ef551f741f52600",
+      "candidateOutputSha": "26ff28a014db977e6d9cc4fc2c55b8356ea021e5134c47484afb09342d18398c",
+      "facts": {
+        "layout": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "content": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "Nothing moved in this case. Both outputs put the question lead-in before option A, render A/B/C on separate physical lines, and end with Recommendation: on its own final line; both preserve the three supplied choices verbatim and recommend B with a reason instead of deciding or jumping to approaches. After adds the column-zero `gauntlet: question` classifier line ahead of the lead-in, which is what the gate-line-first change asks for and does not disturb the lead-in-first ordering since the question still precedes the first labeled option. The only risk to watch in other cells is a model treating the classifier line as the lead-in and collapsing the question into the option block; keeping the wording 'the classifier line precedes the lead-in; the lead-in still precedes the first labeled option' would protect the layout fact while delivering the marker.",
+      "wallMs": 9398,
       "verdict": "unchanged"
     }
   },
@@ -133,5 +163,5 @@
       }
     }
   },
-  "repoSha": "2eb4429b4dd687432969f427f82d45d7840d7c63"
+  "repoSha": "657f24585c1a6c2182a26df3d0d0691c8e67e59a"
 }

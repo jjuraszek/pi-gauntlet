@@ -1,34 +1,42 @@
 {
   "sample": "human-raised-drop",
   "arm": "candidate",
-  "skillSha": "6a0db67c59ebae3ac123d1c5e851d092a8f782cdbb5e1717134144d084979689",
+  "skillSha": "42074ed487649c5ea2ea60d5d2c117a4ad21a2af873bcde051774d16de990c56",
   "inputSha": "ef2a533acdc8413125441da13b20c9ab316d57925678233e824f464c6fa1185b",
   "kind": "text",
   "assembly": "headed",
   "thinking": "medium",
   "models": {
     "replay": [
+      "anthropic/claude-opus-5-5",
       "github-copilot/gpt-6.1-sol"
     ],
-    "judge": "github-copilot/gpt-6.1-sol",
+    "judge": "anthropic-fable/claude-fable-5-1",
     "thinking": "medium"
   },
   "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "gauntlet: question\nYou chose to reuse the existing CSV serializer and paging; that is now the approach. Before the design rounds, the third row of acme/widgets#77 needs a decision. \"The export of a 10k-row report completes in under 60s.\" is a ticket acceptance criterion. Nothing found so far shows it is wrong or impossible. The gather draft and `src/export/csv.ts:40` show a three-column table (title, status, owner), and the export reuses those column definitions. How should this row be handled?\nA) in-scope - the reused serializer and paging export a 10k-row report in under 60s, proven by a timed test against a 10k-row fixture\nB) deviates: not needed this sprint - the export ships without a time bound on large reports\nC) deferred: <where> - the bound moves to a named tracker ref, spec path, or URL and does not ship here\nD) repair the ticket - /skill:shape-ticket acme/widgets#77 row 3 (\"The export of a 10k-row report completes in under 60s.\") - reporter says the bound exceeds this sprint's need\nRecommendation: A - the row is part of the ticket's contract, the chosen approach already pages the data, and one timed test proves it without adding any new construct; if the bound is truly unwanted, D fixes the ticket at its source rather than leaving a silent gap.\n",
+      "words": 211,
+      "wallMs": 12092,
+      "mechanical": {}
+    },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "gauntlet: question\nWe’ll reuse the existing CSV serializer and paging, with the Export CSV button beside the report title. Dropping the performance requirement changes this ticket acceptance row: “The export of a 10k-row report completes in under 60s.” How should we record its scope?\nA) in-scope - implement and verify the 10k-row export under 60s.\nB) deviates: omit the 10k-row/60s performance guarantee from this sprint.\nC) deferred: move the performance requirement to a tracker ref or spec path you provide.\nD) repair the ticket - run `/skill:shape-ticket acme/widgets#77` to revise the performance row to match the intended sprint scope.\nRecommendation: D - align the ticket with your stated scope before continuing the design.\n",
-      "words": 110,
-      "wallMs": 7884,
+      "text": "gauntlet: question\nWe’ll reuse the existing CSV serializer and paging, with the button beside the report title. Dropping the performance row changes the ticket’s acceptance contract, so we need to record its disposition before the design rounds.\n\nHow should we handle “The export of a 10k-row report completes in under 60s.”?\nA) in-scope - implement and verify the stated 10k-row, under-60s requirement.\nB) deviates: the 10k-row performance requirement is excluded from this sprint; this implementation makes no such guarantee.\nC) deferred: acme/widgets#77 - leave this requirement tracked on the ticket but outside this implementation.\nD) repair the ticket - /skill:shape-ticket acme/widgets#77 to revise the performance row based on your reduced sprint requirements.\nRecommendation: A - it preserves the explicit ticket requirement, and we have no evidence that it is infeasible.\n",
+      "words": 126,
+      "wallMs": 10228,
       "mechanical": {}
     }
   },
   "judge": {
-    "github-copilot/gpt-6.1-sol": {
+    "anthropic/claude-opus-5-5": {
       "factsSha": "355f9d880bd23ccc723dd321edace8c333f901720484f4ee512817b9ecbed11b",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "5b9f462cd6caec9a4a8e3a28a3c0ba61583e1b400c8edb5164d32bba075fea39",
-      "baselineOutputSha": "5c022488168f342c578b6bbdd636eab3a560d317bb6a2ebe10daa3dc0d086c0e",
-      "candidateOutputSha": "4db375d73af5d461b07284fa43bed5e54f41b02e46f21b1ff1e926c69a2ff98c",
+      "intentSha": "460f2afd63946ca28e753d98ec02c2b198f7bed5ff1b4bf05820058c4477df90",
+      "baselineOutputSha": "4409184938e03a75180aeb88bf5d00d94a04e8de56b54587ef0c46763bd754ae",
+      "candidateOutputSha": "d1012cd34f1186ae28ed0db79a819a08cd68f75ea0a9b9c03b324dbf34a54f4e",
       "facts": {
         "f1": {
           "before": "holds",
@@ -46,8 +54,35 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "After preserves all three facts: it asks the cut question with A–D in order, recommends D, and presents deviation and deferral only as choices rather than marking the row before the user answers. The added first-line question marker delivers the relevant formatting change without losing the selected approach or button placement. Retain this structure and keep any acceptance-row status change conditional on the user's answer.",
-      "wallMs": 4937,
+      "feedback": "Nothing moved on this continuation: both outputs ask the cut question for the 60s row with options A, B, C, D in that order, both recommend A (pointing to D as the ticket-repair alternative), and neither marks the row deferred or deviates before the user answers. After adds the column-zero `gauntlet: question` marker as the first line, keeps the lead-in first, puts each labeled option on its own physical line, and ends with `Recommendation:` on its own final line, so the new questionary layout and gate-line-first requirements are delivered without disturbing the cut-question contract. The only wording to watch is option C's literal `<where>` placeholder; Before phrased it as an instruction to name the ref, which reads cleaner, but it does not affect any fact here.",
+      "wallMs": 7761,
+      "verdict": "unchanged"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "355f9d880bd23ccc723dd321edace8c333f901720484f4ee512817b9ecbed11b",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "460f2afd63946ca28e753d98ec02c2b198f7bed5ff1b4bf05820058c4477df90",
+      "baselineOutputSha": "d25067fc3821202ddbf77ff6a228d46643638b200f6276d2bf9d567ad36cea3d",
+      "candidateOutputSha": "decb9383ad11bf49689973e91368a12c8538ee5b70d852ee6806d9507cdac00d",
+      "facts": {
+        "f1": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "f2": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "f3": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        }
+      },
+      "feedback": "Nothing moved in this continuation: both outputs ask the cut question for the 60s row with A, B, C, D in that order, both recommend A, and neither marks the row deferred or deviates before the user answers. After additionally leads with the column-zero `gauntlet: question` classification line, keeps the row text verbatim inside the question, and lays out one labeled option per physical line with the Recommendation on its own final line, so the gate-line-first and questionary-layout changes land here without disturbing the cut-question contract. Two cosmetic differences worth watching rather than fixing: After drops the bold **Export CSV** button name and the blockquote rendering of the row in favor of inline quotes; neither affects these facts, but if any other sample keys on the quoted row being rendered as its own line, prefer keeping the row quoted on its own line before the question rather than embedding it inline.",
+      "wallMs": 8561,
       "verdict": "unchanged"
     }
   },
@@ -148,5 +183,5 @@
       }
     }
   },
-  "repoSha": "2eb4429b4dd687432969f427f82d45d7840d7c63"
+  "repoSha": "657f24585c1a6c2182a26df3d0d0691c8e67e59a"
 }
