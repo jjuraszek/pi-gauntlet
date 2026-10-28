@@ -10,7 +10,7 @@
 
 **Spec:** `doc/specs/2026-10-28-sibling-checkout-resolution.md`
 
-**Verification:** `npm test` and `node eval/run.mjs shape-ticket --base 5b97a46a7b0ef331e72077362e92eff4a59e1b77` - scripts/ci.mjs bundles style and structural checks; run the full model target only during final verification, after both new samples exist. Follow eval/README.md; inspect saved before/after replies, facts, word counts and Audit: reports, not exit status alone. The historical baseline arm supplies the before-edit comparison for all four named samples. Preserve and commit generated records and the target-wide report; reconcile intent against observed moves without accepting unrelated regressions. No planning or implementation model replay.
+**Verification:** `npm test` and `node eval/run.mjs shape-ticket` - scripts/ci.mjs bundles style and structural checks; run the full model target only during final verification, after both new samples exist. Follow eval/README.md; inspect saved before/after replies, facts, word counts and Audit: reports, not exit status alone. Use the runner's default merge-base with origin/main as the before-edit state; the former explicit audit baseline lacks tracker-ladder.md and refuses the current full target. Preserve and commit generated records and the target-wide report; reconcile intent against observed moves without accepting unrelated regressions. No planning or implementation model replay.
 
 ---
 
@@ -67,7 +67,9 @@ Initial provenance on `2a8dd3f8`: status was empty, then contained only the untr
 
 Prior amendment history on `b1fc011c`: the spec and plan were admitted. Endpoint comparison from `2a8dd3f8` proved tree-equivalence outside doc/specs and doc/plans. The earlier plan added four sample replay commands. The two new sample selections exited 2 with unknown-sample errors because their inputs did not exist. The audit-grounding selection exited 0 but dirtied tracked `eval/shape-ticket/report.md`, `eval/shape-ticket/results/audit-grounding/baseline.json`, and `eval/shape-ticket/results/audit-grounding/candidate.json`. No passing baseline was assigned to that contaminated run; audit-dispatch was not run. The parent restored those three artifacts before this amendment. This is history, not current baseline evidence or an active failure.
 
-Current amendment provenance on `b1fc011c`: initial status contains exactly ` M doc/plans/2026-10-28-sibling-checkout-resolution.md` and ` M doc/specs/2026-10-28-sibling-checkout-resolution.md`. Admit only those two paths, matching the supplied In-flight list. Both endpoint proofs from `2a8dd3f8` and `b1fc011c` exit 0 outside doc/specs/ and doc/plans/. Findings requires rerunning every task command rather than retaining evidence. The amended command set contains only the existing structural test file; model replay is excluded. The structural command exited 0 with 14 tests, 14 pass, 0 fail. Post-run HEAD remained `b1fc011c`; status still contained only the admitted plan and spec, with no generated artifacts or source contamination. This execution resolves the obsolete unknown-sample and contamination baseline rows.
+Prior structural rerun on `b1fc011c`: status contained only the admitted plan and spec. The structural command exited 0 with 14 tests, 14 pass, 0 fail, without source or generated-artifact contamination. This resolved the obsolete unknown-sample and contamination baseline rows.
+
+Current amendment provenance on `9ad6e8ea`: initial per-file inventory was exactly ` M doc/specs/2026-10-28-sibling-checkout-resolution.md`. Admit that spec and `doc/plans/2026-10-28-sibling-checkout-resolution.md`, matching the supplied In-flight list; no other paths are admitted. Endpoint proofs from `b1fc011c` and `2a8dd3f8` to the current base both exited 1 outside doc/specs/ and doc/plans/, so retain no prior evidence. Rerun the only task command, `node --test eval/lib/lint.test.mjs`: exit 0, 14 tests, 14 pass, 0 fail. Post-run HEAD remained `9ad6e8ea`; status still contained only the admitted spec. No model replay ran, no artifacts appeared, and Task 2 has no test command.
 
 ## Wave 1 - Audit resolution and replay evidence
 
@@ -75,7 +77,7 @@ Current amendment provenance on `b1fc011c`: initial status contains exactly ` M 
 
 **TDD scenario:** Modifying tested instructions - run existing structural checks, add and review replay fixtures and must-hold facts, then edit instructions and repeat deterministic checks. The spec reserves behavioral before/after comparison for final verification.
 
-**Spec:** doc/specs/2026-10-28-sibling-checkout-resolution.md § "Acceptance criteria" L22-L31, § "Grammar" L37-L49, § "Primary checkout anchor" L53-L55, § "Responsibilities" L59-L75, § "Data flow" L79-L79, § "Documented convention, not an enforced scheme" L83-L83, § "Remove" L87-L89, § "Remove" L91-L91, § "Add" L95-L98, § "Add" L102-L102, § "Errors and edge cases" L106-L122, § "Tests" L126-L126, § "Tests" L128-L131, § "Documentation impact" L137-L137, § "Out of scope" L143-L147
+**Spec:** doc/specs/2026-10-28-sibling-checkout-resolution.md § "Acceptance criteria" L22-L31, § "Grammar" L37-L49, § "Primary checkout anchor" L53-L55, § "Responsibilities" L59-L75, § "Responsibilities" L65-L65, § "Data flow" L79-L79, § "Documented convention, not an enforced scheme" L83-L83, § "Remove" L87-L89, § "Remove" L91-L91, § "Add" L95-L98, § "Add" L102-L102, § "Errors and edge cases" L106-L122, § "Errors and edge cases" L111-L111, § "Tests" L126-L126, § "Tests" L128-L131, § "Tests" L129-L129, § "Documentation impact" L137-L137, § "Out of scope" L143-L147
 
 **Files:**
 - Modify: `skills/shape-ticket/reference/repo-audit.md:3-129`
@@ -93,14 +95,16 @@ Current amendment provenance on `b1fc011c`: initial status contains exactly ` M 
 
 **Tests:**
 - `node --test eval/lib/lint.test.mjs`
-- baseline: b1fc011c pass
+- baseline: 9ad6e8ea pass
 - via: `lintAll` validates fixture/expected structure for `eval/shape-ticket/samples/sibling-primary-anchor`, `eval/shape-ticket/samples/sibling-not-found-hint`, `audit-grounding` and `audit-dispatch`; manual review maps facts to `skills/shape-ticket/reference/repo-audit.md` Prepare the run / scout brief / Fold findings before Draft. Behavioral assertions run only in final verification.
 
 Decision: This is an instruction implementation, not a new JavaScript parser. `eval/shape-ticket/target.json:2-6` selects text replay and the spec's Tests section supplies inline Git facts. Keep the existing six-label artifact and parent/scout split rather than adding a runtime helper, config key or persona.
 
-Decision: Retain audit baseline A `5b97a46a7b0ef331e72077362e92eff4a59e1b77` for final model comparisons, as required by `eval/shape-ticket/README.md:14` and the current intent. Planning baseline identifies the current checkout for source-clean structural evidence and is not the eval's historical arm. Follow `eval/README.md` for replay evidence and intent, with the spec's explicit final-verification-only schedule taking precedence over its general iteration recipe.
+Decision: Use the default merge-base for this flow's final model comparison - the amendment overrides the old audit-baseline pin, and `eval/run.mjs:174-175` and `eval/README.md` define the default. Audit baseline A remains historical evidence, not this invocation's selected arm; it lacks the current tracker-ladder bundle. Planning baseline identifies the current checkout for source-clean structural evidence. Follow `eval/README.md` for replay evidence and intent, with the spec's explicit final-verification-only schedule taking precedence over its general iteration recipe.
 
 - [ ] **Step 1: Establish the existing deterministic result.**
+
+  Fix-round scope: Wave 1 is already committed in `d7faad72` and `cf6e53b2`. Reopen only the affected parts of Steps 3, 5, 7, 8 and 11-14: the existing unavailable-sibling sample and fact, outcome 3 and the convention sentence in the audit reference, plus the derived intent binding. Retain all other completed work; the original Create declarations record already-created samples, not permission to overwrite them. Current repair sites are `repo-audit.md:33,53`, `sibling-not-found-hint/case.md:25` and `expected.md:4`.
 
   Run: `node --test eval/lib/lint.test.mjs`
 
@@ -114,9 +118,9 @@ Decision: Retain audit baseline A `5b97a46a7b0ef331e72077362e92eff4a59e1b77` for
 
 - [ ] **Step 3: Add the unavailable-sibling replay input and facts.**
 
-  Create the two files under `eval/shape-ticket/samples/sibling-not-found-hint`. Supply a conforming repair snapshot and primary `/repos/pi-gauntlet`, with no other draft-changing facts. Configure `git@github.com:acme/viewer.git`, `git@github.com:acme/billing.git`, `git@github.com:acme/docs.git`, `git@github.com:acme/tools.git`, `git@github.com:acme/data.git`. Supply absence at `/repos/viewer`; `/repos/billing` origin `https://github.com/acme/billing-legacy.git`; plain directory `/repos/docs`; checkout without origin `/repos/tools`; and `/repos/data` stored origin `/srv/git/data.git`.
+  Amend the existing two files under `eval/shape-ticket/samples/sibling-not-found-hint`. Retain the conforming repair snapshot and primary `/repos/pi-gauntlet`, with no other draft-changing facts. Keep configured `git@github.com:acme/viewer.git`, `git@github.com:acme/billing.git`, `git@github.com:acme/docs.git`, `git@github.com:acme/tools.git`, `git@github.com:acme/data.git`. Retain absence at `/repos/viewer`; `/repos/billing` origin `https://github.com/acme/billing-legacy.git`; checkout without origin `/repos/tools`; and `/repos/data` stored origin `/srv/git/data.git`. Replace only the docs layout fact: `/repos/docs` is a plain directory inside an enclosing checkout; `git -C /repos/docs rev-parse --show-toplevel` succeeds and prints `/repos`, and the enclosing checkout's stored origin is `git@github.com:acme/docs.git`. Remove the claim that its rev-parse fails.
 
-  Facts `hint`, `wrong-repo`, `not-checkout`, `no-origin`, `unparseable-origin`, `quiet`, `empty-audit` assert the five outcomes, no rejected path among scout read inputs, five report lines and no gate. Assert these exact report-body fragments: `/repos/billing is github.com/acme/billing-legacy, expected github.com/acme/billing`, `/repos/docs is not a git checkout`, `/repos/tools has no origin remote`, `/repos/data origin /srv/git/data.git is not a clone url`. The independent empty-file checkpoint must render `audit unavailable (empty file)` with all five lines. Keep the wrong path visible in the report but absent from the list of scout read paths.
+  Keep fact IDs `hint`, `wrong-repo`, `not-checkout`, `no-origin`, `unparseable-origin`, `quiet`, `empty-audit` and their five outcomes, no rejected path among scout read inputs, five report lines and no gate. Strengthen `not-checkout`: successful rev-parse returning `/repos` rather than `/repos/docs` rejects the directory before origin comparison, even though the enclosing origin matches the configured identity; supply no docs read path. Assert these exact report-body fragments: `/repos/billing is github.com/acme/billing-legacy, expected github.com/acme/billing`, `/repos/docs is not a git checkout`, `/repos/tools has no origin remote`, `/repos/data origin /srv/git/data.git is not a clone url`. The independent empty-file checkpoint must render `audit unavailable (empty file)` with all five lines. Keep the wrong path visible in the report but absent from the list of scout read paths.
 
 - [ ] **Step 4: Migrate the two existing replay cases without losing their guards.**
 
@@ -132,11 +136,11 @@ Decision: Retain audit baseline A `5b97a46a7b0ef331e72077362e92eff4a59e1b77` for
 
 - [ ] **Step 5: Review the fixture/expected pairs before editing instructions.**
 
-  Read all four cases beside their expected files. Check that primary/home and the external-Git-dir/submodule/no-primary checkpoints supply every fact they assert; the unavailable case distinguishes report mentions from forbidden scout reads and repeats all five outcomes for an empty audit; grounding separates preparation from its supplied audit; legacy dispatch keeps migration lines beside missing/empty audit reports. Check stable fact IDs, judged versus mechanical tags, existing bundles, word limits and every retained dispatch/grounding guard.
+  Read all four cases beside their expected files. Check that primary/home and the external-Git-dir/submodule/no-primary checkpoints supply every fact they assert; the unavailable case distinguishes report mentions from forbidden scout reads and repeats all five outcomes for an empty audit; grounding separates preparation from its supplied audit; legacy dispatch keeps migration lines beside missing/empty audit reports. Check stable fact IDs, judged versus mechanical tags, existing bundles, word limits and every retained dispatch/grounding guard. In this fix round, verify the docs checkpoint supplies successful top-level output `/repos` and a matching enclosing origin; a failure-only checkout check would incorrectly accept it, while the amended `not-checkout` fact requires rejection without reads.
 
   Run: `node --test eval/lib/lint.test.mjs`
 
-  Expected: structural checks pass with both new sample directories present. Record only fixture-review and structural evidence, not behavioral success or an invented RED result. The final comparison's historical arm supplies pre-edit model evidence.
+  Expected: structural checks pass with both new sample directories present. Record only fixture-review and structural evidence, not behavioral success or an invented RED result. The final comparison's baseline arm supplies pre-edit model evidence.
 
 - [ ] **Step 6: Replace preparation's path grammar and define one shared URL parser.**
 
@@ -158,13 +162,13 @@ Decision: Retain audit baseline A `5b97a46a7b0ef331e72077362e92eff4a59e1b77` for
 
   Derive `PRIMARY` from the first `worktree <path>` entry in `git worktree list --porcelain` from the current directory. Use it only for sibling resolution; the ticket's own repository and scout cwd stay `git rev-parse --show-toplevel`. Do not derive siblings from Git-directory locations. State the linked-worktree, externally located Git directory and submodule rules established by Step 2. Outside a checkout retain `audit unavailable (no repository)`; on successful output with no `worktree` entry emit the unresolved line for each valid URL and keep single-repo auditing.
 
-  Apply the seven-outcome table, stopping at the first match for each line:
+  Apply the seven-outcome table, stopping at the first match for each line. In this fix round replace only outcome 3's existing check: a checkout must pass `git -C <PATH> rev-parse --show-toplevel` and print `PATH` itself. A successful command returning an enclosing repository is not sufficient, even when that repository's origin matches.
 
   | Order | Classification |
   |---|---|
   | 1 | Configured value does not parse: report not a clone URL. |
   | 2 | Nothing exists at `PATH`: report not found with clone hint. |
-  | 3 | A file or directory exists but `git -C <PATH> rev-parse --git-dir` fails: report not a checkout. |
+  | 3 | A file or directory exists but `git -C <PATH> rev-parse --show-toplevel` fails or prints a path other than `PATH` itself: report not a checkout; this includes a plain directory inside an enclosing repository. |
   | 4 | Checkout exists but `git -C <PATH> config --get remote.origin.url` exits nonzero: report no origin. |
   | 5 | Stored origin fails the same parser: report unparseable origin. |
   | 6 | Stored origin `IDENTITY` differs: classify `wrong repo` and report found versus expected identity. |
@@ -186,7 +190,7 @@ Decision: Retain audit baseline A `5b97a46a7b0ef331e72077362e92eff4a59e1b77` for
   | Invalid configuration | `Sibling: ../viewer - not a clone url; use git@host:owner/name.git or https://host/owner/name.git` |
   | No primary entry | `Sibling: git@github.com:acme/viewer.git - unresolved: no primary checkout found; expected beside it as viewer` |
 
-  Every unavailable line continues as a single-repo audit for that line. The `not a clone url` outcome is the migration notice; add no separate migration workflow. Retain one convention sentence in `repo-audit.md`: siblings sit beside the primary under the repository name, missing siblings are reported with their clone destination and never block, and the configured URL controls the clone hint rather than the teammate's clone scheme.
+  Every unavailable line continues as a single-repo audit for that line. The `not a clone url` outcome is the migration notice; add no separate migration workflow. Replace the convention sentence in `repo-audit.md` with one sentence: siblings sit beside the primary under the repository name, missing siblings are reported with their clone destination and never block, and the committed URL names the sibling in report lines and supplies the clone hint while identity comparison ignores the clone scheme. Remove the existing "only in the clone hint" wording; retain the report templates and all other outcomes.
 
 - [ ] **Step 9: Replace the scout's path-form instructions and retain parent-owned outcomes.**
 
@@ -212,7 +216,7 @@ Decision: Retain audit baseline A `5b97a46a7b0ef331e72077362e92eff4a59e1b77` for
 
 - [ ] **Step 11: Update intent binding.**
 
-  Update `eval/shape-ticket/intent.md` with the intended sibling behavior and retain existing accepted moves. State the new must-hold facts as intended behavior, not as observed model success. Add no unsupported before/after classifications: `eval/README.md` Intent permits an empty new move list and does not require predicting improvements. During final verification, inspect actual historical/candidate fact movement and saved replies before reconciling any new move entries; never widen intent to bless unrelated regressions. Compute the current bundle-free `for:` value with:
+  Update `eval/shape-ticket/intent.md` with the intended sibling behavior and retain existing accepted moves. For this fix round name the successful enclosing-top-level rejection despite matching origin, and correct the sibling change paragraph's selected final-comparison arm to the default merge-base; preserve historical evidence-backed move records. State the new must-hold facts as intended behavior, not as observed model success. Add no unsupported before/after classifications: `eval/README.md` Intent permits an empty new move list and does not require predicting improvements. During final verification, inspect actual baseline/candidate fact movement and saved replies before reconciling any new move entries; never widen intent to bless unrelated regressions. Compute the current bundle-free `for:` value with:
 
   ```sh
   node --input-type=module -e 'import {readFileSync} from "node:fs"; import {assemble,treeReader} from "./eval/lib/replay.mjs"; import {sha256} from "./eval/lib/checks.mjs"; const t=JSON.parse(readFileSync("eval/shape-ticket/target.json","utf8")); console.log(sha256(assemble(t,treeReader(process.cwd()))));'
@@ -222,7 +226,7 @@ Decision: Retain audit baseline A `5b97a46a7b0ef331e72077362e92eff4a59e1b77` for
 
 - [ ] **Step 12: Review instruction-to-fact coverage and repeat structural checks.**
 
-  Review each fixture/expected pair against the edited instructions. Primary/home/external-Git-dir/submodule/unresolved facts must map to primary anchoring and the correct paths. All five unavailable outcomes must map to exact reports retained across an empty audit, with rejected paths excluded from scout reads and no gate. Grounding must cover found viewer/billing, team/viewer grouping and unchanged claims/scenario/fallback guards. Legacy dispatch must cover migration lines in briefs and failed-audit reports while preserving 8+1 foreground calls and file authority.
+  Review each fixture/expected pair against the edited instructions. Primary/home/external-Git-dir/submodule/unresolved facts must map to primary anchoring and the correct paths. All five unavailable outcomes must map to exact reports retained across an empty audit, with rejected paths excluded from scout reads and no gate. Trace `/repos/docs` through outcome 3: command succeeds, top level `/repos` differs from `/repos/docs`, so the matching enclosing origin cannot authorize reads or a found outcome. Grounding must cover found viewer/billing, team/viewer grouping and unchanged claims/scenario/fallback guards. Legacy dispatch must cover migration lines beside failed audit reports while preserving 8+1 foreground calls and file authority.
 
   Run: `node --test eval/lib/lint.test.mjs`
 
@@ -236,9 +240,11 @@ Decision: Retain audit baseline A `5b97a46a7b0ef331e72077362e92eff4a59e1b77` for
 
 - [ ] **Step 14: Commit the behavior and its local evidence.**
 
+  Commit only the fix-round files; retain the original Wave 1 commits and all unrelated source.
+
   ```sh
-  git add skills/shape-ticket/SKILL.md skills/shape-ticket/reference/repo-audit.md eval/shape-ticket/samples/audit-grounding eval/shape-ticket/samples/audit-dispatch eval/shape-ticket/samples/sibling-primary-anchor eval/shape-ticket/samples/sibling-not-found-hint eval/shape-ticket/intent.md
-  git commit -m "Resolve sibling clone URLs beside the primary checkout" -m "Behavior change: parent-owned identity checks and nonblocking sibling reports; add and extend shape-ticket text replay fixtures. Implementation checks are structural; behavioral comparison runs in final verification."
+  git add skills/shape-ticket/reference/repo-audit.md eval/shape-ticket/samples/sibling-not-found-hint/case.md eval/shape-ticket/samples/sibling-not-found-hint/expected.md eval/shape-ticket/intent.md
+  git commit -m "Reject enclosing repositories as sibling checkouts" -m "Behavior change: require the sibling path itself as the Git top level and preserve report-only rejection despite a matching enclosing origin. Correct the URL report convention. Implementation checks are structural; behavioral comparison runs in final verification."
   ```
 
 ## Wave 2 - Publish the overrides contract
@@ -249,7 +255,7 @@ Depends on Wave 1: documentation describes the implemented resolver and the new 
 
 **TDD scenario:** Documentation-only change - inspect the implementation and existing supersession record.
 
-**Spec:** doc/specs/2026-10-28-sibling-checkout-resolution.md § "Documented convention, not an enforced scheme" L83-L83, § "Remove" L90-L90, § "Add" L99-L101, § "Documentation impact" L135-L139
+**Spec:** doc/specs/2026-10-28-sibling-checkout-resolution.md § "Documented convention, not an enforced scheme" L83-L83, § "Remove" L90-L90, § "Add" L99-L101, § "Documentation impact" L136-L139
 
 **Files:**
 - Modify: `README.md:334`
@@ -263,7 +269,9 @@ Decision: Do not add the predecessor banner again. `doc/specs/2026-10-23-shape-t
 
 - [ ] **Step 1: Replace the README overrides row in place.**
 
-  Change `README.md`'s `## shape-ticket` row to `- sibling: <clone url>`, preserving reader shape-ticket, default `single-repo audit` and extends classification. Include one convention sentence: siblings are expected beside the primary checkout under the repository name; a missing one is reported with its clone path and never blocks; the configured URL supplies the clone hint, while either clone scheme matches identity. Link the detailed grammar to `skills/shape-ticket/reference/repo-audit.md`. Remove the relative-path grammar rather than documenting it as supported.
+  Fix-round scope: Wave 2 is already committed in `ecdfeca4`. Reopen only this row's convention wording and Step 4's check/commit; Steps 2-3 remain complete. Preserve the existing CHANGELOG and eval inventory.
+
+  Keep `README.md`'s `## shape-ticket` row at `- sibling: <clone url>`, preserving reader shape-ticket, default `single-repo audit` and extends classification. Correct its one convention sentence: siblings are expected beside the primary checkout under the repository name; a missing one is reported with its clone path and never blocks; the committed URL names the sibling in report lines and supplies the clone hint while identity comparison ignores the clone scheme. Replace "the committed URL appears only in the clone hint" in place. Retain the link to `skills/shape-ticket/reference/repo-audit.md`, both-scheme matching, path rejection and the no-clone/fetch/create boundary.
 
 - [ ] **Step 2: Record the breaking migration.**
 
@@ -277,11 +285,11 @@ Decision: Do not add the predecessor banner again. `doc/specs/2026-10-23-shape-t
 
 - [ ] **Step 4: Check documentation and commit.**
 
-  Confirm the touched row's links resolve, its command/grammar matches `repo-audit.md`, all tables have compact separators, and the existing predecessor banner covers only the specified contract. There is no Markdown format command. The header verification checks README structure, CHANGELOG heading/version rules and eval structure and produces the final target-wide evidence; commit any regenerated verification evidence before finish.
+  Confirm the touched row's links resolve, its command/grammar matches `repo-audit.md`, all tables have compact separators, and the existing predecessor banner covers only the specified contract. Compare the two convention sentences: both name report lines and clone hints as uses of the committed URL, while identity matching ignores scheme. There is no Markdown format command. The header verification checks README structure, CHANGELOG heading/version rules and eval structure and produces the final target-wide evidence; commit any regenerated verification evidence before finish. Commit only the reopened README row in this documentation fix round.
 
   ```sh
-  git add README.md CHANGELOG.md eval/shape-ticket/README.md
-  git commit -m "Document clone-URL sibling configuration and migration"
+  git add README.md
+  git commit -m "Clarify sibling URL use in reports and clone hints"
   ```
 
 ## Spec coverage
@@ -302,6 +310,7 @@ Decision: Do not add the predecessor banner again. `doc/specs/2026-10-23-shape-t
 | § "Primary checkout anchor" L53-L55 | External Git directory and submodule layouts never anchor on Git metadata directories | Task 1 |
 | § "Primary checkout anchor" L53-L55 | Outside-checkout behavior is unchanged; successful empty worktree list reports unresolved without stopping | Task 1 |
 | § "Responsibilities" L59-L75 | Parent resolves and classifies; first of seven ordered outcomes wins per configured line | Task 1 |
+| § "Responsibilities" L65-L65 | Require successful `git -C <PATH> rev-parse --show-toplevel` output equal to `PATH` itself; reject an enclosing repository before checking origin | Task 1 |
 | § "Responsibilities" L59-L75 | Duplicate destinations are checked separately with separate outcomes | Task 1 |
 | § "Responsibilities" L59-L75 | Retain pre-rendered outcomes per ticket independently of the scout artifact | Task 1 |
 | § "Responsibilities" L59-L75 | Pass only found absolute paths for reads; copy supplied lines and preserve six labels/empty sentinel | Task 1 |
@@ -309,7 +318,7 @@ Decision: Do not add the predecessor banner again. `doc/specs/2026-10-23-shape-t
 | § "Responsibilities" L59-L75 | Report-only lines never draft, roast, gate, write or question on their own | Task 1 |
 | § "Responsibilities" L59-L75 | Grounded-leg repository names come from the same parsed stored origin's final two segments | Task 1 |
 | § "Data flow" L79-L79 | Separate artifact-owned grounded legs from parent-owned report lines, visible per configured URL | Task 1 |
-| § "Documented convention, not an enforced scheme" L83-L83 | Reference and README state adjacent checkout convention, nonblocking hints and clone-scheme independence | Task 1, Task 2 |
+| § "Documented convention, not an enforced scheme" L83-L83 | Reference and README state adjacent checkout convention and nonblocking hints; committed URL names report lines and supplies clone hints while identity comparison ignores scheme | Task 1, Task 2 |
 | § "Remove" L87-L89 | Remove skill's relative-path grammar sentence | Task 1 |
 | § "Remove" L87-L89 | Replace preparation's relative-path grammar paragraph | Task 1 |
 | § "Remove" L87-L89 | Remove all three path-form scout instructions | Task 1 |
@@ -325,7 +334,7 @@ Decision: Do not add the predecessor banner again. `doc/specs/2026-10-23-shape-t
 | § "Add" L102-L102 | Extend grounding/dispatch cases, create two specified samples and update eval intent | Task 1 |
 | § "Errors and edge cases" L106-L122 | Continue auditing per unavailable sibling and shell-quote URL/destination with embedded-quote escaping | Task 1 |
 | § "Errors and edge cases" L106-L122 | Missing checkout renders exact expected-path clone hint | Task 1 |
-| § "Errors and edge cases" L106-L122 | Existing file/plain directory renders not-checkout outcome | Task 1 |
+| § "Errors and edge cases" L111-L111 | Existing file/plain directory, including a directory inside an enclosing repository whose top level differs from `PATH`, renders not-checkout outcome | Task 1 |
 | § "Errors and edge cases" L106-L122 | Checkout without origin renders no-origin outcome | Task 1 |
 | § "Errors and edge cases" L106-L122 | Unparseable stored origin renders the raw origin and expected identity | Task 1 |
 | § "Errors and edge cases" L106-L122 | Wrong identity renders found versus expected identity | Task 1 |
@@ -335,13 +344,13 @@ Decision: Do not add the predecessor banner again. `doc/specs/2026-10-23-shape-t
 | § "Errors and edge cases" L106-L122 | Missing/empty/malformed audit retains every parent sibling report | Task 1 |
 | § "Tests" L126-L126 | Structural checks and full-target behavioral comparison supply evidence; Task 1 runs source-clean structural checks before/after edits, while only final verification runs models after both new samples exist and preserves generated records/report | Verification |
 | § "Tests" L128-L131 | Primary replay covers linked worktree, external Git directory, submodule and unresolved checkpoints | Task 1 |
-| § "Tests" L128-L131 | Five unavailable reports survive empty audits without gates or rejected-path reads | Task 1 |
+| § "Tests" L129-L129 | Five unavailable reports survive empty audits without gates or rejected-path reads; docs is a plain directory inside `/repos` with matching enclosing origin, so successful rev-parse must still reject it | Task 1 |
 | § "Tests" L128-L131 | Grounding replay covers cross-scheme preparation, grouped viewer and report-only missing sibling | Task 1 |
 | § "Tests" L128-L131 | Legacy dispatch replay preserves migration lines beside failed audit reports | Task 1 |
 | § "Tests" L132-L132 | README, CHANGELOG and eval structural checks run through the repository entrypoint | Verification |
 | § "Documentation impact" L137-L137 | Update invalidated eval intent alongside behavior and recognize predecessor/eval-guide handoff | Task 1 |
-| § "Documentation impact" L135-L139 | Amend existing README/CHANGELOG/eval guide and preserve supersession | Task 2 |
-| § "Documentation impact" L135-L139 | Create no new feature guide or configuration setting row | Task 2 |
+| § "Documentation impact" L136-L139 | Amend existing README/CHANGELOG/eval guide and preserve supersession | Task 2 |
+| § "Documentation impact" L136-L139 | Create no new feature guide or configuration setting row | Task 2 |
 | § "Out of scope" L143-L147 | No cloning, fetching, creating checkouts or network/credential use | Task 1 |
 | § "Out of scope" L143-L147 | No location override | Task 1 |
 | § "Out of scope" L143-L147 | No parent-directory sibling discovery scan | Task 1 |
