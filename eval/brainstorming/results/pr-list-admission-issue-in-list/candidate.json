@@ -34,7 +34,7 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "c5713ba61f0a0667b7a3132dad69be7d5e7bf7c00fd5addd2838bd7c8118f266",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "77fc319c1a7f5ca33d327d6147e00faa745448af02f7c92a24184c09e061fb80",
+      "intentSha": "b91bd8dfa507c4b4fd6eb7c807d7a687d6c6f3eeb488fa85a6a346489513b442",
       "baselineOutputSha": "b3ce770a4269f62066f56009dc9a1997401f9f6d32fa377f270e282a4428bfe3",
       "candidateOutputSha": "6e130eec928f30ced3d92c38a09b9bf8292727e371d8622635e32c972b085295",
       "facts": {
@@ -49,14 +49,14 @@
           "label": "held"
         }
       },
-      "feedback": "Neither fact moved. After quotes the exact stop text verbatim, offers only the direct correction (drop #13 or run it alone), explicitly withholds the umbrella merge-heads paragraph, and states no ticket brainstorm or ticket-acceptance read runs for the list, so `issue` holds; it also narrates #12 fully admitted before #13, the #13 PR lookup returning not-a-PR before the issue lookup runs, and no worktree or other write, so `order` holds. One wording risk worth keeping in mind: the remedy line \"rerun with #13 alone, where it takes the existing ticket path\" edges toward describing a ticket contract for a list member; Before's phrasing \"brainstorm `#13` alone as a ticket\" is safer because it stays inside the stop text's own remedy without narrating what that separate run would do. Keeping the remedy limited to the stop text's two options, as After otherwise does, preserves both facts while delivering the ordered-resolution and pre-provisioning-stop behavior the Change asks for.",
-      "wallMs": 11490,
+      "feedback": "Neither fact moved for this case: both outputs quote the exact stop text, offer only the direct correction, explicitly withhold the umbrella paragraph, narrate #12 before #13 with the #13 PR lookup preceding the issue lookup, and state that no worktree or other write occurs. One wording risk in After worth tightening: the remedy line \"rerun with `#13` alone, where it takes the existing ticket path\" edges toward describing a ticket contract for a list member; Before's phrasing (\"brainstorm `#13` alone as a ticket\" with the separate aftermath bullet \"no ticket brainstorm starts for the list\") keeps the remedy and the no-ticket-contract point cleanly apart. Keeping the remedy worded as the stop text itself (drop or brainstorm alone) and leaving the ticket-path consequence out of the remedy bullet would preserve the issue fact with less ambiguity while still delivering the Change, which does not touch this stop at all.",
+      "wallMs": 11242,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "c5713ba61f0a0667b7a3132dad69be7d5e7bf7c00fd5addd2838bd7c8118f266",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "77fc319c1a7f5ca33d327d6147e00faa745448af02f7c92a24184c09e061fb80",
+      "intentSha": "b91bd8dfa507c4b4fd6eb7c807d7a687d6c6f3eeb488fa85a6a346489513b442",
       "baselineOutputSha": "a60aae20416967d6e6c505dec2e55908a82a347b5204fde8e1acc3b99b74a6d8",
       "candidateOutputSha": "f88d311154fc59146f840a96e9247f01f5d2fe6e137c70bce209b8f7f922529c",
       "facts": {
@@ -71,10 +71,10 @@
           "label": "held"
         }
       },
-      "feedback": "No fact moved. Both outputs quote the exact failure line (\"#13 is an issue, not a pull request; a list admits only PRs. Drop #13 from the list, or brainstorm it alone as a ticket.\"), state that the stop happens before any worktree is provisioned, offer no umbrella remedy, and refuse to start a ticket brainstorm for the list, so the issue fact holds in both. Both also resolve #12 before #13, run #13's PR lookup before its issue lookup, and narrate no writes (tracker actions are explicitly narrated-only, no worktree created), so the order fact holds in both. The After wording is slightly tighter: it labels the resolution steps \"first\"/\"next\", frames the quoted stop as a blockquote under a heading naming failure and remedy, and makes the required-read step clearly non-live; none of this weakens either fact. Keep the Change's wording as is for this sample; if anything, retaining Before's phrase \"do not start a ticket brainstorm for this list\" (After says \"Do not begin a ticket brainstorm\") would make the no-ticket-contract reading marginally more explicit.",
-      "wallMs": 8865,
+      "feedback": "Nothing moved on this case. Both outputs resolve #12 first and, for #13, run the PR lookup before the issue lookup, perform no writes (no worktree, no tracker calls), and emit the stop sentence verbatim with the two-way remedy (drop #13 or brainstorm it alone as a ticket) and no umbrella remedy or ticket contract for a list member. After's wording is slightly tighter (blockquote for the failure, explicit 'first'/'next' ordering, 'before resolution or provisioning' on the required read), which if anything makes both facts easier to verify. Keep that structure; the only thing to watch is that the required-read step continues to say the read is narrated-not-performed, since the Change's expanded assembly must not tempt the model into claiming a live read or a provisioning step before the admission stop.",
+      "wallMs": 7467,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "01add339b1d2d7a836d4b133454f5b65bfb6f167"
+  "repoSha": "c716bb89c931da9b0ee455556cc3db987a894f1e"
 }

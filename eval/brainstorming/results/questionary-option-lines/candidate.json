@@ -34,7 +34,7 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "6b456a85ee947059a76668fc50e35f4c2abde2fc50e926fb6104badb197e5e61",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "77fc319c1a7f5ca33d327d6147e00faa745448af02f7c92a24184c09e061fb80",
+      "intentSha": "b91bd8dfa507c4b4fd6eb7c807d7a687d6c6f3eeb488fa85a6a346489513b442",
       "baselineOutputSha": "bbf060e972735754fe62144cba5a21f5e27bd87852b509b74c213ffc7b4b9056",
       "candidateOutputSha": "db71e8e7af27777e615635a9517058e60cb0c29f50d0d3bd841330fc284950e2",
       "facts": {
@@ -49,14 +49,14 @@
           "label": "held"
         }
       },
-      "feedback": "Nothing moved: both outputs put the lead-in question first, place A), B), C) each on its own physical line, and end with Recommendation: on its own final line, and both preserve the three supplied choices and recommend B with a concrete reason tied to the workspace-change handler and settings/resolver.ts:12 rather than deciding or jumping to approaches. After drops the blank lines around the option block and shortens the option labels (e.g. 'clear all filters' instead of 'clear all filters on every workspace switch'), compensating with trailing consequence text; that still satisfies both facts, but it sits closer to the edge of a fact that forbids inline runs of options. If you want to keep the Change's one-option-per-line grammar maximally robust under the enlarged assembly, have the questionary template keep a blank line between the lead-in and the first option and before Recommendation:, and state the user's supplied choice wording verbatim as the option text with any consequence appended after a dash, which keeps the content fact unambiguous while delivering the same layout rule.",
-      "wallMs": 11177,
+      "feedback": "Neither fact moved. After keeps the lead-in question on the first line, each of A/B/C on its own physical line (the dropped blank lines do not matter to the fact, which keys on physical lines, not paragraphs), and Recommendation: as the last line, so layout holds as in Before. For content, After shortens the option labels (\"clear all filters\", \"preserve all active filters\") and attaches a dash-explanation, but the explanations restore the dropped qualifiers (\"every switch\", \"carry into the next workspace\") and C is verbatim, so all three supplied choices are recognizably preserved and B is recommended with a concrete reason rather than a decision or a jump to approaches. One caution for the author: trimming user-supplied choice text is the only place After takes any risk against the content fact; wording that keeps each supplied choice verbatim as the option text (as Before does) and puts any gloss after a dash would deliver the per-line layout requirement with zero exposure on the \"preserving all three supplied choices\" clause.",
+      "wallMs": 11411,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "6b456a85ee947059a76668fc50e35f4c2abde2fc50e926fb6104badb197e5e61",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "77fc319c1a7f5ca33d327d6147e00faa745448af02f7c92a24184c09e061fb80",
+      "intentSha": "b91bd8dfa507c4b4fd6eb7c807d7a687d6c6f3eeb488fa85a6a346489513b442",
       "baselineOutputSha": "beb397a363b13da427f009794107f8f33be8a7741461ab0622ddab32bcdf2ff1",
       "candidateOutputSha": "ab07764fd16deb1027788a2d385ec59bc675d65de99e3724c22b047d35b3d4ce",
       "facts": {
@@ -71,10 +71,10 @@
           "label": "held"
         }
       },
-      "feedback": "Both outputs satisfy both facts: the lead-in comes first, each of A/B/C sits on its own physical line, and Recommendation: closes the response on its own line; all three supplied choices are preserved verbatim-in-substance and a single choice is recommended with a reason, without deciding or jumping to approaches. After only differs in which option it recommends (B instead of C) and in trimming \"workspace switches\" to \"switches\" in option B, which matches the user's supplied wording more closely. Nothing in After moved a fact, so the layout wording (lead-in first, one labeled option per physical line, Recommendation: on its own final line) is delivering the Change without regressing the content contract; keep it as is.",
-      "wallMs": 4369,
+      "feedback": "Both outputs satisfy both facts: the lead-in precedes the first labeled option, each of A/B/C sits on its own physical line, and Recommendation: closes the response on its own line; both preserve the user's three supplied choices and give a single recommendation with a stated reason without deciding for the user or jumping to approaches. After changes only the recommended letter (B, justified by preserving current handler behavior and avoiding per-workspace state) and trims 'workspace switches' to 'switches' in option B, which matches the user's own wording more closely; neither change moves a fact. No wording adjustment is needed for this case—the After text already delivers the questionary layout the Change requires while keeping the content fact intact.",
+      "wallMs": 8933,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "01add339b1d2d7a836d4b133454f5b65bfb6f167"
+  "repoSha": "c716bb89c931da9b0ee455556cc3db987a894f1e"
 }

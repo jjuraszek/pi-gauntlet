@@ -38,7 +38,7 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "72ea14ed472c465f5eff63f5735b46c2036333b1a3dc71bddc7f38dc84838a3c",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "77fc319c1a7f5ca33d327d6147e00faa745448af02f7c92a24184c09e061fb80",
+      "intentSha": "b91bd8dfa507c4b4fd6eb7c807d7a687d6c6f3eeb488fa85a6a346489513b442",
       "baselineOutputSha": "3758a596e4490da7f0b2b01e9810e2dba0abc2254b302e282dff5c2e74577363",
       "candidateOutputSha": "73dd53c4db4b49f3cf4d682f4f3a3b1440cbc594ef71035329df7c208e4d911b",
       "facts": {
@@ -73,14 +73,14 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "No fact moved: both outputs open each item with a plain-words what/why sentence, give the crosscut item A) accept and B) alt-1 with one-line consequences, carry Recommended: B / Recommended: A with reasons, state the one-line-per-item reply form with bare 1 taking every recommendation and never show the legacy 2: <handle>=<choice> form, and include a human-call sentence per item. Two regressions in After are worth fixing even though no listed fact catches them: the exit126 option line became 'A) accept - the spec reads the new text', a generic placeholder-style consequence where Before gave the concrete 'exit 126 reports as blocked' (a wider f2-style check on every item would fail this), and the Details block folds alt-1 into a parenthetical on the crosscut line instead of its own row. Keep the wording that produces a concrete observable consequence for every lettered option ('A) accept - exit 126 reports as blocked') and one Details row per option so the section 5 addition does not erode the section 4 menu.",
-      "wallMs": 12217,
+      "feedback": "No fact moved: both outputs open each item with a plain what/why sentence, list A) accept and B) alt-1 with one-line consequences on crosscut, give Recommended: B and Recommended: A each with a reason, use the `<n>. <letter or free text>` reply grammar with bare `1` taking every recommendation and no legacy `2: <handle>=<choice>` prompt, and carry one human-call sentence per item. Two After details are weaker than Before without crossing a fact line: exit126's option A reads `accept - the spec reads the new text`, a generic placeholder where Before said `exit 126 reports as blocked`, and the Details block folds alt-1 into a parenthetical on the crosscut line instead of its own row. If the wording change intends the consequence to be a concrete one-line outcome (which f2 checks on crosscut and a stricter judge could check on exit126), keep the Before pattern of restating the accepted new text (`exit 126 reports as blocked`) rather than the template phrase, and keep one Details row per alternative so the human-call sentence, lettered options and recommendation stay as they are.",
+      "wallMs": 11728,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "72ea14ed472c465f5eff63f5735b46c2036333b1a3dc71bddc7f38dc84838a3c",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "77fc319c1a7f5ca33d327d6147e00faa745448af02f7c92a24184c09e061fb80",
+      "intentSha": "b91bd8dfa507c4b4fd6eb7c807d7a687d6c6f3eeb488fa85a6a346489513b442",
       "baselineOutputSha": "bc4723fa2a807790956853465def2a7df56338ad52be590f3fd26e8f0db47995",
       "candidateOutputSha": "ccf67251367025c0069d09af226bd5d003854910871651169d0f1086326d4497",
       "facts": {
@@ -115,10 +115,10 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "No fact moved: both outputs open each item with a plain what/why sentence, list A) accept and B) alt-1 with one-line consequences, carry explicit 'Recommended: B -' / 'Recommended: A -' reasons, use the `<n>. <letter or free text>` reply grammar with bare 1 and no legacy `handle=choice` form, and each item has a human-call sentence ('Choosing who owns retry policy is an architecture decision.' / 'Changing an operator-visible status requires your decision.'). Two things to watch in After: the Details line for crosscut now states 'new:' as the alt-1 wording (the recommended option) instead of the accept wording, which diverges from the batch's Old/Accept/Alternative structure and could mislead a reader about what option A means; keep Details as old -> accept, with the alternative listed separately, as Before did. Also, both outputs still print a separate 'Reviewer:' line that nearly duplicates the human-call sentence; if the intent is exactly one human-call sentence per item, fold the reviewer reason into that plain-words sentence and drop the duplicate line. Minor: After dropped the trailing periods on the Recommended lines - harmless for f3, but keep them for consistency.",
-      "wallMs": 14970,
+      "feedback": "No fact moved: both outputs open each item with the what/why sentence, list A) accept and B) alt-1 with consequences on the crosscut item, give Recommended: B and Recommended: A with reasons, use the `<n>. <letter or free text>` reply form with bare 1 taking every recommendation and no legacy `2: <handle>=<choice>` prompt, and carry a human-call sentence per item. One soft spot in After: item 1's human-call sentence became \"Choosing who owns retry policy is an architecture decision,\" which no longer says in its own words that a human must decide; it only passes f6 because the adjacent Reviewer line still reads \"needs a human architecture choice.\" To keep f6 robust while delivering the Change, keep the explicit human reference in that sentence (e.g., \"Choosing who owns retry policy is an architecture call only you can make\"), mirroring item 2's \"requires your decision.\" Also note After's Details line now shows the alt-1 text as the new value rather than the accept text; that is not judged here but is a visible drift from Before worth checking against the intended Details contract.",
+      "wallMs": 18403,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "01add339b1d2d7a836d4b133454f5b65bfb6f167"
+  "repoSha": "c716bb89c931da9b0ee455556cc3db987a894f1e"
 }

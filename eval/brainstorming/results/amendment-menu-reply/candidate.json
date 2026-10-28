@@ -34,7 +34,7 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "f497135f922e058af932a3380ad44da1088eecd38cc4b3c94a12942086eaec45",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "77fc319c1a7f5ca33d327d6147e00faa745448af02f7c92a24184c09e061fb80",
+      "intentSha": "b91bd8dfa507c4b4fd6eb7c807d7a687d6c6f3eeb488fa85a6a346489513b442",
       "baselineOutputSha": "7d5156e988584274798d086bc22e379cceac453497cd2a4b2a6ae17f2c1ab2e6",
       "candidateOutputSha": "84bc830116eb95dc034d1efdac27f35c5e67be5db3381759aefbffa2098f6c7e",
       "facts": {
@@ -54,14 +54,14 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "Nothing moved on this continuation case: both outputs print the exact `Recorded: crosscut=alt-1, exit126=custom(keep 126 as failed, document it)` line with the reply's free text verbatim, both accept item 2's free text as a custom choice without re-asking, and both describe applying alt-1 (coordinator-owned shared retry policy, adapters keep execution) and the custom effect (retain `failed` for exit 126, add a documenting note) rather than the rejected new-service or `blocked` proposals, while correctly disclaiming actual writes/commits. After is slightly tighter than Before in one respect worth keeping: its commit body echoes `custom(keep 126 as failed, document it)` verbatim, whereas Before paraphrased the custom text in the commit body (though it still echoed it verbatim in the Recorded line), so the section 4 wording that requires the Recorded echo to preserve free text verbatim is doing its job; no wording adjustment is needed for this case.",
-      "wallMs": 8399,
+      "feedback": "Nothing moved on this continuation: both outputs print the exact `Recorded: crosscut=alt-1, exit126=custom(keep 126 as failed, document it)` line, both accept item 2's free text as a custom choice without re-asking, and both describe the alt-1 coordinator edit and the retain-failed-plus-document edit while rejecting the new-service and blocked-status proposals, with explicit disclaimers that no writes or commits actually happen in the replay. After is in fact slightly tighter than Before on the reply grammar: Before's commit body paraphrased the custom choice as `custom(keep exit 126 as failed; document the retained classification in Design / run status)` while its Recorded line echoed the verbatim text, whereas After uses the verbatim `custom(keep 126 as failed, document it)` consistently in both the commit row and the Recorded line, which better matches section 4's rule that free text is preserved verbatim. The section 5 Apply/aftermath wording is working here (After correctly notes no plan/ledger, no plan-writer or tracker update, single commit); keep that phrasing, and if anything, consider also stating in section 5 that the commit row's choice column must reuse the same `custom(<verbatim text>)` token as the Recorded line so Before-style paraphrase drift cannot recur.",
+      "wallMs": 11781,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "f497135f922e058af932a3380ad44da1088eecd38cc4b3c94a12942086eaec45",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "77fc319c1a7f5ca33d327d6147e00faa745448af02f7c92a24184c09e061fb80",
+      "intentSha": "b91bd8dfa507c4b4fd6eb7c807d7a687d6c6f3eeb488fa85a6a346489513b442",
       "baselineOutputSha": "c62f549ed6063ea2be3bb7ddb1bd6a7d22c1012733a8942d67249c185688fca0",
       "candidateOutputSha": "18f73a3a56a530aa3992002489d9671c6d2e24afb68563c16ae26617fe818055",
       "facts": {
@@ -81,10 +81,10 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "Nothing moved: both outputs print the identical Recorded line with crosscut=alt-1 and the verbatim custom(keep 126 as failed, document it), accept the free text without re-asking, and describe the alt-1 coordinator edit plus the retain-failed-and-document edit while disclaiming writes and commits. After's only additions are the clarifying 'This is a spec edit, not a redirect' sentence and an explicit 'No standing grant was given' line, both consistent with the recorded choices and the section-4 Recorded-echo rule; keep that wording as is, since it preserves every Before fact while delivering the Change's menu/reply grammar.",
-      "wallMs": 4878,
+      "feedback": "Nothing moved on this case: both outputs print the identical Recorded: line with crosscut=alt-1 and the verbatim custom text for exit126, both accept the free-text reply without re-asking, and both describe applying alt-1 (coordinator owns shared retry policy, adapters keep execution) and the custom keep-failed-and-document edit while rejecting the new-service and blocked-status proposals, with explicit disclaimers about no disk writes or commits. After adds a harmless 'This is a spec edit, not a redirect.' clarification and a 'No standing grant was given.' line, which are consistent with the Change's section-4/5 grammar and do not disturb any fact; keep the Recorded echo verbatim and the per-item selected-edit bullets as they are, and the wording as written already preserves everything Before held.",
+      "wallMs": 5918,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "01add339b1d2d7a836d4b133454f5b65bfb6f167"
+  "repoSha": "c716bb89c931da9b0ee455556cc3db987a894f1e"
 }

@@ -34,7 +34,7 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "c844e1c7a15652aba5595c2544ba071333f586eb389b74fd19cbeef223113883",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "77fc319c1a7f5ca33d327d6147e00faa745448af02f7c92a24184c09e061fb80",
+      "intentSha": "b91bd8dfa507c4b4fd6eb7c807d7a687d6c6f3eeb488fa85a6a346489513b442",
       "baselineOutputSha": "69e98e0b65fdfa6f8ccb95d782af32ce0cdb986d46f727a1ec0a8e66b85d0e76",
       "candidateOutputSha": "fb9dd82505760e5760df861c6e4a87c70d47a00ca1f192da035aebba6206b267",
       "facts": {
@@ -49,14 +49,14 @@
           "label": "held"
         }
       },
-      "feedback": "Nothing moved on this case: both outputs stop at #13 before any write, name #13/release-2/home #12/main/mixed bases, append the umbrella paragraph verbatim, and in the duplicate variant emit exactly \"#13 is listed twice; list each PR once.\" with no umbrella and no provisioning. The one place After drifts toward risk is Trace B step 6, where it adds an unquoted explanatory sentence (\"drop one of the two references, then re-prompt with #13 alone\") after the stop text; it is clearly narration rather than appended stop output here, but a stricter reader could treat it as extra remedy text. If you want the After wording to stay robust while keeping the same admission narrative, have the duplicate-stop rule say only that the stop message itself is the direct correction and that no further remedy or umbrella text is appended, so the model does not elaborate a second remedy next to the quoted stop. Also, listing the skipped `gh pr view --json title,body` / `gh pr diff` commands in step 7 is fine for these facts (they are reads, not worktree commands), but keep the worktree skip phrased as 'no provisioning' rather than naming a worktree command, as After already does.",
-      "wallMs": 14942,
+      "feedback": "Neither fact moved: After's Trace A still quotes the stop naming #13, release-2, home #12, main and mixed bases, appends the umbrella remedy verbatim, and narrates the relatedness fetch, pr-head.md read and provisioning only as skipped, never as a command or write; Trace B still resolves the bare ref and URL to the same acme/widget#13, quotes `#13 is listed twice; list each PR once.`, omits the umbrella and provisions nothing. One wording risk worth tightening: After adds an unquoted gloss in Trace B step 6 (\"drop one of the two references, then re-prompt with `#13` alone\") that is not part of the skill's stop text; a stricter reading of \"append no umbrella\" plus the exact stop could treat any extra remedy prose as drift, so keep the quoted stop as the sole user-facing remedy and, if you want to explain the direct-correction rule, say only that the umbrella applies to foreign-repo, fork and mixed-base failures without inventing a re-prompt instruction. Also consider dropping the trailing period inside the backticked stop quote so the stop text matches the contract character-for-character.",
+      "wallMs": 14470,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "c844e1c7a15652aba5595c2544ba071333f586eb389b74fd19cbeef223113883",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "77fc319c1a7f5ca33d327d6147e00faa745448af02f7c92a24184c09e061fb80",
+      "intentSha": "b91bd8dfa507c4b4fd6eb7c807d7a687d6c6f3eeb488fa85a6a346489513b442",
       "baselineOutputSha": "e2673446be16ab58e87f32ae0fe560e4feb714d033cb0ba4cdbac6bc44d80a3d",
       "candidateOutputSha": "4a5d0bb4eae455bfe0b30e5dc59caf6bd0c379ba5fd438221f5bf31db67701b1",
       "facts": {
@@ -71,10 +71,10 @@
           "label": "held"
         }
       },
-      "feedback": "Both facts hold in both outputs. After keeps the mixed-base stop naming #13, release-2, home #12, main, and mixed bases, and reproduces the umbrella remedy sentence verbatim; the duplicate variant still stops with the exact \"#13 is listed twice; list each PR once.\" line, appends only its own distinct non-umbrella remedy, and provisions nothing. The one place After drifts toward risk is inserting the label \"Exact remedy:\" and blockquote formatting between the stop and the remedy sentence; a stricter reading of \"append exactly\" could treat the interposed label as breaking adjacency. Before's layout (stop line, blank line, remedy sentence with no label) is safer; if the Change wants the remedy visibly marked, put the marker in the step heading (e.g., \"Stop admission and append the remedy:\") rather than between the two quoted lines. Likewise, After's added \"Do not provision\" steps are fine because they narrate the absence of a worktree rather than a command, but avoid phrasing them as actions (\"skip `git worktree add`\") in future revisions, since naming a worktree command would fail the mixed-base fact.",
-      "wallMs": 17150,
+      "feedback": "Both outputs satisfy both facts: each names #13/release-2 and home #12/main with the mixed-bases stop, carries the umbrella remedy sentence verbatim in the primary trace only, states '#13 is listed twice; list each PR once.' for the duplicate variant with a non-umbrella remedy, and narrates no worktree command or write. After adds explicit 'Do not provision' steps and an 'Exact remedy:' label between the stop line and the umbrella sentence; the sentence itself is still verbatim so the fact holds, but the interposed label and blockquote framing is the one place a stricter reading of 'append exactly' could bite—if you want zero risk, keep Before's layout (stop line, blank line, umbrella sentence with no label) while retaining After's added origin-resolution step and explicit no-provision steps, which deliver the Change without touching the quoted strings.",
+      "wallMs": 14654,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "01add339b1d2d7a836d4b133454f5b65bfb6f167"
+  "repoSha": "c716bb89c931da9b0ee455556cc3db987a894f1e"
 }

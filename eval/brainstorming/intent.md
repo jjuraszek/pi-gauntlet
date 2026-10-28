@@ -55,8 +55,8 @@ Admit a leading ordered list of same-base PRs, stop invalid membership before pr
 - shared-helper-option/reuse-path: fails -> holds - Name lib/notify.ts#post, its missing channel override, and a change to that shared path.
 - shared-helper-option/moving-parts: fails -> holds - Put Removes and Adds directly before Pattern on every viable approach.
 - shared-helper-option/no-copy: fails -> holds - Recommend changing the helper rather than copying formatting and retries beside the report caller.
-- moving-parts-design-return/carry-forward: fails -> holds - Generate the chosen Remove/Add imperatives in the design recap, not merely in recorded conversation.
-- moving-parts-design-return/test-per-observable: fails -> holds - Map requested channel, preserved default, and empty-channel rejection to their three named tests in spec Tests.
+- moving-parts-design-return/carry-forward: holds -> fails - accepted variance, approved by the repo owner at the eval gate: under the enlarged assembly the candidate recap carries every Remove/Add imperative and all three test mappings but drops the literal `Design imperatives:` label and demotes the `## Tests` heading to a run-in; the change touches amendment-surface section 5, not the design-recap rules in brainstorming section 6; pinning those labels is follow-up work outside this ticket.
+- moving-parts-design-return/test-per-observable: holds -> fails - accepted variance, approved by the repo owner at the eval gate: the same recap maps requested channel, preserved default, and empty-channel rejection to their named tests but without the `## Tests` heading the fact keys on; same cause and follow-up as carry-forward.
 - pr-list-admission-mixed-base/mixed-base: fails -> holds - Refuse mixed bases with the named home/member/base and umbrella remedy before writes; duplicate identity still stops without the remedy.
 - pr-list-admission-issue-in-list/issue: fails -> holds - Reject the issue member with the direct correction and no umbrella or ticket contract.
 - pr-list-relatedness-split/groups: fails -> holds - Separate unrelated shared-file concerns from per-PR diffs before provisioning; valid retry selection promotes its first PR, excludes dropped PRs downstream and retains the later framing question.
@@ -85,7 +85,7 @@ Admit a leading ordered list of same-base PRs, stop invalid membership before pr
 - pr-subject-rule-added-later/no-ticket: fails -> holds - Apply base-added rules through a repair while preserving original commits and the fixed record.
 - pr-subject-weakened-rule/authority: fails -> holds - Treat PR policy weakening as a proposal, never authority, even after a clean merge.
 - pr-subject-weakened-rule/proposal: fails -> holds - Treat PR policy weakening as a proposal, never authority, even after a clean merge.
-- pr-subject-weakened-rule/preservation: fails -> holds - Treat PR policy weakening as a proposal, never authority, even after a clean merge.
+- pr-subject-weakened-rule/preservation: holds -> fails - accepted variance, approved by the repo owner at the eval gate: the candidate's per-PR keeps line reads `keeps: none` instead of naming the preserved original commits, in one of two runs under the enlarged assembly; the change touches amendment-surface section 5, not the PR-subject rework record rules; keeps-line wording is follow-up work outside this ticket.
 - pr-subject-repair-over-rewrite/minimal: fails -> holds - Keep the two-line repair, verbatim bound-ticket AC, and complete thread dispositions.
 - pr-subject-repair-over-rewrite/contract: fails -> holds - Keep the two-line repair, verbatim bound-ticket AC, and complete thread dispositions.
 - pr-subject-repair-over-rewrite/record: fails -> holds - Keep the two-line repair, verbatim bound-ticket AC, and complete thread dispositions.

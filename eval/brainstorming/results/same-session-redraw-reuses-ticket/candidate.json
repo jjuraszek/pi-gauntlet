@@ -34,7 +34,7 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "6277fb45c3d742b55ee8729481329feb0d40002b0fb2d70079065d3afb325f5d",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "77fc319c1a7f5ca33d327d6147e00faa745448af02f7c92a24184c09e061fb80",
+      "intentSha": "b91bd8dfa507c4b4fd6eb7c807d7a687d6c6f3eeb488fa85a6a346489513b442",
       "baselineOutputSha": "b44281a97aed983aff1fbdc96cb21439be09b080c3347f7da5b0d95903f4fd5c",
       "candidateOutputSha": "6a4fe7130751fe7e575e160eeefd3af7848a430bc25f26740ed1018c5f39ad43",
       "facts": {
@@ -49,14 +49,14 @@
           "label": "held"
         }
       },
-      "feedback": "Both outputs keep every fact: each narrates that reference/ticket-acceptance.md is not re-read after the same-session redraw and reuses the in-context content, and each routes the contradictory owner-column row to the four-option cut question (in-scope, deviates:, deferred:, repair) without deciding or dropping it. After differs mainly in structure: it separates the premise note into its own step, adds an explicit 'stop at the cut question' step, and states the cancelled-repair re-ask re-renders in full with the row unchanged, which actually tracks the ticket-reference scoping extension more closely than Before. Nothing in After moved a fact; the only drift risk is the slightly looser phrasing 'the row contradicts the current code' versus Before's 'does not satisfy the row' — keeping the contradiction attributed to the table contract (as After does elsewhere) is enough to hold rules-apply.",
-      "wallMs": 6010,
+      "feedback": "Neither fact moved. Both outputs state explicitly that no read of reference/ticket-acceptance.md is made after the redraw and that the in-context content is reused (Before item 1, After item 2), and both keep the verbatim owner-column row unchanged, refuse to pick a disposition, and route it to the four-option cut question with A/B/C/D naming in-scope, deviates, deferred, and repair, recommending only A or D (Before item 4, After item 6). After actually sharpens the sequence by separating the premise note (item 5) from the cut question (item 6) and adding the explicit cancelled-repair re-ask in full, which matches the scoping-sentence extension in the Change. No wording adjustment is needed for this sample; if anything, the author might keep After's explicit 'This is not a restored session, so the reload exception does not apply' line, since it makes the reuse decision auditable against the restored-step-8 case.",
+      "wallMs": 5675,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "6277fb45c3d742b55ee8729481329feb0d40002b0fb2d70079065d3afb325f5d",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "77fc319c1a7f5ca33d327d6147e00faa745448af02f7c92a24184c09e061fb80",
+      "intentSha": "b91bd8dfa507c4b4fd6eb7c807d7a687d6c6f3eeb488fa85a6a346489513b442",
       "baselineOutputSha": "9bf621494a8a9011b8ecf595e43b3860c5a8ede3d1b6cb835ae80a69fbd90be6",
       "candidateOutputSha": "aae7cfd41c15932f462b234bfa55a5d63598225837903a1fba012bcded21a726",
       "facts": {
@@ -71,10 +71,10 @@
           "label": "held"
         }
       },
-      "feedback": "Neither fact moved. Both outputs decline to re-read reference/ticket-acceptance.md on the explicit ground that the step-3 content is still in context, and both present the four-option cut question (in-scope, deviation, deferral, ticket repair) for the verbatim owner-column row without assigning a disposition. The only differences in After are additive: a new numbered 'Draft read' item that narrates reading the previously approved spec while noting no outcome is supplied, and a switch of the recommendation from in-scope to ticket repair. Neither touches the judged facts, but the inserted draft-read item is the kind of unsupplied action that could trip a stricter 'narrate only fixed observations' fact in sibling samples; if the Change's redraw procedure requires it, keep it but phrase it as conditional on the procedure ('if the redraw procedure directs a draft read, read the approved spec; no outcome is supplied') so it stays clearly separated from the ticket-reference reuse decision and the cut question.",
-      "wallMs": 13155,
+      "feedback": "Nothing moved on this sample: After still declines to re-read reference/ticket-acceptance.md on the step-4 redraw, citing the in-context step-3 read, and still presents the cut question for the verbatim owner-column row with all four options (in-scope, deviation, deferral, ticket repair) while waiting for the human rather than assigning a disposition. Two differences are worth noting for stability. First, After inserts a 'Draft read' step (reading the previously approved spec) that is not in the fixed observations; it names a different file than the ticket reference so redraw-reuse is unaffected, but under a stricter reading of the 'no read after the redraw' fact a model could drift into narrating an extra reference read—if the Change wording in the amendment-surface/redraw slices mentions re-reading the draft, consider phrasing it as 'retain the approved spec text already in context' to avoid prompting narrated reads. Second, the recommendation flipped from in-scope to ticket repair; the fact does not key on the recommendation, but if the ticket rules intend a default lean toward keeping rows in scope, a clause like 'recommend in-scope unless the row is unimplementable against verified code' would keep that steady while the new amendment-menu grammar stays scoped away from the cut question as the section-4 scoping sentence already does.",
+      "wallMs": 12392,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "01add339b1d2d7a836d4b133454f5b65bfb6f167"
+  "repoSha": "c716bb89c931da9b0ee455556cc3db987a894f1e"
 }

@@ -34,7 +34,7 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "9d55993ab739d602b4ba493c10df66c6692560974fa0be5092a8042fbc73cc8b",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "77fc319c1a7f5ca33d327d6147e00faa745448af02f7c92a24184c09e061fb80",
+      "intentSha": "b91bd8dfa507c4b4fd6eb7c807d7a687d6c6f3eeb488fa85a6a346489513b442",
       "baselineOutputSha": "f3629294b8f41c9e45367300a588305219d7bba3213647e4084ff7420230df8e",
       "candidateOutputSha": "5db20932e690f505b1472c311fc6e86141e621e25834b618554971b8d1c329f5",
       "facts": {
@@ -54,14 +54,14 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "No fact moved: both outputs render the cut question with A) in-scope, B) deviates, C) deferred, D) repair the ticket in that order, both recommend only A or D (Before picks D, After picks A), and both Option D lines name /skill:shape-ticket acme/widgets#77. One difference worth watching in After: options B and C are emitted with literal template placeholders (`B) deviates: <why>`, `C) deferred: <where>`) rather than filled text, whereas Before filled them with the actual evidence (`src/export/csv.ts:40`) and a concrete follow-up. That does not break the three facts here, but if any sample checks that the cut question's options carry real content, the After wording's instruction to render the question in a code block seems to have encouraged copying the template verbatim; adding a sentence like 'fill every option's placeholder with the row's evidence; never emit <why> or <where> literally' would keep the current facts while closing that gap.",
-      "wallMs": 9774,
+      "feedback": "Nothing moved on this case: both outputs render the cut question with A) in-scope, B) deviates, C) deferred, D) repair the ticket in that order, both recommend an allowed letter (Before D, After A), and both D options name /skill:shape-ticket acme/widgets#77 with the src/export/csv.ts:40 evidence. The only textual difference worth noting is that After leaves B and C as template placeholders (`<why>`, `<where>`) where Before filled them with concrete reasons; that does not fail any listed fact, but if the author wants the cut question to stay fully rendered under the enlarged assembly, the scoping sentence in ticket-acceptance.md could say explicitly that every option line is filled from the gathered evidence rather than copied from the template, which would keep the ordering, recommendation, and D wording intact while delivering the amendment-surface change.",
+      "wallMs": 8376,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "9d55993ab739d602b4ba493c10df66c6692560974fa0be5092a8042fbc73cc8b",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "77fc319c1a7f5ca33d327d6147e00faa745448af02f7c92a24184c09e061fb80",
+      "intentSha": "b91bd8dfa507c4b4fd6eb7c807d7a687d6c6f3eeb488fa85a6a346489513b442",
       "baselineOutputSha": "812c8a0dff069e6e00c3a0b9aea0a250368a2a9b04ef5d7cc10c194a5ac4f2c2",
       "candidateOutputSha": "ce01c22233900fc3796f1ac954f8896d75b51ff7355608ca040309b1f451b71b",
       "facts": {
@@ -81,10 +81,10 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "Nothing moved on this case: both outputs render the cut question with A) in-scope, B) deviates, C) deferred, D) repair the ticket in that order, both recommend within {A, D} (Before picks A, After picks D), and both name `/skill:shape-ticket acme/widgets#77` in option D. The After wording changed the lead-in to an explicit question and shifted the recommendation from A to D on the strength of the fixture conflict; that is permitted by f2 as written, but if the author wants the recommendation to stay stable across assemblies, the cut-question slice should state which of A/D to prefer when a ticket row contradicts gathered evidence rather than leaving the choice to the model. The amendment-surface section 4/5 insertion did not displace the ticket cut-question format here, consistent with placing that slice before ticket-acceptance.md.",
-      "wallMs": 7906,
+      "feedback": "Nothing moved on this case: both outputs render the cut question with A) in-scope, B) deviates, C) deferred, D) repair the ticket in that order, each option on its own line with a lead-in before and a final own-line Recommendation, and Option D names `/skill:shape-ticket acme/widgets#77` in both. The only visible difference is that After switches the recommendation from A to D (both permitted by f2) and moves the serializer/paging reuse retention from the first message into the Approaches message; neither change touches a fact here. If you want the recommendation stable across the enlarged assembly, the ticket-acceptance slice could state which of A/D to prefer when the fixture evidence shows a contract conflict rather than an impossibility, but as written the After wording keeps every fact Before kept while still carrying the amendment-surface section 5 change.",
+      "wallMs": 7756,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "01add339b1d2d7a836d4b133454f5b65bfb6f167"
+  "repoSha": "c716bb89c931da9b0ee455556cc3db987a894f1e"
 }

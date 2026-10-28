@@ -34,7 +34,7 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "c06504948008420f2de239bdba76490dde7dd45f595407b9607b543500e3c51b",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "77fc319c1a7f5ca33d327d6147e00faa745448af02f7c92a24184c09e061fb80",
+      "intentSha": "b91bd8dfa507c4b4fd6eb7c807d7a687d6c6f3eeb488fa85a6a346489513b442",
       "baselineOutputSha": "3a77f341cc5ce707de24599b61a8a3dad3a1e262cc6fc9ac55146e718ee967c8",
       "candidateOutputSha": "6230224ef33388863430f72a20066a7d45ed768c5dec4e73517a561b96fa4c20",
       "facts": {
@@ -59,14 +59,14 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "No fact moved: both outputs name PR acme/widget#61 with its cache intent, state the base-added tenantId cache-key rule as a constraint added since fork despite fork-point compliance, use the 'Drafted from the design, no ticket rows:' header with an unchecked in-scope tenant-isolation row, and carry a Rework record after the ACs with the full pre-rework SHA, base/clean-merge line, Threads: none, Dropped claims: none, Scoped tests: none run with a clean-merge reason, and Changes/Keeps that add tenantId to the existing key while retaining the original implementation and commits. The Expected-to-move list predicted fails -> holds here, but Before already holds every fact, so the recorded baseline for this sample is stronger than anticipated. One drift in After worth tightening: the per-PR subsection's 'keeps:' line now quotes the PR body ('Cache retry settings without changing request behavior.') instead of naming the kept cache implementation as Before did; the top-level Keeps line still satisfies the repair fact, but wording the per-PR keeps as 'the existing cache implementation for retry settings' keeps the two levels consistent and avoids a reader taking a PR claim for a kept artifact. After also narrowed the ACs to one row (dropping Before's within-tenant unchanged-retry row); the no-ticket fact only requires at least one, but preserving a second design-derived outcome costs nothing and better covers the 'request behavior unchanged' claim the Problem relies on.",
-      "wallMs": 14533,
+      "feedback": "No fact moved: After still names acme/widget#61 and its cache intent, states the base-added tenantId cache-key rule as a constraint despite fork-point compliance, keeps the Rework record after the ACs with the full pre-rework SHA, base/merge line, Threads: none, Dropped claims: none, and Scoped tests: none run with the clean-merge reason, and its Changes line adds tenantId to the existing key while the top-level Keeps line names the original implementation and reachable commits; the AC block uses the drafted-provenance header with one in-scope unchecked tenant-isolation row. One drift worth watching is the per-PR `keeps:` line, which in After echoes the PR body (\"Cache retry settings without changing request behavior.\") instead of naming the kept implementation and original commits as Before did; this does not fail the repair fact here because the top-level Keeps line carries it, but it is the same keeps-line weakening recorded as accepted variance on pr-subject-weakened-rule/preservation. If the section 5 addition is pushing the model toward summarizing per-PR keeps from the PR title/body, a short pin in the Rework record rules (\"the per-PR keeps line names the retained implementation and original commits, never the PR body or title\") would hold that line steady while leaving the amendment-surface change intact.",
+      "wallMs": 14226,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "c06504948008420f2de239bdba76490dde7dd45f595407b9607b543500e3c51b",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "77fc319c1a7f5ca33d327d6147e00faa745448af02f7c92a24184c09e061fb80",
+      "intentSha": "b91bd8dfa507c4b4fd6eb7c807d7a687d6c6f3eeb488fa85a6a346489513b442",
       "baselineOutputSha": "f0710fb6bd7137c16e9ff1e72c250656417dee0fc7a9166bcfe7860c034d077b",
       "candidateOutputSha": "ad57162314eac09117552db8dc428cecafc16b72c85e8c6d0042b1ed74328d73",
       "facts": {
@@ -91,10 +91,10 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "No fact moved: both outputs name acme/widget#61 with its cache intent, state the base-added tenantId cache-key rule as a since-fork constraint while acknowledging fork-point compliance, keep the existing implementation and original commits in Keeps, propose adding tenantId to the existing key in Changes, place the Rework record after a drafted-provenance AC section with a design-derived tenant-isolation row, and retain the full SHA, base/merge, Threads: none, a Dropped claims line, and Scoped tests: none run with the clean-merge reason. The one substantive divergence is the dropped-claim disposition: Before drops the unchanged-request-behavior claim pending isolation, whereas After records 'Dropped claims: none' and retains the claim 'subject to the approved tenant-isolation repair' - that still reads as a disposition, so grammar holds, but it is the weaker reading of 'claim needs tenant isolation to hold'; if the author wants the dropped-claim disposition to be unambiguous under the new wording, phrase the fixed-record rule so that a claim conditioned on an unmerged repair is listed under Dropped claims (with its condition) rather than declared none, and keep the per-PR subsection from restating the top record. Everything else in After - the split constraint paragraph, the 'smallest repair' phrasing, and the AC wording - preserves all four facts while delivering the drafted-row and base-rule changes.",
-      "wallMs": 22670,
+      "feedback": "No fact moved: both outputs name acme/widget#61 and its cache intent, state the base-added tenantId cache-key rule as a constraint while noting fork-point compliance, propose adding tenantId to the existing key with Keeps naming the original implementation and commits, keep the full pre-rework SHA, base/merge line, Threads: none, a dropped-claim disposition and Scoped tests: none run with the clean-merge reason, and use the Drafted-from-the-design header with one unchecked in-scope tenant-isolation row. The one substantive drift in After is the dropped-claim disposition: Before listed the conditional 'request behavior is unchanged' claim as dropped, After records 'Dropped claims: none' and instead retains it 'subject to the approved tenant-isolation repair'. Both satisfy the grammar fact since each records a disposition, but the gathered draft only says the claim needs isolation to hold, so After's reading is defensible; to keep the record unambiguous under the enlarged section-5 assembly, have the rework-record wording require that any claim conditioned on the repair be either listed under Dropped claims or explicitly annotated as retained-conditional on the Changes line (as After does), rather than leaving the choice to the model. Also, After moved the AGENTS.md/git-show provenance out of the 'constraints added since fork:' line into the preceding paragraph; keeping the provenance on the constraints line itself (as Before did) would be safer for the constraint fact if a judge keys on that line.",
+      "wallMs": 18344,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "01add339b1d2d7a836d4b133454f5b65bfb6f167"
+  "repoSha": "c716bb89c931da9b0ee455556cc3db987a894f1e"
 }

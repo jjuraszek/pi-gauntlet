@@ -34,7 +34,7 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "8e88168e24953beea5f824921f6cf8f7ec22c93ec3b49d452a898f8af19c02ed",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "77fc319c1a7f5ca33d327d6147e00faa745448af02f7c92a24184c09e061fb80",
+      "intentSha": "b91bd8dfa507c4b4fd6eb7c807d7a687d6c6f3eeb488fa85a6a346489513b442",
       "baselineOutputSha": "4d5ee9dba0c838af01492969bd5d6f6da3a2c447ee1aa22c6e339518aa917dd3",
       "candidateOutputSha": "075b742facc474801ef248d6cadaf049de447d3f81a9c7e78ac9561554b639ab",
       "facts": {
@@ -59,14 +59,14 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "Nothing moved: both outputs satisfy all four facts. Before already routes Trace A's third outcome and Trace B's repeated evidence to the existing step-6 exit, quotes the line-48 summary FAIL and the line-24 audit FAIL verbatim, lists exactly the right applied items with their distinct verbatim evidence (A: both replay and records; B: only replay), keeps A's count out of B, and performs no further apply, writer re-dispatch, tracker update or commit. After preserves every one of these while delivering the Change more explicitly: it names the two-item maximum and the separate repeat-evidence rule as distinct step-6 routes, states that the grant is consulted only for eligible items so it never forces a retry, and places the verbatim current-outcome quote directly in the human-facing report rather than only in the observation step, which makes the 'quotes for the human' part of the stop facts easier to verify. One small wording risk in After is 'Observed outcome: assumed readable' for the writing-plans read; replace 'assumed readable' with 'readable' (the case supplies the step-6 exit as readable) so a strict reader does not read it as a reconstructed exit. Otherwise the After wording keeps every fact Before kept.",
-      "wallMs": 14505,
+      "feedback": "Nothing moved: both outputs route Trace A's third outcome and Trace B's repeated evidence to the existing writing-plans step-6 exit, quote the current FAIL verbatim, pause, apply nothing further, dispatch no writer, and inventory exactly the trace's own applied items with their distinct verbatim evidence without leaking A's `records` item into B. The Before text already satisfied all four facts, so the expected fails->holds moves are not visible in this pair. After is the stronger rendering of the Change because it names the repeat-evidence rule as a step-6 route separate from the two-item maximum, states that the grant is consulted only for an eligible item, and orders the limit/repeat check before any grant re-read; keep that explicit ordering and the 'Actions not taken' lists. The only wording worth tightening in After is 'Observed outcome: assumed readable' for the writing-plans read—use 'readable (fixed observation)' so the narration does not look like it is guessing at the supplied observation, and keep the 'turn ends ... waits for the human' sentence since it is what makes the pause unambiguous.",
+      "wallMs": 14868,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "8e88168e24953beea5f824921f6cf8f7ec22c93ec3b49d452a898f8af19c02ed",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "77fc319c1a7f5ca33d327d6147e00faa745448af02f7c92a24184c09e061fb80",
+      "intentSha": "b91bd8dfa507c4b4fd6eb7c807d7a687d6c6f3eeb488fa85a6a346489513b442",
       "baselineOutputSha": "f66868e64a04ea3ed8f53a93cf411c02c54fdda22aeff7c80f33ad06a2e7ab65",
       "candidateOutputSha": "67ce58856de2177dfd17352fe4e827d0f8c6dd985d1ec7e2a862894c65d60857",
       "facts": {
@@ -91,10 +91,10 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "After moved none of the four facts. Both traces still route to the existing step-6 second-identical-FAIL exit, quote the summary (A) and audit (B) FAIL blocks verbatim, and explicitly refuse a third apply, writer re-dispatch, restoration, or batch commit; A's inventory lists exactly the replay and records items with their distinct verbatim evidence and treats the summary failure as a third outcome rather than an applied item; B lists only its single replay item with the line-24 audit evidence, states that A contributes no count or history, and stops on repetition below the two-item ceiling without silently retrying under the grant. The After wording is at least as clear as Before — it adds the section-5 reference name, the independent re-read for Trace B, and the explicit 'ceiling, not permission' framing — so no wording change is needed to keep these facts; if anything, retaining Before's phrase 'Report the step-6 failure with only this trace's single applied item' alongside After's 'Carry only this trace's one applied item' would make the no-leak and evidence-inventory points marginally more direct, but both already read as holding.",
-      "wallMs": 10688,
+      "feedback": "Nothing moved: both outputs route Trace A's third outcome and Trace B's repeated-evidence outcome to the existing step-6 exit, quote the summary and audit FAIL blocks verbatim, inventory exactly the already-applied items (two in A with distinct replay/records evidence, one in B with the line-24 audit evidence), state that A's count does not leak into B, and refuse a third apply, writer re-dispatch, restore, or batch commit under the active grant. After additionally names section 5 \"Apply, aftermath, commit\" and explicitly says the two-item maximum is a ceiling and that repetition independently triggers the exit, which tightens the repeat-stop reasoning without weakening anything. The After wording is safe to keep as-is; if you touch it further, preserve the verbatim fenced evidence blocks and the explicit \"Trace A contributes neither count nor evidence history\" sentence, since those are what the evidence and repeat-evidence facts key on.",
+      "wallMs": 12550,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "01add339b1d2d7a836d4b133454f5b65bfb6f167"
+  "repoSha": "c716bb89c931da9b0ee455556cc3db987a894f1e"
 }

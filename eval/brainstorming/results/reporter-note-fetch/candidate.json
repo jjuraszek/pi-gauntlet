@@ -38,7 +38,7 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "885a06af3def41b3295f9c40a82b520321c1d336a234e3188efb411e1bd7ee92",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "77fc319c1a7f5ca33d327d6147e00faa745448af02f7c92a24184c09e061fb80",
+      "intentSha": "b91bd8dfa507c4b4fd6eb7c807d7a687d6c6f3eeb488fa85a6a346489513b442",
       "baselineOutputSha": "7476cf4b95cfc2ad57afe538b375268e2d86fe1f354061dcbe02511a6a0d9109",
       "candidateOutputSha": "e9154e99dd553eeb129199087e2784c19f27e04d1216b4ddc4fabb051f22410d",
       "facts": {
@@ -83,14 +83,14 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "After preserves everything Before held: independent two-page fetches in both scout and context-builder with a short-page stop, the verbatim Reporter note under the heading with `comments: 52 fetched, 2 pages`, creation-ordered multi-author notes with the Casey/Sam contradiction left unresolved and explicitly never trimmed, body-only AC rows, the not-fetched sentinel with reason in no-path and whole-ticket-failed, and the body-only gate line in both degraded branches. The one fact that fails in both outputs is terms: Before's scout term list ends in `source lines` and After's in `source`, so neither includes the literal `418` that the fact requires from the older Reporter note (After actually moved further from it by dropping `lines`). The Change says to carry every Reporter-note section into scout search terms, so the wording should instruct the scout to include literal numbers and paths from matched notes as terms, e.g. 'keyword terms include every path and number quoted in a Reporter note verbatim (here `src/export-target.ts` and `418`)', while keeping the existing title/body terms and the exclusion of Overlap-evidence words.",
-      "wallMs": 23815,
+      "feedback": "After moved nothing: every fact Before kept, After keeps (independent two-page scout/context-builder fetches with the short-page stop, the verbatim note under `## Reporter notes (verbatim)` with `comments: 52 fetched, 2 pages`, three creation-ordered notes with the contradiction left open, body-only AC rows, the `none - ticket not fetched (...)` sentinel with the paste-rows gate in no-path and whole-ticket-failed, and the two degraded headings with the body-only gate line). The one fact both fail is `terms`: both scout term lists carry `src/export-target.ts` but neither includes `418`, so the intended fails->holds move for reporter-note-fetch/terms did not land. The keyword-terms wording in the skill should state that every concrete value in a matched Reporter note (paths and numbers, e.g. `src/export-target.ts` and `418`) is copied literally into the scout query alongside title/body terms; After's paged term list would then read `... move src/export-target.ts source 418 lines`. Minor polish while there: After's no-path sentinel reason `(no fetch path: tracker excluded by overrides)` is fine, but adding an explicit 'no new stop' sentence to no-path and whole-ticket-failed, as Before had for the latter, would make the no-path fact unambiguous.",
+      "wallMs": 24144,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "885a06af3def41b3295f9c40a82b520321c1d336a234e3188efb411e1bd7ee92",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "77fc319c1a7f5ca33d327d6147e00faa745448af02f7c92a24184c09e061fb80",
+      "intentSha": "b91bd8dfa507c4b4fd6eb7c807d7a687d6c6f3eeb488fa85a6a346489513b442",
       "baselineOutputSha": "6de7bc1c4cfb4f0372a0b43680eb674125cfa31e7e960885f27dd3c0dc18a352",
       "candidateOutputSha": "7c7155ef2a89ab911c2b15e92cbb378ca1011c0e7149206dc842cd287b5061bd",
       "facts": {
@@ -135,10 +135,10 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "Nothing moved: both outputs satisfy all seven facts, so on this sample the Change delivers no observable gain and costs nothing. After is slightly stronger on paging (it states explicitly that the full page-1 triggers page 2 and the short page ends pagination, where Before only implied the stop) and it adds the useful note that the no-path scout must not borrow title/body/target/size from other branches. The one place After is weaker, though still within the facts, is the Reporter notes blocks: it dropped the per-note author and creation-time labels (`Sam, creation time 1:`) that Before carried, so creation order in the multiple branch is now only asserted in prose ('notes in creation order') rather than visible in the quoted block, and the 52-comment paged block no longer shows which comment the note came from. If you want to keep the explicit-stop paging narration while preserving that attribution, restore the `<author>, creation time <n>:` lead-in lines above each verbatim note in the context-builder drafts; everything else in After can stay as written.",
-      "wallMs": 20678,
+      "feedback": "No fact moved: After keeps every fact Before kept, and its paged trace actually states the paging contract more explicitly (full page 1 triggers page 2, the short page ends pagination, scout and context-builder each read both pages independently). The one place After is weaker in evidence rather than outcome is the Reporter notes block in paged and multiple: Before labeled each quoted note with author and creation time (`Sam, creation time 1:`), which directly demonstrates creation ordering and that notes are carried regardless of author; After drops those labels, so the creation-order and all-authors properties now rest on the prose 'notes in creation order' and 'No author filter applies' rather than on the block itself. To keep that anchoring while still delivering the change, have the drafting instruction say the block quotes each note verbatim preceded by a one-line author/creation-time label, with only the note text required to be verbatim. Also, After's no-path AC sentinel appends '; no fetch path' to the supplied reason inside the parentheses—still a supplied reason, but keeping the parenthetical to the exact supplied reason would make the sentinel wording more predictable for the gate.",
+      "wallMs": 22823,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "01add339b1d2d7a836d4b133454f5b65bfb6f167"
+  "repoSha": "c716bb89c931da9b0ee455556cc3db987a894f1e"
 }

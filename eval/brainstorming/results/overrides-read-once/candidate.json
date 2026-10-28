@@ -34,7 +34,7 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "0bda7ffbeb62738050132cb7af7848b668a27bd11721b942148c4e8b29519ca8",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "77fc319c1a7f5ca33d327d6147e00faa745448af02f7c92a24184c09e061fb80",
+      "intentSha": "b91bd8dfa507c4b4fd6eb7c807d7a687d6c6f3eeb488fa85a6a346489513b442",
       "baselineOutputSha": "0f38867fef105cac2d75c015aa3f57d00a9b04795d99706e9196ce72bcaabe5e",
       "candidateOutputSha": "226169d8642b4cd69899704156b672836b7cb7968f9792a7c49d87291f626482",
       "facts": {
@@ -54,14 +54,14 @@
           "label": "held"
         }
       },
-      "feedback": "Nothing moved on this sample: both outputs narrate exactly one `read` of `.pi/gauntlet-overrides.md` in brainstorming (Trace A step 3), an explicit skip in writing-plans grounded in the content still being in context (step 7), American English applied in both stages (steps 4 and 8), and the `demo-` prefix applied in the second stage by name match (step 9); Trace B in both versions reasons that the skip clause only applies when possession is confirmed, reads the file, and applies both the convention and the `demo-` prefix. The After wording is slightly tighter (it drops the AGENTS.md aside and adds a 'no blocking stop because the file is readable' note), which is harmless. No wording change is needed to preserve these facts while delivering the amendment-surface/aftermath changes; just keep the once-per-session read rule and the 'skip only when content is confirmed in context' phrasing intact in the Project overrides slice.",
-      "wallMs": 8995,
+      "feedback": "Nothing moved on this sample. Both outputs narrate exactly one `read` of `.pi/gauntlet-overrides.md` in brainstorming (Before step 3, After step 3), skip the duplicate in writing-plans because the content remains in context (Before step 7, After step 7), apply American English in both stages (Before steps 4/8, After steps 4/8), apply the `demo-` prefix in writing-plans despite the skipped read (Before step 9, After step 9), and in Trace B treat the unsure state as requiring a read rather than a ban before applying both rules (Before steps 1–5, After steps 2–6). After adds a short preamble stating actions are narrated and drops the `AGENTS.md` aside, neither of which touches any fact. The amendment-surface section 5 addition did not disturb the overrides read-once/unsure-read behavior, so no wording change is needed for this case.",
+      "wallMs": 8450,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "0bda7ffbeb62738050132cb7af7848b668a27bd11721b942148c4e8b29519ca8",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "77fc319c1a7f5ca33d327d6147e00faa745448af02f7c92a24184c09e061fb80",
+      "intentSha": "b91bd8dfa507c4b4fd6eb7c807d7a687d6c6f3eeb488fa85a6a346489513b442",
       "baselineOutputSha": "103cb859725fc76624a7fa71c8a24c677bdaec999d3e3a5aacf98bb4eeed5996",
       "candidateOutputSha": "971a99e64a3c909bb73e8985be646080030bf542abb11dc9f2ab86e95490b42c",
       "facts": {
@@ -81,10 +81,10 @@
           "label": "held"
         }
       },
-      "feedback": "No fact moved: After keeps a single brainstorming read in Trace A, an explicit skip of the reread tied to content remaining in context, American English in both stages, the demo- prefix in writing-plans, and an unsure-context read in Trace B followed by application of both conventions. The one small weakening is Trace A step 5, which calls the demo- rule \"the stage-specific rule\" instead of naming the `## writing-plans` section as Before step 4 did and as After's own Trace B step 3 does; since the fact asks for the \"named-section\" rule, keeping the explicit `## writing-plans` label in that step (e.g. \"apply the named `## writing-plans` rule: plan examples use the prefix `demo-`\") would make the attribution unambiguous while preserving the clearer read/apply split that After introduces.",
-      "wallMs": 10337,
+      "feedback": "Nothing moved: both outputs narrate a single brainstorming read in Trace A, an explicit skip of the reread in writing-plans because the content is still in context, American English applied in both stages with the demo- prefix applied in the second stage, and Trace B reading the file when context possession is unsure before applying both conventions. The After wording splits Trace A's skip and apply into separate steps and adds an explicit context-check step in Trace B, which if anything makes the reuse/unsure distinction clearer. One small drift to watch: After step 5 of Trace A calls the demo- rule \"the stage-specific rule\" instead of naming the `## writing-plans` section as Before did; keep the literal section name (`Apply the named ## writing-plans rule: ...`) so the named-section attribution the fact relies on stays verbatim under future assembly changes.",
+      "wallMs": 10050,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "01add339b1d2d7a836d4b133454f5b65bfb6f167"
+  "repoSha": "c716bb89c931da9b0ee455556cc3db987a894f1e"
 }

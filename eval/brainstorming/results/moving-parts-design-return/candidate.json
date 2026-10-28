@@ -34,56 +34,35 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "1b78b5f34453eb8e26b2d0a838eae8077b3c6ad78a2a59560a55957156af58a6",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "77fc319c1a7f5ca33d327d6147e00faa745448af02f7c92a24184c09e061fb80",
+      "intentSha": "b91bd8dfa507c4b4fd6eb7c807d7a687d6c6f3eeb488fa85a6a346489513b442",
       "baselineOutputSha": "235200d687589b4605d71858ade8fa6003293d4cec14039f715d4f9e52f86612",
       "candidateOutputSha": "4f976f683d40ae00ed9142bf525a194323d6c030a93db2b19bfee8acba4e4e01",
       "facts": {
         "carry-forward": {
           "before": "holds",
           "after": "fails",
-          "label": "regression"
+          "label": "intended change"
         },
         "test-per-observable": {
           "before": "holds",
           "after": "fails",
-          "label": "regression"
+          "label": "intended change"
         }
       },
-      "feedback": "Both outputs generate the recap and the three test mappings with the right content, but After drops the two literal labels the facts are written against: Before groups the Remove/Add lines under an explicit \"Design imperatives:\" label in the recap and emits a spec-style \"## Tests\" heading over the observable - test lines, whereas After lists bare \"Remove:\"/\"Add:\" bullets (plus a \"Pattern:\" line, which belongs to the approaches stage, not the recap) and renders the mapping under an italic \"*Tests.*\" run-in instead of \"## Tests\", so a reader checking for the named Design imperatives block and the spec ## Tests section does not find them. To keep what Before kept while still delivering the Change, the After wording should state that the round-two recap carries the chosen inventory verbatim as a \"Design imperatives\" block containing \"Remove: ...\" and \"Add: ...\", and that round two's test mapping is emitted as the spec section heading \"## Tests\" with one \"<observable> - <test name>\" line per acceptance row and per Design edge/error observable; the existing wording for both apparently lets the model substitute prose labels, and pinning the two headings removes the ambiguity.",
-      "wallMs": 23152,
-      "verdict": "regressed",
-      "confirmation": {
-        "status": "ok",
-        "text": "**Recap of the approved design commitments**\n\n- `lib/notify.ts#post` stays the single owner of message formatting and retries. Its signature becomes `post(message, channel = \"general\")`.\n- `post` rejects an empty channel before it sends anything.\n- `jobs/report.ts` stops sending on its own. It calls `post` with its requested channel.\n- `jobs/digest.ts` keeps its existing `post(message)` call and still gets the `general` default. It needs no edit.\n- Remove: the inline fetch in `jobs/report.ts`, including its copied formatting and retry logic.\n- Add: one optional `channel` parameter on `lib/notify.ts#post`, defaulting to `\"general\"`.\n\n---\n\n**Round two: errors, edges, tests, documentation impact**\n\n*Errors*\n\nAn empty channel is a caller error. `post` raises an explicit error at the top of the function, before formatting, before the first send attempt and before any retry. Nothing is sent, so no message can land partially or by accident in `general`. This applies to the report path too: if `jobs/report.ts` passes an empty requested channel, the error reaches the report job. It does not quietly fall back to `general`, because that would hide a misconfigured override. Transport failures for a valid channel keep `post`'s existing retry behaviour unchanged. The report job now gets that retry behaviour from `post` instead of from its own copy.\n\n*Edges*\n\n- **Channel omitted.** The default applies and the message goes to `general`. This is the only path `jobs/digest.ts` uses.\n- **Channel `\"general\"` passed explicitly.** This behaves the same as omitting it.\n- **Channel is an empty string.** `post` rejects it before sending, as described under Errors.\n- **Report override supplied.** The message goes to the requested channel, with the same formatting and retries as every other caller.\n\n*Tests*\n\n- post sends to the requested channel when an override is supplied - `post_uses_requested_channel`\n- post preserves the general default when the channel argument is omitted - `post_keeps_default_channel`\n- post rejects an empty channel before sending, with no send attempt made - `post_rejects_empty_channel`\n\n*Documentation impact*\n\nThe bar comes from `reference/documentation-impact.md`. The gather draft's `Docs touched:` list is empty, so there are no candidates to admit. The change adds one optional parameter to a private helper, and the code already shows its default. No product-facing doc, contract or router entry covers this helper, so none goes stale.\n\n```markdown\n## Documentation impact\n- Feature / user-facing docs introduced: none\n- Materially amended existing docs: none\n- Derived / memory docs invalidated: none\n```\n\nDo you approve round two?\n",
-        "words": 375,
-        "wallMs": 15351,
-        "mechanical": {},
-        "judgeWallMs": 20928,
-        "facts": {
-          "carry-forward": {
-            "before": "holds",
-            "after": "fails",
-            "label": "regression"
-          },
-          "test-per-observable": {
-            "before": "holds",
-            "after": "holds",
-            "label": "intended but unchanged"
-          }
-        },
-        "feedback": "Before's recap carries the chosen inventory under an explicit `Design imperatives:` label with `Remove: the inline fetch ... in jobs/report.ts` and `Add: one optional channel parameter on lib/notify.ts#post`, and renders the test mapping under a literal `## Tests` spec heading with all three named tests. After keeps both Remove/Add lines and all three observable - test mappings (so test-per-observable still holds on the mapping content), but it drops the `Design imperatives` label and lists Remove/Add as plain recap bullets, so a careful reader cannot say the recap presents them as Design imperatives; it also demotes `## Tests` to an italic `*Tests*` subsection while still fencing `## Documentation impact` as a spec block, which is inconsistent and risks the Tests fact under a stricter reading. To keep every fact Before kept while still delivering the carry-forward/test-per-observable change, the After wording should require the recap to emit a `Design imperatives:` line (or heading) immediately introducing the Remove:/Add: imperatives taken from the chosen approach's inventory, and require round two to render the test mapping as a `## Tests` spec block (one `<observable> - <test>` line per acceptance row and per Design edge/error observable), mirroring how the Documentation impact block is already emitted."
-      }
+      "feedback": "Before carries the inventory under a literal `Design imperatives:` bullet with `Remove:`/`Add:` sub-items and emits a literal `## Tests` heading with the three `<observable> - <test>` rows, so both facts hold. After keeps the substance - the Remove/Add lines name the inline fetch in `jobs/report.ts` and the optional `channel` parameter on `post`, and all three named tests are mapped to their observables - but it drops the `Design imperatives` label (the bullets sit bare in the recap next to a `Pattern:` line) and demotes the Tests spec to an italic run-in `*Tests.*`, so neither fact is satisfied as written. This is the enlarged-assembly effect the Change describes: adding amendment-surface section 5 after section 4 pushes the brainstorming section 6 recap/round-two format further from the model's attention without altering its text. To deliver the Change and keep both facts, add to the section 6 recap rule (or restate it in a short sentence adjacent to the new section 5 slice) an explicit format requirement: 'Recap the chosen inventory under the literal label `Design imperatives:` with `Remove:` and `Add:` lines, and present round-two tests under a literal `## Tests` heading, one `<observable> - <test name>` row per acceptance criterion and Design error/edge observable.' Pinning those two literals keeps the enlarged assembly from flattening the headings while leaving the amendment-batch retry/restore/grant wording untouched.",
+      "wallMs": 16897,
+      "verdict": "improved"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "1b78b5f34453eb8e26b2d0a838eae8077b3c6ad78a2a59560a55957156af58a6",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "77fc319c1a7f5ca33d327d6147e00faa745448af02f7c92a24184c09e061fb80",
+      "intentSha": "b91bd8dfa507c4b4fd6eb7c807d7a687d6c6f3eeb488fa85a6a346489513b442",
       "baselineOutputSha": "30ada077f72f4262d1b7a0eee17bf2e2c050a1e1e7129d788a4bceab8ac35843",
       "candidateOutputSha": "e7b8c446ce13d417917e91bb1e4037c0c1737b1d8606bb2cbf73d80ca56b5081",
       "facts": {
         "carry-forward": {
-          "before": "holds",
-          "after": "holds",
+          "before": "fails",
+          "after": "fails",
           "label": "intended but unchanged"
         },
         "test-per-observable": {
@@ -92,10 +71,10 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "Neither fact moved: both outputs generate a Remove/Add inventory inside the recap (Before: \"duplicated inline delivery logic in jobs/report.ts\" / optional channel parameter in post; After: \"the inline fetch and duplicated formatting/retry logic in jobs/report.ts\" / optional channel parameter in post), and both carry a ## Tests section mapping requested channel, preserved default, and empty-channel rejection to post_uses_requested_channel, post_keeps_default_channel, and post_rejects_empty_channel in observable - test form. After is closer to the fact's wording because its Remove line names the inline fetch explicitly, but it still shares Before's two soft spots: the inventory sits under \"Chosen design commitments\" rather than a \"Design imperatives\" label, and the Add line pads the chosen \"one optional parameter on post\" with validation, delegation, and tests, which a strict reader could treat as a different inventory than the one recorded in conversation. To make carry-forward robust, have the recap render a literal \"Design imperatives\" sub-label with Remove: the inline fetch in `jobs/report.ts` and Add: one optional parameter on `post` as the only two items, and move the empty-channel validation, delegation call, and tests into the round-two prose; keep the ## Tests block exactly as After has it.",
-      "wallMs": 24444,
+      "feedback": "Neither output actually matches the Expected-to-move story for this case. For test-per-observable, After still has a literal `## Tests` heading (it is the only level-2 heading After keeps, while the rest were demoted to `###`), with all three observables mapped in `<observable> — <test name>` form to post_uses_requested_channel, post_keeps_default_channel, and post_rejects_empty_channel, so it holds exactly as Before does; the recorded 'demoted to a run-in' variance is not present in this After text. For carry-forward, both outputs recap the inventory as bold `**Remove:**`/`**Add:**` lines under a 'Chosen design commitments' heading, and neither uses the literal `Design imperatives` label the fact keys on; After's Remove line ('the inline fetch and duplicated formatting/retry logic in `jobs/report.ts`') is if anything closer to the fact's wording than Before's ('the duplicated inline delivery logic'), while both Add lines bundle validation, delegation, and tests alongside the one optional parameter. So the label gap is a pre-existing Before behavior, not something the After wording introduced. If you want this fact to hold reliably across the enlarged assembly, the brainstorming section 6 recap rule should say explicitly that the round-two recap opens with a `Design imperatives:` line followed by `Remove: <inventory>` and `Add: <inventory>` carried verbatim from the chosen approach, and that the tests section must be a `## Tests` level-2 heading; the amendment-surface section 5 insertion itself does not need to change to deliver the retry/aftermath Change, but pin those two labels in section 6 so neither Before-style nor After-style drift can drop them.",
+      "wallMs": 28082,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "01add339b1d2d7a836d4b133454f5b65bfb6f167"
+  "repoSha": "c716bb89c931da9b0ee455556cc3db987a894f1e"
 }

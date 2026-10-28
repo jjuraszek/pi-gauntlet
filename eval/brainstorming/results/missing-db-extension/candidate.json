@@ -34,7 +34,7 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "9edb4dc803670594227d5d4a824f10007c3df50a9d9dddb87a6fd777f3d2f8b8",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "77fc319c1a7f5ca33d327d6147e00faa745448af02f7c92a24184c09e061fb80",
+      "intentSha": "b91bd8dfa507c4b4fd6eb7c807d7a687d6c6f3eeb488fa85a6a346489513b442",
       "baselineOutputSha": "48b40e45976d0622c67832450cc84a8dac226606268aa804222f2292b32df8f2",
       "candidateOutputSha": "856b4baad0629b1b76c81e1c89eef1d0b41744e16bde36e2417d8d4abba4f6ce",
       "facts": {
@@ -64,14 +64,14 @@
           "label": "held"
         }
       },
-      "feedback": "After keeps every fact Before kept: the first message traces fixtures/search.sql:1-2 to demo_vector and reports it absent from the installed-extension listing (only plpgsql), the approaches message re-lists the missing dependency with the listing lookup named before any approach, the ## Problem excerpt carries the corrected premise and the lookup, approaches are delivered after the recorded answer without asking the user to verify the extension, and both outputs separate 'not installed' from 'not installable' while disclaiming a live database. The only soft spot in After is the phrasing 'I checked it, and it contains only plpgsql' and the dropped sentence 'no available-extension catalog was supplied'; Before's 'no live database lookup was possible' is a clearer replay disclaimer. To stay safe under stricter judging, keep an explicit 'the supplied listing' / 'no live lookup was possible' sentence in the first message and the Problem excerpt, as Before does, while retaining After's tighter dependency bullets and the extra latency-baseline not-checkable item.",
-      "wallMs": 15952,
+      "feedback": "Nothing moved: both outputs trace fixtures/search.sql:1-2 to demo_vector in the first message, state that the installed-extension listing (the guide's lookup) shows only plpgsql so demo_vector is not installed, restate the missing dependency and the listing lookup at the top of the separate approaches message, carry both into the spec ## Problem, keep brainstorming without asking the user to verify the extension, and explicitly separate 'not installed' from 'not installable' while saying no live database was available. The Before text already satisfies all five facts, so the expected fails->holds movement for this sample is not visible in the supplied Before transcript. One wording risk in both arms for the replay fact: Before says 'I ran that lookup' and After says 'I checked it', which a strict reader could take as a live lookup claim; phrasing it as 'the supplied installed-extension listing shows only plpgsql' would remove the ambiguity while keeping every other fact. After's extra 'not checkable: latency baseline' bullet and the ruled-out candidates list are harmless additions and do not displace the required premise/lookup restatement before the approaches.",
+      "wallMs": 16581,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "9edb4dc803670594227d5d4a824f10007c3df50a9d9dddb87a6fd777f3d2f8b8",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "77fc319c1a7f5ca33d327d6147e00faa745448af02f7c92a24184c09e061fb80",
+      "intentSha": "b91bd8dfa507c4b4fd6eb7c807d7a687d6c6f3eeb488fa85a6a346489513b442",
       "baselineOutputSha": "b131374cd4fa314ae59a18acb052490ae54ec0a242bc7d5f941f3b1bcbeb5ae0",
       "candidateOutputSha": "92b600d9d0d89453bd221eab1ca25cff43f25a4aa6f1bea2ec97cc1a3121d4b9",
       "facts": {
@@ -101,10 +101,10 @@
           "label": "held"
         }
       },
-      "feedback": "After moved no fact: its first message traces fixtures/search.sql to demo_vector and states the installed-extension listing shows only plpgsql; the approaches message restates the missing demo_vector and names the installed-extension lookup before section A; the ## Problem excerpt keeps both the missing extension and the listing lookup; approaches are supplied without asking the user to verify first; and both outputs explicitly separate 'not installed' from 'unavailable' and say the findings come from supplied observations rather than a live lookup. The one fragility in After is ordering: the approaches message opens with the recommendation sentence and only then restates the dependency gap, so a stricter reading of 'before presenting approaches' could count the recommendation as the start of the approaches. To keep every fact robustly while delivering the Change, have the approaches message open with the lookup-and-result restatement ('the installed-extension listing lookup found no demo_vector; installability unchecked') and put the recommendation line immediately after, mirroring Before's structure.",
-      "wallMs": 15157,
+      "feedback": "Nothing moved on this case: both outputs trace fixtures/search.sql to demo_vector in the first message, state that the supplied installed-extension listing shows only plpgsql so demo_vector is not installed, explicitly distinguish not-installed from unavailable, restate the missing extension and name the installed-extension lookup at the top of the separate approaches message before approaches A/B, carry the same lookup and result into the spec ## Problem, and proceed to approaches without asking the user to locate or verify the extension. The Expected-to-move list anticipated Before failing premise/approaches/problem, but Before's text already satisfies all three, so the Change is confirmed as non-regressing here rather than as an improvement. After's wording is slightly stronger on the replay fact because it says outright that the listing 'is not an available-extension catalog' and that the dump's CREATE EXTENSION IF NOT EXISTS could install it; keep that phrasing. One minor caution: After places the recommendation sentence before the dependency-gap restatement in the approaches message, whereas Before leads with the gap — leading with the lookup restatement keeps the 'before presenting approaches' ordering unambiguous for a strict reader.",
+      "wallMs": 13916,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "01add339b1d2d7a836d4b133454f5b65bfb6f167"
+  "repoSha": "c716bb89c931da9b0ee455556cc3db987a894f1e"
 }

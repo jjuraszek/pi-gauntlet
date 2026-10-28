@@ -34,7 +34,7 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "3b006a1490b65fefa91553374d7aa6794754178cd4f5a3e033ffcb5533d72a41",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "77fc319c1a7f5ca33d327d6147e00faa745448af02f7c92a24184c09e061fb80",
+      "intentSha": "b91bd8dfa507c4b4fd6eb7c807d7a687d6c6f3eeb488fa85a6a346489513b442",
       "baselineOutputSha": "de2bd17eec391bca03b31c9a9edd96657b11e73e8aaa320bf876495ff18c2b62",
       "candidateOutputSha": "70d8d317d8ab5f62e7c9026ffef03ea089e55f72b39afc2651b3fa02d6888cde",
       "facts": {
@@ -69,14 +69,14 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "Nothing moved: both outputs satisfy all six facts on their own text. Split and Set-wide in both arms carry the exact `Drafted from the design, no ticket rows:` header with three and two unchecked in-scope family rows respectively and no leftover broad row; Missing, Partial and Unrelated in both arms stop before any spec write, quote `zero prose, renderer and size findings across the tree`, and ask the human for the complete Design enumeration without proposing families (After's Partial even names the uncovered 'size' kind explicitly, which makes that fact easier to verify than Before's 'does not account for every kind'); Ticket in both arms keeps `Ticket #42, Acceptance criteria, rows verbatim:`, the single verbatim row marked in-scope, and routes the split only through `/skill:shape-ticket` repair before approval rather than a drafted-row rewrite, ledger split or amendment. Since this synthetic sample has no pre-edit baseline, the 'fails -> holds' expectations for missing/partial/unrelated are not visible here as a textual move; the After wording is already the stronger of the two for the stop branches (explicit 'invent no families in the options or the recommendation', explicit naming of the missing kind), so keep that phrasing. One small guard worth retaining in After: Partial's option A says 'I replace Design's enumeration with it' - keep 'replace' from reading as the assistant editing Design unprompted by saying 'I record the list you give in Design', matching Missing and Unrelated, so a careful reader never thinks the model fills the gap itself.",
-      "wallMs": 17750,
+      "feedback": "Nothing moved: both outputs produce the same three-row Split section and two-row Set-wide section under the drafted-provenance header with in-scope dispositions and no extra broad row; both stop before any spec write in Missing, Partial and Unrelated, quote the drafted row verbatim, and ask only for the complete Design enumeration without proposing families; both keep `Ticket #42, Acceptance criteria, rows verbatim:` with the single unchecked row in-scope and route splitting through `/skill:shape-ticket` repair rather than a drafted rewrite or amendment. After is marginally stronger on Partial because it names the uncovered kind (`size`) explicitly in the narration while still refusing to fill it in, and on Ticket because it states the repair-before-approval route in prose before the cut question; keep those additions. The only wording to watch is Partial's option A (`I replace Design's enumeration with it`), which is fine as a human-supplied list but should not drift toward the model choosing what replaces the enumeration; keeping `you name every family` phrasing as in Missing/Unrelated would be safer. No accepted-variance claims apply to this sample.",
+      "wallMs": 19647,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "3b006a1490b65fefa91553374d7aa6794754178cd4f5a3e033ffcb5533d72a41",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "77fc319c1a7f5ca33d327d6147e00faa745448af02f7c92a24184c09e061fb80",
+      "intentSha": "b91bd8dfa507c4b4fd6eb7c807d7a687d6c6f3eeb488fa85a6a346489513b442",
       "baselineOutputSha": "4bd5717cb561f9f5d44b656726cb8ec6cb717e1975371c82854a822a51acedd1",
       "candidateOutputSha": "528a5783261a43abcd60271c1ffd626cc6570c79569690c4d5e5acb443ec5041",
       "facts": {
@@ -111,10 +111,10 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "Nothing moved: both outputs satisfy all six facts. Split and Set-wide render identical 'Drafted from the design, no ticket rows:' sections with three and two in-scope zero-finding rows respectively, each stating the union preserves the original outcome and disclaiming live writes. Missing, Partial and Unrelated in both arms stop before any spec write, quote the row verbatim, and ask for the complete Design enumeration without inventing families (Partial in After explicitly refuses to infer that adding size alone completes it; Before says the same by refusing to treat the partial list as complete). Ticket in both arms keeps the verbatim #42 block with in-scope disposition and routes splitting through /skill:shape-ticket with its confirmation gate rather than a drafted-row rewrite, ledger split or amendment. The Expected-to-move list anticipated Missing/Partial/Unrelated failing in Before, but the Before text already stops and asks; the After wording is therefore a safe tightening rather than a repair. If the author wants the stop behavior to be more robust against weaker outputs, the After phrasing that quotes the blocked row as a standalone blockquote and asks specifically 'what complete family enumeration and family-specific observables should Design commit to' is the wording to keep, since it makes the stop, the verbatim quote and the Design-sourced request each independently checkable.",
-      "wallMs": 16566,
+      "feedback": "Nothing moved: both outputs produce exactly three in-scope drafted rows for Split, two for Set-wide, stop before any spec write on Missing/Partial/Unrelated while quoting `zero prose, renderer and size findings across the tree` and asking Design for the complete enumeration without inventing families, and keep the Ticket #42 row verbatim with in-scope disposition and the /skill:shape-ticket repair route. After is marginally tighter than Before on the stop branches — it drops Before's 'change the intended outcome' option (which risked reading as an invitation to drop outcomes), states explicitly on Partial that it will not infer completeness from adding size, and on Unrelated names the unrelated enumeration as not covering the row — so the Change is delivered without loss. If you want to harden it further, keep the quoted outcome inside the question text itself (not only in the preceding blockquote) so the quote survives if the question is extracted alone, and on Ticket add the explicit negative list ('not a drafted-row rewrite, ledger split, or approved-row amendment') rather than relying on 'cannot be split locally' to imply it.",
+      "wallMs": 15451,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "01add339b1d2d7a836d4b133454f5b65bfb6f167"
+  "repoSha": "c716bb89c931da9b0ee455556cc3db987a894f1e"
 }

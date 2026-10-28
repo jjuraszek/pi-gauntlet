@@ -34,7 +34,7 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "0b49ab8cf8f9f32239dea5cc50fa21673adab7577d48ed92ca05998e5e746b76",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "77fc319c1a7f5ca33d327d6147e00faa745448af02f7c92a24184c09e061fb80",
+      "intentSha": "b91bd8dfa507c4b4fd6eb7c807d7a687d6c6f3eeb488fa85a6a346489513b442",
       "baselineOutputSha": "9d6e9aadbf8b26691e855add32d586cbdc02a7e50f5bb578b5234ce5286d1c7e",
       "candidateOutputSha": "d1c4bda8b4be10069a8e361d1ebc2793156ea94f4b41cf8dad96cc52b9977b07",
       "facts": {
@@ -64,14 +64,14 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "After satisfies every fact because it renders each step-6 exit in full rather than naming it: F and W quote `FAIL (1 findings)`, the finding line and the unchanged Tests text verbatim and pause with no item, grant lookup or re-dispatch; B lists Task 1, the command, 3a8fad8c, exit 1, the summary, fix-first/narrow/amend, a recommendation and a pause; D hands eval/report-runner/report.md to the human to commit/discard/move without any checkout or jj restore, preserves artifacts and In-flight, and (via the per-trace P3 preamble) says shifted lines and Task 1 membership prove nothing; M partitions by line, admits only line 40 and the replay CLI text into the single held item, and keeps line 25 on the quoted step-6 exit. Before actually fell short on fail, baseline and dirty by summarizing those exits ('the original step-6 exit, as read') instead of reproducing the FAIL text, the base-failure fields/options/recommendation/pause, or the commit/discard/move hand-off, so the After wording is an improvement on this case, not a regression. To keep this stable, retain the explicit 'render the step-6 branch in full, never merely name and defer it' instruction and the per-trace P3 list of non-attributing facts; the one soft spot is D, which relies on the shared preamble for the line-number/membership point—restating that sentence inside the dirtied-source exit itself would make the fact unambiguous without changing the Change's restore-only-eligible-rows behavior.",
-      "wallMs": 28844,
+      "feedback": "After moved nothing downward: it renders every step-6 exit in full where Before only named the exit and deferred its wording. In F, After quotes `FAIL (1 findings)`, the full `command-contract @ line 24: Tests segment requires a Test: path token` finding and the unchanged Tests line as the open question; Before only cited `command-contract @ line 24` and the command, omitting the count and the finding message and never rendering the question. In B, After supplies the fix-first/narrow/amend options, a recommendation and an explicit pause that Before lacked. In D, After states commit/discard/move without restoration, keeps the artifacts and In-flight paths, and (via P3) says line number and task membership never suffice, where Before only said 'not an amendment item' and never offered the human the three dispositions. W and M hold in both: both quote the missing-baseline evidence without inventing spec backing, and both admit only the line-40 lines into the Task 2 item while keeping line 25 on step 6. The one thing to watch in After's M is that the spec amendment is applied and the 'amended the spec' line printed before the line-25 step-6 question is answered; the fact tolerates this because line 25 is explicitly excluded from the item, but adding one sentence stating the apply used only the line-40 evidence as authority would make the partition unambiguous. Keep the 'render in full, never merely name step 6' rule and the P3 non-attribution list as the shared preamble; that wording is what lifted F, B and D while preserving W and M.",
+      "wallMs": 35132,
       "verdict": "improved"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "0b49ab8cf8f9f32239dea5cc50fa21673adab7577d48ed92ca05998e5e746b76",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "77fc319c1a7f5ca33d327d6147e00faa745448af02f7c92a24184c09e061fb80",
+      "intentSha": "b91bd8dfa507c4b4fd6eb7c807d7a687d6c6f3eeb488fa85a6a346489513b442",
       "baselineOutputSha": "b88e9d9c694ce48e7dd604096dc7577632e510fc693a25634b1a2a656223973b",
       "candidateOutputSha": "dc5f27a70f142eee78f5daa41f4c0da2e603ed3a7a01012a5b102f975c9e9530",
       "facts": {
@@ -101,10 +101,10 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "After moved no fact from holds to fails; every change is an improvement. Before failed fail/baseline/dirty/writer not because it misattributed anything but because each trace ended in a \"Blocking stop: writing-plans step 6 is unavailable\" that refused to state the original exit, so F and W never quoted the FAIL lines (no `FAIL (1 findings)`, no `missing baseline: bullet`), B never offered fix-first/narrow/amend with a recommendation and pause, and D never handed `eval/report-runner/report.md` to the human for commit/discard/move. After fixes all of that by actually routing to the step-6 exit with the verbatim evidence, options, recommendation and pause, preserving the artifact and In-flight paths in D, and explicitly stating that unchanged text, outside-amend Spec anchors, shifted lines, task membership and retained baseline evidence never attribute. M in After correctly partitions line 40 (attributable via changed command + amended anchor) from line 25 (writer-only, original exit) and refuses to use the `FAIL (2 findings)` header as blanket authority. Keep the After wording; the only thing to watch is that F/W quote the full three-line FAIL block including the header line, which After does, and that D's step 6 remains phrased as a human disposition question rather than a restoration.",
-      "wallMs": 22527,
+      "feedback": "Before's traces all collapse into a 'Blocking stop: writing-plans step 6 is unavailable' refusal, so F never re-sends the FAIL block verbatim, B never offers fix-first/narrow/amend with a recommendation, D never hands eval/report-runner/report.md to the human for commit/discard/move, and W never quotes its missing-baseline evidence; only M's partition statement (line 40 attributable, line 25 stays on step 6) was already correct. After fixes all of these by actually taking the original exit: it quotes each FAIL/row verbatim, lists the three options with a Recommendation line, pauses without applying an amendment or restoring files, preserves the artifact and In-flight paths, and keeps M's partition while explicitly refusing to let the FAIL (2 findings) header carry Task 1. One small tightening worth keeping: D's attribution paragraph should state outright, as F and W do, that Task 1 membership and the shifted line number never suffice on their own (e.g., 'The task number and shifted line are the only purported attribution; neither suffices'), so the dirty fact's second clause is satisfied by D's own text rather than inferred from the sibling traces; otherwise the After wording delivers the Change without losing anything Before kept.",
+      "wallMs": 30425,
       "verdict": "improved"
     }
   },
-  "repoSha": "01add339b1d2d7a836d4b133454f5b65bfb6f167"
+  "repoSha": "c716bb89c931da9b0ee455556cc3db987a894f1e"
 }

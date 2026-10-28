@@ -34,7 +34,7 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "02abcc2002c91ea908ff68db76139f5e71c07af0d6cc1e443734542a20cb559d",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "77fc319c1a7f5ca33d327d6147e00faa745448af02f7c92a24184c09e061fb80",
+      "intentSha": "b91bd8dfa507c4b4fd6eb7c807d7a687d6c6f3eeb488fa85a6a346489513b442",
       "baselineOutputSha": "2b235a617afcea03b59b0f64aa7ae983622965555ff9eab05e369f68e4ca9b69",
       "candidateOutputSha": "c5a4866b6654e0ecc688d81befe46689ef732910c69605d187d804d7876cd089",
       "facts": {
@@ -49,14 +49,14 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "Neither fact moved. Both outputs answer the user's question directly (\"No\"), tie the new key to the single existing settings file owned by settings/resolver.ts:12, restate round one with an explicit Remove/Add inventory, and close by re-asking \"Do you approve round one?\" without presenting round two or treating the question as approval. After's wording is slightly tighter on f1 (\"resolved and persisted through the same file every other setting uses\") and its data-flow list makes the file-read ownership explicit, which is consistent with the Change's goal of surfacing moving parts; keep that, and keep the final approval question as the last line so the pending gate stays unambiguous. No wording adjustment is needed for this case.",
-      "wallMs": 9146,
+      "feedback": "Nothing moved on this continuation. Both outputs answer the side question directly (no new settings file; settings/resolver.ts:12 owns the only settings file and the new key lives in it), restate round one with Removes/Adds before the closing question, and end by re-asking for round-one approval without presenting round two or treating approval as given. After's wording is slightly tighter (it leads with the answer and then restates round one with explicit moving parts, which matches the inventory-disclosure intent of the Change) and loses nothing Before kept; the restated data flow in After is actually clearer about the resolver reading the file and the view holding no state. No wording adjustment is needed for this case; if you want extra safety, keep the final line as the verbatim 'Do you approve round one?' and avoid any phrasing like 'round one again' that could be misread as a new round.",
+      "wallMs": 8903,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "02abcc2002c91ea908ff68db76139f5e71c07af0d6cc1e443734542a20cb559d",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "77fc319c1a7f5ca33d327d6147e00faa745448af02f7c92a24184c09e061fb80",
+      "intentSha": "b91bd8dfa507c4b4fd6eb7c807d7a687d6c6f3eeb488fa85a6a346489513b442",
       "baselineOutputSha": "4c5920ec2b3dadef37ab51aa13f6333e39ca7ea4cbfa51994fbd2d7527cef25f",
       "candidateOutputSha": "921c6fce6e3bc4883669957579dcae16afc21f18233d1f1c7339e722e6ee1aa7",
       "facts": {
@@ -71,10 +71,10 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "Nothing moved in this continuation case: both Before and After answer that the new setting lives in the single existing settings file owned by settings/resolver.ts:12 (f1), and both close by re-asking for round-one approval without presenting round two or treating approval as given (f2). After's phrasing — \"this adds a setting to the existing settings file, not another file\" — is actually slightly more direct for f1 than Before's. The large Change paragraph (amendment menu grammar, aftermath retries, PR-list admission, etc.) does not touch the continuation side-question contract, and the After output confirms that: it keeps the side-question answer short, cites the same verified paths, and returns to the pending gate. No wording adjustment is needed to keep these two facts; if the author wants extra safety, keep the closing line as an explicit question (\"Do you approve round one...?\") rather than any statement that could be read as moving on.",
-      "wallMs": 6318,
+      "feedback": "Neither fact moved. Both outputs answer the side question directly ('No'), state that the private report-view setting goes into the single existing settings file owned by settings/resolver.ts:12 and is consumed by ui/report-view.ts:30 through the existing path, and then re-ask for round-one approval without presenting round two or asserting approval. After is slightly more explicit ('not another file') and echoes the user's retained-filters selection, which is fine; keep the closing 'Do you approve round one with that clarification?' line exactly as is, since it is what preserves f2 under the enlarged assembly.",
+      "wallMs": 4200,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "01add339b1d2d7a836d4b133454f5b65bfb6f167"
+  "repoSha": "c716bb89c931da9b0ee455556cc3db987a894f1e"
 }

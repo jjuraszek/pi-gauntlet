@@ -34,7 +34,7 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "fdd359ce1676f3baf3bc9723ec4d18b552f508d014b3b185f33eb3f2cbf07f21",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "77fc319c1a7f5ca33d327d6147e00faa745448af02f7c92a24184c09e061fb80",
+      "intentSha": "b91bd8dfa507c4b4fd6eb7c807d7a687d6c6f3eeb488fa85a6a346489513b442",
       "baselineOutputSha": "c9ac7d9ae8bc24aba5a26decb2f9a4860c9c0f629cea7e4388941b190f756710",
       "candidateOutputSha": "4f4058376a64827d81d9e2fcb2a14082a19fd4b4000ca4c9de2c866829d9e2ec",
       "facts": {
@@ -54,14 +54,14 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "After keeps all three facts, so nothing moved: the recommended option is labeled reuse-only, names lib/notify.ts#post, says the body is built from the parameter instead of the hard-coded general literal, and adds an optional channel to that helper while removing the inline copy in jobs/report.ts; all three viable approaches (optional argument, required argument, postTo sibling) carry Removes:/Adds: lines immediately before Pattern:, and the non-viable no-change option is correctly excluded from that inventory. One place where After is weaker than Before on reuse-path is the gap statement: Before said explicitly 'it lacks only a caller-supplied channel', whereas After only implies the missing override via 'instead of the literal' and relies on the first message's 'channel fixed to general'. To keep that fact robust under the new wording, have the reuse-only candidate state the single missing piece in its own paragraph (e.g. 'post already owns formatting and retries and lacks only a channel override') before the Removes/Adds/Pattern block, so the approaches message is self-contained even if a judge reads it without the first message.",
-      "wallMs": 14825,
+      "feedback": "No fact moved on this case: both outputs name lib/notify.ts#post as the reuse-only candidate, identify the hard-coded `general` literal as the missing channel override, propose an optional `channel` parameter on that helper, and place Removes:/Adds: directly before Pattern: on every viable approach (Before's two, After's three), with the recommendation deleting the inline copy in jobs/report.ts rather than keeping it. After's reuse-only paragraph relies on `builds its body from the parameter instead of the literal` to state the missing override; a slightly more explicit phrase such as `it lacks only a caller-supplied channel` (which Before used) would make reuse-path unambiguous under a strict judge. After also added a third viable approach (`postTo`) and an unlabeled `other - name it` line after option C in the questionary; neither touches these three facts, but the extra lettered option C plus an unlabeled catch-all line departs from the labeled-option layout other samples check, so the wording that introduced the Removes/Adds inventory should not also encourage the model to grow the questionary beyond the lettered options plus one labeled `other` line.",
+      "wallMs": 15047,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "fdd359ce1676f3baf3bc9723ec4d18b552f508d014b3b185f33eb3f2cbf07f21",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "77fc319c1a7f5ca33d327d6147e00faa745448af02f7c92a24184c09e061fb80",
+      "intentSha": "b91bd8dfa507c4b4fd6eb7c807d7a687d6c6f3eeb488fa85a6a346489513b442",
       "baselineOutputSha": "7f2b0dfa1a0746aedec1a09fb117816403809b0c77db2c01d93ab61d8fd28da7",
       "candidateOutputSha": "02b3c8f8f3bf10ae25e7874af8174db3faab4ecaec2e008e31a8e54ed981b7e9",
       "facts": {
@@ -81,10 +81,10 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "Nothing moved on this sample: both Before and After name `lib/notify.ts#post` as the nearly-fitting reuse-only path, call out its sole gap (no caller-selected channel), propose changing that helper's signature, place a Removes: line and an Adds: line immediately before Pattern: on both approaches A and B, and recommend A, which replaces the inline formatting/retry copy in `jobs/report.ts` with a delegating call rather than keeping or adding a duplicate. The Expected list predicted fails -> holds for all three, but the Before text already satisfies every fact, so this run gives no evidence that the new Removes/Adds and change-not-copy wording is what produced the behavior; the After wording is at least not harmful here. If you want the wording to be load-bearing, keep the explicit 'Removes:/Adds:/Pattern:' ordering requirement and the 'name the nearly-fitting path and its missing behavior' instruction exactly as in After, and look for a baseline run where Before genuinely omits the inventory lines or retains the inline copy before attributing the improvement to this change.",
-      "wallMs": 10907,
+      "feedback": "Nothing moved on this sample: both Before and After name `lib/notify.ts#post` as the nearly-fitting reuse-only path, identify its hard-coded `general` channel as the only missing behavior, and propose changing that helper; both put `Removes:` and `Adds:` lines (each listing concrete moving parts) immediately before the `Pattern:` line on approaches A and B; and both recommend A, which deletes the inline formatting/fetch/retry loop from `jobs/report.ts` and delegates to the helper rather than keeping a copy. The expected fails->holds movement is not visible here because the Before output already satisfied all three facts, so this sample does not discriminate the Change; After's wording (the explicit `[notice]`/two-attempt/rethrow contract observation, \"stay in their existing owner\") is slightly more direct about ownership and is safe to keep. To make the sample actually exercise the Change, consider a fixture where the baseline is tempted to copy or where Removes/Adds would naturally be omitted; the current After wording preserves everything Before held.",
+      "wallMs": 9488,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "01add339b1d2d7a836d4b133454f5b65bfb6f167"
+  "repoSha": "c716bb89c931da9b0ee455556cc3db987a894f1e"
 }

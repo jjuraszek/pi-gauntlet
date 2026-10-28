@@ -34,7 +34,7 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "332e4749ff064fa120216afeb50aff03d64ff1248c76c03d9dac88f00ddc9f1a",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "77fc319c1a7f5ca33d327d6147e00faa745448af02f7c92a24184c09e061fb80",
+      "intentSha": "b91bd8dfa507c4b4fd6eb7c807d7a687d6c6f3eeb488fa85a6a346489513b442",
       "baselineOutputSha": "ad10058d3d2340f44204e90aaa686ae594d777b2c7e75ed9bcf409e734392b5c",
       "candidateOutputSha": "1464641e90e4e9e2c06fa75e9060706f1ead5d72ccfbb61231e827fb1b26acdf",
       "facts": {
@@ -54,9 +54,9 @@
           "label": "intended change"
         },
         "commit": {
-          "before": "fails",
+          "before": "holds",
           "after": "holds",
-          "label": "intended change"
+          "label": "intended but unchanged"
         },
         "protected": {
           "before": "fails",
@@ -64,14 +64,14 @@
           "label": "intended change"
         }
       },
-      "feedback": "After moves all five facts to holds. restore: Before ran the ls-files check as a single `<path>` placeholder and issued three checkouts with bare, unquoted paths; After enumerates the three ls-files checks and three checkouts each with one quoted path, restores before applying, preserves audit.log and In-flight, and roots the jj fileset with an explicit note that -R alone does not root paths. grant: Before never compared the current Tests line against HEAD's Tests or named the amended `#tests` anchor as the attribution proof, it only noted the second identical FAIL; After's step 5 does that comparison and still applies under the re-read grant with the `amended the spec:` line and no menu. dispatch: Before's Amend block named Tests and In-flight but did not quote the FAIL lines or the dirtied row inside its rule sentence; After embeds both verbatim. commit: Before left the retry's evidence as a prose description and its undo section never tied the revert to undoing the retries; After holds the verbatim evidence in the item, records it as granted with the granting value quoted, and states the single revert undoes the retries with the batch (though the commit body itself still uses `<verbatim ...>` placeholders—render the actual lines there to be safe). protected: Before held U/P as 'report the OPEN QUESTIONS row' rather than routing the entire row to writing-plans step 6 with commit/discard/move; After routes both variants there, forbids partial restore, and explicitly denies general test-damage cleanup permission. Keep After's wording; the only tightening worth making is substituting the literal FAIL lines and row for the placeholders in the commit body.",
-      "wallMs": 32720,
+      "feedback": "After moves restore, grant, dispatch and protected to holds: it quotes each of the three checkout paths, adds the explicit HEAD-Tests-vs-current attribution step before holding the item, embeds the verbatim FAIL lines and dirtied row inside the Amend: rule sentence, and routes U/P wholesale to writing-plans step 6 with no partial restore and with commit/discard/move named as the human's resolution. Before lost those on bare (unquoted) checkout paths, no HEAD-anchored attribution, an Amend: block that never quoted the evidence, and U/P ending in 'hold and report the OPEN QUESTIONS row' with no step-6 commit/discard/move route. Commit held in both; After additionally states outright that reverting the single amend: commit undoes the retries with the batch, which is clearer than Before's implicit 'Undoing the batch'. One wording wobble to tighten in After's Variant U: it renders a 'fix-first / narrow / amend' option list (the baseline-failing-command branch) and then says the human 'commits, discards, or moves' — make the ineligible-row branch render the dirty-output commit/discard/move menu only, so the step-6 routing reads unambiguously and does not look like the unchanged-command baseline menu; everything else in After can stay as written.",
+      "wallMs": 44425,
       "verdict": "improved"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "332e4749ff064fa120216afeb50aff03d64ff1248c76c03d9dac88f00ddc9f1a",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "77fc319c1a7f5ca33d327d6147e00faa745448af02f7c92a24184c09e061fb80",
+      "intentSha": "b91bd8dfa507c4b4fd6eb7c807d7a687d6c6f3eeb488fa85a6a346489513b442",
       "baselineOutputSha": "7aa12f57ab345894ae915c37d2184e398e07e7caa9ad58fac9c153d7db6a50e2",
       "candidateOutputSha": "90a2ea2a5ff0ae48f391f5fd2eda58c8a5b50b555ccc15236a686bd104d2d352",
       "facts": {
@@ -101,10 +101,10 @@
           "label": "intended change"
         }
       },
-      "feedback": "After delivers the Change on every fact: it narrates three separate `git -C /tmp/report-worktree checkout -- \"<path>\"` commands after per-path ls-files checks and before applying the retry, shows a `root:` fileset for jj with the note that `-R` alone does not re-anchor, attributes the finding explicitly to the amended Tests anchor versus the HEAD Tests line, holds the item with verbatim FAIL/row evidence and applies it under the re-read grant with the `amended the spec:` line and no human question, quotes both evidence blocks inside the Amend-only dispatch with the two In-flight paths, finalizes read → tracker(in_progress) → single batch commit with `granted` vs `accepted`/`alt-n` and `git revert` undo, and routes U/P whole rows to commit/discard/move with no partial restore. Before failed restore (one combined unquoted checkout, `cd`+bare-path jj), dispatch (evidence referenced but not quoted inside the dispatch), protected (no commit/discard/move routing named), and grant (attribution through the changed Tests anchor left implicit); commit held in both. Nothing regressed, so keep After's wording; if trimming, do not collapse the three checkout lines or drop the quoted evidence from the dispatch body, since those are exactly what moved the facts.",
-      "wallMs": 24824,
+      "feedback": "After moves restore, grant, dispatch and protected to holds without losing commit: it narrates three separate quoted `git -C /tmp/report-worktree checkout -- \"<path>\"` commands after three ls-files checks and before the apply, uses a `root:` fileset for jj, explicitly attributes the finding through the amended Tests anchor versus the HEAD Tests line, quotes the FAIL lines and dirtied row inside the Amend-only dispatch content, and routes U to the writing-plans commit/discard/move exit with no partial restore. Before failed restore (one multi-path unquoted checkout, cd-based jj without root:), dispatch (evidence referenced 'above' rather than quoted in the dispatch), grant (no explicit attribution through changed anchors) and protected (no step-6 commit/discard/move routing). Two small hardening points for After: variant P only says 'route the entire row to the human' — name commit/discard/move there too rather than relying on 'same rule'; and state once, as Before did, that the first Findings retry is already consumed so no further Findings block is issued, which makes the 'never Findings' intent explicit rather than implied by the Amend-only dispatch.",
+      "wallMs": 27944,
       "verdict": "improved"
     }
   },
-  "repoSha": "01add339b1d2d7a836d4b133454f5b65bfb6f167"
+  "repoSha": "c716bb89c931da9b0ee455556cc3db987a894f1e"
 }

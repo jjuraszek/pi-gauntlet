@@ -34,7 +34,7 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "2605a85220a2ef88ff6faf826257053a55100fe1eb1f116cf10bc342b2140e7e",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "77fc319c1a7f5ca33d327d6147e00faa745448af02f7c92a24184c09e061fb80",
+      "intentSha": "b91bd8dfa507c4b4fd6eb7c807d7a687d6c6f3eeb488fa85a6a346489513b442",
       "baselineOutputSha": "de34583f7424ee3fc29b7b966a7edef3ff56d3e40fc56672f0f9a75660d12c49",
       "candidateOutputSha": "2584482eb826d0aaa1408451bb16f9240b35c15753e1c174112a0d67f1a4962c",
       "facts": {
@@ -64,14 +64,14 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "Nothing moved: both outputs keep the exact drafted provenance headers for Free-text and Empty-ticket, the verbatim `Ticket #42, Acceptance criteria, rows verbatim:` row with its terminal period, the untouched `none - ticket not fetched (permission denied)` body, the Empty-ticket drafted block copied verbatim under `Drafted acceptance criteria (approval ratifies):` with options 4 and 5, and an in-scope tenant-isolation outcome row in Unbound-PR. Two small drifts in After are worth tightening even though they did not fail a fact: the Unbound-PR row now names `tenantId` in the row text (`the result cached for its own tenantId`), which pulls the cache-key mechanism from the Design clause into an acceptance row, and the Empty-ticket gate render appends a funding-suffix line after option 5 that the Narrated read actions did not ask for. To keep every fact robustly, phrase the Unbound-PR row purely as the observable (as Before did: each tenant receives only its own cached result; a tenant never receives another tenant's cached result) and keep the mechanism in Design, and render only the drafted block plus options 1-5 at the gate unless the sample asks for the funding grammar.",
-      "wallMs": 15328,
+      "feedback": "Nothing moved: all five branches in After keep the same provenance headers, verbatim ticket row, untouched not-fetched sentinel, in-scope dispositions, verbatim drafted block at the gate with options 4 and 5, and design-derived rows as Before. The one wording risk worth tightening in After is the Unbound-PR row, which now names the mechanism (\"cached for its own tenantId\") inside the acceptance row; the unbound-pr fact tolerates this because the observable (\"a tenant never receives another tenant's cached result\") is still present and the row is derived from the rework design rather than the PR title/body, but the free-text fact's \"no row is only an implementation mechanism\" standard shows the direction the author wants, so a safer After wording would keep the row purely observable (\"each tenant receives only its own cached result; a tenant never receives another tenant's cached result\") and leave tenantId in the Design clause, as Before did. The added funding-suffix line after option 5 in the Empty-ticket gate is consistent with the loop-funded-reply change and does not disturb the options-4/5 requirement.",
+      "wallMs": 13064,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "2605a85220a2ef88ff6faf826257053a55100fe1eb1f116cf10bc342b2140e7e",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "77fc319c1a7f5ca33d327d6147e00faa745448af02f7c92a24184c09e061fb80",
+      "intentSha": "b91bd8dfa507c4b4fd6eb7c807d7a687d6c6f3eeb488fa85a6a346489513b442",
       "baselineOutputSha": "3cdd8106f683f8bed9a7306b0bcc3faac3b6fad032ec8aca0f1c4cbaa3552dd0",
       "candidateOutputSha": "3b596a607f8b343122ec02bb4bb0db7b0e12b507b76088c154a9e8ed62d14686",
       "facts": {
@@ -101,10 +101,10 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "Nothing moved: both outputs label all five branches, use the exact provenance lines (Drafted from the design, no ticket rows: / Ticket #42, Acceptance criteria, rows verbatim: / Drafted from the design, ticket #43 has no acceptance criteria:), keep the not-fetched body exactly `none - ticket not fetched (permission denied)`, give in-scope dispositions on unchecked outcome rows, and in Empty-ticket reproduce the row and disposition verbatim under Drafted acceptance criteria (approval ratifies): with options 4 and 5 rendered. After is slightly cleaner than Before in two respects worth keeping: it explicitly states the gate rendering is not a claim of execution, and in Unbound-PR it names the tenantId key as Design material rather than letting it leak into a row, so the acceptance row is a pure outcome derived from the approved isolation rework. Before's extra Not-fetched gate note (options 1–3 only) is not required by these facts and its absence in After costs nothing; if the author wants that not-fetched gating narrated, adding it back as a clearly non-executed consequence would not disturb any fact here. No wording adjustment is needed for this sample.",
-      "wallMs": 10958,
+      "feedback": "Nothing moved: both outputs render all five Acceptance criteria sections with the correct provenance lines, the single verbatim ticket #42 row with its terminal period, the untouched not-fetched sentinel, the empty-ticket drafted row copied verbatim with its in-scope disposition under the approval-ratifies block alongside options 4 and 5, and a design-derived tenant-isolation row for the unbound PR without asserting title/body cache intent. After's only substantive differences are stylistic (numbered branches instead of headings, a shortened Unbound-PR row 'A tenant never receives another tenant's cached result.', and an explicit note that the PR fetch failure is not an unreadable-reference stop), none of which affect any fact. Keep the explicit provenance lines, the verbatim copy of each drafted row and disposition into the gate block, and the full options 1–5 list exactly as After does; if anything, retain Before's slightly fuller Unbound-PR row wording ('When tenants use the retained cache, …') so the row visibly ties to the retained-cache rework while still naming the isolation outcome.",
+      "wallMs": 13798,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "01add339b1d2d7a836d4b133454f5b65bfb6f167"
+  "repoSha": "c716bb89c931da9b0ee455556cc3db987a894f1e"
 }

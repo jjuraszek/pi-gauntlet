@@ -34,7 +34,7 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "2351583720a7d4a8a7c59133fd91ec051c7139a59bc46bfb00552b47f533509b",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "77fc319c1a7f5ca33d327d6147e00faa745448af02f7c92a24184c09e061fb80",
+      "intentSha": "b91bd8dfa507c4b4fd6eb7c807d7a687d6c6f3eeb488fa85a6a346489513b442",
       "baselineOutputSha": "c0f834b3e689b780299f2edf35551eeca271bac5049906a35fe6418651cc15d2",
       "candidateOutputSha": "192cf9a9226e0eecf9975d0af4c47a7741045028a08d5a4745edba0c63ce4009",
       "facts": {
@@ -59,14 +59,14 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "Both outputs satisfy all four facts on their own text, so the After wording did not move anything here; the expected fails->holds for this sample is not visible in these two outputs because Before already routes row 2's disposition and row 3's re-bound to the human, sends only the factual path fix to the reviewer, auto-applies recommended choices under B's grant while stopping redraws, reconciles row 2 to cut with `deferred: #90`, row 3 to open with `reopened by amendment`, keeps attempts 2/3/1 and iterations 9, skips plan-writer/plan_check/plan_tracker, commits spec+ledger as `loop: amend` with granted records and the quoted grant sentence for B, and in C resets trackers, deletes plan and ledger, resumes at step 4 and re-gates without the grant. After keeps every one of these and adds useful precision (explicit §1–§4 'already completed' narrative for A, 'Bypassed:' line, 'the redraw item stops alone first'). Two small things in After worth tightening so the facts stay robust: Trace C's step 1 says 'redraws always stop' but never says the stop is for human review of the redraw proposal (Before was equally implicit) - a sentence like 'the proposal stops at the human before any reset' would make the redraw fact unambiguous; and Trace C step 4 makes the ticket-acceptance read conditional on session context, which is fine but slightly softer than Before's unconditional read after a reset - keep the 'if restored, read' branch and state that a tracker reset in this session does not by itself drop the content. Otherwise the After wording delivers the Change without regressing anything in this sample.",
-      "wallMs": 18507,
+      "feedback": "Both outputs satisfy all four facts, so nothing moved on this sample; the Expected-to-move entry predicting fails->holds for loop-ledger-amend is not borne out by Before's text, which already routes deferral/rebound to the human, sends only the path fix to the reviewer, auto-applies recommended choices under the grant while stopping redraws, reconciles rows 2/3/1 with the right evidence and preserved attempts/iterations, bypasses plan-writer/plan_check/plan_tracker, commits `loop: amend` with granted records and the quoted grant line for B, and in C clears/resets trackers, deletes ledger plus plan, resumes step 4 and demands a fresh gate. After keeps every one of these while restructuring Trace A to narrate the pre-approval review as already completed, which is a cleaner match to the prompt. Two small drifts worth watching in After, though neither breaks a fact here: Trace C makes the `ticket-acceptance.md` read conditional on a first-use/in-context check after a tracker reset (Before treated it as required because the reset empties context), and Trace A prints the `Recorded:` echo before the ledger aftermath and commit rather than as the final confirmation. If the Change intends the post-reset read to be unconditional, add a sentence to the redraw path stating that the reset clears session context so step 4's first-use read always fires; and keep the `Recorded:` echo after the commit so the audit order (apply, reconcile, commit, confirm) matches section 5.",
+      "wallMs": 25035,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "2351583720a7d4a8a7c59133fd91ec051c7139a59bc46bfb00552b47f533509b",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "77fc319c1a7f5ca33d327d6147e00faa745448af02f7c92a24184c09e061fb80",
+      "intentSha": "b91bd8dfa507c4b4fd6eb7c807d7a687d6c6f3eeb488fa85a6a346489513b442",
       "baselineOutputSha": "504b4504c4197acc56b481f6c05d9fb0996db1f90dc6c375809b32951f6c10ff",
       "candidateOutputSha": "444cb2877daeb1333d413ef9591d82bfa6a9f3ae97eb4f5f967925c59967d4aa",
       "facts": {
@@ -91,10 +91,10 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "No fact moved: After keeps every fact Before kept. A still routes the row-2 disposition and row-3 re-bound to the human while sending only the scope-neutral, evidence-backed path correction to a fresh reviewer; B still skips reviewer and human batch, applies prepared recommended choices, and now says outright that the grant does not approve a redraw (Before only implied this via C), which strengthens `review`. Both outputs reconcile rows to done/2, cut/3 `deferred: #90`, open/1 `reopened by amendment`, iterations 9, immutable AC texts, commit spec+ledger as `loop: amend` with `granted` records and the quoted grant sentence, and bypass plan-writer/plan_check/plan_tracker while staying in implement. C in After still classifies the component addition as a redraw, clears/reset trackers, deletes plan and ledger, resumes step 4, and demands a fresh full gate without the grant. Two cautions for the After wording: C step 6 now turns the unsupplied ticket-acceptance contents into a hard 'stop this trace' before step-4 work, which a stricter reader could read as not actually resuming step 4 — Before's 'read unless already in context, stop only on an unreadable observation' phrasing is safer and still honors the required-read boundary; and After's section-5 re-read references (`<skills>/.../amendment-surface.md`, section 5) deliver the Change's new amendment-surface section without displacing the bypass ordering, so keep that but avoid converting the absence of an observation into a blocking stop.",
-      "wallMs": 23797,
+      "feedback": "Both outputs satisfy all four facts, so nothing moved: A routes the cut and re-bound to the human and the factual correction to an evidence-gated fresh reviewer; B skips reviewer/human batch, applies recommended choices, and (After, explicitly) refuses redraw approval; both reconcile rows 1/2/3 to done/cut/open with attempts 2/3/1, evidence `deferred: #90` and `reopened by amendment`, iterations 9, immutable AC texts; both bypass plan-writer/plan_check/plan_tracker and commit spec+ledger as `loop: amend` with granted records and the quoted grant sentence; both C traces reset trackers, delete plan and ledger, resume step 4, and require a full new approval. Two After choices weaken the redraw reading without breaking it: step 6 halts the whole trace at the ticket-acceptance read (so the new gate is described only conditionally), and the explicit `Amend-grant: none` written by the new brainstorm was dropped in favor of 'the existing grant does not satisfy that gate'. To keep every fact robustly while delivering the section-5 aftermath change, keep the required-read narration but let the trace continue to the gate (reads are narrated, not executed), restore the sentence that the replacement spec starts with `Amend-grant: none`, and keep Before's note that the redraw classification is stated to the human for review before any reset.",
+      "wallMs": 20616,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "01add339b1d2d7a836d4b133454f5b65bfb6f167"
+  "repoSha": "c716bb89c931da9b0ee455556cc3db987a894f1e"
 }

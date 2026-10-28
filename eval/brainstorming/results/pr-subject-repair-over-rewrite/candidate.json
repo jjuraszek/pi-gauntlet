@@ -34,7 +34,7 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "a4aa00f0ef7c5af9917448c7671d1f490f39c397b9d46e1295042106f13174f6",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "77fc319c1a7f5ca33d327d6147e00faa745448af02f7c92a24184c09e061fb80",
+      "intentSha": "b91bd8dfa507c4b4fd6eb7c807d7a687d6c6f3eeb488fa85a6a346489513b442",
       "baselineOutputSha": "f2b22b8be8196461638b4c9f81f8c4a971cc9d5fa2ed4c4ccad706dc2c6df33f",
       "candidateOutputSha": "e358b55bf458d236177af0dcac8cdfb1583d16353a2bcef266086511bd5ea1b7",
       "facts": {
@@ -54,14 +54,14 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "No fact moved. Both outputs keep the Changes line to the two-line initialization and comparison repair with explicit no-rewrite wording, keep the original commits and retry loop under Keeps, copy the #20 row verbatim with an in-scope disposition, name the PR intent and the three-attempt bound in Problem, and carry the full 40-character pre-rework SHA, no-op merge, dropped bounded-attempts claim, RT63 fix, RT64 decline with its reason, and the none-run scoped result in the Rework record. One drift worth watching in After: Problem calls the source of the bound the \"base-HEAD rules at `aaaaaaa`\" where the gathered facts and Before say \"base-SHA rules\"; it still names the governing bound here, but under a stricter reader that relabeling could be read as attributing the constraint to the PR head rather than the trusted base. Keep the Change's PR-first/base-SHA gathering wording verbatim in Problem (\"The base-SHA rules require at most three retry attempts\") so the provenance of the constraint stays unambiguous while the rest of After's tighter phrasing remains.",
-      "wallMs": 12238,
+      "feedback": "Nothing moved on this sample: After still gives the two-line initialization/comparison repair in Changes with an explicit no-rewrite note, keeps the original commits and the existing retry loop, copies the #20 row verbatim with its in-scope disposition, names the PR intent and the three-attempt bound in Problem, and preserves the full pre-rework SHA, no-op merge, dropped bounded-attempts claim, RT63 fix, RT64 decline with reason, and none-run scoped result after the ACs. Two small drifts under the enlarged assembly are worth watching even though they did not cost a fact here: After renames the gathered 'base-SHA rules' to 'base-HEAD rules at aaaaaaa', and its per-PR changes line appends a consequence ('so attempts never exceed three') that paraphrases the AC rather than describing the edit. If the section-5 addition is tightening how rework output is worded, keep the PR-subject record rules' own terms (base-SHA rules, backticked `attempts` values) intact so the record and Problem continue to echo the gathered facts verbatim rather than restating them.",
+      "wallMs": 14204,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "a4aa00f0ef7c5af9917448c7671d1f490f39c397b9d46e1295042106f13174f6",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "77fc319c1a7f5ca33d327d6147e00faa745448af02f7c92a24184c09e061fb80",
+      "intentSha": "b91bd8dfa507c4b4fd6eb7c807d7a687d6c6f3eeb488fa85a6a346489513b442",
       "baselineOutputSha": "fb7a617d3617bc9c601814245ba82903b9ae96604687f1d5ed4cccc7205950cb",
       "candidateOutputSha": "944ce240db7609ce8584cec8d9ed9a98cfebe1eafa8eda28171f03357b4360e6",
       "facts": {
@@ -81,10 +81,10 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "Nothing moved: both outputs give the verbatim ticket row with an in-scope disposition, name the PR intent and the at-most-three bound in Problem, and carry the full pre-rework SHA, no-op merge, RT63 fix, RT64 decline with its reason, dropped false claim, and no-run scoped result in the Rework record after the ACs. After even tightens things by folding the rewrite/abstraction exclusion into the top-level Changes line and stating the RT64 decline reason in the per-PR subsection. The one place to watch is the per-PR subsection's `changes:` line, which now says 'Repair the attempt bound with the two edits' instead of restating the initialization and comparison edits explicitly; the top-level Changes line still spells them out so the fact holds, but a stricter reader of the subsection alone would prefer the concrete two edits kept there too. Keep the explicit `attempts` 0/1 and `< 3`/`<= 3` text in both the Changes line and the per-PR subsection to make the minimal fact robust regardless of which block a reader checks.",
-      "wallMs": 12578,
+      "feedback": "No fact moved on this case. Both outputs keep the two-line repair in Changes (initialize to 0, use `attempts < 3`), explicitly reject a rewrite or replacement abstraction, and keep Keeps at original commits plus the existing retry loop; both copy the ticket row verbatim with the in-scope disposition and name the PR intent and the three-attempt bound in Problem; both Rework records carry the full 40-character pre-rework SHA, the no-op merge, the dropped bounded-attempts claim, RT63 fix, RT64 decline with its reason, and the no-run scoped result. After's only notable drift is that the per-PR `changes:` line says \"the two edits\" instead of restating them literally, which still holds because the record's Changes line above names them; if you want the per-PR subsection to stand on its own, have section 5 (or the PR-subject rework-record slice) require the per-PR changes line to restate the concrete edits rather than reference them, which costs nothing against the Change and avoids a future judge reading \"the two edits\" as insufficiently specific.",
+      "wallMs": 10432,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "01add339b1d2d7a836d4b133454f5b65bfb6f167"
+  "repoSha": "c716bb89c931da9b0ee455556cc3db987a894f1e"
 }

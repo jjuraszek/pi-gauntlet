@@ -34,7 +34,7 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "b507f66538d28fd2d77d191839b86d6668710ab1b4135c72ffc0c687013c3907",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "77fc319c1a7f5ca33d327d6147e00faa745448af02f7c92a24184c09e061fb80",
+      "intentSha": "b91bd8dfa507c4b4fd6eb7c807d7a687d6c6f3eeb488fa85a6a346489513b442",
       "baselineOutputSha": "c667fdfc8f81a0d5e5377a14a72d7814a296033c84eab27da5a9333a80a589d7",
       "candidateOutputSha": "b8282841f891f966492c6916872b4782a8005ed7361b58d9d4267b6a6664d370",
       "facts": {
@@ -64,14 +64,14 @@
           "label": "held"
         }
       },
-      "feedback": "Nothing moved on this case: both outputs trace `templates/deck.pptx` from the retained loader at `slides/generator.py`, state in the first message, again at the head of the approaches message, and in the spec Problem that the supplied `templates/` directory listing (README.md, chart.pptx only) does not contain it, and both proceed to approaches without pausing or asking where the file is. After is actually the cleaner replay reading: it says the listing 'is complete' and that the lookup 'the repo names' found the file missing, whereas Before's 'I used the repository guide's lookup' edges toward sounding like a performed action; keep After's phrasing. One small drift to watch: After moves the Unverified note from 'does deck.pptx hold the needed layout' to 'does chart.pptx hold it', which is fine for these facts but slightly less tied to the retained dependency - consider carrying both so the open question stays attached to the missing asset the generator actually loads. Also, Before's first-question option C ('pause until the asset is located') sits against the recorded answer not to pause; After's question about where the slide's content lives avoids that tension and should be kept.",
-      "wallMs": 19686,
+      "feedback": "No fact moved on this case: both outputs name `templates/deck.pptx` from the retained loader, state in the first message, the approaches opener, and the `## Problem` excerpt that it is absent from the supplied `templates/` listing (`README.md`, `chart.pptx`), proceed to approaches without pausing, and treat the listing as a supplied observation rather than a live lookup. After is actually the cleaner replay on two margins worth preserving in the wording: it says the asset is assumed supplied and records it as an Open Question instead of Before's first-message question that offers 'Pause the brainstorm until the asset is located' as an option (which a stricter reader could read as inviting a stop on the missing template and does not match the recorded answer's question), and it phrases the lookup as 'the template lookup the repo names ... which found the missing `deck.pptx`' rather than Before's first-person 'I used the repository guide's lookup', which brushes against claiming a live call. If you revise further, keep the 'listing is complete / no other store documented' sentence in all three surfaces and keep the missing-dependency reminder as the opening sentence of the approaches message before any approach heading, since the approaches fact keys on that ordering.",
+      "wallMs": 19969,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "b507f66538d28fd2d77d191839b86d6668710ab1b4135c72ffc0c687013c3907",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "77fc319c1a7f5ca33d327d6147e00faa745448af02f7c92a24184c09e061fb80",
+      "intentSha": "b91bd8dfa507c4b4fd6eb7c807d7a687d6c6f3eeb488fa85a6a346489513b442",
       "baselineOutputSha": "2bc9cdf40a446c1a35872b576d88db3cc60ffaeff15ee4b7a9ac7628b13daa4d",
       "candidateOutputSha": "434c3b7be13e5f57ebe054de4ccdca1ddee5f1140d3c0e90cbb3610ec8b1b453",
       "facts": {
@@ -101,10 +101,10 @@
           "label": "held"
         }
       },
-      "feedback": "Nothing moved on this case: both outputs name templates/deck.pptx from the retained loader, say it is absent from the supplied complete templates/ listing (README.md, chart.pptx), restate that before the approaches, record it in the spec Problem, continue without asking where the file is, and attribute the result to supplied observations. After is actually slightly stronger than Before on the approaches fact, since it explicitly says 'the guide-prescribed lookup is a listing of templates/' whereas Before only says 'the guide's prescribed directory listing' and leaves the directory to be inferred from the adjacent templates/chart.pptx mention; keep that explicit phrasing. One caution for the replay fact: After's first paragraph says the dependency was 'checked using the repository guide's prescribed directory listing', which a reader could take as a live lookup if the next sentence did not say 'complete supplied listing' — phrasing it as 'checked against the supplied listing' from the start would remove that risk while still delivering the traced-dependency reporting the Change asks for.",
-      "wallMs": 16336,
+      "feedback": "On this case both outputs already carry the traced dependency through all three surfaces: Before's first message names the loader path, says deck.pptx is absent from the supplied complete templates/ listing, and its approaches lead and ## Problem both restate the missing file and the listing lookup, so the Change's intended fails->holds move is not visible here. After is slightly tighter where it matters: its approaches lead explicitly says 'the guide-prescribed lookup is a listing of templates/' where Before only says 'the guide's prescribed directory listing' (readable from context but not literally naming templates/), and its ## Problem keeps the full lookup/result pair. Both outputs continue to approaches without asking where the template is and both attribute the lookup to the supplied listing rather than a live call. Keep the After wording that forces the dependency path, the lookup name ('listing of templates/'), and the result ('not contained') to be restated verbatim at the top of the approaches message and in ## Problem; that explicit triplet is what makes the fact robust when the baseline is less careful than this one.",
+      "wallMs": 15347,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "01add339b1d2d7a836d4b133454f5b65bfb6f167"
+  "repoSha": "c716bb89c931da9b0ee455556cc3db987a894f1e"
 }

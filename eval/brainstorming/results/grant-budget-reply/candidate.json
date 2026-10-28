@@ -34,7 +34,7 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "b928bbda75a12ebbd47d53028e22244912a0b069b49f7481b3dd9b37759d036a",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "77fc319c1a7f5ca33d327d6147e00faa745448af02f7c92a24184c09e061fb80",
+      "intentSha": "b91bd8dfa507c4b4fd6eb7c807d7a687d6c6f3eeb488fa85a6a346489513b442",
       "baselineOutputSha": "891d60b4d62457c735741b2d0e92f701b8882ecaaf5cf6589aa9cfdc3ee85539",
       "candidateOutputSha": "f7e093f64a6268a91b8a914b496a7cb6689b6aec06d85393e2d47f2096f66bf0",
       "facts": {
@@ -49,14 +49,14 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "Neither fact moved. In A both outputs approve without a change-request round, narrate persisting the exact option-2 description followed by the literal \"; fund 3 fix rounds\" suffix in the spec header, add one Engine: waves line, amend the commit, HEAD-check, close the phase and route to writing-plans, all framed as intended (not executed) actions. In B both outputs refuse to treat the bare budget token as approval, state that nothing is written or committed, and re-present the full gate asking for 1 or 2 with the token attached. The After wording keeps every fact Before kept while delivering the Change; the only cosmetic drift is After A citing the Standing grants section via a relative markdown link rather than the absolute path, which is not fact-bearing but could be restored to the absolute path for consistency, and After B now puts the explanatory paragraph before the gate summary instead of after it, which still re-presents the gate fully.",
-      "wallMs": 8548,
+      "feedback": "Neither fact moved: both Before and After treat `2; fund 3 fix rounds` as an approval with no change-request round, quote the exact option-2 description followed by `; fund 3 fix rounds` as the persisted **Amend-grant:** value, narrate the edit/amend/HEAD check without claiming execution, and route to writing-plans; and both treat the bare `fund 3 fix rounds` as a non-approval, state that nothing is written or committed, and re-present the full gate asking for 1 or 2. The Expected-to-move list anticipated funded-value failing in Before, but the Before text already holds it, so the Change delivered no visible delta on this case. The After wording is safe to keep; the only cosmetic difference is that After's B response places the 'needs an approval to attach to' prompt before the gate summary instead of after it, and After adds an explicit 'if the token fails decoding, I re-present the gate' branch in A, both of which preserve the facts. If you want the funded path to be more robustly distinguishable from Before, consider having the A response explicitly state that the funding suffix is appended verbatim and not reinterpreted, and that the grant and engine are checked together at HEAD, which After already does but could label more directly.",
+      "wallMs": 11092,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "b928bbda75a12ebbd47d53028e22244912a0b069b49f7481b3dd9b37759d036a",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "77fc319c1a7f5ca33d327d6147e00faa745448af02f7c92a24184c09e061fb80",
+      "intentSha": "b91bd8dfa507c4b4fd6eb7c807d7a687d6c6f3eeb488fa85a6a346489513b442",
       "baselineOutputSha": "a5a588163d3b5c19495d2bdcc252ffe112f26ab18b19abbe3db7a989ebb17cd0",
       "candidateOutputSha": "ee354e0493baa5ba60e3b61eed046c18f4404d025c85630e2f3ee25edc548687",
       "facts": {
@@ -71,10 +71,10 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "Both facts survive the change. In A, After still reads `2; fund 3 fix rounds` as approval (explicitly 'not a change request'), narrates the Standing-grants read/decoding, sets **Amend-grant:** to the verbatim option-2 description followed by `; fund 3 fix rounds` plus **Engine:** waves, amends the existing commit preserving the council audit, verifies, and routes to `/skill:writing-plans`, with a clear no-actual-execution disclaimer. In B, After refuses the bare token, states nothing is persisted, and re-presents the gate. The one risk introduced by After is that the re-presented gate is no longer the gate that was 'already shown': it adds options 4/5 (loop engine) and changes the closing prompt to 'Reply with 1, 2, 4, or 5' instead of pointing the user at 1 or 2; a stricter judge could read 'asking for 1 or 2' as failing when the menu is expanded mid-replay, and the funding-suffix explanation now splits into loop-row attempts vs waves fix rounds. To keep the fact robust while still delivering the loop-engine routing, have the re-presentation reproduce the gate exactly as previously rendered (only options present at the original gate), and make the lead-in explicitly name the approval options to pick (e.g., 'choose 1 or 2 — or 4/5 where offered — and include `; fund 3 fix rounds` in that reply'), rather than silently re-rendering an expanded menu.",
-      "wallMs": 18711,
+      "feedback": "Neither fact moved. In A, both outputs read `2; fund 3 fix rounds` as approval (no change-request round), narrate reading Standing grants, set **Amend-grant:** to the exact option-2 description plus `; fund 3 fix rounds` alongside **Engine:** waves, amend the existing commit preserving the council audit, verify, and route to `/skill:writing-plans`, with an explicit no-tools disclaimer; After only restructures this into numbered steps. In B, both refuse the bare budget token, say nothing is written/persisted, and re-present the gate. The one drift in After B is that it re-presents a gate that differs from the one already shown: it adds options 4/5 (loop engine, `experimental`) and rewrites the funding-suffix sentence to `1, 2, 4, or 5` with stagnant-row semantics, none of which appeared in the gate the user saw. The fact still holds because 1 or 2 are asked for and no write occurs, but to keep the re-present faithful, the After wording should say the gate is re-presented verbatim as previously rendered (same option set and same funding sentence) rather than regenerated from the current menu template; if loop options are meant to exist in this state, the Current state/Gate already shown should include them so the replay and the fact agree.",
+      "wallMs": 19496,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "01add339b1d2d7a836d4b133454f5b65bfb6f167"
+  "repoSha": "c716bb89c931da9b0ee455556cc3db987a894f1e"
 }

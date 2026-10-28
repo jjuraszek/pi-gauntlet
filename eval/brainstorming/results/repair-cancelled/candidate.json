@@ -34,7 +34,7 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "85d9650198051139ac0b5cde1588e1ab6c9f86361d0d2bd2bddc6ef4fa165ffb",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "77fc319c1a7f5ca33d327d6147e00faa745448af02f7c92a24184c09e061fb80",
+      "intentSha": "b91bd8dfa507c4b4fd6eb7c807d7a687d6c6f3eeb488fa85a6a346489513b442",
       "baselineOutputSha": "0c88b1a112a6bedcb11c33e3b06d0ce53114ab9851f22ad4d07b183f832cc6e9",
       "candidateOutputSha": "bd43ed86201045ada5bd149fe23a2c5dbe6604e2b40995a0c55b6f4d2ca89a06",
       "facts": {
@@ -49,14 +49,14 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "Both facts survive in After: section (2) re-renders the cut question in full and explicitly states the owner-column row is unchanged after the cancelled repair, and the author never marks the row deviates or deferred (the recommendation is A, in-scope). Two drifts are worth noting even though they did not move a fact: After rewrites the A/B/D option texts rather than re-presenting the previously recorded options verbatim, and it flips the recommendation from D (repair) to A, reasoning that the row is the ticket's stated contract even though the evidence at src/export/csv.ts:40 is unchanged; After also drops the first rendering of the cut question from message (1), so the recorded D answer has no visible question to attach to. To keep every Before fact with no risk under the re-ask rule, make the scoping-sentence extension say the re-ask after a cancelled repair re-renders the same option lines and lead-in verbatim with only the preface updated, and that the recommendation may change only when new evidence is cited; that keeps the row unchanged, keeps the author off deviates/deferred, and still delivers the amendment-menu grammar change without touching the cut-question format.",
-      "wallMs": 13282,
+      "feedback": "Both facts survive. After still re-asks the cut question in full after the cancelled repair, explicitly stating the row is unchanged and quoting it verbatim, and it never labels the row deviates or deferred (its first message calls the missing owner column a corrected premise, and the re-ask recommends A, in-scope). Two drifts worth watching though: After rewords the lettered options (A/B/D now carry long explanatory suffixes and D changes its separator to a quoted row plus dash), so the re-render is no longer the same text as the original cut question, and the recommendation flips from D to A with a rationale that leans on an unverified owner-data premise. Neither breaks f1 or f2, but if a later fact keys on the cut question's exact option grammar or on the recommendation staying stable across a re-ask, this will fail it. To deliver the amendment-menu change without touching this, keep the scoping sentence that confines the numbered/lettered grammar to the amendment batch and add a short clause that the cut question's re-ask reuses the original option text verbatim and keeps its prior recommendation unless new evidence appears.",
+      "wallMs": 12995,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "85d9650198051139ac0b5cde1588e1ab6c9f86361d0d2bd2bddc6ef4fa165ffb",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "77fc319c1a7f5ca33d327d6147e00faa745448af02f7c92a24184c09e061fb80",
+      "intentSha": "b91bd8dfa507c4b4fd6eb7c807d7a687d6c6f3eeb488fa85a6a346489513b442",
       "baselineOutputSha": "5be7974418950dbd4f15fce6afe7cfbb13511681578305f6b8fe4e2f47c205bb",
       "candidateOutputSha": "dd66cd5dd7d28c8c69c0a70865aa3d35b031fb99cd72d887bf84c11de923f839",
       "facts": {
@@ -71,10 +71,10 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "Both outputs re-ask the cut question with the owner-column row unchanged (After even quotes the row verbatim before re-rendering options A–D) and neither marks the row deviates or deferred; the recommendation stays D in both, and the approaches section in each refuses to treat the cancelled repair as an implicit B or C. Nothing moved. One wording note: Before uses an explicit interrogative lead-in (\"How should we handle the owner-column row?\") directly above the options, whereas After substitutes the declarative \"We need to resolve its scope again.\" and then lists options — still recognisable as the re-asked question, but the questionary layout rule calls for a lead-in question first, so to keep the re-ask unambiguous under the scoping-sentence extension (full re-render, row unchanged, cut-question format preserved), have After keep an explicit question line immediately before option A rather than only a statement of need.",
-      "wallMs": 10315,
+      "feedback": "Nothing moved in this case: both outputs re-render the cut question in full with the owner-column row quoted verbatim and unchanged after the cancelled repair, and both recommend D rather than marking the row deviates or deferred (After even states explicitly that cancelling the repair authorizes neither omitting nor deferring). One small drift worth watching: After replaces Before's explicit interrogative lead-in (\"How should we handle the owner-column row?\") with the softer \"We need to resolve its scope again,\" and prepends unrequested premise caveats about owner data and the 60s target; a stricter judge of 'asked again' might want the question sentence itself. Keeping the scoping-sentence extension as written but adding that the re-ask must open with the question lead-in before the labeled options would preserve f1 robustly while still delivering the amendment-menu and section-5 changes.",
+      "wallMs": 10109,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "01add339b1d2d7a836d4b133454f5b65bfb6f167"
+  "repoSha": "c716bb89c931da9b0ee455556cc3db987a894f1e"
 }

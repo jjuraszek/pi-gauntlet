@@ -34,7 +34,7 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "2255b8e3687d4a15fa4cd42265bc2fd81419c7f5b392b60d07a369cd245e662c",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "77fc319c1a7f5ca33d327d6147e00faa745448af02f7c92a24184c09e061fb80",
+      "intentSha": "b91bd8dfa507c4b4fd6eb7c807d7a687d6c6f3eeb488fa85a6a346489513b442",
       "baselineOutputSha": "6470598243abb99db9e15eb60ce1245f66ebfc6a26610de85bb80a308f839526",
       "candidateOutputSha": "2d908a2d73d1519e8f9e5148047dff7437f6571bbae977c71474934853544adc",
       "facts": {
@@ -54,14 +54,14 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "After keeps everything Before kept: both outputs record the mailer row as `elsewhere: acme/mailer` (f1) and neither asks a question about it (f2), with After's only questions being the button-placement and (implicitly recorded) approach choices. f3 fails in both because neither output ever describes how the spec's own Acceptance criteria section will be laid out; both only say the ticket groups rows by repo, which is a statement about the ticket, not about the spec section being flat with no repo heading. To move f3 without disturbing f1/f2, the After wording should require the first message (or approaches message) to state the spec rendering explicitly, e.g. a sentence in the ticket-handling slice such as: 'In the spec, write the Acceptance criteria section flat - the in-scope rows verbatim with no repo heading inside it - and note the other-repo row once as elsewhere: <repo>.' That single instruction yields a line like 'The spec's Acceptance criteria section will list the three acme/widgets rows flat, without a `### acme/widgets` heading' while leaving the elsewhere assignment and the no-question behavior untouched.",
-      "wallMs": 11902,
+      "feedback": "No fact moved. Both outputs assign the mailer row as `elsewhere: acme/mailer` and ask only about button placement (and, in Before, approach choice), never about the emailed-exports row, so f1 and f2 hold in both. Neither output describes the spec's Acceptance criteria section at all: Before says only that the ticket groups criteria by repo, and After says the three `### acme/widgets` rows are this repo's work, but neither states that the spec's own section will be flat with no repo heading inside it, so f3 fails in both, unchanged by the Change. If you want f3 to hold under the new wording, add a sentence to the first message such as 'The spec's Acceptance criteria section lists the three in-scope rows flat, with no repo heading inside it; the mailer row is recorded as elsewhere' — this keeps f1 and f2 intact and does not interact with the amendment-surface section 5 additions.",
+      "wallMs": 9637,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "2255b8e3687d4a15fa4cd42265bc2fd81419c7f5b392b60d07a369cd245e662c",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "77fc319c1a7f5ca33d327d6147e00faa745448af02f7c92a24184c09e061fb80",
+      "intentSha": "b91bd8dfa507c4b4fd6eb7c807d7a687d6c6f3eeb488fa85a6a346489513b442",
       "baselineOutputSha": "48fe9f418ebaa529bce97d04a0cfa16173cbee3334077ebddf0c85059bc39b90",
       "candidateOutputSha": "a81cc1cb9935fb33afd6f2f1a35b678c0af12238633b5ab45788a67061ba248b",
       "facts": {
@@ -81,10 +81,10 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "Nothing moved between Before and After on these three facts: both outputs explicitly assign the emailed-exports row as `elsewhere: acme/mailer` (f1) and neither asks any question about that row — the only question in each is the button-placement questionary (f2). f3 fails in both because neither output says anything about how the spec's Acceptance criteria section will be laid out; the ticket arrived with `### acme/widgets` and `### acme/mailer` headings and the responses never state that the spec's section is flat with no repo heading inside it. If you want f3 to start holding, the wording that governs the other-repo-group handling should instruct the first message to state the spec layout outright — e.g. 'The spec's Acceptance criteria section lists the acme/widgets rows flat, with no repo heading; the acme/mailer row appears only as `elsewhere: acme/mailer`' — which would not disturb f1 or f2 and is orthogonal to the amendment-menu/aftermath changes this edit delivers.",
-      "wallMs": 10046,
+      "feedback": "Nothing moved between Before and After on these facts. Both outputs assign the email row `elsewhere: acme/mailer` in the first message and ask only the button-placement question, never a question about the emailed-exports row, so f1 and f2 hold in both. Neither output says anything about the spec's Acceptance criteria section being flat or free of repo headings — both describe the `acme/mailer` row's disposition but never describe how the spec section itself is laid out — so f3 fails in both, consistent with the expected fails -> fails. If the author wants f3 to start holding, the first message (or the approaches message) needs an explicit sentence such as 'The spec's Acceptance criteria section lists the three acme/widgets rows flat, with no repo heading; the acme/mailer row appears only as `elsewhere: acme/mailer`' — that addition would not disturb f1 or f2, and the After wording's other changes (shared-path extension over copying, Removes/Adds before Pattern, switch condition) can stay as written.",
+      "wallMs": 9143,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "01add339b1d2d7a836d4b133454f5b65bfb6f167"
+  "repoSha": "c716bb89c931da9b0ee455556cc3db987a894f1e"
 }
