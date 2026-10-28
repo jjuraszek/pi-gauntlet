@@ -1,7 +1,7 @@
 {
   "sample": "restored-step-8-reads-ticket",
   "arm": "candidate",
-  "skillSha": "1344d9b3d03badf89c600eb7719b78db84d66ec38fcb37bdfe3bfc890ccfaac6",
+  "skillSha": "b0f061ca12a26e1539c071730ebd6798b3e0c8ec66556d774cc3fa29aad9193e",
   "inputSha": "3fbe8741b91dfab5503ce0cca05adee9aa558ed65b41c513c0f0d797bea2dcfd",
   "kind": "text",
   "assembly": "headed",
@@ -17,16 +17,16 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "# Narrated actions from checklist step 8 for ticket acme/widgets#77\n\nThese are narrated actions only. No live tool calls were made. The reference's contents are not reconstructed here.\n\n## Branch: readable\n\n1. **Stage check (step 8 entry).** This is a restored session, so `reference/ticket-acceptance.md` is not in context. The step's in-context check fails, so Ticket Handling must be read before anything else in step 8.\n2. **`read` action.** Read `reference/ticket-acceptance.md` at its path under `skills/brainstorming/reference/` with the `read` tool, not a shell command.\n   - Observed outcome: the read succeeds, and the reference is now in context for the rest of this session.\n3. **Stage action: spec self-review (lint).** Run the inline checks from Spec Self-Review against the written spec, with Ticket Handling loaded.\n   - Observed outcome for the gathered row \"The report export includes the visible table columns\": primary code supports it. It stays as written with the disposition `in-scope`.\n   - No one has raised dropping or changing this row, so no cut question is asked.\n4. **Stage transition.** Step 8 is complete. Continue to checklist step 9, the critique pass, which is auto-dispatched through the Spec Council.\n\n## Branch: unreadable\n\n1. **Stage check (step 8 entry).** This is a restored session, so `reference/ticket-acceptance.md` is not in context. The in-context check fails, so Ticket Handling must be read first.\n2. **`read` action.** Attempt to read `reference/ticket-acceptance.md` at its path under `skills/brainstorming/reference/` with the `read` tool.\n   - Observed outcome: the read returns an unreadable-file error.\n3. **Blocking stop.** Step 8 stops with a blocking error, as Ticket Handling requires when the reference is unreadable.\n   - Do not reconstruct the reference from memory.\n   - Do not run the Spec Self-Review checks.\n   - Do not assess the row \"The report export includes the visible table columns.\"\n   - Do not advance to step 9.\n4. **Report to user.** Tell the user that step 8 for acme/widgets#77 is blocked because `reference/ticket-acceptance.md` could not be read. Work resumes at step 8 once the reference is readable.\n",
-      "words": 319,
-      "wallMs": 13050,
+      "text": "# Narrated read actions: restored session at step 8, ticket acme/widgets#77\n\nNo live tool calls are claimed below. Each entry describes a required action and the outcome given in the fixed observations. The bundled reference text is not treated as session context, and none of its contents are reconstructed.\n\n## Branch readable\n\n1. **Enter checklist step 8 (Spec self-review lint).** This is a restored session, so nothing from earlier is in context. Check whether `reference/ticket-acceptance.md` is already in context: it is not.\n2. **Follow the Ticket Handling pointer.** Because the reference is missing from context, step 8 requires reading [Ticket Handling](#ticket-handling) first. That section directs the read of `reference/ticket-acceptance.md`.\n3. **`read` `skills/brainstorming/reference/ticket-acceptance.md`** at its absolute path, using the `read` tool rather than a shell command.\n   - Outcome: the read succeeds, and the reference is now in context for the rest of this session.\n4. **Run the rest of step 8.** Run the inline checks in [Spec Self-Review](#spec-self-review-before-user-review-gate) against the existing spec for acme/widgets#77, using the reference just loaded.\n   - Gathered AC row: \"The report export includes the visible table columns.\"\n   - Primary code supports this row, so it stays verbatim with disposition `in-scope`.\n   - Nothing shows the row is wrong or impossible, and nobody raised dropping it, so no cut question is asked.\n5. **Advance to step 9 (Critique pass).** Dispatch the [Spec Council](#spec-council). The reference stays in context, so later steps do not re-read it.\n\n## Branch unreadable\n\n1. **Enter checklist step 8 (Spec self-review lint).** This is a restored session, so nothing from earlier is in context. Check whether `reference/ticket-acceptance.md` is already in context: it is not.\n2. **Follow the Ticket Handling pointer.** Step 8 requires reading [Ticket Handling](#ticket-handling) before the rest of the step. That section directs the read of `reference/ticket-acceptance.md`.\n3. **`read` `skills/brainstorming/reference/ticket-acceptance.md`** at its absolute path, using the `read` tool.\n   - Outcome: an unreadable-file error.\n4. **Blocking stop.** Ticket Handling says an unreadable reference means stopping with a blocking error and never reconstructing it from memory. So:\n   - The step 8 self-review lint is not run.\n   - The row \"The report export includes the visible table columns\" gets no disposition check.\n   - Step 9 is not entered.\n   - The user is told: `Blocked at step 8: reference/ticket-acceptance.md is unreadable (<error>); spec self-review cannot proceed without it.`\n5. **Resume only after the reference is readable again.** The workflow waits. Once the file can be read, step 8 restarts at its in-context check.\n",
+      "words": 394,
+      "wallMs": 14805,
       "mechanical": {}
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "### readable\n\n1. **Step 8 — required reference read:** Narrate reading `reference/ticket-acceptance.md` at its absolute path under `skills/brainstorming/`. Observed outcome: the read succeeds. No reference contents are supplied here; none are reconstructed or borrowed from the bundled reference.\n2. **Step 8 — spec lint:** Continue with the required inline self-review. The fixed observations establish that “The report export includes the visible table columns” is supported by primary code and remains in scope. They do not establish that the remaining lint checks pass.\n3. **Step 9 — critique pass:** After lint requirements are satisfied, perform the required critique pass; do not skip it. No critique result is provided.\n4. **Step 10 — placeholder scan:** After critique, repeat the required placeholder scan. No scan result is provided.\n5. **Steps 11–12 — summary and review gate:** Once the preceding requirements are satisfied, generate the spec summary and present the user review gate. Do not claim approval or transition to implementation from these observations.\n\n### unreadable\n\n1. **Step 8 — required reference read:** Narrate attempting to read `reference/ticket-acceptance.md` at its absolute path under `skills/brainstorming/`. Observed outcome: an unreadable-file error.\n2. **Blocking stop:** Stop step 8 because the required reference is unreadable. Do not reconstruct its contents, substitute the bundled reference as session context, or advance to lint completion, critique, the placeholder scan, or the user review gate.\n",
-      "words": 215,
-      "wallMs": 16944,
+      "text": "### readable\n1. At step 8, the restored session lacks `reference/ticket-acceptance.md` in context, so the required first action is to read that reference.\n2. The fixed observation says the read succeeds. Its contents are not supplied here, so none are reconstructed.\n3. Continue with step 8’s spec self-review (lint). The gathered row, “The report export includes the visible table columns,” is supported by primary code and remains `in-scope`.\n4. No lint outcome is supplied. Do not claim completion or advance to the critique pass on these observations alone.\n\n### unreadable\n1. At step 8, the restored session lacks `reference/ticket-acceptance.md` in context, so the required first action is to read that reference.\n2. The fixed observation says the read returns an unreadable-file error.\n3. **Blocking stop:** do not reconstruct the reference from bundled material, continue lint, or advance to another stage. The required reference must become readable before proceeding.\n",
+      "words": 146,
+      "wallMs": 12255,
       "mechanical": {}
     }
   },
@@ -34,9 +34,9 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "046c7bb9a20ff6bf528fe609ce1a86e038962d98a587d13f5f9bdac95ac7181c",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "e6b3fd94d8078dcb624d25dff60ae91495929b0228a72c65d160e9724dd2a06a",
-      "baselineOutputSha": "0413da7cb445ef74877b796d45c760a880737d91080e40a82b0cc7a4c1d33b92",
-      "candidateOutputSha": "95cf0633cf94e3ecdc173b9187d33b40057a2e3dc3e7645531b7e892030b9377",
+      "intentSha": "3fab9022e6546ee557e596de8ba99bbd8a8d5e75db7e126af9d0739b215affa8",
+      "baselineOutputSha": "7a57b9561d32caf8339c815ac95c69c37efec6ff11bb871aa4dceccaa141b29d",
+      "candidateOutputSha": "379e040371e218bf56643c3d83efc9329b640c1a824fdcd72148c6744b074fad",
       "facts": {
         "restored-read": {
           "before": "holds",
@@ -49,16 +49,16 @@
           "label": "held"
         }
       },
-      "feedback": "Both facts hold in Before and After. In the readable branch, After explicitly narrates the `read` action on reference/ticket-acceptance.md at step 8 entry before running the Spec Self-Review lint, framed around restoration not carrying an earlier read forward. In the unreadable branch, After narrates the attempted read, the unreadable-file error, and a blocking stop that forbids reconstruction, lint, row assessment, and advancing to step 9. Nothing in the After wording moved either fact; the added preamble (\"no live tool calls\", \"contents are not reconstructed\") and the final \"Report to user\" step are consistent with the facts and with the Narrated read actions exception. No wording change is needed to keep these facts while delivering the Change.",
-      "wallMs": 5167,
+      "feedback": "Neither fact moved. In both outputs the readable branch narrates checking context at step 8, following the Ticket Handling pointer, and reading reference/ticket-acceptance.md with the read tool before running the Spec Self-Review inline checks, explicitly not relying on an earlier session read; the unreadable branch narrates the attempted read, the unreadable-file error, and a blocking stop that skips the lint, gives the row no disposition, does not enter step 9, and refuses reconstruction from memory or the bundled text. After's additions (the no-live-tool-calls preamble, the quoted user-facing block message, and the resume-after-readable step) are consistent with both facts; the resume step says the workflow waits and step 8 restarts at its in-context check, which does not advance or reconstruct. To keep these facts stable while delivering the Change's amendment-surface section 5 and bound/repeat-evidence checks, keep the restored-session wording that treats the in-context check as failing on restoration and the unreadable-reference wording as a stop with no lint, no advance, and no reconstruction from the bundled copy; avoid any new text suggesting the bundled reference text counts as session context or that aftermath restoration applies to reference reads.",
+      "wallMs": 9323,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "046c7bb9a20ff6bf528fe609ce1a86e038962d98a587d13f5f9bdac95ac7181c",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "e6b3fd94d8078dcb624d25dff60ae91495929b0228a72c65d160e9724dd2a06a",
-      "baselineOutputSha": "ae20e0e20f9f658aa7dc63bee5371d4d1b398688b1c4922ed86a8f92fbb4022c",
-      "candidateOutputSha": "be0bda7fcf0c17dac67305188ee9fb2c490a74013b7b23e4a28676c1f792b5b6",
+      "intentSha": "3fab9022e6546ee557e596de8ba99bbd8a8d5e75db7e126af9d0739b215affa8",
+      "baselineOutputSha": "05a6ada13cdde562e74fa7f4c5affe419a7c265a10996c6567fefcd8aed40ddb",
+      "candidateOutputSha": "a07283389f1ec633d50fcfd8ba646719523af5141c35eed003b918ae361bf95f",
       "facts": {
         "restored-read": {
           "before": "holds",
@@ -71,10 +71,10 @@
           "label": "held"
         }
       },
-      "feedback": "Neither fact moved: both outputs narrate the step-8 reference read ahead of the lint in the readable branch and an attempted read followed by a blocking stop with no lint, advancement, or reconstruction in the unreadable branch. Two things in After are worth tightening even though they did not cost a fact here. First, Before explicitly justified the read with \"required because this restored session does not have it in context,\" which is the exact grounding restored-read asks for; After drops that rationale and just says \"required reference read,\" so a stricter judge could read it as a routine read rather than a restoration-aware one — keep the Before justification phrase. Second, After's readable branch continues into steps 9–12 (critique, placeholder scan, summary, review gate) even though the observations and the \"narrate read and stage actions from step 8\" instruction supply nothing past step 8; Before stopped at \"advancement to step 9 is not established.\" That extra narration risks looking like advancing without evidence. Wording that keeps everything Before kept while delivering the Change: retain the step-8 read with the restored-session rationale, then state that remaining lint results are not supplied and advancement is not established, without enumerating later steps.",
-      "wallMs": 11711,
+      "feedback": "Nothing moved on this case: both outputs narrate the reference read as the first step-8 action in the readable branch before the lint self-review, and both unreadable branches narrate the read, the unreadable-file error, and a blocking stop without linting, advancing, or reconstructing. After is slightly more explicit than Before in the readable branch (it states that the reference contents are not reconstructed and that no lint outcome is claimed), which is an improvement. One small tightening to keep the blocking-stop fact robust: After's unreadable item 3 says 'do not reconstruct the reference from bundled material' whereas the fact also names memory — wording like 'do not reconstruct the reference from memory or the bundled text' would match the fact verbatim and avoid a stricter judge reading the omission as a gap. The section-5 amendment-surface change did not displace the Ticket Handling restoration rule in this assembly.",
+      "wallMs": 10311,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "e85ad8c4e58d6f8cc0716ab1199fef2e7d45f902"
+  "repoSha": "488adb5f77d82365012e1a6030f3b11a1e35f420"
 }

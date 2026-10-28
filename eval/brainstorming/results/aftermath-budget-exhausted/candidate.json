@@ -1,0 +1,110 @@
+{
+  "sample": "aftermath-budget-exhausted",
+  "arm": "candidate",
+  "skillSha": "42204e290c123c18bfc0409f65daf875501c02acfce03acc901aade66322a672",
+  "inputSha": "a594c255841b350d1b204583d2f453ece352f2d0ae50f90a3b14d24320ebaa36",
+  "kind": "text",
+  "assembly": "headed",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "# Trace A: Third outcome after two applied items\n\n1. **Stage: return point after the plan-writer.** The second corrected `Amend:` re-dispatch has returned. Its writer status is `OPEN QUESTIONS`, and the parent outcome is a `dirtied tracked source` row. There is no ledger, so the plan-aftermath path applies. There is no batch commit yet.\n\n2. **`read` `<skills root>/brainstorming/reference/amendment-surface.md`, section 5 \"Apply, aftermath, commit\".** Section 5 requires a fresh read before any aftermath step. The fixed observation is that the file is readable. I act only on what that read returns and do not rely on memory.\n\n3. **Stage: attribution check.** The row's baseline command is `node eval/run.mjs report-runner summary`. It comes from the batch's changed `Tests:` text, in a task anchored to the amended Tests section. It differs from `HEAD`'s plan. The row is therefore attributable and amend-class.\n\n4. **Stage: bound check.** This batch has already applied two aftermath items, `replay` and `records`. The rule allows at most two aftermath items per batch, so this third outcome goes to writing-plans' step-6 exit as written, without restoration.\n   - The active `auto-apply amends` grant does not change this. The grant only decides whether an eligible item needs to ask. It cannot exceed the two-item bound.\n   - No third item is applied, and no plan-writer is dispatched.\n\n5. **Stage: tracked-membership observations (recorded, not acted on).** The supplied `git -C /tmp/report-worktree ls-files -- \"<path>\"` result prints each of the three paths. Normally that would make them eligible for the narrow restore. The bound is exhausted, so **no `checkout`/`restore` command runs**.\n\n6. **Stage: working-tree state.** The batch's spec and plan edits stay on disk as batch edits. Nothing is restored, the plan tracker is not touched, and the phase does not change.\n\n7. **Stage: render the step-6 exit in full (message to the user).**\n\n   > **Planning stopped: the amendment batch has used its two aftermath items, and a third outcome needs your call.**\n   >\n   > **What happened**\n   > - The plan-writer returned `OPEN QUESTIONS`.\n   > - The baseline command `node eval/run.mjs report-runner summary` dirtied these tracked source files:\n   >   - `eval/report-runner/report.md`\n   >   - `eval/report-runner/results/summary/baseline.json`\n   >   - `eval/report-runner/results/summary/candidate.json`\n   > - Cause: that baseline command comes from the batch's changed Tests text.\n   >\n   > **Why this goes to you**\n   > - Only two aftermath items may be applied per batch, and both have been used.\n   > - These three files are not restored, even though all three are tracked. The bound comes before the narrow restore.\n   > - Your auto-apply grant does not lift the two-item limit.\n   >\n   > **Please decide, for each of the three paths:** commit, discard, or move it. After that, tell me how to handle the Tests text that produced this baseline command.\n   >\n   > **Retry items already applied in this batch**\n   > 1. `replay` | Move replay to verification | Tests | granted. Evidence:\n   >    ```\n   >    FAIL (1 findings)\n   >    command-contract @ line 24: Tests segment requires a Test: path token\n   >    > Tests: `node eval/run.mjs report-runner audit`\n   >    ```\n   > 2. `records` | Correct records test path | Tests | granted. Evidence:\n   >    ```\n   >    - Task 2: `node --test tests/record-old.test.mjs` fails on 3a8fad8c; exit 1; test path not found\n   >    ```\n\n8. **Stage: end turn.** No writer re-dispatch, apply, restore, tracker call, or commit is made. I wait for the reply.\n\n# Trace B: Repeated evidence below the limit\n\n1. **Stage: return point after the plan-writer.** The `replay` item's `Amend:` re-dispatch has returned with writer status `PLAN WRITTEN`. The parent `plan_check` returns its second identical FAIL. This comes after writing-plans' own first `Findings:` retry. There is no ledger and no batch commit yet.\n\n2. **`read` `<skills root>/brainstorming/reference/amendment-surface.md`, section 5.** This is the fresh re-read required before aftermath. The fixed observation is that the file is readable.\n\n3. **Stage: attribution check.** The quoted FAIL text, ``Tests: `node eval/run.mjs report-runner audit` ``, sits in a task anchored to the amended Tests section. It is text this batch changed, so the FAIL is attributable.\n\n4. **Stage: repeat check.** The new evidence is byte-identical to the evidence of the already-applied item `replay`. Section 5 sends any evidence that repeats an already-applied item's evidence straight to step 6 as written. That rule is separate from the two-item count, so having one slot left does not matter.\n   - The `auto-apply amends` grant does not authorize a retry either. Re-applying a correction that already failed to clear the same finding would loop.\n   - No second item is applied, and no writer is re-dispatched.\n\n5. **Stage: working-tree state.** There are no dirty paths, so the restore step does not apply. The batch's spec and plan edits stay as batch edits. There is no tracker call and no phase change.\n\n6. **Stage: render the step-6 exit in full (message to the user).**\n\n   > **Planning stopped: the plan check failed again with the same finding that the `replay` amendment was supposed to fix.**\n   >\n   > **Open question.** The check still reports exactly this:\n   > ```\n   > FAIL (1 findings)\n   > command-contract @ line 24: Tests segment requires a Test: path token\n   > > Tests: `node eval/run.mjs report-runner audit`\n   > ```\n   >\n   > **Why this goes to you**\n   > - Re-applying the same correction would repeat evidence that has already been applied once in this batch.\n   > - So this stops here, even though the batch has used only one of its two aftermath items and your auto-apply grant is active.\n   >\n   > **Please tell me how the Tests line should be fixed.** It needs to satisfy the `Test:` path requirement, or you can redirect the work elsewhere.\n   >\n   > **Retry items already applied in this batch**\n   > 1. `replay` | Move replay to verification | Tests | granted. Evidence:\n   >    ```\n   >    FAIL (1 findings)\n   >    command-contract @ line 24: Tests segment requires a Test: path token\n   >    > Tests: `node eval/run.mjs report-runner audit`\n   >    ```\n\n7. **Stage: end turn.** No apply, writer re-dispatch, tracker call, or commit is made. I wait for the reply.\n",
+      "words": 903,
+      "wallMs": 38178,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "## Trace A — third outcome after two applied items\n\n1. **Required reference read:** re-read `skills/brainstorming/reference/amendment-surface.md`, §5, before the aftermath decision. This is a narrated requirement, not a live read or a claim that the bundled reference was already session context.\n\n2. **Read the attribution evidence:** inspect `doc/plans/report-runner.md` and its HEAD version in `/tmp/report-worktree`. The fixed observations establish that the dirty-source outcome is attributable to changed `Tests:` text in a task anchored to this batch’s `Amend: Tests` section; the baseline command differs from HEAD.\n\n3. **Re-read the grant:** `doc/specs/report-runner.md` yields:\n   ```text\n   **Amend-grant:** auto-apply amends\n   ```\n   That grant does not override the aftermath retry bound.\n\n4. **Check the batch’s applied-item history:** two aftermath items have already applied and their corrected Amend re-dispatches have run:\n   - **replay — Move replay to verification**; Tests; recorded `granted`.\n     ```text\n     FAIL (1 findings)\n     command-contract @ line 24: Tests segment requires a Test: path token\n     > Tests: `node eval/run.mjs report-runner audit`\n     ```\n   - **records — Correct records test path**; Tests; recorded `granted`.\n     ```text\n     - Task 2: `node --test tests/record-old.test.mjs` fails on 3a8fad8c; exit 1; test path not found\n     ```\n\n5. **Observe the third human-facing outcome:**\n   ```text\n   - dirtied tracked source: `eval/report-runner/report.md`, `eval/report-runner/results/summary/baseline.json`, `eval/report-runner/results/summary/candidate.json`; cause: baseline command `node eval/run.mjs report-runner summary` from the batch's changed Tests text.\n   ```\n   The supplied membership observations show that each respective `git ls-files` lookup prints its path. All three paths are tracked and outside the protected sets. Nevertheless, the two-item bound is already exhausted: eligibility does not authorize restoration at this exit.\n\n6. **Stop at the existing step-6 human exit.** Preserve all three dirty paths; do not restore them, apply a third item, or dispatch another writer. The baseline command is `node eval/run.mjs report-runner summary`; its task number, SHA, and numeric exit were not supplied.\n\n   fix-first — choose whether to commit, discard, or move the named dirty paths before further workflow action.  \n   narrow — explicitly narrow the affected verification requirement through the applicable review process.  \n   amend — explicitly request a contract correction; do not treat the active grant as permission for a third aftermath retry.  \n   Recommendation: fix-first - resolve the tracked-source damage explicitly while preserving the current batch and its evidence.\n\n## Trace B — repeated evidence after one applied item\n\n1. **Required reference read:** independently re-read `skills/brainstorming/reference/amendment-surface.md`, §5, before this batch’s aftermath decision. Trace A’s applied count and evidence history do not carry over.\n\n2. **Read the attribution evidence:** inspect this trace’s plan and HEAD comparison. The fixed observations establish attribution to the batch’s changed `Tests:` text and confirm that writing-plans’ own first Findings retry has already occurred.\n\n3. **Re-read the grant:** the spec yields:\n   ```text\n   **Amend-grant:** auto-apply amends\n   ```\n   The grant does not authorize retrying evidence that an already-applied aftermath item addressed.\n\n4. **Inventory this trace’s sole applied item:**\n   - **replay — Move replay to verification**; Tests; recorded `granted`.\n     ```text\n     FAIL (1 findings)\n     command-contract @ line 24: Tests segment requires a Test: path token\n     > Tests: `node eval/run.mjs report-runner audit`\n     ```\n\n5. **Observe the repeated parent-check evidence after the Amend re-dispatch:**\n   ```text\n   FAIL (1 findings)\n   command-contract @ line 24: Tests segment requires a Test: path token\n   > Tests: `node eval/run.mjs report-runner audit`\n   ```\n   This repeats the already-applied item’s evidence exactly. The repeat-evidence stop applies independently of the two-item maximum, so having applied only one item leaves no authorization for another automatic retry.\n\n6. **Stop at the existing step-6 human exit.** No dirty paths are reported. Do not apply another item or re-dispatch the writer. This is a command-contract failure, not a supplied baseline-execution failure; no task number, baseline SHA, or numeric exit was supplied.\n\n   fix-first — resolve the quoted `Tests:` contract failure before another writer/check cycle.  \n   narrow — explicitly narrow the verification requirement if the current contract is not intended.  \n   amend — explicitly request a different spec correction rather than repeating the already-applied repair.  \n   Recommendation: fix-first - the same contract failure survived the repair, so another grant-driven retry is not justified.\n",
+      "words": 617,
+      "wallMs": 29269,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "0f88bbc1d971065cb171658315dd4f5c9095773b4a05ae3dc9d044333b8cc8b6",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "3fab9022e6546ee557e596de8ba99bbd8a8d5e75db7e126af9d0739b215affa8",
+      "baselineOutputSha": "c4d71f9724dffed8338dda8e3945616847f20f65c1fd1f4bee959f4933e16068",
+      "candidateOutputSha": "0fddbcbf20a413830077dc6526172d207dbe7fa035887e97b3b918764d110be8",
+      "facts": {
+        "stop": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "no-restore": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "evidence": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "repeat-stop": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "repeat-evidence": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        }
+      },
+      "feedback": "After keeps every fact Before kept and fixes no-restore: Before merely noted \"no restore\" and said the third outcome would be reported, but never rendered the step-6 dirtied-tracked-source exit or offered the human the commit/discard/move decision, whereas After explicitly states no checkout/restore runs, renders the exit in full with all three paths and the `node eval/run.mjs report-runner summary` cause, asks for commit/discard/move per path, and lists both applied items with their distinct verbatim evidence without counting the third outcome. Trace B in After stays independent (one `replay` item, verbatim audit FAIL including `command-contract @ line 24` and the quoted Tests command, no borrowed records item, explicit stop before the two-item limit with the grant not authorizing a retry). The ordering wording—bound and repeat checks before the tracked-membership/restore step, then a full step-6 render without restoration—is exactly what delivers the Change; keep that order explicit and keep the \"recorded, not acted on\" framing for the `ls-files` observations so the eligible-but-not-restored distinction stays visible.",
+      "wallMs": 14691,
+      "verdict": "improved"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "0f88bbc1d971065cb171658315dd4f5c9095773b4a05ae3dc9d044333b8cc8b6",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "3fab9022e6546ee557e596de8ba99bbd8a8d5e75db7e126af9d0739b215affa8",
+      "baselineOutputSha": "5aaf9d588f6bcd7ef1cc9d1880d48af27dea889087ab021dae946b424230d10c",
+      "candidateOutputSha": "908724bd415b0b0bcb12e8016f7585394bce3ac2647faff44f158f964a716209",
+      "facts": {
+        "stop": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "no-restore": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "evidence": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "repeat-stop": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "repeat-evidence": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        }
+      },
+      "feedback": "After keeps every fact Before kept and additionally satisfies no-restore: Before stopped Trace A at the two-item bound and inventoried both applied items correctly, but never rendered the dirtied-tracked-source exit as a human decision — it quoted the three paths and cause only as the writer's OPEN QUESTIONS and offered no commit/discard/move route — whereas After's step 6 explicitly preserves the three paths without restoration, restates the cause command, and presents fix-first (commit, discard, or move the named paths)/narrow/amend before pausing. Trace B in both outputs stops on repeated evidence with one applied item, quotes the audit FAIL verbatim including `command-contract @ line 24`, lists only the replay item, and does not import A's records item. The After wording that delivers the Change is the ordering in A step 5→6 (bound check first, then 'eligibility does not authorize restoration at this exit') plus the explicit commit/discard/move exit; keep that, and keep each trace's inventory confined to its own applied items as After already does.",
+      "wallMs": 18904,
+      "verdict": "improved"
+    }
+  },
+  "repoSha": "488adb5f77d82365012e1a6030f3b11a1e35f420"
+}

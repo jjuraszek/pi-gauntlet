@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Changed
+
+- Amendment-aftermath `plan_check` and baseline failures attributable to the batch's edits become at most two retry items in that same batch, with the spec's amend grant controlling automatic apply; unrelated failures, protected paths, exhausted retries, and repeated evidence retain their existing stops, and only eligible tracked paths named by an attributable dirtied-source row receive a narrow orchestrator restore, not general implement-phase cleanup.
+
 ## v7.38.0 - 2026-10-28
 
 ### Changed
