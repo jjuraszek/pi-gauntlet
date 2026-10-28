@@ -37,7 +37,9 @@ No deployment split: the overrides supply neither Deployment topology nor Happy 
 
 ## Baseline provenance
 
-BASE `0ff9be58`. Initial inventory before drafting: empty. After drafting and after every command the inventory was exactly `?? doc/plans/2026-10-28-multi-repo-coordinated-flow.md`, admitted as the dispatched plan path; the spec remained clean. HEAD never moved; no source or generated artifacts changed. Task 1 ran 40 tests; Task 2 ran 305; Task 3's derived existing-anchor command ran 52; Tasks 4, 5, 6, 7 ran 16, 1, 37, 45 respectively, all exit 0. Task 2's first plain-node command lacked the CI stub loader and failed to import pi-ai; the corrected same-scope command below was executed successfully. No baseline failure remains. Header verification was not run. Subsequent prose/anchor repairs retain these executed, unchanged commands at the same BASE; status still contains only the admitted plan.
+Initial execution BASE `0ff9be58`. Initial inventory before drafting: empty. After drafting and after every command the inventory was exactly `?? doc/plans/2026-10-28-multi-repo-coordinated-flow.md`, admitted as the dispatched plan path; the spec remained clean. HEAD never moved; no source or generated artifacts changed. Task 1 ran 40 tests; Task 2 ran 305; Task 3's derived existing-anchor command ran 52; Tasks 4, 5, 6, 7 ran 16, 1, 37, 45 respectively, all exit 0. Task 2's first plain-node command lacked the CI stub loader and failed to import pi-ai; the corrected same-scope command below was executed successfully. No baseline failure remains. Header verification was not run. Subsequent prose/anchor repairs retained these executed, unchanged commands at that BASE.
+
+Amendment provenance: BASE `b00359ff`; initial per-file inventory ` M doc/specs/2026-10-28-multi-repo-coordinated-flow.md`, admitted as the dispatched spec and the sole parent-supplied In-flight path. The plan path is also admitted. No source edits are present; the pending Wave 1 patches are outside this checkout. Before retaining evidence, `git -C "/Users/jacek/repos/pi-gauntlet/.worktrees/multi-repo-flow" diff --quiet 0ff9be58 HEAD -- . ':!doc/specs/' ':!doc/plans/'` exited 0 with HEAD read as `b00359ff`. All seven task commands are unchanged and retain valid evidence, including Task 3's derived command; no header command ran. Retained 7 bullets: `0ff9be58` -> `b00359ff`, tree-equivalent outside `doc/specs`, `doc/plans`. After the amendment write and during anchor repairs, HEAD remained `b00359ff` and status held only the admitted modified plan and spec; retain the unchanged commands at BASE.
 
 ## Wave 1 - Independent foundations
 
@@ -59,7 +61,7 @@ Tasks own disjoint files and independently allocated temporary repositories. Sha
 - Test: `scripts/brainstorming-contract.test.mjs`
 **Tests:**
 - `node --test scripts/brainstorming-contract.test.mjs`
-- baseline: 0ff9be58 pass
+- baseline: b00359ff pass
 - via: `/skill:using-git-worktrees`, Worktree First, gather, spec-writing, amendments
 
 Decision: use the new reference as the sole portable leg grammar; retain existing tracker and dispatch APIs. Match shape-ticket's identity rule in `repo-audit.md:81` and its existing ticket-group handling in `reference/ticket-acceptance.md`.
@@ -84,7 +86,7 @@ Decision: use the new reference as the sole portable leg grammar; retain existin
 ### Task 2: Make plan and ledger admission leg-aware
 
 **TDD scenario:** Modifying tested code - run existing tests first.
-**Spec:** doc/specs/2026-10-28-multi-repo-coordinated-flow.md § "Acceptance criteria" L38-L39, § "Acceptance criteria" L48-L49, § "Writing-plans and plan_check" L97-L98, § "Errors and edge cases" L141-L142, § "Tests" L162
+**Spec:** doc/specs/2026-10-28-multi-repo-coordinated-flow.md § "Acceptance criteria" L38-L39, § "Acceptance criteria" L48-L49, § "Writing-plans and plan_check" L97-L98, § "Implement engines" L104, § "Errors and edge cases" L141-L142, § "Tests" L162
 **Files:**
 - Modify: `extensions/lib/plan-check.ts`
 - Modify: `extensions/lib/plan-check.test.ts`
@@ -94,17 +96,22 @@ Decision: use the new reference as the sole portable leg grammar; retain existin
 - Test: `extensions/phase-tracker.test.ts`
 **Tests:**
 - `node --experimental-loader ./extensions/test-support/pi-stubs.mjs --test extensions/lib/plan-check.test.ts extensions/phase-tracker.test.ts`
-- baseline: 0ff9be58 pass
+- baseline: b00359ff pass
 - via: `plan_check`, `checkPlan`, `FsPort`, ledger admission
 
 Decision: extend `FsPort.exists(path, leg?)` and `FsPort.glob(pattern, leg?)` with an optional normalized repo argument, retaining one-argument callers. Parse membership in the pure checker, resolve roots only in the phase-tracker port, and preserve `checkPlan(planText, specText, fs)`.
+
+Decision: extend `checkLedger` in `extensions/lib/plan-check.ts:1140-1185` only when the spec has multiple members. Keep legacy admission, including its missing-cap fixture in `extensions/lib/plan-check.test.ts:15-21`, unchanged. Validate coordinated metadata structurally here; Task 4's `/skill:loop-implementation` and `agents/loop-implementer.md` own cap computation from `maxIterationsPerRow` and git-backed pending-result validation. The pure checker neither loads settings nor infers commit evidence.
 
 - [ ] Run scoped tests; add red fixtures for distinct valid leg SHAs, wrong-leg SHA, unknown leg, mixed wave, case-insensitive IDs and absent Leg default.
 - [ ] Add red fixtures for identical relative paths across repos, cross-leg Create/Test leakage and legacy specs.
 - [ ] Parse first task line `Leg:` against `## Legs`; absent means home. Emit `leg-unknown` without probing arbitrary roots. Parse per-leg Baseline declarations and compare each bullet to its own leg SHA. Keep evidence requirements and `**Tests:**` directly after `Files:`/`**Files:**`; reject mixed waves. Plan and `**Spec:**` stay home-owned.
 - [ ] Thread leg into `Modify:`/`Create:`/`Test:` existence and glob resolution. Key created paths and overlap by `(leg, path)`, preserving Test/Test non-ownership. The writer fills `Rules:`/`root only - paths unresolved` and runs `cwd`/`git -C` at the same leg root.
 - [ ] Resolve roots in the port from selected sibling paths and recorded `home:` pattern with `NAME`. Test distinct temporary primaries, patterns and resolution failure; fail with input findings. Keep home flow settings and legacy root behavior.
-- [ ] Extend ledger admission only for coordinated metadata: numeric entry IDs plus entry-to-original-AC/leg mapping and per-leg bases. Validate one entry per owned AC/leg pair, known legs, dispositions, evidence, cap and attempts. Keep legacy four-column rows/single-member parsing unchanged. Task 4 consumes this model; no new ledger module.
+- [ ] Add red coordinated-ledger fixtures retaining `row | status | attempts | evidence` with contiguous numeric entry IDs: one shared AC expands in membership order, an unowned AC defaults home, and each entry maps exactly once in `## Leg mapping` with columns `row | ac | leg`. Reject missing/duplicate mapping entries or AC/leg pairs, unknown legs, nonexistent original ACs, wrong order and disposition mismatches; retain escaped-pipe evidence tests. Keep original one-based AC numbering, including cut ACs, distinct from expanded entry IDs.
+- [ ] Parse the mapping to validate one entry per owned AC/leg pair against the spec's `### Leg:` scope; apply status/disposition and attempts/evidence checks to the original AC through that mapping, not through the expanded row number. Retain the four-column table; do not add a ledger module or alter legacy/single-member ledger bytes.
+- [ ] Validate coordinated headers: `base:` remains home's base; exactly one per-member base SHA and seeded header, initially `seeded repo-a: no` and `seeded repo-b: no`, accepting only `no` or `yes`. Require home base equality and reject missing/duplicate/foreign member headers, malformed SHAs, invalid iterations and nonpositive/noninteger cap. Permit later cap grants and closed/cut rows without recomputing cap from current non-cut count; Task 4 sets the initial formula and preserves it thereafter.
+- [ ] Add pending-tuple fixtures for `pending: 2 | repo-b | abc1234` and `pending: seed | repo-b | abc1234`. Admit at most one tuple with a valid pre-dispatch SHA, known companion and numeric target belonging to that leg or `seed`; reject duplicate/malformed tuples, foreign targets and home pending tuples. Do not mark a leg seeded from tuple presence or invent result evidence. Assert coordinated skeleton, partial-seed and recovered-ledger admission; prove single-member/legacy fixtures remain unchanged.
 - [ ] Run scoped tests green, `node --check extensions/lib/plan-check.ts`, and `node --check extensions/phase-tracker.ts`. Single-member behavior still adds no leg file, `legs:` brief, `--leg` or companion loop.
 - [ ] Commit as `Validate plans and ledgers against leg-local roots`.
 
@@ -125,7 +132,7 @@ Decision: extend `FsPort.exists(path, leg?)` and `FsPort.glob(pattern, leg?)` wi
 - Test: `src/bins/gauntlet-telemetry-seal.test.mjs`
 **Tests:**
 - `node --experimental-loader ./extensions/test-support/pi-stubs.mjs --test extensions/verify-before-ship.test.ts extensions/lib/telemetry-record.test.ts bin/gauntlet-telemetry-seal.test.mjs src/bins/gauntlet-telemetry-seal.test.mjs`
-- baseline: 0ff9be58 pass via `node --experimental-loader ./extensions/test-support/pi-stubs.mjs --test extensions/verify-before-ship.test.ts extensions/lib/telemetry-record.test.ts bin/gauntlet-telemetry-seal.test.mjs`
+- baseline: b00359ff pass via `node --experimental-loader ./extensions/test-support/pi-stubs.mjs --test extensions/verify-before-ship.test.ts extensions/lib/telemetry-record.test.ts bin/gauntlet-telemetry-seal.test.mjs`
 - via: `serializeRecord`, `parseRecord`, `--leg`, seal retry, advisory
 
 Decision: add source-CLI cases at the named src path and retain bundled regressions in bin. Add optional top-level `legs` to schema 1, not a schema version. New tests invoke source; Task 7 rebuilds bundles.
@@ -146,7 +153,7 @@ Depends on Wave 1: consume Task 1's grammar, Task 2's admission model and Task 3
 ### Task 4: Route planning and both implementation engines through legs
 
 **TDD scenario:** Modifying tested code - run existing tests first.
-**Spec:** doc/specs/2026-10-28-multi-repo-coordinated-flow.md § "Acceptance criteria" L38-L39, § "Acceptance criteria" L48-L49, § "Writing-plans and plan_check" L97-L98, § "Implement engines" L102-L104, § "Errors and edge cases" L136, § "Errors and edge cases" L141-L143, § "Tests" L163-L164
+**Spec:** doc/specs/2026-10-28-multi-repo-coordinated-flow.md § "Acceptance criteria" L38-L39, § "Acceptance criteria" L48-L49, § "Writing-plans and plan_check" L97-L98, § "Implement engines" L102-L104, § "Implement engines" L104, § "Errors and edge cases" L136, § "Errors and edge cases" L141-L143, § "Tests" L163-L164
 **Files:**
 - Modify: `skills/writing-plans/SKILL.md`
 - Modify: `skills/writing-plans/reference/plan-contract.md`
@@ -163,19 +170,28 @@ Depends on Wave 1: consume Task 1's grammar, Task 2's admission model and Task 3
 - Test: `scripts/loop-engine-contract.test.mjs`
 **Tests:**
 - `node --test scripts/wave-review.test.mjs scripts/loop-engine-contract.test.mjs`
-- baseline: 0ff9be58 pass
+- baseline: b00359ff pass
 - via: `/skill:subagent-driven-development`, `/skill:loop-implementation`, writer and loop personas
 
-Decision: keep flat tracker and numeric ledger entry IDs; add coordinated mapping metadata accepted by Task 2, split shared ACs in membership order, and preserve single-member bytes/one-commit protocol. Rules inputs are additive; persona frontmatter stays byte-identical.
+Decision: keep flat tracker and numeric ledger entry IDs; implement the coordinated grammar from spec L104 and Task 2 in the loop driver's Entry, Dispatch and Validate the return sections. Preserve `agents/loop-implementer.md:14-63` one-commit child boundary and bounded result format: for companions the child's commit carries the result and the parent alone writes the home ledger. Keep legacy/single-member bytes and persona frontmatter byte-identical; Rules inputs are additive.
+
+Decision: reuse the driver's existing `target` and `iteration` inputs and the persona's `loop: row` / `loop: seed evidence` subjects for attributed companion commits. Put the exact dispatched `pending:` tuple and `iteration:` in the commit body, followed by the resulting four-column target row (or all non-cut rows for that leg's seed) and existing bounded decision line. This carries the pending head, target, consumed iteration and result in the commit itself, not in a new sidecar or trusted transcript. Seed evidence retains the persona's zero-attempt and baseline-closure rules.
 
 - [ ] Add red checks for `Leg:` immediately after heading/before `**Files:**`, home `**Spec:**`, per-leg baselines, rule re-walk, homogeneous waves and companion recovery.
 - [ ] Update writer/contract/Baseline: read `## Legs`, emit task leg and one Baseline per repo, execute `Tests:` in owning checkout, qualify dirty/provenance/tree-equivalence/created-anchor/blocked evidence by repo. Preserve all evidence rules.
 - [ ] Re-walk `Files:` to append extra `Rules:` and resolve `Rules: root only - paths unresolved`. Align `Modify:`/`Create:`/`Test:`, `(leg, path)`, `home:`/`NAME` and `leg-unknown` with `extensions/lib/plan-check.ts` and `extensions/phase-tracker.ts`; repair plan, not membership.
 - [ ] Split mixed waves into consecutive single-leg waves without violating dependencies. Select root before `WAVE_BASE_SHA`, isolation, child/reviewer `cwd`, `git -C`, snapshots, integration, tests, repair and commit. Keep authoritative spec reads at home.
 - [ ] Require implementer, spec-reviewer and code-reviewer to read combined spec/task Rules before acting. Extend `eval/subagent-driven-development/samples/leg-cwd` through Task 7 without changing existing dispatch/acceptance shapes.
-- [ ] Map each original AC to scoped `### Leg:` or home; split multi-leg rows into numeric entries without changing spec rows. Dispatch one seed per leg, then one leg per iteration with its base, `Leg:`, Rules and worktree. Retain home ledger/header and attempts/cap/funding/stagnation semantics.
-- [ ] Capture both heads and persist pending entry/leg/base in the home ledger's pre-dispatch update. Companion iterations commit code there then ledger at home recording companion SHA; home iterations retain one commit.
-- [ ] Recover interrupted return only from the attributable expected row commit; re-record SHA/evidence before new dispatch, stopping on unrelated movement rather than inventing evidence. Handle known pre-dispatch ledger dirt before generic dirty checks. Seed retains zero attempts and proven closures. Amendments reconcile original AC/leg mapping without counter resets. Exercise `eval/loop-implementation/samples/leg-iteration` through Task 7.
+- [ ] Add red loop contract cases for shared-AC expansion, unowned-home default, stable numeric IDs, duplicate/missing mapping, per-leg seed selection and all-cut exit. Retain the existing legacy cap and seed assertions in `scripts/loop-engine-contract.test.mjs:1-57`; add coordinated assertions rather than replacing legacy facts.
+- [ ] Map each original one-based AC to the owning `### Leg:` scope or home. Assign numeric entries in original AC order then membership order for shared ACs, leaving spec rows untouched. Retain `row | status | attempts | evidence` and add `## Leg mapping` with `row | ac | leg`, each entry exactly once. Carry cut dispositions to each expanded entry. Keep `base:` as home base and record one `base repo-a: abc1234` / `seeded repo-a: no` pair per member using its actual repo and base, including home.
+- [ ] Compute initial coordinated cap as non-cut entry count times `maxIterationsPerRow` plus one seed dispatch per leg with non-cut entries. Example: one AC shared by home/companion plus one home-only AC gives three non-cut entries and two seed dispatches, cap 14 at default 4; a wholly cut third leg adds no seed. All-cut cap stays 1 and exits without seed. Preserve cap after cuts, reopens, amendments and funding; only an explicit existing cap grant raises it. Keep iterations, attempts, funding, retry and stagnation semantics.
+- [ ] Select the next unseeded leg with non-cut entries in membership order before ordinary row targeting. Dispatch seed or numeric entry with its mapped original AC, leg worktree as `cwd`/`git -C`, per-leg base, `Leg:` and Rules, reading the home spec/ledger by absolute path. Validate every non-cut entry in that leg before setting its seeded value to `yes`; preserve all attempts during seed and retain proven baseline closures. Never mark other legs seeded or change foreign entries.
+- [ ] Capture home and selected companion heads and the saved ledger before dispatch. Bump iterations once and, before every companion dispatch including seed, persist `pending: 2 | repo-b | abc1234` or `pending: seed | repo-b | abc1234` in the home ledger using the actual target and pre-dispatch HEAD. Keep that known pre-dispatch ledger update durable on disk for recovery before generic dirty checks; admit only the expected bump/tuple changes, stopping on other dirt. Home iterations retain the existing single child commit, with parent validation of home-only rows and seeded state.
+- [ ] In the companion persona path, commit code/tests exactly once in the companion and leave home ledger untouched. Serialize the attributed body per the Decision above: exact tuple, consumed iteration, bounded evidence rows and one bounded decision; retain check name plus at most three semicolon-separated result lines and escaped pipes. Seed serializes only that leg's non-cut entries, with attempts unchanged; an ordinary return serializes only its target entry with attempts +1 and status done/failed. Return the existing bounded decision line, not a second result protocol.
+- [ ] Validate a companion return from its commit, not the reply: clean companion, exactly one commit after recorded HEAD, matching pending tuple/iteration/subject, correct target or leg seed rows, bounded result evidence and decision. Reject wrong target, foreign entry, header changes, fabricated counts or malformed evidence under the existing stop/repair rules; apply ordinary repair only to the target and keep seed validation misses a human stop. Parent updates only that leg's seeded state or target entry, records companion SHA in evidence, retains the consumed iteration and prior decisions, and removes `pending:` in the home-ledger commit. Exclude parent ledger commits from child-only empty-commit stagnation.
+- [ ] Before any new dispatch on resume, recover pending companion work only when exactly one new commit matches that tuple and its recorded result. Reapply the same return validation, record SHA/evidence and clear pending in the home-ledger commit without another attempt or iteration bump; do not rerun the row or seed. Stop preserving state on zero commits, unrelated movement, multiple commits or attribution/result mismatch rather than inventing evidence. After successful parent commit, a subsequent resume has no pending tuple and cannot duplicate the update.
+- [ ] Add executable temporary-git fixtures to `scripts/loop-engine-contract.test.mjs` for interrupted ordinary and seed returns, a resumed clear-pending ledger, wrong tuple/iteration, unrelated one-commit movement, multiple commits and foreign-row evidence. Couple the assertions to the driver/persona body grammar. Assert companion code is one commit, home update is one commit, attempts/iterations are consumed once, seed changes only its leg and zero attempts, cap survives recovery/funding/cuts, and legacy/single-member ledger output gains no coordinated metadata. Run scoped tests red before implementing these instructions and green afterward.
+- [ ] Reconcile amendments through original AC/leg mapping without resetting attempts, iterations or cap. Exercise the detailed grammar and interrupted two-commit boundary through Task 7's `eval/loop-implementation/samples/leg-iteration`; require its existing case and expected facts to show numeric mapping, per-leg seeds/bases, cap including seeds, attributed pending recovery and no repeated row dispatch. Task 7 retains ownership of the eval files.
 - [ ] Route end-of-engine verification/reviews to every leg/owned AC with home flow policy, then coordinated finish once. Single-member/legacy paths add no leg file, `legs:` brief, `--leg` or companion loop.
 - [ ] Run scoped tests green and forge-skill checks; commit as `Dispatch plan waves and loop rows in their owning legs`.
 
@@ -194,7 +210,7 @@ Decision: keep flat tracker and numeric ledger entry IDs; add coordinated mappin
 - Test: `scripts/brief-contract-lint.test.mjs`
 **Tests:**
 - `node --test scripts/brief-contract-lint.test.mjs`
-- baseline: 0ff9be58 pass
+- baseline: b00359ff pass
 - via: `/skill:gauntlet-handoff`, `/skill:gauntlet-resume`, `legs:`, entry checks 3/3b/4
 
 Decision: extend only the existing brief contract, not cohort's six-heading core. Receipt transport is not proof; Task 6's live validation governs. Recover Task 4's pending loop boundary before dispatch.
@@ -219,7 +235,7 @@ Decision: extend only the existing brief contract, not cohort's six-heading core
 - Test: `scripts/finish-verification.test.mjs`
 **Tests:**
 - `node --test scripts/finish-verification.test.mjs`
-- baseline: 0ff9be58 pass
+- baseline: b00359ff pass
 - via: finish Steps 1/3.5/4/5/6, receipts, home strip-and-seal
 
 Decision: new finish reference owns coordinated mechanics; gate calls it once. `## Legs` uses recorded `contract:` lines; legacy no-section retains rereading. Receipts are untracked flow artifacts, not telemetry or approval evidence.
@@ -313,7 +329,7 @@ Depends on Waves 1-2: all behavior surfaces exist. This task alone owns eval ass
 - Test: `bin/gauntlet-telemetry-seal.test.mjs`
 **Tests:**
 - `node --test eval/lib/lint.test.mjs bin/gauntlet-telemetry-seal.test.mjs`
-- baseline: 0ff9be58 pass
+- baseline: b00359ff pass
 - via: `lintAll`, `plan_check`, changed instruction assemblies, built CLI
 
 Decision: use text replay cases with embedded synthetic file/tool observations as existing targets do, not another harness. Broad Modify globs permit only needed assembly/intent repairs and single-member spec-body expectation changes from the all-target run.
@@ -394,7 +410,17 @@ Depends on Waves 1-3: document implemented contracts. Cross-cutting docs are del
 | § "Writing-plans and plan_check" L97-L98 | Task roots, created anchors and qualified ownership | Task 2, Task 4 |
 | § "Implement engines" L102-L104 | Homogeneous dependency-preserving waves | Task 4 |
 | § "Implement engines" L102-L104 | SDD isolation/review/integration/commit follow leg | Task 4 |
-| § "Implement engines" L102-L104 | AC mapping/seeds/bases/two-commit recovery | Task 4 |
+| § "Implement engines" L104 | Original AC ownership defaults home; shared AC entries ordered by AC then membership | Task 2, Task 4 |
+| § "Implement engines" L104 | Numeric four-column entries plus unique original AC/repo mapping in `## Leg mapping` | Task 2, Task 4 |
+| § "Implement engines" L104 | Home `base:` and per-member base/seeded headers; seed only its leg before marking `yes` | Task 2, Task 4 |
+| § "Implement engines" L104 | Initial cap counts non-cut entries and per-active-leg seeds; all-cut cap 1 | Task 4 |
+| § "Implement engines" L104 | Preserve iteration, attempts, cut, funding and cap rules; seed never changes attempts | Task 4 |
+| § "Implement engines" L104 | Leg-local seed/row dispatch with base, Rules and home-owned spec/ledger | Task 4 |
+| § "Implement engines" L104 | Persist `pending:` tuple before companion dispatch and validate its shape | Task 2, Task 4 |
+| § "Implement engines" L104 | Attributed companion commit carries tuple, consumed iteration and bounded result evidence | Task 4 |
+| § "Implement engines" L104 | Parent records SHA, updates only leg seed/target, removes pending in home-ledger commit | Task 4 |
+| § "Implement engines" L104 | Recover exactly one matching pending commit/result before dispatch; stop unrelated movement | Task 4 |
+| § "Implement engines" L104 | Legacy and single-member ledger bytes unchanged | Task 2, Task 4 |
 | § "Handoff and resume" L108-L109 | Pinned home snapshot/ordered grammar | Task 5 |
 | § "Handoff and resume" L108-L109 | Identity/membership admission before tracker writes | Task 5 |
 | § "Handoff and resume" L108-L109 | Drift/receipt admission/leg seed refusal | Task 5 |
