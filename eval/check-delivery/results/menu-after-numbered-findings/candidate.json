@@ -1,34 +1,42 @@
 {
   "sample": "menu-after-numbered-findings",
   "arm": "candidate",
-  "skillSha": "70f164d233d37a2504148177ffee3edcf8b660078401243d7794104c7526dc9a",
+  "skillSha": "abe104947ba8857759d24a70eb0322cffed3b750bae2672d1dfc77d7ef2ada95",
   "inputSha": "30a565db4f43ba9588c505c77078fce0b4540f5d7bc69baaeed44cce9b8e26f3",
   "kind": "text",
   "assembly": "concat",
   "thinking": "medium",
   "models": {
     "replay": [
+      "anthropic/claude-opus-5-5",
       "github-copilot/gpt-6.1-sol"
     ],
-    "judge": "github-copilot/gpt-6.1-sol",
+    "judge": "anthropic-fable/claude-fable-5-1",
     "thinking": "medium"
   },
   "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "gauntlet: gate=check-delivery/confirmation-gate\n\nDelivery review of ticket #17 is complete. No gaps were found and no descopes are proposed.\n\n1. Shipped SHA `abc1234` landed through PR #18 (https://github.com/example/widget/pull/18).\n2. Stage 2 was skipped because no delivery target is configured.\n3. AC1 is satisfied. The parser rejects empty names, as pinned at https://github.com/example/widget/blob/abc1234/parser.js#L8. AC1 is not externally observable, so the reviewer script points to that code evidence.\n\n**Stage results:** stage 0 passed · stage 1 passed · stage 2 skipped (no delivery target configured) · stage 3 passed\n\n| AC | Verdict | Evidence |\n|---|---|---|\n| AC1 - parser rejects empty names | satisfied | https://github.com/example/widget/blob/abc1234/parser.js#L8 |\n\n**Exact write on approval:** first the evidence comment on #17, then the status advance.\n\nHalf 1, evidence comment on #17:\n\n```text\nDelivered: abc1234\n\nDeliverables:\n- PR #18: https://github.com/example/widget/pull/18\n\nStage 2: skipped: no delivery target configured\n\nAcceptance criteria:\n- AC1 - parser rejects empty names: satisfied\n  Evidence: https://github.com/example/widget/blob/abc1234/parser.js#L8\n\nReviewer script:\n- AC1 is not externally observable. Verify it via the pinned code evidence:\n  https://github.com/example/widget/blob/abc1234/parser.js#L8 (the parser rejects empty names).\n```\n\nHalf 2, status advance on #17: move to **Ready** (the configured non-terminal target state).\n\nI will re-fetch the ticket right before writing. If the ACs or status have changed, I will show you the changes instead of writing.\n\nPick one:\n1. approve the write\n2. decline\n\n---\n\n**Checkpoint 2: response to the legacy gate after the reply `4`**\n\nThe legacy message put the three findings directly above the options, separated only by a blank line. Under CommonMark the options rendered as 4 and 5, so N = 2 and L = 3. Since 4 > 2 and 4 − 3 = 1, the reply maps to option 1.\n\n```text\ngauntlet: done delivered\n\nTaking 4 as option 1 - approve the write.\n\nRe-fetched ticket #17: ACs and status are unchanged since gather, so I'm proceeding with the approved batched write.\n\n1. Posted the evidence comment on #17 (first line `Delivered: abc1234`, with the deliverables, stage 2 skip, AC1 verdict with evidence, and reviewer script) - landed.\n2. Advanced #17 to Ready - landed.\n\nBoth halves landed. Ticket #17 is recorded as delivered at abc1234.\n```\n\n*Simulated action:* re-fetch #17 (unchanged), then post the evidence comment, then set the status to Ready.\n\n---\n\n**Checkpoint 2 subcheck: reply `yes`, starting from the same proposal with no writes yet**\n\n```text\ngauntlet: done delivered\n\nApproved. Re-fetched ticket #17: ACs and status are unchanged since gather, so I'm proceeding with the batched write.\n\n1. Posted the evidence comment on #17 (first line `Delivered: abc1234`, with the deliverables, stage 2 skip, AC1 verdict with evidence, and reviewer script) - landed.\n2. Advanced #17 to Ready - landed.\n\nBoth halves landed. Ticket #17 is recorded as delivered at abc1234.\n```\n\n*Simulated action:* `yes` counts as explicit approval with no numeric mapping. Re-fetch #17 (unchanged), then post the evidence comment, then set the status to Ready.\n\n**Decline or any other non-approval reply:** this covers option `2`, an unrecognized reply, or anything else that isn't approval. Nothing is written: no comment, no status change, no marker. The report stays in-session only.\n\n```text\ngauntlet: stuck write declined\n\nNo write was made to ticket #17. The delivery report above stays in-session only.\n```\n",
+      "words": 503,
+      "wallMs": 19422,
+      "mechanical": {}
+    },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "gauntlet: gate=check-delivery/confirmation-gate\n\n## Checkpoint 1 — confirmation required\n\nTicket **#17** is ready for delivery recording. **No writes have occurred.**\n\n1. Shipped commit **`abc1234`** landed through [PR #18](https://github.com/example/widget/pull/18). Stages 0 and 1 passed.\n2. Stage 2 was **skipped: no delivery target configured**.\n3. Stage 3 found **AC1 satisfied**: the parser rejects empty names, supported by [pinned code evidence](https://github.com/example/widget/blob/abc1234/parser.js#L8). This AC is not externally observable.\n\nThere are no gaps or descopes.\n\n### Exact proposed evidence comment\n\n```markdown\nDelivered: abc1234\n\nDeliverable set:\n- PR #18: https://github.com/example/widget/pull/18\n\nStage results:\n- Stage 0: passed.\n- Stage 1: passed.\n- Stage 2: skipped: no delivery target configured.\n- Stage 3: passed; AC1 satisfied.\n\n| AC | Verdict | Evidence |\n| --- | --- | --- |\n| AC1: The parser rejects empty names. | Satisfied | https://github.com/example/widget/blob/abc1234/parser.js#L8 |\n\nReviewer script:\n- AC1 is not externally observable.\n- Inspect the empty-name rejection in the shipped code at https://github.com/example/widget/blob/abc1234/parser.js#L8.\n\nNo gaps or descopes.\n```\n\n### Exact proposed write\n\nAfter approval, re-fetch ticket #17 and verify that its ACs and status remain unchanged. If either changed, present the delta instead of writing.\n\nOtherwise, execute one batch in this order:\n- Post the evidence comment above to ticket #17.\n- After the comment succeeds, advance ticket #17 to **Ready**, the configured non-terminal target state.\n\nNo body edit or other mutation is proposed.\n\nPick one:\n\n1. approve the write\n2. decline\n\n---\n\n## Checkpoint 2 — independent response to legacy reply `4`\n\ngauntlet: done delivered\n\nTaking 4 as option 1 - approve the write.\n\n**Simulated execution:** The legacy menu has three preceding ordered items and two options, so displayed `4` resolves to option `1`.\n\n- Re-fetched ticket #17; ACs and status were unchanged.\n- Posted the exact evidence comment shown above, beginning `Delivered: abc1234`.\n- After the comment succeeded, advanced ticket #17 to **Ready**.\n\nBoth write halves landed in the required order. No body edit was performed.\n\n### Independent subcheck — reset, then reply `yes`\n\ngauntlet: done delivered\n\nTaking `yes` as explicit approval to **approve the write**, without numeric mapping.\n\n**Simulated execution from the reset state:**\n- Re-fetched ticket #17; ACs and status were unchanged.\n- Posted the exact evidence comment shown above, beginning `Delivered: abc1234`.\n- After the comment succeeded, advanced ticket #17 to **Ready**.\n\nBoth write halves landed in the required order.\n\n### Decline or another non-approval reply\n\ngauntlet: stuck write declined\n\nNo write occurs: no evidence comment, no status advance, and no delivery marker is posted. The review remains in-session. An out-of-range numeric reply instead requires clarification naming the valid range **1–2**, with no mutation while awaiting clarification.\n",
-      "words": 389,
-      "wallMs": 23016,
+      "text": "gauntlet: gate=check-delivery/confirmation-gate\n\n## Checkpoint 1 — approval required\n\nTicket **#17** is ready for the proposed delivery write. **No writes have occurred.**\n\n1. **Landed commit:** `abc1234`, delivered through [PR #18](https://github.com/example/widget/pull/18). Stages 0 and 1 passed.\n2. **Delivery target:** Stage 2 was **skipped: no delivery target configured**.\n3. **AC evidence:** Stage 3 found AC1 satisfied: the parser rejects empty names, supported by [pinned code evidence](https://github.com/example/widget/blob/abc1234/parser.js#L8). This AC is not externally observable.\n\nThere are no gaps or descopes.\n\n### Per-AC verdict\n\n| AC | Verdict | Evidence |\n|---|---|---|\n| AC1 — The parser rejects empty names | Satisfied | [`parser.js:8` at `abc1234`](https://github.com/example/widget/blob/abc1234/parser.js#L8); not externally observable |\n\n### Reviewer script\n\nAC1 is not externally observable. Inspect [`parser.js:8` at the shipped SHA](https://github.com/example/widget/blob/abc1234/parser.js#L8) to confirm that the parser rejects empty names.\n\n### Exact proposed write\n\n**First: post this evidence comment to ticket #17:**\n\n```markdown\nDelivered: abc1234\n\nDeliverable set:\n- PR #18: https://github.com/example/widget/pull/18\n\nStage results:\n- Stage 0: passed.\n- Stage 1: passed.\n- Stage 2: skipped: no delivery target configured.\n- Stage 3: AC1 satisfied. No gaps or descopes.\n\nPer-AC verdicts:\n| AC | Verdict | Evidence |\n|---|---|---|\n| AC1 — The parser rejects empty names | Satisfied | https://github.com/example/widget/blob/abc1234/parser.js#L8 — pinned code evidence; not externally observable |\n\nReviewer script:\nAC1 is not externally observable. Inspect https://github.com/example/widget/blob/abc1234/parser.js#L8 at the shipped SHA to confirm that the parser rejects empty names.\n```\n\n**Then: advance ticket #17 to `Ready`**, the configured non-terminal target state. No body edit or other mutation is proposed.\n\nBefore writing, re-fetch ticket #17. If its ACs or status changed, present the delta instead of writing. Approval authorizes one batched write, ordered **evidence comment → status advance**.\n\nPick one:\n\n1. approve the write\n2. decline\n\nReply `1` or `yes` to approve. Reply `2` to decline.\n\n---\n\n## Checkpoint 2 — independent legacy-gate responses\n\n### Human replies `4`\n\ngauntlet: done delivered\n\nTaking 4 as option 1 - approve the write.\n\n**Simulated action:** Re-fetched ticket #17 and confirmed unchanged ACs and status. Executed one batched write:\n\n- Posted the exact evidence comment shown above, beginning `Delivered: abc1234`.\n- Then advanced ticket #17 to `Ready`.\n\nBoth write halves landed. No body edit occurred.\n\n### Independent reset: human replies `yes`\n\ngauntlet: done delivered\n\nYour `yes` explicitly approves “approve the write”; no numeric mapping is needed.\n\n**Simulated action:** Re-fetched ticket #17 and confirmed unchanged ACs and status. Executed one batched write:\n\n- Posted the exact evidence comment shown above, beginning `Delivered: abc1234`.\n- Then advanced ticket #17 to `Ready`.\n\nBoth write halves landed. No body edit occurred.\n\n### Independent reset: human declines\n\ngauntlet: stuck write declined\n\nNo simulated mutations occurred. The review remains in-session.\n\n### Independent reset: any other non-approval reply\n\nNo write is authorized, so no simulated mutations occur. An out-of-range numeric reply requires clarification naming the valid range, `1`–`2`; it is not approval.\n",
+      "words": 421,
+      "wallMs": 20246,
       "mechanical": {}
     }
   },
   "judge": {
-    "github-copilot/gpt-6.1-sol": {
+    "anthropic/claude-opus-5-5": {
       "factsSha": "5e68c22358a1eeaaa92f619ceef8a3f7bfcb7ff230c8aaf04421d0a74e3e26a1",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
       "intentSha": "dd275050957e27a804d0965ca0d5eb465bda959a22f71c59ac448fd683047bc5",
-      "baselineOutputSha": "11cc2d81dccb033dbe16873378f06c30bc91b2a4669e6ef41aa00fac9af3c8d3",
-      "candidateOutputSha": "1ce89293daa52190833f477cbe3f17441d3acd8bfbf7349b8ff0101ebbd44988",
+      "baselineOutputSha": "48504543addfd26fa737c9c7f503431e7cd96890cc98e14f597f8def9a02c52c",
+      "candidateOutputSha": "cc232ac7f21db059e2d9ddf8087978292bdd159d4ca07f5feee85016c31dc39c",
       "facts": {
         "layout": {
           "before": "holds",
@@ -46,10 +54,37 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "None of the listed facts changed: both outputs separate the two-choice menu from the findings, resolve legacy reply 4 by label before simulated writes, and accept typed yes without numeric mapping. Preserve those elements and the unchanged-ticket check followed by comment-then-Ready ordering. To deliver the remaining wording change, explicitly cite the shared menu layout and reply rule, and distinguish required gate/report markers from human-channel payloads so those payloads contain no gauntlet line. Keep Delivered: first inside the tracker comment, and place completion reports after the simulated actions rather than before the approval echo.",
-      "wallMs": 8272,
+      "feedback": "No fact moved: both outputs place the two-choice gate labeled \"approve the write\" / \"decline\" after the three ordered findings, with a prose paragraph (\"The comment is posted before...\" / \"I will re-fetch the ticket right before writing...\") separating the options from the preceding ordered list so they render as 1 and 2, and both wait without writing. Note that Before already satisfied layout and mapped-pick on its text, so the \"fails -> holds\" expectation there is not borne out by the outputs. In checkpoint 2 both outputs name \"approve the write\" in one sentence (\"Taking 4 as option 1 - approve the write.\") before the re-fetch and simulated comment-then-status writes, and both accept typed `yes` as plain approval without a numeric echo. After successfully adds the `gauntlet: gate=check-delivery/confirmation-gate` first line and the done/stuck markers while keeping `Delivered: abc1234` first in the comment. One caution against the Change's own stated intent: After embeds `gauntlet: done delivered` and `gauntlet: stuck write declined` inside the fenced blocks that represent the human-facing assistant reply, which is a gauntlet line in a human-channel payload; the wording should direct the model to emit the marker as a separate report line outside the quoted human message (or only in the tracker/report channel) so the human-visible text stays marker-free while the mapped-pick sentence remains the first human-facing line before any simulated mutation.",
+      "wallMs": 26195,
+      "verdict": "unchanged"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "5e68c22358a1eeaaa92f619ceef8a3f7bfcb7ff230c8aaf04421d0a74e3e26a1",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "dd275050957e27a804d0965ca0d5eb465bda959a22f71c59ac448fd683047bc5",
+      "baselineOutputSha": "11cc2d81dccb033dbe16873378f06c30bc91b2a4669e6ef41aa00fac9af3c8d3",
+      "candidateOutputSha": "f795d7c47df60a5e22321601ce6fef1a247178670f7b3253a4fa5f64a3b4b59b",
+      "facts": {
+        "layout": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "mapped-pick": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "plain-yes": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        }
+      },
+      "feedback": "After keeps every fact Before kept: checkpoint 1 still ends with three ordered findings, prose, the exact proposed write, a 'Pick one:' line, and a separated two-choice gate rendering as 1 (approve the write) and 2 (decline) with no write; the `4` reply is resolved by label ('Taking 4 as option 1 - approve the write.') before the re-fetch, comment, then Ready advance; `yes` is accepted as explicit approval without numeric mapping; decline and other replies perform no write. What moved is outside the listed facts but contradicts the Change paragraph itself: After emits `gauntlet: gate=check-delivery/confirmation-gate` at the top of the human-facing confirmation and `gauntlet: done delivered` / `gauntlet: stuck write declined` lines inside the checkpoint-2 human replies, and in the `4` case that marker precedes the label-naming sentence, so the first thing the human reads after their reply is a machine line rather than the resolved option. To deliver the Change while keeping the outputs clean, specify that the confirmation-gate id and ending/STOP ids are emitted as out-of-band status (or at most once, after the human-facing text), that the label-naming sentence must be the first line of the response to a numeric reply, and that human-channel payloads (findings, gate, evidence comment, decision echoes) never carry a gauntlet line; keep the existing 'Pick one:' separator, the `Delivered:`-first comment, and the 'Reply 1 or yes to approve' hint, which already satisfy layout, mapped-pick, and plain-yes.",
+      "wallMs": 19309,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "2eb4429b4dd687432969f427f82d45d7840d7c63"
+  "repoSha": "6ac868ad502fda06310a53624611712a1ac02028"
 }

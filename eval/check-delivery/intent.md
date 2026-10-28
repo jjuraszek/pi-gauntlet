@@ -1,4 +1,4 @@
-for: 70f164d233d37a2504148177ffee3edcf8b660078401243d7794104c7526dc9a
+for: abe104947ba8857759d24a70eb0322cffed3b750bae2672d1dfc77d7ef2ada95
 
 ## Change
 Add the numbered delivery approval gate and cite the shared menu layout and reply rule while retaining typed yes and the existing write boundary.
