@@ -1,0 +1,4 @@
+bundle+: skills/brainstorming/reference/spec-pr.md
+bundle+: skills/brainstorming/reference/pr-subject.md
+## Narrated PR-subject gate
+No tools exist; override normal questionary replay and start at User Review Gate after normal PR rework council/spec commit, not subject classification. Subject acme/widget#42 is OPEN, actual code diff M src/export.ts; selected spec doc/specs/pr-42-export.md has a complete Rework record. Summary "Repeated exports reuse receipts." Audit Applied: none / Deferred: none / Rejected: none. AC drafted in-scope checkbox "Repeated exports reuse receipts." Grant none. All required checks passed. Render gate once, then independent user reply 6. Narrate only resulting clarification and whether any action follows; maximum 650 words. PR exists, so do not publish another. This is the ordinary PR-subject gate, not a marked-spec shortcut.

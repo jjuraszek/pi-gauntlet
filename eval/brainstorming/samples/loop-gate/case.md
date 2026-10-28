@@ -10,7 +10,7 @@ Drafted from the design, no ticket rows:
 - [ ] Repeating an export request returns its existing download instead of creating another export.
   in-scope
 
-Render its drafted block verbatim and all five options.
+Render its drafted block verbatim and all six options.
 
 ## Not-fetched spec Acceptance criteria
 none - ticket not fetched (permission denied)

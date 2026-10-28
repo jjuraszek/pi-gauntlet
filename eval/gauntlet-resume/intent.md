@@ -1,4 +1,4 @@
-for: d63765608d6d5a8cf086513194f496122b4f10c37b343ffd7c0169bc1c85dbe8
+for: 9931974850fd597e976d033527cf1dd457b6c7350dbcb66642a5ff84af26493d
 
 ## Change
 
@@ -13,6 +13,8 @@ Resume routes baseline-line and substantive baseline-form open-questions finding
 Resume verify-stage Ledger briefs, including ship-stage briefs restored at verify, in loop-implementation's After the loop from full ledger verification after the restored start verify, retaining whole-diff review, happy path when triggered, fresh conformance and finishing without task-tracker calls.
 
 Carry all PR/head pairs consecutively in record order, home first, while retaining terminal gate history. Validate actual worktree branch against home before tracker writes and reject branch or pair-order mismatch with both observations. Reconstruct from home's original head; member-spec exclusions remain authoritative through plan pairing. Preserve untouched single-PR and ordinary no-pair reconstruction, grants, snapshots and gate-history checks. The named pr-list-brief sample contains pr-list-brief-mismatch and pr-list-brief-order variants. New narrated cases are setup-only coverage until genuine before/after outcomes establish a move; held/pre-existing facts are not wording improvements and must-hold facts are not relaxed. The current run uses the runner's merge-base baseline; the explicit baseline above describes the earlier single-PR edit.
+
+Add deferred-spec-stop with sample-local entry-check instructions and an explicit before-check-6 replay override. Cover bare tree, brief, process state, seed and incomplete brainstorm after push/create failure; grant exemptions do not bypass admission. Both arms use accepted Wave 1 commit `43b5ec3f2933c5a716c49916e9b1b7c002bb3da2` via `--base HEAD`. This setup-only comparison proves narrated behavior, not live tracker restoration or before/after improvement. Every new candidate fact must hold regardless of aggregate verdict; retain existing facts and authorized directions. Task 1 retains the original-base deterministic red/green proof.
 
 ## Expected to move
 - pr-list-brief/producer: fails -> holds - Carry all three ordered pairs home first, preserving tracker output, Active task and terminal gate history; N=1 and no-record remain intact.

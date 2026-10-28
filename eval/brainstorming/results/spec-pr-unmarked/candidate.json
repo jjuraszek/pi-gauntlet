@@ -1,0 +1,156 @@
+{
+  "sample": "spec-pr-unmarked",
+  "arm": "candidate",
+  "skillSha": "08423205aa100353553272b1c8a9dee75154edf3a4c8f46b7e299ede8d3ebc7c",
+  "inputSha": "47f4afbf42d072445345d99077477ae4f7003a6110321bfc3721e27f8cf630fc",
+  "kind": "text",
+  "assembly": "headed",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "# Narrated read actions for brainstorming #42\n\n**Trace U: unmarked spec-only PR**\n\n1. **Reset the trackers.** `phase_tracker({action:\"reset\"})`, `plan_tracker({action:\"clear\"})`, `phase_tracker({action:\"start\", phase:\"brainstorm\"})`.\n\n2. **Read `skills/brainstorming/reference/pr-subject.md`.** The leading run `#42` is one PR with no intent text.\n   - `gh pr view 42 --json number,url,state,isDraft,title,body,headRefName,headRefOid,headRepository,isCrossRepository,baseRefName` returns exit 0 and `OPEN`.\n   - The URL repository lowercases to `acme/widget`, which matches origin `acme/widget`.\n   - The PR is not cross-repository and has no duplicates, so it is admitted.\n\n3. **Read `skills/brainstorming/reference/spec-pr.md` and run the classifier (N=1, read-only).**\n   - Derive `ROOT` from the git common directory with the submodule guard.\n   - `gauntlet_setting({key:\"flowGuards\"})` returns `specDirs [doc/specs]`.\n   - `git -C \"$ROOT\" fetch origin main spec-export`, then `BASE_SHA=bbbbbbbb…`.\n   - `git diff --name-status bbbb…bbbb...aaaa…aaaa` returns only `A doc/specs/export.md`. That is exactly one addition, so the shape passes.\n   - `git show aaaa…:doc/specs/export.md`: the header before the first `## ` has no `**Engine:** deferred` line, so the marker is absent.\n\n4. **Print the notice:** `spec-only PR without the gate marker - running lint and council`\n\n5. **Read `skills/using-git-worktrees/SKILL.md` and `skills/using-git-worktrees/reference/pr-head.md`, then provision.** The admitted array is `[{42, https://github.com/Acme/Widget/pull/42, Export receipts, spec-export, aaaa…, main, false, acme/widget}]`.\n   - `git -C \"$ROOT\" fetch origin`.\n   - `rev-parse --verify -q aaaa…^{commit}` succeeds, and `origin/spec-export` equals `aaaa…`.\n   - `BASE_SHA=bbbb…`.\n   - The stops all pass: not a fork, not checked out elsewhere in `worktree list --porcelain`, and no local branch.\n   - `git -C \"$ROOT\" worktree add \"/work/widget/.worktrees/spec-export\" spec-export`.\n   - HEAD is `aaaa…`. Capture `PRE_REWORK_HEAD` and `BASE_SHA`.\n   - `git -C \"$WORKTREE\" merge --no-ff --no-edit origin/main` merges cleanly.\n   - `merge-base --is-ancestor aaaa… HEAD` returns 0.\n   - Report lines:\n     ```\n     Base: spec-export @ aaaaaaa\n     PR: acme/widget#42\n     Pre-rework head: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\n     Base SHA: bbbbbbb\n     merge: ccccccc\n     ```\n   - **Skipped: the review-thread query.** The classifier says \"with no thread fetch (bypass its `## Fetch unresolved review threads` as on the marked route)\". It is not attempted, so its failure never surfaces.\n\n6. **Steps 3 (gather) and spec-PR re-gate: skipped.**\n   - Gather is skipped per \"Skip ticket binding, context-builder, the PR scout block, and gather; never write a `## Rework record`.\"\n   - Marked re-gate does not apply, because the marker is absent.\n\n7. **Step 4: read the ticket reference and the draft.**\n   - `skills/brainstorming/reference/ticket-acceptance.md` is not in context, so step 4 reads it.\n   - The draft is `/work/widget/.worktrees/spec-export/doc/specs/export.md`. Read it per \"Resume at checklist step 4 with the carried spec file … as the draft, as a redraw does (recon falls to the questionary).\"\n   - There is no scout and no `Framing:` line. I run the framing check once from my own recon against the PR diff, and the answer is \"keep as drafted\", so the outcome is `Framing: kept`. I record it directly in `## Problem` under the redraw rule.\n\n8. **Steps 5–6: approaches and the two design rounds.** Each question is answered \"keep as drafted\". In round 2, read `skills/brainstorming/reference/documentation-impact.md`.\n\n9. **Step 7: write the spec.**\n   - Read `skills/brainstorming/reference/spec-finalization.md`.\n   - Re-read the draft immediately before the overwrite.\n   - Do a full `write` replacement at the carried path `doc/specs/export.md`. No new filename is minted: the classifier says \"spec-writing overwrites that file at its carried path\".\n   - The row-production branch is drafted provenance.\n   - The line-1 check confirms the file is not the context-draft line.\n   - For the second predecessor pass, read `skills/brainstorming/gatherer.md` for `<SPEC_INDEX>`, then run `--query … --exclude doc/specs/export.md`. No result is supplied in the observations, so I show the `none` form.\n   - The banner step is skipped because there is no predecessor.\n   - The written spec carries:\n     - Header: `# Export receipts`, `**Goal:** Repeat exports reuse receipts`, `**Amend-grant:** none`.\n     - `## Problem`, including `Framing: kept`.\n     - `## Acceptance criteria` reading `Drafted from the design, no ticket rows:` with `- [ ] Repeat exports reuse receipts.` and disposition `in-scope`.\n     - `## Design`, `## Errors and edge cases`, `## Tests`, `## Documentation impact` (citing `reference/documentation-impact.md`), `## Out of scope`, `## Open questions`.\n     - No `## Rework record`, because the draft has no `## PR under rework`.\n\n10. **Step 8: inline lint passes.** `Amend-grant` appears once with value `none`, and the drafted section has a row.\n\n11. **Step 9: council.**\n    - `gauntlet_setting({key:\"specCouncil\"})` returns verdict `council`.\n    - Read `skills/roasting-the-spec/SKILL.md` and invoke it. `Human input` carries the prompt `#42` and the PR title and body verbatim.\n    - The returned audit is `Applied: none` / `Deferred: none` / `Rejected: none`.\n\n12. **Step 10: re-run the placeholder scan and contract predicate.** Both pass, and `Amend-grant` is intact.\n\n13. **Step 11: summary.**\n    - `SUMMARY_PATH=$(mktemp …)`, then dispatch `spec-summarizer` with file-only output.\n    - The output is \"Repeat exports reuse receipts.\" The reference reports under ~500 bytes, so I skip the `Read` and take the degrade path.\n    - Commit unconditionally:\n      ```bash\n      git -C /work/widget/.worktrees/spec-export add -- doc/specs/export.md && git -C /work/widget/.worktrees/spec-export commit -q -F - -- doc/specs/export.md <<'EOF'\n      spec: export receipts\n\n      Applied: none\n      Deferred: none\n      Rejected: none\n      EOF\n      ```\n    - `rm \"$SUMMARY_PATH\"`.\n\n14. **Step 12: render the gate.**\n    ```\n    summary generation failed\n\n    Spec written and committed to widget/doc/specs/export.md (worktree: /work/widget/.worktrees/spec-export).\n    Scope cuts: none\n\n    Drafted acceptance criteria (approval ratifies):\n    - [ ] Repeat exports reuse receipts.\n      in-scope\n\n    Council: 0 applied, 0 deferred, 0 rejected\n\n    New predecessor candidates at spec-writing: none.\n\n    1 - approve: proceed to planning under the existing amendment review; a fresh reviewer applies evidence-backed factual corrections on its own, and every other spec amendment (scope, acceptance-criteria, or contract edits, and redraws) stops for your review.\n    2 - approve, auto-apply amends: every later spec amendment in this flow (corrected facts, paths, verification lines, and scope, acceptance-criteria, or public-contract edits alike) applies without asking; only a redraw (changed problem statement, component added, removed, or re-bounded) still stops for you, and the grant never stands in for a spec approval.\n    3 - show council dispositions: prints the council audit verbatim, then re-presents this gate. Not an approval.\n    4 - approve, loop engine (experimental): skip the plan; iterate a fresh loop-implementer over the acceptance-criteria ledger; amendments stop for your review as under 1.\n    5 - approve, loop engine, auto-apply amends: as 4 with option 2's amendment grant.\n    Withheld: draft PR - #42 already exists\n    Add \"; fund N fix rounds\" (or \"N more fix rounds\") to 1, 2, 4, or 5 to fund N extra attempts per stagnant loop row or N implement fix rounds past the escalated waves round.\n\n    Or tell me what to change in the spec, or say \"revert applied council edit <X>\" to undo a specific applied edit.\n    ```\n\n15. **Reply `1`.**\n    - Read `skills/brainstorming/reference/amendment-surface.md#standing-grants`. Value decoding gives `none`.\n    - Per spec-pr.md, the published-branch persistence replaces the local amend. It makes a new commit and never uses `--amend`.\n    - `edit` the header lines:\n      ```\n      **Amend-grant:** none\n      **Engine:** waves\n      **PR:** acme/widget#42\n      ```\n    - Commit:\n      ```bash\n      git -C /work/widget/.worktrees/spec-export add -- doc/specs/export.md\n      git -C /work/widget/.worktrees/spec-export commit -q -F - -- doc/specs/export.md <<'EOF'\n      spec: select engine and grant for PR #42\n      EOF\n      ```\n    - HEAD check: `git -C /work/widget/.worktrees/spec-export show HEAD:doc/specs/export.md` shows all three fields once each with these values, and the grant predicate holds.\n    - `phase_tracker({action:\"complete\", phase:\"brainstorm\"})`.\n    - Invoke `/skill:writing-plans`.\n\n**Shapes N, M, D, B: failing classifier shapes**\n\nEach trace follows steps 1–3 of trace U. The `Engine: deferred` marker is never tested, because the classifier uses \"marker plus shape for re-gating\" and shape is checked first. The route for each is \"Shape fails → Continue unchanged through bind, gather, scout, and Rework record.\"\n\n- **N (non-spec):** `M src/export.ts` is rejected under \"Reject … non-spec paths.\"\n- **M (multiple):** a second `A doc/specs/other.md` violates \"Require exactly one `A`\" and \"Reject … multiple additions.\"\n- **D (deleted):** `D doc/specs/old.md` is rejected under \"Reject renames, deletes.\"\n- **B (non-banner):**\n  - Read `skills/brainstorming/reference/superseding.md` for banner syntax.\n  - The hunk `-Old contract +Weaker contract` under `## Design` removes a line and adds a non-banner line.\n  - That breaks \"adds only active supersession-banner lines … and removes nothing\" and counts as an arbitrary modification.\n\nEach route then runs:\n1. Bind: there is no tracker reference in the title or body, so the result is `none - no ticket`.\n2. Provision through pr-head.md exactly as trace U (same calls and report lines).\n3. pr-head's `## Fetch unresolved review threads` runs `gh api graphql …` for #42 and fails.\n4. Stop before gather and spec: `threads for #42 not fetched (<gh error>)`. No gather, spec, or gate follows.\n",
+      "words": 1248,
+      "wallMs": 76975,
+      "mechanical": {
+        "notice": "holds",
+        "withheld": "holds"
+      }
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "The following are narrated routes from the fixed observations, not live tool calls. `<SKILLS>` denotes the installation’s absolute `skills/` directory; its location is not supplied. Required resource reads are named without reconstructing their contents. An unreadable required reference would cause a blocking stop at that read.\n\n## Trace 1 — Unmarked, spec-only PR #42\n\n1. **Start the authorized fresh epoch**, in order:\n   ```\n   phase_tracker({ action: \"reset\" })\n   plan_tracker({ action: \"clear\" })\n   phase_tracker({ action: \"start\", phase: \"brainstorm\" })\n   ```\n\n2. **Read routing resources:** `<SKILLS>/brainstorming/reference/pr-subject.md`, `<SKILLS>/using-git-worktrees/SKILL.md`, and its `reference/pr-head.md`. Check project overrides in the prescribed order and read the first found; no existence result is supplied.\n\n3. **Admit and classify, read-only.** Narrate:\n   ```\n   git remote get-url origin\n   gh pr view 42 --json number,url,state,isDraft,title,body,headRefName,headRefOid,headRepository,isCrossRepository,baseRefName\n   git rev-parse --path-format=absolute --git-common-dir\n   ```\n   Observations admit `acme/widget#42`: OPEN, same repository, non-fork. Apply the submodule guard and derive ROOT.\n\n   Read `<SKILLS>/brainstorming/reference/spec-pr.md` and `reference/superseding.md`; resolve `gauntlet_setting({ key: \"flowGuards\" })`. Then:\n   ```\n   git -C \"$ROOT\" fetch origin main spec-export\n   git -C \"$ROOT\" rev-parse origin/main\n   git -C \"$ROOT\" diff --name-status bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb...aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\n   git -C \"$ROOT\" show aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa:doc/specs/export.md\n   ```\n   The sole addition satisfies shape; the header lacks the deferred marker.\n\n4. **Print the notice:**\n   > spec-only PR without the gate marker - running lint and council\n\n5. **Provision through PR-head**, passing the one-element admitted PR array by value. Narrate, in order:\n   - Resolve worktree home using the prescribed override/native-tool/wrapper contract.\n   - `git -C \"$ROOT\" fetch origin`\n   - Verify the original head commit and `origin/spec-export` both identify `aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa`.\n   - Resolve `BASE_SHA`; inspect `git worktree list --porcelain`, local-branch state, ancestry where applicable, and source cleanliness. All applicable checks succeed.\n   - Select the matching provisioning branch. The observations do not identify whether the worktree or local branch already existed, so they do not justify inventing one specific creation command.\n   - Verify the selected checkout’s HEAD equals the admitted original head.\n   - Run:\n     ```\n     git -C /work/widget/.worktrees/spec-export merge --no-ff --no-edit origin/main\n     ```\n     The clean merge yields `cccccccccccccccccccccccccccccccccccccccc`.\n   - Prove original-head ancestry against final HEAD.\n\n   Required known report lines:\n   ```\n   Base: spec-export @ aaaaaaa\n   PR: acme/widget#42\n   Pre-rework head: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\n   Base SHA: bbbbbbb\n   merge: ccccccc\n   ```\n   Report the selected worktree `/work/widget/.worktrees/spec-export`. Other Step-4 report fields require reading that resource; their wording is not supplied here.\n\n6. **Route pre-gate stages explicitly.**\n   - **Skip review-thread fetching:** “with no thread fetch.” Its hypothetical failure is never encountered.\n   - **Skip ticket binding, context-builder, PR scout, and gather:** “Skip ticket binding, context-builder, the PR scout block, and gather.”\n   - **Resume step 4:** “with the carried spec file … as the draft, as a redraw does.”\n   - Read `<SKILLS>/brainstorming/reference/ticket-acceptance.md` because bundled text is not a session read.\n   - Read `/work/widget/.worktrees/spec-export/doc/specs/export.md` before question one. Perform the required primary-code framing and dependency recon; no specific recon findings are supplied.\n   - Run questionary and approaches, preserving each recorded “keep as drafted” answer. Run both design-approval rounds without jumping their approval points.\n   - For round 2, read `<SKILLS>/brainstorming/reference/documentation-impact.md`; unreadability blocks here.\n   - **Do not write a Rework record:** “never write a `## Rework record`.”\n\n7. **Write and review the spec.** Read `reference/spec-finalization.md`, then reread the entire carried draft immediately before full replacement. Overwrite **the same path**, `doc/specs/export.md`; no dated filename is minted.\n\n   Carry Problem, Acceptance criteria, Design, Errors and edge cases, Tests, Documentation impact, and applicable Out of scope/Open questions sections. Preserve the drafted outcome and its `in-scope` disposition. Include `**Amend-grant:** none`; do not invent an Engine selection yet.\n\n   Confirm line 1 is no longer the context-draft marker. Run the second predecessor pass and applicable banner reconciliation, then inline lint. Resolve `specCouncil`, read/invoke the council skill, and receive:\n   ```\n   Applied: none\n   Deferred: none\n   Rejected: none\n   ```\n   Re-run placeholder, acceptance-section, and header checks.\n\n8. **Summarize and commit.** Dispatch the spec-only summarizer using a fresh absolute temporary path. The supplied one-sentence result does not establish a qualifying saved-output reference; take the degraded-summary path, not a canonical one-sentence summary. Commit unconditionally:\n   ```\n   git -C /work/widget/.worktrees/spec-export add -- doc/specs/export.md &&\n   git -C /work/widget/.worktrees/spec-export commit -q -F - -- doc/specs/export.md <<'EOF'\n   spec: export receipts\n\n   Applied: none\n   Deferred: none\n   Rejected: none\n   EOF\n   ```\n   Clean up the summary temporary file.\n\n9. **Render the gate**, including the degraded-summary note, committed path, `Scope cuts: none`, the drafted checkbox verbatim, and `Council: 0 applied, 0 deferred, 0 rejected`. Render these option rows verbatim:\n\n   1 - approve: proceed to planning under the existing amendment review; a fresh reviewer applies evidence-backed factual corrections on its own, and every other spec amendment (scope, acceptance-criteria, or contract edits, and redraws) stops for your review.\n   \n   2 - approve, auto-apply amends: every later spec amendment in this flow (corrected facts, paths, verification lines, and scope, acceptance-criteria, or public-contract edits alike) applies without asking; only a redraw (changed problem statement, component added, removed, or re-bounded) still stops for you, and the grant never stands in for a spec approval.\n   \n   3 - show council dispositions: prints the council audit verbatim, then re-presents this gate. Not an approval.\n   \n   4 - approve, loop engine (experimental): skip the plan; iterate a fresh loop-implementer over the acceptance-criteria ledger; amendments stop for your review as under 1.\n   \n   5 - approve, loop engine, auto-apply amends: as 4 with option 2's amendment grant.\n   \n   Withheld: draft PR - #42 already exists\n\n10. **After reply `1`:** read `reference/amendment-surface.md` Standing grants; write:\n    ```\n    **Amend-grant:** none\n    **Engine:** waves\n    **PR:** acme/widget#42\n    ```\n    Use published-PR persistence, not amend:\n    ```\n    git -C /work/widget/.worktrees/spec-export add -- doc/specs/export.md\n    git -C /work/widget/.worktrees/spec-export commit -m \"spec: select engine and grant for PR #42\"\n    git -C /work/widget/.worktrees/spec-export show HEAD:doc/specs/export.md\n    ```\n    Verify all three fields before completing brainstorm and immediately routing to writing-plans.\n\n## Independent shape-rejection branches\n\nEach starts after its own authorized reset and admission/classification reads:\n\n- **Non-spec:** reject `M src/export.ts`; a non-spec path violates shape.\n- **Multiple:** reject the additional `A doc/specs/other.md`; exactly one addition is required.\n- **Deleted:** reject `D doc/specs/old.md`; deletions are forbidden.\n- **Non-banner:** reject the Design replacement hunk; permitted modifications only insert supersession banners and adjacent blanks, removing nothing.\n\nEvery branch routes to ordinary **bind, gather, scout, and rework**, not marked-spec re-gating. Each therefore attempts the required review-thread query and stops on its observed failure before gather or spec-writing.\n",
+      "words": 946,
+      "wallMs": 42414,
+      "mechanical": {
+        "notice": "holds",
+        "withheld": "holds"
+      }
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "7a2388e699e8717de30861a10985715a2d0ed7dd11300bf32504cd57960c30f6",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "fca13d7b5e47e4fd7cef6c694955a1e97b6332b53995fab6f8b6ae61b70d6d17",
+      "baselineOutputSha": "0a0a01f71c72afb7d62d8d9244ffcfefaa83f624dca27cb9944396406933a0f2",
+      "candidateOutputSha": "ec95cd81055473439c127d445662775e1d2ded4062bae61f3223cbc3cb6b8381",
+      "facts": {
+        "unmarked": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "bad-shapes": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "provision": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "skips": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "carried-path": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "no-record": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "persist": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "notice": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "withheld": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        }
+      },
+      "feedback": "After delivers the intended moves: it provisions the one-element admitted array through pr-head at /work/widget/.worktrees/spec-export with the clean base merge and Step 4 report, explicitly bypasses the review-thread query on the unmarked route, skips binding/context-builder/scout/gather, resumes at step 4 with doc/specs/export.md as the draft, overwrites that same path without minting a dated pr-42 filename, writes no Rework record (lint passes without one), and on reply 1 writes Amend-grant none / Engine waves / PR acme/widget#42 with PR directly below Engine, commits as a new 'spec: select engine and grant for PR #42' without --amend, and checks all three from HEAD. Before failed every one of these because it still ran binding and the before-gather thread query on the unmarked route, which stopped the flow before step 4. Nothing regressed: both outputs still route the four failing shapes through the unchanged bind/gather/scout/Rework-record path with the thread fetch running (and failing) there, and neither re-gates from shape alone. One small nit to keep stable: After's shape-failure traces quote the skipped-thread-fetch rule only for the unmarked route, so keep the wording that ties the bypass to 'spec-only without marker' explicitly, otherwise a reader could extend the skip to the rework path and break bad-shapes.",
+      "wallMs": 21113,
+      "verdict": "improved"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "7a2388e699e8717de30861a10985715a2d0ed7dd11300bf32504cd57960c30f6",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "fca13d7b5e47e4fd7cef6c694955a1e97b6332b53995fab6f8b6ae61b70d6d17",
+      "baselineOutputSha": "07bb2cbe78dcd68ec0c7ee01b7ea4aa132b334b8859d75efb4d144f44e2e9887",
+      "candidateOutputSha": "9d89ffa5fd918572b45ad01fa671c5b20f152d9119a478435a7c4094137f67b3",
+      "facts": {
+        "unmarked": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "bad-shapes": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "provision": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "skips": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "carried-path": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "no-record": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "persist": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "notice": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "withheld": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        }
+      },
+      "feedback": "Before treated the unmarked route as ordinary rework: it attempted the pr-head review-thread query, hit the supplied failure, and stopped before gather, so it never reached the questionary, lint, council, spec write, gate, or reply-1 persistence, failing unmarked, provision, skips, carried-path, no-record and persist. After delivers the Change by quoting the new route wording explicitly (\"with no thread fetch\", \"Skip ticket binding, context-builder, the PR scout block, and gather\", resume at step 4 with the carried file, \"never write a ## Rework record\"), provisions the one-element array through pr-head at /work/widget/.worktrees/spec-export with the clean base merge and report lines, overwrites the same doc/specs/export.md path with no dated filename, renders rows 1-5 and withholds 6 naming #42, and on reply 1 writes Engine waves / Amend-grant none / PR acme/widget#42 directly under Engine, commits with the exact message without --amend, and checks all three from HEAD. Nothing regressed: the four shape branches still reject on the named offending entry and route to bind/gather/scout/rework with the thread-fetch stop. One small tightening: in the shape branches After says \"rework\" rather than \"Rework record\"; naming the Rework record explicitly (as Before did) keeps bad-shapes unambiguous, and keeping the header order as Engine then Amend-grant then PR would match the fact's listed order exactly even though PR-below-Engine is already satisfied.",
+      "wallMs": 19282,
+      "verdict": "improved"
+    }
+  },
+  "repoSha": "f7b7f3d1ea1f5faed3eab3c7a11c31c5a3811896"
+}

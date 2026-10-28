@@ -1,8 +1,8 @@
 {
   "sample": "worker-path",
   "arm": "candidate",
-  "skillSha": "0de7eaf96944a4cae56efa6b11f6c34cc7764447ed6d38fefc4de49c477b4a3a",
-  "inputSha": "8f3de4b27564bec253cace85c4943a0235bc43f67ecded6e079f69f870a94e90",
+  "skillSha": "53d67e759ed2fec897cfcc838bcb330f2efaedf6d33d5825db35bf620239ff25",
+  "inputSha": "286aadbcc80cf754d993a2f3bfe8c0e8d6c85b64a958d7b9faca77619d3da9d2",
   "kind": "text",
   "assembly": "concat",
   "thinking": "medium",
@@ -17,26 +17,26 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "Orchard coordinators use orchard-billing to collect monthly fees from growers, but a repeated collection request can currently charge the same invoice twice. Coordinators then reconcile receipts by hand while growers wait for a refund, and neither group can tell whether a retry is safe. The proposed change gives each collection request a stable receipt and makes retries return the original outcome instead of collecting again.\n\n**What changes**\n- Coordinators see one receipt for each invoice collection, including retries after an interrupted connection.\n- A pending collection stays visibly pending until its outcome is known; the service does not guess that a timeout means failure.\n- Growers receive a confirmation only after the collection succeeds, with the invoice amount and collection date.\n\n**Approval risks**\n- Existing duplicate charges remain a manual refund task; this change prevents new duplicates rather than rewriting past receipts.\n- The payment partner must preserve request keys across retries. Collection remains paused if that guarantee cannot be confirmed.\n- Receipt retention increases stored billing data, so operators must approve the retention window before rollout.\n\n**Done when**\n- Repeated requests produce one charge and one receipt, including after a service restart.\n- Pending outcomes remain visible, confirmations are sent once, and coordinators can reconcile the rollout's first billing cycle without duplicate charges.\n\nSpec written and committed to `<project>/doc/specs/<filename>.md` (worktree: `<path>`). Commit: \"Clarify orchard-billing collection retry behavior\".\nScope cuts: `<from the spec's ## Acceptance criteria: each deferred:/deviates:/venue: row, or none>`\n\nDrafted acceptance criteria (approval ratifies):\n`<every drafted row and disposition, verbatim from the applied spec section; omitted if rows carry ticket provenance>`\n\n*Note: I did not have the spec file's text, so the spec path, the worktree path, the scope cuts, and the drafted rows above are placeholders. They are not filled in from the summary.*\n\n*Note: there is no `Council:` line and no option 3. The critique pass was the worker path, and it returned no council audit.*\n\nNew predecessor candidates at spec-writing: none surfaced. Index rows are only a hint; the code is the source, and an absent row proves nothing.\n\n1 - approve: proceed to planning under the existing amendment review. A fresh reviewer applies evidence-backed factual corrections on its own. Every other spec amendment (scope, acceptance-criteria, or contract edits, and redraws) stops for your review.\n2 - approve, auto-apply amends: every later spec amendment in this flow applies without asking. This covers corrected facts, paths, and verification lines, and also scope, acceptance-criteria, or public-contract edits. Only a redraw still stops for you: a changed problem statement, or a component added, removed, or re-bounded. The grant never stands in for a spec approval.\n4 - approve, loop engine (experimental): skip the plan and iterate a fresh loop-implementer over the acceptance-criteria ledger. Amendments stop for your review as under 1.\n5 - approve, loop engine, auto-apply amends: as 4, with option 2's amendment grant.\nAdd \"; fund N fix rounds\" (or \"N more fix rounds\") to 1, 2, 4, or 5 to fund N extra attempts per stagnant loop row, or N implement fix rounds past the escalated waves round.\n\n*Options 4 and 5 apply only if the spec has `- [ ]` acceptance-criteria rows. Otherwise: \"Loop engine unavailable: this spec has no acceptance-criteria rows.\"*\n\nOr tell me what to change in the spec.\n\n---\n\n**Reply: `1`**\n\nApproved without a grant: next I set the spec's `**Amend-grant:**` to `none`, add `**Engine:** waves` directly below it, amend the commit while keeping its body and confirm both fields at HEAD, mark the brainstorm phase complete, and invoke `/skill:writing-plans`.\n",
-      "words": 571,
-      "wallMs": 15041,
+      "text": "Orchard coordinators use orchard-billing to collect monthly fees from growers, but a repeated collection request can currently charge the same invoice twice. Coordinators then reconcile receipts by hand while growers wait for a refund, and neither group can tell whether a retry is safe. The proposed change gives each collection request a stable receipt and makes retries return the original outcome instead of collecting again.\n\n**What changes**\n- Coordinators see one receipt for each invoice collection, including retries after an interrupted connection.\n- A pending collection stays visibly pending until its outcome is known; the service does not guess that a timeout means failure.\n- Growers receive a confirmation only after the collection succeeds, with the invoice amount and collection date.\n\n**Approval risks**\n- Existing duplicate charges remain a manual refund task; this change prevents new duplicates rather than rewriting past receipts.\n- The payment partner must preserve request keys across retries. Collection remains paused if that guarantee cannot be confirmed.\n- Receipt retention increases stored billing data, so operators must approve the retention window before rollout.\n\n**Done when**\n- Repeated requests produce one charge and one receipt, including after a service restart.\n- Pending outcomes remain visible, confirmations are sent once, and coordinators can reconcile the rollout's first billing cycle without duplicate charges.\n\nSpec written and committed to `<project>/doc/specs/<filename>.md` (worktree: `<path>`).\nScope cuts: none\n\nNew predecessor candidates at spec-writing: none. Index rows are a hint; code is the source and an absent row proves nothing.\n\n1 - approve: proceed to planning under the existing amendment review. A fresh reviewer applies evidence-backed factual corrections on its own. Every other spec amendment stops for your review, including scope, acceptance-criteria, or contract edits, and redraws.\n2 - approve, auto-apply amends: every later spec amendment in this flow applies without asking. That covers corrected facts, paths, verification lines, and scope, acceptance-criteria, or public-contract edits alike. Only a redraw (changed problem statement, or a component added, removed, or re-bounded) still stops for you. The grant never stands in for a spec approval.\n4 - approve, loop engine (experimental): skip the plan and iterate a fresh loop-implementer over the acceptance-criteria ledger. Amendments stop for your review as under 1.\n5 - approve, loop engine, auto-apply amends: as 4 with option 2's amendment grant.\n6 - approve, hand off as draft PR: approve the spec's content only. This pushes this branch and opens a draft PR carrying just the spec. Whoever runs `brainstorming #N` on that PR chooses the engine and amendment grant later. This ends this flow without planning.\nAdd \"; fund N fix rounds\" (or \"N more fix rounds\") to 1, 2, 4, or 5 to fund N extra attempts per stagnant loop row, or N implement fix rounds past the escalated waves round.\n\nOr tell me what to change in the spec, or say \"revert applied council edit <X>\" to undo a specific applied edit.\n\n---\n\n**Reply: 1**\n\nApproved without a grant. Next, I will set the spec's `**Amend-grant:**` to `none` with `**Engine:** waves` directly below it, then amend the commit and verify both fields at HEAD. After that, I will mark the brainstorm phase complete and invoke `/skill:writing-plans`.\n",
+      "words": 511,
+      "wallMs": 12660,
       "mechanical": {}
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "Orchard coordinators use orchard-billing to collect monthly fees from growers, but a repeated collection request can currently charge the same invoice twice. Coordinators then reconcile receipts by hand while growers wait for a refund, and neither group can tell whether a retry is safe. The proposed change gives each collection request a stable receipt and makes retries return the original outcome instead of collecting again.\n\n**What changes**\n- Coordinators see one receipt for each invoice collection, including retries after an interrupted connection.\n- A pending collection stays visibly pending until its outcome is known; the service does not guess that a timeout means failure.\n- Growers receive a confirmation only after the collection succeeds, with the invoice amount and collection date.\n\n**Approval risks**\n- Existing duplicate charges remain a manual refund task; this change prevents new duplicates rather than rewriting past receipts.\n- The payment partner must preserve request keys across retries. Collection remains paused if that guarantee cannot be confirmed.\n- Receipt retention increases stored billing data, so operators must approve the retention window before rollout.\n\n**Done when**\n- Repeated requests produce one charge and one receipt, including after a service restart.\n- Pending outcomes remain visible, confirmations are sent once, and coordinators can reconcile the rollout's first billing cycle without duplicate charges.\n\n---\n\nSpec commit: **Clarify orchard-billing collection retry behavior**\n\nThe spec path, worktree path, acceptance-criteria ledger, and predecessor information were not supplied, so I cannot verify the commit location, render scope cuts or drafted acceptance criteria, or determine loop-engine availability. The critique return contains no council audit.\n\n1 - approve: proceed to planning under the existing amendment review; a fresh reviewer applies evidence-backed factual corrections on its own, and every other spec amendment (scope, acceptance-criteria, or contract edits, and redraws) stops for your review.\n2 - approve, auto-apply amends: every later spec amendment in this flow (corrected facts, paths, verification lines, and scope, acceptance-criteria, or public-contract edits alike) applies without asking; only a redraw (changed problem statement, component added, removed, or re-bounded) still stops for you, and the grant never stands in for a spec approval.\n\nAdd “; fund N fix rounds” to your approval to fund N implement fix rounds past the escalated waves round.\n\nOr tell me what to change in the spec.\n\n**Your reply: 1 — approved.** Next I will read Standing grants, record `**Amend-grant:** none` and `**Engine:** waves`, amend and verify the spec commit, mark brainstorming complete, and invoke `/skill:writing-plans`, stopping if any required read or verification fails.\n",
-      "words": 402,
-      "wallMs": 14092,
+      "text": "Orchard coordinators use orchard-billing to collect monthly fees from growers, but a repeated collection request can currently charge the same invoice twice. Coordinators then reconcile receipts by hand while growers wait for a refund, and neither group can tell whether a retry is safe. The proposed change gives each collection request a stable receipt and makes retries return the original outcome instead of collecting again.\n\n**What changes**\n- Coordinators see one receipt for each invoice collection, including retries after an interrupted connection.\n- A pending collection stays visibly pending until its outcome is known; the service does not guess that a timeout means failure.\n- Growers receive a confirmation only after the collection succeeds, with the invoice amount and collection date.\n\n**Approval risks**\n- Existing duplicate charges remain a manual refund task; this change prevents new duplicates rather than rewriting past receipts.\n- The payment partner must preserve request keys across retries. Collection remains paused if that guarantee cannot be confirmed.\n- Receipt retention increases stored billing data, so operators must approve the retention window before rollout.\n\n**Done when**\n- Repeated requests produce one charge and one receipt, including after a service restart.\n- Pending outcomes remain visible, confirmations are sent once, and coordinators can reconcile the rollout's first billing cycle without duplicate charges.\n\n---\n\nSpec committed as **Clarify orchard-billing collection retry behavior**. The spec filename was not supplied; worktree: `<scratch>`.\n\nScope cuts: none\n\nNew predecessor candidates at spec-writing: not provided.\n\n1 - approve: proceed to planning under the existing amendment review; a fresh reviewer applies evidence-backed factual corrections on its own, and every other spec amendment (scope, acceptance-criteria, or contract edits, and redraws) stops for your review.\n2 - approve, auto-apply amends: every later spec amendment in this flow (corrected facts, paths, verification lines, and scope, acceptance-criteria, or public-contract edits alike) applies without asking; only a redraw (changed problem statement, component added, removed, or re-bounded) still stops for you, and the grant never stands in for a spec approval.\n4 - approve, loop engine (experimental): skip the plan; iterate a fresh loop-implementer over the acceptance-criteria ledger; amendments stop for your review as under 1.\n5 - approve, loop engine, auto-apply amends: as 4 with option 2's amendment grant.\n6 - approve, hand off as draft PR: approve the spec's content only; push this branch and open a draft PR carrying just the spec; engine and amendment grant are chosen later by whoever runs `brainstorming #N` on that PR. Ends this flow without planning.\n\nAdd \"; fund N fix rounds\" (or \"N more fix rounds\") to 1, 2, 4, or 5 to fund N extra attempts per stagnant loop row or N implement fix rounds past the escalated waves round.\n\nOr tell me what to change in the spec.\n\n---\n\nYour reply **1** approves the spec; next I’ll read Standing grants, persist `**Amend-grant:** none` and `**Engine:** waves`, amend and verify the spec commit, mark brainstorming complete, and immediately invoke `/skill:writing-plans`.\n",
+      "words": 474,
+      "wallMs": 15195,
       "mechanical": {}
     }
   },
   "judge": {
     "anthropic/claude-opus-5-5": {
-      "factsSha": "a578254c61bed14ef9ccc4436f5050b405692513344965bfb5e4c5ee8c8ba07c",
+      "factsSha": "f6dc17d7eca1633708f31964eb8e953e6f3b9793e6771ca966be2c431afa6bbb",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "b1a814d15812ee761a31690c0e1f3ac3d0893f372dfc83f75846be538e857e67",
-      "baselineOutputSha": "fdef0155f9b2b6ccbe0c0a85bbfb7ef2057640895a359a54ea2042272e2bec5a",
-      "candidateOutputSha": "2c886b6e78c4e65effa9109e6465733c0db8efaeecd84dafaaba5e9f08a5aad5",
+      "intentSha": "3908cb915be1203f882fc75fc813d7c0e8a507855c0ad41a5d66fcff01408b62",
+      "baselineOutputSha": "29d23a180d2e950b129bd95b0afe04d00be0df954d107a5301686a09770ca9c1",
+      "candidateOutputSha": "cc4aad577e48f0dbecdebb721e8ef7b002d276722933a0598705f617a48b9b87",
       "facts": {
         "f1": {
           "before": "holds",
@@ -49,9 +49,9 @@
           "label": "held"
         },
         "f3": {
-          "before": "fails",
-          "after": "fails",
-          "label": "pre-existing"
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
         },
         "f4": {
           "before": "holds",
@@ -64,16 +64,16 @@
           "label": "held"
         }
       },
-      "feedback": "After keeps everything Before kept: the briefing is reproduced verbatim, there is no `Council:` counts line (only a prose note saying it is omitted), no option 3 offering council dispositions, and reply `1` is narrated as approval without a grant. The new Drafted acceptance criteria block sits after Scope cuts and before where Council would be, which is what the Change asked for. f3 fails in both outputs for the same reason: the menu renders four numbered rows (1, 2, 4, 5), not two, so neither wording satisfies 'exactly two numbered rows' as written — if the worker-critique path is meant to show a two-row menu, the sample needs a different option set, not a wording tweak. Two things in After are not called for by the Change and risk drift: the added 'New predecessor candidates at spec-writing' line and the 'Options 4 and 5 apply only if...' note appear between the gate body and the menu; dropping them would keep the gate shape identical to Before while still delivering the drafted-rows block and the Scope cuts line.",
-      "wallMs": 12875,
+      "feedback": "Nothing moved: both outputs reproduce the briefing verbatim, carry no `Council:` counts line, render exactly rows 1, 2, 4, 5, 6 with no row 3 (the \"Add ...; fund N fix rounds\" sentence is unnumbered in both), offer no council-disposition row, and treat the reply `1` as plain approval with the same amend-grant/engine/commit/handoff narration. After correctly omits the Drafted acceptance criteria block for this ticket-provenance case and keeps `Scope cuts: none` between the commit line and where Council would sit. Two additions in After are outside the stated Change and are the only places risk crept in: the \"New predecessor candidates at spec-writing: none ...\" line sits in the audit slot and could be mistaken for a counts line if its wording ever started with `Council:`, and the trailing \"say \\\"revert applied council edit <X>\\\"\" hint mentions council edits near the menu — keep that as prose (not a numbered row) and never phrase it as showing dispositions. Otherwise the After wording delivers the Change (Scope cuts line placement, ticket-row block omission, five-option menu) while keeping every fact Before kept.",
+      "wallMs": 16788,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
-      "factsSha": "a578254c61bed14ef9ccc4436f5050b405692513344965bfb5e4c5ee8c8ba07c",
+      "factsSha": "f6dc17d7eca1633708f31964eb8e953e6f3b9793e6771ca966be2c431afa6bbb",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "b1a814d15812ee761a31690c0e1f3ac3d0893f372dfc83f75846be538e857e67",
-      "baselineOutputSha": "05139cbc11e3db02fc6b30205c6f6fd99778dd5808031db1d80ed77448916778",
-      "candidateOutputSha": "f92cad5d94e381f6007fa3aa195a60ae87f4e7622504e2a208b50fbfef02fe36",
+      "intentSha": "3908cb915be1203f882fc75fc813d7c0e8a507855c0ad41a5d66fcff01408b62",
+      "baselineOutputSha": "b5b6921d992c1cb467179cfb03e5a022b2db98f0d12bc3c8777beb2b4cbad66b",
+      "candidateOutputSha": "8e314ede9d9115ef455acb08fcfa86e3d443c33994dc67324a8da19728d8d3ee",
       "facts": {
         "f1": {
           "before": "holds",
@@ -86,9 +86,9 @@
           "label": "held"
         },
         "f3": {
-          "before": "fails",
+          "before": "holds",
           "after": "holds",
-          "label": "unplanned improvement"
+          "label": "held"
         },
         "f4": {
           "before": "holds",
@@ -101,10 +101,10 @@
           "label": "held"
         }
       },
-      "feedback": "After keeps everything Before kept and additionally satisfies f3: by dropping rows 4 and 5 (loop engine) when loop-engine availability cannot be determined, the menu collapses to exactly two numbered rows, and the reply-1 narration still reads as plain approval with the same Amend-grant/Engine persistence. The one regression relative to the Change's intent is that After folds the `Scope cuts:` line into a prose sentence ('I cannot ... render scope cuts or drafted acceptance criteria') and emits no `Drafted acceptance criteria (approval ratifies):` block at all, so the ordering contract (commit line → Scope cuts: → Drafted block → Council:) is not demonstrated. To deliver the Change while keeping f1–f5, keep the literal lines in order: `Spec committed as “…”`, then `Scope cuts: none` (or an explicit cannot-determine value) on its own line, then the Drafted block header with its rows or an explicit 'not supplied' note, and continue to omit a `Council:` counts line when the critique return carries no audit; keep the menu at the two non-loop rows whenever loop availability is unconfirmed so f3 continues to hold.",
-      "wallMs": 12976,
-      "verdict": "improved"
+      "feedback": "No fact moved: After reproduces the briefing verbatim (the added `---` separators sit outside the briefing text), has no `Council:` line, presents exactly rows 1, 2, 4, 5, 6 with no row 3, offers no council-disposition row, and narrates reply `1` as plain approval with the Amend-grant none / Engine waves continuation. The Scope cuts: none line correctly follows the committed line and, since this is a ticket-provenance in-scope row, the drafted block is correctly omitted. Two incidental drifts worth tightening so they don't become noise in other arms: After invents a `New predecessor candidates at spec-writing: not provided.` line and a `worktree: \\`<scratch>\\`` placeholder that neither the case nor the Change supplies — keep Before's plainer \"Spec and worktree paths were not supplied\" wording (or only render such lines when the observation is actually given) so the Scope cuts line remains the only addition between the committed-to line and the menu.",
+      "wallMs": 11113,
+      "verdict": "unchanged"
     }
   },
-  "repoSha": "9ac312a01f8b5a82333b040c8cf338858239f27f"
+  "repoSha": "43b5ec3f2933c5a716c49916e9b1b7c002bb3da2"
 }

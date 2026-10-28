@@ -125,8 +125,8 @@ Scout (always dispatched):
 > "Open questions that matter for the spec"
 > section. Compact handoff, not a dump.
 
-For a PR subject, supply this additional scout block as values from
-`reference/pr-subject.md` (keep scout unconditional):
+For a rework PR subject (shape fails), supply this additional scout block as values
+from `reference/pr-subject.md` (keep scout unconditional):
 
 > Require every retained PR's title/body, carried specs, and full threads before
 > gather, including N=1. Stop on query failure: `threads for #<N> not fetched (<gh error>)`.
@@ -230,7 +230,7 @@ convention; slug minted from the initial prompt):
 <scout output, or the degraded text>
 
 ## PR under rework
-<PR subject only: every per-PR scout subsection, ordered original heads, threads,
+<rework PR subject only: every per-PR scout subsection, ordered original heads, threads,
 member-carried spec paths, and supplied Member merge/base values per
 reference/pr-subject.md; retain these values even when scout failed>
 

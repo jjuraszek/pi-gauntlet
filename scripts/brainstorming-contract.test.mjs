@@ -168,6 +168,51 @@ test('summary faults, partial coverage, commit and revisions retain their routes
   assert.ok(template.includes('Council:'));
 });
 
+test('spec publication and re-entry share shape proof and published persistence', () => {
+  const gate = read('skills/brainstorming/reference/spec-finalization.md');
+  for (const marker of ['6 - approve, hand off as draft PR:', 'Withheld: draft PR - #N already exists', '1, 2, 3, 6', 'spec-pr.md']) assert.ok(gate.includes(marker), marker);
+  assert.match(gate, /On every PR subject omit row 6 and print `Withheld: draft PR - #N already exists` under the list, reusing finishing's withheld-row layout/);
+  assert.match(main().match(/^13\. .*$/m)[0], /loop-implementation.*6 ends the flow after publishing/);
+  const ref = read('skills/brainstorming/reference/spec-pr.md');
+  for (const marker of ['flowGuards', 'specDirs', 'origin/$DEFAULT', 'defaultBranchRef', 'retry opening the draft PR', 'AUDIT_SHA=', 'diff-filter=A', '**PR:**', 'spec: select engine and grant for PR #N', 'never amend', 'Superseded by:', 'removes nothing']) assert.ok(ref.includes(marker), marker);
+  const classifier = read('skills/brainstorming/reference/pr-subject.md');
+  assert.ok(classifier.indexOf('## Spec-PR classifier') < classifier.indexOf('## Bind and pass'));
+  for (const marker of ['spec-pr.md', 'spec-only PR without the gate marker - running lint and council', 'git show', 'N>1', 'Derive ROOT']) assert.ok(classifier.includes(marker), marker);
+  const unmarked = classifier.match(/^\| Shape passes, marker absent \|.*$/m)[0];
+  for (const marker of ['Step 4 report with no thread fetch', 'Skip ticket binding, context-builder, the PR scout block, and gather', 'never write a `## Rework record`', 'Resume at checklist step 4 with the carried spec file at `<worktree>/<path>` as the draft', 'recon falls to the questionary', 'overwrites that file at its carried path', 'Withheld: draft PR - #N already exists', '`**PR:** <owner/repo#N>` as a new commit']) assert.ok(unmarked.includes(marker), marker);
+  assert.match(classifier, /## Gather from the PR and fetched base\n\nApply this section's thread fetch, carried-spec discovery, scout dispatch, and `## PR under rework` rendering to the rework route only/);
+  assert.match(gate, /For a rework PR subject \(a draft carrying `## PR under rework`\), follow `pr-subject.md`'s spec contract/);
+  assert.match(gate, /For a rework PR subject \(a draft carrying `## PR under rework`\), require the complete `## Rework record`/);
+  assert.match(main(), /the unmarked spec-only route keeps the carried spec path/);
+  assert.match(ref, /The unmarked route's gate approval \(1\/2\/4\/5\) applies this same new-commit persistence/);
+  assert.ok(gate.includes('its published-branch persistence replaces the local amend recipe below on the marked re-gate and the unmarked spec-only route only; a rework PR subject keeps the amend recipe'));
+  const gather = read('skills/brainstorming/gatherer.md');
+  assert.match(gather, /For a rework PR subject \(shape fails\), supply this additional scout block/);
+  assert.match(gather, /<rework PR subject only: every per-PR scout subsection/);
+  for (const marker of ['--body-file -', "<<'EOF'", 'Create fails after push', 'no push, no amend', 'both full SHAs', 'removes nothing', 'skip its unconditional initial spec commit']) assert.ok(ref.includes(marker), marker);
+  assert.ok(gate.indexOf('5 - approve, loop engine') < gate.indexOf('6 - approve, hand off'));
+  assert.ok(gate.indexOf('6 - approve, hand off') < gate.indexOf('Add "; fund N fix rounds"'));
+});
+
+test('deferred boundaries precede ship and restore arming; header PR finish owns non-force delivery', () => {
+  const finish = read('skills/finishing-a-development-branch/SKILL.md');
+  const stop = 'spec approved for handoff only - run brainstorming #N';
+  assert.ok(finish.indexOf(stop) > 0 && finish.indexOf(stop) < finish.indexOf('**Announce at start:**'));
+  assert.ok(finish.indexOf('reference/spec-pr.md') < finish.indexOf('**Announce at start:**'));
+  const ref = read('skills/finishing-a-development-branch/reference/spec-pr.md');
+  for (const marker of ['record wins', 'number,url,state,isDraft,headRefName,baseRefName', 'merge-base --is-ancestor', 'Withheld: push', 'push --no-follow-tags origin HEAD:refs/heads/<headRefName>', 'gh pr ready', 'already ready for review']) assert.ok(ref.includes(marker), marker);
+  assert.ok(ref.indexOf('push --no-follow-tags') < ref.indexOf('gh pr ready'));
+  assert.match(ref, /At Step 4, the header-linked route bypasses both menus below/);
+  assert.match(finish, /For a rework PR subject with a task plan/);
+  assert.match(ref, /Option 3 squash seal uses `--option squash --base origin\/<baseRefName>`/);
+  const resume = read('skills/gauntlet-resume/SKILL.md');
+  assert.ok(resume.indexOf(stop) > resume.indexOf('6. **Grant field.**') && resume.indexOf(stop) < resume.indexOf('## Dispatch'));
+  for (const path of ['reconstruction.md', 'brief-contract.md']) {
+    const text = read(`skills/gauntlet-resume/reference/${path}`);
+    assert.match(text, /entry check 6[^\n]*deferred/);
+  }
+});
+
 const walk = (dir) => readdirSync(new URL(`../${dir}/`, import.meta.url), { withFileTypes: true }).flatMap((e) =>
   e.isDirectory() ? walk(`${dir}/${e.name}`) : e.name.endsWith('.md') ? [`${dir}/${e.name}`] : []);
 
@@ -192,7 +237,7 @@ test('spec-finalization writes the grant line and persists approval-time grants 
   for (const marker of ['2; fund 3 fix rounds', '2, fund 3 fix rounds', 'Decode before', 'token alone', 'malformed N']) assert.ok(text.includes(marker), marker);
   const hint = 'Add "; fund N fix rounds" (or "N more fix rounds") to 1, 2, 4, or 5 to fund N extra attempts per stagnant loop row or N implement fix rounds past the escalated waves round.';
   assert.match(text, /Decode before `edit` or `--amend`/);
-  assert.ok(text.indexOf('run Value decoding') < text.indexOf('On every approval'), 'decode before approval persistence');
+  assert.ok(text.indexOf('run Value decoding') < text.indexOf('On every implementation approval'), 'decode before approval persistence');
   assert.ok(text.indexOf(hint) > text.indexOf('3 - show council dispositions:'));
   assert.ok(text.indexOf(hint) < text.indexOf('Or tell me what to change'));
   assert.ok(!text.includes('--trailer'), 'trailer step removed');
@@ -245,6 +290,21 @@ test('chair input paths and output destination are factual corrections and ticke
   for (const marker of ['every member task and targeted retry', 'inline', 'explicit usable member paths']) assert.ok(item.includes(marker), marker);
   for (const marker of [':low', 'split-axis:', 'parent scans', 'Roast failure never blocks the run']) assert.ok(ticket.includes(marker), marker);
   assert.ok(!ticket.includes('spec-council-applier'));
+});
+
+test('published handoff after PR-create failure cannot bypass deferred admission through brainstorm restore', () => {
+  const resume = read('skills/gauntlet-resume/SKILL.md');
+  const check = resume.slice(resume.indexOf('6. **Grant field.**'), resume.indexOf('## Dispatch'));
+  assert.match(check, /Run deferred-header admission whenever a route resolves an existing spec/);
+  assert.match(check, /including brainstorm-stage process-state restore and reconstruction's unapproved-draft handoff/);
+  assert.match(check, /Skip only grant decoding/);
+  assert.doesNotMatch(check, /skip this check/);
+  const brief = read('skills/gauntlet-resume/reference/brief-contract.md');
+  assert.match(brief, /For brainstorm-stage briefs, resolve any existing spec through these candidate rules and run entry check 6's deferred-header admission before `start brainstorm`/);
+  assert.match(brief, /push succeeded but PR creation failed/);
+  const reconstruction = read('skills/gauntlet-resume/reference/reconstruction.md');
+  const route = reconstruction.slice(reconstruction.indexOf('## Spec without plan'), reconstruction.indexOf('## Spec with ledger'));
+  assert.ok(route.indexOf("entry check 6's deferred-header admission") < route.indexOf('Ask exactly one question'));
 });
 
 test('gauntlet-resume checks the grant field before dispatch and announces it after restore', () => {
@@ -381,6 +441,40 @@ test('red flags stop approaches that skip the framing question or the holds-stat
   assert.ok(text.includes("- Approaches before the premise note states a contradicted claim's correction ([owner](#3-understand-the-idea))."), 'premise red flag retained');
 });
 
+test('spec-only PR lifecycle has local replay coverage in all four targets', () => {
+  const samples = {
+    'spec-gate': ['option-6-handoff'],
+    brainstorming: ['spec-pr-regate', 'spec-pr-unmarked', 'pr-subject-gate'],
+    'finishing-a-development-branch': ['spec-pr-menu', 'deferred-spec-stop'],
+    'gauntlet-resume': ['deferred-spec-stop'],
+  };
+  for (const [target, names] of Object.entries(samples)) {
+    for (const name of names) {
+      for (const file of ['case.md', 'expected.md']) {
+        const path = `eval/${target}/samples/${name}/${file}`;
+        assert.ok(existsSync(new URL(`../${path}`, import.meta.url)), path);
+      }
+      assert.match(read(`eval/${target}/samples/${name}/case.md`), /^bundle\+: /m);
+    }
+    assert.deepEqual(lintTarget(fileURLToPath(new URL(`../eval/${target}`, import.meta.url))), []);
+  }
+  for (const path of ['skills/brainstorming/reference/spec-pr.md', 'skills/finishing-a-development-branch/reference/spec-pr.md']) {
+    const text = read(path);
+    assert.ok(Buffer.byteLength(text) < 50000, `${path}: byte limit`);
+    assert.ok(text.split('\n').length < 2000, `${path}: line limit`);
+  }
+  const preserved = {
+    'pr-subject-resolution': ['ordered', 'open', 'issue', 'neither', 'mention', 'foreign', 'binding', 'trailing-context'],
+    'pr-subject-rule-added-later': ['constraint', 'repair', 'grammar', 'no-ticket'],
+    'pr-subject-weakened-rule': ['authority', 'proposal', 'preservation'],
+    'pr-subject-repair-over-rewrite': ['minimal', 'contract', 'record'],
+  };
+  for (const [name, ids] of Object.entries(preserved)) {
+    const facts = read(`eval/brainstorming/samples/${name}/expected.md`);
+    assert.deepEqual([...facts.matchAll(/^- ([\w-]+):/gm)].map((match) => match[1]), ids);
+  }
+});
+
 test('brainstorming eval structure and edited instruction sizes stay valid', () => {
   assert.deepEqual(lintTarget(fileURLToPath(new URL('../eval/brainstorming', import.meta.url))), []);
   for (const path of ['skills/brainstorming/SKILL.md', 'skills/brainstorming/gatherer.md', 'skills/brainstorming/reference/spec-finalization.md']) {
@@ -415,8 +509,8 @@ test('engine gate persists both fields before completing and dispatching the sel
     '4 - approve, loop engine (experimental): skip the plan; iterate a fresh loop-implementer over the acceptance-criteria ledger; amendments stop for your review as under 1.',
     "5 - approve, loop engine, auto-apply amends: as 4 with option 2's amendment grant.",
   ]) assert.ok(text.includes(line), line);
-  for (const marker of ['asking for `1`, `2`, `4`, or `5`', '`3` plus `1`/`2`/`4`/`5`', 'a reply carrying `3` never grants', 'token with malformed N', 'write nothing', 'zero `- [ ]` rows', 'Loop engine unavailable', 'render only options 1-3', 'directly below `**Amend-grant:**`', 'absent -> `waves`', 'both fields', '`4` approves without a grant', '`5` approves and grants', 'bare `5`', '`5; fund 3 fix rounds`', '`4` with a budget token', 'mixes approval with a change request']) assert.ok(text.includes(marker), marker);
-  const persistence = text.indexOf('On every approval');
+  for (const marker of ['asking for `1`, `2`, `4`, or `5`', '`3` plus `1`/`2`/`4`/`5`', 'a reply carrying `3` never grants', 'token with malformed N', 'write nothing', 'zero `- [ ]` rows', 'Loop engine unavailable', 'render only options 1, 2, 3, 6 (PR subject: 1, 2, 3)', 'directly below `**Amend-grant:**`', 'absent -> `waves`', 'both fields', '`4` approves without a grant', '`5` approves and grants', 'bare `5`', '`5; fund 3 fix rounds`', '`4` with a budget token', 'mixes approval with a change request']) assert.ok(text.includes(marker), marker);
+  const persistence = text.indexOf('On every implementation approval');
   const amend = text.indexOf('commit --amend --no-edit -q', persistence);
   const check = text.indexOf('both fields', amend);
   const complete = text.indexOf('phase_tracker({ action: "complete", phase: "brainstorm" })', check);

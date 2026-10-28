@@ -154,6 +154,8 @@ a plan added after base pairs with it by basename. Zero specs -> stop; more than
 human picks. The consumer carries this path to its entry check 6 and its post-restore
 announcement without re-resolving it.
 
+Honor SKILL.md entry check 6's deferred stop before any process-state arming call below; carry the resolved spec path without re-discovery. For brainstorm-stage briefs, resolve any existing spec through these candidate rules and run entry check 6's deferred-header admission before `start brainstorm`; with zero specs, restore brainstorm without a spec. Keep grant decoding exempt for this stage. A handoff after option 6's push succeeded but PR creation failed still has brainstorm in_progress; its deferred header stops restoration, not the ordinary gate.
+
 | Active | Calls, in order |
 |---|---|
 | brainstorm | `start brainstorm`; `substep` if the brief shows one |

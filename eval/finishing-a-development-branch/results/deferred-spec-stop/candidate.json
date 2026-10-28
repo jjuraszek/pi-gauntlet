@@ -1,0 +1,84 @@
+{
+  "sample": "deferred-spec-stop",
+  "arm": "candidate",
+  "skillSha": "8d3428ff1ed87a02c7eabdf6b43d83b0e9e956fce56fff45213c70b09891f5ed",
+  "inputSha": "a7c844de34ef64d58cd4c781f6869fc854e7223713c19fbb8c1029ce3a628633",
+  "kind": "text",
+  "assembly": "concat",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "# Finish entry: deferred engine stops all three variants\n\n**Variant A: header `**PR:** acme/widget#42`, `**Amend-grant:** none`, `**Engine:** deferred`**\n\n1. **Input check.** The worktree path is present: `/work/widget/.worktrees/spec-export`. I derive the paths once:\n   - `WORKTREE=/work/widget/.worktrees/spec-export`\n   - `PRIMARY=$(dirname \"$(git -C \"$WORKTREE\" rev-parse --path-format=absolute --git-common-dir)\")`, giving `/work/widget`\n   - `FEATURE=$(git -C \"$WORKTREE\" branch --show-current)`\n2. **Resolve the run spec.** The resolved spec is `doc/specs/export.md`. There is no second discovery.\n3. **Read the header before announcing.** The lines before the first `##` are:\n   - `# Export receipts`\n   - `**Amend-grant:** none`\n   - `**Engine:** deferred`\n   - `**PR:** acme/widget#42`\n\n   The header contains an exact `**Engine:** deferred`. This check runs before the `**PR:**` header-linked route is considered, so it wins.\n4. **Printed output:**\n   ```\n   spec approved for handoff only - run brainstorming #42\n   ```\n5. **Not done:**\n   - No announcement.\n   - No `phase_tracker({ action: \"start\", phase: \"ship\" })`.\n   - No `gh pr view` live identity check.\n   - No test-all verification.\n   - No plan strip.\n   - No telemetry seal.\n   - No push.\n\n**Outcome A:** stopped at Input with `spec approved for handoff only - run brainstorming #42`. Nothing was changed.\n\n---\n\n**Variant B: no `**PR:**` header, known subject #42, `**Amend-grant:** none`, `**Engine:** deferred`**\n\n1. **Input check.** Same worktree, same derivations of `$PRIMARY` and `$FEATURE`.\n2. **Resolve and read the spec.** The spec is `doc/specs/export.md`. Its header shows `**Engine:** deferred` before the first `##`. There is no Rework record and no PR header, so no PR route applies in any case. The deferred check fires first.\n3. **Printed output:**\n   ```\n   spec approved for handoff only - run brainstorming #42\n   ```\n4. **Not done:** no announcement, no ship phase start, no verification, no strip, no seal, no push.\n\n**Outcome B:** stopped at Input with `spec approved for handoff only - run brainstorming #42`. Nothing was changed.\n\n---\n\n**Variant C: `**Amend-grant:** all`, `**Engine:** deferred` (`**PR:** acme/widget#42` retained)**\n\n1. **Input check.** Same worktree and derivations.\n2. **Resolve and read the spec.** The spec is `doc/specs/export.md`. The header shows `**Amend-grant:** all` and `**Engine:** deferred`.\n   - An amend grant only authorizes spec amendments.\n   - It does not lift the handoff-only deferral.\n   - The exact `**Engine:** deferred` line is still present before the first `##`.\n3. **Printed output:**\n   ```\n   spec approved for handoff only - run brainstorming #42\n   ```\n4. **Not done:** no announcement, no ship phase start, no PR identity check, no verification, no strip, no seal, no push.\n\n**Outcome C:** stopped at Input with `spec approved for handoff only - run brainstorming #42`. The `all` grant does not override the deferral, and nothing was changed.\n",
+      "words": 383,
+      "wallMs": 13855,
+      "mechanical": {
+        "notice": "holds"
+      }
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "- **PR header present, grant `none`:** Read `doc/specs/export.md` header → `spec approved for handoff only - run brainstorming #42`. Stop before announcement, ship start, PR checks, verification, strip, seal, or push.\n- **PR header absent, known subject #42:** Read the selected spec header → `spec approved for handoff only - run brainstorming #42`. Stop; no further calls or actions.\n- **Grant `all`:** Read the selected spec header → `spec approved for handoff only - run brainstorming #42`. Stop; the grant does not override `Engine: deferred`.\n",
+      "words": 76,
+      "wallMs": 5654,
+      "mechanical": {
+        "notice": "holds"
+      }
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "c1d122f093806ca43ca25e7ce3abdb6b4d57b22815d7624b465e9e23198d282e",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "2b07cd5789c3b4c5c74ed93b43c6f993f9ccb0032fbb11015cb3e218c6836332",
+      "baselineOutputSha": "d9d5905e39f55cb44cfb18c6781e95df37e1168a5d80f94ee5b1230edb806553",
+      "candidateOutputSha": "edc0cf209297cd6d55816783061d44414dfc753f864a05e5dc1bf4994406fb48",
+      "facts": {
+        "boundary": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "notice": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "Nothing moved on this case: both Before and After narrate all three variants stopping at the resolved `**Engine:** deferred` header before any announcement, `phase_tracker` start, `gh pr view`, verification, strip, seal or push; both print `spec approved for handoff only - run brainstorming #42` in the absent-PR-header variant (deriving #42 from the known subject) and both state explicitly that `Amend-grant: all` does not lift the deferral, with no delivery or tracker call narrated as happening after the stop. The After wording keeps the boundary intact while adding the clearer 'header check runs before the PR route is considered' ordering and the 'amend grant only authorizes spec amendments' rationale, which fits the Change's deferred-spec-stop intent. One small improvement for robustness: in Variant B, state in the step body (not only the heading) that the `#42` in the printed line comes from the known subject rather than a header, so a reader cannot mistake it for a silently recovered PR header; otherwise the After wording is already sufficient.",
+      "wallMs": 10249,
+      "verdict": "unchanged"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "c1d122f093806ca43ca25e7ce3abdb6b4d57b22815d7624b465e9e23198d282e",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "2b07cd5789c3b4c5c74ed93b43c6f993f9ccb0032fbb11015cb3e218c6836332",
+      "baselineOutputSha": "6bc44cad59b827999d5a1f3c5d58590d3e0c09bb0fa863f94132f2ada079cf80",
+      "candidateOutputSha": "355d3714c26209d92bdc710ec6bffb294828ce3f3992a086655f46e36ed12529",
+      "facts": {
+        "boundary": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "notice": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "After keeps the boundary fact intact: all three variants read the resolved spec header, print the deferred stop line with the known subject #42, and narrate no announce, ship start, tracker mutation, verification, strip, seal or push afterward; the grant-all variant explicitly says the grant does not override Engine: deferred. The added phrasing (listing what is skipped, 'no further calls or actions') is harmless and arguably strengthens the fact, so no wording change is needed; if you want to tighten it, keep the per-variant single outcome line as the only narrated output and avoid introducing any described call after the stop line, which After already does.",
+      "wallMs": 7136,
+      "verdict": "unchanged"
+    }
+  },
+  "repoSha": "8e1bd9e43e3f55fed6120d98e7c3d37e1ebb7669"
+}

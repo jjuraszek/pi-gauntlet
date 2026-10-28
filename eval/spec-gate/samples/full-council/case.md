@@ -48,6 +48,12 @@ Applied: [minor] rollout reconciliation gap - raised-by: [vendor-b-model-y, vend
 Deferred: none
 Rejected: none
 
+## Spec acceptance criteria
+
+Ticket orchard-billing#7, Acceptance criteria, rows verbatim (ticket provenance, so the drafted block is omitted):
+- [ ] Repeated collection requests return the original receipt.
+  in-scope
+
 ## User reply
 
 1
