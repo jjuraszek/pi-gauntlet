@@ -115,6 +115,7 @@ Before approaches, state in chat the supported, disproved, corrected, and unveri
 Before question one, verify the draft's `Framing:` line against primary code and add your own recon. This check adds to the premise verification above and never replaces it: trace every consumer, caller, and data path the ask's constraints name, including retained loaders and every repro and verification step's implicit dependencies, before writing the holds-statement or the question; check those dependencies with the lookup the repo or spec names, and name the traces and dependencies in the holds-statement, not only the files read. A framing concern exists when you can state a cited case that the ask is misdiagnosed, wrong-sized, already solved, a band-aid where the root cause is reachable, or cuts across a sound pattern - including a repo convention that is itself the debt - and can name the alternative it implies; an objection without an alternative is a lead to investigate, not a concern. With a concern, question one is the framing question in the questionary format:
 
 ```text
+gauntlet: question
 A) as framed
 B) pivot: <named alternative> - <cited reason>
 C) smaller or none: <what ships, or what happens if nothing ships>

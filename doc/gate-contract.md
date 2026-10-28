@@ -10,7 +10,7 @@ Sites are real ATX heading prefixes, excluding headings inside fenced examples. 
 
 | gate id | kind | rendering file | site | layout |
 |---|---|---|---|---|
-| brainstorming/understand-the-idea | question | skills/brainstorming/SKILL.md | ### 3. Understand the idea | X) options |
+| brainstorming/understand-the-idea | question | skills/brainstorming/SKILL.md | ### 3. Understand the idea | X) options; templates=3 |
 | brainstorming/present-the-design | question | skills/brainstorming/SKILL.md | ### 6. Present the design in two rounds | X) options |
 | brainstorming/cut-question | question | skills/brainstorming/reference/ticket-acceptance.md | # Ticket Handling | X) options |
 | brainstorming/relatedness-before-provisioning | question | skills/brainstorming/reference/pr-subject.md | ## Relatedness before provisioning | X) options |

@@ -406,7 +406,7 @@ test('section 3 asks the framing question once, with a named alternative, after 
   for (const marker of ['A) as framed', 'B) pivot:', 'C) smaller or none:', 'The framing holds: checked', 'After any premise correction in the same message, ask the framing question or give the holds-statement', 'at most once per brainstorm', 'Framing: kept', 'Framing: pivoted to <x> - <why>', '## Appended during questionary', 'the count restarts', 'adds to the premise verification above', 'trace every consumer, caller, and data path']) assert.ok(section.includes(marker), marker);
   assert.match(section, /^Bad: `The ask adds another settings path - should we\? Recommendation: no`$/m);
   const good = [...section.matchAll(/^Good:\n```text\n([\s\S]*?)\n```$/gm)].map((match) => match[1]);
-  const framing = section.match(/^```text\n(A\) as framed[\s\S]*?)\n```$/m);
+  const framing = section.match(/^```text\n(gauntlet: question\nA\) as framed[\s\S]*?)\n```$/m);
   assert.equal(good.length, 2, 'both Good examples use fenced text blocks');
   assert.ok(framing, 'framing template uses a fenced text block');
   const preserved = [
@@ -417,7 +417,7 @@ test('section 3 asks the framing question once, with a named alternative, after 
     assert.equal(example.replace(/\n/g, ' '), preserved[index], 'preserve example wording');
     assert.ok(example.indexOf('\nA)') > 0, 'lead-in precedes first option');
   }
-  assert.equal(framing[1].replace(/\n/g, ' '), 'A) as framed B) pivot: <named alternative> - <cited reason> C) smaller or none: <what ships, or what happens if nothing ships> Recommendation: <letter> - <why>');
+  assert.equal(framing[1].replace(/\n/g, ' '), 'gauntlet: question A) as framed B) pivot: <named alternative> - <cited reason> C) smaller or none: <what ships, or what happens if nothing ships> Recommendation: <letter> - <why>');
   for (const rendering of [...good, framing[1]]) {
     const lines = rendering.split('\n');
     assert.deepEqual(lines.filter((line) => /^[A-Z]\)/.test(line)).map((line) => line.slice(0, 2)), ['A)', 'B)', 'C)']);
