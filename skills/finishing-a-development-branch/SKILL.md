@@ -22,9 +22,7 @@ PRIMARY=$(dirname "$(git -C "$WORKTREE" rev-parse --path-format=absolute --git-c
 FEATURE=$(git -C "$WORKTREE" branch --show-current)
 ```
 
-The process cwd never changes; every command targets `$WORKTREE` or `$PRIMARY` explicitly.
-
-Resolve the selected run spec now: use the carried spec path or the active plan/ledger's path-only `**Spec:**` header; with neither, enumerate candidates under resolved `flowGuards.specDirs`, read them, and ask on ambiguity. Carry this path through finish without a second discovery. Read its header before announcing or starting ship. An exact `**Engine:** deferred` before the first `##` stops with `spec approved for handoff only - run brainstorming #N`; perform no phase change, verification, strip, seal, or push. Read [header-linked PR finishing](reference/spec-pr.md) now for `**PR:**` without a Rework record; perform its live identity checks before Step 1, use its Step 4 menu and push recipe instead of the ordinary create rows.
+The process cwd never changes; every command targets `$WORKTREE` or `$PRIMARY` explicitly. Resolve the selected run spec now per the Input rules in [header-linked PR finishing](reference/spec-pr.md) and read its header before announcing: an exact `**Engine:** deferred` before the first `##` stops here with `spec approved for handoff only - run brainstorming #N` (no phase change, verification, strip, seal, or push); `**PR:**` without a Rework record takes that reference's live identity checks before Step 1 and its Step 4 menu and push recipe instead of the ordinary create rows.
 
 **Announce at start:** "I'm using the finishing-a-development-branch skill to complete this work."
 
@@ -159,8 +157,6 @@ Three tiers, increasing cost — name the tier when a revert is requested:
 A **heavy** revert is not a menu toggle — say so explicitly to the user before proceeding, and do not present it as equivalent-effort to the light tier. The council audit that lets the human identify revert candidates lives in the `brainstorming` spec commit message body (not a committed spec section).
 
 ### Step 4: Present Options
-
-At Step 4, the header-linked route bypasses both menus below and uses the Input reference's preflight, five-row menu, and rows 1/2 push recipe; retain the shared amendment digest and informational lines.
 
 **Amendment digest (both variants).** Before the options, read `git -C "$WORKTREE" log <base-branch>..HEAD --extended-regexp --grep '^(amend:|loop: cut row [0-9]+|loop: amend)'` and take the `auto-apply` and `granted` records from those commit bodies. Render, then the options:
 

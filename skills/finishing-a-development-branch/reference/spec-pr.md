@@ -1,6 +1,8 @@
 # Finish a header-linked spec PR
 
-Consume the selected spec path resolved in Input; perform no second discovery. A `## Rework record` wins over `**PR:**` (record wins when both exist): follow the ordinary rework path. For a header-only `**PR:** <owner/repo#N>`, use the header's repository for every gh call and run this check before Step 1 verification:
+## Input
+
+Resolve the selected run spec once: use the carried spec path or the active plan/ledger's path-only `**Spec:**` header; with neither, enumerate candidates under resolved `flowGuards.specDirs`, read them, and ask on ambiguity. Carry this path through finish; perform no second discovery. Read its header before announcing or starting ship. An exact `**Engine:** deferred` before the first `##` stops with `spec approved for handoff only - run brainstorming #N`; perform no phase change, verification, strip, seal, or push. A `## Rework record` wins over `**PR:**` (record wins when both exist): follow the ordinary rework path. For a header-only `**PR:** <owner/repo#N>`, use the header's repository for every gh call and run this check before Step 1 verification:
 
 ```bash
 gh pr view <N> -R <owner/repo> --json number,url,state,isDraft,headRefName,baseRefName
@@ -10,7 +12,7 @@ Stop on query failure. Require OPEN, otherwise print `PR #N is <state>; the bran
 
 ## Menu and preflight
 
-At Step 4 fetch `git -C "$WORKTREE" fetch origin` and prove `git -C "$WORKTREE" merge-base --is-ancestor origin/<headRefName> HEAD`. Stop on fetch failure or proof exits other than 0/1. Exit 1 omits rows 1/2 and prints `Withheld: push - origin/<headRefName> is at <sha7>, local HEAD at <sha7>; a non-force push cannot land`; retain numbers 3-5. A hidden 1/2 gets the clarifying question naming rendered rows. Recompute this proof on every menu return.
+At Step 4, the header-linked route bypasses both menus below the amendment digest in SKILL.md and uses this preflight, five-row menu, and rows 1/2 push recipe; retain the shared amendment digest and informational lines. At Step 4 fetch `git -C "$WORKTREE" fetch origin` and prove `git -C "$WORKTREE" merge-base --is-ancestor origin/<headRefName> HEAD`. Stop on fetch failure or proof exits other than 0/1. Exit 1 omits rows 1/2 and prints `Withheld: push - origin/<headRefName> is at <sha7>, local HEAD at <sha7>; a non-force push cannot land`; retain numbers 3-5. A hidden 1/2 gets the clarifying question naming rendered rows. Recompute this proof on every menu return.
 
 Render exactly these five rows (plus ordinary nonblocking informational lines):
 

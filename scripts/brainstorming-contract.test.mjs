@@ -191,7 +191,7 @@ test('deferred boundaries precede ship and restore arming; header PR finish owns
   const ref = read('skills/finishing-a-development-branch/reference/spec-pr.md');
   for (const marker of ['record wins', 'number,url,state,isDraft,headRefName,baseRefName', 'merge-base --is-ancestor', 'Withheld: push', 'push --no-follow-tags origin HEAD:refs/heads/<headRefName>', 'gh pr ready', 'already ready for review']) assert.ok(ref.includes(marker), marker);
   assert.ok(ref.indexOf('push --no-follow-tags') < ref.indexOf('gh pr ready'));
-  assert.match(finish, /At Step 4, the header-linked route bypasses both menus below/);
+  assert.match(ref, /At Step 4, the header-linked route bypasses both menus below/);
   assert.match(finish, /For a rework PR subject with a task plan/);
   assert.match(ref, /Option 3 squash seal uses `--option squash --base origin\/<baseRefName>`/);
   const resume = read('skills/gauntlet-resume/SKILL.md');
