@@ -14,6 +14,16 @@
     "thinking": "medium"
   },
   "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "gauntlet: gate=shape-ticket/step-8 recommended=1\n\n**Ticket 1 of 1 - create (acme/records)**\n\n**Title** (new): Show empty import outcomes\n\n**Body** (as-new):\n\n```markdown\n## Context\nSupport reviews import outcomes in the run list.\n## Problem\nAn import reports completion without imported rows, leaving support unable to tell whether any records were saved. For example, \"import run 42 finished with zero rows\".\n## Idea\nThe reporter proposes showing the imported row count with the completion result.\n## Acceptance Criteria\n- [ ] Given an import with zero accepted rows, when support reads its completion result, the result states that zero rows were imported.\n```\n\n**Metadata changeset:** none\n\n**Evidence:**\n- Observed: support sees \"import run 42 finished with zero rows\" with no indication whether any records were saved.\n- Expected: the completion result states that zero rows were imported.\n- Provenance: the requester's ask in this session. No URL, attachment, pasted screenshot, or repro steps were supplied.\n\n**Source gaps:**\n- source missing: import run 42 finished with zero rows\n\nYou can still approve the write with this gap open.\n\n**Roast dispositions:** none (no findings)\n\n**Split proposal:** none\n**Proposed comment / relations:** none\n\nApproval covers the exact title, body, and empty metadata/comment/relation payload shown above. The only addition is the `source:` footer that your approving reply resolves.\n\nPick one:\n1. Approve with a link, attachment, or reason [recommended]\n2. Approve and proceed without\n3. Revise\n4. Decline\n",
+      "words": 216,
+      "wallMs": 8933,
+      "mechanical": {
+        "gap": "holds",
+        "no-authored-reason": "holds"
+      }
+    },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
       "text": "gauntlet: gate=shape-ticket/step-8 recommended=1\n\nAudit: No findings.\n\n**Title (new):** Show empty import outcomes\n\n**Body (new):**\n```markdown\n## Context\nSupport reviews import outcomes in the run list.\n## Problem\nAn import reports completion without imported rows, leaving support unable to tell whether any records were saved. For example, \"import run 42 finished with zero rows\".\n## Idea\nThe reporter proposes showing the imported row count with the completion result.\n## Acceptance Criteria\n- [ ] Given an import with zero accepted rows, when support reads its completion result, the result states that zero rows were imported.\n```\n\n**Metadata:** No changes.\n\n**Evidence:** The ask supplies the example “import run 42 finished with zero rows”. No URL, attachment, pasted image, or repro steps were supplied. The behavioral acceptance criterion is pre-production verifiable.\n\nsource missing: import run 42 finished with zero rows\n\n**Roast dispositions:** No findings.  \n**Comments, relations, split:** None.\n\nPick one:\n1. **Approve with a link, attachment, or reason** for the missing source. **[recommended]**\n2. **Approve and proceed without** a source.\n3. **Drop** — do not create the ticket.\n\nRecommendation: Choose 1 if you can supply a source or explain why one is unavailable; otherwise choose 2 to explicitly proceed without.\n",
@@ -26,10 +36,47 @@
     }
   },
   "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "33f44b9926a8fa05f2d577c7dd2e25465b8273590f7afbcfb1cc3e2df6ce61b2",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "c0c2580170b0013d4d1bb5f8e916b24fa5b37b9e2723110417dc9c31ffcfb227",
+      "baselineOutputSha": "b7ef18dbf248de00a2ae914eae7e1f264585bffb48e3fcaf2d591bfdf92a5677",
+      "candidateOutputSha": "6124bb8f5be2a4f32aabb1f1d85c8ba4e92bb91aa3bd13ee3518beebe2e4610f",
+      "facts": {
+        "empty-footer": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "no-invention": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "offer": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "gap": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "no-authored-reason": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "After keeps all three facts: the body block carries no source: line for the unresolved example, nothing beyond the requester's ask is cited as a URL or attachment, and the gate explicitly says the write can still be approved with the gap open while listing option 2 (proceed without). No fact moved. Two wording drifts are worth tightening though: After dropped Before's sentence 'A plain \"yes\" will not write while the source gap is open', which is the mechanism the bug-source-ack/reask move depends on — keep that sentence (or an equivalent 'a bare yes re-asks until the source is resolved') next to 'You can still approve the write with this gap open' so the offer and the plain-yes guard coexist. Also the leading 'gauntlet: gate=shape-ticket/step-8 recommended=1' debug line and the '(as-new)' label are internal artifacts leaking into the user-facing gate; render the gate heading as in Before ('Confirmation gate - acme/records (create)') and label the body '(new)'.",
+      "wallMs": 10845,
+      "verdict": "unchanged"
+    },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "33f44b9926a8fa05f2d577c7dd2e25465b8273590f7afbcfb1cc3e2df6ce61b2",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "5e5d3dfc0b642d6f632cf7cf04a895a28aaa28b4761d1e7433eb56d06a27861c",
+      "intentSha": "c0c2580170b0013d4d1bb5f8e916b24fa5b37b9e2723110417dc9c31ffcfb227",
       "baselineOutputSha": "cda22d60bc1074cfe210ac7f0c05446203a9d43c0c45cf6c8fadb89b0920a683",
       "candidateOutputSha": "c21679996a224248b3c96926a711d846ea1138841c879cec370f0badccdcddaf",
       "facts": {
@@ -59,10 +106,10 @@
           "label": "held"
         }
       },
-      "feedback": "After preserves all three facts: the draft body still has no source: footer, no source reference is fabricated, and option 2 still offers creation without a source. The added gate marker and closing recommendation do not move any listed fact. Keep the missing-source notice outside the body and retain the explicit proceed-without option; the separately numbered menu with exactly one recommended row already delivers the relevant menu change without losing Before’s behavior.",
-      "wallMs": 4244,
+      "feedback": "Nothing moved: in both outputs the fenced draft body carries no source: line, the unresolved example is surfaced only in the outside-the-block 'source missing:' line, no URL or attachment is invented, and the gate keeps options 1 and 2 as live write paths with the missing source as a named gap rather than a hard stop. After adds a 'gauntlet: gate=shape-ticket/step-8 recommended=1' header and a trailing 'Recommendation:' sentence, and collapses the Evidence list into prose; none of these affect the facts here, but the Evidence collapse is worth watching since bug cases are expected to keep repro steps and observed-vs-expected as discrete Evidence list items — consider keeping Evidence as a list to avoid regressions in those samples while retaining the same gap wording and two approve options.",
+      "wallMs": 10280,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "2eb4429b4dd687432969f427f82d45d7840d7c63"
+  "repoSha": "03b700159d3e93209e89a28f2f3a032bd72cfdd9"
 }

@@ -1,7 +1,7 @@
 {
   "sample": "gate-line-first",
   "arm": "baseline",
-  "skillSha": "6c36dd73a9aea1708337618f37af914f4f44011ee842adb08df2e5a533391d15",
+  "skillSha": "601d09fd7ca1ae453a67b9608a1f40446650821cfa3332575086fa154e54c782",
   "inputSha": "54a107d989c68df18db5a0575872c33bdbba7a23c3b5032aa9bb0b79a4855a73",
   "kind": "text",
   "assembly": "concat",
@@ -15,15 +15,24 @@
     "thinking": "medium"
   },
   "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "**Repair batch - final report**\n\n```\nABC-1: written\nABC-2: written\nABC-3: declined\nABC-4: stopped - tautological AC; human ended recovery\nABC-5: unfetched - read failed\nABC-6: close failed - permission denied\n```\n\n**Tally:** 6 refs. 2 written, 1 declined, 1 stopped, 1 unfetched, 1 close failed. Closed, close-by-hand, dropped and no-op are each 0.\n\nNotes:\n- The skill defines no settlement counters. It only requires one line per ref, so the tally above is informational.\n- ABC-4 is settled as `stopped`. Nothing was written for it, and no integrity question remains open.\n- ABC-6 keeps its line as given. The skill's form is `close failed (<operation>: <reason>)`, but the operation that failed was not supplied, so none is invented. Any operations displayed before the failure that succeeded are not recorded here. The changeset still applies if the close is retried with adequate permissions.\n- ABC-5 was never fetched. Nothing was drafted or written for it.\n",
+      "words": 145,
+      "wallMs": 8836,
+      "mechanical": {
+        "settlement": "fails"
+      }
+    },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "ABC-1: written\nABC-2: written\nABC-3: declined\nABC-4: stopped - tautological AC; human ended recovery\nABC-5: unfetched - read failed\nABC-6: close failed - permission denied\n\nSettlement counters: 6 ended, 0 pending. Written: 2; declined: 1; stopped: 1; unfetched: 1; close failed: 1.\n",
-      "words": 39,
-      "wallMs": 6409,
+      "text": "**Settlement counters:** 6 total, 6 ended, 0 pending. Written: 2; declined: 1; stopped: 1; unfetched: 1; close failed: 1.\n\n```text\nABC-1: written\nABC-2: written\nABC-3: declined\nABC-4: stopped - tautological AC; human ended recovery\nABC-5: unfetched - read failed\nABC-6: close failed - permission denied\n```\n",
+      "words": 42,
+      "wallMs": 7116,
       "mechanical": {
         "settlement": "fails"
       }
     }
   },
-  "repoSha": "2eb4429b4dd687432969f427f82d45d7840d7c63"
+  "repoSha": "03b700159d3e93209e89a28f2f3a032bd72cfdd9"
 }

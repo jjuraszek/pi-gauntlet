@@ -1,36 +1,46 @@
 {
   "sample": "obsolete-create-drop-idea",
   "arm": "candidate",
-  "skillSha": "42818e6b7affb81a27fe0bee8944a8d54385c54321c01aab5340801234eed235",
+  "skillSha": "5010325fda1673b99206c3e3addb2f34b799627d3a98b20594a9b3decc4cfb48",
   "inputSha": "80bc7628c49aded9ca3270a4747bf6ae56b85f4dffc565d6d0b0c613e6ce58cf",
   "kind": "text",
   "assembly": "concat",
   "thinking": "medium",
   "models": {
     "replay": [
+      "anthropic/claude-opus-5-5",
       "github-copilot/gpt-6.1-sol"
     ],
-    "judge": "github-copilot/gpt-6.1-sol",
+    "judge": "anthropic-fable/claude-fable-5-1",
     "thinking": "medium"
   },
   "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "gauntlet: gate=shape-ticket/step-8 recommended=4\n\n**Create - confirmation gate (1 ticket)**\n\nAudit:\n- obsolete: delivered: src/report-download.ts:12\n- repo-fit: exists - src/report-download.ts:12\n- unverified: Reviewers need a local copy - user need\n- scenario: none (fresh feature ask)\n\n**Title** (new): Let reviewers download report rows without losing any rows\n\n**Body** (as-new):\n\n```markdown\n## Context\n\nReviewers who are viewing a report want a local copy of it.\n\n## Problem\n\nReviewers cannot be sure they can download the report they are viewing with every row intact. For example, a report with two rows should download as a file containing those same two rows.\n\nscenario: none (fresh feature ask)\n\n## Idea\n\nreporter proposes a download action; src/report-download.ts:12 routes this through the existing downloadReport action.\n\n## Acceptance Criteria\n\n- [ ] Given a report containing two rows, when a reviewer downloads it, the downloaded file contains those same two rows.\n```\n\n**Metadata changeset:** none (metadata audit clean)\n\n**Evidence:**\n- src/report-download.ts:12: `downloadReport` saves `report.csv` from `encodeRows(report.rows)`. This file was opened.\n- The opened callers show this action to reviewers.\n- The opened `encodeRows` keeps every input row in the downloaded file.\n- Scenario: none (fresh feature ask). No current-system observation was recorded.\n- Overlap: bounded discovery found no candidate. This does not prove that no overlapping ticket exists.\n\n**Source gaps:**\n- source missing: a report with two rows should download as a file containing those same two rows\n\n**Roast dispositions:** applied: none. Surfaced-ambiguous: none.\n\n**Split proposal:** none\n\n**Proposed comment / relations:** none\n\n---\n\nThe existing `downloadReport` action already provides the requested two-row behavior. Dropping the idea is recommended. Each create option files only the exact diff shown above, plus the source-gap resolution from your reply.\n\nPick one:\n1. Approve with a link, attachment, or reason (create anyway)\n2. Approve and proceed without (create anyway)\n3. Revise\n4. Drop the idea - delivered: src/report-download.ts:12 [recommended]\n   Closing evidence: `Audit: obsolete: delivered: src/report-download.ts:12`\n\nFor option 1, include the link, attachment, or reason in your reply.\n",
+      "words": 300,
+      "wallMs": 21118,
+      "mechanical": {
+        "no-commands": "holds"
+      }
+    },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "gauntlet: gate=shape-ticket/step-8 recommended=4\n\nMode: create. Temp root: not supplied; tools disabled. Preparation is complete for this checkpoint. No write has been authorized.\n\nAudit:\n- unverified: Reviewers need a local copy — user need is not checkable against code.\n- repo-fit: exists — src/report-download.ts:12\n- obsolete: delivered: src/report-download.ts:12\n- scenario: none (fresh feature ask)\n\n**Title — as new**\n\nLet reviewers download report rows without losing rows\n\n**Body — as new**\n\n```markdown\n## Context\n\nReviewers need a local copy of the report they are viewing.\n\n## Problem\n\nFor a report containing two rows, the downloaded file must contain those same two rows.\n\nscenario: none (fresh feature ask)\n\n## Idea\n\nReporter proposes a download action; src/report-download.ts:12 routes this through the existing downloadReport action.\n\n## Acceptance Criteria\n\n- [ ] Given a report containing two rows, when a reviewer downloads it, the resulting file contains those same two rows.\n```\n\n**Metadata changeset:** None.\n\n**Evidence**\n- The opened implementation at `src/report-download.ts:12` saves a file encoded from `report.rows`.\n- Opened callers already expose this action to reviewers, and `encodeRows` preserves every input row. The requested two-row behavior is already implemented.\n- No executed scenario, source URL, or attachment was supplied.\n\n**Source gaps**\n\nsource missing: For a report containing two rows, the downloaded file must contain those same two rows.\n\nThe create draft intentionally has no source footer for this unresolved gap. A supplied link, attachment, or reason will resolve only this example’s footer. Plain “yes” will leave the gate open.\n\n**Roast dispositions:** No blocking findings; no edits applied or ambiguous findings surfaced.\n\n**Overlap coverage:** Bounded discovery found no candidate. Query, count, timing, and truncation details were not supplied at this checkpoint, so coverage cannot be independently characterized. No candidate found is not a uniqueness guarantee.\n\n**Proposed comment / relations:** None.\n\nThe repository already provides the requested behavior. Creating anyway would file the body above without claiming that the capability is absent.\n\nPick one:\n\n1. **Approve with a link, attachment, or reason** — create anyway using the displayed title, body, and metadata, adding only the source footer resolved by your reply.\n2. **Approve and proceed without** — create anyway using the displayed payload, resolving this source gap with the dated proceed-without footer.\n3. **Revise** — describe the changes; the revised exact payload will return for approval.\n4. **Drop the idea — delivered: src/report-download.ts:12** **[recommended]** — no write.\n\nClosing evidence for the drop option:\n\nAudit: obsolete: delivered: src/report-download.ts:12\n",
-      "words": 375,
-      "wallMs": 23695,
+      "text": "gauntlet: gate=shape-ticket/step-8 recommended=4\n\nMode: create. No write has been made.\n\nAudit:\n- `obsolete: delivered: src/report-download.ts:12`\n- `repo-fit: exists - src/report-download.ts:12`\n- `unverified: Reviewers need a local copy - user need`\n- `scenario: none (fresh feature ask)`\n\n**Title — as new**\n\nLet reviewers download report rows without losing any rows\n\n**Body — as new**\n\n```markdown\n## Context\n\nReviewers need a local copy of the report they are viewing.\n\n## Problem\n\nThe download needs to preserve the report’s rows.\n\nFor a report containing two rows, the downloaded file must contain those same two rows.\n\nscenario: none (fresh feature ask)\n\n## Idea\n\nreporter proposes a download action; src/report-download.ts:12 routes this through the existing downloadReport action.\n\n## Acceptance Criteria\n\n- [ ] Given a report containing two rows, when a reviewer downloads it, the resulting file contains those same two rows.\n```\n\n**Metadata changeset:** None.\n\n**Evidence**\n- The clarified ask supplies the two-row example and its expected result; it supplies no source URL or attachment.\n- The already-opened implementation at `src/report-download.ts:12` saves the report rows to a file.\n- Already-opened callers expose the action to reviewers, and `encodeRows` preserves every input row. The requested behavior is already implemented.\n- No current-system scenario was run: fresh feature ask.\n\n**Source gaps**\n\nsource missing: For a report containing two rows, the downloaded file must contain those same two rows.\n\n**Overlap coverage:** Bounded discovery found no candidate. Query, count, timing, and truncation details were not supplied here. That result does not establish uniqueness or rule out other contradictions.\n\n**Roast dispositions:** No blocking findings; no additional edits proposed.\n\n**Proposed comment and relations:** None.\n\nThe existing implementation covers the requested behavior, so dropping the idea is recommended. Creating anyway would file only the exact proposal above, with source-footer substitutions authorized by your selection.\n\nPick one:\n\n1. **Approve with a link, attachment, or reason** — create the displayed ticket after resolving the named source gap with your supplied source or reason.\n2. **Approve and proceed without** — create the displayed ticket and record your explicit proceed-without acknowledgment for the named source gap.\n3. **Revise** — specify changes; the revised exact payload will be presented for approval.\n4. **Drop the idea — already delivered** **[recommended]** — create nothing and make no other write.\n\nClosing evidence:\n\n`Audit: obsolete: delivered: src/report-download.ts:12`\n",
+      "words": 352,
+      "wallMs": 20426,
       "mechanical": {
         "no-commands": "holds"
       }
     }
   },
   "judge": {
-    "github-copilot/gpt-6.1-sol": {
+    "anthropic/claude-opus-5-5": {
       "factsSha": "91acebaee327d3938e2d4504b6d9063812ef9119e3f39d79e6d8fd097c809f7c",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "5e5d3dfc0b642d6f632cf7cf04a895a28aaa28b4761d1e7433eb56d06a27861c",
-      "baselineOutputSha": "c04de202bc256eb43cae36ddaa3ce4a09e3828522e96e3fd8fc5c1ebf855dba5",
-      "candidateOutputSha": "c22f806ced9a2c9a76f781178bdac27af7f3c88d69c55ba673838c7249cc84c6",
+      "intentSha": "c0c2580170b0013d4d1bb5f8e916b24fa5b37b9e2723110417dc9c31ffcfb227",
+      "baselineOutputSha": "f2aaff9c69f85e4a395acd46b59a2a18a2d501ed21b674bf46d00a6696036955",
+      "candidateOutputSha": "2a8c02f6bf2ee2a0b826a9703325b272b6c1ff68164be63b596a89faebdfc1f1",
       "facts": {
         "verdict": {
           "before": "holds",
@@ -53,10 +63,42 @@
           "label": "held"
         }
       },
-      "feedback": "No listed fact changed: both outputs identify the delivered capability with its repository citation above Title, retain an as-new create-anyway body alongside a single recommended Drop option, and stop for selection without claiming a write. After preserves these guards while making source-gap approval more explicit. Keep the cited obsolete verdict and separately numbered choices; restoring Before’s explicit sentence that creation and dropping are mutually exclusive would make that constraint clearer without changing the behavior.",
-      "wallMs": 6996,
+      "feedback": "All three facts hold in both outputs: each renders the Audit block with `obsolete: delivered: src/report-download.ts:12` above Title, each has exactly one `[recommended]` row on Drop the idea with create-anyway options and the as-new body still available, and each stops at a numbered pick without claiming a write. After did weaken the no-write guard, though: it dropped Before's explicit closing line (`Nothing has been created or written. I'm waiting for your selection.`) and the `(writes nothing)` annotation on the Drop row, so no-write now rests only on the absence of any creation claim rather than a positive statement; a stricter reader could question it. After also prepends a bare `gauntlet: gate=shape-ticket/step-8 recommended=4` line that is not part of the step-8 gate and could be misread as a second recommendation marker. To keep every Before fact robustly while delivering the obsolete-judgment and single-recommended-row change, keep the one `[recommended]` tag on the Drop row with its inline closing-evidence citation (as After does), restore `(writes nothing)` on that row and the terminal `Nothing has been created or written - waiting for your selection.` sentence, and drop the `gauntlet:` header from the rendered gate text.",
+      "wallMs": 15097,
+      "verdict": "unchanged"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "91acebaee327d3938e2d4504b6d9063812ef9119e3f39d79e6d8fd097c809f7c",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "c0c2580170b0013d4d1bb5f8e916b24fa5b37b9e2723110417dc9c31ffcfb227",
+      "baselineOutputSha": "ed01d8138f58e2bb9818652c2016a4db61f4c801abffa25b88f0b087e2790e6a",
+      "candidateOutputSha": "3a86fb6b4951dfaa45de48e50383ef41cf3e31cc18c8fb075922d4bb2477d0b7",
+      "facts": {
+        "verdict": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "drop": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "no-write": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "no-commands": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "Nothing moved on this case: both Before and After render `obsolete: delivered: src/report-download.ts:12` in the Audit block above the Title, both present exactly one Drop the idea row carrying [recommended] alongside separately numbered create-anyway options (1 and 2) with the as-new body still displayed, and both stop at Pick one with an explicit no-write statement. The Before sample already satisfied all three facts, so the Expected to move claim of fails -> holds for verdict and drop is not what the saved replies show. After's differences are cosmetic and slightly risky rather than fact-moving: it adds a machine-style `gauntlet: gate=... recommended=4` header (which a reader could mistake for a second recommendation marker if it ever drifted out of sync with the menu row) and silently drops the `sibling: none` and `in-motion: none` audit lines that Before kept and the audit supplied. To keep every fact Before kept while delivering the Change, keep the full audit line set verbatim in the Audit block, emit the obsolete verdict line exactly as Before does, and keep the single [recommended] tag on the Drop row only; if the gauntlet header is required, word it so it clearly references the menu row number rather than reading as an independent recommendation.",
+      "wallMs": 12721,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "2eb4429b4dd687432969f427f82d45d7840d7c63"
+  "repoSha": "03b700159d3e93209e89a28f2f3a032bd72cfdd9"
 }

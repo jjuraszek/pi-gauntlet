@@ -1,34 +1,42 @@
 {
   "sample": "quiet-audit-no-close-row",
   "arm": "candidate",
-  "skillSha": "f99cce821cb50a0917033ddb6959d359e9fa345cb3815e1c2062d09475f61951",
+  "skillSha": "9ed464562da72eb0abbaa3b8e367c5e9a4bee7dd5af58fcb20fc43de1c779579",
   "inputSha": "1be8be576004018fd3415768e2ae2b93c1aca9ac08903e8229b83114ac36aef6",
   "kind": "text",
   "assembly": "concat",
   "thinking": "medium",
   "models": {
     "replay": [
+      "anthropic/claude-opus-5-5",
       "github-copilot/gpt-6.1-sol"
     ],
-    "judge": "github-copilot/gpt-6.1-sol",
+    "judge": "anthropic-fable/claude-fable-5-1",
     "thinking": "medium"
   },
   "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "gauntlet: gate=shape-ticket/step-8 recommended=1\n\n**#42 (acme/records), repair: missing source footer only**\n\nsource missing: import run 42 displays \"row 8 rejected\" before navigation\n\nAudit:\n- scenario: none (missing current-system access)\n\n**Title** (unchanged)\nPreserve import failure details on return\n\n**Body** old->new. The only change is one added footer at the end of Problem. Existing prose and Acceptance Criteria bytes are unchanged.\n\n```diff\n ## Context\n Support reviews saved import failures.\n\n ## Problem\n Reopening a failed import drops its failure details, leaving support unable to explain the failure. Import run 42 displays \"row 8 rejected\" before navigation and only \"failed\" on return.\n+source: none (not recorded at filing)\n\n ## Idea\n Reporter proposes retaining failure details.\n\n ## Acceptance Criteria\n 1. Given failed import 42, when support leaves and reopens it, the view still displays \"row 8 rejected\".\n```\n\n**Metadata changeset:** none (metadata clean).\n\n**Evidence**\n- Setup: failed import run 42.\n- Action: support leaves the import view and reopens it.\n- Observed: only \"failed\" is displayed on return.\n- Expected: \"row 8 rejected\" is still displayed.\n- Provenance: reporter's ticket text. The claim is verified against current source at `src/import-history.ts:18`, and the failure still occurs.\n- Scenario: none (missing current-system access).\n- No gathered URL, attachment, or pasted screenshot exists.\n\n**Roast dispositions:** applied: none; surfaced-ambiguous: none.\n\n**Split proposal:** none.\n\n**Proposed comment / relations:** none.\n\nApproving covers this exact title, body diff and metadata. The only possible substitution is the footer value resolved by your approving reply.\n\nPick one:\n1. Approve exact diff with `source: none (not recorded at filing)` [recommended]\n2. Approve with a link, attachment, or reason (replaces only the prefilled footer)\n3. Approve and proceed without (footer becomes `source: none (proceed without - <YYYY-MM-DD>)`)\n4. Revise\n5. Decline\n",
+      "words": 269,
+      "wallMs": 22087,
+      "mechanical": {}
+    },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "gauntlet: gate=shape-ticket/step-8 recommended=1\n\n**#42 · Repair · acme/records**\n\nsource missing: Import run 42 displays \"row 8 rejected\" before navigation and only \"failed\" on return.\n\n**Audit:**\n- Failure verified: `src/import-history.ts:18`; the reported failure still occurs.\n- Repo-fit: kept. AC-fit: clear. No sibling or in-motion work.\n- scenario: none (missing current-system access). This finding alone adds no scenario footer.\n\n**Title:** Preserve import failure details on return → unchanged\n\n**Body — old → new**\n\nOnly the missing source footer is added. Existing prose and Acceptance Criteria bytes remain unchanged.\n\n```diff\n ## Context\n Support reviews saved import failures.\n \n ## Problem\n Reopening a failed import drops its failure details, leaving support unable to explain the failure. Import run 42 displays \"row 8 rejected\" before navigation and only \"failed\" on return.\n \n+source: none (not recorded at filing)\n+\n ## Idea\n Reporter proposes retaining failure details.\n \n ## Acceptance Criteria\n 1. Given failed import 42, when support leaves and reopens it, the view still displays \"row 8 rejected\".\n```\n\n**Metadata changeset:** None; metadata is clean.\n\n**Evidence**\n- Repro: View failed import 42, leave, then reopen it.\n- Observed: The view displays `\"row 8 rejected\"` before navigation and only `\"failed\"` on return.\n- Expected: The reopened view still displays `\"row 8 rejected\"`.\n- The already-opened repository source confirms the failure. No gathered URL or attachment exists.\n- The proposed repair uses the displayed `none (not recorded at filing)` source footer.\n\n**Roast dispositions:** No additional changes or surfaced ambiguities.\n\n**Proposed comment / relations:** None.\n\nPick one:\n1. **Approve exact diff** [recommended] — add only the displayed source footer. You may instead supply a link, attachment, or reason for this example with your approval.\n2. **Revise** — describe the requested change.\n3. **Decline** — leave #42 unchanged.\n\nNo write has been performed.\n",
-      "words": 268,
-      "wallMs": 16441,
+      "text": "gauntlet: gate=shape-ticket/step-8 recommended=1\n\nsource missing: Import run 42 displays \"row 8 rejected\" before navigation and only \"failed\" on return.\n\n**Audit:**\n- Verified: reopening a failed import drops its failure details (`src/import-history.ts:18`).\n- Repo-fit: kept. AC-fit: clear.\n- Sibling: none. In-motion: none.\n- Scenario: none (missing current-system access). This finding alone adds no footer.\n\n**Title — unchanged**  \nPreserve import failure details on return → Preserve import failure details on return\n\n**Body — old → new**\n\nOnly the missing source footer is added. All existing prose and Acceptance Criteria bytes remain unchanged.\n\n```diff\n ## Context\n Support reviews saved import failures.\n \n ## Problem\n Reopening a failed import drops its failure details, leaving support unable to explain the failure. Import run 42 displays \"row 8 rejected\" before navigation and only \"failed\" on return.\n+source: none (not recorded at filing)\n \n ## Idea\n Reporter proposes retaining failure details.\n \n ## Acceptance Criteria\n 1. Given failed import 42, when support leaves and reopens it, the view still displays \"row 8 rejected\".\n```\n\n**Metadata changeset:** None. #42 remains OPEN; all other fields are unchanged.\n\n**Evidence**\n- Repro: open failed import 42, observe its failure details, navigate away, then reopen it.\n- Observed: `\"row 8 rejected\"` is replaced by only `\"failed\"` on return.\n- Expected: `\"row 8 rejected\"` remains visible.\n- Repository corroboration: `src/import-history.ts:18`; the reported failure still occurs.\n- No gathered URL or attachment exists. The proposed footer records that the source was not recorded at filing.\n\n**Roast dispositions:** No additional changes or surfaced ambiguities.\n\n**Proposed comment / relations:** None.\n\nPick one:\n1. **Approve exact diff [recommended]** — add only the displayed footer. You may instead supply a link, attachment, or reason for this example in the approving reply.\n2. **Revise** — specify the requested change.\n3. **Decline** — leave #42 unchanged.\n",
+      "words": 271,
+      "wallMs": 11969,
       "mechanical": {}
     }
   },
   "judge": {
-    "github-copilot/gpt-6.1-sol": {
+    "anthropic/claude-opus-5-5": {
       "factsSha": "f69a4760c18662a06959deea86ad5d832ad736e6857898941bc0604154abecc8",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "5e5d3dfc0b642d6f632cf7cf04a895a28aaa28b4761d1e7433eb56d06a27861c",
-      "baselineOutputSha": "95c50c875a06a81d9f5d4ebc01a6cc12851ecfce85ba4f84b741a5c115f42f08",
-      "candidateOutputSha": "33a24ae87b4f6390853dbd86f5d27333ddc622e7c62d4c2d3beec3ba7cc5a952",
+      "intentSha": "c0c2580170b0013d4d1bb5f8e916b24fa5b37b9e2723110417dc9c31ffcfb227",
+      "baselineOutputSha": "ad8e1a3472c186970550c5487777908252585bbb94d6c514f066124e1d3d7bfa",
+      "candidateOutputSha": "8e12b25bd76af8b6a9f3bd0fd879786cde71b7e3e3319e4d628d7c6f8ca82372",
       "facts": {
         "no-verdict": {
           "before": "holds",
@@ -51,10 +59,42 @@
           "label": "held"
         }
       },
-      "feedback": "After preserves all four facts; none moved. It retains the footer-only diff, omits an obsolete verdict and close operation, and marks exactly one selectable approval row with [recommended]. The revised approval wording more directly authorizes the displayed repair. Keep that wording and the unchanged diff, and continue reserving obsolete verdicts and close choices for cases with confirmed evidence contradicting the premise, which this case does not have.",
-      "wallMs": 4712,
+      "feedback": "After keeps every fact Before kept: no Audit: obsolete: line is emitted, the five-row menu still has no close option or close operation, exactly one row (option 1) bears [recommended] and it approves the displayed footer-only repair diff, and the body diff adds only `source: none (not recorded at filing)` while leaving the Problem prose and AC bytes untouched. The gated close/create-drop rows correctly stay absent here because the audit shows no premise contradiction. One wording risk to watch: the new leading `gauntlet: gate=shape-ticket/step-8 recommended=1` line duplicates the word 'recommended' outside the menu; a judge counting occurrences could misread it as a second tag, so either keep it as an unlabeled machine header (as now) or drop it so the single bracketed tag on option 1 remains the only recommended marker. Also, the shortened option 1 now folds the 'plain yes accepts' sentence into the row label, which is fine for the facts, but keep the explicit footer constant visible on that row so repair-source/accepted continues to be satisfied without a second gate.",
+      "wallMs": 13113,
+      "verdict": "unchanged"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "f69a4760c18662a06959deea86ad5d832ad736e6857898941bc0604154abecc8",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "c0c2580170b0013d4d1bb5f8e916b24fa5b37b9e2723110417dc9c31ffcfb227",
+      "baselineOutputSha": "92cb224734da19bc525614a84c7d179b561a7077e0f5d51c5a20a0d5e9a66b75",
+      "candidateOutputSha": "6d5c2549ed42c891b715cf68f269e6dd8706a6a60207c8c9051141a6550918f3",
+      "facts": {
+        "no-verdict": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "no-close": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "recommended": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "footer-only": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "Nothing moved: both outputs emit no Audit: obsolete: line, offer only Approve/Revise/Decline with no close operation, tag exactly one option (Approve exact diff) as [recommended], and show a diff that adds only the `source: none (not recorded at filing)` footer with every existing prose and AC byte intact. The After wording did silently drop three pieces of explicit reassurance that Before carried — the 'No writes performed' header line, the 'Gates pass' note under Roast dispositions, and the explicit 'No obsolete verdict; the reported failure still occurs' audit bullet — in favor of a terse 'gauntlet: gate=shape-ticket/step-8 recommended=1' line. None of these are measured by the facts here, but a careful reader loses the direct statement that no live write happened, and the 'recommended=1' token could be mistaken for a second recommendation marker. To keep the Change's single-recommended-row and quiet-repair-guard contract robust, keep the explicit 'No writes performed' and 'Gates pass' lines alongside the new gate header, and keep the audit bullet stating that no obsolete verdict was reached (so the absence of an obsolete line reads as a judgment rather than an omission).",
+      "wallMs": 12322,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "2eb4429b4dd687432969f427f82d45d7840d7c63"
+  "repoSha": "03b700159d3e93209e89a28f2f3a032bd72cfdd9"
 }

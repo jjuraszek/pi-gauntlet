@@ -14,6 +14,15 @@
     "thinking": "medium"
   },
   "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "# Draft: Export reports as CSV and email them to the requester\n\n**Mode:** create (one ticket, two repos)\n\n## Title\n\nExport reports as CSV and email them to the requester\n\n## Body\n\n```markdown\n## Context\n\nRequesters can view reports but cannot receive a CSV copy.\n\n## Problem\n\nA requester cannot export the report they are viewing, and cannot have a CSV copy emailed to them. For example, opening a report offers no way to get its rows as a CSV file.\n\n## Idea\n\nThe reporter proposes an Export CSV button in acme/widgets and delivery of the exported file by acme/mailer.\n\n## Acceptance Criteria\n\n### acme/widgets\n\n- [ ] Opening a report shows an Export CSV button.\n- [ ] Clicking Export CSV on an open report exports the displayed rows with the columns `name` and `count`.\n\n### acme/mailer\n\n- [ ] When a requester exports a report and asks for email delivery, the mailer sends that CSV as an attachment to the requester's address.\n```\n\n**Draft notes**\n\n- **Repo grouping:** the Idea names acme/widgets and acme/mailer, so the Acceptance Criteria are grouped under one heading per repo. These groups only show which repo owns each row. This stays one end-to-end ticket, as you asked, and no split is proposed.\n- **Source footer:** the Problem's one example has no gathered URL, attachment, or screenshot. In create mode the footer slot stays empty. A source gap is carried to step 8 as `source missing: opening a report offers no way to get its rows as a CSV file`. You can approve with a link, attachment, or reason, or approve without one.\n- **Comment:** none is proposed. The Idea fits in one attributed sketch line, so nothing is left over to move into a Reporter note.\n- **Optional sections:** none. Nothing is out of scope, and nothing can only be observed in production.\n- **Preservation:** none needed. There are no links, tracker fields, or existing comments to keep.\n\n## AC integrity gate (assembled draft)\n\n**Normalize:** all 3 criteria are written as `- [ ]` items.\n\n**Uniqueness:** no row is removed or split.\n- No row's text already contains another row's observable.\n- The column requirement is one observation of the exported file, so it stays a single row.\n\n| # | AC | Class | Setup / action / observable | Deploy window | Outcome |\n|---|---|---|---|---|---|\n| 1 | Opening a report shows an Export CSV button | Behavioral | a report exists / open it / button visible | pre-prod verifiable | pass |\n| 2 | Clicking Export CSV exports displayed rows with columns `name`, `count` | Behavioral | open report / click Export CSV / file contains displayed rows with those two columns | pre-prod verifiable | pass |\n| 3 | Email delivery sends the CSV as an attachment to the requester | Behavioral | export with email delivery requested / mailer sends / requester's address receives the CSV attached | pre-prod verifiable | pass |\n\n**Gate results:**\n- No wishful, tautological, unspecified-but-binding, external-input, or post-deployment criteria.\n- No hard stop, no park, no relocation.\n- No values were invented.\n\n**Gate result: pass.** Continuing to step 5 (deterministic gates).\n",
+      "words": 460,
+      "wallMs": 18442,
+      "mechanical": {
+        "f3": "holds"
+      }
+    },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
       "text": "gauntlet: done drafted\n\n**Title:** Export reports as CSV with optional email delivery\n\n## Context\nRequesters can view reports but cannot receive a CSV copy.\n\n## Problem\nA requester cannot export the displayed report or have its CSV emailed to them.\n\nExample: none (no concrete report or failed export example was supplied).\n\n## Idea\nThe reporter proposes an Export CSV button in acme/widgets, with acme/mailer emailing the exported file when requested.\n\n## Acceptance Criteria\n\n### acme/widgets\n- [ ] Given a report available to a requester, when the requester opens it, an Export CSV button is displayed.\n- [ ] Given a report displaying rows, when the requester clicks Export CSV, the resulting CSV contains the displayed rows with the columns `name` and `count`.\n\n### acme/mailer\n- [ ] Given an exported report CSV and the requester's email address, when the requester asks for email delivery, the mailer sends that CSV as an attachment to that address.\n\n---\n\n**AC integrity gate: passed.** Each criterion names setup, action, and an observable result verifiable before production deployment. No unsupported comparative targets, self-defined completion sets, or external-input blockers are present.\n\nOne ticket, with acceptance criteria attributed to each repository. No comment proposed.\n",
@@ -25,10 +34,37 @@
     }
   },
   "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "63de724ca40bfb5c3326f1e8b45a207b526f789bbfbb07b7ab5eacb2c722ac69",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "c0c2580170b0013d4d1bb5f8e916b24fa5b37b9e2723110417dc9c31ffcfb227",
+      "baselineOutputSha": "1a67cb17b0c5e651d485ffe6e6ec802e8da523fba0c4b24e53240fd80efe87c0",
+      "candidateOutputSha": "c96424465f6a620d8fa5f5ae3202f83831e7a12969332b3ec3be073b1f97bca2",
+      "facts": {
+        "f1": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "f2": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "f3": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "Both facts hold in Before and After: each output's Acceptance Criteria section has an `### acme/widgets` heading carrying the button row and the name/count column row, and an `### acme/mailer` heading carrying the attachment-email row. After additionally explains the grouping in a Draft notes bullet (\"These groups only show which repo owns each row\"), which reinforces f2 without changing it. Nothing in the After wording moved either fact; keep the per-repo heading structure and the row placement exactly as rendered, and avoid any future wording that would flatten the two headings into a single list or move the mailer row under widgets when the Idea names multiple repos.",
+      "wallMs": 4842,
+      "verdict": "unchanged"
+    },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "63de724ca40bfb5c3326f1e8b45a207b526f789bbfbb07b7ab5eacb2c722ac69",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "5e5d3dfc0b642d6f632cf7cf04a895a28aaa28b4761d1e7433eb56d06a27861c",
+      "intentSha": "c0c2580170b0013d4d1bb5f8e916b24fa5b37b9e2723110417dc9c31ffcfb227",
       "baselineOutputSha": "4c8ed4e66a41ca8413b9db0de86e2f87cb96c8d166ab556f4835fa2176a09064",
       "candidateOutputSha": "78f4d8218f73419ba90c0fdb004d937dab5e623cac1ed1bf1f0aa009121a25f7",
       "facts": {
@@ -48,10 +84,10 @@
           "label": "held"
         }
       },
-      "feedback": "Neither fact moved: After preserves both repository headings and keeps the button and column criteria under acme/widgets and the emailing criterion under acme/mailer. Keep those headings and row placements explicit while applying the requested gate and settlement wording; no changes to this grouping are needed.",
-      "wallMs": 5137,
+      "feedback": "Both outputs keep the Acceptance Criteria grouped under `### acme/widgets` and `### acme/mailer` headings, with the button and column rows under widgets and the emailing row under mailer, so neither fact moved. The After wording differs only in minor phrasing: a stray `gauntlet: done drafted` status line prepended before the Title, a reworded gate rationale, and a closing 'One ticket ... No comment proposed.' line. None of these affect the facts here, but the leaked `gauntlet: done drafted` prefix is noise a requester should not see in a drafted ticket; strip internal status markers from the rendered draft and keep the repository-heading structure exactly as both outputs already have it.",
+      "wallMs": 7247,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "2eb4429b4dd687432969f427f82d45d7840d7c63"
+  "repoSha": "03b700159d3e93209e89a28f2f3a032bd72cfdd9"
 }

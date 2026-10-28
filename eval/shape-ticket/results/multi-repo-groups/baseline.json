@@ -15,6 +15,15 @@
     "thinking": "medium"
   },
   "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "## Draft (create)\n\n**Title:** Export reports as CSV, with optional email delivery\n\n**Body:**\n\n```markdown\n## Context\n\nRequesters can view reports in the widgets app but cannot get a CSV copy of a report.\n\n## Problem\n\nA requester cannot export the report they are looking at, and cannot have that export emailed to them. For example, a requester viewing a report has no way to take its rows away as a file.\n\n## Idea\n\nThe reporter proposes an Export CSV button in acme/widgets, with acme/mailer delivering the exported file.\n\n## Acceptance Criteria\n\n### acme/widgets\n\n- [ ] When a requester opens a report, the report view shows an Export CSV button.\n- [ ] When a report is displaying rows and the requester clicks Export CSV, the app produces a CSV file that contains exactly the displayed rows, with the columns `name` and `count`.\n\n### acme/mailer\n\n- [ ] When a requester has exported a report as CSV and asked for email delivery, the mailer sends an email to the requester's address with that CSV file attached.\n```\n\n**Proposed comment:** none. There is no overflow beyond the single Idea sketch line, and no one asked for a comment in this session.\n\n---\n\n## AC integrity gate (assembled draft)\n\n**Normalization:** All three required outcomes are rendered as `- [ ]` items. The Idea names two repos, so the rows are grouped under one heading per repo. This is still one ticket, not a split.\n\n**Uniqueness:** No row is implied by another, and no row bundles independent observations. No text was removed, so nothing is displaced into a Reporter note.\n\n| AC | Class | Setup / action / observable | Outcome |\n|---|---|---|---|\n| widgets: Export CSV button shown | Behavioral | Requester opens a report / views it / button is present | pass |\n| widgets: CSV of displayed rows with `name`, `count` | Behavioral | Report showing rows / click Export CSV / file contains exactly those rows and columns | pass |\n| mailer: CSV emailed as attachment | Behavioral | CSV exported and email delivery requested / mailer sends / requester's address receives the email with that CSV attached | pass |\n\n- **Comparative or completeness ACs:** none. The column set (`name`, `count`) can be listed today.\n- **Hard stop:** none.\n- **Park:** none.\n- **Post-deployment relocation:** none. Every row can be verified before production deployment, and no row names an environment.\n\n**Gate result:** passes. The draft proceeds to step 5.\n\n**Carried to step 8:** The Problem example has no source footer, and the title is not Discovery/Spike. This is one source gap, which does not block the write offer:\n\n- `source missing: a requester viewing a report has no way to take its rows away as a file`\n\nIn create mode, the footer slot stays absent until the gate reply resolves it.\n",
+      "words": 420,
+      "wallMs": 15438,
+      "mechanical": {
+        "f3": "holds"
+      }
+    },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
       "text": "**Title:** Export report CSVs and email them to requesters\n\n## Context\nRequesters can view reports but cannot receive a CSV copy.\n\n## Problem\nA requester cannot export the displayed report or have its CSV emailed to them.\n\nExample: none (no specific report or failed attempt was supplied).\n\n## Idea\nThe reporter proposes an Export CSV button in acme/widgets, with acme/mailer emailing the exported file to the requester.\n\n## Acceptance Criteria\n\n### acme/widgets\n- [ ] Given a report, when the requester opens it, an Export CSV button is displayed.\n- [ ] Given a displayed report, when the requester clicks Export CSV, the exported CSV contains the displayed rows with the columns `name` and `count`.\n\n### acme/mailer\n- [ ] Given a CSV exported from the displayed report, when the requester asks for email delivery, the mailer sends that CSV as an attachment to the requester's address.\n\n---\n\n**AC integrity gate: passed.** Each criterion specifies setup, action, and an observable result verifiable before production deployment. No baseline, external input, or production-only observation is required. This remains one end-to-end ticket; the repository headings attribute criteria rather than split the deliverable.\n",
@@ -25,5 +34,5 @@
       }
     }
   },
-  "repoSha": "2eb4429b4dd687432969f427f82d45d7840d7c63"
+  "repoSha": "03b700159d3e93209e89a28f2f3a032bd72cfdd9"
 }

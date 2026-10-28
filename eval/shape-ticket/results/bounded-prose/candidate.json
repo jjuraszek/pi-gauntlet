@@ -14,6 +14,13 @@
     "thinking": "medium"
   },
   "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "gauntlet: gate=shape-ticket/step-8 recommended=1\n\n**Source gaps (no link, attachment, or pasted screenshot was supplied for any example):**\n\n- `source missing: first download empty`\n- `source missing: final row missing`\n- `source missing: duplicate email`\n- `source missing: wrong subject date`\n\nAudit: no findings.\n\n**Title** (new): Report delivery: empty first download, missing final row, duplicate email, wrong subject date\n\n**Body** (as-new):\n\n```markdown\n## Context\n\nA customer support review triggered this ask. Today a customer can either download a report or have it emailed to them.\n\n## Problem\n\nThe first download from an emailed report is empty, so the recipient wastes a retry. A 12-row report first downloads as zero rows, and a later retry gives all 12.\n\nDownloads leave out the last row, so recipients work from incomplete totals. A four-row report downloads as three rows, while the fourth row still shows on screen.\n\nOne delivery request sends the email twice, so recipients have to check whether the two reports differ. A single request produces two emails that carry the same file.\n\nThe email subject names the previous day's report, so recipients misfile today's work. A report requested on October 21 arrives with an October 20 subject, though the attached file is the October 21 report.\n\n## Idea\n\nThe reporter proposes fixing report delivery.\n\n## Acceptance Criteria\n\n- [ ] Given an emailed 12-row report, when the recipient opens the first download from the email, the file contains 12 rows.\n- [ ] Given a four-row report, when it is downloaded, the file contains all four rows.\n- [ ] Given one delivery request, when it is processed, exactly one email is sent.\n- [ ] Given a report requested on October 21, when its email arrives, the subject names October 21.\n```\n\n**Metadata changeset:**\n\n- `type: (unset) -> bug -- four observed delivery failures with repro and expected outcomes`\n\n**Evidence:**\n\n1. Empty first download: open the first download from an emailed 12-row report. Observed: 0 rows, and a later retry gives 12. Expected: 12 rows on the first download.\n2. Missing final row: download a four-row report. Observed: 3 rows, with the fourth row visible on screen. Expected: 4 rows.\n3. Duplicate email: submit one delivery request. Observed: two emails with the same file. Expected: one email.\n4. Wrong subject date: request the report on October 21. Observed: the subject says October 20 and the file is the October 21 report. Expected: the subject says October 21.\n\n**Roast dispositions:**\n\n- Applied:\n  - Moved the mechanism sentence from Context into the Reporter note. It names internal identifiers and processing order, which falls under the step 5 closed list and wording rules 1 and 6.\n- Surfaced as ambiguous:\n  - The Idea line \"fixing report delivery\" names no direction for any of the four failures. It is kept as the reporter's attributed sketch. Revise it if you want a direction stated.\n\n**Split:**\n\n- No split is proposed. The four failures are independent, but no evidence was supplied that they can ship separately, so they stay in one ticket with one row per failure.\n\n**Proposed comment** (verbatim, posted after the body):\n\n````markdown\nReporter note:\n```text\nthe export job writes CSV through the mail queue before the row count is known; deliveryMux calls writeRows then sendMail\n```\n````\n\nOne approval covers the exact title, body, metadata, comment and source footers shown above. The source footer slots stay empty until your reply. Name the gap a link, attachment, or reason applies to.\n\nPick one:\n1. Approve with a link, attachment, or reason [recommended]\n2. Approve and proceed without\n3. Revise\n4. Decline\n",
+      "words": 565,
+      "wallMs": 29533,
+      "mechanical": {}
+    },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
       "text": "gauntlet: gate=shape-ticket/confirmation recommended=1\n\nsource missing: first emailed download\nsource missing: final download row\nsource missing: duplicate delivery email\nsource missing: report subject date\n\n**Audit:**\n- Four observed failures have concrete examples and pre-production-verifiable acceptance criteria; no invented baseline or measurement is needed.\n- Keep one ticket: no independent shipping evidence supports a split.\n- Move the implementation sequence from the supplied Context into the proposed Reporter note, preserving it verbatim.\n- No repository metadata audit or independent roast results were supplied.\n\n**Title:** (new) → Fix incomplete report downloads, duplicate emails, and incorrect email dates\n\n## Proposed body\n\n### Context\n\nA customer support review triggered this request. Customers can currently download reports or receive them by email.\n\n### Problem\n\nThe first download from a report email is empty, forcing the recipient to retry.\n\nExample — first emailed download: A 12-row report initially downloads as zero rows, but retrying later returns all 12 rows.\n\nDownloads omit the final row, leaving recipients with incomplete totals.\n\nExample — final download row: A four-row report downloads as three rows even though the fourth row appears on screen.\n\nA single delivery request sends duplicate emails, making recipients check whether the reports differ.\n\nExample — duplicate delivery email: One delivery request sends two emails containing the same file.\n\nThe email subject names yesterday’s report, causing recipients to misfile today’s work.\n\nExample — report subject date: An October 21 request produces an October 20 subject even though the attached file is for October 21.\n\n### Idea\n\nThe reporter proposes fixing report delivery.\n\n### Acceptance Criteria\n\n- [ ] Given a report containing 12 rows, when the recipient first downloads it from its delivery email, the downloaded report contains all 12 rows without a retry.\n- [ ] Given a report with four rows visible on screen, when the recipient downloads it, the downloaded report contains all four rows.\n- [ ] Given one report delivery request, when the report is emailed, the recipient receives exactly one email for that request.\n- [ ] Given a request for an October 21 report, when its delivery email is sent, the subject names October 21.\n\n---\n\n**Metadata changeset:** None proposed. Repository, labels, assignee, and workflow values were not supplied.\n\n**Evidence**\n\n| Failure | Reproduction | Observed | Expected |\n|---|---|---|---|\n| First emailed download | Request a 12-row report by email; download it once, then retry later. | First download: zero rows. Later retry: 12 rows. | First download contains 12 rows. |\n| Final download row | Download a report displaying four rows on screen. | Download contains three rows. | Download contains all four rows. |\n| Duplicate delivery email | Submit one report delivery request. | Two emails arrive with the same file. | One email arrives. |\n| Report subject date | Request an October 21 report by email. | Subject names October 20; file is for October 21. | Subject names October 21. |\n\nProvenance: reporter-supplied observations; environment and observation time were not supplied. No links, attachments, or screenshots were supplied. Source footer slots remain absent pending your reply.\n\n**Roast dispositions:** No independent roast result is available. Inline wording and AC integrity checks pass; no ambiguous finding is being asserted.\n\n**Proposed comment — verbatim**\n\n```untrusted\nReporter note:\nthe export job writes CSV through the mail queue before the row count is known; deliveryMux calls writeRows then sendMail.\n```\n\n**Relations:** None proposed.\n\nApproval covers the displayed title, body, and comment, with only source footer substitutions resolved by your approving reply.\n\nPick one:\n\n1. **Approve with a link, attachment, or reason** for each named source gap. **[recommended]**\n2. **Approve and proceed without** sources for all four named gaps.\n3. **Revise** — describe the changes.\n4. **Decline** — do not create the ticket.\n\nYou may resolve sources individually by naming each gap. A plain “yes” leaves the source questions open and does not authorize creation yet.\n",
@@ -23,10 +30,37 @@
     }
   },
   "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "c8a066aa4b99ace9e8bfe9e958ed1dc83f162f1485686d257897d20a63f64e94",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "c0c2580170b0013d4d1bb5f8e916b24fa5b37b9e2723110417dc9c31ffcfb227",
+      "baselineOutputSha": "064536570392f90b2d10157e55d9868fa9ed0a13b72fad13223e2ef1400b138c",
+      "candidateOutputSha": "3ee7187c37f4ca32fed3989c06d74b144fea8d961f74f51beb911269ce7cc7dd",
+      "facts": {
+        "context": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "bounded-examples": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "leads": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "No fact moved. Both outputs keep Context to the support-review trigger and the download/email capability with no queue, module, call or ordering explanation; both give each of the four failures a plain-words lead with its cost (wasted retry, incomplete totals, checking for differences, misfiling) and exactly one one-sentence example. After actually tightens the Problem section relative to Before: Before's first failure carried two extra mechanism sentences plus a '(Pointer for the implementer: deliveryMux.)' aside inside the Problem paragraph, while After moves that mechanism entirely into the Reporter note and records the move under Roast dispositions, which is the behavior the Change asks for. To keep this stable across reruns, keep the wording that places internal identifiers and processing order only in the Reporter note and never in Context or beside the example sentence, and keep each Problem paragraph to lead-sentence plus one example sentence; one thing to watch in After is the new 'type: (unset) -> bug' metadata row, which the Before text explicitly declined because no repo-documented fields were gathered, so make the wording that allows that row require gathered field evidence rather than inferring it from the bug shape.",
+      "wallMs": 18152,
+      "verdict": "unchanged"
+    },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "c8a066aa4b99ace9e8bfe9e958ed1dc83f162f1485686d257897d20a63f64e94",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "5e5d3dfc0b642d6f632cf7cf04a895a28aaa28b4761d1e7433eb56d06a27861c",
+      "intentSha": "c0c2580170b0013d4d1bb5f8e916b24fa5b37b9e2723110417dc9c31ffcfb227",
       "baselineOutputSha": "abf883cb6c1afd51074fc318149859dff1b12a069b6baa76cf7855e6169da351",
       "candidateOutputSha": "27465ed2470a386c4390c5b4e0ce4624f80947c934effbe3e4d37f6624c4c7e0",
       "facts": {
@@ -46,10 +80,10 @@
           "label": "held"
         }
       },
-      "feedback": "After preserves all three facts: Context retains the support-review trigger and current download/email capability without implementation details; each Problem example remains one sentence with supplied observables; and all four plain-words leads retain the failure and its customer cost. No fact moved. Keep those sections intact while applying the requested gate and menu changes, and continue carrying the internal sequence verbatim in the Reporter note rather than moving it into Context.",
-      "wallMs": 6065,
+      "feedback": "Nothing moved on this case: both outputs already keep Context to the support-review trigger plus the current download/email capability (the queue/deliveryMux sequencing sits only in the verbatim Reporter note), every example in both is a single sentence carrying one concrete supplied observable, and all four plain-words leads with their product cost survive in After unchanged apart from a tense shift from 'can be empty' to 'is empty'. The Change's bounded-prose and leads guidance was already satisfied by Before here, so the After wording delivers it without regression; the only stylistic edits worth watching are the 'Example — name:' label format and the present-tense leads, which do not threaten any of the three facts, and the longer multi-bullet Audit block, which sits outside the facts' slices. Keep the current Context, lead, and one-sentence-example wording as-is.",
+      "wallMs": 11599,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "2eb4429b4dd687432969f427f82d45d7840d7c63"
+  "repoSha": "03b700159d3e93209e89a28f2f3a032bd72cfdd9"
 }

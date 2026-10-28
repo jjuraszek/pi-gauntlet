@@ -14,6 +14,13 @@
     "thinking": "medium"
   },
   "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "gauntlet: gate=ticket-authoring/step-8 recommended=1\n\n**Overlap result: same concern as acme/checkers#42 (completed).** The source review confirms that #42 covers the repeated blank-row defect. The ask supplies no new run, version, or reproduction that distinguishes a new regression. #42 is in a terminal state, so its body stays protected: no rewrite and no reopen. Companion-checker parity, empty-input behavior, and documentation are compatible same-concern additions. They are surfaced here as scope changes for you to decide, not as an automatic remainder. An evidence comment on #42 is unavailable because the ask contains no new evidence to add.\n\n**Coverage:** this run used only the supplied reviewed ticket. No live search was performed, and one candidate was read in full. The finding for #42 does not rule out other overlapping or contradicting tickets, so coverage is incomplete, not proof of uniqueness.\n\n### Alternative 2 - create anyway (override)\n\nAudit: none beyond the AC gate below.\n\nsource missing: report with a blank row followed by an invalid row\n\n**Title:** (new) Report and companion checkers skip invalid rows after a blank row\n\n```markdown\n## Context\nPeople checking reports need every invalid row reported, from both the report checker and its companion checker.\n\n## Problem\nThe ask reports that a blank row stops validation again, so invalid rows after it go unreported. The companion checker's behavior after a blank row is unspecified. So is the outcome when either checker is given empty input. A report with a blank row followed by an invalid row demonstrates the failure.\n\n## Idea\nThe requester proposes that both checkers continue past blank rows, with a defined, documented empty-input outcome.\n\n## Acceptance Criteria\n- [ ] Given a blank row followed by an invalid row, checking the report with the report checker reports the invalid row.\n- [ ] Given invalid rows before and after a blank row, checking the report with the report checker reports both invalid rows.\n- [ ] Given a blank row followed by an invalid row, checking the report with the companion checker reports the invalid row.\n- [ ] Given invalid rows before and after a blank row, checking the report with the companion checker reports both invalid rows.\n- [ ] Given empty input, checking it with either checker produces <empty-input outcome - not yet chosen>.\n- [ ] Reading the checkers' documentation shows that validation continues past blank rows and states the chosen empty-input outcome.\n\n## Out of scope / Follow-up\n- none\n```\n\n**Metadata changeset:**\n- `state: - -> not-ready (parked)` -- the empty-input outcome is unchosen.\n- `relation: - -> related to acme/checkers#42` -- this applies only if the tracker supports that relation. Otherwise, mention #42 manually.\n\n**Evidence:** none (no new run, version, or reproduction supplied). The repro steps and observed-vs-expected results are taken from the ask and from #42's regression examples, not from a verified test result.\n\n**AC integrity gate:**\n- AC 5 is **unspecified-but-binding**: \"Given empty input … produces <empty-input outcome - not yet chosen>.\" The ticket can be filed, but it stays parked until you name the outcome, for example \"reports no rows and succeeds\" or \"reports an empty-input error.\"\n- AC 6 depends on AC 5's value but is otherwise behavioral. All other ACs are behavioral, verifiable before production, and unique.\n- No hard stop, no post-deployment relocation, and no split. This is one concern; repo location is not an axis.\n\n**Roast dispositions:** not yet run (this is the step-4 draft stage).\n\n**Proposed comment:** none (no overflow or new evidence).\n\nAt gate-open, the create-mode footer slot is absent.\n\nPick one:\n1. No write - cite acme/checkers#42 as covering this defect, and decide the scope additions there yourself [recommended]\n2. Create anyway, parked - approve with a link, attachment, or reason for the source gap, plus the empty-input outcome if known\n3. Create anyway, parked - approve and proceed without a source\n4. Revise the create-anyway payload\n5. Stop - no write\n",
+      "words": 605,
+      "wallMs": 25639,
+      "mechanical": {}
+    },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
       "text": "gauntlet: question\n\n## Recommendation\n\nKeep **acme/checkers#42** as the existing same-concern ticket. Propose a comment recording the requested scope additions; **do not rewrite its completed body, reopen it, or claim a verified regression**.\n\nThe reviewed ticket already covers invalid rows after blank rows. Companion-checker parity, empty-input behavior, and documentation are compatible additions—not evidence of an independent concern. No split is justified.\n\n### Proposed comment on acme/checkers#42\n\n```text\nOverlap evidence:\nThe incoming request repeats the blank-row defect covered by this ticket and requests three compatible additions: apply the same behavior to the companion checker, define empty-input behavior, and document the rule.\n\nThe request supplies no new run, version, or reproduction result establishing a regression after completion. The existing discussion records that the blank-row regression examples passed before closure.\n\nCompanion-checker parity, empty-input behavior, and documentation are not specified in the existing body. Empty-input behavior remains undecided. These scope additions need a human decision; this comment does not assert that the completed fix failed.\n```\n\n**Title:** unchanged — Report validation stops at blank rows  \n**Body:** unchanged  \n**Metadata and relations:** no changes proposed  \n**Writes:** none performed or authorized\n\n## AC integrity gate report\n\n- **Comment alternative:** No ACs are added or changed. The completed ticket’s existing criteria remain untouched.\n- **Create-anyway alternative:** Not recommended as a distinct concern. Completion alone does not establish a new regression.\n- **Empty-input requirement:** **Unspecified-but-binding.** Its expected result has not been chosen. A delivery draft containing this requirement must remain in the tracker’s documented not-ready state until that result is supplied; no specific state name is available here.\n- **Not a wishful or tautological hard stop:** The missing item is a behavioral decision, not an unavailable performance baseline or a self-produced closure set.\n- **Evidence:** No new reproduction or verified test result is available. The reviewed ticket establishes coverage of the repeated defect, not current failure.\n- **Coverage limit:** Only the supplied candidate and review are available; this does not establish global uniqueness.\n\n### What should both checkers do when the input contains no rows?\n\nA) Treat it as valid and report no invalid rows.  \nB) Report an explicit empty-input validation error.  \nC) Use another outcome—please specify it.  \nD) Leave the decision unresolved; any delivery proposal remains not-ready.\n\nThis answer resolves the requirement only; it does not authorize a tracker write.\n",
@@ -23,10 +30,37 @@
     }
   },
   "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "9911d0860a8f17b3cae67c0b3344458cc569dfd8be5e41043371b958cc7206eb",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "c0c2580170b0013d4d1bb5f8e916b24fa5b37b9e2723110417dc9c31ffcfb227",
+      "baselineOutputSha": "221001a67cf0f453943bafee284833b455a509c0f97d14e575c19c450cce13cd",
+      "candidateOutputSha": "625b3ece5a5687ab54bc72eb69318e84834c8755c2fd43faa2737ea5ae326a8c",
+      "facts": {
+        "existing-concern": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "unverified-regression": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "create-override": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "After keeps all three facts: option 1 (no write, cite #42, decide additions yourself) is the single recommended row, create-anyway is labelled an override and parked, and the overlap paragraph plus the Evidence line both state that no new run, version, or reproduction distinguishes a new regression. The one place After drifts is the create-anyway Problem: 'The ask reports that a blank row stops validation again' and the title 'Report and companion checkers skip invalid rows after a blank row' narrate a live recurrence that the ask never actually asserts, whereas Before's Problem read 'the failure acme/checkers#42 addressed; no new run distinguishes a regression.' That attribution ('the ask reports') and the Evidence disclaimer keep the fact holding, but a stricter reader could call 'again' an invented regression claim. To deliver the clarified repeated-defect rule without that risk, keep Before's provenance phrasing in Problem ('repeats the defect #42 addressed; no new run distinguishes a regression') and let the title name the parity/empty-input/documentation additions rather than restating the closed defect as current. Minor: option 5 'Stop - no write' largely duplicates option 1; collapsing it to 'Decline' as in Before keeps exactly one recommended no-write row unambiguous.",
+      "wallMs": 17456,
+      "verdict": "unchanged"
+    },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "9911d0860a8f17b3cae67c0b3344458cc569dfd8be5e41043371b958cc7206eb",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "5e5d3dfc0b642d6f632cf7cf04a895a28aaa28b4761d1e7433eb56d06a27861c",
+      "intentSha": "c0c2580170b0013d4d1bb5f8e916b24fa5b37b9e2723110417dc9c31ffcfb227",
       "baselineOutputSha": "b161b7cff7d2425b7eaa0c59eff22e2708f947543b218d142f94fa9bf7053ac0",
       "candidateOutputSha": "338f700e02f6e87341c1b1dcfc7dd0d9bc8861b57264d1099b4dc06d5b945bef",
       "facts": {
@@ -46,10 +80,10 @@
           "label": "held"
         }
       },
-      "feedback": "After preserves all three facts: it recommends additions on the existing ticket, explicitly retains the lack of distinguishing regression evidence, and keeps create-anyway as a nonrecommended alternative without authorizing creation. No listed fact changes. The focused empty-input question also makes the unresolved requirement actionable. To make the override boundary as explicit as Before while retaining these changes, say: “Create-anyway remains available only by explicit human override; it is not recommended, and answering the empty-input question does not authorize creation.”",
-      "wallMs": 10846,
+      "feedback": "All three facts hold in both outputs. After keeps the existing-ticket recommendation (comment on acme/checkers#42, no reopen, no duplicate), explicitly refuses to assert a regression without a new run/version/reproduction, and names create-anyway only as a non-recommended alternative, so no fact moved. The one soft spot is create-override: Before drafted the override payload and labelled it 'an override, not a recommendation', while After only says 'Not recommended as a distinct concern' inside the gate report and the closing menu (A–D) offers no path to it, so a reader has to infer that create-anyway is still reachable by human choice. To keep this fact robustly while preserving the new question-first flow, add one explicit line such as 'Create-anyway remains available only as a human override; say so explicitly if you want it despite this evidence' near the recommendation or as an extra menu note, without promoting it to a numbered recommended row.",
+      "wallMs": 12029,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "2eb4429b4dd687432969f427f82d45d7840d7c63"
+  "repoSha": "03b700159d3e93209e89a28f2f3a032bd72cfdd9"
 }

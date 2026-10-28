@@ -1,7 +1,7 @@
 {
   "sample": "sibling-primary-anchor",
   "arm": "candidate",
-  "skillSha": "ace2544db720a5aa2d1385a5e61d712e800002105a430ba6854a38a1ad22f25f",
+  "skillSha": "1ba136aa3d790fc087d0b3f60fbca2fa4bfe31beb71e6ccef59ceeee869fb71b",
   "inputSha": "e83d839045ca27524b5dd388de0089f8d75a084b4cd5b381bee23588f12880a7",
   "kind": "text",
   "assembly": "concat",
@@ -17,9 +17,9 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "# ABC-801 repair: run preparation\n\n## Shared resolution\n\nThe configured line `- sibling: git@github.com:acme/viewer.git` parses as follows:\n\n- **NAME:** `viewer`\n- **IDENTITY:** `github.com/acme/viewer`\n- **PATH rule:** `<PRIMARY parent>/viewer`\n\nThe prescribed preparation steps are the same at every checkpoint. These describe calls to make; none have been executed.\n\n1. Allocate one `mktemp -d` root, `<tmp>`.\n2. Fetch ABC-801's body, comments and link summaries.\n3. Store them fenced as untrusted data in `<tmp>/ABC-801/snapshot.md`.\n4. Write parent-retained sibling lines to `<tmp>/ABC-801/sibling-lines.md`.\n5. Dispatch one foreground scout:\n   - `subagent({ async: false, context: \"fresh\", control: {60000/240000/300000}, tasks: [{ agent: \"scout\", cwd: <home>, output: \"<tmp>/ABC-801/audit.md\", outputMode: \"file-only\", task: <brief> }] })`\n\n---\n\n## Checkpoint 1: linked worktree\n\n- **Home cwd:** `git rev-parse --show-toplevel` gives `/repos/pi-gauntlet/.worktrees/x`. This is the scout `cwd`, and root `AGENTS.md`/`CLAUDE.md`/`REVIEW.md` are read here.\n- **PRIMARY:** the first `worktree` entry is `/repos/pi-gauntlet`. A linked worktree anchors beside the primary, so the parent directory is `/repos`.\n- **PATH:** `/repos/viewer`.\n- **Classification of the sibling line:**\n  1. Configuration parses, so it is valid.\n  2. `/repos/viewer` exists.\n  3. `git -C /repos/viewer rev-parse --show-toplevel` returns `/repos/viewer`, so it is a checkout.\n  4. `git -C /repos/viewer config --get remote.origin.url` returns `https://github.com/acme/viewer.git`.\n  5. The stored origin parses.\n  6. Its identity, `github.com/acme/viewer`, equals the configured identity.\n  7. The outcome is **Found**.\n- **Scout brief inputs:**\n  - cwd: `/repos/pi-gauntlet/.worktrees/x`\n  - sibling read paths: `/repos/viewer`\n  - supplied `Sibling:` lines: none\n- **Parent-retained report lines:** none. There is no unavailable outcome. The scout reports `/repos/viewer` as either `- none` or `- leg: <...>`.\n\n---\n\n## Checkpoint 2: external Git directory\n\n- **Home cwd:** `/repos/app`, which is also the scout `cwd`.\n- **PRIMARY:** the first entry is `/repos/app`. External Git directories anchor beside their checkout, never beside `/store/git/app.git`, so the parent directory is `/repos`.\n- **PATH:** `/repos/viewer`.\n- **Classification:** checks 1–6 pass as in checkpoint 1. The stored origin `https://github.com/acme/viewer.git` has identity `github.com/acme/viewer`, which matches. The outcome is **Found**.\n- **Scout brief inputs:**\n  - cwd: `/repos/app`\n  - sibling read paths: `/repos/viewer`\n  - supplied `Sibling:` lines: none\n- **Parent-retained report lines:** none.\n\n---\n\n## Checkpoint 3: submodule\n\n- **Home cwd:** `/repos/app/vendor/lib`, which is also the scout `cwd`.\n- **PRIMARY:** the first entry is `/repos/app/vendor/lib`. A submodule anchors beside the first listed submodule checkout, never beside `/repos/app/.git/modules/lib`. The parent directory is `/repos/app/vendor`.\n- **PATH:** `/repos/app/vendor/viewer`.\n- **Classification:**\n  - The path exists.\n  - `git -C /repos/app/vendor/viewer rev-parse --show-toplevel` returns `/repos/app/vendor/viewer`, so it is a checkout.\n  - The stored origin `https://github.com/acme/viewer.git` has identity `github.com/acme/viewer`, which matches.\n  - The outcome is **Found**.\n- **Scout brief inputs:**\n  - cwd: `/repos/app/vendor/lib`\n  - sibling read paths: `/repos/app/vendor/viewer`\n  - supplied `Sibling:` lines: none\n- **Parent-retained report lines:** none.\n\n---\n\n## Checkpoint 4: no primary entry\n\n- **Home cwd:** `/repos/app`, which is also the scout `cwd`.\n- **PRIMARY:** cannot be resolved. `git worktree list --porcelain` succeeded but printed no `worktree` entry.\n- **Configured line accounting:** the value is a valid clone URL, so the unresolved template applies.\n- **Parent-retained report line** (written to `<tmp>/ABC-801/sibling-lines.md`):\n\n  ```\n  Sibling: git@github.com:acme/viewer.git - unresolved: no primary checkout found; expected beside it as viewer\n  ```\n\n- **Scout brief inputs:**\n  - cwd: `/repos/app`\n  - sibling read paths: none, because a failed classification never authorizes reads\n  - supplied `Sibling:` lines: the line above, which the scout copies verbatim\n- **Audit disposition:**\n  - The sibling outcome is nonblocking, and the audit continues as a **single-repo** audit of `/repos/app`.\n  - No clone, fetch, scan or path guess is made.\n  - At fold-in, the parent renders `sibling: git@github.com:acme/viewer.git - unresolved: no primary checkout found; expected beside it as viewer` from its own retained list, not from the scout's copy in audit.md.\n  - That line is report-only and leaves the draft unchanged. On its own it adds no question, roast, gate or blocking status.\n  - If the audit file proves unusable, the parent line is still rendered alongside `audit unavailable (<reason>)`.\n",
-      "words": 564,
-      "wallMs": 24068,
+      "text": "## Prepare the run: repair ABC-801\n\nThese are prescribed calls and writes only. Nothing below was executed.\n\n**Shared parse of the configured line** `- sibling: git@github.com:acme/viewer.git`\n- It is scp-style with host `github.com` and path `acme/viewer.git`, so it passes the parser.\n- NAME: `viewer`. IDENTITY: `github.com/acme/viewer`.\n- The stored origin `https://github.com/acme/viewer.git` parses to IDENTITY `github.com/acme/viewer`. The scheme is ignored, so the identities are equal.\n\n**Per-run setup (every checkpoint)**\n- Allocate one `mktemp -d` root, written here as `<tmp>`.\n- Fetch ABC-801 and write `<tmp>/ABC-801/snapshot.md`, fenced as untrusted data.\n- The audit output path is `<tmp>/ABC-801/audit.md`.\n- Retain the parent-owned sibling lines in `<tmp>/ABC-801/sibling-lines.md`.\n\n---\n\n### Checkpoint 1: linked worktree\n\n- **Home cwd** (`git rev-parse --show-toplevel`): `/repos/pi-gauntlet/.worktrees/x`. Home reads and the scout cwd stay here.\n- **PRIMARY** (first `worktree` entry): `/repos/pi-gauntlet`.\n- **PATH:** `/repos/viewer`.\n- **Classification:**\n  - The path exists.\n  - It is a checkout: `git -C /repos/viewer rev-parse --show-toplevel` returns `/repos/viewer`.\n  - The origin comes from `git -C /repos/viewer config --get remote.origin.url` and its IDENTITY matches.\n  - Outcome: **Found**.\n- **`sibling-lines.md`:** no unavailable lines.\n\nDispatch:\n```js\nsubagent({\n  async: false,\n  context: \"fresh\",\n  control: {\n    needsAttentionAfterMs: 60000,\n    inFlightSilenceCeilingMs: 240000,\n    inFlightSilenceKillMs: 300000\n  },\n  tasks: [\n    {\n      agent: \"scout\",\n      cwd: \"/repos/pi-gauntlet/.worktrees/x\",\n      output: \"<tmp>/ABC-801/audit.md\",\n      outputMode: \"file-only\",\n      task: \"<brief>\"\n    }\n  ]\n})\n```\n\nThe brief supplies:\n- Snapshot path: `<tmp>/ABC-801/snapshot.md`.\n- Sibling read path: `/repos/viewer`.\n- Supplied `Sibling:` lines: none.\n- The open-PR search `gh pr list --search \"ABC-801\" --limit 20`, plus the resolved tracker read verbs.\n- The six-label output contract.\n\n---\n\n### Checkpoint 2: external Git directory\n\n- **Home cwd:** `/repos/app`.\n- **PRIMARY:** `/repos/app`, taken from the first `worktree` entry. The anchor never comes from the Git directory `/store/git/app.git`.\n- **PATH:** `/repos/viewer`.\n- **Classification:** it is a checkout and the stored origin IDENTITY `github.com/acme/viewer` matches. Outcome: **Found**.\n- **`sibling-lines.md`:** no unavailable lines.\n\nDispatch matches checkpoint 1, with these values:\n- Scout `cwd: \"/repos/app\"`.\n- Sibling read path: `/repos/viewer`.\n- Supplied `Sibling:` lines: none.\n\n---\n\n### Checkpoint 3: submodule\n\n- **Home cwd:** `/repos/app/vendor/lib`.\n- **PRIMARY:** `/repos/app/vendor/lib`, the first listed submodule checkout. The anchor never comes from `/repos/app/.git/modules/lib`.\n- **PATH:** `<PRIMARY parent>/<NAME>` = `/repos/app/vendor/viewer`.\n- **Classification:** it is a checkout and the stored origin IDENTITY `github.com/acme/viewer` matches. Outcome: **Found**.\n- **`sibling-lines.md`:** no unavailable lines.\n\nDispatch matches checkpoint 1, with these values:\n- Scout `cwd: \"/repos/app/vendor/lib\"`.\n- Sibling read path: `/repos/app/vendor/viewer`.\n- Supplied `Sibling:` lines: none.\n\n---\n\n### Checkpoint 4: no primary entry\n\n- **Home cwd:** `/repos/app`.\n- `git worktree list --porcelain` succeeds but contains no `worktree` entry.\n- The configured value passes the parser, so it gets the unresolved line rather than the invalid-configuration line.\n- No path is checked and no sibling read path is authorized.\n\nWrite this parent-retained line to `<tmp>/ABC-801/sibling-lines.md`:\n```\nSibling: git@github.com:acme/viewer.git - unresolved: no primary checkout found; expected beside it as viewer\n```\n\n**Disposition:** the line is nonblocking, and the audit continues as single-repo.\n\nDispatch matches checkpoint 1, with these values:\n- Scout `cwd: \"/repos/app\"`.\n- Sibling read paths: none.\n- The brief supplies the line above verbatim for the scout to copy.\n\nThe fold-in reads only the parent-retained line, never its copy in `audit.md`. That holds even if the audit turns out unavailable. The draft is unchanged, and the Audit block renders:\n```\nsibling: git@github.com:acme/viewer.git - unresolved: no primary checkout found; expected beside it as viewer\n```\n\nThis report-only outcome adds no question, gate, roast or write on its own. If ABC-801 otherwise conforms, it rides on the no-op report.\n\n---\n\nIn all four checkpoints, no clone, fetch, network call or config write is made.\n",
+      "words": 515,
+      "wallMs": 24476,
       "mechanical": {
         "not-worktree": "holds",
         "not-external": "holds",
@@ -28,9 +28,9 @@
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "These are prescribed scout inputs based solely on the supplied facts; no calls or writes have been executed. Each checkpoint is independent.\n\n### 1. Linked worktree checkpoint\n\n**Scout brief inputs**\n- Home cwd and home repository reads: `/repos/pi-gauntlet/.worktrees/x`\n- Authorized sibling read path: `/repos/viewer`\n- Read root `AGENTS.md`, `CLAUDE.md`, and `REVIEW.md`, in that order, plus their touched-area routes, in both checkouts.\n\nThe first listed worktree anchors sibling resolution; it does not replace the current checkout as the scout's home cwd. The supplied stored origin matches the configured sibling identity.\n\n**Parent-retained report lines:** none; the sibling is found. The scout must emit its own evidence-grounded `Sibling:` finding for the authorized path.\n\n### 2. External Git directory checkpoint\n\n**Scout brief inputs**\n- Home cwd and home repository reads: `/repos/app`\n- Authorized sibling read path: `/repos/viewer`\n- Read root `AGENTS.md`, `CLAUDE.md`, and `REVIEW.md`, in that order, plus their touched-area routes, in both checkouts.\n\nAnchor sibling resolution beside the first listed checkout, not beside the Git directory. The supplied stored origin matches the configured sibling identity.\n\n**Parent-retained report lines:** none; the sibling is found. The scout must emit its own evidence-grounded `Sibling:` finding for the authorized path.\n\n### 3. Submodule checkpoint\n\n**Scout brief inputs**\n- Home cwd and home repository reads: `/repos/app/vendor/lib`\n- Authorized sibling read path: `/repos/app/vendor/viewer`\n- Read root `AGENTS.md`, `CLAUDE.md`, and `REVIEW.md`, in that order, plus their touched-area routes, in both checkouts.\n\nAnchor sibling resolution beside the first listed submodule checkout, not beside its Git metadata. The supplied stored origin matches the configured sibling identity.\n\n**Parent-retained report lines:** none; the sibling is found. The scout must emit its own evidence-grounded `Sibling:` finding for the authorized path.\n\n### 4. No-primary checkpoint\n\n**Scout brief inputs**\n- Home cwd and home repository reads: `/repos/app`\n- Authorized sibling read paths: none.\n- Read the home repository normally and copy this supplied line verbatim:\n\n```text\nSibling: git@github.com:acme/viewer.git - unresolved: no primary checkout found; expected beside it as viewer\n```\n\n**Parent retention:** prescribe saving that exact line in `<tmp>/ABC-801/sibling-lines.md` and passing it into the scout brief. It remains authoritative independently of audit-file availability.\n\n**Continuing disposition:** the unresolved sibling is nonblocking. Continue the single-repository audit for ABC-801; authorize no sibling reads and do not classify the home audit as unavailable.\n\nAt the ticket's eventual report or gate, render:\n\n```text\nAudit:\nsibling: git@github.com:acme/viewer.git - unresolved: no primary checkout found; expected beside it as viewer\n```\n",
-      "words": 376,
-      "wallMs": 16814,
+      "text": "Prescribed preparation only; no calls or writes executed. Each checkpoint is independent.\n\n### 1. Linked worktree\n\nScout brief routing:\n```text\nTicket: ABC-801\nHome cwd: /repos/pi-gauntlet/.worktrees/x\nSibling read paths:\n- /repos/viewer\n\nRead home repository documentation from the home cwd.\nRead the supplied sibling checkout using the same documentation rules.\n```\n\nThe first worktree entry anchors sibling discovery beside the primary checkout. The stored origin matches the configured sibling identity, `github.com/acme/viewer`.\n\n**Parent-retained report lines:** none; the sibling is found. Pass its absolute path to the scout, which must report a grounded leg or `none`.\n\n### 2. External Git directory\n\nScout brief routing:\n```text\nTicket: ABC-801\nHome cwd: /repos/app\nSibling read paths:\n- /repos/viewer\n\nRead home repository documentation from the home cwd.\nRead the supplied sibling checkout using the same documentation rules.\n```\n\nSibling discovery uses the first listed checkout, not the external Git directory. The supplied checkout and origin facts establish a matching sibling.\n\n**Parent-retained report lines:** none; the sibling is found.\n\n### 3. Submodule\n\nScout brief routing:\n```text\nTicket: ABC-801\nHome cwd: /repos/app/vendor/lib\nSibling read paths:\n- /repos/app/vendor/viewer\n\nRead home repository documentation from the home cwd.\nRead the supplied sibling checkout using the same documentation rules.\n```\n\nSibling discovery anchors beside the first listed submodule checkout, not its Git metadata directory. The stored origin matches the configured sibling identity.\n\n**Parent-retained report lines:** none; the sibling is found.\n\n### 4. No primary entry\n\nScout brief routing:\n```text\nTicket: ABC-801\nHome cwd: /repos/app\nSibling read paths: none\n\nRead home repository documentation from the home cwd.\nCopy the following parent-retained line verbatim:\nSibling: git@github.com:acme/viewer.git - unresolved: no primary checkout found; expected beside it as viewer\n```\n\n**Prescribed parent-retained report line:**\n```text\nSibling: git@github.com:acme/viewer.git - unresolved: no primary checkout found; expected beside it as viewer\n```\n\nRetain that line in `<tmp>/ABC-801/sibling-lines.md` and supply it to the scout. Continue with a **single-repository audit**; the unresolved sibling is nonblocking and authorizes no sibling reads. When reporting the audit finding, render:\n\n```text\nsibling: git@github.com:acme/viewer.git - unresolved: no primary checkout found; expected beside it as viewer\n```\n\nFor every checkpoint, the prescribed scout dispatch is foreground, fresh-context, with the checkpoint’s home cwd and absolute snapshot/output paths under the run’s one temp root. No dispatch or artifact write is claimed here.\n",
+      "words": 355,
+      "wallMs": 17725,
       "mechanical": {
         "not-worktree": "holds",
         "not-external": "holds",
@@ -42,9 +42,9 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "e4a6dae88106dba41902fd8d01f2faca1ae3a20deb8d480a43e7c36d788bca57",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "37c01603ac4620d1f1596beac660de51a9a2f55024a55e0349f68590987ec325",
-      "baselineOutputSha": "0dd8cbb8c15d12e60a1ef4d085472ecc7a810f7018021c1850a5a90cc352b825",
-      "candidateOutputSha": "e75fda204bad42b2dab3add128679938aa922212ff3b40725b94af360a03a835",
+      "intentSha": "c0c2580170b0013d4d1bb5f8e916b24fa5b37b9e2723110417dc9c31ffcfb227",
+      "baselineOutputSha": "e75fda204bad42b2dab3add128679938aa922212ff3b40725b94af360a03a835",
+      "candidateOutputSha": "c1df53d16196a70916080ab19776285870de5151ba87af732a3630f4d700ba9d",
       "facts": {
         "primary": {
           "before": "holds",
@@ -67,9 +67,9 @@
           "label": "held"
         },
         "unresolved": {
-          "before": "fails",
+          "before": "holds",
           "after": "holds",
-          "label": "unplanned improvement"
+          "label": "held"
         },
         "not-worktree": {
           "before": "holds",
@@ -87,21 +87,21 @@
           "label": "held"
         }
       },
-      "feedback": "After keeps every fact Before kept and gains the one Before missed. Both outputs resolve /repos/viewer in checkpoint 1 via stored-origin identity matching despite the ssh-vs-https mismatch, keep home cwd at /repos/pi-gauntlet/.worktrees/x while anchoring beside the primary /repos/pi-gauntlet, select /repos/viewer beside /repos/app regardless of the external Git directory, and select /repos/app/vendor/viewer beside the submodule checkout. The only mover is the no-primary checkpoint: Before reported `not found (no primary worktree entry)` and continued, which is report-only but does not use the required `unresolved: no primary checkout found; expected beside it as viewer` template; After emits that exact line in both the scout-supplied `Sibling:` line and the parent-rendered fold-in line, states the single-repo continuation, and explicitly rules out any question, roast, gate or blocking status. No wording in After regressed a fact; if anything, consider tightening checkpoints 2 and 3 so they restate the identity-match step as fully as checkpoint 1 (After leans on 'as in checkpoint 1'), which would make each independent checkpoint self-contained without changing outcomes.",
-      "wallMs": 12937,
-      "verdict": "improved"
+      "feedback": "No fact moved. After keeps every outcome Before kept: checkpoint 1 anchors PATH beside the primary `/repos/pi-gauntlet` and classifies `/repos/viewer` as Found via identity match (scheme ignored) while the scout cwd and home reads stay at `/repos/pi-gauntlet/.worktrees/x`; checkpoint 2 explicitly refuses to anchor on `/store/git/app.git`; checkpoint 3 selects `/repos/app/vendor/viewer` beside the submodule checkout rather than `.git/modules/lib`; checkpoint 4 writes the exact `unresolved: no primary checkout found; expected beside it as viewer` line, authorizes no read paths, and continues single-repo as a nonblocking report-only outcome with no gate, question, roast or write. After additionally improves on the Change by spelling out the full control block, the brief contents (snapshot path, open-PR read verb, six-label contract) and the no-network/no-config-write guard. Two small things worth keeping as you iterate: After compresses the checkpoint 2/3 classification into one line (\"it is a checkout and the stored origin IDENTITY matches\"); keep at least the explicit `rev-parse --show-toplevel` and `config --get remote.origin.url` calls named there as in checkpoint 1 so a reader can still see the stored-origin identity parsing step applied per checkpoint, and keep the explicit statement that the unresolved line is rendered from the parent-retained list rather than the scout copy, which After already does and should not lose.",
+      "wallMs": 12636,
+      "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "e4a6dae88106dba41902fd8d01f2faca1ae3a20deb8d480a43e7c36d788bca57",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "37c01603ac4620d1f1596beac660de51a9a2f55024a55e0349f68590987ec325",
-      "baselineOutputSha": "3ab3044c48a9d00e01518af4ce19d5fdd440c50374fc36b828221649ff56c501",
-      "candidateOutputSha": "5ca8d79b7c3c624d9099b9c0f61fb874aa88243f761a1f9a5b409f3280ac0ac3",
+      "intentSha": "c0c2580170b0013d4d1bb5f8e916b24fa5b37b9e2723110417dc9c31ffcfb227",
+      "baselineOutputSha": "5ca8d79b7c3c624d9099b9c0f61fb874aa88243f761a1f9a5b409f3280ac0ac3",
+      "candidateOutputSha": "fb9f10aa7ee24c70aa957c5b69aca05e6719fb2fc21df199da9d00e88352e6f3",
       "facts": {
         "primary": {
-          "before": "fails",
+          "before": "holds",
           "after": "holds",
-          "label": "unplanned improvement"
+          "label": "held"
         },
         "home": {
           "before": "holds",
@@ -109,19 +109,19 @@
           "label": "held"
         },
         "external-git-dir": {
-          "before": "fails",
+          "before": "holds",
           "after": "holds",
-          "label": "unplanned improvement"
+          "label": "held"
         },
         "submodule": {
-          "before": "fails",
+          "before": "holds",
           "after": "holds",
-          "label": "unplanned improvement"
+          "label": "held"
         },
         "unresolved": {
-          "before": "fails",
+          "before": "holds",
           "after": "holds",
-          "label": "unplanned improvement"
+          "label": "held"
         },
         "not-worktree": {
           "before": "holds",
@@ -139,10 +139,10 @@
           "label": "held"
         }
       },
-      "feedback": "After delivers the Change cleanly: Before refused to resolve the remote URL at all (selecting no sibling anywhere and reporting an 'invalid path configuration' rather than the 'unresolved: no primary checkout found' line), so every sibling fact failed there, while After selects /repos/viewer at the worktree and external-Git-directory checkpoints, /repos/app/vendor/viewer at the submodule checkpoint, keeps the home cwd at /repos/pi-gauntlet/.worktrees/x, and emits the exact unresolved line with a nonblocking continue at the no-primary checkpoint. No fact moved from holds to fails; the one Before-held fact (home) is preserved because After explicitly states the first listed worktree anchors sibling resolution but does not replace the current checkout as home cwd — keep that sentence. Minor polish only: After's found-sibling checkpoints say 'parent-retained report lines: none' while the prompt asked for sibling paths in 'any parent-retained report lines'; consider rendering a short `sibling: git@github.com:acme/viewer.git -> /repos/viewer (found)` line in those cases too so the parent report is uniform across found and unresolved outcomes, and consider noting in one sentence that ssh config vs https stored origin resolve to the same acme/viewer identity, making the 'despite' in the primary fact explicit.",
-      "wallMs": 8775,
-      "verdict": "improved"
+      "feedback": "No fact moved: After still reads /repos/viewer as the found sibling in the linked-worktree checkpoint (explicitly naming the parsed identity github.com/acme/viewer, which makes the ssh-vs-https match clearer than Before), keeps the home cwd at /repos/pi-gauntlet/.worktrees/x rather than /repos/pi-gauntlet, anchors /repos/viewer beside /repos/app independent of /store/git/app.git, anchors /repos/app/vendor/viewer beside /repos/app/vendor/lib rather than .git/modules/lib, and in the no-primary checkpoint renders the exact unresolved line, retains it in sibling-lines.md, and continues a single-repository audit as nonblocking with no gate or stop. Two small regressions in explicitness worth restoring without harming the Change: Before told the scout in checkpoints 2 and 3 that it must emit its own evidence-grounded `Sibling:` finding for the authorized path, whereas After only says this in checkpoint 1 and drops it for the external-Git-directory and submodule checkpoints—repeat the 'Pass its absolute path to the scout, which must report a grounded leg or `none`' sentence in all three found cases; and Before rendered the no-primary line under an `Audit:` header while After renders the bare `sibling:` line—keep the header so the report-line placement stays unambiguous. Otherwise the After wording delivers the Change (explicit scout brief routing block, shared identity parsing, parent-owned nonblocking line, foreground fresh-context dispatch note) while preserving every fact Before held.",
+      "wallMs": 12795,
+      "verdict": "unchanged"
     }
   },
-  "repoSha": "891991430a7b632bf2a6130e6b49972104b6ff7a"
+  "repoSha": "03b700159d3e93209e89a28f2f3a032bd72cfdd9"
 }

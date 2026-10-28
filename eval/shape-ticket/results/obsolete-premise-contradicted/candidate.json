@@ -1,34 +1,42 @@
 {
   "sample": "obsolete-premise-contradicted",
   "arm": "candidate",
-  "skillSha": "f99cce821cb50a0917033ddb6959d359e9fa345cb3815e1c2062d09475f61951",
+  "skillSha": "9ed464562da72eb0abbaa3b8e367c5e9a4bee7dd5af58fcb20fc43de1c779579",
   "inputSha": "4a2a4f02fe54a9d3b0c4da9c00b305a8159498f1f33ee7850e20979cb02ff20e",
   "kind": "text",
   "assembly": "concat",
   "thinking": "medium",
   "models": {
     "replay": [
+      "anthropic/claude-opus-5-5",
       "github-copilot/gpt-6.1-sol"
     ],
-    "judge": "github-copilot/gpt-6.1-sol",
+    "judge": "anthropic-fable/claude-fable-5-1",
     "thinking": "medium"
   },
   "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "gauntlet: gate=shape-ticket/step-8 recommended=4\n\n**#42, repair (GitHub acme/records, OPEN)**\n\nAudit:\n- `obsolete: premise contradicted: reopening preserves and displays \"row 8 rejected\" (src/import-history.ts:18)`\n- `premise: Reopening a failed import drops the failure details -> reopening preserves and displays \"row 8 rejected\" (src/import-history.ts:18)`\n- `scenario: present`\n\n**Title** (unchanged): Keep failed import details when reopening\n\n**Body** old -> new:\n\n```diff\n ## Context\n Support reviews saved import failures.\n\n ## Problem\n-Reopening a failed import drops the failure details, so support cannot explain the failure. Import run 42 reports \"row 8 rejected\" before navigation and only \"failed\" afterward.\n+Reopening a failed import keeps and displays its failure details (src/import-history.ts:18). Import run 42 reports \"row 8 rejected\" before navigation and only \"failed\" afterward.\n source: https://example.test/import/42\n+scenario: setup: saved failed import 42 with row 8 rejected; action: leave and reopen; observed: row 8 rejected remains visible; inputs: https://example.test/import/42\n\n ## Idea\n Reporter proposes retaining the failure details.\n\n ## Acceptance Criteria\n - [ ] Given that failed import, leaving and reopening it still displays \"row 8 rejected\".\n```\n\nAcceptance Criteria bytes are unchanged.\n\n**Metadata changeset:** none.\n\n**Evidence:**\n- Setup: saved failed import 42 with row 8 rejected. Action: leave and reopen. Observed: \"row 8 rejected\" remains visible. Expected: \"row 8 rejected\" still displayed.\n- `src/import-history.ts:18`: `reopen` returns `detail: run.failureDetail`. The opened call site and stored run 42 confirm `failureDetail` is \"row 8 rejected\" and that the reopen view displays it unchanged.\n- Source: https://example.test/import/42\n\n**Source gaps:** none.\n\n**Roast dispositions:** applied: none. Surfaced as ambiguous: none.\n\n**Proposed comment** (one, posted after the body write if you approve option 1):\n\n```untrusted\nReporter note: Reopening a failed import drops the failure details, so support cannot explain the failure. Import run 42 reports \"row 8 rejected\" before navigation and only \"failed\" afterward.\n```\n\nPick one:\n1. Approve exact diff: write the title, body, and metadata above, then post the proposed comment. This option does not close the issue.\n2. Revise: recheck and re-render this diff.\n3. Decline: skip #42 and write nothing.\n4. Close as premise contradicted - `gh issue close 42 --reason \"not planned\" --comment \"Audit: obsolete: premise contradicted: reopening preserves and displays \\\"row 8 rejected\\\" (src/import-history.ts:18)\"` [recommended]\n\nClosing evidence for option 4:\n`Audit: obsolete: premise contradicted: reopening preserves and displays \"row 8 rejected\" (src/import-history.ts:18)`\n\nOption 4 runs only the operation shown above. It writes no body and posts no Reporter note.\n\nBefore any mutation, I will re-fetch #42's state, body, and discussion and compare them with the approved snapshot. Nothing has been written yet.\n",
+      "words": 394,
+      "wallMs": 30214,
+      "mechanical": {}
+    },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "gauntlet: gate=shape-ticket/step-8 recommended=4\n\n**Ref:** #42 · **Mode:** repair · **Tracker:** GitHub `acme/records`\n\n**Audit:**\n- premise: “Reopening a failed import drops the failure details” vs reopening preserves and displays “row 8 rejected” (`src/import-history.ts:18`, confirmed call-site and stored run 42).\n- obsolete: premise contradicted: reopening preserves and displays failure details (`src/import-history.ts:18`)\n- scenario: present\n\n### Title\n`Keep failed import details when reopening` → unchanged\n\n### Body — exact proposed diff\n\nThe reporter’s observation remains verbatim. The only body addition is the gathered scenario footer; Acceptance Criteria bytes remain unchanged.\n\n```diff\n ## Context\n Support reviews saved import failures.\n\n ## Problem\n Reopening a failed import drops the failure details, so support cannot explain the failure. Import run 42 reports \"row 8 rejected\" before navigation and only \"failed\" afterward.\n source: https://example.test/import/42\n+scenario: setup: saved failed import 42 with row 8 rejected; action: leave and reopen; observed: row 8 rejected remains visible; inputs: https://example.test/import/42\n\n ## Idea\n Reporter proposes retaining the failure details.\n\n ## Acceptance Criteria\n - [ ] Given that failed import, leaving and reopening it still displays \"row 8 rejected\".\n```\n\n### Metadata changeset\nNone. Approving the body diff leaves #42 OPEN.\n\n### Evidence\n- **Setup:** Saved failed import 42 contains `failureDetail` equal to “row 8 rejected”.\n- **Repro steps:** Open the failed import, leave it, then reopen it.\n- **Reporter’s observed result:** Only “failed” remains after navigation.\n- **Expected result:** “row 8 rejected” remains visible after reopening.\n- **Confirmed current result:** The detail remains visible unchanged. The opened implementation, call-site, and stored run support this result.\n- **Source:** https://example.test/import/42\n- **Code:** `src/import-history.ts:18`.\n\n**Source gaps:** None.\n\n### Roast dispositions\n- **Applied:** None.\n- **Surfaced ambiguity:** The reporter’s observation conflicts with the confirmed current behavior. It has not been silently rewritten.\n\n**Proposed Reporter note:** None; no original material was displaced.  \n**Proposed relations:** None.\n\n### Select one\n\n1. **Approve exact diff** — update only the displayed body; leave the title, metadata, and OPEN state unchanged.\n2. **Revise** — describe the requested revision; receive a fresh exact-diff gate.\n3. **Decline** — skip #42 without changes.\n4. **Close as premise contradicted** — execute the following operation only, with no body replacement or Reporter note **[recommended]**:\n\n   ```sh\n   gh issue close 42 --reason \"not planned\" --comment 'Audit: obsolete: premise contradicted: reopening preserves and displays failure details (src/import-history.ts:18)'\n   ```\n\n   Closing evidence:\n\n   Audit: obsolete: premise contradicted: reopening preserves and displays failure details (src/import-history.ts:18)\n\nBefore any approved mutation, the ticket body, discussion, and state must be re-fetched and compared with the gathered snapshot. A change returns to confirmation; an already-terminal state makes the close a no-op.\n\n**Recommendation:** 4 — the confirmed implementation already preserves the detail, contradicting the ticket’s load-bearing premise.\n\nReply with **1–4**.\n",
-      "words": 404,
-      "wallMs": 29733,
+      "text": "gauntlet: gate=shape-ticket/step-8 recommended=4\n\nRef: #42 · Mode: repair · Preparation complete from the supplied checkpoint. No write has been made. Temp root: not supplied.\n\n**Audit:**\n- obsolete: premise contradicted: reopening preserves and displays the saved failure detail (src/import-history.ts:18)\n- premise: the reported loss of failure details conflicts with the checked implementation and run 42. The reporter’s observation is retained verbatim; the current result is distinguished below.\n- scenario: present\n\n**Title — unchanged**\n\nKeep failed import details when reopening → Keep failed import details when reopening\n\n**Body — old → new**\n\n```diff\n ## Context\n Support reviews saved import failures.\n\n ## Problem\n-Reopening a failed import drops the failure details, so support cannot explain the failure. Import run 42 reports \"row 8 rejected\" before navigation and only \"failed\" afterward.\n+Reported behavior: Reopening a failed import drops the failure details, so support cannot explain the failure. Import run 42 reports \"row 8 rejected\" before navigation and only \"failed\" afterward.\n+\n+The checked run does not reproduce this loss: leaving and reopening import run 42 keeps \"row 8 rejected\" visible.\n source: https://example.test/import/42\n+scenario: setup: saved failed import 42 with row 8 rejected; action: leave and reopen; observed: row 8 rejected remains visible; inputs: https://example.test/import/42\n\n ## Idea\n Reporter proposes retaining the failure details.\n\n ## Acceptance Criteria\n - [ ] Given that failed import, leaving and reopening it still displays \"row 8 rejected\".\n```\n\nThe Acceptance Criteria bytes are unchanged.\n\n**Metadata changeset:** None; #42 remains OPEN if the body diff is approved.\n\n**Evidence**\n- Setup: saved failed import run 42 has `failureDetail` equal to `\"row 8 rejected\"`.\n- Repro action: leave the import and reopen it.\n- Reported observation: the detail becomes only `\"failed\"`.\n- Expected result: `\"row 8 rejected\"` remains visible.\n- Checked observation: `\"row 8 rejected\"` remains visible, matching the expected result.\n- Already-opened implementation, call-site, and stored run confirm preservation and display of the detail: `src/import-history.ts:18`.\n- Source: https://example.test/import/42\n\n**Source gaps:** None.\n\n**Roast dispositions:** No additional edits or unrelated findings. The conflict with the reporter’s observation is surfaced rather than silently deleting that observation.\n\n**Proposed Reporter note:** None; no original detail was displaced.\n\n**Supported relation changes:** None.\n\n### Separate close alternative\n\nClosing authorizes only this operation—not the body diff or a Reporter-note comment:\n\n```sh\ngh issue close 42 --reason \"not planned\" --comment \"Audit: obsolete: premise contradicted: reopening preserves and displays the saved failure detail (src/import-history.ts:18)\"\n```\n\nClosing evidence:\n\nAudit: obsolete: premise contradicted: reopening preserves and displays the saved failure detail (src/import-history.ts:18)\n\nBefore either approved mutation, the ticket’s body, discussion, and state must be re-fetched and compared with the supplied snapshot. A change requires a renewed gate; an already-terminal ticket requires no close operation.\n\nPick one:\n\n1. **Approve exact diff** — update the displayed body only; leave #42 open.\n2. **Revise** — describe the requested changes.\n3. **Decline** — make no changes.\n4. **Close as premise contradicted** — execute the displayed `gh issue close` operation with its exact evidence comment; do not write the body diff. **[recommended]**\n",
+      "words": 462,
+      "wallMs": 36857,
       "mechanical": {}
     }
   },
   "judge": {
-    "github-copilot/gpt-6.1-sol": {
+    "anthropic/claude-opus-5-5": {
       "factsSha": "98b18c1d5d3a8ce850ebbe1f90d595295da4a86549e69d653a4052bc6f2a863d",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "5e5d3dfc0b642d6f632cf7cf04a895a28aaa28b4761d1e7433eb56d06a27861c",
-      "baselineOutputSha": "b3ef8d836ca67dc27880a6c739fe7170e54620ab169140363d6589432941deac",
-      "candidateOutputSha": "4602a2e11f4f635fdbcd541741b3683f213a6cd4f18b8669f1dba9d03eb19e4e",
+      "intentSha": "c0c2580170b0013d4d1bb5f8e916b24fa5b37b9e2723110417dc9c31ffcfb227",
+      "baselineOutputSha": "5218b54b14722ab79333db9225c02ac1eba7ee949af4ff3e8201f533595d438e",
+      "candidateOutputSha": "5b03873a7d226414a8ac33f58fb6251c0c68c00efe1cdd7861f349367b3455c8",
       "facts": {
         "verdict": {
           "before": "holds",
@@ -51,10 +59,73 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "No listed fact changed: both outputs put the cited obsolete judgment above Title, reproduce the displayed closing evidence verbatim in the close command’s decoded comment, mark only the close option [recommended], and retain the body diff as a mutually exclusive choice without claiming a write. After generalizes the verdict from “row 8 rejected” to “failure details” consistently in the closing evidence and command. To preserve these guards while delivering the change, require one canonical, citation-bearing verdict reused verbatim as the close comment, exactly one recommended numbered option, and an explicit close-only alternative beside the ordinary exact-diff approval. Retain `--repo acme/records` as well to keep the close operation explicitly bound to the resolved tracker.",
-      "wallMs": 14583,
+      "feedback": "No fact moved: both outputs render the cited `obsolete: premise contradicted:` line above Title, show a numbered close option whose `--comment` payload decodes to the displayed Audit line verbatim with `--reason \"not planned\"`, put the single [recommended] tag on that close option, and keep the old-to-new body diff beside it without claiming a write. Two things in After are worth tightening even though they did not move a fact. First, After rewrites the Problem lead to \"Reopening a failed import keeps and displays its failure details\" while leaving the next reporter sentence (\"only 'failed' afterward\") intact, so the proposed body contradicts itself and overwrites the reporter's plain-words premise; Before's approach, keeping the contradiction in the Audit report and the appended `scenario:` footer while leaving the reporter's observation bytes untouched, is the wording that preserves the plain-words Problem lead rule and still delivers the obsolete verdict. If the wording is meant to produce a Reporter note demotion, say so explicitly (demote the whole contradicted premise, not half of it). Second, After drops `--repo acme/records` from the close command; since tracker resolution is part of the case, keep the resolved repo in the displayed operation so the decoded command is fully deterministic. The leading `gauntlet: gate=... recommended=4` line is harmless but redundant with the rendered tag; keep the tag as the single source of truth.",
+      "wallMs": 20276,
       "verdict": "unchanged"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "98b18c1d5d3a8ce850ebbe1f90d595295da4a86549e69d653a4052bc6f2a863d",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "c0c2580170b0013d4d1bb5f8e916b24fa5b37b9e2723110417dc9c31ffcfb227",
+      "baselineOutputSha": "33986ce0edfcf2e0ba2c788822ece2b0758c22d94b03c59eb7a2d59ba22cb3ee",
+      "candidateOutputSha": "05fb1a9be997d33f467c01595b6838b9a123619bca04b87250d4431504396096",
+      "facts": {
+        "verdict": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "close": {
+          "before": "holds",
+          "after": "fails",
+          "label": "regression"
+        },
+        "recommended": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "diff": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        }
+      },
+      "feedback": "After keeps the obsolete verdict above Title with the src/import-history.ts:18 citation, keeps exactly one [recommended] tag on the close row, and keeps the body diff beside a mutually exclusive close with no write claimed, but it moves the close fact: the `gh issue close` command is pulled out of the numbered menu into a standalone \"Separate close alternative\" section, and numbered option 4 only points at \"the displayed operation\" instead of displaying it. The fact requires the numbered close option itself to show the command with --reason \"not planned\" and the --comment payload, as Before's option 4 did. After also softened the audit evidence to \"the saved failure detail\" rather than the audit file's concrete \"row 8 rejected\", which still matches its own Audit line but drifts from the confirmed finding. To deliver the Change (parent-owned obsolete judgment, gated close choice, one recommended row) while keeping every Before fact, render the full `gh issue close 42 --repo acme/records --reason \"not planned\" --comment '...'` block inside option 4, make the --comment payload the exact Audit line quoting \"row 8 rejected\" (src/import-history.ts:18), and keep the re-fetch/renewed-gate caveat as a note under the menu rather than as a replacement for the numbered command display.",
+      "wallMs": 23198,
+      "verdict": "inconclusive",
+      "confirmation": {
+        "status": "ok",
+        "text": "gauntlet: gate=shape-ticket/step-8 recommended=4\n\nRefs: #42 · Mode: repair · Temp root: not supplied  \nNo write has been performed.\n\n**Audit:**\n- obsolete: premise contradicted: reopening preserves and displays “row 8 rejected” (src/import-history.ts:18)\n- premise: Reopening a failed import drops the failure details vs reopening preserves and displays “row 8 rejected” (src/import-history.ts:18). The reporter’s observation is retained unchanged rather than silently replaced.\n- scenario: present\n\n**Title:** Keep failed import details when reopening → unchanged\n\n### Body: old → new\n\nThe exact proposed diff adds only the gathered scenario footer. Existing prose, source footer, and Acceptance Criteria bytes remain unchanged.\n\n```diff\n ## Context\n Support reviews saved import failures.\n\n ## Problem\n Reopening a failed import drops the failure details, so support cannot explain the failure. Import run 42 reports \"row 8 rejected\" before navigation and only \"failed\" afterward.\n source: https://example.test/import/42\n+scenario: setup: saved failed import 42 with row 8 rejected; action: leave and reopen; observed: row 8 rejected remains visible; inputs: https://example.test/import/42\n\n ## Idea\n Reporter proposes retaining the failure details.\n\n ## Acceptance Criteria\n - [ ] Given that failed import, leaving and reopening it still displays \"row 8 rejected\".\n```\n\n**Metadata changeset:** None.\n\n**Evidence:**\n- **Setup:** Saved failed import 42 has `failureDetail` equal to `\"row 8 rejected\"`.\n- **Reproduction:** Leave the import and reopen it.\n- **Reported observation:** Only `\"failed\"` appears afterward.\n- **Current observation:** `\"row 8 rejected\"` remains visible.\n- **Expected:** Reopening still displays `\"row 8 rejected\"`.\n- **Support:** Already-opened `src/import-history.ts:18`, its call-site, and stored run 42 confirm that the detail is preserved and displayed unchanged.\n- **Source:** https://example.test/import/42\n- **Provenance:** Supplied, already-opened evidence; environment and observation time were not supplied.\n\n**Source gaps:** None.\n\n**Roast dispositions:** No additional edits or ambiguous findings.\n\n**Proposed comment / relations:** None for the body-update option. No detail was displaced.\n\n### Selection\n\nApproval of the body diff does **not** close the issue. The close option authorizes only the operation below, after re-fetching and comparing the issue’s state, body, and evidence against the gathered snapshot.\n\nPick one:\n\n1. **Approve exact diff** — update #42 with the displayed body addition; leave the title, metadata, and OPEN state unchanged.\n2. **Revise** — describe the changes; a revised exact diff will be presented.\n3. **Decline** — leave #42 unchanged.\n4. **Close as premise contradicted — [recommended]** — execute only:\n   ```sh\n   gh issue close 42 --repo acme/records --reason \"not planned\" --comment 'Audit: obsolete: premise contradicted: reopening preserves and displays “row 8 rejected” (src/import-history.ts:18)'\n   ```\n\n**Closing evidence:**\n\nAudit: obsolete: premise contradicted: reopening preserves and displays “row 8 rejected” (src/import-history.ts:18)\n",
+        "words": 383,
+        "wallMs": 21594,
+        "mechanical": {},
+        "judgeWallMs": 20974,
+        "facts": {
+          "verdict": {
+            "before": "holds",
+            "after": "holds",
+            "label": "intended but unchanged"
+          },
+          "close": {
+            "before": "holds",
+            "after": "holds",
+            "label": "intended but unchanged"
+          },
+          "recommended": {
+            "before": "holds",
+            "after": "holds",
+            "label": "intended but unchanged"
+          },
+          "diff": {
+            "before": "holds",
+            "after": "holds",
+            "label": "intended but unchanged"
+          }
+        },
+        "feedback": "After keeps every fact Before kept: the obsolete: premise contradicted: line cites src/import-history.ts:18 above Title, option 4 is the only [recommended] row and runs gh issue close --reason \"not planned\" with a --comment payload byte-identical to the displayed Audit line (both now use curly quotes consistently), and the exact body diff sits beside the mutually exclusive close choice with an explicit no-write statement. Two things to tighten so this stays robust: (1) the After rendering silently converted the straight quotes from the source evidence (\"row 8 rejected\") into typographic quotes in both the Audit line and the comment payload — they match each other here, but any renderer that normalizes only one of them would break the verbatim-payload fact, so instruct the skill to reuse the exact bytes of the Audit line (straight quotes as in the audit file and ticket) for the --comment; (2) the leading `gauntlet: gate=... recommended=4` line and the sentence about re-fetching before close are extra surface a reader could mistake for a second recommendation marker or a performed action — keep the single [recommended] tag on the option row and phrase the re-fetch as a precondition of the not-yet-run command, as Before's 'No write or close has been performed' footer did."
+      }
     }
   },
-  "repoSha": "2eb4429b4dd687432969f427f82d45d7840d7c63"
+  "repoSha": "03b700159d3e93209e89a28f2f3a032bd72cfdd9"
 }

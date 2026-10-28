@@ -1,4 +1,4 @@
-for: 742f9cf66b605e4a4f28e01903dfdb3417c2a30a26a049ab994969c4b6e376ac
+for: 99c824943cff0a6f72cf7ea0d17fe60d9992a2e17f4d004067bad96b24365808
 
 ## Change
 Resolve configured sibling clone URLs beside the primary checkout, with shared stored-origin identity parsing and parent-owned nonblocking report lines. Keep home cwd at the current checkout; cover linked worktrees, external Git directories, submodules and successful worktree-list output without a primary entry. Reject legacy paths with a migration line. Preserve report-only outcomes through missing, empty or malformed scout artifacts and quiet no-op reports without opening a gate. Fold grounded legs from found absolute paths using stored origin names; keep existing grounding and dispatch guards.

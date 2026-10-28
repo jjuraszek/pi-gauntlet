@@ -14,6 +14,13 @@
     "thinking": "medium"
   },
   "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "gauntlet: gate=shape-ticket/step-8 recommended=1\n\n**source missing: a 12-row report downloads as zero rows**\n\n**Audit:** no findings. The gathered audit reference was not available in this context.\n\n**Title** (new): CSV export email delivery sends an empty first download\n\n**Body** (new):\n\n> ## Context\n> Users can request a CSV export of a report by email. The email contains a download link for the exported file.\n>\n> ## Problem\n> When a user requests email delivery of a CSV export, the email arrives before the file is complete. The first download is therefore empty, and the user gets none of the data they asked for. (Pointer for the implementer: deliveryMux, the outbound-delivery dispatcher.)\n>\n> Example: a 12-row report downloads as zero rows.\n>\n> ## Idea\n> Requester's sketch: fix CSV export email delivery so the first download is complete.\n>\n> ## Acceptance Criteria\n> - [ ] Given a 12-row report, when a user requests email delivery for it, then the first download from the delivered email contains all 12 rows.\n\nThe example's footer slot stays absent until you reply.\n\n**Metadata changeset:** none proposed. No repo-documented fields were gathered.\n\n**Evidence:**\n- **Repro:** request email delivery of a 12-row report, then open the first download from the email.\n- **Observed vs expected:** zero rows observed, 12 rows expected.\n- **Provenance:** reported by the requester. The environment and time were not recorded.\n- **Screenshot:** none (none supplied in the gathered material).\n\n**Roast dispositions:** none applied, none surfaced as ambiguous.\n\n**Split proposal:** none. This is a single deliverable.\n\n**Proposed comment / relations:** none. There is no overflow and no in-session ask.\n\n**AC integrity:** one behavioral criterion. It names setup, action and observable result, and can be verified before production. It passes.\n\n---\n\n**Separate repair decisions** (these are not requirements for this new ticket, and nothing is written to the tracker):\n\n- **Branch A: the existing definitions do not conform.**\n  - A reporter-authored comment uses both \"CSV export\" and \"deliveryMux\" as features the reporter uses. That comment counts as evidence of requester usage under rule 6.\n  - deliveryMux is also an internal name, but requester usage wins for such dual-use terms.\n  - Rule 6 says requester-used terms are left undefined. The repair would therefore propose dropping both definitions.\n  - That repair would be a conformance-only rewrite of the prose. The bytes under the Acceptance Criteria heading would be copied unchanged.\n- **Branch B: the existing definition conforms and is retained.**\n  - \"deliveryMux (the outbound-delivery dispatcher)\" appears only in unattributed body prose. That does not establish requester usage.\n  - deliveryMux therefore stays a repo-native term that needs a plain-words definition.\n  - The existing definition satisfies rule 6 and must stay, so this point needs no change.\n\n---\n\nPick one:\n1. Approve with a link, attachment, or reason [recommended]\n2. Approve and proceed without\n3. Revise\n4. Decline\n",
+      "words": 437,
+      "wallMs": 29445,
+      "mechanical": {}
+    },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
       "text": "gauntlet: gate=shape-ticket/confirmation-gate recommended=1\n\nsource missing: a 12-row report downloads as zero rows\n\n**Audit:** No repository audit was supplied. No repository-specific findings or metadata changes are asserted.\n\n**Title:** (new) → Fix empty first download from CSV export email\n\n**Body — as new:**\n\n## Context\n\nThe requester uses email delivery for CSV exports and wants the report available on the first download.\n\n## Problem\n\nThe export email arrives before the file is complete, so the first download is empty and the recipient does not receive the requested report.\n\nExample: a 12-row report downloads as zero rows.\n\n## Idea\n\nThe requester asks that email delivery make the complete CSV report available on the first download.\n\n## Acceptance Criteria\n\n- [ ] Given a report containing 12 rows, when email delivery is requested and the recipient downloads the report for the first time, the downloaded CSV contains all 12 report rows.\n\n---\n\n**Metadata changeset:** None proposed.\n\n**Evidence**\n- Reproduction: request email delivery for the 12-row report, then download it for the first time.\n- Observed: the downloaded report contains zero rows.\n- Expected: the first download contains all 12 report rows.\n- Provenance: the supplied gathering summary; environment and observation date were not provided.\n- No URL, attachment, or screenshot was supplied. The example is recorded evidence, not its own source.\n\n**Checks**\n- The acceptance criterion names its setup, action, and observable result, and can be verified before deployment.\n- No internal dispatcher name is needed to understand this body.\n- No detail was displaced, so no Reporter note is proposed.\n- No split or relations are proposed.\n- Roast dispositions: none supplied; no independent roast was performed.\n\n### Independent repair decisions\n\nThese are separate decisions, not additional requirements for the create ticket.\n\n**Branch A — definitions do not conform.**  \nThe reporter explicitly uses both “CSV export” and “deliveryMux” as feature names. Leave both undefined. The reporter’s usage of deliveryMux takes precedence even though it is also an internal name; its dual-use status does not require a definition.\n\n**Branch B — retain the definition if the term remains.**  \nUnattributed wording in the existing body does not establish requester usage. Therefore, retain **“deliveryMux (the outbound-delivery dispatcher)”** at first use if deliveryMux remains in the prose. Alternatively, omit the internal name and use plain words. Any implementation pointer must still be parenthetical and deletion-safe.\n\n### Draft approval\n\nNo tracker writes will be performed. The source footer remains absent until a reply resolves the gap.\n\nPick one:\n1. **Approve with a link, attachment, or reason** for the recorded example. **[recommended]**\n2. **Approve and proceed without** a source for the recorded example.\n3. Revise the draft.\n4. Decline the draft.\n",
@@ -23,10 +30,32 @@
     }
   },
   "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "34817576b4a951eec7727696c859855857da654cfdc46938b525fdbf92a652d4",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "c0c2580170b0013d4d1bb5f8e916b24fa5b37b9e2723110417dc9c31ffcfb227",
+      "baselineOutputSha": "ead64a2959735d1ba263638b075d84df7fdf6bb654ee96f3ccbb71baf7f28ee9",
+      "candidateOutputSha": "659edd1bb76e7f75a8fb63d7550b2d48a7d4fb9b6aee037492f61c73fc993183",
+      "facts": {
+        "reader": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "attribution": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        }
+      },
+      "feedback": "Neither fact moved on this case: both Before and After leave \"CSV export\" undefined in the body (the Context lines describe the feature as a capability rather than defining the term), keep deliveryMux only as an implementer pointer with the exact \"outbound-delivery dispatcher\" gloss, and in the repair section drop both definitions in Branch A on the explicit ground that requester usage wins for the dual-use name while retaining the definition in Branch B because unattributed body prose is not attribution. The Expected-to-move list predicted fails -> holds for domain-reader/reader and domain-reader/attribution, but the Before reply already held both, so this sample is a guard rather than evidence of a new move; do not cite it as an observed improvement. The After wording is safe for these facts; the only drift worth watching is that After's Idea line (\"Requester's sketch: fix CSV export email delivery so the first download is complete\") attributes a restated ask to the requester rather than a drafter's sketch, and the metadata changeset lost the `type: bug` proposal that Before offered — neither touches these two facts, but if you want After to keep everything Before kept, restore the drafter attribution on Idea and the type proposal while leaving the rule-6 definition handling exactly as it now reads.",
+      "wallMs": 13857,
+      "verdict": "unchanged"
+    },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "34817576b4a951eec7727696c859855857da654cfdc46938b525fdbf92a652d4",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "5e5d3dfc0b642d6f632cf7cf04a895a28aaa28b4761d1e7433eb56d06a27861c",
+      "intentSha": "c0c2580170b0013d4d1bb5f8e916b24fa5b37b9e2723110417dc9c31ffcfb227",
       "baselineOutputSha": "7e9081324cb05a0b13aabcd6bdc57e345667c87a2d45c1fea3a6827eef1e9d19",
       "candidateOutputSha": "24e0145ff28fa8e3836f670ae4d1421ab954cf1dd82079ff27200f4ce82e753c",
       "facts": {
@@ -41,10 +70,10 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "Neither fact moved: both outputs leave requester-used CSV export undefined and omit deliveryMux from the create body. After also preserves the independent repair distinction: reporter usage overrides deliveryMux’s internal-name status in A, while body-only usage does not establish attribution in B, requiring the dispatcher definition if the term remains. Keep these explicit distinctions while adding the requested gate and menu behavior; neither fact requires further wording changes.",
-      "wallMs": 5816,
+      "feedback": "Neither fact moved: both Before and After leave the requester-used term undefined in the body (Before: 'CSV reports can be delivered by email'; After: 'email delivery for CSV exports'), both drop deliveryMux from the create body rather than defining it, and both repair sections remove the definitions in Branch A on explicit reporter attribution with the dual-use point stated, and retain 'deliveryMux (the outbound-delivery dispatcher)' in Branch B on the ground that unattributed body-only wording is not requester usage. So the Expected 'fails -> holds' for domain-reader/reader and domain-reader/attribution is not supported by these replies; the baseline already held them and they should be treated as guards. The After wording is slightly tighter on the attribution reasoning ('Unattributed wording in the existing body does not establish requester usage'), which is a good phrasing to keep; also keep the explicit 'dual-use status does not require a definition' line in Branch A, and keep deliveryMux absent from the create body so the reader fact stays satisfied regardless of which repair branch is read. No change is needed to preserve these two facts while delivering the rest of the Change.",
+      "wallMs": 11258,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "2eb4429b4dd687432969f427f82d45d7840d7c63"
+  "repoSha": "03b700159d3e93209e89a28f2f3a032bd72cfdd9"
 }

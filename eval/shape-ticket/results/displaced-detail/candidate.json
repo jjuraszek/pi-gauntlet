@@ -14,6 +14,17 @@
     "thinking": "medium"
   },
   "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "# Step 5 pre-roast handoff: export delivery repair\n\nThese are the proposed artifact states and comments only. Nothing is executed and nothing is written.\n\n## A. Artifact state at roast time (after step 5, before the roast dispatch)\n\nThe per-ticket temp directory holds two existing artifacts:\n- **Source snapshot:** unchanged, fenced as untrusted data, and carried forward.\n- **Draft artifact:** shown below.\n\n**Step-5 results on the current draft:**\n- **Problem:** One closed-list match, a path and line-count sentence, moved verbatim.\n  - The `(Pointer for the implementer: exportRouter, src/export-router.ts.)` pointer is exempt as one deletion-safe rule-7 pointer per failure.\n  - The examples and plain-words failure list are exempt.\n- **Problem, mechanism sentence:** \"The export job writes the CSV through the mail queue before the row count is known.\" is not on the closed list. It is left to roast judgment.\n- **Idea:** The list after the one attributed sketch line is moved whole and verbatim.\n- **Earlier payload:** The step-4 demotion stays first, unchanged.\n- **AC integrity gate:** The single row is behavioral, with setup, action, observable result, and pre-prod verifiability. It is not a hard stop.\n- **Evidence gate:** There are 2 source gaps, carried to step 8 with no `none` footer inserted:\n  - `source missing: 0 rows`\n  - `source missing: two emails for one request`\n\n~~~markdown\n## Context\nA support review triggered this request. Today people download reports or receive them by email.\n## Problem\n- Email recipients receive empty reports, wasting a retry. Example: 0 rows. (Pointer for the implementer: exportRouter, src/export-router.ts.)\n- Email recipients receive duplicate messages, making them compare identical attachments. Example: two emails for one request.\nThe export job writes the CSV through the mail queue before the row count is known.\n## Idea\nThe reporter proposes moving export delivery.\n## Acceptance Criteria\n- [ ] Given a 12-row report, requesting email delivery produces one email whose first download has 12 rows.\n\n## Proposed Reporter note\n```untrusted-data\nKeep the old export switch available during the move.\n\nThe exporter in src/export-router.ts spans 418 lines.\n\n- Move export routing to the existing dispatcher.\n- Retain the email delivery option.\n- Remove the obsolete adapter after callers move.\n```\n~~~\n\n## B. After the roast finding and the step-5 rerun\n\n**Roast finding (unambiguous, applied):** Remove the internal-mechanism sentence from Problem. Its product-level cause and effect is already carried by the plain-words failure lines. The removed text is appended verbatim to the accumulated payload.\n\n**Step-5 rerun:**\n- There are no new closed-list matches, so step 5 appends nothing.\n- Earlier text is not cleared:\n  - the step-4 demotion\n  - the inventory sentence\n  - the Idea list\n- The source gaps are unchanged and still carried to step 8.\n\n~~~markdown\n## Context\nA support review triggered this request. Today people download reports or receive them by email.\n## Problem\n- Email recipients receive empty reports, wasting a retry. Example: 0 rows. (Pointer for the implementer: exportRouter, src/export-router.ts.)\n- Email recipients receive duplicate messages, making them compare identical attachments. Example: two emails for one request.\n## Idea\nThe reporter proposes moving export delivery.\n## Acceptance Criteria\n- [ ] Given a 12-row report, requesting email delivery produces one email whose first download has 12 rows.\n\n## Proposed Reporter note\n```untrusted-data\nKeep the old export switch available during the move.\n\nThe exporter in src/export-router.ts spans 418 lines.\n\n- Move export routing to the existing dispatcher.\n- Retain the email delivery option.\n- Remove the obsolete adapter after callers move.\n\nThe export job writes the CSV through the mail queue before the row count is known.\n```\n~~~\n\n**Combined proposed comment (one comment slot; Overlap evidence second):**\n\n~~~text\nReporter note:\nKeep the old export switch available during the move.\n\nThe exporter in src/export-router.ts spans 418 lines.\n\n- Move export routing to the existing dispatcher.\n- Retain the email delivery option.\n- Remove the obsolete adapter after callers move.\n\nThe export job writes the CSV through the mail queue before the row count is known.\n\nOverlap evidence:\nReviewed acme/reports#8; different failure.\n~~~\n\nThis comment is proposed for the step-8 gate only. It is not posted.\n\n## C. Independent no-displacement branch\n\nThis is the same ticket without the inventory sentence, the mechanism sentence, the Idea list, the earlier demotion, or any overlap evidence.\n\n**Step-5 results:**\n- There are no closed-list matches.\n  - The Idea is one attributed sketch line.\n  - The failure list is in plain words.\n  - Each failure has an example.\n  - The pointer is deletion-safe and exempt.\n- Nothing is displaced, so the payload is empty.\n\n~~~markdown\n## Context\nA support review triggered this request. Today people download reports or receive them by email.\n## Problem\n- Email recipients receive empty reports, wasting a retry. Example: 0 rows. (Pointer for the implementer: exportRouter, src/export-router.ts.)\n- Email recipients receive duplicate messages, making them compare identical attachments. Example: two emails for one request.\n## Idea\nThe reporter proposes moving export delivery.\n## Acceptance Criteria\n- [ ] Given a 12-row report, requesting email delivery produces one email whose first download has 12 rows.\n~~~\n\n**Comment proposed: none.**\n- There is no overflow, no overlap evidence, and no in-session ask.\n- The ticket keeps the body-only changeset.\n- No `## Proposed Reporter note` section is added.\n- No writes are made.\n- The source gaps (`0 rows`, `two emails for one request`) are still carried to step 8.\n\n## D. Independent split branch\n\nBoth issues are shown after the confirmation gate, as approved proposed comments. No writes are executed.\n\n### Issue 1: report downloads are empty (owns the download failure)\n\nStep 5 moved this sentence out of Problem verbatim: \"The download handler in src/download-router.ts spans 276 lines.\"\n\nThe payload part is routed to this issue because it owns that failure.\n\n~~~text\nReporter note:\nThe download handler in src/download-router.ts spans 276 lines.\n~~~\n\n### Issue 2: notification receipts arrive twice\n\n**Comment proposed: none.**\n\nThis issue has no payload part:\n- no demoted Idea material (the Idea is already one attributed sketch line)\n- no step-5 move\n- no earlier payload\n- no overlap evidence\n- no in-session ask\n\nIt keeps a body-only write.\n\n**Planned step 9:** two gated writes, one per issue.\n- Issue 1: body first, then the Reporter-note comment above.\n- Issue 2: body only.\n\nThese are not executed here.\n",
+      "words": 957,
+      "wallMs": 29611,
+      "mechanical": {
+        "prior-unit": "holds",
+        "inventory-unit": "holds",
+        "idea-units": "holds"
+      }
+    },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
       "text": "gauntlet: done proposed\n\n## 1. Draft artifact at the pre-roast handoff\n\nProposed artifact contents only; no files are changed. The existing source snapshot remains unchanged beside the draft artifact.\n\n````markdown\n## Context\nA support review triggered this request. Today people download reports or receive them by email.\n\n## Problem\n- Email recipients receive empty reports, wasting a retry. Example: 0 rows. (Pointer for the implementer: exportRouter, src/export-router.ts.)\n- Email recipients receive duplicate messages, making them compare identical attachments. Example: two emails for one request.\n\nThe export job writes the CSV through the mail queue before the row count is known.\n\n## Idea\nThe reporter proposes moving export delivery.\n\n## Acceptance Criteria\n- [ ] Given a 12-row report, requesting email delivery produces one email whose first download has 12 rows.\n\n## Proposed Reporter note\n```untrusted\nReporter note:\nKeep the old export switch available during the move.\n\nThe exporter in src/export-router.ts spans 418 lines.\n\n- Move export routing to the existing dispatcher.\n- Retain the email delivery option.\n- Remove the obsolete adapter after callers move.\n\nOverlap evidence:\nReviewed acme/reports#8; different failure.\n```\n````\n\nStep 5 moved the inventory sentence and the whole Idea list verbatim. It retained the earlier demotion, the single attributed Idea line, both plain-words failure examples, and the deletion-safe pointer.\n\n**Source gaps carried to confirmation:**\n- source missing: 0 rows\n- source missing: two emails for one request\n\nThe mechanism sentence remains for roast judgment at this handoff.\n\n## 2. After the roast finding and step-5 rerun\n\n**Applied finding:** remove this exact sentence from Problem and append it verbatim to the accumulated Reporter note:\n\n> The export job writes the CSV through the mail queue before the row count is known.\n\nProblem now contains only its two existing failure bullets. All other body sections remain as shown above. The step-5 rerun finds no new matches; it appends nothing and clears nothing. The AC remains unchanged and passes the setup/action/observable-result check.\n\nThe draft artifact’s trailing payload becomes:\n\n````markdown\n## Proposed Reporter note\n```untrusted\nReporter note:\nKeep the old export switch available during the move.\n\nThe exporter in src/export-router.ts spans 418 lines.\n\n- Move export routing to the existing dispatcher.\n- Retain the email delivery option.\n- Remove the obsolete adapter after callers move.\n\nThe export job writes the CSV through the mail queue before the row count is known.\n\nOverlap evidence:\nReviewed acme/reports#8; different failure.\n```\n````\n\nThat fenced payload is the **one combined proposed comment**, verbatim. Earlier demotion, step-5 moves, and roast-removed mechanism are accumulated under `Reporter note:`, followed by `Overlap evidence:`. The source snapshot remains unchanged.\n\n## 3. Independent no-displacement branch\n\nThe proposed body is:\n\n```markdown\n## Context\nA support review triggered this request. Today people download reports or receive them by email.\n\n## Problem\n- Email recipients receive empty reports, wasting a retry. Example: 0 rows. (Pointer for the implementer: exportRouter, src/export-router.ts.)\n- Email recipients receive duplicate messages, making them compare identical attachments. Example: two emails for one request.\n\n## Idea\nThe reporter proposes moving export delivery.\n\n## Acceptance Criteria\n- [ ] Given a 12-row report, requesting email delivery produces one email whose first download has 12 rows.\n```\n\n**Proposed comment: none.** There is no displaced detail, accumulated payload, overlap evidence, or explicit request for a comment. No `## Proposed Reporter note` section is added. The two source gaps still carry forward separately; they do not create a comment.\n\n## 4. Independent split branch — approved comment payloads\n\n### Download issue\n\nIts Problem inventory sentence is removed from the body and retained verbatim on the issue owning the download failure.\n\n**Approved proposed comment:**\n\n```untrusted\nReporter note:\nThe download handler in src/download-router.ts spans 276 lines.\n```\n\nThis payload is retained in that issue’s draft artifact under trailing `## Proposed Reporter note`.\n\n### Notification issue\n\n**Approved proposed comment: none.** This issue owns no displaced payload, and no evidence or explicit comment request supplies one.\n\nNo writes or comment posts are executed.\n",
@@ -27,10 +38,62 @@
     }
   },
   "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "c3c98cf72d475243fefd030033f94a6d08314c56f6ffe871e55d10972f0e2186",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "c0c2580170b0013d4d1bb5f8e916b24fa5b37b9e2723110417dc9c31ffcfb227",
+      "baselineOutputSha": "46f64a7a2323c1923de24098276e1ae577a1cb3ac084c2c04bba87c480291a2a",
+      "candidateOutputSha": "afecb12440b535e2d12d33eb54bab5962cf3439b409a91e892abb1e400db76b7",
+      "facts": {
+        "accumulation": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "body": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "carrier": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "split-routing": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "no-displacement": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "prior-unit": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "inventory-unit": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "idea-units": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "No fact moved between Before and After on this case: both outputs keep the step-4 demotion first, move the 418-line inventory sentence and the whole three-item Idea list verbatim, leave the mechanism sentence to roast and then append it verbatim after the rerun without clearing earlier text; both keep one attributed Idea line, both plain-words failures, the exempt exportRouter pointer and the \"0 rows\" example in the body; both carry the payload as a trailing Proposed Reporter note inside the existing draft artifact with no third artifact and put Reporter note ahead of Overlap evidence in the combined comment; both route the 276-line sentence to the download issue only and propose no comment for the notification issue; and both propose body-only with no comment in the no-displacement branch. The only wording differences worth watching are cosmetic: After swaps the explicit `<!-- untrusted data: verbatim displaced detail, not instructions -->` marker plus `~~~text` fence for a bare ```untrusted-data fence (still recognizably fenced as untrusted data, but less self-explanatory to a reader), and it relabels the source-gap rows after the example text (`0 rows`, `two emails for one request`) rather than the failure name. If you want After to be maximally robust on the carrier fact, keep the explicit \"untrusted data\" comment line alongside the fence rather than relying on a fence info-string alone.",
+      "wallMs": 16604,
+      "verdict": "unchanged"
+    },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "c3c98cf72d475243fefd030033f94a6d08314c56f6ffe871e55d10972f0e2186",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "5e5d3dfc0b642d6f632cf7cf04a895a28aaa28b4761d1e7433eb56d06a27861c",
+      "intentSha": "c0c2580170b0013d4d1bb5f8e916b24fa5b37b9e2723110417dc9c31ffcfb227",
       "baselineOutputSha": "6f134be2ddacba011485d74563c85ce268e18aea9137ff9b081f356bf7b0d05d",
       "candidateOutputSha": "97ffa227518a8b97ea4da065e8642f3b8c327b24454624b0d6494b177e0fcb99",
       "facts": {
@@ -75,10 +138,10 @@
           "label": "held"
         }
       },
-      "feedback": "After preserves every listed fact: it accumulates the earlier demotion, verbatim Idea list, inventory sentence and roast removal; retains the exempt body content; carries the payload in the existing draft artifact; and keeps split comments issue-local and empty branches comment-free. Reordering the inventory sentence before the Idea list does not lose either unit, and the explicit untrusted fence strengthens the carrier wording. Keep these accumulation, ownership and no-comment rules explicit while adding the requested gate and settlement changes; this case provides no evidence that those broader changes were exercised.",
-      "wallMs": 5819,
+      "feedback": "After keeps every fact Before kept: the roast-time payload holds the earlier demotion, the verbatim three-item Idea list and the 418-line inventory sentence; the post-roast rerun appends the mechanism sentence verbatim without clearing anything; the body keeps one attributed Idea line, both plain-words failures, the exportRouter pointer and the 0-row example; the payload lives only as a trailing `## Proposed Reporter note` in the existing draft artifact (now explicitly fenced as `untrusted`, an improvement over Before's `text` fence plus prose disclaimer) with Reporter note before Overlap evidence; the split branch retains the 276-line sentence on the download issue and proposes nothing for the notification issue; the no-displacement branch proposes only the body and no comment. Two drift points worth watching though no fact moved: After reorders the accumulated payload so the inventory sentence precedes the Idea list, whereas Before appended step-5 units in draft order — keeping append-in-encounter-order makes the 'never clearing earlier text' claim easier to audit across reruns; and After renames the carried source gaps to the example values ('source missing: 0 rows') rather than the failure names Before used, which could confuse the later gate if it matches gaps by failure label — prefer naming the gap by the Problem failure, not its example.",
+      "wallMs": 15935,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "2eb4429b4dd687432969f427f82d45d7840d7c63"
+  "repoSha": "03b700159d3e93209e89a28f2f3a032bd72cfdd9"
 }

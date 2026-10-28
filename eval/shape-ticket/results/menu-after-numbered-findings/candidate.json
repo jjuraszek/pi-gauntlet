@@ -14,6 +14,13 @@
     "thinking": "medium"
   },
   "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "gauntlet: gate=gatekeep-issue/step-8\n\n## Checkpoint 1 - Confirmation gate (acme/records, create mode, proposed split)\n\n**Split proposal:** two independent new issues, one per requested outcome. Neither depends on the other. Select the issue to create; the other is declined.\n\n### Issue 1 of 2\n\nAudit: clean, no findings\n\n**Title** (new): Retry failed imports\n\n**Body** (as-new):\n\n```markdown\n### Context\nOperators review failed imports in the run list.\n### Problem\nOperators cannot retry a failed import; they must submit the input again.\n### Idea\nThe reporter proposes a retry action on failed runs.\n### Acceptance Criteria\n- [ ] Given a failed import in the run list, when an operator requests retry, a new attempt for that import appears in the run list.\n```\n\n**Metadata changeset:**\n- `assignee: empty -> empty -- nobody named`\n- All other fields are unchanged or unset because no taxonomy was supplied.\n\n**Evidence:**\n- The supplied capability description says failed runs have no retry action.\n\n**Source gaps:** none\n\n**Roast dispositions:** applied: none; surfaced-ambiguous: none\n\n**Split justification:**\n\n    root cause: no retry surface exists for failed imports\n    outcome: operators can retry a failed import from the run list\n    axis: Different actor or user journey\n\n**Proposed comment:** none. **Relations:** none.\n\n### Issue 2 of 2\n\nAudit: clean, no findings\n\n**Title** (new): Purge expired records\n\n**Body** (as-new):\n\n```markdown\n### Context\nCompliance reviewers inspect records with recorded expiry dates.\n### Problem\nExpired records remain visible after their expiry date.\n### Idea\nThe reporter proposes purging records when their expiry date passes.\n### Acceptance Criteria\n- [ ] Given a record whose expiry date is before the current date, when expiry processing runs, a compliance review query no longer returns that record.\n```\n\n**Metadata changeset:**\n- `assignee: empty -> empty -- nobody named`\n- All other fields are unchanged or unset because no taxonomy was supplied.\n\n**Evidence:**\n- Observed: a supplied query returns an expired record after expiry processing.\n- Expected: the query returns no record.\n\n**Source gaps:** none\n\n**Roast dispositions:** applied: none; surfaced-ambiguous: none\n\n**Split justification:**\n\n    root cause: expired records are never purged\n    outcome: compliance reviewers no longer see expired records\n    axis: Different data domain or lifecycle\n\n**Proposed comment:** none. **Relations:** none.\n\n### Concerns\n\n1. Retry remains operator-triggered.\n2. Expiry uses the recorded date.\n3. Neither issue depends on the other.\n\nOne approval covers the exact title, body and metadata of the selected issue. Nothing is written until you reply.\n\nPick one:\n1. Approve issue 1 - Retry failed imports; decline issue 2\n2. Approve issue 2 - Purge expired records; decline issue 1\n\n---\n\n## Checkpoint 2 - Replay of legacy selection (independent transcript)\n\nTaking 4 as option 1 - Approve issue 1 - Retry failed imports; decline issue 2.\n\nThe legacy menu sat directly under the three-item concerns list, with only a blank line between them. Under CommonMark the two options therefore displayed as 4 and 5. The approved selection is option 1, which means \"Retry failed imports\" is approved and \"Purge expired records\" is declined.\n\n**Step 9 - Write (simulated, no real tracker call):**\n- **Pre-write re-fetch:** none was needed. This is a plain create with no underlying existing ticket, so there is nothing to revalidate.\n- **Issue 1, \"Retry failed imports\":** creation is simulated in acme/records with the exact approved title, body and metadata (assignee empty). No comment and no relations are attached.\n- **Issue 2, \"Purge expired records\":** not created, because it was declined.\n\n**Batch result:**\n- Retry failed imports: written\n- Purge expired records: declined\n",
+      "words": 532,
+      "wallMs": 21886,
+      "mechanical": {}
+    },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
       "text": "gauntlet: gate=gauntlet/confirmation-gate\n\n## Checkpoint 1 — Confirmation gate\n\nBoth issues are plain creates in `acme/records`. The payloads below are independent; each supported selection approves one issue and declines the other. Any creation is simulated.\n\n### Issue 1\n\n**Audit:** Metadata audit is clean. No overlap candidates or underlying existing tickets. The behavioral AC passes. No UI evidence is required.\n\n**Title:** new → **Retry failed imports**\n\n**Body — as-new:**\n```markdown\n### Context\nOperators review failed imports in the run list.\n### Problem\nOperators cannot retry a failed import; they must submit the input again.\n### Idea\nThe reporter proposes a retry action on failed runs.\n### Acceptance Criteria\n- [ ] Given a failed import in the run list, when an operator requests retry, a new attempt for that import appears in the run list.\n```\n\n**Metadata changeset:**\n- assignee: empty → empty -- nobody named.\n- All other fields remain unchanged/unset because no taxonomy was supplied.\n\n**Evidence:**\n- Supplied capability description says failed runs have no retry action.\n- No links, attachments, or screenshots were supplied.\n\n**Roast dispositions:** No edits applied; no ambiguity surfaced.\n\n**Split justification:**\n```text\nroot cause: no retry surface exists for failed imports\noutcome: operators can retry a failed import from the run list\naxis: Different actor or user journey\n```\n\n**Proposed comment:** None.  \n**Supported relations:** None.\n\n### Issue 2\n\n**Audit:** Metadata audit is clean. No overlap candidates or underlying existing tickets. The behavioral AC passes. No UI evidence is required.\n\n**Title:** new → **Purge expired records**\n\n**Body — as-new:**\n```markdown\n### Context\nCompliance reviewers inspect records with recorded expiry dates.\n### Problem\nExpired records remain visible after their expiry date.\n### Idea\nThe reporter proposes purging records when their expiry date passes.\n### Acceptance Criteria\n- [ ] Given a record whose expiry date is before the current date, when expiry processing runs, a compliance review query no longer returns that record.\n```\n\n**Metadata changeset:**\n- assignee: empty → empty -- nobody named.\n- All other fields remain unchanged/unset because no taxonomy was supplied.\n\n**Evidence:**\n- Supplied observed query returns an expired record after expiry processing; expected result is no record.\n- No links, attachments, or screenshots were supplied.\n\n**Roast dispositions:** No edits applied; no ambiguity surfaced.\n\n**Split justification:**\n```text\nroot cause: expired records are never purged\noutcome: compliance reviewers no longer see expired records\naxis: Different data domain or lifecycle\n```\n\n**Proposed comment:** None.  \n**Supported relations:** None.\n\n1. Retry remains operator-triggered.\n2. Expiry uses the recorded date.\n3. Neither issue depends on the other.\n\nPick one:\n1. Approve issue 1 - Retry failed imports; decline issue 2\n2. Approve issue 2 - Purge expired records; decline issue 1\n\nCheckpoint 1 awaits consent; no simulated creation has occurred in that checkpoint.\n\n---\n\n## Checkpoint 2 — Independent legacy replay\n\nTaking 4 as option 1 - Approve issue 1 - Retry failed imports; decline issue 2.\n\nIn this independent simulation, **Retry failed imports** is created with the exact displayed title, body, and metadata; **Purge expired records** is not created. No real write is performed.\n\nSimulated final status:\n\nRetry failed imports: written  \nPurge expired records: declined\n",
@@ -23,10 +30,32 @@
     }
   },
   "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "e7bdce43e0f9e0d25a0b3c872cd3b86124be2acc9b38ca9b2adaed7ea7fdd4e6",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "c0c2580170b0013d4d1bb5f8e916b24fa5b37b9e2723110417dc9c31ffcfb227",
+      "baselineOutputSha": "194f8f520980981dd245e1c313f273105d57cc24c1dbb8eafa56c517beff4aee",
+      "candidateOutputSha": "984b306ac5343380bc42704928f0ac5cacb1c89ff607949951722b167f51ccc8",
+      "facts": {
+        "layout": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "mapped-pick": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        }
+      },
+      "feedback": "Neither fact moved. In checkpoint 1 both outputs break the three-item concerns list away from the generated two-option menu with intervening prose (Before uses the \"Approving an option...\" paragraph plus \"Pick one:\"; After adds a \"### Concerns\" heading and the \"One approval covers...\" paragraph before \"Pick one:\"), so the options render as 1. and 2. rather than continuing the concerns numbering. In checkpoint 2 both open with the single sentence \"Taking 4 as option 1 - Approve issue 1 - Retry failed imports; decline issue 2.\" before any simulated write, then simulate creating only issue 1 and mark issue 2 declined, without acting on raw 4 or re-asking. After's extra line explaining that CommonMark displayed the legacy options as 4 and 5 is harmless and actually makes the mapping clearer; keep the explicit resolved-selection sentence first and the prose separator before the generated menu as written.",
+      "wallMs": 12942,
+      "verdict": "unchanged"
+    },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "e7bdce43e0f9e0d25a0b3c872cd3b86124be2acc9b38ca9b2adaed7ea7fdd4e6",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "5e5d3dfc0b642d6f632cf7cf04a895a28aaa28b4761d1e7433eb56d06a27861c",
+      "intentSha": "c0c2580170b0013d4d1bb5f8e916b24fa5b37b9e2723110417dc9c31ffcfb227",
       "baselineOutputSha": "2603de5354bb0082435b51a152f018cffaf833a33df74775149e14bc42cd0e69",
       "candidateOutputSha": "0c239dc4c79b276d8299242dcf4c293e8fb01e0a4b25791dcf6187d9c043e99d",
       "facts": {
@@ -41,10 +70,10 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "Neither fact moved: both outputs separate the numbered concerns from the two approval options with “Pick one:”, and both explicitly resolve legacy reply 4 to option 1 before simulating creation of only issue 1. Retain that prose separator and the explicit approve-issue-1/decline-issue-2 sentence; adding a blank line after “Pick one:” would make the intended Markdown layout more robust. These behaviors already hold in Before, so this case shows preservation rather than the expected failures becoming holds.",
-      "wallMs": 7337,
+      "feedback": "Neither fact moved: both outputs place the three concerns as an ordered list, then a standalone \"Pick one:\" prose line, then exactly two options rendering as 1. and 2., and both replays resolve reply 4 to option 1 in one sentence (approve issue 1 - Retry failed imports; decline issue 2) before simulating creation of only issue 1 with no re-ask. The only visible difference in After is that it dropped the \"**Concerns**\" label, so the numbered concerns now follow the Issue 2 relations line without an introducing heading; the \"Pick one:\" separator still keeps the two ordered lists from adjoining, so layout survives, but it is now resting on a single prose line. To keep the margin the Before output had while still delivering the shared menu contract, keep a labelled concerns block (e.g. \"**Concerns**\" or \"Concerns before you choose:\") and a prose or horizontal-rule separator before the generated two-row menu, and retain the one-sentence resolved-selection echo in the legacy replay exactly as both outputs already do.",
+      "wallMs": 15239,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "2eb4429b4dd687432969f427f82d45d7840d7c63"
+  "repoSha": "03b700159d3e93209e89a28f2f3a032bd72cfdd9"
 }
