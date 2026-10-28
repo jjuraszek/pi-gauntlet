@@ -1,5 +1,13 @@
 # Changelog
 
+## Unreleased
+
+### Added
+
+- Spec gate option 6 `approve, hand off as draft PR`: approves the spec's content only, writes `**Engine:** deferred` under `**Amend-grant:** none`, pushes the branch, opens a draft PR carrying just the spec, and ends the flow without planning. The local branch is kept; a gauntlet-owned worktree is removed, a host-owned checkout is reported. Row 6 is withheld on PR subjects and when the diff against the default branch is not spec-only.
+- `brainstorming #N` on an open PR whose diff is one added spec carrying `**Engine:** deferred` plus banner-only predecessor edits re-presents the gate with options 1/2/4/5 (3 only with a pinned council audit), skipping gather, questionary, scout, and council; approval writes `**Engine:**`, `**Amend-grant:**`, and `**PR:** <owner/repo#N>` as a new commit and chains as today. A spec-only diff without the marker runs the normal brainstorm path with the carried spec as the draft; every other PR keeps the rework path.
+- Finishing a spec with `**PR:**` and no `## Rework record` offers `Push to PR #N and mark it ready for review` and `Push to PR #N, keep it a draft` in place of the create rows (non-force push, no body rewrite; row 1 runs `gh pr ready`), withheld when origin's branch head moved. A spec still marked `**Engine:** deferred` stops finishing and `gauntlet-resume` with `spec approved for handoff only - run brainstorming #N`.
+
 ## v7.38.1 - 2026-10-28
 
 ### Changed
