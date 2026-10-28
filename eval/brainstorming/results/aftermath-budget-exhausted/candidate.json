@@ -1,0 +1,100 @@
+{
+  "sample": "aftermath-budget-exhausted",
+  "arm": "candidate",
+  "skillSha": "0b4805feb26a9935553523a0e3543600354b256cd037c8b9c448d67c756382be",
+  "inputSha": "b13d2c20bcdd078a8ee7a9ad57c180adf7ab6fd44142db263963bf6ac0aefae9",
+  "kind": "text",
+  "assembly": "headed",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "# Narrated read and stage actions\n\nThese are narrated intended actions over the case's fixed observations. No tool calls were made. I quote only rule text that already appears in this session. I do not reconstruct writing-plans step 6, so its exit is cited by name only.\n\n## Trace A: two items already applied, third outcome arrives\n\n1. **Read the amendment surface (intended).** Use `read` on `skills/brainstorming/reference/amendment-surface.md` at its absolute path, never a shell command.\n   - Section 5 says: \"Before the aftermath, `read` this section again; never run it from memory.\"\n   - The case does not mark this file unreadable, so the narration continues. If it were unreadable, this would be a blocking stop with no improvised grammar.\n2. **Confirm state.**\n   - Engine: waves.\n   - Worktree: `/tmp/report-worktree`.\n   - Spec: `doc/specs/report-runner.md`.\n   - Plan: `doc/plans/report-runner.md`.\n   - No ledger, so the ledger bypass does not apply.\n   - No batch commit yet.\n   - No dirty paths, so no restore step runs.\n3. **Read the return point.**\n   - The writer returned PLAN WRITTEN.\n   - The parent `plan_check` returned a second identical FAIL. This came after writing-plans' own first `Findings:` retry.\n   - Table row \"Second identical `plan_check` FAIL\" sends this to the attribution check.\n4. **Attribution check.**\n   - The quoted text `Tests: \\`node eval/run.mjs report-runner summary\\`` sits in an owning task anchored to this batch's `Amend:` Tests section.\n   - That text was changed by this batch, compared against `git -C \"/tmp/report-worktree\" show HEAD:doc/plans/report-runner.md`.\n   - It is attributable and amend-class, not redraw-class.\n5. **Apply the count limit.**\n   - Rule: \"Apply at most two aftermath items per batch. Send a third human-facing outcome … to step 6 as written, listing the batch's retry items and evidence.\"\n   - This batch has already applied `replay` and `records`, so this is the third outcome.\n   - Its evidence differs from both applied items. The stop comes from the two-item cap, not from repetition.\n6. **Grant is not consulted.**\n   - The `**Amend-grant:** auto-apply amends` value is re-read only \"before applying.\"\n   - Nothing is being applied, so the active grant cannot lift the cap.\n   - Result: no third item, no spec edit, no `amended the spec:` line, no plan-writer re-dispatch, and no second parent check.\n7. **Route to the existing step-6 exit.**\n   - Exit through writing-plans `## Author the plan` step 6 as written. If its text were needed, it would be loaded with `read` at its absolute path under `skills/`.\n   - No PASS occurred, so the finalize path does not run: no plan read, no `plan_tracker`, no `phase_tracker`, and no batch commit added by this section.\n   - The step-6 report carries this batch's retry inventory:\n     - `replay` | Move replay to verification | Tests | granted | evidence:\n       ```\n       FAIL (1 findings)\n       command-contract @ line 24: Tests segment requires a Test: path token\n       > Tests: `node eval/run.mjs report-runner audit`\n       ```\n     - `records` | Correct records test path | Tests | granted | evidence:\n       ```\n       - Task 2: `node --test tests/record-old.test.mjs` fails on 3a8fad8c; exit 1; test path not found\n       ```\n     - Unapplied third outcome, handed to step 6:\n       ```\n       FAIL (1 findings)\n       command-contract @ line 48: Tests segment requires a Test: path token\n       > Tests: `node eval/run.mjs report-runner summary`\n       ```\n\n## Trace B: repeated evidence below the limit (independent of Trace A)\n\n1. **Read the amendment surface (intended).** Use `read` on `skills/brainstorming/reference/amendment-surface.md` at its absolute path, per section 5's re-read rule.\n   - The case does not mark it unreadable. If it were, this would be a blocking stop.\n2. **Confirm state.** Same setup as Trace A: waves, same paths, no ledger, no batch commit, no dirty paths.\n   - This batch has exactly one applied item, `replay`, and its `Amend:` re-dispatch already ran.\n   - Nothing carries over from Trace A.\n3. **Read the return point.**\n   - The writer returned PLAN WRITTEN.\n   - The parent `plan_check` returned a second identical FAIL after writing-plans' first `Findings:` retry.\n   - This enters the attribution check.\n4. **Attribution check.** The quoted line-24 Tests text is batch-changed text under an owning task anchored to the `Amend:` Tests section. It is attributable and amend-class.\n5. **Apply the repetition rule.**\n   - The evidence matches `replay`'s recorded evidence exactly.\n   - Rule: send \"evidence repeating an already-applied item's evidence, to step 6 as written.\"\n   - This test is separate from the two-item cap. One applied item leaves headroom under the cap, but a repeat means the earlier correction did not fix the defect, so a retry would loop.\n6. **Grant is not consulted.** The grant re-read happens only before applying, and the repeat is routed away before that point. Result: no new item, no spec edit, no plan-writer re-dispatch.\n7. **Route to the existing step-6 exit.**\n   - Exit through writing-plans step 6 as written.\n   - Finalize does not run, since there was no PASS. No tracker calls are made and no commit is added here.\n   - The inventory lists only this trace's applied item:\n     - `replay` | Move replay to verification | Tests | granted | evidence:\n       ```\n       FAIL (1 findings)\n       command-contract @ line 24: Tests segment requires a Test: path token\n       > Tests: `node eval/run.mjs report-runner audit`\n       ```\n     - The repeated FAIL was returned again, identical to the evidence above, and handed to step 6 as the unresolved outcome.\n",
+      "words": 793,
+      "wallMs": 31043,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "## Trace A — third outcome after two applied items\n\n1. **Required reference read:** Re-read `skills/brainstorming/reference/amendment-surface.md`, section 5, at its resolved absolute path before aftermath handling. This is a narrated read requirement, not a live call.\n\n2. **Inspect the plan and attribution evidence:** The fixed observations establish that the second identical parent-check failure follows writing-plans’ own first Findings retry. It is amend-class and attributable to changed `Tests:` text in a task anchored to this batch’s `Amend: Tests` section; its baseline command differs from HEAD. No restoration is needed.\n\n3. **Re-read the grant:** The supplied spec observation is `**Amend-grant:** auto-apply amends`. That grant does not authorize exceeding the aftermath retry limit.\n\n4. **Take the existing step-6 exit:** This is the batch’s **third human-facing aftermath outcome**, after two applied retry items. Return it to writing-plans’ existing step-6 exit without applying a third item or dispatching another writer. The current evidence is:\n\n   ```text\n   FAIL (1 findings)\n   command-contract @ line 48: Tests segment requires a Test: path token\n   > Tests: `node eval/run.mjs report-runner summary`\n   ```\n\n5. **Include this trace’s already-applied retry inventory:**\n\n   - **replay — Move replay to verification**; section: Tests; recorded: granted.\n\n     ```text\n     FAIL (1 findings)\n     command-contract @ line 24: Tests segment requires a Test: path token\n     > Tests: `node eval/run.mjs report-runner audit`\n     ```\n\n   - **records — Correct records test path**; section: Tests; recorded: granted.\n\n     ```text\n     - Task 2: `node --test tests/record-old.test.mjs` fails on 3a8fad8c; exit 1; test path not found\n     ```\n\n   No further apply, writer re-dispatch, or batch commit is narrated.\n\n## Trace B — repeated evidence after one applied item\n\n1. **Required reference read:** Independently re-read `skills/brainstorming/reference/amendment-surface.md`, section 5, at its resolved absolute path before aftermath handling. Trace A’s item count and evidence history do not carry over.\n\n2. **Inspect the plan and attribution evidence:** The fixed observations establish that the second identical parent-check failure follows writing-plans’ own first Findings retry. It is amend-class and attributable to the batch’s changed `Tests:` text, but its evidence exactly repeats the evidence of this trace’s already-applied `replay` item. No restoration is needed.\n\n3. **Re-read the grant:** The supplied spec observation is `**Amend-grant:** auto-apply amends`. The grant does not override the repeated-evidence stop.\n\n4. **Take the existing step-6 exit:** Stop aftermath retries with **only one applied item**. The two-item maximum is a ceiling, not permission to retry evidence that has already produced an applied correction. Return the repeated finding to writing-plans’ existing step-6 exit without another apply or writer re-dispatch.\n\n5. **Include only this trace’s already-applied retry inventory:**\n\n   - **replay — Move replay to verification**; section: Tests; recorded: granted. Its evidence, repeated verbatim by the current failure, is:\n\n     ```text\n     FAIL (1 findings)\n     command-contract @ line 24: Tests segment requires a Test: path token\n     > Tests: `node eval/run.mjs report-runner audit`\n     ```\n\n   No second item, further writer re-dispatch, or batch commit is narrated.\n",
+      "words": 445,
+      "wallMs": 26147,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "8e88168e24953beea5f824921f6cf8f7ec22c93ec3b49d452a898f8af19c02ed",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "77fc319c1a7f5ca33d327d6147e00faa745448af02f7c92a24184c09e061fb80",
+      "baselineOutputSha": "4d5ee9dba0c838af01492969bd5d6f6da3a2c447ee1aa22c6e339518aa917dd3",
+      "candidateOutputSha": "f3a392131890aa92fbfa5b251f07220796b30bdd95f370ff5010bff0635468b9",
+      "facts": {
+        "stop": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "evidence": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "repeat-stop": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "repeat-evidence": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        }
+      },
+      "feedback": "After keeps all four facts: Trace A routes the line-48 summary FAIL to the existing step-6 exit, quotes it verbatim as an unapplied third outcome, lists replay and records with their distinct verbatim evidence, and performs no third apply or writer re-dispatch; Trace B stops on the repetition rule with one applied item, quotes the line-24 audit FAIL verbatim, states that nothing carries over from Trace A, and lists only its own replay item. The one soft spot is Trace B step 7, where the second identical FAIL is described as identical to the evidence above rather than re-quoted as its own block; a stricter reader of the repeat-stop fact could want the observed second FAIL quoted on its own, as Before did in its step 5, so the wording would be safer if it required the parent check observation to be quoted verbatim before the inventory and then marked as repeating the applied item's evidence. Everything else, including the cap-not-grant reasoning in A and the ceiling-not-quota reasoning in B, is preserved while delivering the Change.",
+      "wallMs": 27889,
+      "verdict": "unchanged"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "8e88168e24953beea5f824921f6cf8f7ec22c93ec3b49d452a898f8af19c02ed",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "77fc319c1a7f5ca33d327d6147e00faa745448af02f7c92a24184c09e061fb80",
+      "baselineOutputSha": "f66868e64a04ea3ed8f53a93cf411c02c54fdda22aeff7c80f33ad06a2e7ab65",
+      "candidateOutputSha": "419daa619ee796ce4841a7a578402ea11ff8111fd69372313e07ef5c23b939dd",
+      "facts": {
+        "stop": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "evidence": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "repeat-stop": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "repeat-evidence": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        }
+      },
+      "feedback": "After keeps every fact Before kept: Trace A quotes the summary FAIL (line 48) verbatim under the step-6 exit, lists both applied items (replay/audit FAIL and records/Task 2 record-old row with exit 1 and test path not found) as the inventory without counting the third outcome, and narrates no third apply, writer re-dispatch, or commit; Trace B stops at one applied item on repeated evidence, explains the two-item maximum as a ceiling, lists only the replay item with the line-24 audit evidence, and keeps A's history out. The one spot that got weaker is Trace B step 4: Before quoted the current repeated FAIL as its own block at the exit step, whereas After only quotes the text once in step 5 as the replay item's evidence, labeled 'repeated verbatim by the current failure'. That still reads as a verbatim quote of the audit FAIL, so repeat-stop holds, but a stricter reader could argue the human-facing stop report lacks its own quoted finding. To keep the margin, restore a verbatim block of the current failure directly under 'Take the existing step-6 exit' in Trace B (as Trace A already does) and then state in the inventory that the applied replay item's evidence is identical; that preserves the repeated-evidence stop and single-item inventory the Change asks for while leaving the exit's quoted finding unambiguous.",
+      "wallMs": 14478,
+      "verdict": "unchanged"
+    }
+  },
+  "repoSha": "1def5168f916248bad836129aa6e4502d421c2d3"
+}

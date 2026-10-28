@@ -1,7 +1,7 @@
 {
   "sample": "same-session-redraw-reuses-ticket",
   "arm": "candidate",
-  "skillSha": "1344d9b3d03badf89c600eb7719b78db84d66ec38fcb37bdfe3bfc890ccfaac6",
+  "skillSha": "c0fd84eb5f848e310345817cc8beb319d8c3a800ca7d34db110c72f59cbdc3e7",
   "inputSha": "fc842b0aad3bf89f7af2641b8423c5b322fb582c5a1e9f29b6c0bd4d39b2f701",
   "kind": "text",
   "assembly": "headed",
@@ -17,16 +17,16 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "# Narrated step-4 actions after a same-session redraw\n\n## Trace: step-4 entry\n\n1. **Stage action: resume at checklist step 4.**\n   - The redraw procedure returns from the spec approval gate to step 4. Steps 2 and 3 are skipped.\n   - The approved spec serves as the draft. Its `## Problem` `Framing:` line is context only, not evidence gathered during step 3.\n\n2. **Read decision: `reference/ticket-acceptance.md` is not re-read.**\n   - Step 4 reads that file only if it is not already in context this session.\n   - Observed: it was read successfully at step 3 of this session, and its content is still in context.\n   - The same-session redraw reuses that content. No `read` action is narrated, and the blocking-stop branch does not apply.\n\n3. **Stage action: verify premises against primary code.**\n   - The ticket row \"The export includes the owner column.\" is load-bearing for acme/widgets#77.\n   - Observed: verified primary code shows the export table has only title and status columns. The row contradicts that table contract.\n   - Because a load-bearing claim is contradicted, the premise note becomes the next message to the user.\n   - The note states the corrected fact, citing the export code location: the table currently carries title and status only.\n   - Before question one, the framing check also runs once against the new draft, since the redraw restarts the count.\n\n4. **Ticket-handling action: ask the cut question.**\n   - The trigger is that the code shows this ticket row is wrong as stated against the current contract.\n   - The question uses the questionary format with the four-option ticket form:\n     - A) in-scope, with a reading\n     - B) deviates\n     - C) deferred\n     - D) repair the ticket via `/skill:shape-ticket acme/widgets#77 <row and evidence>`\n   - The recommendation is A or D, with the reason the row ships in this gauntlet. B and C are never recommended.\n   - The row text stays verbatim. No disposition is proposed or recorded until the user answers.\n   - The full question and answer are carried into the council's `Human input` block.\n\n5. **Branch on the user's answer.**\n   - **D:** run shape-ticket repair mode at its own confirm gate. Then re-fetch the ticket, replace the draft's `## Ticket acceptance criteria (verbatim)` block, and re-extract. If the user cancels at that gate, return to this cut question with the row unchanged.\n   - **A, B, or C:** record the answer as the row's disposition and continue step 4's questionary.\n\n6. **Stage note: no design approval survives the redraw.**\n   - Steps 5 and 6 run in full after step 4: approaches, then the two-round design.\n   - The full user review gate follows spec-writing.\n",
-      "words": 406,
-      "wallMs": 15173,
+      "text": "1. **Step 4 entry (same-session redraw): no `read` of `reference/ticket-acceptance.md`.** This redraw follows the spec approval gate in the same session. Step 3 already read the file successfully, and its content is still in context. Step 4's in-context check is therefore satisfied, so I reuse that content and skip the read. A blocking stop would apply only if the file were absent from context and then unreadable. Neither condition holds.\n\n2. **Read the draft before any question.** On redraw, the draft is the approved spec, so step 4 requires reading it before question one. These observations do not include the outcome of that read, so I am not reconstructing its contents. Two points from the draft are context only, not scout evidence:\n   - Its `## Problem` `Framing:` line.\n   - The framing-question count, which restarts for this redraw.\n\n3. **Treat the ticket contract as unchanged.** The problem is still ticketed as acme/widgets#77. Its verbatim row \"The export includes the owner column.\" carries over character-for-character. The row text is never edited.\n\n4. **Record the contradicted premise.** Verified primary code shows the export has only title and status columns. The owner-column row contradicts that table contract. This is a load-bearing contradiction, so my next message to the user opens with a premise note. That note states the corrected fact and cites its code source. After it, in the same message, comes either the framing question or the holds-statement.\n\n5. **Next ticket-handling action: the ticket cut question for this row.** The trigger is that code shows the row is wrong. No human has chosen a disposition, and no design approval survived the redraw, so:\n   - I do not assign or propose `deviates:` or `deferred:`.\n   - The question uses the four-option ticket form: `A) in-scope`, `B) deviates`, `C) deferred`, and `D) repair the ticket - /skill:shape-ticket acme/widgets#77 <row and evidence>`.\n   - The recommendation is A or D only, with the reason the row ships in this gauntlet. B and C are never recommended.\n   - The full question and the user's answer will be carried into the council's `Human input` block.\n   - If the answer is D, I run shape-ticket in repair mode, re-fetch the ticket, replace the draft's verbatim AC block, and re-extract. A cancel at shape-ticket's gate returns to this cut question with the row unchanged.\n\n6. **Hold.** Step 4 then waits for the user's reply. Approaches (step 5) and the two-round design follow only after that.\n",
+      "words": 394,
+      "wallMs": 15794,
       "mechanical": {}
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "1. **Step-4 reference decision:** Skip re-reading `reference/ticket-acceptance.md`: its successful step-3 read remains in context during this same-session redraw. The approved spec is the redraw draft and must be read unconditionally; the supplied observations do not report that read’s outcome.\n\n2. **Next ticket-handling action:** The unchanged acme/widgets#77 row, “The export includes the owner column.”, conflicts with the verified title-and-status-only table contract. Present the required ticket cut question, retaining the row verbatim and offering in-scope, deviation, tracked deferral, or ticket repair. Recommend ticket repair to reconcile the contradiction rather than silently changing the contract or assigning a disposition.\n\n3. **Await the human’s decision:** No disposition has been authorized, and no design approval survives the redraw. Do not advance to approaches or spec writing.\n",
-      "words": 121,
-      "wallMs": 16050,
+      "text": "1. **Step 4 — reference-read decision:** Skip re-reading `reference/ticket-acceptance.md`: its successful step-3 read remains in context during this same-session redraw.\n\n2. **Step 4 — draft read:** The approved spec serves as the redraw draft and must be read before question one. The fixed observations establish that ticket `acme/widgets#77` retains the verbatim row “The export includes the owner column.” Verified primary code defines only title and status columns.\n\n3. **Next ticket-handling action:** Surface the contradiction and ask the ticket cut question, offering in-scope, deviation, deferral, or ticket repair. Recommend ticket repair to reconcile the acceptance criterion with the verified contract. Preserve the row unchanged; do not choose its disposition automatically.\n\n4. **Stop for the user’s answer:** No human has selected a disposition, and no design approval survives the redraw. Do not advance to approaches or spec approval.\n",
+      "words": 134,
+      "wallMs": 11918,
       "mechanical": {}
     }
   },
@@ -34,9 +34,9 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "6277fb45c3d742b55ee8729481329feb0d40002b0fb2d70079065d3afb325f5d",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "e6b3fd94d8078dcb624d25dff60ae91495929b0228a72c65d160e9724dd2a06a",
-      "baselineOutputSha": "b8820ea08aadc431633b53a79c981c397f3a3a06bde30c30fdc8bf4c35e0657a",
-      "candidateOutputSha": "a115e049f074e837900c1b8f8a3ca8561574e000beb29eecf1efe9dc88cc7bb0",
+      "intentSha": "77fc319c1a7f5ca33d327d6147e00faa745448af02f7c92a24184c09e061fb80",
+      "baselineOutputSha": "b44281a97aed983aff1fbdc96cb21439be09b080c3347f7da5b0d95903f4fd5c",
+      "candidateOutputSha": "50ab04603d304937dba97241728a912b4e925faf00e928a552744799bd708b17",
       "facts": {
         "redraw-reuse": {
           "before": "holds",
@@ -49,16 +49,16 @@
           "label": "held"
         }
       },
-      "feedback": "Neither fact moved. Both outputs state explicitly that reference/ticket-acceptance.md was read at step 3 of this session, that its content is still in context, and that no read is issued or narrated after the redraw; After additionally notes the blocking-stop branch does not apply, which is consistent with reuse. Both outputs keep the owner-column row verbatim, ask the human cut question in the four-option ticket form (A in-scope, B deviates, C deferred, D repair via /skill:shape-ticket acme/widgets#77), restrict the recommendation to A or D, and defer any disposition until the user answers, so neither silently drops the row nor decides it. After's restructuring into labeled 'Read decision' and 'Ticket-handling action' items actually makes the two judged behaviors easier to locate; the only wording to watch is the step-5 branch line 'record the answer as the row's disposition', which correctly attributes the choice to the user and so does not weaken rules-apply. No wording change is needed to preserve these facts while delivering the Change.",
-      "wallMs": 9556,
+      "feedback": "After keeps both facts: step 1 explicitly reuses the step-3 content of reference/ticket-acceptance.md and narrates no read after the redraw, and step 5 still routes the contradictory owner-column row to the four-option ticket cut question (in-scope, deviates, deferred, repair) without editing the row or assigning a disposition. No fact moved. Minor drift worth watching: After renders `B) deviates` and `C) deferred` without the trailing colons that Before (and the ticket reference's token form) use, and it drops Before's explicit mention that the cut question follows the questionary one-option-per-physical-line layout; if the cut-question contract or a layout fact is ever judged on this sample, restoring the `deviates:`/`deferred:` tokens and the one-option-per-line note in step 5 would keep the narration aligned with the reference wording while still delivering the amendment-menu scoping change.",
+      "wallMs": 7306,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "6277fb45c3d742b55ee8729481329feb0d40002b0fb2d70079065d3afb325f5d",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "e6b3fd94d8078dcb624d25dff60ae91495929b0228a72c65d160e9724dd2a06a",
-      "baselineOutputSha": "40f39d30b62031922253141073561fea02630da07f2955f9084afa3e9bc10c3e",
-      "candidateOutputSha": "0085ec11bd72840088963a61c18671a3ffaffa6c7cb1ed686913e078bea578c9",
+      "intentSha": "77fc319c1a7f5ca33d327d6147e00faa745448af02f7c92a24184c09e061fb80",
+      "baselineOutputSha": "9bf621494a8a9011b8ecf595e43b3860c5a8ede3d1b6cb835ae80a69fbd90be6",
+      "candidateOutputSha": "0b1d91e9fd3b17d7090ebe46e8cfb503393cc729d9381879fd9c950d0401342e",
       "facts": {
         "redraw-reuse": {
           "before": "holds",
@@ -71,10 +71,10 @@
           "label": "held"
         }
       },
-      "feedback": "Both facts hold in Before and After: each output skips re-reading reference/ticket-acceptance.md on the grounds that the step-3 read is still in context, and each preserves the owner-column row verbatim, presents the cut question with in-scope, deviation, tracked deferral, and ticket-repair options, and leaves the disposition to the human. After's only wobble is the added sentence \"The approved spec is the redraw draft and must be read unconditionally; the supplied observations do not report that read's outcome\" — this contradicts the fixed observation that no design approval survives the redraw and introduces an unmotivated extra read that a stricter reader could mistake for narrated read activity. The new wording should state the step-4 decision only for the ticket reference (as Before does) and, if it needs to mention other step-4 inputs, say explicitly that no approved spec exists after the redraw rather than asserting one must be read; the rest of After (contradiction, four options, recommendation, no disposition, no surviving approval) delivers the Change without moving either fact.",
-      "wallMs": 11341,
+      "feedback": "Nothing moved on this case: both outputs skip the re-read of reference/ticket-acceptance.md by citing the in-context step-3 read, and both route the owner-column row to the ticket cut question with all four options while leaving the row verbatim and the disposition to the human. After's only additions are an explicit 'draft read' of the approved spec (not the ticket reference, so redraw-reuse is unaffected) and a flipped recommendation from in-scope to ticket repair, which the facts do not judge; the extra 'Stop for the user's answer' item actually makes the no-silent-decision behavior more explicit. If the author wants to keep this case stable while delivering the amendment-surface/aftermath changes, the current wording is sufficient — just avoid letting the new section-5 'apply under amend permission without a human question' language bleed into the ticket cut-question scoping sentence, which is what would put rules-apply at risk.",
+      "wallMs": 12503,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "e85ad8c4e58d6f8cc0716ab1199fef2e7d45f902"
+  "repoSha": "1def5168f916248bad836129aa6e4502d421c2d3"
 }

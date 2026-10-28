@@ -1,7 +1,7 @@
 {
   "sample": "questionary-option-lines",
   "arm": "candidate",
-  "skillSha": "1344d9b3d03badf89c600eb7719b78db84d66ec38fcb37bdfe3bfc890ccfaac6",
+  "skillSha": "c0fd84eb5f848e310345817cc8beb319d8c3a800ca7d34db110c72f59cbdc3e7",
   "inputSha": "ac556d1374211deb4d9a4736061b3cf2d3dde543d37276a9443dd4c5fefaee5e",
   "kind": "text",
   "assembly": "headed",
@@ -17,16 +17,16 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "What should the report view do with active filters when the user switches workspaces?\nA) clear all filters on every workspace switch\nB) preserve all active filters across switches, which is today's behavior in the workspace-change handler\nC) restore each workspace's last filters\nRecommendation: C - filters usually depend on the workspace's data, so restoring each workspace's last filters avoids carrying stale selections across workspaces without making users rebuild their view.\n",
-      "words": 70,
-      "wallMs": 9410,
+      "text": "Which behavior should the report view apply to active filters when the user switches workspaces?\nA) clear all filters on every workspace switch\nB) preserve all active filters across switches\nC) restore each workspace's last filters\nRecommendation: A - B is what the workspace-change handler already does, so it adds no new behavior, and C would need new per-workspace filter state beside the resolver at settings/resolver.ts:12; A is the only change that needs no new state.\n",
+      "words": 75,
+      "wallMs": 8031,
       "mechanical": {}
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "How should the report view handle filters when switching workspaces?\nA) Clear all filters on every workspace switch.\nB) Preserve all active filters across workspace switches.\nC) Restore each workspace’s last filters.\nRecommendation: B - it preserves current behavior while making the policy explicit through the existing settings resolver.\n",
-      "words": 48,
-      "wallMs": 4652,
+      "text": "How should the report view handle filters when switching workspaces?\nA) Clear all filters on every workspace switch.\nB) Preserve all active filters across workspace switches.\nC) Restore each workspace’s last filters.\nRecommendation: B - it preserves the view’s current behavior and avoids unexpectedly discarding active filters.\n",
+      "words": 46,
+      "wallMs": 4258,
       "mechanical": {}
     }
   },
@@ -34,9 +34,9 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "6b456a85ee947059a76668fc50e35f4c2abde2fc50e926fb6104badb197e5e61",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "e6b3fd94d8078dcb624d25dff60ae91495929b0228a72c65d160e9724dd2a06a",
-      "baselineOutputSha": "40d7d37b287b840900676ec69b3d3e435e7e0574e3f04332df41cc6c39bc01d6",
-      "candidateOutputSha": "dffc0d47ef7dffd6b138c8bbb997918106e6851f5c2bf62f5fd0304880619297",
+      "intentSha": "77fc319c1a7f5ca33d327d6147e00faa745448af02f7c92a24184c09e061fb80",
+      "baselineOutputSha": "bbf060e972735754fe62144cba5a21f5e27bd87852b509b74c213ffc7b4b9056",
+      "candidateOutputSha": "9607d753e0ed5d8250d51f3bb1961547cba7cdb1f170a0f3bb41fb0a60b45296",
       "facts": {
         "layout": {
           "before": "holds",
@@ -49,16 +49,16 @@
           "label": "held"
         }
       },
-      "feedback": "Neither fact moved. After keeps the lead-in question first, puts A, B, and C each on their own physical line, and ends with Recommendation: on its own final line, so the layout fact holds even though the blank separator lines from Before were dropped (the fact requires separate physical lines, not blank lines). Content also holds: all three supplied choices appear in order and C is recommended with a reason. The one place After takes a small risk is option B, where it appends 'which is today's behavior in the workspace-change handler' to the user-supplied wording; that still preserves the choice, but if you want zero chance a judge reads it as altered, keep each option's text verbatim and move the current-behavior note into the Recommendation line (as Before did with 'B matches today's handler at ui/report-view.ts:30'). Restoring the blank lines around the option block would also make the one-option-per-line structure unmistakable without changing any words.",
-      "wallMs": 9565,
+      "feedback": "Neither fact moved on this case. Both outputs put the lead-in question first, place A), B), and C) on their own physical lines, and end with Recommendation: on its own final line; both preserve the user's three supplied choices verbatim in substance and recommend one with a reason rather than deciding or jumping to approaches. After does drop the blank lines Before used between the lead-in, the option block, and the Recommendation line, and it lowercases the option text; the fact only requires separate physical lines, so this still holds, but if you want the After wording to leave no ambiguity for a judge counting 'inline runs', have the template show a blank line before the first option and before Recommendation:, matching the Good examples. After's recommendation flipped from B to A with a reason that is internally coherent (A is the only option needing no new state), which is acceptable under the content fact, though the Before reason (B matches the existing handler, resolver can own it without per-workspace state) is a tighter grounding in the recon; nothing in the Change's amendment-menu or aftermath wording needs to touch this questionary path, so keep the questionary template text as-is and only guard the blank-line layout cue.",
+      "wallMs": 13670,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "6b456a85ee947059a76668fc50e35f4c2abde2fc50e926fb6104badb197e5e61",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "e6b3fd94d8078dcb624d25dff60ae91495929b0228a72c65d160e9724dd2a06a",
-      "baselineOutputSha": "e76e83f776943243d332a892ecc712e316aefe6d1cf837334667e01b6315eda9",
-      "candidateOutputSha": "8d7d73d2f0f15aba6124d3bab76a83f3b4dd0365ee069398576fb6f0ee051444",
+      "intentSha": "77fc319c1a7f5ca33d327d6147e00faa745448af02f7c92a24184c09e061fb80",
+      "baselineOutputSha": "beb397a363b13da427f009794107f8f33be8a7741461ab0622ddab32bcdf2ff1",
+      "candidateOutputSha": "9936716078c24e0e7d210b46b2a3d91d1ca3b70b1b465a316141e25d8d7766a6",
       "facts": {
         "layout": {
           "before": "holds",
@@ -71,10 +71,10 @@
           "label": "held"
         }
       },
-      "feedback": "Both outputs satisfy both facts identically: the lead-in question comes first, each of A/B/C sits on its own physical line, and Recommendation: closes on its own final line; all three supplied choices are preserved verbatim in substance and the response recommends B with a reason rather than deciding or moving to approaches. The only difference is the recommendation rationale, where After adds a grounding clause (\"making the policy explicit through the existing settings resolver\") that ties the choice back to the recon evidence; this neither breaks layout nor expands beyond the one question, so nothing moved. No wording change is needed for this case — the After rationale is a mild improvement consistent with the Change's intent to ground recommendations in gathered evidence, and it keeps every fact Before kept.",
-      "wallMs": 5508,
+      "feedback": "Both outputs satisfy both facts: each puts the lead-in question first, places A), B), and C) on their own physical lines with the three supplied choices preserved verbatim in substance, and ends with Recommendation: on its own final line carrying one choice plus a reason, without deciding for the user or advancing to approaches. The only difference is the recommended letter (C in Before, B in After) and its rationale, which is not constrained by either fact; nothing in the After wording moved a fact, so no corrective wording is needed for this case—the Change's questionary layout requirements are delivered while the content contract is kept intact.",
+      "wallMs": 4613,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "e85ad8c4e58d6f8cc0716ab1199fef2e7d45f902"
+  "repoSha": "1def5168f916248bad836129aa6e4502d421c2d3"
 }

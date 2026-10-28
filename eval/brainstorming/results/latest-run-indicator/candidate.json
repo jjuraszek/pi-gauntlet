@@ -1,7 +1,7 @@
 {
   "sample": "latest-run-indicator",
   "arm": "candidate",
-  "skillSha": "1344d9b3d03badf89c600eb7719b78db84d66ec38fcb37bdfe3bfc890ccfaac6",
+  "skillSha": "c0fd84eb5f848e310345817cc8beb319d8c3a800ca7d34db110c72f59cbdc3e7",
   "inputSha": "69fa65e0319ff1dc25db8056721da134a66d005f0e507677c71c30b555cf51ae",
   "kind": "text",
   "assembly": "headed",
@@ -17,16 +17,16 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "**(1) First message to the user**\n\nThe gather draft says new work is needed to persist svc-a's release identity on the run. The primary files correct that. `svc-a/run-store.md` states that \"successful completion stores svc-a release identity on the run.\" Going-forward runs therefore already carry the identity. The gap the draft describes applies only to historical runs, which lack it. The design will not add a new persistence path. It reads the identity that is already stored.\n\n**What the files support**\n\n- **Shared hover renderer.** Files already use it, and placement provenance selects the latest succeeded run for each (file, destination) pair without borrowing a run from another placement (`svc-a/file-chip.md`).\n- **Run ordering.** Runs carry a completion date and an optional producer version. The latest succeeded run is ordered by completion date descending, then id descending. A missing version displays as \"unknown version\" (`svc-a/run-store.md`).\n- **Persisted data only.** Rendering reads persisted data and never calls svc-b. The producer version is svc-b's commit revision (`svc-b/response-contract.md`).\n- **The three surfaces.**\n  - The document card uses the workspace-wide latest run.\n  - The file tooltip uses placement provenance.\n  - The root badge uses the latest succeeded run touching the root or its descendants through candidates.\n  - There are no child badges and no stamped provenance (`svc-a/workspace.md`).\n\n**What I could not verify**\n\n- **Release-tag condition.** Showing svc-a's release tag depends on more than the services deploying together. `svc-a/run-store.md` shows the tag only when the stored svc-a revision matches the producer revision. A run with a mismatch, or a historical run with no svc-a identity, shows the producer revision alone or \"unknown version.\"\n- **Shipped behavior versus target contract.** I could not confirm whether `svc-a/workspace.md` describes shipped rendering or a target contract. The supplied files contain no rendering code to trace. I am treating it as the binding surface contract and carrying the question into Open Questions.\n\n**Framing check**\n\nI traced:\n\n- the file tooltip through the shared hover renderer to placement provenance;\n- the root badge through the candidate join to runs touching descendants;\n- the card to the workspace-wide latest run;\n- the tag through run-store's match rule.\n\nThe literal ask has a cited problem. It puts the producer revision in a hover and a badge on each top-level item. That omits the visible processing date the outcome requires. A single workspace-latest revision on every item can also imply false provenance, which `svc-a/file-chip.md` forbids with \"never borrow a run from another placement.\"\n\nHow should T-1 be shaped?\nA) as framed - producer revision in the file hover, and a badge on each top-level item\nB) pivot: date plus same-run revision on each surface, with provenance derived from existing joins and the already-stored release identity - matches the binding outcome without false provenance (`svc-a/file-chip.md`, `svc-a/workspace.md`)\nC) smaller or none: only the document card's workspace date and version ship, and file and item provenance stays invisible\nRecommendation: B - it is the only option that shows a date and keeps each indicator's revision tied to the run that actually produced it.\n\n---\n\n**(2) Approaches message**\n\nRecorded decisions:\n\n- **Framing:** pivoted to B. Your answers chose all three surfaces and read-time derivation from joins.\n- **Release tag:** shown \"when available\" under run-store's existing match rule. This is an assumption I am stating rather than asking about.\n\nBefore the approaches, here are the implicit dependencies I found missing or could not check:\n\n- **svc-a release identity on historical runs is missing.** I checked `svc-a/run-store.md` and the gather draft. Only successful completions going forward store it. Historical runs therefore never show a release tag. They show the producer revision when it was persisted, and \"unknown version\" otherwise.\n- **Whether `svc-a/workspace.md` describes shipped behavior could not be checked.** I searched the supplied fixture files for rendering code for the card, tooltip, or badge and found none. The design treats `workspace.md` as the contract. This stays in Open Questions.\n\nThe approaches differ on one axis: where per-surface run selection lives.\n\n**Recommended: A) Scope discriminant on run-store's existing latest-succeeded query, feeding the shared hover renderer.**\n\nrun-store's \"latest succeeded run\" query already has the right ordering, and the shared hover renderer already serves file chips. This approach adds a scope discriminant to that query with three cases:\n\n- **workspace:** all runs in the workspace;\n- **placement:** (file, destination);\n- **root subtree:** runs reached through candidates for the root or its descendants.\n\nEach surface asks for its scope and receives one run's completion date, producer version, and stored release identity. The renderer formats a browser-local date-time with the version in a quiet, spaced badge. The release tag appears only when run-store's match rule passes. Nothing is stamped, synced, or backfilled.\n\nTrade-offs:\n\n- It keeps one ordering rule (completion date, then id) for every surface.\n- Its blast radius is the existing query's other callers. The current placement path becomes one discriminant value, so those callers need a regression test.\n\nRemoves: none\nAdds: scope discriminant (workspace | placement | root-subtree) on run-store's latest-succeeded query; root-subtree branch over the candidates join; date and version and conditional release-tag fields in the shared hover renderer; card, tooltip, and root-badge call sites; tests for each scope, the tag-match rule, and missing-version display\nPattern: follows `svc-a/file-chip.md`'s shared hover renderer and `svc-a/run-store.md`'s single latest-succeeded ordering; honors `svc-a/workspace.md`'s no-stamping rule.\n\n**B) A new provenance-resolver module with three selectors.**\n\nEach surface gets its own selector function in a new module. Each selector composes run-store primitives and the joins itself, then hands the result to the shared renderer. This isolates root-subtree logic, which is the most complex join.\n\nTrade-offs:\n\n- It re-states the \"latest succeeded, completion date desc, id desc\" ordering in three places beside run-store.\n- That creates a second selection path that can drift from the owning query.\n\nRemoves: none\nAdds: a new provenance module; workspace, placement, and root-subtree selectors; the same renderer fields and call sites; per-selector tests\nPattern: cuts across `svc-a/run-store.md`'s owning latest-succeeded ordering by adding a parallel selection path beside it.\n\n**Candidates considered and not viable:**\n\n- **Dropping the hover.** I considered showing only the date in each indicator and reaching the revision through a run-detail view instead of a hover. This is not viable. The supplied files name no run-detail surface. `svc-a/workspace.md` and `svc-a/file-chip.md` name only the shared hover renderer as the reachable surface.\n- **Stamping provenance per item.** This is not viable. You ruled out duplicated item state, and `svc-a/workspace.md` says no provenance is stamped on files or items.\n\nWhat would flip the recommendation: if the root-subtree candidates join cannot be expressed as a branch of run-store's query without changing results for its existing placement callers, B's isolated module becomes the safer choice.\n",
-      "words": 1072,
-      "wallMs": 62902,
+      "text": "## (1) First message\n\nBefore the first question, here are the premise checks. I checked the gather draft against the fixture files. I treat those files as the current contract, but I could not confirm from them that the renderers already implement every line.\n\n**Corrected premises**\n\n- **svc-a release identity is already persisted.** The draft's `Framing:` line proposes persisting svc-a's release identity on the run. `svc-a/run-store.md:2` says successful completion already stores svc-a release identity on the run.\n  - The real gap is only historical runs, which lack it, as the draft notes.\n  - The design will not add a new persistence path. It will read the existing field and tolerate its absence.\n- **The release tag is conditional.** It is not shown whenever it exists. `svc-a/run-store.md:5` shows the tag only when the svc-a revision matches the producer revision. The design keeps that guard.\n\n**Supported premises**\n\n- **Run metadata.** A run carries its completion date and an optional persisted producer version (`svc-a/run-store.md:1`, `:4`). That version is svc-b's commit revision (`svc-b/response-contract.md:1`).\n- **Missing versions.** A missing version displays as \"unknown version\" (`run-store.md:4`).\n- **Latest run ordering.** \"Latest succeeded run\" means ordered by completion date descending, then id descending (`run-store.md:3`).\n- **No live calls.** Rendering reads persisted data and never calls svc-b (`response-contract.md:3`). This satisfies the persisted-data-only constraint.\n\n**Implicit dependencies I traced, and what I found**\n\n- **File hover.** The ask's file hover depends on placement provenance: the latest succeeded run for that (file, destination) pair. It must never borrow a run from another placement (`svc-a/file-chip.md:2-3`). It renders through the shared hover renderer (`file-chip.md:1`).\n- **Badge on each top-level item.** This depends on the candidates join, which covers runs that touched the root or any descendant (`svc-a/workspace.md:3`). There are no child badges and no provenance stamped on files or items (`workspace.md:4`).\n- **Visible processing date.** This depends on the document card's workspace-wide latest succeeded run (`workspace.md:1`). Times are shown as browser-local date-time in quiet badges with spacing (`workspace.md:5`).\n- **Not verifiable:** whether these documented behaviours are already live in code. I'll carry that as an open question rather than a stop.\n\nThe framing holds. I checked:\n\n- the placement-provenance path in `file-chip.md`,\n- the candidates join for roots in `workspace.md:3`,\n- the run ordering and version and tag rules in `run-store.md`,\n- the persisted-only rendering rule in `response-contract.md`.\n\nThe scout's objection was that a workspace-wide revision on a file or item implies false provenance. It yields no alternative to the ask, because each requested surface already has its own correctly scoped provenance path. The objection only rules out stamping or reusing the workspace run, which the contract already forbids.\n\nFirst question: which surfaces should carry the indicator?\n\nA) All three: the document card (workspace date and version), the file tooltip (placement provenance), and the root item badge (latest run touching the root or its descendants).\nB) Document card and file tooltip only, with no root badge.\nC) Document card only, with the revision reachable from its date.\nD) Other - name it.\n\nRecommendation: A - each surface has its own scoped provenance path in `workspace.md:1-3`, so all three can be shown without false attribution.\n\n---\n\n## (2) Approaches message\n\nBefore the approaches, here are the implicit dependencies recorded as missing or not checkable:\n\n- **svc-a release identity on historical runs.**\n  - Lookup: the run fields in `svc-a/run-store.md:1-2`.\n  - Result: it is stored only on completions after the field existed, so historical runs lack it.\n  - Handling: per your answer, historical runs show the producer revision when present, or \"unknown version\" when absent (`run-store.md:4`). The release tag stays hidden on those runs.\n- **Whether the documented surface behaviours are live in code.**\n  - Lookup: the fixture contracts in `workspace.md` and `file-chip.md`.\n  - Result: not checkable from them. This stays in Open Questions.\n\nI'm also stating one assumption from your release-tag answer. You asked to show svc-a's tag because the services deploy together. I'm keeping the existing guard that shows the tag only when the svc-a revision matches the producer revision (`run-store.md:5`). In the normal co-deploy case that shows the tag. In a skewed case it avoids a false claim.\n\n**Axis:** where scoped provenance is resolved. Option A resolves it in each surface's existing read path. Option B centralizes it in one new read-time resolver.\n\n**Candidates that are not approaches**\n\n- **Dropping a new svc-a persistence path:** not a separate approach. The draft assumed svc-a release identity needed new persistence, but `run-store.md:2` shows successful completion already stores it. Both approaches below read the existing field.\n- **Stamping provenance on items:** not viable. Your answer and `workspace.md:4` both rule out stamping provenance on files or items.\n\n**Recommended: A - reuse the existing per-surface read paths.**\n\nEach surface keeps the run query it already owns:\n\n- **Document card:** the workspace-wide latest succeeded run, using `run-store.md:3` ordering.\n- **File tooltip:** placement provenance through `file-chip.md:2`, never borrowing from another placement.\n- **Root badge:** the latest succeeded run touching the root or its descendants via candidates (`workspace.md:3`).\n\nThe one change is to the shared hover renderer. It learns to display completion date (browser-local), producer revision or \"unknown version\", and the guarded release tag. All three surfaces then present the same run's date and version together, as quiet spaced badges.\n\n- **Trade-offs:** no new construct and no new query boundary. The renderer change touches every existing caller of the shared hover renderer, so they inherit the new fields. Its blast radius needs a check that the new fields are optional for those callers.\n\nRemoves: none\nAdds: date/version/release-tag fields (a parameter) on the shared hover renderer; root item badge wiring to the candidates-join query; renderer tests for the unknown-version and tag-guard cases\nPattern: follows `svc-a/file-chip.md:1` (shared hover renderer) and `svc-a/workspace.md:1-3` (per-surface scoped provenance), reading `svc-a/run-store.md` persisted fields only.\n\n**B - one read-time provenance resolver.**\n\nA new resolver takes a scope (workspace, placement, or root) and returns {completion date, producer version, release tag}. It encapsulates the three joins plus the ordering and tag-guard rules. Surfaces call it instead of their own queries.\n\n- **Trade-offs:** the rules from `run-store.md:3-5` live in one place, which helps if more surfaces arrive. It adds a new boundary that duplicates query logic the placement path already owns. It also risks a path that bypasses the file-chip rule against borrowing a run from another placement.\n\nRemoves: per-surface provenance query code in the document card, file chip, and root badge\nAdds: provenance resolver module and its scope type; call-site changes in three surfaces; resolver tests per scope\nPattern: cuts across `svc-a/file-chip.md:2-3`, where placement provenance is owned by the file chip, by moving that ownership into a parallel layer.\n\n**What would flip it to B:** a fourth surface, or a second client of these rules outside svc-a. At that point the duplicated ordering and tag-guard rules would outweigh the cost of a new boundary.\n",
+      "words": 1096,
+      "wallMs": 68279,
       "mechanical": {}
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "### 1. First message to the user\n\nI’m blocked at checklist step 4: `skills/brainstorming/reference/ticket-acceptance.md` must be read before continuing, and it has not been loaded in this session. With no tools available, I cannot perform that required read or treat the bundled reference as a substitute.\n\n### 2. Approaches message\n\nWithheld pending the required reference read. I cannot advance to approaches while step 4 is blocked.\n",
-      "words": 64,
-      "wallMs": 19854,
+      "text": "## 1. First message to the user\n\nThe framing holds for a provenance assessment: the supplied fixtures distinguish workspace-wide metadata, file-placement provenance, and root/descendant last touch, and they provide persisted-data paths for all three.\n\nOne premise needs tightening: “show svc-a’s release tag when available” is not sufficient by itself. `svc-a/run-store.md` says the tag displays **only when svc-a’s revision matches the producer revision**. The design must retain that guard rather than treating availability as proof that the tag describes the producer.\n\nThe fixtures support persisted completion dates and producer revisions, processing-time persistence of svc-a’s release identity, and rendering without calling svc-b (`svc-a/run-store.md`, `svc-b/response-contract.md`). They also establish that a workspace’s latest run must not substitute for a file placement’s run: the file tooltip selects the latest successful run for that exact `(file, destination)` pair (`svc-a/file-chip.md`). Root badges instead use successful runs touching the root or its descendants through candidates (`svc-a/workspace.md`). Run ordering is completion date descending, then ID descending.\n\nThe draft’s implication that these behaviors still need implementation is not established: the fixtures already describe them. I’ll treat this as an assessment of existing behavior, with changes justified only by demonstrated gaps. Actual runtime presentation and historical-data coverage remain unverified; the supplied fixtures contain no rendered examples or persisted sample records.\n\nWhich surfaces should the assessment retain?\nA) All three: document card, file tooltip, and root item badge, each using its appropriate provenance.\nB) Document card only: satisfy the workspace-level date and revision outcome without file or item indicators.\nC) File tooltip and root item badge only: assess their provenance, but leave the binding workspace indicator unresolved.\nD) Other — name the surfaces.\nRecommendation: A - it preserves the requested surfaces without falsely attributing the workspace’s latest run to every file or item.\n\n## 2. Approaches message\n\n**I recommend assessing and reusing the existing paths first.** Your recorded answers retain all three surfaces, processing-time persistence of release identity, read-time provenance joins, root-or-descendant last touch, and quiet, spaced badges with browser-local date-time alongside the version.\n\nRuntime rendering and historical-data coverage remain unverified: the available lookup consists of the supplied fixture text, with no UI output or persisted sample records. No missing implementation dependency has been established.\n\nThe approaches differ in **whether the existing presentation needs changing**, not in which provenance contract they implement.\n\n### A. Verify existing behavior; change only demonstrated gaps — recommended\n\nTrace each indicator to its persisted run: workspace-wide latest successful run for the document card, exact placement provenance for the file tooltip, and latest successful root/descendant touch through candidates for root badges. Check completion-date/ID tie-breaking, absence of child badges, and that rendering never calls svc-b.\n\nVerify the visible workspace processing date and that its indicator exposes the **same run’s** producer revision. Preserve browser-local date-time alongside the version, quiet styling, and spacing across the chosen surfaces. Historical runs tolerate missing release metadata; missing producer versions display “unknown version.” A svc-a release tag appears only under the revision-match guard.\n\nThis is the minimal reuse-only option: the fixtures already name the owning store, joins, and shared hover renderer. It also drops the unsupported assumption that assessing T-1 necessarily requires new implementation.\n\nRemoves: none.  \nAdds: no production construct; assessment evidence and focused regression coverage where absent.  \nPattern: follows persisted run ownership in `svc-a/run-store.md` and shared-hover reuse in `svc-a/file-chip.md`, without duplicated item state.\n\n### B. Align presentation through the existing shared renderer\n\nIf inspection reveals inconsistent or incomplete displays, update the existing presentation path rather than adding a parallel provenance mechanism. Keep provenance selection surface-specific, while making date/version formatting and release-tag eligibility consistent wherever the shared renderer applies.\n\nThis offers a deliberate presentation correction but has a broader regression surface: changes to the shared hover renderer affect its other consumers. It must not turn a common formatter into a workspace-wide provenance resolver.\n\nRemoves: any demonstrated caller-local formatting duplication; otherwise none.  \nAdds: changes to existing renderer inputs or branches, affected call sites, and focused rendering tests; no new run store, syncing process, or file/item stamps.  \nPattern: extends the shared renderer identified by `svc-a/file-chip.md` while preserving the distinct provenance responsibilities in `svc-a/workspace.md`.\n\nI would switch from A to B only if inspection demonstrates a presentation gap that the current shared path does not already satisfy.\n",
+      "words": 692,
+      "wallMs": 59068,
       "mechanical": {}
     }
   },
@@ -34,51 +34,9 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "545a160deff95ab9de7442f503bd625968a42e0c5fa94a512e5ff193513cce05",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "e6b3fd94d8078dcb624d25dff60ae91495929b0228a72c65d160e9724dd2a06a",
-      "baselineOutputSha": "a56ac7961792c1addbb07a250f5f23070e49104cdbe5bfd23e37e406b19b6278",
-      "candidateOutputSha": "07b3a49b8ce4353d71d9f144f9023642f85f6b2ef02e99a6b56c796189c2a4a3",
-      "facts": {
-        "framing": {
-          "before": "holds",
-          "after": "holds",
-          "label": "intended but unchanged"
-        },
-        "pivot": {
-          "before": "holds",
-          "after": "holds",
-          "label": "intended but unchanged"
-        },
-        "surfaces": {
-          "before": "holds",
-          "after": "holds",
-          "label": "intended but unchanged"
-        },
-        "selection": {
-          "before": "holds",
-          "after": "holds",
-          "label": "intended but unchanged"
-        },
-        "missing": {
-          "before": "holds",
-          "after": "holds",
-          "label": "intended but unchanged"
-        },
-        "release": {
-          "before": "holds",
-          "after": "holds",
-          "label": "intended but unchanged"
-        }
-      },
-      "feedback": "Nothing moved in this pair: After's first message raises both premise concerns itself under its 'Framing check' ('That omits the visible processing date the outcome requires' and 'A single workspace-latest revision on every item can also imply false provenance'), so the accepted framing variance described in Expected to move did not materialize in this transcript. After also preserves the pivot (read-time derivation from joins, already-stored release identity, nothing stamped or backfilled), all three quiet surfaces with browser-local date-time beside the version, per-grain same-run date/revision pairing, the 'unknown version' fallback with no borrowing and no svc-b calls, and the tag-match rule with historical runs showing producer revision alone or unknown version. The new Removes/Adds inventory before Pattern and the reuse-path grounding on run-store's latest-succeeded query were delivered without displacing any of these facts; the one thing to watch is that the 'Framing check' paragraph stays in the first message rather than sliding into the approaches message under larger assemblies, since the framing fact fails if either concern appears only there.",
-      "wallMs": 15928,
-      "verdict": "unchanged"
-    },
-    "github-copilot/gpt-6.1-sol": {
-      "factsSha": "545a160deff95ab9de7442f503bd625968a42e0c5fa94a512e5ff193513cce05",
-      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "e6b3fd94d8078dcb624d25dff60ae91495929b0228a72c65d160e9724dd2a06a",
-      "baselineOutputSha": "c3ecb9e65e7ee8483d1b803790f2f47d99375c7821863aeee2f206008a6dcca5",
-      "candidateOutputSha": "739f1b3240e6dc0eeb97c0533621cc38dbae5e3b2cc25c866945c7e06155116b",
+      "intentSha": "77fc319c1a7f5ca33d327d6147e00faa745448af02f7c92a24184c09e061fb80",
+      "baselineOutputSha": "4c0a178421460295d8e55d0ff25daa9ea82a8ea2a27e26fcc3d95af8bc40726b",
+      "candidateOutputSha": "e3560af17b36df875133ee75562b402827df48e722e03358f5a505449f6f402b",
       "facts": {
         "framing": {
           "before": "fails",
@@ -87,75 +45,76 @@
         },
         "pivot": {
           "before": "holds",
-          "after": "fails",
-          "label": "regression"
+          "after": "holds",
+          "label": "intended but unchanged"
         },
         "surfaces": {
           "before": "holds",
-          "after": "fails",
-          "label": "regression"
+          "after": "holds",
+          "label": "intended but unchanged"
         },
         "selection": {
           "before": "holds",
-          "after": "fails",
-          "label": "regression"
+          "after": "holds",
+          "label": "intended but unchanged"
         },
         "missing": {
           "before": "holds",
-          "after": "fails",
-          "label": "regression"
+          "after": "holds",
+          "label": "intended but unchanged"
         },
         "release": {
           "before": "holds",
-          "after": "fails",
-          "label": "regression"
+          "after": "holds",
+          "label": "intended but unchanged"
         }
       },
-      "feedback": "After produces no design at all: it stops at a checklist gate claiming skills/brainstorming/reference/ticket-acceptance.md must be read via tools before continuing, then withholds both messages, so every fact fails on the After text. Before did not explicitly restate either premise concern in its first message (it only said 'The framing holds' and listed the date as a field), so framing already failed there, but it delivered pivot, surfaces, selection, missing, and release cleanly. The regression comes from the new assembly ordering that places the amendment-surface section 4 slice before ticket-acceptance.md together with the read-once/'unsure context requires a read' ticket-handling rules: the model treats the bundled reference as not-yet-read and blocks even though no tools exist and the reference content is already in the prompt. To keep every fact Before kept while delivering the Change, state in the ticket-handling slice that a reference bundled verbatim into the prompt counts as read at first use (the read-once rule is satisfied by the assembly, and the block applies only when a reference is genuinely unreadable), and make the checklist step condition explicit: 'if the reference text is present in context, proceed'. Also have the first-message template require restating both premise concerns in its own words rather than endorsing the draft's framing by pointer, which would recover the framing fact as well.",
-      "wallMs": 17631,
-      "verdict": "inconclusive",
-      "confirmation": {
-        "status": "ok",
-        "text": "## 1. First message to the user\n\nThe framing holds against the supplied fixtures: I traced the document card’s workspace-wide run selection, the file tooltip’s placement-specific provenance and shared hover renderer, the root badge’s candidate-based descendant touches, and the persisted metadata each surface consumes.\n\nThe requested visible processing date is supported by persisted run completion metadata. A workspace’s latest run does **not** establish a file’s or item’s provenance: file tooltips must select the latest succeeded run for that exact `(file, destination)`, while root badges must select the latest succeeded run touching the root or its descendants (`svc-a/file-chip.md`, `svc-a/workspace.md`). Run ordering is completion date descending, then ID descending (`svc-a/run-store.md`).\n\nOne premise needs tightening: deploying the services together does not, by itself, justify displaying an svc-a release tag. The supplied contract permits that tag only when svc-a’s revision matches the producer revision. Otherwise, the indicator must use the persisted producer revision, or “unknown version” when it is absent (`svc-a/run-store.md`). Future successful runs persist svc-a’s release identity; historical runs must tolerate its absence.\n\nThe rendering path must use persisted data and never call svc-b (`svc-b/response-contract.md`). Your recorded answers also settle all three surfaces, read-time provenance joins rather than item stamps, root-and-descendant last touch, and quiet styling with browser-local date-time. I would carry those decisions forward without re-asking them.\n\n## 2. Approaches message\n\nI recommend **extending the existing provenance and rendering paths**. The meaningful choice is whether those paths remain responsible for their queries or delegate to a new shared resolver.\n\nHistorical svc-a release identity is missing, as established by the supplied draft and run-store contract; neither approach reconstructs it. The fixtures also provide no guarantee that co-deployed services have matching revisions, so both approaches drop that inference and enforce the explicit revision-match rule.\n\n### A. Extend the existing paths — recommended, reuse-only\n\nKeep each surface’s existing provenance scope:\n\n- **Document card:** workspace-wide latest succeeded run.\n- **File tooltip:** latest succeeded run for that exact file placement, never borrowing another placement’s run.\n- **Root badge:** latest succeeded run touching the root or any descendant through candidates; no child badges.\n\nUse completion date descending, then ID descending wherever selecting the latest succeeded run. Each indicator shows its selected run’s browser-local completion date-time, with that **same run’s** producer revision reachable from the indicator. Show svc-a’s release tag only when the persisted revisions match; tolerate missing historical identities and display “unknown version” when the producer version is absent.\n\nExtend successful-completion persistence to retain svc-a release identity, while keeping rendering entirely persisted-data-only. Reuse the shared file-hover renderer and retain quiet badges with spacing.\n\nThis has the smallest structural change. Its trade-off is that the three existing query paths must consistently apply ordering and version-display rules; tests need to protect those shared semantics.\n\nRemoves: none.  \nAdds: successful-completion persistence changes; amendments to the three existing surface queries and presentations; shared-hover presentation changes; tests for provenance selection, version eligibility, fallbacks, and formatting. No new resolver or item state.  \nPattern: Reuses the existing placement provenance and shared hover renderer (`svc-a/file-chip.md`), persisted run contract (`svc-a/run-store.md`), and distinct surface scopes (`svc-a/workspace.md`).\n\n### B. Introduce a shared provenance resolver\n\nAdd a resolver with explicit workspace, placement, and root scopes. It returns persisted run metadata using the appropriate existing joins; the three surfaces consume its results while retaining their presentation responsibilities.\n\nThis centralizes ordering and version eligibility, making consistency easier to enforce. It also introduces a new abstraction and migrates three callers even though the fixtures already describe suitable query paths. The resolver must preserve the scope distinctions rather than treating “latest run” as interchangeable across surfaces.\n\nRemoves: direct run-selection responsibility from the three surface callers.  \nAdds: a shared scoped resolver; three caller integrations; successful-completion persistence changes; indicator and shared-hover presentation changes; resolver and surface tests.  \nPattern: Preserves the provenance boundaries in `svc-a/workspace.md`, but adds an intermediary above existing joins rather than extending their current owners.\n\nI would choose **A** unless inspecting the implementation reveals duplicated selection logic that cannot be kept consistent within the existing shared paths; that would favor **B**.\n",
-        "words": 658,
-        "wallMs": 35030,
-        "mechanical": {},
-        "judgeWallMs": 33726,
-        "facts": {
-          "framing": {
-            "before": "fails",
-            "after": "fails",
-            "label": "intended but unchanged"
-          },
-          "pivot": {
-            "before": "holds",
-            "after": "holds",
-            "label": "intended but unchanged"
-          },
-          "surfaces": {
-            "before": "holds",
-            "after": "holds",
-            "label": "intended but unchanged"
-          },
-          "selection": {
-            "before": "holds",
-            "after": "holds",
-            "label": "intended but unchanged"
-          },
-          "missing": {
-            "before": "holds",
-            "after": "holds",
-            "label": "intended but unchanged"
-          },
-          "release": {
-            "before": "holds",
-            "after": "holds",
-            "label": "intended but unchanged"
-          }
+      "feedback": "Neither output's first message explicitly raises the second premise concern, that a revision-only badge omits the required visible date: Before's first message only says a workspace run does not establish per-file/item provenance and defers the date point to the approaches' ruled-out list, while After's first message names the false-provenance objection explicitly but never states the date-omission concern anywhere (the approaches only rule out stamping). The other five facts hold in both: pivot, three quiet surfaces with browser-local date-time and version, same-run pairing at each grain, unknown-version fallback with no borrowing and no svc-b calls, and the tag-match guard with historical runs showing revision alone or unknown version. To keep framing holding under the enlarged assembly, the questionary premise slice should require the premise note to state both scout concerns as explicit sentences before the first question, e.g. 'Two concerns from the draft: (1) a workspace-wide revision shown on a file or item would imply false provenance; (2) a badge showing only the revision would omit the required visible processing date' — and the amendment-menu wording change should not displace that requirement, since After's first message otherwise preserves every other fact.",
+      "wallMs": 22017,
+      "verdict": "unchanged"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "545a160deff95ab9de7442f503bd625968a42e0c5fa94a512e5ff193513cce05",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "77fc319c1a7f5ca33d327d6147e00faa745448af02f7c92a24184c09e061fb80",
+      "baselineOutputSha": "0554e5bd1bcefe12f095514d488f0b67eee640bb4401f787128dff9361e72a92",
+      "candidateOutputSha": "2e221ab135bdf77246baa0408d57eb981c81144e7e42862b2af980ddd42045aa",
+      "facts": {
+        "framing": {
+          "before": "fails",
+          "after": "fails",
+          "label": "intended but unchanged"
         },
-        "feedback": "Neither output's first message explicitly raises both premise concerns as the framing fact demands: Before only says \"The framing holds\" and then lists per-surface run selection and the date as a displayed field, which is implication rather than explicit statement; After improves on concern one by stating outright that a workspace's latest run does not establish a file's or item's provenance, but it still never says that a revision-only badge omits the required visible date—it only notes the date is supported by persisted metadata, which the fact explicitly counts as failing. The rest of the After text is stronger than Before (explicit Removes/Adds before Pattern, same-run date/revision pairing per grain, explicit revision-match and unknown-version rules, persisted release identity on the run), so the Change is delivered without disturbing pivot, surfaces, selection, missing, or release. To keep framing while delivering the Change, add one sentence to the first-message premise paragraph alongside the provenance correction, e.g. \"A badge carrying only a producer revision would omit the visible processing date the ask requires, so each indicator must pair that date with the same run's revision\"—and keep the parallel false-provenance sentence After already has—so both concerns are stated in the first message rather than only reflected in the approaches' design bullets."
-      }
+        "pivot": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "surfaces": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "selection": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "missing": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "release": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        }
+      },
+      "feedback": "Neither output's first message explicitly raises the second framing concern — that a revision-only badge omits the required visible date. Before only lists date as a displayed field (\"processing date and version\", \"browser-local date-time alongside the version\"), and After moves the date requirement entirely into approach A (\"Verify the visible workspace processing date...\"), so both fail the fact by its own rule; After does state the false-provenance concern more explicitly (\"without falsely attributing the workspace's latest run to every file or item\"). After also re-asks the surfaces question that the recorded answers already settle, which wastes the first message on a menu instead of the premise check. To keep every fact Before kept while delivering the amendment-menu change, leave the questionary premise rules untouched and add a sentence in the first-message template requiring both concerns be stated there as concerns (e.g. \"Name each premise risk in the first message: a workspace-wide revision stamped on a file or item would imply false provenance, and a revision-only indicator omits the required processing date\"), and confine the new numbered/lettered menu grammar to the amendment batch so the questionary first message does not reopen already-recorded decisions. All other facts (pivot, surfaces, selection, missing, release) hold in both outputs.",
+      "wallMs": 26756,
+      "verdict": "unchanged"
     }
   },
-  "repoSha": "e85ad8c4e58d6f8cc0716ab1199fef2e7d45f902"
+  "repoSha": "1def5168f916248bad836129aa6e4502d421c2d3"
 }

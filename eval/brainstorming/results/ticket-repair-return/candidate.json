@@ -1,7 +1,7 @@
 {
   "sample": "ticket-repair-return",
   "arm": "candidate",
-  "skillSha": "1344d9b3d03badf89c600eb7719b78db84d66ec38fcb37bdfe3bfc890ccfaac6",
+  "skillSha": "c0fd84eb5f848e310345817cc8beb319d8c3a800ca7d34db110c72f59cbdc3e7",
   "inputSha": "9b45bd622c6744fabf33250d8062c7d2cc11700a0ee72cdfd87a44fcaa82a89d",
   "kind": "text",
   "assembly": "headed",
@@ -17,16 +17,16 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "The ticket repair is saved and verified: acme/widgets#77 now reads \"The report-view setting uses the shared settings resolver.\" That row is `in-scope`, and the design will add the setting's default in `settings/resolver.ts:12` and read it in `ui/report-view.ts:30`.\n\nToday, filters stay active after a workspace switch and can hide rows in the new workspace. What should the report view do with active filters when the workspace changes?\n\nA) Reset all filters on every workspace change. The new setting controls this and defaults to on.\nB) Reset all filters only when the setting is turned on. It defaults to off, so current behavior stays the default.\nC) Keep filters that still apply in the new workspace and drop the ones that do not. The setting turns this pruning on or off.\nother - name it\n\nRecommendation: A - the reported problem is stale filters hiding rows after a switch, and defaulting to reset fixes that for every user while the setting still lets someone keep their filters.\n",
-      "words": 163,
-      "wallMs": 9527,
+      "text": "The repair is saved and verified. acme/widgets#77 now reads \"The report-view setting uses the shared settings resolver.\" That row is in-scope as written.\n\nI'm assuming the new setting is a key in the existing schema at `settings/resolver.ts:12`. The report view reads it through the resolved settings at `ui/report-view.ts:30`, so it follows the same path as every existing setting. I've recorded that in the draft.\n\nThe open point is what happens to active report filters when the user switches workspaces. Today they carry over and can hide rows in the new workspace.\n\nA) The setting controls whether filters reset on a workspace switch, and the default is reset.\nB) The setting controls whether filters reset on a workspace switch, and the default keeps today's carry-over.\nC) Each workspace remembers its own filters and restores them on return, with the setting choosing that behavior or a clean reset.\nD) Other - name it.\n\nRecommendation: A - the reported problem is hidden rows after a switch, so resetting by default fixes it for everyone, and users who want carry-over can still turn it on.\n",
+      "words": 179,
+      "wallMs": 12529,
       "mechanical": {}
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "The repaired ticket is verified: acme/widgets#77 now requires the shared settings resolver. That criterion is in scope, consistent with defaults owned by `settings/resolver.ts:12` and consumed by `ui/report-view.ts:30`. Framing remains kept.\n\nWhat should the report-view setting do when switching workspaces?\nA) Reset filters by default, with a setting to preserve them.\nB) Preserve filters by default, with a setting to reset them.\nC) Other - name the desired behavior.\nRecommendation: A - it prevents filters from silently hiding rows in the new workspace while retaining an option for users who want persistence.\n",
-      "words": 89,
-      "wallMs": 31793,
+      "text": "The repair is confirmed: acme/widgets#77 now requires the shared settings resolver. That criterion remains in scope, using the existing path from `settings/resolver.ts:12` to `ui/report-view.ts:30`.\n\nWhat should happen to active report filters when switching workspaces?\nA) Clear them on every workspace switch so the new workspace starts unfiltered.\nB) Restore each workspace’s last-used filters, keeping filter state separate by workspace.\nC) Preserve the current filters across workspace switches.\nD) Other - name the desired behavior.\nRecommendation: A - it directly prevents filters from the previous workspace from hiding rows in the new one, without introducing per-workspace filter storage.\n",
+      "words": 95,
+      "wallMs": 31098,
       "mechanical": {}
     }
   },
@@ -34,9 +34,9 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "34304835e53809fc03e28c969453a2029ba79885abd38a7f3b0c8c8b3bc82a8f",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "e6b3fd94d8078dcb624d25dff60ae91495929b0228a72c65d160e9724dd2a06a",
-      "baselineOutputSha": "c016e8fbae1203a002be311c44fefc935a5d189919a5322320ba4a49b15e6f6f",
-      "candidateOutputSha": "c25b7d7b4d5119cdf8373b6d6463936da085f44d3bf593247391ab729e42fe58",
+      "intentSha": "77fc319c1a7f5ca33d327d6147e00faa745448af02f7c92a24184c09e061fb80",
+      "baselineOutputSha": "ee633a99d9e479abda92312fc2e43ce99274d9cc86f7623a1d89619443d92b7c",
+      "candidateOutputSha": "7010ab346a500e736ecd0c9c534b938b2754b2c377836a0c1e0fcdf1033e6f31",
       "facts": {
         "f1": {
           "before": "holds",
@@ -49,16 +49,16 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "Nothing moved in this continuation: both outputs use the saved-and-verified shared-resolver row as in-scope without re-asking for repair approval or claiming anything beyond the recorded verification, and both resume the unresolved filter-reset question with labeled options on their own lines and an own-line Recommendation instead of stopping at a ticket-update report or jumping to approaches. One caution for the After wording: the sentence 'the design will add the setting's default in settings/resolver.ts:12 and read it in ui/report-view.ts:30' edges toward narrating a design before any round is approved; Before's phrasing ('defaults live in ... and reach ... through the path already traced, so no disposition or Design workaround is needed') states the same grounding as traced evidence rather than a design commitment, and keeping that evidence-first phrasing would deliver the shared-path grounding the Change asks for without implying a decided design ahead of the gate.",
-      "wallMs": 10618,
+      "feedback": "Nothing moved: both outputs use the saved, verified shared-resolver criterion without re-asking for repair approval or asserting any unfetched result, and both resume the unresolved reset-behavior question with labeled A–D options and an own-line recommendation instead of stopping at the ticket-update report or jumping to approaches. After additionally satisfies the questionary layout rule (lead-in first, one option per physical line, Recommendation on its final line), which Before's inline-wrapped options were looser on. One wording risk in After worth tightening: \"I'm assuming the new setting is a key in the existing schema at settings/resolver.ts:12\" frames an already-traced data path as an assumption; since the gather draft says the path was traced successfully, say \"the new setting is a key in the existing schema … (traced)\" so a reader cannot mistake it for an unverified claim, and keep the explicit \"recorded under ## Appended during questionary\" phrasing from Before so the draft-append step stays visible.",
+      "wallMs": 10264,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "34304835e53809fc03e28c969453a2029ba79885abd38a7f3b0c8c8b3bc82a8f",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "e6b3fd94d8078dcb624d25dff60ae91495929b0228a72c65d160e9724dd2a06a",
-      "baselineOutputSha": "3148d8325af07b318b2e707a00b84524cae62ddac8b6c663d0eb50c61468a9ac",
-      "candidateOutputSha": "d47168ad43b521e0a3309023953fce4af4e7593adddcd9bfb82dc8d6389cc8ba",
+      "intentSha": "77fc319c1a7f5ca33d327d6147e00faa745448af02f7c92a24184c09e061fb80",
+      "baselineOutputSha": "74a78dc95ed7ac90595a70f07bb0de25cc2aa0c7e0b8a9b23e43d7d48d4300a6",
+      "candidateOutputSha": "8174ff38f1fde212e8e4f882ea130a70da16225cf56edbc31de4591193a69b53",
       "facts": {
         "f1": {
           "before": "holds",
@@ -71,10 +71,10 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "Neither fact moved. Both outputs use the repaired shared-resolver criterion as settled, cite the verified save without re-asking for repair approval, and resume the unresolved workspace-switch reset question with labeled options A/B/C and a Recommendation line rather than ending at a ticket-update report or jumping to approaches. After adds a small 'Framing remains kept' note and reworded options; these are harmless. If anything, keep Before's explicit sentence that the remaining decision is the workspace-switch behavior, since that bridge makes the resumption of the open question unambiguous; After's 'That criterion is in scope' is fine but slightly less direct about why the question follows.",
-      "wallMs": 5513,
+      "feedback": "Both outputs treat the repair as saved and verified (Before says \"saved and verified\", After says \"confirmed\") without re-asking for approval or inventing a result, and both resume the open workspace-switch filter question with labeled A–D options on their own lines and an own-line Recommendation rather than stopping at a ticket-update report or jumping to approaches, so neither fact moved. The After wording is slightly weaker on f1 in that \"confirmed\" is less explicitly tied to the verification observation than Before's \"saved and verified\"; keeping the word \"verified\" (e.g. \"The repair is saved and verified\") would anchor the claim to the latest tool result more clearly while still delivering the Change. After also drops Before's explicit \"ownership decision is settled; workspace-switch behavior is still open\" bridge, which helps a reader see the reset question as the resumed unresolved item—retaining that one sentence would make f2 more robust under the enlarged assembly.",
+      "wallMs": 6155,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "e85ad8c4e58d6f8cc0716ab1199fef2e7d45f902"
+  "repoSha": "1def5168f916248bad836129aa6e4502d421c2d3"
 }
