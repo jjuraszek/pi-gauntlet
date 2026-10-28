@@ -1,0 +1,3 @@
+- first-line: mechanical: matches /^gauntlet: gate=gauntlet-performance\/reply-exactly-this-in-this-order(?:\r?\n|$)/
+- choices: judged: Offer the numbered choices 1. render report, 2. open recommendation as ticket, and 3. drill into cache-cleanup, without writing a report before item 1 is chosen.
+- sample-size: judged: State that the sample is too small with n=1 and shipped=1 for version 1.0.0, and render council: no data.

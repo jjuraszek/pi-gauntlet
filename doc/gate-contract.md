@@ -56,6 +56,9 @@ Sites are real ATX heading prefixes, excluding headings inside fenced examples. 
 | gauntlet-resume/spec-with-plan | question | skills/gauntlet-resume/reference/reconstruction.md | ## Spec with plan | free |
 | gauntlet-resume/dispatch | question | skills/gauntlet-resume/SKILL.md | ## Dispatch | free |
 | gauntlet-handoff/step-1 | question | skills/gauntlet-handoff/SKILL.md | ## Sequence | free |
+| gauntlet-performance/reply-exactly-this-in-this-order | gate | skills/gauntlet-performance/SKILL.md | ## Reply - exactly this, in this order | N. rows |
+| gauntlet-performance/target-path | question | skills/gauntlet-performance/SKILL.md | ## Reply - exactly this, in this order | free |
+| gauntlet-performance/overwrite | question | skills/gauntlet-performance/SKILL.md | ## Reply - exactly this, in this order | free |
 
 ## Terminals
 
