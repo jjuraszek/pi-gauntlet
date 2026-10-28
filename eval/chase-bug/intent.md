@@ -1,4 +1,4 @@
-for: c60bedfffaada3abf2683513725c563848ce3ad8241d960e90a8c3334a02211f
+for: f1d22ade4b832768db0a0113525d2709d28e93f2face752a98ac66a5f5ad7b84
 
 ## Change
 Render the step-4 story, reporter draft, and terminal summary in one skill-local Verdict shape: three unfenced plain sentences under 80 words, with role-named components, visible proof, trailing citations, and a next step. Preserve menu separation, numeric mapping, eligibility, and reporter confirmation.

@@ -1,7 +1,7 @@
 {
   "sample": "prose-verdict-above-menu",
   "arm": "baseline",
-  "skillSha": "5cf4d9d5ea0c4d659b4344a0e164705ff68351e75395cfc2dbad0d808aa94842",
+  "skillSha": "b965b9cd3e43ddae698323b4d6105cf9d9a71c33e7c8bb98ae619c596990b945",
   "inputSha": "3e652b4cced93b9b887b849ec646ee4555a8c974765811fa342e3b20bccc04bf",
   "kind": "text",
   "assembly": "concat",
@@ -17,22 +17,22 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "# Checkpoint 1: Verdict menu (gate 1)\n\n```\nFault story: a request arrives for /widgets/ with a trailing slash -> the router's\npath matcher compares paths exactly, without normalization -> the route falls\nthrough to the 404 handler instead of returning 200.\nProof: `GET /widgets/` -> 404 | src/router.ts:88 | expected 200, got 404\n```\n\nPick one:\n\n1. [ ] File a ticket: /skill:shape-ticket, seeded with this evidence.\n2. [ ] Brainstorm now: /skill:brainstorming with this evidence as the seed.\n3. [x] Implement hotfix now: follow hotfix.md; add \"as a PR\" for a PR. [recommended]\n4. [ ] Finish with rendered summary.\n\neligible: all predicates pass\n\n**Supporting evidence**\n\n- **Repro:** a local request to `/widgets/` returned 404. The expected result is 200.\n- **Implicated code:** `src/router.ts:88` does an exact string comparison of the request path against the route pattern and does not normalize the path first.\n- **Falsification:** the hypothesis \"the exact compare without normalization causes the 404\" was tested and survived. It is the evidenced root cause.\n- **Prior-report search:** completed. No matching open or closed issue.\n- **Baseline:** clean at invocation, and checkpoint 2 showed no delta.\n\nWaiting for your pick.\n\n---\n\n# Checkpoint 2: Response draft (gate 2)\n\n**Resolved channel:** `gh issue comment` on the originating GitHub issue\n\n```\nSymptom: The page reportedly fails to render.\nVerdict: cannot-replicate. The page renders successfully in our reproduction attempts.\nEvidence: We followed the documented repro steps in Chrome and in Firefox, each with a clean profile. The page rendered successfully in both.\nNext step: Please provide the browser and version where you saw the failure, so we can retry the reproduction in that environment.\n```\n\nTo post this comment, reply with exactly `send it`. Any other reply will be treated as a change request to the draft or channel. Nothing has been pushed.\n",
-      "words": 280,
-      "wallMs": 9331,
+      "text": "## Checkpoint 1: Verdict menu\n\nOpening `/widgets/` returns the 404 page instead of the widgets page. The part that matches URLs to pages compares the path text exactly without normalizing it first, so the page is never found (the matcher in the router, `src/router.ts:88`; the local repro returns 404 where 200 is expected). Normalizing the path in that one comparison is a small, safe fix, so the hotfix is the recommended pick below.\n\n- The prior-report search completed and found no open or closed issue with this symptom.\n- The local repro reproduced the failure, and the falsification test for missing path normalization ran and passed.\n- The tracked baseline is clean at checkpoints 1 and 2, so this run caused no delta.\n\nPick one:\n\n```\n1. [ ] File a ticket - /skill:shape-ticket, seeded with this evidence.\n2. [ ] Brainstorm now - /skill:brainstorming with this evidence as the seed.\n3. [x] Implement hotfix now - follow hotfix.md; add \"as a PR\" for a PR. [recommended]\n4. [ ] Finish with rendered summary.\n\neligible - all predicates pass\n```\n\nWaiting for your pick.\n\n---\n\n## Checkpoint 2: Draft to the reporter\n\nThis is the draft for the GitHub issue. The resolved channel is `gh issue comment <n> --body-file <draft>`.\n\n> Thanks for the report that the page fails to load. We couldn't reproduce it: following the documented steps in clean Chrome and Firefox profiles, the page rendered successfully both times. Could you share your browser name and exact version so we can retry with your setup?\n\nReply with exactly `send it` to post this comment. Any other reply is treated as a change to the draft. Nothing has been pushed.\n",
+      "words": 262,
+      "wallMs": 14993,
       "mechanical": {
-        "no-labels": "fails"
+        "no-labels": "holds"
       }
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "## Checkpoint 1 — Verdict menu\n\nFault story: a request to `/widgets/` → the router compares paths without normalization → the route falls through to a 404 instead of returning 200.\n\nProof: local repro `/widgets/` → 404, expected 200 | `src/router.ts:88` | falsification test confirmed the cause.\n\nPrior-report search completed without a match.\n\nPick one:\n\n1. [ ] File a ticket — `/skill:shape-ticket`, seeded with this evidence.\n2. [ ] Brainstorm now — `/skill:brainstorming` with this evidence as the seed.\n3. [ ] Implement hotfix now — follow `hotfix.md`; add “as a PR” for a PR. **[recommended]**\n4. [ ] Finish with rendered summary.\n\neligible — all six hotfix predicates pass; the fix is small and safe.\n\n## Checkpoint 2 — Reporter response draft\n\nResolved channel: `gh issue comment`\n\n```text\nSymptom: The reported page fails to render.\nVerdict: Cannot replicate with the available reproduction steps.\nEvidence: Following the documented steps in Chrome and Firefox with clean profiles rendered the page successfully in both browsers.\nNext step: Please provide your browser name and version so we can investigate the environment-specific failure.\n```\n\nReply with the exact text `send it` to post this comment. Nothing has been pushed.\n",
-      "words": 174,
-      "wallMs": 4827,
+      "text": "## Checkpoint 1 — Generate the gate\n\nOpening `/widgets/` returns 404 instead of the expected 200. This is a confirmed bug: the part that matches URLs to pages compares paths without normalization, and the local repro and falsification test confirmed the cause (`src/router.ts:88`). The fix is small and safe, so implementing the hotfix is recommended.\n\nPick one:\n\n1. [ ] File a ticket - /skill:shape-ticket, seeded with this evidence.\n2. [ ] Brainstorm now - /skill:brainstorming with this evidence as the seed.\n3. [ ] Implement hotfix now - follow hotfix.md; add \"as a PR\" for a PR. [recommended]\n4. [ ] Finish with rendered summary.\n\neligible — all six predicates pass\n\n## Checkpoint 2 — Draft to the reporter\n\nChannel: `gh issue comment`\n\nThe reported page failure did not occur in our reproduction attempts. We cannot reproduce it: the documented steps rendered the page successfully in both Chrome and Firefox with clean profiles. Please provide your browser name and version so we can test the environment where the failure occurred.\n\nReply with the exact text `send it` to post this comment.\n",
+      "words": 166,
+      "wallMs": 10007,
       "mechanical": {
-        "no-labels": "fails"
+        "no-labels": "holds"
       }
     }
   },
-  "repoSha": "896a9adb7c1008dd102f6a10f992553491d371d9"
+  "repoSha": "bbb7a05516ce051520bf5e19f1051db934839955"
 }

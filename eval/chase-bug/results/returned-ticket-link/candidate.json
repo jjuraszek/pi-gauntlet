@@ -1,34 +1,48 @@
 {
   "sample": "returned-ticket-link",
   "arm": "candidate",
-  "skillSha": "c60bedfffaada3abf2683513725c563848ce3ad8241d960e90a8c3334a02211f",
-  "inputSha": "3e1424b7b0b4576585fcc4e99fbf2dc98d7764967df31e4302c5f1c701df605a",
+  "skillSha": "dddc74cb8e6e10b79867d9ab6580ce12dceb4d8f7581924809f9453cb6bde135",
+  "inputSha": "5084fec3faf934e0ad8402a53da684a3ae421dfd6ee55cf9a328968704976b9c",
   "kind": "text",
   "assembly": "concat",
   "thinking": "medium",
   "models": {
     "replay": [
+      "anthropic/claude-opus-5-5",
       "github-copilot/gpt-6.1-sol"
     ],
-    "judge": "github-copilot/gpt-6.1-sol",
+    "judge": "anthropic-fable/claude-fable-5-1",
     "thinking": "medium"
   },
   "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "gauntlet: done summary\n\nOpening `/widgets/` with a trailing slash shows the 404 page, but the page should load. This is a real bug: the part that matches URLs to pages compares the text exactly and does not ignore the trailing slash, so the page is never found (the matcher in the router, `src/router.ts:88`; the local repro returns 404 where 200 is expected). An existing ticket already covers this, so no new ticket was filed and the fix will be tracked there (https://github.com/example/widgets/issues/42).\n",
+      "words": 82,
+      "wallMs": 3939,
+      "mechanical": {
+        "no-labels": "holds",
+        "no-fence": "holds"
+      }
+    },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "gauntlet: done summary\n\nSymptom: Opening `/widgets/` returns 404 instead of 200.\nVerdict: Real bug: route matching does not strip the trailing slash.\nEvidence: `src/router.ts:88`; local reproduction confirmed the failure, and the falsification test passed.\nNext step: Track the fix in existing ticket https://github.com/example/widgets/issues/42, which already covers this concern. No new ticket was created and no tracker mutation occurred.\n",
+      "text": "gauntlet: done summary\n\nOpening `/widgets/` returns 404 instead of the expected 200. This is a confirmed bug: the local reproduction and falsification test show that the URL matcher compares paths without stripping the trailing slash (`src/router.ts:88`). Follow-up belongs in the existing ticket, https://github.com/example/widgets/issues/42, which already covers this concern; no new ticket was created and no tracker state changed.\n",
       "words": 58,
-      "wallMs": 2797,
-      "mechanical": {}
+      "wallMs": 5330,
+      "mechanical": {
+        "no-labels": "holds",
+        "no-fence": "holds"
+      }
     }
   },
   "judge": {
-    "github-copilot/gpt-6.1-sol": {
-      "factsSha": "fc79fb7939986467e2448d8e2123f3c1f3f71045b79823087b02f40614ca499a",
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "03c73d31db1f7f6555497d4959955c553a622b11395e591bba855a60f0920844",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "307adc60876c01832b7e04dd054d91743325370313e195db05b36f189f8e16de",
-      "baselineOutputSha": "2a87b73f04ea2a7eac6fa38e8cff40a445bad10f028a699b7b9dc26c4924719f",
-      "candidateOutputSha": "84d1bcda9de68e9de79ad2385d6f0b9af9b8fbe08ef9859a19bcd683d94a339e",
+      "intentSha": "55ef41bc30f87d86700f61cd3c0e897ce2602ed8cee004b73cb62ac2f502b288",
+      "baselineOutputSha": "4fb7450e75055156d2e1c79d9185f1ab090ed816d2d3c660f0940243592e8142",
+      "candidateOutputSha": "0ef9594f3351c47f79a549ba29acf62c718b52918616d8ab9425ee69a3b977d0",
       "facts": {
         "returned-reference": {
           "before": "holds",
@@ -39,12 +53,84 @@
           "before": "holds",
           "after": "holds",
           "label": "held"
+        },
+        "three-sentences": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "under-80-words": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "plain-reader": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "no-labels": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "no-fence": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
         }
       },
-      "feedback": "After preserves both facts: its next step cites the returned existing ticket, and it explicitly states that no new ticket was created and no tracker mutation occurred. No fact moved. Keep this existing-ticket wording and the actual returned URL when adding terminal markers; the added summary marker does not alter either fact.",
-      "wallMs": 3597,
+      "feedback": "After keeps every fact Before kept: three whole sentences, role-named component (\"the part that matches URLs to pages\") with visible proof and trailing citations, the existing-ticket link cited as where the fix is tracked, and no claim of a new ticket. The only risk is length: the After prose is 79 words, one under the limit, and the prepended `gauntlet: done summary` marker line adds three more tokens that a stricter counter might include, pushing it to 82. The growth came from the longer verdict clause (\"and does not ignore the trailing slash, so the page is never found\") and the extra article \"the\" before \"local repro\". To keep headroom while still delivering the gate marker and the three-sentence Verdict shape, trim sentence two back toward Before's wording (e.g. \"compares the text exactly instead of ignoring the trailing slash\" and drop \"so the page is never found\") and consider wording the skill so the gate id line is explicitly excluded from the summary word count.",
+      "wallMs": 23656,
+      "verdict": "unchanged"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "03c73d31db1f7f6555497d4959955c553a622b11395e591bba855a60f0920844",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "55ef41bc30f87d86700f61cd3c0e897ce2602ed8cee004b73cb62ac2f502b288",
+      "baselineOutputSha": "e0936e4f735e535c043b27ace16595fcc8e86608f1fc1dc8665a60a2d43beee3",
+      "candidateOutputSha": "fc794c7ecfcf42f25b82a93ffed63be9436cf6a73733001334791c33164d72f2",
+      "facts": {
+        "returned-reference": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "no-new-creation": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "three-sentences": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "under-80-words": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "plain-reader": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "no-labels": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "no-fence": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        }
+      },
+      "feedback": "After keeps every fact Before held: the summary is three unfenced sentences (~55 words), names the component by role (\"the URL matcher\") with the file:line trailing the claim, cites https://github.com/example/widgets/issues/42 as the follow-up target, and explicitly states no new ticket was created and no tracker state changed, matching the handoff result. The only risk introduced is the leading \"gauntlet: done summary\" line: a reader could treat it as a labeled field or a fourth fragment of the summary, which would threaten three-sentences and no-labels. Keep the gate marker on its own line, visibly separated from the prose and using the exact gate id required by the skill, and make the wording state that the marker sits outside the summary paragraph so the three-sentence count is unambiguous; otherwise the After wording delivers the Change without moving any fact here.",
+      "wallMs": 19686,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "2eb4429b4dd687432969f427f82d45d7840d7c63"
+  "repoSha": "bbb7a05516ce051520bf5e19f1051db934839955"
 }

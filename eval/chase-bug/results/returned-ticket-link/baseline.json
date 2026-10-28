@@ -1,8 +1,8 @@
 {
   "sample": "returned-ticket-link",
   "arm": "baseline",
-  "skillSha": "3e166d28f1e9cd0634670ce8f524fb4b80cd04b6563c400c90dd16f82b15ff89",
-  "inputSha": "3e1424b7b0b4576585fcc4e99fbf2dc98d7764967df31e4302c5f1c701df605a",
+  "skillSha": "0a00f78f57cd313d3870eeb05efb60827f270728fec2c404cd1fe608adf19748",
+  "inputSha": "5084fec3faf934e0ad8402a53da684a3ae421dfd6ee55cf9a328968704976b9c",
   "kind": "text",
   "assembly": "concat",
   "thinking": "medium",
@@ -15,13 +15,26 @@
     "thinking": "medium"
   },
   "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "Opening `/widgets/` with a trailing slash shows the 404 page instead of the widgets page. The part that matches URLs to pages compares the text exactly instead of ignoring the trailing slash, so this is a real bug (the matcher in the router, `src/router.ts:88`; local repro returns 404 where 200 is expected). An existing ticket already covers this, so no new ticket was filed and follow-up happens there (https://github.com/example/widgets/issues/42).\n",
+      "words": 69,
+      "wallMs": 9198,
+      "mechanical": {
+        "no-labels": "holds",
+        "no-fence": "holds"
+      }
+    },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "Symptom: Opening `/widgets/` returns 404 instead of 200.\nVerdict: Real bug: path matching does not strip the trailing slash.\nEvidence: `src/router.ts:88`; local reproduction confirmed the failure, and the falsification test passed.\nNext step: Existing ticket https://github.com/example/widgets/issues/42 covers this concern. No new ticket was created and no tracker mutation occurred.\n",
-      "words": 49,
-      "wallMs": 3590,
-      "mechanical": {}
+      "text": "Opening `/widgets/` returns 404 instead of the expected 200. This is a confirmed bug: the part that matches URLs to pages does not strip the trailing slash, and the local reproduction and falsification test confirmed the cause (`src/router.ts:88`). The concern is already covered by https://github.com/example/widgets/issues/42, so follow-up belongs on that existing ticket; no new ticket was created.\n",
+      "words": 57,
+      "wallMs": 3281,
+      "mechanical": {
+        "no-labels": "holds",
+        "no-fence": "holds"
+      }
     }
   },
-  "repoSha": "2eb4429b4dd687432969f427f82d45d7840d7c63"
+  "repoSha": "bbb7a05516ce051520bf5e19f1051db934839955"
 }

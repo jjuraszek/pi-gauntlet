@@ -1,7 +1,7 @@
 {
   "sample": "gate-line-first",
   "arm": "baseline",
-  "skillSha": "b069cdfaaf81d3ff9597f4a188c1e6c8c72d65009d607860d90e41449f14fce2",
+  "skillSha": "b702e45a2fa46d348dae29a9827e7542093825079d9059467c64f7710d4d5ec0",
   "inputSha": "9fffc01e2d3f1857da33fa187cb6596e9751beb91d6d80ba10a6117e11e26d67",
   "kind": "text",
   "assembly": "concat",
@@ -15,15 +15,24 @@
     "thinking": "medium"
   },
   "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "Opening `/widgets/` shows the 404 page when the page should load normally. The part that matches URLs to pages compares the text exactly, so the trailing slash prevents a match and this is a real bug (the matcher in the router, `src/router.ts:8`; `/widgets/` returns 404 where 200 is expected). The bug can wait for scheduled work, so replying to the reporter on the existing ticket is the recommended pick below.\n\n- Local repro: requesting `/widgets/` returned 404; the expected status is 200.\n- Root cause: the exact path comparison at `src/router.ts:8`.\n- Falsification: the test for the exact-comparison hypothesis ran and passed.\n- Prior-report search: open and closed issues were searched, and no matching report was found.\n- Zero-mutation check: the tracked-file status still matches the clean baseline.\n\nPick one:\n\n```\n1. [ ] Brainstorm now - /skill:brainstorming with this evidence as the seed.\n2. [ ] Implement hotfix now - follow hotfix.md; add \"as a PR\" for a PR.\n3. [x] Respond to reporter only. [recommended]\n\neligible - all predicates pass\n```\n",
+      "words": 159,
+      "wallMs": 11662,
+      "mechanical": {
+        "first-line": "fails"
+      }
+    },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "Fault story: a request to `/widgets/` → exact path comparison does not normalize the trailing slash → returns 404 instead of the expected 200.\nProof: local repro `/widgets/` → 404 | `src/router.ts:8` | expected 200; falsification passed.\n\nPrior-report search completed without a match. Baseline is clean.\n\nPick one:\n\n1. [ ] Brainstorm now - /skill:brainstorming with this evidence as the seed.\n2. [ ] Implement hotfix now - follow hotfix.md; add \"as a PR\" for a PR.\n3. [x] Respond to reporter only. [recommended]\n\neligible - all predicates pass\n",
-      "words": 77,
-      "wallMs": 4089,
+      "text": "Opening `/widgets/` returns 404 instead of the expected 200. This is a confirmed bug: the part that matches URLs to pages compares paths exactly, and the local falsification test passed (`src/router.ts:8`). The bug can be deferred, so responding on the existing report is the recommended next step.\n\nPick one:\n\n1. [ ] Brainstorm now - /skill:brainstorming with this evidence as the seed.\n2. [ ] Implement hotfix now - follow hotfix.md; add \"as a PR\" for a PR.\n3. [x] Respond to reporter only. [recommended]\n\neligible - all predicates pass\n",
+      "words": 83,
+      "wallMs": 5496,
       "mechanical": {
         "first-line": "fails"
       }
     }
   },
-  "repoSha": "2eb4429b4dd687432969f427f82d45d7840d7c63"
+  "repoSha": "bbb7a05516ce051520bf5e19f1051db934839955"
 }
