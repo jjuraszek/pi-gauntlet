@@ -41,6 +41,8 @@ Initial execution BASE `0ff9be58`. Initial inventory before drafting: empty. Aft
 
 Amendment provenance: BASE `b00359ff`; initial per-file inventory ` M doc/specs/2026-10-28-multi-repo-coordinated-flow.md`, admitted as the dispatched spec and the sole parent-supplied In-flight path. The plan path is also admitted. No source edits are present; the pending Wave 1 patches are outside this checkout. Before retaining evidence, `git -C "/Users/jacek/repos/pi-gauntlet/.worktrees/multi-repo-flow" diff --quiet 0ff9be58 HEAD -- . ':!doc/specs/' ':!doc/plans/'` exited 0 with HEAD read as `b00359ff`. All seven task commands are unchanged and retain valid evidence, including Task 3's derived command; no header command ran. Retained 7 bullets: `0ff9be58` -> `b00359ff`, tree-equivalent outside `doc/specs`, `doc/plans`. After the amendment write and during anchor repairs, HEAD remained `b00359ff` and status held only the admitted modified plan and spec; retain the unchanged commands at BASE.
 
+Scope-syntax amendment provenance: BASE `d24c8c8f`; initial per-file inventory ` M doc/specs/2026-10-28-multi-repo-coordinated-flow.md`, admitted as the dispatched spec and sole parent-supplied In-flight path. The dispatched plan path is also admitted. No source edits are present. `git -C "/Users/jacek/repos/pi-gauntlet/.worktrees/multi-repo-flow" diff --quiet b00359ff d24c8c8f -- . ':!doc/specs/' ':!doc/plans/'` exited 0. Retained 7 bullets: `b00359ff` -> `d24c8c8f`, tree-equivalent outside `doc/specs`, `doc/plans`. Every task command is unchanged, including Task 3's derived existing-anchor command; no task or header command reran. After the amendment write, HEAD remained `d24c8c8f` and status held only the admitted modified plan and spec; the literal repair retains the unchanged commands at BASE.
+
 ## Wave 1 - Independent foundations
 
 Tasks own disjoint files and independently allocated temporary repositories. Shared bin outputs are rebuilt only in Task 7.
@@ -48,7 +50,7 @@ Tasks own disjoint files and independently allocated temporary repositories. Sha
 ### Task 1: Define membership, leg artifacts, and rooted provisioning
 
 **TDD scenario:** Modifying tested code - run existing tests first.
-**Spec:** doc/specs/2026-10-28-multi-repo-coordinated-flow.md § "Problem" L22, § "Acceptance criteria" L28-L37, § "Acceptance criteria" L48-L49, § "Design" L57-L64, § "Configuration" L68-L85, § "Brainstorming" L89-L93, § "Errors and edge cases" L129-L137
+**Spec:** doc/specs/2026-10-28-multi-repo-coordinated-flow.md § "Problem" L22, § "Acceptance criteria" L28-L37, § "Acceptance criteria" L48-L49, § "Design" L57-L64, § "Configuration" L68-L85, § "Brainstorming" L89-L93, § "Implement engines" L104, § "Errors and edge cases" L129-L137
 **Files:**
 - Create: `skills/brainstorming/reference/legs.md`
 - Modify: `skills/brainstorming/SKILL.md:69-99`
@@ -61,10 +63,12 @@ Tasks own disjoint files and independently allocated temporary repositories. Sha
 - Test: `scripts/brainstorming-contract.test.mjs`
 **Tests:**
 - `node --test scripts/brainstorming-contract.test.mjs`
-- baseline: b00359ff pass
+- baseline: d24c8c8f pass
 - via: `/skill:using-git-worktrees`, Worktree First, gather, spec-writing, amendments
 
 Decision: use the new reference as the sole portable leg grammar; retain existing tracker and dispatch APIs. Match shape-ticket's identity rule in `repo-audit.md:81` and its existing ticket-group handling in `reference/ticket-acceptance.md`.
+
+Decision: `scope:` declares original AC ownership, not ledger state, per spec L104. Task 2 admits `row | status | attempts | evidence`, `## Leg mapping` with `row | ac | leg`, home `base:` and `pending:`; Task 4's `/skill:loop-implementation` and `agents/loop-implementer.md` consume that mapping with leg-local `cwd`, `git -C`, `Rules:` and `Leg:`, set seeded to `yes` after validation, and compute cap using `maxIterationsPerRow`. Keep these consumers separate from the portable spec producer.
 
 - [ ] Run the scoped command to establish existing contract behavior.
 - [ ] Add failing contract cases for selected/unselected siblings, ambiguous basename and bad selected path; run red.
@@ -77,8 +81,9 @@ Decision: use the new reference as the sole portable leg grammar; retain existin
 - [ ] Extend `/skill:using-git-worktrees` caller `$ROOT`/`$BRANCH`; root Step 0, clean-base, `## using-git-worktrees`, keyed `home:`/`create:` and discovery in `$ROOT`. Derive shared `NAME` from `BRANCH` using `/` -> `-`; ask once for unresolved other wrapper tokens from that leg's touched directory.
 - [ ] Add rooted `worktree list` and exact branch read-back after creation; carry every `Worktree ready` result home first. Never reuse session isolation as another leg, suffix a collision, or branch session cwd on sandbox failure. Stop naming repo/branch and list preserved created legs. PR home retains `reference/pr-head.md`.
 - [ ] Extend gather to one scout per leg with that leg's `cwd`. Walk root and touched directories for `AGENTS.md`/`CLAUDE.md`; follow one hop of local doc links in prose/bullets/tables, dedupe by `realpath`, omit untouched packages. Emit `Rules: root only - paths unresolved` or missing-link Rules entries; linked docs contribute no further links. Exercise `repo-a/pkg-x/AGENTS.md`, exclude pkg-y.
-- [ ] In `reference/spec-finalization.md`, place `## Legs` after `## Acceptance criteria` and optional `## Rework record`. Each `### Leg:` carries `branch:`, `contract:`, `Rules:`, scope/AC ownership and design.
-- [ ] Define companion writes: commit home, then each companion file with `git -C`: `**Home:**` tuple, copied `## Problem`, `## Decisions` from shared Design/Errors/Out-of-scope and clauses binding that repo, own block verbatim. Member ticket groups become `in-scope`; unmatched groups retain `this repo / elsewhere / repair`; `elsewhere:` creates no leg.
+- [ ] In `reference/spec-finalization.md`, place `## Legs` after `## Acceptance criteria` and optional `## Rework record`. Each `### Leg:` carries `branch:`, `contract:`, `Rules:`, exactly one `scope:` line, and `design:` prose for owned paths and observable outcomes. Define the scope grammar only in `reference/legs.md`: `scope: none` or a comma-separated list such as `scope: AC 1, AC 3`, using one-based original AC indices including cut rows. Repeat shared indices in each owning leg; indices unlisted across all legs default home. Never infer ownership from `design:` prose or paths.
+- [ ] Add source-contract tests for the leg template and finalization/amendment references: exactly one scope line, shared AC repeated across legs, all-`scope: none` defaulting home, and a `design:` mention of an AC that does not claim it. Require validation to reject missing/duplicate scope lines, duplicate indices within one leg, malformed lists and nonexistent original indices before committing artifacts; keep the same index in different legs valid. Cover zero, fractional, range and bare-number entries, trailing commas and mixed `none`/AC lists. Preserve scope indices on disposition-only amendments and carry the own block verbatim into companion files; run red before adding these instructions.
+- [ ] Define companion writes: commit home, then each companion file with `git -C`: `**Home:**` tuple, copied `## Problem`, `## Decisions` from shared Design/Errors/Out-of-scope and clauses binding that repo, own block verbatim. Member ticket groups become `in-scope`; unmatched groups retain `this repo / elsewhere / repair`; `elsewhere:` creates no leg. Encode member ticket ownership through original AC indices in `scope:`, and place owned paths only in `design:`.
 - [ ] Update `reference/amendment-surface.md` to rewrite affected companion artifacts in the same amendment. Record authority change against `skills/finishing-a-development-branch/SKILL.md:383`: section-bearing specs use recorded contracts; legacy no-section specs reread. Single-member runs add one block only, no companion artifact, `legs:` brief, `--leg`, receipt or loop.
 - [ ] Run scoped tests green and check changed instructions against forge-skill.
 - [ ] Commit as `Define coordinated legs and rooted worktree provisioning`.
@@ -96,20 +101,22 @@ Decision: use the new reference as the sole portable leg grammar; retain existin
 - Test: `extensions/phase-tracker.test.ts`
 **Tests:**
 - `node --experimental-loader ./extensions/test-support/pi-stubs.mjs --test extensions/lib/plan-check.test.ts extensions/phase-tracker.test.ts`
-- baseline: b00359ff pass
+- baseline: d24c8c8f pass
 - via: `plan_check`, `checkPlan`, `FsPort`, ledger admission
 
 Decision: extend `FsPort.exists(path, leg?)` and `FsPort.glob(pattern, leg?)` with an optional normalized repo argument, retaining one-argument callers. Parse membership in the pure checker, resolve roots only in the phase-tracker port, and preserve `checkPlan(planText, specText, fs)`.
 
-Decision: extend `checkLedger` in `extensions/lib/plan-check.ts:1140-1185` only when the spec has multiple members. Keep legacy admission, including its missing-cap fixture in `extensions/lib/plan-check.test.ts:15-21`, unchanged. Validate coordinated metadata structurally here; Task 4's `/skill:loop-implementation` and `agents/loop-implementer.md` own cap computation from `maxIterationsPerRow` and git-backed pending-result validation. The pure checker neither loads settings nor infers commit evidence.
+Decision: extend `checkLedger` in `extensions/lib/plan-check.ts:1137-1176` only when the spec has multiple members. Keep legacy admission, including its missing-cap fixture in `extensions/lib/plan-check.test.ts:15-21`, unchanged. Validate coordinated metadata structurally here; Task 4's `/skill:loop-implementation` and `agents/loop-implementer.md` own cap computation from `maxIterationsPerRow` and git-backed pending-result validation. The pure checker neither loads settings nor infers commit evidence. Parse the exact `scope:` grammar from spec L104, not file paths or `design:` prose, and reuse its ownership result for coordinated admission and ledger mapping.
 
 - [ ] Run scoped tests; add red fixtures for distinct valid leg SHAs, wrong-leg SHA, unknown leg, mixed wave, case-insensitive IDs and absent Leg default.
 - [ ] Add red fixtures for identical relative paths across repos, cross-leg Create/Test leakage and legacy specs.
 - [ ] Parse first task line `Leg:` against `## Legs`; absent means home. Emit `leg-unknown` without probing arbitrary roots. Parse per-leg Baseline declarations and compare each bullet to its own leg SHA. Keep evidence requirements and `**Tests:**` directly after `Files:`/`**Files:**`; reject mixed waves. Plan and `**Spec:**` stay home-owned.
 - [ ] Thread leg into `Modify:`/`Create:`/`Test:` existence and glob resolution. Key created paths and overlap by `(leg, path)`, preserving Test/Test non-ownership. The writer fills `Rules:`/`root only - paths unresolved` and runs `cwd`/`git -C` at the same leg root.
 - [ ] Resolve roots in the port from selected sibling paths and recorded `home:` pattern with `NAME`. Test distinct temporary primaries, patterns and resolution failure; fail with input findings. Keep home flow settings and legacy root behavior.
+- [ ] Add red coordinated-scope fixtures for exactly one `scope:` line per `### Leg:` block: accept `scope: none` and `scope: AC 1, AC 3`, shared indices repeated in different legs, and lists whose textual order differs from original AC order. Reject missing/duplicate scope lines, duplicate indices within a leg, zero/negative/fractional/nonexistent indices, bare numbers, ranges, trailing commas and `none` mixed with AC entries. Count original top-level AC rows including cut rows, not nested checkboxes or expanded ledger IDs. Assert that `design:` text mentioning an unlisted AC or path cannot claim ownership. Run red before implementing this parser.
+- [ ] Validate coordinated scope before plan or ledger admission; stop on malformed input rather than treating it as an empty list. Derive each original AC's owner set from valid scope lists, defaulting only unlisted ACs to home. Preserve membership order for shared owners, regardless of scope-list order. Leave legacy and single-member ledger admission unchanged.
 - [ ] Add red coordinated-ledger fixtures retaining `row | status | attempts | evidence` with contiguous numeric entry IDs: one shared AC expands in membership order, an unowned AC defaults home, and each entry maps exactly once in `## Leg mapping` with columns `row | ac | leg`. Reject missing/duplicate mapping entries or AC/leg pairs, unknown legs, nonexistent original ACs, wrong order and disposition mismatches; retain escaped-pipe evidence tests. Keep original one-based AC numbering, including cut ACs, distinct from expanded entry IDs.
-- [ ] Parse the mapping to validate one entry per owned AC/leg pair against the spec's `### Leg:` scope; apply status/disposition and attempts/evidence checks to the original AC through that mapping, not through the expanded row number. Retain the four-column table; do not add a ledger module or alter legacy/single-member ledger bytes.
+- [ ] Parse the mapping to validate one entry per owned AC/leg pair against the exact `scope:` lists; apply status/disposition and attempts/evidence checks to the original AC through that mapping, not through the expanded row number. Assert that a shared original AC on two valid scope lists produces two entries rather than a duplicate-ownership error, and that every AC defaults home when all lists are `scope: none`. Retain the four-column table; do not add a ledger module or alter legacy/single-member ledger bytes.
 - [ ] Validate coordinated headers: `base:` remains home's base; exactly one per-member base SHA and seeded header, initially `seeded repo-a: no` and `seeded repo-b: no`, accepting only `no` or `yes`. Require home base equality and reject missing/duplicate/foreign member headers, malformed SHAs, invalid iterations and nonpositive/noninteger cap. Permit later cap grants and closed/cut rows without recomputing cap from current non-cut count; Task 4 sets the initial formula and preserves it thereafter.
 - [ ] Add pending-tuple fixtures for `pending: 2 | repo-b | abc1234` and `pending: seed | repo-b | abc1234`. Admit at most one tuple with a valid pre-dispatch SHA, known companion and numeric target belonging to that leg or `seed`; reject duplicate/malformed tuples, foreign targets and home pending tuples. Do not mark a leg seeded from tuple presence or invent result evidence. Assert coordinated skeleton, partial-seed and recovered-ledger admission; prove single-member/legacy fixtures remain unchanged.
 - [ ] Run scoped tests green, `node --check extensions/lib/plan-check.ts`, and `node --check extensions/phase-tracker.ts`. Single-member behavior still adds no leg file, `legs:` brief, `--leg` or companion loop.
@@ -132,7 +139,7 @@ Decision: extend `checkLedger` in `extensions/lib/plan-check.ts:1140-1185` only 
 - Test: `src/bins/gauntlet-telemetry-seal.test.mjs`
 **Tests:**
 - `node --experimental-loader ./extensions/test-support/pi-stubs.mjs --test extensions/verify-before-ship.test.ts extensions/lib/telemetry-record.test.ts bin/gauntlet-telemetry-seal.test.mjs src/bins/gauntlet-telemetry-seal.test.mjs`
-- baseline: b00359ff pass via `node --experimental-loader ./extensions/test-support/pi-stubs.mjs --test extensions/verify-before-ship.test.ts extensions/lib/telemetry-record.test.ts bin/gauntlet-telemetry-seal.test.mjs`
+- baseline: d24c8c8f pass via `node --experimental-loader ./extensions/test-support/pi-stubs.mjs --test extensions/verify-before-ship.test.ts extensions/lib/telemetry-record.test.ts bin/gauntlet-telemetry-seal.test.mjs`
 - via: `serializeRecord`, `parseRecord`, `--leg`, seal retry, advisory
 
 Decision: add source-CLI cases at the named src path and retain bundled regressions in bin. Add optional top-level `legs` to schema 1, not a schema version. New tests invoke source; Task 7 rebuilds bundles.
@@ -170,10 +177,10 @@ Depends on Wave 1: consume Task 1's grammar, Task 2's admission model and Task 3
 - Test: `scripts/loop-engine-contract.test.mjs`
 **Tests:**
 - `node --test scripts/wave-review.test.mjs scripts/loop-engine-contract.test.mjs`
-- baseline: b00359ff pass
+- baseline: d24c8c8f pass
 - via: `/skill:subagent-driven-development`, `/skill:loop-implementation`, writer and loop personas
 
-Decision: keep flat tracker and numeric ledger entry IDs; implement the coordinated grammar from spec L104 and Task 2 in the loop driver's Entry, Dispatch and Validate the return sections. Preserve `agents/loop-implementer.md:14-63` one-commit child boundary and bounded result format: for companions the child's commit carries the result and the parent alone writes the home ledger. Keep legacy/single-member bytes and persona frontmatter byte-identical; Rules inputs are additive.
+Decision: keep flat tracker and numeric ledger entry IDs; implement the coordinated grammar from spec L104 and Task 2 in the loop driver's Entry, Dispatch and Validate the return sections. Preserve `agents/loop-implementer.md:14-63` one-commit child boundary and bounded result format: for companions the child's commit carries the result and the parent alone writes the home ledger. Keep legacy/single-member bytes and persona frontmatter byte-identical; Rules inputs are additive. Use `reference/legs.md` from Task 1 as the skill grammar owner for `scope:`; admit ownership through Task 2's checker and never infer it from `design:` prose. Personas consume the mapped original AC and leg from the caller, not a second ownership grammar.
 
 Decision: reuse the driver's existing `target` and `iteration` inputs and the persona's `loop: row` / `loop: seed evidence` subjects for attributed companion commits. Put the exact dispatched `pending:` tuple and `iteration:` in the commit body, followed by the resulting four-column target row (or all non-cut rows for that leg's seed) and existing bounded decision line. This carries the pending head, target, consumed iteration and result in the commit itself, not in a new sidecar or trusted transcript. Seed evidence retains the persona's zero-attempt and baseline-closure rules.
 
@@ -182,8 +189,9 @@ Decision: reuse the driver's existing `target` and `iteration` inputs and the pe
 - [ ] Re-walk `Files:` to append extra `Rules:` and resolve `Rules: root only - paths unresolved`. Align `Modify:`/`Create:`/`Test:`, `(leg, path)`, `home:`/`NAME` and `leg-unknown` with `extensions/lib/plan-check.ts` and `extensions/phase-tracker.ts`; repair plan, not membership.
 - [ ] Split mixed waves into consecutive single-leg waves without violating dependencies. Select root before `WAVE_BASE_SHA`, isolation, child/reviewer `cwd`, `git -C`, snapshots, integration, tests, repair and commit. Keep authoritative spec reads at home.
 - [ ] Require implementer, spec-reviewer and code-reviewer to read combined spec/task Rules before acting. Extend `eval/subagent-driven-development/samples/leg-cwd` through Task 7 without changing existing dispatch/acceptance shapes.
-- [ ] Add red loop contract cases for shared-AC expansion, unowned-home default, stable numeric IDs, duplicate/missing mapping, per-leg seed selection and all-cut exit. Retain the existing legacy cap and seed assertions in `scripts/loop-engine-contract.test.mjs:1-57`; add coordinated assertions rather than replacing legacy facts.
-- [ ] Map each original one-based AC to the owning `### Leg:` scope or home. Assign numeric entries in original AC order then membership order for shared ACs, leaving spec rows untouched. Retain `row | status | attempts | evidence` and add `## Leg mapping` with `row | ac | leg`, each entry exactly once. Carry cut dispositions to each expanded entry. Keep `base:` as home base and record one `base repo-a: abc1234` / `seeded repo-a: no` pair per member using its actual repo and base, including home.
+- [ ] Add red loop contract cases for `scope: AC 1, AC 3`, `scope: none`, shared indices repeated by every owner, unlisted-home default, and stable numeric IDs despite reordered scope lists. Require stops on missing/duplicate scope lines, duplicate indices within one list, malformed tokens and out-of-range original indices before skeleton commit or dispatch. Include cut original AC indices and a `design:` mention that cannot claim an AC. Test duplicate/missing mapping, per-leg seed selection and all-cut exit. Retain the existing legacy cap and seed assertions in `scripts/loop-engine-contract.test.mjs:1-57`; add coordinated assertions rather than replacing legacy facts.
+- [ ] In coordinated Entry, read each `### Leg:` block's exactly one `scope:` line under Task 1's grammar: `scope: none` or a comma-separated original-index list such as `scope: AC 1, AC 3`. Reject duplicate, malformed or nonexistent indices and repeated/missing scope lines; route invalid spec ownership through the amendment stop rather than guessing from `design:` text or silently defaulting it. Use one-based original top-level AC indices including cut ACs; leave spec rows untouched. Default only indices absent from every valid list to home, and repeat shared indices in each owner's list.
+- [ ] Assign numeric entries in original AC order then membership order for shared ACs, independent of scope-list order. Retain `row | status | attempts | evidence` and add `## Leg mapping` with `row | ac | leg`, each entry exactly once. Carry cut dispositions to each expanded entry. Keep `base:` as home base and record one `base repo-a: abc1234` / `seeded repo-a: no` pair per member using its actual repo and base, including home.
 - [ ] Compute initial coordinated cap as non-cut entry count times `maxIterationsPerRow` plus one seed dispatch per leg with non-cut entries. Example: one AC shared by home/companion plus one home-only AC gives three non-cut entries and two seed dispatches, cap 14 at default 4; a wholly cut third leg adds no seed. All-cut cap stays 1 and exits without seed. Preserve cap after cuts, reopens, amendments and funding; only an explicit existing cap grant raises it. Keep iterations, attempts, funding, retry and stagnation semantics.
 - [ ] Select the next unseeded leg with non-cut entries in membership order before ordinary row targeting. Dispatch seed or numeric entry with its mapped original AC, leg worktree as `cwd`/`git -C`, per-leg base, `Leg:` and Rules, reading the home spec/ledger by absolute path. Validate every non-cut entry in that leg before setting its seeded value to `yes`; preserve all attempts during seed and retain proven baseline closures. Never mark other legs seeded or change foreign entries.
 - [ ] Capture home and selected companion heads and the saved ledger before dispatch. Bump iterations once and, before every companion dispatch including seed, persist `pending: 2 | repo-b | abc1234` or `pending: seed | repo-b | abc1234` in the home ledger using the actual target and pre-dispatch HEAD. Keep that known pre-dispatch ledger update durable on disk for recovery before generic dirty checks; admit only the expected bump/tuple changes, stopping on other dirt. Home iterations retain the existing single child commit, with parent validation of home-only rows and seeded state.
@@ -191,7 +199,7 @@ Decision: reuse the driver's existing `target` and `iteration` inputs and the pe
 - [ ] Validate a companion return from its commit, not the reply: clean companion, exactly one commit after recorded HEAD, matching pending tuple/iteration/subject, correct target or leg seed rows, bounded result evidence and decision. Reject wrong target, foreign entry, header changes, fabricated counts or malformed evidence under the existing stop/repair rules; apply ordinary repair only to the target and keep seed validation misses a human stop. Parent updates only that leg's seeded state or target entry, records companion SHA in evidence, retains the consumed iteration and prior decisions, and removes `pending:` in the home-ledger commit. Exclude parent ledger commits from child-only empty-commit stagnation.
 - [ ] Before any new dispatch on resume, recover pending companion work only when exactly one new commit matches that tuple and its recorded result. Reapply the same return validation, record SHA/evidence and clear pending in the home-ledger commit without another attempt or iteration bump; do not rerun the row or seed. Stop preserving state on zero commits, unrelated movement, multiple commits or attribution/result mismatch rather than inventing evidence. After successful parent commit, a subsequent resume has no pending tuple and cannot duplicate the update.
 - [ ] Add executable temporary-git fixtures to `scripts/loop-engine-contract.test.mjs` for interrupted ordinary and seed returns, a resumed clear-pending ledger, wrong tuple/iteration, unrelated one-commit movement, multiple commits and foreign-row evidence. Couple the assertions to the driver/persona body grammar. Assert companion code is one commit, home update is one commit, attempts/iterations are consumed once, seed changes only its leg and zero attempts, cap survives recovery/funding/cuts, and legacy/single-member ledger output gains no coordinated metadata. Run scoped tests red before implementing these instructions and green afterward.
-- [ ] Reconcile amendments through original AC/leg mapping without resetting attempts, iterations or cap. Exercise the detailed grammar and interrupted two-commit boundary through Task 7's `eval/loop-implementation/samples/leg-iteration`; require its existing case and expected facts to show numeric mapping, per-leg seeds/bases, cap including seeds, attributed pending recovery and no repeated row dispatch. Task 7 retains ownership of the eval files.
+- [ ] Reconcile amendments through original AC/leg mapping without resetting attempts, iterations or cap. Re-read explicit scope lists after an approved ownership amendment; a disposition-only cut does not renumber original ACs or change ownership. Exercise the detailed grammar and interrupted two-commit boundary through Task 7's `eval/loop-implementation/samples/leg-iteration`; require its case and expected facts to include exact `scope:` lists, shared ownership, an unlisted-home AC, paths in `design:`, numeric mapping, per-leg seeds/bases, cap including seeds, attributed pending recovery and no repeated row dispatch. Task 7 retains ownership of the eval files.
 - [ ] Route end-of-engine verification/reviews to every leg/owned AC with home flow policy, then coordinated finish once. Single-member/legacy paths add no leg file, `legs:` brief, `--leg` or companion loop.
 - [ ] Run scoped tests green and forge-skill checks; commit as `Dispatch plan waves and loop rows in their owning legs`.
 
@@ -210,7 +218,7 @@ Decision: reuse the driver's existing `target` and `iteration` inputs and the pe
 - Test: `scripts/brief-contract-lint.test.mjs`
 **Tests:**
 - `node --test scripts/brief-contract-lint.test.mjs`
-- baseline: b00359ff pass
+- baseline: d24c8c8f pass
 - via: `/skill:gauntlet-handoff`, `/skill:gauntlet-resume`, `legs:`, entry checks 3/3b/4
 
 Decision: extend only the existing brief contract, not cohort's six-heading core. Receipt transport is not proof; Task 6's live validation governs. Recover Task 4's pending loop boundary before dispatch.
@@ -235,7 +243,7 @@ Decision: extend only the existing brief contract, not cohort's six-heading core
 - Test: `scripts/finish-verification.test.mjs`
 **Tests:**
 - `node --test scripts/finish-verification.test.mjs`
-- baseline: b00359ff pass
+- baseline: d24c8c8f pass
 - via: finish Steps 1/3.5/4/5/6, receipts, home strip-and-seal
 
 Decision: new finish reference owns coordinated mechanics; gate calls it once. `## Legs` uses recorded `contract:` lines; legacy no-section retains rereading. Receipts are untracked flow artifacts, not telemetry or approval evidence.
@@ -329,7 +337,7 @@ Depends on Waves 1-2: all behavior surfaces exist. This task alone owns eval ass
 - Test: `bin/gauntlet-telemetry-seal.test.mjs`
 **Tests:**
 - `node --test eval/lib/lint.test.mjs bin/gauntlet-telemetry-seal.test.mjs`
-- baseline: b00359ff pass
+- baseline: d24c8c8f pass
 - via: `lintAll`, `plan_check`, changed instruction assemblies, built CLI
 
 Decision: use text replay cases with embedded synthetic file/tool observations as existing targets do, not another harness. Broad Modify globs permit only needed assembly/intent repairs and single-member spec-body expectation changes from the all-target run.
@@ -410,7 +418,11 @@ Depends on Waves 1-3: document implemented contracts. Cross-cutting docs are del
 | § "Writing-plans and plan_check" L97-L98 | Task roots, created anchors and qualified ownership | Task 2, Task 4 |
 | § "Implement engines" L102-L104 | Homogeneous dependency-preserving waves | Task 4 |
 | § "Implement engines" L102-L104 | SDD isolation/review/integration/commit follow leg | Task 4 |
-| § "Implement engines" L104 | Original AC ownership defaults home; shared AC entries ordered by AC then membership | Task 2, Task 4 |
+| § "Implement engines" L104 | Exactly one `scope:` line per leg: `scope: none` or `scope: AC 1, AC 3` using original one-based indices | Task 1, Task 2, Task 4 |
+| § "Implement engines" L104 | Reject duplicate scope lines/within-leg indices, malformed lists and nonexistent original ACs; retain cut indices | Task 1, Task 2, Task 4 |
+| § "Implement engines" L104 | Every shared owner lists its index; only unlisted ACs default home | Task 1, Task 2, Task 4 |
+| § "Implement engines" L104 | Owned paths belong in `design:` prose; prose never determines AC ownership | Task 1, Task 2, Task 4 |
+| § "Implement engines" L104 | Expand validated scope ownership in original AC then membership order, not scope-list order | Task 2, Task 4 |
 | § "Implement engines" L104 | Numeric four-column entries plus unique original AC/repo mapping in `## Leg mapping` | Task 2, Task 4 |
 | § "Implement engines" L104 | Home `base:` and per-member base/seeded headers; seed only its leg before marking `yes` | Task 2, Task 4 |
 | § "Implement engines" L104 | Initial cap counts non-cut entries and per-active-leg seeds; all-cut cap 1 | Task 4 |
