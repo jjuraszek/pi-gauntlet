@@ -3,7 +3,6 @@ bundle-: skills/brainstorming/reference/ticket-acceptance.md
 bundle-: skills/brainstorming/reference/spec-finalization.md
 bundle+: skills/brainstorming/reference/legs.md
 bundle+: skills/using-git-worktrees/SKILL.md
-bundle+: skills/brainstorming/SKILL.md
 # Input
 
 Independent membership/provisioning observations. Home /work/repo-a declares ../repo-b and ../repo-c as siblings.

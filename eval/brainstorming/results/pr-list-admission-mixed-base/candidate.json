@@ -1,7 +1,7 @@
 {
   "sample": "pr-list-admission-mixed-base",
   "arm": "candidate",
-  "skillSha": "14c4691b4b8ce67b0e09b559803256097bb54f8c0dd00c1324971de118f6d54e",
+  "skillSha": "39cbf4496edce3761f3926f439452aa2fb3b760b2ad71fa0fa7264f649f09363",
   "inputSha": "818c811785096e955fb78757ab08cbb812853d73b8ab5363a5c2231a47eff578",
   "kind": "text",
   "assembly": "headed",
@@ -17,16 +17,16 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "# Narrated read and stage actions\n\n## Trace A: prompt `#12 #13` (mixed bases)\n\n1. **Checklist step 1: start brainstorm tracking.** This is a fresh authorized entry, so tracking resets before anything else runs:\n   - `phase_tracker({ action: \"reset\" })`\n   - `plan_tracker({ action: \"clear\" })`\n   - `phase_tracker({ action: \"start\", phase: \"brainstorm\" })`\n\n2. **Checklist step 2: resolve the leading run.** I `read` `skills/brainstorming/reference/pr-subject.md` at its absolute path under `skills/`. The read succeeds, and its \"Resolve before provisioning\" rules apply.\n\n3. **Parse the leading run.** The trimmed prompt `#12 #13` is two bare GitHub references separated by whitespace, with no intent text. Bare refs resolve in this checkout. Origin `git@github.com:acme/widget.git` gives the repository identity `acme/widget`.\n\n4. **Admit #12, in order and not in parallel.** The observed `gh pr view 12` result is an OPEN pull request in `acme/widget`, non-fork, base `main`. Because it is a PR, `gh issue view` is not reached. All checks pass:\n   - state is OPEN\n   - the repository matches origin `acme/widget` (lowercase compare)\n   - `isCrossRepository` is false\n   - it is first in the list, so it sets the reference base `main`\n   - there is no duplicate\n   \n   #12 is home.\n\n5. **Admit #13.** The observed `gh pr view 13` result is an OPEN pull request in `acme/widget`, non-fork, base `release-2`. State, repository and fork checks pass, but the base differs from home's `main`. This fails the mixed-base check.\n\n6. **Stop before any write.** I emit:\n\n   > `#13 targets release-2 but home #12 targets main; mixed bases are not admitted.`\n   >\n   > To rework these together anyway, merge the heads into one branch by hand, open one PR, and brainstorm that PR.\n\n   Mixed base is an umbrella-remedy failure, so the remedy paragraph is appended. Nothing else runs:\n   - no worktree is created, and since none exists, none is touched\n   - `/skill:using-git-worktrees` is not invoked\n   - the spec-PR classifier, the relatedness fetch, ticket binding, gather and the Ticket Handling read (step 3) are not reached\n   \n   The brainstorm phase stays in progress at step 2, waiting for a corrected prompt.\n\n## Trace B (independent duplicate variant): prompt `#13 https://github.com/acme/widget/pull/13`\n\n1. **Checklist step 1.** Tracking resets and starts in the same three calls as Trace A, step 1.\n\n2. **Checklist step 2.** I `read` `skills/brainstorming/reference/pr-subject.md`. The read succeeds.\n\n3. **Parse the leading run.** The run holds two references: bare `#13` (this checkout, `acme/widget`) and the `/pull/13` URL, which resolves to `acme/widget#13`. There is no intent text.\n\n4. **Admit the first ref, `#13`.** The observed `gh pr view` result is an OPEN, in-repo, non-fork PR in `acme/widget`, base `main`. Every check passes, and it becomes home.\n\n5. **Admit the second ref, the URL.** It resolves to the same OPEN in-repo PR on `main`. State, repository, fork and base checks all pass because the base matches home's `main`. Comparing resolved identity (repository plus number) shows the URL and the bare ref are the same PR, so the duplicate check fails.\n\n6. **Stop before any write.** I emit:\n\n   > `#13 is listed twice; list each PR once.`\n\n   This is a direct-correction failure, so no umbrella paragraph is appended. The remedy is to re-run with each PR listed once, for example `brainstorming #13`. No provisioning, worktree or later step runs, and the phase stays in progress at step 2.\n",
-      "words": 521,
-      "wallMs": 24565,
+      "text": "# Narrated read actions\n\nNo live calls were made. Each `gh` result below comes from the fixed observations. Each `read` is narrated as a required action with its observed outcome, and no reference content is treated as session context.\n\n## Trace A - prompt `#12 #13`\n\n1. **Stage (step 1, fresh epoch).** This is an authorized fresh entry, so the trackers are reset before any read or worktree inspection. The sequence is `phase_tracker({ action: \"reset\" })`, then `plan_tracker({ action: \"clear\" })`, then `phase_tracker({ action: \"start\", phase: \"brainstorm\" })`.\n2. **`read` `skills/brainstorming/reference/pr-subject.md`** (step 2, leading-run resolution). Outcome: the file is readable, so resolution proceeds under its \"Resolve before provisioning\" rules.\n3. **Stage: parse the leading run.**\n   - The trimmed prompt `#12 #13` is two whitespace-separated GitHub references with no intent text.\n   - Admission order is #12, then #13. #12 is the home candidate.\n4. **Stage: classify #12.**\n   - `gh pr view 12 --json number,url,state,isDraft,title,body,headRefName,headRefOid,headRepository,isCrossRepository,baseRefName` returns exit 0, `state: OPEN`.\n   - It is a PR, so `gh issue view` is never reached.\n   - The base repository parsed from `url` is `acme/widget`. Origin `git@github.com:acme/widget.git` gives `acme/widget`, so the repositories match.\n   - `isCrossRepository` is false.\n   - `baseRefName` is `main`, which becomes the reference base for the list.\n   - #12 is admitted.\n5. **Stage: classify #13**, sequentially after #12 and never in parallel.\n   - `gh pr view 13 ...` returns exit 0, `state: OPEN`, repository `acme/widget` (matches origin), `isCrossRepository: false`.\n   - `baseRefName` is `release-2`, which differs from home #12's `main`.\n   - The base check fails.\n6. **Stage: admission stop. No write occurs.**\n   - No worktree is created, and existing worktrees are untouched (none exist).\n   - The relatedness preflight, binding, the array pass to `using-git-worktrees`, and gather are all not reached.\n   - Stop text:\n     > `#13 targets release-2 but home #12 targets main; mixed bases are not admitted.`\n   - Remedy (umbrella, appended because this is a mixed-base failure):\n     > To rework these together anyway, merge the heads into one branch by hand, open one PR, and brainstorm that PR.\n\n## Trace B - independent duplicate variant: prompt `#13 https://github.com/acme/widget/pull/13`\n\n1. **Stage (step 1, fresh epoch).** The same tracker reset, clear, and start sequence runs as in A.1.\n2. **`read` `skills/brainstorming/reference/pr-subject.md`** (step 2). Outcome: the file is readable.\n3. **Stage: parse the leading run.**\n   - The run holds two references: bare `#13`, then a GitHub `/pull/13` URL. There is no intent text.\n   - Admission order is the bare ref, then the URL.\n4. **Stage: classify ref 1 (`#13`).**\n   - Bare `#N` resolves in this checkout, giving `acme/widget#13`.\n   - `gh pr view 13 ...` returns `OPEN`, in-repo (`isCrossRepository: false`), with the repository matching origin.\n   - `baseRefName` is `main`, which becomes the reference base.\n   - The ref is admitted as home.\n5. **Stage: classify ref 2 (URL).**\n   - `gh pr view https://github.com/acme/widget/pull/13 ...` returns the same OPEN in-repo PR on `main`.\n   - The state, issue, repository, fork, and base checks all pass.\n   - The resolved identity (`acme/widget`, number 13) equals ref 1's identity, so the duplicate check fails.\n6. **Stage: admission stop. No write and no provisioning occur.**\n   - No worktree is created.\n   - The relatedness preflight and the pass to `using-git-worktrees` are not reached.\n   - Stop text:\n     > `#13 is listed twice; list each PR once.`\n   - Remedy: direct correction. The user drops the duplicate reference and re-runs with `#13` alone.\n   - The umbrella merge-by-hand paragraph is **not** appended, because it applies only to foreign-repository, fork, and mixed-base failures.\n",
+      "words": 528,
+      "wallMs": 20407,
       "mechanical": {}
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "### Trace 1 — Mixed bases: `#12 #13`\n\n1. **Start brainstorm tracking:** the required opening stage is to reset the phase tracker, clear the plan tracker, and start the brainstorm phase. These are narrated actions, not live calls.\n2. **Required read:** `skills/brainstorming/reference/pr-subject.md`, at its absolute installed path, before admission. No live read is claimed; the bundled reference is not treated as an already-completed session read.\n3. **Resolve repository identity:** the observed origin, `git@github.com:acme/widget.git`, identifies this checkout as `acme/widget`.\n4. **Admit `#12` first:** the fixed result is an OPEN, non-fork PR in `acme/widget`, targeting `main`. It passes admission and establishes the required base.\n5. **Check `#13` next:** it is OPEN, non-fork, and in the same repository, but targets `release-2`. Stop at the mixed-base check:\n\n   `#13 targets release-2 but home #12 targets main; mixed bases are not admitted.`\n\n   To rework these together anyway, merge the heads into one branch by hand, open one PR, and brainstorm that PR.\n\n6. **Stop before provisioning or any filesystem write:** no worktree is created, and no existing worktree is changed.\n\n### Independent duplicate variant — `#13 https://github.com/acme/widget/pull/13`\n\n1. **Start a separate fresh brainstorm epoch:** narrate the tracker resets and brainstorm start independently of Trace 1.\n2. **Required read:** `skills/brainstorming/reference/pr-subject.md`, at its absolute installed path. Again, no live read is claimed.\n3. **Admit the first reference:** `#13` resolves to the observed OPEN, non-fork PR `acme/widget#13`, targeting `main`.\n4. **Resolve the URL reference:** it identifies the same repository and PR number. Stop at the duplicate-identity check:\n\n   `#13 is listed twice; list each PR once.`\n\n5. **Remedy:** remove either duplicate reference and submit the PR once—for example, `#13`.\n6. **Stop without provisioning or writing:** no worktree is created or changed.\n",
-      "words": 277,
-      "wallMs": 15687,
+      "text": "### Primary trace — `#12 #13`\n\n1. **Start brainstorm tracking:** narrate resetting the phase tracker, clearing the plan tracker, and starting the `brainstorm` phase. No live calls are claimed.\n2. **Required read:** load `reference/pr-subject.md` at its absolute path under `skills/brainstorming/` before admission. This is a narrated prerequisite, not a claim that the bundled reference was read into session context.\n3. **Resolve the checkout identity:** the supplied origin, `git@github.com:acme/widget.git`, identifies `acme/widget`.\n4. **Admit references in order:** the fixed observations establish that #12 is OPEN, in-repository, non-fork, and targets `main`. #13 is also OPEN, in-repository, and non-fork, but targets `release-2`.\n5. **Stop admission before provisioning or any repository write:**\n\n   #13 targets release-2 but home #12 targets main; mixed bases are not admitted.\n\n   To rework these together anyway, merge the heads into one branch by hand, open one PR, and brainstorm that PR.\n\n   No worktree is created.\n\n### Independent duplicate variant — `#13 https://github.com/acme/widget/pull/13`\n\n1. **Start independent brainstorm tracking:** narrate the same tracker reset, clear, and phase-start sequence.\n2. **Required read:** load `reference/pr-subject.md` at its absolute path under `skills/brainstorming/` before admission; again, no live read is claimed.\n3. **Resolve references in order:** both supplied references resolve to the same OPEN, in-repository PR, `acme/widget#13`, targeting `main`.\n4. **Stop admission before provisioning or any repository write:**\n\n   #13 is listed twice; list each PR once.\n\n   **Remedy:** remove either occurrence and submit `#13` only once. No worktree is created.\n",
+      "words": 228,
+      "wallMs": 11370,
       "mechanical": {}
     }
   },
@@ -34,9 +34,9 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "c844e1c7a15652aba5595c2544ba071333f586eb389b74fd19cbeef223113883",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "460f2afd63946ca28e753d98ec02c2b198f7bed5ff1b4bf05820058c4477df90",
-      "baselineOutputSha": "c744e15caa11797bcdb3da2d2b4cf407520c101709ab2898e9cadf283947856e",
-      "candidateOutputSha": "7e17d1dc03baffdacbc147d67bbd5e770f32cedae2b3c0c5cad2d35909a7690d",
+      "intentSha": "846af8fb641e886ab3d6b6dfb70e1483223323d53b4c37560200cad5018c6b4e",
+      "baselineOutputSha": "effbb3af56c943ab20efc24ce236a5ccba7e06293bc17b79f67585a77de18b8e",
+      "candidateOutputSha": "1a8cc30d685ee6604ca397596c9b5c3b0c102f2c581576201c4c036ccdb68f7d",
       "facts": {
         "mixed-base": {
           "before": "holds",
@@ -49,16 +49,16 @@
           "label": "held"
         }
       },
-      "feedback": "Neither fact moved. Both outputs print the exact mixed-base stop line naming #13, release-2, home #12, main, and mixed bases, append the umbrella remedy sentence verbatim, and narrate no worktree command or write (After only states that `/skill:using-git-worktrees` is not invoked and no worktree is created, which is a non-write narration). Both also resolve the bare #13 and the /pull/13 URL to the same identity, emit `#13 is listed twice; list each PR once.`, append no umbrella paragraph, and provision nothing. The After wording's retitling to \"Narrated read and stage actions\" and the added step-2 reference read are consistent with the Change and cost nothing here; keep the quoted stop lines and the remedy paragraph byte-identical as you did, and continue to phrase skipped steps as \"not reached/not invoked\" rather than listing commands, so neither fact regresses.",
-      "wallMs": 8426,
+      "feedback": "Both outputs satisfy both facts, so nothing moved. In Trace A each output stops with the exact text naming #13, release-2, home #12, main, and mixed bases, appends the umbrella sentence verbatim, and narrates only negations (no worktree created, no array passed to using-git-worktrees) rather than any worktree command or write; in Trace B each resolves bare #13 and the /pull/13 URL to the same acme/widget#13 identity, stops with `#13 is listed twice; list each PR once.`, gives only the direct correction, explicitly withholds the umbrella, and provisions nothing. The Expected to move list anticipated mixed-base going fails -> holds, but the Before text already held it, so the After wording preserved rather than created this behavior. The After wording's additions - the explicit gh pr view --json field list, the sequential-not-parallel note, the 'no reference content is treated as session context' framing, and the per-check pass/fail bullets - are consistent with the Change's ordered-classification and single-path-routing goals and do not jeopardize either fact; keep the stop and remedy strings quoted verbatim as both outputs do, and keep provisioning described only as not-reached so no worktree command is ever narrated.",
+      "wallMs": 13867,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "c844e1c7a15652aba5595c2544ba071333f586eb389b74fd19cbeef223113883",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "460f2afd63946ca28e753d98ec02c2b198f7bed5ff1b4bf05820058c4477df90",
-      "baselineOutputSha": "98b3a23dfa911bba28313c7ddd6191a4bf1633fb5d7e8e4e13eba19f3405c989",
-      "candidateOutputSha": "f570c4e67b3f979f282c8d41fef9f9cffdde43701b4cea17e5835ee6a8a39627",
+      "intentSha": "846af8fb641e886ab3d6b6dfb70e1483223323d53b4c37560200cad5018c6b4e",
+      "baselineOutputSha": "2098ceb74fba5669993265e93cd4af4845a057f4d27b00e70c249d8666286c33",
+      "candidateOutputSha": "5e1794aa126a9d0617e5638671c159a85b43500a42a324b70dd81170504ea481",
       "facts": {
         "mixed-base": {
           "before": "holds",
@@ -71,97 +71,10 @@
           "label": "held"
         }
       },
-      "feedback": "Nothing moved on this case. Both outputs render the mixed-base stop line naming #13, release-2, home #12, main, and mixed bases, append the exact umbrella sentence verbatim, and narrate no worktree command or write; both render the duplicate stop line '#13 is listed twice; list each PR once.' with only the remove-one-reference remedy, no umbrella sentence, and no provisioning. After's changes here are cosmetic: the stop lines are wrapped in backticks, repository identity gets its own step, and the stop/remedy pair is split across numbered steps, none of which alters what a reader would say the output does. The only wording to watch is After's 'for example, `#13`' appended to the duplicate remedy — it is harmless now, but any further elaboration of the duplicate remedy risks drifting toward umbrella-style guidance; keep that variant's remedy to the single remove-and-resubmit sentence and keep the mixed-base umbrella sentence character-exact as it currently is.",
-      "wallMs": 11530,
+      "feedback": "Nothing moved. Both outputs name #13, release-2, home #12, main, and mixed bases in the stop, append the umbrella remedy verbatim, and narrate no worktree command or write; both duplicate variants resolve the bare and URL references to the same acme/widget#13, say exactly \"#13 is listed twice; list each PR once.\", give a non-umbrella remedy, and provision nothing. After is slightly leaner (it folds the standalone blocking-stop step into the stop item and drops Before's explicit sentence that the umbrella remedy does not apply to the duplicate failure), but the remedy text and the absence of any worktree/write narration still satisfy both facts as written. If you want extra margin on the duplicate fact, keep Before's explicit \"the mixed-base umbrella remedy does not apply here\" line in the variant; otherwise the After wording delivers the change without weakening either fact.",
+      "wallMs": 10350,
       "verdict": "unchanged"
     }
   },
-  "refresh": {
-    "status": "complete",
-    "identity": {
-      "sample": "pr-list-admission-mixed-base",
-      "kind": "text",
-      "assembly": "headed",
-      "baselineSkillSha": "be6a9ad7c6121a490b07ac373a98ac41151b852e413de38cd8301d286ce1b2bd",
-      "candidateSkillSha": "8422ae15c4746c464811b72ee5f5ead8e3dfa0b1e827b7022ef20253e18b0f3f",
-      "inputSha": "818c811785096e955fb78757ab08cbb812853d73b8ab5363a5c2231a47eff578",
-      "factsSha": "c844e1c7a15652aba5595c2544ba071333f586eb389b74fd19cbeef223113883",
-      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "5b9f462cd6caec9a4a8e3a28a3c0ba61583e1b400c8edb5164d32bba075fea39",
-      "models": {
-        "replay": [
-          "github-copilot/gpt-6.1-sol"
-        ],
-        "judge": "github-copilot/gpt-6.1-sol"
-      },
-      "thinking": "medium",
-      "outputs": {
-        "baseline": {
-          "github-copilot/gpt-6.1-sol": {
-            "baselineOutputSha": "2098ceb74fba5669993265e93cd4af4845a057f4d27b00e70c249d8666286c33",
-            "payloadSha": "61df36fc4100c5c1cb64c83d610cc0f0bde790eef6855cd18c0a827f30b0fea3"
-          }
-        },
-        "candidate": {
-          "github-copilot/gpt-6.1-sol": {
-            "candidateOutputSha": "bc9d2ea5b82b7722c377eea0a284ec87662f48d466896addc5b13740d96d4064",
-            "payloadSha": "14b6110ac5d6fb955d6e3ad2df2fcf7b19712c179037af9766c398347b1381c4"
-          }
-        }
-      }
-    },
-    "previous": {
-      "github-copilot/gpt-6.1-sol": {
-        "factsSha": "c844e1c7a15652aba5595c2544ba071333f586eb389b74fd19cbeef223113883",
-        "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-        "intentSha": "5b9f462cd6caec9a4a8e3a28a3c0ba61583e1b400c8edb5164d32bba075fea39",
-        "baselineOutputSha": "2098ceb74fba5669993265e93cd4af4845a057f4d27b00e70c249d8666286c33",
-        "candidateOutputSha": "bc9d2ea5b82b7722c377eea0a284ec87662f48d466896addc5b13740d96d4064",
-        "facts": {
-          "mixed-base": {
-            "before": "holds",
-            "after": "holds",
-            "label": "intended but unchanged"
-          },
-          "duplicate": {
-            "before": "holds",
-            "after": "holds",
-            "label": "held"
-          }
-        },
-        "feedback": "Neither fact moved. Both outputs name #13, release-2, home #12, main, and mixed bases in the stop line and append the umbrella remedy verbatim and alone; both duplicate variants resolve the bare and URL references to the same acme/widget#13, emit exactly \"#13 is listed twice; list each PR once.\", give only the drop-one-reference remedy without the umbrella, and provision nothing. The After trace folded Before's separate \"Blocking stop\" item into the \"Stop admission before any repository write or provisioning\" heading, which still satisfies the no-worktree/no-write requirement, though keeping an explicit \"no worktree is created\" sentence (as Before had) would make that denial unambiguous to a reader scanning for it. After also added a Parse step and the \"resolved to its absolute skill-resource path\" phrasing on the required read, which is harmless to these facts; nothing further is needed to keep both facts while delivering the Change.",
-        "wallMs": 13693,
-        "verdict": "unchanged",
-        "judgeModel": null,
-        "thinking": null
-      }
-    },
-    "refreshed": {
-      "github-copilot/gpt-6.1-sol": {
-        "factsSha": "c844e1c7a15652aba5595c2544ba071333f586eb389b74fd19cbeef223113883",
-        "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-        "intentSha": "5b9f462cd6caec9a4a8e3a28a3c0ba61583e1b400c8edb5164d32bba075fea39",
-        "baselineOutputSha": "2098ceb74fba5669993265e93cd4af4845a057f4d27b00e70c249d8666286c33",
-        "candidateOutputSha": "bc9d2ea5b82b7722c377eea0a284ec87662f48d466896addc5b13740d96d4064",
-        "facts": {
-          "mixed-base": {
-            "before": "holds",
-            "after": "holds",
-            "label": "intended but unchanged"
-          },
-          "duplicate": {
-            "before": "holds",
-            "after": "holds",
-            "label": "held"
-          }
-        },
-        "feedback": "Neither fact moved: both outputs name #13, release-2, home #12, main, and mixed bases, then give the exact required umbrella remedy without narrating a worktree command or write. Both independently identify the URL/bare references as duplicates, say “#13 is listed twice; list each PR once,” and stop without provisioning or appending the umbrella remedy to that variant. After preserves all facts Before kept; retain these explicit stop messages, the exact mixed-base remedy, and the separate duplicate correction.",
-        "wallMs": 8722,
-        "verdict": "unchanged",
-        "judgeModel": "github-copilot/gpt-6.1-sol",
-        "thinking": "medium"
-      }
-    }
-  },
-  "repoSha": "657f24585c1a6c2182a26df3d0d0691c8e67e59a"
+  "repoSha": "f25bf48a3f7ac2e9b361d2c7506d7c691e212697"
 }

@@ -1,34 +1,42 @@
 {
   "sample": "lookup-second-location-hits",
   "arm": "candidate",
-  "skillSha": "551c035080c903d52d8106e07ce7eb2d7d75baab271627f354fbe2271846a6fc",
+  "skillSha": "62172aaa9d3217f64ccb2198a02abb4927f98cb479bebc9c6dda007ab70f700c",
   "inputSha": "4d60a55d609b757be33f9045c5c5fc2ff47a4d807be762d10da815cb2522faed",
   "kind": "text",
   "assembly": "headed",
   "thinking": "medium",
   "models": {
     "replay": [
+      "anthropic/claude-opus-5-5",
       "github-copilot/gpt-6.1-sol"
     ],
-    "judge": "github-copilot/gpt-6.1-sol",
+    "judge": "anthropic-fable/claude-fable-5-1",
     "thinking": "medium"
   },
   "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "# Task 2 (\"Render a summary\"): resolving the NEEDS_CONTEXT fact ask\n\n## 1. Classify the question\n\nThe implementer exited 0 with `Status: NEEDS_CONTEXT` and made no edits. It asked: \"Where is the summary-frame.tpl template required by the task?\"\n\n- This asks for an artifact's location, so it is a **fact ask**.\n- It is not a decision, because no answer would change the scope or require choosing between options.\n- It is not an amendment batch, because no candidate answer edits the spec, plan, or an approved rule.\n\nThe rule for fact asks is in `stop-note.md` (lookup handling). I search each documented location once, in the spec's order, and stop at the first hit. I never ask the human where the artifact is.\n\n## 2. Bounded lookups (supplied observations, not my execution)\n\nThe spec documents two locations, in this order:\n\n1. **Template store, collection `summary-frames`.** Lookup for `summary-frames/summary-frame.tpl`: **not found**.\n2. **Repo, `archive/templates`.** Lookup for `archive/templates/summary-frame.tpl`: **present**. This is the first hit, so the search stops here.\n\nRecorded lookup trail:\n```\nSearched: template-store summary-frames/summary-frame.tpl - not found\nSearched: repo archive/templates/summary-frame.tpl - present\n```\n\nThe lookup found the template, so I do not emit a stop note. Instead I re-dispatch with the found result in the task text.\n\n## 3. State that stays the same\n\n- **Tracker:** no `plan_tracker` write. Task 2 stays `in_progress` until its wave commits.\n- **Phase:** stays `implement`.\n- **`WAVE_BASE_SHA`:** unchanged. I use the value recorded before the original dispatch and do not re-capture it.\n- **Fix loop and budget:** no fix loop has started, so no funded round is spent and no budget line applies.\n- **Implementation worktree:** `/workspace/project` is untouched, because the implementer made no edits.\n\n## 4. Re-dispatch payload\n\nThere is one implementer. I use a one-entry `tasks` array, not a second chain in this wave:\n\n```ts\nsubagent({\n  async: false,\n  context: \"fresh\",\n  worktree: true,\n  cwd: \"/workspace/project\",\n  tasks: [\n    {\n      agent: \"implementer\",\n      outputSchema: IMPLEMENTER_STATUS_SCHEMA,\n      output: \"<REPORT_DIR>/wave<w>-task2-redispatch.md\",\n      task: `You are implementing Task 2: Render a summary\n\n## Task Description\nRender a summary using summary-frame.tpl; modify src/summary.ts only.\n\n## Context\nAnswer to your NEEDS_CONTEXT question (\"Where is the summary-frame.tpl template required by the task?\"):\nthe template is at repo path archive/templates/summary-frame.tpl (relative to the worktree root).\nLookups performed in the spec's documented order:\n  - template-store collection summary-frames: summary-frame.tpl - not found\n  - repo archive/templates: summary-frame.tpl - present\nUse the repo copy at archive/templates/summary-frame.tpl. Do not modify the template; modify src/summary.ts only.\nCarry the task's Leg:/Rules: context if the plan declares any, and read those files before acting.\n\nWork from: /workspace/project (your isolated worktree)\n\nSCOPED_TEST_COMMANDS: none\n\nTEST_CONTRACT: none: text-only wiring.\n\nReport test-contract evidence: \\`none\\` (the block is none:).\n\n**Status:** DONE | DONE_WITH_CONCERNS | BLOCKED | NEEDS_CONTEXT\nDONE: Implemented and scoped tests pass.\nDONE_WITH_CONCERNS: Implemented, with a deviation, risk, or unmet test contract.\nBLOCKED: Cannot complete the task.\nNEEDS_CONTEXT: Need information not provided.\n\npi-cohort saves your final report to the output path; do not write that file yourself, and it is not a concern about owned files.`\n    }\n  ]\n})\n```\n\n## 5. After the worker returns (not done yet)\n\n1. Read `/status` from `## Outputs`, and read the patch from `Artifacts:`.\n2. If the status is `DONE`, materialize a spec-review snapshot from `WAVE_BASE_SHA` and that patch, then record its tree per Fix delta.\n3. Dispatch the spec reviewer as a first review, with no re-review marker.\n4. Integrate with `git -C /workspace/project apply --index <patch>`.\n5. Skip the test gate, because `SCOPED_TEST_COMMANDS` is `none`. Then run `git -C /workspace/project add -A`.\n6. Dispatch one initial code review with `BASE_SHA: <WAVE_BASE_SHA>`, `HEAD_SHA: WORKTREE`, and `SCOPED_TEST_COMMANDS: none`.\n7. Only after code review accepts, make the wave commit (`reset --soft \"$WAVE_BASE_SHA\" && add -A && commit`) and mark task 2 `complete`.\n\n**Stopping here.** The re-dispatch is the boundary; I take no further action until the worker returns.\n",
+      "words": 600,
+      "wallMs": 22360,
+      "mechanical": {}
+    },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "Record the supplied lookup results, in documented order:\n\n1. `template-store` collection `summary-frames`, key `summary-frame.tpl` — **not found**.\n2. `/workspace/project/archive/templates/summary-frame.tpl` — **present**.\n\nThe fact ask is resolved. No further lookup or shell command is needed before re-dispatch. Keep task 2 `in_progress`; do not commit or dispatch a review yet.\n\nRe-dispatch only task 2 in an isolated worker, supplying the resolved location:\n\n```ts\nsubagent({\n  async: false,\n  context: \"fresh\",\n  cwd: \"/workspace/project\",\n  worktree: true,\n  tasks: [\n    {\n      agent: \"implementer\",\n      task: `You are implementing Task 2: Render a summary.\n\n## Task Description\n\nRender a summary using summary-frame.tpl; modify src/summary.ts only. SCOPED_TEST_COMMANDS: none. TEST_CONTRACT: none: text-only wiring.\n\n## Resolved context\n\nYour previous return was NEEDS_CONTEXT, with no edits:\n\"Where is the summary-frame.tpl template required by the task?\"\n\nThe parent has resolved that fact ask using the spec's documented stores in order:\n- template-store collection summary-frames, key summary-frame.tpl: not found.\n- repo archive/templates/summary-frame.tpl: present.\n\nThe required template is at:\n /workspace/project/archive/templates/summary-frame.tpl\n\nRead archive/templates/summary-frame.tpl from your worker checkout.\nUse it as the required template; do not modify it.\nModify src/summary.ts only.\n\nSCOPED_TEST_COMMANDS: none\n\nTEST_CONTRACT: none: text-only wiring.\n\nReport test-contract evidence: none.\n\nReturn one explicit status:\n**Status:** DONE | DONE_WITH_CONCERNS | BLOCKED | NEEDS_CONTEXT\n\nDONE: Implemented and self-reviewed, with no unmet contract.\nDONE_WITH_CONCERNS: Implemented, but with a deviation, risk, or unmet contract.\nBLOCKED: Cannot complete the task.\nNEEDS_CONTEXT: Need information not provided.`\n    }\n  ]\n})\n```\n\nStop here, before the worker returns. No review source or commit is selected at this point.\n",
-      "words": 227,
-      "wallMs": 14136,
+      "text": "The `NEEDS_CONTEXT` response is a fact ask. Resolve it using the documented stores in order.\n\nRecorded lookup outcomes, from the supplied observations:\n```text\nSearched: template-store collection summary-frames/summary-frame.tpl - not found\nSearched: /workspace/project/archive/templates/summary-frame.tpl - present\n```\n\nThe second lookup resolves the question; no further lookup or escalation is needed. Keep task 2 `in_progress`. No shell mutation, review, or commit is needed before re-dispatch.\n\nRe-dispatch only task 2 in an isolated worktree based on `/workspace/project`:\n\n```ts\nsubagent({\n  async: false,\n  context: \"fresh\",\n  cwd: \"/workspace/project\",\n  worktree: true,\n  tasks: [\n    {\n      agent: \"implementer\",\n      task: `You are implementing task 2: Render a summary.\n\n## Task Description\n\nRender a summary using summary-frame.tpl; modify src/summary.ts only. SCOPED_TEST_COMMANDS: none. TEST_CONTRACT: none: text-only wiring.\n\n## Resolved context\n\nYour prior response was Status: NEEDS_CONTEXT, with no edits:\n\"Where is the summary-frame.tpl template required by the task?\"\n\nThe documented stores were checked in order:\n- template-store collection summary-frames/summary-frame.tpl: not found.\n- /workspace/project/archive/templates/summary-frame.tpl: present.\n\nUse archive/templates/summary-frame.tpl from your isolated checkout.\nRead the template as input; modify src/summary.ts only.\n\nSCOPED_TEST_COMMANDS: none\nTEST_CONTRACT: none: text-only wiring.\n\nReport test-contract evidence as none.\n\nReturn an explicit status:\n- DONE: implemented and self-reviewed.\n- DONE_WITH_CONCERNS: implemented with a deviation, risk, or unmet contract.\n- NEEDS_CONTEXT: information is still missing.\n- BLOCKED: cannot proceed.\n\nInclude a summary of changes and any concerns in your final report.`\n    }\n  ]\n})\n```\n\nNo review source exists yet because the first worker made no edits. Do not dispatch a review or create a commit now; the normal spec-review and integrated quality-review gates precede the eventual wave commit.\n\nStop here, before the re-dispatched worker returns.\n",
+      "words": 245,
+      "wallMs": 15541,
       "mechanical": {}
     }
   },
   "judge": {
-    "github-copilot/gpt-6.1-sol": {
+    "anthropic/claude-opus-5-5": {
       "factsSha": "dff86c73219980a8d4d5960fe54ffa32eba32baddeee93d95cbd646369938ba6",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "026b9a91c9a042910d9d9eadf4cae54c09ed0f335d520e00090f2d2fda8337ca",
-      "baselineOutputSha": "3dd639abff5efc9e756aa8ab22de34ac01f0bd60e44b13a3ca9149b92c4820e5",
-      "candidateOutputSha": "c970730e2cad263c0edc6b54abb5532995b8739bace9eead59a0370817dd24c5",
+      "intentSha": "70868125b0270c4bcc2e36898c51974950b90c9ba539c73ad3a39de4a9853245",
+      "baselineOutputSha": "8baa094684c508127c7e2f85d17e63ea6c040100497acecf15dc45d8e0b9264a",
+      "candidateOutputSha": "dfd69a7e8aed389e38eaca84fa1f9e039276bb333f7a9492009edc31161f409e",
       "facts": {
         "ordered-lookups": {
           "before": "holds",
@@ -46,10 +54,37 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "No listed fact moved: both outputs record the ordered miss and hit, carry the found template location into the implementer task while preserving the original task and test contract, and leave task 2 in_progress without a human stop note or location question. After's instruction to stop before the worker returns is the requested response boundary, not an implementation stop note. Keep the resolved-fact re-dispatch wording; reserve the new question-first gauntlet stop format and supply-or-amend choices for exhausted or inaccessible lookups, not this successful lookup.",
-      "wallMs": 4812,
+      "feedback": "No fact moved: both outputs record the template-store miss then the repo hit in spec order, re-dispatch a single implementer with archive/templates/summary-frame.tpl in the task text alongside the original task, SCOPED_TEST_COMMANDS: none and TEST_CONTRACT: none: text-only wiring, emit no stop note or location question, and leave task 2 in_progress stopping before the worker returns. After additionally adds explicit `Searched:` trail lines, which is a clean fit for the Change. Two small wording risks in After worth tightening: the lookup lines inside the task text drop the directory prefixes (\"template-store collection summary-frames: summary-frame.tpl\" / \"repo archive/templates: summary-frame.tpl\") so a strict reader could say the full documented paths are only recorded in the parent narrative, not in what the worker sees — keep the full `summary-frames/summary-frame.tpl` and `archive/templates/summary-frame.tpl` forms there as Before did; and the injected \"Carry the task's Leg:/Rules: context if the plan declares any\" line is speculative for a plan with no legs — emit Leg/Rules context only when the plan actually declares it, so the re-dispatch payload carries only the task, its found location and its test scope.",
+      "wallMs": 14375,
+      "verdict": "unchanged"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "dff86c73219980a8d4d5960fe54ffa32eba32baddeee93d95cbd646369938ba6",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "70868125b0270c4bcc2e36898c51974950b90c9ba539c73ad3a39de4a9853245",
+      "baselineOutputSha": "3dd639abff5efc9e756aa8ab22de34ac01f0bd60e44b13a3ca9149b92c4820e5",
+      "candidateOutputSha": "e4c5f3c03fd24422e434c27af941b7952cebcd5c3d1fa9894635e09032481ce7",
+      "facts": {
+        "ordered-lookups": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "redispatch-found": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "no-stop": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        }
+      },
+      "feedback": "No fact moved between the arms: both outputs record the template-store summary-frames/summary-frame.tpl miss before the archive/templates/summary-frame.tpl hit in documented order, both re-dispatch the implementer with the found path embedded in the task text alongside the verbatim task description and the SCOPED_TEST_COMMANDS/TEST_CONTRACT lines, and neither emits a stop note or asks a human location question, keeping task 2 in_progress pending the worker and review gates. The After wording adds 'Searched:' lines for the recorded lookups and switches the dispatch to an isolated worktree with a tasks array and context: fresh, which the facts tolerate; the only soft risk is that After cites the template as the relative 'archive/templates/summary-frame.tpl from your isolated checkout' while the lookup record uses the absolute /workspace/project path — keep both forms (absolute observation plus checkout-relative read instruction) as After does, since that satisfies the found-location fact without implying a stale absolute read from the worktree. The intended fails->holds movements for this case were already held in Before, so the Change delivered conformance evidence without regressing anything.",
+      "wallMs": 10746,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "2eb4429b4dd687432969f427f82d45d7840d7c63"
+  "repoSha": "f25bf48a3f7ac2e9b361d2c7506d7c691e212697"
 }

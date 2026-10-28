@@ -1,0 +1,70 @@
+{
+  "sample": "legs-keep",
+  "arm": "candidate",
+  "skillSha": "47074a47855ed9272259862fb8a44ae0212fb1dbed289dbdae609bc5f8501053",
+  "inputSha": "a76a804fbe429d2366c229b3bec669e13a70274a4472ddb4a222b4f4514a0c62",
+  "kind": "text",
+  "assembly": "concat",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "# Coordinated finish: Step 5, Option 4 (Keep As-Is)\n\nThe human chose **keep**. Under the coordinated-finish rules, keep applies to every member in one pass and does only one thing: it reports where each member's work is retained. Nothing is stripped, sealed, delivered or cleaned up.\n\n**Actions not taken, for any member:**\n- **Plan strip:** skipped. The home plan stays as it is.\n- **Telemetry seal:** skipped. No `gauntlet-telemetry-seal.mjs` run and no `--leg` arguments. Home's telemetry record stays untracked and `in_progress` in the home worktree. A later finishing run on this worktree seals it with the complete companion results.\n- **Delivery:** skipped. No push, no `gh pr create`, no squash, and no PR body edits.\n- **Step 6 cleanup:** skipped. Keep never runs it. No `script/tree destroy`, no `script/wrapper remove` or teardown hook, no `git worktree remove` or `prune`, and no branch deletion.\n- **Existing repo-b receipt:** retained untouched. Keep does not deliver, so the receipt is neither validated nor reconciled here. It stays for the next run that delivers. That run must validate it against `doc/specs/shared.md`, repo `repo-b` and the delivery choice made then, before skipping or retrying repo-b. Its presence alone never counts as proof that repo-b was delivered.\n\n**Report (member order: companions in declared order, then home):**\n\n```text\nKeeping branch feature/shared-change in every member. Nothing pushed, sealed, or removed.\n\nrepo-b  branch feature/shared-change  worktree /work/repo-b/.worktrees/feature-shared-change  (primary /work/repo-b) - preserved\nrepo-c  branch feature/shared-change  worktree /work/repo-c/.worktrees/feature-shared-change  (primary /work/repo-c) - preserved\nrepo-a  branch feature/shared-change  worktree /work/repo-a/.worktrees/feature-shared-change  (primary /work/repo-a, home) - preserved\n\nTelemetry: home record left untracked and in_progress in /work/repo-a/.worktrees/feature-shared-change; sealed by a later finishing run.\nReceipts retained for later validation: /work/repo-a/.git/gauntlet/receipts/shared.md/repo-b\n```\n\nAssumption: repo-b's worktree path was not in the input. The path above uses the default `$PRIMARY/.worktrees/<name>` home pattern.\n\n**Completion:** keep succeeded for every member, so the ship phase is marked complete:\n\n```\nphase_tracker({ action: \"complete\", phase: \"ship\" })\n```\n\nThere is no seal output to print, because no seal ran. Once the work is later delivered and merged, `/skill:check-delivery <ticket-ref>` is the follow-up that proves delivery.\n",
+      "words": 325,
+      "wallMs": 16144,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "Keeping branch `feature/shared-change` in every repository. Worktrees preserved at:\n\n- repo-a (home): `/work/repo-a/.worktrees/feature-shared-change`\n- repo-b: `/work/repo-b/.worktrees/feature-shared-change`\n- repo-c: `/work/repo-c/.worktrees/feature-shared-change`\n\nThe existing home-owned receipt for repo-b is retained for later validation. No plan stripping, telemetry sealing, delivery, teardown hooks, worktree removal, or branch deletion runs.\n\nMark the ship phase complete for the successful Keep choice; nothing is marked shipped.\n",
+      "words": 55,
+      "wallMs": 6140,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "d5c1b40839846944b6eedcbce324456bc4e9bdca0c3795ff5e5c4370814756a2",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "f799890e16cc3f3752172fadbe09daebf0f294cfcc869df30dee75eb116791d8",
+      "baselineOutputSha": "aab98e315c2c14c6239b1226fe42d0200096cc6f61bb209ec3dede89d6d2320b",
+      "candidateOutputSha": "8686ff849aff86960b07466a72e7201adf99e026bc588a32b1a9d59f58e06771",
+      "facts": {
+        "retain": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        }
+      },
+      "feedback": "Both outputs satisfy the retain fact: each lists every member's branch and worktree, states the repo-b receipt is kept for later validation, and explicitly declines plan strip, seal, delivery and cleanup. After is tighter in practice because it prints concrete worktree paths for all three members in member order and names the receipt path, while Before leaves repo-b's path as 'confirm it' which a strict reader could take as an incomplete worktree report. The one thing to watch in After is the repo-b path: it is derived from the default `.worktrees/<name>` pattern even though the input only says repo-b's contract is `script/wrapper remove <name>` with no recorded `home:` shape, so keep the stated 'Assumption' line (or phrase it as 'per recorded home: contract, resolved against /work/repo-b') so the report never asserts an unverified path as fact; otherwise the After wording delivers the Change without moving this fact.",
+      "wallMs": 10863,
+      "verdict": "unchanged"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "d5c1b40839846944b6eedcbce324456bc4e9bdca0c3795ff5e5c4370814756a2",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "f799890e16cc3f3752172fadbe09daebf0f294cfcc869df30dee75eb116791d8",
+      "baselineOutputSha": "dd63de0018a805e431f1d4cef347d6eaaffefddcf74badddf0cd80f52aa361ea",
+      "candidateOutputSha": "dd3bbc0c7fb93bd014f41861ade92e2cbdcbb7ba8388e2cee16a1e43c0da72e9",
+      "facts": {
+        "retain": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        }
+      },
+      "feedback": "Both outputs satisfy the retain fact: each lists all three retained worktrees and the preserved branch in every member, states the existing home-owned repo-b receipt is kept for later validation, and explicitly denies plan stripping, sealing, delivery, and cleanup (After spells cleanup out as teardown hooks and worktree removal, which still covers the fact). The only wording differences are 'repository' vs 'member' and the added 'nothing is marked shipped' clause, neither of which moves the fact. The Before-to-After wording for this case is safe; if anything, keep the explicit word 'cleanup' alongside the enumerated teardown items so a reader checking the fact as written finds the literal term, and keep the 'no rollback / nothing marked shipped' line since it reinforces that Keep is not a delivery outcome.",
+      "wallMs": 6010,
+      "verdict": "unchanged"
+    }
+  },
+  "repoSha": "f25bf48a3f7ac2e9b361d2c7506d7c691e212697"
+}

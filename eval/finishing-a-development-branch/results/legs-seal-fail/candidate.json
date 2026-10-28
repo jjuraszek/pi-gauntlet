@@ -1,0 +1,80 @@
+{
+  "sample": "legs-seal-fail",
+  "arm": "candidate",
+  "skillSha": "47074a47855ed9272259862fb8a44ae0212fb1dbed289dbdae609bc5f8501053",
+  "inputSha": "d6b63e57043797473d1006333e622fef403fdae7df8ce6fd50ff228fb642f3a4",
+  "kind": "text",
+  "assembly": "concat",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "# Coordinated finish: Step 5, home strip-and-seal and home delivery\n\nHome is `repo-a`. Its primary is `/work/repo-a` and its worktree is `/work/repo-a/.worktrees/feature-shared-change`. The spec is `doc/specs/shared.md` and the shared branch is `feature/shared-change`. The chosen action is a PR.\n\n## Steps common to all three runs\n\n1. **Companion delivery.** Companions ran in declared order, `repo-b` then `repo-c`:\n   - Each ran `git -C <worktree> push -u origin feature/shared-change`.\n   - Each then ran `gh pr create` in its own worktree.\n   - Each PR body carries `Home: repo-a feature/shared-change doc/specs/shared.md`.\n   - Both deliveries succeeded.\n2. **Receipts written.** Each receipt records `attempted-head`, `delivered: pr <url> <head>` and `verification: passed`. They live in the home git common dir:\n   - `/work/repo-a/.git/gauntlet/receipts/shared.md/repo-b`\n   - `/work/repo-a/.git/gauntlet/receipts/shared.md/repo-c`\n3. **No companion seal.** Companions get no plan strip, no seal and no `.pi/gauntlet/telemetry/` write.\n4. **Home strip-and-seal.**\n   - I captured the spec path, the recorded verification set and the accepted task evidence before the strip.\n   - I stripped the plan on `feature/shared-change` in the home worktree.\n   - I then ran the home seal:\n     ```\n     node <bin>/gauntlet-telemetry-seal.mjs --worktree /work/repo-a/.worktrees/feature-shared-change --option pr --base <base-branch> --spec doc/specs/shared.md --leg repo-b=<repo-b PR url> --leg repo-c=<repo-c PR url>\n     ```\n\n---\n\n## Run A: seal exits 1\n\nThe seal output was:\n```\nmalformed --leg value repo-b=\n```\n\n**Stop.** A seal failure halts fan-out before any home delivery. The empty `repo-b=` value means the result collected for `repo-b` was incomplete, and the skill never seals partial results.\n\n- No home push and no home PR.\n- Every receipt is retained, including the `repo-b` receipt that holds the delivered PR URL.\n- All three worktrees and branches are preserved, and nothing is rolled back.\n\n```\nShipped: repo-b <repo-b PR url>, repo-c <repo-c PR url>\nNot shipped: repo-a - home seal failed (exit 1: malformed --leg value repo-b=)\n```\n\nOn retry, validate the `repo-b` and `repo-c` receipts first with `gh pr view <url> --json state,headRefOid`. That repopulates `repo-b=<url>` from the receipt rather than creating a duplicate PR. Ship is not marked complete.\n\n---\n\n## Run B: existing seal disagrees with collected legs\n\nThe collected `{repo, pr}` set was compared with the existing home seal's `legs:` set, and they differ:\n\n- **Stored:** `repo-b` → `<old repo-b PR url>`\n- **Collected:** `repo-b` → `<new repo-b PR url>` (`repo-c` matches)\n\n**Stop.** The seal is not re-run, nothing is overwritten and home is not delivered.\n\n- All receipts are retained.\n- All worktrees are preserved, and nothing is rolled back.\n\nThe mismatch needs your disposition. Either the old PR is still the real delivery, which would mean a duplicate PR was created, or the stored seal is stale.\n\n```\nShipped: repo-b <new repo-b PR url>, repo-c <repo-c PR url>\nNot shipped: repo-a - existing seal legs disagree (stored repo-b=<old url>, collected repo-b=<new url>)\n```\n\nShip is not marked complete.\n\n---\n\n## Run C: seal succeeds, home push rejected\n\nThe seal succeeded with `repo-b` and `repo-c` entries matching the collected results. It printed `sealed <telemetry record path>`, which I show verbatim.\n\nThe home push then failed:\n```\ngit -C /work/repo-a/.worktrees/feature-shared-change push -u origin feature/shared-change\n! [remote rejected] ...\n```\n\n**Stop.** Home delivery failed, so the home PR create is skipped.\n\n- No home receipt is written, because no PR was produced.\n- There is no force-push and no automatic retry.\n- Companion receipts are retained. They are not removed, because home delivery did not succeed.\n- All three worktrees and branches are preserved, and nothing is rolled back.\n- The seal and plan-strip commits stay on the home branch. On a fresh-session retry:\n  - the companion receipts are validated and their deliveries skipped;\n  - the seal reports `already sealed` with matching legs;\n  - the home push is retried after the rejection is resolved.\n\n```\nShipped: repo-b <repo-b PR url>, repo-c <repo-c PR url>\nNot shipped: repo-a - home push rejected by remote (<rejection output>)\n```\n\nShip is not marked complete.\n",
+      "words": 591,
+      "wallMs": 23765,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "### Run A — Home seal fails\n\nBoth companion PRs have been delivered, and their receipts remain recorded. Collect their complete results before sealing home, passing one `--leg <repo>=<pr-url>` per companion.\n\nThe home seal exits 1:\n\n```text\nmalformed --leg value repo-b=\n```\n\nStop immediately. Do not push home, retry delivery, or remove any worktree or branch. Preserve both companion PRs and all receipts.\n\n```text\nNot shipped: repo-a — home seal failed: malformed --leg value repo-b=\nShipped: repo-b — successfully created companion PR\nShipped: repo-c — successfully created companion PR\n```\n\n### Run B — Existing seal disagrees with collected results\n\nCompare the complete collected companion results with the existing home seal before home delivery. The `repo-b` entries disagree:\n\n```text\nStored: repo-b — old PR URL\nCollected: repo-b — new PR URL\n```\n\nStop naming that mismatch. Do not overwrite the existing seal, push home, or create replacement companion PRs. Preserve delivered PRs, receipts, worktrees, and branches.\n\n```text\nNot shipped: repo-a — existing seal records repo-b's old PR URL; collected result is repo-b's new PR URL\nShipped: repo-b — successfully created companion PR at the new URL\nShipped: repo-c — successfully created companion PR\n```\n\n### Run C — Seal succeeds, home push fails\n\nThe home seal succeeds with complete, matching companion entries. Proceed with the selected home PR delivery recipe, without running a second seal.\n\nThe home push fails:\n\n```text\nremote rejected\n```\n\nStop immediately. Do not create the home PR after the failed push, retry or force the push, or roll back either companion delivery. Preserve the successful seal and all receipts, worktrees, and branches.\n\n```text\nNot shipped: repo-a — home push failed: remote rejected\nShipped: repo-b — successfully created companion PR\nShipped: repo-c — successfully created companion PR\n```\n\nIn every run, **ship remains incomplete** and receipts are retained for validated retry. No cleanup runs on this PR path. The observations do not supply actual companion URLs or successful seal stdout; those must be reported verbatim when available, not invented.\n",
+      "words": 309,
+      "wallMs": 12523,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "278a43a12d2a849a253af7b6d4006a74daedbe6c0a8da0f3659984e6f0e9ac13",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "f799890e16cc3f3752172fadbe09daebf0f294cfcc869df30dee75eb116791d8",
+      "baselineOutputSha": "57ae939f75e5b8d8953464c634036fe0a1a035f9021795f1363bf25ad8d9f1d5",
+      "candidateOutputSha": "9538ad7c017f416684353a440577072f3763278175e46069ff658a9456fecc65",
+      "facts": {
+        "seal": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "home": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        }
+      },
+      "feedback": "Both facts hold in Before and in After, so this case shows no movement: Run A in both outputs prints the verbatim bin error `malformed --leg value repo-b=` and halts before any home push/PR, Run B in both compares the stored `legs:` set with the collected `{repo, pr}` set and stops naming the repo-b old/new URL mismatch without re-sealing or overwriting, and Run C in both reports the shipped companions, reports home as Not shipped with the actual remote-rejection output, keeps every receipt and worktree, writes no companion telemetry, performs no rollback and does not mark ship complete. After's wording is slightly tighter (explicit 'Stop' headers, explicit 'no force-push and no automatic retry', explicit receipt-retention rationale), which is fine, but note one accepted-variance drift: After relocates receipts to `/work/repo-a/.git/gauntlet/receipts/...` whereas Before used `.pi/gauntlet/receipts/...`; neither fact pins the receipt path, so nothing moved, but if the Change intends home-owned receipts under a specific location, state it once in the shared prefix so Before/After samples agree. To keep delivering the Change while preserving these facts, keep the verbatim seal error, the stored-vs-collected comparison with both URLs named, the `Shipped:`/`Not shipped:` lines in member order, and the explicit 'ship is not marked complete' sentence in every run.",
+      "wallMs": 13767,
+      "verdict": "unchanged"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "278a43a12d2a849a253af7b6d4006a74daedbe6c0a8da0f3659984e6f0e9ac13",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "f799890e16cc3f3752172fadbe09daebf0f294cfcc869df30dee75eb116791d8",
+      "baselineOutputSha": "3fcc4734b8f14595b1a117c2d7cb32271a2921c599d85adbe97648aa86bcd8b8",
+      "candidateOutputSha": "63773619a4002c7f118d77ea378fa2b6eca127a7388b6a716cb3933769b8181a",
+      "facts": {
+        "seal": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "home": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        }
+      },
+      "feedback": "Neither fact moved: both Before and After print the verbatim seal error in Run A and stop before any home push, compare stored versus collected repo-b entries in Run B and stop naming the mismatch without overwriting the existing seal, and in Run C report the delivered companions plus the home Not shipped with the actual 'remote rejected' error while preserving receipts, worktrees and branches with no rollback and no ship-complete claim. The Expected-to-move list anticipated a fails->holds shift, but the Before text already satisfied both facts, so After delivers only wording polish (explicit --leg collection, 'Stop naming that mismatch', the closing 'ship remains incomplete' paragraph). If the intent is to make the facts more robustly evidenced, After could add one explicit line that no companion telemetry or companion plan strip runs in any of the three runs and that Run B seals nothing partial, since both outputs only establish those by omission rather than by stating them.",
+      "wallMs": 13147,
+      "verdict": "unchanged"
+    }
+  },
+  "repoSha": "df79836689c7ec82c1f89329091a67b911c07c7d"
+}

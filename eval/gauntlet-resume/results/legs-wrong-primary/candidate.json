@@ -1,0 +1,70 @@
+{
+  "sample": "legs-wrong-primary",
+  "arm": "candidate",
+  "skillSha": "8dcc55fa834ee43fe8a4f3529d7e81f6ef44216547540bde9395636291717b1e",
+  "inputSha": "07fef4c008652c611970c76b693ff5287c912641a1c774e496108fb3c62f6405",
+  "kind": "text",
+  "assembly": "headed",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "# Gauntlet resume: stopped at entry check 3\n\nThe input says the restore has reached `plan_check`. It also says resume was started from the companion primary `/work/repo-b`. That fact governs. Coordinated admission says to \"Run resume entry check 3 against the run home unchanged,\" so check 3 must run before any tracker write. It fails.\n\n## Tool calls\n\n1. In the session cwd (`/work/repo-b`), read the session repository's common directory:\n   `realpath \"$(git rev-parse --path-format=absolute --git-common-dir)\"`\n   → `/work/repo-b/.git`\n\n2. Read the run home worktree's common directory:\n   `realpath \"$(git -C /work/repo-a/.worktrees/feature-shared-change rev-parse --path-format=absolute --git-common-dir)\"`\n   → `/work/repo-a/.git`\n\nThe two paths differ, so check 3 stops the restore.\n\n## Printed lines\n\n```\nSame-repository binding failed: session repository /work/repo-b/.git, resolved worktree /work/repo-a/.worktrees/feature-shared-change uses /work/repo-a/.git.\nThe resolved worktree belongs to a different repository; restart pi in that repository's primary checkout and re-run.\nhome is repo-a; restart there\n```\n\n## Calls not made\n\nNone of these run, because the stop comes before them:\n\n- Any `phase_tracker` call (`start brainstorm`, `skip brainstorm`, `start plan`, and the rest).\n- `plan_check({ planPath })`.\n- `plan_tracker init`.\n- The `gh pr view` branch-identity fetch.\n- Any further coordinated-admission leg validation.\n\nThere is no closing gate-history line and no standing-grant line, because no restore happened.\n\nTo continue, restart pi in `/work/repo-a` and re-run `/skill:gauntlet-resume` with the same brief.\n",
+      "words": 202,
+      "wallMs": 20336,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "Print: I'm using the gauntlet-resume skill to continue an interrupted flow.\n\nCall (session cwd `/work/repo-b`):\n```sh\nrealpath \"$(git rev-parse --path-format=absolute --git-common-dir)\"\n```\nResult: `/work/repo-b/.git`\n\nCall:\n```sh\nrealpath \"$(git -C /work/repo-a/.worktrees/feature-shared-change rev-parse --path-format=absolute --git-common-dir)\"\n```\nResult: `/work/repo-a/.git`\n\nPrint: Same-repository binding failed: session common directory is /work/repo-b/.git; resolved worktree common directory is /work/repo-a/.git. The resolved worktree belongs to a different repository; restart pi in that repository's primary checkout and re-run.\n\nPrint: home is repo-a; restart there\n\nSTOP. No tracker mutation or `plan_check` call.\n",
+      "words": 79,
+      "wallMs": 8214,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "5dadfc9d224e2996d7808deb05336b5cdd94bd8fb1776ce93024faec7ad2e36c",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "1b12afc6459e1e531c9112ca2505d714fa9d20362956b8b1a397ff8152df023f",
+      "baselineOutputSha": "784759efd5867725b720526f233a9f2f35f73466062b98428bbe8e37b8e9eff4",
+      "candidateOutputSha": "be800468692522cf890a30efefdf00e56eb53f55f8f8c4a34fa89a9a98a51831",
+      "facts": {
+        "stop": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        }
+      },
+      "feedback": "After preserves the fact: it stops at entry check 3 before any tracker write, names the observed companion primary (/work/repo-b, session repository /work/repo-b/.git), names the expected run home repo-a (\"home is repo-a; restart there\" and the closing instruction to restart in /work/repo-a), and lists the phase_tracker/plan_check/plan_tracker calls that were not made. Nothing moved. One small robustness note: After's printed stop block only names the home repository by its worktree path in line one and by the bare word \"repo-a\" in line three, whereas Before also spelled out the primary checkout path (/work/repo-a) inside the printed message; if the wording is revised further, keep the expected primary path in the printed stop line itself (e.g. \"restart pi in that repository's primary checkout (/work/repo-a)\") so the expected run home is named in the same place as the observed companion primary rather than only in the prose that follows.",
+      "wallMs": 8202,
+      "verdict": "unchanged"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "5dadfc9d224e2996d7808deb05336b5cdd94bd8fb1776ce93024faec7ad2e36c",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "1b12afc6459e1e531c9112ca2505d714fa9d20362956b8b1a397ff8152df023f",
+      "baselineOutputSha": "40aab6c2106774c21359f7b6c9882c04fab4b853f8c7d8d686570630fd0374a8",
+      "candidateOutputSha": "521c91155990170cce8516aa55e3280e42a1e66ee1b3cced66ce8cb6ae12be68",
+      "facts": {
+        "stop": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        }
+      },
+      "feedback": "Both outputs satisfy the fact as written: each stops at the entry check, names the observed companion primary (session common directory /work/repo-b.git, cwd /work/repo-b) against the expected home (/work/repo-a.git, `home is repo-a; restart there`), and declares no tracker mutation or plan_check call, so there is no companion-home resume in either. After only rephrases the stop line as `Same-repository binding failed: ...`, which moves nothing. If the intent was to make the fact's wording land more explicitly, the After stop line could say `expected run home repo-a (/work/repo-a); observed companion primary repo-b (/work/repo-b)` in one sentence rather than splitting the home name into a trailing print, but the current text already keeps every fact Before kept while delivering the Change.",
+      "wallMs": 7588,
+      "verdict": "unchanged"
+    }
+  },
+  "repoSha": "f25bf48a3f7ac2e9b361d2c7506d7c691e212697"
+}

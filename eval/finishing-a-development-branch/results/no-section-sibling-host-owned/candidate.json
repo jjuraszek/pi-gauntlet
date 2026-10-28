@@ -1,7 +1,7 @@
 {
   "sample": "no-section-sibling-host-owned",
   "arm": "candidate",
-  "skillSha": "c62e8914c9b61cc41095da4963091eb73afaeaa2fe807738747975550beb141b",
+  "skillSha": "abba3103fa48c7fc97e8643ca7bfb5575f5492cc1a1a289cf45c70e02be23ba2",
   "inputSha": "000ecdd5365881f14bcc8a172e1bdade132801ca6a5dc4f3190b1cf1af73f1f3",
   "kind": "text",
   "assembly": "concat",
@@ -15,23 +15,54 @@
     "thinking": "medium"
   },
   "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "## Step 6: Cleanup Workspace\n\nOption 3 (Squash-merge) was chosen, so cleanup runs.\n\n**Contract lookup:** The spec has no `## Legs` section, so no `contract:` lines are recorded. There is no gauntlet overrides file, so there is no `## using-git-worktrees` section. This means the **legacy path** applies.\n\n**Legacy path checks:**\n\n1. **Project-native script:** There is no `worktree` script at `/work/acme-api`, so there is no native destroy command to defer to.\n2. **Gauntlet-owned location:** `$WORKTREE` = `/work/acme-api-worktrees/rate-limit`.\n   - It is not under `$PRIMARY/.worktrees/`, which is `/work/acme-api/.worktrees/`.\n   - It is not under `~/.worktrees/acme-api/`.\n   - Gauntlet did not create it, so gauntlet does not own its cleanup.\n3. **Otherwise:** The host environment owns this workspace.\n\n**Action taken:**\n- I did **not** run `git worktree remove` or `git worktree prune`.\n- I did **not** run `git -C \"/work/acme-api\" branch -D rate-limit`, because the branch is still checked out in the worktree and deleting it would fail.\n\n**Report:**\n> The squash-merge of `rate-limit` into `main` at `/work/acme-api` succeeded. The worktree at `/work/acme-api-worktrees/rate-limit` is host-owned and was left in place. It still holds branch `rate-limit`, which was **not** deleted.\n>\n> To clean up manually once you're done with it:\n> ```bash\n> git -C /work/acme-api worktree remove /work/acme-api-worktrees/rate-limit\n> git -C /work/acme-api worktree prune\n> git -C /work/acme-api branch -D rate-limit\n> ```\n",
+      "words": 200,
+      "wallMs": 7344,
+      "mechanical": {
+        "s2": "fails"
+      }
+    },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "The host environment owns `/work/acme-api-worktrees/rate-limit`: it is outside the gauntlet-owned worktree paths, and no project-native cleanup script exists.\n\nDo not remove the worktree or delete the branch. The host-owned worktree still holds `rate-limit`.\n",
-      "words": 33,
-      "wallMs": 3519,
+      "text": "The host environment owns `/work/acme-api-worktrees/rate-limit`: it is outside the recognized gauntlet-owned paths, and no cleanup override or project-native worktree script exists.\n\nLeave the worktree intact and skip branch deletion. The host-owned worktree still holds `rate-limit`.\n",
+      "words": 35,
+      "wallMs": 3230,
       "mechanical": {
         "s2": "holds"
       }
     }
   },
   "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "8af7a37d875608fa8487e18fca111e61dac24245d10f243cb638f22713897d27",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "f799890e16cc3f3752172fadbe09daebf0f294cfcc869df30dee75eb116791d8",
+      "baselineOutputSha": "e3a59746c808a1f83412ca0bc937f08331ad50cf180ccb3882b1ab7705ec8e97",
+      "candidateOutputSha": "127980cfb64924ac6e76fa5a979c1deaff481a6c011ef88fa2591516e3945b46",
+      "facts": {
+        "s1": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "s2": {
+          "before": "fails",
+          "after": "fails",
+          "label": "intended but unchanged"
+        }
+      },
+      "feedback": "Both outputs report the worktree as host-owned, state that no git worktree remove/prune ran, skip branch -D, and say the host-owned worktree still holds rate-limit, so s1 holds in Before and After. After additionally narrates the contract lookup (no ## Legs section, no overrides file) before falling through to the legacy three-homes check, which matches the Change's intent that the no-section case stays unchanged; nothing in After moved the fact. One minor note: After phrases the Legs/contract lookup as a spec detail even though the case state only mentions the overrides file, so keep that line brief and clearly tied to the finish-time overrides read so the legacy narration stays identical in substance to Before.",
+      "wallMs": 5950,
+      "verdict": "unchanged"
+    },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "8af7a37d875608fa8487e18fca111e61dac24245d10f243cb638f22713897d27",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "30343bc5c6f678faa9431a82e537b28e529d686c25202329a16e741a2b64b92c",
+      "intentSha": "f799890e16cc3f3752172fadbe09daebf0f294cfcc869df30dee75eb116791d8",
       "baselineOutputSha": "f058b9c10428367ddeba0733eaff840d7a7ecdbe727613f621b3698cc2a34610",
-      "candidateOutputSha": "020fe4726aed74b273407c27fdac11d4871a7e195de0aa27f0d9a6640c222913",
+      "candidateOutputSha": "d294c558df3f322907dc954a215325412363aae91cf6ee5a892ad37573f64484",
       "facts": {
         "s1": {
           "before": "holds",
@@ -44,10 +75,10 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "After preserves s1: it identifies the worktree as host-owned, directs no removal or branch deletion, and states that the worktree still holds `rate-limit`. No fact moved. To deliver the requested final-outcome format while preserving this behavior, begin with exactly one `done` line, then retain the host-ownership explanation and explicitly say to skip worktree removal, pruning, and branch deletion.",
-      "wallMs": 3427,
+      "feedback": "Both outputs satisfy s1: each reports the sibling worktree as host-owned, performs no removal or prune, skips the branch deletion, and closes with the exact statement that the host-owned worktree still holds rate-limit. After rephrases the ownership rationale (\"outside the recognized gauntlet-owned paths\", \"no cleanup override or project-native worktree script\") and replaces \"Skip worktree removal, pruning\" with \"Leave the worktree intact\", which still conveys that nothing is removed; nothing moved. If you want After to read as a strict superset of Before, keep an explicit \"no git worktree remove or prune is run\" alongside \"leave the worktree intact\", and consider naming the overrides file's missing `## using-git-worktrees` section to reflect the finish-time read the Change introduces.",
+      "wallMs": 4925,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "2eb4429b4dd687432969f427f82d45d7840d7c63"
+  "repoSha": "f25bf48a3f7ac2e9b361d2c7506d7c691e212697"
 }

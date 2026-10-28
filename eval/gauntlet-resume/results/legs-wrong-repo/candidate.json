@@ -1,0 +1,70 @@
+{
+  "sample": "legs-wrong-repo",
+  "arm": "candidate",
+  "skillSha": "8dcc55fa834ee43fe8a4f3529d7e81f6ef44216547540bde9395636291717b1e",
+  "inputSha": "5155f8f9f26e9dd5dc3d1c386815a220f590aa6f6b93044d74c2ce26600bb8ab",
+  "kind": "text",
+  "assembly": "headed",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "# Coordinated admission stops on leg repo-b: no tracker write, no `plan_check`\n\nCoordinated admission (entry check 3b) runs before any tracker write. The admission check below fails, so the restore never reaches the call table.\n\n## Tool calls, in order\n\n1. **Read** `/work/repo-a/.worktrees/feature-shared-change/doc/specs/shared.md` `## Legs`.\n   - Result: ordered members `repo-a`, `repo-b`.\n   - These match the brief's `legs:` order (home `repo-a`, then `repo-b`), so membership passes.\n\n2. **Resolve repo-b's declared primary** from the home overrides' selected sibling line `../repo-b`, against `/work/repo-a`.\n   - Result: `/work/repo-b`.\n\n3. `realpath \"$(git -C /work/repo-b rev-parse --path-format=absolute --git-common-dir)\"`\n   - Result: `/work/repo-b/.git`\n\n4. `realpath \"$(git -C /work/repo-b/.worktrees/feature-shared-change rev-parse --path-format=absolute --git-common-dir)\"`\n   - Result: `/work/repo-c/.git`\n\nThe companion worktree's canonical git common directory does not equal its declared primary's. This is an admission stop, not informational drift.\n\n## Printed\n\n```\nCoordinated admission stopped: leg repo-b - worktree /work/repo-b/.worktrees/feature-shared-change has git common dir /work/repo-c/.git, expected /work/repo-b/.git (declared primary /work/repo-b).\n```\n\n## Not performed\n\n- No `phase_tracker` call: no `start brainstorm`, `skip brainstorm`, `start plan` or `start implement`.\n- No `plan_check({ planPath })` and no `plan_tracker init`.\n- No closing gate-history line and no standing-grant line, because the restore did not succeed.\n\nThe session stays idle. Repair repo-b's worktree, or the sibling declaration, then re-run `/skill:gauntlet-resume`.\n",
+      "words": 186,
+      "wallMs": 9787,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "STOP: repo-b worktree `/work/repo-b/.worktrees/feature-shared-change` has canonical Git common directory `/work/repo-c/.git`; expected `/work/repo-b/.git` from its declared primary. Coordinated admission failed before any tracker write; do not call `plan_check`.\n",
+      "words": 27,
+      "wallMs": 9558,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "f7a4662db5c73e04d535033c22aee536e5e75f31852952c29ff8ac5affbd28ea",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "1b12afc6459e1e531c9112ca2505d714fa9d20362956b8b1a397ff8152df023f",
+      "baselineOutputSha": "b3932bca072ded0722712d96bd7e848cd2ae625cacc2f0df3f41700459aae580",
+      "candidateOutputSha": "8ce88c07e7e6938a79daf7eddf3ff0ceead87f623bea71cc9a55b95006aeb8fc",
+      "facts": {
+        "stop": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        }
+      },
+      "feedback": "Both outputs stop at coordinated admission before any tracker write, name repo-b, and give the observed common dir /work/repo-c/.git against the expected /work/repo-b/.git, so the fact holds on both sides and nothing moved. After is slightly tighter: the printed stop line explicitly labels the expected directory and its declared primary, and the Not performed list spells out plan_check and plan_tracker init. Neither output states that repo-b's live branch matched or that the copied `**Home:**` leg header matched; to make the 'despite' clause visible rather than implied, add one line (e.g., 'repo-b branch feature/shared-change matches and the companion Home header matches; these do not excuse the repository mismatch') before the comparison step, and keep the rest of After as is.",
+      "wallMs": 8990,
+      "verdict": "unchanged"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "f7a4662db5c73e04d535033c22aee536e5e75f31852952c29ff8ac5affbd28ea",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "1b12afc6459e1e531c9112ca2505d714fa9d20362956b8b1a397ff8152df023f",
+      "baselineOutputSha": "a9eecebfd81b1c3d2c65a80ca94c076e344189a7bf7952166714c2eada050c93",
+      "candidateOutputSha": "9058cc0ce33a65655bd94aefada734a59ca4b3bcf32f5e7cc49973399be5ff1a",
+      "facts": {
+        "stop": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        }
+      },
+      "feedback": "Both outputs satisfy the stop fact: each halts at coordinated admission before any tracker write, names repo-b's worktree, and states the observed common directory `/work/repo-c/.git` against the expected `/work/repo-b/.git`, so the matching branch and copied leg header do not rescue admission. After is a correct, tighter rewrite: it keeps the explicit `plan_check` prohibition and both directories, though it drops the literal expected-primary path `/work/repo-b` and the skill announcement sentence that Before included. If you want After to be unambiguously at least as complete as Before for a careful reader, keep the explicit declared-primary path (`from declared primary /work/repo-b`) rather than `from its declared primary`, and consider retaining a brief note that the stop occurs despite the matching live branch and leg header, which would make the 'despite' clause of the fact visible in the text rather than merely implied. No fact moved; this case is held/pre-existing coverage, not an observed improvement.",
+      "wallMs": 8620,
+      "verdict": "unchanged"
+    }
+  },
+  "repoSha": "f25bf48a3f7ac2e9b361d2c7506d7c691e212697"
+}

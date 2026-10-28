@@ -1,0 +1,70 @@
+{
+  "sample": "legs-ok",
+  "arm": "candidate",
+  "skillSha": "bd25a130835e96e2696ea247487abc908de68d917309cbc5973dce6440f7d853",
+  "inputSha": "ebe209e99f438405ce42c59d8d459fa9daedb75c3b6d27f5f640bc2314eebe76",
+  "kind": "text",
+  "assembly": "headed",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "# Coordinated admission and process-state restore\n\n**Announce:** \"I'm using the gauntlet-resume skill to continue an interrupted flow.\"\n\n## Coordinated admission (entry check 3b, before any tracker write)\n\n**1. Run-home binding (check 3).**\n- Session cwd: `realpath \"$(git rev-parse --path-format=absolute --git-common-dir)\"` → `/work/repo-a/.git`\n- Home worktree: `realpath \"$(git -C /work/repo-a/.worktrees/feature-shared-change rev-parse --path-format=absolute --git-common-dir)\"` → `/work/repo-a/.git`\n- These match, so the home binding holds.\n\n**2. Home spec.** The spec resolves through Candidates to `/work/repo-a/.worktrees/feature-shared-change/doc/specs/shared.md`. It is approved by the human, not inferred from artifact presence.\n\n**3. Ordered membership.**\n- Brief `legs:` lists `repo-a, repo-b`.\n- Spec `### Leg:` blocks list `repo-a, repo-b`.\n- The lists match exactly.\n\n**4. Companion `repo-b`.**\n- The declared sibling `../repo-b` resolves against `/work/repo-a` to `/work/repo-b`. Its canonical common dir is `/work/repo-b/.git`.\n- `realpath \"$(git -C /work/repo-b/.worktrees/feature-shared-change rev-parse --path-format=absolute --git-common-dir)\"` → `/work/repo-b/.git`. This equals the declared primary's common dir.\n- `git -C /work/repo-b/.worktrees/feature-shared-change branch --show-current` → `feature/shared-change`. This equals the shared branch.\n- The leg file's `**Home:**` reads `repo-a feature/shared-change doc/specs/shared.md`. This equals the run-home tuple.\n- The tree is live, so no receipt validation is needed.\n\n**5. Home leg.** `git -C /work/repo-a/.worktrees/feature-shared-change branch --show-current` → `feature/shared-change`. It matches.\n\nCoordinated admission passes.\n\n## Drift notice (check 4, per leg, informational only)\n\n- `git -C /work/repo-a/.worktrees/feature-shared-change rev-parse HEAD` and `status --porcelain` show no change from the brief.\n- `git -C /work/repo-b/.worktrees/feature-shared-change rev-parse HEAD` → `ccccccc`.\n- `git -C /work/repo-b/.worktrees/feature-shared-change status --porcelain` → `M src/reader.ts`.\n\nPrinted:\n```\nDrift (repo-a): none - HEAD and dirty unchanged.\nDrift (repo-b): HEAD bbbbbbb -> ccccccc; dirty clean -> M src/reader.ts.\n```\n\nThis drift does not stop the restore. Nothing was fetched for PR identity because the brief carries no PR pairs, so ordinary restoration applies.\n\n## Call table: implement with task plan\n\n1. `phase_tracker({ action: \"start\", phase: \"brainstorm\" })`\n2. `phase_tracker({ action: \"skip\", phase: \"brainstorm\", reason: \"resume: /work/repo-a/.worktrees/feature-shared-change/doc/specs/shared.md\" })`\n3. `phase_tracker({ action: \"start\", phase: \"plan\" })`\n4. `plan_check({ planPath: \"/work/repo-a/.worktrees/feature-shared-change/doc/plans/shared.md\" })` → **PASS**\n   - This is the single plan paired by basename with the spec. Plan and ledger are home-owned.\n   - Because it passed, no plan repair runs and no repair line is printed.\n5. `phase_tracker({ action: \"skip\", phase: \"plan\", reason: \"resume: <brief file>\" })`\n6. `phase_tracker({ action: \"start\", phase: \"implement\" })`\n   - `substep: \"W2\"` is set only if the brief's phase line shows `implement(W2)`.\n7. Feasibility check on the snapshot: the pending suffix is fine, and not every task is complete, so the snapshot is feasible.\n8. `plan_tracker({ action: \"init\", tasks: [{ name: \"W1\", status: \"complete\" }, { name: \"W2: reader\", status: \"in_progress\" }] })`\n   - Names, order and statuses are copied verbatim from the snapshot.\n\n## Printed\n\n```\nGate history not restored; re-validating `W2: reader` before any stage advance\n```\nOn its own line, the check-6 result: either `Standing grant active: <sentence>` or `No standing grant.`, as read from the spec's `**Amend-grant:**` line.\n\n## Continuation in subagent-driven-development\n\nThe task loop starts by re-validating `W2: reader`, which carries `Leg: repo-b`.\n- Its `Tests:` re-run in that leg's checkout, `/work/repo-b/.worktrees/feature-shared-change`, not in the home.\n- `Rules: AGENTS.md` applies.\n- The live tree contains the drifted `M src/reader.ts` noted above.\n\nThe task loop then continues from W2, the first non-complete task.\n",
+      "words": 472,
+      "wallMs": 25178,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "Print:\n```text\nDrift notice — repo-b: HEAD advanced from bbbbbbb to ccccccc; dirty changed from clean to M src/reader.ts.\n```\n\nThis is informational drift, not an admission stop. The supplied branch, common-directory, membership, and companion `**Home:**` checks match. Preserve the existing worktrees; do not clean the companion.\n\nThe input does not supply enough information to narrate the remaining calls and printed lines **exactly**:\n\n- The absolute task-plan path is not given. `plan_check` requires the resolved absolute path; I cannot assume `doc/plans/shared.md`.\n- Check 6 is said to have passed, but its result—the standing-grant sentence or no grant—is missing.\n- The snapshot gives `W1` and `W2 in_progress`, but does not unambiguously supply both verbatim task names.\n- W2’s `Tests:` command is absent, so its required re-validation cannot be narrated.\n\nOnce those values are supplied, the ordered restoration is:\n\n1. `start brainstorm`\n2. `skip brainstorm`, reason `resume: /work/repo-a/.worktrees/feature-shared-change/doc/specs/shared.md`\n3. `start plan`\n4. `plan_check` with the resolved absolute task-plan path\n5. On PASS, `skip plan` with the actual `resume: <brief file or \"pasted brief\">` reason\n6. `start implement`\n7. Restore any recorded implement substep, then initialize the exact saved task snapshot\n8. Print:\n   ```text\n   Gate history not restored; re-validating `W2: reader` before any stage advance\n   ```\n9. Print the actual check-6 grant result on its own line.\n10. Continue in subagent-driven-development without its reset-bearing entry. Re-run W2’s `Tests:` in `/work/repo-b/.worktrees/feature-shared-change`, applying that leg’s `AGENTS.md`, before continuing the task loop.\n\nNo tools have been executed.\n",
+      "words": 234,
+      "wallMs": 23439,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "76fb8cb8a42012ece42b904d9666e80e75a3d18b7b33fb6d80f7fb4a88f73008",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "1b12afc6459e1e531c9112ca2505d714fa9d20362956b8b1a397ff8152df023f",
+      "baselineOutputSha": "d17a05188ced48fde68659c4672ebdb38de7e5fe6ec1ac4ad176340429176189",
+      "candidateOutputSha": "564c1cf18443d577036eb79432cea527ad8f9c6b91802ca61157503ebb59287d",
+      "facts": {
+        "drift": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        }
+      },
+      "feedback": "After keeps every element of the drift fact that Before kept: it prints both drift lines for repo-a and repo-b, states explicitly that the drift does not stop the restore, copies the W1/W2 snapshot verbatim into plan_tracker init, keeps the human-approval statement and the check-6 standing-grant line, runs plan_check inside the legally armed brainstorm/plan/implement chain, and routes W2's Tests re-run to /work/repo-b/.worktrees/feature-shared-change 'not in the home'. One minor softening worth tightening: Before said 'Rules: AGENTS.md comes from repo-b', while After says only 'Rules: AGENTS.md applies', which a strict reader could take as leaving the rules file's origin unstated; phrasing it as 'Rules: AGENTS.md is read from that repo-b checkout, not the home tree' would make the checkout-local rules binding as explicit as Before while still delivering the Change's command-level narration of the admission and drift checks.",
+      "wallMs": 10119,
+      "verdict": "unchanged"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "76fb8cb8a42012ece42b904d9666e80e75a3d18b7b33fb6d80f7fb4a88f73008",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "1b12afc6459e1e531c9112ca2505d714fa9d20362956b8b1a397ff8152df023f",
+      "baselineOutputSha": "24ff137bf6fabc465370db1442595662634b51690144495bfa189ae2d6c6456d",
+      "candidateOutputSha": "483798a02680f12227420f51d0f8a9d39e9ca7800bb2631f33a8e7871fff610a",
+      "facts": {
+        "drift": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        }
+      },
+      "feedback": "Both outputs announce the repo-b HEAD and dirty drift as informational, preserve the task snapshot and the check-6 grant line without inventing it, restore through plan_check, and send W2 re-validation to the repo-b companion worktree with its own AGENTS.md rather than defaulting to home, so the fact holds on each side. After weakens the narration rather than the fact: it declares the plan path unknowable and withholds the concrete plan_check call that Before derived from the home worktree, and it prepends brainstorm/plan start-skip steps the input did not ask for, which reads as a conditional deferral that a stricter reader could mistake for a halt. To deliver the Change while keeping the fact clearly intact, keep Before's concrete plan_check path resolution under the run home, keep the ordered phase/plan tracker chain starting at the specified step, and state the grant-line and Tests-command gaps as pending inputs after the snapshot init rather than as a reason not to narrate the admission chain.",
+      "wallMs": 34525,
+      "verdict": "unchanged"
+    }
+  },
+  "repoSha": "df79836689c7ec82c1f89329091a67b911c07c7d"
+}

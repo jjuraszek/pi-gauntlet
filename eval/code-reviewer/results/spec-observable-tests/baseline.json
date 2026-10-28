@@ -1,7 +1,7 @@
 {
   "sample": "spec-observable-tests",
   "arm": "baseline",
-  "skillSha": "183e4158913a00b7ca305ce371c5d6aa9a864b3e82bdeaf16cb8800a2e4bcc6e",
+  "skillSha": "59784facd665ba809bf0c51e9deebcf8df21e74ee5d874a5e42d27e7233d24e1",
   "inputSha": "49a5705e836b862754f7b688b6cdadda3757a09b487b2e913cc09ba51afa3453",
   "kind": "text",
   "assembly": "headed",
@@ -17,18 +17,18 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "Verdict: SHIP\nReasoning: `name.strip()` meets AC1 and the empty-label Keep. The only findings are Minor test-economy issues.\nConfidence: high (the full diff is two trivial files; no commands were supplied, so I ran nothing)\n\nFindings:\n  - [Minor] F1: [shrink] test_labels.py:4-15 — The three tests share one operation (`render_label(x) == y`) and are just equivalent input/output cases split across separate functions.\n        Fix: Collapse them into one parametrized table with named rows that keep the spec citations, e.g.\n        ```python\n        import pytest\n        from labels import render_label\n\n        @pytest.mark.parametrize(\"raw, expected\", [\n            (\" MiXeD \", \"MiXeD\"),  # AC1: strip outer whitespace (case untouched)\n            (\"\", \"\"),              # Design Keep: empty label remains empty\n        ], ids=[\"trim\", \"empty\"])\n        def test_render_label(raw, expected):\n            assert render_label(raw) == expected\n        ```\n        touched-files: test_labels.py\n        touched-resources: none\n  - [Minor] F2: [delete] test_labels.py:14-15 — `test_label_keeps_mixed_case` cites no approved commitment.\n        Plan deviation: the DESCRIPTION claims \"preserving mixed case\", but neither AC1 nor the Design section commits to it. The code does preserve case, since `str.strip` never alters case, so the deviation is acceptable and harmless. Even so, the standalone test proves no spec item.\n        Fix: Delete the test, or fold the case check into the AC1 trim row (`\" MiXeD \" -> \"MiXeD\"`) as F1 shows. If mixed-case preservation is meant to be a commitment, add it to the spec first.\n        touched-files: test_labels.py\n        touched-resources: none\n\nComplexity: net -5 lines\nParallel-safe: F2 conflicts F1 (both touch test_labels.py)\n\nVerification: not run. SCOPED_TEST_COMMANDS was `none`, so the orchestrator gate owns test execution.\n\nBehaviour-change: no\n",
-      "words": 225,
-      "wallMs": 16899,
+      "text": "Verdict: FIX_FIRST\nReasoning: `test_label_keeps_mixed_case` proves a behavior that neither the spec's `## Acceptance criteria` nor its `## Design` section names, which is a Moderate finding.\nConfidence: medium (I read the full inlined diff; no commands were supplied, so I ran no tests)\n\nFindings:\n  - [Moderate] F1: [delete] test_labels.py:14 — `test_label_keeps_mixed_case` proves no observable that the supplied spec names, so it costs a run without proving any approved commitment.\n        - I searched `## Acceptance criteria` (AC1: outer whitespace stripped) and `## Design` (Keep: empty label remains empty). Neither commits to mixed-case preservation.\n        - Only the DESCRIPTION summary mentions mixed case, so I treat it as uncommitted.\n        - Unlike the other two tests, this test has no justification comment citing an approved row or clause.\n        - It is not the single smoke test or an `assert`-based self-check, so no exemption applies.\n        Fix: Delete `test_label_keeps_mixed_case`. If mixed-case preservation is a real requirement, send it through the scope decision so it is added to the spec as an acceptance row or Design clause. Then restore the test with a comment citing that row.\n        touched-files: test_labels.py\n        touched-resources: none\n\nNotes (no findings):\n- Correctness: `name.strip()` meets AC1 and the Design Keep rule (`\"\".strip() == \"\"`).\n- `str.strip()` also trims tabs and newlines. That is consistent with \"outer whitespace\" in AC1.\n- The spec does not specify behavior for non-`str` input such as `None`, so I raise no finding on it.\n- Tests: `test_label_trims_outer_space` proves AC1 and `test_label_keeps_empty` proves the Design Keep rule. Each cites its commitment, and they are not equivalent cases, so they do not need to become a table. Both use minimal input.\n- Security, error handling, performance: none apply to a one-line pure function.\n\nComplexity: net -4 lines\n\nVerification: Not run. `SCOPED_TEST_COMMANDS` was `none`, so the orchestrator gate owns test execution.\n\nParallel-safe: F1 disjoint\nBehaviour-change: no\n",
+      "words": 286,
+      "wallMs": 13686,
       "mechanical": {}
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "Verdict: SHIP\nReasoning: The implementation strips outer whitespace, preserves empty labels and mixed case, and the tests cover each stated behavior without unnecessary duplication.\nConfidence: high\n\nFindings: none.\n\nVerification: No commands run; SCOPED_TEST_COMMANDS is `none`, and the dispatch prohibits git and test execution. Review is based solely on the supplied diff.\n\nBehaviour-change: no\n",
-      "words": 53,
-      "wallMs": 7832,
+      "text": "Verdict: FIX_FIRST\nReasoning: The mixed-case test asserts summary-only behavior not committed in the approved Acceptance criteria or Design.\nConfidence: high\n\nFindings:\n  - [Moderate] F1: test_labels.py:14 — delete: `test_label_keeps_mixed_case` proves neither outer-whitespace removal (Acceptance criteria AC1) nor empty-label preservation (Design Keep); mixed-case preservation appears only in the description, not the approved scope.\n        Fix: Delete this test. If mixed-case preservation needs dedicated coverage, route that behavior through the scope decision and obtain an approved commitment first.\n        touched-files: test_labels.py\n        touched-resources: none\n\nComplexity: net -4 lines\n\nVerification: No commands run; SCOPED_TEST_COMMANDS is `none`. Review was limited to the supplied diff.\n\nParallel-safe: F1 disjoint\nBehaviour-change: no\n",
+      "words": 99,
+      "wallMs": 11645,
       "mechanical": {}
     }
   },
-  "repoSha": "e85ad8c4e58d6f8cc0716ab1199fef2e7d45f902"
+  "repoSha": "f25bf48a3f7ac2e9b361d2c7506d7c691e212697"
 }

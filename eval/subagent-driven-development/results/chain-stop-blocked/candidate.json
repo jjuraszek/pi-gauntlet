@@ -1,34 +1,42 @@
 {
   "sample": "chain-stop-blocked",
   "arm": "candidate",
-  "skillSha": "fd8d66c7d351d0a95e5ca790531575bb49b6d5236b70bbb68eb494d50ca59bcd",
+  "skillSha": "681d05d7c3605ef84d961c330e941a48643eedf28c904d27815cea84a305b724",
   "inputSha": "9930583d4b90f79f7cdd50f84c6c507cf50a18219b44053eb96bd29a5bcd4234",
   "kind": "text",
   "assembly": "headed",
   "thinking": "medium",
   "models": {
     "replay": [
+      "anthropic/claude-opus-5-5",
       "github-copilot/gpt-6.1-sol"
     ],
-    "judge": "github-copilot/gpt-6.1-sol",
+    "judge": "anthropic-fable/claude-fable-5-1",
     "thinking": "medium"
   },
   "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "# Wave 1 recovery: task 2 BLOCKED, no SR run\n\n## Read the result once\n\nRead the tool-result text, not `details`. Read exit-0 statuses from the fenced JSON in `## Outputs` and the `## Stop` line. Task 1's status is in `## Outputs` and `/tmp/reports/wave1-task1.md`. Its patch is `/tmp/chain-run/worktree-diffs/step-0/task-0-implementer.patch`.\n\nKeep both tracker indices `in_progress` throughout. Make no commit at this point.\n\n## Possible routes (none selected)\n\n**A. Exit-0 stop, no failed sibling.** Task 2 exits 0 with `BLOCKED`, so `stopOn` matches.\n- `## Stop` names it and its status sits in `## Outputs`.\n- Its report is `/tmp/reports/wave1-task2.md`.\n- The SR step never ran.\n- Handle `BLOCKED` per the status table:\n  - **Spec-defect citation:** take the amendment route.\n  - **Fact ask:** do bounded lookups per `stop-note.md`.\n  - **Decision:** diagnose, then re-dispatch or escalate.\n\n**B. Completion-guard error (or other nonzero task 2).** Take the chain-error route.\n- Task 2 has no `output:` file and no bound output.\n- Recover its prose `**Status:**` from the session `subagent-artifacts` file `<runId>_implementer_<index>_output.md`, using the naming in pi-cohort `src/shared/artifacts.ts`.\n- Match that file by the run/task identity in the result or session transcript.\n- Never use `/tmp/chain-run/.../parallel-0/` as evidence.\n- If the recovered status is `BLOCKED`, route it through the status matrix, even though no patch exists.\n\n**C. `## Stop` coexisting with a failed task.** pi-cohort checks the stop condition before it checks sibling failures, so both can appear.\n- `## Stop` proves only one matched exit-0 status, not that every sibling succeeded.\n- Inspect every failed task anyway, using route B.\n\n**D. Rejected or missing `structured_output`.** Treat this as a chain error, as in route B. Recover the status from prose only.\n\n**E. No-edits `NEEDS_CONTEXT`.** Route through the status matrix:\n- **Spec-defect citation:** amendment route.\n- **Fact ask:** documented lookups in order; re-dispatch with the result in the task text.\n- **Decision:** answer and re-dispatch, or escalate.\n\nNever review an unchanged tree for an unaccepted task.\n\n**Unavailable artifacts.** Artifacts may be disabled, missing, or impossible to match unambiguously. Then enter *When a Subagent Fails* with the visible diagnostic. Never invent a status. The same applies to a missing or empty patch on an accepted task.\n\n## Task 1 review (accepted DONE, no verdict yet)\n\nSuccessful siblings are never re-run. Confirm the patch exists and is non-empty first; otherwise go to *When a Subagent Fails*.\n\n**1. Materialize the snapshot:**\n```bash\nSR_ROOT='/workspace/project'\nSR_BASE='1111111111111111111111111111111111111111'\nSR_PATCH='/tmp/chain-run/worktree-diffs/step-0/task-0-implementer.patch'\nSR_DIR=$(mktemp -d) || exit 1\nSR_TREE=\"$SR_DIR/tree\"\ngit -C \"$SR_ROOT\" worktree add --detach \"$SR_TREE\" \"$SR_BASE\" || exit 1\ngit -C \"$SR_TREE\" apply --index \"$SR_PATCH\" || exit 1\nprintf 'snapshot: %s\\n' \"$SR_TREE\"\n```\n\n**2. Record task 1's review tree.** Run the Fix delta block with `FD_ROOT='<printed snapshot path>'` and keep the SHA keyed to task 1.\n\nIf setup or tree capture fails, stop dispatch, keep the snapshot directory and shell output for diagnosis, and do no cleanup.\n\n**3. Dispatch the review:**\n```ts\nsubagent({ agent: \"spec-reviewer\", async: false, context: \"fresh\",\n  cwd: \"<printed snapshot path>\",\n  output: \"/tmp/reports/wave1-sr1.md\",\n  task: \"<full task 1 text> + spec: /workspace/project/doc/specs/feature.md + <task 1 Spec: anchors> + <Tests: block> + <Test: paths> + patch diff of task-0-implementer.patch + implementer report /tmp/reports/wave1-task1.md. Start from diff hunks (file:line), read touched files in full from cwd, read deleted files from 1111111111111111111111111111111111111111, never run tests.\" })\n```\n\nDispatch notes:\n- No `worktree`, `outputSchema`, or `acceptance` field.\n- Implementer status enum, for reference: `DONE | DONE_WITH_CONCERNS | NEEDS_CONTEXT | BLOCKED`.\n\n**4. Read and clean up.**\n- Read the `Verdict:` line in `/tmp/reports/wave1-sr1.md`: `COMPLIANT | NEEDS_REWORK | OUT_OF_SCOPE_CHANGES`.\n- Only then run `git -C /workspace/project worktree remove --force \"<printed snapshot path>\"`.\n\n## Task 2 after resolution\n\n- **Never dispatch a second chain in this wave.**\n- Re-dispatch task 2 as a one-entry `tasks` array:\n  - Invocation-level `worktree: true`, `context: \"fresh\"`, `cwd: \"/workspace/project\"`.\n  - Carry `<full task 2 text>`, the answers, `SCOPED_TEST_COMMANDS`, and the status protocol.\n- If it returns an accepted patch, review it with the same snapshot, Fix delta, and SR steps as task 1.\n\n## Commit timing\n\nIntegration (`git -C /workspace/project apply --index <patch>`), the scoped test gate, the single wave CR, and the wave commit come only after:\n- every SR verdict is resolved, and\n- task 2 is either accepted, or dropped from the wave and retried as a one-task wave.\n\nIf task 2 stalls instead, emit its stop note. The phase stays `implement` and nothing is committed or marked `complete`.\n\nI stop at this boundary: no verdicts are claimed.\n",
+      "words": 677,
+      "wallMs": 30825,
+      "mechanical": {}
+    },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "### 1. Route from the result text, not `details`\n\nKeep `WAVE_BASE_SHA = 1111111111111111111111111111111111111111` unchanged. The supplied version is pi-cohort 7.4.3; no new preflight execution is implied.\n\nRead task 1’s exit-0 fenced status in `## Outputs` and its report:\n```bash\ncat /tmp/reports/wave1-task1.md\n```\n\nPreserve its accepted patch:\n`/tmp/chain-run/worktree-diffs/step-0/task-0-implementer.patch`.\n\nDo not rerun task 1. No SR verdict exists yet.\n\n**Conditional routes:**\n\n- **Task 2 exits zero with `BLOCKED`:** `## Stop` identifies a matched exit-0 stop, not a process failure. Read its fenced status and:\n  ```bash\n  cat /tmp/reports/wave1-task2.md\n  ```\n  The stop prevented the SR step. Do not infer whether task 2 edited from its status.\n- **Task 2 fails a completion guard:** treat this as a chain error. It has neither the known `output:` report nor a bound output. Recover its prose from session `subagent-artifacts`, matching the result/session’s run and task identity to the naming defined in pi-cohort `src/shared/artifacts.ts`, including `<runId>_implementer_<index>_output.md`. Do not guess the index or use `parallel-0/`.\n- **A sibling’s `## Stop` coexists with task failure:** handle both independently. The stop check precedes sibling-failure checking; it does not establish that all siblings exited successfully.\n- **Rejected/missing `structured_output`:** a chain error, not an accepted status. Recover prose by the same session-artifact route. A recoverable explicit `BLOCKED` or `NEEDS_CONTEXT` follows its status handling; otherwise use the subagent-failure procedure without inventing a status.\n- **No-edits `NEEDS_CONTEXT`:** do not require or fabricate a patch, and do not review an unchanged tree. Route the recovered question for context resolution.\n\nIf session artifacts are disabled, missing, or ambiguously matched, retain task 1’s evidence and use the visible diagnostic under the two-attempt subagent-failure limit. Do not substitute the nonexistent task-2 report or infer `BLOCKED` from missing output.\n\n### 2. Resolve task 2 by cause\n\nFor recovered `BLOCKED`/`NEEDS_CONTEXT` prose:\n\n- Fact ask: perform one bounded lookup per documented location, in order; record misses and the first hit. Redispatch with the found answer.\n- Spec-defect citation: follow the amendment route, not a generic retry.\n- Decision or unresolved dependency: diagnose or escalate; exhausted/inaccessible fact lookups require the prescribed stop note.\n\nA context redispatch, **only after resolution**, has this shape:\n```ts\nsubagent({\n  async: false,\n  context: \"fresh\",\n  cwd: \"/workspace/project\",\n  worktree: true,\n  tasks: [{\n    agent: \"implementer\",\n    outputSchema: {\n      type: \"object\",\n      required: [\"status\"],\n      additionalProperties: true,\n      properties: {\n        status: {\n          type: \"string\",\n          enum: [\"DONE\", \"DONE_WITH_CONCERNS\", \"NEEDS_CONTEXT\", \"BLOCKED\"]\n        }\n      }\n    },\n    task: \"<full unchanged task 2, Files/Spec/Tests blocks, resolved context, recovered report, any actual prior patch, SCOPED_TEST_COMMANDS, and implementer status/test-evidence prompt>\"\n  }]\n})\n```\nAn unresolved stop ends the turn; this is not permission to dispatch another chain.\n\n### 3. Review the accepted sibling independently\n\nMaterialize task 1 without changing `/workspace/project`:\n```bash\nSR_ROOT='/workspace/project'\nSR_BASE='1111111111111111111111111111111111111111'\nSR_PATCH='/tmp/chain-run/worktree-diffs/step-0/task-0-implementer.patch'\nSR_DIR=$(mktemp -d) || exit 1\nSR_TREE=\"$SR_DIR/tree\"\ngit -C \"$SR_ROOT\" worktree add --detach \"$SR_TREE\" \"$SR_BASE\" || exit 1\ngit -C \"$SR_TREE\" apply --index \"$SR_PATCH\" || exit 1\nprintf 'snapshot: %s\\n' \"$SR_TREE\"\n\nFD_ROOT=\"$SR_TREE\"\nFD_INDEX=$(mktemp) || exit 1\ncp \"$(git -C \"$FD_ROOT\" rev-parse --path-format=absolute --git-path index)\" \"$FD_INDEX\" || { rm -f \"$FD_INDEX\"; exit 1; }\nGIT_INDEX_FILE=\"$FD_INDEX\" git -C \"$FD_ROOT\" add -A && GIT_INDEX_FILE=\"$FD_INDEX\" git -C \"$FD_ROOT\" write-tree\nFD_STATUS=$?\nrm -f \"$FD_INDEX\"\nexit \"$FD_STATUS\"\n```\nRecord the printed tree SHA keyed to task 1. Setup/capture failure stops review dispatch; retain the directory and error.\n\n```ts\nsubagent({\n  async: false,\n  context: \"fresh\",\n  cwd: \"<printed absolute snapshot path>\",\n  agent: \"spec-reviewer\",\n  output: \"/tmp/reports/wave1-sr1.md\",\n  task: \"<full unchanged task 1 and spec-reviewer prompt>; authoritative spec: /workspace/project/doc/specs/feature.md; <Spec anchors, Tests block, Test paths>; review the patch at /tmp/chain-run/worktree-diffs/step-0/task-0-implementer.patch. Read /tmp/reports/wave1-task1.md for implementer claims. Start from diff hunks with file:line; read every touched file fully in this snapshot and deleted files from 1111111111111111111111111111111111111111. Never execute tests.\"\n})\n```\n\nThis is a first SR: no previous-review marker, trajectory requirement, test commands, schema, or `worktree` flag.\n\nRead the saved report before removing its snapshot:\n```bash\ncat /tmp/reports/wave1-sr1.md\ngit -C /workspace/project worktree remove --force '<printed absolute snapshot path>'\n```\n\n### 4. Boundary and commit timing\n\nNo second chain is allowed in this wave. Preserve accepted sibling patches/verdicts; repairs use targeted standalone dispatches and replacement snapshots.\n\nNo commit now. Only accepted, spec-compliant patches may later be integrated with `git apply --index`; then run the wave’s scoped test gate and integrated CR. A wave commit and tracker completion require those gates to accept. No review verdict is assumed here.\n",
-      "words": 661,
-      "wallMs": 38018,
+      "text": "No execution is implied below. Preserve `WAVE_BASE_SHA=1111111111111111111111111111111111111111`; do not rerun the initial chain.\n\n### 1. Classify the result conditionally\n\nRead **tool-result text**, not `details`.\n\n- **Exit-0 stop:** Read fenced statuses in `## Outputs` (or known output reports). `## Stop` identifies a matched **exit-0** status. If task 2 exited zero, read `/tmp/reports/wave1-task2.md`. Its `BLOCKED` status stops the chain before SR; it does **not** establish whether task 2 edited.\n- **Completion-guard error:** Task 2 has no known `output:` file or bound output. Recover its prose from the session’s `subagent-artifacts`, matching the result/transcript’s run and task identity to pi-cohort’s source-defined naming, `<runId>_implementer_<index>_output.md`. Do not guess the index or use `/tmp/chain-run/parallel-0/`.\n- **Coexisting stop and failure:** A sibling’s `## Stop` does not prove all siblings succeeded: stop evaluation precedes sibling-failure checking. Inspect every failed task and retain successful siblings independently.\n- **Rejected/missing `structured_output`:** This is a chain error, not an accepted status. Recover prose as above; do not invent a status from the missing structured result.\n- **Artifacts disabled, missing, or ambiguous:** Use the visible diagnostic under “When a Subagent Fails,” with its existing two-attempt limit. Never manufacture status, patch, or review evidence.\n\nRead task 1’s known report and verify its captured patch:\n\n```bash\ncat /tmp/reports/wave1-task1.md\ntest -s /tmp/chain-run/worktree-diffs/step-0/task-0-implementer.patch\n```\n\nA missing/empty accepted patch takes failure recovery, not SR of an unchanged tree.\n\n### 2. Resolve task 2 without assuming edits\n\nFor recovered `BLOCKED` or `NEEDS_CONTEXT`, classify the actual ask:\n\n- Spec/plan/rule alternatives: amendment routing, not an arbitrary implementation decision.\n- Fact ask: one bounded lookup per documented location, in order; record misses and the first hit. Redispatch with the fact embedded.\n- Decision: supply an authorized answer or escalate.\n- Exhausted/inaccessible facts: emit the prescribed stop note.\n\nA **no-edits `NEEDS_CONTEXT`** is still handled through this matrix; it needs no fabricated patch and no unchanged-tree review.\n\nAfter resolving a recoverable ask, a possible standalone dispatch is:\n\n```ts\nsubagent({\n  async: false,\n  context: \"fresh\",\n  cwd: \"/workspace/project\",\n  worktree: true,\n  tasks: [{\n    agent: \"implementer\",\n    outputSchema: {\n      type: \"object\",\n      required: [\"status\"],\n      additionalProperties: true,\n      properties: {\n        status: { type: \"string\", enum: [\n          \"DONE\", \"DONE_WITH_CONCERNS\", \"NEEDS_CONTEXT\", \"BLOCKED\"\n        ]}\n      }\n    },\n    task: `<FULL TASK 2 + supplied implementer prompt text, unchanged;\nLeg/Rules context; resolved facts/authorized answers;\nSCOPED_TEST_COMMANDS; Tests/Files contract; explicit status protocol.\nInclude recovered report verbatim and an actual captured patch only if available.\nDo not assume the previous attempt made no edits.>`\n  }]\n})\n```\n\nRetain task 1’s patch and status; never rerun it to repair task 2.\n\n### 3. Review the accepted sibling separately\n\nBecause no SR ran, materialize task 1’s accepted patch without changing `/workspace/project`:\n\n```bash\nSR_ROOT='/workspace/project'\nSR_BASE='1111111111111111111111111111111111111111'\nSR_PATCH='/tmp/chain-run/worktree-diffs/step-0/task-0-implementer.patch'\nSR_DIR=$(mktemp -d) || exit 1\nSR_TREE=\"$SR_DIR/tree\"\ngit -C \"$SR_ROOT\" worktree add --detach \"$SR_TREE\" \"$SR_BASE\" || exit 1\ngit -C \"$SR_TREE\" apply --index \"$SR_PATCH\" || exit 1\nprintf 'snapshot: %s\\n' \"$SR_TREE\"\n```\n\nUsing that printed checkout path, capture its review tree:\n\n```bash\nFD_ROOT='<printed snapshot path>'\nFD_INDEX=$(mktemp) || exit 1\ncp \"$(git -C \"$FD_ROOT\" rev-parse --path-format=absolute --git-path index)\" \"$FD_INDEX\" || { rm -f \"$FD_INDEX\"; exit 1; }\nGIT_INDEX_FILE=\"$FD_INDEX\" git -C \"$FD_ROOT\" add -A && GIT_INDEX_FILE=\"$FD_INDEX\" git -C \"$FD_ROOT\" write-tree\nFD_STATUS=$?\nrm -f \"$FD_INDEX\"\nexit \"$FD_STATUS\"\n```\n\nSave the SHA keyed to task 1. Any setup/capture error stops dispatch; retain the snapshot and diagnostic.\n\n```ts\nsubagent({\n  async: false,\n  context: \"fresh\",\n  cwd: \"/workspace/project\",\n  tasks: [{\n    agent: \"spec-reviewer\",\n    cwd: \"<printed snapshot path>\",\n    output: \"/tmp/reports/wave1-sr1.md\",\n    task: `<FULL TASK 1 + supplied SR prompt text; Leg/Rules context.\nAuthoritative spec: /workspace/project/doc/specs/feature.md\n<unchanged Spec anchors, Tests block, and Test paths>\nPatch: /tmp/chain-run/worktree-diffs/step-0/task-0-implementer.patch\nImplementer report: /tmp/reports/wave1-task1.md\nStart from patch hunks carrying file:line; read every touched file fully\nfrom this snapshot. Read deleted files from WAVE_BASE_SHA.\nRead anchored spec ranges yourself. Never execute tests.>`\n  }]\n})\n```\n\nThis is a first SR: no previous-review marker or trajectory requirement. After its terminal report is saved, read it, then remove its snapshot.\n\n**Boundary:** No second chain is allowed. No integration or commit is justified yet. A later wave commit requires accepted-task SR verdicts, integrated scoped tests, and integrated-wave CR; `DONE` alone never completes a task.\n",
+      "words": 619,
+      "wallMs": 32250,
       "mechanical": {}
     }
   },
   "judge": {
-    "github-copilot/gpt-6.1-sol": {
+    "anthropic/claude-opus-5-5": {
       "factsSha": "bcb63ca30aeecaceba2a14466b9f9ad71da64d7da2f0089866e8635f24900ec1",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "026b9a91c9a042910d9d9eadf4cae54c09ed0f335d520e00090f2d2fda8337ca",
-      "baselineOutputSha": "86ce5af794dcea92e92eab11a6c8627c37eab66995d7b0c9347df540ae6720bb",
-      "candidateOutputSha": "d79ebc548021e8f19e7822cef85a20cc10ca188c9ce4af6e8977f5b6532d12ae",
+      "intentSha": "70868125b0270c4bcc2e36898c51974950b90c9ba539c73ad3a39de4a9853245",
+      "baselineOutputSha": "f126e337b1221f15fd7f0a77e99da08b37fa427d76240b31e4d9a9d7f0eefd66",
+      "candidateOutputSha": "8b512a857e0e5226df5c42402f7ff7e7330866f95a974ffa0b31a0df0fd6e915",
       "facts": {
         "blocked-no-review": {
           "before": "holds",
@@ -36,8 +44,8 @@
           "label": "held"
         },
         "status-routing": {
-          "before": "fails",
-          "after": "fails",
+          "before": "holds",
+          "after": "holds",
           "label": "intended but unchanged"
         },
         "sibling-snapshot": {
@@ -46,57 +54,55 @@
           "label": "held"
         },
         "never-rechain": {
-          "before": "fails",
-          "after": "fails",
+          "before": "holds",
+          "after": "holds",
           "label": "intended but unchanged"
         }
       },
-      "feedback": "After preserves the conditional error diagnosis, retained sibling patch, snapshot-backed SR, and prohibition on another chain; its concrete context redispatch also clarifies recovery. Neither output explicitly explains that ## Stop can match any exit-0 BLOCKED, NEEDS_CONTEXT, or DONE_WITH_CONCERNS status, leaving status-routing incomplete. Neither states the full pending-to-in_progress-to-complete lifecycle, and After additionally drops Before’s explicit requirement to retain in_progress while awaiting recovery or human action. Add both rules, with completion only after the accepted wave commit. To deliver the stop-note change concretely, specify a gauntlet: decision question before Problem, ordered Searched lines for exhausted fact lookups, and actionable supply-or-amend choices while keeping tasks in_progress.",
-      "wallMs": 19782,
-      "verdict": "unchanged"
-    }
-  },
-  "refresh": {
-    "status": "complete",
-    "identity": {
-      "sample": "chain-stop-blocked",
-      "kind": "text",
-      "assembly": "headed",
-      "baselineSkillSha": "48761005294ac56360d00577a8dfb7c553a86fed99c1cb8052964e1d0a61ce4b",
-      "candidateSkillSha": "4aeb1ecf636b42917376b1a9f20ac1b9f7ed41454540b6d09bc0f4aba7f1e284",
-      "inputSha": "9930583d4b90f79f7cdd50f84c6c507cf50a18219b44053eb96bd29a5bcd4234",
+      "feedback": "After keeps all four facts, but several wording choices make it weaker than Before and risk regressions under a stricter reader. (1) Route B now says only a recovered `BLOCKED` is routed through the status matrix; Before covered `BLOCKED` or `NEEDS_CONTEXT` — restore the pair so a no-edits NEEDS_CONTEXT recovered from session artifacts is not left unrouted. (2) The implementer status enum was moved into the SR dispatch notes ('for reference') and dropped from the task 2 re-dispatch, which also lost `async: false` and the `outputSchema`; put `outputSchema: { status: enum [DONE, DONE_WITH_CONCERNS, NEEDS_CONTEXT, BLOCKED] }` and `async: false` back on the implementer re-dispatch and remove the enum from the SR notes (SR verdicts come from the prose `Verdict:` line). (3) 'dropped from the wave and retried as a one-task wave' can be read as authorizing a new chain for task 2; phrase it as a plain singleton implementer dispatch in a later wave, and state explicitly that completion happens only at the wave commit after SHIP (Before's step 5), rather than leaving it implied by the stall clause. (4) Neither arm enumerates the stop-matching statuses; add one line: '`## Stop` matches any exit-0 `BLOCKED`, `NEEDS_CONTEXT` or `DONE_WITH_CONCERNS`, never a nonzero exit.' With those edits After delivers the Change while keeping every fact Before kept.",
+      "wallMs": 31797,
+      "verdict": "unchanged",
+      "judgeModel": "anthropic-fable/claude-fable-5-1",
+      "thinking": "medium"
+    },
+    "github-copilot/gpt-6.1-sol": {
       "factsSha": "bcb63ca30aeecaceba2a14466b9f9ad71da64d7da2f0089866e8635f24900ec1",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "026b9a91c9a042910d9d9eadf4cae54c09ed0f335d520e00090f2d2fda8337ca",
-      "models": {
-        "replay": [
-          "github-copilot/gpt-6.1-sol"
-        ],
-        "judge": "github-copilot/gpt-6.1-sol"
-      },
-      "thinking": "medium",
-      "outputs": {
-        "baseline": {
-          "github-copilot/gpt-6.1-sol": {
-            "baselineOutputSha": "86ce5af794dcea92e92eab11a6c8627c37eab66995d7b0c9347df540ae6720bb",
-            "payloadSha": "5f89b9c2cd8b6dd84064829f25f1433d631fdf0a56fd9200ee19f94218134f6d"
-          }
+      "intentSha": "70868125b0270c4bcc2e36898c51974950b90c9ba539c73ad3a39de4a9853245",
+      "baselineOutputSha": "86ce5af794dcea92e92eab11a6c8627c37eab66995d7b0c9347df540ae6720bb",
+      "candidateOutputSha": "675f4cfede73ed70ffe447aa211ce0feb7ac934b14d4741324b45a24d32c0590",
+      "facts": {
+        "blocked-no-review": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
         },
-        "candidate": {
-          "github-copilot/gpt-6.1-sol": {
-            "candidateOutputSha": "61783dcda3119d997c2b416834374d14f79767f9ff9076c8ccf877f7d85edc2b",
-            "payloadSha": "2b04d34ccc2b51d5069c9570f3fa57c9efc711e522c0f3d27a8739ed074b1f2e"
-          }
+        "status-routing": {
+          "before": "holds",
+          "after": "fails",
+          "label": "regression"
+        },
+        "sibling-snapshot": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "never-rechain": {
+          "before": "holds",
+          "after": "fails",
+          "label": "regression"
         }
-      }
-    },
-    "previous": {
-      "github-copilot/gpt-6.1-sol": {
-        "factsSha": "bcb63ca30aeecaceba2a14466b9f9ad71da64d7da2f0089866e8635f24900ec1",
-        "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-        "intentSha": "026b9a91c9a042910d9d9eadf4cae54c09ed0f335d520e00090f2d2fda8337ca",
-        "baselineOutputSha": "86ce5af794dcea92e92eab11a6c8627c37eab66995d7b0c9347df540ae6720bb",
-        "candidateOutputSha": "61783dcda3119d997c2b416834374d14f79767f9ff9076c8ccf877f7d85edc2b",
+      },
+      "feedback": "After keeps the conditional exit-0/completion-guard reasoning, the structured_output diagnosis, and the detached snapshot SR with cleanup after the saved report, so blocked-no-review and sibling-snapshot still hold. Two facts regressed. status-routing: Before explicitly named pi-cohort's `src/shared/artifacts.ts` as the source of the `<runId>_implementer_<index>_output.md` convention; After replaced it with the vague 'source-defined naming', so the identity-matching rule is no longer anchored to the file the fact requires (and neither arm spells out that `## Stop` matches any exit-0 BLOCKED/NEEDS_CONTEXT/DONE_WITH_CONCERNS — add that sentence to be safe). never-rechain: Before stated 'both tasks remain `in_progress` until their respective wave commits'; After only says '`DONE` alone never completes a task' and never mentions the tracker lifecycle, so the pending→in_progress→complete-at-wave-commit requirement is absent. To keep every Before fact while adding the Leg/Rules and standalone re-dispatch material, restore the explicit `src/shared/artifacts.ts` citation in the completion-guard bullet, add a line in the Boundary section that both tasks stay `in_progress` (never failed/complete) until their wave commit, and optionally list the exit-0 statuses a `## Stop` can match.",
+      "wallMs": 29579,
+      "verdict": "inconclusive",
+      "confirmation": {
+        "status": "ok",
+        "text": "These are conditional next steps, not executed actions or review results.\n\n### 1. Route the observed result without assuming task 2 edited\n\nRead **tool-result text**, not `details`:\n\n- **Exit-0 stop:** Read fenced statuses in `## Outputs` (or the known output reports). A task-2 exit-0 `BLOCKED` can produce `## Stop`; no SR step ran. Read `/tmp/reports/wave1-task2.md`, retain task 1’s `DONE` report and captured patch, and handle task 2’s blocker separately.\n- **Completion-guard error:** If task 2 failed, it has neither `/tmp/reports/wave1-task2.md` nor a bound output. Recover its prose from the session’s `subagent-artifacts`, matching the run/task identity and the implementer filename convention defined by pi-cohort `src/shared/artifacts.ts` (`<runId>_implementer_<index>_output.md`). Do not guess the index or use `parallel-0/`.\n- **`## Stop` plus a failed sibling:** Inspect both. `## Stop` identifies a matched **exit-0** status; it does not establish that all siblings succeeded. Stop-condition evaluation can precede sibling-failure reporting.\n- **Rejected/missing `structured_output`:** This is a chain error, not an accepted status. Recover prose as above. A recoverable `BLOCKED`/`NEEDS_CONTEXT` still uses the status matrix; otherwise use the subagent-failure route with the visible diagnostic, without inventing a status.\n- **No-edits `NEEDS_CONTEXT`:** A completion guard may make this a nonzero failure. Recover its prose and resolve the question through the status matrix; do not require a patch before addressing that question.\n\nIf session artifacts are disabled, missing, or ambiguous, enter the subagent-failure route using the visible diagnostic and its existing two-attempt limit. Never fabricate missing prose or review an unchanged tree. An accepted task with a missing/empty patch also takes that failure route.\n\nFor task 2, classify recovered questions: bounded documented lookups for facts; amendment routing for spec-defect questions; clarification or escalation for decisions. Preserve task 1 throughout.\n\n### 2. Review the accepted sibling independently\n\nTask 1’s review source is its **artifact patch**, not an inline claim or the branch’s unchanged checkout:\n\n```bash\nSR_ROOT='/workspace/project'\nSR_BASE='1111111111111111111111111111111111111111'\nSR_PATCH='/tmp/chain-run/worktree-diffs/step-0/task-0-implementer.patch'\nSR_DIR=$(mktemp -d) || exit 1\nSR_TREE=\"$SR_DIR/tree\"\ngit -C \"$SR_ROOT\" worktree add --detach \"$SR_TREE\" \"$SR_BASE\" || exit 1\ngit -C \"$SR_TREE\" apply --index \"$SR_PATCH\" || exit 1\nprintf 'snapshot: %s\\n' \"$SR_TREE\"\n```\n\nUse the printed absolute snapshot path below; do not assume one in advance. Record task 1’s review tree:\n\n```bash\nFD_ROOT='<printed absolute snapshot path>'\nFD_INDEX=$(mktemp) || exit 1\ncp \"$(git -C \"$FD_ROOT\" rev-parse --path-format=absolute --git-path index)\" \"$FD_INDEX\" || { rm -f \"$FD_INDEX\"; exit 1; }\nGIT_INDEX_FILE=\"$FD_INDEX\" git -C \"$FD_ROOT\" add -A && GIT_INDEX_FILE=\"$FD_INDEX\" git -C \"$FD_ROOT\" write-tree\nFD_STATUS=$?\nrm -f \"$FD_INDEX\"\nexit \"$FD_STATUS\"\n```\n\nOn setup/tree-capture failure, stop dispatch and retain the directory and error.\n\n```js\nsubagent({\n  context: \"fresh\",\n  async: false,\n  cwd: \"/workspace/project\",\n  tasks: [{\n    agent: \"spec-reviewer\",\n    cwd: \"<printed absolute snapshot path>\",\n    output: \"/tmp/reports/wave1-sr1-recovery.md\",\n    task: `<full unchanged Task 1, including Spec anchors, Files, Tests,\nLeg and additive Rules context, if present>\n<full spec-reviewer prompt text>\n\nAuthoritative spec: /workspace/project/doc/specs/feature.md\nPatch: /tmp/chain-run/worktree-diffs/step-0/task-0-implementer.patch\nImplementation report: /tmp/reports/wave1-task1.md\nWAVE_BASE_SHA: 1111111111111111111111111111111111111111\n\nRead the patch and implementation report. Start from diff hunks with\nfile:line; read every touched file in full in this snapshot.\nRead deleted files from WAVE_BASE_SHA. Read applicable Rules first.\nRead the authoritative anchored spec ranges yourself. Never run tests.\nReturn Verdict: COMPLIANT, NEEDS_REWORK, or OUT_OF_SCOPE_CHANGES.`\n  }]\n})\n```\n\nThis is a first SR: no previous-review marker, trajectory trigger, test commands, schema, `acceptance`, or `worktree` flag. Save and read its complete terminal report before cleanup:\n\n```bash\ngit -C '/workspace/project' worktree remove --force '<printed absolute snapshot path>'\n```\n\n### 3. Retry and commit boundaries\n\n**No second chain is allowed in this wave.** Do not rerun task 1. Any justified task-2 redispatch uses a fresh, isolated, one-entry implementer dispatch from `/workspace/project`, carrying its unchanged full task, resolved context, available prior patch, scoped commands, test contract, and explicit status protocol. Its status schema allows `DONE`, `DONE_WITH_CONCERNS`, `NEEDS_CONTEXT`, `BLOCKED`. Review any accepted replacement via a separate snapshot.\n\nDo not integrate or commit merely because task 1 returned `DONE`. Retain its patch/verdict. After accepted tasks have SR acceptance, integrate serially, run scoped tests, then obtain integrated-wave CR acceptance. Only then fold changes into the durable wave commit against the recorded base and mark committed task indices complete. No verdict or successful commit is assumed here.\n",
+        "words": 645,
+        "wallMs": 25321,
+        "mechanical": {},
+        "judgeWallMs": 31347,
         "facts": {
           "blocked-no-review": {
             "before": "holds",
@@ -105,8 +111,8 @@
           },
           "status-routing": {
             "before": "holds",
-            "after": "fails",
-            "label": "regression"
+            "after": "holds",
+            "label": "intended but unchanged"
           },
           "sibling-snapshot": {
             "before": "holds",
@@ -119,16 +125,94 @@
             "label": "intended but unchanged"
           }
         },
-        "feedback": "After keeps the conditional exit-0/completion-guard routing, refuses to assume task 2 edits, treats rejected/missing structured_output as a diagnosis rather than a status, materializes task 1's captured patch once via a detached recorded-base worktree with `git apply --index`, and forbids a second chain, so blocked-no-review, sibling-snapshot and never-rechain survive. What slipped is status-routing: Before named the two anchors the case asks for—the session-artifact match is done \"according to pi-cohort src/shared/artifacts.ts\" and unavailable/ambiguous artifacts enter the named \"When a Subagent Fails\" route—while After genericizes both to \"pi-cohort's source-defined naming\" and \"the existing two-attempt worker-failure limit\", and it also drops Before's explicit statement that the stop matches an exit-0 `BLOCKED`/`NEEDS_CONTEXT`/`DONE_WITH_CONCERNS` status (After only says \"a matched exit-0 status\"). To deliver the gauntlet/amendment/funded-fix changes without losing this, keep the sentence \"match `<runId>_implementer_<index>_output.md` by run/task identity in session `subagent-artifacts` per pi-cohort `src/shared/artifacts.ts`, never `parallel-0/`\" and \"disabled, missing, or ambiguously matched artifacts enter When a Subagent Fails with the visible diagnostic and its two-attempt limit\", and restate that `## Stop` matches an exit-0 `BLOCKED`, `NEEDS_CONTEXT`, or `DONE_WITH_CONCERNS` and never proves sibling success. Two smaller things worth restoring from Before: say outright that both tasks remain `in_progress` until their wave commits (After only says they remain `in_progress`), and on snapshot setup/capture failure retain the shell diagnostic alongside the snapshot directory.",
-        "wallMs": 39299,
+        "feedback": "After keeps every fact Before kept: both outputs route task 2 conditionally over the exit-0 stop and completion-guard error without assuming edits, treat rejected/missing structured_output as a chain error, recover prose by run/task identity via src/shared/artifacts.ts (never parallel-0/), fall back to the subagent-failure route with the visible diagnostic, build one detached recorded-base snapshot with git apply --index for task 1's captured patch, dispatch a single plain (non-chain) SR with absolute spec and unchanged task anchors, and forbid a second chain. Two wordings weakened slightly without crossing a line: After says only 'mark committed task indices complete' after the wave commit and no longer states that both tasks remain in_progress until then (Before did, explicitly), and After's cleanup block drops the explicit `cat /tmp/reports/wave1-sr1-recovery.md` read before `worktree remove`, relying on a prose instruction instead. Neither output enumerates that ## Stop can match exit-0 BLOCKED, NEEDS_CONTEXT, or DONE_WITH_CONCERNS; both just say 'matched exit-0 status/stop' plus the four-value enum. To make status-routing and never-rechain unambiguous while keeping the new Leg/Rules context, per-repo base and tree-capture additions, restore the sentence 'both tasks stay in_progress (pending → in_progress at fan-out) until their wave commit, including on human stop', add the explicit stop-status list ('## Stop matches an exit-0 BLOCKED, NEEDS_CONTEXT, or DONE_WITH_CONCERNS'), and put the `cat` of the saved SR report back ahead of the worktree remove."
+      },
+      "judgeModel": "anthropic-fable/claude-fable-5-1",
+      "thinking": "medium"
+    }
+  },
+  "refresh": {
+    "status": "complete",
+    "identity": {
+      "sample": "chain-stop-blocked",
+      "kind": "text",
+      "assembly": "headed",
+      "baselineSkillSha": "48761005294ac56360d00577a8dfb7c553a86fed99c1cb8052964e1d0a61ce4b",
+      "candidateSkillSha": "681d05d7c3605ef84d961c330e941a48643eedf28c904d27815cea84a305b724",
+      "inputSha": "9930583d4b90f79f7cdd50f84c6c507cf50a18219b44053eb96bd29a5bcd4234",
+      "factsSha": "bcb63ca30aeecaceba2a14466b9f9ad71da64d7da2f0089866e8635f24900ec1",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "70868125b0270c4bcc2e36898c51974950b90c9ba539c73ad3a39de4a9853245",
+      "models": {
+        "replay": [
+          "anthropic/claude-opus-5-5",
+          "github-copilot/gpt-6.1-sol"
+        ],
+        "judge": "anthropic-fable/claude-fable-5-1"
+      },
+      "thinking": "medium",
+      "outputs": {
+        "baseline": {
+          "anthropic/claude-opus-5-5": {
+            "baselineOutputSha": "f126e337b1221f15fd7f0a77e99da08b37fa427d76240b31e4d9a9d7f0eefd66",
+            "payloadSha": "93bb9fef760e6a6006622eca8fdb84d3f6540292a349e4d412c63f7dd97b7fd8"
+          },
+          "github-copilot/gpt-6.1-sol": {
+            "baselineOutputSha": "86ce5af794dcea92e92eab11a6c8627c37eab66995d7b0c9347df540ae6720bb",
+            "payloadSha": "5f89b9c2cd8b6dd84064829f25f1433d631fdf0a56fd9200ee19f94218134f6d"
+          }
+        },
+        "candidate": {
+          "anthropic/claude-opus-5-5": {
+            "candidateOutputSha": "8b512a857e0e5226df5c42402f7ff7e7330866f95a974ffa0b31a0df0fd6e915",
+            "payloadSha": "ea5878e8e3eb0a08243248cb5a6b786f8eb323383e207dc21d7d2505c523c4d6"
+          },
+          "github-copilot/gpt-6.1-sol": {
+            "candidateOutputSha": "675f4cfede73ed70ffe447aa211ce0feb7ac934b14d4741324b45a24d32c0590",
+            "payloadSha": "09b964269702aea67205339a3d0476f3b32f6c3639af0ba41fc24f534662d1e2"
+          }
+        }
+      }
+    },
+    "previous": {
+      "anthropic/claude-opus-5-5": {
+        "factsSha": "bcb63ca30aeecaceba2a14466b9f9ad71da64d7da2f0089866e8635f24900ec1",
+        "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+        "intentSha": "70868125b0270c4bcc2e36898c51974950b90c9ba539c73ad3a39de4a9853245",
+        "baselineOutputSha": "f126e337b1221f15fd7f0a77e99da08b37fa427d76240b31e4d9a9d7f0eefd66",
+        "candidateOutputSha": "8b512a857e0e5226df5c42402f7ff7e7330866f95a974ffa0b31a0df0fd6e915",
+        "facts": {
+          "blocked-no-review": {
+            "before": "holds",
+            "after": "holds",
+            "label": "held"
+          },
+          "status-routing": {
+            "before": "holds",
+            "after": "holds",
+            "label": "intended but unchanged"
+          },
+          "sibling-snapshot": {
+            "before": "holds",
+            "after": "holds",
+            "label": "held"
+          },
+          "never-rechain": {
+            "before": "holds",
+            "after": "fails",
+            "label": "regression"
+          }
+        },
+        "feedback": "After keeps the conditional routing, structured_output diagnosis, identity-matched artifact recovery, unavailable-artifact fallback, and the single detached snapshot SR with evidence retention and cleanup-after-report intact, and it states the one-chain boundary clearly. What moved is the tracker lifecycle half of never-rechain: Before ends with an explicit 'Commit, after SHIP' step followed by 'Complete: mark both indices complete', so a reader sees pending → in_progress → complete at the wave commit; After only says 'keep both indices in_progress throughout' and 'nothing is committed or marked complete' on a stall, and its new 'dropped from the wave and retried as a one-task wave' line implies a wave commit while task 2 is still in_progress without saying what happens to either index at that commit. To keep the fact while delivering the Change, restore a short ordered tail under Commit timing: integrate → scoped gate → single CR → wave commit on SHIP → then mark the committed indices complete (an empty commit stops instead), and state that a dropped task 2 stays in_progress until its own later wave commits.",
+        "wallMs": 28967,
         "verdict": "inconclusive",
         "confirmation": {
           "status": "ok",
-          "text": "These are conditional next steps, not execution results. No SR verdict is available.\n\n### 1. Classify the chain result from tool-result text\n\nRead `## Outputs` fenced statuses, `## Stop`, and failure diagnostics—not `details`.\n\n- **Exit-0 stop, no failed siblings:** Task 1’s `DONE` report is `/tmp/reports/wave1-task1.md`; task 2’s exit-0 `BLOCKED` report is `/tmp/reports/wave1-task2.md`. `## Stop` identifies a matched exit-0 status. No SR ran. Retain task 1’s captured patch; diagnose task 2 from its report. Do not infer whether task 2 edited.\n- **Completion-guard error:** Task 2 has no known `output:` file or bound output. Recover its prose from session `subagent-artifacts`, matching the result/session’s run and task identity to the source-defined naming convention in pi-cohort `src/shared/artifacts.ts`, such as `<runId>_implementer_<index>_output.md`. Do not guess the index or read `parallel-0/` as failed-task prose.\n- **`## Stop` plus a failed sibling:** Process both. A matched exit-0 stop does not establish that all siblings succeeded; inspect every failed task independently.\n- **Rejected/missing `structured_output`:** This is a chain error, not an accepted status. Recover and diagnose the prose through the same session-artifact route. Never fabricate a status or bound patch.\n\nIf artifacts are disabled, missing, or ambiguously matched, retain task 1’s successful evidence and use the visible diagnostic under the two-attempt subagent-failure limit. Do not invent task 2’s status or review an unchanged tree.\n\n### 2. Route task 2 without assuming edits\n\nA recoverable prose `BLOCKED` or `NEEDS_CONTEXT` follows its status matrix even if the task produced no patch.\n\nFor a **no-edits `NEEDS_CONTEXT`** alternative:\n\n- A fact ask gets one bounded lookup per documented location, in order, stopping at the first hit; retain misses and results.\n- Re-dispatch with the answer embedded in the unchanged full task text when found.\n- Spec/plan/rule-edit alternatives take the amendment route.\n- An unresolved decision, exhausted lookup, missing named tool, or credentials requirement stops for the prescribed human escalation. Do not manufacture a patch or dispatch SR for task 2.\n\nAny permitted retry is a separate dispatch, **not another chain**, for example:\n\n```ts\nsubagent({\n  context: \"fresh\",\n  async: false,\n  cwd: \"/workspace/project\",\n  worktree: true,\n  tasks: [{\n    agent: \"implementer\",\n    outputSchema: {\n      type: \"object\",\n      required: [\"status\"],\n      properties: {\n        status: {\n          type: \"string\",\n          enum: [\"DONE\", \"DONE_WITH_CONCERNS\", \"NEEDS_CONTEXT\", \"BLOCKED\"]\n        }\n      }\n    },\n    task: `<FULL TASK 2 + CONTEXT + FILES + TESTS + STATUS PROTOCOL>\n<RECOVERED REPORT VERBATIM AND RESOLVED FACTS/DIAGNOSTIC>\nSCOPED_TEST_COMMANDS: <TASK 2 COMMANDS>`\n  }]\n})\n```\n\nDispatch only after diagnosis justifies it. Successful task 1 is not rerun.\n\n### 3. Materialize task 1’s accepted patch for its first SR\n\nWhen recovery permits proceeding, run:\n\n```bash\nSR_ROOT='/workspace/project'\nSR_BASE='1111111111111111111111111111111111111111'\nSR_PATCH='/tmp/chain-run/worktree-diffs/step-0/task-0-implementer.patch'\nSR_DIR=$(mktemp -d) || exit 1\nSR_TREE=\"$SR_DIR/tree\"\ngit -C \"$SR_ROOT\" worktree add --detach \"$SR_TREE\" \"$SR_BASE\" || exit 1\ngit -C \"$SR_TREE\" apply --index \"$SR_PATCH\" || exit 1\nprintf 'snapshot: %s\\n' \"$SR_TREE\"\n```\n\nUsing the printed absolute snapshot path, capture its review tree:\n\n```bash\nFD_ROOT='<printed snapshot path>'\nFD_INDEX=$(mktemp) || exit 1\ncp \"$(git -C \"$FD_ROOT\" rev-parse --path-format=absolute --git-path index)\" \"$FD_INDEX\" || { rm -f \"$FD_INDEX\"; exit 1; }\nGIT_INDEX_FILE=\"$FD_INDEX\" git -C \"$FD_ROOT\" add -A && GIT_INDEX_FILE=\"$FD_INDEX\" git -C \"$FD_ROOT\" write-tree\nFD_STATUS=$?\nrm -f \"$FD_INDEX\"\nexit \"$FD_STATUS\"\n```\n\nKey the printed SHA to task 1. On either setup/capture failure, stop dispatch; retain the directory and shell error.\n\n```ts\nsubagent({\n  context: \"fresh\",\n  async: false,\n  cwd: \"<printed snapshot path>\",\n  agent: \"spec-reviewer\",\n  output: \"/tmp/reports/wave1-sr1.md\",\n  task: `<FULL TASK 1 + SPEC ANCHORS + FILES + TESTS BLOCK + TEST PATHS>\n<UNCHANGED SPEC-REVIEWER PROMPT TEXT>\nAuthoritative spec: /workspace/project/doc/specs/feature.md\nPatch diff: <COMPLETE CONTENTS OF TASK 1 ARTIFACT PATCH>\nImplementer report: /tmp/reports/wave1-task1.md\nStart from diff hunks with file:line; read every touched file in full\nfrom this snapshot. Read deleted files from\n1111111111111111111111111111111111111111. Never run tests.`\n})\n```\n\nThis is a first review: no previous-review marker or Fix delta. Read the saved report before removing its snapshot.\n\n**Boundary:** No second initial chain, integration, or commit now. Retain task 1’s patch and eventual SR report. A later wave commit requires accepted/spec-compliant deliverables, integrated scoped tests, and integrated wave CR acceptance; unresolved task 2 remains `in_progress`.\n",
-          "words": 610,
-          "wallMs": 28128,
+          "text": "# Wave 1 routing after task 1 `DONE` and task 2 `BLOCKED`\n\n## Read the tool-result text once (step 3)\n\nI read the tool-result text, not `details`, a single time:\n- **Task 1:** fenced JSON in `## Outputs` gives `status: DONE`. Its report is `/tmp/reports/wave1-task1.md` and its patch is `/tmp/chain-run/worktree-diffs/step-0/task-0-implementer.patch`.\n- **Task 2:** the exit path is not given, so I branch on it. The implementer status schema allows only `DONE`, `DONE_WITH_CONCERNS`, `NEEDS_CONTEXT` and `BLOCKED`.\n\nBecause pi-cohort checks `stopOn` before sibling failures, a `## Stop` line can coexist with a failed task. I treat `## Stop` only as one matched exit-0 status, and I inspect every task for failure either way.\n\n## Route A: task 2 exits 0, `## Stop` names BLOCKED, no failed siblings\n\n- No SR step ran.\n- Task 2's status sits in `## Outputs`, and its report is `/tmp/reports/wave1-task2.md`.\n- I route `BLOCKED` through the Implementer Status table:\n  - **Spec-defect citation:** amendment route first.\n  - **Fact ask:** bounded lookups per `stop-note.md`.\n  - **Decision:** diagnose, then re-dispatch or escalate.\n- Task 1 goes to the snapshot SR below.\n\n## Route B: chain error (with or without `## Stop`)\n\nThis route covers:\n- a completion-guard failure with no edits,\n- a rejected or missing `structured_output`,\n- a failed `treePath`,\n- a sibling process failure.\n\nA failed task 2 has no `output:` file and no bound output. I recover its prose from the session `subagent-artifacts` file `<runId>_implementer_<index>_output.md`, using the naming defined in pi-cohort `src/shared/artifacts.ts`. I match it by the run and task identity shown in the result or transcript. I do not use `/tmp/chain-run/parallel-0/` as evidence.\n\nWhat I do with the recovered prose:\n- **`**Status:** BLOCKED` recovered:** use the status matrix, even with no patch.\n- **No-edits `NEEDS_CONTEXT` alternative:** handle it as a fact ask (documented-location lookups) or a decision. There is no patch, so no review runs on an unchanged tree.\n- **No recoverable status, or an accepted task with a missing or empty patch:** go to When a Subagent Fails with the visible diagnostic.\n- **Artifacts disabled, missing, or ambiguously matched:** same as above, under the two-attempt limit. I never invent a status.\n\nTask 1 is a successful sibling. It is retained and never re-run.\n\n## Task 1 spec review (both routes, since no SR verdict exists)\n\n**1. Materialize the snapshot (one call):**\n```bash\nSR_ROOT='/workspace/project'\nSR_BASE='1111111111111111111111111111111111111111'\nSR_PATCH='/tmp/chain-run/worktree-diffs/step-0/task-0-implementer.patch'\nSR_DIR=$(mktemp -d) || exit 1\nSR_TREE=\"$SR_DIR/tree\"\ngit -C \"$SR_ROOT\" worktree add --detach \"$SR_TREE\" \"$SR_BASE\" || exit 1\ngit -C \"$SR_TREE\" apply --index \"$SR_PATCH\" || exit 1\nprintf 'snapshot: %s\\n' \"$SR_TREE\"\n```\n\n**2. Record the review tree in the printed snapshot, keyed to task 1:**\n```bash\nFD_ROOT='<printed snapshot path>'\nFD_INDEX=$(mktemp) || exit 1\ncp \"$(git -C \"$FD_ROOT\" rev-parse --path-format=absolute --git-path index)\" \"$FD_INDEX\" || { rm -f \"$FD_INDEX\"; exit 1; }\nGIT_INDEX_FILE=\"$FD_INDEX\" git -C \"$FD_ROOT\" add -A && GIT_INDEX_FILE=\"$FD_INDEX\" git -C \"$FD_ROOT\" write-tree\nFD_STATUS=$?\nrm -f \"$FD_INDEX\"\nexit \"$FD_STATUS\"\n```\nIf either block fails, or the snapshot path is missing, I stop dispatch. I keep the snapshot directory and shell output for diagnosis and do no cleanup.\n\n**3. Dispatch the reviewer:**\n```ts\nsubagent({ agent: \"spec-reviewer\", async: false, context: \"fresh\",\n  cwd: \"<printed snapshot path>\",\n  output: \"/tmp/reports/wave1-sr1.md\",\n  task: \"<task 1 full text> + Leg/Rules context + spec: /workspace/project/doc/specs/feature.md + <task 1 Spec: anchors> + <Tests: block> + <- Test: paths> + patch diff of /tmp/chain-run/worktree-diffs/step-0/task-0-implementer.patch (hunks carry file:line). Read each touched file in full from cwd; read deleted files from 1111111111111111111111111111111111111111; never run tests. Implementer claims: /tmp/reports/wave1-task1.md\" })\n```\nThe dispatch deliberately has:\n- no `worktree` flag,\n- no `outputSchema`,\n- no `acceptance` field (it is snapshot-backed).\n\nThe review must report a `Verdict:` line: `COMPLIANT`, `NEEDS_REWORK` or `OUT_OF_SCOPE_CHANGES`. Once the terminal report is saved and read, I remove the snapshot:\n```bash\ngit -C /workspace/project worktree remove --force '<printed snapshot path>'\n```\n\n## Task 2 retry after BLOCKED/NEEDS_CONTEXT is resolved\n\n**No second chain is allowed in this wave.** After a fact is found or a decision is answered, I re-dispatch only task 2:\n```ts\nsubagent({ async: false, context: \"fresh\", worktree: true, cwd: \"/workspace/project\",\n  tasks: [{ agent: \"implementer\", outputSchema: /* status ∈ DONE|DONE_WITH_CONCERNS|NEEDS_CONTEXT|BLOCKED */,\n    task: \"<task 2 full text + answer/found fact + SCOPED_TEST_COMMANDS + TEST_CONTRACT + status protocol>\" }] })\n```\nIf this produces an accepted patch, it gets its own snapshot SR from the same base SHA, as above.\n\n## Commit timing\n\n- Both tracker indices stay `in_progress` throughout.\n- Nothing is applied to `/workspace/project` until the accepted patches have `COMPLIANT` verdicts. Then step 4 applies them (`git -C /workspace/project apply --index <patch>`).\n- Step 5 runs the scoped test gate.\n- Step 6 runs one code review with `BASE_SHA: 1111111111111111111111111111111111111111` and `HEAD_SHA: WORKTREE`.\n- Only after that code review returns `SHIP` does step 7 commit the wave:\n  ```bash\n  git -C /workspace/project reset --soft \"1111111111111111111111111111111111111111\" && git -C /workspace/project add -A && git -C /workspace/project commit -m '<message>'\n  ```\n  and mark both indices `complete`.\n- If task 2 ends in a stop note awaiting a human decision, the turn ends there: no commit, and no further tasks start.\n\n**Boundary:** I stop at the SR dispatch and the task 2 routing decision. No verdicts are claimed.\n",
+          "words": 778,
+          "wallMs": 33654,
           "mechanical": {},
-          "judgeWallMs": 34068,
+          "judgeWallMs": 25214,
           "facts": {
             "blocked-no-review": {
               "before": "holds",
@@ -147,23 +231,21 @@
             },
             "never-rechain": {
               "before": "holds",
-              "after": "fails",
-              "label": "regression"
+              "after": "holds",
+              "label": "intended but unchanged"
             }
           },
-          "feedback": "After keeps the exit-0/completion-guard split, the rejected/missing structured_output diagnosis, the identity-matched src/shared/artifacts.ts recovery with the parallel-0/ exclusion, and the detached-base git apply --index snapshot SR with cleanup after the saved report, so blocked-no-review, status-routing and sibling-snapshot all still hold. What moved is never-rechain: Before stated that both tasks remain in_progress until their respective wave commits and that no second chain is allowed in this wave; After narrows the boundary to 'No second initial chain, integration, or commit now' and only says 'unresolved task 2 remains in_progress', dropping task 1's lifecycle entirely and leaving 'initial' as a wedge that a reader could take as permitting some other chain later in the wave. To keep the fact while delivering the Change's explicit D1 lifecycle, restore an unqualified 'No second chain of any kind is dispatched in this wave; task-2 recovery and the task-1 SR are plain subagent dispatches only' and add a sentence that both tasks moved pending → in_progress at fan-out and are marked complete only at the wave commit that folds their accepted patches (task 1 after its SR/integration gates, task 2 after its own recovery and gates). Minor: name 'When a Subagent Fails' explicitly for the disabled/missing/ambiguous-artifact fallback rather than only 'the two-attempt subagent-failure limit', and avoid gating the task-1 SR materialization on 'When recovery permits proceeding' so the accepted sibling's review is not read as dependent on task 2's outcome."
+          "feedback": "After keeps every fact Before kept: both outputs branch conditionally on task 2's exit path without assuming edits, name completion-guard and rejected/missing structured_output as chain-error diagnoses, recover failed-task prose via <runId>_implementer_<index>_output.md in session subagent-artifacts per src/shared/artifacts.ts, exclude parallel-0/, fall back to When a Subagent Fails when artifacts are disabled/missing/ambiguous, run exactly one detached recorded-base snapshot SR for task 1 with git apply --index and absolute spec path, stop on setup failure with evidence retained, clean up after the saved report, forbid a second chain, and keep both indices in_progress until the step-7 commit. Two After-only additions are unmotivated by this case and could become liabilities under stricter graders: the parenthetical 'under the two-attempt limit' on the artifact fallback (nothing in the input establishes such a limit, so it reads as invented procedure) and '+ Leg/Rules context' in the SR task text (the case has a single repo and no Leg block). Neither output enumerates that ## Stop can match any exit-0 BLOCKED, NEEDS_CONTEXT or DONE_WITH_CONCERNS; a single clause like '## Stop matches one exit-0 non-DONE status (BLOCKED, NEEDS_CONTEXT or DONE_WITH_CONCERNS) and proves nothing about siblings' would make status-routing unambiguous in After while costing no words. Otherwise the After wording delivers the intended conditional routing without regressing any legacy fact."
         },
         "judgeModel": null,
         "thinking": null
-      }
-    },
-    "refreshed": {
+      },
       "github-copilot/gpt-6.1-sol": {
         "factsSha": "bcb63ca30aeecaceba2a14466b9f9ad71da64d7da2f0089866e8635f24900ec1",
         "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-        "intentSha": "026b9a91c9a042910d9d9eadf4cae54c09ed0f335d520e00090f2d2fda8337ca",
+        "intentSha": "70868125b0270c4bcc2e36898c51974950b90c9ba539c73ad3a39de4a9853245",
         "baselineOutputSha": "86ce5af794dcea92e92eab11a6c8627c37eab66995d7b0c9347df540ae6720bb",
-        "candidateOutputSha": "61783dcda3119d997c2b416834374d14f79767f9ff9076c8ccf877f7d85edc2b",
+        "candidateOutputSha": "675f4cfede73ed70ffe447aa211ce0feb7ac934b14d4741324b45a24d32c0590",
         "facts": {
           "blocked-no-review": {
             "before": "holds",
@@ -171,8 +253,75 @@
             "label": "held"
           },
           "status-routing": {
-            "before": "fails",
+            "before": "holds",
             "after": "fails",
+            "label": "regression"
+          },
+          "sibling-snapshot": {
+            "before": "holds",
+            "after": "holds",
+            "label": "held"
+          },
+          "never-rechain": {
+            "before": "holds",
+            "after": "fails",
+            "label": "regression"
+          }
+        },
+        "feedback": "After keeps the conditional exit-0/completion-guard reasoning, the structured_output-as-chain-error diagnosis, and the detached snapshot SR with apply --index, failure-stop evidence retention and post-report cleanup, so blocked-no-review and sibling-snapshot survive. Two facts regressed. For status-routing, Before explicitly tied artifact recovery to `src/shared/artifacts.ts` and listed the full status enum alongside the `## Stop` match; After replaced the file citation with the vaguer 'pi-cohort's source-defined naming' and never states that `## Stop` matches an exit-0 BLOCKED, NEEDS_CONTEXT, or DONE_WITH_CONCERNS — restore the explicit `src/shared/artifacts.ts` reference and add one sentence naming the three stop-matching exit-0 statuses while keeping the new ordered-lookup/record-misses wording. For never-rechain, Before said both tasks 'remain in_progress until their respective wave commits'; After only says 'DONE alone never completes a task' and omits the tracker lifecycle entirely, which is the opposite of the Change's intent to make pending→in_progress→complete-at-wave-commit explicit — add a line such as 'Both tasks moved pending→in_progress at fan-out and stay in_progress through recovery; they complete only at their wave commit' to the Boundary section. The new standalone task-2 re-dispatch block is acceptable as a conditional plain dispatch but should state it is a non-chain recovery dispatch and should cite the artifacts source when describing recovered-report inclusion.",
+        "wallMs": 35314,
+        "verdict": "inconclusive",
+        "confirmation": {
+          "status": "ok",
+          "text": "### 1. Classify the result before dispatching\n\nUse the **tool-result text**, not `details`. The supplied pi-cohort version is 7.4.3; do not infer task 2’s exit status or whether it edited.\n\n- Read task 1’s exit-0 fenced status in `## Outputs` and its report:\n  ```bash\n  cat /tmp/reports/wave1-task1.md\n  ```\n  Its accepted status is `DONE`; retain its captured patch:\n  `/tmp/chain-run/worktree-diffs/step-0/task-0-implementer.patch`.\n\n- **Conditional exit-0 stop:** If task 2 exited zero, read its fenced status and:\n  ```bash\n  cat /tmp/reports/wave1-task2.md\n  ```\n  `## Stop` identifies a matched **exit-0** status. Handle the reported `BLOCKED`; no SR step ran. Do not infer edits from that status.\n\n- **Conditional completion-guard error:** If task 2 failed, it has neither its known `output:` report nor a bound output. Recover its prose from session `subagent-artifacts`, matching the result/session’s run and task identity to pi-cohort’s source-defined naming:\n  `<runId>_implementer_<index>_output.md`.\n  Do not guess the index or use `parallel-0/` as prose evidence.\n\nA sibling’s `## Stop` can coexist with task 2’s failure: stop-condition evaluation precedes sibling-failure checking. Inspect **every failed task**, even when `## Stop` exists.\n\nRejected/missing `structured_output` is also a chain-error route, not proof of `DONE` or `BLOCKED`. Recover any prose status first. With disabled, missing, or ambiguously matched session artifacts, use the visible diagnostic under **When a Subagent Fails**; never invent a status, patch, or unchanged-tree review. Retain task 1’s accepted work and apply the existing two-attempt failure limit, without rerunning successful siblings.\n\n### 2. Resolve task 2 separately\n\nFor recovered `BLOCKED` or `NEEDS_CONTEXT`, classify the actual ask:\n\n- **Fact:** perform one bounded lookup per documented location, in documented order, stopping at the first hit. Record misses and hits; re-dispatch with the answer in the task text.\n- **Spec/plan defect:** take the amendment route and decode `Amend-grant`; do not silently change the contract.\n- **Decision or orchestration blocker:** resolve it if authorized, otherwise stop and escalate.\n\nA **no-edits `NEEDS_CONTEXT`** alternative receives the same treatment even if a completion guard caused nonzero exit and no patch exists. It is not automatically an implementation failure requiring blind retries.\n\nAfter resolving its blocker, a task-2-only retry would have this shape:\n\n```ts\nsubagent({\n  context: \"fresh\", async: false, cwd: \"/workspace/project\",\n  worktree: true,\n  tasks: [{\n    agent: \"implementer\",\n    outputSchema: /* status enum:\n      DONE | DONE_WITH_CONCERNS | NEEDS_CONTEXT | BLOCKED */,\n    task: `<FULL TASK 2 UNCHANGED + supplied implementer prompt/context>\n<resolved facts/decision and recovered diagnostic>\nSCOPED_TEST_COMMANDS: <task 2 command bullets verbatim>\nTEST_CONTRACT: <Tests block and Create/Test paths verbatim>\n<status and test-evidence protocol>\n<include any recovered patch only if actually available>`\n  }]\n})\n```\n\nThis is **not another chain**. Never launch a second implementer-to-SR chain in this wave.\n\n### 3. Review the one accepted sibling\n\nTask 1 still needs its first, dispatched SR. First materialize its artifact patch independently of task 2:\n\n```bash\nSR_ROOT='/workspace/project'\nSR_BASE='1111111111111111111111111111111111111111'\nSR_PATCH='/tmp/chain-run/worktree-diffs/step-0/task-0-implementer.patch'\nSR_DIR=$(mktemp -d) || exit 1\nSR_TREE=\"$SR_DIR/tree\"\ngit -C \"$SR_ROOT\" worktree add --detach \"$SR_TREE\" \"$SR_BASE\" || exit 1\ngit -C \"$SR_TREE\" apply --index \"$SR_PATCH\" || exit 1\nprintf 'snapshot: %s\\n' \"$SR_TREE\"\n```\n\nUsing the **printed absolute snapshot path**, record task 1’s review tree:\n\n```bash\nFD_ROOT='<printed snapshot path>'\nFD_INDEX=$(mktemp) || exit 1\ncp \"$(git -C \"$FD_ROOT\" rev-parse --path-format=absolute --git-path index)\" \"$FD_INDEX\" || { rm -f \"$FD_INDEX\"; exit 1; }\nGIT_INDEX_FILE=\"$FD_INDEX\" git -C \"$FD_ROOT\" add -A && GIT_INDEX_FILE=\"$FD_INDEX\" git -C \"$FD_ROOT\" write-tree\nFD_STATUS=$?\nrm -f \"$FD_INDEX\"\nexit \"$FD_STATUS\"\n```\n\nOn setup/capture failure, stop review dispatch and retain the snapshot and shell diagnostic.\n\n```ts\nsubagent({\n  context: \"fresh\", async: false, cwd: \"/workspace/project\",\n  tasks: [{\n    agent: \"spec-reviewer\",\n    cwd: \"<printed snapshot path>\",\n    output: \"/tmp/reports/wave1-sr1-recovery.md\",\n    task: `<FULL TASK 1 + supplied SR prompt>\nAuthoritative spec: /workspace/project/doc/specs/feature.md\n<unchanged Spec anchors, Files, Tests block, and Test paths>\nPatch diff: <verbatim contents of task 1 artifact patch>\nClaims: read /tmp/reports/wave1-task1.md.\nStart from diff hunks with file:line; read every touched file fully\nin this snapshot. Read deleted files from the recorded wave base.\nRead anchored spec ranges yourself. Never execute tests.`\n  }]\n})\n```\n\nNo `worktree`, schema, previous-review marker, or Fix delta: this is task 1’s **first** SR.\n\nRead the saved report before removing its snapshot. No verdict is assumed here. **No commit now:** only accepted, spec-compliant patches may proceed to serial integration, scoped tests, integrated-wave CR, then one wave commit and tracker completion. Task 2 remains `in_progress` while unresolved.\n",
+          "words": 650,
+          "wallMs": 27075,
+          "mechanical": {},
+          "judgeWallMs": 29631,
+          "facts": {
+            "blocked-no-review": {
+              "before": "holds",
+              "after": "holds",
+              "label": "held"
+            },
+            "status-routing": {
+              "before": "holds",
+              "after": "holds",
+              "label": "intended but unchanged"
+            },
+            "sibling-snapshot": {
+              "before": "holds",
+              "after": "holds",
+              "label": "held"
+            },
+            "never-rechain": {
+              "before": "holds",
+              "after": "holds",
+              "label": "intended but unchanged"
+            }
+          },
+          "feedback": "After keeps all four facts, but it thinned two anchors that Before stated explicitly and that the facts name directly: the identity-matched artifact recovery now says only \"pi-cohort's source-defined naming\" instead of citing `src/shared/artifacts.ts`, and the tracker lifecycle now says only \"Task 2 remains in_progress while unresolved\" rather than Before's \"both tasks remain in_progress until their respective wave commits\" (task 1's in_progress-until-commit status is only implied by \"one wave commit and tracker completion\"). Neither drop flips a fact, but both are one edit away from doing so under a stricter reader. To deliver the Change (classified fact/decision/amend routing, ordered single-pass lookups, plain task-2 retry shape, no chain) while hardening the legacy facts, restore the literal `src/shared/artifacts.ts` reference beside the `<runId>_implementer_<index>_output.md` pattern, state up front that both tasks moved pending→in_progress at fan-out and stay in_progress until the wave commit, and make the `## Stop` sentence enumerate that it matches an exit-0 `BLOCKED`, `NEEDS_CONTEXT`, or `DONE_WITH_CONCERNS` and never proves sibling success — Before was also vague on that enumeration, so stating it would strengthen status-routing in both arms."
+        },
+        "judgeModel": null,
+        "thinking": null
+      }
+    },
+    "refreshed": {
+      "anthropic/claude-opus-5-5": {
+        "factsSha": "bcb63ca30aeecaceba2a14466b9f9ad71da64d7da2f0089866e8635f24900ec1",
+        "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+        "intentSha": "70868125b0270c4bcc2e36898c51974950b90c9ba539c73ad3a39de4a9853245",
+        "baselineOutputSha": "f126e337b1221f15fd7f0a77e99da08b37fa427d76240b31e4d9a9d7f0eefd66",
+        "candidateOutputSha": "8b512a857e0e5226df5c42402f7ff7e7330866f95a974ffa0b31a0df0fd6e915",
+        "facts": {
+          "blocked-no-review": {
+            "before": "holds",
+            "after": "holds",
+            "label": "held"
+          },
+          "status-routing": {
+            "before": "holds",
+            "after": "holds",
             "label": "intended but unchanged"
           },
           "sibling-snapshot": {
@@ -181,18 +330,83 @@
             "label": "held"
           },
           "never-rechain": {
-            "before": "fails",
-            "after": "fails",
+            "before": "holds",
+            "after": "holds",
             "label": "intended but unchanged"
           }
         },
-        "feedback": "After preserves the conditional no-review routes, independent failure diagnosis, retained sibling patch, snapshot-backed SR, and prohibition on another chain; no complete fact changes truth value. Its recovery matrix and plain retry payload are clearer, but status-routing still needs an explicit statement that ## Stop matches only exit-0 BLOCKED, NEEDS_CONTEXT, or DONE_WITH_CONCERNS, with statuses read from ## Outputs and reports from known output files. Name src/shared/artifacts.ts and the “When a Subagent Fails” fallback explicitly. Restore Before’s explicit completion boundary and state the full tracker lifecycle: pending → in_progress at fan-out, then complete only after the accepted wave commit; human stops and exhausted retries remain in_progress. Also explicitly retain shell diagnostics on snapshot setup/capture failure and require cleanup only after the terminal review report is saved and read.",
-        "wallMs": 14457,
+        "feedback": "After keeps all four facts, but several wording choices make it weaker than Before and risk regressions under a stricter reader. (1) Route B now says only a recovered `BLOCKED` is routed through the status matrix; Before covered `BLOCKED` or `NEEDS_CONTEXT` — restore the pair so a no-edits NEEDS_CONTEXT recovered from session artifacts is not left unrouted. (2) The implementer status enum was moved into the SR dispatch notes ('for reference') and dropped from the task 2 re-dispatch, which also lost `async: false` and the `outputSchema`; put `outputSchema: { status: enum [DONE, DONE_WITH_CONCERNS, NEEDS_CONTEXT, BLOCKED] }` and `async: false` back on the implementer re-dispatch and remove the enum from the SR notes (SR verdicts come from the prose `Verdict:` line). (3) 'dropped from the wave and retried as a one-task wave' can be read as authorizing a new chain for task 2; phrase it as a plain singleton implementer dispatch in a later wave, and state explicitly that completion happens only at the wave commit after SHIP (Before's step 5), rather than leaving it implied by the stall clause. (4) Neither arm enumerates the stop-matching statuses; add one line: '`## Stop` matches any exit-0 `BLOCKED`, `NEEDS_CONTEXT` or `DONE_WITH_CONCERNS`, never a nonzero exit.' With those edits After delivers the Change while keeping every fact Before kept.",
+        "wallMs": 31797,
         "verdict": "unchanged",
-        "judgeModel": "github-copilot/gpt-6.1-sol",
+        "judgeModel": "anthropic-fable/claude-fable-5-1",
+        "thinking": "medium"
+      },
+      "github-copilot/gpt-6.1-sol": {
+        "factsSha": "bcb63ca30aeecaceba2a14466b9f9ad71da64d7da2f0089866e8635f24900ec1",
+        "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+        "intentSha": "70868125b0270c4bcc2e36898c51974950b90c9ba539c73ad3a39de4a9853245",
+        "baselineOutputSha": "86ce5af794dcea92e92eab11a6c8627c37eab66995d7b0c9347df540ae6720bb",
+        "candidateOutputSha": "675f4cfede73ed70ffe447aa211ce0feb7ac934b14d4741324b45a24d32c0590",
+        "facts": {
+          "blocked-no-review": {
+            "before": "holds",
+            "after": "holds",
+            "label": "held"
+          },
+          "status-routing": {
+            "before": "holds",
+            "after": "fails",
+            "label": "regression"
+          },
+          "sibling-snapshot": {
+            "before": "holds",
+            "after": "holds",
+            "label": "held"
+          },
+          "never-rechain": {
+            "before": "holds",
+            "after": "fails",
+            "label": "regression"
+          }
+        },
+        "feedback": "After keeps the conditional exit-0/completion-guard reasoning, the structured_output diagnosis, and the detached snapshot SR with cleanup after the saved report, so blocked-no-review and sibling-snapshot still hold. Two facts regressed. status-routing: Before explicitly named pi-cohort's `src/shared/artifacts.ts` as the source of the `<runId>_implementer_<index>_output.md` convention; After replaced it with the vague 'source-defined naming', so the identity-matching rule is no longer anchored to the file the fact requires (and neither arm spells out that `## Stop` matches any exit-0 BLOCKED/NEEDS_CONTEXT/DONE_WITH_CONCERNS — add that sentence to be safe). never-rechain: Before stated 'both tasks remain `in_progress` until their respective wave commits'; After only says '`DONE` alone never completes a task' and never mentions the tracker lifecycle, so the pending→in_progress→complete-at-wave-commit requirement is absent. To keep every Before fact while adding the Leg/Rules and standalone re-dispatch material, restore the explicit `src/shared/artifacts.ts` citation in the completion-guard bullet, add a line in the Boundary section that both tasks stay `in_progress` (never failed/complete) until their wave commit, and optionally list the exit-0 statuses a `## Stop` can match.",
+        "wallMs": 29579,
+        "verdict": "inconclusive",
+        "confirmation": {
+          "status": "ok",
+          "text": "These are conditional next steps, not executed actions or review results.\n\n### 1. Route the observed result without assuming task 2 edited\n\nRead **tool-result text**, not `details`:\n\n- **Exit-0 stop:** Read fenced statuses in `## Outputs` (or the known output reports). A task-2 exit-0 `BLOCKED` can produce `## Stop`; no SR step ran. Read `/tmp/reports/wave1-task2.md`, retain task 1’s `DONE` report and captured patch, and handle task 2’s blocker separately.\n- **Completion-guard error:** If task 2 failed, it has neither `/tmp/reports/wave1-task2.md` nor a bound output. Recover its prose from the session’s `subagent-artifacts`, matching the run/task identity and the implementer filename convention defined by pi-cohort `src/shared/artifacts.ts` (`<runId>_implementer_<index>_output.md`). Do not guess the index or use `parallel-0/`.\n- **`## Stop` plus a failed sibling:** Inspect both. `## Stop` identifies a matched **exit-0** status; it does not establish that all siblings succeeded. Stop-condition evaluation can precede sibling-failure reporting.\n- **Rejected/missing `structured_output`:** This is a chain error, not an accepted status. Recover prose as above. A recoverable `BLOCKED`/`NEEDS_CONTEXT` still uses the status matrix; otherwise use the subagent-failure route with the visible diagnostic, without inventing a status.\n- **No-edits `NEEDS_CONTEXT`:** A completion guard may make this a nonzero failure. Recover its prose and resolve the question through the status matrix; do not require a patch before addressing that question.\n\nIf session artifacts are disabled, missing, or ambiguous, enter the subagent-failure route using the visible diagnostic and its existing two-attempt limit. Never fabricate missing prose or review an unchanged tree. An accepted task with a missing/empty patch also takes that failure route.\n\nFor task 2, classify recovered questions: bounded documented lookups for facts; amendment routing for spec-defect questions; clarification or escalation for decisions. Preserve task 1 throughout.\n\n### 2. Review the accepted sibling independently\n\nTask 1’s review source is its **artifact patch**, not an inline claim or the branch’s unchanged checkout:\n\n```bash\nSR_ROOT='/workspace/project'\nSR_BASE='1111111111111111111111111111111111111111'\nSR_PATCH='/tmp/chain-run/worktree-diffs/step-0/task-0-implementer.patch'\nSR_DIR=$(mktemp -d) || exit 1\nSR_TREE=\"$SR_DIR/tree\"\ngit -C \"$SR_ROOT\" worktree add --detach \"$SR_TREE\" \"$SR_BASE\" || exit 1\ngit -C \"$SR_TREE\" apply --index \"$SR_PATCH\" || exit 1\nprintf 'snapshot: %s\\n' \"$SR_TREE\"\n```\n\nUse the printed absolute snapshot path below; do not assume one in advance. Record task 1’s review tree:\n\n```bash\nFD_ROOT='<printed absolute snapshot path>'\nFD_INDEX=$(mktemp) || exit 1\ncp \"$(git -C \"$FD_ROOT\" rev-parse --path-format=absolute --git-path index)\" \"$FD_INDEX\" || { rm -f \"$FD_INDEX\"; exit 1; }\nGIT_INDEX_FILE=\"$FD_INDEX\" git -C \"$FD_ROOT\" add -A && GIT_INDEX_FILE=\"$FD_INDEX\" git -C \"$FD_ROOT\" write-tree\nFD_STATUS=$?\nrm -f \"$FD_INDEX\"\nexit \"$FD_STATUS\"\n```\n\nOn setup/tree-capture failure, stop dispatch and retain the directory and error.\n\n```js\nsubagent({\n  context: \"fresh\",\n  async: false,\n  cwd: \"/workspace/project\",\n  tasks: [{\n    agent: \"spec-reviewer\",\n    cwd: \"<printed absolute snapshot path>\",\n    output: \"/tmp/reports/wave1-sr1-recovery.md\",\n    task: `<full unchanged Task 1, including Spec anchors, Files, Tests,\nLeg and additive Rules context, if present>\n<full spec-reviewer prompt text>\n\nAuthoritative spec: /workspace/project/doc/specs/feature.md\nPatch: /tmp/chain-run/worktree-diffs/step-0/task-0-implementer.patch\nImplementation report: /tmp/reports/wave1-task1.md\nWAVE_BASE_SHA: 1111111111111111111111111111111111111111\n\nRead the patch and implementation report. Start from diff hunks with\nfile:line; read every touched file in full in this snapshot.\nRead deleted files from WAVE_BASE_SHA. Read applicable Rules first.\nRead the authoritative anchored spec ranges yourself. Never run tests.\nReturn Verdict: COMPLIANT, NEEDS_REWORK, or OUT_OF_SCOPE_CHANGES.`\n  }]\n})\n```\n\nThis is a first SR: no previous-review marker, trajectory trigger, test commands, schema, `acceptance`, or `worktree` flag. Save and read its complete terminal report before cleanup:\n\n```bash\ngit -C '/workspace/project' worktree remove --force '<printed absolute snapshot path>'\n```\n\n### 3. Retry and commit boundaries\n\n**No second chain is allowed in this wave.** Do not rerun task 1. Any justified task-2 redispatch uses a fresh, isolated, one-entry implementer dispatch from `/workspace/project`, carrying its unchanged full task, resolved context, available prior patch, scoped commands, test contract, and explicit status protocol. Its status schema allows `DONE`, `DONE_WITH_CONCERNS`, `NEEDS_CONTEXT`, `BLOCKED`. Review any accepted replacement via a separate snapshot.\n\nDo not integrate or commit merely because task 1 returned `DONE`. Retain its patch/verdict. After accepted tasks have SR acceptance, integrate serially, run scoped tests, then obtain integrated-wave CR acceptance. Only then fold changes into the durable wave commit against the recorded base and mark committed task indices complete. No verdict or successful commit is assumed here.\n",
+          "words": 645,
+          "wallMs": 25321,
+          "mechanical": {},
+          "judgeWallMs": 31347,
+          "facts": {
+            "blocked-no-review": {
+              "before": "holds",
+              "after": "holds",
+              "label": "held"
+            },
+            "status-routing": {
+              "before": "holds",
+              "after": "holds",
+              "label": "intended but unchanged"
+            },
+            "sibling-snapshot": {
+              "before": "holds",
+              "after": "holds",
+              "label": "held"
+            },
+            "never-rechain": {
+              "before": "holds",
+              "after": "holds",
+              "label": "intended but unchanged"
+            }
+          },
+          "feedback": "After keeps every fact Before kept: both outputs route task 2 conditionally over the exit-0 stop and completion-guard error without assuming edits, treat rejected/missing structured_output as a chain error, recover prose by run/task identity via src/shared/artifacts.ts (never parallel-0/), fall back to the subagent-failure route with the visible diagnostic, build one detached recorded-base snapshot with git apply --index for task 1's captured patch, dispatch a single plain (non-chain) SR with absolute spec and unchanged task anchors, and forbid a second chain. Two wordings weakened slightly without crossing a line: After says only 'mark committed task indices complete' after the wave commit and no longer states that both tasks remain in_progress until then (Before did, explicitly), and After's cleanup block drops the explicit `cat /tmp/reports/wave1-sr1-recovery.md` read before `worktree remove`, relying on a prose instruction instead. Neither output enumerates that ## Stop can match exit-0 BLOCKED, NEEDS_CONTEXT, or DONE_WITH_CONCERNS; both just say 'matched exit-0 status/stop' plus the four-value enum. To make status-routing and never-rechain unambiguous while keeping the new Leg/Rules context, per-repo base and tree-capture additions, restore the sentence 'both tasks stay in_progress (pending → in_progress at fan-out) until their wave commit, including on human stop', add the explicit stop-status list ('## Stop matches an exit-0 BLOCKED, NEEDS_CONTEXT, or DONE_WITH_CONCERNS'), and put the `cat` of the saved SR report back ahead of the worktree remove."
+        },
+        "judgeModel": "anthropic-fable/claude-fable-5-1",
         "thinking": "medium"
       }
     }
   },
-  "repoSha": "2eb4429b4dd687432969f427f82d45d7840d7c63"
+  "repoSha": "f25bf48a3f7ac2e9b361d2c7506d7c691e212697"
 }

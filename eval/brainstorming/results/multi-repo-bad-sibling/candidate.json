@@ -1,0 +1,70 @@
+{
+  "sample": "multi-repo-bad-sibling",
+  "arm": "candidate",
+  "skillSha": "ee75d9a049ec0901f53288cc34590dc207fc1eacada5b9fa9db0c80ab44f82e3",
+  "inputSha": "353ba315a7d320fdc8017b2d4eafdb3be77af8eea1914605c30e185ac809a756",
+  "kind": "text",
+  "assembly": "headed",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "# Brainstorm stops before checklist step 4 in all three runs\n\nIn each run, step 2 (Set up the worktree) stops before any worktree is created. So there is no first step-4 message and no approaches message. `reference/legs.md` says to validate every selected declaration before creating any tree. A selected path that is missing, is not a git repository, or equals home \"stops naming the line.\"\n\nThe ask explicitly selects `repo-b`, so its `## shape-ticket` `- sibling: ../repo-b` declaration is validated. That path is resolved against the home primary `/work/repo-a` and canonicalized before the home comparison. The unselected `../repo-c` is never resolved or validated, because legs.md says to never resolve or validate unselected sibling paths. Its missing path therefore does not affect any run.\n\nNo trees were created in any run, so no `Preserved created legs:` list applies.\n\n---\n\n### Run A: `../repo-b` does not exist\n\n> Stopping before worktree setup. The selected sibling declaration `- sibling: ../repo-b` (home `/work/repo-a` overrides, `## shape-ticket`) resolves to `/work/repo-b`, which does not exist. No worktree was created for any member. Fix or remove that declaration, or create the `repo-b` checkout at that path, then restart the brainstorm.\n\n### Run B: `../repo-b` is a symlink to `/work/repo-a`\n\n> Stopping before worktree setup. The selected sibling declaration `- sibling: ../repo-b` (home `/work/repo-a` overrides, `## shape-ticket`) resolves to `/work/repo-b`, which canonicalizes to `/work/repo-a`. That is the home primary itself, so it cannot be a separate leg. No worktree was created for any member. Point the declaration at the real `repo-b` checkout, or drop `repo-b` from the ask to continue single-member, then restart the brainstorm.\n\n### Run C: `../repo-b` exists but is not a git repository\n\n> Stopping before worktree setup. The selected sibling declaration `- sibling: ../repo-b` (home `/work/repo-a` overrides, `## shape-ticket`) resolves to `/work/repo-b`, which exists but is not a git repository. No worktree was created for any member. Point the declaration at a git checkout of `repo-b`, or initialize or clone it there, then restart the brainstorm.\n",
+      "words": 317,
+      "wallMs": 12284,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "### Run A — selected sibling is missing\nThe supplied observation shows that the selected declaration `../repo-b` does not exist. Membership validation blocks before any worktree creation. No trees have been created or need cleanup.\n\n### Run B — selected sibling resolves to home\nThe supplied observation shows that `../repo-b` symlinks to `/work/repo-a`. After canonicalization, the selected companion equals the home repository, so membership validation blocks before any worktree creation. No trees have been created or need cleanup.\n\n### Run C — selected sibling is not a Git repository\nThe supplied observation shows that `../repo-b` exists but is not a Git repository. Membership validation blocks before any worktree creation. No trees have been created or need cleanup.\n\nIn every run, `../repo-c` is unselected and must not be resolved or validated. Each run stops before checklist step 4, so neither the questionary nor an approaches message is reached.\n",
+      "words": 141,
+      "wallMs": 7920,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "613ff3840a138612092c7a6ed3db6b35c885c934ce7db66ce74b6ecb8ca3e8ea",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "846af8fb641e886ab3d6b6dfb70e1483223323d53b4c37560200cad5018c6b4e",
+      "baselineOutputSha": "3bfcff5c8b3b38c4027b38d6c0ee84bef0bd08ea03ad006b6f537deca32d9f4d",
+      "candidateOutputSha": "9649601db1b35ead66f134af75a6e102a31d0452398890dc48bef75320431683",
+      "facts": {
+        "reject": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        }
+      },
+      "feedback": "Both outputs satisfy the reject fact on their own text: each stops all three runs before any worktree creation, names the selected `- sibling: ../repo-b` declaration, gives the missing / not-a-git-repository / equals-home cause, canonicalizes run B's symlink to /work/repo-a before comparing with home, and states that the unselected ../repo-c is never resolved or validated. The expected list predicted Before would fail, but the supplied Before transcript already narrates every element, so no movement is observed here. After is tighter and more user-facing (it cites reference/legs.md, gives remediation per stop, and keeps the explicit 'no trees created, no Preserved created legs' note), which is a reasonable delivery of the Change; one small wording risk in After is the quoted fragment 'stops naming the line', which reads as an unfinished rule quote — rephrase to 'stops, naming the declaration line and cause' so a reader does not have to infer the rule. Otherwise nothing in After moved the fact, and keeping the explicit per-run canonicalization sentence and the 'never resolved or validated' statement for repo-c is what preserves it.",
+      "wallMs": 9786,
+      "verdict": "unchanged"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "613ff3840a138612092c7a6ed3db6b35c885c934ce7db66ce74b6ecb8ca3e8ea",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "846af8fb641e886ab3d6b6dfb70e1483223323d53b4c37560200cad5018c6b4e",
+      "baselineOutputSha": "6eca6f2cad9cf9f90828cea9f228f21afb360c3047f7da47c42de2d03dc5e81c",
+      "candidateOutputSha": "8320981c251f53ce893c8ddc0cf9da4b6f2b61de448a7fddeafb04da705cb6a1",
+      "facts": {
+        "reject": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        }
+      },
+      "feedback": "Both outputs satisfy the reject fact on their own text: each run stops before any worktree creation, names the selected `../repo-b` declaration with its specific cause (missing, resolves to home after canonicalization, not a Git repository), Run B explicitly canonicalizes before comparing against the home primary, and the closing paragraph keeps the unselected `../repo-c` unresolved and unvalidated. After is more compact and drops Before's numbered read/resolve steps and the 'Preserved created legs: none' lines, replacing them with 'No trees have been created or need cleanup' and a 'stops before checklist step 4' note, which is sufficient for this fact; if the author wants a stronger guarantee that future judges see the declaration named as the stop reason, keep the explicit `sibling: ../repo-b` label from Before in each run's stop sentence alongside the cause, and retain an explicit statement that no created legs exist, since those are the phrasings that most directly evidence 'naming the selected declaration' and 'before any creation'.",
+      "wallMs": 10666,
+      "verdict": "unchanged"
+    }
+  },
+  "repoSha": "f25bf48a3f7ac2e9b361d2c7506d7c691e212697"
+}

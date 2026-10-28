@@ -1,7 +1,7 @@
 {
   "sample": "pr-list-admission-issue-in-list",
   "arm": "candidate",
-  "skillSha": "14c4691b4b8ce67b0e09b559803256097bb54f8c0dd00c1324971de118f6d54e",
+  "skillSha": "39cbf4496edce3761f3926f439452aa2fb3b760b2ad71fa0fa7264f649f09363",
   "inputSha": "966ce8e69a1e4794284e2d26c3cc093589000edec70ebd5d06b66615467d0967",
   "kind": "text",
   "assembly": "headed",
@@ -17,16 +17,16 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "# Narrated read and stage actions: fresh entry `#12 #13`\n\nThese steps are narrated from the fixed observations. No tool or CLI call is claimed. Reference contents come from their narrated reads, not from session context.\n\n1. **Checklist step 1: start brainstorm tracking (fresh epoch).** This is an authorized fresh entry, so the first actions run before any code, worktree or reply:\n   - `phase_tracker({ action: \"reset\" })`\n   - `plan_tracker({ action: \"clear\" })`\n   - `phase_tracker({ action: \"start\", phase: \"brainstorm\" })`\n\n2. **Checklist step 2: required `read` of `skills/brainstorming/reference/pr-subject.md`.** The read is narrated as readable, so resolution proceeds under its `## Resolve before provisioning` rules. If this read failed, the flow would stop here with a blocking error and would not rebuild the rules from memory.\n\n3. **Parse the leading run.** The trimmed prompt `#12 #13` is two bare GitHub refs separated by whitespace. No intent text follows. Both are bare `#N`, so each resolves in this checkout's repository. The origin `git@github.com:acme/widget.git` gives the identity `acme/widget`.\n\n4. **Resolve ref 1 (`#12`), sequentially.**\n   - `gh pr view 12 --json number,url,state,isDraft,title,body,headRefName,headRefOid,headRepository,isCrossRepository,baseRefName` (narrated) returns `state: OPEN`.\n   - The base repository is `acme/widget`, which matches origin.\n   - `isCrossRepository` is false, so it is not a fork.\n   - The base is `main`.\n   - `#12` passes all admission checks and is held as the would-be home PR. Nothing is written.\n\n5. **Resolve ref 2 (`#13`), sequentially, never in parallel.**\n   - `gh pr view 13 ...` (narrated) returns not-a-PR.\n   - Only after that result does `gh issue view 13` run (narrated). It succeeds and shows an issue in `acme/widget`.\n\n6. **Admission check fails: issue in a list.** The list admits only PRs, so resolution stops at the first failing ref:\n\n   > `#13 is an issue, not a pull request; a list admits only PRs. Drop #13 from the list, or brainstorm it alone as a ticket.`\n\n   - **Remedy:** direct correction. Re-enter with `#12` alone, or brainstorm `#13` alone as a ticket.\n   - The umbrella paragraph about merging heads by hand is **not** appended. It applies only to foreign-repository, fork and mixed-base failures.\n\n7. **Stage effects of the stop.**\n   - No worktree is created. No worktree existed, and none is touched.\n   - Spec-PR classification, the relatedness question, ticket binding, PR-head provisioning, gather and the ticket-acceptance read do not run.\n   - No ticket brainstorm starts for `#13`, and no further decision gate is raised.\n   - The brainstorm phase stays in progress, awaiting the user's corrected prompt.\n",
-      "words": 382,
-      "wallMs": 17616,
+      "text": "# Narrated actions: fresh entry `#12 #13`\n\nThese steps are narrated from the fixed observations. No live calls were made, and no CLI was available.\n\n## Stage 1: start brainstorm tracking (fresh epoch)\n\n1. `phase_tracker({ action: \"reset\" })` clears all phases.\n2. `plan_tracker({ action: \"clear\" })` clears all tasks.\n3. `phase_tracker({ action: \"start\", phase: \"brainstorm\" })` opens the brainstorm phase.\n\nThis runs before any code, worktree, or user-facing work.\n\n## Stage 2: resolve the leading run before provisioning\n\n4. `read` `skills/brainstorming/reference/pr-subject.md` at its absolute path. No observation says it is unreadable, so resolution continues on the content the `read` returns. Had it been unreadable, the step would stop here with a blocking error.\n5. **Parse the trimmed leading run.** `#12 #13` is two bare `#N` refs separated by whitespace. No intent text follows. The list is ordered with #12 first, so #12 is the candidate home.\n6. **Repository identity.** `git remote get-url origin` was observed as `git@github.com:acme/widget.git`. Bare refs resolve in this checkout as `acme/widget`.\n7. **Classify #12 (first, sequentially).**\n   - The PR lookup returns exit 0 with `state: OPEN`.\n   - The base repository is `acme/widget`, which matches origin when compared lowercase.\n   - `isCrossRepository` is false and `baseRefName` is `main`.\n   - #12 passes every admission check.\n8. **Classify #13 (only after #12).**\n   - The PR lookup returns a not-a-PR result.\n   - Only then does `gh issue view 13` run. It succeeds as an issue in `acme/widget`.\n   - The run is a list (N=2), so this hits the **Issue in list** check.\n   - Resolution stops at this first failing ref.\n\n## Stage 3: blocking stop (admission failure)\n\n9. Stop text, instantiated from the observations:\n\n   > `#13 is an issue, not a pull request; a list admits only PRs. Drop #13 from the list, or brainstorm it alone as a ticket.`\n\n   **Remedy:** direct correction. The user re-sends without #13 (for example `#12`), or brainstorms #13 alone as a ticket. The \"merge the heads into one branch by hand\" paragraph is not appended. That paragraph applies only to foreign-repository, fork, and mixed-base failures.\n\n10. **Not performed:**\n    - No relatedness preflight (title, body, or diff fetches).\n    - No PR-head array passed to `/skill:using-git-worktrees`, and no worktree created. None existed before, and none is created or modified now.\n    - No gather or scout dispatch.\n    - No ticket brainstorm for the list or for #13.\n    - No new question or decision gate.\n\n    The brainstorm phase stays started and nothing is written. The flow waits for the user's corrected prompt.\n",
+      "words": 392,
+      "wallMs": 18936,
       "mechanical": {}
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "1. **Stage — fresh brainstorm tracking:** Required actions, narrated only: reset the phase tracker, clear the plan tracker, then start the `brainstorm` phase.\n2. **Read — PR-subject routing:** Read `skills/brainstorming/reference/pr-subject.md` before resolving the leading references. No live read is claimed, and the bundled reference is not treated as session-loaded context.\n3. **Resolve origin:** The fixed observation identifies this checkout as `acme/widget`.\n4. **Resolve #12 first:** Its PR lookup succeeds: OPEN, non-fork, repository `acme/widget`, base `main`. It passes admission.\n5. **Resolve #13 second:** Its PR lookup returns not-a-PR. Only then does the issue lookup run; the fixed observation identifies it as an issue in `acme/widget`.\n6. **Blocking stop — exact failure and remedy:**  \n   `#13 is an issue, not a pull request; a list admits only PRs. Drop #13 from the list, or brainstorm it alone as a ticket.`\n\n   Stop before provisioning. No worktree is created, no ticket brainstorm begins, and no additional decision gate is introduced.\n",
-      "words": 152,
-      "wallMs": 11344,
+      "text": "1. **Start stage:** The required fresh-entry sequence is to reset phase tracking, clear plan tracking, and start `brainstorm`. These are narrated requirements, not live calls.\n2. **Resolve the leading run:** `#12 #13` is a two-reference list. The observed origin, `git@github.com:acme/widget.git`, identifies this checkout as `acme/widget`.\n3. **Resolve #12 first:** Its fixed PR-lookup result is OPEN, non-fork, in `acme/widget`, targeting `main`. It passes admission.\n4. **Resolve #13 next:** Its fixed PR lookup returns not-a-PR. Only then does the issue lookup occur; that succeeds as an issue in `acme/widget`.\n5. **Blocking stop:** `#13 is an issue, not a pull request; a list admits only PRs. Drop #13 from the list, or brainstorm it alone as a ticket.`\n\nNo worktree is created, no ticket brainstorm begins, and no additional decision gate is introduced.\n",
+      "words": 130,
+      "wallMs": 12667,
       "mechanical": {}
     }
   },
@@ -34,9 +34,9 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "c5713ba61f0a0667b7a3132dad69be7d5e7bf7c00fd5addd2838bd7c8118f266",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "460f2afd63946ca28e753d98ec02c2b198f7bed5ff1b4bf05820058c4477df90",
-      "baselineOutputSha": "b79b53251853fea47f90c736ebcee3fca8b4c0bab1eb7242995e68aa253d7af8",
-      "candidateOutputSha": "7f189c8cf66959d34b51f9730f161b04e3b6760d5697fa1e1dd95345050e3a61",
+      "intentSha": "846af8fb641e886ab3d6b6dfb70e1483223323d53b4c37560200cad5018c6b4e",
+      "baselineOutputSha": "28abe10f4df9572d8c35e0770e547e041e866528c1a12b50464d5dd56504cb40",
+      "candidateOutputSha": "d481214010c3d4327a02ade9a2e859793774c254e78cd1123a98733e1078cc0a",
       "facts": {
         "issue": {
           "before": "holds",
@@ -49,16 +49,16 @@
           "label": "held"
         }
       },
-      "feedback": "Nothing moved for this sample: both outputs resolve #12 before #13, run the PR lookup for #13 before the issue lookup, quote the exact issue-in-list failure with the direct drop-or-brainstorm-alone remedy, explicitly withhold the umbrella paragraph, start no ticket brainstorm for #13, and perform no writes. The After wording is slightly tighter on ordering (\"sequentially, never in parallel\") and on the stage effects, which is a mild improvement rather than a regression; keep the explicit \"Nothing is written\" line in the #12 step and the \"no ticket brainstorm starts\" bullet, since those are what carry the order and issue facts unambiguously under the enlarged assembly.",
-      "wallMs": 8547,
+      "feedback": "Nothing moved: both outputs quote the exact stop text for #13, state that the umbrella merge-the-heads paragraph is withheld, offer only the direct correction (drop #13 or brainstorm it alone), and explicitly refuse any ticket brainstorm or extra decision gate, so the issue fact holds in both. Both also resolve #12 fully before #13, run the PR lookup for #13 and only on not-a-PR fall through to the issue lookup, and state no worktree is created and nothing is written, so the order fact holds in both. The After wording's split into Stage 1/2/3 with numbered sub-steps and the explicit 'Not performed' list is a clean delivery of the ordered-resolution narration; keep the phrase 'Only then does gh issue view 13 run' and the sentence withholding the umbrella paragraph, since those are the lines a judge keys on for both facts, and avoid adding any 'for example' invocation that could read as a ticket contract for a list member.",
+      "wallMs": 8193,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "c5713ba61f0a0667b7a3132dad69be7d5e7bf7c00fd5addd2838bd7c8118f266",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "460f2afd63946ca28e753d98ec02c2b198f7bed5ff1b4bf05820058c4477df90",
-      "baselineOutputSha": "72c8189e7db059bbda01f03acf3f677ca0109169fe6afd784666d886a255bfb8",
-      "candidateOutputSha": "059ad254864dd26dfb8a124fb05c419f76c86f0e89eb94b10bab7c17a5d8a6e8",
+      "intentSha": "846af8fb641e886ab3d6b6dfb70e1483223323d53b4c37560200cad5018c6b4e",
+      "baselineOutputSha": "b7e21989d0655fdfb907766e2d29cb25af902bf5d580979c4289feb0dbe3a818",
+      "candidateOutputSha": "c2d61b73e1fad4ae33635f3cb86d7a7486347d66c3025233877873f10c9ce848",
       "facts": {
         "issue": {
           "before": "holds",
@@ -71,97 +71,10 @@
           "label": "held"
         }
       },
-      "feedback": "Nothing moved on this case: both outputs stop at step 6 before provisioning with the exact verbatim failure-and-remedy sentence, offer no umbrella remedy, turn no list member into a ticket contract, resolve #12 before #13, run #13's PR lookup before its issue lookup, and perform no writes (tracker actions are narrated, no worktree is created). After's only differences are cosmetic — relabeling steps as Stage/Read/Resolve, splitting origin resolution into its own step, rendering the remedy as a code-styled line, and folding the 'no ticket brainstorm / no extra gate' sentence into step 6 — none of which touches either fact. If anything, keep the exact phrase 'Stop before provisioning' adjacent to the quoted remedy as After does (it moved from the heading into the following sentence; a reader still finds it, but a heading like 'Stop before provisioning — exact failure and remedy' would make the fact's key phrase harder to miss).",
-      "wallMs": 11810,
+      "feedback": "Nothing moved: both outputs resolve #12 before #13, run #13's PR lookup before its issue lookup, emit the exact issue-not-a-PR message with the drop-or-brainstorm-alone remedy, and create no worktree or ticket brainstorm. Two small differences in After are worth watching though they did not cost a fact here: After dropped Before's explicit sentence 'Stop before worktree provisioning or gathering', relying on 'No worktree is created' to imply the stop happens pre-provisioning, and it dropped the pr-subject.md prerequisite read step. To keep the issue fact robust under stricter judging, have After's blocking-stop item state 'Stop before worktree provisioning' explicitly alongside the verbatim remedy, and keep the 'no umbrella remedy' framing visible; the ordered-resolution wording ('Resolve #12 first' / 'Resolve #13 next', 'Only then does the issue lookup occur') is clear and should be retained as is.",
+      "wallMs": 12519,
       "verdict": "unchanged"
     }
   },
-  "refresh": {
-    "status": "complete",
-    "identity": {
-      "sample": "pr-list-admission-issue-in-list",
-      "kind": "text",
-      "assembly": "headed",
-      "baselineSkillSha": "be6a9ad7c6121a490b07ac373a98ac41151b852e413de38cd8301d286ce1b2bd",
-      "candidateSkillSha": "8422ae15c4746c464811b72ee5f5ead8e3dfa0b1e827b7022ef20253e18b0f3f",
-      "inputSha": "966ce8e69a1e4794284e2d26c3cc093589000edec70ebd5d06b66615467d0967",
-      "factsSha": "c5713ba61f0a0667b7a3132dad69be7d5e7bf7c00fd5addd2838bd7c8118f266",
-      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "5b9f462cd6caec9a4a8e3a28a3c0ba61583e1b400c8edb5164d32bba075fea39",
-      "models": {
-        "replay": [
-          "github-copilot/gpt-6.1-sol"
-        ],
-        "judge": "github-copilot/gpt-6.1-sol"
-      },
-      "thinking": "medium",
-      "outputs": {
-        "baseline": {
-          "github-copilot/gpt-6.1-sol": {
-            "baselineOutputSha": "b7e21989d0655fdfb907766e2d29cb25af902bf5d580979c4289feb0dbe3a818",
-            "payloadSha": "ce50c9150f781d84ff7e515a26bbf8301918e06ba00988d2822c609d6c74dc5b"
-          }
-        },
-        "candidate": {
-          "github-copilot/gpt-6.1-sol": {
-            "candidateOutputSha": "313c72112a2acd44f32d82959ede1e52ed933d8cb8341a158a21beebcd03d968",
-            "payloadSha": "2892b6590ae0afc64d5980c2023cb7eb2ba0f1354a414361df056ffa04971a3f"
-          }
-        }
-      }
-    },
-    "previous": {
-      "github-copilot/gpt-6.1-sol": {
-        "factsSha": "c5713ba61f0a0667b7a3132dad69be7d5e7bf7c00fd5addd2838bd7c8118f266",
-        "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-        "intentSha": "5b9f462cd6caec9a4a8e3a28a3c0ba61583e1b400c8edb5164d32bba075fea39",
-        "baselineOutputSha": "b7e21989d0655fdfb907766e2d29cb25af902bf5d580979c4289feb0dbe3a818",
-        "candidateOutputSha": "313c72112a2acd44f32d82959ede1e52ed933d8cb8341a158a21beebcd03d968",
-        "facts": {
-          "issue": {
-            "before": "holds",
-            "after": "holds",
-            "label": "intended but unchanged"
-          },
-          "order": {
-            "before": "holds",
-            "after": "holds",
-            "label": "held"
-          }
-        },
-        "feedback": "Neither fact moved: After preserves the exact issue-list rejection and direct remedies, resolves #12 before #13, and performs #13’s PR lookup before its issue lookup without claiming writes. Retain this wording, especially the stop before provisioning and the prohibition on starting a ticket brainstorm for the list; no umbrella remedy or additional decision gate is needed.",
-        "wallMs": 6267,
-        "verdict": "unchanged",
-        "judgeModel": null,
-        "thinking": null
-      }
-    },
-    "refreshed": {
-      "github-copilot/gpt-6.1-sol": {
-        "factsSha": "c5713ba61f0a0667b7a3132dad69be7d5e7bf7c00fd5addd2838bd7c8118f266",
-        "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-        "intentSha": "5b9f462cd6caec9a4a8e3a28a3c0ba61583e1b400c8edb5164d32bba075fea39",
-        "baselineOutputSha": "b7e21989d0655fdfb907766e2d29cb25af902bf5d580979c4289feb0dbe3a818",
-        "candidateOutputSha": "313c72112a2acd44f32d82959ede1e52ed933d8cb8341a158a21beebcd03d968",
-        "facts": {
-          "issue": {
-            "before": "holds",
-            "after": "holds",
-            "label": "intended but unchanged"
-          },
-          "order": {
-            "before": "holds",
-            "after": "holds",
-            "label": "held"
-          }
-        },
-        "feedback": "Neither fact moved: After preserves the exact issue rejection and direct remedies, resolves #12 before #13, and consults #13’s issue lookup only after its PR lookup fails, without performing writes. Keep this explicit stop-before-provisioning wording and avoid adding an umbrella remedy, ticket contract, or extra decision gate; the broader Change requires no additional content in this blocked-resolution case.",
-        "wallMs": 5865,
-        "verdict": "unchanged",
-        "judgeModel": "github-copilot/gpt-6.1-sol",
-        "thinking": "medium"
-      }
-    }
-  },
-  "repoSha": "657f24585c1a6c2182a26df3d0d0691c8e67e59a"
+  "repoSha": "f25bf48a3f7ac2e9b361d2c7506d7c691e212697"
 }

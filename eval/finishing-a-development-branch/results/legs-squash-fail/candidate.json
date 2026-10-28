@@ -1,0 +1,90 @@
+{
+  "sample": "legs-squash-fail",
+  "arm": "candidate",
+  "skillSha": "47074a47855ed9272259862fb8a44ae0212fb1dbed289dbdae609bc5f8501053",
+  "inputSha": "c6da33c5b728fe3fdb83297f8ce38c8c78ce049540a3a67345cb291d1cd198e7",
+  "kind": "text",
+  "assembly": "concat",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "# Coordinated finish - Step 5: squash (`feature/shared-change`, spec `doc/specs/shared.md`)\n\nThe home spec has three members in `## Legs`, so the coordinated mechanics apply. Delivery runs in declared order: companions **repo-b**, then **repo-c**, then home **repo-a**. Each leg follows its recorded `contract:`. Every primary's default branch resolves to **`trunk`**, not `main`.\n\n---\n\n## Run 1 - first squash attempt\n\n### 1. Receipts and freshness\n\n- The receipts directory `/work/repo-a/.git/gauntlet/receipts/shared.md/` holds no receipts, so no leg is skipped.\n- All three legs still match their audited clean heads and trees, so no re-verification or re-review is needed.\n\n### 2. repo-b: squash in its primary `/work/repo-b`\n\n```bash\ngit -C /work/repo-b checkout trunk\ngit -C /work/repo-b pull\ngit -C /work/repo-b merge --squash feature/shared-change\ngit -C /work/repo-b commit -m \"<imperative summary>\n\nHome: repo-a feature/shared-change doc/specs/shared.md\"\n# -> dddddddddddddddddddddddddddddddddddddddd on trunk\n(cd /work/repo-b && node --test test/parser.test.mjs)\n# -> exit 1: expected valid reader\n```\n\nThe squash commit landed on `trunk`, but post-squash verification failed. The receipt is written anyway, at `/work/repo-a/.git/gauntlet/receipts/shared.md/repo-b`:\n\n```text\nattempted-head: bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\ndelivered: squash dddddddddddddddddddddddddddddddddddddddd\nverification: node --test test/parser.test.mjs exited 1: expected valid reader\n```\n\n### 3. Fan-out stops at the first failure\n\nWhat did not happen:\n- No repo-c delivery.\n- No home plan strip, seal, or squash. The seal never runs on partial results.\n- No cleanup. repo-b's squash failed post-verification, so its worktree and branch stay.\n- No rollback. Commit `dddddddd…` stays on `/work/repo-b` `trunk`.\n- No writes to repo-b's `.pi/gauntlet/telemetry/`.\n\n```text\nShipped: (none)\nNot shipped: repo-b squash dddddddddddddddddddddddddddddddddddddddd created on trunk - post-squash verification failed: node --test test/parser.test.mjs exited 1 (expected valid reader)\nNot shipped: repo-c untouched - fan-out stopped after repo-b failure\nNot shipped: repo-a (home) untouched - not delivered; no strip, seal, or squash\n```\n\nThe receipt is retained, all worktrees and branches are preserved, and ship is **not** marked complete. Retrying the same action validates this receipt before going further.\n\n---\n\n## Run 2 - retry of the same action (squash)\n\n### 1. Validate repo-b's receipt before any checkout-based verification\n\n- **Identity:** the spec `shared.md`, repo `repo-b`, and delivery choice `squash` all match the selected action.\n- **Reachability:** `git -C /work/repo-b merge-base --is-ancestor dddddddddddddddddddddddddddddddddddddddd trunk` exits 0. The squash is reachable from the actual default branch.\n- **Feature head:** the current feature head equals `attempted-head bbbb…bbbb`.\n- **Primary state:** `/work/repo-b` `trunk` shows no unrelated movement.\n- **Recorded failure:** the receipt records a failed post-squash verification. The retry action is to **rerun verification, not squash**, in the delivered primary. This replaces the feature-checkout checks for repo-b.\n\n```bash\n(cd /work/repo-b && node --test test/parser.test.mjs)   # -> passes\n```\n\nThe receipt is rewritten:\n\n```text\nattempted-head: bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\ndelivered: squash dddddddddddddddddddddddddddddddddddddddd\nverification: passed\n```\n\nrepo-b is now a **validated skip**, with no duplicate squash. Its delivery is complete, so its recorded cleanup becomes eligible. It is queued for Step 6 in declared order.\n\n### 2. Continue fan-out\n\n**repo-c:**\n1. Run the freshness check against its audited head.\n2. Squash in `/work/repo-c` with the same recipe on `trunk`. The commit message carries `Home: repo-a feature/shared-change doc/specs/shared.md`.\n3. Run `(cd /work/repo-c && node --test test/parser.test.mjs)`.\n4. Write receipt `.../receipts/shared.md/repo-c` (squash SHA plus the verification result).\n5. If verification fails, stop and report as in Run 1.\n\nNo outcome was supplied for repo-c, so I am not inventing a SHA.\n\n**Home seal** (only once repo-c's result is collected and complete):\n1. Capture the spec path, recorded commands, membership and accepted evidence.\n2. Run the strip-and-seal block in `/work/repo-a/.worktrees/feature-shared-change`:\n   ```bash\n   node <bin>/gauntlet-telemetry-seal.mjs --worktree /work/repo-a/.worktrees/feature-shared-change \\\n     --option squash --base trunk --spec doc/specs/shared.md \\\n     --leg repo-b=dddddddddddddddddddddddddddddddddddddddd --leg repo-c=<repo-c squash SHA>\n   ```\n3. If the bin fails, print its output, keep all receipts, and stop.\n\n**Home squash:**\n1. Run the Option 3 recipe in `/work/repo-a`. The squash message lists repo-b `dddd…dddd` and repo-c's SHA.\n2. Run post-squash `node --test test/parser.test.mjs` in the primary.\n3. Write home's receipt.\n\n### 3. Step 6 cleanup - only after successful post-squash verification\n\nCleanup runs per recorded contract, companions first, then home, each from its own primary. `<name>` is `'feature-shared-change'` and `<branch>` is `'feature/shared-change'`, each passed as a single shell word.\n\n| Leg | Command (from its primary) | Then |\n|---|---|---|\n| repo-b | `script/wrapper remove 'feature-shared-change'`, plus the configured teardown hook (pi-cohort semantics) | `git -C /work/repo-b branch -D feature/shared-change` only on success; no prune |\n| repo-c | `git -C /work/repo-c worktree remove /work/repo-c/.worktrees/feature-shared-change`, then `git -C /work/repo-c worktree prune` | `git -C /work/repo-c branch -D feature/shared-change` |\n| repo-a | `script/tree destroy 'feature-shared-change'` | `git -C /work/repo-a branch -D feature/shared-change` only on success; no prune |\n\nFailure handling:\n- If a wrapper or hook refuses, that leg gets a `failed` line and keeps its tree and branch.\n- Cleanup never falls back to `git worktree remove`.\n- Every other member's teardown still runs.\n\n### 4. Receipts and ship status\n\n- If home delivery and all required cleanup succeed, report `Home delivery and required cleanup succeeded; receipts removed`. Ship is then marked complete for all members.\n- If any required cleanup fails, report `receipts retained - required cleanup failed` and leave every receipt in place for the next retry.\n",
+      "words": 778,
+      "wallMs": 35152,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "## First attempt — stop after repo-b verification fails\n\nDeliver companions before home, in declared order: repo-b, repo-c, then repo-a. Use each primary’s resolved default branch, `trunk`.\n\nRepo-b created squash commit `dddddddddddddddddddddddddddddddddddddddd` on `/work/repo-b`’s `trunk`. Its post-squash command, run from that primary, failed:\n\n```text\nnode --test test/parser.test.mjs\nexit 1: expected valid reader\n```\n\nWrite repo-b’s durable receipt at:\n\n```text\n/work/repo-a/.git/gauntlet/receipts/shared.md/repo-b\n```\n\nwith:\n\n```text\nattempted-head: bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\ndelivered: squash dddddddddddddddddddddddddddddddddddddddd\nverification: node --test test/parser.test.mjs failed (exit 1): expected valid reader\n```\n\nStop fan-out immediately. Do not deliver repo-c or home, strip the home plan, seal telemetry, or perform cleanup. Preserve the created squash, all feature worktrees and branches, and the receipt. Do not roll back.\n\n```text\nShipped: none\nNot shipped: repo-a — untouched; stopped after repo-b post-squash verification failed\nNot shipped: repo-b — squash dddddddddddddddddddddddddddddddddddddddd created; parser tests failed (exit 1): expected valid reader\nNot shipped: repo-c — untouched; stopped after repo-b post-squash verification failed\n```\n\n## Retry — verify the existing squash, do not squash repo-b again\n\nValidate repo-b’s receipt against this spec, repository, and squash action. The recorded squash is reachable from `/work/repo-b`’s `trunk`, with no unrelated primary movement.\n\nRerun:\n\n```text\nnode --test test/parser.test.mjs\n```\n\nfrom `/work/repo-b`, against the delivered primary state—not the feature checkout. The supplied result passes. Rewrite repo-b’s receipt, preserving its attempted head and squash SHA, with:\n\n```text\nverification: passed\n```\n\nRepo-b is now a validated delivered leg. Skip another squash.\n\nContinue with these prescribed actions:\n\n1. **Repo-c:** Check freshness, then use its primary’s `trunk` squash recipe and run its recorded parser tests from `/work/repo-c`. Write its receipt even if post-squash verification fails.\n2. **Home preparation:** Only after complete, successful companion results, capture the spec and accepted evidence, strip the home plan, and run home’s telemetry seal with both companion results:\n   ```text\n   --leg repo-b=dddddddddddddddddddddddddddddddddddddddd --leg repo-c=<actual squash SHA>\n   ```\n   Do not seal partial results or write companion telemetry. Stop on seal failure, print its output, and retain receipts.\n3. **Repo-a:** After successful sealing, squash home onto `/work/repo-a`’s `trunk`, include both companion squash SHAs in its message, and run its recorded parser tests from that primary. Write home’s receipt, including any verification failure.\n\nEvery companion squash message must include:\n\n```text\nHome: repo-a feature/shared-change doc/specs/shared.md\n```\n\n### Cleanup only after successful delivery and post-squash verification\n\nAttempt cleanup in order **repo-b, repo-c, repo-a**, using the recorded contracts:\n\n- **Repo-b:** Run `script/wrapper remove 'feature-shared-change'` from `/work/repo-b`, honoring the configured teardown hook’s existing semantics. Never bypass wrapper or hook failure with Git removal.\n- **Repo-c:** After ownership matching, remove `/work/repo-c/.worktrees/feature-shared-change` through the owned built-in, then prune.\n- **Repo-a:** Run `script/tree destroy 'feature-shared-change'` from `/work/repo-a`. Do not run Git removal or prune after successful wrapper teardown.\n\nDelete each local `feature/shared-change` branch only after that leg’s successful worktree removal. A cleanup refusal preserves that leg’s tree and branch but does not prevent the remaining legs’ cleanup attempts.\n\nNo repo-c or home delivery outcomes, seal output, or cleanup results were supplied, so they cannot yet be reported as successful. Do not mark ship complete.\n\nIf home delivery and all required cleanup succeed, remove receipts and report:\n\n```text\nHome delivery and required cleanup succeeded; receipts removed\n```\n\nIf any required cleanup fails, retain every receipt and report:\n\n```text\nreceipts retained - required cleanup failed\n```\n\nNo push or PR is part of this squash action.\n",
+      "words": 527,
+      "wallMs": 18071,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "d63a50c4bb8038a15fa0175eee7aa6a543021293ff7accbd4bd6db70453a6666",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "f799890e16cc3f3752172fadbe09daebf0f294cfcc869df30dee75eb116791d8",
+      "baselineOutputSha": "ad67b6efd556e529c0ea02ca080c6b417135dc0abb8563af24d26967accb90b6",
+      "candidateOutputSha": "85131ced55139cd174883b31989d4b11c4a19d2d60a977b41049563cb540f010",
+      "facts": {
+        "failure": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "retry": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "message": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        }
+      },
+      "feedback": "No fact moved between Before and After: both write the repo-b receipt with the created squash and the actual exit-1 error, report repo-b Not shipped with SHA/error alongside untouched home and repo-c, run no seal or rollback, prove reachability of dddd… against the actual default trunk, rerun only verification in the delivered primary without re-squashing, rewrite the receipt on pass, and carry the Home tuple in companion messages and companion SHAs in the home squash message. Two things in After are worth tightening so the retry fact stays unambiguous: say explicitly that the primary rerun replaces the feature-checkout checks 'even though repo-b's feature tree still exists' (Before states this; After only implies it via the attempted-head comparison), and note that After relocated receipts from the untracked `.pi/gauntlet/receipts/<spec>/` in the home worktree (with the info/exclude step) to `/work/repo-a/.git/gauntlet/receipts/` — not a fact here, but a wording drift the author should reconcile with whatever the skill actually prescribes so other receipt-path facts in the suite don't move.",
+      "wallMs": 13841,
+      "verdict": "unchanged"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "d63a50c4bb8038a15fa0175eee7aa6a543021293ff7accbd4bd6db70453a6666",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "f799890e16cc3f3752172fadbe09daebf0f294cfcc869df30dee75eb116791d8",
+      "baselineOutputSha": "8985c41bae58578b64caa8125acca92d44890c93392f44f9c0b2833211d04372",
+      "candidateOutputSha": "bb6a37df93565d75af5e87c8b9e07940cb7b26ac4f7067eed7d52e276f0cdab2",
+      "facts": {
+        "failure": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "retry": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "message": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        }
+      },
+      "feedback": "Nothing moved: both outputs write the repo-b receipt with the squash SHA and the actual exit-1 error, report repo-b Not shipped with SHA/error plus repo-a and repo-c untouched in member order, refuse seal/rollback, prove squash reachability from the primary's resolved `trunk`, rerun the parser tests only from /work/repo-b against the delivered primary (explicitly not the feature checkout), decline a second squash, rewrite the receipt on pass, and put the Home tuple in companion squash messages and both companion SHAs in home's message. After actually strengthens `message` by stating the Home tuple requirement for every companion squash rather than only repo-c. Two regressions in After are worth watching even though no listed fact catches them: the receipt path changed from the home worktree's untracked `.pi/gauntlet/receipts/...` (with the Git-metadata local exclusion) to `/work/repo-a/.git/gauntlet/...`, and the retry validation dropped the 'current feature head when available' check; if receipt location or head validation ever become facts, keep Before's wording for those two sentences while retaining After's 'Every companion squash message must include' line and its explicit reachability-from-`/work/repo-b`'s-`trunk` phrasing.",
+      "wallMs": 18533,
+      "verdict": "unchanged"
+    }
+  },
+  "repoSha": "df79836689c7ec82c1f89329091a67b911c07c7d"
+}

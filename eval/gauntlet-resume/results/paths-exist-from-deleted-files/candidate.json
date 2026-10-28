@@ -1,7 +1,7 @@
 {
   "sample": "paths-exist-from-deleted-files",
   "arm": "candidate",
-  "skillSha": "af29e8cc3b6db34c5703a4f9e9d661605ba79f49ce37b502f97158d6a74e5640",
+  "skillSha": "e56341fe48626805c06784bf9eb09da5d4fb33f4a0cfe01b6823c51a6d66fb94",
   "inputSha": "b7c0a89e9d2f732da4abb96502fcb7a5a2ccbc92de384eb06d256e548ffe5507",
   "kind": "text",
   "assembly": "headed",
@@ -17,9 +17,9 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "# Restore narration: plan_check through closing line\n\n`start brainstorm`, `skip brainstorm` with reason `resume: /work/app/.worktrees/retire-legacy/doc/specs/2026-03-09-retire-legacy-parsers.md`, and `start plan` ran before this point.\n\n**1. Tool call: `plan_check`**\n```\nplan_check({ planPath: \"/work/app/.worktrees/retire-legacy/doc/plans/2026-03-09-retire-legacy-parsers.md\" })\n```\nThe result is **FAIL (400 findings)**, so the restore enters `## Plan repair`. Phase `plan` stays in_progress.\n\n**2. Pre-routing check.** No finding is `baseline-line` or `open-questions`, so the baseline continuation does not apply. I go straight to citation repair. The task snapshot stays exactly as the brief gives it.\n\n**3. Plan state before any write.** Tool results 1 and 2 show `ls-files --error-unmatch` exited 0 and `status --porcelain` printed nothing. The plan is tracked and clean, so no temp copy is needed.\n\n**4. Classification.** Every finding has check `paths-exist` and reason `Modify: path \"<p>\" does not exist`. Two pieces of evidence are needed, and both are present:\n* **Owning task status:** every row sits under Task 2 (`W1: Delete legacy/parsers tree`) or Task 3 (`W1: Delete legacy/fixtures tree`). Both are `✓` complete in the brief's task list.\n* **Deletion history:** I ran this once for each of the 400 paths:\n  ```\n  git -C /work/app/.worktrees/retire-legacy log --diff-filter=D --format=%h -1 -- <p>\n  ```\n  Each call printed one hash.\n\nAll 400 findings map to a table row, so nothing stops the repair before writing.\n\n**5. Edit (round 1).** I dropped the 400 dead `Modify:` rows:\n* 200 `legacy/parsers/...` rows from Task 2's Files block.\n* 197 `legacy/fixtures/...` rows from Task 3's Files block.\n* The three shown rows at lines 61–63.\n\nNothing else in the plan changes: task names, count, order, waves, owners and other text are untouched.\n\n**6. Tool call: re-check**\n```\nplan_check({ planPath: \"/work/app/.worktrees/retire-legacy/doc/plans/2026-03-09-retire-legacy-parsers.md\" })\n```\nThe result is **PASS** after round 1 of a possible 3.\n\n**7. Tool call: commit the plan alone.** The plan was tracked and clean before the loop, so the repair gets its own commit:\n```bash\ngit -C /work/app/.worktrees/retire-legacy add -- doc/plans/2026-03-09-retire-legacy-parsers.md && git -C /work/app/.worktrees/retire-legacy commit -q -m \"resume: plan citation repair - 400 findings\" -- doc/plans/2026-03-09-retire-legacy-parsers.md\n```\nIt exits 0.\n\n**8. Tool call:** `phase_tracker skip plan` with reason `resume: pasted brief`.\n\n**9. Tool call:** `phase_tracker start implement`. The brief shows no substep, so there is no `substep` call.\n\n**10. Feasibility check before `init`.**\n* **Pending order:** the only `○` task, [5], trails every non-pending task, which is correct.\n* **Auto-complete risk:** not every task is complete or skipped, so implement will not auto-complete.\n\n**11. Tool call: `plan_tracker init`**, using the saved snapshot exactly as given:\n```\nplan_tracker init [\n  { name: \"W1: Inventory legacy parsers\",        status: \"complete\" },\n  { name: \"W1: Delete legacy/parsers tree\",      status: \"complete\" },\n  { name: \"W1: Delete legacy/fixtures tree\",     status: \"complete\" },\n  { name: \"W2: Point imports at the new parser\", status: \"in_progress\" },\n  { name: \"W3: Update the parser guide\",         status: \"pending\" }\n]\n```\n\n**12. Printed lines:**\n```\nRepaired plan: 400 findings (paths-exist)\nGate history not restored; re-validating `W2: Point imports at the new parser` before any stage advance\n```\n\nAfter the closing line comes the grant line from check 6: either `Standing grant active: <sentence>` or `No standing grant.`. The input doesn't give check 6's result, so I can't state which. Control then passes to subagent-driven-development, which first re-validates `W2: Point imports at the new parser` by re-running its `Tests:`.\n",
-      "words": 504,
-      "wallMs": 25403,
+      "text": "# Restore narration: plan_check through the closing line\n\n## 1. Call-table `plan_check` returns FAIL\n\nThe restore is on the **implement with task plan** row. `start brainstorm`, `skip brainstorm S` and `start plan` are already done.\n\n**Call:** `plan_check({ planPath: \"/work/app/.worktrees/retire-legacy/doc/plans/2026-03-09-retire-legacy-parsers.md\" })`\n\n**Result:** `FAIL (400 findings)`. Every finding is `paths-exist`, of the form `Modify: path \"<p>\" does not exist`. All of them are in the Files blocks of Task 2 and Task 3.\n\nFAIL means the restore enters `## Plan repair`. The saved task snapshot is kept verbatim, and the task list is read only as evidence.\n\n## 2. Plan repair: pre-route check\n\n- There are no `baseline-line` findings.\n- There are no substantive `open-questions` findings.\n- So the baseline continuation does not apply, and the restore goes straight to **Citation repair**.\n\n## 3. Citation repair: record the plan's state before any write\n\n- `git -C /work/app/.worktrees/retire-legacy ls-files --error-unmatch -- doc/plans/2026-03-09-retire-legacy-parsers.md` exited 0 (result 1).\n- `git -C /work/app/.worktrees/retire-legacy status --porcelain -- doc/plans/2026-03-09-retire-legacy-parsers.md` printed nothing (result 2).\n- The plan is therefore **tracked and clean**. No temp copy is needed, and the restore point is `git checkout`.\n\n## 4. Classify all 400 findings\n\nEach finding matches the row `paths-exist`, `Modify: path \"<p>\" does not exist`. That row needs two pieces of evidence:\n\n- **Owning task is complete or skipped.** Task 2 (`W1: Delete legacy/parsers tree`) and Task 3 (`W1: Delete legacy/fixtures tree`) are both `✓` in the brief's snapshot.\n- **Path was deleted in git.** For each of the 400 paths `<p>` the restore runs `git -C /work/app/.worktrees/retire-legacy log --diff-filter=D --format=%h -1 -- <p>`. Examples:\n  - `-- legacy/parsers/csv_v1.py`\n  - `-- legacy/parsers/csv_v2.py`\n  - `-- legacy/parsers/xml_v1.py`\n  - …and so on for all 200 `legacy/parsers/...` paths and all 197 `legacy/fixtures/...` paths.\n  \n  Every call prints a hash (result 4), so the evidence is non-empty for all 400.\n\nAll 400 findings are classified. No finding falls outside the table, so there is no stop.\n\n## 5. Round 1: write and re-check\n\n- **Write:** drop the 400 dead `Modify:` rows from the Files blocks of Task 2 and Task 3. Nothing else changes: task names, count, order, waves, owners and text stay as they are.\n- **Call:** `plan_check({ planPath: \"/work/app/.worktrees/retire-legacy/doc/plans/2026-03-09-retire-legacy-parsers.md\" })` returns `PASS` (result 5).\n\n## 6. Commit the plan alone\n\nThe result is PASS and the plan was tracked and clean before the loop, so the plan is committed by itself:\n\n```bash\ngit -C /work/app/.worktrees/retire-legacy add -- doc/plans/2026-03-09-retire-legacy-parsers.md && git -C /work/app/.worktrees/retire-legacy commit -q -m \"resume: plan citation repair - 400 findings\" -- doc/plans/2026-03-09-retire-legacy-parsers.md\n```\n\nThe command exits 0.\n\n## 7. Resume the originating call table from `skip plan R`\n\n- **`phase_tracker skip plan`**, reason `resume: pasted brief`. The brief was supplied inline and no file path was given.\n- **`phase_tracker start implement`**. This is accepted because of the current `plan_check` stamp.\n- **No `substep` call.** The brief shows `→ implement` with no substep.\n- **Feasibility check before `init`:**\n  - The only `○` task (W3) trails every non-pending task.\n  - Not every task is complete or skipped, so the auto-complete edge does not apply.\n- **`plan_tracker init`** with the saved snapshot, verbatim:\n  - `{ name: \"W1: Inventory legacy parsers\", status: \"complete\" }`\n  - `{ name: \"W1: Delete legacy/parsers tree\", status: \"complete\" }`\n  - `{ name: \"W1: Delete legacy/fixtures tree\", status: \"complete\" }`\n  - `{ name: \"W2: Point imports at the new parser\", status: \"in_progress\" }`\n  - `{ name: \"W3: Update the parser guide\", status: \"pending\" }`\n\n## 8. Printed lines\n\n```\nRepaired plan: 400 findings (paths-exist)\nGate history not restored; re-validating `W2: Point imports at the new parser` before any stage advance\n```\n\nThe check-6 line follows on its own line: either `Standing grant active: <sentence>` or `No standing grant.`. The input does not give the check-6 result, so I am not inventing which one it is.\n\nAfter that, continuation passes to subagent-driven-development. It re-validates `W2: Point imports at the new parser` by re-running its `Tests:`, then picks up the task loop from that first non-complete task.\n",
+      "words": 596,
+      "wallMs": 26618,
       "mechanical": {
         "f2": "holds",
         "f4": "holds",
@@ -28,9 +28,9 @@
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "1. Call:\n   ```text\n   plan_check({ planPath: \"/work/app/.worktrees/retire-legacy/doc/plans/2026-03-09-retire-legacy-parsers.md\" })\n   ```\n   Result: FAIL with 400 `paths-exist` findings.\n\n2. Using the already-recorded tracked-and-clean plan state, classify all 400 findings before editing. For each missing path `<p>` in those findings, call:\n   ```bash\n   git -C /work/app/.worktrees/retire-legacy log --diff-filter=D --format=%h -1 -- <p>\n   ```\n   This is 400 separate calls, substituting each finding’s actual path. Every call returns a deletion hash. Each owning task—Task 2 or Task 3—is `complete`, so every finding qualifies for citation repair.\n\n3. Edit `/work/app/.worktrees/retire-legacy/doc/plans/2026-03-09-retire-legacy-parsers.md`: remove exactly the 400 qualifying `Modify:` rows. Preserve all other content, including task names, order, and bodies.\n\n4. Call:\n   ```text\n   plan_check({ planPath: \"/work/app/.worktrees/retire-legacy/doc/plans/2026-03-09-retire-legacy-parsers.md\" })\n   ```\n   Result: PASS.\n\n5. Call:\n   ```bash\n   git -C /work/app/.worktrees/retire-legacy add -- doc/plans/2026-03-09-retire-legacy-parsers.md && git -C /work/app/.worktrees/retire-legacy commit -q -m \"resume: plan citation repair - 400 findings\" -- doc/plans/2026-03-09-retire-legacy-parsers.md\n   ```\n   Result: exit 0.\n\n6. Call:\n   ```text\n   phase_tracker({\n     action: \"skip\",\n     phase: \"plan\",\n     reason: \"resume: pasted brief\"\n   })\n   ```\n\n7. Call:\n   ```text\n   phase_tracker({ action: \"start\", phase: \"implement\" })\n   ```\n\n8. Call:\n   ```text\n   plan_tracker({\n     action: \"init\",\n     tasks: [\n       { name: \"W1: Inventory legacy parsers\", status: \"complete\" },\n       { name: \"W1: Delete legacy/parsers tree\", status: \"complete\" },\n       { name: \"W1: Delete legacy/fixtures tree\", status: \"complete\" },\n       { name: \"W2: Point imports at the new parser\", status: \"in_progress\" },\n       { name: \"W3: Update the parser guide\", status: \"pending\" }\n     ]\n   })\n   ```\n\n9. Print:\n   ```text\n   Repaired plan: 400 findings (paths-exist)\n   Gate history not restored; re-validating `W2: Point imports at the new parser` before any stage advance\n   ```\n",
-      "words": 216,
-      "wallMs": 17356,
+      "text": "1. Call:\n   ```text\n   plan_check({ planPath: \"/work/app/.worktrees/retire-legacy/doc/plans/2026-03-09-retire-legacy-parsers.md\" })\n   ```\n   Result: FAIL, 400 `paths-exist` findings.\n\n2. Enter citation repair. The preceding `ls-files` and `status` results establish that the plan is tracked and clean, so no temporary copy is needed.\n\n   For **each of the 400 distinct finding paths**, substituting that finding’s actual path for `<p>`, call:\n   ```bash\n   git -C /work/app/.worktrees/retire-legacy log --diff-filter=D --format=%h -1 -- <p>\n   ```\n   Every call returns a deletion commit hash. Every owning task—Task 2 or Task 3—is `complete` in the saved snapshot. All 400 findings therefore qualify for the dead-`Modify:` citation-repair row.\n\n3. Edit `/work/app/.worktrees/retire-legacy/doc/plans/2026-03-09-retire-legacy-parsers.md`: delete exactly the 400 cited `Modify:` rows from their owning tasks’ `Files:` blocks. Make no other changes. Preserve the saved task names, order, and statuses.\n\n4. Call:\n   ```text\n   plan_check({ planPath: \"/work/app/.worktrees/retire-legacy/doc/plans/2026-03-09-retire-legacy-parsers.md\" })\n   ```\n   Result: PASS.\n\n5. Call:\n   ```bash\n   git -C /work/app/.worktrees/retire-legacy add -- doc/plans/2026-03-09-retire-legacy-parsers.md && git -C /work/app/.worktrees/retire-legacy commit -q -m \"resume: plan citation repair - 400 findings\" -- doc/plans/2026-03-09-retire-legacy-parsers.md\n   ```\n\n6. Call:\n   ```text\n   phase_tracker({\n     action: \"skip\",\n     phase: \"plan\",\n     reason: \"resume: pasted brief\"\n   })\n   ```\n\n7. Call:\n   ```text\n   phase_tracker({ action: \"start\", phase: \"implement\" })\n   ```\n\n8. Call:\n   ```text\n   plan_tracker({\n     action: \"init\",\n     tasks: [\n       { name: \"W1: Inventory legacy parsers\", status: \"complete\" },\n       { name: \"W1: Delete legacy/parsers tree\", status: \"complete\" },\n       { name: \"W1: Delete legacy/fixtures tree\", status: \"complete\" },\n       { name: \"W2: Point imports at the new parser\", status: \"in_progress\" },\n       { name: \"W3: Update the parser guide\", status: \"pending\" }\n     ]\n   })\n   ```\n\n9. Print, in order:\n   ```text\n   Repaired plan: 400 findings (paths-exist)\n   Gate history not restored; re-validating `W2: Point imports at the new parser` before any stage advance\n   ```\n",
+      "words": 238,
+      "wallMs": 20620,
       "mechanical": {
         "f2": "holds",
         "f4": "holds",
@@ -42,9 +42,9 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "a7581f6c890ba01b039a9c8ac68a50007964718952f0af4bc150d267ad7dc864",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "ca90682684274d31a1325bee10d83a15ba89c67b0824ef055a126b40a2c64905",
-      "baselineOutputSha": "e16c4af71642c74fb56ac927919a7ce26261b696fc23f305175df4e7860ba7a2",
-      "candidateOutputSha": "e060266754d9590591409d37d6c1e94b2483a4f9680959059d5e41e9a0c774a6",
+      "intentSha": "1b12afc6459e1e531c9112ca2505d714fa9d20362956b8b1a397ff8152df023f",
+      "baselineOutputSha": "96cbdb4c7e4b27bfcbcfd83e62846464686b494a9203371b83152f3cc1903e74",
+      "candidateOutputSha": "32f1dedad92a0edbdba95f7117bad8964341ca2fd8cf934408b25c49319894a2",
       "facts": {
         "f1": {
           "before": "holds",
@@ -72,16 +72,16 @@
           "label": "held"
         }
       },
-      "feedback": "Neither fact moved: both outputs drop exactly the 400 `Modify:` rows from Task 2's and Task 3's Files blocks, justify it with the two complete-task statuses plus one deletion hash per path, state that nothing else in the plan changes, and call `plan_tracker init` with the brief's five tasks and statuses verbatim. One small wording risk in After's step 5: listing '200 Task 2 rows', '197 Task 3 rows' and 'the three shown rows at lines 61–63' as three bullets reads like three separate groups even though the lines 61–63 rows are Task 2 rows, so a careful reader may briefly wonder whether an extra edit was made; writing '203 `legacy/parsers/...` rows from Task 2 (including the three shown at lines 61–63) and 197 `legacy/fixtures/...` rows from Task 3' would keep the count explicit without the ambiguity. The added grant-line and handoff sentences after the closing line are harmless to these facts, but the closing line should stay the last printed line of the restore; keeping the handoff note clearly separated (as After does) preserves that.",
-      "wallMs": 13729,
+      "feedback": "Neither fact moved. Both outputs state that all 400 `Modify:` rows under Task 2 and Task 3 are dropped on the strength of two pieces of evidence (both owning tasks are ✓ complete in the snapshot, and `git log --diff-filter=D` prints a hash for every path) and both explicitly say nothing else in the plan changes; After even enumerates what stays untouched (names, count, order, waves, owners, text), which strengthens f1 rather than weakening it. Both outputs call `plan_tracker init` with the five snapshot tasks and statuses verbatim, so f3 holds in both. The additions in After (the explicit pre-route check for baseline-line/open-questions findings, the `git checkout` restore point, the check-6 standing-grant line left unresolved rather than invented, and the handoff to subagent-driven-development) are consistent with the Change's intent and introduce no new plan edits or tracker mutations; keep that wording as is.",
+      "wallMs": 10065,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "a7581f6c890ba01b039a9c8ac68a50007964718952f0af4bc150d267ad7dc864",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "ca90682684274d31a1325bee10d83a15ba89c67b0824ef055a126b40a2c64905",
-      "baselineOutputSha": "add69acfa0df9d74ef71aa5f5b6ad99f6a679df5f40b688718a944b8d46eaa91",
-      "candidateOutputSha": "cb29c6e270691e5180d15cbf9804a698ac623830c16738def21762f77f80d62a",
+      "intentSha": "1b12afc6459e1e531c9112ca2505d714fa9d20362956b8b1a397ff8152df023f",
+      "baselineOutputSha": "093a60f14673d6554878fdf438926bfc37bc8574eb5c9dda5237e70bc7ceb7ed",
+      "candidateOutputSha": "cc428f8d490e2e58a657a62027180ed67bdf60b5c26c77aa77a8dd9552ed6629",
       "facts": {
         "f1": {
           "before": "holds",
@@ -109,127 +109,10 @@
           "label": "held"
         }
       },
-      "feedback": "Neither fact moved. After step 2 still ties the drop to both conditions (each owning task, Task 2 or Task 3, is complete; every git call returns a deletion hash) and step 3 removes exactly the 400 qualifying Modify: rows while preserving all other content, so f1 holds as in Before; the plan_tracker init in step 8 carries the five tasks and statuses verbatim from the brief, so f3 holds. The only differences are presentational: After drops the explicit 'Result: success' lines after the phase_tracker and plan_tracker calls and folds the tracked-and-clean justification into a clause rather than a standalone step. If you want the After wording to be as explicit as Before, keep a short 'Result: success' after each tracker call and retain the phrase 'belongs to Task 2 or Task 3, both complete' so the ownership-and-status rationale is stated once together with 'no other plan edit' — this preserves f1/f3 exactly while still delivering the terser restore narration the Change calls for.",
-      "wallMs": 9465,
+      "feedback": "Nothing moved in this case: both outputs justify dropping exactly the 400 dead `Modify:` rows by citing the deletion hash for each path and the `complete` status of owning Tasks 2 and 3, both state no other plan edit, and both call plan_tracker init with the five brief tasks and statuses unchanged. After's reorganization (folding the per-path git loop into the citation-repair step, naming the `Files:` blocks explicitly, and restating the preserved task names/order/statuses at the edit step) keeps every fact Before kept; the only cosmetic difference is that After omits the explicit 'Result: success' on the commit step, which the brief's tool result 6 already covers, so no wording change is needed here to deliver the Change.",
+      "wallMs": 7625,
       "verdict": "unchanged"
     }
   },
-  "refresh": {
-    "status": "complete",
-    "identity": {
-      "sample": "paths-exist-from-deleted-files",
-      "kind": "text",
-      "assembly": "headed",
-      "baselineSkillSha": "62f980dd5847df0bcf14a6a7ce67280e6ddfd233e4b69ba12494f1586825c4f0",
-      "candidateSkillSha": "335834029dd97e25efdcc1430a04ee1e55ff8b507890e588a82fc8a66ade4694",
-      "inputSha": "b7c0a89e9d2f732da4abb96502fcb7a5a2ccbc92de384eb06d256e548ffe5507",
-      "factsSha": "a7581f6c890ba01b039a9c8ac68a50007964718952f0af4bc150d267ad7dc864",
-      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "70baa08ac12037f7a701b4df4bb563b0145baad774d710d83b55dc84d07f6e4a",
-      "models": {
-        "replay": [
-          "github-copilot/gpt-6.1-sol"
-        ],
-        "judge": "github-copilot/gpt-6.1-sol"
-      },
-      "thinking": "medium",
-      "outputs": {
-        "baseline": {
-          "github-copilot/gpt-6.1-sol": {
-            "baselineOutputSha": "093a60f14673d6554878fdf438926bfc37bc8574eb5c9dda5237e70bc7ceb7ed",
-            "payloadSha": "27091124b77863de30503114b19e5e1b3c8d376c4d1ebe4539ee4ce3a14234fb"
-          }
-        },
-        "candidate": {
-          "github-copilot/gpt-6.1-sol": {
-            "candidateOutputSha": "13b6b136fd6c62b6c5a820bed80d40c59550ad6abf0e2ecc1fee4042f7d0cbfb",
-            "payloadSha": "0bd57d3f8c8a617977053588912ff9e468886c9609cc2bd48a3224ff116458c2"
-          }
-        }
-      }
-    },
-    "previous": {
-      "github-copilot/gpt-6.1-sol": {
-        "factsSha": "a7581f6c890ba01b039a9c8ac68a50007964718952f0af4bc150d267ad7dc864",
-        "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-        "intentSha": "70baa08ac12037f7a701b4df4bb563b0145baad774d710d83b55dc84d07f6e4a",
-        "baselineOutputSha": "093a60f14673d6554878fdf438926bfc37bc8574eb5c9dda5237e70bc7ceb7ed",
-        "candidateOutputSha": "13b6b136fd6c62b6c5a820bed80d40c59550ad6abf0e2ecc1fee4042f7d0cbfb",
-        "facts": {
-          "f1": {
-            "before": "holds",
-            "after": "holds",
-            "label": "held"
-          },
-          "f3": {
-            "before": "holds",
-            "after": "holds",
-            "label": "held"
-          },
-          "f2": {
-            "before": "holds",
-            "after": "holds",
-            "label": "held"
-          },
-          "f4": {
-            "before": "holds",
-            "after": "holds",
-            "label": "held"
-          },
-          "f5": {
-            "before": "holds",
-            "after": "holds",
-            "label": "held"
-          }
-        },
-        "feedback": "Neither fact moved. In After, step 3 still ties all 400 dead `Modify:` rows to completed Task 2 and Task 3 with per-path deletion hashes, step 4 removes exactly those rows and names no other plan edit, and step 9 initializes plan_tracker with the brief's five tasks and statuses verbatim, so f1 and f3 hold on both sides. One small caution: the new label \"Repair round 1\" in step 4 hints at further rounds that never occur; if the Change needs a round counter, wording like \"Repair (single round): remove exactly those 400 `Modify:` rows; no other plan changes\" would keep f1 unambiguous while still delivering the citation-repair mechanics the Change calls for. Dropping the `Result:` lines on steps 7-9 or keeping them is neutral to these facts.",
-        "wallMs": 9356,
-        "verdict": "unchanged",
-        "judgeModel": null,
-        "thinking": null
-      }
-    },
-    "refreshed": {
-      "github-copilot/gpt-6.1-sol": {
-        "factsSha": "a7581f6c890ba01b039a9c8ac68a50007964718952f0af4bc150d267ad7dc864",
-        "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-        "intentSha": "70baa08ac12037f7a701b4df4bb563b0145baad774d710d83b55dc84d07f6e4a",
-        "baselineOutputSha": "093a60f14673d6554878fdf438926bfc37bc8574eb5c9dda5237e70bc7ceb7ed",
-        "candidateOutputSha": "13b6b136fd6c62b6c5a820bed80d40c59550ad6abf0e2ecc1fee4042f7d0cbfb",
-        "facts": {
-          "f1": {
-            "before": "holds",
-            "after": "holds",
-            "label": "held"
-          },
-          "f3": {
-            "before": "holds",
-            "after": "holds",
-            "label": "held"
-          },
-          "f2": {
-            "before": "holds",
-            "after": "holds",
-            "label": "held"
-          },
-          "f4": {
-            "before": "holds",
-            "after": "holds",
-            "label": "held"
-          },
-          "f5": {
-            "before": "holds",
-            "after": "holds",
-            "label": "held"
-          }
-        },
-        "feedback": "Neither fact moved: After still removes only the 400 dead Modify rows belonging to completed Tasks 2 and 3, supported by git deletion evidence, and initializes plan_tracker with the same five tasks and statuses. Keep the explicit restriction to those rows, preservation of all other plan content, and exact tracker payload. This successful restore already continues automatically without a terminal marker; no additional wording is needed here to deliver that aspect of the Change.",
-        "wallMs": 4336,
-        "verdict": "unchanged",
-        "judgeModel": "github-copilot/gpt-6.1-sol",
-        "thinking": "medium"
-      }
-    }
-  },
-  "repoSha": "0dcac9779f68598e1724c9f6ed2783659a94e958"
+  "repoSha": "f25bf48a3f7ac2e9b361d2c7506d7c691e212697"
 }

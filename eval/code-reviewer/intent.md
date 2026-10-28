@@ -1,7 +1,7 @@
-for: c4449d681b01e9e01ed7ef00031990045ef101fce474493f3f58a4b27f56b209
+for: ded3c76d317f3332b22cf8d18b7e51d12813d2d3da897b69d81d6a06b95d2f07
 
 ## Change
-Route quality review through the selected leg checkout and its Rules while preserving existing review facts.
+Route quality review through the selected leg checkout and its Rules only when the dispatch names a Leg or Rules list, while preserving existing review facts.
 
 The code-reviewer persona's Tests priority becomes a check list over added and changed tests: split-assertion repeats, duplicate tests, oversized input, per-test rebuilds, and wrong-layer tests are Minor shrink or delete findings the implementer may decline; a consolidation that loses behavioral coverage is Critical. The review template asks whether each added or changed test earns its run instead of asking for edge cases and integration tests. Read supplied spec acceptance rows and Design clauses before the spec-observable check: report an unmatched test as Moderate delete with a searched-section citation, keep tests justified by cited acceptance or preservation commitments, and report the check unverified when no spec is supplied.
 

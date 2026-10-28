@@ -1,7 +1,7 @@
 {
   "sample": "create-with-literal-token",
   "arm": "candidate",
-  "skillSha": "1786ebb359087b828c79db22f37f400c55d2d9e94aee60971e8ae9f6ee7e7479",
+  "skillSha": "3ad1c501dddfa42fee1852ce78b9452a7bed4af8ab0d28223bdba1b77af30dcd",
   "inputSha": "4d3ee758098e85a635789b602b7efc6df75cbec7bdd05ee9a8498b37332f18ec",
   "kind": "text",
   "assembly": "concat",
@@ -17,18 +17,18 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "I'm using the using-git-worktrees skill to set up an isolated workspace.\n\n## Step 0: Detect existing isolation\n\nAll commands run with cwd `/work/acme-mono`.\n\n1. `git rev-parse --path-format=absolute --git-dir --git-common-dir`\n   - `GIT_DIR` = `/work/acme-mono/.git`\n   - `GIT_COMMON` = `/work/acme-mono/.git`\n   - The two are equal.\n2. `git rev-parse --path-format=absolute --git-common-dir`\n   - `ROOT` = `dirname /work/acme-mono/.git` = `/work/acme-mono`\n3. `git branch --show-current`\n   - `CURRENT_BRANCH` = `main`\n4. `git rev-parse --show-superproject-working-tree`\n   - Prints nothing, so this is not a submodule.\n5. `git symbolic-ref -q HEAD`\n   - Prints `refs/heads/main`, so HEAD is attached.\n\nThis is the primary checkout, so I continue to Step 1.\n\n## Step 1: Announce\n\n\"Setting up an isolated worktree at `/work/acme-mono-csv-export` on branch `csv-export` for this work.\"\n\n## Step 1a: Read the `## using-git-worktrees` contract\n\n- **Overrides file:** `.pi/gauntlet-overrides.md` is the first match on the ladder, so I read it.\n- **Keys:**\n  - `home:` = `../acme-mono-<name>`. It contains `<name>` once, inside one path segment with the literal prefix `acme-mono-`, so it is valid.\n  - `create:` = `script/worktree create <name> <subproject> --branch <branch>`\n  - `destroy:` = `script/worktree destroy <name>`. This is recorded for finishing and cleanup.\n  - There are no duplicate keys.\n- **Contract mode:** The keyed contract is active, so I skip native-tool and wrapper discovery.\n- **Prose:** \"The wrapper symlinks `build/` into the new tree.\" This is noted as instruction context. It requires no action from me.\n\nThe keyed-contract steps follow.\n\n1. **Clean-base check:** `git -C \"/work/acme-mono\" status --porcelain` exits 0 and prints nothing, so the base is clean.\n2. **Name and home:**\n   - `NAME` = `csv-export` (it contains no `/`).\n   - `HOME` = `/work/acme-mono/../acme-mono-<name>` with `<name>` set to `csv-export`, which resolves to `/work/acme-mono-csv-export`.\n3. **Tokens:**\n   - `<name>` = `csv-export`\n   - `<branch>` = `csv-export`\n   - `<subproject>` = `reports`. The approved plan names exactly one top-level directory, so no question is needed.\n\n   Each token goes in as one single-quoted word. I run, with cwd `/work/acme-mono`:\n   ```\n   script/worktree create 'csv-export' 'reports' --branch 'csv-export'\n   ```\n   It exits 0.\n4. **Post-create check:** `git -C \"/work/acme-mono\" worktree list --porcelain` prints `worktree /work/acme-mono` and `worktree /work/acme-mono-csv-export`. The line `worktree /work/acme-mono-csv-export` is present, so the check passes.\n5. **Worktree path:** `WORKTREE` = `/work/acme-mono-csv-export`. I go to Step 4.\n\n## Provenance note (fresh path)\n\n- `git symbolic-ref --short refs/remotes/origin/HEAD` in `/work/acme-mono` prints `origin/main`. Stripping the prefix gives the default branch `main`.\n- The source branch from `git branch --show-current` is `main`.\n- They match, so there is no note.\n\n## Step 4: Report\n\n```\nWorktree ready at /work/acme-mono-csv-export\nBranch: csv-export\nBase: main (clean)\nReady to implement csv-export\n```\n\nThe process cwd stays `/work/acme-mono`. Later steps carry `/work/acme-mono-csv-export` as a value through `git -C` or `cwd:`.\n",
-      "words": 388,
-      "wallMs": 16184,
+      "text": "I'm using the using-git-worktrees skill to set up an isolated workspace.\n\nThe run creates the worktree, then **stops at Step 4** because the new tree's branch could not be verified. There is no ready report.\n\n## Step 0: Detect existing isolation\n\nNo caller-supplied `$ROOT`. `BRANCH=csv-export` (the requested feature branch).\n\n1. cwd `/work/acme-mono`: `git rev-parse --path-format=absolute --git-dir --git-common-dir`\n   - `GIT_DIR=/work/acme-mono/.git`\n   - `GIT_COMMON=/work/acme-mono/.git`\n   - `ROOT=$(dirname \"$GIT_COMMON\")` = `/work/acme-mono`\n2. `git -C /work/acme-mono branch --show-current` returns `main`, so `CURRENT_BRANCH=main`.\n3. Submodule guard: `git -C /work/acme-mono rev-parse --show-superproject-working-tree` prints nothing, so this is not a submodule.\n\n`GIT_DIR == GIT_COMMON`, so this is the primary checkout. Go to Step 1.\n\n## Step 1: Announce\n\nThis is real, plan-driven work and no consent exception applies:\n\n> \"Setting up an isolated worktree at `/work/acme-mono-csv-export` on branch `csv-export` for this work.\"\n\nThere is no explicit caller root, so the caller-root preflight does not apply.\n\n## Step 1a: Read the contract\n\n4. Read `/work/acme-mono/.pi/gauntlet-overrides.md`. It has `home:`, `create:` and `destroy:` keys, so the **keyed contract is active**. There are no duplicate keys, and `home:` contains `<name>` exactly once in one segment. The prose line (\"wrapper symlinks `build/`\") is noted as instruction.\n5. Read `/work/acme-mono/.pi/settings.json` by file. It is empty, so no checkout configuration applies.\n\n**Keyed step 1: clean-base check, plus provenance**\n\n6. `git -C /work/acme-mono status --porcelain` exits 0 with empty output, so the base is **clean**.\n7. `git -C /work/acme-mono symbolic-ref --short refs/remotes/origin/HEAD` returns `origin/main`, so the default branch is `main`. The source branch is also `main`, so there is no provenance note.\n\n**Keyed step 2: resolve values**\n\n- `NAME=csv-export` (the branch name has no `/`).\n- `HOME=/work/acme-mono/../acme-mono-csv-export`, which resolves to `/work/acme-mono-csv-export`.\n\n**Keyed step 3: run `create:`**\n\nToken resolution:\n- `<name>` resolves to `csv-export`.\n- `<branch>` resolves to `csv-export`.\n- `<subproject>` is not a built-in token. The approved plan names exactly one top-level directory, so it resolves to `reports`.\n\nEach value is inserted as a single-quoted word.\n\n8. cwd `/work/acme-mono`: `script/worktree create 'csv-export' 'reports' --branch 'csv-export'`. It succeeds.\n\n**Keyed step 4: post-create check**\n\n9. `git -C /work/acme-mono worktree list --porcelain` prints `worktree /work/acme-mono` and `worktree /work/acme-mono-csv-export`. The `worktree $HOME` line is present, so the check passes.\n\n**Keyed step 5:** `WORKTREE=/work/acme-mono-csv-export`.\n\n## Step 4: Verify and report\n\n10. `git -C /work/acme-mono worktree list --porcelain` again shows `worktree /work/acme-mono-csv-export`, as required.\n11. `git -C /work/acme-mono-csv-export branch --show-current` prints **nothing**. The case doesn't describe this command, so it returns empty output.\n\nThe empty output does not equal `$BRANCH` (`csv-export`), so I **stop**. No \"Worktree ready\" report is emitted:\n\n> Branch mismatch in repo `/work/acme-mono`: requested branch `csv-export`, actual branch `` (empty, no branch checked out) in `/work/acme-mono-csv-export`.\n> Preserved created legs: /work/acme-mono csv-export /work/acme-mono-csv-export\n\nThe new tree is left intact. I do not run `destroy:` or remove the tree, and I do not fall back to `git worktree add`.\n",
+      "words": 449,
+      "wallMs": 23946,
       "mechanical": {
         "c4": "holds"
       }
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "I'm using the using-git-worktrees skill to set up an isolated workspace.\n\nI use the case’s supplied Step 0 facts: this is the primary checkout, `GIT_DIR == GIT_COMMON`, it is not a submodule, and HEAD is attached. No detection commands need to be rerun.\n\nResolved initial values:\n- `ROOT=/work/acme-mono`\n- Source branch and base: `main`\n- Requested branch: `csv-export`\n\nAll commands below run with cwd `/work/acme-mono`; the process cwd never changes.\n\n1. Read the overrides file:\n   ```bash\n   cat .pi/gauntlet-overrides.md\n   ```\n   The supplied contents activate the keyed contract:\n   - `home: ../acme-mono-<name>`\n   - `create: script/worktree create <name> <subproject> --branch <branch>`\n   - `destroy: script/worktree destroy <name>`\n\n   Resolve:\n   - `<branch>` → `csv-export`\n   - `NAME`, with branch slashes replaced by hyphens → `csv-export`\n   - `<subproject>` → `reports`, the single top-level directory identified by the approved plan\n   - Home after substitution → `../acme-mono-csv-export`\n   - Absolute home resolved against `ROOT` → `/work/acme-mono-csv-export`\n   - Create command → `script/worktree create 'csv-export' 'reports' --branch 'csv-export'`\n\n   The home pattern contains `<name>` exactly once, within one path segment. There are no duplicate keys or unresolved tokens. The wrapper’s `build/` symlink instruction is noted.\n\nSetting up an isolated worktree at `/work/acme-mono-csv-export` on branch `csv-export` for this work.\n\n2. Check the source checkout before creation:\n   ```bash\n   git -C /work/acme-mono status --porcelain\n   ```\n   It succeeds with empty output. The source base is clean.\n\n3. Execute the configured creation command:\n   ```bash\n   script/worktree create 'csv-export' 'reports' --branch 'csv-export'\n   ```\n   It succeeds with empty output. I do not fall back to `git worktree add` or separately perform manual project setup.\n\n4. Verify the registered worktree location:\n   ```bash\n   git -C /work/acme-mono worktree list --porcelain\n   ```\n   Output:\n   ```text\n   worktree /work/acme-mono\n   worktree /work/acme-mono-csv-export\n   ```\n   The required exact entry is present. Resolve:\n   - `WORKTREE=/work/acme-mono-csv-export`\n\n5. Resolve the default branch for the provenance note:\n   ```bash\n   git symbolic-ref --short refs/remotes/origin/HEAD\n   ```\n   Output:\n   ```text\n   origin/main\n   ```\n   Strip `origin/` → `main`. This matches the supplied source branch, so no provenance note is needed.\n\nI run no tests and no additional cleanliness check in the newly created worktree. The keyed-contract path proceeds directly to Step 4 after the post-create verification.\n\n```text\nWorktree ready at /work/acme-mono-csv-export\nBranch: csv-export\nBase: main (clean)\nReady to implement CSV export\n```\n",
-      "words": 329,
-      "wallMs": 27140,
+      "text": "I'm using the using-git-worktrees skill to set up an isolated workspace.\n\n1. **Resolve the supplied context without running commands:**\n   - Command cwd: `/work/acme-mono`\n   - `ROOT=/work/acme-mono`\n   - `BRANCH=csv-export`\n   - Current branch: `main`\n   - This is the primary checkout: `GIT_DIR == GIT_COMMON`, not a submodule, with HEAD attached.\n\n2. **Preflight the requested branch in the caller-supplied root.**\n\n   Cwd: `/work/acme-mono`\n\n   ```bash\n   git -C /work/acme-mono show-ref --verify refs/heads/csv-export\n   ```\n\n   The case does not separately describe this command, so its stipulated result is **success with empty output**. Success from `show-ref --verify` establishes that `refs/heads/csv-export` already exists.\n\n3. **Stop: branch collision.**\n\n   Repository `/work/acme-mono` already has the requested branch `csv-export`. The explicit-root collision rule requires stopping rather than reusing it or choosing a suffixed name.\n\n   No wrapper is invoked, no worktree is created, and no Step 4 ready report is emitted.\n\n   **Preserved created legs: none.**\n",
+      "words": 131,
+      "wallMs": 27155,
       "mechanical": {
         "c4": "holds"
       }
@@ -38,9 +38,9 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "8c4e44f07ae027025e59c5d061cc5762d9ccd80022d29bfd412feba1a898c4b6",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "678a9675d70c6a4d91a62e77f516d4c878d59592faa890c42da4cd5567c2ee39",
-      "baselineOutputSha": "aed7fd21e508c0146d0f39f2ff8fad5544f892111b480077e3bbfca061471883",
-      "candidateOutputSha": "9c4010b1de9bef01a928deb612d5679e80bb4a3f90cbdf67c172b36439b6f246",
+      "intentSha": "eaa1592b503e954fe68bce45d83df9bab3f582876abb55614459018662f6494c",
+      "baselineOutputSha": "bfaaed9abe2c5e06a6c4f9f79130c0768139ba6e15fc6a02dfd8d5f690d56a24",
+      "candidateOutputSha": "543b0fcd89597572adade28934e259c01804272999f370fb12bec22192b59ef3",
       "facts": {
         "c1": {
           "before": "holds",
@@ -54,8 +54,8 @@
         },
         "c3": {
           "before": "holds",
-          "after": "holds",
-          "label": "held"
+          "after": "fails",
+          "label": "regression"
         },
         "c4": {
           "before": "holds",
@@ -63,31 +63,64 @@
           "label": "held"
         }
       },
-      "feedback": "No fact moved on this case: After still runs `script/worktree create 'csv-export' 'reports' --branch 'csv-export'` with cwd `/work/acme-mono`, each token single-quoted, with no `git worktree add`; it resolves `<subproject>` to `reports` from the plan's single top-level directory and explicitly says no question is needed; and it runs `git -C \"/work/acme-mono\" worktree list --porcelain` after create, confirms the expected line, and reports `Worktree ready at /work/acme-mono-csv-export`. The Change (PR-subject provisioning rebase/replay semantics) does not touch the keyed-contract worktree path, so the After wording is safe here; the only incidental differences are the added `git symbolic-ref -q HEAD` attached-HEAD check in Step 0 and the quoted `-C` paths, neither of which affects the facts. Keep the explicit \"resolved from the approved plan, no question needed\" sentence and the verbatim quoted create command line as the wording evolves, since those are what c1 and c2 depend on.",
-      "wallMs": 7571,
-      "verdict": "unchanged"
+      "feedback": "After keeps the create command, quoting, and `<subproject>` resolution intact, but it loses c3: the new Step 4 'verify' adds a `git -C $HOME branch --show-current` check that the case never describes, then treats the undescribed output as empty and aborts with a 'Branch mismatch' instead of emitting `Worktree ready at /work/acme-mono-csv-export`. The added ROOT/BRANCH verification is leaking into the no-caller-ROOT keyed path even though After itself says the caller-root preflight does not apply. To deliver the Change without moving c3, scope the shared-BRANCH tip verification to the explicit-ROOT / multi-leg provisioning path (or to cases where the worktree's branch is actually observed), and state that on the keyed single-member path the contract's own post-create check (`worktree $HOME` present in `git worktree list --porcelain`) is the acceptance gate, after which Step 4 reports 'Worktree ready'. If a branch check is retained, say that an unobserved/undescribed command is assumed to succeed rather than inventing an empty result that triggers a stop.",
+      "wallMs": 12008,
+      "verdict": "regressed",
+      "confirmation": {
+        "status": "ok",
+        "text": "I'm using the using-git-worktrees skill to set up an isolated workspace.\n\n## Step 0: Detect existing isolation\n\nNo caller `$ROOT` or `$BRANCH` was supplied, so I derive them from the session.\n\n1. **Command:** `git rev-parse --path-format=absolute --git-dir --git-common-dir` (cwd `/work/acme-mono`)\n   - `GIT_DIR=/work/acme-mono/.git`\n   - `GIT_COMMON=/work/acme-mono/.git`\n   - `ROOT=$(dirname \"$GIT_COMMON\")` gives `/work/acme-mono`\n2. **Command:** `git -C /work/acme-mono branch --show-current`\n   - `CURRENT_BRANCH=main`\n3. **Command:** `git -C /work/acme-mono rev-parse --show-superproject-working-tree`\n   - Empty output, so this is not a submodule.\n4. `GIT_DIR == GIT_COMMON`, so this is the primary checkout. Go to Step 1.\n\n## Step 1: Announce\n\nThis is plan-driven implementation work, not a trivial one-off, so no consent pause is needed.\n\n> \"Setting up an isolated worktree at `/work/acme-mono-csv-export` on branch `csv-export` for this work.\"\n\nNo explicit caller root was given, so the caller-root preflight does not apply.\n\n## Step 1a: Read the `## using-git-worktrees` contract\n\n1. I read `/work/acme-mono/.pi/gauntlet-overrides.md`, the first match in the ladder. It has a `## using-git-worktrees` section with `home:`, `create:` and `destroy:`. No duplicate keys. `home:` contains `<name>` exactly once, in one segment.\n   - The keyed contract is active.\n   - The prose line (\"wrapper symlinks `build/`\") is noted as instruction. It needs no action at creation.\n2. I read `/work/acme-mono/.pi/settings.json` by file. It has no checkout configuration.\n3. **Clean-base check:** `git -C /work/acme-mono status --porcelain`\n   - Empty output, exit 0, so the base is clean.\n4. I resolve the values:\n   - `NAME=csv-export` (no `/` to replace)\n   - `HOME=/work/acme-mono-csv-export` (`../acme-mono-csv-export` resolved against `/work/acme-mono`)\n5. I resolve the `create:` tokens:\n   - `<name>` becomes `csv-export`.\n   - `<branch>` becomes `csv-export`.\n   - `<subproject>` becomes `reports`. The approved plan names exactly one top-level directory, so there is no need to ask.\n6. **Command:** `script/worktree create 'csv-export' 'reports' --branch 'csv-export'` (cwd `/work/acme-mono`)\n   - Exit 0.\n7. **Post-create check:** `git -C /work/acme-mono worktree list --porcelain`\n   - Prints `worktree /work/acme-mono` and `worktree /work/acme-mono-csv-export`.\n   - `worktree $HOME` is present, so the check passes.\n8. `WORKTREE=/work/acme-mono-csv-export`.\n\n**Provenance (fresh path):**\n\n- **Command:** `git -C /work/acme-mono symbolic-ref --short refs/remotes/origin/HEAD`\n  - Prints `origin/main`, so the default branch is `main`.\n- The source branch is `main`, which matches the default, so there is no provenance note.\n\n## Step 4: Verify and report\n\n1. **Command:** `git -C /work/acme-mono worktree list --porcelain`\n   - Contains `worktree /work/acme-mono-csv-export`. Passes.\n2. **Command:** `git -C /work/acme-mono-csv-export branch --show-current`\n   - The case does not describe this command, so it succeeds with **empty output**.\n   - That is no current branch (detached), which is not equal to `csv-export`.\n\n**STOP: branch mismatch.**\n\n- Repo: `/work/acme-mono`\n- Requested branch: `csv-export`\n- Actual branch in `/work/acme-mono-csv-export`: none (empty, detached HEAD)\n\nPreserved created legs: `/work/acme-mono csv-export /work/acme-mono-csv-export`\n\nI emit no \"Worktree ready\" report. The created tree is left intact: nothing is removed, and `destroy:` is not run.\n",
+        "words": 416,
+        "wallMs": 27640,
+        "mechanical": {
+          "c4": "holds"
+        },
+        "judgeWallMs": 12251,
+        "facts": {
+          "c1": {
+            "before": "holds",
+            "after": "holds",
+            "label": "held"
+          },
+          "c2": {
+            "before": "holds",
+            "after": "holds",
+            "label": "held"
+          },
+          "c3": {
+            "before": "holds",
+            "after": "fails",
+            "label": "regression"
+          },
+          "c4": {
+            "before": "holds",
+            "after": "holds",
+            "label": "held"
+          }
+        },
+        "feedback": "After keeps the create-command facts (c1, c2) intact: the command is run from /work/acme-mono with each value quoted, `<subproject>` is resolved to `reports` from the plan, and no `git worktree add` appears. It loses c3 because the new Step 4 verification adds `git -C $WORKTREE branch --show-current`, declares that an undescribed command 'succeeds with empty output', interprets that as a detached HEAD, and then STOPs with a branch-mismatch and explicitly refuses to emit `Worktree ready at /work/acme-mono-csv-export`. The case fixture only specifies the post-create `git worktree list --porcelain` output; nothing in it says the wrapper left the tree detached, and the create command was passed `--branch csv-export`. To deliver the ROOT/BRANCH honoring change without moving c3, the Step 4 wording should either (a) make the post-create `worktree list` check the completion criterion for the keyed-contract path (the contract owns branch setup), or (b) state that when a verification command's output is not given by the case, the narration assumes the expected result (branch equals `$BRANCH`) rather than fabricating a failure; the STOP branch should fire only on observed mismatch. With that, the same After text would end with the `Worktree ready at /work/acme-mono-csv-export` report that Before emits."
+      }
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "8c4e44f07ae027025e59c5d061cc5762d9ccd80022d29bfd412feba1a898c4b6",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "678a9675d70c6a4d91a62e77f516d4c878d59592faa890c42da4cd5567c2ee39",
-      "baselineOutputSha": "e16071d5b9ceeeb075e9cb7bc71adc23b3cd1a1389ef6ccd25f6a6bb39171189",
-      "candidateOutputSha": "ad4d7547df41bbde15ad3c0a07e1db65a1842e7a35190f4060a0f4c19f29aa9f",
+      "intentSha": "eaa1592b503e954fe68bce45d83df9bab3f582876abb55614459018662f6494c",
+      "baselineOutputSha": "3a1e5f207691e02b2fa5a3adaace043f87420ca412e85889563b3388c9ba42e6",
+      "candidateOutputSha": "e3e10c040941f6d601fdfd27a8a80ff99b8c564d6ac805a95d52992ee4862f73",
       "facts": {
         "c1": {
           "before": "holds",
-          "after": "holds",
-          "label": "held"
+          "after": "fails",
+          "label": "regression"
         },
         "c2": {
           "before": "holds",
-          "after": "holds",
-          "label": "held"
+          "after": "fails",
+          "label": "regression"
         },
         "c3": {
           "before": "holds",
-          "after": "holds",
-          "label": "held"
+          "after": "fails",
+          "label": "regression"
         },
         "c4": {
           "before": "holds",
@@ -95,52 +128,18 @@
           "label": "held"
         }
       },
-      "feedback": "No fact moved. Both outputs run `script/worktree create 'csv-export' 'reports' --branch 'csv-export'` from cwd `/work/acme-mono` with each substituted value single-quoted as one shell word, explicitly decline `git worktree add`, resolve `<subproject>` to `reports` from the approved plan without consulting the user, run `git worktree list --porcelain` after the create command, and emit `Worktree ready at /work/acme-mono-csv-export`. The only structural difference in After is that provenance resolution (`git symbolic-ref`) was moved after placement verification; this is harmless to the three facts but, since the Change text concerns PR-subject provisioning and rebase/replay behavior unrelated to this worktree-creation case, the reordering appears incidental rather than required by the Change. If the author wants After to stay maximally close to Before on unrelated cases, keep the Before step order (clean-check, provenance, create, verify) and confine the new wording to the PR-provisioning sections so that worktree-creation narration is untouched.",
-      "wallMs": 10409,
-      "verdict": "unchanged"
-    }
-  },
-  "refresh": {
-    "status": "complete",
-    "identity": {
-      "sample": "create-with-literal-token",
-      "kind": "text",
-      "assembly": "concat",
-      "baselineSkillSha": "3cc812f0124fbdba4f27ebda5b3abb751587265339fe1424c16a1465c05c43bb",
-      "candidateSkillSha": "ecf2733acd03e2e7e210a02233820ee4a6e347c937745e08f57bf875ed848067",
-      "inputSha": "4d3ee758098e85a635789b602b7efc6df75cbec7bdd05ee9a8498b37332f18ec",
-      "factsSha": "8c4e44f07ae027025e59c5d061cc5762d9ccd80022d29bfd412feba1a898c4b6",
-      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "da26298e568d10fc59a4bb4ca1f33953732f1df3813ff7a16651d1de74202509",
-      "models": {
-        "replay": [
-          "github-copilot/gpt-6.1-sol"
-        ],
-        "judge": "github-copilot/gpt-6.1-sol"
-      },
-      "thinking": "medium",
-      "outputs": {
-        "baseline": {
-          "github-copilot/gpt-6.1-sol": {
-            "baselineOutputSha": "3a1e5f207691e02b2fa5a3adaace043f87420ca412e85889563b3388c9ba42e6",
-            "payloadSha": "9654eaaab0e63c8b74dd666e2afbde0aea7ab8e5fc98c3db614eeb9fa9db2628"
-          }
+      "feedback": "After loses all three facts because the new explicit-ROOT preflight runs `git show-ref --verify refs/heads/csv-export`, assumes the unstated result is 'success with empty output', and then treats that invented success as proof the branch already exists, triggering the collision stop before the overrides contract is ever read, `<subproject>` resolved, the wrapper invoked, or the post-create check and 'Worktree ready' report emitted. The case only says the branch is *requested* and the wrapper's `--branch` creates it; nothing states it exists. To keep the single-member provisioning facts while honoring explicit ROOT/BRANCH, word the preflight so the collision rule fires only on a fixture-stated existing `refs/heads/<branch>` (and note that `show-ref --verify` prints the ref on success, so empty output cannot mean success), and make the default for an unmentioned preflight 'branch absent, proceed'. Then the After narration should continue exactly as Before: read `.pi/gauntlet-overrides.md`, resolve `<subproject>=reports` from the plan, run `script/worktree create 'csv-export' 'reports' --branch 'csv-export'` from `/work/acme-mono` with no `git worktree add`, check `git worktree list --porcelain`, and report `Worktree ready at /work/acme-mono-csv-export`.",
+      "wallMs": 12297,
+      "verdict": "regressed",
+      "confirmation": {
+        "status": "ok",
+        "text": "I'm using the using-git-worktrees skill to set up an isolated workspace.\n\nI use the supplied isolation facts: this is the primary checkout, `GIT_DIR == GIT_COMMON`, it is not a submodule, and HEAD is attached. I resolve:\n\n- `ROOT=/work/acme-mono`\n- Source branch/base: `main`\n- `BRANCH=csv-export`\n\nAll commands below run with **cwd `/work/acme-mono`**. The process cwd never changes.\n\n1. Read the first overrides file:\n\n   ```sh\n   cat /work/acme-mono/.pi/gauntlet-overrides.md\n   ```\n\n   Its supplied contents activate the keyed contract. I resolve:\n\n   - `NAME=csv-export`\n   - Home pattern: `../acme-mono-<name>`\n   - `HOME=/work/acme-mono-csv-export`\n   - `<subproject>=reports`, from the approved plan’s sole touched top-level directory, `reports/`\n   - Create command: `script/worktree create 'csv-export' 'reports' --branch 'csv-export'`\n   - Destroy command, retained for cleanup but not executed: `script/worktree destroy 'csv-export'`\n\n   The wrapper’s `build/` symlink behavior is part of the contract; I do not replace the wrapper with manual creation.\n\n2. Read checkout-local settings:\n\n   ```sh\n   cat /work/acme-mono/.pi/settings.json\n   ```\n\n   Output is empty under the case’s command rule. No additional settings are resolved.\n\nSetting up an isolated worktree at `/work/acme-mono-csv-export` on branch `csv-export` for this work.\n\n3. Verify the source checkout is clean:\n\n   ```sh\n   git -C /work/acme-mono status --porcelain\n   ```\n\n   It exits successfully with empty output. The source base is clean.\n\n4. Resolve the default branch for the provenance note:\n\n   ```sh\n   git -C /work/acme-mono symbolic-ref --short refs/remotes/origin/HEAD\n   ```\n\n   Output: `origin/main`. Stripping `origin/` gives `main`, matching the source branch. No provenance note is needed.\n\n5. Execute the configured creator, substituting each token as a single-quoted shell word:\n\n   ```sh\n   script/worktree create 'csv-export' 'reports' --branch 'csv-export'\n   ```\n\n   It succeeds with empty output.\n\n6. Check the created worktree’s registration:\n\n   ```sh\n   git -C /work/acme-mono worktree list --porcelain\n   ```\n\n   The supplied output includes:\n\n   ```text\n   worktree /work/acme-mono\n   worktree /work/acme-mono-csv-export\n   ```\n\n   The expected home is registered. Set `WORKTREE=/work/acme-mono-csv-export`.\n\n7. Perform Step 4’s branch verification:\n\n   ```sh\n   git -C /work/acme-mono-csv-export branch --show-current\n   ```\n\n   The case does not specify output for this command, so its stipulated result is success with **empty output**. The actual branch value is therefore empty, not the required `csv-export`.\n\n**Stop:** branch verification failed for repository `/work/acme-mono`: requested branch `csv-export`, actual branch value empty. I do not emit a “Worktree ready” report or perform setup or tests.\n\nPreserved created legs: /work/acme-mono csv-export /work/acme-mono-csv-export\n",
+        "words": 339,
+        "wallMs": 34174,
+        "mechanical": {
+          "c4": "holds"
         },
-        "candidate": {
-          "github-copilot/gpt-6.1-sol": {
-            "candidateOutputSha": "a3175b2aed12541f914eff49ffb2c2129a7dab2579c21a92aaea8e0ea8d70b46",
-            "payloadSha": "86dadf0390d5f47edec269b56f710f12b46a62279cb455a71d5330e3d7d48ec9"
-          }
-        }
-      }
-    },
-    "previous": {
-      "github-copilot/gpt-6.1-sol": {
-        "factsSha": "8c4e44f07ae027025e59c5d061cc5762d9ccd80022d29bfd412feba1a898c4b6",
-        "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-        "intentSha": "da26298e568d10fc59a4bb4ca1f33953732f1df3813ff7a16651d1de74202509",
-        "baselineOutputSha": "3a1e5f207691e02b2fa5a3adaace043f87420ca412e85889563b3388c9ba42e6",
-        "candidateOutputSha": "a3175b2aed12541f914eff49ffb2c2129a7dab2579c21a92aaea8e0ea8d70b46",
+        "judgeWallMs": 13266,
         "facts": {
           "c1": {
             "before": "holds",
@@ -154,8 +153,8 @@
           },
           "c3": {
             "before": "holds",
-            "after": "holds",
-            "label": "held"
+            "after": "fails",
+            "label": "regression"
           },
           "c4": {
             "before": "holds",
@@ -163,49 +162,9 @@
             "label": "held"
           }
         },
-        "feedback": "Nothing moved: After still runs `script/worktree create 'csv-export' 'reports' --branch 'csv-export'` from cwd /work/acme-mono with each value single-quoted, never invokes `git worktree add`, resolves `<subproject>=reports` from the plan without a prompt, runs `git -C /work/acme-mono worktree list --porcelain` after creation, and prints `Worktree ready at /work/acme-mono-csv-export`. Two small things worth tightening in the After wording so this stays robust: (1) Before explicitly stated \"I do not invoke `git worktree add`\" while After only says it skips native-tool/wrapper discovery — keep the explicit negative sentence so a reader never has to infer it; (2) After renumbers its own sections 1–6 and then labels the report \"Step 4 report\", which is confusing against the skill's own Step 4 reference (\"proceeds directly to Step 4\"); either keep the skill's step numbering as Before did or stop citing skill step numbers in the narration. Neither affects c1–c3, and the stipulated-Step-0 shortcut (not rerunning detection) is fine for this case.",
-        "wallMs": 10900,
-        "verdict": "unchanged",
-        "judgeModel": null,
-        "thinking": null
-      }
-    },
-    "refreshed": {
-      "github-copilot/gpt-6.1-sol": {
-        "factsSha": "8c4e44f07ae027025e59c5d061cc5762d9ccd80022d29bfd412feba1a898c4b6",
-        "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-        "intentSha": "da26298e568d10fc59a4bb4ca1f33953732f1df3813ff7a16651d1de74202509",
-        "baselineOutputSha": "3a1e5f207691e02b2fa5a3adaace043f87420ca412e85889563b3388c9ba42e6",
-        "candidateOutputSha": "a3175b2aed12541f914eff49ffb2c2129a7dab2579c21a92aaea8e0ea8d70b46",
-        "facts": {
-          "c1": {
-            "before": "holds",
-            "after": "holds",
-            "label": "held"
-          },
-          "c2": {
-            "before": "holds",
-            "after": "holds",
-            "label": "held"
-          },
-          "c3": {
-            "before": "holds",
-            "after": "holds",
-            "label": "held"
-          },
-          "c4": {
-            "before": "holds",
-            "after": "holds",
-            "label": "held"
-          }
-        },
-        "feedback": "After preserves all three facts: it runs the configured wrapper from /work/acme-mono with each substituted value quoted, resolves reports from the approved plan without asking, and checks placement after creation before reporting the exact ready message. No listed fact moved. The requested gate-line-first change is not demonstrated: After still opens with skill narration rather than a question marker at column zero. For the waiting-question replay, put its classification marker first while preserving its existing choices and pause; retain the non-PR provisioning wording shown here.",
-        "wallMs": 4980,
-        "verdict": "unchanged",
-        "judgeModel": "github-copilot/gpt-6.1-sol",
-        "thinking": "medium"
+        "feedback": "After preserves the create-command and subproject facts (c1, c2) but loses c3: it still runs `git worktree list --porcelain` after the create command, yet then adds a Step 4 `git -C <home> branch --show-current` verification, treats the case's unspecified output as literally empty, declares a branch mismatch, and explicitly refuses to emit `Worktree ready at /work/acme-mono-csv-export`. The new ROOT/BRANCH wording evidently introduced a mandatory post-create branch check whose failure rule ('no stipulated output means empty') fires on every case that only stipulates `git worktree list` output. To keep every Before fact while still honoring explicit ROOT and shared BRANCH for keyed legs, either make the branch check conditional (only when the case or the leg's stipulated outputs cover it, or only for multi-member/keyed-leg provisioning where ROOT and BRANCH are explicitly supplied), or state that for an unspecified `branch --show-current` the narration assumes the branch the create command was instructed to use (`--branch <branch>`) rather than empty output; and keep the single-member path's completion rule exactly as Before: once `git worktree list --porcelain` contains `worktree <HOME>`, set WORKTREE and report `Worktree ready at <HOME>`."
       }
     }
   },
-  "repoSha": "c15f0daad9dcdb2c78a79935df219ae3711e44a7"
+  "repoSha": "f25bf48a3f7ac2e9b361d2c7506d7c691e212697"
 }

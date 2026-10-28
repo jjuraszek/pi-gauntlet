@@ -1,7 +1,7 @@
 {
   "sample": "clean-pass-unchanged",
   "arm": "candidate",
-  "skillSha": "af29e8cc3b6db34c5703a4f9e9d661605ba79f49ce37b502f97158d6a74e5640",
+  "skillSha": "e56341fe48626805c06784bf9eb09da5d4fb33f4a0cfe01b6823c51a6d66fb94",
   "inputSha": "d88436f3b8477282e2163e0e5932da60eb5deb3e755dd05bc3b38dedfe07a87e",
   "kind": "text",
   "assembly": "headed",
@@ -17,16 +17,16 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "# Restore narration: implement with task plan, from `plan_check` PASS to the closing line\n\nThis follows the call-table row **implement with task plan**. The earlier calls in that row (`start brainstorm`, `skip brainstorm S`, `start plan`) ran before this point.\n\n**Tool result 1:** `plan_check({ planPath: \"/work/app/.worktrees/config-loader/doc/plans/2026-03-02-config-loader.md\" })` returned **PASS**.\n\n- Plan repair is not needed.\n- No repair receipt is printed.\n- No commit is made.\n\n**Call 1:** `phase_tracker skip` with `{ phase: \"plan\", reason: \"resume: pasted brief\" }`\n- The reason is `R`. The input gives no brief file path, so the `\"pasted brief\"` form applies.\n\n**Call 2:** `phase_tracker start` with `{ phase: \"implement\" }`\n- This is accepted because the PASS above stamped the armed flow.\n\n**No `substep` call.** The brief's active phase line is `→ implement`, which shows no substep.\n\n**Feasibility check before `init`:**\n- **Pending-suffix order holds.** The only `○` task, [4], trails every non-pending task.\n- **The auto-complete edge does not apply.** Task [3] is in progress, so not every task is complete or skipped.\n\n**Call 3:** `plan_tracker init` with the brief's task list, with names, order and statuses unchanged:\n\n```\n[\n  { name: \"W1: Parse config file\",      status: \"complete\" },\n  { name: \"W1: Validate schema\",        status: \"complete\" },\n  { name: \"W2: Wire CLI flag\",          status: \"in_progress\" },\n  { name: \"W3: Document the loader\",    status: \"pending\" }\n]\n```\n\n**Tool result 2:** all tracker calls succeed.\n\n**Printed closing line:**\n\n```\nGate history not restored; re-validating `W2: Wire CLI flag` before any stage advance\n```\n\nAfter this, check 6's `Standing grant active: <sentence>` or `No standing grant.` line goes on its own line. The flow then hands off to subagent-driven-development, which first re-validates `W2: Wire CLI flag` by re-running its `Tests:`. The task loop then continues from task [3].\n",
-      "words": 264,
-      "wallMs": 12977,
+      "text": "Continuing from the call-table row **implement with task plan**. `start brainstorm`, `skip brainstorm S` and `start plan` already ran before the check.\n\n**Tool result 1:** `plan_check({ planPath: \"/work/app/.worktrees/config-loader/doc/plans/2026-03-02-config-loader.md\" })` → **PASS**\n\nThe check passed on the first try, so the restore skips `## Plan repair`, prints no `Repaired plan:` receipt and makes no commit.\n\n**Tool call:** `phase_tracker skip plan`, reason `resume: pasted brief`\n\n(The input gives no brief file path, so R uses `\"pasted brief\"`.)\n\n**Tool call:** `phase_tracker start implement`\n\nThe brief's active phase is a bare `→ implement` with no `(substep)`, so I make no `substep` call.\n\n**Feasibility check before `init`** (no tool call):\n- Pending-suffix order: the only `○` task, [4], comes after every non-pending task. This passes.\n- Implement auto-complete edge: not every task is complete or skipped, because [3] is in progress and [4] is pending. This passes.\n\n**Tool call:** `plan_tracker init` with the task list copied exactly from the brief (names, order and statuses):\n```\n[\n  { name: \"W1: Parse config file\",       status: \"complete\" },\n  { name: \"W1: Validate schema\",         status: \"complete\" },\n  { name: \"W2: Wire CLI flag\",           status: \"in_progress\" },\n  { name: \"W3: Document the loader\",     status: \"pending\" }\n]\n```\n\n**Printed (closing line):**\n```\nGate history not restored; re-validating `W2: Wire CLI flag` before any stage advance\n```\n\nNext, the `Standing grant active: <sentence>` or `No standing grant.` line from entry check 6 is printed on its own line. The input does not include check 6's result, so I cannot fill it in. After that, work continues in subagent-driven-development. It first re-validates `W2: Wire CLI flag` by re-running its `Tests:`, then runs the task loop starting from the first task that is not complete.\n",
+      "words": 261,
+      "wallMs": 13698,
       "mechanical": {}
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
       "text": "```text\nplan_check({ planPath: \"/work/app/.worktrees/config-loader/doc/plans/2026-03-02-config-loader.md\" })\n→ PASS\n\nphase_tracker({ action: \"skip\", phase: \"plan\", reason: \"resume: pasted brief\" })\n→ succeeds\n\nphase_tracker({ action: \"start\", phase: \"implement\" })\n→ succeeds\n\nplan_tracker({ action: \"init\", tasks: [\n  { name: \"W1: Parse config file\", status: \"complete\" },\n  { name: \"W1: Validate schema\", status: \"complete\" },\n  { name: \"W2: Wire CLI flag\", status: \"in_progress\" },\n  { name: \"W3: Document the loader\", status: \"pending\" }\n] })\n→ succeeds\n```\n\nGate history not restored; re-validating `W2: Wire CLI flag` before any stage advance\n",
       "words": 66,
-      "wallMs": 7821,
+      "wallMs": 9888,
       "mechanical": {}
     }
   },
@@ -34,9 +34,9 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "7aac15eeb14216f578be8726850ff75d4971fcb3b767c23fa9a4c02ef7a1938c",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "ca90682684274d31a1325bee10d83a15ba89c67b0824ef055a126b40a2c64905",
-      "baselineOutputSha": "e55b9e09efb7bc6849c6eb95ae40333901998924d27041099ace242a27c6253b",
-      "candidateOutputSha": "ceeae8eb666d536ff986400ef101b5f10e6abe7b51943b0c54e45c8fac294510",
+      "intentSha": "1b12afc6459e1e531c9112ca2505d714fa9d20362956b8b1a397ff8152df023f",
+      "baselineOutputSha": "97cb1aa34675931b4d6a5e8aeb448a99d94fcc397a7ef2be78d35c03ad7a9e5c",
+      "candidateOutputSha": "b4309b647fd22a079e1e1af1bc688fdf6ca1ee141fbde33d444e5f49b9de1377",
       "facts": {
         "f1": {
           "before": "holds",
@@ -54,15 +54,15 @@
           "label": "held"
         }
       },
-      "feedback": "No fact moved between Before and After: both outputs state that plan repair does not run, no repair receipt is printed and no commit is made (f1, f2); both make no file edit; and both narrate `phase_tracker skip` on `plan`, `phase_tracker start` on `implement`, then `plan_tracker init` with the brief's four tasks in the same order with statuses complete/complete/in_progress/pending unchanged, followed by the exact closing line (f3). After's additions - numbering the calls, noting tool result 2 that all tracker calls succeed, and tidying the check-6 grant-line note - are neutral restatements of what Before already said and do not touch any of the three facts. This case is therefore not evidence of the Change delivering a move; the authored edits aimed at Rework/PR-pair, loop-ledger and baseline routing do not surface in this ordinary pasted-brief implement restoration, so keep the current wording of this row (skip plan with `resume: pasted brief`, start implement, verbatim init, closing line) as-is while placing the new behavior in the Rework-record, PR-list and ledger branches where the expected-to-move facts actually live.",
-      "wallMs": 10056,
+      "feedback": "Nothing moved on this case: both Before and After state that plan repair is skipped with no `Repaired plan:` receipt and no commit, neither edits a file, and both narrate the same ordered chain — `phase_tracker skip plan` (reason `resume: pasted brief`), `phase_tracker start implement`, no substep call, the feasibility check, then `plan_tracker init` with the four brief tasks in original order and statuses (complete, complete, in_progress, pending) — followed by the `Gate history not restored; re-validating ...` closing line and the check-6 grant line. After is slightly more compact (inline tool-call labels instead of code-fenced calls) and makes the structural reference to `## Plan repair` explicit, which is harmless. Since this ordinary single-PR, no-ledger, no-legs brief is unaffected by the Change's new coordinated-flow/ledger/PR-pair branches, the After wording correctly leaves this path alone; keep the explicit statement that no `Repaired plan:` receipt and no commit occur, and keep the task list copied verbatim, as both versions do.",
+      "wallMs": 10092,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "7aac15eeb14216f578be8726850ff75d4971fcb3b767c23fa9a4c02ef7a1938c",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "ca90682684274d31a1325bee10d83a15ba89c67b0824ef055a126b40a2c64905",
-      "baselineOutputSha": "8697002b679d109f51f52208b605d8a2312f4b3a2af1b75439bdf26f602f8579",
+      "intentSha": "1b12afc6459e1e531c9112ca2505d714fa9d20362956b8b1a397ff8152df023f",
+      "baselineOutputSha": "793863cc134f9e5a4355e6415482769f838c8cd2ca54248ca3fed4cf4c7b9a12",
       "candidateOutputSha": "a9500dc4ba737e05f09c3b37375bd278e93ee2ce080dfed97cb38e38f082596b",
       "facts": {
         "f1": {
@@ -81,107 +81,10 @@
           "label": "held"
         }
       },
-      "feedback": "Nothing moved on this ordinary no-pair brief: both outputs print no Repaired plan receipt, make no commit or file edit, and run plan_check → skip plan → start implement → plan_tracker init with the four tasks and statuses exactly as the brief lists them, closing with the gate-history line. After only reformats the narration into a single code block with unquoted keys and arrow results, which is cosmetically different but semantically identical; since none of the Expected-to-move facts concern this case, the After wording should keep the ordinary path untouched exactly as it has, and any further edits to the rework/loop/PR-pair branches should continue to leave the plain `resume: pasted brief` skip reason and unchanged task list intact.",
-      "wallMs": 5205,
+      "feedback": "Nothing moved on this case: After makes the same four calls as Before in the same order (plan_check PASS, phase_tracker skip plan, phase_tracker start implement, plan_tracker init with the brief's four tasks and unchanged statuses), prints no Repaired plan receipt line, makes no commit or file edit, and ends on the same closing line. The only difference is presentation (one fenced block instead of a numbered list), which neither helps nor hurts any fact here. Since this is an ordinary no-pair, single-repo brief, the Change's coordinated-flow, PR-pair, and ledger additions correctly did not alter the plain restore path; keep that isolation so that the new branch/membership/ledger checks are gated on the presence of those brief fields and the ordinary brief continues to go straight from plan_check PASS to the tracker chain and the gate-history closing line. One minor pre-existing nit, identical in both outputs: the skip reason is `resume: pasted brief` while the brief's plan row reads `(resume: brief)`; if the wording is meant to echo the brief verbatim, say so explicitly in the restore steps so it does not drift under future edits.",
+      "wallMs": 9642,
       "verdict": "unchanged"
     }
   },
-  "refresh": {
-    "status": "complete",
-    "identity": {
-      "sample": "clean-pass-unchanged",
-      "kind": "text",
-      "assembly": "headed",
-      "baselineSkillSha": "62f980dd5847df0bcf14a6a7ce67280e6ddfd233e4b69ba12494f1586825c4f0",
-      "candidateSkillSha": "335834029dd97e25efdcc1430a04ee1e55ff8b507890e588a82fc8a66ade4694",
-      "inputSha": "d88436f3b8477282e2163e0e5932da60eb5deb3e755dd05bc3b38dedfe07a87e",
-      "factsSha": "7aac15eeb14216f578be8726850ff75d4971fcb3b767c23fa9a4c02ef7a1938c",
-      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "70baa08ac12037f7a701b4df4bb563b0145baad774d710d83b55dc84d07f6e4a",
-      "models": {
-        "replay": [
-          "github-copilot/gpt-6.1-sol"
-        ],
-        "judge": "github-copilot/gpt-6.1-sol"
-      },
-      "thinking": "medium",
-      "outputs": {
-        "baseline": {
-          "github-copilot/gpt-6.1-sol": {
-            "baselineOutputSha": "793863cc134f9e5a4355e6415482769f838c8cd2ca54248ca3fed4cf4c7b9a12",
-            "payloadSha": "df24c4992da0731cf35084914820b08c7d17b187c2b0b03fc79c711e26922857"
-          }
-        },
-        "candidate": {
-          "github-copilot/gpt-6.1-sol": {
-            "candidateOutputSha": "2b7c17b1b0e58b2664774dbf115ccc7fdf972bd65de546d6a3cc3295c33e09c4",
-            "payloadSha": "2a2fcdac4c329dabc25fe88fd75db8b6f63ef505947b19cae7bc4a6fb9e6ffe2"
-          }
-        }
-      }
-    },
-    "previous": {
-      "github-copilot/gpt-6.1-sol": {
-        "factsSha": "7aac15eeb14216f578be8726850ff75d4971fcb3b767c23fa9a4c02ef7a1938c",
-        "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-        "intentSha": "70baa08ac12037f7a701b4df4bb563b0145baad774d710d83b55dc84d07f6e4a",
-        "baselineOutputSha": "793863cc134f9e5a4355e6415482769f838c8cd2ca54248ca3fed4cf4c7b9a12",
-        "candidateOutputSha": "2b7c17b1b0e58b2664774dbf115ccc7fdf972bd65de546d6a3cc3295c33e09c4",
-        "facts": {
-          "f1": {
-            "before": "holds",
-            "after": "holds",
-            "label": "held"
-          },
-          "f2": {
-            "before": "holds",
-            "after": "holds",
-            "label": "held"
-          },
-          "f3": {
-            "before": "holds",
-            "after": "holds",
-            "label": "held"
-          }
-        },
-        "feedback": "No fact moved for this case: both outputs run plan_check, skip plan, start implement, and plan_tracker init with the brief's four tasks and statuses unchanged, then print the closing line, with no Repaired plan receipt, no git commit, and no file edit. The only difference is that After drops the explicit '→ succeeds' annotations on steps 2-4 and inlines the init payload; since the input states every tracker call succeeds this is harmless here, but keeping the per-call result annotations costs nothing and makes the narrated chain easier to verify against facts like f3 in other cases, so consider retaining them.",
-        "wallMs": 6299,
-        "verdict": "unchanged",
-        "judgeModel": null,
-        "thinking": null
-      }
-    },
-    "refreshed": {
-      "github-copilot/gpt-6.1-sol": {
-        "factsSha": "7aac15eeb14216f578be8726850ff75d4971fcb3b767c23fa9a4c02ef7a1938c",
-        "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-        "intentSha": "70baa08ac12037f7a701b4df4bb563b0145baad774d710d83b55dc84d07f6e4a",
-        "baselineOutputSha": "793863cc134f9e5a4355e6415482769f838c8cd2ca54248ca3fed4cf4c7b9a12",
-        "candidateOutputSha": "2b7c17b1b0e58b2664774dbf115ccc7fdf972bd65de546d6a3cc3295c33e09c4",
-        "facts": {
-          "f1": {
-            "before": "holds",
-            "after": "holds",
-            "label": "held"
-          },
-          "f2": {
-            "before": "holds",
-            "after": "holds",
-            "label": "held"
-          },
-          "f3": {
-            "before": "holds",
-            "after": "holds",
-            "label": "held"
-          }
-        },
-        "feedback": "After moves no fact: both outputs omit a Repaired plan receipt, make no commit or file edit, and restore the same tracker sequence with all four task names and statuses unchanged before the closing line. Preserve this successful ordinary-resume path as written; scope new markers, approval questions, ledger handling, and PR checks to their applicable branches so they do not introduce a terminal marker, approval ask, or state mutation here.",
-        "wallMs": 4503,
-        "verdict": "unchanged",
-        "judgeModel": "github-copilot/gpt-6.1-sol",
-        "thinking": "medium"
-      }
-    }
-  },
-  "repoSha": "0dcac9779f68598e1724c9f6ed2783659a94e958"
+  "repoSha": "f25bf48a3f7ac2e9b361d2c7506d7c691e212697"
 }

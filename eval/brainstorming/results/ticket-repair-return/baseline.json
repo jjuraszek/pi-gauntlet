@@ -1,7 +1,7 @@
 {
   "sample": "ticket-repair-return",
   "arm": "baseline",
-  "skillSha": "7a325058d220682a273aee020935f3f23de8fa109efc05799e0c659184d3858a",
+  "skillSha": "1344d9b3d03badf89c600eb7719b78db84d66ec38fcb37bdfe3bfc890ccfaac6",
   "inputSha": "9b45bd622c6744fabf33250d8062c7d2cc11700a0ee72cdfd87a44fcaa82a89d",
   "kind": "text",
   "assembly": "headed",
@@ -17,18 +17,18 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "The ticket repair is saved, and acme/widgets#77 now has one criterion: \"The report-view setting uses the shared settings resolver.\" It is in scope as written. That matches the traced path, where defaults come from `settings/resolver.ts:12` and the view reads them at `ui/report-view.ts:30`. So the setting gets a resolver default and adds no view-local settings object.\n\nThe open decision is what the new setting controls when a user switches workspaces. Today filters stay active and can hide rows in the new workspace. What should the default be?\n\nA) Filters reset on every workspace switch by default, and users can turn the setting off to keep filters across workspaces.\nB) Filters stay active by default, which is today's behavior, and users can turn the setting on to reset them.\nC) Only filters that don't apply in the new workspace are cleared, and the setting turns that pruning on or off.\nD) Other - name it.\n\nRecommendation: A - the reported problem is rows hidden after a switch, so resetting by default fixes it for every user, while the opt-out still serves people who want filters to carry over.\n",
-      "words": 184,
-      "wallMs": 10826,
+      "text": "The ticket repair is saved and verified: acme/widgets#77 now reads \"The report-view setting uses the shared settings resolver.\" That row is `in-scope`, and the design will add the setting's default in `settings/resolver.ts:12` and read it in `ui/report-view.ts:30`.\n\nToday, filters stay active after a workspace switch and can hide rows in the new workspace. What should the report view do with active filters when the workspace changes?\n\nA) Reset all filters on every workspace change. The new setting controls this and defaults to on.\nB) Reset all filters only when the setting is turned on. It defaults to off, so current behavior stays the default.\nC) Keep filters that still apply in the new workspace and drop the ones that do not. The setting turns this pruning on or off.\nother - name it\n\nRecommendation: A - the reported problem is stale filters hiding rows after a switch, and defaulting to reset fixes that for every user while the setting still lets someone keep their filters.\n",
+      "words": 163,
+      "wallMs": 9527,
       "mechanical": {}
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "The repaired criterion in acme/widgets#77 now requires the shared settings resolver, matching `settings/resolver.ts:12` → `ui/report-view.ts:30`. I’ll adopt that requirement; the framing remains kept.\n\nWhat should happen to active report filters when switching workspaces?\nA) Clear them so the new workspace starts without active filters.\nB) Retain them across workspaces, preserving current behavior.\nC) Restore each workspace’s previously used filters.\nD) Other — name the desired behavior.\nRecommendation: A - it directly addresses filters hiding rows in the new workspace without introducing per-workspace filter storage.\n",
-      "words": 81,
-      "wallMs": 10202,
+      "text": "The repaired ticket is verified: acme/widgets#77 now requires the shared settings resolver. That criterion is in scope, consistent with defaults owned by `settings/resolver.ts:12` and consumed by `ui/report-view.ts:30`. Framing remains kept.\n\nWhat should the report-view setting do when switching workspaces?\nA) Reset filters by default, with a setting to preserve them.\nB) Preserve filters by default, with a setting to reset them.\nC) Other - name the desired behavior.\nRecommendation: A - it prevents filters from silently hiding rows in the new workspace while retaining an option for users who want persistence.\n",
+      "words": 89,
+      "wallMs": 31793,
       "mechanical": {}
     }
   },
-  "repoSha": "657f24585c1a6c2182a26df3d0d0691c8e67e59a"
+  "repoSha": "f25bf48a3f7ac2e9b361d2c7506d7c691e212697"
 }

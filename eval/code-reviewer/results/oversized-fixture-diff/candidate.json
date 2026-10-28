@@ -1,7 +1,7 @@
 {
   "sample": "oversized-fixture-diff",
   "arm": "candidate",
-  "skillSha": "59784facd665ba809bf0c51e9deebcf8df21e74ee5d874a5e42d27e7233d24e1",
+  "skillSha": "ded3c76d317f3332b22cf8d18b7e51d12813d2d3da897b69d81d6a06b95d2f07",
   "inputSha": "86cc4543ed4aa12b43b2fab3979175a1a820bb1505315493ef2f6dd26990a661",
   "kind": "text",
   "assembly": "headed",
@@ -17,9 +17,9 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "Verdict: FIX_FIRST\nReasoning: Merging the two tests into one dropped the `posted_on` assertion, so `posted_on` behavior is no longer covered, even though Task 4 requires that it \"stays covered.\"\nConfidence: high (the diff is small and fully read; no commands were supplied or run)\n\nFindings:\n  - [Critical] F1: ledger/importer_test.py:13 — The merge of `test_import_sets_amount` and `test_import_sets_posted_on` into `test_import_maps_fields` lost coverage.\n        The merged test asserts `account` and `amount` but not `posted_on`, so a regression in `date.fromisoformat(record[\"posted_on\"])` would now pass.\n        The plan requires that existing posted_on behavior \"stays covered\".\n        Fix: Add `assert entry.posted_on == date(2026, 1, 15)` to `test_import_maps_fields`.\n        touched-files: ledger/importer_test.py\n        touched-resources: none\n  - [Minor] F2: [shrink] ledger/importer_test.py:18 — `test_import_trims_memo` loads a 400-record, roughly 60 KB fixture just to read `records[7]`.\n        It reaches the file through a relative path, so the test fails when pytest runs from any directory other than the one holding `fixtures/`.\n        It also breaks silently if the shared fixture is reordered.\n        The behavior under test only reads `memo`.\n        Fix: Use `entry = import_record({**RECORD, \"memo\": \"  quarterly fee \"}, TODAY)`, then `assert entry.memo == \"quarterly fee\"`. Drop the `open`/`json.load` lines and the `import json` line.\n        touched-files: ledger/importer_test.py\n        touched-resources: fixtures/ledger_400.json (no longer read; no edit)\n  - [Minor] F3: ledger/importer.py:24 — `record.get(\"memo\", \"\").strip()` raises `AttributeError` when a record has `\"memo\": null`.\n        Before this change, such a record imported with `memo=None`.\n        If null memos can occur in source data, this change turns them into import crashes.\n        Fix: If null memos are possible, use `(record.get(\"memo\") or \"\").strip()`.\n        touched-files: ledger/importer.py\n        touched-resources: none\n\nTest-economy spec check: unverified: no spec supplied. The dispatch carried only the plan line, with no `## Acceptance criteria` or `## Design` sections. The remaining economy checks were applied.\n\nComplexity: net -2 lines\nParallel-safe: F1,F3 disjoint; F2,F3 disjoint; F2 conflicts F1 (both edit ledger/importer_test.py)\nBehaviour-change: no\n\nVerification: none run. SCOPED_TEST_COMMANDS was `none`, so execution is owned by the orchestrator gate.\n",
-      "words": 295,
-      "wallMs": 23000,
+      "text": "Verdict: FIX_FIRST\nReasoning: The test consolidation dropped the only `posted_on` assertion, though the plan says `posted_on` behaviour \"stays covered\".\nConfidence: medium (diff read in full; no commands supplied, nothing run; `Entry` and other callers not visible)\n\nFindings:\n  - [Critical] F1: ledger/importer_test.py:13 — `test_import_maps_fields` merges `test_import_sets_amount` and `test_import_sets_posted_on` but only asserts `account` and `amount`. Nothing in the suite now checks `posted_on` parsing, which is lost coverage the plan explicitly protects.\n        Fix: Add `assert entry.posted_on == date(2026, 1, 15)` to `test_import_maps_fields`.\n        touched-files: ledger/importer_test.py\n        touched-resources: none\n  - [Moderate] F2: ledger/importer.py:24 — `record.get(\"memo\", \"\").strip()` raises `AttributeError` when a record carries `\"memo\": null`. Before this change, that record imported with `memo=None`. This adds a new crash path for JSON input with null memos.\n        Fix: Use `memo=(record.get(\"memo\") or \"\").strip()`. Add a one-line test for a `None` memo.\n        touched-files: ledger/importer.py, ledger/importer_test.py\n        touched-resources: none\n  - [Minor] F3: [shrink] ledger/importer_test.py:18 — `test_import_trims_memo` parses the 400-record, ~60 KB `fixtures/ledger_400.json` to read one record (index 7). The relative `open(...)` path also makes the test depend on the working directory. The behaviour only reads `memo`.\n        Fix: Replace with `entry = import_record({**RECORD, \"memo\": \"  quarterly fee \"}, TODAY)` and drop `import json`.\n        touched-files: ledger/importer_test.py\n        touched-resources: fixtures/ledger_400.json (read only; no longer read)\n  - [Minor] F4: spec economy check — `unverified: no spec supplied`. Only the one-line Task 4 plan was given, with no `## Acceptance criteria` or `## Design` sections. The remaining economy checks were applied as above.\n        Fix: None needed unless a spec exists; if one does, supply its path on re-review.\n        touched-files: none\n        touched-resources: none\n\nPlan deviations:\n- Memo trimming matches the plan.\n- Account and amount behaviour is unchanged and covered. Account coverage is new and acceptable.\n- `posted_on` coverage removed: the plan requires coverage and the code drops it. Not acceptable (F1).\n\nComplexity: net -3 lines\n\nVerification: none run. Dispatch supplied `SCOPED_TEST_COMMANDS: none`, so the orchestrator gate owns execution.\n\nParallel-safe: F4 disjoint; F1 conflicts F2 (both touch importer_test.py); F1 conflicts F3 (both touch importer_test.py); F2 conflicts F3 (both touch importer_test.py)\nBehaviour-change: yes\n",
+      "words": 315,
+      "wallMs": 18908,
       "mechanical": {
         "m1": "holds",
         "m2": "holds",
@@ -28,9 +28,9 @@
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "Verdict: FIX_FIRST\nReasoning: The test consolidation removes posted_on coverage explicitly required to remain.\nConfidence: high\n\nFindings:\n  - [Critical] F1: ledger/importer_test.py:test_import_maps_fields — The consolidation drops the posted_on assertion, losing coverage that Task 4 explicitly requires preserving.\n        Fix: Add `assert entry.posted_on == date(2026, 1, 15)` to `test_import_maps_fields`, retaining the account and amount assertions.\n        touched-files: ledger/importer_test.py\n        touched-resources: none\n  - [Minor] F2: [shrink] ledger/importer_test.py:test_import_trims_memo — Loading a 400-record fixture to check whitespace trimming adds unnecessary parsing and couples this unit test to record ordering.\n        Fix: Replace the fixture loading with `entry = import_record({**RECORD, \"memo\": \"  quarterly fee \"}, TODAY)` and keep the memo assertion; remove the unused `json` import. This supplies only the account, amount, posted_on, and memo fields needed by this path.\n        touched-files: ledger/importer_test.py\n        touched-resources: none\n\nSpec economy: unverified: no spec supplied with Acceptance criteria or Design sections; reviewed against the supplied Task 4 requirements.\n\nVerification: No commands run; SCOPED_TEST_COMMANDS is `none`, and the dispatch prohibits execution.\n\nParallel-safe: F1 conflicts F2 (both touch ledger/importer_test.py)\nBehaviour-change: no\n",
-      "words": 155,
-      "wallMs": 15114,
+      "text": "Verdict: FIX_FIRST\nReasoning: The test consolidation drops posted_on coverage explicitly required to remain, although the memo-trimming implementation matches the requested change.\nConfidence: medium\n\nFindings:\n  - [Critical] F1: ledger/importer_test.py:13 — The replacement mapping test drops the posted_on assertion, losing coverage that Task 4 explicitly requires preserving.\n        Fix: Add `assert entry.posted_on == date(2026, 1, 15)` to `test_import_maps_fields`, retaining the consolidated setup.\n        touched-files: ledger/importer_test.py\n        touched-resources: none\n  - [Minor] F2: [shrink] ledger/importer_test.py:19 — The memo-trimming test loads 400 records to exercise one record, adding unnecessary parsing and coupling to fixture ordering.\n        Fix: Pass an inline record containing the required account, amount, and posted_on fields plus `\"memo\": \"  quarterly fee \"`. Remove the JSON loading and unused `json` import; leave the shared fixture unchanged.\n        touched-files: ledger/importer_test.py\n        touched-resources: none\n\nVerification:\nNo commands run: `SCOPED_TEST_COMMANDS: none`; review was limited to the supplied diff and fixture description.\n\nParallel-safe: F1 conflicts F2 (both touch ledger/importer_test.py)\nBehaviour-change: no\n",
+      "words": 141,
+      "wallMs": 11195,
       "mechanical": {
         "m1": "holds",
         "m2": "holds",
@@ -42,9 +42,9 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "8922851aed63a3bf43e501f5277767344891b19f8b2d72be65c97351e43f06fa",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "d9e785e9a7abb37e46ae31049516cf9eedc48f66bad759810155ba389d5865f0",
-      "baselineOutputSha": "d38d2871fa80c2628c97a3fa0f3dfaa20ad867a74c2d7e98eaa8738fedba12c4",
-      "candidateOutputSha": "052393d27192022370929ff654b64d6baca41ab3032fe703a9cb524c2aba820f",
+      "intentSha": "0b6e0c7c0810d1f38ba04e2ca6db8e9f52a84a6971153d0a6c8f7834af8d274b",
+      "baselineOutputSha": "052393d27192022370929ff654b64d6baca41ab3032fe703a9cb524c2aba820f",
+      "candidateOutputSha": "8a2f6775331cfdf855e0ce43ead8e86e238ead56c1690503df74d3e841210422",
       "facts": {
         "f1": {
           "before": "holds",
@@ -72,16 +72,16 @@
           "label": "held"
         }
       },
-      "feedback": "Nothing moved on this case: both outputs carry a Critical F1 naming the merge into test_import_maps_fields as the source of the lost posted_on coverage, and both carry a [shrink]-tagged Minor F2 that points at the single records[7] read and proposes {**RECORD, \"memo\": \"  quarterly fee \"} in place of the fixture load. After actually tightens F2 slightly ('The behavior under test only reads memo' is a clearer statement of the record-7-memo point than Before's 'reads only the five record fields'), and it adds the new 'Test-economy spec check: unverified: no spec supplied' line that the Change asks for without inventing a spec-citing delete. Keep the After wording as is; the only thing to watch is that the unverified spec-check line stays a plain status line and does not grow into a finding, since the Change says no spec means unverified, not Moderate delete.",
-      "wallMs": 12953,
+      "feedback": "Both facts hold in Before and After. After's F3 keeps the [shrink] tag, states that test_import_trims_memo reads only record 7's memo, and proposes the hand-built `{**RECORD, \"memo\": \"  quarterly fee \"}` record in place of loading fixtures/ledger_400.json; After's F1 stays Critical and names the merge of test_import_sets_posted_on into test_import_maps_fields as the source of the lost posted_on coverage, so the Change delivered its intent without moving either fact. Two drifts to watch that are not facts here: After promoted the unverified spec check from a standalone status line into a Minor finding (F4) with a 'Fix' entry, which muddies the 'report the check unverified' instruction — keeping it as a status line, as Before did, is cleaner; and After raised the null-memo finding to Moderate and flipped Behaviour-change to yes, which is defensible but unrelated to the Tests-priority rewording, so if you want the After wording to leave non-test findings untouched, add a sentence that the new check list applies only to added or changed tests and does not re-rank other findings.",
+      "wallMs": 10162,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "8922851aed63a3bf43e501f5277767344891b19f8b2d72be65c97351e43f06fa",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "d9e785e9a7abb37e46ae31049516cf9eedc48f66bad759810155ba389d5865f0",
-      "baselineOutputSha": "2d7e9b317e3806583ed14d3c39f4269559744eea15db39997d0dafb64bc9fc9d",
-      "candidateOutputSha": "0c4e7454d0b7552c733d887a9bb9b0479ce2e35030f6dbabd6a20cf9492c2707",
+      "intentSha": "0b6e0c7c0810d1f38ba04e2ca6db8e9f52a84a6971153d0a6c8f7834af8d274b",
+      "baselineOutputSha": "0c4e7454d0b7552c733d887a9bb9b0479ce2e35030f6dbabd6a20cf9492c2707",
+      "candidateOutputSha": "46f0a38df262202039ea342a2a01cb6480ca88115126713f9ab0fe218267749e",
       "facts": {
         "f1": {
           "before": "holds",
@@ -109,10 +109,10 @@
           "label": "held"
         }
       },
-      "feedback": "No fact moved: both outputs keep a Critical finding that the consolidation into test_import_maps_fields lost the posted_on coverage the removed test provided, and both keep a Minor [shrink] finding that test_import_trims_memo exercises a single memo transformation yet loads the 400-record fixture, proposing `{**RECORD, \"memo\": \"  quarterly fee \"}` instead. After additionally reports the spec-economy check as unverified because no spec was supplied, which is what the Change asks for. The only softening is that After no longer names the removed test (test_import_sets_posted_on) or the raw line number in F1; a careful reader still infers it, but to keep f2 unambiguous the Tests priority wording could ask the reviewer to name the deleted test whose assertion was lost (e.g. \"drops the posted_on assertion that test_import_sets_posted_on provided\") alongside the Critical tag, while retaining the Minor/declinable framing for shrink findings and the unverified-spec statement.",
-      "wallMs": 10698,
+      "feedback": "Neither fact moved: both outputs carry a Critical finding that the consolidation into test_import_maps_fields lost the posted_on assertion, and both carry a Minor [shrink] finding that the memo-trimming test loads the 400-record fixture for one record and should instead pass a hand-built record with \"  quarterly fee \". However, After regressed on the Change itself in a way these facts don't capture: it dropped the 'Spec economy: unverified' line that Before emitted when no spec was supplied, which the Change explicitly requires (report the spec-observable check unverified when no spec is supplied). After also swapped test names for bare line numbers (`:13`, `:19`) and lowered Confidence to medium without a stated reason; keep the `file:test_name` locator so findings remain readable when line numbers shift, keep the Spec economy line, and keep the F2 fix's concrete snippet (`{**RECORD, \"memo\": \"  quarterly fee \"}`) rather than the looser prose description so the proposed replacement is unambiguous.",
+      "wallMs": 13009,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "e85ad8c4e58d6f8cc0716ab1199fef2e7d45f902"
+  "repoSha": "df79836689c7ec82c1f89329091a67b911c07c7d"
 }

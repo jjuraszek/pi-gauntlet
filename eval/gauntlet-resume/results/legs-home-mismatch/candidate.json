@@ -1,0 +1,70 @@
+{
+  "sample": "legs-home-mismatch",
+  "arm": "candidate",
+  "skillSha": "8dcc55fa834ee43fe8a4f3529d7e81f6ef44216547540bde9395636291717b1e",
+  "inputSha": "f973bc7210a0de2e631e1cf5af137838c888648c4d6890d1a57fdb19e6cfdb68",
+  "kind": "text",
+  "assembly": "headed",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "# Coordinated admission (entry check 3b): three independent runs\n\nAll three runs stop at entry check 3b, before any tracker write. In every run:\n\n- No `phase_tracker` or `plan_tracker` mutation occurs.\n- `plan_check` is not called.\n- No drift notice is announced.\n- No Standing-grant line is printed.\n\nA branch or `**Home:**` tuple mismatch on a live tree is a stop, not informational drift.\n\n## Steps shared by all runs (up to the differing observation)\n\n1. **Membership comparison.** I read the home spec `/work/repo-a/.worktrees/feature-shared-change/doc/specs/shared.md` and its `### Leg:` blocks, in order: `repo-a`, `repo-b`.\n   - The brief's `legs:` order is `repo-a`, `repo-b`.\n   - The two lists match.\n2. **Declared primary for `repo-b`.** I read `## shape-ticket` `- sibling: ../repo-b` from the home overrides and resolve it against `/work/repo-a`, giving `/work/repo-b`. I then run:\n   - `realpath \"$(git -C /work/repo-b rev-parse --path-format=absolute --git-common-dir)\"` → `/work/repo-b/.git`\n3. **Companion worktree common directory.** I run:\n   - `realpath \"$(git -C /work/repo-b/.worktrees/feature-shared-change rev-parse --path-format=absolute --git-common-dir)\"` → `/work/repo-b/.git`\n   - This matches the declared primary.\n4. **Companion live branch.** I run:\n   - `git -C /work/repo-b/.worktrees/feature-shared-change branch --show-current`\n5. **Companion leg file.** I read the `**Home:**` line of `/work/repo-b/.worktrees/feature-shared-change/<repo-b recorded spec-dir>/shared.md`.\n   - The expected tuple is the run home's: `repo-a feature/shared-change doc/specs/shared.md`.\n\n## Run A: companion `**Home:**` names a different branch\n\n- Step 4 returns `feature/shared-change`, which matches.\n- Step 5 returns `**Home:** repo-a feature/other doc/specs/shared.md`.\n\nPrinted:\n\n```\nStop: leg repo-b - companion **Home:** tuple mismatch at /work/repo-b/.worktrees/feature-shared-change/<spec-dir>/shared.md: expected `repo-a feature/shared-change doc/specs/shared.md`, observed `repo-a feature/other doc/specs/shared.md`.\n```\n\nNo tracker call is made.\n\n## Run B: companion `**Home:**` names a different spec path\n\n- Step 4 returns `feature/shared-change`, which matches.\n- Step 5 returns `**Home:** repo-a feature/shared-change doc/specs/other.md`.\n\nPrinted:\n\n```\nStop: leg repo-b - companion **Home:** tuple mismatch at /work/repo-b/.worktrees/feature-shared-change/<spec-dir>/shared.md: expected `repo-a feature/shared-change doc/specs/shared.md`, observed `repo-a feature/shared-change doc/specs/other.md`.\n```\n\nNo tracker call is made.\n\n## Run C: companion live branch differs\n\n- Step 4 returns `feature/other`.\n\nPrinted:\n\n```\nStop: leg repo-b - live branch mismatch at /work/repo-b/.worktrees/feature-shared-change: expected `feature/shared-change`, observed `feature/other`.\n```\n\nNo tracker call is made, and the leg-file tuple is not reached.\n\n## Effect on the restore\n\nIn each run, the `implement with task plan` call sequence never begins. That sequence is `start brainstorm`, `skip brainstorm S`, `start plan`, `plan_check`, and so on, ending with `plan_tracker init` from the W1 ✓ / W2 → snapshot. Restoring requires fixing the offending leg and re-running `/skill:gauntlet-resume`.\n",
+      "words": 355,
+      "wallMs": 15931,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "### Run A\n\nPrint:\n```text\nI'm using the gauntlet-resume skill to continue an interrupted flow.\n```\n\nRead companion file:\n```text\nRead(\"/work/repo-b/.worktrees/feature-shared-change/doc/specs/shared.md\")\n```\n\nObserved:\n```text\n**Home:** repo-a feature/other doc/specs/shared.md\n```\n\nPrint and stop:\n```text\nCoordinated admission stopped: leg repo-b Home tuple mismatch.\nExpected: repo-a feature/shared-change doc/specs/shared.md\nObserved: repo-a feature/other doc/specs/shared.md\n```\n\nNo tracker mutation or `plan_check` call.\n\n### Run B\n\nPrint:\n```text\nI'm using the gauntlet-resume skill to continue an interrupted flow.\n```\n\nRead companion file:\n```text\nRead(\"/work/repo-b/.worktrees/feature-shared-change/doc/specs/shared.md\")\n```\n\nObserved:\n```text\n**Home:** repo-a feature/shared-change doc/specs/other.md\n```\n\nPrint and stop:\n```text\nCoordinated admission stopped: leg repo-b Home tuple mismatch.\nExpected: repo-a feature/shared-change doc/specs/shared.md\nObserved: repo-a feature/shared-change doc/specs/other.md\n```\n\nNo tracker mutation or `plan_check` call.\n\n### Run C\n\nPrint:\n```text\nI'm using the gauntlet-resume skill to continue an interrupted flow.\n```\n\nRead live companion branch:\n```text\ngit -C /work/repo-b/.worktrees/feature-shared-change branch --show-current\n```\n\nObserved:\n```text\nfeature/other\n```\n\nPrint and stop:\n```text\nCoordinated admission stopped: leg repo-b branch mismatch.\nExpected: feature/shared-change\nObserved: feature/other\n```\n\nNo tracker mutation or `plan_check` call.\n",
+      "words": 150,
+      "wallMs": 10755,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "d813a90a2fbcab7b4ac42ed6fc1a24e1b7dedd4c56438bc6696351037f05fab0",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "1b12afc6459e1e531c9112ca2505d714fa9d20362956b8b1a397ff8152df023f",
+      "baselineOutputSha": "621f2ad739f2e9bfda2ffe15cef197ea450dd24b60cba8ecd3efb13e97ae4af8",
+      "candidateOutputSha": "a14ee8a7425fa8c28d20a38f813dabe636b9aadb507345f1493135e771fd273f",
+      "facts": {
+        "stop": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        }
+      },
+      "feedback": "Both outputs satisfy the stop fact: each of Runs A, B, and C halts at admission with no phase_tracker/plan_tracker/plan_check call, names leg repo-b, and prints the full expected/observed tuple (A, B) or branch (C), and both state explicitly that a live-tree mismatch is a stop rather than informational drift (Before per-stop line, After in the header and the 'No drift notice is announced' bullet). After did not move the fact, so the expected fails->holds transition is not observed in this pair - Before already held. Two small things in After are worth tightening so the fact stays unambiguous to a strict reader: the leg-file path uses the placeholder `<repo-b recorded spec-dir>/shared.md` and `<spec-dir>` in the stop lines even though the input fixes it as doc/specs/shared.md, so resolve it to the concrete path as Before did; and consider carrying the 'not informational drift' clause into each printed stop line (as Before does) rather than only in the preamble, so each stop is self-evidently non-tolerant when read in isolation. Keeping the per-run 'No tracker call is made' lines and the 'leg-file tuple is not reached' note in Run C is good and should stay.",
+      "wallMs": 11971,
+      "verdict": "unchanged"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "d813a90a2fbcab7b4ac42ed6fc1a24e1b7dedd4c56438bc6696351037f05fab0",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "1b12afc6459e1e531c9112ca2505d714fa9d20362956b8b1a397ff8152df023f",
+      "baselineOutputSha": "899e1d23f0bbc5f5a15e00fa74e90158ad268ad7bd6f829ddadfecb248ad83e0",
+      "candidateOutputSha": "266619ec07765aeaf24df8a61ad1c74d6000408f1a3928045c1ab06b2f079df8",
+      "facts": {
+        "stop": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        }
+      },
+      "feedback": "Both outputs satisfy the stop fact on their own text: every run (A, B, C) stops before any tracker write or plan_check call, names repo-b explicitly, and states the expected and observed values — full Home tuple in A and B, branch name in C — treating the mismatch as a hard stop rather than informational HEAD drift. Before already held this fact, so the expected fails->holds movement is not observed in these samples; After preserves it and adds the explicit Read/git observation steps and a labeled 'Coordinated admission stopped' header with separate Expected/Observed lines, which makes the stop more legible without changing what is asserted. If the author wants After to be distinguishable from Before on this fact, the wording should push the output to also state that this is a coordinated-admission structural check distinct from HEAD/dirt drift (e.g. 'not tolerated as drift') and to name the leg path alongside repo-b in A and B as C does; otherwise the current After wording keeps every fact Before kept while delivering the clearer per-leg read-then-stop narration.",
+      "wallMs": 9294,
+      "verdict": "unchanged"
+    }
+  },
+  "repoSha": "f25bf48a3f7ac2e9b361d2c7506d7c691e212697"
+}

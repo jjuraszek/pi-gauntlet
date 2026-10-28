@@ -1,0 +1,80 @@
+{
+  "sample": "multi-repo-branch-mismatch",
+  "arm": "candidate",
+  "skillSha": "ee75d9a049ec0901f53288cc34590dc207fc1eacada5b9fa9db0c80ab44f82e3",
+  "inputSha": "e87de8c29e752fd13a4492d8b0e4b379eaed68053fe4caaa0650efd7418aad46",
+  "kind": "text",
+  "assembly": "headed",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "# Provisioning narrative for repo-a and repo-b on `feature/shared-change`\n\nNone of these runs reaches checklist step 4. Each one stops at step 2 or waits for an answer, so I produce no first questionary message and no approaches message. Each run below is separate. All of them share the same starting point:\n\n- Membership is already settled: home is repo-a, then the selected sibling repo-b.\n- Both members use `BRANCH = feature/shared-change` and `NAME = feature-shared-change`.\n- `using-git-worktrees` runs once per member, home first. Each run passes an explicit `$ROOT` set to that member's primary.\n- The repo-a home leg succeeds and reports: `Worktree ready at /work/repo-a/.worktrees/feature-shared-change`.\n\n## Run A: branch mismatch after creation\n\n1. **repo-a (home):** Created and verified. The result is carried forward.\n2. **repo-b preflight:** No branch, name, or path collision.\n3. **repo-b clean-base check:** Passed.\n4. **repo-b creation:** The wrapper runs and reports `/work/repo-b/.worktrees/feature-shared-change`.\n5. **Step 4 read-back:**\n   - `git -C /work/repo-b worktree list --porcelain` lists the path.\n   - `git -C <path> branch --show-current` returns `feature/other`. The required branch is `feature/shared-change`, so this is a mismatch.\n6. **Stop.** No ready result is emitted for repo-b. Nothing is auto-removed.\n\n> Stopped: repo-b worktree branch mismatch. Requested branch `feature/shared-change`, actual branch `feature/other` at /work/repo-b/.worktrees/feature-shared-change.\n> Preserved created legs: repo-a feature/shared-change /work/repo-a/.worktrees/feature-shared-change; repo-b feature/other /work/repo-b/.worktrees/feature-shared-change\n\n## Run B: branch already exists\n\n1. **repo-a (home):** Created and verified.\n2. **repo-b preflight:** `git -C /work/repo-b show-ref --verify refs/heads/feature/shared-change` succeeds, so the branch already exists. This is a collision.\n3. **Stop before any creator runs.** I do not add a suffix and do not reuse the existing branch.\n\n> Stopped: repo-b branch `feature/shared-change` already exists.\n> Preserved created legs: repo-a feature/shared-change /work/repo-a/.worktrees/feature-shared-change\n\n## Run C: target path already exists\n\n1. **repo-a (home):** Created and verified.\n2. **repo-b preflight:** The resolved home path `/work/repo-b/.worktrees/feature-shared-change` already exists. This is a path collision.\n3. **Stop before any creator runs.** I do not reuse an unrelated tree.\n\n> Stopped: repo-b target path /work/repo-b/.worktrees/feature-shared-change already exists (branch `feature/shared-change`).\n> Preserved created legs: repo-a feature/shared-change /work/repo-a/.worktrees/feature-shared-change\n\n## Run D: dirty primary, human declines\n\n1. **repo-a (home):** Created and verified.\n2. **repo-b preflight:** Clean.\n3. **repo-b clean-base check:** `git -C /work/repo-b status --porcelain` returns output, so the primary is dirty.\n   - I report the porcelain output verbatim and ask whether to clean up first or proceed.\n4. **Human declines.**\n5. **Stop this member before creation.** Nothing is stashed or cleaned automatically.\n\n> Stopped: repo-b primary is dirty and continuation was declined (branch `feature/shared-change`).\n> Preserved created legs: repo-a feature/shared-change /work/repo-a/.worktrees/feature-shared-change\n\n## Run E: unresolved `<subproject>` token\n\n1. **repo-a (home):** Created and verified.\n2. **repo-b preflight and clean-base check:** Both pass.\n3. **repo-b wrapper template:** It contains `<subproject>`.\n   - This leg's touched paths are `pkg-x/a.ts` and `pkg-y/b.ts`.\n   - That gives two top-level directory candidates, so I cannot resolve the token myself.\n4. **Ask once for this leg.** The template is not executed while the token is unresolved.\n\n> repo-b's worktree wrapper needs `<subproject>`, and this change touches two candidates. Which should it use?\n> A) pkg-x\n> B) pkg-y\n> C) other - name it\n> Recommendation: A - first touched path; confirm, since both are touched.\n\n5. **No reply arrives.** The run stays paused at step 2 with repo-a preserved. There is no fallback to `git worktree add`, and the run does not proceed to gather context.\n",
+      "words": 526,
+      "wallMs": 21015,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "These are independent simulated runs, not live tool calls. Each provisions repo-a before repo-b on `feature/shared-change`. None reaches checklist step 4 or approach selection.\n\n### A — Created tree has the wrong branch\n1. Carry repo-a’s successful result: `/work/repo-a/.worktrees/feature-shared-change`, branch `feature/shared-change`.\n2. Run repo-b’s configured wrapper, which reports `/work/repo-b/.worktrees/feature-shared-change`.\n3. Perform the required post-creation checks: confirm worktree registration and require the live branch to equal `feature/shared-change`. The supplied branch observation is `feature/other`.\n4. **Stop:** repo-b requested `feature/shared-change`, but its created tree is on `feature/other`. Do not emit “Worktree ready,” switch branches, retry creation, or remove either tree.\n\nPreserved created legs:\n- repo-a — `feature/shared-change` — `/work/repo-a/.worktrees/feature-shared-change`\n- repo-b — actual branch `feature/other` — `/work/repo-b/.worktrees/feature-shared-change`\n\n### B — Requested branch already exists\n1. Before invoking repo-b’s creator, preflight its requested branch, registered worktrees, and resolved target path.\n2. The supplied observation establishes that repo-b already has branch `feature/shared-change`.\n3. **Stop before creation:** report the repo-b branch collision. Do not suffix the branch, reuse an unrelated tree, or invoke the wrapper. Preserve any previously created repo-a leg; this run supplies no path for it.\n\n### C — Target path already exists\n1. Before invoking repo-b’s creator, perform the same collision preflight.\n2. The supplied observation establishes that repo-b’s resolved target path already exists.\n3. **Stop before creation:** report the repo-b target-path collision for `feature/shared-change`. Do not overwrite, remove, suffix, or silently reuse the path. Preserve any previously created repo-a leg.\n\n### D — Dirty primary; continuation declined\n1. Before invoking repo-b’s creator, check the source checkout with `git status --porcelain`, including untracked files.\n2. The supplied observation says repo-b’s primary is dirty. The actual porcelain output is not supplied, so it cannot be reproduced verbatim here.\n3. Present the clean-base continuation decision. The recorded human answer declines continuation.\n4. **Stop before creation:** do not invoke the wrapper, auto-stash, auto-clean, or run tests as a fallback. Preserve any previously created repo-a leg.\n\n### E — Unresolved wrapper token\n1. Before invoking repo-b’s wrapper, resolve its required `<subproject>` token from repo-b’s touched paths.\n2. `pkg-x/a.ts` and `pkg-y/b.ts` identify two candidates; neither may be guessed.\n3. Ask once:\n\nWhich repo-b subproject should the wrapper use?\nA) `pkg-x`\nB) `pkg-y`\nC) other — name it  \nRecommendation: choose the subproject the wrapper must initialize; the supplied paths do not establish a unique choice.\n\n4. **Pause awaiting the answer:** no further human reply is supplied. Do not execute the unresolved template or fall back to `git worktree add`. Preserve any previously created repo-a leg.\n",
+      "words": 399,
+      "wallMs": 18310,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "c0f794e9c75edc067fe1d4413113d6b508f7fc527e1fff8c91c796b268578d52",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "846af8fb641e886ab3d6b6dfb70e1483223323d53b4c37560200cad5018c6b4e",
+      "baselineOutputSha": "5f2f46d81b7370d128875d17735f7f155de77d73f51f7ad92d92c47b1bb08693",
+      "candidateOutputSha": "32269c7cc6033437f59713221759f4cf1eac92a79cb7e61a11989996c9cc909c",
+      "facts": {
+        "mismatch": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "preflight": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        }
+      },
+      "feedback": "Both facts hold in both outputs. After's Run A still names repo-b, states requested `feature/shared-change` versus actual `feature/other`, lists the preserved repo-a tree, and says nothing is auto-removed; Runs B–E still stop before any creator (B/C), abort on decline (D), ask exactly once (E), and each echoes the preserved repo-a leg. The only softening is in After's Run C, which says only 'I do not reuse an unrelated tree' and drops Before's explicit 'no suffix is tried' for the path collision; a careful reader infers it from 'Stop before any creator runs', but to keep the fact unambiguously visible, restore the explicit 'no suffixed name or path is tried' line in Run C alongside the no-reuse statement. Everything else in After delivers the Change without moving either fact.",
+      "wallMs": 12261,
+      "verdict": "unchanged"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "c0f794e9c75edc067fe1d4413113d6b508f7fc527e1fff8c91c796b268578d52",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "846af8fb641e886ab3d6b6dfb70e1483223323d53b4c37560200cad5018c6b4e",
+      "baselineOutputSha": "6bc5919af482a52c648cc3b33fb54356c3a00a42f16be4eaac6d70c7f2afde94",
+      "candidateOutputSha": "0140257eaf424b6c8aea9935c7a9dfb2274a313b040c4ce14d95eec8e7b5215b",
+      "facts": {
+        "mismatch": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "preflight": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        }
+      },
+      "feedback": "Nothing moved on this case: After's run A still stops naming repo-b with expected feature/shared-change versus observed feature/other, lists both created trees under 'Preserved created legs' and explicitly refuses to remove either, so mismatch holds; runs B and C stop before any creator on branch/path collision without suffixing or reusing, D stops on the declined continuation without stash/clean/test fallbacks, and E asks exactly once (now in the labeled-option questionary layout) without guessing between pkg-x and pkg-y, each preserving the repo-a leg, so preflight holds. The only soft spots worth tightening are B's aside 'this run supplies no path for it' (harmless, but a flat 'Preserve the already-created repo-a leg' reads cleaner against the retains-legs clause) and E's step 4 dropping Before's explicit 'do not invoke the wrapper twice' — adding that phrase back would make the ask-once guarantee more legible without disturbing the new option-line layout or the preserved-legs listing.",
+      "wallMs": 13017,
+      "verdict": "unchanged"
+    }
+  },
+  "repoSha": "f25bf48a3f7ac2e9b361d2c7506d7c691e212697"
+}

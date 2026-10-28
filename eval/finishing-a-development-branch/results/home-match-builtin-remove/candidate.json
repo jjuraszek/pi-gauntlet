@@ -1,7 +1,7 @@
 {
   "sample": "home-match-builtin-remove",
   "arm": "candidate",
-  "skillSha": "c62e8914c9b61cc41095da4963091eb73afaeaa2fe807738747975550beb141b",
+  "skillSha": "abba3103fa48c7fc97e8643ca7bfb5575f5492cc1a1a289cf45c70e02be23ba2",
   "inputSha": "26437436b01f1b8de5896b1758dbdd6ab2bf9b4d65d996ff6ef72f8aed8f3656",
   "kind": "text",
   "assembly": "concat",
@@ -15,23 +15,32 @@
     "thinking": "medium"
   },
   "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "# Step 6: Cleanup Workspace (after squash-merge, option 3)\n\n**Cleanup contract:** no `## Legs` recorded, so this uses `.pi/gauntlet-overrides.md` → `## using-git-worktrees`. That section has `- home:`, so the **keyed contract** applies.\n\n**1. Resolve `home:`**\n- `home: ../acme-api-worktrees/<name>` is relative, so it resolves against `$PRIMARY` (`/work/acme-api`).\n- That gives `/work/acme-api/../acme-api-worktrees/<name>`, which canonicalizes to `/work/acme-api-worktrees/<name>`.\n- `<name>` appears once and fills the whole last path segment, with no prefix or suffix. The pattern is valid.\n\n**2. Ownership match**\n- Canonical `$WORKTREE` is `/work/acme-api-worktrees/rate-limit`.\n- Canonical pattern is `/work/acme-api-worktrees/*`.\n- They match. `NAME` = `rate-limit`.\n- Gauntlet owns this worktree.\n\n**3. `destroy:`** is not set, so rule 4 applies: use the standard git removal, then delete the branch.\n\n```bash\ngit -C \"/work/acme-api\" worktree remove \"/work/acme-api-worktrees/rate-limit\"\ngit -C \"/work/acme-api\" worktree prune\ngit -C \"/work/acme-api\" branch -D \"rate-limit\"\n```\n\nThe worktree is removed first because `git branch -D` fails while a worktree still references the branch.\n\n**Result:** the worktree at `/work/acme-api-worktrees/rate-limit` is removed and pruned. The local branch `rate-limit` is deleted, since its work is already squash-merged into `main` at `/work/acme-api`.\n",
+      "words": 163,
+      "wallMs": 8421,
+      "mechanical": {
+        "b3": "holds"
+      }
+    },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "The keyed `home` pattern resolves to `/work/acme-api-worktrees/<name>` and matches `WORKTREE`, with `NAME=rate-limit`. No `destroy:` command is configured.\n\nRun in order, continuing only on success:\n\n```bash\ngit -C \"/work/acme-api\" worktree remove \"/work/acme-api-worktrees/rate-limit\"\ngit -C \"/work/acme-api\" worktree prune\ngit -C \"/work/acme-api\" branch -D \"rate-limit\"\n```\n",
+      "text": "The keyed `home:` pattern matches this worktree, with `NAME=rate-limit`. No `destroy:` command is configured, so remove the worktree and prune before deleting the branch:\n\n```bash\ngit -C \"/work/acme-api\" worktree remove \"/work/acme-api-worktrees/rate-limit\" &&\ngit -C \"/work/acme-api\" worktree prune &&\ngit -C \"/work/acme-api\" branch -D \"rate-limit\"\n```\n",
       "words": 42,
-      "wallMs": 3378,
+      "wallMs": 4986,
       "mechanical": {
         "b3": "holds"
       }
     }
   },
   "judge": {
-    "github-copilot/gpt-6.1-sol": {
+    "anthropic/claude-opus-5-5": {
       "factsSha": "44c6f347b2bf43b42c43699d15859d8f3015c0d5bfd4ef77b70fa1c01395950d",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "30343bc5c6f678faa9431a82e537b28e529d686c25202329a16e741a2b64b92c",
-      "baselineOutputSha": "214858bb008fc350ed7d609b3360261b902221073251c8581783a26505d7369d",
-      "candidateOutputSha": "6451af8121c42eed5096458f8e3aef8d00cdb91a04c892efe11ad1870728f934",
+      "intentSha": "f799890e16cc3f3752172fadbe09daebf0f294cfcc869df30dee75eb116791d8",
+      "baselineOutputSha": "57940c9159726a93088f11114888e56b24c2bdbe89f47cbfba72d02ac5e74453",
+      "candidateOutputSha": "82aa5328e0d26e8329fdb91b1799a99b15cb3908d0a7aae2d647c744bf29ccee",
       "facts": {
         "b1": {
           "before": "holds",
@@ -49,10 +58,37 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "Neither fact moved: After still matches the keyed home pattern with NAME=rate-limit, treats the worktree as owned by scheduling its removal, and narrates remove, prune, then branch deletion with success-only continuation. To make that continuation executable rather than dependent on the prose, retain Before’s && chaining. Explicitly calling the match gauntlet-owned would also clarify ownership while preserving both facts and the requested keyed cleanup behavior.",
-      "wallMs": 6567,
+      "feedback": "Both facts hold in both outputs: each resolves `../acme-api-worktrees/<name>` against `/work/acme-api`, matches `/work/acme-api-worktrees/rate-limit` with `NAME = rate-limit`, declares the worktree gauntlet-owned, and runs `worktree remove`, `worktree prune`, then `branch -D rate-limit` in that order from `/work/acme-api`. Nothing moved on this case. One observation for the author: Before explicitly stated the failure rule (`worktree remove` failure prints output, stops, keeps the branch, no `--force` retry), while After dropped it and presents the three commands as a single block with an unconditional 'the local branch is deleted' result. That omission is not graded here but is exactly what destroy-failure/f2 and the 'keeps the branch when destroy: fails' clause of the Change expect; consider keeping a short 'if removal fails, stop and keep the branch; never retry with --force' sentence after the command block so the explicit branch -D continuation remains conditioned on successful removal.",
+      "wallMs": 7954,
+      "verdict": "unchanged"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "44c6f347b2bf43b42c43699d15859d8f3015c0d5bfd4ef77b70fa1c01395950d",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "f799890e16cc3f3752172fadbe09daebf0f294cfcc869df30dee75eb116791d8",
+      "baselineOutputSha": "214858bb008fc350ed7d609b3360261b902221073251c8581783a26505d7369d",
+      "candidateOutputSha": "570bc311732d406bd865ca6b8a22c7568a38daccd261a79dfb4e7cc22874eeff",
+      "facts": {
+        "b1": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "b2": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "b3": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        }
+      },
+      "feedback": "Both facts hold in both outputs: each narration matches the worktree against the keyed `home:` pattern with NAME=rate-limit, treats it as gauntlet-owned, and runs remove, prune, then branch -D in order with `&&` chaining. The only drift in After is that it no longer spells out the resolved pattern `/work/acme-api-worktrees/<name>` or the literal `$WORKTREE` path at the match step, saying only 'matches this worktree'; a reader must rely on the command block to confirm which path was matched. To keep b1 unambiguously explicit while retaining the new 'remove and prune before deleting the branch' sentence, have After state the resolved home pattern and the matched path (e.g. 'The keyed `home:` resolves to `/work/acme-api-worktrees/<name>` and matches `/work/acme-api-worktrees/rate-limit` with NAME=rate-limit') before the no-`destroy:` fallback sentence.",
+      "wallMs": 8687,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "2eb4429b4dd687432969f427f82d45d7840d7c63"
+  "repoSha": "f25bf48a3f7ac2e9b361d2c7506d7c691e212697"
 }

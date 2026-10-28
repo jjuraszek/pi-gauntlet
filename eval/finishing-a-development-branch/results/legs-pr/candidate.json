@@ -1,0 +1,90 @@
+{
+  "sample": "legs-pr",
+  "arm": "candidate",
+  "skillSha": "47074a47855ed9272259862fb8a44ae0212fb1dbed289dbdae609bc5f8501053",
+  "inputSha": "f414852657afdefb1895beb77259b143b1cb272dd0a83c957472d647989c3110",
+  "kind": "text",
+  "assembly": "concat",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "# Coordinated finish: `doc/specs/shared.md` on `feature/shared-change`\n\n**Membership (from `## Legs`, read once at Step 1):** repo-a (home), then repo-b and repo-c as companions in declared order. Each leg's branch, common directory, repository identity and full `**Home:**` tuple validate. Each leg's recorded `contract:` lines are the authority, so overrides are not reread.\n\n| Leg | Worktree | Verification (cwd = worktree) | Rules | Owned ACs |\n|---|---|---|---|---|\n| repo-a | `/work/repo-a/.worktrees/feature-shared-change` | `node --test test/parser.test.mjs` | `AGENTS.md` | AC 1 |\n| repo-b | `/work/repo-b/.worktrees/feature-shared-change` | `node --test test/parser.test.mjs` | `AGENTS.md` | AC 1 |\n| repo-c | `/work/repo-c/.worktrees/feature-shared-change` | `node --test test/parser.test.mjs` | `AGENTS.md` | AC 2 |\n\n**Steps 1 and 3.5:** Fresh verification and conformance passed for every leg. Closure is aggregated, and audited clean heads and trees are retained for each leg. No receipts exist.\n\n**Receipt directory:** `/work/repo-a/.git/gauntlet/receipts/shared.md/`\n\n---\n\n## Run A: PR chosen, repo-c push fails\n\n**Home action:** This is a PR subject, so the PR choice maps to row 1, \"Push to the PR branch (PR #1)\". Preflight passes. Companions are delivered in declared order before home.\n\n1. **Receipt check.** No receipts exist, so no leg is skipped.\n\n2. **repo-b.**\n   - Freshness check: the current head and tree equal the audited head and tree. No re-verify is needed.\n   - Push: `git -C /work/repo-b/.worktrees/feature-shared-change push -u origin feature/shared-change`\n   - Create the PR with `(cd /work/repo-b/.worktrees/feature-shared-change && gh pr create ...)`. The body follows repo-b's PR body style and includes:\n     `Home: repo-a feature/shared-change doc/specs/shared.md`\n   - Result: **https://example.test/repo-b/pull/2**\n   - Write the receipt to `/work/repo-a/.git/gauntlet/receipts/shared.md/repo-b`:\n     ```text\n     attempted-head: <full repo-b feature SHA>\n     delivered: pr https://example.test/repo-b/pull/2 <full delivered PR head = attempted head>\n     verification: passed\n     ```\n   - No companion plan strip or telemetry seal runs.\n\n3. **repo-c.**\n   - Freshness check: clean.\n   - Push: `git -C /work/repo-c/.worktrees/feature-shared-change push -u origin feature/shared-change`\n   - The push exits 1 with `remote unavailable`.\n   - No PR was produced, so no receipt is written.\n   - This is the first delivery failure, so **fan-out stops here**.\n\n4. **Not run:**\n   - Home strip-and-seal does not run. A seal is never made from partial results.\n   - Home's row-1 push and PR #1 body edit are not attempted.\n   - There is no rollback and no cleanup, because PR delivery preserves worktrees.\n\n```text\nShipped: repo-b https://example.test/repo-b/pull/2\nNot shipped: repo-c push failed (exit 1: remote unavailable)\nNot shipped: repo-a home not attempted - fan-out stopped at repo-c\n```\n\n**State after the stop:**\n- All three worktrees and branches are preserved.\n- The receipt `/work/repo-a/.git/gauntlet/receipts/shared.md/repo-b` is retained.\n- Ship is **not** marked complete.\n- A fresh-session retry will:\n  - validate repo-b's receipt with `gh pr view https://example.test/repo-b/pull/2 --json state,headRefOid`, requiring `OPEN` and a head equal to the attempted head with the feature head unchanged;\n  - then deliver repo-c;\n  - then seal and deliver home.\n\n---\n\n## Run B (independent): full successful PR delivery\n\n1. **Receipts and freshness.** No receipts exist. Each unlanded leg's head and tree match the audit.\n\n2. **repo-b.**\n   - Push, then `gh pr create` in its worktree. The body carries `Home: repo-a feature/shared-change doc/specs/shared.md`.\n   - Write receipt `.../shared.md/repo-b` with `delivered: pr <repo-b PR URL> <head>` and `verification: passed`.\n\n3. **repo-c.**\n   - Push, then `gh pr create`. The body carries the same `Home:` line.\n   - Result: **https://example.test/repo-c/pull/3**\n   - Write receipt `.../shared.md/repo-c`:\n     ```text\n     attempted-head: <full repo-c feature SHA>\n     delivered: pr https://example.test/repo-c/pull/3 <full head>\n     verification: passed\n     ```\n\n4. **Collect complete companion results.** Capture the spec path, the scoped verification set and accepted-complete task evidence. Then run home's strip-and-seal (plan stripped, spec and telemetry kept):\n   ```bash\n   node <bin>/gauntlet-telemetry-seal.mjs --worktree /work/repo-a/.worktrees/feature-shared-change \\\n     --option pr --base origin/<baseRefName> --spec doc/specs/shared.md \\\n     --leg repo-b=<repo-b PR URL> --leg repo-c=https://example.test/repo-c/pull/3\n   ```\n   - The seal is printed verbatim.\n   - Only home's telemetry is written. Nothing is written under companion `.pi/gauntlet/telemetry/`.\n\n5. **Home row 1** (no second seal):\n   - Refetch threads.\n   - Run `git update-ref refs/gauntlet/pre-rework/pr-1 <PRE_REWORK_HEAD>`.\n   - Push non-force: `git -C ... push --no-follow-tags origin HEAD:refs/heads/<headRefName>`\n   - Fetch PR #1's body fresh and append the `## Rework` block. The block lists the companion PRs (`<repo-b PR URL>`, `https://example.test/repo-c/pull/3`), uses scoped verification and whole-PR telemetry, and includes Threads.\n   - Run `gh pr edit 1 --body-file <scratch>`.\n   - **https://example.test/repo-a/pull/1 updated.**\n   - N=1, so there is no absorbed-PR closure question and no member lines.\n   - Write home's receipt.\n\n6. **Cleanup and receipts.**\n   - PR success has no cleanup requirement, so every worktree and branch is preserved.\n   - `Home delivery and required cleanup succeeded; receipts removed`\n\n```text\nShipped: repo-b <repo-b PR URL>\nShipped: repo-c https://example.test/repo-c/pull/3\nShipped: repo-a https://example.test/repo-a/pull/1 (existing PR updated)\n```\n\n`phase_tracker({ action: \"complete\", phase: \"ship\" })`. Once merged, `/skill:check-delivery` proves delivery.\n\n---\n\n## Run C (independent): home option 2 withheld by preflight\n\nThe human selects row 2, \"Push and create a Pull Request\". PR #1 already exists on `feature/shared-change`, and gh refuses a second one, so preflight refuses this home action. A duplicate is never attempted.\n\nBecause the home action is withheld, **fan-out does not start**:\n- no companion push or PR creation;\n- no receipts;\n- no strip;\n- no seal;\n- no cleanup.\n\n```text\nNot shipped: repo-b home action withheld before fan-out (row 2: PR #1 already exists)\nNot shipped: repo-c home action withheld before fan-out\nNot shipped: repo-a row 2 refused - PR #1 already exists on feature/shared-change; gh refuses a second one\n```\n\nShip is not marked complete. Preflight is recomputed and the PR-subject menu is re-rendered, with row 1, \"Push to the PR branch (PR #1)\", offered as the supported path.\n",
+      "words": 809,
+      "wallMs": 35897,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "### Run 1 — Repo-c push fails\n\n1. Deliver repo-b first: push succeeds and PR creation returns https://example.test/repo-b/pull/2.\n2. Write repo-b’s durable receipt under `/work/repo-a/.git/gauntlet/receipts/shared.md/repo-b`, recording its full attempted head, PR URL, delivered head, and `verification: passed`.\n3. Attempt repo-c’s push. It fails with exit 1: `remote unavailable`.\n4. Stop fan-out immediately. Do not attempt home delivery, strip the home plan, or seal telemetry. Preserve repo-b’s receipt and all worktrees and branches. Perform no rollback or cleanup.\n\nReport in member order:\n\n```text\nNot shipped: repo-a — not attempted; fan-out stopped after repo-c push failed\nShipped: repo-b https://example.test/repo-b/pull/2\nNot shipped: repo-c — push failed (exit 1): remote unavailable\n```\n\nShip remains incomplete.\n\n### Independent run 2 — Successful coordinated PR delivery\n\nAfter the supported home PR-subject option 1 passes preflight:\n\n1. Deliver repo-b, then repo-c, checking freshness before each delivery. Create their PRs with the home tuple in each body:\n   ```text\n   Home: repo-a feature/shared-change doc/specs/shared.md\n   ```\n2. Write durable receipts for both successful deliveries:\n   - repo-b: https://example.test/repo-b/pull/2\n   - repo-c: https://example.test/repo-c/pull/3\n3. Capture the selected spec, recorded verification commands, and accepted task evidence before stripping home’s plan.\n4. Run home’s strip-and-seal block once, using the confirmed PR base and both companion arguments:\n   ```text\n   --leg repo-b=https://example.test/repo-b/pull/2\n   --leg repo-c=https://example.test/repo-c/pull/3\n   ```\n   Do not seal companion telemetry or run a second home seal. Include the seal’s actual stdout verbatim in the completion report; no literal stdout was supplied here.\n5. Update the recorded pre-rework refs and push home non-force through the existing-PR recipe. Fetch its description fresh and append the required rework block without replacing the existing body. Include both companion PR URLs.\n6. Home PR update succeeds: https://example.test/repo-a/pull/1. Write home’s successful receipt. Any absorbed-PR closure remains separately authorized; companion delivery does not authorize closing PRs.\n7. Preserve every worktree and branch. No teardown commands or hooks run for PR delivery.\n\n```text\nShipped: repo-a https://example.test/repo-a/pull/1\nShipped: repo-b https://example.test/repo-b/pull/2\nShipped: repo-c https://example.test/repo-c/pull/3\n\nHome delivery and required cleanup succeeded; receipts removed\n```\n\nMark the ship phase complete.\n\n### Independent run 3 — Duplicate home PR action refused\n\nHome is a PR subject, and option 2 would attempt to create another PR on its existing branch. Refuse that action before starting companion fan-out.\n\n- Do not push or create companion PRs.\n- Do not strip the plan, seal telemetry, or attempt home delivery.\n- Create no delivery receipts.\n- Preserve every worktree and branch.\n- Leave the existing home PR unchanged and return to the PR-subject menu.\n- Do not mark ship complete.\n",
+      "words": 394,
+      "wallMs": 17085,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "5148f48b56484825a10bf03f71f6224d16844c63b5bdbe95413f6743f14519ff",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "f799890e16cc3f3752172fadbe09daebf0f294cfcc869df30dee75eb116791d8",
+      "baselineOutputSha": "49268d499f6a16ba4ada2070039965b9edd0404e80396ae094eaaba7a2c86e86",
+      "candidateOutputSha": "c623e256ff75ac1081400a5bc47dcda5b8e5f9377ca692f4676fa8df2c216653",
+      "facts": {
+        "partial": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "bodies": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "preflight": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        }
+      },
+      "feedback": "After keeps all three facts: Run A stops at the repo-c failure before seal/home, reports the repo-b URL as shipped and the actual `exit 1: remote unavailable` error, keeps the repo-b receipt and all worktrees with no rollback; Run B puts the `Home: repo-a feature/shared-change doc/specs/shared.md` line in both companion bodies, lists both companion URLs in the `## Rework` block, delivers companions before home and updates PR #1 via row 1; Run C starts no fan-out when row 2 is withheld. Two soft spots to tighten: (1) the Not-shipped lines in Run A are ordered repo-c then repo-a (delivery order) whereas Before listed repo-a then repo-c (declared member order) - pick one ordering and state it, e.g. keep declared order `repo-a ... ; repo-c ...` so the 'in member order' clause is unambiguous; (2) Run C no longer says anything about absorbed-PR closure, which Before covered with an explicit 'no closure question' bullet - add a line such as 'no absorbed-PR closure question is asked; closure authorization is only ever raised after a successful row-1 body edit' so the separation is stated in the withheld case rather than implied from Run B. Also note Run B leaves the repo-b URL as a `<repo-b PR URL>` placeholder; since the input provides https://example.test/repo-b/pull/2 for the successful observation, reusing it keeps the rework-block links concrete.",
+      "wallMs": 24210,
+      "verdict": "unchanged"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "5148f48b56484825a10bf03f71f6224d16844c63b5bdbe95413f6743f14519ff",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "f799890e16cc3f3752172fadbe09daebf0f294cfcc869df30dee75eb116791d8",
+      "baselineOutputSha": "d026ccf5562ad9f6932720a8b9f679164ce03add1565c08aafa99b1d0ae684ee",
+      "candidateOutputSha": "508fecc71f354db365977a6816855082c3903bf3b515c6e6fa91edffb9a53bb4",
+      "facts": {
+        "partial": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "bodies": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "preflight": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        }
+      },
+      "feedback": "After keeps everything Before kept and moves two facts as intended. `partial` moved because After's Run 1 report is in declared member order (repo-a, repo-b, repo-c) and explicitly states \"Perform no rollback or cleanup\", whereas Before listed repo-b before repo-a and never named rollback. `preflight` moved because After's Run 2 step 6 states that absorbed-PR closure remains separately authorized and companion delivery does not authorize closing PRs; Before's Run 3 refused fan-out correctly but never addressed closure authorization, so the second clause of the fact was unsatisfied. `bodies` holds in both: both carry the Home tuple in companion bodies, link both companion URLs in the appended rework block, and update rather than duplicate the home PR. Two small wording suggestions: Before's Run 1 closing note (\"A retry must validate repo-b's receipt before skipping its delivery\") was dropped in After and is worth restoring since it reinforces receipt-validated retries without touching any fact, and in Run 3 it would strengthen `preflight` to restate the closure-authorization separation alongside the refusal rather than relying on Run 2 alone to carry that clause.",
+      "wallMs": 14070,
+      "verdict": "improved"
+    }
+  },
+  "repoSha": "df79836689c7ec82c1f89329091a67b911c07c7d"
+}

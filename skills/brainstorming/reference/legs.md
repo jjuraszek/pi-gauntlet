@@ -81,7 +81,9 @@ symlinked `CLAUDE.md` counts once. Linked documents contribute no further links.
 Emit `Rules: <repo-relative path>` for each file and `Rules: missing: <path>` for
 unresolved or outside-leg targets; never invent their contents. Without touched
 paths, retain root rules and emit `Rules: root only - paths unresolved`; the
-plan-writer's touched-path walk fills the task rules later.
+plan-writer's touched-path walk fills the task rules later. Every leg block
+carries at least one `Rules:` line; a block with no rules walk result carries
+`Rules: root only - paths unresolved`, never an omitted key or a deferral note.
 
 ## Home block and companion files
 

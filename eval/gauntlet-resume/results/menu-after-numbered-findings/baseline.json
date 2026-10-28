@@ -1,7 +1,7 @@
 {
   "sample": "menu-after-numbered-findings",
   "arm": "baseline",
-  "skillSha": "d20bfaad94aaaa829c6c5b360a1c87312935c65986dcddf55b34134dd0233ad0",
+  "skillSha": "61521107cfbe0aacad2a82df7aad3863179a391817f827496a8e5cb9abe318b7",
   "inputSha": "4a8fdb8af69a76daae4c15d9d5a2a72318597352d34a872bd1704931a9fa715f",
   "kind": "text",
   "assembly": "headed",
@@ -17,18 +17,18 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "## Checkpoint 1\n\ngauntlet: gate=gauntlet-resume/discovery\n\nI'm using the gauntlet-resume skill to continue an interrupted flow.\n\n1. The handoff directory exists.\n2. Three regular Markdown files have valid handoff title lines.\n3. Candidates are sorted newest first.\n\nPick one:\n1. # Handoff: parser retry - /work/app/.worktrees/parser-retry - 2026-10-21T12:00:00Z\n2. # Handoff: export paging - /work/app/.worktrees/export-paging - 2026-10-21T11:00:00Z\n3. # Handoff: cache expiry - /work/app/.worktrees/cache-expiry - 2026-10-21T10:00:00Z\n\nReply with the number of the brief to resume.\n\n---\n\n## Checkpoint 2\n\nTaking 5 as option 2 - export paging\n\nThe previous message had three observations followed by three options, separated only by a blank line. In Markdown those two lists merged, so the options displayed as 4-6. Your reply `5` maps to option 2:\n\n- **Brief:** `# Handoff: export paging`\n- **Worktree:** `/work/app/.worktrees/export-paging`\n- **mtime:** 2026-10-21T11:00:00Z\n\nThese next steps are simulated. No tool is called, and no tracker or file changes.\n\n1. **Read the brief.** Read the selected `export paging` file under `<tmpdir>/pi-handoff/`. Confirm line 1 starts with `# Handoff:`. Then read its `worktree:`, `## Repo state`, `## Skills loaded`, and `## Process state` fields.\n2. **Entry check 1: idle session.** Call `phase_tracker({ action: \"status\" })`. This is read-only. If any phase is not pending, stop with \"session already carries flow state - reset is your call\".\n3. **Entry checks 2-6, in order:**\n   - Check 2: confirm the target worktree `/work/app/.worktrees/export-paging` exists and is a git worktree.\n   - Check 3: confirm the worktree is in the same repository as the session.\n   - Check 4: report any drift in `HEAD` or `dirty` status. This never stops the restore.\n   - Check 5: load the skills listed in the brief.\n   - Check 6: check the spec header and the grant field.\n\nTracker state changes only after all these checks pass.\n",
-      "words": 266,
-      "wallMs": 17344,
+      "text": "## Checkpoint 1\n\nI'm using the gauntlet-resume skill to continue an interrupted flow.\n\nDiscovery results:\n\n- The handoff directory exists.\n- Three regular Markdown files have valid handoff title lines.\n- Candidates are sorted newest first.\n\nPick one:\n1. # Handoff: parser retry - /work/app/.worktrees/parser-retry - 2026-10-21T12:00:00Z\n2. # Handoff: export paging - /work/app/.worktrees/export-paging - 2026-10-21T11:00:00Z\n3. # Handoff: cache expiry - /work/app/.worktrees/cache-expiry - 2026-10-21T10:00:00Z\n\nReply with the number of the brief to resume.\n\n*(Waiting for a pick. Nothing has been restored and no tracker calls have been made.)*\n\n---\n\n## Checkpoint 2\n\nTaking 5 as option 2 - export paging\n\n*(The previous message put the three observations and the three options in one contiguous ordered run, so the options rendered as 4–6. The run has L = 3 preceding items and N = 3 options. The reply 5 is greater than N, and 5 − 3 = 2 falls within 1–3, so it maps to option 2.)*\n\nSelected brief: `# Handoff: export paging`, worktree `/work/app/.worktrees/export-paging`, mtime `2026-10-21T11:00:00Z`.\n\n**Next simulated step:** Read the selected brief file under `<tmpdir>/pi-handoff/` in full. Confirm that line 1 starts with `# Handoff:`. This makes it a brief route.\n\nThen run the entry checks in order, before any tracker mutation. Check 1 is the read-only idle-session check:\n\n`phase_tracker({ action: \"status\" })`\n\nIf any phase is not pending, stop with: \"session already carries flow state - reset is your call\".\n\nChecks 2–6 follow in order:\n\n2. Target worktree `/work/app/.worktrees/export-paging`.\n3. Same-repository binding.\n4. Drift notice.\n5. Skills loaded.\n6. Grant field, once the route resolves the spec path.\n\nNo restoration has occurred.\n",
+      "words": 242,
+      "wallMs": 11886,
       "mechanical": {}
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "gauntlet: gate=gauntlet-resume/discovery\nI'm using the gauntlet-resume skill to continue an interrupted flow.\n\n**Checkpoint 1**\n\n1. The handoff directory exists.\n2. Three regular Markdown files have valid handoff title lines.\n3. Candidates are sorted newest first.\n\nPick one:\n\n1. # Handoff: parser retry - /work/app/.worktrees/parser-retry - 2026-10-21T12:00:00Z\n2. # Handoff: export paging - /work/app/.worktrees/export-paging - 2026-10-21T11:00:00Z\n3. # Handoff: cache expiry - /work/app/.worktrees/cache-expiry - 2026-10-21T10:00:00Z\n\n---\n\n**Checkpoint 2 — independent simulated response**\n\nTaking 5 as option 2 - export paging\n\nNext simulated step: read the selected export paging handoff brief from its discovered file path. Then begin entry check 1 with `phase_tracker({ action: \"status\" })` to confirm the session is idle. No tools are called and no restoration occurs here.\n",
-      "words": 106,
-      "wallMs": 11976,
+      "text": "## Checkpoint 1\n\nI'm using the gauntlet-resume skill to continue an interrupted flow.\n\n1. The handoff directory exists.\n2. Three regular Markdown files have valid handoff title lines.\n3. Candidates are sorted newest first.\n\nPick one:\n\n1. # Handoff: parser retry - /work/app/.worktrees/parser-retry - 2026-10-21T12:00:00Z\n2. # Handoff: export paging - /work/app/.worktrees/export-paging - 2026-10-21T11:00:00Z\n3. # Handoff: cache expiry - /work/app/.worktrees/cache-expiry - 2026-10-21T10:00:00Z\n\n## Checkpoint 2\n\nTaking 5 as option 2 - export paging\n\nNext simulated step: read the selected `# Handoff: export paging` brief from its discovered file, then perform entry check 1 with `phase_tracker({ action: \"status\" })`. The brief’s file path was not supplied here; `/work/app/.worktrees/export-paging` is its worktree, not its brief path. No tools are called and no restoration occurs.\n",
+      "words": 109,
+      "wallMs": 8268,
       "mechanical": {}
     }
   },
-  "repoSha": "0dcac9779f68598e1724c9f6ed2783659a94e958"
+  "repoSha": "f25bf48a3f7ac2e9b361d2c7506d7c691e212697"
 }

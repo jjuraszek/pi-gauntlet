@@ -1,0 +1,80 @@
+{
+  "sample": "legs-verify",
+  "arm": "candidate",
+  "skillSha": "47074a47855ed9272259862fb8a44ae0212fb1dbed289dbdae609bc5f8501053",
+  "inputSha": "1947c566e65d991f8d4fe29a1f93533083a9054faffae7974fefa59fdf64fc47",
+  "kind": "text",
+  "assembly": "concat",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "I'm using the finishing-a-development-branch skill to complete this work.\n\n`phase_tracker({ action: \"start\", phase: \"ship\" })`\n\n**Input resolved**\n- `WORKTREE=/work/repo-a/.worktrees/feature-shared-change`\n- `PRIMARY=/work/repo-a`\n- `FEATURE=feature/shared-change`\n\n## Step 1: Verify tests (coordinated)\n\nI read `reference/legs.md` once. `doc/specs/shared.md` has `## Legs` with three members, so the coordinated mechanics apply.\n\n**Legs and contracts**\n- Declared order: repo-a (home), repo-b, repo-c.\n- Membership, the shared branch, repository identities and the full companion `**Home:**` tuples all validated.\n- The recorded `contract:` lines are authoritative. I do not reread overrides for them.\n\n**Receipts**\n- No receipts exist under `/work/repo-a/.git/gauntlet/receipts/shared.md/`.\n- No leg is receipt-exempt, so every leg gets fresh checks.\n\n**Skip rule**\n- No verification has run in this session, so there is no verified commit to skip from.\n- Every leg runs its recorded set.\n\n**Per-leg verification** (recorded set: `node --test test/parser.test.mjs`, with each leg's worktree as cwd):\n\n| Leg | Command cwd | Result |\n|---|---|---|\n| repo-a (home) | `/work/repo-a/.worktrees/feature-shared-change` | pass |\n| repo-b | repo-b feature worktree (from the brief / recorded contract) | pass |\n| repo-c | `/work/repo-c/.worktrees/feature-shared-change` (recorded `home: .worktrees/<name>`) | pass |\n\n**Settings evidence for repo-b**\n- I read `/work/repo-b/.pi/settings.json` by file and merged its preset using the existing settings rules: repo top-level `piGauntlet` keys replace preset keys wholesale.\n- Repo-b's merged `piGauntlet.verifyBeforeShip` requires its own passing tests.\n- Home's `verifyBeforeShip` flag being true is **not** evidence for repo-b. I did not use `gauntlet_setting` for it.\n- Repo-b's requirement is met only by the repo-b run above, executed in repo-b's worktree.\n\n**Per-leg conformance** (each with that leg's worktree as `cwd`, its `Rules: AGENTS.md`, and its owned original AC rows from `scope:`):\n\n| Leg | Owned rows | Result |\n|---|---|---|\n| repo-a | AC 1 | CONFORMS |\n| repo-b | AC 1 | CONFORMS |\n| repo-c | AC 2 | CONFORMS |\n\nAC 1 is shared, so it was reviewed in both repo-a and repo-b. No row is unclaimed.\n\n**Audited state retained** (head, tree, staged, unstaged and untracked) for repo-a, repo-b and repo-c, for the pre-delivery freshness check.\n\n## Step 2 / Step 3\n\n- Named branch, not a PR subject, so the standard 5-option menu applies.\n- Base: `main`.\n\n## Step 3.5: Closure\n\nClosure aggregated across all legs:\n\n```\nClosure / conformance: CONFORMS\nwhole-diff minors: not recorded\n```\n\n## Step 4\n\nNo amendment commits were found, so the amendment digest is omitted.\n\n```\nImplementation complete. What would you like to do?\n\n1. Push and create a Pull Request\n2. Push and create a draft Pull Request\n3. Squash-merge to main (no PR, no surviving branch)\n4. Keep the branch as-is (I'll handle it later)\n5. Discard this work\n\nWhich option?\n```\n\n## Step 5: Pre-delivery freshness (applies to choices 1, 2 or 3)\n\nBefore each leg's delivery, in the order repo-b, repo-c, then home, I compare its current checkout with its retained audited state.\n\n**repo-b: changed**\n- An untracked source file has appeared since the audit, so repo-b's audited state is stale.\n- Before delivering repo-b:\n  - Re-run `node --test test/parser.test.mjs` in repo-b's worktree. repo-b's settings require its own pass, and the earlier pass does not count.\n  - Re-run conformance with repo-b's `cwd`, `Rules: AGENTS.md` and AC 1. Under the audit-time input rule, the untracked file is committed through `git -C <repo-b worktree>` before auditing; home's checkout is never used.\n  - Retain the new audited state.\n- If either re-check fails or opens a gap:\n  - Stop fan-out before any delivery.\n  - Return to Step 3.5 dispositions for repo-b.\n  - Nothing is shipped.\n- Only a fresh pass on both checks allows repo-b's delivery.\n\n**repo-c and home: unchanged**\n- Their audited state matches, so there is no re-verify or re-review for them.\n\n**Delivery order after freshness passes:** repo-b, then repo-c, then home.\n- **Companions:**\n  - Each companion gets a receipt after its attempt.\n  - Companions get no plan strip and no telemetry.\n- **Home:**\n  - Strip the plan, then seal with `--leg repo-b=<…> --leg repo-c=<…>`.\n  - Then deliver home and write home's receipt.\n- **Cleanup (squash only, after a successful post-squash verify):**\n  - repo-b: `script/wrapper remove <name>` plus the configured teardown hook.\n  - repo-c: owned built-in removal, then prune.\n  - repo-a: `script/tree destroy <name>`.\n  - Each runs from its own primary, with branch deletion only after a successful removal.\n\nAwaiting your choice.\n",
+      "words": 630,
+      "wallMs": 23205,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "I'm using the finishing-a-development-branch skill to complete this work.\n\n### Before the menu\n\n- Start the ship phase.\n- Use `doc/specs/shared.md`’s recorded membership and contracts as authority.\n- Read each primary’s `.pi/settings.json` by file and apply the preset merge rules: present top-level keys replace preset keys wholesale; absent keys fall through. Do not use home’s settings lookup for companions.\n- Home’s true verification flag does **not** establish passing evidence for repo-b. No checks have run in this session, so the verification skip rule is unavailable.\n\nRun `node --test test/parser.test.mjs` independently with these command working directories:\n\n1. `/work/repo-a/.worktrees/feature-shared-change`\n2. `/work/repo-b/.worktrees/feature-shared-change`\n3. `/work/repo-c/.worktrees/feature-shared-change`\n\nApply conformance independently using each leg’s `AGENTS.md`: AC1 belongs to repo-a and repo-b; AC2 belongs to repo-c. Retain each audited head and its staged, unstaged, and untracked state.\n\nWith the supplied passing verification and closure results, aggregate closure before presenting the single home finish menu:\n\n```text\nClosure / conformance: CONFORMS\nwhole-diff minors: not recorded\n```\n\n### Repo-b changes before delivery\n\nThe new untracked source file changes repo-b’s audited state. Its earlier passing tests and conformance verdict are now stale, even though its HEAD is unchanged. Home and repo-c remain unchanged.\n\n**Stop before delivering repo-b.** Companions deliver in repo-b, repo-c order, then home, so no delivery proceeds past this boundary.\n\nBefore resuming:\n\n- Resolve the new file’s intended inclusion; stage/commit an intended deliverable before auditing it.\n- Rerun repo-b’s recorded verification command in its worktree.\n- Obtain fresh repo-b conformance review using its Rules and owned AC1, then resolve any open dispositions.\n- Retain the refreshed audited state and compare it again immediately before delivery.\n\nDo not reuse home’s verification flag, ignore the untracked file, or treat an unchanged commit SHA as freshness proof. Do not strip the home plan, seal telemetry, deliver another leg, or clean any worktree while this boundary remains unresolved.\n\nNo delivery or receipt is established by the supplied observations, and no finish choice has been supplied. The ship phase remains incomplete.\n",
+      "words": 314,
+      "wallMs": 18184,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "ed4e9e5aa2a651c0f5739e7706f7a505e9121144721e273157db30f700f7642d",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "f799890e16cc3f3752172fadbe09daebf0f294cfcc869df30dee75eb116791d8",
+      "baselineOutputSha": "935865a675510d0eedf3aa97c407e748711bd111fde812f97fe7bb5dda44503b",
+      "candidateOutputSha": "4231619b97cda2a9491542eaed0759117dda2175c27c6b3624c70e74dd895bcb",
+      "facts": {
+        "fresh": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "changed": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        }
+      },
+      "feedback": "Neither fact moved. After still runs all three recorded commands and conformance reviews with each leg's own cwd, Rules: AGENTS.md and scoped AC rows before the single menu, reads /work/repo-b/.pi/settings.json by file with the preset merge, and states explicitly that home's verifyBeforeShip flag is not repo-b evidence, so `fresh` holds. After also retains audited head/tree including staged, unstaged and untracked state, detects the new untracked repo-b file before delivery, reruns repo-b's verification and conformance, and commits through `git -C <repo-b worktree>` with home's checkout never used, so `changed` holds. Two places where After is thinner than Before and could be tightened without weakening the Change: Before said explicitly that conformance fixes are committed in repo-b's worktree and that freshness is rechecked immediately before repo-b's delivery after repair, whereas After only says the untracked file is committed there and 'retain the new audited state'; adding 'any repair commits land via git -C <repo-b worktree>, followed by another freshness check immediately before delivery' would keep `changed` unambiguous. After also commits the untracked file unconditionally under the audit-time input rule rather than letting the user decide whether it is a deliverable; keeping Before's deliverable/non-deliverable branch would preserve that nuance.",
+      "wallMs": 13945,
+      "verdict": "unchanged"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "ed4e9e5aa2a651c0f5739e7706f7a505e9121144721e273157db30f700f7642d",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "f799890e16cc3f3752172fadbe09daebf0f294cfcc869df30dee75eb116791d8",
+      "baselineOutputSha": "b6eee12648c2ab0323007f1dd1c08fa3960c29824f257733fd47402b5b57a089",
+      "candidateOutputSha": "a4509a8a8a35f8ded6b5fa04b5357b23c1a1ccda7b48c147f56e5bee2ca1036f",
+      "facts": {
+        "fresh": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "changed": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        }
+      },
+      "feedback": "Neither fact moved: both outputs run the recorded command in each leg's own cwd, apply conformance with each leg's AGENTS.md and its original AC rows before a single menu, merge settings per primary by file with the preset rules, reject home's verification flag as companion evidence, and on the untracked repo-b file stop, stage/commit the repair in repo-b, rerun tests and conformance there, and recompare the audited head/tree (staged, unstaged, untracked) immediately before delivery. Two minor risks in After worth tightening: the line 'Do not use home's settings lookup for companions' could be read as excluding home policy from the merge, whereas the fact expects home policy and leg-local settings merged by file — phrase it as 'merge home policy with each leg's own settings file; do not substitute home's resolved settings for a companion's'; and the synthesized 'Closure / conformance: CONFORMS' block asserts an aggregate verdict the narration cannot prove, so prefer stating that closure is aggregated from the supplied per-leg results rather than printing a fabricated ledger block.",
+      "wallMs": 14406,
+      "verdict": "unchanged"
+    }
+  },
+  "repoSha": "df79836689c7ec82c1f89329091a67b911c07c7d"
+}

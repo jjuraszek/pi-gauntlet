@@ -1,7 +1,7 @@
 {
   "sample": "keyless-section-legacy-wrapper",
   "arm": "candidate",
-  "skillSha": "1786ebb359087b828c79db22f37f400c55d2d9e94aee60971e8ae9f6ee7e7479",
+  "skillSha": "3ad1c501dddfa42fee1852ce78b9452a7bed4af8ab0d28223bdba1b77af30dcd",
   "inputSha": "341a838fe547f8848a2ddccc67a8e7bc76d6c0785eb85085668dd68e5f19b25c",
   "kind": "text",
   "assembly": "concat",
@@ -17,16 +17,16 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "I'm using the using-git-worktrees skill to set up an isolated workspace.\n\n## Step 0: Detect existing isolation\n\nAll commands run with cwd `/work/acme-ops`:\n\n1. `git rev-parse --path-format=absolute --git-dir --git-common-dir` gives `GIT_DIR=/work/acme-ops/.git` and `GIT_COMMON=/work/acme-ops/.git`. The two are equal.\n2. `git rev-parse --path-format=absolute --git-common-dir` gives `ROOT=/work/acme-ops`.\n3. `git branch --show-current` gives `CURRENT_BRANCH=main`.\n4. `git rev-parse --show-superproject-working-tree` prints nothing, so this is not a submodule.\n\n**Result:** this is the primary checkout, so I go to Step 1.\n\n## Detached HEAD check\n\n`git symbolic-ref -q HEAD` (cwd `/work/acme-ops`) shows HEAD is attached to `main`. No question is needed.\n\n## Step 1: Announce\n\n> \"Setting up an isolated worktree for this work on branch `alerts`, using the project's `script/worktree` wrapper.\"\n\nNone of the consent exceptions apply, so I proceed.\n\n## Step 1a: Read the `## using-git-worktrees` contract\n\nI read `.pi/gauntlet-overrides.md`, the first file on the ladder.\n\n- It has a `## using-git-worktrees` section.\n- The section has **no** `- home:`, `- create:`, or `- destroy:` key lines, so the keyed contract is inactive. This is the **legacy path**.\n- The section's prose is instruction:\n  - use `script/worktree create <name>`\n  - never call `git worktree add` directly.\n- There is no `## conventions` section.\n\n## Step 1b: Native tools / wrapper (legacy path)\n\nI have no native worktree tool, so I use the wrapper the overrides name. `script/worktree` exists and is executable.\n\n**Step 3 clean-base check, run before invoking the wrapper:**\n- `git -C /work/acme-ops status --porcelain` exits 0 with empty output, so the base is **clean**.\n\n**Provenance check (fresh creation path):**\n- `git symbolic-ref --short refs/remotes/origin/HEAD` (cwd `/work/acme-ops`) prints `origin/main`. Stripping `origin/` gives default branch `main`.\n- The source branch is also `main`, so no provenance note is added.\n\n**Create the worktree:**\n- I resolve `<name>` to `alerts`.\n- I run `script/worktree create alerts` with cwd `/work/acme-ops`.\n- It prints `/work/acme-ops-alerts`. The wrapper provisions the isolated DB and copies `.env.local`.\n- I set `WORKTREE=/work/acme-ops-alerts`.\n- I do not run `git worktree add`, the Step 2c setup, or any tests. The wrapper owns setup.\n- The process cwd stays `/work/acme-ops`. I never `cd` into the worktree.\n\n## Step 3\n\nThe base was already verified clean in the source checkout before creation, so I continue to Step 4.\n\n## Step 4: Report\n\n```\nWorktree ready at /work/acme-ops-alerts\nBranch: alerts\nBase: main (clean)\nReady to implement alerts\n```\n\nLater skills carry `/work/acme-ops-alerts` as a value: `cwd: \"/work/acme-ops-alerts\"` or `git -C /work/acme-ops-alerts ...`. Cleanup will defer to the wrapper's destroy command via finishing-a-development-branch.\n",
-      "words": 381,
-      "wallMs": 16519,
+      "text": "# using-git-worktrees run: alerts in /work/acme-ops\n\nI'm using the using-git-worktrees skill to set up an isolated workspace.\n\nThe run stops at the Step 4 branch check, after the wrapper has already created `/work/acme-ops-alerts`.\n\n## Step 0: Detect existing isolation\n\nNo caller supplied `$ROOT`, so I derive it.\n\n1. I ran `git rev-parse --path-format=absolute --git-dir --git-common-dir` from `/work/acme-ops`.\n   - `GIT_DIR` = `/work/acme-ops/.git`\n   - `GIT_COMMON` = `/work/acme-ops/.git`\n   - `ROOT` = `dirname(GIT_COMMON)` = `/work/acme-ops`\n2. I ran `git -C /work/acme-ops branch --show-current`.\n   - `CURRENT_BRANCH` = `main`\n3. I ran `git -C /work/acme-ops rev-parse --show-superproject-working-tree`.\n   - The output was empty, so this is not a submodule.\n4. `GIT_DIR == GIT_COMMON`, so this is the primary checkout. I proceed to Step 1.\n5. I ran `git -C /work/acme-ops symbolic-ref -q HEAD` (Detached HEAD check).\n   - HEAD is attached, so I continue.\n\n## Step 1: Announce\n\n> \"Setting up an isolated worktree for this work on branch `alerts`.\"\n\n- No consent exception applies.\n- There is no explicit caller root, so the caller-root preflight is skipped.\n- `BRANCH` = `alerts`\n\n## Step 1a: Read the contract\n\n1. I read `/work/acme-ops/.pi/gauntlet-overrides.md`.\n   - The `## using-git-worktrees` section has no `home:`, `create:` or `destroy:` key lines.\n   - This means the keyed contract is not active, so this is the **legacy path**.\n   - The prose is instruction: use `script/worktree create <name>` and never call `git worktree add` directly.\n2. I read `/work/acme-ops/.pi/settings.json` by file.\n   - It is empty, so there is no checkout configuration.\n\n## Step 1b: Legacy path\n\n1. **Native tool:** none is available.\n2. **Wrapper:** `/work/acme-ops/script/worktree` exists and is executable, so I use it.\n3. `NAME` = `alerts` (there is no `/` to replace).\n4. **Clean-base check (Step 3, before the wrapper):** I ran `git -C /work/acme-ops status --porcelain`.\n   - It exited 0 with empty output, so the base is clean.\n5. **Provenance check:**\n   - I ran `git -C /work/acme-ops symbolic-ref --short refs/remotes/origin/HEAD`, which printed `origin/main`. The default branch is `main`.\n   - The source branch is `main`, which matches the default, so no note is added.\n6. **Wrapper run:** I ran `(cd /work/acme-ops && script/worktree create alerts)`, with cwd `/work/acme-ops`.\n   - It printed `/work/acme-ops-alerts`.\n   - `WORKTREE` = `/work/acme-ops-alerts`\n7. I skipped Step 2c setup because the wrapper handles provisioning.\n\n## Step 4: Verification\n\n1. I ran `git -C /work/acme-ops worktree list --porcelain`.\n   - It lists `worktree /work/acme-ops-alerts`, so this check passes.\n2. I ran `git -C /work/acme-ops-alerts branch --show-current`.\n   - The output was empty.\n   - The required value was exactly `alerts`, so this is a **mismatch**.\n\n## STOP\n\n- **Repo:** `/work/acme-ops`\n- **Requested branch:** `alerts`\n- **Actual branch:** empty (no branch reported, i.e. not `alerts`)\n\nThe wrapper takes only `<name>`, and the worktree it created is not on the requested branch. I emit no \"Worktree ready\" report.\n\nPreserved created legs: `/work/acme-ops alerts /work/acme-ops-alerts`\n\nI left the tree intact and did not remove it automatically.\n",
+      "words": 432,
+      "wallMs": 20679,
       "mechanical": {}
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "I'm using the using-git-worktrees skill to set up an isolated workspace.\n\nThis is a narration only; I do not execute tools.\n\n### 1. Resolve the starting state\n\nUsing the facts supplied in the case:\n\n- Primary root: `/work/acme-ops`\n- `GIT_DIR == GIT_COMMON`: this is the primary checkout.\n- Not a submodule.\n- HEAD is attached to `main`.\n- Requested branch: `alerts`.\n\nNo additional detection commands are needed to establish those supplied facts.\n\n### 2. Read the project overrides\n\n**Cwd:** `/work/acme-ops`  \n**Command:**\n```sh\ncat .pi/gauntlet-overrides.md\n```\n\nThe file contains the supplied `## using-git-worktrees` section.\n\nResolved interpretation:\n\n- There are no `home:`, `create:`, or `destroy:` keys, so this is the **legacy path**, not a keyed contract.\n- Its prose requires the wrapper `script/worktree create <name>`.\n- Direct `git worktree add` is prohibited.\n- `<name>` resolves to `alerts`.\n- The supplied executable wrapper is the creation mechanism; no further wrapper discovery is necessary.\n\nSetting up an isolated worktree at `/work/acme-ops-alerts` on branch `alerts` for this work.\n\n### 3. Verify the source checkout is clean\n\n**Cwd:** `/work/acme-ops`  \n**Command:**\n```sh\ngit -C /work/acme-ops status --porcelain\n```\n\nIt exits successfully with empty output. The source base is clean.\n\n### 4. Create through the required wrapper\n\n**Cwd:** `/work/acme-ops`  \n**Command:**\n```sh\nscript/worktree create alerts\n```\n\nIt succeeds and prints:\n```text\n/work/acme-ops-alerts\n```\n\nResolved workspace value:\n\n```text\nWORKTREE=/work/acme-ops-alerts\n```\n\nThe wrapper provisions the isolated database and copies `.env.local`. I do not call `git worktree add`, add a `.worktrees/` ignore entry, or run tests.\n\n### 5. Resolve provenance\n\n**Cwd:** `/work/acme-ops`  \n**Command:**\n```sh\ngit symbolic-ref --short refs/remotes/origin/HEAD\n```\n\nOutput:\n```text\norigin/main\n```\n\nStripping `origin/` resolves the default branch to `main`. The supplied source branch is also `main`, so no provenance warning is needed.\n\n### 6. Step 4 report\n\n```text\nWorktree ready at /work/acme-ops-alerts\nBranch: alerts\nBase: main (clean)\nReady to implement alerts\n```\n\nThe process cwd remains `/work/acme-ops`; subsequent work carries `/work/acme-ops-alerts` explicitly.\n",
-      "words": 286,
-      "wallMs": 21705,
+      "text": "I’m using the using-git-worktrees skill to set up an isolated workspace.\n\nI use the supplied repository facts for Step 0:\n- `ROOT=/work/acme-ops`\n- `BRANCH=alerts`\n- Current branch and source ref: `main`\n- `GIT_DIR == GIT_COMMON`; this is the primary checkout, not a submodule.\n- HEAD is attached, so no detached-HEAD question is needed.\n\nAll commands below run with **cwd `/work/acme-ops`**. I do not change the process cwd.\n\n1. **Read the first overrides file.**\n   ```sh\n   cat /work/acme-ops/.pi/gauntlet-overrides.md\n   ```\n   Its `using-git-worktrees` section has no `home:`, `create:`, or `destroy:` keys. Therefore this is the **legacy path**, but its prose is binding: use `script/worktree create <name>` and never call `git worktree add` directly.\n\n2. **Read checkout settings.**\n   ```sh\n   cat /work/acme-ops/.pi/settings.json\n   ```\n   Under the case’s rule, this succeeds with empty output. No checkout configuration is resolved from it.\n\n3. **Check project instructions before wrapper discovery.**\n   ```sh\n   cat /work/acme-ops/AGENTS.md\n   ```\n   This succeeds with empty output.\n\n4. **Verify the prescribed wrapper is executable.**\n   ```sh\n   test -x /work/acme-ops/script/worktree\n   ```\n   This succeeds. I resolve:\n   - `NAME=alerts` — replacing `/` in `alerts` changes nothing.\n   - Creator: `script/worktree create alerts`\n   - Expected wrapper-managed location: `/work/acme-ops-alerts`\n\n   I announce: “Setting up an isolated worktree at `/work/acme-ops-alerts` on branch `alerts` for this work.”\n\n5. **Verify the source checkout is clean before invoking the wrapper.**\n   ```sh\n   git -C /work/acme-ops status --porcelain\n   ```\n   It succeeds with empty output: the source is clean.\n\n6. **Resolve default-branch provenance.**\n   ```sh\n   git -C /work/acme-ops symbolic-ref --short refs/remotes/origin/HEAD\n   ```\n   Output:\n   ```text\n   origin/main\n   ```\n   Stripping `origin/` gives `main`, matching the supplied source branch. No provenance warning applies.\n\n7. **Create using the prescribed wrapper.**\n   ```sh\n   script/worktree create alerts\n   ```\n   Output:\n   ```text\n   /work/acme-ops-alerts\n   ```\n   I resolve `WORKTREE=/work/acme-ops-alerts`. I neither edit `.gitignore` nor invoke `git worktree add`; placement and provisioning belong to the wrapper.\n\n8. **Verify registration.**\n   ```sh\n   git -C /work/acme-ops worktree list --porcelain\n   ```\n   The output lists `worktree /work/acme-ops-alerts`, satisfying the location check.\n\n9. **Verify the actual branch before issuing the Step 4 report.**\n   ```sh\n   git -C /work/acme-ops-alerts branch --show-current\n   ```\n   The case does not specify output for this command, so it succeeds with **empty output**. The actual branch value is therefore empty, not the required `alerts`.\n\n**Stop:** branch verification failed for repository `/work/acme-ops`: requested branch `alerts`; actual branch output `<empty>`. I do not emit a “Worktree ready” report, infer that the wrapper selected `alerts`, or remove the created tree.\n\n```text\nPreserved created legs: /work/acme-ops alerts /work/acme-ops-alerts\n```\n",
+      "words": 371,
+      "wallMs": 47528,
       "mechanical": {}
     }
   },
@@ -34,9 +34,9 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "7cc8f0793450e18346d8ab523d8a1f626bbe0f8d083b38c5d3f2e0961c9ec230",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "678a9675d70c6a4d91a62e77f516d4c878d59592faa890c42da4cd5567c2ee39",
-      "baselineOutputSha": "733238cebb9b00663bc0ac33d487f3574b42ab66765475f14b5b01119ed36bb9",
-      "candidateOutputSha": "fb0c5aed308ca14f31964108f004d19d0fcca47ae1bcf49baabed464981f1276",
+      "intentSha": "eaa1592b503e954fe68bce45d83df9bab3f582876abb55614459018662f6494c",
+      "baselineOutputSha": "a6331dbc9d2a4d0efc577c92de4be160cf5efd7460145d3120027557b0c9fe39",
+      "candidateOutputSha": "3669146d0dd34ec0e32035e4ddccfb1dd57c87f9ad87d5dd623941a8a4442ab8",
       "facts": {
         "k1": {
           "before": "holds",
@@ -45,20 +45,41 @@
         },
         "k2": {
           "before": "holds",
-          "after": "holds",
-          "label": "held"
+          "after": "fails",
+          "label": "regression"
         }
       },
-      "feedback": "Neither fact moved: both Before and After invoke `script/worktree create alerts` from `/work/acme-ops`, explicitly state that `git worktree add` is not run, and end with a Step 4 report of `Worktree ready at /work/acme-ops-alerts`. The After wording adds a detached-HEAD check, a note that no `## conventions` section exists, and a cleanup deferral line, none of which disturbs the wrapper-only creation or the final report. Since this case exercises only the legacy worktree path and none of the PR-subject rebase/merge-forward behavior described in the Change, the Change does not need to touch this narration at all; keep the legacy-path wording as is and confine the rebase/linearization edits to the PR-subject provisioning sections so cases like this remain unaffected.",
-      "wallMs": 6867,
-      "verdict": "unchanged"
+      "feedback": "Both outputs invoke only `script/worktree create alerts` and never `git worktree add`, so k1 is preserved. k2 fails in After because the new Step 4 verification adds a `git -C /work/acme-ops-alerts branch --show-current` check, asserts the output was empty (a value the case never states), declares a mismatch, and explicitly emits no \"Worktree ready\" report, replacing it with a STOP block. The Change (honoring explicit ROOT and shared BRANCH for keyed legs) does not require inventing a post-create branch probe on the legacy wrapper path; the After wording should scope the branch-check STOP to the keyed-leg path where BRANCH was supplied by a caller, or state that on the legacy path the wrapper's printed path plus `git worktree list --porcelain` confirmation is sufficient verification and the branch check is report-only (only STOP when a non-empty, different branch is actually observed). With that scoping, After would still deliver the ROOT/BRANCH handling while emitting the same `Worktree ready at /work/acme-ops-alerts` report Before produces.",
+      "wallMs": 12343,
+      "verdict": "regressed",
+      "confirmation": {
+        "status": "ok",
+        "text": "I'm using the using-git-worktrees skill to set up an isolated workspace.\n\n## Step 0: Detect existing isolation\n\nNo caller-supplied `$ROOT` was given, so I derive it. `$BRANCH=alerts` is the requested feature branch.\n\n1. **cwd `/work/acme-ops`:** `git rev-parse --path-format=absolute --git-dir --git-common-dir`\n   - `GIT_DIR=/work/acme-ops/.git`\n   - `GIT_COMMON=/work/acme-ops/.git`\n   - `ROOT=$(dirname \"$GIT_COMMON\")` = `/work/acme-ops`\n2. `git -C /work/acme-ops branch --show-current` returns `main`, so `CURRENT_BRANCH=main`.\n3. `git -C /work/acme-ops rev-parse --show-superproject-working-tree` prints nothing, so this is not a submodule.\n\n`GIT_DIR == GIT_COMMON`, so I am in the primary checkout. I proceed to Step 1.\n\n## Step 1: Announce\n\n> \"Setting up an isolated worktree for this work on branch `alerts` (location per the project wrapper).\"\n\nNone of the consent exceptions apply, so I proceed. The caller-root preflight does not apply because no explicit caller root was given.\n\n## Step 1a: Read the contract\n\n4. I read `/work/acme-ops/.pi/gauntlet-overrides.md`, the first file on the ladder. Its `## using-git-worktrees` section has none of the `- home:`, `- create:` or `- destroy:` key lines.\n   - That makes this the **legacy path**.\n   - The prose still counts as instruction: use `script/worktree create <name>` and never call `git worktree add` directly.\n5. I read `/work/acme-ops/.pi/settings.json` by file. It is empty, so it sets no checkout configuration.\n\n## Step 1b: Native tool or wrapper (legacy path)\n\nI have no native worktree tool. The project wrapper `script/worktree` exists and is executable, and the overrides file requires it.\n\n- `NAME` = `alerts` (it contains no `/`).\n\n**Step 3 clean-base check, before invoking the wrapper:**\n\n6. `git -C /work/acme-ops status --porcelain` prints nothing and exits 0, so the base is clean.\n\n**Provenance check:**\n\n7. `git -C /work/acme-ops symbolic-ref --short refs/remotes/origin/HEAD` returns `origin/main`, which strips to `main`.\n   - The current branch is `main`, so they match and no note is added.\n\n**Create:**\n\n8. `(cd /work/acme-ops && script/worktree create alerts)` prints `/work/acme-ops-alerts`.\n   - `WORKTREE=/work/acme-ops-alerts`.\n\nI skip the Step 2 fallback and its 2c setup, because the wrapper handles provisioning.\n\n## Step 4: Verify before reporting\n\n9. `git -C /work/acme-ops worktree list --porcelain` includes `worktree /work/acme-ops-alerts`. The path check passes.\n10. `git -C /work/acme-ops-alerts branch --show-current` prints nothing, so the actual branch is empty (no branch checked out).\n    - The skill requires this to equal `$BRANCH`. Empty is not `alerts`, so this is a **mismatch**.\n\n## STOP\n\nThe branch check failed, so I do not emit a \"Worktree ready\" report.\n\n> Stopping: in repo `/work/acme-ops`, requested branch `alerts`, but the worktree created by `script/worktree create alerts` at `/work/acme-ops-alerts` reports actual branch `` (empty, no branch checked out).\n> Preserved created legs: /work/acme-ops alerts /work/acme-ops-alerts\n\nThe created worktree is left intact. I do not remove it, retry, or fall back to `git worktree add`.\n",
+        "words": 416,
+        "wallMs": 20392,
+        "mechanical": {},
+        "judgeWallMs": 12666,
+        "facts": {
+          "k1": {
+            "before": "holds",
+            "after": "holds",
+            "label": "held"
+          },
+          "k2": {
+            "before": "holds",
+            "after": "fails",
+            "label": "regression"
+          }
+        },
+        "feedback": "After still honors the wrapper (k1 holds: it runs `script/worktree create alerts` and never touches `git worktree add`), but it loses k2 because the new Step 4 verification invents an observation the fixture never supplies — `git -C /work/acme-ops-alerts branch --show-current` 'prints nothing' — and then STOPs instead of emitting the 'Worktree ready at /work/acme-ops-alerts' report that Before produced. The ROOT/BRANCH-aware verification was meant for keyed-leg provisioning; on the legacy wrapper path the wording should not require a branch-equality check that can fail against unspecified state. To keep k2 while still delivering the Change, scope the actual-branch-vs-$BRANCH preflight and STOP to the keyed contract (explicit caller ROOT / `- home:`/`- create:` keys), and on the legacy wrapper path verify only what the fixture establishes (`worktree list --porcelain` lists the path), treating the wrapper's `<name>` as the branch unless a real mismatch is observed. If a branch check is kept for legacy too, phrase it as 'if the actual branch is non-empty and differs from $BRANCH, stop; otherwise report ready', so an empty/unspecified result does not suppress the ready report."
+      }
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "7cc8f0793450e18346d8ab523d8a1f626bbe0f8d083b38c5d3f2e0961c9ec230",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "678a9675d70c6a4d91a62e77f516d4c878d59592faa890c42da4cd5567c2ee39",
-      "baselineOutputSha": "8928515b8332678dd1759a76edd47f493135b3fc8360bdf24d4b03a9825d7014",
-      "candidateOutputSha": "5f0a08d19b0123bed4adfd5d5bad69d836bc0a3e915967a37dc3ff1cf1395b94",
+      "intentSha": "eaa1592b503e954fe68bce45d83df9bab3f582876abb55614459018662f6494c",
+      "baselineOutputSha": "b46e2d39156ded5159e9e5c7c3793d114828d5174a6f4902d0fa8f85fa8395d8",
+      "candidateOutputSha": "fa0a12ccbd6c270d2e0421eb29d469a59d52edd564d4f8aa9691573678679b87",
       "facts": {
         "k1": {
           "before": "holds",
@@ -67,56 +88,20 @@
         },
         "k2": {
           "before": "holds",
-          "after": "holds",
-          "label": "held"
+          "after": "fails",
+          "label": "regression"
         }
       },
-      "feedback": "Neither fact moved. Both outputs run `script/worktree create alerts` as the sole creation command, explicitly disclaim any direct `git worktree add`, and report `Worktree ready at /work/acme-ops-alerts` in the Step 4 report. The Change paragraph concerns PR-subject provisioning and rebase/merge sync behavior, which this worktree-creation case never exercises, so the wording change is effectively neutral here. The only observable differences in After are structural: it drops the `test -x script/worktree` executability check and the post-creation `git worktree list --porcelain` registration confirmation, and it moves the provenance lookup after creation. None of those affect k1 or k2, but if you want After to stay maximally defensible on the 'worktree ready' claim, consider keeping the `git worktree list --porcelain` confirmation step from Before so the reported path is verified against git's registry rather than only the wrapper's stdout.",
-      "wallMs": 8174,
-      "verdict": "unchanged"
-    }
-  },
-  "refresh": {
-    "status": "complete",
-    "identity": {
-      "sample": "keyless-section-legacy-wrapper",
-      "kind": "text",
-      "assembly": "concat",
-      "baselineSkillSha": "3cc812f0124fbdba4f27ebda5b3abb751587265339fe1424c16a1465c05c43bb",
-      "candidateSkillSha": "ecf2733acd03e2e7e210a02233820ee4a6e347c937745e08f57bf875ed848067",
-      "inputSha": "341a838fe547f8848a2ddccc67a8e7bc76d6c0785eb85085668dd68e5f19b25c",
-      "factsSha": "7cc8f0793450e18346d8ab523d8a1f626bbe0f8d083b38c5d3f2e0961c9ec230",
-      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "da26298e568d10fc59a4bb4ca1f33953732f1df3813ff7a16651d1de74202509",
-      "models": {
-        "replay": [
-          "github-copilot/gpt-6.1-sol"
-        ],
-        "judge": "github-copilot/gpt-6.1-sol"
-      },
-      "thinking": "medium",
-      "outputs": {
-        "baseline": {
-          "github-copilot/gpt-6.1-sol": {
-            "baselineOutputSha": "b46e2d39156ded5159e9e5c7c3793d114828d5174a6f4902d0fa8f85fa8395d8",
-            "payloadSha": "058daab529877c83d8bcfbaa816c3fa0aae25e8a24922341fb0254f6c28094d5"
-          }
-        },
-        "candidate": {
-          "github-copilot/gpt-6.1-sol": {
-            "candidateOutputSha": "5b9d362ad0f01978d30771bfba400b1a402ea9365c72ec1c207a4e6dd55ba0cc",
-            "payloadSha": "fd7561c61922621f2280a28056907f6779523f8a01aea92f6ff887ae011d93b0"
-          }
-        }
-      }
-    },
-    "previous": {
-      "github-copilot/gpt-6.1-sol": {
-        "factsSha": "7cc8f0793450e18346d8ab523d8a1f626bbe0f8d083b38c5d3f2e0961c9ec230",
-        "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-        "intentSha": "da26298e568d10fc59a4bb4ca1f33953732f1df3813ff7a16651d1de74202509",
-        "baselineOutputSha": "b46e2d39156ded5159e9e5c7c3793d114828d5174a6f4902d0fa8f85fa8395d8",
-        "candidateOutputSha": "5b9d362ad0f01978d30771bfba400b1a402ea9365c72ec1c207a4e6dd55ba0cc",
+      "feedback": "After keeps k1 (it runs `script/worktree create alerts` and never invokes `git worktree add`) but loses k2: the new Step 9 branch verification treats the unspecified output of `git -C /work/acme-ops-alerts branch --show-current` as empty, declares a mismatch against `alerts`, and explicitly refuses to emit the \"Worktree ready at /work/acme-ops-alerts\" report, instead stopping with a \"Preserved created legs\" line. The Change was about honoring explicit ROOT/BRANCH for keyed legs and preserving single-member facts, so the branch-verification wording should not convert an absent fixture output into a failure; rewrite it so that when the case stipulates the wrapper-created worktree is registered in `git worktree list --porcelain` and gives no output for the branch check, the narration treats the check as passing (or scopes the strict empty-output-means-failure rule to cases where the fixture explicitly describes the command), and then issues the same Step 4 report Before does: `Worktree ready at /work/acme-ops-alerts`, `Branch: alerts`, `Base: main (clean)`. That keeps both facts while still carrying the ROOT/BRANCH preamble and the wrapper-only creation path.",
+      "wallMs": 10790,
+      "verdict": "regressed",
+      "confirmation": {
+        "status": "ok",
+        "text": "I'm using the using-git-worktrees skill to set up an isolated workspace.\n\nAll commands below are narrated, not executed. Their cwd is `/work/acme-ops`.\n\n### 1. Resolve the starting state\n\nUsing the facts supplied in the case:\n\n- `ROOT=/work/acme-ops`\n- `BRANCH=alerts`\n- Source branch and base ref: `main`\n- `GIT_DIR == GIT_COMMON`\n- Not a submodule; HEAD is attached.\n\nThis is the primary checkout, so there is no existing isolation to reuse.\n\n### 2. Read configuration before discovering the wrapper\n\n1. **Command:** `cat /work/acme-ops/.pi/gauntlet-overrides.md`  \n   **cwd:** `/work/acme-ops`\n\n   The supplied file contains the wrapper instruction. It has no `home:`, `create:`, or `destroy:` keys, so this is the **legacy path**, with binding prose requiring the project wrapper and prohibiting direct `git worktree add`.\n\n2. **Command:** `cat /work/acme-ops/.pi/settings.json`  \n   **cwd:** `/work/acme-ops`\n\n   Under the case’s empty-output rule, this succeeds with no output. No checkout configuration is resolved from it.\n\n3. **Command:** `cat /work/acme-ops/AGENTS.md`  \n   **cwd:** `/work/acme-ops`\n\n   This succeeds with empty output. No additional routing or wrapper instructions are resolved.\n\n4. **Command:** `test -x /work/acme-ops/script/worktree`  \n   **cwd:** `/work/acme-ops`\n\n   This succeeds. The configured project wrapper is executable.\n\nResolve `NAME=alerts`, replacing slashes in `BRANCH` with hyphens; there are none.\n\nSetting up an isolated worktree at `/work/acme-ops-alerts` on branch `alerts` using the project wrapper.\n\n### 3. Check the source before creation\n\n5. **Command:** `git -C /work/acme-ops status --porcelain`  \n   **cwd:** `/work/acme-ops`\n\n   Successful, empty output: the source checkout is clean.\n\n6. **Command:** `git -C /work/acme-ops symbolic-ref --short refs/remotes/origin/HEAD`  \n   **cwd:** `/work/acme-ops`\n\n   Output: `origin/main`.\n\n   Resolve the default branch to `main`. It matches the source branch, so no provenance note is needed.\n\n### 4. Create with the wrapper\n\n7. **Command:** `script/worktree create alerts`  \n   **cwd:** `/work/acme-ops`\n\n   It creates `/work/acme-ops-alerts` and prints that path.\n\n   Resolve `WORKTREE=/work/acme-ops-alerts`. I do not substitute the canonical `.worktrees/` location, call `git worktree add`, or change the process cwd.\n\n### 5. Verify before reporting readiness\n\n8. **Command:** `git -C /work/acme-ops worktree list --porcelain`  \n   **cwd:** `/work/acme-ops`\n\n   The output lists `worktree /work/acme-ops-alerts`, satisfying the path check.\n\n9. **Command:** `git -C /work/acme-ops-alerts branch --show-current`  \n   **cwd:** `/work/acme-ops`\n\n   The case does not specify output for this command, so its stated rule makes the result successful **with empty output**.\n\n### Stop\n\nThe branch verification requires exact equality with `alerts`. The actual returned branch string is empty, so verification fails for repository `/work/acme-ops`, requested branch `alerts`.\n\nI do **not** emit a Step 4 “Worktree ready” report, infer the branch from the wrapper’s name argument, or remove the created tree.\n\nPreserved created legs: `/work/acme-ops alerts /work/acme-ops-alerts`\n",
+        "words": 389,
+        "wallMs": 36344,
+        "mechanical": {},
+        "judgeWallMs": 11802,
         "facts": {
           "k1": {
             "before": "holds",
@@ -125,43 +110,13 @@
           },
           "k2": {
             "before": "holds",
-            "after": "holds",
-            "label": "held"
+            "after": "fails",
+            "label": "regression"
           }
         },
-        "feedback": "Both outputs run `script/worktree create alerts`, explicitly state that no direct `git worktree add` is run, and close with `Worktree ready at /work/acme-ops-alerts`, so k1 and k2 hold in Before and After alike; nothing moved on this case. The After wording reorders steps (executable check before the cleanliness check, provenance resolution as its own step) and consolidates detection into a single shell block, but it keeps the override reading before wrapper discovery, keeps the registration check via `git -C /work/acme-ops worktree list --porcelain`, and keeps the same final report block. To continue holding these facts while delivering the Change's PR-head routing and worktree-targeting edits, keep the explicit `-C /work/acme-ops` targeting on verification commands, the plain statement that no `git worktree add` is invoked, and the verbatim `Worktree ready at <path>` report line, since those are the sentences a reader uses to confirm k1 and k2.",
-        "wallMs": 6134,
-        "verdict": "unchanged",
-        "judgeModel": null,
-        "thinking": null
-      }
-    },
-    "refreshed": {
-      "github-copilot/gpt-6.1-sol": {
-        "factsSha": "7cc8f0793450e18346d8ab523d8a1f626bbe0f8d083b38c5d3f2e0961c9ec230",
-        "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-        "intentSha": "da26298e568d10fc59a4bb4ca1f33953732f1df3813ff7a16651d1de74202509",
-        "baselineOutputSha": "b46e2d39156ded5159e9e5c7c3793d114828d5174a6f4902d0fa8f85fa8395d8",
-        "candidateOutputSha": "5b9d362ad0f01978d30771bfba400b1a402ea9365c72ec1c207a4e6dd55ba0cc",
-        "facts": {
-          "k1": {
-            "before": "holds",
-            "after": "holds",
-            "label": "held"
-          },
-          "k2": {
-            "before": "holds",
-            "after": "holds",
-            "label": "held"
-          }
-        },
-        "feedback": "Neither fact moved: After still runs `script/worktree create alerts` without running `git worktree add`, and explicitly reports the worktree ready at `/work/acme-ops-alerts`. Keep those commands and the final readiness report intact. This non-PR provisioning example does not demonstrate the requested PR routing, merge recovery, or waiting-question first-line changes; apply those changes in their relevant flows while preserving this wrapper-based provisioning path.",
-        "wallMs": 4549,
-        "verdict": "unchanged",
-        "judgeModel": "github-copilot/gpt-6.1-sol",
-        "thinking": "medium"
+        "feedback": "After keeps k1 (it narrates `script/worktree create alerts` and explicitly refrains from `git worktree add`) but loses k2: the new Step 5 adds a `git -C /work/acme-ops-alerts branch --show-current` check, applies the case's \"unspecified output is empty\" rule to it, and then treats the empty string as a verification failure, so the narration stops and deliberately withholds the \"Worktree ready at /work/acme-ops-alerts\" report that Before emitted. The ROOT/BRANCH keyed-leg wording is fine; the regression comes from making the readiness report conditional on a command whose output the case never stipulates. To keep k2 while still honoring explicit ROOT and BRANCH, verify the branch from evidence the case actually supplies — e.g. use the `branch refs/heads/alerts` line in the already-run `git worktree list --porcelain` output, or state that when the wrapper is the configured creator and the case stipulates it created the tree, the stipulated creation plus the worktree-list path check satisfy verification — and only stop when a stipulated output contradicts `alerts`, not when an output is merely unstated. Then end with the same Step 4 report (`Worktree ready at /work/acme-ops-alerts`, `Branch: alerts`, `Base: main (clean)`) as Before."
       }
     }
   },
-  "repoSha": "c15f0daad9dcdb2c78a79935df219ae3711e44a7"
+  "repoSha": "f25bf48a3f7ac2e9b361d2c7506d7c691e212697"
 }

@@ -1,7 +1,7 @@
 {
   "sample": "heavy-json-fixture",
   "arm": "candidate",
-  "skillSha": "0642b3465fecadf2520938f3cdf9b0cf0622b83444463108b83a68a583ca0d77",
+  "skillSha": "26c4e39b729dc51b46de7be681dc0169db8ab54551ded3b9be222d6d3d9e2f3a",
   "inputSha": "2564f21345c7c2a99744d3e58b86a86b0fe780821ea23be0d7ffdaac5481ff51",
   "kind": "text",
   "assembly": "headed",
@@ -17,18 +17,18 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "```python\ndef test_rejects_future_posted_on():\n    record = {\"account\": \"4010\", \"amount\": \"125.00\", \"posted_on\": \"2026-03-02\"}\n    with pytest.raises(ImportRejected, match=\"posted_on is in the future\"):\n        import_record(record, TODAY)\n\n\ndef test_imports_record_posted_today():\n    record = {\"account\": \"4010\", \"amount\": \"125.00\", \"posted_on\": \"2026-03-01\"}\n    entry = import_record(record, TODAY)\n    assert entry.posted_on == TODAY\n```\n",
-      "words": 34,
-      "wallMs": 8224,
+      "text": "```python\n# ledger/importer_test.py — add after test_rejects_invalid_posted_on\n\n\ndef test_rejects_future_posted_on():\n    record = {\"account\": \"4010\", \"amount\": \"125.00\", \"posted_on\": \"2026-03-02\"}\n    with pytest.raises(ImportRejected, match=\"posted_on is in the future\"):\n        import_record(record, TODAY)\n\n\ndef test_imports_record_posted_today():\n    record = {\"account\": \"4010\", \"amount\": \"125.00\", \"posted_on\": \"2026-03-01\"}\n    entry = import_record(record, TODAY)\n    assert entry.posted_on == TODAY\n```\n",
+      "words": 38,
+      "wallMs": 7359,
       "mechanical": {
         "m1": "holds"
       }
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "def test_rejects_future_posted_on():\n    record = {\n        \"account\": \"4010\",\n        \"amount\": \"1.00\",\n        \"posted_on\": \"2026-03-02\",\n    }\n    with pytest.raises(ImportRejected, match=r\"^posted_on is in the future$\"):\n        import_record(record, TODAY)\n",
-      "words": 18,
-      "wallMs": 8030,
+      "text": "```python\ndef test_rejects_future_posted_on():\n    record = {\"account\": \"test\", \"amount\": \"1.00\", \"posted_on\": \"2026-03-02\"}\n    with pytest.raises(ImportRejected, match=\"^posted_on is in the future$\"):\n        import_record(record, TODAY)\n```\n",
+      "words": 19,
+      "wallMs": 5989,
       "mechanical": {
         "m1": "holds"
       }
@@ -38,9 +38,9 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "eed2c1b7a2b16e4dcfd9d2fc64141f75fd370c088e2db36003f534ea2e56af89",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "d0b720e9be51d8de89d95e75679855ba354c87ba5ee9271d78e3cc2ad2cc667e",
-      "baselineOutputSha": "90a86f3fa6ca0aa95f443374768f72cba008174e2e4434adc2a06c63d06f38ac",
-      "candidateOutputSha": "adcf1fe789c9cbd114ebc0a89ee2692904547dd93760f9f305c2b0e7b05864a7",
+      "intentSha": "b0bec12c2127a9efc2ff54345a880eb6491ff3565e9e96a6fdf79d08b68d21c0",
+      "baselineOutputSha": "adcf1fe789c9cbd114ebc0a89ee2692904547dd93760f9f305c2b0e7b05864a7",
+      "candidateOutputSha": "9e993ee9a769ab134d7e3f4dbc0c115231c7a72cee1c232ca8436a69aedf84ae",
       "facts": {
         "f1": {
           "before": "holds",
@@ -63,16 +63,16 @@
           "label": "held"
         }
       },
-      "feedback": "Nothing moved. Both outputs build the record by hand rather than loading fixtures/ledger_400.json, both assert pytest.raises(ImportRejected, match=\"posted_on is in the future\") on the future-dated record, and neither adds a json.load. After is actually slightly tighter than Before: it drops the `_record` helper and the optional `memo` key, leaving a bare dict literal with exactly account, amount, and posted_on, which matches f1's wording more literally. Before's helper-based construction still reads as hand-built (the literal is right there in `_record`), so a careful reader would not fail it, but if you want the sample to track f1 unambiguously, keep After's inline-literal form. No wording change to the After template is needed to preserve these facts.",
-      "wallMs": 14885,
+      "feedback": "Both outputs are identical in test code: the new rejection test builds a hand-written dict literal with only account, amount, and posted_on (no fixture load), asserts pytest.raises(ImportRejected, match=\"posted_on is in the future\") against a 2026-03-02 record, and introduces no json.load of fixtures/ledger_400.json, so f1–f3 hold in both. The only difference in After is a leading comment line indicating the file and insertion point (\"add after test_rejects_invalid_posted_on\"), which does not alter any fact; it remains a test-code-only reply consistent with the heavy-json-fixture sample's expectations and the Change's intent of preserving test-economy facts. No wording adjustment is needed to keep these facts; if anything, the placement comment helpfully honors the context's instruction to add the regression alongside the existing rejection tests without adding narration or status reports.",
+      "wallMs": 7479,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "eed2c1b7a2b16e4dcfd9d2fc64141f75fd370c088e2db36003f534ea2e56af89",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "d0b720e9be51d8de89d95e75679855ba354c87ba5ee9271d78e3cc2ad2cc667e",
-      "baselineOutputSha": "d81091293e639a6f95a316acf53a376048967f0225b145ed78ad7a84ad9056af",
-      "candidateOutputSha": "cc03606e0596372318f2d9ecdc2083df56f20c68b52f59074853778bc4c51b0c",
+      "intentSha": "b0bec12c2127a9efc2ff54345a880eb6491ff3565e9e96a6fdf79d08b68d21c0",
+      "baselineOutputSha": "cc03606e0596372318f2d9ecdc2083df56f20c68b52f59074853778bc4c51b0c",
+      "candidateOutputSha": "317d8ca2009666cc1f92e3531be23c5f7f1ccdab0d9bb447e3381afbba390950",
       "facts": {
         "f1": {
           "before": "holds",
@@ -95,10 +95,10 @@
           "label": "held"
         }
       },
-      "feedback": "Both outputs are test-code-only replies that build the record as a hand-written dict literal with just account, amount, and posted_on (the keys import_record reads), assert ImportRejected with the exact message, and add no json.load of the fixture. The only difference is the amount string (\"125.00\" vs \"1.00\"), which affects none of the facts. No fact moved, so the After wording preserves the test-economy behavior; no change is needed.",
-      "wallMs": 5185,
+      "feedback": "After preserves every fact Before held: the new test still hand-builds a single dict literal with only account, amount, and posted_on (no fixture load, no json.load), still asserts ImportRejected with an exact match on the message for a posted_on one day after TODAY, and adds no per-test fixture read. The only differences are cosmetic (a one-line dict, a plain string instead of a raw string for the regex, a `\"test\"` account value, and a fenced code block around the reply), none of which affect the facts. No wording adjustment is needed to keep these facts; if you want to tighten further, the Change's test-code-only requirement for this sample is already respected since the fence wraps only code and no narration.",
+      "wallMs": 5499,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "1269c2c1e3c260af57d45acd77fe38a6b19853e1"
+  "repoSha": "f25bf48a3f7ac2e9b361d2c7506d7c691e212697"
 }

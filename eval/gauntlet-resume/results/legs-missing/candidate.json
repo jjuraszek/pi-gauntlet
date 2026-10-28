@@ -1,0 +1,70 @@
+{
+  "sample": "legs-missing",
+  "arm": "candidate",
+  "skillSha": "2f7b6a465302e069d7792d095a17320df5bd3fb29614318f4eb780204940aa31",
+  "inputSha": "da4db7a961ee97f588ea5d85180378df83089e897a78d2b94cd52ba55f850853",
+  "kind": "text",
+  "assembly": "headed",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "# Gauntlet resume: coordinated admission (entry check 3b)\n\nThe run is still in coordinated admission, before any tracker write. `plan_check` is not reached in this run.\n\n## Tool calls, in order\n\n1. **Ordered membership.** I read `/work/repo-a/.worktrees/feature-shared-change/doc/specs/shared.md` `## Legs`.\n   - The spec lists `repo-a`, `repo-b`.\n   - The brief's `legs:` lists `repo-a`, `repo-b`.\n   - The order matches.\n\n2. **Repo-b's declared primary.** The home overrides declare the sibling `../repo-b`. Resolved against `/work/repo-a`, that is `/work/repo-b`.\n   - I ran `realpath \"$(git -C /work/repo-b rev-parse --path-format=absolute --git-common-dir)\"`.\n   - Result: `/work/repo-b/.git`.\n\n3. **Repo-b's worktree location.** The brief says `worktree: missing`.\n   - I resolved the location from the recorded `home: .worktrees/<name>` contract.\n   - NAME is `feature/shared-change` with `/` replaced by `-`, giving `feature-shared-change`.\n   - Expected location: `/work/repo-b/.worktrees/feature-shared-change`.\n\n4. **Does the tree exist?** I ran `git -C /work/repo-b/.worktrees/feature-shared-change rev-parse --is-inside-work-tree`.\n   - Result: fails, because the path is missing.\n\n5. **Receipt check for the missing tree.** The brief's `repo-b` entry has no `receipt:` field.\n   - The home-owned location is `/work/repo-a/.git/gauntlet/receipts/shared.md/repo-b`. There is no receipt there to validate live.\n   - A missing companion tree can only be admitted after its receipt is validated live. Without one, this leg is not admissible.\n\n## Printed\n\n```\nSTOP: coordinated admission - leg repo-b: worktree missing at /work/repo-b/.worktrees/feature-shared-change (expected a live worktree on feature/shared-change, common dir /work/repo-b/.git; observed: path missing) and the brief carries no receipt; a missing companion tree is admitted only after live receipt validation (finishing-a-development-branch/reference/legs.md \"Durable receipts\"). No receipt at /work/repo-a/.git/gauntlet/receipts/shared.md/repo-b.\n```\n\n- No `phase_tracker` call was made.\n- No `plan_check` was run.\n- No `plan_tracker init` was run.\n- No closing line or standing-grant line was printed.\n- No worktree was created. Resume creates worktrees only on the seed route.\n\n**Next step:** recreate repo-b's worktree through `/skill:using-git-worktrees`, with ROOT `/work/repo-b` and BRANCH `feature/shared-change`. If repo-b was already delivered, supply its receipt instead. Then re-run `/skill:gauntlet-resume`.\n",
+      "words": 281,
+      "wallMs": 13853,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "I'm using the gauntlet-resume skill to continue an interrupted flow.\n\nSTOP: repo-b worktree is missing at /work/repo-b/.worktrees/feature-shared-change, and no delivery receipt is available for live validation. Coordinated admission fails before any tracker write.\n\nNo tracker calls or `plan_check` call.\n",
+      "words": 39,
+      "wallMs": 7493,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "5e8a86ca28188ac230c45b444795bc1b81c2d6425bc586c10b641a1bb8697af2",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "1b12afc6459e1e531c9112ca2505d714fa9d20362956b8b1a397ff8152df023f",
+      "baselineOutputSha": "0e982b1e3455dc5d9508c4f17e18999690eebe2caf047633b0aefde267160b17",
+      "candidateOutputSha": "3c7a0b343105959c34b1c93b32b8dfdb903f3f8b7452c7ede945a492daae526a",
+      "facts": {
+        "stop": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        }
+      },
+      "feedback": "Both outputs resolve the missing repo-b path from the recorded `home: .worktrees/<name>` contract with NAME derived from the shared branch (`feature-shared-change`), stop naming repo-b before any `phase_tracker`/`plan_tracker` call, and refuse to invent a tree, receipt or approval, so the fact holds in Before as well as After rather than moving. After adds a concrete home-owned receipt location (`/work/repo-a/.git/gauntlet/receipts/shared.md/repo-b`) and reports nothing is there; this is still an observation of absence, not an invented receipt, but it is the one place where the wording risks reading as a manufactured artifact — if the receipt path is not part of the supplied observations, prefer phrasing like 'no receipt was recorded in the brief and none is available to validate live' so the stop stays strictly tied to the recorded contract and supplied observations. Otherwise the After structure (numbered read-only checks, explicit expected/observed tuple in the STOP line, 'not done' list, next step) keeps every element Before kept while delivering the coordinated-admission framing.",
+      "wallMs": 10230,
+      "verdict": "unchanged"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "5e8a86ca28188ac230c45b444795bc1b81c2d6425bc586c10b641a1bb8697af2",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "1b12afc6459e1e531c9112ca2505d714fa9d20362956b8b1a397ff8152df023f",
+      "baselineOutputSha": "8ec16138daca6d4c7928e93e35ff222099858edf1f0c70c9ba5b82c6bf01365f",
+      "candidateOutputSha": "2693c2953df7da7392c37b7d40bacb5ef009164a806b8361ec3be43f41fc26e4",
+      "facts": {
+        "stop": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        }
+      },
+      "feedback": "Before and After are functionally equivalent on this fact: both name repo-b, state the resolved missing path /work/repo-b/.worktrees/feature-shared-change (consistent with recorded home `.worktrees/<name>` plus the shared NAME), stop before any tracker write, and invent no tree, receipt or approval. Neither output narrates the derivation step itself, so the 'resolves from recorded home and shared NAME' clause is only satisfied implicitly by the correct path. After did not move the fact; to make the resolution explicit and robust against stricter reading, have the After wording print one line like 'Resolved companion path from recorded home .worktrees/<name> and shared NAME feature-shared-change: /work/repo-b/.worktrees/feature-shared-change (missing)' before the STOP line, while keeping the existing 'no delivery receipt available for live validation' and 'No tracker calls or plan_check call' statements.",
+      "wallMs": 10341,
+      "verdict": "unchanged"
+    }
+  },
+  "repoSha": "df79836689c7ec82c1f89329091a67b911c07c7d"
+}

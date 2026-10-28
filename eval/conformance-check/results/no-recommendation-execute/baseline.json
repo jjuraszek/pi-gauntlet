@@ -1,7 +1,7 @@
 {
   "sample": "no-recommendation-execute",
   "arm": "baseline",
-  "skillSha": "2973ddee05a134ccbcb0b84522fcb6313086e3cc95b36c05354c905c410f55a4",
+  "skillSha": "077c5f37cbf277c19f227f9be2c003b1bdca6ef1a5765c4fe8bcf82488ed0213",
   "inputSha": "3a38f50e21fd29525066724ac74383e69ddc8ee663722cfd04d13e8fb4612c3e",
   "kind": "text",
   "assembly": "headed",
@@ -17,18 +17,18 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "Recorded: manifest=custom(append the sha256 table from the build log to the release notes)\n\nYour decision is concrete and executable as given. `build.log` holds the complete table, and `release-notes.md` is accessible, so no clarification is needed. This is a **custom** disposition you chose. It is not a recommendation.\n\n**Normalized operation (execute-order step 1).** This change is state-changing. It edits a deliverable, not the spec. The main session will append this to `release-notes.md`, below `# Lantern release`:\n\n```markdown\n| Artifact | sha256 |\n|---|---|\n| release.zip | aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa |\n```\n\n**Scheduled execution.** Nothing has run yet. The order is:\n\n1. **Spec edits (step 2):** none. The spec is unchanged, so the step-3 re-audit is skipped.\n2. **Code-changing custom (step 4):**\n   - Apply the append above.\n   - Commit it so the re-audit sees it, per the audit-time input rule.\n   - Run the project's tests and a `code-reviewer` pass on that delta.\n   - Re-run Step 1's canonical tests.\n3. **Re-audit (step 5):** dispatch a fresh `conformance-reviewer` against the spec and the new HEAD. The working tree will have moved past `audited-base`, so this audit is required. It regenerates the `## Closure / conformance` block.\n4. **Follow-up, non-state-changing custom, revert (steps 6-8):** none selected.\n5. **Re-entry (step 9):**\n   - If the re-audit still reports the manifest gap, or any other open concern, return to Step 3.5 with the regenerated block.\n   - If it returns `status: CONFORMS (0 open)`, print `Closure / conformance: CONFORMS` and proceed to Step 4.\n\n**Durable record, pending execution:**\n\n```\nG1 - Integrity manifest is missing: custom(append the sha256 table from the build log to the release notes) - result: pending (append, tests, code-reviewer, re-audit not yet run)\n```\n\nThe result field will be filled in from the actual outcome once these steps complete. Step 4 is not rendered until then.\n",
-      "words": 277,
-      "wallMs": 13706,
+      "text": "Your custom disposition for item 1 is recorded. It names a concrete, executable effect, so it needs no clarification. The batch is now fully decided, and nothing has executed yet.\n\n```\nRecorded: manifest=custom(append the sha256 table from the build log to the release notes)\n```\n\n**Durable record (result pending):** `G1 - Integrity manifest is missing: custom(append the sha256 table from the build log to the release notes)`. This is a user-supplied custom effect, not a recommendation.\n\n**Normalized operation (execute-order step 1).** This edit changes a deliverable, not the spec. Append the complete `build.log` integrity table verbatim to `release-notes.md`, below `# Lantern release`:\n\n```\n| Artifact | sha256 |\n|---|---|\n| release.zip | aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa |\n```\n\n**Scheduled execution, in order:**\n\n1. **Spec edits (steps 2-3):** none were chosen, so no spec commit and no pre-fix re-audit.\n2. **Code-changing custom (step 4):**\n   - The main session appends the table to `release-notes.md` and commits it, so the re-audit reads a clean, committed tree.\n   - Run the project's tests and a foreground `code-reviewer` (`async: false`) on that delta.\n   - Re-run Step 1's canonical tests.\n3. **Re-audit (step 5):**\n   - Dispatch a fresh foreground `conformance-reviewer` (`async: false`).\n   - Take its model call-site from `gauntlet_setting({ key: \"closureReview\" }).model`. Omit `model:` if that value is undefined.\n   - Inputs: the spec, the verbatim prompt, the diff, and the prior report.\n   - Expected outcome: the in-scope AC \"Attach an integrity manifest (sha256 table) to the release notes\" moves from MISSING to DELIVERED.\n4. **Steps 6-8:** no follow-up, no non-state-changing custom, no revert.\n5. **Step 9:** if the re-audit leaves any concern open, re-enter Step 3.5 with the regenerated block. If it returns `CONFORMS`, record the custom result against `G1 - Integrity manifest is missing` and replace the closure block with a fresh `status: CONFORMS (0 open)` sentinel at the new `audited-base`.\n\nResults will be reported only after these steps actually run.\n",
+      "words": 291,
+      "wallMs": 14630,
       "mechanical": {}
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "Recorded: integrity=custom(append the sha256 table from the build log to the release notes)\n\nG1 - Integrity manifest is missing: approved code-changing custom disposition.\n\nNext, I’ll append the complete sha256 table from `build.log` to `release-notes.md`, preserving the existing heading. Then I’ll run the project’s canonical tests, obtain a code review of the delta, and re-audit conformance before returning to the shipping options.\n\nNo edits or checks have executed. No further clarification is needed.\n",
-      "words": 71,
-      "wallMs": 5866,
+      "text": "Recorded: manifest=custom(append the sha256 table from the build log to the release notes)\n\n**G1 - Integrity manifest is missing:** Your custom disposition is concrete; no further clarification is needed.\n\nExecution queued:\n1. Append the complete sha256 table from `build.log` to `release-notes.md`, preserving its existing heading.\n2. Run the project’s canonical tests and obtain code review of the change.\n3. Re-audit conformance and refresh the closure block. Request new decisions only if the resulting inventory differs from the approved disposition.\n\nNo edits or checks have run in this tool-free replay. Shipping remains gated on that execution and verification.\n",
+      "words": 96,
+      "wallMs": 7345,
       "mechanical": {}
     }
   },
-  "repoSha": "0454df1724312f2291bed3d591cbb0f7e61e1c8a"
+  "repoSha": "f25bf48a3f7ac2e9b361d2c7506d7c691e212697"
 }

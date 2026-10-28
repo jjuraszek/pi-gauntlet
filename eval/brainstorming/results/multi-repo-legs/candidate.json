@@ -1,0 +1,100 @@
+{
+  "sample": "multi-repo-legs",
+  "arm": "candidate",
+  "skillSha": "c68b91bcc7185a03b8291b1b039a9b140a5f38110d61e48bb6dd2e4d402ae86e",
+  "inputSha": "0b5da446fa73c9982930f5fe9e45c67985469896e4cb0e5f82da67b84ffb3910",
+  "kind": "text",
+  "assembly": "headed",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "# Multi-repo provisioning and spec finalization: repo-a (home), repo-b, repo-c\n\n## 1. Membership\n\n- **Overrides read:** I read the overrides file in the home primary `/work/repo-a`. Its `## shape-ticket` `- sibling:` lines list `../repo-b`, `../repo-c` and `../repo-unused`. These lines make a repo eligible, not a member.\n- **Selection:** The human explicitly selected repo-b and repo-c. Only those two declarations are resolved and validated. `../repo-unused` is never resolved or inspected.\n- **Identifiers:**\n  - repo-a has no `origin`, so its identifier comes from its own overrides `## Issue tracker` `repo:` line, which gives `repo-a`.\n  - repo-b and repo-c use their basenames, as the case specifies.\n- **Validation (before any tree is created):**\n  - `../repo-b` resolves against the home primary to `/work/repo-b`.\n  - `../repo-c` resolves to `/work/repo-c`.\n  - Both exist, both are git repositories, and neither equals `/work/repo-a` after canonicalization.\n- **Member order:** `repo-a` (home), `repo-b`, `repo-c`.\n- **Shared names:** `BRANCH=feature/shared-change`, `NAME=feature-shared-change`.\n\n## 2. Provisioning\n\n`using-git-worktrees` runs once per member, home first, with an explicit `$ROOT` and `$BRANCH` for each.\n\nBefore each creator runs, I check the following. All pass for every member, as observed:\n- The branch preflight (`show-ref`).\n- `worktree list --porcelain` and the existence of the target path.\n- `git -C <primary> status --porcelain`, which comes back clean.\n\n| Member | `$ROOT` | Path taken | Command run from `$ROOT` |\n|---|---|---|---|\n| repo-a | `/work/repo-a` | Keyed contract (Step 1a). `HOME = /work/repo-a/.worktrees/feature-shared-change` | `script/tree create 'feature-shared-change' 'feature/shared-change'` |\n| repo-b | `/work/repo-b` | Legacy path with a discovered wrapper. `<subproject>` resolves to `pkg-x`, the only top-level directory this leg touches, so no question is needed | `script/worktree 'pkg-x' 'feature-shared-change' 'feature/shared-change'` |\n| repo-c | `/work/repo-c` | Legacy path, built-in creator (Step 2b). If `.worktrees` is not ignored, add it to `.gitignore` and commit that first | `git -C /work/repo-c worktree add /work/repo-c/.worktrees/feature-shared-change -b feature/shared-change`, then Step 2c setup |\n\nAfter each creator, I run the Step 4 readback. `worktree list --porcelain` shows the reported path, and `branch --show-current` equals `feature/shared-change`. The ready results, in home-first order, are:\n\n```\nWorktree ready at /work/repo-a/.worktrees/feature-shared-change   Branch: feature/shared-change\nWorktree ready at /work/repo-b/.worktrees/feature-shared-change   Branch: feature/shared-change\nWorktree ready at /work/repo-c/.worktrees/feature-shared-change   Branch: feature/shared-change\n```\n\nThese absolute paths stay in working state and briefs only. They never appear in committed blocks.\n\n## 3. Home spec `## Legs` (repo-a: `doc/specs/shared.md`)\n\nThis section comes after `## Acceptance criteria`.\n\nThe case supplies no rules-walk observations, so each block carries the required sentinel `Rules: root only - paths unresolved`. The plan-writer's touched-path walk fills in task rules later.\n\nThe case also names no `## verification-before-completion` or `## PR gate` section, and the preset is the default. So `verification:` records that nothing is configured.\n\n```markdown\n## Legs\n\n### Leg: repo-a\nbranch: feature/shared-change\ncontract:\n- create: script/tree create <name> <branch>\n- destroy: script/tree destroy <name>\n- home: .worktrees/<name>\n- spec-dir: doc/specs\n- plan-dir: doc/plans\n- verification: none configured (default preset; no verification-before-completion or PR gate section)\nRules: root only - paths unresolved\nscope: AC 1\ndesign: Owns the shared-result reader in repo-a; readers retain compatibility and reject unknown versions (AC 1).\n\n### Leg: repo-b\nbranch: feature/shared-change\ncontract:\n- create: script/worktree pkg-x <name> <branch>\n- destroy: script/worktree-remove pkg-x <name>\n- home: .worktrees/<name>\n- spec-dir: doc/specs\n- plan-dir: doc/plans\n- verification: none configured (default preset; no verification-before-completion or PR gate section)\nRules: root only - paths unresolved\nscope: AC 1\ndesign: Owns the reader under pkg-x; it stays compatible with the shared result and rejects unknown versions (AC 1).\n\n### Leg: repo-c\nbranch: feature/shared-change\ncontract:\n- create: git worktree add <home> -b <branch>\n- destroy: git worktree remove <home> && git worktree prune\n- home: .worktrees/<name>\n- spec-dir: doc/specs\n- plan-dir: doc/plans\n- verification: none configured (default preset; no verification-before-completion or PR gate section)\nRules: root only - paths unresolved\nscope: AC 2\ndesign: Owns the shared-result writer; its output stays readable by compatible readers (AC 2).\n```\n\nNotes on the contract and scope lines:\n\n- **Destroy commands:**\n  - repo-b's destroy comes from its `## cleanup` worktree line, which takes priority.\n  - repo-a's comes from `destroy:`.\n  - repo-c's is the built-in removal that matches `home:`.\n  - No `subagents.worktreeTeardownHook` is configured.\n- **Plan files:** The plan and ledger stay home-owned. The companion `plan-dir:` values are derived values only.\n- **Scope validation:**\n  - The original AC count is 2.\n  - Each block has exactly one `scope:` line, with no duplicates inside a leg and no nonexistent indices.\n  - AC 1 appearing in both repo-a and repo-b is valid.\n\n## 4. Companion file (repo-b: `doc/specs/shared.md` in the repo-b worktree)\n\n```markdown\n# <home spec title, copied verbatim from doc/specs/shared.md H1>\n\n**Home:** repo-a feature/shared-change doc/specs/shared.md\n\n## Problem\nShared result must stay readable.\n\n## Decisions\nDesign: Readers retain compatibility.\nErrors and edge cases: Reject unknown versions.\nOut of scope: No transport replacement.\n\n### Leg: repo-b\nbranch: feature/shared-change\ncontract:\n- create: script/worktree pkg-x <name> <branch>\n- destroy: script/worktree-remove pkg-x <name>\n- home: .worktrees/<name>\n- spec-dir: doc/specs\n- plan-dir: doc/plans\n- verification: none configured (default preset; no verification-before-completion or PR gate section)\nRules: root only - paths unresolved\nscope: AC 1\ndesign: Owns the reader under pkg-x; it stays compatible with the shared result and rejects unknown versions (AC 1).\n```\n\n## 5. Commit order\n\n1. **Home commit (repo-a).** `git -C /work/repo-a/.worktrees/feature-shared-change add -- doc/specs/shared.md && … commit -q -F - -- doc/specs/shared.md <<'EOF'`. The message is the subject plus the council audit, verbatim.\n2. **repo-b companion.** Write the file above, then `git -C /work/repo-b/.worktrees/feature-shared-change add -- doc/specs/shared.md && … commit`.\n3. **repo-c companion.** This has the same grammar as the repo-b file: the `**Home:**` line, the copied Problem, the shared Decisions, and its own `### Leg: repo-c` block verbatim. Commit it through `git -C /work/repo-c/.worktrees/feature-shared-change`.\n4. **Completion.** Artifact completion is reported only after all three files agree. If either companion commit had failed, I would stop and name that companion.\n5. **Approval amend (home only).** The approval sets `**Amend-grant:**` and `**Engine:**` via `commit --amend --no-edit`, keeping the audit body. Neither field is carried into the companions, so neither companion needs a rewrite.\n",
+      "words": 890,
+      "wallMs": 50460,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "Membership is **repo-a → repo-b → repo-c**. Repo-a uses its configured Issue tracker identifier because it has no origin; companions use their basenames. Repo-unused is not inspected or provisioned.\n\nThe following artifacts and commit sequence are derived from the supplied observations, not live tool calls.\n\n## Home spec: `doc/specs/shared.md`\n\nThe home spec includes these shared sections and leg blocks:\n\n```markdown\n## Problem\nShared result must stay readable.\n\n## Acceptance criteria\nDrafted from the design, no ticket rows:\n\n- [ ] reader compatible\n  in-scope\n- [ ] writer compatible\n  in-scope\n\n## Legs\n\n### Leg: repo-a\nbranch: feature/shared-change\ncontract:\n- create: script/tree create <name> <branch>\n- destroy: script/tree destroy <name>\n- home: .worktrees/<name>\n- spec-dir: doc/specs\n- plan-dir: doc/plans\n- verification: default preset policy; no additional verification commands supplied\nRules: root only - paths unresolved\nscope: AC 1\ndesign: Retain reader compatibility.\n\n### Leg: repo-b\nbranch: feature/shared-change\ncontract:\n- create: script/worktree pkg-x <name> <branch>\n- destroy: script/worktree-remove pkg-x <name>\n- home: .worktrees/<name>\n- spec-dir: doc/specs\n- plan-dir: doc/plans\n- verification: default preset policy; no additional verification commands supplied\nRules: root only - paths unresolved\nscope: AC 1\ndesign: Retain reader compatibility in pkg-x.\n\n### Leg: repo-c\nbranch: feature/shared-change\ncontract:\n- create: git worktree add .worktrees/<name> -b <branch>\n- destroy: git worktree remove .worktrees/<name> && git worktree prune\n- home: .worktrees/<name>\n- spec-dir: doc/specs\n- plan-dir: doc/plans\n- verification: default preset policy; no additional verification commands supplied\nRules: root only - paths unresolved\nscope: AC 2\ndesign: Retain writer compatibility.\n\n## Design\nReaders retain compatibility.\n\n## Errors and edge cases\nReject unknown versions.\n\n## Out of scope\nNo transport replacement.\n```\n\nThe `Rules:` fallback records that no rules-walk results were supplied; it does not assert that rule files are absent. The scope lines are valid against the two original ACs, with AC 1 intentionally shared.\n\n## Repo-b companion: `doc/specs/shared.md`\n\nUsing **Shared compatibility** as the common artifact title:\n\n```markdown\n# Shared compatibility\n\n**Home:** repo-a feature/shared-change doc/specs/shared.md\n\n## Problem\nShared result must stay readable.\n\n## Decisions\n\n### Design\nReaders retain compatibility.\n\n### Errors and edge cases\nReject unknown versions.\n\n### Out of scope\nNo transport replacement.\n\n### Leg: repo-b\nbranch: feature/shared-change\ncontract:\n- create: script/worktree pkg-x <name> <branch>\n- destroy: script/worktree-remove pkg-x <name>\n- home: .worktrees/<name>\n- spec-dir: doc/specs\n- plan-dir: doc/plans\n- verification: default preset policy; no additional verification commands supplied\nRules: root only - paths unresolved\nscope: AC 1\ndesign: Retain reader compatibility in pkg-x.\n```\n\n## Provisioning and commit order\n\n1. **Provision repo-a** using `script/tree create feature-shared-change feature/shared-change`.\n2. **Provision repo-b** using `script/worktree pkg-x feature-shared-change feature/shared-change`. The sole touched top-level directory resolves `<subproject>` to `pkg-x`.\n3. **Provision repo-c** using the built-in creator, ensuring `.worktrees/` is ignored before creation.\n4. **Commit the home spec first**, through `git -C /work/repo-a/.worktrees/feature-shared-change`. Use the required quoted-heredoc commit form and preserve the satisfied council audit verbatim; its text was not supplied here.\n5. **Write and commit repo-b’s companion**, through `git -C /work/repo-b/.worktrees/feature-shared-change`.\n6. **Write and commit repo-c’s companion**, through `git -C /work/repo-c/.worktrees/feature-shared-change`, using the same home tuple, copied shared decisions, and repo-c’s block verbatim.\n\nArtifact completion is reported only after all three committed files agree. A companion failure stops the sequence with that repo named and previously created worktrees preserved.\n",
+      "words": 475,
+      "wallMs": 20275,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "78edf5eefcc497a23f395cd34018367bb1dc640c4a819edf92e34f03dd330353",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "846af8fb641e886ab3d6b6dfb70e1483223323d53b4c37560200cad5018c6b4e",
+      "baselineOutputSha": "69ac94b907ae939aede18536eba109e8c159e04b977547c7f33949f16daa3ed4",
+      "candidateOutputSha": "7f0cece50ab46933c1357dee86e902aa6cb35c2b95583afd3ed635586ab97bf7",
+      "facts": {
+        "provision": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "portable": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "scope": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "companion": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        }
+      },
+      "feedback": "After moved portable and companion from fails to holds by materializing what Before only gestured at: Before's home blocks carried `Rules: <repo-a scout rules-walk lines>` placeholders and admitted the placeholder scan would block the commit, so the blocks as shown were not committable repo-relative contracts, and its repo-b companion rendered the leg as `<the repo-b block above, verbatim>` rather than the entire block (which would also have inherited the unresolved placeholders and a duplicated `### Leg:` header). After instead emits the bounded sentinel `Rules: root only - paths unresolved` when no rules-walk observations exist, keeps absolute worktree paths out of every committed block with an explicit statement that they live only in working state and briefs, and prints the full repo-b leg inline under `## Decisions` with labeled Design/Errors/Out-of-scope lines. Provision and scope were already held by Before and remain held because After kept the per-member `$ROOT`/`$BRANCH` table, the pkg-x subproject resolution, the repo-c built-in path, the explicit non-inspection of repo-unused, and the single-line `scope:` claims with original indices. To keep all four facts while delivering the change, retain exactly this pattern: never leave angle-bracket placeholders in a committed block (use the sentinel or the scout lines), always print the companion's own leg block in full, and keep the home-first commit list with the completion/agreement check and home-only amend as After does.",
+      "wallMs": 25679,
+      "verdict": "improved"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "78edf5eefcc497a23f395cd34018367bb1dc640c4a819edf92e34f03dd330353",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "846af8fb641e886ab3d6b6dfb70e1483223323d53b4c37560200cad5018c6b4e",
+      "baselineOutputSha": "750481465a0d7f88fd6c50564c1bbfb6ac6da7b808495a1a5cf15ff8effc2bde",
+      "candidateOutputSha": "e84ca26b2cb6bbd89ee540f66c2a0d5ed4f3603a88f24fa69283e5ed8d7139e3",
+      "facts": {
+        "provision": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "portable": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "scope": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "companion": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        }
+      },
+      "feedback": "After moved provision and portable from fails to holds: Before never narrated the provisioning sequence (it only restated that creators had reported trees) and left verification and Rules as 'unresolved' placeholders, so its home blocks carried no usable verification contract or repo-relative Rules line; After adds an explicit 'Provisioning and commit order' walk (repo-a, then repo-b with pkg-x, then repo-c default creator, repo-unused untouched) and uses the prescribed fallbacks ('default preset policy', 'Rules: root only - paths unresolved') with no /work paths inside committed blocks. Scope and companion hold in both. Two things in After are worth tightening without losing anything: the provisioning steps name creators but never state that each primary is passed as ROOT with the shared BRANCH (say 'invoke using-git-worktrees with ROOT=/work/repo-a, BRANCH=feature/shared-change' in the narration, keeping absolute paths out of the committed files), and the home-spec excerpt labels the approved AC rows 'Drafted from the design, no ticket rows', which contradicts the input's approved AC 1/AC 2 and could confuse the provenance rule; drop that label and keep Design/Errors/Out of scope ahead of ## Legs so the companion's copied Decisions visibly mirror the home ordering.",
+      "wallMs": 26799,
+      "verdict": "improved"
+    }
+  },
+  "repoSha": "f25bf48a3f7ac2e9b361d2c7506d7c691e212697"
+}

@@ -15,6 +15,13 @@
     "thinking": "medium"
   },
   "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "# Snapshot setup failed: stop dispatch\n\n**Decision: no reviewer is dispatched for this task, and no checkout is handed to a reviewer.**\n\n## What the observation means\n\nThe Spec-review snapshot block failed at this step:\n\n```bash\ngit -C \"$SR_TREE\" apply --index \"$SR_PATCH\"\n```\n\nIt exited 1 with `error: patch failed: src/parse.ts:8`. The block never reached `printf 'snapshot: …'`, so there is no snapshot path.\n\nThe workflow treats this as a setup failure: *\"stop dispatch and retain the failed snapshot directory and shell output for diagnosis; dispatch no review and perform no snapshot cleanup.\"*\n\n## Checkouts I will not substitute\n\n- **`/tmp/review-snapshot/tree`**: the patch did not apply there, so it is not a valid review tree. I will not dispatch a reviewer against it. I will not run `git -C /workspace/project worktree remove --force /tmp/review-snapshot/tree`, because cleanup is forbidden after a failed setup.\n- **`/workspace/project`**: it still holds the wave-base files. Pointing SR at it would review an unchanged tree, which is explicitly forbidden. The parent worktree must also stay unchanged before integration, so I will not try `git apply` there either.\n- **The worker's own checkout**: pi-cohort already deleted it, and it cannot be used as a fallback.\n\n## Other actions\n\n- **Fix delta**: I record no tree. Tree capture happens only after a successful snapshot setup, and there is none.\n- **No re-dispatch**: I do not re-dispatch the implementer or build a replacement snapshot on my own initiative. The task's `DONE` status stands, and its patch is retained at its `Artifacts:` path for diagnosis.\n- **Successful siblings**: their patches and SR verdicts are kept as they are.\n- **Tracker**: this task's `plan_tracker` index stays `in_progress`. I make no `complete`, `failed`, or `skipped` write.\n- **Wave base**: `WAVE_BASE_SHA` stays fixed. There is no integration, no test gate, no CR, and no wave commit for this task.\n\n## Report to the user\n\n> Spec-review snapshot setup failed for task <n> before review dispatch. Running the snapshot block against base `<WAVE_BASE_SHA>` with the task's artifact patch, `git apply --index` exited 1: `error: patch failed: src/parse.ts:8`. No snapshot path was printed. The failed snapshot directory (`/tmp/review-snapshot`, tree `/tmp/review-snapshot/tree`) is retained unmodified, along with the full shell output above. No spec review was dispatched, and the parent `/workspace/project` remains at the wave base. The task stays `in_progress` pending diagnosis.\n\nStopped at the failure decision.\n",
+      "words": 374,
+      "wallMs": 14622,
+      "mechanical": {}
+    },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
       "text": "Stop review dispatch. The snapshot setup failed:\n\n```text\nCheckout: /tmp/review-snapshot/tree\nCommand: git apply --index <returned-patch-path>\nExit: 1\nerror: patch failed: src/parse.ts:8\n```\n\n- Retain `/tmp/review-snapshot/tree`, its containing directory, the returned patch, and the shell output for diagnosis. Do not clean up the failed snapshot.\n- Dispatch **no spec reviewer**: no successful snapshot path was printed, so there is no valid materialized review checkout.\n- Do not substitute `/workspace/project`; it still contains the wave-base files, not the worker’s implementation. The deleted worker checkout is not an available review source either.\n- Do not capture a review tree, integrate, or commit at this point. The worker’s `DONE` status does not override snapshot setup failure.\n- Keep the task `in_progress` and report the blocking setup error.\n\nNo further shell commands or dispatch payloads are appropriate at this failure boundary.\n",
@@ -23,5 +30,5 @@
       "mechanical": {}
     }
   },
-  "repoSha": "2eb4429b4dd687432969f427f82d45d7840d7c63"
+  "repoSha": "f25bf48a3f7ac2e9b361d2c7506d7c691e212697"
 }

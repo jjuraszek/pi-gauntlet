@@ -1,0 +1,70 @@
+{
+  "sample": "legs-seed-file",
+  "arm": "candidate",
+  "skillSha": "89b09e23cd3b68afa392188b6f5f68d5185617575159b518322a126fb0b40167",
+  "inputSha": "c15c437e66e6dc616e9102d8d4cc9652b8aba4132c59df2dc7c5dd392a8fc137",
+  "kind": "text",
+  "assembly": "headed",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "**Announce:** I'm using the gauntlet-resume skill to continue an interrupted flow.\n\n**Action: read the header of the supplied spec input.**\n\n- **Read:** `/work/repo-b/.worktrees/feature-shared-change/doc/specs/shared.md`, from the H1 to the first `##`.\n- **Observed:** `**Home:** repo-a feature/shared-change doc/specs/shared.md`. The body carries `## Problem`, `## Decisions`, and only the `### Leg: repo-b` block.\n\n**Decision: stop before any tracker write.**\n\nThe `**Home:**` header marks this file as a companion leg file, not a home spec. Two rules apply:\n\n- `seed.md` says to stop on such a header, name the home, and never create a run from a leg file.\n- `reconstruction.md` \"Candidates\" and `brief-contract.md` \"Coordinated admission\" both say to resolve the home spec, never a companion leg file.\n\nThis stop happens at coordinated admission (check 3b), before the call-table step:\n\n- No `phase_tracker` calls are made: no `start brainstorm`, `skip brainstorm`, or `start plan`.\n- No `plan_check` call is made.\n- No `plan_tracker init` call is made.\n- Entry check 6 is not run on this file.\n- Nothing is created through `/skill:using-git-worktrees`.\n\n**Printed:**\n\n```\ncompanion leg file, not a home spec: /work/repo-b/.worktrees/feature-shared-change/doc/specs/shared.md\nhome is repo-a feature/shared-change doc/specs/shared.md; restart there\nResume from the home: /skill:gauntlet-resume <brief> (worktree /work/repo-a/.worktrees/feature-shared-change), or /skill:gauntlet-resume /work/repo-a/.worktrees/feature-shared-change\n```\n\nNo closing `Gate history not restored...` line is printed, and no `Standing grant` line either, because the restore did not run. Tracker state stays all-pending.\n",
+      "words": 208,
+      "wallMs": 9945,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "Print:\n```text\nI'm using the gauntlet-resume skill to continue an interrupted flow.\n```\n\nRead:\n```json\n{\"path\":\"/work/repo-b/.worktrees/feature-shared-change/doc/specs/shared.md\"}\n```\n\nObserved header:\n```text\n**Home:** repo-a feature/shared-change doc/specs/shared.md\n```\n\nPrint:\n```text\nCompanion leg file: /work/repo-b/.worktrees/feature-shared-change/doc/specs/shared.md\nHome: repo-a feature/shared-change doc/specs/shared.md\nResume from the run home, /work/repo-a/.worktrees/feature-shared-change, using its home spec doc/specs/shared.md.\n```\n\nStop. The supplied companion artifact cannot serve as the home spec for seed/reconstruction or coordinated admission. No tracker mutation, `plan_check`, or worktree creation occurs.\n",
+      "words": 67,
+      "wallMs": 11449,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "6037d32c20d78a1efc7bcf5b85af5002d85a2c7dfefb6f2549764d93f238c436",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "1b12afc6459e1e531c9112ca2505d714fa9d20362956b8b1a397ff8152df023f",
+      "baselineOutputSha": "14e7125d573ff60f11c1e256090db9f9cf9b9d9affdf920091ff9839bc62164a",
+      "candidateOutputSha": "40d90ace781c1455179d91c00b788b257643c761d6e80516857bbdadc26f1e5d",
+      "facts": {
+        "refuse": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        }
+      },
+      "feedback": "Both outputs refuse to seed from the companion leg file, name repo-a as home with its spec path doc/specs/shared.md, make no phase_tracker/plan_check/plan_tracker calls, and redirect to the home worktree without manufacturing a second home flow, so the refuse fact already held in Before and still holds in After; the expected fails->holds movement is not observed on this sample. After adds useful structure (explicit seed.md/reconstruction.md/brief-contract.md rule citations, the 'check 3b' admission point, the 'no worktree created' line) without dropping anything Before had, so no wording change is needed to preserve this fact; if the author wants the After wording to show a genuine move here, the sample would need a Before that actually seeds or initializes trackers, which this one does not.",
+      "wallMs": 6740,
+      "verdict": "unchanged"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "6037d32c20d78a1efc7bcf5b85af5002d85a2c7dfefb6f2549764d93f238c436",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "1b12afc6459e1e531c9112ca2505d714fa9d20362956b8b1a397ff8152df023f",
+      "baselineOutputSha": "1594f9efeb4dd1c2733e035ba43ac1e4c39854a8251d03090ad7d0c56d140710",
+      "candidateOutputSha": "67454d7e370189c910f5ed6275cb17439591c746bfdedf2c2bb6c0ac0d0767d6",
+      "facts": {
+        "refuse": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        }
+      },
+      "feedback": "Both outputs satisfy the fact: each reads the companion leg file, surfaces its **Home:** header, names repo-a as home with the spec path doc/specs/shared.md, redirects to the home worktree, and stops with no plan_check, tracker mutation, or worktree creation and no second home flow. Before's refusal is implicit (it only redirects), whereas After adds the explicit sentence that the companion artifact cannot serve as the home spec for seed/reconstruction or coordinated admission and names the home spec path alongside the run home — that explicit statement is the wording that makes the refusal unambiguous and should be kept; nothing in After moved the fact away from holding, so no change to the After wording is needed for this case.",
+      "wallMs": 9024,
+      "verdict": "unchanged"
+    }
+  },
+  "repoSha": "f25bf48a3f7ac2e9b361d2c7506d7c691e212697"
+}

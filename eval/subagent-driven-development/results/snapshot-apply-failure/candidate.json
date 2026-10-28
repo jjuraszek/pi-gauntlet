@@ -1,34 +1,42 @@
 {
   "sample": "snapshot-apply-failure",
   "arm": "candidate",
-  "skillSha": "551c035080c903d52d8106e07ce7eb2d7d75baab271627f354fbe2271846a6fc",
+  "skillSha": "62172aaa9d3217f64ccb2198a02abb4927f98cb479bebc9c6dda007ab70f700c",
   "inputSha": "43fa8fb5721bf0e716a3422ef57c0b2a332adda0224794e0b569dd638a09bd94",
   "kind": "text",
   "assembly": "headed",
   "thinking": "medium",
   "models": {
     "replay": [
+      "anthropic/claude-opus-5-5",
       "github-copilot/gpt-6.1-sol"
     ],
-    "judge": "github-copilot/gpt-6.1-sol",
+    "judge": "anthropic-fable/claude-fable-5-1",
     "thinking": "medium"
   },
   "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "# Snapshot setup failed, so spec-review dispatch stops\n\n**No reviewer is dispatched for any checkout.** Spec-review snapshots says that on snapshot setup failure or a missing snapshot path, the orchestrator stops dispatch. It keeps the failed snapshot directory and shell output for diagnosis, dispatches no review, and cleans up nothing.\n\n## What happened\n\n- The snapshot block failed at `git -C \"$SR_TREE\" apply --index \"$SR_PATCH\"`, which exited 1 with `error: patch failed: src/parse.ts:8`.\n- Because of that failure, the `printf 'snapshot: %s\\n'` line never ran. No snapshot path exists to use as a reviewer `cwd`.\n- This counts as both a setup failure and a missing snapshot path. Either one triggers the stop.\n\n## Actions\n\n1. **Stop review dispatch for this task.** No `spec-reviewer` runs, so no SR verdict exists for this patch.\n2. **Do not substitute another checkout.**\n   - `/workspace/project` still holds the old files at `WAVE_BASE_SHA`. Reviewing it would review an unchanged tree, which the workflow forbids (\"never ... review an unchanged tree\").\n   - The worker's temporary checkout is gone (pi-cohort deletes worker trees before returning patches). It cannot be used either.\n3. **Keep the failure state; do no cleanup.**\n   - Leave `/tmp/review-snapshot/` and its detached worktree at `/tmp/review-snapshot/tree` in place.\n   - Do not run `git -C /workspace/project worktree remove --force /tmp/review-snapshot/tree`.\n4. **Do not capture a Fix-delta tree.** No reviewer will run there, so no review tree is recorded.\n5. **Do not integrate.**\n   - Do not run `git -C /workspace/project apply --index <patch>` on the parent.\n   - Step 4 integrates only accepted patches with a spec-review verdict, and this patch has none.\n   - No test gate, CR, or wave commit happens for this task.\n6. **Tracker:** keep this task's index `in_progress`. Do not mark it `complete`, `failed`, or `skipped`, and do not re-init the tracker.\n7. **Report** the shell error verbatim with the kept snapshot location:\n   ```\n   spec-review snapshot setup failed for task <n>:\n   git -C /tmp/review-snapshot/tree apply --index <patch-path> -> exit 1\n   error: patch failed: src/parse.ts:8\n   no snapshot path printed; snapshot directory /tmp/review-snapshot retained for diagnosis; no spec review dispatched\n   ```\n\nI stop here. I take no retry, re-dispatch, or verdict-related action beyond this point.\n",
+      "words": 342,
+      "wallMs": 14367,
+      "mechanical": {}
+    },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "Stop review dispatch. Snapshot setup failed, and no successful snapshot path was printed:\n\n```text\ngit apply --index exited 1\nerror: patch failed: src/parse.ts:8\n```\n\n- Retain `/tmp/review-snapshot/tree`, its enclosing snapshot directory, and the shell output for diagnosis. Do not remove the failed snapshot.\n- Dispatch **no spec reviewer**. The intended review checkout was `/tmp/review-snapshot/tree`, but it is not a valid materialized review tree.\n- Do not redirect review to `/workspace/project`: it still contains the wave-base files, not the worker’s implementation. The deleted worker checkout is not an available review source.\n- Do not integrate, commit, or complete the task. The worker’s `DONE` status does not establish spec compliance.\n\nThere is no next shell command or dispatch payload at this failure boundary; report the snapshot-setup error and stop.\n",
-      "words": 122,
-      "wallMs": 6184,
+      "text": "Stop review dispatch. Snapshot setup failed, so the worker’s `DONE` status does not authorize spec review.\n\n- Retain `/tmp/review-snapshot/tree` and its containing snapshot directory, along with the shell output, for diagnosis:\n  ```text\n  git apply --index exited 1\n  error: patch failed: src/parse.ts:8\n  ```\n- Dispatch **no reviewer**. There is no successfully materialized review checkout, and no successful snapshot path was printed.\n- Do not use `/workspace/project` as a fallback: it still contains the wave-base files, not the returned implementation. The deleted worker checkout is also unavailable.\n- Perform no snapshot cleanup, integration, or commit at this boundary. Keep the task `in_progress`.\n\nNo further shell commands or dispatch payloads are appropriate before this setup failure is diagnosed.\n",
+      "words": 110,
+      "wallMs": 4518,
       "mechanical": {}
     }
   },
   "judge": {
-    "github-copilot/gpt-6.1-sol": {
+    "anthropic/claude-opus-5-5": {
       "factsSha": "ffbec39d76f782585168dca20633e78d3db03c4c27531c6f59e030507e898528",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "026b9a91c9a042910d9d9eadf4cae54c09ed0f335d520e00090f2d2fda8337ca",
-      "baselineOutputSha": "86ba6ccc7fa312cc7adcf50aa48d0a1626206a1c8d2c8456e6b7f6da500d81e9",
-      "candidateOutputSha": "bbf76677ac941cb0ee5e2314ee94b79b5be224436e235bb0bd32f08756c80c23",
+      "intentSha": "70868125b0270c4bcc2e36898c51974950b90c9ba539c73ad3a39de4a9853245",
+      "baselineOutputSha": "556abe6e3e72aaeb606e4b79b500dab2341475018bb35b0ed3c4ecca100b119f",
+      "candidateOutputSha": "6f7254a0b5b663be93afeab0cf0063ad48c4aa3b3d0a8884cf481baadb099a7d",
       "facts": {
         "fail-closed": {
           "before": "holds",
@@ -41,10 +49,32 @@
           "label": "held"
         }
       },
-      "feedback": "Neither fact moved: After still blocks review, retains the failed snapshot and shell output, and leaves integration and task completion unchanged. However, it does not deliver the requested question-first stop-note format. Prefix the note with “gauntlet: Should I retry snapshot setup with a corrected patch, or should we amend the task?” before the problem summary, without taking either action. Preserve explicit instructions to retain the returned patch, keep the task in_progress and the implementation worktree unchanged, and dispatch no reviewer until a valid snapshot exists.",
-      "wallMs": 5324,
+      "feedback": "Neither fact moved. Both outputs stop spec-review dispatch, refuse to point a reviewer at the unchanged /workspace/project or the deleted worker checkout, refuse integration, keep the tracker index in_progress, and explicitly retain /tmp/review-snapshot and its tree without running worktree remove. After's numbered Actions list actually makes the fail-closed chain (no SR verdict -> no integration -> no gate/CR/commit) more explicit than Before, and its verbatim shell-error report satisfies the 'reports the failed snapshot setup' clause. Two small things After dropped that Before had and that help a strict reader of evidence-retained: Before's report says outright that the parent 'remains at the wave base' and that the task's patch stays retained at its Artifacts path for diagnosis, whereas After only implies parent stability through 'do not integrate' and never mentions the returned patch's retention. Adding a line to After's report like 'parent /workspace/project unchanged at <WAVE_BASE_SHA>; task patch retained at its Artifacts path' would keep both facts unambiguous while still delivering the tighter stop-dispatch/no-cleanup wording the Change calls for.",
+      "wallMs": 13411,
+      "verdict": "unchanged"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "ffbec39d76f782585168dca20633e78d3db03c4c27531c6f59e030507e898528",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "70868125b0270c4bcc2e36898c51974950b90c9ba539c73ad3a39de4a9853245",
+      "baselineOutputSha": "86ba6ccc7fa312cc7adcf50aa48d0a1626206a1c8d2c8456e6b7f6da500d81e9",
+      "candidateOutputSha": "c309fb90583eed8cb73ef2a11029592e6757dcd2e9611c2422b7233dee1bc7e2",
+      "facts": {
+        "fail-closed": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "evidence-retained": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "Both outputs stop dispatch, refuse to review /workspace/project or treat DONE as acceptance, retain the failed snapshot directory and shell output without cleanup, and keep the task in_progress with no commit or integration, so neither fact moved. After is slightly thinner than Before in two places that do not cross a fact boundary but could under stricter wording: it drops the explicit 'retain the returned patch' item and the explicit 'report the blocking setup error' line (After implies reporting by printing the error block, but says nothing about reporting it as a failure). To keep every Before fact robustly while delivering the Change's 'explicitly retain the failed directory and shell output without cleanup' requirement, restore the returned-patch retention bullet and add a one-line 'Report the failed snapshot setup as the blocking error' statement alongside the in_progress note.",
+      "wallMs": 6299,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "2eb4429b4dd687432969f427f82d45d7840d7c63"
+  "repoSha": "f25bf48a3f7ac2e9b361d2c7506d7c691e212697"
 }

@@ -1,7 +1,7 @@
 {
   "sample": "durable-cap",
   "arm": "candidate",
-  "skillSha": "8c0767334f13b1fc925e6a34e9a7e8c3ec80d1e395637619286bc862582a4113",
+  "skillSha": "24c5503363f7deb79e0864ff2d630bee9c07d7d5f9028826b1e794d6839d9e6f",
   "inputSha": "a1e1dd74f0f12c18b3bea532b075097e51fc6aa35b8433b7b2df76db858d1101",
   "kind": "text",
   "assembly": "headed",
@@ -17,16 +17,16 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "# Ledger restore for `/work/app/.worktrees/loop`\n\n**Resolved paths**\n- Worktree: `/work/app/.worktrees/loop`\n- Spec: `/work/app/.worktrees/loop/doc/specs/run.md`, resolved from the ledger's path-only `**Spec:**` header.\n- Ledger: `/work/app/.worktrees/loop/doc/plans/run-ledger.md`, with line 1 exactly `# Ledger - loop engine`.\n\n## Ordered restore\n\nThis is the call-table row \"implement with ledger\", stated in full:\n\n1. Entry checks 1–6 have passed. Check 6 (Grant field) is `none`.\n2. `phase_tracker({ action: \"start\", phase: \"brainstorm\" })`\n3. `phase_tracker({ action: \"skip\", phase: \"brainstorm\", reason: \"resume: /work/app/.worktrees/loop/doc/specs/run.md\" })`\n4. `phase_tracker({ action: \"start\", phase: \"plan\" })`\n5. `plan_check({ planPath: \"/work/app/.worktrees/loop/doc/plans/run-ledger.md\" })` returns **PASS**.\n6. `phase_tracker({ action: \"skip\", phase: \"plan\", reason: \"resume: /work/app/.worktrees/loop/doc/specs/run.md (loop engine)\" })`\n7. `phase_tracker({ action: \"start\", phase: \"implement\" })`\n\nWhat the restore does not do:\n- No `plan_tracker init` and no task tracker.\n- No `## Plan repair` and no writing-plans.\n- No reseeding. I reuse the existing ledger.\n\n**Cap boundary (reconstruction \"Spec with ledger\" step 4)**\n- The `cap:` header is present (97), so the legacy missing-cap stop does not apply.\n- `iterations: 7` is below `cap: 97`, so the boundary passes.\n\n**Printed lines**\n```\nGate history, closure-review evidence and fix rounds were not restored; re-validate row 1 (failed, attempts 3) on the next dispatch.\nNo standing grant.\n```\n\n## Continue in loop-implementation\n\nI continue without the reset-bearing entry. Entry step 1 is skipped for an admitted ledger, so the missing `loopEngine` settings tool is not a stop. Settings apply only to fresh seeding. Base, verification command, iterations and cap all come from the ledger.\n\n**Rendered state**\n```\nbase: abc123\nverification: node --test check.mjs\niterations: 7\ncap: 97\n| 1 | failed | 3 | <evidence as on disk> |\n## Decisions\nrow 1 retry | handle empty input | allowed attempts 4\ncap +50 | more rounds\n```\n\nThe tree is clean, so there is no dirty-tree stop before dispatch.\n\n## Before each dispatch (step 5)\n\nThe `cap:` header is present, so I proceed to the ordered table:\n\n1. **Rule 1:** Row 1 is `failed`, so this is not an exit.\n2. **Rule 2:** The row 1 allowance is 3 plus funded N. With no grant, N = 0, which gives 3. The latest `row 1 retry` decision says `allowed attempts 4`, which is larger, so the allowance is **4**. Attempts are 3, which is below 4, so there is no stop.\n3. **Rule 3:** Stagnation is counted only after the latest `loop: retry row 1` commit. The retry opened a new window, and no empty child row commits are observed after it, so there is no stop. The `cap +50` grant resets no window, and its `loop: raise cap` commit is excluded from the count.\n4. **Rule 4:** 7 is below 97, so there is no stop.\n5. **Rule 5:** Dispatch is allowed.\n\n**Targeting**\n- Seed is already resolved: a validated seed exists, since rows carry attempts.\n- The still-unresolved human retry target is **row 1**.\n- I skip the cap grant line (`cap +50 | more rounds`) as grant history. The latest operational decision is `row 1 retry | handle empty input | allowed attempts 4`.\n- No funded-round line is printed, because N = 0.\n\n## Next action: dispatch\n\nThe setup comes before the dispatch:\n1. Record `HEAD_BEFORE` and save a copy of the ledger text.\n2. Set i = 7, then bump the working-tree `iterations:` to 8.\n3. Create the output path with `mktemp` outside the repository.\n\n```\nsubagent({ agent: \"loop-implementer\", context: \"fresh\", async: false,\n  cwd: \"/work/app/.worktrees/loop\", output: \"<mktemp path>\", outputMode: \"file-only\",\n  acceptance: { level: \"none\", reason: \"the parent validates the ledger and the commit\" },\n  task: \"iteration: 7\\nspec: /work/app/.worktrees/loop/doc/specs/run.md\\nledger: /work/app/.worktrees/loop/doc/plans/run-ledger.md\\nbase: abc123\\ntarget: 1\\nprevious decision: row 1 retry | handle empty input | allowed attempts 4\\nhint: handle empty input\" })\n```\n\nAfter the child returns, I validate the boundary and the ordinary-target table. All attempts and the total iteration cap are preserved.\n",
-      "words": 584,
-      "wallMs": 27215,
+      "text": "# Ordered restore: implement with line-1 ledger\n\n**Resolved values**\n\n- Worktree: `/work/app/.worktrees/loop`\n- Spec: `/work/app/.worktrees/loop/doc/specs/run.md`. It pairs with the ledger through the path-only `**Spec:**` header, not by basename.\n- Ledger: `/work/app/.worktrees/loop/doc/plans/run-ledger.md`. Line 1 is `# Ledger - loop engine`.\n\n**Entry checks (already passed, listed here for the ordered record)**\n\n1. Entry check 1: pass.\n2. Entry check 2: pass.\n3. Entry check 3: pass.\n4. Entry check 4: pass.\n5. Entry check 5: pass.\n6. Entry check 6, the Grant field: pass. The grant is none.\n\n**Tracker calls, in order**\n\n1. `phase_tracker({ action: \"start\", phase: \"brainstorm\" })`\n2. `phase_tracker({ action: \"skip\", phase: \"brainstorm\", reason: \"resume: /work/app/.worktrees/loop/doc/specs/run.md\" })`\n3. `phase_tracker({ action: \"start\", phase: \"plan\" })`\n4. `plan_check({ planPath: \"/work/app/.worktrees/loop/doc/plans/run-ledger.md\" })` returns **PASS**.\n5. `phase_tracker({ action: \"skip\", phase: \"plan\", reason: \"resume: /work/app/.worktrees/loop/doc/specs/run.md (loop engine)\" })`\n6. `phase_tracker({ action: \"start\", phase: \"implement\" })`\n\n**Calls deliberately not made**\n\n- No `plan_tracker init` and no task tracker.\n- No `## Plan repair` and no writing-plans.\n- No reseeding. The existing ledger is reused unchanged.\n\n**Shared cap boundary (reconstruction step 4)**\n\n- The `cap:` header is present, so there is no legacy missing-cap stop.\n- The header value of 97 is authoritative. I do not derive the cap from settings. I also do not add the `cap +50` decision on top of it, because the header already carries the durable value.\n- `iterations: 7` is below `cap: 97`, so restore may proceed.\n\n# Printed lines\n\n```\nRestored to implement (loop engine) from ledger /work/app/.worktrees/loop/doc/plans/run-ledger.md. Gate history, closure-review evidence and fix rounds are not restored; row 1 is re-validated by the next dispatch against the ledger verification command.\nNo standing grant.\n```\n\n**Rendered ledger state**\n\n```\nbase: abc123\nverification: node --test check.mjs\niterations: 7\ncap: 97\n\n| row | status | attempts | evidence |\n| 1   | failed | 3        | (as recorded) |\n\n## Decisions\nrow 1 retry | handle empty input | allowed attempts 4\ncap +50 | more rounds\n```\n\n# Continuation in loop-implementation at step 5, `Before each dispatch`\n\n**Entry steps are skipped for the admitted ledger**\n\n- Entry step 1 is skipped, so the missing `loopEngine` settings tool does not stop the run. Settings apply only to fresh seeding.\n- Verification is the ledger's `node --test check.mjs`. Entry step 2 is not re-resolved.\n\n**Pre-dispatch boundary**\n\n- Run `git -C \"/work/app/.worktrees/loop\" status --porcelain`.\n- If the output is non-empty, stop before dispatch and preserve the changes.\n\n**Ordered table**\n\n1. **Exit check.** Row 1 is `failed`, so the loop does not exit to verification.\n2. **Row allowance.** The allowance is 3 + funded N (0) = 3, raised to 4 by the retry decision. Attempts are 3, which is below 4, so there is no stop.\n3. **Stagnation check.**\n   - Count only child `loop: row ...` commits made after the latest `loop: retry row 1` commit.\n   - Exclude `loop: raise cap` and other parent commits.\n   - A cap grant resets no window.\n   - Fewer than two qualifying commits means no stop.\n4. **Cap check.** Iterations are 7, which is below the cap of 97, so there is no stop.\n5. **Dispatch allowed.**\n\n**Target selection**\n\n- The seed is satisfied only if a validated `loop: seed evidence` commit with a `row 0 done` decision survives on the branch. Row 1's three attempts imply this. If it were absent, the target would be `seed`.\n- Otherwise the latest operational decision decides the target. That is `row 1 retry`, skipping the `cap +50` history.\n- Target: row 1, with hint `handle empty input`.\n\n**Dispatch**\n\n1. Record `HEAD_BEFORE`.\n2. Copy the ledger text.\n3. Set i = 7.\n4. Write `iterations: 8` in the working tree.\n5. Create the output path with `mktemp` outside the repository.\n6. Dispatch:\n\n```\nsubagent({ agent: \"loop-implementer\", context: \"fresh\", async: false,\n  cwd: \"/work/app/.worktrees/loop\", output: <mktemp path>, outputMode: \"file-only\",\n  acceptance: { level: \"none\", reason: \"the parent validates the ledger and the commit\" },\n  task: \"iteration: 7\\nspec: /work/app/.worktrees/loop/doc/specs/run.md\\nledger: /work/app/.worktrees/loop/doc/plans/run-ledger.md\\nbase: abc123\\ntarget: 1\\nprevious decision: row 1 retry | handle empty input | allowed attempts 4\\nhint: handle empty input\" })\n```\n\n**After the return**\n\n1. Require a clean tree and exactly one new commit.\n2. Validate the row 1 cells:\n   - status `done` or `failed`\n   - attempts = 4\n   - bounded evidence\n3. Require exactly one new `row 1 (done|failed) | … | …` decision.\n4. On a miss, apply the parent repair.\n5. Return to the ordered table. If row 1 fails again, the attempts reach the allowance of 4 and the run makes a human stop.\n",
+      "words": 682,
+      "wallMs": 31815,
       "mechanical": {}
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "1. Entry checks 1–6 have passed, including **check 6: Grant field**. Retain the confirmed absolute paths:\n   - Worktree: `/work/app/.worktrees/loop`\n   - Spec: `/work/app/.worktrees/loop/doc/specs/run.md`\n   - Ledger: `/work/app/.worktrees/loop/doc/plans/run-ledger.md`\n\n2. Restore the armed flow in this order; these are narrated calls, not executed tools:\n\n   ```text\n   phase_tracker({ action: \"start\", phase: \"brainstorm\" })\n   phase_tracker({\n     action: \"skip\",\n     phase: \"brainstorm\",\n     reason: \"resume: /work/app/.worktrees/loop/doc/specs/run.md\"\n   })\n   phase_tracker({ action: \"start\", phase: \"plan\" })\n   plan_check({\n     planPath: \"/work/app/.worktrees/loop/doc/plans/run-ledger.md\"\n   })\n   ```\n\n   Observed result:\n\n   ```text\n   PASS\n   ```\n\n   Continue:\n\n   ```text\n   phase_tracker({\n     action: \"skip\",\n     phase: \"plan\",\n     reason: \"resume: /work/app/.worktrees/loop/doc/specs/run.md (loop engine)\"\n   })\n   phase_tracker({ action: \"start\", phase: \"implement\" })\n   ```\n\n3. Print the restored state:\n\n   ```text\n   Resumed implement with the existing ledger.\n   Spec: /work/app/.worktrees/loop/doc/specs/run.md\n   Ledger: /work/app/.worktrees/loop/doc/plans/run-ledger.md\n   base: abc123\n   verification: node --test check.mjs\n   iterations: 7\n   cap: 97\n\n   row 1: failed; attempts: 3; allowed attempts: 4\n\n   Decisions:\n   row 1 retry | handle empty input | allowed attempts 4\n   cap +50 | more rounds\n\n   Gate history is not restored; re-validate the resumed work before relying on it.\n   No standing grant.\n   ```\n\n4. Continue in **loop-implementation, Before each dispatch**, not its fresh Entry:\n   - Reuse the ledger; do not reseed or initialize a task tracker.\n   - Do not request `loopEngine` settings. An admitted ledger retains its durable cap, iterations, attempts, base, and verification command.\n   - The cap grant is already recorded; do not add another 50. The operative header remains `cap: 97`.\n   - Row 1 is unresolved, but its retry decision permits four attempts, so three attempts do not exhaust its allowance.\n   - Preserve both decisions. The latest **operational** decision is the row-1 retry, not the subsequent cap grant. Its pending target is row 1, with hint `handle empty input`.\n   - Seven consumed iterations are below the cap of 97. The cap grant resets neither stagnation nor validation-miss history.\n   - The supplied clean worktree passes the dirty-tree boundary.\n\n5. Before narrating an actual dispatch, establish the remaining branch-history facts: the seed-evidence prerequisite and the child-only stagnation/validation-miss windows. Those results are not supplied, so they cannot be invented.\n\n   If a validated `loop: seed evidence` commit survives and the remaining boundaries pass, the next dispatch uses:\n\n   ```text\n   iteration: 7\n   target: 1\n   previous decision: row 1 retry | handle empty input | allowed attempts 4\n   hint: handle empty input\n   ```\n\n   Before dispatch, save `HEAD_BEFORE` and the ledger text, change durable `iterations:` from `7` to `8`, and obtain a unique absolute output path outside the repository. Then narrate the foreground call:\n\n   ```text\n   subagent({\n     agent: \"loop-implementer\",\n     context: \"fresh\",\n     async: false,\n     cwd: \"/work/app/.worktrees/loop\",\n     output: <unique absolute temp path>,\n     outputMode: \"file-only\",\n     acceptance: {\n       level: \"none\",\n       reason: \"the parent validates the ledger and the commit\"\n     },\n     task: \"iteration: 7\\nspec: /work/app/.worktrees/loop/doc/specs/run.md\\nledger: /work/app/.worktrees/loop/doc/plans/run-ledger.md\\nbase: abc123\\ntarget: 1\\nprevious decision: row 1 retry | handle empty input | allowed attempts 4\\nhint: handle empty input\"\n   })\n   ```\n\n   If no validated seed-evidence commit survives, the next target must instead be `seed`, even at iteration 7; explicitly carry the seed-contract instruction in the hint. That resumes seed evidence in the **existing** ledger—it does not recreate or reseed the ledger skeleton.\n",
-      "words": 459,
-      "wallMs": 24330,
+      "text": "Entry checks 1–6 have passed, including check 6 (Grant field): no standing grant. Reuse the admitted ledger; do not resolve `loopEngine` settings or create a new ledger.\n\n### Ordered restoration\n\nThe complete restore sequence, including the calls preceding the supplied `plan_check` result, is:\n\n1. Read the ledger’s line-1 discriminant and resolve its path-only `**Spec:**` header:\n   - Ledger: `/work/app/.worktrees/loop/doc/plans/run-ledger.md`\n   - Spec: `/work/app/.worktrees/loop/doc/specs/run.md`\n2. Entry checks 1–6 pass.\n3. `phase_tracker({ action: \"start\", phase: \"brainstorm\" })`\n4. `phase_tracker({ action: \"skip\", phase: \"brainstorm\", reason: \"resume: /work/app/.worktrees/loop/doc/specs/run.md\" })`\n5. `phase_tracker({ action: \"start\", phase: \"plan\" })`\n6. `plan_check({ planPath: \"/work/app/.worktrees/loop/doc/plans/run-ledger.md\" })`\n   - Observed result: `PASS`.\n7. `phase_tracker({ action: \"skip\", phase: \"plan\", reason: \"resume: /work/app/.worktrees/loop/doc/specs/run.md (loop engine)\" })`\n8. `phase_tracker({ action: \"start\", phase: \"implement\" })`\n\nNo `plan_tracker` call, plan repair, skeleton write, seed-ledger commit, or reset-bearing skill entry.\n\nPrint:\n\n```text\nGate history not restored; re-validate the task before continuing.\nNo standing grant.\n```\n\n### Rendered ledger state\n\n```text\nWorktree: /work/app/.worktrees/loop\nSpec: /work/app/.worktrees/loop/doc/specs/run.md\nLedger: /work/app/.worktrees/loop/doc/plans/run-ledger.md\nbase: abc123\nverification: node --test check.mjs\niterations: 7\ncap: 97\n\nrow 1: failed; attempts: 3; allowed attempts: 4\n\nDecisions:\nrow 1 retry | handle empty input | allowed attempts 4\ncap +50 | more rounds\n```\n\nThe row’s evidence cell was not supplied; do not invent its contents. Preserve the existing ledger verbatim.\n\nThe durable cap is **97**. Do not add 50 again or recompute it from unavailable settings. The cap decision changes neither the operational retry target nor its hint.\n\n### Continuation at “Before each dispatch”\n\n- The cap header exists.\n- Row 1 remains unresolved.\n- Its allowance is 4, so attempts 3 does not exhaust it.\n- Iterations 7 is below cap 97.\n- The worktree is clean.\n- The operational retry target is **row 1**, with hint **`handle empty input`**, subject to seed-history validation and the child-commit stagnation check.\n\nThe supplied observations do **not** establish a surviving validated `loop: seed evidence` commit or the relevant child-commit history. Iterations alone proves neither. Therefore, do not claim dispatch admission, invent history results, or launch a replacement seed contrary to the request.\n\nContinue by inspecting that history. If the seed requirement is satisfied and no stagnation boundary blocks dispatch, select row 1 and retain its retry hint. The next home dispatch would save HEAD and the ledger, increment durable iterations from 7 to 8, and pass `iteration: 7` under the driver’s home-dispatch contract. A unique temporary output path must be obtained before narrating a concrete `subagent` call.\n\nPreserve every row's attempts and the total iteration cap.\n",
+      "words": 391,
+      "wallMs": 33586,
       "mechanical": {}
     }
   },
@@ -34,9 +34,9 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "9dfd7a8b65397ea9a4f87a49ccd7cd48e587cdcd19933266629b3959b7f71109",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "ca90682684274d31a1325bee10d83a15ba89c67b0824ef055a126b40a2c64905",
-      "baselineOutputSha": "30b014033037ef778f0ab4b6421c973aad57bdea8b22fb7ee033f57c08773508",
-      "candidateOutputSha": "14fe86ad5c728ec2ffc1f440136f68ea5db46a989712012b1ccc27ecd5586479",
+      "intentSha": "1b12afc6459e1e531c9112ca2505d714fa9d20362956b8b1a397ff8152df023f",
+      "baselineOutputSha": "1e3d35b2cf597348df06ca9a02aeebd980627eed34ac765d638c6ed43da7ccf7",
+      "candidateOutputSha": "509e70553b8d2308728cf59850d07a92235281d731ae2a123180e1a875605baa",
       "facts": {
         "durable": {
           "before": "holds",
@@ -54,16 +54,16 @@
           "label": "held"
         }
       },
-      "feedback": "Nothing moved: both outputs render cap:97, iterations 7, row 1 attempts 3 and the raised allowance 4 with base abc123 and verification from the ledger, skip settings resolution without stopping on the missing loopEngine tool, render the cap +50 grant line while targeting from the latest operational row 1 retry decision for the child's previous decision, and state the full ordered chain (checks 1-6, brainstorm start/skip, plan start/plan_check/skip with `resume: /work/app/.worktrees/loop/doc/specs/run.md (loop engine)`, implement start, no task tracker, no reseed) before the shared cap boundary and the Before-each-dispatch table. The only observable differences in After are presentational: it drops the explicit `Restored to implement (loop engine) from ledger ...` closing line and the `Ledger:/Spec:` and `cap:97` header context inside the rendered-state block in favor of a terser block, and it folds the ledger-header read into the resolved-paths section rather than listing it as step 1. None of these affect the three facts, but if the author wants the After wording to stay maximally robust, keep the explicit restored-to-phase line and the ledger/spec identification line in the rendered state so a reader can still see the ledger-admitted phase and pairing at a glance while the new cap-boundary and operational-row-decision wording is delivered.",
-      "wallMs": 13052,
+      "feedback": "Nothing moved on this case: both outputs render cap:97 with iterations 7, row-1 attempts 3 and the retry allowance of 4, carry base abc123 and verification node --test check.mjs from the ledger, skip the loopEngine settings lookup without treating its absence as a stop, keep the `cap +50` line as history while targeting from the operational `row 1 retry` decision (and feeding it as the child's previous decision), and run the full check 1-6 → brainstorm start/skip → plan start/plan_check/skip `resume: <spec> (loop engine)` → implement start chain with no task tracker and no reseed before continuing at the shared cap boundary and Before each dispatch. After actually tightens the record by enumerating the entry checks and the tracker calls as one ordered list and by making the dirty-tree check an explicit pre-dispatch step, which is consistent with the Change's ordered-restoration and boundary-stop goals. Two small cautions if you keep iterating on the After wording: keep the sentence that the header cap is authoritative and the grant line is not re-added (it is what anchors the `durable` fact), and keep the `loopEngine` skip explanation adjacent to the restoration rather than only in the continuation section, so a reader does not have to scroll to confirm the settings tool's absence is non-blocking.",
+      "wallMs": 14517,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "9dfd7a8b65397ea9a4f87a49ccd7cd48e587cdcd19933266629b3959b7f71109",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "ca90682684274d31a1325bee10d83a15ba89c67b0824ef055a126b40a2c64905",
-      "baselineOutputSha": "8feb3b8ebae9a58f71ca2d2358cbe8c13a69610800843b23fff0271dc29f3cb7",
-      "candidateOutputSha": "a692217922d8d42d399b9a965149891961230ad1dfd1c488e13880360f230efa",
+      "intentSha": "1b12afc6459e1e531c9112ca2505d714fa9d20362956b8b1a397ff8152df023f",
+      "baselineOutputSha": "e1f021f118c5868e76e5eb7506cd72cd6da7508d5eddffd22c361625580939e7",
+      "candidateOutputSha": "a00f82e1692447301d31632c88cc7b98cf7d0222e3062fc541eeb93f669a1c18",
       "facts": {
         "durable": {
           "before": "holds",
@@ -81,107 +81,10 @@
           "label": "held"
         }
       },
-      "feedback": "No fact moved between Before and After: both outputs restore and render cap: 97 beside iterations 7, row 1 attempts 3 and retry allowance 4, with base abc123 and verification node --test check.mjs from the ledger, both explicitly refuse to query loopEngine settings and do not stop for the missing tool, both render the cap +50 grant in the decision history while targeting row 1 from the latest operational retry decision (not the physical last cap line), and both walk checks 1-6 → brainstorm start/skip → plan start/plan_check/skip with the exact `resume: <spec> (loop engine)` reason → implement start, then continue in loop-implementation's Before each dispatch with no task tracker and no reseed. After's wording is slightly tighter in that it labels the row-1 retry as the latest *operational* decision in one line and keeps the restored-state block self-contained (allowed attempts rendered inline with the row), which is a safe way to deliver the Change's 'distinguish operational row decisions' requirement; keep that explicit label and the 'do not request loopEngine settings' sentence in the same step as the cap-boundary checks so future edits don't separate the durable-cap restoration from the no-re-resolution guarantee.",
-      "wallMs": 12102,
+      "feedback": "No fact moved: both outputs restore cap:97 beside iterations 7, row 1 attempts 3 / allowance 4, base abc123 and the node --test verification without resolving loopEngine settings or stopping; both render the cap grant in decision history while keeping row 1 retry (hint `handle empty input`) as the operational target; and both narrate checks 1–6, brainstorm start/skip, plan start/plan_check/skip with the exact `resume: <spec> (loop engine)` reason, implement start, no task tracker, no reseed, then continue at Before each dispatch after the cap-header/total-cap checks. After is actually tighter on the route (explicit ordered list including the pre-plan_check calls, explicit 'No plan_tracker call ... seed-ledger commit') and on durability ('do not resolve loopEngine settings'). One drift to watch: After prints a literal closing line (`Gate history not restored; re-validate the task before continuing.`) that Before explicitly declined to invent because brief-contract.md's text was not supplied; if the wording change encourages narrating that line, either supply the literal in the bundle or keep Before's 'required meaning only, do not reproduce the literal' phrasing so a fact about not inventing contract text would not move. Otherwise the After wording preserves every held fact while delivering the self-contained ledger restore sequence.",
+      "wallMs": 14452,
       "verdict": "unchanged"
     }
   },
-  "refresh": {
-    "status": "complete",
-    "identity": {
-      "sample": "durable-cap",
-      "kind": "text",
-      "assembly": "headed",
-      "baselineSkillSha": "4d59e6a190eabd4af7099602724590c2162309c95d78b0170daef650b21d92a0",
-      "candidateSkillSha": "42f2d8ce055252f91cab26f82143e3ab9fb89062c10acbd7d6f4a25e84d883ea",
-      "inputSha": "a1e1dd74f0f12c18b3bea532b075097e51fc6aa35b8433b7b2df76db858d1101",
-      "factsSha": "9dfd7a8b65397ea9a4f87a49ccd7cd48e587cdcd19933266629b3959b7f71109",
-      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "70baa08ac12037f7a701b4df4bb563b0145baad774d710d83b55dc84d07f6e4a",
-      "models": {
-        "replay": [
-          "github-copilot/gpt-6.1-sol"
-        ],
-        "judge": "github-copilot/gpt-6.1-sol"
-      },
-      "thinking": "medium",
-      "outputs": {
-        "baseline": {
-          "github-copilot/gpt-6.1-sol": {
-            "baselineOutputSha": "e1f021f118c5868e76e5eb7506cd72cd6da7508d5eddffd22c361625580939e7",
-            "payloadSha": "c15b5080539bb6c5c4a3841a543e5330f504701c79db06a4c9610233cffa60d4"
-          }
-        },
-        "candidate": {
-          "github-copilot/gpt-6.1-sol": {
-            "candidateOutputSha": "e6fab6359bf5489f8fd86c8359d52d19511b64e1bf031a20c552fa867dc4384e",
-            "payloadSha": "9ea9146def331970bb32e7a837ca4d34bb24d15e57484fd3b88d25b38d3b3b0e"
-          }
-        }
-      }
-    },
-    "previous": {
-      "github-copilot/gpt-6.1-sol": {
-        "factsSha": "9dfd7a8b65397ea9a4f87a49ccd7cd48e587cdcd19933266629b3959b7f71109",
-        "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-        "intentSha": "70baa08ac12037f7a701b4df4bb563b0145baad774d710d83b55dc84d07f6e4a",
-        "baselineOutputSha": "e1f021f118c5868e76e5eb7506cd72cd6da7508d5eddffd22c361625580939e7",
-        "candidateOutputSha": "e6fab6359bf5489f8fd86c8359d52d19511b64e1bf031a20c552fa867dc4384e",
-        "facts": {
-          "durable": {
-            "before": "holds",
-            "after": "holds",
-            "label": "held"
-          },
-          "history": {
-            "before": "holds",
-            "after": "holds",
-            "label": "held"
-          },
-          "route": {
-            "before": "holds",
-            "after": "holds",
-            "label": "held"
-          }
-        },
-        "feedback": "All three facts hold in both outputs, so nothing moved here. After keeps the full route (checks 1–6, brainstorm start/skip, plan start/check/skip with the exact `resume: <spec> (loop engine)` reason, implement start, no task tracker, no reseed, continuation at Before each dispatch), restores cap:97 beside iterations 7 and row 1 attempts 3 without touching loopEngine settings, and explicitly distinguishes the operational `row 1 retry` decision from the trailing `cap +50` history for targeting. One minor softening to watch: After removed `allowed attempts: 4` from the rendered row line (`row 1: failed; attempts: 3`), leaving the allowance only in the Decisions line and in continuation prose; a stricter judge of 'renders retry allowance' could count that as a loss. To keep the durable fact unambiguously, restore `row 1: failed; attempts: 3; allowed attempts: 4` in the state block while keeping After's clearer sectioning and its explicit 'skip fresh-seeding Entry step 1' note. After also added useful precision (child task carries `iteration: 7`, temp path outside the repository, 'not ledger reseeding') without harming any fact.",
-        "wallMs": 15215,
-        "verdict": "unchanged",
-        "judgeModel": null,
-        "thinking": null
-      }
-    },
-    "refreshed": {
-      "github-copilot/gpt-6.1-sol": {
-        "factsSha": "9dfd7a8b65397ea9a4f87a49ccd7cd48e587cdcd19933266629b3959b7f71109",
-        "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-        "intentSha": "70baa08ac12037f7a701b4df4bb563b0145baad774d710d83b55dc84d07f6e4a",
-        "baselineOutputSha": "e1f021f118c5868e76e5eb7506cd72cd6da7508d5eddffd22c361625580939e7",
-        "candidateOutputSha": "e6fab6359bf5489f8fd86c8359d52d19511b64e1bf031a20c552fa867dc4384e",
-        "facts": {
-          "durable": {
-            "before": "holds",
-            "after": "holds",
-            "label": "held"
-          },
-          "history": {
-            "before": "holds",
-            "after": "holds",
-            "label": "held"
-          },
-          "route": {
-            "before": "holds",
-            "after": "holds",
-            "label": "held"
-          }
-        },
-        "feedback": "No listed fact changed: both outputs restore cap 97 and the ledger counters, preserve cap-grant history while targeting from the operational retry decision, and give the ordered restoration route without task tracking or reseeding. After makes carrying the retry decision to the child more explicit. Keep these details; to express the Change more directly, state that the ledger cap is restored at the shared boundary before implementation continuation, without settings resolution, and that successful restoration continues automatically without a terminal marker. Retaining `allowed attempts: 4` beside the rendered row would also make the preserved allowance easier to see.",
-        "wallMs": 8123,
-        "verdict": "unchanged",
-        "judgeModel": "github-copilot/gpt-6.1-sol",
-        "thinking": "medium"
-      }
-    }
-  },
-  "repoSha": "0dcac9779f68598e1724c9f6ed2783659a94e958"
+  "repoSha": "f25bf48a3f7ac2e9b361d2c7506d7c691e212697"
 }

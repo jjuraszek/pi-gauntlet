@@ -1,7 +1,7 @@
 {
   "sample": "tree-wide-drafted-row",
   "arm": "candidate",
-  "skillSha": "f05d907811885c3c5cfa81dc8fe3112b100c10a573b4087f0e12f1f356942519",
+  "skillSha": "c07325ae874035369f8f7fd3c10f73944373c88bda2121eb4a0e7af3fe9daf19",
   "inputSha": "12f6f74f452818317ca849507ceb6cf399f6bc805477650b422afa49497bb96c",
   "kind": "text",
   "assembly": "headed",
@@ -17,16 +17,16 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "# Narrated read and stage actions: six independent spec-writing branches\n\nNo tools were called. Per the fixed observations, all references and the gathered draft are already read, and both design rounds are approved. Each branch below is at checklist step 7 (spec writing), at the \"Row production at spec-writing\" branch point. The sections shown are what the spec would contain. No write is claimed.\n\n---\n\n## Branch 1 - Split\n\n1. **Read state (observed):** the gathered draft shows `none - no ticket`. The row-production table therefore routes to drafting under `Drafted from the design, no ticket rows:`.\n2. **Stage: classify the drafted outcome.** The outcome `zero prose, renderer and size findings across the tree` requires zero findings of several kinds across a tree. That makes it **Tree-wide**.\n3. **Stage: check the enumeration.** Design gives a complete enumeration for this row: recipe prose, renderer routing, file-size. Together these cover every kind the row names, so the split can proceed.\n4. **Stage: split into one row per family.** Each row has its own observable, and together they keep the whole outcome. The section to be written:\n\n```markdown\n## Acceptance criteria\n\nDrafted from the design, no ticket rows:\n\n- [ ] Zero recipe-prose findings across the tree\n  in-scope\n- [ ] Zero renderer-routing findings across the tree\n  in-scope\n- [ ] Zero file-size findings across the tree\n  in-scope\n```\n\n5. **Stage: continue.** These rows go on to the self-review lint and the council. At the gate, they appear in the \"Drafted acceptance criteria (approval ratifies)\" block.\n\n## Branch 2 - Set-wide\n\n1. **Read state (observed):** `none - no ticket`. This routes to `Drafted from the design, no ticket rows:`.\n2. **Stage: classify.** `no lint findings anywhere in src/` requires zero findings across a set, so it is **Tree-wide**.\n3. **Stage: check the enumeration.** Design gives a complete enumeration: import lint and naming lint. Their union covers all lint findings in `src/`.\n4. **Stage: split.** The section to be written:\n\n```markdown\n## Acceptance criteria\n\nDrafted from the design, no ticket rows:\n\n- [ ] Zero import-lint findings throughout src/\n  in-scope\n- [ ] Zero naming-lint findings throughout src/\n  in-scope\n```\n\n5. **Stage: continue** to self-review, council, and gate as in Branch 1.\n\n## Branch 3 - Missing\n\n1. **Read state (observed):** `none - no ticket`. This routes to drafting.\n2. **Stage: classify.** The drafted outcome is Tree-wide.\n3. **Stage: check the enumeration.** Design contains none, so the enumeration is **absent**.\n4. **Stage: stop before writing.** No spec text is written. I quote the row and ask for the complete enumeration. I do not invent families in the options or the recommendation:\n\n```text\ngauntlet: question\nThe drafted outcome `zero prose, renderer and size findings across the tree` needs one row per finding family, but Design names no families for it, so I can't split it without guessing. How should Design define it?\nA) you supply the complete family enumeration - I record it in Design and draft one row per family\nB) narrow the outcome through a scope decision (the drafted cut question) before drafting\nC) other - name it\nRecommendation: A - the outcome ships only if Design names every family it covers; I won't infer the list.\n```\n\n## Branch 4 - Partial\n\n1. **Read state (observed):** `none - no ticket`. This routes to drafting.\n2. **Stage: classify.** The drafted outcome is Tree-wide.\n3. **Stage: check the enumeration.** Design lists recipe prose and renderer routing only. That does not cover every kind the row names, so the enumeration is **partial**. I do not infer a completion.\n4. **Stage: stop before writing.** No spec text is written:\n\n```text\ngauntlet: question\nThe drafted outcome `zero prose, renderer and size findings across the tree` names kinds that Design's enumeration (recipe prose, renderer routing) doesn't fully cover, and I won't fill the gap by inference. How should Design's enumeration be completed?\nA) you supply the complete family enumeration for this outcome - I record it in Design and draft one row per family\nB) narrow the outcome through a scope decision (the drafted cut question) before drafting\nC) other - name it\nRecommendation: A - only a human- or Design-sourced complete list keeps every outcome without inventing a family.\n```\n\n## Branch 5 - Unrelated\n\n1. **Read state (observed):** `none - no ticket`. This routes to drafting.\n2. **Stage: classify.** The drafted outcome is Tree-wide.\n3. **Stage: check the enumeration.** Design lists database latency and cache hit rate. Neither matches the kinds the row names, so the enumeration is **unrelated**.\n4. **Stage: stop before writing.** No spec text is written:\n\n```text\ngauntlet: question\nThe drafted outcome `zero prose, renderer and size findings across the tree` has no matching enumeration: Design lists database latency and cache hit rate, which don't describe these findings. What complete family enumeration should Design carry for this outcome?\nA) you supply the complete family enumeration - I record it in Design and draft one row per family\nB) narrow the outcome through a scope decision (the drafted cut question) before drafting\nC) other - name it\nRecommendation: A - the row can only be split from a list that actually enumerates its kinds; I won't invent one.\n```\n\n## Branch 6 - Ticket\n\n1. **Read state (observed):** ticket #42 was fetched. Its `Acceptance criteria` heading holds exactly one row, so the table routes to \"Ticket rows extracted.\"\n2. **Stage: classify.** The row is Tree-wide in shape. That recovery applies to drafted rows only, so a ticket row of this shape stays **one verbatim row**. The Design enumeration (recipe prose, renderer routing, file-size) lives in Design clauses, not as extra AC rows. No Design-derived rows are added to a ticket-row section.\n3. **Stage: section to be written:**\n\n```markdown\n## Acceptance criteria\n\nTicket #42, Acceptance criteria, rows verbatim:\n\n- [ ] zero prose, renderer and size findings across the tree\n  in-scope\n```\n\n4. **Stage: answer the human's split request.** Splitting would change the row, so the cut question applies. Splitting is only possible through human ticket repair, before approval. No repair has been authorized or performed, so the row stays unchanged:\n\n```text\ngauntlet: question\nTicket #42's only row can't be split inside the spec - ticket rows stay verbatim. Splitting it means repairing the ticket first. How should this row proceed?\nA) in-scope - keep it as one row; Design's recipe-prose, renderer-routing and file-size clauses carry the reading\nB) deviates: <why>\nC) deferred: <where>\nD) repair the ticket - /skill:shape-ticket #42 `zero prose, renderer and size findings across the tree` (split into the three Design families)\nRecommendation: D - you want the row split, and only ticket repair can do that while the row still ships in this gauntlet.\n```\n\n5. **Route if the human picks D:**\n   - Run `/skill:shape-ticket #42 <row and evidence>` in repair mode. It has its own confirm gate.\n   - Re-fetch the ticket.\n   - Replace the gather draft's `## Ticket acceptance criteria (verbatim)` block.\n   - Re-extract the rows. The repaired ticket's rows then become the verbatim rows, all before spec approval.\n\n   If that gate is cancelled, this question is re-asked in full with the row unchanged. Either way, the question and the answer go into the council's `Human input` block.\n",
-      "words": 1134,
-      "wallMs": 37160,
+      "text": "# Narrated read and stage actions: checklist step 7 (write the spec), six independent branches\n\nThese are narrated actions from the fixed observations. No tool calls, spec writes, or commits are claimed.\n\n**Shared preconditions (every branch)**\n1. **`read` the gathered draft.** The fixed observation says it is already read. The observed ticket result differs by branch, as shown below.\n2. **`read` `reference/ticket-acceptance.md`.** The fixed observation says it is already read, so no blocking stop applies. The sections used are the Row production table and the Tree-wide integrity class.\n3. **Check design approval.** The fixed observation says both design rounds are approved, so spec-writing may proceed to row production.\n\n---\n\n## Branch: Split\n\n1. **Stage: row production.** The gathered result is `none - no ticket`, so rows are drafted under the drafted-provenance header.\n2. **Stage: integrity check.** The drafted outcome `zero prose, renderer and size findings across the tree` is Tree-wide.\n3. **Stage: enumeration check.** Design gives a complete enumeration: recipe prose, renderer routing, file-size. Together these cover every kind the row names.\n4. **Recovery.** The row is split into one row per family, each with its own observable. The full original outcome is preserved across the three rows.\n\n```markdown\n## Acceptance criteria\n\nDrafted from the design, no ticket rows:\n\n- [ ] Zero recipe-prose findings across the tree.\n  in-scope\n- [ ] Zero renderer-routing findings across the tree.\n  in-scope\n- [ ] Zero file-size findings across the tree.\n  in-scope\n```\n\n5. **Stage: next step.** The spec write proceeds; it is not claimed live here. Drafted rows are ratified at the user review gate.\n\n## Branch: Set-wide\n\n1. **Stage: row production.** The gathered result is `none - no ticket`, so rows are drafted.\n2. **Stage: integrity check.** The outcome `no lint findings anywhere in src/` is Tree-wide, because it covers a set.\n3. **Stage: enumeration check.** Design gives a complete enumeration: import lint and naming lint. Their union covers all lint findings in `src/`.\n4. **Recovery.** The row is split into one row per family.\n\n```markdown\n## Acceptance criteria\n\nDrafted from the design, no ticket rows:\n\n- [ ] Zero import-lint findings anywhere in src/.\n  in-scope\n- [ ] Zero naming-lint findings anywhere in src/.\n  in-scope\n```\n\n5. **Stage: next step.** The spec write proceeds; it is not claimed live. Approval ratifies the rows.\n\n## Branch: Missing\n\n1. **Stage: row production.** The gathered result is `none - no ticket`, so rows are drafted.\n2. **Stage: integrity check.** The outcome is Tree-wide.\n3. **Stage: enumeration check.** Design has no family enumeration.\n4. **Stop before any spec write.** I do not invent families or propose any.\n5. **Question asked:**\n\n```text\nThe drafted row \"zero prose, renderer and size findings across the tree\" covers the whole tree, and Design has no family list for it, so I can't split it into checkable rows. What is the complete family enumeration for this outcome?\nA) you name the complete family list - I record it in Design and write one row per family\nB) the list already exists in an approved Design clause - point me to it\nC) other - name it\nRecommendation: A - the split needs a complete list from you or Design, and I won't guess it.\n```\n\n## Branch: Partial\n\n1. **Stage: row production and integrity check.** The gathered result is `none - no ticket`. The row is Tree-wide.\n2. **Stage: enumeration check.** Design lists recipe prose and renderer routing only. No enumerated family covers the row's \"size\" kind, so the list is partial. I do not infer the missing family.\n3. **Stop before any spec write.**\n4. **Question asked:**\n\n```text\nThe drafted row \"zero prose, renderer and size findings across the tree\" names a size kind, but Design's family list (recipe prose, renderer routing) has no family covering it, so the list is incomplete. What is the complete family enumeration for this row?\nA) you name the full list, including whatever covers size - I record it in Design and split one row per family\nB) the complete list is in another approved Design clause - point me to it\nC) other - name it\nRecommendation: A - every kind the row names needs a family from you or Design before I write rows.\n```\n\n## Branch: Unrelated\n\n1. **Stage: row production and integrity check.** The gathered result is `none - no ticket`. The row is Tree-wide.\n2. **Stage: enumeration check.** Design enumerates database latency and cache hit rate. Neither covers prose, renderer, or size findings, so the enumeration is unrelated.\n3. **Stop before any spec write.**\n4. **Question asked:**\n\n```text\nThe drafted row \"zero prose, renderer and size findings across the tree\" needs a complete family list in Design, but the only families Design lists (database latency, cache hit rate) don't cover its prose, renderer, or size kinds. What is the complete family enumeration for this row?\nA) you name the complete family list - I record it in Design and split one row per family\nB) the right list is in another approved Design clause - point me to it\nC) other - name it\nRecommendation: A - the row's kinds need a matching list from you or Design, and I won't invent one.\n```\n\n## Branch: Ticket\n\n1. **Stage: row production.** The gathered result is ticket rows extracted. Ticket #42 has an `Acceptance criteria` heading with one row.\n2. **Stage: integrity check.** The row is Tree-wide in shape, but it is a ticket row. Tree-wide recovery applies only to drafted rows, so the row stays one verbatim row. The Design enumeration (recipe prose, renderer routing, file-size) goes in a Design clause as the chosen reading. I author no rows on the ticket's behalf.\n\n```markdown\n## Acceptance criteria\n\nTicket #42, Acceptance criteria, rows verbatim:\n\n- [ ] zero prose, renderer and size findings across the tree\n  in-scope\n```\n\n3. **Stage: the human's split request.** Asking to change the row triggers the ticket cut question, with the four options including D. Splitting is possible only through human ticket repair via `/skill:shape-ticket` before approval. No repair has been authorized or run, so nothing is invoked yet.\n4. **Question asked:**\n\n```text\nTicket #42's single row \"zero prose, renderer and size findings across the tree\" can't be split in the spec - ticket rows stay verbatim, and only a ticket repair can split it. How should this row go forward?\nA) in-scope - keep the one row; Design reads it as zero findings in recipe prose, renderer routing, and file-size\nB) deviates: <why>\nC) deferred: <where>\nD) repair the ticket - /skill:shape-ticket #42 \"zero prose, renderer and size findings across the tree\"; Design enumerates recipe prose, renderer routing, file-size\nRecommendation: D - repair splits the row in the ticket contract itself, and every family still ships in this gauntlet.\n```\n\n5. **Route on each answer.**\n   - **D:** run `/skill:shape-ticket` in repair mode, which has its own confirm gate. Then re-fetch #42, replace the draft's `## Ticket acceptance criteria (verbatim)` block, and re-extract. The split rows are then written verbatim.\n   - **Cancel at the repair gate:** return to this question with the row unchanged.\n   - **A:** write the section above as-is.\n   - **Every case:** the full question and answer go into the council's `Human input` block.\n",
+      "words": 1141,
+      "wallMs": 37629,
       "mechanical": {}
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "The following are narrated, independent branches using only the fixed observations—not live reads or writes.\n\n1. **Split**\n   - **Read stage:** The required references and gathered draft are observed as read. The approved Design explicitly provides a complete enumeration: recipe prose, renderer routing, and file-size. Each family has a zero-findings observable, and together they cover the original outcome.\n   - **Spec-writing stage:** Split the drafted outcome into one row per enumerated family, preserving every outcome. The proposed section is:\n\n   ```markdown\n   ## Acceptance criteria\n\n   Drafted from the design, no ticket rows:\n\n   - [ ] Zero recipe prose findings across the tree.\n     in-scope\n   - [ ] Zero renderer routing findings across the tree.\n     in-scope\n   - [ ] Zero file-size findings across the tree.\n     in-scope\n   ```\n\n2. **Set-wide**\n   - **Read stage:** The required references and gathered draft are observed as read. The approved Design explicitly enumerates import lint and naming lint as the complete families covering all lint findings in `src/`.\n   - **Spec-writing stage:** Split the set-wide drafted outcome by those families, retaining the full `src/` scope for each. The proposed section is:\n\n   ```markdown\n   ## Acceptance criteria\n\n   Drafted from the design, no ticket rows:\n\n   - [ ] Zero import lint findings throughout src/.\n     in-scope\n   - [ ] Zero naming lint findings throughout src/.\n     in-scope\n   ```\n\n3. **Missing**\n   - **Read stage:** The required references and gathered draft are observed as read. Design contains no family enumeration for `zero prose, renderer and size findings across the tree`.\n   - **Blocking stage:** Stop before any spec write. Do not invent a family list or silently remove the outcome.\n   - **Question to ask:**\n\n   ```text\n   gauntlet: question\n   The drafted outcome “zero prose, renderer and size findings across the tree” requires a complete family enumeration in Design, but none is recorded. How should we establish it?\n   A) supply the complete enumeration and each family’s observable for inclusion in Design\n   B) return to the design discussion to establish the complete enumeration and observables\n   C) other - name it\n   Recommendation: A - it supplies the missing design inputs while preserving the committed outcome.\n   ```\n\n4. **Partial**\n   - **Read stage:** The required references and gathered draft are observed as read. Design enumerates recipe prose and renderer routing only; that enumeration does not cover the original outcome’s size findings.\n   - **Blocking stage:** Stop before any spec write. Do not treat the partial list as complete or infer the missing family definition.\n   - **Question to ask:**\n\n   ```text\n   gauntlet: question\n   The drafted outcome “zero prose, renderer and size findings across the tree” is not fully covered by Design’s recipe prose and renderer routing enumeration. How should we complete the design inputs?\n   A) supply the complete enumeration and each family’s observable, covering the entire original outcome\n   B) return to the design discussion to complete and confirm the enumeration and observables\n   C) other - name it\n   Recommendation: A - it preserves every committed outcome without inferring the missing coverage.\n   ```\n\n5. **Unrelated**\n   - **Read stage:** The required references and gathered draft are observed as read. Design enumerates database latency and cache hit rate, which do not provide the required families for `zero prose, renderer and size findings across the tree`.\n   - **Blocking stage:** Stop before any spec write. An unrelated enumeration cannot justify splitting this outcome.\n   - **Question to ask:**\n\n   ```text\n   gauntlet: question\n   Design’s database latency and cache hit rate enumeration does not cover the drafted outcome “zero prose, renderer and size findings across the tree.” How should we establish the relevant complete enumeration?\n   A) supply the complete enumeration and each family’s observable for this outcome\n   B) return to the design discussion to establish the relevant complete enumeration and observables\n   C) other - name it\n   Recommendation: A - it provides the required coverage without substituting unrelated outcomes.\n   ```\n\n6. **Ticket**\n   - **Read stage:** The required references, gathered draft, and fetched ticket are observed as read. Ticket #42 has one acceptance row. Design’s complete enumeration does not authorize rewriting that ticket row.\n   - **Spec-writing stage:** Preserve the ticket contract verbatim as one row. The proposed section is:\n\n   ```markdown\n   ## Acceptance criteria\n\n   Ticket #42, Acceptance criteria, rows verbatim:\n\n   - [ ] zero prose, renderer and size findings across the tree\n     in-scope\n   ```\n\n   - **Repair and approval stage:** Splitting this ticket row requires explicit human-authorized ticket repair through `/skill:shape-ticket #42`, using its confirmation gate. No repair is authorized by merely asking whether splitting is possible. After confirmed repair, the required sequence is to re-fetch the ticket, replace the gathered verbatim AC block, and re-extract its rows. Until then, retain the single row unchanged; approval is blocked on the required repair for splitting this tree-wide ticket criterion. No repair or write is claimed here.\n",
-      "words": 721,
-      "wallMs": 26399,
+      "text": "### 1. Split\n\n1. **Read stage:** The fixed observations establish that the draft and references have been read. The approved Design supplies a complete enumeration: recipe prose, renderer routing, and file-size. Together they cover the original outcome.\n2. **Acceptance-criteria preparation:** Split the drafted tree-wide outcome into one observable row per family. The proposed section is:\n\n   ```markdown\n   ## Acceptance criteria\n\n   Drafted from the design, no ticket rows:\n\n   - [ ] zero recipe prose findings across the tree\n     in-scope\n   - [ ] zero renderer routing findings across the tree\n     in-scope\n   - [ ] zero file-size findings across the tree\n     in-scope\n   ```\n\n3. **Stage outcome:** This preserves the complete original outcome. No live write is claimed.\n\n### 2. Set-wide\n\n1. **Read stage:** The fixed observations establish that the approved Design enumerates import lint and naming lint as the complete families of lint findings in `src/`.\n2. **Acceptance-criteria preparation:** Split the set-wide outcome by those families, retaining the full `src/` scope for each:\n\n   ```markdown\n   ## Acceptance criteria\n\n   Drafted from the design, no ticket rows:\n\n   - [ ] no import lint findings anywhere in src/\n     in-scope\n   - [ ] no naming lint findings anywhere in src/\n     in-scope\n   ```\n\n3. **Stage outcome:** The two rows together preserve all lint outcomes originally committed to. No live write is claimed.\n\n### 3. Missing\n\n1. **Read stage:** The observed Design contains no family enumeration for `zero prose, renderer and size findings across the tree`.\n2. **Blocking stop:** Stop before any spec write. Do not infer the complete families from the wording of the outcome.\n3. **Question to ask:**\n\n   The drafted outcome is `zero prose, renderer and size findings across the tree`, but Design contains no complete family enumeration. What complete enumeration should Design record before this outcome is split?\n   \n   A) Provide the complete family enumeration and each family’s observable.\n   \n   B) Other — name the intended resolution.\n   \n   Recommendation: A - it preserves the committed outcome and supplies the basis for complete, family-specific rows.\n\n### 4. Partial\n\n1. **Read stage:** The observed Design enumerates recipe prose and renderer routing only; it omits size and therefore does not establish complete coverage.\n2. **Blocking stop:** Stop before any spec write. Do not treat the partial enumeration as complete or invent the missing family definition.\n3. **Question to ask:**\n\n   The drafted outcome is `zero prose, renderer and size findings across the tree`, but Design supplies only recipe prose and renderer routing. What complete family enumeration should Design record?\n   \n   A) Provide the complete enumeration and observables, resolving the uncovered size portion.\n   \n   B) Other — name the intended resolution.\n   \n   Recommendation: A - the split must preserve every part of the original outcome.\n\n### 5. Unrelated\n\n1. **Read stage:** The observed Design enumerates database latency and cache hit rate. Those families do not cover `zero prose, renderer and size findings across the tree`.\n2. **Blocking stop:** Stop before any spec write. Do not substitute the unrelated enumeration or derive a new enumeration from the outcome’s wording.\n3. **Question to ask:**\n\n   The drafted outcome is `zero prose, renderer and size findings across the tree`, but Design’s enumeration concerns database latency and cache hit rate. What complete family enumeration covers the drafted outcome?\n   \n   A) Provide the complete relevant enumeration and each family’s observable.\n   \n   B) Other — name the intended resolution.\n   \n   Recommendation: A - relevant, complete coverage is required before producing the split rows.\n\n### 6. Ticket\n\n1. **Read stage:** The fixed observations establish that fetched ticket #42 has one verbatim acceptance row under `Acceptance criteria`. Design’s complete enumeration does not authorize rewriting that ticket row.\n2. **Acceptance-criteria preparation:** Unless and until ticket repair changes the source contract, retain this proposed section:\n\n   ```markdown\n   ## Acceptance criteria\n\n   Ticket #42, Acceptance criteria, rows verbatim:\n\n   - [ ] zero prose, renderer and size findings across the tree\n     in-scope\n   ```\n\n3. **Required route to split:** This ticket row cannot use the drafted-row splitting recovery. Splitting it requires human-authorized ticket repair through `/skill:shape-ticket #42`, supplying the row and the complete Design enumeration as evidence. That flow has its own confirmation gate. After a successful repair, re-fetch the ticket, replace the draft’s verbatim acceptance-criteria block, and re-extract the rows.\n4. **Stage outcome:** No repair has been authorized or performed. The row remains unchanged; spec approval is blocked until the required ticket repair resolves its tree-wide form. No live repair, fetch, or write is claimed.\n",
+      "words": 682,
+      "wallMs": 25223,
       "mechanical": {}
     }
   },
@@ -34,9 +34,9 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "3b006a1490b65fefa91553374d7aa6794754178cd4f5a3e033ffcb5533d72a41",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "460f2afd63946ca28e753d98ec02c2b198f7bed5ff1b4bf05820058c4477df90",
-      "baselineOutputSha": "1cdb6815e4a07055c5f2fb96f43f55e8ca471e5496048740711574170d864dd9",
-      "candidateOutputSha": "9351ebffc45aa67c3b7a64e914c407b403e7ff68589ab3ef066a2e771d24c183",
+      "intentSha": "846af8fb641e886ab3d6b6dfb70e1483223323d53b4c37560200cad5018c6b4e",
+      "baselineOutputSha": "23b39066cfe93c251c0c9f19b1a562cea25f6d9395a544485c6b574f0874e2ec",
+      "candidateOutputSha": "20f7301722254487d5173b0411956b80a1de6b10b414d7cb3f8c4da02085f77a",
       "facts": {
         "split": {
           "before": "holds",
@@ -69,16 +69,16 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "After keeps every fact Before kept: both drafted branches split into exactly the enumerated families under the `Drafted from the design, no ticket rows:` provenance with in-scope dispositions and no extra broad row; Missing, Partial and Unrelated all stop before any spec write, quote the row, and ask for the complete Design enumeration with Recommendation A and no invented families; Ticket retains the verbatim `Ticket #42, Acceptance criteria, rows verbatim:` section, the in-scope row, and routes splitting through `/skill:shape-ticket` repair before approval rather than a drafted rewrite or amendment. Two wordings in After are weaker than Before and worth tightening so the stop facts stay robust: the three stop questions now offer option B as 'narrow the outcome through a scope decision', which reads as an invitation to drop part of the outcome (Before offered 'reopen the round-1 design' instead, keeping the outcome whole), and the Partial question no longer names size explicitly as the omitted kind, saying only that the enumeration 'doesn't fully cover' the row. Restoring Before's option B ('reopen the round-1 design so the enumeration is settled there') and adding '(size is not covered)' to the Partial question would deliver the same Change while keeping the missing/partial facts unambiguously anchored.",
-      "wallMs": 16095,
+      "feedback": "No fact moved: both outputs split the two drafted Tree-wide rows into exactly the Design families under `Drafted from the design, no ticket rows:` with no extra broad row, stop before any write on missing, partial, and unrelated enumeration while quoting the outcome and asking for a complete Design list without inventing families, and keep ticket #42's single row verbatim with in-scope disposition and the /skill:shape-ticket repair route via option D. Note that the Missing/Partial/Unrelated facts were expected to move fails -> holds, but Before's text already satisfies them, so the observed result is intended-but-unchanged rather than a movement. After's only drift is cosmetic: the split rows are capitalized, hyphenated and period-terminated (`Zero recipe-prose findings across the tree.`) and the set-wide rows say `anywhere in src/.` rather than Before's `throughout src/`; a careful reader still finds the facts true, but if you want the rows to mirror the family names and the fact wording exactly, keep Before's lowercase, unhyphenated family labels (`zero recipe prose findings`, `zero import lint findings throughout src/`). The added option B (`point me to the approved Design clause`) in the stop questions is a reasonable extension that stays within 'from you or Design' and does not invent families, so it can be kept.",
+      "wallMs": 16983,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "3b006a1490b65fefa91553374d7aa6794754178cd4f5a3e033ffcb5533d72a41",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "460f2afd63946ca28e753d98ec02c2b198f7bed5ff1b4bf05820058c4477df90",
-      "baselineOutputSha": "c121bde69e7187991018222b1e7cceaaf8feebd8de3911a3fce85e1f0a65af22",
-      "candidateOutputSha": "99645307d83e27b7684d083f58db610c9d98d2cbc2eea7f41038eb1b431f42bb",
+      "intentSha": "846af8fb641e886ab3d6b6dfb70e1483223323d53b4c37560200cad5018c6b4e",
+      "baselineOutputSha": "db90af7a31d640a3a1545e7ad98b866a95f558a344972f721483458c968a41bd",
+      "candidateOutputSha": "7d8837a5146dcfdd07acf4a8a1a23d348b04927e50edeaee5ecdff21078e3238",
       "facts": {
         "split": {
           "before": "holds",
@@ -111,137 +111,10 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "No fact moved. After keeps the same three-row Split section and two-row Set-wide section (Drafted provenance, exact observables, in-scope dispositions, full union), stops before any write for Missing/Partial/Unrelated while quoting the row verbatim and asking for the complete Design enumeration (naming size explicitly in Partial, refusing the unrelated set in Unrelated, inventing nothing), and preserves the verbatim #42 row with in-scope disposition and the /skill:shape-ticket repair route before approval. The only wording differences are cosmetic: After wraps the blocking questions in a `gauntlet: question` block with a C) other option and replaces Before's 'Stage: Proceed' lines with a 'Spec-writing stage' label; Before was slightly more explicit that the drafted-row splitting recovery itself is not applicable to a ticket row, which After phrases as 'does not authorize rewriting that ticket row'. To keep the ticket fact robust against stricter judging, After could restate that the drafted-row split, a ledger split, and an approved-row amendment are each excluded routes, but as written every fact Before kept is kept in After and the Change is delivered.",
-      "wallMs": 15107,
+      "feedback": "No fact moved between Before and After: both outputs split the Split branch into exactly three in-scope drafted family rows under the 'Drafted from the design, no ticket rows:' provenance, split Set-wide into two src/-scoped lint rows, stop before any write on Missing/Partial/Unrelated while quoting the outcome verbatim and asking for the complete Design enumeration without inventing or substituting families, and retain the Ticket #42 row verbatim with in-scope disposition and the /skill:shape-ticket repair route. After's only substantive wording shifts are cosmetic (lowercase row text, 'anywhere in src/' instead of 'throughout src/', and an explicit 'resolving the uncovered size portion' in Partial) which actually tracks the facts more closely; the one thing to watch is that After's Set-wide rows reword the family observables as 'no ... findings' rather than 'zero ... findings' — keeping the Design's 'zero findings' phrasing would guard against a stricter reading of the set-wide fact. After also drops Before's explicit note that a cancelled ticket repair leaves the row unchanged and re-asks the cut question; that detail is not judged here but is worth restoring so the Ticket branch keeps its full repair-cancelled contract while still delivering the Change.",
+      "wallMs": 16424,
       "verdict": "unchanged"
     }
   },
-  "refresh": {
-    "status": "complete",
-    "identity": {
-      "sample": "tree-wide-drafted-row",
-      "kind": "text",
-      "assembly": "headed",
-      "baselineSkillSha": "febb95dec40845327547e67f2ed3d2b6206e75d09f86a5d6432bcf6cc13f0266",
-      "candidateSkillSha": "60e31e66838ae595eb1e4eb17f85fc2b6ae281b7888e8d4c959913dac2536893",
-      "inputSha": "12f6f74f452818317ca849507ceb6cf399f6bc805477650b422afa49497bb96c",
-      "factsSha": "3b006a1490b65fefa91553374d7aa6794754178cd4f5a3e033ffcb5533d72a41",
-      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "5b9f462cd6caec9a4a8e3a28a3c0ba61583e1b400c8edb5164d32bba075fea39",
-      "models": {
-        "replay": [
-          "github-copilot/gpt-6.1-sol"
-        ],
-        "judge": "github-copilot/gpt-6.1-sol"
-      },
-      "thinking": "medium",
-      "outputs": {
-        "baseline": {
-          "github-copilot/gpt-6.1-sol": {
-            "baselineOutputSha": "db90af7a31d640a3a1545e7ad98b866a95f558a344972f721483458c968a41bd",
-            "payloadSha": "2299a9b39a191fc6d4184940915d398ac19201ed1c18244e7cb1c3ba5462cce2"
-          }
-        },
-        "candidate": {
-          "github-copilot/gpt-6.1-sol": {
-            "candidateOutputSha": "e107564d6efee13f3a6c9c6ca2fe6a1bd2f5996d1ef93526020bdb10661dd418",
-            "payloadSha": "7678e2eed765733275e8e5f8b70d63c7597db0abb4fea8716f0e8d73d2e3dfb3"
-          }
-        }
-      }
-    },
-    "previous": {
-      "github-copilot/gpt-6.1-sol": {
-        "factsSha": "3b006a1490b65fefa91553374d7aa6794754178cd4f5a3e033ffcb5533d72a41",
-        "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-        "intentSha": "5b9f462cd6caec9a4a8e3a28a3c0ba61583e1b400c8edb5164d32bba075fea39",
-        "baselineOutputSha": "db90af7a31d640a3a1545e7ad98b866a95f558a344972f721483458c968a41bd",
-        "candidateOutputSha": "e107564d6efee13f3a6c9c6ca2fe6a1bd2f5996d1ef93526020bdb10661dd418",
-        "facts": {
-          "split": {
-            "before": "holds",
-            "after": "holds",
-            "label": "intended but unchanged"
-          },
-          "set-wide": {
-            "before": "holds",
-            "after": "holds",
-            "label": "intended but unchanged"
-          },
-          "missing": {
-            "before": "holds",
-            "after": "holds",
-            "label": "intended but unchanged"
-          },
-          "partial": {
-            "before": "holds",
-            "after": "holds",
-            "label": "intended but unchanged"
-          },
-          "unrelated": {
-            "before": "holds",
-            "after": "holds",
-            "label": "intended but unchanged"
-          },
-          "ticket": {
-            "before": "holds",
-            "after": "holds",
-            "label": "intended but unchanged"
-          }
-        },
-        "feedback": "Nothing moved: both outputs produce the identical three-row Split and two-row Set-wide sections under the \"Drafted from the design, no ticket rows:\" provenance, both stop before any spec write on Missing/Partial/Unrelated while quoting the outcome verbatim and asking for the complete Design enumeration (After names the omitted size family explicitly and refuses the unrelated metrics, which is a slight tightening), and both retain the Ticket #42 section verbatim with in-scope disposition and route splitting through /skill:shape-ticket #42. Note the Before text already satisfies missing/partial/unrelated, so the expected fails->holds moves are not visible in these fixtures. The one risk in After is the added Ticket question stage: options B (deviates) and C (deferred) sit beside the in-scope row and the recommendation D phrasing \"split the row using Design's ... enumeration\" could be misread as an in-spec rewrite; keep D explicitly framed as \"repair the ticket via /skill:shape-ticket #42, then re-fetch and re-extract\" (as the Repair stage already says) so no reader takes the split to happen in the drafted rows, ledger, or an approved-row amendment.",
-        "wallMs": 19262,
-        "verdict": "unchanged",
-        "judgeModel": null,
-        "thinking": null
-      }
-    },
-    "refreshed": {
-      "github-copilot/gpt-6.1-sol": {
-        "factsSha": "3b006a1490b65fefa91553374d7aa6794754178cd4f5a3e033ffcb5533d72a41",
-        "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-        "intentSha": "5b9f462cd6caec9a4a8e3a28a3c0ba61583e1b400c8edb5164d32bba075fea39",
-        "baselineOutputSha": "db90af7a31d640a3a1545e7ad98b866a95f558a344972f721483458c968a41bd",
-        "candidateOutputSha": "e107564d6efee13f3a6c9c6ca2fe6a1bd2f5996d1ef93526020bdb10661dd418",
-        "facts": {
-          "split": {
-            "before": "holds",
-            "after": "holds",
-            "label": "intended but unchanged"
-          },
-          "set-wide": {
-            "before": "holds",
-            "after": "holds",
-            "label": "intended but unchanged"
-          },
-          "missing": {
-            "before": "holds",
-            "after": "holds",
-            "label": "intended but unchanged"
-          },
-          "partial": {
-            "before": "holds",
-            "after": "holds",
-            "label": "intended but unchanged"
-          },
-          "unrelated": {
-            "before": "holds",
-            "after": "holds",
-            "label": "intended but unchanged"
-          },
-          "ticket": {
-            "before": "holds",
-            "after": "holds",
-            "label": "intended but unchanged"
-          }
-        },
-        "feedback": "No judged fact moved: After preserves the exact family-specific row counts, full outcome coverage, drafted provenance, blocking clarification for inadequate enumerations, and verbatim ticket row with human-authorized repair before splitting. Keep these explicit safeguards while delivering the broader change: split only from a complete, relevant Design enumeration; otherwise stop before writing and request its completion without inferring families. Continue to distinguish ticket repair through /skill:shape-ticket from drafted-row rewriting or ledger amendment, and present any alternative ticket disposition as a human choice rather than an applied change.",
-        "wallMs": 11061,
-        "verdict": "unchanged",
-        "judgeModel": "github-copilot/gpt-6.1-sol",
-        "thinking": "medium"
-      }
-    }
-  },
-  "repoSha": "657f24585c1a6c2182a26df3d0d0691c8e67e59a"
+  "repoSha": "f25bf48a3f7ac2e9b361d2c7506d7c691e212697"
 }

@@ -1,39 +1,47 @@
 {
   "sample": "pr-list-push-rejected",
   "arm": "candidate",
-  "skillSha": "c79d1b35252ca81d46edc7542fceb4f9be4fc3b1b86c2454de5565e5e15455f4",
+  "skillSha": "95fb5f01c50b26a9d0ec162369e2f693adeefa3ca230a11045ab3655e9ad6f9c",
   "inputSha": "ddbb68333b526ab8b5a85e915ea9bbe79f943e73a2846e07d78f803bcc655d44",
   "kind": "text",
   "assembly": "concat",
   "thinking": "medium",
   "models": {
     "replay": [
+      "anthropic/claude-opus-5-5",
       "github-copilot/gpt-6.1-sol"
     ],
-    "judge": "github-copilot/gpt-6.1-sol",
+    "judge": "anthropic-fable/claude-fable-5-1",
     "thinking": "medium"
   },
   "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "**Aliases:** A=`aaaa…`, B=`bbbb…`, C=`cccc…`, E=`eeee…` (HEAD), F=`fffffff`.\n\nI'm using the finishing-a-development-branch skill to complete this work.\n\n`phase_tracker({ action: \"start\", phase: \"ship\" })`\n\n**Input:** WORKTREE=`/work/widget/.worktrees/retry`, PRIMARY=`/work/widget`, FEATURE=`retry`.\n\n### Checkpoint 1: Verify\n- **Subject:** PR subject via its Rework record.\n- **Pairs read:** #12→A (PRE_REWORK_HEAD), #13→B, #14→C.\n- **Combined fields only:**\n  - Base: `main @ 1234567 - merge: ddddddd`\n  - Keeps: retry behavior\n  - Changes: repair retries\n  - Dropped claims: none\n  - Scoped tests: test-retry\n- **Home check:** #12 is OPEN, `headRefName=retry`, `baseRefName=main`.\n- **Skip rule applies:** test-retry passed on a known clean commit, and the telemetry-excluding diff and status checks are clean.\n\n### Checkpoint 2: Conformance\n```\nClosure / conformance: CONFORMS\n```\n\n### Checkpoint 3: Preflight\n- `fetch origin` succeeded.\n- Ancestry of HEAD: A, then B, then C each exit 0.\n- `origin/retry` is an ancestor of HEAD (exit 0), so row 1 is offered.\n- Row 1 is chosen.\n\n### Checkpoint 4: Evidence and threads\n| PR | Thread | Resolution |\n|---|---|---|\n| #12 | src/retry.ts:1 HOME | fixed in F (accepted-complete task, one naming commit) |\n| #13 | src/delay.ts:2 MEMBER13 | recorded `fix` copied from #13's own history |\n| #13 | NEW13 | still open (newly opened) |\n| #14 | src/cap.ts:3 MEMBER14 | recorded `keep open`, now marked resolved on GitHub (newly resolved) |\n\n### Checkpoint 5: Strip and seal (whole PR)\n```bash\nnode <bin>/gauntlet-telemetry-seal.mjs --worktree \"$WORKTREE\" --option pr --base origin/main --spec <spec path>\n```\n`sealed <record path>`\n\n### Checkpoint 6: Refs\n```bash\ngit -C \"$WORKTREE\" update-ref refs/gauntlet/pre-rework/pr-12 A\ngit -C \"$WORKTREE\" update-ref refs/gauntlet/pre-rework/pr-13 B\ngit -C \"$WORKTREE\" update-ref refs/gauntlet/pre-rework/pr-14 C\n```\n\n### Checkpoint 7: Push home, non-force\n```bash\ngit -C \"$WORKTREE\" push --no-follow-tags origin HEAD:refs/heads/retry\n```\n**Push rejected.** It is reported once and not retried or forced.\n- **Description:** not fetched or edited. `Original description\\n` is untouched, and no scratch file is written.\n- **Closure:** skipped.\n- **Member PRs:** #13 and #14 left open.\n- **Worktree:** preserved.\n- **Ship phase:** not marked complete.\n\n**Return to menu.** Preflight is recomputed after a fresh fetch:\n\n```\nImplementation complete. What would you like to do?\n\n1. Push to the PR branch (PR #12, retry; appends the rework block to its description)\n2. Push and create a Pull Request (PR #12 already exists on this branch; gh refuses a second one)\n3. Push and create a draft Pull Request (same: PR #12 already exists)\n4. Squash-merge to main (no PR, no surviving branch; orphans PR #12 - close it by hand)\n5. Keep the branch as-is (I'll handle it later; nothing is pushed)\n6. Discard this work (removes the worktree and local branch; the PR branch on origin is untouched)\n\nWhich option?\n```\n\nIf the refetch shows origin diverged, the variant below applies instead.\n\n### Independent variants (none authorizes closing members)\n- **Origin divergence:**\n  - Row 1 is omitted, and rows keep their numbers 2–6.\n  - `Withheld: push - origin/retry is at <sha7>, local HEAD at eeeeeee; a non-force push cannot land`\n  - Append `(origin moved past the rework's base aaaaaaa)` only if A is an ancestor of `origin/retry` (exit 0).\n  - A bare `1` gets a clarifying question naming 2–6.\n  - No closure is offered.\n- **#14 original head not an ancestor (exit 1):** stop before the menu with `PR branch history was rewritten: ccccccc is not an ancestor of HEAD; the rework must be re-merged, not rebased.` No push, no body edit, no closure.\n- **Ancestry exit 128:** command error. Stop and print git's output; nothing proceeds and there is no closure.\n- **Rows 2–6:** these map to Options 1–5 with their existing confirmation and cleanup rules. Row 6 never deletes origin's branch. Closure is never offered, and the outcome reads `Member PRs #13, #14 left open.`\n",
+      "words": 552,
+      "wallMs": 23559,
+      "mechanical": {}
+    },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "### Rejected push — checkpoint delta\n\nAliases: A=`aaaa…` (#12), B=`bbbb…` (#13), C=`cccc…` (#14), H=`eeee…` (HEAD); each denotes the supplied full SHA.\n\n- Verification skipped legitimately: `test-retry` passed on the known clean commit; both telemetry-excluding checks are clean.\n- Captured scoped commands and accepted-complete evidence before stripping.\n- Refreshed threads per PR: HOME → `fixed in fffffff`; #13 retains MEMBER13’s recorded disposition and adds NEW13 as `still open`; #14 marks MEMBER14 newly resolved. No member-fix proof inferred from home’s first-parent history.\n- Strip/seal checkpoint succeeds, measuring the whole PR against `origin/main`, not A. No seal stdout was supplied to reproduce.\n- Preserve refs `refs/gauntlet/pre-rework/pr-12` → A, `pr-13` → B, `pr-14` → C.\n- Push only home, non-force. Push rejected.\n- Skip description fetch/edit and member closure; no retry or force. Worktree preserved. Ship remains incomplete.\n\n```text\ngauntlet: stuck push-rejected\nHome push rejected; no retry or force attempted.\nDescription unchanged. Worktree preserved at /work/widget/.worktrees/retry.\nMember PRs #13, #14 left open.\n```\n\nReturn menu below assumes repeated preflight still proves all required ancestry:\n\n```text\ngauntlet: gate=finishing-a-development-branch/step-4\nClosure / conformance: CONFORMS\nwhole-diff minors: not recorded\n\nImplementation complete. What would you like to do?\n\n1. Push to the PR branch (PR #12, retry; appends the rework block to its description)\n2. Push and create a Pull Request (PR #12 already exists on this branch; gh refuses a second one)\n3. Push and create a draft Pull Request (same: PR #12 already exists)\n4. Squash-merge to main (no PR, no surviving branch; orphans PR #12 - close it by hand)\n5. Keep the branch as-is (I'll handle it later; nothing is pushed)\n6. Discard this work (removes the worktree and local branch; the PR branch on origin is untouched)\n\nWhich option?\n```\n\n### Independent divergence checkpoint\n\nAll original-head proofs pass; origin/retry is not an ancestor of H. Withhold row 1. Append the origin-advance parenthetical **only** if A is proven an ancestor of origin/retry.\n\n```text\ngauntlet: gate=finishing-a-development-branch/step-4\nImplementation complete. What would you like to do?\n\n2. Push and create a Pull Request (PR #12 already exists on this branch; gh refuses a second one)\n3. Push and create a draft Pull Request (same: PR #12 already exists)\n4. Squash-merge to main (no PR, no surviving branch; orphans PR #12 - close it by hand)\n5. Keep the branch as-is (I'll handle it later; nothing is pushed)\n6. Discard this work (removes the worktree and local branch; the PR branch on origin is untouched)\n\nWithheld: push - origin/retry is at <remote7>, local HEAD at eeeeeee; a non-force push cannot land\n\nWhich option?\n```\n\nBare `1` requires clarification naming available labels 2–6.\n\n### Independent ancestry stops\n\n```text\ngauntlet: stuck rewritten-history\nPR branch history was rewritten: ccccccc is not an ancestor of HEAD; the rework must be re-merged, not rebased.\nMember PRs #13, #14 left open.\n```\n\nExit 128: stop as a command error, quoting actual output; none was supplied. No push, body edit, or closure.\n\n### Independent choices 2–6\n\n- **2/3:** Strip/seal, push, attempt normal/draft creation; existing PR prevents a second. Report failure, not completion.\n- **4:** Strip/seal, local squash, post-squash verification, ownership-governed cleanup. No push or PR closure.\n- **5:** Keep branch and worktree; complete ship.\n- **6:** Require exact typed `discard` before ownership-governed cleanup; never delete origin’s branch.\n\nEvery variant leaves member PRs #13, #14 open. No rejected-push path creates scratch content or invokes `gh pr edit`.\n",
-      "words": 532,
-      "wallMs": 22450,
+      "text": "I'm using the finishing-a-development-branch skill to complete this work.\n\n**Aliases:** A = original #12 head, B = original #13 head, C = original #14 head, E = current HEAD; each denotes the supplied full SHA.\n\n### Checkpoint: row 1, push rejected\n\n- Verification: skip rerun; `test-retry` passed on the known clean commit and both telemetry-excluding checks are clean. Retain scoped commands and accepted-complete task evidence before stripping.\n- Home confirmed OPEN, branch `retry`, base `main`. All original-head ancestry proofs and the home-origin proof pass.\n- Closure / conformance: CONFORMS.\n- Combined fields use only capitalized record fields; lowercase provenance is not copied.\n- Refresh threads separately for #12, #13, and #14, including pagination:\n  - #12 HOME: `fixed in fffffff`.\n  - #13 MEMBER13: retain recorded `fix: retain delay`; NEW13: `still open`. Home’s first-parent history is not member-fix proof.\n  - #14 MEMBER14: mark newly resolved.\n- Capture evidence, strip the ephemeral plan, preserve spec and telemetry, and seal with `--option pr --base origin/main`. Require successful seal; retain its actual stdout verbatim for completion reporting.\n- Preserve full originals:\n  - `refs/gauntlet/pre-rework/pr-12` → A\n  - `refs/gauntlet/pre-rework/pr-13` → B\n  - `refs/gauntlet/pre-rework/pr-14` → C\n- Attempt only the non-force home push:  \n  `git -C \"/work/widget/.worktrees/retry\" push --no-follow-tags origin HEAD:refs/heads/retry`\n\n**Push rejected.** Report the rejection once; no retry or force. Preserve worktree and branch. Skip description fetch/edit and member closure.\n\nMember PRs #13, #14 left open.\n\nReturn to the menu only after recomputing preflight. If push remains available:\n\nImplementation complete. What would you like to do?\n\n1. Push to the PR branch (PR #12, retry; appends the rework block to its description)\n2. Push and create a Pull Request (PR #12 already exists on this branch; gh refuses a second one)\n3. Push and create a draft Pull Request (same: PR #12 already exists)\n4. Squash-merge to main (no PR, no surviving branch; orphans PR #12 - close it by hand)\n5. Keep the branch as-is (I'll handle it later; nothing is pushed)\n6. Discard this work (removes the worktree and local branch; the PR branch on origin is untouched)\n\nWhich option?\n\n### Independent checkpoint deltas\n\n- **Origin divergence:** omit row 1; retain labels 2–6. Show `Withheld: push - origin/retry is at <origin7>, local HEAD at eeeeeee; a non-force push cannot land`. Append the origin-moved explanation only if A is proven an ancestor of origin/retry. Reply `1` requires clarification. No closure.\n- **Original #14 ancestry exit 1:** stop: `PR branch history was rewritten: ccccccc is not an ancestor of HEAD; the rework must be re-merged, not rebased.`\n- **Ancestry exit 128:** stop as a command error; surface actual command output. No push or closure.\n- **Rows 2–3:** strip/seal before push/create attempt; existing PR prevents a second PR. Preserve worktree.\n- **Row 4:** strip/seal, local squash, mandatory post-squash verification, then ownership-authorized cleanup only.\n- **Row 5:** keeping branch `retry`; worktree preserved.\n- **Row 6:** enumerate commits and require exact `discard` before ownership-authorized cleanup; origin remains untouched.\n\nEvery independent variant leaves members open. Fresh-description byte preservation and `gh pr edit 12 --repo acme/widget --body-file \"$SCRATCH\"` are unreachable after rejection.\n",
+      "words": 476,
+      "wallMs": 19027,
       "mechanical": {}
     }
   },
   "judge": {
-    "github-copilot/gpt-6.1-sol": {
+    "anthropic/claude-opus-5-5": {
       "factsSha": "72caeb36bb0ccdf648c3d0e1460dfdad17ebcf9879fff763d43642b9816fb4a0",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "30343bc5c6f678faa9431a82e537b28e529d686c25202329a16e741a2b64b92c",
-      "baselineOutputSha": "a5ff66970a807bf1366391aa42ae113c1a4e28085ed81ffb39e7840e7e0c84d9",
-      "candidateOutputSha": "71a4155d889ce2d0bd2aae4bf22f19aec3599580b80f9bd17b580b9955de13c2",
+      "intentSha": "f799890e16cc3f3752172fadbe09daebf0f294cfcc869df30dee75eb116791d8",
+      "baselineOutputSha": "37fc59bbc19773d28a9b9b45a0beaae9af7d0e2de2ca03015d1329bd48c48095",
+      "candidateOutputSha": "4744efbec6d6806bb889a2084e730bf4d634c563e56fb96a1f047ebd870fac4a",
       "facts": {
         "rejection": {
           "before": "holds",
-          "after": "fails",
-          "label": "regression"
+          "after": "holds",
+          "label": "intended but unchanged"
         },
         "guards": {
           "before": "holds",
@@ -41,160 +49,32 @@
           "label": "held"
         }
       },
-      "feedback": "After preserves the guard variants, worktree, menu return, and open-member outcome, but reports the rejected push both in the checkpoint bullet and again in the final outcome, violating the once-only requirement. Keep the checkpoint bullet limited to the attempted home-only non-force push, and report its rejection only in the outcome beginning with `gauntlet: stuck push-rejected`. Retain the gate-first menu and all existing guard statements; this delivers the formatting change without losing either fact Before satisfied.",
-      "wallMs": 9748,
-      "verdict": "inconclusive",
-      "confirmation": {
-        "status": "ok",
-        "text": "Aliases: A=`aaaaaaa…` (#12), B=`bbbbbbb…` (#13), C=`ccccccc…` (#14), H=`eeeeeee…` (HEAD); each denotes the supplied full SHA.\n\n### Checkpoint: push rejected\n\n- Home confirmed OPEN, branch `retry`, base `main`. Verification skipped legitimately: `test-retry` passed on the known clean commit; both telemetry-excluding checks are clean.\n- Captured scoped verification and accepted-complete task evidence before stripping. Combined fields use only capitalized record fields, not lowercase provenance.\n- Refreshed threads per PR:\n  - #12 HOME: `fixed in fffffff`.\n  - #13 MEMBER13: retain recorded `fix: retain delay`; NEW13: `still open`. Home’s first-parent history proves neither member fix.\n  - #14 MEMBER14: newly resolved.\n- All original-head and remote-head ancestry proofs pass.\n- Strip plan; seal with `--option pr --base origin/main`. Preserve spec and telemetry.\n- Preserve `refs/gauntlet/pre-rework/pr-12` → A, `pr-13` → B, `pr-14` → C.\n- Attempt only the non-force home push: `HEAD:refs/heads/retry`.\n\ngauntlet: stuck push-rejected\nPush rejected. No retry or force-push. Worktree preserved.\nDescription fetch/edit and member closure skipped. No scratch body written.\nMember PRs #13, #14 left open.\n\n---\n\ngauntlet: gate=finishing-a-development-branch/step-4\nImplementation complete. What would you like to do?\n\n1. Push to the PR branch (PR #12, retry; appends the rework block to its description)\n2. Push and create a Pull Request (PR #12 already exists on this branch; gh refuses a second one)\n3. Push and create a draft Pull Request (same: PR #12 already exists)\n4. Squash-merge to main (no PR, no surviving branch; orphans PR #12 - close it by hand)\n5. Keep the branch as-is (I'll handle it later; nothing is pushed)\n6. Discard this work (removes the worktree and local branch; the PR branch on origin is untouched)\n\nWhich option?\n\n### Independent checkpoint: origin divergence\n\nRefetch and recompute proofs. Original heads pass; origin ancestry exits 1. No push, description edit, or closure. Member PRs #13, #14 left open.\n\ngauntlet: gate=finishing-a-development-branch/step-4\nImplementation complete. What would you like to do?\n\n2. Push and create a Pull Request (PR #12 already exists on this branch; gh refuses a second one)\n3. Push and create a draft Pull Request (same: PR #12 already exists)\n4. Squash-merge to main (no PR, no surviving branch; orphans PR #12 - close it by hand)\n5. Keep the branch as-is (I'll handle it later; nothing is pushed)\n6. Discard this work (removes the worktree and local branch; the PR branch on origin is untouched)\n\nWithheld: push - origin/retry is not an ancestor of H; a non-force push cannot land. Actual origin SHA was not supplied. Append the origin-advance annotation only if its separate proof passes.\n\nWhich option?\n\n### Independent stop checkpoints\n\n- **#14 ancestry exit 1:** `PR branch history was rewritten: ccccccc is not an ancestor of HEAD; the rework must be re-merged, not rebased.`\n- **Ancestry exit 128:** command error; stop with command output (not supplied). No landing or closure.\n\n### Independent choices 2–6\n\n- **2/3:** strip/seal, push/create attempt; existing PR prevents a second PR. Preserve worktree.\n- **4:** strip/seal, local squash, mandatory re-verification, ownership-gated cleanup.\n- **5:** keep branch/worktree.\n- **6:** require exact `discard`; cleanup only under the current ownership contract.\n\nNone authorizes closing members. Member PRs #13, #14 left open.\n",
-        "words": 488,
-        "wallMs": 22722,
-        "mechanical": {},
-        "judgeWallMs": 8457,
-        "facts": {
-          "rejection": {
-            "before": "holds",
-            "after": "holds",
-            "label": "intended but unchanged"
-          },
-          "guards": {
-            "before": "holds",
-            "after": "holds",
-            "label": "held"
-          }
-        },
-        "feedback": "Neither listed fact changed: both outputs report one rejected push without retry or force, return to the menu without body editing or a close question, leave members open, and retain the divergence, ancestry-error, and rows 2–6 guards. After makes worktree preservation explicit and adds the stuck outcome and gate-first menu markers. Keep those markers and the existing safety statements; render the discard prompt with `gauntlet: question` to deliver the requested confirmation format without losing either fact."
-      }
-    }
-  },
-  "refresh": {
-    "status": "complete",
-    "identity": {
-      "sample": "pr-list-push-rejected",
-      "kind": "text",
-      "assembly": "concat",
-      "baselineSkillSha": "7515c6456d80469e7fa98eb9d7f643ce8f33e98ee4fe297d2f0a29cf997cb2e0",
-      "candidateSkillSha": "cd3f433287fd2231d974112509f99c7976f788226a136fb2d7f722a20a48b4c5",
-      "inputSha": "ddbb68333b526ab8b5a85e915ea9bbe79f943e73a2846e07d78f803bcc655d44",
+      "feedback": "After keeps both facts: Checkpoint 7 reports the rejection once, states no retry/force, no description fetch or edit, closure skipped, members #13/#14 left open, worktree preserved, and returns to the menu; the variants withhold row 1 on divergence, stop on the ccccccc rewritten-history message, treat exit 128 as a command error, and say rows 2-6 never close members with the exact `Member PRs #13, #14 left open.` line. Two spots are weaker than Before and could read as drift under a stricter judge: the post-rejection menu re-renders with row 1 still present (Before showed it withheld with an explicit note that no push retry is offered), and the worktree line drops the path. To keep the Change while removing that ambiguity, have Checkpoint 7 state that both ancestry proofs are rerun on return and that a rejected push implies origin advanced, so row 1 is withheld in the re-rendered menu (or at least add 'no push retry is offered'), and print the full worktree path in the preserved line.",
+      "wallMs": 15247,
+      "verdict": "unchanged"
+    },
+    "github-copilot/gpt-6.1-sol": {
       "factsSha": "72caeb36bb0ccdf648c3d0e1460dfdad17ebcf9879fff763d43642b9816fb4a0",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "a9c2be1c959db352c28497b2aa6babbb779ca40de95f803c62f9eade21f00e9a",
-      "models": {
-        "replay": [
-          "github-copilot/gpt-6.1-sol"
-        ],
-        "judge": "github-copilot/gpt-6.1-sol"
-      },
-      "thinking": "medium",
-      "outputs": {
-        "baseline": {
-          "github-copilot/gpt-6.1-sol": {
-            "baselineOutputSha": "a5ff66970a807bf1366391aa42ae113c1a4e28085ed81ffb39e7840e7e0c84d9",
-            "payloadSha": "4525bd636a6d1bca299cd41937a8fe1c3a0fadbc6e5c30046a4467fa757039cf"
-          }
+      "intentSha": "f799890e16cc3f3752172fadbe09daebf0f294cfcc869df30dee75eb116791d8",
+      "baselineOutputSha": "a5ff66970a807bf1366391aa42ae113c1a4e28085ed81ffb39e7840e7e0c84d9",
+      "candidateOutputSha": "552562df33149b45ddc43614d7b8837243b774db3a5d08ce79a505cd99b79ed6",
+      "facts": {
+        "rejection": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
         },
-        "candidate": {
-          "github-copilot/gpt-6.1-sol": {
-            "candidateOutputSha": "510cf4f368c6d03f0b54763ffa9e3890f7f74664992028d2fa60891956be07be",
-            "payloadSha": "3e77b2a4cdf0789767d7c6d1163bf85b54628c6e71204d7570fa2420ad64dbd2"
-          }
+        "guards": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
         }
-      }
-    },
-    "previous": {
-      "github-copilot/gpt-6.1-sol": {
-        "factsSha": "72caeb36bb0ccdf648c3d0e1460dfdad17ebcf9879fff763d43642b9816fb4a0",
-        "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-        "intentSha": "a9c2be1c959db352c28497b2aa6babbb779ca40de95f803c62f9eade21f00e9a",
-        "baselineOutputSha": "a5ff66970a807bf1366391aa42ae113c1a4e28085ed81ffb39e7840e7e0c84d9",
-        "candidateOutputSha": "510cf4f368c6d03f0b54763ffa9e3890f7f74664992028d2fa60891956be07be",
-        "facts": {
-          "rejection": {
-            "before": "holds",
-            "after": "holds",
-            "label": "intended but unchanged"
-          },
-          "guards": {
-            "before": "holds",
-            "after": "fails",
-            "label": "regression"
-          }
-        },
-        "feedback": "After delivers the Change cleanly on the rejection path: one `gauntlet: stuck push-rejected` line precedes the outcome summary, the Step 4 menu opens with its `gate=finishing-a-development-branch/step-4` marker and keeps all six rows with no recommended suffix, worktree/branch preservation and the skipped body-edit/close stages are stated explicitly, and no retry or force appears. The regression is in the guard deltas: Before closed with `For every variant: Member PRs #13, #14 left open.`, which covered divergence and rows 2–6; After attaches the member line only to the #14-ancestry and exit-128 variants, so the divergence delta and the rows 2–6 delta say `None authorizes member closure` without ever naming #13/#14 as untouched. Restore the per-variant sentence (or the blanket `For every variant: Member PRs #13, #14 left open.` after the rows 2–6 list) — it does not conflict with the gate-first/stuck-line ordering, since those variants simply don't open with a stuck marker, and it keeps the 'name them untouched' half of the guards fact that Before held.",
-        "wallMs": 22145,
-        "verdict": "inconclusive",
-        "confirmation": {
-          "status": "ok",
-          "text": "### Rejected push — checkpoint delta\n\nAliases: `A=aaaa…` (#12), `B=bbbb…` (#13), `C=cccc…` (#14), `E=eeee…` (HEAD); each denotes the supplied full SHA.\n\n- Verification skipped legitimately: `test-retry` passed on the known clean commit; both telemetry-excluding checks are clean.\n- Captured scoped commands and accepted-complete task evidence before stripping.\n- Refreshed all three PRs’ threads with the canonical paginated query:\n  - #12 HOME: `fixed in fffffff`.\n  - #13 MEMBER13: retain recorded `fix: retain delay`; NEW13: `still open`. Home’s first-parent history is not member-fix proof.\n  - #14 MEMBER14: newly resolved.\n- Stripped the ephemeral plan; sealed telemetry with `--option pr --base origin/main`. Retained seal stdout for reporting.\n- Preserved:\n  - `refs/gauntlet/pre-rework/pr-12 → A`\n  - `refs/gauntlet/pre-rework/pr-13 → B`\n  - `refs/gauntlet/pre-rework/pr-14 → C`\n- Attempted only `push --no-follow-tags origin HEAD:refs/heads/retry`; rejected. No retry or force.\n- No description fetch/edit, scratch-body write, member-closure eligibility checks, or closure question. Existing description bytes remain unchanged. Worktree preserved; ship not marked complete.\n\n**Outcome message**\n```text\ngauntlet: stuck push-rejected\nPush to origin/retry was rejected.\nMember PRs #13, #14 left open.\n```\n\n**Subsequent menu message** — recompute fetch/ancestry preflight first; this rendering assumes the supplied passing ancestry checkpoint still holds:\n```text\ngauntlet: gate=finishing-a-development-branch/step-4\nImplementation complete. What would you like to do?\n\n1. Push to the PR branch (PR #12, retry; appends the rework block to its description)\n2. Push and create a Pull Request (PR #12 already exists on this branch; gh refuses a second one)\n3. Push and create a draft Pull Request (same: PR #12 already exists)\n4. Squash-merge to main (no PR, no surviving branch; orphans PR #12 - close it by hand)\n5. Keep the branch as-is (I'll handle it later; nothing is pushed)\n6. Discard this work (removes the worktree and local branch; the PR branch on origin is untouched)\n\nWhich option?\n```\n\n### Independent checkpoint variants\n\n- **Origin divergence:** originals pass; `origin/retry` is not an ancestor of HEAD. Omit row 1, retain rows **2–6 unchanged**, and append:\n  ```text\n  Withheld: push - origin/retry is at <origin7>, local HEAD at eeeeeee; a non-force push cannot land\n  ```\n  Append `(origin moved past the rework's base aaaaaaa)` only if the separate `A → origin/retry` proof succeeds. No retry, force, or closure. Bare `1` asks for a displayed choice, 2–6.\n\n- **Original #14 ancestry exits 1:** stop before push:\n  ```text\n  PR branch history was rewritten: ccccccc is not an ancestor of HEAD; the rework must be re-merged, not rebased.\n  ```\n\n- **Ancestry exits 128:** command error; stop and report actual command output. Do not interpret it as divergence or rewritten history.\n\n- **Rows 2–6:** none authorizes closing members. Rows 2/3 follow normal PR/draft handling and report creation failure without closing anything. Row 4 requires squash verification and ownership-governed cleanup; no push. Row 5 preserves worktree. Row 6 requires exact typed `discard` before ownership-governed cleanup; origin stays untouched.\n\nAll variants: **Member PRs #13, #14 left open.**\n",
-          "words": 444,
-          "wallMs": 22984,
-          "mechanical": {},
-          "judgeWallMs": 15589,
-          "facts": {
-            "rejection": {
-              "before": "fails",
-              "after": "holds",
-              "label": "intended change"
-            },
-            "guards": {
-              "before": "holds",
-              "after": "holds",
-              "label": "held"
-            }
-          },
-          "feedback": "After satisfies both facts: the rejected push is reported exactly once in the checkpoint bullets, the outcome block opens with a single `gauntlet: stuck push-rejected` line, worktree preservation and the skipped body edit/close question are stated explicitly, the full six-row menu follows a single gate marker, and the member PRs are named left open both in the outcome and across every guard variant. Before failed the rejection fact only because it never said the worktree was preserved on the rejected-push path (it mentioned preservation only under rows 2/3 and 5), so a careful reader could not confirm that element; After's added \"Worktree preserved; ship not marked complete\" bullet is what moved the fact. To keep this while delivering the change, retain that explicit worktree bullet and the single stuck line, keep the menu marker as the first line of the menu block, and avoid adding a recommended suffix or any retry wording after the menu; the guard variants in After already match Before's coverage (row 1 withheld with the divergence line, ccccccc rewritten-history message on exit 1, exit 128 as a command error, rows 2–6 never closing members) and should remain as written."
-        },
-        "judgeModel": null,
-        "thinking": null
-      }
-    },
-    "refreshed": {
-      "github-copilot/gpt-6.1-sol": {
-        "factsSha": "72caeb36bb0ccdf648c3d0e1460dfdad17ebcf9879fff763d43642b9816fb4a0",
-        "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-        "intentSha": "a9c2be1c959db352c28497b2aa6babbb779ca40de95f803c62f9eade21f00e9a",
-        "baselineOutputSha": "a5ff66970a807bf1366391aa42ae113c1a4e28085ed81ffb39e7840e7e0c84d9",
-        "candidateOutputSha": "510cf4f368c6d03f0b54763ffa9e3890f7f74664992028d2fa60891956be07be",
-        "facts": {
-          "rejection": {
-            "before": "holds",
-            "after": "holds",
-            "label": "intended but unchanged"
-          },
-          "guards": {
-            "before": "holds",
-            "after": "fails",
-            "label": "regression"
-          }
-        },
-        "feedback": "After retains the rejected-push safeguards and adds explicit gate and stuck markers, but drops Before’s statement naming both members as left open for every variant. The rows 2–6 section says closure is unauthorized without explicitly naming #13 and #14 as untouched. Add “For every rows 2–6 variant: Member PRs #13, #14 left open and untouched.” Keep the full menu, gate-first decision message, single stuck outcome, and no retry, body edit, or close question after rejection.",
-        "wallMs": 20961,
-        "verdict": "inconclusive",
-        "confirmation": {
-          "status": "ok",
-          "text": "Aliases: A=`aaaa…` (#12), B=`bbbb…` (#13), C=`cccc…` (#14), H=`eeee…` (HEAD); each denotes the supplied full SHA. Independent checkpoints below; no commands or writes executed.\n\n### Row 1 — rejected push\n\n- Verification skipped legitimately: `test-retry` passed on the known clean commit; both telemetry-excluding checks passed.\n- Captured scoped commands and accepted-complete task evidence before stripping.\n- Retained combined fields only: Keeps `retry behavior`; Changes `repair retries`; Dropped claims `none`. Lowercase provenance does not enter them.\n- Refreshed threads separately per PR:\n  - #12 HOME: `fixed in fffffff`.\n  - #13 MEMBER13: retain recorded `fix: retain delay`; NEW13: `still open`. Home’s first-parent history supplies no member-fix proof.\n  - #14 MEMBER14: newly resolved.\n- Strip plan; seal whole-PR telemetry against `origin/main`, not A. Stop if sealing fails; retain actual seal stdout for reporting.\n- Preserve refs `refs/gauntlet/pre-rework/pr-12` → A, `pr-13` → B, `pr-14` → C.\n- Attempt only the non-force home push: `HEAD:refs/heads/retry`.\n\ngauntlet: stuck push-rejected\nThe home push was rejected. No retry or force-push. Worktree preserved.\nDescription fetch/edit and member closure were skipped.\nMember PRs #13, #14 left open.\n\nThe scratch-body operation was not reached. On success it would preserve fresh `Original description\\n` bytes, append one blank line and the Rework block, and use outside-repo `$SCRATCH` with `gh pr edit 12 --repo acme/widget --body-file \"$SCRATCH\"`.\n\nOn menu return, recompute preflight. If push remains offerable:\n\ngauntlet: gate=finishing-a-development-branch/step-4\nImplementation complete. What would you like to do?\n\n1. Push to the PR branch (PR #12, retry; appends the rework block to its description)\n2. Push and create a Pull Request (PR #12 already exists on this branch; gh refuses a second one)\n3. Push and create a draft Pull Request (same: PR #12 already exists)\n4. Squash-merge to main (no PR, no surviving branch; orphans PR #12 - close it by hand)\n5. Keep the branch as-is (I'll handle it later; nothing is pushed)\n6. Discard this work (removes the worktree and local branch; the PR branch on origin is untouched)\n\nWhich option?\n\n### Independent preflight deltas\n\n**Origin divergence:** omit row 1; retain rows 2–6 above unchanged. Add:\n`Withheld: push - origin/retry is at <origin-sha7>, local HEAD at eeeeeee; a non-force push cannot land`\n\nAppend `(origin moved past the rework's base aaaaaaa)` only if A is proven an ancestor of origin/retry. Reply `1` requires clarification naming available labels 2–6. No closure.\n\n**Original #14 ancestry exits 1:**\n`PR branch history was rewritten: ccccccc is not an ancestor of HEAD; the rework must be re-merged, not rebased.`\nStop; no push, body edit, or closure.\n\n**Ancestry exits 128:** stop as a command error; report its actual output, not the rewritten-history message. No closure.\n\n### Independent choices 2–6\n\n- **2/3:** strip/seal, normal/draft creation path; existing PR prevents a second PR. Preserve worktree.\n- **4:** strip/seal, local squash, post-squash verification, ownership-governed cleanup; no push.\n- **5:** keep branch and worktree.\n- **6:** require exact typed `discard` before ownership-governed cleanup; origin untouched.\n\nNone authorizes closing #13 or #14. Member PRs #13, #14 left open.\n",
-          "words": 469,
-          "wallMs": 26041,
-          "mechanical": {},
-          "judgeWallMs": 13876,
-          "facts": {
-            "rejection": {
-              "before": "holds",
-              "after": "holds",
-              "label": "intended but unchanged"
-            },
-            "guards": {
-              "before": "holds",
-              "after": "holds",
-              "label": "held"
-            }
-          },
-          "feedback": "Neither fact changed truth value: Before already reports one rejected push, returns to the menu without retry, force, body editing, member closure, or worktree cleanup, and retains all required guard variants. After makes worktree preservation explicit and adds the stuck outcome line and gate-first menu marker. Keep those additions together with the complete menu, rewritten-history diagnostic naming ccccccc, exit-128 error treatment, and explicit statements that rows 2–6 leave both members open; no restoration is needed for these facts."
-        },
-        "judgeModel": "github-copilot/gpt-6.1-sol",
-        "thinking": "medium"
-      }
+      },
+      "feedback": "Both facts survive in After. The rejection checkpoint is actually stronger in After: it now states the push command, says 'Preserve worktree and branch' explicitly (Before only implied it by never running cleanup), reports the rejection once with no retry/force, skips fetch/edit and closure, and prints 'Member PRs #13, #14 left open' before the menu. The guards section keeps the withheld-row-1 menu, the exact ccccccc rewritten-history message, and the exit-128 command-error stop. Two small weakenings to watch: After says exit 128 is 'a command error' but drops Before's explicit 'do not classify it as divergence', and the rows 2–6 closer now reads 'Every independent variant leaves members open' rather than naming '#13, #14' and stating 'none authorizes member closure' per row. Restoring the phrase 'not divergence' on the exit-128 line and 'Member PRs #13, #14 left open; none of rows 2–6 authorizes member closure' as the closing line would keep every guard fact unambiguous while retaining After's clearer push-command, worktree-preservation, and fresh-preflight wording.",
+      "wallMs": 21084,
+      "verdict": "unchanged"
     }
   },
-  "repoSha": "2eb4429b4dd687432969f427f82d45d7840d7c63"
+  "repoSha": "f25bf48a3f7ac2e9b361d2c7506d7c691e212697"
 }

@@ -1,0 +1,34 @@
+{
+  "sample": "legs-home-mismatch",
+  "arm": "baseline",
+  "skillSha": "f1b8dc0d0d4e3587e3a12c9ad1f2f8470d94ee24c0754af1d2a8dc790446b054",
+  "inputSha": "f973bc7210a0de2e631e1cf5af137838c888648c4d6890d1a57fdb19e6cfdb68",
+  "kind": "text",
+  "assembly": "headed",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "# Coordinated admission (entry check 3b): three independent runs\n\nAll three runs stop during admission, before any tracker write. None of them calls `phase_tracker`, `plan_tracker`, `plan_check`, `## Plan repair`, or prints the closing line or a grant line.\n\n## Steps shared by all three runs\n\n1. **Home binding (check 3).** This was already satisfied for run home `/work/repo-a/.worktrees/feature-shared-change` and is left unchanged.\n\n2. **Read the home spec.** `Read /work/repo-a/.worktrees/feature-shared-change/doc/specs/shared.md`, section `## Legs`.\n   - Spec order: `repo-a`, `repo-b`.\n   - Brief `legs:` order: `repo-a`, `repo-b`.\n   - Membership matches exactly.\n\n3. **Resolve the companion primary.** Home overrides declare `- sibling: ../repo-b`. Resolved against home primary `/work/repo-a`, this gives `/work/repo-b`.\n   - `realpath \"$(git -C /work/repo-b rev-parse --path-format=absolute --git-common-dir)\"` returns `/work/repo-b/.git`.\n\n4. **Companion worktree common directory.** `realpath \"$(git -C /work/repo-b/.worktrees/feature-shared-change rev-parse --path-format=absolute --git-common-dir)\"` returns `/work/repo-b/.git`. This equals the declared primary's.\n\n5. **Companion live branch.** `git -C /work/repo-b/.worktrees/feature-shared-change branch --show-current`. The result depends on the run.\n\n6. **Companion leg file.** `Read /work/repo-b/.worktrees/feature-shared-change/doc/specs/shared.md`, `**Home:**` line. The result depends on the run.\n\n---\n\n## Run A: companion `**Home:**` names the wrong branch\n\n- Step 5 returns `feature/shared-change`, which matches.\n- Step 6 returns `**Home:** repo-a feature/other doc/specs/shared.md`.\n\nPrinted:\n\n```\nSTOP: leg repo-b (/work/repo-b/.worktrees/feature-shared-change/doc/specs/shared.md) **Home:** tuple mismatch - expected `repo-a feature/shared-change doc/specs/shared.md`, observed `repo-a feature/other doc/specs/shared.md`. A live tree's tuple mismatch is not informational drift; no tracker call made.\n```\n\n---\n\n## Run B: companion `**Home:**` names the wrong spec path\n\n- Step 5 returns `feature/shared-change`, which matches.\n- Step 6 returns `**Home:** repo-a feature/shared-change doc/specs/other.md`.\n\nPrinted:\n\n```\nSTOP: leg repo-b (/work/repo-b/.worktrees/feature-shared-change/doc/specs/shared.md) **Home:** tuple mismatch - expected `repo-a feature/shared-change doc/specs/shared.md`, observed `repo-a feature/shared-change doc/specs/other.md`. A live tree's tuple mismatch is not informational drift; no tracker call made.\n```\n\n---\n\n## Run C: companion is on the wrong branch\n\n- Step 5 returns `feature/other`.\n\nPrinted:\n\n```\nSTOP: leg repo-b (/work/repo-b/.worktrees/feature-shared-change) branch mismatch - expected shared branch `feature/shared-change`, observed `feature/other`. A live tree's branch mismatch is not informational drift; no tracker call made.\n```\n\n---\n\n## Not reached in any run\n\nThe `implement with task plan` restore never runs:\n\n- `start brainstorm`\n- `skip brainstorm resume: /work/repo-a/.worktrees/feature-shared-change/doc/specs/shared.md`\n- `start plan`\n- `plan_check({ planPath })`\n- `skip plan R`\n- `start implement`\n- `plan_tracker init` with W1 complete and W2 in_progress\n\nThe session stays idle in each run. The human fixes the offending leg's branch or `**Home:**` tuple, then re-runs `/skill:gauntlet-resume`.\n",
+      "words": 350,
+      "wallMs": 18610,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "### Run A\n\nPrint:\n```text\nI'm using the gauntlet-resume skill to continue an interrupted flow.\nStopped: repo-b companion **Home:** tuple mismatch; expected \"repo-a feature/shared-change doc/specs/shared.md\", observed \"repo-a feature/other doc/specs/shared.md\".\n```\n\nNo further tool calls. Do not write tracker state or call `plan_check`.\n\n### Run B\n\nPrint:\n```text\nI'm using the gauntlet-resume skill to continue an interrupted flow.\nStopped: repo-b companion **Home:** tuple mismatch; expected \"repo-a feature/shared-change doc/specs/shared.md\", observed \"repo-a feature/shared-change doc/specs/other.md\".\n```\n\nNo further tool calls. Do not write tracker state or call `plan_check`.\n\n### Run C\n\nPrint:\n```text\nI'm using the gauntlet-resume skill to continue an interrupted flow.\nStopped: repo-b worktree /work/repo-b/.worktrees/feature-shared-change branch mismatch; expected \"feature/shared-change\", observed \"feature/other\".\n```\n\nNo further tool calls. Do not write tracker state or call `plan_check`.\n",
+      "words": 116,
+      "wallMs": 12422,
+      "mechanical": {}
+    }
+  },
+  "repoSha": "f25bf48a3f7ac2e9b361d2c7506d7c691e212697"
+}

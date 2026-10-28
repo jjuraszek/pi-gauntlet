@@ -1,0 +1,34 @@
+{
+  "sample": "legs-wrong-repo",
+  "arm": "baseline",
+  "skillSha": "f1b8dc0d0d4e3587e3a12c9ad1f2f8470d94ee24c0754af1d2a8dc790446b054",
+  "inputSha": "5155f8f9f26e9dd5dc3d1c386815a220f590aa6f6b93044d74c2ce26600bb8ab",
+  "kind": "text",
+  "assembly": "headed",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "# Coordinated admission stops on repo-b's common directory\n\nResume stops at coordinated admission (entry check 3b), before any tracker write. The repo-b worktree belongs to a different repository than its declared primary.\n\n## Admission steps\n\n1. **Home spec.** The home spec `/work/repo-a/.worktrees/feature-shared-change/doc/specs/shared.md` was resolved through Candidates. It is approved and was not inferred from artifact presence.\n\n2. **Ordered membership.**\n   - The brief's `legs:` lists `repo-a, repo-b`.\n   - The home spec's `### Leg:` blocks list `repo-a, repo-b`.\n   - These match.\n\n3. **Declared primary for repo-b.** The home overrides' selected sibling line is `../repo-b`, resolved against home primary `/work/repo-a` to `/work/repo-b`.\n   - Call: `realpath \"$(git -C /work/repo-b rev-parse --path-format=absolute --git-common-dir)\"`\n   - Result: `/work/repo-b/.git`\n\n4. **Companion worktree's common directory.**\n   - Call: `realpath \"$(git -C /work/repo-b/.worktrees/feature-shared-change rev-parse --path-format=absolute --git-common-dir)\"`\n   - Result: `/work/repo-c/.git`\n\n5. **Comparison.** `/work/repo-c/.git` does not equal `/work/repo-b/.git`. Admission requires them to be equal, so resume stops.\n\n## Printed stop\n\n```\nCoordinated admission stopped: leg repo-b worktree /work/repo-b/.worktrees/feature-shared-change has git common directory /work/repo-c/.git; declared primary /work/repo-b has /work/repo-b/.git.\n```\n\n## What does not run\n\n- **Trackers:** no tracker calls. There is no `start brainstorm`, `skip brainstorm`, `start plan`, `plan_check`, `skip plan`, `start implement`, `substep` or `plan_tracker init`.\n- **Plan and snapshot:** the plan is not repaired, and the W1/W2 snapshot is not restored.\n- **Closing lines:** no closing gate-history line and no standing-grant line are printed.\n\nThis is not informational drift. The leg must be fixed before re-running `/skill:gauntlet-resume`: either point repo-b at a worktree of `/work/repo-b`, or correct the sibling declaration.\n",
+      "words": 232,
+      "wallMs": 10365,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "I'm using the gauntlet-resume skill to continue an interrupted flow.\n\nStopped at coordinated admission: repo-b worktree `/work/repo-b/.worktrees/feature-shared-change` has canonical Git common directory `/work/repo-c/.git`; expected `/work/repo-b/.git` from declared primary `/work/repo-b`.\n\nNo tracker mutation or `plan_check` call is made.\n",
+      "words": 37,
+      "wallMs": 4811,
+      "mechanical": {}
+    }
+  },
+  "repoSha": "f25bf48a3f7ac2e9b361d2c7506d7c691e212697"
+}

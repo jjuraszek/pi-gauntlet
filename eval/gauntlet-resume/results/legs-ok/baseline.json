@@ -1,0 +1,34 @@
+{
+  "sample": "legs-ok",
+  "arm": "baseline",
+  "skillSha": "376026dda92404c025103872a080c3c0f83f3d5712fade99fac44fb3aafade4e",
+  "inputSha": "ebe209e99f438405ce42c59d8d459fa9daedb75c3b6d27f5f640bc2314eebe76",
+  "kind": "text",
+  "assembly": "headed",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "# Gauntlet Resume: Coordinated Admission and Task-Plan Restore\n\n## 1. Coordinated admission (check 3b, before any tracker write)\n\nAll of these are read-only and pass on the supplied observations:\n\n- **Run home binding (check 3):** passes for `/work/repo-a/.worktrees/feature-shared-change`.\n- **Home spec:** `/work/repo-a/.worktrees/feature-shared-change/doc/specs/shared.md`.\n  - It was resolved through Candidates and is approved. Approval is not inferred from artifact presence.\n- **Ordered membership:**\n  - Brief `legs:` lists `repo-a`, `repo-b`.\n  - Home spec `### Leg:` blocks list `repo-a`, `repo-b`.\n  - Exact match.\n- **Leg `repo-b`:**\n  - The declared sibling `../repo-b` resolves against home primary `/work/repo-a` to `/work/repo-b`. Its canonical common dir is `/work/repo-b/.git`.\n  - The worktree `/work/repo-b/.worktrees/feature-shared-change` has common dir `/work/repo-b/.git`. Match.\n  - Live branch is `feature/shared-change`, which matches the shared branch.\n  - The leg file's `**Home:**` tuple is `repo-a feature/shared-change doc/specs/shared.md`, which equals the run home tuple.\n  - The tree is live, so no receipt validation is needed.\n\n## 2. Drift notice (check 4, per leg, informational only)\n\nPrinted:\n```\nDrift (repo-a): none - HEAD and dirty unchanged.\nDrift (repo-b): HEAD bbbbbbb -> ccccccc; dirty clean -> M src/reader.ts\n```\nThis drift is not a stop. The branch and tuple match, so admission stands.\n\n## 3. Process-state restore: implement with task plan\n\nThese are the tool calls, in order. The bracketed placeholders are values the input does not supply.\n\n1. `phase_tracker({ action: \"start\", phase: \"brainstorm\" })`\n2. `phase_tracker({ action: \"skip\", phase: \"brainstorm\", reason: \"resume: /work/repo-a/.worktrees/feature-shared-change/doc/specs/shared.md\" })`\n3. `phase_tracker({ action: \"start\", phase: \"plan\" })`\n4. `plan_check({ planPath: \"<absolute plan path>\" })`\n   - The plan path is the single plan added after the candidate base, paired by basename with `shared.md` in the sibling plan directory. It is resolved to an absolute path under the home worktree.\n   - Result: **PASS** (the input states the task plan is valid). No `## Plan repair` runs and no receipt line is printed.\n5. `phase_tracker({ action: \"skip\", phase: \"plan\", reason: \"resume: <brief file>\" })`\n6. `phase_tracker({ action: \"start\", phase: \"implement\" })`\n7. `phase_tracker({ action: \"substep\", ... })`, only if the brief's phase line shows `implement(<substep>)`. The input shows none, so this call is omitted.\n8. Feasibility checks before `init`:\n   - No pending tasks, so the pending-suffix order holds.\n   - Not every task is complete or skipped, so there is no implement auto-complete edge.\n9. `plan_tracker({ action: \"init\", tasks: [{ name: \"W1\", status: \"complete\" }, { name: \"W2: reader\", status: \"in_progress\" }] })`\n   - This uses the snapshot verbatim.\n   - The input gives W1's name only as \"W1\"; its full name is copied verbatim from the brief.\n\n## 4. Printed lines\n\n```\nGate history not restored; re-validating `W2: reader` before any stage advance\n```\n\nThe next line is exactly one of the following, taken from check 6's result on `/work/repo-a/.worktrees/feature-shared-change/doc/specs/shared.md`:\n```\nStanding grant active: <sentence>\n```\nor\n```\nNo standing grant.\n```\n\nThe input says only that check 6 passed. It does not give the spec's `**Amend-grant:**` value, so I cannot choose between the two lines.\n\n## 5. Continuation\n\nWork continues in `/skill:subagent-driven-development`, not its reset-bearing entry:\n\n- **Re-validate W2 first.** Task W2 is `Leg: repo-b`, so its `Tests:` command re-runs in the repo-b leg checkout `/work/repo-b/.worktrees/feature-shared-change`, not the home tree. `Rules: AGENTS.md` comes from repo-b.\n- The live `M src/reader.ts` and HEAD `ccccccc` were already announced as drift. The task loop then proceeds from the first non-complete task, W2.\n",
+      "words": 497,
+      "wallMs": 21459,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "Print:\n```text\nrepo-b drift: HEAD advanced from bbbbbbb to ccccccc; dirty changed from clean to M src/reader.ts. Home HEAD and dirty are unchanged.\n```\n\nThis is informational drift, not an admission failure: repo-b’s common directory, branch, and full `**Home:**` tuple match. Preserve the dirty file; do not clean it automatically.\n\nStarting at the specified `plan_check` step, narrate:\n\n1. Call:\n   ```text\n   plan_check({ planPath: \"/work/repo-a/.worktrees/feature-shared-change/doc/plans/shared.md\" })\n   ```\n   The supplied observation says the task plan is valid: PASS. No plan repair, repair receipt, or commit.\n\n2. Call:\n   ```text\n   phase_tracker({\n     action: \"skip\",\n     phase: \"plan\",\n     reason: \"resume: pasted brief\"\n   })\n   ```\n\n3. Call:\n   ```text\n   phase_tracker({ action: \"start\", phase: \"implement\" })\n   ```\n\n4. Call:\n   ```text\n   plan_tracker({\n     action: \"init\",\n     tasks: [\n       { name: \"W1\", status: \"complete\" },\n       { name: \"W2: reader\", status: \"in_progress\" }\n     ]\n   })\n   ```\n\n5. Print:\n   ```text\n   Gate history not restored; re-validating `W2: reader` before any stage advance\n   ```\n\n**The supplied observations do not determine the next required line.** Check 6 is said to have passed, but its result—the grant sentence or no grant—is absent. I cannot invent either `Standing grant active: …` or `No standing grant.`\n\nContinuation belongs to **subagent-driven-development**, without its reset-bearing entry. Re-validation of W2 must run its actual `Tests:` command in `/work/repo-b/.worktrees/feature-shared-change`, using that leg’s `AGENTS.md`, before continuing the task loop. The command is not supplied, so no exact test-call trace or test result can be narrated from this input.\n",
+      "words": 213,
+      "wallMs": 20463,
+      "mechanical": {}
+    }
+  },
+  "repoSha": "df79836689c7ec82c1f89329091a67b911c07c7d"
+}

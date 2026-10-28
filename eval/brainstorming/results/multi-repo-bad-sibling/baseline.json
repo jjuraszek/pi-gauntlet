@@ -1,0 +1,34 @@
+{
+  "sample": "multi-repo-bad-sibling",
+  "arm": "baseline",
+  "skillSha": "fa16d2b66d9447deec4505bb5b60be6791f8dc68dc441c7d17502f7c51ac72b9",
+  "inputSha": "353ba315a7d320fdc8017b2d4eafdb3be77af8eea1914605c30e185ac809a756",
+  "kind": "text",
+  "assembly": "headed",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "# Leg-membership validation: three independent runs\n\nThe fixed observations stop every run during checklist step 2. Each run stops before any worktree is created. This means checklist step 4 is never reached, and none of the three runs produces a first message to the user or an approaches message. The actions below are narrated from the supplied observations, not from live calls.\n\n## Shared prefix (identical in runs A, B and C)\n\n1. **Step 1, fresh brainstorm tracking.**\n   - Reset the phase tracker.\n   - Clear the plan tracker.\n   - Start the `brainstorm` phase.\n2. **Step 2, settle membership before Worktree First.**\n   - Read the home primary `/work/repo-a` overrides ladder: `.pi/gauntlet-overrides.md`, then `gauntlet-overrides.md`, then `doc/gauntlet-overrides.md`. The first file found wins.\n   - Treat the `## shape-ticket` line `- sibling: ../repo-b` as eligibility only, not membership.\n3. **Select companions.**\n   - The ask explicitly selects `repo-b`, which matches the declared sibling `../repo-b`. That makes `repo-b` the only selected companion.\n   - The intended member order is home `repo-a` first, then `repo-b`.\n4. **Skip unselected siblings.** `../repo-c` is not selected by the ask, so it is never resolved or validated. Its missing path causes no stop in any run.\n5. **Validate every selected declaration before creating any tree.**\n   - Resolve `../repo-b` against the home primary, giving `/work/repo-b`.\n   - Canonicalize that path before comparing it with home.\n   - Check three conditions: the path exists, it is a git repository, and it is not equal to home.\n\n## Run A: `../repo-b` does not exist\n\n6. **Validation result.** `/work/repo-b` is missing.\n7. **Stop (blocking):**\n   > `Stopped: selected sibling declaration \"- sibling: ../repo-b\" (resolved /work/repo-b) does not exist. No worktree created; no legs to preserve.`\n   \n   - `using-git-worktrees` is never invoked for any member, including home.\n   - No spec is written.\n\n## Run B: `../repo-b` is a symlink to `/work/repo-a`\n\n6. **Validation result.**\n   - `realpath /work/repo-b` gives `/work/repo-a`.\n   - That equals the canonical home primary `/work/repo-a`.\n7. **Stop (blocking):**\n   > `Stopped: selected sibling declaration \"- sibling: ../repo-b\" canonicalizes to /work/repo-a, which is the home primary. No worktree created; no legs to preserve.`\n   \n   - The run never treats this as a second member.\n   - It never creates a duplicate tree of the home repository.\n\n## Run C: `../repo-b` exists but is not a git repository\n\n6. **Validation result.**\n   - `/work/repo-b` exists.\n   - It is not inside the home repository.\n   - The git-repository check fails, because the path is not a git work tree.\n7. **Stop (blocking):**\n   > `Stopped: selected sibling declaration \"- sibling: ../repo-b\" (resolved /work/repo-b) is not a git repository. No worktree created; no legs to preserve.`\n   \n   - The run does not fall back to a home-only flow.\n   - It does not guess a different path.\n\n## What none of the runs did\n\n- No `## Legs` block was written.\n- No companion file was written.\n- No `using-git-worktrees` call was made.\n- No context gathering (step 3) happened.\n- No questionary or approaches (steps 4–5) happened.\n\nBecause no trees were created, no `Preserved created legs:` list applies. Each run waits for the user to correct or deselect the `../repo-b` declaration.\n",
+      "words": 469,
+      "wallMs": 18422,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "### Run A — selected sibling is missing\n1. Read the home primary’s first-found overrides file to obtain sibling declarations. The declared `../repo-b` is eligible, and the ask explicitly selects repo-b.\n2. Resolve the selected path against `/work/repo-a`: `/work/repo-b`.\n3. The supplied observation says that path does not exist. **Stop before creating any worktree**, naming the invalid declaration: `sibling: ../repo-b`.\n4. Preserved created legs: none.\n\n### Run B — selected sibling resolves to home\n1. Read the home primary’s first-found overrides file and match the explicitly selected repo-b declaration.\n2. Canonicalize `/work/repo-b`. The supplied observation says its symlink resolves to `/work/repo-a`, the home primary.\n3. **Stop before creating any worktree**: `sibling: ../repo-b` resolves to home and cannot be a companion.\n4. Preserved created legs: none.\n\n### Run C — selected sibling is not a Git repository\n1. Read the home primary’s first-found overrides file and match the explicitly selected repo-b declaration.\n2. Resolve and validate `/work/repo-b`. The supplied observation says it exists but is not a Git repository.\n3. **Stop before creating any worktree**, naming the invalid declaration: `sibling: ../repo-b`.\n4. Preserved created legs: none.\n\nIn every run, leave the unselected `../repo-c` path unresolved and unvalidated. None reaches context gathering, questionary, or approaches. These are narrated actions based on the supplied observations, not live tool calls.\n",
+      "words": 210,
+      "wallMs": 11646,
+      "mechanical": {}
+    }
+  },
+  "repoSha": "f25bf48a3f7ac2e9b361d2c7506d7c691e212697"
+}

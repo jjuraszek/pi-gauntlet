@@ -1,0 +1,70 @@
+{
+  "sample": "legs-membership",
+  "arm": "candidate",
+  "skillSha": "8dcc55fa834ee43fe8a4f3529d7e81f6ef44216547540bde9395636291717b1e",
+  "inputSha": "d926f355dd7da97fffd05bb6bc62c2d55b8f82e1d073d0f457e93fabc07611ff",
+  "kind": "text",
+  "assembly": "headed",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "# Coordinated admission (entry check 3b): three independent runs\n\nIn all three runs, entry check 3's home binding has passed against run home `/work/repo-a/.worktrees/feature-shared-change`. The home spec is resolved through Candidates as `/work/repo-a/.worktrees/feature-shared-change/doc/specs/shared.md`. Approval comes from the human confirmation, not from the file being present. No `phase_tracker` or `plan_tracker` call has been made.\n\n---\n\n## Run A: brief `legs:` lists repo-b, repo-a\n\n1. **Read** `/work/repo-a/.worktrees/feature-shared-change/doc/specs/shared.md`, section `## Legs`.\n   - Result: the `### Leg:` blocks in order are `repo-a`, `repo-b`.\n2. **Compare** the brief's ordered membership with the spec's.\n   - Brief: `repo-b, repo-a`\n   - Spec: `repo-a, repo-b`\n   - Same members, different order. The mismatch stops admission.\n\nPrinted:\n\n```\nCoordinated admission stopped: reordered leg repo-b (brief position 1, spec position 2; run home repo-a must be first). brief lists repo-b, repo-a; spec lists repo-a, repo-b.\n```\n\nThe run stopped before any companion primary or common-dir check, receipt validation or drift notice. No tracker call was made, no `plan_check` ran, and there is no restore or continuation.\n\n---\n\n## Run B: brief `legs:` lists repo-a only\n\n1. **Read** the same spec's `## Legs`.\n   - Result: `repo-a`, `repo-b`.\n2. **Compare**:\n   - Brief: `repo-a`\n   - Spec: `repo-a, repo-b`\n   - Leg `repo-b` is missing from the brief.\n\nPrinted:\n\n```\nCoordinated admission stopped: missing leg repo-b. brief lists repo-a; spec lists repo-a, repo-b.\n```\n\nThe brief is not treated as single-member, and repo-b is not admitted without validation. No tracker call was made and no `plan_check` ran.\n\n---\n\n## Run C: brief `legs:` lists repo-a, repo-b, repo-c\n\n1. **Read** the same spec's `## Legs`.\n   - Result: `repo-a`, `repo-b`.\n2. **Compare**:\n   - Brief: `repo-a, repo-b, repo-c`\n   - Spec: `repo-a, repo-b`\n   - Leg `repo-c` is extra. repo-c is not a member, so its path, primary and receipt are never resolved or validated.\n\nPrinted:\n\n```\nCoordinated admission stopped: extra leg repo-c. brief lists repo-a, repo-b, repo-c; spec lists repo-a, repo-b.\n```\n\nNo tracker call was made and no `plan_check` ran.\n\n---\n\n**In all three runs:**\n- The phase tracker stays all pending, and the W1/W2 task snapshot is not restored.\n- No `Gate history not restored…` closing line and no `Standing grant` line are printed, because the restore did not succeed.\n",
+      "words": 329,
+      "wallMs": 13794,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "### Run A\nI'm using the gauntlet-resume skill to continue an interrupted flow.\nStopped: reordered legs repo-b and repo-a; brief lists [repo-b, repo-a], spec lists [repo-a, repo-b].\n\n### Run B\nI'm using the gauntlet-resume skill to continue an interrupted flow.\nStopped: brief is missing leg repo-b; brief lists [repo-a], spec lists [repo-a, repo-b].\n\n### Run C\nI'm using the gauntlet-resume skill to continue an interrupted flow.\nStopped: brief has extra leg repo-c; brief lists [repo-a, repo-b, repo-c], spec lists [repo-a, repo-b].\n\nNo tracker mutations or `plan_check` calls occur in any run; coordinated admission stops first.\n",
+      "words": 92,
+      "wallMs": 8379,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "f55be4f65014619538d49c3d16b7ee5354a9c39597f150c38f73e4fb8765235f",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "1b12afc6459e1e531c9112ca2505d714fa9d20362956b8b1a397ff8152df023f",
+      "baselineOutputSha": "47ce623a7b2ea06b7e2f07737e202ed524749a93412c612cfc60a5a6e778e05a",
+      "candidateOutputSha": "ef2547f564ccf4795ac40dea2198831d82fda14d8cc0e60c6de70d85d93f18c8",
+      "facts": {
+        "stop": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        }
+      },
+      "feedback": "Both outputs satisfy the stop fact: each of the three runs reports the specific reordered/missing/extra leg, prints both ordered lists (brief and spec) verbatim, and states explicitly that no phase_tracker/plan_tracker call or plan_check ran, with no silent correction of the legs block. After's wording is slightly richer (positions in Run A, the note that Run B is not downgraded to single-member and Run C's repo-c is never resolved) and that is fine; the one thing to watch is that Run B and Run C's 'Printed' messages dropped the phrase 'from the brief' / 'in the brief' that Before used, so keep the lists labelled 'brief lists … ; spec lists …' as you did — that labelling is what preserves the fact. No wording in After moved the fact; it already held in Before, so this case is coverage rather than an observed move.",
+      "wallMs": 6930,
+      "verdict": "unchanged"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "f55be4f65014619538d49c3d16b7ee5354a9c39597f150c38f73e4fb8765235f",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "1b12afc6459e1e531c9112ca2505d714fa9d20362956b8b1a397ff8152df023f",
+      "baselineOutputSha": "b642118d34655fb62ce9b242039029f37c2dad8afa55662068a13ba40cbd7ecc",
+      "candidateOutputSha": "1b9cd453f79db4ffebed9ebd9d542720a89c1ccd91742636dab89cc173cd36a9",
+      "facts": {
+        "stop": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        }
+      },
+      "feedback": "Both outputs satisfy the fact: each run names the discrepancy type (reordered / missing / extra), prints both ordered lists (brief vs spec), and states that no tracker write or plan_check call occurs, with no membership edited. The expected fails->holds move is not observed because Before already holds. After's only changes are cosmetic: it drops the per-run 'Coordinated admission stopped' prefix in favour of a bare 'Stopped:' and consolidates the 'no tracker mutations' statement into a single trailing sentence covering all runs. Neither change breaks the fact, but the consolidation is slightly weaker evidence that each run individually stops before a tracker write, and the prefix loss removes the explicit tie to the coordinated-admission check. To keep the fact robustly held while delivering the Change, keep 'Coordinated admission stopped:' as the per-run prefix and restate 'no tracker write or plan_check call' inside each run (a shared trailer is fine as an addition, not a replacement), and consider naming the check as occurring before any tracker write explicitly in each run's text.",
+      "wallMs": 9732,
+      "verdict": "unchanged"
+    }
+  },
+  "repoSha": "f25bf48a3f7ac2e9b361d2c7506d7c691e212697"
+}

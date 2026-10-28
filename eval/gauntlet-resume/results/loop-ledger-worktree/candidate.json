@@ -1,8 +1,8 @@
 {
   "sample": "loop-ledger-worktree",
   "arm": "candidate",
-  "skillSha": "8c0767334f13b1fc925e6a34e9a7e8c3ec80d1e395637619286bc862582a4113",
-  "inputSha": "08f757afcf811e72ee71d44e030ed12da665d47585ea9e5d6f17e92d5bbb310a",
+  "skillSha": "24c5503363f7deb79e0864ff2d630bee9c07d7d5f9028826b1e794d6839d9e6f",
+  "inputSha": "91b0fd17d4185d861fabcb619421a26178a96c829cb99eca6273f2904d346c23",
   "kind": "text",
   "assembly": "headed",
   "thinking": "medium",
@@ -17,16 +17,16 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "# Resume of `/work/app/.worktrees/loop` with a loop-engine ledger and `plan_check` PASS\n\n## Discovery\n\n- **Settings and candidates.** I resolve `gauntlet_setting({ key: \"flowGuards\" })` to get spec and plan directories. The scans of the worktree return two candidates:\n  - `doc/specs/change.md`\n  - `doc/plans/different-ledger.md`\n\n  I convert both to absolute paths under the worktree:\n  - `/work/app/.worktrees/loop/doc/specs/change.md`\n  - `/work/app/.worktrees/loop/doc/plans/different-ledger.md`\n- **Ledger pairing.** Line 1 of the plan candidate is exactly `# Ledger - loop engine`, so it pairs by its path-only `**Spec:**` header (`doc/specs/change.md`), not by basename.\n  - The header resolves to the candidate spec under `flowGuards.specDirs`.\n  - The ledger sits in that directory's sibling `plans` directory, in the same repository.\n  - The file name `different-ledger.md` does not matter.\n- **Route.** The route is \"one spec with ledger\", which takes precedence over a task plan. The basename task plan that also exists is not used, and nothing initializes a task tracker.\n- **Approval.** Artifact presence infers no approval. The human has explicitly confirmed approval and continuation.\n- **Grant and engine.** Entry check 6 decodes the spec's Grant field as none. The spec's Engine is `loop`.\n\n## Ordered restoration (\"Spec with ledger\" / call table \"implement with ledger\")\n\nThe full sequence is stated explicitly, even though entry checks were reported as passed:\n\n1. Entry checks 1–6: 1–5 pass. Check 6 (Grant field) finds no standing grant.\n2. `phase_tracker({ action: \"start\", phase: \"brainstorm\" })`\n3. `phase_tracker({ action: \"skip\", phase: \"brainstorm\", reason: \"resume: /work/app/.worktrees/loop/doc/specs/change.md\" })`\n4. `phase_tracker({ action: \"start\", phase: \"plan\" })`\n5. `plan_check({ planPath: \"/work/app/.worktrees/loop/doc/plans/different-ledger.md\" })` returns **PASS**.\n6. `phase_tracker({ action: \"skip\", phase: \"plan\", reason: \"resume: /work/app/.worktrees/loop/doc/specs/change.md (loop engine)\" })`\n7. `phase_tracker({ action: \"start\", phase: \"implement\" })`\n8. No `plan_tracker init` and no task tracker.\n9. Shared cap boundary (reconstruction \"Spec with ledger\" step 4):\n   - The `cap:` header is present at 97, so the legacy missing-cap stop does not apply.\n   - Iterations are 7, which is below the cap of 97, so there is no cap stop.\n10. Render the restored ledger state:\n\n```\nLedger: /work/app/.worktrees/loop/doc/plans/different-ledger.md\nbase: abc123\nverification: node --test check.mjs\niterations: 7\ncap: 97\n| 1 | done   | 2 | check passed |\n| 2 | failed | 3 | check failed |\n## Decisions\nrow 2 retry | handle empty input | allowed attempts 4\n```\n\n## Printed lines\n\n```\nRestored to implement (loop engine). Gate history, closure-review evidence and fix rounds are not restored; re-validation runs through the ledger's row checks (row 2 next).\nNo standing grant.\n```\n\n## Continuation\n\nControl hands off automatically to `/skill:loop-implementation`, entering at **step 5, \"Before each dispatch\"**.\n\n- **No re-entry.** It does not re-run Entry steps 1–5 and does not overwrite the ledger. It reuses the existing ledger's base, verification command, iterations, cap, attempts and decisions.\n- **Clean tree.** The tree is clean, so dispatch is not blocked.\n- **Ordered-table checks:**\n  - **Rule 1:** Row 2 is `failed`, so the loop does not exit to verification.\n  - **Rule 2:** Row 2's allowance is 4. That is 3 plus 0 funded attempts (grant none), raised to the retry decision's `allowed attempts 4`. Row 2's attempts are 3, which is below 4, so there is no stop.\n  - **Rule 3:** The empty-child stagnation check is evaluated only after the latest `loop: retry row 2` commit.\n  - **Rule 4:** Iterations 7 is below cap 97.\n  - **Rule 5:** Select a target.\n- **Target.** Assuming the seed evidence commit survives on the branch, the target is the unresolved human retry target, **row 2**, with hint `handle empty input`.\n  - Row 2 is not funded, so no funded-round line is printed.\n  - No dispatch happens here, as instructed.\n\n## If `plan_check` returns FAIL\n\n- Stop with the `plan_check` findings.\n- Do not run `## Plan repair` or writing-plans.\n- Do not `skip plan` or `start implement`, and do not continue into the loop.\n\n## If the tree is dirty\n\n- The restoration calls above still complete through `start implement` and rendering of the ledger state.\n- Loop step 5 then stops before any dispatch and preserves the uncommitted changes.\n- Nothing is discarded unless the human explicitly authorizes it.\n",
-      "words": 613,
-      "wallMs": 24612,
+      "text": "# Gauntlet resume: implement phase with a loop-engine ledger\n\n## Discovery\n\n1. **Candidates (relative to the worktree, resolved to absolute paths):**\n   - Spec: `/work/app/.worktrees/loop/doc/specs/change.md`\n   - Ledger: `/work/app/.worktrees/loop/doc/plans/different-ledger.md`\n   - A task plan matched by basename also exists.\n\n2. **I read line 1 of every plan-directory candidate.** `different-ledger.md` line 1 is exactly `# Ledger - loop engine`, so it is a ledger.\n   - A ledger pairs by its path-only `**Spec:**` header, not by basename. The header is `doc/specs/change.md`, which resolves to `/work/app/.worktrees/loop/doc/specs/change.md`.\n   - That spec is under `flowGuards.specDirs`, and the ledger is in its sibling `plans` directory. The spec is in the same repository, so it is not foreign.\n\n3. **Route:** \"one spec with ledger\" applies, and it takes precedence over the task plan. The basename task plan is not used, and there is no task tracker.\n\n4. **Approval and continuation:** the human confirmed both. The files existing on disk gave no approval by themselves.\n\n5. **Engine:** loop, which matches the ledger.\n\n## Ordered restoration (implement with ledger)\n\n1. Read ledger line 1 and resolve the `**Spec:**` header. This is done above.\n2. Entry checks 1-6:\n   - Checks 1-5 already passed. I restate them here as part of the full ordered sequence.\n   - Check 6 reads the Grant field: `none`.\n3. `phase_tracker({ action: \"start\", phase: \"brainstorm\" })`\n4. `phase_tracker({ action: \"skip\", phase: \"brainstorm\", reason: \"resume: /work/app/.worktrees/loop/doc/specs/change.md\" })`\n5. `phase_tracker({ action: \"start\", phase: \"plan\" })`\n6. `plan_check({ planPath: \"/work/app/.worktrees/loop/doc/plans/different-ledger.md\" })` → **PASS**\n7. `phase_tracker({ action: \"skip\", phase: \"plan\", reason: \"resume: /work/app/.worktrees/loop/doc/specs/change.md (loop engine)\" })`\n8. `phase_tracker({ action: \"start\", phase: \"implement\" })`\n9. There is no `plan_tracker init` call.\n10. **Shared cap boundary** (reconstruction \"Spec with ledger\" step 4): the `cap: 97` header is present, so there is no legacy stop. `iterations: 7` is below `cap: 97`, so the restore continues.\n\n## Rendered ledger state\n\n```\nLedger: /work/app/.worktrees/loop/doc/plans/different-ledger.md (reused, not reseeded)\nbase: abc123\nverification: node --test check.mjs\niterations: 7\ncap: 97\n| 1 | done   | 2 | check passed |\n| 2 | failed | 3 | check failed |\nDecisions (last): row 2 retry | handle empty input | allowed attempts 4\n```\n\n## Printed lines\n\n- The `reference/brief-contract.md` closing line: gate history is not restored, and the task to re-validate is the ledger's open/failed work (row 2).\n- `No standing grant.`\n\n## Continuation in /skill:loop-implementation at step 5, \"Before each dispatch\"\n\nThe ledger is admitted, so Entry steps 1-5 are skipped and no settings are re-read. The ledger's base, verification command, iterations and cap are kept. The tree is clean, so I go to the ordered table:\n\n| Rule | Check | Result |\n|---|---|---|\n| 1 | Is any row open or failed? | Row 2 is failed, so the loop does not exit. |\n| 2 | Is row 2 at its attempt allowance? | Allowance is 3, with no funding, raised to 4 by the `allowed attempts 4` retry decision. Attempts are 3, which is below 4, so there is no stop. |\n| 3 | Did the last two child `loop: row` commits after the latest `loop: retry row 2` both make no change? | This is checked against the branch. It is not triggered unless that holds. |\n| 4 | Is `iterations` at or above `cap`? | 7 is below 97, so there is no stop. |\n| 5 | Is dispatch allowed? | Yes. |\n\n**Target:** row 2 is the unresolved human retry target, with hint \"handle empty input.\" There is no funded-round line because nothing was funded.\n\n**The dispatch that would follow (not performed here):**\n- Record `HEAD_BEFORE` and save a copy of the ledger.\n- Use i = 7, then bump `iterations:` to 8 in the working tree.\n- Call `mktemp` for an output path outside the repository.\n- Dispatch:\n\n  ```\n  subagent({ agent: \"loop-implementer\", context: \"fresh\", async: false,\n    cwd: \"/work/app/.worktrees/loop\", output: <tmp>, outputMode: \"file-only\",\n    acceptance: { level: \"none\", reason: \"the parent validates the ledger and the commit\" },\n    task: \"iteration: 7\n  spec: /work/app/.worktrees/loop/doc/specs/change.md\n  ledger: /work/app/.worktrees/loop/doc/plans/different-ledger.md\n  base: abc123\n  target: 2\n  previous decision: row 2 retry | handle empty input | allowed attempts 4\n  hint: handle empty input\" })\n  ```\n\n## If plan_check FAILs\n\n- I stop and report the findings.\n- There is no `skip plan`, no `start implement`, no `## Plan repair`, and no writing-plans.\n- Plan stays in_progress.\n\n## If the tree is dirty\n\n- The restore calls still run through `start implement`, and the ledger is still rendered.\n- I stop before any dispatch, so there is no iterations bump and no child.\n- Implement stays active, and every row's attempts and the total iteration cap are preserved.\n- Continuing requires the human to authorize discarding the uncommitted changes. `cap +N` is not offered at this stop.\n",
+      "words": 702,
+      "wallMs": 27055,
       "mechanical": {}
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "### Discovery and admission\n\n- Resolve the ledger to `/work/app/.worktrees/loop/doc/plans/different-ledger.md`.\n- Its exact first line, `# Ledger - loop engine`, selects the ledger route. Pair it through its path-only `**Spec:**` header with `/work/app/.worktrees/loop/doc/specs/change.md`, not by basename. The ledger takes precedence over the basename task plan.\n- Entry checks 1–5 passed. **Entry check 6 — Grant field:** `none`; no standing grant. Human approval and continuation are explicitly confirmed, not inferred from artifacts.\n- Reuse the admitted ledger, including base `abc123`, verification command `node --test check.mjs`, iterations `7`, cap `97`, rows, and decisions. Do not seed or replace it.\n\n### Ordered restoration calls\n\nThe complete ordered sequence, including the calls preceding the supplied `plan_check` result, is:\n\n1. `phase_tracker({ action: \"start\", phase: \"brainstorm\" })`\n2. `phase_tracker({ action: \"skip\", phase: \"brainstorm\", reason: \"resume: /work/app/.worktrees/loop/doc/specs/change.md\" })`\n3. `phase_tracker({ action: \"start\", phase: \"plan\" })`\n4. `plan_check({ planPath: \"/work/app/.worktrees/loop/doc/plans/different-ledger.md\" })`\n\n   Observed result: `PASS`.\n\n5. `phase_tracker({ action: \"skip\", phase: \"plan\", reason: \"resume: /work/app/.worktrees/loop/doc/specs/change.md (loop engine)\" })`\n6. `phase_tracker({ action: \"start\", phase: \"implement\" })`\n\nNo `plan_tracker` call, plan repair, ledger creation, or commit.\n\n### Render and handoff\n\nPrint:\n\n```text\nLedger: /work/app/.worktrees/loop/doc/plans/different-ledger.md\nSpec: /work/app/.worktrees/loop/doc/specs/change.md\nbase: abc123\nverification command: node --test check.mjs (restored ledger)\niterations: 7\ncap: 97\n\nrow 1: done; attempts 2; evidence: check passed\nrow 2: failed; attempts 3; evidence: check failed\n\nDecisions:\nrow 2 retry | handle empty input | allowed attempts 4\n```\n\nThe required closing line’s exact wording is not included in the supplied reference excerpt. Its required substance is that gate history was not restored and the resumed work must be re-validated. Immediately after that closing line, print exactly:\n\n```text\nNo standing grant.\n```\n\nContinue in **loop-implementation, step 5 — Before each dispatch**, without its reset-bearing or fresh-seeding entry.\n\nAt that continuation point:\n\n- The cap header exists; preserve `cap: 97` and `iterations: 7`.\n- Row 2 remains unresolved, but its retry decision permits four attempts; three have been consumed.\n- `7 < 97`, so the total-cap boundary does not stop continuation.\n- The tree is clean.\n- Apply the remaining ordered checks before any dispatch, including stagnation checks. Target selection must first establish whether validated seed evidence survives; the supplied information does not establish that. Do not assume row 2 takes precedence over an outstanding seed.\n\nNo dispatch is made in this narration.\n\n### Alternate outcomes\n\n**If `plan_check` returns FAIL:** stop immediately with its findings as a configuration error. Do not skip plan, start implement, repair the ledger through Plan repair, enter writing-plans, or initialize a task tracker.\n\n**If the tree is dirty:** stop before dispatch, preserving the existing ledger and working-copy changes. The human-stop message begins with these lines:\n\n```text\ngauntlet: question\n\n```\n\nExplain the dirty-tree boundary and request explicit authorization before discarding changes or resetting anything. Include:\n\n```text\nPreserve every row's attempts and the total iteration cap.\n```\n\nDo not dispatch, automatically clean/reset, or offer `cap +N` at the dirty-tree stop.\n",
-      "words": 449,
-      "wallMs": 28445,
+      "text": "### Discovery and admission\n\nThe resolved spec is `/work/app/.worktrees/loop/doc/specs/change.md`.\n\nThe selected ledger is `/work/app/.worktrees/loop/doc/plans/different-ledger.md`. Its exact first line, `# Ledger - loop engine`, identifies it as a ledger; its path-only `**Spec:**` header pairs it with the spec despite the different basename. The ledger takes precedence over the basename task plan.\n\nEntry checks 1–5 passed. Entry check 6 (Grant field): no standing grant. The human confirmed approval and continuation; artifact presence is not treated as approval.\n\n### Ordered restoration\n\nThe entire sequence is shown below. Since restoration has already reached `plan_check`, the preceding calls are recorded as already completed, not repeated.\n\n1. Entry checks 1–6, including check 6 (Grant field).\n2. `phase_tracker({ action: \"start\", phase: \"brainstorm\" })`\n3. `phase_tracker({ action: \"skip\", phase: \"brainstorm\", reason: \"resume: /work/app/.worktrees/loop/doc/specs/change.md\" })`\n4. `phase_tracker({ action: \"start\", phase: \"plan\" })`\n5. `plan_check({ planPath: \"/work/app/.worktrees/loop/doc/plans/different-ledger.md\" })`\n\n   Observed result: `PASS`.\n\n6. `phase_tracker({ action: \"skip\", phase: \"plan\", reason: \"resume: /work/app/.worktrees/loop/doc/specs/change.md (loop engine)\" })`\n7. `phase_tracker({ action: \"start\", phase: \"implement\" })`\n\nNo task tracker is initialized. The existing ledger is reused without reseeding, changing its cap, or resetting attempts, iterations, or retry history.\n\n### Post-restore output and continuation\n\nThe supplied excerpt requires a closing line from `brief-contract.md` but does not include that line’s exact text. I cannot reproduce it verbatim. Its required substance is: gate history is not restored; the resumed work must be revalidated.\n\nThe next standalone line is exactly:\n\nNo standing grant.\n\nContinue in loop-implementation at **Before each dispatch**, not its reset/seeding entry. Render the restored state:\n\n```text\nspec: /work/app/.worktrees/loop/doc/specs/change.md\nledger: /work/app/.worktrees/loop/doc/plans/different-ledger.md\nbase: abc123\nverification command: node --test check.mjs (restored ledger)\niterations: 7\ncap: 97\n\nrow 1: done; attempts 2; evidence: check passed\nrow 2: failed; attempts 3; evidence: check failed\n\nDecisions:\nrow 2 retry | handle empty input | allowed attempts 4\n```\n\nApply the shared cap boundary and ordered pre-dispatch checks:\n\n- The required `cap:` header exists.\n- Row 2 remains unresolved, so this is not an exit-to-verification state.\n- Its latest retry decision grants an allowance of **4 attempts**; **3** are consumed. It has not exhausted that allowance.\n- Check child-commit stagnation and validation-miss history; those results are not supplied here.\n- **7 < 97**: the total cap is not exhausted.\n- The supplied tree is clean.\n\nBefore selecting row 2, verify whether a validated seed-evidence commit survives on the branch. If it does, the unresolved retry target is **row 2**, with hint **`handle empty input`**. If it does not, seed takes priority even at iteration 7. The supplied information does not establish seed validation.\n\nNo dispatch is made in this narration.\n\n### If the result differs\n\n**If `plan_check` returns FAIL:** stop with its findings. Do not skip plan, start implement, repair the ledger through `## Plan repair`, invoke writing-plans, or initialize a task tracker.\n\n**If the tree is dirty:** stop before dispatch, preserving all changes and the existing ledger. Do not offer `cap +N` at this dirty-tree stop. Any discard/reset requires explicit human authorization.\n\nPrint:\n\n```text\nPreserve every row's attempts and the total iteration cap.\n```\n",
+      "words": 477,
+      "wallMs": 22989,
       "mechanical": {}
     }
   },
@@ -34,9 +34,9 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "69f78a37d7afae5b882faee121a538c3355e5de6876d05974ff203f638fca713",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "ca90682684274d31a1325bee10d83a15ba89c67b0824ef055a126b40a2c64905",
-      "baselineOutputSha": "3f62855a3074f3180c717d4155c5670f958e6fa8b1372a9e5374eb80512e174f",
-      "candidateOutputSha": "a3a4bc45c8c0ccf250d6236d48c9d17e80a99dd567aa12a8305f349834b8c9be",
+      "intentSha": "1b12afc6459e1e531c9112ca2505d714fa9d20362956b8b1a397ff8152df023f",
+      "baselineOutputSha": "d466b644a5608a91969373b4bef9b74ab13617c492ef18fb569d0410e16daa90",
+      "candidateOutputSha": "e0995b17cbb2e5b5c8770e9a3848932afbbba120f690684a28989780eba62be1",
       "facts": {
         "pairing": {
           "before": "holds",
@@ -59,16 +59,16 @@
           "label": "held"
         }
       },
-      "feedback": "Nothing moved on this case: both outputs pair the ledger by its path-only Spec header despite the different basename, rank Spec with ledger ahead of the basename task plan, state the full check-6 → start/skip brainstorm → start plan → plan_check → skip plan (`resume: /work/app/.worktrees/loop/doc/specs/change.md (loop engine)`) → start implement chain without plan_tracker init, render rows and the retry decision while continuing at loop step 5 with cap 97 / iterations 7 / attempts 3 / allowance 4 reused rather than re-resolved, and stop on FAIL without Plan repair or writing-plans and on a dirty tree before dispatch. Two small softenings in After are worth tightening so they don't erode facts on neighbouring cases: Rule 3 in the continuation table now only says the stagnation check is 'evaluated only after the latest retry commit' without stating its result (Before said 'No stop'), and the target selection is hedged with 'Assuming the seed evidence commit survives on the branch', which introduces an unstated condition the input does not raise. Keep After's explicit 'No re-entry' statement and the numbered cap-boundary step, but restore the concrete 'no stop' outcome for Rule 3 and drop the seed-commit assumption (or state it as a verified fact from the clean tree) so the continuation reads as determined rather than conditional.",
-      "wallMs": 10389,
+      "feedback": "Nothing moved on this case: both outputs pair the ledger by its path-only Spec header despite the differing basename, rank the spec-with-ledger route ahead of the basename task plan, state entry check 6 followed by the full brainstorm start/skip, plan start, plan_check on the ledger path, the exact `resume: /work/app/.worktrees/loop/doc/specs/change.md (loop engine)` plan skip and implement start with no plan_tracker init, render both rows and the last decision, continue at loop step 5 with cap:97, iterations 7, attempts 3 and allowance 4 preserved, and stop on plan_check FAIL (no Plan repair, no writing-plans) and before dispatch on a dirty tree. After additionally names the shared cap boundary explicitly and states that settings are not re-read, which is the intended Change; keep that wording. The only drift to watch is that After's rule-3 stagnation row is phrased hypothetically rather than resolved for this input - that does not affect any fact here, but keeping Before's explicit 'retry starts new windows, so no stop' conclusion would be safer for variants that test stagnation.",
+      "wallMs": 9840,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "69f78a37d7afae5b882faee121a538c3355e5de6876d05974ff203f638fca713",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "ca90682684274d31a1325bee10d83a15ba89c67b0824ef055a126b40a2c64905",
-      "baselineOutputSha": "e0bf756db2a766cd9bc1cdaeae6d3d1e6f4354a1c9b00e96a0ecb63d9374a393",
-      "candidateOutputSha": "7109cafaec01fa43b9cbe6e473acfd2d63d19654065bd208b64f7cd05dba5fda",
+      "intentSha": "1b12afc6459e1e531c9112ca2505d714fa9d20362956b8b1a397ff8152df023f",
+      "baselineOutputSha": "ccc86ef33ae22cd6d63ccdb40b1b56e20c8045cc6dad44fb857bac1d7cc1fe03",
+      "candidateOutputSha": "ef479fc304a70753cbc9b2e3ed666b515e22b5a495a68626f74ccd6fa136af22",
       "facts": {
         "pairing": {
           "before": "holds",
@@ -91,117 +91,10 @@
           "label": "held"
         }
       },
-      "feedback": "After keeps every fact Before kept: it pairs the ledger through its path-only Spec header rather than basename and ranks it above the task plan; it narrates entry check 6 and the full ordered chain (start brainstorm, skip brainstorm with resume: <spec>, start plan, plan_check on the ledger, skip plan with the exact `resume: /work/app/.worktrees/loop/doc/specs/change.md (loop engine)`, start implement) with no plan_tracker call; it renders rows and the retry decision and continues at loop-implementation step 5 — Before each dispatch with cap 97, iterations 7, three attempts consumed against a four-attempt allowance; and it stops on plan_check FAIL without Plan repair or writing-plans and stops before dispatch on a dirty tree. Nothing moved. One wording weakness worth tightening: After hedges on the gate-history closing line (\"exact wording is not included in the supplied reference excerpt\") where Before simply printed `Gate history is not restored; re-validate the resumed work before relying on completion.` — print that line verbatim in After so the rendered block is fully specified, and consider stating `attempts 3` and `allowed attempts 4` explicitly in the continuation bullet (as Before did) rather than only prose \"four attempts; three consumed\", so the durable fact is checkable from the summary alone.",
-      "wallMs": 11652,
+      "feedback": "After keeps every fact Before kept: it pairs the ledger by its path-only Spec header and ranks it over the basename task plan, lists entry check 6 and the full ordered phase_tracker/plan_check chain with the exact `resume: /work/app/.worktrees/loop/doc/specs/change.md (loop engine)` skip reason and no task-tracker init, renders rows, cap:97, iterations 7, row 2 attempts 3 and retry allowance 4 before continuing at Before each dispatch, and stops on FAIL (no Plan repair/writing-plans) and on a dirty tree before dispatch. The one wording risk in After is the sentence \"the preceding calls are recorded as already completed, not repeated\": a stricter reader could take that as the restore not actually issuing brainstorm start/skip and plan start, which would endanger the restore fact. Safer wording that still delivers the Change: \"The full sequence is issued in this order (restoration had already reached plan_check in the described state, so calls 1–4 are shown for completeness rather than re-run twice)\", keeping the explicit statement that each call is part of the restore. Also consider moving `No standing grant.` into the rendered block so it is unambiguously a printed line rather than prose.",
+      "wallMs": 13095,
       "verdict": "unchanged"
     }
   },
-  "refresh": {
-    "status": "complete",
-    "identity": {
-      "sample": "loop-ledger-worktree",
-      "kind": "text",
-      "assembly": "headed",
-      "baselineSkillSha": "4d59e6a190eabd4af7099602724590c2162309c95d78b0170daef650b21d92a0",
-      "candidateSkillSha": "42f2d8ce055252f91cab26f82143e3ab9fb89062c10acbd7d6f4a25e84d883ea",
-      "inputSha": "91b0fd17d4185d861fabcb619421a26178a96c829cb99eca6273f2904d346c23",
-      "factsSha": "69f78a37d7afae5b882faee121a538c3355e5de6876d05974ff203f638fca713",
-      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "70baa08ac12037f7a701b4df4bb563b0145baad774d710d83b55dc84d07f6e4a",
-      "models": {
-        "replay": [
-          "github-copilot/gpt-6.1-sol"
-        ],
-        "judge": "github-copilot/gpt-6.1-sol"
-      },
-      "thinking": "medium",
-      "outputs": {
-        "baseline": {
-          "github-copilot/gpt-6.1-sol": {
-            "baselineOutputSha": "ccc86ef33ae22cd6d63ccdb40b1b56e20c8045cc6dad44fb857bac1d7cc1fe03",
-            "payloadSha": "2dc0f886ac59dd477ac6ffa510ed87ac7d6d57868a1fa543e8c55668bca3acc6"
-          }
-        },
-        "candidate": {
-          "github-copilot/gpt-6.1-sol": {
-            "candidateOutputSha": "814ebf8bd9568141d77b79d14663a4a0feb693981c01cf5567e8c7adb295a2e3",
-            "payloadSha": "90638a01c745a06475dbb8a0865ff97b3002ff055af01404d7ea0c5b209c1cd9"
-          }
-        }
-      }
-    },
-    "previous": {
-      "github-copilot/gpt-6.1-sol": {
-        "factsSha": "69f78a37d7afae5b882faee121a538c3355e5de6876d05974ff203f638fca713",
-        "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-        "intentSha": "70baa08ac12037f7a701b4df4bb563b0145baad774d710d83b55dc84d07f6e4a",
-        "baselineOutputSha": "ccc86ef33ae22cd6d63ccdb40b1b56e20c8045cc6dad44fb857bac1d7cc1fe03",
-        "candidateOutputSha": "814ebf8bd9568141d77b79d14663a4a0feb693981c01cf5567e8c7adb295a2e3",
-        "facts": {
-          "pairing": {
-            "before": "holds",
-            "after": "holds",
-            "label": "held"
-          },
-          "restore": {
-            "before": "holds",
-            "after": "holds",
-            "label": "intended but unchanged"
-          },
-          "durable": {
-            "before": "holds",
-            "after": "holds",
-            "label": "intended but unchanged"
-          },
-          "stops": {
-            "before": "holds",
-            "after": "holds",
-            "label": "held"
-          }
-        },
-        "feedback": "After moved no fact in this case: it still pairs the ledger through its path-only Spec header despite the differing basename and ranks it over the task plan, narrates entry check 6 then the full ordered chain (brainstorm start/skip with the spec path, plan start, plan_check on the ledger, plan skip with the exact `resume: <spec> (loop engine)` reason, implement start) with no task-tracker init, renders rows and the last decision while preserving cap:97, iterations 7, attempts 3 and retry allowance 4 without settings resolution, and stops on FAIL (no Plan repair/writing-plans) and on a dirty tree before dispatch. The only drift is cosmetic: After relocates the human approval/continuation note into step 2 and drops Before's explicit 'Apply the shared cap boundary before continuation' phrasing in favor of 'Apply the shared cap boundary and ordered dispatch checks' after the render; to keep the Change's intent sharp, state the cap-boundary restoration as the single shared step immediately before continuing into loop-implementation's Before each dispatch, and keep the approval confirmation marked as a human answer rather than inferred, so the durable fact stays unambiguous across both ledger-brief and worktree variants.",
-        "wallMs": 11106,
-        "verdict": "unchanged",
-        "judgeModel": null,
-        "thinking": null
-      }
-    },
-    "refreshed": {
-      "github-copilot/gpt-6.1-sol": {
-        "factsSha": "69f78a37d7afae5b882faee121a538c3355e5de6876d05974ff203f638fca713",
-        "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-        "intentSha": "70baa08ac12037f7a701b4df4bb563b0145baad774d710d83b55dc84d07f6e4a",
-        "baselineOutputSha": "ccc86ef33ae22cd6d63ccdb40b1b56e20c8045cc6dad44fb857bac1d7cc1fe03",
-        "candidateOutputSha": "814ebf8bd9568141d77b79d14663a4a0feb693981c01cf5567e8c7adb295a2e3",
-        "facts": {
-          "pairing": {
-            "before": "holds",
-            "after": "holds",
-            "label": "held"
-          },
-          "restore": {
-            "before": "holds",
-            "after": "holds",
-            "label": "intended but unchanged"
-          },
-          "durable": {
-            "before": "holds",
-            "after": "holds",
-            "label": "intended but unchanged"
-          },
-          "stops": {
-            "before": "holds",
-            "after": "holds",
-            "label": "held"
-          }
-        },
-        "feedback": "No listed fact changes: After preserves the header-based pairing and ledger priority, complete ordered restoration calls, durable counters and retry allowance, and both stop conditions. To deliver the Change more fully while retaining these facts, explicitly restore and validate cap:97 at the shared boundary before start implement, rather than describing that boundary afterward. Use the shared markers for discovery, any actual approval/continuation asks, and inventoried nonrecoverable stops; retain the human’s already-confirmed approval without asking again or inferring it. Replace the unresolved closing-line instructions with automatic continuation and no terminal marker.",
-        "wallMs": 7160,
-        "verdict": "unchanged",
-        "judgeModel": "github-copilot/gpt-6.1-sol",
-        "thinking": "medium"
-      }
-    }
-  },
-  "repoSha": "0dcac9779f68598e1724c9f6ed2783659a94e958"
+  "repoSha": "f25bf48a3f7ac2e9b361d2c7506d7c691e212697"
 }

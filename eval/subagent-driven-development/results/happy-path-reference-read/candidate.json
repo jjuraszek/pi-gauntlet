@@ -1,34 +1,97 @@
 {
   "sample": "happy-path-reference-read",
   "arm": "candidate",
-  "skillSha": "551c035080c903d52d8106e07ce7eb2d7d75baab271627f354fbe2271846a6fc",
+  "skillSha": "62172aaa9d3217f64ccb2198a02abb4927f98cb479bebc9c6dda007ab70f700c",
   "inputSha": "d205af31f45c70dff8d27bc4a01490f75b665756869dc6561ebcc92b186958f8",
   "kind": "text",
   "assembly": "headed",
   "thinking": "medium",
   "models": {
     "replay": [
+      "anthropic/claude-opus-5-5",
       "github-copilot/gpt-6.1-sol"
     ],
-    "judge": "github-copilot/gpt-6.1-sol",
+    "judge": "anthropic-fable/claude-fable-5-1",
     "thinking": "medium"
   },
   "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "# Step 3 of After All Tasks Complete: Happy-Path Read, Then Conformance Dispatch\n\n**Starting state:**\n- Parent full verification passed.\n- The whole-diff review accepted the committed HEAD.\n- The verify phase is open. It must not be completed in this bounded scope.\n\n---\n\n## Branch A: the reference is readable\n\n### A1. Read the reference at its absolute path (before any runner action)\n\nThe plan header carries `**Happy path:** parser`, so the first action of step 3 is:\n\n```\nread /opt/pi/node_modules/pi-gauntlet/skills/subagent-driven-development/reference/happy-path-run.md\n```\n\nThe read succeeds and returns the reference's instructions.\n\n### A2. Follow the reference and consume the fixed runner observation\n\n- **Row selection:** the diff-derived row equals the header label (`parser`), so `summary.txt` gets no `(header: …)` annotation.\n- **Runner result:** I am not narrating or reconstructing the runner shell. The fixed observation from following the reference is:\n\n```\nsummary: /tmp/happy-run/summary.txt\noutcome: happy-path: passed\n```\n\n- **Reference sub-step 3 checks:**\n  - The block did not exit non-zero.\n  - `/tmp/happy-run/summary.txt` is readable.\n  - The worktree is clean, so there is no residue to remove or restore and nothing to stage or commit.\n- **Commit timing:** no new commit. The audited HEAD remains the committed HEAD the whole-diff review accepted.\n\n### A3. Fresh conformance dispatch\n\nThis is its own dispatch, never fused with the step-2 code review.\n\n**Resolve the reviewer model first:**\n\n```ts\ngauntlet_setting({ key: \"closureReview\" })\n```\n\n- Use the returned `model`. If it is `undefined`, omit `model:` so the child inherits.\n- Note `maxFixRounds` for the conformance fix loop.\n- If `gauntlet_setting` is unavailable, stop and report. There is no manual settings fallback.\n\n**Full-diff source.** The full diff vs main is already available unchanged. If it has to be produced, take it from the branch checkout against the branch point:\n\n```bash\nBASE=$(git -C /workspace/project merge-base main HEAD)\ngit -C /workspace/project diff \"$BASE\"..HEAD\n```\n\n**Dispatch:**\n\n```ts\nsubagent({\n  agent: \"conformance-reviewer\",\n  async: false,\n  cwd: \"/workspace/project\",\n  model: /* gauntlet_setting({ key: \"closureReview\" }).model — omit this field if undefined */,\n  task: `Closing-loop conformance audit per verification-before-completion/reference/conformance-check.md.\nConfront the deliverable (code and docs) against the origin: the spec and the original prompt.\n\nSpec: /workspace/project/doc/specs/parser.md\nOriginal prompt (verbatim):\n<verbatim original prompt, unchanged>\n\nFull diff vs main (<merge-base>..HEAD, committed HEAD accepted by whole-diff review):\n<full diff, unchanged>\n\nHappy path: /tmp/happy-run/summary.txt (passed)`\n})\n```\n\n**Exact handoff line:**\n\n```\nHappy path: /tmp/happy-run/summary.txt (passed)\n```\n\n`(passed)` is the outcome line with its `happy-path: ` prefix removed.\n\n### Boundary for Branch A\n\nStop after this dispatch. No audit verdict exists yet, so:\n- I do not call `phase_tracker({ action: \"complete\", phase: \"verify\" })`.\n- I do not emit the closure block.\n- I do not invoke finishing.\n\nOnce the audit returns, the closure block's `happy-path:` line will carry the reviewer's `Happy path:` value from the final audit.\n\n---\n\n## Branch B: the reference read fails with ENOENT\n\n```\nread /opt/pi/node_modules/pi-gauntlet/skills/subagent-driven-development/reference/happy-path-run.md\n→ ENOENT\n```\n\n**Blocking error:** the happy-path reference is unreadable at `/opt/pi/node_modules/pi-gauntlet/skills/subagent-driven-development/reference/happy-path-run.md` (ENOENT). Verification stops here.\n\n**Boundary for Branch B:**\n- No runner shell is run, and the runner is not reconstructed from any other text.\n- No `summary.txt` or outcome exists.\n- No conformance-reviewer is dispatched, because conformance must never run with the selected happy-path run omitted.\n- Verify stays open (not completed), and nothing proceeds to finishing.\n- I report the error to the user and wait.\n",
+      "words": 499,
+      "wallMs": 18420,
+      "mechanical": {}
+    },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "## Readable-reference branch\n\n1. **Read the installed happy-path reference first:**\n\n   ```text\n   read(\"/opt/pi/node_modules/pi-gauntlet/skills/subagent-driven-development/reference/happy-path-run.md\")\n   ```\n\n   The supplied observation says this read succeeds. Follow that reference with `/workspace/project` as the worktree and `parser` as both the plan-header and diff-derived row. Do not reconstruct or replay its runner here.\n\n2. **Consume the fixed saved-run observation:**\n\n   ```text\n   summary: /tmp/happy-run/summary.txt\n   outcome: happy-path: passed\n   ```\n\n   The summary is readable and the worktree is clean. No cleanup or additional commit is needed.\n\n3. **Prepare the separate conformance audit.** Read:\n\n   ```text\n   read(\"/opt/pi/node_modules/pi-gauntlet/skills/verification-before-completion/reference/conformance-check.md\")\n   ```\n\n   Apply that reference’s audit instructions, then resolve the conformance configuration:\n\n   ```ts\n   gauntlet_setting({ key: \"closureReview\" })\n   ```\n\n   If the setting tool is unavailable, stop and report the configuration error. Otherwise use its returned `model` and `maxFixRounds`; omit `model` if undefined.\n\n4. **Dispatch the fresh conformance reviewer**, separately from the already-accepted whole-diff code review:\n\n   ```ts\n   subagent({\n     agent: \"conformance-reviewer\",\n     context: \"fresh\",\n     async: false,\n     cwd: \"/workspace/project\",\n     // Include model only when closureReview.model is defined,\n     // passing that runtime-resolved value unchanged.\n     task: `\n   Audit the deliverable against the authoritative spec and original prompt,\n   following the installed conformance-check reference.\n\n   Spec: /workspace/project/doc/specs/parser.md\n\n   Review source: the current committed HEAD in /workspace/project.\n   Parent full verification passed, and whole-diff code review accepted this HEAD.\n   Review the full deliverable, including code and documentation.\n\n   ## Original prompt\n   ${ORIGINAL_PROMPT}\n\n   ## Full diff\n   ${FULL_DIFF}\n\n   Happy path: /tmp/happy-run/summary.txt (passed)\n\n   Read the saved happy-path summary as audit evidence.\n   Return the conformance report; do not modify the implementation.\n   `\n   })\n   ```\n\n   Here `ORIGINAL_PROMPT` and `FULL_DIFF` mean the available original prompt and full diff, inserted **verbatim and unchanged**, not summaries.\n\n**Boundary:** Stop after this dispatch returns its report. No audit verdict is assumed here, and verify is not marked complete.\n\n## Independent ENOENT alternative\n\nThe first operation is the same absolute read:\n\n```text\nread(\"/opt/pi/node_modules/pi-gauntlet/skills/subagent-driven-development/reference/happy-path-run.md\")\n```\n\nThe supplied result is `ENOENT`.\n\n**Blocking error:** The required installed happy-path reference is missing at that absolute path. Stop verification before any runner shell or conformance dispatch. Do not reconstruct the runner from assembled text, assume a saved summary, or mark verify complete.\n",
-      "words": 318,
-      "wallMs": 20232,
+      "text": "## Readable-reference branch\n\n1. **Read the installed reference before any runner action:**\n\n   ```text\n   read /opt/pi/node_modules/pi-gauntlet/skills/subagent-driven-development/reference/happy-path-run.md\n   ```\n\n   In this branch, the read succeeds with the supplied instructions. The plan header and diff both select `parser`.\n\n2. **Consume the fixed saved-runner observation**, without reconstructing or rerunning the shell block:\n\n   ```text\n   summary: /tmp/happy-run/summary.txt\n   outcome: happy-path: passed\n   ```\n\n   The summary is readable and `/workspace/project` is clean. No cleanup or new commit is needed. The review source remains the already-verified, committed HEAD and the unchanged full diff against the branch point.\n\n3. **Prepare the separate conformance audit.** Read its governing reference:\n\n   ```text\n   read /opt/pi/node_modules/pi-gauntlet/skills/verification-before-completion/reference/conformance-check.md\n   ```\n\n   Resolve the conformance configuration:\n\n   ```ts\n   gauntlet_setting({ key: \"closureReview\" })\n   ```\n\n   If that tool is unavailable, stop and report the configuration error. Otherwise, use its returned `model` verbatim; omit the `model` property when undefined. Retain `maxFixRounds` for any subsequent audit-gap handling, outside this bounded scenario.\n\n4. **Dispatch the fresh conformance reviewer**, separately from the completed whole-diff code review:\n\n   ```ts\n   subagent({\n     agent: \"conformance-reviewer\",\n     context: \"fresh\",\n     async: false,\n     cwd: \"/workspace/project\",\n     // model: closureReview.model — include only when defined\n     task: `\n   Audit the deliverable against the authoritative spec AND the original prompt,\n   following:\n   /opt/pi/node_modules/pi-gauntlet/skills/verification-before-completion/reference/conformance-check.md\n\n   Authoritative spec: /workspace/project/doc/specs/parser.md\n   Review source: the current committed HEAD in /workspace/project and the\n   supplied unchanged full diff against the branch point.\n   Parent full verification passed. Whole-diff code review accepted this HEAD.\n\n   Happy path: /tmp/happy-run/summary.txt (passed)\n\n   ## Verbatim original prompt\n   ${verbatimOriginalPrompt}\n\n   ## Full diff\n   ${unchangedFullDiff}\n   `\n   })\n   ```\n\n   Here, the two interpolations mean the **existing, unchanged contents**, not summaries or newly reconstructed text.\n\n**Boundary:** Await the audit result. Do not invent a verdict, mark verify complete, make another commit, or proceed to finishing.\n\n## Independent ENOENT alternative\n\nThe first read targets:\n\n```text\n/opt/pi/node_modules/pi-gauntlet/skills/subagent-driven-development/reference/happy-path-run.md\n```\n\nIt returns `ENOENT`.\n\n**Blocking error:** The required happy-path reference is unreadable because the installed file is missing. Stop verification before runner actions or conformance dispatch. Do not reconstruct the runner from assembled text. No runner result or conformance observation exists in this alternative; verify remains incomplete.\n",
+      "words": 313,
+      "wallMs": 16367,
       "mechanical": {}
     }
   },
   "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "bf3f4f11f49ee93d0d5dd40dee42381bf6fb1286c2f5b142afcebe9869d30f7b",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "70868125b0270c4bcc2e36898c51974950b90c9ba539c73ad3a39de4a9853245",
+      "baselineOutputSha": "d5e025c2e281508212ce2bdb9b197b0086b126100005124e2af66b7fbd698846",
+      "candidateOutputSha": "10fe2b8a8e4dbb616730d73fe713c60d290c0da29d3580aa138c2b5c2d0a386d",
+      "facts": {
+        "absolute-late-read": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "saved-handoff": {
+          "before": "holds",
+          "after": "fails",
+          "label": "regression"
+        },
+        "unreadable-blocks": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "After keeps the absolute late read ordering and the ENOENT stop intact, but it moved saved-handoff: the conformance-reviewer payload dropped `context: \"fresh\"` that Before carried, so the dispatch is only labelled fresh in a heading while the actual call lets the child inherit context, and it added a speculative `git merge-base`/`git diff` shell block to regenerate a diff the case says is already supplied unchanged, which reads as invented shell execution beside the fixed observation. To deliver the Change while keeping every Before fact, restore `context: \"fresh\"` in the subagent call (keep `async: false`, cwd, the closureReview model resolution, and the exact `Happy path: /tmp/happy-run/summary.txt (passed)` line), and either delete the fallback diff command or state plainly that the supplied full diff is pasted unchanged with no regeneration step; the rest of After (row/header annotation note, clean-worktree and commit-timing checks, verify-not-completed boundary, Branch B blocking error with no reconstruction) is fine and can stay.",
+      "wallMs": 15173,
+      "verdict": "inconclusive",
+      "confirmation": {
+        "status": "ok",
+        "text": "# Readable-reference branch (through the conformance dispatch)\n\n## 1. Read the happy-path reference first\n\nStep 3 of \"After All Tasks Complete\" applies because the plan header carries `**Happy path:** parser`. Before any runner action, read the reference at its absolute path beside the installed skill:\n\n```\nread /opt/pi/node_modules/pi-gauntlet/skills/subagent-driven-development/reference/happy-path-run.md\n```\n\nIn this branch, the fixed observation is that the read succeeds and returns the supplied reference's instructions.\n\n## 2. Consume the fixed runner observation\n\nI followed those instructions. The row is re-derived from the diff, and it matches the header row, `parser`. So `summary.txt` carries no `(header: …)` annotation. This replay supplies the runner result rather than my own execution:\n\n```\nsummary: /tmp/happy-run/summary.txt\noutcome: happy-path: passed\n```\n\nThe runner-step checks are satisfied:\n- The summary is readable.\n- The worktree is clean, so there is no residue to remove or restore.\n- There is nothing to stage or commit. HEAD stays at the committed HEAD the whole-diff review accepted.\n- `passed` is evidence for the audit, not a repair item.\n\nThe handoff line drops the `happy-path: ` prefix from the outcome:\n\n```\nHappy path: /tmp/happy-run/summary.txt (passed)\n```\n\n## 3. Resolve the conformance-reviewer model\n\n```ts\ngauntlet_setting({ key: \"closureReview\" })\n```\n\n- Use the returned `model` if one comes back. If `model` is `undefined`, omit `model:` so the reviewer inherits.\n- Keep `maxFixRounds` for the fix loop in `conformance-check.md`.\n- If `gauntlet_setting` is unavailable, stop and report. Do not fall back to a manual settings merge.\n\n## 4. Fresh conformance dispatch\n\nThis is its own dispatch, separate from the step-2 whole-diff code review. The review source is the full diff of the committed HEAD versus the branch point on main.\n\n```ts\nsubagent({\n  agent: \"conformance-reviewer\",\n  async: false,\n  context: \"fresh\",\n  cwd: \"/workspace/project\",\n  model: /* closureReview.model from gauntlet_setting; omit this field if undefined */,\n  task: `Per verification-before-completion/reference/conformance-check.md, confront the deliverable (code and docs) against the origin.\n\nSpec: /workspace/project/doc/specs/parser.md\nOriginal prompt (verbatim):\n<the original user prompt, pasted unchanged>\n\nFull diff vs main (committed HEAD, worktree clean):\n<git -C /workspace/project diff <branch-point>..HEAD, pasted unchanged>\n\nHappy path: /tmp/happy-run/summary.txt (passed)`\n})\n```\n\n## Boundary\n\nI stop at this dispatch. No verdict is claimed.\n\n- **Verify phase:** `phase_tracker({ action: \"complete\", phase: \"verify\" })` is not called yet. It is called only after the audit returns a current `CONFORMS`, or a valid closure inventory whose open concerns all come from deferred gaps, per `conformance-check.md`.\n- **Fix loop:** any fix loop, its `Gn` indices, and the closure block's `happy-path: passed` line come after the audit result.\n\n# Independent alternative: the reference read returns ENOENT\n\n```\nread /opt/pi/node_modules/pi-gauntlet/skills/subagent-driven-development/reference/happy-path-run.md\n→ ENOENT\n```\n\nThis is a blocking error: the happy-path reference is unreadable at `/opt/pi/node_modules/pi-gauntlet/skills/subagent-driven-development/reference/happy-path-run.md` (ENOENT).\n\nStop verification here:\n- No runner shell is run, and the runner is not reconstructed from the assembled text.\n- No `Happy path:` line exists.\n- The conformance-reviewer is not dispatched, since conformance must not run with the selected happy-path run omitted.\n- Verify stays incomplete.\n- Report the error to the user.\n",
+        "words": 454,
+        "wallMs": 16022,
+        "mechanical": {},
+        "judgeWallMs": 17315,
+        "facts": {
+          "absolute-late-read": {
+            "before": "holds",
+            "after": "holds",
+            "label": "held"
+          },
+          "saved-handoff": {
+            "before": "holds",
+            "after": "holds",
+            "label": "held"
+          },
+          "unreadable-blocks": {
+            "before": "holds",
+            "after": "holds",
+            "label": "held"
+          }
+        },
+        "feedback": "After keeps all three facts: the absolute reference read is narrated before any runner action and explicitly positioned after the step-2 whole-diff review of the committed HEAD; the readable branch follows the reference, consumes the saved summary/outcome rather than running anything, resolves closureReview, dispatches a separate fresh conformance-reviewer with the spec, verbatim prompt, full diff and the exact `Happy path: /tmp/happy-run/summary.txt (passed)` line, and withholds both the verdict and `phase_tracker complete`; the ENOENT alternative states the blocking error and boundary with no runner, no reconstruction, no dispatch and verify left incomplete. The one wording that drifted toward risk is the diff placeholder in the dispatch task: Before pasted `<the supplied full diff, pasted unchanged>`, while After rewrote it as `<git -C /workspace/project diff <branch-point>..HEAD, pasted unchanged>`, which reads like a shell command the orchestrator would run rather than the already-supplied verbatim diff, and could be taken as invented shell execution or source reconstruction under a stricter judge. To keep the Change (fixed observations never authorize source reconstruction) while preserving saved-handoff cleanly, keep Before's phrasing — refer to the supplied full diff as a given artifact pasted unchanged — and, if you want to describe its provenance, say it in prose (\"the supplied full diff of committed HEAD vs the branch point\") rather than as a git command placeholder. Everything else in After (re-deriving the row from the diff, noting no `(header: …)` annotation, listing the runner-step checks, the explicit boundary bullets) is a clear improvement over Before."
+      },
+      "judgeModel": "anthropic-fable/claude-fable-5-1",
+      "thinking": "medium"
+    },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "bf3f4f11f49ee93d0d5dd40dee42381bf6fb1286c2f5b142afcebe9869d30f7b",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "026b9a91c9a042910d9d9eadf4cae54c09ed0f335d520e00090f2d2fda8337ca",
+      "intentSha": "70868125b0270c4bcc2e36898c51974950b90c9ba539c73ad3a39de4a9853245",
       "baselineOutputSha": "f44777e5bf85b7a303d70977db119bd532345435a9e19cdd41ca530606c5c2cf",
-      "candidateOutputSha": "59a1c5cc40af03f96409b2de099caf4637a547dcbbc1c819769fd8cd48e84913",
+      "candidateOutputSha": "d93332023e7a67ea15f9935a92bb5a421339276352ef32c98106d995c523a7a3",
       "facts": {
         "absolute-late-read": {
           "before": "holds",
@@ -46,10 +109,228 @@
           "label": "held"
         }
       },
-      "feedback": "No listed fact moved: After preserves the absolute late reference read, saved-summary handoff with verbatim conformance inputs, and fail-closed ENOENT alternative. Its explicit instruction to follow the reference and read the saved summary strengthens the handoff without inventing execution or a verdict. To preserve these facts while delivering the broader change, scope the new `gauntlet: question` prefix to implementation stop notes and leave these verification boundaries intact. For closer alignment with the requested bounded actions, replace “Stop after this dispatch returns its report” with “Stop at the fresh conformance dispatch boundary; await the audit result before marking verify complete.”",
-      "wallMs": 11060,
-      "verdict": "unchanged"
+      "feedback": "No fact moved. Both outputs narrate the absolute read of reference/happy-path-run.md as the first step before any runner action, consume the supplied saved summary rather than rerunning or reconstructing the shell block, dispatch a separate fresh-context conformance-reviewer with the exact `Happy path: /tmp/happy-run/summary.txt (passed)` line, the authoritative spec path, and interpolated verbatim prompt and unchanged full diff, and stop at the dispatch boundary without inventing a verdict or marking verify complete; both ENOENT alternatives raise a blocking error before runner or conformance dispatch and refuse reconstruction. After additionally makes the post-verification ordering explicit (\"separately from the completed whole-diff code review\", \"Parent full verification passed\") and states the no-observation consequence in the ENOENT branch, which strengthens rather than weakens the facts. Two small cautions for the After wording: the `// model: closureReview.model — include only when defined` comment inside the object literal is less explicit than Before's conditional assignment and could be read as omitting the model handling, so keep a concrete conditional (e.g., `...(closureReview.model !== undefined && { model: closureReview.model })`); and the aside about retaining `maxFixRounds` for handling outside the scenario introduces a hint of future rounds that is harmless here but should not drift toward authorizing fix dispatches before an audit result exists.",
+      "wallMs": 13004,
+      "verdict": "unchanged",
+      "judgeModel": "anthropic-fable/claude-fable-5-1",
+      "thinking": "medium"
     }
   },
-  "repoSha": "2eb4429b4dd687432969f427f82d45d7840d7c63"
+  "repoSha": "f25bf48a3f7ac2e9b361d2c7506d7c691e212697",
+  "refresh": {
+    "status": "complete",
+    "identity": {
+      "sample": "happy-path-reference-read",
+      "kind": "text",
+      "assembly": "headed",
+      "baselineSkillSha": "505fbad4c924559d148c9f2d14754e7dd45597c9a6834f5a89f05274b64e611d",
+      "candidateSkillSha": "62172aaa9d3217f64ccb2198a02abb4927f98cb479bebc9c6dda007ab70f700c",
+      "inputSha": "d205af31f45c70dff8d27bc4a01490f75b665756869dc6561ebcc92b186958f8",
+      "factsSha": "bf3f4f11f49ee93d0d5dd40dee42381bf6fb1286c2f5b142afcebe9869d30f7b",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "70868125b0270c4bcc2e36898c51974950b90c9ba539c73ad3a39de4a9853245",
+      "models": {
+        "replay": [
+          "anthropic/claude-opus-5-5",
+          "github-copilot/gpt-6.1-sol"
+        ],
+        "judge": "anthropic-fable/claude-fable-5-1"
+      },
+      "thinking": "medium",
+      "outputs": {
+        "baseline": {
+          "anthropic/claude-opus-5-5": {
+            "baselineOutputSha": "d5e025c2e281508212ce2bdb9b197b0086b126100005124e2af66b7fbd698846",
+            "payloadSha": "b2f68b578aead72c804debb2f54f52ede1ef0ff9986556b799f254c2816ce811"
+          },
+          "github-copilot/gpt-6.1-sol": {
+            "baselineOutputSha": "f44777e5bf85b7a303d70977db119bd532345435a9e19cdd41ca530606c5c2cf",
+            "payloadSha": "6888dd8e6ce65be0ddfe1657bd2b443a0b542eb26dfad043afefad6f40656c4b"
+          }
+        },
+        "candidate": {
+          "anthropic/claude-opus-5-5": {
+            "candidateOutputSha": "10fe2b8a8e4dbb616730d73fe713c60d290c0da29d3580aa138c2b5c2d0a386d",
+            "payloadSha": "f0b35a3b1e436afd33387cbd293957734bec0bda73efeed02ea45e0502299d49"
+          },
+          "github-copilot/gpt-6.1-sol": {
+            "candidateOutputSha": "d93332023e7a67ea15f9935a92bb5a421339276352ef32c98106d995c523a7a3",
+            "payloadSha": "4edbef5eb89f4c36d661039e8933049d417df53cdf363e62e0c8c0003746641d"
+          }
+        }
+      }
+    },
+    "previous": {
+      "anthropic/claude-opus-5-5": {
+        "factsSha": "bf3f4f11f49ee93d0d5dd40dee42381bf6fb1286c2f5b142afcebe9869d30f7b",
+        "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+        "intentSha": "70868125b0270c4bcc2e36898c51974950b90c9ba539c73ad3a39de4a9853245",
+        "baselineOutputSha": "d5e025c2e281508212ce2bdb9b197b0086b126100005124e2af66b7fbd698846",
+        "candidateOutputSha": "10fe2b8a8e4dbb616730d73fe713c60d290c0da29d3580aa138c2b5c2d0a386d",
+        "facts": {
+          "absolute-late-read": {
+            "before": "holds",
+            "after": "holds",
+            "label": "held"
+          },
+          "saved-handoff": {
+            "before": "holds",
+            "after": "fails",
+            "label": "regression"
+          },
+          "unreadable-blocks": {
+            "before": "holds",
+            "after": "holds",
+            "label": "held"
+          }
+        },
+        "feedback": "After keeps the absolute late read and the ENOENT stop intact, but it regressed the saved-handoff fact in the dispatch payload itself: the `subagent({...})` call dropped `context: \"fresh\"`, so although the A3 heading says \"Fresh conformance dispatch\", the operative call no longer shows a fresh-context reviewer, and a careful reader checking the payload against the fact sees the field missing. After also added a speculative `git merge-base`/`git diff` fallback for producing the full diff even though the case states the diff is supplied unchanged; this is harmless as a conditional but invites the reader to think the diff might be regenerated rather than passed through verbatim. To deliver the Change while keeping every fact Before kept, restore `context: \"fresh\"` in the conformance-reviewer payload (alongside `async: false`, `cwd`, and the conditional `model`), keep the `Happy path: /tmp/happy-run/summary.txt (passed)` handoff line, and drop or clearly subordinate the diff-regeneration snippet so the payload unambiguously uses the supplied verbatim prompt and full diff; retain the explicit \"no phase_tracker complete, no closure block, no finishing\" boundary exactly as written.",
+        "wallMs": 16368,
+        "verdict": "inconclusive",
+        "confirmation": {
+          "status": "ok",
+          "text": "# Step 3 (conformance), happy-path branch\n\nSteps 0–2 are already done: verify phase started, full verification passed, and the whole-diff review accepted committed HEAD. The plan header has `**Happy path:** parser`, so the happy-path run comes first in step 3.\n\n## Action 1: Read the happy-path reference\n\nThe read targets the absolute path beside the installed skill:\n\n```\nread /opt/pi/node_modules/pi-gauntlet/skills/subagent-driven-development/reference/happy-path-run.md\n```\n\nThis read happens before any runner action.\n\n---\n\n## Alternative A: the reference is readable\n\n**Runner result (fixed observation, not my execution).** I followed the reference's instructions. The diff-derived row is `parser`, which matches the header label, so the summary carries no `(header: ...)` annotation. The runner printed:\n\n```\nsummary: /tmp/happy-run/summary.txt\noutcome: happy-path: passed\n```\n\n- The summary file is readable, so there is no runner failure.\n- The worktree is clean, so there is no residue to remove or restore before the audit.\n- `passed` is evidence for the audit, not a repair item.\n\n**Action 2: Resolve the conformance model.**\n\n```ts\ngauntlet_setting({ key: \"closureReview\" })\n```\n\n- If the returned `model` is `undefined`, I omit `model:` so the child inherits.\n- I keep `maxFixRounds` for the fix loop.\n- If `gauntlet_setting` is unavailable, I stop and report. I do not merge settings manually.\n\n**Action 3: Dispatch a fresh conformance-reviewer.** This is its own dispatch, never fused with the step-2 code review.\n\n```ts\nsubagent({\n  agent: \"conformance-reviewer\",\n  async: false,\n  context: \"fresh\",\n  cwd: \"/workspace/project\",\n  model: /* closureReview.model if defined; otherwise omit this field */,\n  task: `Confront the deliverable (code and docs) against the origin per verification-before-completion/reference/conformance-check.md.\n\nSpec: /workspace/project/doc/specs/parser.md\nOriginal prompt (verbatim):\n<verbatim original prompt, unchanged>\n\nFull diff vs main:\n<full diff, unchanged>\n\nHappy path: /tmp/happy-run/summary.txt (passed)`\n})\n```\n\n- The handoff line is exactly `Happy path: /tmp/happy-run/summary.txt (passed)`. It is the outcome line with the `happy-path: ` prefix removed.\n- The reviewer receives `summary.txt` only, not the full transcript.\n\n**Boundary.** I stop here, with no verdict. I do not call `phase_tracker({ action: \"complete\", phase: \"verify\" })`. Verify completes only after the audit returns one of these:\n- a current `CONFORMS`, or\n- a valid `## Closure / conformance` inventory carried open per conformance-check.md.\n\nThere are no new commits at this point, because HEAD is unchanged and clean.\n\n---\n\n## Alternative B: the reference read returns ENOENT\n\n**Blocking error:**\n\n```\nread /opt/pi/node_modules/pi-gauntlet/skills/subagent-driven-development/reference/happy-path-run.md -> ENOENT\n```\n\nThe happy-path reference is unreadable. Under SKILL.md step 3, that is a blocking error, so verification stops.\n\n**Boundary:**\n- No runner shell is run, and the runner is not reconstructed from other text.\n- No `gauntlet_setting` call and no conformance-reviewer dispatch.\n- No `phase_tracker` complete for verify; the phase stays incomplete.\n- No finishing hand-off.\n\nI report the missing reference path to the user and wait.\n",
+          "words": 411,
+          "wallMs": 14418,
+          "mechanical": {},
+          "judgeWallMs": 11406,
+          "facts": {
+            "absolute-late-read": {
+              "before": "holds",
+              "after": "holds",
+              "label": "held"
+            },
+            "saved-handoff": {
+              "before": "holds",
+              "after": "holds",
+              "label": "held"
+            },
+            "unreadable-blocks": {
+              "before": "holds",
+              "after": "holds",
+              "label": "held"
+            }
+          },
+          "feedback": "Nothing moved: After still narrates the absolute reference read after full verification and whole-diff review and before any runner action, uses the fixed runner observation rather than invented execution, hands off through a separate fresh conformance-reviewer dispatch with the exact `Happy path: /tmp/happy-run/summary.txt (passed)` line plus spec, verbatim prompt and full diff, withholds the verify completion pending an audit result, and in the ENOENT alternative stops with a blocking error before any runner or conformance dispatch without reconstructing the runner. Two small wording risks worth guarding against in future revisions: After adds a `diff-derived row is parser … no (header: ...) annotation` remark that edges toward narrating runner internals (keep it clearly attributed to the reference's instructions, not your own derivation), and the ENOENT branch dropped Before's explicit sentence that conformance is never dispatched with the selected run silently omitted — restoring that one clause makes the no-omission half of unreadable-blocks unambiguous rather than inferred from the absence of a dispatch."
+        },
+        "judgeModel": null,
+        "thinking": null
+      },
+      "github-copilot/gpt-6.1-sol": {
+        "factsSha": "bf3f4f11f49ee93d0d5dd40dee42381bf6fb1286c2f5b142afcebe9869d30f7b",
+        "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+        "intentSha": "70868125b0270c4bcc2e36898c51974950b90c9ba539c73ad3a39de4a9853245",
+        "baselineOutputSha": "f44777e5bf85b7a303d70977db119bd532345435a9e19cdd41ca530606c5c2cf",
+        "candidateOutputSha": "d93332023e7a67ea15f9935a92bb5a421339276352ef32c98106d995c523a7a3",
+        "facts": {
+          "absolute-late-read": {
+            "before": "holds",
+            "after": "holds",
+            "label": "held"
+          },
+          "saved-handoff": {
+            "before": "holds",
+            "after": "holds",
+            "label": "held"
+          },
+          "unreadable-blocks": {
+            "before": "holds",
+            "after": "holds",
+            "label": "held"
+          }
+        },
+        "feedback": "No fact moved. After still narrates the absolute late read of reference/happy-path-run.md before any runner action, consumes the supplied saved summary without reconstructing the shell block, dispatches a separate fresh conformance-reviewer with the exact `Happy path: /tmp/happy-run/summary.txt (passed)` line plus spec, verbatim prompt and unchanged full diff, and holds at the dispatch boundary without a verdict or verify completion; the ENOENT alternative blocks before runner or conformance dispatch and refuses reconstruction. Two small robustness notes for the After wording: the `Happy path:` handoff line now sits inside a template literal whose leading indentation could blur the 'exact line' claim for a strict reader, so consider keeping it in a standalone fenced `text` block as Before did; and the `// model: closureReview.model — include only when defined` comment is weaker than Before's explicit conditional assignment, which makes the 'omit when undefined' rule unambiguous. Keeping both of those explicit retains every Before fact while still delivering the saved-summary conformance handoff and unreadable-reference stop the Change calls for.",
+        "wallMs": 12980,
+        "verdict": "unchanged",
+        "judgeModel": null,
+        "thinking": null
+      }
+    },
+    "refreshed": {
+      "anthropic/claude-opus-5-5": {
+        "factsSha": "bf3f4f11f49ee93d0d5dd40dee42381bf6fb1286c2f5b142afcebe9869d30f7b",
+        "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+        "intentSha": "70868125b0270c4bcc2e36898c51974950b90c9ba539c73ad3a39de4a9853245",
+        "baselineOutputSha": "d5e025c2e281508212ce2bdb9b197b0086b126100005124e2af66b7fbd698846",
+        "candidateOutputSha": "10fe2b8a8e4dbb616730d73fe713c60d290c0da29d3580aa138c2b5c2d0a386d",
+        "facts": {
+          "absolute-late-read": {
+            "before": "holds",
+            "after": "holds",
+            "label": "held"
+          },
+          "saved-handoff": {
+            "before": "holds",
+            "after": "fails",
+            "label": "regression"
+          },
+          "unreadable-blocks": {
+            "before": "holds",
+            "after": "holds",
+            "label": "held"
+          }
+        },
+        "feedback": "After keeps the absolute late read ordering and the ENOENT stop intact, but it moved saved-handoff: the conformance-reviewer payload dropped `context: \"fresh\"` that Before carried, so the dispatch is only labelled fresh in a heading while the actual call lets the child inherit context, and it added a speculative `git merge-base`/`git diff` shell block to regenerate a diff the case says is already supplied unchanged, which reads as invented shell execution beside the fixed observation. To deliver the Change while keeping every Before fact, restore `context: \"fresh\"` in the subagent call (keep `async: false`, cwd, the closureReview model resolution, and the exact `Happy path: /tmp/happy-run/summary.txt (passed)` line), and either delete the fallback diff command or state plainly that the supplied full diff is pasted unchanged with no regeneration step; the rest of After (row/header annotation note, clean-worktree and commit-timing checks, verify-not-completed boundary, Branch B blocking error with no reconstruction) is fine and can stay.",
+        "wallMs": 15173,
+        "verdict": "inconclusive",
+        "confirmation": {
+          "status": "ok",
+          "text": "# Readable-reference branch (through the conformance dispatch)\n\n## 1. Read the happy-path reference first\n\nStep 3 of \"After All Tasks Complete\" applies because the plan header carries `**Happy path:** parser`. Before any runner action, read the reference at its absolute path beside the installed skill:\n\n```\nread /opt/pi/node_modules/pi-gauntlet/skills/subagent-driven-development/reference/happy-path-run.md\n```\n\nIn this branch, the fixed observation is that the read succeeds and returns the supplied reference's instructions.\n\n## 2. Consume the fixed runner observation\n\nI followed those instructions. The row is re-derived from the diff, and it matches the header row, `parser`. So `summary.txt` carries no `(header: …)` annotation. This replay supplies the runner result rather than my own execution:\n\n```\nsummary: /tmp/happy-run/summary.txt\noutcome: happy-path: passed\n```\n\nThe runner-step checks are satisfied:\n- The summary is readable.\n- The worktree is clean, so there is no residue to remove or restore.\n- There is nothing to stage or commit. HEAD stays at the committed HEAD the whole-diff review accepted.\n- `passed` is evidence for the audit, not a repair item.\n\nThe handoff line drops the `happy-path: ` prefix from the outcome:\n\n```\nHappy path: /tmp/happy-run/summary.txt (passed)\n```\n\n## 3. Resolve the conformance-reviewer model\n\n```ts\ngauntlet_setting({ key: \"closureReview\" })\n```\n\n- Use the returned `model` if one comes back. If `model` is `undefined`, omit `model:` so the reviewer inherits.\n- Keep `maxFixRounds` for the fix loop in `conformance-check.md`.\n- If `gauntlet_setting` is unavailable, stop and report. Do not fall back to a manual settings merge.\n\n## 4. Fresh conformance dispatch\n\nThis is its own dispatch, separate from the step-2 whole-diff code review. The review source is the full diff of the committed HEAD versus the branch point on main.\n\n```ts\nsubagent({\n  agent: \"conformance-reviewer\",\n  async: false,\n  context: \"fresh\",\n  cwd: \"/workspace/project\",\n  model: /* closureReview.model from gauntlet_setting; omit this field if undefined */,\n  task: `Per verification-before-completion/reference/conformance-check.md, confront the deliverable (code and docs) against the origin.\n\nSpec: /workspace/project/doc/specs/parser.md\nOriginal prompt (verbatim):\n<the original user prompt, pasted unchanged>\n\nFull diff vs main (committed HEAD, worktree clean):\n<git -C /workspace/project diff <branch-point>..HEAD, pasted unchanged>\n\nHappy path: /tmp/happy-run/summary.txt (passed)`\n})\n```\n\n## Boundary\n\nI stop at this dispatch. No verdict is claimed.\n\n- **Verify phase:** `phase_tracker({ action: \"complete\", phase: \"verify\" })` is not called yet. It is called only after the audit returns a current `CONFORMS`, or a valid closure inventory whose open concerns all come from deferred gaps, per `conformance-check.md`.\n- **Fix loop:** any fix loop, its `Gn` indices, and the closure block's `happy-path: passed` line come after the audit result.\n\n# Independent alternative: the reference read returns ENOENT\n\n```\nread /opt/pi/node_modules/pi-gauntlet/skills/subagent-driven-development/reference/happy-path-run.md\n→ ENOENT\n```\n\nThis is a blocking error: the happy-path reference is unreadable at `/opt/pi/node_modules/pi-gauntlet/skills/subagent-driven-development/reference/happy-path-run.md` (ENOENT).\n\nStop verification here:\n- No runner shell is run, and the runner is not reconstructed from the assembled text.\n- No `Happy path:` line exists.\n- The conformance-reviewer is not dispatched, since conformance must not run with the selected happy-path run omitted.\n- Verify stays incomplete.\n- Report the error to the user.\n",
+          "words": 454,
+          "wallMs": 16022,
+          "mechanical": {},
+          "judgeWallMs": 17315,
+          "facts": {
+            "absolute-late-read": {
+              "before": "holds",
+              "after": "holds",
+              "label": "held"
+            },
+            "saved-handoff": {
+              "before": "holds",
+              "after": "holds",
+              "label": "held"
+            },
+            "unreadable-blocks": {
+              "before": "holds",
+              "after": "holds",
+              "label": "held"
+            }
+          },
+          "feedback": "After keeps all three facts: the absolute reference read is narrated before any runner action and explicitly positioned after the step-2 whole-diff review of the committed HEAD; the readable branch follows the reference, consumes the saved summary/outcome rather than running anything, resolves closureReview, dispatches a separate fresh conformance-reviewer with the spec, verbatim prompt, full diff and the exact `Happy path: /tmp/happy-run/summary.txt (passed)` line, and withholds both the verdict and `phase_tracker complete`; the ENOENT alternative states the blocking error and boundary with no runner, no reconstruction, no dispatch and verify left incomplete. The one wording that drifted toward risk is the diff placeholder in the dispatch task: Before pasted `<the supplied full diff, pasted unchanged>`, while After rewrote it as `<git -C /workspace/project diff <branch-point>..HEAD, pasted unchanged>`, which reads like a shell command the orchestrator would run rather than the already-supplied verbatim diff, and could be taken as invented shell execution or source reconstruction under a stricter judge. To keep the Change (fixed observations never authorize source reconstruction) while preserving saved-handoff cleanly, keep Before's phrasing — refer to the supplied full diff as a given artifact pasted unchanged — and, if you want to describe its provenance, say it in prose (\"the supplied full diff of committed HEAD vs the branch point\") rather than as a git command placeholder. Everything else in After (re-deriving the row from the diff, noting no `(header: …)` annotation, listing the runner-step checks, the explicit boundary bullets) is a clear improvement over Before."
+        },
+        "judgeModel": "anthropic-fable/claude-fable-5-1",
+        "thinking": "medium"
+      },
+      "github-copilot/gpt-6.1-sol": {
+        "factsSha": "bf3f4f11f49ee93d0d5dd40dee42381bf6fb1286c2f5b142afcebe9869d30f7b",
+        "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+        "intentSha": "70868125b0270c4bcc2e36898c51974950b90c9ba539c73ad3a39de4a9853245",
+        "baselineOutputSha": "f44777e5bf85b7a303d70977db119bd532345435a9e19cdd41ca530606c5c2cf",
+        "candidateOutputSha": "d93332023e7a67ea15f9935a92bb5a421339276352ef32c98106d995c523a7a3",
+        "facts": {
+          "absolute-late-read": {
+            "before": "holds",
+            "after": "holds",
+            "label": "held"
+          },
+          "saved-handoff": {
+            "before": "holds",
+            "after": "holds",
+            "label": "held"
+          },
+          "unreadable-blocks": {
+            "before": "holds",
+            "after": "holds",
+            "label": "held"
+          }
+        },
+        "feedback": "No fact moved. Both outputs narrate the absolute read of reference/happy-path-run.md as the first step before any runner action, consume the supplied saved summary rather than rerunning or reconstructing the shell block, dispatch a separate fresh-context conformance-reviewer with the exact `Happy path: /tmp/happy-run/summary.txt (passed)` line, the authoritative spec path, and interpolated verbatim prompt and unchanged full diff, and stop at the dispatch boundary without inventing a verdict or marking verify complete; both ENOENT alternatives raise a blocking error before runner or conformance dispatch and refuse reconstruction. After additionally makes the post-verification ordering explicit (\"separately from the completed whole-diff code review\", \"Parent full verification passed\") and states the no-observation consequence in the ENOENT branch, which strengthens rather than weakens the facts. Two small cautions for the After wording: the `// model: closureReview.model — include only when defined` comment inside the object literal is less explicit than Before's conditional assignment and could be read as omitting the model handling, so keep a concrete conditional (e.g., `...(closureReview.model !== undefined && { model: closureReview.model })`); and the aside about retaining `maxFixRounds` for handling outside the scenario introduces a hint of future rounds that is harmless here but should not drift toward authorizing fix dispatches before an audit result exists.",
+        "wallMs": 13004,
+        "verdict": "unchanged",
+        "judgeModel": "anthropic-fable/claude-fable-5-1",
+        "thinking": "medium"
+      }
+    }
+  }
 }

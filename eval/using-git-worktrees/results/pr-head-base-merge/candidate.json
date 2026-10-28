@@ -1,0 +1,110 @@
+{
+  "sample": "pr-head-base-merge",
+  "arm": "candidate",
+  "skillSha": "a7cf6888a0fef908c09ad1798acc4bedd609c7ef29c2e5939ff111a800f94ebf",
+  "inputSha": "2d2ea1d7a16dd709788863d623712f023f39348029e45b4f169d36d474ff8de7",
+  "kind": "text",
+  "assembly": "concat",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "# using-git-worktrees: PR-head base-merge outcomes for acme/widget#82\n\nI'm using the using-git-worktrees skill to set up an isolated workspace. The caller passed resolved PR values, so I follow `reference/pr-head.md` instead of Steps 0 and 1.\n\n## Aliases\n\n| Alias | Value |\n|---|---|\n| ROOT | /work/widget |\n| W | /work/widget/.worktrees/fix-retry (`<name>` = fix-retry) |\n| A | aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa (headRefOid, PRE_REWORK_HEAD) |\n| B | bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb (BASE_SHA) |\n| E | eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee |\n\nThe session cwd never changes, including in done-green, where it stays at /work/widget/.worktrees/other. Every command uses `git -C` on ROOT or W.\n\n## Shared setup (identical in every row)\n\n1. `git rev-parse --path-format=absolute --git-dir --git-common-dir`. Both return /work/widget/.git, so ROOT = ROOT.\n2. `git -C ROOT rev-parse --show-superproject-working-tree` returns empty, so this is not a submodule.\n3. `git -C ROOT fetch origin`.\n4. `git -C ROOT rev-parse --verify -q A^{commit}` succeeds, and origin/fix/retry = A.\n5. `git -C ROOT rev-parse origin/main` returns B.\n6. All stops pass:\n   - isCrossRepository is false.\n   - `git -C ROOT worktree list --porcelain` shows fix/retry only at W.\n   - The head is reachable.\n7. Provisioning row \"home already on headRefName\":\n   - `git -C W status --porcelain` is clean.\n   - `git -C W merge --ff-only origin/fix/retry`.\n   - `git -C W rev-parse HEAD` returns A.\n\n## Merge legend\n\n| Code | Command / rule |\n|---|---|\n| M | `git -C W merge --no-ff --no-edit origin/main` |\n| P | `git -C W merge-base --is-ancestor A HEAD` must exit 0 after every outcome |\n| T | Threads query from the reference, run once for #82 with o=acme r=widget n=82. It succeeds empty, giving `Threads: none`. |\n| R | Step 4 report, below |\n\n**R (Step 4 report):**\n```\nWorktree ready at /work/widget/.worktrees/fix-retry\nBranch: fix/retry\nBase: fix/retry @ aaaaaaa\nPR: acme/widget#82\nPre-rework head: A\nBase SHA: bbbbbbb\n<merge record>\n```\n\n## Helper legend (conflict rows)\n\n| Step | Action |\n|---|---|\n| H1 | Read the overrides from B, not the conflicted tree: `git -C ROOT show B:.pi/gauntlet-overrides.md`. Then derive SCOPED_TEST_COMMANDS. |\n| H2 | Snapshot status: `git -C W status --porcelain` returns `UU src/retry.ts`. |\n| H3 | `git -C W diff --name-only --diff-filter=U` returns `src/retry.ts`. |\n| H4 | Dispatch one fresh foreground `implementer` (`cwd: W`, `async: false`) with the tuple (conflict-list=[src/retry.ts], fetched-base=origin/main@B, SCOPED_TEST_COMMANDS=['node --test test/retry.test.mjs']). The helper must resolve preserving both sides, run exactly those commands, and `git -C W add src/retry.ts`. It must not commit, abort, or edit outside the list. |\n| H5 | Completion checks, all required:<br>• `git -C W diff --name-only --diff-filter=U` is empty.<br>• `git -C W diff --cached --name-only` includes src/retry.ts.<br>• `git -C W status --porcelain` delta is contained in [src/retry.ts]. |\n| H6 | The orchestrator, never the helper, runs `git -C W commit --no-edit`. HEAD becomes E. |\n| HX | On any failure: `git -C W merge --abort`. Record `merge: unresolved - src/retry.ts` and continue on A. The spec Design opens with `merge origin/main and resolve src/retry.ts` as eventual Task 1. |\n\nConstraints are read at B in every row and are authoritative over the worktree copies. No other pre-approval tests, reviewers, or push.\n\n## Outcome rows (each independent)\n\n| Row | Delta | Merge record |\n|---|---|---|\n| noop | M reports base already an ancestor. No commit. HEAD = A. Then P, T, R. | `merge: no-op - head contains origin/main` |\n| clean | M succeeds and creates E as the first rework commit. Then P (A is an ancestor of E), T, R. | `merge: eeeeeee` |\n| done-green | M conflicts. H1 finds `node --test <files>` under PR gate with requires credentials: false, so the scoped command is the tuple's. H2–H4 run; the helper returns `done`. The scoped test passes. H5 passes, H6 commits E. Then P, T, R. | `merge: eeeeeee, 1 file(s) resolved, scoped tests green` |\n| exception-red | Same as done-green, but the helper returns `done - contract exception: retry count becomes bounded`. The scoped test fails in test/retry.test.mjs. H5 passes, H6 commits E. The exception lands and is named in the spec's `## Rework record` `Changes:`. Then P, T, R. | `merge: eeeeeee, 1 file(s) resolved, scoped tests red in test/retry.test.mjs: node --test test/retry.test.mjs` |\n| failure | H1–H4 run; the helper returns `done`. H5 fails: the status delta includes README.md, outside the list. Run HX: abort succeeds and HEAD = A. Task 1 is deferred to the spec. The worktree's weakened AGENTS.md is ignored. `git -C ROOT show B:AGENTS.md` is the authoritative read, so \"no unbounded retries\" binds the spec. Then P, T, R. | `merge: unresolved - src/retry.ts` |\n| credentials | H1 finds the runner has requires credentials: true, so SCOPED_TEST_COMMANDS = none and the tuple's command is replaced. The helper runs nothing. H5 passes, H6 commits E. Then P, T, R. | `merge: eeeeeee, 1 file(s) resolved, scoped tests none run (requires credentials: true)` |\n| missing-runner | H1 finds only `npm test`, a full-suite script. File scope is never inferred, so SCOPED_TEST_COMMANDS = none. The helper runs nothing. H5 passes, H6 commits E. Then P, T, R. | `merge: eeeeeee, 1 file(s) resolved, scoped tests none run (no file-scoped runner; npm test is full-suite)` |\n\n## End state\n\nEvery row ends with P passing and the R report emitted. Each row then hands W to gather and spec. The base merge and its conflict helper's scoped tests are the only pre-approval writes and runs. Nothing is pushed.\n",
+      "words": 788,
+      "wallMs": 31855,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "| Shared setup / command legend | Narration |\n|---|---|\n| Announcement | “I'm using the using-git-worktrees skill to set up an isolated workspace.” These runs begin **after successful provisioning**; no creation or provisioning commands are replayed. |\n| Aliases | `ROOT=/work/widget`; `W=/work/widget/.worktrees/fix-retry`; `H=aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa`; `B=bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb`; `E=eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee`. Seven-character forms: `aaaaaaa`, `bbbbbbb`, `eeeeeee`. `PRE_REWORK_HEAD=H`; `BASE_SHA=B`; `BRANCH=fix/retry`; `MEMBER_HEADS=[]`. |\n| Command notation / cwd | Aliases below expand literally to their defined values. Every orchestrator command has cwd `ROOT`, except **done-green**, whose unchanged session cwd is `/work/widget/.worktrees/other`. Every Git worktree operation explicitly targets `W`; no process-cwd change occurs. Helper commands have cwd `W`. |\n| Initial resolved state | Selected home `W` is provisioned, clean, on `fix/retry` at `H`; fetched `origin/fix/retry=H`; fetched `origin/main=B`. No additional fetch or worktree creation. |\n| First command, every row | `git -C W merge --no-ff --no-edit origin/main` |\n| Final commands, every row | After the merge outcome and any helper/abort sequence: `git -C ROOT show B:AGENTS.md` reads authoritative fetched-base constraints, never the worktree’s replacement. Then `git -C W merge-base --is-ancestor H HEAD` succeeds, proving preservation of the original PR head. |\n| Shared Step 4 report | `Worktree ready at W`<br>`Branch: fix/retry`<br>`Base: fix/retry @ aaaaaaa`<br>`PR: acme/widget#82`<br>`Pre-rework head: H`<br>`Base SHA: bbbbbbb`<br>Append the row’s merge record, then `Ready to implement PR #82 rework`. Aliases expand in the report. |\n\n| Shared conflict-helper legend | Ordered commands, dispatch, and checks |\n|---|---|\n| Discovery | After the merge reports conflict: `git -C W status --porcelain` snapshots `UU src/retry.ts`; then `git -C W diff --name-only --diff-filter=U` resolves the exact conflict list to `[src/retry.ts]`. |\n| Runner discovery | Where a BASE_SHA overrides file is specified, run `git -C ROOT show B:.pi/gauntlet-overrides.md`. Read `## PR gate`; accept only a documented file-scoped runner without required credentials. No overrides exist in **failure**, so its commands resolve to `none`. |\n| Default exact dispatch tuple | `(conflict-list=[src/retry.ts], fetched-base=origin/main@bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb, SCOPED_TEST_COMMANDS=['node --test test/retry.test.mjs'])` |\n| Dispatch | One **fresh foreground implementer**, `cwd=W`, `async=false`, receives that tuple or the row’s explicit command override. Resolve every listed file preserving both sides’ intent; edit only listed paths; run exactly the supplied commands; stage every resolution; no helper commit or abort. |\n| Helper commands | For a nonempty command list: `node --test test/retry.test.mjs`, cwd `W`. For every resolved file: `git -C W add -- src/retry.ts`, cwd `W`. With `SCOPED_TEST_COMMANDS=none`, no test command runs. |\n| Completion checks, in order | Orchestrator runs `git -C W diff --name-only --diff-filter=U`, requiring empty output; `git -C W diff --cached --name-only`, requiring `src/retry.ts` staged; `git -C W status --porcelain`, requiring the status delta from the snapshot to contain only `src/retry.ts`. |\n| Successful completion | Only the **orchestrator** runs `git -C W commit --no-edit`, then `git -C W rev-parse HEAD` → `E`, and `git -C W rev-parse --short=7 HEAD` → `eeeeeee`. A reported contract exception is retained for the spec’s `## Rework record`, `Changes:`. |\n| Failed completion | Do not commit. Run `git -C W merge --abort`; capture exit status `0`. Record unresolved merge and continue on the original PR head. Do not equate abort success with proof that unrelated helper edits were removed. |\n\n| Independent outcome | Delta, resolved values, merge record, and continuation |\n|---|---|\n| **noop** | Merge reports fetched base already an ancestor; no helper or commit. Final head remains `H`. Record: `merge: no-op - head contains origin/main`. Execute shared final commands and report. |\n| **clean** | Merge succeeds, creating the first rework commit. Run `git -C W rev-parse HEAD` → `E`; `git -C W rev-parse --short=7 HEAD` → `eeeeeee`. Record: `merge: eeeeeee`. Execute shared final commands and report. |\n| **done-green** | Unchanged orchestrator cwd is the unrelated linked tree specified above. BASE_SHA runner is `node --test <files>`, credentials false; default tuple applies. Helper returns `done`; supplied test passes. All completion checks pass; orchestrator commits. Record: `merge: eeeeeee, 1 file(s) resolved, scoped tests green`. Execute shared final commands and report. |\n| **exception-red** | Same authorized runner and default tuple. Helper returns `done - contract exception: retry count becomes bounded`; test fails in `test/retry.test.mjs`. Completion checks pass; orchestrator commits despite the reported red scoped test. Record: `merge: eeeeeee, 1 file(s) resolved, scoped tests red in test/retry.test.mjs: node --test test/retry.test.mjs`. Spec `Changes:` records the bounded-retry exception. Execute shared final commands and report. |\n| **failure** | No documented runner: dispatch override `SCOPED_TEST_COMMANDS=none`; record `none run (no documented file-scoped runner)`. Helper returns `done`, but completion status exposes `README.md` outside the conflict list. Abort using the shared failure command; no commit. Record: `merge: unresolved - src/retry.ts`. Shared authoritative read reveals BASE_SHA forbids unbounded retries; the worktree’s weakened `AGENTS.md` is not authoritative. Open spec Design with **“merge origin/main and resolve src/retry.ts”** as eventual Task 1. Execute ancestry proof and report; make no clean-restoration claim. |\n| **credentials** | BASE_SHA runner requires credentials: dispatch override `SCOPED_TEST_COMMANDS=none`. Valid staged resolution passes completion; orchestrator commits. Record: `merge: eeeeeee, 1 file(s) resolved, scoped tests none`; reason: `none run (runner requires credentials)`. Execute shared final commands and report. |\n| **missing-runner** | BASE_SHA overrides document only `npm test`; never infer file scope. Dispatch override `SCOPED_TEST_COMMANDS=none`. Valid completion; orchestrator commits. Record: `merge: eeeeeee, 1 file(s) resolved, scoped tests none`; reason: `none run (no documented file-scoped runner)`. Execute shared final commands and report. |\n| **Boundary, all rows** | Narration ends after the report, before gather or spec writing. No tracker calls, other preapproval tests, reviewers, or push. |\n",
+      "words": 809,
+      "wallMs": 50423,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "48a81f7f71b134b46018a397d49200f3932eed8766739c56677f7e266fb7bba1",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "eaa1592b503e954fe68bce45d83df9bab3f582876abb55614459018662f6494c",
+      "baselineOutputSha": "49e4a302187da45d533a73d26206978bd4386082457f9744a3d420426a4b1a20",
+      "candidateOutputSha": "acf26231bf7ccd428bdf2a12f119b7673f3cd2043bdc0ad1a30a3cab7fab557d",
+      "facts": {
+        "merge": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "helper": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "outcomes": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "authority": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "boundaries": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "Nothing moved: After keeps every fact Before kept. M is still `git -C W merge --no-ff --no-edit origin/main`, no-op makes no commit with the exact record, clean names eeeeeee as the first rework commit; H4 dispatches one fresh foreground implementer at cwd W with the full tuple, H5 enforces empty U / staged src/retry.ts / contained delta, H6 has the orchestrator commit --no-edit, HX aborts with git -C W, the cwd-stays-at-other point is stated up front, overrides and AGENTS.md are read from B via ROOT, and credentials/missing-runner record specific reasons without inferring scope from npm test. Two things are weaker than Before and worth tightening so they don't slip in a later rewrite: the exception-red row says the exception is 'named in Changes' but no longer quotes the name there (Before wrote 'as \"retry count becomes bounded\"'), and H4 says the helper runs 'exactly those commands' while credentials/missing-runner later replace them with none — say 'runs only the dispatched SCOPED_TEST_COMMANDS, which may be none'. The added T (threads query) is outside this case's scope (threads are partitioned into pr-head-threads) and is the kind of extra step that could later read as a tracker call; if the routing change requires mentioning it, keep it as a single legend line as you did rather than per-row actions. Otherwise the pr-head routing sentence at the top delivers the Change without disturbing the base-merge facts.",
+      "wallMs": 28669,
+      "verdict": "unchanged"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "48a81f7f71b134b46018a397d49200f3932eed8766739c56677f7e266fb7bba1",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "eaa1592b503e954fe68bce45d83df9bab3f582876abb55614459018662f6494c",
+      "baselineOutputSha": "d5f83c9c0d3319e9bbf6d2da855e97b6fc260df69c965f880deb34ec49967d43",
+      "candidateOutputSha": "0eefcfabb0b4fb6176873ca51d585abf042616879d9c49a15710f9c54cc3e056",
+      "facts": {
+        "merge": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "helper": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "outcomes": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "authority": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "boundaries": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "After keeps every fact Before kept: the merge command, no-op/clean records, fresh foreground implementer with the exact tuple, staging/empty-U/containment checks, orchestrator-only commit --no-edit, git -C W for discovery/status/staging/completion/commit/abort with session cwd unchanged in done-green, ROOT-targeted repository reads, accurate green/red/none records with specific reasons, abort → unresolved src/retry.ts → Task 1, BASE_SHA AGENTS.md read after every outcome, and the preapproval boundary. The one soft spot is the 'authority' fact: Before said the runner is read from the 'first-found fetched-base runner contract, not conflicted-tree instructions'; After's 'Where a BASE_SHA overrides file is specified, run git -C ROOT show B:.pi/gauntlet-overrides.md' drops both 'first-found' and the explicit contrast with the conflicted tree, and it adds an inferred failure-row runner outcome (none) that the input does not describe. To stay safe while keeping the compact-legend change, restore the phrase 'read the first-found overrides at BASE_SHA, never the conflicted tree's copy' in the Runner discovery cell and leave the failure row's runner unspecified rather than resolving it to none.",
+      "wallMs": 23946,
+      "verdict": "unchanged"
+    }
+  },
+  "repoSha": "f25bf48a3f7ac2e9b361d2c7506d7c691e212697"
+}
