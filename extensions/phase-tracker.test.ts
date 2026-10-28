@@ -1567,7 +1567,9 @@ test("cap guard: default 5 waves pass, the sixth is blocked with the escalation 
   }
   const blocked = await firstCallResult(h, "c6", implementerWave(1));
   assert.equal(blocked?.block, true);
-  assert.match(blocked?.reason ?? "", /5 fix round\(s\) used against a cap of 5 \(granted rounds included\); escalate to the human/);
+  assert.match(blocked?.reason ?? "", /^Conformance fix loop: 5 fix round\(s\) used against a cap of 5 \(granted rounds included\); escalate to the human/);
+  assert.ok((blocked?.reason ?? "").includes("Start the escalation message with the line: gauntlet: gate=verification-before-completion/step-6"));
+  assert.doesNotMatch(blocked?.reason ?? "", /^gauntlet:/);
 });
 
 test("cap guard: maxFixRounds 0 blocks the first wave; 1 blocks the second; a chain implementer is cap-checked and counted", async () => {

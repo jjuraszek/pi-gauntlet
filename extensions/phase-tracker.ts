@@ -255,7 +255,8 @@ const fixRoundCapBlockReason = (used: number, cap: number, settingsPath: string)
   'phase_tracker({ action: "grant_fix_rounds", rounds: <N>, reason: "<their words>" }).\n' +
   `Last resort: set piGauntlet.closureReview.enforce: false in ${settingsPath} (disables all closure guards; ` +
   "applies on the next tool call, no restart - a gauntlet_setting read in the same message sees the write; " +
-  "a repo closureReview block replaces the preset's whole block, so restate model and maxFixRounds alongside).";
+  "a repo closureReview block replaces the preset's whole block, so restate model and maxFixRounds alongside). " +
+  "Start the escalation message with the line: gauntlet: gate=verification-before-completion/step-6";
 
 const closureModelBlockReason = (model: string, missing: number, total: number): string =>
   `Blocked: ${missing} of ${total} conformance-reviewer ${total === 1 ? "dispatch" : "entries"} ` +

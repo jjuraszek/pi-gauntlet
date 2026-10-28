@@ -398,6 +398,20 @@ if (errors.length === subtractiveErrorsBefore) ok("subtractive review pass token
   if (errors.length === handoffErrorsBefore) ok("gauntlet-handoff/gauntlet-resume share one brief contract; producer delegates the core brief");
 }
 
+// ---- gate render-site inventory -------------------------------------------
+{
+  const { lintGateContract } = await import("./gate-contract-lint.mjs");
+  const diagnostics = lintGateContract(root);
+  for (const diagnostic of diagnostics) fail(diagnostic);
+  if (!diagnostics.length) ok("gate render sites match doc/gate-contract.md");
+  try {
+    execFileSync(process.execPath, ["--test", R("scripts/gate-contract-lint.test.mjs")], { stdio: "pipe" });
+    ok("gate contract lint fixtures pass");
+  } catch (e) {
+    fail(`gate contract lint fixtures failed:\n    ${String(e.stdout || e.stderr || e).split("\n").join("\n    ")}`);
+  }
+}
+
 // ---- extension syntax (type-stripped parse) --------------------------------
 for (const f of walk(R("extensions")).filter((f) => f.endsWith(".ts"))) {
   try {
