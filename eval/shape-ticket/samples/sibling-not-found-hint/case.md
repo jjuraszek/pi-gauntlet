@@ -21,7 +21,7 @@ Resolved overrides ## shape-ticket:
 - sibling: git@github.com:acme/tools.git
 - sibling: git@github.com:acme/data.git
 
-Nothing exists at /repos/viewer. /repos/billing is a checkout with stored origin https://github.com/acme/billing-legacy.git. /repos/docs is a plain directory and its git rev-parse fails. /repos/tools is a checkout but config --get remote.origin.url exits nonzero. /repos/data is a checkout with stored origin /srv/git/data.git.
+Nothing exists at /repos/viewer. /repos/billing is a checkout with stored origin https://github.com/acme/billing-legacy.git. /repos/docs is a plain directory inside an enclosing checkout: `git -C /repos/docs rev-parse --show-toplevel` succeeds and prints /repos, and that enclosing checkout's stored origin is git@github.com:acme/docs.git. /repos/tools is a checkout but config --get remote.origin.url exits nonzero. /repos/data is a checkout with stored origin /srv/git/data.git.
 Prescribe sibling read paths and supplied report lines in the scout brief, plus the no-op Audit report. Distinguish report text from read paths. No other draft-changing facts exist. The usable scout audit contains Claims: none, Repo-fit: kept, AC-fit: clear, In-motion: none, Scenario: none (nothing to observe), each on its own line, plus verbatim copies of the supplied sibling lines.
 Independent empty-file checkpoint: the scout audit is empty. Show its complete Audit report and disposition again.
 anonymized: true

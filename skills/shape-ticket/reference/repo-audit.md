@@ -30,7 +30,7 @@ Classify each configured line in the parent, in order, stopping at the first mat
 |---|---|---|
 | 1 | Invalid configuration | Configured value fails the shared parser |
 | 2 | Not found | Nothing exists at `PATH` |
-| 3 | Not a checkout | `PATH` exists, but `git -C <PATH> rev-parse --git-dir` fails |
+| 3 | Not a checkout | `PATH` exists, but `git -C <PATH> rev-parse --show-toplevel` fails or prints a path other than `PATH` itself (a plain directory inside an enclosing repository is not a checkout) |
 | 4 | No origin | `git -C <PATH> config --get remote.origin.url` exits nonzero |
 | 5 | Unparseable origin | Stored origin fails the shared parser |
 | 6 | Wrong repo | Stored origin IDENTITY differs from configured IDENTITY |
@@ -50,7 +50,7 @@ Render unavailable outcomes using these templates, substituting the configured U
 | Invalid configuration | `Sibling: ../viewer - not a clone url; use git@host:owner/name.git or https://host/owner/name.git` |
 | No primary entry | `Sibling: git@github.com:acme/viewer.git - unresolved: no primary checkout found; expected beside it as viewer` |
 
-Treat every unavailable line as nonblocking; use the invalid-configuration line as the migration notice. Expect siblings beside the primary checkout under the repository name, report missing ones with the clone destination without blocking, and use the committed URL only in the clone hint, not to constrain a teammate's clone scheme.
+Treat every unavailable line as nonblocking; use the invalid-configuration line as the migration notice. Expect siblings beside the primary checkout under the repository name, report missing ones with the clone destination without blocking, and use the configured URL to name the sibling in report lines and supply the clone hint while ignoring the clone scheme in identity comparison.
 
 Retain the pre-rendered lines per ticket in `<tmp>/<ref>/sibling-lines.md` beside snapshot and audit; pass those lines and found absolute paths into the brief. Keep this parent-owned list authoritative for report-only outcomes, independently of audit-file availability.
 
