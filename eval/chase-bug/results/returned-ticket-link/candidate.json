@@ -1,8 +1,8 @@
 {
   "sample": "returned-ticket-link",
   "arm": "candidate",
-  "skillSha": "3e166d28f1e9cd0634670ce8f524fb4b80cd04b6563c400c90dd16f82b15ff89",
-  "inputSha": "3e1424b7b0b4576585fcc4e99fbf2dc98d7764967df31e4302c5f1c701df605a",
+  "skillSha": "0a00f78f57cd313d3870eeb05efb60827f270728fec2c404cd1fe608adf19748",
+  "inputSha": "5084fec3faf934e0ad8402a53da684a3ae421dfd6ee55cf9a328968704976b9c",
   "kind": "text",
   "assembly": "concat",
   "thinking": "medium",
@@ -17,26 +17,32 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "Symptom: Opening `/widgets/` returns 404 instead of 200.\nVerdict: Real bug. The router fails to match paths with a trailing slash.\nEvidence: `src/router.ts:88` compares paths without stripping the trailing slash. The local reproduction confirmed the 404, and the falsification test passed.\nNext step: Already tracked in https://github.com/example/widgets/issues/42. Shape-ticket found an existing ticket covering this concern, so it created no new ticket and made no tracker change.\n",
-      "words": 66,
-      "wallMs": 5365,
-      "mechanical": {}
+      "text": "Opening `/widgets/` with a trailing slash shows the 404 page instead of the requested page. This is a real bug: the part that matches URLs to pages compares the text exactly instead of ignoring the trailing slash (the matcher in the router, `src/router.ts:88`; the local repro returned 404 where 200 is expected). No new ticket was filed because an existing one already covers this, so follow-up continues there (https://github.com/example/widgets/issues/42).\n\nBefore this run counts as closed, run `git status --porcelain --untracked-files=no` and confirm it still matches the baseline. That is the final no-changes check, and I could not run it here.\n",
+      "words": 100,
+      "wallMs": 8016,
+      "mechanical": {
+        "no-labels": "holds",
+        "no-fence": "holds"
+      }
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "Symptom: Opening `/widgets/` returns 404 instead of 200.\nVerdict: Real bug: path matching does not strip the trailing slash.\nEvidence: `src/router.ts:88`; local reproduction confirmed the failure, and the falsification test passed.\nNext step: Existing ticket https://github.com/example/widgets/issues/42 covers this concern. No new ticket was created and no tracker mutation occurred.\n",
-      "words": 49,
-      "wallMs": 3590,
-      "mechanical": {}
+      "text": "Opening `/widgets/` returns 404 instead of the expected 200. This is a confirmed bug: the part that matches URLs to pages does not strip the trailing slash, and the local reproduction confirmed the failure (`src/router.ts:88`). Follow the existing ticket at https://github.com/example/widgets/issues/42 for resolution; it already covers this concern, so no new ticket was created.\n",
+      "words": 54,
+      "wallMs": 2985,
+      "mechanical": {
+        "no-labels": "holds",
+        "no-fence": "holds"
+      }
     }
   },
   "judge": {
     "anthropic/claude-opus-5-5": {
-      "factsSha": "fc79fb7939986467e2448d8e2123f3c1f3f71045b79823087b02f40614ca499a",
+      "factsSha": "03c73d31db1f7f6555497d4959955c553a622b11395e591bba855a60f0920844",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "ae41c395f20cab15dd43929974393349094000df98be51af31e03e46a9348df6",
-      "baselineOutputSha": "bdb0b223182f8aec0d89aa984b2b5b4e2ca67aaeb30ac0c0d2bebd1388f7633a",
-      "candidateOutputSha": "bdb0b223182f8aec0d89aa984b2b5b4e2ca67aaeb30ac0c0d2bebd1388f7633a",
+      "intentSha": "b9af56291efd511f8265637dd0c2e862cbdaef1660c6b17b786bc32e2b5f250f",
+      "baselineOutputSha": "f9b9f49794d50e0ca9e444800829ae27a3872ec2bbcb69b728989ceeda707fbd",
+      "candidateOutputSha": "631936db016da49044640abbb8a5c7e9d9ee4696f3ae7ce7770c06a3ce4c8ee2",
       "facts": {
         "returned-reference": {
           "before": "holds",
@@ -47,18 +53,43 @@
           "before": "holds",
           "after": "holds",
           "label": "held"
+        },
+        "three-sentences": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "under-80-words": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "plain-reader": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "no-labels": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "no-fence": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
         }
       },
-      "feedback": "Before and After are textually identical, so nothing moved. Both cite the exact returned reference https://github.com/example/widgets/issues/42 as the next step, and both explicitly state that shape-ticket found an existing ticket and created no new ticket and made no tracker change, which matches the supplied result. The After wording preserves both facts; no revision is needed for this sample, and the menu-layout changes in the Change paragraph do not touch this unaddressable-summary path.",
-      "wallMs": 3256,
-      "verdict": "unchanged"
+      "feedback": "After delivers the Change on every fact here without losing anything Before held: the summary is three unfenced, unlabeled sentences totaling about 69 words (Before's fenced, labeled block ran to roughly 83), the router matcher is introduced by role (\"the part that matches URLs to pages\") with the repro proof visible and `src/router.ts:88` trailing the claim in parentheses, and the existing ticket link is cited as the follow-up destination while explicitly stating no new ticket was filed. The one thing to watch is the second paragraph about the zero-mutation checkpoint: it sits directly below the summary with no separator, so a stricter reader could fold it into the \"terminal summary\" and count five sentences; to make the three-sentence span unambiguous, have the skill either emit the checkpoint reminder before the summary or introduce it with a short lead-in (e.g., \"Separately, before closing:\") so the Verdict-shape paragraph is clearly the complete summary.",
+      "wallMs": 21594,
+      "verdict": "improved"
     },
     "github-copilot/gpt-6.1-sol": {
-      "factsSha": "fc79fb7939986467e2448d8e2123f3c1f3f71045b79823087b02f40614ca499a",
+      "factsSha": "03c73d31db1f7f6555497d4959955c553a622b11395e591bba855a60f0920844",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "ae41c395f20cab15dd43929974393349094000df98be51af31e03e46a9348df6",
-      "baselineOutputSha": "2a87b73f04ea2a7eac6fa38e8cff40a445bad10f028a699b7b9dc26c4924719f",
-      "candidateOutputSha": "2a87b73f04ea2a7eac6fa38e8cff40a445bad10f028a699b7b9dc26c4924719f",
+      "intentSha": "b9af56291efd511f8265637dd0c2e862cbdaef1660c6b17b786bc32e2b5f250f",
+      "baselineOutputSha": "199ea2295d877f10c68d2243da986de9b1d4fa8ab5e562a50f309af6aff6068f",
+      "candidateOutputSha": "edea798aea73dd5b28a9ffd584aa550dd6c9e2c63bb42f39aa6d91fbee145dfd",
       "facts": {
         "returned-reference": {
           "before": "holds",
@@ -69,12 +100,37 @@
           "before": "holds",
           "after": "holds",
           "label": "held"
+        },
+        "three-sentences": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "under-80-words": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "plain-reader": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "no-labels": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "no-fence": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
         }
       },
-      "feedback": "Before and After are textually identical: both cite the returned reference https://github.com/example/widgets/issues/42 under Next step and explicitly state no new ticket was created and no tracker mutation occurred, so neither fact moved. The After wording correctly preserves the existing-ticket result from shape-ticket without inventing a creation claim; no adjustment is needed for this sample. The expected menu-layout movements (menu-after-numbered-findings/layout and mapped-pick) are not exercised by this completed-handoff case, so they cannot be assessed here.",
-      "wallMs": 3537,
-      "verdict": "unchanged"
+      "feedback": "After delivers the Change without losing anything Before held: it keeps the returned issue link as the explicit next step, states that no new ticket was created, and stays well under 80 words (~54), while collapsing the four labeled lines (five sentences) into exactly three unfenced plain sentences. Plain-reader moves to holds because the component is now named by role ('the part that matches URLs to pages'), the reproduction is stated as visible proof, and the `src/router.ts:88` citation trails the claim inside sentence two instead of opening the evidence line as it did in Before. One small refinement to consider: After dropped the falsification-test result that Before mentioned; folding it into sentence two (e.g. '...and the local reproduction and falsification test confirmed the failure (`src/router.ts:88`)') would preserve that proof at no cost to the sentence count or word budget.",
+      "wallMs": 13682,
+      "verdict": "improved"
     }
   },
-  "repoSha": "6aa708917f3429b0e0ba574cb0a680df774f186c"
+  "repoSha": "896a9adb7c1008dd102f6a10f992553491d371d9"
 }

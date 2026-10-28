@@ -1,0 +1,134 @@
+{
+  "sample": "prose-verdict-above-menu",
+  "arm": "candidate",
+  "skillSha": "b965b9cd3e43ddae698323b4d6105cf9d9a71c33e7c8bb98ae619c596990b945",
+  "inputSha": "3e652b4cced93b9b887b849ec646ee4555a8c974765811fa342e3b20bccc04bf",
+  "kind": "text",
+  "assembly": "concat",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "## Checkpoint 1: Verdict menu\n\nOpening `/widgets/` returns the 404 page instead of the widgets page. The part that matches URLs to pages compares the path text exactly without normalizing it first, so the page is never found (the matcher in the router, `src/router.ts:88`; the local repro returns 404 where 200 is expected). Normalizing the path in that one comparison is a small, safe fix, so the hotfix is the recommended pick below.\n\n- The prior-report search completed and found no open or closed issue with this symptom.\n- The local repro reproduced the failure, and the falsification test for missing path normalization ran and passed.\n- The tracked baseline is clean at checkpoints 1 and 2, so this run caused no delta.\n\nPick one:\n\n```\n1. [ ] File a ticket - /skill:shape-ticket, seeded with this evidence.\n2. [ ] Brainstorm now - /skill:brainstorming with this evidence as the seed.\n3. [x] Implement hotfix now - follow hotfix.md; add \"as a PR\" for a PR. [recommended]\n4. [ ] Finish with rendered summary.\n\neligible - all predicates pass\n```\n\nWaiting for your pick.\n\n---\n\n## Checkpoint 2: Draft to the reporter\n\nThis is the draft for the GitHub issue. The resolved channel is `gh issue comment <n> --body-file <draft>`.\n\n> Thanks for the report that the page fails to load. We couldn't reproduce it: following the documented steps in clean Chrome and Firefox profiles, the page rendered successfully both times. Could you share your browser name and exact version so we can retry with your setup?\n\nReply with exactly `send it` to post this comment. Any other reply is treated as a change to the draft. Nothing has been pushed.\n",
+      "words": 262,
+      "wallMs": 14993,
+      "mechanical": {
+        "no-labels": "holds"
+      }
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "## Checkpoint 1 — Generate the gate\n\nOpening `/widgets/` returns 404 instead of the expected 200. This is a confirmed bug: the part that matches URLs to pages compares paths without normalization, and the local repro and falsification test confirmed the cause (`src/router.ts:88`). The fix is small and safe, so implementing the hotfix is recommended.\n\nPick one:\n\n1. [ ] File a ticket - /skill:shape-ticket, seeded with this evidence.\n2. [ ] Brainstorm now - /skill:brainstorming with this evidence as the seed.\n3. [ ] Implement hotfix now - follow hotfix.md; add \"as a PR\" for a PR. [recommended]\n4. [ ] Finish with rendered summary.\n\neligible — all six predicates pass\n\n## Checkpoint 2 — Draft to the reporter\n\nChannel: `gh issue comment`\n\nThe reported page failure did not occur in our reproduction attempts. We cannot reproduce it: the documented steps rendered the page successfully in both Chrome and Firefox with clean profiles. Please provide your browser name and version so we can test the environment where the failure occurred.\n\nReply with the exact text `send it` to post this comment.\n",
+      "words": 166,
+      "wallMs": 10007,
+      "mechanical": {
+        "no-labels": "holds"
+      }
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "2cb7e6e1e3651036bca29957532cbf1b1d8a25e76fdeacdaa17bf988cd0719df",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "b9af56291efd511f8265637dd0c2e862cbdaef1660c6b17b786bc32e2b5f250f",
+      "baselineOutputSha": "ea75036bddd6c2802e3e9ec0ac6b8424950cabd39281fc4ddf3822f317376745",
+      "candidateOutputSha": "e701fb91529dae1ab44676d45c4aff092f6d614ebae776ebd3155b3f344b2fff",
+      "facts": {
+        "no-fence": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "three-sentences": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "under-80-words": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "plain-reader": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "menu-intact": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "draft-asks-reporter": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "no-labels": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        }
+      },
+      "feedback": "After delivers the Change: the story is a bare three-sentence paragraph (67 words) that names the matcher by role and trails the file:line and repro result inside the same sentence, the draft is three unfenced sentences with the browser/version request in sentence three, the `send it` confirmation sits outside the draft with an explicit no-push statement, and the menu keeps four numbered rows, one [recommended], and an eligibility line after Pick one:. Two things are fragile and worth tightening in the wording: (1) After places three evidence bullets between the story and Pick one:, and I only counted them as excluded 'deep evidence'; a stricter reader could fold them into 'the story above Pick one:' and fail three-sentences and under-80-words, so the instruction should say the story is the only prose above Pick one: and that supporting bullets go below the menu as in Before. (2) The draft is rendered as a markdown blockquote and the menu is wrapped in a code fence; neither breaks a fact as written, but saying 'draft as a plain paragraph, no quote or fence' and 'menu as plain numbered lines' removes any ambiguity while still satisfying no-fence and menu-intact.",
+      "wallMs": 36775,
+      "verdict": "improved"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "2cb7e6e1e3651036bca29957532cbf1b1d8a25e76fdeacdaa17bf988cd0719df",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "b9af56291efd511f8265637dd0c2e862cbdaef1660c6b17b786bc32e2b5f250f",
+      "baselineOutputSha": "0b05e9d76a26d17bb82fafa12bd6b94cdd7306cc1ec388e73c9df8bc258bc86d",
+      "candidateOutputSha": "e7c4d3a2eb4ba4bddc171489ddc3a07b6282a38cbeee096532fff50680076e20",
+      "facts": {
+        "no-fence": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "three-sentences": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "under-80-words": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "plain-reader": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "menu-intact": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "draft-asks-reporter": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "no-labels": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        }
+      },
+      "feedback": "After kept everything Before held (under-80-words, menu-intact) and fixed the four Before failures: the reporter draft is no longer in a ```text fence, both the story and the draft are exactly three whole sentences rather than labeled fragments (Before's 'Fault story:/Proof:/Prior-report' lines and the four-line Symptom/Verdict/Evidence/Next-step block), the router is named by role ('the part that matches URLs to pages') with `src/router.ts:88` trailing the claim in parentheses instead of standing alone in a pipe-separated proof line, and the browser/version request now sits in sentence three with the `send it` confirmation outside the draft and no 'nothing has been pushed' assertion. No fact regressed. Two small notes for durability: the story drops the explicit 'prior-report search without a match' detail, which is fine for the facts here but could matter for a future no-new-creation check, and the eligibility line was shortened to 'all six predicates pass' — keep the 'hotfix predicates' wording and the 'small and safe' clause there so the eligibility line stays self-explanatory even when the story is read separately.",
+      "wallMs": 19934,
+      "verdict": "improved"
+    }
+  },
+  "repoSha": "896a9adb7c1008dd102f6a10f992553491d371d9"
+}

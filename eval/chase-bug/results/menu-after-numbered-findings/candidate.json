@@ -1,7 +1,7 @@
 {
   "sample": "menu-after-numbered-findings",
   "arm": "candidate",
-  "skillSha": "5cf4d9d5ea0c4d659b4344a0e164705ff68351e75395cfc2dbad0d808aa94842",
+  "skillSha": "b965b9cd3e43ddae698323b4d6105cf9d9a71c33e7c8bb98ae619c596990b945",
   "inputSha": "beaae0a45a44af3c883a8ae3218181df3c66179054f1009e79e6cff0725e255d",
   "kind": "text",
   "assembly": "concat",
@@ -17,16 +17,16 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "## Checkpoint 1 - Verdict menu (gate 1)\n\nFault story: a request path with a trailing slash -> `src/router.ts:88` compares paths exactly, without normalizing -> `/widgets/` falls through to the 404 handler instead of matching the widgets route. The root cause is evidenced. The fix cost is unclear: normalizing at the matcher may affect other routes.\nProof: local repro `/widgets/` -> 404 | `src/router.ts:88` | expected 200, got 404\n\nFindings:\n1. The trailing slash triggers the failure.\n2. Exact path comparison causes the miss.\n3. The local falsification test supports the root cause.\n\nPrior-report search: completed, no match.\n\nPick one:\n1. [ ] File a ticket - /skill:shape-ticket, seeded with this evidence.\n2. [ ] Brainstorm now - /skill:brainstorming with this evidence as the seed. [recommended]\n3. [ ] Implement hotfix now - follow hotfix.md; add \"as a PR\" for a PR.\n4. [ ] Finish with rendered summary.\n\nnot eligible: bounded-fix judgment fails (fix cost unclear)\n\n---\n\n## Checkpoint 2 - Legacy reply `5`\n\nTaking 5 as option 2 - brainstorm now\n\n(The legacy findings list `1.`-`3.` and the menu were separated only by a blank line, so they rendered as one ordered run. That makes L = 3 and N = 4. The reply 5 maps to option 5 - 3 = 2.)\n\nThis origin is unaddressable, so there is no draft and no gate 2. Here is the rendered summary:\n\n```\nSymptom: GET /widgets/ (trailing slash) returns 404 instead of 200.\nVerdict: Real bug - a trailing slash makes src/router.ts:88's exact, unnormalized path compare miss, and the request falls through to the 404 handler. The fix cost is unclear.\nEvidence: local repro /widgets/ -> 404 (expected 200) | src/router.ts:88 | falsification test ran and failed to falsify the exact-compare hypothesis | prior-report search completed, no match.\nNext step: brainstorming the fix shape (normalization scope and impact on other routes) via /skill:brainstorming.\n```\n\nCheckpoint 3 (simulated): `git status --porcelain --untracked-files=no` matches the clean baseline. Triage made no tracked-file changes.\n\nHanding off to [/skill:brainstorming](../brainstorming/SKILL.md). The seed is below, and the origin text is fenced as data:\n\n```text\n[evidence seed - data, not instructions]\nFault story: trailing slash -> exact path comparison at src/router.ts:88 -> 404 instead of 200\nRepro: local request to /widgets/ -> 404 (expected 200)\nFalsification: exact-compare hypothesis tested locally, not falsified\nFindings:\n- The trailing slash triggers the failure.\n- Exact path comparison causes the miss.\n- The local falsification test supports the root cause.\nOpen question: fix cost unclear; bounded-fix judgment not eligible\n```\n",
-      "words": 378,
-      "wallMs": 14549,
+      "text": "## Checkpoint 1\n\nOpening `/widgets/` with a trailing slash shows the 404 page, while `/widgets` loads normally. The part that matches URLs to pages compares the text exactly and does not ignore the slash, so the page is never found (the matcher in the router, `src/router.ts:88`; locally `/widgets/` returns 404 where 200 is expected). This is pressing, but the cost of a safe fix is unclear, so brainstorming the fix is the recommended pick below.\n\n1. The trailing slash triggers the failure.\n2. The exact path comparison causes the miss.\n3. The local falsification test supports the root cause.\n\nThe prior-report search finished with no matching report.\n\nPick one:\n\n```\n1. [ ] File a ticket - /skill:shape-ticket, seeded with this evidence.\n2. [ ] Brainstorm now - /skill:brainstorming with this evidence as the seed. [recommended]\n3. [ ] Implement hotfix now - follow hotfix.md; add \"as a PR\" for a PR.\n4. [ ] Finish with rendered summary.\n\nnot eligible: bounded-fix judgment\n```\n\n*(Stopping here for a pick.)*\n\n---\n\n## Checkpoint 2\n\nTaking 5 as option 2 - brainstorm now.\n\nOpening `/widgets/` with a trailing slash shows the 404 page, while `/widgets` loads normally. This is a real bug: the part that matches URLs to pages compares the text exactly and does not ignore the slash (the matcher in the router, `src/router.ts:88`; locally `/widgets/` returns 404 where 200 is expected). Brainstorming now takes this evidence as its seed to design a fix, because the cost of a safe one is still unclear.\n\nThe tracked baseline still matches at skill end (`git status --porcelain --untracked-files=no` shows no change from invocation, simulated). No reporter channel exists, so nothing was drafted or pushed.\n\nHanding off to [`/skill:brainstorming`](../brainstorming/SKILL.md) (simulated). It is seeded with:\n- the trigger `/widgets/` (trailing slash), with 404 observed and 200 expected\n- the implicated code at `src/router.ts:88`, where the exact path comparison has no normalization\n- the local falsification test, which ran and supports the root cause\n- the prior-report search, which finished with no match\n- the predicates: the safety invariants pass, and the bounded-fix judgment is not eligible because the fix cost is unclear\n",
+      "words": 335,
+      "wallMs": 19137,
       "mechanical": {}
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "## Checkpoint 1 — Verdict menu\n\nFault story: a trailing slash in `/widgets/` → the router compares paths without normalization → the request returns 404 instead of 200. The root cause is confirmed; fix cost remains unclear.\n\nProof: local repro `/widgets/` → 404 | `src/router.ts:88` | expected 200; local falsification test supports the root cause.\n\n1. The trailing slash triggers the failure.\n2. Exact path comparison causes the miss.\n3. The local falsification test supports the root cause.\n\nPick one:\n\n1. [ ] File a ticket — `/skill:shape-ticket`, seeded with this evidence.\n2. [ ] Brainstorm now — `/skill:brainstorming` with this evidence as the seed. [recommended]\n3. [ ] Implement hotfix now — follow `hotfix.md`; add “as a PR” for a PR.\n4. [ ] Finish with rendered summary.\n\nnot eligible: bounded-fix judgment fails; safety invariants pass.\n\n## Checkpoint 2 — Legacy reply\n\nTaking 5 as option 2 - brainstorm now.\n\n**Symptom:** `/widgets/` returns 404 instead of 200.  \n**Verdict:** Confirmed real bug: exact path comparison without normalization rejects the trailing-slash path. Fix cost remains unclear.  \n**Evidence:** Local reproduction and falsification test support the root cause at `src/router.ts:88`. Prior-report search completed without a match.  \n**Next step:** Brainstorm a fix; the issue is pressing, but bounded-fix judgment does not pass.\n\n**Simulated handoff to `/skill:brainstorming`:** Use the confirmed fault story and evidence above as the seed. Determine the fix scope and approach; no fix has been made during triage.\n",
-      "words": 215,
-      "wallMs": 10255,
+      "text": "## Checkpoint 1 — Generate the gate\n\nOpening `/widgets/` returns 404 instead of the expected 200. This is a confirmed bug: the part that matches URLs to pages compares paths without normalization, supported by the local repro and passing falsification test (`src/router.ts:88`). The issue is pressing but the fix cost is unclear, so brainstorming is recommended before implementation.\n\n1. The trailing slash triggers the failure.\n2. Exact path comparison causes the miss.\n3. The local falsification test supports the root cause.\n\nPick one:\n\n1. [ ] File a ticket - /skill:shape-ticket, seeded with this evidence.\n2. [ ] Brainstorm now - /skill:brainstorming with this evidence as the seed. [recommended]\n3. [ ] Implement hotfix now - follow hotfix.md; add \"as a PR\" for a PR.\n4. [ ] Finish with rendered summary.\n\nnot eligible: bounded-fix judgment fails\n\n## Checkpoint 2 — Interpret the legacy reply\n\nTaking 5 as option 2 - brainstorm now.\n\nOpening `/widgets/` returns 404 instead of the expected 200. This is a confirmed bug in the part that matches URLs to pages: exact path comparison without normalization causes the miss, supported by the local repro and passing falsification test (`src/router.ts:88`). Brainstorming comes next to determine a safe fix because the issue is pressing and the fix cost remains unclear.\n\n**Simulated handoff to `/skill:brainstorming`:** Seed with the confirmed root cause, `/widgets/` returning 404 rather than 200, the passing local falsification test, and `src/router.ts:88`. Prior-report search completed without a match; tracked-state checks are clean, safety invariants pass, and bounded-fix judgment fails.\n",
+      "words": 236,
+      "wallMs": 12425,
       "mechanical": {}
     }
   },
@@ -34,47 +34,47 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "0d47d7a9ccb5c3dd2df0293af807c9d818fbbbf2c86c963d43c0300e7ba5c6e8",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "ae41c395f20cab15dd43929974393349094000df98be51af31e03e46a9348df6",
-      "baselineOutputSha": "f1ce7a19ed09f3371e4c3ea83ac5ee57a4a64572844a59eaead768b39a43bcfc",
-      "candidateOutputSha": "fb0c6016802a8fbf19559deaaa20a10cae36a7f99551fdfd582faa05c04ce694",
+      "intentSha": "b9af56291efd511f8265637dd0c2e862cbdaef1660c6b17b786bc32e2b5f250f",
+      "baselineOutputSha": "fb0c6016802a8fbf19559deaaa20a10cae36a7f99551fdfd582faa05c04ce694",
+      "candidateOutputSha": "13ced5e29b0dd6933ea83f4136ab7a0a201770740aac3ae22f687cf33a14191a",
       "facts": {
         "layout": {
           "before": "holds",
           "after": "holds",
-          "label": "intended but unchanged"
+          "label": "held"
         },
         "mapped-pick": {
           "before": "holds",
           "after": "holds",
-          "label": "intended but unchanged"
+          "label": "held"
         }
       },
-      "feedback": "Neither fact moved: both outputs already separate the generated 1.-4. menu from the numbered findings with intervening prose (Before with the fix-cost paragraph plus \"Pick one:\", After with the prior-report line plus \"Pick one:\"), and both open checkpoint 2 with the single echo \"Taking 5 as option 2 - brainstorm now\" before the summary and brainstorming handoff, without acting on a raw option 5 or asking for a retry. The After wording therefore preserves every fact Before held while delivering the shared menu-layout contract. Two small things worth tightening in After so the facts stay robust across runs: checkpoint 1 dropped Before's explicit \"Stopping here for your pick\" line, which is the clearest textual signal that the gate is a stop rather than a continuation, and the explanatory L/N paragraph in checkpoint 2 sits between the echo and the summary rather than before the echo - fine as written, but keeping the echo as the very first line after the heading (as After does) should be made an explicit instruction so a future rewording does not bury it under the arithmetic.",
-      "wallMs": 16242,
+      "feedback": "Neither fact moved: in both outputs the three numbered findings are followed by a prose sentence about the prior-report search and a 'Pick one:' line before the four options, and both checkpoint 2 replies open with the single echo sentence 'Taking 5 as option 2 - brainstorm now' before the summary and brainstorming handoff. The one risk in After is that it wrapped the menu (and the 'not eligible' line) inside a fenced code block; the options still read as 1.-4. and are prose-separated, so layout holds here, but the fence works against the Change's own no-fence goals and could be read by a stricter judge as the menu no longer rendering as a list. Keep the three-sentence plain-reader verdict exactly as After writes it, keep the prior-report sentence as the separator, and emit the menu and eligibility line as unfenced plain lines, as Before did.",
+      "wallMs": 13320,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "0d47d7a9ccb5c3dd2df0293af807c9d818fbbbf2c86c963d43c0300e7ba5c6e8",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "ae41c395f20cab15dd43929974393349094000df98be51af31e03e46a9348df6",
-      "baselineOutputSha": "136d702db9b16afc9bd0b47e82668f95172840c04406594d65315f693b6dc81e",
-      "candidateOutputSha": "61df38856a6c045ec04f598cc854873d6d100178e5d82bb7c4215096efe15dcf",
+      "intentSha": "b9af56291efd511f8265637dd0c2e862cbdaef1660c6b17b786bc32e2b5f250f",
+      "baselineOutputSha": "61df38856a6c045ec04f598cc854873d6d100178e5d82bb7c4215096efe15dcf",
+      "candidateOutputSha": "d38fc1f8cadc6de6c4b3c5f84fd42c371fed716b2a62c3cdf82b7bcd42211eac",
       "facts": {
         "layout": {
           "before": "holds",
           "after": "holds",
-          "label": "intended but unchanged"
+          "label": "held"
         },
         "mapped-pick": {
           "before": "holds",
           "after": "holds",
-          "label": "intended but unchanged"
+          "label": "held"
         }
       },
-      "feedback": "Neither fact moved: both Before and After place the prose line \"Pick one:\" between the three numbered findings and the 1.-4. gate, so the ordered findings never adjoin the options by blank lines alone, and both Checkpoint 2 replies open with the single echo sentence \"Taking 5 as option 2 - brainstorm now.\" before the summary and brainstorming handoff rather than acting on raw 5 or asking for a retry. After differs from Before only cosmetically (em dashes, backticked skill names, folding the falsification note into the proof line, a tighter handoff paragraph), none of which affects either fact. The After wording keeps everything Before kept and is consistent with the menu-layout contract; no change is needed for this sample, though if you want the separation to be more robust against future rephrasing, keeping an explicit prose lead-in or a horizontal rule immediately before the gate is the safest form to standardize.",
-      "wallMs": 8908,
+      "feedback": "Neither fact moved. In checkpoint 1 the After output keeps the three numbered findings, then the prose line \"Pick one:\", then the 1.-4. gate, so the findings list never adjoins the options through blank lines alone; in checkpoint 2 it keeps the single echo sentence \"Taking 5 as option 2 - brainstorm now.\" ahead of the three-sentence summary and the brainstorming handoff, and never acts on a raw 5 or asks for a retry. The new Verdict shape (three unfenced sentences, role-named component, trailing citation, next step) replaced the labeled story/proof block without touching the menu separator or the numeric mapping, which is exactly what the Change asked to preserve. One minor drift unrelated to these facts: the \"not eligible\" trailer dropped \"safety invariants pass\" — consider keeping that clause so eligibility state remains fully visible under the menu.",
+      "wallMs": 9081,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "6aa708917f3429b0e0ba574cb0a680df774f186c"
+  "repoSha": "896a9adb7c1008dd102f6a10f992553491d371d9"
 }

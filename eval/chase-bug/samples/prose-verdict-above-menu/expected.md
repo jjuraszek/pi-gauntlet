@@ -1,0 +1,7 @@
+- no-fence: judged: The story above Pick one: and the reporter draft are unfenced plain text; exclude the menu, deep evidence, and confirmation from this check.
+- no-labels: mechanical: matches /^(?:(?!(?:Fault story|Proof|Symptom|Verdict|Evidence|Next step):)[\s\S])*$/
+- three-sentences: judged: The story above Pick one: and the reporter draft each contain exactly three whole sentences; exclude menu, deep evidence, eligibility, and confirmation.
+- under-80-words: judged: Each of the story above Pick one: and the reporter draft is under 80 words; exclude menu, deep evidence, eligibility, and confirmation.
+- plain-reader: judged: Each story or draft names components by their role and includes visible proof; any claim-supporting file, line, SHA, or link trails the claim in the same sentence rather than opening it. The reported symptom /widgets/ may open sentence one.
+- menu-intact: judged: Checkpoint 1 retains four rows numbered 1.-4., exactly one [recommended], and an eligibility line, separated from the story by Pick one:.
+- draft-asks-reporter: judged: The draft's third sentence asks the reporter for browser and version, has a send it confirmation outside the draft, and makes no push claim.

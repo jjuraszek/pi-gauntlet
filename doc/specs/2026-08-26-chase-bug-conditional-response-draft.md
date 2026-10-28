@@ -1,5 +1,7 @@
 # chase-bug: response draft only for addressable origins
 
+> **Superseded by:** [doc/specs/2026-10-28-chase-bug-summary-prose.md](./2026-10-28-chase-bug-summary-prose.md) - the draft template and the summary template ("same four fields") clauses only
+
 ## Context
 
 `skills/chase-bug/SKILL.md` currently offers a drafted response for **every** terminal verdict (step 5, gate 2): the draft template is composed, the channel ladder resolves a destination, and - when a push will happen - the human is asked for the exact `send it` token. When no write path resolves (Slack paste, free text), today's behavior renders the draft as an ungated copy-paste block ("Copy-paste delivery is terminal and ungated"): message-shaped output addressed to a reporter nobody can reach. The original design is in `doc/specs/2026-08-23-gh-12-chase-bug-triage-skill.md`; this spec supersedes the parts of that design listed under [Supersession](#supersession).

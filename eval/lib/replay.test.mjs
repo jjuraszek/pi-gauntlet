@@ -7,7 +7,35 @@ import { join } from "node:path";
 import { tmpdir } from "node:os";
 import { sliceText, stripFrontmatter, assemble, parseCase, textArgs, editArgs, prepareFixture, captureEdit, inputSha } from "./replay.mjs";
 
-import { parseExpected } from "./checks.mjs";
+import { parseExpected, runMechanical } from "./checks.mjs";
+
+test("chase-bug prose samples preserve slices and reject label leaks", () => {
+  const read = replay.treeReader(new URL("../../", import.meta.url).pathname);
+  const target = JSON.parse(read("eval/chase-bug/target.json"));
+  assert.deepEqual(target.skillFiles, [{ path: "skills/chase-bug/SKILL.md", slice: "### 5. Response to origin (human gate 2)", sliceTo: "## Quick Reference" }]);
+  for (const sample of ["prose-verdict-above-menu", "returned-ticket-link"]) {
+    const { bundle } = parseCase(read(`eval/chase-bug/samples/${sample}/case.md`));
+    assert.deepEqual(bundle, sample === "prose-verdict-above-menu" ? ["skills/brainstorming/reference/menu-layout.md", "skills/chase-bug/SKILL.md"] : ["skills/chase-bug/SKILL.md"]);
+    const result = assemble(target, read, bundle);
+    assert.ok(result.includes(stripFrontmatter(read("skills/chase-bug/SKILL.md")))) ;
+    assert.ok(result.includes("**Verdict shape.**"));
+    const { facts } = parseExpected(read(`eval/chase-bug/samples/${sample}/expected.md`));
+    for (const id of ["no-fence", "no-labels", "three-sentences", "under-80-words", "plain-reader", ...(sample === "prose-verdict-above-menu" ? ["menu-intact", "draft-asks-reporter"] : ["returned-reference", "no-new-creation"])]) assert.ok(facts.some((f) => f.id === id), id);
+    const labels = facts.filter((f) => f.id === "no-labels");
+    assert.equal(labels.length, 1);
+    for (const label of ["Fault story:", "Proof:", "Symptom:", "Verdict:", "Evidence:", "Next step:"]) {
+      for (const rendered of [label, `**${label}**`]) {
+        for (const prefix of ["", "Opening the page fails. ", "Opening the page fails.\n\n"]) assert.equal(runMechanical(labels, `${prefix}${rendered} details`)["no-labels"], "fails");
+      }
+    }
+    assert.equal(runMechanical(labels, "Opening the page fails.\nPick one:\n1. Fix it\neligible - all predicates pass")["no-labels"], "holds");
+    const fence = facts.find((f) => f.id === "no-fence");
+    if (sample === "returned-ticket-link") {
+      assert.equal(runMechanical([fence], "```text\nstory\n```")["no-fence"], "fails");
+      assert.equal(runMechanical([fence], "The matcher in `src/router.ts:88` fails.")["no-fence"], "holds");
+    } else assert.equal(fence.kind, "judged");
+  }
+});
 
 const auditSamples = ["batch-repair", "audit-repo-fit", "scenario-best-effort", "audit-quiet-noop", "audit-byte-lock", "audit-dispatch", "audit-grounding", "obsolete-premise-contradicted", "obsolete-create-drop-idea", "quiet-audit-no-close-row"];
 const auditPath = "skills/shape-ticket/reference/repo-audit.md";
