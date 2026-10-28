@@ -20,13 +20,17 @@ Use audit baseline A (`5b97a46a7b0ef331e72077362e92eff4a59e1b77`) for batch/audi
 | scenario-best-effort | New features, observed defects, source-independent footer and missing access |
 | audit-quiet-noop | Active PR, empty file and quiet audits without mutation |
 | audit-byte-lock | Exact mixed AC bytes versus substantive scenario normalization and new notes |
-| audit-dispatch | Nine refs in 8+1 foreground calls, exact controls and per-ticket disk authority |
-| audit-grounding | Claims, reporter ambiguity, uncited alternatives, sibling grounding and degradation |
+| audit-dispatch | Nine refs in 8+1 foreground calls, exact controls, per-ticket disk authority and legacy failure-artifact coverage |
+| audit-grounding | Claims, reporter ambiguity, uncited alternatives, sibling grounding and degradation from the Prepare checkpoint, including finding the SSH-configured, HTTPS-cloned viewer by clone identity |
+| sibling-primary-anchor | Supplied Git facts resolve sibling paths beside the primary checkout while home reads stay in the current checkout; clone identity matching and unavailable-outcome classification |
+| sibling-not-found-hint | Missing siblings get configured-URL clone hints; wrong or unavailable siblings remain report-only, including when audit artifacts are unusable |
 | obsolete-premise-contradicted | Confirmed premise contradiction before not reproduced, close operation/evidence, sole recommended exit and ordinary body diff |
 | quiet-audit-no-close-row | Footer-only repair with no obsolete verdict or close row and exactly one recommended approve row |
 | obsolete-create-drop-idea | Delivered capability, recommended Drop the idea and create-anyway body without tracker commands |
 
 The obsolete repair and quiet-audit samples bundle `reference/tracker-ladder.md`; the obsolete create sample bundles `reference/overlap-check.md`. Their already-opened synthetic source evidence proves rendered verdicts and menu choices, not live evidence retrieval, successful remote writes, or atomicity. Keep these text replays separate from the historical replay below.
+
+The sibling samples replay supplied Git facts without tools; they prove prescribed resolution and reporting, not live cloning or Git integration. `audit-grounding` starts at Prepare; `audit-dispatch` retains the legacy `- sibling: ../viewer` failure-artifact coverage, reporting `not a clone url` even beside missing or empty audit artifacts.
 
 Treat inline snapshots and audit files as tool-free evidence. Replies stay under 1200 words against the unchanged global 1600-word cap. Dispatch cases prove prescribed transport, not live subagent execution, file delivery or tracker writes. Review saved word counts and fact evidence before declaring intended moves; baseline-only does not judge facts or replace report.md.
 
