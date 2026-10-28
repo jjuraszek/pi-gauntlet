@@ -38,8 +38,8 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "0a0edab3ba6063b3b4f0cccda4b045c8781ea4a8f4f62ba3b2ce8c8026d8fdda",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "600e013b6b642672652379e3f824fc2ca9b3a1d939a93353576b3b53451c6051",
-      "baselineOutputSha": "6224e09b7ecc1d615cba2197c93bb08416ae229580afbfcb83a1a93b5417eb07",
+      "intentSha": "37c01603ac4620d1f1596beac660de51a9a2f55024a55e0349f68590987ec325",
+      "baselineOutputSha": "8dd7d0f8ed991b93a11673c2699c1e380e32e44c6a2d11e07a6f7d8248d5dca8",
       "candidateOutputSha": "8dd7d0f8ed991b93a11673c2699c1e380e32e44c6a2d11e07a6f7d8248d5dca8",
       "facts": {
         "gate-first": {
@@ -63,15 +63,15 @@
           "label": "held"
         }
       },
-      "feedback": "No fact moved: After still renders the `source missing:` row before the Title line in checkpoint 1, still answers the plain \"yes\" with a re-ask that names the gap and asks for a link, reason, or \"proceed without\", and describes no simulated write. Two things did get thinner, though, and are the closest to a regression. First, checkpoint 2 in After ends on the re-ask row alone and drops Before's repeated numbered menu and the closing \"Still waiting. Nothing was written to acme/records.\" line; the shared menu contract you added to the Change asks for separately numbered options at the gate, so the re-ask should re-render the same four options (with the same [recommended] tag) and restate that nothing was written, otherwise a reader has to infer the gate state from one sentence. Second, checkpoint 1 in After swapped Before's explicit \"You can still approve the write. To resolve the gap, reply with a link, an attachment, or a reason, or say 'proceed without'\" for \"The write is still offered despite the source gap\", which no longer spells out the three resolution routes next to the menu; keep that sentence (or fold it into the gap row) so the create acknowledgment and the resolution options stay visible together. Keeping the row-before-Title placement, the full menu in both checkpoints, and the explicit no-write line will preserve every fact while delivering the gated-source and menu-contract wording.",
-      "wallMs": 14301,
+      "feedback": "Before and After are byte-identical, so nothing moved: in both, Checkpoint 1 renders the \"source missing: exporting a run with 12 accepted rows returns an empty file\" row immediately after the ticket header and before the Title line, Checkpoint 2 treats the plain \"yes\" as not resolving the create-mode source gap and re-asks with the named row plus \"link, reason, or 'proceed without'?\", and Checkpoint 2 states explicitly that no write was performed with no simulated tracker action described. The After wording preserves every fact Before kept, including the gate-first placement, the re-ask with the three resolution options, and the no-write guard, so no wording adjustment is needed for this case; if the Change intends further moves (e.g. the numbered-menu contract or source-carried provenance), those are not exercised by this sample and should be checked against samples that actually supply a source or a legacy numeric reply.",
+      "wallMs": 7028,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "0a0edab3ba6063b3b4f0cccda4b045c8781ea4a8f4f62ba3b2ce8c8026d8fdda",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "600e013b6b642672652379e3f824fc2ca9b3a1d939a93353576b3b53451c6051",
-      "baselineOutputSha": "6e5096937e6130a6d7894d7fc13200a2460a7267cc9f99a152d6297a2babb66d",
+      "intentSha": "37c01603ac4620d1f1596beac660de51a9a2f55024a55e0349f68590987ec325",
+      "baselineOutputSha": "f256511e889850fd824489f3a3251d77d17865738f488376038622824f4b4aab",
       "candidateOutputSha": "f256511e889850fd824489f3a3251d77d17865738f488376038622824f4b4aab",
       "facts": {
         "gate-first": {
@@ -95,10 +95,10 @@
           "label": "held"
         }
       },
-      "feedback": "After keeps every fact Before kept: the source missing: row still appears first, ahead of the Title line in checkpoint 1; checkpoint 2 still refuses the plain yes, re-renders the named gap, and asks for a link, reason, or proceed without; and both checkpoints state that no simulated write occurred. The visible deltas are the shared-menu contract (four separately numbered options with exactly one [recommended] tag), the numbered repro steps carried into the Evidence list, and the explicit awaiting consent line, none of which disturb the gate-first ordering or the re-ask. One small drift to watch: After dropped Before's sentence that approval covers the displayed title and body plus only the source footer resolved by that approving reply; it isn't a fact here, but it was the clearest statement of what a numbered reply approves, so consider keeping it alongside the new menu to preserve that scope explanation while delivering the Change.",
-      "wallMs": 6788,
+      "feedback": "After is textually identical to Before, so no fact moved. Both outputs render the `source missing:` row at the top of Checkpoint 1 before the Title line, both re-ask in Checkpoint 2 on a plain yes by naming the unresolved gap and requesting a link, reason, or \"proceed without\", and neither describes a simulated tracker write. The wording change preserved every fact Before kept; if the intent was to further strengthen the gate, the current wording already satisfies the source-missing surfacing, create-acknowledgment, and plain-yes re-ask requirements, so no revision is needed for this case.",
+      "wallMs": 5933,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "bc6423b590d8cabd9e7ab11316255259663ad496"
+  "repoSha": "cf6e53b2e787b134805384690e0737cee2e7087c"
 }
