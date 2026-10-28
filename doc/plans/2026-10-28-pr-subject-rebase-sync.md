@@ -53,7 +53,7 @@ Task 4 lists every new/renamed sample file and generated record. Modify only its
 - Existing tests: `scripts/brainstorming-contract.test.mjs:173-207,487-646` reads actual instructions and eval facts; `scripts/brief-contract-lint.test.mjs:67-130` reads actual brief producers/consumers. Run one file with `node --test scripts/brainstorming-contract.test.mjs` or `node --test scripts/brief-contract-lint.test.mjs`.
 - Use minimal sentence replacement, imperative voice, compact tables, and unchanged frontmatter. Keep the finishing skill at or below 500 lines and under 50,000 bytes through compact replacements, not appended explanations. It is currently 500 lines, so no oversized-file extraction is needed at entry.
 - Git commands inside instruction edits and eval cases are authored recipes, not commands to execute on this development branch. Model evals narrate synthetic observations without actual pushes, rebases, closures, or tracker writes.
-- Baseline provenance: initial HEAD `09e76ad8`; initial porcelain inventory empty. Only `doc/specs/2026-10-28-pr-subject-rebase-sync.md` and `doc/plans/2026-10-28-pr-subject-rebase-sync.md` are admitted workflow edits. Executed all five task commands on `09e76ad8`: Task 1 44 tests, Task 2 1 test, Task 3 44 tests, Task 4 14 tests, Task 5 45 tests; each exited 0. After each run HEAD remained `09e76ad8` and the sole porcelain entry was `?? doc/plans/2026-10-28-pr-subject-rebase-sync.md`; no artifacts or source changes. Amendment baseline BASE `ebc7879b`; initial per-file inventory ` M doc/specs/2026-10-28-pr-subject-rebase-sync.md`, admitted as the parent-supplied in-flight spec; plan and spec paths remain the only admitted workflow paths. Endpoint proof `git diff --quiet 09e76ad8 HEAD -- . ':!doc/specs/' ':!doc/plans/'` exited 0; retained 5 bullets: 09e76ad8 -> ebc7879b, tree-equivalent outside doc/specs, doc/plans. All five Tests commands are unchanged; no reruns required.
+- Baseline provenance: current amendment BASE `b4987889`; initial per-file inventory ` M doc/specs/2026-10-28-pr-subject-rebase-sync.md`, admitted as the parent-supplied in-flight spec. Only `doc/specs/2026-10-28-pr-subject-rebase-sync.md` and `doc/plans/2026-10-28-pr-subject-rebase-sync.md` are admitted workflow paths. Endpoint proof `git diff --quiet ebc7879b HEAD -- . ':!doc/specs/' ':!doc/plans/'` exited 1, so retained no prior bullets and reran all five task commands. Task 1: 46 tests; Task 2: 1 test; Task 3: 46 tests; Task 4: 14 tests; Task 5: 47 tests. Each exited 0. After each run HEAD remained `b4987889` and the sole porcelain entry remained the admitted spec edit; no artifacts or source changes.
 
 ## Wave 1 - Provisioning and independent brief consumers
 
@@ -77,7 +77,7 @@ Task 1 and Task 2 own disjoint files and run separate read-only contract suites;
 
 **Tests:**
 - `node --test scripts/brainstorming-contract.test.mjs`
-- baseline: ebc7879b pass
+- baseline: b4987889 pass
 - via: `skills/brainstorming/reference/pr-subject.md`, `skills/using-git-worktrees/reference/pr-head.md`, `skills/brainstorming/gatherer.md`
 
 Decision: Keep the existing foreground implementer helper and fetched-base scoped-runner selection; substitute only rebase discovery/continuation/abort operations - `pr-head.md:78-95` owns the file boundary, credentials policy, status checks, and orchestrator completion.
@@ -108,7 +108,7 @@ Decision: Keep the existing foreground implementer helper and fetched-base scope
 
 **Tests:**
 - `node --test scripts/brief-contract-lint.test.mjs`
-- baseline: ebc7879b pass
+- baseline: b4987889 pass
 - via: `skills/gauntlet-resume/reference/brief-contract.md`, `skills/gauntlet-resume/reference/reconstruction.md`, `skills/gauntlet-handoff/SKILL.md`
 
 Decision: Keep grammar owned by brief-contract.md and copy the optional field in producer prose, not a second standalone grammar block - `scripts/brief-contract-lint.mjs:5-17` and the producer enforce single ownership.
@@ -137,7 +137,7 @@ Depends on Wave 1: Task 3 consumes Task 1's record forms and reuses its contract
 
 **Tests:**
 - `node --test scripts/brainstorming-contract.test.mjs`
-- baseline: ebc7879b pass
+- baseline: b4987889 pass
 - via: `skills/writing-plans/SKILL.md`, `skills/finishing-a-development-branch/SKILL.md`
 
 Decision: Preserve accepted-complete task/thread evidence, strip/seal order, body bytes, six-row menu, and gated member closure; replace only mode-specific proofs/pushes - finishing SKILL.md:169-317 owns them. Record form, not a new setting or forwarded selector, determines mode, including `merge-forward` records.
@@ -179,6 +179,12 @@ Depends on Waves 1-2: Task 4 evaluates final provisioning, record, planning, fin
 - Modify: `eval/using-git-worktrees/samples/pr-list-interrupted-recovery/expected.md`
 - Create: `eval/brainstorming/samples/pr-subject-merge-forward/case.md`
 - Create: `eval/brainstorming/samples/pr-subject-merge-forward/expected.md`
+- Create: `eval/finishing-a-development-branch/samples/pr-subject-rebase-push/case.md`
+- Create: `eval/finishing-a-development-branch/samples/pr-subject-rebase-push/expected.md`
+- Create: `eval/finishing-a-development-branch/samples/pr-list-rebase-push-and-close/case.md`
+- Create: `eval/finishing-a-development-branch/samples/pr-list-rebase-push-and-close/expected.md`
+- Create: `eval/finishing-a-development-branch/samples/pr-list-rebase-member-advanced/case.md`
+- Create: `eval/finishing-a-development-branch/samples/pr-list-rebase-member-advanced/expected.md`
 - Create: `eval/finishing-a-development-branch/samples/pr-subject-lease-refused/case.md`
 - Create: `eval/finishing-a-development-branch/samples/pr-subject-lease-refused/expected.md`
 - Create: `eval/finishing-a-development-branch/samples/pr-subject-push-legacy-record/case.md`
@@ -222,6 +228,12 @@ Depends on Waves 1-2: Task 4 evaluates final provisioning, record, planning, fin
 - Create: `eval/using-git-worktrees/results/pr-list-member-replay/candidate.json`
 - Create: `eval/brainstorming/results/pr-subject-merge-forward/baseline.json`
 - Create: `eval/brainstorming/results/pr-subject-merge-forward/candidate.json`
+- Create: `eval/finishing-a-development-branch/results/pr-subject-rebase-push/baseline.json`
+- Create: `eval/finishing-a-development-branch/results/pr-subject-rebase-push/candidate.json`
+- Create: `eval/finishing-a-development-branch/results/pr-list-rebase-push-and-close/baseline.json`
+- Create: `eval/finishing-a-development-branch/results/pr-list-rebase-push-and-close/candidate.json`
+- Create: `eval/finishing-a-development-branch/results/pr-list-rebase-member-advanced/baseline.json`
+- Create: `eval/finishing-a-development-branch/results/pr-list-rebase-member-advanced/candidate.json`
 - Create: `eval/finishing-a-development-branch/results/pr-subject-lease-refused/baseline.json`
 - Create: `eval/finishing-a-development-branch/results/pr-subject-lease-refused/candidate.json`
 - Create: `eval/finishing-a-development-branch/results/pr-subject-push-legacy-record/baseline.json`
@@ -240,20 +252,31 @@ Depends on Waves 1-2: Task 4 evaluates final provisioning, record, planning, fin
 
 **Tests:**
 - `node --test eval/lib/lint.test.mjs`
-- baseline: ebc7879b pass
+- baseline: b4987889 pass
 - via: `eval/run.mjs`, `lintAll()`, `eval/using-git-worktrees/samples/pr-head-base-rebase`, `eval/finishing-a-development-branch/samples/pr-subject-lease-refused`, `eval/writing-plans/samples/pr-subject-sync-repair`
 
-Decision: Reuse text targets and `bundle+:` lines, without changing caps or unrelated facts - `eval/README.md:85-137` and existing pr-subject-push/pr-list-interrupted-recovery cases define the harness. Let the runner generate every baseline/candidate record; never author evidence. Rename samples by creating the new case/expected files and removing the old files/records.
+Decision: Reuse text targets and `bundle+:` lines, without changing caps or unrelated facts - `eval/README.md:85-137` and existing pr-subject-push/pr-list-interrupted-recovery cases define the harness. Let the runner generate every baseline/candidate record; never author evidence. Rename samples by creating the new case/expected files and removing the old files/records. Split finishing by sync mode: the existing three cases each specify 600 words (`pr-subject-push/case.md:5`, both list cases `case.md:4`), while `eval/finishing-a-development-branch/target.json:5` sets the separate mechanical `wordCap` to 1800. Keep both limits unchanged; each new rebase case gets its own 600-word response budget, not a larger shared budget. The amendment changes fixtures and their records only, not source instructions.
 
 - [ ] **Step 1: Run deterministic harness tests.** Run Tests; expect 14 structural cases green. Model comparisons below are required execution evidence, not planning baseline commands.
 - [ ] **Step 2: Add home/list cases.** `pr-head-base-rebase` supplies merge-containing input plus `rebase.rebaseMerges` and requires `--no-rebase-merges`, straight first-parent history, rebased range, and `Rework base:` report. Rename `pr-head-base-merge` to `pr-head-merge-forward` with explicit merge mode and retained merge facts. Replace `pr-list-member-merge-order` with `pr-list-member-replay`: home then members in listed order, one `Member replay:` each, `empty` member, unchanged origin branches. Use synthetic full SHAs and observed branches.
 - [ ] **Step 3: Add conflict/recovery cases.** New `pr-head-rebase-conflict-repaired` requires targeted `GIT_EDITOR=true git rebase --continue`, scoped tests, per-stop helpers. New `pr-head-rebase-conflict-unresolved` requires abort, restore assertions, `sync: unresolved`, members `pending`, and rebase Task 1. Rewrite `pr-list-member-conflict-repaired` and `pr-list-member-conflict-unresolved` for replay, including `checkout <home>`, saved rebased tip, unresolved member, pending later members, and restore failures. Rewrite `pr-list-interrupted-recovery` for ref/cherry decisions, active-rebase refusal, no-worktree recovery, mismatched refs, and canonical merge fallback without token. Supply `merge-forward` with a valid existing rework-base ref and a local home tip distinct from the original head; require recovery to force `SYNC=rebase`, skip landed members by `cherry`, and replay remaining members. In a home-conflict variant on that recovered tip, fail the helper and require abort/restoration plus post-sync equality proof against the saved actual pre-attempt local tip, not `PRE_REWORK_HEAD`; record `sync: unresolved`, every member `pending`, and continue to rebase Task 1. Keep the fresh-entry home-conflict control using `PRE_REWORK_HEAD`. Retain admission/clean-tree facts.
 - [ ] **Step 4: Add routing/planning cases.** Brainstorming `pr-subject-merge-forward` requires first-token strip before scout and merge path, with nonleading-token and spec-only controls. Writing-plans `pr-subject-sync-repair` supplies home-sync and member-replay unresolved records with pending members; require Task 1 completion to replay them and amend the rework-base ref/record before finish, plus merge control. Keep `eval/brainstorming/samples/spec-pr-unmarked`, `spec-pr-regate`, and `eval/finishing-a-development-branch/samples/spec-pr-menu` inputs/expectations unchanged; both classifier rows still supply `SYNC=merge` and judge base merge.
-- [ ] **Step 5: Rewrite finish cases and add refusal/legacy cases.** `pr-subject-push`: lease form, existing ref untouched, `Before:` wording, thread range, later non-force finish. `pr-list-push-and-close`: range/`empty` comments, live-head equality, last-range ancestry/cherry proof, exact close question, immediate recheck. `pr-list-member-advanced`: `head moved` exclusion. New `pr-subject-lease-refused`: stale lease, exact withheld reason, rows 2-6, no retry/reset/body/closure. New `pr-subject-push-legacy-record`: `merge:` proof/non-force/missing ref creation and incomplete rebase stop. Keep existing policy-rejection report-once behavior; no live branch-protection eval.
-- [ ] **Step 6: Rewrite brief cases and intents.** `eval/gauntlet-resume/samples/pr-subject-brief` and `pr-list-brief` carry `Rework base:` after pairs and scan from it; retain legacy first-head/no-pair fallbacks, ordered identity stops, member-spec exclusion, and task snapshots. Write actual bundle-free assembly hashes in the five intent.md files and intended fact changes only; preserve stable IDs for surviving obligations. The runner's stale-intent refusal supplies the observed assembly hash before model calls. Never relabel old records as current.
+- [ ] **Step 5: Split finish cases by sync mode and retain refusal/legacy cases.** Keep `pr-subject-push`, `pr-list-push-and-close`, and `pr-list-member-advanced` in `merge:` mode with their existing stable fact IDs and every checkpoint. Remove rebase-only checkpoints from those cases when splitting an in-flight draft; place them in the three new rebase cases below. Keep each case's 600-word response budget, the original single-PR allocation/table limits, and sample-local bundle lines. Use explicit synthetic observations for each mode rather than asking a single reply to contrast both histories.
+
+  | Sample | Required facts and controls |
+  |---|---|
+  | `pr-subject-push` | Retain `menus`, `verification`, `guards`, `divergence`, `landing`, `threads`, `body`, `failures`: exact six-row menu and ordinary five-row control; task union plus lint/format or sentinel, fresh fix-minors evidence including failed test-retry; missing prehead/CLOSED/wrong branch/rewritten prehead/exit-128 stops; divergent origin proof and withheld numeric mapping; non-force push, missing-ref creation, strip/seal stop; T1-T9 task/commit/disposition evidence and empty/failed fetch; exact body bytes, full local-ref `Before:` line, all-claims-dropped variant, outside-repo scratch, exact body edit; rejected push and manual-paste fallback. Keep merge-sha thread range and no member closure. |
+  | `pr-subject-rebase-push` | Supply `Rework base:`, existing pre-rework ref, origin initially equal to the original home head, and original head not ancestor of rewritten HEAD. Require the rework-base ancestry proof, no original-head proof, explicit lease push, existing ref untouched, full local-ref `Before:` wording, rework-base thread-count range, and capture/strip/seal/push/body order. Give a second finish with origin descending from rework base and ancestor of HEAD requiring non-force; give each failed ancestry condition withholding row 1, and a rewritten rework-base stop. Recompute on menu return. |
+  | `pr-list-push-and-close` | Retain `ordering`, `attribution`, `question`, `outcomes`: every-original-head proof, each ref, non-force home-only push after evidence/strip/seal, fresh byte-preserving body edit before closure; Absorbs and attributed home/member threads; exact merged-and-reachable comments; displayed targets, immediate rechecks, no deletion; success timing, decline, post-approval moved #14, already-CLOSED #14, one-time close failure, row 5 leaving both untouched. |
+  | `pr-list-rebase-push-and-close` | Supply completed rebase record, existing refs, #13 replay range and #14 `empty` (plus `(already landed)` variant), OPEN members at their recorded heads. Require lease home-only push, preserved refs, successful body before closure, attributed threads, live-head equality and last-range ancestry for #13, successful no-`+` cherry for #14; exact replay-range/already-contained comments and fully instantiated close question. Require immediate recheck, approved target/text pairs only, per-member outcomes before ship completion, and withholding when the range proof fails or cherry has `+`. |
+  | `pr-list-member-advanced` | Retain `eligibility`, `targets`, `variants`: fetch a not-yet-local current member head before ancestry against saved pushed home; advanced outside-home #14 excluded, only #13 offered/rechecked/closed; advanced but contained #14 remains eligible in merge mode; no eligible members means no question; no deletion or home-history member-fix inference. |
+  | `pr-list-rebase-member-advanced` | Require unchanged OPEN #13 plus its last replayed commit ancestor of pushed home for eligibility. Exclude advanced #14 as `head moved` even when its new head is contained in pushed home; ancestry cannot replace recorded-head equality. Render the exact eligible-only replay comment/question, recheck before close, report every outcome; no eligible members means no question. Retain no member push, deletion, or home-history member-fix inference. |
+
+  New `pr-subject-lease-refused`: stale lease, exact withheld reason, rows 2-6, no retry/reset/body/closure. New `pr-subject-push-legacy-record`: `merge:` proof/non-force/missing ref creation and incomplete rebase stop. Keep existing policy-rejection report-once behavior; no live branch-protection eval. Preserve every check across the split, never weaken a fact to fit a reply budget or accept an omitted checkpoint.
+- [ ] **Step 6: Rewrite brief cases and intents.** `eval/gauntlet-resume/samples/pr-subject-brief` and `pr-list-brief` carry `Rework base:` after pairs and scan from it; retain legacy first-head/no-pair fallbacks, ordered identity stops, member-spec exclusion, task snapshots. Write actual bundle-free assembly hashes in the five intent.md files and intended fact changes only; preserve stable IDs for surviving obligations. For finishing, retain the three merge samples' fact IDs and authorized directions, add the new rebase sample/fact IDs for rebase-only checks, and describe the mode split without accepting dropped checks or any new behavior. The runner's stale-intent refusal supplies the observed assembly hash before model calls. Never relabel old records as current.
 - [ ] **Step 7: Run provisioning evals.** Run `node eval/run.mjs using-git-worktrees --baseline-only`, then changed samples individually while iterating, then `node eval/run.mjs using-git-worktrees`. Read report and candidate records; require improved/unchanged and new must-hold facts satisfied.
 - [ ] **Step 8: Run brainstorming evals.** Run `node eval/run.mjs brainstorming --baseline-only`, iterate new sample/spec-only controls, then `node eval/run.mjs brainstorming`. Require both spec-only controls unchanged.
-- [ ] **Step 9: Run finishing evals.** Run `node eval/run.mjs finishing-a-development-branch --baseline-only`, iterate changed samples, then `node eval/run.mjs finishing-a-development-branch`. Require unchanged `spec-pr-menu` and correct refusal, repeated-push, empty-member, and legacy outcomes.
+- [ ] **Step 9: Run finishing evals.** Run `node eval/run.mjs finishing-a-development-branch --baseline-only`. Run `node eval/run.mjs finishing-a-development-branch pr-subject-push`, `node eval/run.mjs finishing-a-development-branch pr-subject-rebase-push`, `node eval/run.mjs finishing-a-development-branch pr-list-push-and-close`, `node eval/run.mjs finishing-a-development-branch pr-list-rebase-push-and-close`, `node eval/run.mjs finishing-a-development-branch pr-list-member-advanced`, and `node eval/run.mjs finishing-a-development-branch pr-list-rebase-member-advanced` while iterating the split. Iterate refusal/legacy samples, then run `node eval/run.mjs finishing-a-development-branch` for the full report. Require unchanged `spec-pr-menu`, all retained merge checks, all new rebase checks, refusal, repeated-push, empty-member, and legacy outcomes. Inspect saved replies as well as verdicts: each split case stays within 600 words and every required fact holds; the target's 1800-word mechanical ceiling or a both-arms-fail unchanged label does not satisfy this amendment. Generate both arms for each new sample and refresh stale records for retained samples; never copy another sample's evidence.
 - [ ] **Step 10: Run planning evals.** Run `node eval/run.mjs writing-plans --baseline-only`, then `node eval/run.mjs writing-plans`. Require both unresolved forms to finish pending replay and persist the boundary, not merely title Task 1.
 - [ ] **Step 11: Run resume evals.** Run `node eval/run.mjs gauntlet-resume --baseline-only`, then `node eval/run.mjs gauntlet-resume`. Require both rewritten brief cases and unchanged non-PR routes. Never widen intent to accept regressions; send required instruction fixes to their owning prior task.
 - [ ] **Step 12: Check and commit.** Run Tests again; check ASCII, synthetic data, fact grammar, unchanged caps/config, and full-target reports. Stage declared assets and generated records only; run `git commit -m "Cover PR rebase replay and lease workflows with evals"`, recording behavior-change classification and reports in the body.
@@ -277,7 +300,7 @@ Depends on Waves 1-3: document delivered behavior and update the README-coupled 
 
 **Tests:**
 - `node --test scripts/brainstorming-contract.test.mjs scripts/brief-contract-lint.test.mjs`
-- baseline: ebc7879b pass
+- baseline: b4987889 pass
 - via: `README.md`, `scripts/brainstorming-contract.test.mjs`, `scripts/brief-contract-lint.test.mjs`
 
 Decision: Add the Design's requested `## Unreleased` entry without releasing; `CHANGELOG.md - deferred: release` defers its promotion, not the explicitly requested working entry. `CHANGELOG.md:1-3` currently starts at the released version; the release procedure promotes Unreleased later.
@@ -348,8 +371,8 @@ Decision: Add the Design's requested `## Unreleased` entry without releasing; `C
 | § "Tests" L142 | Repaired/unresolved member evals | Task 4 |
 | § "Tests" L143 | Provisioning/brainstorming opt-out evals | Task 4 |
 | § "Tests" L144 | Recovery eval forces rebase despite token and restores/proves recovered pre-attempt tip; merge fallback | Task 4 |
-| § "Tests" L145 | Push/ref/body/closure/repeated finish evals | Task 4 |
-| § "Tests" L146 | Live-head closure eligibility eval | Task 4 |
+| § "Tests" L145 | New pr-subject-rebase-push/pr-list-rebase-push-and-close cover lease/ref/body/range/empty/repeated finish; retain pr-subject-push/pr-list-push-and-close merge checks, 600 words per case | Task 4 |
+| § "Tests" L146 | New pr-list-rebase-member-advanced tests equality plus last-range ancestry; retain pr-list-member-advanced contained-head merge control, separate 600-word budgets | Task 4 |
 | § "Tests" L147 | Refused lease eval | Task 4 |
 | § "Tests" L148 | Merge/incomplete record eval | Task 4 |
 | § "Tests" L149 | Unchanged spec-only controls | Task 4 |
