@@ -1,11 +1,19 @@
-for: ee7d1855929f08686507097c6a2b7b4473c91b2ff46757c8f36772899005d592
+for: dabf68a4866eb3ffcabe33c4fe049fbe80da3764e09ce2cc4f97711775254a12
 
 ## Change
 Prefix every human stop, including discard/reset authorization, with gauntlet: question while preserving ledger state and the authorization boundary.
 
 Persist the row-scaled total cap in the ledger, grant positive increments through one parent commit, stop capless legacy ledgers before the ordered table, and keep row funding, seed recovery, validation and child-only windows independent. Select operational row decisions through cap history. New samples are baseline-skipped: new sample, no pre-edit sample evidence; the runner still generates genuine baseline and candidate evidence.
 
+Cover shared-AC expansion, original AC indices, per-leg base/seed state and cut legs; validate companion-return attribution, parent ledger commit and interrupted two-commit recovery without duplicate dispatch. These are intended fact movements, not observed model results. Parent verification runs the full target; this task runs deterministic structural and assembly checks only.
+Cover coordinated-flow membership, recorded per-leg contracts, checkout-local rules and dispatch, home-bound handoff/admission, receipt-validated delivery retries and single-member/legacy identity. Synthetic text replays narrate supplied file/tool observations; they do not prove live runtime execution. Preserve existing facts and accepted variance. New cases use per-sample bundle additions for full procedures omitted by legacy slices; legacy cases retain their original bundle selections. Runtime leg/baseline/wave validation remains in extensions/lib/plan-check.test.ts, brief drift in scripts/brief-contract-lint.test.mjs, and seal acceptance in the source and shipped CLI tests. Parent verification must run model comparisons for every affected target and gauntlet-handoff; no model evidence is generated here.
+
 ## Expected to move
 - gate-line-first/question-first: fails -> holds - Dirty returns await explicit authorization under a question marker.
 - cap-and-exit-verification/contract: fails -> holds - Explicit cap:2 replaces the removed setting while retaining seed-inclusive cap stop and closed-row exit failure.
 - commit-boundary/seed-recovery: fails -> holds - Explicit continuing cap:97 and cap:1 alternative preserve authorized interrupted-seed recovery, target validation and consumed iterations.
+
+- leg-iteration/seed: fails -> holds - Enforce the new coordinated-flow must-hold fact: Expands shared ACs into original-AC/membership ordered rows, preserves cut disposition, records one base/seed flag per leg and Leg mapping; cap 14, seeds repo-a then repo-b only, never seeds wholly cut repo-c.
+- leg-iteration/dispatch: fails -> holds - Enforce the new coordinated-flow must-hold fact: Bumps iterations once to 3 and durably writes pending: 2 | repo-b | bbbbbbb before dispatch; passes repo-b cwd, own base, mapped AC, Leg/Rules, iteration/pending and absolute home spec/ledger.
+- leg-iteration/return: fails -> holds - Enforce the new coordinated-flow must-hold fact: Validates clean exactly-one attributed companion commit and unchanged home/expected dirt, updates only row 2 and its decision, records companion SHA, clears pending in one home-ledger commit; no duplicate child dispatch or bump on interrupted recovery.
+- leg-iteration/reject: fails -> holds - Enforce the new coordinated-flow must-hold fact: Two new companion commits stop preserving pending/state; home parent ledger commits do not count as child empty-commit stagnation.

@@ -14,6 +14,8 @@ All-or-nothing endpoint equivalence outside the dispatched spec and plan directo
 
 Place a rebase-form Task 1 alone in Wave 1 marked `in-place`; keep the merge-form Task 1 as an ordinary wave task. The pr-subject-sync-repair sample bundles subagent-driven-development to exercise this execution distinction.
 
+Keep Leg before Files and leg-specific test baselines and rule routing; preserve existing task-contract facts.
+
 ## Expected to move
 - pr-subject-sync-repair/inplace-wave: fails -> holds - Place rebase Task 1 alone in Wave 1 marked in-place while retaining ordinary merge-task wave placement.
 - baseline-equivalent-restamp/restamp: fails -> holds - Retain unchanged commands across planning-only commits.

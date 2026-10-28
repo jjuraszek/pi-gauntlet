@@ -1,0 +1,4 @@
+- seed: judged: Expands shared ACs into original-AC/membership ordered rows, preserves cut disposition, records one base/seed flag per leg and Leg mapping; cap 14, seeds repo-a then repo-b only, never seeds wholly cut repo-c.
+- dispatch: judged: Bumps iterations once to 3 and durably writes pending: 2 | repo-b | bbbbbbb before dispatch; passes repo-b cwd, own base, mapped AC, Leg/Rules, iteration/pending and absolute home spec/ledger.
+- return: judged: Validates clean exactly-one attributed companion commit and unchanged home/expected dirt, updates only row 2 and its decision, records companion SHA, clears pending in one home-ledger commit; no duplicate child dispatch or bump on interrupted recovery.
+- reject: judged: Two new companion commits stop preserving pending/state; home parent ledger commits do not count as child empty-commit stagnation.

@@ -1,0 +1,1 @@
+- stop: judged: Each stops before tracker writes, naming repo-b and expected/observed full tuple or branch; mismatch is not tolerated as informational HEAD drift.

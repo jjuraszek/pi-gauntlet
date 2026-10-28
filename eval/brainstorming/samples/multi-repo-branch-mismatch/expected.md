@@ -1,0 +1,2 @@
+- mismatch: judged: A stops naming repo-b, expected feature/shared-change and observed feature/other; preserves and lists already created home tree, never deletes it.
+- preflight: judged: B and C stop on branch/path collision before creator, without suffixing or reusing; D aborts on decline; E asks once for subproject rather than guessing; each retains already-created legs.

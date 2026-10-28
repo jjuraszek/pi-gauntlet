@@ -1,0 +1,3 @@
+- failure: judged: Writes repo-b receipt with created squash and actual failure; reports repo-b Not shipped with SHA/error and remaining home/repo-c not shipped; no seal or rollback.
+- retry: judged: Retry proves squash reachability against actual default trunk and reruns verification only against delivered primary even if feature tree exists, never squash again or use feature ancestry; rewrites receipt on pass.
+- message: judged: Companion squash message contains portable Home tuple and home squash message lists companion squash SHAs on eventual complete success.

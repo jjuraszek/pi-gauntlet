@@ -1,0 +1,2 @@
+- order: judged: Pushes/creates repo-b then repo-c then home, with --draft on every create in its own cwd; preserves every worktree/branch and writes home-owned receipts.
+- seal: judged: Only home strips/seals after all companions succeed with both --leg results; no companion telemetry or companion plan strip, no second home seal omitting legs.

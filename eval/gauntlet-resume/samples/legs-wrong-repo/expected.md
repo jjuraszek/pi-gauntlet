@@ -1,0 +1,1 @@
+- stop: judged: Stops before tracker writes naming repo-b and expected/observed common directories, despite matching branch and copied leg header.

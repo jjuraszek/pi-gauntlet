@@ -7,6 +7,8 @@ Replace carried-open token menus with numbered decision briefs: place the unreso
 
 All existing samples (deferred-with-ref, deviates, directional-dependency, elsewhere-settled, in-scope-gap, mixed, no-dispositions, no-recommendation-render, no-recommendation-reask, no-recommendation-execute) regenerate against the new assembly and replay instruction. Their existing conformance facts remain required; changed menu wording alone does not imply a fact transition.
 
+Retain fresh conformance before the coordinated finish menu and preserve existing disposition facts.
+
 ## Expected to move
 - gate-line-first/gate-first: fails -> holds - Cap exhaustion opens the funding gate independently of runtime errors.
 

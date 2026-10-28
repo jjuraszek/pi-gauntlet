@@ -1,0 +1,1 @@
+- refuse: judged: Refuses seeding from companion leg file and names repo-a home and its spec path; does not initialize trackers or manufacture a second home flow.

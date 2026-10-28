@@ -458,6 +458,7 @@ try {
       R("extensions/telemetry.test.ts"),
       R("bin/gauntlet-spec-index.test.mjs"),
       R("bin/gauntlet-telemetry-seal.test.mjs"),
+      R("src/bins/gauntlet-telemetry-seal.test.mjs"),
       R("bin/gauntlet-performance.test.mjs"),
     ],
     { stdio: "pipe" },

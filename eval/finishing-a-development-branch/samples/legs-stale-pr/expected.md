@@ -1,0 +1,2 @@
+- repush: judged: Stale receipt is not a skip; re-pushes verified branch non-force to existing repo-b PR and edits/refreshes it, rewrites receipt with new head, never creates duplicate PR.
+- stop: judged: Unavailable live boundary or closed PR stops preserving receipts and asks for disposition rather than inferring success or attempting duplicate delivery.

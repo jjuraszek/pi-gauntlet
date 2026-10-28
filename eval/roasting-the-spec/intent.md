@@ -1,6 +1,8 @@
-for: 6b12ee60f5d81efb2ad314fe8411bd4792faafda575fffc18de1d3f4c768c448
+for: aa8ace0c2d8b4fd80c1ce608805e7ccd6066f3829d41e29c81ff4c37d2f0bd87
 
 ## Change
+Preserve review and approval gates while finalization adds the Legs section and companion-file contract.
+
 Move council findings transport to file-only member and chair outputs, require direct chair reads from explicit paths, and delegate spec application to the fresh applier. Parent checks structure and audit counts, rereads the spec first, restores before retry or abort, and cleans only attributable paths against the absolute worktree root while preserving the single user gate. Cases prescribe actions without claiming real execution.
 
 ## Expected to move

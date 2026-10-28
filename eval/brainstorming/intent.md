@@ -47,6 +47,9 @@ The unmarked spec-only route now provisions through pr-head without a thread fet
 
 Require the first line of the new gate-line-first replay to classify the waiting question while preserving its existing choices and pause.
 
+Cover selected-sibling activation, primary-rooted provisioning, partial-creation failures, bounded nested rules and portable home/companion spec materialization. Preserve every legacy fact and its bundle selection. These are intended fact movements, not observed model results. Parent verification runs the full target; this task runs deterministic structural and assembly checks only.
+Cover coordinated-flow membership, recorded per-leg contracts, checkout-local rules and dispatch, home-bound handoff/admission, receipt-validated delivery retries and single-member/legacy identity. Synthetic text replays narrate supplied file/tool observations; they do not prove live runtime execution. Preserve existing facts and accepted variance. New cases use per-sample bundle additions for full procedures omitted by legacy slices; legacy cases retain their original bundle selections. Runtime leg/baseline/wave validation remains in extensions/lib/plan-check.test.ts, brief drift in scripts/brief-contract-lint.test.mjs, and seal acceptance in the source and shipped CLI tests. Parent verification must run model comparisons for every affected target and gauntlet-handoff; no model evidence is generated here.
+
 ## Expected to move
 - spec-pr-unmarked/provision: fails -> holds - Provision via pr-head with no thread fetch on the unmarked route.
 - spec-pr-unmarked/skips: fails -> holds - Skip binding, context-builder, the PR scout block, and gather on the unmarked route.
@@ -200,3 +203,16 @@ Require the first line of the new gate-line-first replay to classify the waiting
 - loop-gate/drafted: fails -> holds - Preserve the drafted-row provenance and approval contract while retaining ticket and not-fetched behavior.
 
 - gate-line-first/first-line: fails -> holds - Put the question marker at column zero before any mandated prose.
+
+- multi-repo-activation/membership: fails -> holds - Enforce the new coordinated-flow must-hold fact: A and E stay single-member, B selects only repo-b and creates fresh trees with explicit primary ROOT and feature/shared-change despite linked session; C asks once to disambiguate before any creation.
+- multi-repo-activation/identity: fails -> holds - Enforce the new coordinated-flow must-hold fact: Single-member new specs carry exactly one ### Leg: under ## Legs and no companion file, legs: brief, --leg, receipt or companion loop; legacy specs stay home-only without requiring Legs.
+- multi-repo-bad-sibling/reject: fails -> holds - Enforce the new coordinated-flow must-hold fact: A/B/C stop before any creation, naming the selected declaration and missing/non-repository/equal-home cause; canonicalizes B before comparison and does not resolve or validate unselected repo-c.
+- multi-repo-branch-mismatch/mismatch: fails -> holds - Enforce the new coordinated-flow must-hold fact: A stops naming repo-b, expected feature/shared-change and observed feature/other; preserves and lists already created home tree, never deletes it.
+- multi-repo-branch-mismatch/preflight: fails -> holds - Enforce the new coordinated-flow must-hold fact: B and C stop on branch/path collision before creator, without suffixing or reusing; D aborts on decline; E asks once for subproject rather than guessing; each retains already-created legs.
+- multi-repo-legs/provision: fails -> holds - Enforce the new coordinated-flow must-hold fact: Invokes using-git-worktrees home first then repo-b then repo-c with each primary as ROOT and the same BRANCH; uses repo-a keyed contract, resolves repo-b subproject to pkg-x, uses repo-c default and never touches repo-unused.
+- multi-repo-legs/portable: fails -> holds - Enforce the new coordinated-flow must-hold fact: Home blocks retain portable create/destroy/home/spec-dir/plan-dir/verification contracts and repo-relative Rules; no committed machine-local path.
+- multi-repo-legs/scope: fails -> holds - Enforce the new coordinated-flow must-hold fact: Home scope claims AC 1, repo-b AC 1 and repo-c AC 2, using original indices.
+- multi-repo-legs/companion: fails -> holds - Enforce the new coordinated-flow must-hold fact: Commits home first; repo-b file has **Home:** repo-a feature/shared-change doc/specs/shared.md, a ## Problem section with the verbatim home Problem, a ## Decisions section with shared Design/Errors/Out-of-scope and only its own entire Leg block; no home or repo-c block.
+- nested-rules/walk: fails -> holds - Enforce the new coordinated-flow must-hold fact: Scouts run in their own worktrees; repo-a Rules includes root AGENTS.md, doc/root.md, pkg-x/AGENTS.md, pkg-x/doc/conventions.md and pkg-x/doc/parser.md; repo-b rules remain separate.
+- nested-rules/bounded: fails -> holds - Enforce the new coordinated-flow must-hold fact: Dedupes symlinked root CLAUDE.md by realpath, excludes untouched pkg-y/AGENTS.md and second-hop.md; reports missing outside.md without inventing contents.
+- nested-rules/unresolved: fails -> holds - Enforce the new coordinated-flow must-hold fact: Unknown touched paths retain root rules and emit Rules: root only - paths unresolved, leaving task path walks to plan-writer.

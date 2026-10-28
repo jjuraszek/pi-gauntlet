@@ -1,0 +1,2 @@
+- fresh: judged: Runs every recorded command and conformance with own cwd, Rules and original scoped AC rows before one menu, with home policy and leg-local settings merged by file; home successful flag cannot stand for companion evidence.
+- changed: judged: Compares audited HEAD/tree including staged, unstaged and untracked state immediately before delivery and reruns verification/conformance for changed repo-b before it ships, with repairs committed there.

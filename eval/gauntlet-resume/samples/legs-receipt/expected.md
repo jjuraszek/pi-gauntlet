@@ -1,0 +1,2 @@
+- admit: judged: A validates live receipt before admitting missing companion and stripped plan, recovers commands from recorded contract, restores through brainstorm start/skip, plan start/skip, implement skip to verify, without plan_check stamp invention or plan repair.
+- verify: judged: Revalidates unlanded home with recorded contracts/scoped original ACs and fresh conformance; B/C/D stop, preserve receipts and do not infer delivery from copied files or missing plan.
