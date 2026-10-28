@@ -126,7 +126,7 @@ Add: `## Legs` section, leg-file template, `repo` identifier rule, and activatio
 
 ## Errors and edge cases
 
-- A selected `- sibling:` path that is missing, not a git repository, or resolving to the home primary: brainstorming stops naming the line before any worktree is created. An unselected sibling path is never resolved.
+- A selected `- sibling:` path that is missing, not a git repository, or resolving to the home primary: brainstorming stops naming the line before any worktree is created. An unselected sibling path is never resolved: a run maps each `### Leg:` identifier to a declared sibling by comparing the identifier's basename with the sibling path's basename (case-insensitive) before any filesystem or git probe, probes only the matching sibling, and probes the remaining declared siblings only when no basename matches that identifier.
 - An ask token matching two declared siblings: ask once before creation; never guess.
 - A companion's clean-base check fails (dirty primary): `using-git-worktrees`' ask fires for that leg; a decline aborts leg creation; already-created legs stay and are listed for the human to remove - nothing is auto-removed.
 - The shared name or branch already exists as a worktree or branch in a companion: stop naming the repo and the name; no suffixing.
