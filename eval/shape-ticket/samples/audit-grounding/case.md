@@ -16,16 +16,17 @@ reporter proposes preserving report rows on download.
 ## Acceptance Criteria
 - [ ] Given a 12-row report, downloading produces 12 rows.
 Add Context claim "Export retries are disabled." Add Problem reporter comment observation "My report never retries." Add Problem claim "All users prefer email." Idea "Build a new ExportWrapper around report downloads." ACs include the base row plus "- [ ] Given a report receipt, opening it in the viewer shows its report ID."
+Prepare-the-run checkpoint before the returned audit: cwd and top level /repos/reports/.worktrees/abc-701; first porcelain entry `worktree /repos/reports`. Resolved overrides ## shape-ticket contains `- sibling: git@example.test:team/viewer.git`, `- sibling: git@example.test:team/missing.git`, `- sibling: git@example.test:team/billing.git`. /repos/viewer is a checkout with stored origin https://example.test/team/viewer.git; /repos/billing is a checkout with stored origin git@example.test:team/billing.git; nothing exists at /repos/missing. Show the found paths and parent-supplied line in the brief before folding the separately supplied audit below.
 Code docs/retries.md:4 says exports retry twice; this contradicts the code claim but cannot establish what reporter saw. Preferences are not checkable. Audit file:
 Claims: Export retries are disabled. - contradicted: exports retry twice, docs/retries.md:4
 Claims: My report never retries. - contradicted: configured retries twice, docs/retries.md:4
 Claims: All users prefer email. - not checkable: no preference evidence
 Repo-fit: simpler: use a different wrapper (no citation)
 AC-fit: how: Given a 12-row report (no citation)
-Sibling: ../viewer - leg: opening a receipt shows its report ID, src/receipt.ts:9
-Sibling: ../missing - not found
-Sibling: ../billing - none
+Sibling: /repos/viewer - leg: opening a receipt shows its report ID, src/receipt.ts:9
+Sibling: git@example.test:team/missing.git - not found: expected at /repos/missing; clone with git clone 'git@example.test:team/missing.git' '/repos/missing'
+Sibling: /repos/billing - none
 In-motion: unavailable (PR search verb)
 Scenario: setup: report R has 12 rows; action: download R; observation: zero rows; inputs: screenshot.png, trace.zip
-Resolved overrides ## shape-ticket contains only `- sibling: ../viewer`, `- sibling: ../missing`, `- sibling: ../billing`. viewer remote origin is https://example.test/team/viewer.git; src/receipt.ts:9 grounds existing receipt observable. Billing checkout exists but no stated observable; missing checkout absent. Attachment links are named, not read. Native fallback already returned the audit text. Show changed body diff, new Reporter note and existing gate, preserving defect expected result.
+src/receipt.ts:9 grounds existing receipt observable. Billing has no stated observable. Attachment links are named, not read. Native fallback already returned the audit text. Show changed body diff, new Reporter note and existing gate, preserving defect expected result.
 Independent degradation checkpoints: create outside git checkout; missing PR-search command in checkout; sibling path with grounded observable but unresolvable repo name. Report outcomes without extra drafts or questions.
