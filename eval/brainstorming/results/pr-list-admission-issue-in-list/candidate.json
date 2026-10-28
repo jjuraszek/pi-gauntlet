@@ -1,64 +1,34 @@
 {
   "sample": "pr-list-admission-issue-in-list",
   "arm": "candidate",
-  "skillSha": "8ab9024b5bebf8e91c95265c3c52024aea3fe3d027cfea0363e49c98c7ce062a",
+  "skillSha": "d2723cffb74f8574c52a22c1f834eb23f258c0a30fae755b500b79b5c6f58173",
   "inputSha": "966ce8e69a1e4794284e2d26c3cc093589000edec70ebd5d06b66615467d0967",
   "kind": "text",
   "assembly": "headed",
   "thinking": "medium",
   "models": {
     "replay": [
-      "anthropic/claude-opus-5-5",
       "github-copilot/gpt-6.1-sol"
     ],
-    "judge": "anthropic-fable/claude-fable-5-1",
+    "judge": "github-copilot/gpt-6.1-sol",
     "thinking": "medium"
   },
   "outputs": {
-    "anthropic/claude-opus-5-5": {
-      "status": "ok",
-      "text": "# Narrated actions: `#12 #13`, fresh authorized entry\n\nNo tools are available. Each action below is the required action. Each outcome comes from the fixed observations, not from a live call.\n\n1. **Stage: brainstorm tracking (checklist step 1, fresh epoch).** This comes first, before any read or reply.\n   - `phase_tracker({ action: \"reset\" })`\n   - `plan_tracker({ action: \"clear\" })`\n   - `phase_tracker({ action: \"start\", phase: \"brainstorm\" })`\n\n2. **Read: `reference/pr-subject.md`** (checklist step 2), using `read` at its absolute skill path.\n   - The case does not mark this reference unreadable, so step 2 proceeds under the rules this read supplies.\n   - If the read had failed, step 2 would stop here with a blocking error.\n\n3. **Stage: parse the leading run.**\n   - The trimmed prompt `#12 #13` is two bare GitHub references with no intent text.\n   - Bare `#N` resolves in this checkout.\n   - Origin `git@github.com:acme/widget.git` gives the identity `acme/widget`.\n\n4. **Stage: classify `#12`.** Classification runs in listed order, never in parallel.\n   - The PR lookup (`gh pr view 12 --json …`) returns OPEN, non-fork, base repository `acme/widget`, base `main`.\n   - Its repository matches origin and its state is OPEN, so `#12` passes and is the home candidate.\n\n5. **Stage: classify `#13`, PR lookup first.**\n   - The PR lookup (`gh pr view 13 …`) returns not-a-PR.\n   - Only this not-a-PR result permits the issue lookup.\n\n6. **Stage: classify `#13`, issue lookup.**\n   - `gh issue view 13` succeeds and shows an issue in `acme/widget`.\n   - An issue inside a list is not admitted. It is not routed to the ticket path.\n\n7. **Stage: blocking stop at the first failing ref.**\n   > `#13 is an issue, not a pull request; a list admits only PRs. Drop #13 from the list, or brainstorm it alone as a ticket.`\n   - **Remedy:** direct correction. Either re-issue the prompt with `#12` alone, or brainstorm `#13` alone as a ticket.\n   - The umbrella merge-by-hand paragraph is not appended, because it applies only to foreign-repository, fork, and mixed-base failures.\n\n8. **Stage: state after the stop.**\n   - No worktree is created, and no existing worktree is touched.\n   - The relatedness fetch is skipped.\n   - The `using-git-worktrees` PR-head provisioning is skipped.\n   - Gather and `reference/ticket-acceptance.md` are not reached.\n   - No ticket brainstorm runs for the list, and no other question is asked.\n   - The brainstorm phase stays in progress until the user sends a corrected prompt.\n",
-      "words": 364,
-      "wallMs": 16794,
-      "mechanical": {}
-    },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "1. **Start stage (narrated):** reset the phase tracker, clear the plan tracker, and start the brainstorm phase. No live tracker calls are claimed.\n2. **Required read action (narrated):** `skills/brainstorming/reference/pr-subject.md`, before resolving the leading references. No live read or reference-read outcome is claimed.\n3. **Resolve in order:** treat `#12 #13` as a two-reference list. The observed origin identifies this checkout as `acme/widget`.\n4. **Resolve #12:** its PR lookup returns OPEN, non-fork, in `acme/widget`, targeting `main`. It passes admission.\n5. **Resolve #13:** its PR lookup returns not-a-PR. Only then does the issue lookup run; it succeeds as an issue in `acme/widget`.\n6. **Blocking stop:** **#13 is an issue, not a pull request; a list admits only PRs. Drop #13 from the list, or brainstorm it alone as a ticket.** Create no worktree, perform no ticket brainstorm for this list, and introduce no additional decision gate.\n",
-      "words": 143,
-      "wallMs": 13388,
+      "text": "1. **Start fresh brainstorm tracking:** narrate resetting the phase tracker, clearing the plan tracker, and starting `brainstorm`. No live tracker calls are claimed.\n2. **Required read:** `skills/brainstorming/reference/pr-subject.md`, resolved to its absolute skills-resource path. No live read or reference-read outcome is claimed.\n3. **Parse the leading run:** retain `#12`, then `#13`, in that order. The observed origin identifies this checkout as `acme/widget`.\n4. **Resolve #12:** its PR lookup returns OPEN, non-fork, in `acme/widget`, targeting `main`. It passes admission.\n5. **Resolve #13:** its PR lookup returns not-a-PR. Only then consult the issue lookup, which identifies it as an issue in `acme/widget`.\n6. **Stop before provisioning:**\n\n   `#13 is an issue, not a pull request; a list admits only PRs. Drop #13 from the list, or brainstorm it alone as a ticket.`\n\n   No worktree is created. Do not start a ticket brainstorm for this list or introduce another decision gate.\n",
+      "words": 146,
+      "wallMs": 10371,
       "mechanical": {}
     }
   },
   "judge": {
-    "anthropic/claude-opus-5-5": {
-      "factsSha": "c5713ba61f0a0667b7a3132dad69be7d5e7bf7c00fd5addd2838bd7c8118f266",
-      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "3fab9022e6546ee557e596de8ba99bbd8a8d5e75db7e126af9d0739b215affa8",
-      "baselineOutputSha": "b3ce770a4269f62066f56009dc9a1997401f9f6d32fa377f270e282a4428bfe3",
-      "candidateOutputSha": "7cd8aca52a06e6e878cda2dd9b3df4645c5d23d0ffcc9222cdb430c64fa36e62",
-      "facts": {
-        "issue": {
-          "before": "holds",
-          "after": "holds",
-          "label": "intended but unchanged"
-        },
-        "order": {
-          "before": "holds",
-          "after": "holds",
-          "label": "held"
-        }
-      },
-      "feedback": "Nothing moved on this sample: both outputs quote the exact stop text, give the direct-correction remedy, explicitly withhold the umbrella merge-by-hand paragraph, and decline to turn #13 into a ticket contract for the list; both also classify #12 before #13, run the PR lookup for #13 before the issue lookup (After makes this even more explicit by splitting steps 5 and 6 with 'Only this not-a-PR result permits the issue lookup'), and perform no writes beyond the same tracker reset/start calls Before already narrates. The After wording is slightly tighter and adds an inline 'not routed to the ticket path' line in step 6, which reinforces the issue fact; keep that, and keep the stop-text blockquote verbatim and the explicit 'umbrella not appended' bullet, since those are the two anchors the issue fact keys on. No change to this sample's wording is needed to deliver the amendment-surface/aftermath change described.",
-      "wallMs": 10451,
-      "verdict": "unchanged"
-    },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "c5713ba61f0a0667b7a3132dad69be7d5e7bf7c00fd5addd2838bd7c8118f266",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "3fab9022e6546ee557e596de8ba99bbd8a8d5e75db7e126af9d0739b215affa8",
-      "baselineOutputSha": "a60aae20416967d6e6c505dec2e55908a82a347b5204fde8e1acc3b99b74a6d8",
-      "candidateOutputSha": "13ea7a3d43f0395953f0406978c13b9943cda8d45eeef8db19f67a75b0912058",
+      "intentSha": "5b9f462cd6caec9a4a8e3a28a3c0ba61583e1b400c8edb5164d32bba075fea39",
+      "baselineOutputSha": "b7e21989d0655fdfb907766e2d29cb25af902bf5d580979c4289feb0dbe3a818",
+      "candidateOutputSha": "30b917f61845b70d387bd16f5178fd6fcc7e66e0d6391321e8778fb993a8df44",
       "facts": {
         "issue": {
           "before": "holds",
@@ -71,10 +41,97 @@
           "label": "held"
         }
       },
-      "feedback": "Nothing moved in this case: both outputs resolve #12 before #13, run the PR lookup for #13 before the issue lookup, perform no writes, and stop with the exact issue-not-a-PR message offering only drop-or-brainstorm-alone, with no umbrella remedy and no ticket contract for any list member. After is slightly tighter (step 4 drops Before's explicit 'do not provision a worktree yet', relying on step 6's 'Create no worktree'); if you want the pre-provisioning timing of the stop to be unmistakable under the enlarged assembly, keep a clause like 'passes admission; provisioning is deferred until the whole list is admitted' in step 4, which preserves both facts while still delivering the Change's stop-before-provisioning ordering.",
-      "wallMs": 9406,
+      "feedback": "After preserves both facts: it resolves #12 before #13, performs #13's PR lookup before its issue lookup, and stops before provisioning with the exact issue-only correction and no umbrella remedy or ticket contract. No fact moved. Keep this explicit ordering and remedy; retaining Before's explicit stop before gathering would further clarify the no-write boundary without adding a decision gate.",
+      "wallMs": 3681,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "488adb5f77d82365012e1a6030f3b11a1e35f420"
+  "refresh": {
+    "status": "complete",
+    "identity": {
+      "sample": "pr-list-admission-issue-in-list",
+      "kind": "text",
+      "assembly": "headed",
+      "baselineSkillSha": "be6a9ad7c6121a490b07ac373a98ac41151b852e413de38cd8301d286ce1b2bd",
+      "candidateSkillSha": "8422ae15c4746c464811b72ee5f5ead8e3dfa0b1e827b7022ef20253e18b0f3f",
+      "inputSha": "966ce8e69a1e4794284e2d26c3cc093589000edec70ebd5d06b66615467d0967",
+      "factsSha": "c5713ba61f0a0667b7a3132dad69be7d5e7bf7c00fd5addd2838bd7c8118f266",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "5b9f462cd6caec9a4a8e3a28a3c0ba61583e1b400c8edb5164d32bba075fea39",
+      "models": {
+        "replay": [
+          "github-copilot/gpt-6.1-sol"
+        ],
+        "judge": "github-copilot/gpt-6.1-sol"
+      },
+      "thinking": "medium",
+      "outputs": {
+        "baseline": {
+          "github-copilot/gpt-6.1-sol": {
+            "baselineOutputSha": "b7e21989d0655fdfb907766e2d29cb25af902bf5d580979c4289feb0dbe3a818",
+            "payloadSha": "ce50c9150f781d84ff7e515a26bbf8301918e06ba00988d2822c609d6c74dc5b"
+          }
+        },
+        "candidate": {
+          "github-copilot/gpt-6.1-sol": {
+            "candidateOutputSha": "313c72112a2acd44f32d82959ede1e52ed933d8cb8341a158a21beebcd03d968",
+            "payloadSha": "2892b6590ae0afc64d5980c2023cb7eb2ba0f1354a414361df056ffa04971a3f"
+          }
+        }
+      }
+    },
+    "previous": {
+      "github-copilot/gpt-6.1-sol": {
+        "factsSha": "c5713ba61f0a0667b7a3132dad69be7d5e7bf7c00fd5addd2838bd7c8118f266",
+        "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+        "intentSha": "5b9f462cd6caec9a4a8e3a28a3c0ba61583e1b400c8edb5164d32bba075fea39",
+        "baselineOutputSha": "b7e21989d0655fdfb907766e2d29cb25af902bf5d580979c4289feb0dbe3a818",
+        "candidateOutputSha": "313c72112a2acd44f32d82959ede1e52ed933d8cb8341a158a21beebcd03d968",
+        "facts": {
+          "issue": {
+            "before": "holds",
+            "after": "holds",
+            "label": "intended but unchanged"
+          },
+          "order": {
+            "before": "holds",
+            "after": "holds",
+            "label": "held"
+          }
+        },
+        "feedback": "Neither fact moved: After preserves the exact issue-list rejection and direct remedies, resolves #12 before #13, and performs #13’s PR lookup before its issue lookup without claiming writes. Retain this wording, especially the stop before provisioning and the prohibition on starting a ticket brainstorm for the list; no umbrella remedy or additional decision gate is needed.",
+        "wallMs": 6267,
+        "verdict": "unchanged",
+        "judgeModel": null,
+        "thinking": null
+      }
+    },
+    "refreshed": {
+      "github-copilot/gpt-6.1-sol": {
+        "factsSha": "c5713ba61f0a0667b7a3132dad69be7d5e7bf7c00fd5addd2838bd7c8118f266",
+        "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+        "intentSha": "5b9f462cd6caec9a4a8e3a28a3c0ba61583e1b400c8edb5164d32bba075fea39",
+        "baselineOutputSha": "b7e21989d0655fdfb907766e2d29cb25af902bf5d580979c4289feb0dbe3a818",
+        "candidateOutputSha": "313c72112a2acd44f32d82959ede1e52ed933d8cb8341a158a21beebcd03d968",
+        "facts": {
+          "issue": {
+            "before": "holds",
+            "after": "holds",
+            "label": "intended but unchanged"
+          },
+          "order": {
+            "before": "holds",
+            "after": "holds",
+            "label": "held"
+          }
+        },
+        "feedback": "Neither fact moved: After preserves the exact issue rejection and direct remedies, resolves #12 before #13, and consults #13’s issue lookup only after its PR lookup fails, without performing writes. Keep this explicit stop-before-provisioning wording and avoid adding an umbrella remedy, ticket contract, or extra decision gate; the broader Change requires no additional content in this blocked-resolution case.",
+        "wallMs": 5865,
+        "verdict": "unchanged",
+        "judgeModel": "github-copilot/gpt-6.1-sol",
+        "thinking": "medium"
+      }
+    }
+  },
+  "repoSha": "2eb4429b4dd687432969f427f82d45d7840d7c63"
 }

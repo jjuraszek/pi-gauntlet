@@ -1,0 +1,3 @@
+- question-first: mechanical: matches /^gauntlet: question(?:\r?\n|$)/
+- actionable: judged: Offers supplying the schema artifact or access and amending the requirement, preserving Problem and both ordered Searched results, without asking where the artifact is.
+- preserved: judged: Leaves task in_progress and implement active with no next dispatch and no done or stuck terminal marker.

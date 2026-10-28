@@ -1,74 +1,34 @@
 {
   "sample": "loop-gate",
   "arm": "candidate",
-  "skillSha": "92ce72e00f35fcd57a8c1ba327903b38fc9896c674451fe3af7ca38666aa6158",
-  "inputSha": "9b8ac10811327a739f8e229da84a82ce351f23752876f9420b144c781289f181",
+  "skillSha": "f3d3c540340fbaca8e6b4bd4776db61effd2e287f4f7376ece3654eb714f3da2",
+  "inputSha": "696ed400e38a4d9f8f39f62f5e05f7fc3dda8b9d616a0a64558e02081621a92e",
   "kind": "text",
   "assembly": "headed",
   "thinking": "medium",
   "models": {
     "replay": [
-      "anthropic/claude-opus-5-5",
       "github-copilot/gpt-6.1-sol"
     ],
-    "judge": "anthropic-fable/claude-fable-5-1",
+    "judge": "github-copilot/gpt-6.1-sol",
     "thinking": "medium"
   },
   "outputs": {
-    "anthropic/claude-opus-5-5": {
-      "status": "ok",
-      "text": "# Narrated read and stage actions\n\nNo tools are available here. Each step below describes an intended read, write, or call, along with the outcome the case supplies. Nothing was actually executed.\n\n## Trace A: approval gate for `doc/specs/report.md`, then reply `4`\n\n1. **Stage: summarizer already dispatched (case-supplied).**\n   - The spec-only summarizer was sent to a fresh temp path outside the worktree.\n   - The spec was committed with the heredoc form. Its commit body is the council audit, which the case says exists.\n2. **Stage: summary read, the last content-producing call before the gate.**\n   - The intended `read` of `$SUMMARY_PATH` succeeded, as the case states.\n   - Its contents are pasted verbatim at the top of the gate.\n3. **Stage: cleanup.** The intended next step is `rm \"$SUMMARY_PATH\"`, which runs whether or not the read succeeded.\n4. **Stage: render the gate.**\n   - The two acceptance rows are verbatim ticket rows, so the drafted-only block is omitted.\n   - Both rows are `in-scope`, so `Scope cuts:` is `none`.\n   - Rows exist, so options 4 and 5 are rendered.\n   - The case is not a PR subject, so option 6 is rendered.\n\n```\nDaily report\n\nSpec written and committed to <project>/doc/specs/report.md (worktree: <abs worktree path>).\nScope cuts: none\n\nCouncil: 1 applied, 0 deferred, 0 rejected\n\n1 - approve: proceed to planning under the existing amendment review; a fresh reviewer applies evidence-backed factual corrections on its own, and every other spec amendment (scope, acceptance-criteria, or contract edits, and redraws) stops for your review.\n2 - approve, auto-apply amends: every later spec amendment in this flow (corrected facts, paths, verification lines, and scope, acceptance-criteria, or public-contract edits alike) applies without asking; only a redraw (changed problem statement, component added, removed, or re-bounded) still stops for you, and the grant never stands in for a spec approval.\n3 - show council dispositions: prints the council audit verbatim, then re-presents this gate. Not an approval.\n4 - approve, loop engine (experimental): skip the plan; iterate a fresh loop-implementer over the acceptance-criteria ledger; amendments stop for your review as under 1.\n5 - approve, loop engine, auto-apply amends: as 4 with option 2's amendment grant.\n6 - approve, hand off as draft PR: approve the spec's content only; push this branch and open a draft PR carrying just the spec; engine and amendment grant are chosen later by whoever runs `brainstorming #N` on that PR. Ends this flow without planning.\nAdd \"; fund N fix rounds\" (or \"N more fix rounds\") to 1, 2, 4, or 5 to fund N extra attempts per stagnant loop row or N implement fix rounds past the escalated waves round.\n\nOr tell me what to change in the spec, or say \"revert applied council edit <X>\" to undo a specific applied edit.\n```\n\n5. **Stage: reply `4` received.**\n   - Bare `4` approves the spec, grants no amendments, and selects the loop engine.\n   - It carries no budget token and no change request, so it is not routed as a change request.\n6. **Read: Standing grants.**\n   - The intended `read` uses the `read` tool on the absolute path of `skills/brainstorming/reference/amendment-surface.md`, at the Standing grants section.\n   - Value decoding then runs on the value to persist, which is `none`.\n   - If the file were unreadable, the flow would stop with a blocking error and the spec would not be edited.\n   - This read is required in the session; its contents are not reconstructed here.\n7. **Write: spec header.** The intended `edit` of `doc/specs/report.md` sets two lines in the header block:\n   - `**Amend-grant:** none`, with no funding suffix.\n   - `**Engine:** loop`, written exactly once and placed directly below `**Amend-grant:**`.\n8. **Commit: amend while keeping the audit body.** The intended commands are:\n   - `git -C <abs worktree path> add -- doc/specs/report.md`\n   - `git -C <abs worktree path> commit --amend --no-edit -q`\n\n   The council-audit body is preserved.\n9. **HEAD check.** The intended `git -C <abs worktree path> show HEAD:doc/specs/report.md` must show:\n   - `**Amend-grant:** none` and `**Engine:** loop`, with the selected values.\n   - A result that satisfies the grant predicate and Value decoding.\n\n   If the amend or the check fails, the flow stops and reports. It never proceeds as approved.\n10. **Phase.** Only after the HEAD check passes, the intended call is `phase_tracker({ action: \"complete\", phase: \"brainstorm\" })`.\n11. **Destination.** The intended next step is to invoke `/skill:loop-implementation` immediately, with no further prompt.\n    - Writing-plans is skipped.\n    - The spec stays on the worktree branch, not `main`.\n\n## Branch B: drafted-AC spec gate\n\n1. **Stage: summary.** The intended `read` of this branch's own fresh `$SUMMARY_PATH` succeeded, as the case states. Its contents are pasted verbatim, and `rm \"$SUMMARY_PATH\"` follows.\n2. **Stage: render the gate.**\n   - The rows have drafted provenance, so the drafted block is copied verbatim from the applied spec section.\n   - The only row is `in-scope`, so `Scope cuts:` is `none`.\n   - One row exists, so all six options are rendered.\n\n```\n<spec-only summary read back from the temp file - pasted verbatim, unedited>\n\nSpec written and committed to <project>/doc/specs/<filename>.md (worktree: <abs worktree path>).\nScope cuts: none\n\nDrafted acceptance criteria (approval ratifies):\n- [ ] Repeating an export request returns its existing download instead of creating another export.\n  in-scope\n\nCouncil: 1 applied, 0 deferred, 0 rejected\n\n1 - approve: proceed to planning under the existing amendment review; a fresh reviewer applies evidence-backed factual corrections on its own, and every other spec amendment (scope, acceptance-criteria, or contract edits, and redraws) stops for your review.\n2 - approve, auto-apply amends: every later spec amendment in this flow (corrected facts, paths, verification lines, and scope, acceptance-criteria, or public-contract edits alike) applies without asking; only a redraw (changed problem statement, component added, removed, or re-bounded) still stops for you, and the grant never stands in for a spec approval.\n3 - show council dispositions: prints the council audit verbatim, then re-presents this gate. Not an approval.\n4 - approve, loop engine (experimental): skip the plan; iterate a fresh loop-implementer over the acceptance-criteria ledger; amendments stop for your review as under 1.\n5 - approve, loop engine, auto-apply amends: as 4 with option 2's amendment grant.\n6 - approve, hand off as draft PR: approve the spec's content only; push this branch and open a draft PR carrying just the spec; engine and amendment grant are chosen later by whoever runs `brainstorming #N` on that PR. Ends this flow without planning.\nAdd \"; fund N fix rounds\" (or \"N more fix rounds\") to 1, 2, 4, or 5 to fund N extra attempts per stagnant loop row or N implement fix rounds past the escalated waves round.\n\nOr tell me what to change in the spec, or say \"revert applied council edit <X>\" to undo a specific applied edit.\n```\n\n## Branch C: not-fetched spec gate (zero rows)\n\n1. **Stage: summary.** The intended `read` of this branch's own fresh `$SUMMARY_PATH` succeeded, as the case states. Its contents are pasted verbatim, and `rm \"$SUMMARY_PATH\"` follows.\n2. **Stage: render the gate.**\n   - There are zero `- [ ]` rows. The body is the one legal zero-row form, `none - ticket not fetched (permission denied)`.\n   - Only options 1, 2, 3, and 6 are rendered, followed by the unavailable explanation.\n   - Option 3 is kept because the council path ran.\n   - The drafted block is omitted because no drafted rows exist.\n   - The paste-rows affordance is retained.\n\n```\n<spec-only summary read back from the temp file - pasted verbatim, unedited>\n\nSpec written and committed to <project>/doc/specs/<filename>.md (worktree: <abs worktree path>).\nScope cuts: none\n\nCouncil: 1 applied, 0 deferred, 0 rejected\n\nAcceptance criteria: none - ticket not fetched (permission denied). Paste the ticket's acceptance-criteria rows here and I will add them to the spec and re-present this gate.\n\n1 - approve: proceed to planning under the existing amendment review; a fresh reviewer applies evidence-backed factual corrections on its own, and every other spec amendment (scope, acceptance-criteria, or contract edits, and redraws) stops for your review.\n2 - approve, auto-apply amends: every later spec amendment in this flow (corrected facts, paths, verification lines, and scope, acceptance-criteria, or public-contract edits alike) applies without asking; only a redraw (changed problem statement, component added, removed, or re-bounded) still stops for you, and the grant never stands in for a spec approval.\n3 - show council dispositions: prints the council audit verbatim, then re-presents this gate. Not an approval.\n6 - approve, hand off as draft PR: approve the spec's content only; push this branch and open a draft PR carrying just the spec; engine and amendment grant are chosen later by whoever runs `brainstorming #N` on that PR. Ends this flow without planning.\nLoop engine unavailable: this spec has no acceptance-criteria rows.\nAdd \"; fund N fix rounds\" (or \"N more fix rounds\") to 1 or 2 to fund N implement fix rounds past the escalated waves round.\n\nOr tell me what to change in the spec, or say \"revert applied council edit <X>\" to undo a specific applied edit.\n```\n",
-      "words": 1420,
-      "wallMs": 35493,
-      "mechanical": {}
-    },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "## Branch 1 — Ticket-backed spec: approval gate\n\n1. The fixed observations establish that `doc/specs/report.md` is committed, its summary read succeeded, and its two verbatim ticket acceptance rows are both in-scope. No live read or commit is claimed.\n\n2. Render the gate:\n\n   Daily report\n\n   Spec written and committed to `doc/specs/report.md`.\n   Scope cuts: none\n\n   Council: 1 applied, 0 deferred, 0 rejected\n\n   1 - approve: proceed to planning under the existing amendment review; a fresh reviewer applies evidence-backed factual corrections on its own, and every other spec amendment (scope, acceptance-criteria, or contract edits, and redraws) stops for your review.\n   2 - approve, auto-apply amends: every later spec amendment in this flow (corrected facts, paths, verification lines, and scope, acceptance-criteria, or public-contract edits alike) applies without asking; only a redraw (changed problem statement, component added, removed, or re-bounded) still stops for you, and the grant never stands in for a spec approval.\n   3 - show council dispositions: prints the council audit verbatim, then re-presents this gate. Not an approval.\n   4 - approve, loop engine (experimental): skip the plan; iterate a fresh loop-implementer over the acceptance-criteria ledger; amendments stop for your review as under 1.\n   5 - approve, loop engine, auto-apply amends: as 4 with option 2's amendment grant.\n   6 - approve, hand off as draft PR: approve the spec's content only; push this branch and open a draft PR carrying just the spec; engine and amendment grant are chosen later by whoever runs `brainstorming #N` on that PR. Ends this flow without planning.\n\n   Add “; fund N fix rounds” (or “N more fix rounds”) to 1, 2, 4, or 5 to fund N extra attempts per stagnant loop row or N implement fix rounds past the escalated waves round.\n\n   Or tell me what to change in the spec, or say “revert applied council edit X” to undo a specific applied edit.\n\n3. Intended cleanup: remove the temporary summary file after rendering it. Its actual path and the worktree’s absolute path were not supplied.\n\n## Branch 2 — Independent continuation on reply `4`\n\n1. Interpret `4` as approval using the loop engine, without an amendment grant or additional funding.\n\n2. Required read: `skills/brainstorming/reference/amendment-surface.md`, resolved to its absolute path under the installed skills directory, particularly **Standing grants** and **Value decoding**. The bundled reference is not evidence that this read occurred. No read outcome is supplied here; this is a pending prerequisite. If unreadable, stop with a blocking error and perform none of the subsequent actions.\n\n3. After that prerequisite succeeds, the intended edit to `doc/specs/report.md` is:\n   ```markdown\n   **Amend-grant:** none\n   **Engine:** loop\n   ```\n   Keep exactly one engine field, directly below the amendment-grant field. Preserve both ticket rows and their `in-scope` dispositions.\n\n4. Intended persistence, using the resolved absolute worktree path:\n   ```bash\n   git -C <absolute-worktree> add -- doc/specs/report.md\n   git -C <absolute-worktree> commit --amend --no-edit -q\n   ```\n   This amends the existing spec commit while retaining its council-audit body.\n\n5. Required verification read:\n   ```bash\n   git -C <absolute-worktree> show HEAD:doc/specs/report.md\n   ```\n   Verify that committed HEAD contains `**Amend-grant:** none` and exactly one `**Engine:** loop` directly beneath it, and that the grant satisfies the required validation. No successful check is claimed. If the amend or verification fails, stop; do not transition.\n\n6. Only after successful persistence and verification, the intended phase action is:\n   ```text\n   phase_tracker({ action: \"complete\", phase: \"brainstorm\" })\n   ```\n\n7. Immediately invoke `/skill:loop-implementation`. Do not invoke `/skill:writing-plans`, reset trackers, or insert another approval prompt. Any required skill resource read must use its absolute path with `read`; if unreadable, stop at that boundary.\n\n## Branch 3 — Drafted acceptance criteria: independent gate\n\n1. The summary read succeeded, but its text is not supplied. It cannot be reproduced verbatim without inventing content. The gate below therefore identifies that missing input rather than substituting a fabricated summary.\n\n2. Render the gate:\n\n   Summary text unavailable in the supplied observations; the summary read was reported successful.\n\n   Spec written and committed; its path and worktree were not supplied.\n   Scope cuts: none\n\n   Drafted acceptance criteria (approval ratifies):\n   - [ ] Repeating an export request returns its existing download instead of creating another export.\n     in-scope\n\n   Council: 1 applied, 0 deferred, 0 rejected\n\n   1 - approve: proceed to planning under the existing amendment review; a fresh reviewer applies evidence-backed factual corrections on its own, and every other spec amendment (scope, acceptance-criteria, or contract edits, and redraws) stops for your review.\n   2 - approve, auto-apply amends: every later spec amendment in this flow (corrected facts, paths, verification lines, and scope, acceptance-criteria, or public-contract edits alike) applies without asking; only a redraw (changed problem statement, component added, removed, or re-bounded) still stops for you, and the grant never stands in for a spec approval.\n   3 - show council dispositions: prints the council audit verbatim, then re-presents this gate. Not an approval.\n   4 - approve, loop engine (experimental): skip the plan; iterate a fresh loop-implementer over the acceptance-criteria ledger; amendments stop for your review as under 1.\n   5 - approve, loop engine, auto-apply amends: as 4 with option 2's amendment grant.\n   6 - approve, hand off as draft PR: approve the spec's content only; push this branch and open a draft PR carrying just the spec; engine and amendment grant are chosen later by whoever runs `brainstorming #N` on that PR. Ends this flow without planning.\n\n   Add “; fund N fix rounds” (or “N more fix rounds”) to 1, 2, 4, or 5 to fund N extra attempts per stagnant loop row or N implement fix rounds past the escalated waves round.\n\n   Or tell me what to change in the spec, or say “revert applied council edit X” to undo a specific applied edit.\n\n3. Intended cleanup: remove this branch’s temporary summary file. Then wait for the user; no approval or transition is implied.\n\n## Branch 4 — Ticket not fetched: independent gate\n\n1. The summary read succeeded, but its text is not supplied. No summary contents can be reconstructed from that observation.\n\n2. Render the gate:\n\n   Summary text unavailable in the supplied observations; the summary read was reported successful.\n\n   Spec written and committed; its path and worktree were not supplied.\n   Scope cuts: none\n\n   Acceptance criteria:\n   ```text\n   none - ticket not fetched (permission denied)\n   ```\n\n   Council: 1 applied, 0 deferred, 0 rejected\n\n   Loop engine unavailable: this spec has no acceptance-criteria rows.\n\n   Paste the ticket’s acceptance-criteria rows to include them in a revised spec and re-presented approval gate.\n\n   1 - approve: proceed to planning under the existing amendment review; a fresh reviewer applies evidence-backed factual corrections on its own, and every other spec amendment (scope, acceptance-criteria, or contract edits, and redraws) stops for your review.\n   2 - approve, auto-apply amends: every later spec amendment in this flow (corrected facts, paths, verification lines, and scope, acceptance-criteria, or public-contract edits alike) applies without asking; only a redraw (changed problem statement, component added, removed, or re-bounded) still stops for you, and the grant never stands in for a spec approval.\n   3 - show council dispositions: prints the council audit verbatim, then re-presents this gate. Not an approval.\n   6 - approve, hand off as draft PR: approve the spec's content only; push this branch and open a draft PR carrying just the spec; engine and amendment grant are chosen later by whoever runs `brainstorming #N` on that PR. Ends this flow without planning.\n\n   Add “; fund N fix rounds” (or “N more fix rounds”) to 1 or 2 to fund N implement fix rounds past the escalated waves round.\n\n   Or tell me what to change in the spec, or say “revert applied council edit X” to undo a specific applied edit.\n\n3. Intended cleanup: remove this branch’s temporary summary file. Then wait for the user.\n",
-      "words": 1230,
-      "wallMs": 28391,
+      "text": "## Trace A — Ticket-backed spec: approval gate\n\n1. **Observed state:** `doc/specs/report.md` is committed. Its two verbatim ticket acceptance-criteria rows are both `in-scope`; `**Amend-grant:** none`. The council audit exists, and the summary read succeeded with `Daily report`. No drafted-criteria block is shown because these are ticket-provenance rows.\n\n2. **Render the gate.** The project name and absolute worktree path were not supplied, so they are not invented here.\n\n```text\ngauntlet: gate=brainstorming/user-review-gate\nDaily report\n\nSpec written and committed to doc/specs/report.md (absolute worktree path not supplied).\nScope cuts: none\n\nCouncil: 1 applied, 0 deferred, 0 rejected\n\n1 - approve: proceed to planning under the existing amendment review; a fresh reviewer applies evidence-backed factual corrections on its own, and every other spec amendment (scope, acceptance-criteria, or contract edits, and redraws) stops for your review.\n2 - approve, auto-apply amends: every later spec amendment in this flow (corrected facts, paths, verification lines, and scope, acceptance-criteria, or public-contract edits alike) applies without asking; only a redraw (changed problem statement, component added, removed, or re-bounded) still stops for you, and the grant never stands in for a spec approval.\n3 - show council dispositions: prints the council audit verbatim, then re-presents this gate. Not an approval.\n4 - approve, loop engine (experimental): skip the plan; iterate a fresh loop-implementer over the acceptance-criteria ledger; amendments stop for your review as under 1.\n5 - approve, loop engine, auto-apply amends: as 4 with option 2's amendment grant.\nAdd \"; fund N fix rounds\" (or \"N more fix rounds\") to 1, 2, 4, or 5 to fund N extra attempts per stagnant loop row or N implement fix rounds past the escalated waves round.\n\nOr tell me what to change in the spec, or say \"revert applied council edit <X>\" to undo a specific applied edit.\n```\n\n3. **Intended cleanup:** Remove the summary’s temporary file. Its path was not supplied; no removal is claimed.\n\n## Trace A continuation — Independently, after reply `4`\n\n1. **Interpret the reply:** `4` approves the spec, selects the loop engine, and grants no automatic amendments. It contains no funding token.\n\n2. **Required reference read:** Before any approval write, intend to read the installed skill’s `reference/amendment-surface.md` at its absolute path under `skills/`, specifically its Standing grants rules and Value decoding. No read is available here, and no readability outcome or reference contents were supplied. This narration does not claim that prerequisite has been satisfied. If the reference is unreadable, stop with a blocking error before editing or transitioning.\n\n3. **Intended header write, contingent on completing that required read:** Set the header to the following, with exactly one Engine field directly below Amend-grant:\n\n   ```markdown\n   **Amend-grant:** none\n   **Engine:** loop\n   ```\n\n   The exact intended persisted `**Amend-grant:**` value is `none`.\n\n4. **Intended commit and verification:** Stage `doc/specs/report.md` in the existing worktree, then amend the spec commit with `commit --amend --no-edit -q`, preserving the council-audit body. Read the committed file using `git … show HEAD:doc/specs/report.md` and verify:\n   - `**Amend-grant:** none`;\n   - exactly one `**Engine:** loop`, directly below it;\n   - consistency with the required grant predicate and Value decoding.\n\n   These are intended actions, not executed commands or observed successful checks. An amend or HEAD-check failure blocks further progress.\n\n5. **Intended phase order after successful verification:** Complete the existing `brainstorm` phase, then immediately invoke `/skill:loop-implementation`. Do not reset the trackers, start planning, or request another approval. The destination is the loop engine, not `/skill:writing-plans`.\n\n## Branch B — Drafted acceptance criteria\n\n1. **Observed state:** The summary read succeeded, and the council counts are 1 applied, 0 deferred, 0 rejected. The summary’s actual text, spec filename, and worktree path were not supplied; the bracketed lines below identify those omissions rather than inventing content.\n\n2. **Render the independent gate:**\n\n```text\ngauntlet: gate=brainstorming/user-review-gate\n[Successful summary text not supplied in the observations.]\n\n[Spec commit location and worktree path not supplied.]\nScope cuts: none\n\nDrafted acceptance criteria (approval ratifies):\n- [ ] Repeating an export request returns its existing download instead of creating another export.\n  in-scope\n\nCouncil: 1 applied, 0 deferred, 0 rejected\n\n1 - approve: proceed to planning under the existing amendment review; a fresh reviewer applies evidence-backed factual corrections on its own, and every other spec amendment (scope, acceptance-criteria, or contract edits, and redraws) stops for your review.\n2 - approve, auto-apply amends: every later spec amendment in this flow (corrected facts, paths, verification lines, and scope, acceptance-criteria, or public-contract edits alike) applies without asking; only a redraw (changed problem statement, component added, removed, or re-bounded) still stops for you, and the grant never stands in for a spec approval.\n3 - show council dispositions: prints the council audit verbatim, then re-presents this gate. Not an approval.\n4 - approve, loop engine (experimental): skip the plan; iterate a fresh loop-implementer over the acceptance-criteria ledger; amendments stop for your review as under 1.\n5 - approve, loop engine, auto-apply amends: as 4 with option 2's amendment grant.\nAdd \"; fund N fix rounds\" (or \"N more fix rounds\") to 1, 2, 4, or 5 to fund N extra attempts per stagnant loop row or N implement fix rounds past the escalated waves round.\n\nOr tell me what to change in the spec, or say \"revert applied council edit <X>\" to undo a specific applied edit.\n```\n\n3. **Intended cleanup and stop:** Remove this branch’s summary temporary file, then wait for the user’s review. No execution is claimed.\n\n## Branch C — Ticket not fetched\n\n1. **Observed state:** The acceptance-criteria section is exactly `none - ticket not fetched (permission denied)`. It contains no checkbox rows. The summary read succeeded, and the council counts are 1 applied, 0 deferred, 0 rejected. Its summary text and commit/worktree locations were not supplied.\n\n2. **Render the independent gate with only options 1–3 and the paste-rows affordance:**\n\n```text\ngauntlet: gate=brainstorming/user-review-gate\n[Successful summary text not supplied in the observations.]\n\n[Spec commit location and worktree path not supplied.]\nScope cuts: none\n\nAcceptance criteria:\nnone - ticket not fetched (permission denied)\n\nCouncil: 1 applied, 0 deferred, 0 rejected\n\nLoop engine unavailable: this spec has no acceptance-criteria rows.\nYou can paste the ticket’s acceptance-criteria rows so the spec can be updated and re-presented for review.\n\n1 - approve: proceed to planning under the existing amendment review; a fresh reviewer applies evidence-backed factual corrections on its own, and every other spec amendment (scope, acceptance-criteria, or contract edits, and redraws) stops for your review.\n2 - approve, auto-apply amends: every later spec amendment in this flow (corrected facts, paths, verification lines, and scope, acceptance-criteria, or public-contract edits alike) applies without asking; only a redraw (changed problem statement, component added, removed, or re-bounded) still stops for you, and the grant never stands in for a spec approval.\n3 - show council dispositions: prints the council audit verbatim, then re-presents this gate. Not an approval.\nAdd \"; fund N fix rounds\" (or \"N more fix rounds\") to 1 or 2 to fund N implement fix rounds past the escalated waves round.\n\nOr tell me what to change in the spec, or say \"revert applied council edit <X>\" to undo a specific applied edit.\n```\n\n3. **Intended cleanup and stop:** Remove this branch’s summary temporary file, then wait for the user’s review or pasted acceptance-criteria rows. No execution is claimed.\n",
+      "words": 1161,
+      "wallMs": 30650,
       "mechanical": {}
     }
   },
   "judge": {
-    "anthropic/claude-opus-5-5": {
-      "factsSha": "6b05ac5287fdaad5c3beaefc2df0222d7dfbf8ed7eaaaed723b8900d3ed08c36",
-      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "fca13d7b5e47e4fd7cef6c694955a1e97b6332b53995fab6f8b6ae61b70d6d17",
-      "baselineOutputSha": "17bc867f077924cfb19aeac784f1c2a47d911e57f3fb6c50067c59b804776d56",
-      "candidateOutputSha": "cb64954ae83948c42be1835881716f4590f92bfd3832549598bbc64f75862e26",
-      "facts": {
-        "menu": {
-          "before": "holds",
-          "after": "holds",
-          "label": "intended but unchanged"
-        },
-        "loop": {
-          "before": "holds",
-          "after": "holds",
-          "label": "intended but unchanged"
-        },
-        "no-ac": {
-          "before": "holds",
-          "after": "holds",
-          "label": "intended but unchanged"
-        },
-        "drafted": {
-          "before": "holds",
-          "after": "holds",
-          "label": "intended but unchanged"
-        }
-      },
-      "feedback": "No fact moved between Before and After: both outputs render six numbered options with the exact option 4/5 sentences and the 1, 2, 4, or 5 funding suffix on the report and drafted gates; both narrate reply 4 as writing `**Engine:** loop` directly below `**Amend-grant:** none`, amending with `--amend --no-edit` to keep the council audit, checking both fields from HEAD, completing the brainstorm phase only afterward, and dispatching `/skill:loop-implementation` with writing-plans skipped; both copy the drafted row and its `in-scope` disposition verbatim under `Drafted acceptance criteria (approval ratifies):`; and both not-fetched branches render only 1, 2, 3, and 6 with the exact `Loop engine unavailable` line, the `none - ticket not fetched (permission denied)` sentinel, and the paste-rows affordance without inventing rows. Two non-judged differences in After are worth watching: it drops the `New predecessor candidates at spec-writing:` line from every gate render, and it moves the `Loop engine unavailable` line from before the options to after option 6 while paraphrasing the paste affordance (`I will` vs `I'll`); if later facts pin the gate's line order or the predecessor-candidates line, restoring Before's ordering (unavailable explanation before the options, predecessor line after Council) would keep the wording stable while still delivering the Change.",
-      "wallMs": 17730,
-      "verdict": "unchanged"
-    },
     "github-copilot/gpt-6.1-sol": {
-      "factsSha": "6b05ac5287fdaad5c3beaefc2df0222d7dfbf8ed7eaaaed723b8900d3ed08c36",
+      "factsSha": "56c2c912aaa8f94ccad98364431e6403da1276a12b73aff52e8e14d01c1ae60c",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "fca13d7b5e47e4fd7cef6c694955a1e97b6332b53995fab6f8b6ae61b70d6d17",
-      "baselineOutputSha": "d2a11fe1dc36b909913766bbf655f64ca2f0bb3bdb13f8fd36e2a41191e48608",
-      "candidateOutputSha": "ef6649a93167dce81142a1c483972b2ac3feeee8d6f6d4c5813276463db335cb",
+      "intentSha": "5b9f462cd6caec9a4a8e3a28a3c0ba61583e1b400c8edb5164d32bba075fea39",
+      "baselineOutputSha": "4eec736cff14ef5206ba270111bf6f4498025a03af7e8b00afdb333b79e10fb3",
+      "candidateOutputSha": "3c0c392da1128ce020a8c81382b26650e1bbeec0538af50641de1fa081fac915",
       "facts": {
         "menu": {
           "before": "holds",
@@ -91,10 +51,117 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "After keeps every fact Before kept: all four branches render the six-option (or 1/2/3/6) menus with the exact option 4 and 5 sentences and the correct funding targets; the continuation persists `**Engine:** loop` directly under `**Amend-grant:** none`, amends the spec commit with `--amend --no-edit` preserving the council audit, verifies both fields from `HEAD:doc/specs/report.md`, completes the brainstorm phase, and dispatches `/skill:loop-implementation` while explicitly refusing `/skill:writing-plans`; the Not-fetched branch has the exact `Loop engine unavailable` line, the preserved `none - ticket not fetched (permission denied)` sentinel, the paste-rows affordance, and no invented rows; the Drafted branch copies the export row and `in-scope` verbatim under the ratification heading with options 4 and 5 present. Nothing moved. Small drift worth tightening in the After wording so verbatim checks stay robust: After wraps the not-fetched sentinel in a fenced `text` block, replaces straight quotes with curly quotes in the funding and revert lines, and drops the `<X>` placeholder brackets (`revert applied council edit X`); none of these broke a fact here, but a stricter judge could read the fenced block as altering the verbatim sentinel or the lost `<X>` as changing the gate's affordance text. Keeping the sentinel as a plain line, the straight quotes, and the `<X>` placeholder—while retaining After's clearer branch headings, explicit pending-prerequisite language, and the `git -C <absolute-worktree>` commands—would deliver the Change with zero textual risk to the gate-wording facts.",
-      "wallMs": 17136,
+      "feedback": "No listed fact changed: After retains the exact loop options and funding choices, conditional header persistence and HEAD verification before dispatch, the drafted row and disposition verbatim, and the isolated three-option not-fetched gate with its sentinel and paste-rows affordance. The added gate markers and clearer narration do not lose any fact Before satisfied. Preserve these gate contracts while making the broader requested changes; for extra clarity, state explicitly that the driver skips planning because Engine is loop, without writing a task plan.",
+      "wallMs": 8266,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "f7b7f3d1ea1f5faed3eab3c7a11c31c5a3811896"
+  "refresh": {
+    "status": "complete",
+    "identity": {
+      "sample": "loop-gate",
+      "kind": "text",
+      "assembly": "headed",
+      "baselineSkillSha": "05a79eab3923b86dd60aed7b1706c7e4c3dfff7abe1d358a3b9fb2d2d0fd21e0",
+      "candidateSkillSha": "8f8907326cc5d935a38de0d2dba0aed69f6cd6715eb32a5e926c2faed18abb44",
+      "inputSha": "696ed400e38a4d9f8f39f62f5e05f7fc3dda8b9d616a0a64558e02081621a92e",
+      "factsSha": "56c2c912aaa8f94ccad98364431e6403da1276a12b73aff52e8e14d01c1ae60c",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "5b9f462cd6caec9a4a8e3a28a3c0ba61583e1b400c8edb5164d32bba075fea39",
+      "models": {
+        "replay": [
+          "github-copilot/gpt-6.1-sol"
+        ],
+        "judge": "github-copilot/gpt-6.1-sol"
+      },
+      "thinking": "medium",
+      "outputs": {
+        "baseline": {
+          "github-copilot/gpt-6.1-sol": {
+            "baselineOutputSha": "4eec736cff14ef5206ba270111bf6f4498025a03af7e8b00afdb333b79e10fb3",
+            "payloadSha": "3af241777083e453fc73c6df4a5ea4cb41907e70580440376f5261b782f95a89"
+          }
+        },
+        "candidate": {
+          "github-copilot/gpt-6.1-sol": {
+            "candidateOutputSha": "1414398692dd4ad9417a22b579bee853ab7a56466b7780c86350e5bd6da8b89f",
+            "payloadSha": "d99826ffd3a8a6497da7a5f3e3daa93ab187712ec6bd24d925928b0260ecb13f"
+          }
+        }
+      }
+    },
+    "previous": {
+      "github-copilot/gpt-6.1-sol": {
+        "factsSha": "56c2c912aaa8f94ccad98364431e6403da1276a12b73aff52e8e14d01c1ae60c",
+        "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+        "intentSha": "5b9f462cd6caec9a4a8e3a28a3c0ba61583e1b400c8edb5164d32bba075fea39",
+        "baselineOutputSha": "4eec736cff14ef5206ba270111bf6f4498025a03af7e8b00afdb333b79e10fb3",
+        "candidateOutputSha": "1414398692dd4ad9417a22b579bee853ab7a56466b7780c86350e5bd6da8b89f",
+        "facts": {
+          "menu": {
+            "before": "holds",
+            "after": "holds",
+            "label": "intended but unchanged"
+          },
+          "loop": {
+            "before": "holds",
+            "after": "holds",
+            "label": "intended but unchanged"
+          },
+          "no-ac": {
+            "before": "holds",
+            "after": "holds",
+            "label": "intended but unchanged"
+          },
+          "drafted": {
+            "before": "holds",
+            "after": "holds",
+            "label": "intended but unchanged"
+          }
+        },
+        "feedback": "After keeps every fact Before kept. Both outputs render the identical five-option menu with the exact option 4/5 sentences and the \"1, 2, 4, or 5\" funding line; the reply-4 continuation in both persists `**Engine:** loop` directly below `**Amend-grant:** none`, amends with `--no-edit` preserving the council audit, verifies both fields from `HEAD:doc/specs/report.md`, completes brainstorm, then invokes `/skill:loop-implementation` while explicitly refusing `/skill:writing-plans` (After also refuses creating a planning stage, which reinforces the skip-for-loop-engine reason rather than a task-plan write). Branch 3 copies the drafted row and `in-scope` verbatim under \"Drafted acceptance criteria (approval ratifies):\" with all five options, and Branch 4 alone shows options 1-3, the exact \"Loop engine unavailable\" line, the preserved not-fetched sentinel, and the paste-rows affordance without inventing rows. The only visible deltas in After are the added `gauntlet: gate=brainstorming/user-review-gate` marker line, the `\\<X>` escape instead of `&lt;X&gt;`, the summary-not-supplied phrasing, and moving the acceptance-criteria line above \"Scope cuts\" in Branch 4; none of these move a judged fact, so the current After wording can be retained as-is, though keeping the Before section order (Scope cuts before Acceptance criteria) in Branch 4 would minimize gratuitous layout drift against the source gate.",
+        "wallMs": 15827,
+        "verdict": "unchanged",
+        "judgeModel": null,
+        "thinking": null
+      }
+    },
+    "refreshed": {
+      "github-copilot/gpt-6.1-sol": {
+        "factsSha": "56c2c912aaa8f94ccad98364431e6403da1276a12b73aff52e8e14d01c1ae60c",
+        "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+        "intentSha": "5b9f462cd6caec9a4a8e3a28a3c0ba61583e1b400c8edb5164d32bba075fea39",
+        "baselineOutputSha": "4eec736cff14ef5206ba270111bf6f4498025a03af7e8b00afdb333b79e10fb3",
+        "candidateOutputSha": "1414398692dd4ad9417a22b579bee853ab7a56466b7780c86350e5bd6da8b89f",
+        "facts": {
+          "menu": {
+            "before": "holds",
+            "after": "holds",
+            "label": "intended but unchanged"
+          },
+          "loop": {
+            "before": "fails",
+            "after": "fails",
+            "label": "intended but unchanged"
+          },
+          "no-ac": {
+            "before": "holds",
+            "after": "holds",
+            "label": "intended but unchanged"
+          },
+          "drafted": {
+            "before": "holds",
+            "after": "holds",
+            "label": "intended but unchanged"
+          }
+        },
+        "feedback": "After preserves the exact loop options and funding affordance, the verbatim drafted block, and the independent not-fetched gate; none of these facts moved. Both continuations describe the header amendment, audit preservation, HEAD checks, and ordered dispatch, but neither explicitly narrates the driver's plan skip with reason `loop engine`, so the full loop fact remains unsatisfied. Add an intended driver action stating that it marks planning skipped for reason `loop engine`, without writing a task plan, while retaining the existing verification-before-transition order and the distinction between intended actions and executed operations.",
+        "wallMs": 13315,
+        "verdict": "unchanged",
+        "judgeModel": "github-copilot/gpt-6.1-sol",
+        "thinking": "medium"
+      }
+    }
+  },
+  "repoSha": "2eb4429b4dd687432969f427f82d45d7840d7c63"
 }

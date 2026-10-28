@@ -1,64 +1,34 @@
 {
   "sample": "pr-list-record-missing-member",
   "arm": "candidate",
-  "skillSha": "275d80fb2c75182609815459b71b1fe8fcdc889c20983319911a7d374f337b13",
+  "skillSha": "8c66670323d18907a38d4a5b2d37725b319da1178890e9ae23d09afe808db96b",
   "inputSha": "d48ba6346453d02069b4ebfcf78b9c29d9998567555f7ce61a13c07ecea49a42",
   "kind": "text",
   "assembly": "headed",
   "thinking": "medium",
   "models": {
     "replay": [
-      "anthropic/claude-opus-5-5",
       "github-copilot/gpt-6.1-sol"
     ],
-    "judge": "anthropic-fable/claude-fable-5-1",
+    "judge": "github-copilot/gpt-6.1-sol",
     "thinking": "medium"
   },
   "outputs": {
-    "anthropic/claude-opus-5-5": {
-      "status": "ok",
-      "text": "# Narrated inline lint: PR rework-record completeness (checklist step 8)\n\nNo tools are available, so the reads below are narrated as required actions, not live calls. The fixed observations do not say whether each reference loaded. Each read therefore carries its own stop condition, and the lint result assumes the reads succeeded.\n\n## Shared preamble (both variants)\n\n1. **Stage: spec-writing replacement is done.** Inline lint runs after the full replacement, as the observations state.\n\n2. **Required read: `skills/brainstorming/reference/ticket-acceptance.md`.**\n   - Step 8 requires this read unless the file is already in context this session. The observations do not say it is, so the read is required.\n   - If it is unreadable, stop with a blocking error. Ticket Handling is never reconstructed from memory.\n\n3. **Required read: `skills/brainstorming/reference/spec-finalization.md`, section \"Spec Self-Review\".**\n   - This section holds the four inline lint checks.\n   - If it is unreadable, stop with a blocking error.\n\n4. **Required read: `skills/brainstorming/reference/pr-subject.md`, section \"Record in the spec\".**\n   - The \"Ticket contract present\" check depends on this file's rework-record contract.\n   - If it is unreadable, stop with a blocking error.\n\n5. **Stage: build the expected identities from the provisioning Step 4 report, never from the record itself.** The order is home first, then `MEMBER_HEADS`:\n   - acme/widget#12 at `1111111111111111111111111111111111111111` (home)\n   - acme/widget#13 at `2222222222222222222222222222222222222222`\n   - acme/widget#14 at `3333333333333333333333333333333333333333`\n\n6. **Stage: run the other lint checks.**\n   - The acceptance criteria section is valid, as the observations state.\n   - The record has exactly one combined field set (Base, Keeps, Changes, Dropped claims, Scoped tests), which is correct.\n\n## Variant A: #14's group and subsection are both absent (the observed state)\n\n7. **Stage: check each expected identity against the record.**\n   - **#12:** the PR / Pre-rework head / Threads group is present, its head matches `1111…1111` in full, and `### PR #12` is present. Pass.\n   - **#13:** the group is present, its head matches `2222…2222` in full, and `### PR #13` is present. Pass.\n   - **#14:** there is no `PR: acme/widget#14` group, so there is no `Pre-rework head:` matching `3333…3333` and no `Threads:` line. There is also no `### PR #14` subsection. **Fail.**\n\n8. **Lint result: FAIL.**\n   - Finding: \"`## Rework record` is missing retained PR acme/widget#14. It has no PR / Pre-rework head / Threads group with head `3333333333333333333333333333333333333333`, and no `### PR #14` provenance subsection.\"\n   - Detection input: the provisioning Step 4 `MEMBER_HEADS` entry for #14. The record never mentions #14, so the check against provisioning is what catches it. A check that read only the record would have passed.\n\n9. **Stage: hold before the critique pass.**\n   - Do not dispatch the council or worker over a spec that fails lint.\n   - The repair must re-carry #14's group and subsection from the gathered `## PR under rework` data.\n   - #14's thread result is not in the fixed observations, so no `Threads:` value or disposition is written here. The repair waits on that source data.\n\n## Variant B: #14's group is present but `### PR #14` is absent\n\n10. **Stage: same identity check.**\n    - **#12** and **#13** pass, as in step 7.\n    - **#14:** a `PR: acme/widget#14` group is present.\n      - Its `Pre-rework head:` must equal `3333333333333333333333333333333333333333` in full. A short or mismatched head would fail separately.\n      - Its `Threads:` line is whatever the record already holds. Nothing is invented here.\n      - There is no `### PR #14 - <title>` provenance subsection.\n\n11. **Lint result: FAIL.**\n    - Finding: \"`## Rework record` is missing the `### PR #14` provenance subsection for retained PR acme/widget#14.\"\n    - Detection input: the same provisioning Step 4 expected-identity list. A present group does not satisfy the predicate, because the group and the lowercase subsection (`keeps:`, `changes:`, `dropped claims:`) are both required.\n\n12. **Stage: hold before the critique pass, as in step 9.**\n    - The repair adds `### PR #14` with #14's lowercase provenance, taken from the gathered `## PR under rework` data.\n    - Nothing is copied from the capitalized combined fields to fill it.\n",
-      "words": 605,
-      "wallMs": 26434,
-      "mechanical": {}
-    },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "### Trace 1 — #14’s group and provenance subsection are missing\n\n1. **Read the provisioning Step 4 report** (narrated from fixed observations, not a live call). The expected inputs, in order, are:\n   - acme/widget#12 — `1111111111111111111111111111111111111111`\n   - #13 — `2222222222222222222222222222222222222222`\n   - #14 — `3333333333333333333333333333333333333333`\n2. **Read the replaced spec’s rework record.** The observed record contains valid PR/Pre-rework head/Threads groups and lowercase provenance subsections for #12 and #13 only. Its combined fields and acceptance criteria are otherwise valid.\n3. **Run post-replacement inline lint.** **FAIL:** expected PR #14 is missing both its PR/Pre-rework head/Threads group and its `### PR #14` provenance subsection. Completeness is checked against the provisioning report—not against the identities already present in the record.\n4. **Stop advancement to critique and the review gate.** Repair requires #14’s actual provenance and fetched thread information; do not invent its thread result.\n\n### Trace 2 — #14’s group is present, but its provenance subsection is missing\n\n1. **Read the same provisioning report.** It still establishes all three PRs and their original heads as the expected inputs.\n2. **Read the variant’s replaced rework record.** #14’s PR/Pre-rework head/Threads group is present, but its `### PR #14` lowercase provenance subsection is absent.\n3. **Run post-replacement inline lint.** **FAIL:** PR #14’s provenance subsection is missing. A present top-level group and complete combined fields do not satisfy the separate subsection requirement.\n4. **Stop advancement to critique and the review gate** until that subsection is restored from actual #14 input. This observation establishes no particular #14 thread result.\n",
-      "words": 237,
-      "wallMs": 15676,
+      "text": "### Trace 1 — #14’s group and provenance subsection are missing\n\n1. **Read the replaced spec (narrated from fixed observations):** The acceptance-criteria section is valid. The rework record has valid PR/Pre-rework head/Threads groups and lowercase provenance subsections for #12 and #13 only, plus one complete combined field set.\n2. **Run inline completeness lint:** Use the **Provisioning Step 4 report**, not the record itself, as the expected-input set, in order:\n   - acme/widget#12 — `1111111111111111111111111111111111111111`\n   - #13 — `2222222222222222222222222222222222222222`\n   - #14 — `3333333333333333333333333333333333333333`\n3. **Fail lint and stop advancement:** PR #14 is missing both its PR/Pre-rework head/Threads group and its `### PR #14` provenance subsection. The complete combined fields do not substitute for either per-PR requirement. Do not advance to critique or the review gate until repaired. #14’s thread result is not supplied and must not be invented.\n\n### Trace 2 — #14’s group is present, but its provenance subsection is missing\n\n1. **Read the variant’s replaced spec (narrated):** #14’s PR/Pre-rework head/Threads group is present, but its `### PR #14` provenance subsection is absent. No thread outcome is inferred from the group’s presence.\n2. **Run inline completeness lint:** Compare against the same ordered Provisioning Step 4 inputs above—not against the identities listed in the spec.\n3. **Fail lint and stop advancement:** PR #14’s missing provenance subsection independently fails completeness. Its group alone is insufficient; repair the subsection before proceeding.\n",
+      "words": 215,
+      "wallMs": 15845,
       "mechanical": {}
     }
   },
   "judge": {
-    "anthropic/claude-opus-5-5": {
-      "factsSha": "08f4b42d7c9433b88383370033253ebdaaa16590341516cdd4f50f6c16a4d26a",
-      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "3fab9022e6546ee557e596de8ba99bbd8a8d5e75db7e126af9d0739b215affa8",
-      "baselineOutputSha": "304c0111f1fb3cc30c11602adcafc7ef92aa4a60d715b956b8497f27777c617d",
-      "candidateOutputSha": "a9e39d0e5ee8b9ee415a401a4e7e2eb790c8049c5c48b60f7fa11f03e91ea143",
-      "facts": {
-        "missing-member": {
-          "before": "holds",
-          "after": "holds",
-          "label": "intended but unchanged"
-        },
-        "missing-subsection": {
-          "before": "holds",
-          "after": "holds",
-          "label": "held"
-        }
-      },
-      "feedback": "Both outputs satisfy both facts, so no fact moved. In each, the expected identity set is built from the provisioning Step 4 home plus MEMBER_HEADS (never the record's own PR lines), Variant A fails naming acme/widget#14 with the explicit note that a record-only check would have passed, the critique/approval path is held until lint passes, and #14's thread result is explicitly left unwritten rather than assumed empty; Variant B in both outputs fails naming the missing `### PR #14` subsection even though the group is present. After's additions are the step-8 ticket-acceptance read with per-read stop conditions and the 'hold before the critique pass' phrasing, neither of which weakens the facts. If you want After to be strictly tighter, keep its current detection wording and add Before's explicit 'lint is re-run after the repair' sentence, and avoid claiming reference loads that the fixed observations never report; otherwise the After wording already delivers the Change while keeping everything Before kept.",
-      "wallMs": 10587,
-      "verdict": "unchanged"
-    },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "08f4b42d7c9433b88383370033253ebdaaa16590341516cdd4f50f6c16a4d26a",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "3fab9022e6546ee557e596de8ba99bbd8a8d5e75db7e126af9d0739b215affa8",
-      "baselineOutputSha": "2848662e3946f00b8a9133e832d6c883a36f1fbba4c88d85c094afcfde13b994",
-      "candidateOutputSha": "a8f94daf8518d27054455f22e09e43f426aac58976b085690aafc3ce7819e250",
+      "intentSha": "5b9f462cd6caec9a4a8e3a28a3c0ba61583e1b400c8edb5164d32bba075fea39",
+      "baselineOutputSha": "0d438e800f7d9e7f74d05f455c3ec9e596e41544e9fda4d37762f4bd82acdd8d",
+      "candidateOutputSha": "a0834420e159ed363c522629e016a43f2453dce442bbdbec49bf594f884b66db",
       "facts": {
         "missing-member": {
           "before": "holds",
@@ -71,10 +41,97 @@
           "label": "held"
         }
       },
-      "feedback": "Nothing moved on this sample: both outputs run the completeness rule against the provisioning Step 4 set (home #12 plus MEMBER_HEADS #13, #14) rather than the record's own PR lines, fail inline lint naming #14 in Trace 1, stop before critique/the review gate, and explicitly refuse to invent #14's thread result; Trace 2 in both outputs independently fails on the absent `### PR #14` provenance subsection while the group is present. After is actually slightly tighter on the gate language (\"Stop advancement to critique and the review gate\") and on the no-live-call framing. If anything, keep After's explicit \"checked against the provisioning report—not against the identities already present in the record\" sentence, since it is the clearest statement of the input-sensitive rule and would survive further assembly growth; the amendment-surface section 5 change did not disturb this routing.",
-      "wallMs": 8666,
+      "feedback": "After preserves both facts: it derives expected membership from Provisioning Step 4, names #14 in both completeness failures, stops before critique or the review gate, and avoids inventing a thread result. No fact moved. Retain the explicit provisioned-input baseline and the independent provenance-subsection requirement; no further wording change is needed for these facts.",
+      "wallMs": 4209,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "488adb5f77d82365012e1a6030f3b11a1e35f420"
+  "refresh": {
+    "status": "complete",
+    "identity": {
+      "sample": "pr-list-record-missing-member",
+      "kind": "text",
+      "assembly": "headed",
+      "baselineSkillSha": "5f272e7ae322db1442828ba4270ba7deabbe466831c601588f2dda2bdc4e78e6",
+      "candidateSkillSha": "962d0dc4251677fe5c66671ef411e9aa659df8856fab4dbc07e56e1f950e863f",
+      "inputSha": "d48ba6346453d02069b4ebfcf78b9c29d9998567555f7ce61a13c07ecea49a42",
+      "factsSha": "08f4b42d7c9433b88383370033253ebdaaa16590341516cdd4f50f6c16a4d26a",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "5b9f462cd6caec9a4a8e3a28a3c0ba61583e1b400c8edb5164d32bba075fea39",
+      "models": {
+        "replay": [
+          "github-copilot/gpt-6.1-sol"
+        ],
+        "judge": "github-copilot/gpt-6.1-sol"
+      },
+      "thinking": "medium",
+      "outputs": {
+        "baseline": {
+          "github-copilot/gpt-6.1-sol": {
+            "baselineOutputSha": "0d438e800f7d9e7f74d05f455c3ec9e596e41544e9fda4d37762f4bd82acdd8d",
+            "payloadSha": "93dbd75aaa21cf8255928a2ac1c3a7fdd3cbedca9f85b344f77860cee2dbbf26"
+          }
+        },
+        "candidate": {
+          "github-copilot/gpt-6.1-sol": {
+            "candidateOutputSha": "cbddcb1c41411f784601800842d098a39d5dd6ceb6dcfd32d2ecd91ae3698e29",
+            "payloadSha": "7014e13076fdca51b99706dbe73fd632caa1d8e0ec42da745c3ecf1291389c66"
+          }
+        }
+      }
+    },
+    "previous": {
+      "github-copilot/gpt-6.1-sol": {
+        "factsSha": "08f4b42d7c9433b88383370033253ebdaaa16590341516cdd4f50f6c16a4d26a",
+        "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+        "intentSha": "5b9f462cd6caec9a4a8e3a28a3c0ba61583e1b400c8edb5164d32bba075fea39",
+        "baselineOutputSha": "0d438e800f7d9e7f74d05f455c3ec9e596e41544e9fda4d37762f4bd82acdd8d",
+        "candidateOutputSha": "cbddcb1c41411f784601800842d098a39d5dd6ceb6dcfd32d2ecd91ae3698e29",
+        "facts": {
+          "missing-member": {
+            "before": "holds",
+            "after": "holds",
+            "label": "intended but unchanged"
+          },
+          "missing-subsection": {
+            "before": "holds",
+            "after": "holds",
+            "label": "held"
+          }
+        },
+        "feedback": "No fact moved: both Before and After fail lint naming PR #14, derive expected membership from the provisioning Step 4 report rather than the record's own PR lines, stop advancement before critique, and refuse to invent #14's thread result; both also treat the group-only variant as still incomplete for want of the ### PR #14 provenance subsection. The only softening in After is that it says the stop happens 'before critique or finalization' where Before explicitly said 'before proceeding to critique or the review gate'; a careful reader still infers the approval gate is not reached, but to keep the fact unambiguous under future wording changes, name the gate directly (e.g. 'stop before critique and before the review/approval gate'). The staged read/stage/result layout and the explicit 'compare against the provisioning report, not identities inferred from the record' line in After are good and should be retained as they make the input-sensitive rule visible.",
+        "wallMs": 9470,
+        "verdict": "unchanged",
+        "judgeModel": null,
+        "thinking": null
+      }
+    },
+    "refreshed": {
+      "github-copilot/gpt-6.1-sol": {
+        "factsSha": "08f4b42d7c9433b88383370033253ebdaaa16590341516cdd4f50f6c16a4d26a",
+        "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+        "intentSha": "5b9f462cd6caec9a4a8e3a28a3c0ba61583e1b400c8edb5164d32bba075fea39",
+        "baselineOutputSha": "0d438e800f7d9e7f74d05f455c3ec9e596e41544e9fda4d37762f4bd82acdd8d",
+        "candidateOutputSha": "cbddcb1c41411f784601800842d098a39d5dd6ceb6dcfd32d2ecd91ae3698e29",
+        "facts": {
+          "missing-member": {
+            "before": "holds",
+            "after": "holds",
+            "label": "intended but unchanged"
+          },
+          "missing-subsection": {
+            "before": "holds",
+            "after": "holds",
+            "label": "held"
+          }
+        },
+        "feedback": "After preserves both facts: it explicitly compares the record against provisioning membership, names #14 in both lint failures, stops advancement, and refuses to invent its thread result. No fact moved. Keep the explicit provisioning-based check and the separate missing-subsection variant; saying “stop before critique or the approval gate” instead of “before critique or finalization” would make the gate boundary unambiguous without changing the demonstrated behavior.",
+        "wallMs": 4542,
+        "verdict": "unchanged",
+        "judgeModel": "github-copilot/gpt-6.1-sol",
+        "thinking": "medium"
+      }
+    }
+  },
+  "repoSha": "2eb4429b4dd687432969f427f82d45d7840d7c63"
 }

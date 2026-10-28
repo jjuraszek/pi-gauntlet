@@ -1,4 +1,4 @@
-for: d4729aee217a2f631f98bc340934cbf58389556b136c8c757700d6d1f95405a4
+for: 742f9cf66b605e4a4f28e01903dfdb3417c2a30a26a049ab994969c4b6e376ac
 
 ## Change
 Resolve configured sibling clone URLs beside the primary checkout, with shared stored-origin identity parsing and parent-owned nonblocking report lines. Keep home cwd at the current checkout; cover linked worktrees, external Git directories, submodules and successful worktree-list output without a primary entry. Reject legacy paths with a migration line. Preserve report-only outcomes through missing, empty or malformed scout artifacts and quiet no-op reports without opening a gate. Fold grounded legs from found absolute paths using stored origin names; keep existing grounding and dispatch guards.
@@ -16,7 +16,11 @@ Clarify the overlap reference's repeated-defect rule: completion plus compatible
 
 Carry source provenance in Problem, surface named gaps at the existing gate, require create acknowledgment, and accept repair's displayed missing-at-filing constant with plain yes. Retain baseline facts already holding as guards. Keep bug repro steps and observed-vs-expected in the gate's Evidence list and AC rows, leaving each Problem example at rule 5's one sentence or one number followed by its source footer. Name cwd = repo root on Roast item 2's inline chair Call 2, as on Call 1, preserving the existing chair working-directory requirement.
 
+Mark active clarification and integrity questions, the exact-diff gate, and ended batch settlement. Use fixed-order nonzero counters and stuck only for unfetched, close-failed or close-by-hand outcomes. Keep per-ref reports and exact-diff write authority intact; never reopen an ended stopped item.
+
 ## Expected to move
+- gate-line-first/settlement: fails -> holds - Render exact fixed-order nonzero counters on the first stuck line.
+- gate-line-first/per-ref: holds -> holds - Preserve the six lines and keep ended stops settled.
 - obsolete-premise-contradicted/verdict: fails -> holds - Both pre-edit replies omit the obsolete line; require confirmed premise contradiction before not reproduced.
 - obsolete-premise-contradicted/close: fails -> holds - Both pre-edit replies omit the close operation and its evidence.
 - obsolete-premise-contradicted/recommended: fails -> holds - Both pre-edit replies omit a recommended close row.

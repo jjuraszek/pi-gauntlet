@@ -1,74 +1,34 @@
 {
   "sample": "legacy-cap-brief",
   "arm": "candidate",
-  "skillSha": "a35634c6414fa3f50374022cbe391b1ae8aae8a868c28f18509206e416132864",
+  "skillSha": "af502990cb0276199bcaa99f4ae6dae5de7366ecbb3db985f58ba34452860a31",
   "inputSha": "2e2906777da545cf67b9a3a9c5bb24fdc9664f52abdf1a97f2fc76bcf55bb216",
   "kind": "text",
   "assembly": "headed",
   "thinking": "medium",
   "models": {
     "replay": [
-      "anthropic/claude-opus-5-5",
       "github-copilot/gpt-6.1-sol"
     ],
-    "judge": "anthropic-fable/claude-fable-5-1",
+    "judge": "github-copilot/gpt-6.1-sol",
     "thinking": "medium"
   },
   "outputs": {
-    "anthropic/claude-opus-5-5": {
-      "status": "ok",
-      "text": "# Restore narration: three independent Ledger briefs (implement, verify, ship)\n\n**Values shared by all three briefs**\n\n| Item | Value |\n|---|---|\n| Worktree | `/work/app/.worktrees/loop` (clean, named branch, same repository) |\n| Spec | `/work/app/.worktrees/loop/doc/specs/run.md`, resolved from the ledger's path-only `**Spec:**` header, not by basename. Engine is loop and grant is none. |\n| Ledger | `/work/app/.worktrees/loop/doc/plans/run-ledger.md`. Line 1 is `# Ledger - loop engine`. Base is `abc123`, verification is `node --test check.mjs`, `iterations: 7`, and there is **no `cap:` line**. |\n| Settings | Not recomputed. Entry step 1 is skipped for an admitted ledger. I make no `gauntlet_setting({ key: \"loopEngine\" })` call, and I never derive a cap from `maxIterationsPerRow`. |\n\n---\n\n## Branch A: implement brief\n\n**Tool calls, in order** (entry checks 1-6 are already passed; check 6 Grant field is none):\n\n1. `phase_tracker({ action: \"start\", phase: \"brainstorm\" })`\n2. `phase_tracker({ action: \"skip\", phase: \"brainstorm\", reason: \"resume: /work/app/.worktrees/loop/doc/specs/run.md\" })`\n3. `phase_tracker({ action: \"start\", phase: \"plan\" })`\n4. `plan_check({ planPath: \"/work/app/.worktrees/loop/doc/plans/run-ledger.md\" })` returns **PASS**.\n5. `phase_tracker({ action: \"skip\", phase: \"plan\", reason: \"resume: /work/app/.worktrees/loop/doc/specs/run.md (loop engine)\" })`\n6. `phase_tracker({ action: \"start\", phase: \"implement\" })`\n\nThere is no `plan_tracker init` and no task tracker.\n\n**Lines printed:**\n\n- The brief-contract closing line: gate history not restored; re-validate the ledger state.\n- `No standing grant.`\n\n**Ledger state rendered:**\n\n- `iterations: 7`\n- `cap: (missing)`\n- Row 1 `done`, attempts 2, evidence `check passed`\n- Decision history\n\n**Shared cap boundary** (reconstruction \"Spec with ledger\" step 4, which is `Before each dispatch`):\n\n- The tree is clean.\n- I read the ledger and require `cap:` before the ordered table, including before rule 1.\n- The header is missing, so this is a legacy stop **even though every row is closed**:\n\n```\nledger has no cap: line - seeded under the old loopEngine contract\nProblem: \"check passed\" / last decision: \"<last decision line, quoted verbatim from the ledger>\"\nPreserve every row's attempts and the total iteration cap.\nOptions: cap +N (raise cap) | Amend | Stop\n```\n\nImplement stays active.\n\n**Human replies `cap +5`:**\n\n- The reply parses as anchored `cap +5` with a token boundary. The words cell is empty.\n- Under `## Decisions` I append `cap +5 |`.\n- The cap was missing, so it is set to durable iterations + N = 7 + 5. I write `cap: 12` directly after `iterations: 7`.\n- I commit once as `loop: raise cap`.\n- Iterations stay 7 and attempts are unchanged.\n- The empty-child and validation-miss windows are not reset, and this commit is excluded from child-commit counting.\n\n**Continuation, back to the ordered table:**\n\n- **Rule 1:** there is no `open` or `failed` row, so I go to exit verification without dispatching.\n- **Exit verification:** run `(cd \"/work/app/.worktrees/loop\" && node --test check.mjs)` exactly once, in the foreground.\n  - **On success:** record the verified HEAD and clean status, then call `phase_tracker({ action: \"complete\", phase: \"implement\" })`.\n  - **On failure:** stop with `Stopped: verification failed with every row closed`. There is no reopening and no rerun.\n- **After the loop:**\n  - Read SDD `After All Tasks Complete`, `happy-path-run.md` and `conformance-check.md` in full.\n  - Call `phase_tracker({ action: \"start\", phase: \"verify\" })`.\n  - Step 1 reuses the exit run only if HEAD and the clean tree still match.\n  - Then run the whole-diff `code-reviewer` (base `abc123` through HEAD), happy path if triggered, and a fresh `conformance-reviewer`.\n  - Then `## Closure / conformance`, then `/skill:finishing-a-development-branch /work/app/.worktrees/loop`.\n\n---\n\n## Branch B: verify brief\n\n**Tool calls, in order:**\n\n1. `start brainstorm`\n2. `skip brainstorm`, reason `resume: /work/app/.worktrees/loop/doc/specs/run.md`\n3. `start plan`\n4. `plan_check({ planPath: \"/work/app/.worktrees/loop/doc/plans/run-ledger.md\" })` returns **PASS**.\n5. `skip plan`, reason `resume: /work/app/.worktrees/loop/doc/specs/run.md (loop engine)`\n6. `phase_tracker({ action: \"skip\", phase: \"implement\", reason: \"resume: pasted brief\" })`\n7. `phase_tracker({ action: \"start\", phase: \"verify\" })`\n\nI never call `start implement` and make no task-tracker calls.\n\n**Lines printed:**\n\n- The closing line.\n- `No standing grant.`\n\n**Shared cap boundary, before verification:**\n\n- I render the cap and ledger state.\n- The cap is missing, so I issue the **same legacy stop text** as Branch A, with options `cap +N | Amend | Stop`.\n- The human replies `cap +5`. I append `cap +5 |`, write `cap: 12` after `iterations: 7`, and commit once as `loop: raise cap`. Iterations and attempts are unchanged.\n\n**Continuation in its original phase:**\n\n- Go to `/skill:loop-implementation` `After the loop`, **from step 1**. `start verify` is already restored, so step 0 is not repeated.\n- **Step 1:** full ledger verification with `node --test check.mjs`, run fresh because there is no exit run in this session.\n- **Steps 2-5:** whole-diff code review, happy path when triggered, fresh conformance review, then finishing.\n- There are no task-tracker calls.\n\n---\n\n## Branch C: ship brief\n\n**Tool calls:** the same sequence as Branch B. Restoration stops at **verify in_progress**:\n\n- `complete verify` needs a fresh conformance dispatch.\n- `skip verify` would bypass a real gate.\n\n**Lines printed:**\n\n- The closing line.\n- `No standing grant.`\n- The announcement: the closure review re-runs before ship.\n\n**Shared cap boundary:**\n\n- The same legacy stop is issued.\n- The human replies `cap +5`, which produces `cap +5 |`, `cap: 12`, and the commit `loop: raise cap`.\n\n**Continuation:** the same as Branch B, `After the loop` from step 1. The fresh `conformance-reviewer` must return CONFORMS, or a valid carried-open deferred inventory, before verify completes. Shipping then goes through the finishing skill's menu.\n\n---\n\n## Dirty-tree handling (all branches)\n\nIf the worktree were dirty at the boundary:\n\n- **What is stopped:**\n  - The restore stops before any dispatch (implement) or verification (verify/ship).\n  - Changes are preserved and the ledger is reused, not overwritten.\n- **What is offered:**\n  - A dirty-tree stop **never offers `cap +N`**.\n  - It only asks the human to authorize discarding uncommitted changes or resetting to the last valid commit.\n- **If a retry follows:** iterations are set to the restored HEAD's value + 1 before the next normal bump, so the consumed count is preserved.\n- **Cap commit:** the `loop: raise cap` commit is made only from the clean, legacy missing-cap stop.\n",
-      "words": 901,
-      "wallMs": 34531,
-      "mechanical": {}
-    },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "The missing-cap boundary applies to **all three briefs**, even though every row is closed. No settings lookup or cap recomputation is permitted.\n\nAn entirely literal transcript is not possible from the supplied material: the required closing line, the last decision’s text, and the continuation references are not included. I would not invent them. The determinable calls and output follow.\n\n## Ordered restore\n\nThe full ordered sequence is stated below; calls already completed before the supplied checkpoint are not repeated.\n\nFor each independent brief:\n\n1. Read the ledger’s first line and resolve its path-only Spec header to `/work/app/.worktrees/loop/doc/specs/run.md`.\n2. Run entry checks 1–6, explicitly including **check 6: Grant field**. These have passed; grant is none.\n3. `phase_tracker({ action: \"start\", phase: \"brainstorm\" })`\n4. `phase_tracker({ action: \"skip\", phase: \"brainstorm\", reason: \"resume: /work/app/.worktrees/loop/doc/specs/run.md\" })`\n5. `phase_tracker({ action: \"start\", phase: \"plan\" })`\n6. At the supplied checkpoint, call:\n\n```text\nplan_check({ planPath: \"/work/app/.worktrees/loop/doc/plans/run-ledger.md\" })\n```\n\nObserved result: `PASS`.\n\nNext call:\n\n```text\nphase_tracker({\n  action: \"skip\",\n  phase: \"plan\",\n  reason: \"resume: /work/app/.worktrees/loop/doc/specs/run.md (loop engine)\"\n})\n```\n\nThen branch by the brief’s original phase:\n\n### Implement brief\n\n```text\nphase_tracker({ action: \"start\", phase: \"implement\" })\n```\n\n### Verify brief\n\n```text\nphase_tracker({\n  action: \"skip\",\n  phase: \"implement\",\n  reason: \"resume: pasted brief\"\n})\nphase_tracker({ action: \"start\", phase: \"verify\" })\n```\n\n### Ship brief\n\nUse the same calls as verify:\n\n```text\nphase_tracker({\n  action: \"skip\",\n  phase: \"implement\",\n  reason: \"resume: pasted brief\"\n})\nphase_tracker({ action: \"start\", phase: \"verify\" })\n```\n\nShip is restored at **verify**, not ship; the closure review must run again.\n\nNo branch calls `plan_tracker init`.\n\n## Shared boundary, before phase-specific continuation\n\nRender the durable ledger state:\n\n```text\niterations: 7\ncap: missing\nrow 1: done; attempts: 2; evidence: check passed\n```\n\nRender the existing Decisions section verbatim; its text was not supplied here.\n\nThe missing-cap check precedes the “all rows closed” rule. Print:\n\n```text\nledger has no cap: line - seeded under the old loopEngine contract\n```\n\nDo not dispatch, run verification, derive a cap from settings, or treat the closed row as permission to proceed.\n\nThe stop includes:\n\n```text\nPreserve every row's attempts and the total iteration cap.\n```\n\nOffer `cap +N` at this clean legacy missing-cap stop. This is separate from row funding; no standing grant is inferred.\n\n## Human replies `cap +5`\n\nFor **each independent branch**, accept the reply and make precisely these durable changes:\n\n```text\niterations: 7\ncap: 12\n```\n\nInsert `cap: 12` immediately after `iterations: 7`, and append under `## Decisions`:\n\n```text\ncap +5 |\n```\n\nLeave row 1, its attempts and evidence, prior decisions, and iterations unchanged.\n\nCommit both changes exactly once:\n\n```text\ngit -C \"/work/app/.worktrees/loop\" add -- doc/plans/run-ledger.md\ngit -C \"/work/app/.worktrees/loop\" commit -m \"loop: raise cap\"\n```\n\nThis grant resets neither the empty-child window nor the validation-miss window. It does not change the original continuation phase.\n\nUpon successful restoration, print the contract’s closing line verbatim, then on its own line:\n\n```text\nNo standing grant.\n```\n\nThe closing line itself cannot be quoted exactly because it was not supplied.\n\n## Continue each original branch\n\n### Implement\n\nContinue at **Before each dispatch**, using the existing ledger.\n\nThe cap is now present. Row 1 is done, so rule 1 selects **Exit verification**, without a child dispatch or iteration increment:\n\n```text\n(cd \"/work/app/.worktrees/loop\" && node --test check.mjs)\n```\n\nNo result for this command was supplied. Do not claim success or call `complete implement` without observing a successful result.\n\nOn success, record verified HEAD and clean status, then:\n\n```text\nphase_tracker({ action: \"complete\", phase: \"implement\" })\n```\n\nRead the three required continuation references in full. Only after those reads succeed, continue **After the loop**, starting with `start verify`.\n\n### Verify\n\nRemain at verify. Retain `iterations: 7`, `cap: 12`, the closed row and all decisions.\n\nRead **After the loop** and its required references in full; continue from step 1, **full ledger verification**, without repeating `start verify`:\n\n```text\n(cd \"/work/app/.worktrees/loop\" && node --test check.mjs)\n```\n\nNo prior passing verification result was supplied for reuse. Continue only on observed results, retaining whole-diff review, any triggered happy path, fresh conformance review and finishing.\n\n### Ship\n\nContinue identically to the verify branch. Do not restore or bypass the closure gate with `skip verify`; fresh conformance is required before shipping.\n\n## Dirty-tree handling\n\nA dirty tree stops before dispatch. Preserve changes and commits; do not clean or reset automatically. At a dirty-tree or commit-boundary stop, ask for explicit discard/reset authorization and do **not** offer `cap +N` as the recovery action. Preserve consumed dispatch counts, every row’s attempts and the durable cap.\n",
-      "words": 699,
-      "wallMs": 53836,
+      "text": "The three cases are independent. All paths below resolve under `/work/app/.worktrees/loop`. Calls are narrated, not executed.\n\nThe supplied excerpt refers to a mandatory restore closing line but does not include its text. I cannot reproduce that line exactly or invent a substitute.\n\n## Implement brief\n\nEntry checks 1–6, including check 6’s Grant-field validation, have passed. The ordered restore is: entry checks 1–6 → brainstorm start/skip → plan start/check/skip → implement start → shared cap boundary → loop step 5. The calls before `plan_check` have already occurred; do not repeat them.\n\n1. Call:\n   ```text\n   plan_check({ planPath: \"/work/app/.worktrees/loop/doc/plans/run-ledger.md\" })\n   ```\n   Observed result: `PASS`.\n\n2. Call:\n   ```text\n   phase_tracker({\n     action: \"skip\",\n     phase: \"plan\",\n     reason: \"resume: /work/app/.worktrees/loop/doc/specs/run.md (loop engine)\"\n   })\n   ```\n\n3. Call:\n   ```text\n   phase_tracker({ action: \"start\", phase: \"implement\" })\n   ```\n\n4. Render the restored ledger state:\n   ```text\n   iterations: 7\n   cap: missing\n   row 1: done; attempts: 2; evidence: check passed\n   ```\n   Render the existing Decisions section verbatim; its actual text was not supplied.\n\n5. Apply the shared boundary **before** the all-rows-closed rule. Print:\n   ```text\n   ledger has no cap: line - seeded under the old loopEngine contract\n   Preserve every row's attempts and the total iteration cap.\n   ```\n   Offer `cap +N` or stopping. Do not dispatch, run verification, derive a cap from settings, or treat the closed row as an exemption.\n\n6. Human replies:\n   ```text\n   cap +5\n   ```\n\n7. Edit the existing ledger, inserting directly after `iterations: 7`:\n   ```text\n   cap: 12\n   ```\n   Append under `## Decisions`:\n   ```text\n   cap +5 |\n   ```\n   Preserve iterations, rows, attempts, evidence, and all prior decisions.\n\n8. Commit those ledger changes exactly once:\n   ```bash\n   git -C \"/work/app/.worktrees/loop\" add -- doc/plans/run-ledger.md\n   git -C \"/work/app/.worktrees/loop\" commit -m \"loop: raise cap\"\n   ```\n   This is the explicitly authorized loop-driver cap action, not plan repair or a marker commit.\n\n9. Print the prescribed restore closing line, whose exact text is absent from the supplied material. Then print on its own line:\n   ```text\n   No standing grant.\n   ```\n\n10. Continue in loop-implementation at **Before each dispatch**, not its entry. Re-read the ledger and render `cap: 12`, the unchanged row, and its decision history. The cap grant resets neither retry window.\n\n11. With every row closed, take rule 1: no child dispatch. Run the ledger command exactly once, foreground:\n   ```bash\n   (cd \"/work/app/.worktrees/loop\" && node --test check.mjs)\n   ```\n   No verification result was supplied, so do not claim success or call `complete implement` yet.\n\n   On failure, print:\n   ```text\n   Stopped: verification failed with every row closed\n   ```\n   Quote the failing output in `Problem:` and print:\n   ```text\n   Preserve every row's attempts and the total iteration cap.\n   ```\n   On success, record verified HEAD and clean status, call `complete implement`, then continue immediately through loop-implementation’s **After the loop**, including its required reference reads and `start verify`.\n\n## Verify brief\n\nThe already-passed entry checks and brainstorm/plan-start prefix are not repeated.\n\n1. Call:\n   ```text\n   plan_check({ planPath: \"/work/app/.worktrees/loop/doc/plans/run-ledger.md\" })\n   ```\n   Observed result: `PASS`.\n\n2. Call:\n   ```text\n   phase_tracker({\n     action: \"skip\",\n     phase: \"plan\",\n     reason: \"resume: /work/app/.worktrees/loop/doc/specs/run.md (loop engine)\"\n   })\n   ```\n\n3. Call:\n   ```text\n   phase_tracker({\n     action: \"skip\",\n     phase: \"implement\",\n     reason: \"resume: pasted brief\"\n   })\n   ```\n\n4. Call:\n   ```text\n   phase_tracker({ action: \"start\", phase: \"verify\" })\n   ```\n   Never call `start implement` or initialize a task tracker.\n\n5. Render the restored ledger and apply the **same missing-cap boundary before verification**, even though every row is closed. Print:\n   ```text\n   ledger has no cap: line - seeded under the old loopEngine contract\n   Preserve every row's attempts and the total iteration cap.\n   ```\n   Offer `cap +N` or stopping. Verify remains active.\n\n6. On the independent reply `cap +5`, make and commit exactly the same durable cap change as above: `cap: 12`, appended `cap +5 |`, commit `loop: raise cap`. Preserve iterations at 7 and row attempts at 2.\n\n7. Print the prescribed restore closing line, then:\n   ```text\n   No standing grant.\n   ```\n\n8. Stay on the original verify route. Render the restored ledger with cap 12. Read in full:\n   - SDD’s **After All Tasks Complete**\n   - `subagent-driven-development/reference/happy-path-run.md`\n   - `verification-before-completion/reference/conformance-check.md`\n\n   Stop if any required reference is unreadable; do not reconstruct it.\n\n9. Continue loop-implementation’s **After the loop**, starting at step 1 after the already-restored `start verify`. There is no supplied reusable passing verification run, so run:\n   ```bash\n   (cd \"/work/app/.worktrees/loop\" && node --test check.mjs)\n   ```\n   Do not invent its result. Subsequent gates retain whole-diff code review, happy path when triggered, fresh conformance review, and finishing. No task-tracker calls.\n\n## Ship brief\n\nUse exactly the verify restoration sequence above:\n\n```text\nplan_check({ planPath: \"/work/app/.worktrees/loop/doc/plans/run-ledger.md\" })\nphase_tracker({ action: \"skip\", phase: \"plan\", reason: \"resume: /work/app/.worktrees/loop/doc/specs/run.md (loop engine)\" })\nphase_tracker({ action: \"skip\", phase: \"implement\", reason: \"resume: pasted brief\" })\nphase_tracker({ action: \"start\", phase: \"verify\" })\n```\n\nAfter `PASS`, apply the same missing-cap stop before verification, accept this branch’s independent `cap +5`, and commit `cap: 12` plus `cap +5 |` as `loop: raise cap`. Preserve all existing iteration and row data.\n\nPrint the prescribed restore closing line, then:\n```text\nNo standing grant.\n```\n\nAnnounce:\n```text\nRestoration stops at verify in_progress; the closure review re-runs before ship.\n```\n\nContinue through the same required reads and full ledger verification as the verify branch. Do not skip verify, complete it using old evidence, or start ship directly.\n\n## Dirty-tree handling\n\nA dirty tree stops before dispatch; do not overwrite or reseed the ledger, silently discard changes, or offer `cap +N` at a dirty-tree/commit-boundary stop. Ask for explicit authorization before discarding uncommitted changes or resetting to the last valid commit. Preserve consumed dispatch count, every row’s attempts, and the total iteration cap. A cap grant does not authorize cleanup or bypass verification.\n",
+      "words": 855,
+      "wallMs": 36075,
       "mechanical": {}
     }
   },
   "judge": {
-    "anthropic/claude-opus-5-5": {
-      "factsSha": "0322acaa7fb2b8a56679823e8921fc2c68139c1d7f2e652546787165da13a1ff",
-      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "7500a3c2a7f644dc3286b896b330e3f5f38eef70bf09dd727a59955d820f5a26",
-      "baselineOutputSha": "1d3683d797a207686d6e3652d34a06134b94aacd1be9d1bbdf099398d3afa990",
-      "candidateOutputSha": "c3cd895d645ccb434f3815033bf5e950c277629ec36505fa36e7057bc7586a45",
-      "facts": {
-        "boundary": {
-          "before": "holds",
-          "after": "holds",
-          "label": "held"
-        },
-        "grant": {
-          "before": "holds",
-          "after": "holds",
-          "label": "held"
-        },
-        "continue": {
-          "before": "holds",
-          "after": "holds",
-          "label": "held"
-        },
-        "dirty": {
-          "before": "holds",
-          "after": "holds",
-          "label": "held"
-        }
-      },
-      "feedback": "After keeps every fact Before kept: all three branches stop at the shared boundary before dispatch/verification on the completed ledger with the legacy 'ledger has no cap: line - seeded under the old loopEngine contract' text, settings are explicitly not recomputed, the grant writes `cap +5 |` and `cap: 12` in a single `loop: raise cap` commit with iterations 7 and attempts untouched, implement returns to the ordered table and exits via rule 1, verify/ship resume After the loop from step 1 with full verification, whole-diff review, fresh conformance and finishing with no tracker calls, and the dirty-tree stop withholds `cap +N` and requires human authorization. Two small drifts in After are worth tightening even though nothing moved: the stop block lost its `Stopped:` prefix and the `Retry with hint` option that Before showed, and the Problem line now quotes the row evidence (\"check passed\") rather than the ledger path/iterations line, which weakens the match to the canonical stop schema; restore `Stopped: ledger has no cap: line - seeded under the old loopEngine contract`, keep `Problem: ledger doc/plans/run-ledger.md has iterations: 7 and no cap: header; last decision: <quoted>`, and keep the full option list while retaining After's clearer table of shared values, the explicit brainstorm/plan call order, and the 'Implement stays active' / 'stop even though every row is closed' phrasing, which delivers the Change's shared-boundary intent well.",
-      "wallMs": 20785,
-      "verdict": "unchanged"
-    },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "0322acaa7fb2b8a56679823e8921fc2c68139c1d7f2e652546787165da13a1ff",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "7500a3c2a7f644dc3286b896b330e3f5f38eef70bf09dd727a59955d820f5a26",
-      "baselineOutputSha": "b0ffcf32b1f26d588df9116c2b8d4bd43c3f40355a566bb245294d384d6f6637",
-      "candidateOutputSha": "d96755c3459fcba7507ec2335950b7abad9e4fcad3807db13dc3517317c45ef3",
+      "intentSha": "70baa08ac12037f7a701b4df4bb563b0145baad774d710d83b55dc84d07f6e4a",
+      "baselineOutputSha": "2d627f26c4817591b9ee23ddec37c6afec09ac7191ff6568992b33958d3a72a1",
+      "candidateOutputSha": "3d127a418d8c69cc8995775c1b3e063f4f7ccb2c17a8b53de29aaaa9e7050cc9",
       "facts": {
         "boundary": {
           "before": "holds",
@@ -91,10 +51,117 @@
           "label": "held"
         }
       },
-      "feedback": "After keeps every fact Before kept: it states the shared missing-cap stop for all three briefs before dispatch/verification with the exact `ledger has no cap: line - seeded under the old loopEngine contract` line and a no-settings-derivation rule, performs the single `cap: 12` / `cap +5 |` edit with one `loop: raise cap` commit preserving iterations 7 and attempts 2, continues implement at Before each dispatch (rule 1 exit), verify/ship in After the loop step 1 without repeating start verify or skipping to ship, and handles a dirty tree with no `cap +N` and explicit cleanup authorization. Two things were weakened relative to Before and are worth restoring so the grant and continue facts stay unambiguous: After no longer explicitly says to re-render the updated ledger state (cap: 12 plus decision history) after the grant—it only says 'retain'—and the verify/ship continuation no longer states 'No task-tracker calls' (After only says no branch calls `plan_tracker init`). Add a line after the commit such as 'Render the updated `cap: 12`, iterations, attempts and the full Decisions history, distinguishing operational row decisions from the cap grant' and keep Before's 'No task-tracker calls; do not reseed the ledger' sentence in the After-the-loop continuation; both fit the Change's shared-boundary/render goal without altering any held fact.",
-      "wallMs": 22148,
+      "feedback": "No listed fact moved: After preserves the shared missing-cap stop, durable +5 grant, phase-specific continuation, and dirty-tree protections. Its numbered restoration sequence and named verification references make the continuation more explicit. To retain that clarity while delivering the requested Change, mark resume discovery and approval/continuation asks before prose, mark nonrecoverable stops without implying approval, and let successful restoration continue without a terminal marker. Also state globally that the shared boundary precedes dispatch or verification in every branch, never re-resolves loopEngine settings, and stops on a dirty tree before granting cap; render counters and decision history consistently in all three branches.",
+      "wallMs": 8864,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "43b5ec3f2933c5a716c49916e9b1b7c002bb3da2"
+  "refresh": {
+    "status": "complete",
+    "identity": {
+      "sample": "legacy-cap-brief",
+      "kind": "text",
+      "assembly": "headed",
+      "baselineSkillSha": "4d59e6a190eabd4af7099602724590c2162309c95d78b0170daef650b21d92a0",
+      "candidateSkillSha": "42f2d8ce055252f91cab26f82143e3ab9fb89062c10acbd7d6f4a25e84d883ea",
+      "inputSha": "2e2906777da545cf67b9a3a9c5bb24fdc9664f52abdf1a97f2fc76bcf55bb216",
+      "factsSha": "0322acaa7fb2b8a56679823e8921fc2c68139c1d7f2e652546787165da13a1ff",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "70baa08ac12037f7a701b4df4bb563b0145baad774d710d83b55dc84d07f6e4a",
+      "models": {
+        "replay": [
+          "github-copilot/gpt-6.1-sol"
+        ],
+        "judge": "github-copilot/gpt-6.1-sol"
+      },
+      "thinking": "medium",
+      "outputs": {
+        "baseline": {
+          "github-copilot/gpt-6.1-sol": {
+            "baselineOutputSha": "2d627f26c4817591b9ee23ddec37c6afec09ac7191ff6568992b33958d3a72a1",
+            "payloadSha": "ac9b937c7a28c2dd14d3bd7bd79a0755a1af38391f4eaf38e283ebbbba276520"
+          }
+        },
+        "candidate": {
+          "github-copilot/gpt-6.1-sol": {
+            "candidateOutputSha": "35ffb736f154b8803d429214a17619ecf86297104e0836486355c14d014ca71a",
+            "payloadSha": "ddb36acb54a77d8ae4a1d3c0c848dd2623669cb3a1cc103184e8147dc281d5e7"
+          }
+        }
+      }
+    },
+    "previous": {
+      "github-copilot/gpt-6.1-sol": {
+        "factsSha": "0322acaa7fb2b8a56679823e8921fc2c68139c1d7f2e652546787165da13a1ff",
+        "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+        "intentSha": "70baa08ac12037f7a701b4df4bb563b0145baad774d710d83b55dc84d07f6e4a",
+        "baselineOutputSha": "2d627f26c4817591b9ee23ddec37c6afec09ac7191ff6568992b33958d3a72a1",
+        "candidateOutputSha": "35ffb736f154b8803d429214a17619ecf86297104e0836486355c14d014ca71a",
+        "facts": {
+          "boundary": {
+            "before": "holds",
+            "after": "holds",
+            "label": "held"
+          },
+          "grant": {
+            "before": "holds",
+            "after": "holds",
+            "label": "held"
+          },
+          "continue": {
+            "before": "holds",
+            "after": "holds",
+            "label": "held"
+          },
+          "dirty": {
+            "before": "holds",
+            "after": "holds",
+            "label": "held"
+          }
+        },
+        "feedback": "After keeps every fact Before kept: all three briefs print the exact missing-cap line before dispatch/verification and refuse to derive a cap from settings; the grant writes `cap: 12` directly after `iterations: 7`, appends `cap +5 |`, commits once as `loop: raise cap`, and re-renders cap 12 with iterations 7 and attempts 2; implement resumes the ordered boundary checks and rule 1 selects exit verification, verify/ship continue at After-the-loop step 1 after the restored `start verify` with no task tracker and no direct jump to ship; and the dirty-tree section stops without offering `cap +N`, preserves changes, and requires explicit authorization. Two small tightening points that would make the wording more robust without weakening anything: (1) in the implement brief, step 8 re-renders cap/iterations/attempts but not the decision history after the grant — add 'and decisions' there as the verify brief's step 7 does, so the post-grant render explicitly includes history in every branch; (2) the ship brief lists full verification and fresh conformance but drops the explicit 'then finishing' and 'no task-tracker calls' phrases Before carried — restating 'whole-diff review, happy path when triggered, fresh conformance review, and finishing; no task-tracker calls' in the ship section would keep that branch self-contained rather than relying on the reader to carry it over from the verify brief.",
+        "wallMs": 20718,
+        "verdict": "unchanged",
+        "judgeModel": null,
+        "thinking": null
+      }
+    },
+    "refreshed": {
+      "github-copilot/gpt-6.1-sol": {
+        "factsSha": "0322acaa7fb2b8a56679823e8921fc2c68139c1d7f2e652546787165da13a1ff",
+        "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+        "intentSha": "70baa08ac12037f7a701b4df4bb563b0145baad774d710d83b55dc84d07f6e4a",
+        "baselineOutputSha": "2d627f26c4817591b9ee23ddec37c6afec09ac7191ff6568992b33958d3a72a1",
+        "candidateOutputSha": "35ffb736f154b8803d429214a17619ecf86297104e0836486355c14d014ca71a",
+        "facts": {
+          "boundary": {
+            "before": "holds",
+            "after": "holds",
+            "label": "held"
+          },
+          "grant": {
+            "before": "holds",
+            "after": "holds",
+            "label": "held"
+          },
+          "continue": {
+            "before": "holds",
+            "after": "holds",
+            "label": "held"
+          },
+          "dirty": {
+            "before": "holds",
+            "after": "holds",
+            "label": "held"
+          }
+        },
+        "feedback": "No listed fact changed truth value: After retains the shared missing-cap stop, durable cap grant, phase-specific continuation, and dirty-tree safeguards. Its explicit restore ordering and After-the-loop references clarify continuation. To preserve Before’s precision while delivering the Change, explicitly name implement’s continuation as “Before each dispatch,” say dirty trees stop before both dispatch and verification, and require rendering the updated decision history after every grant. Add the prescribed markers before discovery and approval/continuation asks and at nonrecoverable stops, without mutating brief state or inferring approval; leave successful continuation unmarked.",
+        "wallMs": 10949,
+        "verdict": "unchanged",
+        "judgeModel": "github-copilot/gpt-6.1-sol",
+        "thinking": "medium"
+      }
+    }
+  },
+  "repoSha": "2eb4429b4dd687432969f427f82d45d7840d7c63"
 }

@@ -15,16 +15,6 @@
     "thinking": "medium"
   },
   "outputs": {
-    "anthropic/claude-opus-5-5": {
-      "status": "ok",
-      "text": "# Step 6: Cleanup Workspace (after squash-merge, option 3)\n\n**Contract source:** `/work/acme-mono/.pi/gauntlet-overrides.md`, section `## using-git-worktrees`. The section contains `home:` and `destroy:`, so the **keyed contract** applies.\n\n**1. Resolve `home:`**\n- `home: ../acme-mono-<name>` is resolved against `$PRIMARY` (`/work/acme-mono`).\n- The pattern is `/work/acme-mono-<name>`.\n- `<name>` appears once, inside the single segment `acme-mono-<name>`, with the literal prefix `acme-mono-` and no suffix. The pattern is valid.\n\n**2. Ownership match**\n- After `realpath`, `$WORKTREE` is `/work/acme-mono-fix-x` and the pattern is `/work/acme-mono-*`.\n- These match. `*` captures `fix-x`, so **NAME = `fix-x`**.\n\n**3. Match with `destroy:` set:** run the destroy command from `$PRIMARY` with quoted substitution.\n\n```bash\ncd /work/acme-mono && script/worktree destroy 'fix-x'\n```\n\nOutput (exit 1):\n```\nerror: worktree fix-x has unsynced changes\n```\n\n**Result: the destroy command failed, so cleanup stops here.**\n\n- The worktree `/work/acme-mono-fix-x` was **not removed**. I did not fall back to `git worktree remove --force`, and I did not run `git worktree remove` or `prune`.\n- The branch `fix-x` was **kept**. `git branch -D fix-x` was skipped.\n- The squash-merge into `main` has already completed and is not affected.\n\n**Next steps for you:** look at the unsynced changes in `/work/acme-mono-fix-x`. Sync them or discard them as appropriate. Then re-run `script/worktree destroy 'fix-x'` from `/work/acme-mono`, followed by `git -C /work/acme-mono branch -D fix-x`.\n",
-      "words": 197,
-      "wallMs": 8493,
-      "mechanical": {
-        "f2": "fails",
-        "f3": "holds"
-      }
-    },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
       "text": "The worktree matches `home: ../acme-mono-<name>`, with `NAME=fix-x`.\n\nCleanup from `/work/acme-mono` failed:\n```text\n$ script/worktree destroy 'fix-x'\nerror: worktree fix-x has unsynced changes\n```\n\nStopping cleanup. Keep branch `fix-x`; do not run `git worktree remove`, `prune`, or branch deletion.\n",
@@ -36,5 +26,5 @@
       }
     }
   },
-  "repoSha": "6aa708917f3429b0e0ba574cb0a680df774f186c"
+  "repoSha": "2eb4429b4dd687432969f427f82d45d7840d7c63"
 }

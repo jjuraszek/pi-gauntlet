@@ -1,0 +1,2 @@
+- first-line: mechanical: matches /^gauntlet: question(?:\r?\n|$)/
+- approval: judged: Ask whether the spec is approved or the human explicitly selects brainstorming with it as an unapproved draft; do not infer approval or mutate either tracker before the answer.

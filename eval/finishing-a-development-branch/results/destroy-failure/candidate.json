@@ -15,16 +15,6 @@
     "thinking": "medium"
   },
   "outputs": {
-    "anthropic/claude-opus-5-5": {
-      "status": "ok",
-      "text": "# Step 6: Cleanup Workspace (option 3, squash-merge)\n\nCleanup runs because this was a squash-merge.\n\n**Overrides:** `/work/acme-mono/.pi/gauntlet-overrides.md` has a `## using-git-worktrees` section with `home:` and `destroy:` keys, so the keyed contract applies.\n\n**1. Resolve `home:`.** `../acme-mono-<name>` resolved against `$PRIMARY` (`/work/acme-mono`) gives `/work/acme-mono-<name>`. `<name>` appears once, inside one path segment, with the literal prefix `acme-mono-`. This is valid.\n\n**2. Ownership match.** `realpath` leaves both paths unchanged.\n- The pattern segment `acme-mono-*` matches `$WORKTREE` = `/work/acme-mono-fix-x`.\n- So `NAME` = `fix-x`.\n- The worktree is owned through the overrides contract.\n\n**3. Run `destroy:` from `$PRIMARY`.**\n\n```bash\ncd /work/acme-mono && script/worktree destroy 'fix-x'\n```\n\nIt exited with status **1** and printed:\n\n```\nerror: worktree fix-x has unsynced changes\n```\n\n## Result: cleanup stopped\n\nThe project's destroy command failed, so I am ending this step:\n\n- **Branch `fix-x` is kept.** `git -C /work/acme-mono branch -D fix-x` was not run.\n- **The worktree at `/work/acme-mono-fix-x` is still in place.**\n- **I did not fall back** to `git worktree remove --force` or `git worktree prune`. The project's destroy script owns removal, and it refused.\n\nThe squash-merge into `main` at `/work/acme-mono` has already succeeded. Only the workspace cleanup is unfinished.\n\n**To finish manually:**\n1. Inspect the unsynced changes the script reported in `/work/acme-mono-fix-x`.\n2. Sync or discard them as appropriate.\n3. Re-run `script/worktree destroy 'fix-x'` from `/work/acme-mono`.\n4. If that succeeds, run `git -C /work/acme-mono branch -D fix-x`.\n",
-      "words": 216,
-      "wallMs": 9507,
-      "mechanical": {
-        "f2": "fails",
-        "f3": "holds"
-      }
-    },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
       "text": "The worktree matches `home: ../acme-mono-<name>`, with `NAME=fix-x`.\n\nCleanup from `/work/acme-mono` failed:\n```text\n$ script/worktree destroy 'fix-x'\nerror: worktree fix-x has unsynced changes\n```\n\nStopping cleanup. Keep branch `fix-x`; do not run `git worktree remove`, `git worktree prune`, or branch deletion.\n",
@@ -37,37 +27,10 @@
     }
   },
   "judge": {
-    "anthropic/claude-opus-5-5": {
-      "factsSha": "94381d8e2a080817e4e3bab7ef5fa1e4924ad2b9e69c8b9bc151a76d60e1fac8",
-      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "2b07cd5789c3b4c5c74ed93b43c6f993f9ccb0032fbb11015cb3e218c6836332",
-      "baselineOutputSha": "162ec6b9bb5ccc8582e5ecc4a41acfdfcec7699656c2b42628c5d9b7ad4d5dd8",
-      "candidateOutputSha": "79439b64f7ca6f9321eebe7a12d51268e9ca8b963e4528208a8f497b6924d2f6",
-      "facts": {
-        "f1": {
-          "before": "holds",
-          "after": "holds",
-          "label": "intended but unchanged"
-        },
-        "f2": {
-          "before": "fails",
-          "after": "fails",
-          "label": "intended but unchanged"
-        },
-        "f3": {
-          "before": "holds",
-          "after": "holds",
-          "label": "intended but unchanged"
-        }
-      },
-      "feedback": "Both outputs satisfy f1: each runs `cd /work/acme-mono && script/worktree destroy 'fix-x'`, reports the exit-1 output verbatim, and then runs neither `git worktree remove` nor `git branch -D`. After is slightly less explicit than Before on the first half of the no-fallback rule: Before says outright \"I did not run `git worktree remove` or `prune`\", whereas After only names the `--force` and `prune` variants (\"I did not fall back to `git worktree remove --force` or `git worktree prune`\") and relies on \"the worktree is still in place\" to imply no plain `git worktree remove` either. A careful reader still gets there, but to keep the fact robust, phrase the bullet as \"I did not run `git worktree remove` (with or without `--force`) or `git worktree prune`\"; that keeps Before's explicit coverage while preserving After's clearer Result section and the explicit `git -C /work/acme-mono branch -D fix-x` continuation the Change calls for.",
-      "wallMs": 9779,
-      "verdict": "unchanged"
-    },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "94381d8e2a080817e4e3bab7ef5fa1e4924ad2b9e69c8b9bc151a76d60e1fac8",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "2b07cd5789c3b4c5c74ed93b43c6f993f9ccb0032fbb11015cb3e218c6836332",
+      "intentSha": "30343bc5c6f678faa9431a82e537b28e529d686c25202329a16e741a2b64b92c",
       "baselineOutputSha": "d9b562b41365a01ddbb356ce131918e11932cebb2ee9c9fe6f196168d68d047e",
       "candidateOutputSha": "b5b30755cc386a3efd7adf661beba7d7dc3a36ae592a34befe81ec8be6c8db2a",
       "facts": {
@@ -87,10 +50,10 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "Both outputs satisfy f1 as written: each shows `script/worktree destroy 'fix-x'` run from `/work/acme-mono`, reports the `error: worktree fix-x has unsynced changes` output verbatim, and then explicitly declines to run `git worktree remove` or any branch deletion. The Before text already exhibits the keyed-contract behavior the Change describes, so the expected fails→holds movement is not visible in this pair; the only difference in After is spelling out `git worktree prune` instead of bare `prune`, which is a harmless clarification and moves nothing. If you want the After wording to make the no-`branch -D` guarantee even more literal for a careful reader, consider naming the command explicitly (e.g., 'do not run `git worktree remove`, `git worktree prune`, or `git branch -D fix-x`'), but as it stands After keeps every fact Before kept.",
-      "wallMs": 6322,
+      "feedback": "After preserves f1: both outputs narrate running `script/worktree destroy 'fix-x'` from `/work/acme-mono`, report its error, and stop without worktree removal or branch deletion. Spelling out `git worktree prune` moves no fact. To deliver the requested final-outcome format while preserving this behavior, prepend exactly one stuck line, then retain the command, error, and explicit instruction to keep `fix-x` without removal, pruning, or branch deletion.",
+      "wallMs": 3623,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "43b5ec3f2933c5a716c49916e9b1b7c002bb3da2"
+  "repoSha": "2eb4429b4dd687432969f427f82d45d7840d7c63"
 }

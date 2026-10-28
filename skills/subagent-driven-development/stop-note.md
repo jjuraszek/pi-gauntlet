@@ -6,7 +6,10 @@ Emit when no escalation model resolves, the escalated dispatch errors, its one e
 
 ## Template
 
+Read and apply [menu-layout](../brainstorming/reference/menu-layout.md). Start the message with `gauntlet: question` alone on the first output line, followed by a newline before the stop note; this is an implementation decision, not a done or stuck outcome.
+
 ```
+gauntlet: question
 Stopped on task <n> (<title>)[; escalated round on <implModel> did not resolve it].
 
 Problem: <one sentence: what is wrong and why it remains unresolved>
@@ -37,6 +40,7 @@ Pick one, or give another fix.
 ## Example
 
 ```
+gauntlet: question
 Stopped on task 4 (retry policy for the outbound client); escalated round on <provider>/<model>:high did not resolve it.
 
 Problem: `RetryPolicy.next()` returns 0 ms for the first retry, but the client treats 0 as "no

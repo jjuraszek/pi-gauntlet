@@ -1,69 +1,34 @@
 {
   "sample": "clean-pass-unchanged",
   "arm": "candidate",
-  "skillSha": "c0ac8dff1171f583aed01cfc7ef2736f848610594508ab969b98e5d7e3cbe43d",
+  "skillSha": "ff8889aa811e9ec8f2f76f589970eba4eff0343faab40e4f129ded01c270fbc7",
   "inputSha": "d88436f3b8477282e2163e0e5932da60eb5deb3e755dd05bc3b38dedfe07a87e",
   "kind": "text",
   "assembly": "headed",
   "thinking": "medium",
   "models": {
     "replay": [
-      "anthropic/claude-opus-5-5",
       "github-copilot/gpt-6.1-sol"
     ],
-    "judge": "anthropic-fable/claude-fable-5-1",
+    "judge": "github-copilot/gpt-6.1-sol",
     "thinking": "medium"
   },
   "outputs": {
-    "anthropic/claude-opus-5-5": {
-      "status": "ok",
-      "text": "# Restore narration: implement with a task plan\n\n**Tool call:** `plan_check({ planPath: \"/work/app/.worktrees/config-loader/doc/plans/2026-03-02-config-loader.md\" })`\n**Result:** PASS. The first check passed, so `## Plan repair` is not entered, no commit is made and no repair receipt is printed.\n\n**Tool call:** `phase_tracker skip plan` with reason `resume: pasted brief`\n\n**Tool call:** `phase_tracker start implement`\n\nNo `substep` call is made, because the brief shows `→ implement` with no substep.\n\n**Feasibility check before `init`:**\n- **Pending-suffix order holds.** The only `○` task, [4], comes after every non-pending task.\n- **The implement auto-complete edge does not apply.** Task [3] is in progress and [4] is pending, so not every task is complete or skipped.\n\n**Tool call:** `plan_tracker init` with the task list verbatim:\n```\n[\n  { name: \"W1: Parse config file\",      status: \"complete\" },\n  { name: \"W1: Validate schema\",        status: \"complete\" },\n  { name: \"W2: Wire CLI flag\",          status: \"in_progress\" },\n  { name: \"W3: Document the loader\",    status: \"pending\" }\n]\n```\nThis succeeds. Implement is not auto-completed, because not all tasks are complete or skipped.\n\n**Printed closing line:**\n```\nGate history not restored; re-validating `W2: Wire CLI flag` before any stage advance\n```\n",
-      "words": 168,
-      "wallMs": 11263,
-      "mechanical": {}
-    },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "1. Call `plan_check({ planPath: \"/work/app/.worktrees/config-loader/doc/plans/2026-03-02-config-loader.md\" })` → `PASS`.\n2. Call `phase_tracker({ action: \"skip\", phase: \"plan\", reason: \"resume: pasted brief\" })`.\n3. Call `phase_tracker({ action: \"start\", phase: \"implement\" })`.\n4. Call `plan_tracker({ action: \"init\", tasks: [{ name: \"W1: Parse config file\", status: \"complete\" }, { name: \"W1: Validate schema\", status: \"complete\" }, { name: \"W2: Wire CLI flag\", status: \"in_progress\" }, { name: \"W3: Document the loader\", status: \"pending\" }] })`.\n\nGate history not restored; re-validating `W2: Wire CLI flag` before any stage advance\n",
-      "words": 70,
-      "wallMs": 8211,
+      "text": "1. Call `plan_check({ planPath: \"/work/app/.worktrees/config-loader/doc/plans/2026-03-02-config-loader.md\" })` → `PASS`.\n2. Call `phase_tracker({ action: \"skip\", phase: \"plan\", reason: \"resume: pasted brief\" })` → succeeds.\n3. Call `phase_tracker({ action: \"start\", phase: \"implement\" })` → succeeds.\n4. Call `plan_tracker({ action: \"init\", tasks: [{ name: \"W1: Parse config file\", status: \"complete\" }, { name: \"W1: Validate schema\", status: \"complete\" }, { name: \"W2: Wire CLI flag\", status: \"in_progress\" }, { name: \"W3: Document the loader\", status: \"pending\" }] })` → succeeds.\n5. Print:\n\nGate history not restored; re-validating `W2: Wire CLI flag` before any stage advance\n",
+      "words": 75,
+      "wallMs": 8474,
       "mechanical": {}
     }
   },
   "judge": {
-    "anthropic/claude-opus-5-5": {
-      "factsSha": "7aac15eeb14216f578be8726850ff75d4971fcb3b767c23fa9a4c02ef7a1938c",
-      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "7500a3c2a7f644dc3286b896b330e3f5f38eef70bf09dd727a59955d820f5a26",
-      "baselineOutputSha": "d998961e9177e2a4b3b1aeecaf1c48327a1e3ea71f834fbed865c236adcb396c",
-      "candidateOutputSha": "a69758a75e48bfbbdf0eddce62a6ae9fc898e4cfd7a3775925d47b62dc6e30d3",
-      "facts": {
-        "f1": {
-          "before": "holds",
-          "after": "holds",
-          "label": "held"
-        },
-        "f2": {
-          "before": "holds",
-          "after": "holds",
-          "label": "held"
-        },
-        "f3": {
-          "before": "holds",
-          "after": "holds",
-          "label": "held"
-        }
-      },
-      "feedback": "Nothing moved on this case: both outputs state that the first-check PASS skips plan repair with no receipt and no commit, neither edits a file, and both narrate the same ordered chain of skip plan (reason `resume: pasted brief`), start implement, no substep, feasibility check, and plan_tracker init with the brief's four tasks and verbatim statuses, ending with the gate-history closing line. After is tighter and drops Before's speculative paragraphs about the check 6 grant line and the continuation into subagent-driven-development, which is harmless for these facts. If the Change's goal is to make the loop-ledger/PR-pair/baseline paths explicit, keep this ordinary task-plan path exactly as After has it; the only thing to guard is that the new shared cap-restore boundary and ledger admission wording must not insert calls or receipt lines into the no-ledger, task-plan restore, so this sample continues to show skip → start → init → closing line with no commit.",
-      "wallMs": 9826,
-      "verdict": "unchanged"
-    },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "7aac15eeb14216f578be8726850ff75d4971fcb3b767c23fa9a4c02ef7a1938c",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "7500a3c2a7f644dc3286b896b330e3f5f38eef70bf09dd727a59955d820f5a26",
-      "baselineOutputSha": "293634d424f0eb7c94b2f9fc09fde08013addc791b9911b1122911d6d4639f84",
-      "candidateOutputSha": "315e0653bdb7dd9c08bc167171f85ec677398e40f20448ae99451da47a280c7b",
+      "intentSha": "70baa08ac12037f7a701b4df4bb563b0145baad774d710d83b55dc84d07f6e4a",
+      "baselineOutputSha": "793863cc134f9e5a4355e6415482769f838c8cd2ca54248ca3fed4cf4c7b9a12",
+      "candidateOutputSha": "24245c828ce0cda3a6a745b600cacc5112e403f54b165b4bcc73b9b8920ba92b",
       "facts": {
         "f1": {
           "before": "holds",
@@ -81,10 +46,107 @@
           "label": "held"
         }
       },
-      "feedback": "No fact moved between Before and After: both outputs make exactly the same three tracker calls after the PASS (skip plan with the pasted-brief reason, start implement, plan_tracker init with the four brief tasks and their complete/complete/in_progress/pending statuses unchanged), neither prints a Repaired plan receipt line, neither commits or edits a file, and both end on the same closing line. The only differences in After are cosmetic: steps are prefixed with 'Call' and the '→ succeeds' annotations on steps 2–4 were dropped. That drop is harmless for these facts, but since the input states every tracker call after result 1 succeeds, keeping the '→ succeeds' result markers would make the narration more faithful to the tool-result contract without affecting any of the Change's cap/ledger/PR-pair behavior, which this ordinary-brief case does not exercise.",
-      "wallMs": 7776,
+      "feedback": "After preserves all three facts: it prints no Repaired plan receipt, makes no commit or file edit, and retains the ordered tracker calls, unchanged task names and statuses, and closing line. Only the formatting of the plan_tracker call changed; no fact moved. Keep this ordinary successful-resume sequence unchanged, and scope the new discovery markers, stop handling, and specialized restore rules to their applicable cases without adding a terminal marker or approval request here.",
+      "wallMs": 4705,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "43b5ec3f2933c5a716c49916e9b1b7c002bb3da2"
+  "refresh": {
+    "status": "complete",
+    "identity": {
+      "sample": "clean-pass-unchanged",
+      "kind": "text",
+      "assembly": "headed",
+      "baselineSkillSha": "62f980dd5847df0bcf14a6a7ce67280e6ddfd233e4b69ba12494f1586825c4f0",
+      "candidateSkillSha": "335834029dd97e25efdcc1430a04ee1e55ff8b507890e588a82fc8a66ade4694",
+      "inputSha": "d88436f3b8477282e2163e0e5932da60eb5deb3e755dd05bc3b38dedfe07a87e",
+      "factsSha": "7aac15eeb14216f578be8726850ff75d4971fcb3b767c23fa9a4c02ef7a1938c",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "70baa08ac12037f7a701b4df4bb563b0145baad774d710d83b55dc84d07f6e4a",
+      "models": {
+        "replay": [
+          "github-copilot/gpt-6.1-sol"
+        ],
+        "judge": "github-copilot/gpt-6.1-sol"
+      },
+      "thinking": "medium",
+      "outputs": {
+        "baseline": {
+          "github-copilot/gpt-6.1-sol": {
+            "baselineOutputSha": "793863cc134f9e5a4355e6415482769f838c8cd2ca54248ca3fed4cf4c7b9a12",
+            "payloadSha": "df24c4992da0731cf35084914820b08c7d17b187c2b0b03fc79c711e26922857"
+          }
+        },
+        "candidate": {
+          "github-copilot/gpt-6.1-sol": {
+            "candidateOutputSha": "2b7c17b1b0e58b2664774dbf115ccc7fdf972bd65de546d6a3cc3295c33e09c4",
+            "payloadSha": "2a2fcdac4c329dabc25fe88fd75db8b6f63ef505947b19cae7bc4a6fb9e6ffe2"
+          }
+        }
+      }
+    },
+    "previous": {
+      "github-copilot/gpt-6.1-sol": {
+        "factsSha": "7aac15eeb14216f578be8726850ff75d4971fcb3b767c23fa9a4c02ef7a1938c",
+        "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+        "intentSha": "70baa08ac12037f7a701b4df4bb563b0145baad774d710d83b55dc84d07f6e4a",
+        "baselineOutputSha": "793863cc134f9e5a4355e6415482769f838c8cd2ca54248ca3fed4cf4c7b9a12",
+        "candidateOutputSha": "2b7c17b1b0e58b2664774dbf115ccc7fdf972bd65de546d6a3cc3295c33e09c4",
+        "facts": {
+          "f1": {
+            "before": "holds",
+            "after": "holds",
+            "label": "held"
+          },
+          "f2": {
+            "before": "holds",
+            "after": "holds",
+            "label": "held"
+          },
+          "f3": {
+            "before": "holds",
+            "after": "holds",
+            "label": "held"
+          }
+        },
+        "feedback": "No fact moved for this case: both outputs run plan_check, skip plan, start implement, and plan_tracker init with the brief's four tasks and statuses unchanged, then print the closing line, with no Repaired plan receipt, no git commit, and no file edit. The only difference is that After drops the explicit '→ succeeds' annotations on steps 2-4 and inlines the init payload; since the input states every tracker call succeeds this is harmless here, but keeping the per-call result annotations costs nothing and makes the narrated chain easier to verify against facts like f3 in other cases, so consider retaining them.",
+        "wallMs": 6299,
+        "verdict": "unchanged",
+        "judgeModel": null,
+        "thinking": null
+      }
+    },
+    "refreshed": {
+      "github-copilot/gpt-6.1-sol": {
+        "factsSha": "7aac15eeb14216f578be8726850ff75d4971fcb3b767c23fa9a4c02ef7a1938c",
+        "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+        "intentSha": "70baa08ac12037f7a701b4df4bb563b0145baad774d710d83b55dc84d07f6e4a",
+        "baselineOutputSha": "793863cc134f9e5a4355e6415482769f838c8cd2ca54248ca3fed4cf4c7b9a12",
+        "candidateOutputSha": "2b7c17b1b0e58b2664774dbf115ccc7fdf972bd65de546d6a3cc3295c33e09c4",
+        "facts": {
+          "f1": {
+            "before": "holds",
+            "after": "holds",
+            "label": "held"
+          },
+          "f2": {
+            "before": "holds",
+            "after": "holds",
+            "label": "held"
+          },
+          "f3": {
+            "before": "holds",
+            "after": "holds",
+            "label": "held"
+          }
+        },
+        "feedback": "After moves no fact: both outputs omit a Repaired plan receipt, make no commit or file edit, and restore the same tracker sequence with all four task names and statuses unchanged before the closing line. Preserve this successful ordinary-resume path as written; scope new markers, approval questions, ledger handling, and PR checks to their applicable branches so they do not introduce a terminal marker, approval ask, or state mutation here.",
+        "wallMs": 4503,
+        "verdict": "unchanged",
+        "judgeModel": "github-copilot/gpt-6.1-sol",
+        "thinking": "medium"
+      }
+    }
+  },
+  "repoSha": "2eb4429b4dd687432969f427f82d45d7840d7c63"
 }

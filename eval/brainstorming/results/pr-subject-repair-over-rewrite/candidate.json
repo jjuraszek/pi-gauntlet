@@ -1,69 +1,34 @@
 {
   "sample": "pr-subject-repair-over-rewrite",
   "arm": "candidate",
-  "skillSha": "8ab9024b5bebf8e91c95265c3c52024aea3fe3d027cfea0363e49c98c7ce062a",
+  "skillSha": "d2723cffb74f8574c52a22c1f834eb23f258c0a30fae755b500b79b5c6f58173",
   "inputSha": "a09d76d529cdf4a1726439991c53c9181b3208f0b1ff1437a5cb33b27783d372",
   "kind": "text",
   "assembly": "headed",
   "thinking": "medium",
   "models": {
     "replay": [
-      "anthropic/claude-opus-5-5",
       "github-copilot/gpt-6.1-sol"
     ],
-    "judge": "anthropic-fable/claude-fable-5-1",
+    "judge": "github-copilot/gpt-6.1-sol",
     "thinking": "medium"
   },
   "outputs": {
-    "anthropic/claude-opus-5-5": {
-      "status": "ok",
-      "text": "## Problem\n\nPR acme/widget#63 - Bound retries #20. Its stated intent is \"Retry requests with the existing loop.\" The home PR binds ticket #20 from its title. It carries no spec paths.\n\nThe base-SHA rules cap retries at three attempts. That rule governs this rework. PR edits to policy documents would only be proposals; this PR makes none.\n\nThe existing retry loop is correct except for two lines that let it exceed the cap:\n\n- it initializes `attempts` to `1` instead of `0`\n- it tests `attempts <= 3` instead of `attempts < 3`\n\nCorrecting those two lines satisfies both the base rule and the ticket. No rewrite or replacement abstraction is needed. The original commits and the existing retry loop are preserved.\n\nThe PR's claim that attempts are \"already bounded to three\" is false at the pre-rework head, so the rework drops it.\n\nThe base merge was a no-op because the head already contains `origin/main`.\n\nFraming: kept\n\n## Acceptance criteria\n\nTicket #20, checkbox list, rows verbatim:\n\n- [ ] Retry attempts never exceed three.\n  in-scope\n\n## Rework record\n\nPR: acme/widget#63 - Bound retries #20\nPre-rework head: 4444444444444444444444444444444444444444\nThreads:\n- src/retry.ts:4 RT63 - fix\n- src/retry.ts:9 RT64 - decline: existing loop plus two-line repair satisfies the rule\nBase: main @ aaaaaaa - merge: no-op\nKeeps: the original commits and the existing retry loop\nChanges: initialize `attempts` to `0` instead of `1`, and use `attempts < 3` instead of `attempts <= 3` (a two-line repair, no rewrite)\nDropped claims:\n- attempts already bounded to three\nScoped tests: none run (no-op merge)\n\n### PR #63 - Bound retries #20\nkeeps: the original commits and the existing retry loop\nchanges: initialize `attempts` to `0` instead of `1`, and use `attempts < 3` instead of `attempts <= 3`\ndropped claims: attempts already bounded to three\n",
-      "words": 276,
-      "wallMs": 13314,
-      "mechanical": {}
-    },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "## Problem\n\nPR acme/widget#63 - Bound retries #20 intends to retry requests with the existing loop. The home PR binds ticket #20 from its title. Its body states: “Retry requests with the existing loop.”\n\nThe base-SHA rules and ticket require at most three attempts. The existing loop needs only two edits: initialize `attempts` to `0` instead of `1`, and use `attempts < 3` instead of `attempts <= 3`. Preserve the original commits and retry loop; no rewrite or replacement abstraction is required.\n\nThe claim “attempts already bounded to three” is false in the pre-rework state and is dropped pending repair.\n\nFraming: kept.\n\n## Acceptance criteria\n\nTicket #20, checkbox list, rows verbatim:\n\n- [ ] Retry attempts never exceed three.\n  in-scope\n\n## Rework record\n\nPR: acme/widget#63 - Bound retries #20\nPre-rework head: 4444444444444444444444444444444444444444\nThreads:\n- src/retry.ts:4 RT63 - fix\n- src/retry.ts:9 RT64 - decline: existing loop plus two-line repair satisfies the rule.\nBase: main @ aaaaaaa - merge: no-op (head contains origin/main)\nKeeps: Original commits and existing retry loop.\nChanges: Initialize `attempts` to `0` instead of `1` and use `attempts < 3` instead of `attempts <= 3`; no rewrite, replacement abstraction, or contract exceptions.\nDropped claims:\n- attempts already bounded to three\nScoped tests: none run (no-op merge)\n\n### PR #63 - Bound retries #20\n\nkeeps: Original commits and existing retry loop.\nchanges: Initialize `attempts` to `0` instead of `1` and use `attempts < 3` instead of `attempts <= 3`.\ndropped claims: attempts already bounded to three\n",
-      "words": 223,
-      "wallMs": 11837,
+      "text": "## Problem\n\nPR acme/widget#63 - Bound retries #20 states: “Retry requests with the existing loop.” PR #63 binds #20 (context); #20 supplies the acceptance criterion below.\n\nThe base-SHA rules require at most three retry attempts. The existing loop needs only two changes in `src/retry.ts`: initialize attempts to `0` instead of `1`, and use `attempts < 3` instead of `attempts <= 3`. Preserve the retry loop and original commits; no rewrite or replacement abstraction is required.\n\nThe claim “attempts already bounded to three” is false in the pre-rework state and is dropped pending repair. No contract exceptions apply.\n\nFraming: kept.\n\n## Acceptance criteria\n\nTicket #20, checkbox list, rows verbatim:\n\n- [ ] Retry attempts never exceed three.\n  in-scope\n\n## Rework record\n\nPR: acme/widget#63 - Bound retries #20\nPre-rework head: 4444444444444444444444444444444444444444\nThreads:\n- src/retry.ts:4 RT63 - fix\n- src/retry.ts:9 RT64 - decline: existing loop plus two-line repair satisfies the rule.\nBase: main @ aaaaaaa - merge: no-op (head contains origin/main).\nKeeps: Original commits and existing retry loop.\nChanges: Initialize attempts to 0 instead of 1 and use attempts < 3 instead of attempts <= 3; no contract exceptions.\nDropped claims:\n- attempts already bounded to three\nScoped tests: none run (no-op merge).\n\n### PR #63 - Bound retries #20\nkeeps: Retry requests with the existing loop; preserve original commits.\nchanges: Repair the attempt bound with the two edits to initialization and loop condition, without a scheduler rewrite or replacement abstraction.\ndropped claims: attempts already bounded to three\n",
+      "words": 224,
+      "wallMs": 9715,
       "mechanical": {}
     }
   },
   "judge": {
-    "anthropic/claude-opus-5-5": {
-      "factsSha": "a4aa00f0ef7c5af9917448c7671d1f490f39c397b9d46e1295042106f13174f6",
-      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "3fab9022e6546ee557e596de8ba99bbd8a8d5e75db7e126af9d0739b215affa8",
-      "baselineOutputSha": "f2b22b8be8196461638b4c9f81f8c4a971cc9d5fa2ed4c4ccad706dc2c6df33f",
-      "candidateOutputSha": "c8a213b7110f3396a16f123f1baf3514dbbbac9a1e508f5e894bfa77e317ddf5",
-      "facts": {
-        "minimal": {
-          "before": "holds",
-          "after": "holds",
-          "label": "intended but unchanged"
-        },
-        "contract": {
-          "before": "holds",
-          "after": "holds",
-          "label": "intended but unchanged"
-        },
-        "record": {
-          "before": "holds",
-          "after": "holds",
-          "label": "intended but unchanged"
-        }
-      },
-      "feedback": "Nothing moved on this case: both outputs keep the two-line initialization/comparison repair in Changes with an explicit no-rewrite note, keep the original commits and existing loop in Keeps, copy the #20 row verbatim with an in-scope disposition, name the PR intent and the base-SHA three-attempt bound in Problem, and carry the full 40-character pre-rework SHA, no-op merge, dropped bounded-attempts claim, RT63 fix, RT64 decline with its reason, and the none-run scoped result in the Rework record. After actually tightens the per-PR subsection (its `keeps:` line now names the original commits and retry loop instead of restating the PR intent), which is the direction the pr-subject-weakened-rule/preservation variance wants; if you want that stable across runs, add a sentence in the rework-record rules stating the per-PR `keeps:` line must name the preserved original commits and retained code rather than echo the PR body or say `none`. The added policy-proposal sentence and no-op-merge explanation in After's Problem are harmless here and consistent with the Change.",
-      "wallMs": 9187,
-      "verdict": "unchanged"
-    },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "a4aa00f0ef7c5af9917448c7671d1f490f39c397b9d46e1295042106f13174f6",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "3fab9022e6546ee557e596de8ba99bbd8a8d5e75db7e126af9d0739b215affa8",
-      "baselineOutputSha": "fb7a617d3617bc9c601814245ba82903b9ae96604687f1d5ed4cccc7205950cb",
-      "candidateOutputSha": "aa5a9f6191a48da5e9c7bb672526a138ace52e9639b74940980fd256cfe7d115",
+      "intentSha": "5b9f462cd6caec9a4a8e3a28a3c0ba61583e1b400c8edb5164d32bba075fea39",
+      "baselineOutputSha": "3a9484d44914ca1020c835f300f8fd8f318794ae9c8ac3940b4cdd03a93ee4e5",
+      "candidateOutputSha": "92c2632f7474f997ec146b8f5c134c0d3eacc25551a36bbc369a8fdd0f8c6628",
       "facts": {
         "minimal": {
           "before": "holds",
@@ -81,10 +46,107 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "Nothing moved: both outputs give the identical two-line Changes line with no rewrite or scheduler, the same Keeps line naming original commits and the existing retry loop, the verbatim ticket row with an in-scope disposition, a Problem naming the PR intent and the three-attempt bound, and a Rework record after the ACs with the full 40-char pre-rework SHA, the no-op merge, the dropped bounded-attempts claim, RT63 fix, RT64 decline with its reason, and the none-run scoped result. After's only differences are cosmetic (code-formatted identifiers, 'binds ticket #20 from its title', folding 'no contract exceptions' into the Changes line, and dropping the trailing period after the merge line); none of these touch the facts. The After wording is safe for this sample; keep the Changes line listing the two edits and the explicit 'no rewrite' clause, and keep the Keeps line naming the original commits rather than any 'keeps: none' shorthand.",
-      "wallMs": 7955,
+      "feedback": "After preserves all three facts: the exact two-line repair and original commits, the verbatim ticket criterion with its in-scope disposition, and the complete rework record remain intact. No fact moved. Keep those explicit details while applying the broader wording change; in particular, retain “at most three attempts” rather than “at most three retry attempts” to avoid suggesting that an initial request is excluded from the governing bound.",
+      "wallMs": 4377,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "488adb5f77d82365012e1a6030f3b11a1e35f420"
+  "refresh": {
+    "status": "complete",
+    "identity": {
+      "sample": "pr-subject-repair-over-rewrite",
+      "kind": "text",
+      "assembly": "headed",
+      "baselineSkillSha": "be6a9ad7c6121a490b07ac373a98ac41151b852e413de38cd8301d286ce1b2bd",
+      "candidateSkillSha": "8422ae15c4746c464811b72ee5f5ead8e3dfa0b1e827b7022ef20253e18b0f3f",
+      "inputSha": "a09d76d529cdf4a1726439991c53c9181b3208f0b1ff1437a5cb33b27783d372",
+      "factsSha": "a4aa00f0ef7c5af9917448c7671d1f490f39c397b9d46e1295042106f13174f6",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "5b9f462cd6caec9a4a8e3a28a3c0ba61583e1b400c8edb5164d32bba075fea39",
+      "models": {
+        "replay": [
+          "github-copilot/gpt-6.1-sol"
+        ],
+        "judge": "github-copilot/gpt-6.1-sol"
+      },
+      "thinking": "medium",
+      "outputs": {
+        "baseline": {
+          "github-copilot/gpt-6.1-sol": {
+            "baselineOutputSha": "3a9484d44914ca1020c835f300f8fd8f318794ae9c8ac3940b4cdd03a93ee4e5",
+            "payloadSha": "75739232777a1eca5b5d109c31feff011dc799ab133ec4c5d9bb4295e0d3f943"
+          }
+        },
+        "candidate": {
+          "github-copilot/gpt-6.1-sol": {
+            "candidateOutputSha": "79b4feb89ee4436ba35e80a25710fe5f6623bc3d235c351657c0e0e602e75a82",
+            "payloadSha": "e8dc810c8727483071163302f825fba787cbdff2a73fbb67300e50664735fd59"
+          }
+        }
+      }
+    },
+    "previous": {
+      "github-copilot/gpt-6.1-sol": {
+        "factsSha": "a4aa00f0ef7c5af9917448c7671d1f490f39c397b9d46e1295042106f13174f6",
+        "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+        "intentSha": "5b9f462cd6caec9a4a8e3a28a3c0ba61583e1b400c8edb5164d32bba075fea39",
+        "baselineOutputSha": "3a9484d44914ca1020c835f300f8fd8f318794ae9c8ac3940b4cdd03a93ee4e5",
+        "candidateOutputSha": "79b4feb89ee4436ba35e80a25710fe5f6623bc3d235c351657c0e0e602e75a82",
+        "facts": {
+          "minimal": {
+            "before": "holds",
+            "after": "holds",
+            "label": "intended but unchanged"
+          },
+          "contract": {
+            "before": "holds",
+            "after": "holds",
+            "label": "intended but unchanged"
+          },
+          "record": {
+            "before": "holds",
+            "after": "holds",
+            "label": "intended but unchanged"
+          }
+        },
+        "feedback": "Nothing moved: both outputs keep the two-line repair in Changes (initialize attempts to 0, use attempts < 3), keep the original commits and existing retry loop in Keeps, copy the ticket row verbatim with an in-scope disposition, name the PR intent and the three-attempt bound in Problem, and carry the full pre-rework SHA, no-op merge, RT63 fix, RT64 decline with its reason, the dropped false claim, and the no-run scoped result in the Rework record. The After wording is a modest tightening — it adds 'no scheduler rewrite or replacement abstraction' to the per-PR changes line and notes that #20 was bound from the title — which makes the minimal fact more explicit without weakening the others; the only cosmetic drift is dropping trailing periods on the Base and Scoped tests lines and collapsing 'dropped claims' to a single line, neither of which affects any fact. If you want the Before output to visibly fail the expected move, this sample's Before already satisfies all three facts, so the delta the Change intends is not observable here; keep the explicit 'no rewrite' clause in Changes and the title-binding note in Problem, and consider restoring the list form for dropped claims for consistency with the top-level record.",
+        "wallMs": 12956,
+        "verdict": "unchanged",
+        "judgeModel": null,
+        "thinking": null
+      }
+    },
+    "refreshed": {
+      "github-copilot/gpt-6.1-sol": {
+        "factsSha": "a4aa00f0ef7c5af9917448c7671d1f490f39c397b9d46e1295042106f13174f6",
+        "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+        "intentSha": "5b9f462cd6caec9a4a8e3a28a3c0ba61583e1b400c8edb5164d32bba075fea39",
+        "baselineOutputSha": "3a9484d44914ca1020c835f300f8fd8f318794ae9c8ac3940b4cdd03a93ee4e5",
+        "candidateOutputSha": "79b4feb89ee4436ba35e80a25710fe5f6623bc3d235c351657c0e0e602e75a82",
+        "facts": {
+          "minimal": {
+            "before": "holds",
+            "after": "holds",
+            "label": "intended but unchanged"
+          },
+          "contract": {
+            "before": "holds",
+            "after": "holds",
+            "label": "intended but unchanged"
+          },
+          "record": {
+            "before": "holds",
+            "after": "holds",
+            "label": "intended but unchanged"
+          }
+        },
+        "feedback": "After preserves all three facts: the Changes and Keeps entries retain the two-line repair, existing loop, and original commits; the ticket checkbox remains verbatim and in scope; and the complete rework record remains after the acceptance criteria. No fact moved. The explicit title-based ticket binding and added rejection of a scheduler rewrite clarify the recap without expanding scope. Keep this wording and record detail; this continuation needs no additional approaches, questionary, or test-design sections to preserve the approved minimal repair.",
+        "wallMs": 5699,
+        "verdict": "unchanged",
+        "judgeModel": "github-copilot/gpt-6.1-sol",
+        "thinking": "medium"
+      }
+    }
+  },
+  "repoSha": "2eb4429b4dd687432969f427f82d45d7840d7c63"
 }

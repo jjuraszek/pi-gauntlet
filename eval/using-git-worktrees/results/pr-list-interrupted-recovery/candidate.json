@@ -1,57 +1,49 @@
 {
   "sample": "pr-list-interrupted-recovery",
   "arm": "candidate",
-  "skillSha": "ca5d35e22759917183e0b7c26b1a21de31c759b8af7f1f07e3fcbcc306380467",
+  "skillSha": "d439a5ee30ec177efddafb40d8d999ad755b4f63eef8e04f9844cb33aee3c1c5",
   "inputSha": "4d11e37bc85defcea1768347722337e2226165a50ec0be676484bff017606cc1",
   "kind": "text",
   "assembly": "concat",
   "thinking": "medium",
   "models": {
     "replay": [
-      "anthropic/claude-opus-5-5",
       "github-copilot/gpt-6.1-sol"
     ],
-    "judge": "anthropic-fable/claude-fable-5-1",
+    "judge": "github-copilot/gpt-6.1-sol",
     "thinking": "medium"
   },
   "outputs": {
-    "anthropic/claude-opus-5-5": {
-      "status": "ok",
-      "text": "I'm using the using-git-worktrees skill to set up an isolated workspace.\n\n## Shared preamble (A, A-no-worktree, B)\n\nThe caller passed admitted PR values, so I follow `reference/pr-head.md` and skip SKILL Steps 0 and 1.\n\n- **Home and members.** `HOME_PR=#12` (`fix/retry`, `aaaaaaaa…`) and `PRE_REWORK_HEAD=aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa`. `MEMBER_HEADS` are #13 (`fix/cap`, `bbbb…`) and #14 (`fix/retry-docs`, `cccc…`), with titles carried.\n- **ROOT.** `git rev-parse --path-format=absolute --git-common-dir` gives `/work/widget/.git`, so `ROOT=/work/widget`. `git rev-parse --show-superproject-working-tree` prints nothing, so this is not a submodule.\n- **Home path.** The overrides file has no `home:`/`create:`/`destroy:` keys (it holds only the runner), and there is no native tool or wrapper. So the home is the default. `NAME=fix-retry` and `WORKTREE=/work/widget/.worktrees/fix-retry`.\n- **Fetch.** `git -C /work/widget fetch origin` succeeds.\n- **Reachability, for each PR.** I run `git -C /work/widget rev-parse --verify -q <oid>^{commit}` for `aaaa…`, `bbbb…` and `cccc…`. All succeed. `git -C /work/widget rev-parse origin/fix/retry`, `origin/fix/cap` and `origin/fix/retry-docs` equal the supplied heads.\n- **Base.** `BASE_SHA=$(git -C /work/widget rev-parse origin/main)` = `dddddddddddddddddddddddddddddddddddddddd`.\n- **Ordered stops:**\n  - None of the PRs is cross-repository.\n  - Heads are reachable and the remotes are equal.\n  - The N=1 local-ancestor row does not apply, because N=3.\n  - The checked-out row depends on the variant (below).\n\n---\n\n## Variant A: home worktree exists, clean\n\n1. **Checked-out stop.** `git -C /work/widget worktree list --porcelain` lists `fix/retry` only at the selected home. That is not \"another path\", so there is no stop.\n2. **Recovery inspection** uses the local branch, not the caller's HEAD:\n   - `git -C /work/widget rev-parse refs/heads/fix/retry` gives `eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee`.\n   - `git -C /work/widget merge-base --is-ancestor aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee` exits 0.\n   - `git -C /work/widget log --first-parent --format='%H %P %s' aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa..eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee` returns one entry: `eeee… aaaa… bbbb… merge PR #13 head bbbbbbb into PR #12`.\n3. **Validating that entry:**\n   - It has two parents.\n   - The subject is canonical.\n   - #13 is an admitted member, and `bbbbbbb` matches its original head.\n   - Its second parent is the full `bbbb…`.\n\n   So the entry is valid.\n4. **Clean tree.** `git -C /work/widget/.worktrees/fix-retry status --porcelain` is empty, so the tree is clean.\n5. **Skip #13.** I record `Member merge: #13 eeeeeee (already landed)`. I invent no new commit for it.\n6. **Provisioning.** I reuse the clean worktree unchanged, with no reset, rebase or branch deletion. `git -C /work/widget/.worktrees/fix-retry rev-parse HEAD` = `eeee…`, which equals the validated tip.\n7. **Member #14.**\n   - I save `LAST_GOOD=eeee…`.\n   - `git -C /work/widget/.worktrees/fix-retry merge --no-ff -m \"merge PR #14 head ccccccc into PR #12\" cccccccccccccccccccccccccccccccccccccccc` gives `fffffff`.\n   - I record `Member merge: #14 fffffff`.\n8. **Base merge.**\n   - `git -C /work/widget/.worktrees/fix-retry merge --no-ff --no-edit origin/main` merges cleanly, so I record `merge: 1111111`.\n   - The conflict helper and scoped runner are not needed.\n9. **Provenance proof.** `git -C /work/widget/.worktrees/fix-retry merge-base --is-ancestor <X> HEAD` exits 0 for X = `aaaa…`, `bbbb…` and `cccc…`.\n10. **Review threads.**\n    - For each of n=12, 13 and 14, I run `gh api graphql --paginate … -F o=acme -F r=widget -F n=<n>`.\n    - Each fetch succeeds with no unresolved threads, so each records `Threads: none`.\n\nI push nothing, close nothing, and write no spec or plan.\n\n**Step 4 report (A):**\n```\nWorktree ready at /work/widget/.worktrees/fix-retry\nBranch: fix/retry\nBase: fix/retry @ aaaaaaa\nPR: acme/widget#12\nPre-rework head: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\nPR: acme/widget#13\nPre-rework head: bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\nPR: acme/widget#14\nPre-rework head: cccccccccccccccccccccccccccccccccccccccc\nMember merge: #13 eeeeeee (already landed)\nMember merge: #14 fffffff\nmerge: 1111111\nBase SHA: ddddddd\nThreads: #12 none, #13 none, #14 none\nReady to implement retry-cap rework (PRs #12, #13, #14)\n```\n\n---\n\n## Variant A-no-worktree: local branch only\n\n1. **Checked-out stop.** `git -C /work/widget worktree list --porcelain` does not list `fix/retry` anywhere, so there is no stop.\n2. **Recovery inspection** is identical to A:\n   - `rev-parse refs/heads/fix/retry` gives `eeee…`.\n   - The ancestry check passes.\n   - The first-parent walk returns the single valid #13 merge.\n   - There is no existing tree to dirty-check.\n   - The refusal message, if one were needed, would use the selected home path.\n3. **Skip #13.** I record `Member merge: #13 eeeeeee (already landed)`.\n4. **Fresh-creation checks.**\n   - `git -C /work/widget status --porcelain` is empty, so the source is clean.\n   - `git -C /work/widget check-ignore -q .worktrees` exits 0, so `.worktrees` is already ignored.\n5. **Provisioning on the existing branch.**\n   - `git -C /work/widget worktree add \"/work/widget/.worktrees/fix-retry\" fix/retry` runs with no `-b`, no update-ref, no reset and no deletion.\n   - `git -C /work/widget/.worktrees/fix-retry rev-parse HEAD` = `eeee…`, which equals the validated local tip.\n6. **Remaining steps** match A steps 7–10:\n   - The #14 merge gives `fffffff`.\n   - The base merge gives `1111111`.\n   - The ancestry proof passes for all three original heads.\n   - The threads fetch returns none for each PR.\n\n**Step 4 report (A-no-worktree):** identical to A's report. The path, branch, Base line, three PR/Pre-rework pairs, `Member merge: #13 eeeeeee (already landed)`, `Member merge: #14 fffffff`, `merge: 1111111`, `Base SHA: ddddddd`, and the threads line are the same.\n\n---\n\n## Variant B: unrelated commit on the branch, session in linked worktree `other`\n\n1. **Where the session runs.** ROOT is still derived from the common dir, so `/work/widget`. The session's linked tree `other` (HEAD `9999999`) is not the selected home on `fix/retry`. I never adopt it, and I ignore `9999999`.\n2. **Checked-out stop.** `git -C /work/widget worktree list --porcelain` does not show `fix/retry` at another path, so there is no stop.\n3. **Recovery inspection:**\n   - `git -C /work/widget rev-parse refs/heads/fix/retry` gives the tip `2222222`.\n   - `git -C /work/widget merge-base --is-ancestor aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa <tip>` exits 0.\n   - `git -C /work/widget log --first-parent --format='%H %P %s' aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa..<tip>` returns two entries:\n     - `2222222… eeee… unrelated cleanup`\n     - `eeee… aaaa… bbbb… merge PR #13 head bbbbbbb into PR #12`\n4. **Validation fails.** `2222222` is a single-parent commit with a non-canonical subject, so it is not a member merge from this list.\n\n**STOP before any write.** There is no worktree add, no merges, no thread fetch and no Step 4 report:\n\n```\nworktree /work/widget/.worktrees/fix-retry on fix/retry carries commits beyond PR #12's head (aaaaaaa) that are not member merges from this list; resolve by hand or remove the worktree.\n```\n\nI do no reset, rebase or branch deletion.\n",
-      "words": 944,
-      "wallMs": 44171,
-      "mechanical": {}
-    },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "I’m using the using-git-worktrees skill to set up an isolated workspace.\n\nThese are three independent synthetic runs. Every command below has process cwd `/work/widget`; `git -C` explicitly identifies its target. No tools are actually invoked.\n\n## Common opening — repeated in each variant\n\nBecause the caller supplied admitted PRs, I follow the PR-head procedure rather than generic linked-worktree reuse.\n\n1. Run:\n   ```sh\n   git rev-parse --path-format=absolute --git-dir --git-common-dir\n   git rev-parse --show-superproject-working-tree\n   ```\n   Resolve primary root `/work/widget`; no submodule. In B, the session’s unrelated linked tree is not adopted.\n\n2. Inspect the override ladder:\n   ```sh\n   for p in /work/widget/.pi/gauntlet-overrides.md /work/widget/gauntlet-overrides.md /work/widget/doc/gauntlet-overrides.md; do\n     if [ -f \"$p\" ]; then cat \"$p\"; break; fi\n   done\n   ```\n   No applicable placement/create override exists. No native tool or wrapper is available. Resolve:\n   - Home PR: `acme/widget#12`\n   - Branch: `fix/retry`\n   - Name: `fix-retry`\n   - `WORKTREE=/work/widget/.worktrees/fix-retry`\n   - `PRE_REWORK_HEAD=aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa`\n   - Members, in order: #13 at `bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb`; #14 at `cccccccccccccccccccccccccccccccccccccccc`.\n\n3. Run:\n   ```sh\n   git -C /work/widget fetch origin\n   ```\n   Then run these commands, in order:\n   ```sh\n   git -C /work/widget rev-parse --verify -q aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa^{commit}\n   git -C /work/widget rev-parse origin/fix/retry\n   git -C /work/widget rev-parse --verify -q bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb^{commit}\n   git -C /work/widget rev-parse origin/fix/cap\n   git -C /work/widget rev-parse --verify -q cccccccccccccccccccccccccccccccccccccccc^{commit}\n   git -C /work/widget rev-parse origin/fix/retry-docs\n   git -C /work/widget rev-parse origin/main\n   git -C /work/widget worktree list --porcelain\n   ```\n   Every original object exists; each remote equals its supplied head. Resolve `BASE_SHA=dddddddddddddddddddddddddddddddddddddddd`. All PRs are in-repository. No branch occupies an impermissible path.\n\n## A — existing selected worktree\n\nRun:\n```sh\ngit -C /work/widget rev-parse refs/heads/fix/retry\ngit -C /work/widget merge-base --is-ancestor aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa refs/heads/fix/retry\ngit -C /work/widget log --first-parent --format='%H %P %s' aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa..eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee\ngit -C /work/widget/.worktrees/fix-retry status --porcelain\n```\n\nResolve the actual local tip as `eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee`, not caller HEAD. The sole intervening commit has exactly the required two parents and canonical #13 subject. Status is empty. Recovery is valid; retain that commit and skip #13.\n\nRun:\n```sh\ngit -C /work/widget/.worktrees/fix-retry rev-parse HEAD\n```\nIt equals the validated local tip. Reuse the selected tree unchanged.\n\nContinue with the completion sequence below.\n\n## A-no-worktree — provision the validated existing branch\n\nRun the same local-tip, ancestry, and first-parent-log commands as A. They validate the same recovery tip. There is no existing home tree to inspect.\n\nRun:\n```sh\ngit -C /work/widget status --porcelain\ngit -C /work/widget check-ignore -q .worktrees\n```\nSource status is empty; the ignore check succeeds. Announce: “Setting up the selected worktree at `/work/widget/.worktrees/fix-retry` on existing branch `fix/retry`.”\n\nRun:\n```sh\ngit -C /work/widget worktree add /work/widget/.worktrees/fix-retry fix/retry\ngit -C /work/widget worktree list --porcelain\ngit -C /work/widget/.worktrees/fix-retry rev-parse HEAD\n```\nThe selected path is listed and HEAD equals the validated `eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee`. No `-b`, update-ref, reset, or branch replacement occurs.\n\nContinue below.\n\n## Completion sequence — independently in A and A-no-worktree\n\n#13 is already landed; issue no merge for it. Run:\n```sh\ngit -C /work/widget/.worktrees/fix-retry rev-parse HEAD\ngit -C /work/widget/.worktrees/fix-retry merge --no-ff -m \"merge PR #14 head ccccccc into PR #12\" cccccccccccccccccccccccccccccccccccccccc\ngit -C /work/widget/.worktrees/fix-retry rev-parse --short HEAD\ngit -C /work/widget/.worktrees/fix-retry merge --no-ff --no-edit origin/main\ngit -C /work/widget/.worktrees/fix-retry rev-parse --short HEAD\n```\nSaved last-good tip is `eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee`; member merge is `fffffff`; base merge is `1111111`. No conflicts or conflict tests occur.\n\nProve retained provenance:\n```sh\nfor h in aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb cccccccccccccccccccccccccccccccccccccccc; do\n  git -C /work/widget/.worktrees/fix-retry merge-base --is-ancestor \"$h\" HEAD\ndone\n```\nAll succeed.\n\nFetch threads for each admitted PR:\n```sh\nfor n in 12 13 14; do\n  gh api graphql --paginate -f query='query($o:String!,$r:String!,$n:Int!,$endCursor:String){repository(owner:$o,name:$r){pullRequest(number:$n){reviewThreads(first:100,after:$endCursor){pageInfo{hasNextPage endCursor} nodes{id isResolved isOutdated path line originalLine comments(first:100){pageInfo{hasNextPage endCursor} totalCount nodes{url body author{login} createdAt}}}}}}}' -F o=acme -F r=widget -F n=\"$n\"\ndone\n```\nSynthetic successful empty fetches: no unresolved threads.\n\nEach successful variant reports:\n\n```text\nWorktree ready at /work/widget/.worktrees/fix-retry\nBranch: fix/retry\nBase: fix/retry @ aaaaaaa\nPR: acme/widget#12\nPre-rework head: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\nPR: acme/widget#13\nPre-rework head: bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\nPR: acme/widget#14\nPre-rework head: cccccccccccccccccccccccccccccccccccccccc\nBase SHA: ddddddd\nMember merge: #13 eeeeeee (already landed)\nMember merge: #14 fffffff\nmerge: 1111111\nThreads: none\nReady to implement retry caps\n```\n\n## B — pre-write refusal\n\nAfter the common opening, run:\n```sh\ngit -C /work/widget rev-parse refs/heads/fix/retry\ngit -C /work/widget merge-base --is-ancestor aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa refs/heads/fix/retry\ngit -C /work/widget log --first-parent --format='%H %P %s' aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa..refs/heads/fix/retry\n```\n\nThe actual local tip is `2222222`, not caller HEAD `9999999`. The walk includes single-parent `unrelated cleanup`, so recovery validation fails.\n\nStop before worktree/file writes, provisioning, merges, or Step 4:\n\n> worktree /work/widget/.worktrees/fix-retry on fix/retry carries commits beyond PR #12's head (aaaaaaa) that are not member merges from this list; resolve by hand or remove the worktree.\n",
-      "words": 698,
-      "wallMs": 36161,
+      "text": "I’m using the using-git-worktrees skill to set up an isolated workspace.\n\nThese are three independent synthetic runs. No tools are actually invoked. Every command below has cwd `/work/widget`; `git -C` explicitly selects any other target checkout.\n\n## Common prefix — run independently for A, A-no-worktree, and B\n\nThe admitted-PR procedure replaces generic Steps 0–1. In B, the unrelated session worktree and caller HEAD `9999999` are not adopted.\n\nCommands, in order:\n\n```sh\ngit rev-parse --path-format=absolute --git-common-dir\ngit rev-parse --show-superproject-working-tree\n```\n\nResolve common directory `/work/widget/.git`, no superproject, and `ROOT=/work/widget`. From the supplied contract: no wrapper or overrides; `<name>=fix-retry`; `WORKTREE=/work/widget/.worktrees/fix-retry`. Home branch is `fix/retry`; members remain ordered #13, #14.\n\n```sh\ngit -C /work/widget fetch origin\ngit -C /work/widget rev-parse --verify -q 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa^{commit}'\ngit -C /work/widget rev-parse origin/fix/retry\ngit -C /work/widget rev-parse --verify -q 'bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb^{commit}'\ngit -C /work/widget rev-parse origin/fix/cap\ngit -C /work/widget rev-parse --verify -q 'cccccccccccccccccccccccccccccccccccccccc^{commit}'\ngit -C /work/widget rev-parse origin/fix/retry-docs\ngit -C /work/widget rev-parse origin/main\ngit -C /work/widget worktree list --porcelain\n```\n\nAll three original objects exist; remote values equal their supplied heads. Resolve:\n\n- `PRE_REWORK_HEAD=aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa`\n- `BASE_SHA=dddddddddddddddddddddddddddddddddddddddd`\n- Member #13 original head: `bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb`\n- Member #14 original head: `cccccccccccccccccccccccccccccccccccccccc`\n\nAll are in-repository PRs. No home-branch checkout exists at another path. The single-PR local-ancestor stop does not apply to this list.\n\n## A — recover the selected existing worktree\n\nNext commands:\n\n```sh\ngit -C /work/widget rev-parse refs/heads/fix/retry\ngit -C /work/widget merge-base --is-ancestor aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee\ngit -C /work/widget log --first-parent --format='%H %P %s' aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa..eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee\ngit -C /work/widget/.worktrees/fix-retry status --porcelain\n```\n\nResolve local tip `eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee`. Ancestry succeeds. The walk contains exactly the supplied two-parent canonical #13 merge; status is empty. Recovery is valid. Reuse this selected worktree unchanged, skip #13, and retain its existing merge SHA `eeeeeee`.\n\nContinue with the shared completion below.\n\n## A-no-worktree — recover the branch, then provision it\n\nRun the same four recovery commands as A **except** the worktree-status command: no selected checkout exists yet. The local branch inspection—not caller HEAD—again establishes validated tip `eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee` and recognizes #13.\n\nThen:\n\n```sh\ngit -C /work/widget status --porcelain\ngit -C /work/widget check-ignore -q .worktrees\ngit -C /work/widget worktree add /work/widget/.worktrees/fix-retry fix/retry\ngit -C /work/widget worktree list --porcelain\ngit -C /work/widget/.worktrees/fix-retry rev-parse HEAD\n```\n\nSource status is empty; the ignore check succeeds. Provision the **existing** branch without `-b`, `update-ref`, reset, or deletion. The list confirms the selected path; HEAD equals the validated local tip `eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee`.\n\nContinue with the shared completion.\n\n## Shared completion — A and A-no-worktree separately\n\n```sh\ngit -C /work/widget/.worktrees/fix-retry merge --no-ff -m 'merge PR #14 head ccccccc into PR #12' cccccccccccccccccccccccccccccccccccccccc\ngit -C /work/widget/.worktrees/fix-retry rev-parse --short HEAD\ngit -C /work/widget/.worktrees/fix-retry merge --no-ff --no-edit origin/main\ngit -C /work/widget/.worktrees/fix-retry rev-parse --short HEAD\ngit -C /work/widget/.worktrees/fix-retry merge-base --is-ancestor aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa HEAD\ngit -C /work/widget/.worktrees/fix-retry merge-base --is-ancestor bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb HEAD\ngit -C /work/widget/.worktrees/fix-retry merge-base --is-ancestor cccccccccccccccccccccccccccccccccccccccc HEAD\n```\n\nResolve #14 merge `fffffff`, then clean base merge `1111111`. All provenance checks succeed. No conflict helper or tests run.\n\nBefore gather, define the exact query argument:\n\n```sh\nQUERY='query($o:String!,$r:String!,$n:Int!,$endCursor:String){repository(owner:$o,name:$r){pullRequest(number:$n){reviewThreads(first:100,after:$endCursor){pageInfo{hasNextPage endCursor} nodes{id isResolved isOutdated path line originalLine comments(first:100){pageInfo{hasNextPage endCursor} totalCount nodes{url body author{login} createdAt}}}}}}}'\ngh api graphql --paginate -f \"query=$QUERY\" -F o=acme -F r=widget -F n=12\ngh api graphql --paginate -f \"query=$QUERY\" -F o=acme -F r=widget -F n=13\ngh api graphql --paginate -f \"query=$QUERY\" -F o=acme -F r=widget -F n=14\n```\n\nEach synthetic fetch succeeds with empty output: `Threads: none` for each PR.\n\nStep 4 report, emitted separately in both variants:\n\n```text\nWorktree ready at /work/widget/.worktrees/fix-retry\nBranch: fix/retry\nBase: fix/retry @ aaaaaaa\nPR: acme/widget#12\nPre-rework head: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\nPR: acme/widget#13\nPre-rework head: bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\nPR: acme/widget#14\nPre-rework head: cccccccccccccccccccccccccccccccccccccccc\nBase SHA: ddddddd\nMember merge: #13 eeeeeee (already landed)\nMember merge: #14 fffffff\nmerge: 1111111\nThreads: none\nReady to implement retry caps\n```\n\n## B — pre-write refusal\n\nAfter the common prefix:\n\n```sh\ngit -C /work/widget rev-parse refs/heads/fix/retry\ngit -C /work/widget merge-base --is-ancestor aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa refs/heads/fix/retry\ngit -C /work/widget log --first-parent --format='%H %P %s' aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa..refs/heads/fix/retry\n```\n\nThe actual local tip is `2222222`, not caller HEAD `9999999`. Ancestry succeeds, but the walk includes single-parent `unrelated cleanup`. Stop before writes:\n\n```text\nworktree /work/widget/.worktrees/fix-retry on fix/retry carries commits beyond PR #12's head (aaaaaaa) that are not member merges from this list; resolve by hand or remove the worktree.\n```\n\nNo provisioning, merges, thread fetches, or Step 4 report follow.\n",
+      "words": 677,
+      "wallMs": 36299,
       "mechanical": {}
     }
   },
   "judge": {
-    "anthropic/claude-opus-5-5": {
+    "github-copilot/gpt-6.1-sol": {
       "factsSha": "51711470b564a357bdc54823ef5e084bd68fd9486110c92af43cf9f9c8b48265",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "94074f513938f6d5b90a8c47ce92cbd629c74e1f228b6c58d2567427c2164ad7",
-      "baselineOutputSha": "b1090e0c94794e37078bc26fee19ca3389785324e9574fbd4200b0b1048423cb",
-      "candidateOutputSha": "b73b09ac0a57e146521687592517da830f4a04e7524130de32cd96c588a522b8",
+      "intentSha": "79a43344d6de00c833afe81581fa2db76ed698aba803c56f1667b8d5ffacb3da",
+      "baselineOutputSha": "1219f691c4f171fedd560c726f7c801345f640893ec3244d31c38e1a70292562",
+      "candidateOutputSha": "14ad6cc4b4c055f2de8d7fef5bad861b638a593c70aab3ee32471e2cf7082cef",
       "facts": {
         "validation": {
-          "before": "fails",
+          "before": "holds",
           "after": "holds",
-          "label": "intended change"
+          "label": "intended but unchanged"
         },
         "resume": {
-          "before": "fails",
+          "before": "holds",
           "after": "holds",
-          "label": "unplanned improvement"
+          "label": "held"
         },
         "refusal": {
-          "before": "fails",
+          "before": "holds",
           "after": "holds",
-          "label": "unplanned improvement"
+          "label": "held"
         },
         "no-worktree": {
           "before": "holds",
@@ -59,42 +51,117 @@
           "label": "held"
         }
       },
-      "feedback": "After moved the three targeted facts to holds without regressing no-worktree. Before inspected the local branch but never read its tip explicitly, used rev-list plus a separate --parents query rather than the first-parent %H %P %s walk, reported the landed #13 as a 'Recovered:' line instead of 'Member merge: #13 eeeeeee (already landed)', and refused in B with an 'not an ancestor of origin/fix/retry' message that named neither the selected path nor #12 nor the not-member-merges reason. After fixes all of these: it rev-parses refs/heads/fix/retry, walks log --first-parent --format='%H %P %s' from the supplied home head, checks two parents, canonical subject, admitted member and original second parent, records the exact Member merge lines with #13 skipped then #14 then origin/main, lists all three PR/Pre-rework pairs home first, and B's refusal cites the selected path, fix/retry, PR #12's head (aaaaaaa) and the not-member-merges reason before any write. A-no-worktree in After still validates the local branch via refs/heads (not caller HEAD), uses worktree add with no -b/update-ref/reset, confirms HEAD equals the validated tip, and invents no #13 commit, so Before's held fact is preserved. Keep this wording; the only caution is that the A-no-worktree section summarizes the ancestry proof and threads fetch by reference to A's steps rather than restating them, which is acceptable here but would be safer spelled out if a future fact demands per-variant command text.",
-      "wallMs": 21855,
-      "verdict": "improved"
-    },
-    "github-copilot/gpt-6.1-sol": {
-      "factsSha": "51711470b564a357bdc54823ef5e084bd68fd9486110c92af43cf9f9c8b48265",
-      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "94074f513938f6d5b90a8c47ce92cbd629c74e1f228b6c58d2567427c2164ad7",
-      "baselineOutputSha": "cd577db60cf236510f498de7eb1dcd0558ed9352542659414f1dab87c5957bd7",
-      "candidateOutputSha": "1219f691c4f171fedd560c726f7c801345f640893ec3244d31c38e1a70292562",
-      "facts": {
-        "validation": {
-          "before": "fails",
-          "after": "holds",
-          "label": "intended change"
-        },
-        "resume": {
-          "before": "fails",
-          "after": "holds",
-          "label": "unplanned improvement"
-        },
-        "refusal": {
-          "before": "fails",
-          "after": "holds",
-          "label": "unplanned improvement"
-        },
-        "no-worktree": {
-          "before": "fails",
-          "after": "holds",
-          "label": "unplanned improvement"
-        }
-      },
-      "feedback": "After moves every fact to holds: it reads refs/heads/fix/retry rather than caller HEAD, runs merge-base --is-ancestor from the supplied home head, walks --first-parent %H %P %s after aaaa…, accepts the canonical two-parent #13 merge, skips re-merging #13, merges #14 then origin/main with --no-ff, proves all three original heads against final HEAD, reports 'Member merge: #13 eeeeeee (already landed)' home-first, provisions the no-worktree variant with plain worktree add (no update-ref/-b/reset), and B's refusal names the selected path, fix/retry, #12's aaaaaaa and the not-member-merges reason before any write. Before failed because it treated the existing merge stack as a head mismatch, used update-ref to overwrite the local branch, ran the ancestry check backwards, and omitted the selected path from the refusal. One small tightening for After: state explicitly that the intervening commit's second parent equals #13's original head bbbb… (not just 'the required two parents'), and in B note that the refusal text refers to the branch tip since no worktree exists at the selected path; otherwise the wording already keeps every fact while delivering the Change.",
-      "wallMs": 15841,
-      "verdict": "improved"
+      "feedback": "No listed fact changes: After retains local-branch validation, the already-landed #13 report, #14-before-base ordering, original-head provenance, safe existing-branch provisioning, and B’s pre-write refusal. To keep these guarantees explicit, expand “exactly the supplied two-parent canonical #13 merge” to name the original home first parent, original #13 second parent, and exact canonical subject. The requested question-first marker is not demonstrated in this replay because neither output presents a waiting question; apply it at column zero when such a question occurs, preserving its choices and pause without changing these recovery paths.",
+      "wallMs": 5688,
+      "verdict": "unchanged"
     }
   },
-  "repoSha": "deb4f43410cbd616e18f8610ab6b81e822653d4c"
+  "refresh": {
+    "status": "complete",
+    "identity": {
+      "sample": "pr-list-interrupted-recovery",
+      "kind": "text",
+      "assembly": "concat",
+      "baselineSkillSha": "ca5d35e22759917183e0b7c26b1a21de31c759b8af7f1f07e3fcbcc306380467",
+      "candidateSkillSha": "2bd9c6d579dd561378603e93ea8756914ecb1e086b3f3738c77141451167d172",
+      "inputSha": "4d11e37bc85defcea1768347722337e2226165a50ec0be676484bff017606cc1",
+      "factsSha": "51711470b564a357bdc54823ef5e084bd68fd9486110c92af43cf9f9c8b48265",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "da26298e568d10fc59a4bb4ca1f33953732f1df3813ff7a16651d1de74202509",
+      "models": {
+        "replay": [
+          "github-copilot/gpt-6.1-sol"
+        ],
+        "judge": "github-copilot/gpt-6.1-sol"
+      },
+      "thinking": "medium",
+      "outputs": {
+        "baseline": {
+          "github-copilot/gpt-6.1-sol": {
+            "baselineOutputSha": "1219f691c4f171fedd560c726f7c801345f640893ec3244d31c38e1a70292562",
+            "payloadSha": "11e95e7ed9655f181fa5b01424d7fc7300c8d2246f3955e1945d16716df9727f"
+          }
+        },
+        "candidate": {
+          "github-copilot/gpt-6.1-sol": {
+            "candidateOutputSha": "fad72b953ae095019345505805099c45ddb64537e1af0b0834a3217a4e0c6d66",
+            "payloadSha": "aad50641a130024e42f0d02b1c64bd97b9d4e450222e495a66a66139ae1139d1"
+          }
+        }
+      }
+    },
+    "previous": {
+      "github-copilot/gpt-6.1-sol": {
+        "factsSha": "51711470b564a357bdc54823ef5e084bd68fd9486110c92af43cf9f9c8b48265",
+        "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+        "intentSha": "da26298e568d10fc59a4bb4ca1f33953732f1df3813ff7a16651d1de74202509",
+        "baselineOutputSha": "1219f691c4f171fedd560c726f7c801345f640893ec3244d31c38e1a70292562",
+        "candidateOutputSha": "fad72b953ae095019345505805099c45ddb64537e1af0b0834a3217a4e0c6d66",
+        "facts": {
+          "validation": {
+            "before": "holds",
+            "after": "holds",
+            "label": "intended but unchanged"
+          },
+          "resume": {
+            "before": "holds",
+            "after": "holds",
+            "label": "held"
+          },
+          "refusal": {
+            "before": "holds",
+            "after": "holds",
+            "label": "held"
+          },
+          "no-worktree": {
+            "before": "holds",
+            "after": "holds",
+            "label": "held"
+          }
+        },
+        "feedback": "Nothing moved: After keeps every fact Before kept. Both outputs read refs/heads/fix/retry rather than caller HEAD, prove home ancestry, walk `--first-parent --format='%H %P %s'` from the supplied home head, and validate the two-parent canonical #13 merge (After is actually stronger, naming both parents explicitly); both report `Member merge: #13 eeeeeee (already landed)`, skip #13, merge #14 then origin/main, and list #12/#13/#14 original heads home-first; both give the exact B refusal with path, branch, #12/aaaaaaa and the not-member-merges reason before any writes; both provision A-no-worktree with `worktree add ... fix/retry` (no `-b`, update-ref, reset) on the validated eeeeeee tip with no invented merge. Two small things worth tightening in After so the facts don't drift later: the A ancestry check uses the literal `eeeeeee...` instead of `refs/heads/fix/retry` (keep the ref form so the check is provably against the real local tip, not a copied constant), and the thread-fetch block now appears after the Step 4 report text with `Threads: none` dropped from the report block — restore the `Threads: none` line in the report and place the fetch before the report to match Before's ordering.",
+        "wallMs": 16825,
+        "verdict": "unchanged",
+        "judgeModel": null,
+        "thinking": null
+      }
+    },
+    "refreshed": {
+      "github-copilot/gpt-6.1-sol": {
+        "factsSha": "51711470b564a357bdc54823ef5e084bd68fd9486110c92af43cf9f9c8b48265",
+        "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+        "intentSha": "da26298e568d10fc59a4bb4ca1f33953732f1df3813ff7a16651d1de74202509",
+        "baselineOutputSha": "1219f691c4f171fedd560c726f7c801345f640893ec3244d31c38e1a70292562",
+        "candidateOutputSha": "fad72b953ae095019345505805099c45ddb64537e1af0b0834a3217a4e0c6d66",
+        "facts": {
+          "validation": {
+            "before": "holds",
+            "after": "holds",
+            "label": "intended but unchanged"
+          },
+          "resume": {
+            "before": "holds",
+            "after": "holds",
+            "label": "held"
+          },
+          "refusal": {
+            "before": "holds",
+            "after": "holds",
+            "label": "held"
+          },
+          "no-worktree": {
+            "before": "holds",
+            "after": "holds",
+            "label": "held"
+          }
+        },
+        "feedback": "None of these four facts moved: both outputs satisfy all four. After preserves actual-local-tip validation, canonical two-parent recovery checks, the already-landed #13 report, #14-before-base ordering, original-head provenance, and B’s pre-write refusal. Its explicit description of provisioning the existing validated branch also preserves the no-worktree requirement without inventing a merge. Keep those statements and commands intact when revising further. To deliver the separate gate-line-first change, put the waiting-question marker at column zero on the first line while retaining the existing choices and pause; After still opens with introductory prose.",
+        "wallMs": 7059,
+        "verdict": "unchanged",
+        "judgeModel": "github-copilot/gpt-6.1-sol",
+        "thinking": "medium"
+      }
+    }
+  },
+  "repoSha": "a0b31dc6109fdc5099431c2faa110bec0e1d32f4"
 }

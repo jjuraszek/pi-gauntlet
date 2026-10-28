@@ -17,7 +17,7 @@ ending at `## Skills loaded`). Only this package knows what `phase_tracker` and
 the layout fixed by `reference/brief-contract.md` (`## Producers`). Runs in the main
 loop: tracker state is extension state no subagent can read.
 
-**Announce at start:** "I'm using the gauntlet-handoff skill to write a resumable handoff brief."
+**Announce at start (after the marker on marked messages):** "I'm using the gauntlet-handoff skill to write a resumable handoff brief."
 
 ## Boundaries
 
@@ -31,8 +31,10 @@ loop: tracker state is extension state no subagent can read.
 
 ## Sequence
 
+Apply the first-line grammar in [menu-layout](../brainstorming/reference/menu-layout.md).
+
 1. **Resolve the target.**
-   - `--out` and `--key` both given -> STOP: they are exclusive in cohort's grammar.
+   - `--out` and `--key` both given -> STOP: they are exclusive in cohort's grammar. Start the message with `gauntlet: stuck` followed by the exclusivity reason on that line.
    - `--out <path>` -> resolve to an absolute path against the session cwd
      (`node -p "require('path').resolve(process.argv[1])" -- "<path>"`); that is the
      form passed to cohort.
@@ -52,7 +54,7 @@ loop: tracker state is extension state no subagent can read.
      ```
 
      `BRANCH` empty (detached HEAD) or equal to `DEFAULT` -> STOP asking for `--key` or
-     `--out` (a default-branch key would collide across flows).
+     `--out` (a default-branch key would collide across flows). Start the message with exactly `gauntlet: question` on its own line, with no suffix.
    - A derived key has every `/` replaced by `-` (`hotfix/x` -> `hotfix-x`) so the file
      lands flat in the default directory. A human-given `--key` is passed verbatim.
    - With `--key`, cohort writes `<tmpdir>/pi-handoff/<key>.md`, `<tmpdir>` from
@@ -87,7 +89,7 @@ loop: tracker state is extension state no subagent can read.
      `cat >> "<brief path>" <<'EOF' ... EOF` whose body is that block.
    - Re-read the file tail and confirm it ends with the gate-history line from the
      contract and nothing after.
-7. **Report.** Print the path and `/skill:gauntlet-resume <path>`. When a section was
+7. **Report.** Start the message with `gauntlet: done brief-written`. Print the path and `/skill:gauntlet-resume <path>`. When a section was
    appended and the brief's `worktree:` field is `no`, resume's entry check 2 needs an
    override: print `/skill:gauntlet-resume <path> <override>` where `<override>` is the
    run worktree from step 1 when one was found, else the session checkout root,

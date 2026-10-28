@@ -1,98 +1,36 @@
 {
   "sample": "reporter-note-fetch",
   "arm": "candidate",
-  "skillSha": "6352d61a0d9871c7135408aa55cb03f7540724e62a6ac6b807657868b4106a9f",
+  "skillSha": "d0b56e205792d610bcdc4e9449df8ef64ad7ff3fef83249284460ede9fa45f30",
   "inputSha": "b22e6d9040c22d37c86eb3bb4dcde49582ffb315c093175c6dbde8ca2e24b4e8",
   "kind": "text",
   "assembly": "headed",
   "thinking": "medium",
   "models": {
     "replay": [
-      "anthropic/claude-opus-5-5",
       "github-copilot/gpt-6.1-sol"
     ],
-    "judge": "anthropic-fable/claude-fable-5-1",
+    "judge": "github-copilot/gpt-6.1-sol",
     "thinking": "medium"
   },
   "outputs": {
-    "anthropic/claude-opus-5-5": {
-      "status": "ok",
-      "text": "# Narrated replay: acme/widgets#81 gather, six branches\n\nAll steps below are narrated from the fixed observations. No tracker call is live.\n\n## Common fetched AC block\n\nThe paged, multiple, comments-failed and incomplete branches all have a successful body fetch. They reuse this block unchanged:\n\n```markdown\n## Ticket acceptance criteria (verbatim)\n- [ ] Exported reports retain the visible columns.\n```\n\nThe ACs come from the body only. No comment adds an AC row.\n\n---\n\n## Branch paged\n\n1. **Context-builder: body read.** The body is observed (title, Context, Problem, Idea and one AC row), giving the common AC block.\n2. **Context-builder: comment pages.**\n   - Page 1 returns 50 comments, each \"Thanks\". None has a labeled section, and 50 is a full page, so paging continues.\n   - Page 2 returns 2 comments. This is a short page, so paging stops.\n   - Sam's comment (time 1) holds a `Reporter note:` section after `Overlap evidence:`. The evidence part is excluded.\n3. **Scout: separate comment read.** Scout pages the comments the same way and gets the same single note.\n   - Scout keyword terms: `split report export implementation output visible columns maintaining move src/export-target.ts source`\n   - The path is kept intact.\n4. **Draft block** (after the common AC block):\n   ```markdown\n   ## Reporter notes (verbatim)\n   comments: 52 fetched, 2 pages\n   - Reporter note: Move the export implementation to src/export-target.ts; the source has 418 lines.\n   ```\n5. **Spec.**\n   - The AC row is copied verbatim with disposition `in-scope`.\n   - Design clause: move the export implementation to `src/export-target.ts` while preserving output.\n   - \"418 lines\" is recorded as a description of the current source. It is not a target or a limit.\n6. **Gate.** There is no comment-status warning, and `Scope cuts:` is none.\n\n---\n\n## Branch multiple\n\n1. **Context-builder: body read.** The body read succeeds, giving the common AC block.\n2. **Context-builder: comment page.**\n   - Page 1 returns 3 comments. This is a short page, so paging stops.\n   - There is no author filter, so all three notes match.\n   - The comments arrive newest-first and are reordered to creation order: Sam (1), Robin (2), Casey (3).\n   - Sam's trailing `Overlap evidence:` is excluded.\n3. **Scout: separate comment read.** Scout sees the same three notes.\n   - Scout keyword terms: `split report export implementation output visible columns move separate file preserve public entry point keep current`\n4. **Draft block:**\n   ```markdown\n   ## Reporter notes (verbatim)\n   comments: 3 fetched, 1 page\n   - Reporter note: Move the implementation to a separate file.\n   - Reporter note: Preserve the public entry point.\n   - Reporter note: Keep the implementation in its current file.\n\n   Contradiction: Casey (time 3) \"Keep the implementation in its current file\" contradicts Sam (time 1) \"Move the implementation to a separate file\" - unresolved.\n   ```\n5. **Spec.**\n   - The AC row is copied verbatim, `in-scope`.\n   - Design clause: preserve the public entry point.\n   - The move-versus-keep contradiction is not resolved by the agent. It goes to the questionary as a labeled question, and the user's answer is recorded in `## Problem`/Design.\n6. **Gate.** There is no comment-status warning.\n\n---\n\n## Branch no-path\n\n1. **Context-builder: not dispatched.** The overrides exclude this tracker, so no fetch path exists.\n2. **Draft block:**\n   ```markdown\n   ## External context\n   Unfetched refs (no fetch path - tracker excluded by overrides):\n   - acme/widgets#81\n   ```\n3. **Scout.**\n   - There is no tracker read, so no ticket terms are available.\n   - The predecessor check uses the spec-directory listing fallback (titles and `**Goal:**` lines).\n   - Scout writes `Spec index unavailable - predecessor check used directory listing.`\n4. **Spec:**\n   ```markdown\n   ## Acceptance criteria\n   none - ticket not fetched (no fetch path: tracker excluded by overrides)\n   ```\n5. **Gate.** The gate shows that `none` line so the user can paste rows. Any pasted rows become ticket rows.\n\n---\n\n## Branch comments-failed\n\n1. **Context-builder: body read.** The body read succeeds, giving the common AC block.\n2. **Context-builder: comment read.** The comment fetch errors before page 1 with \"permission denied\".\n3. **Scout: separate comment read.** Scout's own comment fetch fails the same way.\n   - Scout keyword terms come from the title and body only: `split report export implementation output visible columns maintaining`\n4. **Draft block** (after the common AC block):\n   ```markdown\n   ## Reporter notes (verbatim)\n   comments not fetched (permission denied)\n   ```\n5. **Spec.** The AC row is kept verbatim, `in-scope`. Implied requirements come from the body only.\n6. **Gate.** This line sits beside the AC summary, and the flow continues with no new stop:\n   `Implied requirements came from the body only - comments not fetched (permission denied); paste missing comment text.`\n\n---\n\n## Branch incomplete\n\n1. **Context-builder: body read.** The body read succeeds, giving the common AC block.\n2. **Context-builder: comment pages.**\n   - Page 1 returns 50 ordinary \"Thanks\" comments with no notes.\n   - Page 2 errors with \"timeout\".\n3. **Scout: separate comment read.** Scout sees the same result.\n   - Scout keyword terms come from the title and body: `split report export implementation output visible columns maintaining`\n4. **Draft block** (after the common AC block):\n   ```markdown\n   ## Reporter notes (verbatim)\n   comments incomplete after page 1 (timeout)\n   comments: 50 fetched, 1 page\n   ```\n5. **Spec.** The AC row is kept verbatim, `in-scope`.\n6. **Gate.** This line is shown, with no new stop:\n   `Implied requirements came from the body only - comments incomplete after page 1 (timeout); paste missing comment text.`\n\n---\n\n## Branch whole-ticket-failed\n\n1. **Context-builder: body and comment reads.** Both fail with \"ticket unavailable\". The ref is reported as unreadable and the build continues.\n2. **Draft block:**\n   ```markdown\n   ## External context\n   External refs not fetched (ticket unavailable):\n   - acme/widgets#81\n   ```\n3. **Scout: separate read.**\n   - The ticket read fails, so no ticket terms are available.\n   - The predecessor check falls back to the spec-directory listing.\n4. **Spec:**\n   ```markdown\n   ## Acceptance criteria\n   none - ticket not fetched (ticket unavailable)\n   ```\n   The unfetched ref is listed.\n5. **Gate.** The gate shows the `none` line so the user can paste rows.\n",
-      "words": 905,
-      "wallMs": 39206,
-      "mechanical": {
-        "count": "holds"
-      }
-    },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "The following are narrated replay actions from the fixed observations, not live calls.\n\n### Common fetched AC block\n\nAll four body-success branches below reuse this draft block unchanged:\n\n```markdown\n## Ticket acceptance criteria (verbatim)\n\n- [ ] Exported reports retain the visible columns.\n```\n\nTheir eventual spec preserves that row:\n\n```markdown\n## Acceptance criteria\n\nTicket acme/widgets#81, Acceptance criteria, rows verbatim:\n\n- [ ] Exported reports retain the visible columns.\n  in-scope\n```\n\n### Branch paged\n\n1. **Scout read trace:** Independently read the successful body, then comment page 1: 50 ordinary comments. Because the page is full, read page 2: two older comments, a short page ending pagination. Find Sam’s `Reporter note:` despite the preceding `Overlap evidence:` section; exclude the overlap evidence. Scout keyword terms: `report export split preserving output visible columns implementation src/export-target.ts 418 lines`.\n2. **Context-builder read trace:** Independently read the body and both comment pages, rather than relying on scout’s fetch. Retain the single body AC. Extract Sam’s note regardless of author; ordinary comments contribute no requirements or ACs.\n3. **Draft stage:** Reuse the common fetched AC block and write:\n\n   ```markdown\n   ## Reporter notes (verbatim)\n\n   comments: 52 fetched, 2 pages\n\n   Reporter note: Move the export implementation to src/export-target.ts; the source has 418 lines.\n   ```\n\n4. **Later spec/gate stage:** Carry the move to `src/export-target.ts` into Design as a requirement. Preserve “418 lines” as a description of the source input, not a target, limit, or required reduction. The later page is the only supplied source for these details; do not omit it. Keep the visible-columns AC verbatim and in scope.\n\n### Branch multiple\n\n1. **Scout read trace:** Independently read the body and the short page of three comments. Stop pagination. Match all three notes without an author filter and exclude Sam’s overlap-evidence section. Scout keyword terms: `report export split preserving output visible columns implementation separate file current file public entry point`.\n2. **Context-builder read trace:** Independently read the same body and short comment page. Extract the body AC only; reorder matched notes into creation order, not returned newest-first order.\n3. **Draft stage:** Reuse the common fetched AC block and write:\n\n   ```markdown\n   ## Reporter notes (verbatim)\n\n   comments: 3 fetched, 1 pages\n\n   Reporter note: Move the implementation to a separate file.\n\n   Reporter note: Preserve the public entry point.\n\n   Reporter note: Keep the implementation in its current file.\n   ```\n\n4. **Later spec/gate stage:** Record that Casey’s later current-file instruction contradicts Sam’s separate-file instruction; do not resolve it by recency or authorship. Clarify that conflict before committing the location decision to the design. Preserve Robin’s public-entry-point requirement. The visible-columns AC remains unchanged; no supplied answer resolves the location conflict.\n\n### Branch no-path\n\n1. **Scout read trace:** Tracker exclusion means no ticket or comment read is available. Do not invent title-, body-, or note-derived keyword terms. The supplied reference is `acme/widgets#81`; ticket-derived search terms remain unavailable.\n2. **Context-builder stage:** Do not dispatch a context-builder for this excluded tracker.\n3. **Draft stage:** Record the unfetched reference explicitly:\n\n   ```markdown\n   ## External context\n\n   Unfetched ref: acme/widgets#81 - tracker excluded by overrides; no fetch path exists.\n\n   ## Ticket acceptance criteria (verbatim)\n\n   none - ticket not fetched (tracker excluded by overrides; no fetch path exists)\n   ```\n\n4. **Later spec/gate stage:** Keep that exact `none` line under `## Acceptance criteria`; do not draft substitute ticket rows. Show it at the gate and invite pasted rows. No Reporter notes block or ticket-derived requirements can be supplied.\n\n### Branch comments-failed\n\n1. **Scout read trace:** Independently read the successful body; the first comment read fails with `permission denied`. Scout keyword terms: `report export split implementation maintaining behavior preserving output visible columns`. No note-derived terms are available.\n2. **Context-builder read trace:** Independently read the body; comment retrieval also fails before page 1. Retain the fetched AC.\n3. **Draft stage:** Reuse the common fetched AC block and write:\n\n   ```markdown\n   ## Reporter notes (verbatim)\n\n   comments not fetched (permission denied)\n   ```\n\n4. **Later spec/gate stage:** Preserve the fetched AC and continue without treating comment failure as a blocking reference-read error. Include this adjacent gate warning:\n\n   > Implied requirements came from the body only - comments not fetched (permission denied); paste missing comment text.\n\n### Branch incomplete\n\n1. **Scout read trace:** Independently read the body and 50 ordinary comments on page 1. Read page 2 because page 1 is full; encounter `timeout`. Scout keyword terms are the same body-only terms as in comments-failed.\n2. **Context-builder read trace:** Independently read the body and page 1, then encounter the page-2 timeout. Do not infer the contents of the unread older comments.\n3. **Draft stage:** Reuse the common fetched AC block and write:\n\n   ```markdown\n   ## Reporter notes (verbatim)\n\n   comments incomplete after page 1 (timeout)\n   ```\n\n4. **Later spec/gate stage:** Retain the AC; do not import the move target or source size from another branch. Include:\n\n   > Implied requirements came from the body only - comments incomplete after page 1 (timeout); paste missing comment text.\n\n### Branch whole-ticket-failed\n\n1. **Scout read trace:** Independent body and comment reads fail: `ticket unavailable`. No title-, body-, or note-derived keyword terms are available.\n2. **Context-builder read trace:** Independent retrieval likewise fails; record the unfetched reference rather than reconstructing it.\n3. **Draft stage:**\n\n   ```markdown\n   ## External context\n\n   External refs not fetched (ticket unavailable):\n   acme/widgets#81\n\n   ## Ticket acceptance criteria (verbatim)\n\n   none - ticket not fetched (ticket unavailable)\n   ```\n\n4. **Later spec/gate stage:** Preserve that exact `none` line in `## Acceptance criteria` and show it at the gate with the paste-rows affordance. Do not borrow the common AC block or Reporter notes from successful branches.\n",
-      "words": 874,
-      "wallMs": 33360,
+      "text": "1. **Common fetched AC block — reused below**\n\n   These are narrated replay actions from fixed observations, not live calls. For every body-success branch, the draft contains this exact block, referenced below as **AC block F**:\n\n   ```markdown\n   ## Ticket acceptance criteria (verbatim)\n   - [ ] Exported reports retain the visible columns.\n   ```\n\n2. **Branch paged**\n\n   **Scout trace:** Independently reads the body, then comment pages of 50. Page 1 contains 50 ordinary comments; because it is full, reads page 2. That page contains Lee’s ordinary comment and Sam’s older labeled sections. Its short length ends pagination. Extracts Sam’s reporter note despite `Overlap evidence:` appearing first; excludes that evidence section.\n\n   Scout keyword terms: `report export implementation preserving output visible columns src/export-target.ts 418 lines`. The literal target path survives extraction.\n\n   **Context-builder trace:** Independently reads the body and both comment pages. Finds 52 comments across two pages. Extracts the AC from the body only and the reporter note without an author filter.\n\n   **Draft:** Includes AC block F and:\n\n   ```markdown\n   ## Reporter notes (verbatim)\n   comments: 52 fetched, 2 pages\n\n   Reporter note: Move the export implementation to src/export-target.ts; the source has 418 lines.\n   ```\n\n   **Later spec/gate:** Design carries the move to `src/export-target.ts` and describes 418 lines as the source measurement—not a target or limit. The visible-columns AC remains verbatim and defaults to `in-scope`. Neither ordinary comments nor overlap evidence becomes a requirement.\n\n3. **Branch multiple**\n\n   **Scout trace:** Independently reads the body and the short, three-comment page; no second page is needed. Extracts every reporter note regardless of author, excludes Sam’s overlap evidence, and orders notes by creation time rather than retrieval order.\n\n   Scout keyword terms: `report export implementation separate file public entry point current file visible columns`. Flags the separate-file/current-file contradiction without resolving it.\n\n   **Context-builder trace:** Independently reads the same body and short page. Extracts one body AC and all three notes in creation order.\n\n   **Draft:** Includes AC block F and:\n\n   ```markdown\n   ## Reporter notes (verbatim)\n   comments: 3 fetched, 1 pages\n\n   Reporter note: Move the implementation to a separate file.\n\n   Reporter note: Preserve the public entry point.\n\n   Reporter note: Keep the implementation in its current file.\n   ```\n\n   The draft also records that Casey’s later instruction contradicts Sam’s earlier instruction.\n\n   **Later spec/gate:** The location conflict requires clarification before committing to a location; recency alone does not resolve it. Preserving the public entry point remains a requirement. The visible-columns AC stays verbatim and in scope. This branch supplies neither `src/export-target.ts` nor a source-size measurement.\n\n4. **Branch no-path**\n\n   **Scout trace:** The overrides exclude this tracker. No ticket body or comments can be read through a resolved fetch path. The reference alone supplies no verified topic keywords; scout cannot borrow another branch’s title, notes, path, or measurement.\n\n   **Context-builder trace:** Not dispatched for this excluded-tracker reference.\n\n   **Draft:**\n\n   ```markdown\n   ## External context\n   Unfetched ref: acme/widgets#81 - tracker excluded by overrides; no fetch path exists.\n\n   ## Ticket acceptance criteria (verbatim)\n   none - ticket not fetched (tracker excluded by overrides; no fetch path exists)\n   ```\n\n   No reporter-note block is populated.\n\n   **Later spec/gate:** The Acceptance criteria section retains that `none` line unchanged. The gate displays it so the user can paste ticket rows; no ticket requirements are invented.\n\n5. **Branch comments-failed**\n\n   **Scout trace:** Independently reads the successful body; its comment fetch fails before page 1 with `permission denied`. Scout keyword terms: `report export implementation split preserving output visible columns`. No note-derived terms are available.\n\n   **Context-builder trace:** Independently reads the body; comment retrieval also fails before page 1.\n\n   **Draft:** Includes AC block F and:\n\n   ```markdown\n   ## Reporter notes (verbatim)\n   comments not fetched (permission denied)\n   ```\n\n   **Later spec/gate:** Retains the fetched AC verbatim, defaulting to `in-scope`; continues without a new stop. The gate includes:\n\n   > Implied requirements came from the body only - comments not fetched (permission denied); paste missing comment text.\n\n6. **Branch incomplete**\n\n   **Scout trace:** Independently reads the body and 50 ordinary comments on page 1. Attempts page 2 because page 1 is full; receives `timeout`. Scout keyword terms: `report export implementation split preserving output visible columns`. No reporter notes were observed.\n\n   **Context-builder trace:** Independently reads the body and page 1, then encounters the page-2 timeout. Does not infer the contents of the unavailable page.\n\n   **Draft:** Includes AC block F and:\n\n   ```markdown\n   ## Reporter notes (verbatim)\n   comments incomplete after page 1 (timeout)\n   ```\n\n   **Later spec/gate:** Retains the body AC and continues without a new stop. The gate includes:\n\n   > Implied requirements came from the body only - comments incomplete after page 1 (timeout); paste missing comment text.\n\n7. **Branch whole-ticket-failed**\n\n   **Scout trace:** Independent body/comment reads fail with `ticket unavailable`. No verified title-, body-, or note-derived keyword terms are available.\n\n   **Context-builder trace:** Independently encounters the same whole-ticket failure.\n\n   **Draft:**\n\n   ```markdown\n   ## External context\n   External refs not fetched (ticket unavailable):\n   acme/widgets#81\n\n   ## Ticket acceptance criteria (verbatim)\n   none - ticket not fetched (ticket unavailable)\n   ```\n\n   No reporter-note content is fabricated.\n\n   **Later spec/gate:** Preserves the unfetched reference and unchanged `none` line, displaying it at the gate with the paste-rows affordance. Ticket-fetch failure degrades context; it is not an unreadable-required-reference blocking stop.\n",
+      "words": 804,
+      "wallMs": 29923,
       "mechanical": {
         "count": "holds"
       }
     }
   },
   "judge": {
-    "anthropic/claude-opus-5-5": {
-      "factsSha": "885a06af3def41b3295f9c40a82b520321c1d336a234e3188efb411e1bd7ee92",
-      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "3fab9022e6546ee557e596de8ba99bbd8a8d5e75db7e126af9d0739b215affa8",
-      "baselineOutputSha": "7476cf4b95cfc2ad57afe538b375268e2d86fe1f354061dcbe02511a6a0d9109",
-      "candidateOutputSha": "f6089d009eb67755a6668c9516a848c61c43343b6fd340f711d084afe4f1b3e0",
-      "facts": {
-        "paging": {
-          "before": "holds",
-          "after": "holds",
-          "label": "intended but unchanged"
-        },
-        "terms": {
-          "before": "fails",
-          "after": "fails",
-          "label": "intended but unchanged"
-        },
-        "verbatim": {
-          "before": "holds",
-          "after": "holds",
-          "label": "intended but unchanged"
-        },
-        "multiple": {
-          "before": "holds",
-          "after": "holds",
-          "label": "intended but unchanged"
-        },
-        "ac-source": {
-          "before": "holds",
-          "after": "holds",
-          "label": "held"
-        },
-        "no-path": {
-          "before": "holds",
-          "after": "holds",
-          "label": "held"
-        },
-        "degraded": {
-          "before": "holds",
-          "after": "holds",
-          "label": "intended but unchanged"
-        },
-        "count": {
-          "before": "holds",
-          "after": "holds",
-          "label": "intended but unchanged"
-        }
-      },
-      "feedback": "After keeps every fact Before kept: both scout and context-builder page independently with the 50-per-page short-page stop, the Reporter note is quoted verbatim (now as a bullet, which is fine) under the heading with `comments: 52 fetched, 2 pages`, the three-author notes are in creation order with the contradiction left unresolved, ACs stay body-only, and the no-path/whole-ticket branches emit the `none - ticket not fetched (...)` line with the paste affordance while comments-failed/incomplete carry the body-only gate line. The one fact neither output satisfies is terms: both scout term lists carry `src/export-target.ts` but drop `418` (Before renders it as `source lines`, After as `source`), so the wording that tells scout to lift terms from Reporter notes needs to say explicitly that numeric values in the note (e.g. the 418 line count) are search terms too, not just identifiers and paths. Two minor hardenings worth adding so the After wording does not drift: say `no new stop` explicitly in the no-path and whole-ticket-failed gate lines (Before had `No stop at gather time`; After relies on the reader inferring it), and in the paged branch have the scout step restate `page 1 (50), page 2 (2, short page, stop)` rather than `pages the comments the same way`, so independence and page size are shown in the scout trace itself rather than borrowed from the context-builder's.",
-      "wallMs": 27231,
-      "verdict": "unchanged"
-    },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "885a06af3def41b3295f9c40a82b520321c1d336a234e3188efb411e1bd7ee92",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "3fab9022e6546ee557e596de8ba99bbd8a8d5e75db7e126af9d0739b215affa8",
-      "baselineOutputSha": "6de7bc1c4cfb4f0372a0b43680eb674125cfa31e7e960885f27dd3c0dc18a352",
-      "candidateOutputSha": "77048d0761b078473ed504e247708713c7579f4fb9769e920e61aed315c993e1",
+      "intentSha": "5b9f462cd6caec9a4a8e3a28a3c0ba61583e1b400c8edb5164d32bba075fea39",
+      "baselineOutputSha": "41590d660e7ec44a100796ff476a01de9fa160cca3a618b9a8daab4d0d07b82c",
+      "candidateOutputSha": "7057164cf88b7c3e2836bc48dd00cf5ac0a8f1c604042064f45d70707e86361a",
       "facts": {
         "paging": {
           "before": "holds",
@@ -126,8 +64,8 @@
         },
         "degraded": {
           "before": "holds",
-          "after": "holds",
-          "label": "intended but unchanged"
+          "after": "fails",
+          "label": "regression"
         },
         "count": {
           "before": "holds",
@@ -135,10 +73,316 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "No fact moved: both outputs narrate independent two-page scout and context-builder reads stopping on the short page 2, carry src/export-target.ts and 418 into the scout terms, quote the Reporter notes verbatim under the required heading with the 52 fetched / 2 pages accounting and the Overlap evidence excluded, order the three multiple-branch notes by creation time while recording the Casey/Sam contradiction unresolved, keep AC rows body-only, and render the none - ticket not fetched sentinel plus the body-only gate warnings with the exact reasons. The one visible regression in After is cosmetic but worth noting: the Reporter notes blocks drop the per-note author/creation-time labels that Before printed (Sam, creation time 1:), so attribution now lives only in the prose of the gate stage; since the multiple fact keys on notes from different authors in creation order, a stricter judge could ask where the order is evidenced in the block itself. To keep every Before fact robustly while delivering the Change, add a sentence to the draft-block rule such as 'prefix each quoted note with its author and creation time' so the verbatim block carries its own ordering evidence, and keep the explicit 'without a new stop' phrasing in the no-path and whole-ticket-failed gate steps rather than relying on the paste-rows affordance to imply it.",
-      "wallMs": 23451,
-      "verdict": "unchanged"
+      "feedback": "After preserves the independent reads, older-note terms, verbatim notes, contradictions, body-only ACs, and unfetched-ticket gate behavior. However, it moves the comment-fetch status out of the Reporter notes heading into a separate line in both degraded branches, so degraded no longer holds as written despite retaining the gate warnings and continuation behavior. Restore the headings `## Reporter notes (verbatim) - comments not fetched (permission denied)` and `## Reporter notes (verbatim) - comments incomplete after page 1 (timeout)`, keeping the existing body AC reuse and adjacent gate warnings. This preserves every fact Before kept without interfering with the requested changes.",
+      "wallMs": 11060,
+      "verdict": "inconclusive",
+      "confirmation": {
+        "status": "ok",
+        "text": "The following are narrated replay actions, not live calls.\n\n**Common fetched draft AC block (reused explicitly below):**\n```markdown\n## Ticket acceptance criteria (verbatim)\n- [ ] Exported reports retain the visible columns.\n```\n\n1. **Branch paged**\n   1. **Independent scout trace:** Read the body successfully. Independently read comment page 1: 50 ordinary comments, not a stopping condition. Read page 2: two comments, so pagination ends. Extract Sam’s `Reporter note:` despite the preceding `Overlap evidence:`; exclude the overlap text. Resulting keyword terms: `split report export implementation visible columns src/export-target.ts 418`.\n   2. **Independent context-builder trace:** Separately read the successful body and both comment pages. Preserve the body’s single AC using the common fetched block. Emit:\n      ```markdown\n      ## Reporter notes (verbatim)\n      comments: 52 fetched, 2 pages\n\n      Reporter note: Move the export implementation to src/export-target.ts; the source has 418 lines.\n      ```\n   3. **Draft/spec stage:** Assemble the draft with that AC block and note block. Carry the move to `src/export-target.ts` into Design as a requirement. Retain 418 lines as a description of the source input, not a target, limit, or acceptance threshold.\n   4. **Gate stage:** Preserve the visible-columns AC verbatim and default it to `in-scope`. Surface the move in the design/spec summary; do not invent additional ticket ACs.\n\n2. **Branch multiple**\n   1. **Independent scout trace:** Read the successful body, then independently read the short three-comment page and stop. Extract all three reporter notes without filtering authors. Reorder notes by creation time: Sam, Robin, Casey. Exclude Sam’s trailing overlap evidence. Resulting keyword terms: `split report export visible columns separate file preserve public entry point current file`.\n   2. **Independent context-builder trace:** Separately read the same successful body and short comment page. Reuse the common fetched AC block. Emit:\n      ```markdown\n      ## Reporter notes (verbatim)\n      comments: 3 fetched, 1 pages\n\n      Reporter note: Move the implementation to a separate file.\n\n      Reporter note: Preserve the public entry point.\n\n      Reporter note: Keep the implementation in its current file.\n      ```\n   3. **Draft/spec stage:** Record the contradiction between Sam’s move requirement and Casey’s later current-file requirement without resolving it by recency or author. Preserve Robin’s public-entry-point requirement.\n   4. **Questionary/gate stage:** Obtain the user’s resolution of the conflicting location outcomes before committing either to Design. Keep the visible-columns AC unchanged; the notes do not become ticket AC rows.\n\n3. **Branch no-path**\n   1. **Independent scout trace:** The overrides exclude this tracker. Narrate no tracker read and no comment pagination. The only supplied request term is `acme/widgets#81`; no fetched title, body, or reporter-note terms are available. Do not invent a topical keyword set or query result.\n   2. **Context-builder stage:** Do not dispatch it: this reference has no permitted fetch path.\n   3. **Draft stage:** Record:\n      ```markdown\n      ## External context\n      Unfetched ref: acme/widgets#81 - tracker excluded by overrides.\n\n      ## Ticket acceptance criteria (verbatim)\n      none - ticket not fetched (tracker excluded by overrides)\n      ```\n      No reporter-note block can be populated from observations.\n   4. **Spec/gate stage:** Keep the `none - ticket not fetched (tracker excluded by overrides)` line in Acceptance criteria. Show it at the gate and invite pasted ticket rows; do not draft replacement ticket ACs.\n\n4. **Branch comments-failed**\n   1. **Independent scout trace:** Read the successful body. Its independent comment fetch fails before page 1 with `permission denied`; no reporter-note terms are available. Resulting keyword terms: `split report export implementation maintaining behavior visible columns`.\n   2. **Independent context-builder trace:** Separately read the successful body and encounter the comment-fetch failure. Reuse the common fetched AC block. Emit:\n      ```markdown\n      ## Reporter notes (verbatim) - comments not fetched (permission denied)\n      ```\n   3. **Spec/gate stage:** Preserve the fetched AC verbatim and continue without a new stop. Include this adjacent gate-summary line:\n      ```text\n      Implied requirements came from the body only - comments not fetched (permission denied); paste missing comment text.\n      ```\n      Do not infer the move, source size, or public-entry-point requirement.\n\n5. **Branch incomplete**\n   1. **Independent scout trace:** Read the successful body and independently fetch page 1’s 50 ordinary comments. Attempt page 2; observe `timeout`. No reporter notes were observed. Resulting keyword terms: `split report export implementation maintaining behavior visible columns`.\n   2. **Independent context-builder trace:** Separately read the body and page 1, then observe page 2’s timeout. Reuse the common fetched AC block. Emit:\n      ```markdown\n      ## Reporter notes (verbatim) - comments incomplete after page 1 (timeout)\n      comments: 50 fetched, 1 pages\n      ```\n   3. **Spec/gate stage:** Retain the AC and continue. Include:\n      ```text\n      Implied requirements came from the body only - comments incomplete after page 1 (timeout); paste missing comment text.\n      ```\n      Do not claim the unseen older note was recovered.\n\n6. **Branch whole-ticket-failed**\n   1. **Independent scout trace:** Body and independent comment reads are unavailable: `ticket unavailable`. Only `acme/widgets#81` is supported as a request term; no topical keyword set or query result can be reconstructed.\n   2. **Independent context-builder trace:** Its body and comment reads also fail. Emit:\n      ```markdown\n      ## External context\n      External refs not fetched (ticket unavailable):\n      - acme/widgets#81\n\n      ## Ticket acceptance criteria (verbatim)\n      none - ticket not fetched (ticket unavailable)\n      ```\n   3. **Spec/gate stage:** Continue with explicitly unfetched external context, retaining the exact `none` line in Acceptance criteria and showing it at the gate so the user can paste rows. Invent neither ACs nor reporter notes.\n",
+        "words": 819,
+        "wallMs": 38578,
+        "mechanical": {
+          "count": "holds"
+        },
+        "judgeWallMs": 17321,
+        "facts": {
+          "paging": {
+            "before": "holds",
+            "after": "holds",
+            "label": "intended but unchanged"
+          },
+          "terms": {
+            "before": "holds",
+            "after": "holds",
+            "label": "intended but unchanged"
+          },
+          "verbatim": {
+            "before": "holds",
+            "after": "holds",
+            "label": "intended but unchanged"
+          },
+          "multiple": {
+            "before": "holds",
+            "after": "holds",
+            "label": "intended but unchanged"
+          },
+          "ac-source": {
+            "before": "holds",
+            "after": "holds",
+            "label": "held"
+          },
+          "no-path": {
+            "before": "holds",
+            "after": "holds",
+            "label": "held"
+          },
+          "degraded": {
+            "before": "holds",
+            "after": "holds",
+            "label": "intended but unchanged"
+          },
+          "count": {
+            "before": "holds",
+            "after": "holds",
+            "label": "intended but unchanged"
+          }
+        },
+        "feedback": "After preserves every listed fact; none moves relative to Before. Its separate scout and context-builder traces, complete note blocks, body-only AC reuse, unresolved contradiction, and degraded-fetch gate warnings retain the earlier behavior. To make the pagination contract unambiguous, explicitly say that each task independently requests pages with page size 50 and stops on the short second page, without a main-loop fetch or inter-agent dependency. Also state that reporter notes are never trimmed by the gather budget and that pasted rows require no additional stop in either unfetched-ticket branch. These clarifications would preserve the demonstrated behavior without broadening this replay into claims about unrelated changes or live integration."
+      }
     }
   },
-  "repoSha": "488adb5f77d82365012e1a6030f3b11a1e35f420"
+  "refresh": {
+    "status": "complete",
+    "identity": {
+      "sample": "reporter-note-fetch",
+      "kind": "text",
+      "assembly": "headed",
+      "baselineSkillSha": "03860aa4e518e6903934510a6eacc7962fb778141fed626ccda6abc02dfbbcb7",
+      "candidateSkillSha": "a0b97b4d6ee586c74d7042ca54bb7eb7dfe38ac5a8ae01149a396dcf9a48c581",
+      "inputSha": "b22e6d9040c22d37c86eb3bb4dcde49582ffb315c093175c6dbde8ca2e24b4e8",
+      "factsSha": "885a06af3def41b3295f9c40a82b520321c1d336a234e3188efb411e1bd7ee92",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "5b9f462cd6caec9a4a8e3a28a3c0ba61583e1b400c8edb5164d32bba075fea39",
+      "models": {
+        "replay": [
+          "github-copilot/gpt-6.1-sol"
+        ],
+        "judge": "github-copilot/gpt-6.1-sol"
+      },
+      "thinking": "medium",
+      "outputs": {
+        "baseline": {
+          "github-copilot/gpt-6.1-sol": {
+            "baselineOutputSha": "41590d660e7ec44a100796ff476a01de9fa160cca3a618b9a8daab4d0d07b82c",
+            "payloadSha": "e290f832b276a338f10117f43c4bd84605a64ab9a5bceec419ea8cd5e585c10e"
+          }
+        },
+        "candidate": {
+          "github-copilot/gpt-6.1-sol": {
+            "candidateOutputSha": "e177041b55c191ec9a31a0051348312d8befaf47a953aa5da2ad42d52f2b1ecf",
+            "payloadSha": "4eb6366b8d95b9af2966a455da3c71cec4ed80fb59f9576aaf4821a28e6729f6"
+          }
+        }
+      }
+    },
+    "previous": {
+      "github-copilot/gpt-6.1-sol": {
+        "factsSha": "885a06af3def41b3295f9c40a82b520321c1d336a234e3188efb411e1bd7ee92",
+        "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+        "intentSha": "5b9f462cd6caec9a4a8e3a28a3c0ba61583e1b400c8edb5164d32bba075fea39",
+        "baselineOutputSha": "41590d660e7ec44a100796ff476a01de9fa160cca3a618b9a8daab4d0d07b82c",
+        "candidateOutputSha": "e177041b55c191ec9a31a0051348312d8befaf47a953aa5da2ad42d52f2b1ecf",
+        "facts": {
+          "paging": {
+            "before": "holds",
+            "after": "holds",
+            "label": "intended but unchanged"
+          },
+          "terms": {
+            "before": "holds",
+            "after": "holds",
+            "label": "intended but unchanged"
+          },
+          "verbatim": {
+            "before": "holds",
+            "after": "holds",
+            "label": "intended but unchanged"
+          },
+          "multiple": {
+            "before": "holds",
+            "after": "holds",
+            "label": "intended but unchanged"
+          },
+          "ac-source": {
+            "before": "holds",
+            "after": "holds",
+            "label": "held"
+          },
+          "no-path": {
+            "before": "holds",
+            "after": "holds",
+            "label": "held"
+          },
+          "degraded": {
+            "before": "holds",
+            "after": "fails",
+            "label": "regression"
+          },
+          "count": {
+            "before": "holds",
+            "after": "holds",
+            "label": "intended but unchanged"
+          }
+        },
+        "feedback": "After keeps paging, terms, verbatim, multiple, ac-source, and no-path intact: both tasks independently read page 1 and the short page 2, the scout terms carry src/export-target.ts and 418, the note block follows the reused AC block with `comments: 52 fetched, 2 pages`, the three notes appear in creation order with the contradiction left unresolved, and both no-path and whole-ticket-failed list the unfetched ref with a `none - ticket not fetched (...)` line and a paste invitation. The one regression is in the degraded branches: Before put the status in the heading itself (`## Reporter notes (verbatim) - comments not fetched (permission denied)` and `... - comments incomplete after page 1 (timeout)`), whereas After uses a bare `## Reporter notes (verbatim)` heading and drops the status to a body line beneath it (and in incomplete also drops the `comments: 50 fetched, 1 pages` accounting). Since the fact asks that the note heading report the failure, restore the suffix on the heading line (`## Reporter notes (verbatim) - comments not fetched (permission denied)` / `- comments incomplete after page 1 (timeout)`) and keep the fetched-count line under it; the adjacent gate warning text After already emits is fine. Minor: in no-path, prefer `(tracker excluded by overrides)` over `(no fetch path)` in the `none` line so the AC sentinel names the supplied cause rather than only its consequence.",
+        "wallMs": 28082,
+        "verdict": "regressed",
+        "confirmation": {
+          "status": "ok",
+          "text": "These are narrated replay traces using only the fixed observations, not live calls.\n\n**Common fetched draft AC block** — reused unchanged in every body-success branch: **paged, multiple, comments-failed, incomplete**.\n\n```markdown\n## Ticket acceptance criteria (verbatim)\n\n- [ ] Exported reports retain the visible columns.\n```\n\n1. **Branch paged**\n   - **Scout trace:** Independently reads the successful body, then comment page 1: 50 newest ordinary comments, no labeled sections. Reads page 2: two older comments, so pagination ends. Extracts Sam’s `Reporter note:` despite its placement after `Overlap evidence:`; excludes the overlap text. Resulting keyword terms: `report export implementation behavior visible columns move src/export-target.ts source 418 lines`.\n   - **Context-builder trace:** Independently reads the same body and both comment pages. Retains the single body AC, not comment-derived ACs. Its draft external-context blocks reuse the **common fetched AC block** and include:\n     ```markdown\n     ## Reporter notes (verbatim)\n     comments: 52 fetched, 2 pages\n\n     Reporter note: Move the export implementation to src/export-target.ts; the source has 418 lines.\n     ```\n   - **Later spec/gate:** The spec preserves the AC verbatim with `in-scope`. Design carries the exact destination `src/export-target.ts` and describes 418 lines as the source measurement—not a target, limit, or required resulting size. The gate presents that contract; neither detail may disappear into context-only prose.\n\n2. **Branch multiple**\n   - **Scout trace:** Independently reads the successful body and the short three-comment page. Extracts all three labeled sections without author filtering, excludes Sam’s overlap evidence, and orders notes by creation time. Resulting keyword terms: `report export implementation behavior visible columns separate file public entry point current file`. Flags the move/keep conflict without resolving it.\n   - **Context-builder trace:** Independently reads the body and the same short page. Draft blocks reuse the **common fetched AC block** and include:\n     ```markdown\n     ## Reporter notes (verbatim)\n     comments: 3 fetched, 1 pages\n\n     Reporter note: Move the implementation to a separate file.\n\n     Reporter note: Preserve the public entry point.\n\n     Reporter note: Keep the implementation in its current file.\n     ```\n     ```markdown\n     ## Contradictions\n\n     Casey's later instruction to keep the implementation in its current file contradicts Sam's instruction to move it to a separate file.\n     ```\n   - **Later spec/gate:** Preserving the public entry point remains a requirement. The conflicting recorded location outcomes require clarification; later timing alone does not authorize choosing one. Narration stops at that unanswered clarification before presenting a settled design. The body AC remains unchanged; no comment becomes an AC.\n\n3. **Branch no-path**\n   - **Scout trace:** No ticket-body or comment read is possible because overrides exclude this tracker. No ticket-derived keyword terms are available; only the supplied reference `acme/widgets#81` is known. A substantive ticket-based keyword query cannot be reconstructed.\n   - **Context-builder trace:** No tracker read is possible; this trace supplies no fetched body, comments, or invented notes.\n   - **Draft blocks:**\n     ```markdown\n     ## External context\n\n     Unfetched ref: acme/widgets#81 - no fetch path; tracker excluded by overrides.\n\n     ## Ticket acceptance criteria (verbatim)\n\n     none - ticket not fetched (no fetch path; tracker excluded by overrides)\n     ```\n   - **Later spec/gate:** Keep that exact `none` line in `## Acceptance criteria`. Continue toward the gate rather than treating missing external context as a blocking reference-read failure. Show the line and invite the user to paste ticket rows; do not draft substitute ticket ACs.\n\n4. **Branch comments-failed**\n   - **Scout trace:** Independently reads the successful body; its comment read fails before page 1 with `permission denied`. Resulting body-only keyword terms: `report export implementation behavior visible columns maintaining split output`. No note-derived terms are available.\n   - **Context-builder trace:** Independently reads the successful body; its comment read likewise fails. Draft blocks reuse the **common fetched AC block** and include:\n     ```markdown\n     ## Reporter notes (verbatim)\n     comments not fetched (permission denied)\n     ```\n   - **Later spec/gate:** Preserve the fetched AC verbatim with `in-scope`; do not infer a move destination, source measurement, or entry-point requirement. Continue without a new stop. Adjacent gate warning:\n     > Implied requirements came from the body only - comments not fetched (permission denied); paste missing comment text.\n\n5. **Branch incomplete**\n   - **Scout trace:** Independently reads the body and page 1’s 50 ordinary comments. Page 2 fails with `timeout`; pagination is incomplete. Resulting body-only keyword terms: `report export implementation behavior visible columns maintaining split output`. No labeled notes were observed.\n   - **Context-builder trace:** Independently encounters the same successful body, ordinary first page, and failed second page. Draft blocks reuse the **common fetched AC block** and include:\n     ```markdown\n     ## Reporter notes (verbatim)\n     comments incomplete after page 1 (timeout)\n     ```\n   - **Later spec/gate:** Preserve the AC; do not claim the unseen page contains no requirements. Continue without a new stop, carrying:\n     > Implied requirements came from the body only - comments incomplete after page 1 (timeout); paste missing comment text.\n\n6. **Branch whole-ticket-failed**\n   - **Scout trace:** Independent body and comment reads cannot fetch the ticket: `ticket unavailable`. No ticket-derived keyword terms or notes are available.\n   - **Context-builder trace:** Independently encounters the same whole-ticket failure.\n   - **Draft blocks:**\n     ```markdown\n     ## External context\n\n     Unfetched ref: acme/widgets#81 - ticket unavailable.\n\n     ## Ticket acceptance criteria (verbatim)\n\n     none - ticket not fetched (ticket unavailable)\n     ```\n   - **Later spec/gate:** Preserve the exact `none` line in `## Acceptance criteria`, show it at the gate, and invite pasted rows. Do not substitute invented ACs or reporter notes.\n",
+          "words": 805,
+          "wallMs": 47143,
+          "mechanical": {
+            "count": "holds"
+          },
+          "judgeWallMs": 26379,
+          "facts": {
+            "paging": {
+              "before": "holds",
+              "after": "holds",
+              "label": "intended but unchanged"
+            },
+            "terms": {
+              "before": "holds",
+              "after": "holds",
+              "label": "intended but unchanged"
+            },
+            "verbatim": {
+              "before": "holds",
+              "after": "holds",
+              "label": "intended but unchanged"
+            },
+            "multiple": {
+              "before": "holds",
+              "after": "holds",
+              "label": "intended but unchanged"
+            },
+            "ac-source": {
+              "before": "holds",
+              "after": "holds",
+              "label": "held"
+            },
+            "no-path": {
+              "before": "holds",
+              "after": "holds",
+              "label": "held"
+            },
+            "degraded": {
+              "before": "holds",
+              "after": "fails",
+              "label": "regression"
+            },
+            "count": {
+              "before": "holds",
+              "after": "holds",
+              "label": "intended but unchanged"
+            }
+          },
+          "feedback": "After keeps paging, terms, verbatim, multiple, ac-source, and no-path intact: both tasks independently read both pages and stop on the short page, scout terms carry src/export-target.ts and 418 alongside title/body terms, the common AC block is shown once and reused, notes are quoted in creation order with the overlap text excluded and the Casey/Sam contradiction recorded unresolved, and the none-sentinel branches invite pasted rows without a new stop. The one regression is in the degraded branches: Before put the failure in the heading itself (`## Reporter notes (verbatim) - comments not fetched (permission denied)` and `... - comments incomplete after page 1 (timeout)`), whereas After renders a bare `## Reporter notes (verbatim)` heading with the failure only as a body line beneath it, so the fact that the note heading reports the failure no longer reads as true, and a `(verbatim)` heading with nothing verbatim under it is misleading. To keep every Before fact while delivering the Change, restore the suffixed heading form in comments-failed and incomplete (and keep the `comments: 50 fetched, 1 pages` accounting line in incomplete), leaving the rest of After's structure—the explicit `## Contradictions` block, the body-only AC assertion, and the no-fetch-path reason wording—unchanged."
+        },
+        "judgeModel": null,
+        "thinking": null
+      }
+    },
+    "refreshed": {
+      "github-copilot/gpt-6.1-sol": {
+        "factsSha": "885a06af3def41b3295f9c40a82b520321c1d336a234e3188efb411e1bd7ee92",
+        "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+        "intentSha": "5b9f462cd6caec9a4a8e3a28a3c0ba61583e1b400c8edb5164d32bba075fea39",
+        "baselineOutputSha": "41590d660e7ec44a100796ff476a01de9fa160cca3a618b9a8daab4d0d07b82c",
+        "candidateOutputSha": "e177041b55c191ec9a31a0051348312d8befaf47a953aa5da2ad42d52f2b1ecf",
+        "facts": {
+          "paging": {
+            "before": "holds",
+            "after": "holds",
+            "label": "intended but unchanged"
+          },
+          "terms": {
+            "before": "holds",
+            "after": "holds",
+            "label": "intended but unchanged"
+          },
+          "verbatim": {
+            "before": "holds",
+            "after": "holds",
+            "label": "intended but unchanged"
+          },
+          "multiple": {
+            "before": "holds",
+            "after": "holds",
+            "label": "intended but unchanged"
+          },
+          "ac-source": {
+            "before": "holds",
+            "after": "holds",
+            "label": "held"
+          },
+          "no-path": {
+            "before": "holds",
+            "after": "holds",
+            "label": "held"
+          },
+          "degraded": {
+            "before": "holds",
+            "after": "fails",
+            "label": "regression"
+          },
+          "count": {
+            "before": "holds",
+            "after": "holds",
+            "label": "intended but unchanged"
+          }
+        },
+        "feedback": "After preserves the independent pagination, older-note keywords, verbatim notes, contradiction handling, body-only ACs, and unfetched-ticket gate behavior. However, it moves both comment-fetch failure statuses out of the Reporter notes heading onto separate lines, so degraded no longer holds as written despite retaining the adjacent body-only gate warnings. Restore `## Reporter notes (verbatim) - comments not fetched (permission denied)` and `## Reporter notes (verbatim) - comments incomplete after page 1 (timeout)`. Keep the existing independent reads, complete note blocks, and gate continuation; these heading fixes preserve every fact Before kept without interfering with the requested change.",
+        "wallMs": 9692,
+        "verdict": "regressed",
+        "confirmation": {
+          "status": "ok",
+          "text": "These are narrated replay actions, not live calls. Scout and context-builder traces are independent.\n\n### Common fetched AC block\n\nThe four body-success branches below explicitly reuse this draft block:\n\n```markdown\n## Ticket acceptance criteria (verbatim)\n- [ ] Exported reports retain the visible columns.\n```\n\nAt spec-writing, those branches retain that row unchanged under `## Acceptance criteria`, with provenance `Ticket acme/widgets#81, Acceptance criteria, rows verbatim:` and disposition `in-scope`. Comments never supply AC rows.\n\n### 1. Branch paged\n\n1. **Scout read trace:** Independently reads the successful body, then comment page 1: 50 newest ordinary comments, no labeled sections. Reads page 2: two older comments, a short page ending pagination. Finds Sam’s `Reporter note:` despite preceding `Overlap evidence:`; excludes the overlap text.\n2. **Scout keyword terms:** `report export implementation behavior visible columns src/export-target.ts 418 lines`. The target path remains literal. No index result is supplied, so none is claimed.\n3. **Context-builder read trace:** Independently reads the body and both comment pages. Extracts only the body’s single AC; preserves Sam’s requirement-carrying section regardless of author.\n4. **Draft stage:** Reuses the common fetched AC block and writes:\n\n   ```markdown\n   ## Reporter notes (verbatim)\n   comments: 52 fetched, 2 pages\n\n   Reporter note: Move the export implementation to src/export-target.ts; the source has 418 lines.\n   ```\n\n5. **Later spec/gate:** Design carries the move target and describes 418 lines as the source measurement—not a target or limit. The gate retains the body AC; the move does not become an additional ticket AC.\n\n### 2. Branch multiple\n\n1. **Scout read trace:** Independently reads the body and the short page of three comments. Matches all three authors’ notes, excludes Sam’s overlap section, and restores creation order: Sam, Robin, Casey.\n2. **Scout keyword terms:** `report export implementation separate file public entry point current file visible columns`. Both conflicting location requirements contribute terms.\n3. **Context-builder read trace:** Independently reads the same body and short comment page. Extracts the body AC and all matched notes, without an author filter or silently preferring the newest.\n4. **Draft stage:** Reuses the common fetched AC block and writes:\n\n   ```markdown\n   ## Reporter notes (verbatim)\n   comments: 3 fetched, 1 pages\n\n   Reporter note: Move the implementation to a separate file.\n\n   Reporter note: Preserve the public entry point.\n\n   Reporter note: Keep the implementation in its current file.\n   ```\n\n   The draft records the contradiction: Casey’s later current-file instruction conflicts with Sam’s separate-file instruction.\n\n5. **Later spec/gate:** Questionary must resolve that conflicting recorded outcome before choosing the location design. Preserve the public entry point. Keep the ticket AC unchanged; do not resolve the location conflict by inventing an AC or treating chronology alone as authorization.\n\n### 3. Branch no-path\n\n1. **Scout read trace:** The overrides exclude this tracker. No ticket body or comments are read. The other branches’ successful observations are not borrowed.\n2. **Scout keyword terms:** No topical title/body/note terms are available from the supplied reference alone. Do not invent an export-related keyword query.\n3. **Context-builder stage:** No ticket-fetch task is dispatched for the excluded tracker; there is no authorized fetch path.\n4. **Draft stage:**\n\n   ```markdown\n   ## External context\n   Unfetched refs:\n   - acme/widgets#81 - no fetch path; tracker excluded by overrides\n\n   ## Ticket acceptance criteria (verbatim)\n   none - ticket not fetched (no fetch path; tracker excluded by overrides)\n   ```\n\n   No reporter-note block is fabricated.\n\n5. **Later spec/gate:** Preserve the `none - ticket not fetched (...)` line unchanged in `## Acceptance criteria`. Show it at the gate and invite pasted ticket rows. Missing ticket access does not itself block gathering.\n\n### 4. Branch comments-failed\n\n1. **Scout read trace:** Independently reads the successful body; its comment fetch fails before page 1 with `permission denied`.\n2. **Scout keyword terms:** `report export implementation behavior maintaining split preserving output visible columns`. No note-derived terms are available.\n3. **Context-builder read trace:** Independently reads the body; comment fetching fails before page 1 with the same observed error.\n4. **Draft stage:** Reuses the common fetched AC block and writes:\n\n   ```markdown\n   ## Reporter notes (verbatim)\n   comments not fetched (permission denied)\n   ```\n\n5. **Later spec/gate:** Retain the fetched AC and continue. Add the adjacent gate-summary warning: `Implied requirements came from the body only - comments not fetched (permission denied); paste missing comment text.`\n\n### 5. Branch incomplete\n\n1. **Scout read trace:** Independently reads the body and 50 ordinary comments on page 1. Page 2 fails with `timeout`; no note is observed.\n2. **Scout keyword terms:** `report export implementation behavior maintaining split preserving output visible columns`.\n3. **Context-builder read trace:** Independently reads the body and page 1; page 2 times out. Does not infer the unseen older note.\n4. **Draft stage:** Reuses the common fetched AC block and writes:\n\n   ```markdown\n   ## Reporter notes (verbatim)\n   comments incomplete after page 1 (timeout)\n   ```\n\n5. **Later spec/gate:** Retain the AC and continue. Warn: `Implied requirements came from the body only - comments incomplete after page 1 (timeout); paste missing comment text.`\n\n### 6. Branch whole-ticket-failed\n\n1. **Scout read trace:** Independent body/comment retrieval cannot obtain the ticket: `ticket unavailable`. No title, AC, or note content is inferred.\n2. **Scout keyword terms:** No topical terms are available from the supplied reference alone.\n3. **Context-builder read trace:** Independent retrieval likewise fails with `ticket unavailable`.\n4. **Draft stage:**\n\n   ```markdown\n   ## External context\n   External refs not fetched (ticket unavailable):\n   - acme/widgets#81\n\n   ## Ticket acceptance criteria (verbatim)\n   none - ticket not fetched (ticket unavailable)\n   ```\n\n5. **Later spec/gate:** Preserve the `none` line unchanged and offer pasted rows at the gate. Continue without inventing requirements; no required-reference unreadability is observed here.\n",
+          "words": 870,
+          "wallMs": 34435,
+          "mechanical": {
+            "count": "holds"
+          },
+          "judgeWallMs": 11318,
+          "facts": {
+            "paging": {
+              "before": "holds",
+              "after": "holds",
+              "label": "intended but unchanged"
+            },
+            "terms": {
+              "before": "holds",
+              "after": "holds",
+              "label": "intended but unchanged"
+            },
+            "verbatim": {
+              "before": "holds",
+              "after": "holds",
+              "label": "intended but unchanged"
+            },
+            "multiple": {
+              "before": "holds",
+              "after": "holds",
+              "label": "intended but unchanged"
+            },
+            "ac-source": {
+              "before": "holds",
+              "after": "holds",
+              "label": "held"
+            },
+            "no-path": {
+              "before": "holds",
+              "after": "holds",
+              "label": "held"
+            },
+            "degraded": {
+              "before": "holds",
+              "after": "fails",
+              "label": "regression"
+            },
+            "count": {
+              "before": "holds",
+              "after": "holds",
+              "label": "intended but unchanged"
+            }
+          },
+          "feedback": "After preserves the independent pagination, older-note terms, verbatim notes, unresolved contradiction, body-only ACs, and unfetched-ticket handling. However, it moves both comment-fetch statuses out of the Reporter notes heading into separate body lines, so degraded no longer holds as written, despite retaining the gate warnings. Restore `## Reporter notes (verbatim) - comments not fetched (permission denied)` and `## Reporter notes (verbatim) - comments incomplete after page 1 (timeout)`, while keeping the adjacent body-only warnings and continuation to the gate. This preserves every fact Before kept without interfering with the requested changes elsewhere."
+        },
+        "judgeModel": "github-copilot/gpt-6.1-sol",
+        "thinking": "medium"
+      }
+    }
+  },
+  "repoSha": "2eb4429b4dd687432969f427f82d45d7840d7c63"
 }

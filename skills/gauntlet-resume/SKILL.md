@@ -17,7 +17,7 @@ worktree whose spec/plan artifacts are reconstructed into tracker state
 (`reference/reconstruction.md`), a spec seed (`reference/seed.md`). Every check runs
 before any tracker mutation; every stop names the offending path, field, or line.
 
-**Announce at start:** "I'm using the gauntlet-resume skill to continue an interrupted flow."
+**Announce at start (after the marker on marked messages):** "I'm using the gauntlet-resume skill to continue an interrupted flow."
 
 ## Boundaries
 
@@ -40,6 +40,9 @@ Spec dirs resolve per `reference/reconstruction.md` "Candidates" (`flowGuards.sp
 precedence).
 
 Read and apply [menu-layout](../brainstorming/reference/menu-layout.md) before presenting these options and before acting on a numeric reply.
+
+For the discovery menu, start the message with the marker specified below. Start the message with `gauntlet: gate=gauntlet-resume/discovery`.
+For no briefs and every stop route in the table, end without mutation. Start the message with `gauntlet: stuck` followed by the existing reason on that line.
 
 | Input | Route |
 |---|---|
@@ -65,6 +68,8 @@ an override uses the file form. A brief then runs entry checks 1-6, so a stale o
 foreign-repo brief stops there.
 
 ## Entry checks
+
+For an entry-check stop, start with the terminal marker and retain the offending path, field, or line. Start the message with `gauntlet: stuck` followed by the reason on that line.
 
 In order. All before any tracker mutation; entry check 1 is read-only. A spec
 seed runs check 1 here, then `reference/seed.md`, which runs check 3 itself;
@@ -112,6 +117,8 @@ checks 2, 4, 5 do not apply; check 6 runs on the seed's pinned spec path.
 
 ## Dispatch
 
+For the `worktree: no` brainstorming offer, keep the explicit-selection wait. Start the message with exactly `gauntlet: question` on its own line, with no suffix.
+
 | Input | Route |
 |---|---|
 | brief with `## Process state` | process-state restore - `reference/brief-contract.md` "Process-state restore" |
@@ -128,6 +135,8 @@ exists (reuse it). Otherwise invoke `/skill:chase-bug` triage with `## Intent` t
 re-derive the record.
 
 ## Post-restore continuation
+
+A successful restore is an automatic handoff, not a terminal report; let the resumed skill own the next ask and its marker. Keep the brief fields unchanged and infer no approval. After citation repair of a plan that was dirty or untracked before repair, state explicitly that the repair stays in the working copy and lands with the next task commit; run no `git add` or repair commit, per `reference/brief-contract.md` "Citation repair".
 
 After a successful restore, print the closing line from `reference/brief-contract.md`
 (gate history not restored; the task to re-validate), then on its own line exactly one of `Standing grant active: <sentence>` or `No standing grant.` from check 6 (nothing when grant decoding was skipped), then continue in the stage's

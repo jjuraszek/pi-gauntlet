@@ -1,84 +1,34 @@
 {
   "sample": "pr-list-member-conflict-unresolved",
   "arm": "candidate",
-  "skillSha": "ca5d35e22759917183e0b7c26b1a21de31c759b8af7f1f07e3fcbcc306380467",
+  "skillSha": "d439a5ee30ec177efddafb40d8d999ad755b4f63eef8e04f9844cb33aee3c1c5",
   "inputSha": "cd5c716ebfe44e8292e4dc5e612c4e45a71ef9d322dcf5c126d7954bbffc783b",
   "kind": "text",
   "assembly": "concat",
   "thinking": "medium",
   "models": {
     "replay": [
-      "anthropic/claude-opus-5-5",
       "github-copilot/gpt-6.1-sol"
     ],
-    "judge": "anthropic-fable/claude-fable-5-1",
+    "judge": "github-copilot/gpt-6.1-sol",
     "thinking": "medium"
   },
   "outputs": {
-    "anthropic/claude-opus-5-5": {
-      "status": "ok",
-      "text": "**Path:** The caller passed admitted PR values, so I follow `reference/pr-head.md` instead of Steps 0 and 1.\n\n\"I'm using the using-git-worktrees skill to set up an isolated workspace.\"\n\n## Resolve the root and run pre-write stops\n\nCommands run from the process cwd, the primary checkout. The cwd never changes.\n\n1. `git rev-parse --path-format=absolute --git-dir --git-common-dir` returns the same directory twice. `ROOT=/work/widget`.\n2. `git rev-parse --show-superproject-working-tree` is empty, so this is not a submodule. `git branch --show-current` succeeds.\n3. Overrides are read through the ladder. There is no `## using-git-worktrees` section, so the legacy path applies with no native tool or wrapper.\n   - `<name>=fix-retry`\n   - home is `/work/widget/.worktrees/fix-retry`\n4. `git -C /work/widget fetch origin` succeeds.\n5. Reachability and equality checks for each admitted PR pass:\n   - `git -C /work/widget rev-parse --verify -q aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa^{commit}`, and the same for `bbbb…bbbb` and `cccc…cccc`.\n   - `git -C /work/widget rev-parse origin/fix/retry`, `origin/fix/cap` and `origin/fix/retry-docs` each equal their supplied head.\n6. `BASE_SHA=$(git -C /work/widget rev-parse origin/main)` gives `dddddddddddddddddddddddddddddddddddddddd`.\n7. The ordered stops all pass:\n   - No PR is cross-repository.\n   - `git -C /work/widget worktree list --porcelain` does not list `fix/retry`.\n   - All heads are reachable.\n   - The N=1 local-branch row does not apply.\n8. Recovery walk: there is no existing home worktree or local `fix/retry` branch, so nothing needs recovering.\n\n## Provision the exact head\n\n1. Step 3 source check: `git -C /work/widget status --porcelain` exits 0 with empty output, so the source is clean.\n2. Home safety: `git -C /work/widget check-ignore -q .worktrees` exits 0, so `.worktrees` is already ignored. No `create:` override exists.\n3. `git -C /work/widget worktree add \"/work/widget/.worktrees/fix-retry\" fix/retry` runs. Unique-remote DWIM tracks `origin/fix/retry`.\n4. `WORKTREE=/work/widget/.worktrees/fix-retry`\n5. `git -C /work/widget/.worktrees/fix-retry rev-parse HEAD` returns `aaaaaaa…`, which equals `headRefOid`.\n6. `PRE_REWORK_HEAD=aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa`. `BASE_SHA=dddd…dddd`.\n7. `MEMBER_HEADS` is `[#13 fix/cap bbbb…, #14 fix/retry-docs cccc…]`.\n\n## Member merge #13\n\n1. Saved last-good is `aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa`.\n2. `git -C /work/widget/.worktrees/fix-retry merge --no-ff -m \"merge PR #13 head bbbbbbb into PR #12\" bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb` merges cleanly.\n3. Recorded: `Member merge: #13 eeeeeee`.\n\n## Member merge #14 and its conflict\n\n1. Saved last-good is `eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee`.\n2. `git -C /work/widget/.worktrees/fix-retry merge --no-ff -m \"merge PR #14 head ccccccc into PR #12\" cccccccccccccccccccccccccccccccccccccccc` reports conflicts.\n3. Snapshot: `git -C /work/widget/.worktrees/fix-retry status --porcelain`.\n4. `git -C /work/widget/.worktrees/fix-retry diff --name-only --diff-filter=U` returns `src/retry.ts` and `test/retry.test.mjs`.\n5. The runner is read from the base, not the conflicted tree: `git -C /work/widget show dddddddddddddddddddddddddddddddddddddddd:<first-found overrides path>`.\n   - `## PR gate` documents `node --test <files>` with `requires credentials: false`.\n   - `SCOPED_TEST_COMMANDS = node --test test/retry.test.mjs`.\n\n**Helper dispatch:** one fresh foreground `implementer`, `cwd: \"/work/widget/.worktrees/fix-retry\"`, `async: false`, with these instructions:\n\n> Resolve exactly `src/retry.ts` and `test/retry.test.mjs`. These are conflicts merging PR #14 head `cccccccccccccccccccccccccccccccccccccccc` into PR #12 (`fix/retry`, fetched base `origin/main` @ `dddddddddddddddddddddddddddddddddddddddd`).\n> - Preserve both sides' intent.\n> - Run only `node --test test/retry.test.mjs`.\n> - Stage each resolved file with `git -C /work/widget/.worktrees/fix-retry add <file>`.\n> - Do not commit, do not abort, and do not edit any file outside this list.\n> - Return `done`, or `done - contract exception: <why>` if resolution changes a PR or ticket obligation.\n\n**Helper returns `done`. Completion checks:**\n\n- `git -C /work/widget/.worktrees/fix-retry diff --name-only --diff-filter=U` still returns `src/retry.ts`. The unmerged index is not empty, so completion fails.\n- No `commit --no-edit` is run. The canonical subject is untouched.\n\n**Abort and restoration checks:**\n\n1. `git -C /work/widget/.worktrees/fix-retry merge --abort` exits 0.\n2. `git -C /work/widget/.worktrees/fix-retry rev-parse HEAD` returns `eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee`, which matches the saved last-good.\n3. `git -C /work/widget/.worktrees/fix-retry branch --show-current` returns `fix/retry`, which matches.\n4. `git -C /work/widget/.worktrees/fix-retry status --porcelain --untracked-files=all` succeeds with empty output, so the checkout and index are clean.\n\nAll checks pass, so restoration can be claimed.\n\n**STOP:**\n\n> PR #14 conflicts with home PR #12 in src/retry.ts, test/retry.test.mjs; the worktree at /work/widget/.worktrees/fix-retry is left on fix/retry at eeeeeee with #13 already merged; merge #14 by hand there (git merge --no-ff cccccccccccccccccccccccccccccccccccccccc) and rerun the same list, or rerun without #14.\n\nKeep the canonical subject `merge PR #14 head ccccccc into PR #12` when merging by hand.\n\nThe following do not happen:\n- no base merge of `origin/main`\n- no proof of each original head's ancestry against a final HEAD\n- no thread fetch, gather, spec or plan\n- no push or close\n\nNo Step 4 report is emitted. The base-conflict continuation is not used.\n\n## Residual-edit checkpoint\n\nThe only change is the helper result: it also modifies `README.md`, which is outside the conflict list.\n\n1. Completion fails. The status delta now includes `README.md`, which is outside the listed paths, and an unmerged path remains. No commit is made.\n2. `git -C /work/widget/.worktrees/fix-retry merge --abort` exits 0.\n3. `rev-parse HEAD` returns `eeee…eeee` (matches). `branch --show-current` returns `fix/retry` (matches).\n4. `status --porcelain --untracked-files=all` returns ` M README.md`. This is a residual edit, so the restoration check fails.\n\n**STOP (actual state; restoration is not claimed):**\n\n- Failing PR: #14, which conflicted in `src/retry.ts` and `test/retry.test.mjs`.\n- Worktree: `/work/widget/.worktrees/fix-retry`, observed on branch `fix/retry` at HEAD `eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee`.\n- Abort exit status: 0.\n- Remaining status path: ` M README.md`.\n- Saved last-good: `eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee`, with #13 already merged at `eeeeeee`.\n\nManual recovery of `README.md` is required before rerunning the same list. I do not reset, clean or check out to force recovery, and I do not issue the restored-state message. There is no base merge or downstream step.\n\n## Failed-abort checkpoint\n\n1. `git -C /work/widget/.worktrees/fix-retry merge --abort` exits 1 with an error. That error text is reported verbatim.\n2. `rev-parse HEAD` returns `eeee…eeee`. `branch --show-current` returns `fix/retry`.\n3. `status --porcelain --untracked-files=all` returns `UU src/retry.ts`.\n4. The abort status is nonzero and the tree still has an unmerged path, so restoration fails.\n\n**STOP (actual state; restoration is not claimed):**\n\n- Failing PR: #14, which conflicted in `src/retry.ts` and `test/retry.test.mjs`.\n- Worktree: `/work/widget/.worktrees/fix-retry`, observed on branch `fix/retry` at HEAD `eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee`.\n- Abort exit status: 1, with the reported abort error.\n- Remaining status path: `UU src/retry.ts`.\n- Saved last-good: `eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee`, with #13 already merged.\n\nManual recovery is required, meaning the merge must be finished or aborted by hand before rerunning. There is no reset or clean, no restored-state message, no base merge, and no downstream continuation.\n",
-      "words": 967,
-      "wallMs": 44504,
-      "mechanical": {}
-    },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "I’m using the using-git-worktrees skill to set up an isolated workspace.\n\nThe admitted PR array selects **#12 as home**; I use the PR-head procedure rather than generic new-branch creation. All commands below are synthetic. The process cwd remains unchanged.\n\n### 1. Resolve and validate before writes\n\nCommands in cwd `/work/widget`:\n\n1. `git rev-parse --path-format=absolute --git-dir --git-common-dir`  \n   Resolves both directories to `/work/widget/.git`; therefore `ROOT=/work/widget`.\n2. `git rev-parse --show-superproject-working-tree`  \n   Empty: not a submodule.\n3. `cat /work/widget/.pi/gauntlet-overrides.md`  \n   Reads the runner-only override: no worktree contract or placement override.\n   \nNo native tool or wrapper exists. Resolve:\n\n- Home branch: `fix/retry`\n- Name: `fix-retry`\n- `WORKTREE=/work/widget/.worktrees/fix-retry`\n- `PRE_REWORK_HEAD=aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa`\n- Members, in order: #13 `fix/cap` at `bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb`; #14 `fix/retry-docs` at `cccccccccccccccccccccccccccccccccccccccc`.\n\nCommands in cwd `/work/widget`:\n\n4. `git -C /work/widget fetch origin`\n5. `git -C /work/widget rev-parse --verify -q aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa^{commit}`\n6. `git -C /work/widget rev-parse origin/fix/retry`\n7. `git -C /work/widget rev-parse --verify -q bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb^{commit}`\n8. `git -C /work/widget rev-parse origin/fix/cap`\n9. `git -C /work/widget rev-parse --verify -q cccccccccccccccccccccccccccccccccccccccc^{commit}`\n10. `git -C /work/widget rev-parse origin/fix/retry-docs`\n\nAll original objects exist; each remote equals its supplied head.\n\n11. `git -C /work/widget rev-parse origin/main`  \n    Resolves `BASE_SHA=dddddddddddddddddddddddddddddddddddddddd`.\n12. `git -C /work/widget worktree list --porcelain`\n13. `git -C /work/widget branch --list fix/retry`\n\nNo competing checkout or local home branch exists. All PRs are in-repository; no recovery history needs inspection.\n\n14. `git -C /work/widget status --porcelain`  \n    Succeeds, empty.\n15. `git -C /work/widget check-ignore -q .worktrees`  \n    Succeeds: already ignored.\n\n### 2. Provision and verify the exact home head\n\nCommands in cwd `/work/widget`:\n\n16. `git -C /work/widget worktree add /work/widget/.worktrees/fix-retry fix/retry`  \n    Unique-remote DWIM checks out the existing remote branch.\n17. `git -C /work/widget worktree list --porcelain`  \n    Confirms the selected home path.\n18. `git -C /work/widget/.worktrees/fix-retry rev-parse HEAD`  \n    Returns `aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa`.\n\n### 3. Merge members in order\n\nCommands in cwd `/work/widget`:\n\n19. `git -C /work/widget/.worktrees/fix-retry rev-parse HEAD`  \n    Saves #13’s last-good SHA: `aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa`.\n20. `git -C /work/widget/.worktrees/fix-retry merge --no-ff -m \"merge PR #13 head bbbbbbb into PR #12\" bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb`\n21. `git -C /work/widget/.worktrees/fix-retry rev-parse HEAD`  \n    Returns `eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee`.\n\nRecord: `Member merge: #13 eeeeeee`.\n\n22. `git -C /work/widget/.worktrees/fix-retry rev-parse HEAD`  \n    Saves #14’s last-good full SHA: `eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee`.\n23. `git -C /work/widget/.worktrees/fix-retry merge --no-ff -m \"merge PR #14 head ccccccc into PR #12\" cccccccccccccccccccccccccccccccccccccccc`\n\nConflicts occur.\n\n24. `git -C /work/widget/.worktrees/fix-retry status --porcelain`  \n    Snapshot before dispatch.\n25. `git -C /work/widget/.worktrees/fix-retry diff --name-only --diff-filter=U`  \n    Conflicted paths: `src/retry.ts`, `test/retry.test.mjs`.\n26. `git -C /work/widget show dddddddddddddddddddddddddddddddddddddddd:.pi/gauntlet-overrides.md`\n\nThe fetched-base PR gate documents `node --test <files>`, credentials not required. Resolve scoped command: `node --test test/retry.test.mjs`.\n\nDispatch a fresh foreground `implementer`, `async: false`, cwd `/work/widget/.worktrees/fix-retry`, with these instructions:\n\n> Resolve only `src/retry.ts` and `test/retry.test.mjs`, preserving both sides’ intent. Fetched base is `dddddddddddddddddddddddddddddddddddddddd`. Run exactly `node --test test/retry.test.mjs`. Stage both resolved files using `git -C /work/widget/.worktrees/fix-retry add src/retry.ts test/retry.test.mjs`. Do not edit other paths, commit, or abort. Return `done`, or `done - contract exception: <why>` if obligations change.\n\nHelper returns `done`, but leaves an unmerged path.\n\n### 4. Completion fails; abort and inspect\n\nCommands in cwd `/work/widget`:\n\n27. `git -C /work/widget/.worktrees/fix-retry diff --name-only --diff-filter=U`  \n    Nonempty: completion fails. No commit.\n28. `git -C /work/widget/.worktrees/fix-retry merge --abort`\n29. `git -C /work/widget/.worktrees/fix-retry rev-parse HEAD`\n30. `git -C /work/widget/.worktrees/fix-retry branch --show-current`\n31. `git -C /work/widget/.worktrees/fix-retry status --porcelain --untracked-files=all`\n\n**Baseline checkpoint:** abort exits 0; HEAD is the saved full SHA; branch is `fix/retry`; status succeeds empty. Exact stop:\n\n> PR #14 conflicts with home PR #12 in src/retry.ts, test/retry.test.mjs; the worktree at /work/widget/.worktrees/fix-retry is left on fix/retry at eeeeeee with #13 already merged; merge #14 by hand there (git merge --no-ff cccccccccccccccccccccccccccccccccccccccc) and rerun the same list, or rerun without #14.\n\nRetain canonical subject `merge PR #14 head ccccccc into PR #12`.\n\n**Residual-edit checkpoint:** the helper also edits `README.md`, violating scope. Commands 27–31 still run. Abort exits 0; HEAD and branch match, but status is ` M README.md`. Stop: #14 failed; conflicted files are the two listed above; selected worktree and saved SHA are unchanged; #13 remains merged. Checkout/index restoration is **not proven**. Manually recover the residual README edit before rerunning; no reset or clean.\n\n**Failed-abort checkpoint:** command 28 exits 1 with the reported abort error; HEAD remains the saved SHA on `fix/retry`; command 31 reports `UU src/retry.ts`. Stop with that abort error, exit status 1, unmerged path, selected worktree, saved SHA, and #13 already merged. Manual recovery is required; do not claim restoration.\n\nNo Step 4 readiness report, base merge, or downstream continuation occurs.\n",
-      "words": 705,
-      "wallMs": 36707,
+      "text": "I'm using the using-git-worktrees skill to set up an isolated workspace.\n\nAll commands below are synthetic. The process cwd remains `/work/widget`; `git -C` explicitly selects the repository or worktree. No real tools run.\n\n## 1. Resolve the PR-head workspace\n\nThe admitted PR array selects:\n\n- Home: `acme/widget#12`, branch `fix/retry`, original head `aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa`.\n- Member #13: `fix/cap`, original head `bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb`.\n- Member #14: `fix/retry-docs`, original head `cccccccccccccccccccccccccccccccccccccccc`.\n- Base branch: `main`.\n- `NAME=fix-retry`.\n\nCommands, in order, all with cwd `/work/widget`:\n\n```sh\ngit rev-parse --path-format=absolute --git-dir --git-common-dir\ngit rev-parse --show-superproject-working-tree\n```\n\nResolve `GIT_DIR=GIT_COMMON=/work/widget/.git`, no superproject, and `ROOT=/work/widget`. This is the primary checkout.\n\nRead the first-found overrides file containing the stipulated runner:\n\n```sh\ncat /work/widget/.pi/gauntlet-overrides.md\n```\n\nIts PR-gate runner is `node --test <files>`, with `requires credentials: false`; there is no keyed worktree contract. No native tool or wrapper exists. Resolve:\n\n```text\nWORKTREE=/work/widget/.worktrees/fix-retry\nPRE_REWORK_HEAD=aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\n```\n\nSetting up an isolated worktree at `/work/widget/.worktrees/fix-retry` on branch `fix/retry` for this work.\n\n## 2. Fetch and perform pre-write checks\n\nCommands, cwd `/work/widget`:\n\n```sh\ngit -C /work/widget fetch origin\ngit -C /work/widget rev-parse --verify -q 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa^{commit}'\ngit -C /work/widget rev-parse origin/fix/retry\ngit -C /work/widget rev-parse --verify -q 'bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb^{commit}'\ngit -C /work/widget rev-parse origin/fix/cap\ngit -C /work/widget rev-parse --verify -q 'cccccccccccccccccccccccccccccccccccccccc^{commit}'\ngit -C /work/widget rev-parse origin/fix/retry-docs\ngit -C /work/widget rev-parse origin/main\ngit -C /work/widget worktree list --porcelain\ngit -C /work/widget branch --list fix/retry\n```\n\nEvery original object exists; each remote equals its supplied head. Resolve:\n\n```text\nBASE_SHA=dddddddddddddddddddddddddddddddddddddddd\n```\n\nAll PRs are in-repository. No conflicting checkout or local home branch exists; interrupted-merge recovery is unnecessary.\n\n```sh\ngit -C /work/widget status --porcelain\ngit -C /work/widget check-ignore -q .worktrees\n```\n\nStatus succeeds empty. The ignore check succeeds, so no ignore edit or commit is needed.\n\n## 3. Provision and merge members\n\nCommands, cwd `/work/widget`:\n\n```sh\ngit -C /work/widget worktree add /work/widget/.worktrees/fix-retry fix/retry\ngit -C /work/widget worktree list --porcelain\ngit -C /work/widget/.worktrees/fix-retry rev-parse HEAD\n```\n\nUnique-remote DWIM checks out `fix/retry`; the selected path is registered and HEAD equals `aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa`.\n\n```sh\ngit -C /work/widget/.worktrees/fix-retry rev-parse HEAD\ngit -C /work/widget/.worktrees/fix-retry merge --no-ff -m \"merge PR #13 head bbbbbbb into PR #12\" bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\ngit -C /work/widget/.worktrees/fix-retry rev-parse HEAD\n```\n\nSave the initial last-good head, then record:\n\n```text\nMember merge: #13 eeeeeee\n```\n\nResolve the new last-good SHA to `eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee`.\n\n```sh\ngit -C /work/widget/.worktrees/fix-retry merge --no-ff -m \"merge PR #14 head ccccccc into PR #12\" cccccccccccccccccccccccccccccccccccccccc\ngit -C /work/widget/.worktrees/fix-retry status --porcelain\ngit -C /work/widget/.worktrees/fix-retry diff --name-only --diff-filter=U\ngit -C /work/widget show dddddddddddddddddddddddddddddddddddddddd:.pi/gauntlet-overrides.md\n```\n\nThe merge conflicts in exactly `src/retry.ts` and `test/retry.test.mjs`. Snapshot that status. The fetched-base runner permits the supplied scoped command.\n\nDispatch a fresh foreground `implementer`, `async: false`, cwd `/work/widget/.worktrees/fix-retry`, with these instructions:\n\n> Resolve only `src/retry.ts` and `test/retry.test.mjs`, preserving both sides’ intent. Fetched base: `dddddddddddddddddddddddddddddddddddddddd`. Run exactly `node --test test/retry.test.mjs`. Stage each resolved file with `git -C /work/widget/.worktrees/fix-retry add <file>`. Do not commit, abort, or edit other paths. Return `done`, or `done - contract exception: <why>` if a PR obligation changes.\n\nThe helper returns `done`, but completion verification runs:\n\n```sh\ngit -C /work/widget/.worktrees/fix-retry diff --name-only --diff-filter=U\n```\n\nAn unmerged path remains. Completion fails; no commit is attempted.\n\n## 4. Abort and recovery stop\n\nCommands, cwd `/work/widget`:\n\n```sh\ngit -C /work/widget/.worktrees/fix-retry merge --abort\ngit -C /work/widget/.worktrees/fix-retry rev-parse HEAD\ngit -C /work/widget/.worktrees/fix-retry branch --show-current\ngit -C /work/widget/.worktrees/fix-retry status --porcelain --untracked-files=all\n```\n\nAbort exits 0; HEAD equals the saved full SHA, branch is `fix/retry`, and status succeeds empty. Recovery is verified.\n\nPR #14 conflicts with home PR #12 in src/retry.ts, test/retry.test.mjs; the worktree at /work/widget/.worktrees/fix-retry is left on fix/retry at eeeeeee with #13 already merged; merge #14 by hand there (git merge --no-ff cccccccccccccccccccccccccccccccccccccccc) and rerun the same list, or rerun without #14.\n\nRetain the canonical subject: `merge PR #14 head ccccccc into PR #12`.\n\nNo Step 4 readiness report, base merge, or downstream continuation occurs.\n\n## Checkpoint replacements\n\n**Residual-edit checkpoint:** The helper also modifies `README.md`. Run the same completion check and four abort/restoration commands above. Abort exits 0; HEAD and branch match, but status returns:\n\n```text\n M README.md\n```\n\nStop: PR #14 failed in the two conflicted files; `/work/widget/.worktrees/fix-retry` is on `fix/retry` at `eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee`, with #13 merged, but `README.md` remains modified. Manual recovery is required. Checkout/index restoration is not established.\n\n**Failed-abort checkpoint:** Run those same commands. Abort exits 1 with the stipulated error; HEAD and branch match, but status returns:\n\n```text\nUU src/retry.ts\n```\n\nStop: PR #14 recovery failed at the selected worktree. Abort exit status is 1 with an error; observed branch is `fix/retry`, HEAD and saved last-good SHA are `eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee`, and #13 remains merged. `src/retry.ts` remains unmerged. Manual recovery is required. Do not reset, clean, claim restoration, or continue.\n",
+      "words": 737,
+      "wallMs": 32661,
       "mechanical": {}
     }
   },
   "judge": {
-    "anthropic/claude-opus-5-5": {
-      "factsSha": "82345be204de2b8757f40dbaea9239f354907453900eeba6c4c6d404c34ac8d1",
-      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "94074f513938f6d5b90a8c47ce92cbd629c74e1f228b6c58d2567427c2164ad7",
-      "baselineOutputSha": "988001a3762b4c51284e2939c0f6e54b120a4d07bc35791a6eef1d95304fb16e",
-      "candidateOutputSha": "5e6647045a433116931380fe377382c08148cfeedf46ce6da43b03324a679230",
-      "facts": {
-        "helper": {
-          "before": "holds",
-          "after": "holds",
-          "label": "held"
-        },
-        "abort": {
-          "before": "holds",
-          "after": "holds",
-          "label": "intended but unchanged"
-        },
-        "residual": {
-          "before": "holds",
-          "after": "holds",
-          "label": "held"
-        },
-        "abort-failed": {
-          "before": "holds",
-          "after": "holds",
-          "label": "held"
-        },
-        "stop": {
-          "before": "fails",
-          "after": "holds",
-          "label": "unplanned improvement"
-        },
-        "boundary": {
-          "before": "holds",
-          "after": "holds",
-          "label": "held"
-        }
-      },
-      "feedback": "After moved only `stop`, and in the right direction: Before's main STOP said #14 \"needs manual conflict resolution\" without offering the canonical-subject hand merge or the rerun-without-#14 alternative, and it did not name the selected home path inside the stop text, whereas After's quoted STOP names #14, #12, both paths, the worktree path, fix/retry, eeeeeee, #13 already merged, and offers `git merge --no-ff cccc…` with the `merge PR #14 head ccccccc into PR #12` subject or a rerun without #14. Every other fact that Before kept (helper dispatch scope, abort restoration checks with untracked files before claiming restoration, residual README.md actual-state stop with no reset/clean, failed-abort stop with the error and `UU src/retry.ts`, and all boundary refusals) is preserved verbatim in After, which is also more explicit about the saved last-good SHA and #13 in the two checkpoint stops. No wording changes are needed; if anything, keep the checkpoint bullet lists (failing PR, worktree, abort status, remaining path, saved last-good) as the template, since they make the residual and abort-failed facts unambiguous without restating earlier context.",
-      "wallMs": 29552,
-      "verdict": "improved"
-    },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "82345be204de2b8757f40dbaea9239f354907453900eeba6c4c6d404c34ac8d1",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "94074f513938f6d5b90a8c47ce92cbd629c74e1f228b6c58d2567427c2164ad7",
-      "baselineOutputSha": "d3d2d79e49ea2d98538d8b2834abca5ea51782e6fd62e356772f8e8bc8f0bd6b",
-      "candidateOutputSha": "79d080f409b59e89c24886b616a0aa426b8c7902bf428214ff83d96f11a11a52",
+      "intentSha": "79a43344d6de00c833afe81581fa2db76ed698aba803c56f1667b8d5ffacb3da",
+      "baselineOutputSha": "79d080f409b59e89c24886b616a0aa426b8c7902bf428214ff83d96f11a11a52",
+      "candidateOutputSha": "c243ac3a12960970768fe888ac85b4715ba1dcbb262b0778c5b0c0c5f451efcd",
       "facts": {
         "helper": {
           "before": "holds",
@@ -91,19 +41,19 @@
           "label": "intended but unchanged"
         },
         "residual": {
-          "before": "fails",
+          "before": "holds",
           "after": "holds",
-          "label": "unplanned improvement"
+          "label": "held"
         },
         "abort-failed": {
-          "before": "fails",
+          "before": "holds",
           "after": "holds",
-          "label": "unplanned improvement"
+          "label": "held"
         },
         "stop": {
-          "before": "fails",
+          "before": "holds",
           "after": "holds",
-          "label": "unplanned improvement"
+          "label": "held"
         },
         "boundary": {
           "before": "holds",
@@ -111,10 +61,137 @@
           "label": "held"
         }
       },
-      "feedback": "After moved residual, abort-failed and stop from fails to holds: the baseline stop now names #14, #12, both conflict paths, the selected home, fix/retry, eeeeeee and #13 already merged, and offers the manual --no-ff merge/rerun or rerun-without-#14 options, while the residual and failed-abort checkpoints enumerate the failing PR, conflict paths, selected worktree, saved SHA and #13 and require manual recovery without claiming restoration or resetting/cleaning. Before's checkpoint stops were honest but omitted the worktree path, saved SHA, conflict paths and #13 context and never offered the rerun options. Two small tightenings would make After more robust: the failed-abort stop should literally restate '#14' and the two conflict paths rather than only 'unmerged path', and the residual checkpoint should spell out the worktree path and full saved SHA instead of 'unchanged'/'listed above', plus an explicit 'do not reset or clean' line in the failed-abort stop to mirror the residual one. Everything Before kept (helper contract, abort verification sequence, boundary) is preserved.",
-      "wallMs": 26754,
-      "verdict": "improved"
+      "feedback": "No listed fact changes: After preserves the scoped helper instructions, selected-worktree abort and verification, conditional recovery stops, and prohibition on downstream continuation. The checkpoint-replacement framing keeps the baseline restoration claim separate from the residual and failed-abort outcomes. To make that separation more robust, label the successful recovery paragraph explicitly as the baseline checkpoint, repeat both conflict paths and the selected worktree in each alternative stop, and explicitly say that residual README.md changes require manual recovery before rerunning, without reset or clean. These clarifications would preserve every fact Before kept while reinforcing the requested honest reporting of actual recovery state.",
+      "wallMs": 11290,
+      "verdict": "unchanged"
     }
   },
-  "repoSha": "deb4f43410cbd616e18f8610ab6b81e822653d4c"
+  "refresh": {
+    "status": "complete",
+    "identity": {
+      "sample": "pr-list-member-conflict-unresolved",
+      "kind": "text",
+      "assembly": "concat",
+      "baselineSkillSha": "ca5d35e22759917183e0b7c26b1a21de31c759b8af7f1f07e3fcbcc306380467",
+      "candidateSkillSha": "2bd9c6d579dd561378603e93ea8756914ecb1e086b3f3738c77141451167d172",
+      "inputSha": "cd5c716ebfe44e8292e4dc5e612c4e45a71ef9d322dcf5c126d7954bbffc783b",
+      "factsSha": "82345be204de2b8757f40dbaea9239f354907453900eeba6c4c6d404c34ac8d1",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "da26298e568d10fc59a4bb4ca1f33953732f1df3813ff7a16651d1de74202509",
+      "models": {
+        "replay": [
+          "github-copilot/gpt-6.1-sol"
+        ],
+        "judge": "github-copilot/gpt-6.1-sol"
+      },
+      "thinking": "medium",
+      "outputs": {
+        "baseline": {
+          "github-copilot/gpt-6.1-sol": {
+            "baselineOutputSha": "79d080f409b59e89c24886b616a0aa426b8c7902bf428214ff83d96f11a11a52",
+            "payloadSha": "87806adb713d5747ea907f7bdec73ed5918bed6cbad49e762efb2135115e3a12"
+          }
+        },
+        "candidate": {
+          "github-copilot/gpt-6.1-sol": {
+            "candidateOutputSha": "94fdaab7d24e40db3b22f7bddf30dab8336eb486b232f3fc0263f42faed105c2",
+            "payloadSha": "343a650de6ea5dbb95c7d91a4fd90de54bb2cef336ba429ebc6eed3cc613cf26"
+          }
+        }
+      }
+    },
+    "previous": {
+      "github-copilot/gpt-6.1-sol": {
+        "factsSha": "82345be204de2b8757f40dbaea9239f354907453900eeba6c4c6d404c34ac8d1",
+        "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+        "intentSha": "da26298e568d10fc59a4bb4ca1f33953732f1df3813ff7a16651d1de74202509",
+        "baselineOutputSha": "79d080f409b59e89c24886b616a0aa426b8c7902bf428214ff83d96f11a11a52",
+        "candidateOutputSha": "94fdaab7d24e40db3b22f7bddf30dab8336eb486b232f3fc0263f42faed105c2",
+        "facts": {
+          "helper": {
+            "before": "holds",
+            "after": "holds",
+            "label": "held"
+          },
+          "abort": {
+            "before": "holds",
+            "after": "holds",
+            "label": "intended but unchanged"
+          },
+          "residual": {
+            "before": "holds",
+            "after": "holds",
+            "label": "held"
+          },
+          "abort-failed": {
+            "before": "fails",
+            "after": "holds",
+            "label": "unplanned improvement"
+          },
+          "stop": {
+            "before": "holds",
+            "after": "holds",
+            "label": "held"
+          },
+          "boundary": {
+            "before": "holds",
+            "after": "holds",
+            "label": "held"
+          }
+        },
+        "feedback": "After keeps every fact Before kept and additionally repairs the failed-abort checkpoint: Before's stop there never named the failing PR and omitted the no-reset/no-clean commitment, whereas After explicitly says \"#14 failed; abort failed with that error\", reports observed HEAD/branch and the unmerged src/retry.ts, and states \"no restoration claim, reset, or clean\". The helper dispatch, abort verification (exit 0, saved full SHA, fix/retry, empty status with untracked files before \"Restoration is verified\"), residual README.md stop, canonical stop text, and boundary (no base merge, Step 4 report, push, close, or spec/plan writes) all survive. To make the failed-abort and residual stops airtight, list both conflict paths verbatim in each checkpoint's stop rather than relying on \"the same conflict files\" or only the UU path, and state the completion-check result (nonempty --diff-filter=U) explicitly in the residual checkpoint instead of implying it via \"run the same completion check\".",
+        "wallMs": 23834,
+        "verdict": "improved",
+        "judgeModel": null,
+        "thinking": null
+      }
+    },
+    "refreshed": {
+      "github-copilot/gpt-6.1-sol": {
+        "factsSha": "82345be204de2b8757f40dbaea9239f354907453900eeba6c4c6d404c34ac8d1",
+        "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+        "intentSha": "da26298e568d10fc59a4bb4ca1f33953732f1df3813ff7a16651d1de74202509",
+        "baselineOutputSha": "79d080f409b59e89c24886b616a0aa426b8c7902bf428214ff83d96f11a11a52",
+        "candidateOutputSha": "94fdaab7d24e40db3b22f7bddf30dab8336eb486b232f3fc0263f42faed105c2",
+        "facts": {
+          "helper": {
+            "before": "holds",
+            "after": "holds",
+            "label": "held"
+          },
+          "abort": {
+            "before": "holds",
+            "after": "holds",
+            "label": "intended but unchanged"
+          },
+          "residual": {
+            "before": "holds",
+            "after": "holds",
+            "label": "held"
+          },
+          "abort-failed": {
+            "before": "holds",
+            "after": "holds",
+            "label": "held"
+          },
+          "stop": {
+            "before": "holds",
+            "after": "holds",
+            "label": "held"
+          },
+          "boundary": {
+            "before": "holds",
+            "after": "holds",
+            "label": "held"
+          }
+        },
+        "feedback": "No listed fact changes: Before already supplies the selected-home abort and restoration checks, and After preserves them along with scoped helper instructions and honest residual-edit and failed-abort stops. After makes successful restoration explicit only after the clean-status check. Keep those conditions and both manual-recovery branches. For clearer standalone recovery reports, repeat both conflict paths, the selected worktree’s full path, and the saved full SHA in each checkpoint rather than referring to earlier text. The broader requested changes are not demonstrated by this conflict-stop replay; in particular, its first line remains introductory prose rather than a waiting-question classification.",
+        "wallMs": 12666,
+        "verdict": "unchanged",
+        "judgeModel": "github-copilot/gpt-6.1-sol",
+        "thinking": "medium"
+      }
+    }
+  },
+  "repoSha": "a0b31dc6109fdc5099431c2faa110bec0e1d32f4"
 }

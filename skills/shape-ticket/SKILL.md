@@ -67,6 +67,8 @@ Read and apply `reference/repo-audit.md` now in both modes (resolve against this
 
 ### 3 - Interactive questioning
 
+Start the message with `gauntlet: question` before the current clarification. Apply [menu-layout](../brainstorming/reference/menu-layout.md), preserving one free-text question at a time.
+
 One question at a time, only when intent is unclear or no AC is derivable; in repair, wait for all audits and ask in ref order. Never fabricate Context, Problem, or ACs to avoid asking.
 
 ### 4 - Draft
@@ -145,6 +147,8 @@ Render the options from the gate menu template in `reference/repo-audit.md`, inc
 Complete the current ticket's write before presenting the next ticket. Immediately before any mutation, including comments - after approval, not at gate-open - re-fetch the relevant body, discussion, and workflow, including state before a close, of any existing ticket underlying the selected changeset (repair, enrichment, or override-create). Write the resolved source footers in the approved payload. Compare against the original gathered ticket snapshot the user approved, not the pending footer-bearing replacement; only a change loops back to step 8 with the delta. Use tracker version/ETag preconditions where supported. Treat unrelated hits listed as rejected coverage as non-sources; a plain create with no underlying existing ticket has nothing to revalidate. For close/drop, apply the selected-exit recipe in `reference/repo-audit.md` before the body-first branch; never fall through to body writing. For overlap, follow the gathered reference's selected-operation rules. Then one batched write per approved issue, body first, then the approved Reporter-note comment if any; a split is N gated writes under the one approval, honoring subset selection. Mid-batch failure: report exactly what landed; the remaining changeset is preserved for retry.
 
 ## AC integrity gate
+
+Start the message with `gauntlet: question` for the recoverable hard-stop draft and targeted recovery question, singleton runs included. Apply [menu-layout](../brainstorming/reference/menu-layout.md); keep approval unavailable. While awaiting values, emit no terminal batch line. Once the human ends recovery without values, count that ticket as `stopped` in the ended batch under [Complete the batch and present gates](reference/repo-audit.md#complete-the-batch-and-present-gates).
 
 Runs twice: during gather (recovery via targeted questions) and on the assembled draft.
 

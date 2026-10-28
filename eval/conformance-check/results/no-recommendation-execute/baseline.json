@@ -1,7 +1,7 @@
 {
   "sample": "no-recommendation-execute",
   "arm": "baseline",
-  "skillSha": "db07dda8f60340eab65702d6c6bbdf8970474db449817709cea5b85b26ae1452",
+  "skillSha": "077c5f37cbf277c19f227f9be2c003b1bdca6ef1a5765c4fe8bcf82488ed0213",
   "inputSha": "3a38f50e21fd29525066724ac74383e69ddc8ee663722cfd04d13e8fb4612c3e",
   "kind": "text",
   "assembly": "headed",
@@ -15,20 +15,13 @@
     "thinking": "medium"
   },
   "outputs": {
-    "anthropic/claude-opus-5-5": {
-      "status": "ok",
-      "text": "**Decision recorded: G1 - Integrity manifest is missing → `custom`**\n\nThis is your own choice, not a model recommendation. I normalized your reply into one concrete operation that can be executed without further clarification:\n\n- **Operation:** append the existing `build.log` integrity table to `release-notes.md` under the current `# Lantern release` heading:\n\n  ```markdown\n  ## Integrity manifest\n\n  | Artifact | sha256 |\n  |---|---|\n  | release.zip | aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa |\n  ```\n\n- **Classification:** state-changing. It changes a deliverable file and does not edit the spec.\n- **Preflight:** G1 was the only open item, so the approved custom runs directly. No recommended set is left to apply.\n\n**Planned execution order.** Nothing has run yet.\n\n1. **Spec edits:** none. No spec re-audit is needed at this stage.\n2. **Code-changing custom:** append the table to `release-notes.md` and commit the change, since the audit rule requires deliverables to be committed. Then run:\n   - the project's tests and a `code-reviewer` pass on that delta;\n   - Step 1's canonical tests.\n\n   If a test fails, I stop and report it.\n3. **Re-audit:** a fresh `conformance-reviewer` checks the result against the spec's AC: \"Attach an integrity manifest (sha256 table) to the release notes.\" It writes a new `## Closure / conformance` block with a new `audited-base`.\n4. **Follow-up, non-state-changing custom, revert:** none were selected.\n5. **Re-enter Step 3.5** using the re-audited block:\n   - If it returns `CONFORMS (0 open)`, the fast path continues.\n   - If any concern is still open, it comes back to you as a new decision.\n\n**Disposition record (pending execution):**\n`G1 - Integrity manifest is missing: custom (append build.log sha256 table to release-notes.md)`. The result will be filled in after the checks and re-audit above finish.\n",
-      "words": 255,
-      "wallMs": 12770,
-      "mechanical": {}
-    },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "Approved custom decision: **G1 - Integrity manifest is missing** — append the complete sha256 table from `build.log` to `release-notes.md`, preserving its existing heading.\n\nScheduled execution:\n1. Append the table and commit the release-notes change.\n2. Run the project’s canonical tests and a code review of the change.\n3. Re-audit conformance and refresh the closure block.\n4. Record the result as `custom`, not as a model recommendation.\n\nNothing has executed yet. No further clarification is needed, and shipping options remain pending those checks.\n",
-      "words": 80,
-      "wallMs": 8065,
+      "text": "Recorded: manifest=custom(append the sha256 table from the build log to the release notes)\n\nG1 - Integrity manifest is missing: custom — append the complete sha256 table from `build.log` to `release-notes.md`, preserving the existing heading.\n\nThe approved execution is:\n1. Append the existing table unchanged.\n2. Run the project’s canonical tests and obtain a `code-reviewer` review of the delta.\n3. Commit the deliverable and re-audit conformance against the unchanged spec.\n\nNo further clarification is needed. Nothing has executed in this tool-free replay; edits and checks remain pending. Fresh decisions are needed only if the re-audit changes the approved inventory.\n",
+      "words": 96,
+      "wallMs": 8817,
       "mechanical": {}
     }
   },
-  "repoSha": "c7b92e65575bf39b3e2c6503eaf670d76ae97761"
+  "repoSha": "2eb4429b4dd687432969f427f82d45d7840d7c63"
 }

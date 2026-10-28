@@ -1,0 +1,2 @@
+- first-line: mechanical: matches /^gauntlet: question(?:\r?\n|$)/
+- target: judged: Ask for --key or --out because HEAD is detached, without writing a brief or mutating trackers.

@@ -93,6 +93,8 @@ Run the ledger's `verification:` command exactly once foreground in the worktree
 
 ## Human stop
 
+Read and apply [menu-layout](../brainstorming/reference/menu-layout.md). Start the message with `gauntlet: question` at every human stop, including the discard/reset authorization ask for a dirty or commit-boundary return. Put it alone on the first output line, followed by a newline before the stop text, without a driver-state preamble, wrapper or code fence. These decisions are neither done nor stuck outcomes.
+
 Leave implement active. Use one screen of plain words: `Stopped on row <n> (<row text>)` for row failures, or the concrete boundary/cap/verification header above. `Problem:` quotes the evidence cell verbatim, identifying the actual spec/code contradiction, failing assertion/output or missing capability, and quotes the last decision line. Include funding budget only when funded. At every stop print `Preserve every row's attempts and the total iteration cap.` Omit round history, model escalation and reasoning traces.
 
 Offer these concrete actions. Offer `cap +N` only at a clean cap or legacy missing-cap stop; dirty-tree and commit-boundary stops keep discard authorization and never offer `cap +N`. When both the row allowance and total cap are exhausted, list independent funding and cap offers despite rule 2 priority. Take separate replies: funding follows the spec's `**Amend-grant:**` contract, cap follows the row below; define no combined syntax.

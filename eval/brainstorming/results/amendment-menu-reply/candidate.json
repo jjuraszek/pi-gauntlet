@@ -1,69 +1,34 @@
 {
   "sample": "amendment-menu-reply",
   "arm": "candidate",
-  "skillSha": "b0f061ca12a26e1539c071730ebd6798b3e0c8ec66556d774cc3fa29aad9193e",
+  "skillSha": "6a0db67c59ebae3ac123d1c5e851d092a8f782cdbb5e1717134144d084979689",
   "inputSha": "8f4082006f803aa6f314147c6b6a600eec45f09c1691c03a1600bc1a62ef6a17",
   "kind": "text",
   "assembly": "headed",
   "thinking": "medium",
   "models": {
     "replay": [
-      "anthropic/claude-opus-5-5",
       "github-copilot/gpt-6.1-sol"
     ],
-    "judge": "anthropic-fable/claude-fable-5-1",
+    "judge": "github-copilot/gpt-6.1-sol",
     "thinking": "medium"
   },
   "outputs": {
-    "anthropic/claude-opus-5-5": {
-      "status": "ok",
-      "text": "Both picks apply as spec edits. Item 2's free text is a custom edit to the spec, not a redirect elsewhere, so the spec keeps exit 126 as `failed` and documents why. This replay cannot write files or run git, so the edits and commit below describe what the step applies.\n\n**Spec edits to `doc/specs/report-runner.md`**\n\namended the spec: Share retry policy - the existing report coordinator owns the single shared retry policy; adapters keep retry execution.\n- Design / retries: \"each report adapter owns its retry policy\" becomes \"the existing report coordinator owns the shared retry policy; adapters keep execution.\"\n- This replaces the adapter-local limits, which currently differ: two retries at `adapters/alpha.ts:18` and four at `adapters/beta.ts:22`.\n\namended the spec: Classify blocked execution - exit 126 stays classified as `failed`, and the spec now documents that choice.\n- Design / run status: \"exit 126 is failed\" stays.\n- A documenting clause is added: exit 126 can occur before report execution starts, as the launch test shows, and is still reported as `failed`.\n- No `blocked` status is introduced.\n\n**Aftermath**\n\nNo plan exists yet, so no tasks reopen, `plan-writer` is not dispatched, and the phase does not change. Only the spec is committed:\n\n```\namend: 2 item(s) - Share retry policy, Classify blocked execution\n\n- crosscut | Share retry policy | move retry policy into one owner | alt-1 | changing retry ownership needs a human architecture choice | adapters/alpha.ts:18 uses two retries; adapters/beta.ts:22 uses four\n- exit126 | Classify blocked execution | keep exit 126 classified as failed and document that choice | custom(keep 126 as failed, document it) | operator-visible status changes need a human decision | synthetic launch test returns 126 before report execution\n```\n\nRecorded: crosscut=alt-1, exit126=custom(keep 126 as failed, document it)\n\nNext, the flow returns to the spec review with the amended spec.\n",
-      "words": 283,
-      "wallMs": 14507,
-      "mechanical": {}
-    },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "Recorded: crosscut=alt-1, exit126=custom(keep 126 as failed, document it)\n\nSelected edits to `doc/specs/report-runner.md`:\n- **Design / retries:** The existing report coordinator owns the shared retry policy; adapters retain execution. No new retry service is added.\n- **Design / run status:** Keep exit 126 classified as **failed** and explicitly document that classification.\n\nNo tasks reopen and no phase changes. No standing grant was given. This text-only replay has not written or committed these edits.\n",
-      "words": 68,
-      "wallMs": 5989,
+      "text": "Selected edits for `doc/specs/report-runner.md`:\n\n- **Design / retries:** The existing report coordinator owns the shared retry policy; adapters retain execution. No new retry service is introduced.\n- **Design / run status:** Keep exit 126 classified as **failed** and explicitly document that classification.\n\nNo tasks reopen and no phase changes. No standing grant was given. These are the selected edits; this text-only replay has not written files or committed changes.\n\nRecorded: crosscut=alt-1, exit126=custom(keep 126 as failed, document it)\n",
+      "words": 73,
+      "wallMs": 6283,
       "mechanical": {}
     }
   },
   "judge": {
-    "anthropic/claude-opus-5-5": {
-      "factsSha": "f497135f922e058af932a3380ad44da1088eecd38cc4b3c94a12942086eaec45",
-      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "3fab9022e6546ee557e596de8ba99bbd8a8d5e75db7e126af9d0739b215affa8",
-      "baselineOutputSha": "7d5156e988584274798d086bc22e379cceac453497cd2a4b2a6ae17f2c1ab2e6",
-      "candidateOutputSha": "82859485cb33d3ddde9b3b195c0bf6c433e31a8575e4a865485e731bba967afc",
-      "facts": {
-        "f1": {
-          "before": "holds",
-          "after": "holds",
-          "label": "intended but unchanged"
-        },
-        "f2": {
-          "before": "holds",
-          "after": "holds",
-          "label": "intended but unchanged"
-        },
-        "f3": {
-          "before": "holds",
-          "after": "holds",
-          "label": "intended but unchanged"
-        }
-      },
-      "feedback": "Nothing moved on this continuation: both outputs print the exact `Recorded: crosscut=alt-1, exit126=custom(keep 126 as failed, document it)` line, both accept the item-2 free text as a custom choice without re-asking, and both describe applying alt-1 (coordinator owns the shared policy, adapters keep execution) and the custom effect (exit 126 stays `failed` with a documenting clause, no `blocked` status) while explicitly not writing files or committing. After is actually tighter on the verbatim rule than Before: Before's batch-commit line paraphrases the custom text as `custom(keep exit 126 as failed; document the retained classification ...)` while its Recorded line uses the verbatim text, whereas After uses the verbatim `custom(keep 126 as failed, document it)` in both the commit body and the Recorded echo. Keep the After wording; if anything, the section-4/5 text should state that the commit-line custom token mirrors the Recorded echo verbatim so the two surfaces cannot drift as they did in Before.",
-      "wallMs": 8586,
-      "verdict": "unchanged"
-    },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "f497135f922e058af932a3380ad44da1088eecd38cc4b3c94a12942086eaec45",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "3fab9022e6546ee557e596de8ba99bbd8a8d5e75db7e126af9d0739b215affa8",
-      "baselineOutputSha": "c62f549ed6063ea2be3bb7ddb1bd6a7d22c1012733a8942d67249c185688fca0",
-      "candidateOutputSha": "f416f1de3f9fad8885d612d100a325141f23e351c6446c0fe8d93ce93a239b27",
+      "intentSha": "5b9f462cd6caec9a4a8e3a28a3c0ba61583e1b400c8edb5164d32bba075fea39",
+      "baselineOutputSha": "3d236cfe97c9b3bac3127e1957dad6fca84970cb2445e45c0b12d831647b28d3",
+      "candidateOutputSha": "5717b247b5d937b6aee79eb96952c905152254ac329e4e5e17cd0b9f2f6a3f41",
       "facts": {
         "f1": {
           "before": "holds",
@@ -81,10 +46,107 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "No fact moved. Both outputs print the exact Recorded line with crosscut=alt-1 and exit126=custom(keep 126 as failed, document it), accept item 2's free text as a custom choice without re-asking, and describe the alt-1 coordinator-owned retry policy and the retained-failed-plus-documentation edit rather than the rejected new service or blocked status, while disclaiming disk writes and commits. After's only differences are minor wording (\"is added\", \"that classification\", an explicit \"No standing grant was given\" line), all of which keep every fact Before kept; the current After wording is sufficient and needs no adjustment for this case.",
-      "wallMs": 4333,
+      "feedback": "After preserves all three facts: it echoes both choices verbatim in the Recorded line, accepts the custom response without another question, and describes the coordinator-based retry policy and retained failed status without claiming writes. Moving the Recorded line to the end does not change compliance. After drops Before’s explanation that exit 126 can indicate a launch failure before report execution; retaining that sentence would preserve the useful context while keeping the selected edits and custom-choice confirmation explicit.",
+      "wallMs": 6218,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "488adb5f77d82365012e1a6030f3b11a1e35f420"
+  "refresh": {
+    "status": "complete",
+    "identity": {
+      "sample": "amendment-menu-reply",
+      "kind": "text",
+      "assembly": "headed",
+      "baselineSkillSha": "1344d9b3d03badf89c600eb7719b78db84d66ec38fcb37bdfe3bfc890ccfaac6",
+      "candidateSkillSha": "e56966ab6f37d59c93529bd405e54013ce529262d21820b8b32ab4898250b062",
+      "inputSha": "8f4082006f803aa6f314147c6b6a600eec45f09c1691c03a1600bc1a62ef6a17",
+      "factsSha": "f497135f922e058af932a3380ad44da1088eecd38cc4b3c94a12942086eaec45",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "5b9f462cd6caec9a4a8e3a28a3c0ba61583e1b400c8edb5164d32bba075fea39",
+      "models": {
+        "replay": [
+          "github-copilot/gpt-6.1-sol"
+        ],
+        "judge": "github-copilot/gpt-6.1-sol"
+      },
+      "thinking": "medium",
+      "outputs": {
+        "baseline": {
+          "github-copilot/gpt-6.1-sol": {
+            "baselineOutputSha": "3d236cfe97c9b3bac3127e1957dad6fca84970cb2445e45c0b12d831647b28d3",
+            "payloadSha": "c8197739fc63a8322ec47c6bc76556a1d59d5ffd78255f1dea176c6ed146a433"
+          }
+        },
+        "candidate": {
+          "github-copilot/gpt-6.1-sol": {
+            "candidateOutputSha": "bb7dfd4c194fe98c2e2c3931fa5fddf1b6b47ece05698f1c1ae5eafdb7868f30",
+            "payloadSha": "ab51349de66eb983b5724b6731176e4a9202cffd7d08ef4b15aead041521845d"
+          }
+        }
+      }
+    },
+    "previous": {
+      "github-copilot/gpt-6.1-sol": {
+        "factsSha": "f497135f922e058af932a3380ad44da1088eecd38cc4b3c94a12942086eaec45",
+        "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+        "intentSha": "5b9f462cd6caec9a4a8e3a28a3c0ba61583e1b400c8edb5164d32bba075fea39",
+        "baselineOutputSha": "3d236cfe97c9b3bac3127e1957dad6fca84970cb2445e45c0b12d831647b28d3",
+        "candidateOutputSha": "bb7dfd4c194fe98c2e2c3931fa5fddf1b6b47ece05698f1c1ae5eafdb7868f30",
+        "facts": {
+          "f1": {
+            "before": "holds",
+            "after": "holds",
+            "label": "intended but unchanged"
+          },
+          "f2": {
+            "before": "holds",
+            "after": "holds",
+            "label": "intended but unchanged"
+          },
+          "f3": {
+            "before": "holds",
+            "after": "holds",
+            "label": "intended but unchanged"
+          }
+        },
+        "feedback": "No fact moved. Both outputs print the exact Recorded line with crosscut=alt-1 and exit126=custom(keep 126 as failed, document it), accept item 2's free text as a custom choice without re-asking, and describe alt-1 (coordinator owns shared retry policy, adapters keep execution) plus the custom exit-126 effect (retain failed, document it) rather than the rejected new-service or blocked-status proposals, while disclaiming disk writes and commits. The only difference is that After's run-status bullet drops Before's note that exit 126 can indicate a launch failure before report execution; this is still 'document it' so f3 holds, but if the wording for the documented-rationale carry-through is tightened later, keep that evidence-derived detail (the 126-before-execution launch test) in the custom-effect description so the recap preserves the reviewer's presentation details as well as the recorded choice.",
+        "wallMs": 6403,
+        "verdict": "unchanged",
+        "judgeModel": null,
+        "thinking": null
+      }
+    },
+    "refreshed": {
+      "github-copilot/gpt-6.1-sol": {
+        "factsSha": "f497135f922e058af932a3380ad44da1088eecd38cc4b3c94a12942086eaec45",
+        "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+        "intentSha": "5b9f462cd6caec9a4a8e3a28a3c0ba61583e1b400c8edb5164d32bba075fea39",
+        "baselineOutputSha": "3d236cfe97c9b3bac3127e1957dad6fca84970cb2445e45c0b12d831647b28d3",
+        "candidateOutputSha": "bb7dfd4c194fe98c2e2c3931fa5fddf1b6b47ece05698f1c1ae5eafdb7868f30",
+        "facts": {
+          "f1": {
+            "before": "holds",
+            "after": "holds",
+            "label": "intended but unchanged"
+          },
+          "f2": {
+            "before": "holds",
+            "after": "holds",
+            "label": "intended but unchanged"
+          },
+          "f3": {
+            "before": "holds",
+            "after": "holds",
+            "label": "intended but unchanged"
+          }
+        },
+        "feedback": "After preserves all three facts: it echoes both recorded choices verbatim, accepts the custom reply without another question, and describes the coordinator-based retry policy and documented failed classification for exit 126 without claiming writes. No fact moved. The only substantive omission is Before’s explanation that exit 126 can indicate a launch failure before report execution; retaining that explanation alongside the explicit classification would preserve that context without widening the selected edits.",
+        "wallMs": 5583,
+        "verdict": "unchanged",
+        "judgeModel": "github-copilot/gpt-6.1-sol",
+        "thinking": "medium"
+      }
+    }
+  },
+  "repoSha": "2eb4429b4dd687432969f427f82d45d7840d7c63"
 }

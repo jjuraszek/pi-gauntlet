@@ -89,6 +89,8 @@ If any test fails, offer no split. Never split by service, package, repo, layer,
 
 ### 3. Understand the idea
 
+Write exactly `gauntlet: question` alone at column zero on the first physical line, followed by a newline, for every waiting question, before any premise correction or `The framing holds: ...` sentence. Never append a colon to the marker. Follow the [first-line rule](reference/menu-layout.md).
+
 Clarify freely. For a PR subject, run the framing check against the PR's diff as the ask (`reference/pr-subject.md`).
 
 `Read` the gathered draft unconditionally before question one. Treat it as a helper, not a fence: verify load-bearing claims from primary code, and confirm whether the codebase or ecosystem already solves the problem.
@@ -98,6 +100,7 @@ Ask one question per message, about purpose, constraints, success, and affected 
 Bad: `May I treat those two acceptance criteria as location-only deviations? Recommendation: yes`
 Good:
 ```text
+gauntlet: question
 The two ACs name a path that moved; the spec keeps them in-scope with the new path as a Design clause. Which surface owns the refresh?
 A) the extension
 B) a new bin
@@ -118,7 +121,7 @@ C) smaller or none: <what ships, or what happens if nothing ships>
 Recommendation: <letter> - <why>
 ```
 
-For a band-aid concern, put the root-cause alternative in B. Without a concern, open the first message with one sentence naming what was checked - `The framing holds: checked <x>, <y>` - and continue to the first ordinary question; a scout objection that yielded no alternative is named among the things checked.
+For a band-aid concern, put the root-cause alternative in B. Without a concern, follow the marker with one sentence naming what was checked - `The framing holds: checked <x>, <y>` - and continue to the first ordinary question; a scout objection that yielded no alternative is named among the things checked.
 
 After any premise correction in the same message, ask the framing question or give the holds-statement. Ask the framing question at most once per brainstorm, including after pushback; the user's reply is final, and later doubts on the same point go to Open Questions or a `Pattern:` line. Recommend; never pivot without the reply. A ticket-recorded decision on the exact point follows the ticket rule above; an adopted decision records `Framing: kept (ticket <id>)`. A pivot never rewrites AC rows: rows it no longer satisfies take `deviates:` dispositions, and a pivot that changes the topic re-mints the slug.
 
@@ -127,6 +130,7 @@ Record the outcome in the draft under `## Appended during questionary` as `Frami
 Bad: `The ask adds another settings path - should we? Recommendation: no`
 Good:
 ```text
+gauntlet: question
 The ask adds a second settings path beside the resolver that already owns every setting (settings/resolver.ts:11).
 A) as framed
 B) pivot: a key under the existing resolver - one read path, no new boundary
@@ -145,6 +149,8 @@ Propose 2-3 genuinely distinct approaches and name what separates them (the axis
 Prefer clear testable boundaries, YAGNI, existing conventions when they are sound - when the convention is the debt, say so and do not extend it - the owning schema/contract rather than parallel state, and explicit errors and edge cases. Retain every existing user-approved design detail in approaches and design, including supplied presentation details in the design recap and when drafting or replacing the spec. Value removal equally with addition; recommend viable reuse-only unless naming an approved requirement it cannot meet. Never recommend copying a nearly-fitting shared path beside the caller, cited or not, unless section 4's as-framed decision applies; then name the duplication in that approach's `Adds:` and `Pattern:` lines.
 
 ### 6. Present the design in two rounds
+
+Write exactly `gauntlet: question` alone at column zero on the first physical line, followed by a newline, for each round's approval question. Never append a colon to the marker. Follow the [first-line rule](reference/menu-layout.md).
 
 Use two rounds, targeting 300-500 words each, with one approval each; revisions remain within that approval point. Ask once per round; round-1 approval without correction confirms the predecessor. Round 1 covers architecture, responsibilities, data flow, and `supersedes <path>, <scope>` when applicable. Round 2 covers errors, edges, tests, and `## Documentation impact`. In round 2, read and apply [Documentation impact](reference/documentation-impact.md), including its verbatim template; cite that portable relative path in the spec; do not restate its categories. Ask the user when doc impact is unclear. Unreadable -> stop the step with a blocking error. Cite the draft's `Docs touched:` entries as candidates for "Materially amended existing docs"; admit or drop each by that owner's materiality bar, never list them automatically. In round 1, carry chosen `Removes:`/`Adds:` into Design as exhaustive `Remove:`/`Add:` imperatives naming every moving part; route unlisted parts through `reference/amendment-surface.md`. In round 2, write `## Tests`: one `<observable> - <test name or file>` per acceptance row and Design edge/error clause; `<observable> - none: <why>` for untestable.
 

@@ -20,6 +20,10 @@ Consequence clause for the menu row (`decision-menu.md`): `remove <worktree.path
 
 ## Non-final stop
 
+Follow the [shared layout](../../brainstorming/reference/menu-layout.md).
+
+Start the terminal report with `gauntlet: stuck <reason>`: use the obstacle's `stuck - ` text as the reason, or `stopped at <template id>` for initial, assess-terminal, and contract-exception. On a failed reset/assertion use the actual error instead. Put cleanup results below that one first line.
+
 Enter here for `stop` on the initial, assess-terminal, obstacle, or contract-exception menu. On a `rebased locally` head, run `git -C <worktree.path> reset --hard <pre_head>` first; assert `HEAD == <pre_head>` and a clean tree. Stop on a failed assertion.
 
 Reuse step 1's primary and keyed ownership computation: resolve `home:` and the `<name>` pattern against `$PRIMARY`, and pass both the pattern and `worktree.path` through `realpath`. Keep the primary even when clean; print `worktree: kept - primary at <path>`.

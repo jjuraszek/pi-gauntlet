@@ -1,4 +1,4 @@
-for: 85857677a59444256772a0801dea8590897a67d0dcf7c2699228c20b9d63a124
+for: a7777aa1179ff96bcc4b18c1b41845244f96de40710b5dc1f70dbe0bc5e577b9
 
 ## Change
 Check the two-item bound and repeated evidence before any tracked-path admission check or restoration; render rejected outcomes' step-6 exits in full without restoring paths.
@@ -42,6 +42,8 @@ Add spec-pr-regate, spec-pr-unmarked and pr-subject-gate with sample-local workf
 The approval gate now renders row 6 (approve, hand off as draft PR) beside rows 1-5, so loop-gate's menu facts count six options and its Not-fetched zero-row branch renders 1, 2, 3, and 6 without 4/5; the drafted-row disclosure, the exact option 4/5 sentences, the loop routing, and the grant decoding are unchanged. The target's wordCap rises from 1400 to 1600 for this edit only: loop-gate renders the gate three times and row 6 adds about 120 words across those renders, which pushed the measured long-model output to 1463-1512 words (the two cells the old cap rejected and the two it now admits); the shorter model stays at 1207-1243. No behavioral fact is dropped or weakened to fit; the cap bounds generated output, not the assembled prompt, and every other sample keeps its existing budget.
 
 The unmarked spec-only route now provisions through pr-head without a thread fetch, skips binding, context-builder, the PR scout block, and gather, resumes at checklist step 4 with the carried spec at its carried path, writes no Rework record, withholds 6, and persists Engine/Amend-grant/PR as a new commit on approval; spec-pr-unmarked adds the provision, skips, carried-path, no-record, withheld, and persist facts and bundles spec-finalization.md so the replay reads the rework-only wording, compared against `--base HEAD` (f7b7f3d1, the staged skill edits uncommitted).
+
+Require the first line of the new gate-line-first replay to classify the waiting question while preserving its existing choices and pause.
 
 ## Expected to move
 - spec-pr-unmarked/provision: fails -> holds - Provision via pr-head with no thread fetch on the unmarked route.
@@ -194,3 +196,5 @@ The unmarked spec-only route now provisions through pr-head without a thread fet
 - drafted-ac-rows/empty-ticket: fails -> holds - Preserve the drafted-row provenance and approval contract while retaining ticket and not-fetched behavior.
 - drafted-ac-rows/unbound-pr: fails -> holds - Preserve the drafted-row provenance and approval contract while retaining ticket and not-fetched behavior.
 - loop-gate/drafted: fails -> holds - Preserve the drafted-row provenance and approval contract while retaining ticket and not-fetched behavior.
+
+- gate-line-first/first-line: fails -> holds - Put the question marker at column zero before any mandated prose.

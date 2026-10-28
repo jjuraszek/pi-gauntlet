@@ -1,0 +1,142 @@
+{
+  "sample": "gate-line-first",
+  "arm": "candidate",
+  "skillSha": "a300f30cbaf7ca887f4868e484591f481e3ba66c6bf49fc62c0a8c2dde1f91e5",
+  "inputSha": "426819752fa939072a462695821943286108ef11685ed142a3ab69d1371d841b",
+  "kind": "text",
+  "assembly": "concat",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "gauntlet: gate=check-delivery/confirmation-gate\n\n## Simulated delivery evidence\n\n- **Shipped SHA:** `a123456`, on the default branch.\n- **Deliverable:** https://example.test/pull/8\n- **Stage 0 — Preflight:** One supplied AC; tracker state and comments are not independently checked in this simulation.\n- **Stage 1 — Merge landed:** Confirmed by the supplied scenario.\n- **Stage 2 — Delivery target:** **Skipped: no delivery target configured.**\n- **Stage 3 — AC verification:** Non-blocking downgrade below.\n\n| AC | Verdict | Evidence |\n|---|---|---|\n| Exports preserve 12 rows | `unverified: no delivery target` | The supplied scenario reports a shipped test verifying 12-row preservation at `a123456`. This supports the implementation, but does not establish runtime behavior at a delivery target. |\n\n**Reviewer script:** Once a runnable target is available, export a dataset containing exactly 12 rows. Inspect the exported artifact and confirm it contains exactly 12 data rows, excluding any header.\n\n## Exact proposed tracker comment\n\n```text\nDelivered: a123456\n\nDeliverable set:\n- https://example.test/pull/8\n\nStage results:\n- Preflight: one supplied acceptance criterion; tracker state and comments not independently checked in this simulation.\n- Merge landed: a123456 is on the default branch, per the supplied scenario.\n- Delivery target: skipped: no delivery target configured.\n- AC verification: unverified: no delivery target.\n\nAcceptance criterion:\n- Exports preserve 12 rows\n  Verdict: unverified: no delivery target.\n  Evidence: The supplied scenario reports a shipped test verifying 12-row preservation at a123456. No runtime observation against a delivery target is available.\n\nReviewer script:\nOnce a runnable target is available, export a dataset containing exactly 12 rows. Inspect the exported artifact and confirm it contains exactly 12 data rows, excluding any header.\n\nStatus advance: no target state configured; comment only.\n```\n\n**Proposed write:** Post only the comment above. No body edit or status advance. In an actual run, the ticket must be re-fetched before writing; changed ACs or status require a renewed gate. No write has been authorized or performed.\n\nPick one:\n1. approve the write\n2. decline\n",
+      "words": 293,
+      "wallMs": 12362,
+      "mechanical": {
+        "first-line": "holds"
+      }
+    }
+  },
+  "judge": {
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "3491cae8d2662278ccf947fdfffcafa713d1538c564ee7e0ceba146383e0180d",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "dd275050957e27a804d0965ca0d5eb465bda959a22f71c59ac448fd683047bc5",
+      "baselineOutputSha": "017257186a01098ecf802e119c901f77448157d347c87da4f941479e281d1147",
+      "candidateOutputSha": "9bca26208075a4803e54fdc63924ff6d00ce620015511a481c7fc951b2af3db9",
+      "facts": {
+        "gate-first": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "first-line": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        }
+      },
+      "feedback": "After moves gate-first to holds by placing the exact confirmation-gate marker on the first line, before evidence and the exact proposed comment, while retaining Delivered: a123456 as the comment’s first line without an internal gauntlet marker. It also preserves the approval wait and no-write boundary. To complete the intended wording change without losing those properties, explicitly cite the shared menu layout and reply rule, retain typed “yes” as approval, and state that a numbered approval will be echoed as “approve the write” before any simulated write; keep those instructions and any ending or STOP markers outside the tracker-comment payload.",
+      "wallMs": 4189,
+      "verdict": "improved",
+      "judgeModel": "github-copilot/gpt-6.1-sol",
+      "thinking": "medium"
+    }
+  },
+  "repoSha": "a0b31dc6109fdc5099431c2faa110bec0e1d32f4",
+  "refresh": {
+    "status": "complete",
+    "identity": {
+      "sample": "gate-line-first",
+      "kind": "text",
+      "assembly": "concat",
+      "baselineSkillSha": "d4e99e5eb20f6d87a51134bd4d26e56af4dd96f034e23159326eaf1e3da068a3",
+      "candidateSkillSha": "a300f30cbaf7ca887f4868e484591f481e3ba66c6bf49fc62c0a8c2dde1f91e5",
+      "inputSha": "426819752fa939072a462695821943286108ef11685ed142a3ab69d1371d841b",
+      "factsSha": "3491cae8d2662278ccf947fdfffcafa713d1538c564ee7e0ceba146383e0180d",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "dd275050957e27a804d0965ca0d5eb465bda959a22f71c59ac448fd683047bc5",
+      "models": {
+        "replay": [
+          "github-copilot/gpt-6.1-sol"
+        ],
+        "judge": "github-copilot/gpt-6.1-sol"
+      },
+      "thinking": "medium",
+      "outputs": {
+        "baseline": {
+          "github-copilot/gpt-6.1-sol": {
+            "baselineOutputSha": "017257186a01098ecf802e119c901f77448157d347c87da4f941479e281d1147",
+            "payloadSha": "d327307d85cedc364033215cb3cbc7109f1f6fe7ce8e74ae279e7ca573213aa9"
+          }
+        },
+        "candidate": {
+          "github-copilot/gpt-6.1-sol": {
+            "candidateOutputSha": "9bca26208075a4803e54fdc63924ff6d00ce620015511a481c7fc951b2af3db9",
+            "payloadSha": "93fae3875f043cdf16bdfd442f9b9c11d939d85ade392ec1c1fdbdee063a4952"
+          }
+        }
+      }
+    },
+    "previous": {
+      "github-copilot/gpt-6.1-sol": {
+        "factsSha": "3491cae8d2662278ccf947fdfffcafa713d1538c564ee7e0ceba146383e0180d",
+        "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+        "intentSha": "dd275050957e27a804d0965ca0d5eb465bda959a22f71c59ac448fd683047bc5",
+        "baselineOutputSha": "017257186a01098ecf802e119c901f77448157d347c87da4f941479e281d1147",
+        "candidateOutputSha": "9bca26208075a4803e54fdc63924ff6d00ce620015511a481c7fc951b2af3db9",
+        "facts": {
+          "gate-first": {
+            "before": "fails",
+            "after": "holds",
+            "label": "intended change"
+          },
+          "first-line": {
+            "before": "fails",
+            "after": "holds",
+            "label": "intended change"
+          }
+        },
+        "feedback": "After satisfies gate-first: the very first line is `gauntlet: gate=check-delivery/confirmation-gate`, evidence and the exact payload follow it, the tracker comment opens with `Delivered: a123456`, no gauntlet marker appears inside the fenced payload, and the output stops at a two-choice menu awaiting approval. Before fails only because it lacks the gate line entirely; everything else (Delivered: first, waiting for approval, no write) was already present. The After wording delivers the Change cleanly; to keep it robust, make sure the gate line stays on its own line before any heading and that the gauntlet marker is never copied into the fenced tracker-comment block or other human-channel payloads.",
+        "wallMs": 4841,
+        "verdict": "improved",
+        "judgeModel": null,
+        "thinking": null
+      }
+    },
+    "refreshed": {
+      "github-copilot/gpt-6.1-sol": {
+        "factsSha": "3491cae8d2662278ccf947fdfffcafa713d1538c564ee7e0ceba146383e0180d",
+        "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+        "intentSha": "dd275050957e27a804d0965ca0d5eb465bda959a22f71c59ac448fd683047bc5",
+        "baselineOutputSha": "017257186a01098ecf802e119c901f77448157d347c87da4f941479e281d1147",
+        "candidateOutputSha": "9bca26208075a4803e54fdc63924ff6d00ce620015511a481c7fc951b2af3db9",
+        "facts": {
+          "gate-first": {
+            "before": "fails",
+            "after": "holds",
+            "label": "intended change"
+          },
+          "first-line": {
+            "before": "fails",
+            "after": "holds",
+            "label": "intended change"
+          }
+        },
+        "feedback": "After moves gate-first to holds by placing the exact confirmation-gate marker on the first line, before evidence and the exact proposed comment, while retaining Delivered: a123456 as the comment’s first line without an internal gauntlet marker. It also preserves the approval wait and no-write boundary. To complete the intended wording change without losing those properties, explicitly cite the shared menu layout and reply rule, retain typed “yes” as approval, and state that a numbered approval will be echoed as “approve the write” before any simulated write; keep those instructions and any ending or STOP markers outside the tracker-comment payload.",
+        "wallMs": 4189,
+        "verdict": "improved",
+        "judgeModel": "github-copilot/gpt-6.1-sol",
+        "thinking": "medium"
+      }
+    }
+  }
+}

@@ -1,0 +1,57 @@
+{
+  "sample": "gate-line-first",
+  "arm": "candidate",
+  "skillSha": "ee7d1855929f08686507097c6a2b7b4473c91b2ff46757c8f36772899005d592",
+  "inputSha": "a1a3f0fc2fce24982ddce157aca8b97f6c714d605dd237ea0057dee2ed1857a0",
+  "kind": "text",
+  "assembly": "concat",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "github-copilot/gpt-6.1-sol",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "gauntlet: question\nStopped: iteration 1 left the tree dirty.\n\nProblem: The child returned one commit but left uncommitted changes. Row 1 evidence: “check parser: expected colon, got comma”. Last decision: “row 1 failed | delimiter still wrong | retry”.\n\nPreserve every row's attempts and the total iteration cap.\n\n1. Authorize discarding uncommitted changes and resetting to the last valid commit, then resume with the consumed dispatch count preserved.\n2. Stop and preserve the branch and working tree unchanged.\n\nNo cleanup or reset has been performed.\n",
+      "words": 83,
+      "wallMs": 6857,
+      "mechanical": {
+        "question-first": "holds"
+      }
+    }
+  },
+  "judge": {
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "05bacdfb77f11ea0d0e5b421bfbea86b817c7280c6f1528790e7f2103f71aa5a",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "1861e2a50a838581f2dd0a0d44451cf05a387965acbcf5bf2b0f18c3b4e120f1",
+      "baselineOutputSha": "a34003baa4008ada0b5d97a76588e71590b9e9c1c89610d581f5076f111b43d1",
+      "candidateOutputSha": "9413fe1f101fe4ff1458d5886c86509e7cc68bd66b01f9aaf01bdc73c9681c12",
+      "facts": {
+        "authorization": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "preserved": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "question-first": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        }
+      },
+      "feedback": "After adds the requested leading `gauntlet: question` marker while retaining both listed facts: explicit discard/reset authorization without a cap grant, and preservation of attempts, consumed dispatches, cap, and the untouched tree without a done or stuck marker. To make that preservation unambiguous, replace the potentially misleading `iteration 1` heading with a row-based heading and explicitly state: `Row 1 remains open; attempts:1; iterations:2; cap:9; implement remains active. No cleanup or reset is authorized or performed pending your explicit authorization.`",
+      "wallMs": 7445,
+      "verdict": "improved"
+    }
+  },
+  "repoSha": "2eb4429b4dd687432969f427f82d45d7840d7c63"
+}

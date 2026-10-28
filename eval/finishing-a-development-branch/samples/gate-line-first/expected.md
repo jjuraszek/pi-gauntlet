@@ -1,0 +1,4 @@
+- gate-first: mechanical: matches /^gauntlet: gate=finishing-a-development-branch\/step-4(?:\r?\n|$)/
+- full-menu: judged: Includes CONFORMS and all five normal options: push/create PR, draft PR, squash-merge main, keep, discard, and asks for a choice.
+- one-marker: mechanical: matches /^(?![\s\S]*recommended=)(?![\s\S]*\ngauntlet:)[\s\S]*$/
+- nonterminal: judged: No done or stuck marker is emitted while awaiting the choice.

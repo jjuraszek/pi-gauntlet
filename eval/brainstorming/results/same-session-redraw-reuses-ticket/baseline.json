@@ -1,7 +1,7 @@
 {
   "sample": "same-session-redraw-reuses-ticket",
   "arm": "baseline",
-  "skillSha": "7c68dd1e3655b044e65592b1c969b5674afcdbb964ca69e548949a2f6595f79a",
+  "skillSha": "1344d9b3d03badf89c600eb7719b78db84d66ec38fcb37bdfe3bfc890ccfaac6",
   "inputSha": "fc842b0aad3bf89f7af2641b8423c5b322fb582c5a1e9f29b6c0bd4d39b2f701",
   "kind": "text",
   "assembly": "headed",
@@ -15,20 +15,13 @@
     "thinking": "medium"
   },
   "outputs": {
-    "anthropic/claude-opus-5-5": {
-      "status": "ok",
-      "text": "# Narrated read and stage actions: step-4 redraw entry for acme/widgets#77\n\n1. **Step-4 entry check: skip the ticket-handling reference read.**\n   - Step 4 says to read `reference/ticket-acceptance.md` only when it is not already in context this session.\n   - This is a same-session redraw. The fixed observation says the step-3 read succeeded and its content is still in context.\n   - So no `read` of `reference/ticket-acceptance.md` happens here. I apply the in-context content and do not reconstruct it from memory.\n   - No blocking stop is needed, because the reference is in context rather than unreadable.\n\n2. **Read the draft, which on redraw is the approved spec.**\n   - Step 4 says to `read` the gathered draft unconditionally before question one.\n   - On a redraw, the draft is the approved spec file.\n   - Its `## Problem` `Framing:` line is context, not scout evidence. The framing count restarts: I run the framing evaluation once against this draft, and the outcome goes directly into `## Problem`.\n   - No design approval carries over. Both design rounds must be presented and approved again later.\n\n3. **Check the premise against primary code.**\n   - The ticket row is still verbatim: \"The export includes the owner column.\"\n   - Verified primary code shows the export table contract has only title and status columns.\n   - The current export therefore does not satisfy the row.\n   - The row text is never edited.\n   - The row's current disposition is not carried forward as a decision.\n   - No human has chosen a disposition, so none exists yet. I do not propose `deviates:` or `deferred:`.\n\n4. **Next ticket-handling action: ask the cut question.**\n   - Code shows the row conflicts with the existing table contract. Under the ticket-handling rules, that requires the ticket cut question, asked in the questionary format with one option per physical line. The options are:\n     - `A) in-scope`, with the reading \"add an owner column to the export contract\"\n     - `B) deviates:`\n     - `C) deferred:`\n     - `D) repair the ticket - /skill:shape-ticket acme/widgets#77 <row and evidence>`\n   - The recommendation must be A or D, with the reason the row ships in this gauntlet. B and C are never recommended.\n   - The premise note naming the contradiction and its source travels with or before this question. It is followed by the framing question or the holds-statement.\n   - Not rendered in full here, as the case requests.\n\n5. **After the answer.**\n   - I record the full question and the user's answer for the council `Human input` block.\n   - If the answer is D, I run `/skill:shape-ticket` in repair mode. Then I re-fetch the ticket, replace the `## Ticket acceptance criteria (verbatim)` block, and re-extract the rows.\n     - A cancel at that gate returns to the cut question with the row unchanged.\n   - Otherwise I record the chosen disposition and continue step 4, then step 5 (approaches).\n   - Any `deviates:` or `deferred:` result goes onto the gate's `Scope cuts:` line.\n",
-      "words": 451,
-      "wallMs": 15739,
-      "mechanical": {}
-    },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "1. **Step-4 reference decision:** Do not re-read `reference/ticket-acceptance.md`: its successful step-3 read remains in context during this same-session redraw. Apply its ticket-handling rules; no prior design approval survives.\n2. **Next ticket-handling action:** The verified title/status-only table contract contradicts acme/widgets#77’s unchanged row, “The export includes the owner column.” Present the required ticket cut question before proceeding, offering in-scope, deviation, tracked deferral, or ticket repair. Recommend keeping it in scope by adding the owner column. Preserve the row verbatim and do not assign a deviation or deferral without the user’s decision; pause for that answer.\n",
-      "words": 93,
-      "wallMs": 11245,
+      "text": "1. **Step-4 reference decision:** Skip re-reading `reference/ticket-acceptance.md`: its successful step-3 read remains in context during this same-session redraw. The approved spec is the redraw draft and must be read unconditionally; the supplied observations do not report that read’s outcome.\n\n2. **Next ticket-handling action:** The unchanged acme/widgets#77 row, “The export includes the owner column.”, conflicts with the verified title-and-status-only table contract. Present the required ticket cut question, retaining the row verbatim and offering in-scope, deviation, tracked deferral, or ticket repair. Recommend ticket repair to reconcile the contradiction rather than silently changing the contract or assigning a disposition.\n\n3. **Await the human’s decision:** No disposition has been authorized, and no design approval survives the redraw. Do not advance to approaches or spec writing.\n",
+      "words": 121,
+      "wallMs": 16050,
       "mechanical": {}
     }
   },
-  "repoSha": "1def5168f916248bad836129aa6e4502d421c2d3"
+  "repoSha": "2eb4429b4dd687432969f427f82d45d7840d7c63"
 }

@@ -1,0 +1,2 @@
+- first-line: mechanical: matches /^gauntlet: gate=check-delivery\/confirmation-gate\r?\n/
+- gate-first: judged: The first line is gauntlet: gate=check-delivery/confirmation-gate before evidence and the exact payload. It waits for approval and preserves Delivered: a123456 as the first tracker-comment payload line, without a gauntlet marker inside that payload.

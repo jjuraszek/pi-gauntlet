@@ -187,6 +187,8 @@ Before posting or committing any external payload - review bodies, replies, comm
 
 ### Teardown
 
+Start the terminal stop report with `gauntlet: done <ending>`: use `approved`, `merged` for own-merge, `closed-pr`, `final`, or `merge-queued` for the terminal template, before the checkout path and local branch. A report Verdict above a menu is not a terminal. On any hard assertion failure, including a delegated fix-wave restore/assert failure, start the terminal message with `gauntlet: stuck <error>` and end with the actual error; do not render a continuation menu.
+
 Delegate non-final stop (initial, assess terminal, obstacle, contract exception) to `cleanup.md` `## Non-final stop`. Keep terminal cleanup behind its own pick; terminal stop leaves the checkout as found and reports its path and local branch. Render cleanup only on terminal templates; never run cleanup steps 2-4 for a non-final stop.
 
 Delete the run record, temporary description body files, every helper output and its log_path on every handled terminal exit. Drop unapplied drafts. Never discover authority in a new session.

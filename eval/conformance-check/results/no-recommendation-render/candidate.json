@@ -1,98 +1,60 @@
 {
   "sample": "no-recommendation-render",
   "arm": "candidate",
-  "skillSha": "f5e58eb04c446b66d3a12b2a2ab5cd79bff20ccaaee1a1135d3071d09b8ea222",
+  "skillSha": "1b3c80ee2b0f9ba7f7fd76684cc40b04506c351cf74ff9b0aeb23b43d848d0bf",
   "inputSha": "bc48397a8fc84f0735fc8989a3991e2d971f248f96e205e650044878c332e144",
   "kind": "text",
   "assembly": "headed",
   "thinking": "medium",
   "models": {
     "replay": [
-      "anthropic/claude-opus-5-5",
       "github-copilot/gpt-6.1-sol"
     ],
-    "judge": "anthropic-fable/claude-fable-5-1",
+    "judge": "github-copilot/gpt-6.1-sol",
     "thinking": "medium"
   },
   "outputs": {
-    "anthropic/claude-opus-5-5": {
-      "status": "ok",
-      "text": "## Closure / conformance\n\n```text\nstatus: GAPS (1 open)\naudited-base: 4c1e8f0a9b2d7c6e5f4a3b2c1d0e9f8a7b6c5d4e\nhappy-path: not run - no row configured\n\nG1 - Integrity manifest is missing from the release notes\n  verdict: MISSING\n  origin: spec \"Acceptance criteria / AC1\" - \"Attach an integrity manifest (sha256 table) to the release notes.\"\n  evidence: absent\n  blocker: none\n  touched-files: unknown\n  touched-resources: none\n  round history: none (no fix round run)\n\n  G1/C1 - Integrity manifest is missing from the release notes\n    unresolved: The release notes were published without the sha256 table that the build log already contains.\n    impact: The release ships with no integrity manifest, so consumers cannot verify the published artifacts.\n    origin: spec \"Acceptance criteria / AC1\" - \"Attach an integrity manifest (sha256 table) to the release notes.\"\n    remediation: Append the sha256 table from the build log to the release notes.\n    evidence: absent (unmet delivery); the build log contains the sha256 table; no attachment was made\n    touched-files: unknown\n    touched-resources: none\n    available dispositions:\n      fix-now: Complete the missing manifest attachment. Unavailable: file ownership has not been established (touched-files: unknown).\n      accept-into-spec: Ratify publishing without the manifest as the written contract. Available: writable spec.\n      rescope-into-spec: Remove or defer the AC1 manifest requirement from this workflow. Available: writable spec, verdict is not UNAUTHORIZED.\n      follow-up: Transfer the manifest to separately owned work with a tracked ticket. Available: the concern stands alone and the issue-tracker convention is executable.\n      custom: Execute a user-defined disposition once its effect is clarified. Always visible.\n    recommended: none\n    rationale: No named choice is executable on current evidence. fix-now needs established file ownership. accept cannot ratify a manifest that does not exist. rescope drops a spec requirement, which is a human scope call. follow-up has no separate owner because this artifact belongs to this change. Concrete effect still required: custom(append the sha256 table from the build log to the release notes).\n\nauto-applied fix commits: none\nwhole-diff minors: none\n```\n\n---\n\n```text\n1. Integrity manifest - the release notes were published without the required sha256 table, so the release ships with no integrity manifest for consumers to verify against.\n   The spec requires this manifest but the implementation is missing, and fix-now cannot run because file ownership has not been established; decide how to resolve it.\n   A) accept - Ratify publishing the release notes without the manifest in the spec.\n   B) rescope - Remove or defer the manifest requirement from this workflow in the spec.\n   C) follow-up - Transfer the manifest to separately owned work with a tracked ticket.\n   Custom: <your own answer> - Execute your disposition after clarifying its effect.\n   No recommendation - pick one\n   Not available: fix-now - file ownership not established\n\nConformance: 1 decision needed before shipping.\nhappy-path: not run - no row configured\nwhole-diff minors: none\n\nReply: one line per item: 1. <letter or free text>; bare \"1\" takes every recommendation and re-asks items without one by number.\n```\n",
-      "words": 449,
-      "wallMs": 26263,
-      "mechanical": {}
-    },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "## Closure / conformance\nstatus: GAPS (1 open)\naudited-base: 4c1e8f0a9b2d7c6e5f4a3b2c1d0e9f8a7b6c5d4e\nhappy-path: not run - no row configured\n\nG1 - Release notes lack the required integrity manifest\n  verdict: MISSING\n  origin: spec \"Acceptance criteria / AC1\" - \"Attach an integrity manifest (sha256 table) to the release notes.\"\n  evidence: absent; published release notes contain no sha256 table; the build log contains the table.\n  blocker: File ownership has not been established, so the isolated fix loop cannot run.\n  touched-files: unknown\n  touched-resources: none\n  round history: R0 MISSING; carried OPEN because ownership is unknown; no fix round run.\n\n  G1/C1 - Attach the integrity manifest to the release notes\n    unresolved: The published release notes lack the required sha256 table.\n    impact: The release notes do not provide the required integrity manifest.\n    origin: spec \"Acceptance criteria / AC1\" - \"Attach an integrity manifest (sha256 table) to the release notes.\"\n    remediation: Append the sha256 table from the build log to the release notes.\n    evidence: absent; the build log contains the table, but no attachment was made; file ownership remains unknown.\n    touched-files: unknown\n    touched-resources: none\n    available dispositions:\n      fix-now: Append the required table; unavailable until file ownership is established.\n      accept-into-spec: Ratify the implemented publication behavior without a manifest in the writable spec; available, but cannot ratify a nonexistent manifest.\n      rescope-into-spec: Explicitly remove or defer the manifest requirement in the writable spec; available only as a human scope decision.\n      follow-up: Transfer the concern to separately owned work through the executable issue-tracker convention; table-available, but no separate owner exists.\n      custom: Execute a user-defined disposition after its concrete effect is clarified; always visible. Appending the sha256 table from the build log to the release notes is a concrete effect.\n    recommended: none\n    rationale: Unknown file ownership prevents fix-now. Accept cannot ratify a nonexistent manifest; removing or deferring the requirement needs a human scope decision; follow-up has no separate owner because this artifact belongs to this change. The concrete custom effect still required is custom(append the sha256 table from the build log to the release notes).\n\nauto-applied fix commits: none\n\nwhole-diff minors: none\n\n---\n\n1. Attach the integrity manifest to the release notes - the published notes lack the sha256 table, so they do not provide the required integrity manifest.\n   The spec requires the manifest, but the fix loop cannot run until file ownership is established; a disposition is required before shipping.\n   A) accept - Ratify publication without the manifest as the approved behavior in the spec.\n   B) rescope - Explicitly remove or defer the manifest requirement in the spec.\n   C) follow-up - Transfer the concern to separately owned work with a tracked ticket.\n   Custom: <your own answer> - Execute your disposition after clarifying its concrete effect.\n   No recommendation - pick one\n   Not available: fix-now - file ownership has not been established.\n\nConformance: 1 decision needed before shipping.\nhappy-path: not run - no row configured\nwhole-diff minors: none\n\nReply: one line per item: <n>. <letter or free text>; bare \"1\" takes every recommendation and re-asks items without one by number.\n",
-      "words": 475,
-      "wallMs": 17398,
+      "text": "## Closure / conformance\nstatus: GAPS (1 open)\naudited-base: 4c1e8f0a9b2d7c6e5f4a3b2c1d0e9f8a7b6c5d4e\n\nG1 - Release notes lack the integrity manifest\n  verdict: MISSING\n  origin: spec \"Acceptance criteria / AC1\" - \"Attach an integrity manifest (sha256 table) to the release notes.\"\n  evidence: absent; published release notes contain no sha256 table; the build log contains the table.\n  blocker: File ownership has not been established.\n  touched-files: unknown\n  touched-resources: none\n  round history: R0 MISSING; carried OPEN because ownership is unknown; no fix round ran.\n\n  G1/C1 - Attach the required integrity manifest\n    unresolved: The published release notes lack the required sha256 table.\n    impact: The release notes ship without the required integrity manifest.\n    origin: spec \"Acceptance criteria / AC1\" - \"Attach an integrity manifest (sha256 table) to the release notes.\"\n    remediation: Append the sha256 table from the build log to the release notes.\n    evidence: absent; the table exists in the build log but was not attached; file ownership remains unknown.\n    touched-files: unknown\n    touched-resources: none\n    available dispositions:\n      fix-now: Append the required table; unavailable until file ownership is established.\n      accept-into-spec: Ratify the existing publication behavior without a manifest in the writable spec; table-available, but no manifest exists to ratify as delivered.\n      rescope-into-spec: Explicitly remove or defer the manifest requirement in the writable spec; available, subject to a human scope decision.\n      follow-up: Transfer the concern to separately owned work through the executable issue-tracker convention; table-available, but no separate owner currently exists.\n      custom: Execute a user-defined disposition after clarifying its concrete effect; visible and executable only after that effect is supplied.\n    recommended: none\n    rationale: Unknown file ownership prevents fix-now. Accept cannot ratify a nonexistent manifest; removing the requirement requires a human scope decision; follow-up lacks a separate owner because this artifact belongs to this change. The concrete custom effect still required is custom(append the sha256 table from the build log to the release notes).\n\nauto-applied fix commits: none\nwhole-diff minors: none\n\n---\n\ngauntlet: gate=finishing-a-development-branch/carried-open\n1. Attach the required integrity manifest - the published release notes lack the sha256 table, so they ship without the required integrity manifest.\n   The spec requires the manifest, but implementation is incomplete; the fix loop cannot run until file ownership is established.\n   A) accept - Ratify publication without the manifest as intentional behavior in the spec.\n   B) rescope - Explicitly remove or defer the manifest requirement in the spec.\n   C) follow-up - Transfer the manifest work to separately owned work with a tracked ticket.\n   Custom: <your own answer> - Execute your disposition after clarifying its concrete effect.\n   No recommendation - pick one\n   Not available: fix-now - file ownership has not been established.\n\nConformance: 1 decision needed before shipping.\nwhole-diff minors: none\n\nReply: one line per item: <n>. <letter or free text>; bare \"1\" takes every recommendation and re-asks items without one by number.\n",
+      "words": 438,
+      "wallMs": 19067,
       "mechanical": {}
     }
   },
   "judge": {
-    "anthropic/claude-opus-5-5": {
-      "factsSha": "7760ae8a6351503ff10c0596d817334b4b016142c3f7f20a949620d8cdb85f97",
-      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "68fdb5434a67270e3e3a98d76e69521337d5547b430839ca82b1daf357fd84cc",
-      "baselineOutputSha": "2df00163e978c1a5bc6d114ef63f591ddf873510a9dd82e50ae0a838d49b22c7",
-      "candidateOutputSha": "1d6e95b9bd06d6e2be06d7a0acd96d1b8269cb67547a951e28caf1e177d343e9",
-      "facts": {
-        "f1": {
-          "before": "fails",
-          "after": "holds",
-          "label": "intended change"
-        },
-        "f2": {
-          "before": "fails",
-          "after": "holds",
-          "label": "intended change"
-        },
-        "f3": {
-          "before": "fails",
-          "after": "holds",
-          "label": "intended change"
-        },
-        "f4": {
-          "before": "fails",
-          "after": "holds",
-          "label": "intended change"
-        }
-      },
-      "feedback": "After moves all four facts to holds, matching the intended Change: the menu now opens with item 1 stating the plain-words problem (release notes published without the sha256 table) rather than Before's 'Conformance: 1 decision needed' count header; accept/rescope/follow-up are lettered A/B/C with one-line consequences while fix-now sits unlettered under 'Not available: ... file ownership not established'; the literal 'No recommendation - pick one' line is present; and the bare-token 'Other options per item: fix-now / accept / ...' line and the 'manifest=custom(...)' handle-assignment prompt are gone, replaced by 'Reply: one line per item: 1. <letter or free text>' with the bare-1 re-ask clause. One small oddity worth tidying: After places the numbered item above the 'Conformance: 1 decision needed before shipping.' summary line, so the summary now trails the menu; moving the summary/happy-path/minors block before the numbered items (or clearly after the Reply line as a footer) would read more naturally without disturbing f1, since the item sentence would still be the menu's first sentence. Keep the Custom line numberless and the verbatim-consequence wording as is.",
-      "verdict": "improved"
-    },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "7760ae8a6351503ff10c0596d817334b4b016142c3f7f20a949620d8cdb85f97",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "68fdb5434a67270e3e3a98d76e69521337d5547b430839ca82b1daf357fd84cc",
-      "baselineOutputSha": "fbeb303f1d762489a1e1e64503dee966e481d542be919678b32a64b7f5fc8baf",
-      "candidateOutputSha": "e6748c07749c3f1e3141d9049aecd7e4830a298c139d79ad5892157a4bb1e8be",
+      "intentSha": "10eaf05990888a2633579df36d771f7512fb5d149f5a1a5397ae9228b7b7b4eb",
+      "baselineOutputSha": "e5c5ce3a56d1a88797eace4b3f96e3160c5b36bb9eb5bd4f7d6d9e3ba55e8371",
+      "candidateOutputSha": "d47dd9239cb0ca2bd0d2ea3d0f7aa6caaef7cbd650f1c115ce4bd817edab66d7",
       "facts": {
         "f1": {
-          "before": "fails",
+          "before": "holds",
           "after": "holds",
-          "label": "intended change"
+          "label": "intended but unchanged"
         },
         "f2": {
-          "before": "fails",
+          "before": "holds",
           "after": "holds",
-          "label": "intended change"
+          "label": "intended but unchanged"
         },
         "f3": {
-          "before": "fails",
+          "before": "holds",
           "after": "holds",
-          "label": "intended change"
+          "label": "intended but unchanged"
         },
         "f4": {
-          "before": "fails",
+          "before": "holds",
           "after": "holds",
-          "label": "intended change"
+          "label": "intended but unchanged"
         }
       },
-      "feedback": "After moves every fact from fails to holds. Before opened its menu with the count line (\"Conformance: 1 decisions needed before shipping\") and a bullet whose first words were the handle and title, offered options as a bare-token line (\"accept / rescope / follow-up / custom\"), named the recommendation only as \"Recommended: none\", and closed with the `2: manifest=custom(...)` handle=choice prompt. After instead opens item 1 with the unresolved problem in plain words (the published notes lack the sha256 table), letters A) accept, B) rescope, C) follow-up each with a one-line consequence, keeps Custom numberless, prints \"No recommendation - pick one\", lists fix-now unlettered under \"Not available\" with the ownership reason, moves the pluralized count header below the item, and ends with the numbered-reply instruction including the bare-1 re-ask clause - no bare-token line and no handle assignment anywhere in the prompt. Nothing regressed; to keep this stable, continue placing the count header after the items rather than before them, keep the \"Not available: fix-now - <reason>\" line as the only mention of fix-now in the menu, and keep the custom effect expressed only in the durable block's rationale (as custom(...)) rather than echoing it into the reply instruction.",
-      "verdict": "improved"
+      "feedback": "No listed fact changed: both outputs state the missing-manifest problem in the menu's first sentence, provide lettered named options with consequences, show fix-now as unavailable because ownership is unknown, explicitly state the absence of a recommendation, and use numbered replies rather than token menus or handle assignments. After adds the carried-open gate marker before item 1 while preserving these properties. Keep that structure; opening item 1 with “Missing integrity manifest — the published release notes lack the required sha256 table” would make the unresolved-problem framing more direct without losing any fact.",
+      "wallMs": 6930,
+      "verdict": "unchanged"
     }
   },
-  "repoSha": "f6b27b68f40de3df9350a4f224f973b553a0f0cd"
+  "repoSha": "2eb4429b4dd687432969f427f82d45d7840d7c63"
 }

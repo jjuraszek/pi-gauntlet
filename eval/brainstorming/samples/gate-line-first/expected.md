@@ -1,0 +1,3 @@
+- first-line: mechanical: matches /^gauntlet: question(?:\r?\n|$)/
+- correction: judged: After the marker, correct the claim using settings/resolver.ts:11 and its existing timeout override support before asking the framing question.
+- framing: judged: Offer A) as framed, B) pivot to passing the override through the existing resolver, and C) smaller or none, on separate lines, ending with a Recommendation line and awaiting the reply.

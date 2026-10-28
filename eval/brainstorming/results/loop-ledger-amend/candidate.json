@@ -1,74 +1,34 @@
 {
   "sample": "loop-ledger-amend",
   "arm": "candidate",
-  "skillSha": "aa76b141b41e27c400d0df1118acb6c777b309cd2bff19f4658b108ffd4a54f2",
+  "skillSha": "3be4aa45d6999809ed9118834ca11a838c23fec46ecbf8636e18e1e010a22572",
   "inputSha": "2305cc333ec270ffd6c9d4812053f4b15e4f3d5d63daebf11bd00f8cc7f114c9",
   "kind": "text",
   "assembly": "headed",
   "thinking": "medium",
   "models": {
     "replay": [
-      "anthropic/claude-opus-5-5",
       "github-copilot/gpt-6.1-sol"
     ],
-    "judge": "anthropic-fable/claude-fable-5-1",
+    "judge": "github-copilot/gpt-6.1-sol",
     "thinking": "medium"
   },
   "outputs": {
-    "anthropic/claude-opus-5-5": {
-      "status": "ok",
-      "text": "# Narrated read and stage actions\n\nNo tools are available. Each step below is an intended operation, not a live call. Each read's outcome is limited to the case's fixed observations, or it is stated as a branch. The bundled reference text is not treated as session context, so each needed reference is shown as a `read`.\n\n**Fixed observations** (shared by all traces):\n- The phase is `implement`.\n- `doc/plans/report-ledger.md` line 1 is `# Ledger - loop engine`.\n- The ledger shows `iterations 9`.\n- Row 1 is `done`, attempts 2.\n- Row 2 is `failed`, attempts 3.\n- Row 3 is `done`, attempts 1.\n- Ticket AC row texts are immutable.\n\n---\n\n## Trace A - engine (option 4), `**Amend-grant:** none`, human has approved the batch\n\n1. **Read `skills/brainstorming/SKILL.md` § Amending an approved spec**, using `read` at its absolute path.\n   - Outcome is not observed. If unreadable, stop with a blocking error.\n   - If readable, run in place from `implement`. Do not invoke `/skill:brainstorming`, because its entry resets both trackers.\n2. **Classify each item before any grant check.** None changes an approved AC row's text, adds a row, or removes a row.\n   - Row 2 `deferred: #90` is a disposition-only change. It stays in the amendment grammar and keeps its cut question.\n   - The path correction is factual and stays inside one component.\n   - The row 3 re-bounding changes scope through design or disposition, not the immutable row text. It stays inside one component, so it is an amend.\n   - Call: **amend**, with the user able to override.\n3. **Read `skills/brainstorming/reference/amendment-surface.md`** at its absolute path.\n   - Outcome is not observed. If unreadable, stop with a blocking error and do not improvise the grammar.\n4. **Read the spec header block** and apply the predicate.\n   - Observed: exactly one `**Amend-grant:** none` line, so there is no grant.\n   - Ordinary steps 2-4 applied, and that is why review came before approval.\n5. **Review before approval** (already completed; this is how the batch reached the human):\n   - **Row 2 deferral** was prefiltered to the human because it narrows approved scope. Its `Reviewer:` line read `not reviewed - removes approved scope`.\n   - **Row 3 re-bounding** was prefiltered to the human. Without a standing amend grant, a re-bounded row goes to human review before it is applied.\n   - **Path correction** went through one fresh `spec-council-member` `Mode: amendment-review` dispatch, using the resolved `documentation-impact.md` path.\n     - If the evidence was cited and the rubric (a)-(c) held, it was `auto-apply`.\n     - Otherwise it was escalated, and the human answered it in the menu.\n6. **Human reply landed** with row 2, the path correction, and row 3 approved. No action was taken before this reply.\n7. **Re-read amendment-surface.md § 5** before the aftermath, because it must not run from memory.\n   - If unreadable, stop with a blocking error.\n8. **Apply the accepted items.** Print one `amended the spec: <title> - <what>` line for each of the three.\n   - Then print `Recorded: <handle>=<choice>, ...` for the human-decided items. Example: `defer=accept, rebound=accept`, plus `path=accept` if it was escalated.\n9. **Ledger aftermath** (the ledger exists, as observed on line 1).\n   - Skip `plan-writer`, `plan_check`, and `plan_tracker`.\n   - Make no `phase_tracker` call; the phase stays `implement`.\n   - Reconcile dispositions only:\n     - **Row 2:** `failed` becomes `cut`, evidence `deferred: #90`, attempts stay 3.\n     - **Row 1:** preserved as `done`, attempts 2. The path correction is factual.\n     - **Row 3:** re-bounded `done` becomes `open`, evidence `reopened by amendment`, attempts stay 1.\n     - **Iterations** stay 9.\n   - Ticket and drafted AC row texts are not edited.\n10. **Commit the spec and ledger together.** The batch mixes one cut with other items, so the subject is `loop: amend`, not `loop: cut row 2`.\n    - The audit body has one line per item: `<handle> | <title> | <what> | accepted (or auto-apply for a reviewer-cleared path) | <reviewer line or prefilter reason> | <evidence>`.\n    - There is no grant sentence.\n\n## Trace B - engine (option 5), full option-2 grant persisted; same three items pending\n\n1. **Read `SKILL.md` § Amending** and **`amendment-surface.md`**, the same as A1 and A3, with the same blocking stop if either is unreadable.\n2. **Classify before any grant check.** All three items are amend-class, as in A2. The grant is never consulted for this decision.\n3. **Batch-boundary read of the spec header block** through the predicate and Value decoding.\n   - Expected: exactly one non-`none` single-line value. It is the gate menu's option-2 grant description, written there instead of the digit.\n   - Decoding finds no `fund N fix rounds` token, so the value carries amend permission only.\n   - If the header is malformed, stop and quote the offending line or lines.\n4. **Approval semantics.** The grant covers every later amend-class change, including scope changes such as the row 2 deferral and the row 3 re-bounding.\n   - Skip steps 2-4: no prefilter, no reviewer dispatch, and no human menu.\n   - Apply each item's `recommended` choice (`accept` or its named `alt-n`, never `accept` by default).\n   - The grant does not stand in for any spec approval.\n5. **Re-read § 5** before the aftermath. Then print three `amended the spec: <title> - <what>` lines and record each item as `granted`.\n6. **Ledger aftermath**, identical to A9:\n   - Row 2 becomes `cut` with evidence `deferred: #90` and attempts 3.\n   - Row 1 is preserved.\n   - Row 3 becomes `open` with evidence `reopened by amendment` and attempts 1.\n   - Iterations stay 9, and AC texts are untouched.\n   - Skip the plan-writer, `plan_check`, `plan_tracker`, and `phase_tracker`.\n7. **Commit `loop: amend`.**\n   - Each audit line carries the `granted` record.\n   - The body quotes the grant sentence as one physical line.\n   - `finishing-a-development-branch` Step 4's digest reads these `granted` records.\n\n## Trace C - same active grant; user proposes adding a component\n\n1. **Classify.** Adding a component is a **redraw**. The grant never covers a redraw, so this stops for the user, who can override the call.\n   - The redraw item stops alone first.\n   - Any amend items pending in the same batch are held unapplied and re-batched after the redraw resolves.\n2. **Redraw resets** (narrated, not executed):\n   - Keep the worktree and the approved spec file.\n   - `plan_tracker({ action: \"clear\" })`\n   - `phase_tracker({ action: \"reset\" })`\n   - `phase_tracker({ action: \"start\", phase: \"brainstorm\" })`\n3. **Deletions.**\n   - Delete the plan file, if one exists.\n   - Delete the loop ledger `doc/plans/report-ledger.md`, identified by its line 1 `# Ledger - loop engine`.\n   - Its rows and attempts are discarded: done/2, failed/3, done/1, and iterations 9.\n4. **Resume at checklist step 4**, skipping steps 2-3, with the approved spec as the draft.\n   - First-use check: `ticket-acceptance.md` is not in this session's context, so **read `skills/brainstorming/reference/ticket-acceptance.md`**. If unreadable, stop with a blocking error and do not reconstruct it.\n   - Run the framing evaluation once against the new draft. Its count restarts.\n   - The old `Framing:` line is context only. The new outcome is recorded directly in `## Problem`.\n5. **Steps 5-11** follow:\n   - Approaches.\n   - Two design rounds. Round 2 **reads `reference/documentation-impact.md`**, with a blocking stop if unreadable.\n   - Spec-writing overwrites the approved spec.\n   - Self-review, auto-dispatched council, placeholder re-scan, and summary.\n6. **New full gate (step 12).**\n   - The prior grant does not satisfy it.\n   - Spec-finalization owns the `**Amend-grant:**` value written at this gate.\n   - After approval, options 1 and 2 route to `/skill:writing-plans`; options 4 and 5 route to `/skill:loop-implementation`, which builds a fresh ledger.\n",
-      "words": 1136,
-      "wallMs": 55949,
-      "mechanical": {}
-    },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "## A — Option 4; `Amend-grant: none`; amendments already approved\n\n1. **Narrate the batch-boundary read.** Read the spec header and apply the standing-grant predicate and value decoding. The fixed observation is `none`: there is no standing amendment permission. Selecting engine option 4 did not grant it.\n\n2. **Explain the review required before approval.** With no grant:\n   - Deferring row 2 narrows approved scope, so it goes directly to the human.\n   - Re-bounding row 3 likewise requires the human’s decision.\n   - A scope-neutral factual path correction outside human-owned sections goes to a fresh amendment reviewer. The reviewer needs cited evidence; calling it “factual” alone does not establish that evidence.\n   \n   The case records human approval of all three amendments. Apply those recorded decisions without asking again or inventing a prior reviewer verdict. Do not edit the ticket AC row texts.\n\n3. **Narrate the required procedure read before applying the aftermath.** Read the absolute installed path to `skills/brainstorming/reference/amendment-surface.md`, specifically section 5. This is a required read, not a claim that the bundled reference was already session context. If that read is unreadable, stop before the aftermath.\n\n4. **Apply the approved amendments and reconcile the ledger.** The observed artifact starts with `# Ledger - loop engine`, so use the ledger branch:\n   - Row 1 remains **done**, attempts **2**.\n   - Row 2 changes from **failed** to **cut**, attempts **3**; evidence is the approved disposition, `deferred: #90`.\n   - Row 3 changes from **done** to **open**, attempts **1**; evidence is `reopened by amendment`.\n   - The factual path correction does not independently change row statuses.\n   - Preserve **iterations 9**. This amendment aftermath neither retries work nor increments attempt counts.\n\n5. **Record and commit.** Print the required per-item amendment confirmations and the batch’s recorded decisions. Commit the amended spec and `doc/plans/report-ledger.md` together with subject **`loop: amend`**, not `loop: cut row 2`, because this is a mixed batch. Include each item’s amendment audit record, its actual evidence, and its human-approved choice. Do not fabricate the unspecified old/new path.\n\n6. **Bypass task-plan machinery and continue.** Do not dispatch `plan-writer`, run `plan_check`, or update `plan_tracker`. Do not reset or transition phases: the run remains in **implement**, with row 3 reopened for subsequent work.\n\n## B — Option 5; persisted full option-2 grant; amendments pending\n\n1. **Narrate the consent read.** Read the current spec header through the structural predicate and value decoding. The fixed observation is a valid, persisted full option-2 grant with amendment permission. Use that persisted sentence—not the selection digit or transcript—as the consent source.\n\n2. **Apply the approval semantics.** These three changes are amend-class changes, including the disposition-only change to immutable AC text and the within-component re-bounding described in the case. The active grant allows their prepared **recommended choices** to apply without another reviewer dispatch or human amendment menu. It does not mean “accept” regardless of the prepared recommendation, and it does not authorize rewriting AC row texts.\n\n3. **Narrate the required section-5 read.** Before the aftermath, read section 5 of the installed amendment-surface reference. An unreadable required reference blocks application; do not reconstruct it from the bundle.\n\n4. **Apply and reconcile.** Apply the approved-by-grant recommendations and print one amendment confirmation per item. The resulting ledger is the same as A: row 1 **done / 2**, row 2 **cut / 3** with evidence `deferred: #90`, row 3 **open / 1** with evidence `reopened by amendment`; **iterations remain 9**.\n\n5. **Commit with the grant audit.** Commit spec and ledger together as **`loop: amend`**. Record the applied recommendations as **`granted`** and quote the persisted granting sentence verbatim in the audit body. Bypass `plan-writer`, `plan_check`, and `plan_tracker`; remain in **implement**.\n\n## C — Active grant; proposed additional component\n\n1. **Classify before applying.** Adding a component is a **redraw**, not an amendment. State that classification; the user may override it. The standing grant cannot authorize the redraw or stand in for the new spec approval.\n\n2. **Take the in-place redraw route.** Keep the worktree, existing spec file, and prior commits. Do not invoke fresh `/skill:brainstorming` entry. Narrate these required tracker operations in order:\n   1. Clear the plan tracker.\n   2. Reset the phase tracker.\n   3. Start the `brainstorm` phase.\n\n3. **Delete the redraw artifacts.** Delete the plan file, if present, and the identified loop ledger, `doc/plans/report-ledger.md`, from the resolved plan directory. This redraw intentionally removes the old execution ledger; it is not the amendment reconciliation that preserves its counts.\n\n4. **Resume at checklist step 4.** Skip worktree setup and gathering. Because the ticket-acceptance reference is not established as session context, first read its absolute installed path. Read the retained approved spec as the draft before question one. If either required resource is unreadable, narrate a blocking stop there—do not substitute the bundled reference or invent its contents.\n\n5. **Re-establish framing and obtain new approval.** Verify the new framing against primary sources, record the redraw’s framing outcome in `## Problem`, then proceed through approaches, both design approvals, spec writing, self-review, the critique pass, the repeated placeholder scan, and the full user review gate. The existing grant does **not** approve the replacement spec. Only after that gate’s approval may the selected route transition to planning or loop implementation.\n",
-      "words": 831,
-      "wallMs": 42838,
+      "text": "1. **Trace A — option 4, no standing grant; amendments already approved**\n   1. Narrate a required `read` of the approved spec and its header. The fixed observation is `Amend-grant: none`, so no standing permission replaces review or human approval. Ticket acceptance-criterion texts remain unchanged; `deferred: #90` is a disposition change only.\n   2. Narrate the required `read` of the absolute-path `skills/brainstorming/reference/amendment-surface.md`. Before approval, the deferred disposition and narrowing or re-bounding of approved scope belong in the human batch. An evidence-backed, scope-neutral factual path correction outside human-owned sections can go to the fresh amendment reviewer; missing evidence or an unavailable reviewer requires escalation. The supplied state establishes human approval of all three items, not a particular reviewer verdict.\n   3. Treat row 3’s re-bounding as an **amendment within the existing component** for this trace. If it instead moves a component boundary, it is a redraw and follows trace C.\n   4. Immediately before applying, narrate the required re-`read` of amendment-surface section 5. Narrate reading `doc/plans/report-ledger.md`; its observed first line, `# Ledger - loop engine`, selects ledger aftermath rather than task-plan aftermath.\n   5. Narrate applying the approved spec amendments and reconciling the ledger:\n      - Row 1 stays `done`, attempts **2**.\n      - Row 2 changes from `failed` to `cut`, attempts **3**; its evidence becomes `deferred: #90`.\n      - Row 3 changes from `done` to `open`, attempts **1**; its evidence becomes `reopened by amendment`.\n      - The factual path correction preserves row statuses unless covered by the explicit disposition or re-bounding above.\n      - Iterations remain **9**. Amendment bookkeeping consumes no implementation attempt or iteration.\n   6. Narrate one spec-and-ledger commit with subject **`loop: amend`**, because this is a mixed batch. Its audit body records each item, its approved choice, reason or actual reviewer line, and available evidence. Do not invent a reviewer clearance or factual-path measurement. After application, emit the required per-item amendment acknowledgments and the batch’s `Recorded:` confirmation.\n   7. **Bypass:** no `plan-writer`, `plan_check`, or `plan_tracker` aftermath, and no phase transition. The run remains in **implement**. No acceptance-criterion text is rewritten.\n\n2. **Trace B — option 5, persisted standing grant; amendments still pending**\n   1. Narrate a fresh required `read` of the spec header at this batch boundary. Apply the structural grant predicate and value decoding to the persisted full option-2 grant. The fixed observation establishes active amendment permission; do not infer a fix-round budget from the engine choice.\n   2. Narrate the required `read` of amendment-surface. These amend-class changes can use the standing grant: skip the fresh amendment reviewer and human batch, and apply each prepared item’s **recommended choice**, not an unconditional default of `accept`.\n   3. The grant permits the disposition change, factual correction, and within-component re-bounding without another approval. It does **not** permit rewriting immutable ticket AC texts, substitute for spec approval, or authorize a component-boundary redraw.\n   4. Narrate the mandatory re-`read` of section 5 and the ledger read. After applying the recommended amendments, reconcile exactly as in A: row 1 `done`/2; row 2 `cut`/3 with `deferred: #90`; row 3 `open`/1 with `reopened by amendment`; iterations **9**.\n   5. Narrate one **`loop: amend`** commit containing spec and ledger. Record the grant-applied items as `granted` and quote the persisted granting sentence verbatim in the audit body. Emit the amendment acknowledgments and confirmation using the selected recommendations.\n   6. **Bypass:** reviewer dispatch, human amendment menu, `plan-writer`, `plan_check`, and `plan_tracker` aftermath. Remain in **implement**.\n\n3. **Trace C — active grant, proposed new component**\n   1. Classify adding a component as a **redraw**, not an amendment. State that classification; the user may override it. The standing grant cannot auto-approve this change.\n   2. Narrate the redraw reset in order: clear the task tracker, reset the phase tracker, then start **brainstorm**. Preserve the worktree and approved spec file.\n   3. Narrate deleting the resolved plan file and the identified loop ledger, `doc/plans/report-ledger.md`. Do not guess an unstated plan filename. The prior ledger’s iteration and attempt counts are not carried forward as a live implementation ledger.\n   4. Resume brainstorming at **checklist step 4**, skipping worktree setup and gathering. Because bundled reference text is not established session context, narrate the required absolute-path `read` of `skills/brainstorming/reference/ticket-acceptance.md`, followed by the unconditional read of the approved spec as the draft. Re-evaluate framing against primary evidence rather than treating the old spec’s framing statement as verification.\n   5. Continue through clarification, approaches, both design approvals, spec replacement, lint, the mandatory critique pass, placeholder rescan, and summary to a **new full user review gate**. The replacement brainstorm writes `Amend-grant: none`; the prior grant does not approve the new spec.\n   6. Only a new gate approval authorizes transition: choices **1/2** route to writing-plans; **4/5** route to loop-implementation.\n   7. **Required-read stop rule for every trace:** no supplied observation says a required reference is unreadable, so no actual unreadability is asserted here. If a required reference read is unreadable, narrate a blocking stop at that point—do not reconstruct its contents or continue past it.\n",
+      "words": 793,
+      "wallMs": 31196,
       "mechanical": {}
     }
   },
   "judge": {
-    "anthropic/claude-opus-5-5": {
-      "factsSha": "2351583720a7d4a8a7c59133fd91ec051c7139a59bc46bfb00552b47f533509b",
-      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "3fab9022e6546ee557e596de8ba99bbd8a8d5e75db7e126af9d0739b215affa8",
-      "baselineOutputSha": "c0f834b3e689b780299f2edf35551eeca271bac5049906a35fe6418651cc15d2",
-      "candidateOutputSha": "2669181dc4f0aab833b769b331fe03c613f289fb4fbb73a928c4392794625501",
-      "facts": {
-        "review": {
-          "before": "holds",
-          "after": "holds",
-          "label": "intended but unchanged"
-        },
-        "reconcile": {
-          "before": "holds",
-          "after": "holds",
-          "label": "intended but unchanged"
-        },
-        "bypass": {
-          "before": "holds",
-          "after": "holds",
-          "label": "intended but unchanged"
-        },
-        "redraw": {
-          "before": "holds",
-          "after": "holds",
-          "label": "intended but unchanged"
-        }
-      },
-      "feedback": "Nothing moved on this case: both outputs satisfy all four facts. Before and After each route the row-2 deferral and row-3 re-bound to the human under option 4's `none` grant and send only the evidence-backed path correction to a fresh `spec-council-member` amendment-review dispatch; both have option 5 skip prefilter/reviewer/menu and apply each item's `recommended` choice while stating the grant never covers a redraw. Both reconcile row 2 to `cut` with `deferred: #90`, row 3 to `open` with `reopened by amendment`, keep row 1 preserved, attempts 2/3/1, iterations 9, and leave AC texts untouched; both skip plan-writer/plan_check/plan_tracker, commit spec and ledger together as `loop: amend` with a per-item audit and `granted` records plus the quoted grant sentence for B; both have C stop despite the grant, clear/reset trackers, delete plan and ledger, resume at step 4, and demand a fresh gate the old grant cannot satisfy. After is actually slightly tighter (it explicitly says the grant is never consulted for classification and names the step-4 digest reading `granted` records), so the Change's section-5 insertion did not disturb this sample; the only thing worth keeping an eye on is After's B3 statement that decoding finds no funding token — it is correct for a bare option-2 description, but if a future fixture persists a funded value the wording should branch on the token rather than assert its absence.",
-      "wallMs": 20847,
-      "verdict": "unchanged"
-    },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "2351583720a7d4a8a7c59133fd91ec051c7139a59bc46bfb00552b47f533509b",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "3fab9022e6546ee557e596de8ba99bbd8a8d5e75db7e126af9d0739b215affa8",
-      "baselineOutputSha": "504b4504c4197acc56b481f6c05d9fb0996db1f90dc6c375809b32951f6c10ff",
-      "candidateOutputSha": "7c9fcc02a57dc6f9d636c42eb457a851e1bb2e5cb18f77dd1192a395d2b32824",
+      "intentSha": "5b9f462cd6caec9a4a8e3a28a3c0ba61583e1b400c8edb5164d32bba075fea39",
+      "baselineOutputSha": "e5af71a399bc096dba6ce7189d2b1276bc31f58272ef0552e12855ecf999b24b",
+      "candidateOutputSha": "442dc82c44670d33e6a1e2a4edae42a9ff949fa37b00cd79cfdf55db40b92a65",
       "facts": {
         "review": {
           "before": "holds",
@@ -91,10 +51,117 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "After keeps all four facts: A still routes the deferral and re-bound to the human and the factual correction to an evidence-requiring fresh reviewer, B applies recommended choices under the persisted grant without reviewer or menu and records them as `granted` with the quoted grant sentence, both reconcile the ledger to done/2, cut/3 `deferred: #90`, open/1 `reopened by amendment` with iterations 9 and no AC text edits, and C classifies the addition as a redraw, resets trackers, deletes plan and ledger, resumes step 4 and refuses to let the grant approve the replacement spec. Two wording risks to tighten: B step 2 in After says the batch includes 'the disposition-only change to immutable AC text', which a reader could misread as an AC-text edit even though the same sentence then forbids rewriting rows — phrase it as 'the disposition-only change to row 2 (its AC text stays immutable)' as Before did; and After C drops Before's explicit sentence that the new brainstorm writes `Amend-grant: none`, which is the clearest statement that the grant is not carried — restore that line alongside the new ordered tracker/delete narration and the added section-5 required-read, which otherwise deliver the Change cleanly.",
-      "wallMs": 19782,
+      "feedback": "No fact changed truth value. After preserves the approval distinction between options 4 and 5, exact ledger reconciliation and counters, ledger-first aftermath with the mixed-batch commit and grant audit, and the redraw reset followed by fresh human approval. Its explicit replacement-header value `Amend-grant: none` makes the non-carryover requirement clearer. Retain these concrete statements, especially human approval for ungranted re-bounding, the unchanged ticket AC text, and the spec-and-ledger `loop: amend` commit; no corrective wording is needed for these facts.",
+      "wallMs": 9472,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "488adb5f77d82365012e1a6030f3b11a1e35f420"
+  "refresh": {
+    "status": "complete",
+    "identity": {
+      "sample": "loop-ledger-amend",
+      "kind": "text",
+      "assembly": "headed",
+      "baselineSkillSha": "9bfb756a99423412fdf27f4a16e9dba33cdd67b3500c594ac2c8539ccea957ee",
+      "candidateSkillSha": "c9050f8cb0b50eedcc78f94b33f2a816860edcb1cd24848882ddc3ae91ac34eb",
+      "inputSha": "2305cc333ec270ffd6c9d4812053f4b15e4f3d5d63daebf11bd00f8cc7f114c9",
+      "factsSha": "2351583720a7d4a8a7c59133fd91ec051c7139a59bc46bfb00552b47f533509b",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "5b9f462cd6caec9a4a8e3a28a3c0ba61583e1b400c8edb5164d32bba075fea39",
+      "models": {
+        "replay": [
+          "github-copilot/gpt-6.1-sol"
+        ],
+        "judge": "github-copilot/gpt-6.1-sol"
+      },
+      "thinking": "medium",
+      "outputs": {
+        "baseline": {
+          "github-copilot/gpt-6.1-sol": {
+            "baselineOutputSha": "e5af71a399bc096dba6ce7189d2b1276bc31f58272ef0552e12855ecf999b24b",
+            "payloadSha": "c4ca36ae3f3e317e8c517a43bd47e8faafa7f3deb2a913aa5927d79bcbd5bae5"
+          }
+        },
+        "candidate": {
+          "github-copilot/gpt-6.1-sol": {
+            "candidateOutputSha": "1b06579c62cb440e9222bb3dcb2a6a2f67d4e6ac5a776e11957619e1a4382258",
+            "payloadSha": "1667cdf4a8f853ad5d5d2bd61193d15bdf48be25e7785759b905070fa3a1b01e"
+          }
+        }
+      }
+    },
+    "previous": {
+      "github-copilot/gpt-6.1-sol": {
+        "factsSha": "2351583720a7d4a8a7c59133fd91ec051c7139a59bc46bfb00552b47f533509b",
+        "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+        "intentSha": "5b9f462cd6caec9a4a8e3a28a3c0ba61583e1b400c8edb5164d32bba075fea39",
+        "baselineOutputSha": "e5af71a399bc096dba6ce7189d2b1276bc31f58272ef0552e12855ecf999b24b",
+        "candidateOutputSha": "1b06579c62cb440e9222bb3dcb2a6a2f67d4e6ac5a776e11957619e1a4382258",
+        "facts": {
+          "review": {
+            "before": "holds",
+            "after": "holds",
+            "label": "intended but unchanged"
+          },
+          "reconcile": {
+            "before": "holds",
+            "after": "holds",
+            "label": "intended but unchanged"
+          },
+          "bypass": {
+            "before": "holds",
+            "after": "holds",
+            "label": "intended but unchanged"
+          },
+          "redraw": {
+            "before": "holds",
+            "after": "holds",
+            "label": "intended but unchanged"
+          }
+        },
+        "feedback": "Nothing moved: both outputs satisfy all four facts on their own text. Before already routes the deferred cut and row-3 re-bound to the human, limits the fresh reviewer to evidence-backed scope-neutral factual corrections, has option 5 skip reviewer/human batch while applying recommended choices and (in C) denying redraw approval; it reconciles rows 1/2/3 as done/cut/open with `deferred: #90` and `reopened by amendment`, keeps attempts 2/3/1 and iterations 9, never edits AC text; it commits spec+ledger as `loop: amend` with granted records and the quoted grant sentence while bypassing plan-writer/plan_check/plan_tracker; and C clears/resets trackers, deletes plan and ledger, resumes step 4, and requires a fresh full gate without the grant. After preserves every one of these and adds useful precision (explicit 'scope-neutral' wording for the reviewer path, 'The factual correction preserves row status', the ordered tracker/ledger reset, the `Recorded:` confirmation, and 'do not silently carry the old ledger's counters'). If the goal is to make these facts robustly visible rather than inferable, the After wording is the right direction; one small tightening would be to state in B itself—not only in C—that the grant 'does not approve a redraw' (After does this; Before relied on C), and to keep A's explicit 'outside human-owned sections' clause from Before alongside After's 'scope-neutral' phrasing so the reviewer boundary is fully enumerated in one place.",
+        "wallMs": 22210,
+        "verdict": "unchanged",
+        "judgeModel": null,
+        "thinking": null
+      }
+    },
+    "refreshed": {
+      "github-copilot/gpt-6.1-sol": {
+        "factsSha": "2351583720a7d4a8a7c59133fd91ec051c7139a59bc46bfb00552b47f533509b",
+        "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+        "intentSha": "5b9f462cd6caec9a4a8e3a28a3c0ba61583e1b400c8edb5164d32bba075fea39",
+        "baselineOutputSha": "e5af71a399bc096dba6ce7189d2b1276bc31f58272ef0552e12855ecf999b24b",
+        "candidateOutputSha": "1b06579c62cb440e9222bb3dcb2a6a2f67d4e6ac5a776e11957619e1a4382258",
+        "facts": {
+          "review": {
+            "before": "holds",
+            "after": "holds",
+            "label": "intended but unchanged"
+          },
+          "reconcile": {
+            "before": "holds",
+            "after": "holds",
+            "label": "intended but unchanged"
+          },
+          "bypass": {
+            "before": "holds",
+            "after": "holds",
+            "label": "intended but unchanged"
+          },
+          "redraw": {
+            "before": "holds",
+            "after": "holds",
+            "label": "intended but unchanged"
+          }
+        },
+        "feedback": "After preserves all four facts; none changes truth value. Its explicit human review for row 3, identical ledger reconciliation, mixed-batch `loop: amend` audit, and redraw reset retain Before’s behavior. To make preservation unambiguous, retain Before’s restriction that automatically cleared factual corrections must also be outside human-owned sections, and explicitly say that the replacement spec does not inherit the old standing grant and requires a fresh full approval. Keep those clarifications alongside the existing ledger-first aftermath and tool bypass.",
+        "wallMs": 9696,
+        "verdict": "unchanged",
+        "judgeModel": "github-copilot/gpt-6.1-sol",
+        "thinking": "medium"
+      }
+    }
+  },
+  "repoSha": "a0b31dc6109fdc5099431c2faa110bec0e1d32f4"
 }

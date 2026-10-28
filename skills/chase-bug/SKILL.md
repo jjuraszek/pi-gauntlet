@@ -150,6 +150,8 @@ checkpoint 2) stops the skill.
 
 ### 4. Verdict menu (human gate 1)
 
+Start the message with `gauntlet: gate=chase-bug/verdict-menu` before the fault story or verdict in every variant. Append ` recommended=<n>` using the actual rendered number of the tagged recommended row; preserve the existing eligibility, omission, and recommendation rules.
+
 Present the verdict as a **plain-language fault story**, not a wall of evidence.
 
 **Verdict shape.** Write for a reader who does not know the code the bug
@@ -284,6 +286,10 @@ this menu, and - only when a response target is set - the response confirmation
 in step 5. Delegated skills' gates (e.g. shape-ticket's) are not counted.
 
 ### 5. Response to origin (human gate 2)
+
+Start the message with `gauntlet: gate=chase-bug/response-to-origin` before the channel and exact draft when awaiting `send it`. Apply [menu-layout](../brainstorming/reference/menu-layout.md), preserving that exact confirmation token. Keep the marker outside the response payload.
+
+For an ending turn, start the message with `gauntlet: done responded` after sending, `gauntlet: done summary` for the terminal summary, or `gauntlet: done draft` for the terminal copy-paste draft, including a push-failure fallback. A handoff to brainstorming, shape-ticket, or hotfix is not an ending: continue into its next gate without an intermediate terminal marker.
 
 Branch on the response target recorded in step 1 (possibly set mid-chase by an
 explicit ask).

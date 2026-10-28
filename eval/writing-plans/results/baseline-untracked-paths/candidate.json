@@ -1,64 +1,34 @@
 {
   "sample": "baseline-untracked-paths",
   "arm": "candidate",
-  "skillSha": "36494548afbe88d6f941384c120f668b921fd079899858a11098947d6de0268d",
+  "skillSha": "5dd23bac2d24cfee34f20a05356220be04d0586779f1af7df120277efe69660a",
   "inputSha": "bffc154521504f1acce6e98b03a72f606f583b5e9fbf6d24534da93d916b4036",
   "kind": "text",
   "assembly": "concat",
   "thinking": "medium",
   "models": {
     "replay": [
-      "anthropic/claude-opus-5-5",
       "github-copilot/gpt-6.1-sol"
     ],
-    "judge": "anthropic-fable/claude-fable-5-1",
+    "judge": "github-copilot/gpt-6.1-sol",
     "thinking": "medium"
   },
   "outputs": {
-    "anthropic/claude-opus-5-5": {
-      "status": "ok",
-      "text": "# Hook config validation: implementation plan\n\n**Spec:** doc/specs/hook.md\n**Verification:** `npm test`\n\n## Open Questions\n\n- Task 1: `node --test tests/hook.test.ts` dirtied tracked source on abc1234: tests/generated/hook.test.ts\n\n## Baseline provenance\n\n- BASE: abc1234, from `git -C \"/work/app\" rev-parse --short HEAD`.\n- Initial per-file inventory: `git -C \"/work/app\" status --porcelain --untracked-files=all` returned one entry, `?? doc/plans/new/hook.md`.\n- The default status mode would have collapsed this entry to the directory `?? doc/plans/new/`. The per-file mode is the one this procedure uses.\n- Admitted paths: `doc/plans/new/hook.md` only, because it is the dispatched plan path.\n  - No `Amend:` re-dispatch occurred, so there are no `In-flight:` paths.\n  - The plan has no recorded ` - artifacts:` suffixes.\n  - Nothing else was dirty, so no global row applies.\n- Task 1 command: `node --test tests/hook.test.ts`.\n  - Anchor: `tests/hook.test.ts`, an existing `Test:` path and not a `Create:` path. It has no introduced selector, so it ran unchanged in `/work/app`.\n  - Result: exit 0, summary `tests 1, pass 1, fail 0`.\n- Status after the run (per-file): `?? doc/plans/new/hook.md` and a new entry, `?? tests/generated/hook.test.ts`.\n  - The new entry is untracked at a path this plan declares as both `Create:` and `Test:`. That makes the run contaminated, not a disposable artifact.\n  - The run gets no passing baseline bullet. No other commands exist, so none were blocked.\n  - Nothing was reverted or cleaned. `tests/generated/hook.test.ts` remains in the worktree.\n\n## Wave 1 — Hook config validation\n\n### Task 1: Validate hook config\n\n**TDD scenario:** Modifying tested code — run existing tests first\n\n**Spec:** doc/specs/hook.md § \"Design\" L10-L12\n\n**Files:**\n- Modify: `src/hook.ts`\n- Modify: `tests/hook.test.ts`\n- Test: `tests/hook.test.ts`\n- Create: `tests/generated/hook.test.ts`\n- Test: `tests/generated/hook.test.ts`\n\n**Tests:**\n- `node --test tests/hook.test.ts`\n\n- [ ] **Step 1: Write the failing test**\n\n  Add the test `rejects invalid config` to `tests/hook.test.ts`:\n\n  ```ts\n  test(\"rejects invalid config\", () => {\n    assert.throws(() => validateHookConfig({ command: 42 }), /invalid hook config/);\n  });\n  ```\n\n- [ ] **Step 2: Run test, confirm failure**\n\n  Run: `node --test tests/hook.test.ts`\n  Expected: FAIL. `rejects invalid config` fails because `validateHookConfig` is not defined.\n\n- [ ] **Step 3: Write minimal implementation**\n\n  In `src/hook.ts`:\n\n  ```ts\n  export function validateHookConfig(config: unknown): void {\n    if (typeof config !== \"object\" || config === null ||\n        typeof (config as { command?: unknown }).command !== \"string\") {\n      throw new Error(\"invalid hook config\");\n    }\n  }\n  ```\n\n  Call `validateHookConfig(config)` where `src/hook.ts` loads hook config, before the config is used.\n\n- [ ] **Step 4: Add the new test file**\n\n  Create `tests/generated/hook.test.ts` covering a valid config:\n\n  ```ts\n  import { test } from \"node:test\";\n  import assert from \"node:assert\";\n  import { validateHookConfig } from \"../../src/hook.ts\";\n\n  test(\"accepts valid config\", () => {\n    assert.doesNotThrow(() => validateHookConfig({ command: \"echo ok\" }));\n  });\n  ```\n\n- [ ] **Step 5: Run test, confirm pass**\n\n  Run: `node --test tests/hook.test.ts`\n  Expected: PASS\n\n- [ ] **Step 6: Format & lint the task's files**\n\n  Run the project's scoped fmt/lint command on `src/hook.ts tests/hook.test.ts tests/generated/hook.test.ts`.\n  Expected: no diff after re-run, 0 offenses.\n\n- [ ] **Step 7: Commit**\n\n  ```bash\n  git add src/hook.ts tests/hook.test.ts tests/generated/hook.test.ts\n  git commit -m \"Validate hook config\"\n  ```\n\n## Spec coverage\n\n| anchor | requirement (short) | owner |\n|---|---|---|\n| § \"Design\" L10-L12 | validate hook config | Task 1 |\n\nOPEN QUESTIONS /work/app/doc/plans/new/hook.md\n",
-      "words": 433,
-      "wallMs": 23409,
-      "mechanical": {}
-    },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "# Hook configuration validation\n\n## Open Questions\n\n- Task 1: `node --test tests/hook.test.ts` dirtied tracked source on abc1234: tests/generated/hook.test.ts\n\n## Overview\n\n**Spec:** /work/app/doc/specs/hook.md  \n**Worktree:** /work/app  \n**Plan:** /work/app/doc/plans/new/hook.md  \n**Verification:** `npm test`\n\nValidate hook configuration and test rejection of invalid configuration.\n\n### Baseline provenance\n\n- Initial HEAD: `abc1234`.\n- Initial inventory from `git status --porcelain --untracked-files=all`: `?? doc/plans/new/hook.md`.\n- Admitted path: `doc/plans/new/hook.md`, the dispatched plan path. All other files were clean.\n- Ran `node --test tests/hook.test.ts`; exit 0, summary: `tests 1, pass 1, fail 0`.\n- Post-command HEAD: `abc1234`.\n- Post-command inventory from `git status --porcelain --untracked-files=all`:\n  - `?? doc/plans/new/hook.md`\n  - `?? tests/generated/hook.test.ts`\n- The newly untracked `tests/generated/hook.test.ts` is a declared `Create:` and `Test:` path. Its creation contaminates the run; it is not an admissible generated artifact. No passing baseline evidence was recorded. No further task test commands remained to run. The file was not deleted or reverted.\n\n## Wave 1 — Hook configuration validation\n\n### Task 1: Validate hook configuration\n\n**TDD scenario:** Modifying tested code — run existing tests first\n\n**Spec:** /work/app/doc/specs/hook.md § \"Design\" L10-L12\n\n**Files:**\n- Modify: `src/hook.ts`\n- Modify: `tests/hook.test.ts`\n- Create: `tests/generated/hook.test.ts`\n- Test: `tests/hook.test.ts`\n- Test: `tests/generated/hook.test.ts`\n\n**Tests:**\n- `node --test tests/hook.test.ts`\n\n- [ ] **Step 1: Restore baseline eligibility**\n\n  Resolve the newly untracked `tests/generated/hook.test.ts` with the human before rerunning baseline. Do not automatically delete, overwrite, or classify it as a disposable artifact. Rerun baseline after the worktree is restored.\n\n- [ ] **Step 2: Add the rejection test**\n\n  Add `rejects invalid config` to `tests/hook.test.ts`, exercising the existing hook configuration entry point and asserting rejection of invalid configuration.\n\n- [ ] **Step 3: Confirm the test fails**\n\n  Run: `node --test tests/hook.test.ts`  \n  Expected: the new rejection test fails because configuration validation is absent.\n\n- [ ] **Step 4: Implement validation and add the new test file**\n\n  Implement hook configuration validation in `src/hook.ts` to satisfy the anchored Design requirement. Create `tests/generated/hook.test.ts` as the required new test file.\n\n- [ ] **Step 5: Confirm tests pass**\n\n  Run: `node --test tests/hook.test.ts`  \n  Expected: all tests pass, including `rejects invalid config`.\n\n- [ ] **Step 6: Format and lint the task files**\n\n  Apply the repository’s documented scoped formatting and linting commands to `src/hook.ts`, `tests/hook.test.ts`, and `tests/generated/hook.test.ts`. Resolve the exact commands before execution; none were supplied in this case.\n\n- [ ] **Step 7: Commit**\n\n  ```bash\n  git add src/hook.ts tests/hook.test.ts tests/generated/hook.test.ts\n  git commit -m \"Validate hook configuration\"\n  ```\n\n## Spec coverage\n\n| anchor | requirement (short) | owner |\n|---|---|---|\n| § \"Design\" L10-L12 | Validate hook configuration | Task 1 |\n\nOPEN QUESTIONS /work/app/doc/plans/new/hook.md\n",
-      "words": 360,
-      "wallMs": 17028,
+      "text": "# Hook configuration validation plan\n\n## Open Questions\n\n- Task 1: `node --test tests/hook.test.ts` dirtied tracked source on abc1234: tests/generated/hook.test.ts\n  The command exited 0 with `tests 1, pass 1, fail 0`, but created an untracked path declared as both `Create:` and `Test:` below. This contaminates the run; no passing baseline is recorded. The file has not been deleted or reverted. Human disposition is required before rerunning baseline.\n\n## Overview\n\n**Spec:** doc/specs/hook.md  \n**Worktree:** /work/app  \n**Plan:** /work/app/doc/plans/new/hook.md  \n**Verification:** `npm test`\n\nImplement the hook configuration validation required by Design L10-L12.\n\n## Baseline provenance\n\n- Initial HEAD: `abc1234`.\n- Initial inventory, using `git status --porcelain --untracked-files=all`:\n  ```text\n  ?? doc/plans/new/hook.md\n  ```\n- Admitted path: `doc/plans/new/hook.md`, the dispatched plan path. All other files were clean, permitting the scoped test command to run.\n- Executed: `node --test tests/hook.test.ts`.\n- Result: exit 0; `tests 1, pass 1, fail 0`.\n- Post-command HEAD: `abc1234`.\n- Post-command inventory, using `git status --porcelain --untracked-files=all`:\n  ```text\n  ?? doc/plans/new/hook.md\n  ?? tests/generated/hook.test.ts\n  ```\n- The newly untracked `tests/generated/hook.test.ts` is a declared creation and test path, not an admissible generated artifact. The run is contaminated. No further baseline commands were run.\n\n## Wave 1 — Hook configuration validation\n\n### Task 1: Validate hook configuration\n\n**TDD scenario:** Modifying tested code — run existing tests first\n\n**Spec:** doc/specs/hook.md § \"Design\" L10-L12\n\n**Files:**\n- Modify: `src/hook.ts`\n- Modify: `tests/hook.test.ts`\n- Create: `tests/generated/hook.test.ts`\n- Test: `tests/hook.test.ts`\n- Test: `tests/generated/hook.test.ts`\n\n**Tests:**\n- `node --test tests/hook.test.ts`\n\n- [ ] **Step 1: Restore baseline eligibility**\n\n  Obtain human disposition of `tests/generated/hook.test.ts`; do not automatically delete, revert, or adopt it. Rerun baseline after the worktree is restored and resolve the Open Questions finding before execution.\n\n- [ ] **Step 2: Add the regression test**\n\n  Add `rejects invalid config` to `tests/hook.test.ts`, exercising the hook configuration boundary and asserting rejection under the configuration contract required by Design L10-L12.\n\n- [ ] **Step 3: Confirm the regression fails**\n\n  Run: `node --test tests/hook.test.ts`  \n  Expected: the new `rejects invalid config` test fails because validation is absent.\n\n- [ ] **Step 4: Implement validation and the new test file**\n\n  Modify `src/hook.ts` to validate hook configuration before using it. Create `tests/generated/hook.test.ts` as required by this task.\n\n- [ ] **Step 5: Confirm the scoped tests pass**\n\n  Run: `node --test tests/hook.test.ts`  \n  Expected: exit 0, at least one test executed, and no failing tests.\n\n- [ ] **Step 6: Commit**\n\n  ```bash\n  git add src/hook.ts tests/hook.test.ts tests/generated/hook.test.ts\n  git commit -m \"Validate hook configuration\"\n  ```\n\n## Spec coverage\n\n| anchor | requirement (short) | owner |\n|---|---|---|\n| § \"Design\" L10-L12 | Validate hook configuration | Task 1 |\n\nOPEN QUESTIONS /work/app/doc/plans/new/hook.md\n",
+      "words": 368,
+      "wallMs": 16551,
       "mechanical": {}
     }
   },
   "judge": {
-    "anthropic/claude-opus-5-5": {
-      "factsSha": "ca5a03f43133a7af6238141a034e5151871f7b9f8eabe665eb7c1f0801f54da7",
-      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "4ca8b7f7a28dbff69b86a24a436df22359003cf7d3d96a5f448da27bb336966c",
-      "baselineOutputSha": "0384e62d0223cbe4025126e0a441aa45632bf9f59ad4e245b0918c74b4722453",
-      "candidateOutputSha": "96089c54c340880457064e944979b9cc4612616e8b9576bda90831713918485c",
-      "facts": {
-        "plan-allowed": {
-          "before": "holds",
-          "after": "holds",
-          "label": "intended but unchanged"
-        },
-        "contamination": {
-          "before": "holds",
-          "after": "holds",
-          "label": "intended but unchanged"
-        }
-      },
-      "feedback": "Both outputs satisfy both facts, so the After wording moved nothing. In each, the initial inventory is taken with `--untracked-files=all`, the single `?? doc/plans/new/hook.md` entry is admitted as the dispatched plan path, and `node --test tests/hook.test.ts` is run rather than blocked on the new directory; after the run both identify `?? tests/generated/hook.test.ts` as a declared `Create:`/`Test:` path, call the run contaminated, withhold any passing baseline bullet and any ` - artifacts:` suffix, record the `Task 1 ... dirtied tracked source on abc1234: tests/generated/hook.test.ts` row, and end with `OPEN QUESTIONS /work/app/doc/plans/new/hook.md`. The After text is slightly more explicit (it names the collapsed-directory alternative and states the file is not a disposable artifact), which is a harmless strengthening; keep that per-file-inventory sentence and the explicit \"contaminated, not a disposable artifact\" distinction, since they make the Change's exact-path admission and Create:/Test: exclusion legible without altering any fact Before already kept.",
-      "wallMs": 11510,
-      "verdict": "unchanged"
-    },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "ca5a03f43133a7af6238141a034e5151871f7b9f8eabe665eb7c1f0801f54da7",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "4ca8b7f7a28dbff69b86a24a436df22359003cf7d3d96a5f448da27bb336966c",
-      "baselineOutputSha": "bc36db1b35c014751f57f6ef360b7ba9064125d9de7da52b3c04612ea122540a",
-      "candidateOutputSha": "a8a66073249500434b24d10529934e08c832620cd69b8a066e6dcc6756745e25",
+      "intentSha": "eb7907b4da4219a623a0c1f3850443618e8f98ebaa6fa840d691ef24978d5aca",
+      "baselineOutputSha": "a8a66073249500434b24d10529934e08c832620cd69b8a066e6dcc6756745e25",
+      "candidateOutputSha": "999f37704eb38c814564150fce00bb29d1d2f6a1c5514c7a14420284d6553b12",
       "facts": {
         "plan-allowed": {
           "before": "holds",
@@ -71,10 +41,97 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "After moved nothing: both outputs run the initial inventory with `--untracked-files=all`, admit the exact `doc/plans/new/hook.md` entry, execute `node --test tests/hook.test.ts` rather than blocking on the new directory, and in the post-command inventory name `tests/generated/hook.test.ts` as a declared `Create:`/`Test:` path, record the `Task 1: ... dirtied tracked source on abc1234: tests/generated/hook.test.ts` row, give the command no passing-baseline bullet and no disposable-artifact suffix, and end with the literal `OPEN QUESTIONS /work/app/doc/plans/new/hook.md` line. After's wording is slightly tighter (inventory as a single inline entry, explicit 'not an admissible generated artifact', explicit note that the file was not deleted or reverted), which is consistent with the Change's intent to admit only recorded disposable artifacts while excluding Create:/Test: paths; keep that phrasing. One small optional improvement: After dropped the explicit `(cd \"/work/app\" && ...)` form and the `git -C \"/work/app\"` prefix from the provenance bullets — restoring the worktree-qualified commands would make the provenance self-contained without affecting either fact.",
-      "wallMs": 9817,
+      "feedback": "Neither fact moved: both outputs inventory individual untracked files, admit the exact plan path, and run the scoped command. After also preserves the Task 1 contamination row, identifies the generated file as a declared Create:/Test: path, records no passing baseline or disposable-artifact suffix, and ends with the required OPEN QUESTIONS line. Keep that explicit wording; the observed exit-0 result remains clearly distinguished from admissible passing baseline evidence.",
+      "wallMs": 3691,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "021cef249866efdced9032b1884bad5ca5b94e9f"
+  "refresh": {
+    "status": "complete",
+    "identity": {
+      "sample": "baseline-untracked-paths",
+      "kind": "text",
+      "assembly": "concat",
+      "baselineSkillSha": "36494548afbe88d6f941384c120f668b921fd079899858a11098947d6de0268d",
+      "candidateSkillSha": "cce0c20a9a296ce47a1f1f9b61c280297272f9d40ad6545db762fff72e2601c6",
+      "inputSha": "bffc154521504f1acce6e98b03a72f606f583b5e9fbf6d24534da93d916b4036",
+      "factsSha": "ca5a03f43133a7af6238141a034e5151871f7b9f8eabe665eb7c1f0801f54da7",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "eb7907b4da4219a623a0c1f3850443618e8f98ebaa6fa840d691ef24978d5aca",
+      "models": {
+        "replay": [
+          "github-copilot/gpt-6.1-sol"
+        ],
+        "judge": "github-copilot/gpt-6.1-sol"
+      },
+      "thinking": "medium",
+      "outputs": {
+        "baseline": {
+          "github-copilot/gpt-6.1-sol": {
+            "baselineOutputSha": "a8a66073249500434b24d10529934e08c832620cd69b8a066e6dcc6756745e25",
+            "payloadSha": "74910db463fcaa90a0afe98dc890bf1bf9c74bc6202db67ee555e549e2c2e7b8"
+          }
+        },
+        "candidate": {
+          "github-copilot/gpt-6.1-sol": {
+            "candidateOutputSha": "6fa90bf2fd4f2bdd6f4b0950494c5dd4e1fab5d6525a234a39867c76af1eff3f",
+            "payloadSha": "82def42b2dacd2211e1a9fff1fc7c8a26a6720f7d48d9bec7b6ed3a1db10e829"
+          }
+        }
+      }
+    },
+    "previous": {
+      "github-copilot/gpt-6.1-sol": {
+        "factsSha": "ca5a03f43133a7af6238141a034e5151871f7b9f8eabe665eb7c1f0801f54da7",
+        "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+        "intentSha": "eb7907b4da4219a623a0c1f3850443618e8f98ebaa6fa840d691ef24978d5aca",
+        "baselineOutputSha": "a8a66073249500434b24d10529934e08c832620cd69b8a066e6dcc6756745e25",
+        "candidateOutputSha": "6fa90bf2fd4f2bdd6f4b0950494c5dd4e1fab5d6525a234a39867c76af1eff3f",
+        "facts": {
+          "plan-allowed": {
+            "before": "holds",
+            "after": "holds",
+            "label": "intended but unchanged"
+          },
+          "contamination": {
+            "before": "holds",
+            "after": "holds",
+            "label": "intended but unchanged"
+          }
+        },
+        "feedback": "Both outputs already satisfy both facts, so the After wording moved nothing here: each runs the initial inventory with `--untracked-files=all`, admits the exact `doc/plans/new/hook.md` entry rather than blocking on `?? doc/plans/new/`, executes `node --test tests/hook.test.ts`, and after the run names `tests/generated/hook.test.ts` as a declared `Create:`/`Test:` path, records the `Task 1: ... dirtied tracked source on abc1234: tests/generated/hook.test.ts` row, states explicitly that no passing baseline evidence is recorded and attaches no disposable-artifact suffix, and ends with `OPEN QUESTIONS /work/app/doc/plans/new/hook.md`. After's only differences are cosmetic and slightly risky: it places the Open Questions block above the H1 title and switches Spec/Plan to relative paths, and it narrates the exit-0 result in prose next to the contamination verdict. To keep the facts unambiguous while still delivering the Change's per-file inventory and contamination handling, keep Before's structure (title first, absolute Spec/Plan paths, a bulleted provenance list where the command line is immediately followed by the contamination bullet and an explicit 'no passing baseline evidence recorded' statement), so a reader cannot mistake the exit-0 sentence for a passing-baseline bullet.",
+        "wallMs": 14147,
+        "verdict": "unchanged",
+        "judgeModel": null,
+        "thinking": null
+      }
+    },
+    "refreshed": {
+      "github-copilot/gpt-6.1-sol": {
+        "factsSha": "ca5a03f43133a7af6238141a034e5151871f7b9f8eabe665eb7c1f0801f54da7",
+        "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+        "intentSha": "eb7907b4da4219a623a0c1f3850443618e8f98ebaa6fa840d691ef24978d5aca",
+        "baselineOutputSha": "a8a66073249500434b24d10529934e08c832620cd69b8a066e6dcc6756745e25",
+        "candidateOutputSha": "6fa90bf2fd4f2bdd6f4b0950494c5dd4e1fab5d6525a234a39867c76af1eff3f",
+        "facts": {
+          "plan-allowed": {
+            "before": "holds",
+            "after": "holds",
+            "label": "intended but unchanged"
+          },
+          "contamination": {
+            "before": "holds",
+            "after": "holds",
+            "label": "intended but unchanged"
+          }
+        },
+        "feedback": "Neither fact moved: both outputs inventory individual untracked files, admit the exact plan path, run the task command, and identify the generated declared Create:/Test: file as contamination without granting passing baseline evidence or a disposable-artifact suffix. After also preserves the Task 1 dirtied-source row and required final OPEN QUESTIONS line. Keep this explicit inventory and contamination wording; the supplied Before already satisfies both targeted facts, so no additional wording change is needed to preserve them.",
+        "wallMs": 4353,
+        "verdict": "unchanged",
+        "judgeModel": "github-copilot/gpt-6.1-sol",
+        "thinking": "medium"
+      }
+    }
+  },
+  "repoSha": "2eb4429b4dd687432969f427f82d45d7840d7c63"
 }

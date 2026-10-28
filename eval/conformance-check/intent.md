@@ -1,11 +1,14 @@
-for: f5e58eb04c446b66d3a12b2a2ab5cd79bff20ccaaee1a1135d3071d09b8ea222
+for: 1b3c80ee2b0f9ba7f7fd76684cc40b04506c351cf74ff9b0aeb23b43d848d0bf
 
 ## Change
-Replace carried-open token menus with numbered decision briefs: open with the unresolved problem, letter available named options with consequences, and show either a lettered recommendation or No recommendation - pick one. Bare 1 applies recommendations and re-asks unanswered no-recommendation items by number. Continuation cases replay only the next response: no-recommendation-reask stops at the focused re-ask, and no-recommendation-execute continues after the custom answer through execution scheduling and the re-audit barrier. Follow-up wording fixes keep the Custom line numberless, pluralize the count, include the re-ask clause in the reply instruction, echo custom free text verbatim in Recorded, and make the zero-gap CONFORMS fall-through render Step 4's menu in full, options included, without stopping at Step 4's question line. In in-scope-gap, f4 now pins the clarify-before-execute and decide-everything-first properties. The re-audit barrier's render-level mention left the menu because Custom shows a one-line consequence by design; its behavior coverage moves to no-recommendation-execute, which requires re-auditing the updated state before any CONFORMS claim or Step 4 menu. The execute-order barrier remains required. The lettered-pick fix preserves named dispositions on recommended: none items: a letter selects the shown option, while only free text records custom(<text>).
+Start proactive cap-exhaustion escalation with the step-6 gate marker and ask for additional funding, including Convergence exhaustion; keep verification incomplete. Carried-open menus put their marker before item 1; clean closure uses the Step 4 marker before summaries.
+
+Replace carried-open token menus with numbered decision briefs: place the unresolved problem immediately after the gate marker, letter available named options with consequences, and show either a lettered recommendation or No recommendation - pick one. Bare 1 applies recommendations and re-asks unanswered no-recommendation items by number. Continuation cases replay only the next response: no-recommendation-reask stops at the focused re-ask, and no-recommendation-execute continues after the custom answer through execution scheduling and the re-audit barrier. Follow-up wording fixes keep the Custom line numberless, pluralize the count, include the re-ask clause in the reply instruction, echo custom free text verbatim in Recorded, and make the zero-gap CONFORMS fall-through render Step 4's menu in full, options included, without stopping at Step 4's question line. In in-scope-gap, f4 now pins the clarify-before-execute and decide-everything-first properties. The re-audit barrier's render-level mention left the menu because Custom shows a one-line consequence by design; its behavior coverage moves to no-recommendation-execute, which requires re-auditing the updated state before any CONFORMS claim or Step 4 menu. The execute-order barrier remains required. The lettered-pick fix preserves named dispositions on recommended: none items: a letter selects the shown option, while only free text records custom(<text>).
 
 All existing samples (deferred-with-ref, deviates, directional-dependency, elsewhere-settled, in-scope-gap, mixed, no-dispositions, no-recommendation-render, no-recommendation-reask, no-recommendation-execute) regenerate against the new assembly and replay instruction. Their existing conformance facts remain required; changed menu wording alone does not imply a fact transition.
 
 ## Expected to move
+- gate-line-first/gate-first: fails -> holds - Cap exhaustion opens the funding gate independently of runtime errors.
 
 - deferred-with-ref/f1: holds -> holds - Settled deferrals still produce no decisions under the new assembly.
 - deviates/f5: fails -> holds - the zero-gap fall-through strengthening (Step 4 menu renders in full, options included, never stopping at the question line) fixes the baseline's truncation at the question line; the candidate renders the full option list.
@@ -16,7 +19,7 @@ All existing samples (deferred-with-ref, deviates, directional-dependency, elsew
 - mixed/f4: holds -> holds - The pluralized count header still reports exactly one decision.
 - no-dispositions/f3: holds -> holds - A conforming report still produces no decisions.
 
-- no-recommendation-render/f1: fails -> holds - The menu opens with the unresolved problem instead of metadata.
+- no-recommendation-render/f1: fails -> holds - The first sentence after the gate marker states the unresolved problem instead of metadata.
 - no-recommendation-render/f2: fails -> holds - Available options receive letters and consequences even without a recommendation.
 - no-recommendation-render/f3: fails -> holds - The menu explicitly names the absent recommendation.
 - no-recommendation-render/f4: fails -> holds - The prompt replaces bare tokens and handle assignments with numbered replies.

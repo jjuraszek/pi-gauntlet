@@ -1,4 +1,4 @@
-for: ada58df3be9d984d0690237cce7a9f14b440d987d28d81f688ccaf4be5510483
+for: 37c8f9cc44b7669bc5e151810ad451fb5f4581c8c29c68fb86947492fa530309
 
 ## Change
 
@@ -9,8 +9,11 @@ Exercise eight course exit/menu scenarios, including successive nit closure, sel
 ## Comparison scope
 
 These are predictions against the extracted-menu baseline 40d6c9e4, not observed model outcomes. Rewritten facts encode the new contract; other existing facts must hold unchanged.
+Mark every PR menu, confirmation and ending with its shared first-line contract; keep private child results and payloads unchanged. The obstacle sample pins the first line, rendered recommendation, stop row and quoted runtime nudge.
 
 ## Expected to move
+- gate-line-first/first-line: fails -> holds - Emit the exact obstacle id before prose.
+- gate-line-first/gate-first: fails -> holds - Keep one marker, a tagged stop and the actual rendered recommendation number.
 
 - batch-cleanup-stop/c3: fails -> holds - Non-final stop15 resets rebased-local ccccccc to recorded bbbbbbb, asserts clean equality and pushed ancestry, then removes the eligible owned reused tree including untracked residue. It runs no branch deletion, base pull or cleanup overrides; only PR15 record/helper/log files retire, never a sibling.
 - batch-cleanup-stop/c4: fails -> holds - Supplied records are validated, never reinitialized: PR12 course, both caps/usage and C1 ledger and PR15 independent accounting survive until each retirement.
@@ -102,6 +105,3 @@ These are predictions against the extracted-menu baseline 40d6c9e4, not observed
 - menu-rows-omitted/f6: fails -> holds - New course scenario, absent from the previous target: H maps the numeric reply row to only C1 post; no repair, merge or approval is inferred.
 - menu-rows-omitted/f7: fails -> holds - New course scenario, absent from the previous target: I leaves failed posting available as numeric row 1 and stop row 2, without a successful-post marker. J suppresses the successful PR post; stop becomes row 1 with no stale numeric mapping.
 
-## Validation boundary
-
-Deterministic structural tests and lint do not establish model behavior. Retain previous reports/results until the scoped baseline/candidate replays and judges run after header verification; do not treat their older assembly hashes as candidate evidence.

@@ -15,15 +15,6 @@
     "thinking": "medium"
   },
   "outputs": {
-    "anthropic/claude-opus-5-5": {
-      "status": "ok",
-      "text": "## Step 6: Cleanup Workspace\n\nOption 3 (squash-merge) succeeded, so cleanup runs.\n\n**Overrides check:** No gauntlet overrides file exists, so there is no `## using-git-worktrees` section and no keyed contract. I'm using the **legacy path**.\n\n**Ownership:** `$WORKTREE` is `/work/acme-web/.worktrees/login-copy`, which sits under `$PRIMARY/.worktrees/`. Nothing points to a project-native worktree script, so gauntlet created this worktree and gauntlet owns its cleanup.\n\n**Remove the worktree first.** `git branch -D` fails while a worktree still references the branch, so removal comes before branch deletion.\n\n```bash\ngit -C \"/work/acme-web\" worktree remove \"/work/acme-web/.worktrees/login-copy\"\ngit -C \"/work/acme-web\" worktree prune\n```\n\n**Then delete the feature branch.** This uses `-D` because a squash-merge doesn't make `login-copy` an ancestor of `main`, so `-d` would refuse.\n\n```bash\ngit -C \"/work/acme-web\" branch -D \"login-copy\"\n```\n\n**Result:**\n- The worktree `/work/acme-web/.worktrees/login-copy` is removed and stale worktree metadata is pruned.\n- The branch `login-copy` is deleted. Its changes live on as the squash commit on `main`.\n- The primary checkout `/work/acme-web` stays on `main`.\n",
-      "words": 154,
-      "wallMs": 6949,
-      "mechanical": {
-        "w2": "holds"
-      }
-    },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
       "text": "No overrides file exists, so the legacy cleanup path applies. The worktree is under `$PRIMARY/.worktrees/`, so gauntlet owns cleanup.\n\nRun in order, stopping if a command fails:\n\n```bash\ngit -C /work/acme-web worktree remove /work/acme-web/.worktrees/login-copy &&\ngit -C /work/acme-web worktree prune &&\ngit -C /work/acme-web branch -D login-copy\n```\n",
@@ -34,5 +25,5 @@
       }
     }
   },
-  "repoSha": "6aa708917f3429b0e0ba574cb0a680df774f186c"
+  "repoSha": "2eb4429b4dd687432969f427f82d45d7840d7c63"
 }

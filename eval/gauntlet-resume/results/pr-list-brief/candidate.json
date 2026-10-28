@@ -1,89 +1,34 @@
 {
   "sample": "pr-list-brief",
   "arm": "candidate",
-  "skillSha": "17bcda001eb38c21bdca1c29fd84e3be8aa90861fb6d216413d52b6b757f514a",
+  "skillSha": "72ff48dab8bbe561bc13848ff67894c44254b13bd3a897ee869c119f007c4a16",
   "inputSha": "d04be6b0bcd60f8f9b6c3624d2975a9cf6acef39eb4d4f5025ab6dc3c9e77180",
   "kind": "text",
   "assembly": "headed",
   "thinking": "medium",
   "models": {
     "replay": [
-      "anthropic/claude-opus-5-5",
       "github-copilot/gpt-6.1-sol"
     ],
-    "judge": "anthropic-fable/claude-fable-5-1",
+    "judge": "github-copilot/gpt-6.1-sol",
     "thinking": "medium"
   },
   "outputs": {
-    "anthropic/claude-opus-5-5": {
-      "status": "ok",
-      "text": "# Gauntlet Resume Narration: PR-Pair Handoff, Restore, and Variants\n\n## 1. Producer (`gauntlet-handoff`): appended process-state section\n\nCohort's procedure reports `Handoff written: <abs path>`. Line 1 starts `# Handoff:`, and the file has no `## Process state` line. No hotfix flow is in context.\n\n1. `phase_tracker({ action: \"status\" })` returns a block whose active line is `  → implement(W1)`.\n2. `plan_tracker({ action: \"status\" })` returns `Plan: 0/1 done (1 in progress, 0 pending)` and `  → [0] W1: Repair parser`.\n3. I read line 1 of the plan. It is a task plan, not `# Ledger - loop engine`, so I use `Active task`.\n4. I read the run-worktree spec's `## Rework record`. I copy only the three top-level PR identities, without titles, and their full heads, home first, in record order. `Threads:` lines and the `### PR #42/#43/#44` subsections are not brief fields.\n5. I append with a single `cat >> \"<brief path>\" <<'EOF' … EOF` whose body is the block below. It has a leading blank line and no fence in the file.\n\n```text\n\n## Process state\n\n<phase_tracker status output, verbatim - its active line is:>\n  → implement(W1)\n\nPlan: 0/1 done (1 in progress, 0 pending)\n\n  → [0] W1: Repair parser\n\nActive task: W1: Repair parser\nPR: example/parser#42\nPre-rework head: 1111111111111111111111111111111111111111\nPR: example/parser#43\nPre-rework head: 2222222222222222222222222222222222222222\nPR: example/parser#44\nPre-rework head: 3333333333333333333333333333333333333333\nGate history not restored - re-validate before advancing.\n```\n\nThe phase block is pasted byte-for-byte from the status call. Only its `→ implement(W1)` line is given in the input, so I don't invent the other lines.\n\n6. I re-read the tail. It ends with the gate-history line and nothing after it.\n7. I print the path and `/skill:gauntlet-resume <brief path>`. If the brief's `worktree:` field is `no`, I print `/skill:gauntlet-resume <brief path> /work/demo` instead.\n\n**No Rework record:** the ordinary layout applies. `Active task: W1: Repair parser` is followed directly by `Gate history not restored - re-validate before advancing.`, with no `PR:` or `Pre-rework head:` lines.\n\n**N=1 record:** exactly one pair appears between `Active task` and the gate-history line:\n- `PR: example/parser#42`\n- `Pre-rework head: 1111111111111111111111111111111111111111`\n\n## 2. Consumer success: selection and restore\n\n**PR pairs (read before any tracker write):** the brief lists #42, #43, #44, with #42 as home.\n\n**Home branch identity check** (first pair only; branches for #43 and #44 are not fetched):\n- `gh pr view 42 --repo example/parser --json headRefName` returns `repair-parser`.\n- `git -C /work/demo branch --show-current` returns `repair-parser`.\n- They match, so I continue.\n\n**Spec resolution through \"Candidates\":**\n- `gauntlet_setting({ key: \"flowGuards\" })` gives `<dirs>` = `doc/specs doc/plans`.\n- The base is the first pair's head `1111111111111111111111111111111111111111`, not the merge-base.\n- `git -C /work/demo diff --diff-filter=A --name-only 1111111111111111111111111111111111111111..HEAD -- doc/specs doc/plans`\n- `git -C /work/demo ls-files --others --exclude-standard -- doc/specs doc/plans`\n- The scan finds four files: `doc/specs/rework.md`, `doc/plans/rework.md`, `doc/specs/member-errors.md`, `doc/plans/member-errors.md`. I resolve each under `/work/demo/`.\n\n**Member-path exclusion:**\n- I read `/work/demo/doc/specs/rework.md`. Its `## Problem` lists `doc/specs/member-errors.md` under member #43, so that path is excluded from new-rework spec candidates.\n- The carried task plan `doc/plans/member-errors.md` pairs by basename with that excluded spec. I skip the pair, and the excluded spec is never promoted through its plan.\n- Neither plan has `# Ledger - loop engine` on line 1.\n\n**Result:** one spec, `/work/demo/doc/specs/rework.md`, paired with the task plan `/work/demo/doc/plans/rework.md`. Neither approval nor task evidence is inferred from artifact presence.\n\n**Record comparison:** the record lists `example/parser#42, example/parser#43, example/parser#44`, and the brief lists the same order. They match. All three heads are carried downstream in order, and #42's head is the scan base.\n\n**Entry check 6** has already passed on the resolved spec path, which I carry without re-resolving. **Feasibility:** the single task is `in_progress`, so the pending-suffix rule holds and implement will not auto-complete.\n\n**Call table, \"implement with task plan\":**\n1. `phase_tracker({ action: \"start\", phase: \"brainstorm\" })`\n2. `phase_tracker({ action: \"skip\", phase: \"brainstorm\", reason: \"resume: /work/demo/doc/specs/rework.md\" })`\n3. `phase_tracker({ action: \"start\", phase: \"plan\" })`\n4. `plan_check({ planPath: \"/work/demo/doc/plans/rework.md\" })` returns **PASS**. No Plan repair runs, so there is no receipt and no commit.\n5. `phase_tracker({ action: \"skip\", phase: \"plan\", reason: \"resume: <brief file>\" })`\n6. `phase_tracker({ action: \"start\", phase: \"implement\" })`\n7. `phase_tracker({ action: \"substep\", substep: \"W1\" })`\n8. `plan_tracker({ action: \"init\", tasks: [{ name: \"W1: Repair parser\", status: \"in_progress\" }] })` (the brief's snapshot, verbatim)\n\n**Printed lines:**\n- `Gate history not restored; re-validating `W1: Repair parser` before any stage advance`\n- Either `Standing grant active: <sentence>` or `No standing grant.`, exactly as check 6 decoded it.\n\n**Continuation:** I continue in subagent-driven-development. First I re-validate `W1: Repair parser` by re-running its `Tests:`. Then I run the task loop from the first non-complete task, which is W1.\n\nNo gate history, closure-review evidence, fix rounds, or approval is restored or implied by the PR identities.\n\n## 3. Variant `pr-list-brief-mismatch`\n\n- `gh pr view 42 --repo example/parser --json headRefName` returns `repair-parser`.\n- `git -C /work/demo branch --show-current` returns `unrelated`.\n\nStop:\n\n```\nbrief names PR #42 on repair-parser, worktree is on unrelated\n```\n\n**No tracker calls occur:** no `phase_tracker`, no `plan_check`, no `plan_tracker`. #43 and #44 are not fetched.\n\n## 4. Variant `pr-list-brief-order`\n\nThe home pair is still #42, so the branch check passes (`repair-parser` = `repair-parser`). Candidate resolution runs as in section 2; it only reads files and makes no tracker call. The record comparison then fails.\n\nStop:\n\n```\nbrief lists example/parser#42, example/parser#44, example/parser#43, record lists example/parser#42, example/parser#43, example/parser#44\n```\n\n**No tracker calls occur.**\n\n## 5. Ordinary no-pair reconstruction\n\nThis covers a bare worktree, or a brief without `## Process state` whose worktree exists.\n\n- **Base and candidates:**\n  - The base is `merge-base HEAD origin/HEAD`, else `main` or `master`. If it is empty, I ask for a base ref before reading any artifact.\n  - There is no `gh` fetch and no record comparison.\n  - The PR-member exclusion applies only to a PR-list brief.\n- **Brief context:** I carry the brief's `## Intent` and `## Decisions` into every prompt. For a bare worktree I state \"no brief context available\".\n- **Routing:**\n  - With one spec and a task plan, I take \"Spec with plan\".\n  - I show per-task commits touching each task's `Files:` after the plan commit, plus `git status --porcelain`.\n  - I propose statuses: `complete` only if a matching commit exists, else `pending`. I also propose a stage.\n- **Confirmation:**\n  - The human confirms or edits in one reply.\n  - Only after that answer do I run check 6, then `start brainstorm` / `skip brainstorm` / `start plan`, then `plan_check`, then skips, `start <stage>`, and `init`.\n  - Task commits never imply review acceptance.\n- **No-pair brief with process state:** it uses the same call table as section 2, but resolves the spec from the ordinary merge-base.\n\n## 6. Two genuine rework candidates remain after exclusion\n\nThis applies when two specs that are not member specs remain after removing the `## Problem`-listed member paths and their carried plan or ledger pairs.\n\n- I show both absolute paths, with their contents read, plus the brief's Intent and Decisions.\n- I ask the human to pick one.\n- I make no tracker call, choose nothing by filename, and infer no approval from either file's presence.\n- After the pick, record comparison and the call table continue with the chosen spec.\n",
-      "words": 1107,
-      "wallMs": 45439,
-      "mechanical": {}
-    },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "## Producer\n\nThe producer reads the full brief contract before acting. Cohort has already written a valid six-heading brief, so the producer uses cohort’s reported path rather than inventing another path. It checks that no `## Process state` section already exists and that the hotfix exclusion does not apply.\n\nThe status calls, in order, are:\n\n1. `phase_tracker({ action: \"status\" })`\n2. `plan_tracker({ action: \"status\" })`\n\nThe supplied observations do **not** include the full verbatim phase-status output: they identify only `implement(W1)` as active. Consequently, a byte-exact appended section cannot be reproduced without inventing the other phase lines. The following shows the required block, with that single explicitly identified substitution:\n\n```text\n\n## Process state\n\n<full phase_tracker status output verbatim, including → implement(W1)>\n\nPlan: 0/1 done (1 in progress, 0 pending)\n\n  → [0] W1: Repair parser\n\nActive task: W1: Repair parser\nPR: example/parser#42\nPre-rework head: 1111111111111111111111111111111111111111\nPR: example/parser#43\nPre-rework head: 2222222222222222222222222222222222222222\nPR: example/parser#44\nPre-rework head: 3333333333333333333333333333333333333333\nGate history not restored - re-validate before advancing.\n```\n\nThe producer appends the completed block with one `cat >> \"<cohort-reported absolute brief path>\" <<'EOF' … EOF` operation, then rereads the tail to confirm that the gate-history line is last.\n\nIt copies only the top-level identities and full heads, in record order. Titles, `Threads:`, and the `### PR #N` detail subsections are not appended.\n\n- **No Rework record:** omit all optional `PR:` / `Pre-rework head:` pairs; retain `Active task` and the final gate-history line.\n- **N=1:** emit exactly one identity/head pair, without its title, between `Active task` and the gate-history line.\n\nThe final producer report uses cohort’s actual reported brief path. That path was not supplied, so no concrete path can be printed here.\n\n## Consumer success\n\n### Admission and selection already completed before the stated checkpoint\n\nThe home-branch identity operation is:\n\n```text\ngh pr view 42 --repo example/parser --json headRefName\n```\n\nIts observed `headRefName` is `repair-parser`. Compare it with:\n\n```text\ngit -C /work/demo branch --show-current\n```\n\nThe observed branch is also `repair-parser`; identity matches. Do not fetch branches for #43 or #44.\n\nCarry these full heads downstream, paired and ordered:\n\n```text\nexample/parser#42 → 1111111111111111111111111111111111111111\nexample/parser#43 → 2222222222222222222222222222222222222222\nexample/parser#44 → 3333333333333333333333333333333333333333\n```\n\nUse the first head as the candidate scan base, not the ordinary merge-base. Resolve configured directories through:\n\n```text\ngauntlet_setting({ key: \"flowGuards\" })\n```\n\nRead the returned candidates before selecting. Resolve their paths under `/work/demo`.\n\nReading `/work/demo/doc/specs/rework.md` establishes this explicit member-spec exclusion set:\n\n```text\n/work/demo/doc/specs/member-errors.md\n```\n\nExclude that member spec from new-rework candidates. Also exclude the pair formed by `/work/demo/doc/plans/member-errors.md`, because its basename pairs with that excluded spec. The carried plan must not promote the member spec back into the candidate set. Its lack of a Rework record does not change this exclusion.\n\nThe remaining valid pair is:\n\n```text\nSpec: /work/demo/doc/specs/rework.md\nPlan: /work/demo/doc/plans/rework.md\n```\n\nThe spec’s ordered top-level identities match the brief:\n\n```text\nexample/parser#42, example/parser#43, example/parser#44\n```\n\nThis selection establishes artifact identity, **not approval or gate acceptance**. The supplied premise says entry checks and grant validation have passed; no additional approval is inferred from these files.\n\nThe call-table prefix already completed before the stated `plan_check` checkpoint is:\n\n```text\nphase_tracker({ action: \"start\", phase: \"brainstorm\" })\nphase_tracker({\n  action: \"skip\",\n  phase: \"brainstorm\",\n  reason: \"resume: /work/demo/doc/specs/rework.md\"\n})\nphase_tracker({ action: \"start\", phase: \"plan\" })\n```\n\nDo not repeat that prefix merely because it is described here.\n\n### Calls from the supplied checkpoint\n\nNo brief filename was supplied; the inline brief uses the contract’s `pasted brief` alternative.\n\n1. Call:\n\n   ```text\n   plan_check({ planPath: \"/work/demo/doc/plans/rework.md\" })\n   ```\n\n   Observation: `PASS`. Do not enter Plan repair, modify the plan, make a repair commit, or print a repair receipt.\n\n2. Call:\n\n   ```text\n   phase_tracker({\n     action: \"skip\",\n     phase: \"plan\",\n     reason: \"resume: pasted brief\"\n   })\n   ```\n\n3. Call:\n\n   ```text\n   phase_tracker({ action: \"start\", phase: \"implement\" })\n   ```\n\n4. Restore the active substep:\n\n   ```text\n   phase_tracker({ action: \"substep\", phase: \"implement\", substep: \"W1\" })\n   ```\n\n5. Initialize exactly the saved task snapshot:\n\n   ```text\n   plan_tracker({\n     action: \"init\",\n     tasks: [\n       { name: \"W1: Repair parser\", status: \"in_progress\" }\n     ]\n   })\n   ```\n\n   This snapshot is feasible: it has no pending-suffix violation and does not trigger the all-complete/skipped implement auto-completion edge.\n\n6. Print:\n\n   ```text\n   Gate history not restored; re-validating `W1: Repair parser` before any stage advance\n   ```\n\n7. On its own line, print the check-6 result: either `Standing grant active: <validated sentence>` or `No standing grant.`\n\n   The observations say grant validation passed but do not supply its decoded result. Neither exact line can be chosen from the supplied facts.\n\nContinue in **subagent-driven-development**, without its reset-bearing entry. First rerun `W1: Repair parser`’s on-disk `Tests:` command, then continue the task loop from that first non-complete task. The command and its result were not supplied; do not invent them. Restore no gate history, closure-review evidence, or fix rounds.\n\n## Variant: `pr-list-brief-mismatch`\n\nThe home fetch still reports `repair-parser`, but the actual branch is `unrelated`.\n\nPrint exactly:\n\n```text\nbrief names PR #42 on repair-parser, worktree is on unrelated\n```\n\nStop. **No tracker calls occur**, including no arming calls. Do not fetch member branches.\n\n## Variant: `pr-list-brief-order`\n\nThe home branch matches. The brief order is #42, #44, #43, while the record order remains #42, #43, #44.\n\nPrint:\n\n```text\nbrief lists example/parser#42, example/parser#44, example/parser#43, record lists example/parser#42, example/parser#43, example/parser#44\n```\n\nStop before any tracker call. Keeping each head paired with its identity does not cure the ordered-identity mismatch.\n\n## Ordinary no-pair reconstruction\n\nWithout optional PR pairs:\n\n1. Use the ordinary merge-base resolution: `origin/HEAD`, then `main`, then `master`. If none resolves, ask for a base ref before reading artifacts.\n2. Scan configured spec directories and their sibling plan directories for post-base additions and untracked candidates.\n3. Read candidate contents and resolve paths absolutely. Preserve ordinary pairing, including task plans paired with base-tracked specs and ledgers paired through their path-only `**Spec:**` headers.\n4. Do not perform the optional PR-list branch/order checks or substitute a pre-rework head as the scan base.\n5. Ask the applicable reconstruction questions before tracker calls. For a task-plan reconstruction, show task commit evidence, uncommitted files, and proposed statuses/stage; obtain and validate the human-confirmed snapshot.\n6. Artifact presence and task commits establish neither spec approval nor review acceptance.\n\nCarry a brief’s Intent/Decisions into reconstruction prompts verbatim. For a bare worktree, say `no brief context available`.\n\n## Two genuine rework candidates remain\n\nApply the explicit member-path exclusions first, including exclusion through carried task plans or ledgers.\n\nIf two genuine spec candidates still remain, show their absolute paths and ask the human to choose. Do not choose by filename, silently discard one, infer approval, or make tracker calls before the answer.\n",
-      "words": 1020,
-      "wallMs": 63619,
+      "text": "## Producer\n\nCohort has already written the valid six-heading brief. The producer reads the shared contract, verifies the brief has no existing `## Process state`, and checks the hotfix exclusion before reading tracker state.\n\nOperations, in order:\n\n1. Obtain `phase_tracker({ action: \"status\" })`.\n2. Obtain `plan_tracker({ action: \"status\" })`.\n3. Read the run-worktree spec’s `## Rework record`.\n4. Copy all three **top-level** PR/head pairs, in record order, stripping titles. Do not copy `Threads:` or the `### PR #…` subsections.\n5. Append the process-state block in one append operation.\n6. Re-read the tail and verify that the gate-history line is last.\n\nThe supplied observations do not include the complete verbatim phase-status output. Thus the following shows the appended section with that one unavailable output explicitly represented—not invented:\n\n```text\n\n## Process state\n\n<verbatim phase_tracker status output, including → implement(W1)>\n\nPlan: 0/1 done (1 in progress, 0 pending)\n\n  → [0] W1: Repair parser\n\nActive task: W1: Repair parser\nPR: example/parser#42\nPre-rework head: 1111111111111111111111111111111111111111\nPR: example/parser#43\nPre-rework head: 2222222222222222222222222222222222222222\nPR: example/parser#44\nPre-rework head: 3333333333333333333333333333333333333333\nGate history not restored - re-validate before advancing.\n```\n\n- **No Rework record:** omit all optional PR/head pairs; retain `Active task` and the final gate-history line.\n- **N=1:** emit exactly one top-level PR/head pair, without its title or thread/detail fields, immediately before the gate-history line.\n\nThe final producer report requires the actual brief path, which was not supplied; it cannot be rendered with a concrete path here.\n\n## Consumer success\n\n### Identity and candidate selection — before tracker writes\n\n1. Read the three ordered PR/head pairs from the brief.\n2. Fetch **only the home PR’s branch identity**:\n\n   ```text\n   gh pr view 42 --repo example/parser --json headRefName\n   ```\n\n   Observation: `repair-parser`.\n\n3. Read the worktree branch:\n\n   ```text\n   git -C /work/demo branch --show-current\n   ```\n\n   Observation: `repair-parser`. Identity matches. Do not fetch branches for #43 or #44.\n\n4. Resolve the configured artifact directories with:\n\n   ```text\n   gauntlet_setting({ key: \"flowGuards\" })\n   ```\n\n5. Use the first pair’s full pre-rework head as the candidate scan base:\n\n   ```text\n   git -C /work/demo diff --diff-filter=A --name-only 1111111111111111111111111111111111111111..HEAD -- doc/specs doc/plans\n   git -C /work/demo ls-files --others --exclude-standard -- doc/specs doc/plans\n   ```\n\n6. Resolve the observed candidate paths under `/work/demo` and read their contents, including each plan’s first line.\n7. From `/work/demo/doc/specs/rework.md`, establish the explicit member-spec exclusion set:\n\n   ```text\n   /work/demo/doc/specs/member-errors.md\n   ```\n\n   It is carried under member #43 in `## Problem`. Exclude that spec from new-rework candidates. Also exclude its basename-paired task plan, `/work/demo/doc/plans/member-errors.md`, from route candidates. Its lack of a Rework record does not undo the exclusion.\n\n8. The remaining valid pair is:\n\n   ```text\n   Spec: /work/demo/doc/specs/rework.md\n   Plan: /work/demo/doc/plans/rework.md\n   ```\n\n   Selection follows the explicit exclusion and pairing rules, not a filename preference.\n\n9. Compare the selected spec’s top-level record identities with the brief:\n\n   ```text\n   example/parser#42, example/parser#43, example/parser#44\n   ```\n\n   They match in order. Preserve all three full heads downstream in that order. PR identity and artifact presence supply no approval or gate evidence.\n\n10. Preserve the brief’s task snapshot exactly:\n\n    ```text\n    [{ name: \"W1: Repair parser\", status: \"in_progress\" }]\n    ```\n\n    It is feasible: there is no pending-suffix violation and implement will not auto-complete.\n\n### Ordered restore\n\nThe full task-plan implement restore sequence is below. At the stated starting point, the first three calls have already occurred; they are not repeated.\n\n1. `phase_tracker({ action: \"start\", phase: \"brainstorm\" })`\n2. `phase_tracker({ action: \"skip\", phase: \"brainstorm\", reason: \"resume: /work/demo/doc/specs/rework.md\" })`\n3. `phase_tracker({ action: \"start\", phase: \"plan\" })`\n4. **Next call:**\n\n   ```text\n   plan_check({ planPath: \"/work/demo/doc/plans/rework.md\" })\n   ```\n\n   Observation: PASS. No plan repair, repair receipt, staging, or repair commit.\n\n5. With no brief filename supplied, use the contract’s `pasted brief` alternative:\n\n   ```text\n   phase_tracker({ action: \"skip\", phase: \"plan\", reason: \"resume: pasted brief\" })\n   ```\n\n6. `phase_tracker({ action: \"start\", phase: \"implement\" })`\n7. `phase_tracker({ action: \"substep\", phase: \"implement\", substep: \"W1\" })`\n8. Initialize only the saved snapshot:\n\n   ```text\n   plan_tracker({\n     action: \"init\",\n     tasks: [{ name: \"W1: Repair parser\", status: \"in_progress\" }]\n   })\n   ```\n\nPrint:\n\n```text\nGate history not restored; re-validating `W1: Repair parser` before any stage advance\n```\n\nNext print exactly the check-6 result: either `No standing grant.` or `Standing grant active: <validated sentence>`. The observations say validation passed but do not supply which result or its sentence, so choosing either would invent state.\n\nThen continue automatically in **subagent-driven-development**, without a reset-bearing entry. First re-run `W1: Repair parser`’s declared `Tests:`; then continue the task loop from that first non-complete task. The test command and its result were not supplied, so neither can be invented. No prior gate history, closure-review evidence, or fix rounds are restored.\n\n## Variant: `pr-list-brief-mismatch`\n\nAfter the home-PR fetch and worktree branch read, print exactly:\n\n```text\nbrief names PR #42 on repair-parser, worktree is on unrelated\n```\n\nStop. **No tracker calls occur.** Do not fetch member branches.\n\n## Variant: `pr-list-brief-order`\n\nThe home branch matches. After resolving the spec and comparing the ordered identities, print:\n\n```text\nbrief lists example/parser#42, example/parser#44, example/parser#43, record lists example/parser#42, example/parser#43, example/parser#44\n```\n\nStop. **No tracker calls occur.** Keep each SHA paired with its identity; do not silently reorder the brief.\n\n## Ordinary reconstruction without PR pairs\n\nUse the ordinary merge-base fallback sequence—`origin/HEAD`, then `main`, then `master`—rather than a pre-rework head. If no base resolves, ask the human for a base before reading artifacts.\n\nScan added and untracked artifacts under the configured directories, resolve absolute paths, read contents, and apply normal spec/task-plan or ledger pairing. Do not perform the optional PR-branch identity check.\n\nFor a task-plan reconstruction, show task commit evidence, uncommitted files, proposed statuses, and the proposed stage. Ask the human to confirm or edit the snapshot before tracker calls. Preserve the confirmed snapshot; commits and artifact presence do not establish approval or review acceptance.\n\n## Two genuine rework candidates remain\n\nAfter excluding exactly the carried member-spec paths and all pairs that resolve to those excluded specs, **do not choose between two genuine remaining candidates by filename**.\n\nPrint `gauntlet: question` on its own first line, show both absolute spec paths, and ask the human to pick one. Carry the brief’s Intent/Decisions when available; for a bare worktree, state `no brief context available`.\n\nMake no tracker calls while awaiting the choice. Selecting a candidate does not itself establish approval.\n",
+      "words": 961,
+      "wallMs": 44889,
       "mechanical": {}
     }
   },
   "judge": {
-    "anthropic/claude-opus-5-5": {
-      "factsSha": "d4ccab76fcd5006704327adeb88be8627b3812f7eb34234e3488e88d788c1cda",
-      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "7500a3c2a7f644dc3286b896b330e3f5f38eef70bf09dd727a59955d820f5a26",
-      "baselineOutputSha": "651e62793ac9caaf2e5c3af1cecad2cdf29d44b23f3257ed6c489730609d55a3",
-      "candidateOutputSha": "651e62793ac9caaf2e5c3af1cecad2cdf29d44b23f3257ed6c489730609d55a3",
-      "facts": {
-        "producer": {
-          "before": "holds",
-          "after": "holds",
-          "label": "intended but unchanged"
-        },
-        "binding": {
-          "before": "holds",
-          "after": "holds",
-          "label": "intended but unchanged"
-        },
-        "mismatch": {
-          "before": "holds",
-          "after": "holds",
-          "label": "intended but unchanged"
-        },
-        "order": {
-          "before": "holds",
-          "after": "holds",
-          "label": "intended but unchanged"
-        },
-        "candidates": {
-          "before": "holds",
-          "after": "holds",
-          "label": "intended but unchanged"
-        },
-        "restore": {
-          "before": "holds",
-          "after": "holds",
-          "label": "held"
-        },
-        "ordinary": {
-          "before": "holds",
-          "after": "holds",
-          "label": "held"
-        }
-      },
-      "feedback": "The Before and After outputs are byte-for-byte identical, so no fact moved in either direction: both carry the three PR/head pairs home-first in record order between `Active task` and the gate-history line (with no titles, Threads, or `### PR` headings), both validate only #42's headRefName against the live worktree branch before any tracker call, both quote the exact mismatch and order stops with no tracker writes, both use #42's full head as the scan base and keep the member-errors.md exclusion authoritative through its same-basename plan pairing, and both preserve the snapshot init, plan_check pass, standing-grant line, re-validation warning, and ordinary merge-base reconstruction with human confirmation. Since the Expected-to-move list claims these pr-list-brief facts go fails -> holds, the After wording should be checked against a genuinely pre-change Before: on this pair the text already satisfied every fact before the edit, so the comparison demonstrates no improvement; to show a move, the Before sample must be the real pre-edit output (e.g., one that emitted only the first pair or lacked the order-comparison stop) while the After keeps exactly the current section 1-6 structure, which already delivers the Change without regressing any held fact.",
-      "wallMs": 13019,
-      "verdict": "unchanged"
-    },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "d4ccab76fcd5006704327adeb88be8627b3812f7eb34234e3488e88d788c1cda",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "7500a3c2a7f644dc3286b896b330e3f5f38eef70bf09dd727a59955d820f5a26",
-      "baselineOutputSha": "cb986cd49db7e5e332289ddebd7914a4c92c7a5f92fb0b36a6c5b74ffcd0c236",
-      "candidateOutputSha": "cb986cd49db7e5e332289ddebd7914a4c92c7a5f92fb0b36a6c5b74ffcd0c236",
+      "intentSha": "70baa08ac12037f7a701b4df4bb563b0145baad774d710d83b55dc84d07f6e4a",
+      "baselineOutputSha": "f83f0fb2f1b17fdc770143fe57c88fba5eb7d07f20326f3ad81eb333caca386b",
+      "candidateOutputSha": "e8aa584891e4048cd54bd866c52859cad083ac4f7c4c21682a2234920e21f280",
       "facts": {
         "producer": {
           "before": "holds",
@@ -121,10 +66,147 @@
           "label": "held"
         }
       },
-      "feedback": "The After output is textually identical to Before, so no fact moved in either direction: both outputs already carry the three PR/head pairs home-first in record order with the gate-history line last and handle the no-record and N=1 cases; both fetch headRefName only for #42 and compare it against the live branch before any tracker call; both print the exact mismatch stop (`brief names PR #42 on repair-parser, worktree is on unrelated`) and the order stop with both fully qualified sequences with no tracker calls; both use the first head as the scan base, exclude doc/specs/member-errors.md and its basename-paired plan without re-promoting the spec, leave the single rework pair, and defer genuine ambiguity to a human pick; both keep heads paired downstream, pass plan_check without repair, print the re-validation warning and fabricate no approval or gate history. Since the Expected-to-move list predicts these pr-list-brief facts going fails -> holds but Before already holds them, the wording change is not what establishes them for this sample — the author should verify that the baseline being compared actually lacked this behavior, or treat this case as setup-only coverage rather than a demonstrated improvement; the one soft spot worth tightening in future wording is making the candidates path explicitly say it reads the spec's `## Problem` metadata (the text says reading rework.md establishes the exclusion set, which a careful reader accepts, but naming the heading would remove any doubt).",
-      "wallMs": 18401,
+      "feedback": "No listed fact moved: Before already satisfies all seven, and After preserves them. After adds the discovery question marker and explicitly makes successful continuation automatic, but does not mark the two mismatch stops or the ordinary reconstruction confirmation ask. To deliver the relevant Change while retaining these facts, place the shared question marker before each discovery or confirmation ask and the contract-defined stop marker before each inventoried stop, keeping both quoted mismatch messages unchanged and making no tracker calls or brief mutations. Explicitly retain the supplied entry-check and grant-validation success before restoration, along with the unchanged paired heads, task snapshot, member-path exclusion, and re-validation warning; do not describe these preserved facts as newly improved coverage.",
+      "wallMs": 11422,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "43b5ec3f2933c5a716c49916e9b1b7c002bb3da2"
+  "refresh": {
+    "status": "complete",
+    "identity": {
+      "sample": "pr-list-brief",
+      "kind": "text",
+      "assembly": "headed",
+      "baselineSkillSha": "837e1f15390be3291528c1768d6614bbb2cd7f4d37f3610bf8a33e80dc7bc0f7",
+      "candidateSkillSha": "bf9a1d69f930f83aa697f7fdd17ae5a7a5aee9804cf829be2b048450d6d83d3c",
+      "inputSha": "d04be6b0bcd60f8f9b6c3624d2975a9cf6acef39eb4d4f5025ab6dc3c9e77180",
+      "factsSha": "d4ccab76fcd5006704327adeb88be8627b3812f7eb34234e3488e88d788c1cda",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "70baa08ac12037f7a701b4df4bb563b0145baad774d710d83b55dc84d07f6e4a",
+      "models": {
+        "replay": [
+          "github-copilot/gpt-6.1-sol"
+        ],
+        "judge": "github-copilot/gpt-6.1-sol"
+      },
+      "thinking": "medium",
+      "outputs": {
+        "baseline": {
+          "github-copilot/gpt-6.1-sol": {
+            "baselineOutputSha": "f83f0fb2f1b17fdc770143fe57c88fba5eb7d07f20326f3ad81eb333caca386b",
+            "payloadSha": "0e25435b2252d5369739da14890d8fa5066acd76481fc4aea5f925b2a2a6eb16"
+          }
+        },
+        "candidate": {
+          "github-copilot/gpt-6.1-sol": {
+            "candidateOutputSha": "39a1cd220e7ab0b6997d4156a1ab80d47a33d590412b64ec5146c3aa6a93da3b",
+            "payloadSha": "3fa4b88ace15fc0de4d3a5e0ecc6efc9e93ca4526bb1545f09039b002f1528b3"
+          }
+        }
+      }
+    },
+    "previous": {
+      "github-copilot/gpt-6.1-sol": {
+        "factsSha": "d4ccab76fcd5006704327adeb88be8627b3812f7eb34234e3488e88d788c1cda",
+        "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+        "intentSha": "70baa08ac12037f7a701b4df4bb563b0145baad774d710d83b55dc84d07f6e4a",
+        "baselineOutputSha": "f83f0fb2f1b17fdc770143fe57c88fba5eb7d07f20326f3ad81eb333caca386b",
+        "candidateOutputSha": "39a1cd220e7ab0b6997d4156a1ab80d47a33d590412b64ec5146c3aa6a93da3b",
+        "facts": {
+          "producer": {
+            "before": "holds",
+            "after": "holds",
+            "label": "intended but unchanged"
+          },
+          "binding": {
+            "before": "holds",
+            "after": "holds",
+            "label": "intended but unchanged"
+          },
+          "mismatch": {
+            "before": "holds",
+            "after": "holds",
+            "label": "intended but unchanged"
+          },
+          "order": {
+            "before": "holds",
+            "after": "holds",
+            "label": "intended but unchanged"
+          },
+          "candidates": {
+            "before": "holds",
+            "after": "holds",
+            "label": "intended but unchanged"
+          },
+          "restore": {
+            "before": "holds",
+            "after": "holds",
+            "label": "held"
+          },
+          "ordinary": {
+            "before": "holds",
+            "after": "holds",
+            "label": "held"
+          }
+        },
+        "feedback": "Nothing moved on this case: both Before and After render the identical appended block (verbatim phase/plan status, Active task, three consecutive home-first PR/head pairs without titles, Threads or subsections, gate-history line last, correct no-record and N=1 behavior), both fetch headRefName only for #42 and compare it to the worktree branch before any tracker call, both print the exact mismatch and order stops with no tracker calls, both scan from 1111…1111, read candidate contents and the `## Problem` member paths, exclude exactly doc/specs/member-errors.md and refuse to promote it via the same-basename plan, both carry all three heads ordered downstream with the snapshot, PASS plan_check, re-validation warning and no invented grant/approval, and both keep ordinary merge-base/pairing/evidence/human-confirmation reconstruction. The Expected-to-move list marks the pr-list-brief facts as fails->holds, but Before already satisfied every one of them, so these are held/pre-existing facts rather than wording improvements — consistent with the Change paragraph's own caveat that narrated cases are setup-only coverage until genuine before/after outcomes exist. After's wording is fine to keep; the minor differences (collapsing the two branch commands into one block, dropping the explicit 'Do not fetch member branches' line from the mismatch variant and the numbered pre-checkpoint call prefix) do not break any fact, though restoring the explicit 'Do not fetch member branches' sentence in the mismatch variant and the brainstorm-start/skip/plan-start prefix would keep After at least as explicit as Before without affecting the Change.",
+        "wallMs": 16163,
+        "verdict": "unchanged",
+        "judgeModel": null,
+        "thinking": null
+      }
+    },
+    "refreshed": {
+      "github-copilot/gpt-6.1-sol": {
+        "factsSha": "d4ccab76fcd5006704327adeb88be8627b3812f7eb34234e3488e88d788c1cda",
+        "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+        "intentSha": "70baa08ac12037f7a701b4df4bb563b0145baad774d710d83b55dc84d07f6e4a",
+        "baselineOutputSha": "f83f0fb2f1b17fdc770143fe57c88fba5eb7d07f20326f3ad81eb333caca386b",
+        "candidateOutputSha": "39a1cd220e7ab0b6997d4156a1ab80d47a33d590412b64ec5146c3aa6a93da3b",
+        "facts": {
+          "producer": {
+            "before": "holds",
+            "after": "holds",
+            "label": "intended but unchanged"
+          },
+          "binding": {
+            "before": "holds",
+            "after": "holds",
+            "label": "intended but unchanged"
+          },
+          "mismatch": {
+            "before": "holds",
+            "after": "holds",
+            "label": "intended but unchanged"
+          },
+          "order": {
+            "before": "holds",
+            "after": "holds",
+            "label": "intended but unchanged"
+          },
+          "candidates": {
+            "before": "holds",
+            "after": "holds",
+            "label": "intended but unchanged"
+          },
+          "restore": {
+            "before": "holds",
+            "after": "holds",
+            "label": "held"
+          },
+          "ordinary": {
+            "before": "holds",
+            "after": "holds",
+            "label": "held"
+          }
+        },
+        "feedback": "No listed fact moved: both outputs satisfy all seven facts. After retains the ordered PR/head block, home-only branch validation, exact mismatch diagnostics, authoritative member-spec exclusion through plan pairing, restoration safeguards, and ordinary reconstruction behavior. To deliver the requested marking change while preserving these facts, place the shared question marker before discovery and confirmation asks and the prescribed stop marker before nonrecoverable-stop prose, without changing the quoted diagnostics, mutating brief state, or implying approval. Keep successful resume automatic and without a terminal marker. Also retain Before’s explicit preceding tracker sequence rather than merely asserting that unspecified arming calls have already passed.",
+        "wallMs": 11696,
+        "verdict": "unchanged",
+        "judgeModel": "github-copilot/gpt-6.1-sol",
+        "thinking": "medium"
+      }
+    }
+  },
+  "repoSha": "2eb4429b4dd687432969f427f82d45d7840d7c63"
 }

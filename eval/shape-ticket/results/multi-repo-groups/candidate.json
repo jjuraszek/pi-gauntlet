@@ -1,73 +1,36 @@
 {
   "sample": "multi-repo-groups",
   "arm": "candidate",
-  "skillSha": "98a5b582312c160862ff3054b632935177ff0857831a5eb82882b7bc449813b8",
+  "skillSha": "f90e3595c8cfe82f1cede9cf70df01f9659da67ac23e25730d37fe0b8ef693e3",
   "inputSha": "22a09ac1de0c44e3a3a126fe6ffa6e721617695b3f0f1db7c1e218290d8078b4",
   "kind": "text",
   "assembly": "concat",
   "thinking": "medium",
   "models": {
     "replay": [
-      "anthropic/claude-opus-5-5",
       "github-copilot/gpt-6.1-sol"
     ],
-    "judge": "anthropic-fable/claude-fable-5-1",
+    "judge": "github-copilot/gpt-6.1-sol",
     "thinking": "medium"
   },
   "outputs": {
-    "anthropic/claude-opus-5-5": {
-      "status": "ok",
-      "text": "# Draft (create): Export reports as CSV with email delivery\n\n**Title:** Export reports as CSV and email the file to the requester\n\n---\n\n## Context\n\nRequesters can view reports but cannot receive a CSV copy.\n\n## Problem\n\nA requester cannot export the displayed report, and cannot have its CSV emailed to them.\n\nExample: opening a report offers no way to download its rows or have them emailed as a CSV.\n\n## Idea\n\nThe reporter proposes an Export CSV button in acme/widgets, with acme/mailer delivering the exported file.\n\n## Acceptance Criteria\n\n### acme/widgets\n\n- [ ] A requester opens a report, and the report view shows an Export CSV button.\n- [ ] A report is displaying rows. The requester clicks Export CSV. The exported CSV contains exactly the displayed rows, with the columns `name` and `count`.\n\n### acme/mailer\n\n- [ ] A requester exports a report CSV and asks for email delivery. The requester's address receives an email with that CSV attached.\n\n---\n\n**Proposed Reporter note:** none. There is no overflow: the Idea is a single attributed sketch line, and nothing was demoted or displaced.\n\n**Source gap (carried to step 8):** `source missing: opening a report offers no way to download its rows`. No URL, attachment or screenshot was gathered. The footer slot stays absent until the gate reply resolves it. This gap does not block the write offer.\n\n**Evidence note (for step 8):** The ticket makes a UI behavior claim, but no screenshot or artifact was supplied. The gate will ask the user for one or record `none (<reason>)`.\n\n# AC integrity gate (assembled draft)\n\n**Normalize:** done. All 3 criteria are rendered as `- [ ]` items. They are grouped under one heading per repo because the Idea names two repos. This is one ticket, not a split.\n\n**Uniqueness:** clean.\n- No row is implied by another row.\n- The \"export\" and \"email delivery\" observations are kept as separate rows.\n\n| AC | Class | Result |\n|---|---|---|\n| widgets: Export CSV button shown on report | Behavioral (setup / action / observable) | pass |\n| widgets: CSV holds displayed rows, columns `name`, `count` | Behavioral, set enumerable today (2 named columns) | pass |\n| mailer: emailed CSV attachment on request | Behavioral | pass |\n\n- **Hard stops:** none. No wishful or tautological criteria.\n- **Park:** none. No unspecified-but-binding values and no external-input dependencies.\n- **Post-deployment relocation:** none. All three criteria can be verified before production.\n- **Deploy-window:** pass. No row names an environment.\n\n**Split detection:** not proposed. This is one end-to-end deliverable, and both repo groups serve a single requester outcome.\n\n**Result:** the draft passes the AC integrity gate. It proceeds to the step 5 deterministic gates and roast. The source gap above is carried to the confirmation gate.\n",
-      "words": 417,
-      "wallMs": 17432,
-      "mechanical": {
-        "f3": "holds"
-      }
-    },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "**Title:** Export report CSVs and email them to requesters\n\n## Context\nRequesters can view reports but cannot receive a CSV copy.\n\n## Problem\nA requester cannot export the displayed report or have its CSV emailed to them.\n\nExample: none (no specific report or failed attempt was supplied).\n\n## Idea\nThe reporter proposes an Export CSV button in acme/widgets, with acme/mailer emailing the exported file to the requester.\n\n## Acceptance Criteria\n\n### acme/widgets\n- [ ] Given a report, when the requester opens it, an Export CSV button is displayed.\n- [ ] Given a displayed report, when the requester clicks Export CSV, the exported CSV contains the displayed rows with the columns `name` and `count`.\n\n### acme/mailer\n- [ ] Given a CSV exported from the displayed report, when the requester asks for email delivery, the mailer sends that CSV as an attachment to the requester's address.\n\n---\n\n**AC integrity gate: passed.** Each criterion specifies setup, action, and an observable result verifiable before production deployment. No baseline, external input, or production-only observation is required. This remains one end-to-end ticket; the repository headings attribute criteria rather than split the deliverable.\n",
-      "words": 173,
-      "wallMs": 10805,
+      "text": "gauntlet: done drafted\n\n**Title:** Export reports as CSV with optional email delivery\n\n## Context\nRequesters can view reports but cannot receive a CSV copy.\n\n## Problem\nA requester cannot export the displayed report or have its CSV emailed to them.\n\nExample: none (no concrete report or failed export example was supplied).\n\n## Idea\nThe reporter proposes an Export CSV button in acme/widgets, with acme/mailer emailing the exported file when requested.\n\n## Acceptance Criteria\n\n### acme/widgets\n- [ ] Given a report available to a requester, when the requester opens it, an Export CSV button is displayed.\n- [ ] Given a report displaying rows, when the requester clicks Export CSV, the resulting CSV contains the displayed rows with the columns `name` and `count`.\n\n### acme/mailer\n- [ ] Given an exported report CSV and the requester's email address, when the requester asks for email delivery, the mailer sends that CSV as an attachment to that address.\n\n---\n\n**AC integrity gate: passed.** Each criterion names setup, action, and an observable result verifiable before production deployment. No unsupported comparative targets, self-defined completion sets, or external-input blockers are present.\n\nOne ticket, with acceptance criteria attributed to each repository. No comment proposed.\n",
+      "words": 182,
+      "wallMs": 15112,
       "mechanical": {
         "f3": "holds"
       }
     }
   },
   "judge": {
-    "anthropic/claude-opus-5-5": {
-      "factsSha": "63de724ca40bfb5c3326f1e8b45a207b526f789bbfbb07b7ab5eacb2c722ac69",
-      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "37c01603ac4620d1f1596beac660de51a9a2f55024a55e0349f68590987ec325",
-      "baselineOutputSha": "8f723f61ffaeae56fd1455e25f7685ea28f717c2bae78a2788172dc2ff3030c8",
-      "candidateOutputSha": "8f723f61ffaeae56fd1455e25f7685ea28f717c2bae78a2788172dc2ff3030c8",
-      "facts": {
-        "f1": {
-          "before": "holds",
-          "after": "holds",
-          "label": "held"
-        },
-        "f2": {
-          "before": "holds",
-          "after": "holds",
-          "label": "held"
-        },
-        "f3": {
-          "before": "holds",
-          "after": "holds",
-          "label": "held"
-        }
-      },
-      "feedback": "Before and After are byte-identical for this case, so nothing moved. Both outputs render the Acceptance Criteria section with a `### acme/widgets` heading holding the button row and the name/count column row, and a `### acme/mailer` heading holding the email-attachment row, so f1 and f2 hold in each. The wording change left this Draft path untouched here; no adjustment is needed to keep these facts, though if later edits touch the per-repo grouping rule in the Normalize step, keep the explicit 'one heading per repo when the Idea names two repos, not a split' instruction so the widgets/mailer grouping and row placement remain stable.",
-      "wallMs": 4814,
-      "verdict": "unchanged"
-    },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "63de724ca40bfb5c3326f1e8b45a207b526f789bbfbb07b7ab5eacb2c722ac69",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "37c01603ac4620d1f1596beac660de51a9a2f55024a55e0349f68590987ec325",
+      "intentSha": "5e5d3dfc0b642d6f632cf7cf04a895a28aaa28b4761d1e7433eb56d06a27861c",
       "baselineOutputSha": "4c8ed4e66a41ca8413b9db0de86e2f87cb96c8d166ab556f4835fa2176a09064",
-      "candidateOutputSha": "4c8ed4e66a41ca8413b9db0de86e2f87cb96c8d166ab556f4835fa2176a09064",
+      "candidateOutputSha": "78f4d8218f73419ba90c0fdb004d937dab5e623cac1ed1bf1f0aa009121a25f7",
       "facts": {
         "f1": {
           "before": "holds",
@@ -85,10 +48,10 @@
           "label": "held"
         }
       },
-      "feedback": "The After output is byte-identical to Before: the Acceptance Criteria section still groups rows under '### acme/widgets' and '### acme/mailer' headings (f1), and the emailing row sits under acme/mailer while the button and column rows sit under acme/widgets (f2), so no fact moved on this case. The Change describes sibling-clone resolution, audit/repair integration, and gate-menu behavior that this Create-mode draft case never exercises, so nothing in the wording change touched this output; keep the current AC heading-attribution behavior and the closing gate sentence ('repository headings attribute criteria rather than split the deliverable') as a guard while delivering the Change elsewhere.",
-      "wallMs": 4907,
+      "feedback": "Neither fact moved: After preserves both repository headings and keeps the button and column criteria under acme/widgets and the emailing criterion under acme/mailer. Keep those headings and row placements explicit while applying the requested gate and settlement wording; no changes to this grouping are needed.",
+      "wallMs": 5137,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "cf6e53b2e787b134805384690e0737cee2e7087c"
+  "repoSha": "2eb4429b4dd687432969f427f82d45d7840d7c63"
 }

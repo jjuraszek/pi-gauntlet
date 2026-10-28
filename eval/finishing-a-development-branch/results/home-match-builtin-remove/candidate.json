@@ -15,15 +15,6 @@
     "thinking": "medium"
   },
   "outputs": {
-    "anthropic/claude-opus-5-5": {
-      "status": "ok",
-      "text": "# Step 6: Cleanup Workspace\n\n**Option 3 (squash-merge), so cleanup runs.**\n\n## Overrides contract\n\n`.pi/gauntlet-overrides.md` has a `## using-git-worktrees` section with a `- home:` key. That makes it a **keyed contract**, so the legacy path does not apply.\n\n1. **Resolve `home:`.** `../acme-api-worktrees/<name>` resolved against `$PRIMARY` (`/work/acme-api`) gives `/work/acme-api-worktrees/<name>`.\n   - `<name>` appears exactly once.\n   - It fills one whole path segment, with no prefix or suffix.\n2. **Ownership match.** After `realpath`, nothing changes:\n   - Pattern: `/work/acme-api-worktrees/*`\n   - `$WORKTREE`: `/work/acme-api-worktrees/rate-limit`\n\n   The paths **match**, and `NAME = rate-limit`.\n3. **`destroy:`** is not set.\n4. **Match with no `destroy:`.** Use git's own removal, then delete the branch.\n\n## Commands\n\n```bash\ngit -C \"/work/acme-api\" worktree remove \"/work/acme-api-worktrees/rate-limit\"\ngit -C \"/work/acme-api\" worktree prune\ngit -C \"/work/acme-api\" branch -D \"rate-limit\"\n```\n\nThe worktree is removed before the branch is deleted. `git branch -D` would fail while the worktree still references `rate-limit`.\n\n`git worktree remove` runs without `--force`. If it fails, for example because of uncommitted or untracked files, stop at that point. Report the error, keep the branch, and do not escalate to `--force`.\n\n**Result:** gauntlet owned this worktree (it matches `home:`). It was removed and pruned, and the `rate-limit` branch was deleted from `/work/acme-api`. The squashed changes remain on `main`.\n",
-      "words": 193,
-      "wallMs": 8070,
-      "mechanical": {
-        "b3": "holds"
-      }
-    },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
       "text": "The keyed `home` pattern resolves to `/work/acme-api-worktrees/<name>` and matches `WORKTREE`, with `NAME=rate-limit`. No `destroy:` command is configured.\n\nRun in order, continuing only on success:\n\n```bash\ngit -C \"/work/acme-api\" worktree remove \"/work/acme-api-worktrees/rate-limit\"\ngit -C \"/work/acme-api\" worktree prune\ngit -C \"/work/acme-api\" branch -D \"rate-limit\"\n```\n",
@@ -35,37 +26,10 @@
     }
   },
   "judge": {
-    "anthropic/claude-opus-5-5": {
-      "factsSha": "44c6f347b2bf43b42c43699d15859d8f3015c0d5bfd4ef77b70fa1c01395950d",
-      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "2b07cd5789c3b4c5c74ed93b43c6f993f9ccb0032fbb11015cb3e218c6836332",
-      "baselineOutputSha": "57940c9159726a93088f11114888e56b24c2bdbe89f47cbfba72d02ac5e74453",
-      "candidateOutputSha": "46e80cd13593047701622e7e1666cf21f7b01b2980cea806c431e9b81b395b70",
-      "facts": {
-        "b1": {
-          "before": "holds",
-          "after": "holds",
-          "label": "intended but unchanged"
-        },
-        "b2": {
-          "before": "holds",
-          "after": "holds",
-          "label": "intended but unchanged"
-        },
-        "b3": {
-          "before": "holds",
-          "after": "holds",
-          "label": "intended but unchanged"
-        }
-      },
-      "feedback": "Both outputs match /work/acme-api-worktrees/rate-limit against the resolved home pattern with NAME = rate-limit, call the worktree gauntlet-owned, and issue worktree remove, worktree prune, then branch -D on /work/acme-api in that order, so neither fact moved; the Expected-to-move entries for b1/b2 reflect a baseline this Before did not exhibit. After's wording is sound: consolidating the three commands into one block with the explicit ordering sentence and the no-`--force` rule keeps every fact Before kept while delivering the explicit branch -D continuation. One nit for the After author: the Result paragraph switches to past tense (\"It was removed and pruned\"), which reads as if the commands already ran; keeping Before's future/conditional phrasing (\"will be removed... after the worktree removal succeeds\") avoids implying completed execution in a narration.",
-      "wallMs": 6137,
-      "verdict": "unchanged"
-    },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "44c6f347b2bf43b42c43699d15859d8f3015c0d5bfd4ef77b70fa1c01395950d",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "2b07cd5789c3b4c5c74ed93b43c6f993f9ccb0032fbb11015cb3e218c6836332",
+      "intentSha": "30343bc5c6f678faa9431a82e537b28e529d686c25202329a16e741a2b64b92c",
       "baselineOutputSha": "214858bb008fc350ed7d609b3360261b902221073251c8581783a26505d7369d",
       "candidateOutputSha": "6451af8121c42eed5096458f8e3aef8d00cdb91a04c892efe11ad1870728f934",
       "facts": {
@@ -85,10 +49,10 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "Nothing moved in this case: both arms match /work/acme-api-worktrees/rate-limit against the keyed home pattern with NAME=rate-limit, treat it as gauntlet-owned, and narrate worktree remove, prune, then branch -D in that order, so the listed fails->holds expectation for b1/b2 is not borne out by this Before text, which already satisfies both facts. The only material difference is that After drops the `&&` chaining in favor of the prose 'continuing only on success'; that still satisfies b2 as written, but if you want the stop-on-failure semantics to be unambiguous in the narrated command block itself (and to keep the 'keeps the branch when removal fails' rule visible), retain the `&&` chaining or add an explicit 'stop and keep the branch if remove fails' sentence while keeping the rest of the After wording.",
-      "wallMs": 9893,
+      "feedback": "Neither fact moved: After still matches the keyed home pattern with NAME=rate-limit, treats the worktree as owned by scheduling its removal, and narrates remove, prune, then branch deletion with success-only continuation. To make that continuation executable rather than dependent on the prose, retain Before’s && chaining. Explicitly calling the match gauntlet-owned would also clarify ownership while preserving both facts and the requested keyed cleanup behavior.",
+      "wallMs": 6567,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "43b5ec3f2933c5a716c49916e9b1b7c002bb3da2"
+  "repoSha": "2eb4429b4dd687432969f427f82d45d7840d7c63"
 }

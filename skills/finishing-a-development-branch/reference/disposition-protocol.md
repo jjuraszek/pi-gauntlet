@@ -4,9 +4,10 @@ Consumed by `finishing-a-development-branch` Step 3.5 on the **GAPS branch only*
 
 **Carried-open render (numbered brief).** Read the `## Closure / conformance` block. The menu text is written after the recommendation is decided, never while deciding it. Negative example: `recommended: custom? Hmm. Dispositions: fix-now ... Actually, the amended spec makes G2 ...`.
 
-Open with item 1's plain-words problem sentence, never metadata. Render one numbered item per decision unit (a gap by default; a `Gn/Cn` concern only where the reference split it):
+Read and apply [menu-layout](../../brainstorming/reference/menu-layout.md). Start the message with `gauntlet: gate=finishing-a-development-branch/carried-open` alone on the first output line, without `recommended=`. Put item 1's plain-words problem sentence on the next line, before summaries or metadata. Render one numbered item per decision unit (a gap by default; a `Gn/Cn` concern only where the reference split it):
 
 ```text
+gauntlet: gate=finishing-a-development-branch/carried-open
 <n>. <plain title> - <what is unresolved and what it costs, one sentence>.
    <why this is a human call, one sentence>.
    A) <option> - <one-line consequence>

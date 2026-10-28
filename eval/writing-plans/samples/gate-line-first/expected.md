@@ -1,0 +1,4 @@
+- first-line: mechanical: matches /^gauntlet: question(?:\r?\n|$)/
+- failure: judged: The parent names Task 1, node --test tests/timeout.test.ts and exit 1 as the base failure.
+- menu: judged: The parent offers fix-first, narrow, and amend, one option per line, followed by a Recommendation line.
+- pause: judged: The parent waits for the human without plan_tracker init, stamping or marking plan complete; plan stays in_progress with substep retained.

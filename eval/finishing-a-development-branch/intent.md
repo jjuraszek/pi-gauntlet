@@ -1,6 +1,8 @@
 for: c62e8914c9b61cc41095da4963091eb73afaeaa2fe807738747975550beb141b
 
 ## Change
+Start finishing decision messages with their owned gate marker before summaries and start final outcomes with exactly one done or stuck line. Render typed discard confirmation with gauntlet: question. Preserve full menus without a recommended suffix, authorization, cleanup and ship-state boundaries; delay pushed until the close-member gate is answered or absent.
+
 
 Finish loop ledgers using their verification command and Spec header; strip both plan candidates while preserving spec/telemetry, and include loop cut/amend grants in the amendment digest. The loop-ledger sample expands the default Step 6 cleanup slice to cover the hard gate and strip.
 Step 6 reads the overrides file's `## using-git-worktrees` section at finish time. With a keyed contract it matches `$WORKTREE` against `home:` with `<name>` matched inside one path segment, runs `destroy:` with the recovered name or the built-in `git worktree remove` + `prune`, and keeps the branch when `destroy:` fails; a non-matching path is host-owned. Without a section the legacy three homes decide, unchanged. Successful keyed cleanup explicitly continues to `git -C "$PRIMARY" branch -D "$FEATURE"`, with no built-in remove or prune after a successful `destroy:`.
@@ -14,6 +16,7 @@ Extend rework finishing to ordered PR lists: prove every original head before no
 Add spec-pr-menu and deferred-spec-stop using sample-local full finishing and header-PR instructions, without changing target-wide assembly. Both arms use accepted Wave 1 commit `43b5ec3f2933c5a716c49916e9b1b7c002bb3da2` via `--base HEAD`. This setup-only comparison proves narrated call ordering, not live verification/delivery or before/after improvement. Every new candidate fact must hold regardless of aggregate verdict; retain existing fact IDs and authorized directions. Task 1 retains the original-base deterministic red/green proof.
 
 ## Expected to move
+- gate-line-first/gate-first: fails -> holds - Clean closure opens the full Step 4 menu with one marker before the summary.
 - pr-list-push-and-close/ordering: fails -> holds - Prove all three original heads and preserve refs before strip/seal and home push, then edit body before asking; retain exact comments, attributed threads, immediate rechecks and all success/decline/stale/closed/failed-close variants.
 - pr-list-push-rejected/rejection: fails -> holds - Preserve worktree and open members after one rejected push, without force, retry, body edit or close question; retain guard variants.
 - pr-list-body-edit-failed/failure: fails -> holds - Preserve successful push and original description, print attributed block for manual paste, and leave both members open; fetch failure likewise cannot trigger edit or closure.

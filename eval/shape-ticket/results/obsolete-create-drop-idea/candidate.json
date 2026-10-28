@@ -1,78 +1,36 @@
 {
   "sample": "obsolete-create-drop-idea",
   "arm": "candidate",
-  "skillSha": "a5ad3bed258239194b22bb6e2f9764e7c46308bf21edf9ffbc6d40fe8c6632ac",
+  "skillSha": "42818e6b7affb81a27fe0bee8944a8d54385c54321c01aab5340801234eed235",
   "inputSha": "80bc7628c49aded9ca3270a4747bf6ae56b85f4dffc565d6d0b0c613e6ce58cf",
   "kind": "text",
   "assembly": "concat",
   "thinking": "medium",
   "models": {
     "replay": [
-      "anthropic/claude-opus-5-5",
       "github-copilot/gpt-6.1-sol"
     ],
-    "judge": "anthropic-fable/claude-fable-5-1",
+    "judge": "github-copilot/gpt-6.1-sol",
     "thinking": "medium"
   },
   "outputs": {
-    "anthropic/claude-opus-5-5": {
-      "status": "ok",
-      "text": "**shape-ticket - create mode, gate 1 of 1**\n\nTicket: *Reviewers can download the report they are viewing with every row* (drafted title; nothing has been filed yet). Overlap check: no candidate found. Bounded discovery does not prove that no overlapping ticket exists.\n\n---\n\n**Audit:**\n- `obsolete: delivered: src/report-download.ts:12`\n- `repo-fit: exists - src/report-download.ts:12`\n- `unverified: Reviewers need a local copy - user need`\n- `scenario: none (fresh feature ask)`\n\n**Title** (as-new)\n`Reviewers can download the report they are viewing with every row`\n\n**Body** (as-new)\n\n```markdown\n## Context\n\nReviewers work from reports on screen and sometimes need a local copy of the report they are viewing.\n\n## Problem\n\nReviewers need to take the report they are viewing away as a file, and that file must keep every row the report shows.\nExample: a report containing two rows should download as a file containing those same two rows.\n\nscenario: none (fresh feature ask)\n\n## Idea\n\nreporter proposes a download action; src/report-download.ts:12 routes this through downloadReport\n\n## Acceptance Criteria\n\n- [ ] Given a report containing two rows, when a reviewer downloads it, the downloaded file contains those same two rows.\n```\n\n**Metadata changeset:** none (metadata audit clean).\n\n**Evidence**\n- `src/report-download.ts:12` (opened). `downloadReport(report)` saves `report.csv` from `encodeRows(report.rows)`.\n- Callers (opened) expose this download action to reviewers.\n- `encodeRows` (opened) preserves every input row in the downloaded file. The requested two-row behavior is already implemented.\n\n**Source gaps**\n- `source missing: a report containing two rows should download as a file containing those same two rows`\n\nThe footer slot for this gap stays empty until you choose an approve option below.\n\n**Roast dispositions:** applied: none. Surfaced-ambiguous: none.\n\n**Split proposal:** none.\n\n**Proposed comment / relations:** none.\n\n---\n\n**Closing evidence for the drop option:**\n`Audit: obsolete: delivered: src/report-download.ts:12`\n\nPick one:\n1. Create anyway (approve with a link, attachment, or reason): files the exact title, body and metadata above, filling the source footer with what you supply.\n2. Create anyway (approve and proceed without a source): files the exact title, body and metadata above.\n3. Revise: tell me what to change. I will recheck it and show the new version.\n4. Drop the idea - delivered: src/report-download.ts:12 (writes nothing) [recommended]\n\nNothing has been created or written. Waiting for your selection.\n",
-      "words": 349,
-      "wallMs": 22592,
-      "mechanical": {
-        "no-commands": "holds"
-      }
-    },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "## Create — confirmation gate\n\n### Audit:\n- obsolete: delivered: src/report-download.ts:12\n- unverified: Reviewers need a local copy — user need cannot be checked against the repository.\n- repo-fit: exists — src/report-download.ts:12; the opened callers expose the action to reviewers, and the encoder preserves every input row.\n- scenario: none (fresh feature ask)\n\n**Title (as new):** Download report rows without losing rows\n\n**Body (as new):**\n```markdown\n## Context\n\nReviewers need a local copy of the report they are viewing.\n\n## Problem\n\nThe requested download behavior is already implemented (src/report-download.ts:12).\n\nFor a report containing two rows, downloading produces a file containing those same two rows.\n\nscenario: none (fresh feature ask)\n\n## Idea\n\nReporter proposes a download action; src/report-download.ts:12 routes this through the existing report download.\n\n## Acceptance Criteria\n\n- [ ] Given a report containing two rows, when a reviewer downloads it, the resulting file contains those same two rows.\n```\n\n**Metadata changeset:** None.\n\n### Evidence\n- The opened implementation saves the report’s encoded rows to a file.\n- The opened callers expose the action to reviewers; the encoder preserves every input row. This covers the requested two-row behavior.\n- No current-system scenario was run: fresh feature ask.\n- No source URL or attachment was supplied.\n\n**source missing:** For a report containing two rows, downloading produces a file containing those same two rows.\n\nThe create draft intentionally has no source footer yet. Resolve this gap through an approval choice below.\n\n**Overlap coverage:** Bounded discovery found no candidate. Query details, counts, elapsed time, and truncation information were not supplied at this checkpoint. This does not establish that no overlap or conflicting decision exists.\n\n**Roast dispositions:** No blocking findings supplied.\n\n**Proposed comment / relations:** None. No split proposed.\n\n### Pick one:\n\n1. **Approve with a link, attachment, or reason** — create the exact ticket above, adding only the source footer resolved by your reply.\n2. **Approve and proceed without** — create the exact ticket above, adding a dated proceed-without source footer for the displayed gap.\n3. **Revise** — describe the changes; the revised exact payload will return for approval.\n4. **Drop the idea — requested behavior is already implemented** **[recommended]** — no ticket, comment, or other write.\n\nClosing evidence for option 4:\n\nAudit: obsolete: delivered: src/report-download.ts:12\n\nNo write has been made. Select an option; for option 1, include the link, attachment, or reason.\n",
-      "words": 361,
-      "wallMs": 38002,
+      "text": "gauntlet: gate=shape-ticket/step-8 recommended=4\n\nMode: create. Temp root: not supplied; tools disabled. Preparation is complete for this checkpoint. No write has been authorized.\n\nAudit:\n- unverified: Reviewers need a local copy — user need is not checkable against code.\n- repo-fit: exists — src/report-download.ts:12\n- obsolete: delivered: src/report-download.ts:12\n- scenario: none (fresh feature ask)\n\n**Title — as new**\n\nLet reviewers download report rows without losing rows\n\n**Body — as new**\n\n```markdown\n## Context\n\nReviewers need a local copy of the report they are viewing.\n\n## Problem\n\nFor a report containing two rows, the downloaded file must contain those same two rows.\n\nscenario: none (fresh feature ask)\n\n## Idea\n\nReporter proposes a download action; src/report-download.ts:12 routes this through the existing downloadReport action.\n\n## Acceptance Criteria\n\n- [ ] Given a report containing two rows, when a reviewer downloads it, the resulting file contains those same two rows.\n```\n\n**Metadata changeset:** None.\n\n**Evidence**\n- The opened implementation at `src/report-download.ts:12` saves a file encoded from `report.rows`.\n- Opened callers already expose this action to reviewers, and `encodeRows` preserves every input row. The requested two-row behavior is already implemented.\n- No executed scenario, source URL, or attachment was supplied.\n\n**Source gaps**\n\nsource missing: For a report containing two rows, the downloaded file must contain those same two rows.\n\nThe create draft intentionally has no source footer for this unresolved gap. A supplied link, attachment, or reason will resolve only this example’s footer. Plain “yes” will leave the gate open.\n\n**Roast dispositions:** No blocking findings; no edits applied or ambiguous findings surfaced.\n\n**Overlap coverage:** Bounded discovery found no candidate. Query, count, timing, and truncation details were not supplied at this checkpoint, so coverage cannot be independently characterized. No candidate found is not a uniqueness guarantee.\n\n**Proposed comment / relations:** None.\n\nThe repository already provides the requested behavior. Creating anyway would file the body above without claiming that the capability is absent.\n\nPick one:\n\n1. **Approve with a link, attachment, or reason** — create anyway using the displayed title, body, and metadata, adding only the source footer resolved by your reply.\n2. **Approve and proceed without** — create anyway using the displayed payload, resolving this source gap with the dated proceed-without footer.\n3. **Revise** — describe the changes; the revised exact payload will return for approval.\n4. **Drop the idea — delivered: src/report-download.ts:12** **[recommended]** — no write.\n\nClosing evidence for the drop option:\n\nAudit: obsolete: delivered: src/report-download.ts:12\n",
+      "words": 375,
+      "wallMs": 23695,
       "mechanical": {
         "no-commands": "holds"
       }
     }
   },
   "judge": {
-    "anthropic/claude-opus-5-5": {
-      "factsSha": "91acebaee327d3938e2d4504b6d9063812ef9119e3f39d79e6d8fd097c809f7c",
-      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "37c01603ac4620d1f1596beac660de51a9a2f55024a55e0349f68590987ec325",
-      "baselineOutputSha": "4a5c6cbcc550822f11847e9e39f3ae2a20113b1923b90b829e7f4fec8a1f8769",
-      "candidateOutputSha": "f6e9b7f150cfd0b7844f08a33c48a2a7c180ab6f583104105c8043ea5f33b1de",
-      "facts": {
-        "verdict": {
-          "before": "holds",
-          "after": "holds",
-          "label": "intended but unchanged"
-        },
-        "drop": {
-          "before": "holds",
-          "after": "holds",
-          "label": "intended but unchanged"
-        },
-        "no-write": {
-          "before": "holds",
-          "after": "holds",
-          "label": "held"
-        },
-        "no-commands": {
-          "before": "holds",
-          "after": "holds",
-          "label": "held"
-        }
-      },
-      "feedback": "Nothing moved on this case: both outputs render the Audit block with `obsolete: delivered: src/report-download.ts:12` above Title, give the single [recommended] tag to the Drop the idea row while keeping two create-anyway options and an as-new body selectable, and stop for a selection with an explicit 'Nothing has been created or written.' After is slightly tighter (closing evidence labelled for the drop option, option 4 marked '(writes nothing)'), which supports the drop fact more directly. Two drifts worth watching for sibling facts rather than these: After drops the '(create-anyway alternative)' label on the body, so the mutual exclusivity between create-anyway and drop is now only implied by the menu, and After reports 'Proposed comment / relations: none' where Before carried the original reporter idea into a Reporter note after the repo-fit fold — if the audit-repo-fit/idea guard expects that Reporter note, keep the fold rule that emits the comment whenever Idea is rewritten. Keeping the '(as-new, create-anyway alternative)' body label and the Reporter note would preserve every Before fact while still delivering the recommended drop row and parent-owned obsolete verdict.",
-      "wallMs": 12319,
-      "verdict": "unchanged"
-    },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "91acebaee327d3938e2d4504b6d9063812ef9119e3f39d79e6d8fd097c809f7c",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "37c01603ac4620d1f1596beac660de51a9a2f55024a55e0349f68590987ec325",
+      "intentSha": "5e5d3dfc0b642d6f632cf7cf04a895a28aaa28b4761d1e7433eb56d06a27861c",
       "baselineOutputSha": "c04de202bc256eb43cae36ddaa3ce4a09e3828522e96e3fd8fc5c1ebf855dba5",
-      "candidateOutputSha": "e75859ee4767ead6b37c2e082b8b2180d37a1c0a88b77c86926f7b99ba59797f",
+      "candidateOutputSha": "c22f806ced9a2c9a76f781178bdac27af7f3c88d69c55ba673838c7249cc84c6",
       "facts": {
         "verdict": {
           "before": "holds",
@@ -95,10 +53,10 @@
           "label": "held"
         }
       },
-      "feedback": "Nothing moved: both outputs place an Audit block containing `obsolete: delivered: src/report-download.ts:12` above the Title, both give the single `[recommended]` tag to the Drop-the-idea row while keeping create options 1–2 and the as-new body available, and both end with an explicit no-write statement and a request for a selection. After tightens the audit (merging caller/encoder evidence into repo-fit) and adds a labelled 'Closing evidence for option 4' line, which reads cleanly. One small risk in After: it dropped Before's explicit sentence 'Creation and dropping are mutually exclusive', relying on 'Pick one' alone; keeping that one sentence above the menu would make the drop fact unambiguous for a strict reader while still delivering the parent-owned obsolete verdict and single recommended row the Change asks for.",
-      "wallMs": 10979,
+      "feedback": "No listed fact changed: both outputs identify the delivered capability with its repository citation above Title, retain an as-new create-anyway body alongside a single recommended Drop option, and stop for selection without claiming a write. After preserves these guards while making source-gap approval more explicit. Keep the cited obsolete verdict and separately numbered choices; restoring Before’s explicit sentence that creation and dropping are mutually exclusive would make that constraint clearer without changing the behavior.",
+      "wallMs": 6996,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "891991430a7b632bf2a6130e6b49972104b6ff7a"
+  "repoSha": "2eb4429b4dd687432969f427f82d45d7840d7c63"
 }

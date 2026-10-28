@@ -1,79 +1,34 @@
 {
   "sample": "loop-ledger-brief",
   "arm": "candidate",
-  "skillSha": "68dd8cf7de50ce8242bde01e5747063a0a4511f060c9e50901db01a70ffed015",
+  "skillSha": "4a7067836fd5b88ea0f4458a9ee388734926d662dcbbf5c655ce5b147be9e912",
   "inputSha": "7b057e4df4d0e9bd9ac9d46a0ab4cbd9652664d65b278a0aa6bb438daf84c3ad",
   "kind": "text",
   "assembly": "headed",
   "thinking": "medium",
   "models": {
     "replay": [
-      "anthropic/claude-opus-5-5",
       "github-copilot/gpt-6.1-sol"
     ],
-    "judge": "anthropic-fable/claude-fable-5-1",
+    "judge": "github-copilot/gpt-6.1-sol",
     "thinking": "medium"
   },
   "outputs": {
-    "anthropic/claude-opus-5-5": {
-      "status": "ok",
-      "text": "# Interrupted loop run: handoff and resume\n\nOnly `/tmp/pi-handoff/loop.md` is written, and its process-state section is appended. No second state file is created.\n\n---\n\n## Part A: Producer (`/skill:gauntlet-handoff`, previous session)\n\n**Announce:**\n> I'm using the gauntlet-handoff skill to write a resumable handoff brief.\n\n1. **Read the contract.** Read `../gauntlet-resume/reference/brief-contract.md` in full.\n2. **Resolve the target.** Neither `--out` nor `--key` was given, so the key comes from the run worktree:\n   `git -C \"/work/app/.worktrees/loop\" branch --show-current`\n   Any `/` in the branch name is replaced with `-`.\n3. **Run cohort's procedure.** Run `pi list`, find the `pi-cohort` root, read `<root>/skills/handoff/SKILL.md` and follow it. Cohort reports:\n   `Handoff written: /tmp/pi-handoff/loop.md`\n   Line 1 starts with `# Handoff:`.\n4. **Double-section check.** There is no `^## Process state` line, so continue.\n5. **Hotfix exclusion.** `skills/chase-bug/hotfix.md` is not in context, so continue.\n6. **Read tracker state.**\n   - `phase_tracker({ action: \"status\" })` shows implement in_progress.\n   - `plan_tracker({ action: \"status\" })` returns `No plan active.`\n\n   Line 1 of the ledger, `# Ledger - loop engine`, marks this as the loop alternative. The durable last decision is read from the run worktree's ledger. The spec has no `## Rework record`, so the ordinary layout applies with no PR pairs.\n\n   One append, laid out per the contract's `## Producers`:\n   ```\n   cat >> \"/tmp/pi-handoff/loop.md\" <<'EOF'\n   ## Process state\n   <phase_tracker status output, verbatim: implement in_progress>\n   No plan active.\n   Ledger: doc/plans/run-ledger.md\n   <ledger last decision: row 1 failed | empty input rejected | handle empty input>\n   <gate-history line from the contract>\n   EOF\n   ```\n   Re-read the file tail and confirm it ends with the gate-history line and nothing after it.\n7. **Report.** Print:\n   `/tmp/pi-handoff/loop.md`\n   `/skill:gauntlet-resume /tmp/pi-handoff/loop.md`\n\n   If the brief's `worktree:` field is `no`, print instead:\n   `/skill:gauntlet-resume /tmp/pi-handoff/loop.md /work/app/.worktrees/loop`\n\n---\n\n## Part B: Consumer (`/skill:gauntlet-resume`, fresh idle session), implement with ledger\n\n**Ordered restore** (state the whole sequence, even though some steps already ran):\n\n1. **Ledger header.** Ledger line 1 was read. The path-only `**Spec:**` header resolves to `/work/app/.worktrees/loop/doc/specs/run.md`. This pairs by header, not basename, under `flowGuards.specDirs`, with the ledger in its sibling plans directory.\n2. **Entry checks 1–6 passed.**\n   - Check 6 (Grant field) decoded the spec grant: none.\n   - The deferred stop was honored and did not fire.\n   - The worktree is same-repository, clean and confirmed by the human.\n3. `phase_tracker({ action: \"start\", phase: \"brainstorm\" })`. This arms the flow.\n4. `phase_tracker({ action: \"skip\", phase: \"brainstorm\", reason: \"resume: /work/app/.worktrees/loop/doc/specs/run.md\" })`\n5. `phase_tracker({ action: \"start\", phase: \"plan\" })`\n6. `plan_check({ planPath: \"/work/app/.worktrees/loop/doc/plans/run-ledger.md\" })` returns **PASS**.\n7. `phase_tracker({ action: \"skip\", phase: \"plan\", reason: \"resume: /work/app/.worktrees/loop/doc/specs/run.md (loop engine)\" })`\n8. `phase_tracker({ action: \"start\", phase: \"implement\" })`\n9. No `plan_tracker init` is called.\n10. **Shared cap boundary** (reconstruction \"Spec with ledger\" step 4):\n    - The `cap:` header is present, so there is no legacy stop.\n    - `iterations` is 5 and `cap` is 97, so 5 < 97 and the run is not at cap.\n11. **Render the restored ledger state:**\n\n    | Field | Value |\n    |---|---|\n    | cap | 97 |\n    | iterations | 5 |\n    | row 1 | failed, attempts 2, evidence `check failed` |\n    | Decisions | full section, last line `row 1 failed \\| empty input rejected \\| handle empty input` |\n\n**Printed:**\n- The contract's closing line: gate history not restored; task to re-validate is the ledger's open row 1.\n- `No standing grant.`\n\n**Continue in `/skill:loop-implementation` at step 5, \"Before each dispatch\".**\n\nEntry step 1 is skipped because the ledger is already admitted. The existing ledger, its base, its verification command, `iterations` and `cap` are all reused.\n\n1. `git -C \"/work/app/.worktrees/loop\" status --porcelain` returns empty, so the tree is clean and dispatch is not blocked.\n2. Read the ledger and confirm the `cap:` header is present. Then apply the ordered table:\n\n   | Rule | Check | Result |\n   |---|---|---|\n   | 1 | Any `open` or `failed` row? | Row 1 is failed, so do not exit. |\n   | 2 | Row attempts at allowance? | Allowance is 3 (no funding, no retry decision). Attempts are 2, so no stop. |\n   | 3 | Last two child `loop: row ...` commits both empty? | Check the branch history; stop only if both changed no file outside the ledger and no row status. |\n   | 4 | `iterations` >= `cap`? | 5 < 97, so no stop. |\n   | 5 | Dispatch allowed | Select the target. |\n\n3. **Select the target.**\n   - First confirm the validated `loop: seed evidence` commit and its `row 0 done` decision survive on the branch.\n   - The target is then row 1, the still-failed row named by the previous decision.\n4. **Prepare the dispatch.**\n   - Record `HEAD_BEFORE` and copy the ledger text.\n   - Set i = 5.\n   - Bump `iterations: 6` in the working tree.\n   - Run `mktemp` for an output path outside the repository.\n5. **Dispatch:**\n   ```\n   subagent({ agent: \"loop-implementer\", context: \"fresh\", async: false,\n     cwd: \"/work/app/.worktrees/loop\", output: \"<mktemp path>\", outputMode: \"file-only\",\n     acceptance: { level: \"none\", reason: \"the parent validates the ledger and the commit\" },\n     task: \"iteration: 5\\nspec: /work/app/.worktrees/loop/doc/specs/run.md\\nledger: /work/app/.worktrees/loop/doc/plans/run-ledger.md\\nbase: <ledger base SHA>\\ntarget: 1\\nprevious decision: row 1 failed | empty input rejected | handle empty input\\nhint: none\" })\n   ```\n   Validation of the return proceeds as the driver specifies.\n\n### FAIL alternative\n\nIf step 6 `plan_check` returns **FAIL**, stop with its findings verbatim.\n\n- Do not run `## Plan repair` or writing-plans.\n- Do not call `skip plan` or `start implement`.\n- Do not dispatch.\n\n---\n\n## Part C: Same Ledger brief interrupted right after `start verify`\n\nThe brief's active phase is verify. The handoff wrote `No plan active.` and the `Ledger:` field.\n\n**Ordered restore:**\n\n1. Steps 1–7 run as in Part B, including `plan_check` PASS and `skip plan` with reason `resume: /work/app/.worktrees/loop/doc/specs/run.md (loop engine)`.\n2. `phase_tracker({ action: \"skip\", phase: \"implement\", reason: \"resume: /tmp/pi-handoff/loop.md\" })`\n3. `phase_tracker({ action: \"start\", phase: \"verify\" })`\n4. Never call `start implement`, and make no `plan_tracker` calls.\n5. **Shared cap boundary:** the `cap:` header is present and `iterations` is below `cap`, so there is no stop before verification. Render the cap and the restored ledger rows and decisions.\n6. **Print** the closing line, then `No standing grant.`\n\n**Continue in `/skill:loop-implementation`, section \"After the loop\":**\n\n1. Read SDD's `After All Tasks Complete`, `happy-path-run.md` and `conformance-check.md` in full.\n2. Skip step 0, because `start verify` is already restored.\n3. Run step 1: full ledger verification with the ledger's `verification:` command. Nothing from earlier gate runs is carried over.\n4. Run step 2: whole-diff `code-reviewer` from the ledger base to HEAD, with its fix rounds, rerunning full verification after each repair.\n5. Run step 3: happy path when triggered, then a fresh `conformance-reviewer` against the spec rows and the ledger.\n6. Run step 4: emit the closure schema.\n7. Run step 5: `/skill:finishing-a-development-branch /work/app/.worktrees/loop`.\n\n---\n\n## Part D: Ship-stage Ledger brief\n\nRestore it exactly as Part C. Restoration stops at verify in_progress:\n\n- `complete verify` requires a fresh conformance dispatch.\n- `skip verify` would bypass a real gate.\n\n**Announce:**\n> The closure review re-runs before ship.\n\nThen continue from \"After the loop\" step 1, exactly as in Part C.\n",
-      "words": 1058,
-      "wallMs": 42152,
-      "mechanical": {}
-    },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "I can give the determined calls and routing, but not an exact, complete transcript: the supplied contract omits `## Producers`, its literal closing/gate-history lines, and reconstruction’s shared cap-boundary procedure. The full verbatim phase-status output is also absent. I will not invent those or a process-state layout. No tools are being used below.\n\n## Producer: implement-stage handoff\n\nThe prescribed opening line is:\n\n> I'm using the gauntlet-handoff skill to write a resumable handoff brief.\n\nCohort has already reported:\n\n> Handoff written: /tmp/pi-handoff/loop.md\n\nAfter checking the brief’s first line, absence of an existing Process state section, and hotfix exclusion, the producer calls, in order:\n\n```text\nphase_tracker({ action: \"status\" })\nplan_tracker({ action: \"status\" })\n```\n\nThe appended section must contain:\n\n- Both status outputs verbatim, including `No plan active.`\n- The contract’s ledger-specific fields identifying `doc/plans/run-ledger.md`.\n- The durable last decision:\n  `row 1 failed | empty input rejected | handle empty input`\n- The contract’s exact gate-history line.\n\nThe ledger discriminant selects the loop alternative; the producer must not invent a task-plan snapshot. It appends the section with one `cat >> \"/tmp/pi-handoff/loop.md\"` heredoc, then re-reads the tail to check its required ending. There is no second state file and no tracker mutation.\n\nThe exact heredoc cannot be rendered without `## Producers`.\n\nThe final report identifies:\n\n```text\n/tmp/pi-handoff/loop.md\n/skill:gauntlet-resume /tmp/pi-handoff/loop.md\n```\n\nIf the brief’s `worktree:` field is `no`, the command instead includes the known run worktree:\n\n```text\n/skill:gauntlet-resume /tmp/pi-handoff/loop.md /work/app/.worktrees/loop\n```\n\n## Consumer: implement-stage ledger, PASS\n\nThe resolved paths remain:\n\n```text\nworktree: /work/app/.worktrees/loop\nspec: /work/app/.worktrees/loop/doc/specs/run.md\nledger: /work/app/.worktrees/loop/doc/plans/run-ledger.md\n```\n\nThe required **entire ordered restore sequence** is:\n\n1. Read the ledger’s first line and resolve its path-only Spec header.\n2. Run entry checks 1–6, explicitly including **check 6: Grant field**. These checks and human confirmation have already passed.\n3. Arm and reconstruct the phases:\n\n```text\nphase_tracker({ action: \"start\", phase: \"brainstorm\" })\nphase_tracker({\n  action: \"skip\",\n  phase: \"brainstorm\",\n  reason: \"resume: /work/app/.worktrees/loop/doc/specs/run.md\"\n})\nphase_tracker({ action: \"start\", phase: \"plan\" })\n```\n\nThose calls precede the supplied current point. The next call is:\n\n```text\nplan_check({\n  planPath: \"/work/app/.worktrees/loop/doc/plans/run-ledger.md\"\n})\n```\n\nObserved result:\n\n```text\nPASS\n```\n\nThen:\n\n```text\nphase_tracker({\n  action: \"skip\",\n  phase: \"plan\",\n  reason: \"resume: /work/app/.worktrees/loop/doc/specs/run.md (loop engine)\"\n})\nphase_tracker({ action: \"start\", phase: \"implement\" })\n```\n\nThere is **no `plan_tracker init`**.\n\nApply reconstruction’s shared cap boundary before continuation, preserving the existing ledger, attempts, decisions, iterations and cap. Render the supplied durable state:\n\n```text\niterations: 5\ncap: 97\nrow 1: failed; attempts: 2; evidence: check failed\nlast decision: row 1 failed | empty input rejected | handle empty input\n```\n\nAfter successful restore, print the contract’s literal closing line about gate history not being restored and the task to re-validate. That literal line was not supplied. Immediately after it, print exactly:\n\n```text\nNo standing grant.\n```\n\nContinue in loop-implementation at **Before each dispatch**, not its fresh-seeding Entry. Do not overwrite or recommit a skeleton, recalculate cap, load fresh-seeding settings, or initialize a task tracker.\n\nThe reported iterations and row attempts alone do not exhaust either limit. Nevertheless, target selection requires the existing seed-evidence and operational history: do not infer that seed admission or the stagnation checks passed merely from iteration 5. Recheck cleanliness before dispatch.\n\n## Consumer: plan_check FAIL alternative\n\nAt the same call:\n\n```text\nplan_check({\n  planPath: \"/work/app/.worktrees/loop/doc/plans/run-ledger.md\"\n})\n```\n\nIf the result is FAIL, stop and report its actual findings. No findings were supplied to quote.\n\nDo **not** call `skip plan` or `start implement`; do not run Plan repair, writing-plans, or any task-tracker initialization. Do not print a successful-restoration closing announcement.\n\n## Verify-stage Ledger brief\n\nFor an interruption immediately after `start verify`, restore in this order after the admitted entry checks:\n\n```text\nphase_tracker({ action: \"start\", phase: \"brainstorm\" })\nphase_tracker({\n  action: \"skip\",\n  phase: \"brainstorm\",\n  reason: \"resume: /work/app/.worktrees/loop/doc/specs/run.md\"\n})\nphase_tracker({ action: \"start\", phase: \"plan\" })\nplan_check({\n  planPath: \"/work/app/.worktrees/loop/doc/plans/run-ledger.md\"\n})\n```\n\nOn PASS:\n\n```text\nphase_tracker({\n  action: \"skip\",\n  phase: \"plan\",\n  reason: \"resume: /work/app/.worktrees/loop/doc/specs/run.md (loop engine)\"\n})\nphase_tracker({\n  action: \"skip\",\n  phase: \"implement\",\n  reason: \"resume: /tmp/pi-handoff/loop.md\"\n})\nphase_tracker({ action: \"start\", phase: \"verify\" })\n```\n\nNever call `start implement` or initialize a task tracker.\n\nApply the shared cap boundary before verification and render the restored ledger state. Print the prescribed closing line, followed by:\n\n```text\nNo standing grant.\n```\n\nRead **After the loop** and all its required references in full. Continue from step 1—**full ledger verification**—without repeating step 0’s `start verify`. Retain foreground whole-diff code review, happy path when triggered, fresh conformance review, and finishing. Prior gate evidence is not restored.\n\n## Ship-stage Ledger brief\n\nUse the same ledger restore sequence as verify, ending at:\n\n```text\nphase_tracker({ action: \"start\", phase: \"verify\" })\n```\n\nAnnounce that closure review re-runs before ship. Do not restore ship directly, skip verify, or complete verify using previous evidence.\n\nContinue through loop-implementation’s **After the loop**, starting with full ledger verification and retaining the same review and finishing gates. No task-tracker calls and no second state file.\n",
-      "words": 750,
-      "wallMs": 38073,
+      "text": "The supplied excerpts determine the routing and tracker calls, but omit the full contract’s **Producers layout**, exact **closing line**, and reconstruction’s shared cap-boundary text. I cannot invent those or present a fabricated append as contract-compliant. The following is the determined trace, not executed tool calls.\n\n## Producer: implement-stage handoff\n\nThe producer must first read `reference/brief-contract.md` in full. Assuming that prerequisite and the preceding handoff steps are satisfied:\n\n1. Take `/tmp/pi-handoff/loop.md` from cohort’s report; do not recompute the path.\n2. Confirm its first line starts with `# Handoff:` and that it has no existing `## Process state` section.\n3. Call:\n   ```text\n   phase_tracker({ action: \"status\" })\n   ```\n   Observe implement active. The exact status output must be copied verbatim; a summarized input is not a substitute for that output.\n4. Call:\n   ```text\n   plan_tracker({ action: \"status\" })\n   ```\n   Observe and preserve verbatim:\n   ```text\n   No plan active.\n   ```\n5. Recognize the ledger from its exact first line:\n   ```text\n   # Ledger - loop engine\n   ```\n   Use the ledger alternative in the producer layout, carrying the ledger identity and durable last decision:\n   ```text\n   row 1 failed | empty input rejected | handle empty input\n   ```\n   The durable ledger retains `iterations: 5`, `cap: 97`, and row 1’s failed status, two attempts, and evidence `check failed`. Do not turn these into task-tracker state.\n6. Append the contract-defined process-state block with **one**:\n   ```bash\n   cat >> \"/tmp/pi-handoff/loop.md\" <<'EOF'\n   ...exact contract-defined process-state block...\n   EOF\n   ```\n   This illustrates the operation, **not an executable replacement for the missing grammar**. Create no second state file.\n7. Re-read the tail and require the contract’s exact gate-history line to be last.\n8. Print:\n   ```text\n   gauntlet: done brief-written\n   /tmp/pi-handoff/loop.md\n   /skill:gauntlet-resume /tmp/pi-handoff/loop.md\n   ```\n   If cohort’s actual `worktree:` field is `no`, the last line instead needs the override:\n   ```text\n   /skill:gauntlet-resume /tmp/pi-handoff/loop.md /work/app/.worktrees/loop\n   ```\n\nThe producer writes neither tracker state nor a repair/marker commit.\n\n## Consumer: implement-stage ledger, PASS\n\nThe complete ordered restore must be stated explicitly:\n\n1. Read the ledger’s line-1 discriminant and resolve its path-only `**Spec:**` header to `/work/app/.worktrees/loop/doc/specs/run.md`.\n2. Run entry checks 1–6, explicitly including **check 6 — Grant field**. These checks and human confirmation are already passed here; the grant is none.\n3. Call:\n   ```text\n   phase_tracker({ action: \"start\", phase: \"brainstorm\" })\n   ```\n4. Call:\n   ```text\n   phase_tracker({\n     action: \"skip\",\n     phase: \"brainstorm\",\n     reason: \"resume: /work/app/.worktrees/loop/doc/specs/run.md\"\n   })\n   ```\n5. Call:\n   ```text\n   phase_tracker({ action: \"start\", phase: \"plan\" })\n   ```\n6. **The supplied interruption point is here.** Call:\n   ```text\n   plan_check({\n     planPath: \"/work/app/.worktrees/loop/doc/plans/run-ledger.md\"\n   })\n   ```\n   Observe `PASS`.\n7. Call:\n   ```text\n   phase_tracker({\n     action: \"skip\",\n     phase: \"plan\",\n     reason: \"resume: /work/app/.worktrees/loop/doc/specs/run.md (loop engine)\"\n   })\n   ```\n8. Call:\n   ```text\n   phase_tracker({ action: \"start\", phase: \"implement\" })\n   ```\n\nDo **not** initialize a task tracker, reseed the ledger, resolve fresh-seeding settings, or reset attempts, iterations, retry windows, or cap.\n\nApply reconstruction’s shared cap boundary before continuation. Render the restored state, including:\n\n```text\niterations: 5\ncap: 97\nrow 1: failed; attempts: 2; evidence: check failed\nlast decision: row 1 failed | empty input rejected | handle empty input\n```\n\nPrint the contract’s exact closing line about gate history not being restored and re-validating the task—its literal text is absent from the supplied excerpts—then print exactly:\n\n```text\nNo standing grant.\n```\n\nContinue automatically in **loop-implementation, Before each dispatch**, not its fresh Entry sequence. Recheck cleanliness before dispatch.\n\nThe provided state does not establish whether a validated seed-evidence commit survives on the branch. Therefore, it does not yet justify dispatching row 1: target `seed` unless that durable seed condition is established; otherwise apply the driver’s retry/failed-row priority. Do not invent a dispatch or its result.\n\n### FAIL alternative\n\nAt step 6, if `plan_check` returns `FAIL`:\n\n- Stop with its actual findings.\n- Do not call `skip plan` or `start implement`.\n- Do not enter Plan repair or writing-plans.\n- Do not initialize a task tracker, rewrite the ledger, or commit a repair.\n\nNo concrete findings were supplied, so none can be quoted.\n\n## Consumer: ledger interrupted immediately after `start verify`\n\nUse the ledger restore sequence through `plan_check` and `skip plan` above. After PASS, call:\n\n```text\nphase_tracker({\n  action: \"skip\",\n  phase: \"implement\",\n  reason: \"resume: /tmp/pi-handoff/loop.md\"\n})\n```\n\nThen call:\n\n```text\nphase_tracker({ action: \"start\", phase: \"verify\" })\n```\n\nNever call `start implement` and never initialize a task tracker.\n\nApply the shared cap boundary **before verification**, preserving and rendering the actual restored ledger’s cap, iterations, rows, attempts, and decisions. A missing cap invokes the legacy stop; never derive a replacement from current settings.\n\nPrint the contract closing line, followed by:\n\n```text\nNo standing grant.\n```\n\nContinue in **loop-implementation, After the loop**, starting at **step 1**, because `start verify` has already been restored. First read its required references in full; stop if they are unreadable.\n\nRe-run full ledger verification: the interrupted session’s passing run is not restored gate evidence. Then retain, in order:\n\n1. Whole-diff code review from ledger base through committed HEAD.\n2. Happy-path execution when triggered.\n3. Fresh conformance review and its required fix handling.\n4. Completion of verify only when its current gate permits it.\n5. The finishing-a-development-branch handoff.\n\nDo not restore earlier review evidence or fix rounds.\n\n## Consumer: ship-stage ledger brief\n\nUse the **same verify restoration sequence**, including `skip implement` and `start verify`, with no task-tracker calls.\n\nAnnounce that closure review re-runs before ship. Restoration stops at **verify in progress**, not ship—but continuation is automatic through the loop driver’s verification path above.\n\nDo not `skip verify`, directly start ship, or infer approval from the brief, ledger, or existing artifacts. A fresh conformance gate must precede finishing.\n",
+      "words": 855,
+      "wallMs": 45672,
       "mechanical": {}
     }
   },
   "judge": {
-    "anthropic/claude-opus-5-5": {
-      "factsSha": "1194c5bb32eb84b20912d9e5cfee606e5bd4addda63cfe720493c9a43343ea64",
-      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "7500a3c2a7f644dc3286b896b330e3f5f38eef70bf09dd727a59955d820f5a26",
-      "baselineOutputSha": "283f32196d897880e7ad9c7b1c813c6e24dae6dd4ce1786d5d460883e825f64e",
-      "candidateOutputSha": "9e6df6ccfd6875382b12e9891212450d3481deeab97063c24fb561701128d883",
-      "facts": {
-        "producer": {
-          "before": "holds",
-          "after": "holds",
-          "label": "held"
-        },
-        "consumer": {
-          "before": "holds",
-          "after": "holds",
-          "label": "intended but unchanged"
-        },
-        "continuation": {
-          "before": "holds",
-          "after": "holds",
-          "label": "intended but unchanged"
-        },
-        "fail": {
-          "before": "holds",
-          "after": "holds",
-          "label": "held"
-        },
-        "verify-ledger": {
-          "before": "holds",
-          "after": "holds",
-          "label": "intended but unchanged"
-        }
-      },
-      "feedback": "Nothing moved on this case: both outputs append Ledger/last-decision fields with the verbatim status outputs and gate-history line, restore through check 6 and the brainstorm→plan→implement chain with the exact `resume: <spec> (loop engine)` reason and no plan_tracker init, render cap 97/iterations 5/attempts 2 before continuing at step 5, stop on FAIL without repair, and continue verify/ship briefs in After the loop from full ledger verification with whole-diff review, happy path, fresh conformance and finishing. After is somewhat stronger in evidence (the explicit cap table, the explicit 'Steps 1–7 run as in Part B' for verify, the before-dispatch cap check), so the Change is delivered without loss. Two small things worth tightening in After: Part C says 'make no plan_tracker calls' rather than naming task-tracker calls, and the Part C cap boundary says only that iterations is 'below cap' rather than printing cap:97 — rendering the literal `cap: 97` at the verify boundary and saying 'no task-tracker calls' would make verify-ledger unambiguous for the ship-stage case too. The Part A 'print instead' override line is harmless but is conditional on a `worktree: no` field the input says is confirmed; stating that the override is not printed here would match Before's precision.",
-      "wallMs": 26806,
-      "verdict": "unchanged"
-    },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "1194c5bb32eb84b20912d9e5cfee606e5bd4addda63cfe720493c9a43343ea64",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "7500a3c2a7f644dc3286b896b330e3f5f38eef70bf09dd727a59955d820f5a26",
-      "baselineOutputSha": "685becb905f247f211b6de53e4368dec743f588dcce4c90f65d6e0f35ce21ddc",
-      "candidateOutputSha": "9c3a95d35dc9cae8a6b123c4dfa3d2acc520f59ce2d32b346071fee63a4896ee",
+      "intentSha": "70baa08ac12037f7a701b4df4bb563b0145baad774d710d83b55dc84d07f6e4a",
+      "baselineOutputSha": "a56d6ee33af2c1464a2435b3edec2bb26bec78453a4736a88a8db4b2b36a5d70",
+      "candidateOutputSha": "4acc3190f6be27b6b24d1de326a3ac019fc18dba8258f011ae17da5253904b89",
       "facts": {
         "producer": {
           "before": "holds",
@@ -101,10 +56,127 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "After keeps every fact Before kept: the producer still appends ledger-specific fields and the durable last decision (no task-plan snapshot) with both verbatim status outputs and the gate-history line; the consumer still resolves the Spec header, cites check 6, runs the full brainstorm/plan/plan_check/skip chain with the exact `resume: <spec> (loop engine)` reason and `start implement` with no plan_tracker init; the cap boundary renders iterations 5, cap 97, row 1 attempts 2 and the last decision before continuing at Before each dispatch; FAIL stops on findings without repair; and verify/ship briefs restore `start verify` without tracker calls and continue After the loop from full ledger verification with whole-diff review, happy path, fresh conformance and finishing. Nothing moved, but two things remain only implicit in both arms and would make the facts unmistakable: (1) name the appended fields literally (`Ledger:` and `Last decision:`) rather than 'ledger-specific fields', and (2) in the consumer section state explicitly that the valid Ledger/Last decision fields take precedence over the retained verbatim `No plan active.` output, so the ledger is admitted instead of a phase-only restore. In the verify/ship sections, print the rendered block (`cap: 97`, iterations, attempts) again at the boundary instead of saying 'render the restored cap', so the cap:97 rendering is visible in that section on its own; After's added 'do not recalculate cap / load fresh-seeding settings' line is good and should be kept.",
-      "wallMs": 27294,
+      "feedback": "No listed fact changes: Before already describes ledger restoration, preserved counters and cap, the FAIL stop, and loop-specific verify/ship continuation; After retains them. After additionally makes automatic continuation and the missing-cap legacy stop explicit. To preserve these facts while making the Change clearer, explicitly name the appended Ledger and Last decision fields as replacing Active task, state that valid ledger fields override the retained `No plan active.` output, and show one shared restore boundary rendering `cap:97`, iterations, attempts, allowances, and decision history before either continuation route. Retain the full verification, whole-diff review, triggered happy path, fresh conformance, and finishing sequence. Describe discovery/approval asks and nonrecoverable stops with their required markers, while keeping successful resume automatic and unmarked.",
+      "wallMs": 14839,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "43b5ec3f2933c5a716c49916e9b1b7c002bb3da2"
+  "refresh": {
+    "status": "complete",
+    "identity": {
+      "sample": "loop-ledger-brief",
+      "kind": "text",
+      "assembly": "headed",
+      "baselineSkillSha": "f5b4fc58e1e12a254749004fd3c7d7eadfb1277fc22e7a4b8b1614d37b430cbe",
+      "candidateSkillSha": "2d210b162cfbc0092c026ce569dee4a6b1853c09d48d2d6d19c379abe5ee4eaf",
+      "inputSha": "7b057e4df4d0e9bd9ac9d46a0ab4cbd9652664d65b278a0aa6bb438daf84c3ad",
+      "factsSha": "1194c5bb32eb84b20912d9e5cfee606e5bd4addda63cfe720493c9a43343ea64",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "70baa08ac12037f7a701b4df4bb563b0145baad774d710d83b55dc84d07f6e4a",
+      "models": {
+        "replay": [
+          "github-copilot/gpt-6.1-sol"
+        ],
+        "judge": "github-copilot/gpt-6.1-sol"
+      },
+      "thinking": "medium",
+      "outputs": {
+        "baseline": {
+          "github-copilot/gpt-6.1-sol": {
+            "baselineOutputSha": "a56d6ee33af2c1464a2435b3edec2bb26bec78453a4736a88a8db4b2b36a5d70",
+            "payloadSha": "f5410f510cc1ddebf904bab38c0f7f68a8f0f4ef199d436b05eaff7fc7650821"
+          }
+        },
+        "candidate": {
+          "github-copilot/gpt-6.1-sol": {
+            "candidateOutputSha": "a6823ef4c63e02352d3c73df0fa50094a7d9297ba158295d10a1b357847f07c1",
+            "payloadSha": "c9afd1e91d9f521af82b5930440925c8c186efcc537ea1c18b39b139a17810fa"
+          }
+        }
+      }
+    },
+    "previous": {
+      "github-copilot/gpt-6.1-sol": {
+        "factsSha": "1194c5bb32eb84b20912d9e5cfee606e5bd4addda63cfe720493c9a43343ea64",
+        "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+        "intentSha": "70baa08ac12037f7a701b4df4bb563b0145baad774d710d83b55dc84d07f6e4a",
+        "baselineOutputSha": "a56d6ee33af2c1464a2435b3edec2bb26bec78453a4736a88a8db4b2b36a5d70",
+        "candidateOutputSha": "a6823ef4c63e02352d3c73df0fa50094a7d9297ba158295d10a1b357847f07c1",
+        "facts": {
+          "producer": {
+            "before": "holds",
+            "after": "holds",
+            "label": "held"
+          },
+          "consumer": {
+            "before": "holds",
+            "after": "holds",
+            "label": "intended but unchanged"
+          },
+          "continuation": {
+            "before": "holds",
+            "after": "holds",
+            "label": "intended but unchanged"
+          },
+          "fail": {
+            "before": "holds",
+            "after": "holds",
+            "label": "held"
+          },
+          "verify-ledger": {
+            "before": "holds",
+            "after": "holds",
+            "label": "intended but unchanged"
+          }
+        },
+        "feedback": "After keeps every fact Before kept: the producer still appends Ledger and Last decision (not Active task) to the same brief with both verbatim status outputs and the gate-history line last; the consumer resolves the Spec header, runs through check 6, the brainstorm start/skip, plan start/plan_check/skip with the exact `resume: /work/app/.worktrees/loop/doc/specs/run.md (loop engine)` reason, and implement start with no plan_tracker init while admitting the ledger over `No plan active.`; the FAIL arm stops without Plan repair or writing-plans; and both verify-stage and ship-stage briefs restore verify with no task-tracker calls, render cap:97 at the shared boundary before verification, and continue After the loop at step 1 with whole-diff review, triggered happy path, fresh conformance and finishing. Two wording points worth tightening in After so nothing drifts: in section 2 the shared-cap boundary and state render now appear after 'Automatically continue in loop-implementation at Before each dispatch' rather than before it as in Before—reorder to render cap:97/iterations/attempts/decision history and apply the boundary first, then announce continuation, matching the Change's 'one shared boundary before implement or verify/ship continuation'; and the new producer first line `gauntlet: done brief-written` is fine for the producer, but keep the consumer sections free of any terminal marker (After does) and consider stating explicitly, once, that valid Ledger/Last decision fields take precedence over the retained `No plan active.` output, since both outputs only imply this.",
+        "wallMs": 22921,
+        "verdict": "unchanged",
+        "judgeModel": null,
+        "thinking": null
+      }
+    },
+    "refreshed": {
+      "github-copilot/gpt-6.1-sol": {
+        "factsSha": "1194c5bb32eb84b20912d9e5cfee606e5bd4addda63cfe720493c9a43343ea64",
+        "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+        "intentSha": "70baa08ac12037f7a701b4df4bb563b0145baad774d710d83b55dc84d07f6e4a",
+        "baselineOutputSha": "a56d6ee33af2c1464a2435b3edec2bb26bec78453a4736a88a8db4b2b36a5d70",
+        "candidateOutputSha": "a6823ef4c63e02352d3c73df0fa50094a7d9297ba158295d10a1b357847f07c1",
+        "facts": {
+          "producer": {
+            "before": "holds",
+            "after": "holds",
+            "label": "held"
+          },
+          "consumer": {
+            "before": "holds",
+            "after": "holds",
+            "label": "intended but unchanged"
+          },
+          "continuation": {
+            "before": "holds",
+            "after": "holds",
+            "label": "intended but unchanged"
+          },
+          "fail": {
+            "before": "holds",
+            "after": "holds",
+            "label": "held"
+          },
+          "verify-ledger": {
+            "before": "holds",
+            "after": "holds",
+            "label": "intended but unchanged"
+          }
+        },
+        "feedback": "No listed fact changes truth value: Before already describes ledger restoration, preserved cap and counters, the FAIL stop, and loop-specific verify/ship continuation; After retains these and makes the verify restoration calls more self-contained. To preserve those facts while delivering the Change more explicitly, state that Ledger and Last decision replace Active task and take precedence over the retained exact `No plan active.` output. Define one shared boundary for every admitted ledger, before phase continuation, that renders cap:97, iterations, attempts, allowances, and decision history without resolving settings again; reference that boundary from implement, verify, and ship routes. Mark actual discovery or approval questions before their prose and inventoried nonrecoverable stops without implying approval or changing brief state, while keeping successful restoration automatic and free of a terminal marker.",
+        "wallMs": 11023,
+        "verdict": "unchanged",
+        "judgeModel": "github-copilot/gpt-6.1-sol",
+        "thinking": "medium"
+      }
+    }
+  },
+  "repoSha": "2eb4429b4dd687432969f427f82d45d7840d7c63"
 }

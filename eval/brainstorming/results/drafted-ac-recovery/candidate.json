@@ -1,64 +1,34 @@
 {
   "sample": "drafted-ac-recovery",
   "arm": "candidate",
-  "skillSha": "275d80fb2c75182609815459b71b1fe8fcdc889c20983319911a7d374f337b13",
+  "skillSha": "8c66670323d18907a38d4a5b2d37725b319da1178890e9ae23d09afe808db96b",
   "inputSha": "b415f8a40d08a22c6745654da97db5c5ba12274e962a6947a261fe5222b1fe32",
   "kind": "text",
   "assembly": "headed",
   "thinking": "medium",
   "models": {
     "replay": [
-      "anthropic/claude-opus-5-5",
       "github-copilot/gpt-6.1-sol"
     ],
-    "judge": "anthropic-fable/claude-fable-5-1",
+    "judge": "github-copilot/gpt-6.1-sol",
     "thinking": "medium"
   },
   "outputs": {
-    "anthropic/claude-opus-5-5": {
-      "status": "ok",
-      "text": "# Narrated read and stage actions\n\n## Branch A: Missing-proof\n\n1. **Reference reads (observed, already in context).** `reference/spec-finalization.md` and `reference/ticket-acceptance.md` were read earlier this session. Per the fixed observations, both were readable, so neither needs a fresh read and there is no blocking stop.\n\n2. **Stage: checklist step 7, before the spec write.**\n   - The gathered result is `none - no ticket`, so `ticket-acceptance.md`'s row-production table selects the drafted branch.\n   - The section header will be `Drafted from the design, no ticket rows:`.\n\n3. **Stage: draft the committed outcome.**\n   - The approved design commits to \"export downloads finish fast enough\".\n   - This is an outcome row, but its proof is missing:\n     - It falls in the **Wishful** class: it names no baseline, target, or measurement.\n     - It also falls in the **Unspecified-but-binding** and **External-input** classes: no value or yardstick exists anywhere in Design.\n   - The recovery is to rewrite the row with Design-sourced values only, and Design supplies none.\n   - I therefore must not invent a threshold, baseline, or measurement.\n   - I must not drop the outcome, emit a `none` fallback, or offer `deviates:`/`deferred:`. The user has not raised dropping it, and nothing shows the row is wrong or impossible, so the cut question does not apply.\n   - The required action is to ask the user for the missing input before writing.\n\n4. **Stage: stop at a clarification question.**\n   - No spec write happens yet, and the context draft stays in place.\n   - When the answer arrives, the mandatory step-1 `Read` of the draft runs again immediately before the full-replacement `write`.\n   - The answer is then recorded as a Design clause, and the row is rewritten from it.\n\n   The user-facing message:\n\n   ```text\n   The design commits to \"export downloads finish fast enough\", but it gives no threshold, baseline, or yardstick, so the acceptance row cannot be written as an observable check yet. The outcome stays in scope. Which measure should define \"fast enough\"?\n   A) a time limit you name - a maximum seconds-to-download for an export size you name, measured in a named test or environment\n   B) relative to today - measure the current export time first, then name the improvement or the not-slower-than bound against that measurement\n   C) an external yardstick - an SLA, product requirement, or competitor figure you name, with its source\n   other - name it\n   Recommendation: A - a stated limit for a stated input size gives the plan and reviewer a pass/fail check without depending on a separate baseline run.\n   ```\n\n5. **Blocking point.** The turn ends here, waiting for the user's answer. Nothing has been written or committed.\n\n---\n\n## Branch B: Erased-section\n\n1. **Reference reads (observed, already in context).** `reference/spec-finalization.md` (Spec Self-Review and User Review Gate) and `reference/ticket-acceptance.md` (Row production) were read earlier. Both were readable, so there is no stop.\n\n2. **Stage: post-council placeholder re-scan.**\n   - **Performed by:** the main loop.\n   - It re-runs the placeholder scan over the applied spec.\n   - The observations report no placeholders.\n\n3. **Stage: re-apply the Ticket contract present predicate.**\n   - **Performed by:** the main loop.\n   - The section body is now exactly `none - no ticket`.\n   - That form is explicitly rejected as a final body, and it also erased the drafted provenance header.\n   - Result: the predicate fails.\n\n4. **Stage: repair the drafted section.**\n   - **Performed by:** the main loop. Drafting is never delegated back to the council applier.\n   - The repair re-drafts from the applied Design using `ticket-acceptance.md`'s integrity recovery.\n   - The Design commitment is complete and is a behavioral binary outcome (setup, action, expected result), so no numeric baseline is needed.\n   - No values or scope decisions are open, so no clarification is needed.\n\n   The repaired section:\n\n   ```markdown\n   ## Acceptance criteria\n\n   Drafted from the design, no ticket rows:\n\n   - [ ] Repeating an export request returns its existing download instead of creating another export.\n     in-scope\n   ```\n\n5. **Stage: append the repair audit line.**\n   - **Performed by:** the main loop.\n   - The line goes after the existing council audit lines.\n   - The labels and counts stay unchanged.\n\n   The resulting commit body:\n\n   ```text\n   Applied: 1\n   Deferred: 0\n   Rejected: 0\n   Drafted AC repair: restored acceptance rows from the applied Design.\n   ```\n\n6. **Stage: re-apply the header-block predicate.**\n   - **Performed by:** the main loop.\n   - `**Amend-grant:**` must appear exactly once with value `none`. If the critique altered it, it is repaired to `none`.\n   - If a predecessor banner exists, its `<scope>` is reconciled. None is reported.\n   - Unresolved ambiguities to carry to the gate: none.\n\n7. **Stage: User Review Gate preparation, after steps 2-6.**\n   - **Performed by:** the main loop.\n   - It mints a temp `SUMMARY_PATH` outside the worktree.\n   - It dispatches the `spec-summarizer` (a fresh subagent) over the **repaired** applied spec.\n\n8. **Stage: commit the spec.**\n   - **Performed by:** the main loop.\n   - It uses the quoted-heredoc commit form.\n   - The commit body is the four-line audit from step 5.\n   - This happens after the repair and before the gate renders.\n\n9. **Stage: evaluate and read the summary.**\n   - **Performed by:** the main loop.\n   - It checks the dispatch result, then `Read`s `$SUMMARY_PATH` as the last content-producing call, falling back to the degrade path if needed.\n   - It then runs `rm \"$SUMMARY_PATH\"`.\n\n10. **Stage: gate rendering, last.**\n    - **Performed by:** the main loop. This is narrated only; no gate is executed here.\n    - The summary is pasted verbatim.\n    - `Scope cuts: none`.\n    - The drafted acceptance-criteria block is copied from the repaired spec section, not from the summarizer.\n    - `Council: 1 applied, 0 deferred, 0 rejected`.\n    - The predecessor-candidates line is included.\n    - Options 1-5 are rendered because a `- [ ]` row exists.\n    - The turn then stops for the user's reply.\n\n**Ordering summary:**\n\n1. Placeholder re-scan\n2. Contract predicate fails\n3. Main-loop repair of the section\n4. Repair audit line appended\n5. Header-block check\n6. Summarizer dispatch\n7. Spec commit with the repaired audit body\n8. Summary read\n9. Gate render\n\nThe repaired section and the audit line both exist before any summarizer dispatch, commit, or gate rendering.\n",
-      "words": 933,
-      "wallMs": 36045,
-      "mechanical": {}
-    },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "## Missing-proof — independent branch\n\n1. **Main assistant: stop before writing the spec.** The fixed observations establish that “export downloads finish fast enough” remains an approved, in-scope outcome, but the design supplies no threshold, baseline, measurement, or external yardstick. The assistant must obtain the missing proof requirement rather than invent one, omit the outcome, or write a `none` fallback.\n\n2. **Main assistant: ask the user this clarification:**\n\n   What observable standard should define “export downloads finish fast enough”?\n   A) A timing requirement — supply the time limit, representative export workload, and measurement start and end points.\n   B) An existing benchmark or service objective — supply the reference and the workload and measurement it governs.\n   C) Other — name the observable standard and how it should be verified.\n   Recommendation: A - an explicit timing requirement makes this in-scope outcome testable without inventing a target.\n\n3. **Blocking pause:** Await that answer. No spec write, critique dispatch, or review-gate rendering proceeds. After clarification, the main assistant records the resolved requirement in Design and performs the mandatory full draft read immediately before the eventual full-replacement spec write.\n\n## Erased-section — independent branch\n\n1. **Main assistant: narrate the post-council read and checks of the applied spec.** From the fixed observations, the Acceptance criteria body is exactly `none - no ticket`. That fails the whole-section predicate: this free-text spec requires drafted provenance, at least one valid observable row, and a disposition for every row. The main assistant also reruns the placeholder scan; no scan result beyond the supplied observations is assumed here.\n\n2. **Main assistant—not the council applier: repair the section from the applied Design.** No clarification or scope decision is needed because the complete behavioral commitment remains resolved. The repaired complete section is:\n\n   ```markdown\n   ## Acceptance criteria\n\n   Drafted from the design, no ticket rows:\n\n   - [ ] Given an export request with an existing download, repeating that request returns the existing download instead of creating another export.\n     in-scope\n   ```\n\n3. **Main assistant: recheck the repaired spec.** Confirm the drafted provenance, nonempty row set, and disposition satisfy the whole-section predicate. Recheck that the header contains exactly one `**Amend-grant:** none`; repair it if the council altered or removed it. If a predecessor banner exists, confirm its scope still matches and reconcile it if necessary. These are narrated required checks, not claims of live reads or edits.\n\n4. **Main assistant: preserve the council audit and append the required repair record.** The resulting commit-body audit is:\n\n   ```text\n   Applied: 1\n   Deferred: 0\n   Rejected: 0\n   Drafted AC repair: restored acceptance rows from the applied Design.\n   ```\n\n   The main-loop repair does not change the council’s counts or existing audit lines.\n\n5. **Before rendering the gate:** Complete the recovery and checks first. Then dispatch the spec-only summarizer over the repaired, applied spec and commit the spec with the audit above. Summary failure does not block that commit.\n\n6. **Gate-read ordering:** If the summarizer’s file-only result passes the required size/reference checks, read its output as the last content-producing tool call before composing the gate and paste it verbatim. Otherwise, use the summary-generation-failed note. Clean up the temporary summary file as required. The gate must copy the repaired drafted row and disposition verbatim from the applied spec so approval ratifies them. These are subsequent required stages; no write, commit, summary dispatch, or gate execution is claimed here.\n",
-      "words": 536,
-      "wallMs": 22039,
+      "text": "### Missing-proof — independent branch\n\n1. **Main assistant: check acceptance-row integrity before writing.** The fixed observations establish that “export downloads finish fast enough” remains an approved, in-scope outcome, but the Design supplies no threshold, baseline, measurement, or external yardstick. The assistant cannot invent these inputs, omit the outcome, or replace it with a `none` fallback.\n\n2. **Main assistant: pause before any spec write and request the missing proof contract.** The user-facing clarification would be:\n\n   ```text\n   gauntlet: question\n   The approved export-speed outcome remains in scope, but the design does not define “fast enough.” What criterion and measurement should establish success?\n   A) Supply a maximum download-completion time and the test conditions and measurement method.\n   B) Supply a comparison baseline, the required improvement, and the test conditions and measurement method.\n   C) Supply an external performance yardstick and how it should be measured.\n   D) other - name the criterion and how to verify it.\n   Recommendation: A - an explicit completion-time limit makes this outcome directly verifiable.\n   ```\n\n3. **Blocking pause:** await the missing input. After it is resolved, the assistant would record the decision in Design, read the full context draft immediately before replacement, and draft the observable acceptance row before writing the spec. No spec write or gate rendering occurs while this input remains unresolved.\n\n### Erased-section — independent branch\n\n1. **Main assistant: inspect the applied spec after council.** The required post-council placeholder scan and whole-section acceptance predicate would identify `none - no ticket` as an invalid final Acceptance criteria body. It does not become valid merely because the council applier inserted it.\n\n2. **Main assistant: recover from the applied Design, not from invented requirements.** The fixed observations supply a complete observable outcome with no unresolved values: repeating an export request returns its existing download rather than creating another export. The **main assistant**, not the council applier, performs this drafted-row repair.\n\n3. **Main assistant: restore the complete section as follows:**\n\n   ```markdown\n   ## Acceptance criteria\n\n   Drafted from the design, no ticket rows:\n\n   - [ ] Given an export request with an existing download, repeating that request returns the existing download without creating another export.\n     in-scope\n   ```\n\n4. **Main assistant: recheck the repaired spec before summarization.** Repeat the whole-section predicate and placeholder scan. The repaired section has drafted provenance, a valid observable row, and its disposition. Confirm that `**Amend-grant:** none` appears exactly once in the header. If a predecessor banner exists, also confirm that its scope and destination remain consistent. No further scope clarification or separate acceptance approval is needed for this repair; the drafted row is ratified at the final review gate.\n\n5. **Main assistant: preserve the council audit and append the required repair record.** The resulting commit-body audit would be exactly:\n\n   ```text\n   Applied: 1\n   Deferred: 0\n   Rejected: 0\n   Drafted AC repair: restored acceptance rows from the applied Design.\n   ```\n\n   The repair does not alter the council’s existing labels or counts.\n\n6. **Spec-only summarizer, then main assistant: prepare the gate in order.** After repair and successful checks, a fresh-context summarizer would read only the repaired spec and produce a temporary summary. The main assistant would then commit the repaired spec with the audit above. Summary failure would not block that commit.\n\n7. **Main assistant: render the review gate only afterward.** The summary read-back would be the last content-producing tool call before gate composition, or the prescribed failure note would replace it. The gate would include the repaired drafted row and disposition verbatim, `Scope cuts: none`, and `Council: 1 applied, 0 deferred, 0 rejected`. Temporary-summary cleanup would follow the prescribed flow. These are narrated next actions—not claims that a write, commit, summary dispatch, or gate execution has occurred.\n",
+      "words": 589,
+      "wallMs": 27201,
       "mechanical": {}
     }
   },
   "judge": {
-    "anthropic/claude-opus-5-5": {
-      "factsSha": "25f564187b3d896fa9a5ac84e72f0c1206c12e642bf5aa5306bfce5089baf0cb",
-      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "3fab9022e6546ee557e596de8ba99bbd8a8d5e75db7e126af9d0739b215affa8",
-      "baselineOutputSha": "3f26ea8be79e5f955f34ed5c914e8c4f51c0b6c4e9ee5bd61fec5f1cbf2341d8",
-      "candidateOutputSha": "6ffb2df8fff05fcc8121ccb8611541fbbd5616be75f6e2d98cbcdbee4a19620d",
-      "facts": {
-        "missing-proof": {
-          "before": "holds",
-          "after": "holds",
-          "label": "intended but unchanged"
-        },
-        "erased-section": {
-          "before": "holds",
-          "after": "holds",
-          "label": "intended but unchanged"
-        }
-      },
-      "feedback": "Nothing moved on this sample: both outputs ask the user for the missing yardstick in Missing-proof before any spec write (no invented threshold or baseline, outcome kept in scope, no `none` body offered), and both run the Erased-section recovery in the main loop with the correct re-scan failure on `none - no ticket`, an in-scope `- [ ]` row under `Drafted from the design, no ticket rows:` matching the applied Design's existing-download behavior, and the `Drafted AC repair: restored acceptance rows from the applied Design.` line appended after the three preserved council lines and before summarizer dispatch, commit, and gate render. After is actually more explicit about who performs each step and about the draft `Read` re-running immediately before the deferred write, which is a mild improvement in traceability. If you want to harden it further while delivering the Change, keep the explicit 'Performed by: the main loop' labels and the numbered ordering summary, and consider having Missing-proof state outright that the `## Acceptance criteria` body will never be `none` during the pause (After implies it via 'emit a `none` fallback' but Before's phrasing is slightly more direct), so the fact's last clause is satisfied by a single unmistakable sentence rather than by inference.",
-      "wallMs": 14901,
-      "verdict": "unchanged"
-    },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "25f564187b3d896fa9a5ac84e72f0c1206c12e642bf5aa5306bfce5089baf0cb",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "3fab9022e6546ee557e596de8ba99bbd8a8d5e75db7e126af9d0739b215affa8",
-      "baselineOutputSha": "5aa1592028bcbed531086c43d479537f8f64da06a24abb8e51a4517c71202dbc",
-      "candidateOutputSha": "732275e9ccf55bc5d145265a1e0431a5a3ed60ea83ca4d2be62f964c3d2be622",
+      "intentSha": "5b9f462cd6caec9a4a8e3a28a3c0ba61583e1b400c8edb5164d32bba075fea39",
+      "baselineOutputSha": "10c7173cd51146e317a417124e77f49b548b2a330b8ee0001f507be04e6045ec",
+      "candidateOutputSha": "5f6517bbc07546f6c07f5deaa9af64226716ed0521c9377f8c3b6be3fa4ed1ff",
       "facts": {
         "missing-proof": {
           "before": "holds",
@@ -71,10 +41,97 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "Neither fact moved. In Missing-proof, After still stops before any spec write, asks the user for the external yardstick with lettered options and a recommendation, invents no number or baseline, explicitly keeps the export-download outcome in scope without dropping or deferring it, and names the `none` fallback only as something forbidden—so the fact holds as in Before. In Erased-section, After still narrates the post-council re-scan failing the whole-section predicate because the body is exactly `none - no ticket`, attributes the repair to the main assistant rather than the council applier, supplies a complete section under `Drafted from the design, no ticket rows:` with one unchecked in-scope row stating that repeating an export request returns the existing download instead of creating another export, preserves the three council audit lines verbatim, appends `Drafted AC repair: restored acceptance rows from the applied Design.` after them, and places summarizer dispatch and commit before gate rendering while disclaiming live writes. The After wording's added clarity about the main-loop repair not altering council counts, and the explicit 'not the council applier' label, are good reinforcements of the intended Change; keep the fixed row phrasing, provenance line, and audit-line ordering exactly as they are, since those are the literal anchors the fact keys on.",
-      "wallMs": 13463,
+      "feedback": "After preserves both facts; neither changes status. It explicitly blocks spec writing until the user supplies a verifiable criterion, retains the export-speed outcome, and forbids invented inputs or a none fallback. It also rejects the council-erased section, assigns repair to the main assistant rather than the applier, supplies the complete drafted acceptance section, and preserves the council counts before appending the repair audit ahead of gate rendering. Keep these requirements explicit; saying “the main loop itself re-drafts the rows” would make ownership even clearer without changing the demonstrated behavior.",
+      "wallMs": 5880,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "488adb5f77d82365012e1a6030f3b11a1e35f420"
+  "refresh": {
+    "status": "complete",
+    "identity": {
+      "sample": "drafted-ac-recovery",
+      "kind": "text",
+      "assembly": "headed",
+      "baselineSkillSha": "5f272e7ae322db1442828ba4270ba7deabbe466831c601588f2dda2bdc4e78e6",
+      "candidateSkillSha": "962d0dc4251677fe5c66671ef411e9aa659df8856fab4dbc07e56e1f950e863f",
+      "inputSha": "b415f8a40d08a22c6745654da97db5c5ba12274e962a6947a261fe5222b1fe32",
+      "factsSha": "25f564187b3d896fa9a5ac84e72f0c1206c12e642bf5aa5306bfce5089baf0cb",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "5b9f462cd6caec9a4a8e3a28a3c0ba61583e1b400c8edb5164d32bba075fea39",
+      "models": {
+        "replay": [
+          "github-copilot/gpt-6.1-sol"
+        ],
+        "judge": "github-copilot/gpt-6.1-sol"
+      },
+      "thinking": "medium",
+      "outputs": {
+        "baseline": {
+          "github-copilot/gpt-6.1-sol": {
+            "baselineOutputSha": "10c7173cd51146e317a417124e77f49b548b2a330b8ee0001f507be04e6045ec",
+            "payloadSha": "8e6b9ea291a666a356cf2dd4903f982e5dba9f9e1178e181b491f14549967db3"
+          }
+        },
+        "candidate": {
+          "github-copilot/gpt-6.1-sol": {
+            "candidateOutputSha": "0fbe679df18a0bea60bce48ea07ca20440537559adc12531553eac25546837dc",
+            "payloadSha": "b71cf3c1e62cf4c13431f39bf48bb06d67245f9e990249857a371362f03a18a0"
+          }
+        }
+      }
+    },
+    "previous": {
+      "github-copilot/gpt-6.1-sol": {
+        "factsSha": "25f564187b3d896fa9a5ac84e72f0c1206c12e642bf5aa5306bfce5089baf0cb",
+        "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+        "intentSha": "5b9f462cd6caec9a4a8e3a28a3c0ba61583e1b400c8edb5164d32bba075fea39",
+        "baselineOutputSha": "10c7173cd51146e317a417124e77f49b548b2a330b8ee0001f507be04e6045ec",
+        "candidateOutputSha": "0fbe679df18a0bea60bce48ea07ca20440537559adc12531553eac25546837dc",
+        "facts": {
+          "missing-proof": {
+            "before": "holds",
+            "after": "holds",
+            "label": "intended but unchanged"
+          },
+          "erased-section": {
+            "before": "holds",
+            "after": "holds",
+            "label": "intended but unchanged"
+          }
+        },
+        "feedback": "Nothing moved: both outputs satisfy both facts on their own text. In Missing-proof, both stop before any spec write, present a clarification that explicitly offers an external standard/yardstick option (B), invent no number or baseline, keep the export-download outcome in scope, and never write none as the Acceptance criteria body; After additionally prefixes the question with a gauntlet marker and tightens the wait-step wording, neither of which affects the fact. In Erased-section, both narrate the post-council re-scan failing the whole-section predicate on `none - no ticket`, have the main assistant (explicitly not the council applier) re-draft an unchecked in-scope row under the exact `Drafted from the design, no ticket rows:` provenance line from the applied Design's repeat-request-returns-existing-download behavior, and append the exact `Drafted AC repair: restored acceptance rows from the applied Design.` line after the preserved three council lines and before the gate renders. After's expansion of the summarizer/commit/gate ordering into three steps is consistent with the fact and keeps the repair audit before the gate. The Expected to move list anticipated fails -> holds for this replay, but the Before text already meets both facts, so the After wording preserves rather than creates these outcomes; no wording change is needed to keep them.",
+        "wallMs": 13722,
+        "verdict": "unchanged",
+        "judgeModel": null,
+        "thinking": null
+      }
+    },
+    "refreshed": {
+      "github-copilot/gpt-6.1-sol": {
+        "factsSha": "25f564187b3d896fa9a5ac84e72f0c1206c12e642bf5aa5306bfce5089baf0cb",
+        "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+        "intentSha": "5b9f462cd6caec9a4a8e3a28a3c0ba61583e1b400c8edb5164d32bba075fea39",
+        "baselineOutputSha": "10c7173cd51146e317a417124e77f49b548b2a330b8ee0001f507be04e6045ec",
+        "candidateOutputSha": "0fbe679df18a0bea60bce48ea07ca20440537559adc12531553eac25546837dc",
+        "facts": {
+          "missing-proof": {
+            "before": "holds",
+            "after": "holds",
+            "label": "intended but unchanged"
+          },
+          "erased-section": {
+            "before": "holds",
+            "after": "holds",
+            "label": "intended but unchanged"
+          }
+        },
+        "feedback": "Neither fact changed: both outputs satisfy both facts. After retains the pre-write clarification for a user-supplied performance yardstick without inventing values or dropping the outcome, and explicitly assigns recovery of the invalid erased section to the main assistant rather than the applier. It supplies the complete unchecked, in-scope design-derived row and preserves the council audit before appending the exact repair line, all before gate rendering. Keep those explicit requirements; for maximum clarity, call the recovery actor “the main loop itself” and continue to state that the narrated actions are not live execution.",
+        "wallMs": 7500,
+        "verdict": "unchanged",
+        "judgeModel": "github-copilot/gpt-6.1-sol",
+        "thinking": "medium"
+      }
+    }
+  },
+  "repoSha": "2eb4429b4dd687432969f427f82d45d7840d7c63"
 }

@@ -1,0 +1,57 @@
+{
+  "sample": "gate-line-first",
+  "arm": "candidate",
+  "skillSha": "2ec3e45a5ce65ce25e9485eb48d25a12ef979c8b3e6110d1617caa9fb1cd4f6e",
+  "inputSha": "04e5a5a4f82d82bd5abf5b7bab800f1ab8fe005c98fd649beda6bbc35c4372b5",
+  "kind": "text",
+  "assembly": "headed",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "github-copilot/gpt-6.1-sol",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "gauntlet: question\nThe draft’s claim that the existing resolver cannot accept overrides is contradicted by `settings/resolver.ts:11`: it already accepts a timeout override, and tracing every caller confirmed that all use this resolver. A second settings file would duplicate the existing settings boundary; the root-cause alternative is to change the affected caller to pass its override.\n\nWhich direction should the design take?\nA) as framed — add a second settings file.\nB) pivot: pass the timeout override through the existing caller to the resolver.\nC) smaller or none: leave the current behavior unchanged.\nRecommendation: B - the resolver already supports the required override, so fixing the caller addresses the cause without introducing a second settings boundary.\n",
+      "words": 113,
+      "wallMs": 4574,
+      "mechanical": {
+        "first-line": "holds"
+      }
+    }
+  },
+  "judge": {
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "3964f84215fb650a3cadb08fbc0d1a2d61603f1da16a5e5a988f7bdd02a50e99",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "5b9f462cd6caec9a4a8e3a28a3c0ba61583e1b400c8edb5164d32bba075fea39",
+      "baselineOutputSha": "2613a244ad522d3e4f23d33dcd51d3023e98957a648f64c9a5221f476713ac05",
+      "candidateOutputSha": "1025452bed6634c32012f280809dfcae4e2ebce342b3b470bc19c91ee8760882",
+      "facts": {
+        "correction": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "framing": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "first-line": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        }
+      },
+      "feedback": "After adds the missing `gauntlet: question` marker before the verified correction, making correction hold while preserving the separately lined A/B/C choices, final Recommendation line, and pause for the user's reply. No fact regressed. Retain this ordering and layout; keeping Before's explicit 'for the timeout override' in A and 'add no settings file' in C would preserve its specificity without introducing approaches.",
+      "wallMs": 9707,
+      "verdict": "improved"
+    }
+  },
+  "repoSha": "2eb4429b4dd687432969f427f82d45d7840d7c63"
+}

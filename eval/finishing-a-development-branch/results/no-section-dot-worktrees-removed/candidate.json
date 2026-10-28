@@ -15,15 +15,6 @@
     "thinking": "medium"
   },
   "outputs": {
-    "anthropic/claude-opus-5-5": {
-      "status": "ok",
-      "text": "## Step 6: Cleanup Workspace\n\nOption 3 (Squash-merge) completed, so cleanup runs.\n\n**Contract check:** No gauntlet overrides file exists, so there is no `## using-git-worktrees` section. I'm using the **legacy path**.\n\n**Ownership:** `$WORKTREE` is `/work/acme-web/.worktrees/login-copy`, which is under `$PRIMARY/.worktrees/`. Nothing indicates a project-native script created it. That means gauntlet created this worktree and owns its cleanup.\n\n**Removal**, run against the primary. Removal must come before branch deletion, because `git branch -D` fails while a worktree still references the branch.\n\n```bash\ngit -C \"/work/acme-web\" worktree remove \"/work/acme-web/.worktrees/login-copy\"\ngit -C \"/work/acme-web\" worktree prune\n```\n\n**Branch deletion**, run once removal succeeds. This uses `-D` rather than `-d` because a squash-merge doesn't make `login-copy` an ancestor of `main`.\n\n```bash\ngit -C \"/work/acme-web\" branch -D \"login-copy\"\n```\n\n**Result:**\n- Worktree `/work/acme-web/.worktrees/login-copy` is removed and worktree metadata is pruned.\n- Branch `login-copy` is deleted. Its changes are on `main` as the squash commit.\n- `/work/acme-web` is still on `main`.\n\nIf `worktree remove` refuses, for example because of uncommitted or untracked files in the worktree, I'll stop and print its output. I won't force removal and won't delete the branch.\n",
-      "words": 176,
-      "wallMs": 7508,
-      "mechanical": {
-        "w2": "holds"
-      }
-    },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
       "text": "No overrides file exists, and the worktree is under `$PRIMARY/.worktrees/`, so gauntlet owns cleanup. Remove the worktree before deleting the feature branch:\n\n```bash\ngit -C \"/work/acme-web\" worktree remove \"/work/acme-web/.worktrees/login-copy\" &&\ngit -C \"/work/acme-web\" worktree prune &&\ngit -C \"/work/acme-web\" branch -D \"login-copy\"\n```\n",
@@ -35,32 +26,10 @@
     }
   },
   "judge": {
-    "anthropic/claude-opus-5-5": {
-      "factsSha": "07409c225903ddcb141b7b25c26011b2c78e54700fbabe485739b2c7cfe045c3",
-      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "2b07cd5789c3b4c5c74ed93b43c6f993f9ccb0032fbb11015cb3e218c6836332",
-      "baselineOutputSha": "8003d1e276a7cd05ae82fa9f366af1a9dcac4f4cc6a36791490563f77c8801e8",
-      "candidateOutputSha": "b7d0c8c012069ced8f75f6af773cefc5b3f54b2056d2d204ec8d47a3b505ab3f",
-      "facts": {
-        "w1": {
-          "before": "holds",
-          "after": "holds",
-          "label": "intended but unchanged"
-        },
-        "w2": {
-          "before": "holds",
-          "after": "holds",
-          "label": "held"
-        }
-      },
-      "feedback": "Both outputs run the same three commands in the same order against /work/acme-web — `worktree remove` on the .worktrees/login-copy path, then `worktree prune`, then `branch -D login-copy` — so w1 holds in Before as well as After; the Expected-to-move entry predicting fails -> holds is not borne out by the Before text, which already narrates the explicit branch -D continuation. The After wording keeps the fact intact and adds a useful guard (stop on `worktree remove` refusal, no force, no branch deletion), which does not disturb w1 since the success path still sequences remove, prune, then branch -D. If the author wants this case to show a movement, the baseline would need to actually omit or reorder one of the three commands; as written, the change here is cosmetic plus the new failure guard, and no wording adjustment is needed to preserve w1.",
-      "wallMs": 6877,
-      "verdict": "unchanged"
-    },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "07409c225903ddcb141b7b25c26011b2c78e54700fbabe485739b2c7cfe045c3",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "2b07cd5789c3b4c5c74ed93b43c6f993f9ccb0032fbb11015cb3e218c6836332",
+      "intentSha": "30343bc5c6f678faa9431a82e537b28e529d686c25202329a16e741a2b64b92c",
       "baselineOutputSha": "95bfe5bb4902f86d0156e5e43085121946ac13cc8954effa6765230aace84b18",
       "candidateOutputSha": "24c57c3c5294547fd26f62410dcfa9ca894418950b092b625341683a11cad3bf",
       "facts": {
@@ -75,10 +44,10 @@
           "label": "held"
         }
       },
-      "feedback": "Both outputs narrate the same three commands in the same order against /work/acme-web: worktree remove of /work/acme-web/.worktrees/login-copy, then worktree prune, then branch -D login-copy. The After only differs by quoting the paths and branch name and by rephrasing the lead-in (\"Remove the worktree before deleting the feature branch\"), neither of which changes what a careful reader sees executed, so w1 holds in both and nothing moved here; the Expected-to-move entry claiming Before fails for this sample is not borne out by the Before text, which already ran the explicit `branch -D` continuation. The After wording is fine for the legacy no-section path; if the author wants this sample to demonstrate the new behavior, it would need to narrate the Step 6 lookup of the overrides file's `## using-git-worktrees` section explicitly (stating no section exists, so the legacy three homes decide) and keep the quoted built-in remove + prune + `branch -D` sequence exactly as shown.",
-      "wallMs": 7623,
+      "feedback": "After preserves w1: quoting the paths and branch name does not change the commands, and the && chain retains their required order and stop-on-failure behavior. No fact moved. Keep this cleanup sequence unchanged; to deliver the applicable presentation change, place exactly one appropriate done or stuck line before the final-outcome narration.",
+      "wallMs": 3692,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "43b5ec3f2933c5a716c49916e9b1b7c002bb3da2"
+  "repoSha": "2eb4429b4dd687432969f427f82d45d7840d7c63"
 }

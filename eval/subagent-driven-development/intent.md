@@ -1,6 +1,8 @@
-for: 505fbad4c924559d148c9f2d14754e7dd45597c9a6834f5a89f05274b64e611d
+for: 551c035080c903d52d8106e07ce7eb2d7d75baab271627f354fbe2271846a6fc
 
 ## Change
+Prefix implementation stop notes with gauntlet: question before the problem summary, preserving actionable choices and active implementation state.
+
 
 Honor amend permission through the amendment surface, including recommended alternatives and same-turn aftermath. Add per-task funded fixes after escalation, preserve review gates, stop on funded STAGNANT or exhaustion, and fail closed on unrecoverable resume spend. Exercise budget-only amendments against human-owned acceptance criteria and require the resumed-flow reply to explain the human refund. Use preparatory extraction baseline 828565b3b2e492005e27ec9ca3d675d51a984de6 so both arms can read reference/fix-loop.md, using preparatory baseline 828565b. Grant-mirror fallback task: not needed: samples pass.
 
@@ -11,6 +13,7 @@ Run every plan task through the same N >= 1 wave loop, including an all-singleto
 Migrate chain-wave-dispatch, chain-stop-blocked, singleton-apply-failure and all-singleton-waves to the declared 7.4.3 floor; below-floor runtimes stop instead of using a tasks fallback. Add old-cohort-preflight-stops for the package-derived floor and all fixed guard errors, and happy-path-reference-read for the absolute late read, saved-summary conformance handoff and unreadable-reference stop. The guard selects pi-cohort and pi-gauntlet by the installed `package.json` name, so version-pinned, local-path and filtered `pi list` entries resolve. Preserve the main pre-failure slice and assemble the After All Tasks Complete slice plus happy-path-run reference in both arms using preparatory baseline 557b2a3. Fixed observations never authorize source reconstruction.
 
 ## Expected to move
+- gate-line-first/question-first: fails -> holds - Exhausted fact lookups ask for a human decision before any summary.
 
 - lookup-before-ask/searched: fails -> holds - Exhausted fact lookups require the searched location and not-found result directly under Problem.
 - lookup-before-ask/supply-or-amend: fails -> holds - Missing artifacts need supply-or-amend options rather than a location question.
