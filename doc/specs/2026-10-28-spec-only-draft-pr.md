@@ -1,0 +1,148 @@
+# Spec gate option 6: hand off an approved spec as a draft PR and re-enter it with `brainstorming #N`
+
+**Goal:** Let the user approve a spec's content and publish it as a spec-only draft PR instead of chaining into planning in the same session, and let a later `brainstorming #N` on that PR recognize it mechanically (spec-only diff plus the `**Engine:** deferred` header line) and re-present only the implementation choices of the User Review Gate, while every other PR keeps today's rework path.
+**Amend-grant:** every later spec amendment in this flow (corrected facts, paths, verification lines, and scope, acceptance-criteria, or public-contract edits alike) applies without asking; only a redraw (changed problem statement, component added, removed, or re-bounded) still stops for you, and the grant never stands in for a spec approval.
+**Engine:** waves
+
+## Problem
+
+Framing: kept (the scout's objection - that `gauntlet-handoff`/`gauntlet-resume` plus `pr-subject.md`'s carried-spec discovery already cover the need - yielded no alternative: the resume seed route needs the spec tracked on `main`, which the gate forbids, and a handoff brief is a local temp file nobody else can pick up).
+
+The User Review Gate (`skills/brainstorming/reference/spec-finalization.md`, `## User Review Gate`) offers five replies; every approval (1/2/4/5) writes `**Engine:**` and `**Amend-grant:**` into the spec header, amends the spec commit, completes the brainstorm phase, and chains straight into `/skill:writing-plans` or `/skill:loop-implementation` in the same session. There is no exit between "the design is approved" and "implementation starts". A user who wants to approve the design now and implement later, or hand the approved design to a teammate, has nothing to hand over: the spec lives only in a local worktree, the telemetry record is untracked until finishing seals it (`doc/configuration.md`, telemetry section), and the worktree is not shareable.
+
+`brainstorming #N` already resolves any open same-repo PR, draft included (`pr-subject.md`, step 1 accepts `isDraft` true), discovers PR-carried specs with `git diff --name-only <BASE_SHA>...<headRefOid> -- <specDirs>`, and reads them as the PR's stated contract. But every PR takes the rework path: scout judges the diff as code to repair, a `## Rework record` is built, and finishing's PR-subject menu applies. For a PR whose whole diff is one spec, that path asks a reviewer to "repair" a design that was already approved.
+
+Facts the design rests on, verified in the loaded skills: the spec header carries `**Amend-grant:** none` from spec-writing on and `**Engine:** waves|loop` only after approval, and every reader treats an absent `**Engine:**` line as `waves` (`doc/configuration.md`, `doc/implement-engines.md`, `skills/gauntlet-resume/reference/reconstruction.md` "Spec without plan" matches `loop` else `waves` or absent, `extensions/telemetry.ts` engine regex; `skills/gauntlet-resume/SKILL.md`'s post-restore table has only an `**Engine:** loop` row and no absent-means-waves rule), so nothing in the file proves approval today. The council audit lives in the spec commit's body, not the file. Draft status is mechanical but not discriminating: finishing's Option 2 produces draft PRs that carry code, and draft flips with one click. Finishing detects an existing PR only from a `## Rework record` in the spec, never by querying origin (`skills/finishing-a-development-branch/SKILL.md`, the rule near its top). `finishing-a-development-branch/SKILL.md` is 500 lines / 43,039 bytes, at the forge-skill extraction bar and near the 50,000-byte lint cap.
+
+Implicit dependencies the scout recorded as not found, restated: no PR-shape marker or spec-only label exists anywhere in the package; no code path pushes a branch at the brainstorm gate (push lives only in finishing); no eval sample covers a sixth gate row. The telemetry record plays no part in the re-entry check (user decision: the header line is enough; a developer can defeat any flow on purpose).
+
+User decisions recorded during the questionary: the classifier is diff-only and draft status is not a condition; the marker is `**Engine:** deferred` written by the gate on option 6; the re-gate requires that line and nothing else; re-entry re-presents the gate with implementation options only; the re-gate writes `**PR:** <owner/repo#N>` and finishing reads it; re-entry lives in `pr-subject.md` (approach 1), not in `gauntlet-resume`; oversized skill files get a sibling `reference/` file rather than growing.
+
+## Acceptance criteria
+
+Drafted from the design, no ticket rows:
+
+- [ ] On a non-PR brainstorm the User Review Gate renders a sixth row `6 - approve, hand off as draft PR`; a bare `6` reply ends the turn with the draft PR URL printed, the brainstorm phase complete, and no plan or loop phase started.
+  in-scope
+- [ ] After reply `6`, the spec commit on the pushed branch carries `**Engine:** deferred` directly below `**Amend-grant:** none`, the branch's only diff against its base is the added spec file plus banner-only edits to superseded predecessor specs, the PR is a draft, and the local worktree is removed when it is gauntlet-owned (a host-owned checkout is reported and left).
+  in-scope
+- [ ] `brainstorming #N` on an open PR whose diff is exactly one added spec-dir file carrying `**Engine:** deferred` plus banner-only predecessor edits provisions the PR branch and renders the gate with options 1/2/4/5 (3 only when the spec commit body carries a council audit) without dispatching scout, context-builder, the council, or the worker, and without a questionary.
+  in-scope
+- [ ] `brainstorming #N` on a PR whose diff contains any non-spec-dir file, more than one added spec, a deleted spec, or a modified spec beyond a banner takes today's rework path unchanged; a spec-only diff whose spec lacks `**Engine:** deferred` prints `spec-only PR without the gate marker - running lint and council` and takes the normal brainstorm path with the carried spec as the draft.
+  in-scope
+- [ ] Approval at the re-gate (1/2/4/5) writes `**Engine:**`, `**Amend-grant:**`, and `**PR:** <owner/repo#N>` into the spec header as a new commit on the PR branch (never `--amend`), and chains into planning or the loop engine as today.
+  in-scope
+- [ ] Finishing a worktree whose spec header carries `**PR:**` and no `## Rework record` renders `Push to PR #N and mark ready for review` and `Push to PR #N, keep draft` (for a PR observed ready for review, the second row reads `Push to PR #N (already ready for review)`) in place of the two create rows, with squash, keep, and discard unchanged; the first row pushes and runs `gh pr ready <N>`, the second pushes only.
+  in-scope
+- [ ] Finishing or `gauntlet-resume` encountering a spec with `**Engine:** deferred` stops with `spec approved for handoff only - run brainstorming #N` and performs no push, strip, seal, or phase change.
+  in-scope
+- [ ] On a PR-subject brainstorm the gate omits row 6 and prints `Withheld: draft PR - #N already exists` under the list; a `6` reply there gets the clarifying question, not an action.
+  in-scope
+
+## Design
+
+### Option 6 at the User Review Gate
+
+Add row 6 to the gate template in `spec-finalization.md`, after row 5 and before the fund-N hint:
+
+```
+6 - approve, hand off as draft PR: approve the spec's content only; push this branch and open a draft PR carrying just the spec; engine and amendment grant are chosen later by whoever runs `brainstorming #N` on that PR. Ends this flow without planning.
+```
+
+Row 6 renders whenever rows 1-5 render, including the zero-AC-row variant (which then renders 1, 2, 3, 6), except when the brainstorm subject is a PR (`pr-subject.md` resolution ran): then omit row 6 and print `Withheld: draft PR - #N already exists` under the list, reusing finishing's withheld-row layout; a `6` reply on that menu gets the clarifying question. The fund-N hint keeps naming 1, 2, 4, or 5; a `6` with a budget token is re-presented as a malformed reply, write nothing. `3` plus `6` prints and re-presents as `3` does today. A reply mixing `6` with a change request is a change request.
+
+On a clean `6`: `edit` the header to `**Engine:** deferred` directly below `**Amend-grant:** none` (the grant stays `none`; a `6` never grants), `git add` + `commit --amend --no-edit -q` as every approval does, confirm `git show HEAD:<spec path>` carries both lines, then follow the publish recipe in the new `skills/brainstorming/reference/spec-pr.md`:
+
+1. Resolve the PR base once: `DEFAULT=$(gh repo view --json defaultBranchRef -q .defaultBranchRef.name)`, then `git -C <worktree> fetch origin "$DEFAULT"`. `origin/$DEFAULT` is the base for the predicate below and the `--base` of `gh pr create`; the worktree's creation ref is never substituted (using-git-worktrees Step 4's provenance note only reports a non-default source).
+2. Run the spec-PR predicate (the one rule `spec-pr.md` owns and the `pr-subject.md` classifier cites) over `git -C <worktree> diff --name-status origin/$DEFAULT...HEAD`: exactly one `A` under a resolved `flowGuards.specDirs` dir, this spec; every other entry a banner-only `M` under a spec dir. A reused branch carrying earlier implementation commits, a worktree branched from a non-default ref, or a Step 2b `.worktrees/` ignore commit fails it. On failure stop before any push: print the offending `name-status` lines and `origin/$DEFAULT`, keep the amended commit, remove nothing, and re-present the gate with row 6 replaced by `Withheld: draft PR - diff against origin/$DEFAULT is not spec-only (<paths>)`; the user picks 1/2/4/5, changes the spec, or repairs the branch by hand.
+3. `git -C <worktree> push -u origin <branch>`, then `gh pr create --draft --head <branch> --base "$DEFAULT" --title "<spec H1 text>" --body-file -` with the body on stdin through a quoted heredoc (`<<'EOF'`, the same form as the spec commit): the gate summary verbatim, or the `**Goal:**` line when the summary degraded.
+4. Print the PR URL, `phase_tracker({ action: "complete", phase: "brainstorm" })`, then clean up the worktree through finishing Step 6's ownership test and wrapper selection (`home:` match -> `destroy:` override or `git worktree remove` + `prune`; legacy project script -> its destroy command; no match -> host-owned, leave it) with Step 6's branch deletion disabled: the local branch stays in every case. Report a host-owned checkout or a failed removal with its path and the note that a later `brainstorming #N` in this checkout hits pr-head's "checked out at another path" stop until that checkout is gone.
+
+No plan, no loop, no handoff brief. The telemetry recorder emits its engine event on brainstorm completion as today (the regex yields `waves` for `deferred`); that record is local and superseded by the re-entry run, which is the one finishing seals.
+
+`spec-finalization.md` takes only the row, the withheld rule, and one pointer sentence; the publish recipe, the predicate, the marker contract, and the re-gate rendering live in `brainstorming/reference/spec-pr.md` so the gate section stays one template. `skills/brainstorming/SKILL.md` names row 6 as the one approval that does not transition: the Overview's terminal-state sentence and checklist step 13 add "6 ends the flow after publishing" beside the existing 1/2 -> writing-plans and 4/5 -> loop-implementation routing, keeping the phrases `scripts/brainstorming-contract.test.mjs` matches on step 13.
+
+### Classifier in `pr-subject.md`
+
+For N=1 only, immediately after admission (`gh pr view` accepted; repository, fork, and base checks passed) and before `## Bind and pass the retained list`, run a read-only shape check: `git -C "$ROOT" fetch origin <baseRefName> <headRefName>`, `BASE_SHA=$(git -C "$ROOT" rev-parse origin/<baseRefName>)`, then `git -C "$ROOT" diff --name-status <BASE_SHA>...<headRefOid>`. Classify the PR as a **spec PR** when all three hold: exactly one `A` entry, under a resolved `flowGuards.specDirs` dir; its header block (text before the first `## `), read with `git show <headRefOid>:<path>`, contains a line matching `^\*\*Engine:\*\*[ \t]+deferred[ \t]*$`; every other entry is an `M` under a spec dir whose diff against `BASE_SHA` adds only superseding-banner lines in the active banner syntax (the shipped `> **Superseded by:**` form, or the syntax the overrides file declares per `superseding.md`'s override contract) plus adjacent blank lines, and removes nothing. A list (N>1) is never a spec PR. Any failing condition on the diff shape takes today's rework path unchanged (bind, gather, scout, rework record). A diff that passes the shape check but whose spec lacks the marker is a hand-written or pre-gauntlet spec: print `spec-only PR without the gate marker - running lint and council` and take the normal brainstorm path (steps 3-12) with the carried spec as the draft, so the re-gate is reached only through a spec the gate already critiqued. A spec PR skips ticket binding, context-builder, the review-thread fetch, and gather, so a ticket named in its title binds nothing and a thread-fetch failure cannot block its re-gate. Draft status is not read by the classifier; `isDraft` stays an accepted PR state as today. The same predicate (owned by `spec-pr.md`) gates option 6's publish step, so publication and re-entry apply one rule.
+
+### Re-gate (spec PR path)
+
+Provision the PR branch through `using-git-worktrees/reference/pr-head.md` unchanged (checkout, base merge, Step 4 report). When pr-head stops because the branch is checked out at another path, that stop stands (option 6 removed its own worktree, so this only happens on a user-created or host-owned checkout). When the base merge ends `merge: unresolved - <files>` (pr-head aborted it: a predecessor-banner conflict, or an add/add on the spec path when the base gained the same file), stop before the re-gate: the checkout stays on the original head as pr-head leaves it; print `base merge unresolved for PR #N (<files>) - merge origin/<base> by hand in <worktree> and rerun brainstorming #N`; render no gate, write no approval, and create no repair task (the rework path's Design Task 1 clause has no consumer here, and no new handoff mechanism is added). In `skills/brainstorming/SKILL.md`, checklist step 2 branches to this re-gate on a spec PR (steps 3-11 skipped), and the Red Flag "Gate after failed/skipped critique or before placeholder re-scan" carves out the spec-PR re-gate (the spec was critiqued before option 6 published it). Skip gather, questionary, spec-writing, inline lint, the council, and the second predecessor pass. Carry intent text after `#N` into the gate as one adjacent line `Intent carried from the command: <text>`; the user turns it into a change request or approves. Dispatch the summarizer over the carried spec at `<worktree>/<path>` exactly as the gate does, then render the gate template with rows 1/2/4/5 (the zero-row rule applies as today: a carried spec with no `- [ ]` row renders 1-3 only with the "Loop engine unavailable" note), row 6 withheld as on any PR subject, and row 3 plus the `Council:` line only when the pinned audit exists. Pin the originating audit once: `AUDIT_SHA=$(git log -1 --diff-filter=A --format=%H -- <spec path>)` on the PR branch, the commit that added the spec; the audit exists when `git show -s --format=%b $AUDIT_SHA` carries the `Applied:` / `Deferred:` / `Rejected:` labels, and a body holding only a worker-path drafted-AC repair line is not an audit. Count the `Council:` line from that body, and on reply `3` print that body, never HEAD (HEAD may be the base merge or a gate-change commit). The `Scope cuts:` and drafted-rows blocks render from the carried spec's `## Acceptance criteria` as today. Change requests revise the spec and commit as a new commit (the branch is published; the heredoc audit body is not re-used because no new council ran), then re-dispatch the summarizer with a fresh temp path and re-present.
+
+On approval the persistence step of the gate applies with two differences: `**Engine:** deferred` is replaced by `waves` or `loop`, `**PR:** <owner/repo#N>` (lowercase owner/repo as parsed from the PR `url`) is written directly below `**Engine:**`, and the result lands as a new commit `spec: select engine and grant for PR #N` instead of `--amend`. The HEAD check reads `git show HEAD:<spec path>` for all three lines. Then the brainstorm phase completes and the flow chains into `/skill:writing-plans` or `/skill:loop-implementation` as today. The worktree, plan, and telemetry record continue as for any gauntlet run.
+
+### Finishing with `**PR:**`
+
+Add `skills/finishing-a-development-branch/reference/spec-pr.md` and one pointer sentence in `SKILL.md` at the point where the selected spec is first resolved. Finishing reads the spec header's `**Engine:**` and `**PR:**` lines before the announce line and before `phase_tracker({ action: "start", phase: "ship" })`: `**Engine:** deferred` stops with `spec approved for handoff only - run brainstorming #N` with no phase change, verification, strip, seal, or push. When the header carries `**PR:** <owner/repo#N>` and no `## Rework record` (a record wins when both exist, since that spec was a rework first), run the Rework-record path's live checks before Step 1 verification: `gh pr view <N> -R <owner/repo> --json number,url,state,isDraft,headRefName,baseRefName`; non-`OPEN` -> stop `PR #N is <state>; the branch cannot be pushed to it.`; `headRefName != $FEATURE` -> stop naming both branches; retain `baseRefName` as `<base-branch>` for Step 3 (the common-base probe is skipped), for the seal (`--option pr --base origin/<baseRefName>`), and for the squash row. At the menu, after `git -C "$WORKTREE" fetch origin`, prove `git -C "$WORKTREE" merge-base --is-ancestor origin/<headRefName> HEAD`; exit 1 withholds rows 1-2 with finishing's existing `Withheld: push - origin/<headRefName> is at <sha7>, local HEAD at <sha7>; a non-force push cannot land` line (rows 3-5 keep their numbers; a `1`/`2` reply gets the clarifying question); any other nonzero exit stops as a command error. Finishing presents:
+
+```
+Implementation complete. What would you like to do?
+
+1. Push to PR #N and mark it ready for review
+2. Push to PR #N, keep it a draft
+3. Squash-merge to <base-branch> (no PR, no surviving branch; orphans PR #N - close it by hand)
+4. Keep the branch as-is (I'll handle it later; nothing is pushed)
+5. Discard this work (removes the worktree and local branch; the PR branch on origin is untouched)
+```
+
+Row 2's label follows the observed `isDraft`: `Push to PR #N, keep it a draft` when true; `Push to PR #N (already ready for review)` when false. No row converts a ready PR back to draft. Rows 1 and 2 run strip-and-seal, then `git -C "$WORKTREE" push --no-follow-tags origin HEAD:refs/heads/<headRefName>` (no force; the branch is merge-only from the base merge on); row 1 then runs `gh pr ready <N> -R <owner/repo>` (a no-op on an already-ready PR). A rejected push is reported once, skips `gh pr ready`, and returns to the menu without retrying or forcing. Both rows preserve the worktree. Rows 3-5 map to today's Options 3-5 unchanged. The PR body is not rewritten (no Rework block).
+
+### `gauntlet-resume`
+
+Entry check 6 (Grant field) in `skills/gauntlet-resume/SKILL.md` already reads the resolved spec's header on every route before any tracker mutation (bare worktree, brief, process-state restore, and seed all run checks 1-6 first). Add the stop there: a header carrying `**Engine:** deferred` stops with `spec approved for handoff only - run brainstorming #N` and no `phase_tracker` or `plan_tracker` call follows. Because the existing Engine match lives in `reference/reconstruction.md` "Spec without plan" (`loop`, else `waves` or absent - `deferred` would fall into the waves branch and arm planning), that Approved route and `reference/brief-contract.md`'s process-state call table each gain one sentence pointing at the check-6 stop, so no route reaches `start brainstorm` with a deferred spec. The seed route and the rest of the brief contract are unchanged.
+
+### Moving parts
+
+Remove: none.
+
+Add: row 6, the withheld rule, and a pointer in `skills/brainstorming/reference/spec-finalization.md`; `skills/brainstorming/reference/spec-pr.md` (marker contract, spec-PR predicate, publish recipe, re-gate rendering and persistence); the step-2 branch, the step-13 and Overview row-6 sentences, and the Red Flag carve-out in `skills/brainstorming/SKILL.md`; the classifier paragraph and spec-PR branch in `skills/brainstorming/reference/pr-subject.md`; `skills/finishing-a-development-branch/reference/spec-pr.md` plus a pointer at the spec-resolution site and the pre-ship `deferred` stop; the check-6 `deferred` stop in `skills/gauntlet-resume/SKILL.md` and its pointer sentences in `skills/gauntlet-resume/reference/reconstruction.md` and `skills/gauntlet-resume/reference/brief-contract.md`; gate markers in `scripts/brainstorming-contract.test.mjs` (row 6 text, the withheld line, `deferred`, `**PR:**`, the step-13 row-6 sentence beside its existing `loop-implementation` match); eval samples `eval/spec-gate/samples/option-6-handoff`, `eval/brainstorming/samples/spec-pr-regate`, `eval/brainstorming/samples/pr-subject-gate`, `eval/finishing-a-development-branch/samples/spec-pr-menu`, `eval/finishing-a-development-branch/samples/deferred-spec-stop`, `eval/gauntlet-resume/samples/deferred-spec-stop`, with their `intent.md` updates; `CHANGELOG.md` `## Unreleased`; README gate description; `doc/configuration.md` and `doc/implement-engines.md` Engine-value sentences.
+
+No extension or bin changes: the telemetry engine regex already maps every non-`loop` value to `waves`, and no `piGauntlet.*` key is added.
+
+## Errors and edge cases
+
+- Predicate fails at option 6 (reused branch with earlier commits, non-default creation ref, `.worktrees/` ignore commit): nothing is pushed; the gate re-presents with the `Withheld: draft PR - diff against origin/$DEFAULT is not spec-only (<paths>)` line in place of row 6.
+- Push rejected at option 6 (no remote, auth, protected branch): print the git output, keep the amended spec commit with `**Engine:** deferred`, re-present the gate with 6 retryable; nothing else moved.
+- `gh pr create` fails after a successful push: print the error and the pushed branch name. The handoff commit is now on origin, so the brainstorm phase stays incomplete, the worktree stays, and the gate re-presents with row 6 only (label `6 - retry opening the draft PR`; rows 1/2/4/5 are withheld with `Withheld: implementation approvals - the handoff commit is published; an approval would amend it`). A retried `6` skips the push when `origin/<branch>` equals HEAD and reruns `gh pr create`; when origin's branch head differs from HEAD, stop and report both SHAs instead of pushing. Cleanup and phase completion happen only after `gh pr create` succeeds.
+- Worktree cleanup after the PR URL printed finds a host-owned checkout (no Step 6 `home:` match) or the removal fails: report the path and the removal output; the PR exists and the flow is complete. The checkout stays until the user removes it; a later `brainstorming #N` in this checkout hits pr-head's "checked out at another path" stop until then.
+- Merged, foreign-repo, fork, or mixed-base PRs stop with today's admission text before the classifier runs.
+- A spec PR whose branch has moved past the spec (someone pushed code) fails the first classifier condition and takes the rework path, which is the correct reading of a PR that now carries code.
+- A spec PR whose PR was marked ready for review classifies the same way; draft status is not a condition.
+- Base merge conflict during provisioning (a predecessor banner, or an add/add on the spec path when the base gained the same file): pr-head aborts as today and the spec-PR route stops before the re-gate with the `base merge unresolved for PR #N (<files>)` message; the user resolves the merge in the preserved checkout and reruns `brainstorming #N`.
+- `gatekeep-pr` runs on the draft spec PR (it admits drafts and its assessment rule 2 selects the added spec as the contract): its `deliver` may push implementation onto the branch; the next `brainstorming #N` then sees a non-spec diff and takes today's rework path. This is an accepted exit from the spec-PR shape; no gatekeep refusal is added.
+- Push rejected at finishing rows 1-2 (a teammate pushed to the PR branch after the re-gate, or the ancestry proof was stale): report once, skip `gh pr ready`, return to the menu; the next render recomputes the ancestry proof and withholds rows 1-2 when origin moved.
+- Reply `6` on the re-gate: not a row; the clarifying question names 1/2/4/5 (and 3 when rendered).
+- `**Engine:** deferred` in a spec at writing-plans or loop entry cannot occur through the gate (6 never chains); finishing and resume carry the stop for restored or hand-edited states.
+- A hand-written spec-only PR with a pasted `**Engine:** deferred` line reaches the re-gate without council; the human at that gate is the check (user decision).
+- `gh pr ready` fails after the push at finishing: report and leave the PR a draft; the user re-runs the row or flips it in the GitHub UI.
+
+## Tests
+
+- Gate renders row 6 and a `6` reply narrates push, draft PR, brainstorm complete, no plan - `eval/spec-gate/samples/option-6-handoff`
+- Spec commit after `6` carries `**Engine:** deferred` below `**Amend-grant:** none`; the predicate runs against `origin/$DEFAULT` before the push, and a reused branch with an earlier commit is withheld without a push; cleanup goes through Step 6 ownership with no branch deletion - `eval/spec-gate/samples/option-6-handoff` (narrated predicate, persistence, and cleanup lines; one turn with a non-spec-only diff)
+- Spec PR with marker re-presents the gate with 1/2/4/5 and no gather, bind, context-builder, thread fetch, council, or questionary, including a PR whose title names a ticket and a turn where the thread query would fail; row 3 and `Council:` key on the pinned add-commit body's `Applied:` label; a zero-row carried spec renders 1-3 only; an unresolved base merge stops before the gate - `eval/brainstorming/samples/spec-pr-regate`
+- Non-spec diff keeps the rework path - covered by the existing `eval/brainstorming/samples/pr-subject-*` samples, which must keep passing; a spec-only diff without the marker prints the one-line notice and runs gather, lint, and council before the gate - `eval/brainstorming/samples/spec-pr-unmarked`
+- Re-gate approval writes Engine, Amend-grant, `**PR:**` as a new commit and chains - `eval/brainstorming/samples/spec-pr-regate` (approval turn)
+- Finishing with `**PR:**` runs the live OPEN/headRefName/baseRefName checks before verification, renders the status-aware rows, withholds rows 1-2 when origin moved, row 1 runs `gh pr ready`, and a rejected push returns to the menu - `eval/finishing-a-development-branch/samples/spec-pr-menu`
+- `**Engine:** deferred` stops finishing before `start ship` and verification, and stops resume at entry check 6 before any tracker call, with the handoff message - `eval/finishing-a-development-branch/samples/deferred-spec-stop` and `eval/gauntlet-resume/samples/deferred-spec-stop` (ordered-call assertions: no `phase_tracker`, verification, strip, seal, or push lines); `scripts/brainstorming-contract.test.mjs` marker check on both skill files (text presence)
+- Row 6 withheld on a PR subject with the `Withheld:` line and a `6` reply gets the clarifying question - `eval/brainstorming/samples/pr-subject-gate` (narrated PR-subject gate turn); `scripts/brainstorming-contract.test.mjs` marker check; existing `pr-subject-*` resolution samples keep their original purpose
+
+## Documentation impact
+- Feature / user-facing docs introduced: none
+- Materially amended existing docs: `README.md` workflow overview (major procedures: option 6 and `brainstorming #N` re-entry on a spec PR); `CHANGELOG.md - deferred: release`
+- Derived / memory docs invalidated: `doc/configuration.md` (the "Every approval writes `**Engine:**`..." sentence now has a third value and the `**PR:**` line); `doc/implement-engines.md` (the "absent means waves" sentence gains `deferred`)
+
+Skill bodies and their `reference/` files are implementation surface per `reference/documentation-impact.md`, not entries here.
+
+## Out of scope
+
+- Reading `isDraft` for classification; a label or PR-body marker; any telemetry-record or commit-body proof at the re-gate.
+- A `gauntlet-resume` PR-seed route; handoff briefs pointing at a PR.
+- `gatekeep-pr` changes. gatekeep admits drafts, selects the added spec as its contract, and may deliver code onto the branch; that exit is recorded under Errors and edge cases, and no refusal or draft check is added to gatekeep.
+- Extension changes to recognize `deferred` in telemetry (the record for the option-6 run is local and superseded).
+- PR lists (N>1) containing a spec PR; they take the rework path or the existing list stops.
+
+## Open questions
+
+- The PR body on option 6 is the gate summary; if the summarizer degraded, the `**Goal:**` line is used, and the user can edit the PR body by hand.
