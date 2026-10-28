@@ -484,7 +484,7 @@ test('brainstorming eval structure and edited instruction sizes stay valid', () 
   }
 });
 
-test('PR routing follows reset and preserves the named pre-approval merge exception', () => {
+test('PR routing follows reset and preserves the named pre-approval sync exception', () => {
   const text = main();
   const step = text.match(/^2\. .*/m)[0];
   assert.match(step, /reference\/pr-subject.md/);
@@ -500,7 +500,7 @@ test('PR scout receives authoritative base values and emits repair evidence', ()
 
 test('PR spec replacement and lint preserve the record and raw council input', () => {
   const text = read('skills/brainstorming/reference/spec-finalization.md');
-  for (const marker of ['## PR under rework', '## Rework record', 'after `## Acceptance criteria`', '40-character pre-rework SHA', 'merge result', 'thread dispositions', 'contract exceptions', 'scoped test results', 'absence fails inline lint', 'PR title and body verbatim', 'ticket or free-text spec']) assert.ok(text.includes(marker), marker);
+  for (const marker of ['## PR under rework', '## Rework record', 'after `## Acceptance criteria`', '40-character pre-rework SHA', 'sync result, rework base, and member replay lines', 'thread dispositions', 'contract exceptions', 'scoped test results', 'absence fails inline lint', 'PR title and body verbatim', 'ticket or free-text spec']) assert.ok(text.includes(marker), marker);
 });
 
 test('engine gate persists both fields before completing and dispatching the selected engine', () => {
@@ -539,28 +539,35 @@ test('PR-head provisioning validates and recovers admitted member heads before b
     'merge PR #<N> head <sha7> into PR #<home>', '(already landed)',
     'an ancestor no-op records no new commit', 'MEMBER_HEADS',
     'Stop before the base merge, spec, plan, later member merges, push, or close',
-    "the base merge and each admitted member-head merge, their conflict helpers' edits to the conflicted files, and their scoped conflict tests",
+    "the base sync (rebase or merge) and each member replay or merge, their conflict helpers' edits to the conflicted files, and their scoped conflict tests",
     'threads for #<N> not fetched (<gh error>)',
     "require abort exit status 0", 'rev-parse HEAD` equal to the saved last-good full SHA',
     'status --porcelain --untracked-files=all', 'manual recovery before rerunning',
     'Never reset or clean',
   ]) assert.ok(text.includes(marker), marker);
-  const recoveryRow = text.split('\n').find((line) => line.startsWith('| List recovery validated'));
+  const recoveryRow = text.split('\n').find((line) => line.startsWith('| Recovery validated'));
   for (const marker of ['git -C "$ROOT" worktree add "$WORKTREE" <headRefName>', 'git -C "$WORKTREE" rev-parse HEAD', 'validated local tip', 'Never use update-ref, -b, reset, clean, or deletion']) assert.ok(recoveryRow.includes(marker), marker);
   assert.ok(text.indexOf('every admitted PR') < text.indexOf('## Provision'));
-  assert.ok(text.indexOf('## Merge admitted member heads') < text.indexOf('## Merge the fetched base'));
-  assert.ok(text.indexOf('BASE_SHA=$(git') < text.indexOf('## Merge admitted member heads'));
+  assert.ok(text.indexOf('## Recover an interrupted sync') < text.indexOf('## Provision the exact head'));
+  assert.ok(text.includes('## Sync onto the fetched base'));
+  const recovery = text.slice(text.indexOf('## Recover an interrupted sync'), text.indexOf('## Provision the exact head'));
+  for (const marker of ['REBASE_HEAD', 'clean existing home tree', 'cherry <tip> <member headRefOid> <BASE_SHA>', 'refs/gauntlet/pre-rework/pr-<N>', 'nonempty walk', 'SYNC=merge']) assert.ok(recovery.includes(marker), marker);
+  const replayRecovery = recovery.slice(recovery.indexOf('When `refs/gauntlet/rework-base/pr-<home>`'), recovery.indexOf('\n\nWithout a rework-base ref'));
+  assert.match(replayRecovery, /set `SYNC=rebase` regardless of the token/);
+  assert.ok(replayRecovery.indexOf('set `SYNC=rebase`') < replayRecovery.indexOf('Continue from the validated tip'), 'rework-base overrides merge-forward before continuation');
+  for (const marker of ['REBASE_HEAD', 'refs/gauntlet/rework-base/pr-<home>', 'rebase --no-rebase-merges --onto HEAD <BASE_SHA> <member headRefOid>', 'rebase --show-current-patch', 'rebase --skip']) assert.ok(text.includes(marker), marker);
+  assert.ok(text.indexOf('BASE_SHA=$(git') < text.indexOf('## Sync onto the fetched base'));
   assert.doesNotMatch(text, /On fetch failure carry/);
   assert.doesNotMatch(text, /For members whose original heads are already ancestors without a recognized merge/);
 });
 
 test('PR conflict helpers and completion explicitly target the selected tree without changing process cwd', () => {
   const text = read('skills/using-git-worktrees/reference/pr-head.md');
-  const base = text.slice(text.indexOf('## Merge the fetched base'), text.indexOf('## Fetch unresolved review threads'));
+  const base = text.slice(text.indexOf('## Sync onto the fetched base'), text.indexOf('## Fetch unresolved review threads'));
   assert.ok(base.includes('Keep the process cwd unchanged; explicitly target the selected worktree in every helper discovery, status, staging, completion, commit, and abort command.'));
   for (const command of [
     'status --porcelain', 'diff --name-only --diff-filter=U', 'add',
-    'diff --cached --name-only', 'commit --no-edit', 'merge --abort',
+    'diff --cached --name-only', 'commit --no-edit', 'merge --abort', 'rebase --abort',
   ]) assert.ok(base.includes('`git -C "$WORKTREE" ' + command + '`'), command);
   assert.doesNotMatch(base, /`git (?:diff|status|add|commit|merge)\b/);
 });
@@ -593,12 +600,15 @@ test('leading PR lists admit in order and keep every retained contract', () => {
   }
   assert.match(main(), /one open PR or a leading list of related open PRs reworked on the home PR's branch/);
   assert.match(main(), /ordered per-PR array \(home first\)/);
-  const exception = "the base merge and each admitted member-head merge, their conflict helpers' edits to the conflicted files, and their scoped conflict tests";
+  const exception = "the base sync (rebase or merge) and each member replay or merge, their conflict helpers' edits to the conflicted files, and their scoped conflict tests";
   for (const path of ['skills/brainstorming/SKILL.md', 'skills/using-git-worktrees/reference/pr-head.md']) assert.ok(read(path).includes(exception), path);
   assert.ok(read('README.md').includes("the base merge, each admitted member-head merge, their conflict helpers' edits to the conflicted files, and their scoped conflict tests"), 'README.md');
   const gather = read('skills/brainstorming/gatherer.md');
-  for (const marker of ['### PR #<N>', 'Member merge:', 'own changed paths', 'home']) assert.ok(gather.includes(marker), marker);
+  for (const marker of ['### PR #<N>', 'Member replay:', 'own changed paths', 'home']) assert.ok(gather.includes(marker), marker);
   assert.ok(!gather.includes('or threads: not fetched'));
+  assert.match(gather, /> Member replay: [^\n]*preserve merge outcomes in merge mode/);
+  assert.match(gather, /> contract exceptions, scoped test results[^\n]*Rework base after a complete rebase/);
+  assert.ok(!gather.includes('> Preserve merge outcomes in merge mode; carry optional Rework base after a complete rebase.'));
   const lint = read('skills/brainstorming/reference/spec-finalization.md');
   for (const marker of ['Step 4 report', 'MEMBER_HEADS', 'not from the record', 'missing PR', '### PR #<N>']) assert.ok(lint.includes(marker), marker);
 });
@@ -613,15 +623,21 @@ test('mid-sentence mentions explicitly use context-builder without classifying t
   assert.ok(parser.includes('`#12 fix the retry path, see #13 for context` as one plus intent'));
 });
 
-test('all original heads are proven against final HEAD after every base-merge outcome', () => {
+test('sync proofs depend on the outcome rather than rewritten original ancestry', () => {
   const text = read('skills/using-git-worktrees/reference/pr-head.md');
-  const members = text.slice(text.indexOf('## Merge admitted member heads'), text.indexOf('## Merge the fetched base'));
-  assert.doesNotMatch(members, /merge-base --is-ancestor/);
-  const base = text.slice(text.indexOf('## Merge the fetched base'), text.indexOf('## Fetch unresolved review threads'));
-  const proof = base.indexOf('merge-base --is-ancestor <each original head> HEAD');
-  assert.ok(proof > base.indexOf('merge: unresolved - <files>'), 'proof follows clean, no-op, resolved and aborted outcomes');
-  assert.match(base, /After every base-merge outcome, including clean, no-op, resolved, and aborted unresolved, prove home and every member's original head against final HEAD/);
-  assert.match(base.slice(proof), /Stop on any nonzero exit/);
+  const validation = text.slice(text.indexOf('## Validate the sync outcome'), text.indexOf('## Fetch unresolved review threads'));
+  assert.ok(text.indexOf('## Validate the sync outcome') > text.indexOf('### Merge the fetched base'));
+  for (const marker of ['rebase success', 'home rebase aborted', 'member replay aborted', 'merge (any outcome)', 'Original-head ancestry is never asserted against a rebased tip', 'sole preapproval write/run exception']) assert.ok(validation.includes(marker), marker);
+  assert.match(validation, /home rebase aborted - HEAD equals saved pre-attempt last-good home SHA \(PRE_REWORK_HEAD for a fresh run, validated local tip on recovery\)/);
+  const homeAbort = text.slice(text.indexOf('After clean home abort'), text.indexOf('After clean member abort'));
+  assert.match(homeAbort, /continue on the saved pre-attempt home tip/);
+  assert.doesNotMatch(homeAbort, /continue on original HEAD/);
+  const subject = read('skills/brainstorming/reference/pr-subject.md');
+  for (const row of ['Shape passes, marker absent', 'Shape and marker pass']) assert.match(subject.split('\n').find(line => line.startsWith('| ' + row)), /SYNC=merge/);
+  assert.match(subject, /first intent token is `merge-forward`/);
+  assert.match(subject, /Carry `SYNC` nowhere else/);
+  assert.match(subject, /Base:[^\n]*\nRework base: <40-char sha>\nMember replay:/);
+  for (const marker of ['rebase --no-rebase-merges origin/<baseRefName>', 'GIT_EDITOR=true git -C "$WORKTREE" rebase --continue', 'update-ref refs/gauntlet/pre-rework/pr-<N> <headRefOid>', 'update-ref refs/gauntlet/rework-base/pr-<home> HEAD', 'later members `pending`', 'only final equality', 'All-dropped is not an error']) assert.ok(text.includes(marker), marker);
 });
 
 test('record completeness is checked against provisioning inputs, not its own groups', () => {

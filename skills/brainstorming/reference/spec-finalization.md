@@ -19,12 +19,12 @@ Spec-writing replaces the context draft, in this exact order:
    For a rework PR subject (a draft carrying `## PR under rework`), follow `pr-subject.md`'s spec contract:
    carry the draft's `## PR under rework` into `## Rework record` after `## Acceptance criteria`,
    preserving its repeated PR/Pre-rework head/Threads groups, one per retained PR,
-   home first, each 40-character pre-rework SHA, merge result,
+   home first, each 40-character pre-rework SHA, sync result, rework base, and member replay lines,
    keeps/changes/dropped claims, thread dispositions and fetch status, contract exceptions,
    and scoped test results (including failures and reasons none ran), then one
    `### PR #<N>` provenance subsection per PR with lowercase claims. Carry every PR's
    stated intent and constraints added since fork into Problem. Open Design with the
-   unresolved merge repair when present. Omit the record from a ticket or free-text spec.
+   unresolved sync repair when present. Omit the record from a ticket or free-text spec.
 3. **Immediately after the write**, confirm line 1 of the file is no longer
    `# CONTEXT DRAFT - NOT A SPEC - fully replaced at spec-writing` - before
    dispatching lint, critique, council, or summarizer. The phase-tracker commit

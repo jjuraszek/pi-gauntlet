@@ -114,11 +114,18 @@ for (const [name, text] of [["process table", processRow], ["producer and loop",
   assert.match(text, /home first/ , name);
   assert.match(text, /record order/ , name);
 }
-assert.match(producer, /optional PR pairs before the gate-history line/);
+assert.match(processRow, /optional single `Rework base: <40-char sha>` after all PR pairs/);
+assert.match(producer, /optional single `Rework base: <40-char sha>` after all PR pairs and before the gate-history line/);
+assert.match(producer, /loop alternative above, retaining the optional PR pairs and rework base before the gate-history line/);
+assert.match(producer, /Copy the full rework base only from the top-level record when present; never invent a boundary for incomplete sync/);
 const identityRestore = actualContract.split("## Process-state restore")[1].split("Facts that fix the order")[0];
 for (const token of ["first pair only", "later pairs", "brief lists <brief order>, record lists <record order>", "top-level", "all paired full pre-rework heads", "Before any tracker write"]) assert.ok(identityRestore.includes(token), token);
 assert.ok(identityRestore.includes("brief names PR #N on <headRefName>, worktree is on <branch>"));
+assert.match(identityRestore, /Carry the optional full rework base downstream; reconstruction prefers it over the first pair's head as its scan base/);
 const candidateRules = reconstruction.split("## Candidates")[1].split("## Spec without plan")[0];
 for (const token of ["first pair's", "## Problem", "Read candidate contents before choosing", "exclude exactly those paths", "before the multi-spec prompt", "Keep this explicit exclusion set authoritative through plan/ledger pairing", "skip that pair", "Never promote an excluded member spec", "Never choose by filename"]) assert.ok(candidateRules.includes(token), token);
 const realHandoff = realFiles.find(f => f.rel === "skills/gauntlet-handoff/SKILL.md").text;
 assert.ok(realHandoff.includes("every top-level PR identity"));
+assert.match(realHandoff, /copy the optional top-level rework base after the pairs as the contract specifies/);
+assert.match(candidateRules, /use its full `Rework base:` SHA as `<base>` when present, else the first pair's full `Pre-rework head:` SHA/);
+assert.match(candidateRules, /Without the optional pairs, including a bare worktree, use the ordinary base/);
