@@ -24,6 +24,8 @@ FEATURE=$(git -C "$WORKTREE" branch --show-current)
 
 The process cwd never changes; every command targets `$WORKTREE` or `$PRIMARY` explicitly.
 
+Resolve the selected run spec now: use the carried spec path or the active plan/ledger's path-only `**Spec:**` header; with neither, enumerate candidates under resolved `flowGuards.specDirs`, read them, and ask on ambiguity. Carry this path through finish without a second discovery. Read its header before announcing or starting ship. An exact `**Engine:** deferred` before the first `##` stops with `spec approved for handoff only - run brainstorming #N`; perform no phase change, verification, strip, seal, or push. Read [header-linked PR finishing](reference/spec-pr.md) now for `**PR:**` without a Rework record; perform its live identity checks before Step 1, use its Step 4 menu and push recipe instead of the ordinary create rows.
+
 **Announce at start:** "I'm using the finishing-a-development-branch skill to complete this work."
 
 Then call `phase_tracker({ action: "start", phase: "ship" })`.
@@ -32,8 +34,8 @@ Then call `phase_tracker({ action: "start", phase: "ship" })`.
 
 ### Step 1: Verify Tests
 **Hard verification gate.** Tests/format/lint must pass before presenting any options — including Discard. The user's stated intent to throw the branch away does not change whether the diff is in a verifiable state; verifying first surfaces accidental damage to unrelated code before the branch is gone forever. The skip rule below is the only exception.
-Read the selected run spec before verification. Detect a PR subject only by its `## Rework record`, never by an open PR on `$FEATURE`. Read every top-level `PR:`/`Pre-rework head:` pair, home first, retaining each full SHA; missing pre-head -> stop naming the spec path. Set `PRE_REWORK_HEAD` to home's SHA. Read only combined capitalized `Base:`, `Keeps:`, `Changes:`, `Dropped claims:`, `Scoped tests:` fields; ignore lowercase provenance under `### PR #<N>`. For N=1, read `Threads:` directly after `Pre-rework head:` and retain the provenance subsection without changing finish output. Confirm only home with `gh pr view <N> --json number,url,headRefName,baseRefName,state` (use the record's repository): non-`OPEN` -> stop: `PR #N is <state>; the rework cannot be pushed to it.`; headRefName != `$FEATURE` -> stop naming both branches. Retain baseRefName for Step 3.
-Recognize a ledger by line 1 exactly `# Ledger - loop engine`. For a ledger, use its `verification:` command throughout finish, including the minors round. For a PR subject with a task plan, use the union of every plan task's `Tests:` commands plus the executable lint/format commands in the header's `**Verification:**` line; treat `none - PR subject, scoped` as no header commands, not an empty task union. Capture this set and accepted-complete task evidence before stripping the plan. Apply the hard gate and skip rule below to this set. For every other subject with a task plan, run the plan header's `**Verification:**` set in the worktree: `(cd "$WORKTREE" && <command>)`. With no plan in this session, run the verification command(s) of the affected services from the gauntlet overrides file or `AGENTS.md` (look for "verification", "CI", or "test" sections).
+Reuse the selected run spec read in Input. Detect a rework PR subject by its `## Rework record`; use Input's header-linked route for `**PR:**`, never discover by an open PR on `$FEATURE`. For the rework route only, read every top-level `PR:`/`Pre-rework head:` pair, home first, retaining each full SHA; missing pre-head -> stop naming the spec path. Set `PRE_REWORK_HEAD` to home's SHA. Read only combined capitalized `Base:`, `Keeps:`, `Changes:`, `Dropped claims:`, `Scoped tests:` fields; ignore lowercase provenance under `### PR #<N>`. For N=1, read `Threads:` directly after `Pre-rework head:` and retain the provenance subsection without changing finish output. Confirm only home with `gh pr view <N> --json number,url,headRefName,baseRefName,state` (use the record's repository): non-`OPEN` -> stop: `PR #N is <state>; the rework cannot be pushed to it.`; headRefName != `$FEATURE` -> stop naming both branches. Retain baseRefName for Step 3.
+Recognize a ledger by line 1 exactly `# Ledger - loop engine`. For a ledger, use its `verification:` command throughout finish, including the minors round. For a rework PR subject with a task plan, use the union of every plan task's `Tests:` commands plus the executable lint/format commands in the header's `**Verification:**` line; treat `none - PR subject, scoped` as no header commands, not an empty task union. Capture this set and accepted-complete task evidence before stripping the plan. Apply the hard gate and skip rule below to this set. For every other subject with a task plan, run the plan header's `**Verification:**` set in the worktree: `(cd "$WORKTREE" && <command>)`. With no plan in this session, run the verification command(s) of the affected services from the gauntlet overrides file or `AGENTS.md` (look for "verification", "CI", or "test" sections).
 **Skip rule.** Skip the run only when this set passed on a known clean commit in the verify phase of this session and no edit or write landed outside `<telemetry.dir>` since. Check the current tree: `git -C "$WORKTREE" diff --quiet <commit the run passed on> -- . ':!<telemetry.dir>'` must exit 0, and `git -C "$WORKTREE" status --porcelain --untracked-files=all -- . ':!<telemetry.dir>'` must exit 0 with empty output (`<telemetry.dir>` defaults to `.pi/gauntlet/telemetry`). These checks cover committed, staged, unstaged, and untracked changes outside telemetry. Otherwise run it once; a missing verified commit, a failed check, or uncertainty means run.
 **Scoping caveat — pre-existing findings.** Some services carry lint findings unrelated to the diff. If verification fails on lines you didn't touch:
 Confirm with `git -C "$WORKTREE" diff <base>...HEAD --name-only` that the offending file isn't in your diff. Surface the pre-existing finding to the user as a separate issue - do **not** auto-fix it in this completion ("surface, don't auto-fix"). Proceed only after the user acknowledges.
@@ -48,11 +50,11 @@ Cannot proceed until tests pass.
 Stop. Don't proceed to Step 2. **If tests pass:** Continue to Step 2. No documentation prompt here: Documentation impact is decided at spec time (`/skill:brainstorming` section 6, gated by `brainstorming/reference/documentation-impact.md`) and has already shipped in the diff by the time you reach finishing.
 ### Step 2: Detect Environment
 
-For a PR subject, use the Step 4 PR menu. For other subjects: detached HEAD (`git -C "$WORKTREE" symbolic-ref -q HEAD` prints nothing) -> reduced 4-option menu (no merge), no cleanup. Otherwise the standard 5 options.
+For a header-linked PR, use the reference's five-row menu; for a rework PR subject, use the Step 4 PR menu. For other subjects: detached HEAD (`git -C "$WORKTREE" symbolic-ref -q HEAD` prints nothing) -> reduced 4-option menu (no merge), no cleanup. Otherwise the standard 5 options.
 
 ### Step 3: Determine Base Branch
 
-For a PR subject, set `<base-branch>` to the confirmed `baseRefName` and skip the common-base probe below.
+For either PR route, set `<base-branch>` to the confirmed `baseRefName` and skip the common-base probe below.
 
 ```bash
 # Try common base branches
@@ -158,6 +160,8 @@ A **heavy** revert is not a menu toggle — say so explicitly to the user before
 
 ### Step 4: Present Options
 
+At Step 4, the header-linked route bypasses both menus below and uses the Input reference's preflight, five-row menu, and rows 1/2 push recipe; retain the shared amendment digest and informational lines.
+
 **Amendment digest (both variants).** Before the options, read `git -C "$WORKTREE" log <base-branch>..HEAD --extended-regexp --grep '^(amend:|loop: cut row [0-9]+|loop: amend)'` and take the `auto-apply` and `granted` records from those commit bodies. Render, then the options:
 
 ```
@@ -167,7 +171,7 @@ Amendments auto-applied (N):
 
 Omit the block when N = 0.
 
-**PR subject - preflight and six-row menu.** Fetch origin with `git -C "$WORKTREE" fetch origin`; stop on failure. Run these proofs in order, against this worktree's HEAD:
+**Rework PR subject - preflight and six-row menu.** Fetch origin with `git -C "$WORKTREE" fetch origin`; stop on failure. Run these proofs in order, against this worktree's HEAD:
 | Proof | Exit 0 | Exit 1 |
 |---|---|---|
 | `git merge-base --is-ancestor <PRE_REWORK_HEAD> HEAD` | Continue | Stop: `PR branch history was rewritten: <PRE_REWORK_HEAD7> is not an ancestor of HEAD; the rework must be re-merged, not rebased.` |

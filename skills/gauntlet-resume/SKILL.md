@@ -97,24 +97,18 @@ checks 2, 4, 5 do not apply; check 6 runs on the seed's pinned spec path.
    `skills/*/SKILL.md` in this package; `Read` each match's complete file into the
    transcript; list non-matches as skipped. Loaded bodies are context only - no skill's
    entry actions run until Dispatch names one.
-6. **Grant field.** Runs once the route has resolved `<spec path>` - the `S` path that
-   `reference/brief-contract.md` "Process-state restore" resolves for `skip brainstorm`
-   (process-state briefs), the spec reconstruction resolves and the human approves
-   (Spec without plan) or confirms (Spec with ledger or Spec with plan) (`reference/reconstruction.md`), or
-   the pinned `<full-path>/<rel>` of a spec tracked on `main` (`reference/seed.md`) -
-   and before that route's first tracker call; the path is carried, never re-resolved.
-   Read the spec's header block (between the H1 and the first `##`) through the
-   predicate in
+6. **Grant field.** Run deferred-header admission whenever a route resolves an existing spec, including brainstorm-stage process-state restore and reconstruction's unapproved-draft handoff, before any tracker mutation or brainstorming invocation. Carry the resolved `<spec path>` without re-resolving it: use `reference/brief-contract.md` "Process-state restore", `reference/reconstruction.md`, or the seed's pinned `<full-path>/<rel>` (`reference/seed.md`).
+   Read the spec's header block (between the H1 and the first `##`). An exact `**Engine:** deferred` stops with `spec approved for handoff only - run brainstorming #N`; make no phase_tracker or plan_tracker mutation. After deferred-header admission, apply the grant predicate only for an approved spec in
    [Standing grants](../brainstorming/reference/amendment-surface.md#standing-grants): no
    `**Amend-grant:**` line -> no grant (legacy spec);
    exactly one line whose trimmed value is `none` -> no grant;
    exactly one line whose trimmed value is any other non-empty single-line text ->
    grant active, the sentence is that value;
    two or more lines, one line with an empty value, or a value continued onto the next physical line ->
-   malformed, stop, print the offending line(s), no tracker call. Routes that resolve no
+   malformed, stop, print the offending line(s), no tracker call. Skip only grant decoding for routes that resolve no
    approved spec (hotfix, `worktree: no`, a brief whose active phase is brainstorm,
-   reconstruction's unapproved-draft brainstorming handoff) skip this check and print
-   no grant line. Resume reports the line; it never writes it.
+   reconstruction's unapproved-draft brainstorming handoff); print no grant line.
+   Resume reports the line; it never writes it.
 
 ## Dispatch
 
@@ -136,7 +130,7 @@ re-derive the record.
 ## Post-restore continuation
 
 After a successful restore, print the closing line from `reference/brief-contract.md`
-(gate history not restored; the task to re-validate), then on its own line exactly one of `Standing grant active: <sentence>` or `No standing grant.` from check 6 (nothing when the check was skipped), then continue in the stage's
+(gate history not restored; the task to re-validate), then on its own line exactly one of `Standing grant active: <sentence>` or `No standing grant.` from check 6 (nothing when grant decoding was skipped), then continue in the stage's
 owning skill **without** its reset-bearing entry:
 
 | Active after restore | Continue in | Entry point |

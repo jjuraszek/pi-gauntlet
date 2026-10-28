@@ -23,6 +23,16 @@ Parse the PR base repository from `url` and this checkout's repository from `git
 
 Append this paragraph only for foreign-repository, fork, and mixed-base failures: To rework these together anyway, merge the heads into one branch by hand, open one PR, and brainstorm that PR.
 
+## Spec-PR classifier
+
+Immediately after ordered admission and before binding, classify N=1 read-only. Derive ROOT from the absolute git common directory using pr-head's Step 0 submodule guard before fetching. N>1 always follows relatedness and rework. Fetch `git -C "$ROOT" fetch origin <baseRefName> <headRefName>`, resolve `BASE_SHA=$(git -C "$ROOT" rev-parse origin/<baseRefName>)`, and inspect `git -C "$ROOT" diff --name-status <BASE_SHA>...<headRefOid>`. Stop on command errors. Apply [spec-pr.md](spec-pr.md)'s shared shape predicate with pinned BASE_SHA/headRefOid, inspecting modified hunks; read the added spec through `git show <headRefOid>:<path>` before testing its exact deferred header marker.
+
+| Observation | Route |
+|---|---|
+| Shape fails | Continue unchanged through bind, gather, scout, and Rework record. |
+| Shape passes, marker absent | Print `spec-only PR without the gate marker - running lint and council`; take normal steps 3-12 with the carried spec as the draft. |
+| Shape and marker pass | Provision the one-element admitted PR array through pr-head's checkout/base merge/Step 4, then follow spec-pr.md's re-gate. Skip binding and all before-gather thread queries. Treat draft and ready PRs equally. |
+
 ## Relatedness before provisioning
 
 For N>1, fetch every admitted PR's title/body with `gh pr view <N> -R <owner/repo> --json title,body` and actual diff with `gh pr diff <N> -R <owner/repo>`. On failure stop before provisioning naming the ref and observed reason: `<ref>: title/body not fetched (<gh error>)` or `<ref>: diff not fetched (<gh error>)`.

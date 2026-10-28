@@ -34,7 +34,7 @@ Treat the flag as discovery control, not harness authorization. The command reli
 
 ## Checklist
 
-Work through the items below **in order**. After a user answer or completed side task, resume the current checklist step and perform the next authorized action in the same turn, advancing once that step's required decisions and approvals are satisfied. Continue until a required question is unanswered, an existing approval is pending, the user explicitly pauses, or a failed required tool or unavailable required resource blocks progress. This is your own checklist to follow, not a `plan_tracker` plan — brainstorming is open-ended exploration, and `plan_tracker` is execution-only (the implement phase). The terminal state is the user review gate; after approval route 1/2 to `/skill:writing-plans` and 4/5 to `/skill:loop-implementation` per the gate. Do not jump ahead of approval, and do not silently drop the critique pass.
+Work through the items below **in order**. After a user answer or completed side task, resume the current checklist step and perform the next authorized action in the same turn, advancing once that step's required decisions and approvals are satisfied. Continue until a required question is unanswered, an existing approval is pending, the user explicitly pauses, or a failed required tool or unavailable required resource blocks progress. This is your own checklist to follow, not a `plan_tracker` plan - brainstorming is open-ended exploration, and `plan_tracker` is execution-only (the implement phase). The terminal state is the user review gate; after approval route 1/2 to `/skill:writing-plans` and 4/5 to `/skill:loop-implementation` per the gate; 6 ends the flow after publishing. Do not jump ahead of approval, and do not silently drop the critique pass.
 
 1. **Start brainstorm tracking (fresh epoch)** - as the first action on authorized fresh entry, before reading code, the worktree, or answering the user, reset both trackers and start the phase. A new brainstorm owns a clean slate, so stale phases and tasks from earlier work are cleared; re-entering mid-brainstorm is safe (nothing to lose, same clean slate):
 
@@ -44,7 +44,7 @@ Work through the items below **in order**. After a user answer or completed side
    phase_tracker({ action: "start", phase: "brainstorm" })
    ```
 
-2. **Set up the worktree** - resolve the leading run per `reference/pr-subject.md`; pass the ordered per-PR array (home first) to `/skill:using-git-worktrees`' PR-head path. Then see [Worktree First](#worktree-first).
+2. **Set up the worktree** - resolve the leading run per `reference/pr-subject.md`; pass the ordered per-PR array (home first) to `/skill:using-git-worktrees`' PR-head path. For a marked spec PR, follow `reference/spec-pr.md`'s re-gate after provisioning (steps 3-11 skipped); otherwise see [Worktree First](#worktree-first).
 3. **Gather context** - read [Ticket Handling](#ticket-handling), then follow [`gatherer.md`](gatherer.md) without a human stop.
 4. **Understand the idea against the draft** - if `reference/ticket-acceptance.md` is not already in context this session (restored entry, or a redraw after a fresh start), read [Ticket Handling](#ticket-handling) before the rest of this step; then see [Understand the idea](#3-understand-the-idea).
 5. **Propose 2-3 approaches** - see [Explore approaches](#4-explore-approaches).
@@ -55,7 +55,7 @@ Work through the items below **in order**. After a user answer or completed side
 10. **Re-run placeholder scan** - follow [Spec Self-Review](#spec-self-review-before-user-review-gate).
 11. **Generate spec summary** - follow [User Review Gate](#user-review-gate).
 12. **User review gate** - follow [User Review Gate](#user-review-gate).
-13. **Transition** - after approval, invoke `/skill:writing-plans` on 1/2 or `/skill:loop-implementation` on 4/5 per [User Review Gate](#user-review-gate).
+13. **Transition** - after approval, invoke `/skill:writing-plans` on 1/2 or `/skill:loop-implementation` on 4/5 per [User Review Gate](#user-review-gate); 6 ends the flow after publishing.
 
 ## Project Routing
 
@@ -178,7 +178,7 @@ Follow [Spec Council](reference/spec-finalization.md#spec-council) for the manda
 
 ## User Review Gate
 
-Follow [User Review Gate](reference/spec-finalization.md#user-review-gate) for summary, commit, approval, and automatic planning.
+Follow [User Review Gate](reference/spec-finalization.md#user-review-gate) for summary, commit, approval, and selected-engine transition or option-6 publication.
 
 ## Amending an approved spec
 
@@ -198,13 +198,13 @@ Redraw: keep the worktree and the approved spec file. `plan_tracker({ action: "c
 - Draft overwrite without the same-turn full read, or overwrite via `edit` ([owner](#spec-self-review-before-user-review-gate)).
 - Dispatch while line 1 is the context-draft marker ([owner](#spec-self-review-before-user-review-gate)).
 - Inline scope or ambiguity checks ([owner](#spec-council)).
-- Gate after failed/skipped critique or before placeholder re-scan ([owner](#spec-self-review-before-user-review-gate)).
+- Gate after failed/skipped critique or before placeholder re-scan, except the marked spec-PR re-gate ([owner](#spec-self-review-before-user-review-gate)).
 - Gate without summary `Read` last, or with a paraphrased summary ([owner](#user-review-gate)).
 - Human stop between gather and question one ([owner](gatherer.md)).
 - Proposed-change execution before approval ([owner](#hard-constraint)).
 - Plan before approval; brainstorming invocation for an amend ([owner](#user-review-gate)).
 - Missing predecessor banner; invalid multi-spec split ([owner](#spec-self-review-before-user-review-gate); [owner](#2-scope-check)).
-- Gate reached without the second predecessor pass ([owner](#spec-self-review-before-user-review-gate)).
+- Gate reached without the second predecessor pass, except the marked spec-PR re-gate ([owner](#spec-self-review-before-user-review-gate)).
 - Approaches before the premise note states a contradicted claim's correction ([owner](#3-understand-the-idea)).
 - Approaches before the framing question or the holds-statement (either may follow the premise correction in the same message); a holds-statement that names nothing checked ([owner](#3-understand-the-idea)).
 - Amend without `reference/amendment-surface.md`; waiting after an amend grant; auto-applying a redraw ([owner](#amending-an-approved-spec)).
