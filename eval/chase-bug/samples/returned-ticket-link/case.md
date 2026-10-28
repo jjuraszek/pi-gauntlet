@@ -1,3 +1,5 @@
+bundle+: skills/chase-bug/SKILL.md
+
 # Completed handoff
 
 Triage and the verdict menu are complete. Origin: free text. Response target: none. The human chose File a ticket. Shape-ticket has finished and returned this result:

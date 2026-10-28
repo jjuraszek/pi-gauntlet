@@ -1,0 +1,38 @@
+{
+  "sample": "prose-verdict-above-menu",
+  "arm": "baseline",
+  "skillSha": "5cf4d9d5ea0c4d659b4344a0e164705ff68351e75395cfc2dbad0d808aa94842",
+  "inputSha": "3e652b4cced93b9b887b849ec646ee4555a8c974765811fa342e3b20bccc04bf",
+  "kind": "text",
+  "assembly": "concat",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "# Checkpoint 1: Verdict menu (gate 1)\n\n```\nFault story: a request arrives for /widgets/ with a trailing slash -> the router's\npath matcher compares paths exactly, without normalization -> the route falls\nthrough to the 404 handler instead of returning 200.\nProof: `GET /widgets/` -> 404 | src/router.ts:88 | expected 200, got 404\n```\n\nPick one:\n\n1. [ ] File a ticket: /skill:shape-ticket, seeded with this evidence.\n2. [ ] Brainstorm now: /skill:brainstorming with this evidence as the seed.\n3. [x] Implement hotfix now: follow hotfix.md; add \"as a PR\" for a PR. [recommended]\n4. [ ] Finish with rendered summary.\n\neligible: all predicates pass\n\n**Supporting evidence**\n\n- **Repro:** a local request to `/widgets/` returned 404. The expected result is 200.\n- **Implicated code:** `src/router.ts:88` does an exact string comparison of the request path against the route pattern and does not normalize the path first.\n- **Falsification:** the hypothesis \"the exact compare without normalization causes the 404\" was tested and survived. It is the evidenced root cause.\n- **Prior-report search:** completed. No matching open or closed issue.\n- **Baseline:** clean at invocation, and checkpoint 2 showed no delta.\n\nWaiting for your pick.\n\n---\n\n# Checkpoint 2: Response draft (gate 2)\n\n**Resolved channel:** `gh issue comment` on the originating GitHub issue\n\n```\nSymptom: The page reportedly fails to render.\nVerdict: cannot-replicate. The page renders successfully in our reproduction attempts.\nEvidence: We followed the documented repro steps in Chrome and in Firefox, each with a clean profile. The page rendered successfully in both.\nNext step: Please provide the browser and version where you saw the failure, so we can retry the reproduction in that environment.\n```\n\nTo post this comment, reply with exactly `send it`. Any other reply will be treated as a change request to the draft or channel. Nothing has been pushed.\n",
+      "words": 280,
+      "wallMs": 9331,
+      "mechanical": {
+        "no-labels": "fails"
+      }
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "## Checkpoint 1 — Verdict menu\n\nFault story: a request to `/widgets/` → the router compares paths without normalization → the route falls through to a 404 instead of returning 200.\n\nProof: local repro `/widgets/` → 404, expected 200 | `src/router.ts:88` | falsification test confirmed the cause.\n\nPrior-report search completed without a match.\n\nPick one:\n\n1. [ ] File a ticket — `/skill:shape-ticket`, seeded with this evidence.\n2. [ ] Brainstorm now — `/skill:brainstorming` with this evidence as the seed.\n3. [ ] Implement hotfix now — follow `hotfix.md`; add “as a PR” for a PR. **[recommended]**\n4. [ ] Finish with rendered summary.\n\neligible — all six hotfix predicates pass; the fix is small and safe.\n\n## Checkpoint 2 — Reporter response draft\n\nResolved channel: `gh issue comment`\n\n```text\nSymptom: The reported page fails to render.\nVerdict: Cannot replicate with the available reproduction steps.\nEvidence: Following the documented steps in Chrome and Firefox with clean profiles rendered the page successfully in both browsers.\nNext step: Please provide your browser name and version so we can investigate the environment-specific failure.\n```\n\nReply with the exact text `send it` to post this comment. Nothing has been pushed.\n",
+      "words": 174,
+      "wallMs": 4827,
+      "mechanical": {
+        "no-labels": "fails"
+      }
+    }
+  },
+  "repoSha": "896a9adb7c1008dd102f6a10f992553491d371d9"
+}

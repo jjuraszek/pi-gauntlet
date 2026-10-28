@@ -64,15 +64,18 @@ Step 4, directly after the sentence "Present the verdict as a **plain-language f
 
 ```markdown
 **Verdict shape.** Write for a reader who does not know the code the bug
-touches. Three whole sentences, under 80 words, in plain chat text: what
-happened, in the reporter's own terms; what it means - the verdict and one
+touches. Apply the three-sentence and under-80-word limits only to the story,
+draft, or summary itself. Keep menu-selection echoes outside those spans and
+under the shared menu-layout rule, not this shape. Write three whole sentences,
+under 80 words, in plain chat text: what happened, in the reporter's own terms; what it means - the verdict and one
 proof the reader can see (a before/after value or the one repro line); what
 the human decides or does next, and why. Name a component by what it does
 ("the part that matches URLs to pages"), never by its file alone. Put the
 file, line, commit, or link at the end of the sentence it supports, after the
 role name ("the matcher in the router, `src/router.ts:88`"). No code fence
-around the story. No label lines - `Fault story:`, `Proof:`, `Symptom:`,
-`Verdict:`, `Evidence:`, `Next step:` - plain or emphasized (`**Symptom:**`);
+around the story. Omit the six label prefixes everywhere in all rendered text,
+including headings and deep evidence below the story - `Fault story:`, `Proof:`,
+`Symptom:`, `Verdict:`, `Evidence:`, `Next step:` - plain or emphasized (`**Symptom:**`);
 `Pick one:` is the menu separator and the eligibility line stays, neither is
 a label. No `->` chains.
 Example: "Opening `/widgets/` with a trailing slash shows the 404 page while
@@ -116,7 +119,7 @@ The label regex used below, `NO_LABELS`, is `/^(?:(?!(?:Fault story|Proof|Sympto
     - `draft-asks-reporter: judged:` the checkpoint-2 draft's third sentence asks the reporter for the missing browser and version, the draft is shown with the `send it` confirmation, and the output does not claim a push happened.
 - `samples/returned-ticket-link/case.md` gains `bundle+: skills/chase-bug/SKILL.md` as its first line so the replay sees the Verdict shape rule step 5 points at; `target.json`'s slice stays unchanged and `intent.md`'s bundle-free `for:` is unaffected by the bundle. Its `expected.md` gains `no-fence: mechanical: lacks "<three backticks>"` (the literal triple-backtick string), `no-labels: mechanical: matches NO_LABELS`, `three-sentences: judged:` (the summary is exactly three sentences), `under-80-words: judged:` (the summary is under 80 words), and `plain-reader: judged:` with the wording above applied to the summary.
 - `samples/menu-after-numbered-findings/` stays as is; its checkpoint 1 wording "Present the fault story and proof" still produces the Verdict shape under the new skill and its `layout` and `mapped-pick` facts must keep holding.
-- `intent.md`: rewrite `for:` to the new bundle-free `skillSha`; `## Change` describes the Verdict shape; `## Expected to move` lists `returned-ticket-link/no-labels: fails -> holds` (both saved outputs carry label lines) and records `returned-ticket-link/no-fence` as staying held (both saved outputs carry no fence). The remaining new facts on both samples get their entries after the baseline-only run below, from the seeded baseline outputs: a fact the baseline fails is listed `fails -> holds`; a fact the baseline already holds is listed as staying held, never promised as a move in advance. `returned-ticket-link/returned-reference`, `returned-ticket-link/no-new-creation`, `menu-after-numbered-findings/layout`, `menu-after-numbered-findings/mapped-pick` stay held.
+- `intent.md`: rewrite `for:` to the new bundle-free `skillSha`; `## Change` describes the Verdict shape; `## Expected to move` lists `returned-ticket-link/no-labels: fails -> holds` (both saved outputs carry label lines) and records the reseeded `returned-ticket-link/no-fence` outcomes as mixed: one replay baseline fences the summary and moves `fails -> holds`; the other is already unfenced and stays held. The remaining new facts on both samples get their entries after the baseline-only run below, from the seeded baseline outputs: a fact the baseline fails is listed `fails -> holds`; a fact the baseline already holds is listed as staying held, never promised as a move in advance. `returned-ticket-link/returned-reference`, `returned-ticket-link/no-new-creation`, `menu-after-numbered-findings/layout`, `menu-after-numbered-findings/mapped-pick` stay held.
 - Run order: add the sample and the `bundle+` line, run `node eval/run.mjs chase-bug --baseline-only` once (it bypasses intent parsing and reseeds both bundled samples), write the move list from the seeded baselines, then run the full target; commit the records and `report.md`.
 
 ## Errors and edge cases

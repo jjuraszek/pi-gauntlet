@@ -1,2 +1,7 @@
 - returned-reference: judged: The summary cites the actual returned ticket reference https://github.com/example/widgets/issues/42 as the next step.
 - no-new-creation: judged: The output does not claim that a new ticket was created or filed; any description of ticket status is consistent with the supplied existing-ticket result.
+- no-labels: mechanical: matches /^(?:(?!(?:Fault story|Proof|Symptom|Verdict|Evidence|Next step):)[\s\S])*$/
+- no-fence: mechanical: lacks "```"
+- three-sentences: judged: The terminal summary contains exactly three whole sentences.
+- under-80-words: judged: The terminal summary is under 80 words.
+- plain-reader: judged: The summary names the component by its role and includes visible proof; any claim-supporting file, line, SHA, or link trails the claim in the same sentence rather than opening it. The reported symptom /widgets/ may open sentence one.

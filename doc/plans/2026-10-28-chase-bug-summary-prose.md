@@ -52,7 +52,9 @@ The two supersession banners are already present at `doc/specs/2026-08-23-gh-12-
 
 ## Baseline provenance
 
-BASE: `006c8b70`. Initial porcelain inventory: `?? doc/plans/2026-10-28-chase-bug-summary-prose.md`. Admitted exactly that plan path; the dispatched spec path was clean and no in-flight source paths were supplied. Ran the sole task Tests command unchanged: exit 0, 25 tests passed, 0 failed. Post-run HEAD remained `006c8b70` and porcelain remained the same single untracked plan path; no generated artifacts or tracked-source contamination.
+Original execution BASE: `006c8b70`. Initial porcelain inventory: `?? doc/plans/2026-10-28-chase-bug-summary-prose.md`. Admitted exactly that plan path; the dispatched spec path was clean and no in-flight source paths were supplied. Ran the sole task Tests command unchanged: exit 0, 25 tests passed, 0 failed. Post-run HEAD remained `006c8b70` and porcelain remained the same single untracked plan path; no generated artifacts or tracked-source contamination.
+
+Amendment BASE: `896a9adb`. Initial porcelain inventory: ` M doc/specs/2026-10-28-chase-bug-summary-prose.md`. Admitted that dispatched spec path, also explicitly supplied under In-flight; no source edits were present. `git diff --quiet 006c8b70 HEAD -- . ':!doc/specs/' ':!doc/plans/'` exited 0 at this BASE. Retained 1 bullets: `006c8b70` -> `896a9adb`, tree-equivalent outside `doc/specs`, `doc/plans`. The sole Tests command is unchanged; no deterministic rerun or live eval was needed for this amendment.
 
 ## Wave 1 - Briefing shape and regression evidence
 
@@ -62,7 +64,7 @@ One task owns the skill and target records to avoid concurrent writes to the sam
 
 **TDD scenario:** Modifying tested code - run existing tests first, add fixture regression assertions, observe red, implement skill and fixture changes, then run deterministic and live eval checks.
 
-**Spec:** doc/specs/2026-10-28-chase-bug-summary-prose.md § "Problem" L24, § "Acceptance criteria" L32-L42, § "Design" L47-L49, § "Remove" L53-L59, § "Add" L63-L64, § "Add" L66-L83, § "Add" L86-L100, § "Eval (`eval/chase-bug/`)" L104-L120, § "Errors and edge cases" L124-L130, § "Tests" L134-L141, § "Documentation impact" L146-L150, § "Out of scope" L154-L157
+**Spec:** doc/specs/2026-10-28-chase-bug-summary-prose.md § "Problem" L24, § "Acceptance criteria" L32-L42, § "Design" L47-L49, § "Remove" L53-L59, § "Add" L63-L64, § "Add" L66-L86, § "Add" L89-L103, § "Eval (`eval/chase-bug/`)" L107-L123, § "Errors and edge cases" L127-L133, § "Tests" L137-L144, § "Documentation impact" L149-L153, § "Out of scope" L157-L160
 
 **Files:**
 - Modify: `skills/chase-bug/SKILL.md:153-445`
@@ -83,10 +85,12 @@ One task owns the skill and target records to avoid concurrent writes to the sam
 
 **Tests:**
 - `node --test eval/lib/replay.test.mjs`
-- baseline: 006c8b70 pass
+- baseline: 896a9adb pass
 - via: `assemble()`, `parseCase()`, `parseExpected()`, `runMechanical()`; `eval/lib/checks.mjs` whole-output mechanical checks.
 
-Decision: Record held facts as prose under `## Change`, with only directional moves under `## Expected to move` - `eval/lib/intent.mjs:27-35` only accepts directional bullets there; `eval/README.md` Intent and Judge sections define unchanged outcomes. For mixed baseline outcomes across replay models, name that observation in the fails -> holds rationale; never claim both failed.
+Decision: Record held facts as prose under `## Change`, with only directional moves under `## Expected to move` - `eval/lib/intent.mjs:27-35` only accepts directional bullets there; `eval/README.md` Intent and Judge sections define unchanged outcomes. For mixed baseline outcomes across replay models, name that observation in the fails -> holds rationale; never claim both failed. Apply this to `returned-ticket-link/no-fence`: declare its failing baseline's move and state that the other baseline remains held, not that both were already held.
+
+Decision: Keep menu-selection echoes under the shared mapping rule, outside the story/draft/summary sentence and word budgets - `skills/brainstorming/reference/menu-layout.md:35-39` requires a mapped reply echo before acting, and `eval/chase-bug/samples/menu-after-numbered-findings/expected.md:2` checks that echo before the summary. The Verdict shape owner alone specifies this boundary; do not change the shared rule or sample.
 
 Decision: Live eval runs remain implementation steps because they generate tracked evidence. The file-addressable node:test regression protects fixtures during planning; only the full target's report proves model behavior.
 
@@ -98,9 +102,9 @@ Decision: Live eval runs remain implementation steps because they generate track
 
 - [ ] **Step 2: Add regression assertions to the existing replay tests.**
 
-  Extend the checks import with `runMechanical`. Add `chase-bug prose samples preserve slices and reject label leaks`, using existing `treeReader`, `parseCase`, `assemble`, and `parseExpected`. Assert the sole target skillFiles entry remains `{ path: "skills/chase-bug/SKILL.md", slice: "### 5. Response to origin (human gate 2)", sliceTo: "## Quick Reference" }`. Assert the new case bundles menu-layout then full chase-bug, and returned-ticket bundles full chase-bug alone. Assert each assembly includes the full skill and the step-4 Verdict shape owner, and facts contain the specified ids.
+  Extend the checks import with `runMechanical`. Add `chase-bug prose samples preserve slices and reject label leaks`, using existing `treeReader`, `parseCase`, `assemble`, and `parseExpected`. Assert the sole target skillFiles entry remains `{ path: "skills/chase-bug/SKILL.md", slice: "### 5. Response to origin (human gate 2)", sliceTo: "## Quick Reference" }`. Assert the new case bundles menu-layout then full chase-bug, and returned-ticket bundles full chase-bug alone. Assert each assembly includes the full skill and the step-4 Verdict shape owner, including its menu-selection echo exclusion and whole-render label scope, and facts contain the specified ids.
 
-  Read actual expected.md files rather than duplicating their regex in tests. Select `no-labels` and assert each of `Fault story:`, `Proof:`, `Symptom:`, `Verdict:`, `Evidence:`, `Next step:` fails plain and emphasized (including `**Symptom:**`), after preceding prose and on later lines. Assert prose followed by `Pick one:` and `eligible - all predicates pass` holds. Select returned-ticket's `no-fence` and assert triple-backtick fenced text fails while inline code passes. Require the new sample's no-fence fact to be judged, not a whole-output fence ban. Do not change production parser or replay code.
+  Read actual expected.md files rather than duplicating their regex in tests. Select `no-labels` and assert each of `Fault story:`, `Proof:`, `Symptom:`, `Verdict:`, `Evidence:`, `Next step:` fails plain and emphasized (including `**Symptom:**`), after preceding prose and on later lines, in headings and in supporting evidence below the story. Assert prose followed by `Pick one:` and `eligible - all predicates pass` holds. Select returned-ticket's `no-fence` and assert triple-backtick fenced text fails while inline code passes. Require the new sample's no-fence fact to be judged, not a whole-output fence ban. Do not change production parser or replay code.
 
 - [ ] **Step 3: Confirm regression red.**
 
@@ -141,7 +145,7 @@ Decision: Live eval runs remain implementation steps because they generate track
 
   Run: `node eval/run.mjs chase-bug --baseline-only`
 
-  Expected: exit 0, baseline seeded or fresh, successful outputs for both configured replay models on all three samples. Intent parsing is bypassed and changed bundles reseeded from the git baseline skill. Read each seeded output and evaluate new facts within their stated scopes before predicting movements. On auth/runtime error or refusal, stop and report; never fabricate records, change frozen models, or substitute deterministic tests for live evidence.
+  Expected: exit 0, baseline seeded or fresh, successful outputs for both configured replay models on all three samples. Intent parsing is bypassed and changed bundles reseeded from the git baseline skill. Read each seeded output and evaluate new facts within their stated scopes before predicting movements. For returned-ticket/no-fence, use the reseeded bundled outputs, not the older unbundled candidates: the amended spec records one fenced baseline and one unfenced baseline. On auth/runtime error or refusal, stop and report; never fabricate records, change frozen models, or substitute deterministic tests for live evidence.
 
 - [ ] **Step 7: Install Verdict shape and adjust the handoff.**
 
@@ -149,15 +153,18 @@ Decision: Live eval runs remain implementation steps because they generate track
 
   ```markdown
   **Verdict shape.** Write for a reader who does not know the code the bug
-  touches. Three whole sentences, under 80 words, in plain chat text: what
-  happened, in the reporter's own terms; what it means - the verdict and one
+  touches. Apply the three-sentence and under-80-word limits only to the story,
+  draft, or summary itself. Keep menu-selection echoes outside those spans and
+  under the shared menu-layout rule, not this shape. Write three whole sentences,
+  under 80 words, in plain chat text: what happened, in the reporter's own terms; what it means - the verdict and one
   proof the reader can see (a before/after value or the one repro line); what
   the human decides or does next, and why. Name a component by what it does
   ("the part that matches URLs to pages"), never by its file alone. Put the
   file, line, commit, or link at the end of the sentence it supports, after the
   role name ("the matcher in the router, `src/router.ts:88`"). No code fence
-  around the story. No label lines - `Fault story:`, `Proof:`, `Symptom:`,
-  `Verdict:`, `Evidence:`, `Next step:` - plain or emphasized (`**Symptom:**`);
+  around the story. Omit the six label prefixes everywhere in all rendered text,
+  including headings and deep evidence below the story - `Fault story:`, `Proof:`,
+  `Symptom:`, `Verdict:`, `Evidence:`, `Next step:` - plain or emphasized (`**Symptom:**`);
   `Pick one:` is the menu separator and the eligibility line stays, neither is
   a label. No `->` chains.
   Example: "Opening `/widgets/` with a trailing slash shows the 404 page while
@@ -206,7 +213,7 @@ Decision: Live eval runs remain implementation steps because they generate track
 
   Run: `node --input-type=module -e 'import {readFileSync} from "node:fs"; import {assemble,treeReader} from "./eval/lib/replay.mjs"; import {sha256} from "./eval/lib/checks.mjs"; const target=JSON.parse(readFileSync("eval/chase-bug/target.json","utf8")); console.log(sha256(assemble(target,treeReader(process.cwd()))));'`
 
-  Put the printed hash after `for:` in `intent.md`. Describe Verdict shape under `## Change`, and use `## Expected to move` for movements. Include `returned-ticket-link/no-labels: fails -> holds`; describe `returned-ticket-link/no-fence` as staying held. Inspect seeded outputs for every other new fact: list observed failures as `fails -> holds`; describe already-held facts as held, never promise a speculative move. Preserve `returned-ticket-link/returned-reference`, `returned-ticket-link/no-new-creation`, `menu-after-numbered-findings/layout`, and `menu-after-numbered-findings/mapped-pick` as held expectations, replacing the obsolete menu movement promises. Never edit saved output or judgments by hand.
+  Put the printed hash after `for:` in `intent.md`. Describe Verdict shape under `## Change`, including story-only budgets and the whole-render label rule, and use `## Expected to move` for movements. Include `returned-ticket-link/no-labels: fails -> holds`. Include `returned-ticket-link/no-fence: fails -> holds` with a rationale recording the mixed reseeded baselines: one fences the summary and must move, while the other is already unfenced and stays held. State the held half under `## Change` too; never claim both were held or both failed. Inspect seeded outputs for every other new fact: list observed failures as `fails -> holds`; describe already-held facts as held, never promise a speculative move. Preserve `returned-ticket-link/returned-reference`, `returned-ticket-link/no-new-creation`, `menu-after-numbered-findings/layout`, and `menu-after-numbered-findings/mapped-pick` as held expectations, replacing the obsolete menu movement promises. Never edit saved output or judgments by hand.
 
 - [ ] **Step 11: Confirm deterministic green and targeted live conformance.**
 
@@ -218,7 +225,7 @@ Decision: Live eval runs remain implementation steps because they generate track
 
   Run: `node eval/run.mjs chase-bug returned-ticket-link`
 
-  Expected: exit 0 and every candidate fact holds for both replay models. Read candidate text and judgments; zero exit alone can include pre-existing failures. Batch only spec-scoped wording repairs, update intent hash after skill edits, and rerun affected samples. Never widen intent to accept a missed fact.
+  Expected: exit 0 and every candidate fact holds for both replay models. Read candidate text and judgments; zero exit alone can include pre-existing failures. Check the six prefixes across headings and supporting evidence as well as story/draft/summary spans; apply sentence and word budgets only to those spans, never a menu-selection echo. Batch only spec-scoped wording repairs, update intent hash after skill edits, and rerun affected samples. Never widen intent to accept a missed fact.
 
 - [ ] **Step 12: Check syntax, fixture lint, and size.**
 
@@ -246,7 +253,7 @@ Decision: Live eval runs remain implementation steps because they generate track
 
   Run: `node eval/run.mjs chase-bug`
 
-  Expected: exit 0, non-partial `report.md` includes all three samples and both replay models, with every required candidate fact holding, including layout and mapped-pick. Commit runner-written records and `eval/chase-bug/report.md`. Refused, errored, inconclusive, regressed, partial, or fact-failing results block completion; never hand-author evidence or claim a pass from an older report.
+  Expected: exit 0, non-partial `report.md` includes all three samples and both replay models, with every required candidate fact holding, including layout and mapped-pick. Check the mapped-pick echo precedes the summary and remains outside its three-sentence/80-word budgets. Commit runner-written records and `eval/chase-bug/report.md`. Refused, errored, inconclusive, regressed, partial, or fact-failing results block completion; never hand-author evidence or claim a pass from an older report.
 
 - [ ] **Step 15: Commit the behavior and its evidence.**
 
@@ -278,49 +285,51 @@ Decision: Live eval runs remain implementation steps because they generate track
 | § "Remove" L53-L59 | Remove negative golden fence, verdict openers, citation labels | Task 1 |
 | § "Remove" L53-L59 | Replace obsolete wall-of-text red flag | Task 1 |
 | § "Add" L63-L64 | Insert owner after the step-4 introductory sentence | Task 1 |
-| § "Add" L66-L83 | Install prescribed paragraph with three sentence roles and length cap | Task 1 |
-| § "Add" L66-L83 | Name component by function and trail provenance after role | Task 1 |
-| § "Add" L66-L83 | Prohibit story fences, labels and arrows; exempt separator/eligibility | Task 1 |
-| § "Add" L66-L83 | Use prescribed 69-word example | Task 1 |
-| § "Add" L86-L100 | Preserve deep evidence below story | Task 1 |
-| § "Add" L86-L100 | Handoff stores sentences one and two, not decision; keep fields | Task 1 |
-| § "Add" L86-L100 | Negative lead names shared shape and trailing citation | Task 1 |
-| § "Add" L86-L100 | Draft references shared shape and reporter next step | Task 1 |
-| § "Add" L86-L100 | Summary references shape; preserve distinction paragraph | Task 1 |
-| § "Add" L86-L100 | Preserve citation-source rule without duplication | Task 1 |
-| § "Add" L86-L100 | Real-bug golden story is unfenced, followed by separator and fenced menu | Task 1 |
-| § "Add" L86-L100 | Negative contrast has two three-sentence stories, specified phrases and citations | Task 1 |
-| § "Add" L86-L100 | Red flag rejects fenced/labeled story, draft, summary | Task 1 |
-| § "Eval (`eval/chase-bug/`)" L104-L120 | Whole-output regex rejects six prefixes, plain and emphasized | Task 1 |
-| § "Eval (`eval/chase-bug/`)" L104-L120 | New sample bundles menu/full skill and simulates two checkpoints without tools | Task 1 |
-| § "Eval (`eval/chase-bug/`)" L104-L120 | Checkpoint 1 supplies clean real-bug evidence and passing predicates | Task 1 |
-| § "Eval (`eval/chase-bug/`)" L104-L120 | Checkpoint 2 supplies addressable failed repro, missing browser/version, confirmation | Task 1 |
-| § "Eval (`eval/chase-bug/`)" L104-L120 | Judge no-fence on two prose spans only | Task 1 |
-| § "Eval (`eval/chase-bug/`)" L104-L120 | Check labels mechanically over whole reply | Task 1 |
-| § "Eval (`eval/chase-bug/`)" L104-L120 | Judge exactly three sentences per span | Task 1 |
-| § "Eval (`eval/chase-bug/`)" L104-L120 | Judge under 80 words per span, excluding surrounding menu/gate | Task 1 |
-| § "Eval (`eval/chase-bug/`)" L104-L120 | Judge role, visible proof, trailing provenance with symptom URL exception | Task 1 |
-| § "Eval (`eval/chase-bug/`)" L104-L120 | Judge four rows, recommendation, eligibility, separator | Task 1 |
-| § "Eval (`eval/chase-bug/`)" L104-L120 | Judge third-sentence request, confirmation and no push claim | Task 1 |
-| § "Eval (`eval/chase-bug/`)" L104-L120 | Bundle returned-ticket skill and add five summary facts; preserve slice | Task 1 |
-| § "Eval (`eval/chase-bug/`)" L104-L120 | Preserve existing menu sample and both facts | Task 1 |
-| § "Eval (`eval/chase-bug/`)" L104-L120 | Rewrite bundle-free hash and describe shape | Task 1 |
-| § "Eval (`eval/chase-bug/`)" L104-L120 | Declare known label move and held fence behavior; observe other facts first | Task 1 |
-| § "Eval (`eval/chase-bug/`)" L104-L120 | Keep original ticket and menu facts held | Task 1 |
-| § "Eval (`eval/chase-bug/`)" L104-L120 | Seed after sample edits, write intent, run target, commit evidence | Task 1 |
-| § "Errors and edge cases" L124-L130 | Negative citations trail sentence two; uncited verdict remains red flag | Task 1 |
-| § "Errors and edge cases" L124-L130 | Missing input is fact in summary and request in draft | Task 1 |
-| § "Errors and edge cases" L124-L130 | Structured hotfix record intact; exclude decision from commit story | Task 1 |
-| § "Errors and edge cases" L124-L130 | Preserve channel tone | Task 1 |
-| § "Errors and edge cases" L124-L130 | Fence leak fails eval; add no runtime guard | Task 1 |
-| § "Errors and edge cases" L124-L130 | Visible proof retains evidence bar | Task 1 |
-| § "Errors and edge cases" L124-L130 | Measure local size bounds separately from CI backstop | Task 1 |
-| § "Tests" L134-L141 | Live facts cover story, summary, draft and menu regressions | Task 1 |
-| § "Tests" L134-L141 | Run line and byte counts | Task 1 |
-| § "Tests" L134-L141 | Check untouched hotfix and negative contrast without claiming a new citation eval | Task 1 |
-| § "Documentation impact" L146-L150 | Leave release-owned CHANGELOG update deferred | Task 1 |
-| § "Documentation impact" L146-L150 | Leave README surfaces, including stale inventory, unchanged | Task 1 |
-| § "Out of scope" L154-L157 | Preserve menu contract and output mapping | Task 1 |
-| § "Out of scope" L154-L157 | Preserve hotfix implementation and record format | Task 1 |
-| § "Out of scope" L156 | Other skills' human-facing renders | waived: excluded by spec |
-| § "Out of scope" L154-L157 | Keep slice unchanged and use sample bundles | Task 1 |
+| § "Add" L66-L86 | Install prescribed paragraph with three sentence roles and length cap | Task 1 |
+| § "Add" L66-L86 | Apply sentence and word budgets only to story/draft/summary; keep menu-selection echoes under shared mapping rule | Task 1 |
+| § "Add" L66-L86 | Name component by function and trail provenance after role | Task 1 |
+| § "Add" L66-L86 | Prohibit story fences and arrows; exempt separator/eligibility from labels | Task 1 |
+| § "Add" L66-L86 | Omit all six label prefixes across rendered text, including headings and deep evidence, plain or emphasized | Task 1 |
+| § "Add" L66-L86 | Use prescribed 69-word example | Task 1 |
+| § "Add" L89-L103 | Preserve deep evidence below story | Task 1 |
+| § "Add" L89-L103 | Handoff stores sentences one and two, not decision; keep fields | Task 1 |
+| § "Add" L89-L103 | Negative lead names shared shape and trailing citation | Task 1 |
+| § "Add" L89-L103 | Draft references shared shape and reporter next step | Task 1 |
+| § "Add" L89-L103 | Summary references shape; preserve distinction paragraph | Task 1 |
+| § "Add" L89-L103 | Preserve citation-source rule without duplication | Task 1 |
+| § "Add" L89-L103 | Real-bug golden story is unfenced, followed by separator and fenced menu | Task 1 |
+| § "Add" L89-L103 | Negative contrast has two three-sentence stories, specified phrases and citations | Task 1 |
+| § "Add" L89-L103 | Red flag rejects fenced/labeled story, draft, summary | Task 1 |
+| § "Eval (`eval/chase-bug/`)" L107-L123 | Whole-output regex rejects six prefixes, plain and emphasized | Task 1 |
+| § "Eval (`eval/chase-bug/`)" L107-L123 | New sample bundles menu/full skill and simulates two checkpoints without tools | Task 1 |
+| § "Eval (`eval/chase-bug/`)" L107-L123 | Checkpoint 1 supplies clean real-bug evidence and passing predicates | Task 1 |
+| § "Eval (`eval/chase-bug/`)" L107-L123 | Checkpoint 2 supplies addressable failed repro, missing browser/version, confirmation | Task 1 |
+| § "Eval (`eval/chase-bug/`)" L107-L123 | Judge no-fence on two prose spans only | Task 1 |
+| § "Eval (`eval/chase-bug/`)" L107-L123 | Check labels mechanically over whole reply | Task 1 |
+| § "Eval (`eval/chase-bug/`)" L107-L123 | Judge exactly three sentences per span | Task 1 |
+| § "Eval (`eval/chase-bug/`)" L107-L123 | Judge under 80 words per span, excluding surrounding menu/gate | Task 1 |
+| § "Eval (`eval/chase-bug/`)" L107-L123 | Judge role, visible proof, trailing provenance with symptom URL exception | Task 1 |
+| § "Eval (`eval/chase-bug/`)" L107-L123 | Judge four rows, recommendation, eligibility, separator | Task 1 |
+| § "Eval (`eval/chase-bug/`)" L107-L123 | Judge third-sentence request, confirmation and no push claim | Task 1 |
+| § "Eval (`eval/chase-bug/`)" L107-L123 | Bundle returned-ticket skill and add five summary facts; preserve slice | Task 1 |
+| § "Eval (`eval/chase-bug/`)" L107-L123 | Preserve existing menu sample and both facts | Task 1 |
+| § "Eval (`eval/chase-bug/`)" L107-L123 | Rewrite bundle-free hash and describe shape | Task 1 |
+| § "Eval (`eval/chase-bug/`)" L107-L123 | Declare label move and mixed reseeded no-fence baselines: one fails -> holds, the other stays held; observe other facts first | Task 1 |
+| § "Eval (`eval/chase-bug/`)" L107-L123 | Keep original ticket and menu facts held | Task 1 |
+| § "Eval (`eval/chase-bug/`)" L107-L123 | Seed after sample edits, write intent, run target, commit evidence | Task 1 |
+| § "Errors and edge cases" L127-L133 | Negative citations trail sentence two; uncited verdict remains red flag | Task 1 |
+| § "Errors and edge cases" L127-L133 | Missing input is fact in summary and request in draft | Task 1 |
+| § "Errors and edge cases" L127-L133 | Structured hotfix record intact; exclude decision from commit story | Task 1 |
+| § "Errors and edge cases" L127-L133 | Preserve channel tone | Task 1 |
+| § "Errors and edge cases" L127-L133 | Fence leak fails eval; add no runtime guard | Task 1 |
+| § "Errors and edge cases" L127-L133 | Visible proof retains evidence bar | Task 1 |
+| § "Errors and edge cases" L127-L133 | Measure local size bounds separately from CI backstop | Task 1 |
+| § "Tests" L137-L144 | Live facts cover story, summary, draft and menu regressions | Task 1 |
+| § "Tests" L137-L144 | Run line and byte counts | Task 1 |
+| § "Tests" L137-L144 | Check untouched hotfix and negative contrast without claiming a new citation eval | Task 1 |
+| § "Documentation impact" L149-L153 | Leave release-owned CHANGELOG update deferred | Task 1 |
+| § "Documentation impact" L149-L153 | Leave README surfaces, including stale inventory, unchanged | Task 1 |
+| § "Out of scope" L157-L160 | Preserve menu contract and output mapping | Task 1 |
+| § "Out of scope" L157-L160 | Preserve hotfix implementation and record format | Task 1 |
+| § "Out of scope" L159 | Other skills' human-facing renders | waived: excluded by spec |
+| § "Out of scope" L157-L160 | Keep slice unchanged and use sample bundles | Task 1 |
