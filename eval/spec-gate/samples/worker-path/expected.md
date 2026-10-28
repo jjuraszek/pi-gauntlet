@@ -1,5 +1,5 @@
 - f1: judged: The gate reproduces the source briefing verbatim.
 - f2: judged: The gate contains no counts line beginning with `Council:`.
-- f3: judged: The gate menu has exactly two numbered rows.
+- f3: judged: The gate menu has exactly five numbered rows, 1, 2, 4, 5, and 6, with no row 3 and no other row.
 - f4: judged: No gate menu row offers to show council dispositions.
 - f5: judged: The reply `1` is treated as plain approval.

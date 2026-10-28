@@ -24,6 +24,12 @@ Cut two filler paragraphs; replaced one 'we should' with 'we will'; no external 
 
 Clarify orchard-billing collection retry behavior
 
+## Spec acceptance criteria
+
+Ticket orchard-billing#7, Acceptance criteria, rows verbatim (ticket provenance, so the drafted block is omitted):
+- [ ] Repeated collection requests return the original receipt.
+  in-scope
+
 ## User reply
 
 1

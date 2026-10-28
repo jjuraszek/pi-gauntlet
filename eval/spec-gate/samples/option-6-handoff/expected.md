@@ -1,0 +1,11 @@
+anonymized: true
+- menu: judged: Success renders initial zero-row gate with 1,2,3,6 and no loop rows 4/5, then accepts bare 6.
+- persistence: judged: Success writes Amend-grant none with Engine deferred directly below, stages and amends no-edit, and checks both lines in git show HEAD before publication; 6 grants nothing.
+- publication: judged: Success resolves default main once and fetches/proves the sole added spec against origin/main before push, never staging; then push -u origin spec-export precedes gh pr create --draft with explicit head/base, H1 title and quoted-heredoc summary body.
+- completion: judged: Success prints the PR URL before complete brainstorm and then native owned removal/prune, retains the local branch, and starts no plan/loop or brief.
+- replies: judged: Funded is malformed and writes nothing; Change revises and re-presents without approval; Audit prints audit and re-presents without approval.
+- invalid: judged: Both invalid diffs print offending name-status paths and origin/main, retain amended commit/checkout, withhold draft PR row and allow implementation approvals, without push.
+- rejection: judged: Rejected push reports permission denied, retains commit/checkout and retryable 6 without create/completion.
+- create-failure: judged: Create failure reports GraphQL error and pushed branch, leaves brainstorm incomplete/checkout intact and only retry 6 plus withheld implementation approvals.
+- retry: judged: Equality retry refreshes/proves equality and creates only without amend/push; moved retry reports both full supplied SHAs and stops without push/create/completion.
+- cleanup: judged: Safe wrapper preserves branch without subsequent native removal; unsafe wrapper is not run; host-owned and failed cleanup report retained paths and later checked-out-at-another-path stop, with locked output for failed removal. No variant deletes the branch.

@@ -1,4 +1,4 @@
-for: 42204e290c123c18bfc0409f65daf875501c02acfce03acc901aade66322a672
+for: 1678ee6e6b27214d5fa9f1c4671e93207803907ea4025e54de5845d1196d89d2
 
 ## Change
 Check the two-item bound and repeated evidence before any tracked-path admission check or restoration; render rejected outcomes' step-6 exits in full without restoring paths.
@@ -36,6 +36,10 @@ The amendment human batch uses numbered problem-first items with lettered option
 The ticket-read-once, restored-step-8-reads-ticket, same-session-redraw-reuses-ticket, and overrides-read-once samples narrate ordered read and stage actions from fixed session-context observations. Ticket handling reads once at first use, restored step 8 reads before lint, same-session redraw reuses content while applying ticket rules, and unreadable references block without reconstruction. Overrides content is reused across stages while conventions still apply; unsure context requires a read. The assembly adds the brainstorming Ticket Handling and Project overrides slices while retaining existing slices and the ticket reference. Only overrides-read-once adds the real writing-plans skill via bundle+, using its overrides block only. The replay exception is limited to the Narrated read actions heading; existing continuation and questionary outputs keep their contracts. No new regression is accepted without model evidence.
 
 Admit a leading ordered list of same-base PRs, stop invalid membership before provisioning, and use per-PR diffs for relatedness even when paths overlap. Carry original-head specs and claims separately from combined BASE_SHA...HEAD scout code input; attribute shared-path claims and threads to their own PR groups and provenance subsections. Check record completeness against provisioned membership, not the record itself. Trailing context remains intent, not another lookup. Preserve untouched single-PR routing, ticket binding, thread-fetch failure stops and existing questionary behavior. New samples add synthetic narrated coverage, not a baseline skill improvement by themselves; setup-only both-arm outcomes remain held/pre-existing or intended but unchanged, never a reason to weaken must-hold facts. This comparison uses the runner's merge-base baseline; historical baseline references above describe prior edits only.
+
+Add spec-pr-regate, spec-pr-unmarked and pr-subject-gate with sample-local workflow references. Both arms use accepted Wave 1 commit `43b5ec3f2933c5a716c49916e9b1b7c002bb3da2` via `--base HEAD`. This setup-only comparison proves narrated behavior, not an instruction improvement or live GitHub execution. Require every new candidate fact regardless of aggregate verdict; preserve all existing PR facts and authorized moves below. Task 1 retains the original-base deterministic red/green proof.
+
+The approval gate now renders row 6 (approve, hand off as draft PR) beside rows 1-5, so loop-gate's menu facts count six options and its Not-fetched zero-row branch renders 1, 2, 3, and 6 without 4/5; the drafted-row disclosure, the exact option 4/5 sentences, the loop routing, and the grant decoding are unchanged. The target's wordCap rises from 1400 to 1600 for this edit only: loop-gate renders the gate three times and row 6 adds about 120 words across those renders, which pushed the measured long-model output to 1463-1512 words (the two cells the old cap rejected and the two it now admits); the shorter model stays at 1207-1243. No behavioral fact is dropped or weakened to fit; the cap bounds generated output, not the assembled prompt, and every other sample keeps its existing budget.
 
 ## Expected to move
 - aftermath-budget-exhausted/no-restore: fails -> holds - Stop the attributable third dirty-row outcome before restoration and take its named paths and cause to the human to commit, discard, or move without re-dispatch.
@@ -95,7 +99,7 @@ Admit a leading ordered list of same-base PRs, stop invalid membership before pr
 - pr-subject-repair-over-rewrite/record: fails -> holds - Keep the two-line repair, verbatim bound-ticket AC, and complete thread dispositions.
 - loop-gate/menu: fails -> holds - Render exact options 4/5.
 - loop-gate/loop: fails -> holds - Persist and HEAD-check both fields before completing brainstorm and dispatching.
-- loop-gate/no-ac: fails -> holds - Keep the three-option not-fetched zero-row gate; drafted rows enable loop options.
+- loop-gate/no-ac: fails -> holds - Keep the 1/2/3/6 not-fetched zero-row gate without 4/5; drafted rows enable loop options.
 - engine-waves/waves: fails -> holds - Retain waves routing and grant semantics for 1/2.
 - engine-waves/audit: fails -> holds - Audit re-gates without approval.
 - engine-waves/mixed: fails -> holds - Mixed requests re-gate without approval.

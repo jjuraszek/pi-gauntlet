@@ -1,0 +1,94 @@
+{
+  "sample": "spec-pr-unmarked",
+  "arm": "candidate",
+  "skillSha": "6a9ac3eba46e8ebb0e669747bd31332b3893d64830b22367f56dd28cba534566",
+  "inputSha": "3a6d34e48f90e4bb6dafe78b244b603e9d7f53d8cec2182b3f5260a4bcc89a78",
+  "kind": "text",
+  "assembly": "headed",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "# Narrated read and stage actions for PR #42\n\nAll traces share one opening sequence. Each trace then starts independently from consent and reset. Every skill resource is loaded with `read` at its absolute path under `skills/`, never through a shell. If any required reference is unreadable, the trace stops there with a blocking error.\n\n## Shared prefix (every trace)\n\n1. **Reset and start tracking.**\n   - `phase_tracker({ action: \"reset\" })`\n   - `plan_tracker({ action: \"clear\" })`\n   - `phase_tracker({ action: \"start\", phase: \"brainstorm\" })`\n2. **Read the overrides file.** `read` the first-found overrides file (`.pi/gauntlet-overrides.md`, then `gauntlet-overrides.md`, then `doc/gauntlet-overrides.md`) and apply `## conventions`.\n3. **Read the PR-subject reference.** `read` `skills/brainstorming/reference/pr-subject.md`. The leading run is `#42`, which is one PR with no intent text.\n4. **Admit the PR.** `gh pr view 42 --json …` returns OPEN, base repo acme/widget matching origin, and `isCrossRepository: false`. Admission passes.\n5. **Start the spec-PR classifier (N=1).**\n   - Derive ROOT using the submodule guard.\n   - `git -C \"$ROOT\" fetch origin main spec-export`.\n   - `BASE_SHA=bbbbbbbb…`.\n   - `git diff --name-status bbbbbbb…aaaaaaa`.\n6. **Read the shape-predicate references.** `read` `skills/brainstorming/reference/spec-pr.md` (the shared predicate). `read` `skills/brainstorming/reference/superseding.md` for the banner syntax and placement rules.\n7. **Resolve spec directories.** `gauntlet_setting({ key: \"flowGuards\" })` returns `specDirs [doc/specs]`.\n\n## Trace U: Unmarked\n\n8. **Check shape.** The diff has exactly one `A doc/specs/export.md` and no other entries, so shape passes.\n9. **Check the marker.** `git show aaaaaaa:doc/specs/export.md` shows a header with no `**Engine:** deferred` line, so the marker is absent.\n10. **Print the notice:** `spec-only PR without the gate marker - running lint and council`. The marked re-gate is not taken.\n11. **Bind and provision.**\n    - The title \"Export receipts\" and the first body line carry no tracker ref, so the result is `none - no ticket`.\n    - `read` `skills/using-git-worktrees/SKILL.md` and `reference/pr-head.md`.\n    - Provision `.worktrees/spec-export` at aaaaaaa and merge the fetched base.\n    - Fetch unresolved threads for #42 before gather.\n12. **Step 3, gather context.**\n    - `read` `skills/brainstorming/reference/ticket-acceptance.md` before gathering, even with no ticket.\n    - `read` `skills/brainstorming/gatherer.md`.\n    - The gather uses the carried `doc/specs/export.md` as the draft and finds no repair needed.\n13. **Steps 4–6, questionary and design.**\n    - `ticket-acceptance.md` is already in context, so it is not re-read.\n    - The framing check runs against the PR diff.\n    - Approaches and the two design rounds run. In round 2, `read` `reference/documentation-impact.md`.\n14. **Step 7, write the spec.** Spec-writing preserves the carried content:\n    - Goal \"Repeat exports reuse receipts\".\n    - `Amend-grant: none`.\n    - The `Drafted from the design, no ticket rows:` header.\n    - The row `- [ ] Repeat exports reuse receipts.` verbatim, with disposition `in-scope`.\n15. **Step 8, lint.** The in-context check on `ticket-acceptance.md` is satisfied, and the lint passes.\n16. **Step 9, council.** The Spec Council (`/skill:roasting-the-spec`) returns `Applied: none / Deferred: none / Rejected: none`.\n17. **Step 10.** The placeholder scan is re-run.\n18. **Step 11, summarize and commit.**\n    - `read` `skills/brainstorming/reference/spec-finalization.md`.\n    - Dispatch the summarizer to a fresh `mktemp` path.\n    - Commit with the quoted heredoc, using the audit as the body.\n    - `Read` the summary as the last content-producing call, then `rm` the temp file.\n19. **Step 12, the gate.** The gate shows:\n    - `Scope cuts: none`.\n    - The drafted-AC block with the single row verbatim.\n    - `Council: 0 applied, 0 deferred, 0 rejected`.\n    - Options 1, 2, 3, 4 and 5 (a row exists, so the loop engine options are offered).\n    - Row 6 omitted, with `Withheld: draft PR - #42 already exists`.\n20. **Wait for the user.** There is no automatic approval:\n    - The missing Engine line is not read as `deferred` or as prior approval.\n    - Neither `Amend-grant` nor `Engine` is written until the user replies with a clean 1, 2, 4 or 5.\n\n## Trace N: Non-spec\n\n8. **Shape fails.** `M src/export.ts` is a path outside the spec directories. The `Engine: deferred` line in the added spec is therefore irrelevant: there is no re-gate and no notice.\n9. **Continue on the unchanged rework route.**\n   - **Bind:** `none - no ticket`. The spec name will be `YYYY-MM-DD-pr-42-export-receipts.md`.\n   - **Provision:** pr-head provisioning, the base merge, and the thread fetch run as normal.\n   - **Read references:** `read` `ticket-acceptance.md` and `gatherer.md`.\n   - **Gather:** read the carried spec via `git show aaaaaaa:<path>` as #42's stated contract only. Read base constraints at BASE_SHA.\n   - **Scout:** render `## PR under rework` with `keeps:`, `changes:` and `dropped claims:`, plus a disposition for each thread. The framing check runs against the combined diff.\n   - **Spec-writing:** use the drafted branch and add `## Rework record`. The record contains `PR: acme/widget#42 - Export receipts`, `Pre-rework head: aaaa…aaaa`, `Threads:`, and `Base: main @ bbbbbbb - merge: …`.\n\n## Trace M: Multiple\n\n8. **Shape fails.** A second `A doc/specs/other.md` means multiple additions, and the predicate requires exactly one.\n9. **Continue on the unchanged rework route.** This matches trace N: bind gives `none - no ticket`, then pr-head provisioning, gather, scout, and the Rework record. Both carried specs are read via `git show aaaaaaa:<path>` and listed under #42 in `## Problem`. Neither is a marked re-gate or an unmarked shortcut.\n\n## Trace D: Deleted\n\n8. **Shape fails.** `D doc/specs/old.md` is a delete, which the predicate rejects.\n9. **Continue on the unchanged rework route.** This matches trace N: bind, then pr-head provisioning, gather, scout, `## PR under rework`, and the Rework record. The deferred marker carries no weight.\n\n## Trace B: Non-banner\n\n8. **Shape fails.** `M doc/specs/old.md` with the hunk `-Old contract` / `+Weaker contract` under `## Design` is an arbitrary modification:\n   - It removes a line.\n   - The added line is not a `> **Superseded by:**` banner (per `superseding.md`) and is not title-adjacent.\n9. **Continue on the unchanged rework route.** This matches trace N: bind gives `none - no ticket`, then pr-head provisioning, gather, scout, and the Rework record. The `Old` to `Weaker` contract edit is recorded under `changes:` or `dropped claims:` as a proposal. There is no marked re-gate and no unmarked shortcut.\n",
+      "words": 905,
+      "wallMs": 45412,
+      "mechanical": {
+        "notice": "holds"
+      }
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "## Common entry sequence — repeated independently for each trace\n\n1. **Start a fresh brainstorming epoch.** Narrate `phase_tracker(reset)`, `plan_tracker(clear)`, then `phase_tracker(start, brainstorm)`. These are required actions, not live calls.\n2. **Read the PR-subject reference** at the absolute skill-resource path ending in `skills/brainstorming/reference/pr-subject.md`. Resolve and admit the leading `#42`: the fixed observations establish an OPEN, same-repository, non-fork PR in `acme/widget`, titled **Export receipts**, with head `spec-export` at `aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa` and base `main`.\n3. **Read the worktree skill’s root/submodule-guard instructions**, then derive the repository root. Read the first-found project overrides file, if one exists, in the prescribed order, and apply its governing sections. The case supplies no override-file contents or existence result; none are invented here.\n4. **Read the spec-PR reference** at the absolute path ending in `skills/brainstorming/reference/spec-pr.md`. Resolve `flowGuards.specDirs` to `[doc/specs]`. Fetch and pin the supplied base and head, then inspect the complete name-status diff and any modified hunks against those endpoints. All supplied admission and provisioning operations succeed.\n5. **Classify shape separately from the marker.** Read the added spec from the pinned head. A header marker cannot rescue an invalid diff shape. For modified predecessor candidates, read the superseding reference before deciding whether their hunks contain only permitted banner insertions.\n\n## Trace 1 — valid shape, unmarked spec\n\n1. **Observe classification.** The diff contains only `A doc/specs/export.md`, so its shape qualifies. The added spec has no `Engine` line anywhere, so it does not qualify for marked-spec re-gating.\n2. **Emit the required notice:**  \n   `spec-only PR without the gate marker - running lint and council`\n3. **Keep the normal route.** The PR has no ticket binding. Pass the admitted one-element PR array to the PR-head provisioning path. Preserve the original head as provenance and carry the fetched-base rules and merge outcome.\n4. **Read Ticket Handling before gathering.** Required resource: the absolute path ending in `skills/brainstorming/reference/ticket-acceptance.md`. Its supplied no-ticket observation is `none - no ticket`; do not invent ticket rows.\n5. **Read the gathering instructions** at the absolute path ending in `skills/brainstorming/gatherer.md`. Fetch the required PR material and unresolved threads, read carried specs, dispatch scout, and perform normal gathering. The case fixes gathering’s result as **no repair needed**.\n6. **Read the carried draft before questionary.** Preserve `doc/specs/export.md` as the draft, including its goal, `Amend-grant: none`, drafted provenance, and in-scope checkbox: **“Repeat exports reuse receipts.”** Do not discard it merely because the marker is absent. Follow normal framing and design approval stages rather than substituting the marked-PR shortcut.\n7. **Read and follow spec-writing/self-review instructions.** Required documentation-impact and other stage references must be read when their stages require them; their contents are not reconstructed here. Preserve the carried contract and record normal PR rework provenance. The fixed lint result is a pass.\n8. **Run the normal critique stage.** Read the critique-routing instructions and dispatch the required critique pass. Its fixed audit is:\n   ```text\n   Applied: none\n   Deferred: none\n   Rejected: none\n   ```\n   Re-run the required placeholder scan.\n9. **Read the finalization reference and reach the ordinary review gate.** Generate the spec-only summary, commit the spec with the audit, and present the applicable gate. This is not marked-PR re-gating. Neither valid shape, the carried draft, nor passing lint and council constitutes approval. Stop for the user’s approval; select no engine automatically.\n\n## Trace 2 — Non-spec\n\n1. Independently repeat the common entry sequence.\n2. Observe `A doc/specs/export.md` plus `M src/export.ts`. **Reject spec-only shape:** the diff contains a non-spec path.\n3. Although the added spec’s header says `Engine: deferred`, do not take marked re-gating and do not emit the unmarked-spec notice.\n4. Continue unchanged through **binding, PR-head provisioning, Ticket Handling and gatherer reads, gathering, scout, and the Rework record**. Treat the carried spec and source diff as inputs to normal rework.\n\n## Trace 3 — Multiple\n\n1. Independently repeat the common entry sequence.\n2. Observe two additions: `doc/specs/export.md` and `doc/specs/other.md`. **Reject shape:** exactly one added spec is required.\n3. Ignore the deferred marker for routing. Continue unchanged through **bind/gather/scout/Rework record**, with normal provisioning and required reads—not either spec-only shortcut.\n\n## Trace 4 — Deleted\n\n1. Independently repeat the common entry sequence.\n2. Observe `D doc/specs/old.md` alongside the added spec. **Reject shape:** deletions are forbidden.\n3. Continue unchanged through **bind/gather/scout/Rework record**. The deferred header does not authorize marked re-gating.\n\n## Trace 5 — Non-banner\n\n1. Independently repeat the common entry sequence, including the superseding-reference read.\n2. Inspect `M doc/specs/old.md`: under `## Design`, its hunk removes `Old contract` and adds `Weaker contract`. **Reject shape:** this is a substantive contract modification with a removal, not an append-only supersession-banner insertion.\n3. Continue unchanged through **bind/gather/scout/Rework record**, not marked re-gating or the unmarked-spec route.\n\nFor every trace, if a required reference read is unreadable, narrate a **blocking stop at that read**; do not reconstruct it or advance past it.\n",
+      "words": 768,
+      "wallMs": 51795,
+      "mechanical": {
+        "notice": "holds"
+      }
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "3525cea6edb27ea13b5a8a615ed007266df32b73eb2b1ac0c733dae61cedfc1f",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "4ac2dbb5ba7c02dc61414914757ce4ab965eaf358f2bf14178fb9edb853ed5ee",
+      "baselineOutputSha": "a149f0288da7b5b60d62e388ae95fa6fb499d0d2ffb47b4dab75376580627c15",
+      "candidateOutputSha": "c692be192011ba13e4a689cd0ec8c16252c2c94c060697fc0c765bd479a28259",
+      "facts": {
+        "unmarked": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "bad-shapes": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "notice": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "Nothing moved on this case: both outputs keep the Unmarked trace on the notice → bind/provision → gather → lint → council → gate path with the carried doc/specs/export.md preserved as the draft (drafted provenance header and the single in-scope row verbatim), and both explicitly refuse automatic approval or a re-gate from shape alone; After even adds the useful clarification that the missing Engine line is not read as deferred or prior approval. For the four bad shapes, both name the offending diff entry and the reason (path outside specDirs, second add, delete, removed line plus non-banner addition) and route each to the unchanged rework path with bind, gather, scout and a Rework record, with After stating in each trace that neither the marked re-gate nor the unmarked shortcut applies. The After wording is slightly more verbose (overrides read in the shared prefix, Row 6 withheld note, per-trace rework-record fields) but stays within the 900-word cap and does not dilute either fact; keep the explicit 'no re-gate and no notice' / 'no unmarked shortcut' sentences per bad-shape trace and the 'carried content preserved' bullet list in the Unmarked trace, since those are what make both facts read as unambiguously held.",
+      "wallMs": 11311,
+      "verdict": "unchanged"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "3525cea6edb27ea13b5a8a615ed007266df32b73eb2b1ac0c733dae61cedfc1f",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "4ac2dbb5ba7c02dc61414914757ce4ab965eaf358f2bf14178fb9edb853ed5ee",
+      "baselineOutputSha": "c06e59bc616d4cb3b1c5e51a0cb376ae0cbec9fb436e4b67560599f55e4f059c",
+      "candidateOutputSha": "d8d7a4a6d225608a5f439f80e83abd2eaf515f30d16debcbd6422b344b82d30f",
+      "facts": {
+        "unmarked": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "bad-shapes": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "notice": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "Nothing moved: both outputs preserve the carried export.md as the draft, emit the unmarked-spec notice, run normal gathering (no repair needed), lint, council with Applied/Deferred/Rejected none, finalization, and stop at the review gate without engine selection or automatic approval; and both reject Non-spec, Multiple, Deleted and Non-banner with the supplied offending entry (M src/export.ts, A doc/specs/other.md, D doc/specs/old.md, the -Old contract/+Weaker contract hunk under ## Design) and route each unchanged through bind/gather/scout/Rework record while explicitly refusing both the marked re-gate and the unmarked shortcut. After's restructuring into a common entry sequence plus per-trace sections is a readability improvement; the only minor fragility is that After defers the superseding-reference read to a conditional in the common sequence and only names it concretely in Trace 5, and compresses the design-round language in Trace 1 step 6 to 'normal framing and design approval stages' — keeping Before's explicit 'approaches and two design-round approval stages' phrasing would make the no-shortcut claim harder to misread without affecting the Change's goals.",
+      "wallMs": 10845,
+      "verdict": "unchanged"
+    }
+  },
+  "repoSha": "43b5ec3f2933c5a716c49916e9b1b7c002bb3da2"
+}

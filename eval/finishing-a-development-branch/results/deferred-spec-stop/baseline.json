@@ -1,0 +1,38 @@
+{
+  "sample": "deferred-spec-stop",
+  "arm": "baseline",
+  "skillSha": "8d3428ff1ed87a02c7eabdf6b43d83b0e9e956fce56fff45213c70b09891f5ed",
+  "inputSha": "a7c844de34ef64d58cd4c781f6869fc854e7223713c19fbb8c1029ce3a628633",
+  "kind": "text",
+  "assembly": "concat",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "## Variant 1: `**PR:** acme/widget#42` present, `Amend-grant: none`\n\n**Input step: narrated, not live**\n\n1. The worktree argument is present: `/work/widget/.worktrees/spec-export`.\n2. Derive the variables:\n   - `WORKTREE=/work/widget/.worktrees/spec-export`\n   - `PRIMARY=$(dirname \"$(git -C \"$WORKTREE\" rev-parse --path-format=absolute --git-common-dir)\")` gives `/work/widget`\n   - `FEATURE=$(git -C \"$WORKTREE\" branch --show-current)`\n3. The selected run spec is resolved: `doc/specs/export.md`. This path is carried, so no second discovery happens.\n4. Read the spec header before announcing or starting ship. The header contains:\n   - `# Export receipts`\n   - `**Amend-grant:** none`\n   - `**Engine:** deferred`\n   - `**PR:** acme/widget#42`\n5. The exact `**Engine:** deferred` line sits before the first `##`, so the deferred-engine stop fires. It fires before the header-linked PR reference is consulted, and no `gh pr view` runs.\n\nPrinted output:\n\n```\nspec approved for handoff only - run brainstorming #42\n```\n\nNone of the following happened:\n- the announcement\n- `phase_tracker({ action: \"start\", phase: \"ship\" })`\n- a phase change\n- the clean-checkout and test-all verification\n- the plan strip\n- the telemetry seal\n- a push or `gh pr ready`\n\n**Outcome:** stopped at Input with `spec approved for handoff only - run brainstorming #42`; nothing was announced, started, verified, stripped, sealed, or pushed.\n\n## Variant 2: no `**PR:**` header, known subject #42\n\n**Input step: narrated**\n\n1. Derive the same `WORKTREE`, `PRIMARY`, and `FEATURE`.\n2. Use the same resolved spec, `doc/specs/export.md`.\n3. Read the header: `# Export receipts`, `**Amend-grant:** none`, `**Engine:** deferred`. There is no `**PR:**` line and no Rework record.\n4. `**Engine:** deferred` appears before the first `##`, so the run stops.\n\nPrinted output:\n\n```\nspec approved for handoff only - run brainstorming #42\n```\n\nThere was no announcement, no ship start, no verification, no strip, no seal, and no push. The PR-route checks are moot.\n\n**Outcome:** stopped at Input with `spec approved for handoff only - run brainstorming #42`; no ship side effects.\n\n## Variant 3: `**Amend-grant:** all` (with `**PR:** acme/widget#42`)\n\n**Input step: narrated**\n\n1. Derive the same `WORKTREE`, `PRIMARY`, and `FEATURE`.\n2. Use the same spec, `doc/specs/export.md`.\n3. Read the header: `# Export receipts`, `**Amend-grant:** all`, `**Engine:** deferred`, `**PR:** acme/widget#42`.\n4. The amendment grant does not lift the deferred-engine stop. The `**Engine:** deferred` line before the first `##` still halts the run.\n\nPrinted output:\n\n```\nspec approved for handoff only - run brainstorming #42\n```\n\nThere was no announcement, no ship start, no verification, no strip, no seal, no push, and no ready call.\n\n**Outcome:** stopped at Input with `spec approved for handoff only - run brainstorming #42`; `Amend-grant: all` changes nothing.\n",
+      "words": 377,
+      "wallMs": 14749,
+      "mechanical": {
+        "notice": "holds"
+      }
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "- PR `acme/widget#42`, grant `none`: spec approved for handoff only - run brainstorming #42\n- PR header absent, known subject #42, grant `none`: spec approved for handoff only - run brainstorming #42\n- Grant `all`: spec approved for handoff only - run brainstorming #42\n",
+      "words": 38,
+      "wallMs": 5564,
+      "mechanical": {
+        "notice": "holds"
+      }
+    }
+  },
+  "repoSha": "8e1bd9e43e3f55fed6120d98e7c3d37e1ebb7669"
+}

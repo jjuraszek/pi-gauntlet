@@ -38,7 +38,7 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "07409c225903ddcb141b7b25c26011b2c78e54700fbabe485739b2c7cfe045c3",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "3ebee3d81b5a2930d37873e74768a137538b829572f8239c1a7c5419b35db4fe",
+      "intentSha": "2b07cd5789c3b4c5c74ed93b43c6f993f9ccb0032fbb11015cb3e218c6836332",
       "baselineOutputSha": "8003d1e276a7cd05ae82fa9f366af1a9dcac4f4cc6a36791490563f77c8801e8",
       "candidateOutputSha": "b7d0c8c012069ced8f75f6af773cefc5b3f54b2056d2d204ec8d47a3b505ab3f",
       "facts": {
@@ -53,14 +53,14 @@
           "label": "held"
         }
       },
-      "feedback": "Both outputs narrate the same three commands in the same order: `git -C \"/work/acme-web\" worktree remove \"/work/acme-web/.worktrees/login-copy\"`, then `git -C \"/work/acme-web\" worktree prune`, then `git -C \"/work/acme-web\" branch -D \"login-copy\"`, so w1 holds in Before as well as After; the expected fails->holds movement did not occur because the legacy no-section path already produced the exact sequence. After's additions (running removal \"against the primary\", branch deletion \"once removal succeeds\", and the closing paragraph about refusing to force removal or delete the branch if `worktree remove` refuses) are consistent with the Change's no-force and keep-branch-on-failure rules and do not disturb w1. No wording change is needed to retain the fact; if the author wants this case to demonstrate the Change, the explicit \"continues to branch -D\" wording is already surfaced by the \"once removal succeeds\" phrasing, and the new failure paragraph correctly does not run any built-in remove or prune after a refusal.",
-      "wallMs": 7603,
+      "feedback": "Both outputs run the same three commands in the same order against /work/acme-web — `worktree remove` on the .worktrees/login-copy path, then `worktree prune`, then `branch -D login-copy` — so w1 holds in Before as well as After; the Expected-to-move entry predicting fails -> holds is not borne out by the Before text, which already narrates the explicit branch -D continuation. The After wording keeps the fact intact and adds a useful guard (stop on `worktree remove` refusal, no force, no branch deletion), which does not disturb w1 since the success path still sequences remove, prune, then branch -D. If the author wants this case to show a movement, the baseline would need to actually omit or reorder one of the three commands; as written, the change here is cosmetic plus the new failure guard, and no wording adjustment is needed to preserve w1.",
+      "wallMs": 6877,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "07409c225903ddcb141b7b25c26011b2c78e54700fbabe485739b2c7cfe045c3",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "3ebee3d81b5a2930d37873e74768a137538b829572f8239c1a7c5419b35db4fe",
+      "intentSha": "2b07cd5789c3b4c5c74ed93b43c6f993f9ccb0032fbb11015cb3e218c6836332",
       "baselineOutputSha": "95bfe5bb4902f86d0156e5e43085121946ac13cc8954effa6765230aace84b18",
       "candidateOutputSha": "24c57c3c5294547fd26f62410dcfa9ca894418950b092b625341683a11cad3bf",
       "facts": {
@@ -75,10 +75,10 @@
           "label": "held"
         }
       },
-      "feedback": "Both outputs narrate the exact three-command sequence — worktree remove, worktree prune, branch -D — in that order against /work/acme-web for login-copy, so w1 holds in Before and After alike; the only difference in After is double-quoting the path and branch arguments, which does not change what runs and should not be read as moving the fact. Nothing in After regressed w1, and the explicit 'Remove the worktree before deleting the feature branch' sentence makes the ordering and the branch -D continuation clearer than Before's 'Run in order, stopping if a command fails' framing. If you want After to also signal the Change's intent that the legacy path is unchanged and the branch-delete continuation is explicit, keep the quoted commands as they are and consider retaining Before's note that the sequence stops on the first failure (so the branch is kept if remove fails), which preserves every Before fact while delivering the explicit continuation wording.",
-      "wallMs": 6670,
+      "feedback": "Both outputs narrate the same three commands in the same order against /work/acme-web: worktree remove of /work/acme-web/.worktrees/login-copy, then worktree prune, then branch -D login-copy. The After only differs by quoting the paths and branch name and by rephrasing the lead-in (\"Remove the worktree before deleting the feature branch\"), neither of which changes what a careful reader sees executed, so w1 holds in both and nothing moved here; the Expected-to-move entry claiming Before fails for this sample is not borne out by the Before text, which already ran the explicit `branch -D` continuation. The After wording is fine for the legacy no-section path; if the author wants this sample to demonstrate the new behavior, it would need to narrate the Step 6 lookup of the overrides file's `## using-git-worktrees` section explicitly (stating no section exists, so the legacy three homes decide) and keep the quoted built-in remove + prune + `branch -D` sequence exactly as shown.",
+      "wallMs": 7623,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "6f144da74a18e3dcd162d0a0ece5ce791fd7dc7c"
+  "repoSha": "43b5ec3f2933c5a716c49916e9b1b7c002bb3da2"
 }

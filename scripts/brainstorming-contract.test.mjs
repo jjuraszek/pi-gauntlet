@@ -430,6 +430,40 @@ test('red flags stop approaches that skip the framing question or the holds-stat
   assert.ok(text.includes("- Approaches before the premise note states a contradicted claim's correction ([owner](#3-understand-the-idea))."), 'premise red flag retained');
 });
 
+test('spec-only PR lifecycle has local replay coverage in all four targets', () => {
+  const samples = {
+    'spec-gate': ['option-6-handoff'],
+    brainstorming: ['spec-pr-regate', 'spec-pr-unmarked', 'pr-subject-gate'],
+    'finishing-a-development-branch': ['spec-pr-menu', 'deferred-spec-stop'],
+    'gauntlet-resume': ['deferred-spec-stop'],
+  };
+  for (const [target, names] of Object.entries(samples)) {
+    for (const name of names) {
+      for (const file of ['case.md', 'expected.md']) {
+        const path = `eval/${target}/samples/${name}/${file}`;
+        assert.ok(existsSync(new URL(`../${path}`, import.meta.url)), path);
+      }
+      assert.match(read(`eval/${target}/samples/${name}/case.md`), /^bundle\+: /m);
+    }
+    assert.deepEqual(lintTarget(fileURLToPath(new URL(`../eval/${target}`, import.meta.url))), []);
+  }
+  for (const path of ['skills/brainstorming/reference/spec-pr.md', 'skills/finishing-a-development-branch/reference/spec-pr.md']) {
+    const text = read(path);
+    assert.ok(Buffer.byteLength(text) < 50000, `${path}: byte limit`);
+    assert.ok(text.split('\n').length < 2000, `${path}: line limit`);
+  }
+  const preserved = {
+    'pr-subject-resolution': ['ordered', 'open', 'issue', 'neither', 'mention', 'foreign', 'binding', 'trailing-context'],
+    'pr-subject-rule-added-later': ['constraint', 'repair', 'grammar', 'no-ticket'],
+    'pr-subject-weakened-rule': ['authority', 'proposal', 'preservation'],
+    'pr-subject-repair-over-rewrite': ['minimal', 'contract', 'record'],
+  };
+  for (const [name, ids] of Object.entries(preserved)) {
+    const facts = read(`eval/brainstorming/samples/${name}/expected.md`);
+    assert.deepEqual([...facts.matchAll(/^- ([\w-]+):/gm)].map((match) => match[1]), ids);
+  }
+});
+
 test('brainstorming eval structure and edited instruction sizes stay valid', () => {
   assert.deepEqual(lintTarget(fileURLToPath(new URL('../eval/brainstorming', import.meta.url))), []);
   for (const path of ['skills/brainstorming/SKILL.md', 'skills/brainstorming/gatherer.md', 'skills/brainstorming/reference/spec-finalization.md']) {

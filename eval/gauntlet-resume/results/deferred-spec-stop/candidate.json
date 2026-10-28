@@ -1,0 +1,114 @@
+{
+  "sample": "deferred-spec-stop",
+  "arm": "candidate",
+  "skillSha": "9394536b1e9de312989a578f0be2793bc9cb0f2f106245c2a84477d6335c6b5f",
+  "inputSha": "9ad579787ef73f78a48a0a235645478fb66e3d6a136437d5e9f74e1338cc24c4",
+  "kind": "text",
+  "assembly": "headed",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "# Narrated deferred resume, starting at entry check 6\n\n**Common observation for all routes.** Every route resolves the same spec: `/work/widget/.worktrees/spec-export/doc/specs/export.md`.\n\nIts header block, between the H1 and the first `##`, is the same everywhere:\n\n```\n# Export receipts\n**Amend-grant:** none\n**Engine:** deferred\n**PR:** acme/widget#42\n```\n\nThere is no plan, no ledger and no `## Rework record`. Checks 1-5 pass as supplied. No `phase_tracker` or `plan_tracker` mutation has happened on any route.\n\n---\n\n## Route 1: Bare tree\n\n1. **Dispatch.** The input is a bare worktree, so the route is `reference/reconstruction.md`. Prompts would state \"no brief context available\".\n2. **Candidates.** There is one spec and no plan, so the route is \"Spec without plan\".\n3. **Entry check 6 (deferred-header admission).** It runs on the resolved spec before the approval/handoff question.\n   - Read: `/work/widget/.worktrees/spec-export/doc/specs/export.md`, header block as observed.\n   - The `**Engine:** deferred` line matches exactly.\n4. **Print:** `spec approved for handoff only - run brainstorming #42`\n5. The approval question is never asked, so the supplied \"approved\" classification is never consulted. No tracker calls.\n\n**Outcome:** stopped at check 6 by the deferred-header stop, with no tracker mutation.\n\n---\n\n## Route 2: Brief (six headings, no `## Process state`)\n\n1. **Dispatch.** The brief has no process state and its worktree is present, so the route is `reference/reconstruction.md`. `## Intent` and `## Decisions` are carried into prompts. The \"Phase implement\" prose is not keyed on, because consumers key only on headings.\n2. **Candidates.** There is one spec and no plan, so the route is \"Spec without plan\".\n3. **Entry check 6.** Read the same header. `**Engine:** deferred` matches.\n4. **Print:** `spec approved for handoff only - run brainstorming #42`\n5. No approval question, no arming, no tracker call.\n\n**Outcome:** stopped at check 6, with no tracker mutation.\n\n---\n\n## Route 3: Process-state (Phase verify)\n\n1. **Dispatch.** The brief has `## Process state`, so the route is `reference/brief-contract.md` \"Process-state restore\".\n2. **PR pairs.** None are supplied, so there is no `gh pr view` call and no Rework-record comparison. Ordinary restoration is retained.\n3. **Spec resolution.** Candidate rules give the single spec, the absolute path above. It is carried without re-resolution.\n4. **Entry check 6.** Its deferred stop is honored before any arming call in the verify row.\n   - Read the header. `**Engine:** deferred` matches.\n5. **Print:** `spec approved for handoff only - run brainstorming #42`\n6. None of the verify row's calls are made:\n   - no `start brainstorm`, `skip brainstorm`, `start plan` or `plan_check`;\n   - no `skip plan`, `skip implement` or `start verify`;\n   - no `plan_tracker init`.\n7. There is no closing \"Gate history not restored...\" line, because no restore completed.\n\n**Outcome:** stopped at check 6 before any arming call, with no tracker mutation.\n\n---\n\n## Route 4: Seed\n\n1. **Arguments.** `doc/specs/export.md` resolves under a spec dir, so the route is the spec seed (`reference/seed.md`). Check 1 has already run. The seed runs check 3 itself. Checks 2, 4 and 5 do not apply.\n2. **Entry check 6.** It runs on the seed's pinned spec path, given as `/work/widget/.worktrees/spec-export/doc/specs/export.md`, before any tracker mutation.\n   - Read the header. `**Engine:** deferred` matches.\n3. **Print:** `spec approved for handoff only - run brainstorming #42`\n4. No tracker call and no brainstorming invocation. `seed.md`'s internal steps were not supplied, so nothing further is narrated.\n\n**Outcome:** stopped at check 6 on the pinned spec, with no tracker mutation.\n\n---\n\n## Route 5: Published brainstorm (push succeeded, `gh pr create` failed with \"GraphQL: unavailable\")\n\n1. **Dispatch.** Brainstorm is in_progress, so the route is \"Process-state restore\", brainstorm row.\n   - brief-contract names this case explicitly: after a push that succeeded and a PR creation that failed, brainstorm is still in_progress, and the deferred header stops restoration.\n   - If the brief instead lacked `## Process state`, reconstruction would route to \"Spec without plan\". That path runs the same check-6 admission first, so the result is identical.\n2. **PR pairs.** None, so there is no `gh pr view`.\n3. **Spec resolution.** Candidate rules give the existing spec, the absolute path above.\n4. **Entry check 6 (deferred-header admission).** It runs before `start brainstorm`.\n   - Read the header. `**Engine:** deferred` matches.\n   - This variant has no PR header line, so `#N` is taken from the supplied session context, #42.\n5. **Print:** `spec approved for handoff only - run brainstorming #42`\n6. No `start brainstorm` and no `substep User Review Gate`. The brainstorming checklist is not continued. No `Standing grant` line is printed, because grant decoding is exempt for brainstorm-stage briefs and is not reached.\n\n**Outcome:** stopped at check 6 by the deferred header, not by the ordinary gate, with no tracker mutation.\n\n---\n\n## Route 6: Grant exemption (Published brainstorm with `**Amend-grant:** all`)\n\n1. The dispatch, PR-pair handling and spec resolution are the same as Route 5.\n2. **Entry check 6.** Deferred-header admission runs first.\n   - Read the header (`**Amend-grant:** all`, `**Engine:** deferred`). `**Engine:** deferred` matches.\n3. **Print:** `spec approved for handoff only - run brainstorming #42`\n4. The grant predicate is never applied. It runs only after admission and only for an approved spec, and it is exempt for brainstorm-stage briefs in any case.\n   - The `all` value is not decoded or reported.\n   - No `Standing grant active:` line and no `No standing grant.` line is printed.\n   - No tracker call.\n\n**Outcome:** stopped at check 6 by the deferred header, with the grant line unread and no tracker mutation.\n",
+      "words": 850,
+      "wallMs": 38651,
+      "mechanical": {
+        "notice": "holds"
+      }
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "I'm using the gauntlet-resume skill to continue an interrupted flow.\n\nThe following are narrated reads, not live tool operations.\n\n### Bare tree\n\n1. **Entry check 6 — Grant field:** Read `/work/widget/.worktrees/spec-export/doc/specs/export.md`, inspecting the header between its H1 and first `##`. Observed: title `Export receipts`, `Amend-grant: none`, `Engine: deferred`, `PR: acme/widget#42`.\n2. Print:\n   ```text\n   spec approved for handoff only - run brainstorming #42\n   ```\n\n**Outcome:** Stopped at deferred-header admission, before the approval question, grant decoding, or any tracker mutation.\n\n### Brief — implement\n\n1. **Entry check 6 — Grant field:** Read `/work/widget/.worktrees/spec-export/doc/specs/export.md`, inspecting its header. Observed: title `Export receipts`, `Amend-grant: none`, `Engine: deferred`, `PR: acme/widget#42`.\n2. Print:\n   ```text\n   spec approved for handoff only - run brainstorming #42\n   ```\n\n**Outcome:** Stopped before process-state arming; no `plan_check`, tracker mutation, dispatch, or continuation.\n\n### Process-state — verify\n\n1. **Entry check 6 — Grant field:** Read `/work/widget/.worktrees/spec-export/doc/specs/export.md`, inspecting its header. Observed: title `Export receipts`, `Amend-grant: none`, `Engine: deferred`, `PR: acme/widget#42`.\n2. Print:\n   ```text\n   spec approved for handoff only - run brainstorming #42\n   ```\n\n**Outcome:** Stopped before process-state arming; the complete task snapshot and closure-review checkpoint are not restored.\n\n### Seed\n\n1. **Entry check 6 — Grant field:** Read the pinned spec `/work/widget/.worktrees/spec-export/doc/specs/export.md`, inspecting its header. Observed: title `Export receipts`, `Amend-grant: none`, `Engine: deferred`, `PR: acme/widget#42`.\n2. Print:\n   ```text\n   spec approved for handoff only - run brainstorming #42\n   ```\n\n**Outcome:** Stopped at deferred-header admission; no tracker mutation or owning-skill continuation.\n\n### Published brainstorm\n\n1. **Entry check 6 — Grant field:** Read `/work/widget/.worktrees/spec-export/doc/specs/export.md`, inspecting its header. Observed: title `Export receipts`, `Amend-grant: none`, `Engine: deferred`, and no PR header. The supplied session context identifies subject #42.\n2. Print:\n   ```text\n   spec approved for handoff only - run brainstorming #42\n   ```\n\n**Outcome:** Stopped before `start brainstorm`; successful push and failed PR creation do not bypass deferred-header admission. Grant decoding remains exempt.\n\n### Grant exemption — published brainstorm with `Amend-grant: all`\n\n1. **Entry check 6 — Grant field:** Read `/work/widget/.worktrees/spec-export/doc/specs/export.md`, inspecting its header. Observed: title `Export receipts`, `Amend-grant: all`, `Engine: deferred`, and no PR header. The supplied session context identifies subject #42.\n2. Print:\n   ```text\n   spec approved for handoff only - run brainstorming #42\n   ```\n\n**Outcome:** Stopped before `start brainstorm`; `Amend-grant: all` is not decoded and does not override the deferred stop.\n\nNo route reaches a successful restore, so none prints the post-restore gate-history or standing-grant lines.\n",
+      "words": 358,
+      "wallMs": 17917,
+      "mechanical": {
+        "notice": "holds"
+      }
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "5f7709cb42a80a80ae473e9c4a2676aa3ee9998139b169a9a53ea0eb2bb05f33",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "7500a3c2a7f644dc3286b896b330e3f5f38eef70bf09dd727a59955d820f5a26",
+      "baselineOutputSha": "b463f50c5b7e9e14eef6c1850cd7d0527c8ff9197f50ee975cdd9159aef16846",
+      "candidateOutputSha": "624f4f3fdc022b4f9efd6dd7fe59196e055dc14696df3596c90e3d1e6901b35b",
+      "facts": {
+        "routes": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "published": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "exemption": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "ordered": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "notice": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "No fact moved: both outputs stop every route at entry check 6 on the exact `**Engine:** deferred` match, print the single handoff-only line with #42, and make no tracker call, PR repair, grant decode or continuation, so routes, published, exemption and ordered all hold in Before and After. After is slightly tighter than Before in that it drops Before's Route 2 counterfactual (\"If Phase implement were read as process state...\") and enumerates the verify row's unmade calls explicitly, but it introduces its own counterfactual in Route 5 step 1 (\"If the brief instead lacked `## Process state`...\"), which the case prompt forbids as a hypothetical next step even though it is clearly explanatory and does not count as a narrated call. To keep the ordered fact safely held while still delivering the Change's deferred-spec-stop coverage, remove that alternative-routing aside and state only the observed dispatch; also consider adding Before's explicit \"no PR creation or retry by resume\" sentence to After's Route 5 so the published fact is affirmed by direct text rather than implied by the stop.",
+      "wallMs": 15999,
+      "verdict": "unchanged"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "5f7709cb42a80a80ae473e9c4a2676aa3ee9998139b169a9a53ea0eb2bb05f33",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "7500a3c2a7f644dc3286b896b330e3f5f38eef70bf09dd727a59955d820f5a26",
+      "baselineOutputSha": "f7167f152b61906227430ed222aa970265b536ea0e903a3035e3265a9fedc777",
+      "candidateOutputSha": "8a1f3a9bf0a634f0c0d13c5b7aadbc361078105fa944380c5fbe6e33a1ac307b",
+      "facts": {
+        "routes": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "published": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "exemption": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "ordered": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "notice": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "Nothing moved: both outputs stop every route at entry check 6 on the resolved `Engine: deferred` header, print the handoff-only line, and narrate no tracker call, dispatch, push, or continuation. After differs only cosmetically — it folds the narrated `Read(...)` call into the check-6 step as prose (\"Read ..., inspecting its header\") and adds a closing explanatory sentence that no route reaches a successful restore; since the case says no tools exist and the sentence is explanatory rather than a call, this does not affect the ordered fact. If you want After to read more clearly as a narrated-call sequence, keep Before's explicit `Read({ path: ... })` line as its own numbered step before the print, which makes the read/print order unambiguous for a careful reader while still delivering the deferred-spec-stop coverage and the grant-exemption non-bypass the Change describes.",
+      "wallMs": 9913,
+      "verdict": "unchanged"
+    }
+  },
+  "repoSha": "8e1bd9e43e3f55fed6120d98e7c3d37e1ebb7669"
+}

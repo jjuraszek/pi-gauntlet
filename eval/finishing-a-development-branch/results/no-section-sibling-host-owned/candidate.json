@@ -38,7 +38,7 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "8af7a37d875608fa8487e18fca111e61dac24245d10f243cb638f22713897d27",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "3ebee3d81b5a2930d37873e74768a137538b829572f8239c1a7c5419b35db4fe",
+      "intentSha": "2b07cd5789c3b4c5c74ed93b43c6f993f9ccb0032fbb11015cb3e218c6836332",
       "baselineOutputSha": "e3a59746c808a1f83412ca0bc937f08331ad50cf180ccb3882b1ab7705ec8e97",
       "candidateOutputSha": "238461a3fc35e7e6cb40197f330dfce36b426513cf759e0e5f8a56580165e0ef",
       "facts": {
@@ -53,14 +53,14 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "After keeps s1 intact: it reports the sibling path as host-owned, states no `git worktree remove` or `prune` ran, explicitly skips `git branch -D rate-limit`, and the report says the host-owned worktree still holds the branch. Nothing moved. The added `home: ../acme-api-worktrees/<name>` hint is a reasonable extension of the Change and does not undercut any held fact; keep the explicit 'no remove, no prune, branch deletion skipped' lines as they are, since those sentences are what anchor the fact in both arms.",
-      "wallMs": 4158,
+      "feedback": "Nothing moved on this case: both Before and After report the sibling path as host-owned, state explicitly that no `git worktree remove` or `git worktree prune` ran, mark `git branch -D rate-limit` as skipped, and close with the sentence that the host-owned worktree still holds `rate-limit`. After's wording is slightly stronger for the Change because it names the two legacy gauntlet-owned homes it checked against, explains the string-prefix trap between `/work/acme-api` and `/work/acme-api-worktrees`, and adds the `- home: ../acme-api-worktrees/<name>` hint for future keyed cleanup; keep that structure (checked homes -> ownership verdict -> explicit no-remove/no-prune -> skipped branch -D -> 'still holds' sentence) so the legacy no-section narration stays fixed while the keyed-contract behavior lands elsewhere.",
+      "wallMs": 10431,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "8af7a37d875608fa8487e18fca111e61dac24245d10f243cb638f22713897d27",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "3ebee3d81b5a2930d37873e74768a137538b829572f8239c1a7c5419b35db4fe",
+      "intentSha": "2b07cd5789c3b4c5c74ed93b43c6f993f9ccb0032fbb11015cb3e218c6836332",
       "baselineOutputSha": "f058b9c10428367ddeba0733eaff840d7a7ecdbe727613f621b3698cc2a34610",
       "candidateOutputSha": "020fe4726aed74b273407c27fdac11d4871a7e195de0aa27f0d9a6640c222913",
       "facts": {
@@ -75,10 +75,10 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "Both outputs report the worktree as host-owned, remove nothing, skip the branch deletion, and state that the host-owned worktree still holds rate-limit, so s1 holds in Before and After. After drops the explicit mention of skipping pruning and of the absence of an overrides file (it only says no native cleanup script exists), which does not move s1 but narrows the narration; to keep the sibling-host-owned facts robust while delivering the Change, After should still name the missing overrides section as the reason the legacy homes decide, list removal, prune, and branch deletion all as skipped, and keep the closing sentence that the host-owned worktree still holds the feature branch.",
-      "wallMs": 4238,
+      "feedback": "Nothing moved for this case: After still names the worktree host-owned (\"The host environment owns...\" plus the closing \"The host-owned worktree still holds `rate-limit`\"), performs no removal, and skips branch deletion. Two small things worth keeping as the keyed-contract wording lands: Before explicitly listed pruning alongside removal and branch deletion, while After only says \"Do not remove the worktree or delete the branch\" - adding \"or prune\" would make the removes-nothing claim airtight against a reader who treats prune as a separate action. Also, After's rationale (\"outside the gauntlet-owned worktree paths, and no project-native cleanup script exists\") should stay tied to the no-section legacy-three-homes decision so the host-owned verdict reads as the unchanged legacy path rather than a failed `home:` match.",
+      "wallMs": 8275,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "6f144da74a18e3dcd162d0a0ece5ce791fd7dc7c"
+  "repoSha": "43b5ec3f2933c5a716c49916e9b1b7c002bb3da2"
 }
