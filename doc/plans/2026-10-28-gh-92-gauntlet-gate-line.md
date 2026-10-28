@@ -30,9 +30,9 @@ No source deletions. Task Files blocks enumerate every owned source, sample, rep
 
 ## Baseline provenance
 
-BASE: `5c048521`. Initial inventory on this Amend dispatch: ` M doc/specs/2026-10-28-gh-92-gauntlet-gate-line.md`; `?? doc/plans/2026-10-28-gh-92-gauntlet-gate-line.md`. Admitted exactly those dispatched spec and plan paths, also the parent's two In-flight paths. No other tracked or untracked entries were present.
+BASE: `336712f7`. Initial inventory on this Amend dispatch: ` M doc/specs/2026-10-28-gh-92-gauntlet-gate-line.md`. Admitted the dispatched spec and plan paths and the parent's In-flight path `doc/specs/2026-10-28-gh-92-gauntlet-gate-line.md`. No other tracked or untracked entries were present.
 
-The endpoint proof `git diff --quiet 5c048521 HEAD -- . ':!doc/specs/' ':!doc/plans/'` exited 0 at HEAD `5c048521`. Retained 7 bullets: `5c048521 -> 5c048521`, tree-equivalent outside `doc/specs`, `doc/plans`. All seven Tests command texts are unchanged. The prior execution of Task 2's command at this BASE exited 0: 162 tests, 162 pass, 0 fail, 0 skipped; its post-run provenance had the same HEAD and only the admitted plan path. Tasks 1 and 3-7 have only the new `scripts/gate-contract-lint.test.mjs` anchor and retain their all-created-anchor skips. Task 8 is documentation-only. No full verification or model eval ran during Baseline. No evidence was inferred from source edits.
+The endpoint proof `git diff --quiet 5c048521 HEAD -- . ':!doc/specs/' ':!doc/plans/'` exited 0 at HEAD `336712f7`. Retained 7 bullets: `5c048521 -> 336712f7`, tree-equivalent outside `doc/specs`, `doc/plans`. All seven Tests command texts are unchanged. The prior execution of Task 2's command at `5c048521` exited 0: 162 tests, 162 pass, 0 fail, 0 skipped; its post-run provenance had the same HEAD and only the admitted plan path. Tasks 1 and 3-7 have only the new `scripts/gate-contract-lint.test.mjs` anchor and retain their all-created-anchor skips. Task 8 is documentation-only. No full verification or model eval ran during Baseline. No evidence was inferred from source edits.
 
 ## Execution conventions
 
@@ -62,7 +62,7 @@ Tasks 1 and 2 own disjoint files and use isolated in-memory or OS-temp fixtures.
 
 **Tests:**
 - `node --test scripts/gate-contract-lint.test.mjs`
-- baseline: 5c048521 skipped - scripts/gate-contract-lint.test.mjs created by this task
+- baseline: 336712f7 skipped - scripts/gate-contract-lint.test.mjs created by this task
 - via: `scripts/gate-contract-lint.mjs`
 
 Decision: Export `lintGateContract(root)` returning printable diagnostic strings, shared by the direct CLI and CI import. Root injection permits isolated test trees, following `scripts/stage-skill-lint.mjs:66-90`; scripts/ci.mjs:379-399 already imports a lint. Keep fixtures inline in the test file and materialize only under mkdtemp(os.tmpdir()).
@@ -93,7 +93,7 @@ Literal contract for the parser: Gates uses `gate id | kind (gate/question) | re
 
 **Tests:**
 - `node --experimental-loader ./extensions/test-support/pi-stubs.mjs --test extensions/phase-tracker.test.ts`
-- baseline: 5c048521 pass
+- baseline: 336712f7 pass
 - via: `fixRoundCapBlockReason`
 
 Decision: Test through the existing blocked sixth-wave harness rather than exporting a private helper; phase-tracker.test.ts:1559-1571 receives the reason. The loader is CI's loader at scripts/ci.mjs:425-437.
@@ -122,7 +122,7 @@ Depends on Wave 1: the fixture-backed lint defines placement without changing re
 
 **Tests:**
 - `node --test scripts/gate-contract-lint.test.mjs`
-- baseline: 5c048521 skipped - scripts/gate-contract-lint.test.mjs created by this task
+- baseline: 336712f7 skipped - scripts/gate-contract-lint.test.mjs created by this task
 - via: `scripts/gate-contract-lint.mjs`
 
 Decision: Use comma-separated outcome tokens without spaces - amended Design L66 resolves the charset AC as written. Keep menu-layout's numeric reply mapping unchanged.
@@ -172,7 +172,7 @@ Depends on Waves 1-2. Tasks 4-7 own disjoint source and eval target directories.
 
 **Tests:**
 - `node --test scripts/gate-contract-lint.test.mjs`
-- baseline: 5c048521 skipped - scripts/gate-contract-lint.test.mjs created by this task
+- baseline: 336712f7 skipped - scripts/gate-contract-lint.test.mjs created by this task
 - via: `scripts/gate-contract-lint.mjs`
 
 Decision: Cite cut-question at `reference/ticket-acceptance.md # Ticket Handling`, the actual `**Cut question.**` paragraph; leave the fenced `## Acceptance criteria` example intact. Keep three planning ids at one shared `## Author the plan` site with one common first-line instruction - amended spec L75/L76/L110.
@@ -226,10 +226,10 @@ Citation/format contract: apply `skills/brainstorming/reference/menu-layout.md` 
 
 **Tests:**
 - `node --test scripts/gate-contract-lint.test.mjs`
-- baseline: 5c048521 skipped - scripts/gate-contract-lint.test.mjs created by this task
+- baseline: 336712f7 skipped - scripts/gate-contract-lint.test.mjs created by this task
 - via: `scripts/gate-contract-lint.mjs`
 
-Decision: Conformance step 6 at source lines 181-194 accepts grant_fix_rounds, so proactive and rejected-dispatch escalation are gates. Task 2 owns only the runtime nudge. Finish Step 4 source uses N. rows; preserve those bytes rather than changing them to the inventory's mistaken 1 - description, and record the source-backed layout in Task 8.
+Decision: Conformance step 6 at source lines 181-194 accepts grant_fix_rounds, so proactive and rejected-dispatch escalation are gates. Task 2 owns only the runtime nudge. Finish Step 4 source uses N. rows; preserve those bytes and record the layout in Task 8, as specified at L80.
 
 Decision: Mark both carried-open render sites in place and flag extraction as a follow-up, not an implementation action - amended spec L80/L167 explicitly settles the oversized-file exception. Keep the two loop question ids under their shared heading and one first-line instruction.
 
@@ -286,7 +286,7 @@ Citation/format contract: apply `skills/brainstorming/reference/menu-layout.md`,
 
 **Tests:**
 - `node --test scripts/gate-contract-lint.test.mjs`
-- baseline: 5c048521 skipped - scripts/gate-contract-lint.test.mjs created by this task
+- baseline: 336712f7 skipped - scripts/gate-contract-lint.test.mjs created by this task
 - via: `scripts/gate-contract-lint.mjs`
 
 Decision: Keep batch.md's REPORT/CONFLICTING/FAILED/STOPPED child closing lines: they are tool handoffs, not user-facing settlement. Only the parent marks the batch round. For fix-wave assertion failures, put the terminal rendering rule in the already-listed post-selection-loop owner that calls the recovery; do not add a duplicate instruction file.
@@ -338,7 +338,7 @@ Citation/format contract: apply `skills/brainstorming/reference/menu-layout.md`,
 
 **Tests:**
 - `node --test scripts/gate-contract-lint.test.mjs`
-- baseline: 5c048521 skipped - scripts/gate-contract-lint.test.mjs created by this task
+- baseline: 336712f7 skipped - scripts/gate-contract-lint.test.mjs created by this task
 - via: `scripts/gate-contract-lint.mjs`
 
 Decision: Create a text handoff target using the existing eval template shape (`eval/_template/README.md:5-14`), not a resume surrogate. Set kind=text, assembly=headed, wordCap=1000, skillFiles to `skills/gauntlet-handoff/SKILL.md` with body=true and `skills/brainstorming/reference/menu-layout.md`. Both files exist on the base; no new runner behavior is required. The full handoff body keeps its announcement/STOP precedence in scope for the first-line test.
@@ -352,6 +352,7 @@ Decision: Create a text handoff target using the existing eval template shape (`
 - [ ] **Step 7: Style and commit.** Run `node scripts/skill-size-lint.mjs` and `node scripts/model-literal-lint.mjs`. Stage declared files and commit with `git commit -m "Mark resume and handoff decision turns (#92)"`; record behavior-change and both evaluated targets in its body.
 
 Owner/site contract: `gauntlet-resume/discovery` uses `N.` rows in `SKILL.md ## Arguments`; `gauntlet-resume/spec-without-plan` uses `reference/reconstruction.md ## Spec without plan`; `gauntlet-resume/spec-with-ledger` uses `reference/reconstruction.md ## Spec with ledger`; `gauntlet-resume/spec-with-plan` uses `reference/reconstruction.md ## Spec with plan`; `gauntlet-resume/dispatch` uses `SKILL.md ## Dispatch` for the `/skill:brainstorming` offer on `worktree: no`. `gauntlet-handoff/step-1` at `SKILL.md ## Sequence` asks `--key` or `--out`. Keep the six `stop:` routes in `## Arguments` and `plan_check` `FAIL` as stuck endings, never `done` on resume. Handoff `## Sequence` step 7 emits `done brief-written` and step 1 exclusivity emits stuck. The `gauntlet-handoff` brief adds no field; automatic handoffs have no terminal, while a separate `/skill:release` turn remains separate.
+
 
 Citation/format contract: apply `skills/brainstorming/reference/menu-layout.md`, `[A-Za-z0-9.-]+`, and `doc/gate-contract.md`; preserve `Recommendation:` where present. Templates' citation inventory names `spec-finalization.md`, `amendment-surface.md`, `ticket-acceptance.md`, `pr-subject.md`, `writing-plans/SKILL.md`, `subagent-driven-development/stop-note.md`, `loop-implementation/SKILL.md`, `verification-before-completion/reference/conformance-check.md`, `using-git-worktrees/SKILL.md`, `gatekeep-pr/reference/{sync,batch}.md`, `gauntlet-resume/reference/reconstruction.md`, `gauntlet-handoff/SKILL.md`; this task owns its three files, not `brainstorming/SKILL.md`'s `Good:` blocks or `menus.md`'s `initial` fence. Use `Start the message with` sentences. Each `question` / gate fact must show `after: holds`, never rely on `pre-existing` (`eval/lib/judge.mjs:24`, `eval/run.mjs:367-370`); commit `eval/<target>/report.md`. The `done <outcome>` form applies only to actual terminal reports.
 
@@ -374,7 +375,7 @@ Depends on Waves 1-3: inventory records the actual renderer owners and the lint 
 **Tests:**
 - none: documentation; real inventory/link validation uses the scoped lint below
 
-Decision: The contract records actual reply layouts, preserving source menus rather than renumbering them. Step 4 in finishing uses N. rows at source lines 176-215 despite the spec inventory's 1 - label. The invariant to keep existing template text unchanged settles that mismatch; document N. rows and the existing fix-minors extras. The approved amendment explicitly requires both carried-open sites, shared question slices and real headings outside fences.
+Decision: The contract records actual reply layouts, preserving source menus rather than renumbering them. Step 4 in finishing uses N. rows at source lines 176-215, matching spec L80; document N. rows and the existing fix-minors extras. The approved amendment explicitly requires both carried-open sites, shared question slices and real headings outside fences.
 
 - [ ] **Step 1: Run red inventory lint.** Run `node scripts/gate-contract-lint.mjs` before creating the doc; expect missing-contract failure.
 - [ ] **Step 2: Write Gates.** Give every id in spec L75-L87 a row with kind, relative rendering file, real ATX heading prefix and actual layout. Keep writing-plans' three questions and loop's two at shared sites; only gate rows need distinct file/site pairs. Cite cut-question at # Ticket Handling, never the fenced Acceptance criteria heading. Add two carried-open rows for its canonical and representative sites with the same id. Step 4 has templates=3 and actual N. rows; spec approval and close-members use 1 - rows. Questions keep inventory ids but emit only question. Link shared grammar instead of copying it.
