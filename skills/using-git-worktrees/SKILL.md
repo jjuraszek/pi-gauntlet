@@ -189,12 +189,15 @@ created legs. Never auto-remove earlier members.
 
 ## Step 4 — Report Location
 
-After every creation path (keyed, native, wrapper or built-in), read back
-`git -C "$ROOT" worktree list --porcelain` and require `worktree $WORKTREE`.
-Then run `git -C "$WORKTREE" branch --show-current` and require exact equality
-to `$BRANCH`. On mismatch stop naming repo, requested branch and actual branch;
-list `Preserved created legs:` including the newly created tree. Never emit a
-ready result for a mismatch. Carry every verified result home first.
+Retain Step 1a's mandatory keyed-contract post-create path check. After every
+creation path (keyed, native, wrapper or built-in), read back
+`git -C "$ROOT" worktree list --porcelain` for `worktree $WORKTREE` and
+`git -C "$WORKTREE" branch --show-current` for `$BRANCH`; stop only on an
+observed path or branch mismatch, naming repo, requested branch and actual result.
+Treat an absent or undescribed read-back result as unobserved, not a mismatch;
+report `Worktree ready at <full-path>` after successful creation with no observed
+mismatch. Reserve the `Preserved created legs:` listing for coordinated
+multi-member aborts. Carry every verified result home first.
 
 ```
 Worktree ready at <full-path>
