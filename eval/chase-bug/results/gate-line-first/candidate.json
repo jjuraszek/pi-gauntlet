@@ -1,0 +1,171 @@
+{
+  "sample": "gate-line-first",
+  "arm": "candidate",
+  "skillSha": "141a83b47a8fb45be46ce58095c240c49ef7d2a505c1d8b22e0cb78ee6d71f2e",
+  "inputSha": "9fffc01e2d3f1857da33fa187cb6596e9751beb91d6d80ba10a6117e11e26d67",
+  "kind": "text",
+  "assembly": "concat",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "gauntlet: gate=chase-bug/verdict-menu recommended=3\n\nOpening `/widgets/` shows the 404 page instead of the widgets page. The part that matches URLs to pages compares the path text exactly, so this is a real bug (the matcher in the router, `src/router.ts:8`; `/widgets/` returns 404 where 200 is expected). The bug can wait and this ticket already tracks it, so a reply on the ticket is the recommended pick below.\n\nPick one:\n\n```\n1. [ ] Brainstorm now - /skill:brainstorming with this evidence as the seed.\n2. [ ] Implement hotfix now - follow hotfix.md; add \"as a PR\" for a PR.\n3. [x] Respond to reporter only. [recommended]\n\neligible - all predicates pass\n```\n\nSupporting detail:\n\n- A local repro of `/widgets/` returned 404, where 200 was expected.\n- The exact path comparison at `src/router.ts:8` is the cause. Its falsification test ran and failed to falsify it.\n- The prior-report search of open and closed issues completed with no matching report.\n- The tracked-file baseline is clean and unchanged since invocation.\n",
+      "words": 155,
+      "wallMs": 11463,
+      "mechanical": {
+        "first-line": "holds"
+      }
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "gauntlet: gate=chase-bug/verdict-menu recommended=3\n\nOpening `/widgets/` returns 404 instead of the expected 200. This is a confirmed bug: the part that matches URLs to pages compares paths exactly, and the falsification test passed (`src/router.ts:8`). The bug is deferrable, so responding to the reporter without starting a fix is the recommended choice.\n\nPick one:\n\n1. [ ] Brainstorm now - /skill:brainstorming with this evidence as the seed.\n2. [ ] Implement hotfix now - follow hotfix.md; add \"as a PR\" for a PR.\n3. [x] Respond to reporter only. [recommended]\n\neligible - all predicates pass\n\nThe prior-report search completed without a match, and the tracked-file baseline is clean.\n",
+      "words": 99,
+      "wallMs": 5920,
+      "mechanical": {
+        "first-line": "holds"
+      }
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "94faad4a4792ebe9709db076493ae18d28111cfd66d6b6f59434c1d9dec06cbe",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "55ef41bc30f87d86700f61cd3c0e897ce2602ed8cee004b73cb62ac2f502b288",
+      "baselineOutputSha": "ef7a36ade378a58ce43413c43c7d96e8e055ec69e26f86df2377d348cda47bc5",
+      "candidateOutputSha": "79b8042a2fdf079278892d23834da180d5bee0431b39ecb00d4b68d394481c76",
+      "facts": {
+        "gate-first": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "first-line": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        }
+      },
+      "feedback": "After moved gate-first from fails to holds by opening with the exact line `gauntlet: gate=chase-bug/verdict-menu recommended=3`, whose suffix matches the rendered `[x]` row 3, while keeping the tracker-origin menu shape intact: no file-ticket row, the hotfix row retained and marked eligible, respond-only recommended, and no handoff or terminal marker after the menu. Before failed only because it had no gate line at all, not because of any menu defect, so the change is purely additive. To keep this held in future edits, keep the gate line as the literal first line (no leading story sentence, blank line, or label before it), keep `recommended=N` derived from the row carrying `[x]`/`[recommended]` rather than hardcoded, and keep the eligibility footer and three rows unchanged; the move of the evidence bullets below the menu under a plain 'Supporting detail:' heading does not affect this fact and is fine, though you may want the three-sentence verdict paragraph to carry the proof inline so the bullets remain optional.",
+      "wallMs": 7240,
+      "verdict": "improved"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "94faad4a4792ebe9709db076493ae18d28111cfd66d6b6f59434c1d9dec06cbe",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "55ef41bc30f87d86700f61cd3c0e897ce2602ed8cee004b73cb62ac2f502b288",
+      "baselineOutputSha": "c22d96ffba95a91abf26a2f5162cee72023a3ac068de9b47776aad30331802be",
+      "candidateOutputSha": "0129ae2b4c8641ba3a0e81f82abd35667835f06639085108a975b26c9ce373ba",
+      "facts": {
+        "gate-first": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "first-line": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        }
+      },
+      "feedback": "Before has no gate line at all—its first line is the prose verdict—so gate-first fails there; After opens with the exact `gauntlet: gate=chase-bug/verdict-menu recommended=3`, whose suffix matches the `[x] Respond to reporter only. [recommended]` row, omits a filing row for the tracker-origin case, keeps the eligible hotfix row, and ends on the menu with no handoff or terminal marker, so the fact now holds. Nothing in After moved a fact the wrong way; the only wording to watch is the trailing sentence after the eligibility line (search/baseline note)—keep it as plain prose rather than ever letting it become a marker, and keep the gate line strictly first with no preceding blank or story text so the fact stays held.",
+      "wallMs": 6666,
+      "verdict": "improved"
+    }
+  },
+  "refresh": {
+    "status": "complete",
+    "identity": {
+      "sample": "gate-line-first",
+      "kind": "text",
+      "assembly": "concat",
+      "baselineSkillSha": "b069cdfaaf81d3ff9597f4a188c1e6c8c72d65009d607860d90e41449f14fce2",
+      "candidateSkillSha": "c1f172cf51546999ed4d1835c1cb892928db1f8cdf724251e68079e68abe59e3",
+      "inputSha": "9fffc01e2d3f1857da33fa187cb6596e9751beb91d6d80ba10a6117e11e26d67",
+      "factsSha": "94faad4a4792ebe9709db076493ae18d28111cfd66d6b6f59434c1d9dec06cbe",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "307adc60876c01832b7e04dd054d91743325370313e195db05b36f189f8e16de",
+      "models": {
+        "replay": [
+          "github-copilot/gpt-6.1-sol"
+        ],
+        "judge": "github-copilot/gpt-6.1-sol"
+      },
+      "thinking": "medium",
+      "outputs": {
+        "baseline": {
+          "github-copilot/gpt-6.1-sol": {
+            "baselineOutputSha": "66360928b0d06dbf4a8a9eab9af05175f6587f448e9a64ca919b7912ea7517fc",
+            "payloadSha": "5f2f756ca04731c03d339491bcf58ae7e9d967a0c73da70beb72248c084e5c2c"
+          }
+        },
+        "candidate": {
+          "github-copilot/gpt-6.1-sol": {
+            "candidateOutputSha": "475e4e5c2633c9c5e05994941efc41c23d9ff4f5856c419cb7d791efe32f31db",
+            "payloadSha": "6714f2dad254ac4eb4beabf9a6a0797bd190dd3783574fe8f31da23f1b9325cf"
+          }
+        }
+      }
+    },
+    "previous": {
+      "github-copilot/gpt-6.1-sol": {
+        "factsSha": "94faad4a4792ebe9709db076493ae18d28111cfd66d6b6f59434c1d9dec06cbe",
+        "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+        "intentSha": "307adc60876c01832b7e04dd054d91743325370313e195db05b36f189f8e16de",
+        "baselineOutputSha": "66360928b0d06dbf4a8a9eab9af05175f6587f448e9a64ca919b7912ea7517fc",
+        "candidateOutputSha": "475e4e5c2633c9c5e05994941efc41c23d9ff4f5856c419cb7d791efe32f31db",
+        "facts": {
+          "gate-first": {
+            "before": "fails",
+            "after": "holds",
+            "label": "intended change"
+          },
+          "first-line": {
+            "before": "fails",
+            "after": "holds",
+            "label": "intended change"
+          }
+        },
+        "feedback": "Before has no gate line at all; it opens with the fault story, so gate-first fails on the first-line requirement even though its menu rows (no filing row, hotfix row present, respond-only recommended, no handoff, no terminal marker) are otherwise correct. After opens with exactly `gauntlet: gate=chase-bug/verdict-menu recommended=3`, which matches the rendered `[x]` row 3, omits any filing row, keeps the eligible hotfix row with its eligibility note, recommends respond-only, and ends on the menu with no handoff or terminal marker, so the fact holds. One minor drift to watch: After moved the falsification-passed note out of the Proof line into a trailing Evidence block after the menu; it does not affect this fact, but keeping proof elements together before the menu (as Before did) would avoid a reader having to look past the menu for part of the verification evidence while still delivering the gate-line-first change.",
+        "wallMs": 7972,
+        "verdict": "improved",
+        "judgeModel": null,
+        "thinking": null
+      }
+    },
+    "refreshed": {
+      "github-copilot/gpt-6.1-sol": {
+        "factsSha": "94faad4a4792ebe9709db076493ae18d28111cfd66d6b6f59434c1d9dec06cbe",
+        "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+        "intentSha": "307adc60876c01832b7e04dd054d91743325370313e195db05b36f189f8e16de",
+        "baselineOutputSha": "66360928b0d06dbf4a8a9eab9af05175f6587f448e9a64ca919b7912ea7517fc",
+        "candidateOutputSha": "475e4e5c2633c9c5e05994941efc41c23d9ff4f5856c419cb7d791efe32f31db",
+        "facts": {
+          "gate-first": {
+            "before": "fails",
+            "after": "holds",
+            "label": "intended change"
+          },
+          "first-line": {
+            "before": "fails",
+            "after": "holds",
+            "label": "intended change"
+          }
+        },
+        "feedback": "After moves gate-first to holds by putting the exact verdict-menu gate on the first line with recommended=3, matching the rendered respond-only recommendation. It preserves the tracker-origin menu’s omission of filing, retains the eligible hotfix row, and waits without a handoff or terminal marker. Keep this gate line and the existing row eligibility and recommendation wording; no further change is needed for the evaluated fact.",
+        "wallMs": 4574,
+        "verdict": "improved",
+        "judgeModel": "github-copilot/gpt-6.1-sol",
+        "thinking": "medium"
+      }
+    }
+  },
+  "repoSha": "bbb7a05516ce051520bf5e19f1051db934839955"
+}

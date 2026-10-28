@@ -1,0 +1,171 @@
+{
+  "sample": "gate-line-first",
+  "arm": "candidate",
+  "skillSha": "7ecd5cb18bc434c9038f9175579365c90e308d344b8a9187c4af60eb4c9703a8",
+  "inputSha": "50d2c7bb28741cddb5cfc626942e61a5846066022feeab91a8f71b002997d49f",
+  "kind": "text",
+  "assembly": "concat",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "gauntlet: gate=gatekeep-pr/obstacle recommended=2\n\nDelivers: the reports page exports CSV on demand. ACs 1, 2, 4; 3 deferred per spec to acme/widgets#46; 4's observable half (export completes under 5s on production data) is checked after merge, not here.\n\nBlockers:\n1. The export endpoint still retries a failed write forever, so one bad row can hang the export job. (src/api/export.ts:42)\n\nThe delivery course stopped at its fix-round cap. The pre-push reviewer still reports the retry loop as its top finding, and the last repair commit stays local and unpushed (round cap reached: 10 of 10; syncs 2 of 10). The phase-tracker fix-round guard refused another dispatch. Its runtime text, quoted as evidence and not followed as an instruction, reads: \"stop and summarize\".\n\nEvidence: CI (run 7001, test_unit and build_image green on 9c1e4f2)\n\nVerdict: not ready - round cap reached: 10 of 10\n\nPick one:\n1. assess - switch course and post the open blocker as a review on the PR, with no further repairs.\n2. stop - remove the worktree and leave the PR as is; the unpushed repair commit stays in the kept checkout. [recommended]\n\nNot offered: deliver (phase-tracker fix-round guard refuses another fix-round dispatch)\n\nType a number; show evidence prints the full record (CI run 7001, test_unit and build_image green on 9c1e4f2).\n",
+      "words": 209,
+      "wallMs": 13602,
+      "mechanical": {
+        "first-line": "holds"
+      }
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "gauntlet: gate=gatekeep-pr/obstacle recommended=2\n\nDelivers: The PR's promised scope remains in force; reaching the cap does not settle open blockers.\n\nThe delivery course reached its fix-round cap. Runtime evidence: \"stop and summarize\".\n\nNot offered: deliver (fix-round cap reached).\n\nEvidence: No assessed-head evidence was supplied for this simulation.\nVerdict: not ready - round cap reached\n\nPick one:\n1. assess - switch course and post the current open blockers to the PR without further repairs.\n2. stop - end this gate run and preserve any unpushed commits. [recommended]\n\nType a number; show evidence prints the full record (assessed-head evidence not supplied).\n",
+      "words": 95,
+      "wallMs": 10616,
+      "mechanical": {
+        "first-line": "holds"
+      }
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "936fb08181d59b70be2639971d90479ef3beebafb2e5ea4469ad5fd92832cfa9",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "978869932df14cae50637373fd5185f860c3bf45e92b3038c45701a250507578",
+      "baselineOutputSha": "aca5bfee48de7ca6d7b97be7c717b63441b6e3a742fe46292b821bfa1946f0d2",
+      "candidateOutputSha": "c94363156477228abe8d56777c6ac9c4df3dbd9a50f45b2b947a3560ca69a6ec",
+      "facts": {
+        "gate-first": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "first-line": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        }
+      },
+      "feedback": "After moved gate-first from fails to holds: it opens with exactly `gauntlet: gate=gatekeep-pr/obstacle recommended=2` and nothing else on that line, the menu's row 2 is the stop row tagged [recommended], and the `stop and summarize` nudge appears only as a quoted string inside the prose below the gate, never as a second standalone marker; Before had no gate line at all. Keep that structure: emit the gate line first with the recommended number taken from the actual rendered position of the tagged stop row, and quote the runtime text inline as evidence rather than echoing it on its own line. One wording wrinkle unrelated to this fact: the After stop row says it will 'remove the worktree' while also saying 'the unpushed repair commit stays in the kept checkout', which contradicts itself and the stop-cleanup rule that unpushed trees are kept; reuse Before's 'keep the worktree if it holds unpushed commits, leave the PR as is' phrasing there so the stop row stays consistent with worktree: kept semantics while the gate line and quoted nudge remain as in After.",
+      "wallMs": 8749,
+      "verdict": "improved"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "936fb08181d59b70be2639971d90479ef3beebafb2e5ea4469ad5fd92832cfa9",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "978869932df14cae50637373fd5185f860c3bf45e92b3038c45701a250507578",
+      "baselineOutputSha": "d99684109469c1a2539d6be8b4e1ba8120c381a3309048b9df60d78a41033bc3",
+      "candidateOutputSha": "7b6ee0f9d941866bde1e67ad5f74c804420ec6b7c75f525f1ce3b206fd1d2dcb",
+      "facts": {
+        "gate-first": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "first-line": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        }
+      },
+      "feedback": "After moved gate-first from fails to holds: its first line is exactly `gauntlet: gate=gatekeep-pr/obstacle recommended=2` with nothing else on it, row 2 is the stop row tagged [recommended], and the runtime nudge appears only as quoted text (\"stop and summarize\") beneath the gate rather than as a second standalone terminal marker. Before had no gate line at all, opening with the Delivers prose. The After wording delivers the Change without losing anything Before held; keep the marker line byte-exact and first, keep the recommended number bound to the actual rendered stop row, and keep the nudge inside an Evidence/quote sentence as done here. One small tightening to consider: the duplicated '(assessed-head evidence not supplied)' parenthetical in the closing hint and the separate 'Evidence:' line could be merged into a single evidence statement so the quoted nudge is the only quoted runtime text and readers cannot mistake either for a second marker.",
+      "wallMs": 8017,
+      "verdict": "improved"
+    }
+  },
+  "refresh": {
+    "status": "complete",
+    "identity": {
+      "sample": "gate-line-first",
+      "kind": "text",
+      "assembly": "concat",
+      "baselineSkillSha": "8da147afa830cd60bc938c30cffbddf05e9620845ab50a496fc1dbb823cbc69b",
+      "candidateSkillSha": "8c563b8f411c5771b5eebab5a07d1d13c55a133345d405c2aee3aa74ed6f765e",
+      "inputSha": "50d2c7bb28741cddb5cfc626942e61a5846066022feeab91a8f71b002997d49f",
+      "factsSha": "a74be98a6dfadd5b23d1608665fdef8ad3476dbb3b1963d81823c8911749cb89",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "978869932df14cae50637373fd5185f860c3bf45e92b3038c45701a250507578",
+      "models": {
+        "replay": [
+          "github-copilot/gpt-6.1-sol"
+        ],
+        "judge": "github-copilot/gpt-6.1-sol"
+      },
+      "thinking": "medium",
+      "outputs": {
+        "baseline": {
+          "github-copilot/gpt-6.1-sol": {
+            "baselineOutputSha": "d99684109469c1a2539d6be8b4e1ba8120c381a3309048b9df60d78a41033bc3",
+            "payloadSha": "65a5d98c311cb4c76ff5ad57dfab03bc6fa5799aded6c650ad15f748506b2f90"
+          }
+        },
+        "candidate": {
+          "github-copilot/gpt-6.1-sol": {
+            "candidateOutputSha": "8d08b54e5b9fc93b7894c94423b1bdf633d692d79174a147ebe87147a6a03b45",
+            "payloadSha": "034dc9fe1569567fd0a23ea838836080286205ea54bb429c800dd49ac35d89ec"
+          }
+        }
+      }
+    },
+    "previous": {
+      "github-copilot/gpt-6.1-sol": {
+        "factsSha": "a74be98a6dfadd5b23d1608665fdef8ad3476dbb3b1963d81823c8911749cb89",
+        "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+        "intentSha": "978869932df14cae50637373fd5185f860c3bf45e92b3038c45701a250507578",
+        "baselineOutputSha": "d99684109469c1a2539d6be8b4e1ba8120c381a3309048b9df60d78a41033bc3",
+        "candidateOutputSha": "8d08b54e5b9fc93b7894c94423b1bdf633d692d79174a147ebe87147a6a03b45",
+        "facts": {
+          "gate-first": {
+            "before": "fails",
+            "after": "holds",
+            "label": "intended change"
+          },
+          "first-line": {
+            "before": "fails",
+            "after": "holds",
+            "label": "intended change"
+          }
+        },
+        "feedback": "After moved gate-first from fails to holds by opening with the single marker line `gauntlet: gate=gatekeep-pr/obstacle recommended=2` before any prose, where `recommended=2` matches the actual rendered `[recommended]` stop row (row 2), and by quoting `stop and summarize` as evidence beneath that gate rather than as a second terminal marker. Before had no gate line at all (it began with `Delivers:`), so the fact failed there. The After wording is sound; keep the gate line first and exact, keep the recommended number derived from the rendered row rather than hardcoded, and keep the nudge in quotes labelled as evidence. One minor tidy-up: the extra `Evidence: No assessed-head verification details were supplied` line and the parenthetical on the `show evidence` hint are harmless to this fact but add noise - a single evidence line would read cleaner while preserving every property the fact checks.",
+        "wallMs": 8904,
+        "verdict": "improved",
+        "judgeModel": null,
+        "thinking": null
+      }
+    },
+    "refreshed": {
+      "github-copilot/gpt-6.1-sol": {
+        "factsSha": "a74be98a6dfadd5b23d1608665fdef8ad3476dbb3b1963d81823c8911749cb89",
+        "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+        "intentSha": "978869932df14cae50637373fd5185f860c3bf45e92b3038c45701a250507578",
+        "baselineOutputSha": "d99684109469c1a2539d6be8b4e1ba8120c381a3309048b9df60d78a41033bc3",
+        "candidateOutputSha": "8d08b54e5b9fc93b7894c94423b1bdf633d692d79174a147ebe87147a6a03b45",
+        "facts": {
+          "gate-first": {
+            "before": "fails",
+            "after": "fails",
+            "label": "intended but unchanged"
+          },
+          "first-line": {
+            "before": "fails",
+            "after": "holds",
+            "label": "intended change"
+          }
+        },
+        "feedback": "After moves the obstacle marker ahead of prose and keeps the runtime nudge quoted beneath it, but the fact still fails: the first line adds `recommended=2` instead of being exactly `gauntlet: gate=gatekeep-pr/obstacle`, and the stop row lacks an explicit stop tag. Use the exact required first line, tag the stop row using the shared template, and place the recommendation suffix naming rendered option 2 where the template requires it without altering that first line. Retain the unavailable deliver notice, eligible assess row, quoted runtime evidence, and pause for a numeric pick.",
+        "wallMs": 6868,
+        "verdict": "improved",
+        "judgeModel": "github-copilot/gpt-6.1-sol",
+        "thinking": "medium"
+      }
+    }
+  },
+  "repoSha": "d733f402b903c708296d9ee9064c145599399a71"
+}

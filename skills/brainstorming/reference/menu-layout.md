@@ -1,3 +1,23 @@
+## First-line rule
+Start each settled, skill-owned turn at column zero of the whole assistant message with exactly one lowercase marker line:
+
+| Kind | Grammar | Use |
+|---|---|---|
+| gate | `gauntlet: gate=<skill>/<id>( recommended=<token>)?` | Render an inventoried skill template that waits for a reply. |
+| question | `gauntlet: question` | Ask one questionary-format question or a skill-named yes/no question and wait. |
+| done | `gauntlet: done <outcome>` | Report the skill's terminal outcome with nothing awaited. |
+| stuck | `gauntlet: stuck <reason>` | End the skill without its outcome and without an advancing reply. |
+
+Use `[A-Za-z0-9.-]+` for `<skill>`, `<id>`, and outcome tokens. Set `<skill>` to the owning directory under `skills/`, including for reference files; set `<id>` to the gate's step or section label in kebab-case. Write `<outcome>` as comma-separated bare tokens or `key=value` tokens with no spaces. Write `<reason>` as free text to the end of the line.
+
+Classify a turn that any proper reply can advance as a gate or question, never `done` or `stuck`. Place the marker before all prose, including premise corrections, summaries, and mandatory framing; retain the existing prose and question format (`A)` options and `Recommendation:`) after it. Use the lowercase `gauntlet:` marker without a leading slash; treat the `/gauntlet:` slash-command namespace as unrelated.
+
+For `recommended=`, use only the number of the displayed row tagged `[recommended]`; omit it for untagged and item-letter menus, including per-item `Recommended: <letter>` lines. Let the displayed row text define accepted replies; omit `picks=`.
+
+Mark a combined batch/menu or closure digest/options message once with its parent template's marker: `gauntlet: gate=gatekeep-pr/batch-summary` or `gauntlet: gate=finishing-a-development-branch/step-4`, respectively. Give a nested skill's ask its own skill id. Give a terminal report turn and a later new-skill gate turn their own kinds.
+
+Omit markers from ordinary answers, gates invented outside skill templates, and intermediate reports followed by automatic continuation without a human turn. Treat verification's Closure / conformance before finishing, subagent-driven-development's Continuous Execution, and loop-implementation's After the loop as intermediate, not terminal; mark the gate the continuation renders instead.
+
 ## Exposure
 A numbered option list directly after an ordered list with only a blank line merges under CommonMark, displaying `N+1.`-`N+k.` after `N` preceding items. This control renders the options as `4.`-`6.`:
 ```markdown

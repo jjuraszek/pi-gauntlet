@@ -1,7 +1,7 @@
 {
   "sample": "pr-list-relatedness-split",
   "arm": "candidate",
-  "skillSha": "8ab9024b5bebf8e91c95265c3c52024aea3fe3d027cfea0363e49c98c7ce062a",
+  "skillSha": "14c4691b4b8ce67b0e09b559803256097bb54f8c0dd00c1324971de118f6d54e",
   "inputSha": "418f3faad4c4d33f682d8e4469a3a5da559a638cc9a21ef55c79ff3cbf4e72e1",
   "kind": "text",
   "assembly": "headed",
@@ -17,16 +17,16 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "# Narrated read and stage actions: `#12 #13 #14`\n\nThese are narrated actions. No tool was run. Each outcome comes from the fixed observations.\n\n## Shared prefix (both traces)\n\n1. **Step 1: fresh epoch.** This is a fresh authorized entry, so the first actions are:\n   - `phase_tracker({ action: \"reset\" })`\n   - `plan_tracker({ action: \"clear\" })`\n   - `phase_tracker({ action: \"start\", phase: \"brainstorm\" })`\n\n   No code, worktree, or reply comes before these.\n\n2. **Step 2: required read.** `read skills/brainstorming/reference/pr-subject.md` with the `read` tool, not a shell command.\n   - Outcome: the file is readable.\n   - If it were unreadable, step 2 would stop with a blocking error rather than reconstructing the rules from memory.\n\n3. **Parse the leading run.** `#12 #13 #14` contains three PR refs and no intent text.\n\n4. **Classify in order, one at a time.**\n   - `gh pr view` runs for #12, then #13, then #14.\n   - All three are `OPEN`, in `acme/widget` (matches origin), not cross-repository, base `main`, and distinct.\n   - All three are admitted. No `gh issue view` fallback is needed.\n   - Nothing is written yet.\n\n5. **Relatedness preflight (N>1).** Title/body and `gh pr diff` were fetched for all three before provisioning, and all succeeded. The PRs are grouped by hunk behavior, not by shared path:\n   - **#12:** the `src/client.ts` metrics label changes from stale to current. The stated intent is correct metrics labels.\n   - **#13 and #14:** retry delay and cap hunks in the same `src/client.ts`. The stated intent is bounded retries.\n   - Unrelated hunks in one file count as separate concerns, so there are two groups.\n\n6. **Preflight question.** This is a single questionary-format message. It is not question one. It has no \"all\" option, and it recommends the group holding the initial home (#12).\n\n   ```text\n   The three PRs carry two separate concerns in src/client.ts: #12 corrects the metrics label from stale to current, while #13 and #14 bound the retry delay and cap. Which group should this rework keep?\n   A) #12 - correct metrics labels\n   B) #13, #14 - bounded retries\n   Recommendation: A - #12 is the first listed PR, so its group keeps the initial home.\n   ```\n\n   The turn ends here and waits for the reply.\n\n## Trace 1: valid answer `B`\n\n7. **Retain the chosen group.**\n   - The group keeps its listed order: **#13 (home), then #14**.\n   - **Dropped: #12.** It is named to the user and excluded from merges, the rework record, and closure.\n\n8. **Bind.**\n   - The binding source is home #13's title, then its body's first line.\n   - The observations record no tracker ref there, so #13 is unbound.\n   - The gather result is `none - no ticket`. Context-builder is not dispatched.\n   - The spec will be named `YYYY-MM-DD-pr-13-<topic>.md`, with the topic slug taken from #13's title.\n\n9. **Provision.**\n   - `read skills/using-git-worktrees/SKILL.md` and its `reference/pr-head.md`.\n   - Pass the ordered array by value: `[#13, #14]`, each as `{ number, url, title, headRefName, headRefOid, baseRefName, isCrossRepository, headRepository.nameWithOwner }`.\n   - The PR-head worktree is provisioned per that reference, with #14 as a member head.\n   - Continue per Worktree First.\n\n10. **Step 3: first-use read.** `read skills/brainstorming/reference/ticket-acceptance.md` before gathering, even though there is no ticket.\n    - Outcome: the file is readable.\n    - If it were unreadable, the brainstorm would stop with a blocking error.\n\n11. **Gather.** `read skills/brainstorming/gatherer.md` and follow it without a human stop.\n    - **Per-PR inputs:**\n      - Title/body for #13 and #14.\n      - Carried specs found by `git diff --name-only <BASE_SHA>...<headRefOid>` over the spec dirs.\n      - Full comment threads.\n    - **Base-SHA constraint documents** via `git show <BASE_SHA>:<path>`:\n      - `AGENTS.md`\n      - The first-found overrides file\n      - `REVIEW.md`\n      - Any cited constraint documents\n    - Missing documents are carried explicitly.\n    - The observations say all required gather resources succeed, so no thread or spec stop occurs.\n\n12. **Dispatch scout.**\n    - Scout receives the combined diff `git diff <BASE_SHA>...HEAD` from the worktree, attributed per-PR inputs, and the base-HEAD rules.\n    - It renders `## PR under rework`, with `### PR #13` first and then `### PR #14`.\n    - Each subsection has `keeps:`, `changes:`, `dropped claims:`, and a disposition for every unresolved thread.\n    - Scout checked the existing retry loop and raised no framing objection.\n\n13. **Step 4: no re-read.** `ticket-acceptance.md` is already in context from step 10, so it is not read again.\n    - The gathered draft is read unconditionally.\n    - The `Framing:` line is verified against primary code: the combined #13 and #14 diff, plus the retry loop in `src/client.ts`.\n\n14. **Premise outcome.** No load-bearing claim is contradicted, so no correction message comes first.\n\n15. **Holds-statement.** There is no framing concern, so the first message to the user (question one) opens with one sentence:\n\n    > The framing holds: checked the combined #13/#14 diff against base `main`, the existing retry loop in `src/client.ts` that the delay and cap hunks modify, and the scout pass, which reviewed that loop and yielded no alternative.\n\n    - The first ordinary questionary question follows in the same message.\n    - `Framing: kept` is appended under `## Appended during questionary`.\n    - The framing question is never asked in this brainstorm, because no concern exists.\n\n## Trace 2 (independent): invalid reply `all`, then `all` again\n\n7. **First reply `all`.**\n   - It names no offered group, and there is no \"all\" option.\n   - The preflight question is re-asked once, unchanged: options A and B, the same recommendation, and still no \"all\".\n\n8. **Second reply `all`.**\n   - This is the second answer that names no offered group, so the brainstorm stops with this message:\n\n     > Stopped: the reply \"all\" names neither offered group (A: #12 - correct metrics labels; B: #13, #14 - bounded retries); a list admits one concern group, so no rework was provisioned.\n\n9. **Outcome.**\n   - No provisioning happens: no worktree is created, and existing worktrees are left unchanged.\n   - `using-git-worktrees` is never read.\n   - Nothing is gathered, `ticket-acceptance.md` is never read, and step 3 is never reached.\n   - Nothing is written, and no question one is asked.\n   - The trackers stay as step 1 left them.\n",
-      "words": 919,
-      "wallMs": 37025,
+      "text": "# Narrated read and stage actions: `#12 #13 #14`\n\nThese are narrated actions. No live tool calls were made. Command results come from the case's fixed observations.\n\n## Shared preflight\n\n1. **Fresh epoch.** The entry is authorized and fresh. Before any other work, run `phase_tracker({ action: \"reset\" })`, then `plan_tracker({ action: \"clear\" })`, then `phase_tracker({ action: \"start\", phase: \"brainstorm\" })`.\n2. **`read` `skills/brainstorming/reference/pr-subject.md`.** Observed: readable. Its rules below are applied as read, not from memory.\n3. **Parse the leading run.** `#12 #13 #14` is three PR refs with no intent text, so this is the PR-subject path, not free text.\n4. **Ordered admission (#12, then #13, then #14).** Each PR is classified in turn, never in parallel. Fixed observations:\n   * All three are OPEN.\n   * All three are in `acme/widget`, which matches origin.\n   * None is a fork; all target base `main`.\n   * The three resolved identities are distinct.\n   \n   Every PR passes every check, and nothing has been written yet.\n5. **Spec-PR classifier.** The list has N=3, so this step is skipped and the flow goes to the relatedness check.\n6. **Relatedness fetches.** The title/body and the diff of each PR are fetched. Observed: all succeed before provisioning.\n7. **Grouping by behavior, not by shared path.**\n   * #12's hunk changes the metrics label from stale to current, matching its stated intent of correct metrics labels.\n   * #13 and #14 change the retry delay and cap hunks, matching their stated intent of bounded retries.\n   * All three touch `src/client.ts`, but the hunks are unrelated, so they form two separate concerns.\n   \n   Two groups means one relatedness question.\n8. **`read` `skills/brainstorming/reference/menu-layout.md`.** This is needed for the first-line rule. Observed: readable.\n9. **Preflight question.** This is not question one. Gather, the framing check, and the scope check all still run later.\n\n```text\ngauntlet: question\nThese PRs carry two separate concerns in src/client.ts: #12 corrects the metrics label from stale to current, while #13 and #14 bound retries through the delay and cap hunks. Which group does this rework take?\nA) #12 - correct metrics labels\nB) #13, #14 - bounded retries\nRecommendation: A - it holds #12, the first PR listed, so the rework keeps its initial home.\n```\n\nNo \"all\" option is offered.\n\n## Trace 1: valid answer `B`\n\n10. **Retain the chosen group.** The kept order is #13, #14, so **#13 is home** and #14 is a member. **#12 is dropped** and is excluded from merges, the `## Rework record`, and closure. The group's per-PR fetch and record requirements apply in full.\n11. **Bind the ticket.** Binding comes only from #13's title, then its body's first line. The fixed observations name no tracker reference, so home is unbound. The gather records `none - no ticket`, and the spec will later use the drafted-AC branch. Its filename pattern is `YYYY-MM-DD-pr-13-<topic>.md`.\n12. **Provision the worktree.**\n    * `read` `skills/using-git-worktrees/SKILL.md` and `skills/using-git-worktrees/reference/pr-head.md`. Observed: readable.\n    * Pass the two-element array, #13 first, with exactly the fields `{ number, url, title, headRefName, headRefOid, baseRefName, isCrossRepository, headRepository.nameWithOwner }`.\n    * Check out home, merge member #14, then merge `origin/main`.\n    * Observed: succeeds. The Step 4 report returns the worktree path and the member heads.\n13. **`read` `skills/brainstorming/reference/ticket-acceptance.md`.** This is the first use, before gather, and applies even with no ticket. Observed: readable.\n14. **`read` `skills/brainstorming/gatherer.md`, then gather with no human stop.**\n    * **Per-PR inputs (#13 and #14):**\n      * The title/body is collected.\n      * The full review threads are fetched through pr-head's query. Observed: succeeds.\n      * Carried specs are discovered with `git diff --name-only <BASE_SHA>...<headRefOid>` over the spec directories, then read with `git show`.\n    * **Base-SHA constraint documents:** `AGENTS.md`, the first-found overrides file, `REVIEW.md`, and any cited constraint documents. Each is read with `git show <BASE_SHA>:<path>`.\n    * **Scout:** always dispatched. It receives the combined diff `git diff <BASE_SHA>...HEAD` from the worktree. Context-builder is not dispatched because home is unbound.\n    * **Output:** scout renders `## PR under rework`, with `### PR #13` first, then `### PR #14`.\n    * **Observed:** every gather resource succeeds.\n15. **Step 4 entry.**\n    * `ticket-acceptance.md` is already in context from step 13, so it is not re-read.\n    * `read` the gathered draft. This read is unconditional.\n    * Verify its `Framing:` line against primary code, using the combined #13+#14 diff as the ask.\n    * Observed: no premise contradiction, so no premise-correction message is needed. Scout checked the existing retry loop and found no framing objection and no alternative, so there is no framing concern.\n16. **Question one: holds-statement, then the first ordinary question.**\n\n```text\ngauntlet: question\nThe framing holds: checked the combined #13/#14 diff against the existing retry loop in src/client.ts, traced the retry delay and cap paths, and scout's review of that loop raised no objection with an alternative.\n<first ordinary question in the labeled A)/B)/... format, ending with Recommendation: <letter> - <why>>\n```\n\n17. **Record the outcome.** `Framing: kept` is added under `## Appended during questionary`, and the questionary continues.\n\n## Trace 2 (independent): invalid reply `all`, then `all` again\n\n10. **First reply `all`.** It names no offered group, so the step-9 question is re-asked once, unchanged and still with no \"all\" option.\n11. **Second reply `all`.** It again names no offered group, so the brainstorm **stops**.\n    * No worktree is created and no existing worktree is touched.\n    * Nothing is passed to provisioning.\n    * No gather, binding, framing check, or question one runs.\n    * Nothing is written.\n",
+      "words": 843,
+      "wallMs": 41432,
       "mechanical": {}
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "## Valid trace — select the retry concern\n\n1. **Start the fresh brainstorm epoch.** Narrate the required stage actions in order: reset the phase tracker, clear the plan tracker, then start the `brainstorm` phase. These are narrated actions, not live calls.\n\n2. **Read the PR-subject reference.** Required read: `skills/brainstorming/reference/pr-subject.md`. Its relevant fixed outcome is the ordered admission and relatedness preflight; no provisioning occurs yet.\n\n3. **Resolve and admit the leading references in order.** `#12`, `#13`, and `#14` each resolve to a distinct OPEN, non-fork PR in `acme/widget`, matching origin and targeting `main`. All pass admission.\n\n4. **Inspect relatedness before provisioning.** All three title/body fetches and all three diff fetches succeed. The diffs establish two concerns despite sharing `src/client.ts`: metrics-label correction in `#12`, and bounded retries in `#13` and `#14`.\n\n5. **Present the preflight question.** This is not question one of the later framing/questionary step.\n\n   The PRs contain two separate concerns: correcting metrics labels and bounding retries. Which concern should this brainstorm rework?\n   \n   A) #12 — correct the metrics label from stale to current.\n   \n   B) #13 and #14 — bound retries through the retry delay and cap changes.\n   \n   Recommendation: A - it retains the initial home PR’s concern.\n\n6. **Narrate the valid human answer:** “B.”\n\n7. **Retain the selected group in its original order.** Retain `#13`, then `#14`; make `#13` home. Drop `#12` from this rework, excluding it from provisioning, merges, records, and closure.\n\n8. **Read the worktree skill and its PR-head reference.** Required reads: `skills/using-git-worktrees/SKILL.md` and `skills/using-git-worktrees/reference/pr-head.md`. Pass the retained ordered array, home first, using the observed metadata for `#13` and `#14`. No concrete head SHA, worktree path, or merge result is supplied here, so none is invented.\n\n9. **Proceed through provisioning and gather.** The fixed case authorizes the ensuing gather and states that its required resources succeed. Before gathering, read `skills/brainstorming/reference/ticket-acceptance.md`, then `skills/brainstorming/gatherer.md`. Gather the retained PRs’ attributed inputs and the combined worktree context through the prescribed flow. Do not infer a ticket binding or acceptance-criteria rows from the supplied observations.\n\n10. **Read the gathered draft before question one.** Treat the draft as a helper and check its framing against the retained retry diffs and primary code. The supplied result is that no premise contradiction is found, and the scout has no framing objection after checking the existing retry loop. No additional code findings are invented.\n\n11. **Give the later framing holds-statement, not a framing question:**\n\n    “The framing holds: checked #13’s retry-delay changes, #14’s retry-cap changes, and the existing retry loop; the gathered recon found no premise contradiction or framing objection.”\n\n    This later framing check is separate from the earlier concern-selection preflight.\n\n## Independent invalid-reply variant — “all,” then “all” again\n\n1. **Follow the same fresh-entry, admission, and relatedness steps through the preflight question.** No worktree has been provisioned.\n\n2. **Narrate the human answer:** “all.”\n\n3. **Re-ask once**, because “all” names neither offered group:\n\n   These PRs contain separate metrics-label and bounded-retry concerns. Choose one concern for this brainstorm.\n   \n   A) #12 — correct the metrics label from stale to current.\n   \n   B) #13 and #14 — bound retries through the retry delay and cap changes.\n   \n   Recommendation: A - it retains the initial home PR’s concern.\n\n4. **Narrate the second human answer:** “all.”\n\n5. **Stop before provisioning.** The second reply still selects no offered group. Create no worktree, leave existing worktrees unchanged, and do not proceed to gather or the later framing check.\n",
-      "words": 551,
-      "wallMs": 25702,
+      "text": "gauntlet: question\nThe fetched diffs show two separate concerns in `src/client.ts`: #12 corrects metrics labels, while #13 and #14 bound retries through delay and cap changes. Which concern should this brainstorm retain?\nA) Correct metrics labels — #12.\nB) Bounded retries — #13 and #14.\nRecommendation: A - it retains the initial home PR, #12, and its metrics-label concern.\n\n### Independent trace — valid reply\n\n1. **Fresh-entry stage preceding the question above:** narrate resetting the phase tracker, clearing the plan tracker, and starting the brainstorm phase. These are required stage actions, not live calls.\n\n2. **Required preflight reads:** narrate reading `skills/brainstorming/reference/pr-subject.md` at its absolute installed path and checking the project overrides locations in order, reading the first found file if any. The bundled references are not treated as previously loaded session context.\n\n3. **Ordered admission and relatedness stage:** #12, #13, and #14 all pass admission in that order: OPEN, distinct, in origin’s `acme/widget`, non-fork, and targeting `main`. Every title/body and diff is fetched before provisioning. Grouping by behavior—not shared filename—produces the two concerns shown above. This preflight is **not question one**.\n\n4. **Narrated human answer:** `B`.\n\n5. **Selection stage:** retain **#13, #14**, in their original relative order; **#13 becomes home**. Drop **#12** from provisioning, merges, records, and closure.\n\n6. **Required worktree reads and provisioning stage:** narrate reading `skills/using-git-worktrees/SKILL.md` and its `reference/pr-head.md` at their absolute installed paths. Pass the ordered observed per-PR records for #13 and #14, home first. Follow the multi-PR rework route; the single-PR spec classifier does not apply. Provision only the retained heads and obtain the worktree/base-merge report.\n\n7. **Required gather reads and stage:** before gathering, narrate reading `skills/brainstorming/reference/ticket-acceptance.md`, then `skills/brainstorming/gatherer.md`, at their absolute installed paths. Resolve ticket binding from home’s title, then its first body line, without inventing a binding from these observations. Gather both retained PRs’ title/body, carried specs, full threads, fetched-base constraints, and merge outcomes; dispatch scout, plus context-builder if home binds a ticket. The fixed observations say the required gather resources succeed. Preserve both retained PRs’ provenance and thread dispositions in the draft.\n\n8. **Step-4 read and recon stage:** narrate reading the gathered draft unconditionally before question one. Independently verify its framing against the combined retry diff and primary code, including the existing retry loop and the named paths and dependencies. The recorded outcome is no premise contradiction and no scout framing objection. Do not invent more detailed findings or citations.\n\n9. **Later framing holds-statement:**\n\n   > The framing holds: checked the combined retry-delay and cap changes from #13 and #14 against the existing retry loop in `src/client.ts`; the gathered review found no premise contradiction or framing objection.\n\n   This belongs after provisioning and gathering, not in place of the relatedness preflight. It does not repeat the already-settled concern selection.\n\n### Independent trace — invalid-reply variant\n\n1. Complete the same read-only admission and relatedness preflight and show the same question above. **Do not provision.**\n2. The human answers `all`. No offered group matches that answer; re-ask once:\n\n   > gauntlet: question\n   > “All” does not select one concern. Which concern should this brainstorm retain?\n   > A) Correct metrics labels — #12.\n   > B) Bounded retries — #13 and #14.\n   > Recommendation: A - it retains the initial home PR, #12, and its metrics-label concern.\n\n3. The human answers `all` again.\n4. **Stop:** no offered group was selected after the single re-ask. Create no worktree, leave existing worktrees unchanged, and do not proceed to gathering or question one.\n",
+      "words": 554,
+      "wallMs": 29609,
       "mechanical": {}
     }
   },
@@ -34,9 +34,9 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "2739ec48d8854cba0d210e2a54c4deb80c8c95568c2265ce3e45c8ece791d45e",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "3fab9022e6546ee557e596de8ba99bbd8a8d5e75db7e126af9d0739b215affa8",
-      "baselineOutputSha": "8e1d131a3a2c951ce1563513ea89a6ee62f5a0ebfd279656d950e6a3c1f24880",
-      "candidateOutputSha": "710114e6205c7c7996e36c8b92cfe78d4cce32a77dc7a2e6e642642079124be7",
+      "intentSha": "460f2afd63946ca28e753d98ec02c2b198f7bed5ff1b4bf05820058c4477df90",
+      "baselineOutputSha": "190c2d4e3794efaf1a07417b05d8226a517d757692154357afdd20f2520251ab",
+      "candidateOutputSha": "faf153a63a0fcdf406a952f9d4c1b9c1992fca1cb5e4e671cb735ce7b5ab5362",
       "facts": {
         "groups": {
           "before": "holds",
@@ -54,16 +54,16 @@
           "label": "held"
         }
       },
-      "feedback": "Nothing moved on this case: both outputs narrate per-PR title/body and gh pr diff fetches before provisioning, split #12's metrics label from the #13/#14 retry hunks despite the shared src/client.ts, render one option per physical line with PRs and concerns named, omit any \"all\" option, and end with a Recommendation: line for the #12 group. Both valid-reply traces name dropped #12, retain #13 then #14 with #13 as home, exclude #12 from merges/record/closure, run gather, verify framing against the retry loop post-worktree, and open question one with a holds-statement distinct from the preflight. Both invalid traces re-ask once and stop on the second `all` with no worktree, gather, or writes. After is slightly tighter in places (explicit stop message quoting the reply, explicit `using-git-worktrees` never read, `Framing: kept` placement), so the After wording preserves everything Before kept while delivering the Change; the expected fails->holds move for this sample's groups fact is not visible here because Before already satisfies it.",
-      "wallMs": 12327,
+      "feedback": "Nothing moved on this case: both outputs narrate per-PR title/body and diff fetches before provisioning, split #12's metrics hunk from #13/#14's retry hunks despite the shared src/client.ts, render A)/B) each on its own line with PRs and concern named, offer no all option, and end on Recommendation: A for the #12 group; both promote #13 to home with #14 retained, name #12 as dropped and excluded from merges/record/closure, run gather and open question one with the holds-statement, and re-ask the all reply once then stop without provisioning or writes. After is actually a little stronger on promotion because step 9 states explicitly that the preflight is separate from question one, the framing check, and the post-worktree scope check, whereas Before only says it is not question one; keep that sentence. The only wording to watch in After is the new `gauntlet: question` marker line placed above the lead-in — it is harmless for the groups fact here since the labeled options and final Recommendation: line remain intact, but make sure the gate-line-first rule never pushes the lead-in or Recommendation: off their own lines in other samples.",
+      "wallMs": 26142,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "2739ec48d8854cba0d210e2a54c4deb80c8c95568c2265ce3e45c8ece791d45e",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "3fab9022e6546ee557e596de8ba99bbd8a8d5e75db7e126af9d0739b215affa8",
-      "baselineOutputSha": "a6e442f94e28855981aea69d0929f2384da0b3733d220997c94424ee3173dfad",
-      "candidateOutputSha": "740c363478ee0b2889fbcefe8266edb16aeec51246df761750aab1a5a47b5d55",
+      "intentSha": "460f2afd63946ca28e753d98ec02c2b198f7bed5ff1b4bf05820058c4477df90",
+      "baselineOutputSha": "38e5bee2996d960983b2cc99cfa38c2304078dbe7c8ceab1fcbfe6ccf43378e1",
+      "candidateOutputSha": "a45d16d8e8e024e787e40159ee2e105f2890e1ce79b722fe5142b298bc282eb7",
       "facts": {
         "groups": {
           "before": "holds",
@@ -81,10 +81,107 @@
           "label": "held"
         }
       },
-      "feedback": "Nothing moved on this sample: After still narrates all three title/body and diff fetches before provisioning (step 4), groups #12 apart from #13/#14 despite the shared src/client.ts, renders one option per physical line with PRs and concern named, offers no all option, and closes with a final Recommendation: line for the #12 group; the valid B answer names dropped #12, retains #13 then #14 with #13 as home, excludes #12 from provisioning/merges/records/closure, runs the gather and the later holds-statement, and keeps the preflight distinct from question one; the invalid variant re-asks once and stops on the second all with no worktree created and no gather. One small tightening worth keeping if you revise again: After step 9 folds the ticket-acceptance and gatherer reads into a single paragraph after provisioning, while Before narrated them as separate numbered reads and explicitly noted that context-builder dispatches only if the home PR binds a ticket; keeping those as distinct steps with the no-ticket-binding condition stated would make the promotion fact's gather evidence more legible without changing anything the Change asks for.",
-      "wallMs": 13080,
+      "feedback": "No fact moved. Both outputs narrate per-PR title/body and diff fetches before provisioning, separate #12's metrics concern from #13/#14's retry concern despite the shared src/client.ts, render one option per line with PRs and concern named, offer no all option, and end with Recommendation: for the #12 group. Both retain #13 then #14 with #13 as home, name dropped #12 and exclude it from provisioning, merges, records, and closure, run the gather, give a holds-statement after provisioning, and keep the preflight distinct from question one; both re-ask once on 'all' and stop without provisioning on the second 'all'. After's only structural shift is hoisting the 'gauntlet: question' marker and the question to the top before the fetch narration (the Change's gate-line-first requirement); it stays safe because step 3 still states every title/body and diff was fetched before provisioning. Keep that explicit 'fetched before provisioning' sentence (and ideally name gh pr diff per PR) in the admission step so a reader does not infer from the ordering that the question preceded the diff reads; otherwise the After wording delivers the Change while keeping every fact Before kept.",
+      "wallMs": 16889,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "488adb5f77d82365012e1a6030f3b11a1e35f420"
+  "refresh": {
+    "status": "complete",
+    "identity": {
+      "sample": "pr-list-relatedness-split",
+      "kind": "text",
+      "assembly": "headed",
+      "baselineSkillSha": "be6a9ad7c6121a490b07ac373a98ac41151b852e413de38cd8301d286ce1b2bd",
+      "candidateSkillSha": "8422ae15c4746c464811b72ee5f5ead8e3dfa0b1e827b7022ef20253e18b0f3f",
+      "inputSha": "418f3faad4c4d33f682d8e4469a3a5da559a638cc9a21ef55c79ff3cbf4e72e1",
+      "factsSha": "2739ec48d8854cba0d210e2a54c4deb80c8c95568c2265ce3e45c8ece791d45e",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "5b9f462cd6caec9a4a8e3a28a3c0ba61583e1b400c8edb5164d32bba075fea39",
+      "models": {
+        "replay": [
+          "github-copilot/gpt-6.1-sol"
+        ],
+        "judge": "github-copilot/gpt-6.1-sol"
+      },
+      "thinking": "medium",
+      "outputs": {
+        "baseline": {
+          "github-copilot/gpt-6.1-sol": {
+            "baselineOutputSha": "b7c703bfb8931f13ec12b183e3c4b9e9306bec43e7bbe8dbfbfebf361bf21fa1",
+            "payloadSha": "2ab43fc6b438a1ef02b681ac4653609f1623f433fdfa859d270fab665177cc06"
+          }
+        },
+        "candidate": {
+          "github-copilot/gpt-6.1-sol": {
+            "candidateOutputSha": "b0b45ba29a8d481922833c92d2ae675a6943037ebaab097bf527a57e83db32c7",
+            "payloadSha": "75bf573df6901ba0fa85a640fb827268f9261176ca0f521b0a86ecd2d1c354ba"
+          }
+        }
+      }
+    },
+    "previous": {
+      "github-copilot/gpt-6.1-sol": {
+        "factsSha": "2739ec48d8854cba0d210e2a54c4deb80c8c95568c2265ce3e45c8ece791d45e",
+        "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+        "intentSha": "5b9f462cd6caec9a4a8e3a28a3c0ba61583e1b400c8edb5164d32bba075fea39",
+        "baselineOutputSha": "b7c703bfb8931f13ec12b183e3c4b9e9306bec43e7bbe8dbfbfebf361bf21fa1",
+        "candidateOutputSha": "b0b45ba29a8d481922833c92d2ae675a6943037ebaab097bf527a57e83db32c7",
+        "facts": {
+          "groups": {
+            "before": "holds",
+            "after": "holds",
+            "label": "intended but unchanged"
+          },
+          "promotion": {
+            "before": "holds",
+            "after": "holds",
+            "label": "held"
+          },
+          "invalid": {
+            "before": "holds",
+            "after": "holds",
+            "label": "held"
+          }
+        },
+        "feedback": "Nothing moved on this case: both outputs narrate the per-PR title/body and diff fetches before any provisioning, split #12's metrics-label concern from the #13/#14 retry concern despite the shared src/client.ts, present one labeled option per physical line naming PRs and concern with no all option and a final Recommendation for the #12 group, and on the valid B reply retain #13 then #14 with #13 as home while naming #12 as dropped from provisioning, merges, record and closure, then run the gather and give the holds-statement with the preflight explicitly not counted as question one. After's additions - the `gauntlet: question` marker at the top of each preflight, the explicit re-rendered re-ask in the invalid variant, and the stronger 'do not begin the ensuing gather or questionary' stop - are all consistent with the Change and the gate-line-first fact without disturbing these three. One small risk to watch in After: the second-reply re-ask rewrites the lead-in to '\"All\" does not select one concern', which is fine here but keep the two group options and the #12 recommendation verbatim (as After does) so the re-ask remains the same question rather than a new one.",
+        "wallMs": 17481,
+        "verdict": "unchanged",
+        "judgeModel": null,
+        "thinking": null
+      }
+    },
+    "refreshed": {
+      "github-copilot/gpt-6.1-sol": {
+        "factsSha": "2739ec48d8854cba0d210e2a54c4deb80c8c95568c2265ce3e45c8ece791d45e",
+        "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+        "intentSha": "5b9f462cd6caec9a4a8e3a28a3c0ba61583e1b400c8edb5164d32bba075fea39",
+        "baselineOutputSha": "b7c703bfb8931f13ec12b183e3c4b9e9306bec43e7bbe8dbfbfebf361bf21fa1",
+        "candidateOutputSha": "b0b45ba29a8d481922833c92d2ae675a6943037ebaab097bf527a57e83db32c7",
+        "facts": {
+          "groups": {
+            "before": "holds",
+            "after": "holds",
+            "label": "intended but unchanged"
+          },
+          "promotion": {
+            "before": "holds",
+            "after": "holds",
+            "label": "held"
+          },
+          "invalid": {
+            "before": "holds",
+            "after": "holds",
+            "label": "held"
+          }
+        },
+        "feedback": "No fact changed status: both outputs separate metrics from retries despite the shared file, promote #13 while retaining #14 and excluding #12 downstream, continue gathering and framing verification, and stop after the second invalid reply without provisioning. After makes the repeated preflight and its option layout explicit. To preserve these outcomes while strengthening the wording, explicitly name each PR’s title/body and gh pr diff fetch before provisioning, label the later verification as the separate post-worktree scope check, and state that the invalid branch performs no writes.",
+        "wallMs": 13540,
+        "verdict": "unchanged",
+        "judgeModel": "github-copilot/gpt-6.1-sol",
+        "thinking": "medium"
+      }
+    }
+  },
+  "repoSha": "657f24585c1a6c2182a26df3d0d0691c8e67e59a"
 }

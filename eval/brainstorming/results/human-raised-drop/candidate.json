@@ -1,7 +1,7 @@
 {
   "sample": "human-raised-drop",
   "arm": "candidate",
-  "skillSha": "b0f061ca12a26e1539c071730ebd6798b3e0c8ec66556d774cc3fa29aad9193e",
+  "skillSha": "42074ed487649c5ea2ea60d5d2c117a4ad21a2af873bcde051774d16de990c56",
   "inputSha": "ef2a533acdc8413125441da13b20c9ab316d57925678233e824f464c6fa1185b",
   "kind": "text",
   "assembly": "headed",
@@ -17,16 +17,16 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "Recorded: we'll reuse the existing CSV serializer and paging (`src/export/csv.ts`, which already takes its columns from the table's definitions, including `owner` at line 40).\n\nBefore the first design round, I need your decision on the third ticket row. I can't drop a ticket row without your explicit choice here. The gather draft found that row consistent with the table contract and project requirements, so it is not wrong as written. How should `The export of a 10k-row report completes in under 60s.` be treated?\nA) in-scope - the reuse design commits to it: paged serialization of a 10k-row report finishes in under 60s, proven by a timed test on a 10k-row fixture\nB) deviates: under-60s for 10k rows is beyond this sprint's need; the spec ships the export without the timing commitment\nC) deferred: <tracker ref for a follow-up ticket, e.g. acme/widgets#NN> - the timing commitment moves there and is listed under Scope cuts\nD) repair the ticket - /skill:shape-ticket acme/widgets#77 row 3 (\"The export of a 10k-row report completes in under 60s.\") - no evidence yet that the row is wrong; use this only if the ticket's contract itself should change\nRecommendation: A - the row is part of acme/widgets#77's contract, and nothing shows it is wrong or impossible. The paging path already exists, so keeping the row costs a single timed test. Dropping it would remove the ticket's only performance guarantee.\n",
-      "words": 228,
-      "wallMs": 11040,
+      "text": "gauntlet: question\nYou chose to reuse the existing CSV serializer and paging; that is now the approach. Before the design rounds, the third row of acme/widgets#77 needs a decision. \"The export of a 10k-row report completes in under 60s.\" is a ticket acceptance criterion. Nothing found so far shows it is wrong or impossible. The gather draft and `src/export/csv.ts:40` show a three-column table (title, status, owner), and the export reuses those column definitions. How should this row be handled?\nA) in-scope - the reused serializer and paging export a 10k-row report in under 60s, proven by a timed test against a 10k-row fixture\nB) deviates: not needed this sprint - the export ships without a time bound on large reports\nC) deferred: <where> - the bound moves to a named tracker ref, spec path, or URL and does not ship here\nD) repair the ticket - /skill:shape-ticket acme/widgets#77 row 3 (\"The export of a 10k-row report completes in under 60s.\") - reporter says the bound exceeds this sprint's need\nRecommendation: A - the row is part of the ticket's contract, the chosen approach already pages the data, and one timed test proves it without adding any new construct; if the bound is truly unwanted, D fixes the ticket at its source rather than leaving a silent gap.\n",
+      "words": 211,
+      "wallMs": 12092,
       "mechanical": {}
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "We’ll reuse the existing CSV serializer and paging, with the button beside the report title. Dropping the performance row changes the ticket’s acceptance contract, so that needs an explicit scope decision before the design rounds.\n\nFor acme/widgets#77’s row, “The export of a 10k-row report completes in under 60s.”:\n\nA) in-scope - retain the requirement and verify it before completion.\nB) deviates: omit the 10k-row, under-60s requirement from this sprint’s implementation.\nC) deferred: acme/widgets#77 - leave the performance requirement tracked there for later work.\nD) repair the ticket - `/skill:shape-ticket acme/widgets#77` to revise this row because you’ve said the performance requirement exceeds this sprint’s needs.\nRecommendation: D - align the ticket with your intended scope rather than leave its acceptance contract inconsistent with what ships.\n",
-      "words": 120,
-      "wallMs": 10563,
+      "text": "gauntlet: question\nWe’ll reuse the existing CSV serializer and paging, with the button beside the report title. Dropping the performance row changes the ticket’s acceptance contract, so we need to record its disposition before the design rounds.\n\nHow should we handle “The export of a 10k-row report completes in under 60s.”?\nA) in-scope - implement and verify the stated 10k-row, under-60s requirement.\nB) deviates: the 10k-row performance requirement is excluded from this sprint; this implementation makes no such guarantee.\nC) deferred: acme/widgets#77 - leave this requirement tracked on the ticket but outside this implementation.\nD) repair the ticket - /skill:shape-ticket acme/widgets#77 to revise the performance row based on your reduced sprint requirements.\nRecommendation: A - it preserves the explicit ticket requirement, and we have no evidence that it is infeasible.\n",
+      "words": 126,
+      "wallMs": 10228,
       "mechanical": {}
     }
   },
@@ -34,9 +34,9 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "355f9d880bd23ccc723dd321edace8c333f901720484f4ee512817b9ecbed11b",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "3fab9022e6546ee557e596de8ba99bbd8a8d5e75db7e126af9d0739b215affa8",
-      "baselineOutputSha": "eeb231608fc52b81a883ad7720802da3da4c2ec7f08a108ae83dfa72f5bd157c",
-      "candidateOutputSha": "243c1ceb1b9997d75dc9e0dc609b80a273d9fb9115220459e55c64845ecf770c",
+      "intentSha": "460f2afd63946ca28e753d98ec02c2b198f7bed5ff1b4bf05820058c4477df90",
+      "baselineOutputSha": "4409184938e03a75180aeb88bf5d00d94a04e8de56b54587ef0c46763bd754ae",
+      "candidateOutputSha": "d1012cd34f1186ae28ed0db79a819a08cd68f75ea0a9b9c03b324dbf34a54f4e",
       "facts": {
         "f1": {
           "before": "holds",
@@ -54,16 +54,16 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "Nothing moved on this continuation: both outputs quote the 60s row verbatim, ask the cut question with A, B, C, D in order, recommend A, and leave the row unmarked pending the user's answer. One caution for the After wording: option B now pre-fills the deviates rationale (\"under-60s for 10k rows is beyond this sprint's need\") from the user's words instead of the `<why>` placeholder Before kept, and D asserts \"no evidence yet that the row is wrong\" — a reader could read B as a half-committed cut. To stay safely clear of f3 while keeping the Change, keep the `deviates: <why>` and `deferred: <where>` placeholders as in Before and leave the user's sprint remark out of the option text, mentioning it only in the lead-in as the reason the question is being asked.",
-      "wallMs": 10623,
+      "feedback": "Nothing moved on this continuation: both outputs ask the cut question for the 60s row with options A, B, C, D in that order, both recommend A (pointing to D as the ticket-repair alternative), and neither marks the row deferred or deviates before the user answers. After adds the column-zero `gauntlet: question` marker as the first line, keeps the lead-in first, puts each labeled option on its own physical line, and ends with `Recommendation:` on its own final line, so the new questionary layout and gate-line-first requirements are delivered without disturbing the cut-question contract. The only wording to watch is option C's literal `<where>` placeholder; Before phrased it as an instruction to name the ref, which reads cleaner, but it does not affect any fact here.",
+      "wallMs": 7761,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "355f9d880bd23ccc723dd321edace8c333f901720484f4ee512817b9ecbed11b",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "3fab9022e6546ee557e596de8ba99bbd8a8d5e75db7e126af9d0739b215affa8",
-      "baselineOutputSha": "fdad2286b231fe780977eefbc8c40849da6ee0a209adf805b8084207f21ace4d",
-      "candidateOutputSha": "1076b68815d308fa5e0ebe27833b5b93672e15cbd9b4c3935b6add16a1d5c34c",
+      "intentSha": "460f2afd63946ca28e753d98ec02c2b198f7bed5ff1b4bf05820058c4477df90",
+      "baselineOutputSha": "d25067fc3821202ddbf77ff6a228d46643638b200f6276d2bf9d567ad36cea3d",
+      "candidateOutputSha": "decb9383ad11bf49689973e91368a12c8538ee5b70d852ee6806d9507cdac00d",
       "facts": {
         "f1": {
           "before": "holds",
@@ -81,10 +81,107 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "No fact moved: both outputs ask the cut question for the 60s row with A, B, C, D in order, both recommend D, and neither marks the row deferred or deviates before the user answers. One wording regression in After worth fixing even though no fact keys on it: option C now reads 'deferred: acme/widgets#77 - leave the performance requirement tracked there', which names the ticket under repair as the deferral target instead of asking for a follow-up tracker reference the user supplies (as Before did); that makes C nearly indistinguishable from D and invents a tracker reference. Keep Before's C phrasing ('move the performance requirement to a follow-up tracker reference you supply'), and restore the 'Export CSV button' name in the lead-in rather than 'the button', while retaining After's explicit lead-in about the acceptance contract needing a scope decision before design rounds.",
-      "wallMs": 12729,
+      "feedback": "Nothing moved in this continuation: both outputs ask the cut question for the 60s row with A, B, C, D in that order, both recommend A, and neither marks the row deferred or deviates before the user answers. After additionally leads with the column-zero `gauntlet: question` classification line, keeps the row text verbatim inside the question, and lays out one labeled option per physical line with the Recommendation on its own final line, so the gate-line-first and questionary-layout changes land here without disturbing the cut-question contract. Two cosmetic differences worth watching rather than fixing: After drops the bold **Export CSV** button name and the blockquote rendering of the row in favor of inline quotes; neither affects these facts, but if any other sample keys on the quoted row being rendered as its own line, prefer keeping the row quoted on its own line before the question rather than embedding it inline.",
+      "wallMs": 8561,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "488adb5f77d82365012e1a6030f3b11a1e35f420"
+  "refresh": {
+    "status": "complete",
+    "identity": {
+      "sample": "human-raised-drop",
+      "kind": "text",
+      "assembly": "headed",
+      "baselineSkillSha": "1344d9b3d03badf89c600eb7719b78db84d66ec38fcb37bdfe3bfc890ccfaac6",
+      "candidateSkillSha": "e56966ab6f37d59c93529bd405e54013ce529262d21820b8b32ab4898250b062",
+      "inputSha": "ef2a533acdc8413125441da13b20c9ab316d57925678233e824f464c6fa1185b",
+      "factsSha": "355f9d880bd23ccc723dd321edace8c333f901720484f4ee512817b9ecbed11b",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "5b9f462cd6caec9a4a8e3a28a3c0ba61583e1b400c8edb5164d32bba075fea39",
+      "models": {
+        "replay": [
+          "github-copilot/gpt-6.1-sol"
+        ],
+        "judge": "github-copilot/gpt-6.1-sol"
+      },
+      "thinking": "medium",
+      "outputs": {
+        "baseline": {
+          "github-copilot/gpt-6.1-sol": {
+            "baselineOutputSha": "5c022488168f342c578b6bbdd636eab3a560d317bb6a2ebe10daa3dc0d086c0e",
+            "payloadSha": "53e28a2684a08b82d1b0b13f16a8d8629445197f28d0068f8dac3ce04d7a02a1"
+          }
+        },
+        "candidate": {
+          "github-copilot/gpt-6.1-sol": {
+            "candidateOutputSha": "939e1f966046dc31d3ff32993e623b616ca1d426fdd27324880799338d07e54c",
+            "payloadSha": "19e413a050eed89855ec656e0a905664eecf57ef3633b7d9a4896b73d95ea41c"
+          }
+        }
+      }
+    },
+    "previous": {
+      "github-copilot/gpt-6.1-sol": {
+        "factsSha": "355f9d880bd23ccc723dd321edace8c333f901720484f4ee512817b9ecbed11b",
+        "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+        "intentSha": "5b9f462cd6caec9a4a8e3a28a3c0ba61583e1b400c8edb5164d32bba075fea39",
+        "baselineOutputSha": "5c022488168f342c578b6bbdd636eab3a560d317bb6a2ebe10daa3dc0d086c0e",
+        "candidateOutputSha": "939e1f966046dc31d3ff32993e623b616ca1d426fdd27324880799338d07e54c",
+        "facts": {
+          "f1": {
+            "before": "holds",
+            "after": "holds",
+            "label": "intended but unchanged"
+          },
+          "f2": {
+            "before": "holds",
+            "after": "holds",
+            "label": "intended but unchanged"
+          },
+          "f3": {
+            "before": "holds",
+            "after": "holds",
+            "label": "intended but unchanged"
+          }
+        },
+        "feedback": "Nothing moved on this case: both outputs ask the cut question for the 60s row with A/B/C/D in order, both recommend D, and neither applies a deferred or deviates marking before the user answers (the B and C lines are presented as options, not as decisions). After adds the column-zero 'gauntlet: question' marker and quotes the row verbatim in a blockquote, which delivers the gate-line-first change without disturbing the cut-question contract; keep the lead-in before the labeled options and Recommendation on its own final line as After already does, and avoid any phrasing in the lead-in that would state the row's disposition as settled.",
+        "wallMs": 9439,
+        "verdict": "unchanged",
+        "judgeModel": null,
+        "thinking": null
+      }
+    },
+    "refreshed": {
+      "github-copilot/gpt-6.1-sol": {
+        "factsSha": "355f9d880bd23ccc723dd321edace8c333f901720484f4ee512817b9ecbed11b",
+        "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+        "intentSha": "5b9f462cd6caec9a4a8e3a28a3c0ba61583e1b400c8edb5164d32bba075fea39",
+        "baselineOutputSha": "5c022488168f342c578b6bbdd636eab3a560d317bb6a2ebe10daa3dc0d086c0e",
+        "candidateOutputSha": "939e1f966046dc31d3ff32993e623b616ca1d426fdd27324880799338d07e54c",
+        "facts": {
+          "f1": {
+            "before": "holds",
+            "after": "holds",
+            "label": "intended but unchanged"
+          },
+          "f2": {
+            "before": "holds",
+            "after": "holds",
+            "label": "intended but unchanged"
+          },
+          "f3": {
+            "before": "holds",
+            "after": "holds",
+            "label": "intended but unchanged"
+          }
+        },
+        "feedback": "After preserves all three facts: it asks the cut question with A–D in order, recommends D, and presents deviation and deferral only as choices rather than applied decisions. The added first-line question marker and re-fetch instruction do not change those outcomes. Retain the explicit row quotation, conditional options, and final Recommendation line; no corrective wording is needed for these facts.",
+        "wallMs": 5820,
+        "verdict": "unchanged",
+        "judgeModel": "github-copilot/gpt-6.1-sol",
+        "thinking": "medium"
+      }
+    }
+  },
+  "repoSha": "657f24585c1a6c2182a26df3d0d0691c8e67e59a"
 }

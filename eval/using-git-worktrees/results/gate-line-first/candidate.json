@@ -1,0 +1,84 @@
+{
+  "sample": "gate-line-first",
+  "arm": "candidate",
+  "skillSha": "13b5e2f8a828bf2506aaa371cd8f72c98c455445b15a7c84714091e116b4eb4c",
+  "inputSha": "9f0c2cf26e59997582707aad9bcaf0612140208bea5b7be00665f94b3187e47e",
+  "kind": "text",
+  "assembly": "concat",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "gauntlet: question\nHEAD in `/work/app` is detached at `def5678`, so I haven't created the worktree for the timeout work yet.\n\nWhich base should the new branch start from?\n\n1. **The current commit `def5678`**: the worktree starts exactly where HEAD is now.\n2. **`main`**: the worktree starts from the default branch.\n\nIf you want a specific branch name, include it. Otherwise I'll pick one for the timeout work.\n",
+      "words": 67,
+      "wallMs": 3310,
+      "mechanical": {
+        "first-line": "holds"
+      }
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "gauntlet: question\nHEAD is detached at `def5678`. Should I create the timeout worktree from this commit or from `main`?\n",
+      "words": 19,
+      "wallMs": 2220,
+      "mechanical": {
+        "first-line": "holds"
+      }
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "b4edfd0f5facbf0d34a45cf2ce23a923fa9ff214f579e7e3d62570292b88ea8e",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "79a43344d6de00c833afe81581fa2db76ed698aba803c56f1667b8d5ffacb3da",
+      "baselineOutputSha": "44b1d342e69fd6ce1d44ebc72058a5de3f4ff890f04b071dd1edb60f6fcf7360",
+      "candidateOutputSha": "1291ba4e7e31da7226d6c916b286e2e3677ed6b6963bbf4ff0137596f71e6e3b",
+      "facts": {
+        "choice": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "first-line": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        }
+      },
+      "feedback": "Both outputs ask whether the new branch should start from def5678 or main and neither creates a worktree, so the choice fact holds in both; After additionally places a question marker on its first line as the Change intends. The only risk in After is the trailing sentence offering to pick a branch name itself: it does not move the fact, since the base choice is still clearly awaited, but to keep the question tightly scoped you could drop that sentence or fold it into the ask (e.g. 'Which base should the new branch start from, and do you want a specific branch name?') so the output ends on the awaited choice rather than on a unilateral default.",
+      "wallMs": 7094,
+      "verdict": "improved"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "b4edfd0f5facbf0d34a45cf2ce23a923fa9ff214f579e7e3d62570292b88ea8e",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "79a43344d6de00c833afe81581fa2db76ed698aba803c56f1667b8d5ffacb3da",
+      "baselineOutputSha": "e9c8434aa15a0beb0f614c47cb0e9c8e7f3e6c3653bc151bc1aae1617ab15116",
+      "candidateOutputSha": "bf564d8f9362867da28f4fa4b3ccacff9c86993e4663b1eefb1fe04f0f2830ba",
+      "facts": {
+        "choice": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "first-line": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        }
+      },
+      "feedback": "After keeps the fact: it still asks the user to pick def5678 or main as the base and stops there, now with the `gauntlet: question` marker at column zero on the first line, which is exactly the Change. The only drift is wording: Before asks about creating the 'timeout-work branch' from the commit, while After asks about creating the 'timeout worktree' from it, which blurs the branch/base choice into a worktree-creation choice and could invite a reader to think the worktree is about to be made regardless. Safer wording that keeps the marker and preserves the fact verbatim: `gauntlet: question` on line one, then 'HEAD is detached at `def5678`. Should I create the timeout-work branch (and its worktree) from this commit or from `main`?' — i.e. keep Before's sentence intact under the marker rather than rephrasing it.",
+      "wallMs": 8334,
+      "verdict": "improved"
+    }
+  },
+  "repoSha": "b7c3d572aca72072a07f83e0793b9421cd327c78"
+}

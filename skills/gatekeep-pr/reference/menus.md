@@ -17,6 +17,8 @@ Read with `decision-menu.md` at step 6. Select the template from this state map;
 
 Render every menu in full from its template: the verdict line, every available row, and the hint line. Never narrate or summarize a menu; do not substitute "the initial template applied; the human picked 2" for its rendering. Quote a numeric pick only after the rendered menu.
 
+Append ` recommended=<n>` to each gate line using the actual rendered number of its tagged recommended row. Emit one first line per turn; when combining batch summary and child menus, emit only the parent `gatekeep-pr/batch-summary` line. Keep runtime guard text, including any quoted escalation instruction, inside the obstacle body, never as a second standalone marker.
+
 Render flat numbers through [menu-layout](../../brainstorming/reference/menu-layout.md); preserve its bare-numeric mapping. Put exactly one `[recommended]` on an available row and `stop` last. Put `show evidence` in every hint line, never in a row. Include every omission reason from `decision-menu.md`. A menu rendered under `deliver` before an exit condition, other than the contract-exception template, is a red flag; so is a menu not rendered from these templates, two recommendations, stop not last, or no evidence hint.
 
 Render terminal cleanup consequences through `cleanup.md`; use `skipped - needs a landed change` for merge-SHA-dependent overrides in the row text and result block.
@@ -28,6 +30,7 @@ Use `viewer.is_author` (`viewer.login == pr.author.login`) and `author_is_bot` f
 Offer `assess`, eligible `deliver`, eligible `deliver with nits`, then `stop`. Recommend deliver for the human's own PR, assess for someone else's; when delivery is omitted on an own PR, recommend assess. Omit deliver with nits with zero nits, and both delivery rows with cap zero, missing helpers, or non-pushable/unreadable head; name each reason, including `Not offered: deliver (needs push to <head_url>:<head_ref>)`. For someone else's/bot PR change the sync consequence to "merge main into the branch". Map `deliver with nits` to stored `deliver-nits`.
 
 ```text
+gauntlet: gate=gatekeep-pr/initial recommended=2
 Verdict: not ready - 2 blockers, 1 nit
 
 Pick one:
@@ -41,13 +44,19 @@ Course holds until the final menu; `show evidence` prints the full record.
 
 ## final
 
+Start the message with `gauntlet: gate=gatekeep-pr/final`.
+
 Offer available `merge`, `approve`, `fix nits` when nits remain and the course excluded them, `reply` when drafted replies exist, then `stop`. Recommend merge for own PR; recommend approve for someone else's when available, else merge; with neither available recommend stop. Omit merge on a draft with `Not offered: merge (draft)` or below WRITE with `Not offered: merge (needs WRITE on <owner>/<repo>)`. Omit approve on drafts and own PRs. Authorize exactly one delivery iteration for fix nits, leaving course unchanged (`post-selection-loop.md` `### Next action`). Hint: `Type a number; show evidence prints the full record.` Print one compact `Evidence:` line above the `Delivers:` line naming the source (`CI (source: ci)` or the local run), the head SHA, each run and its checks with their conclusions, the binding-pending count, and `merge_state_status`; put the same record in the `show evidence` hint's parenthetical.
 
 ## assess terminal
 
+Start the message with `gauntlet: gate=gatekeep-pr/assess-terminal`.
+
 Offer available `deliver` (switch course), `approve` only on someone else's non-draft PR with zero blockers, `reply` for drafted thread replies, then `stop` `[recommended]`. Hint: `Type a number; show evidence prints the full record.`
 
 ## obstacle
+
+Start the message with `gauntlet: gate=gatekeep-pr/obstacle`.
 
 For undispositionable BLOCKED with no local repair, use this template even with course unset: keep stop last and `[recommended]`, with no wait row, no sync promise, and no approve row. Describe eligible deliver only as retrying after the failed prerequisite changes; promise no automatic sync. Reserve the course-unset initial assess/deliver/stop template for a pending-only report when its sole withhold is a not-yet-resolved binding CI check; source blockers still use initial under the state map.
 
@@ -55,25 +64,37 @@ Print the concrete obstacle and retained failed prerequisites. Keep the `Deliver
 
 ## contract exception
 
+Start the message with `gauntlet: gate=gatekeep-pr/contract-exception`.
+
 Print the concrete proposed contract change before the rows. Offer `accept contract change`, `preserve contract` `[recommended]`, then `stop`. Render preserve's consequence as "reject the proposal, keep <named requirement>, and resume authorized implementation repair within it". Route through `post-selection-loop.md` `### Contract decision`; show evidence settles nothing. Hint: `Type a number; show evidence prints the full record.`
 
 ## own merge
+
+Start the message with `gauntlet: gate=gatekeep-pr/own-merge`.
 
 After this run's merge returns `MERGED`, offer `cleanup` `[recommended]` until attempted, `post coverage to ticket` when issue and scope rows exist, `post coverage to PR`, then `stop`. Suppress each successful post for the rest of the run; a failed post keeps its row and prints the error. A post re-renders this template, never tears down or ends the run, and runs no compare-and-swap. After cleanup removes its row recommend the first available post, else stop. Hint: `Type a number; show evidence prints the full record.`
 
 ## merge queued
 
+Start the message with `gauntlet: gate=gatekeep-pr/merge-queued`.
+
 After this run's merge returns a state other than `MERGED`, offer `wait` - re-run `gh pr view <N> --json state,mergeCommit` `[recommended]`, then `stop`. Render `The merge is queued, so coverage posts wait. (<state>)`. A MERGED read records pr.state and pr.merge_commit and renders own merge; OPEN or another state keeps this template. Run no CI watch. Hint: `Type a number; show evidence prints the full record.`
 
 ## approved
+
+Start the message with `gauntlet: gate=gatekeep-pr/approved`.
 
 When `approved_head` equals the assessed head, offer `cleanup` `[recommended]` until attempted, then `stop`; recommend stop after cleanup. Hint: `Type a number; show evidence prints the full record.`
 
 ## closed PR
 
+Start the message with `gauntlet: gate=gatekeep-pr/closed-pr`.
+
 When state is not OPEN at step 1 or mid-course, offer `cleanup` `[recommended]` until attempted, then `stop`; recommend stop after cleanup. Keep this distinct from this run's own merge. Hint: `Type a number; show evidence prints the full record.`
 
 ## batch summary
+
+Start the message with `gauntlet: gate=gatekeep-pr/batch-summary`.
 
 For a recovered `CONFLICTING` child, offer only safe `retry` and `stop`, with `show evidence` hint-only. Render `retry - re-dispatch this PR's assessment with the same record` `[recommended]` only after `batch.md`'s clean-recovery and no-rebase checks pass; otherwise omit retry with its recorded reason and recommend stop. Keep stop last; offer no update branch or merge base rows. Hint: `Type a number; show evidence prints the full record.`
 

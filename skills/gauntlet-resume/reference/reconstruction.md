@@ -67,6 +67,8 @@ plan commit; treat every task as `pending`.
 
 Run SKILL.md entry check 6's deferred-header admission on the resolved spec before the approval/handoff question below; apply it to both routes, including the unapproved-draft brainstorming handoff. Keep grant decoding exempt for the unapproved route.
 
+Start the message with exactly `gauntlet: question` on its own line, with no suffix. Apply [menu-layout](../../brainstorming/reference/menu-layout.md).
+
 Ask exactly one question: is this spec approved, or do you select `/skill:brainstorming`
 with this unapproved spec as the draft? Show the spec path (and the brief's
 `## Intent`/`## Decisions` when present).
@@ -81,17 +83,21 @@ with this unapproved spec as the draft? Show the spec path (and the brief's
 
 ## Spec with ledger
 
+Start the message with exactly `gauntlet: question` on its own line, with no suffix. Apply [menu-layout](../../brainstorming/reference/menu-layout.md).
+
 Show the spec and ledger paths, current rows, iterations, last decision, and `git -C <worktree> status --porcelain`. Ask the human to confirm the approved spec and continuation; carry brief Intent/Decisions when present. Keep entry and same-repository checks.
 
 After confirmation:
 
 1. Read ledger line 1: require `# Ledger - loop engine`. Resolve its path-only `**Spec:**` header to an absolute spec path under the worktree's configured spec directories, not by basename. Run SKILL.md entry checks 1-6 in order, including check 6, **Grant field**, on that spec, before any tracker mutation.
 2. Call `phase_tracker({ action: "start", phase: "brainstorm" })`, then `phase_tracker({ action: "skip", phase: "brainstorm", reason: "resume: <spec path>" })`, then `phase_tracker({ action: "start", phase: "plan" })`.
-3. Call `plan_check({ planPath: <absolute ledger path> })`. On FAIL, stop with findings, retaining plan in_progress; never enter `## Plan repair` or writing-plans. On PASS, call `phase_tracker({ action: "skip", phase: "plan", reason: "resume: <spec> (loop engine)" })`, then `phase_tracker({ action: "start", phase: "implement" })`. Use the resolved absolute spec path as `<spec>` in the reason. Never call `plan_tracker init`.
+3. Call `plan_check({ planPath: <absolute ledger path> })`. On FAIL, stop with findings, retaining plan in_progress. Start the message with `gauntlet: stuck` followed by the findings reason on that line; never enter `## Plan repair` or writing-plans. On PASS, call `phase_tracker({ action: "skip", phase: "plan", reason: "resume: <spec> (loop engine)" })`, then `phase_tracker({ action: "start", phase: "implement" })`. Use the resolved absolute spec path as `<spec>` in the reason. Never call `plan_tracker init`.
 4. **Shared cap boundary (every ledger restore, before phase continuation).** Read `/skill:loop-implementation`. Skip Entry step 1 entirely; settings resolution and its unavailable-tool stop apply only to fresh seeding. Restore base, verification, iterations, `cap:`, row attempts, funding and retry allowances from the ledger/spec and branch without overwriting it. Render `cap: <n>`, rows, iterations, attempts, funding, retry allowances and all decisions; distinguish the latest operational `row <n> ...` decision from the last physical history line. A dirty tree takes the driver's discard-authorization stop without offering a cap grant. On a clean ledger missing `cap:`, stop with `ledger has no cap: line - seeded under the old loopEngine contract`, even when every row is closed. Use the driver's legacy `cap +N` grant (durable iterations + N), never settings. After the grant continue the original phase: implement at `Before each dispatch`; verify/ship at `After the loop` step 1, never reseed.
 5. Continue at loop step 5, the delivered driver's `Before each dispatch`, with durable iterations and retry data. Never reset counters or reseed a validated seed.
 
 ## Spec with plan
+
+Start the message with exactly `gauntlet: question` on its own line, with no suffix. Apply [menu-layout](../../brainstorming/reference/menu-layout.md).
 
 Show, and ask the human to confirm or edit both in one reply:
 

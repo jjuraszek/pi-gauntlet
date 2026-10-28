@@ -22,15 +22,17 @@ The CLI parses and aggregates; you reason. Never open a telemetry YAML record yo
 
 ## Reply - exactly this, in this order
 
+Start the message with `gauntlet: gate=gauntlet-performance/reply-exactly-this-in-this-order`. Follow the [shared marker and reply mapping rules](../brainstorming/reference/menu-layout.md); append `recommended=<row number>` only when a rendered row carries `[recommended]`.
+
 1. **Recommendation** (2-4 sentences). One claim, led by the run that exemplifies it: quote its `spec` slug, `run_id`, and the 1-3 numbers that carry the claim. When `grants` is the evidence, call it the fix-round proxy. If no version group has `shipped >= 2`, the recommendation is "sample too small" with the `n`/`shipped` counts per version.
 2. **Cornerstones**: 3-5 bullets of aggregate facts from `by version` - corpus size, truncated count, the p50s and model tallies that moved between versions.
 3. **Council assessment**: Render this block independently of the version sample gate, even when item 1 says "sample too small". If the digest prints `no council data in selected records`, render only `council: no data`. If the most recent roster has fewer than 5 runs, render only `council: <roster> - not enough runs to assess (N of 5)`. Otherwise render one line per `flag:` of the most recent roster as the roster-change recommendations; when an older roster exists, add one line comparing the two rosters' `uniq_appl_nonminor/run` and rejected share as groups. Compare rosters as groups, never a member across rosters.
 4. **Menu**, numbered, at most 3 items, rendered exactly as:
-   - `1. render report` - ask for a target path; write markdown there: the digest verbatim, then the recommendation and cornerstones above. If the file exists, ask before overwriting. Write nothing unless this item is chosen.
+   - `1. render report` - ask for a target path; Start the message with `gauntlet: question` for this ask. Write markdown there: the digest verbatim, then the recommendation and cornerstones above. If the file exists, ask before overwriting. Start the message with `gauntlet: question` for this overwrite ask. Write nothing unless this item is chosen.
    - `2. open recommendation as ticket` - hand the claim and its numbers to `/skill:shape-ticket`; never create a ticket directly.
    - `3. drill into <slug>` - re-run the CLI with `--json` and show that run's fields.
 
-Nothing else: no preamble, no restated digest, no file written before item 1 is chosen.
+Nothing else beyond the marker and prescribed body: no preamble, no restated digest, no file written before item 1 is chosen.
 
 ## Project overrides
 

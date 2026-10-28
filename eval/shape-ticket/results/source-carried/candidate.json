@@ -1,25 +1,24 @@
 {
   "sample": "source-carried",
   "arm": "candidate",
-  "skillSha": "6e3c9df14919d7291b6276e8e472768c4e06e82a7d7a44adf77116a2bdab2236",
+  "skillSha": "7e0779a8f8cf06a8d2c119aabc9d373a13adf5d63c1256e3a1066462e92155d9",
   "inputSha": "f2ce3debb47d1487bf4c41edbe51c829baeb986d37b76d4bb018c6d9f0570f3f",
   "kind": "text",
   "assembly": "concat",
   "thinking": "medium",
   "models": {
     "replay": [
-      "anthropic/claude-opus-5-5",
       "github-copilot/gpt-6.1-sol"
     ],
-    "judge": "anthropic-fable/claude-fable-5-1",
+    "judge": "github-copilot/gpt-6.1-sol",
     "thinking": "medium"
   },
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "## Confirmation gate: Show empty import outcomes (create, acme/records)\n\n**Audit:** no findings\n\n**Title** (new): Show empty import outcomes\n\n**Body** (new):\n\n```markdown\n## Context\nSupport reviews import outcomes in the run list.\n\n## Problem\nAn import reports completion without imported rows, leaving support unable to tell whether any records were saved. For example, \"import run 42 finished with zero rows\".\nsource: https://errors.example.test/issues/4242\n\n## Idea\nThe reporter proposes showing the imported row count with the completion result.\n\n## Acceptance Criteria\n- [ ] Given an import with zero accepted rows, when support reads its completion result, the result states that zero rows were imported.\n```\n\nThe `source:` footer carries the URL the reporter supplied. It comes from the Evidence gate's carry rule and sits under the one Problem example. Because there is only one example, the footer has no label.\n\n**Metadata changeset:** none\n\n**Evidence:**\n- Repro: run an import in which no rows are accepted, then open its completion result in the run list.\n- Observed: the run shows as finished (\"import run 42 finished with zero rows\"). Nothing tells support whether any records were saved.\n- Expected: the completion result states that zero rows were imported.\n- Source: https://errors.example.test/issues/4242 (supplied by the reporter).\n\n**Source gaps:** none\n\n**Roast dispositions:** none applied, none surfaced as ambiguous.\n\n**Split proposal:** none\n**Proposed comment / relations:** none\n\nApproval covers this exact title, body and empty metadata/comment/relation payload.\n\nPick one:\n1. Approve and create this ticket [recommended]\n2. Revise (describe the change)\n3. Decline (no ticket is created)\n",
-      "words": 237,
-      "wallMs": 10908,
+      "text": "gauntlet: gate=shape-ticket/step-8 recommended=1\n\n**acme/records - create (1 of 1)**\n\nAudit: no findings.\n\n**Title** (new): Show empty import outcomes\n\n**Body** (new):\n\n```markdown\n## Context\nSupport reviews import outcomes in the run list.\n\n## Problem\nAn import reports completion without imported rows, leaving support unable to tell whether any records were saved. For example, \"import run 42 finished with zero rows\".\n\nsource: https://errors.example.test/issues/4242\n\n## Idea\nThe reporter proposes showing the imported row count with the completion result.\n\n## Acceptance Criteria\n- [ ] Given an import with zero accepted rows, when support reads its completion result, the result states that zero rows were imported.\n```\n\n**Metadata changeset:** none.\n\n**Evidence:**\n- Example: \"import run 42 finished with zero rows\" (reported by support in the ask).\n- Source: https://errors.example.test/issues/4242 (supplied by the reporter). The body carries it as the Problem example's `source:` footer, so it has no source gaps.\n- No UI artifact or measurement is missing. The single behavioral AC names its setup, action and observable result, and it is verifiable before production.\n\n**Roast dispositions:** none applied; none surfaced as ambiguous.\n\n**Split proposal:** none.\n\n**Proposed comment / relations:** none.\n\nOne approval covers the exact title, body, empty metadata changeset, empty comment and empty relation payload shown above.\n\nPick one:\n1. Approve and create this ticket as shown [recommended]\n2. Revise (tell me what to change; I'll recheck and re-present the exact diff)\n3. Decline (no write)\n",
+      "words": 220,
+      "wallMs": 14660,
       "mechanical": {
         "carried": "holds",
         "no-gap": "holds"
@@ -27,9 +26,9 @@
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "Audit: No findings.\n\n**Title:** Show empty import outcomes\n\n**Body — as new:**\n```markdown\n## Context\nSupport reviews import outcomes in the run list.\n\n## Problem\nAn import reports completion without imported rows, leaving support unable to tell whether any records were saved. For example, \"import run 42 finished with zero rows\".\n\nsource: https://errors.example.test/issues/4242\n\n## Idea\nThe reporter proposes showing the imported row count with the completion result.\n\n## Acceptance Criteria\n- [ ] Given an import with zero accepted rows, when support reads its completion result, the result states that zero rows were imported.\n```\n\n**Metadata changeset:** None. Repository: `acme/records`.\n\n**Evidence:**\n- Reporter-provided source: https://errors.example.test/issues/4242\n- Scenario: Support reviews the completion result for an import with zero accepted rows.\n- Observed: The import reports completion without making the saved-row outcome clear.\n- Expected: The completion result explicitly states that zero rows were imported.\n\n**Roast dispositions:** No findings.\n\nNo source gaps, proposed comments, relations, or split.\n\nPick one:\n1. **Approve and create** [recommended]\n2. Request revisions\n3. Drop without creating\n",
-      "words": 156,
-      "wallMs": 8816,
+      "text": "gauntlet: gate=shape-ticket/confirmation-gate recommended=1\n\nAudit: No findings.\n\n**Title (new):** Show empty import outcomes\n\n**Body (new):**\n\n```markdown\n## Context\nSupport reviews import outcomes in the run list.\n\n## Problem\nAn import reports completion without imported rows, leaving support unable to tell whether any records were saved. For example, \"import run 42 finished with zero rows\".\n\nsource: https://errors.example.test/issues/4242\n\n## Idea\nThe reporter proposes showing the imported row count with the completion result.\n\n## Acceptance Criteria\n- [ ] Given an import with zero accepted rows, when support reads its completion result, the result states that zero rows were imported.\n```\n\n**Metadata changeset:** None. Target repository: `acme/records`.\n\n**Evidence**\n- Reporter’s example: “import run 42 finished with zero rows”.\n- Source: https://errors.example.test/issues/4242\n- Repro scenario: Review the completion result of an import with zero accepted rows.\n- Observed: Completion is reported without making clear whether records were saved.\n- Expected: The completion result explicitly states that zero rows were imported.\n\n**Roast dispositions:** No findings.\n\nNo comments, relations, or split proposed. Approval covers the exact title and body above; creation is simulated.\n\nPick one:\n1. Approve simulated creation. **[recommended]**\n2. Revise the proposal.\n3. Drop without creating.\n",
+      "words": 178,
+      "wallMs": 14345,
       "mechanical": {
         "carried": "holds",
         "no-gap": "holds"
@@ -40,9 +39,9 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "5dc7cab6f28c8357024989e93c9988d1968ba8d11976b8f73e14e32a0c2425e3",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "37c01603ac4620d1f1596beac660de51a9a2f55024a55e0349f68590987ec325",
-      "baselineOutputSha": "5fb4314ffb3a12ab270ae5585b2675aecca7cd7f3d57de1e247b7e9b7b07bbda",
-      "candidateOutputSha": "5fb4314ffb3a12ab270ae5585b2675aecca7cd7f3d57de1e247b7e9b7b07bbda",
+      "intentSha": "c0c2580170b0013d4d1bb5f8e916b24fa5b37b9e2723110417dc9c31ffcfb227",
+      "baselineOutputSha": "28f6766b232abc5f9a1374bef1355629558bc136d212313e51e6025888f70364",
+      "candidateOutputSha": "2e9df93a4ab8c905f35216e6282b33cd04dd4164741f410235e2f504fa09e98e",
       "facts": {
         "placement": {
           "before": "holds",
@@ -65,16 +64,16 @@
           "label": "held"
         }
       },
-      "feedback": "Before and After are byte-identical here, so no fact moved: both place the supplied URL as a `source:` footer directly under the single Problem example inside the drafted body (not only in the Evidence list or gate commentary), and both keep the quoted \"import run 42 finished with zero rows\" line in Problem as the concrete example. The After wording delivers the source-carried behavior without disturbing the one-sentence example or the Reporter-attributed Idea; keep the current phrasing that pins the footer under the Problem example and explicitly notes the unlabeled footer for a single example, and avoid any future wording that would relocate the URL solely into the Evidence bullet or a Reporter note.",
-      "wallMs": 6353,
+      "feedback": "Neither fact moved: both outputs carry the reporter-supplied URL as a `source:` footer inside the drafted Problem section, directly beneath the quoted \"import run 42 finished with zero rows\" example, and both keep that log line as the single concrete Problem example rather than relocating it to a Reporter note or gate commentary. The After wording therefore delivers the source-carried behavior without regression on these facts. One thing to watch outside the graded facts: After compressed the Evidence list, dropping Before's explicit Repro / Observed / Expected lines in favor of a single verifiability sentence; the Change asks to keep repro steps and observed-vs-expected in the gate's Evidence list and AC rows, so if that collapse came from a redundancy cut, restore those three lines (they can stay terse) while keeping the new `gauntlet:` header, the parenthetical attribution style, and the single recommended row intact.",
+      "wallMs": 8852,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "5dc7cab6f28c8357024989e93c9988d1968ba8d11976b8f73e14e32a0c2425e3",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "37c01603ac4620d1f1596beac660de51a9a2f55024a55e0349f68590987ec325",
+      "intentSha": "c0c2580170b0013d4d1bb5f8e916b24fa5b37b9e2723110417dc9c31ffcfb227",
       "baselineOutputSha": "078b2fef39d6779dea54b6283ea57bb01283cf3f7b1c995dc235492ba82ca6a3",
-      "candidateOutputSha": "078b2fef39d6779dea54b6283ea57bb01283cf3f7b1c995dc235492ba82ca6a3",
+      "candidateOutputSha": "0532cd38dde65d595b86c7c44642365ce7d91be27f95158446ed16caac417be5",
       "facts": {
         "placement": {
           "before": "holds",
@@ -97,10 +96,10 @@
           "label": "held"
         }
       },
-      "feedback": "Before and After are byte-identical here, so no fact moved: both outputs place the supplied URL as a `source:` footer at the end of the drafted Problem section (not merely in Evidence or gate commentary), and both keep the quoted \"import run 42 finished with zero rows\" line in Problem as the one-sentence example. The After wording preserves everything Before kept on this case while still delivering the source-provenance-in-Problem requirement; no wording adjustment is needed for these two facts.",
-      "wallMs": 5639,
+      "feedback": "Both outputs keep the `source: https://errors.example.test/issues/4242` footer inside the drafted Problem section and retain the quoted \"import run 42 finished with zero rows\" line as the Problem example, so neither fact moved. After adds a leading `gauntlet:` line, duplicates the reporter's example into the Evidence list, and reworded the menu to \"Approve simulated creation\"; none of these touch Problem placement or the example. If anything, keep the Evidence list from restating the Problem example verbatim (rule 5 wants the example bounded in Problem, not echoed), and consider dropping the bare `gauntlet:` header line from user-facing gate output, but no wording change is needed to preserve these two facts.",
+      "wallMs": 4827,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "cf6e53b2e787b134805384690e0737cee2e7087c"
+  "repoSha": "03b700159d3e93209e89a28f2f3a032bd72cfdd9"
 }

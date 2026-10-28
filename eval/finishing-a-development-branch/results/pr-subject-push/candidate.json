@@ -1,94 +1,34 @@
 {
   "sample": "pr-subject-push",
   "arm": "candidate",
-  "skillSha": "d55b464b34dd6d22ad5ee83fe49b63ea2ee1c775a5b25e8bdbe5a56071bc5521",
-  "inputSha": "06e6bb480ce46d7841de4333c7b13e1ef786fa05abc96ae9912bb85431c927f4",
+  "skillSha": "c79d1b35252ca81d46edc7542fceb4f9be4fc3b1b86c2454de5565e5e15455f4",
+  "inputSha": "8c54be7a6048a04b985037f1c78ac959712f250704fbdb742afada4600c631b5",
   "kind": "text",
   "assembly": "concat",
   "thinking": "medium",
   "models": {
     "replay": [
-      "anthropic/claude-opus-5-5",
       "github-copilot/gpt-6.1-sol"
     ],
-    "judge": "anthropic-fable/claude-fable-5-1",
+    "judge": "github-copilot/gpt-6.1-sol",
     "thinking": "medium"
   },
   "outputs": {
-    "anthropic/claude-opus-5-5": {
-      "status": "ok",
-      "text": "**Aliases:** `P`=aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa, `P7`=aaaaaaa, `B`=bbbbbbb (base merge), `C`=ccccccc, `D`=ddddddd.\n\n**Verification and guards.** Rework set = task `Tests:` (test-timeout, test-retry) ∪ header lint, format. Header `none - PR subject, scoped` → test-timeout, test-retry only. Ordinary spec → test-all. Skip run: passed at `C`, tree clean outside telemetry. Closure: CONFORMS. Home only (N=1): no Absorbs, closure question, or member lines.\n\n```\nImplementation complete. What would you like to do?\n\n1. Push to the PR branch (PR #42, fix-timeout; appends the rework block to its description)\n2. Push and create a Pull Request (PR #42 already exists on this branch; gh refuses a second one)\n3. Push and create a draft Pull Request (same: PR #42 already exists)\n4. Squash-merge to main (no PR, no surviving branch; orphans PR #42 - close it by hand)\n5. Keep the branch as-is (I'll handle it later; nothing is pushed)\n6. Discard this work (removes the worktree and local branch; the PR branch on origin is untouched)\n\nWhich option?\n```\n\n**Row 1 sequence**\n\n```bash\ngit -C \"$WORKTREE\" fetch origin\ngit -C \"$WORKTREE\" merge-base --is-ancestor P HEAD\ngit -C \"$WORKTREE\" merge-base --is-ancestor origin/fix-timeout HEAD\ngit -C \"$WORKTREE\" log --first-parent --format=%h --grep '<Tn>' B..HEAD   # capture evidence\ngit -C \"$WORKTREE\" rm <plan> && git -C \"$WORKTREE\" commit -m \"Remove ephemeral plan doc\"\nnode <bin>/gauntlet-telemetry-seal.mjs --worktree \"$WORKTREE\" --option pr --base origin/main --spec doc/specs/rework.md   # nonzero: quote, stop\ngit -C \"$WORKTREE\" update-ref refs/gauntlet/pre-rework/pr-42 P\ngit -C \"$WORKTREE\" push --no-follow-tags origin HEAD:refs/heads/fix-timeout\ngh pr view 42 --repo acme/widget --json body   # fresh\nSCRATCH=$(mktemp)   # outside repo: \"Original description\\n\" + blank line + block\ngh pr edit 42 --repo acme/widget --body-file \"$SCRATCH\"\n```\n\n**Rework block appended to the PR body**\n\n```markdown\n## Rework\n\nBefore: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa (local ref `refs/gauntlet/pre-rework/pr-42` in the rework checkout; the SHA is the portable handle and stays on origin because the push was not forced)\nSpec: doc/specs/rework.md at <HEAD7>\nKeeps: retry behavior\nChanges: repair timeout\nDropped claims: none\nVerification: scoped - test-timeout, test-retry, lint, format; CI on this push holds the full run. Telemetry: whole PR against main.\nThreads:\n- <T1 loc> - fixed in D\n- <T2 loc> - fixed (task \"<title>\" complete; no single commit names T2)\n- <T3 loc> - fixed (task \"<title>\" complete; no single commit names T3)\n- <T4 loc> - still open\n- <T5 loc> - still open\n- <T6 loc> - still open\n- <T7 loc> - declined - incompatible API\n- <T8 loc> - still open\n```\n\nThread notes:\n- T4 stays open because its task is incomplete; the naming commit and file touch are not proof.\n- T5 stays open because it has no task; the path match is not proof.\n- T8 is new, so it is open.\n- T9 is omitted because it was resolved on GitHub.\n- An empty fetch renders `Threads: none`.\n- A failed fetch renders `Threads: not fetched (<reason>)`.\n- If every original claim is dropped, line 2 reads `supersedes the description above`, and each dropped claim gets a `No longer true: <claim>` line.\n\n**Checkpoint deltas**\n\n| Case | Outcome |\n|---|---|\n| 2: origin not ancestor | Omit row 1. Add `Withheld: push - push withheld: origin/fix-timeout is at <O7>, local HEAD at <H7>; a non-force push cannot land`. |\n| 2: P vs origin | `P` ancestor of origin (exit 0): append `(origin moved past the rework's base P7)`. Exit 1: add nothing. Divergence alone proves no advance. |\n| 2: replies | `1` gets a clarifying question naming 2-6. `5` runs Keep. `6` runs Discard with typed `discard`, origin untouched. Rows 2-6 map to Options 1-5. No closure. |\n| 3: history rewritten | Stop: `PR branch history was rewritten: P7 is not an ancestor of HEAD; the rework must be re-merged, not rebased.` |\n| 3: other stops | Missing prehead: stop naming doc/specs/rework.md. CLOSED: `PR #42 is CLOSED; the rework cannot be pushed to it.` Wrong head branch: name both branches. Exit 128: command error, print output, stop. |\n| 4: push rejected | Report once. No body edit, no retry, no force. Return to the menu; preserve the worktree. |\n| 4: body edit fails | Keep the push, print the block for manual paste with the error. Scratch stays outside the repo with exact bytes. No thread replies, merge, or ticket changes. |\n| 5: fix minors | Under the menu: `Or reply \"fix minors\" (or \"fix minors F3, F9\")…` Implementer: cwd=worktree, task = the F3 line verbatim, SCOPED_TEST_COMMANDS = test-timeout, test-retry, lint, format. Sentinel header: test-timeout, test-retry only. |\n| 5: fix results | test-retry fails: stop before the menu returns. All pass: commit `whole-diff minors fix`, re-audit at Step 3.5, record `whole-diff minors fix: <SHA>`, re-render. A repeat reply gets \"minors round already spent\". |\n| Ordinary spec | Dispatch uses header test-all. Present the five-row menu; the open PR on the branch never triggers rework routing. |\n",
-      "words": 732,
-      "wallMs": 30578,
-      "mechanical": {}
-    },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "Verification skipped: lint, format, test-timeout, test-retry passed at clean C; both outside-telemetry checks pass. Header `none - PR subject, scoped` removes only header commands, retaining both task tests. Ignore lowercase provenance. PR identity, closure and guards pass; no amendments.\n\nImplementation complete. What would you like to do?\n\n1. Push to the PR branch (PR #42, fix-timeout; appends the rework block to its description)\n2. Push and create a Pull Request (PR #42 already exists on this branch; gh refuses a second one)\n3. Push and create a draft Pull Request (same: PR #42 already exists)\n4. Squash-merge to main (no PR, no surviving branch; orphans PR #42 - close it by hand)\n5. Keep the branch as-is (I'll handle it later; nothing is pushed)\n6. Discard this work (removes the worktree and local branch; the PR branch on origin is untouched)\n\nWhich option?\n\n**Shared simulated sequence; row 1 selected**\n```sh\nW=/work/widget/.worktrees/fix-timeout\nP=aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\nM=bbbbbbb C=ccccccc D=ddddddd\ngit -C \"$W\" fetch origin\ngit -C \"$W\" merge-base --is-ancestor \"$P\" HEAD\ngit -C \"$W\" merge-base --is-ancestor origin/fix-timeout HEAD\n# Capture accepted-complete task/thread evidence; refetch paginated threads/comments.\ngit -C \"$W\" log --first-parent --format=%h --grep '<thread-id>' \"$M\"..HEAD\n# Strip paired task plan/ledger; preserve spec/telemetry.\nnode <bin>/gauntlet-telemetry-seal.mjs --worktree \"$W\" --option pr --base origin/main --spec doc/specs/rework.md\n# Any nonzero: quote seal error; STOP before push.\ngit -C \"$W\" update-ref refs/gauntlet/pre-rework/pr-42 \"$P\"\ngit -C \"$W\" push --no-follow-tags origin HEAD:refs/heads/fix-timeout\ngh pr view 42 --repo acme/widget --json body\nSCRATCH=$(mktemp)\n# Decode JSON losslessly: write Original description\\n, then one blank line,\n# then the block below. No trimming or command substitution.\ngh pr edit 42 --repo acme/widget --body-file \"$SCRATCH\"\n```\n\n```markdown\n## Rework\n\nBefore: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa (local ref `refs/gauntlet/pre-rework/pr-42` in the rework checkout; the SHA is the portable handle and stays on origin because the push was not forced)\nSpec: doc/specs/rework.md at <HEAD7>\nKeeps: retry behavior\nChanges: repair timeout\nDropped claims: none\nVerification: scoped - lint; format; test-timeout; test-retry; CI on this push holds the full run. Telemetry: whole PR against main.\nThreads:\n```\n\nAppend supplied locations and these resolutions; never invent locations:\n\n- T1: fixed in D.\n- T2/T3: fixed (task \"<title>\" complete; no single commit names <thread id>).\n- T4/T5: still open; incomplete/missing task overrides naming/file/path matches.\n- T6/T8: still open.\n- T7: declined - incompatible API.\n- T9: omitted, now resolved.\n\nIndependent fetch outcomes: `Threads: none`; `Threads: not fetched (<reason>)`. All claims dropped: add `supersedes the description above` as block’s second line; list each `No longer true: <claim>`.\n\n**Independent checkpoint deltas**\n\n| Checkpoint | Difference |\n|---|---|\n| Origin divergence | Omit row 1; retain 2–6. `Withheld: push - origin/fix-timeout is at <originSHA7>, local HEAD at <HEAD7>; a non-force push cannot land`. |\n| Origin comparison | Prove P ancestry against origin separately; only success appends `(origin moved past the rework's base aaaaaaa)`; failure adds nothing. |\n| Withheld replies | `1`: clarify 2–6. `5`: preserve branch/worktree. `6`: list commits/path, require exact `discard`; cleanup ownership contract before branch deletion. Rows 2–6 map Options 1–5. |\n| History | Stop: `PR branch history was rewritten: aaaaaaa is not an ancestor of HEAD; the rework must be re-merged, not rebased.` |\n| Identity/errors | Missing prehead: stop naming doc/specs/rework.md. CLOSED: `PR #42 is CLOSED; the rework cannot be pushed to it.` Wrong branch: name both. Exit 128: command error/output. |\n| Push/body failure | Rejection: report once, return menu; no retry/body edit. Edit failure: retain push, print manual block/error. No closure. |\n| Minors F3 | Implementer repairs timeout; lint/format header supplies all four commands; sentinel supplies both task tests. Require successful evidence for every command; test-retry failure stops. |\n| Minors success/ordinary | Commit `whole-diff minors fix`, re-audit, record SHA, return menu; one round only. Ordinary spec: dispatch test-all only, use five-row menu despite existing PR. |\n\nScratch remains outside repository; preserve bytes/worktree. No thread replies, merges or ticket changes. Successful push/body edit: complete ship; print seal stdout verbatim.\n",
-      "words": 602,
-      "wallMs": 24714,
+      "text": "### Shared verification/guards\n\nOnly `## Rework record` establishes PR scope; ignore lowercase provenance. Confirm #42 OPEN, head fix-timeout, base main. Capture task evidence and `{test-timeout,test-retry,lint,format}`. Clean ccccccc and both clean checks outside telemetry permit skipping. Header `none - PR subject, scoped` removes only lint/format. Ordinary specs use header `test-all`; an existing PR alone does not establish PR scope.\n\n### Menu\n\ngauntlet: gate=finishing-a-development-branch/step-4\nClosure / conformance: CONFORMS\nwhole-diff minors: not recorded\nImplementation complete. What would you like to do?\n\n1. Push to the PR branch (PR #42, fix-timeout; appends the rework block to its description)\n2. Push and create a Pull Request (PR #42 already exists on this branch; gh refuses a second one)\n3. Push and create a draft Pull Request (same: PR #42 already exists)\n4. Squash-merge to main (no PR, no surviving branch; orphans PR #42 - close it by hand)\n5. Keep the branch as-is (I'll handle it later; nothing is pushed)\n6. Discard this work (removes the worktree and local branch; the PR branch on origin is untouched)\n\nWhich option?\n\n### Shared simulated row-1 sequence\n\nAliases: A=`aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa`, B=`bbbbbbb`, C=`ccccccc`, D=`ddddddd`; H/O=current HEAD/origin SHA7; W=`/work/widget/.worktrees/fix-timeout`.\n\n```sh\n# Capture completion evidence; refetch paginated threads; strip plan.\nnode \"$BIN/gauntlet-telemetry-seal.mjs\" --worktree \"$W\" --option pr --base origin/main --spec doc/specs/rework.md\n# Any nonzero: quote seal error, stop; no push.\ngit -C \"$W\" update-ref refs/gauntlet/pre-rework/pr-42 \"$A\"\ngit -C \"$W\" push --no-follow-tags origin HEAD:refs/heads/fix-timeout\ngh pr view 42 --repo acme/widget --json body\nSCRATCH=$(mktemp)\n# Decode body without trimming/substitution; write exact bytes,\n# then blank line and block below.\ngh pr edit 42 --repo acme/widget --body-file \"$SCRATCH\"\n```\n\nScratch stays outside repository. Existing bytes: `Original description\\n`.\n\n```markdown\n## Rework\n\nBefore: A (local ref `refs/gauntlet/pre-rework/pr-42` in the rework checkout; the SHA is the portable handle and stays on origin because the push was not forced)\nSpec: doc/specs/rework.md at H\nKeeps: retry behavior\nChanges: repair timeout\nDropped claims: none\nVerification: scoped - test-timeout; test-retry; lint; format; CI on this push holds the full run. Telemetry: whole PR against main.\nThreads:\n```\n\nExpand aliases; append locations and resolutions:\nT1 `fixed in D`; T2/T3 `fixed (task \"<title>\" complete; no single commit names <thread id>)`; T4–T6/T8 `still open`; T7 `declined - incompatible API`; omit resolved T9. Naming search: first-parent B..HEAD. Touches/path matches prove nothing. Empty fetch: `Threads: none`; failure: `Threads: not fetched (<reason>)`. All claims dropped: second line `supersedes the description above`; list each `No longer true: <claim>`.\n\n### Independent checkpoint deltas\n\n- **Withheld:** omit row 1; retain 2–6. `Withheld: push - push withheld: origin/fix-timeout is at O, local HEAD at H; a non-force push cannot land`. Append `(origin moved past the rework's base aaaaaaa)` only after separate A→origin proof; false adds nothing.\n- Rows 2–6 map to ordinary Options 1–5. Bare `1`: ask for 2–6; `5`: keep branch/worktree, complete ship; `6`: list commits/branch/worktree and require exact `discard`; cleanup ownership rules apply, origin untouched.\n- **History stop:** `PR branch history was rewritten: aaaaaaa is not an ancestor of HEAD; the rework must be re-merged, not rebased.`\n- Missing prehead: stop naming `doc/specs/rework.md`. CLOSED: `PR #42 is CLOSED; the rework cannot be pushed to it.` Wrong head: name both branches. Exit 128: command error/output, never divergence.\n- **Rejected push:** report once; no retry/body edit; return menu. **Body-edit failure:** retain push, print complete manual block and error; no completion. Success: verbatim seal stdout, complete ship, `gauntlet: done pushed`. No thread replies, merges, ticket changes, or member gate.\n- **Minors:** independently dispatch F3 verbatim to implementer in W. Lint/format header supplies all four commands; sentinel supplies both task tests. Require successful post-fix evidence for every command: failing test-retry stops. All pass: commit `whole-diff minors fix`, re-audit, record full fix SHA, return full menu. Ordinary spec dispatches test-all only.\n",
+      "words": 591,
+      "wallMs": 28042,
       "mechanical": {}
     }
   },
   "judge": {
-    "anthropic/claude-opus-5-5": {
-      "factsSha": "86e409f4a235f5e9ab4f6621f69e27cd6ec0dc8bb3015f06ffb3d886162a9645",
-      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "2b07cd5789c3b4c5c74ed93b43c6f993f9ccb0032fbb11015cb3e218c6836332",
-      "baselineOutputSha": "7ad3b3874763e775f3afe1bd71598bcaca89d9c6291486b85f1be88ef4b61fcf",
-      "candidateOutputSha": "9b7a83d54d3354bb7a0da148d5ac4dba75fe20b84de8e8258ca6d4b92d3519fd",
-      "facts": {
-        "menus": {
-          "before": "holds",
-          "after": "holds",
-          "label": "intended but unchanged"
-        },
-        "verification": {
-          "before": "holds",
-          "after": "holds",
-          "label": "intended but unchanged"
-        },
-        "guards": {
-          "before": "holds",
-          "after": "holds",
-          "label": "intended but unchanged"
-        },
-        "divergence": {
-          "before": "holds",
-          "after": "holds",
-          "label": "intended but unchanged"
-        },
-        "landing": {
-          "before": "holds",
-          "after": "holds",
-          "label": "intended but unchanged"
-        },
-        "threads": {
-          "before": "holds",
-          "after": "holds",
-          "label": "intended but unchanged"
-        },
-        "body": {
-          "before": "holds",
-          "after": "holds",
-          "label": "intended but unchanged"
-        },
-        "failures": {
-          "before": "holds",
-          "after": "holds",
-          "label": "intended but unchanged"
-        }
-      },
-      "feedback": "No fact moved: both outputs render the same six-row menu, the same scoped verification set and sentinel handling, the same guard stops, the identical withheld-row treatment with ancestry-proof suffix, the full-prehead ref save plus non-force --no-follow-tags push after strip and seal, pre-strip thread evidence with the T1-T9 dispositions, the fresh post-push body fetch with outside-repo scratch and --body-file, and the push-rejected/body-edit-failed branches. The After wording only shifts form, and several shifts are regressions against the case's own constraints rather than the facts: the checkpoint table has ten rows against the eight-row cap, the shell sequence uses bare `P`/`B` without `$` and an undefined `$WORKTREE` (Before bound `W` and `$P`/`$B` as real variables), and the `Or reply \"fix minors\"` prompt was moved out of the printed menu into a table cell, which weakens the 'exact menu printed once' claim even though a careful reader still finds it. To keep every fact and the format rules, keep Before's shell-variable alias line (`P=... B=... C=... D=... W=...`), restore the fix-minors line under the menu, and merge the three Checkpoint-5/ordinary rows and the two Checkpoint-4 rows to stay within eight rows.",
-      "wallMs": 33023,
-      "verdict": "unchanged"
-    },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "86e409f4a235f5e9ab4f6621f69e27cd6ec0dc8bb3015f06ffb3d886162a9645",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "2b07cd5789c3b4c5c74ed93b43c6f993f9ccb0032fbb11015cb3e218c6836332",
-      "baselineOutputSha": "a911a06b03f16ada747dedf92491c4730396bb6af25af77ff5172579a293c36b",
-      "candidateOutputSha": "454c75c51588ac6904853d2bfa1c132d53e9295431d79e5593ca7f74ae54f448",
+      "intentSha": "30343bc5c6f678faa9431a82e537b28e529d686c25202329a16e741a2b64b92c",
+      "baselineOutputSha": "1fd5ea012db4e6989ad4a75152578e35d122df6839ba1b014a511508d7f9f3a8",
+      "candidateOutputSha": "7f992c9496a69214de333cdd8fcb84fd292c17bf99c584dccdd8defc8d3b93fd",
       "facts": {
         "menus": {
           "before": "holds",
@@ -117,8 +57,8 @@
         },
         "threads": {
           "before": "holds",
-          "after": "holds",
-          "label": "intended but unchanged"
+          "after": "fails",
+          "label": "regression"
         },
         "body": {
           "before": "holds",
@@ -131,10 +71,61 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "Neither output moved any fact: both render the exact six-row PR-subject menu with consequences and the ordinary five-row fallback, derive the scoped union (lint, format, test-timeout, test-retry) with the sentinel removing only header commands, run the same strip → seal --option pr --base origin/main → update-ref → non-force push → fresh body fetch → outside-repo scratch → gh pr edit --body-file sequence, print the full prehead and local ref in the block, give identical T1–T9 dispositions and both fetch outcomes, and cover every guard, divergence, reply and push/body failure case. After is marginally cleaner (explicit `SCRATCH=$(mktemp)`, `report once` for the rejected push, 'prove P ancestry against origin separately'), but it references alias `C` in the first paragraph before the shell block defines it and drops the explicit 'Closure / conformance: CONFORMS' observation line that Before showed ahead of the menu; keep those two details (define aliases before first use, print the conformance/minors observation lines before the generated options) to stay aligned with the menu-layout contract while retaining the explicit once-only rejection report and the separate-proof wording that After added.",
-      "wallMs": 29583,
-      "verdict": "unchanged"
+      "feedback": "After preserves the other listed facts and adds the gate marker, but weakens the thread-evidence rule: “Capture completion evidence” and “Naming search” no longer explicitly require accepted-complete tasks or counting naming commits before stripping. Restore a compact statement such as “Before stripping, capture accepted-complete task evidence and count first-parent naming commits over B..HEAD; only an accepted-complete task with exactly one naming commit earns fixed in.” Keep the existing dispositions and gate-first presentation; this restores the lost fact without undoing the Change.",
+      "wallMs": 27497,
+      "verdict": "inconclusive",
+      "confirmation": {
+        "status": "ok",
+        "text": "Verification: `{lint,format,test-timeout,test-retry}` passed at clean `ccccccc`; clean diff/status outside telemetry permits skipping. Header `none - PR subject, scoped` removes only header commands. Ordinary spec uses `test-all`; an open PR alone never establishes PR-subject status. Conformance: CONFORMS; minors: not recorded; amendments: none.\n\ngauntlet: gate=finishing-a-development-branch/step-4\nImplementation complete. What would you like to do?\n\n1. Push to the PR branch (PR #42, fix-timeout; appends the rework block to its description)\n2. Push and create a Pull Request (PR #42 already exists on this branch; gh refuses a second one)\n3. Push and create a draft Pull Request (same: PR #42 already exists)\n4. Squash-merge to main (no PR, no surviving branch; orphans PR #42 - close it by hand)\n5. Keep the branch as-is (I'll handle it later; nothing is pushed)\n6. Discard this work (removes the worktree and local branch; the PR branch on origin is untouched)\n\nWhich option?\n\n### Shared simulated row-1 sequence\n\nAliases: `W=/work/widget/.worktrees/fix-timeout`, `A=aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa`, `B=bbbbbbb`, `C=ccccccc`, `D=ddddddd`, `O=<origin-sha7>`, `H=<HEAD7>`.\n\n```sh\n# Capture accepted-complete task/thread evidence; refetch paginated threads.\ngit -C \"$W\" log --first-parent --format=%h --grep '<thread-id>' \"$B\"..HEAD\n# Strip paired task-plan/ledger, preserving spec/telemetry.\nnode <bin>/gauntlet-telemetry-seal.mjs --worktree \"$W\" --option pr --base origin/main --spec doc/specs/rework.md\n# Any nonzero: quote seal error; STOP before push.\ngit -C \"$W\" update-ref refs/gauntlet/pre-rework/pr-42 \"$A\"\ngit -C \"$W\" push --no-follow-tags origin HEAD:refs/heads/fix-timeout\ngh pr view 42 --repo acme/widget --json body\nSCRATCH=$(mktemp)\n# Decode JSON without trimming/substitution; write original bytes, then blank line and block.\ngh pr edit 42 --repo acme/widget --body-file \"$SCRATCH\"\n```\n\nScratch begins exactly `Original description\\n\\n## Rework\\n`. Block:\n\n```markdown\nBefore: A (local ref `refs/gauntlet/pre-rework/pr-42` in the rework checkout; the SHA is the portable handle and stays on origin because the push was not forced)\nSpec: doc/specs/rework.md at H\nKeeps: retry behavior\nChanges: repair timeout\nDropped claims: none\nVerification: scoped - lint; format; test-timeout; test-retry; CI on this push holds the full run. Telemetry: whole PR against main.\nThreads:\n```\n\nExpand aliases. Unlabeled location rows use refreshed path/line:\n\n- T1: `fixed in D`.\n- T2/T3: `fixed (task \"<title>\" complete; no single commit names <thread id>)`.\n- T4/T5/T6/T8: `still open`.\n- T7: `declined - incompatible API`.\n- T9: omitted, resolved.\n\nEmpty fetch: `Threads: none`; failed fetch: `Threads: not fetched (<reason>)`. Lowercase provenance is ignored. All claims dropped: second block line `supersedes the description above`; enumerate `No longer true: <claim>`.\n\n### Independent deltas\n\n| Checkpoint | Difference |\n|---|---|\n| Origin divergence | Omit row 1; retain 2–6. `Withheld: push - origin/fix-timeout is at O, local HEAD at H; a non-force push cannot land`. |\n| Origin ancestry comparison | Append `(origin moved past the rework's base A7)` only after separate positive proof; divergence alone proves nothing. |\n| Withheld replies | `1`: clarify 2–6. `5`: Keep. `6`: typed `discard` confirmation, then ownership-governed cleanup. Rows 2–6 map to Options 1–5. |\n| Broken prehead ancestry | Stop: `PR branch history was rewritten: A7 is not an ancestor of HEAD; the rework must be re-merged, not rebased.` |\n| Invalid inputs/proofs | Missing prehead: name spec. CLOSED: `PR #42 is CLOSED; the rework cannot be pushed to it.` Wrong head: name both. Exit128: command error/output. |\n| Rejected push | `gauntlet: stuck push-rejected`; no retry/body edit; preserve worktree; return menu. |\n| Body failure/success | Failure: retain push, print manual block/error. Success: `gauntlet: done pushed`, verbatim seal stdout, complete ship. No member-closure question. |\n| Minors F3 | Fresh implementer; verbatim F3; commands lint/format/test-timeout/test-retry, or sentinel-header task tests only. Require every successful result; retry failure stops. |\n\nPassing minors: commit `whole-diff minors fix`, re-audit, record spent SHA, rerender full menu. Ordinary dispatch remains `test-all`. No code review, thread replies, merges, or ticket changes; scratch remains outside repository.\n",
+        "words": 563,
+        "wallMs": 29662,
+        "mechanical": {},
+        "judgeWallMs": 22191,
+        "facts": {
+          "menus": {
+            "before": "fails",
+            "after": "fails",
+            "label": "intended but unchanged"
+          },
+          "verification": {
+            "before": "holds",
+            "after": "holds",
+            "label": "intended but unchanged"
+          },
+          "guards": {
+            "before": "holds",
+            "after": "fails",
+            "label": "regression"
+          },
+          "divergence": {
+            "before": "holds",
+            "after": "holds",
+            "label": "intended but unchanged"
+          },
+          "landing": {
+            "before": "holds",
+            "after": "holds",
+            "label": "intended but unchanged"
+          },
+          "threads": {
+            "before": "holds",
+            "after": "holds",
+            "label": "intended but unchanged"
+          },
+          "body": {
+            "before": "holds",
+            "after": "holds",
+            "label": "intended but unchanged"
+          },
+          "failures": {
+            "before": "holds",
+            "after": "holds",
+            "label": "intended but unchanged"
+          }
+        },
+        "feedback": "After weakens the guards by replacing Before’s explicit “Other stops” heading with “Invalid inputs/proofs”: naming the spec or branches and printing command output no longer clearly requires stopping. State that missing prehead, CLOSED PR, wrong head branch, and unexpected ancestry exits all stop as errors, without fallback or divergence. Both outputs render the six-row PR menu but leave the ordinary-spec five-option requirement unstated; add it explicitly. To deliver the Change consistently, put the owned gate marker before the verification summary, render the discard confirmation as a `gauntlet:` question, and place exactly one done/stuck line before each final outcome’s details, including body-edit failure. Preserve the existing verification, landing, thread, body-byte, and failure-handling wording."
+      }
     }
   },
-  "repoSha": "43b5ec3f2933c5a716c49916e9b1b7c002bb3da2"
+  "repoSha": "2eb4429b4dd687432969f427f82d45d7840d7c63"
 }

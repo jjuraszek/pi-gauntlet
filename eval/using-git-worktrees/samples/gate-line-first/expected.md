@@ -1,0 +1,2 @@
+- first-line: mechanical: matches /^gauntlet: question(?:\r?\n|$)/
+- choice: judged: Ask whether to branch from the current commit def5678 or main, awaiting the user's choice before creating a worktree.

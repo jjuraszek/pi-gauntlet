@@ -1,7 +1,7 @@
 {
   "sample": "home-only-sibling",
   "arm": "candidate",
-  "skillSha": "3cc812f0124fbdba4f27ebda5b3abb751587265339fe1424c16a1465c05c43bb",
+  "skillSha": "13b5e2f8a828bf2506aaa371cd8f72c98c455445b15a7c84714091e116b4eb4c",
   "inputSha": "73bf91e67514f999cc88cfc013d825e40fc358e75b36662faeffc756857ba8ad",
   "kind": "text",
   "assembly": "concat",
@@ -17,16 +17,16 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "I'm using the using-git-worktrees skill to set up an isolated workspace.\n\n## Step 0: Detect existing isolation (cwd `/work/acme-api`)\n\n1. `git rev-parse --path-format=absolute --git-dir --git-common-dir`\n   - `GIT_DIR=/work/acme-api/.git`\n   - `GIT_COMMON=/work/acme-api/.git`\n2. `git rev-parse --path-format=absolute --git-common-dir`\n   - `ROOT=$(dirname /work/acme-api/.git)` = `/work/acme-api`\n3. `git branch --show-current`\n   - `CURRENT_BRANCH=main`\n4. `git rev-parse --show-superproject-working-tree`\n   - Empty output, so this is not a submodule.\n\n`GIT_DIR == GIT_COMMON`, so this is the primary checkout. Proceed.\n\n**Detached HEAD check:** `git symbolic-ref -q HEAD` prints `refs/heads/main`. HEAD is attached, so there is no need to ask.\n\n## Step 1: Announce\n\nThis is real feature work, and no consent exception applies:\n\n> \"Setting up an isolated worktree at `/work/acme-api-worktrees/rate-limit` on branch `rate-limit` for this work.\"\n\n## Step 1a: Read the `## using-git-worktrees` contract\n\n- **Overrides file:** `.pi/gauntlet-overrides.md` exists. It is first on the search ladder, so it wins.\n  - I read `/work/acme-api/.pi/gauntlet-overrides.md`.\n  - It has no `## conventions` section to apply.\n- **Section keys:** The section carries only `- home: ../acme-api-worktrees/<name>`. There are no `create:` or `destroy:` keys.\n- **Keyed contract is active.** It has one key and no duplicates.\n- **`home:` validation passes.** `<name>` appears exactly once, as its own path segment.\n\nNative-tool and wrapper discovery (Step 1b) is skipped because the keyed contract is active.\n\n**1. Clean-base check (Step 3, fresh path, before creation)**\n- `git -C /work/acme-api status --porcelain` exits 0 with empty output.\n- The base is clean.\n\n**Provenance check (fresh path)**\n- `git -C /work/acme-api symbolic-ref --short refs/remotes/origin/HEAD` prints `origin/main`.\n- Stripping the prefix gives default = `main`.\n- The source branch is `main` (from step 0). They match, so there is no provenance note.\n\n**2. Resolve values**\n- `BRANCH=rate-limit`\n- `NAME=rate-limit` (there is no `/` to replace)\n- `HOME` = `/work/acme-api` + `../acme-api-worktrees/rate-limit` = `/work/acme-api-worktrees/rate-limit`\n\n**3. Create**\n- `create:` is absent, so I use the built-in command.\n- `HOME` is not inside `ROOT` (`/work/acme-api`), so there is no gitignore step.\n- I ran (cwd unchanged):\n  - `git -C \"/work/acme-api\" worktree add \"/work/acme-api-worktrees/rate-limit\" -b \"rate-limit\"`\n- It succeeded.\n\n**4. Post-create check**\n- `git -C /work/acme-api worktree list --porcelain` prints a line `worktree /work/acme-api-worktrees/rate-limit`.\n- The check passes.\n\n**5. Set the worktree path**\n- `WORKTREE=/work/acme-api-worktrees/rate-limit`\n- I go straight to Step 4. The Step 2 fallback, including 2c project setup, is not run, and no tests are run.\n\n## Step 4: Report\n\n```\nWorktree ready at /work/acme-api-worktrees/rate-limit\nBranch: rate-limit\nBase: main (clean)\nReady to implement rate-limit\n```\n\nThe process cwd stays `/work/acme-api`. Later skills receive `/work/acme-api-worktrees/rate-limit` as a value (`cwd:`, `git -C`, or `(cd … && …)`).\n",
-      "words": 373,
-      "wallMs": 18080,
+      "text": "I'm using the using-git-worktrees skill to set up an isolated workspace.\n\nThe process cwd stays `/work/acme-api` for every command below.\n\n**Step 0: Detect existing isolation**\n\n1. `git rev-parse --path-format=absolute --git-dir --git-common-dir`\n   - Both values are `/work/acme-api/.git`, so GIT_DIR == GIT_COMMON.\n2. `git rev-parse --path-format=absolute --git-common-dir`\n   - This gives `ROOT=/work/acme-api`.\n3. `git branch --show-current`\n   - This gives `CURRENT_BRANCH=main`.\n4. `git rev-parse --show-superproject-working-tree`\n   - The output is empty, so this is not a submodule.\n\nThis is the primary checkout, so I continue to Step 1.\n\n**Step 1: Announce**\n\n\"Setting up an isolated worktree at `/work/acme-api-worktrees/rate-limit` on branch `rate-limit` for this work.\"\n\n**Step 1a: Read the `## using-git-worktrees` contract**\n\nI read `.pi/gauntlet-overrides.md`, the first file on the overrides ladder.\n\n- `home: ../acme-api-worktrees/<name>` is present. It contains `<name>` once, inside one path segment, so it is valid.\n- `create:` and `destroy:` are absent.\n- Because one key is present, the keyed contract is active. I skip native tool and wrapper discovery.\n\n1. Clean-base check: `git -C /work/acme-api status --porcelain`\n   - It exits 0 with empty output, so the base is clean.\n2. Resolve the names:\n   - `BRANCH=rate-limit`\n   - `NAME=rate-limit` (the branch name has no `/` to replace)\n   - `HOME=/work/acme-api/../acme-api-worktrees/rate-limit`, which is `/work/acme-api-worktrees/rate-limit`\n3. Create the worktree. With `create:` absent, the built-in command applies.\n   - `HOME` is outside `$ROOT`, so no gitignore step is needed.\n   - `git -C /work/acme-api worktree add /work/acme-api-worktrees/rate-limit -b rate-limit`\n4. Post-create check: `git -C /work/acme-api worktree list --porcelain`\n   - The output includes `worktree /work/acme-api-worktrees/rate-limit`, so the check passes.\n5. I set `WORKTREE=/work/acme-api-worktrees/rate-limit` and go to Step 4.\n\n**Provenance check (fresh creation)**\n\n1. `git symbolic-ref --short refs/remotes/origin/HEAD`\n   - The output is `origin/main`, so the default branch is `main`.\n2. The source branch is also `main`. They match, so no note is added.\n\n**Step 4: Report**\n\n```\nWorktree ready at /work/acme-api-worktrees/rate-limit\nBranch: rate-limit\nBase: main (clean)\nReady to implement rate-limit\n```\n",
+      "words": 289,
+      "wallMs": 17039,
       "mechanical": {}
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "I'm using the using-git-worktrees skill to set up an isolated workspace.\n\nAll commands below run with cwd `/work/acme-api`; the process cwd never changes.\n\n### 1. Detect existing isolation\n\nRun:\n```bash\ngit rev-parse --path-format=absolute --git-dir --git-common-dir\n```\n\nResolved values:\n```text\nGIT_DIR=/work/acme-api/.git\nGIT_COMMON=/work/acme-api/.git\nROOT=/work/acme-api\n```\n\nRun:\n```bash\ngit branch --show-current\n```\n\nOutput:\n```text\nmain\n```\n\nResolved value: `CURRENT_BRANCH=main`. HEAD is attached.\n\nRun:\n```bash\ngit rev-parse --show-superproject-working-tree\n```\n\nOutput is empty. This is not a submodule. Because `GIT_DIR == GIT_COMMON`, this is the primary checkout; proceed with creation.\n\n### 2. Read the project contract\n\nRun:\n```bash\ncat .pi/gauntlet-overrides.md\n```\n\nContents:\n```markdown\n## using-git-worktrees\n- home: ../acme-api-worktrees/<name>\n```\n\nThis first overrides file activates the keyed contract. Resolve:\n\n```text\nBRANCH=rate-limit\nNAME=rate-limit\nhome pattern=../acme-api-worktrees/<name>\nHOME=/work/acme-api-worktrees/rate-limit\ncreate=absent; use the built-in git worktree add command\ndestroy=absent; default removal applies to a matching home path\n```\n\nThe home pattern contains `<name>` exactly once, within one path segment, so it is valid. `HOME` is outside the primary checkout; no gitignore change is needed. The keyed contract bypasses native-tool and wrapper discovery.\n\nSetting up an isolated worktree at `/work/acme-api-worktrees/rate-limit` on branch `rate-limit` for this work.\n\n### 3. Verify the source and create the worktree\n\nRun:\n```bash\ngit -C /work/acme-api status --porcelain\n```\n\nIt exits successfully with empty output. The source checkout is clean. Resolve the creation base as `main`.\n\nRun:\n```bash\ngit symbolic-ref --short refs/remotes/origin/HEAD\n```\n\nOutput:\n```text\norigin/main\n```\n\nResolve the default branch as `main`. It matches the source branch, so no provenance note is required.\n\nRun:\n```bash\ngit -C /work/acme-api worktree add /work/acme-api-worktrees/rate-limit -b rate-limit\n```\n\nIt succeeds with empty output.\n\nRun the mandatory post-create check:\n```bash\ngit -C /work/acme-api worktree list --porcelain\n```\n\nIts output includes the exact line:\n```text\nworktree /work/acme-api-worktrees/rate-limit\n```\n\nThe check passes. Resolve:\n```text\nWORKTREE=/work/acme-api-worktrees/rate-limit\n```\n\nThe keyed-contract path proceeds directly to Step 4. No project setup commands or tests are run.\n\n### 4. Report\n\n```text\nWorktree ready at /work/acme-api-worktrees/rate-limit\nBranch: rate-limit\nBase: main (clean)\nReady to implement rate-limit\n```\n",
-      "words": 303,
-      "wallMs": 19681,
+      "text": "I'm using the using-git-worktrees skill to set up an isolated workspace.\n\nAll commands below run with cwd **`/work/acme-api`**. The process cwd never changes.\n\n1. Detect the checkout and current branch:\n   ```bash\n   read -r GIT_DIR GIT_COMMON <<<\"$(git rev-parse --path-format=absolute --git-dir --git-common-dir | tr '\\n' ' ')\"\n   ROOT=$(dirname \"$(git rev-parse --path-format=absolute --git-common-dir)\")\n   CURRENT_BRANCH=$(git branch --show-current)\n   git rev-parse --show-superproject-working-tree 2>/dev/null\n   ```\n   Resolved state:\n   - `GIT_DIR == GIT_COMMON`: primary checkout.\n   - `ROOT=/work/acme-api`.\n   - `CURRENT_BRANCH=main`.\n   - No superproject path: not a submodule.\n   - HEAD is attached, as stipulated; no detached-HEAD question is needed.\n\n2. Check the first overrides-file location and read it:\n   ```bash\n   test -f .pi/gauntlet-overrides.md\n   cat .pi/gauntlet-overrides.md\n   ```\n   The file exists. Its `home:` key activates the keyed contract:\n   - `home: ../acme-api-worktrees/<name>`\n   - No `create:` key: use the built-in worktree creation command.\n   - No `destroy:` key: the matching-home default removal rule applies.\n   \n   No native-tool or wrapper discovery is performed: the keyed contract determines creation.\n\n3. Resolve the requested branch and destination without additional commands:\n   - `BRANCH=rate-limit`.\n   - `NAME=rate-limit` (replace every `/` in the branch name with `-`; there are none).\n   - Substitute into `home:`: `../acme-api-worktrees/rate-limit`.\n   - Resolve relative to `ROOT`: `HOME=/work/acme-api-worktrees/rate-limit`.\n   - Creation base: `main`.\n   - `HOME` is outside `ROOT`, so no gitignore check, edit, or commit is needed.\n\n   Setting up an isolated worktree at `/work/acme-api-worktrees/rate-limit` on branch `rate-limit` for this work.\n\n4. Verify the source checkout is clean:\n   ```bash\n   git -C \"/work/acme-api\" status --porcelain\n   ```\n   It succeeds with empty output. The base is clean.\n\n5. Resolve default-branch provenance:\n   ```bash\n   git symbolic-ref --short refs/remotes/origin/HEAD\n   ```\n   Output: `origin/main`. Removing the leading `origin/` gives `main`, matching the source branch. No provenance warning is needed.\n\n6. Create the worktree using the keyed contract’s built-in command:\n   ```bash\n   git -C \"/work/acme-api\" worktree add \"/work/acme-api-worktrees/rate-limit\" -b \"rate-limit\"\n   ```\n   It succeeds.\n\n7. Perform the required post-creation verification:\n   ```bash\n   git -C \"/work/acme-api\" worktree list --porcelain\n   ```\n   The output includes:\n   ```text\n   worktree /work/acme-api-worktrees/rate-limit\n   ```\n   This matches `HOME`. Resolve `WORKTREE=/work/acme-api-worktrees/rate-limit`.\n\n   The keyed-contract path proceeds directly to Step 4; no project setup commands or tests are run.\n\n**Step 4 report:**\n```text\nWorktree ready at /work/acme-api-worktrees/rate-limit\nBranch: rate-limit\nBase: main (clean)\nReady to implement rate-limit\n```\n",
+      "words": 321,
+      "wallMs": 19838,
       "mechanical": {}
     }
   },
@@ -34,9 +34,9 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "056f784fb50da320b0a2bdcc8525f11e59c28b518991d887cdd772f64d5ccb78",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "94074f513938f6d5b90a8c47ce92cbd629c74e1f228b6c58d2567427c2164ad7",
-      "baselineOutputSha": "258ba0d336646f63e87b5377ec9bdba47399fa6573053811a528786e82ad5178",
-      "candidateOutputSha": "258ba0d336646f63e87b5377ec9bdba47399fa6573053811a528786e82ad5178",
+      "intentSha": "79a43344d6de00c833afe81581fa2db76ed698aba803c56f1667b8d5ffacb3da",
+      "baselineOutputSha": "4a5609f5c609b246b6029fd9b0a4bbb35039198a4a6033f744c9160e9e75b347",
+      "candidateOutputSha": "2fa9223e3d789429ad33accd02269c42b9e6e9d878823b0abe34cd3dc065dc44",
       "facts": {
         "h1": {
           "before": "holds",
@@ -54,16 +54,16 @@
           "label": "held"
         }
       },
-      "feedback": "Before and After are textually identical for this non-PR provisioning case, so nothing moved: both run `git -C /work/acme-api worktree add /work/acme-api-worktrees/rate-limit -b rate-limit` with no wrapper (h1), both skip the gitignore step because the home is outside ROOT and commit nothing (h2), and both report `Worktree ready at /work/acme-api-worktrees/rate-limit` (h3). This is the desired outcome for the Change, which promised to preserve non-PR provisioning while adding the pr-head routing hook; the Step 0 hook correctly has no visible effect here since no PR value was resolved. No wording adjustment is needed for this case — keep the keyed-contract path (overrides-first search, `home:` validation, built-in create, post-create `worktree list --porcelain` check, and the fixed report block) exactly as it is.",
-      "wallMs": 7522,
+      "feedback": "Both outputs run `git -C /work/acme-api worktree add /work/acme-api-worktrees/rate-limit -b rate-limit` with no wrapper, explicitly skip the gitignore step because HOME is outside ROOT, commit nothing, and end with `Worktree ready at /work/acme-api-worktrees/rate-limit`, so no fact moved for this non-PR provisioning case. The After wording is slightly leaner (it drops the explicit `dirname` mention when deriving ROOT and the 'It succeeds.' sentence after the add command); neither affects the facts here, but if later cases check that the narration states the add succeeded before the post-create check, consider keeping a brief success acknowledgement alongside the `worktree list --porcelain` confirmation. Otherwise the restructuring to bold step headers and numbered sub-steps preserves every fact Before kept.",
+      "wallMs": 6021,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "056f784fb50da320b0a2bdcc8525f11e59c28b518991d887cdd772f64d5ccb78",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "94074f513938f6d5b90a8c47ce92cbd629c74e1f228b6c58d2567427c2164ad7",
+      "intentSha": "79a43344d6de00c833afe81581fa2db76ed698aba803c56f1667b8d5ffacb3da",
       "baselineOutputSha": "cf7cbe35085d863d42b3826754019755f0c7e81b038319e20bfebf27afc12bdf",
-      "candidateOutputSha": "cf7cbe35085d863d42b3826754019755f0c7e81b038319e20bfebf27afc12bdf",
+      "candidateOutputSha": "09140f4cdaf69993b8426482b04acfe8516fd0b3af5a5cfec56d7f9dfd98aee2",
       "facts": {
         "h1": {
           "before": "holds",
@@ -81,10 +81,107 @@
           "label": "held"
         }
       },
-      "feedback": "The Before and After narrations are textually identical for this non-PR provisioning case, so no fact moved: both run `git -C /work/acme-api worktree add /work/acme-api-worktrees/rate-limit -b rate-limit` with no wrapper, both note the home is outside the primary checkout and touch no .gitignore and commit nothing, and both report `Worktree ready at /work/acme-api-worktrees/rate-limit`. This is the desired outcome for the Change, which promises non-PR provisioning is preserved while the pr-head routing, member-merge ordering, conflict repair/abort and interrupted-recovery behaviour are added; the PR-specific wording (Step 0 pr-head hook, merge-forward, --no-ff subjects, scoped conflict repair) does not surface here because no PR value is resolved, which is exactly the right scoping. Keep the keyed-contract path as-is: route PR inputs through reference/pr-head.md only when a PR value is actually resolved, so a plain branch request like rate-limit continues to bypass that hook and produce this same narration.",
-      "wallMs": 8054,
+      "feedback": "After moves none of the three facts: it still runs `git -C /work/acme-api worktree add /work/acme-api-worktrees/rate-limit -b rate-limit` with no wrapper, performs no .gitignore check/edit/commit because HOME is outside ROOT, verifies via `worktree list --porcelain`, and reports the exact `Worktree ready at /work/acme-api-worktrees/rate-limit` line. The Change's scope (PR-head routing, member-merge ordering, conflict repair, gate-line-first marker) does not touch this non-PR keyed-contract path, and After confirms it is preserved. One small wording wrinkle worth tightening: After renumbers its narration as steps 1–7 but still says 'proceeds directly to Step 4' and labels the report 'Step 4 report', mixing skill-step names with narration numbering; keep the skill's step labels (e.g. 'the skill's Report step') distinct from the narration's own list numbering so a reader does not look for a Step 4 that appears twice with different meanings. Otherwise After keeps everything Before kept.",
+      "wallMs": 9380,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "deb4f43410cbd616e18f8610ab6b81e822653d4c"
+  "refresh": {
+    "status": "complete",
+    "identity": {
+      "sample": "home-only-sibling",
+      "kind": "text",
+      "assembly": "concat",
+      "baselineSkillSha": "3cc812f0124fbdba4f27ebda5b3abb751587265339fe1424c16a1465c05c43bb",
+      "candidateSkillSha": "ecf2733acd03e2e7e210a02233820ee4a6e347c937745e08f57bf875ed848067",
+      "inputSha": "73bf91e67514f999cc88cfc013d825e40fc358e75b36662faeffc756857ba8ad",
+      "factsSha": "056f784fb50da320b0a2bdcc8525f11e59c28b518991d887cdd772f64d5ccb78",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "da26298e568d10fc59a4bb4ca1f33953732f1df3813ff7a16651d1de74202509",
+      "models": {
+        "replay": [
+          "github-copilot/gpt-6.1-sol"
+        ],
+        "judge": "github-copilot/gpt-6.1-sol"
+      },
+      "thinking": "medium",
+      "outputs": {
+        "baseline": {
+          "github-copilot/gpt-6.1-sol": {
+            "baselineOutputSha": "cf7cbe35085d863d42b3826754019755f0c7e81b038319e20bfebf27afc12bdf",
+            "payloadSha": "2a131d390941fe84c95980ab395e129e52b42b494bca37b1d4333f934b1e3d60"
+          }
+        },
+        "candidate": {
+          "github-copilot/gpt-6.1-sol": {
+            "candidateOutputSha": "69cc21fb235555d4a94e9e90c857c822ea261bbb64a864adecfeb1d6c258da33",
+            "payloadSha": "99b3b96367635732b297afd963532d89b608200c827d56e45aec4e82c7d65cbc"
+          }
+        }
+      }
+    },
+    "previous": {
+      "github-copilot/gpt-6.1-sol": {
+        "factsSha": "056f784fb50da320b0a2bdcc8525f11e59c28b518991d887cdd772f64d5ccb78",
+        "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+        "intentSha": "da26298e568d10fc59a4bb4ca1f33953732f1df3813ff7a16651d1de74202509",
+        "baselineOutputSha": "cf7cbe35085d863d42b3826754019755f0c7e81b038319e20bfebf27afc12bdf",
+        "candidateOutputSha": "69cc21fb235555d4a94e9e90c857c822ea261bbb64a864adecfeb1d6c258da33",
+        "facts": {
+          "h1": {
+            "before": "holds",
+            "after": "holds",
+            "label": "held"
+          },
+          "h2": {
+            "before": "holds",
+            "after": "holds",
+            "label": "held"
+          },
+          "h3": {
+            "before": "holds",
+            "after": "holds",
+            "label": "held"
+          }
+        },
+        "feedback": "No fact moved: After still runs the built-in `git -C /work/acme-api worktree add /work/acme-api-worktrees/rate-limit -b rate-limit` with no wrapper, still states the home is outside the primary checkout so no .gitignore edit or commit occurs, and still prints the exact `Worktree ready at /work/acme-api-worktrees/rate-limit` line. Two wording issues worth fixing so the After output stays internally consistent: it says \"proceeds directly to Step 4\" even though After renumbers the narration into eight steps and Step 4 is now the overrides read, so the skill's step-reference language should refer to the report step by name (e.g. \"proceeds directly to the report\") rather than a fixed number; and After resolves the default branch for the provenance note only after creation, whereas Before resolved it before `worktree add` — if the Change intends preflight-before-write ordering elsewhere, keep the default-branch and clean-source checks together ahead of creation to avoid a reader thinking provenance is decided post hoc.",
+        "wallMs": 10721,
+        "verdict": "unchanged",
+        "judgeModel": null,
+        "thinking": null
+      }
+    },
+    "refreshed": {
+      "github-copilot/gpt-6.1-sol": {
+        "factsSha": "056f784fb50da320b0a2bdcc8525f11e59c28b518991d887cdd772f64d5ccb78",
+        "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+        "intentSha": "da26298e568d10fc59a4bb4ca1f33953732f1df3813ff7a16651d1de74202509",
+        "baselineOutputSha": "cf7cbe35085d863d42b3826754019755f0c7e81b038319e20bfebf27afc12bdf",
+        "candidateOutputSha": "69cc21fb235555d4a94e9e90c857c822ea261bbb64a864adecfeb1d6c258da33",
+        "facts": {
+          "h1": {
+            "before": "holds",
+            "after": "holds",
+            "label": "held"
+          },
+          "h2": {
+            "before": "holds",
+            "after": "holds",
+            "label": "held"
+          },
+          "h3": {
+            "before": "holds",
+            "after": "holds",
+            "label": "held"
+          }
+        },
+        "feedback": "After preserves all three facts: it uses the built-in worktree command with the requested path and new branch, makes no .gitignore edits or commits because the home is external, and reports the exact readiness line. No listed fact moved. Keep this non-PR provisioning wording intact while applying the PR-routing, merge-history, recovery, and waiting-question changes only to their relevant paths; this replay contains no waiting question whose first line needs classification.",
+        "wallMs": 4374,
+        "verdict": "unchanged",
+        "judgeModel": "github-copilot/gpt-6.1-sol",
+        "thinking": "medium"
+      }
+    }
+  },
+  "repoSha": "b7c3d572aca72072a07f83e0793b9421cd327c78"
 }

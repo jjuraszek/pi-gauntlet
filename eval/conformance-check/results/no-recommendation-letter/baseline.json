@@ -1,7 +1,7 @@
 {
   "sample": "no-recommendation-letter",
   "arm": "baseline",
-  "skillSha": "db07dda8f60340eab65702d6c6bbdf8970474db449817709cea5b85b26ae1452",
+  "skillSha": "2973ddee05a134ccbcb0b84522fcb6313086e3cc95b36c05354c905c410f55a4",
   "inputSha": "1df29669817956b172ee46820009a461e760bf5e1f0c3783630850ed8444e1ce",
   "kind": "text",
   "assembly": "headed",
@@ -17,18 +17,18 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "Recorded **G1 - Integrity manifest is missing: rescope-into-spec**. You chose this, so it counts as approved. It skips the amendment reviewer and batch.\n\nNothing has executed yet. This is the run, in execute order:\n\n1. **Normalize:** There is no `custom(...)` to normalize. Rescope is a state-changing spec edit and needs no clarification.\n2. **Commit spec edits:** The main session edits the spec and commits it before any other action. The tree must be clean for the re-audit to read the amended spec.\n   - `## Acceptance criteria`: the manifest row changes from `in-scope` to `deviates: integrity manifest rescoped out of this workflow by operator at the finish gate`.\n   - `## Design`: the line \"Append the build log's sha256 table to the release notes.\" is removed, because nothing in this workflow delivers it.\n   - The commit message is `amend: rescope integrity manifest out of Lantern release notes`, and its body records the operator decision.\n3. **Re-audit:** The spec changed, so a fresh `conformance-reviewer` runs against the amended spec, the verbatim prompt and the full diff.\n   - The model comes from `gauntlet_setting({ key: \"closureReview\" }).model`, injected at the call site.\n   - The inventory is regenerated. The expected result is that G1 closes, and the new sentinel opens `status: CONFORMS (0 open)` with a new full-SHA `audited-base`.\n   - It also gains `Deferred/deviates per spec: AC1 deviates: integrity manifest rescoped out of this workflow by operator at the finish gate`.\n4. **Fix-now and code-changing custom:** None selected, so no fix loop runs and there are no `conformance fix` commits.\n5. **Re-audit after state-changing work:** Step 3 already covers this. Fresh decisions are needed only if the refreshed inventory differs from what you approved.\n6. **Follow-up:** None selected.\n7. **Non-state-changing custom:** None selected.\n8. **Revert:** None requested.\n9. **Re-enter Step 3.5** with the re-audited block, and only if a concern remains open. Otherwise, continue to the Step 4 options.\n\nBefore you ship, note that this changes only *this workflow's* contract. The external Lantern release checklist still requires the sha256 manifest. `release-notes.md` will ship containing only `# Lantern release`, with artifact integrity undocumented. The table in `build.log` is still available if you change your mind. Reply `1. Custom: append the build log's sha256 table to the release notes` before execution to switch.\n\nThe disposition record will be:\n\n```\nClosure / conformance: GAPS resolved - G1 - Integrity manifest is missing: rescope-into-spec\n```\n",
-      "words": 380,
-      "wallMs": 19869,
+      "text": "**Recorded:** `manifest=rescope`\n\nDurable record: `G1 - Integrity manifest is missing: rescope-into-spec`\n\nItem 1 now has a decision, so the batch is complete. Nothing has executed yet. The steps below are what runs next, in order. None of them is reported here as done.\n\n1. **Normalize custom effects:** none. You picked lettered option B. It is not a custom pick, so the \"append the build log's sha256 table\" effect does **not** run. `release-notes.md` stays as is.\n2. **Commit the spec edit** (main session, before any dispatch):\n   - In `## Acceptance criteria`, change the integrity-manifest row from `in-scope` to `deferred: rescoped out of this workflow at the finish gate (G1 - Integrity manifest is missing)`.\n   - In `## Design`, drop the sentence \"Append the build log's sha256 table to the release notes.\"\n   - Commit both edits as one spec commit.\n3. **Re-audit, because the spec changed:**\n   - Dispatch a fresh, foreground (`async: false`) `conformance-reviewer` against the amended spec, the verbatim prompt and the full diff.\n   - Inject `model:` from `gauntlet_setting({ key: \"closureReview\" }).model`, or omit it when that is undefined.\n   - Regenerate the `## Closure / conformance` block with a new `audited-base`. The block will now carry `Deferred/deviates per spec: AC1 deferred to <ref>`.\n4. **fix-now / code-changing custom:** none selected. No fix loop and no Step 1 test rerun.\n5. **Re-audit after state-changing work:** step 3's audit covers this. Fresh decisions are needed only if the refreshed inventory differs from the one approved here.\n6. **follow-up:** none.\n7. **Non-state-changing custom:** none.\n8. **Revert:** none.\n9. **Re-enter Step 3.5:** only if the re-audit leaves a concern open. Otherwise the closure summary reads `GAPS resolved - G1 - Integrity manifest is missing: rescope-into-spec`, and Step 4 renders after that.\n\nStep 4 is not rendered in this response. It waits for the spec commit and the re-audit result.\n",
+      "words": 289,
+      "wallMs": 16470,
       "mechanical": {}
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "**G1 — Integrity manifest is missing: rescope-into-spec approved.**\n\nI’ll explicitly defer the integrity-manifest requirement from this workflow, updating the acceptance criterion and the conflicting Goal/Design wording, then commit the spec amendment. This does **not** authorize appending the table to the release notes.\n\nNext: re-audit against the amended spec, regenerate the closure inventory, and run the canonical tests before returning to the shipping gate. Fresh decisions are needed only if the inventory changes.\n\nNothing has been edited, committed, or checked in this tool-free replay.\n",
-      "words": 82,
-      "wallMs": 8423,
+      "text": "Recorded: manifest=rescope\n\nG1 - Integrity manifest is missing: rescope-into-spec.\n\nI’ll remove the integrity-manifest requirement from the spec’s acceptance criteria and Design section, commit that spec amendment, then re-audit conformance against the amended contract. This approves release notes without the manifest; it does not authorize appending the table.\n\nNo edits or checks have run in this tool-free replay. Step 4 remains pending the fresh audit.\n",
+      "words": 63,
+      "wallMs": 10218,
       "mechanical": {}
     }
   },
-  "repoSha": "f6b27b68f40de3df9350a4f224f973b553a0f0cd"
+  "repoSha": "0454df1724312f2291bed3d591cbb0f7e61e1c8a"
 }

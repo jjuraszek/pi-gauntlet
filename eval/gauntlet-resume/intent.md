@@ -1,6 +1,8 @@
-for: 9931974850fd597e976d033527cf1dd457b6c7350dbcb66642a5ff84af26493d
+for: ab9628b9fb547ee3db1307e89f15b969aafd22893337d088eaafb8bc2e3e8959
 
 ## Change
+
+Mark resume discovery and approval/continuation asks before prose; mark inventoried nonrecoverable stops without mutating brief state or inferring approval. Successful resume continues automatically without a terminal marker.
 
 Restore cap from every admitted ledger at one shared boundary before implement or verify/ship continuation, without re-resolving loopEngine settings. Stop even completed legacy ledgers there; a durable grant resumes the original phase. Render cap, iterations, attempts, funding/retry allowances and decision history, distinguishing operational row decisions. New durable-cap and legacy-cap-brief samples are baseline-skipped: new sample, no pre-edit sample evidence; the runner still generates genuine baseline and candidate evidence.
 
@@ -17,6 +19,7 @@ Carry all PR/head pairs consecutively in record order, home first, while retaini
 Add deferred-spec-stop with sample-local entry-check instructions and an explicit before-check-6 replay override. Cover bare tree, brief, process state, seed and incomplete brainstorm after push/create failure; grant exemptions do not bypass admission. Both arms use accepted Wave 1 commit `43b5ec3f2933c5a716c49916e9b1b7c002bb3da2` via `--base HEAD`. This setup-only comparison proves narrated behavior, not live tracker restoration or before/after improvement. Every new candidate fact must hold regardless of aggregate verdict; retain existing facts and authorized directions. Task 1 retains the original-base deterministic red/green proof.
 
 ## Expected to move
+- gate-line-first/first-line: fails -> holds - The spec approval-or-brainstorm question starts with the shared question marker.
 - pr-list-brief/producer: fails -> holds - Carry all three ordered pairs home first, preserving tracker output, Active task and terminal gate history; N=1 and no-record remain intact.
 - pr-list-brief/binding: fails -> holds - Validate only home's live branch identity against the actual worktree before tracker calls, preserving downstream entry and grant checks.
 - pr-list-brief/mismatch: fails -> holds - Stop pr-list-brief-mismatch with both observed branch names and no tracker writes.

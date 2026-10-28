@@ -1,7 +1,7 @@
 {
   "sample": "no-dispositions",
   "arm": "candidate",
-  "skillSha": "f5e58eb04c446b66d3a12b2a2ab5cd79bff20ccaaee1a1135d3071d09b8ea222",
+  "skillSha": "0520d3c0b96de923e1884d225da8a91aebc913143e9fc7edf77c33876e7daa8d",
   "inputSha": "a7f170837dfc174e240824392d8d33a838e93ee8b3d0b89439428b01a009e454",
   "kind": "text",
   "assembly": "headed",
@@ -17,16 +17,16 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "## Closure / conformance\n\n```text\nstatus: CONFORMS (0 open)\naudited-base: 4c1e8f0a9b2d7c6e5f4a3b2c1d0e9f8a7b6c5d4e\nhappy-path: not run - no row configured\n```\n\nThere are no concern cards. The reviewer reported `Gaps: none`, and R1–R8 are all DELIVERED with evidence.\n\n```text\nauto-applied fix commits: none\nwhole-diff minors: none\n```\n\n---\n\n```\nClosure / conformance: CONFORMS\nhappy-path: not run - no row configured\nwhole-diff minors: none\n```\n\n```\nImplementation complete. What would you like to do?\n\n1. Push and create a Pull Request\n2. Push and create a draft Pull Request\n3. Squash-merge to <base-branch> (no PR, no surviving branch)\n4. Keep the branch as-is (I'll handle it later)\n5. Discard this work\n\nWhich option?\n```\n",
-      "words": 99,
-      "wallMs": 13040,
+      "text": "## Closure / conformance\n\n```text\nstatus: CONFORMS (0 open)\naudited-base: 4c1e8f0a9b2d7c6e5f4a3b2c1d0e9f8a7b6c5d4e\nhappy-path: not run - no row configured\nauto-applied fix commits: none\nwhole-diff minors: none\n```\n\n---\n\n```\ngauntlet: gate=finishing-a-development-branch/step-4\n\nClosure / conformance: CONFORMS\nhappy-path: not run - no row configured\nwhole-diff minors: none\n\nImplementation complete. What would you like to do?\n\n1. Push and create a Pull Request\n```\n",
+      "words": 51,
+      "wallMs": 9511,
       "mechanical": {}
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "## Closure / conformance\nstatus: CONFORMS (0 open)\naudited-base: 4c1e8f0a9b2d7c6e5f4a3b2c1d0e9f8a7b6c5d4e\nhappy-path: not run - no row configured\n\nauto-applied fix commits: none\nwhole-diff minors: not recorded\n\n---\n\nClosure / conformance: CONFORMS\nhappy-path: not run - no row configured\nwhole-diff minors: not recorded\n\nImplementation complete. What would you like to do?\n\n1. Push and create a Pull Request\n",
-      "words": 50,
-      "wallMs": 11030,
+      "text": "## Closure / conformance\nstatus: CONFORMS (0 open)\naudited-base: 4c1e8f0a9b2d7c6e5f4a3b2c1d0e9f8a7b6c5d4e\nwhole-diff minors: not recorded\n\ngauntlet: gate=finishing-a-development-branch/step-4\nClosure / conformance: CONFORMS\nwhole-diff minors: not recorded\n\nImplementation complete. What would you like to do?\n\n1. Push and create a Pull Request\n",
+      "words": 36,
+      "wallMs": 9661,
       "mechanical": {}
     }
   },
@@ -34,9 +34,9 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "468891d80c1566b6cd8f5e9f39fe285e34374c35346e1832d709ae38ce733e08",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "68fdb5434a67270e3e3a98d76e69521337d5547b430839ca82b1daf357fd84cc",
-      "baselineOutputSha": "4202b90536b0833227d109bf96206d53af5b78bc25e9fd23b65adcd74c8a3014",
-      "candidateOutputSha": "ebd0691fcb431a2dde89c1a8549d91bdf1b81205983a35aaa1f1f3b17c971891",
+      "intentSha": "10eaf05990888a2633579df36d771f7512fb5d149f5a1a5397ae9228b7b7b4eb",
+      "baselineOutputSha": "4deec8289e5cf41d370d29cd116327b6325a6156012562dcce806b6e5f284988",
+      "candidateOutputSha": "ae1024745fe37ecaf501a57e2d136c8e0b8e804fc17c64eaf346ef12684743b2",
       "facts": {
         "f1": {
           "before": "holds",
@@ -64,15 +64,16 @@
           "label": "held"
         }
       },
-      "feedback": "No fact moved on this conforming sample: both outputs print the CONFORMS block without a `Deferred/deviates per spec:` line, report R1–R8 DELIVERED with no concern or gap cards, produce zero decision items, dispatch no fix and no re-audit, and reach the Step 4 opening line `Implementation complete. What would you like to do?`. After additionally renders the full Step 4 option list through `Which option?`, which is the intended zero-gap fall-through strengthening and does not disturb any fact here. The only observable regression in After is the loss of Before's explicit notes about the freshness precondition (`git diff --stat`/`git status` against audited-base) and the amendment digest being skipped for lack of tools; none of the facts pin those, but if you want parity you could keep a one-line 'freshness check not run - tools excluded; assuming clean tree' note above the Step 3.5 block while still rendering the full menu.",
+      "feedback": "No fact moved: both outputs skip the Deferred/deviates line, report CONFORMS (0 open) with no gap card, produce zero decision items, trigger no fix or re-audit, and reach Step 4. After correctly adds the `gauntlet: gate=finishing-a-development-branch/step-4` marker before the summaries, which is what the Change asked for on clean closure. However, After truncates the Step 4 menu after item 1, dropping options 2–5 and the `Which option?` line, which directly contradicts the Change's own requirement that the zero-gap CONFORMS fall-through 'render Step 4's menu in full, options included' — Before rendered all five options. The wording likely over-applied the 'replay only the next response' continuation rule (or an 'include the re-ask clause / stop at the focused re-ask' instruction) to the clean-closure case. To keep every Before fact and still deliver the Change, scope the truncation rules explicitly to continuation samples (no-recommendation-reask / no-recommendation-execute) and state for the zero-gap path: 'emit the step-4 gate marker, then the closure summary lines, then the complete Step 4 menu (all five numbered options followed by the question line), without stopping early.'",
+      "wallMs": 14163,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "468891d80c1566b6cd8f5e9f39fe285e34374c35346e1832d709ae38ce733e08",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "68fdb5434a67270e3e3a98d76e69521337d5547b430839ca82b1daf357fd84cc",
-      "baselineOutputSha": "d95ab2526373d56000d08bcb3f90a61cbffd7dd622c6105ff9cc94d8fc034626",
-      "candidateOutputSha": "18f5cb6318225bcb4fb3a72bca54f71598c1d40f0a548155076468649d8e4927",
+      "intentSha": "10eaf05990888a2633579df36d771f7512fb5d149f5a1a5397ae9228b7b7b4eb",
+      "baselineOutputSha": "d5715d4d2d1d8bdfcba10ebdc17885f090c3a792a17501764365c09a810248a8",
+      "candidateOutputSha": "5198c5208d3458aedb557169290fcf746b9d76fabd1c0afa06ea311ed01f0f7b",
       "facts": {
         "f1": {
           "before": "holds",
@@ -100,9 +101,10 @@
           "label": "held"
         }
       },
-      "feedback": "No fact moved: both outputs print no Deferred/deviates line, show CONFORMS (0 open) with no gap card, carry no decision items, record no fix dispatch or re-audit (auto-applied fix commits: none), and reach the Step 4 opener 'Implementation complete. What would you like to do?'. The only textual difference is that After appends a single numbered option ('1. Push and create a Pull Request') and drops the blank line between the fix-commits and minors lines, neither of which touches a fact. One caution for the Change's own intent: the zero-gap CONFORMS fall-through is supposed to render Step 4's menu in full, options included, yet After shows only one option; if Step 4 has more options, the wording should make the assembly enumerate the complete numbered list after the question line rather than stopping at the first item, which would deliver the Change fully while leaving f1-f5 exactly as Before kept them.",
+      "feedback": "No fact moved: both renders print no Deferred/deviates line, report CONFORMS (0 open) with no gap card, produce zero decision items, dispatch no fix or re-audit, and reach Step 4 (After even adds the gate=finishing-a-development-branch/step-4 marker before the summaries, as the Change asks). However, After regresses on the Change's own stated goal of rendering Step 4's menu in full: it stops after option 1, omitting options 2–5 and the 'Which option?' prompt that Before printed, and it also drops the 'auto-applied fix commits: none' line that made f4 explicit. To keep every fact Before kept while delivering the Change, keep the gate marker placement and single-block closure summary, but retain the 'auto-applied fix commits: none' line and render the complete five-option menu followed by 'Which option?' rather than truncating after the first item.",
+      "wallMs": 13095,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "f6b27b68f40de3df9350a4f224f973b553a0f0cd"
+  "repoSha": "0454df1724312f2291bed3d591cbb0f7e61e1c8a"
 }

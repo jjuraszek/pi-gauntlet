@@ -337,5 +337,5 @@ test('funded rounds own stop-note funding rules and preserve the base stop note'
   const funded = readFileSync(fixReference, 'utf8').split('## Funded rounds')[1];
   assert.match(funded, /While a budget token exists, include `budget: <spent> of <N> spent` in every stop note after `Problem:` and any `Searched:` lines and before the file finding/);
   for (const text of ['pre-escalation', 'missing `implModel`', 'exhausted fact lookups at spent zero', 'only round-history exception', '(not recovered on resume)', 'omit the line without a token']) assert.ok(funded.includes(text), text);
-  assert.equal(createHash('sha256').update(stopNote).digest('hex'), '18cf2100349c29183c25929de308a7603d5c2e28e33f33ac922f017bcc743011');
+  assert.equal(createHash('sha256').update(stopNote).digest('hex'), '1da67e1750e45a8f3c50bd1bd9c750b22db4be33b347a25c45465ba3954e74f6');
 });

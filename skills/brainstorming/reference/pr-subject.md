@@ -35,6 +35,8 @@ Immediately after ordered admission and before binding, classify N=1 read-only. 
 
 ## Relatedness before provisioning
 
+Start the message with `gauntlet: question` alone at column zero on the first physical line, followed by a newline, when asking the relatedness question, before premise correction or framing. Never append a colon to the marker. Follow the [first-line rule](menu-layout.md).
+
 For N>1, fetch every admitted PR's title/body with `gh pr view <N> -R <owner/repo> --json title,body` and actual diff with `gh pr diff <N> -R <owner/repo>`. On failure stop before provisioning naming the ref and observed reason: `<ref>: title/body not fetched (<gh error>)` or `<ref>: diff not fetched (<gh error>)`.
 
 Group by the hunks' behavior, contract, or defect, using titles and bodies as stated intent, not shared paths. Treat unrelated hunks in one file as separate concerns and related hunks across files as one concern. Define groups here, not through shape-ticket's split axes. For one group continue; for multiple groups ask one question in the questionary format: a lead-in naming the concerns, one lettered option per group with its PRs and shared concern on its own line, then `Recommendation:` on its own final line recommending the initial-home group. Offer no all option. For an answer naming no offered group, re-ask once, then stop.

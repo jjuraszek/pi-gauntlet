@@ -8,6 +8,8 @@ Read from SKILL.md step 2b, only when `--rebase` was passed. Input: the step-1 d
 
 ## Preconditions
 
+Start the message with `gauntlet: gate=gatekeep-pr/sync-preconditions` for the stop-only menu below. Render numbered `stop` with `show evidence` hint-only through [menu-layout](../../brainstorming/reference/menu-layout.md).
+
 Check in order after step 2. A terminal stop - here, at `## Baseline`, or at `## Push` - closes the `sync` stage `failed`, prints the reason, offers `stop` and `show evidence` only, and runs no step 3; on such a stop `show evidence` prints the digest's head-dependent fields and the `sync` record.
 
 1. The harness has a helper facility (SKILL.md `## Harness notes`); none -> terminal stop before any write: `sync: stopped - no helper facility for conflict resolution and review`.
@@ -25,6 +27,8 @@ A reused worktree holding local-only commits or a foreign in-progress operation 
 Refresh `headRefOid` with `gh pr view <N> --json headRefOid` and set `<pre_head>` = `git -C <worktree> rev-parse HEAD`. The two must agree; a mismatch is a terminal stop (stage `failed`) naming both SHAs (the remote moved during provisioning).
 
 ## Other-author confirmation
+
+Start the message with `gauntlet: question` before the fixed block and yes/no ask. Apply [menu-layout](../../brainstorming/reference/menu-layout.md), preserving the typed yes/no contract.
 
 When `pr.author.login` differs from `gh api user --jq .login`, or that login is `unreadable`, print this fixed block verbatim, one line per point, before any rewrite:
 
@@ -66,6 +70,8 @@ Re-run every step-1 forge read for the PR (`../verification-brief.md` Section A 
 On a `rebased locally` head the forge re-read returns `<pre_head>` as `headRefOid`; keep it in the record and leave the digest's `headRefOid` at the local HEAD, which the scope-contract read and step 3 use, and take the digest's changed files and diff from `git diff origin/<base>...HEAD`. Mint one blocker `P#` per `scoped tests red in` clause before step 3 - evidence the helper's scoped-test output, the blocker contract of `findings.md` (IDs append-only, surviving re-renders); skip the local verification run - step 3 records `source: pending` for the local head (no claims) - the carried blockers are the verification evidence and the verdict is `fixable`; `plan_tracker` closes the `sync` stage `complete`.
 
 ## Failure path
+
+Start the message with `gauntlet: stuck` followed on that line by the actual error on a restore/assert mismatch, and end the run. Keep ordinary recovered failures on their existing continuation path.
 
 Triggers: an unresolved stop, `open` for any reason other than a failing scoped test in a file outside the list, residue, a non-zero `rebase` or `--continue` without unmerged paths, a reviewer Critical or Moderate finding, a push rejected by server policy. Restore `<pre_head>`: `git rebase --abort` while the rebase is in progress, `git reset --hard <pre_head>` after it completed; assert `HEAD == <pre_head>` and a clean `git status --porcelain` - a mismatch is a hard stop with the error, never a silent continue. Record `sync: failed - <reason>` with reason one of `unresolved stop in <commit7>`, `implementer returned open`, `residue outside conflicted files`, `rebase failed: <first line>`, `reviewer: <top finding>`, `push rejected: <first server line>`. Close the `sync` stage `skipped` and continue to step 3 on the unsynced head; step 5 records what remains and renders the initial or terminal template from `menus.md`.
 

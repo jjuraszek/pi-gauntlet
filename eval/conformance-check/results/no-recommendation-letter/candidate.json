@@ -1,7 +1,7 @@
 {
   "sample": "no-recommendation-letter",
   "arm": "candidate",
-  "skillSha": "f5e58eb04c446b66d3a12b2a2ab5cd79bff20ccaaee1a1135d3071d09b8ea222",
+  "skillSha": "0520d3c0b96de923e1884d225da8a91aebc913143e9fc7edf77c33876e7daa8d",
   "inputSha": "1df29669817956b172ee46820009a461e760bf5e1f0c3783630850ed8444e1ce",
   "kind": "text",
   "assembly": "headed",
@@ -17,16 +17,16 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "Recorded: manifest=rescope\n\nDurable record: `G1 - Integrity manifest is missing: rescope-into-spec`\n\nEvery item now has a decision. The execute order runs once:\n\n1. **Normalize:** No `custom(...)` replies to normalize. The pick is lettered option B, recorded as `rescope-into-spec`. The build-log table is **not** appended to `release-notes.md`; that would be a `custom` effect, which was not chosen.\n2. **Commit the spec edit (scheduled):** The main session edits the spec directly:\n   - In `## Acceptance criteria`, the manifest row's disposition changes from `in-scope` to `deviates: integrity manifest rescoped out of this workflow by operator disposition at finish`.\n   - In `## Design`, the \"Append the build log's sha256 table to the release notes\" clause is removed.\n   - The edit is committed before anything else runs. As an approved disposition, it bypasses the amendment surface's reviewer.\n3. **Re-audit (scheduled):**\n   - Dispatch a fresh foreground `conformance-reviewer` (`async: false`, `cwd` = worktree, `model:` from `gauntlet_setting({ key: \"closureReview\" }).model`) against the amended spec, the verbatim prompt and the full diff.\n   - Regenerate the `## Closure / conformance` block with a new full-SHA `audited-base`.\n   - The `Deferred/deviates per spec:` line will now carry `AC1 deviates: …`.\n4. **fix-now / code-changing custom:** None selected; step skipped.\n5. **Re-audit after state-changing work:** Covered by step 3. Fresh decisions are needed only if the refreshed inventory differs from the approved one.\n6. **follow-up:** None selected.\n7. **Non-state-changing custom:** None.\n8. **revert:** None requested.\n9. **Re-enter Step 3.5** with the re-audited block:\n   - If any concern is still open, a new decision is needed.\n   - If the block returns `status: CONFORMS (0 open)` and is fresh, take the zero-gap fast path.\n\nNothing has executed yet. The spec edit, its commit and the re-audit are the next actions. Step 4 does not render until the regenerated closure block is fresh and decided.\n",
-      "words": 283,
-      "wallMs": 17041,
+      "text": "Recorded: manifest=rescope\n\n`G1 - Integrity manifest is missing: rescope-into-spec`\n\nThis was a lettered pick (B), so it is recorded as `rescope-into-spec` and needs no further clarification. Nothing has executed yet. The execute order runs once, as follows:\n\n1. **Normalize.** There is no `custom` reply to normalize. One spec-editing disposition is approved.\n2. **Commit the spec edit.** I will edit the spec directly, before any other step:\n   - In `## Acceptance criteria`, change the integrity-manifest row's disposition from `in-scope` to `deviates: rescoped out of this release by operator decision at finish (manifest not attached)`.\n   - Remove the `## Design` clause \"Append the build log's sha256 table to the release notes.\"\n   - Commit as `amend: rescope integrity manifest out of Lantern release notes`.\n   - `release-notes.md` and `build.log` stay unchanged.\n3. **Re-audit.** The spec changed, so I will re-dispatch `conformance-reviewer` as a foreground call with `async: false`, `model:` set from `closureReview.model`, against the amended spec. I will then regenerate the `## Closure / conformance` block:\n   - The expected result is `status: CONFORMS (0 open)` with a fresh full-SHA `audited-base`.\n   - The block will carry a `Deferred/deviates per spec: AC1 deviates: ...` line, plus `happy-path: not run - no row configured` and `whole-diff minors: none`.\n4. **fix-now and code-changing custom.** None selected, so this step is skipped.\n5. **Re-audit after state-changing work.** This is the same re-audit as step 3. If the refreshed inventory differs from the approved one, I will ask for fresh decisions.\n6. **follow-up.** None.\n7. **Non-state-changing custom.** None.\n8. **revert.** None requested.\n9. **Re-enter Step 3.5** with the re-audited block only if a concern is still open. Otherwise I will print `Closure / conformance: GAPS resolved - G1 - Integrity manifest is missing: rescope-into-spec` and continue to Step 4.\n\nOne note: the manifest requirement came from the Lantern release checklist. Rescoping it means the release notes ship with artifact integrity undocumented. If you want the table attached instead, reply `revert` before I commit the spec edit, and I'll re-ask item 1. Otherwise I'll proceed with the steps above.\n",
+      "words": 322,
+      "wallMs": 17613,
       "mechanical": {}
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "Recorded: manifest=rescope\n\nG1 - Integrity manifest is missing: rescope-into-spec.\n\nI’ll update and commit the spec to remove the manifest requirement from this workflow and align the Design section. Then I’ll re-audit conformance against the amended spec and refresh the closure inventory. If that inventory changes, I’ll request fresh decisions.\n\nNo files have been changed or checks run.\n",
-      "words": 56,
-      "wallMs": 7360,
+      "text": "Recorded: manifest=rescope\n\nG1 - Integrity manifest is missing: rescope-into-spec approved.\n\nI’ll remove the integrity-manifest requirement from the spec’s Goal, Acceptance criteria, and Design, then commit that spec amendment and re-audit against the revised contract. The release notes and build log will remain unchanged.\n\nNothing has executed in this tool-free replay. The amendment and fresh conformance audit are pending; Step 4 is not yet available.\n",
+      "words": 63,
+      "wallMs": 8606,
       "mechanical": {}
     }
   },
@@ -34,9 +34,9 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "c30999943b4cd4f54425496610547ca0c1d119898e8dad8cb533cf863cf1f27d",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "68fdb5434a67270e3e3a98d76e69521337d5547b430839ca82b1daf357fd84cc",
-      "baselineOutputSha": "1653e8f0e38c9718723abe0a1a22be4420b38e77d43ed5790bdb09f55166dd8b",
-      "candidateOutputSha": "296d45669b8856d805f08d8d0faa6640b3e173d2934a8a3335fb54ce4c1769a5",
+      "intentSha": "10eaf05990888a2633579df36d771f7512fb5d149f5a1a5397ae9228b7b7b4eb",
+      "baselineOutputSha": "445c161f775f87e2827063ed65396f1e3072b1314a2a74fd6437b29724504934",
+      "candidateOutputSha": "dae8481bd1620f6f15eeaa33b13317c45e6f23d885909437186b6d659e419e8c",
       "facts": {
         "f1": {
           "before": "holds",
@@ -59,15 +59,16 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "No fact moved. After accepts the lettered B pick cleanly (\"Recorded: manifest=rescope\", durable record `rescope-into-spec`), never records custom(...), schedules the spec amendment and commit before the re-audit, states \"Nothing has executed yet\" rather than claiming edits or checks happened, and keeps Step 4 behind the regenerated fresh closure block; the only handle=choice form is the record line itself, with no such form in any reply instruction. Before also held every fact, though its closing \"Reply `1. Custom: append ...` before execution to switch\" nudge was the closest thing to a reprompt and the After wording is safer by dropping it. If you want to preserve the informative note that the external checklist still requires the manifest, add it as a plain caution without a reply instruction so f1's \"no reprompting or demanding a concrete effect\" stays clearly satisfied; otherwise the After wording delivers the Change with every fact intact.",
+      "feedback": "After keeps every fact Before kept: it records the lettered B pick as `rescope-into-spec` without custom(...), accepts it with \"needs no further clarification\", schedules the spec amendment (step 2) before the re-audit (step 3) with \"I will\" phrasing and no claim of completion, frames CONFORMS only as the expected re-audit result, withholds Step 4, and confines `manifest=rescope` to the Recorded line. The one wording risk is the closing paragraph: inviting a `revert` reply \"before I commit the spec edit\" and offering to re-ask item 1 reads close to a reprompt on an already-decided item, and a stricter reader could count it against f1's \"without reprompting\"; it survives here only because it ends with \"Otherwise I'll proceed with the steps above.\" To deliver the Change without that exposure, drop the revert invitation (or reduce it to a one-line consequence note that does not solicit a reply), keep the acceptance sentence and the step 2 -> step 3 ordering exactly as written, and leave the Recorded line as the sole `handle=choice` occurrence.",
+      "wallMs": 17265,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "c30999943b4cd4f54425496610547ca0c1d119898e8dad8cb533cf863cf1f27d",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "68fdb5434a67270e3e3a98d76e69521337d5547b430839ca82b1daf357fd84cc",
-      "baselineOutputSha": "1c6cf361267bc5e073785a0e773480d81dc4b19921a5338a0262f135a44a8d76",
-      "candidateOutputSha": "259d3caa6ca252879f7fae62d25e22265b3080db485c0251959fe9073272df2b",
+      "intentSha": "10eaf05990888a2633579df36d771f7512fb5d149f5a1a5397ae9228b7b7b4eb",
+      "baselineOutputSha": "5a5b6f16cb69b437e19c9849d57a13f21bf9b958eedd4eaf6450e3ff02c37c3b",
+      "candidateOutputSha": "186556fa804ace4096b3d1d8d222162ad86cb96551721bf39447e8e8ef29b16e",
       "facts": {
         "f1": {
           "before": "holds",
@@ -90,9 +91,10 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "After keeps every fact Before kept: the letter pick is taken as the shown option B (no reprompt, no demand for free text), the disposition is recorded as rescope via a proper record line (\"Recorded: manifest=rescope\"), the handle=choice form appears only in that record line and nowhere in a question or instruction, and the spec amendment and re-audit are scheduled in that order before any conformance claim or Step 4 menu, with an explicit statement that nothing has been edited or checked. Nothing moved. Two small things in Before are worth carrying forward so later samples don't drift: Before explicitly said the rescope does not authorize appending the table (useful given the Custom line advertised that effect, so a reader cannot mistake B for the custom path), and Before named the canonical-test run and the return to the shipping gate as part of the scheduled sequence after the re-audit. Consider wording like: \"Recorded: manifest=rescope. G1 - ...: rescope-into-spec. Schedule: (1) amend the acceptance criterion, Goal, and Design to defer the manifest requirement and commit; (2) re-audit against the amended spec and refresh the closure inventory; (3) run canonical tests, then return to the shipping gate. This does not authorize appending the table. No files changed or checks run in this tool-free replay.\" That keeps the record line as the only handle=choice form, preserves the execute-order barrier, and still delivers the lettered-pick behavior the Change asks for.",
+      "feedback": "Nothing moved: both outputs record `manifest=rescope` on the record line only, accept the letter pick without reprompting or demanding a custom effect, and schedule spec amendment then re-audit ahead of any CONFORMS claim or Step 4 menu while explicitly stating nothing has executed in the tool-free replay. After is marginally cleaner (`Nothing has executed`, `Step 4 is not yet available`) and the lettered-pick fix is delivered as intended. Two small cautions for the After wording: `rescope-into-spec approved` could be read as the assistant approving rather than the user deciding, so `rescope-into-spec (user pick B)` is safer; and After scopes the removal to the spec's Goal line, which is broader than the acceptance criterion and Design the gap actually cites — keep the amendment limited to the acceptance criteria and Design as Before did, so the rescope does not silently rewrite the spec's goal.",
+      "wallMs": 10475,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "f6b27b68f40de3df9350a4f224f973b553a0f0cd"
+  "repoSha": "0454df1724312f2291bed3d591cbb0f7e61e1c8a"
 }

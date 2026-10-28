@@ -1,0 +1,1 @@
+The loop child returned one commit with a dirty working tree. Row 1 is open, attempts 1, evidence `check parser: expected colon, got comma`; last decision `row 1 failed | delimiter still wrong | retry`. Ledger iterations:2 cap:9. No cleanup authorization has been given. Render only the human stop awaiting discard/reset authorization. Do not execute anything.

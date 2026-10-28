@@ -1,0 +1,171 @@
+{
+  "sample": "gate-line-first",
+  "arm": "candidate",
+  "skillSha": "b19283cbe8e081322c1dbba8b11561c53dd003d1dec7501ac6d030725398d67c",
+  "inputSha": "54a107d989c68df18db5a0575872c33bdbba7a23c3b5032aa9bb0b79a4855a73",
+  "kind": "text",
+  "assembly": "concat",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "gauntlet: stuck written=2,declined=1,stopped=1,unfetched=1,close-failed=1\n\nABC-1: written\nABC-2: written\nABC-3: declined\nABC-4: stopped - tautological AC; human ended recovery\nABC-5: unfetched - read failed\nABC-6: close failed - permission denied\n",
+      "words": 25,
+      "wallMs": 3845,
+      "mechanical": {
+        "settlement": "holds"
+      }
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "gauntlet: stuck written=2,declined=1,stopped=1,unfetched=1,close-failed=1\nABC-1: written\nABC-2: written\nABC-3: declined\nABC-4: stopped - tautological AC; human ended recovery\nABC-5: unfetched - read failed\nABC-6: close failed - permission denied\n",
+      "words": 25,
+      "wallMs": 3474,
+      "mechanical": {
+        "settlement": "holds"
+      }
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "a8f5d08355047fc461bc8bcc9d6b8bfaae09d483cf9eaf1723834ed5aebf1797",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "c0c2580170b0013d4d1bb5f8e916b24fa5b37b9e2723110417dc9c31ffcfb227",
+      "baselineOutputSha": "36fe392a38462bf9dd0d0144fe53861ecbfbe62441bc70f7b2626a465de70719",
+      "candidateOutputSha": "5d0ba0606f0530e9b3d78a113d4b44b175785d2c28fb6b6be188009a34351f43",
+      "facts": {
+        "per-ref": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "settlement": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        }
+      },
+      "feedback": "Both outputs keep all six per-ref lines byte-for-byte, leave ABC-4 as a settled stop rather than an open integrity question, and offer no gate, retry or write, so the per-ref fact holds on both sides. After additionally delivers the Change: a first-line `gauntlet: stuck` header with fixed-order nonzero counters (written=2,declined=1,stopped=1,unfetched=1,close-failed=1) and nothing else, which is cleaner than Before's informational tally and its speculative note that the changeset 'still applies if the close is retried' (Before narrowly avoids offering a write there, but that sentence is the kind of wording that could drift into reopening an ended item). Keep After's shape; if you want any prose at all, limit it to a single settlement sentence that restates stuck-only outcomes and never mentions retrying, recovering, or re-running ABC-4.",
+      "wallMs": 9580,
+      "verdict": "improved"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "a8f5d08355047fc461bc8bcc9d6b8bfaae09d483cf9eaf1723834ed5aebf1797",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "c0c2580170b0013d4d1bb5f8e916b24fa5b37b9e2723110417dc9c31ffcfb227",
+      "baselineOutputSha": "043e0f575bbed6cef7d4bb09776d40a0325ef927f1586edf0cda2effe57eedd7",
+      "candidateOutputSha": "cfd5617573743eec35216c711be5bd3d7e649873ab3f1cba965b6a797c4c0881",
+      "facts": {
+        "per-ref": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "settlement": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        }
+      },
+      "feedback": "Both outputs preserve all six per-ref lines byte-for-byte, keep ABC-4 as a settled stopped item with no reopened integrity question, and offer no new gate, write, retry or pending action, so the per-ref fact holds on both sides. After additionally delivers the Change by rendering a single fixed-order nonzero-counter stuck line first (written=2,declined=1,stopped=1,unfetched=1,close-failed=1), which is what the settlement move asks for, and it does so without touching the per-ref block. Nothing in After moved this fact; keep the current wording, and if you adjust it further, continue to emit the counter line strictly before and separate from the verbatim per-ref lines and avoid any phrasing that could read ABC-4 or ABC-6 as awaiting a decision.",
+      "wallMs": 5325,
+      "verdict": "improved"
+    }
+  },
+  "refresh": {
+    "status": "complete",
+    "identity": {
+      "sample": "gate-line-first",
+      "kind": "text",
+      "assembly": "concat",
+      "baselineSkillSha": "6c36dd73a9aea1708337618f37af914f4f44011ee842adb08df2e5a533391d15",
+      "candidateSkillSha": "923ccded493696f5be2bc956fa5140212b015ad8084d68764013332653a65c44",
+      "inputSha": "54a107d989c68df18db5a0575872c33bdbba7a23c3b5032aa9bb0b79a4855a73",
+      "factsSha": "a8f5d08355047fc461bc8bcc9d6b8bfaae09d483cf9eaf1723834ed5aebf1797",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "5e5d3dfc0b642d6f632cf7cf04a895a28aaa28b4761d1e7433eb56d06a27861c",
+      "models": {
+        "replay": [
+          "github-copilot/gpt-6.1-sol"
+        ],
+        "judge": "github-copilot/gpt-6.1-sol"
+      },
+      "thinking": "medium",
+      "outputs": {
+        "baseline": {
+          "github-copilot/gpt-6.1-sol": {
+            "baselineOutputSha": "96d1c6b17166d7f2282ea4063ef2c2f5a3f6163b74b229fca8b47b3a3c280f91",
+            "payloadSha": "38c9b1a94a85c1f9bb28a32db6eb357d634c6991af6a50fd64731baaa6c7b5c3"
+          }
+        },
+        "candidate": {
+          "github-copilot/gpt-6.1-sol": {
+            "candidateOutputSha": "cfd5617573743eec35216c711be5bd3d7e649873ab3f1cba965b6a797c4c0881",
+            "payloadSha": "9f7b1051dea3262e10dfc5cdee85809582529cc49f349ee0c99b8aef1ff70abd"
+          }
+        }
+      }
+    },
+    "previous": {
+      "github-copilot/gpt-6.1-sol": {
+        "factsSha": "a8f5d08355047fc461bc8bcc9d6b8bfaae09d483cf9eaf1723834ed5aebf1797",
+        "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+        "intentSha": "5e5d3dfc0b642d6f632cf7cf04a895a28aaa28b4761d1e7433eb56d06a27861c",
+        "baselineOutputSha": "96d1c6b17166d7f2282ea4063ef2c2f5a3f6163b74b229fca8b47b3a3c280f91",
+        "candidateOutputSha": "cfd5617573743eec35216c711be5bd3d7e649873ab3f1cba965b6a797c4c0881",
+        "facts": {
+          "per-ref": {
+            "before": "holds",
+            "after": "holds",
+            "label": "intended but unchanged"
+          },
+          "settlement": {
+            "before": "fails",
+            "after": "holds",
+            "label": "intended change"
+          }
+        },
+        "feedback": "Both outputs keep all six per-ref lines byte-for-byte, treat ABC-4 as a settled stopped item with no reopened integrity question, and offer no gate, retry or write, so per-ref holds on both sides. After additionally delivers the Change's fixed-order nonzero counters on a first stuck line (written=2,declined=1,stopped=1,unfetched=1,close-failed=1), which is the intended settlement movement without disturbing the per-ref block. Nothing in After's wording threatens per-ref; if you later touch this template, keep the counter line strictly above the verbatim block, avoid any trailing menu or 'next step' row after ABC-6, and keep 'stuck' scoped to the unfetched/close-failed outcomes so ABC-4 never reads as an open question.",
+        "wallMs": 5506,
+        "verdict": "improved",
+        "judgeModel": null,
+        "thinking": null
+      }
+    },
+    "refreshed": {
+      "github-copilot/gpt-6.1-sol": {
+        "factsSha": "a8f5d08355047fc461bc8bcc9d6b8bfaae09d483cf9eaf1723834ed5aebf1797",
+        "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+        "intentSha": "5e5d3dfc0b642d6f632cf7cf04a895a28aaa28b4761d1e7433eb56d06a27861c",
+        "baselineOutputSha": "96d1c6b17166d7f2282ea4063ef2c2f5a3f6163b74b229fca8b47b3a3c280f91",
+        "candidateOutputSha": "cfd5617573743eec35216c711be5bd3d7e649873ab3f1cba965b6a797c4c0881",
+        "facts": {
+          "per-ref": {
+            "before": "holds",
+            "after": "holds",
+            "label": "intended but unchanged"
+          },
+          "settlement": {
+            "before": "fails",
+            "after": "holds",
+            "label": "intended change"
+          }
+        },
+        "feedback": "After preserves all six per-ref lines verbatim and keeps ABC-4 settled without introducing any active question, gate, or write, so the fact remains holding. The new first line supplies the fixed-order nonzero settlement counters and reports stuck consistently with the unfetched and close-failed outcomes. Retain that header and the unchanged per-ref lines to deliver the settlement change without losing the existing guard.",
+        "wallMs": 3884,
+        "verdict": "improved",
+        "judgeModel": "github-copilot/gpt-6.1-sol",
+        "thinking": "medium"
+      }
+    }
+  },
+  "repoSha": "03b700159d3e93209e89a28f2f3a032bd72cfdd9"
+}

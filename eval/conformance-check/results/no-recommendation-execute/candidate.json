@@ -1,7 +1,7 @@
 {
   "sample": "no-recommendation-execute",
   "arm": "candidate",
-  "skillSha": "f5e58eb04c446b66d3a12b2a2ab5cd79bff20ccaaee1a1135d3071d09b8ea222",
+  "skillSha": "0520d3c0b96de923e1884d225da8a91aebc913143e9fc7edf77c33876e7daa8d",
   "inputSha": "3a38f50e21fd29525066724ac74383e69ddc8ee663722cfd04d13e8fb4612c3e",
   "kind": "text",
   "assembly": "headed",
@@ -17,16 +17,16 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "Recorded: manifest=custom(append the sha256 table from the build log to the release notes)\n\nItem 1 is your custom choice, not a recommendation. Its effect is concrete, so no clarification is needed. Every item now has a decision, and the batch below runs once. Nothing has executed yet.\n\n**Normalized operation (state-changing, deliverable edit, no spec edit):** append the complete integrity table from `build.log` to `release-notes.md`, under the existing `# Lantern release` heading:\n\n```markdown\n| Artifact | sha256 |\n|---|---|\n| release.zip | aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa |\n```\n\n**Scheduled execution (disposition-protocol execute order):**\n\n1. **Normalize.** Done above. This is a code-changing `custom`, not a spec edit.\n2. **Spec edits.** None, so this step is skipped.\n3. **Spec re-audit.** Not triggered, because the spec is unchanged.\n4. **Apply the custom effect.**\n   - Append the table to `release-notes.md` and commit it.\n   - Run the project's tests and a `code-reviewer` pass on that delta.\n   - Re-run Step 1's canonical tests.\n   - If any of these fail, stop and report. Do not proceed.\n5. **Re-audit conformance.** The working tree changed after `audited-base`, so a fresh `conformance-reviewer` audit runs and replaces the closure block.\n   - New decisions are requested only if the refreshed inventory differs from the approved one.\n6. **Follow-up.** None.\n7. **Non-state-changing custom.** None.\n8. **Revert.** None.\n9. **Re-enter Step 3.5.** This happens only if a concern remains open after the re-audit.\n\nDurable record, to be completed with the execution result:\n\n```\nG1 - Integrity manifest is missing: custom(append the sha256 table from the build log to the release notes) - result: pending execution and re-audit\n```\n",
-      "words": 242,
-      "wallMs": 13798,
+      "text": "Recorded: manifest=custom(append the sha256 table from the build log to the release notes)\n\n**Disposition record:** `G1 - Integrity manifest is missing: custom(append the sha256 table from the build log to the release notes)`. This is a user-supplied custom choice, not a recommendation.\n\n**Normalized custom effect.** The effect is concrete and executable as given, so no clarification is needed. It is state-changing because it edits a code/doc deliverable, not the spec.\n\n- **Operation:** append the complete integrity table from `build.log` to `release-notes.md`, below the existing `# Lantern release` heading.\n\n  ```markdown\n  | Artifact | sha256 |\n  |---|---|\n  | release.zip | aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa |\n  ```\n- **Ownership:** `release-notes.md` is the touched file. `build.log` is read-only.\n\n**Scheduled execution.** All items are now decided. Nothing has executed yet. The execute order runs once, in this order:\n\n1. **Normalize:** done above.\n2. **Spec edits:** none. No accept or rescope was chosen, and the spec is unchanged.\n3. **Re-audit for a spec change:** skipped, because step 2 changed nothing.\n4. **Code-changing custom:** the main session appends the table to `release-notes.md` and commits the change.\n   - Run the project's tests on the change.\n   - Dispatch `code-reviewer` (foreground, `async: false`) on the delta.\n   - Re-run Step 1's canonical tests.\n   - Stop and surface the result if any of these fail.\n5. **Re-audit after state-changing work:** a fresh foreground `conformance-reviewer` dispatch, with `model:` injected per `closureReview.model`. Its inputs are:\n   - the spec\n   - the verbatim prompt\n   - the full diff\n   - the prior report\n\n   This regenerates the `## Closure / conformance` block with a new `audited-base`. Fresh decisions are requested only if the refreshed inventory differs from this approved one.\n6. **Follow-up:** none.\n7. **Non-state-changing custom:** none.\n8. **Revert:** none requested.\n9. **Re-enter Step 3.5** with the re-audited block if any concern remains open. On a clean `status: CONFORMS (0 open)` handoff, proceed through the freshness precondition to Step 4.\n\nThe closure summary and Step 4 options will follow once these steps and their checks have actually run and passed.\n",
+      "words": 307,
+      "wallMs": 14134,
       "mechanical": {}
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "Recorded: manifest=custom(append the sha256 table from the build log to the release notes)\n\n**G1 - Integrity manifest is missing:** approved code-changing custom disposition.\n\nNext execution:\n1. Append this existing table from `build.log` to `release-notes.md`, retaining `# Lantern release`:\n\n   | Artifact | sha256 |\n   |---|---|\n   | release.zip | aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa |\n\n2. Run the project’s tests and a `code-reviewer` review of the change, then rerun the canonical finish-gate tests.\n3. Re-audit conformance and regenerate the durable closure block. Request fresh decisions only if the refreshed inventory differs from the approved one.\n\nNo further clarification or ownership discovery is needed for this custom action. No edits or checks have executed in this tool-free replay; shipping options remain gated on those results.\n",
-      "words": 109,
-      "wallMs": 8156,
+      "text": "Recorded: manifest=custom(append the sha256 table from the build log to the release notes)\n\nG1 - Integrity manifest is missing: approved custom action is to append the complete sha256 table from `build.log` to `release-notes.md`, preserving its existing heading. No further clarification is needed.\n\nExecution is scheduled to:\n1. Append the supplied table and verify it matches `build.log` exactly.\n2. Run the project’s canonical tests and obtain a code review of the documentation delta.\n3. Commit the change and re-audit conformance against the unchanged manifest requirement.\n\nNothing has been edited or checked in this tool-free replay. The concern remains open pending execution and verification; Step 4 is not yet available.\n",
+      "words": 107,
+      "wallMs": 6558,
       "mechanical": {}
     }
   },
@@ -34,9 +34,9 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "6e95572198c9597284b59ea1e0479b7da1fa4936abb34f7599ae23f96035028e",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "68fdb5434a67270e3e3a98d76e69521337d5547b430839ca82b1daf357fd84cc",
-      "baselineOutputSha": "5417202139fac8ab0111b9a6dbf53fb56a42bcd500af0e6192b533c241322d6c",
-      "candidateOutputSha": "5028a8bd628487bd2c614ce2bcfee3372731e394df2327b98e7a70da391cff37",
+      "intentSha": "10eaf05990888a2633579df36d771f7512fb5d149f5a1a5397ae9228b7b7b4eb",
+      "baselineOutputSha": "0ece06d9e653fadf511e5bbc8cfe77c3b80d7f0db1e55c5c1ec414d6a12c7847",
+      "candidateOutputSha": "59468384e6b11ee64c95020f9888e61322f13a0ddd90c179f592a540c0917500",
       "facts": {
         "f1": {
           "before": "holds",
@@ -44,9 +44,9 @@
           "label": "intended but unchanged"
         },
         "f2": {
-          "before": "fails",
+          "before": "holds",
           "after": "holds",
-          "label": "intended change"
+          "label": "intended but unchanged"
         },
         "f3": {
           "before": "holds",
@@ -59,15 +59,16 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "After keeps everything Before kept and fixes f2: the leading `Recorded: manifest=custom(append the sha256 table from the build log to the release notes)` and the closing durable record both echo the user's free text verbatim, whereas Before paraphrased it into `custom (append build.log sha256 table to release-notes.md)`. Acceptance without reprompting (f1) is explicit in both, the re-audit sits ahead of any Step 3.5 re-entry and no CONFORMS is claimed while it is pending (f3), and the `<handle>=<choice>` form appears only in the Recorded line, never in an instruction to the user (f4). Two small things worth tightening: After's record uses the handle `manifest` while the gap is identified elsewhere as `G1`, so pick one identifier for the record line to avoid confusion when the result is filled in; and step 9's phrasing 'only if a concern remains open' could be read as skipping Step 3.5 on a clean re-audit, so Before's two-branch wording ('CONFORMS (0 open) continues the fast path; any open concern comes back as a new decision') is safer for the re-audit barrier while still delivering the Change.",
-      "verdict": "improved"
+      "feedback": "No fact moved between Before and After on this case: both outputs accept the numbered free-text reply as item 1's custom disposition without reprompting, both open with the same verbatim `Recorded: manifest=custom(append the sha256 table from the build log to the release notes)` line (so f2 already held in Before, contrary to the expected fails->holds), both schedule the code-changing append, tests, code-reviewer pass, and a fresh conformance-reviewer re-audit before any CONFORMS claim or Step 4 menu, and both confine the `handle=choice` form to the record line with no operator-facing question using it. After's additions - the explicit 'All items are now decided' statement, the numbered nine-step execute order with step 5's re-audit inputs, and the closing sentence deferring the closure summary and Step 4 options until checks have run - strengthen f3 without introducing any prompt-facing handle assignment, so the current After wording is safe to keep; if you tighten further, keep the Recorded line as the first line and keep the final sentence that defers Step 4 until the re-audit completes, since those two anchors are what pin f2 and f3.",
+      "wallMs": 10949,
+      "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "6e95572198c9597284b59ea1e0479b7da1fa4936abb34f7599ae23f96035028e",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "68fdb5434a67270e3e3a98d76e69521337d5547b430839ca82b1daf357fd84cc",
-      "baselineOutputSha": "d8671384c3e143f09d6570f678c49bdd5ca0b61ce327b68722c778d584ee6d8c",
-      "candidateOutputSha": "2d38b61dc0c85fbed5d54cc0d7efad032530c0fc1bca334f0cc0afb486ddee5c",
+      "intentSha": "10eaf05990888a2633579df36d771f7512fb5d149f5a1a5397ae9228b7b7b4eb",
+      "baselineOutputSha": "0d47a9fbbddcd3d6976f38fd9a7f26452b40a02ed8b3d943845be77fc6d3461f",
+      "candidateOutputSha": "2cbe297da8ae6cf4358829876d0b770e8b51dff272f360220bd23e17c6056856",
       "facts": {
         "f1": {
           "before": "holds",
@@ -75,9 +76,9 @@
           "label": "intended but unchanged"
         },
         "f2": {
-          "before": "fails",
+          "before": "holds",
           "after": "holds",
-          "label": "intended change"
+          "label": "intended but unchanged"
         },
         "f3": {
           "before": "holds",
@@ -90,9 +91,10 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "After moved f2 from fails to holds: Before only said \"Record the result as `custom`\" and paraphrased the user's effect (\"append the complete sha256 table from `build.log` to `release-notes.md`\"), whereas After opens with a literal `Recorded: manifest=custom(append the sha256 table from the build log to the release notes)` line echoing the reply verbatim. Nothing regressed: both outputs accept the free text as the custom disposition without reprompting (f1), both schedule the re-audit after the edit and keep shipping gated on it without claiming CONFORMS (f3), and the only handle=choice form in After sits in the Recorded line, not in any prompt-facing instruction (f4). To keep all four while delivering the Change, retain exactly this shape — a verbatim `Recorded: <handle>=custom(<user text>)` line up front, a scheduled edit → checks → re-audit sequence, and an explicit statement that nothing has executed; the only polish worth considering is using the gap's own handle (G1) rather than an ad hoc `manifest` so the record line matches the closure block's identifier.",
-      "verdict": "improved"
+      "feedback": "After keeps every fact Before kept: the free-text answer is accepted as item 1's custom disposition with no reprompt, the Recorded line echoes the user's text verbatim inside custom(...), the re-audit is explicitly scheduled before any conformance claim and Step 4 is stated as unavailable, and the handle=choice form appears only in the Recorded line. Note that Before already echoed the text verbatim, so f2 does not actually transition in this case despite the Expected-to-move entry. One wording caution for the scheduled-execution list: step 3 says 'Commit the change and re-audit conformance', which reads as committing before the re-audit; to make the execute-order barrier unambiguous, order it as 'Re-audit conformance against the manifest requirement, then commit' (or split re-audit into its own step before any commit/Step 4 mention). Otherwise the numbered execution schedule plus the explicit 'Step 4 is not yet available' line is a clear improvement over Before's prose and delivers the Change without moving any fact.",
+      "wallMs": 12121,
+      "verdict": "unchanged"
     }
   },
-  "repoSha": "f6b27b68f40de3df9350a4f224f973b553a0f0cd"
+  "repoSha": "0454df1724312f2291bed3d591cbb0f7e61e1c8a"
 }

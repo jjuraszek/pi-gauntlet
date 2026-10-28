@@ -15,15 +15,6 @@
     "thinking": "medium"
   },
   "outputs": {
-    "anthropic/claude-opus-5-5": {
-      "status": "ok",
-      "text": "## Step 6: Cleanup Workspace (after squash-merge, option 3)\n\n**Contract source:** No gauntlet overrides file exists, so there is no `## using-git-worktrees` section. This takes the **legacy path**.\n\n**Ownership checks:**\n\n1. **Project-native script?** No `worktree` script exists at `/work/acme-api`, so there is no destroy command to defer to.\n2. **Under a gauntlet-owned location?**\n   - `$PRIMARY/.worktrees/` is `/work/acme-api/.worktrees/`. `$WORKTREE` is `/work/acme-api-worktrees/rate-limit`, which is a sibling directory. It is not inside the primary. `/work/acme-api-worktrees` only shares a string prefix with `/work/acme-api`.\n   - `~/.worktrees/acme-api/` does not match either.\n3. **Otherwise:** the host environment owns this workspace.\n\n**Action taken:**\n- No `git worktree remove` was run, and no `git worktree prune`.\n- `git branch -D rate-limit` was **skipped**. It would fail anyway while the worktree still has the branch checked out.\n\n**Report:**\n\n> The squash-merge into `main` at `/work/acme-api` is complete. The worktree at `/work/acme-api-worktrees/rate-limit` is host-owned, because it is outside `/work/acme-api/.worktrees/` and `~/.worktrees/acme-api/`. Gauntlet left it in place. That host-owned worktree still holds the branch `rate-limit`.\n>\n> To clean up manually, use whatever tool created the worktree, or run:\n> ```bash\n> git -C /work/acme-api worktree remove /work/acme-api-worktrees/rate-limit\n> git -C /work/acme-api worktree prune\n> git -C /work/acme-api branch -D rate-limit\n> ```\n> To have gauntlet own cleanup for this layout in future, add a `## using-git-worktrees` section to the overrides file with `- home: ../acme-api-worktrees/<name>`.\n",
-      "words": 207,
-      "wallMs": 9518,
-      "mechanical": {
-        "s2": "fails"
-      }
-    },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
       "text": "The host environment owns `/work/acme-api-worktrees/rate-limit`: it is outside the gauntlet-owned worktree paths, and no project-native cleanup script exists.\n\nDo not remove the worktree or delete the branch. The host-owned worktree still holds `rate-limit`.\n",
@@ -35,32 +26,10 @@
     }
   },
   "judge": {
-    "anthropic/claude-opus-5-5": {
-      "factsSha": "8af7a37d875608fa8487e18fca111e61dac24245d10f243cb638f22713897d27",
-      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "2b07cd5789c3b4c5c74ed93b43c6f993f9ccb0032fbb11015cb3e218c6836332",
-      "baselineOutputSha": "e3a59746c808a1f83412ca0bc937f08331ad50cf180ccb3882b1ab7705ec8e97",
-      "candidateOutputSha": "238461a3fc35e7e6cb40197f330dfce36b426513cf759e0e5f8a56580165e0ef",
-      "facts": {
-        "s1": {
-          "before": "holds",
-          "after": "holds",
-          "label": "held"
-        },
-        "s2": {
-          "before": "fails",
-          "after": "fails",
-          "label": "intended but unchanged"
-        }
-      },
-      "feedback": "Nothing moved on this case: both Before and After report the sibling path as host-owned, state explicitly that no `git worktree remove` or `git worktree prune` ran, mark `git branch -D rate-limit` as skipped, and close with the sentence that the host-owned worktree still holds `rate-limit`. After's wording is slightly stronger for the Change because it names the two legacy gauntlet-owned homes it checked against, explains the string-prefix trap between `/work/acme-api` and `/work/acme-api-worktrees`, and adds the `- home: ../acme-api-worktrees/<name>` hint for future keyed cleanup; keep that structure (checked homes -> ownership verdict -> explicit no-remove/no-prune -> skipped branch -D -> 'still holds' sentence) so the legacy no-section narration stays fixed while the keyed-contract behavior lands elsewhere.",
-      "wallMs": 10431,
-      "verdict": "unchanged"
-    },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "8af7a37d875608fa8487e18fca111e61dac24245d10f243cb638f22713897d27",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "2b07cd5789c3b4c5c74ed93b43c6f993f9ccb0032fbb11015cb3e218c6836332",
+      "intentSha": "30343bc5c6f678faa9431a82e537b28e529d686c25202329a16e741a2b64b92c",
       "baselineOutputSha": "f058b9c10428367ddeba0733eaff840d7a7ecdbe727613f621b3698cc2a34610",
       "candidateOutputSha": "020fe4726aed74b273407c27fdac11d4871a7e195de0aa27f0d9a6640c222913",
       "facts": {
@@ -75,10 +44,10 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "Nothing moved for this case: After still names the worktree host-owned (\"The host environment owns...\" plus the closing \"The host-owned worktree still holds `rate-limit`\"), performs no removal, and skips branch deletion. Two small things worth keeping as the keyed-contract wording lands: Before explicitly listed pruning alongside removal and branch deletion, while After only says \"Do not remove the worktree or delete the branch\" - adding \"or prune\" would make the removes-nothing claim airtight against a reader who treats prune as a separate action. Also, After's rationale (\"outside the gauntlet-owned worktree paths, and no project-native cleanup script exists\") should stay tied to the no-section legacy-three-homes decision so the host-owned verdict reads as the unchanged legacy path rather than a failed `home:` match.",
-      "wallMs": 8275,
+      "feedback": "After preserves s1: it identifies the worktree as host-owned, directs no removal or branch deletion, and states that the worktree still holds `rate-limit`. No fact moved. To deliver the requested final-outcome format while preserving this behavior, begin with exactly one `done` line, then retain the host-ownership explanation and explicitly say to skip worktree removal, pruning, and branch deletion.",
+      "wallMs": 3427,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "43b5ec3f2933c5a716c49916e9b1b7c002bb3da2"
+  "repoSha": "2eb4429b4dd687432969f427f82d45d7840d7c63"
 }

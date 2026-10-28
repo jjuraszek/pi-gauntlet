@@ -104,11 +104,14 @@ Fail closed: a dispatch error, an async handle, a silence-kill, or a missing or 
 
 ## 4. Human batch - one menu
 
+Follow the [first-line rule](menu-layout.md).
+
 Decide every recommendation and its reason before writing the menu text: the menu text is written after the recommendation is decided, never while deciding it. Never leak deliberation: `recommended: custom? Hmm. Dispositions: fix-now ... Actually, the amended spec makes G2 ...`.
 
 Render only escalated and prefiltered items; `<N>` counts them. Build the opening sentence from the prepared item's `what` and `why`; take the human-call sentence from the prefilter rule or reviewer's escalate reason in plain words, with `Reviewer:` verbatim beneath it. Nothing symbol-dense above the fold; each item's `old -> new` sits under `Details`, after the footer. This menu's grammar governs the amendment batch only; brainstorming's questionary formats (the labeled recommendation question and the ticket cut question) keep their own rules - including the cut question's re-ask after a cancelled repair, re-rendered in full with the row unchanged.
 
 ```
+gauntlet: gate=brainstorming/human-batch
 Spec amendments: <N> need your call - from <trigger>; applying as recommended <reopens | adds | removes> <task ids | no tasks>; no phase change.
 
 1. <title> - <what>. <why>
@@ -208,6 +211,7 @@ Eight synthetic items modelled on one real run. Items 1-5 and 8 reach the review
 The reviewer clears items 1-5; nothing is applied yet. The batch renders items 6-8 (items 1-5 apply together with the accepted ones after the reply):
 
 ```
+gauntlet: gate=brainstorming/human-batch
 Spec amendments: 3 need your call - from Task 7 BLOCKED; applying as recommended reopens Tasks 4, 6; no phase change.
 
 1. Fewer announcements per fetch - the acceptance criterion drops from at least 3 to at least 1. Lowers the bar you set.

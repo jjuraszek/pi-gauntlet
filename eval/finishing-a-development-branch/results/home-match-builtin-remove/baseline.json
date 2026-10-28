@@ -15,15 +15,6 @@
     "thinking": "medium"
   },
   "outputs": {
-    "anthropic/claude-opus-5-5": {
-      "status": "ok",
-      "text": "# Step 6: Cleanup Workspace\n\n**Option 3 (Squash-merge)** completed, so cleanup runs.\n\n## Contract\n\n`$PRIMARY/.pi/gauntlet-overrides.md` has a `## using-git-worktrees` section with a `- home:` key, so the **keyed contract** applies. It has no `create:` or `destroy:` key.\n\n1. **Resolve `home:`.** `../acme-api-worktrees/<name>` is relative, so it resolves against `$PRIMARY`:\n   - `/work/acme-api/../acme-api-worktrees/<name>` becomes `/work/acme-api-worktrees/<name>`.\n   - `<name>` appears once, as the whole last path segment, with no prefix or suffix. The pattern is valid.\n\n2. **Ownership match.** `realpath` leaves both paths unchanged.\n   - Pattern: `/work/acme-api-worktrees/*`\n   - `$WORKTREE`: `/work/acme-api-worktrees/rate-limit`\n   - The paths **match**, and `NAME = rate-limit`.\n\n3. **`destroy:` is not set**, so the default removal applies (rule 4).\n\n## Commands\n\n```bash\ngit -C \"/work/acme-api\" worktree remove \"/work/acme-api-worktrees/rate-limit\"\ngit -C \"/work/acme-api\" worktree prune\n```\n\nAfter those succeed, delete the branch. The worktree no longer references it at that point.\n\n```bash\ngit -C \"/work/acme-api\" branch -D \"rate-limit\"\n```\n\n## Result\n\n- Worktree `/work/acme-api-worktrees/rate-limit` will be removed and pruned. Gauntlet owns it because it matches `home: ../acme-api-worktrees/<name>`.\n- Branch `rate-limit` will be deleted after the worktree removal succeeds. Its changes were squash-merged into `main` at `/work/acme-api`.\n- If `worktree remove` fails, for example because of uncommitted changes, print the output, stop, and keep the branch. Do not retry with `--force`.\n",
-      "words": 187,
-      "wallMs": 8475,
-      "mechanical": {
-        "b3": "holds"
-      }
-    },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
       "text": "The keyed `home:` resolves to `/work/acme-api-worktrees/<name>`, matching `$WORKTREE` with `NAME=rate-limit`. No `destroy:` is configured.\n\nRun in order, proceeding only after each command succeeds:\n\n```bash\ngit -C \"/work/acme-api\" worktree remove \"/work/acme-api-worktrees/rate-limit\" &&\ngit -C \"/work/acme-api\" worktree prune &&\ngit -C \"/work/acme-api\" branch -D \"rate-limit\"\n```\n",
@@ -34,5 +25,5 @@
       }
     }
   },
-  "repoSha": "6aa708917f3429b0e0ba574cb0a680df774f186c"
+  "repoSha": "2eb4429b4dd687432969f427f82d45d7840d7c63"
 }

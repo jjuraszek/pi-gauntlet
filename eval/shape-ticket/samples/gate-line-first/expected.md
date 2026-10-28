@@ -1,0 +1,2 @@
+- settlement: mechanical: matches /^gauntlet: stuck written=2,declined=1,stopped=1,unfetched=1,close-failed=1(?:\r?\n|$)/
+- per-ref: judged: All six per-ref lines remain verbatim. The ended stopped item does not become an active question, and no new gate or write is offered.

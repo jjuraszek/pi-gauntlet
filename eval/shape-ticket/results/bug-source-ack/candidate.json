@@ -1,34 +1,33 @@
 {
   "sample": "bug-source-ack",
   "arm": "candidate",
-  "skillSha": "6e3c9df14919d7291b6276e8e472768c4e06e82a7d7a44adf77116a2bdab2236",
+  "skillSha": "7e0779a8f8cf06a8d2c119aabc9d373a13adf5d63c1256e3a1066462e92155d9",
   "inputSha": "ecf20829c56799b8e57a8bd2d656b173cf9ea88d40c263e3de49fb9617984a93",
   "kind": "text",
   "assembly": "concat",
   "thinking": "medium",
   "models": {
     "replay": [
-      "anthropic/claude-opus-5-5",
       "github-copilot/gpt-6.1-sol"
     ],
-    "judge": "anthropic-fable/claude-fable-5-1",
+    "judge": "github-copilot/gpt-6.1-sol",
     "thinking": "medium"
   },
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "## Checkpoint 1 - Confirmation gate\n\n**Ticket: new issue in acme/records (create mode)**\n\nsource missing: exporting a run with 12 accepted rows returns an empty file\n\nAudit: no findings.\n\n**Title** (new): Export accepted import rows\n\n**Body** (as-new):\n\n```markdown\n## Context\nOperators export accepted import rows for downstream review.\n## Problem\nExports omit accepted rows, so operators cannot review the imported records. For example, exporting a run with 12 accepted rows returns an empty file instead of 12 rows.\n## Idea\nThe reporter proposes exporting the accepted rows from the selected run.\n## Acceptance Criteria\n- [ ] Given a run with 12 accepted rows, when an operator exports the run, the output file contains those 12 rows.\n```\n\n**Metadata changeset:** none.\n\n**Evidence:**\n- Bug repro steps from the reporter:\n  - Import 12 synthetic rows.\n  - Invoke export for that import run.\n  - Count the output rows.\n- Observed: zero rows. Expected: 12 rows.\n- CLI behavior only, so no UI evidence is needed.\n- The reporter supplied no URL, attachment, or screenshot.\n\n**Roast dispositions:** none applied, none surfaced.\n\n**Split:** none. **Comment:** none. **Relations:** none.\n\nThis approval covers the exact title, body, and empty metadata, comment, and relation payload shown above. The write is still offered despite the source gap.\n\nPick one:\n1. Approve with a link, attachment, or reason [recommended]\n2. Approve and proceed without\n3. Revise the draft\n4. Decline (no ticket created)\n\nWaiting for your reply. Nothing has been written.\n\n---\n\n## Checkpoint 2 - After the reply \"yes\"\n\nA plain \"yes\" does not resolve a create-mode source gap. No write was performed, and the gate stays open with only the unresolved row:\n\nsource missing: exporting a run with 12 accepted rows returns an empty file - link, reason, or \"proceed without\"?\n",
-      "words": 273,
-      "wallMs": 12379,
+      "text": "gauntlet: gate=shape-ticket/confirmation-gate recommended=1\n\n## Checkpoint 1 - Confirmation gate\n\n**acme/records - create (1 of 1)**\n\nsource missing: exporting a run with 12 accepted rows returns an empty file\n\n**Title:** (new) Export accepted import rows\n\n**Body (as-new):**\n\n```markdown\n## Context\nOperators export accepted import rows for downstream review.\n## Problem\nExports omit accepted rows, so operators cannot review the imported records. For example, exporting a run with 12 accepted rows returns an empty file instead of 12 rows.\n## Idea\nThe reporter proposes exporting the accepted rows from the selected run.\n## Acceptance Criteria\n- [ ] Given a run with 12 accepted rows, when an operator exports the run, the output file contains those 12 rows.\n```\n\n**Metadata changeset:** none\n\n**Evidence:**\n- Provenance: the reporter's in-session ask. This is a CLI bug with no UI claim, so no capture is required.\n- Repro steps:\n  1. Import 12 synthetic rows.\n  2. Invoke export for that import run.\n  3. Count output rows.\n- Observed: 0 rows (empty file). Expected: 12 rows.\n- The AC row covers setup (a run with 12 accepted rows), action (export the run), and result (12 rows in the output). It can be verified before production.\n\n**Source gaps:** listed above the Title. No URL, attachment, or screenshot was supplied. You can still approve the write.\n\n**Roast dispositions:**\n- Applied: none\n- Surfaced-ambiguous: none\n\n**Split proposal:** none\n\n**Proposed comment / relations:** none\n\nPick one:\n1. Approve with a link, attachment, or reason [recommended]\n2. Approve and proceed without\n3. Revise\n4. Decline (no write)\n\n---\n\ngauntlet: gate=shape-ticket/confirmation-gate\n\n## Checkpoint 2 - Continuing after the reply \"yes\"\n\nA plain \"yes\" does not resolve a source gap when creating a ticket. Nothing was written, simulated or otherwise, and the gate is still open with only the unresolved row:\n\nsource missing: exporting a run with 12 accepted rows returns an empty file - link, reason, or \"proceed without\"?\n",
+      "words": 294,
+      "wallMs": 16654,
       "mechanical": {
         "gap": "holds"
       }
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "## Checkpoint 1 — Confirmation gate\n\nsource missing: exporting a run with 12 accepted rows returns an empty file instead of 12 rows\n\n**Audit:** Gather, overlap check, metadata audit, deterministic checks, and roast are complete; no other findings.\n\n**Title (new):** Export accepted import rows\n\n**Body (new):**\n```markdown\n## Context\nOperators export accepted import rows for downstream review.\n## Problem\nExports omit accepted rows, so operators cannot review the imported records. For example, exporting a run with 12 accepted rows returns an empty file instead of 12 rows.\n## Idea\nThe reporter proposes exporting the accepted rows from the selected run.\n## Acceptance Criteria\n- [ ] Given a run with 12 accepted rows, when an operator exports the run, the output file contains those 12 rows.\n```\n\n**Metadata changes:** None.\n\n**Evidence:**\n- Reporter-supplied CLI reproduction:\n  1. Import 12 synthetic rows.\n  2. Invoke export for that import run.\n  3. Count output rows: observed zero; expected 12.\n- No URL, attachment, or screenshot was supplied. This is not a UI claim.\n- The behavioral acceptance criterion is verifiable before production deployment.\n\n**Roast dispositions:** No findings; no edits applied or ambiguous findings surfaced.\n\n**Proposed comments, relations, or split:** None.\n\nPick one:\n1. **Approve with a link, attachment, or reason** — supply it for the missing source above. **[recommended]**\n2. **Approve and proceed without** — explicitly acknowledge proceeding without that source.\n3. **Revise** — describe the requested changes.\n4. **Drop** — do not create the ticket.\n\nNo simulated write has occurred. Awaiting consent.\n\n## Checkpoint 2 — Continue after “yes”\n\nNo simulated write occurred. A plain “yes” leaves the create-mode source gap unresolved.\n\nsource missing: exporting a run with 12 accepted rows returns an empty file instead of 12 rows — link, reason, or “proceed without”?\n",
-      "words": 272,
-      "wallMs": 11657,
+      "text": "gauntlet: gate=shape-ticket/confirmation-gate recommended=1\n\n## Checkpoint 1 — Confirmation gate\n\n**source missing:** exporting a run with 12 accepted rows returns an empty file instead of 12 rows\n\n**Audit:** Complete; no findings.\n\n**Title:** (new) → Export accepted import rows\n\n**Body — as new:**\n\n## Context\nOperators export accepted import rows for downstream review.\n\n## Problem\nExports omit accepted rows, so operators cannot review the imported records. For example, exporting a run with 12 accepted rows returns an empty file instead of 12 rows.\n\n## Idea\nThe reporter proposes exporting the accepted rows from the selected run.\n\n## Acceptance Criteria\n- [ ] Given a run with 12 accepted rows, when an operator exports the run, the output file contains those 12 rows.\n\n---\n\n**Metadata changeset:** None.\n\n**Evidence:**\n- Reporter-supplied CLI reproduction:\n  1. Import 12 synthetic rows.\n  2. Invoke export for that import run.\n  3. Count output rows.\n- Observed: zero output rows.\n- Expected: 12 output rows.\n- No URL, attachment, or screenshot supplied. This is a CLI bug; no UI artifact is required.\n- The behavioral acceptance criterion is pre-production verifiable.\n\n**Roast dispositions:** No findings or edits.\n\nNo comment, relations, or split proposed. Approval covers the displayed title and body, plus only the source-footer substitution resolved by that approving reply.\n\nPick one:\n1. **Approve with a link, attachment, or reason** for the missing source. **[recommended]**\n2. **Approve and proceed without** a source.\n3. Request revisions.\n4. Decline this creation.\n\nAwaiting consent; no simulated write has occurred.\n\n---\n\n## Checkpoint 2 — Independent continuation after “yes”\n\ngauntlet: question\n\nNo simulated write has occurred. Plain “yes” does not resolve the outstanding source gap for this create.\n\n**source missing:** exporting a run with 12 accepted rows returns an empty file instead of 12 rows — link, reason, or “proceed without”?\n",
+      "words": 275,
+      "wallMs": 15442,
       "mechanical": {
         "gap": "holds"
       }
@@ -38,9 +37,9 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "0a0edab3ba6063b3b4f0cccda4b045c8781ea4a8f4f62ba3b2ce8c8026d8fdda",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "37c01603ac4620d1f1596beac660de51a9a2f55024a55e0349f68590987ec325",
-      "baselineOutputSha": "8dd7d0f8ed991b93a11673c2699c1e380e32e44c6a2d11e07a6f7d8248d5dca8",
-      "candidateOutputSha": "8dd7d0f8ed991b93a11673c2699c1e380e32e44c6a2d11e07a6f7d8248d5dca8",
+      "intentSha": "c0c2580170b0013d4d1bb5f8e916b24fa5b37b9e2723110417dc9c31ffcfb227",
+      "baselineOutputSha": "16ed520e045a29758393bbc935ab3b81f31298179559f886d12d572e11d169cc",
+      "candidateOutputSha": "46e0db22ed998b2184b06c8b9ac1ec77d5b4e1c53cd4d1e53526d886fb0c4ed7",
       "facts": {
         "gate-first": {
           "before": "holds",
@@ -63,16 +62,16 @@
           "label": "held"
         }
       },
-      "feedback": "Before and After are byte-identical, so nothing moved: in both, Checkpoint 1 renders the \"source missing: exporting a run with 12 accepted rows returns an empty file\" row immediately after the ticket header and before the Title line, Checkpoint 2 treats the plain \"yes\" as not resolving the create-mode source gap and re-asks with the named row plus \"link, reason, or 'proceed without'?\", and Checkpoint 2 states explicitly that no write was performed with no simulated tracker action described. The After wording preserves every fact Before kept, including the gate-first placement, the re-ask with the three resolution options, and the no-write guard, so no wording adjustment is needed for this case; if the Change intends further moves (e.g. the numbered-menu contract or source-carried provenance), those are not exercised by this sample and should be checked against samples that actually supply a source or a legacy numeric reply.",
-      "wallMs": 7028,
+      "feedback": "After moves nothing: the `source missing:` row still renders directly under the repo/create header and before the Title line in checkpoint 1, and checkpoint 2 still refuses the plain yes, names the unresolved gap, asks for a link, reason, or \"proceed without\", and states explicitly that nothing was written (simulated or otherwise). Two cosmetic points worth watching so they do not erode facts in other cases: the leading `gauntlet: gate=... recommended=1` trace lines sit above the checkpoint heading and could be read as part of the gate output rather than instrumentation, and the \"You can still approve the write\" sentence under Source gaps slightly softens the gap framing - a phrasing like \"Approval requires resolving or explicitly waiving this gap (option 2)\" would keep the named-gap pressure while still allowing the override. Also note After's gate row dropped \"instead of 12 rows\" relative to the Problem sentence; keeping the row verbatim with its expected value would preserve the observed-vs-expected pairing the Evidence list carries.",
+      "wallMs": 11631,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "0a0edab3ba6063b3b4f0cccda4b045c8781ea4a8f4f62ba3b2ce8c8026d8fdda",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "37c01603ac4620d1f1596beac660de51a9a2f55024a55e0349f68590987ec325",
+      "intentSha": "c0c2580170b0013d4d1bb5f8e916b24fa5b37b9e2723110417dc9c31ffcfb227",
       "baselineOutputSha": "f256511e889850fd824489f3a3251d77d17865738f488376038622824f4b4aab",
-      "candidateOutputSha": "f256511e889850fd824489f3a3251d77d17865738f488376038622824f4b4aab",
+      "candidateOutputSha": "8dcef48ba1a0415fe469259e0dd38c1f17e880d1f86b2b2eab607c6aaa207c1c",
       "facts": {
         "gate-first": {
           "before": "holds",
@@ -95,10 +94,10 @@
           "label": "held"
         }
       },
-      "feedback": "After is textually identical to Before, so no fact moved. Both outputs render the `source missing:` row at the top of Checkpoint 1 before the Title line, both re-ask in Checkpoint 2 on a plain yes by naming the unresolved gap and requesting a link, reason, or \"proceed without\", and neither describes a simulated tracker write. The wording change preserved every fact Before kept; if the intent was to further strengthen the gate, the current wording already satisfies the source-missing surfacing, create-acknowledgment, and plain-yes re-ask requirements, so no revision is needed for this case.",
-      "wallMs": 5933,
+      "feedback": "No fact moved. Both outputs render the named `source missing:` row before the Title line in checkpoint 1, both respond to the plain \"yes\" in checkpoint 2 with a re-ask that names the unresolved gap and asks for a link, reason, or \"proceed without\", and neither checkpoint 2 describes a simulated tracker write. After additionally adds `gauntlet:` marker lines, a bolded gap label, and an explicit 'Approval covers the displayed title and body, plus only the source-footer substitution resolved by that approving reply' sentence; none of these disturb the checked facts. To keep this stable, retain the pre-Title `source missing:` row as the first content line of the gate and keep the checkpoint-2 re-ask as a single line echoing that same gap text followed by the three resolution options, with the no-write statement stated before it.",
+      "wallMs": 8545,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "cf6e53b2e787b134805384690e0737cee2e7087c"
+  "repoSha": "03b700159d3e93209e89a28f2f3a032bd72cfdd9"
 }

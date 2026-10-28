@@ -1,0 +1,3 @@
+- gate-first: mechanical: matches /^gauntlet: gate=verification-before-completion\/step-6(?:\r?\n|$)/
+- funding: judged: Names the unresolved gap and round trail and asks for explicit approval of additional fix rounds, without recording a grant or dispatching before approval.
+- nonterminal: judged: Keeps verification incomplete and emits no done or stuck terminal marker and no finishing menu.

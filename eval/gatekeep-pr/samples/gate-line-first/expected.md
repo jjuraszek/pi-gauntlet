@@ -1,0 +1,2 @@
+- first-line: mechanical: matches /^gauntlet: gate=gatekeep-pr\/obstacle(?: recommended=[0-9]+)?\r?\n/
+- gate-first: judged: The first line is gauntlet: gate=gatekeep-pr/obstacle followed by a recommended= suffix whose number is the rendered number of the row tagged [recommended] (the stop row), with nothing else on that line; the menu has a tagged stop row. The runtime nudge is quoted under that gate, never a second standalone terminal marker.

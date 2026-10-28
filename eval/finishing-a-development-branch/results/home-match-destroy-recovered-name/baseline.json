@@ -15,15 +15,6 @@
     "thinking": "medium"
   },
   "outputs": {
-    "anthropic/claude-opus-5-5": {
-      "status": "ok",
-      "text": "# Step 6: Cleanup Workspace\n\n**Option 3 (squash-merge)**, so cleanup runs.\n\n## Reading the contract\n\nThe overrides file `/work/acme-mono/.pi/gauntlet-overrides.md` has a `## using-git-worktrees` section with keys (`home:`, `create:`, `destroy:`). That makes it a **keyed contract**, so the legacy path does not apply.\n\n**1. Resolve `home:`**\n- `../acme-mono-<name>` is resolved against `$PRIMARY` (`/work/acme-mono`), giving `/work/acme-mono-<name>`.\n- `<name>` appears exactly once, in a single path segment with the literal prefix `acme-mono-` and no suffix. The line is valid.\n\n**2. Ownership match**\n- After `realpath`, both paths are unchanged.\n- The pattern `/work/acme-mono-*` (where `*` stays within one segment) matches `$WORKTREE` = `/work/acme-mono-fix-x`.\n- The `*` portion gives **`NAME` = `fix-x`**.\n- Gauntlet owns this worktree.\n\n**3. Match and `destroy:` is set, so run it from `$PRIMARY`**\n- `<name>` is replaced with `'fix-x'`.\n- No `<branch>` or other tokens appear in the destroy line.\n\n```bash\ncd /work/acme-mono && script/worktree destroy 'fix-x'\n```\n\nOutput:\n```\nremoved fix-x\n```\nExit status: **0**.\n\nThe destroy command succeeded, so this step runs **no** `git worktree remove` or `git worktree prune`. The project script owns teardown.\n\n## Branch deletion\n\nThe worktree is gone, so the branch is no longer referenced:\n\n```bash\ngit -C \"/work/acme-mono\" branch -D \"fix-x\"\n```\n\n## Result\n\n- Worktree `/work/acme-mono-fix-x` was removed by the project-native `script/worktree destroy 'fix-x'`.\n- Feature branch `fix-x` was deleted from `/work/acme-mono`. Its changes are already squash-merged into `main`.\n- `/work/acme-mono` remains on `main`.\n",
-      "words": 208,
-      "wallMs": 9377,
-      "mechanical": {
-        "r4": "holds"
-      }
-    },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
       "text": "The keyed `home` pattern resolves to `/work/acme-mono-<name>` and matches `/work/acme-mono-fix-x`, recovering `NAME=fix-x`.\n\nFrom `/work/acme-mono`, the destroy command succeeded:\n```text\n$ script/worktree destroy 'fix-x'\nremoved fix-x\n```\n\nDo not run `git worktree remove` or `git worktree prune`. Next, delete the merged feature branch:\n```bash\ngit -C \"/work/acme-mono\" branch -D \"fix-x\"\n```\n",
@@ -34,5 +25,5 @@
       }
     }
   },
-  "repoSha": "6aa708917f3429b0e0ba574cb0a680df774f186c"
+  "repoSha": "2eb4429b4dd687432969f427f82d45d7840d7c63"
 }

@@ -1,7 +1,7 @@
 {
   "sample": "questionary-option-lines",
   "arm": "baseline",
-  "skillSha": "7c68dd1e3655b044e65592b1c969b5674afcdbb964ca69e548949a2f6595f79a",
+  "skillSha": "7a325058d220682a273aee020935f3f23de8fa109efc05799e0c659184d3858a",
   "inputSha": "ac556d1374211deb4d9a4736061b3cf2d3dde543d37276a9443dd4c5fefaee5e",
   "kind": "text",
   "assembly": "headed",
@@ -17,18 +17,18 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "Which behavior should the workspace-switch filter policy apply when the report view changes workspace?\n\nA) Clear all filters on every workspace switch.\nB) Preserve all active filters across switches.\nC) Restore each workspace's last filters.\n\nRecommendation: B - the workspace-change handler in `ui/report-view.ts` already preserves active filters. The resolver at `settings/resolver.ts:12` can own this behavior without per-workspace filter state. C would add that per-workspace state.\n",
-      "words": 64,
-      "wallMs": 7787,
+      "text": "Which behavior should the report view apply to active filters when the user switches workspaces?\nA) clear all filters on every workspace switch - each workspace opens unfiltered, and nothing is stored between switches\nB) preserve all active filters across switches - the current handler behavior in ui/report-view.ts becomes the explicit policy, and filters from one workspace carry into the next\nC) restore each workspace's last filters - switching back returns that workspace's own filters, which needs a stored filter set for each workspace\nRecommendation: C - filters usually describe one workspace's data, so carrying them over (B) can hide results in the next workspace, while clearing them (A) throws away the user's work; the cost is per-workspace filter storage alongside the resolver-owned policy.\n",
+      "words": 120,
+      "wallMs": 8872,
       "mechanical": {}
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "How should the report view handle filters when switching workspaces?\nA) Clear all filters on every workspace switch.\nB) Preserve all active filters across workspace switches.\nC) Restore each workspace’s last filters.\nRecommendation: C - keeps filters relevant to each workspace while preserving the user’s previous choices.\n",
-      "words": 46,
-      "wallMs": 7350,
+      "text": "How should filters behave when switching workspaces?\nA) Clear all filters on every workspace switch.\nB) Preserve all active filters across switches.\nC) Restore each workspace’s last filters.\nRecommendation: B - it preserves the current behavior without adding per-workspace state.\n",
+      "words": 39,
+      "wallMs": 2642,
       "mechanical": {}
     }
   },
-  "repoSha": "1def5168f916248bad836129aa6e4502d421c2d3"
+  "repoSha": "657f24585c1a6c2182a26df3d0d0691c8e67e59a"
 }

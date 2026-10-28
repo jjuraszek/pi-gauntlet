@@ -1,0 +1,2 @@
+- first-line: mechanical: matches /^gauntlet: gate=chase-bug\/verdict-menu(?: recommended=[0-9]+)?\r?\n/
+- gate-first: judged: The first line is gauntlet: gate=chase-bug/verdict-menu with a recommended suffix matching the rendered recommended row. The real-bug tracker-origin menu omits filing, retains the eligible hotfix row, recommends respond-only, and waits without handoff or a terminal marker.

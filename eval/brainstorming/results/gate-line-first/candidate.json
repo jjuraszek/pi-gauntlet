@@ -1,0 +1,94 @@
+{
+  "sample": "gate-line-first",
+  "arm": "candidate",
+  "skillSha": "0777b684604b6a447ac1e7ec81b499dc4965a119c958b5d3f5ce527219157365",
+  "inputSha": "04e5a5a4f82d82bd5abf5b7bab800f1ab8fe005c98fd649beda6bbc35c4372b5",
+  "kind": "text",
+  "assembly": "headed",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "gauntlet: question\nCorrection: the gathered draft says the existing resolver cannot accept overrides, but primary code shows `settings/resolver.ts:11` already accepts a timeout override. That draft claim is disproved, and the design will proceed on the corrected fact unless you override it.\n\nI traced the resolver's callers, and every one reads settings through that resolver, so it is the single boundary for settings. The missing timeout override does not come from a resolver limitation. The likely root cause is that the affected caller never passes its override into the resolver. A second settings file would add a parallel boundary beside the one that already owns settings, and it would work around that unpassed override rather than fix it. No ticket decision settles this point, and I found no premise that is still unverified. The draft will record these findings for `## Problem`.\n\nHow should we frame this fix?\nA) as framed - add a second settings file that holds the timeout override\nB) pivot: change the existing caller to pass its timeout override into `settings/resolver.ts` - this fixes the root cause through the boundary every caller already uses (`settings/resolver.ts:11`)\nC) smaller or none: document that the resolver already accepts a timeout override and ship no code change, leaving the caller's behavior as it is\nRecommendation: B - the resolver already supports the override and owns every settings read, so a second file would duplicate the boundary and leave the actual defect in place.\n",
+      "words": 238,
+      "wallMs": 8420,
+      "mechanical": {
+        "first-line": "holds"
+      }
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "gauntlet: question\nThe draft’s claim that the existing resolver cannot accept overrides is contradicted by `settings/resolver.ts:11`: it already accepts a timeout override, and every caller uses that resolver. A second settings file would duplicate the existing settings boundary; passing the override from the affected caller addresses the root cause.\n\nWhich direction should the design take?\nA) As framed: add a second settings file.\nB) Pivot: change the existing caller to pass its timeout override through the resolver.\nC) Smaller or none: leave the current timeout behavior unchanged and add no settings file.\nRecommendation: B - the resolver already supports the override, so fixing the caller avoids a duplicate settings boundary.\n",
+      "words": 109,
+      "wallMs": 3848,
+      "mechanical": {
+        "first-line": "holds"
+      }
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "3964f84215fb650a3cadb08fbc0d1a2d61603f1da16a5e5a988f7bdd02a50e99",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "460f2afd63946ca28e753d98ec02c2b198f7bed5ff1b4bf05820058c4477df90",
+      "baselineOutputSha": "7c2e9debad9bdf9f7df35e148ea36d1d02aa086c2762ce4b6c9661cf45fbe76f",
+      "candidateOutputSha": "375e78e38c121626edd6765c0b96db9593ec9733df34400fa66b15e26e1c9d82",
+      "facts": {
+        "correction": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "framing": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "first-line": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        }
+      },
+      "feedback": "After moved the correction fact from fails to holds: Before never renders a question marker, so its (otherwise accurate) premise note citing settings/resolver.ts:11 and the existing timeout override is not placed 'after the marker' as the fact is written, whereas After opens with the column-zero line `gauntlet: question` and then immediately disproves the draft claim with settings/resolver.ts:11 and its timeout-override support before the framing question. Framing holds in both: A/B/C each sit on their own line, B pivots to passing the override through the existing resolver, C is smaller-or-none, and both end on a Recommendation line and stop. Nothing regressed; the After wording that keeps every Before fact while delivering the change is exactly this shape — marker on line one, premise correction next, then the lead-in, one labeled option per line, and a final own-line Recommendation. Keep the marker line literally first (no leading prose) so gate-line-first stays satisfied, and keep the explicit Disproved/Supported/Corrected/Unverified bookkeeping visible in prose as After does so the correction remains unmistakably before the question.",
+      "wallMs": 16908,
+      "verdict": "improved"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "3964f84215fb650a3cadb08fbc0d1a2d61603f1da16a5e5a988f7bdd02a50e99",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "460f2afd63946ca28e753d98ec02c2b198f7bed5ff1b4bf05820058c4477df90",
+      "baselineOutputSha": "8dacff2bb82b545fa7e410057db9c5e0082f612e0783450b07f2e705421f7cc4",
+      "candidateOutputSha": "4443284adcbfff96fa6a81a0fe710ab33016595e90a03400f2b11bc0e176298c",
+      "facts": {
+        "correction": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "framing": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "first-line": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        }
+      },
+      "feedback": "After adds the `gauntlet: question` marker at column zero as its first line, and the verified premise correction (`settings/resolver.ts:11` already accepts a timeout override, every caller uses that resolver, a second file duplicates the boundary) follows it directly and precedes the framing question, so the correction fact as written (which is positioned relative to the marker) holds only in After; Before carries the same correction content but has no marker for it to follow. Both outputs keep the framing contract intact: lead-in first, A) as framed / B) pivot to passing the override through the existing resolver / C) smaller or none on separate physical lines, a final `Recommendation:` line choosing B, and no approaches produced, so the wording change delivered the marker without disturbing the questionary layout. If you want the correction fact to also credit the pre-marker baseline, reword it to something like 'Correct the claim using settings/resolver.ts:11 and its existing timeout override support before the framing question (after the marker when present)'; otherwise the current After wording already keeps every fact Before kept and adds the one the marker requirement introduces.",
+      "wallMs": 18308,
+      "verdict": "improved"
+    }
+  },
+  "repoSha": "657f24585c1a6c2182a26df3d0d0691c8e67e59a"
+}

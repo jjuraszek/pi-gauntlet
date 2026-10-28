@@ -85,11 +85,10 @@ When the sentinel carries a `happy-path:` line, print it directly under `Closure
 
 **Pre-menu amendment funnel (GAPS only).** Before rendering the carried-open menu, `read` and run [`amendment-surface.md` § Conformance entry](../brainstorming/reference/amendment-surface.md) over the inventory once: gaps with `recommended: accept`, verdict `DRIFTED` or `PARTIAL`, not `UNAUTHORIZED`, whose `origin` is not an acceptance criterion are drafted as `accept-into-spec` items (the edit built from `origin` + `evidence`) and sent to the reviewer in one call; cleared items apply and land as one batch commit, the spec is re-audited, the inventory regenerated. Only concerns the re-audit actually closed drop out; sibling concerns in the same gap keep their rows and dispositions. Survivors and every other gap render as ordinary rows below - one menu, never two.
 
-**Carried-open (`status: GAPS (N open)`).** Read `reference/disposition-protocol.md` and follow it for the carried-open render grammar, the response grammar, and the 9-step execute order. Render the human decision menu in the shape below; print the `Conformance: N decisions needed before shipping.` header below the item list, followed by the sentinel's informational lines (`happy-path:`, `Deferred/deviates per spec:`, `whole-diff minors:`) when present, in that order, above the reply instruction - a `failed - attributed to G<n>,...` value names the rows whose evidence is the transcript, a `rescope` recommendation on such a row means the failure lies in code the change never owned - drive the dispositions per that reference, then print the summary render and continue to Step 4. If that reference file cannot be read, stop and surface a blocking error — do **not** improvise the grammar from memory.
-
-Representative carried-open render (multi-concern gap split to `e2e`; single-concern gap `cache`; `UNAUTHORIZED` gap `auth`):
+**Carried-open (`status: GAPS (N open)`).** Read `reference/disposition-protocol.md` and follow it for the carried-open render grammar, the response grammar, and the 9-step execute order. Render the human decision menu in the shape below; print the `Conformance: N decisions needed before shipping.` header below the item list, followed by the sentinel's informational lines (`happy-path:`, `Deferred/deviates per spec:`, `whole-diff minors:`) when present, in that order, above the reply instruction - a `failed - attributed to G<n>,...` value names the rows whose evidence is the transcript, a `rescope` recommendation on such a row means the failure lies in code the change never owned - drive the dispositions per that reference, then print the summary render and continue to Step 4. If that reference file cannot be read, stop and surface a blocking error — do **not** improvise the grammar from memory. Read and apply [menu-layout](../brainstorming/reference/menu-layout.md). Start the message with `gauntlet: gate=finishing-a-development-branch/carried-open` alone on the first output line, without `recommended=`; put item 1 on the next line, before summaries. Representative carried-open render (multi-concern gap split to `e2e`; single-concern gap `cache`; `UNAUTHORIZED` gap `auth`):
 
 ```
+gauntlet: gate=finishing-a-development-branch/carried-open
 1. Source-image E2E validation - not run; blocked (HYDRA1.png, HTTP 401), so the branch ships without its end-to-end evidence.
    The spec requires this validation, but HYDRA1.png is unavailable; decide whether it stays in scope for this branch.
    what: The spec's Verification section gains a line deferring the source-image E2E run until the image is available.
@@ -157,9 +156,7 @@ Three tiers, increasing cost — name the tier when a revert is requested:
 A **heavy** revert is not a menu toggle — say so explicitly to the user before proceeding, and do not present it as equivalent-effort to the light tier. The council audit that lets the human identify revert candidates lives in the `brainstorming` spec commit message body (not a committed spec section).
 
 ### Step 4: Present Options
-
-**Amendment digest (both variants).** Before the options, read `git -C "$WORKTREE" log <base-branch>..HEAD --extended-regexp --grep '^(amend:|loop: cut row [0-9]+|loop: amend)'` and take the `auto-apply` and `granted` records from those commit bodies. Render, then the options:
-
+Start the message with `gauntlet: gate=finishing-a-development-branch/step-4` alone on the first output line, followed by a newline before any closure summary or amendment digest. Emit exactly one marker and no `recommended=`; preserve the full subject-specific menu, including on return from `fix minors`. Read and apply [menu-layout](../brainstorming/reference/menu-layout.md). **Amendment digest (both variants).** Before the options, read `git -C "$WORKTREE" log <base-branch>..HEAD --extended-regexp --grep '^(amend:|loop: cut row [0-9]+|loop: amend)'` and take the `auto-apply` and `granted` records from those commit bodies. Render, then the options:
 ```
 Amendments auto-applied (N):
 - <title> - <what changed>
@@ -175,6 +172,7 @@ Omit the block when N = 0.
 Run the first proof for every recorded original head, home first; the first exit 1 stops with the table's exact message naming that PR's SHA. Run the second proof only for home. Run each proof with `git -C "$WORKTREE"`. Treat every exit other than 0 or 1 as a command error and stop with its output. For a withheld push only, separately prove `git -C "$WORKTREE" merge-base --is-ancestor <PRE_REWORK_HEAD> origin/<headRefName>`: exit 0 appends `(origin moved past the rework's base <PRE_REWORK_HEAD7>)`; exit 1 adds nothing; other exits stop as command errors. Divergence alone proves no origin advance.
 Read and apply [menu-layout](../brainstorming/reference/menu-layout.md) for rendering and numeric replies. Present:
 ```
+gauntlet: gate=finishing-a-development-branch/step-4
 Implementation complete. What would you like to do?
 
 1. Push to the PR branch (PR #N, <headRefName>; appends the rework block to its description)
@@ -192,6 +190,7 @@ Withhold row 1 by omitting it and placing `Withheld: push - <reason>` under the 
 Read and apply [menu-layout](../brainstorming/reference/menu-layout.md) before presenting these options and before acting on a numeric reply.
 
 ```
+gauntlet: gate=finishing-a-development-branch/step-4
 Implementation complete. What would you like to do?
 
 1. Push and create a Pull Request
@@ -208,6 +207,7 @@ Which option?
 Read and apply [menu-layout](../brainstorming/reference/menu-layout.md) before presenting these options and before acting on a numeric reply.
 
 ```
+gauntlet: gate=finishing-a-development-branch/step-4
 Implementation complete. You're on a detached HEAD (externally managed workspace).
 
 1. Push as new branch and create a Pull Request
@@ -252,7 +252,7 @@ node <bin>/gauntlet-telemetry-seal.mjs --worktree "$WORKTREE" --option <pr|squas
 
 The seal prints one line per record (`sealed <path>`, `already sealed <path>`) or one bare outcome (`no telemetry run`, `telemetry disabled`) and exits 0; print its stdout verbatim in the ship completion message. Any nonzero exit stops the flow before the first landing command, quoting the bin's line: exit 2 (`no record at <path>`, `unparseable record <path>: <reason>`) means this gauntlet run's recorder never armed or its record is corrupt; exit 1 is a usage, environment, or git/jj failure (`seal failed <path>: <reason>` restored the pre-seal bytes). The user decides; never land without the seal.
 #### PR-subject row 1: Push to the PR branch
-Capture the scoped verification set and accepted-complete task/thread evidence before the strip. Refetch threads per recorded PR using the paginated single-`$n` query (one invocation per PR) owned by [pr-head](../using-git-worktrees/reference/pr-head.md); retain PR attribution and use the query's location rendering. For home, use the table below and omit threads now resolved on GitHub. For members, copy recorded dispositions and mark newly resolved or newly opened states from the refresh; never use home's first-parent history as member-fix proof.
+For the close-absorbed-PR question, start the message with `gauntlet: gate=finishing-a-development-branch/pr-subject-row-1`. Read and apply [menu-layout](../brainstorming/reference/menu-layout.md). Do not report `done pushed` while this gate awaits an answer. Capture the scoped verification set and accepted-complete task/thread evidence before the strip. Refetch threads per recorded PR using the paginated single-`$n` query (one invocation per PR) owned by [pr-head](../using-git-worktrees/reference/pr-head.md); retain PR attribution and use the query's location rendering. For home, use the table below and omit threads now resolved on GitHub. For members, copy recorded dispositions and mark newly resolved or newly opened states from the refresh; never use home's first-parent history as member-fix proof.
 | Refetched thread / evidence | Resolution |
 |---|---|
 | Recorded `fix`, matching task title carries id, task accepted by spec and code review and `complete`, exactly one naming commit | `fixed in <sha7>` |
@@ -290,6 +290,7 @@ Instantiate `Absorbs:` from every non-home pair in record order; omit it for N=1
 Only after a successful push and successful home body edit, refresh each member with `gh pr view <N> -R <owner/repo> --json state,headRefOid`. Fetch each refreshed head that is not yet local (`git -C "$WORKTREE" fetch origin <current headRefOid>`; for a fork member use its head repository URL) before the ancestry test. Skip and name a member whose head fetch fails: `#14 skipped: head <sha7> not fetchable`. Require state `OPEN` and `git -C "$WORKTREE" merge-base --is-ancestor <current headRefOid> <pushed home head>` exit 0. Exclude and name ineligible members: `#14 skipped: head moved to <sha7>, not in home` or `#14 skipped: state CLOSED`. Treat unexpected Git exits and failed refreshes as errors, withhold closure and report the reason; merge nothing implicitly.
 Ask nothing when none qualify or N=1. Otherwise render one gated question before marking ship complete. Instantiate each actual eligible target and its exact comment using its recorded pre-rework SHA7 and home's number/URL; the two-member rendering is:
 ```text
+gauntlet: gate=finishing-a-development-branch/pr-subject-row-1
 Close the absorbed PRs with these comments?
 #13: "Reworked into #12 (<home url>) by the gauntlet; this PR's commits are merged there and remain reachable as <#13 pre-rework sha7>."
 #14: "Reworked into #12 (<home url>) by the gauntlet; this PR's commits are merged there and remain reachable as <#14 pre-rework sha7>."
@@ -361,9 +362,9 @@ Report: "Keeping branch <name>. Worktree preserved at <path>." The telemetry rec
 **Don't cleanup worktree.**
 
 #### Option 5: Discard
-
-**Confirm first:**
+Read and apply [menu-layout](../brainstorming/reference/menu-layout.md). Start the message with `gauntlet: question` alone on the first output line, followed by a newline before the typed-confirmation text. **Confirm first:**
 ```
+gauntlet: question
 This will permanently delete:
 - Branch <name>
 - All commits: <commit-list>
@@ -457,8 +458,7 @@ A host-owned worktree (Step 6: no `home:` match, or the legacy "Otherwise") keep
 - **Fix:** Never `git rm` under the telemetry dir. Until the seal the record is untracked and git-excluded, so a plan strip cannot reach it; after the seal it is a committed deliverable.
 
 ## Completion
-Once the chosen option (Options 1-4 or PR-subject row 1 - not Discard) is executed successfully, mark the ship phase complete:
-
+Start the final outcome message with exactly one terminal line before summaries. Start the message with `gauntlet: done pr-created` after successful normal or draft PR creation. Start the message with `gauntlet: done merged` after successful squash-merge and post-merge verification. Start the message with `gauntlet: done kept` after Keep. Start the message with `gauntlet: done discarded` only after typed discard authorization and successful discard. Start the message with `gauntlet: done pushed` after successful PR-subject push and body edit, only after the close-member gate is answered or no members qualify. Start the message with `gauntlet: stuck` followed on that line by a short concrete reason for an executed operation that fails, before error evidence or a return menu. Do not combine a terminal marker with a gate marker in one message; a subsequent menu starts a new gate message. Pending choices, implementation stalls and conformance escalation are not terminal outcomes. Read and apply [menu-layout](../brainstorming/reference/menu-layout.md). Preserve strip, seal, cleanup and ship-state rules below; terminal reporting does not complete ship after Discard or failure. Once the chosen option (Options 1-4 or PR-subject row 1 - not Discard) is executed successfully, mark the ship phase complete:
 ```
 phase_tracker({ action: "complete", phase: "ship" })
 ```

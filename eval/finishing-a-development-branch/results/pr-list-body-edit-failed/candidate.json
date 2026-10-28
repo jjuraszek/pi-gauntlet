@@ -1,64 +1,34 @@
 {
   "sample": "pr-list-body-edit-failed",
   "arm": "candidate",
-  "skillSha": "d55b464b34dd6d22ad5ee83fe49b63ea2ee1c775a5b25e8bdbe5a56071bc5521",
+  "skillSha": "c79d1b35252ca81d46edc7542fceb4f9be4fc3b1b86c2454de5565e5e15455f4",
   "inputSha": "fd177c3a0353a276d6fdeeec7874b985d6aa6f4609099ed6e6462a11758d3c2c",
   "kind": "text",
   "assembly": "concat",
   "thinking": "medium",
   "models": {
     "replay": [
-      "anthropic/claude-opus-5-5",
       "github-copilot/gpt-6.1-sol"
     ],
-    "judge": "anthropic-fable/claude-fable-5-1",
+    "judge": "github-copilot/gpt-6.1-sol",
     "thinking": "medium"
   },
   "outputs": {
-    "anthropic/claude-opus-5-5": {
-      "status": "ok",
-      "text": "I'm using the finishing-a-development-branch skill to complete this work.\n\n`phase_tracker({ action: \"start\", phase: \"ship\" })`\n\n**Input:** `WORKTREE=/work/widget/.worktrees/retry`, `PRIMARY=/work/widget`, `FEATURE=retry`. Spec header has no deferred engine. The subject is a rework PR with home #12.\n\n**Step 1:** Rework record pairs, home first:\n- #12 `A` (aaaa…)\n- #13 `B` (bbbb…)\n- #14 `C` (cccc…)\n\n`PRE_REWORK_HEAD=A`. The combined fields are Base `main`, Keeps, Changes, Dropped claims `none`, and Scoped tests `test-retry`. Lowercase provenance is ignored. Home is OPEN, `headRefName=retry`, `baseRefName=main`. The skip rule applies: test-retry passed on a clean commit, and both tree checks are clean.\n\n**Steps 2–3:** Rework menu. `<base-branch>=main`.\n\n**Step 3.5:**\n```\nClosure / conformance: CONFORMS\n```\n\n**Step 4 preflight:** `fetch origin` OK. Ancestry of A, B and C in HEAD `E`: all exit 0. `origin/retry` in HEAD: exit 0, so push is offered.\n\n```\nImplementation complete. What would you like to do?\n\n1. Push to the PR branch (PR #12, retry; appends the rework block to its description)\n2. Push and create a Pull Request (PR #12 already exists on this branch; gh refuses a second one)\n3. Push and create a draft Pull Request (same: PR #12 already exists)\n4. Squash-merge to main (no PR, no surviving branch; orphans PR #12 - close it by hand)\n5. Keep the branch as-is (I'll handle it later; nothing is pushed)\n6. Discard this work (removes the worktree and local branch; the PR branch on origin is untouched)\n\nWhich option?\n```\n→ **1**\n\n**Step 5, row 1:**\n- **Evidence captured:** scoped set `test-retry`, plus accepted-complete HOME task with exactly one naming commit `fffffff`.\n- **Thread refetch, per PR, paginated:**\n  - #12: HOME is open. Recorded `fix`, task accepted-complete, one commit → `fixed in fffffff`.\n  - #13: MEMBER13 copies its recorded disposition `fix`. Home's first-parent walk is not used as proof. NEW13 is newly opened → `still open`.\n  - #14: MEMBER14 had recorded `keep open` and is now marked newly resolved on GitHub.\n- **Strip/seal:** `--option pr --base origin/main --spec <spec path>` → `sealed <telemetry path>`\n- **Refs:** `update-ref refs/gauntlet/pre-rework/pr-12 A`, `pr-13 B`, `pr-14 C`. All OK.\n- **Push:** `push --no-follow-tags origin HEAD:refs/heads/retry` (non-force) succeeded. Pushed home head = `E'`.\n- **Body:** fresh `gh pr view 12 --json body` returned `Original description\\n` as exact bytes. Wrote `$SCRATCH` with `mktemp` outside the repo.\n\n### Checkpoint A: `gh pr edit 12 --repo acme/widget --body-file \"$SCRATCH\"` fails\n\nError: `HTTP 503`. The push is kept and the description is unchanged. Paste this block manually below the existing description, after one blank line:\n\n```markdown\n## Rework\n\nBefore: A (local ref `refs/gauntlet/pre-rework/pr-12` in the rework checkout; the SHA is the portable handle and stays on origin because the push was not forced)\nAbsorbs: #13 (https://github.com/acme/widget/pull/13), #14 (https://github.com/acme/widget/pull/14)\nSpec: <spec path> at <E'7>\nKeeps: retry behavior\nChanges: repair retries\nDropped claims: none\nVerification: scoped - test-retry; CI on this push holds the full run. Telemetry: whole PR against main.\nThreads:\n#12:\n- src/retry.ts:1 - fixed in fffffff\n#13:\n- src/delay.ts:2 - fix (recorded)\n- <NEW13 location> - still open (newly opened)\n#14:\n- src/cap.ts:3 - keep open (recorded); now resolved on GitHub\n```\n\nClosure is withheld. No member refresh is run and no close question is asked.\n\n**Member PRs #13, #14 left open.**\n\n### Checkpoint B: push succeeds, `gh pr view 12 --json body` fails\n\n- No scratch body is written and `gh pr edit` is not run. The description is never replaced by the block alone.\n- The same block above is printed for manual paste, along with the fetch error.\n- Closure is withheld the same way: no member refresh and no question.\n\n**Member PRs #13, #14 left open.**\n\n**Completion (both checkpoints):** the home push landed, so row 1 executed. The worktree is preserved.\n\n`phase_tracker({ action: \"complete\", phase: \"ship\" })`\n\nSeal output: `sealed <telemetry path>`.\n\nFollow-up after merge/deploy: `/skill:check-delivery <ticket-ref>`.\n",
-      "words": 592,
-      "wallMs": 22022,
-      "mechanical": {}
-    },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "### Shared checkpoint — simulated, no commands executed\n\nAliases: `A = a×40`, `B = b×40`, `C = c×40`, `E = e×40`.\n\n- Home: `acme/widget#12`, branch `retry`, base `main`, state `OPEN`.\n- Verification reused: `test-retry` passed on a known clean commit; both telemetry-excluding tree checks passed.\n- Captured scoped verification and accepted-complete HOME task evidence before stripping. Exactly one first-parent naming commit: `fffffff`.\n- Preflight passed for **all three** original heads and `origin/retry`.\n- Refreshed paginated threads separately for #12, #13, and #14. Member evidence is not inferred from home’s first-parent history.\n- Strip ephemeral plan; preserve spec; seal with `--option pr --base origin/main --spec <selected-spec-path>`. Seal stdout was not supplied; none is fabricated here.\n- Preserve:\n  - `refs/gauntlet/pre-rework/pr-12 → A`\n  - `refs/gauntlet/pre-rework/pr-13 → B`\n  - `refs/gauntlet/pre-rework/pr-14 → C`\n- Push only home, non-force: `HEAD:refs/heads/retry`. **Succeeded**, pushed head `E`.\n\n### Checkpoint 1 — description edit fails\n\nFresh body fetch succeeded. Outside-repo `$SCRATCH` preserves the exact bytes `Original description\\n`, then adds one blank line and the block below.\n\n`gh pr edit 12 --repo acme/widget --body-file \"$SCRATCH\"` failed: **HTTP 503**.\n\nPush remains successful. Description update failed; paste this block manually after the existing description:\n\n```markdown\n## Rework\n\nBefore: A (local ref `refs/gauntlet/pre-rework/pr-12` in the rework checkout; the SHA is the portable handle and stays on origin because the push was not forced)\nAbsorbs: #13 (https://github.com/acme/widget/pull/13), #14 (https://github.com/acme/widget/pull/14)\nSpec: <selected-spec-path> at eeeeeee\nKeeps: retry behavior\nChanges: repair retries\nDropped claims: none\nVerification: scoped - test-retry; CI on this push holds the full run. Telemetry: whole PR against main.\nThreads:\n#12:\n- src/retry.ts:1 - fixed in fffffff\n#13:\n- src/delay.ts:2 - fix: retain delay (recorded disposition, retained)\n- NEW13 [location not supplied] - still open (newly opened)\n#14:\n- src/cap.ts:3 - keep open: cap discussion (recorded disposition; newly resolved on GitHub)\n```\n\n`A` must be expanded to its full SHA when pasted; the selected spec path and NEW13’s fetched location must replace placeholders.\n\n**Closure withheld:** no member eligibility/close workflow, no close question, no retries. Worktree preserved at `/work/widget/.worktrees/retry`.\n\n**Member PRs #13, #14 left open.**\n\n### Independent checkpoint 2 — description fetch fails\n\nSame successful verification, evidence capture, strip/seal, original-head refs, thread refreshes, and non-force home push.\n\nFresh home-body fetch fails. Report its actual error; none was supplied here. Do not edit the description or construct a replacement from the Rework block alone. Print the same block above for manual append, preserving the existing description.\n\n**Closure withheld:** no member eligibility/close workflow and no close question. Push retained; worktree preserved.\n\n**Member PRs #13, #14 left open.**\n",
-      "words": 384,
-      "wallMs": 26779,
+      "text": "gauntlet: stuck pr-body-edit-failed\n\n**Checkpoint 1 — push succeeded; description edit failed**\n\nSHA aliases: A = `aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa`, B = `bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb`, C = `cccccccccccccccccccccccccccccccccccccccc`. `PUSHED7` denotes the successfully pushed head’s short SHA.\n\nSimulated deltas; no commands or writes executed:\n- Verification: reused passing `test-retry` evidence; telemetry-excluding tree checks clean.\n- Captured scoped commands and accepted-complete HOME task evidence before stripping. HOME resolves to `fixed in fffffff`.\n- Refreshed threads separately for #12, #13, and #14. Member dispositions retained; no member completion inferred from home’s first-parent history.\n- Stripped ephemeral plans; sealed telemetry with `--option pr --base origin/main`, preserving spec and telemetry.\n- Preserved original heads as `refs/gauntlet/pre-rework/pr-12` → A, `pr-13` → B, `pr-14` → C.\n- Pushed only home, non-force: `HEAD:refs/heads/retry`.\n- Fresh description fetched. Outside-repo scratch preserved `Original description\\n` exactly, then appended one blank line and the block below.\n- `gh pr edit 12 --repo acme/widget --body-file \"$SCRATCH\"` failed: **HTTP 503**. Push remains successful; description update is not confirmed.\n\n**Manual-paste block** — expand A to its full SHA and substitute the selected spec path and PUSHED7:\n\n```markdown\n## Rework\n\nBefore: A (local ref `refs/gauntlet/pre-rework/pr-12` in the rework checkout; the SHA is the portable handle and stays on origin because the push was not forced)\nAbsorbs: #13 (https://github.com/acme/widget/pull/13), #14 (https://github.com/acme/widget/pull/14)\nSpec: <selected spec path> at PUSHED7\nKeeps: retry behavior\nChanges: repair retries\nDropped claims: none\nVerification: scoped - test-retry; CI on this push holds the full run. Telemetry: whole PR against main.\nThreads:\n#12:\n- src/retry.ts:1 - fixed in fffffff\n#13:\n- src/delay.ts:2 - recorded fix: retain delay; remains unresolved\n- <NEW13 location from refresh> - still open\n#14:\n- src/cap.ts:3 - recorded keep open: cap discussion; newly resolved on GitHub\n```\n\nClosure withheld; no close question, no retries, no force push. Worktree preserved at `/work/widget/.worktrees/retry`. Ship phase remains incomplete.\n\nMember PRs #13, #14 left open.\n\n---\n\ngauntlet: stuck pr-body-fetch-failed\n\n**Independent checkpoint 2 — push succeeded; fresh description fetch failed**\n\nSame verification, evidence capture, strip/seal, original-head refs, thread refresh, and non-force home push as above.\n\nFresh home-body fetch failed (`<gh fetch error>`; no specific error supplied). No description edit attempted: the existing body cannot safely be reconstructed or replaced.\n\nUse the same manual-paste block above, appending it to the existing description rather than replacing that description.\n\nClosure withheld exactly as in checkpoint 1. No close question, no member-close operation, no retry. Worktree preserved; ship phase remains incomplete.\n\nMember PRs #13, #14 left open.\n",
+      "words": 372,
+      "wallMs": 24441,
       "mechanical": {}
     }
   },
   "judge": {
-    "anthropic/claude-opus-5-5": {
-      "factsSha": "daf05c0546433fc83d8e84be58c525efec5bbfdb9b297ac3499509dd0855f8d3",
-      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "2b07cd5789c3b4c5c74ed93b43c6f993f9ccb0032fbb11015cb3e218c6836332",
-      "baselineOutputSha": "a22dc74a904b9ddda85e22c21864ee7a09f9ee5d281f691703304599aa29b640",
-      "candidateOutputSha": "5afad5716abec8589b3cfe9e40586a9fc8994395210ebc8d53f1f0d6249af15a",
-      "facts": {
-        "failure": {
-          "before": "holds",
-          "after": "holds",
-          "label": "intended but unchanged"
-        },
-        "fetch": {
-          "before": "holds",
-          "after": "holds",
-          "label": "held"
-        }
-      },
-      "feedback": "Neither fact moved: both Before and After keep the push, leave the description bytes untouched, report the HTTP 503, print the per-PR attributed Rework block for manual paste, withhold closure, and state 'Member PRs #13, #14 left open' in both the edit-failure and fetch-failure checkpoints, with no retry, force, branch deletion, thread replies, merge or ticket change anywhere in the text. Two small wording risks in After worth tightening so the facts stay unambiguous: the pushed home head is written as `E'` while the alias table only defines `E`, and the Spec line uses `<E'7>`, which a careful reader may read as a different commit than HEAD — use the declared alias `E`; and After never says explicitly that nothing is retried or forced after the 503 (Before said 'Nothing is retried or forced'), so add that sentence to Checkpoint A and 'same: no retry' to Checkpoint B to make the no-retry clause self-evident rather than inferred from silence.",
-      "wallMs": 13674,
-      "verdict": "unchanged"
-    },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "daf05c0546433fc83d8e84be58c525efec5bbfdb9b297ac3499509dd0855f8d3",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "2b07cd5789c3b4c5c74ed93b43c6f993f9ccb0032fbb11015cb3e218c6836332",
-      "baselineOutputSha": "4a866da19260811aea1265a63ac86e9a11b9fbeace2814b1533d3735b4ff52ae",
-      "candidateOutputSha": "96372a79aa2f4b324806599c1be7a89b24d7fa9e85633b8c4c0ccce6c5607fb2",
+      "intentSha": "30343bc5c6f678faa9431a82e537b28e529d686c25202329a16e741a2b64b92c",
+      "baselineOutputSha": "37e9a31eeffebee782f423ca39cadd56c8f0be0de9d1e19ec4a68d0c75d4103d",
+      "candidateOutputSha": "07eb6b324379ccbb07f4a8af8006bdf44ce8f0a033d7ac49b9bc1cb305303f24",
       "facts": {
         "failure": {
           "before": "holds",
@@ -71,10 +41,10 @@
           "label": "held"
         }
       },
-      "feedback": "Neither fact moved: both outputs retain the successful non-force push, keep `Original description\\n` in an outside-repo scratch, report the `gh pr edit` HTTP 503, print a per-PR attributed Rework block for manual paste, withhold closure without asking a close question, and state 'Member PRs #13, #14 left open' in both checkpoints, so the expected fails->holds for pr-list-body-edit-failed/failure is not what the text shows — Before already satisfied it. After's wording is slightly tighter (explicit 'no retries', explicit worktree path, concrete `eeeeeee` short SHA and placeholder-expansion note), but checkpoint 2 in After dropped Before's explicit 'branch preserved' and does not restate 'no retries' or 'no thread replies/merge/ticket change'; the fetch fact still holds because nothing in the text performs those actions, yet to keep it robustly held while delivering the Change, carry the checkpoint-1 negatives ('no retries, no thread replies, no merge, no ticket change, worktree and branch preserved') verbatim into the fetch-failure checkpoint rather than relying on 'Same ... as above'. Also consider actually resolving `<selected-spec-path>` as Before did with an `S` alias so the pasted block has no unfilled placeholder besides SHA expansion.",
-      "wallMs": 16589,
+      "feedback": "Neither fact changed: After retains the successful push, exact original-description bytes, HTTP 503 report, PR-attributed manual-paste block, and explicit statements that both members remain open. Its independent fetch-failure checkpoint also supplies the block and withholds editing and closure without introducing other actions. The gate-first stuck markers deliver the relevant wording change without losing these facts. Keep those markers and safeguards; for maximum clarity, explicitly retain the local branch and state that neither failure triggers branch deletion, thread replies, PR merging, or ticket changes.",
+      "wallMs": 7082,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "43b5ec3f2933c5a716c49916e9b1b7c002bb3da2"
+  "repoSha": "2eb4429b4dd687432969f427f82d45d7840d7c63"
 }

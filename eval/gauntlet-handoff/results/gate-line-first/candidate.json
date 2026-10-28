@@ -1,0 +1,84 @@
+{
+  "sample": "gate-line-first",
+  "arm": "candidate",
+  "skillSha": "102fcd8d5b0faeb0ca6862419addca22f2a2f2ed90655d81b9568eba403955d7",
+  "inputSha": "5050d152dddefe5eb2d336289d30d50665a0e5efb8e64eadf2ab3f9710db3a9d",
+  "kind": "text",
+  "assembly": "headed",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "gauntlet: question\nI'm using the gauntlet-handoff skill to write a resumable handoff brief.\n\nI can't derive a handoff key here. No run worktree was reported in this transcript, and the session checkout is on a **detached HEAD** (`git branch --show-current` returned nothing), so there's no branch name to use. Nothing has been written, and no tracker state was touched.\n\nPlease re-run with one of these:\n\n- `/skill:gauntlet-handoff --key <name>` writes the brief to `<tmpdir>/pi-handoff/<name>.md`. The name is used exactly as you type it.\n- `/skill:gauntlet-handoff --out <path>` writes the brief to that path, resolved against the session cwd.\n\nPass only one of `--key` and `--out`.\n",
+      "words": 103,
+      "wallMs": 4994,
+      "mechanical": {
+        "first-line": "holds"
+      }
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "gauntlet: question\nI'm using the gauntlet-handoff skill to write a resumable handoff brief.\n\nThe session checkout is on detached HEAD, so I can’t derive a safe handoff key. Which explicit target should I use: `--key <name>` or `--out <path>`?\n",
+      "words": 39,
+      "wallMs": 2740,
+      "mechanical": {
+        "first-line": "holds"
+      }
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "40c8ec62fc7fe8f9df003b2e70b42ef9ed0660833196f72e3a8023ba4d06de95",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "1926ed6e1f58d879ca8e58a7836da343faaf3850953019ea9a1000ba90e62a8a",
+      "baselineOutputSha": "3bae5d0f252ba8de275653a823fca1702408978fede355b1d02057d1357f2032",
+      "candidateOutputSha": "a707869f1d164ee1a2fee29361ac988ceef2009f6a560248cd83f8284490f68f",
+      "facts": {
+        "target": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "first-line": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        }
+      },
+      "feedback": "Both outputs ask for --key or --out because HEAD is detached and state that no brief was written and no tracker was mutated, so the target fact holds on both sides. After adds the shared question marker (`gauntlet: question`) as the very first line, ahead of the skill announcement, which delivers the Change without dropping any of Before's substance: it still names the detached-HEAD cause, the empty `git branch --show-current`, the absent run worktree, the no-write/no-tracker guarantee, both rerun options with their path semantics, and the one-flag-only constraint. No fact moved for the worse; keep the marker on line one and the announcement on line two as After does.",
+      "wallMs": 4593,
+      "verdict": "improved"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "40c8ec62fc7fe8f9df003b2e70b42ef9ed0660833196f72e3a8023ba4d06de95",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "1926ed6e1f58d879ca8e58a7836da343faaf3850953019ea9a1000ba90e62a8a",
+      "baselineOutputSha": "fe53439731247e4d4a429ee3898412637ad7d16a9dd49170931a07c532995f3b",
+      "candidateOutputSha": "782151ec2bdd8fb870caad3933b6b87f66e8efb9512664eb917603eea7228315",
+      "facts": {
+        "target": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "first-line": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        }
+      },
+      "feedback": "After delivers the change: the first line is the shared `gauntlet: question` marker, placed ahead of the skill announcement, and the message still asks for `--key <name>` or `--out <path>` because HEAD is detached while doing nothing else. One thing it quietly dropped, though, is Before's explicit closing assurance \"No brief was written and no tracker was changed.\" A careful reader can still infer no mutation from After (it only asks and takes no action), so the target fact holds, but the explicit statement is what makes that unambiguous. Suggested wording: keep the marker and announcement as in After, then \"Stopped: the session checkout is on detached HEAD (`git branch --show-current` returned empty), so I can't derive a safe handoff key. Which explicit target should I use: `--key <name>` or `--out <path>`? No brief was written and no tracker was changed.\" That keeps the gate marker first while preserving Before's explicit no-side-effects statement.",
+      "wallMs": 10961,
+      "verdict": "improved"
+    }
+  },
+  "repoSha": "f12c72775c6330594d58f9b98f898861027351f6"
+}

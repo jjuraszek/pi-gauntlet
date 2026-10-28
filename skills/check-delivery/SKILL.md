@@ -7,6 +7,8 @@ description: Use only when explicitly asked to prove delivery of a named merged 
 
 ## Quick reference
 
+Start the message with `gauntlet: stuck` followed on that line by the concrete stop reason for every STOP branch below. Start the message with `gauntlet: done already-recorded` for an already-terminal ticket with the delivery already recorded; preserve the no-write rule.
+
 | Situation | What happens |
 |---|---|
 | Ref unreadable, or repo mismatch with no repo group naming this repo | STOP - abort, no write |
@@ -250,6 +252,10 @@ replaced by the declared "not externally observable" statement plus the
 code evidence - a legitimate outcome, not a failure.
 
 ## Confirmation gate and the batched write
+
+Start the message with `gauntlet: gate=check-delivery/confirmation-gate` before evidence and the exact payload on both the success approval and failure findings-comment ask. Keep this line outside every tracker payload: `Delivered: <sha>` remains the first line of the evidence comment.
+
+Start the message with `gauntlet: done delivered` when the batched write landed. Start the message with `gauntlet: done already-recorded` for idempotent delivery. Start the message with `gauntlet: done manual` when the write halves are emitted for manual execution. Start the message with `gauntlet: stuck` followed on that line by the concrete reason once the findings-comment gate is answered or no comment is offered; use this for any partial write failure too. A declined success write ends with `gauntlet: stuck write declined`.
 
 Any `unexplained gap` or failed stage -> **failure path**: no status
 advance, no delivery comment, no marker. The findings may be offered as a

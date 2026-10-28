@@ -154,7 +154,9 @@ The check: bare `git status --porcelain` — untracked files count as dirty. Nev
 
 **Clean** → proceed (create the worktree if not yet created, then Step 4).
 
-**Dirty** → report the porcelain output verbatim and ask whether to clean up first (stash/commit) or proceed. Never run tests as a fallback; never auto-stash or auto-clean. On fresh paths the ask is about base hygiene — a user who *meant* the dirt to be part of the base commits it, and creation proceeds from the new HEAD. On the Step 0 path the ask is "continue working in a dirty workspace?" — the dirt is already in the workspace, not merely beside it.
+**Dirty**:
+
+Start the message with `gauntlet: question` alone at column zero on the first physical line, followed by a newline. Never append a colon to the marker. Follow the [first-line rule](../brainstorming/reference/menu-layout.md). Report the porcelain output verbatim and ask whether to clean up first (stash/commit) or proceed. Never run tests as a fallback; never auto-stash or auto-clean. On fresh paths the ask is about base hygiene — a user who *meant* the dirt to be part of the base commits it, and creation proceeds from the new HEAD. On the Step 0 path the ask is "continue working in a dirty workspace?" — the dirt is already in the workspace, not merely beside it.
 
 **Provenance note (report-only, never a gate).** Fresh-creation paths only — never Step 0 (an already-linked worktree was branched in some earlier invocation; there is no "created from" to compare this run). Resolve the default branch as `git symbolic-ref --short refs/remotes/origin/HEAD` with the leading `origin/` stripped; compare that short name to the source checkout's `git branch --show-current`. If they differ and the user did not name a base in the request, append one declarative line to the Step 4 report: `Note: branching from <ref>, not <default>.` — execution continues, no confirmation is awaited. If resolution fails (no remote, no `origin/HEAD`), skip the note silently. No other default-branch machinery.
 
@@ -172,6 +174,8 @@ When the user chose to proceed past a dirty source, the base line is `Base: <ref
 Every later skill takes `<full-path>` as a value: dispatch `cwd: "<full-path>"`, `git -C <full-path> ...`, or `(cd "<full-path>" && <cmd>)` for other cwd-bound commands. Never change the process cwd.
 
 ## Detached HEAD
+
+Start the message with `gauntlet: question` alone at column zero on the first physical line, followed by a newline, for the branch/base choice. Never append a colon to the marker. Follow the [first-line rule](../brainstorming/reference/menu-layout.md).
 
 If `git symbolic-ref -q HEAD` returns nothing, you're on a detached HEAD. Do not create a worktree from this state — first ask the user whether to branch from the current commit or from `main`.
 

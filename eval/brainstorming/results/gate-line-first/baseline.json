@@ -1,0 +1,38 @@
+{
+  "sample": "gate-line-first",
+  "arm": "baseline",
+  "skillSha": "0de5181d92fc531d6c852f1a3c4783737700946bf3f0583e6dfc06a527aa5965",
+  "inputSha": "04e5a5a4f82d82bd5abf5b7bab800f1ab8fe005c98fd649beda6bbc35c4372b5",
+  "kind": "text",
+  "assembly": "headed",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "Before any design questions, one premise needs correcting.\n\n**Premise note**\n\n- **Disproved:** The gathered draft says the existing settings resolver cannot accept overrides. Primary code shows otherwise: `settings/resolver.ts:11` already accepts a timeout override.\n- **Supported:** I traced the settings data path and found that every caller resolves settings through that resolver. No caller reads settings any other way.\n- **Corrected:** The timeout override goes missing because the affected caller never passes its override to the resolver, not because the resolver lacks override support. The design will proceed on this corrected fact unless you override it in your reply. I am recording it in the draft for `## Problem`.\n- **Unverified:** I found no other claims the design depends on. No ticket records a decision on this point.\n\nGiven that correction, the framing question:\n\nA second settings file would sit beside the resolver that already owns every setting and already accepts a timeout override (`settings/resolver.ts:11`). That would create a duplicate settings boundary that every future setting would have to choose between.\n\nA) as framed: add a second settings file for the timeout override\nB) pivot: change the affected caller to pass its timeout override to the existing resolver. This fixes the root cause and keeps one read path with no new boundary (`settings/resolver.ts:11` already supports it)\nC) smaller or none: ship no code change and document that the caller must pass the override. Until it does, the timeout stays at its default.\nRecommendation: B - the resolver already supports the override and every caller already uses it, so fixing the caller removes the bug without adding a parallel settings path.\n",
+      "words": 263,
+      "wallMs": 10782,
+      "mechanical": {
+        "first-line": "fails"
+      }
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "The draft’s claim that the existing resolver cannot accept overrides is contradicted by `settings/resolver.ts:11`: it already accepts a timeout override, and every caller uses that resolver. A second settings file would duplicate the existing settings boundary; the root-cause alternative is to pass the override through the existing caller.\n\nWhich direction should the design take?\nA) As framed: add a second settings file.\nB) Pivot: update the existing caller to pass its timeout override to the resolver.\nC) Smaller or none: leave the current timeout behavior unchanged and add no settings file.\nRecommendation: B - it fixes the missing override through the existing shared resolver without creating a parallel settings boundary.\n",
+      "words": 109,
+      "wallMs": 4276,
+      "mechanical": {
+        "first-line": "fails"
+      }
+    }
+  },
+  "repoSha": "657f24585c1a6c2182a26df3d0d0691c8e67e59a"
+}

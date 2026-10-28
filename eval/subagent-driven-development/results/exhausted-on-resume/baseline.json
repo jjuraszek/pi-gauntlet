@@ -1,7 +1,7 @@
 {
   "sample": "exhausted-on-resume",
   "arm": "baseline",
-  "skillSha": "acd254259ce92e2b5209f6ebf65eabbbbedc7b19ea0c9983138a6bfac8d09b15",
+  "skillSha": "505fbad4c924559d148c9f2d14754e7dd45597c9a6834f5a89f05274b64e611d",
   "inputSha": "c64c0347cd838dc7b56bd0a6a873f5c1f210bacc48635da059d5294c31895e8e",
   "kind": "text",
   "assembly": "headed",
@@ -15,20 +15,13 @@
     "thinking": "medium"
   },
   "outputs": {
-    "anthropic/claude-opus-5-5": {
-      "status": "ok",
-      "text": "# Next parent action: stop note for task 3, no dispatch\n\n**Why the loop stops here**\n\n- The ordinary CR loop is exhausted. Review 3 returned `FIX_FIRST` with `TRAJECTORY: DIVERGING`, so the convergence exception did not apply and the rule was \"escalate\".\n- The one escalated round has already been used. Its fix ran on `<configured-impl-model>` and its CR re-review ran. That re-review is still `FIX_FIRST`, with residual `src/frame.ts:21 - missing length guard`.\n- Per `reference/fix-loop.md`, any escalated-round review that still has issues ends in a stop note per `stop-note.md`, with no second dispatch.\n- The restored `**Amend-grant:** fund 2 fix rounds` does not authorize a dispatch on this resume:\n  - The transcript has no recoverable funded-round lines for task 3, so I cannot establish how much of the grant, if any, is unspent.\n  - The token was not newly written or refunded on resume.\n  - The funded-round dispatch rules are not in the text I have, and I will not reconstruct them.\n  - So no funded round goes out. I also add no spent carrier and change no handoff/resume grammar.\n\n**State held at the stop**\n\n- No shell commands run. In particular:\n  - no `git add -A`\n  - no new Fix delta tree capture (no re-review is being dispatched)\n  - no `reset --soft \"$WAVE_BASE_SHA\"` and no wave commit\n- `/workspace/project` stays as-is, with the integrated, uncommitted wave plus repairs. The review source stays `BASE_SHA: <WAVE_BASE_SHA>`, `HEAD_SHA: WORKTREE` for any later re-review.\n- No `plan_tracker` write. Task 3 stays `in_progress` and the phase stays `implement`. No further tasks or waves start.\n- The commit happens only after a later CR `SHIP`. It would be the step-7 fold, followed by marking task 3 `complete`.\n\n**Reply (inline; the turn ends after this)**\n\n```\nStopped on task 3 (Validate frame); escalated round on <configured-impl-model> did not resolve it.\n\nProblem: the frame validator still reads the frame without checking its length first, so a short frame is not rejected before use.\n  src/frame.ts:21 - missing length guard\n\nFix options:\n  a) add a length guard at src/frame.ts:21 that rejects a frame shorter than the minimum the spec defines, before any field read\n  b) amend plan task 3 (or the spec section it anchors) to state the exact length precondition and expected rejection, so the guard has an unambiguous target\n  c) fund more fix rounds for task 3: reply with a fresh grant in the existing form, e.g. `**Amend-grant:** fund 2 fix rounds`; the restored grant is not reused because no record of its spent rounds survived the resume\n\nPick one, or give another fix.\n```\n\n**How the human refunds funding:** reply with a newly written grant using the existing `**Amend-grant:** fund N fix rounds` form. Because that grant is written in a live turn, it is unambiguous funding for task 3. The restored token from before the resume is not that.\n\nOn such a reply, I would dispatch the funded fix as a plain in-place `implementer` in `/workspace/project`. The payload would carry:\n- the final CR report verbatim\n- the task 3 full text, spec anchors and status protocol\n- `SCOPED_TEST_COMMANDS: node --test frame.test.mjs`\n\nAfter it, I would stage with `git -C /workspace/project add -A`, record the Fix delta tree, and send a CR-only re-review. It is CR-only because `Behaviour-change: no`. The re-review would carry `## Previous review report (re-review trigger)`, the trajectory block, `## Fix delta`, `BASE_SHA: <WAVE_BASE_SHA>`, and `HEAD_SHA: WORKTREE`.\n",
-      "words": 541,
-      "wallMs": 23374,
-      "mechanical": {}
-    },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "Next parent action: stop and report. Dispatch no further fix or review, run no shell commands, and do not commit. Task 3 remains `in_progress` in `/workspace/project`; the wave is not complete.\n\nThe restored grant is not a fresh refund. With no recoverable funded-round lines, do not assume that its two rounds remain available or reconstruct a spending history.\n\nStopped on task 3 (Validate frame); escalated round on <configured-impl-model> did not resolve it.\n\nProblem: The required length guard remains missing after the escalated repair, and the restored funding does not establish recoverable authorization for another round.\n  src/frame.ts:21 - \"missing length guard\"\n\nFix options:\n  a) authorize a fresh funded repair to add the length guard and re-review it\n  b) amend the task/spec requirement if the guard is not intended, and authorize a fresh funded repair against that requirement\n\nPick one, or give another fix.\n\nTo refund funding, explicitly issue a **new** `**Amend-grant:** fund 2 fix rounds` instruction. Merely restoring or quoting the old header does not refund it. No spent carrier or handoff/resume grammar change is needed.\n",
-      "words": 174,
-      "wallMs": 16351,
+      "text": "Next parent action: stop. With no recoverable funded-round transcript lines, the restored grant must be treated as exhausted—even though no funded dispatch is observed. Do not dispatch another fix or review, run shell commands, commit the wave, or mark task 3 complete. It remains `in_progress`.\n\nStopped on task 3 (Validate frame); escalated round on <configured-impl-model> did not resolve it.\n\nProblem: The required length guard remains missing, and the restored funding cannot authorize another repair.\nbudget: 2 of 2 spent (not recovered on resume)\n  src/frame.ts:21 - \"missing length guard\"\n\nFix options:\n  a) Explicitly issue a newly written `**Amend-grant:** fund 2 fix rounds` grant to refund funding for adding the length guard and re-reviewing the repair.\n  b) Amend task 3's validation requirement if the length guard is not intended, then obtain review against the amended requirement.\n\nPick one, or give another fix.\n\nRestoring or repeating the existing header as resume context is not a refund; explicitly authorize it as a new grant.\n",
+      "words": 159,
+      "wallMs": 13325,
       "mechanical": {}
     }
   },
-  "repoSha": "828565b3b2e492005e27ec9ca3d675d51a984de6"
+  "repoSha": "2eb4429b4dd687432969f427f82d45d7840d7c63"
 }
